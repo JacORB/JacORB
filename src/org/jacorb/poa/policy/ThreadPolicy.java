@@ -32,8 +32,6 @@ public class ThreadPolicy
 {
     private org.omg.PortableServer.ThreadPolicyValue value;
 
-    private ThreadPolicy() {
-    }
     public ThreadPolicy(org.omg.PortableServer.ThreadPolicyValue _value) {
         value = _value;
     }

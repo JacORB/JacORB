@@ -32,9 +32,6 @@ public class ServantRetentionPolicy
 {
     private org.omg.PortableServer.ServantRetentionPolicyValue value;
 
-    private ServantRetentionPolicy() {
-    }
-
     public ServantRetentionPolicy(org.omg.PortableServer.ServantRetentionPolicyValue _value) {
         value = _value;
     }

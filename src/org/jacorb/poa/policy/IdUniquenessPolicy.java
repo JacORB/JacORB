@@ -32,10 +32,6 @@ public class IdUniquenessPolicy
 {
     private org.omg.PortableServer.IdUniquenessPolicyValue value;
 
-    private IdUniquenessPolicy() {
-    }
-
-
     public IdUniquenessPolicy(org.omg.PortableServer.IdUniquenessPolicyValue _value) {
         value = _value;
     }

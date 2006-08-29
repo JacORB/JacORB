@@ -32,9 +32,6 @@ public class LifespanPolicy
 {
     private org.omg.PortableServer.LifespanPolicyValue value;
 
-    private LifespanPolicy() {
-    }
-
     public LifespanPolicy(org.omg.PortableServer.LifespanPolicyValue _value) {
         value = _value;
     }

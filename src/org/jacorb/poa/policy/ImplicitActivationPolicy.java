@@ -32,9 +32,6 @@ public class ImplicitActivationPolicy
 {
     private org.omg.PortableServer.ImplicitActivationPolicyValue value;
 
-    private ImplicitActivationPolicy() {
-    }
-	
     public ImplicitActivationPolicy(org.omg.PortableServer.ImplicitActivationPolicyValue _value) {
         value = _value;
     }

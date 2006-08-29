@@ -32,9 +32,6 @@ public class RequestProcessingPolicy
 {
     private org.omg.PortableServer.RequestProcessingPolicyValue value;
 
-    private RequestProcessingPolicy() {
-    }
-
     public RequestProcessingPolicy(org.omg.PortableServer.RequestProcessingPolicyValue _value) {
         value = _value;
     }

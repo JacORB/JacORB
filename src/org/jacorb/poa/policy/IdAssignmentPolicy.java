@@ -32,10 +32,6 @@ public class IdAssignmentPolicy
 {
     private org.omg.PortableServer.IdAssignmentPolicyValue value;
 
-    private IdAssignmentPolicy() {
-    }
-
-
     public IdAssignmentPolicy(org.omg.PortableServer.IdAssignmentPolicyValue _value) {
         value = _value;
     }
