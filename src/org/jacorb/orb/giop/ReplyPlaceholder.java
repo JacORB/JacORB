@@ -100,32 +100,27 @@ public abstract class ReplyPlaceholder
     protected MessageInputStream getInputStream(boolean hasTimeoutPolicy)
         throws RemarshalException
     {
+        final boolean _shouldUseTimeout = !hasTimeoutPolicy && timeout > 0;
+        final long _maxWait = _shouldUseTimeout ? System.currentTimeMillis() + timeout : Long.MAX_VALUE;
+        final long _timeout = _shouldUseTimeout ? timeout : 0;
+
         synchronized(lock)
         {
-            while( !ready )
+            try
             {
-                try
+                while(!ready && System.currentTimeMillis() < _maxWait)
                 {
-                    if( timeout > 0 && !hasTimeoutPolicy)
-                    {
-                        lock.wait( timeout ); //wait only "timeout" long
+                    lock.wait( _timeout );
+                }
+            }
+            catch( InterruptedException e )
+            {
+                // ignored
+            }
 
-                        //timeout
-                        if( ! ready )
-                        {
-                            ready = true; //break loop
-                            timeoutException = true;
-                        }
-                    }
-                    else
-                    {
-                        lock.wait(); //wait infinitely
-                    }
-                }
-                catch( InterruptedException e )
-                {
-                    // ignored
-                }
+            if (!ready && _shouldUseTimeout)
+            {
+                timeoutException = true;
             }
 
             if( remarshalException )
