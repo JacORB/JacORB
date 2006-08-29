@@ -1004,6 +1004,7 @@ public final class Delegate
             // response expected, synchronous or asynchronous
             receiver = new ReplyReceiver(this, ros.operation(), ros.getReplyEndTime(),
                     interceptors, replyHandler);
+            receiver.configure(configuration);
 
             // Store the receiver in pending_replies, so in the
             // case of a LocationForward a RemarshalException can
@@ -1103,6 +1104,8 @@ public final class Delegate
                                                        ros.getReplyEndTime(),
                                                        interceptors,
                                                        null);
+                rcv.configure(configuration);
+
                 connection.sendRequest (ros, rcv, ros.requestId(), true);
                 ReplyInputStream in = rcv.getReply();
                 interceptors.handle_receive_reply (in);
