@@ -117,6 +117,8 @@
         - Added chapter on threads to Programming Guide.
         - Enhanced logging documentation.
         - Enhanced description of configuration properties.
+    - Fixes:
+        - fixed bugzilla #721
 2.2.5
 =====
     - Documentation
