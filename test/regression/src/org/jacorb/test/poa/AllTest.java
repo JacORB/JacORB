@@ -34,6 +34,7 @@ public class AllTest
    {
         TestSuite suite = new TestSuite("All POA Tests");
 
+        suite.addTest(new TestSuite(POAUtilTest.class));
         suite.addTest(org.jacorb.test.poa.ByteArrayKeyTest.suite());
         suite.addTest(org.jacorb.test.poa.Deactivate.suite());
         suite.addTest(org.jacorb.test.poa.QueueNoWaitTest.suite());
