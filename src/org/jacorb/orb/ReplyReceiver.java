@@ -99,12 +99,11 @@ public class ReplyReceiver
     }
 
     public void configure(org.apache.avalon.framework.configuration.Configuration configuration)
-        throws org.apache.avalon.framework.configuration.ConfigurationException
     {
         logger =
             ((org.jacorb.config.Configuration)configuration).getNamedLogger("jacorb.orb.rep_recv");
         retry_on_failure =
-            configuration.getAttribute("jacorb.connection.client.retry_on_failure","off").equals("on");
+            configuration.getAttributeAsBoolean("jacorb.connection.client.retry_on_failure", false);
     }
 
 
