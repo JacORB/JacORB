@@ -1118,6 +1118,164 @@ public class AnyTest extends ClientServerTestCase
         assertTrue(outAny.equal(inAny));
     }
 
+    public void test_short_sequence() throws Exception
+    {
+        short[] testValue = new short[] { 44 };
+        
+        Any outAny = setup.getClientOrb().create_any();
+        MyShortSequenceHelper.insert(outAny, testValue);
+        
+        Any inAny = server.bounce_any(outAny);
+        assertEquals(testValue[0], MyShortSequenceHelper.extract(inAny)[0]);
+        assertTrue(outAny.equal(inAny));
+    }
+
+    public void test_ushort_sequence() throws Exception
+    {
+        short[] testValue = new short[] { 44 };
+        
+        Any outAny = setup.getClientOrb().create_any();
+        MyUShortSequenceHelper.insert(outAny, testValue);
+        
+        Any inAny = server.bounce_any(outAny);
+        assertEquals(testValue[0], MyUShortSequenceHelper.extract(inAny)[0]);
+        assertTrue(outAny.equal(inAny));
+    }
+
+    public void test_long_sequence() throws Exception
+    {
+        int[] testValue = new int[] { 44 };
+        
+        Any outAny = setup.getClientOrb().create_any();
+        MyLongSequenceHelper.insert(outAny, testValue);
+        
+        Any inAny = server.bounce_any(outAny);
+        assertEquals(testValue[0], MyLongSequenceHelper.extract(inAny)[0]);
+        assertTrue(outAny.equal(inAny));
+    }
+
+    public void test_ulong_sequence() throws Exception
+    {
+        int[] testValue = new int[] { 44 };
+        
+        Any outAny = setup.getClientOrb().create_any();
+        MyULongSequenceHelper.insert(outAny, testValue);
+        
+        Any inAny = server.bounce_any(outAny);
+        assertEquals(testValue[0], MyULongSequenceHelper.extract(inAny)[0]);
+        assertTrue(outAny.equal(inAny));
+    }
+
+    public void test_float_sequence() throws Exception
+    {
+        float[] testValue = new float[] { 44.0F };
+        
+        Any outAny = setup.getClientOrb().create_any();
+        MyFloatSequenceHelper.insert(outAny, testValue);
+        
+        Any inAny = server.bounce_any(outAny);
+        assertEquals(testValue[0], MyFloatSequenceHelper.extract(inAny)[0], 0.0);
+        assertTrue(outAny.equal(inAny));
+    }
+
+    public void test_double_sequence() throws Exception
+    {
+        double[] testValue = new double[] { 44 };
+        
+        Any outAny = setup.getClientOrb().create_any();
+        MyDoubleSequenceHelper.insert(outAny, testValue);
+        
+        Any inAny = server.bounce_any(outAny);
+        assertEquals(testValue[0], MyDoubleSequenceHelper.extract(inAny)[0], 0.0);
+        assertTrue(outAny.equal(inAny));
+    }
+
+    public void test_char_sequence() throws Exception
+    {
+        char[] testValue = new char[] { 'a' };
+        
+        Any outAny = setup.getClientOrb().create_any();
+        MyCharSequenceHelper.insert(outAny, testValue);
+        
+        Any inAny = server.bounce_any(outAny);
+        assertEquals(testValue[0], MyCharSequenceHelper.extract(inAny)[0]);
+        assertTrue(outAny.equal(inAny));
+    }
+
+    public void test_octet_sequence() throws Exception
+    {
+        byte[] testValue = new byte[] { 44 };
+        
+        Any outAny = setup.getClientOrb().create_any();
+        MyOctetSequenceHelper.insert(outAny, testValue);
+        
+        Any inAny = server.bounce_any(outAny);
+        assertEquals(testValue[0], MyOctetSequenceHelper.extract(inAny)[0]);
+        assertTrue(outAny.equal(inAny));
+    }
+
+    public void test_longlong_sequence() throws Exception
+    {
+        long[] testValue = new long[] { 44 };
+        
+        Any outAny = setup.getClientOrb().create_any();
+        MyLongLongSequenceHelper.insert(outAny, testValue);
+        
+        Any inAny = server.bounce_any(outAny);
+        assertEquals(testValue[0], MyLongLongSequenceHelper.extract(inAny)[0]);
+        assertTrue(outAny.equal(inAny));
+    }
+
+    public void test_ulonglong_sequence() throws Exception
+    {
+        long[] testValue = new long[] { 44 };
+        
+        Any outAny = setup.getClientOrb().create_any();
+        MyULongLongSequenceHelper.insert(outAny, testValue);
+        
+        Any inAny = server.bounce_any(outAny);
+        assertEquals(testValue[0], MyULongLongSequenceHelper.extract(inAny)[0]);
+        assertTrue(outAny.equal(inAny));
+    }
+
+    public void test_wchar_sequence() throws Exception
+    {
+        char[] testValue = new char[] { 'a' };
+        
+        Any outAny = setup.getClientOrb().create_any();
+        MyWCharSequenceHelper.insert(outAny, testValue);
+        
+        Any inAny = server.bounce_any(outAny);
+        assertEquals(testValue[0], MyWCharSequenceHelper.extract(inAny)[0]);
+        assertTrue(outAny.equal(inAny));
+    }
+
+    public void test_wstring_sequence() throws Exception
+    {
+        String[] testValue = new String[] { "442" };
+        
+        Any outAny = setup.getClientOrb().create_any();
+        MyWStringSequenceHelper.insert(outAny, testValue);
+        
+        Any inAny = server.bounce_any(outAny);
+        assertEquals(testValue[0], MyWStringSequenceHelper.extract(inAny)[0]);
+        assertTrue(outAny.equal(inAny));
+    }
+
+    public void test_any_sequence() throws Exception
+    {
+        Any contentAny = setup.getClientOrb().create_any();
+        contentAny.insert_boolean(true);
+        Any[] testValue = new Any[] { contentAny };
+        
+        Any outAny = setup.getClientOrb().create_any();
+        MyAnySequenceHelper.insert(outAny, testValue);
+        
+        Any inAny = server.bounce_any(outAny);
+        assertEquals(testValue[0], MyAnySequenceHelper.extract(inAny)[0]);
+        assertTrue(outAny.equal(inAny));
+    }
+
     //same typecode, divverent value
     public void test_equal()
         throws Exception
@@ -1226,6 +1384,44 @@ public class AnyTest extends ClientServerTestCase
         assertTrue(outAny.equal(inAny));
     }
 
+    public void test_longlong_disc_union() throws Exception
+    {
+        LongLongDiscUnion testValue = new LongLongDiscUnion();
+        testValue.s("foo");
+
+        Any outAny = setup.getClientOrb().create_any();
+        LongLongDiscUnionHelper.insert(outAny, testValue);
+
+        Any inAny = server.bounce_any(outAny);
+        assertTrue(outAny.equal(inAny));
+    }
+
+    public void test_longlong_disc_union_streamable() throws Exception
+    {
+        LongLongDiscUnion testValue = new LongLongDiscUnion();
+        testValue.s("foo");
+
+        Any outAny = setup.getClientOrb().create_any();
+        outAny.insert_Streamable(new LongLongDiscUnionHolder(testValue));
+
+        Any inAny = server.bounce_any(outAny);
+        assertTrue(outAny.equal(inAny));
+    }
+
+    //test manual stream insert, for when helpers use streamables
+    public void test_longlong_disc_union_manual() throws Exception
+    {
+        LongDiscUnion testValue = new LongDiscUnion();
+        testValue.s("foo");
+
+        Any outAny = setup.getClientOrb().create_any();
+        outAny.type(LongDiscUnionHelper.type());
+        LongDiscUnionHelper.write(outAny.create_output_stream(), testValue);
+
+        Any inAny = server.bounce_any(outAny);
+        assertTrue(outAny.equal(inAny));
+    }
+
     public void test_ushort_disc_union()
         throws Exception
     {
@@ -1308,6 +1504,44 @@ public class AnyTest extends ClientServerTestCase
         assertTrue(outAny.equal(inAny));
     }
 
+    public void test_ulonglong_disc_union() throws Exception
+    {
+        ULongLongDiscUnion testValue = new ULongLongDiscUnion();
+        testValue.s("foo");
+
+        Any outAny = setup.getClientOrb().create_any();
+        ULongLongDiscUnionHelper.insert(outAny, testValue);
+
+        Any inAny = server.bounce_any(outAny);
+        assertTrue(outAny.equal(inAny));
+    }
+
+    public void test_ulonglong_disc_union_streamable() throws Exception
+    {
+        ULongLongDiscUnion testValue = new ULongLongDiscUnion();
+        testValue.s("foo");
+
+        Any outAny = setup.getClientOrb().create_any();
+        outAny.insert_Streamable(new ULongLongDiscUnionHolder(testValue));
+
+        Any inAny = server.bounce_any(outAny);
+        assertTrue(outAny.equal(inAny));
+    }
+
+    //test manual stream insert, for when helpers use streamables
+    public void test_ulonglong_disc_union_manual() throws Exception
+    {
+        ULongLongDiscUnion testValue = new ULongLongDiscUnion();
+        testValue.s("foo");
+
+        Any outAny = setup.getClientOrb().create_any();
+        outAny.type(ULongLongDiscUnionHelper.type());
+        ULongLongDiscUnionHelper.write(outAny.create_output_stream(), testValue);
+
+        Any inAny = server.bounce_any(outAny);
+        assertTrue(outAny.equal(inAny));
+    }
+    
     public void test_boolean_disc_union()
         throws Exception
     {
