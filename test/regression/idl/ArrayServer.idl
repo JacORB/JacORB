@@ -1,0 +1,29 @@
+module org
+{
+    module jacorb
+    {
+        module test
+        {
+             typedef sequence<short> short_sequence;
+             typedef sequence<unsigned short> ushort_sequence;
+             typedef sequence<unsigned long long> ulonglong_sequence;
+
+             typedef sequence<float> float_sequence;
+             typedef sequence<double> double_sequence;
+
+             interface ArrayServer
+             {
+                 // parameterless
+                 void ping();
+
+                 long sum_short_sequence (in short_sequence seq);
+                 long sum_ushort_sequence (in ushort_sequence seq);
+                 long sum_ulonglong_sequence (in ulonglong_sequence seq);
+
+                 float sum_float_sequence (in float_sequence seq);
+                 double sum_double_sequence (in double_sequence seq);
+             };
+        };
+    };
+};
+                  
