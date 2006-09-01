@@ -18,6 +18,20 @@ module org
               
               typedef string MyStringAlias;
 
+              typedef sequence<short>              MyShortSequence;
+              typedef sequence<unsigned short>     MyUShortSequence;
+              typedef sequence<long>               MyLongSequence;
+              typedef sequence<unsigned long>      MyULongSequence;
+              typedef sequence<float>              MyFloatSequence;
+              typedef sequence<double>             MyDoubleSequence;
+              typedef sequence<char>               MyCharSequence;
+              typedef sequence<octet>              MyOctetSequence;
+              typedef sequence<long long>          MyLongLongSequence;
+              typedef sequence<unsigned long long> MyULongLongSequence;
+              typedef sequence<wchar>              MyWCharSequence;
+              typedef sequence<wstring>            MyWStringSequence;
+              typedef sequence<any>                MyAnySequence;
+
               struct Recursive{
                   sequence<Recursive> member;
               };
@@ -73,6 +87,14 @@ module org
               enum TestEnum { foo };
               union EnumDiscUnion switch (TestEnum){
                   case foo : string s;
+              };
+
+              union LongLongDiscUnion switch (long long){
+                  case 1 : string s;
+              };
+
+              union ULongLongDiscUnion switch (unsigned long long){
+                  case 1 : string s;
               };
               
               interface AnyServer
