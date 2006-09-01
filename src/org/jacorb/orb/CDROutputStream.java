@@ -867,7 +867,7 @@ public class CDROutputStream
      */
     public final void write_string(final String s)
     {
-        // size leaves room for ulong, plus the string itself (one or more 
+        // size leaves room for ulong, plus the string itself (one or more
         // bytes per char in the string, depending on the codeset), plus the
         // terminating NUL char
         int size;
@@ -1592,7 +1592,7 @@ public class CDROutputStream
             throw new BAD_PARAM("TypeCode is null");
         }
 
-        final int _kind = typeCode.kind().value();
+        int _kind = -1;
         final int _memberCount;
 
         try
@@ -1603,6 +1603,7 @@ public class CDROutputStream
             }
             else
             {
+                _kind = typeCode.kind().value();
                 // regular TypeCodes
                 switch( _kind )
                 {
@@ -2935,8 +2936,8 @@ public class CDROutputStream
             else
             {
                 // go to the beginning of the chunk and write the size tag
-                rewrite_long(chunk_size_tag_pos, 
-                             chunk_size_tag_index, 
+                rewrite_long(chunk_size_tag_pos,
+                             chunk_size_tag_index,
                              pos - chunk_octets_pos);
             }
             chunk_size_tag_pos = -1; // no chunk is currently open
@@ -2960,10 +2961,10 @@ public class CDROutputStream
      * Writes a CORBA long value to (write_pos, write_index) without clearing
      * the buffer padding. In the case of a non-sequential write, clearing
      * buffer positions after the data just written is likely to erase data
-     * previously written. 
+     * previously written.
      */
-    private final void rewrite_long(int write_pos, 
-                                    int write_index, 
+    private final void rewrite_long(int write_pos,
+                                    int write_index,
                                     final int value)
     {
         final int align = 4;

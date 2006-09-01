@@ -1,0 +1,25 @@
+module org
+{
+    module jacorb
+    {
+        module test
+        {
+            module bugs
+            {
+                module bugjac722
+                {
+                    valuetype Part
+                    {
+                         private string m_value;
+                    };
+
+                    valuetype Whole
+                    {
+                        private Part m_headPart;
+                        private Part m_tailPart;
+                    };
+                };
+            };
+        };
+    };
+};
