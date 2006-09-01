@@ -246,6 +246,7 @@
         <antcall target="idl-tests" />
         <antcall target="idl-anyserver"/>
         <antcall target="idl-basicserver" />
+        <antcall target="idl-arrayserver" />
         <antcall target="idl-codesetserver"/>
         <antcall target="idl-charserver" />
         <antcall target="idl-longlongseqserver" />
@@ -329,6 +330,14 @@
         <property name="pkg.idl" value="org/jacorb/test" />
         <property name="callback.idl" value="false" />
         <property name="file.idl" value="BasicServer.idl" />
+        <antcall target="process-idl" />
+    </target>
+
+    <target name="idl-arrayserver">
+        <property name="props.idl" value="ArrayServer" />
+        <property name="pkg.idl" value="org/jacorb/test" />
+        <property name="callback.idl" value="false" />
+        <property name="file.idl" value="ArrayServer.idl" />
         <antcall target="process-idl" />
     </target>
 
