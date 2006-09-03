@@ -65,6 +65,7 @@ public class AllTest extends JacORBTestSuite
         suite.addTest(org.jacorb.test.orb.factory.AllTest.suite());
         suite.addTest (org.jacorb.test.orb.CodesetTest.suite());
         suite.addTestSuite(OAAddressIPv6Test.class);
+        suite.addTest (org.jacorb.test.orb.ORBSingletonTest.suite());
 
         return suite;
     }
