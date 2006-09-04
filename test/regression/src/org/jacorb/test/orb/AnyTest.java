@@ -1,6 +1,5 @@
 package org.jacorb.test.orb;
 
-
 /*
  *        JacORB  - a free Java ORB
  *
@@ -32,6 +31,7 @@ import org.jacorb.test.common.TestUtils;
 import org.jacorb.test.orb.RecursiveUnionStructPackage.RecursiveUnionStructUnion;
 import org.omg.CORBA.Any;
 import org.omg.CORBA.AnyHolder;
+import org.omg.CORBA.BooleanHolder;
 import org.omg.CORBA.ByteHolder;
 import org.omg.CORBA.CharHolder;
 import org.omg.CORBA.DoubleHolder;
@@ -43,6 +43,8 @@ import org.omg.CORBA.ShortHolder;
 import org.omg.CORBA.StringHolder;
 import org.omg.CORBA.TypeCode;
 import org.omg.CORBA.TypeCodeHolder;
+import org.omg.CORBA.TCKind;
+import org.omg.CORBA.portable.*;
 
 public class AnyTest extends ClientServerTestCase
 {
@@ -220,6 +222,18 @@ public class AnyTest extends ClientServerTestCase
         assertEquals(testValue, inAny.extract_short());
         assertTrue(outAny.equal(inAny));
     }
+    
+    public void test_short_stream()
+    {
+        short testValue = (short) 4711;
+        Any any = setup.getClientOrb().create_any();
+        any.type (setup.getClientOrb().get_primitive_tc(TCKind.tk_short));
+        any.create_output_stream().write_short (testValue);
+        // don't bounce, because we want to extract from the
+        // output stream we just created
+        short outValue = any.extract_short();
+        assertEquals (testValue, outValue);
+    }
 
     public void test_ushort()
         throws Exception
@@ -233,6 +247,18 @@ public class AnyTest extends ClientServerTestCase
 
         assertEquals(testValue, inAny.extract_ushort());
         assertTrue(outAny.equal(inAny));
+    }
+
+    public void test_ushort_stream()
+    {
+        short testValue = (short) 4711;
+        Any any = setup.getClientOrb().create_any();
+        any.type (setup.getClientOrb().get_primitive_tc(TCKind.tk_ushort));
+        any.create_output_stream().write_ushort (testValue);
+        // don't bounce, because we want to extract from the
+        // output stream we just created
+        short outValue = any.extract_ushort();
+        assertEquals (testValue, outValue);
     }
 
     public void test_long()
@@ -262,6 +288,18 @@ public class AnyTest extends ClientServerTestCase
         assertEquals(testValue, inAny.extract_long());
         assertTrue(outAny.equal(inAny));
     }
+    
+    public void test_long_stream()
+    {
+        int testValue = 4711;
+        Any any = setup.getClientOrb().create_any();
+        any.type (setup.getClientOrb().get_primitive_tc(TCKind.tk_long));
+        any.create_output_stream().write_long (testValue);
+        // don't bounce, because we want to extract from the
+        // output stream we just created
+        int outValue = any.extract_long();
+        assertEquals (testValue, outValue);
+    }
 
     public void test_ulong()
         throws Exception
@@ -275,6 +313,18 @@ public class AnyTest extends ClientServerTestCase
 
         assertEquals(testValue, inAny.extract_ulong());
         assertTrue(outAny.equal(inAny));
+    }
+
+    public void test_ulong_stream()
+    {
+        int testValue = 4711;
+        Any any = setup.getClientOrb().create_any();
+        any.type (setup.getClientOrb().get_primitive_tc(TCKind.tk_ulong));
+        any.create_output_stream().write_ulong (testValue);
+        // don't bounce, because we want to extract from the
+        // output stream we just created
+        int outValue = any.extract_ulong();
+        assertEquals (testValue, outValue);
     }
 
     public void test_longlong()
@@ -304,6 +354,18 @@ public class AnyTest extends ClientServerTestCase
         assertEquals(testValue, inAny.extract_longlong());
         assertTrue(outAny.equal(inAny));
     }
+    
+    public void test_longlong_stream()
+    {
+        long testValue = 4711L;
+        Any any = setup.getClientOrb().create_any();
+        any.type (setup.getClientOrb().get_primitive_tc(TCKind.tk_longlong));
+        any.create_output_stream().write_longlong (testValue);
+        // don't bounce, because we want to extract from the
+        // output stream we just created
+        long outValue = any.extract_longlong();
+        assertEquals (testValue, outValue);
+    }
 
     public void test_ulonglong()
         throws Exception
@@ -317,6 +379,18 @@ public class AnyTest extends ClientServerTestCase
 
         assertEquals(testValue, inAny.extract_ulonglong());
         assertTrue(outAny.equal(inAny));
+    }
+
+    public void test_ulonglong_stream()
+    {
+        long testValue = 4711L;
+        Any any = setup.getClientOrb().create_any();
+        any.type (setup.getClientOrb().get_primitive_tc(TCKind.tk_ulonglong));
+        any.create_output_stream().write_ulonglong (testValue);
+        // don't bounce, because we want to extract from the
+        // output stream we just created
+        long outValue = any.extract_ulonglong();
+        assertEquals (testValue, outValue);
     }
 
     public void test_float()
@@ -347,6 +421,18 @@ public class AnyTest extends ClientServerTestCase
         assertTrue(outAny.equal(inAny));
     }
 
+    public void test_float_stream()
+    {
+        float testValue = 47.11F;
+        Any any = setup.getClientOrb().create_any();
+        any.type (setup.getClientOrb().get_primitive_tc(TCKind.tk_float));
+        any.create_output_stream().write_float (testValue);
+        // don't bounce, because we want to extract from the
+        // output stream we just created
+        float outValue = any.extract_float();
+        assertEquals (testValue, outValue, 0.0);
+    }
+
     public void test_double()
         throws Exception
     {
@@ -375,6 +461,58 @@ public class AnyTest extends ClientServerTestCase
         assertTrue(outAny.equal(inAny));
     }
 
+    public void test_double_stream()
+    {
+        double testValue = 47.11;
+        Any any = setup.getClientOrb().create_any();
+        any.type (setup.getClientOrb().get_primitive_tc(TCKind.tk_double));
+        any.create_output_stream().write_double (testValue);
+        // don't bounce, because we want to extract from the
+        // output stream we just created
+        double outValue = any.extract_double();
+        assertEquals (testValue, outValue, 0.0);
+    }
+
+    public void test_boolean()
+        throws Exception
+    {
+        boolean testValue = true;
+        Any outAny = setup.getClientOrb().create_any();
+        outAny.insert_boolean(testValue);
+        assertEquals(testValue, outAny.extract_boolean());
+        
+        Any inAny = server.bounce_any(outAny);
+        
+        assertEquals(testValue, inAny.extract_boolean());
+        assertTrue(outAny.equal(inAny));
+    }
+    
+    public void test_boolean_streamable()
+        throws Exception
+    {
+        boolean testValue = false;
+        Any outAny = setup.getClientOrb().create_any();
+        outAny.insert_Streamable(new BooleanHolder(testValue));
+        assertEquals(testValue, outAny.extract_boolean());
+        
+        Any inAny = server.bounce_any(outAny);
+        
+        assertEquals(testValue, inAny.extract_boolean());
+        assertTrue(outAny.equal(inAny));
+    }
+
+    public void test_boolean_stream()
+    {
+        boolean testValue = false;
+        Any any = setup.getClientOrb().create_any();
+        any.type (setup.getClientOrb().get_primitive_tc(TCKind.tk_boolean));
+        any.create_output_stream().write_boolean (testValue);
+        // don't bounce, because we want to extract from the
+        // output stream we just created
+        boolean outValue = any.extract_boolean();
+        assertEquals (testValue, outValue);
+    }
+        
     public void test_char()
         throws Exception
     {
@@ -403,6 +541,18 @@ public class AnyTest extends ClientServerTestCase
         assertTrue(outAny.equal(inAny));
     }
 
+    public void test_char_stream()
+    {
+        char testValue = 'x';
+        Any any = setup.getClientOrb().create_any();
+        any.type (setup.getClientOrb().get_primitive_tc(TCKind.tk_char));
+        any.create_output_stream().write_char (testValue);
+        // don't bounce, because we want to extract from the
+        // output stream we just created
+        char outValue = any.extract_char();
+        assertEquals (testValue, outValue);
+    }
+    
     public void test_wchar()
         throws Exception
     {
@@ -415,6 +565,18 @@ public class AnyTest extends ClientServerTestCase
 
         assertEquals(testValue, inAny.extract_wchar());
         assertTrue(outAny.equal(inAny));
+    }
+
+    public void test_wchar_stream()
+    {
+        char testValue = 'x';
+        Any any = setup.getClientOrb().create_any();
+        any.type (setup.getClientOrb().get_primitive_tc(TCKind.tk_wchar));
+        any.create_output_stream().write_wchar (testValue);
+        // don't bounce, because we want to extract from the
+        // output stream we just created
+        char outValue = any.extract_wchar();
+        assertEquals (testValue, outValue);
     }
 
     public void test_octet()
@@ -445,6 +607,18 @@ public class AnyTest extends ClientServerTestCase
 
         assertEquals(testValue, inAny.extract_octet());
         assertTrue(outAny.equal(inAny));
+    }
+
+    public void test_octet_stream()
+    {
+        byte testValue = (byte)47;
+        Any any = setup.getClientOrb().create_any();
+        any.type (setup.getClientOrb().get_primitive_tc(TCKind.tk_octet));
+        any.create_output_stream().write_octet (testValue);
+        // don't bounce, because we want to extract from the
+        // output stream we just created
+        byte outValue = any.extract_octet();
+        assertEquals (testValue, outValue);
     }
 
     public void test_any()
@@ -479,6 +653,20 @@ public class AnyTest extends ClientServerTestCase
         assertTrue(outAny.equal(inAny));
     }
 
+    public void test_any_stream()
+    {
+        Any testValue = setup.getClientOrb().create_any();
+        testValue.insert_wstring("hello world");
+        
+        Any any = setup.getClientOrb().create_any();
+        any.type (setup.getClientOrb().get_primitive_tc(TCKind.tk_any));
+        any.create_output_stream().write_any (testValue);
+        // don't bounce, because we want to extract from the
+        // output stream we just created
+        Any outValue = any.extract_any();
+        assertTrue (outValue.equal(testValue));
+    }
+    
     public void test_string()
         throws Exception
     {
@@ -508,6 +696,18 @@ public class AnyTest extends ClientServerTestCase
         assertTrue(outAny.equal(inAny));
     }
 
+    public void test_string_stream()
+    {
+        String testValue = "hello world";
+        Any any = setup.getClientOrb().create_any();
+        any.type (setup.getClientOrb().get_primitive_tc(TCKind.tk_string));
+        any.create_output_stream().write_string (testValue);
+        // don't bounce, because we want to extract from the
+        // output stream we just created
+        String outValue = any.extract_string();
+        assertEquals (testValue, outValue);
+    }
+
     public void test_wstring()
         throws Exception
     {
@@ -521,6 +721,18 @@ public class AnyTest extends ClientServerTestCase
 
         assertEquals(testValue, inAny.extract_wstring());
         assertTrue(outAny.equal(inAny));
+    }
+
+    public void test_wstring_stream()
+    {
+        String testValue = "hello world";
+        Any any = setup.getClientOrb().create_any();
+        any.type (setup.getClientOrb().get_primitive_tc(TCKind.tk_wstring));
+        any.create_output_stream().write_wstring (testValue);
+        // don't bounce, because we want to extract from the
+        // output stream we just created
+        String outValue = any.extract_wstring();
+        assertEquals (testValue, outValue);
     }
 
     public void test_fixed()
@@ -540,6 +752,20 @@ public class AnyTest extends ClientServerTestCase
         assertTrue(outAny.equal(inAny));
     }
 
+    public void test_fixed_2() throws Exception
+    {
+        java.math.BigDecimal testValue = new java.math.BigDecimal("471.1");
+        
+        Any outAny = setup.getClientOrb().create_any();
+        ((org.jacorb.orb.Any)outAny).insert_fixed(testValue);
+        assertEquals(testValue, outAny.extract_fixed());
+        
+        Any inAny = server.bounce_any(outAny);
+        
+        assertEquals(testValue, inAny.extract_fixed());
+        assertTrue(outAny.equal(inAny));
+    }
+
     public void test_fixed_streamable()
         throws Exception
     {
@@ -553,6 +779,18 @@ public class AnyTest extends ClientServerTestCase
 
         assertEquals(testValue, inAny.extract_fixed());
         assertTrue(outAny.equal(inAny));
+    }
+
+    public void test_fixed_stream()
+    {
+        java.math.BigDecimal testValue = new java.math.BigDecimal("471.1");
+        Any any = setup.getClientOrb().create_any();
+        any.type (setup.getClientOrb().create_fixed_tc((short)4,(short)1));
+        any.create_output_stream().write_fixed (testValue);
+        // don't bounce, because we want to extract from the
+        // output stream we just created
+        java.math.BigDecimal outValue = any.extract_fixed();
+        assertEquals (testValue, outValue);
     }
 
     public void test_object()
@@ -594,6 +832,18 @@ public class AnyTest extends ClientServerTestCase
         assertTrue(outAny.equal(inAny));
     }
 
+    public void test_extract_objref()
+    {
+        Any outAny = setup.getClientOrb().create_any();
+        outAny.insert_Object(server, AnyServerHelper.type());
+        assertEquals(server, ((org.jacorb.orb.Any)outAny).extract_objref());
+
+        Any inAny = server.bounce_any(outAny);
+
+        //can't readily test equality of object references
+        assertTrue(outAny.equal(inAny));
+    }
+    
     public void test_object_null()
         throws Exception
     {
@@ -605,6 +855,21 @@ public class AnyTest extends ClientServerTestCase
 
         assertTrue(outAny.equal(inAny));
         assertNull(inAny.extract_Object());
+    }
+
+    public void test_object_stream()
+    {
+        Any any = setup.getClientOrb().create_any();
+        any.type (setup.getClientOrb().create_interface_tc
+        (
+            "IDL:org/jacorb/test/orb/AnyServer:1.0",
+            "AnyServer"
+        ));
+        any.create_output_stream().write_Object (server);
+        // don't bounce, because we want to extract from the
+        // output stream we just created
+        org.omg.CORBA.Object outValue = any.extract_Object();
+        assertTrue (outValue._is_a("IDL:org/jacorb/test/orb/AnyServer:1.0"));
     }
 
     public void test_TypeCode()
@@ -637,6 +902,38 @@ public class AnyTest extends ClientServerTestCase
         assertTrue(outAny.equal(inAny));
     }
 
+    public void test_principal()
+    {
+        Any any = setup.getClientOrb().create_any();
+        try
+        {
+            any.insert_Principal(null);
+            fail ("should have thrown NO_IMPLEMENT");
+        }
+        catch (org.omg.CORBA.NO_IMPLEMENT ex)
+        {
+            // ok
+        }
+        catch (Exception ex)
+        {
+            fail ("should have thrown NO_IMPLEMENT");
+        }
+
+        try
+        {
+            any.extract_Principal();
+            fail ("should have thrown NO_IMPLEMENT");
+        }
+        catch (org.omg.CORBA.NO_IMPLEMENT ex)
+        {
+            // ok
+        }
+        catch (Exception ex)
+        {
+            fail ("should have thrown NO_IMPLEMENT");
+        }
+    }
+    
     public void test_value_box_string()
         throws Exception
     {
@@ -926,6 +1223,22 @@ public class AnyTest extends ClientServerTestCase
         Any inAny = server.bounce_any(outAny);
         assertEquals(testValue, MyValueTypeHelper.extract(inAny));
         assertTrue(outAny.equal(inAny));
+    }
+    
+    public void _test_valuetype_stream()
+    {
+        MyValueType testValue = new MyValueTypeImpl(4711);
+        
+        Any any = setup.getClientOrb().create_any();
+        any.type (MyValueTypeHelper.type());
+
+        MyValueTypeHelper.write(any.create_output_stream(),
+                                testValue);
+        
+        // don't bounce, because we want to extract from the
+        // output stream we just created
+        java.io.Serializable outValue = any.extract_Value();
+        assertEquals (testValue, outValue); 
     }
 
     public void test_recursive_struct()
@@ -1663,5 +1976,80 @@ public class AnyTest extends ClientServerTestCase
 
         Any inAny = server.bounce_any(outAny);
         assertTrue(outAny.equal(inAny));
+    }
+    
+    public void test_extract_streamable()
+    {
+        String testValue = "hello world";
+        
+        Any outAny = setup.getClientOrb().create_any();
+        outAny.insert_Streamable(new StringHolder(testValue));
+        Streamable s = outAny.extract_Streamable();
+        assertEquals (testValue, ((StringHolder)s).value);
+        
+        Any inAny = server.bounce_any(outAny);
+        assertTrue (outAny.equal(inAny));
+    }
+    
+    public void test_extract_streamable_null()
+    {
+        Any any = setup.getClientOrb().create_any();
+        try
+        {
+            Streamable s = any.extract_Streamable();
+            fail ("should have thrown BAD_OPERATION");
+        }
+        catch (org.omg.CORBA.BAD_OPERATION ex)
+        {
+            // ok
+        }
+        catch (Exception ex)
+        {
+            fail ("should have thrown BAD_OPERATION");
+        }
+    }
+    
+    public void test_to_string()
+    {
+        Any any = setup.getClientOrb().create_any();
+        assertEquals ("null", any.toString());
+        
+        any.insert_string("hello world");
+        assertEquals ("hello world", any.toString());
+    }
+    
+    public void test_not_equal()
+    {
+        Any any = setup.getClientOrb().create_any();
+        any.insert_string("hello world");
+        assertFalse (any.equals ("hello world"));
+    }
+    
+    public void test_not_equal_to_null()
+    {
+        Any any = setup.getClientOrb().create_any();
+        try
+        {
+            boolean dummy = any.equal (null);
+            fail ("should have raised BAD_PARAM");
+        }
+        catch (org.omg.CORBA.BAD_PARAM ex)
+        {
+            // ok, this seems to be required by the spec
+        }
+        catch (Exception ex)
+        {
+            fail ("should have raised BAD_PARAM");
+        }
+    }
+    
+    public void test_shallow_copy()
+    {
+        Any any1 = setup.getClientOrb().create_any();
+        any1.insert_string("foobar");
+        Any any2 = setup.getClientOrb().create_any();
+        ((org.jacorb.orb.Any)any2).insert_object(any1.type(), 
+                                                 any1.extract_string());
+        assertTrue (any1.extract_string() == any2.extract_string());
     }
 }
