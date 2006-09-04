@@ -126,4 +126,19 @@ public class BugJac722Test extends ClientServerTestCase
        assertEquals(headPart.m_value, bounced.m_headPart.m_value);
        assertEquals(tailPart.m_value, bounced.m_tailPart.m_value);
    }
+
+   public void testPartStructInAny()
+   {
+       Part part = new PartImpl();
+       part.m_value = "head";
+
+       PartStruct struct = new PartStruct(part);
+
+       Any any = setup.getClientOrb().create_any();
+
+       PartStructHelper.insert(any, struct);
+
+       PartStruct bounced = PartStructHelper.extract(server.bounce_any(any));
+       assertEquals(part.m_value, bounced.m_part.m_value);
+   }
 }

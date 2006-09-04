@@ -2428,7 +2428,11 @@ public class CDROutputStream
                     break;
                 }
                 case TCKind._tk_value:      // 29
-                    // fallthrough
+                {
+                    final Serializable val = ((org.omg.CORBA_2_3.portable.InputStream)input).read_value();
+                    write_value(val, typeCode.id());
+                    break;
+                }
                 case TCKind._tk_value_box:
                 {
                     String id = typeCode.id();

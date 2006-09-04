@@ -18,6 +18,12 @@ module org
                         private Part m_headPart;
                         private Part m_tailPart;
                     };
+
+
+                    struct PartStruct
+                    {
+                        Part m_part;
+                    };
                 };
             };
         };

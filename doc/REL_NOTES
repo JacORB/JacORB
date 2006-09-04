@@ -118,7 +118,8 @@
         - Enhanced logging documentation.
         - Enhanced description of configuration properties.
     - Fixes:
-        - fixed bugzilla #721
+        - fixed bugzilla #721. Thanks to Scott Melby for reporting and providing a fix.
+        - fixed bugzilla #667. Thanks to Rich Doyle for reporting and providing a fix.
 2.2.5
 =====
     - Documentation

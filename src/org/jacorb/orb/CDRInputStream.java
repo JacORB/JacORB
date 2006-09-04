@@ -21,6 +21,7 @@ package org.jacorb.orb;
  */
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.*;
 
 import org.apache.avalon.framework.configuration.*;
@@ -2577,7 +2578,11 @@ public class CDRInputStream
                     break;
                 }
                 case TCKind._tk_value:      // 29
-                    // fallthrough
+                {
+                    Serializable val = read_value();
+                    ((org.omg.CORBA_2_3.portable.OutputStream)out).write_value(val, typeCode.id());
+                    break;
+                }
                 case TCKind._tk_value_box:  // 30
                 {
                     String id = typeCode.id();
