@@ -103,6 +103,13 @@ public class ORBSingleton
         }
     }
 
+    /**
+     * Returns the logger of this singleton ORB.  Used for testing.
+     */
+    public Logger getLogger()
+    {
+        return logger;
+    }
 
     /* factory methods: */
 
