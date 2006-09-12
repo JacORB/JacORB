@@ -24,6 +24,10 @@ import junit.framework.*;
 import junit.extensions.TestSetup;
 import org.jacorb.test.common.ORBSetup;
 
+import org.omg.CORBA.*;
+import org.omg.DynamicAny.DynAny;
+import org.omg.DynamicAny.DynAnyPackage.TypeMismatch;
+
 /**
  * DynAnyBaseTest.java
  *
@@ -36,7 +40,8 @@ public class DynAnyBaseTest extends TestCase
    private static org.omg.DynamicAny.DynAnyFactory factory = null;
    private static org.omg.CORBA.ORB orb = null;
 
-
+   private static final char EURO_SIGN = '\u20AC';
+   
    public DynAnyBaseTest (String name)
    {
       super (name);
@@ -54,8 +59,57 @@ public class DynAnyBaseTest extends TestCase
       suite.addTest (new DynAnyBaseTest ("testFactoryInconsistentTypeCodeEx"));
       suite.addTest (new DynAnyBaseTest ("testDynAnyLocalityConstraint"));
       suite.addTest (new DynAnyBaseTest ("testCompareDynAny"));
-      suite.addTest (new DynAnyBaseTest ("testAccessBasicValue"));
-      suite.addTest (new DynAnyBaseTest ("testAccessTypeMismatchEx"));
+      suite.addTest (new DynAnyBaseTest ("testAccessBasicValue_boolean"));
+      suite.addTest (new DynAnyBaseTest ("testInsertMismatch_boolean"));
+      suite.addTest (new DynAnyBaseTest ("testRetrieveMismatch_boolean"));
+      suite.addTest (new DynAnyBaseTest ("testAccessBasicValue_short"));
+      suite.addTest (new DynAnyBaseTest ("testInsertMismatch_short"));
+      suite.addTest (new DynAnyBaseTest ("testRetrieveMismatch_short"));
+      suite.addTest (new DynAnyBaseTest ("testAccessBasicValue_ushort"));
+      suite.addTest (new DynAnyBaseTest ("testInsertMismatch_ushort"));
+      suite.addTest (new DynAnyBaseTest ("testRetrieveMismatch_ushort"));
+      suite.addTest (new DynAnyBaseTest ("testAccessBasicValue_long"));
+      suite.addTest (new DynAnyBaseTest ("testInsertMismatch_long"));
+      suite.addTest (new DynAnyBaseTest ("testRetrieveMismatch_long"));
+      suite.addTest (new DynAnyBaseTest ("testAccessBasicValue_ulong"));
+      suite.addTest (new DynAnyBaseTest ("testInsertMismatch_ulong"));
+      suite.addTest (new DynAnyBaseTest ("testRetrieveMismatch_ulong"));
+      suite.addTest (new DynAnyBaseTest ("testAccessBasicValue_longlong"));
+      suite.addTest (new DynAnyBaseTest ("testInsertMismatch_longlong"));
+      suite.addTest (new DynAnyBaseTest ("testRetrieveMismatch_longlong"));
+      suite.addTest (new DynAnyBaseTest ("testAccessBasicValue_ulonglong"));
+      suite.addTest (new DynAnyBaseTest ("testInsertMismatch_ulonglong"));
+      suite.addTest (new DynAnyBaseTest ("testRetrieveMismatch_ulonglong"));
+      suite.addTest (new DynAnyBaseTest ("testAccessBasicValue_octet"));
+      suite.addTest (new DynAnyBaseTest ("testInsertMismatch_octet"));
+      suite.addTest (new DynAnyBaseTest ("testRetrieveMismatch_octet"));
+      suite.addTest (new DynAnyBaseTest ("testAccessBasicValue_float"));
+      suite.addTest (new DynAnyBaseTest ("testInsertMismatch_float"));
+      suite.addTest (new DynAnyBaseTest ("testRetrieveMismatch_float"));
+      suite.addTest (new DynAnyBaseTest ("testAccessBasicValue_double"));
+      suite.addTest (new DynAnyBaseTest ("testInsertMismatch_double"));
+      suite.addTest (new DynAnyBaseTest ("testRetrieveMismatch_double"));
+      suite.addTest (new DynAnyBaseTest ("testAccessBasicValue_char"));
+      suite.addTest (new DynAnyBaseTest ("testInsertMismatch_char"));
+      suite.addTest (new DynAnyBaseTest ("testRetrieveMismatch_char"));
+      suite.addTest (new DynAnyBaseTest ("testAccessBasicValue_wchar"));
+      suite.addTest (new DynAnyBaseTest ("testInsertMismatch_wchar"));
+      suite.addTest (new DynAnyBaseTest ("testRetrieveMismatch_wchar"));
+      suite.addTest (new DynAnyBaseTest ("testAccessBasicValue_string"));
+      suite.addTest (new DynAnyBaseTest ("testInsertMismatch_string"));
+      suite.addTest (new DynAnyBaseTest ("testRetrieveMismatch_string"));
+      suite.addTest (new DynAnyBaseTest ("testAccessBasicValue_wstring"));
+      suite.addTest (new DynAnyBaseTest ("testInsertMismatch_wstring"));
+      suite.addTest (new DynAnyBaseTest ("testRetrieveMismatch_wstring"));
+      suite.addTest (new DynAnyBaseTest ("testAccessBasicValue_any"));
+      suite.addTest (new DynAnyBaseTest ("testInsertMismatch_any"));
+      suite.addTest (new DynAnyBaseTest ("testRetrieveMismatch_any"));
+      suite.addTest (new DynAnyBaseTest ("testAccessBasicValue_typecode"));
+      suite.addTest (new DynAnyBaseTest ("testInsertMismatch_typecode"));
+      suite.addTest (new DynAnyBaseTest ("testRetrieveMismatch_typecode"));
+      suite.addTest (new DynAnyBaseTest ("testAccessBasicValue_dynany"));
+      suite.addTest (new DynAnyBaseTest ("testInsertMismatch_dynany"));
+      suite.addTest (new DynAnyBaseTest ("testRetrieveMismatch_dynany"));
       suite.addTest (new DynAnyBaseTest ("testDynAnyTypeCode"));
       suite.addTest (new DynAnyBaseTest ("testInitDynAnyFromDynAny"));
       suite.addTest (new DynAnyBaseTest ("testInitFromDynAnyTypeMismatchEx"));
@@ -181,91 +235,1077 @@ public class DynAnyBaseTest extends TestCase
    /**
     * Test accessing a value of some basic type in a DynAny object.
     */
-   public void testAccessBasicValue ()
+   public void testAccessBasicValue_boolean () throws Exception
    {
-      String msg;
-      int intVal;
-      int intVal2;
-      org.omg.CORBA.TypeCode tc = null;
-      org.omg.DynamicAny.DynAny dynAny = null;
+      TypeCode tc     = orb.get_primitive_tc (org.omg.CORBA.TCKind.tk_boolean);
+      DynAny   dynAny = createDynAnyFromTypeCode (tc);
 
-      intVal = 700;
-      intVal2 = 0;
-      tc = orb.get_primitive_tc (org.omg.CORBA.TCKind.tk_long);
-      dynAny = createDynAnyFromTypeCode (tc);
+      String msg = "Value inserted into DynAny object is not equal to value ";
+      msg += "extracted from same DynAny object";
+
+      dynAny.insert_boolean (true);
+      assertEquals (msg, true, dynAny.get_boolean());
+   }
+   
+   /**
+    * Test inserting a basic value into a DynAny that has a different typecode.
+    */
+   public void testInsertMismatch_boolean () throws Exception
+   {
+      TypeCode tc     = orb.get_primitive_tc (org.omg.CORBA.TCKind.tk_long);
+      DynAny   dynAny = createDynAnyFromTypeCode (tc);
+
+      try
+      {
+          dynAny.insert_boolean (true);
+          fail ("should have thrown TypeMismatch");
+      }
+      catch (TypeMismatch ex)
+      {
+          // ok
+      }
+      catch (Exception ex)
+      {
+          fail ("should have thrown TypeMismatch, but was: " + ex);
+      }
+   }
+
+   /**
+    * Test retrieving a basic value from a DynAny that has a different typecode.
+    */
+   public void testRetrieveMismatch_boolean () throws Exception
+   {
+      TypeCode tc     = orb.get_primitive_tc (org.omg.CORBA.TCKind.tk_long);
+      DynAny   dynAny = createDynAnyFromTypeCode (tc);
+      dynAny.insert_long(700);
+
+      try
+      {
+          dynAny.get_boolean();
+          fail ("should have thrown TypeMismatch");
+      }
+      catch (TypeMismatch ex)
+      {
+          // ok
+      }
+      catch (Exception ex)
+      {
+          fail ("should have thrown TypeMismatch, but was:  " + ex);
+      }
+   }
+
+   /**
+    * Test accessing a value of some basic type in a DynAny object.
+    */
+   public void testAccessBasicValue_short () throws Exception
+   {
+      TypeCode tc     = orb.get_primitive_tc (org.omg.CORBA.TCKind.tk_short);
+      DynAny   dynAny = createDynAnyFromTypeCode (tc);
+
+      String msg = "Value inserted into DynAny object is not equal to value ";
+      msg += "extracted from same DynAny object";
+
+      dynAny.insert_short ((short)700);
+      assertEquals (msg, (short)700, dynAny.get_short());
+   }
+
+   /**
+    * Test inserting a basic value into a DynAny that has a different typecode.
+    */
+   public void testInsertMismatch_short () throws Exception
+   {
+      TypeCode tc     = orb.get_primitive_tc (org.omg.CORBA.TCKind.tk_long);
+      DynAny   dynAny = createDynAnyFromTypeCode (tc);
+
+      try
+      {
+          dynAny.insert_short ((short)128);
+          fail ("should have thrown TypeMismatch");
+      }
+      catch (TypeMismatch ex)
+      {
+          // ok
+      }
+      catch (Exception ex)
+      {
+          fail ("should have thrown TypeMismatch, but was: " + ex);
+      }
+   }
+
+   /**
+    * Test retrieving a basic value from a DynAny that has a different typecode.
+    */
+   public void testRetrieveMismatch_short () throws Exception
+   {
+      TypeCode tc     = orb.get_primitive_tc (org.omg.CORBA.TCKind.tk_long);
+      DynAny   dynAny = createDynAnyFromTypeCode (tc);
+      dynAny.insert_long(700);
+
+      try
+      {
+          dynAny.get_short();
+          fail ("should have thrown TypeMismatch");
+      }
+      catch (TypeMismatch ex)
+      {
+          // ok
+      }
+      catch (Exception ex)
+      {
+          fail ("should have thrown TypeMismatch, but was:  " + ex);
+      }
+   }
+
+   /**
+    * Test accessing a value of some basic type in a DynAny object.
+    */
+   public void testAccessBasicValue_ushort () throws Exception
+   {
+      TypeCode tc     = orb.get_primitive_tc (org.omg.CORBA.TCKind.tk_ushort);
+      DynAny   dynAny = createDynAnyFromTypeCode (tc);
+
+      String msg = "Value inserted into DynAny object is not equal to value ";
+      msg += "extracted from same DynAny object";
+
+      dynAny.insert_ushort ((short)700);
+      assertEquals (msg, (short)700, dynAny.get_ushort());
+   }
+
+      /**
+    * Test inserting a basic value into a DynAny that has a different typecode.
+    */
+   public void testInsertMismatch_ushort () throws Exception
+   {
+      TypeCode tc     = orb.get_primitive_tc (org.omg.CORBA.TCKind.tk_long);
+      DynAny   dynAny = createDynAnyFromTypeCode (tc);
+
+      try
+      {
+          dynAny.insert_ushort ((short)700);
+          fail ("should have thrown TypeMismatch");
+      }
+      catch (TypeMismatch ex)
+      {
+          // ok
+      }
+      catch (Exception ex)
+      {
+          fail ("should have thrown TypeMismatch, but was: " + ex);
+      }
+   }
+
+   /**
+    * Test retrieving a basic value from a DynAny that has a different typecode.
+    */
+   public void testRetrieveMismatch_ushort () throws Exception
+   {
+      TypeCode tc     = orb.get_primitive_tc (org.omg.CORBA.TCKind.tk_long);
+      DynAny   dynAny = createDynAnyFromTypeCode (tc);
+      dynAny.insert_long(700);
+
+      try
+      {
+          dynAny.get_ushort();
+          fail ("should have thrown TypeMismatch");
+      }
+      catch (TypeMismatch ex)
+      {
+          // ok
+      }
+      catch (Exception ex)
+      {
+          fail ("should have thrown TypeMismatch, but was:  " + ex);
+      }
+   }
+
+   /**
+    * Test accessing a value of some basic type in a DynAny object.
+    */
+   public void testAccessBasicValue_long () throws Exception
+   {
+      TypeCode tc     = orb.get_primitive_tc (org.omg.CORBA.TCKind.tk_long);
+      DynAny   dynAny = createDynAnyFromTypeCode (tc);
+
+      String msg = "Value inserted into DynAny object is not equal to value ";
+      msg += "extracted from same DynAny object";
+
+      dynAny.insert_long (700);
+      assertEquals (msg, 700, dynAny.get_long());
+   }
+   
+   /**
+    * Test inserting a basic value into a DynAny that has a different typecode.
+    */
+   public void testInsertMismatch_long () throws Exception
+   {
+      TypeCode tc     = orb.get_primitive_tc (org.omg.CORBA.TCKind.tk_boolean);
+      DynAny   dynAny = createDynAnyFromTypeCode (tc);
+
+      try
+      {
+          dynAny.insert_long (700);
+          fail ("should have thrown TypeMismatch");
+      }
+      catch (TypeMismatch ex)
+      {
+          // ok
+      }
+      catch (Exception ex)
+      {
+          fail ("should have thrown TypeMismatch, but was: " + ex);
+      }
+   }
+
+   /**
+    * Test retrieving a basic value from a DynAny that has a different typecode.
+    */
+   public void testRetrieveMismatch_long () throws Exception
+   {
+      TypeCode tc     = orb.get_primitive_tc (org.omg.CORBA.TCKind.tk_boolean);
+      DynAny   dynAny = createDynAnyFromTypeCode (tc);
+      dynAny.insert_boolean(false);
+
+      try
+      {
+          dynAny.get_long();
+          fail ("should have thrown TypeMismatch");
+      }
+      catch (TypeMismatch ex)
+      {
+          // ok
+      }
+      catch (Exception ex)
+      {
+          fail ("should have thrown TypeMismatch, but was:  " + ex);
+      }
+   }
+
+   /**
+    * Test accessing a value of some basic type in a DynAny object.
+    */
+   public void testAccessBasicValue_ulong () throws Exception
+   {
+      TypeCode tc     = orb.get_primitive_tc (org.omg.CORBA.TCKind.tk_ulong);
+      DynAny   dynAny = createDynAnyFromTypeCode (tc);
+
+      String msg = "Value inserted into DynAny object is not equal to value ";
+      msg += "extracted from same DynAny object";
+
+      dynAny.insert_ulong (700);
+      assertEquals (msg, 700, dynAny.get_ulong());
+   }
+
+      /**
+    * Test inserting a basic value into a DynAny that has a different typecode.
+    */
+   public void testInsertMismatch_ulong () throws Exception
+   {
+      TypeCode tc     = orb.get_primitive_tc (org.omg.CORBA.TCKind.tk_boolean);
+      DynAny   dynAny = createDynAnyFromTypeCode (tc);
+
+      try
+      {
+          dynAny.insert_ulong (700);
+          fail ("should have thrown TypeMismatch");
+      }
+      catch (TypeMismatch ex)
+      {
+          // ok
+      }
+      catch (Exception ex)
+      {
+          fail ("should have thrown TypeMismatch, but was: " + ex);
+      }
+   }
+
+   /**
+    * Test retrieving a basic value from a DynAny that has a different typecode.
+    */
+   public void testRetrieveMismatch_ulong () throws Exception
+   {
+      TypeCode tc     = orb.get_primitive_tc (org.omg.CORBA.TCKind.tk_boolean);
+      DynAny   dynAny = createDynAnyFromTypeCode (tc);
+      dynAny.insert_boolean(true);
+
+      try
+      {
+          dynAny.get_ulong();
+          fail ("should have thrown TypeMismatch");
+      }
+      catch (TypeMismatch ex)
+      {
+          // ok
+      }
+      catch (Exception ex)
+      {
+          fail ("should have thrown TypeMismatch, but was:  " + ex);
+      }
+   }
+
+   /**
+    * Test accessing a value of some basic type in a DynAny object.
+    */
+   public void testAccessBasicValue_longlong () throws Exception
+   {
+      TypeCode tc     = orb.get_primitive_tc (org.omg.CORBA.TCKind.tk_longlong);
+      DynAny   dynAny = createDynAnyFromTypeCode (tc);
+
+      String msg = "Value inserted into DynAny object is not equal to value ";
+      msg += "extracted from same DynAny object";
+
+      dynAny.insert_longlong (700700L);
+      assertEquals (msg, 700700L, dynAny.get_longlong());
+   }
+
+      /**
+    * Test inserting a basic value into a DynAny that has a different typecode.
+    */
+   public void testInsertMismatch_longlong () throws Exception
+   {
+      TypeCode tc     = orb.get_primitive_tc (org.omg.CORBA.TCKind.tk_boolean);
+      DynAny   dynAny = createDynAnyFromTypeCode (tc);
+
+      try
+      {
+          dynAny.insert_longlong (700700L);
+          fail ("should have thrown TypeMismatch");
+      }
+      catch (TypeMismatch ex)
+      {
+          // ok
+      }
+      catch (Exception ex)
+      {
+          fail ("should have thrown TypeMismatch, but was: " + ex);
+      }
+   }
+
+   /**
+    * Test retrieving a basic value from a DynAny that has a different typecode.
+    */
+   public void testRetrieveMismatch_longlong () throws Exception
+   {
+      TypeCode tc     = orb.get_primitive_tc (org.omg.CORBA.TCKind.tk_long);
+      DynAny   dynAny = createDynAnyFromTypeCode (tc);
+      dynAny.insert_long(700);
+
+      try
+      {
+          dynAny.get_longlong();
+          fail ("should have thrown TypeMismatch");
+      }
+      catch (TypeMismatch ex)
+      {
+          // ok
+      }
+      catch (Exception ex)
+      {
+          fail ("should have thrown TypeMismatch, but was:  " + ex);
+      }
+   }
+
+   /**
+    * Test accessing a value of some basic type in a DynAny object.
+    */
+   public void testAccessBasicValue_ulonglong () throws Exception
+   {
+      TypeCode tc     = orb.get_primitive_tc (org.omg.CORBA.TCKind.tk_ulonglong);
+      DynAny   dynAny = createDynAnyFromTypeCode (tc);
+
+      String msg = "Value inserted into DynAny object is not equal to value ";
+      msg += "extracted from same DynAny object";
+
+      dynAny.insert_ulonglong (700700700L);
+      assertEquals (msg, 700700700L, dynAny.get_ulonglong());
+   }
+
+      /**
+    * Test inserting a basic value into a DynAny that has a different typecode.
+    */
+   public void testInsertMismatch_ulonglong () throws Exception
+   {
+      TypeCode tc     = orb.get_primitive_tc (org.omg.CORBA.TCKind.tk_boolean);
+      DynAny   dynAny = createDynAnyFromTypeCode (tc);
+
+      try
+      {
+          dynAny.insert_ulonglong (700700700L);
+          fail ("should have thrown TypeMismatch");
+      }
+      catch (TypeMismatch ex)
+      {
+          // ok
+      }
+      catch (Exception ex)
+      {
+          fail ("should have thrown TypeMismatch, but was: " + ex);
+      }
+   }
+
+   /**
+    * Test retrieving a basic value from a DynAny that has a different typecode.
+    */
+   public void testRetrieveMismatch_ulonglong () throws Exception
+   {
+      TypeCode tc     = orb.get_primitive_tc (org.omg.CORBA.TCKind.tk_long);
+      DynAny   dynAny = createDynAnyFromTypeCode (tc);
+      dynAny.insert_long(700);
+
+      try
+      {
+          dynAny.get_ulonglong();
+          fail ("should have thrown TypeMismatch");
+      }
+      catch (TypeMismatch ex)
+      {
+          // ok
+      }
+      catch (Exception ex)
+      {
+          fail ("should have thrown TypeMismatch, but was:  " + ex);
+      }
+   }
+
+   /**
+    * Test accessing a value of some basic type in a DynAny object.
+    */
+   public void testAccessBasicValue_octet () throws Exception
+   {
+      TypeCode tc     = orb.get_primitive_tc (org.omg.CORBA.TCKind.tk_octet);
+      DynAny   dynAny = createDynAnyFromTypeCode (tc);
+
+      String msg = "Value inserted into DynAny object is not equal to value ";
+      msg += "extracted from same DynAny object";
+
+      dynAny.insert_octet ((byte)123);
+      assertEquals (msg, (byte)123, dynAny.get_octet());
+   }
+
+      /**
+    * Test inserting a basic value into a DynAny that has a different typecode.
+    */
+   public void testInsertMismatch_octet () throws Exception
+   {
+      TypeCode tc     = orb.get_primitive_tc (org.omg.CORBA.TCKind.tk_boolean);
+      DynAny   dynAny = createDynAnyFromTypeCode (tc);
+
+      try
+      {
+          dynAny.insert_octet ((byte)87);
+          fail ("should have thrown TypeMismatch");
+      }
+      catch (TypeMismatch ex)
+      {
+          // ok
+      }
+      catch (Exception ex)
+      {
+          fail ("should have thrown TypeMismatch, but was: " + ex);
+      }
+   }
+
+   /**
+    * Test retrieving a basic value from a DynAny that has a different typecode.
+    */
+   public void testRetrieveMismatch_octet () throws Exception
+   {
+      TypeCode tc     = orb.get_primitive_tc (org.omg.CORBA.TCKind.tk_long);
+      DynAny   dynAny = createDynAnyFromTypeCode (tc);
+      dynAny.insert_long(700);
+
+      try
+      {
+          dynAny.get_octet();
+          fail ("should have thrown TypeMismatch");
+      }
+      catch (TypeMismatch ex)
+      {
+          // ok
+      }
+      catch (Exception ex)
+      {
+          fail ("should have thrown TypeMismatch, but was:  " + ex);
+      }
+   }
+
+   /**
+    * Test accessing a value of some basic type in a DynAny object.
+    */
+   public void testAccessBasicValue_float () throws Exception
+   {
+      TypeCode tc     = orb.get_primitive_tc (org.omg.CORBA.TCKind.tk_float);
+      DynAny   dynAny = createDynAnyFromTypeCode (tc);
+
+      String msg = "Value inserted into DynAny object is not equal to value ";
+      msg += "extracted from same DynAny object";
+
+      dynAny.insert_float (700.0F);
+      assertEquals (msg, 700.0F, dynAny.get_float(), 0.0);
+   }
+
+      /**
+    * Test inserting a basic value into a DynAny that has a different typecode.
+    */
+   public void testInsertMismatch_float () throws Exception
+   {
+      TypeCode tc     = orb.get_primitive_tc (org.omg.CORBA.TCKind.tk_boolean);
+      DynAny   dynAny = createDynAnyFromTypeCode (tc);
+
+      try
+      {
+          dynAny.insert_float (700.0F);
+          fail ("should have thrown TypeMismatch");
+      }
+      catch (TypeMismatch ex)
+      {
+          // ok
+      }
+      catch (Exception ex)
+      {
+          fail ("should have thrown TypeMismatch, but was: " + ex);
+      }
+   }
+
+   /**
+    * Test retrieving a basic value from a DynAny that has a different typecode.
+    */
+   public void testRetrieveMismatch_float () throws Exception
+   {
+      TypeCode tc     = orb.get_primitive_tc (org.omg.CORBA.TCKind.tk_long);
+      DynAny   dynAny = createDynAnyFromTypeCode (tc);
+      dynAny.insert_long(700);
+
+      try
+      {
+          dynAny.get_float();
+          fail ("should have thrown TypeMismatch");
+      }
+      catch (TypeMismatch ex)
+      {
+          // ok
+      }
+      catch (Exception ex)
+      {
+          fail ("should have thrown TypeMismatch, but was:  " + ex);
+      }
+   }
+
+   /**
+    * Test accessing a value of some basic type in a DynAny object.
+    */
+   public void testAccessBasicValue_double () throws Exception
+   {
+      TypeCode tc     = orb.get_primitive_tc (org.omg.CORBA.TCKind.tk_double);
+      DynAny   dynAny = createDynAnyFromTypeCode (tc);
+
+      String msg = "Value inserted into DynAny object is not equal to value ";
+      msg += "extracted from same DynAny object";
+
+      dynAny.insert_double (700.0);
+      assertEquals (msg, 700.0, dynAny.get_double(), 0.0);
+   }
+
+      /**
+    * Test inserting a basic value into a DynAny that has a different typecode.
+    */
+   public void testInsertMismatch_double () throws Exception
+   {
+      TypeCode tc     = orb.get_primitive_tc (org.omg.CORBA.TCKind.tk_boolean);
+      DynAny   dynAny = createDynAnyFromTypeCode (tc);
+
+      try
+      {
+          dynAny.insert_double (700.0);
+          fail ("should have thrown TypeMismatch");
+      }
+      catch (TypeMismatch ex)
+      {
+          // ok
+      }
+      catch (Exception ex)
+      {
+          fail ("should have thrown TypeMismatch, but was: " + ex);
+      }
+   }
+
+   /**
+    * Test retrieving a basic value from a DynAny that has a different typecode.
+    */
+   public void testRetrieveMismatch_double () throws Exception
+   {
+      TypeCode tc     = orb.get_primitive_tc (org.omg.CORBA.TCKind.tk_long);
+      DynAny   dynAny = createDynAnyFromTypeCode (tc);
+      dynAny.insert_long(700);
+
+      try
+      {
+          dynAny.get_double();
+          fail ("should have thrown TypeMismatch");
+      }
+      catch (TypeMismatch ex)
+      {
+          // ok
+      }
+      catch (Exception ex)
+      {
+          fail ("should have thrown TypeMismatch, but was:  " + ex);
+      }
+   }
+
+   /**
+    * Test accessing a value of some basic type in a DynAny object.
+    */
+   public void testAccessBasicValue_char () throws Exception
+   {
+      TypeCode tc     = orb.get_primitive_tc (org.omg.CORBA.TCKind.tk_char);
+      DynAny   dynAny = createDynAnyFromTypeCode (tc);
+
+      String msg = "Value inserted into DynAny object is not equal to value ";
+      msg += "extracted from same DynAny object";
+
+      dynAny.insert_char ('a');
+      assertEquals (msg, 'a', dynAny.get_char());
+   }
+
+      /**
+    * Test inserting a basic value into a DynAny that has a different typecode.
+    */
+   public void testInsertMismatch_char () throws Exception
+   {
+      TypeCode tc     = orb.get_primitive_tc (org.omg.CORBA.TCKind.tk_boolean);
+      DynAny   dynAny = createDynAnyFromTypeCode (tc);
+
+      try
+      {
+          dynAny.insert_char ('a');
+          fail ("should have thrown TypeMismatch");
+      }
+      catch (TypeMismatch ex)
+      {
+          // ok
+      }
+      catch (Exception ex)
+      {
+          fail ("should have thrown TypeMismatch, but was: " + ex);
+      }
+   }
+
+   /**
+    * Test retrieving a basic value from a DynAny that has a different typecode.
+    */
+   public void testRetrieveMismatch_char () throws Exception
+   {
+      TypeCode tc     = orb.get_primitive_tc (org.omg.CORBA.TCKind.tk_long);
+      DynAny   dynAny = createDynAnyFromTypeCode (tc);
+      dynAny.insert_long(700);
+
+      try
+      {
+          dynAny.get_char();
+          fail ("should have thrown TypeMismatch");
+      }
+      catch (TypeMismatch ex)
+      {
+          // ok
+      }
+      catch (Exception ex)
+      {
+          fail ("should have thrown TypeMismatch, but was:  " + ex);
+      }
+   }
+
+   /**
+    * Test accessing a value of some basic type in a DynAny object.
+    */
+   public void testAccessBasicValue_wchar () throws Exception
+   {
+      TypeCode tc     = orb.get_primitive_tc (org.omg.CORBA.TCKind.tk_wchar);
+      DynAny   dynAny = createDynAnyFromTypeCode (tc);
+
+      String msg = "Value inserted into DynAny object is not equal to value ";
+      msg += "extracted from same DynAny object";
+
+      dynAny.insert_wchar (EURO_SIGN);
+      assertEquals (msg, EURO_SIGN, dynAny.get_wchar());
+   }
+
+      /**
+    * Test inserting a basic value into a DynAny that has a different typecode.
+    */
+   public void testInsertMismatch_wchar () throws Exception
+   {
+      TypeCode tc     = orb.get_primitive_tc (org.omg.CORBA.TCKind.tk_boolean);
+      DynAny   dynAny = createDynAnyFromTypeCode (tc);
+
+      try
+      {
+          dynAny.insert_wchar (EURO_SIGN);
+          fail ("should have thrown TypeMismatch");
+      }
+      catch (TypeMismatch ex)
+      {
+          // ok
+      }
+      catch (Exception ex)
+      {
+          fail ("should have thrown TypeMismatch, but was: " + ex);
+      }
+   }
+
+   /**
+    * Test retrieving a basic value from a DynAny that has a different typecode.
+    */
+   public void testRetrieveMismatch_wchar () throws Exception
+   {
+      TypeCode tc     = orb.get_primitive_tc (org.omg.CORBA.TCKind.tk_long);
+      DynAny   dynAny = createDynAnyFromTypeCode (tc);
+      dynAny.insert_long(700);
+
+      try
+      {
+          dynAny.get_wchar();
+          fail ("should have thrown TypeMismatch");
+      }
+      catch (TypeMismatch ex)
+      {
+          // ok
+      }
+      catch (Exception ex)
+      {
+          fail ("should have thrown TypeMismatch, but was:  " + ex);
+      }
+   }
+
+   /**
+    * Test accessing a value of some basic type in a DynAny object.
+    */
+   public void testAccessBasicValue_string () throws Exception
+   {
+      TypeCode tc     = orb.get_primitive_tc (org.omg.CORBA.TCKind.tk_string);
+      DynAny   dynAny = createDynAnyFromTypeCode (tc);
+
+      String msg = "Value inserted into DynAny object is not equal to value ";
+      msg += "extracted from same DynAny object";
+
+      dynAny.insert_string ("foobar");
+      assertEquals (msg, "foobar", dynAny.get_string());
+   }
+
+      /**
+    * Test inserting a basic value into a DynAny that has a different typecode.
+    */
+   public void testInsertMismatch_string () throws Exception
+   {
+      TypeCode tc     = orb.get_primitive_tc (org.omg.CORBA.TCKind.tk_boolean);
+      DynAny   dynAny = createDynAnyFromTypeCode (tc);
+
+      try
+      {
+          dynAny.insert_string ("foobar");
+          fail ("should have thrown TypeMismatch");
+      }
+      catch (TypeMismatch ex)
+      {
+          // ok
+      }
+      catch (Exception ex)
+      {
+          fail ("should have thrown TypeMismatch, but was: " + ex);
+      }
+   }
+
+   /**
+    * Test retrieving a basic value from a DynAny that has a different typecode.
+    */
+   public void testRetrieveMismatch_string () throws Exception
+   {
+      TypeCode tc     = orb.get_primitive_tc (org.omg.CORBA.TCKind.tk_long);
+      DynAny   dynAny = createDynAnyFromTypeCode (tc);
+      dynAny.insert_long(700);
+
+      try
+      {
+          dynAny.get_string();
+          fail ("should have thrown TypeMismatch");
+      }
+      catch (TypeMismatch ex)
+      {
+          // ok
+      }
+      catch (Exception ex)
+      {
+          fail ("should have thrown TypeMismatch, but was:  " + ex);
+      }
+   }
+
+   /**
+    * Test accessing a value of some basic type in a DynAny object.
+    */
+   public void testAccessBasicValue_wstring () throws Exception
+   {
+      TypeCode tc     = orb.get_primitive_tc (org.omg.CORBA.TCKind.tk_wstring);
+      DynAny   dynAny = createDynAnyFromTypeCode (tc);
+
+      String msg = "Value inserted into DynAny object is not equal to value ";
+      msg += "extracted from same DynAny object";
+
+      dynAny.insert_wstring ("foobar");
+      assertEquals (msg, "foobar", dynAny.get_wstring());
+   }
+
+      /**
+    * Test inserting a basic value into a DynAny that has a different typecode.
+    */
+   public void testInsertMismatch_wstring () throws Exception
+   {
+      TypeCode tc     = orb.get_primitive_tc (org.omg.CORBA.TCKind.tk_boolean);
+      DynAny   dynAny = createDynAnyFromTypeCode (tc);
+
+      try
+      {
+          dynAny.insert_wstring ("foobarx");
+          fail ("should have thrown TypeMismatch");
+      }
+      catch (TypeMismatch ex)
+      {
+          // ok
+      }
+      catch (Exception ex)
+      {
+          fail ("should have thrown TypeMismatch, but was: " + ex);
+      }
+   }
+
+   /**
+    * Test retrieving a basic value from a DynAny that has a different typecode.
+    */
+   public void testRetrieveMismatch_wstring () throws Exception
+   {
+      TypeCode tc     = orb.get_primitive_tc (org.omg.CORBA.TCKind.tk_long);
+      DynAny   dynAny = createDynAnyFromTypeCode (tc);
+      dynAny.insert_long(700);
+
+      try
+      {
+          dynAny.get_wstring();
+          fail ("should have thrown TypeMismatch");
+      }
+      catch (TypeMismatch ex)
+      {
+          // ok
+      }
+      catch (Exception ex)
+      {
+          fail ("should have thrown TypeMismatch, but was:  " + ex);
+      }
+   }
+
+   /**
+    * Test accessing a value of some basic type in a DynAny object.
+    */
+   public void testAccessBasicValue_any () throws Exception
+   {
+      TypeCode tc     = orb.get_primitive_tc (org.omg.CORBA.TCKind.tk_any);
+      DynAny   dynAny = createDynAnyFromTypeCode (tc);
+
+      String msg = "Value inserted into DynAny object is not equal to value ";
+      msg += "extracted from same DynAny object";
+
+      Any inAny = orb.create_any();
+      inAny.insert_long (777);
+      
+      dynAny.insert_any (inAny);
+      Any outAny = dynAny.get_any();
+      
+      assertTrue (msg, inAny.equal(outAny));
+      assertEquals (msg, inAny.extract_long(), outAny.extract_long());
+   }
+
+      /**
+    * Test inserting a basic value into a DynAny that has a different typecode.
+    */
+   public void testInsertMismatch_any () throws Exception
+   {
+      TypeCode tc     = orb.get_primitive_tc (org.omg.CORBA.TCKind.tk_boolean);
+      DynAny   dynAny = createDynAnyFromTypeCode (tc);
+      Any inAny = orb.create_any();
+      inAny.insert_long(700);
       
       try
       {
-         dynAny.insert_long (intVal);
+          dynAny.insert_any (inAny);
+          fail ("should have thrown TypeMismatch");
       }
-      catch (Throwable ex)
+      catch (TypeMismatch ex)
       {
-         fail ("Failed to insert value into DynAny object: " + ex);
+          // ok
       }
-
-      try
+      catch (Exception ex)
       {
-         intVal2 = dynAny.get_long ();
+          fail ("should have thrown TypeMismatch, but was: " + ex);
       }
-      catch (Throwable ex)
-      {
-         fail ("Failed to extract value from DynAny object: " + ex);
-      }
-
-      msg = "Value inserted into DynAny object is not equal to value ";
-      msg += "extracted from same DynAny object";
-      assertEquals (msg, intVal, intVal2);
    }
-
 
    /**
-    * Test that a TypeMismatch exception is raised if there is a type
-    * mismatch between the TypeCode of a DynAny object and the accessor
-    * methods used to access its value.
+    * Test retrieving a basic value from a DynAny that has a different typecode.
     */
-   public void testAccessTypeMismatchEx ()
+   public void testRetrieveMismatch_any () throws Exception
    {
-      String msg;
-      org.omg.CORBA.TypeCode tc = null;
-      org.omg.DynamicAny.DynAny dynAny = null;
+      TypeCode tc     = orb.get_primitive_tc (org.omg.CORBA.TCKind.tk_long);
+      DynAny   dynAny = createDynAnyFromTypeCode (tc);
+      dynAny.insert_long(700);
 
-      tc = orb.get_primitive_tc (org.omg.CORBA.TCKind.tk_string);
-      dynAny = createDynAnyFromTypeCode (tc);
-
-      msg = "TypeMismatch exception not thrown by insert operation when ";
-      msg += "insert operation is not valid for TypeCode of DynAny";
       try
       {
-         dynAny.insert_long (700);
-
-         fail (msg);
+          dynAny.get_any();
+          fail ("should have thrown TypeMismatch");
       }
-      catch (org.omg.DynamicAny.DynAnyPackage.TypeMismatch ex)
+      catch (TypeMismatch ex)
       {
-         // success
+          // ok
       }
-      catch (org.omg.DynamicAny.DynAnyPackage.InvalidValue ex)
+      catch (Exception ex)
       {
-         fail (msg + ": " + ex);
-      }
-
-      msg = "TypeMismatch exception not thrown by get operation when ";
-      msg += "get operation is not valid for TypeCode of DynAny";
-      try
-      {
-         dynAny.get_long ();
-      }
-      catch (org.omg.DynamicAny.DynAnyPackage.TypeMismatch ex)
-      {
-         // success
-      }
-      catch (org.omg.DynamicAny.DynAnyPackage.InvalidValue ex)
-      {
-         fail (msg + ": " + ex);
+          fail ("should have thrown TypeMismatch, but was:  " + ex);
       }
    }
 
-   
+   /**
+    * Test accessing a value of some basic type in a DynAny object.
+    */
+   public void testAccessBasicValue_typecode () throws Exception
+   {
+      TypeCode tc     = orb.get_primitive_tc (org.omg.CORBA.TCKind.tk_TypeCode);
+      DynAny   dynAny = createDynAnyFromTypeCode (tc);
+
+      String msg = "Value inserted into DynAny object is not equal to value ";
+      msg += "extracted from same DynAny object";
+
+      TypeCode payload = orb.get_primitive_tc (org.omg.CORBA.TCKind.tk_long);
+      dynAny.insert_typecode (payload);
+      
+      TypeCode offload = dynAny.get_typecode();
+      assertTrue(msg, payload.equal(offload));
+   }
+
+      /**
+    * Test inserting a basic value into a DynAny that has a different typecode.
+    */
+   public void testInsertMismatch_typecode () throws Exception
+   {
+      TypeCode tc     = orb.get_primitive_tc (org.omg.CORBA.TCKind.tk_boolean);
+      DynAny   dynAny = createDynAnyFromTypeCode (tc);
+      TypeCode payload = orb.get_primitive_tc (org.omg.CORBA.TCKind.tk_octet);
+      
+      try
+      {
+          dynAny.insert_typecode (payload);
+          fail ("should have thrown TypeMismatch");
+      }
+      catch (TypeMismatch ex)
+      {
+          // ok
+      }
+      catch (Exception ex)
+      {
+          fail ("should have thrown TypeMismatch, but was: " + ex);
+      }
+   }
+
+   /**
+    * Test retrieving a basic value from a DynAny that has a different typecode.
+    */
+   public void testRetrieveMismatch_typecode () throws Exception
+   {
+      TypeCode tc     = orb.get_primitive_tc (org.omg.CORBA.TCKind.tk_long);
+      DynAny   dynAny = createDynAnyFromTypeCode (tc);
+      dynAny.insert_long(700);
+
+      try
+      {
+          dynAny.get_typecode();
+          fail ("should have thrown TypeMismatch");
+      }
+      catch (TypeMismatch ex)
+      {
+          // ok
+      }
+      catch (Exception ex)
+      {
+          fail ("should have thrown TypeMismatch, but was:  " + ex);
+      }
+   }
+
+   /**
+    * Test accessing a value of some basic type in a DynAny object.
+    */
+   public void testAccessBasicValue_dynany () throws Exception
+   {
+      TypeCode tc     = orb.get_primitive_tc (org.omg.CORBA.TCKind.tk_any);
+      DynAny   dynAny = createDynAnyFromTypeCode (tc);
+       
+      String msg = "Value inserted into DynAny object is not equal to value ";
+      msg += "extracted from same DynAny object";
+
+      tc = orb.get_primitive_tc (org.omg.CORBA.TCKind.tk_long);
+      DynAny payload = createDynAnyFromTypeCode (tc);
+      payload.insert_long(787);
+      
+      dynAny.insert_dyn_any(payload);
+      DynAny offload = dynAny.get_dyn_any();
+
+      assertEquals (msg, 787, offload.get_long());
+   }
+
+      /**
+    * Test inserting a basic value into a DynAny that has a different typecode.
+    */
+   public void testInsertMismatch_dynany () throws Exception
+   {
+      TypeCode tc     = orb.get_primitive_tc (org.omg.CORBA.TCKind.tk_boolean);
+      DynAny   dynAny = createDynAnyFromTypeCode (tc);
+      DynAny inAny = createDynAnyFromTypeCode(tc);
+      inAny.insert_boolean (true);
+      
+      try
+      {
+          dynAny.insert_dyn_any (inAny);
+          fail ("should have thrown TypeMismatch");
+      }
+      catch (TypeMismatch ex)
+      {
+          // ok
+      }
+      catch (Exception ex)
+      {
+          fail ("should have thrown TypeMismatch, but was: " + ex);
+      }
+   }
+
+   /**
+    * Test retrieving a basic value from a DynAny that has a different typecode.
+    */
+   public void testRetrieveMismatch_dynany () throws Exception
+   {
+      TypeCode tc     = orb.get_primitive_tc (org.omg.CORBA.TCKind.tk_long);
+      DynAny   dynAny = createDynAnyFromTypeCode (tc);
+      dynAny.insert_long(700);
+
+      try
+      {
+          dynAny.get_dyn_any();
+          fail ("should have thrown TypeMismatch");
+      }
+      catch (TypeMismatch ex)
+      {
+          // ok
+      }
+      catch (Exception ex)
+      {
+          fail ("should have thrown TypeMismatch, but was:  " + ex);
+      }
+   }
+
    /**
     * Test obtaining the TypeCode associated with a DynAny object.
     */
