@@ -86,7 +86,7 @@ public class ConfigurationTest extends JacORBTestCase
         }
     }
     
-    public void _testOrbidPropertiesConfigDir() throws Exception
+    public void testOrbidPropertiesConfigDir() throws Exception
     {
         try
         {
@@ -98,7 +98,10 @@ public class ConfigurationTest extends JacORBTestCase
             props.put("org.omg.CORBA.ORBSingletonClass",
                     "org.jacorb.orb.ORBSingleton");
 
-            Properties oldProps = System.getProperties();
+            // Make sure to copy the properties to a new Properties object,
+            // because otherwise oldProps will just be an alias to the 
+            // "live" set of properties.
+            Properties oldProps = new Properties (System.getProperties());
             System.setProperty("jacorb.config.dir", TestUtils
                     .osDependentPath(TestUtils.testHome()));
             System.setProperty("ORBid", "mytestorbid");
@@ -122,7 +125,7 @@ public class ConfigurationTest extends JacORBTestCase
      * Place an orbid.properties file on the classpath and verify
      * that it gets loaded.
      */
-    public void _testOrbidPropertiesClasspath() throws Exception
+    public void testOrbidPropertiesClasspath() throws Exception
     {
         try
         {
@@ -134,7 +137,7 @@ public class ConfigurationTest extends JacORBTestCase
             props.put("org.omg.CORBA.ORBSingletonClass",
                     "org.jacorb.orb.ORBSingleton");
 
-            Properties oldProps = System.getProperties();
+            Properties oldProps = new Properties(System.getProperties());
             System.setProperty("ORBid", "myownorbid");
 
             ORB orb = ORB.init(new String[] {}, props);
@@ -156,7 +159,7 @@ public class ConfigurationTest extends JacORBTestCase
      * Get properties from a custom.props file and verify that they
      * have been loaded.
      */
-    public void _testCustomProps() throws Exception
+    public void testCustomProps() throws Exception
     {
         try
         {
@@ -168,7 +171,7 @@ public class ConfigurationTest extends JacORBTestCase
             props.put("org.omg.CORBA.ORBSingletonClass",
                     "org.jacorb.orb.ORBSingleton");
 
-            Properties oldProps = System.getProperties();
+            Properties oldProps = new Properties(System.getProperties());
             System.setProperty("custom.props", 
                                getConfigFilename ("etc/custom.properties"));
 
@@ -190,14 +193,14 @@ public class ConfigurationTest extends JacORBTestCase
     /**
      * Verify that system properties end up in the JacORB configuration.
      */
-    public void _testSystemProperties() throws Exception
+    public void testSystemProperties() throws Exception
     {
         Properties props = new Properties();
         props.put("org.omg.CORBA.ORBClass", "org.jacorb.orb.ORB");
         props.put("org.omg.CORBA.ORBSingletonClass",
                   "org.jacorb.orb.ORBSingleton");
 
-        Properties oldProps = System.getProperties();
+        Properties oldProps = new Properties (System.getProperties());
         System.setProperty ("jacorb.connection.client.connect_timeout", "33105");
         ORB orb = ORB.init(new String[] {}, props);
 
@@ -232,7 +235,7 @@ public class ConfigurationTest extends JacORBTestCase
      * A property is set in every conceivable way, and we verify that
      * the value from ORB.init() takes precedence over all the others.
      */
-    public void _testOrbInitPrecedence() throws Exception
+    public void testOrbInitPrecedence() throws Exception
     {
         try
         {
@@ -251,7 +254,7 @@ public class ConfigurationTest extends JacORBTestCase
                       "org.jacorb.orb.ORBSingleton");
             props.put("jacorb.connection.client.connect_timeout", "33705");
         
-            Properties oldProps = System.getProperties();
+            Properties oldProps = new Properties(System.getProperties());
             System.setProperty("jacorb.config.log.verbosity", "4");
             System.setProperty("jacorb.config.dir", TestUtils.testHome());
             System.setProperty("ORBid", "myorbid");
@@ -279,7 +282,7 @@ public class ConfigurationTest extends JacORBTestCase
      * Check that a property specified in the System properties overrides
      * most other ways of specifying that property.
      */
-    public void _testSystemPrecedence() throws Exception
+    public void testSystemPrecedence() throws Exception
     {
         try
         {
@@ -297,7 +300,7 @@ public class ConfigurationTest extends JacORBTestCase
             props.put("org.omg.CORBA.ORBSingletonClass",
                       "org.jacorb.orb.ORBSingleton");
         
-            Properties oldProps = System.getProperties();
+            Properties oldProps = new Properties (System.getProperties());
             System.setProperty("jacorb.config.log.verbosity", "4");
             System.setProperty("jacorb.config.dir", TestUtils.testHome());
             System.setProperty("ORBid", "myorbid");
@@ -325,7 +328,7 @@ public class ConfigurationTest extends JacORBTestCase
      * Check that a property specified in orbid.properties overrides
      * most other ways of specifying that property.
      */
-    public void _testOrbIdClasspathPrecedence() throws Exception
+    public void testOrbIdClasspathPrecedence() throws Exception
     {
         try
         {
@@ -343,7 +346,7 @@ public class ConfigurationTest extends JacORBTestCase
             props.put("org.omg.CORBA.ORBSingletonClass",
                       "org.jacorb.orb.ORBSingleton");
         
-            Properties oldProps = System.getProperties();
+            Properties oldProps = new Properties (System.getProperties());
             System.setProperty("jacorb.config.log.verbosity", "4");
             System.setProperty("jacorb.config.dir", TestUtils.testHome());
             System.setProperty("ORBid", "myorbid");
@@ -371,7 +374,7 @@ public class ConfigurationTest extends JacORBTestCase
      * Check that a property specified in custom.props overrides
      * most other ways of specifying that property.
      */
-    public void _testCustomPropsPrecedence() throws Exception
+    public void testCustomPropsPrecedence() throws Exception
     {
         try
         {
@@ -387,7 +390,7 @@ public class ConfigurationTest extends JacORBTestCase
             props.put("org.omg.CORBA.ORBSingletonClass",
                       "org.jacorb.orb.ORBSingleton");
         
-            Properties oldProps = System.getProperties();
+            Properties oldProps = new Properties (System.getProperties());
             System.setProperty("jacorb.config.log.verbosity", "4");
             System.setProperty("jacorb.config.dir", TestUtils.testHome());
             System.setProperty("ORBid", "myorbid");
@@ -415,7 +418,7 @@ public class ConfigurationTest extends JacORBTestCase
      * Check that a property specified in orbid.properties overrides
      * the same property as defined in orb.properties.
      */
-    public void _testOrbIdConfigDirPrecedence() throws Exception
+    public void testOrbIdConfigDirPrecedence() throws Exception
     {
         try
         {
@@ -429,14 +432,13 @@ public class ConfigurationTest extends JacORBTestCase
             props.put("org.omg.CORBA.ORBSingletonClass",
                       "org.jacorb.orb.ORBSingleton");
         
-            Properties oldProps = System.getProperties();
+            Properties oldProps = new Properties (System.getProperties());
             System.setProperty("jacorb.config.log.verbosity", "4");
             System.setProperty("jacorb.config.dir", TestUtils.testHome());
             System.setProperty("ORBid", "myorbid");
             
             ORB orb = ORB.init(new String[] {}, props);
 
-            System.setProperties (null);
             System.setProperties (oldProps);
             
             int timeout = ((org.jacorb.orb.ORB) orb).getConfiguration()
@@ -448,10 +450,6 @@ public class ConfigurationTest extends JacORBTestCase
         {
             deletePropertiesFile ("classes/orb.properties");
             deletePropertiesFile ("etc/myorbid.properties");
-            System.setProperty("ORBid", "");
-            System.setProperty("custom.props", "");
-            System.setProperty("jacorb.config.log.verbosity", "0");
-            System.setProperty("jacorb.config.dir", "");
         }
     }
 
