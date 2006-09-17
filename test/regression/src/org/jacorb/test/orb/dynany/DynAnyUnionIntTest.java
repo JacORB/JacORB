@@ -27,10 +27,26 @@ import org.omg.CORBA.TCKind;
 import java.lang.reflect.Method;
 
 import org.jacorb.test.common.ORBSetup;
-import org.jacorb.test.UnionDefaultIntType;
-import org.jacorb.test.UnionDefaultIntTypeHelper;
-import org.jacorb.test.UnionNoDefaultIntType;
-import org.jacorb.test.UnionNoDefaultIntTypeHelper;
+import org.jacorb.test.UnionDefaultBooleanType;
+import org.jacorb.test.UnionDefaultBooleanTypeHelper;
+import org.jacorb.test.UnionNoDefaultBooleanType;
+import org.jacorb.test.UnionNoDefaultBooleanTypeHelper;
+import org.jacorb.test.UnionDefaultCharType;
+import org.jacorb.test.UnionDefaultCharTypeHelper;
+import org.jacorb.test.UnionNoDefaultCharType;
+import org.jacorb.test.UnionNoDefaultCharTypeHelper;
+import org.jacorb.test.UnionDefaultShortType;
+import org.jacorb.test.UnionDefaultShortTypeHelper;
+import org.jacorb.test.UnionNoDefaultShortType;
+import org.jacorb.test.UnionNoDefaultShortTypeHelper;
+import org.jacorb.test.UnionDefaultLongType;
+import org.jacorb.test.UnionDefaultLongTypeHelper;
+import org.jacorb.test.UnionNoDefaultLongType;
+import org.jacorb.test.UnionNoDefaultLongTypeHelper;
+import org.jacorb.test.UnionDefaultLongLongType;
+import org.jacorb.test.UnionDefaultLongLongTypeHelper;
+import org.jacorb.test.UnionNoDefaultLongLongType;
+import org.jacorb.test.UnionNoDefaultLongLongTypeHelper;
 
 /**
  * DynAnyUnionIntTest.java
@@ -68,8 +84,16 @@ public class DynAnyUnionIntTest extends TestCase
       suite.addTest (new DynAnyUnionIntTest ("testIterateDynAnyNamedMember"));
       suite.addTest (new DynAnyUnionIntTest ("testIterateDynAnyUnamedMember"));
       suite.addTest (new DynAnyUnionIntTest ("testAccessUnionDisc"));
-      suite.addTest (new DynAnyUnionIntTest ("testUnionDefaultCase"));
-      suite.addTest (new DynAnyUnionIntTest ("testUnionNoDefaultCase"));
+      suite.addTest (new DynAnyUnionIntTest ("testUnionDefaultBoolean"));
+      suite.addTest (new DynAnyUnionIntTest ("testUnionNoDefaultBoolean"));
+      suite.addTest (new DynAnyUnionIntTest ("testUnionDefaultChar"));
+      suite.addTest (new DynAnyUnionIntTest ("testUnionNoDefaultChar"));
+      suite.addTest (new DynAnyUnionIntTest ("testUnionDefaultShort"));
+      suite.addTest (new DynAnyUnionIntTest ("testUnionNoDefaultShort"));
+      suite.addTest (new DynAnyUnionIntTest ("testUnionDefaultLong"));
+      suite.addTest (new DynAnyUnionIntTest ("testUnionNoDefaultLong"));
+      suite.addTest (new DynAnyUnionIntTest ("testUnionDefaultLongLong"));
+      suite.addTest (new DynAnyUnionIntTest ("testUnionNoDefaultLongLong"));
       suite.addTest (new DynAnyUnionIntTest ("testAccessNamedUnionMember"));
       suite.addTest (new DynAnyUnionIntTest ("testAccessUnamedUnionMember"));
       suite.addTest (new DynAnyUnionIntTest ("testDynAnyTypeCode"));
@@ -91,13 +115,13 @@ public class DynAnyUnionIntTest extends TestCase
     */
    public void testFactoryCreateFromAny ()
    {
-      UnionDefaultIntType type = null;
+      UnionDefaultShortType type = null;
       org.omg.CORBA.Any any = null;
 
-      type = new UnionDefaultIntType ();
+      type = new UnionDefaultShortType ();
       type.win (10);
       any = orb.create_any ();
-      UnionDefaultIntTypeHelper.insert (any, type);
+      UnionDefaultShortTypeHelper.insert (any, type);
 
       createDynAnyFromAny (any);
    }
@@ -130,7 +154,7 @@ public class DynAnyUnionIntTest extends TestCase
    {
       org.omg.CORBA.TypeCode tc = null;
 
-      tc = UnionDefaultIntTypeHelper.type ();
+      tc = UnionDefaultShortTypeHelper.type ();
       createDynAnyFromTypeCode (tc);
    }
 
@@ -141,12 +165,12 @@ public class DynAnyUnionIntTest extends TestCase
    public void testCompareDynAnyUnamedMember ()
    {
       String msg;
-      UnionNoDefaultIntType type;
+      UnionNoDefaultShortType type;
       org.omg.CORBA.Any any = null;
       org.omg.DynamicAny.DynUnion dynAny = null;
       org.omg.DynamicAny.DynUnion dynAny2 = null;
 
-      type = new UnionNoDefaultIntType ();
+      type = new UnionNoDefaultShortType ();
 
       // use reflection to avoid ORB portability issues
       Class unionClass = type.getClass ();
@@ -181,7 +205,7 @@ public class DynAnyUnionIntTest extends TestCase
       }
 
       any = orb.create_any ();
-      UnionNoDefaultIntTypeHelper.insert (any, type);
+      UnionNoDefaultShortTypeHelper.insert (any, type);
       dynAny = createDynAnyFromAny (any);
       dynAny2 = createDynAnyFromAny (any);
 
@@ -196,15 +220,15 @@ public class DynAnyUnionIntTest extends TestCase
    public void testCompareDynAnyNamedMember ()
    {
       String msg;
-      UnionDefaultIntType type;
+      UnionDefaultShortType type;
       org.omg.CORBA.Any any = null;
       org.omg.DynamicAny.DynUnion dynAny = null;
       org.omg.DynamicAny.DynUnion dynAny2 = null;
 
-      type = new UnionDefaultIntType ();
+      type = new UnionDefaultShortType ();
       type.win (10);
       any = orb.create_any ();
-      UnionDefaultIntTypeHelper.insert (any, type);
+      UnionDefaultShortTypeHelper.insert (any, type);
       dynAny = createDynAnyFromAny (any);
       dynAny2 = createDynAnyFromAny (any);
 
@@ -311,13 +335,13 @@ public class DynAnyUnionIntTest extends TestCase
       String msg;
       int compCount = -1;
       boolean seek;
-      UnionNoDefaultIntType type;
+      UnionNoDefaultShortType type;
       org.omg.CORBA.Any any = null;
       org.omg.CORBA.TypeCode tc = null;
       org.omg.DynamicAny.DynUnion dynAny = null;
       org.omg.DynamicAny.DynAny disc = null;
 
-      type = new UnionNoDefaultIntType ();
+      type = new UnionNoDefaultShortType ();
 
       // use reflection to avoid ORB portability issues
       Class unionClass = type.getClass ();
@@ -352,7 +376,7 @@ public class DynAnyUnionIntTest extends TestCase
       }
 
       any = orb.create_any ();
-      UnionNoDefaultIntTypeHelper.insert (any, type);
+      UnionNoDefaultShortTypeHelper.insert (any, type);
       dynAny = createDynAnyFromAny (any);
 
       // test that the discriminator is correctly set
@@ -419,7 +443,7 @@ public class DynAnyUnionIntTest extends TestCase
       org.omg.DynamicAny.DynAny disc = null;
       org.omg.DynamicAny.DynAny invalidDisc = null;
 
-      tc = UnionDefaultIntTypeHelper.type ();
+      tc = UnionDefaultShortTypeHelper.type ();
       dynAny = createDynAnyFromTypeCode (tc);
 
       // test setting the discriminator
@@ -495,26 +519,355 @@ public class DynAnyUnionIntTest extends TestCase
       }
    }
 
-
-   /**
+      /**
     * Test setting the discriminator to the default member for a union with
     * an explicit default case.
     */
-   public void testUnionDefaultCase ()
+   public void testUnionDefaultBoolean()
    {
       String msg;
       int compCount = -1;
-      short discVal = 0;
-      UnionDefaultIntType type;
+      boolean discVal = false;
+      UnionDefaultBooleanType type;
       boolean hasNoActiveMember = true;
       org.omg.CORBA.Any any = null;
       org.omg.DynamicAny.DynAny disc = null;
       org.omg.DynamicAny.DynUnion dynAny = null;
 
-      type = new UnionDefaultIntType ();
+      type = new UnionDefaultBooleanType ();
       type.win (10);
       any = orb.create_any ();
-      UnionDefaultIntTypeHelper.insert (any, type);
+      UnionDefaultBooleanTypeHelper.insert (any, type);
+      dynAny = createDynAnyFromAny (any);
+
+      // test activating the default member
+      msg = "Failed to set the discriminator to the default member using the ";
+      msg += "DynUnion::set_to_default_member operation";
+      try
+      {
+         dynAny.set_to_default_member ();
+      }
+      catch (Throwable ex)
+      {
+         fail (msg + ": " + ex);
+      }
+      disc = dynAny.get_discriminator ();
+
+      // specific to IDL
+      //      assertEquals (msg, (byte) 0, disc.to_any ().extract_octet ());
+
+      // specific to IDL
+      discVal = disc.to_any ().extract_boolean ();
+      assertTrue (msg, discVal);
+
+      // test the component count
+      try
+      {
+         compCount = dynAny.component_count ();
+      }
+      catch (Throwable ex)
+      {
+         // should not be needed, but it prevents compiler errors
+         fail ("Unexpected error raised by DynAny::component_count operation");
+      }
+      msg = "Wrong number of components returned from DynAny::component_count ";
+      msg += "operation after calling DynUnion::set_to_default_member ";
+      msg += "operation";
+      assertEquals (msg, 2, compCount);
+
+      // test attempting to deactivate the default member
+      try
+      {
+         dynAny.set_to_no_active_member ();
+
+         msg = "Failed to raise a TypeMismatch exception when calling the ";
+         msg += "DynUnion::set_to_no_active_member operation on a union with ";
+         msg += "an explicit default case";
+         fail (msg);
+      }
+      catch (org.omg.DynamicAny.DynAnyPackage.TypeMismatch ex)
+      {
+         // success
+      }
+
+      msg = "The DynUnion::has_no_active_member operation did not return ";
+      msg += "FALSE when called on a union with an explicit default case";
+      try
+      {
+         hasNoActiveMember = dynAny.has_no_active_member ();
+      }
+      catch (Throwable ex)
+      {
+         fail (msg + ": " + ex);
+      }
+      assertTrue (msg, !hasNoActiveMember);
+   }
+
+   /**
+    * Test setting the discriminator to no active member for a union without
+    * an explicit default case.
+    */
+   public void testUnionNoDefaultBoolean()
+   {
+      String msg;
+      int compCount = -1;
+      boolean discVal = false;
+      UnionNoDefaultBooleanType type;
+      boolean hasNoActiveMember = false;
+      org.omg.CORBA.Any any = null;
+      org.omg.DynamicAny.DynUnion dynAny = null;
+      org.omg.DynamicAny.DynAny disc = null;
+
+      type = new UnionNoDefaultBooleanType ();
+      type.win (10);
+      any = orb.create_any ();
+      UnionNoDefaultBooleanTypeHelper.insert (any, type);
+      dynAny = createDynAnyFromAny (any);
+
+      // test deactivating the active member
+      msg = "Failed to set the discriminator to no active member using the ";
+      msg += "DynUnion::set_to_no_active_member operation";
+      try
+      {
+         dynAny.set_to_no_active_member ();
+      }
+      catch (Throwable ex)
+      {
+         fail (msg + ": " + ex);
+      }
+      disc = dynAny.get_discriminator ();
+      discVal = disc.to_any ().extract_boolean ();
+      assertTrue (msg, discVal);
+
+      // test the component count
+      try
+      {
+         compCount = dynAny.component_count ();
+      }
+      catch (Throwable ex)
+      {
+         // should not be needed, but it prevents compiler errors
+         fail ("Unexpected error raised by DynAny::component_count operation");
+      }
+
+      msg = "Wrong number of components returned from DynAny::component_count ";
+      msg += "operation after calling DynUnion::set_to_no_active_member ";
+      msg += "operation";
+      assertEquals (msg, 1, compCount);
+
+      // test attempting to activate the default member
+      try
+      {
+         dynAny.set_to_default_member ();
+
+         msg = "Failed to raise a TypeMismatch exception when calling the ";
+         msg += "DynUnion::set_to_default_member operation on a union without ";
+         msg += "an explicit default case";
+         fail (msg);
+      }
+      catch (org.omg.DynamicAny.DynAnyPackage.TypeMismatch ex)
+      {
+         // success
+      }
+
+      msg = "The DynUnion::has_no_active_member operation did not return ";
+      msg += "TRUE when called on a union without an explicit default case";
+      try
+      {
+         hasNoActiveMember = dynAny.has_no_active_member ();
+      }
+      catch (Throwable ex)
+      {
+         fail (msg + ": " + ex);
+      }
+      assertTrue (msg, hasNoActiveMember);
+   }
+
+
+   /**
+    * Test setting the discriminator to the default member for a union with
+    * an explicit default case.
+    */
+   public void testUnionDefaultChar()
+   {
+      String msg;
+      int compCount = -1;
+      char discVal = '\u0000';
+      UnionDefaultCharType type;
+      boolean hasNoActiveMember = true;
+      org.omg.CORBA.Any any = null;
+      org.omg.DynamicAny.DynAny disc = null;
+      org.omg.DynamicAny.DynUnion dynAny = null;
+
+      type = new UnionDefaultCharType ();
+      type.win (10);
+      any = orb.create_any ();
+      UnionDefaultCharTypeHelper.insert (any, type);
+      dynAny = createDynAnyFromAny (any);
+
+      // test activating the default member
+      msg = "Failed to set the discriminator to the default member using the ";
+      msg += "DynUnion::set_to_default_member operation";
+      try
+      {
+         dynAny.set_to_default_member ();
+      }
+      catch (Throwable ex)
+      {
+         fail (msg + ": " + ex);
+      }
+      disc = dynAny.get_discriminator ();
+
+      // specific to IDL
+      //      assertEquals (msg, (byte) 0, disc.to_any ().extract_octet ());
+
+      // specific to IDL
+      discVal = disc.to_any ().extract_char ();
+      assertTrue (msg, discVal < 'a' || discVal > 'c');
+
+      // test the component count
+      try
+      {
+         compCount = dynAny.component_count ();
+      }
+      catch (Throwable ex)
+      {
+         // should not be needed, but it prevents compiler errors
+         fail ("Unexpected error raised by DynAny::component_count operation");
+      }
+      msg = "Wrong number of components returned from DynAny::component_count ";
+      msg += "operation after calling DynUnion::set_to_default_member ";
+      msg += "operation";
+      assertEquals (msg, 2, compCount);
+
+      // test attempting to deactivate the default member
+      try
+      {
+         dynAny.set_to_no_active_member ();
+
+         msg = "Failed to raise a TypeMismatch exception when calling the ";
+         msg += "DynUnion::set_to_no_active_member operation on a union with ";
+         msg += "an explicit default case";
+         fail (msg);
+      }
+      catch (org.omg.DynamicAny.DynAnyPackage.TypeMismatch ex)
+      {
+         // success
+      }
+
+      msg = "The DynUnion::has_no_active_member operation did not return ";
+      msg += "FALSE when called on a union with an explicit default case";
+      try
+      {
+         hasNoActiveMember = dynAny.has_no_active_member ();
+      }
+      catch (Throwable ex)
+      {
+         fail (msg + ": " + ex);
+      }
+      assertTrue (msg, !hasNoActiveMember);
+   }
+
+
+   /**
+    * Test setting the discriminator to no active member for a union without
+    * an explicit default case.
+    */
+   public void testUnionNoDefaultChar()
+   {
+      String msg;
+      int compCount = -1;
+      char discVal = '\u0000';
+      UnionNoDefaultCharType type;
+      boolean hasNoActiveMember = false;
+      org.omg.CORBA.Any any = null;
+      org.omg.DynamicAny.DynUnion dynAny = null;
+      org.omg.DynamicAny.DynAny disc = null;
+
+      type = new UnionNoDefaultCharType ();
+      type.win (10);
+      any = orb.create_any ();
+      UnionNoDefaultCharTypeHelper.insert (any, type);
+      dynAny = createDynAnyFromAny (any);
+
+      // test deactivating the active member
+      msg = "Failed to set the discriminator to no active member using the ";
+      msg += "DynUnion::set_to_no_active_member operation";
+      try
+      {
+         dynAny.set_to_no_active_member ();
+      }
+      catch (Throwable ex)
+      {
+         fail (msg + ": " + ex);
+      }
+      disc = dynAny.get_discriminator ();
+      discVal = disc.to_any ().extract_char ();
+      assertTrue (msg, discVal < 'a' || discVal > 'c');
+
+      // test the component count
+      try
+      {
+         compCount = dynAny.component_count ();
+      }
+      catch (Throwable ex)
+      {
+         // should not be needed, but it prevents compiler errors
+         fail ("Unexpected error raised by DynAny::component_count operation");
+      }
+
+      msg = "Wrong number of components returned from DynAny::component_count ";
+      msg += "operation after calling DynUnion::set_to_no_active_member ";
+      msg += "operation";
+      assertEquals (msg, 1, compCount);
+
+      // test attempting to activate the default member
+      try
+      {
+         dynAny.set_to_default_member ();
+
+         msg = "Failed to raise a TypeMismatch exception when calling the ";
+         msg += "DynUnion::set_to_default_member operation on a union without ";
+         msg += "an explicit default case";
+         fail (msg);
+      }
+      catch (org.omg.DynamicAny.DynAnyPackage.TypeMismatch ex)
+      {
+         // success
+      }
+
+      msg = "The DynUnion::has_no_active_member operation did not return ";
+      msg += "TRUE when called on a union without an explicit default case";
+      try
+      {
+         hasNoActiveMember = dynAny.has_no_active_member ();
+      }
+      catch (Throwable ex)
+      {
+         fail (msg + ": " + ex);
+      }
+      assertTrue (msg, hasNoActiveMember);
+   }
+
+   /**
+    * Test setting the discriminator to the default member for a union with
+    * an explicit default case.
+    */
+   public void testUnionDefaultShort ()
+   {
+      String msg;
+      int compCount = -1;
+      short discVal = 0;
+      UnionDefaultShortType type;
+      boolean hasNoActiveMember = true;
+      org.omg.CORBA.Any any = null;
+      org.omg.DynamicAny.DynAny disc = null;
+      org.omg.DynamicAny.DynUnion dynAny = null;
+
+      type = new UnionDefaultShortType ();
+      type.win (10);
+      any = orb.create_any ();
+      UnionDefaultShortTypeHelper.insert (any, type);
       dynAny = createDynAnyFromAny (any);
 
       // test activating the default member
@@ -585,20 +938,20 @@ public class DynAnyUnionIntTest extends TestCase
     * Test setting the discriminator to no active member for a union without
     * an explicit default case.
     */
-   public void testUnionNoDefaultCase ()
+   public void testUnionNoDefaultShort ()
    {
       String msg;
       int compCount = -1;
-      UnionNoDefaultIntType type;
+      UnionNoDefaultShortType type;
       boolean hasNoActiveMember = false;
       org.omg.CORBA.Any any = null;
       org.omg.DynamicAny.DynUnion dynAny = null;
       org.omg.DynamicAny.DynAny disc = null;
 
-      type = new UnionNoDefaultIntType ();
+      type = new UnionNoDefaultShortType ();
       type.win (10);
       any = orb.create_any ();
-      UnionNoDefaultIntTypeHelper.insert (any, type);
+      UnionNoDefaultShortTypeHelper.insert (any, type);
       dynAny = createDynAnyFromAny (any);
 
       // test deactivating the active member
@@ -661,6 +1014,337 @@ public class DynAnyUnionIntTest extends TestCase
       assertTrue (msg, hasNoActiveMember);
    }
 
+   /**
+    * Test setting the discriminator to the default member for a union with
+    * an explicit default case.
+    */
+   public void testUnionDefaultLong ()
+   {
+      String msg;
+      int compCount = -1;
+      int discVal = 0;
+      UnionDefaultLongType type;
+      boolean hasNoActiveMember = true;
+      org.omg.CORBA.Any any = null;
+      org.omg.DynamicAny.DynAny disc = null;
+      org.omg.DynamicAny.DynUnion dynAny = null;
+
+      type = new UnionDefaultLongType ();
+      type.win (10);
+      any = orb.create_any ();
+      UnionDefaultLongTypeHelper.insert (any, type);
+      dynAny = createDynAnyFromAny (any);
+
+      // test activating the default member
+      msg = "Failed to set the discriminator to the default member using the ";
+      msg += "DynUnion::set_to_default_member operation";
+      try
+      {
+         dynAny.set_to_default_member ();
+      }
+      catch (Throwable ex)
+      {
+         fail (msg + ": " + ex);
+      }
+      disc = dynAny.get_discriminator ();
+
+      // specific to IDL
+      //      assertEquals (msg, (byte) 0, disc.to_any ().extract_octet ());
+
+      // specific to IDL
+      discVal = disc.to_any ().extract_long ();
+      assertTrue (msg, discVal < 0 || discVal > 3);
+
+      // test the component count
+      try
+      {
+         compCount = dynAny.component_count ();
+      }
+      catch (Throwable ex)
+      {
+         // should not be needed, but it prevents compiler errors
+         fail ("Unexpected error raised by DynAny::component_count operation");
+      }
+      msg = "Wrong number of components returned from DynAny::component_count ";
+      msg += "operation after calling DynUnion::set_to_default_member ";
+      msg += "operation";
+      assertEquals (msg, 2, compCount);
+
+      // test attempting to deactivate the default member
+      try
+      {
+         dynAny.set_to_no_active_member ();
+
+         msg = "Failed to raise a TypeMismatch exception when calling the ";
+         msg += "DynUnion::set_to_no_active_member operation on a union with ";
+         msg += "an explicit default case";
+         fail (msg);
+      }
+      catch (org.omg.DynamicAny.DynAnyPackage.TypeMismatch ex)
+      {
+         // success
+      }
+
+      msg = "The DynUnion::has_no_active_member operation did not return ";
+      msg += "FALSE when called on a union with an explicit default case";
+      try
+      {
+         hasNoActiveMember = dynAny.has_no_active_member ();
+      }
+      catch (Throwable ex)
+      {
+         fail (msg + ": " + ex);
+      }
+      assertTrue (msg, !hasNoActiveMember);
+   }
+
+
+   /**
+    * Test setting the discriminator to no active member for a union without
+    * an explicit default case.
+    */
+   public void testUnionNoDefaultLong ()
+   {
+      String msg;
+      int compCount = -1;
+      UnionNoDefaultLongType type;
+      boolean hasNoActiveMember = false;
+      org.omg.CORBA.Any any = null;
+      org.omg.DynamicAny.DynUnion dynAny = null;
+      org.omg.DynamicAny.DynAny disc = null;
+
+      type = new UnionNoDefaultLongType ();
+      type.win (10);
+      any = orb.create_any ();
+      UnionNoDefaultLongTypeHelper.insert (any, type);
+      dynAny = createDynAnyFromAny (any);
+
+      // test deactivating the active member
+      msg = "Failed to set the discriminator to no active member using the ";
+      msg += "DynUnion::set_to_no_active_member operation";
+      try
+      {
+         dynAny.set_to_no_active_member ();
+      }
+      catch (Throwable ex)
+      {
+         fail (msg + ": " + ex);
+      }
+      disc = dynAny.get_discriminator ();
+
+      // specific to IDL
+      assertEquals (msg, 4, disc.to_any ().extract_long ());
+
+      // test the component count
+      try
+      {
+         compCount = dynAny.component_count ();
+      }
+      catch (Throwable ex)
+      {
+         // should not be needed, but it prevents compiler errors
+         fail ("Unexpected error raised by DynAny::component_count operation");
+      }
+
+      msg = "Wrong number of components returned from DynAny::component_count ";
+      msg += "operation after calling DynUnion::set_to_no_active_member ";
+      msg += "operation";
+      assertEquals (msg, 1, compCount);
+
+      // test attempting to activate the default member
+      try
+      {
+         dynAny.set_to_default_member ();
+
+         msg = "Failed to raise a TypeMismatch exception when calling the ";
+         msg += "DynUnion::set_to_default_member operation on a union without ";
+         msg += "an explicit default case";
+         fail (msg);
+      }
+      catch (org.omg.DynamicAny.DynAnyPackage.TypeMismatch ex)
+      {
+         // success
+      }
+
+      msg = "The DynUnion::has_no_active_member operation did not return ";
+      msg += "TRUE when called on a union without an explicit default case";
+      try
+      {
+         hasNoActiveMember = dynAny.has_no_active_member ();
+      }
+      catch (Throwable ex)
+      {
+         fail (msg + ": " + ex);
+      }
+      assertTrue (msg, hasNoActiveMember);
+   }
+
+      /**
+    * Test setting the discriminator to the default member for a union with
+    * an explicit default case.
+    */
+   public void testUnionDefaultLongLong ()
+   {
+      String msg;
+      int compCount = -1;
+      long discVal = 0;
+      UnionDefaultLongLongType type;
+      boolean hasNoActiveMember = true;
+      org.omg.CORBA.Any any = null;
+      org.omg.DynamicAny.DynAny disc = null;
+      org.omg.DynamicAny.DynUnion dynAny = null;
+
+      type = new UnionDefaultLongLongType ();
+      type.win (10);
+      any = orb.create_any ();
+      UnionDefaultLongLongTypeHelper.insert (any, type);
+      dynAny = createDynAnyFromAny (any);
+
+      // test activating the default member
+      msg = "Failed to set the discriminator to the default member using the ";
+      msg += "DynUnion::set_to_default_member operation";
+      try
+      {
+         dynAny.set_to_default_member ();
+      }
+      catch (Throwable ex)
+      {
+         fail (msg + ": " + ex);
+      }
+      disc = dynAny.get_discriminator ();
+
+      // specific to IDL
+      //      assertEquals (msg, (byte) 0, disc.to_any ().extract_octet ());
+
+      // specific to IDL
+      discVal = disc.to_any ().extract_longlong ();
+      assertTrue (msg, discVal < 0 || discVal > 2);
+
+      // test the component count
+      try
+      {
+         compCount = dynAny.component_count ();
+      }
+      catch (Throwable ex)
+      {
+         // should not be needed, but it prevents compiler errors
+         fail ("Unexpected error raised by DynAny::component_count operation");
+      }
+      msg = "Wrong number of components returned from DynAny::component_count ";
+      msg += "operation after calling DynUnion::set_to_default_member ";
+      msg += "operation";
+      assertEquals (msg, 2, compCount);
+
+      // test attempting to deactivate the default member
+      try
+      {
+         dynAny.set_to_no_active_member ();
+
+         msg = "Failed to raise a TypeMismatch exception when calling the ";
+         msg += "DynUnion::set_to_no_active_member operation on a union with ";
+         msg += "an explicit default case";
+         fail (msg);
+      }
+      catch (org.omg.DynamicAny.DynAnyPackage.TypeMismatch ex)
+      {
+         // success
+      }
+
+      msg = "The DynUnion::has_no_active_member operation did not return ";
+      msg += "FALSE when called on a union with an explicit default case";
+      try
+      {
+         hasNoActiveMember = dynAny.has_no_active_member ();
+      }
+      catch (Throwable ex)
+      {
+         fail (msg + ": " + ex);
+      }
+      assertTrue (msg, !hasNoActiveMember);
+   }
+
+
+   /**
+    * Test setting the discriminator to no active member for a union without
+    * an explicit default case.
+    */
+   public void testUnionNoDefaultLongLong ()
+   {
+      String msg;
+      int compCount = -1;
+      UnionNoDefaultLongLongType type;
+      boolean hasNoActiveMember = false;
+      org.omg.CORBA.Any any = null;
+      org.omg.DynamicAny.DynUnion dynAny = null;
+      org.omg.DynamicAny.DynAny disc = null;
+
+      type = new UnionNoDefaultLongLongType ();
+      type.win (10);
+      any = orb.create_any ();
+      UnionNoDefaultLongLongTypeHelper.insert (any, type);
+      dynAny = createDynAnyFromAny (any);
+
+      // test deactivating the active member
+      msg = "Failed to set the discriminator to no active member using the ";
+      msg += "DynUnion::set_to_no_active_member operation";
+      try
+      {
+         dynAny.set_to_no_active_member ();
+      }
+      catch (Throwable ex)
+      {
+         fail (msg + ": " + ex);
+      }
+      disc = dynAny.get_discriminator ();
+
+      // specific to IDL
+      assertEquals (msg, 3, disc.to_any ().extract_longlong ());
+
+      // test the component count
+      try
+      {
+         compCount = dynAny.component_count ();
+      }
+      catch (Throwable ex)
+      {
+         // should not be needed, but it prevents compiler errors
+         fail ("Unexpected error raised by DynAny::component_count operation");
+      }
+
+      msg = "Wrong number of components returned from DynAny::component_count ";
+      msg += "operation after calling DynUnion::set_to_no_active_member ";
+      msg += "operation";
+      assertEquals (msg, 1, compCount);
+
+      // test attempting to activate the default member
+      try
+      {
+         dynAny.set_to_default_member ();
+
+         msg = "Failed to raise a TypeMismatch exception when calling the ";
+         msg += "DynUnion::set_to_default_member operation on a union without ";
+         msg += "an explicit default case";
+         fail (msg);
+      }
+      catch (org.omg.DynamicAny.DynAnyPackage.TypeMismatch ex)
+      {
+         // success
+      }
+
+      msg = "The DynUnion::has_no_active_member operation did not return ";
+      msg += "TRUE when called on a union without an explicit default case";
+      try
+      {
+         hasNoActiveMember = dynAny.has_no_active_member ();
+      }
+      catch (Throwable ex)
+      {
+         fail (msg + ": " + ex);
+      }
+      assertTrue (msg, hasNoActiveMember);
+   }
+
+
 
    /**
     * Test accessing the active member of a DynUnion object.
@@ -669,7 +1353,7 @@ public class DynAnyUnionIntTest extends TestCase
    {
       String msg;
       int testVal = 10;
-      UnionDefaultIntType type;
+      UnionDefaultShortType type;
       TCKind memberKind = null;
       String memberName = null;
       int memberVal = -1;
@@ -677,10 +1361,10 @@ public class DynAnyUnionIntTest extends TestCase
       org.omg.DynamicAny.DynUnion dynAny = null;
       org.omg.DynamicAny.DynAny member = null; // specific to IDL
 
-      type = new UnionDefaultIntType ();
+      type = new UnionDefaultShortType ();
       type.win (testVal);
       any = orb.create_any ();
-      UnionDefaultIntTypeHelper.insert (any, type);
+      UnionDefaultShortTypeHelper.insert (any, type);
       dynAny = createDynAnyFromAny (any);
 
       // test getting the kind of the active member
@@ -732,7 +1416,7 @@ public class DynAnyUnionIntTest extends TestCase
       assertEquals (msg, testVal, memberVal);
    }
 
-
+   
    /**
     * Test attempting to access the active member of a DynUnion object when
     * there is no active member.
@@ -743,7 +1427,7 @@ public class DynAnyUnionIntTest extends TestCase
       org.omg.CORBA.TypeCode tc = null;
       org.omg.DynamicAny.DynUnion dynAny = null;
 
-      tc = UnionNoDefaultIntTypeHelper.type ();
+      tc = UnionNoDefaultShortTypeHelper.type ();
       dynAny = createDynAnyFromTypeCode (tc);
 
       try
@@ -830,19 +1514,19 @@ public class DynAnyUnionIntTest extends TestCase
    public void testInitDynAnyFromDynAny ()
    {
       String msg;
-      UnionDefaultIntType type;
+      UnionDefaultShortType type;
       org.omg.CORBA.Any any = null;
       org.omg.CORBA.TypeCode tc = null;
       org.omg.DynamicAny.DynUnion dynAny = null;
       org.omg.DynamicAny.DynUnion dynAny2 = null;
 
-      tc = UnionDefaultIntTypeHelper.type ();
+      tc = UnionDefaultShortTypeHelper.type ();
       dynAny = createDynAnyFromTypeCode (tc);
 
-      type = new UnionDefaultIntType ();
+      type = new UnionDefaultShortType ();
       type.win (10);
       any = orb.create_any ();
-      UnionDefaultIntTypeHelper.insert (any, type);
+      UnionDefaultShortTypeHelper.insert (any, type);
       dynAny2 = createDynAnyFromAny (any);
 
       msg = "Failed to initialize a DynAny object from another DynAny ";
@@ -865,19 +1549,19 @@ public class DynAnyUnionIntTest extends TestCase
    public void testInitDynAnyFromAny ()
    {
       String msg;
-      UnionDefaultIntType type;
+      UnionDefaultShortType type;
       org.omg.CORBA.Any any = null;
       org.omg.CORBA.TypeCode tc = null;
       org.omg.DynamicAny.DynUnion dynAny = null;
       org.omg.DynamicAny.DynUnion dynAny2 = null;
 
-      tc = UnionDefaultIntTypeHelper.type ();
+      tc = UnionDefaultShortTypeHelper.type ();
       dynAny = createDynAnyFromTypeCode (tc);
 
-      type = new UnionDefaultIntType ();
+      type = new UnionDefaultShortType ();
       type.win (10);
       any = orb.create_any ();
-      UnionDefaultIntTypeHelper.insert (any, type);
+      UnionDefaultShortTypeHelper.insert (any, type);
       dynAny2 = createDynAnyFromAny (any);
 
       msg = "Failed to initialize a DynAny object from an Any object ";
@@ -947,7 +1631,7 @@ public class DynAnyUnionIntTest extends TestCase
       org.omg.DynamicAny.DynUnion dynAny = null;
       org.omg.DynamicAny.DynUnion dynAny2 = null;
 
-      tc = UnionDefaultIntTypeHelper.type ();
+      tc = UnionDefaultShortTypeHelper.type ();
       dynAny = createDynAnyFromTypeCode (tc);
 
       any = orb.create_any ();
@@ -966,14 +1650,14 @@ public class DynAnyUnionIntTest extends TestCase
    public void testDestroyDynAny ()
    {
       String msg;
-      UnionDefaultIntType type;
+      UnionDefaultShortType type;
       org.omg.CORBA.Any any = null;
       org.omg.DynamicAny.DynUnion dynAny = null;
 
-      type = new UnionDefaultIntType ();
+      type = new UnionDefaultShortType ();
       type.win (10);
       any = orb.create_any ();
-      UnionDefaultIntTypeHelper.insert (any, type);
+      UnionDefaultShortTypeHelper.insert (any, type);
       dynAny = createDynAnyFromAny (any);
       dynAny.destroy ();
 
@@ -1017,15 +1701,15 @@ public class DynAnyUnionIntTest extends TestCase
    public void testDestroyComponent ()
    {
       String msg;
-      UnionDefaultIntType type;
+      UnionDefaultShortType type;
       org.omg.CORBA.Any any = null;
       org.omg.DynamicAny.DynUnion dynAny = null;
       org.omg.DynamicAny.DynAny comp = null;
 
-      type = new UnionDefaultIntType ();
+      type = new UnionDefaultShortType ();
       type.win (10);
       any = orb.create_any ();
-      UnionDefaultIntTypeHelper.insert (any, type);
+      UnionDefaultShortTypeHelper.insert (any, type);
       dynAny = createDynAnyFromAny (any);
 
       try
@@ -1076,7 +1760,7 @@ public class DynAnyUnionIntTest extends TestCase
       org.omg.DynamicAny.DynUnion dynAny = null;
       org.omg.DynamicAny.DynUnion dynAny2 = null;
 
-      tc = UnionDefaultIntTypeHelper.type ();
+      tc = UnionDefaultShortTypeHelper.type ();
       dynAny = createDynAnyFromTypeCode (tc);
       dynAny2 = (org.omg.DynamicAny.DynUnion) dynAny.copy ();
 
