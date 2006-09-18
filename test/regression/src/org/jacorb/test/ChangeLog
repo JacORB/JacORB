@@ -1,3 +1,153 @@
+2006-09-17  Andre Spiegel  <spiegel@gnu.org>
+
+	* orb/dynany/DynAnyUnionIntTest.java (testUnionDefaultBoolean,
+	testUnionNoDefaultBoolean, testUnionDefaultChar,
+	testUnionNoDefaultChar, testUnionDefaultShort,
+	testUnionNoDefaultShort, testUnionDefaultLong,
+	testUnionNoDefaultLong, testUnionDefaultLongLong,
+	testUnionNoDefaultLongLong): New test cases.
+	(testUnionDefaultCase, testUnionNoDefaultCase): Test cases
+	removed, they are now covered by the above.  Update callers of
+	UnionDefaultIntType and UnionNoDefaultIntType, from Tests.idl.
+
+2006-09-14  Andre Spiegel  <spiegel@gnu.org>
+
+	* config/ConfigurationTest.java: Fix JDK 1.5 dependencies.  All
+	tests re-enabled.  They should all work properly under JDK 1.4
+	now.
+
+2006-09-13  Andre Spiegel  <spiegel@gnu.org>
+
+	* config/ConfigurationTest.java: Remove jdk 1.5 specific stuff:
+	PrintWriter with filename argument and System.clearProperty().
+	Deactivate several test cases that cannot work without
+	System.clearProperty().
+
+2006-09-12  Andre Spiegel  <spiegel@gnu.org>
+
+	* orb/dynany/DynAnyBaseTest.java (testAccessBasicValue_boolean,
+	testInsertMismatch_boolean, testRetrieveMismatch_boolean,
+	testAccessBasicValue_short, testInsertMismatch_short,
+	testRetrieveMismatch_short, testAccessBasicValue_ushort,
+	testInsertMismatch_ushort, testRetrieveMismatch_ushort,
+	testAccessBasicValue_long, testInsertMismatch_long,
+	testRetrieveMismatch_long, testAccessBasicValue_ulong,
+	testInsertMismatch_ulong, testRetrieveMismatch_ulong,
+	testAccessBasicValue_longlong, testInsertMismatch_longlong,
+	testRetrieveMismatch_longlong, testAccessBasicValue_ulonglong,
+	testInsertMismatch_ulonglong, testRetrieveMismatch_ulonglong,
+	testAccessBasicValue_octet, testInsertMismatch_octet,
+	testRetrieveMismatch_octet, testAccessBasicValue_float,
+	testInsertMismatch_float, testRetrieveMismatch_float,
+	testAccessBasicValue_double, testInsertMismatch_double,
+	testRetrieveMismatch_double, testAccessBasicValue_char,
+	testInsertMismatch_char, testRetrieveMismatch_char,
+	testAccessBasicValue_wchar, testInsertMismatch_wchar,
+	testRetrieveMismatch_wchar, testAccessBasicValue_string,
+	testInsertMismatch_string, testRetrieveMismatch_string,
+	testAccessBasicValue_wstring, testInsertMismatch_wstring,
+	testRetrieveMismatch_wstring, testAccessBasicValue_any,
+	testInsertMismatch_any, testRetrieveMismatch_any,
+	testAccessBasicValue_typecode, testInsertMismatch_typecode,
+	testRetrieveMismatch_typecode, testAccessBasicValue_dynany,
+	testInsertMismatch_dynany, testRetrieveMismatch_dynany): New test
+	cases.
+	(testAccessBasicValue, testAccessTypeMismatchEx): Test cases
+	removed, they are subsumed by the above now.
+
+2006-09-11  Andre Spiegel  <spiegel@gnu.org>
+
+	* orb/CorbalocTest.java (suite): Comment out test_rir_RootPOA
+	because it currently fails.
+
+2006-09-10  Andre Spiegel  <spiegel@gnu.org>
+
+	* config/ConfigurationTest.java (testOrbPropertiesClasspath,
+	testOrbidPropertiesConfigDir, testOrbidPropertiesClasspath,
+	testCustomProps, testSystemProperties, testOrbInitProperties,
+	testOrbInitPrecedence, testSystemPrecedence,
+	testOrbIdClasspathPrecedence, testCustomPropsPrecedence,
+	testOrbIdConfigDirPrecedence, testAppletConfiguration): New test
+	cases.
+	(suite, ctor, getConfigFilename, createPropertiesFile,
+	deletePropertiesFile): New methods.
+
+	* util/LogKitLoggerFactoryTest.java (testLogFile,
+	testLogFileImplName, testLogFileAppend, testLogFileNotAppend,
+	testLogFileRotation, testLogFileSingleton): New test cases.
+	(config, defaultPriority): Fields removed, they are now local
+	variables in testGetPriorityForNamedLogger.
+	(setup): Method removed.
+	(priorityFor): Changed signature.
+	(testGetPriorityForNamedLogger): Adapt to the above changes.
+	(getLogDirectory, getLogFilename, purgeLogDirectory): New methods.
+	(assertFileExists, assertFileContains, assertFileNotContains): New
+	methods.
+
+2006-09-04  Andre Spiegel  <spiegel@gnu.org>
+
+	* orb/AnyTest.java (test_valuetype_stream, test_any_stream,
+	test_boolean_stream, test_boolean_streamable, test_boolean,
+	test_char_stream, test_double_stream, test_extract_objref,
+	test_extract_streamable_null, test_extract_streamable,
+	test_fixed_2, test_fixed_stream, test_float_stream,
+	test_long_stream, test_longlong_stream, test_not_equal_to_null,
+	test_not_equal, test_object_stream, test_principal,
+	test_shallow_copy, test_short_stream, test_string_stream,
+	test_to_string, test_ulong_stream, test_ulonglong_stream,
+	test_ushort_stream, test_wchar_stream, test_wstring_stream): New
+	test cases.
+
+2006-09-04  Alphonse Bendt  <bendt@prismtech.com>
+
+	* bugs/bugjac722/BugJac722Test.java: bugzilla #667
+
+	added test and fix. thanks to Rich Doyle for reporting and
+	providing a fix.
+
+2006-09-03  Andre Spiegel  <spiegel@gnu.org>
+
+	* orb/AllTest.java (suite): Add ORBSingletonTest.
+
+	* orb/ORBSingletonTest.java: Initial revision.
+
+2006-09-01  Andre Spiegel  <spiegel@gnu.org>
+
+	* orb/AnyTest.java (test_any_sequence, test_char_sequence,
+	test_double_sequence, test_float_sequence, test_long_sequence,
+	test_longlong_sequence, test_octet_sequence, test_short_sequence,
+	test_ulong_sequence, test_ulonglong_sequence,
+	test_ushort_sequence, test_wchar_sequence, test_wstring_sequence,
+	test_longlong_disc_union_manual,
+	test_longlong_disc_union_streamable, test_longlong_disc_union,
+	test_ulonglong_disc_union_manual,
+	test_ulonglong_disc_union_streamable, test_ulonglong_disc_union):
+	New test cases.
+
+	* orb/AllTest.java (suite): Add ArrayTest and CorbalocTest.
+
+	* orb/ArrayServerImpl.java, orb/ArrayTest.java, orb/CorbalocTest.java:
+	Initial revision.
+
+	* common/TestServer.java (useCorbaloc): New field and accessor method.
+	(createPOA, getCorbaloc): New methods.
+	(main): Use them.
+
+2006-09-01  Alphonse Bendt  <bendt@prismtech.com>
+
+	* bugs/AllTest.java, bugs/bugjac722/BugJac722Test.java,
+	bugs/bugjac722/PartImpl.java, bugs/bugjac722/WholeImpl.java:
+	bugzilla #722
+
+	testcase and fix
+	thanks to Scott Melby for reporting and providing a fix
+
+2006-08-29  Andre Spiegel  <spiegel@gnu.org>
+
+	* poa/AllTest.java (suite): Include POAUtilTest.
+
+	* poa/POAUtilTest.java: Initial revision.
+
 2006-08-25  Iliyan Jeliazkov  <iliyan@ociweb.com>
 
         * transport/FrameworkClientTest.java:
