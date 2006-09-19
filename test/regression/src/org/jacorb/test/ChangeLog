@@ -1,3 +1,9 @@
+2006-09-19  Andre Spiegel  <spiegel@gnu.org>
+
+	* orb/policies/AllTest.java (suite): Add PolicyHandlingTest.
+
+	* orb/policies/PolicyHandlingTest.java: Initial revision.
+
 2006-09-17  Andre Spiegel  <spiegel@gnu.org>
 
 	* orb/dynany/DynAnyUnionIntTest.java (testUnionDefaultBoolean,
