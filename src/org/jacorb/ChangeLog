@@ -1,3 +1,14 @@
+2006-10-11  Iliyan Jeliazkov  <iliyan@ociweb.com>
+
+	* ir/ConstantDef.java: Introduced additional ctor parameter (poa)
+	to be able to properly initialize the class instances in Contained
+	(below).
+
+	* ir/Contained.java: Passing the poa reference to the ConstantDef
+	ctor.
+
+	* ir/IDLType.java: Adding a missing return out of a switch statement.
+	
 2006-08-11  Iliyan Jeliazkov  <iliyan@ociweb.com>
 
         Introducing the Transport Current (TC) implementation. TC is an
