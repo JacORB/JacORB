@@ -135,6 +135,7 @@ public class IDLType
                 catch( Exception e )
                 { 
                     logger.error("Caught Exception", e);
+                    return null;
                 }
             case TCKind._tk_alias:
             case TCKind._tk_struct: 
@@ -147,8 +148,9 @@ public class IDLType
                 }
                 catch( Exception e )
                 { 
-                    logger.error("Caught Exception", e);
                     // does not happen here
+                    logger.error("Caught Exception", e);
+                    return null;
                 }
             case TCKind._tk_string: 
                 try

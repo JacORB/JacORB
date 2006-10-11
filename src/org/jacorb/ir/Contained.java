@@ -144,7 +144,8 @@ public abstract class Contained
                     return new org.jacorb.ir.ConstantDef( c,
                                                           _defined_in,
                                                           ir,
-                                                          logger);
+                                                          logger,
+                                                          poa);
                 }
                 catch( NoSuchFieldException nsfe )
                 {

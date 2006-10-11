@@ -21,10 +21,8 @@ package org.jacorb.ir;
  */
 
 import java.lang.reflect.*;
-import java.util.*;
 
 import org.omg.CORBA.INTF_REPOS;
-import org.omg.CORBA.Any;
 import org.omg.PortableServer.POA;
 
 import org.apache.avalon.framework.logger.Logger;
@@ -110,9 +108,12 @@ public class ConstantDef
     public ConstantDef( Class c,
                         org.omg.CORBA.Container _defined_in,
                         org.omg.CORBA.Repository ir,
-                        Logger logger )
+                        Logger logger,
+                        POA poa)
     {
         this.logger = logger;
+        this.poa = poa;
+
         def_kind = org.omg.CORBA.DefinitionKind.dk_Constant;
         containing_repository = ir;
         defined_in = _defined_in;
