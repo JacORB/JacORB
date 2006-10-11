@@ -718,7 +718,106 @@ public class Interface
         ps.close();
     }
 
+    /**
+     * Generates a narrow method for the Helper class.
+     * @param ps the PrintWriter to which the method will be written
+     * @param checked determines whether an ordinary narrow() method or an
+     *                unchecked_narrow() method should be generated
+     * @param forCorbaObject determines whether the parameter type of the
+     *                       narrow method is org.omg.CORBA.Object or
+     *                       java.lang.Object
+     */
+    protected void printNarrow (PrintWriter ps,
+                                boolean checked,
+                                boolean forCorbaObject)
+    {
+        ps.print("\tpublic static " + typeName());
+        ps.print(checked ? " narrow" : " unchecked_narrow");
+        ps.println(forCorbaObject ? "(final org.omg.CORBA.Object obj)"
+                                  : "(final java.lang.Object obj)");
+        ps.println("\t{");
+        ps.println("\t\tif (obj == null)");
+        ps.println("\t\t{");
+        ps.println("\t\t\treturn null;");
+        ps.println("\t\t}");
 
+        final String stub_name = stubName(typeName());
+        if (parser.generate_stubs && !is_local)
+        {
+            // This is presumably an optimization for J2ME.  It is not
+            // clear whether this is really worthwhile as it is covered
+            // by the instanceof case below, and that is faster anyway,
+            // at least on JDk 1.5.  AS, 2006-10-11.
+            ps.println("\t\telse if (obj.getClass() == " + stub_name + ".class)");
+            ps.println("\t\t{");
+            ps.println("\t\t\treturn (" + typeName() + ") obj;");
+            ps.println("\t\t}");
+        }
+        
+        ps.println("\t\telse if (obj instanceof " + typeName() + ")");
+        ps.println("\t\t{");
+        ps.println("\t\t\treturn (" + typeName() + ")obj;");
+        ps.println("\t\t}");
+
+        if (parser.generate_stubs && !is_local)
+        {
+            if (checked && forCorbaObject)
+            {
+                ps.println("\t\telse if (obj._is_a(\"" + id() + "\"))");
+                printStubInterposition(ps, stub_name);
+                printElseNarrowFailed(ps);
+            }
+            else if (!checked && forCorbaObject)
+            {
+                ps.println("\t\telse");
+                printStubInterposition (ps, stub_name);
+            }
+            else if (checked && !forCorbaObject)
+            {
+                ps.println("\t\telse if (obj instanceof org.omg.CORBA.Object &&");
+                ps.println("\t\t         ((org.omg.CORBA.Object)obj)._is_a(\"" + id() + "\"))");
+                printStubInterposition (ps, stub_name);
+                printElseNarrowFailed (ps);
+            }
+            else if (!checked && !forCorbaObject)
+            {
+                ps.println("\t\tif (obj instanceof org.omg.CORBA.Object)");
+                printStubInterposition (ps, stub_name);
+                printElseNarrowFailed (ps);
+            }
+        } 
+        else
+        {
+            printElseNarrowFailed (ps);
+        }
+        ps.println("\t}");
+    }
+    
+    /**
+     * Generates the code for a narrow method with which a stub is inserted
+     * between an object implementation and the client.
+     */
+    protected void printStubInterposition (PrintWriter ps, String stub_name)
+    {
+        ps.println("\t\t{");
+        ps.println("\t\t\t" + stub_name + " stub;");
+        ps.println("\t\t\tstub = new " + stub_name + "();");
+        ps.println("\t\t\tstub._set_delegate(((org.omg.CORBA.portable.ObjectImpl)obj)._get_delegate());");
+        ps.println("\t\t\treturn stub;");
+        ps.println("\t\t}");
+    }
+    
+    /**
+     * Prints the else clause of a narrow method that signals general failure.
+     */
+    protected void printElseNarrowFailed (PrintWriter ps)
+    {
+        ps.println("\t\telse");
+        ps.println("\t\t{");
+        ps.println("\t\t\tthrow new org.omg.CORBA.BAD_PARAM(\"Narrow failed\");");
+        ps.println("\t\t}");
+    }
+    
     /**
      * Generate the helper class for an interface
      */
@@ -861,129 +960,25 @@ public class Interface
 
         ps.println("\t}");
 
-        final String stub_name = stubName(typeName());
-
-        // Generate narrow - only used by abstract_interfaces.
-        ps.println("\tpublic static " + typeName() + " narrow(final java.lang.Object obj)");
-        ps.println("\t{");
-
-        ps.println("\t\tif (obj == null)");
-        ps.println("\t\t{");
-        ps.println("\t\t\treturn null;");
-        ps.println("\t\t}");
-
-        if (parser.generate_stubs && !is_local)
+        // Generate narrow methods (cf. Java Mapping 1.2, sect. 1.5.2)
+        if (is_abstract)
         {
-            ps.println("\t\telse if (obj.getClass() == " + stub_name + ".class)");
-            ps.println("\t\t{");
-            ps.println("\t\t\treturn (" + typeName() + ") obj;");
-            ps.println("\t\t}");
+            printNarrow (ps, true,  false); // checked, java.lang.Object
+            printNarrow (ps, false, false); // unchecked, java.lang.Object
         }
-
-        ps.println("\t\telse if (obj instanceof " + typeName() + ')');
-        ps.println("\t\t{");
-        ps.println("\t\t\treturn (" + typeName() + ")obj;");
-        ps.println("\t\t}");
-
-        ps.println("\t\telse if (obj instanceof org.omg.CORBA.Object)");
-        ps.println("\t\t{");
-        ps.println("\t\t\treturn narrow((org.omg.CORBA.Object)obj);");
-        ps.println("\t\t}");
-        ps.println("\t\tthrow new org.omg.CORBA.BAD_PARAM(\"Failed to narrow in helper\");");
-        ps.println("\t}");
-
-        // Generate narrow
-
-        ps.println("\tpublic static " + typeName() + " narrow(final org.omg.CORBA.Object obj)");
-        ps.println("\t{");
-        ps.println("\t\tif (obj == null)");
-        ps.println("\t\t{");
-        ps.println("\t\t\treturn null;");
-        ps.println("\t\t}");
-
-        if (parser.generate_stubs && !is_local)
+        else if (hasAbstractBase())
         {
-            ps.println("\t\telse if (obj.getClass() == " + stub_name + ".class)");
-            ps.println("\t\t{");
-            ps.println("\t\t\treturn (" + typeName() + ") obj;");
-            ps.println("\t\t}");
-            ps.println("\t\telse if (obj instanceof " + typeName() + ")");
-            ps.println("\t\t{");
-            ps.println("\t\t\treturn (" + typeName() + ")obj;");
-            ps.println("\t\t}");
-            ps.println("\t\telse if (obj._is_a(\"" + id() + "\"))");
-            ps.println("\t\t{");
-
-
-            ps.println("\t\t\t" + stub_name + " stub;");
-
-            ps.println("\t\t\tstub = new " + stub_name + "();");
-
-            ps.println("\t\t\tstub._set_delegate(((org.omg.CORBA.portable.ObjectImpl)obj)._get_delegate());");
-
-            ps.println("\t\t\treturn stub;");
-
-            ps.println("\t\t}");
-
-            ps.println("\t\telse");
-
-            ps.println("\t\t{");
-
-            ps.println("\t\t\tthrow new org.omg.CORBA.BAD_PARAM(\"Narrow failed\");");
-
-            ps.println("\t\t}");
+            printNarrow (ps, true,  true);  // checked, CORBA Object
+            printNarrow (ps, true,  false); // checked, java.lang.Object
+            printNarrow (ps, false, true);  // unchecked, CORBA Object
+            printNarrow (ps, false, false); // unchecked, java.lang.Object
         }
         else
         {
-            ps.println("\t\tif (obj instanceof " + typeName() + ")");
-            ps.println("\t\t\treturn (" + typeName() + ")obj;");
-            ps.println("\t\telse");
-            ps.println("\t\tthrow new org.omg.CORBA.BAD_PARAM(\"Narrow failed, not a " + typeName() + "\");");
+            printNarrow (ps, true,  true);  // checked, CORBA Object
+            printNarrow (ps, false, true);  // unchecked, CORBA Object
         }
-
-        ps.println("\t}");
-
-        // Generate the unchecked_narrow
-        ps.println("\tpublic static " + typeName() + " unchecked_narrow(final org.omg.CORBA.Object obj)");
-        ps.println("\t{");
-        ps.println("\t\tif (obj == null)");
-        ps.println("\t\t{");
-        ps.println("\t\t\treturn null;");
-        ps.println("\t\t}");
-
-        if (parser.generate_stubs && ! is_local)
-        {
-            ps.println("\t\telse if (obj.getClass() == " + stub_name + ".class)");
-            ps.println("\t\t{");
-            ps.println("\t\t\treturn (" + typeName() + ") obj;");
-            ps.println("\t\t}");
-
-            ps.println("\t\telse if (obj instanceof " + typeName() + ')');
-            ps.println("\t\t{");
-            ps.println("\t\t\treturn (" + typeName() + ") obj;");
-            ps.println("\t\t}");
-            ps.println("\t\telse");
-            ps.println("\t\t{");
-
-            ps.println("\t\t\t" + stub_name + " stub;");
-
-            ps.println("\t\t\tstub = new " + stub_name + "();");
-
-            ps.println("\t\t\tstub._set_delegate(((org.omg.CORBA.portable.ObjectImpl)obj)._get_delegate());");
-
-            ps.println("\t\t\treturn stub;");
-            ps.println("\t\t}");
-        }
-        else
-        {
-            ps.println("\t\tif (obj instanceof " + typeName() + ")");
-            ps.println("\t\t\treturn (" + typeName() + ")obj;");
-            ps.println("\t\telse");
-            ps.println("\t\tthrow new org.omg.CORBA.BAD_PARAM(\"unchecked_narrow failed, not a " + typeName() + "\");");
-        }
-
-        ps.println("\t}");
-
+        
         ps.println("}");
         ps.close();
     }
@@ -1024,7 +1019,30 @@ public class Interface
 
         return ids;
     }
-
+    
+    /**
+     * Returns true if this interface has at least one abstract base type.
+     */
+    protected boolean hasAbstractBase()
+    {
+        if (inheritanceSpec != null && inheritanceSpec.v.size() > 0)
+        {
+            for (Iterator i = inheritanceSpec.v.iterator(); i.hasNext();)
+            {
+                TypeSpec ts = ((ScopedName) i.next()).resolvedTypeSpec();
+                if (ts instanceof ConstrTypeSpec)
+                {
+                    Interface base = (Interface) ((ConstrTypeSpec) ts).c_type_spec;
+                    if (base.is_abstract)
+                    {
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
+    }
+    
     /**
      * Generates a stub class for this Interface
      */
