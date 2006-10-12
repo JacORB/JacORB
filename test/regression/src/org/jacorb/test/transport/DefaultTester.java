@@ -6,6 +6,7 @@ import org.apache.avalon.framework.logger.Logger;
 import org.jacorb.transport.Current;
 import org.jacorb.transport.CurrentHelper;
 import org.omg.CORBA.ORB;
+import org.omg.CORBA.Object;
 
 
 public class DefaultTester implements AbstractTester {

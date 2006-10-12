@@ -6,6 +6,7 @@ import org.apache.avalon.framework.logger.Logger;
 import org.jacorb.transport.iiop.Current;
 import org.jacorb.transport.iiop.CurrentHelper;
 import org.omg.CORBA.ORB;
+import org.omg.CORBA.Object;
 
 
 public class IIOPTester implements AbstractTester {

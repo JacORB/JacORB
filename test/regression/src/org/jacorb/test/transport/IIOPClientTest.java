@@ -11,6 +11,7 @@ import org.jacorb.test.orb.transport.CurrentServerHelper;
 import org.jacorb.transport.Current;
 import org.jacorb.transport.CurrentHelper;
 import org.omg.CORBA.ORB;
+import org.omg.CORBA.Object;
 import org.omg.PortableServer.POA;
 import org.omg.PortableServer.POAHelper;
 

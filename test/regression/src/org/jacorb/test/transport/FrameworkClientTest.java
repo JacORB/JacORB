@@ -12,6 +12,7 @@ import org.jacorb.transport.Current;
 import org.jacorb.transport.CurrentHelper;
 import org.jacorb.transport.NoContext;
 import org.omg.CORBA.ORB;
+import org.omg.CORBA.Object;
 import org.omg.PortableServer.POA;
 import org.omg.PortableServer.POAHelper;
 
