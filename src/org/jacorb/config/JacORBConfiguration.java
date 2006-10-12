@@ -286,6 +286,21 @@ public class JacORBConfiguration
            }
        }
 
+       // now load properties file from classpath
+       orbConfig = loadPropertiesFromClassPath( name + fileSuffix );
+       if (orbConfig!= null)
+       {
+           setAttributes(orbConfig);
+           loaded = true;
+
+           logLevel =
+               getAttributeAsInteger(CONFIG_LOG_VERBOSITY,DEFAULT_LOG_LEVEL);
+           if (logLevel > 2)
+           {
+               println("[ configuration " + name + " loaded from classpath]");
+           }
+       }
+
        // 4) look for additional custom properties files
        List customPropFileNames = getAttributeList("custom.props");
 
@@ -315,21 +330,6 @@ public class JacORBConfiguration
                                            fileName + " ]");
                     }
                 }
-           }
-       }
-
-       // now load properties file from classpath
-       orbConfig = loadPropertiesFromClassPath( name + fileSuffix );
-       if (orbConfig!= null)
-       {
-           setAttributes(orbConfig);
-           loaded = true;
-
-           logLevel =
-               getAttributeAsInteger(CONFIG_LOG_VERBOSITY,DEFAULT_LOG_LEVEL);
-           if (logLevel > 2)
-           {
-               println("[ configuration " + name + " loaded from classpath]");
            }
        }
 
