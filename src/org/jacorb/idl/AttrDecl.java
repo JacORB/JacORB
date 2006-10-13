@@ -34,6 +34,9 @@ public class AttrDecl
     public boolean readOnly;
     public TypeSpec param_type_spec;
     public SymbolList declarators;
+    
+    public RaisesExpr getRaisesExpr;
+    public RaisesExpr setRaisesExpr;
 
     private Vector operations = new Vector();
 
@@ -51,6 +54,24 @@ public class AttrDecl
             pack_name = s;
         declarators.setPackage( s );
         param_type_spec.setPackage( s );
+        getRaisesExpr.setPackage( s );
+        setRaisesExpr.setPackage( s );
+    }
+    
+    public void setEnclosingSymbol( IdlSymbol s )
+    {
+        if( logger.isDebugEnabled() )
+            logger.debug( "opDecl.setEnclosingSymbol " + s  );
+
+        if( enclosing_symbol != null && enclosing_symbol != s )
+            throw new RuntimeException( "Compiler Error: trying to reassign container for "
+                                        + name );
+        if( s == null )
+            throw new RuntimeException( "Compiler Error: enclosing symbol is null!");
+
+        enclosing_symbol = s;
+        getRaisesExpr.setEnclosingSymbol( s );
+        setRaisesExpr.setEnclosingSymbol( s );
     }
 
     public void parse()
@@ -73,6 +94,9 @@ public class AttrDecl
         {
             declarators.parse();
         }
+        
+        getRaisesExpr.parse();
+        setRaisesExpr.parse();
 
         for (Enumeration e = declarators.v.elements(); e.hasMoreElements();)
         {
@@ -80,6 +104,7 @@ public class AttrDecl
                     new Method( param_type_spec,
                             null,
                             ( (SimpleDeclarator)e.nextElement() ).name(),
+                            getRaisesExpr,
                             is_pseudo)
             );
         }
@@ -94,6 +119,7 @@ public class AttrDecl
                         new Method( null,
                                 param_type_spec,
                                 d.name(),
+                                setRaisesExpr,
                                 is_pseudo )
                 );
             }
