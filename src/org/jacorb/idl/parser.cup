@@ -793,9 +793,9 @@ scan with
 
 terminal org.jacorb.idl.runtime.token
   ABSTRACT, ANY, ATTRIBUTE, BOOLEAN, CASE, CHAR, CONST, CONTEXT, CUSTOM,
-  DEFAULT, DOUBLE, ENUM, EXCEPTION, FACTORY, FALSE, FIXED, FLOAT, IN,
-  INOUT, INTERFACE, LOCAL, LONG, MODULE, NATIVE, OBJECT, OCTET, ONEWAY, OUT,
-  PRIVATE, PUBLIC, PSEUDO, RAISES, READONLY, SEQUENCE, SHORT, STRING,
+  DEFAULT, DOUBLE, ENUM, EXCEPTION, FACTORY, FALSE, FIXED, FLOAT, GETRAISES,
+  IN, INOUT, INTERFACE, LOCAL, LONG, MODULE, NATIVE, OBJECT, OCTET, ONEWAY, OUT,
+  PRIVATE, PUBLIC, PSEUDO, RAISES, READONLY, SETRAISES, SEQUENCE, SHORT, STRING,
   STRUCT, SUPPORTS, SWITCH, TRUE, TRUNCATABLE, TYPEDEF, UNSIGNED, UNION,
   VALUEBASE, VALUETYPE, VOID, WCHAR, WSTRING,
   SEMI, COMMA, STAR, DOT, COLON, EQUALS, PLUS, MINUS, LPAREN, RPAREN,
@@ -900,8 +900,10 @@ non terminal ArrayDeclarator array_declarator;
 non terminal FixedArraySize fixed_array_size;
 non terminal ParamDecl param_dcl;
 non terminal RaisesExpr raises_expr;
+non terminal RaisesExpr raises_expr_nonempty;
 non terminal OpDecl op_dcl;
 non terminal AttrDecl attr_dcl;
+non terminal AttrRaisesExpr attr_raises_expr;
 
 non terminal MemberList member_list;
 
@@ -2085,21 +2087,65 @@ fixed_array_size ::=
                 :}
         ;
 
-// #65
 attr_dcl ::=
-          READONLY ATTRIBUTE param_type_spec:pts simple_declarator_list:sdl
-                {:
-                        RESULT.readOnly = true;
-                        RESULT.param_type_spec = pts;
-                        RESULT.declarators = sdl;
-                :}
-        | ATTRIBUTE param_type_spec:pts simple_declarator_list:sdl
-                {:
-                        RESULT.readOnly = false;
-                        RESULT.param_type_spec = pts;
-                        RESULT.declarators = sdl;
-                :}
-        ;
+    READONLY ATTRIBUTE param_type_spec:pts simple_declarator_list:sdl
+      {:
+          RESULT.readOnly = true;
+          RESULT.param_type_spec = pts;
+          RESULT.declarators = sdl;
+          RESULT.getRaisesExpr = new RaisesExpr();
+          RESULT.setRaisesExpr = new RaisesExpr();
+      :}
+  | READONLY ATTRIBUTE param_type_spec:pts simple_declarator:sd 
+          raises_expr_nonempty:re
+      {:
+          RESULT.readOnly = true;
+          RESULT.param_type_spec = pts;
+          RESULT.declarators = new SymbolList (sd);
+          RESULT.getRaisesExpr = re;
+          RESULT.setRaisesExpr = new RaisesExpr();
+      :}
+  | ATTRIBUTE param_type_spec:pts simple_declarator_list:sdl
+      {:
+          RESULT.readOnly = false;
+          RESULT.param_type_spec = pts;
+          RESULT.declarators = sdl;
+          RESULT.getRaisesExpr = new RaisesExpr();
+          RESULT.setRaisesExpr = new RaisesExpr();
+      :}
+  | ATTRIBUTE param_type_spec:pts simple_declarator:sd attr_raises_expr:are
+      {:
+          RESULT.readOnly = false;
+          RESULT.param_type_spec = pts;
+          RESULT.declarators = new SymbolList (sd);
+          RESULT.getRaisesExpr = new RaisesExpr (are.getNameList);
+          RESULT.setRaisesExpr = new RaisesExpr (are.setNameList);
+      :}
+  ;
+
+attr_raises_expr ::=
+         GETRAISES LPAREN scopename_list:get_snl RPAREN
+         SETRAISES LPAREN scopename_list:set_snl RPAREN
+         {:
+            RESULT.getNameList = (Vector)get_snl.v.clone();
+            RESULT.setNameList = (Vector)set_snl.v.clone();
+         :}
+       | SETRAISES LPAREN scopename_list:set_snl RPAREN
+         GETRAISES LPAREN scopename_list:get_snl RPAREN
+         {:
+            RESULT.getNameList = (Vector)get_snl.v.clone();
+            RESULT.setNameList = (Vector)set_snl.v.clone();
+         :}
+       | GETRAISES LPAREN scopename_list:get_snl RPAREN
+         {:
+            RESULT.getNameList = (Vector)get_snl.v.clone();
+         :}
+       | SETRAISES LPAREN scopename_list:set_snl RPAREN
+         {:
+            RESULT.setNameList = (Vector)set_snl.v.clone();
+         :}
+       ;
+
 
 simple_declarator_list ::=
           simple_declarator:sd
@@ -2211,6 +2257,13 @@ raises_expr ::=
                 RESULT.nameList = (Vector)snl.v.clone();
         :}
         | empty
+        ;
+
+raises_expr_nonempty ::=
+          RAISES LPAREN scopename_list:snl RPAREN
+        {:
+                RESULT.nameList = (Vector)snl.v.clone();
+        :}
         ;
 
 // #74
