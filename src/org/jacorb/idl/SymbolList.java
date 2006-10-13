@@ -39,6 +39,15 @@ public class SymbolList
         v = new Vector();
     }
 
+    /**
+     * Constructs a new SymbolList with a single element.
+     */
+    public SymbolList (SimpleDeclarator element)
+    {
+        this (new_num());
+        v.add (element);
+    }
+
     public void setPackage( String s )
     {
         s = parser.pack_replace( s );
