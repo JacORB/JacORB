@@ -34,9 +34,9 @@ public class UnionType
     implements Scope
 {
     /** the union's discriminator's type spec */
-    TypeSpec switch_type_spec;
+    public TypeSpec switch_type_spec;
 
-    SwitchBody switch_body;
+    public SwitchBody switch_body;
     private boolean written = false;
 
     private ScopeData scopeData;

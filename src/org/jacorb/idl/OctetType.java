@@ -27,7 +27,7 @@ import java.io.PrintWriter;
  * @version $Id$
  */
 
-class OctetType
+public class OctetType
         extends BaseType
 {
     public OctetType( int num )

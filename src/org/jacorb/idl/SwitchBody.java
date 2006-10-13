@@ -26,7 +26,7 @@ public class SwitchBody
         extends IdlSymbol
 {
     /** holds case list */
-    Vector caseListVector = new Vector();
+    public Vector caseListVector = new Vector();
 
     TypeSpec ts = null;
     UnionType myUnion = null;

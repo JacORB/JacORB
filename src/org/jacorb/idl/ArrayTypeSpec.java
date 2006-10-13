@@ -35,7 +35,7 @@ public class ArrayTypeSpec
     ArrayDeclarator declarator = null;
     String typename = null;
     String dimensionStr = "";
-    int[] dims = null;
+    public int[] dims = null;
     int my_dim = 0;
     String typeSig;
 

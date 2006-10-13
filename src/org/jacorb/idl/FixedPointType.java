@@ -33,8 +33,8 @@ public class FixedPointType
 {
     public ConstExpr digit_expr = null;
     public ConstExpr scale_expr = null;
-    private int digits = 0;
-    private int scale = 0;
+    public int digits = 0;
+    public int scale = 0;
 
     public FixedPointType(int num)
     {
