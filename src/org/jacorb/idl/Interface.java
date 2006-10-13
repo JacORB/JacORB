@@ -740,20 +740,6 @@ public class Interface
         ps.println("\t\t{");
         ps.println("\t\t\treturn null;");
         ps.println("\t\t}");
-
-        final String stub_name = stubName(typeName());
-        if (parser.generate_stubs && !is_local)
-        {
-            // This is presumably an optimization for J2ME.  It is not
-            // clear whether this is really worthwhile as it is covered
-            // by the instanceof case below, and that is faster anyway,
-            // at least on JDk 1.5.  AS, 2006-10-11.
-            ps.println("\t\telse if (obj.getClass() == " + stub_name + ".class)");
-            ps.println("\t\t{");
-            ps.println("\t\t\treturn (" + typeName() + ") obj;");
-            ps.println("\t\t}");
-        }
-        
         ps.println("\t\telse if (obj instanceof " + typeName() + ")");
         ps.println("\t\t{");
         ps.println("\t\t\treturn (" + typeName() + ")obj;");
@@ -764,26 +750,26 @@ public class Interface
             if (checked && forCorbaObject)
             {
                 ps.println("\t\telse if (obj._is_a(\"" + id() + "\"))");
-                printStubInterposition(ps, stub_name);
+                printStubInterposition(ps);
                 printElseNarrowFailed(ps);
             }
             else if (!checked && forCorbaObject)
             {
                 ps.println("\t\telse");
-                printStubInterposition (ps, stub_name);
+                printStubInterposition(ps);
             }
             else if (checked && !forCorbaObject)
             {
                 ps.println("\t\telse if (obj instanceof org.omg.CORBA.Object &&");
                 ps.println("\t\t         ((org.omg.CORBA.Object)obj)._is_a(\"" + id() + "\"))");
-                printStubInterposition (ps, stub_name);
-                printElseNarrowFailed (ps);
+                printStubInterposition(ps);
+                printElseNarrowFailed(ps);
             }
             else if (!checked && !forCorbaObject)
             {
                 ps.println("\t\tif (obj instanceof org.omg.CORBA.Object)");
-                printStubInterposition (ps, stub_name);
-                printElseNarrowFailed (ps);
+                printStubInterposition(ps);
+                printElseNarrowFailed(ps);
             }
         } 
         else
@@ -797,8 +783,9 @@ public class Interface
      * Generates the code for a narrow method with which a stub is inserted
      * between an object implementation and the client.
      */
-    protected void printStubInterposition (PrintWriter ps, String stub_name)
+    protected void printStubInterposition (PrintWriter ps)
     {
+        final String stub_name = stubName (typeName());
         ps.println("\t\t{");
         ps.println("\t\t\t" + stub_name + " stub;");
         ps.println("\t\t\tstub = new " + stub_name + "();");
