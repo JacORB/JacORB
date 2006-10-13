@@ -36,14 +36,18 @@ public class Method
     public  TypeSpec parameterType;
 
     private String name;
+    private RaisesExpr raisesExpr;
+
     private boolean pseudo;
 
 
-    public Method( TypeSpec res, TypeSpec params, String name, boolean pseudo )
+    public Method(TypeSpec res, TypeSpec params, String name, 
+                  RaisesExpr raisesExpr, boolean pseudo)
     {
         resultType = res;
         parameterType = params;
         this.name = name;
+        this.raisesExpr = raisesExpr;
         this.pseudo = pseudo;
     }
 
@@ -94,13 +98,17 @@ public class Method
         if( isGetter() )
         {
             ps.print( resultType.toString() );
-            ps.println( " " + name + "();" );
+            ps.print( " " + name + "()" );
+            raisesExpr.print(ps);
+            ps.println(";");
         }
         else
         {
-            ps.print( "void " + name + "(" );
-            ps.print( parameterType.toString() );
-            ps.println( " arg);" );
+            ps.print("void " + name + "(");
+            ps.print(parameterType.toString());
+            ps.print(" arg)");
+            raisesExpr.print(ps);
+            ps.println(";");
         }
     }
 
@@ -113,7 +121,9 @@ public class Method
         {
             // accessor method
             ps.print( resultType.toString() );
-            ps.println( " " + name + "()" );
+            ps.print( " " + name + "()" );
+            raisesExpr.print(ps);
+            ps.println();
             ps.println( "\t{" );
             ps.println( "\t\twhile(true)" );
             ps.println( "\t\t{" );
@@ -138,6 +148,25 @@ public class Method
                 ps.println( "\t\t\tcatch( org.omg.CORBA.portable.ApplicationException _ax )" );
                 ps.println( "\t\t\t{" );
                 ps.println( "\t\t\t\tString _id = _ax.getId();" );
+
+                if( !raisesExpr.empty() )
+                {
+                    String[] exceptIds = raisesExpr.getExceptionIds();
+                    String[] classNames = raisesExpr.getExceptionClassNames();
+                    ps.print( "\t\t\t\t" );
+                    for( int i = 0; i < exceptIds.length; i++ )
+                    {
+                        if (i > 0)
+                        {
+                            ps.print( "\t\t\t\telse " );
+                        }
+                        ps.println( "if( _id.equals(\"" + exceptIds[ i ] + "\"))" );
+                        ps.println( "\t\t\t\t{" );
+                        ps.println( "\t\t\t\t\tthrow " + classNames[ i ] + "Helper.read(_ax.getInputStream());" );
+                        ps.println( "\t\t\t\t}" );
+                    }
+                }                
+                
                 ps.println( "\t\t\t\tthrow new RuntimeException(\"Unexpected exception \" + _id );" );
                 ps.println( "\t\t\t}" );
                 ps.println( "\t\t\tfinally" );
@@ -186,7 +215,9 @@ public class Method
             /** modifier */
 
             ps.print( "void " + name + "(" + parameterType.toString() );
-            ps.println( " a)" );
+            ps.print( " a)" );
+            raisesExpr.print(ps);
+            ps.println();
             ps.println( "\t{" );
             ps.println( "\t\twhile(true)" );
             ps.println( "\t\t{" );
@@ -209,6 +240,25 @@ public class Method
                 ps.println( "\t\t\tcatch( org.omg.CORBA.portable.ApplicationException _ax )" );
                 ps.println( "\t\t\t{" );
                 ps.println( "\t\t\t\tString _id = _ax.getId();" );
+                
+                if( !raisesExpr.empty() )
+                {
+                    String[] exceptIds = raisesExpr.getExceptionIds();
+                    String[] classNames = raisesExpr.getExceptionClassNames();
+                    ps.print( "\t\t\t\t" );
+                    for( int i = 0; i < exceptIds.length; i++ )
+                    {
+                        if (i > 0)
+                        {
+                            ps.print( "\t\t\t\telse " );
+                        }
+                        ps.println( "if( _id.equals(\"" + exceptIds[ i ] + "\"))" );
+                        ps.println( "\t\t\t\t{" );
+                        ps.println( "\t\t\t\t\tthrow " + classNames[ i ] + "Helper.read(_ax.getInputStream());" );
+                        ps.println( "\t\t\t\t}" );
+                    }
+                }                
+                
                 ps.println( "\t\t\t\tthrow new RuntimeException(\"Unexpected exception \" + _id );" );
                 ps.println( "\t\t\t}" );
                 ps.println( "\t\t\tfinally" );
@@ -306,7 +356,9 @@ public class Method
         if( isGetter() )
         {
             ps.print( resultType.toString() );
-            ps.println( " " + name + "()" );
+            ps.print( " " + name + "()" );
+            raisesExpr.print(ps);
+            ps.println();
             ps.println( "\t{" );
             ps.println( "\t\treturn _delegate." + name + "();" );
             ps.println( "\t}\n" );
@@ -316,7 +368,9 @@ public class Method
             /** modifier */
 
             ps.print( "void " + name + "(" + parameterType.toString() );
-            ps.println( " a)" );
+            ps.print( " a)" );
+            raisesExpr.print(ps);
+            ps.println();
             ps.println( "\t{" );
             ps.println( "\t\t_delegate." + name + "(a);" );
             ps.println( "\t}\n" );
@@ -325,7 +379,12 @@ public class Method
 
     public void printInvocation( PrintWriter ps )
     {
-
+        if( !raisesExpr.empty() )
+        {
+            ps.println( "\t\t\ttry" );
+            ps.println( "\t\t\t{" );
+        }
+        
         ps.println( "\t\t\t_out = handler.createReply();" );
         ps.print( "\t\t\t" );
 
@@ -337,6 +396,21 @@ public class Method
         {
             ps.println( name + "(" + parameterType.printReadExpression( "_input" ) + ");" );
         }
+        
+        if( !raisesExpr.empty() )
+        {
+            ps.println( "\t\t\t}" );
+            String[] excepts = raisesExpr.getExceptionNames();
+            String[] classNames = raisesExpr.getExceptionClassNames();
+            for( int i = 0; i < excepts.length; i++ )
+            {
+                ps.println( "\t\t\tcatch(" + excepts[ i ] + " _ex" + i + ")" );
+                ps.println( "\t\t\t{" );
+                ps.println( "\t\t\t\t_out = handler.createExceptionReply();" );
+                ps.println( "\t\t\t\t" + classNames[ i ] + "Helper.write(_out, _ex" + i + ");" );
+                ps.println( "\t\t\t}" );
+            }
+        }        
     }
 
     public void accept( IDLTreeVisitor visitor )
