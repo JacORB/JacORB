@@ -1,3 +1,37 @@
+2006-10-13  Andre Spiegel  <spiegel@gnu.org>
+
+	* idl/parser.cup: Changes to implement attribute exceptions.
+
+	* idl/lexer.java (init): Add "getraises" and "setraises" keywords.
+
+	* idl/AttrDecl.java (getRaisesExpr, setRaisesExpr): New fields.
+	(parse, setEnclosingSymbol, setPackage): Make sure to
+	update the above when appropriate.
+
+	* idl/Method.java (raisesExpr): New field.
+	(ctor): Initialize it from new argument.
+	(printDelegatedMethod, printInvocation, printMethod,
+	printSignature): Generate the appropriate code for attribute
+	exceptions.
+
+	* idl/AttrRaisesExpr.java: Initial revision.
+
+	* idl/SymbolList.java (ctor): New constructor that initializes the
+	list with a single declarator, used for attribute exceptions.
+
+	* idl/RaisesExpr.java (ctor): Two new versions that are called
+	directly from the parser.
+
+2006-10-13  Andre Spiegel  <spiegel@gnu.org>
+	
+	* idl/ArrayTypeSpec.java, idl/FixedPointType.java,
+	idl/OctetType.java, idl/SwitchBody.java, idl/UnionType.java: Made
+	several fields public, responding to bug #714.
+
+	* idl/Interface.java (printNarrow): Remove the supposed
+	optimization of testing obj.getClass() == <stubclass>.  It does
+	not seem to improve anything.
+
 2006-10-12  Andre Spiegel  <spiegel@gnu.org>
 
 	* config/JacORBConfiguration.java (init):
