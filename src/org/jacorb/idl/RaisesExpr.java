@@ -38,7 +38,25 @@ public class RaisesExpr
         super( num );
         nameList = new Vector();
     }
+    
+    /**
+     * Constructs an empty RaisesExpr
+     */
+    public RaisesExpr()
+    {
+        this(new_num());
+    }
 
+    /**
+     * Constructs a 
+     * @param nameList
+     */
+    public RaisesExpr (Vector nameList)
+    {
+        super (new_num());
+        this.nameList = (Vector)nameList.clone();
+    }
+    
     public void setPackage( String s )
     {
         s = parser.pack_replace( s );
