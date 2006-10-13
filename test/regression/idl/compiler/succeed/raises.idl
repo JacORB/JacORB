@@ -20,4 +20,10 @@ interface rc
 
     oneway void  op1() ;
 
+    attribute long attr1 getraises (ex) setraises (rd);
+    attribute long attr2 setraises (ex) getraises (rd);
+    attribute long attr3 setraises (ex, rd);
+    attribute long attr4 getraises (ex, rd);
+
+    readonly attribute long attr5 raises (ex, rd);
 };
