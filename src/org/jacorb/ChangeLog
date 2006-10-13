@@ -1,3 +1,9 @@
+2006-10-12  Andre Spiegel  <spiegel@gnu.org>
+
+	* config/JacORBConfiguration.java (init):
+	Correct property-loading order: Load custom.props after orbid
+	properties have been loaded from all locations.
+
 2006-10-11  Iliyan Jeliazkov  <iliyan@ociweb.com>
 
 	* ir/ConstantDef.java: Introduced additional ctor parameter (poa)
@@ -9,6 +15,70 @@
 
 	* ir/IDLType.java: Adding a missing return out of a switch statement.
 	
+2006-10-11  Andre Spiegel  <spiegel@gnu.org>
+
+	* idl/Interface.java (printNarrow, hasAbstractBase,
+	printStubInterposition, printElseNarrowFailed): New methods.
+	(printHelper): Use them to generate all the appropriate narrow
+	methods.
+
+2006-09-10  Andre Spiegel  <spiegel@gnu.org>
+
+	* orb/ORBSingleton.java (getLogger): New method, for testing.
+
+2006-09-04  Alphonse Bendt  <bendt@prismtech.com>
+
+	* orb/CDRInputStream.java, orb/CDROutputStream.java: bugzilla #667
+
+	added test and fix. thanks to Rich Doyle for reporting and
+	providing a fix.
+
+2006-09-01  Alphonse Bendt  <bendt@prismtech.com>
+
+	* orb/CDROutputStream.java: bugzilla #722
+
+	testcase and fix
+	thanks to Scott Melby for reporting and providing a fix
+
+2006-08-29  Andre Spiegel  <spiegel@gnu.org>
+
+	* poa/policy/IdAssignmentPolicy.java,
+	poa/policy/IdUniquenessPolicy.java,
+	poa/policy/ImplicitActivationPolicy.java,
+	poa/policy/LifespanPolicy.java,
+	poa/policy/RequestProcessingPolicy.java,
+	poa/policy/ServantRetentionPolicy.java,
+	poa/policy/ThreadPolicy.java: Remove private no-arg constructors.
+	They are not necessary, since each class does have a public
+	non-default constructor.  This brings test coverage for this
+	package up into the 80% range.
+
+2006-08-29  Alphonse Bendt  <bendt@prismtech.com>
+
+	* orb/giop/ReplyPlaceholder.java (getInputStream):
+	simplified synchronization code a bit
+
+	this fixes bugzilla #721 reported by Piotr Bazan
+
+	* orb/ReplyReceiver.java (configure):
+	use type specific accessor to get configuration
+
+	* orb/Delegate.java (invoke_internal): (invoke_oneway):
+
+	configure ReplyReceiver after creation.
+	this is a fix for bugzilla #721 reported by Piotr Bazan
+
+2006-08-16  Iliyan Jeliazkov  <iliyan@ociweb.com>
+
+	* orb/giop/TransportListener.java, orb/giop/TransportManager.java:
+	Updated to silence warnings from pmd and findbugs
+
+	* build.xml:
+	Moved TransportCurent-related stuff to its own dedicated build.xml
+
+	* transport/build.xml:
+	Adding a dedicated build file for the transport current stuff
+
 2006-08-11  Iliyan Jeliazkov  <iliyan@ociweb.com>
 
         Introducing the Transport Current (TC) implementation. TC is an

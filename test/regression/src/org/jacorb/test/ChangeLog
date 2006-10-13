@@ -1,3 +1,15 @@
+2006-10-12  Andre Spiegel  <spiegel@gnu.org>
+
+	* config/ConfigurationTest.java (testOrbIdClasspathPrecedence):
+	Adapt to the new, correct
+	property-loading order established by today's change in
+	JacORBConfiguration.java.
+
+	* transport/DefaultTester.java,
+	transport/FrameworkClientTest.java, transport/IIOPClientTest.java,
+	transport/IIOPTester.java: Import org.omg.CORBA.Object to make
+	sure narrow() does work.
+
 2006-09-19  Andre Spiegel  <spiegel@gnu.org>
 
 	* orb/policies/AllTest.java (suite): Add PolicyHandlingTest.
