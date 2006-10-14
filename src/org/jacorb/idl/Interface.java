@@ -1020,7 +1020,7 @@ public class Interface
                 if (ts instanceof ConstrTypeSpec)
                 {
                     Interface base = (Interface) ((ConstrTypeSpec) ts).c_type_spec;
-                    if (base.is_abstract)
+                    if (base.is_abstract || base.hasAbstractBase())
                     {
                         return true;
                     }
