@@ -1,3 +1,7 @@
+2006-10-14  Andre Spiegel  <spiegel@gnu.org>
+
+	* idl/Interface.java (hasAbstractBase): Add missing recursive check.
+
 2006-10-13  Andre Spiegel  <spiegel@gnu.org>
 
 	* idl/parser.cup: Changes to implement attribute exceptions.
