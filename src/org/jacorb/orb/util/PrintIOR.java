@@ -175,9 +175,9 @@ public class PrintIOR
             }
 
             out.println("\tPort:\t\t\t" + port );
-            out.println("\tObject key (URL):\t" + CorbaLoc.parseKey( pior.get_object_key()));
+            out.println("\tObject key (URL):\t" + CorbaLoc.parseKey( profile.get_object_key()));
             out.print  ("\tObject key (hex):\t0x" );
-            dumpHex( pior.get_object_key(), out);
+            dumpHex( profile.get_object_key(), out);
             out.println();
 
             if ( profile.version().minor >= ( char ) 1 )
