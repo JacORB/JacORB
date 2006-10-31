@@ -1,3 +1,12 @@
+2006-10-25  Alphonse Bendt  <bendt@prismtech.com>
+
+	* orb/util/PrintIOR.java (printIOR): fetch object key from the
+	profile not from the pior as its otherwise the same everytime
+
+2006-10-14  Gerald Brose  <gerald.brose@acm.org>
+
+	* Version 2.3.0 beta 2 released.
+
 2006-10-14  Andre Spiegel  <spiegel@gnu.org>
 
 	* idl/Interface.java (hasAbstractBase): Add missing recursive check.
