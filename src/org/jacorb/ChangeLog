@@ -1,3 +1,9 @@
+2006-10-31  Andre Spiegel  <spiegel@gnu.org>
+
+	* orb/giop/GIOPConnection.java (sendMessage):
+	Call releaseWriteLock() before calling streamClosed() in
+	in error situations. Patch by Marc Heide, fixing bug #708.
+
 2006-10-25  Alphonse Bendt  <bendt@prismtech.com>
 
 	* orb/util/PrintIOR.java (printIOR): fetch object key from the
