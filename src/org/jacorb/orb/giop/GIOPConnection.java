@@ -989,6 +989,10 @@ public abstract class GIOPConnection
                 {
                     logger.error( "GIOP connection closed due to errors during sendMessage");
                 }
+                //release write lock to prevent dead locks to 
+                //reader thread which might try to close this socket too
+                //concurrently (unfortunately write lock is requested during streamClosed())
+                releaseWriteLock();
                 //close transport connection, there is nearly no chance to sync with
                 //peer on this connection again
                 close();
