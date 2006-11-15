@@ -1401,6 +1401,10 @@ public final class Delegate
             {
                 // ignore
             }
+            catch (SystemException e) // NOPMD
+            {
+                // ignore
+            }
             logger.debug("trying is_a remotely");
         }
 
