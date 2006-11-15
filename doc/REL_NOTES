@@ -40,6 +40,11 @@
    H I S T O R Y      O F     C H A N G E S
  -------------------------------------------
 
+x.y
+===
+    - Fixes:
+        - fix to allow interoperability with TAO persistent IOR's (#735)
+
 2.3
 ===
     - ORB:
