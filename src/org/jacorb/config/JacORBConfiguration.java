@@ -345,7 +345,7 @@ public class JacORBConfiguration
            setAttributes(orbProperties);
        }
 
-       if (!loaded)
+       if (!loaded && logLevel > 0)
        {
            // print a warning....
            println("[ No configuration properties found for configuration " + name + " ]");
