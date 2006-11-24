@@ -21,69 +21,17 @@ package org.jacorb.notification.util;
  *
  */
 
-import org.jacorb.util.ObjectUtil;
 
 /**
  * This is a Wrapper around a PatternMatcher.
+ *
+ * @author Alphonse Bendt
+ * @version $Id$
  */
 
 public abstract class PatternWrapper
 {
-    private static final RuntimeException REGEXP_NOT_AVAILABLE = new RuntimeException(
-            "No RegExp Implementation available. "
-                    + "The package java.util.regex is part of the JDK since v1.4 "
-                    + "if you are running an older JDK you'll have to install "
-                    + "gnu.regexp or jakarta.regexp to run this NotificationService. Please refer "
-                    + "to the documentation for details.");
-
-    private static Class sDefaultInstance = null;
-
-    static
-    {
-        if (isClassAvailable("java.util.regex.Pattern"))
-        {
-            try
-            {
-                sDefaultInstance = ObjectUtil
-                        .classForName("org.jacorb.notification.util.JDK14PatternWrapper");
-            } catch (ClassNotFoundException e)
-            {
-                // no problem
-                // recoverable error
-            }
-        }
-
-        if (sDefaultInstance == null && isClassAvailable("org.apache.regexp.RE"))
-        {
-            try
-            {
-                sDefaultInstance = ObjectUtil
-                        .classForName("org.jacorb.notification.util.JakartaRegexpPatternWrapper");
-            } catch (ClassNotFoundException e)
-            {
-                // no problem
-                // recoverable error
-            }
-        }
-
-        if (sDefaultInstance == null && isClassAvailable("gnu.regexp.RE"))
-        {
-            try
-            {
-                sDefaultInstance = ObjectUtil
-                        .classForName("org.jacorb.notification.util.GNUPatternWrapper");
-            } catch (ClassNotFoundException e)
-            {
-                // this time its non recoverable ...
-                throw new RuntimeException(e.toString());
-            }
-        }
-
-        if (sDefaultInstance == null)
-        {
-            throw REGEXP_NOT_AVAILABLE;
-        }
-    }
+    private final static Class sDefaultInstance = JDK14PatternWrapper.class;
 
     public static PatternWrapper init(String patternString)
     {
@@ -96,11 +44,6 @@ public abstract class PatternWrapper
             return _wrapper;
         } catch (Exception e)
         {
-            if (sDefaultInstance == null)
-            {
-                throw REGEXP_NOT_AVAILABLE;
-            }
-
             throw new RuntimeException(e.toString());
         }
     }
@@ -117,19 +60,4 @@ public abstract class PatternWrapper
      */
 
     public abstract int match(String text);
-
-    private static boolean isClassAvailable(String name)
-    {
-        try
-        {
-            ObjectUtil.classForName(name);
-
-            return true;
-        } catch (ClassNotFoundException e)
-        {
-            // ignore. just return false
-        }
-
-        return false;
-    }
 }
