@@ -216,10 +216,10 @@ public class Container
                         {
                             ModuleDef m =
                                 new ModuleDef( path,
-                                               ( full_name != null ?
+                                               (( full_name != null ?
                                                  full_name + fileSeparator :
                                                  ""
-                                                 ) + dirs[k],
+                                                ) + dirs[k]).replace('/', '.'),
                                                this_container,
                                                containing_repository,
                                                this.loader,
