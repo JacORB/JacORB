@@ -165,7 +165,7 @@ public class SSLSocketFactory
         return socket;
     }
 
-    public Socket createSocket(String host, int port, int timeout) throws IOException
+    public Socket doCreateSocket(String host, int port, int timeout) throws IOException
     {
         SSLSocket socket = (SSLSocket)factory.createSocket();
         socket.connect(new InetSocketAddress(host, port), timeout);

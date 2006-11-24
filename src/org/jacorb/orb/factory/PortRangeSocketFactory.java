@@ -29,6 +29,7 @@ import java.net.UnknownHostException;
 
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
+import org.omg.CORBA.TIMEOUT;
 
 /**
  * a SocketFactory implementation that allows to specify the range
@@ -123,11 +124,14 @@ public class PortRangeSocketFactory
         return port;
     }
 
-    public Socket createSocket(String host, int port, int timeout) throws IOException
+    public Socket doCreateSocket(String host, int port, int timeout) throws IOException
     {
         final InetAddress localHost = InetAddress.getLocalHost();
         int localPort;
         Socket socket;
+
+        final boolean useTimeout = timeout != 0;
+        final long expireTime = useTimeout ? System.currentTimeMillis() + timeout : Long.MAX_VALUE;
 
         for (localPort = portMin; localPort <= portMax; localPort++)
         {
@@ -147,7 +151,10 @@ public class PortRangeSocketFactory
             }
             catch (IOException ex)
             {
-                // Ignore and continue
+            	if (useTimeout && System.currentTimeMillis() > expireTime)
+            	{
+            		throw new TIMEOUT("couldn't open socket within " + timeout + ". Last exception details: " + ex.toString());
+            	}
             }
         }
 

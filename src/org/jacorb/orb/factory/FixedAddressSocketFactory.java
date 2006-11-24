@@ -26,7 +26,6 @@ import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
 
-import org.apache.avalon.framework.configuration.Configurable;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
 
@@ -64,7 +63,7 @@ public class FixedAddressSocketFactory extends AbstractSocketFactory
         return new Socket(host, port);
     }
 
-    public Socket createSocket(String host, int port, int timeout) throws IOException
+    public Socket doCreateSocket(String host, int port, int timeout) throws IOException
     {
         Socket socket = new Socket();
 
