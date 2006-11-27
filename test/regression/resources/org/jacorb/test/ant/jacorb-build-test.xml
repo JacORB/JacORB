@@ -1,0 +1,40 @@
+<project name="jacorb-build-test" basedir="." default="fail">
+
+    <target name="fail" >
+        <fail message="this buildfile is not intended to be invoked during JacORB build/test. its part of the testsuite and used to test JacORB specific ant extensions" />
+    </target>
+
+    <target name="jacunit-taskdef">
+        <taskdef name="jacunit" classname="org.jacorb.test.common.launch.TestLauncher" >
+        	<classpath path="${jacunit.classpath}" />
+        </taskdef>
+    </target>
+
+    <target name="jacunit-run" depends="jacunit-taskdef">
+        <jacunit outdir="${jacunit.outdir}"
+                 testdir="${jacunit.testdir}"
+                 suite="${jacunit.suite}"
+                 testtimeout="${jacunit.testtimeout}"
+                 errorproperty="${jacunit.errorproperty}" >
+        	<classpath path="${jacunit.classpath}" />
+        </jacunit>
+    </target>
+
+	<target name="jacunit-batch" depends="jacunit-taskdef">
+		<jacunit outdir="${jacunit.outdir}"
+				testdir="${jacunit.testdir}"
+				testtimeout="${jacunit.testtimeout}"
+				errorproperty="${jacunit.errorproperty}" >
+
+			<classpath path="${jacunit.classpath}" />
+
+			<batchtest todir="${jacunit.testdir}">
+				<fileset dir="${jacunit.srcdir}">
+					<include name="**/JUnit*.java"/>
+					<exclude name="**/JUnitTimeout.java" />
+				</fileset>
+			</batchtest>
+		</jacunit>
+	</target>
+
+</project>
