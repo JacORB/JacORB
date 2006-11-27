@@ -826,7 +826,7 @@ public class CDRInputStream
         }
     }
 
-    public final java.math.BigDecimal read_fixed()
+    public final java.math.BigDecimal read_fixed(short digits, short scale)
     {
         handle_chunking();
 
@@ -839,19 +839,21 @@ public class CDRInputStream
         while(true)
         {
             c = (b & 0xF0) >>> 4;
-            sb.append(c );
+            sb.append(c);
+
             c = b & 0x0F;
             if( c == 0xC || c == 0xD )
             {
                 break;
             }
             sb.append(c );
+
             b = buffer[pos++];
             index++;
         }
 
         java.math.BigDecimal result =
-        new java.math.BigDecimal( new java.math.BigInteger( sb.toString()));
+        	new java.math.BigDecimal( new java.math.BigInteger( sb.toString()), scale);
 
         if( c == 0xD )
         {

@@ -22,6 +22,8 @@ package org.jacorb.orb;
 
 import org.jacorb.util.ObjectUtil;
 import org.omg.CORBA.*;
+import org.omg.CORBA.TypeCodePackage.BadKind;
+import org.omg.CORBA.portable.InputStream;
 import org.omg.CORBA.portable.Streamable;
 import org.omg.CORBA_2_3.portable.OutputStream;
 
@@ -800,8 +802,7 @@ public final class Any
 
     public void insert_fixed (BigDecimal fixed)
     {
-        value = fixed;
-        typeCode = (new org.omg.CORBA.FixedHolder(fixed))._type();
+    	insert_fixed(fixed, new FixedHolder(fixed)._type());
     }
 
    public void insert_fixed(BigDecimal fixed,
@@ -869,7 +870,20 @@ public final class Any
         }
         else if (value instanceof CDROutputStream)
         {
-           return create_input_stream().read_fixed();
+        	final CDRInputStream inputStream = (CDRInputStream) create_input_stream();
+        	try
+        	{
+        		return inputStream.read_fixed(typeCode.fixed_digits(), typeCode.fixed_scale());
+        	}
+        	catch(BadKind e)
+        	{
+        		// shouldn't happen due to initial check above
+        		throw new INTERNAL("should not happen");
+        	}
+        	finally
+        	{
+        		inputStream.close();
+        	}
         }
         else
         {
@@ -1278,9 +1292,8 @@ public final class Any
                 try
                 {
                     // move the decimal based on the scale
-                    java.math.BigDecimal fixed = input.read_fixed();
-                    int scale = type.fixed_scale();
-                    insert_fixed( fixed.movePointLeft( scale ), type );
+                    java.math.BigDecimal fixed = ((CDRInputStream)input).read_fixed(type.fixed_digits(), type.fixed_scale());
+                    insert_fixed( fixed, type);
                 }
                 catch( org.omg.CORBA.TypeCodePackage.BadKind bk )
                 {

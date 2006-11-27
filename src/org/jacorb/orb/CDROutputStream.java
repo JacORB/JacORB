@@ -21,6 +21,7 @@ package org.jacorb.orb;
  */
 
 import java.io.*;
+import java.math.BigDecimal;
 import java.util.*;
 
 import org.apache.avalon.framework.configuration.*;
@@ -1139,13 +1140,14 @@ public class CDROutputStream
         }
     }
 
+    public final void write_fixed(BigDecimal value, short digits, short scale)
+    {
+    	write_fixed(value);
+    }
+
     public final void write_fixed(final java.math.BigDecimal value)
     {
-        //#ifjdk 1.2
         String v = value.unscaledValue().toString();
-        //#else
-        //# String v = value.movePointRight(value.scale()).toString();
-        //#endif
         byte [] representation;
         int b, c;
 
@@ -1189,7 +1191,6 @@ public class CDROutputStream
         System.arraycopy(representation,0,buffer,pos,representation.length);
         index += representation.length;
         pos += representation.length;
-
     }
 
     public final void write_float(final float value)
