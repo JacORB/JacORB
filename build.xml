@@ -50,7 +50,7 @@
    <!--                   OMG IDL files                      -->
    <!-- ==================================================== -->
 
-   <target name="omg_idl" depends="init">
+   <target name="omg_idl" depends="compiler">
       <ant antfile="${basedir}/idl/build.xml" dir="${basedir}"/>
    </target>
 
