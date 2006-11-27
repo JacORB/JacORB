@@ -21,8 +21,15 @@ package org.jacorb.test.common.launch;
  *   MA 02110-1301, USA.
  */
 
-import java.util.*;
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Properties;
+
+import junit.framework.Assert;
+
 import org.jacorb.test.common.TestUtils;
 
 /**
@@ -32,34 +39,72 @@ import org.jacorb.test.common.TestUtils;
  * @author Andre Spiegel spiegel@gnu.org
  * @version $Id$
  */
-public class DirectLauncher extends JacORBLauncher
+public class DirectLauncher extends AbstractLauncher
 {
-    public DirectLauncher(String jacorbHome, boolean coverage)
+    private List command;
+
+    public void init()
     {
-        super(jacorbHome, coverage);
+        command = buildCMDLine(jacorbHome, useCoverage, classpath, properties, mainClass, args);
     }
 
-    public Process launch(String classpath,
-                          Properties props,
-                          String mainClass,
-                          String[] args)
+    public String getCommand()
     {
-        Runtime rt = Runtime.getRuntime();
+        final List list = command;
 
-        List cmdList = new ArrayList();
+        return formatList(list);
+    }
 
-        String fullClasspath = TestUtils.pathAppend(classpath, getJacORBLibraryPath());
-        fullClasspath = TestUtils.pathAppend(fullClasspath, System.getProperty("java.class.path"));
+    public Process launch()
+    {
+        final Runtime rt = Runtime.getRuntime();
 
-        String javaHome = System.getProperty("java.home");
-        String javaCommand = javaHome + "/bin/java";
+        try
+        {
+            String[] cmd = toStringArray(command);
+
+            TestUtils.log("[DirectLauncher] launch: " + command);
+
+            Process proc = rt.exec (cmd);
+            return proc;
+        }
+        catch (IOException ex)
+        {
+            throw new RuntimeException(ex);
+        }
+    }
+
+    private List buildCMDLine(File jacorbHome,
+                              boolean coverage,
+                              String classpath,
+                              Properties props,
+                              String mainClass,
+                              String[] args)
+    {
+        final String javaHome = getPropertyWithDefault(props, "jacorb.java.home", System.getProperty("java.home"));
+        final String jvm = getPropertyWithDefault(props, "jacorb.jvm", "/bin/java");
+        final String javaCommand = javaHome + jvm;
+
+        final List cmdList = new ArrayList();
         cmdList.add (javaCommand);
-        cmdList.add ("-Xbootclasspath/p:" + fullClasspath);
-        cmdList.add ("-classpath");
-        cmdList.add (fullClasspath);
+
+        Assert.assertNotNull("need to specify jacorbHome", jacorbHome);
+
+        cmdList.add(new BootClasspathBuilder(jacorbHome, coverage).getBootClasspath());
+
+        if (classpath != null && classpath.length() > 0)
+        {
+        	cmdList.add ("-classpath");
+        	cmdList.add (classpath);
+        }
+
+        cmdList.add ("-Xmx" + getMaxHeapSize(props));
+
         cmdList.add ("-Dorg.omg.CORBA.ORBClass=org.jacorb.orb.ORB");
         cmdList.add ("-Dorg.omg.CORBA.ORBSingletonClass=org.jacorb.orb.ORBSingleton");
-        cmdList.addAll (TestUtils.propsToArgList(props));
+
+        cmdList.addAll (propsToArgList(props));
+
         cmdList.add ("-Djacorb.home=" + jacorbHome);
 
         if (TestUtils.isWindows())
@@ -79,64 +124,15 @@ public class DirectLauncher extends JacORBLauncher
         }
 
         cmdList.add (mainClass);
-        cmdList.addAll (Arrays.asList(args));
-        cmdList.add ("formatter=org.apache.tools.ant.taskdefs.optional.junit.PlainJUnitResultFormatter");
-        cmdList.add ("showoutput=true");
-        cmdList.add ("printsummary=withOutAndErr");
-
-        try
+        if (args != null)
         {
-            String[] cmd = toStringArray(cmdList);
-
-            TestUtils.log("start TestServer: " + cmdList);
-
-            Process proc = rt.exec (cmd);
-            return proc;
+            cmdList.addAll (Arrays.asList(args));
         }
-        catch (IOException ex)
-        {
-            throw new RuntimeException(ex);
-        }
+        return cmdList;
     }
 
-    public String getJacORBLibraryPath()
+    private String getMaxHeapSize(Properties props)
     {
-        String libPath = getJacORBPath();
-        libPath = TestUtils.pathAppend(libPath, jacorbHome + "/lib/logkit-1.2.jar");
-        libPath = TestUtils.pathAppend(libPath, jacorbHome + "/lib/avalon-framework-4.1.5.jar");
-        libPath = TestUtils.pathAppend(libPath, jacorbHome + "/lib/backport-util-concurrent.jar");
-        libPath = TestUtils.pathAppend(libPath, jacorbHome + "/lib/antlr-2.7.2.jar");
-        libPath = TestUtils.pathAppend(libPath, jacorbHome + "/lib/picocontainer-1.2.jar");
-        return libPath;
-    }
-
-    public String getJacORBPath()
-    {
-        File result = null;
-        if (coverage)
-        {
-            result = new File (jacorbHome, "classes-instrumented");
-            if (!result.exists())
-            {
-                System.out.println ("WARNING: JacORB installation "
-                        + jacorbHome
-                        + " is not instrumented; coverage "
-                        + " will not be available");
-            }
-            else
-            {
-                String jacorbPath = result.toString();
-                jacorbPath = TestUtils.pathAppend(jacorbPath, jacorbHome + "/classes/");
-                jacorbPath = TestUtils.pathAppend(jacorbPath, jacorbHome + "/test/regression/lib/emma.jar");
-                return jacorbPath;
-            }
-        }
-        result = new File (jacorbHome, "classes/org");
-        if (result.exists())
-        {
-            return new File (jacorbHome, "classes").toString();
-        }
-
-        return new File (jacorbHome, "lib/jacorb.jar").toString();
+        return getPropertyWithDefault(props, "jacorb.test.maxheapsize", "64m");
     }
 }

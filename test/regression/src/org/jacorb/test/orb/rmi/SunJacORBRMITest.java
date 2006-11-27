@@ -50,6 +50,7 @@ public class SunJacORBRMITest extends RMITest
         server_props.setProperty("jacorb.interop.strict_check_on_tc_creation", "off");
         server_props.setProperty("jacorb.interop.chunk_custom_rmi_valuetypes", "off");
         server_props.setProperty("jacorb.regression.disable_security", "true");
+        server_props.setProperty("org.omg.PortableInterceptor.ORBInitializerClass.standard_init", "org.jacorb.orb.standardInterceptors.IORInterceptorInitializer");
 
         Properties client_props = TestUtils.newSunORBProperties();
 

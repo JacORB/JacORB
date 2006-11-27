@@ -21,29 +21,26 @@
 
 package org.jacorb.test.orb;
 
-import org.jacorb.orb.CDROutputStream;
-import org.omg.CORBA.ORB;
-
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
-public class CDROutputStreamTest extends TestCase
+import org.jacorb.orb.CDROutputStream;
+import org.jacorb.test.common.ORBTestCase;
+
+public class CDROutputStreamTest extends ORBTestCase
 {
     private CDROutputStream objectUnderTest;
-    private ORB orb;
 
-    protected void setUp() throws Exception
+    protected void doSetUp() throws Exception
     {
-        super.setUp();
-
-        orb = ORB.init(new String[0], null);
         objectUnderTest = new CDROutputStream(orb);
     }
 
-    protected void tearDown() throws Exception
+    protected void doTearDown() throws Exception
     {
-        orb.shutdown(true);
+        objectUnderTest.close();
+        objectUnderTest = null;
     }
 
     public void testIncreaseSize()

@@ -20,59 +20,45 @@ package org.jacorb.test.orb.etf;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import java.util.*;
+import java.util.Properties;
 
-import junit.framework.*;
-import junit.extensions.*;
+import junit.framework.Test;
+import junit.framework.TestSuite;
 
-import org.jacorb.test.common.*;
-import org.jacorb.test.*;
+import org.jacorb.test.common.ClientServerSetup;
 import org.jacorb.test.orb.etf.wiop.WIOPFactories;
 
 /**
  * @author <a href="mailto:spiegel@gnu.org">Andre Spiegel</a>
  * @version $Id$
  */
-public class C_WIOP_S_WIOP extends ClientServerTestCase
+public class C_WIOP_S_WIOP extends AbstractWIOPTestCase
 {
-    private BasicServer server = null;
-    
     public C_WIOP_S_WIOP (String name, ClientServerSetup setup)
     {
         super (name, setup);
-    }
-    
-    public void setUp() throws Exception
-    {
-        WIOPFactories.setTransportInUse(false);
-        server = BasicServerHelper.narrow( setup.getServerObject() );
-    }
-
-    public void tearDown() throws Exception
-    {
-        WIOPFactories.setTransportInUse(false);
     }
 
     public static Test suite()
     {
         TestSuite suite = new TestSuite ("Client WIOP Server WIOP");
-        
+
         Properties props = new Properties();
         props.setProperty("jacorb.transport.factories",
                           "org.jacorb.test.orb.etf.wiop.WIOPFactories");
-        
+
         // WIOP does not support SSL.
         props.setProperty("jacorb.regression.disable_security",
                           "true");
 
-        
-        ClientServerSetup setup = 
+
+        ClientServerSetup setup =
           new ClientServerSetup (suite,
                                  "org.jacorb.test.orb.BasicServerImpl",
                                  props, props);
-        
+
         suite.addTest (new C_WIOP_S_WIOP ("testConnection", setup));
-        
+
         return setup;
     }
 
@@ -81,7 +67,4 @@ public class C_WIOP_S_WIOP extends ClientServerTestCase
         server.ping();
         assertTrue (WIOPFactories.isTransportInUse());
     }
-
-
-
 }

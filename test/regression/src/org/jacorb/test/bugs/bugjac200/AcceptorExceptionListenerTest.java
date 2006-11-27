@@ -98,6 +98,7 @@ public class AcceptorExceptionListenerTest extends TestCase
     public void tearDown() throws Exception
     {
         orb.shutdown(true);
+        orb = null;
     }
 
     public void testListener() throws Exception

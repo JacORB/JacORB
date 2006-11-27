@@ -21,12 +21,19 @@ package org.jacorb.test.common.launch;
  *   MA 02110-1301, USA.
  */
 
-import java.io.FileInputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.lang.reflect.Constructor;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 
 import org.jacorb.test.common.TestUtils;
@@ -43,49 +50,60 @@ import org.jacorb.test.common.TestUtils;
  */
 public abstract class JacORBLauncher
 {
+    private final static Map LAUNCHER_SHORTCUTS;
+
+    static
+    {
+        Map launchers = new HashMap();
+
+        launchers.put("direct", DirectLauncher.class);
+        launchers.put("jaco", JacoLauncher.class);
+        launchers.put("tao", TAOLauncher.class);
+
+        LAUNCHER_SHORTCUTS = Collections.unmodifiableMap(launchers);
+    }
+
     private static Properties testProperties;
     private static List       versions;
-
-    protected String jacorbHome;
-    protected boolean coverage;
-
-    protected JacORBLauncher (String jacorbHome, boolean coverage)
-    {
-        this.jacorbHome = jacorbHome;
-        this.coverage = coverage;
-    }
-
-    public abstract Process launch (String classpath,
-                                    Properties props,
-                                    String mainClass,
-                                    String[] args);
-
-    public String getJacorbHome()
-    {
-        return jacorbHome;
-    }
-
-    public String[] toStringArray (List list)
-    {
-        return ((String[])list.toArray (new String[list.size()]));
-    }
 
     /**
      * Loads and returns the properties defined in the file test.properties
      * in the regression suite.
      */
-    public synchronized static Properties getTestProperties()
+    private synchronized static Properties getTestProperties()
     {
         if (testProperties == null)
         {
             try
             {
-                InputStream in = new FileInputStream
-                (
-                    TestUtils.osDependentPath(TestUtils.testHome() + "/test.properties")
-                );
-                testProperties = new Properties();
-                testProperties.load (in);
+            	final ClassLoader cl;
+
+            	cl = JacORBLauncher.class.getClassLoader();
+
+            	URL url = cl.getResource("/test.properties");
+
+            	if (url == null)
+            	{
+            		url = JacORBLauncher.class.getResource("/test.properties");
+            	}
+
+            	if (url == null)
+            	{
+            		throw new IllegalArgumentException("cannot locate test.properties!");
+            	}
+
+            	TestUtils.log("using test.properties from " + url);
+            	final InputStream in = url.openStream();
+
+                try
+                {
+                    testProperties = new Properties();
+                    testProperties.load (in);
+                }
+                finally
+                {
+                    in.close();
+                }
             }
             catch (IOException ex)
             {
@@ -99,7 +117,7 @@ public abstract class JacORBLauncher
     /**
      * Returns a list of all the available JacORB versions.
      */
-    public synchronized static List getVersions()
+    private synchronized static List getVersions()
     {
         if (versions == null)
         {
@@ -122,22 +140,90 @@ public abstract class JacORBLauncher
      * Returns a launcher for the specified JacORB version.
      * If coverage is true, sets up the launcher to that
      * coverage information will be gathered.
+     * @param classpath
+     * @param properties
+     * @param mainClass
+     * @param processArgs
      */
-    public static JacORBLauncher getLauncher (String version,
-                                              boolean coverage)
+    public static Launcher getLauncher (String version,
+                                        boolean useCoverage,
+                                        String classpath,
+                                        Properties properties,
+                                        String mainClass,
+                                        String[] processArgs)
     {
-        if (version.startsWith("tao"))
-        {
-            return new TAOLauncher (null, false);
-        }
-
-        int index = getVersions().indexOf (version);
+        int index = getVersions().indexOf(version);
         if (index == -1)
         {
             throw new IllegalArgumentException(
-                    "JacORB version " + version + " not available");
+                    "Launcher version " + version + " not available. available: " + getVersions());
         }
 
+        final String home = locateHome(version, index);
+
+        final String launcherClassName = lookupLauncher(version, index);
+
+        final Properties props = new Properties();
+
+        addCustomProps(index, props, getTestProperties());
+
+        props.putAll(properties);
+
+        try
+        {
+            final Class launcherClass;
+
+            if (LAUNCHER_SHORTCUTS.containsKey(launcherClassName))
+            {
+                launcherClass = (Class) LAUNCHER_SHORTCUTS.get(launcherClassName);
+            }
+            else
+            {
+                launcherClass = Class.forName (launcherClassName);
+            }
+
+            Launcher launcher = (Launcher) launcherClass.newInstance();
+
+            if (launcher instanceof AbstractLauncher)
+            {
+                AbstractLauncher _launcher = (AbstractLauncher) launcher;
+
+                _launcher.setClasspath(classpath);
+                _launcher.setMainClass(mainClass);
+                _launcher.setArgs(processArgs);
+                _launcher.setUseCoverage(useCoverage);
+                if (home != null)
+                {
+                    _launcher.setJacorbHome(new File(home));
+                }
+                _launcher.setProperties(props);
+
+                _launcher.init();
+            }
+
+            return launcher;
+        }
+        catch (Exception e)
+        {
+            StringWriter out = new StringWriter();
+            e.printStackTrace(new PrintWriter(out));
+            throw new IllegalArgumentException(out.toString());
+        }
+    }
+
+    private static String lookupLauncher(String version, int index)
+    {
+        final String key = "jacorb.test.jacorb_version." + index + ".launcher";
+        String launcherClassName = getTestProperties().getProperty(key);
+        if (launcherClassName == null)
+        {
+            throw new IllegalArgumentException("No launcher class defined for JacORB version " + version);
+        }
+        return launcherClassName;
+    }
+
+    private static String locateHome(String version, int index)
+    {
         String key = "jacorb.test.jacorb_version." + index + ".home";
         String home = getTestProperties().getProperty(key);
         if (home == null)
@@ -146,62 +232,45 @@ public abstract class JacORBLauncher
             {
                 home = getCVSHome();
             }
-            else
-            {
-                throw new IllegalArgumentException
-                (
-                    "No home directory for JacORB version " + version
-                );
-            }
         }
-        key = "jacorb.test.jacorb_version." + index + ".launcher";
-        String launcherClassName = getTestProperties().getProperty(key);
-        if (launcherClassName == null)
+        else if ("cvs".equals(home))
         {
-            throw new IllegalArgumentException("No launcher class defined for JacORB version " + version);
+            home = getCVSHome();
         }
+        return home;
+    }
 
-        try
+    private static void addCustomProps(int index, Properties propsForProcess, Properties testProps)
+    {
+        final String prefix = "jacorb.test.jacorb_version." + index + ".property";
+        final Iterator i = testProps.keySet().iterator();
+
+        while(i.hasNext())
         {
-            Class launcherClass = Class.forName (launcherClassName);
-            Constructor ctor = launcherClass.getConstructor
-            (
-                new Class[] { java.lang.String.class,
-                              boolean.class }
-            );
-            return (JacORBLauncher)ctor.newInstance
-            (
-                new Object[] { home, coverage ? Boolean.TRUE : Boolean.FALSE }
-            );
-        }
-        catch (Exception ex)
-        {
-            throw new IllegalArgumentException(ex.toString());
+            String key = (String) i.next();
+
+            if (!key.startsWith(prefix))
+            {
+                continue;
+            }
+
+            String value = testProps.getProperty(key);
+
+            String propName = key.substring(prefix.length() + 1);
+
+            propsForProcess.setProperty(propName, value);
         }
     }
 
     private static String getCVSHome()
     {
-        String testHome = TestUtils.testHome();
-        String patternString;
-        String separator = System.getProperty("file.separator");
+        final String testHome = TestUtils.testHome();
 
-        // "\" must be escaped
-        if (separator.equals("\\"))
+        if (testHome == null)
         {
-            patternString = "\\test\\regression";
-        }
-        else
-        {
-            patternString = "/test/regression";
+            throw new IllegalArgumentException("need to set testhome (-Djacorb.test.home)");
         }
 
-        int index;
-        if ((testHome != null) && ((index=testHome.indexOf(patternString)) != -1))
-        {
-            return testHome.substring(0,index);
-        }
-        throw new IllegalArgumentException("couldn't find CVS home: "
-                + testHome);
+        return new File(testHome).getParentFile().getParentFile().toString();
     }
 }

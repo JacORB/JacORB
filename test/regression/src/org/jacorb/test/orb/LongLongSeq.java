@@ -20,14 +20,15 @@ package org.jacorb.test.orb;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import junit.framework.*;
-import junit.extensions.*;
-import java.io.*;
-import org.omg.CORBA.*;
-import org.jacorb.test.common.*;
-import org.jacorb.util.*;
-import org.jacorb.test.*;
-import org.jacorb.test.LongLongSeqServerPackage.*;
+
+import junit.framework.Test;
+import junit.framework.TestSuite;
+
+import org.jacorb.test.LongLongSeqServer;
+import org.jacorb.test.LongLongSeqServerHelper;
+import org.jacorb.test.LongLongSeqServerPackage.SeqLongLongHolder;
+import org.jacorb.test.common.ClientServerSetup;
+import org.jacorb.test.common.ClientServerTestCase;
 
 public class LongLongSeq extends ClientServerTestCase
 {
@@ -47,6 +48,11 @@ public class LongLongSeq extends ClientServerTestCase
     public void setUp() throws Exception
     {
         server = LongLongSeqServerHelper.narrow( setup.getServerObject() );
+    }
+
+    protected void tearDown() throws Exception
+    {
+        server = null;
     }
 
     public static Test suite()

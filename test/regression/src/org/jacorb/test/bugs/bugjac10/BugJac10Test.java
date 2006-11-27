@@ -32,11 +32,11 @@ import org.jacorb.test.common.ClientServerTestCase;
  * @author Carol Jordon
  * @version $Id$
  */
-public class TypeCodeTestCase extends ClientServerTestCase
+public class BugJac10Test extends ClientServerTestCase
 {
     private TypeCodeTest server;
 
-    public TypeCodeTestCase (String name, ClientServerSetup setup)
+    public BugJac10Test (String name, ClientServerSetup setup)
     {
         super(name, setup);
     }
@@ -46,15 +46,20 @@ public class TypeCodeTestCase extends ClientServerTestCase
         server = TypeCodeTestHelper.narrow( setup.getServerObject() );
     }
 
+    protected void tearDown() throws Exception
+    {
+        server = null;
+    }
+
     public static Test suite()
     {
         final TestSuite suite = new TestSuite();
         suite.addTest(createTestSuite(1));
         suite.addTest(createTestSuite(2));
-        
+
         return suite;
     }
-    
+
     private static Test createTestSuite(int config)
     {
         final TestSuite suite = new TestSuite( "Client/server TypeCode tests" );
@@ -88,12 +93,12 @@ public class TypeCodeTestCase extends ClientServerTestCase
         if( config == 1 )
         {
             suite.addTest
-                ( new TypeCodeTestCase( "test_compact_tc_on", setup ) );
+                ( new BugJac10Test( "test_compact_tc_on", setup ) );
         }
         else if( config == 2 )
         {
             suite.addTest
-                ( new TypeCodeTestCase( "test_compact_tc_off", setup ) );
+                ( new BugJac10Test( "test_compact_tc_off", setup ) );
         }
 
         return setup;
@@ -102,7 +107,7 @@ public class TypeCodeTestCase extends ClientServerTestCase
     /**
      * <code>test_compact_tc_on</code>
      */
-    public void test_compact_tc_on() 
+    public void test_compact_tc_on()
     {
         org.omg.CORBA.TypeCode argin;
         org.omg.CORBA.TypeCodeHolder argout;
@@ -150,7 +155,7 @@ public class TypeCodeTestCase extends ClientServerTestCase
         arginout.value = C_exceptHelper.type ();
 
         _ret = server.respond (false, argin, argout, arginout);
-     
+
         if (!(C_exceptHelper.type ().equal(_ret)))
         {
             fail ("_ret value error in test_compact_tc_off");

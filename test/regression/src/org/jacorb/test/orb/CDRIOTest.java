@@ -57,8 +57,11 @@ public class CDRIOTest extends JacORBTestCase
 
     protected void tearDown() throws Exception
     {
+        os.close();
+        os = null;
+        orb.shutdown(true);
+        orb = null;
         super.tearDown();
-        orb.destroy();
     }
 
     /**

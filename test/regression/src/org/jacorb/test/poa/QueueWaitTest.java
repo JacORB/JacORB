@@ -31,6 +31,11 @@ public class QueueWaitTest extends CallbackTestCase
         server = CallbackServerHelper.narrow( setup.getServerObject() );
     }
 
+    protected void tearDown() throws Exception
+    {
+        server = null;
+    }
+
     public static Test suite()
     {
         TestSuite suite = new TestSuite( "Request Queue Overrun - waiting (" + QueueWaitTest.class.getName() + ")");

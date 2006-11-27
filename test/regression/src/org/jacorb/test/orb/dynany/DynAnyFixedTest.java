@@ -20,13 +20,10 @@ package org.jacorb.test.orb.dynany;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import junit.framework.*;
-import junit.extensions.TestSetup;
-import org.jacorb.test.common.ORBSetup;
-import org.omg.DynamicAny.DynAnyFactoryHelper;
-
-import java.math.BigDecimal;
 import java.lang.reflect.Method;
+import java.math.BigDecimal;
+
+import junit.framework.Test;
 
 /**
  * DynAnyFixedTest.java
@@ -35,28 +32,8 @@ import java.lang.reflect.Method;
  *
  */
 
-public class DynAnyFixedTest extends TestCase
+public class DynAnyFixedTest extends DynAnyXXXTestCase
 {
-   private org.omg.DynamicAny.DynAnyFactory factory = null;
-   private org.omg.CORBA.ORB orb = null;
-
-
-   public DynAnyFixedTest (String name)
-   {
-      super (name);
-   }
-
-   protected void setUp() throws Exception
-   {
-       orb = org.omg.CORBA.ORB.init(new String[0], null);
-       factory = DynAnyFactoryHelper.narrow(orb.resolve_initial_references("DynAnyFactory"));
-   }
-
-   protected void tearDown() throws Exception
-   {
-       orb.shutdown(true);
-   }
-
    /**
     * Tests creating a DynAny object from an Any object using the
     * DynAnyFactory object.
@@ -392,28 +369,32 @@ public class DynAnyFixedTest extends TestCase
       }
    }
 
-
    /**
     * Test generating an Any value from a DynAny object.
     */
-   public void testGenerateAnyFromDynAny ()
+   public void testGenerateAnyFromDynAny () throws Exception
    {
-      String msg;
-      BigDecimal fixedVal;
-      org.omg.CORBA.Any any = null;
-      org.omg.CORBA.TypeCode tc = null;
-      org.omg.DynamicAny.DynFixed dynAny = null;
-      org.omg.DynamicAny.DynFixed dynAny2 = null;
+	   final org.omg.CORBA.TypeCode tc = orb.create_fixed_tc ((short) 2, (short) 1);
 
-      tc = orb.create_fixed_tc ((short) 2, (short) 1);
+      BigDecimal fixedVal;
+      org.omg.CORBA.Any any;
+      org.omg.DynamicAny.DynFixed dynAny;
+      org.omg.DynamicAny.DynFixed dynAny2;
+
       fixedVal = new BigDecimal ("1.0");
       dynAny = createDynAnyFromTypeCode (tc);
+      assertEquals(2, dynAny.type().fixed_digits());
+      assertEquals(1, dynAny.type().fixed_scale());
 
-      any = orb.create_any ();
       any = dynAny.to_any ();
-      dynAny2 = createDynAnyFromAny (any);
+      assertEquals(2, any.type().fixed_digits());
+      assertEquals(1, any.type().fixed_scale());
 
-      msg = "The DynAny::to_any operation failed to create an Any ";
+      dynAny2 = createDynAnyFromAny (any);
+      assertEquals(2, dynAny2.type().fixed_digits());
+      assertEquals(1, dynAny2.type().fixed_scale());
+
+      String msg = "The DynAny::to_any operation failed to create an Any ";
       msg += "object with the same value as the DynAny object";
       assertTrue (msg, dynAny.equal (dynAny2));
    }

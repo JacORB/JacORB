@@ -21,11 +21,30 @@ package org.jacorb.test.common.launch;
  *   MA 02110-1301, USA.
  */
 
-import java.io.*;
-import java.util.*;
-import java.text.*;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintStream;
+import java.io.PrintWriter;
+import java.lang.reflect.Method;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Properties;
 
-import org.jacorb.test.common.*;
+import org.apache.tools.ant.BuildException;
+import org.apache.tools.ant.Project;
+import org.apache.tools.ant.Task;
+import org.apache.tools.ant.taskdefs.ExecuteWatchdog;
+import org.apache.tools.ant.taskdefs.LogStreamHandler;
+import org.apache.tools.ant.taskdefs.optional.junit.BatchTest;
+import org.apache.tools.ant.taskdefs.optional.junit.FormatterElement;
+import org.apache.tools.ant.types.Parameter;
+import org.apache.tools.ant.types.Path;
+import org.jacorb.test.common.TestUtils;
 import org.jacorb.util.ObjectUtil;
 
 /**
@@ -51,61 +70,45 @@ import org.jacorb.util.ObjectUtil;
  * @author Andre Spiegel spiegel@gnu.org
  * @version $Id$
  */
-public class TestLauncher
+public class TestLauncher extends Task
 {
-    private static String[] args = null;
-    private static PrintWriter outFile = null;
-    private static boolean outputFileTestName;
-    private static Date testDate = new java.util.Date();
-
-    private static DateFormat idFormatter =
-        new SimpleDateFormat ("yyyy-MM-dd.HH-mm-ss");
-
-    private static DateFormat dateStringFormatter =
+    private static final DateFormat dateStringFormatter =
         new SimpleDateFormat ("yyyy-MM-dd HH:mm:ss Z");
-    private static String testId;
-    private static boolean isSSL;
-    private static boolean useIMR;
 
-    private static class Listener extends Thread
-    {
-       private BufferedReader in = null;
+    private final List formatters = new ArrayList();
+    private final List classpath = new ArrayList();
 
-        public Listener (InputStream in)
-        {
-            this.in = new BufferedReader (new InputStreamReader (in));
-        }
+    private final Date testDate = new java.util.Date();
+    private final Properties props = new Properties();
 
-        public void run()
-        {
-            try
-            {
-                while (true)
-                {
-                    String line = in.readLine();
-                    if (line == null)
-                    {
-                        break;
-                    }
-                    System.out.println (line);
-                    outFile.println (line);
-                }
-            }
-            catch (Exception ex)
-            {
-                System.out.println ("exception reading from test client: "
-                                    + ex.toString());
-            }
-        }
-    }
+    private String serverVersion = "cvs";
+    private String clientVersion = "cvs";
+    private long timeout = 15000;
+    private String maxMemory = "64m";
 
-    public static void printTestHeader (PrintWriter out)
+    private String suite;
+    private boolean coverage;
+    private String errorProperty;
+    private boolean useSSL;
+    private boolean useIMR;
+    private long testTimeout = 60 * 60 * 1000;
+
+    private File testDir;
+
+    private File outDir;
+    private String outName;
+
+    private boolean showOutput;
+
+	private final List batchTests = new ArrayList();
+
+    private void printTestHeader (PrintWriter out)
     {
         out.println("-------------------------------------------------------------------------------");
         out.println();
         out.println("  JacORB Regression Test Report");
         out.println();
-        out.println("  Suite:    " + getSuiteName() + " [" + (isSSL ? "" : "NO") + "SSL]");
+        out.println("  Suite:    " + suite + " [" + (useSSL ? "" : "NO") + "SSL]");
         out.println("");
         out.println("  Date:     " + getTestDateString());
         out.println("  User:     " + getTestUser());
@@ -114,62 +117,62 @@ public class TestLauncher
         out.println("  Client Version:   " + getClientVersion());
         out.println("  Server Version:   " + getServerVersion());
         out.println("  Coverage:         " + (getCoverage() ? "yes" : "no"));
-        out.println("  SSL:              " + (isSSL ? "yes" : "no"));
+        out.println("  SSL:              " + (useSSL ? "yes" : "no"));
         out.println("  IMR:              " + (useIMR ? "yes" : "no"));
-        out.println("  Timeout:          " + ClientServerSetup.getTestTimeout());
+        out.println("  Timeout:          " + timeout);
+        out.println("  -Xmx:             " + maxMemory);
         out.println();
         out.println("-------------------------------------------------------------------------------");
     }
 
-    public static void printTestHeader (PrintStream out)
+    private void printTestHeader (PrintStream out)
     {
-        PrintWriter x = new PrintWriter (out);
-        printTestHeader(x);
-        x.flush();
+        PrintWriter writer = new PrintWriter (out);
+        printTestHeader(writer);
+        writer.flush();
     }
 
-    public static String getSuiteName()
+    private String getTestDateString()
     {
-        return args[0];
+        return dateStringFormatter.format (testDate);
     }
 
-    public static Date getTestDate()
+    public void setCoverage(boolean value)
     {
-        return testDate;
+        coverage = value;
     }
 
-    private static String newTestID()
+    private boolean getCoverage()
     {
-        return idFormatter.format (getTestDate());
+        return coverage;
     }
 
-    public static String getTestDateString()
+    public void setClientVersion(String value)
     {
-        return dateStringFormatter.format (getTestDate());
+        clientVersion = value;
     }
 
-    public static boolean getCoverage()
+    private String getClientVersion()
     {
-        String cs = System.getProperty("jacorb.test.coverage", "false");
-        return TestUtils.isPropertyTrue(cs);
+        return clientVersion;
     }
 
-    public static String getClientVersion()
+    public void setServerVersion(String value)
     {
-        return System.getProperty ("jacorb.test.client.version", "cvs");
+        serverVersion = value;
     }
 
-    public static String getServerVersion()
+    private String getServerVersion()
     {
-        return System.getProperty ("jacorb.test.server.version", "cvs");
+        return serverVersion;
     }
 
-    public static String getTestUser()
+    private String getTestUser()
     {
         return System.getProperty ("user.name", "<unknown>");
     }
 
-    public static String getTestPlatform()
+    private String getTestPlatform()
     {
         return "java " + System.getProperty ("java.version")
              + " (" + System.getProperty ("java.vendor") + ") "
@@ -178,71 +181,166 @@ public class TestLauncher
              + System.getProperty ("os.arch") + ")";
     }
 
-    public static String getOutFilename()
+    public void setTestTimeout(long timeout)
     {
-        final String result;
-        if ( ! outputFileTestName)
-        {
-            String dir = TestUtils.testHome() + "/output/" + testId;
-            File dirF = new File (dir);
-            // File class is platform independent, no need to convert
-            if (!dirF.exists())
-            {
-                dirF.mkdir();
-            }
-            result = dir + "/report" + ".txt";
-        }
-        else
-        {
-            result = TestUtils.testHome() + "/output/TEST-" + args[0] + ".txt";
-        }
-        return result;
+        testTimeout = timeout;
     }
 
-    public static void main(String[] args) throws Exception
+    public void setOutdir(File value)
     {
-        TestLauncher.args = args;
+        outDir = value;
+    }
 
-        isSSL = TestUtils.isPropertyTrue(System.getProperty("jacorb.test.ssl"));
-        useIMR = TestUtils.isPropertyTrue(System.getProperty("jacorb.test.imr"));
-        testId = System.getProperty("jacorb.test.id", newTestID());
+    public void setOutname(String name)
+    {
+        outName = name;
+    }
 
-        String filetestname = System.getProperty("jacorb.test.outputfile.testname", "false");
-        outputFileTestName =
-        (
-            TestUtils.isPropertyTrue(filetestname)
-        );
+    public void setSuite(String suite)
+    {
+        this.suite = suite;
+    }
 
-        outFile = new PrintWriter (new FileWriter (getOutFilename()));
-        printTestHeader (outFile);
+    public void setTimeout(long timeout)
+    {
+        this.timeout = timeout;
+    }
+
+    public void setMaxMemory(String value)
+    {
+        this.maxMemory = value;
+
+        props.setProperty("jacorb.test.maxmemory", value);
+    }
+
+    public void setErrorProperty(String value)
+    {
+        errorProperty = value;
+    }
+
+    public void setIMR(boolean useIMR)
+    {
+        this.useIMR = useIMR;
+    }
+
+    public void setSSL(boolean useSSL)
+    {
+        this.useSSL = useSSL;
+    }
+
+    public void setVerbose(boolean value)
+    {
+        System.setProperty("jacorb.test.verbose", Boolean.toString(value));
+        props.setProperty("jacorb.test.verbose", Boolean.toString(value));
+    }
+
+    public void addConfiguredJVMArg(Parameter var)
+    {
+        props.setProperty(var.getName(), var.getValue());
+    }
+
+    public void addConfiguredClasspath(Path path)
+    {
+        classpath.add(path);
+    }
+
+    public void addFormatter(FormatterElement formatter)
+    {
+        formatters.add(formatter);
+    }
+
+    public void setTestDir(File dir)
+    {
+        testDir = dir;
+    }
+
+    public void setShowoutput(boolean value)
+    {
+        showOutput = value;
+    }
+
+    public BatchTest createBatchTest()
+    {
+        BatchTest test = new BatchTest(getProject());
+        batchTests.add(test);
+        return test;
+    }
+
+    public void execute() throws BuildException
+    {
+        if (outDir == null)
+        {
+            throw new BuildException("need to specify the attribute outdir");
+        }
+
+        if (testDir == null)
+        {
+            throw new BuildException("need to specify the attribute testdir");
+        }
+
+        if (suite == null && batchTests.isEmpty())
+        {
+            throw new BuildException("need to either specify the attribute suite or add a nested batch element");
+        }
+
+        try
+        {
+            executeInternal();
+        }
+        catch (IOException e)
+        {
+            throw new BuildException(e);
+        }
+        catch (InterruptedException e)
+        {
+            throw new BuildException(e);
+        }
+    }
+
+    private void executeInternal() throws IOException, InterruptedException
+    {
+        outDir.mkdir();
+
+        PrintWriter out = new PrintWriter(new FileWriter(new File(outDir, "header.txt")));
+        try
+        {
+            printTestHeader(out);
+        }
+        finally
+        {
+            out.close();
+        }
+
         printTestHeader (System.out);
 
-        String mainClass = "org.apache.tools.ant.taskdefs.optional.junit.JUnitTestRunner";
-        String testHome = TestUtils.osDependentPath(TestUtils.testHome());
+        String testHome = TestUtils.osDependentPath(testDir.getAbsolutePath());
 
-        String classpath = testHome + "/classes/";
-        classpath = TestUtils.pathAppend(classpath, testHome + "/lib/junit.jar");
-        classpath = TestUtils.pathAppend(classpath, testHome + "/lib/easymock-1.1.jar");
-        //Convert to platform dependent path
-        classpath = TestUtils.osDependentPath(classpath);
+        // TODO don't do that
+        // testhome should be passed in to JacORBLauncher instead
+        System.setProperty("jacorb.test.home", testHome);
+
         Properties props = new Properties();
-        props.put("jacorb.test.id", testId);
-        props.put("jacorb.test.coverage", getCoverage() ? "true" : "false");
+
+        props.setProperty("jacorb.orb.singleton.log.verbosity", "1");
+        props.setProperty("jacorb.config.log.verbosity", "0");
+
+        props.putAll(this.props);
+
+        props.put("jacorb.test.coverage", Boolean.toString(coverage));
+        props.put("jacorb.test.ssl", Boolean.toString(useSSL));
+        props.put("jacorb.test.imr", Boolean.toString(useIMR));
         props.put("jacorb.test.client.version", getClientVersion());
         props.put("jacorb.test.server.version", getServerVersion());
-        props.put("EXCLUDE_SERVICES", System.getProperty("EXCLUDE_SERVICES", "false"));
-        props.put("jacorb.test.verbose", System.getProperty("jacorb.test.verbose"));
-        props.put("jacorb.test.outputfile.testname",
-                  System.getProperty("jacorb.test.outputfile.testname" , "false"));
-        props.put("jacorb.test.ssl", System.getProperty("jacorb.test.ssl"));
-        props.put("jacorb.test.timeout", System.getProperty("jacorb.test.timeout"));
+        props.put("jacorb.test.timeout", Long.toString(timeout));
+        props.put("jacorb.test.outdir", outDir.getAbsolutePath());
+        props.put("jacorb.test.home", testHome);
 
         try
         {
             ObjectUtil.classForName("org.jacorb.test.orb.rmi.FixSunDelegateBug");
             props.put("javax.rmi.CORBA.UtilClass",
                       "org.jacorb.test.orb.rmi.FixSunDelegateBug");
-            System.err.println("Using org.jacorb.test.orb.rmi.FixSunDelegateBug");
+            log("Using org.jacorb.test.orb.rmi.FixSunDelegateBug", Project.MSG_INFO);
         }
         catch(NoClassDefFoundError e)
         {
@@ -250,8 +348,6 @@ public class TestLauncher
         catch(Exception e)
         {
         }
-
-        props.put("jacorb.test.home", testHome);
 
         if (TestUtils.isWindows())
         {
@@ -270,32 +366,176 @@ public class TestLauncher
             }
         }
 
-        JacORBLauncher launcher = JacORBLauncher.getLauncher
-        (
-            getClientVersion(), getCoverage()
-        );
+        final String mainClass = "org.apache.tools.ant.taskdefs.optional.junit.JUnitTestRunner";
 
         if (getCoverage())
         {
-            String coveragePath = new String
-            (
-                launcher.getJacorbHome() +
-                "/test/regression/output/" +
-                (outputFileTestName == true ? "" : testId) +
-                "/coverage-client.ec"
-            );
+            String coveragePath = outDir + "/coverage-client.ec";
             coveragePath = TestUtils.osDependentPath(coveragePath);
             props.put ("emma.coverage.out.file", coveragePath);
         }
 
-        Process process = launcher.launch(classpath, props, mainClass, args);
-        Listener outL = new Listener(process.getInputStream());
-        outL.start();
-        Listener errL = new Listener(process.getErrorStream());
-        errL.start();
+        List args = new ArrayList();
+        args.add(suite);
+        args.add("printsummary=withOutAndErr");
+        args.add("showoutput=" + Boolean.toString(showOutput));
 
-        process.waitFor();
+        Iterator i = formatters.iterator();
+        while(i.hasNext())
+        {
+            FormatterElement formatter = (FormatterElement) i.next();
+            StringBuffer buffer = new StringBuffer("formatter=");
+            buffer.append(formatter.getClassname());
+            final File outputFile = getOutput(formatter, this);
+            if (outputFile != null)
+            {
+                buffer.append(',');
+                buffer.append(outputFile);
+            }
 
-        outFile.close();
+            args.add(buffer.toString());
+        }
+
+        String[] processArgs = (String[]) args.toArray(new String[args.size()]);
+
+        // the bootclasspath is determined by the launcher.
+        log("TestLauncher ARGS:\n" + format(args), Project.MSG_VERBOSE);
+        log("TestLauncher PROPS:\n" + format(props), Project.MSG_VERBOSE);
+        log("TestLauncher CLASSPATH:\n    " + formatClasspath(), Project.MSG_VERBOSE);
+
+        final Launcher launcher = JacORBLauncher.getLauncher
+        (
+            getClientVersion(), getCoverage(), buildClasspath(), props, mainClass, processArgs
+        );
+
+        final Process process = launcher.launch();
+
+        final LogStreamHandler logHandler = new LogStreamHandler(this, Project.MSG_INFO, Project.MSG_WARN);
+        logHandler.setProcessErrorStream(process.getErrorStream());
+        logHandler.setProcessOutputStream(process.getInputStream());
+        logHandler.setProcessInputStream(process.getOutputStream());
+        logHandler.start();
+
+        final ExecuteWatchdog watchDog;
+
+        if (testTimeout == 0)
+        {
+            watchDog = null;
+        }
+        else
+        {
+            watchDog = new ExecuteWatchdog(testTimeout);
+            watchDog.start(process);
+        }
+
+        int retCode = process.waitFor();
+
+        if (watchDog != null && watchDog.killedProcess())
+        {
+            throw new BuildException("hit timeout " + testTimeout + " during execution of tests");
+        }
+
+        if (errorProperty != null && retCode != 0)
+        {
+            getProject().setNewProperty(errorProperty, "true");
+        }
+    }
+
+    protected File getOutput(FormatterElement fe, TestLauncher test)
+    {
+        boolean useFile = true;
+        try
+        {
+            Method method = fe.getClass().getDeclaredMethod("getUseFile", null);
+            method.setAccessible(true);
+            useFile = ((Boolean)method.invoke(fe, null)).booleanValue();
+        }
+        catch (Exception e)
+        {
+            throw new BuildException(e);
+        }
+
+        if (!useFile)
+        {
+            return null;
+        }
+
+        String filename = outName + fe.getExtension();
+        File destFile = new File(outDir, filename);
+        String absFilename = destFile.getAbsolutePath();
+        return getProject().resolveFile(absFilename);
+    }
+
+    private String formatClasspath()
+    {
+        StringBuffer buffer = new StringBuffer();
+
+        buildClasspath(buffer, classpath, "\n    ");
+
+        return buffer.toString();
+    }
+
+    private String buildClasspath()
+    {
+        StringBuffer buffer = new StringBuffer();
+
+        buildClasspath(buffer, classpath, File.pathSeparator);
+
+        return buffer.toString();
+    }
+
+    private void buildClasspath(StringBuffer buffer, final List list, String separator)
+    {
+        Iterator i = list.iterator();
+
+        while(i.hasNext())
+        {
+            Path path = (Path) i.next();
+
+            String[] entries = path.list();
+
+            for (int j = 0; j < entries.length; j++)
+            {
+                if (j > 0)
+                {
+                    buffer.append(separator);
+                }
+
+                buffer.append(entries[j]);
+            }
+        }
+    }
+
+    private static String format(List list)
+    {
+        StringBuffer buffer = new StringBuffer();
+        int x = 1;
+        for (Iterator i = list.iterator(); i.hasNext();)
+        {
+            String string = (String) i.next();
+            buffer.append("    ");
+            buffer.append(x++);
+            buffer.append(": ");
+            buffer.append(string);
+            buffer.append('\n');
+        }
+
+        return buffer.toString();
+    }
+
+    private static String format(Properties props)
+    {
+        StringBuffer buffer = new StringBuffer();
+
+        for (Iterator i = props.keySet().iterator(); i.hasNext();)
+        {
+            String key = (String) i.next();
+            buffer.append("    ");
+            buffer.append(key);
+            buffer.append('=');
+            buffer.append(props.getProperty(key));
+            buffer.append('\n');
+        }
+        return buffer.toString();
     }
 }

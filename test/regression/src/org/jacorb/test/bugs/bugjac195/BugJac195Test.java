@@ -43,7 +43,7 @@ public class BugJac195Test extends ClientServerTestCase
 {
     private JAC195Server server;
 
-    static String port = "50124";
+    final static String port = "50124";
 
     public BugJac195Test(String name, ClientServerSetup setup)
     {
@@ -53,6 +53,11 @@ public class BugJac195Test extends ClientServerTestCase
     public void setUp() throws Exception
     {
         server = JAC195ServerHelper.narrow( setup.getServerObject() );
+    }
+
+    protected void tearDown() throws Exception
+    {
+        server = null;
     }
 
     public static Test suite()

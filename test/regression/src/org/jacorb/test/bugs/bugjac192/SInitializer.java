@@ -1,5 +1,6 @@
 package org.jacorb.test.bugs.bugjac192;
 
+import org.jacorb.orb.portableInterceptor.ORBInitInfoImpl;
 import org.omg.PortableInterceptor.ORBInitInfo;
 import org.omg.PortableInterceptor.ORBInitInfoPackage.DuplicateName;
 import org.omg.PortableInterceptor.ORBInitializer;
@@ -35,7 +36,7 @@ public class SInitializer
         {
             slotID = info.allocate_slot_id();
 
-            info.add_server_request_interceptor(new SInterceptor());
+            info.add_server_request_interceptor(new SInterceptor(((ORBInitInfoImpl)info).getORB()));
         }
         catch (DuplicateName e)
         {

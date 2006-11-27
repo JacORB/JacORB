@@ -20,14 +20,14 @@ package org.jacorb.test.orb.dynany;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import junit.framework.*;
-import junit.extensions.TestSetup;
-import org.omg.CORBA.TCKind;
-import org.omg.DynamicAny.DynSequence;
+import junit.framework.Test;
+import junit.framework.TestSuite;
 
-import org.jacorb.test.common.ORBSetup;
 import org.jacorb.test.Bound;
 import org.jacorb.test.BoundedDataHelper;
+import org.jacorb.test.common.ORBTestCase;
+import org.omg.CORBA.TCKind;
+import org.omg.DynamicAny.DynSequence;
 
 /**
  * DynAnyBoundedSeqTest.java
@@ -36,44 +36,12 @@ import org.jacorb.test.BoundedDataHelper;
  *
  */
 
-public class DynAnyBoundedSeqTest extends TestCase
+public class DynAnyBoundedSeqTest extends DynAnyXXXTestCase
 {
-   private static org.omg.DynamicAny.DynAnyFactory factory = null;
-   private static org.omg.CORBA.ORB orb = null;
-
-   public DynAnyBoundedSeqTest (String name)
-   {
-      super (name);
-   }
-
-
    public static Test suite ()
    {
-      TestSuite suite = new TestSuite ("Bounded DynSequence Tests");
-      Setup setup = new Setup (suite);
-      ORBSetup osetup = new ORBSetup (setup);
-
-      suite.addTest (new DynAnyBoundedSeqTest ("testFactoryCreateFromAny"));
-      suite.addTest (new DynAnyBoundedSeqTest ("testFactoryCreateFromTypeCode"));
-      suite.addTest (new DynAnyBoundedSeqTest ("testFactoryCreateFromIDLTypeCode"));
-      suite.addTest (new DynAnyBoundedSeqTest ("testCompareDynAny"));
-      suite.addTest (new DynAnyBoundedSeqTest ("testIterateDynAny"));
-      suite.addTest (new DynAnyBoundedSeqTest ("testAccessSeqElements"));
-      suite.addTest (new DynAnyBoundedSeqTest ("testAccessSeqDynAnyElements"));
-      suite.addTest (new DynAnyBoundedSeqTest ("testAccessSeqElementsEx"));
-      suite.addTest (new DynAnyBoundedSeqTest ("testDynAnyTypeCode"));
-      suite.addTest (new DynAnyBoundedSeqTest ("testInitDynAnyFromDynAny"));
-      suite.addTest (new DynAnyBoundedSeqTest ("testInitDynAnyFromAny"));
-      suite.addTest (new DynAnyBoundedSeqTest ("testInitFromAnyTypeMismatchEx"));
-      suite.addTest (new DynAnyBoundedSeqTest ("testGenerateAnyFromDynAny"));
-      suite.addTest (new DynAnyBoundedSeqTest ("testDestroyDynAny"));
-      suite.addTest (new DynAnyBoundedSeqTest ("testDestroyComponent"));
-      suite.addTest (new DynAnyBoundedSeqTest ("testCopyDynAny"));
-      suite.addTest (new DynAnyBoundedSeqTest ("testSetLength"));
-
-      return osetup;
+      return new TestSuite (DynAnyBoundedSeqTest.class, "Bounded DynSequence Tests");
    }
-
 
    /**
     * Tests creating a DynAny object from an Any object using the
@@ -839,46 +807,10 @@ public class DynAnyBoundedSeqTest extends TestCase
    }
 
 
-   private static class Setup extends TestSetup
-   {
-      public Setup (Test test)
-      {
-         super (test);
-      }
-
-      protected void setUp ()
-      {
-         org.omg.CORBA.Object obj = null;
-
-         orb = ORBSetup.getORB ();
-         try
-         {
-            obj = orb.resolve_initial_references ("DynAnyFactory");
-         }
-         catch (org.omg.CORBA.ORBPackage.InvalidName ex)
-         {
-            fail ("Failed to resolve DynAnyFactory: " + ex);
-         }
-         try
-         {
-            factory = org.omg.DynamicAny.DynAnyFactoryHelper.narrow (obj);
-         }
-         catch (Throwable ex)
-         {
-            fail ("Failed to narrow to DynAnyFactory: " + ex);
-         }
-      }
-
-      protected void tearDown ()
-      {
-      }
-   }
-
-
    /**
     * Create a DynAny object from an Any object.
     */
-   private static org.omg.DynamicAny.DynSequence createDynAnyFromAny
+   private org.omg.DynamicAny.DynSequence createDynAnyFromAny
       (org.omg.CORBA.Any any)
    {
       String msg;
@@ -901,7 +833,7 @@ public class DynAnyBoundedSeqTest extends TestCase
    /**
     * Create a DynAny object from a TypeCode object.
     */
-   private static org.omg.DynamicAny.DynSequence createDynAnyFromTypeCode
+   private org.omg.DynamicAny.DynSequence createDynAnyFromTypeCode
       (org.omg.CORBA.TypeCode tc)
    {
       String msg;

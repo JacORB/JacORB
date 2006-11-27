@@ -20,10 +20,9 @@ package org.jacorb.test.bugs.bugjac69;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import junit.framework.TestCase;
 
+import org.jacorb.test.common.ORBTestCase;
 import org.omg.CORBA.BAD_PARAM;
-import org.omg.CORBA.ORB;
 
 
 /**
@@ -33,21 +32,13 @@ import org.omg.CORBA.ORB;
  * @author Nick Cross
  * @version $Id$
  */
-public class InvalidIORTest extends TestCase
+public class InvalidIORTest extends ORBTestCase
 {
-    private org.omg.CORBA.ORB orb = ORB.init(new String[0], null);
-
     /**
      * <code>ior1</code> is an invalid ior (from the broken eorb before it was fixed)
      * to decode.
      */
     private static final String INVALID_IOR="IOR:010000001800000049444c3a4772656574696e67536572766963653a312e30000100000000000000250000000101000008000000302e312e322e3300f90a00000d000000654f524208b0a047560000000";
-
-
-    protected void tearDown() throws Exception
-    {
-        orb.shutdown(true);
-    }
 
     /**
      * <code>testDecode1</code> tests that JacORB can decode a valid IOR.

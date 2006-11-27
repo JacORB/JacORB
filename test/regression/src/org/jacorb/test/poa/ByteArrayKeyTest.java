@@ -21,9 +21,9 @@ package org.jacorb.test.poa;
  */
 
 import junit.framework.*;
-import junit.extensions.TestSetup;
-import org.jacorb.test.common.ORBSetup;
 import org.jacorb.poa.util.ByteArrayKey;
+import org.jacorb.test.common.ORBTestCase;
+import org.omg.CORBA.ORB;
 
 
 /**
@@ -32,26 +32,8 @@ import org.jacorb.poa.util.ByteArrayKey;
  * @author <a href="mailto:rnc@prismtechnologies.com"></a>
  * @version 1.0
  */
-public class ByteArrayKeyTest extends TestCase
+public class ByteArrayKeyTest extends ORBTestCase
 {
-    /**
-     * <code>orb</code> is used to obtain the root poa.
-     */
-    private static org.omg.CORBA.ORB orb = null;
-
-
-
-    /**
-     * <code>ByteArrayKeyTest</code> constructor - for JUnit.
-     *
-     * @param name a <code>String</code> value
-     */
-    public ByteArrayKeyTest (String name)
-    {
-        super (name);
-    }
-
-
     /**
      * <code>suite</code> lists the tests for Junit to run.
      *
@@ -59,14 +41,7 @@ public class ByteArrayKeyTest extends TestCase
      */
     public static Test suite ()
     {
-        TestSuite suite = new TestSuite ("ByteArrayKey Test");
-        Setup setup = new Setup( suite );
-        ORBSetup osetup = new ORBSetup( setup );
-
-        suite.addTest (new ByteArrayKeyTest ("testKey1"));
-        suite.addTest (new ByteArrayKeyTest ("testKey2"));
-
-        return osetup;
+        return new TestSuite (ByteArrayKeyTest.class, "ByteArrayKey Test");
     }
 
 
@@ -118,40 +93,6 @@ public class ByteArrayKeyTest extends TestCase
         catch( Exception e )
         {
             fail( "Caught exception processing ByteArrayKey" );
-        }
-    }
-
-
-    /**
-     * <code>Setup</code> is an inner class to initialize the ORB.
-     */
-    private static class Setup extends TestSetup
-    {
-        /**
-         * Creates a new <code>Setup</code> instance.
-         *
-         * @param test a <code>Test</code> value
-         */
-        public Setup (Test test)
-        {
-            super (test);
-        }
-
-        /**
-         * <code>setUp</code> sets the orb variable.
-         */
-        protected void setUp ()
-        {
-            org.omg.CORBA.Object obj = null;
-
-            orb = ORBSetup.getORB ();
-        }
-
-        /**
-         * <code>tearDown</code> does nothing for this test.
-         */
-        protected void tearDown ()
-        {
         }
     }
 }

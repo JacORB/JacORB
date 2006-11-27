@@ -20,19 +20,15 @@ package org.jacorb.test.orb.dynany;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import junit.framework.*;
-import junit.extensions.TestSetup;
+import junit.framework.TestCase;
 
-import org.omg.CORBA.BAD_PARAM;
-import org.omg.CORBA.TCKind;
-import org.omg.CORBA.DynAnyPackage.InvalidValue;
-import org.omg.DynamicAny.DynAnyFactoryHelper;
-import org.omg.DynamicAny.NameValuePair;
-import org.omg.DynamicAny.NameDynAnyPair;
-
-import org.jacorb.test.common.ORBSetup;
 import org.jacorb.test.StructType;
 import org.jacorb.test.StructTypeHelper;
+import org.omg.CORBA.BAD_PARAM;
+import org.omg.CORBA.TCKind;
+import org.omg.DynamicAny.DynAnyFactoryHelper;
+import org.omg.DynamicAny.NameDynAnyPair;
+import org.omg.DynamicAny.NameValuePair;
 
 /**
  * DynAny tests for struct types.
@@ -41,29 +37,10 @@ import org.jacorb.test.StructTypeHelper;
  * @version $Id$
  */
 
-public class DynAnyStructTest extends TestCase
+public class DynAnyStructTest extends DynAnyXXXTestCase
 {
-   private org.omg.DynamicAny.DynAnyFactory factory;
-   private org.omg.CORBA.ORB orb;
-
    private static final String ID = "IDL:test:1.0";
    private static final String NAME = "MyStruct";
-
-   public DynAnyStructTest (String name)
-   {
-      super (name);
-   }
-
-   protected void setUp() throws Exception
-   {
-       orb = org.omg.CORBA.ORB.init(new String[0], null);
-       factory = DynAnyFactoryHelper.narrow(orb.resolve_initial_references("DynAnyFactory"));
-   }
-
-   protected void tearDown() throws Exception
-   {
-       orb.shutdown(true);
-   }
 
    /**
     * Tests creating a DynAny object from an Any object using the

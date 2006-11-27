@@ -20,13 +20,11 @@ package org.jacorb.test.orb.dynany;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import junit.framework.*;
-import junit.extensions.TestSetup;
-import org.omg.CORBA.TCKind;
-
 import java.lang.reflect.Method;
 
-import org.jacorb.test.common.ORBSetup;
+import junit.framework.Test;
+import junit.framework.TestSuite;
+
 import org.jacorb.test.UnionDefaultBooleanType;
 import org.jacorb.test.UnionDefaultBooleanTypeHelper;
 import org.jacorb.test.UnionNoDefaultBooleanType;
@@ -48,6 +46,8 @@ import org.jacorb.test.UnionDefaultLongLongTypeHelper;
 import org.jacorb.test.UnionNoDefaultLongLongType;
 import org.jacorb.test.UnionNoDefaultLongLongTypeHelper;
 
+import org.omg.CORBA.TCKind;
+
 /**
  * DynAnyUnionIntTest.java
  *
@@ -55,57 +55,15 @@ import org.jacorb.test.UnionNoDefaultLongLongTypeHelper;
  *
  */
 
-public class DynAnyUnionIntTest extends TestCase
+public class DynAnyUnionIntTest extends DynAnyXXXTestCase
 {
-   private static org.omg.DynamicAny.DynAnyFactory factory = null;
-   private static org.omg.CORBA.ORB orb = null;
-
    private static final String ID = "IDL:test:1.0";
    private static final String NAME = "MyUnion";
 
-   public DynAnyUnionIntTest (String name)
-   {
-      super (name);
-   }
-
-
    public static Test suite ()
    {
-      TestSuite suite = new TestSuite
-         ("DynUnion Tests using Integer Discriminator");
-      Setup setup = new Setup (suite);
-      ORBSetup osetup = new ORBSetup (setup);
-
-      suite.addTest (new DynAnyUnionIntTest ("testFactoryCreateFromAny"));
-      suite.addTest (new DynAnyUnionIntTest ("testFactoryCreateFromTypeCode"));
-      suite.addTest (new DynAnyUnionIntTest ("testFactoryCreateFromIDLTypeCode"));
-      suite.addTest (new DynAnyUnionIntTest ("testCompareDynAnyUnamedMember"));
-      suite.addTest (new DynAnyUnionIntTest ("testCompareDynAnyNamedMember"));
-      suite.addTest (new DynAnyUnionIntTest ("testIterateDynAnyNamedMember"));
-      suite.addTest (new DynAnyUnionIntTest ("testIterateDynAnyUnamedMember"));
-      suite.addTest (new DynAnyUnionIntTest ("testAccessUnionDisc"));
-      suite.addTest (new DynAnyUnionIntTest ("testUnionDefaultBoolean"));
-      suite.addTest (new DynAnyUnionIntTest ("testUnionNoDefaultBoolean"));
-      suite.addTest (new DynAnyUnionIntTest ("testUnionDefaultChar"));
-      suite.addTest (new DynAnyUnionIntTest ("testUnionNoDefaultChar"));
-      suite.addTest (new DynAnyUnionIntTest ("testUnionDefaultShort"));
-      suite.addTest (new DynAnyUnionIntTest ("testUnionNoDefaultShort"));
-      suite.addTest (new DynAnyUnionIntTest ("testUnionDefaultLong"));
-      suite.addTest (new DynAnyUnionIntTest ("testUnionNoDefaultLong"));
-      suite.addTest (new DynAnyUnionIntTest ("testUnionDefaultLongLong"));
-      suite.addTest (new DynAnyUnionIntTest ("testUnionNoDefaultLongLong"));
-      suite.addTest (new DynAnyUnionIntTest ("testAccessNamedUnionMember"));
-      suite.addTest (new DynAnyUnionIntTest ("testAccessUnamedUnionMember"));
-      suite.addTest (new DynAnyUnionIntTest ("testDynAnyTypeCode"));
-      suite.addTest (new DynAnyUnionIntTest ("testInitDynAnyFromDynAny"));
-      suite.addTest (new DynAnyUnionIntTest ("testInitDynAnyFromAny"));
-      suite.addTest (new DynAnyUnionIntTest ("testInitFromAnyTypeMismatchEx"));
-      suite.addTest (new DynAnyUnionIntTest ("testGenerateAnyFromDynAny"));
-      suite.addTest (new DynAnyUnionIntTest ("testDestroyDynAny"));
-      suite.addTest (new DynAnyUnionIntTest ("testDestroyComponent"));
-      suite.addTest (new DynAnyUnionIntTest ("testCopyDynAny"));
-
-      return osetup;
+      return new TestSuite
+          (DynAnyUnionIntTest.class, "DynUnion Tests using Integer Discriminator");
    }
 
 
@@ -1416,7 +1374,7 @@ public class DynAnyUnionIntTest extends TestCase
       assertEquals (msg, testVal, memberVal);
    }
 
-   
+
    /**
     * Test attempting to access the active member of a DynUnion object when
     * there is no active member.
@@ -1770,46 +1728,10 @@ public class DynAnyUnionIntTest extends TestCase
    }
 
 
-   private static class Setup extends TestSetup
-   {
-      public Setup (Test test)
-      {
-         super (test);
-      }
-
-      protected void setUp ()
-      {
-         org.omg.CORBA.Object obj = null;
-
-         orb = ORBSetup.getORB ();
-         try
-         {
-            obj = orb.resolve_initial_references ("DynAnyFactory");
-         }
-         catch (org.omg.CORBA.ORBPackage.InvalidName ex)
-         {
-            fail ("Failed to resolve DynAnyFactory: " + ex);
-         }
-         try
-         {
-            factory = org.omg.DynamicAny.DynAnyFactoryHelper.narrow (obj);
-         }
-         catch (Throwable ex)
-         {
-            fail ("Failed to narrow to DynAnyFactory: " + ex);
-         }
-      }
-
-      protected void tearDown ()
-      {
-      }
-   }
-
-
    /**
     * Create a DynAny object from an Any object.
     */
-   private static org.omg.DynamicAny.DynUnion createDynAnyFromAny
+   private org.omg.DynamicAny.DynUnion createDynAnyFromAny
       (org.omg.CORBA.Any any)
    {
       String msg;
@@ -1832,7 +1754,7 @@ public class DynAnyUnionIntTest extends TestCase
    /**
     * Create a DynAny object from a TypeCode object.
     */
-   private static org.omg.DynamicAny.DynUnion createDynAnyFromTypeCode
+   private org.omg.DynamicAny.DynUnion createDynAnyFromTypeCode
       (org.omg.CORBA.TypeCode tc)
    {
       String msg;
@@ -1856,7 +1778,7 @@ public class DynAnyUnionIntTest extends TestCase
    /**
     * Create a sequence of fields for use in creating a union TypeCode.
     */
-   private static org.omg.CORBA.UnionMember [] getUnionMembers ()
+   private org.omg.CORBA.UnionMember [] getUnionMembers ()
    {
       final org.omg.CORBA.UnionMember [] members =
          new org.omg.CORBA.UnionMember [2];

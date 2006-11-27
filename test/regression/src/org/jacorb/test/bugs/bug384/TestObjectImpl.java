@@ -20,10 +20,7 @@ package org.jacorb.test.bugs.bug384;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import junit.framework.*;
-
-import org.omg.CORBA.*;
-import org.omg.CosNaming.*;
+import org.omg.CORBA.ORB;
 
 /**
  * Implementation of a test object that can be "ping()-ed"

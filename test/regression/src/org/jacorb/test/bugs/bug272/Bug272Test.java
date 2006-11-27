@@ -1,35 +1,17 @@
 package org.jacorb.test.bugs.bug272;
 
-import junit.framework.*;
-
-import org.omg.CORBA.*;
+import org.jacorb.test.common.ORBTestCase;
+import org.omg.CORBA.Any;
+import org.omg.CORBA.OctetSeqHelper;
 
 /**
  * Test for bug 272, byte array in Any.
- * 
+ *
  * @author Andre Spiegel
  * @version $Id$
  */
-public class TestCase extends junit.framework.TestCase
+public class Bug272Test extends ORBTestCase
 {
-	public TestCase (String name)
-	{
-		super (name);
-	}
-	
-	public static Test suite()
-	{
-		TestSuite suite = new TestSuite ("bug 272 byte array in Any");
-		
-		suite.addTest (new TestCase ("test_Any_byte_array_1"));
-		suite.addTest (new TestCase ("test_Any_byte_array_3999"));
-		suite.addTest (new TestCase ("test_Any_byte_array_4000"));
-		suite.addTest (new TestCase ("test_Any_byte_array_4001"));
-		suite.addTest (new TestCase ("test_Any_byte_array_40123"));
-
-		return suite;
-	}
-	
 	/**
 	 * Puts a byte array of length 1 into an Any.
 	 * (Regression test for bug #272)
@@ -76,26 +58,30 @@ public class TestCase extends junit.framework.TestCase
 	 */
 	public void test_Any_byte_array_40123()
 	{
-		do_Any_byte_array (40123);	
+		do_Any_byte_array (40123);
 	}
 
 	private void do_Any_byte_array (int length)
 	{
-		ORB orb = ORB.init();
 		Any a = orb.create_any();
-		
+
 		byte[] b = new byte[length];
-		for (int i=0; i<b.length; i++) b[i] = (byte)(i % 256);
-		
+		for (int i=0; i<b.length; i++)
+		{
+			b[i] = (byte)(i % 256);
+		}
+
 		OctetSeqHelper.insert( a, b );
-		
+
 		byte[] result = OctetSeqHelper.extract( a );
-		
+
 		assertTrue ( "arrays are the same", b != result);
 	    assertEquals( "wrong length of resulting array: ", b.length, result.length );
-			
+
 		for (int i=0; i<result.length; i++)
+		{
 			assertEquals( "wrong array element at index " + i, b[i], result[i] );
+		}
 	}
 
 }

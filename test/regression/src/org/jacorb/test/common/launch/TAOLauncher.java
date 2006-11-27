@@ -1,9 +1,11 @@
 package org.jacorb.test.common.launch;
 
-import java.util.*;
-import java.util.regex.*;
-import java.io.*;
-import org.jacorb.test.common.*;
+
+import java.io.IOException;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import org.jacorb.test.common.TestUtils;
 
 /**
  * A special JacORBLauncher that launches a TAO-based program that corresponds
@@ -12,33 +14,38 @@ import org.jacorb.test.common.*;
  * TAO implementation of it under TEST_HOME/tao/SomeProgram/server.  The
  * launcher will then start the "server" binary instead of the JacORB-based
  * implementation.
- * 
+ *
  * @author Andre Spiegel spiegel@gnu.org
  * @version $Id$
  */
-public class TAOLauncher extends JacORBLauncher
+public class TAOLauncher extends AbstractLauncher
 {
+    private static final Pattern classNamePattern = Pattern.compile ("\\.([^\\.]+?)(?:Impl)?$");
+    private String program;
 
-    public TAOLauncher (String home, boolean coverage)
+    public void init()
     {
-        super (home, coverage);
+        final Matcher m = classNamePattern.matcher(args[0]);
+
+        if (!m.find())
+        {
+            throw new RuntimeException ("cannot parse classname: " + args[0]);
+        }
+
+        String className = m.group(1);
+        program = TestUtils.testHome() + "/tao/" + className + "/server";
     }
 
-    private static Pattern classNamePattern 
-      = Pattern.compile ("\\.([^\\.]+?)(?:Impl)?$");
-    
-    public Process launch(String classpath,
-                          Properties props,
-                          String mainClass,
-                          String[] args)
+    public String getCommand()
+    {
+        return program;
+    }
+
+    public Process launch()
     {
         try
         {
-            Matcher m = classNamePattern.matcher (args[0]);
-            if (!m.find())
-                throw new RuntimeException ("cannot parse classname: " + args[0]);
-            String className = m.group(1);
-            String program = TestUtils.testHome() + "/tao/" + className + "/server";
+
             return Runtime.getRuntime().exec
             (
                 program,
@@ -50,5 +57,4 @@ public class TAOLauncher extends JacORBLauncher
             throw new RuntimeException (ex);
         }
     }
-
 }

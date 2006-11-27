@@ -36,8 +36,12 @@ public class BugJac181ServerListenerTest extends TestCase
 
     protected void tearDown() throws Exception
     {
+        server._release();
+        server = null;
         clientORB.shutdown(true);
+        clientORB = null;
         serverORB.shutdown(true);
+        serverORB = null;
     }
 
     public void testListener() throws Exception

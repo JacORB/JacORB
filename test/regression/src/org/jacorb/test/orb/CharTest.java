@@ -20,17 +20,19 @@ package org.jacorb.test.orb;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import junit.framework.*;
-import junit.extensions.*;
+import junit.framework.Test;
+import junit.framework.TestSuite;
 
-import org.jacorb.test.common.*;
-import org.omg.CORBA.*;
-import org.jacorb.test.*;
-import org.jacorb.test.CharServerPackage.wcharSeqHolder;
+import org.jacorb.test.CharServer;
+import org.jacorb.test.CharServerHelper;
 import org.jacorb.test.CharServerPackage.DataFlavour;
 import org.jacorb.test.CharServerPackage.DataFlavourHelper;
 import org.jacorb.test.CharServerPackage.NameValuePair;
-
+import org.jacorb.test.CharServerPackage.wcharSeqHolder;
+import org.jacorb.test.common.ClientServerSetup;
+import org.jacorb.test.common.ClientServerTestCase;
+import org.jacorb.test.common.TestUtils;
+import org.omg.CORBA.CharHolder;
 
 public class CharTest extends ClientServerTestCase
 {
@@ -50,31 +52,18 @@ public class CharTest extends ClientServerTestCase
         server = CharServerHelper.narrow( setup.getServerObject() );
     }
 
+    protected void tearDown() throws Exception
+    {
+        server = null;
+    }
+
     public static Test suite()
     {
         TestSuite suite = new TestSuite( "Client/server char tests" );
         ClientServerSetup setup =
             new ClientServerSetup( suite,
                                    "org.jacorb.test.orb.CharServerImpl" );
-
-        suite.addTest( new CharTest( "test_pass_in_char", setup ) );
-        suite.addTest( new CharTest( "test_pass_in_char_illegal", setup ) );
-        suite.addTest( new CharTest( "test_pass_out_char", setup ) );
-        suite.addTest( new CharTest( "test_pass_out_char_illegal", setup ) );
-        suite.addTest( new CharTest( "test_pass_inout_char", setup ) );
-        suite.addTest( new CharTest( "test_pass_inout_char_illegal", setup ) );
-        suite.addTest( new CharTest( "test_return_char", setup ) );
-        suite.addTest( new CharTest( "test_return_char_illegal", setup ) );
-        suite.addTest( new CharTest( "test_bounce_char", setup ) );
-
-        suite.addTest( new CharTest( "test_pass_in_wchar", setup ) );
-        suite.addTest( new CharTest( "test_pass_out_wchar", setup ) );
-        suite.addTest( new CharTest( "test_pass_inout_wchar", setup ) );
-        suite.addTest( new CharTest( "test_return_wchar", setup ) );
-        suite.addTest( new CharTest( "test_bounce_wchar", setup ) );
-
-        suite.addTest( new CharTest( "test_wchar_seq", setup ) );
-        suite.addTest( new CharTest( "test_return_dataflavour_inany", setup ) );
+        TestUtils.addToSuite(suite, setup, CharTest.class);
 
         return setup;
     }

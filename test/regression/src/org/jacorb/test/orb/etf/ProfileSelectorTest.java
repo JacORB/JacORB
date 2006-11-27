@@ -33,24 +33,11 @@ import org.jacorb.test.orb.etf.wiop.WIOPFactories;
  * @author <a href="mailto:spiegel@gnu.org">Andre Spiegel</a>
  * @version $Id$
  */
-public class ProfileSelectorTest extends ClientServerTestCase
+public class ProfileSelectorTest extends AbstractWIOPTestCase
 {
-    private BasicServer server = null;
-
     public ProfileSelectorTest (String name, ClientServerSetup setup)
     {
         super (name, setup);
-    }
-
-    public void setUp() throws Exception
-    {
-        WIOPFactories.setTransportInUse(false);
-        server = BasicServerHelper.narrow( setup.getServerObject() );
-    }
-
-    public void tearDown() throws Exception
-    {
-        WIOPFactories.setTransportInUse(false);
     }
 
     public static Test suite()

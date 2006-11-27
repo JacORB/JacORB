@@ -38,7 +38,6 @@ import org.jacorb.test.common.TestUtils;
 import org.omg.CORBA.Any;
 import org.omg.CORBA.ORB;
 import org.omg.CORBA.Repository;
-import org.omg.CORBA.RepositoryHelper;
 import org.omg.CosNotification.Property;
 import org.omg.CosNotification.PropertySeqHelper;
 import org.omg.DynamicAny.DynAnyFactory;
@@ -47,7 +46,7 @@ import org.picocontainer.MutablePicoContainer;
 
 /**
  * helper class for notification service unit tests.
- * 
+ *
  * @author Alphonse Bendt
  */
 
@@ -56,11 +55,11 @@ public abstract class NotificationTestCase extends TestCase
     private NotificationTestCaseSetup setup_;
 
     protected Logger logger_;
-    
+
     private MutablePicoContainer container_;
-    
+
     private DisposableManager disposables_;
-    
+
     ///////////////////////////////
 
     public NotificationTestCase(String name, NotificationTestCaseSetup setup)
@@ -75,9 +74,9 @@ public abstract class NotificationTestCase extends TestCase
     public final void setUp() throws Exception
     {
         disposables_ = new DisposableManager();
-        
+
         container_ = PicoContainerFactory.createChildContainer(setup_.getPicoContainer());
-        
+
         logger_ = ((org.jacorb.config.Configuration) getConfiguration()).getNamedLogger(getClass()
                 .getName()
                 + "." + getName());
@@ -87,20 +86,20 @@ public abstract class NotificationTestCase extends TestCase
 
     protected void setUpTest() throws Exception
     {
-        // empty to be overridden.     
+        // empty to be overridden.
     }
 
     public final void tearDown() throws Exception
     {
         setup_.getPicoContainer().removeChildContainer(container_);
-        
+
         tearDownTest();
 
         disposables_.dispose();
-        
+
         super.tearDown();
     }
-    
+
     protected void tearDownTest() throws Exception
     {
         // empty to be overridden.
@@ -175,7 +174,7 @@ public abstract class NotificationTestCase extends TestCase
     {
         return suite("TestSuite defined in Class: " + clazz.getName(), clazz, testPrefix);
     }
-    
+
     public static Test suite(String suiteName, Class clazz) throws Exception
     {
         return suite(suiteName, clazz, "test");
@@ -192,7 +191,7 @@ public abstract class NotificationTestCase extends TestCase
     {
         disposables_.addDisposable(d);
     }
-    
+
     public Any toAny(String s)
     {
         Any _any = getORB().create_any();
@@ -222,6 +221,6 @@ public abstract class NotificationTestCase extends TestCase
 
     public Repository getRepository() throws Exception
     {
-        return RepositoryHelper.narrow(getORB().resolve_initial_references("InterfaceRepository"));
+    	return setup_.getRepository();
     }
 }

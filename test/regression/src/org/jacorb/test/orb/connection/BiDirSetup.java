@@ -9,6 +9,7 @@ import org.omg.BiDirPolicy.BIDIRECTIONAL_POLICY_TYPE;
 import org.omg.BiDirPolicy.BOTH;
 import org.omg.BiDirPolicy.BidirectionalPolicyValueHelper;
 import org.omg.CORBA.Any;
+import org.omg.CORBA.ORB;
 import org.omg.CORBA.Policy;
 import org.omg.PortableServer.IdAssignmentPolicyValue;
 import org.omg.PortableServer.ImplicitActivationPolicyValue;
@@ -21,13 +22,15 @@ import org.omg.PortableServer.POA;
  */
 public class BiDirSetup extends ClientServerSetup
 {
-    private POA biDirPOA = null;
+    private POA biDirPOA;
 
     public BiDirSetup (Test test,
                        Properties clientProperties,
                        Properties serverProperties)
     {
-        super(test, "org.jacorb.test.orb.connection.BiDirServerImpl",
+        super(test,
+              "org.jacorb.test.orb.connection.BiDirServerImpl",
+              "org.jacorb.test.orb.connection.BiDirServerImpl",
               clientProperties, serverProperties);
     }
 
@@ -36,9 +39,10 @@ public class BiDirSetup extends ClientServerSetup
         return "org.jacorb.test.orb.connection.BiDirServerImpl";
     }
 
-    public void setUp() throws Exception
+    protected void doSetUp() throws Exception
     {
-        super.setUp();
+        ORB clientOrb = getClientOrb();
+        POA clientRootPOA = getClientRootPOA();
 
         Policy[] policies = new Policy[4];
         policies[0] =
@@ -61,17 +65,14 @@ public class BiDirSetup extends ClientServerSetup
         biDirPOA.the_POAManager().activate();
     }
 
+    protected void doTearDown() throws Exception
+    {
+        biDirPOA.destroy(false, true);
+        biDirPOA = null;
+    }
+
     public POA getBiDirPOA()
     {
         return biDirPOA;
-    }
-
-    /**
-     * <code>initSecurity</code> is a dummy implementation to prevent security
-     * init for this test - this tests counts transports which are disrupted by
-     * security initialisation.
-     */
-    protected void initSecurity()
-    {
     }
 }

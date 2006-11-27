@@ -1,6 +1,8 @@
 package org.jacorb.test.bugs.bugjac192;
 
 import org.jacorb.orb.CDRInputStream;
+import org.jacorb.orb.ORB;
+import org.jacorb.orb.portableInterceptor.ServerRequestInfoImpl;
 import org.omg.CORBA.Any;
 import org.omg.CORBA.BAD_PARAM;
 import org.omg.CORBA.INTERNAL;
@@ -22,6 +24,13 @@ public class SInterceptor
     extends org.omg.CORBA.LocalObject
     implements ServerRequestInterceptor
 {
+    private final ORB orb;
+
+    public SInterceptor(ORB orb)
+    {
+        this.orb = orb;
+    }
+
     /**
      * <code>receive_request</code> tests whether a service context has been sent.
      *
@@ -80,23 +89,18 @@ public class SInterceptor
     {
         boolean result = false;
 
-        if (BugJac192Test.serverOrb == null)
-        {
-            BugJac192Test.serverOrb = org.omg.CORBA.ORB.init (new String[]{}, null);
-        }
-
         if (sc != null)
         {
             byte []data = sc.context_data;
 
             // This part is proprietary code to unmarshal the service context data
-            CDRInputStream is = new CDRInputStream(BugJac192Test.serverOrb, data);
+            CDRInputStream is = new CDRInputStream(orb, data);
             result = is.read_boolean();
             is.close();
             // End
         }
 
-        Any nameAny = BugJac192Test.serverOrb.create_any();
+        Any nameAny = orb.create_any();
         nameAny.insert_boolean(result);
 
         try

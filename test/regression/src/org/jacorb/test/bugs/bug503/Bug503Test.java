@@ -20,32 +20,23 @@
 
 package org.jacorb.test.bugs.bug503;
 
-import junit.framework.TestCase;
-
 import org.jacorb.test.BasicServer;
 import org.jacorb.test.BasicServerHelper;
 import org.jacorb.test.BasicServerPOATie;
+import org.jacorb.test.common.ORBTestCase;
 import org.jacorb.test.orb.BasicServerImpl;
-import org.omg.CORBA.ORB;
-import org.omg.PortableServer.POA;
-import org.omg.PortableServer.POAHelper;
 
 /**
  * @author Alphonse Bendt
  * @version $Id$
  */
-public class Bug503Test extends TestCase
+public class Bug503Test extends ORBTestCase
 {
     private BasicServer innerServer;
     private BasicServer outerServer;
-    private ORB orb;
-    private POA rootPOA;
 
-    protected void setUp() throws Exception
+    protected void doSetUp() throws Exception
     {
-        orb = ORB.init(new String[0], null);
-        rootPOA = POAHelper.narrow(orb.resolve_initial_references("RootPOA"));
-
         // need to remember the main thread here as we want
         // to verify that innerServer isn't called from another thread.
         final Thread mainThread = Thread.currentThread();
@@ -70,7 +61,7 @@ public class Bug503Test extends TestCase
         outerServer = BasicServerHelper.narrow(rootPOA.servant_to_reference(new BasicServerPOATie(newDelegate)));
     }
 
-    protected void tearDown() throws Exception
+    protected void doTearDown() throws Exception
     {
         outerServer._release();
         outerServer = null;

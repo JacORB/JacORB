@@ -23,34 +23,30 @@ package org.jacorb.test.bugs.bug459;
 
 import java.util.Properties;
 
-import org.omg.CosNotification.EventType;
-import org.omg.CosNotifyComm.InvalidEventType;
-import org.omg.CosNotifyComm.StructuredPullConsumerPOA;
+import junit.framework.TestCase;
+
+import org.jacorb.test.orb.AnyServerPOA;
+import org.omg.CORBA.Any;
 import org.omg.PortableServer.POA;
 import org.omg.PortableServer.POAHelper;
 
-public class TestCase extends junit.framework.TestCase
+public class Bug459Test extends TestCase
 {
-    class MyPullConsumer extends StructuredPullConsumerPOA
+    class MyAnyServer extends AnyServerPOA
     {
-        public void disconnect_structured_pull_consumer()
+        public Any bounce_any(Any inAny)
         {
-            // TODO Auto-generated method stub
-        }
 
-        public void offer_change(EventType[] added, EventType[] removed) throws InvalidEventType
-        {
-            // TODO Auto-generated method stub
+            return inAny;
         }
     }
 
     public void testIt() throws Exception
     {
-        MyPullConsumer myPullConsumer = new MyPullConsumer();
+        MyAnyServer myServer = new MyAnyServer();
 
         for (int run = 0; run < 5; run++)
         {
-            System.out.println("Run " + run);
             // initialize ORB
             Properties props = new Properties();
             props.put("org.omg.CORBA.ORBClass", "org.jacorb.orb.ORB");
@@ -60,7 +56,7 @@ public class TestCase extends junit.framework.TestCase
 
             poa.the_POAManager().activate();
 
-            myPullConsumer._this(orb);
+            myServer._this(orb);
 
             orb.shutdown(true);
         }

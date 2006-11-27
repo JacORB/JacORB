@@ -30,11 +30,11 @@ import org.jacorb.test.common.*;
  * @author <a href="mailto:spiegel@gnu.org">Andre Spiegel</a>
  * @version $Id$
  */
-public class TestCase extends ClientServerTestCase
+public class Bug387Test extends ClientServerTestCase
 {
     private TestInterface server = null;
     
-    public TestCase (String name, ClientServerSetup setup)
+    public Bug387Test (String name, ClientServerSetup setup)
     {
         super (name, setup);
     }
@@ -51,12 +51,12 @@ public class TestCase extends ClientServerTestCase
             new ClientServerSetup(suite,
                                   "org.jacorb.test.bugs.bug387.TestInterfaceImpl");
 
-        suite.addTest(new TestCase("test_return_value", setup));
-        suite.addTest(new TestCase("test_return_null", setup));
-        suite.addTest(new TestCase("test_pass_value", setup));
-        suite.addTest(new TestCase("test_pass_null", setup));
-        suite.addTest(new TestCase("test_pass_unshared", setup));
-        suite.addTest(new TestCase("test_pass_shared", setup));
+        suite.addTest(new Bug387Test("test_return_value", setup));
+        suite.addTest(new Bug387Test("test_return_null", setup));
+        suite.addTest(new Bug387Test("test_pass_value", setup));
+        suite.addTest(new Bug387Test("test_pass_null", setup));
+        suite.addTest(new Bug387Test("test_pass_unshared", setup));
+        suite.addTest(new Bug387Test("test_pass_shared", setup));
         
         return setup;   
     }

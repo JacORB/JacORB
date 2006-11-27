@@ -2,61 +2,48 @@ package org.jacorb.test.poa;
 
 import org.jacorb.test.BasicServer;
 import org.jacorb.test.BasicServerHelper;
+import org.jacorb.test.common.ORBTestCase;
 import org.jacorb.test.orb.BasicServerImpl;
 import org.omg.CORBA.*;
 import org.omg.PortableServer.*;
 import org.omg.PortableServer.POAPackage.*;
 import junit.framework.*;
 
-public class Deactivate extends TestCase
+public class Deactivate extends ORBTestCase
 {
-    private ORB orb;
-    private POA root;
-    
     public static Test suite()
     {
         return new TestSuite (Deactivate.class);
     }
-    
-    protected void setUp() throws Exception
-    {
-        orb = ORB.init(new String[0], null);
-        root = POAHelper.narrow(orb.resolve_initial_references( "RootPOA" ));
-    }
-    
-    protected void tearDown() throws Exception
-    {
-        orb.shutdown(true);
-    }
-    
+
     public void test_deactivate () throws Exception
     {
         byte[] id1, id2;
-        
+
         // create POA
         Policy policies[] = new Policy[3];
-        policies[0] = root.create_id_assignment_policy(
+        policies[0] = rootPOA.create_id_assignment_policy(
                 org.omg.PortableServer.IdAssignmentPolicyValue.SYSTEM_ID);
-        policies[1] = root.create_id_uniqueness_policy(
+        policies[1] = rootPOA.create_id_uniqueness_policy(
                 org.omg.PortableServer.IdUniquenessPolicyValue.UNIQUE_ID);
-        policies[2] = root.create_servant_retention_policy(
+        policies[2] = rootPOA.create_servant_retention_policy(
                 org.omg.PortableServer.ServantRetentionPolicyValue.RETAIN);
-        
-        POA system = root.create_POA("system_id", root.the_POAManager(), policies);
-        
+
+        POA system = rootPOA.create_POA("system_id", rootPOA.the_POAManager(), policies);
+
         // create Servants
         Test_impl servant1 = new Test_impl();
         Test_impl servant2 = new Test_impl();
         // first activate servants
-        
+
         id1 = system.activate_object(servant1);
         id2 = system.activate_object(servant2);
-        
+
         // deactivate the servants now
         // no request is pending
         system.deactivate_object(id2);
         system.deactivate_object(id1);
-        
+
         // now again try to deactivate
         // I would expect ObjectNotActive Exception but didn't get one
         try
@@ -69,7 +56,7 @@ public class Deactivate extends TestCase
             // expected
         }
     }
-    
+
     /**
      * <code>test_deactivate_activator</code> is a test for JAC2 - When
      * ServantActivators with a RETAIN policy are used local object
@@ -77,28 +64,28 @@ public class Deactivate extends TestCase
      */
     public void test_deactivate_activator () throws Exception
     {
-        root.the_POAManager().activate();
-        
+        rootPOA.the_POAManager().activate();
+
         // create POA
         Policy policies[] = new Policy[2];
-        policies[0] = root.create_servant_retention_policy(
+        policies[0] = rootPOA.create_servant_retention_policy(
                 org.omg.PortableServer.ServantRetentionPolicyValue.RETAIN);
-        policies[1] = root.create_request_processing_policy(
+        policies[1] = rootPOA.create_request_processing_policy(
                 RequestProcessingPolicyValue.USE_SERVANT_MANAGER);
-        
-        POA system = root.create_POA("system_id_deactivate_2", root.the_POAManager(), policies);
+
+        POA system = rootPOA.create_POA("system_id_deactivate_2", rootPOA.the_POAManager(), policies);
         system.the_POAManager().activate();
         system.set_servant_manager(new PoaServantActivator());
-        
+
         org.omg.CORBA.Object objectRef = system.create_reference(BasicServerHelper.id());
         BasicServer ref = BasicServerHelper.narrow(objectRef);
         // Local op; will incarnate the object.
         ref.ping();
-        
+
         // Now try deactivating it.
         system.deactivate_object (system.reference_to_id(ref));
     }
-    
+
     /**
      * <code>PoaServantActivator</code> is a ServantActivator for
      * test_deactivate_activator.
@@ -112,7 +99,7 @@ public class Deactivate extends TestCase
         {
             return new BasicServerImpl();
         }
-        
+
         public void etherealize(byte[] oid, POA adapter, Servant serv,
                 boolean cleanup_in_progress,
                 boolean remaining_activations)

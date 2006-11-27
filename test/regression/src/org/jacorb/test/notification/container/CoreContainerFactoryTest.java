@@ -21,36 +21,28 @@
 
 package org.jacorb.test.notification.container;
 
+import junit.framework.Test;
+import junit.framework.TestSuite;
+
 import org.apache.avalon.framework.configuration.Configuration;
 import org.jacorb.notification.container.PicoContainerFactory;
+import org.jacorb.test.common.ORBTestCase;
 import org.omg.CORBA.ORB;
 import org.omg.CosNotifyFilter.FilterFactory;
 import org.omg.PortableServer.POA;
 import org.picocontainer.PicoContainer;
 
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
-
 /**
  * @author Alphonse Bendt
  * @version $Id$
  */
-public class CoreContainerFactoryTest extends TestCase
+public class CoreContainerFactoryTest extends ORBTestCase
 {
-    ORB orb_;
-
     PicoContainer picoContainer_;
 
-    public void setUp() throws Exception
+    public void doSetUp() throws Exception
     {
-        orb_ = ORB.init(new String[0], null);
-        picoContainer_ = PicoContainerFactory.createRootContainer((org.jacorb.orb.ORB)orb_);
-    }
-
-    protected void tearDown() throws Exception
-    {
-        orb_.shutdown(true);
+        picoContainer_ = PicoContainerFactory.createRootContainer((org.jacorb.orb.ORB)orb);
     }
 
     public void testGetORB()

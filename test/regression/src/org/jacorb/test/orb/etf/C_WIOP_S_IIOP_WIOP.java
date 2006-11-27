@@ -33,51 +33,38 @@ import org.jacorb.test.orb.etf.wiop.WIOPFactories;
  * @author <a href="mailto:spiegel@gnu.org">Andre Spiegel</a>
  * @version $Id$
  */
-public class C_WIOP_S_IIOP_WIOP extends ClientServerTestCase
+public class C_WIOP_S_IIOP_WIOP extends AbstractWIOPTestCase
 {
-    private BasicServer server = null;
-    
     public C_WIOP_S_IIOP_WIOP (String name, ClientServerSetup setup)
     {
         super (name, setup);
     }
-    
-    public void setUp() throws Exception
-    {
-        WIOPFactories.setTransportInUse(false);
-        server = BasicServerHelper.narrow( setup.getServerObject() );
-    }
 
-    public void tearDown() throws Exception
-    {
-        WIOPFactories.setTransportInUse(false);
-    }
-    
     public static Test suite()
     {
         TestSuite suite = new TestSuite ("Client WIOP Server IIOP WIOP");
-        
+
         Properties clientProps = new Properties();
         clientProps.setProperty("jacorb.transport.factories",
                                 "org.jacorb.test.orb.etf.wiop.WIOPFactories");
-        
+
         Properties serverProps = new Properties();
         serverProps.setProperty("jacorb.transport.factories",
                                 "org.jacorb.orb.iiop.IIOPFactories,"
                               + "org.jacorb.test.orb.etf.wiop.WIOPFactories");
-        
+
         // WIOP does not support SSL.
         clientProps.setProperty("jacorb.regression.disable_security",
                                 "true");
 
-        
-        ClientServerSetup setup = 
+
+        ClientServerSetup setup =
           new ClientServerSetup (suite,
                                  "org.jacorb.test.orb.BasicServerImpl",
                                  clientProps, serverProps);
-        
+
         suite.addTest (new C_WIOP_S_IIOP_WIOP ("testConnection", setup));
-        
+
         return setup;
     }
 

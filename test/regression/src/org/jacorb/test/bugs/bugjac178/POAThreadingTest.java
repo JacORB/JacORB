@@ -64,6 +64,11 @@ public class POAThreadingTest extends ClientServerTestCase
         server = JAC178Helper.narrow( setup.getServerObject() );
     }
 
+    protected void tearDown() throws Exception
+    {
+        server = null;
+    }
+
     public static Test suite()
     {
         TestSuite suite = new TestSuite( "JAC178 client/server tests" );

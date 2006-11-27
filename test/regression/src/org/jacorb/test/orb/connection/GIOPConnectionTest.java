@@ -43,7 +43,9 @@ public class GIOPConnectionTest
 
     protected void tearDown() throws Exception
     {
+        config = null;
         orb.shutdown(true);
+        orb = null;
     }
 
     public static Test suite()

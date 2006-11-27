@@ -20,7 +20,7 @@ package org.jacorb.test.orb;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import junit.framework.TestCase;
+import org.jacorb.test.common.ORBTestCase;
 
 import org.omg.CORBA.BAD_PARAM;
 
@@ -31,13 +31,8 @@ import org.omg.CORBA.BAD_PARAM;
  * @author Nick Cross
  * @version $Id$
  */
-public class InvalidIORTest extends TestCase
+public class InvalidIORTest extends ORBTestCase
 {
-    /**
-     * <code>orb</code> is used to obtain the root poa.
-     */
-    private org.omg.CORBA.ORB orb;
-
     /**
      * <code>ior1</code> is a valid ior to decode.
      */
@@ -46,16 +41,6 @@ public class InvalidIORTest extends TestCase
      * <code>ior2</code> is an invalid ior to decode.
      */
     private static final String ior2="IOR:0000000000000033---invalidated---F746966794368616E6E656C41646D696E2F4576656E744368616E6E656C3A312E3000000000000200000000000000C4000102000000000E3133392E32312E31362E3137300027EE0000006F4F70656E467573696F6E2E4E6F74696669636174696F6E536572766963652F4F70656E467573696F6E2E4E6F74696669636174696F6E536572766963652F3F7FCA61E61911D8A2DEDE0D3D5ECE43713F7FCA60E61911D8A2DEDE0D3D5ECE43DD805B00D97411D8BDE88382A8A0976C00000000020000000000000008000000004A414300000000010000001C0000000000010001000000010501000100010109000000010501000100000001000000500000000000000002000000010000001C00000000000100010000000105010001000101090000000105010001000000010000001C00000000000100010000000105010001000101090000000105010001";
-
-    protected void setUp() throws Exception
-    {
-        orb = org.omg.CORBA.ORB.init(new String[0], null);
-    }
-
-    protected void tearDown() throws Exception
-    {
-        orb.shutdown(true);
-    }
 
     /**
      * <code>testDecode1</code> tests that JacORB can decode a valid IOR.

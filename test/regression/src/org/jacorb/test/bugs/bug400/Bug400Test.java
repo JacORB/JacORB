@@ -1,18 +1,15 @@
 package org.jacorb.test.bugs.bug400;
 
-import junit.framework.TestCase;
-
 import org.jacorb.test.BasicServer;
 import org.jacorb.test.BasicServerHelper;
+import org.jacorb.test.common.ORBTestCase;
 import org.jacorb.test.orb.BasicServerImpl;
 import org.omg.CORBA.LocalObject;
 import org.omg.CORBA.OBJECT_NOT_EXIST;
-import org.omg.CORBA.ORB;
 import org.omg.CORBA.ObjectHelper;
 import org.omg.CORBA.Policy;
 import org.omg.PortableServer.IdAssignmentPolicyValue;
 import org.omg.PortableServer.POA;
-import org.omg.PortableServer.POAHelper;
 import org.omg.PortableServer.POAManager;
 import org.omg.PortableServer.RequestProcessingPolicyValue;
 import org.omg.PortableServer.Servant;
@@ -25,22 +22,18 @@ import org.omg.PortableServer.ServantLocatorPackage.CookieHolder;
  * @author Alex Shebunyaev
  * @version $Id$
  */
-public class Bug400Test extends TestCase
+public class Bug400Test extends ORBTestCase
 {
-    private ORB orb;
-    private POA rootPOA;
     private POAManager poaManager;
 
-    protected void setUp() throws Exception
+    protected void doSetUp() throws Exception
     {
-        orb = ORB.init(new String[0], null);
-        rootPOA = POAHelper.narrow(orb.resolve_initial_references("RootPOA"));
         poaManager = rootPOA.the_POAManager();
     }
 
-    protected void tearDown() throws Exception
+    protected void doTearDown() throws Exception
     {
-        orb.shutdown(false);
+        poaManager = null;
     }
 
     public void testSimpleShutdown() throws Exception

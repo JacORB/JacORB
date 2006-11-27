@@ -21,23 +21,14 @@
 
 package org.jacorb.test.notification.perf;
 
-import junit.framework.TestCase;
-
+import org.jacorb.test.common.ORBTestCase;
 import org.jacorb.test.notification.Address;
 import org.jacorb.test.notification.AddressHelper;
 import org.omg.CORBA.Any;
-import org.omg.CORBA.ORB;
 
-public class AnyTest 
+public class AnyTest extends ORBTestCase
 {
-    private ORB _orb;
-
-    protected void setUp() throws Exception
-    {
-        _orb = ORB.init(new String[] {}, null);
-    }
-
-    public void testAny()
+    public void _testAny()
     {
         Any theAny = null;
         long startTime = 0;
@@ -52,7 +43,7 @@ public class AnyTest
 
         for (int i = 0; i < 100000; i++)
         {
-            theAny = _orb.create_any();
+            theAny = orb.create_any();
 
             AddressHelper.insert(theAny, addr);
         }
@@ -63,7 +54,7 @@ public class AnyTest
 
         + " ms for 100,000 trials");
 
-        theAny = _orb.create_any();
+        theAny = orb.create_any();
 
         AddressHelper.insert(theAny, addr);
 
@@ -79,12 +70,5 @@ public class AnyTest
         System.out.println("\"MyType From Any\" test: " + (endTime - startTime)
 
         + " ms for 100,000 trials");
-    }
-    
-    public static void main(String[] args) throws Exception
-    {
-        AnyTest test = new AnyTest();
-        test.setUp();
-        test.testAny();
     }
 }

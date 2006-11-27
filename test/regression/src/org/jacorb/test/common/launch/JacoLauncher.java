@@ -21,10 +21,10 @@ package org.jacorb.test.common.launch;
  *   MA 02110-1301, USA.
  */
 
-import java.util.*;
-import java.io.*;
-
-import org.jacorb.test.common.TestUtils;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * A launcher that uses the jaco script of a given JacORB installation.
@@ -32,36 +32,40 @@ import org.jacorb.test.common.TestUtils;
  * @author Andre Spiegel spiegel@gnu.org
  * @version $Id$
  */
-public class JacoLauncher extends JacORBLauncher
+public class JacoLauncher extends AbstractLauncher
 {
-    public JacoLauncher(String jacorbHome, boolean coverage)
+    private List command;
+
+    public void setUseCoverage(boolean useCoverage)
     {
-        super(jacorbHome, coverage);
-        if (coverage)
-            System.out.println ("WARNING: Cannot find coverage when running under jaco");
+        System.out.println ("WARNING: Cannot find coverage when running under jaco");
     }
 
-    public Process launch(String classpath,
-                          Properties props,
-                          String mainClass,
-                          String[] args)
+    public void init()
+    {
+        command = new ArrayList();
+        command.add(jacorbHome + "/bin/jaco");
+        command.addAll(propsToArgList (properties));
+        command.add(mainClass);
+        command.addAll (Arrays.asList(args));
+    }
+
+    public Process launch()
     {
         Runtime rt  = Runtime.getRuntime();
 
-        List cmdList = new ArrayList();
-
-        cmdList.add (jacorbHome + "/bin/jaco");
-        cmdList.addAll (TestUtils.propsToArgList (props));
-        cmdList.add (mainClass);
-        cmdList.addAll (Arrays.asList(args));
-
         try
         {
-            return rt.exec(toStringArray(cmdList));
+            return rt.exec(toStringArray(command));
         }
         catch (IOException ex)
         {
             throw new RuntimeException(ex);
         }
+    }
+
+    public String getCommand()
+    {
+        return formatList(command);
     }
 }

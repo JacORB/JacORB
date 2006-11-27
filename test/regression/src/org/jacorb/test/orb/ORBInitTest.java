@@ -54,6 +54,7 @@ public class ORBInitTest extends TestCase
             ORB orb = (ORB) iter.next();
             orb.shutdown(true);
         }
+        orbs.clear();
     }
 
     /**
@@ -61,10 +62,9 @@ public class ORBInitTest extends TestCase
      */
     public void testParse1()
     {
-        String args[] = new String[3];
-        args[0] = "-ORBInitRef";
+        String args[] = new String[2];
+        args[0] = "-ORBInitRef.NameService";
         args[1] = "NameService";
-        args[2] = "foo.ior";
 
         try
         {

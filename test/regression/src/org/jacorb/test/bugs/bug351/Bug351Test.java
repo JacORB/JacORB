@@ -26,24 +26,29 @@ import org.jacorb.test.common.*;
 
 /**
  * Test for bug 351, marshaling of a complex valuetype.
- * 
+ *
  * @author <a href="mailto:spiegel@gnu.org">Andre Spiegel</a>
  * @version $Id$
  */
-public class TestCase extends ClientServerTestCase
+public class Bug351Test extends ClientServerTestCase
 {
-    private ValueServer server = null;
-    
-    public TestCase (String name, ClientServerSetup setup)
+    private ValueServer server;
+
+    public Bug351Test (String name, ClientServerSetup setup)
     {
         super (name, setup);
     }
-    
+
     public void setUp()
     {
-        server = (ValueServer)ValueServerHelper.narrow(setup.getServerObject());            
+        server = (ValueServer)ValueServerHelper.narrow(setup.getServerObject());
     }
-    
+
+    protected void tearDown() throws Exception
+    {
+        server = null;
+    }
+
     public static Test suite()
     {
         TestSuite suite = new TestSuite( "bug 351 complex valuetype" );
@@ -51,11 +56,11 @@ public class TestCase extends ClientServerTestCase
             new ClientServerSetup( suite,
                                    "org.jacorb.test.bugs.bug351.ValueServerImpl" );
 
-        suite.addTest( new TestCase( "testBug", setup ));
-        
-        return setup;   
+        suite.addTest( new Bug351Test( "testBug", setup ));
+
+        return setup;
     }
-    
+
     public void testBug()
     {
         RetrievalResult result = server.search();

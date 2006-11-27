@@ -20,12 +20,8 @@ package org.jacorb.test.bugs.bugjac174;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
-
+import org.jacorb.test.common.ORBTestCase;
 import org.omg.CORBA.BAD_PARAM;
-import org.omg.CORBA.ORB;
 
 
 /**
@@ -35,7 +31,7 @@ import org.omg.CORBA.ORB;
  * @author Nick Cross
  * @version $Id$
  */
-public class InvalidIORTest_bug174 extends TestCase
+public class BugJac174Test extends ORBTestCase
 {
     /**
      * <code>ior1</code> is a invalid ior to decode.
@@ -45,31 +41,6 @@ public class InvalidIORTest_bug174 extends TestCase
      * <code>ior2</code> is an invalid ior to decode.
      */
     private static final String ior2="IOR:000000000000001B49444C3A7274636F7262612F446174614F626A6563743A312E300000000000010000000000000076000102000000000E3133372E37382E36322E3138390000003EE400000000002700000000000000010000000073B8793A000005020708526F6F74504F412F6368696C64504F4100000000000200000000000000080000000054475802000000020000001600000000000000280000000A00000000000000013E80";
-
-    /**
-     * <code>orb</code> is used to obtain the root poa.
-     */
-    private org.omg.CORBA.ORB orb;
-
-    protected void setUp() throws Exception
-    {
-        orb = ORB.init(new String[0], null);
-    }
-
-    protected void tearDown() throws Exception
-    {
-        orb.shutdown(true);
-    }
-
-    /**
-     * <code>suite</code> lists the tests for Junit to run.
-     *
-     * @return a <code>Test</code> value
-     */
-    public static Test suite ()
-    {
-        return new TestSuite(InvalidIORTest_bug174.class);
-    }
 
 
     /**

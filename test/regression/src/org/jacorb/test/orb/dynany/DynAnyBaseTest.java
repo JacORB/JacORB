@@ -20,9 +20,8 @@ package org.jacorb.test.orb.dynany;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import junit.framework.*;
-import junit.extensions.TestSetup;
-import org.jacorb.test.common.ORBSetup;
+import junit.framework.Test;
+import junit.framework.TestSuite;
 
 import org.omg.CORBA.*;
 import org.omg.DynamicAny.DynAny;
@@ -35,92 +34,13 @@ import org.omg.DynamicAny.DynAnyPackage.TypeMismatch;
  *
  */
 
-public class DynAnyBaseTest extends TestCase
+public class DynAnyBaseTest extends DynAnyXXXTestCase
 {
-   private static org.omg.DynamicAny.DynAnyFactory factory = null;
-   private static org.omg.CORBA.ORB orb = null;
-
    private static final char EURO_SIGN = '\u20AC';
-   
-   public DynAnyBaseTest (String name)
-   {
-      super (name);
-   }
-
 
    public static Test suite ()
    {
-      TestSuite suite = new TestSuite ("DynAny Base Tests");
-      Setup setup = new Setup (suite);
-      ORBSetup osetup = new ORBSetup (setup);
-
-      suite.addTest (new DynAnyBaseTest ("testFactoryCreateFromAny"));
-      suite.addTest (new DynAnyBaseTest ("testFactoryCreateFromTypeCode"));
-      suite.addTest (new DynAnyBaseTest ("testFactoryInconsistentTypeCodeEx"));
-      suite.addTest (new DynAnyBaseTest ("testDynAnyLocalityConstraint"));
-      suite.addTest (new DynAnyBaseTest ("testCompareDynAny"));
-      suite.addTest (new DynAnyBaseTest ("testAccessBasicValue_boolean"));
-      suite.addTest (new DynAnyBaseTest ("testInsertMismatch_boolean"));
-      suite.addTest (new DynAnyBaseTest ("testRetrieveMismatch_boolean"));
-      suite.addTest (new DynAnyBaseTest ("testAccessBasicValue_short"));
-      suite.addTest (new DynAnyBaseTest ("testInsertMismatch_short"));
-      suite.addTest (new DynAnyBaseTest ("testRetrieveMismatch_short"));
-      suite.addTest (new DynAnyBaseTest ("testAccessBasicValue_ushort"));
-      suite.addTest (new DynAnyBaseTest ("testInsertMismatch_ushort"));
-      suite.addTest (new DynAnyBaseTest ("testRetrieveMismatch_ushort"));
-      suite.addTest (new DynAnyBaseTest ("testAccessBasicValue_long"));
-      suite.addTest (new DynAnyBaseTest ("testInsertMismatch_long"));
-      suite.addTest (new DynAnyBaseTest ("testRetrieveMismatch_long"));
-      suite.addTest (new DynAnyBaseTest ("testAccessBasicValue_ulong"));
-      suite.addTest (new DynAnyBaseTest ("testInsertMismatch_ulong"));
-      suite.addTest (new DynAnyBaseTest ("testRetrieveMismatch_ulong"));
-      suite.addTest (new DynAnyBaseTest ("testAccessBasicValue_longlong"));
-      suite.addTest (new DynAnyBaseTest ("testInsertMismatch_longlong"));
-      suite.addTest (new DynAnyBaseTest ("testRetrieveMismatch_longlong"));
-      suite.addTest (new DynAnyBaseTest ("testAccessBasicValue_ulonglong"));
-      suite.addTest (new DynAnyBaseTest ("testInsertMismatch_ulonglong"));
-      suite.addTest (new DynAnyBaseTest ("testRetrieveMismatch_ulonglong"));
-      suite.addTest (new DynAnyBaseTest ("testAccessBasicValue_octet"));
-      suite.addTest (new DynAnyBaseTest ("testInsertMismatch_octet"));
-      suite.addTest (new DynAnyBaseTest ("testRetrieveMismatch_octet"));
-      suite.addTest (new DynAnyBaseTest ("testAccessBasicValue_float"));
-      suite.addTest (new DynAnyBaseTest ("testInsertMismatch_float"));
-      suite.addTest (new DynAnyBaseTest ("testRetrieveMismatch_float"));
-      suite.addTest (new DynAnyBaseTest ("testAccessBasicValue_double"));
-      suite.addTest (new DynAnyBaseTest ("testInsertMismatch_double"));
-      suite.addTest (new DynAnyBaseTest ("testRetrieveMismatch_double"));
-      suite.addTest (new DynAnyBaseTest ("testAccessBasicValue_char"));
-      suite.addTest (new DynAnyBaseTest ("testInsertMismatch_char"));
-      suite.addTest (new DynAnyBaseTest ("testRetrieveMismatch_char"));
-      suite.addTest (new DynAnyBaseTest ("testAccessBasicValue_wchar"));
-      suite.addTest (new DynAnyBaseTest ("testInsertMismatch_wchar"));
-      suite.addTest (new DynAnyBaseTest ("testRetrieveMismatch_wchar"));
-      suite.addTest (new DynAnyBaseTest ("testAccessBasicValue_string"));
-      suite.addTest (new DynAnyBaseTest ("testInsertMismatch_string"));
-      suite.addTest (new DynAnyBaseTest ("testRetrieveMismatch_string"));
-      suite.addTest (new DynAnyBaseTest ("testAccessBasicValue_wstring"));
-      suite.addTest (new DynAnyBaseTest ("testInsertMismatch_wstring"));
-      suite.addTest (new DynAnyBaseTest ("testRetrieveMismatch_wstring"));
-      suite.addTest (new DynAnyBaseTest ("testAccessBasicValue_any"));
-      suite.addTest (new DynAnyBaseTest ("testInsertMismatch_any"));
-      suite.addTest (new DynAnyBaseTest ("testRetrieveMismatch_any"));
-      suite.addTest (new DynAnyBaseTest ("testAccessBasicValue_typecode"));
-      suite.addTest (new DynAnyBaseTest ("testInsertMismatch_typecode"));
-      suite.addTest (new DynAnyBaseTest ("testRetrieveMismatch_typecode"));
-      suite.addTest (new DynAnyBaseTest ("testAccessBasicValue_dynany"));
-      suite.addTest (new DynAnyBaseTest ("testInsertMismatch_dynany"));
-      suite.addTest (new DynAnyBaseTest ("testRetrieveMismatch_dynany"));
-      suite.addTest (new DynAnyBaseTest ("testDynAnyTypeCode"));
-      suite.addTest (new DynAnyBaseTest ("testInitDynAnyFromDynAny"));
-      suite.addTest (new DynAnyBaseTest ("testInitFromDynAnyTypeMismatchEx"));
-      suite.addTest (new DynAnyBaseTest ("testInitDynAnyFromAny"));
-      suite.addTest (new DynAnyBaseTest ("testInitFromAnyTypeMismatchEx"));
-      suite.addTest (new DynAnyBaseTest ("testGenerateAnyFromDynAny"));
-      suite.addTest (new DynAnyBaseTest ("testDestroyDynAny"));
-      suite.addTest (new DynAnyBaseTest ("testCopyDynAny"));
-      suite.addTest (new DynAnyBaseTest ("testIterateDynAny"));
-      
-      return osetup;
+       return new TestSuite (DynAnyBaseTest.class, "DynAny Base Tests");
    }
 
 
@@ -174,8 +94,8 @@ public class DynAnyBaseTest extends TestCase
       msg += "creating DynAny from Any with TypeCode tk_Principal";
       try
       {
-         dynAny = factory.create_dyn_any (any);         
-         
+         dynAny = factory.create_dyn_any (any);
+
          fail (msg);
       }
       catch (org.omg.DynamicAny.DynAnyFactoryPackage.InconsistentTypeCode ex)
@@ -202,7 +122,7 @@ public class DynAnyBaseTest extends TestCase
       try
       {
          orb.object_to_string (dynAny);
-         
+
          fail (msg);
       }
       catch (org.omg.CORBA.MARSHAL ex)
@@ -221,12 +141,12 @@ public class DynAnyBaseTest extends TestCase
       org.omg.CORBA.Any any = null;
       org.omg.DynamicAny.DynAny dynAny = null;
       org.omg.DynamicAny.DynAny dynAny2 = null;
-      
+
       any = orb.create_any ();
       any.insert_long (700);
       dynAny = createDynAnyFromAny (any);
       dynAny2 = createDynAnyFromAny (any);
-      
+
       msg = "Comparing two equal DynAny values using DynAny::equal failed";
       assertTrue (msg, dynAny.equal (dynAny2));
    }
@@ -246,7 +166,7 @@ public class DynAnyBaseTest extends TestCase
       dynAny.insert_boolean (true);
       assertEquals (msg, true, dynAny.get_boolean());
    }
-   
+
    /**
     * Test inserting a basic value into a DynAny that has a different typecode.
     */
@@ -432,7 +352,7 @@ public class DynAnyBaseTest extends TestCase
       dynAny.insert_long (700);
       assertEquals (msg, 700, dynAny.get_long());
    }
-   
+
    /**
     * Test inserting a basic value into a DynAny that has a different typecode.
     */
@@ -1113,10 +1033,10 @@ public class DynAnyBaseTest extends TestCase
 
       Any inAny = orb.create_any();
       inAny.insert_long (777);
-      
+
       dynAny.insert_any (inAny);
       Any outAny = dynAny.get_any();
-      
+
       assertTrue (msg, inAny.equal(outAny));
       assertEquals (msg, inAny.extract_long(), outAny.extract_long());
    }
@@ -1130,7 +1050,7 @@ public class DynAnyBaseTest extends TestCase
       DynAny   dynAny = createDynAnyFromTypeCode (tc);
       Any inAny = orb.create_any();
       inAny.insert_long(700);
-      
+
       try
       {
           dynAny.insert_any (inAny);
@@ -1183,7 +1103,7 @@ public class DynAnyBaseTest extends TestCase
 
       TypeCode payload = orb.get_primitive_tc (org.omg.CORBA.TCKind.tk_long);
       dynAny.insert_typecode (payload);
-      
+
       TypeCode offload = dynAny.get_typecode();
       assertTrue(msg, payload.equal(offload));
    }
@@ -1196,7 +1116,7 @@ public class DynAnyBaseTest extends TestCase
       TypeCode tc     = orb.get_primitive_tc (org.omg.CORBA.TCKind.tk_boolean);
       DynAny   dynAny = createDynAnyFromTypeCode (tc);
       TypeCode payload = orb.get_primitive_tc (org.omg.CORBA.TCKind.tk_octet);
-      
+
       try
       {
           dynAny.insert_typecode (payload);
@@ -1243,14 +1163,14 @@ public class DynAnyBaseTest extends TestCase
    {
       TypeCode tc     = orb.get_primitive_tc (org.omg.CORBA.TCKind.tk_any);
       DynAny   dynAny = createDynAnyFromTypeCode (tc);
-       
+
       String msg = "Value inserted into DynAny object is not equal to value ";
       msg += "extracted from same DynAny object";
 
       tc = orb.get_primitive_tc (org.omg.CORBA.TCKind.tk_long);
       DynAny payload = createDynAnyFromTypeCode (tc);
       payload.insert_long(787);
-      
+
       dynAny.insert_dyn_any(payload);
       DynAny offload = dynAny.get_dyn_any();
 
@@ -1266,7 +1186,7 @@ public class DynAnyBaseTest extends TestCase
       DynAny   dynAny = createDynAnyFromTypeCode (tc);
       DynAny inAny = createDynAnyFromTypeCode(tc);
       inAny.insert_boolean (true);
-      
+
       try
       {
           dynAny.insert_dyn_any (inAny);
@@ -1317,7 +1237,7 @@ public class DynAnyBaseTest extends TestCase
 
       tc = orb.get_primitive_tc (org.omg.CORBA.TCKind.tk_long);
       dynAny = createDynAnyFromTypeCode (tc);
-         
+
       msg = "Incorrect TypeCode retrieved from DynAny::type operation";
       assertTrue (msg, dynAny.type ().equal (tc));
    }
@@ -1332,7 +1252,7 @@ public class DynAnyBaseTest extends TestCase
       org.omg.CORBA.Any any = null;
       org.omg.CORBA.TypeCode tc = null;
       org.omg.DynamicAny.DynAny dynAny = null;
-      org.omg.DynamicAny.DynAny dynAny2 = null;      
+      org.omg.DynamicAny.DynAny dynAny2 = null;
 
       tc = orb.get_primitive_tc (org.omg.CORBA.TCKind.tk_long);
       dynAny = createDynAnyFromTypeCode (tc);
@@ -1365,7 +1285,7 @@ public class DynAnyBaseTest extends TestCase
       org.omg.CORBA.Any any = null;
       org.omg.CORBA.TypeCode tc = null;
       org.omg.DynamicAny.DynAny dynAny = null;
-      org.omg.DynamicAny.DynAny dynAny2 = null;      
+      org.omg.DynamicAny.DynAny dynAny2 = null;
 
       any = orb.create_any ();
       any.insert_long (700);
@@ -1379,7 +1299,7 @@ public class DynAnyBaseTest extends TestCase
       try
       {
          dynAny.assign (dynAny2);
-         
+
          fail (msg);
       }
       catch (org.omg.DynamicAny.DynAnyPackage.TypeMismatch ex)
@@ -1399,7 +1319,7 @@ public class DynAnyBaseTest extends TestCase
       org.omg.CORBA.TypeCode tc = null;
       org.omg.DynamicAny.DynAny dynAny = null;
       org.omg.DynamicAny.DynAny dynAny2 = null;
-      
+
       tc = orb.get_primitive_tc (org.omg.CORBA.TCKind.tk_long);
       dynAny = createDynAnyFromTypeCode (tc);
 
@@ -1431,13 +1351,13 @@ public class DynAnyBaseTest extends TestCase
       org.omg.CORBA.Any any = null;
       org.omg.CORBA.TypeCode tc = null;
       org.omg.DynamicAny.DynAny dynAny = null;
-      
+
       any = orb.create_any ();
       any.insert_long (700);
 
       tc = orb.get_primitive_tc (org.omg.CORBA.TCKind.tk_string);
       dynAny = createDynAnyFromTypeCode (tc);
-      
+
       msg = "TypeMismatch exception not thrown by DynAny::from_any ";
       msg += "operation when DynAny and Any operands have different types";
       try
@@ -1467,14 +1387,14 @@ public class DynAnyBaseTest extends TestCase
       org.omg.CORBA.TypeCode tc = null;
       org.omg.DynamicAny.DynAny dynAny = null;
       org.omg.DynamicAny.DynAny dynAny2 = null;
-      
+
       tc = orb.get_primitive_tc (org.omg.CORBA.TCKind.tk_long);
       dynAny = createDynAnyFromTypeCode (tc);
 
       any = orb.create_any ();
       any = dynAny.to_any ();
       dynAny2 = createDynAnyFromAny (any);
-      
+
       msg = "The DynAny::to_any operation failed to create an Any ";
       msg += "object with the same value as the DynAny object";
       assertTrue (msg, dynAny.equal (dynAny2));
@@ -1489,7 +1409,7 @@ public class DynAnyBaseTest extends TestCase
       String msg;
       org.omg.CORBA.Any any = null;
       org.omg.DynamicAny.DynAny dynAny = null;
-      
+
       any = orb.create_any ();
       any.insert_long (700);
       dynAny = createDynAnyFromAny (any);
@@ -1521,7 +1441,7 @@ public class DynAnyBaseTest extends TestCase
       catch (org.omg.CORBA.OBJECT_NOT_EXIST ex)
       {
          // success
-      }      
+      }
       catch (org.omg.DynamicAny.DynAnyPackage.TypeMismatch ex)
       {
          fail (msg + ": " + ex);
@@ -1538,7 +1458,7 @@ public class DynAnyBaseTest extends TestCase
       org.omg.CORBA.TypeCode tc = null;
       org.omg.DynamicAny.DynAny dynAny = null;
       org.omg.DynamicAny.DynAny dynAny2 = null;
-      
+
       tc = orb.get_primitive_tc (org.omg.CORBA.TCKind.tk_long);
       dynAny = createDynAnyFromTypeCode (tc);
 
@@ -1568,7 +1488,7 @@ public class DynAnyBaseTest extends TestCase
       boolean seek;
       org.omg.CORBA.TypeCode tc = null;
       org.omg.DynamicAny.DynAny dynAny = null;
-      
+
       tc = orb.get_primitive_tc (org.omg.CORBA.TCKind.tk_long);
       dynAny = createDynAnyFromTypeCode (tc);
 
@@ -1585,19 +1505,19 @@ public class DynAnyBaseTest extends TestCase
       msg = "The number of components returned from the ";
       msg += "DynAny::component_count operation is incorrect";
       assertEquals (msg, 0, compCount);
-      
+
       // test if there is a first component
       msg = "The DynAny::seek operation indicates that a valid component ";
       msg += "exists but the DynAny should have no components";
       seek = dynAny.seek (0);
       assertTrue (msg, !seek);
-      
+
       // test getting the current component
       try
       {
          dynAny = dynAny.current_component ();
 
-         msg = "A TypeMismatch exception was not raised by the ";         
+         msg = "A TypeMismatch exception was not raised by the ";
          msg += "DynAny::current_component operation when trying to access ";
          msg += "the current component of a DynAny with no components";
          fail (msg);
@@ -1609,48 +1529,12 @@ public class DynAnyBaseTest extends TestCase
    }
 
 
-   private static class Setup extends TestSetup
-   {
-      public Setup (Test test)
-      {
-         super (test);
-      }
-
-      protected void setUp ()
-      {
-         org.omg.CORBA.Object obj = null;
-
-         orb = ORBSetup.getORB ();
-         try
-         {
-            obj = orb.resolve_initial_references ("DynAnyFactory");
-         }
-         catch (org.omg.CORBA.ORBPackage.InvalidName ex)
-         {
-            fail ("Failed to resolve DynAnyFactory: " + ex);
-         }
-         try
-         {
-            factory = org.omg.DynamicAny.DynAnyFactoryHelper.narrow (obj);
-         }
-         catch (Throwable ex)
-         {
-            fail ("Failed to narrow to DynAnyFactory: " + ex);
-         }
-      }
-
-      protected void tearDown ()
-      {
-      }
-   }
-
-
    /**
     * Create a DynAny object from an Any object.
-    */   
-   private static org.omg.DynamicAny.DynAny createDynAnyFromAny
+    */
+   private org.omg.DynamicAny.DynAny createDynAnyFromAny
       (org.omg.CORBA.Any any)
-   {      
+   {
       String msg;
       org.omg.DynamicAny.DynAny dynAny = null;
 
@@ -1670,11 +1554,11 @@ public class DynAnyBaseTest extends TestCase
 
    /**
     * Create a DynAny object from a TypeCode object.
-    */   
-   private static org.omg.DynamicAny.DynAny createDynAnyFromTypeCode
+    */
+   private org.omg.DynamicAny.DynAny createDynAnyFromTypeCode
       (org.omg.CORBA.TypeCode tc)
    {
-      String msg;      
+      String msg;
       org.omg.DynamicAny.DynAny dynAny = null;
 
       try
@@ -1689,5 +1573,5 @@ public class DynAnyBaseTest extends TestCase
       }
       return dynAny;
    }
-   
+
 }

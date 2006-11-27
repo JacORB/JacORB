@@ -29,11 +29,9 @@ public class ConnectionTimeoutServerImpl
     {
         try
         {
-            System.out.println( "will sleep 2 secs" );
             Thread.sleep( 2000 );
-            System.out.println( "woke up" );
         }
-        catch( Exception e ) 
+        catch( Exception e )
         {
             e.printStackTrace();
         }
@@ -43,15 +41,11 @@ public class ConnectionTimeoutServerImpl
     {
         try
         {
-            System.out.println( "will sleep 2 secs" );
             Thread.sleep( 2000 );
-            System.out.println( "woke up" );
         }
-        catch( Exception e ) 
+        catch( Exception e )
         {
             e.printStackTrace();
         }
     }
 }
-
-

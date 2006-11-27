@@ -40,6 +40,11 @@ public class BasicTest extends ClientServerTestCase
         server = BasicServerHelper.narrow( setup.getServerObject() );
     }
 
+    protected void tearDown() throws Exception
+    {
+        server = null;
+    }
+
     public static Test suite()
     {
         TestSuite suite = new JacORBTestSuite("Basic client/server tests",

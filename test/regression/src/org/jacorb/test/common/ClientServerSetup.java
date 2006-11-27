@@ -21,21 +21,12 @@ package org.jacorb.test.common;
  *   MA 02110-1301, USA.
  */
 
-import java.io.BufferedInputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.util.*;
+import java.util.Properties;
 
-import org.omg.CORBA.*;
-import org.omg.CORBA.ORBPackage.InvalidName;
-import org.omg.PortableServer.*;
-import org.omg.PortableServer.POAManagerPackage.AdapterInactive;
+import junit.extensions.TestSetup;
+import junit.framework.Test;
 
-import junit.framework.*;
-import junit.extensions.*;
-
-import org.jacorb.test.common.launch.*;
+import org.omg.PortableServer.POA;
 
 /**
  * A special TestSetup that creates a separate CORBA server process,
@@ -85,25 +76,15 @@ import org.jacorb.test.common.launch.*;
  */
 public class ClientServerSetup extends TestSetup {
 
-    public static final String JACORB_REGRESSION_DISABLE_SECURITY = "jacorb.regression.disable_security";
     public static final String JACORB_REGRESSION_DISABLE_IMR = "jacorb.regression.disable_imr";
 
-    private final long testTimeout;
+    private final ServerSetup serverSetup;
+    private final ORBSetup clientORBSetup;
+
     protected final String               servantName;
-    protected Process                    serverProcess;
-    private boolean isProcessDestroyed = false;
-    protected StreamListener             outListener, errListener;
     protected org.omg.CORBA.Object       serverObject;
-    protected org.omg.CORBA.ORB          clientOrb;
-    protected org.omg.PortableServer.POA clientRootPOA;
 
     private ClientServerSetup imrSetup;
-    boolean inInit = false;
-
-    private final Properties clientOrbProperties = new Properties();
-    private final Properties serverOrbProperties = new Properties();
-
-    private static final Comparator comparator = new JacORBVersionComparator();
 
     /**
      * Constructs a new ClientServerSetup that is wrapped
@@ -119,165 +100,122 @@ public class ClientServerSetup extends TestSetup {
      */
     public ClientServerSetup ( Test test, String servantName )
     {
-        super ( test );
-        this.servantName = servantName;
-        clientOrbProperties.put ("org.omg.CORBA.ORBClass",
-                                 "org.jacorb.orb.ORB");
-        clientOrbProperties.put ("org.omg.CORBA.ORBSingletonClass",
-                                 "org.jacorb.orb.ORBSingleton");
+        this(test, servantName, null, null );
+    }
 
-        long parseLong = getTestTimeout();
-        testTimeout = parseLong;
+
+    public ClientServerSetup( Test test,
+                              String servantName,
+                              Properties optionalClientProperties,
+                              Properties optionalServerProperties)
+    {
+        this(test, null, servantName, optionalClientProperties, optionalServerProperties);
+    }
+
+    public ClientServerSetup( Test test,
+                              String testServer,
+                              String servantName,
+                              Properties optionalClientProperties,
+                              Properties optionalServerProperties )
+    {
+        super(test);
+
+        if (isSSLDisabled(optionalClientProperties, optionalServerProperties))
+        {
+            // if ssl is disabled in one of the properties make sure to copy
+            // this information to both property sets.
+            if (optionalClientProperties == null)
+            {
+                optionalClientProperties = new Properties();
+            }
+            optionalClientProperties.setProperty(CommonSetup.JACORB_REGRESSION_DISABLE_SECURITY, "true");
+
+            if (optionalServerProperties == null)
+            {
+                optionalServerProperties = new Properties();
+            }
+            optionalServerProperties.setProperty(CommonSetup.JACORB_REGRESSION_DISABLE_SECURITY, "true");
+        }
+
+        serverSetup = new ServerSetup(this, testServer, servantName, optionalServerProperties);
+        clientORBSetup = new ORBSetup(this, optionalClientProperties);
+
+        this.servantName = servantName;
+    }
+
+    private static boolean isSSLDisabled(Properties clientProps, Properties serverProps)
+    {
+        boolean result = false;
+
+        if (clientProps != null)
+        {
+            result = TestUtils.getStringAsBoolean(clientProps.getProperty(CommonSetup.JACORB_REGRESSION_DISABLE_SECURITY, "false"));
+        }
+
+        if (!result && serverProps != null)
+        {
+            result = TestUtils.getStringAsBoolean(serverProps.getProperty(CommonSetup.JACORB_REGRESSION_DISABLE_SECURITY, "false"));
+        }
+
+        return result;
     }
 
     public static long getTestTimeout()
     {
-        long parseLong;
-        try
-        {
-            parseLong = Long.parseLong(System.getProperty("jacorb.test.timeout"));
-        }
-        catch (Exception e)
-        {
-            parseLong = 15000;
-        }
-        return parseLong;
-    }
-
-    public ClientServerSetup( Test test,
-                              String servantName,
-                              Properties clientOrbProperties,
-                              Properties serverOrbProperties )
-    {
-        this( test, servantName );
-        if (clientOrbProperties != null)
-        {
-            this.clientOrbProperties.putAll (clientOrbProperties);
-        }
-        if (serverOrbProperties != null)
-        {
-            this.serverOrbProperties.putAll(serverOrbProperties);
-        }
+        return ServerSetup.getTestTimeout();
     }
 
     public void setUp() throws Exception
     {
-        initIMR();
+        setUpInternal();
 
-        setUpServer();
+        doSetUp();
     }
 
-    private void setUpServer() throws IOException, InvalidName, AdapterInactive
+    protected void doSetUp() throws Exception
     {
-        initSecurity();
-
-        clientOrb = ORB.init (new String[0], clientOrbProperties );
-        clientRootPOA = POAHelper.narrow
-                          ( clientOrb.resolve_initial_references( "RootPOA" ) );
-        clientRootPOA.the_POAManager().activate();
-
-        String serverVersion = System.getProperty ("jacorb.test.server.version",
-                                                   "cvs");
-        String testID = System.getProperty("jacorb.test.id", "");
-        String cs = System.getProperty ("jacorb.test.coverage", "false");
-        boolean coverage = TestUtils.isPropertyTrue(cs);
-        String outStr = System.getProperty("jacorb.test.outputfile.testname", "false");
-        boolean outputFileTestName = TestUtils.isPropertyTrue(outStr);
-
-        Properties serverProperties = new Properties();
-        if (serverOrbProperties != null)
-        {
-            serverProperties.putAll (serverOrbProperties);
-        }
-        serverProperties.put ("jacorb.implname", servantName);
-
-        JacORBLauncher launcher = JacORBLauncher.getLauncher (serverVersion,
-                                                              coverage);
-
-        if (coverage)
-        {
-            serverProperties.put ("emma.coverage.out.file",
-                                  launcher.getJacorbHome() +
-                                  "/test/regression/output/" +
-                                  (outputFileTestName == true ? "" : testID) +
-                                  "/coverage-server.ec");
-        }
-
-        serverProcess = launcher.launch
-        (
-            TestUtils.testHome() + "/classes",
-            serverProperties,
-            getTestServerMain(),
-            new String[] { servantName }
-        );
-
-        // add a shutdown hook to ensure that the server process
-        // is shutdown even if this JVM is going down unexpectedly
-        Runtime.getRuntime().addShutdownHook(new Thread() {
-            public void run()
-            {
-                if (!isProcessDestroyed)
-                {
-                    serverProcess.destroy();
-                }
-            }
-        });
-
-        outListener = new StreamListener (serverProcess.getInputStream(),
-                                          "OUT");
-        errListener = new StreamListener (serverProcess.getErrorStream(),
-                                          "ERR");
-        outListener.start();
-        errListener.start();
-        String ior = outListener.getIOR(testTimeout);
-
-        if (ior == null)
-        {
-            String exc = errListener.getException(1000);
-
-            String details = dumpStreamListener();
-
-            fail("could not access IOR for Server.\nServant: " + servantName + "\nTimeout: " + testTimeout + " millis.\nThis maybe caused by: " + exc + '\n' + details);
-        }
-
-        resolveServerObject(ior);
     }
 
-    private String dumpStreamListener()
+    private void setUpInternal() throws Exception
     {
-        StringBuffer details = new StringBuffer();
-        details.append(outListener.toString());
-        details.append(errListener.toString());
-        return details.toString();
+        serverSetup.setUp();
+        clientORBSetup.setUp();
+
+        resolveServerObject(serverSetup.getServerIOR());
+    }
+
+    protected final void initSecurity()
+    {
     }
 
     protected void resolveServerObject(String ior)
     {
-        serverObject = clientOrb.string_to_object(ior);
+        serverObject = clientORBSetup.getORB().string_to_object(ior);
     }
 
     public void tearDown() throws Exception
     {
-        clientOrb.shutdown(true);
-        serverProcess.destroy();
-        isProcessDestroyed = true;
-        outListener.setDestroyed();
-        errListener.setDestroyed();
+        doTearDown();
+
+        serverObject._release();
+        serverObject = null;
+
+        clientORBSetup.tearDown();
+        serverSetup.tearDown();
+
         if (imrSetup != null)
         {
             imrSetup.tearDown();
+            imrSetup = null;
         }
     }
 
-    public String getTestServerMain()
+    protected void doTearDown() throws Exception
     {
-        String serverVersion = System.getProperty ("jacorb.test.server.version",
-                                                   "cvs");
-        if (comparator.compare (serverVersion, "2.2") >= 0)
-        {
-            return "org.jacorb.test.common.TestServer";
-        }
-        return "org.jacorb.test.common.TestServer_before_2_2";
+    }
+
+    protected final void shutdownClientORB()
+    {
     }
 
     /**
@@ -294,7 +232,7 @@ public class ClientServerSetup extends TestSetup {
      */
     public org.omg.CORBA.ORB getClientOrb()
     {
-        return clientOrb;
+        return clientORBSetup.getORB();
     }
 
     /**
@@ -306,170 +244,15 @@ public class ClientServerSetup extends TestSetup {
         return servantName;
     }
 
-    /**
-     * Gets the server process.
-     */
-    public Process getServerProcess()
-    {
-        return serverProcess;
-    }
 
     public POA getClientRootPOA()
     {
-        return clientRootPOA;
+        return clientORBSetup.getRootPOA();
     }
 
-    /**
-     * check if SSL testing is disabled for this setup
-     */
-    private boolean isSSLEnabled()
+
+    public boolean isSSLEnabled()
     {
-        return checkProperty(JACORB_REGRESSION_DISABLE_SECURITY);
-    }
-
-    /**
-     * check is IMR testing is disabled for this setup
-     */
-    private boolean isIMREnabled()
-    {
-        return checkProperty(JACORB_REGRESSION_DISABLE_IMR);
-    }
-
-    /**
-     * <code>checkProperties</code> examines clientOrbProperties and serverOrbProperties
-     * for the specified key. If it is found in one of the properties
-     * and is set to true this
-     * will return false.
-     *
-     * @return a <code>boolean</code> value
-     */
-    private boolean checkProperty(String property)
-    {
-        boolean result = true;
-
-        if (clientOrbProperties != null)
-        {
-            if (TestUtils.isPropertyTrue(clientOrbProperties.getProperty
-                            (property, "false")))
-            {
-                result = false;
-            }
-        }
-        if (serverOrbProperties != null)
-        {
-            if (TestUtils.isPropertyTrue(serverOrbProperties.getProperty
-                            (property, "false")))
-            {
-                result = false;
-            }
-        }
-        return result;
-    }
-
-    /**
-     * <code>initSecurity</code> adds security properties if so configured
-     * by the environment. It is possible to turn this off for selected tests
-     * either by overriding this method or by setting properties for checkProperties
-     * to handle.
-     *
-     * @exception IOException if an error occurs
-     */
-    protected void initSecurity() throws IOException
-    {
-        final String sslProperty = System.getProperty("jacorb.test.ssl");
-        final boolean useSSL = TestUtils.isPropertyTrue(sslProperty);
-
-        if (useSSL && isSSLEnabled())
-        {
-            // In this case we have been configured to run all the tests
-            // in SSL mode. For simplicity, we will use the demo/ssl keystore
-            // and properties (partly to ensure that they always work)
-            Properties clientProps = loadSSLProps("jsse_client_props", "jsse_client_ks");
-
-            clientOrbProperties.putAll(clientProps);
-
-            Properties serverProps = loadSSLProps("jsse_server_props", "jsse_server_ks");
-
-            serverOrbProperties.putAll(serverProps);
-        }
-    }
-
-    /**
-     * its assumed that the property file and the keystore file
-     * are located in the demo/ssl dir.
-     */
-    private Properties loadSSLProps(String propertyFilename, String keystoreFilename) throws IOException
-    {
-        final Properties props = new Properties();
-
-        final File file = new File
-        (
-            TestUtils.testHome()
-            + File.separatorChar
-            + ".."
-            + File.separatorChar
-            + ".."
-            + File.separatorChar
-            + "demo"
-            + File.separatorChar
-            + "ssl"
-            + File.separatorChar
-            + propertyFilename
-        );
-
-        BufferedInputStream input = new BufferedInputStream(new FileInputStream(file));
-        try
-        {
-            props.load(input);
-        }
-        finally
-        {
-            input.close();
-        }
-
-        props.put
-        (
-            "jacorb.security.keystore",
-            file.getParent() + File.separatorChar + keystoreFilename
-        );
-
-        props.put("jacorb.security.ssl.ssl_listener", SSLListener.class.getName());
-
-        return props;
-    }
-
-    /**
-     * optionally configures the IMR
-     * for a test. the system property
-     * "jacorb.test.imr" needs to be set
-     * to enable use of the IMR for Client/Server tests.
-     */
-    private void initIMR() throws Exception
-    {
-        final String imrProperty = System.getProperty("jacorb.test.imr");
-        final boolean useIMR = TestUtils.isPropertyTrue(imrProperty);
-
-        if (useIMR && isIMREnabled())
-        {
-            final Properties imrServerProps = new Properties();
-            File tempFile = File.createTempFile("IMR_Ref", ".ior");
-            imrServerProps.put("jacorb.imr.ior_file", tempFile.getAbsolutePath());
-
-            imrSetup = new ClientServerSetup(null, "", null, imrServerProps)
-            {
-                public String getTestServerMain()
-                {
-                    return ImplementationRepositoryRunner.class.getName();
-                }
-            };
-            imrSetup.setUpServer();
-
-            final Properties imrProps = new Properties();
-            imrProps.put("jacorb.use_imr", "on");
-            imrProps.put("ORBInitRef.ImplementationRepository", imrSetup.getClientOrb().object_to_string(imrSetup.getServerObject()));
-
-            clientOrbProperties.putAll(imrProps);
-            serverOrbProperties.putAll(imrProps);
-        }
+        return clientORBSetup.isSSLEnabled() && serverSetup.isSSLEnabled();
     }
 }

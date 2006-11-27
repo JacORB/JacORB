@@ -1,13 +1,21 @@
 package org.jacorb.test.orb;
 
-import junit.framework.*;
-import junit.extensions.*;
+import junit.framework.AssertionFailedError;
+import junit.framework.Test;
+import junit.framework.TestSuite;
 
-import org.jacorb.test.*;
-
-import org.jacorb.test.common.*;
-import org.omg.CORBA.*;
-import org.omg.Messaging.*;
+import org.jacorb.test.AMI_CallbackServerHandler;
+import org.jacorb.test.AMI_CallbackServerHandlerOperations;
+import org.jacorb.test.AMI_CallbackServerHandlerPOATie;
+import org.jacorb.test.CallbackServer;
+import org.jacorb.test.CallbackServerHelper;
+import org.jacorb.test.EmptyException;
+import org.jacorb.test.NonEmptyException;
+import org.jacorb.test._CallbackServerStub;
+import org.jacorb.test.common.CallbackTestCase;
+import org.jacorb.test.common.ClientServerSetup;
+import org.jacorb.test.common.TestUtils;
+import org.omg.Messaging.ExceptionHolder;
 
 public class CallbackTest extends CallbackTestCase
 {
@@ -25,30 +33,23 @@ public class CallbackTest extends CallbackTestCase
         server = CallbackServerHelper.narrow( setup.getServerObject() );
     }
 
+    protected void tearDown() throws Exception
+    {
+        server = null;
+    }
+
     public static Test suite()
     {
-        TestSuite suite = new TestSuite( "Callback Test" );   
+        TestSuite suite = new TestSuite( "Callback Test" );
         ClientServerSetup setup = new ClientServerSetup
             ( suite, "org.jacorb.test.orb.CallbackServerImpl" );
 
-        suite.addTest( new CallbackTest( "test_sync_ping", setup ) );            
-        suite.addTest( new CallbackTest( "test_ping", setup ) );
-        suite.addTest( new CallbackTest( "test_delayed_ping", setup ) );
-        suite.addTest( new CallbackTest( "test_pass_in_char", setup ) );
-        suite.addTest( new CallbackTest( "test_pass_in_illegal_char", setup ) );
-        suite.addTest( new CallbackTest( "test_return_char", setup ) );
-        suite.addTest( new CallbackTest( "test_return_illegal_char", setup ) );
-        suite.addTest( new CallbackTest( "test_complex_operation", setup ) );
-        suite.addTest( new CallbackTest( "test_empty_exception", setup ) );
-        suite.addTest( new CallbackTest( "test_empty_exception_not_raised", setup ) );
-        suite.addTest( new CallbackTest( "test_non_empty_exception", setup ) );
-        suite.addTest( new CallbackTest( "test_either_exception_1", setup ) );
-        suite.addTest( new CallbackTest( "test_either_exception_2", setup ) );
-            
+        TestUtils.addToSuite(suite, setup, CallbackTest.class);
+
         return setup;
     }
 
-    private class ReplyHandler 
+    private class ReplyHandler
         extends CallbackTestCase.ReplyHandler
         implements AMI_CallbackServerHandlerOperations
     {
@@ -139,11 +140,11 @@ public class CallbackTest extends CallbackTestCase
         AMI_CallbackServerHandlerPOATie tie =
             new AMI_CallbackServerHandlerPOATie( handler )
             {
-                public org.omg.CORBA.portable.OutputStream 
-                    _invoke( String method, 
-                             org.omg.CORBA.portable.InputStream _input, 
+                public org.omg.CORBA.portable.OutputStream
+                    _invoke( String method,
+                             org.omg.CORBA.portable.InputStream _input,
                              org.omg.CORBA.portable.ResponseHandler handler )
-                    throws org.omg.CORBA.SystemException   
+                    throws org.omg.CORBA.SystemException
                 {
                     try
                     {
@@ -162,17 +163,17 @@ public class CallbackTest extends CallbackTestCase
     {
         server.ping();
     }
-    
+
     public void test_ping()
     {
-        ReplyHandler handler = new ReplyHandler() 
+        ReplyHandler handler = new ReplyHandler()
         {
             public void ping()
             {
                 pass();
             }
         };
-        
+
         ( ( _CallbackServerStub ) server ).sendc_ping( ref( handler ) );
         handler.wait_for_reply( 1000 );
     }
@@ -186,12 +187,12 @@ public class CallbackTest extends CallbackTestCase
                 pass();
             }
         };
-        
+
         ( ( _CallbackServerStub ) server )
                     .sendc_delayed_ping( ref( handler ), 500 );
         handler.wait_for_reply( 700 );
     }
-    
+
     public void test_pass_in_char()
     {
         ReplyHandler handler = new ReplyHandler()
@@ -201,18 +202,18 @@ public class CallbackTest extends CallbackTestCase
                 pass();
             }
         };
-        
+
         ( ( _CallbackServerStub ) server )
                    .sendc_pass_in_char( ref( handler ), 'x', 100 );
         handler.wait_for_reply( 200 );
     }
-    
+
     public void test_pass_in_illegal_char()
     {
         ReplyHandler handler = new ReplyHandler();
 
         try
-        {        
+        {
             ( ( _CallbackServerStub ) server )
                    .sendc_pass_in_char( ref( handler ), EURO_SIGN, 100 );
             fail( "DATA_CONVERSION exception expected" );
@@ -221,8 +222,8 @@ public class CallbackTest extends CallbackTestCase
         {
             // ok
         }
-    }        
-     
+    }
+
     public void test_return_char()
     {
         ReplyHandler handler = new ReplyHandler()
@@ -237,23 +238,23 @@ public class CallbackTest extends CallbackTestCase
                  .sendc_return_char( ref( handler ), ( short ) 'a', 100 );
         handler.wait_for_reply( 200 );
     }
-    
+
     public void test_return_illegal_char()
     {
         ReplyHandler handler = new ReplyHandler()
         {
             public void return_char_excep( ExceptionHolder excep_holder )
             {
-                this.assertEquals( org.omg.CORBA.DATA_CONVERSION.class, 
+                this.assertEquals( org.omg.CORBA.DATA_CONVERSION.class,
                               getException( excep_holder ).getClass() );
                 pass();
             }
         };
         ( ( _CallbackServerStub ) server )
             .sendc_return_char( ref( handler ), ( short ) EURO_SIGN, 100 );
-        handler.wait_for_reply( 500 );           
+        handler.wait_for_reply( 500 );
     }
-    
+
     public void test_complex_operation()
     {
         ReplyHandler handler = new ReplyHandler()
@@ -262,7 +263,7 @@ public class CallbackTest extends CallbackTestCase
             {
                 this.assertEquals( 'A', p1 );
                 this.assertEquals( 4321, p2 );
-                this.assertEquals( p2, ami_return_val );     
+                this.assertEquals( p2, ami_return_val );
                 pass();
             }
         };
@@ -270,7 +271,7 @@ public class CallbackTest extends CallbackTestCase
             .sendc_operation( ref( handler ), 'a', false, 100 );
         handler.wait_for_reply( 200 );
     }
-    
+
     public void test_empty_exception()
     {
         ReplyHandler handler = new ReplyHandler()
@@ -286,7 +287,7 @@ public class CallbackTest extends CallbackTestCase
             .sendc_ex_1( ref( handler ), true, 100 );
         handler.wait_for_reply( 500 );
     }
-    
+
     public void test_empty_exception_not_raised()
     {
         ReplyHandler handler = new ReplyHandler()
@@ -300,7 +301,7 @@ public class CallbackTest extends CallbackTestCase
             .sendc_ex_1( ref( handler ), false, 100 );
         handler.wait_for_reply( 500 );
     }
-    
+
     public void test_non_empty_exception()
     {
         ReplyHandler handler = new ReplyHandler()
@@ -315,7 +316,7 @@ public class CallbackTest extends CallbackTestCase
                 else
                 {
                     NonEmptyException nex = (NonEmptyException)ex;
-                    
+
                     // The CORBA Spec and the Java Mapping are not
                     // entirely clear whether the "_reason" parameter
                     // should be marshaled along with the id.
@@ -334,7 +335,7 @@ public class CallbackTest extends CallbackTestCase
             .sendc_ex_2( ref( handler ), 17, true, 100 );
         handler.wait_for_reply( 500 );
     }
-    
+
     public void test_either_exception_1()
     {
         ReplyHandler handler = new ReplyHandler()

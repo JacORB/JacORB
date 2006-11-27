@@ -1,16 +1,20 @@
 package org.jacorb.test.bugs.bugjac330;
 
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
 import junit.framework.TestCase;
-import junit.framework.TestSuite;
 
 import org.jacorb.test.BasicServer;
 import org.jacorb.test.BasicServerHelper;
 import org.jacorb.test.common.ClientServerSetup;
+import org.jacorb.test.common.CommonSetup;
+import org.jacorb.test.common.ORBSetup;
+import org.jacorb.test.common.ServerSetup;
 import org.jacorb.test.orb.BasicServerImpl;
 import org.omg.CORBA.NO_RESOURCES;
 import org.omg.CORBA.ORB;
@@ -21,48 +25,51 @@ import org.omg.CORBA.ORB;
  */
 public class MultipleServerTest extends TestCase
 {
-    private ClientServerSetup setup1;
+    private ServerSetup setup1;
     private String server1IOR;
-    private ClientServerSetup setup2;
+    private ServerSetup setup2;
     private String server2IOR;
-    private ORB orb;
+    private final List orbs = new ArrayList();
 
     protected void setUp() throws Exception
     {
-        // this is a hack. we need two server objects for this test.
-        // as ClientServerTestCase
-        // does not support that, we create two ClientServerSetup's here and
-        // invoke their lifecyle methods explicitely.
-        TestSuite dummySuite = new TestSuite();
-
         Properties props = new Properties();
         props.put(ClientServerSetup.JACORB_REGRESSION_DISABLE_IMR, "true");
-        props.put(ClientServerSetup.JACORB_REGRESSION_DISABLE_SECURITY, "true");
+        props.put(CommonSetup.JACORB_REGRESSION_DISABLE_SECURITY, "true");
 
-        setup1 = new ClientServerSetup(dummySuite, BasicServerImpl.class.getName(), props, null);
+        setup1 = new ServerSetup(this, BasicServerImpl.class.getName());
         setup1.setUp();
-        server1IOR = setup1.getClientOrb().object_to_string(setup1.getServerObject());
+        server1IOR = setup1.getServerIOR();
 
-        setup2 = new ClientServerSetup(dummySuite, BasicServerImpl.class.getName(), props, null);
+        setup2 = new ServerSetup(this, BasicServerImpl.class.getName());
         setup2.setUp();
-        server2IOR = setup2.getClientOrb().object_to_string(setup2.getServerObject());
+        server2IOR = setup2.getServerIOR();
     }
 
     protected void tearDown() throws Exception
     {
         setup2.tearDown();
         setup1.tearDown();
-        if (orb != null)
+
+        Iterator i = orbs.iterator();
+        while(i.hasNext())
         {
-            orb.shutdown(true);
+            ORBSetup setup = (ORBSetup) i.next();
+            setup.tearDown();
         }
+
+        orbs.clear();
     }
 
-    private ORB newORB(Properties props)
+    private ORB newORB(Properties props) throws Exception
     {
-        orb = ORB.init(new String[0], props);
+    	ORBSetup setup = new ORBSetup(this, props);
 
-        return orb;
+    	setup.setUp();
+
+        orbs.add(setup);
+
+        return setup.getORB();
     }
 
     public void testAccessTwoServersAtOnceShouldFail() throws Exception

@@ -49,6 +49,13 @@ public class DiiTest extends ClientServerTestCase
     }
 
 
+    protected void tearDown() throws Exception
+    {
+        server = null;
+        orb = null;
+    }
+
+
     public void testSimpleRequest()
     {
         org.omg.CORBA.Request request = server._request("_get_long_number");

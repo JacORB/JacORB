@@ -20,11 +20,13 @@ package org.jacorb.test.orb;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
+import java.math.BigDecimal;
 import java.util.Properties;
 
 import junit.framework.Test;
 import junit.framework.TestSuite;
 
+import org.jacorb.orb.CDROutputStream;
 import org.jacorb.test.common.ClientServerSetup;
 import org.jacorb.test.common.ClientServerTestCase;
 import org.jacorb.test.common.TestUtils;
@@ -58,6 +60,11 @@ public class AnyTest extends ClientServerTestCase
     public void setUp() throws Exception
     {
         server = AnyServerHelper.narrow( setup.getServerObject() );
+    }
+
+    protected void tearDown() throws Exception
+    {
+        server = null;
     }
 
     public static Test suite()
@@ -222,7 +229,7 @@ public class AnyTest extends ClientServerTestCase
         assertEquals(testValue, inAny.extract_short());
         assertTrue(outAny.equal(inAny));
     }
-    
+
     public void test_short_stream()
     {
         short testValue = (short) 4711;
@@ -288,7 +295,7 @@ public class AnyTest extends ClientServerTestCase
         assertEquals(testValue, inAny.extract_long());
         assertTrue(outAny.equal(inAny));
     }
-    
+
     public void test_long_stream()
     {
         int testValue = 4711;
@@ -354,7 +361,7 @@ public class AnyTest extends ClientServerTestCase
         assertEquals(testValue, inAny.extract_longlong());
         assertTrue(outAny.equal(inAny));
     }
-    
+
     public void test_longlong_stream()
     {
         long testValue = 4711L;
@@ -480,13 +487,13 @@ public class AnyTest extends ClientServerTestCase
         Any outAny = setup.getClientOrb().create_any();
         outAny.insert_boolean(testValue);
         assertEquals(testValue, outAny.extract_boolean());
-        
+
         Any inAny = server.bounce_any(outAny);
-        
+
         assertEquals(testValue, inAny.extract_boolean());
         assertTrue(outAny.equal(inAny));
     }
-    
+
     public void test_boolean_streamable()
         throws Exception
     {
@@ -494,9 +501,9 @@ public class AnyTest extends ClientServerTestCase
         Any outAny = setup.getClientOrb().create_any();
         outAny.insert_Streamable(new BooleanHolder(testValue));
         assertEquals(testValue, outAny.extract_boolean());
-        
+
         Any inAny = server.bounce_any(outAny);
-        
+
         assertEquals(testValue, inAny.extract_boolean());
         assertTrue(outAny.equal(inAny));
     }
@@ -512,7 +519,7 @@ public class AnyTest extends ClientServerTestCase
         boolean outValue = any.extract_boolean();
         assertEquals (testValue, outValue);
     }
-        
+
     public void test_char()
         throws Exception
     {
@@ -552,7 +559,7 @@ public class AnyTest extends ClientServerTestCase
         char outValue = any.extract_char();
         assertEquals (testValue, outValue);
     }
-    
+
     public void test_wchar()
         throws Exception
     {
@@ -657,7 +664,7 @@ public class AnyTest extends ClientServerTestCase
     {
         Any testValue = setup.getClientOrb().create_any();
         testValue.insert_wstring("hello world");
-        
+
         Any any = setup.getClientOrb().create_any();
         any.type (setup.getClientOrb().get_primitive_tc(TCKind.tk_any));
         any.create_output_stream().write_any (testValue);
@@ -666,7 +673,7 @@ public class AnyTest extends ClientServerTestCase
         Any outValue = any.extract_any();
         assertTrue (outValue.equal(testValue));
     }
-    
+
     public void test_string()
         throws Exception
     {
@@ -735,7 +742,21 @@ public class AnyTest extends ClientServerTestCase
         assertEquals (testValue, outValue);
     }
 
-    public void test_fixed()
+    /**
+     * if this test fails others might fail too.
+     */
+    public void testCorrectClassOnBootclasspath() throws Exception
+    {
+    	TypeCode typeCode = new FixedHolder(new BigDecimal("471.1"))._type();
+
+    	assertEquals("if this test fails you prohably don't have the org.omg.CORBA.* classes that are provided by JacORB on your bootclasspath", 4, typeCode.fixed_digits());
+    	assertEquals("if this test fails you prohably don't have the org.omg.CORBA.* classes that are provided by JacORB on your bootclasspath", 1, typeCode.fixed_scale());
+    }
+
+    /**
+     * @see #testCorrectClassOnBootclasspath()
+     */
+    public void test_fixed1()
         throws Exception
     {
         java.math.BigDecimal testValue = new java.math.BigDecimal("471.1");
@@ -752,20 +773,26 @@ public class AnyTest extends ClientServerTestCase
         assertTrue(outAny.equal(inAny));
     }
 
-    public void test_fixed_2() throws Exception
+    /**
+     * @see #testCorrectClassOnBootclasspath()
+     */
+    public void test_fixed2() throws Exception
     {
         java.math.BigDecimal testValue = new java.math.BigDecimal("471.1");
-        
+
         Any outAny = setup.getClientOrb().create_any();
         ((org.jacorb.orb.Any)outAny).insert_fixed(testValue);
         assertEquals(testValue, outAny.extract_fixed());
-        
+
         Any inAny = server.bounce_any(outAny);
-        
+
         assertEquals(testValue, inAny.extract_fixed());
         assertTrue(outAny.equal(inAny));
     }
 
+    /**
+     * @see #testCorrectClassOnBootclasspath()
+     */
     public void test_fixed_streamable()
         throws Exception
     {
@@ -781,12 +808,24 @@ public class AnyTest extends ClientServerTestCase
         assertTrue(outAny.equal(inAny));
     }
 
-    public void test_fixed_stream()
+    public void test_fixed_stream1()
     {
         java.math.BigDecimal testValue = new java.math.BigDecimal("471.1");
         Any any = setup.getClientOrb().create_any();
         any.type (setup.getClientOrb().create_fixed_tc((short)4,(short)1));
         any.create_output_stream().write_fixed (testValue);
+        // don't bounce, because we want to extract from the
+        // output stream we just created
+        java.math.BigDecimal outValue = any.extract_fixed();
+        assertEquals (testValue, outValue);
+    }
+
+    public void test_fixed_stream2()
+    {
+        java.math.BigDecimal testValue = new java.math.BigDecimal("471.1");
+        Any any = setup.getClientOrb().create_any();
+        any.type (setup.getClientOrb().create_fixed_tc((short)4,(short)1));
+        ((CDROutputStream)any.create_output_stream()).write_fixed (testValue, (short)4, (short)1);
         // don't bounce, because we want to extract from the
         // output stream we just created
         java.math.BigDecimal outValue = any.extract_fixed();
@@ -843,7 +882,7 @@ public class AnyTest extends ClientServerTestCase
         //can't readily test equality of object references
         assertTrue(outAny.equal(inAny));
     }
-    
+
     public void test_object_null()
         throws Exception
     {
@@ -914,10 +953,6 @@ public class AnyTest extends ClientServerTestCase
         {
             // ok
         }
-        catch (Exception ex)
-        {
-            fail ("should have thrown NO_IMPLEMENT");
-        }
 
         try
         {
@@ -928,12 +963,8 @@ public class AnyTest extends ClientServerTestCase
         {
             // ok
         }
-        catch (Exception ex)
-        {
-            fail ("should have thrown NO_IMPLEMENT");
-        }
     }
-    
+
     public void test_value_box_string()
         throws Exception
     {
@@ -1224,21 +1255,21 @@ public class AnyTest extends ClientServerTestCase
         assertEquals(testValue, MyValueTypeHelper.extract(inAny));
         assertTrue(outAny.equal(inAny));
     }
-    
+
     public void _test_valuetype_stream()
     {
         MyValueType testValue = new MyValueTypeImpl(4711);
-        
+
         Any any = setup.getClientOrb().create_any();
         any.type (MyValueTypeHelper.type());
 
         MyValueTypeHelper.write(any.create_output_stream(),
                                 testValue);
-        
+
         // don't bounce, because we want to extract from the
         // output stream we just created
         java.io.Serializable outValue = any.extract_Value();
-        assertEquals (testValue, outValue); 
+        assertEquals (testValue, outValue);
     }
 
     public void test_recursive_struct()
@@ -1434,10 +1465,10 @@ public class AnyTest extends ClientServerTestCase
     public void test_short_sequence() throws Exception
     {
         short[] testValue = new short[] { 44 };
-        
+
         Any outAny = setup.getClientOrb().create_any();
         MyShortSequenceHelper.insert(outAny, testValue);
-        
+
         Any inAny = server.bounce_any(outAny);
         assertEquals(testValue[0], MyShortSequenceHelper.extract(inAny)[0]);
         assertTrue(outAny.equal(inAny));
@@ -1446,10 +1477,10 @@ public class AnyTest extends ClientServerTestCase
     public void test_ushort_sequence() throws Exception
     {
         short[] testValue = new short[] { 44 };
-        
+
         Any outAny = setup.getClientOrb().create_any();
         MyUShortSequenceHelper.insert(outAny, testValue);
-        
+
         Any inAny = server.bounce_any(outAny);
         assertEquals(testValue[0], MyUShortSequenceHelper.extract(inAny)[0]);
         assertTrue(outAny.equal(inAny));
@@ -1458,10 +1489,10 @@ public class AnyTest extends ClientServerTestCase
     public void test_long_sequence() throws Exception
     {
         int[] testValue = new int[] { 44 };
-        
+
         Any outAny = setup.getClientOrb().create_any();
         MyLongSequenceHelper.insert(outAny, testValue);
-        
+
         Any inAny = server.bounce_any(outAny);
         assertEquals(testValue[0], MyLongSequenceHelper.extract(inAny)[0]);
         assertTrue(outAny.equal(inAny));
@@ -1470,10 +1501,10 @@ public class AnyTest extends ClientServerTestCase
     public void test_ulong_sequence() throws Exception
     {
         int[] testValue = new int[] { 44 };
-        
+
         Any outAny = setup.getClientOrb().create_any();
         MyULongSequenceHelper.insert(outAny, testValue);
-        
+
         Any inAny = server.bounce_any(outAny);
         assertEquals(testValue[0], MyULongSequenceHelper.extract(inAny)[0]);
         assertTrue(outAny.equal(inAny));
@@ -1482,10 +1513,10 @@ public class AnyTest extends ClientServerTestCase
     public void test_float_sequence() throws Exception
     {
         float[] testValue = new float[] { 44.0F };
-        
+
         Any outAny = setup.getClientOrb().create_any();
         MyFloatSequenceHelper.insert(outAny, testValue);
-        
+
         Any inAny = server.bounce_any(outAny);
         assertEquals(testValue[0], MyFloatSequenceHelper.extract(inAny)[0], 0.0);
         assertTrue(outAny.equal(inAny));
@@ -1494,10 +1525,10 @@ public class AnyTest extends ClientServerTestCase
     public void test_double_sequence() throws Exception
     {
         double[] testValue = new double[] { 44 };
-        
+
         Any outAny = setup.getClientOrb().create_any();
         MyDoubleSequenceHelper.insert(outAny, testValue);
-        
+
         Any inAny = server.bounce_any(outAny);
         assertEquals(testValue[0], MyDoubleSequenceHelper.extract(inAny)[0], 0.0);
         assertTrue(outAny.equal(inAny));
@@ -1506,10 +1537,10 @@ public class AnyTest extends ClientServerTestCase
     public void test_char_sequence() throws Exception
     {
         char[] testValue = new char[] { 'a' };
-        
+
         Any outAny = setup.getClientOrb().create_any();
         MyCharSequenceHelper.insert(outAny, testValue);
-        
+
         Any inAny = server.bounce_any(outAny);
         assertEquals(testValue[0], MyCharSequenceHelper.extract(inAny)[0]);
         assertTrue(outAny.equal(inAny));
@@ -1518,10 +1549,10 @@ public class AnyTest extends ClientServerTestCase
     public void test_octet_sequence() throws Exception
     {
         byte[] testValue = new byte[] { 44 };
-        
+
         Any outAny = setup.getClientOrb().create_any();
         MyOctetSequenceHelper.insert(outAny, testValue);
-        
+
         Any inAny = server.bounce_any(outAny);
         assertEquals(testValue[0], MyOctetSequenceHelper.extract(inAny)[0]);
         assertTrue(outAny.equal(inAny));
@@ -1530,10 +1561,10 @@ public class AnyTest extends ClientServerTestCase
     public void test_longlong_sequence() throws Exception
     {
         long[] testValue = new long[] { 44 };
-        
+
         Any outAny = setup.getClientOrb().create_any();
         MyLongLongSequenceHelper.insert(outAny, testValue);
-        
+
         Any inAny = server.bounce_any(outAny);
         assertEquals(testValue[0], MyLongLongSequenceHelper.extract(inAny)[0]);
         assertTrue(outAny.equal(inAny));
@@ -1542,10 +1573,10 @@ public class AnyTest extends ClientServerTestCase
     public void test_ulonglong_sequence() throws Exception
     {
         long[] testValue = new long[] { 44 };
-        
+
         Any outAny = setup.getClientOrb().create_any();
         MyULongLongSequenceHelper.insert(outAny, testValue);
-        
+
         Any inAny = server.bounce_any(outAny);
         assertEquals(testValue[0], MyULongLongSequenceHelper.extract(inAny)[0]);
         assertTrue(outAny.equal(inAny));
@@ -1554,10 +1585,10 @@ public class AnyTest extends ClientServerTestCase
     public void test_wchar_sequence() throws Exception
     {
         char[] testValue = new char[] { 'a' };
-        
+
         Any outAny = setup.getClientOrb().create_any();
         MyWCharSequenceHelper.insert(outAny, testValue);
-        
+
         Any inAny = server.bounce_any(outAny);
         assertEquals(testValue[0], MyWCharSequenceHelper.extract(inAny)[0]);
         assertTrue(outAny.equal(inAny));
@@ -1566,10 +1597,10 @@ public class AnyTest extends ClientServerTestCase
     public void test_wstring_sequence() throws Exception
     {
         String[] testValue = new String[] { "442" };
-        
+
         Any outAny = setup.getClientOrb().create_any();
         MyWStringSequenceHelper.insert(outAny, testValue);
-        
+
         Any inAny = server.bounce_any(outAny);
         assertEquals(testValue[0], MyWStringSequenceHelper.extract(inAny)[0]);
         assertTrue(outAny.equal(inAny));
@@ -1580,10 +1611,10 @@ public class AnyTest extends ClientServerTestCase
         Any contentAny = setup.getClientOrb().create_any();
         contentAny.insert_boolean(true);
         Any[] testValue = new Any[] { contentAny };
-        
+
         Any outAny = setup.getClientOrb().create_any();
         MyAnySequenceHelper.insert(outAny, testValue);
-        
+
         Any inAny = server.bounce_any(outAny);
         assertEquals(testValue[0], MyAnySequenceHelper.extract(inAny)[0]);
         assertTrue(outAny.equal(inAny));
@@ -1854,7 +1885,7 @@ public class AnyTest extends ClientServerTestCase
         Any inAny = server.bounce_any(outAny);
         assertTrue(outAny.equal(inAny));
     }
-    
+
     public void test_boolean_disc_union()
         throws Exception
     {
@@ -1977,26 +2008,26 @@ public class AnyTest extends ClientServerTestCase
         Any inAny = server.bounce_any(outAny);
         assertTrue(outAny.equal(inAny));
     }
-    
+
     public void test_extract_streamable()
     {
         String testValue = "hello world";
-        
+
         Any outAny = setup.getClientOrb().create_any();
         outAny.insert_Streamable(new StringHolder(testValue));
         Streamable s = outAny.extract_Streamable();
         assertEquals (testValue, ((StringHolder)s).value);
-        
+
         Any inAny = server.bounce_any(outAny);
         assertTrue (outAny.equal(inAny));
     }
-    
+
     public void test_extract_streamable_null()
     {
         Any any = setup.getClientOrb().create_any();
         try
         {
-            Streamable s = any.extract_Streamable();
+            any.extract_Streamable();
             fail ("should have thrown BAD_OPERATION");
         }
         catch (org.omg.CORBA.BAD_OPERATION ex)
@@ -2008,29 +2039,29 @@ public class AnyTest extends ClientServerTestCase
             fail ("should have thrown BAD_OPERATION");
         }
     }
-    
+
     public void test_to_string()
     {
         Any any = setup.getClientOrb().create_any();
         assertEquals ("null", any.toString());
-        
+
         any.insert_string("hello world");
         assertEquals ("hello world", any.toString());
     }
-    
+
     public void test_not_equal()
     {
         Any any = setup.getClientOrb().create_any();
         any.insert_string("hello world");
         assertFalse (any.equals ("hello world"));
     }
-    
+
     public void test_not_equal_to_null()
     {
         Any any = setup.getClientOrb().create_any();
         try
         {
-            boolean dummy = any.equal (null);
+            any.equal (null);
             fail ("should have raised BAD_PARAM");
         }
         catch (org.omg.CORBA.BAD_PARAM ex)
@@ -2042,14 +2073,36 @@ public class AnyTest extends ClientServerTestCase
             fail ("should have raised BAD_PARAM");
         }
     }
-    
+
     public void test_shallow_copy()
     {
         Any any1 = setup.getClientOrb().create_any();
         any1.insert_string("foobar");
         Any any2 = setup.getClientOrb().create_any();
-        ((org.jacorb.orb.Any)any2).insert_object(any1.type(), 
+        ((org.jacorb.orb.Any)any2).insert_object(any1.type(),
                                                  any1.extract_string());
         assertTrue (any1.extract_string() == any2.extract_string());
+    }
+
+    public void testEquals() throws Exception
+    {
+        Any any1 = setup.getClientOrb().create_any();
+        Any any2 = setup.getClientOrb().create_any();
+
+        any1.insert_Object(null);
+        any2.insert_Object(null);
+
+        assertEquals(any1, any2);
+        assertEquals(any2, any1);
+
+        any1.insert_Object(server);
+        any2.insert_Object(server);
+
+        assertEquals(any1, any2);
+        assertEquals(any2, any1);
+
+        any1.insert_Object(null, AnyServerHelper.type());
+        assertFalse(any1.equals(any2));
+        assertFalse(any2.equals(any1));
     }
 }

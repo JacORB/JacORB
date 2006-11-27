@@ -11,8 +11,9 @@ import java.util.Arrays;
 import junit.framework.TestCase;
 
 import org.apache.avalon.framework.configuration.Configurable;
-import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.jacorb.orb.factory.SocketFactory;
+
+import org.omg.CORBA.TIMEOUT;
 
 /**
  * @author Alphonse Bendt
@@ -20,7 +21,7 @@ import org.jacorb.orb.factory.SocketFactory;
  */
 public abstract class AbstractSocketFactoryTest extends TestCase
 {
-    protected final byte[] sent = new byte[] {1,2,3,4};
+    protected final byte[] sent = new byte[] {'a', 'b', 'c', 'd'};
     protected final byte[] received = new byte[sent.length];
 
     protected ServerSocket serverSocket;
@@ -28,6 +29,8 @@ public abstract class AbstractSocketFactoryTest extends TestCase
     private Thread thread;
     protected String hostname;
     protected int serverPort;
+    private boolean socketClosed;
+    private Exception socketException;
 
     protected final void setUp() throws Exception
     {
@@ -61,7 +64,10 @@ public abstract class AbstractSocketFactoryTest extends TestCase
                         }
                         catch (Exception e)
                         {
-                            e.printStackTrace();
+                            if (!socketClosed)
+                            {
+                                socketException = e;
+                            }
                         }
                     }
                 };
@@ -87,8 +93,19 @@ public abstract class AbstractSocketFactoryTest extends TestCase
 
     protected final void tearDown() throws Exception
     {
-        thread.interrupt();
-        serverSocket.close();
+        Thread.sleep(2000);
+
+        try
+        {
+            assertNull(socketException);
+        }
+        finally
+        {
+            socketClosed = true;
+            serverSocket.close();
+            thread.interrupt();
+        }
+
     }
 
     protected void checkSocketIsConnected(Socket socket) throws IOException, InterruptedException
@@ -101,7 +118,7 @@ public abstract class AbstractSocketFactoryTest extends TestCase
 
         Thread.sleep(1000);
 
-        assertTrue(Arrays.equals(sent, received));
+        assertTrue(new String(sent) + " != " + new String(received), Arrays.equals(sent, received));
     }
 
     public final void testConnect() throws Exception
@@ -114,5 +131,20 @@ public abstract class AbstractSocketFactoryTest extends TestCase
     {
         Socket socket = objectUnderTest.createSocket(hostname, serverPort, 100);
         checkSocketIsConnected(socket);
+    }
+
+    public final void testConnectToNonExistentPortWithTimeout() throws Exception
+    {
+        try
+        {
+            // NOTE we expect the connection to the specified host
+            // to timeout! if this is not the case the test will
+            // fail and another host/port combination must be used.
+            objectUnderTest.createSocket("10.0.1.222", 45000, 1);
+        }
+        catch (TIMEOUT e)
+        {
+            // expected
+        }
     }
 }

@@ -20,63 +20,48 @@ package org.jacorb.test.orb.etf;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import java.util.*;
+import java.util.Properties;
 
-import junit.framework.*;
-import junit.extensions.*;
+import junit.framework.Test;
+import junit.framework.TestSuite;
 
-import org.jacorb.test.common.*;
-import org.jacorb.test.*;
-import org.jacorb.test.orb.etf.wiop.WIOPFactories;
+import org.jacorb.test.common.ClientServerSetup;
 
 /**
  * @author <a href="mailto:spiegel@gnu.org">Andre Spiegel</a>
  * @version $Id$
  */
-public class C_IIOP_S_WIOP extends ClientServerTestCase
+public class C_IIOP_S_WIOP extends AbstractWIOPTestCase
 {
-    private BasicServer server = null;
-    
     public C_IIOP_S_WIOP (String name, ClientServerSetup setup)
     {
         super (name, setup);
-    }
-    
-    public void setUp() throws Exception
-    {
-        WIOPFactories.setTransportInUse(false);
-        server = BasicServerHelper.narrow( setup.getServerObject() );
-    }
-
-    public void tearDown() throws Exception
-    {
-        WIOPFactories.setTransportInUse(false);
     }
 
     public static Test suite()
     {
         TestSuite suite = new TestSuite ("Client IIOP Server WIOP");
-        
+
         Properties clientProps = new Properties();
-        clientProps.setProperty ("jacorb.transport.factories", 
+        clientProps.setProperty ("jacorb.transport.factories",
                                  "org.jacorb.orb.iiop.IIOPFactories");
-        
+
         Properties serverProps = new Properties();
         serverProps.setProperty("jacorb.transport.factories",
                           "org.jacorb.test.orb.etf.wiop.WIOPFactories");
-        
+
         // WIOP does not support SSL.
         clientProps.setProperty("jacorb.regression.disable_security",
                                 "true");
 
-        
-        ClientServerSetup setup = 
+
+        ClientServerSetup setup =
           new ClientServerSetup (suite,
                                  "org.jacorb.test.orb.BasicServerImpl",
                                  clientProps, serverProps);
-        
+
         suite.addTest (new C_IIOP_S_WIOP ("testConnection", setup));
-        
+
         return setup;
     }
 
@@ -86,17 +71,14 @@ public class C_IIOP_S_WIOP extends ClientServerTestCase
         {
             server.ping();
             fail ("should have been a COMM_FAILURE");
-        } 
+        }
         catch (org.omg.CORBA.COMM_FAILURE ex)
         {
-            // ok   
-        } 
+            // ok
+        }
         catch (Exception ex)
         {
             fail ("expected COMM_FAILURE, got " + ex);
         }
     }
-
-
-
 }

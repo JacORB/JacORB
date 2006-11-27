@@ -22,6 +22,7 @@ package org.jacorb.test.poa;
 
 import junit.framework.TestCase;
 
+ import org.jacorb.test.common.ORBTestCase;
 import org.jacorb.test.orb.BasicServerImpl;
 import org.omg.CORBA.ORB;
 import org.omg.CORBA.Policy;
@@ -36,20 +37,8 @@ import org.omg.PortableServer.POAPackage.ServantAlreadyActive;
  * @author Nick Cross
  * @version $Id$
  */
-public class POAActivateTest extends TestCase
+public class POAActivateTest extends ORBTestCase
 {
-    private org.omg.CORBA.ORB orb;
-
-    protected void setUp() throws Exception
-    {
-        orb = ORB.init(new String[0], null);
-    }
-
-    protected void tearDown() throws Exception
-    {
-        orb.shutdown(true);
-    }
-
     /**
      * <code>testActivateDeactivate1</code> tests activating an object without
      * ID (i.e. using a new one each time) and using servant_to_id to obtain

@@ -20,9 +20,9 @@ package org.jacorb.test.orb.dynany;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import junit.framework.*;
-import junit.extensions.TestSetup;
-import org.jacorb.test.common.ORBSetup;
+import junit.framework.Test;
+import junit.framework.TestSuite;
+
 import org.jacorb.test.EnumType;
 import org.jacorb.test.EnumTypeHelper;
 
@@ -33,44 +33,16 @@ import org.jacorb.test.EnumTypeHelper;
  *
  */
 
-public class DynAnyEnumTest extends TestCase
+public class DynAnyEnumTest extends DynAnyXXXTestCase
 {
-   private static org.omg.DynamicAny.DynAnyFactory factory = null;
-   private static org.omg.CORBA.ORB orb = null;
-
    private static final String ID = "IDL:test:1.0";
    private static final String NAME = "MyEnum";
    private static final String [] ENUM = {"one", "two", "three"};
 
 
-   public DynAnyEnumTest (String name)
-   {
-      super (name);
-   }
-
-
    public static Test suite ()
    {
-      TestSuite suite = new TestSuite ("DynEnum Tests");
-      Setup setup = new Setup (suite);
-      ORBSetup osetup = new ORBSetup (setup);
-
-      suite.addTest (new DynAnyEnumTest ("testFactoryCreateFromAny"));
-      suite.addTest (new DynAnyEnumTest ("testFactoryCreateFromTypeCode"));
-      suite.addTest (new DynAnyEnumTest ("testFactoryCreateFromIDLTypeCode"));
-      suite.addTest (new DynAnyEnumTest ("testCompareDynAny"));
-      suite.addTest (new DynAnyEnumTest ("testAccessEnumValue"));
-      suite.addTest (new DynAnyEnumTest ("testAccessInvalidValueEx"));
-      suite.addTest (new DynAnyEnumTest ("testDynAnyTypeCode"));
-      suite.addTest (new DynAnyEnumTest ("testInitDynAnyFromDynAny"));
-      suite.addTest (new DynAnyEnumTest ("testInitDynAnyFromAny"));
-      suite.addTest (new DynAnyEnumTest ("testInitFromAnyTypeMismatchEx"));
-      suite.addTest (new DynAnyEnumTest ("testGenerateAnyFromDynAny"));
-      suite.addTest (new DynAnyEnumTest ("testDestroyDynAny"));
-      suite.addTest (new DynAnyEnumTest ("testCopyDynAny"));
-      suite.addTest (new DynAnyEnumTest ("testIterateDynAny"));
-
-      return osetup;
+      return new TestSuite (DynAnyEnumTest.class, "DynEnum Tests");
    }
 
 
@@ -489,47 +461,10 @@ public class DynAnyEnumTest extends TestCase
       }
    }
 
-
-   private static class Setup extends TestSetup
-   {
-      public Setup (Test test)
-      {
-         super (test);
-      }
-
-      protected void setUp ()
-      {
-         org.omg.CORBA.Object obj = null;
-
-         orb = ORBSetup.getORB ();
-         try
-         {
-            obj = orb.resolve_initial_references ("DynAnyFactory");
-         }
-         catch (org.omg.CORBA.ORBPackage.InvalidName ex)
-         {
-            fail ("Failed to resolve DynAnyFactory: " + ex);
-         }
-         try
-         {
-            factory = org.omg.DynamicAny.DynAnyFactoryHelper.narrow (obj);
-         }
-         catch (Throwable ex)
-         {
-            fail ("Failed to narrow to DynAnyFactory: " + ex);
-         }
-      }
-
-      protected void tearDown ()
-      {
-      }
-   }
-
-
    /**
     * Create a DynAny object from an Any object.
     */
-   private static org.omg.DynamicAny.DynEnum createDynAnyFromAny
+   private org.omg.DynamicAny.DynEnum createDynAnyFromAny
       (org.omg.CORBA.Any any)
    {
       String msg;
@@ -552,7 +487,7 @@ public class DynAnyEnumTest extends TestCase
    /**
     * Create a DynAny object from a TypeCode object.
     */
-   private static org.omg.DynamicAny.DynEnum createDynAnyFromTypeCode
+   private org.omg.DynamicAny.DynEnum createDynAnyFromTypeCode
       (org.omg.CORBA.TypeCode tc)
    {
       String msg;

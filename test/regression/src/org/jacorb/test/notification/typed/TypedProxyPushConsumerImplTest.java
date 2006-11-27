@@ -187,9 +187,9 @@ public class TypedProxyPushConsumerImplTest extends NotificationTestCase
                 .getMock();
 
         controlPushSupplier.replay();
-        
+
         PushSupplierPOATie tie = new PushSupplierPOATie(mockPushSupplier);
-        
+
         proxyPushConsumer_.connect_typed_push_supplier(tie._this(getClientORB()));
 
         Any any = getORB().create_any();
@@ -205,7 +205,7 @@ public class TypedProxyPushConsumerImplTest extends NotificationTestCase
         {
             // expected
         }
-        
+
         controlPushSupplier.verify();
     }
 

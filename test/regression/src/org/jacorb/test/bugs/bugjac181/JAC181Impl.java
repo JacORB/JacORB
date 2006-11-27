@@ -22,8 +22,6 @@ public class JAC181Impl extends JAC181POA implements Configurable
      */
     public void ping1()
     {
-        System.err.println ("Called ping1!");
-
         Thread thread1 = new Thread("ORBDestroyThread")
         {
             public void run()

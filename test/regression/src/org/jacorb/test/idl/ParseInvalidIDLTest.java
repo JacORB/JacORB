@@ -49,7 +49,7 @@ public class ParseInvalidIDLTest extends AbstractIDLTestcase
         // if a test fails the directory
         // will not be deleted. this way
         // the contents can be inspected.
-        deleteRecursively(dirGeneration);
+        TestUtils.deleteRecursively(dirGeneration);
     }
 
     public static Test suite()

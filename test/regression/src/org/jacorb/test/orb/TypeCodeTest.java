@@ -21,22 +21,11 @@ package org.jacorb.test.orb;
  */
 
 import junit.framework.*;
+import org.jacorb.test.common.ORBTestCase;
 import org.omg.CORBA.*;
 
-public class TypeCodeTest extends TestCase
+public class TypeCodeTest extends ORBTestCase
 {
-    private ORB orb;
-
-    public void setUp() throws Exception
-    {
-        orb = ORB.init((String[]) null, null);
-    }
-
-    public void tearDown()
-    {
-        orb.shutdown(true);
-    }
-
     /**
      * Test that jacorb handles some self-constructed broken typecodes
      * well. The constructed typecode is in principal recursive, but not

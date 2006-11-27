@@ -1,7 +1,6 @@
 package org.jacorb.test.orb.factory;
 
 import java.net.Socket;
-import java.util.Properties;
 
 import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.logger.NullLogger;
@@ -12,17 +11,19 @@ import org.jacorb.orb.factory.SocketFactory;
 
 public class PortRangeSocketFactoryTest extends AbstractSocketFactoryTest
 {
+    private static final int MIN = 40000;
+    private static final int MAX = 40010;
+
     protected SocketFactory newObjectUnderTest() throws ConfigurationException
     {
         final PortRangeSocketFactory factory = new PortRangeSocketFactory();
 
-        MockControl configControl = MockControl
-                .createControl(Configuration.class);
+        MockControl configControl = MockControl.createControl(Configuration.class);
         Configuration configMock = (Configuration) configControl.getMock();
 
         configControl.expectAndReturn(configMock.getNamedLogger("jacorb.orb.socketfactory"), new NullLogger());
-        configControl.expectAndReturn(configMock.getAttributeAsInteger(PortRangeSocketFactory.MIN_PROP), 40000);
-        configControl.expectAndReturn(configMock.getAttributeAsInteger(PortRangeSocketFactory.MAX_PROP), 40005);
+        configControl.expectAndReturn(configMock.getAttributeAsInteger(PortRangeSocketFactory.MIN_PROP), MIN);
+        configControl.expectAndReturn(configMock.getAttributeAsInteger(PortRangeSocketFactory.MAX_PROP), MAX);
         configControl.replay();
 
         factory.configure(configMock);
@@ -33,7 +34,7 @@ public class PortRangeSocketFactoryTest extends AbstractSocketFactoryTest
     public void testPortsAreCreatedInCorrectRange() throws Exception
     {
         Socket socket = objectUnderTest.createSocket(hostname, serverPort);
-        assertTrue(socket.getLocalPort() >= 40000);
-        assertTrue(socket.getLocalPort() <= 40005);
+        assertTrue(socket.getLocalPort() >= MIN);
+        assertTrue(socket.getLocalPort() <= MAX);
     }
 }

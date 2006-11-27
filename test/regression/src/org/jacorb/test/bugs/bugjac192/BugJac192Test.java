@@ -26,12 +26,6 @@ public class BugJac192Test extends ClientServerTestCase
 
 
     /**
-     * <code>serverOrb</code> is a reference to the server ORB.
-     */
-    static ORB serverOrb;
-
-
-    /**
      * <code>server</code> is the server reference.
      */
     private JAC192 server;
@@ -61,10 +55,7 @@ public class BugJac192Test extends ClientServerTestCase
 
     protected void tearDown() throws Exception
     {
-        if (serverOrb != null)
-        {
-            serverOrb.shutdown(true);
-        }
+        server = null;
     }
 
     /**

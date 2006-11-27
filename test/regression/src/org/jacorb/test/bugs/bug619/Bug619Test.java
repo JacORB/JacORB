@@ -28,9 +28,10 @@ import junit.framework.TestSuite;
 
 import org.jacorb.test.common.ClientServerSetup;
 import org.jacorb.test.common.ClientServerTestCase;
+import org.jacorb.test.common.TestUtils;
 import org.omg.CORBA.NO_MEMORY;
 
-public class TestCase extends ClientServerTestCase
+public class Bug619Test extends ClientServerTestCase
 {
     private OutOfMemory server;
 
@@ -97,7 +98,7 @@ public class TestCase extends ClientServerTestCase
         }
     }
 
-    public TestCase(String name, ClientServerSetup setup)
+    public Bug619Test(String name, ClientServerSetup setup)
     {
         super(name, setup);
     }
@@ -123,22 +124,25 @@ public class TestCase extends ClientServerTestCase
 
     protected void setUp() throws Exception
     {
-        super.setUp();
-
         server = OutOfMemoryHelper.narrow(setup.getServerObject());
     }
 
-    public static Test suite() 
+    protected void tearDown() throws Exception
+    {
+        server = null;
+    }
+
+    public static Test suite()
     {
         TestSuite suite = new TestSuite();
 
         Properties clientProps = new Properties();
         Properties serverProps = new Properties();
-        serverProps.put("-Xmx16M", "");
+        serverProps.put("jacorb.test.maxmemory", "64m");
         ClientServerSetup setup = new ClientServerSetup(suite, OutOfMemoryImpl.class.getName(),
                 clientProps, serverProps);
 
-        suite.addTest(new TestCase("testOutOfMemoryShouldFail", setup));
+        TestUtils.addToSuite(suite, setup, Bug619Test.class);
 
         return setup;
     }

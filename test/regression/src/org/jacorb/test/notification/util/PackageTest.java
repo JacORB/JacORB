@@ -21,6 +21,8 @@ package org.jacorb.test.notification.util;
  *
  */
 
+import org.jacorb.test.notification.util.regexp.JDK14PatternWrapperTest;
+
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
@@ -52,6 +54,7 @@ public class PackageTest extends TestCase
         _suite.addTestSuite(WeakHashSetTest.class);
         _suite.addTest(LogUtilTest.suite());
         _suite.addTest(DisposableManagerTest.suite());
+        _suite.addTest(JDK14PatternWrapperTest.suite());
 
         return _suite;
     }

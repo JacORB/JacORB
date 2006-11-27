@@ -20,13 +20,12 @@ package org.jacorb.test.orb.dynany;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import junit.framework.*;
-import junit.extensions.TestSetup;
-import org.omg.CORBA.TCKind;
+import junit.framework.Test;
+import junit.framework.TestSuite;
 
-import org.jacorb.test.common.ORBSetup;
-import org.jacorb.test.Bound;
 import org.jacorb.test.ArrayTypeHelper;
+import org.jacorb.test.Bound;
+import org.omg.CORBA.TCKind;
 
 /**
  * DynAnyArrayTest.java
@@ -35,43 +34,12 @@ import org.jacorb.test.ArrayTypeHelper;
  *
  */
 
-public class DynAnyArrayTest extends TestCase
+public class DynAnyArrayTest extends DynAnyXXXTestCase
 {
-   private static org.omg.DynamicAny.DynAnyFactory factory = null;
-   private static org.omg.CORBA.ORB orb = null;
-
-   public DynAnyArrayTest (String name)
-   {
-      super (name);
-   }
-
-
    public static Test suite ()
    {
-      TestSuite suite = new TestSuite ("DynArray Tests");
-      Setup setup = new Setup (suite);
-      ORBSetup osetup = new ORBSetup (setup);
-
-      suite.addTest (new DynAnyArrayTest ("testFactoryCreateFromAny"));
-      suite.addTest (new DynAnyArrayTest ("testFactoryCreateFromTypeCode"));
-      suite.addTest (new DynAnyArrayTest ("testFactoryCreateFromIDLTypeCode"));
-      suite.addTest (new DynAnyArrayTest ("testCompareDynAny"));
-      suite.addTest (new DynAnyArrayTest ("testIterateDynAny"));
-      suite.addTest (new DynAnyArrayTest ("testAccessArrayElements"));
-      suite.addTest (new DynAnyArrayTest ("testAccessArrayDynAnyElements"));
-      suite.addTest (new DynAnyArrayTest ("testAccessArrayElementsEx"));
-      suite.addTest (new DynAnyArrayTest ("testDynAnyTypeCode"));
-      suite.addTest (new DynAnyArrayTest ("testInitDynAnyFromDynAny"));
-      suite.addTest (new DynAnyArrayTest ("testInitDynAnyFromAny"));
-      suite.addTest (new DynAnyArrayTest ("testInitFromAnyTypeMismatchEx"));
-      suite.addTest (new DynAnyArrayTest ("testGenerateAnyFromDynAny"));
-      suite.addTest (new DynAnyArrayTest ("testDestroyDynAny"));
-      suite.addTest (new DynAnyArrayTest ("testDestroyComponent"));
-      suite.addTest (new DynAnyArrayTest ("testCopyDynAny"));
-
-      return osetup;
+      return new TestSuite (DynAnyArrayTest.class, "DynArray Tests");
    }
-
 
    /**
     * Tests creating a DynAny object from an Any object using the
@@ -689,46 +657,24 @@ public class DynAnyArrayTest extends TestCase
    }
 
 
-   private static class Setup extends TestSetup
-   {
-      public Setup (Test test)
-      {
-         super (test);
-      }
-
-      protected void setUp ()
-      {
-         org.omg.CORBA.Object obj = null;
-
-         orb = ORBSetup.getORB ();
-         try
-         {
-            obj = orb.resolve_initial_references ("DynAnyFactory");
-         }
-         catch (org.omg.CORBA.ORBPackage.InvalidName ex)
-         {
-            fail ("Failed to resolve DynAnyFactory: " + ex);
-         }
-         try
-         {
-            factory = org.omg.DynamicAny.DynAnyFactoryHelper.narrow (obj);
-         }
-         catch (Throwable ex)
-         {
-            fail ("Failed to narrow to DynAnyFactory: " + ex);
-         }
-      }
-
-      protected void tearDown ()
-      {
-      }
-   }
 
 
    /**
+    * Create an array of integers of fixed length.
+    */
+   private static int [] getIntArray ()
+   {
+      int [] type = new int [Bound.value];
+      for (int i = 0; i < Bound.value; i++)
+      {
+         type [i] = i;
+      }
+      return type;
+   }
+   /**
     * Create a DynAny object from an Any object.
     */
-   private static org.omg.DynamicAny.DynArray createDynAnyFromAny
+   protected final org.omg.DynamicAny.DynArray createDynAnyFromAny
       (org.omg.CORBA.Any any)
    {
       String msg;
@@ -751,7 +697,7 @@ public class DynAnyArrayTest extends TestCase
    /**
     * Create a DynAny object from a TypeCode object.
     */
-   private static org.omg.DynamicAny.DynArray createDynAnyFromTypeCode
+   protected final org.omg.DynamicAny.DynArray createDynAnyFromTypeCode
       (org.omg.CORBA.TypeCode tc)
    {
       String msg;
@@ -769,20 +715,6 @@ public class DynAnyArrayTest extends TestCase
          fail (msg);
       }
       return dynAny;
-   }
-
-
-   /**
-    * Create an array of integers of fixed length.
-    */
-   private static int [] getIntArray ()
-   {
-      int [] type = new int [Bound.value];
-      for (int i = 0; i < Bound.value; i++)
-      {
-         type [i] = i;
-      }
-      return type;
    }
 
 }

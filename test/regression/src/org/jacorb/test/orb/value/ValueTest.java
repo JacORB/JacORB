@@ -44,6 +44,12 @@ public class ValueTest extends ClientServerTestCase
         orb = setup.getClientOrb();
     }
 
+    protected void tearDown() throws Exception
+    {
+        server = null;
+        orb = null;
+    }
+
     public static Test suite()
     {
         TestSuite suite = new TestSuite( "valuetype tests" );
@@ -51,28 +57,7 @@ public class ValueTest extends ClientServerTestCase
             new ClientServerSetup( suite,
                                    "org.jacorb.test.orb.value.ValueServerImpl" );
 
-        suite.addTest(new ValueTest("test_pass_boxed_long", setup));
-        suite.addTest(new ValueTest("test_pass_null_boxed_long", setup));
-        suite.addTest(new ValueTest("test_pass_shared_boxed_long", setup));
-        suite.addTest(new ValueTest("test_pass_equal_boxed_long", setup));
-
-        suite.addTest(new ValueTest("test_pass_boxed_string", setup));
-        suite.addTest(new ValueTest("test_pass_null_boxed_string", setup));
-        suite.addTest(new ValueTest("test_pass_shared_boxed_string", setup));
-        suite.addTest(new ValueTest("test_pass_equal_boxed_string", setup));
-
-        suite.addTest(new ValueTest("test_pass_value_sequence_1", setup));
-        suite.addTest(new ValueTest("test_pass_value_sequence_2", setup));
-        suite.addTest(new ValueTest("test_pass_value_sequence_3", setup));
-        suite.addTest(new ValueTest("test_return_value_sequence", setup));
-
-        suite.addTest(new ValueTest("test_pass_list", setup));
-        suite.addTest(new ValueTest("test_pass_circular_list", setup));
-
-        suite.addTest(new ValueTest("test_pass_list_in_any", setup));
-
-        suite.addTest(new ValueTest("test_embedded_valuetype", setup));
-        suite.addTest(new ValueTest("test_get_rowlistdata", setup));
+        TestUtils.addToSuite(suite, setup, ValueTest.class);
 
         return setup;
     }

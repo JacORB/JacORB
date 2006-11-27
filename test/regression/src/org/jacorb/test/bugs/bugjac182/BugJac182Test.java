@@ -1,6 +1,5 @@
 package org.jacorb.test.bugs.bugjac182;
 
-import java.io.IOException;
 import java.util.Properties;
 
 import junit.framework.Test;
@@ -8,6 +7,7 @@ import junit.framework.TestSuite;
 
 import org.jacorb.test.common.ClientServerSetup;
 import org.jacorb.test.common.ClientServerTestCase;
+import org.jacorb.test.common.CommonSetup;
 import org.jacorb.test.common.TestUtils;
 
 /**
@@ -53,6 +53,11 @@ public class BugJac182Test extends ClientServerTestCase
         server = JAC182Helper.narrow( setup.getServerObject() );
     }
 
+    protected void tearDown() throws Exception
+    {
+        server = null;
+    }
+
     /**
      * <code>suite</code> initialise the tests with the correct environment.
      */
@@ -62,6 +67,9 @@ public class BugJac182Test extends ClientServerTestCase
 
         Properties client_props = new Properties();
         Properties server_props = new Properties();
+
+        client_props.setProperty(CommonSetup.JACORB_REGRESSION_DISABLE_SECURITY, "true");
+        server_props.setProperty(CommonSetup.JACORB_REGRESSION_DISABLE_SECURITY, "true");
 
         client_props.put("org.omg.PortableInterceptor.ORBInitializerClass.CInitializer",
                          "org.jacorb.test.bugs.bugjac182.CInitializer");
@@ -74,21 +82,11 @@ public class BugJac182Test extends ClientServerTestCase
                          "org.jacorb.test.bugs.bugjac182.SInitializer");
 
         ClientServerSetup setup =
-            new ClientServerSetup(suite,
-                    "org.jacorb.test.bugs.bugjac182.JAC182Impl",
-                    client_props,
-                    server_props)
-            {
-                public String getTestServerMain()
-                {
-                    return BugJac182TestServerRunner.class.getName();
-                }
-
-                // override to do nothing!
-                protected void initSecurity() throws IOException
-                {
-                }
-            };
+        new ClientServerSetup(suite,
+                              BugJac182TestServerRunner.class.getName(),
+                              "org.jacorb.test.bugs.bugjac182.JAC182Impl",
+                              client_props,
+                              server_props);
 
         TestUtils.addToSuite(suite, setup, BugJac182Test.class);
 

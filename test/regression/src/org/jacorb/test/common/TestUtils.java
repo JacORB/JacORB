@@ -27,15 +27,25 @@ import java.net.*;
 import java.rmi.NoSuchObjectException;
 import java.rmi.Remote;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
 import junit.extensions.TestSetup;
+import junit.framework.Assert;
+import junit.framework.AssertionFailedError;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 
 import java.io.File;
+import java.io.FileFilter;
+import java.io.FileWriter;
+import java.io.FilenameFilter;
+import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.LineNumberReader;
+import java.io.PrintWriter;
 import java.util.Properties;
 
 import javax.rmi.PortableRemoteObject;
@@ -101,6 +111,11 @@ public class TestUtils
         }
 
         return (String[]) result.toArray(STRING_ARRAY_TEMPLATE);
+    }
+
+    public static String jacorbHome()
+    {
+        return System.getProperty("jacorb.home");
     }
 
     /**
@@ -392,8 +407,210 @@ public class TestUtils
         return JDK_13;
     }
 
-    public static boolean isPropertyTrue(String value)
+    public static boolean getStringAsBoolean(String value)
     {
         return "true".equalsIgnoreCase(value) || "on".equalsIgnoreCase(value) || "yes".equalsIgnoreCase(value);
+    }
+
+    public static void deleteRecursively(File name)
+    {
+        if (name.isDirectory())
+        {
+            File[] subdirs = name.listFiles(new FileFilter()
+            {
+                public boolean accept(File pathname)
+                {
+                    return pathname.isDirectory();
+                }
+            });
+
+            for (int i = 0; i < subdirs.length; ++i)
+            {
+                deleteRecursively(subdirs[i]);
+            }
+
+            File[] files = name.listFiles(new FileFilter()
+            {
+                public boolean accept(File pathname)
+                {
+                    return pathname.isFile();
+                }
+            });
+
+            for (int i = 0; i < files.length; ++i)
+            {
+                files[i].delete();
+            }
+
+            name.delete();
+        }
+
+        if (name.isFile())
+        {
+            name.delete();
+        }
+    }
+
+    public static File createTempDir(final String name)
+    {
+        String dir = System.getProperty("java.io.tmpdir");
+        dir += File.separator + name + "-" + System.currentTimeMillis();
+        final File tmpDir = new File(dir);
+        Assert.assertTrue(tmpDir.mkdir());
+        tmpDir.deleteOnExit();
+        Runtime.getRuntime().addShutdownHook(new Thread()
+        {
+            public void run()
+            {
+                TestUtils.deleteRecursively(tmpDir);
+            };
+        });
+
+        return tmpDir;
+    }
+
+    private static File[] getSubDirectories(File src)
+    {
+        return src.listFiles(new FileFilter()
+        {
+            public boolean accept(File pathname)
+            {
+                return pathname.isDirectory();
+            }
+        });
+    }
+
+    private static List getFilesInDirectory(File src, final String suffix)
+    {
+        final File[] fileList = src.listFiles(new FilenameFilter()
+        {
+            public boolean accept(File dir, String name)
+            {
+                return name.endsWith(suffix);
+            }
+        });
+        Assert.assertNotNull(src + " does not exist.", fileList);
+        return Arrays.asList(fileList);
+    }
+
+    public static List getJavaFilesRecursively(File src)
+    {
+        final String suffix = ".java";
+        return getFilesRecursively(src, suffix);
+    }
+
+    public static List getFilesRecursively(File src, final String suffix)
+    {
+        List result = new ArrayList();
+        result.addAll(getFilesInDirectory(src, suffix));
+
+        File[] dirs = getSubDirectories(src);
+
+        for (int i = 0; i < dirs.length; ++i)
+        {
+            result.addAll(getFilesRecursively(dirs[i], suffix));
+        }
+
+        return result;
+    }
+
+    public static ClassLoader compileJavaFiles(File dirCompilation, File[] files, boolean failureExpected) throws IOException
+    {
+        Assert.assertNotNull(files);
+
+        if (files.length == 0)
+        {
+            return null;
+        }
+
+        dirCompilation.mkdir();
+
+        Assert.assertTrue(dirCompilation.isDirectory());
+        Assert.assertTrue(dirCompilation.exists());
+        Assert.assertTrue(dirCompilation.canWrite());
+        File file = new File(dirCompilation, "files.txt");
+        file.delete();
+        file.createNewFile();
+
+        PrintWriter writer = new PrintWriter(new FileWriter(file));
+
+        for (int i = 0; i < files.length; ++i)
+        {
+            writer.println(files[i].getAbsolutePath());
+        }
+
+        writer.close();
+
+        String javaHome = System.getProperty("java.home");
+        String testHome = testHome();
+        String classpath = testHome + File.separator + ".." + File.separator + ".." + File.separator + "classes";
+
+        if (javaHome.endsWith("jre"))
+        {
+            javaHome = javaHome.substring(0, javaHome.length() - 4);
+        }
+        String cmd = javaHome + "/bin/javac -d " + dirCompilation + " -classpath " + classpath + " @" + file.getAbsolutePath();
+        try
+        {
+            Process proc = Runtime.getRuntime().exec(cmd);
+
+            int exit = proc.waitFor();
+            if (failureExpected && exit == 0)
+            {
+                Assert.fail("should fail: " + cmd);
+            }
+
+            if (exit != 0)
+            {
+                InputStream in = proc.getErrorStream();
+                LineNumberReader reader = new LineNumberReader(new InputStreamReader(in));
+                StringBuffer b = new StringBuffer();
+
+                String line;
+                while ((line = reader.readLine()) != null)
+                {
+                    b.append(line);
+                    b.append("\n");
+                }
+
+                Assert.fail(cmd + "\n" + b.toString());
+            }
+
+            return new URLClassLoader(new URL[] {dirCompilation.toURL()});
+        }
+        catch (Exception e)
+        {
+            if (!failureExpected)
+            {
+                AssertionFailedError error = new AssertionFailedError("cmd: " + cmd);
+                error.initCause(e);
+                throw error;
+            }
+            return null;
+        }
+    }
+
+    public static long getSystemPropertyAsLong(final String property, final long defaultValue)
+    {
+        long parseLong;
+        try
+        {
+            parseLong = Long.parseLong(System.getProperty(property));
+        }
+        catch (Exception e)
+        {
+            parseLong = defaultValue;
+        }
+        return parseLong;
+    }
+
+    public static boolean getSystemPropertyAsBoolean(final String property, final boolean defaultValue)
+    {
+        String value = System.getProperty (property);
+        if (value == null)
+        {
+            return defaultValue;
+        }
+        return getStringAsBoolean(value);
     }
 }

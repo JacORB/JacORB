@@ -37,12 +37,6 @@ import org.omg.CORBA.Any;
 public class BugJac251Test extends ClientServerTestCase
 {
     /**
-     * <code>basicConfig</code> allows me to create a BasicConfiguration object.
-     * via string_to_object to pass through.
-     */
-    private static final String basicConfig = "IOR:000000000000003949444C3A6F72672F6A61636F72622F746573742F627567732F62756770743235312F4261736963436F6E66696775726174696F6E3A312E3000000000000000020000000000000068000102000000000931302E312E302E340000923000000015393534343536353234312F00141B10034C30113320000000000000020000000000000008000000004A414300000000010000001C0000000000010001000000010501000100010109000000010501000100000001000000500000000000000002000000010000001C00000000000100010000000105010001000101090000000105010001000000010000001C00000000000100010000000105010001000101090000000105010001";
-
-    /**
      * <code>server</code> is the server reference.
      */
     private JAC251 server;
@@ -66,6 +60,11 @@ public class BugJac251Test extends ClientServerTestCase
     public void setUp() throws Exception
     {
         server = JAC251Helper.narrow( setup.getServerObject() );
+    }
+
+    protected void tearDown() throws Exception
+    {
+        server = null;
     }
 
     /**

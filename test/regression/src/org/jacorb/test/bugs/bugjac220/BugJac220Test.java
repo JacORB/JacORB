@@ -56,6 +56,10 @@ public class BugJac220Test extends ClientServerTestCase
         server = TestEnumHelper.narrow( setup.getServerObject() );
     }
 
+    protected void tearDown() throws Exception
+    {
+        server = null;
+    }
 
     /**
      * <code>suite</code> sets up the server/client tests.

@@ -30,6 +30,7 @@ import org.jacorb.test.TestIf;
 import org.jacorb.test.TestIfHelper;
 import org.jacorb.test.common.ClientServerSetup;
 import org.jacorb.test.common.ClientServerTestCase;
+import org.jacorb.test.common.CommonSetup;
 import org.jacorb.test.common.TestUtils;
 
 /**
@@ -50,6 +51,11 @@ public class ClientConnectionTimeoutTest extends ClientServerTestCase
         server = TestIfHelper.narrow( setup.getServerObject() );
     }
 
+    protected void tearDown() throws Exception
+    {
+        server = null;
+    }
+
     public static Test suite()
     {
         TestSuite suite = new TestSuite( "Client connection idle-timeout tests" );
@@ -59,7 +65,7 @@ public class ClientConnectionTimeoutTest extends ClientServerTestCase
 
         if (TestUtils.isJDK13())
         {
-            client_props.setProperty(ClientServerSetup.JACORB_REGRESSION_DISABLE_SECURITY, "true");
+            client_props.setProperty(CommonSetup.JACORB_REGRESSION_DISABLE_SECURITY, "true");
         }
 
         ClientServerSetup setup =
@@ -78,22 +84,31 @@ public class ClientConnectionTimeoutTest extends ClientServerTestCase
         //call remote op with reply
         server.op();
 
-        //wait 2 secs
-        Thread.sleep( 2000 );
-
         //all transports must be down by now
-        //NOTE: if this doesn't compile, please check if
-        //openTransports is uncommented in ClientIIOPConnection
-        assertTrue( ClientIIOPConnection.openTransports == 0 );
+        verifyOpenTransports(0, 4000);
 
         //call oneway remote op
         server.onewayOp();
 
-        Thread.sleep( 2000 );
-
         //all transports must be down by now
+        verifyOpenTransports(0, 4000);
+    }
+
+    public static void verifyOpenTransports(int number, long timeout)
+    {
+        long then = System.currentTimeMillis() + timeout;
+        try
+        {
+            while(ClientIIOPConnection.openTransports != number && System.currentTimeMillis() < then)
+            {
+                Thread.sleep(1000);
+            }
+        } catch (InterruptedException e)
+        {
+        }
+
         //NOTE: if this doesn't compile, please check if
         //openTransports is uncommented in ClientIIOPConnection
-        assertTrue( ClientIIOPConnection.openTransports == 0 );
+        assertEquals(number, ClientIIOPConnection.openTransports);
     }
 }

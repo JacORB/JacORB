@@ -13,12 +13,8 @@ public class ObjectReplacementSetup extends ClientServerSetup
     {
         super(test,
               "org.jacorb.test.bugs.bugjac149.ObjRepServer",
+              "org.jacorb.test.bugs.bugjac149.ObjRepServer",
               clientProperties,
               serverProperties);
-    }
-
-    public String getTestServerMain()
-    {
-        return "org.jacorb.test.bugs.bugjac149.ObjRepServer";
     }
 }

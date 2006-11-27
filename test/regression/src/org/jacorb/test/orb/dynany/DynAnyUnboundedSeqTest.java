@@ -20,12 +20,11 @@ package org.jacorb.test.orb.dynany;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import junit.framework.*;
-import junit.extensions.TestSetup;
-import org.omg.CORBA.TCKind;
+import junit.framework.Test;
+import junit.framework.TestSuite;
 
-import org.jacorb.test.common.ORBSetup;
 import org.jacorb.test.UnboundedDataHelper;
+import org.omg.CORBA.TCKind;
 
 /**
  * DynAnyUnboundedSeqTest.java
@@ -34,41 +33,11 @@ import org.jacorb.test.UnboundedDataHelper;
  *
  */
 
-public class DynAnyUnboundedSeqTest extends TestCase
+public class DynAnyUnboundedSeqTest extends DynAnyXXXTestCase
 {
-   private static org.omg.DynamicAny.DynAnyFactory factory = null;
-   private static org.omg.CORBA.ORB orb = null;
-
-   public DynAnyUnboundedSeqTest (String name)
-   {
-      super (name);
-   }
-
-
    public static Test suite ()
    {
-      TestSuite suite = new TestSuite ("Unbounded DynSequence Tests");
-      Setup setup = new Setup (suite);
-      ORBSetup osetup = new ORBSetup (setup);
-
-      suite.addTest (new DynAnyUnboundedSeqTest ("testFactoryCreateFromAny"));
-      suite.addTest (new DynAnyUnboundedSeqTest ("testFactoryCreateFromTypeCode"));
-      suite.addTest (new DynAnyUnboundedSeqTest ("testFactoryCreateFromIDLTypeCode"));
-      suite.addTest (new DynAnyUnboundedSeqTest ("testCompareDynAny"));
-      suite.addTest (new DynAnyUnboundedSeqTest ("testIterateDynAny"));
-      suite.addTest (new DynAnyUnboundedSeqTest ("testAccessSeqElements"));
-      suite.addTest (new DynAnyUnboundedSeqTest ("testAccessSeqDynAnyElements"));
-      suite.addTest (new DynAnyUnboundedSeqTest ("testAccessSeqElementsEx"));
-      suite.addTest (new DynAnyUnboundedSeqTest ("testDynAnyTypeCode"));
-      suite.addTest (new DynAnyUnboundedSeqTest ("testInitDynAnyFromDynAny"));
-      suite.addTest (new DynAnyUnboundedSeqTest ("testInitDynAnyFromAny"));
-      suite.addTest (new DynAnyUnboundedSeqTest ("testInitFromAnyTypeMismatchEx"));
-      suite.addTest (new DynAnyUnboundedSeqTest ("testGenerateAnyFromDynAny"));
-      suite.addTest (new DynAnyUnboundedSeqTest ("testDestroyDynAny"));
-      suite.addTest (new DynAnyUnboundedSeqTest ("testDestroyComponent"));
-      suite.addTest (new DynAnyUnboundedSeqTest ("testCopyDynAny"));
-
-      return osetup;
+      return new TestSuite (DynAnyUnboundedSeqTest.class, "Unbounded DynSequence Tests");
    }
 
 
@@ -770,46 +739,10 @@ public class DynAnyUnboundedSeqTest extends TestCase
    }
 
 
-   private static class Setup extends TestSetup
-   {
-      public Setup (Test test)
-      {
-         super (test);
-      }
-
-      protected void setUp ()
-      {
-         org.omg.CORBA.Object obj = null;
-
-         orb = ORBSetup.getORB ();
-         try
-         {
-            obj = orb.resolve_initial_references ("DynAnyFactory");
-         }
-         catch (org.omg.CORBA.ORBPackage.InvalidName ex)
-         {
-            fail ("Failed to resolve DynAnyFactory: " + ex);
-         }
-         try
-         {
-            factory = org.omg.DynamicAny.DynAnyFactoryHelper.narrow (obj);
-         }
-         catch (Throwable ex)
-         {
-            fail ("Failed to narrow to DynAnyFactory: " + ex);
-         }
-      }
-
-      protected void tearDown ()
-      {
-      }
-   }
-
-
    /**
     * Create a DynAny object from an Any object.
     */
-   private static org.omg.DynamicAny.DynSequence createDynAnyFromAny
+   private org.omg.DynamicAny.DynSequence createDynAnyFromAny
       (org.omg.CORBA.Any any)
    {
       String msg;
@@ -832,7 +765,7 @@ public class DynAnyUnboundedSeqTest extends TestCase
    /**
     * Create a DynAny object from a TypeCode object.
     */
-   private static org.omg.DynamicAny.DynSequence createDynAnyFromTypeCode
+   private org.omg.DynamicAny.DynSequence createDynAnyFromTypeCode
       (org.omg.CORBA.TypeCode tc)
    {
       String msg;

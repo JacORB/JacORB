@@ -66,8 +66,6 @@ public class JAC178Impl extends JAC178POA implements Configurable
             // Create child using the supplied session ID
             Policy policies[] = new Policy[1];
 
-            System.err.println ("Creating child poa/object with sessionID " + sessionID);
-
             // The sessionID encodes which thread model to use (sneaky!).
             if (sessionID.startsWith ("Single"))
             {

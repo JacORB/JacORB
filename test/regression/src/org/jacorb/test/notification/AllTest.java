@@ -24,8 +24,7 @@ package org.jacorb.test.notification;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 
-import org.jacorb.test.common.*;
-import org.omg.CORBA.ORB;
+import org.jacorb.test.common.JacORBTestSuite;
 
 /**
  * @jacorb-since cvs
@@ -55,28 +54,7 @@ public class AllTest extends JacORBTestSuite
         _suite.addTest(org.jacorb.test.notification.filter.PackageTest.suite());
         _suite.addTest(org.jacorb.test.notification.servant.PackageTest.suite());
         _suite.addTest(org.jacorb.test.notification.lifecycle.PackageTest.suite());
-
-        final ORB orb = org.omg.CORBA.ORB.init(new String[0], null);
-        try
-        {
-            org.omg.CORBA.Object obj = orb
-                    .resolve_initial_references("InterfaceRepository");
-
-            // i know non_existent is NOT a ping. however try to ping
-            // the IR. if that fails skip the typed channels tests.
-            obj._non_existent();
-
-            _suite.addTest(org.jacorb.test.notification.typed.PackageTest.suite());
-        } catch (Exception e)
-        {
-            System.err.println("TypedChannel Tests depend on accessible InterfaceRepository.");
-            System.err.println("Will be skipped. See org/jacorb/test/notification/typed/README");
-            System.err.println("for details.");
-        }
-        finally
-        {
-            orb.shutdown(true);
-        }
+        _suite.addTest(org.jacorb.test.notification.typed.PackageTest.suite());
 
         return _suite;
     }

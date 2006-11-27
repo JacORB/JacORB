@@ -95,8 +95,8 @@ public class ValidIDLWithExtraSetupTest extends AbstractIDLTestcase
         ClassLoader cl = compileGeneratedSources(false);
 
         invokeVerifyMethod(cl);
-        deleteRecursively(dirGeneration);
-        deleteRecursively(dirCompilation);
+        TestUtils.deleteRecursively(dirGeneration);
+        TestUtils.deleteRecursively(dirCompilation);
     }
 
     /**
@@ -159,6 +159,12 @@ public class ValidIDLWithExtraSetupTest extends AbstractIDLTestcase
         return structCTOR.newInstance(new Object[] {m1, Boolean.valueOf(alarmMonitoringIndicator), any, nameValue, m1Seq});
     }
 
+    public void verify_bugJac44_idl(ClassLoader cl) throws Exception
+    {
+    	Class clazz = cl.loadClass("apmInterface.SA_Connection");
+    	assertNotNull(clazz);
+    }
+
     public static Test suite()
     {
         TestSuite suite = new TestSuite();
@@ -176,6 +182,7 @@ public class ValidIDLWithExtraSetupTest extends AbstractIDLTestcase
         suite.addTest(new ValidIDLWithExtraSetupTest("-sloppy_names", TEST_HOME + "/idl/compiler/fail/sloppy.idl"));
         suite.addTest(new ValidIDLWithExtraSetupTest(new String[] {"-ir", "-i2jpackage", "test:de.siemens.hyades.test"}, "bug514.idl"));
         suite.addTest(new ValidIDLWithExtraSetupTest(new String[] {"-i2jpackage", ":myTestPackage"}, TEST_HOME + "/idl/compiler/succeed/scoping10.idl"));
+        suite.addTest(new ValidIDLWithExtraSetupTest(new String[] {"-i2jpackage", ":apmInterface"}, "bugJac44.idl"));
 
         return suite;
     }

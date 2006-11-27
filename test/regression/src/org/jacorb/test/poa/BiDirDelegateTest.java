@@ -46,7 +46,7 @@ public class BiDirDelegateTest extends ClientServerTestCase
      * <code>ping</code> is used to denote whether the ping thread
      * successfully completed.
      */
-    private static boolean ping = false;
+    private boolean ping = false;
 
 
     public BiDirDelegateTest(String name, ClientServerSetup setup)
@@ -57,6 +57,11 @@ public class BiDirDelegateTest extends ClientServerTestCase
     public void setUp() throws Exception
     {
         server = BasicServerHelper.narrow( setup.getServerObject() );
+    }
+
+    protected void tearDown() throws Exception
+    {
+        server = null;
     }
 
     public static Test suite()
@@ -73,15 +78,10 @@ public class BiDirDelegateTest extends ClientServerTestCase
         // property and am using my own ClientServerSetup class.
         ClientServerSetup setup =
             new ClientServerSetup( suite,
+                                   "org.jacorb.test.poa.BiDirDelegateTestServerRunner",
                                    "org.jacorb.test.orb.BasicServerImpl",
                                    client_props,
-                                   server_props)
-                                   {
-            public String getTestServerMain()
-            {
-                return "org.jacorb.test.poa.BiDirDelegateTestServerRunner";
-            }
-                                   };
+                                   server_props);
 
         suite.addTest( new BiDirDelegateTest( "test_ping", setup ));
 
@@ -112,9 +112,6 @@ public class BiDirDelegateTest extends ClientServerTestCase
         }
         catch (InterruptedException e) {}
 
-        if (ping == false)
-        {
-            fail("Did not manage to complete ping call");
-        }
+        assertTrue(ping);
     }
 }

@@ -66,6 +66,11 @@ public class BugJac257Test extends ClientServerTestCase
         server = JAC257Helper.narrow( setup.getServerObject() );
     }
 
+    protected void tearDown() throws Exception
+    {
+        server = null;
+    }
+
     /**
      * <code>suite</code> sets up the server/client tests.
      *

@@ -1,41 +1,34 @@
 package org.jacorb.test.bugs.bugjac303;
 
-import junit.framework.TestCase;
-
 import org.jacorb.test.BasicServer;
 import org.jacorb.test.BasicServerHelper;
+import org.jacorb.test.common.ORBTestCase;
 import org.jacorb.test.orb.BasicServerImpl;
 import org.omg.CORBA.BAD_INV_ORDER;
 import org.omg.CORBA.ORB;
 import org.omg.CORBA.portable.ObjectImpl;
-import org.omg.PortableServer.POA;
-import org.omg.PortableServer.POAHelper;
 
-public class BugJac303Test extends TestCase
+public class BugJac303Test extends ORBTestCase
 {
     private BasicServer server;
-    private ORB serverORB;
     private ORB clientORB;
 
-    public void setUp() throws Exception
+    public void doSetUp() throws Exception
     {
-        serverORB = ORB.init(new String[0], null);
-        POA poa = POAHelper.narrow(serverORB.resolve_initial_references("RootPOA"));
-
         BasicServerImpl servant = new BasicServerImpl();
-        BasicServer tmpServer = BasicServerHelper.narrow(poa.servant_to_reference(servant));
-
-        poa.the_POAManager().activate();
+        BasicServer tmpServer = BasicServerHelper.narrow(rootPOA.servant_to_reference(servant));
 
         clientORB = ORB.init(new String[0], null);
 
-        server = BasicServerHelper.narrow(clientORB.string_to_object(serverORB.object_to_string(tmpServer)));
+        server = BasicServerHelper.narrow(clientORB.string_to_object(orb.object_to_string(tmpServer)));
     }
 
-    protected void tearDown() throws Exception
+    protected void doTearDown() throws Exception
     {
-        serverORB.shutdown(true);
+        server._release();
+        server = null;
         clientORB.shutdown(true);
+        clientORB = null;
     }
 
     public void testInvokeSafeOperationAfterShutdown() throws Exception

@@ -25,6 +25,11 @@ public class ExceptionTest extends ClientServerTestCase
         server = ExceptionServerHelper.narrow( setup.getServerObject() );
     }
 
+    protected void tearDown() throws Exception
+    {
+        server = null;
+    }
+
     public static Test suite()
     {
         TestSuite suite = new JacORBTestSuite("Client/server exception tests",
@@ -34,10 +39,10 @@ public class ExceptionTest extends ClientServerTestCase
                                   "org.jacorb.test.orb.ExceptionServerImpl");
 
         suite.addTest(new ExceptionTest("testRuntimeException", setup));
-        
+
         return setup;
-    }    
-    
+    }
+
     /**
      * Checks whether a RuntimeException in the Servant is
      * properly reported back to the client, including the

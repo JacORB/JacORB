@@ -24,9 +24,9 @@ import junit.framework.*;
 
 import org.jacorb.test.bugs.bug400.Bug400Test;
 import org.jacorb.test.bugs.bug735.Bug735Test;
-import org.jacorb.test.bugs.bugjac10.TypeCodeTestCase;
+import org.jacorb.test.bugs.bugjac10.BugJac10Test;
 import org.jacorb.test.bugs.bugjac149.ObjectReplacementTest;
-import org.jacorb.test.bugs.bugjac174.InvalidIORTest_bug174;
+import org.jacorb.test.bugs.bugjac174.BugJac174Test;
 import org.jacorb.test.bugs.bugjac178.POAThreadingTest;
 import org.jacorb.test.bugs.bugjac181.BugJac181Test;
 import org.jacorb.test.bugs.bugjac182.BugJac182Test;
@@ -67,17 +67,17 @@ public class AllTest extends JacORBTestSuite
    {
       TestSuite suite = new AllTest("All bugs");
 
-      suite.addTest(org.jacorb.test.bugs.bug228.TestCase.suite());
-      suite.addTest(org.jacorb.test.bugs.bug272.TestCase.suite());
-      suite.addTest(org.jacorb.test.bugs.bug344.TestCase.suite());
-      suite.addTest(org.jacorb.test.bugs.bug351.TestCase.suite());
-      suite.addTest(org.jacorb.test.bugs.bug384.TestCase.suite());
-      suite.addTest(org.jacorb.test.bugs.bug387.TestCase.suite());
-      suite.addTest(org.jacorb.test.bugs.bug401.TestCase.suite());
-      suite.addTestSuite(org.jacorb.test.bugs.bug459.TestCase.class);
-      suite.addTest(org.jacorb.test.bugs.bug532.TestCase.suite());
-      suite.addTest(org.jacorb.test.bugs.bug619.TestCase.suite());
-      suite.addTest(TypeCodeTestCase.suite());
+      suite.addTestSuite(org.jacorb.test.bugs.bug228.Bug228Test.class);
+      suite.addTestSuite(org.jacorb.test.bugs.bug272.Bug272Test.class);
+      suite.addTestSuite(org.jacorb.test.bugs.bug344.Bug344Test.class);
+      suite.addTest(org.jacorb.test.bugs.bug351.Bug351Test.suite());
+      suite.addTest(org.jacorb.test.bugs.bug384.Bug384Test.suite());
+      suite.addTest(org.jacorb.test.bugs.bug387.Bug387Test.suite());
+      suite.addTest(org.jacorb.test.bugs.bug401.Bug401Test.suite());
+      suite.addTestSuite(org.jacorb.test.bugs.bug459.Bug459Test.class);
+      suite.addTestSuite(org.jacorb.test.bugs.bug532.Bug532Test.class);
+      suite.addTest(org.jacorb.test.bugs.bug619.Bug619Test.suite());
+      suite.addTest(BugJac10Test.suite());
       suite.addTestSuite(InvalidIORTest.class);
       suite.addTestSuite(BoundedStringTest.class);
       suite.addTestSuite(BugJac45Test.class);
@@ -87,7 +87,7 @@ public class AllTest extends JacORBTestSuite
       suite.addTest(POAThreadingTest.suite());
       suite.addTest(BugJac235Test.suite());
       suite.addTest(BugJac192Test.suite());
-      suite.addTestSuite(InvalidIORTest_bug174.class);
+      suite.addTestSuite(BugJac174Test.class);
       suite.addTest(BugJac220Test.suite());
       suite.addTestSuite(BugJac305Test.class);
       suite.addTest(BugJac181Test.suite());
@@ -102,7 +102,8 @@ public class AllTest extends JacORBTestSuite
       suite.addTest(org.jacorb.test.bugs.bugjac330.BugJac330Suite.suite());
       suite.addTestSuite(Bug400Test.class);
       suite.addTest(BugJac722Test.suite());
-      suite.addTestSuite(Bug735Test.class);
+      suite.addTest(org.jacorb.test.bugs.bugcos370.BugCos370Test.suite());
+	  suite.addTestSuite(Bug735Test.class);
 
       return suite;
    }

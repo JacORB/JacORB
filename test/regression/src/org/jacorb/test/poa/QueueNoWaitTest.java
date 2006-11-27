@@ -14,6 +14,8 @@ import org.jacorb.test.CallbackServerHelper;
 import org.jacorb.test._CallbackServerStub;
 import org.jacorb.test.common.CallbackTestCase;
 import org.jacorb.test.common.ClientServerSetup;
+import org.jacorb.test.common.TestUtils;
+import org.jacorb.test.orb.CallbackServerImpl;
 import org.omg.Messaging.ExceptionHolder;
 
 /**
@@ -37,6 +39,11 @@ public class QueueNoWaitTest extends CallbackTestCase
         server = CallbackServerHelper.narrow( setup.getServerObject() );
     }
 
+    protected void tearDown() throws Exception
+    {
+        server = null;
+    }
+
     public static Test suite()
     {
         TestSuite suite = new TestSuite( "Request Queue Overrun - non-waiting" );
@@ -45,17 +52,14 @@ public class QueueNoWaitTest extends CallbackTestCase
         props.setProperty ("jacorb.poa.queue_max", "10");
         props.setProperty ("jacorb.poa.queue_min", "1");
         props.setProperty ("jacorb.poa.queue_wait", "off");
-        props.setProperty ("jacorb.implname",
-                           "org.jacorb.test.orb.CallbackServerImplQueueNoWaitTest");
 
         ClientServerSetup setup =
             new ClientServerSetup( suite,
-                                   "org.jacorb.test.orb.CallbackServerImpl",
+                                    CallbackServerImpl.class.getName(),
                                    null,
                                    props );
 
-        suite.addTest( new QueueNoWaitTest( "test_warm_up", setup ) );
-        suite.addTest( new QueueNoWaitTest( "test_overrun", setup ) );
+        TestUtils.addToSuite(suite, setup, QueueNoWaitTest.class);
 
         return setup;
     }
@@ -192,7 +196,9 @@ public class QueueNoWaitTest extends CallbackTestCase
             {
                 if (getException (excep).getClass().equals
                      (org.omg.CORBA.TRANSIENT.class))
+                {
                     holder.exceptionReceived = true;
+                }
             }
 
             public void delayed_ping()
@@ -205,13 +211,9 @@ public class QueueNoWaitTest extends CallbackTestCase
         {
             ( ( _CallbackServerStub ) server )
                     .sendc_delayed_ping( ref( handler ), 1000);
-            if (holder.exceptionReceived)
-            {
-                return;
-            }
         }
 
-        Thread.sleep (1000);
+        Thread.sleep (2000);
 
         assertTrue("should have raised a TRANSIENT exception", holder.exceptionReceived);
     }

@@ -40,6 +40,11 @@ public class RecursiveParam extends ClientServerTestCase
         server = RecursiveParamServerHelper.narrow( setup.getServerObject() );
     }
 
+    protected void tearDown() throws Exception
+    {
+        server = null;
+    }
+
     public static Test suite()
     {
         TestSuite suite = new TestSuite

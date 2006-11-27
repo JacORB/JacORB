@@ -37,13 +37,17 @@ public class AbstractTestCase extends ClientServerTestCase
         super (name, setup);
     }
 
-    protected void setUp() throws Exception
+    protected final void setUp() throws Exception
     {
-        super.setUp();
-
         server = JAC235Helper.narrow(setup.getServerObject());
 
         orb = setup.getClientOrb();
+    }
+
+    protected final void tearDown() throws Exception
+    {
+        server = null;
+        orb = null;
     }
 
     protected void setServerPolicy() throws PolicyError

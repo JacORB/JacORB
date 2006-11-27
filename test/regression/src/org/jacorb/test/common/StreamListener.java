@@ -37,8 +37,8 @@ import java.util.Date;
  */
 public class StreamListener extends Thread
 {
-    private BufferedReader in = null;
-    private String id = null;
+    private BufferedReader in;
+    private String id;
     private String ior = null;
     private String exception = null;
     private boolean active = true;
@@ -110,6 +110,14 @@ public class StreamListener extends Thread
     public void setDestroyed()
     {
         active = false;
+        try
+        {
+            in.close();
+        }
+        catch (IOException e)
+        {
+            e.printStackTrace();
+        }
     }
 
     public String getBuffer()

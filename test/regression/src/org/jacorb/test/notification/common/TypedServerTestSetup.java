@@ -23,33 +23,58 @@ package org.jacorb.test.notification.common;
 
 import java.util.Properties;
 
+import junit.extensions.TestSetup;
 import junit.framework.Test;
 
 import org.jacorb.test.common.ClientServerSetup;
+import org.jacorb.test.common.TestUtils;
+import org.jacorb.test.ir.IFRServerSetup;
+import org.omg.CORBA.ORB;
+import org.omg.CORBA.Object;
 
 /**
  * setup class for TypedEventChannel integration tests.
- * 
+ *
  * @author Alphonse Bendt
  * @version $Id$
  */
-public class TypedServerTestSetup extends ClientServerSetup
+public class TypedServerTestSetup extends TestSetup
 {
     private final static String IGNORED = "ignored";
 
+    private ClientServerSetup clientServerSetup;
+    private IFRServerSetup ifrSetup;
+
     public TypedServerTestSetup(Test test)
     {
-        super(test, IGNORED);
+    	super(test);
     }
 
-    public TypedServerTestSetup(Test test, Properties clientOrbProperties,
-            Properties serverOrbProperties)
+    public void setUp() throws Exception
     {
-        super(test, IGNORED, clientOrbProperties, serverOrbProperties);
+    	ifrSetup = new IFRServerSetup(fTest, TestUtils.testHome() + "/idl/TypedNotification.idl", null, null);
+
+    	ifrSetup.setUp();
+
+    	Properties props = new Properties();
+    	props.setProperty("ORBInitRef.InterfaceRepository", ifrSetup.getRepository().toString());
+    	clientServerSetup = new ClientServerSetup(fTest, TypedServerTestRunner.class.getName(), IGNORED, props, props);
+    	clientServerSetup.setUp();
     }
 
-    public String getTestServerMain()
+    public void tearDown() throws Exception
     {
-        return TypedServerTestRunner.class.getName();
+    	clientServerSetup.tearDown();
+    	ifrSetup.tearDown();
     }
+
+	public Object getServerObject()
+	{
+		return clientServerSetup.getServerObject();
+	}
+
+	public ORB getClientOrb()
+	{
+		return clientServerSetup.getClientOrb();
+	}
 }

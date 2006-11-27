@@ -22,6 +22,7 @@ package org.jacorb.test.bugs.bugjac45;
 
 import java.util.Properties;
 
+import org.jacorb.test.common.ORBTestCase;
 import org.omg.CORBA.Any;
 
 
@@ -32,21 +33,11 @@ import org.omg.CORBA.Any;
  * @author <a href="mailto:sm@prismtechnologies.com"></a>
  * @version $Id$
  */
-public class BugJac45Test extends junit.framework.TestCase
+public class BugJac45Test extends ORBTestCase
 {
-    private org.omg.CORBA.ORB orb = null;
-
-    protected void setUp() throws Exception
+    protected void patchOrbProperties(Properties props)
     {
-        Properties props = new Properties();
-        props.setProperty("jacorb.bufferManagerMaxFlush", "0");
-
-        orb = org.omg.CORBA.ORB.init(new String [0],props);
-    }
-
-    protected void tearDown() throws Exception
-    {
-        orb.shutdown(true);
+    	props.setProperty("jacorb.bufferManagerMaxFlush", "0");
     }
 
     /**

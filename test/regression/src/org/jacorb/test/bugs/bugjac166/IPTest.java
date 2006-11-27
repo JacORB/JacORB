@@ -46,6 +46,11 @@ public class IPTest extends ClientServerTestCase
         server = Jac074ServerHelper.narrow( setup.getServerObject() );
     }
 
+    protected void tearDown() throws Exception
+    {
+        server = null;
+    }
+
     public static Test suite()
     {
         TestSuite suite = new TestSuite( "IP Address test" );

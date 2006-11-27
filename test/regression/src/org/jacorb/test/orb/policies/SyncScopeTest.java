@@ -17,8 +17,8 @@ import org.jacorb.test.common.*;
  */
 public class SyncScopeTest extends ClientServerTestCase
 {
-    private SyncScopeServer server;
     private final int TIME = 300;
+    private SyncScopeServer server;
 
     public SyncScopeTest (String name, ClientServerSetup setup)
     {
@@ -28,6 +28,11 @@ public class SyncScopeTest extends ClientServerTestCase
     protected void setUp() throws Exception
     {
         server = SyncScopeServerHelper.narrow (setup.getServerObject());
+    }
+
+    protected void tearDown() throws Exception
+    {
+        server = null;
     }
 
     public static Test suite()

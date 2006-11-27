@@ -12,11 +12,8 @@ import org.omg.DynamicAny.DynAny;
  * DynAny tests for embededded object type.
  */
 
-public class DynAnyObjectTest extends TestCase
+public class DynAnyObjectTest extends DynAnyXXXTestCase
 {
-   private org.omg.DynamicAny.DynAnyFactory dynFactory;
-   private org.omg.CORBA.ORB orb;
-
    private static final String nameService =
       "IOR:000000000000002B49444C3A6F6D672E6F72672F436F734E616D696E672F4E616"
       + "D696E67436F6E746578744578743A312E30000000000002000000000000007400010"
@@ -26,19 +23,6 @@ public class DynAnyObjectTest extends TestCase
       + "00101090000000105010001000000010000002C00000000000000010000000100000"
       + "01C00000000000100010000000105010001000101090000000105010001";
 
-
-   protected void setUp() throws Exception
-   {
-       orb = ORB.init(new String[0], null);
-
-       org.omg.CORBA.Object obj = orb.resolve_initial_references ("DynAnyFactory");
-       dynFactory = org.omg.DynamicAny.DynAnyFactoryHelper.narrow (obj);
-   }
-
-   protected void tearDown() throws Exception
-   {
-       orb.shutdown(true);
-   }
 
    public void testInsertDynAnyObject() throws Exception
    {
@@ -50,7 +34,7 @@ public class DynAnyObjectTest extends TestCase
 
        dyn_any =
            (DynAny)
-           dynFactory.create_dyn_any_from_type_code (tc);
+           factory.create_dyn_any_from_type_code (tc);
 
        dyn_any.insert_reference (obj);
 

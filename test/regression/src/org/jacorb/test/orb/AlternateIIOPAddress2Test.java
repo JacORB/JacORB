@@ -65,6 +65,7 @@ public class AlternateIIOPAddress2Test extends ClientServerTestCase
         // server.clearSocketAddress();
         server.setIORProtAddr (PROTOCOL + CORRECT_HOST + ":" + CORRECT_PORT);
         server.clearAlternateAddresses();
+        server = null;
     }
 
     public static Test suite()

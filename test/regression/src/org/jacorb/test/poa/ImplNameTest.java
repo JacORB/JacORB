@@ -64,6 +64,7 @@ public class ImplNameTest extends TestCase
             ORB orb = (ORB) i.next();
             orb.shutdown(true);
         }
+        orbs.clear();
     }
 
     /**
@@ -115,6 +116,7 @@ public class ImplNameTest extends TestCase
     {
         Properties props = new Properties();
         props.setProperty("jacorb.implname", "TEST_PERSISTENT_COMPONENT");
+        props.setProperty("jacorb.use_imr", "off");
 
         ORB orb = newORB(props);
 

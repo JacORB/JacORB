@@ -30,20 +30,15 @@ import org.jacorb.test.common.ClientServerSetup;
 public class NotifyServerTestSetup extends ClientServerSetup
 {
     private final static String IGNORED = "ignored";
-    
+
     public NotifyServerTestSetup(Test test)
     {
-        super(test, IGNORED);
+        super(test, NotifyServerTestRunner.class.getName(), IGNORED, null, null);
     }
 
     public NotifyServerTestSetup(Test test, Properties clientOrbProperties,
             Properties serverOrbProperties)
     {
-        super(test, IGNORED, clientOrbProperties, serverOrbProperties);
-    }
-
-    public String getTestServerMain()
-    {
-       return NotifyServerTestRunner.class.getName();
+    	super(test, NotifyServerTestRunner.class.getName(), IGNORED, clientOrbProperties, serverOrbProperties);
     }
 }

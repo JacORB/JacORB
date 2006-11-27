@@ -9,11 +9,9 @@ import org.jacorb.orb.ORBConstants;
 import org.jacorb.test.BasicServer;
 import org.jacorb.test.BasicServerHelper;
 import org.jacorb.test.common.ClientServerSetup;
-import org.jacorb.test.common.ClientServerTestCase;
 import org.jacorb.test.common.TestUtils;
 import org.jacorb.test.orb.etf.wiop.WIOPFactories;
 import org.omg.CORBA.ORB;
-import org.omg.CORBA.Object;
 import org.omg.CORBA.Policy;
 import org.omg.CORBA.SetOverrideType;
 import org.omg.RTCORBA.ClientProtocolPolicy;
@@ -25,9 +23,9 @@ import org.omg.RTCORBA.RTORBHelper;
  * @author Alphonse Bendt
  * @version $Id$
  */
-public class SpecificProfileSelectorTest extends ClientServerTestCase
+public class SpecificProfileSelectorTest extends AbstractWIOPTestCase
 {
-    private BasicServer server;
+    private BasicServer basicServer;
     private ORB clientOrb;
 
     public SpecificProfileSelectorTest(String name, ClientServerSetup setup)
@@ -35,25 +33,23 @@ public class SpecificProfileSelectorTest extends ClientServerTestCase
         super (name, setup);
     }
 
-    public void setUp() throws Exception
+    public void doSetUp() throws Exception
     {
-        WIOPFactories.setTransportInUse(false);
-        final Object serverObject = setup.getServerObject();
-
         Properties clientProps = new Properties();
         clientProps.setProperty("jacorb.transport.factories",
                                 "org.jacorb.orb.iiop.IIOPFactories," +
                                 "org.jacorb.test.orb.etf.wiop.WIOPFactories");
 
         // need a unbound delegate for every testrun.
-        clientOrb = ORB.init(new String[0], clientProps);
-        server = BasicServerHelper.narrow(clientOrb.string_to_object(clientOrb.object_to_string(serverObject)));
+        clientOrb = setup.getClientOrb();
+        basicServer = BasicServerHelper.narrow(clientOrb.string_to_object(clientOrb.object_to_string(server)));
     }
 
-    public void tearDown() throws Exception
+    public void doTearDown() throws Exception
     {
-        clientOrb.shutdown(true);
-        WIOPFactories.setTransportInUse(false);
+        basicServer._release();
+        basicServer = null;
+        clientOrb = null;
     }
 
     public static Test suite()
@@ -66,8 +62,10 @@ public class SpecificProfileSelectorTest extends ClientServerTestCase
         // WIOP does not support SSL.
         clientProps.setProperty("jacorb.regression.disable_security",
                                 "true");
+        clientProps.setProperty("jacorb.transport.factories",
+                "org.jacorb.orb.iiop.IIOPFactories," +
+                "org.jacorb.test.orb.etf.wiop.WIOPFactories");
 
-        
         Properties serverProps = new Properties();
         serverProps.setProperty("jacorb.transport.factories",
                                 "org.jacorb.orb.iiop.IIOPFactories," +
@@ -89,9 +87,9 @@ public class SpecificProfileSelectorTest extends ClientServerTestCase
 
         ClientProtocolPolicy policy = rtORB.create_client_protocol_policy(new Protocol[] {new Protocol(new WIOPFactories().profile_tag(), null, null)});
 
-        server._set_policy_override(new Policy[] {policy}, SetOverrideType.SET_OVERRIDE);
+        basicServer._set_policy_override(new Policy[] {policy}, SetOverrideType.SET_OVERRIDE);
 
-        server.ping();
+        basicServer.ping();
         assertTrue("should use WIOP as transport", WIOPFactories.isTransportInUse());
     }
 
@@ -101,9 +99,9 @@ public class SpecificProfileSelectorTest extends ClientServerTestCase
 
         ClientProtocolPolicy policy = rtORB.create_client_protocol_policy(new Protocol[] {new Protocol(ORBConstants.JAC_NOSSL_PROFILE_ID, null, null)});
 
-        server._set_policy_override(new Policy[] {policy}, SetOverrideType.SET_OVERRIDE);
+        basicServer._set_policy_override(new Policy[] {policy}, SetOverrideType.SET_OVERRIDE);
 
-        server.ping();
+        basicServer.ping();
 
         assertFalse("shouldn't use WIOP if IIOP is selected", WIOPFactories.isTransportInUse());
     }

@@ -18,11 +18,13 @@ import junit.framework.*;
 import org.jacorb.naming.NameServer;
 import org.jacorb.test.common.ClientServerSetup;
 import org.jacorb.test.common.ClientServerTestCase;
+import org.jacorb.test.common.CommonSetup;
+import org.jacorb.test.common.TestUtils;
 
 public class ContextTest extends ClientServerTestCase
 {
-    private static NamingContextExt rootContext =  null;
-    private static  NameComponent[] firstName, secondName, thirdName , failureName;
+    private NamingContextExt rootContext;
+    private NameComponent[] firstName, secondName, thirdName , failureName;
 
     protected void setUp()
     {
@@ -41,53 +43,50 @@ public class ContextTest extends ClientServerTestCase
         failureName[1] = thirdName[0];
     }
 
+    protected void tearDown() throws Exception
+    {
+        rootContext = null;
+        firstName = secondName = thirdName = failureName = null;
+    }
 
-   public ContextTest (String name, ClientServerSetup setup)
-   {
-      super (name,setup);
-   }
+    public ContextTest (String name, ClientServerSetup setup)
+    {
+        super (name,setup);
+    }
 
-   public static Test suite()
-   {
-      TestSuite suite = new TestSuite("Naming Context Tests");
+    public static Test suite()
+    {
+        TestSuite suite = new TestSuite("Naming Context Tests");
 
-      String dir = System.getProperty("java.io.tmpdir");
-      dir += File.separator + "contextTest-" + System.currentTimeMillis();
-      File tmpDir = new File(dir);
-      assertTrue(tmpDir.mkdir());
-      tmpDir.deleteOnExit();
+        final String name = "contextTest";
+        File tmpDir = TestUtils.createTempDir(name);
 
-      Properties clientProps = new Properties();
-      Properties serverProps = new Properties();
+        Properties clientProps = new Properties();
+        Properties serverProps = new Properties();
 
-      serverProps.put("jacorb.naming.ior_filename", "");
-      serverProps.put("jacorb.naming.print_ior", "true");
-      serverProps.put("jacorb.naming.db_dir", dir);
+        serverProps.put("jacorb.naming.ior_filename", "");
+        serverProps.put("jacorb.naming.print_ior", "true");
+        serverProps.put("jacorb.naming.db_dir", tmpDir.toString());
+        serverProps.put(CommonSetup.JACORB_REGRESSION_DISABLE_SECURITY, "true");
 
-      ClientServerSetup setup = new ClientServerSetup( suite , "ignored", clientProps, serverProps)
-      {
-          public String getTestServerMain()
-        {
-              return NameServer.class.getName();
-        }
-      };
+        ClientServerSetup setup = new ClientServerSetup( suite , NameServer.class.getName(),  "ignored", clientProps, serverProps);
 
-      suite.addTest (new  ContextTest("testNameService", setup));
+        suite.addTest (new  ContextTest("testNameService", setup));
 
-      return setup;
-   }
+        return setup;
+    }
 
-   /**
-    * this is a bad example of an JUnit test as the testmethods need to be run in a particular order
-    * to succeed. to make this explicit i've renamed the testmethods to step1-step3 and
-    * have introduced a test method that invokes them in the proper order.
-    */
-   public void testNameService() throws Exception
-   {
-       step1_CreateContextSuccess();
-       step2_CreateContextFailure();
-       step3_UnbindContext();
-   }
+    /**
+     * this is a bad example of an JUnit test as the testmethods need to be run in a particular order
+     * to succeed. to make this explicit i've renamed the testmethods to step1-step3 and
+     * have introduced a test method that invokes them in the proper order.
+     */
+    public void testNameService() throws Exception
+    {
+        step1_CreateContextSuccess();
+        step2_CreateContextFailure();
+        step3_UnbindContext();
+    }
 
     private void step3_UnbindContext() throws Exception
     {
@@ -97,8 +96,8 @@ public class ContextTest extends ClientServerTestCase
     }
 
 
-   private void step2_CreateContextFailure() throws Exception
-   {
+    private void step2_CreateContextFailure() throws Exception
+    {
         /* create a subcontext with an existing name, must fail with
            AlreadyBound! */
         try
@@ -113,7 +112,7 @@ public class ContextTest extends ClientServerTestCase
         }
     }
 
-   /**
+    /**
      * Test creating and resolving contexts
      */
     private void step1_CreateContextSuccess() throws Exception
@@ -126,11 +125,8 @@ public class ContextTest extends ClientServerTestCase
         /* create subcontexts */
 
         NamingContextExt secondsubContext = NamingContextExtHelper.narrow(rootContext
-                .bind_new_context(secondName));
+                                                                          .bind_new_context(secondName));
 
         NamingContextExtHelper.narrow(secondsubContext.bind_new_context(thirdName));
     }
 }
-
-
-

@@ -67,6 +67,7 @@ public class AlternateIIOPAddressTest extends ClientServerTestCase
         // server.clearSocketAddress();
         server.setIORAddress (CORRECT_HOST, CORRECT_PORT);
         server.clearAlternateAddresses();
+        server = null;
     }
 
     public static Test suite()
@@ -87,9 +88,8 @@ public class AlternateIIOPAddressTest extends ClientServerTestCase
 
         // If security is not disabled it will not use the above host/port
         // combinations.
-        client_props.setProperty("jacorb.regression.disable_security",
-                                 "true");
-
+        client_props.setProperty(CommonSetup.JACORB_REGRESSION_DISABLE_SECURITY, "true");
+        server_props.setProperty(CommonSetup.JACORB_REGRESSION_DISABLE_SECURITY, "true");
 
         ClientServerSetup setup =
             new ClientServerSetup (suite,

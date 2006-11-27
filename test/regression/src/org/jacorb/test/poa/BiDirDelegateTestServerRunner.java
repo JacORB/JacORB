@@ -51,8 +51,6 @@ public class BiDirDelegateTestServerRunner
             System.out.println ("SERVER IOR: " + orb.object_to_string(obj));
             System.out.flush();
 
-            System.out.println ("Entering ORB event loop for BiDirDelegateTest");
-
             // wait for requests
             orb.run();
         }

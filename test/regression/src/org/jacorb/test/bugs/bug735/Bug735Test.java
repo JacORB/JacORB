@@ -20,29 +20,15 @@
 
 package org.jacorb.test.bugs.bug735;
 
-import junit.framework.TestCase;
-
-import org.omg.CORBA.ORB;
+import org.jacorb.test.common.ORBTestCase;
 import org.omg.CORBA.TRANSIENT;
 
 /**
  * @author Alphonse Bendt
  * @version $Id$
  */
-public class Bug735Test extends TestCase
+public class Bug735Test extends ORBTestCase
 {
-    private ORB orb;
-
-    protected void setUp() throws Exception
-    {
-        orb = ORB.init(new String[0], null);
-    }
-
-    protected void tearDown() throws Exception
-    {
-        orb.shutdown(true);
-    }
-
     public void testIsAFailsWithTaoIOR()
     {
         final String ior = "IOR:010000000100000000000000010000000000000060000000000102600000000f656c6f6e736"

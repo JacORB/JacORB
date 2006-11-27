@@ -143,6 +143,11 @@ public class CodesetTest extends ClientServerTestCase
         server = CodesetServerHelper.narrow( setup.getServerObject() );
     }
 
+    protected void tearDown() throws Exception
+    {
+        server = null;
+    }
+
     public static Test suite()
     {
         TestSuite suite = new TestSuite("Codeset tests");

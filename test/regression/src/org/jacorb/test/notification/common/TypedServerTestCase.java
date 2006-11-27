@@ -22,8 +22,8 @@
 package org.jacorb.test.notification.common;
 
 import junit.framework.Test;
+import junit.framework.TestCase;
 
-import org.jacorb.test.common.ClientServerTestCase;
 import org.jacorb.test.common.TestUtils;
 import org.omg.CORBA.ORB;
 import org.omg.CosTypedNotifyChannelAdmin.TypedEventChannelFactory;
@@ -31,19 +31,22 @@ import org.omg.CosTypedNotifyChannelAdmin.TypedEventChannelFactoryHelper;
 
 /**
  * base class for TypedEventChannel integration tests.
- * 
+ *
  * @author Alphonse Bendt
  * @version $Id$
  */
-public abstract class TypedServerTestCase extends ClientServerTestCase
+public abstract class TypedServerTestCase extends TestCase
 {
-    public TypedServerTestCase(String name, TypedServerTestSetup setup)
+    private TypedServerTestSetup setup;
+
+	public TypedServerTestCase(String name, TypedServerTestSetup setup)
     {
-        super(name, setup);
+        super(name);
+        this.setup = setup;
     }
 
     /**
-     * access the ChannelFactory 
+     * access the ChannelFactory
      */
     protected final TypedEventChannelFactory getChannelFactory()
     {
@@ -51,12 +54,12 @@ public abstract class TypedServerTestCase extends ClientServerTestCase
 
         return channelFactory;
     }
-    
+
     protected ORB getClientORB()
     {
         return setup.getClientOrb();
     }
-    
+
     public static Test suite(Class clazz) throws Exception
     {
         return suite(clazz, "TestSuite defined in Class " + clazz.getName());

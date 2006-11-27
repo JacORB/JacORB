@@ -20,9 +20,8 @@ package org.jacorb.test.bugs.bug532;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import junit.framework.*;
-
-import org.omg.CORBA.*;
+import org.jacorb.test.common.ORBTestCase;
+import org.omg.CORBA.Any;
 
 /**
  * Test for bug 532, CDROutputStream.create_input_stream completely fails
@@ -33,28 +32,12 @@ import org.omg.CORBA.*;
  * @author <a href="mailto:dimitris@jboss.org">Dimitris Andreadis</a>
  * @version $Id$
  */
-public class TestCase extends junit.framework.TestCase
+public class Bug532Test extends ORBTestCase
 {
-    public TestCase(String name)
-    {
-        super(name);
-    }
-
-    public static Test suite()
-    {
-        TestSuite suite = new TestSuite ("bug 532 CDROutputStream.create_input_stream is wrong when there are deferred writes");
-        suite.addTest (new TestCase ("testLargeByteArrayToAnyInsertion"));
-        return suite;
-    }
-
     public void testLargeByteArrayToAnyInsertion()
     {
-        ORB orb = org.omg.CORBA.ORB.init(new String[]{}, null);
-
         byte[] bytes = new byte[4001];
         Any any = orb.create_any();
         ByteSequenceHelper.insert(any, bytes);
-
-        orb.shutdown(true);
     }
 }

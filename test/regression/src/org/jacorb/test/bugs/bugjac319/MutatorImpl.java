@@ -20,7 +20,6 @@ package org.jacorb.test.bugs.bugjac319;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import org.apache.avalon.framework.logger.NullLogger;
 import org.jacorb.orb.IORMutator;
 import org.jacorb.orb.ParsedIOR;
 import org.omg.CORBA.ORB;

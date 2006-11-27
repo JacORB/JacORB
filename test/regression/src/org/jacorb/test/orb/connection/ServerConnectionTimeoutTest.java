@@ -25,11 +25,11 @@ import java.util.Properties;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 
-import org.jacorb.orb.iiop.ClientIIOPConnection;
 import org.jacorb.test.TestIf;
 import org.jacorb.test.TestIfHelper;
 import org.jacorb.test.common.ClientServerSetup;
 import org.jacorb.test.common.ClientServerTestCase;
+import org.jacorb.test.common.CommonSetup;
 import org.jacorb.test.common.TestUtils;
 
 /**
@@ -50,6 +50,11 @@ public class ServerConnectionTimeoutTest extends ClientServerTestCase
         server = TestIfHelper.narrow( setup.getServerObject() );
     }
 
+    protected void tearDown() throws Exception
+    {
+        server = null;
+    }
+
     public static Test suite()
     {
         TestSuite suite = new TestSuite( "Server connection idle-timeout tests" );
@@ -59,7 +64,7 @@ public class ServerConnectionTimeoutTest extends ClientServerTestCase
 
         if (TestUtils.isJDK13())
         {
-            server_props.setProperty(ClientServerSetup.JACORB_REGRESSION_DISABLE_SECURITY, "true");
+            server_props.setProperty(CommonSetup.JACORB_REGRESSION_DISABLE_SECURITY, "true");
         }
 
         ClientServerSetup setup =
@@ -78,22 +83,11 @@ public class ServerConnectionTimeoutTest extends ClientServerTestCase
         //call remote op with reply
         server.op();
 
-        //wait 2 secs
-        Thread.sleep( 2000 );
-
-        //all transports must be down by now
-        //NOTE: if this doesn't compile, please check if
-        //openTransports is uncommented in ClientIIOPConnection
-        assertTrue( ClientIIOPConnection.openTransports == 0 );
+        ClientConnectionTimeoutTest.verifyOpenTransports(0, 4000);
 
         //call oneway remote op
         server.onewayOp();
 
-        Thread.sleep( 2000 );
-
-        //all transports must be down by now
-        //NOTE: if this doesn't compile, please check if
-        //openTransports is uncommented in ClientIIOPConnection
-        assertTrue( ClientIIOPConnection.openTransports == 0 );
+        ClientConnectionTimeoutTest.verifyOpenTransports(0, 4000);
     }
 }

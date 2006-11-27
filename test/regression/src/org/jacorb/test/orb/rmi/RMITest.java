@@ -58,6 +58,11 @@ public abstract class RMITest extends ClientServerTestCase
                                                     RMITestInterface.class);
     }
 
+    protected void tearDown() throws Exception
+    {
+        server = null;
+    }
+
     public void test_getString() throws Exception
     {
         String s = server.getString();

@@ -22,18 +22,14 @@ package org.jacorb.test.bugs.bugjac192b;
 
 import java.util.Properties;
 
-import junit.framework.TestCase;
-
+import org.jacorb.test.common.ORBTestCase;
 import org.omg.CORBA.INTERNAL;
-import org.omg.CORBA.ORB;
-import org.omg.PortableServer.POA;
-import org.omg.PortableServer.POAHelper;
 
 /**
  * @author Nick Cross
  * @version $Id$
  */
-public class BugJac192bTest extends TestCase
+public class BugJac192bTest extends ORBTestCase
 {
     /**
      * <code>server</code> is the server reference.
@@ -42,36 +38,24 @@ public class BugJac192bTest extends TestCase
 
     static boolean interceptorCalled;
 
-    private ORB orb;
-
     /**
      * <code>setUp</code> sets up this test.
      *
      * @exception Exception if an error occurs
      */
-    public void setUp() throws Exception
+    public void doSetUp() throws Exception
     {
-        Properties client_props = new Properties();
-
-        client_props.put("org.omg.PortableInterceptor.ORBInitializerClass.CInitializer",
-        "org.jacorb.test.bugs.bugjac192b.CInitializer");
-
-        orb = ORB.init (new String[0], client_props );
-        POA clientRootPOA = POAHelper.narrow
-        ( orb.resolve_initial_references( "RootPOA" ) );
-        clientRootPOA.the_POAManager().activate();
-
         JAC192bImpl servant = new JAC192bImpl();
-        byte[] oid = clientRootPOA.servant_to_id (servant);
-        org.omg.CORBA.Object serverObject = clientRootPOA.id_to_reference (oid);
+        byte[] oid = rootPOA.servant_to_id (servant);
+        org.omg.CORBA.Object serverObject = rootPOA.id_to_reference (oid);
 
         server = JAC192bHelper.narrow( serverObject );
     }
 
-    protected void tearDown() throws Exception
-    {
-        orb.shutdown(true);
-    }
+	protected void patchOrbProperties(Properties client_props) {
+		client_props.put("org.omg.PortableInterceptor.ORBInitializerClass.CInitializer",
+        "org.jacorb.test.bugs.bugjac192b.CInitializer");
+	}
 
     /**
      * <code>test_interceptorerror</code> tests that if an interceptor throws a

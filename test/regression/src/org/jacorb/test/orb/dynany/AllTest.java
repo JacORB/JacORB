@@ -20,9 +20,9 @@ package org.jacorb.test.orb.dynany;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import junit.framework.*;
-
-import org.jacorb.test.common.*;
+import junit.framework.Test;
+import junit.framework.TestCase;
+import junit.framework.TestSuite;
 
 public class AllTest extends TestCase
 {
@@ -34,10 +34,9 @@ public class AllTest extends TestCase
    public static Test suite ()
    {
       TestSuite suite = new TestSuite ("All dynany");
-      ORBSetup setup = new ORBSetup (suite);
 
       suite.addTest (PackageTest.suite ());
 
-      return setup;
+      return suite;
    }
 }

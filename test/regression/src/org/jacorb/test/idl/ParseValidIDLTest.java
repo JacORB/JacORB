@@ -66,8 +66,8 @@ public class ParseValidIDLTest extends AbstractIDLTestcase
         // if a test fails the directory
         // will not be deleted. this way
         // the contents can be inspected.
-        deleteRecursively(dirCompilation);
-        deleteRecursively(dirGeneration);
+        TestUtils.deleteRecursively(dirCompilation);
+        TestUtils.deleteRecursively(dirGeneration);
     }
 
     /**
@@ -103,7 +103,6 @@ public class ParseValidIDLTest extends AbstractIDLTestcase
     public static Test suite()
     {
         final String dir = TestUtils.testHome() + "/idl/compiler/succeed";
-
         return suite(dir, ParseValidIDLTest.class);
     }
 }

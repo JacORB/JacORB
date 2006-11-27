@@ -29,6 +29,11 @@ public class TimingTest extends CallbackTestCase
         server = TimingServerHelper.narrow (setup.getServerObject());
     }
 
+    protected void tearDown() throws Exception
+    {
+        server = null;
+    }
+
     private class ReplyHandler
         extends CallbackTestCase.ReplyHandler
         implements AMI_TimingServerHandlerOperations

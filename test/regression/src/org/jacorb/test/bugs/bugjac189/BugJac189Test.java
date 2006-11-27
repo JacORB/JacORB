@@ -42,6 +42,11 @@ public class BugJac189Test extends ClientServerTestCase
         server = JAC189Helper.narrow( setup.getServerObject() );
     }
 
+    protected void tearDown() throws Exception
+    {
+        server = null;
+    }
+
     /**
      * <code>suite</code> initialise the tests with the correct environment.
      *

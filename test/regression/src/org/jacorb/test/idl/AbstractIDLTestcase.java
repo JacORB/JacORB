@@ -22,21 +22,13 @@
 package org.jacorb.test.idl;
 
 import java.io.File;
-import java.io.FileFilter;
-import java.io.FileWriter;
 import java.io.FilenameFilter;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.LineNumberReader;
-import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-import java.net.URL;
-import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -83,7 +75,7 @@ public class AbstractIDLTestcase extends TestCase
         idlFile = file;
 
         dirGeneration = new File(TestUtils.testHome() + "/src-testidl/" + idlFile.getName());
-        deleteRecursively(dirGeneration);
+        TestUtils.deleteRecursively(dirGeneration);
         File dirClasses = new File(TestUtils.testHome() + "/classes-testidl");
 
         dirClasses.mkdir();
@@ -91,7 +83,7 @@ public class AbstractIDLTestcase extends TestCase
         assertTrue(dirClasses.isDirectory());
 
         dirCompilation = new File(dirClasses, idlFile.getName());
-        deleteRecursively(dirCompilation);
+        TestUtils.deleteRecursively(dirCompilation);
     }
 
     /**
@@ -198,78 +190,7 @@ public class AbstractIDLTestcase extends TestCase
     protected ClassLoader compileGeneratedSources(boolean failureExpected) throws IOException
     {
         File[] files = getJavaFiles();
-        assertNotNull(files);
-
-        if (files.length == 0)
-        {
-            return null;
-        }
-
-        dirCompilation.mkdir();
-
-        assertTrue(dirCompilation.isDirectory());
-        assertTrue(dirCompilation.exists());
-        assertTrue(dirCompilation.canWrite());
-        File file = new File(dirCompilation, "files.txt");
-        file.delete();
-        file.createNewFile();
-
-        PrintWriter writer = new PrintWriter(new FileWriter(file));
-
-        for (int i = 0; i < files.length; ++i)
-        {
-            writer.println(files[i].getAbsolutePath());
-        }
-
-        writer.close();
-
-        String javaHome = System.getProperty("java.home");
-        String testHome = TestUtils.testHome();
-        String classpath = testHome + File.separator + ".." + File.separator + ".." + File.separator + "classes";
-
-        if (javaHome.endsWith("jre"))
-        {
-            javaHome = javaHome.substring(0, javaHome.length() - 4);
-        }
-        String cmd = javaHome + "/bin/javac -d " + dirCompilation + " -classpath " + classpath + " @" + file.getAbsolutePath();
-        try
-        {
-            Process proc = Runtime.getRuntime().exec(cmd);
-
-            int exit = proc.waitFor();
-            if (failureExpected && exit == 0)
-            {
-                fail("should fail: " + cmd);
-            }
-
-            if (exit != 0)
-            {
-                InputStream in = proc.getErrorStream();
-                LineNumberReader reader = new LineNumberReader(new InputStreamReader(in));
-                StringBuffer b = new StringBuffer();
-
-                String line;
-                while ((line = reader.readLine()) != null)
-                {
-                    b.append(line);
-                    b.append("\n");
-                }
-
-                fail(cmd + "\n" + b.toString());
-            }
-
-            return new URLClassLoader(new URL[] {dirCompilation.toURL()});
-        }
-        catch (Exception e)
-        {
-            if (!failureExpected)
-            {
-                AssertionFailedError error = new AssertionFailedError("cmd: " + cmd);
-                error.initCause(e);
-                throw error;
-            }
-            return null;
-        }
+        return TestUtils.compileJavaFiles(this.dirCompilation, files, failureExpected);
     }
 
     /**
@@ -278,46 +199,7 @@ public class AbstractIDLTestcase extends TestCase
      */
     protected File[] getJavaFiles()
     {
-        return (File[]) getJavaFilesRecursively(dirGeneration).toArray(new File[0]);
-    }
-
-    private List getJavaFilesRecursively(File src)
-    {
-        List result = new ArrayList();
-        result.addAll(getJavaFilesInDirectory(src));
-
-        File[] dirs = getSubDirectories(src);
-
-        for (int i = 0; i < dirs.length; ++i)
-        {
-            result.addAll(getJavaFilesRecursively(dirs[i]));
-        }
-
-        return result;
-    }
-
-    private File[] getSubDirectories(File src)
-    {
-        return src.listFiles(new FileFilter()
-        {
-            public boolean accept(File pathname)
-            {
-                return pathname.isDirectory();
-            }
-        });
-    }
-
-    private List getJavaFilesInDirectory(File src)
-    {
-        final File[] fileList = src.listFiles(new FilenameFilter()
-        {
-            public boolean accept(File dir, String name)
-            {
-                return name.endsWith(".java");
-            }
-        });
-        assertNotNull(src + " does not exist.", fileList);
-        return Arrays.asList(fileList);
+        return (File[]) TestUtils.getJavaFilesRecursively(dirGeneration).toArray(new File[0]);
     }
 
     /**
@@ -413,45 +295,6 @@ public class AbstractIDLTestcase extends TestCase
         catch (Exception e)
         {
             throw new RuntimeException(e);
-        }
-    }
-
-    protected void deleteRecursively(File name)
-    {
-        if (name.isDirectory())
-        {
-            File[] subdirs = name.listFiles(new FileFilter()
-            {
-                public boolean accept(File pathname)
-                {
-                    return pathname.isDirectory();
-                }
-            });
-
-            for (int i = 0; i < subdirs.length; ++i)
-            {
-                deleteRecursively(subdirs[i]);
-            }
-
-            File[] files = name.listFiles(new FileFilter()
-            {
-                public boolean accept(File pathname)
-                {
-                    return pathname.isFile();
-                }
-            });
-
-            for (int i = 0; i < files.length; ++i)
-            {
-                files[i].delete();
-            }
-
-            name.delete();
-        }
-
-        if (name.isFile())
-        {
-            name.delete();
         }
     }
 

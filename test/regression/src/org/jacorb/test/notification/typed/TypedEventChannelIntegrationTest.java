@@ -45,7 +45,7 @@ import org.omg.CosTypedNotifyComm.TypedPushConsumerPOATie;
 public class TypedEventChannelIntegrationTest extends TypedServerTestCase
 {
     private TypedEventChannel objectUnderTest_;
-    
+
     public TypedEventChannelIntegrationTest(String name, TypedServerTestSetup setup)
     {
         super(name, setup);
@@ -54,62 +54,64 @@ public class TypedEventChannelIntegrationTest extends TypedServerTestCase
     protected void setUp() throws Exception
     {
         super.setUp();
-        
+
         objectUnderTest_ = getChannelFactory().create_typed_channel(new Property[0], new Property[0], new IntHolder());
     }
-    
+
     protected void tearDown() throws Exception
     {
         objectUnderTest_.destroy();
     }
-    
+
     public void testMyFactory()
     {
         assertTrue(getChannelFactory()._is_equivalent(objectUnderTest_.MyFactory()));
     }
-    
+
     public void testCreateFilter() throws Exception
     {
         FilterFactory filterFactory = objectUnderTest_.default_filter_factory();
         Filter filter = filterFactory.create_filter(ETCLFilter.CONSTRAINT_GRAMMAR);
         assertEquals(ETCLFilter.CONSTRAINT_GRAMMAR, filter.constraint_grammar());
     }
-    
+
     public void testSendPushPush() throws Exception
     {
         MockControl coffeeOperationsControl = MockControl.createControl(CoffeeOperations.class);
         CoffeeOperations coffeeOperationsMock = (CoffeeOperations) coffeeOperationsControl.getMock();
-        
+
         MockControl typedPushConsumerControl = MockControl.createNiceControl(TypedPushConsumerOperations.class);
         TypedPushConsumerOperations typedPushConsumerMock = (TypedPushConsumerOperations) typedPushConsumerControl.getMock();
-        
+
         CoffeePOATie consumerTie = new CoffeePOATie(coffeeOperationsMock);
         Coffee consumer = CoffeeHelper.narrow(consumerTie._this(getClientORB()));
-        
+
         TypedPushConsumerPOATie typedPushConsumerTie = new TypedPushConsumerPOATie(typedPushConsumerMock);
         TypedPushConsumer typedPushConsumer = TypedPushConsumerHelper.narrow(typedPushConsumerTie._this(getClientORB()));
-        
+
         typedPushConsumerControl.expectAndReturn(typedPushConsumerMock.get_typed_consumer(), consumer);
-        
+
         coffeeOperationsMock.drinking_coffee("jacorb", 10);
-        
+
         coffeeOperationsControl.replay();
         typedPushConsumerControl.replay();
-        
+
         TypedSupplierAdmin supplierAdmin = objectUnderTest_.new_for_typed_notification_suppliers(InterFilterGroupOperator.AND_OP, new IntHolder());
         TypedProxyPushConsumer proxyPushConsumer = supplierAdmin.obtain_typed_notification_push_consumer(CoffeeHelper.id(), new IntHolder());
         CoffeeOperations typedProxyPushConsumer = CoffeeHelper.narrow(proxyPushConsumer.get_typed_consumer());
-        
+
         TypedConsumerAdmin consumerAdmin = objectUnderTest_.new_for_typed_notification_consumers(InterFilterGroupOperator.AND_OP, new IntHolder());
         TypedProxyPushSupplier proxyPushSupplier = consumerAdmin.obtain_typed_notification_push_supplier(CoffeeHelper.id(), new IntHolder());
         proxyPushSupplier.connect_typed_push_consumer(typedPushConsumer);
-        
+
         typedProxyPushConsumer.drinking_coffee("jacorb", 10);
-        
+
+        Thread.sleep(1000);
+
         coffeeOperationsControl.verify();
         typedPushConsumerControl.verify();
     }
-    
+
     public static Test suite() throws Exception
     {
         return TypedServerTestCase.suite(TypedEventChannelIntegrationTest.class);

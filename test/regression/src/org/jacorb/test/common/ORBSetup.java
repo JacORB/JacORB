@@ -20,65 +20,107 @@ package org.jacorb.test.common;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import java.util.*;
-import junit.framework.*;
+import java.io.IOException;
+import java.util.Properties;
+
 import junit.extensions.TestSetup;
+import junit.framework.Test;
+
 import org.omg.CORBA.ORB;
+import org.omg.PortableServer.POA;
+import org.omg.PortableServer.POAHelper;
+
 
 /**
- * ORB setup for JacORB JUnit tests.
- *
+ * @author Alphonse Bendt
+ * @version $Id$
  */
-
 public class ORBSetup extends TestSetup
 {
-   private static ORB orb = null;
-   private static int count = 0;
+    private final Properties orbProps = new Properties();
+    private ORB orb;
+    protected POA rootPOA;
 
-   public ORBSetup (Test test)
-   {
-      super (test);
-   }
+    public ORBSetup(Test test, Properties optionalProperties)
+    {
+        super(test);
 
-   public void setUp ()
-   {
-      init (this);
-   }
+    	orbProps.setProperty("org.omg.CORBA.ORBClass", "org.jacorb.orb.ORB");
+    	orbProps.setProperty("org.omg.CORBA.ORBSingletonClass", "org.jacorb.orb.ORBSingleton");
 
-   public void tearDown ()
-   {
-      destroy ();
-   }
+        if (optionalProperties != null)
+        {
+            orbProps.putAll(optionalProperties);
+        }
+    }
 
-   public static ORB getORB ()
-   {
-       assertNotNull("Not initialized", orb);
-       return orb;
-   }
+    public ORBSetup(Test test)
+    {
+        this(test, null);
+    }
 
-   private static synchronized void init (ORBSetup obj)
-   {
-      if (count == 0)
-      {
-         String [] args = new String [0];
-         Properties props = new Properties ();
+    public void setUp() throws Exception
+    {
+        initSecurity();
 
-         props.setProperty
-            ("org.omg.CORBA.ORBClass", "org.jacorb.orb.ORB");
-         props.setProperty
-            ("org.omg.CORBA.ORBSingletonClass", "org.jacorb.orb.ORBSingleton");
+        orb = ORB.init (new String[0], orbProps );
+        rootPOA = POAHelper.narrow
+                          ( orb.resolve_initial_references( "RootPOA" ) );
+        rootPOA.the_POAManager().activate();
+    }
 
-         orb = ORB.init (args, props);
-      }
-      count++;
-   }
+    public void tearDown() throws Exception
+    {
+        rootPOA.destroy(false, true);
+        rootPOA = null;
 
-   private static synchronized void destroy ()
-   {
-      if (count == 1)
-      {
-         orb = null;
-      }
-      count--;
-   }
+        orb.shutdown(true);
+        orb = null;
+    }
+
+    public ORB getORB()
+    {
+        return orb;
+    }
+
+    public POA getRootPOA()
+    {
+        return rootPOA;
+    }
+
+    /**
+     * <code>initSecurity</code> adds security properties if so configured
+     * by the environment. It is possible to turn this off for selected tests
+     * either by overriding this method or by setting properties for checkProperties
+     * to handle.
+     *
+     * @exception IOException if an error occurs
+     */
+    protected void initSecurity() throws IOException
+    {
+        if (isSSLEnabled())
+        {
+            // In this case we have been configured to run all the tests
+            // in SSL mode. For simplicity, we will use the demo/ssl keystore
+            // and properties (partly to ensure that they always work)
+            Properties clientProps = CommonSetup.loadSSLProps("jsse_client_props", "jsse_client_ks");
+
+            orbProps.putAll(clientProps);
+        }
+    }
+
+    /**
+     * check if SSL testing is disabled for this setup
+     */
+    public boolean isSSLEnabled()
+    {
+        final boolean useSSL = CommonSetup.getSystemPropertyAsBoolean("jacorb.test.ssl");
+
+        return useSSL && !isPropertySet(CommonSetup.JACORB_REGRESSION_DISABLE_SECURITY);
+    }
+
+    private boolean isPropertySet(String property)
+    {
+        return TestUtils.getStringAsBoolean(orbProps.getProperty(property, "false"));
+    }
 }

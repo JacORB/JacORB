@@ -5,6 +5,7 @@ import java.util.List;
 
 import junit.framework.Assert;
 
+import org.jacorb.test.common.TestUtils;
 import org.omg.CORBA.IntHolder;
 import org.omg.CORBA.ORB;
 import org.omg.CosEventChannelAdmin.AlreadyConnected;
@@ -53,7 +54,7 @@ public class StructuredPushReceiver extends Thread implements StructuredPushCons
     List removedOffers = new ArrayList();
 
     ORB orb_;
-    
+
     public StructuredPushReceiver(ORB orb)
     {
         orb_ = orb;
@@ -62,7 +63,7 @@ public class StructuredPushReceiver extends Thread implements StructuredPushCons
     public StructuredPushReceiver(ORB orb, int expected)
     {
         this(orb);
-        
+
         expected_ = expected;
     }
 
@@ -119,9 +120,8 @@ public class StructuredPushReceiver extends Thread implements StructuredPushCons
 
         if (received_ % 100 == 0)
         {
-            System.out.println("push: " + received_);
+            TestUtils.log("push: " + received_);
         }
-        
 
         if (received_ == expected_)
         {
@@ -132,7 +132,7 @@ public class StructuredPushReceiver extends Thread implements StructuredPushCons
         }
     }
 
-    
+
     public void disconnect_structured_push_consumer()
     {
         connected_ = false;
@@ -179,7 +179,7 @@ public class StructuredPushReceiver extends Thread implements StructuredPushCons
         {
             return received_ == expected_;
         }
-        
+
         return received_ > 0;
     }
 
@@ -199,7 +199,7 @@ public class StructuredPushReceiver extends Thread implements StructuredPushCons
         {
             pushSupplier_.remove_filter(filterId_);
         }
-        
+
         Assert.assertTrue(!pushSupplier_._non_existent());
         pushSupplier_.disconnect_structured_push_supplier();
 
@@ -208,7 +208,7 @@ public class StructuredPushReceiver extends Thread implements StructuredPushCons
             filter_.destroy();
         }
     }
-    
+
     public String toString()
     {
         return "StructuredPushReceiver received: " + received_;

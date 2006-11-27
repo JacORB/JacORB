@@ -57,10 +57,15 @@ public abstract class BugJac319AbstractTest extends ClientServerTestCase
         super(name, setup);
     }
 
-    public void setUp() throws Exception
+    public final void setUp() throws Exception
     {
         server = JAC319Helper.narrow( setup.getServerObject() );
         MutatorImpl.reset();
+    }
+
+    protected final void tearDown() throws Exception
+    {
+        server = null;
     }
 
     public static Test suite(boolean doMutate, Class clazz)

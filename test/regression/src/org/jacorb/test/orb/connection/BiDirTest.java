@@ -15,20 +15,26 @@ public class BiDirTest extends ClientServerTestCase
 {
     private BiDirServer server = null;
     private org.omg.PortableServer.POA biDirPOA = null;
-    
-    private Object  callbackLock     = new Object();
+
+    private final Object callbackLock = new Object();
     private boolean callbackReceived = false;
     private String  callbackMessage  = null;
-    
+
     public BiDirTest (String name, ClientServerSetup setup)
     {
         super (name, setup);
     }
-    
+
     public void setUp() throws Exception
     {
         server = BiDirServerHelper.narrow (setup.getServerObject());
         biDirPOA = ((BiDirSetup)setup).getBiDirPOA();
+    }
+
+    protected void tearDown() throws Exception
+    {
+        biDirPOA = null;
+        server = null;
     }
 
     private class ClientCallbackImpl extends ClientCallbackPOA
@@ -41,9 +47,9 @@ public class BiDirTest extends ClientServerTestCase
                 callbackMessage  = message;
                 callbackLock.notifyAll();
             }
-        }   
+        }
     }
-    
+
     private String waitForCallback (int timeout)
     {
         synchronized (callbackLock)
@@ -63,7 +69,7 @@ public class BiDirTest extends ClientServerTestCase
                 if (callbackReceived)
                     return callbackMessage;
                 else
-                    throw new org.omg.CORBA.TIMEOUT 
+                    throw new org.omg.CORBA.TIMEOUT
                                  ("no callback received within timeout");
             }
         }
@@ -74,32 +80,36 @@ public class BiDirTest extends ClientServerTestCase
         TestSuite suite = new TestSuite ("Bidirectional GIOP Test");
 
         Properties properties = new Properties();
-        properties.setProperty 
+        properties.setProperty
             ("org.omg.PortableInterceptor.ORBInitializerClass.bidir_init",
              "org.jacorb.orb.giop.BiDirConnectionInitializer" );
-        
+
+        // this tests counts transports which are disrupted by
+        // security initialisation.
+        properties.setProperty(CommonSetup.JACORB_REGRESSION_DISABLE_SECURITY, "true");
+
         BiDirSetup setup = new BiDirSetup (suite, properties, properties);
 
         suite.addTest (new BiDirTest ("test_callback", setup));
-            
+
         return setup;
     }
-    
-     
+
+
     public void test_callback()
     {
         ClientCallback c = null;
         try
         {
             c = ClientCallbackHelper.narrow (
-                  biDirPOA.servant_to_reference 
+                  biDirPOA.servant_to_reference
                                           (new ClientCallbackImpl()));
         }
         catch (Exception e)
         {
             fail ("exception creating callback object: " + e);
         }
-        
+
         server.register_callback (c);
         server.callback_hello ("This is a test");
         String result = waitForCallback (1000);
@@ -111,5 +121,4 @@ public class BiDirTest extends ClientServerTestCase
         // any open client transports now
         assertEquals ("Server has too many client transports", 0, n);
     }
-
 }

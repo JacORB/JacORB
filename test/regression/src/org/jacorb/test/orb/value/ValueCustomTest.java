@@ -57,6 +57,11 @@ public class ValueCustomTest extends ClientServerTestCase
         server = CustomValueExchangeHelper.narrow( setup.getServerObject());
     }
 
+    protected void tearDown() throws Exception
+    {
+        server = null;
+    }
+
     /**
      * <code>suite</code> is called by JUnit.
      *

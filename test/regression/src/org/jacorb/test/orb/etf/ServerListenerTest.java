@@ -20,63 +20,49 @@ package org.jacorb.test.orb.etf;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import java.util.*;
+import java.util.Properties;
 
-import junit.framework.*;
-import junit.extensions.*;
+import junit.framework.Test;
+import junit.framework.TestSuite;
 
-import org.jacorb.test.common.*;
-import org.jacorb.test.*;
+import org.jacorb.test.common.ClientServerSetup;
 import org.jacorb.test.orb.etf.wiop.WIOPFactories;
 
 /**
  * @author <a href="mailto:spiegel@gnu.org">Andre Spiegel</a>
  * @version $Id$
  */
-public class ServerListenerTest extends ClientServerTestCase
+public class ServerListenerTest extends AbstractWIOPTestCase
 {
-    private BasicServer server = null;
-    
     public ServerListenerTest (String name, ClientServerSetup setup)
     {
         super (name, setup);
-    }
-    
-    public void setUp() throws Exception
-    {
-        WIOPFactories.setTransportInUse(false);
-        server = BasicServerHelper.narrow( setup.getServerObject() );
-    }
-
-    public void tearDown() throws Exception
-    {
-        WIOPFactories.setTransportInUse(false);
     }
 
     public static Test suite()
     {
         TestSuite suite = new TestSuite ("Server Listener Property");
-        
+
         Properties clientProps = new Properties();
         clientProps.setProperty("jacorb.transport.factories",
                                 "org.jacorb.test.orb.etf.wiop.WIOPFactories,"
                               + "org.jacorb.orb.iiop.IIOPFactories");
         clientProps.setProperty("jacorb.transport.client.selector",
                                 "org.jacorb.orb.DefaultProfileSelector");
-        
+
         Properties serverProps = new Properties();
         serverProps.setProperty("jacorb.transport.factories",
                                 "org.jacorb.test.orb.etf.wiop.WIOPFactories," +                                "org.jacorb.orb.iiop.IIOPFactories");
         // only listen on IIOP
         serverProps.setProperty("jacorb.transport.server.listeners", "0");
-        
-        ClientServerSetup setup = 
+
+        ClientServerSetup setup =
           new ClientServerSetup (suite,
                                  "org.jacorb.test.orb.BasicServerImpl",
                                  clientProps, serverProps);
-        
+
         suite.addTest (new ServerListenerTest ("testConnection", setup));
-        
+
         return setup;
     }
 
@@ -85,7 +71,4 @@ public class ServerListenerTest extends ClientServerTestCase
         server.ping();
         assertFalse (WIOPFactories.isTransportInUse());
     }
-
-
-
 }

@@ -47,7 +47,6 @@ import org.jacorb.test.common.*;
 public class AlternateProfileTest extends ClientServerTestCase
 {
     protected IIOPAddressServer server = null;
-    protected ClientServerSetup _setup = null;
 
     private static final String CORRECT_HOST = "127.0.0.1";
     private static final String WRONG_HOST   = "10.0.1.223"; //"194.138.122.114"
@@ -59,7 +58,6 @@ public class AlternateProfileTest extends ClientServerTestCase
     public AlternateProfileTest(String name, ClientServerSetup setup)
     {
         super(name, setup);
-        _setup = setup;
     }
 
     protected void setUp() throws Exception
@@ -72,6 +70,7 @@ public class AlternateProfileTest extends ClientServerTestCase
         // server.clearSocketAddress();
         server.setIORAddress (CORRECT_HOST, CORRECT_PORT);
         server.clearAlternateAddresses();
+        server = null;
     }
 
     public static Test suite()

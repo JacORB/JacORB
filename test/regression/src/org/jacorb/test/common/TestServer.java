@@ -52,7 +52,7 @@ import org.omg.PortableServer.*;
 public class TestServer
 {
     private static Boolean useCorbaloc = null;
-    
+
     /**
      * Returns true if this TestServer should make its object available
      * via a corbaloc URL.
@@ -67,7 +67,7 @@ public class TestServer
         }
         return useCorbaloc.booleanValue();
     }
-    
+
     /**
      * Creates and returns the POA with which the test server object should be
      * registered.  In the normal case, this is just the RootPOA.  When
@@ -86,7 +86,7 @@ public class TestServer
             Policy[] p = new Policy[2];
             p[0] = rootPOA.create_lifespan_policy (LifespanPolicyValue.PERSISTENT);
             p[1] = rootPOA.create_id_assignment_policy (IdAssignmentPolicyValue.USER_ID);
-            
+
             POA poa = rootPOA.create_POA
             (
                 System.getProperty("jacorb.test.corbaloc.poaname"),
@@ -99,7 +99,7 @@ public class TestServer
             return rootPOA;
         }
     }
-    
+
     /**
      * Returns the Corbaloc URL under which the test server object
      * can be accessed.  This only works if jacorb.test.corbaloc.enable is
@@ -118,7 +118,7 @@ public class TestServer
         result.append (System.getProperty ("jacorb.test.corbaloc.objectid"));
         return result.toString();
     }
-    
+
     public static void main (String[] args)
     {
         Logger logger = null;
@@ -132,7 +132,7 @@ public class TestServer
                 props.put ("jacorb.implname",
                            System.getProperty("jacorb.test.corbaloc.implname"));
             }
-            
+
             //init ORB
             ORB orb = ORB.init (args, props);
 
@@ -178,7 +178,7 @@ public class TestServer
                             System.getProperty ("jacorb.test.corbaloc.implname")
                     + "/" + System.getProperty ("jacorb.test.corbaloc.poaname")
                     + "/" + System.getProperty ("jacorb.test.corbaloc.objectid"));
-                    
+
                 System.out.println ("SERVER IOR: " + getCorbaloc());
             }
             else
