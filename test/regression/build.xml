@@ -5,43 +5,53 @@
 <project name="regression-test" default="help" basedir="../../">
 
     <property name="jacorb.home" value="${basedir}" />
-    <property file="${basedir}/test/regression/build.properties" />
+	<property name="testdir" value="${basedir}/test/regression" />
+	<property name="dirs.base" value="${testdir}" />
 
-    <!-- ==================================================== -->
+	<property name="idl" value="${testdir}/idl" />
+	<property name="lib" value="${basedir}/lib" />
+
+	<property file="${basedir}/test/regression/build.properties" />
+
+	<property name="jacorb.test.shouldantfail" value="true" />
+
+   &common;
+
+	<!-- ==================================================== -->
     <!--             JacORB Tests build file                  -->
     <!-- ==================================================== -->
     <target name="help">
         <exec executable="java" outputproperty="OUTPUT">
-            <arg line="-classpath '${java.class.path}' org.apache.tools.ant.Main -logger org.apache.tools.ant.NoBannerLogger -projecthelp -buildfile '${basedir}/test/regression/build.xml'" />
+            <arg line="-classpath '${java.class.path}' org.apache.tools.ant.Main -logger org.apache.tools.ant.NoBannerLogger -projecthelp -buildfile ${basedir}/test/regression/build.xml" />
         </exec>
         <echo message="${OUTPUT}" />
     </target>
 
-   &common;
+    <target name="test-init" depends="init,load-taskdef">
+    	<path id="test.classpath.libs">
+			<fileset dir="${testdir}/lib">
+				<include name="*.jar" />
+			</fileset>
+    	</path>
 
-   <!-- Using test-base-init so we can set different src, class and idl directories -->
-    <target name="test-base-init">
-        <property name="testdir" value="${basedir}/test/regression" />
-        <property name="dirs.base" value="${testdir}" />
-        <property name="src" value="${testdir}/src" />
-        <property name="src.generated" value="${src}/generated" />
-        <property name="idl" value="${testdir}/idl" />
-        <property name="lib" value="${basedir}/lib" />
+    	<path id="test.classpath.compile">
+    		<pathelement location="${testdir}/classes" />
 
-        <property name="BASE-INIT" value="true" />
-    </target>
+    		<path refid="test.classpath.libs" />
 
-    <target name="test-init" depends="test-base-init,init,ant-version,load-taskdef">
-        <path id="test.classpath">
-            <fileset dir="${testdir}/lib">
-                <include name="**/*.jar" />
-            </fileset>
-            <path refid="path.base" />
+    		<path refid="path.base" />
+    	</path>
+
+        <path id="test.classpath.run">
+        	<pathelement location="${testdir}/classes" />
+
+			<pathelement location="${testdir}/resources" />
+
+    		<path refid="test.classpath.libs" />
+
+        	<!-- don't add the JacORB classes here.     -->
+        	<!-- they'll be located by the testlauncher -->
         </path>
-
-        <property name="dirs.output" value="${testdir}/output" />
-
-        <mkdir dir="${dirs.output}" />
 
         <!-- Configuration properties for rmi depending upon JDK version -->
         <property name="rmic.stubVersion" value="1.2" />
@@ -70,437 +80,400 @@
 
         <taskdef resource="emma_ant.properties"
              classpathref="emma.lib"/>
+
+        <macrodef name="jacorb-rmic">
+            <attribute name="classname" />
+
+            <sequential>
+                <rmic base="${classdir}"
+                  classname="@{classname}"
+                  verify="${rmic.verify}"
+                  iiop="${rmic.iiop}"
+                  iiopopts="${rmic.iiopopts}"
+                  debug="${rmic.debug}"
+                  sourcebase="${src}/generated">
+                </rmic>
+            </sequential>
+        </macrodef>
+
+    	<macrodef name="process-idl">
+    		<attribute name="includes" />
+    		<attribute name="ami" default="false"/>
+
+    		<sequential>
+    	        <jacidl
+    	            srcdir="${idl}"
+    	            ami_callback="@{ami}"
+    	            destdir="${src}/generated"
+    	            includepath="${basedir}/idl/omg"
+    	            includes="@{includes}" />
+    		</sequential>
+    	</macrodef>
+
     </target>
 
+	<!-- =================================================== -->
+	<!-- build and test the JacORB regression test framework -->
+	<!-- =================================================== -->
+
+	<target name="regression"
+			depends="test-init, regression-build, regression-test"
+			description="build/test the JacORB regression test framework (org.jacorb.test.common.*)"/>
+
+	<target name="regression-build" >
+		<jacorb-javac
+			javac-includes="org/jacorb/test/common/**/*.java"
+  			javac-classpathref="test.classpath.compile" />
+	</target>
+
+	<target name="regression-test" depends="test-init" >
+		<jacorb-javac
+			javac-includes="org/jacorb/test/ant/**/*.java"
+  			javac-classpathref="test.classpath.compile" />
+
+		<junit fork="true" haltonerror="true" haltonfailure="true" >
+			<formatter type="plain" usefile="false"/>
+
+			<batchtest>
+				<fileset dir="${src}" includes="org/jacorb/test/ant/**/*Test.java" />
+			</batchtest>
+
+			<classpath>
+				<pathelement location="${classdir}"/>
+
+				<pathelement location="${testdir}/lib/ant-testutil.jar" />
+				<pathelement location="${testdir}/resources" />
+			</classpath>
+		</junit>
+	</target>
 
     <!-- ==================================================== -->
     <!--             compile and run tests                    -->
     <!-- ==================================================== -->
 
+    <target name="build-all" depends="test-init, regression, idl, compile-src, build-rmi, compile-src-notification, instrument" />
 
-    <target name="build-all" depends="test-init" unless="NO_BUILD">
-        <antcall target="compile-idl" />
-        <antcall target="fixup-rmi-14" />
-        <antcall target="compile-src" />
-        <antcall target="compile-rmi" />
-        <antcall target="compile-src2" />
-        <property name="NO_BUILD" value="true" />
-    </target>
-
-
-    <target name="fixup-rmi-14" if="rmi.ShutdownUtilDelegate">
-        <copy file="${src}/org/jacorb/test/orb/rmi/FixSunDelegateBug.java.14"
-          tofile="${src}/org/jacorb/test/orb/rmi/FixSunDelegateBug.java" />
-    </target>
-
-
-
-    <target name="compile-src-notification" depends="test-init">
+    <target name="compile-src-notification" >
         <jacorb-javac
-      javac-includes="org/jacorb/test/notification/**"
-      javac-excludes="org/jacorb/test/notification/util/regexp/**,
-                           org/jacorb/test/notification/plugins/**,
-                               org/jacorb/test/notification/jmx/**"
-      javac-classpathref="test.classpath" />
-
-        <antcall target="compile-src-notification-regexp" />
+      		javac-includes="org/jacorb/test/notification/**/*.java"
+      		javac-excludes="org/jacorb/test/notification/plugins/**,
+                      		org/jacorb/test/notification/jmx/**"
+      		javac-classpathref="test.classpath.compile" />
     </target>
-
-    <target name="compile-src-notification-regexp"
-          depends="test-init, check-regexp, compile-src-notification-jdk14,
-                   compile-src-notification-jakarta, compile-src-notification-gnu" />
-
-    <target name="compile-src-notification-jdk14" if="available.regexp.jdk">
-        <jacorb-javac
-      javac-includes="org/jacorb/test/notification/util/regexp/JDK14*" />
-    </target>
-
-
-    <target name="compile-src-notification-jakarta" if="available.regexp.jakarta-regexp">
-        <jacorb-javac
-      javac-includes="org/jacorb/test/notification/util/regexp/Jakarta*" />
-    </target>
-
-
-    <target name="compile-src-notification-gnu" if="available.regexp.gnu">
-        <jacorb-javac
-      javac-includes="org/jacorb/test/notification/util/regexp/GNU*" />
-    </target>
-
 
     <target name="compile-src">
-        <jacorb-javac javac-includes="**"
-            javac-excludes="generated/**,**/RMITestServant.java,org/jacorb/test/notification/**,org/jacorb/test/jmx/**"
-            javac-classpathref="test.classpath" />
-
-        <antcall target="compile-src-notification" />
+        <jacorb-javac
+        	javac-includes="**/*.java"
+            javac-excludes="generated/**,
+        					**/RMITestServant.java,
+        					org/jacorb/test/notification/**,
+        					org/jacorb/test/jmx/**"
+            javac-classpathref="test.classpath.compile" />
     </target>
 
-    <target name="compile-rmi" depends="test-init, compile-src, compile-rmi-orb, compile-rmi-objrep" />
+	<target name="build-rmi-fixjdk14" if="rmi.ShutdownUtilDelegate" >
+        <copy file="${src}/org/jacorb/test/orb/rmi/FixSunDelegateBug.java.14"
+          tofile="${src.generated}/org/jacorb/test/orb/rmi/FixSunDelegateBug.java" />
 
-    <target name="compile-rmi-orb">
-        <rmic base="${classdir}"
-          classname="org.jacorb.test.orb.rmi.RMITestImpl"
-          verify="${rmic.verify}"
-          iiop="${rmic.iiop}"
-          iiopopts="${rmic.iiopopts}"
-          debug="${rmic.debug}"
-          sourcebase="${src}/generated">
-        </rmic>
+        <jacorb-javac
+      		javac-includes="org/jacorb/test/orb/rmi/FixSunDelegateBug.java"
+      		javac-classpathref="test.classpath.compile" />
+	</target>
+
+    <target name="build-rmi" depends="build-rmi-fixjdk14">
+        <jacorb-rmic
+          classname="org.jacorb.test.orb.rmi.RMITestImpl" />
+
+        <jacorb-rmic
+              classname="org.jacorb.test.bugs.bugjac149.RemoteIPingImpl" />
+
+        <jacorb-javac javac-includes="**/RMITestServant.java" javac-classpathref="test.classpath.compile" />
     </target>
 
-    <target name="compile-rmi-objrep" >
-        <rmic base="${classdir}"
-              classname="org.jacorb.test.bugs.bugjac149.RemoteIPingImpl"
-              verify="${rmic.verify}"
-              iiop="${rmic.iiop}"
-              iiopopts="${rmic.iiopopts}"
-              debug="${rmic.debug}"
-              sourcebase="${src}/generated">
-        </rmic>
+    <target name="run" depends="test-init, build-all, jacunit-run, jacunit-checkfail, jacunit-report-txt, jacunit-clean" />
+
+    <target name="jacunit-taskdef" depends="test-init" >
+        <taskdef name="jacunit" classname="org.jacorb.test.common.launch.TestLauncher" >
+        	<classpath>
+        		<path refid="test.classpath.run" />
+        	</classpath>
+    	</taskdef>
+
     </target>
 
-    <target name="compile-src2" depends="compile-rmi">
-        <jacorb-javac javac-includes="**/RMITestServant.java" javac-classpathref="test.classpath" />
-    </target>
+    <target name="jacunit-checkargs" >
+        <tstamp>
+            <format property="jacorb.test.testid" pattern="yyyy-MM-dd.HH-mm-ss" />
+        </tstamp>
 
+        <!-- by default create an unique directory for each testrun -->
+        <!-- the name is based on a timestamp                       -->
+        <!-- is the property jacorb.test.outputfile.testname is set -->
+        <!-- tests will be placed in the directory output           -->
+        <condition property="jacorb.test.outdir" value="${testdir}/output" >
+            <isset property="jacorb.test.outputfile.testname" />
+        </condition>
 
-    <target name="check-ssl">
+        <condition property="jacorb.test.outname" value="TEST-${jacorb.test}" >
+            <isset property="jacorb.test.outputfile.testname" />
+        </condition>
+
+        <property name="jacorb.test.outdir" value="${testdir}/output/${jacorb.test.testid}" />
+        <property name="jacorb.test.outname" value="report" />
+
         <condition property="jacorb.test.ssl" value="true">
             <isset property="TEST_SSL"/>
         </condition>
 
         <property name="jacorb.test.ssl" value="false"/>
-    </target>
 
-    <target name="check-imr">
         <condition property="jacorb.test.imr" value="true">
             <isset property="TEST_IMR"/>
         </condition>
 
         <property name="jacorb.test.imr" value="false"/>
+
+        <property name="jacorb.test.junitHtmlDir" value="${jacorb.test.outdir}/html" />
     </target>
 
-    <target name="run" depends="test-init, build-all, check-ssl, check-imr">
-        <property name="test.cp" refid="test.classpath"/>
-
+    <target name="jacunit-run" depends="jacunit-taskdef, jacunit-checkargs" >
         <!-- By default, we don't run coverage-->
         <property name="jacorb.test.coverage" value="false"/>
-        <!-- This property is for old style test results names. It also switches off -->
-        <!-- placing test results in subdirectories                                  -->
-        <property name="jacorb.test.outputfile.testname" value="false"/>
         <!-- By default, we do run naming and notification tests -->
         <property name="jacorb.exclude-services" value="false"/>
-        <!-- currently only affects idl tests -->
         <property name="jacorb.test.verbose" value="false" />
+        <!-- timeout until a server comes up -->
         <property name="jacorb.test.timeout" value="15000" />
+        <property name="jacorb.test.maxmemory" value="256m" />
 
-        <java fork="true" classname="org.jacorb.test.common.launch.TestLauncher">
-            <classpath path="${test.cp}"/>
+        <property name="jacorb.test.serverversion" value="cvs" />
+        <property name="jacorb.test.clientversion" value="cvs" />
 
-            <jvmarg value="-Djacorb.test.home=${testdir}" />
-            <jvmarg value="-Djacorb.home=${jacorb.home}" />
-            <jvmarg value="-Djacorb.test.outputfile.testname=${jacorb.test.outputfile.testname}"/>
-            <jvmarg value="-Djacorb.test.coverage=${jacorb.test.coverage}"/>
-            <jvmarg value="-Djacorb.test.verbose=${jacorb.test.verbose}" />
-            <jvmarg value="-DEXCLUDE_SERVICES=${jacorb.exclude-services}" />
-            <jvmarg value="-Djacorb.test.ssl=${jacorb.test.ssl}" />
-            <jvmarg value="-Djacorb.test.imr=${jacorb.test.imr}" />
-            <jvmarg value="-Djacorb.test.timeout=${jacorb.test.timeout}" />
+        <jacunit suite="${jacorb.test}"
+            outdir="${jacorb.test.outdir}"
+            outname="${jacorb.test.outname}-raw"
+            coverage="${jacorb.test.coverage}"
+            ssl="${jacorb.test.ssl}"
+            imr="${jacorb.test.imr}"
+            timeout="${jacorb.test.timeout}"
+            maxmemory="${jacorb.test.maxmemory}"
+            verbose="${jacorb.test.verbose}"
+            errorproperty="testFailed"
+            testdir="${testdir}"
+            clientversion="${jacorb.test.clientversion}"
+            serverversion="${jacorb.test.serverversion}"
+            showoutput="true">
 
-             <!-- Note - passing multiple arguments to this class may affect the output file -->
-             <!-- naming. See TestLauncher.getOutFilename                                    -->
-             <arg value="${jacorb.test}"/>
-          </java>
-    </target>
-
-
-
-    <!-- The following old run targets are deprecated -->
-    <target name="run-old-jdk-orb-no-build" depends="test-init" if="use.jdk.orb">
-        <junit fork="yes" printsummary="withOutAndErr">
-            <jvmarg value="-Djacorb.test.home=${testdir}" />
+        	<formatter classname="org.jacorb.test.common.JUnitTestFormatter" usefile="false" />
+            <formatter type="brief" usefile="false" />
             <formatter type="plain" />
-            <test name="${jacorb.test}" outfile="TEST-${test}-jdkorb" todir="${dirs.output}" />
+            <formatter type="xml" />
+
+
+            <!--
+                this classpath is used for the execution
+                of the tests. the bootclasspath for the
+                client/server side is determined by the
+                launcher depending on the setting of
+                jacorb.test.client.version and
+                jacorb.test.server.version.
+                the classpath is also passed to the
+                launchers which may use it to start
+                their process
+            -->
             <classpath>
-                <path refid="test.classpath" />
+            	<path refid="test.classpath.run" />
+
+                <!--
+                    don't add java.class.path here as (under the nightly build) it contains the RTE
+                    of the JVM ant runs in. so the RTE would end up in the classpath which is used by
+                    the launchers which might want to set the classpath differently.
+
+                    NOTE: this is kind of a hack here. usually ${ant.home}/lib would be preferable here
+                    but the nightly build sets up ant.home in a non standard way and puts the jars
+                    directly under ant.home. so we have to recursively search all jars to ensure it
+                    works with plain ant AND the nightly build
+                -->
+                <fileset dir="${ant.home}">
+                    <include name="**/*.jar" />
+                </fileset>
             </classpath>
-        </junit>
+
+            <jvmarg name="EXCLUDE_SERVICES" value="${jacorb.exclude-services}" />
+        </jacunit>
     </target>
 
+    <target name="jacunit-checkfail" >
+    	<condition property="_shouldFail">
+    		<and>
+    			<isset property="testFailed" />
+    			<not>
+    				<equals arg1="${jacorb.test.shouldantfail}" arg2="false" />
+    			</not>
+    		</and>
+    	</condition>
+        <fail if="_shouldFail" message="At least one JUnit test failed. check log for details."/>
+    </target>
+
+    <target name="jacunit-clean" depends="jacunit-checkargs">
+        <delete>
+            <fileset dir="${jacorb.test.outdir}">
+                <include name="**/*-raw.*" />
+                <include name="header.txt" />
+                <include name="TESTS-TestSuites.xml" />
+            </fileset>
+        </delete>
+    </target>
+
+    <target name="jacunit-report-html" depends="jacunit-checkargs">
+        <junitreport todir="${jacorb.test.outdir}">
+            <fileset dir="${jacorb.test.outdir}">
+                <include name="**/*.xml"/>
+                <exclude name="**/TESTS-TestSuites.xml" />
+            </fileset>
+            <report format="frames" todir="${jacorb.test.junitHtmlDir}"/>
+        </junitreport>
+    </target>
+
+    <target name="jacunit-report-txt" depends="jacunit-checkargs">
+        <concat destfile="${jacorb.test.outdir}/${jacorb.test.outname}.txt">
+            <path location="${jacorb.test.outdir}/header.txt" />
+            <path location="${jacorb.test.outdir}/${jacorb.test.outname}-raw.txt" />
+        </concat>
+    </target>
 
     <!-- ==================================================== -->
-    <!--                  compile idl                         -->
+    <!--                  generate idl                        -->
     <!-- ==================================================== -->
 
-
-    <target name="compile-idl" depends="test-init">
-        <!-- Test for correct package generation -->
-        <jacidl generateir="false"
-               srcdir="${idl}/compiler/misc"
-               ami_callback="false"
-               destdir="${src}/generated"
-               includes="bugJac44.idl">
-          <i2jpackage names=":apmInterface"/>
-        </jacidl>
-        <antcall target="idl-tests" />
-        <antcall target="idl-anyserver"/>
-        <antcall target="idl-basicserver" />
-        <antcall target="idl-arrayserver" />
-        <antcall target="idl-codesetserver"/>
-        <antcall target="idl-charserver" />
-        <antcall target="idl-longlongseqserver" />
-        <antcall target="idl-callbackserver" />
-        <antcall target="idl-timingserver" />
-        <antcall target="idl-syncscopeserver" />
-        <antcall target="idl-connectiontimeout" />
-        <antcall target="idl-bidir" />
-        <antcall target="idl-iiopaddress" />
-        <antcall target="idl-recursive" />
-        <antcall target="idl-notification" />
-        <antcall target="idl-notification-typed" />
-        <antcall target="idl-value" />
-        <antcall target="idl-value-test" />
-        <antcall target="idl-exception" />
-        <antcall target="idl-shutdown" />
-        <antcall target="idl-dii" />
-        <antcall target="idl-bugs" />
-        <antcall target="idl-transport-current-server" />
-    </target>
-
-
-    <target name="process-idl">
-        <property name="${props.idl}" value="true" />
-        <property name="generateir" value="false" />
-        <antcall target="generate-src" />
-    </target>
-
-
-    <target name="generate-src" if="${props.idl}">
-        <jacidl generateir="true"
-            srcdir="${idl}"
-            ami_callback="${callback.idl}"
-            destdir="${src}/generated"
-            includepath="${basedir}/idl/omg"
-            includes="${file.idl}" />
-
-        <path id="src.generated">
-            <pathelement location="${src}/generated"/>
-        </path>
-
-        <antcall target="jacorb-javac">
-            <param name="javac-src" value="${src}/generated" />
-            <param name="javac-includes" value="${pkg.idl}/**" />
-            <param name="javac-sourcepath" value="src.generated" />
-        </antcall>
-    </target>
-
-
-    <!-- ==================================================== -->
-    <!--                compile Tests.idl                     -->
-    <!-- ==================================================== -->
-
-      <target name="idl-anyserver">
-          <property name="props.idl" value="AnyServer"/>
-          <property name="pkg.idl" value="org/jacorb/test"/>
-          <property name="callback.idl" value="false"/>
-          <property name="file.idl" value="AnyServer.idl"/>
-          <antcall target="process-idl"/>
-      </target>
-
-
-    <target name="idl-tests">
-        <property name="props.idl" value="test" />
-        <property name="pkg.idl" value="org/jacorb/test" />
-        <property name="callback.idl" value="false" />
-        <property name="file.idl" value="Tests.idl" />
-        <antcall target="process-idl" />
-    </target>
+    <target name="idl"
+    		depends="test-init,
+    				idl-tests,
+    				idl-anyserver,
+    				idl-basicserver,
+    				idl-arrayserver,
+    				idl-codesetserver,
+    				idl-charserver,
+    				idl-longlongseqserver,
+    				idl-callbackserver,
+    				idl-timingserver,
+    				idl-syncscopeserver,
+    				idl-connectiontimeout,
+    				idl-bidir,
+    				idl-imr,
+    				idl-iiopaddress,
+    				idl-recursive,
+    				idl-notification,
+    				idl-notification-typed,
+					idl-value,
+					idl-value-test,
+					idl-exception,
+					idl-shutdown,
+					idl-dii,
+					idl-bugs,
+					idl-transport-current-server" />
 
     <target name="idl-transport-current-server">
-        <property name="props.idl" value="TransportCurrentServer" />
-        <property name="pkg.idl" value="org/jacorb/test" />
-        <property name="callback.idl" value="false" />
-        <property name="file.idl" value="TransportCurrentServer.idl" />
-        <antcall target="process-idl" />
+     	<process-idl includes="TransportCurrentServer.idl" />
+    </target>
+
+    <target name="idl-anyserver">
+      	<process-idl includes="AnyServer.idl"/>
+    </target>
+
+    <target name="idl-tests">
+    	<process-idl includes="Tests.idl" />
     </target>
 
     <target name="idl-basicserver">
-        <property name="props.idl" value="BasicServer" />
-        <property name="pkg.idl" value="org/jacorb/test" />
-        <property name="callback.idl" value="false" />
-        <property name="file.idl" value="BasicServer.idl" />
-        <antcall target="process-idl" />
+    	<process-idl includes="BasicServer.idl" />
     </target>
 
     <target name="idl-arrayserver">
-        <property name="props.idl" value="ArrayServer" />
-        <property name="pkg.idl" value="org/jacorb/test" />
-        <property name="callback.idl" value="false" />
-        <property name="file.idl" value="ArrayServer.idl" />
-        <antcall target="process-idl" />
+       <process-idl includes="ArrayServer.idl" />
     </target>
 
     <target name="idl-codesetserver">
-        <property name="props.idl" value="CodesetServer"/>
-        <property name="pkg.idl" value="org/jacorb/test"/>
-        <property name="callback.idl" value="false"/>
-        <property name="file.idl" value="CodesetServer.idl"/>
-        <antcall target="process-idl"/>
+    	<process-idl includes="CodesetServer.idl" />
       </target>
 
     <target name="idl-charserver">
-        <property name="props.idl" value="CharServer" />
-        <property name="pkg.idl" value="org/jacorb/test" />
-        <property name="callback.idl" value="false" />
-        <property name="file.idl" value="CharServer.idl" />
-        <antcall target="process-idl" />
+    	<process-idl includes="CharServer.idl" />
     </target>
 
     <target name="idl-longlongseqserver">
-        <property name="props.idl" value="LongLongSeqServer" />
-        <property name="pkg.idl" value="org/jacorb/test" />
-        <property name="callback.idl" value="false" />
-        <property name="file.idl" value="LongLongSeqServer.idl" />
-        <antcall target="process-idl" />
+    	<process-idl includes="LongLongSeqServer.idl" />
     </target>
 
     <target name="idl-callbackserver">
-        <property name="props.idl" value="CallbackServer" />
-        <property name="pkg.idl" value="org/jacorb/test" />
-        <property name="callback.idl" value="true" />
-        <property name="file.idl" value="CallbackServer.idl" />
-        <antcall target="process-idl" />
+    	<process-idl includes="CallbackServer.idl" ami="true"/>
     </target>
 
     <target name="idl-timingserver">
-        <property name="props.idl" value="TimingServer" />
-        <property name="pkg.idl" value="org/jacorb/test" />
-        <property name="callback.idl" value="true" />
-        <property name="file.idl" value="TimingServer.idl" />
-        <antcall target="process-idl" />
+    	<process-idl includes="TimingServer.idl" ami="true" />
     </target>
 
     <target name="idl-syncscopeserver">
-        <property name="props.idl" value="SyncScopeServer" />
-        <property name="pkg.idl" value="org/jacorb/test" />
-        <property name="callback.idl" value="true" />
-        <property name="file.idl" value="SyncScopeServer.idl" />
-        <antcall target="process-idl" />
+    	<process-idl includes="SyncScopeServer.idl" ami="true" />
     </target>
 
     <target name="idl-connectiontimeout">
-        <property name="props.idl" value="ConnectionTimeout" />
-        <property name="pkg.idl" value="org/jacorb/test" />
-        <property name="callback.idl" value="false" />
-        <property name="file.idl" value="ConnectionTimeout.idl" />
-        <antcall target="process-idl" />
+    	<process-idl includes="ConnectionTimeout.idl" />
     </target>
 
     <target name="idl-bidir">
-        <property name="props.idl" value="BiDir" />
-        <property name="pkg.idl" value="org/jacorb/test" />
-        <property name="callback.idl" value="false" />
-        <property name="file.idl" value="BiDir.idl" />
-        <antcall target="process-idl" />
+    	<process-idl includes="BiDir.idl" />
     </target>
 
     <target name="idl-iiopaddress">
-        <property name="props.idl" value="IIOPAddress" />
-        <property name="pkg.idl" value="org/jacorb/test" />
-        <property name="callback.idl" value="false" />
-        <property name="file.idl" value="IIOPAddress.idl" />
-        <antcall target="process-idl" />
+    	<process-idl includes="IIOPAddress.idl" />
     </target>
 
+   <target name="idl-imr">
+   		<process-idl includes="IMRTest.idl" />
+   </target>
+
     <target name="idl-recursive">
-        <property name="props.idl" value="RecursiveParamServer" />
-        <property name="pkg.idl" value="org/jacorb/test" />
-        <property name="callback.idl" value="false" />
-        <property name="file.idl" value="RecursiveParamServer.idl" />
-        <antcall target="process-idl" />
+    	<process-idl includes="RecursiveParamServer.idl" />
     </target>
 
     <target name="idl-notification">
-        <property name="props.idl" value="Notification" />
-        <property name="pkg.idl" value="org/jacorb/test/notification" />
-        <property name="callback.idl" value="false" />
-        <property name="file.idl" value="Notification.idl" />
-        <antcall target="process-idl" />
+    	<process-idl includes="Notification.idl" />
     </target>
-
 
     <target name="idl-notification-typed">
-        <property name="props.idl" value="TypedNotification" />
-        <property name="pkg.idl" value="org/jacorb/test/notification/typed" />
-        <property name="callback.idl" value="false" />
-        <property name="file.idl" value="TypedNotification.idl" />
-        <property name="generateir" value="true" />
-        <antcall target="process-idl" />
+    	<process-idl includes="TypedNotification.idl" />
     </target>
-
 
     <target name="idl-value">
-        <property name="props.idl" value="value" />
-        <property name="pkg.idl" value="org/jacorb/test" />
-        <property name="callback.idl" value="false" />
-        <property name="file.idl" value="value.idl" />
-        <antcall target="process-idl" />
+    	<process-idl includes="value.idl" />
     </target>
 
-      <target name="idl-value-test">
-        <property name="props.idl" value="value" />
-        <property name="pkg.idl" value="org/jacorb/test/value" />
-        <property name="callback.idl" value="false"/>
-        <property name="file.idl" value="ValueTest.idl" />
-        <antcall target="process-idl" />
-      </target>
+    <target name="idl-value-test">
+      	<process-idl includes="ValueTest.idl" />
+    </target>
 
     <target name="idl-exception">
-        <property name="props.idl" value="ExceptionServer" />
-        <property name="pkg.idl" value="org/jacorb/test" />
-        <property name="callback.idl" value="false"/>
-        <property name="file.idl" value="ExceptionServer.idl" />
-        <antcall target="process-idl" />
+    	<process-idl includes="ExceptionServer.idl" />
     </target>
 
     <target name="idl-shutdown">
-        <property name="props.idl" value="BasicServer" />
-        <property name="pkg.idl" value="org/jacorb/test" />
-        <property name="callback.idl" value="false" />
-        <property name="file.idl" value="ShutdownServer.idl" />
-        <antcall target="process-idl" />
+    	<process-idl includes="ShutdownServer.idl" />
     </target>
 
     <target name="idl-dii">
-        <property name="props.idl" value="DiiServer" />
-        <property name="pkg.idl" value="org/jacorb/test" />
-        <property name="callback.idl" value="false" />
-        <property name="file.idl" value="diiserver.idl" />
-        <antcall target="process-idl" />
+    	<process-idl includes="diiserver.idl" />
     </target>
 
     <target name="idl-bugs">
-        <property name="props.idl" value="Bugs" />
-        <property name="pkg.idl" value="org/jacorb/test" />
-        <property name="callback.idl" value="false" />
-        <property name="file.idl" value="bug*.idl" />
-        <antcall target="process-idl" />
+    	<process-idl includes="bug*.idl"/>
     </target>
-
 
     <!-- ==================================================== -->
     <!--                  code coverage                       -->
     <!-- ==================================================== -->
 
-    <target name="instrument" depends="test-init"
-          description="Instrument the main JacORB code for coverage analysis">
-        <delete failonerror="false" includeEmptyDirs="true">
-            <fileset dir="${basedir}">
-                <include name="coverage.em"/>
-                <include name="classes-instrumented/**"/>
-            </fileset>
-        </delete>
+    <target name="instrument" depends="test-init" >
         <emma>
             <instr instrpath="${basedir}/classes"
              mode="copy"
@@ -606,15 +579,6 @@
         </antcall>
     </target>
 
-
-    <target name="run-all-no-build" description="Run all Jacorb tests without compiling.">
-        <antcall target="run">
-            <param name="jacorb.test" value="org.jacorb.test.AllTest"/>
-            <param name="NO_BUILD" value="true"/>
-        </antcall>
-    </target>
-
-
     <!-- ==================================================== -->
     <!--                  run idl tests                       -->
     <!-- ==================================================== -->
@@ -671,9 +635,6 @@
         <antcall target="run">
             <param name="jacorb.test" value="org.jacorb.test.orb.rmi.AllTest" />
         </antcall>
-        <antcall target="run-old-jdk-orb-no-build">
-            <param name="jacorb.test" value="org.jacorb.test.orb.rmi.AllTest" />
-        </antcall>
     </target>
 
 
@@ -701,17 +662,23 @@
     </target>
 
 
-    <!-- ==================================================== -->
-    <!--                 run transport tests                  -->
-    <!-- ==================================================== -->
-
-
-    <target name="run-all-transport-current"
-          description="Run all Jacorb tests in the tc (TransportCurrent) package">
+    <target name="run-all-imr">
         <antcall target="run">
-            <param name="jacorb.test" value="org.jacorb.test.transport.AllTest" />
+            <param name="jacorb.test" value="org.jacorb.test.imrutility.imr.AllTest" />
         </antcall>
     </target>
+
+        <!-- ==================================================== -->
+        <!--                 run transport tests                  -->
+        <!-- ==================================================== -->
+
+
+        <target name="run-all-transport-current"
+              description="Run all Jacorb tests in the tc (TransportCurrent) package">
+            <antcall target="run">
+                <param name="jacorb.test" value="org.jacorb.test.transport.AllTest" />
+            </antcall>
+        </target>
 
     <!-- ==================================================== -->
     <!--                 run notification tests               -->
@@ -720,85 +687,21 @@
 
     <target name="run-all-notification"
           description="Run all Jacorb tests in the notification package">
-
         <antcall target="run">
             <param name="jacorb.test" value="org.jacorb.test.notification.AllTest" />
         </antcall>
-
-        <antcall target="run-notification-regexp" />
-    </target>
-
-
-    <target name="run-notification-regexp" depends="check-regexp,
-        run-notification-regexp-jdk14,
-            run-notification-regexp-gnu,
-        run-notification-regexp-jakarta" />
-
-    <target name="run-notification-regexp-jdk14" if="available.regexp.jdk">
-        <antcall target="run-no-build">
-            <param name="jacorb.test" value="org.jacorb.test.notification.util.regexp.JDK14PatternWrapperTest" />
-        </antcall>
-    </target>
-
-    <target name="run-notification-regexp-gnu" if="available.regexp.gnu">
-        <antcall target="run-no-build">
-            <param name="jacorb.test" value="org.jacorb.test.notification.util.regexp.GNUPatternWrapperTest" />
-        </antcall>
-    </target>
-
-    <target name="run-notification-regexp-jakarta" if="available.regexp.jakarta-regexp">
-        <antcall target="run-no-build">
-            <param name="jacorb.test" value="org.jacorb.test.notification.util.regexp.JakartaRegexpPatternWrapperTest" />
-        </antcall>
-    </target>
-
-    <target name="run-package-notification-seperate">
-        <antcall target="build-all" />
-
-        <antcall target="run-package-notification-seperate-no-build" />
-    </target>
-
-
-    <target name="run-package-notification-seperate-no-build">
-
-        <antcall target="run-no-build">
-            <param name="jacorb.test" value="org.jacorb.test.notification.PackageTest" />
-        </antcall>
-
-        <antcall target="run-no-build">
-            <param name="jacorb.test" value="org.jacorb.test.notification.node.PackageTest" />
-        </antcall>
-
-        <antcall target="run-no-build">
-            <param name="jacorb.test" value="org.jacorb.test.notification.engine.PackageTest" />
-        </antcall>
-
-        <antcall target="run-no-build">
-            <param name="jacorb.test" value="org.jacorb.test.notification.evaluate.PackageTest" />
-        </antcall>
-
-        <antcall target="run-no-build">
-            <param name="jacorb.test" value="org.jacorb.test.notification.queue.PackageTest" />
-        </antcall>
-
-        <antcall target="run-no-build">
-            <param name="jacorb.test" value="org.jacorb.test.notification.util.PackageTest" />
-        </antcall>
-
-        <antcall target="run-notification-regexp" />
     </target>
 
     <!-- ==================================================== -->
     <!--                   clean up                           -->
     <!-- ==================================================== -->
 
-    <target name="clean" depends="test-base-init, init" description="Remove all generated source files and class files">
+    <target name="clean" depends="init" description="Remove all generated source files and class files">
         <delete failonerror="false" includeemptydirs="true">
             <fileset dir="${classdir}" includes="**/*" />
             <fileset dir="${src}/generated" includes="**/*" />
             <fileset dir="${basedir}/classes-instrumented" includes="**/*"/>
-            <fileset file="${src}/orb/rmi/FixSunDelegateBug.java" />
+            <fileset file="${src}/org/jacorb/test/orb/rmi/FixSunDelegateBug.java"/>
         </delete>
     </target>
-
 </project>
