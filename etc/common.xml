@@ -4,7 +4,7 @@
 <!-- This should not be called directly; instead it      -->
 <!-- should be included with '&common;' syntax.          -->
 
-<target name="base-init" unless="BASE-INIT">
+<target name="base-init" >
    <property name="dirs.base" value="${basedir}"/>
    <property name="src" value="${dirs.base}/src"/>
    <property name="src.generated" value="${src}/generated" />
@@ -24,7 +24,7 @@
 
 <!-- Call base-init first. The regression tests call this but -->
 <!-- have their own base-init                                 -->
-<target name="init" depends="ant-version, base-init, set-architecture">
+<target name="init" depends="base-init, set-architecture">
    <property name="debug" value="true"/>
 
    <!-- This value only used under Ant 1.5 -->
@@ -38,7 +38,7 @@
    </pathconvert>
 
    <path id="path.base" >
-      <pathelement location="${dirs.base}/classes"/>
+<!--      <pathelement location="${dirs.base}/classes"/> -->
       <pathelement location="${basedir}/classes"/>
 
       <!-- include all jars located in lib except the jacorb.jar -->
@@ -103,43 +103,8 @@
    <echo message="Sourcepath:${line.separator}${_sourcepath}" />
 </target>
 
-<!-- check if a regexp library is available -->
-<target name="check-regexp" >
-   <condition property="available.regexp.jdk" value="true" >
-      <or>
-         <equals arg2="${ant.java.version}" arg1="1.4"/>
-         <available classname="java.util.regex.Pattern"
-                    classpathref="path.base" />
-      </or>
-   </condition>
-
-   <available classname="gnu.regexp.RE"
-              property="available.regexp.gnu"
-              classpathref="path.base" />
-
-   <available classname="org.apache.regexp.RE"
-              property="available.regexp.jakarta-regexp"
-              classpathref="path.base" />
-
-   <condition property="regexp.available">
-      <or>
-         <isset property="available.regexp.jdk" />
-         <isset property="available.regexp.gnu" />
-         <isset property="available.regexp.jakarta-regexp" />
-      </or>
-   </condition>
-</target>
-
-
 <target name="load-taskdef" depends="init">
    <taskdef name="jacidl" classname="org.jacorb.idl.JacIDL" classpathref="path.base"/>
-</target>
-
-<target name="ant-version" unless="ant15">
-   <available classname="org.apache.tools.ant.filters.ClassConstants"
-              property="ant15"/>
-
-   <fail unless="ant15" message="Install Ant version 1.5 or later (See http://ant.apache.org/)"/>
 </target>
 
 
