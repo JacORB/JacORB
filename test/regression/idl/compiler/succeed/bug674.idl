@@ -1,0 +1,13 @@
+module bug674 {
+
+  valuetype State;
+
+  valuetype Transition {
+    private State newState;
+  };
+
+  valuetype State{
+    private Transition t;
+  };
+
+};

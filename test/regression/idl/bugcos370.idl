@@ -1,0 +1,26 @@
+module org
+{
+    module jacorb
+    {
+        module test
+        {
+            module bugs
+            {
+                module bugcos370
+                {
+                    struct NameAndStringValue_T
+                    {
+                        string      name;
+                        string      value;
+                    };
+
+                    typedef sequence<NameAndStringValue_T> NVSList_T;
+
+                    typedef NVSList_T NamingAttributes_T;
+
+                    typedef sequence<NamingAttributes_T> NamingAttributesList_T;
+                };
+            };
+        };
+    };
+};
