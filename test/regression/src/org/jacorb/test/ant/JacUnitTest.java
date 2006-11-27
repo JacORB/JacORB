@@ -115,7 +115,7 @@ public class JacUnitTest extends BuildFileTest
 
         expectPropertyUnset("jacunit-run", "jacunit.buildfailed");
 
-        assertTrue(getFullLog().contains(JUnitOK.class.getName()));
+        assertTrue(getFullLog().indexOf(JUnitOK.class.getName()) >= 0);
     }
 
     public void testErrorPropertyWithErrors() throws Exception
