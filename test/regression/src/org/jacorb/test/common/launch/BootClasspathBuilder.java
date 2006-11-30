@@ -82,6 +82,16 @@ public class BootClasspathBuilder
             }
         }
 
+        if (useCoverage)
+        {
+            final File emmaJar = new File(jacorbHome, "test/regression/lib/emma.jar");
+            if (!emmaJar.exists())
+            {
+                throw new IllegalArgumentException("cannot locate emma.jar at " + emmaJar);
+            }
+            entries.add(emmaJar.toString());
+        }
+
         final StringBuffer buffer = new StringBuffer();
         if (!entries.isEmpty())
         {
@@ -93,6 +103,7 @@ public class BootClasspathBuilder
                 buffer.append(entries.get(x));
             }
         }
+
         bootClasspath = buffer.toString();
     }
 

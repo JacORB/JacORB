@@ -21,7 +21,11 @@
 package org.jacorb.test.ant;
 
 import java.io.File;
+import java.io.FileReader;
+import java.io.LineNumberReader;
 import java.net.URL;
+import java.util.Arrays;
+import java.util.HashSet;
 
 import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.BuildFileTest;
@@ -42,6 +46,9 @@ import org.jacorb.test.common.TestUtils;
  */
 public class JacUnitTest extends BuildFileTest
 {
+    private File tempDir;
+    private File outDir;
+
     public JacUnitTest(String name)
     {
         super(name);
@@ -49,28 +56,35 @@ public class JacUnitTest extends BuildFileTest
 
     protected void setUp() throws Exception
     {
+        tempDir = TestUtils.createTempDir("JacUnitTest");
+
+        outDir = new File(tempDir, "outdir");
+        outDir.mkdir();
+
         URL url = getResource("jacorb-build-test.xml");
         configureProject(url.getFile(), Project.MSG_DEBUG);
     }
 
     protected void tearDown() throws Exception
     {
-    	if (TestUtils.verbose)
-    	{
-    		TestUtils.log(getOutput());
-    		TestUtils.log(getError());
-    	}
+        if (TestUtils.verbose)
+        {
+            TestUtils.log(getOutput());
+            TestUtils.log(getError());
+        }
     }
 
     public void testTaskDef() throws Exception
     {
-    	configureProjectDefaults();
+        configureProjectDefaults();
 
         executeTarget("jacunit-taskdef");
     }
 
-    public void testTimeout() throws Exception
+    public void _testTimeout() throws Exception
     {
+        project.setProperty("jacunit.shouldfail", "true");
+
         configureProjectDefaults();
 
         project.setProperty("jacunit.suite", JUnitTimeout.class.getName());
@@ -138,24 +152,40 @@ public class JacUnitTest extends BuildFileTest
         expectPropertySet("jacunit-run", "jacunit.buildfailed");
     }
 
-    public void _testRunBatchTest() throws Exception
+    public void testRunBatchTest() throws Exception
     {
-    	configureProjectDefaults();
+        configureProjectDefaults();
 
-    	project.setProperty("jacunit.errorproperty", "jacunit.buildfailed");
-
+        project.setProperty("jacunit.testtimeout", "2000");
+        project.setProperty("jacunit.errorproperty", "jacunit.buildfailed");
+        project.setProperty("jacunit.srcdir", new File(getResource("/test.properties").getFile(), "../../src").toString());
         expectPropertySet("jacunit-batch", "jacunit.buildfailed");
+
+        HashSet files = new HashSet(Arrays.asList(outDir.list()));
+
+        assertFalse(files.isEmpty());
+
+        File shouldBeThere = new File(outDir, "TEST-org.jacorb.test.ant.samples.JUnitTimeout.txt");
+        assertTrue(shouldBeThere.exists());
+
+        LineNumberReader reader = new LineNumberReader(new FileReader(shouldBeThere));
+        StringBuffer content = new StringBuffer();
+        String data = null;
+
+        while( (data = reader.readLine()) != null)
+        {
+            content.append(data);
+        }
+
+        assertTrue(content.toString().length() > 0);
     }
 
     private void configureProjectDefaults() throws Exception
     {
-        final File tempDir = TestUtils.createTempDir("JacUnitTest");
-        final File outDir = new File(tempDir, "outdir");
-        outDir.mkdir();
-
         final File testDir = new File(tempDir, "testdir");
         testDir.mkdir();
 
+        project.setProperty("jacunit.shouldfail", "false");
         project.setProperty("jacunit.testtimeout", "0");
         project.setProperty("jacunit.outdir", outDir.toString());
         project.setProperty("jacunit.testdir", testDir.toString());

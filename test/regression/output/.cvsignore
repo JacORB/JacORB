@@ -1,7 +1,5 @@
-TEST-org.jacorb.test.AllTest.txt
-TEST-org.jacorb.test.idl.AllTest.txt
-TEST-org.jacorb.test.orb.AllTest.txt
-TEST-org.jacorb.test.notification.util.regexp.JDK14PatternWrapperTest.txt
-TEST-org.jacorb.test.notification.AllTest.txt
 ????-??-??.??-??-??
 coverage
+html
+TEST-*.txt
+TEST-*.xml
