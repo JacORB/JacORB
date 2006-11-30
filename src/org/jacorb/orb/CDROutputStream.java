@@ -315,7 +315,7 @@ public class CDROutputStream
     {
         if (valueMap == null)
         {
-            valueMap = ObjectUtil.createIdentityHashMap();
+            valueMap = new IdentityHashMap();
         }
         return valueMap;
     }
@@ -585,7 +585,7 @@ public class CDROutputStream
 
         // set up new indirection maps for this encapsulation
 
-        valueMap = ObjectUtil.createIdentityHashMap();
+        valueMap = new IdentityHashMap();
         repIdMap = new HashMap();
         codebaseMap = new HashMap();
 
@@ -1142,7 +1142,7 @@ public class CDROutputStream
 
     public final void write_fixed(BigDecimal value, short digits, short scale)
     {
-    	write_fixed(value);
+        write_fixed(value);
     }
 
     public final void write_fixed(final java.math.BigDecimal value)

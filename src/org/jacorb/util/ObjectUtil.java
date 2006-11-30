@@ -24,7 +24,6 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.Map;
 
 /**
  * @author Gerald Brose, FU Berlin
@@ -33,42 +32,13 @@ import java.util.Map;
 
 public class ObjectUtil
 {
-    private final static Class identityMapClass;
     //for byte -> hexchar
     private static final char[] lookup =
         new char[]{ '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F' };
 
-    static
-    {
-        identityMapClass = getIdentityMapClass();
-    }
-
     private ObjectUtil()
     {
         // utility class
-    }
-
-    private static Class getIdentityMapClass()
-    {
-        Class result;
-        try
-        {
-            result =
-                ObjectUtil.classForName("java.util.IdentityHashMap");
-        }
-        catch (ClassNotFoundException ex)
-        {
-            try
-            {
-                result =
-                    ObjectUtil.classForName("org.jacorb.util.IdentityHashMap");
-            }
-            catch (ClassNotFoundException e)
-            {
-                throw new IllegalArgumentException(e.toString());
-            }
-        }
-        return result;
     }
 
     /**
@@ -186,24 +156,6 @@ public class ObjectUtil
         }
     }
 
-    /**
-     * Creates an IdentityHashMap, using either the JDK 1.4 class or
-     * JacORB's drop-in replacement class if the former is not available.
-     *
-     * @return a newly created IdentityHashMap instance
-     */
-    public static Map createIdentityHashMap()
-    {
-        try
-        {
-            return (Map)identityMapClass.newInstance();
-        }
-        catch (Exception exc)
-        {
-            throw new IllegalArgumentException(exc.toString());
-        }
-    }
-
     public static String bufToString( byte values[],
             int start,
             int len)
@@ -313,7 +265,6 @@ public class ObjectUtil
                 }
                 String key = args[i].substring(2,idx);
 
-                System.out.println("putting: " + key + "," + args[i].substring(idx+1)); // NOPMD
                 props.put(key, args[i].substring(idx+1));
             }
         }
