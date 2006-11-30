@@ -208,7 +208,7 @@ public class QoSTest extends NotifyServerTestCase
 
         assertTrue(receiver.isEventHandled());
 
-        Thread.sleep(1000);
+        Thread.sleep(5000);
 
         while (!received.isEmpty())
         {
