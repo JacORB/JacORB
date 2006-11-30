@@ -1,3 +1,25 @@
+2006-11-27  Alphonse Bendt  <bendt@prismtech.com>
+
+	Regression framework refactored.
+
+	see #737
+
+2006-11-25  Alphonse Bendt  <bendt@prismtech.com>
+
+	* notification/util/regexp/GNUPatternWrapperTest.java,
+	notification/util/regexp/JakartaRegexpPatternWrapperTest.java,
+	notification/util/regexp/README: removed pre jdk1.4 code
+
+2006-11-15  Alphonse Bendt  <bendt@prismtech.com>
+
+	* bugs/AllTest.java, bugs/bug735/Bug735Test.java: bugzilla #735
+
+	test and fix
+
+2006-10-13  Alphonse Bendt  <bendt@prismtech.com>
+
+	* bugs/bug503/Bug503Test.java: bugzilla #503 testcase
+
 2006-10-12  Andre Spiegel  <spiegel@gnu.org>
 
 	* config/ConfigurationTest.java (testOrbIdClasspathPrecedence):
