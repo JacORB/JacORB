@@ -1,3 +1,36 @@
+2006-11-27  Alphonse Bendt  <bendt@prismtech.com>
+
+	* notification/build.xml:
+	removed pre jdk1.4 specific support in the build.xml
+
+	* orb/Any.java, orb/CDRInputStream.java, orb/CDROutputStream.java:
+	fix fixed_value related tests
+
+2006-11-24  Alphonse Bendt  <bendt@prismtech.com>
+
+	* security/ssl/sun_jsse/SSLSocketFactory.java,
+	orb/factory/AbstractSocketFactory.java,
+	orb/factory/DefaultSocketFactory.java,
+	orb/factory/FixedAddressSocketFactory.java,
+	orb/factory/PortRangeSocketFactory.java (createSocket): fix to
+	ensure that factory classes honour the timeout setting
+
+	* notification/util/GNUPatternWrapper.java,
+	notification/util/JakartaRegexpPatternWrapper.java,
+	notification/util/PatternWrapper.java: removed unused classes (we
+	can assume JDK1.4)
+
+	* ir/Container.java (loadContents): convert / to .
+
+	* config/JacORBConfiguration.java (init):
+	only print a warning when loglevel > 0
+
+2006-11-15  Alphonse Bendt  <bendt@prismtech.com>
+
+	* orb/Delegate.java: bugzilla #735
+
+	test and fix
+
 2006-10-31  Andre Spiegel  <spiegel@gnu.org>
 
 	* orb/giop/GIOPConnection.java (sendMessage):
