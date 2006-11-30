@@ -4,24 +4,62 @@ module org
     {
         module test
         {
+             enum color_enum { color_red, color_green, color_blue };
+
+             typedef sequence<boolean> boolean_sequence;
+
+             typedef sequence<octet> octet_sequence;
+
              typedef sequence<short> short_sequence;
              typedef sequence<unsigned short> ushort_sequence;
+
+             typedef sequence<long> long_sequence;
+             typedef sequence<unsigned long> ulong_sequence;
+
+             typedef sequence<long long> longlong_sequence;
              typedef sequence<unsigned long long> ulonglong_sequence;
 
              typedef sequence<float> float_sequence;
              typedef sequence<double> double_sequence;
+
+             typedef sequence<color_enum> enum_sequence;
+
+             typedef sequence<char> char_sequence;
+             typedef sequence<wchar> wchar_sequence;
+
+             typedef sequence<any> any_sequence;
 
              interface ArrayServer
              {
                  // parameterless
                  void ping();
 
+                 boolean reduce_boolean_sequence (in boolean_sequence seq);
+
+                 long sum_octet_sequence (in octet_sequence seq);
                  long sum_short_sequence (in short_sequence seq);
                  long sum_ushort_sequence (in ushort_sequence seq);
+                 long sum_long_sequence (in long_sequence seq);
+                 long sum_ulong_sequence (in ulong_sequence seq);
+                 long sum_longlong_sequence (in longlong_sequence seq);
                  long sum_ulonglong_sequence (in ulonglong_sequence seq);
 
                  float sum_float_sequence (in float_sequence seq);
                  double sum_double_sequence (in double_sequence seq);
+
+                 long reduce_enum_sequence (in enum_sequence seq);
+                 long reduce_char_sequence (in char_sequence seq);
+                 long reduce_wchar_sequence (in wchar_sequence seq);
+                 void return_illegal_char_sequence (out char_sequence seq);
+
+                 long reduce_any_sequence (in any_sequence seq);
+
+                 void bounce_boolean_sequence (in boolean_sequence seq_in,
+                                               out boolean_sequence seq_out);
+                 void bounce_long_sequence (in long_sequence seq_in,
+                                            out long_sequence seq_out);
+                 void bounce_any_sequence (in any_sequence seq_in,
+                                           out any_sequence seq_out);
              };
         };
     };
