@@ -39,8 +39,8 @@ public class CharTest extends ClientServerTestCase
     private CharServer server;
 
     // a few character constants for testing
-    private static final char E_ACUTE   = '\u00e9'; // in Latin-1
-    private static final char EURO_SIGN = '\u20AC'; // not in Latin-1
+    public static final char E_ACUTE   = '\u00e9'; // in Latin-1
+    public static final char EURO_SIGN = '\u20AC'; // not in Latin-1
 
     public CharTest(String name, ClientServerSetup setup)
     {
