@@ -29,7 +29,7 @@ import junit.framework.TestSuite;
  * @author Alphonse Bendt
  * @version $Id$
  */
-public class JDK14PatternWrapperTest extends AbstractPatternWrapperTest
+public class JDK14PatternWrapperTest extends AbstractPatternWrapperTestCase
 {
     public PatternWrapper newPattern()
     {

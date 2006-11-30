@@ -42,11 +42,11 @@ import org.jacorb.test.orb.rmi.Outer.StaticInner;
  *
  * @version $Id$
  */
-public abstract class RMITest extends ClientServerTestCase
+public abstract class RMITestCase extends ClientServerTestCase
 {
     private RMITestInterface server;
 
-    public RMITest(String name, ClientServerSetup setup)
+    public RMITestCase(String name, ClientServerSetup setup)
     {
         super(name, setup);
     }

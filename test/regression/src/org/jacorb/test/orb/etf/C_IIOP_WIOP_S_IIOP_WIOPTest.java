@@ -32,9 +32,9 @@ import org.jacorb.test.orb.etf.wiop.WIOPFactories;
  * @author <a href="mailto:spiegel@gnu.org">Andre Spiegel</a>
  * @version $Id$
  */
-public class C_IIOP_WIOP_S_IIOP_WIOP extends AbstractWIOPTestCase
+public class C_IIOP_WIOP_S_IIOP_WIOPTest extends AbstractWIOPTestCase
 {
-    public C_IIOP_WIOP_S_IIOP_WIOP (String name, ClientServerSetup setup)
+    public C_IIOP_WIOP_S_IIOP_WIOPTest (String name, ClientServerSetup setup)
     {
         super (name, setup);
     }
@@ -58,7 +58,7 @@ public class C_IIOP_WIOP_S_IIOP_WIOP extends AbstractWIOPTestCase
                                  "org.jacorb.test.orb.BasicServerImpl",
                                  clientProps, serverProps);
 
-        suite.addTest (new C_IIOP_WIOP_S_IIOP_WIOP ("testConnection", setup));
+        suite.addTest (new C_IIOP_WIOP_S_IIOP_WIOPTest ("testConnection", setup));
 
         return setup;
     }

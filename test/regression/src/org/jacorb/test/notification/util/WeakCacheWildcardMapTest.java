@@ -31,7 +31,7 @@ import org.jacorb.notification.util.WildcardMap;
  * @author Alphonse Bendt
  * @version $Id$
  */
-public class WeakCacheWildcardMapTest extends AbstractWildcardMapTest
+public class WeakCacheWildcardMapTest extends AbstractWildcardMapTestCase
 {
     public WildcardMap newWildcardMap()
     {

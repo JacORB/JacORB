@@ -7,7 +7,7 @@ import org.jacorb.notification.util.WildcardMap;
 /**
  * @author Alphonse Bendt
  */
-public abstract class AbstractWildcardMapTest extends TestCase
+public abstract class AbstractWildcardMapTestCase extends TestCase
 {
     protected WildcardMap objectUnderTest_;
 

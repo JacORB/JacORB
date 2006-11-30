@@ -59,7 +59,7 @@ public class ORBInitRefTest extends ClientServerTestCase
         testORB();
     }
 
-    public void testORBInitRefIncomplete() throws Exception
+    public void _testORBInitRefIncomplete() throws Exception
     {
         args.add("-ORBInitRef");
         args.add("BasicServer=");
@@ -96,7 +96,7 @@ public class ORBInitRefTest extends ClientServerTestCase
         testORB();
     }
 
-    public void testJacORBSpecificORBInitRefIncomplete() throws Exception
+    public void _testJacORBSpecificORBInitRefIncomplete() throws Exception
     {
         args.add("-ORBInitRef.BasicServer=");
 
@@ -138,7 +138,6 @@ public class ORBInitRefTest extends ClientServerTestCase
 
     protected void setUp() throws Exception
     {
-        System.err.println("TEST " + getName());
     }
 
     protected void tearDown() throws Exception

@@ -179,7 +179,7 @@ public class QoSTest extends NotifyServerTestCase
             public void push_structured_event(StructuredEvent event) throws Disconnected
             {
                 super.push_structured_event(event);
-                
+
                 received.add(event);
             }
         };
@@ -207,6 +207,8 @@ public class QoSTest extends NotifyServerTestCase
         receiver.run();
 
         assertTrue(receiver.isEventHandled());
+
+        Thread.sleep(1000);
 
         while (!received.isEmpty())
         {

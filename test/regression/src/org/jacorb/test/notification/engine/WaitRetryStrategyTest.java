@@ -32,7 +32,7 @@ import org.omg.CORBA.TRANSIENT;
  * @author Alphonse Bendt
  */
     
-public class WaitRetryStrategyTest extends AbstractRetryStrategyTest
+public class WaitRetryStrategyTest extends AbstractRetryStrategyTestCase
 {
     public void testRetryTerminatesAndThrowsException() throws Exception
     {

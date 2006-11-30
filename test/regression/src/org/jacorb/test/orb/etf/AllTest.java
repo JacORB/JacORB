@@ -38,12 +38,12 @@ public class AllTest extends JacORBTestSuite
     {
         TestSuite suite = new AllTest("ETF Tests");
 
-        suite.addTest(C_WIOP_S_WIOP.suite());
-        suite.addTest(C_WIOP_S_IIOP_WIOP.suite());
-        suite.addTest(C_IIOP_WIOP_S_IIOP_WIOP.suite());
-        suite.addTest(C_IIOP_WIOP_S_WIOP_IIOP.suite());
-        suite.addTest(C_WIOP_IIOP_S_WIOP_IIOP.suite());
-        suite.addTest(C_IIOP_S_WIOP.suite());
+        suite.addTest(C_WIOP_S_WIOPTest.suite());
+        suite.addTest(C_WIOP_S_IIOP_WIOPTest.suite());
+        suite.addTest(C_IIOP_WIOP_S_IIOP_WIOPTest.suite());
+        suite.addTest(C_IIOP_WIOP_S_WIOP_IIOPTest.suite());
+        suite.addTest(C_WIOP_IIOP_S_WIOP_IIOPTest.suite());
+        suite.addTest(C_IIOP_S_WIOPTest.suite());
         suite.addTest(ProfileSelectorTest.suite());
         suite.addTest(ServerListenerTest.suite());
         suite.addTest(SpecificProfileSelectorTest.suite());

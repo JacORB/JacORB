@@ -28,7 +28,7 @@ import org.jacorb.test.common.TestUtils;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 
-public class JmxJacorbJacorbTest extends AbstractJMXTest
+public class JmxJacorbJacorbTest extends AbstractJMXTestCase
 {
     public JmxJacorbJacorbTest(String name, JMXClientServerSetup setup)
     {

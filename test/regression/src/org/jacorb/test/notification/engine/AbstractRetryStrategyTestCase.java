@@ -32,7 +32,7 @@ import org.jacorb.notification.interfaces.IProxyPushSupplier;
  * @author Alphonse Bendt
  * @version $Id$
  */
-public abstract class AbstractRetryStrategyTest extends TestCase
+public abstract class AbstractRetryStrategyTestCase extends TestCase
 {
     protected IProxyPushSupplier mockConsumer_;
     protected MockControl controlConsumer_;

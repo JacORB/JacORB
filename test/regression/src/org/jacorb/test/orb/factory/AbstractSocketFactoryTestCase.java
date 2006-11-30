@@ -19,7 +19,7 @@ import org.omg.CORBA.TIMEOUT;
  * @author Alphonse Bendt
  * @version $Id$
  */
-public abstract class AbstractSocketFactoryTest extends TestCase
+public abstract class AbstractSocketFactoryTestCase extends TestCase
 {
     protected final byte[] sent = new byte[] {'a', 'b', 'c', 'd'};
     protected final byte[] received = new byte[sent.length];

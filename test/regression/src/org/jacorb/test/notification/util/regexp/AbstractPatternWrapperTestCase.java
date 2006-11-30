@@ -28,7 +28,7 @@ import org.jacorb.notification.util.PatternWrapper;
  * @version $Id$
  */
 
-public abstract class AbstractPatternWrapperTest extends TestCase
+public abstract class AbstractPatternWrapperTestCase extends TestCase
 {
     protected PatternWrapper objectUnderTest_;
 

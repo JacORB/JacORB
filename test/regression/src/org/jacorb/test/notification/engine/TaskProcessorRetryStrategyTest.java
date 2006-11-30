@@ -36,7 +36,7 @@ import edu.emory.mathcs.backport.java.util.concurrent.ScheduledFuture;
  * @author Alphonse Bendt
  * @version $Id$
  */
-public class TaskProcessorRetryStrategyTest extends AbstractRetryStrategyTest
+public class TaskProcessorRetryStrategyTest extends AbstractRetryStrategyTestCase
 {
     private MockControl controlTaskProcessor_;
 

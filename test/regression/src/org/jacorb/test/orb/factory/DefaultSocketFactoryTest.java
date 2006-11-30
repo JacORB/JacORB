@@ -7,7 +7,7 @@ import org.jacorb.orb.factory.SocketFactory;
  * @author Alphonse Bendt
  * @version $Id$
  */
-public class DefaultSocketFactoryTest extends AbstractSocketFactoryTest
+public class DefaultSocketFactoryTest extends AbstractSocketFactoryTestCase
 {
     protected SocketFactory newObjectUnderTest()
     {

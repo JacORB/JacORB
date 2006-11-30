@@ -33,30 +33,31 @@ import org.jacorb.test.common.ClientServerSetup;
 public class JMXClientServerSetup extends ClientServerSetup
 {
     private JMXServiceURL serviceURL;
-    
-    public JMXClientServerSetup(Test test, 
-            Properties clientOrbProperties, 
+
+    public JMXClientServerSetup(Test test,
+            Properties clientOrbProperties,
             Properties serverOrbProperties)
     {
         super(test, "ignored", clientOrbProperties, serverOrbProperties);
     }
-    
+
     protected void resolveServerObject(String ior)
     {
         try
         {
             serviceURL = new JMXServiceURL(ior);
-        } catch (MalformedURLException e)
+        }
+        catch (MalformedURLException e)
         {
             throw new IllegalArgumentException();
         }
     }
-    
+
     public JMXServiceURL getServiceURL()
     {
         return serviceURL;
     }
-    
+
     public String getTestServerMain()
     {
         return ExampleServiceRunner.class.getName();

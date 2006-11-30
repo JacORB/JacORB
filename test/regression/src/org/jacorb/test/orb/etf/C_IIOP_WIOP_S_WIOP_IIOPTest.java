@@ -32,32 +32,37 @@ import org.jacorb.test.orb.etf.wiop.WIOPFactories;
  * @author <a href="mailto:spiegel@gnu.org">Andre Spiegel</a>
  * @version $Id$
  */
-public class C_WIOP_S_WIOP extends AbstractWIOPTestCase
+public class C_IIOP_WIOP_S_WIOP_IIOPTest extends AbstractWIOPTestCase
 {
-    public C_WIOP_S_WIOP (String name, ClientServerSetup setup)
+    public C_IIOP_WIOP_S_WIOP_IIOPTest (String name, ClientServerSetup setup)
     {
         super (name, setup);
     }
 
     public static Test suite()
     {
-        TestSuite suite = new TestSuite ("Client WIOP Server WIOP");
+        TestSuite suite = new TestSuite ("Client IIOP WIOP Server WIOP IIOP");
 
-        Properties props = new Properties();
-        props.setProperty("jacorb.transport.factories",
-                          "org.jacorb.test.orb.etf.wiop.WIOPFactories");
+        Properties clientProps = new Properties();
+        clientProps.setProperty("jacorb.transport.factories",
+                                "org.jacorb.orb.iiop.IIOPFactories," +
+                                "org.jacorb.test.orb.etf.wiop.WIOPFactories");
 
         // WIOP does not support SSL.
-        props.setProperty("jacorb.regression.disable_security",
-                          "true");
+        clientProps.setProperty("jacorb.regression.disable_security",
+                                "true");
 
+        Properties serverProps = new Properties();
+        serverProps.setProperty("jacorb.transport.factories",
+                                "org.jacorb.test.orb.etf.wiop.WIOPFactories,"
+                              + "org.jacorb.orb.iiop.IIOPFactories");
 
         ClientServerSetup setup =
           new ClientServerSetup (suite,
                                  "org.jacorb.test.orb.BasicServerImpl",
-                                 props, props);
+                                 clientProps, serverProps);
 
-        suite.addTest (new C_WIOP_S_WIOP ("testConnection", setup));
+        suite.addTest (new C_IIOP_WIOP_S_WIOP_IIOPTest ("testConnection", setup));
 
         return setup;
     }

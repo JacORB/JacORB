@@ -9,7 +9,7 @@ import org.jacorb.config.Configuration;
 import org.jacorb.orb.factory.PortRangeSocketFactory;
 import org.jacorb.orb.factory.SocketFactory;
 
-public class PortRangeSocketFactoryTest extends AbstractSocketFactoryTest
+public class PortRangeSocketFactoryTest extends AbstractSocketFactoryTestCase
 {
     private static final int MIN = 40000;
     private static final int MAX = 40010;
