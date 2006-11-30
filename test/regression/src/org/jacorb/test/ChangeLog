@@ -1,3 +1,21 @@
+2006-11-30  Andre Spiegel  <spiegel@gnu.org>
+
+	* orb/ArrayTest.java: Add 21 new test cases for better coverage of
+	sequences.
+
+	* orb/ArrayServerImpl.java: Add new methods as defined in new
+	version of ArrayServer.idl.
+
+	* orb/CharTest.java (E_ACUTE, EURO_SIGN): Make these constants
+	public so we can use them from other test cases.
+
+2006-11-30  Alphonse Bendt  <bendt@prismtech.com>
+
+	* common/ServerSetup.java (setUp):
+	pass in emma properties to disable verbose emma output
+
+	* util/AllTest.java, util/ObjectUtilTest.java: added test
+
 2006-11-27  Alphonse Bendt  <bendt@prismtech.com>
 
 	Regression framework refactored.
