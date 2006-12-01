@@ -601,11 +601,22 @@ ${jacorb.test.outdir}
     <!-- ==================================================== -->
 
     <target name="instrument" depends="test-init" >
+        <pathconvert pathsep="," property="_generated.sources">
+            <path>
+                <fileset dir="${basedir}/src/generated">
+                    <include name="**/*.java" />
+                </fileset>
+            </path>
+
+            <mapper type="package" from="${basedir}/src/generated/*.java" to="*" />
+        </pathconvert>
+
         <emma>
             <instr instrpath="${basedir}/classes"
              mode="copy"
              outdir="${basedir}/classes-instrumented"
              outfile="${basedir}/coverage.em">
+                <filter excludes="${_generated.sources}"  />
                 <filter excludes="org.omg.*"/>
                 <filter excludes="Cos*"/>
                 <filter excludes="org.jacorb.ir.gui*"/>
