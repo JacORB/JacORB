@@ -31,7 +31,8 @@ the JacORB test suite.
    Source Code
    -----------
 
-1. Write the tests using the JUnit framework.  Tests should be packaged using
+1. Write the tests using the JUnit framework. The sourcefile should be named
+   XYZTest.java (replace XYZ with an appropiate name). Tests should be packaged using
    the same packaging as the source that is being tested, but replacing
    'org.jacorb' with 'org.jacorb.test'.  Any helper classes that can be used
    by tests in different packages should be put in the package
@@ -88,9 +89,9 @@ the JacORB test suite.
    Tests.idl file.  To change this target to compile a different IDL file,
    set the values of the three properties in the target as follows:
       includes = Comma- or space-separated list of files (may be specified using wildcard patterns)
-      			 that must be included. The files are looked up relative to the directory test/regression/idl
+                   that must be included. The files are looked up relative to the directory test/regression/idl
       ami      = true/false. Specify if AMI classes should be generated for the current IDL files. This is optional
-      			 and defaults to false.
+                   and defaults to false.
 
    Rename this target to 'idl-<name>' where <name> refers to the name of the
    IDL file (excluding the .idl extension and beginning with a lower case
