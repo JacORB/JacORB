@@ -1,4 +1,22 @@
 #!/bin/sh
 # decodes and prints the components of a stringified IOR
 
-jaco org.jacorb.orb.util.PrintIOR "$@"
+JACO=`which jaco 2> /dev/null`
+
+if [ -z "$JACO" ] ; then
+    case $0 in
+        /*)
+            SCRIPT="$0"
+            ;;
+        *)
+            PWD=`pwd`
+            SCRIPT="$PWD/$0"
+            ;;
+    esac
+
+    DIR="$(dirname "$SCRIPT")"
+
+    JACO=$DIR/jaco
+fi
+
+$JACO org.jacorb.orb.util.PrintIOR "$@"

@@ -1,24 +1,84 @@
 #!/bin/sh
+#
+# JACO - JacORB cmdline
+# @author Christoph Becker (PrismTech)
+# @author Alexander Fetke (PrismTech)
+# @author Alphonse Bendt (PrismTech)
 
-# I would prefer it this way, but there does not seem to be a way to
-# find out the HOME of the JDK ...
-# : ${JAVA_HOME:="@@@JAVA_HOME@@@"}
-# ... If there is no JDK, simply set the following ...
-# : ${JRE_HOME:="$JAVA_HOME/jre"}
+# use hardcoded settings if available (true/false)
+USE_HARDCODED=true
 
-# ... but we have to refer to the JRE only!
-: ${JRE_HOME:="@@@JRE_HOME@@@"}
+# resolve links
+resolve()
+{
+    CMD="$1"
+    # test if CMD is a symlink or not
+    while [ -h "$CMD" ] ; do
+        link=$(find "$CMD" -printf "%l\n")
+        if expr "$link" : '/.*' > /dev/null; then
+            CMD="$link"
+        else
+            CMD=$(dirname "$CMD")"/$link"
+        fi
+    done
+    echo $CMD;
+}
 
-: ${JACORB_HOME:="@@@JACORB_HOME@@@"}
-export JACORB_HOME
+# If hardcoded vars should be used, set them, otherwise do nothing
+if "$USE_HARDCODED"
+then
+    JRE_HOME="@@@JRE_HOME@@@"
+    JACORB_HOME="@@@JACORB_HOME@@@"
+fi
 
-: ${JVM_FLAGS:=""}
+# Test if hardcoded JRE provides java-binary
+# if not, test $JAVA_HOME-environment var
+# if also not avaible, look for JAVA inside path and resolve symlinks
+# if that fails, die
+if [ ! -x "$JRE_HOME/bin/java" ]
+then
+    if [ -x "$JAVA_HOME/bin/java" ]
+    then
+        JRE_HOME=$JAVA_HOME
+    else
+        #echo "resolve java"
+        JAVA_CMD=$(resolve "$(type java | sed 's/.* is //')")
+        JRE_HOME="$(dirname "$(dirname "$JAVA_CMD")")"
+        if [ ! -x "$JRE_HOME/bin/java" ];
+        then
+           echo "Compiletime JRE nor JAVA_HOME nor PATH point to an existing JAVA-dir!">2
+           exit 1;
+        fi
+    fi
+fi
+
+# Test if JACORB_HOME contains a jaco-wrapper
+# if not, look at $PATH and resolve all symlinks
+# obviously is jaco in path...
+if [ ! -x "$JACORB_HOME/bin/jaco" ]
+then
+    # could not find jacorb
+    # auto determine own dir
+    #echo "resolve jaco"
+    JACO=$(resolve "$(type jaco | sed 's/.* is //')")
+    JACORB_HOME="$(dirname "$(dirname "$JACO")")"
+fi
+
+# verbosity output
+#echo "Using Java from  : $JRE_HOME"
+#echo "Using JacORB from: $JACORB_HOME"
 
 # call java interpreter
-exec ${JRE_HOME}/bin/java ${JVM_FLAGS} \
-    @@@CLASSPATH@@@ \
-    -Djacorb.home=@@@JACORB_HOME@@@ \
-    -Dorg.omg.CORBA.ORBClass=org.jacorb.orb.ORB \
-    -Dorg.omg.CORBA.ORBSingletonClass=org.jacorb.orb.ORBSingleton \
-    "$@"
 
+classpath=$JACORB_HOME/lib/jacorb.jar
+classpath=$classpath:$JACORB_HOME/lib/logkit-1.2.jar
+classpath=$classpath:$JACORB_HOME/lib/avalon-framework-4.1.5.jar
+classpath=$classpath:$JRE_HOME/lib/rt.jar
+classpath=$classpath:$CLASSPATH
+
+exec "$JRE_HOME/bin/java"                                         \
+    -Xbootclasspath/p:"$classpath"                                \
+    -Djacorb.home="$JACORB_HOME"                                  \
+    -Dorg.omg.CORBA.ORBClass=org.jacorb.orb.ORB                   \
+    -Dorg.omg.CORBA.ORBSingletonClass=org.jacorb.orb.ORBSingleton \
+        "$@"
