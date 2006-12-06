@@ -222,7 +222,7 @@ public class PortableRemoteObjectDelegateImpl implements javax.rmi.CORBA.Portabl
             }
             catch (ClassNotFoundException e)
             {
-                throw new java.rmi.server.ExportException("ClassNotFoundException: ", e );
+              //  throw new java.rmi.server.ExportException("ClassNotFoundException: ", e );
             }
             catch (InstantiationException e)
             {
