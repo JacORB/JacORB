@@ -4,25 +4,12 @@
 # @author Christoph Becker (PrismTech)
 # @author Alexander Fetke (PrismTech)
 # @author Alphonse Bendt (PrismTech)
+# @version $Id$
 
 # use hardcoded settings if available (true/false)
-USE_HARDCODED=true
+USE_HARDCODED=false
 
-# resolve links
-resolve()
-{
-    CMD="$1"
-    # test if CMD is a symlink or not
-    while [ -h "$CMD" ] ; do
-        link=$(find "$CMD" -printf "%l\n")
-        if expr "$link" : '/.*' > /dev/null; then
-            CMD="$link"
-        else
-            CMD=$(dirname "$CMD")"/$link"
-        fi
-    done
-    echo $CMD;
-}
+@RESOLVE_JACORB_HOME@
 
 # If hardcoded vars should be used, set them, otherwise do nothing
 if "$USE_HARDCODED"
@@ -33,7 +20,7 @@ fi
 
 # Test if hardcoded JRE provides java-binary
 # if not, test $JAVA_HOME-environment var
-# if also not avaible, look for JAVA inside path and resolve symlinks
+# if also not available, look for JAVA inside path and resolve symlinks
 # if that fails, die
 if [ ! -x "$JRE_HOME/bin/java" ]
 then
@@ -52,21 +39,17 @@ then
     fi
 fi
 
-# Test if JACORB_HOME contains a jaco-wrapper
+# Test if JACORB_HOME contains jaco
 # if not, look at $PATH and resolve all symlinks
 # obviously is jaco in path...
 if [ ! -x "$JACORB_HOME/bin/jaco" ]
 then
-    # could not find jacorb
-    # auto determine own dir
-    #echo "resolve jaco"
-    JACO=$(resolve "$(type jaco | sed 's/.* is //')")
-    JACORB_HOME="$(dirname "$(dirname "$JACO")")"
+    JACORB_HOME=${RESOLVED_JACORB_HOME}
 fi
 
 # verbosity output
-#echo "Using Java from  : $JRE_HOME"
-#echo "Using JacORB from: $JACORB_HOME"
+echo "Using Java from  : $JRE_HOME"
+echo "Using JacORB from: $JACORB_HOME"
 
 # call java interpreter
 

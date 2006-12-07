@@ -1,0 +1,26 @@
+resolve()
+{
+    CMD="$1"
+    # test if CMD is a symlink or not
+    while [ -h "$CMD" ] ; do
+        link=$(find "$CMD" -printf "%l\n")
+        if expr "$link" : '/.*' > /dev/null; then
+            CMD="$link"
+        else
+            CMD=$(dirname "$CMD")"/$link"
+        fi
+    done
+    echo $CMD;
+}
+
+case $0 in
+    /*)
+        SELF="$0"
+        ;;
+    *)
+        SELF="$(pwd)/$0"
+        ;;
+esac
+
+RESOLVED_JACORB_HOME="$(cd "$(dirname "$(dirname "$(resolve "$SELF")")")" > /dev/null 2>&1; pwd)"
+
