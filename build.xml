@@ -133,14 +133,6 @@
       <replace file="bin/jaco.bat" token="@@@JACORB_HOME@@@"
                value="${basedir}" />
 
-      <replace file="bin/jaco" token="@@@JACORB_HOME@@@"
-               value="${basedir}" />
-      <replace file="bin/jaco" token="@@@JRE_HOME@@@"
-               value="${java.home}" />
-      <replace file="bin/jaco" token="@@@CLASSPATH@@@"
-               value="${jaco.classpath}" />
-
-
         <loadfile   srcFile="bin/resolve_jacorb_home.tok"
                     property="token.resolve-jacorb-home"
                     failonerror="true"/>
@@ -154,6 +146,12 @@
 
             <filterset>
                 <filter token="RESOLVE_JACORB_HOME" value="${token.resolve-jacorb-home}"/>
+            </filterset>
+
+            <filterset begintoken="@@@" endtoken="@@@">
+                <filter token="JACORB_HOME" value="${basedir}" />
+                <filter token="JRE_HOME" value="${java.home}" />
+                <filter token="CLASSPATH" value="${jaco.classpath}" />
             </filterset>
         </copy>
 

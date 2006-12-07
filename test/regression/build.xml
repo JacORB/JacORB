@@ -128,7 +128,7 @@
 
     <target name="regression-test" unless="NO_BUILD" >
         <jacorb-javac
-            javac-includes="org/jacorb/test/ant/**/*.java"
+            javac-includes="org/jacorb/test/ant/**/*.java,org/jacorb/test/jaco/**/*.java"
               javac-classpathref="test.classpath.compile" />
     </target>
 
@@ -139,7 +139,10 @@
             <formatter type="plain" usefile="false"/>
 
             <batchtest>
-                <fileset dir="${src}" includes="org/jacorb/test/ant/**/*Test.java" />
+                <fileset dir="${src}">
+                    <include name="org/jacorb/test/ant/**/*Test.java" />
+                    <include name="org/jacorb/test/jaco/**/*Test.java" />
+                </fileset>
             </batchtest>
 
             <classpath>
@@ -148,6 +151,8 @@
                 <pathelement location="${testdir}/lib/ant-testutil.jar" />
                 <pathelement location="${testdir}/resources" />
             </classpath>
+
+            <sysproperty key="jacorb.home" value="${basedir}"/>
         </junit>
     </target>
 
