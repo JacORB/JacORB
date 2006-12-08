@@ -5,6 +5,6 @@
 
 @RESOLVE_JACORB_HOME@
 
-JACO=${RESOLVED_JACORB_HOME}/jaco
+JACO=${RESOLVED_JACORB_HOME}/bin/jaco
 
 $JACO org.jacorb.orb.util.PrintIOR "$@"
