@@ -3,11 +3,11 @@
 #
 # $Id$
 #
-# sh script suitable for starting and stopping 
+# sh script suitable for starting and stopping
 # the JacORB Naming Service controlled by the Java Service Wrapper
 #
 # Make sure that PIDDIR points to the correct location,
-# if you have changed the default location set in the 
+# if you have changed the default location set in the
 # wrapper configuration file.
 #
 
@@ -32,4 +32,4 @@ PIDDIR="."
 
 # source the common wrapper script.
 
-. @@@JACORB_HOME@@@/bin/jacorb-wrapper-common
+. @JACORB_HOME@/bin/jacorb-wrapper-common

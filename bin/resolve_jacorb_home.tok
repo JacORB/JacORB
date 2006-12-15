@@ -22,5 +22,7 @@ case $0 in
         ;;
 esac
 
-RESOLVED_JACORB_HOME="$(cd "$(dirname "$(dirname "$(resolve "$SELF")")")" > /dev/null 2>&1; pwd)"
+_BIN_DIR_RAW="$(dirname "$(resolve "$SELF")")"
+_BIN_DIR_NORM="$(cd "$_BIN_DIR_RAW" > /dev/null 2>&1; pwd)"
+RESOLVED_JACORB_HOME="$(dirname "$_BIN_DIR_NORM")"
 

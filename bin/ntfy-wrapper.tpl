@@ -3,11 +3,11 @@
 #
 # $Id$
 #
-# shell script suitable for starting and stopping 
+# shell script suitable for starting and stopping
 # the JacORB Notification Service controlled by the Java Service Wrapper
 #
 # Make sure that PIDDIR points to the correct location,
-# if you have changed the default location set in the 
+# if you have changed the default location set in the
 # wrapper configuration file.
 #
 
@@ -24,7 +24,7 @@ WRAPPER_CONF="NotifyService-Wrapper.conf"
 # specify a custom location (full qualified path) for the wrapper
 # command here. Not necessary if 'wrapper' is available via
 # PATH. Works also if WRAPPER_CMD is a symlink which points to the
-# actual cmd.   
+# actual cmd.
 #WRAPPER_CMD="/usr/local/wrapper/bin/wrapper"
 
 # specify the location of the wrapper home here. This is not
@@ -40,4 +40,4 @@ PIDDIR="."
 
 # source the common wrapper script
 
-.  @@@JACORB_HOME@@@/bin/jacorb-wrapper-common
+.  @JACORB_HOME@/bin/jacorb-wrapper-common

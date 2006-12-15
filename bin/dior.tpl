@@ -2,9 +2,10 @@
 
 # decodes and prints the components of a stringified IOR
 # @version $Id$
+# @DONT_EDIT@
 
-@RESOLVE_JACORB_HOME@
+@RESOLVE_JACO_CMD@
 
-JACO=${RESOLVED_JACORB_HOME}/bin/jaco
+JACO_CMD=${RESOLVED_JACO_CMD}
 
-$JACO org.jacorb.orb.util.PrintIOR "$@"
+$JACO_CMD org.jacorb.orb.util.PrintIOR "$@"
