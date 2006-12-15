@@ -14,9 +14,9 @@ JACORB_HOME=${RESOLVED_JACORB_HOME}
 JAVA_CMD=${RESOLVED_JAVA_CMD}
 
 # verbosity output
-echo    "using JAVA_CMD   : ${JAVA_CMD}"
-echo    "Using JacORB from: ${JACORB_HOME}"
-echo -e "using CLASSPATH  :\n\t`echo $CLASSPATH | sed -e 's/:/\n\t/g'`"
+#echo    "using JAVA_CMD   : ${JAVA_CMD}"
+#echo    "Using JacORB from: ${JACORB_HOME}"
+#echo -e "using CLASSPATH  :\n\t`echo $CLASSPATH | sed -e 's/:/\n\t/g'`"
 
 exec "$JAVA_CMD"                                                  \
     -Djava.endorsed.dirs="${JACORB_HOME}/lib"                     \
