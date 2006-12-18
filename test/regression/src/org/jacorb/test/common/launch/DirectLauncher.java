@@ -41,6 +41,13 @@ import org.jacorb.test.common.TestUtils;
  */
 public class DirectLauncher extends AbstractLauncher
 {
+    private static boolean assertsEnabled;
+
+    static {
+        assertsEnabled = false;
+        assert assertsEnabled = true; // Intentional side effect!!!
+    }
+
     private List command;
 
     public void init()
@@ -88,14 +95,19 @@ public class DirectLauncher extends AbstractLauncher
         final List cmdList = new ArrayList();
         cmdList.add (javaCommand);
 
+        if (assertsEnabled)
+        {
+            cmdList.add("-ea");
+        }
+
         Assert.assertNotNull("need to specify jacorbHome", jacorbHome);
 
         cmdList.add(new BootClasspathBuilder(jacorbHome, coverage).getBootClasspath());
 
         if (classpath != null && classpath.length() > 0)
         {
-        	cmdList.add ("-classpath");
-        	cmdList.add (classpath);
+            cmdList.add ("-classpath");
+            cmdList.add (classpath);
         }
 
         cmdList.add ("-Xmx" + getMaxHeapSize(props));
