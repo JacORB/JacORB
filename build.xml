@@ -18,6 +18,9 @@
    <target name="all" depends="init,compiler,omg_idl,jacorb,libs"
            description="Build JacORB.  To build with debugging, use -Ddebug=true."/>
 
+
+    <target name="version" />
+
    <!-- ==================================================== -->
    <!--                   IDL compiler                       -->
    <!-- ==================================================== -->
