@@ -99,6 +99,8 @@
             <globmapper from="*.tpl" to="*"/>
 
             <filterset>
+                <filter token="JACORB_BOOTCLASSPATH"
+                        value="-Djava.endorsed.dirs=&quot;${JACORB_HOME}/lib&quot;" />
                 <filter token="RESOLVE_JACORB_HOME"
                         value="${token.resolve-jacorb-home}" />
                 <filter token="RESOLVE_JAVA_CMD"
