@@ -13,7 +13,7 @@ then
         JRE_HOME="$(dirname "$(dirname "$_JAVA_CMD")")"
         if [ ! -x "$JRE_HOME/bin/java" ];
         then
-           echo "couldn't locate java. please adjust JRE_HOME, JAVA_HOME or PATH">2
+           echo "couldn't locate java. please adjust JRE_HOME, JAVA_HOME or PATH"
            exit 1;
         fi
     fi
