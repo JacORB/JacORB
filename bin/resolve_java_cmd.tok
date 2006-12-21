@@ -1,22 +1,13 @@
-# Test if hardcoded JRE provides java-binary
-# if not, test $JAVA_HOME-environment var
-# if also not available, look for JAVA inside path and resolve symlinks
-# if that fails, die
-if [ ! -x "$JRE_HOME/bin/java" ]
+# Test if JRE_HOME or JAVA_HOME provide java-binary
+# if not fall back to path
+if [ -x "$JRE_HOME/bin/java" ]
 then
+    RESOLVED_JAVA_CMD=$JRE_HOME/bin/java
+else
     if [ -x "$JAVA_HOME/bin/java" ]
     then
-        JRE_HOME=$JAVA_HOME
+        RESOLVED_JAVA_CMD=$JAVA_HOME/bin/java
     else
-        #echo "resolve java"
-        _JAVA_CMD=$(resolve "$(type java | sed 's/.* is //')")
-        JRE_HOME="$(dirname "$(dirname "$_JAVA_CMD")")"
-        if [ ! -x "$JRE_HOME/bin/java" ];
-        then
-           echo "couldn't locate java. please adjust JRE_HOME, JAVA_HOME or PATH"
-           exit 1;
-        fi
+        RESOLVED_JAVA_CMD=java
     fi
 fi
-
-RESOLVED_JAVA_CMD=$JRE_HOME/bin/java
