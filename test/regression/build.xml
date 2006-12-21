@@ -642,6 +642,13 @@ ${jacorb.test.outdir}
     <!-- ==================================================== -->
 
 
+    <target name="run-all-with-coverage" >
+        <antcall target="run">
+            <param name="jacorb.test" value="org/jacorb/test/AllTest" />
+            <param name="jacorb.test.coverage" value="true" />
+        </antcall>
+    </target>
+
     <target name="run-all" description="Run and build all Jacorb tests. For any run-all-*&#13;&#10;
                             test targets the following -D parameters are available:&#13;&#10;
                             jacorb.test.ssl=true&#13;&#10;
