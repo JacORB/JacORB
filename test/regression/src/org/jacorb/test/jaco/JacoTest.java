@@ -22,7 +22,11 @@ public class JacoTest extends TestCase
         File jaco = new File(TestUtils.jacorbHome(), "bin/jaco");
         String command = jaco + " " + JacoTestServer.class.getName();
 
-        Process process = Runtime.getRuntime().exec(command, new String[] {"CLASSPATH=" + TestUtils.testHome() + "/classes"});
+        Process process = Runtime.getRuntime().exec(command,
+                new String[] {
+                    "CLASSPATH=" + TestUtils.testHome() + "/classes",
+                    "JRE_HOME=" + System.getProperty("java.home")
+        });
 
         try
         {

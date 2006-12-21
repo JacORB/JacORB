@@ -153,7 +153,6 @@
             </classpath>
 
             <sysproperty key="jacorb.home" value="${basedir}"/>
-            <env key="JRE_HOME" value="${java.home}"/>
         </junit>
     </target>
 
