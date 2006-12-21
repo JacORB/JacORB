@@ -24,33 +24,64 @@ public class JacoTest extends TestCase
 
         Process process = Runtime.getRuntime().exec(command, new String[] {"CLASSPATH=" + TestUtils.testHome() + "/classes"});
 
+        try
+        {
+            InputStream in = process.getInputStream();
+            BufferedInputStream bin = new BufferedInputStream(in);
+            InputStreamReader reader = new InputStreamReader(bin);
+            LineNumberReader lnr = new LineNumberReader(reader);
+
+            String line = null;
+
+            long maxWait = System.currentTimeMillis() + 10000;
+
+            boolean seen = false;
+
+            StringBuffer out = new StringBuffer();
+
+            while( (!seen) &&  (line = lnr.readLine()) != null && System.currentTimeMillis() < maxWait)
+            {
+                if ("ORB: org.jacorb.orb.ORB".equals(line))
+                {
+                    seen = true;
+                }
+                TestUtils.log(line);
+                out.append(line);
+                out.append('\n');
+            }
+
+            if (!seen)
+            {
+                printErr(process);
+
+            }
+            assertTrue("couldn't start process. buffer: " + out, seen);
+
+            in.close();
+        }
+        finally
+        {
+            process.destroy();
+        }
+    }
+
+    private void printErr(Process process) throws Exception
+    {
         InputStream in = process.getInputStream();
         BufferedInputStream bin = new BufferedInputStream(in);
         InputStreamReader reader = new InputStreamReader(bin);
         LineNumberReader lnr = new LineNumberReader(reader);
 
         String line = null;
-
-        long maxWait = System.currentTimeMillis() + 10000;
-
-        boolean seen = false;
-
-        StringBuffer out = new StringBuffer();
-
-        while( (!seen) &&  (line = lnr.readLine()) != null && System.currentTimeMillis() < maxWait)
+        StringBuffer buffer = new StringBuffer();
+        while( (line = lnr.readLine()) != null )
         {
-            if ("ORB: org.jacorb.orb.ORB".equals(line))
-            {
-                seen = true;
-            }
-            TestUtils.log(line);
-            out.append(line);
-            out.append('\n');
+            buffer.append(line);
+            buffer.append('\n');
         }
 
-        assertTrue("couldn't start process. buffer: " + out, seen);
+        System.err.println(buffer);
 
-        in.close();
-        process.destroy();
+        fail(buffer.toString());
     }
 }
