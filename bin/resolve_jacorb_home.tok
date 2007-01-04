@@ -3,11 +3,11 @@ resolve()
     CMD="$1"
     # test if CMD is a symlink or not
     while [ -h "$CMD" ] ; do
-        link=$(find "$CMD" -printf "%l\n")
+        link=`find "$CMD" -printf "%l\n"`
         if expr "$link" : '/.*' > /dev/null; then
             CMD="$link"
         else
-            CMD=$(dirname "$CMD")"/$link"
+            CMD=`dirname "$CMD"`"/$link"
         fi
     done
     echo $CMD;
@@ -15,14 +15,14 @@ resolve()
 
 case $0 in
     /*)
-        SELF="$0"
+        _SELF="$0"
         ;;
     *)
-        SELF="$(pwd)/$0"
+        _SELF="`pwd`/$0"
         ;;
 esac
 
-_BIN_DIR_RAW="$(dirname "$(resolve "$SELF")")"
-_BIN_DIR_NORM="$(cd "$_BIN_DIR_RAW" > /dev/null 2>&1; pwd)"
-RESOLVED_JACORB_HOME="$(dirname "$_BIN_DIR_NORM")"
-
+_SELF=`resolve "$_SELF"`
+_BIN_DIR_RAW=`dirname $_SELF`
+_BIN_DIR_NORM=`cd "$_BIN_DIR_RAW" > /dev/null 2>&1; pwd`
+RESOLVED_JACORB_HOME=`dirname "$_BIN_DIR_NORM"`
