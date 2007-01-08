@@ -1,0 +1,16 @@
+module org
+{
+    module jacorb
+    {
+        module test
+        {
+            module bugs
+            {
+                module bugjac443
+                {
+                    typedef fixed<4,1> MyFixed;
+                };
+            };
+        };
+    };
+};

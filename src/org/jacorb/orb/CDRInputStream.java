@@ -22,6 +22,7 @@ package org.jacorb.orb;
 
 import java.io.IOException;
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.util.*;
 
 import org.apache.avalon.framework.configuration.*;
@@ -826,12 +827,32 @@ public class CDRInputStream
         }
     }
 
-    public final java.math.BigDecimal read_fixed(short digits, short scale)
+    public final BigDecimal read_fixed()
     {
         handle_chunking();
 
-        StringBuffer sb = new StringBuffer();
+        final StringBuffer sb = new StringBuffer();
 
+        final int c = read_fixed_internal(sb);
+
+        final java.math.BigDecimal result =
+            new java.math.BigDecimal( new java.math.BigInteger( sb.toString()));
+
+        return read_fixed_negate(c, result);
+    }
+
+    private BigDecimal read_fixed_negate(final int c, final java.math.BigDecimal result)
+    {
+        if( c == 0xD )
+        {
+            return result.negate();
+        }
+
+        return result;
+    }
+
+    private int read_fixed_internal(StringBuffer sb)
+    {
         int b = buffer[pos++];
         int c = b & 0x0F; // second half byte
         index++;
@@ -851,16 +872,21 @@ public class CDRInputStream
             b = buffer[pos++];
             index++;
         }
+        return c;
+    }
 
-        java.math.BigDecimal result =
-        	new java.math.BigDecimal( new java.math.BigInteger( sb.toString()), scale);
+    public final java.math.BigDecimal read_fixed(short digits, short scale)
+    {
+        handle_chunking();
 
-        if( c == 0xD )
-        {
-            return result.negate();
-        }
+        final StringBuffer sb = new StringBuffer();
 
-        return result;
+        final int c = read_fixed_internal(sb);
+
+        final java.math.BigDecimal result =
+            new java.math.BigDecimal( new java.math.BigInteger( sb.toString()), scale);
+
+        return read_fixed_negate(c, result);
     }
 
     public final float read_float()

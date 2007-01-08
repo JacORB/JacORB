@@ -43,6 +43,7 @@ import org.jacorb.test.bugs.bugjac294.BugJac294Test;
 import org.jacorb.test.bugs.bugjac303.BugJac303Test;
 import org.jacorb.test.bugs.bugjac305.BugJac305Test;
 import org.jacorb.test.bugs.bugjac319.BugJac319AbstractTest;
+import org.jacorb.test.bugs.bugjac443.BugJac443Test;
 import org.jacorb.test.bugs.bugjac45.BugJac45Test;
 import org.jacorb.test.bugs.bugjac69.InvalidIORTest;
 import org.jacorb.test.bugs.bugjac722.BugJac722Test;
@@ -103,7 +104,8 @@ public class AllTest extends JacORBTestSuite
       suite.addTestSuite(Bug400Test.class);
       suite.addTest(BugJac722Test.suite());
       suite.addTest(org.jacorb.test.bugs.bugcos370.BugCos370Test.suite());
-	  suite.addTestSuite(Bug735Test.class);
+      suite.addTestSuite(Bug735Test.class);
+      suite.addTestSuite(BugJac443Test.class);
 
       return suite;
    }
