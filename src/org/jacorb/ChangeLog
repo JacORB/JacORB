@@ -1,3 +1,25 @@
+2007-01-09  Alphonse Bendt  <bendt@prismtech.com>
+
+	* util/Version.java, util/Version.template: added a template for
+	Version.java to allow Version.java to be changed from within the
+	build
+
+2007-01-08  Alphonse Bendt  <bendt@prismtech.com>
+
+	* orb/CDRInputStream.java: fixed regression bug
+
+2006-12-06  Alphonse Bendt  <bendt@prismtech.com>
+
+	* orb/rmi/PortableRemoteObjectDelegateImpl.java (toTie):
+	retry in case of classnotfound
+
+2006-11-30  Alphonse Bendt  <bendt@prismtech.com>
+
+	* orb/CDROutputStream.java, util/IdentityHashMap.java,
+	util/ObjectUtil.java: more cleanup
+
+	removed pre JDK1.4 code
+
 2006-11-27  Alphonse Bendt  <bendt@prismtech.com>
 
 	* notification/build.xml:
