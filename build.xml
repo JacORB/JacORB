@@ -22,14 +22,14 @@
         <tstamp />
 
         <property name="BuildNo" value="${TODAY} ${TSTAMP}" />
-        <property name="jacorb_version_info" value=" CVS Build" />
+        <property name="jacorb_version_info" value="\n       (${BuildNo})" />
 
         <echo>
 using BUILD_NUMBER: ${BuildNo}
 using VERSION_INFO: ${jacorb_version_info}
         </echo>
 
-        <copy file="${src}/org/jacorb/util/Version.template" tofile="${src.generated}/org/jacorb/util/Version.java" overwrite="true">
+        <copy file="${src}/org/jacorb/util/BuildVersion.template" tofile="${src.generated}/org/jacorb/util/BuildVersion.java" overwrite="true">
             <filterset>
                 <filter token="BUILD_NUMBER" value="${BuildNo}"/>
                 <filter token="VERSION_INFO" value="${jacorb_version_info}" />
