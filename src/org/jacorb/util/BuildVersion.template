@@ -27,7 +27,7 @@ package org.jacorb.util;
  */
 public final class BuildVersion
 {
-    private static final String versionInfo = "@VERSION_INFO@";
+    public static final String versionInfo = "@VERSION_INFO@";
 
     public static void main(String[] args)
     {
