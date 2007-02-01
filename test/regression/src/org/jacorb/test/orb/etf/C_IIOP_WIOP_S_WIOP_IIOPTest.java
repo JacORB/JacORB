@@ -3,7 +3,7 @@ package org.jacorb.test.orb.etf;
 /*
  *        JacORB  - a free Java ORB
  *
- *   Copyright (C) 1997-2003  Gerald Brose.
+ *   Copyright (C) 1997-2007  Gerald Brose.
  *
  *   This library is free software; you can redistribute it and/or
  *   modify it under the terms of the GNU Library General Public
@@ -17,7 +17,8 @@ package org.jacorb.test.orb.etf;
  *
  *   You should have received a copy of the GNU Library General Public
  *   License along with this library; if not, write to the Free
- *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ *   Software Foundation, 51 Franklin Street, Fifth Floor, Boston,
+ *   MA 02110-1301, USA.
  */
 
 import java.util.Properties;
@@ -29,7 +30,11 @@ import org.jacorb.test.common.ClientServerSetup;
 import org.jacorb.test.orb.etf.wiop.WIOPFactories;
 
 /**
- * @author <a href="mailto:spiegel@gnu.org">Andre Spiegel</a>
+ * A test that uses IIOP/WIOP on the client side and WIOP/IIOP on the
+ * server side.  Thus, WIOP will be the first transport in the profile
+ * published by the server, and so WIOP should be used for the connection.
+ * 
+ * @author Andre Spiegel spiegel@gnu.org
  * @version $Id$
  */
 public class C_IIOP_WIOP_S_WIOP_IIOPTest extends AbstractWIOPTestCase
