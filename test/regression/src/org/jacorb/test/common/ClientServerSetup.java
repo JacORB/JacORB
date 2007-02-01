@@ -197,8 +197,11 @@ public class ClientServerSetup extends TestSetup {
     {
         doTearDown();
 
-        serverObject._release();
-        serverObject = null;
+        if (serverObject != null)
+        {
+            serverObject._release();
+            serverObject = null;
+        }
 
         clientORBSetup.tearDown();
         serverSetup.tearDown();
