@@ -200,6 +200,8 @@ public class QoSTest extends NotifyServerTestCase
 
         assertFalse(receiver.isEventHandled());
 
+        Thread.sleep(2000);
+
         receiver.pushSupplier_.resume_connection();
 
         receiver.setTimeOut(events.length * 1000);
@@ -208,7 +210,7 @@ public class QoSTest extends NotifyServerTestCase
 
         assertTrue(receiver.isEventHandled());
 
-        Thread.sleep(5000);
+        Thread.sleep(2000);
 
         while (!received.isEmpty())
         {
