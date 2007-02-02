@@ -591,7 +591,7 @@ public final class ORB
         return clientConnectionManager;
     }
 
-    public GIOPConnectionManager getGIOPConnectionManager()
+    public synchronized GIOPConnectionManager getGIOPConnectionManager()
     {
         if (giop_connection_manager == null)
         {
@@ -881,7 +881,7 @@ public final class ORB
      * getPOACurrent
      */
 
-    public org.jacorb.poa.Current getPOACurrent()
+    public synchronized org.jacorb.poa.Current getPOACurrent()
     {
         if (poaCurrent == null)
         {
@@ -933,7 +933,7 @@ public final class ORB
         return d.getReference( poa );
     }
 
-    public org.jacorb.poa.POA getRootPOA()
+    public synchronized org.jacorb.poa.POA getRootPOA()
         throws org.omg.CORBA.INITIALIZE
     {
         if( rootpoa == null )
@@ -1018,7 +1018,7 @@ public final class ORB
     }
 
 
-    private void getImR ()
+    private synchronized void getImR ()
     {
         /* Lookup the implementation repository */
         if( imr == null && useIMR )
@@ -1114,7 +1114,7 @@ public final class ORB
      *
      * @return a <code>String</code>, the address for the server.
      */
-    private ProtocolAddressBase getServerAddress()
+    private synchronized ProtocolAddressBase getServerAddress()
     {
         ProtocolAddressBase address = iorProxyAddress;
 
@@ -2204,7 +2204,7 @@ public final class ORB
         return interceptor_manager;
     }
 
-    public TransportManager getTransportManager()
+    public synchronized TransportManager getTransportManager()
     {
         if (transport_manager == null)
         {
