@@ -355,8 +355,7 @@ public abstract class GIOPConnection
         //(minimally) decode GIOP message header. Main checks should
         //be done one layer above.
 
-        if( (char) header[0] == 'G' && (char) header[1] == 'I' &&
-            (char) header[2] == 'O' && (char) header[3] == 'P')
+        if (Messages.matchGIOPMagic(header))
         {
             //determine message size
             int msg_size = Messages.getMsgSize( header );
