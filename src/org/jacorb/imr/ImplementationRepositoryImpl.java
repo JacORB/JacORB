@@ -189,7 +189,7 @@ public class ImplementationRepositoryImpl
                 }
                 catch (Exception ex)
                 {
-                    this.logger.debug("Failed to read ServerTable", ex);
+                    this.logger.warn("Failed to read ServerTable -- creating an empty one", ex);
 
                     server_table = new ServerTable();
                     save_server_table(table_file);
@@ -198,7 +198,7 @@ public class ImplementationRepositoryImpl
         }
         catch (FileOpFailed ex)
         {
-            this.logger.debug("Failed to read ServerTable", ex);
+            this.logger.error("Failed to read ServerTable", ex);
         }
 
 
@@ -454,7 +454,7 @@ public class ImplementationRepositoryImpl
         }
         catch (Exception e)
         {
-            this.logger.debug("Caught Exception", e);
+            this.logger.error("Exception while getting system load", e);
             throw new InvalidSSDRef();
         }
         updatePending = true;
@@ -537,9 +537,9 @@ public class ImplementationRepositoryImpl
                         }
                         catch (UnknownServerName e)
                         {
-                            if (this.logger.isDebugEnabled())
+                            if (this.logger.isErrorEnabled())
                             {
-                                this.logger.debug("ImR: Internal error - unknown server " + servers[k].name, e);
+                                this.logger.error("ImR: Internal error - unknown server " + servers[k].name, e);
                             }
                         }
                     }
@@ -748,7 +748,7 @@ public class ImplementationRepositoryImpl
             }
             catch (InterruptedException e)
             {
-                this.logger.debug("Caught Exception", e);
+                this.logger.warn("shutdown wait was interrupted", e);
             }
         }
         try
@@ -757,7 +757,7 @@ public class ImplementationRepositoryImpl
         }
         catch (FileOpFailed f)
         {
-            this.logger.debug("ImR: Failed to save backup table.", f);
+            this.logger.error("ImR: Failed to save backup table.", f);
         }
         this.logger.debug("ImR: Finished shutting down");
     }
@@ -793,7 +793,7 @@ public class ImplementationRepositoryImpl
         }
         catch (Exception e)
         {
-            this.logger.debug("Caught Exception", e);
+            this.logger.error("Exception while saving server table", e);
             throw new FileOpFailed();
         }
         updatePending = false;
@@ -956,7 +956,7 @@ public class ImplementationRepositoryImpl
                 {
                     server.setNotRestarting();
 
-                    this.logger.debug("Caught Exception", e);
+                    this.logger.error("Exception while restarting server", e);
 
                     // sth wrong with daemon, remove from table
                     server_table.removeHost(server.host);
@@ -1022,9 +1022,9 @@ public class ImplementationRepositoryImpl
         }
         catch (Throwable ex)
         {
-            if (this.logger.isDebugEnabled())
+            if (this.logger.isErrorEnabled())
             {
-                this.logger.debug("Failed to invoke Runtime." + method.getName (),
+                this.logger.error("Failed to invoke Runtime." + method.getName (),
                                   ex);
             }
         }
@@ -1211,7 +1211,7 @@ public class ImplementationRepositoryImpl
                     // confusing users.
                     if (run)
                     {
-                        logger.debug("Caught Exception", _e);
+                        logger.debug("Internal Exception, can be ignored", _e);
                     }
                 }
             }
@@ -1237,7 +1237,7 @@ public class ImplementationRepositoryImpl
             }
             catch (Exception _e)
             {
-                logger.debug("Caught Exception", _e);
+                logger.error("Exception while closing server socket", _e);
             }
         }
     }
@@ -1266,7 +1266,7 @@ public class ImplementationRepositoryImpl
         }
         catch(ConfigurationException e)
         {
-            logger.debug("Failed to configure", e);
+            logger.error("Failed to configure", e);
         }
 
         if (this.logger.isDebugEnabled())
@@ -1304,7 +1304,7 @@ public class ImplementationRepositoryImpl
         }
         catch (Throwable ex)
         {
-            this.logger.debug("Caught Exception", ex);
+            this.logger.debug("Exception while checking server active", ex);
 
             result = false;
         }
@@ -1458,9 +1458,9 @@ public class ImplementationRepositoryImpl
             }
             catch( ServerStartupFailed ssf )
             {
-                if (logger.isDebugEnabled())
+                if (logger.isInfoEnabled())
                 {
-                    logger.debug("Object (" + _server.name + ") on "
+                    logger.info("Object (" + _server.name + ") on "
                                       + _poa.host + '/' + _poa.port +
                                       " not reachable");
                 }
@@ -1506,7 +1506,7 @@ public class ImplementationRepositoryImpl
             }
             catch(ConfigurationException e)
             {
-                logger.debug("Caught exception", e);
+                logger.error("Error while configuring address/profile", e);
             }
 
             if( !_old_poa_state )
@@ -1536,7 +1536,7 @@ public class ImplementationRepositoryImpl
                     }
                     catch(Exception _e)
                     {
-                        logger.debug("Caught Exception", _e);
+                        logger.info("Exception while waiting for object", _e);
                     }
                 }
             }
@@ -1556,7 +1556,7 @@ public class ImplementationRepositoryImpl
             }
             catch( IOException _e )
             {
-                logger.debug("Caught Exception", _e);
+                logger.error("Exception while writing new location", _e);
 
                 sendSysException( new org.omg.CORBA.UNKNOWN(_e.toString()),
                                   connection,
@@ -1591,7 +1591,7 @@ public class ImplementationRepositoryImpl
             }
             catch( IOException _e )
             {
-                logger.debug("Caught Exception", _e);
+                logger.error("Exception while sending SystemException to client", _e);
             }
         }
     }
@@ -1622,7 +1622,7 @@ public class ImplementationRepositoryImpl
                 }
                 catch (FileOpFailed ex)
                 {
-                    logger.debug("Caught Exception", ex);
+                    logger.error("Exception while saving server table", ex);
                 }
 
                 if (done)

@@ -148,7 +148,7 @@ public class ServerStartupDaemonImpl
         }
         catch (Exception _e)
         {
-            this.logger.debug("Caught Exception", _e);
+            this.logger.error("Server startup failed", _e);
             throw new ServerStartupFailed( _e.toString() );
         }
     }
@@ -214,7 +214,7 @@ public class ServerStartupDaemonImpl
             }
             catch( Exception _e )
             {
-                logger.debug("Caught Exception", _e);
+                logger.debug("Exception while forwarding server output", _e);
             }
 
             logger.debug("A server process exited");
