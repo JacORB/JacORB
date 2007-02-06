@@ -220,5 +220,9 @@ public class InterceptorManager
                 ior_interceptors[ i ].destroy();
             }
         }
+
+        if (null!=piCurrent.get()) {
+            removeTSCurrent();
+        }
     }
 } // InterceptorManager
