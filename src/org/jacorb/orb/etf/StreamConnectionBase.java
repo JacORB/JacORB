@@ -61,14 +61,42 @@ public abstract class StreamConnectionBase
     }
 
     /**
-     * read actual messages
+     * Reads bytes from the connection.
+     * 
+     * @param data holds a byte array to which the bytes will be written.  The
+     * field <code>data.value</code> must be initialized with a valid byte
+     * array already, it cannot be null.
+     * @param offset the index in <code>data.value</code> at which the first
+     * byte will be written.
+     * @param min_length the minimum number of bytes that shall be read from
+     * the Connection.  The method will block until at least this many bytes
+     * have been read.  If <code>min_length</code> is 0, the method will always
+     * return immediately without reading any data.
+     * @param max_length the maximum number of bytes that shall be read from
+     * the Connection.  If <code>max_length</code> is greater than
+     * <code>min_length</code>, then the transport is free to read
+     * (<code>max_length</code> - <code>min_length</code>) additional bytes
+     * beyond <code>min_length</code>.
+     * @param time_out timeout for this particular read operation.  Currently
+     * ignored in JacORB; we use socket-level timeouts.
+     *
+     * @return the number of bytes actually read.  The last byte written to
+     * <code>data.value</code> is at the index <code>offset</code> + this return
+     * value.  This return type is a change to the ETF draft spec in JacORB.
+     * It is needed because the mechanism suggested in the draft does not work
+     * in Java.
+     *
+     * @exception org.omg.CORBA.TIMEOUT if the socket-level timeout expires
+     * before the read operation completes.
+     * @exception org.omg.CORBA.TRANSIENT if the I/O is interrupted.
+     * @exception org.omg.CORBA.COMM_FAILURE if the read operation fails,
+     * for example because the connection has been closed. 
      */
-
-    public void read (org.omg.ETF.BufferHolder data,
-                      int offset,
-                      int min_length,
-                      int max_length,
-                      long time_out)
+    public int read (org.omg.ETF.BufferHolder data,
+                     int offset,
+                     int min_length,
+                     int max_length,
+                     long time_out)
     {
         int read = 0;
 
@@ -80,7 +108,7 @@ public abstract class StreamConnectionBase
             {
                 n = in_stream.read( data.value,
                                     offset + read,
-                                    min_length - read );
+                                    max_length - read );
 
             }
             catch( InterruptedIOException e )
@@ -121,8 +149,26 @@ public abstract class StreamConnectionBase
 
             read += n;
         }
+        return read;
     }
 
+    /**
+     * Writes bytes to this Connection.
+     * 
+     * @param is_first Currently not used in JacORB.
+     * @param is_last Currently not used in JacORB.
+     * @param data the buffer that holds the data that is to be written.
+     * @param offset index of the first byte in <code>data</code> that shall
+     * be written to the Connection.
+     * @param length the number of bytes in data that shall be written.  The 
+     * last byte in <code>data</code> that is written is at the index
+     * <code>offset + length</code>.
+     * @param time_out timeout for this particular write operation.  Currently
+     * ignored in JacORB.
+     * 
+     * @exception org.omg.CORBA.COMM_FAILURE if anything goes wrong during
+     * the write operation.
+     */
     public void write (boolean is_first,
                        boolean is_last,
                        byte[] data,
@@ -145,6 +191,9 @@ public abstract class StreamConnectionBase
 
     }
 
+    /**
+     * Causes any buffered data to be actually written to the Connection.
+     */
     public void flush()
     {
         try
