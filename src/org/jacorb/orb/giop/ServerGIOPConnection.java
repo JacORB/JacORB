@@ -171,7 +171,11 @@ public class ServerGIOPConnection
         }
         catch( org.omg.CORBA.COMM_FAILURE e )
         {
-            logger.error("COMM_FAILURE" , e );
+            logger.error
+            (
+                "COMM_FAILURE in sendCloseConnection(), in " + this.toString(), 
+                e
+            );
         }
         finally
         {
