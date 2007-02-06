@@ -144,8 +144,8 @@ public class GIOPConnectionTest
             return profile;
         }
 
-        public void read (BufferHolder data, int offset,
-                          int min_length, int max_length, long time_out)
+        public int read (BufferHolder data, int offset,
+                         int min_length, int max_length, long time_out)
         {
             if (this.index + min_length > this.data.length)
             {
@@ -153,6 +153,7 @@ public class GIOPConnectionTest
             }
             System.arraycopy(this.data, this.index, data.value, offset, min_length);
             this.index += min_length;
+            return min_length;
         }
 
         public boolean is_data_available()
