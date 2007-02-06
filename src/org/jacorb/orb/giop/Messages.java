@@ -219,6 +219,15 @@ public class Messages
         }
     }
 
+    public static final boolean matchGIOPMagic(byte[] buf)
+    {
+        // The values are hard-coded to support non-ASCII platforms.
+        return   (buf[0] == 0x47   // 'G'
+               && buf[1] == 0x49   // 'I'
+               && buf[2] == 0x4f   // 'O'
+               && buf[3] == 0x50); // 'P'
+    }
+    
     public static final boolean isLittleEndian( byte[] buf )
     {
         //this is new for GIOP 1.1/1.2
