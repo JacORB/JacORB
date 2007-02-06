@@ -1,3 +1,28 @@
+2007-02-06  Andre Spiegel  <spiegel@gnu.org>
+
+	* orb/giop/Messages.java (matchGIOPMagic): New method, suggested
+	by Juergen Weber in bug #745.
+
+	* orb/giop/GIOPConnection.java (getMessage): Use it.
+
+	* orb/giop/GIOPConnection.java: Use this.toString() in all log
+	messages, so that a particular connection can be identified.
+	Fix for bug #744.
+
+	* orb/giop/ServerGIOPConnection.java (sendCloseConnection):
+	Augment log message.
+
+	* orb/giop/GIOPConnection.java: Moved class
+	StatisticsProviderAdapter into a separate file.
+
+	* orb/giop/StatisticsProviderAdapter.java: Initial revision,
+	separated from GIOPConnection.java.
+
+	* orb/etf/StreamConnectionBase.java (read): Change signature to
+	return the number of bytes actually read. Use max_length
+	parameter, which was previously ignored.
+	(flush, read, write): Add javadoc.
+
 2007-02-02  Andre Spiegel  <spiegel@gnu.org>
 
 	* orb/ORB.java (getGIOPConnectionManager, getImR, getPOACurrent,
