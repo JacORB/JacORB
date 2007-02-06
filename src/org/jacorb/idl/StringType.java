@@ -75,6 +75,10 @@ public class StringType
         return this;
     }
 
+    public int getTCKind()
+    {
+    	return org.omg.CORBA.TCKind._tk_string;
+    }
 
     public void setEnclosingSymbol( IdlSymbol s )
     {

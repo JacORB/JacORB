@@ -81,6 +81,16 @@ public class TypeSpec
         return type_spec.typeSpec();
     }
 
+    public int getTCKind()
+    {
+    	return type_spec.getTCKind();
+    }
+    	
+    public void accept( IDLTreeVisitor visitor )
+    {
+    	type_spec.accept(visitor);
+    }
+    
     public void setPackage( String s )
     {
         s = parser.pack_replace( s );

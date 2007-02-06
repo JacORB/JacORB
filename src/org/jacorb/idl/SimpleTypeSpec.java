@@ -30,4 +30,14 @@ public class SimpleTypeSpec extends TypeSpec
     {
         super( num );
     }
+    
+    public void accept( IDLTreeVisitor visitor )
+    {
+        visitor.visitSimpleTypeSpec(this);
+    }
+
+    public int getTCKind()
+    {
+    	return type_spec.getTCKind();
+    }
 }

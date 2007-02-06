@@ -40,6 +40,11 @@ public class VoidTypeSpec
         return "void";
     }
 
+    public int getTCKind()
+    {
+    	return org.omg.CORBA.TCKind._tk_void;
+    }
+    
     /**
      * @return true if this is a basic type
      */

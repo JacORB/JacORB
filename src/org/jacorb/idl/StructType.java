@@ -160,7 +160,11 @@ public class StructType
         return getJavaTypeName(); // TODO
     }
 
-
+    public int getTCKind()
+    {
+    	return org.omg.CORBA.TCKind._tk_struct;
+    }
+    
     public boolean basic()
     {
         return false;

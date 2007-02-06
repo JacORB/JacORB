@@ -328,4 +328,12 @@ public class JavaMappingGeneratingVisitor
             }
         }
     }
+
+	public void visitSimpleTypeSpec(SimpleTypeSpec typeDecl)
+	{
+	}
+
+	public void visitVectorType(VectorType typeDecl)
+	{
+	}
 }

@@ -86,6 +86,12 @@ public interface IDLTreeVisitor
     void visitTypeDeclaration( TypeDeclaration typeDecl );
 
     void visitConstrTypeSpec( ConstrTypeSpec typeDecl );
+    
+    void visitSimpleTypeSpec( SimpleTypeSpec typeDecl );
+    
+    void visitVectorType( VectorType typeDecl );
+    
+    
 
 }
 

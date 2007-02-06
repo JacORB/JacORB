@@ -188,5 +188,14 @@ public abstract class VectorType
         return typeName();
     }
 
+    public void accept( IDLTreeVisitor visitor )
+    {
+        visitor.visitVectorType(this);
+    }
+    
+    public int getTCKind()
+    {
+    	return org.omg.CORBA.TCKind._tk_array;
+    }
 
 }

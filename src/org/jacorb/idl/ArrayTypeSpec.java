@@ -212,6 +212,11 @@ public class ArrayTypeSpec
         return originalType;
     }
 
+    public int getTCKind()
+    {
+    	return org.omg.CORBA.TCKind._tk_array;
+    }
+    
     public String helperName()
     {
         return ScopedName.unPseudoName(full_name()) + "Helper";

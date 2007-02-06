@@ -81,6 +81,13 @@ public class FixedPointType
         return "fixed";
     }
 
+
+    public int getTCKind()
+    {
+    	return org.omg.CORBA.TCKind._tk_fixed;
+    }
+
+    
     public TypeSpec typeSpec()
     {
         return this;
