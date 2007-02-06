@@ -174,7 +174,12 @@ public abstract class GIOPConnection
             {
                 if (logger.isErrorEnabled())
                 {
-                    logger.error( "Unable to create class from property >jacorb.connection.statistics_provider_class<: " + e.toString() );
+                    logger.error
+                    (
+                        "Unable to create class from property " +
+                        ">jacorb.connection.statistics_provider_class<: " + 
+                        e.toString()
+                    );
                 }
             }
         }
@@ -360,13 +365,21 @@ public abstract class GIOPConnection
             {
                 if (logger.isErrorEnabled())
                 {
-                    logger.error( "Negative GIOP message size: " + msg_size );
+                    logger.error
+                    (
+                        "Negative GIOP message size (" 
+                        + msg_size + ") in " + this.toString()
+                    );
                 }
 
                 if (logger.isDebugEnabled())
                 {
-                    logger.debug("TCP_IP_GIOPTransport.getMessage() with header: \n" +
-                                 new String(header) + "\nsize : " + Messages.MSG_HEADER_SIZE );
+                    logger.debug
+                    (
+                        "TCP_IP_GIOPTransport.getMessage() with header: \n" +
+                        new String(header) + "\nsize : " 
+                        + Messages.MSG_HEADER_SIZE + ", in " + this.toString() 
+                    );
                 }
 
                 return null;
@@ -388,7 +401,11 @@ public abstract class GIOPConnection
             {
                 if (logger.isErrorEnabled())
                 {
-                    logger.error( "Failed to read GIOP message", ex);
+                    logger.error
+                    (
+                        "Failed to read GIOP message in " + this.toString(), 
+                        ex
+                    );
                 }
                 return null;
             }
@@ -397,10 +414,14 @@ public abstract class GIOPConnection
             {
                 if (logger.isInfoEnabled())
                 {
-                    logger.info("BufferDump:\n" +
-                                ObjectUtil.bufToString( inbuf.value,
-                                                        0,
-                                                        msg_size + Messages.MSG_HEADER_SIZE ));
+                    logger.info
+                    (
+                        this.toString() + " BufferDump:\n" +
+                        ObjectUtil.bufToString
+                        ( 
+                            inbuf.value, 0, msg_size + Messages.MSG_HEADER_SIZE
+                        )
+                    );
                 }
             }
 
@@ -416,14 +437,14 @@ public abstract class GIOPConnection
 
         if (logger.isDebugEnabled())
         {
-            logger.debug("GIOPConnection.getMessage(), invalid header read: " 
+            logger.debug(this.toString() + " getMessage(), invalid header read: " 
                          + ObjectUtil.bufToString(msg_header.value, 0, 4));
         }
 
         if (logger.isErrorEnabled())
         {
-            logger.error( "Failed to read GIOP message, "
-                          + "incorrect magic number --> connection closed" );
+            logger.error( "Failed to read GIOP message in " + this.toString()
+                          + ", incorrect magic number --> connection closed" );
         }
         
         // close transport connection, there is nearly no chance to sync
@@ -466,8 +487,9 @@ public abstract class GIOPConnection
                 {
                     if (logger.isErrorEnabled())
                     {
-                        logger.error( "Invalid GIOP major version encountered: " +
-                                      Messages.getGIOPMajor( message ) );
+                        logger.error("Invalid GIOP major version encountered: " 
+                                     + Messages.getGIOPMajor( message )
+                                     + ", in " + this.toString() );                                
                     }
 
                     buf_mg.returnBuffer( message );
@@ -483,7 +505,11 @@ public abstract class GIOPConnection
                     {
                         if (logger.isWarnEnabled())
                         {
-                            logger.warn( "Received a GIOP 1.0 message of type Fragment" );
+                            logger.warn
+                            (
+                                "Received a GIOP 1.0 message of type Fragment"
+                                + " in " + this.toString()
+                            );
                         }
 
                         final MessageOutputStream out =
@@ -508,7 +534,8 @@ public abstract class GIOPConnection
                     {
                         if (logger.isWarnEnabled())
                         {
-                            logger.warn( "Received a GIOP 1.1 Fragment message" );
+                            logger.warn( "Received a GIOP 1.1 Fragment message"
+                                        + " in " + this.toString());
                         }
 
                         //Can't return a message in this case, because
@@ -521,14 +548,18 @@ public abstract class GIOPConnection
 
                     //for now, only GIOP 1.2 from here on
 
-                    Integer request_id = ObjectUtil.newInteger( Messages.getRequestId( message ));
+                    Integer request_id = ObjectUtil.newInteger
+                    (
+                        Messages.getRequestId( message )
+                    );
 
                     //sanity check
                     if( ! fragments.containsKey( request_id ))
                     {
                         if (logger.isErrorEnabled())
                         {
-                            logger.error( "No previous Fragment to this one" );
+                            logger.error( "No previous Fragment to this one in "
+                                         + this.toString());
                         }
 
                         //Drop this one and continue
@@ -569,7 +600,9 @@ public abstract class GIOPConnection
                     {
                         if (logger.isWarnEnabled())
                         {
-                            logger.warn( "Received a GIOP 1.0 message with the \"more fragments follow\" bits set" );
+                            logger.warn( "Received a GIOP 1.0 message "
+                                       + "with the \"more fragments follow\""
+                                       + "bits set in " + this.toString() );
                         }
 
                         MessageOutputStream out =
@@ -591,8 +624,13 @@ public abstract class GIOPConnection
                         {
                             if (logger.isWarnEnabled())
                             {
-                                logger.warn( "Received a GIOP 1.1 message of type " +
-                                             msg_type + " with the \"more fragments follow\" bits set" );
+                                logger.warn
+                                (
+                                    "Received a GIOP 1.1 message of type " +
+                                    msg_type + " with the " + "" +
+                                    "\"more fragments follow\" bits set" +
+                                    " in " + this.toString()
+                                );
                             }
 
                             MessageOutputStream out =
@@ -609,7 +647,8 @@ public abstract class GIOPConnection
                         //GIOP 1.1 Fragmented messages currently not supported
                         if (logger.isWarnEnabled())
                         {
-                            logger.warn( "Received a fragmented GIOP 1.1 message" );
+                            logger.warn( "Received a fragmented GIOP 1.1 message" 
+                                        + " in " + this.toString() );
                         }
 
                         int giop_minor = Messages.getGIOPMinor( message );
@@ -637,9 +676,13 @@ public abstract class GIOPConnection
                     {
                         if (logger.isWarnEnabled())
                         {
-                            logger.warn( "Received a GIOP message of type " + msg_type +
-                                         " with the \"more fragments follow\" bits set, but this " +
-                                         "message type isn't allowed to be fragmented" );
+                            logger.warn
+                            (
+                                "Received a GIOP message of type " + msg_type +
+                                " with the \"more fragments follow\" bits set, " +
+                                "but this message type isn't allowed to be " +
+                                "fragmented, in " + this.toString()
+                            );
                         }
 
                         MessageOutputStream out =
@@ -662,10 +705,14 @@ public abstract class GIOPConnection
                     {
                         if (logger.isErrorEnabled())
                         {
-                            logger.error( "Received a message of type " +
-                                          msg_type +
-                                          " with the more fragments follow bit set, but there is already an fragmented, incomplete message with the same request id " +
-                                          request_id + "!" );
+                            logger.error
+                            ( 
+                                "Received a message of type " + msg_type +
+                                " with the more fragments follow bit set," +
+                                " but there is already an fragmented," +
+                                " incomplete message with the same request id (" +
+                                request_id + ", in " + this.toString() 
+                            );
                         }
 
                         //Drop this one and continue
@@ -742,7 +789,11 @@ public abstract class GIOPConnection
                     {
                         if (logger.isErrorEnabled())
                         {
-                            logger.error("received message with unknown message type " + msg_type);
+                            logger.error
+                            (
+                                "Received message with unknown message type " 
+                                + msg_type + ", in " + this.toString()
+                            );
                         }
                         buf_mg.returnBuffer( message );
                     }
@@ -871,8 +922,10 @@ public abstract class GIOPConnection
 
                 if (logger.isDebugEnabled())
                 {
-                    logger.debug(this.toString()
-                                 + ": sendMessage() -- opening transport");
+                    logger.debug
+                    (
+                        this.toString() + ": sendMessage() -- opening transport"
+                    );
                 }
 
                 synchronized (connect_sync)
@@ -886,8 +939,10 @@ public abstract class GIOPConnection
                     {
                         if (logger.isDebugEnabled())
                         {
-                            logger.debug(this.toString()
-                                         + ": sendMessage() -- failed to open transport");
+                            logger.debug
+                            (
+                                this.toString() +
+                                ": sendMessage() -- failed to open transport");
                         }
                         throw ex;
                     }
@@ -908,13 +963,21 @@ public abstract class GIOPConnection
         {
             if (logger.isErrorEnabled())
             {
-                logger.error( "Failed to write GIOP message due to COMM_FAILURE", e );
+                logger.error
+                (
+                    "Failed to write GIOP message due to COMM_FAILURE, in " +
+                    this.toString(), e
+                );
             }
             if( !do_close )
             {
                 if (logger.isErrorEnabled())
                 {
-                    logger.error( "GIOP connection closed due to errors during sendMessage");
+                    logger.error
+                    (
+                        "GIOP connection closed due to errors during " +
+                        "sendMessage(), in " + this.toString()
+                    );
                 }
                 //release write lock to prevent dead locks to 
                 //reader thread which might try to close this socket too
@@ -1062,7 +1125,11 @@ public abstract class GIOPConnection
         {
             if (logger.isErrorEnabled())
             {
-                logger.error( "Get bad cubby id "+id+" (max="+cubby_count+")");
+                logger.error
+                (
+                    "Get bad cubby id "+id+" (max="+cubby_count+"), in "
+                    + this.toString()
+                );
             }
             return null;
         }
@@ -1075,7 +1142,11 @@ public abstract class GIOPConnection
         {
            if (logger.isErrorEnabled())
            {
-               logger.error( "Set bad cubby id "+id+" (max="+cubby_count+")");
+               logger.error
+               (
+                   "Set bad cubby id "+id+" (max="+cubby_count+"), in "
+                   + this.toString()
+               );
            }
            return;
         }
