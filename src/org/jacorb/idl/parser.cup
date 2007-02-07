@@ -44,7 +44,7 @@ parser code
     private static final String FINAL = " final";
     private static final String NO_FINAL = "";
 
-    static String out_dir = ".";
+    public static String out_dir = ".";
     // Use for org.omg only.
     static String package_prefix = null;
 
@@ -76,6 +76,7 @@ parser code
     static boolean generateEnhanced;
 
     protected static boolean forceOverwrite;
+    protected static boolean addbackend = false;
 
     protected static boolean generateDiiStubs = false;
 
@@ -279,8 +280,13 @@ parser code
                     useUncheckedNarrow = true;
                     continue;
                 }
-                if( argv[i].equals("-backend"))
+                if( argv[i].equals("-backend") || argv[i].equals("-addbackend")) 
                 {
+					if (argv[i].equals("-addbackend"))
+                    {
+                    	addbackend = true;
+                    }
+                
                     if( i+1 == argv.length || argv[i+1].charAt(0)=='-' )
                         usage(argv, "-backend");
 
@@ -543,6 +549,7 @@ parser code
         System.out.println("\t-ami_callback\t\tgenerate AMI reply handlers and sendc methods");
         System.out.println("\t-ami_polling\t\tgenerate AMI poller and sendp methods");
         System.out.println("\t-backend classname\t\tuse classname as code generator");
+        System.out.println("\t-addbackend classname\t\tadd classname as code generator");
         System.out.println("\t-i2jpackage x:a.b.c\t replace IDL package name x by a.b.c in generated Java code (e.g. CORBA:org.omg.CORBA)");
         System.out.println("\t-i2jpackagefile <filename>\t replace IDL package names using list from <filename>. Format as above.");
         System.out.println("\t-ir\t\tgenerate information required by the Interface Repository");
@@ -975,6 +982,13 @@ specification ::=
                         ((org.jacorb.idl.parser)CUP$parser).getGenerator();
                      if( backend != null )
                      {
+                         if (((org.jacorb.idl.parser)CUP$parser).addbackend)
+                      	 {
+                        		// before the custom backend first use 
+                        		// the default code generator for the Java Mapping
+                              RESULT.print( new java.io.PrintWriter( java.lang.System.out ) );
+                      	 }
+                     
                           // a custom backend was provided , so let's start
                           // the visitor
                           RESULT.accept( backend );
