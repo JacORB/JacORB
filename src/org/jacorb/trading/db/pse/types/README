@@ -1,3 +1,0 @@
-This is a an implementation of the TypeDatabase interface that
-provides persistent storage for service types using the free
-ObjectStore PSE product.
