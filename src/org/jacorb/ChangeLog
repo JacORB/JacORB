@@ -1,3 +1,38 @@
+2007-02-14  Andre Spiegel  <spiegel@gnu.org>
+
+	* orb/ORB.java (string_to_object): If an exception occurs, log
+	that at ERROR level and with a better message.
+
+	* orb/policies/RelativeRequestTimeoutPolicy.java,
+	orb/policies/RelativeRoundtripTimeoutPolicy.java: Add convenience
+	constructors back in.  Add Javadoc.
+
+	* orb/etf/ProfileBase.java (encapsulation): Fix typo in Javadoc.
+
+	* orb/DefaultProfileSelector.java: Add some Javadoc.
+
+2007-02-10  Gerald Brose  <gerald.brose@acm.org>
+
+	* build.xml: Removed Trading
+
+	* trading/db/DatabaseMgr.java, trading/db/OfferDatabase.java,
+	trading/db/TypeDatabase.java, trading/db/build.xml,
+	trading/db/pse/PSEDatabaseMgr.java,
+	trading/db/pse/offers/AnyValue.java,
+	trading/db/pse/offers/DynPropValue.java,
+	trading/db/pse/offers/Offer.java,
+	trading/db/pse/offers/OfferDatabaseImpl.java,
+	trading/db/pse/offers/OfferList.java,
+	trading/db/pse/offers/OfferProperty.java,
+	trading/db/pse/offers/ProxyOffer.java,
+	trading/db/pse/offers/ProxyPolicy.java,
+	trading/db/pse/offers/README,
+	trading/db/pse/offers/TypeCodeValue.java,
+	trading/db/pse/util/TransactionMgr.java, trading/CHANGES,
+	trading/INSTALL, trading/NOTES, trading/README,
+	trading/README.PROPERTIES, trading/TradingService.java,
+	trading/build.xml: *** empty log message ***
+
 2007-02-07  Andre Spiegel  <spiegel@gnu.org>
 
 	* idl/parser.cup: New option -addbackend, suggested by Juergen
