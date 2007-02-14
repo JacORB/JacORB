@@ -1898,9 +1898,9 @@ public final class ORB
         }
         catch (Exception e)
         {
-            if (logger.isDebugEnabled())
+            if (logger.isErrorEnabled())
             {
-                logger.debug(e.getMessage());
+                logger.error("Exception while converting string to object", e);
             }
             throw new BAD_PARAM(10, CompletionStatus.COMPLETED_NO);
         }
