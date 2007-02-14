@@ -23,18 +23,61 @@ package org.jacorb.orb.policies;
 import org.omg.CORBA.*;
 import org.omg.Messaging.*;
 
+/**
+ * Specifies a relative timeout for a CORBA request.  It is an upper bound
+ * for the time it may take for a request to get from the client to the
+ * server.  The timeout does not include the time needed for getting the reply
+ * back to the client.
+ * 
+ * @author Andre Spiegel spiegel@gnu.org
+ * @version $Id$
+ */
 public class RelativeRequestTimeoutPolicy
     extends _RelativeRequestTimeoutPolicyLocalBase
 {
+    /**
+     * The length of this timeout, in CORBA time units
+     * (100 nanosecond resolution).
+     */
     private final long relative_expiry;
 
+    /**
+     * Constructs a new RelativeRequestTimeoutPolicy object from
+     * an Any value.  This is the official CORBA way of constructing
+     * this policy (via orb.create_policy()), but JacORB also has a
+     * convenience constructor that directly takes the timeout value
+     * as a parameter.
+     * 
+     * @param value an Any that contains the timeout as a CORBA
+     * "unsigned long long" value (use Any.insert_ulonglong()).
+     * The timeout is specified in CORBA time units (100 nanosecond resolution).
+     * If you have a value in milliseconds, multiply that by 10,000.
+     */
     public RelativeRequestTimeoutPolicy (org.omg.CORBA.Any value)
     {
         super();
-
         this.relative_expiry = value.extract_ulonglong();
     }
 
+    /**
+     * Convenience constructor for RelativeRequestTimeoutPolicy.  This
+     * constructor is JacORB-specific, non-portable, but it allows you to
+     * create a policy object in a single line of code, rather than going
+     * via the ORB and stuffing the timeout value into an Any.
+     * @param relative_expiry the duration of this timeout, in CORBA
+     * time units (100 nanosecond resolution).  If you have a value in
+     * milliseconds, multiply that by 10,000.
+     */
+    public RelativeRequestTimeoutPolicy (long relative_expiry)
+    {
+        super();
+        this.relative_expiry = relative_expiry;
+    }
+    
+    /**
+     * Returns the duration of this timeout, in CORBA time units (100 nanosecond
+     * resolution).  To convert it to milliseconds, divide by 10,000.
+     */
     public long relative_expiry()
     {
         return relative_expiry;
