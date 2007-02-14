@@ -26,13 +26,22 @@ import org.jacorb.orb.giop.ClientConnectionManager;
 import org.omg.ETF.Profile;
 
 /**
- * @author <a href="mailto:spiegel@gnu.org">Andre Spiegel</a>
+ * When the client connects to the server, an instance of this class selects
+ * one of potentially many profiles in the IOR that the server published.
+ * This class is the default ProfileSelector in JacORB, it always selects
+ * the first profile in the list, no matter what.
+ * 
+ * @author Andre Spiegel spiegel@gnu.org
  * @version $Id$
  */
 public class DefaultProfileSelector implements ProfileSelector
 {
+    /**
+     * @see org.jacorb.orb.ProfileSelector#selectProfile(java.util.List, org.jacorb.orb.giop.ClientConnectionManager)
+     */
     public Profile selectProfile (List profiles, ClientConnectionManager ccm)
     {
+        // always return the first profile in the list
         if (profiles.size() > 0)
         {
             return (Profile)profiles.get(0);
