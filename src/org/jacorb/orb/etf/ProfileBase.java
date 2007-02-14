@@ -183,7 +183,7 @@ public abstract class ProfileBase
 
     /**
     * Indicates the encapsulation that will be used by this profile
-    * when encoding it's AddressProfile bytes, and which should subsequently
+    * when encoding its AddressProfile bytes, and which should subsequently
     * be used when marshalling all the rest of the TaggedProfile.profile_data.
     * Using the default CDROutputStream for a transport profile encapsulation
     * this should always be 0.
