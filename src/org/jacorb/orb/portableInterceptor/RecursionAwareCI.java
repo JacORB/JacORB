@@ -58,6 +58,7 @@ public abstract class RecursionAwareCI
             ignore_operations.add( "_get_policy" );
             ignore_operations.add( "_get_domain_managers" );
             ignore_operations.add( "_set_policy_overrides" );
+            ignore_operations.add( "_get_component" );
         }
     }
 

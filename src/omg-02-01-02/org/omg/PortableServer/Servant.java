@@ -45,6 +45,10 @@ abstract public class Servant {
     public boolean _non_existent() {
         return _get_delegate().non_existent(this);
     }
+    
+    public org.omg.CORBA.Object _get_component() {
+        return _get_delegate().get_component(this);
+    }
 
     /** @deprecated Deprecated by CORBA 2.4
      */

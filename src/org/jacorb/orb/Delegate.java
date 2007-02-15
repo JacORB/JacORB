@@ -1542,7 +1542,52 @@ public final class Delegate
             }
         }
     }
+    
+    public org.omg.CORBA.Object get_component (org.omg.CORBA.Object self)
+    {
+        // If local object call _get_component directly
 
+        if (is_really_local(self))
+        {
+            org.omg.PortableServer.Servant servant;
+            org.omg.CORBA.portable.ServantObject so;
+
+            so = servant_preinvoke(self, "_get_component", java.lang.Object.class);
+
+            try
+            {
+                servant = (org.omg.PortableServer.Servant)so.servant;
+                orb.set_delegate(servant);
+                return servant._get_component();
+            }
+            finally
+            {
+                servant_postinvoke(self, so);
+            }
+        }
+
+        org.omg.CORBA.portable.OutputStream os;
+        org.omg.CORBA.portable.InputStream is;
+
+        while (true)
+        {
+            try
+            {
+                os = request(self, "_get_component", true);
+                is = invoke(self, os);
+                return is.read_Object();
+            }
+            catch (RemarshalException re) // NOPMD
+            {
+                // ignored
+            }
+            catch (ApplicationException e)
+            {
+                throw new INTERNAL( "Unexpected exception " + e.getId() );
+            }
+        }
+    }
+    
     public org.omg.CORBA.ORB orb( org.omg.CORBA.Object self )
     {
         return orb;

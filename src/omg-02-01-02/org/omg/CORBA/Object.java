@@ -12,6 +12,8 @@ public interface Object {
     boolean _is_equivalent(org.omg.CORBA.Object other);
 
     boolean _non_existent();
+    
+    org.omg.CORBA.Object _get_component();
   
     int _hash(int maximum);
   

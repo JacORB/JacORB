@@ -92,6 +92,8 @@ public class RequestProcessor
 
         specialOperations.add("_get_policy");
         specialOperations.add("_set_policy_overrides");
+        
+        specialOperations.add("_get_component");
     }
 
     RequestProcessor (RPPoolManager _poolManager)

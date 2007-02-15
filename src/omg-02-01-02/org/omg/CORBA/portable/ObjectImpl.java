@@ -56,6 +56,10 @@ abstract public class ObjectImpl implements org.omg.CORBA.Object {
     public boolean _non_existent() {
         return _get_delegate().non_existent(this);
     }
+    
+    public org.omg.CORBA.Object _get_component() {
+        return _get_delegate().get_component(this);
+    }
 
     public int _hash(int maximum) {
         return _get_delegate().hash(this, maximum);

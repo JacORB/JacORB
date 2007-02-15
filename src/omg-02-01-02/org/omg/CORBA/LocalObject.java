@@ -39,6 +39,15 @@ public abstract class LocalObject implements org.omg.CORBA.Object {
 	public Request _request(String operation){
 		throw new org.omg.CORBA.NO_IMPLEMENT();
 	}
+	public org.omg.CORBA.Object _get_component() {
+    // There is an inconsistency between CORBA 3.0 spec. and 'IDL to Java 
+		// mapping' spec. The former says that the operation should return 
+		// the exception with minor code 8. But the latter suggests to return 
+		// a default instance of NO_IMPLEMENT exception which conveys minor code 0.
+		// Which on to follow?
+    //throw new org.omg.CORBA.NO_IMPLEMENT(8, org.omg.CORBA.CompletionStatus.COMPLETED_NO);
+		throw new org.omg.CORBA.NO_IMPLEMENT();
+  }
 	public Request _create_request(
 		Context ctx,
 		String operation,

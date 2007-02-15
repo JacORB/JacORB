@@ -25,6 +25,8 @@ public abstract class Delegate {
                 String repository_id);
 
     public abstract boolean non_existent(org.omg.CORBA.Object self);
+    
+    public abstract org.omg.CORBA.Object get_component(org.omg.CORBA.Object self);
 
     public abstract boolean is_equivalent(org.omg.CORBA.Object self,
                 org.omg.CORBA.Object rhs);

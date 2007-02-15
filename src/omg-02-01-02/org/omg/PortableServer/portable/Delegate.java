@@ -16,11 +16,12 @@ public interface Delegate {
     boolean is_a(org.omg.PortableServer.Servant self,
                     java.lang.String repository_id);
     boolean non_existent(org.omg.PortableServer.Servant self);
+    org.omg.CORBA.Object get_component(
+                    org.omg.PortableServer.Servant self);
     /** @deprecated Deprecated by CORBA 2.4
     */
     org.omg.CORBA.InterfaceDef get_interface(
                     org.omg.PortableServer.Servant self);
     org.omg.CORBA.Object get_interface_def(
                     org.omg.PortableServer.Servant self);
-
 }
