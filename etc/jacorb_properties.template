@@ -727,45 +727,6 @@ jacorb.naming.noping=on
 # The file where the name server drops its IOR
 jacorb.naming.ior_filename=c:/NS_Ref
 
-########################################
-#                                      #
-#   Trader configuration, please see   #
-#   src/trading/README.PROPERTIES for  #
-#   explanation                        #
-#                                      #
-########################################
-
-jtrader.util.max_threads=10
-jtrader.util.min_threads=1
-jtrader.util.query_timeout=5000
-jtrader.impl.cache_max=100
-
-# boolean values, e.g. true / false
-#jtrader.modifiable_properties=
-#jtrader.dynamic_properties=
-#jtrader.proxy_offers=
-
-jtrader.debug=false
-jtrader.debug_verbosity=3
-
-#integer values
-jtrader.def_search_card=
-jtrader.max_search_card=
-jtrader.def_match_card=
-jtrader.max_match_card=
-jtrader.def_return_card=
-jtrader.max_return_card=
-jtrader.max_list=
-jtrader.def_hop_count=
-jtrader.max_hop_count=
-
-#FollowOptions
-#always=2
-#if_no_local=1
-#local_only=0
-jtrader.def_follow_policy=
-jtrader.max_follow_policy=
-jtrader.max_link_follow_policy=
 
 ########################################################
 #                                                      #

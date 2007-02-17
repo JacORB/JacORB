@@ -20,10 +20,10 @@
    <!-- top-level targets  -->
 
    <target name="all"
-      depends="corba,names,security,events,dds,transactions,concurrency,collections,trading,jacorb,notification,property" />
+      depends="corba,names,security,events,dds,transactions,concurrency,collections,jacorb,notification,property" />
 
    <target name="services"
-      depends="events,trading,collections,transactions,concurrency,property" />
+      depends="events,collections,transactions,concurrency,property" />
 
 
    <!-- ==================================================== -->
@@ -435,15 +435,6 @@
 
 		<idl-javac
 			javac-includes="org/omg/CosConcurrencyControl/**/*.java,org/omg/CosConcurrencyControl/*.java"/>
-   </target>
-
-   <!--                      -->
-   <!--     trading service  -->
-   <!--                      -->
-
-   <target name="trading" depends="local-init,basic,repository,dynamic">
-		<idl-javac
-			javac-includes="org/omg/CosTrading/**,org/omg/CosTradingDynamic/**,org/omg/CosTradingRepos/**"/>
    </target>
 
    <target name="basic">
