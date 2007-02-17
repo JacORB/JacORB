@@ -1,6 +1,0 @@
-#!/bin/sh 
-
-
-# Starts the JTrader trading service
-
-jaco org.jacorb.trading.TradingService "$@"
