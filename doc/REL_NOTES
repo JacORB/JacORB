@@ -29,7 +29,8 @@
 
         - Object Service implementations
                 - Interoperable Naming Service (with graphical interface)
-                - Trading Service (extension of Mark Spruiell's JTrader)
+                - Trading Service (extension of Mark Spruiell's JTrader, 
+                  separately available).
                 - Notification and Event Service (by Alphonse Bendt)
                 - Transaction, collection and concurrency services
                     (by Alex Sinishin and Viacheslav Tararin of DekaSoft
