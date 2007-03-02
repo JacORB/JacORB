@@ -749,8 +749,10 @@ public class AnyTest extends ClientServerTestCase
     {
     	TypeCode typeCode = new FixedHolder(new BigDecimal("471.1"))._type();
 
-    	assertEquals("if this test fails you prohably don't have the org.omg.CORBA.* classes that are provided by JacORB on your bootclasspath", 4, typeCode.fixed_digits());
-    	assertEquals("if this test fails you prohably don't have the org.omg.CORBA.* classes that are provided by JacORB on your bootclasspath", 1, typeCode.fixed_scale());
+        String message = "probably using org.omg.CORBA.* from JDK, not JacORB"
+                       + " (is JacORB on the bootclasspath?)";
+    	assertEquals (message, 4, typeCode.fixed_digits());
+    	assertEquals (message, 1, typeCode.fixed_scale());
     }
 
     /**
