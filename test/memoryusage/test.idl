@@ -1,5 +1,5 @@
 module test
-{	
+{
   module memoryusage
     {
       interface Session
@@ -9,12 +9,12 @@ module test
 
       interface SessionFactory
 	{
-          Session get_Session(in string userName, 
-                              in string fullName, 
-                              in string emailAddress, 
+          Session get_Session(in string userName,
+                              in string fullName,
+                              in string emailAddress,
                               in string ip);
 
-          void releaseSession(in Session session);
+          void releaseSession(in Session s);
 	};
     };
 };
