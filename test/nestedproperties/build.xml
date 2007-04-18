@@ -1,0 +1,34 @@
+<?xml version="1.0"?>
+
+<!DOCTYPE project [ <!ENTITY common SYSTEM "../../etc/common.xml"> ]>
+
+<project name="test" default="all" basedir="../..">
+
+  &common;
+
+  <!-- ==================================================== -->
+  <!--             Test build file                         -->
+  <!-- ==================================================== -->
+
+   <target name="nestedproperties.init">
+	<property name="name" value="nestedproperties"/>
+	<property name="dirs.base" value="${basedir}"/>
+	<property name="classdir" value="${dirs.base}/classes"/>
+	<property name="lib" value="${dirs.base}/lib"/>
+	<property name="include" value="${dirs.base}/idl"/>
+        <property name="dest" value="${dirs.base}/test/${name}/generated"/>
+	<property name="idlflags" value="-d ${dirs.base}/test/${name}/generated"/>
+   </target>
+
+   <target name="all" depends="nestedproperties.init">
+	<javac srcdir="${dirs.base}"
+               destdir="${classdir}"
+	       includes="test/${name}/*.java"
+	        />
+   </target>
+
+   <target name="clean" depends="nestedproperties.init">
+           <delete dir="${classdir}/test/nestedproperties"/>
+   </target>
+
+</project>

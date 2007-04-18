@@ -493,9 +493,10 @@ public class JacORBConfiguration
 
     void setAttributes(Properties properties)
     {
-        for (Iterator iter=properties.keySet().iterator(); iter.hasNext();)
+        Enumeration e = properties.propertyNames ();
+        while (e.hasMoreElements ())
         {
-            Object obj = iter.next();
+            Object obj = e.nextElement ();
             // Some lunatics illegally put non String objects into System props
             // as keys / values - we check for both and ignore them.
             if (!(obj instanceof String))
@@ -504,7 +505,7 @@ public class JacORBConfiguration
             }
 
             String key = (String)obj;
-            Object value = properties.get(key);
+            Object value = properties.getProperty(key);
             if (value instanceof String || value == null)
             {
                 setAttribute(key, (String)value);
