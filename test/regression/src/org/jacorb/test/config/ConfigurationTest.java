@@ -31,23 +31,36 @@ import org.jacorb.config.*;
 /**
  * Tests the various configuration mechanisms, properties files, and
  * property precedence in JacORB.
- * @author Alphonse Bendt / Andre Spiegel
+ * @author Alphonse Bendt
+ * @author Andre Spiegel
  * @version $Id$
  */
 public class ConfigurationTest extends JacORBTestCase
 {
+    private final Properties oldProps = new Properties();
+
     public ConfigurationTest (String name)
     {
         super (name);
     }
-    
+
     public static Test suite()
     {
         TestSuite result = new TestSuite("Configuration Tests");
         result.addTestSuite(ConfigurationTest.class);
         return result;
     }
-    
+
+    protected void setUp() throws Exception
+    {
+        oldProps.putAll(System.getProperties());
+    }
+
+    protected void tearDown() throws Exception
+    {
+        System.setProperties(oldProps);
+    }
+
     /**
      * Simply a unit test of method JacORBConfiguration.getLoggerName()
      */
@@ -79,13 +92,13 @@ public class ConfigurationTest extends JacORBTestCase
                     .getAttributeAsInteger(
                             "jacorb.connection.client.connect_timeout", 0);
             assertEquals(33099, timeout);
-        } 
+        }
         finally
         {
             deletePropertiesFile ("classes/orb.properties");
         }
     }
-    
+
     public void testOrbidPropertiesConfigDir() throws Exception
     {
         try
@@ -98,29 +111,23 @@ public class ConfigurationTest extends JacORBTestCase
             props.put("org.omg.CORBA.ORBSingletonClass",
                     "org.jacorb.orb.ORBSingleton");
 
-            // Make sure to copy the properties to a new Properties object,
-            // because otherwise oldProps will just be an alias to the 
-            // "live" set of properties.
-            Properties oldProps = new Properties (System.getProperties());
             System.setProperty("jacorb.config.dir", TestUtils
                     .osDependentPath(TestUtils.testHome()));
             System.setProperty("ORBid", "mytestorbid");
 
             ORB orb = ORB.init(new String[] {}, props);
 
-            System.setProperties(oldProps);
-
             int timeout = ((org.jacorb.orb.ORB) orb).getConfiguration()
                     .getAttributeAsInteger(
                             "jacorb.connection.client.connect_timeout", 0);
             assertEquals(33098, timeout);
-        } 
+        }
         finally
         {
             deletePropertiesFile ("etc/mytestorbid.properties");
         }
     }
-    
+
     /**
      * Place an orbid.properties file on the classpath and verify
      * that it gets loaded.
@@ -137,12 +144,9 @@ public class ConfigurationTest extends JacORBTestCase
             props.put("org.omg.CORBA.ORBSingletonClass",
                     "org.jacorb.orb.ORBSingleton");
 
-            Properties oldProps = new Properties(System.getProperties());
             System.setProperty("ORBid", "myownorbid");
 
             ORB orb = ORB.init(new String[] {}, props);
-
-            System.setProperties(oldProps);
 
             int timeout = ((org.jacorb.orb.ORB) orb).getConfiguration()
                     .getAttributeAsInteger(
@@ -171,19 +175,16 @@ public class ConfigurationTest extends JacORBTestCase
             props.put("org.omg.CORBA.ORBSingletonClass",
                     "org.jacorb.orb.ORBSingleton");
 
-            Properties oldProps = new Properties(System.getProperties());
-            System.setProperty("custom.props", 
+            System.setProperty("custom.props",
                                getConfigFilename ("etc/custom.properties"));
 
             ORB orb = ORB.init(new String[] {}, props);
-
-            System.setProperties(oldProps);
 
             int timeout = ((org.jacorb.orb.ORB) orb).getConfiguration()
                     .getAttributeAsInteger(
                             "jacorb.connection.client.connect_timeout", 0);
             assertEquals(33100, timeout);
-        } 
+        }
         finally
         {
             deletePropertiesFile ("etc/custom.properties");
@@ -200,11 +201,8 @@ public class ConfigurationTest extends JacORBTestCase
         props.put("org.omg.CORBA.ORBSingletonClass",
                   "org.jacorb.orb.ORBSingleton");
 
-        Properties oldProps = new Properties (System.getProperties());
         System.setProperty ("jacorb.connection.client.connect_timeout", "33105");
         ORB orb = ORB.init(new String[] {}, props);
-
-        System.setProperties(oldProps);
 
         int timeout = ((org.jacorb.orb.ORB) orb).getConfiguration()
                     .getAttributeAsInteger(
@@ -222,7 +220,7 @@ public class ConfigurationTest extends JacORBTestCase
         props.put("org.omg.CORBA.ORBSingletonClass",
                   "org.jacorb.orb.ORBSingleton");
         props.put("jacorb.connection.client.connect_timeout", "33707");
-        
+
         ORB orb = ORB.init(new String[] {}, props);
 
         int timeout = ((org.jacorb.orb.ORB) orb).getConfiguration()
@@ -247,24 +245,21 @@ public class ConfigurationTest extends JacORBTestCase
                                   "jacorb.connection.client.connect_timeout=33702");
             createPropertiesFile ("classes/myorbid.properties",
                                   "jacorb.connection.client.connect_timeout=33703");
-            
+
             Properties props = new Properties();
             props.put("org.omg.CORBA.ORBClass", "org.jacorb.orb.ORB");
             props.put("org.omg.CORBA.ORBSingletonClass",
                       "org.jacorb.orb.ORBSingleton");
             props.put("jacorb.connection.client.connect_timeout", "33705");
-        
-            Properties oldProps = new Properties(System.getProperties());
+
             System.setProperty("jacorb.config.log.verbosity", "4");
             System.setProperty("jacorb.config.dir", TestUtils.testHome());
             System.setProperty("ORBid", "myorbid");
             System.setProperty("custom.props", getConfigFilename("etc/special.properties"));
             System.setProperty("jacorb.connection.client.connect_timeout", "33704");
-            
+
             ORB orb = ORB.init(new String[] {}, props);
 
-            System.setProperties (oldProps);
-            
             int timeout = ((org.jacorb.orb.ORB) orb).getConfiguration()
                     .getAttributeAsInteger(
                             "jacorb.connection.client.connect_timeout", 0);
@@ -294,23 +289,20 @@ public class ConfigurationTest extends JacORBTestCase
                                   "jacorb.connection.client.connect_timeout=33702");
             createPropertiesFile ("classes/myorbid.properties",
                                   "jacorb.connection.client.connect_timeout=33703");
-            
+
             Properties props = new Properties();
             props.put("org.omg.CORBA.ORBClass", "org.jacorb.orb.ORB");
             props.put("org.omg.CORBA.ORBSingletonClass",
                       "org.jacorb.orb.ORBSingleton");
-        
-            Properties oldProps = new Properties (System.getProperties());
+
             System.setProperty("jacorb.config.log.verbosity", "4");
             System.setProperty("jacorb.config.dir", TestUtils.testHome());
             System.setProperty("ORBid", "myorbid");
             System.setProperty("custom.props", getConfigFilename("etc/special.properties"));
             System.setProperty("jacorb.connection.client.connect_timeout", "33704");
-            
+
             ORB orb = ORB.init(new String[] {}, props);
 
-            System.setProperties (oldProps);
-            
             int timeout = ((org.jacorb.orb.ORB) orb).getConfiguration()
                     .getAttributeAsInteger(
                             "jacorb.connection.client.connect_timeout", 0);
@@ -338,21 +330,18 @@ public class ConfigurationTest extends JacORBTestCase
                                   "jacorb.connection.client.connect_timeout=33701");
             createPropertiesFile ("classes/myorbid.properties",
                                   "jacorb.connection.client.connect_timeout=33703");
-            
+
             Properties props = new Properties();
             props.put("org.omg.CORBA.ORBClass", "org.jacorb.orb.ORB");
             props.put("org.omg.CORBA.ORBSingletonClass",
                       "org.jacorb.orb.ORBSingleton");
-        
-            Properties oldProps = new Properties (System.getProperties());
+
             System.setProperty("jacorb.config.log.verbosity", "4");
             System.setProperty("jacorb.config.dir", TestUtils.testHome());
             System.setProperty("ORBid", "myorbid");
-            
+
             ORB orb = ORB.init(new String[] {}, props);
 
-            System.setProperties (oldProps);
-            
             int timeout = ((org.jacorb.orb.ORB) orb).getConfiguration()
                     .getAttributeAsInteger(
                             "jacorb.connection.client.connect_timeout", 0);
@@ -380,23 +369,19 @@ public class ConfigurationTest extends JacORBTestCase
                                   "jacorb.connection.client.connect_timeout=33701");
             createPropertiesFile ("etc/special.properties",
                                   "jacorb.connection.client.connect_timeout=33702");
-            
+
             Properties props = new Properties();
             props.put("org.omg.CORBA.ORBClass", "org.jacorb.orb.ORB");
             props.put("org.omg.CORBA.ORBSingletonClass",
                       "org.jacorb.orb.ORBSingleton");
-        
-            Properties oldProps = new Properties (System.getProperties());
+
             System.setProperty("jacorb.config.log.verbosity", "4");
             System.setProperty("jacorb.config.dir", TestUtils.testHome());
             System.setProperty("ORBid", "myorbid");
             System.setProperty("custom.props", getConfigFilename("etc/special.properties"));
-            
+
             ORB orb = ORB.init(new String[] {}, props);
 
-            System.setProperties (null);
-            System.setProperties (oldProps);
-            
             int timeout = ((org.jacorb.orb.ORB) orb).getConfiguration()
                     .getAttributeAsInteger(
                             "jacorb.connection.client.connect_timeout", 0);
@@ -422,21 +407,18 @@ public class ConfigurationTest extends JacORBTestCase
                                   "jacorb.connection.client.connect_timeout=33700");
             createPropertiesFile ("etc/myorbid.properties",
                                   "jacorb.connection.client.connect_timeout=33701");
-            
+
             Properties props = new Properties();
             props.put("org.omg.CORBA.ORBClass", "org.jacorb.orb.ORB");
             props.put("org.omg.CORBA.ORBSingletonClass",
                       "org.jacorb.orb.ORBSingleton");
-        
-            Properties oldProps = new Properties (System.getProperties());
+
             System.setProperty("jacorb.config.log.verbosity", "4");
             System.setProperty("jacorb.config.dir", TestUtils.testHome());
             System.setProperty("ORBid", "myorbid");
-            
+
             ORB orb = ORB.init(new String[] {}, props);
 
-            System.setProperties (oldProps);
-            
             int timeout = ((org.jacorb.orb.ORB) orb).getConfiguration()
                     .getAttributeAsInteger(
                             "jacorb.connection.client.connect_timeout", 0);
@@ -477,7 +459,7 @@ public class ConfigurationTest extends JacORBTestCase
             deletePropertiesFile ("classes/applet-special.properties");
         }
     }
-    
+
     /**
      * Convenience method for creating an os-dependent filename relative
      * to the test home directory.
@@ -489,20 +471,21 @@ public class ConfigurationTest extends JacORBTestCase
             TestUtils.testHome() + "/" + name
         );
     }
-    
+
     private void createPropertiesFile (String name, String content) throws IOException
     {
-        String path = TestUtils.osDependentPath(TestUtils.testHome() + "/" + name);
-        File parent = new File(path).getParentFile();
+        File file = new File(TestUtils.testHome(), name);
+        File parent = file.getParentFile();
+
         parent.mkdirs();
-        PrintWriter out = new PrintWriter (new FileWriter (path));
+        PrintWriter out = new PrintWriter (new FileWriter (file));
         out.println (content);
         out.close();
     }
-    
-    private void deletePropertiesFile (String name) throws IOException
+
+    private void deletePropertiesFile (String name)
     {
-        File f = new File (TestUtils.osDependentPath(TestUtils.testHome() + "/" + name));
+        File f = new File(TestUtils.testHome(), name);
         f.delete();
     }
 }
