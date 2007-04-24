@@ -68,7 +68,7 @@ public class AbstractIDLTestcase extends TestCase
         // the standard behaviour.
         super(name + ": " + file.getName());
 
-        assertTrue(file.exists());
+        assertTrue(file + " should exist", file.exists());
         assertTrue(file.isFile());
 
         testName = name;
