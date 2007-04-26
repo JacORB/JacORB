@@ -2480,13 +2480,13 @@ public class CDROutputStream
     }
 
     public void write_value(final java.io.Serializable value,
-                             final org.omg.CORBA.portable.BoxedValueHelper factory)
+                            final org.omg.CORBA.portable.BoxedValueHelper factory)
     {
         if (!write_special_value (value))
         {
+            write_previous_chunk_size();
             check(7,4);
             getValueMap().put (value, ObjectUtil.newInteger(pos));
-            write_previous_chunk_size();
             if ((value instanceof org.omg.CORBA.portable.IDLEntity) ||
                 (value instanceof java.lang.String))
             {
@@ -2635,7 +2635,6 @@ public class CDROutputStream
      */
     private void write_value_header(final String[] repository_ids)
     {
-        write_previous_chunk_size();
         if (repository_ids != null)
         {
             if( repository_ids.length > 1 )
@@ -2670,7 +2669,6 @@ public class CDROutputStream
     {
         if (codebase != null)
         {
-            write_previous_chunk_size();
             if ( repository_ids != null )
             {
                 if( repository_ids.length > 1 )
@@ -2718,6 +2716,7 @@ public class CDROutputStream
     private void write_value_internal(final java.io.Serializable value,
                                        final String repository_id)
     {
+    	write_previous_chunk_size();
         check(7,4);
         getValueMap().put(value, ObjectUtil.newInteger(pos));
 
@@ -2930,9 +2929,9 @@ public class CDROutputStream
      */
     private void write_previous_chunk_size()
     {
-        if( chunk_size_tag_pos != -1 )
+        if (chunk_size_tag_pos != -1)
         {
-            if ( pos == chunk_octets_pos)
+            if (pos == chunk_octets_pos)
             {
                 // empty chunk: erase chunk size tag
                 pos = chunk_size_tag_pos;      // the tag will be overwritten
