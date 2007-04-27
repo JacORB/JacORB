@@ -1,3 +1,16 @@
+2007-04-26  Francisco Reverbel <reverbel@ime.usp.br>
+
+    * orb/CDROutputStream (write_value_header(String[], String),
+    write_value_header(String), write_value_internal, 
+    write_value(Serializable, BoxedValueHelper)): 
+    The size of a chunk should not include any bytes of padding 
+    that might have been added after the chunk for alignment 
+    purposes. These changes allow JacORB to interoperate with
+    the ORB in Sun's JDK 1.5 with chunking of custom RMI 
+    valuetypes enabled, as it should be (no need to set 
+    jacorb.interop.chunk_custom_rmi_valuetypes=off for 
+    interoperability with the ORB in Sun's JDK 1.5).
+
 2007-02-15  Andre Spiegel  <spiegel@gnu.org>
 
 	* orb/Delegate.java, orb/ServantDelegate.java,
@@ -3563,7 +3576,7 @@
 
 2005-06-01  Andre Spiegel  <spiegel@gnu.org>
 
-        SAS-related changes suggested by Jesper Söderlund:
+        SAS-related changes suggested by Jesper Sï¿½derlund:
 
         * orb/portableInterceptor/ServerRequestInfoImpl.java (c'tor): Make
         sure to set servant member variable.
@@ -8883,7 +8896,7 @@
 
         * naming/namemanager/NameManager.java: Added usage message on error.
 
-        Thanks to Jesper Söderlund for reporting the problem.
+        Thanks to Jesper Sï¿½derlund for reporting the problem.
 
 2003-09-23  Andre Spiegel  <spiegel@gnu.org>
 
