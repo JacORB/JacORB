@@ -44,7 +44,7 @@ public class JacORBSunRMITest extends RMITestCase
 
         Properties client_props = new Properties();
         client_props.setProperty("jacorb.interop.strict_check_on_tc_creation", "off");
-        client_props.setProperty("jacorb.interop.chunk_custom_rmi_valuetypes", "off");
+        client_props.setProperty("jacorb.interop.chunk_custom_rmi_valuetypes", "on");
         client_props.setProperty("org.omg.CORBA.ORBClass", "org.jacorb.orb.ORB");
         client_props.setProperty("org.omg.CORBA.ORBSingletonClass", "org.jacorb.orb.ORBSingleton");
         client_props.setProperty("jacorb.interop.sun", "on");

@@ -48,7 +48,7 @@ public class SunJacORBRMITest extends RMITestCase
         server_props.setProperty("org.omg.CORBA.ORBSingletonClass", "org.jacorb.orb.ORBSingleton");
         server_props.setProperty("jacorb.interop.sun", "on");
         server_props.setProperty("jacorb.interop.strict_check_on_tc_creation", "off");
-        server_props.setProperty("jacorb.interop.chunk_custom_rmi_valuetypes", "off");
+        server_props.setProperty("jacorb.interop.chunk_custom_rmi_valuetypes", "on");
         server_props.setProperty("jacorb.regression.disable_security", "true");
         server_props.setProperty("org.omg.PortableInterceptor.ORBInitializerClass.standard_init", "org.jacorb.orb.standardInterceptors.IORInterceptorInitializer");
 

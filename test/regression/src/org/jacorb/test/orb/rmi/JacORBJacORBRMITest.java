@@ -44,7 +44,8 @@ public class JacORBJacORBRMITest extends RMITestCase
 
         Properties client_props = new Properties();
         client_props.setProperty("jacorb.interop.strict_check_on_tc_creation", "off");
-        client_props.setProperty("jacorb.interop.chunk_custom_rmi_valuetypes", "off");
+        client_props.setProperty("jacorb.interop.chunk_custom_rmi_valuetypes", "on");
+        client_props.setProperty("jacorb.interop.sun", "on");
 
         Properties server_props = new Properties();
 
@@ -55,7 +56,8 @@ public class JacORBJacORBRMITest extends RMITestCase
         client_props.setProperty("org.omg.CORBA.ORBSingletonClass", "org.jacorb.orb.ORBSingleton");
 
         server_props.setProperty("jacorb.interop.strict_check_on_tc_creation", "off");
-        server_props.setProperty("jacorb.interop.chunk_custom_rmi_valuetypes", "off");
+        server_props.setProperty("jacorb.interop.chunk_custom_rmi_valuetypes", "on");
+        server_props.setProperty("jacorb.interop.sun", "on");
 
         ClientServerSetup setup =
             new ClientServerSetup( suite,
