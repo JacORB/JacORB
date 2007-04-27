@@ -23,6 +23,7 @@ package org.jacorb.test.orb.rmi;
 import java.io.Serializable;
 import java.rmi.RemoteException;
 import java.util.Collection;
+import java.util.Properties;
 
 import org.jacorb.test.orb.rmi.Boo;
 import org.jacorb.test.orb.rmi.Foo;
@@ -245,4 +246,8 @@ public class RMITestImpl
     {
         return s;
     }
+
+	public Properties transmitProperties(Properties p) throws RemoteException {
+		return p;
+	}
 }

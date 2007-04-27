@@ -3,6 +3,7 @@ package org.jacorb.test.orb.rmi;
 import java.io.Serializable;
 import java.rmi.RemoteException;
 import java.util.Collection;
+import java.util.Properties;
 
 import org.jacorb.test.orb.rmi.Boo;
 import org.jacorb.test.orb.rmi.Foo;
@@ -101,4 +102,6 @@ public interface RMITestInterface
     public int sizeOfCollection(Collection c) throws java.rmi.RemoteException;
 
     Serializable transmitSerializable(Serializable s) throws RemoteException;
+    
+    Properties transmitProperties(Properties p) throws RemoteException;
 }
