@@ -466,7 +466,7 @@ public class CDRInputStream
 
                 // tag is an end tag
 
-                if ( ! (-tag <= valueNestingLevel))
+                if (-tag > valueNestingLevel)
                 {
                     throw new INTERNAL
                     (
@@ -475,7 +475,7 @@ public class CDRInputStream
                         valueNestingLevel
                     );
                 }
-                valueNestingLevel = - tag;
+                valueNestingLevel = -tag;
                 valueNestingLevel--;
 
                 if (valueNestingLevel > 0)
@@ -484,17 +484,17 @@ public class CDRInputStream
                     handle_chunking();
                 }
             }
-            else if (tag < 0x7fffff00)
+            else if (tag > 0 && tag < 0x7fffff00)
             {
                 // tag is the chunk size tag of another chunk
 
                 chunk_end_pos = pos + tag;
             }
-            else // (tag >= 0x7fffff00)
+            else // (tag == 0 || tag >= 0x7fffff00)
             {
-                // tag is the value tag of a nested value
+                // tag is the null value tag or the value tag of a nested value
 
-                pos = saved_pos;      // "unread" the value tag
+                pos = saved_pos;      // "unread" the tag
                 index = saved_index;
             }
         }
@@ -2883,8 +2883,7 @@ public class CDRInputStream
         if (chunkedValue || valueNestingLevel > 0)
         {
             valueNestingLevel++;
-            int chunk_size_tag = readChunkSizeTag();
-            chunk_end_pos = pos + chunk_size_tag;
+            readChunkSizeTag();
         }
 
         for (int i = 0; i < repository_ids.length; i++)
@@ -3087,7 +3086,7 @@ public class CDRInputStream
      * special handling if there's no chunk size
      * in the stream.
      */
-    private int readChunkSizeTag()
+    private void readChunkSizeTag()
     {
         int savedPos = pos;
         int savedIndex = index;
@@ -3095,14 +3094,16 @@ public class CDRInputStream
 
         if (!sunInteropFix || chunk_size_tag > 0 && chunk_size_tag < MAX_BLOCK_SIZE)
         {
-            // looks like the correct chunk size
-            return chunk_size_tag;
+            // valid chunk size: set the ending position of the chunk 
+        	chunk_end_pos = pos + chunk_size_tag;
         }
-
-        // reset buffer
-        pos = savedPos;
-        index = savedIndex;
-        return MAX_BLOCK_SIZE;
+        else 
+        {
+        	// reset buffer and remember that we're not within a chunk
+        	pos = savedPos;
+        	index = savedIndex;
+        	chunk_end_pos = -1;
+        }
     }
 
     /**
