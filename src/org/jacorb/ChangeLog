@@ -1,3 +1,12 @@
+2007-04-27  Francisco Reverbel <reverbel@ime.usp.br>
+
+	* orb/CDRInputStream (handle_chunking): Do not confuse a 
+	null value tag with a chunk size tag; the latter must be 
+	positive.
+    (read_untyped_value, readChunkSizeTag):  changes for 
+    correctness (to ensure that chunk_end_pos is set to -1 if 
+    we are not within a chunk) and for clarity.
+    
 2007-04-26  Francisco Reverbel <reverbel@ime.usp.br>
 
     * orb/CDROutputStream (write_value_header(String[], String),
