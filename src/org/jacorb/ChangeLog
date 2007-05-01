@@ -1,24 +1,37 @@
 2007-04-27  Francisco Reverbel <reverbel@ime.usp.br>
 
-	* orb/CDRInputStream (handle_chunking): Do not confuse a 
-	null value tag with a chunk size tag; the latter must be 
-	positive.
-    (read_untyped_value, readChunkSizeTag):  changes for 
-    correctness (to ensure that chunk_end_pos is set to -1 if 
-    we are not within a chunk) and for clarity.
+	* orb/CDRInputStream (handle_chunking): Do not confuse a null
+	value tag with a chunk size tag; the latter must be positive.
+	(read_untyped_value, readChunkSizeTag): changes for
+	correctness (to ensure that chunk_end_pos is set to -1 if we are
+	not within a chunk) and for clarity.
     
 2007-04-26  Francisco Reverbel <reverbel@ime.usp.br>
 
-    * orb/CDROutputStream (write_value_header(String[], String),
-    write_value_header(String), write_value_internal, 
-    write_value(Serializable, BoxedValueHelper)): 
-    The size of a chunk should not include any bytes of padding 
-    that might have been added after the chunk for alignment 
-    purposes. These changes allow JacORB to interoperate with
-    the ORB in Sun's JDK 1.5 with chunking of custom RMI 
-    valuetypes enabled, as it should be (no need to set 
-    jacorb.interop.chunk_custom_rmi_valuetypes=off for 
-    interoperability with the ORB in Sun's JDK 1.5).
+	* orb/CDROutputStream (write_value_header(String[], String),
+	write_value_header(String), write_value_internal,
+	write_value(Serializable, BoxedValueHelper)): The size of a chunk
+	should not include any bytes of padding that might have been added
+	after the chunk for alignment purposes. These changes allow JacORB
+	to interoperate with the ORB in Sun's JDK 1.5 with chunking of
+	custom RMI valuetypes enabled, as it should be (no need to set
+	jacorb.interop.chunk_custom_rmi_valuetypes=off for
+	interoperability with the ORB in Sun's JDK 1.5).
+
+2007-04-18  Phil Mesnier  <phil.mesnier@ociweb.com>
+
+	* config/JacORBConfiguration.java: Fix to allow the processing of
+	nested properties during orb initialization. See test case
+	test/nestedproperties. Thanks to Andy Ling <andy dot ling at
+	quantel dot com> for this patch
+
+2007-02-20  Gerald Brose  <gerald.brose@acm.org>
+
+	* Version 2.3.0 released.
+
+2007-02-17  Gerald Brose  <gerald.brose@acm.org>
+
+	* util/Version.java: (modified) new version number and date
 
 2007-02-15  Andre Spiegel  <spiegel@gnu.org>
 
