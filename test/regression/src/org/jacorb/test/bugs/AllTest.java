@@ -35,7 +35,7 @@ import org.jacorb.test.bugs.bugjac192.BugJac192Test;
 import org.jacorb.test.bugs.bugjac195.BugJac195Test;
 import org.jacorb.test.bugs.bugjac200.AcceptorExceptionListenerTest;
 import org.jacorb.test.bugs.bugjac220.BugJac220Test;
-import org.jacorb.test.bugs.bugjac235.BugJac235Test;
+import org.jacorb.test.bugs.bugjac235.BugJac235Suite;
 import org.jacorb.test.bugs.bugjac251.BugJac251Test;
 import org.jacorb.test.bugs.bugjac257.BugJac257Test;
 import org.jacorb.test.bugs.bugjac262.BugJac262Test;
@@ -86,7 +86,7 @@ public class AllTest extends JacORBTestSuite
       suite.addTest(ObjectReplacementTest.suite());
       suite.addTest(BugJac182Test.suite());
       suite.addTest(POAThreadingTest.suite());
-      suite.addTest(BugJac235Test.suite());
+      suite.addTest(BugJac235Suite.suite());
       suite.addTest(BugJac192Test.suite());
       suite.addTestSuite(BugJac174Test.class);
       suite.addTest(BugJac220Test.suite());

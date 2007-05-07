@@ -3,7 +3,7 @@ package org.jacorb.test.bugs.bugjac235;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 
-public class BugJac235Test
+public class BugJac235Suite
 {
     public static Test suite()
     {
