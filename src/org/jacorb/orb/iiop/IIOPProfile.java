@@ -429,7 +429,9 @@ public class IIOPProfile
             (CompoundSecMechList)components.getComponent(
                                             TAG_CSI_SEC_MECH_LIST.value,
                                             CompoundSecMechListHelper.class);
-        if (csmList != null && csmList.mechanism_list.length > 0)
+        if (csmList != null && csmList.mechanism_list.length > 0 &&
+                csmList.mechanism_list[0].transport_mech.tag == 
+                                                    TAG_TLS_SEC_TRANS.value)
         {
             byte[] tlsSecTransData =
                 csmList.mechanism_list[0].transport_mech.component_data;
