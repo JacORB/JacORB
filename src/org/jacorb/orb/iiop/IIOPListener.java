@@ -805,6 +805,14 @@ public class IIOPListener
         {
             final IIOPLoopbackConnection connection =
                 new IIOPLoopbackConnection(lis, los) ;
+            try
+            {
+                connection.configure(configuration);
+            }
+            catch( ConfigurationException ce )
+            {
+                throw new org.omg.CORBA.INTERNAL("ConfigurationException: " + ce.toString());
+            }
             deliverConnection(connection);
         }
 
