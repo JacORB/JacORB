@@ -1,0 +1,37 @@
+<?xml version="1.0"?>
+
+<!DOCTYPE project [ <!ENTITY common SYSTEM "../../etc/common.xml"> ]>
+
+<project name="delegateSync" default="all" basedir="../..">
+
+  <!-- ==================================================== -->
+  <!--                  Test build file                     -->
+  <!-- ==================================================== -->
+
+  &common;
+
+   <target name="local_init">
+       <property name="name" value="XYZ"/>
+       <property name="relative_src" value="test/delegateSync"/>
+       <property name="srcdir" value="${basedir}/${relative_src}"/>
+   </target>
+
+   <target name="all" depends="init, local_init">
+	<javac srcdir="${srcdir}"
+           destdir="${classdir}"
+	       includes="*.java"
+	        />
+   </target>
+
+   <target name="rename" depends="init, local_init">
+        <replace dir="${srcdir}" token="XYZ" value="delegateSync">
+                 <include name="*.java"/>
+                 <include name="*.idl"/>
+        </replace>
+  </target>
+
+   <target name="clean" depends="init, local_init">
+	   <delete dir="${classdir}/${relative_src}"/>
+   </target>
+
+</project>

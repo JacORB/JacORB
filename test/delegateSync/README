@@ -1,0 +1,10 @@
+This test is designed to show how jacorb.orb.Delegate can block other threads
+wanting to do benign functions such as comparing profiles when attempting to
+communicate with an unresponsive server.
+
+The command line is:
+jaco -cp ../../classes test.delegateSync.Test 10.203.240.202
+
+where 10.203.240.202 is simply some unreachable address used to compose a
+corbaloc string. Alternatively, the test will take a file:// or corbaloc:
+string as an argument to facilitate automated testing.
