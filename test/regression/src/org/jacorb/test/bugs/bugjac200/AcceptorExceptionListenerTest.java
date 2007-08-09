@@ -109,7 +109,7 @@ public class AcceptorExceptionListenerTest extends TestCase
 
         startAcceptor(exception);
 
-        Thread.sleep(5000);
+        Thread.sleep(20000);
 
         assertNull(exception[0]);
 
@@ -127,7 +127,7 @@ public class AcceptorExceptionListenerTest extends TestCase
 
         startAcceptor(exception);
 
-        Thread.sleep(1000);
+        Thread.sleep(20000);
 
         assertNull(exception[0]);
         assertTrue("Listener was not created",
