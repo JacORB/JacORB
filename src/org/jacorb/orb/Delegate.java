@@ -1015,16 +1015,10 @@ public final class Delegate
                 pending_replies.add(receiver);
             }
 
+            ClientConnection cltconn = null;
             synchronized (bind_sync)
             {
-                if (ros.getConnection() == connection)
-                {
-                    // RequestOutputStream has been created for
-                    // exactly this connection
-                    connection.sendRequest(ros, receiver, ros.requestId(), true); // response
-                                                                                    // expected
-                }
-                else
+                if (ros.getConnection() != connection)
                 {
                     logger.debug("invoke: RemarshalException");
 
@@ -1032,7 +1026,11 @@ public final class Delegate
                     // another connection, so try again
                     throw new RemarshalException();
                 }
+                cltconn = connection;
             }
+            // Use the local copy of the client connection to avoid trouble
+            // with something else affecting the real connection.
+            cltconn.sendRequest(ros, receiver, ros.requestId(), true);
         }
         catch ( org.omg.CORBA.SystemException cfe )
         {
@@ -1542,7 +1540,7 @@ public final class Delegate
             }
         }
     }
-    
+
     public org.omg.CORBA.Object get_component (org.omg.CORBA.Object self)
     {
         // If local object call _get_component directly
@@ -1587,7 +1585,7 @@ public final class Delegate
             }
         }
     }
-    
+
     public org.omg.CORBA.ORB orb( org.omg.CORBA.Object self )
     {
         return orb;
