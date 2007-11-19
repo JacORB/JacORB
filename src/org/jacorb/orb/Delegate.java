@@ -1875,6 +1875,7 @@ public final class Delegate
                         {
                             so.servant =
                                 sl.preinvoke( oid, poa, operation, cookie );
+			    ok = true;
                         }
                         finally
                         {

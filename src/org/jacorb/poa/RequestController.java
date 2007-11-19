@@ -601,7 +601,7 @@ public final class RequestController
         waitForShutdownCalled = true;
 
         while ((waitForShutdownCalled && ! activeRequestTable.isEmpty())
-               || (localRequests != 0)
+               || (localRequests > 0)
         )
         {
             try

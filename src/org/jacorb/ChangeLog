@@ -1,3 +1,12 @@
+Mon Nov 19 17:35:12 UTC 2007  Ciju John  <johnc at ociweb dot com>
+
+        * orb/Delegate.java:
+          When ServantManager is a ServantLocator the POA's local request
+          count needs to be decremented only in the case of an exception.
+
+        * poa/RequestController.java:
+          A negative POA's local request count is invalid.
+
 2007-04-27  Francisco Reverbel <reverbel@ime.usp.br>
 
 	* orb/CDRInputStream (handle_chunking): Do not confuse a null
@@ -5,7 +14,7 @@
 	(read_untyped_value, readChunkSizeTag): changes for
 	correctness (to ensure that chunk_end_pos is set to -1 if we are
 	not within a chunk) and for clarity.
-    
+
 2007-04-26  Francisco Reverbel <reverbel@ime.usp.br>
 
 	* orb/CDROutputStream (write_value_header(String[], String),
@@ -237,7 +246,7 @@
 	directly from the parser.
 
 2006-10-13  Andre Spiegel  <spiegel@gnu.org>
-	
+
 	* idl/ArrayTypeSpec.java, idl/FixedPointType.java,
 	idl/OctetType.java, idl/SwitchBody.java, idl/UnionType.java: Made
 	several fields public, responding to bug #714.
@@ -262,7 +271,7 @@
 	ctor.
 
 	* ir/IDLType.java: Adding a missing return out of a switch statement.
-	
+
 2006-10-11  Andre Spiegel  <spiegel@gnu.org>
 
 	* idl/Interface.java (printNarrow, hasAbstractBase,
