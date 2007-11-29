@@ -41,7 +41,7 @@ import sun.security.jgss.spi.GSSNameSpi;
  * @version $Id$
  */
 
-public final class GSSUPContextSpi 
+public final class GSSUPContextSpi
     implements GSSContextSpi
 {
     private Provider provider = null;
@@ -60,10 +60,10 @@ public final class GSSUPContextSpi
     private GSSNameSpi targetName;
     private GSSCredentialSpi sourceCred;
 
-    public GSSUPContextSpi(Provider provider, 
-                           Oid mechOid, 
-                           GSSNameSpi nameSpi, 
-                           GSSCredentialSpi credSpi, 
+    public GSSUPContextSpi(Provider provider,
+                           Oid mechOid,
+                           GSSNameSpi nameSpi,
+                           GSSCredentialSpi credSpi,
                            int lifetime)
     {
         this.provider = provider;
@@ -78,7 +78,7 @@ public final class GSSUPContextSpi
         return provider;
     }
 
-    public void requestLifetime(int lifetime) 
+    public void requestLifetime(int lifetime)
         throws GSSException
     {
         this.lifetime = lifetime;
@@ -199,14 +199,14 @@ public final class GSSUPContextSpi
         return null;
     }
 
-    public byte[] initSecContext(InputStream inStream, int inLen) 
+    public byte[] initSecContext(InputStream inStream, int inLen)
         throws GSSException
     {
         established = true;
         return sourceCred.getName().toString().getBytes();
     }
 
-    public byte[] acceptSecContext(InputStream inStream, int inLen) 
+    public byte[] acceptSecContext(InputStream inStream, int inLen)
         throws GSSException
     {
         established = true;
@@ -214,14 +214,14 @@ public final class GSSUPContextSpi
         {
             byte[] inBytes = new byte[inStream.available()];
             inStream.read(inBytes);
-            GSSNameSpi sourceName = 
+            GSSNameSpi sourceName =
                 new GSSUPNameSpi(provider, mechOid, inBytes, null);
-            sourceCred = 
-                new GSSUPCredentialSpi(provider, 
-                                       mechOid, 
-                                       sourceName, 
-                                       GSSCredential.DEFAULT_LIFETIME, 
-                                       GSSCredential.DEFAULT_LIFETIME, 
+            sourceCred =
+                new GSSUPCredentialSpi(provider,
+                                       mechOid,
+                                       sourceName,
+                                       GSSCredential.DEFAULT_LIFETIME,
+                                       GSSCredential.DEFAULT_LIFETIME,
                                        GSSCredential.ACCEPT_ONLY);
         }
         catch (Exception e)
@@ -300,5 +300,14 @@ public final class GSSUPContextSpi
         channelBinding = null;
         provider = null;
         mechOid = null;
+    }
+
+    /*
+     * NOTE : This method was added for a jdk1.6.x port because of a
+     * compilation error from this class.
+     */
+    public boolean isInitiator ()
+    {
+        return false;
     }
 }
