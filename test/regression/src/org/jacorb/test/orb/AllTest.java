@@ -22,6 +22,8 @@ package org.jacorb.test.orb;
 
 import junit.framework.*;
 import org.jacorb.test.common.*;
+import org.jacorb.test.orb.giop.ClientConnectionTest;
+import org.jacorb.test.orb.giop.CodeSetTest;
 
 public class AllTest extends JacORBTestSuite
 {
@@ -57,7 +59,10 @@ public class AllTest extends JacORBTestSuite
         suite.addTest (org.jacorb.test.orb.AlternateProfileTest.suite());
         suite.addTest (org.jacorb.test.orb.LongLongSeq.suite());
         suite.addTest (org.jacorb.test.orb.RecursiveParam.suite());
-        suite.addTest(CDROutputStreamTest.suite());
+        suite.addTest( CDRInputStreamTest.suite() );
+        suite.addTest( CDROutputStreamTest.suite() );
+        suite.addTest( ClientConnectionTest.suite() );
+        suite.addTest( CodeSetTest.suite() );
         suite.addTestSuite(CreateTypeCodesTest.class);
         suite.addTestSuite(DIOPIORTest.class);
         suite.addTestSuite(TypeCodeTest.class);
