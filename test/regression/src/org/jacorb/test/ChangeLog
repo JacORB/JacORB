@@ -1,4 +1,4 @@
-2008-03-24  author  <author@tycho>
+2008-03-24  Andre Spiegel  <spiegel@gnu.org>
 
 	* orb/CDROutputStreamTest.java, orb/CodesetTest.java: Patch by
 	Russell Gold that refactors CodeSet logic, adding support for
