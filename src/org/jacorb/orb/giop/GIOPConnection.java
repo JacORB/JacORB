@@ -69,14 +69,13 @@ public abstract class GIOPConnection
     private boolean writer_active = false;
     private final Object write_sync = new Object();
 
-    private org.jacorb.config.Configuration configuration;
     protected Logger logger;
 
     /*
      * Connection OSF character formats.
      */
-    private int tcs = CodeSet.getTCSDefault();
-    private int tcsw = CodeSet.getTCSWDefault();
+    private CodeSet tcs = CodeSet.getTCSDefault();
+    private CodeSet tcsw = CodeSet.getTCSWDefault();
 
     private boolean tcs_negotiated = false;
 
@@ -150,15 +149,15 @@ public abstract class GIOPConnection
     public void configure(Configuration configuration)
         throws ConfigurationException
     {
-        this.configuration = (org.jacorb.config.Configuration)configuration;
-        logger = this.configuration.getNamedLogger("jacorb.giop.conn");
+        org.jacorb.config.Configuration jacorbConfiguration = (org.jacorb.config.Configuration) configuration;
+        logger = jacorbConfiguration.getNamedLogger("jacorb.giop.conn");
         dump_incoming =
             configuration.getAttribute("jacorb.debug.dump_incoming_messages","off").equals("on");
         timeout =
             configuration.getAttributeAsInteger("jacorb.connection.client.connect_timeout", 90000);
 
         List statsProviderClassNames =
-            this.configuration.getAttributeList( "jacorb.connection.statistics_providers");
+            jacorbConfiguration.getAttributeList( "jacorb.connection.statistics_providers");
         
         for (Iterator iter = statsProviderClassNames.iterator (); iter.hasNext ();) {
             String className = (String) iter.next ();
@@ -186,18 +185,24 @@ public abstract class GIOPConnection
     }
 
 
-    public final void setCodeSets( int TCS, int TCSW )
+    public final void setCodeSets( CodeSet TCS, CodeSet TCSW )
     {
-        this.tcs = TCS;
-        this.tcsw = TCSW;
+        tcs  = TCS;
+        tcsw = TCSW;
     }
 
-    public final int getTCS()
+    public final void setCodeSets( int TCS, int TCSW )
+    {
+        tcs  = CodeSet.getCodeSet( TCS );
+        tcsw = CodeSet.getCodeSet( TCSW );
+    }
+
+    public final CodeSet getTCS()
     {
         return tcs;
     }
 
-    public final int getTCSW()
+    public final CodeSet getTCSW()
     {
         return tcsw;
     }
@@ -999,11 +1004,7 @@ public abstract class GIOPConnection
 
     public final boolean isSSL()
     {
-        if (transport instanceof IIOPConnection)
-        {
-            return ((IIOPConnection)transport).isSSL();
-        }
-        return false;
+        return transport instanceof IIOPConnection && ((IIOPConnection) transport).isSSL();
     }
 
     public void close()

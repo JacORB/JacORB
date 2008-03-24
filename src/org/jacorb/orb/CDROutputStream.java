@@ -33,7 +33,6 @@ import org.jacorb.util.ValueHandler;
 import org.jacorb.util.ObjectUtil;
 
 import org.omg.CORBA.BAD_PARAM;
-import org.omg.CORBA.CODESET_INCOMPATIBLE;
 import org.omg.CORBA.DATA_CONVERSION;
 import org.omg.CORBA.INTERNAL;
 import org.omg.CORBA.MARSHAL;
@@ -54,7 +53,7 @@ import org.omg.IOP.TaggedProfile;
  */
 
 public class CDROutputStream
-    extends org.omg.CORBA_2_3.portable.OutputStream
+    extends org.omg.CORBA_2_3.portable.OutputStream implements CodeSet.OutputBuffer
 {
     private final static IOR null_ior = new IOR("", new TaggedProfile[0]);
 
@@ -74,8 +73,8 @@ public class CDROutputStream
     private boolean closed;
 
     /* character encoding code sets for char and wchar, default ISO8859_1 */
-    private int codeSet =  CodeSet.getTCSDefault();
-    private int codeSetW=  CodeSet.getTCSWDefault();
+    private CodeSet codeSet =  CodeSet.getTCSDefault();
+    private CodeSet codeSetW=  CodeSet.getTCSWDefault();
 
     private int encaps_start = -1;
 
@@ -214,6 +213,22 @@ public class CDROutputStream
 
 
     }
+
+
+    /**
+     * Inserts a 4-byte integer into the buffer at the specified position. Does not modify the current buffer position.
+     * @param value the value to inser
+     * @param pos the position at which to insert it.
+     */
+    protected void insertLongInBuffer( int value, int pos )
+    {
+        //using big endian byte ordering
+        buffer[pos]   = (byte)((value >> 24) & 0xFF);
+        buffer[pos+1] = (byte)((value >> 16) & 0xFF);
+        buffer[pos+2] = (byte)((value >>  8) & 0xFF);
+        buffer[pos+3] = (byte) (value        & 0xFF);
+    }
+
 
     private static class DeferredWriteFrame
     {
@@ -444,9 +459,9 @@ public class CDROutputStream
         }
     }
 
-    public void setCodeSet(final int codeSet, final int codeSetWide)
+    public void setCodeSets(CodeSet codeSet, CodeSet codeSetWide)
     {
-        this.codeSet = codeSet;
+        this.codeSet  = codeSet;
         this.codeSetW = codeSetWide;
     }
 
@@ -480,7 +495,7 @@ public class CDROutputStream
      * This version of check does both array length checking and
      * data type alignment. It is a convenience method.
      */
-    private final void check(final int i, final int align)
+    private void check(final int i, final int align)
     {
         int remainder = align - (index % align);
 
@@ -901,7 +916,8 @@ public class CDROutputStream
         {
             if (codesetEnabled)
             {
-                write_char_i(s.charAt(i),false,false, codeSet);
+                // alignment/check must happen prior to calling.
+                codeSet.write_char( this, s.charAt(i), false, false, giop_minor );
             }
             else
             {
@@ -921,109 +937,18 @@ public class CDROutputStream
 
     public final void write_wchar(final char c)
     {
-        check(3);
-        write_char_i (c, useBOM, true, codeSetW);//with length indicator
-    }
-
-    // Used by both write_wchar/wstring and write_string
-    private final void write_char_i (final char c,
-                                     final boolean write_bom,
-                                     final boolean write_length_indicator,
-                                     final int cs)
-    {
+        check(6);  // maximum is UTF-16 handling non-BPM character with BOM
         // alignment/check must happen prior to calling.
-        switch( cs )
-        {
-            case CodeSet.ISO8859_1 :
-            {
-                buffer[pos++] = (byte) c;
-                index ++;
-                break;
-            }
-            case CodeSet.UTF8 :
-            {
-                if( c <= 0x007F )
-                {
-                    if( giop_minor == 2 && write_length_indicator )
-                    {
-                        //the chars length in bytes
-                        buffer[pos++] = (byte) 1;
-                        index++;
-                    }
-
-                    buffer[pos++] = (byte) c;
-                    index++;
-                }
-                else if( c > 0x07FF )
-                {
-                    if( giop_minor == 2 && write_length_indicator )
-                    {
-                        //the chars length in bytes
-                        buffer[pos++] = (byte) 3;
-                        index++;
-                    }
-
-                    buffer[pos++]=(byte)(0xE0 | ((c >> 12) & 0x0F));
-                    buffer[pos++]=(byte)(0x80 | ((c >>  6) & 0x3F));
-                    buffer[pos++]=(byte)(0x80 | ((c >>  0) & 0x3F));
-
-                    index += 3;
-                }
-                else
-                {
-                    if( giop_minor == 2 && write_length_indicator )
-                    {
-                        //the chars length in bytes
-                        buffer[pos++] = (byte) 2 ;
-                        index++;
-                    }
-
-                    buffer[pos++]=(byte)(0xC0 | ((c >>  6) & 0x1F));
-                    buffer[pos++]=(byte)(0x80 | ((c >>  0) & 0x3F));
-
-                    index += 2;
-                }
-                break;
-            }
-            case CodeSet.UTF16 :
-            {
-                if( giop_minor == 2 )
-                {
-                    if( write_length_indicator )
-                    {
-                        //the chars length in bytes
-                        buffer[pos++] = (byte) 2;
-                        index++;
-                    }
-
-                    if( write_bom )
-                    {
-                        //big endian encoding
-                        buffer[ pos++ ] = (byte) 0xFE;
-                        buffer[ pos++ ] = (byte) 0xFF;
-
-                        index += 2;
-                    }
-
-                    //write unaligned
-                    buffer[pos++] = (byte)((c >> 8) & 0xFF);
-                    buffer[pos++] = (byte) (c       & 0xFF);
-                    index += 2;
-                }
-                else
-                {
-                    //UTF-16 char is treated as an ushort (write aligned)
-                    write_short( (short) c );
-                }
-
-                break;
-            }
-            default :
-            {
-                throw new CODESET_INCOMPATIBLE("Bad codeset: " + codeSet);
-            }
-        }
+        codeSetW.write_char( this, c, codeSetW.write_bom( useBOM ), true, giop_minor );
     }
+
+
+    public void write_byte( byte b )
+    {
+        buffer[pos++] = b;
+        index ++;
+    }
+
 
     public final void write_wchar_array
        (final char[] value, final int offset, final int length)
@@ -1057,7 +982,7 @@ public class CDROutputStream
         index += 4;                 // reserve for length indicator
 
         //the byte order marker
-        if( giop_minor == 2 && useBOM && s.length() > 0)
+        if( this.giop_minor == 2 && codeSetW.write_bom( useBOM ) && s.length() > 0)
         {
             //big endian encoding
             buffer[ pos++ ] = (byte) 0xFE;
@@ -1069,38 +994,26 @@ public class CDROutputStream
         // write characters in current wide encoding, add null terminator
         for( int i = 0; i < s.length(); i++ )
         {
-            write_char_i( s.charAt(i), false, false, codeSetW ); //no BOM
+            codeSetW.write_char( this, s.charAt(i), false, false, this.giop_minor );
         }
 
-        if( giop_minor < 2 )
-        {
-            //terminating NUL char
-            write_char_i( (char)0, false, false, codeSetW ); //no BOM
-        }
-
-        int str_size = 0;
-        if( giop_minor == 2 )
+        int str_size;
+        if (this.giop_minor >= 2)
         {
             //size in bytes (without the size ulong)
             str_size = pos - startPos - 4;
         }
         else
         {
-            if( codeSetW == CodeSet.UTF8 )
-            {
-                //size in bytes (without the size ulong)
-                str_size = pos - startPos - 4;
-            }
-            else if( codeSetW == CodeSet.UTF16 )
-            {
-                //size in chars (+ NUL char)
-                str_size = s.length() + 1;
-            }
+            //terminating NUL char
+            codeSetW.write_char( this, (char)0, false, false, giop_minor );
+            str_size = codeSetW.get_wstring_size( s, startPos, pos );
         }
 
         // write length indicator
         _write4int( buffer, startPos, str_size );
     }
+
 
     public final void write_double(final double value)
     {
@@ -1480,7 +1393,7 @@ public class CDROutputStream
                         break; //dummy cases for optimized switch
                     }
                     case TCKind._tk_abstract_interface: //32
-                    case TCKind._tk_local_interface:    //33
+                 // not currently supported   case TCKind._tk_local_interface:    //33
                     {
                         id = typeCode.id();
                         break;

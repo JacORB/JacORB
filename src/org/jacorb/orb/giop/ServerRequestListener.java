@@ -126,8 +126,7 @@ public class ServerRequestListener
             }
             else
             {
-                CodeSetContext ctx =
-                CodeSet.getCodeSetContext( inputStream.req_hdr.service_context );
+                CodeSetContext ctx = CodeSet.getCodeSetContext( inputStream.req_hdr.service_context );
 
                 if( ctx != null )
                 {

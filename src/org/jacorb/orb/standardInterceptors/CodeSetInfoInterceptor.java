@@ -58,27 +58,12 @@ public class CodeSetInfoInterceptor
             // will have to do with defaults
         }
 
-        // create the info
-        org.omg.CONV_FRAME.CodeSetComponentInfo cs_info =
-            new org.omg.CONV_FRAME.CodeSetComponentInfo();
-
-        // fill the info
-        cs_info.ForCharData =
-            new org.omg.CONV_FRAME.
-                CodeSetComponent( CodeSet.getTCSDefault(),
-                                  new int[] { CodeSet.getConversionDefault() } );
-
-        cs_info.ForWcharData =
-            new org.omg.CONV_FRAME.
-                CodeSetComponent( CodeSet.getTCSWDefault(),
-                                  new int[] { CodeSet.UTF8 } );
-
         // encapsulate it into TaggedComponent
         final CDROutputStream out = new CDROutputStream( orb );
         try
         {
             out.beginEncapsulatedArray();
-            org.omg.CONV_FRAME.CodeSetComponentInfoHelper.write( out, cs_info );
+            org.omg.CONV_FRAME.CodeSetComponentInfoHelper.write( out, CodeSet.getLocalCodeSetComponentInfo() );
 
             tagc = new org.omg.IOP.TaggedComponent( org.omg.IOP.TAG_CODE_SETS.value,
                     out.getBufferCopy());

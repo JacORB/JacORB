@@ -63,8 +63,6 @@ public class ClientConnection
 
     private final boolean client_initiated;
 
-    private final String info;
-
     /**
      * <code>gracefulStreamClose</code> indicates if the stream has been closed
      * gracefully, i.e. by a CloseConnection message. This will trigger a
@@ -104,7 +102,6 @@ public class ClientConnection
         this.orb = orb;
         this.conn_mg = conn_mg;
         this.registeredProfile = registeredProfile;
-        this.info = registeredProfile.toString();
         this.client_initiated = client_initiated;
 
         final Configuration configuration = ((org.jacorb.orb.ORB)orb).getConfiguration();
@@ -161,11 +158,14 @@ public class ClientConnection
             return;
         }
 
-        int tcs = -1;
-        int tcsw = -1;
-
         CodeSetComponentInfo info = pior.getCodeSetComponentInfo();
-        if( info == null || ignoreComponentInfo)
+        if (info != null && !ignoreComponentInfo)
+        {
+            connection.markTCSNegotiated(); // even if this aborts, we should not try negotiating again.
+            connection.setCodeSets( CodeSet.getNegotiatedCodeSet( info, /* wide */ false ),
+                                    CodeSet.getNegotiatedCodeSet( info, /* wide */ true ) );
+        }
+        else
         {
             logger.debug("No CodeSetComponentInfo in IOR. Will use default CodeSets" );
 
@@ -181,54 +181,22 @@ public class ClientConnection
             */
 
             connection.markTCSNegotiated();
-            return;
-        }
-        else
-        {
-            tcs = CodeSet.selectTCS( info );
-            tcsw = CodeSet.selectTCSW( info );
-        }
-
-        if( tcs == -1 || tcsw == -1 )
-        {
-            if (logger.isDebugEnabled())
-            {
-                CodeSetComponent original = info.ForCharData;
-
-                logger.debug("Attempted to negotiate with target codeset " + CodeSet.csName(original.native_code_set) + " to match with " +  CodeSet.csName(CodeSet.getTCSDefault()));
-                logger.debug("Target has " + (original.conversion_code_sets == null ? 0 : original.conversion_code_sets.length) + " conversion codesets and native has " + CodeSet.csName(CodeSet.getConversionDefault()));
-                logger.debug("Was negotiating with IOR " + pior.getIORString());
-            }
-            //if no matching codesets can be found, an exception is
-            //thrown
-            throw new org.omg.CORBA.CODESET_INCOMPATIBLE(
-                "WARNING: CodeSet negotiation failed! No matching " +
-                (( tcs == -1 )? "normal" : "wide") +
-                " CodeSet found");
-        }
-
-        connection.setCodeSets( tcs, tcsw );
-
-        if (logger.isDebugEnabled())
-        {
-            logger.debug( "Successfully negotiated Codesets. Using " +
-                          CodeSet.csName( tcs ) + " as TCS and " +
-                          CodeSet.csName( tcsw ) + " as TCSW" );
         }
 
     }
+
 
     public boolean isTCSNegotiated()
     {
         return connection.isTCSNegotiated();
     }
 
-    public int getTCS()
+    public CodeSet getTCS()
     {
         return connection.getTCS();
     }
 
-    public int getTCSW()
+    public CodeSet getTCSW()
     {
         return connection.getTCSW();
     }

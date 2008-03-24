@@ -55,6 +55,7 @@ import org.omg.CORBA.TypeCodePackage.Bounds;
 
 public class CDRInputStream
     extends org.omg.CORBA_2_3.portable.InputStream
+    implements CodeSet.InputBuffer
 {
     /**
      * <code>encaps_stack</code> is used to saving/restoring
@@ -96,8 +97,8 @@ public class CDRInputStream
     private boolean cacheTypecodes;
 
     /* character encoding code sets for char and wchar, default ISO8859_1 */
-    private int codeSet =  CodeSet.getTCSDefault();
-    private int codeSetW = CodeSet.getTCSWDefault();
+    private CodeSet codeSet =  CodeSet.getTCSDefault();
+    private CodeSet codeSetW = CodeSet.getTCSWDefault();
     protected int giop_minor = 2; // needed to determine size in chars
 
     /**
@@ -395,9 +396,9 @@ public class CDRInputStream
         return orb;
     }
 
-    public void setCodeSet(final int codeSet, final int codeSetWide)
+    public void setCodeSet( CodeSet codeSet, CodeSet codeSetWide )
     {
-        this.codeSet = codeSet;
+        this.codeSet  = codeSet;
         this.codeSetW = codeSetWide;
     }
 
@@ -1212,17 +1213,16 @@ public class CDRInputStream
 
         if (codesetEnabled)
         {
-            String csname = CodeSet.csName(codeSet);
 
             try
             {
-                result = new String (buffer, start, size, csname);
+                result = new String (buffer, start, size, codeSet.getName() );
             }
             catch (java.io.UnsupportedEncodingException ex)
             {
                 if (logger != null && logger.isErrorEnabled())
                 {
-                    logger.error("Charset " + csname + " is unsupported");
+                    logger.error("Charset " + codeSet.getName() + " is unsupported");
                     result = "";
                 }
             }
@@ -1979,6 +1979,14 @@ public class CDRInputStream
         return read_wchar (littleEndian);
     }
 
+
+    public byte readByte()
+    {
+        index++;
+        return buffer[ pos++ ];
+    }
+
+
     /**
      * The number of bytes this char takes. This is actually not
      * necessary since the encodings used are either fixed-length
@@ -1993,61 +2001,7 @@ public class CDRInputStream
 
     private final char read_wchar(final boolean wchar_little_endian)
     {
-        switch( codeSetW )
-        {
-            case CodeSet.UTF8 :
-            {
-                if( giop_minor < 2 )
-                {
-                    throw new MARSHAL( "GIOP 1." + giop_minor +
-                                       " only allows 2 Byte encodings for wchar, but the selected TCSW is UTF-8" );
-                }
-
-                short value = (short) (0xff & buffer[pos++]);
-                index++;
-
-                if( (value & 0x80) == 0 )
-                {
-                    return (char) value;
-                }
-                else if( (value & 0xe0) == 0xc0 )
-                {
-                    index++;
-                    return (char)(((value & 0x1F) << 6) |
-                                  (buffer[pos++] & 0x3F));
-                }
-                else
-                {
-                    index += 2;
-                    short b2 = (short)(0xff & buffer[pos++]);
-                    return (char)(( ( value & 0x0F) << 12) |
-                                  ( (b2 & 0x3F) << 6) |
-                                  ( buffer[pos++] & 0x3F));
-                }
-            }
-            case CodeSet.UTF16 :
-            {
-                char value;
-
-                if( wchar_little_endian )
-                {
-                    value = (char) ( (buffer[ pos++ ] & 0xFF) |
-                                 (buffer[ pos++ ] << 8) );
-                }
-                else
-                {
-                    value = (char) ( (buffer[ pos++ ] << 8) |
-                                 (buffer[ pos++ ] & 0xFF) );
-                }
-
-                index += 2;
-                return value;
-            }
-            default:
-            {
-                throw new MARSHAL( "Bad CodeSet: " + codeSetW );
-            }
-        }
+        return codeSetW.read_wchar( this, giop_minor, wchar_little_endian );
     }
 
     /**
@@ -2057,7 +2011,7 @@ public class CDRInputStream
      * no BOM present. In this case, big endianess is assumed per
      * spec).
      */
-    private final boolean readBOM()
+    public final boolean readBOM()
     {
         if( (buffer[ pos     ] == (byte) 0xFE) &&
             (buffer[ pos + 1 ] == (byte) 0xFF) )
@@ -2100,9 +2054,6 @@ public class CDRInputStream
 
     public final String read_wstring()
     {
-        String result = null;
-        char buf[] = null;
-
         handle_chunking();
 
         int remainder = 4 - (index % 4);
@@ -2111,75 +2062,16 @@ public class CDRInputStream
             index += remainder;
             pos += remainder;
         }
-        if( giop_minor == 2 )
-        {
-            // read size in bytes
-            int size = _read4int( littleEndian, buffer, pos);
-            index += 4;
-            pos += 4;
 
-            if( size == 0 )
-            {
-                return "";
-            }
+        // read length indicator
+        int size = _read4int( littleEndian, buffer, pos);
+        index += 4;
+        pos += 4;
+        if (size == 0) return "";
 
-            buf = new char[ size ];
-
-            int i = 0;
-            int endPos = pos + size;
-
-            boolean wchar_litte_endian = readBOM();
-
-            while( pos < endPos )
-            {
-                //ignore size
-                //read_wchar_size();
-
-                buf[ i++ ] = read_wchar( wchar_litte_endian );
-            }
-
-            result = new String( buf, 0, i );
-        }
-        else //GIOP 1.1 / 1.0
-        {
-            // read size
-            int size = _read4int( littleEndian, buffer, pos);
-            index += 4;
-            pos += 4;
-            buf = new char[ size ];
-
-            int endPos = pos + size;
-
-            if( codeSetW == CodeSet.UTF16 )
-            {
-                //size is in chars, but char has 2 bytes
-                endPos += size;
-            }
-
-            int i = 0;
-
-            while( pos < endPos )
-            {
-                //use the stream-wide endianess
-                buf[ i++ ] = read_wchar( littleEndian );
-            }
-
-            if( (i != 0) &&
-                (buf[ i - 1 ] == 0) )
-            {
-                //don't return terminating NUL
-                result = new String( buf, 0, i - 1 );
-            }
-            else
-            {
-                //doesn't have a terminating NUL. This is actually not
-                //allowed.
-                result = new String( buf, 0, i );
-            }
-        }
-        buf = null;
-        return result;
+        return codeSetW.read_wstring( this, size, this.giop_minor, this.littleEndian );
     }
+
 
     public boolean markSupported()
     {

@@ -168,7 +168,7 @@ public class CodesetTest extends ClientServerTestCase
     {
         TestSuite suite = new TestSuite( "Client/server codeset tests" );
 
-        if (CodeSet.getTCSDefault() != CodeSet.UTF8)
+        if (!CodeSet.getTCSDefault().getName().equals( "UTF8" ))
         {
             System.err.println
                 ("WARNING - TESTS ARE NOT RUNNING WITH UTF8 - THEY MAY NOT PASS.");
