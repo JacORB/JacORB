@@ -1,3 +1,14 @@
+2008-03-24  author  <author@tycho>
+
+	* orb/CDROutputStreamTest.java, orb/CodesetTest.java: Patch by
+	Russell Gold that refactors CodeSet logic, adding support for
+	UCS-2.  Bug #305.
+
+	* orb/giop/ClientConnectionTest.java, orb/giop/CodeSetTest.java:
+	Initial revision, supplied by Russell Gold along with bug #305.
+
+	* orb/AllTest.java (suite): Add new test cases.
+
 2008-03-24  Andre Spiegel  <spiegel@gnu.org>
 
 	* orb/AllTest.java (suite): Include the new ClientIIOPConnectionTest.
