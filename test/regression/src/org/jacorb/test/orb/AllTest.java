@@ -41,6 +41,7 @@ public class AllTest extends JacORBTestSuite
         suite.addTest (org.jacorb.test.orb.ArrayTest.suite());
         suite.addTest (org.jacorb.test.orb.ExceptionTest.suite());
         suite.addTest (org.jacorb.test.orb.CorbalocTest.suite());
+        suite.addTest (org.jacorb.test.orb.iiop.ClientIIOPConnectionTest.suite() );
         suite.addTest (org.jacorb.test.orb.CallbackTest.suite());
         suite.addTest (org.jacorb.test.orb.value.ValueTest.suite ());
         suite.addTest (org.jacorb.test.orb.rmi.AllTest.suite ());
