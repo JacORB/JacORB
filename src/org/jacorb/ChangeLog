@@ -1,11 +1,39 @@
-Mon Nov 19 17:35:12 UTC 2007  Ciju John  <johnc at ociweb dot com>
+2007-11-29  Nick Cross  <nick.cross@prismtech.com>
 
-        * orb/Delegate.java:
-          When ServantManager is a ServantLocator the POA's local request
-          count needs to be decremented only in the case of an exception.
+	* security/sas/GSSUPContextSpi.java: bug#800 - fix for JDK1.6 port
+	- add isInitiator
 
-        * poa/RequestController.java:
-          A negative POA's local request count is invalid.
+2007-11-19  Ciju John  <johnc at ociweb dot com>
+
+        * orb/Delegate.java: When ServantManager is a ServantLocator the
+	  POA's local request count needs to be decremented only in the
+	  case of an exception.
+
+        * poa/RequestController.java: A negative POA's local request count
+	  is invalid.
+
+2007-08-17  Phil Mesnier  <phil.mesnier@ociweb.com>
+
+	* orb/Delegate.java: Fix for excessive locking during remote
+	invocations. This impacts multithreaded applications that need to
+	use the Delegate for non-invocation tasks such as identity
+	comparisons while simultaniously making invocations. See
+	test/delegateSync for an example scenario.
+
+2007-06-06  Francisco Reverbel <reverbel@ime.usp.br>
+
+	* orb/iiop/IIOPListener.java: Fix for bug #771 in JacORB's
+	bugzilla system.
+
+2007-06-01  Francisco Reverbel <reverbel@ime.usp.br>
+
+	* orb/iiop/IIOPProfile.java: Fix for bug #783 in JacORB's bugzilla
+	system.
+
+2007-05-31  Francisco Reverbel <reverbel@ime.usp.br>
+
+	* security/ssl/sun_jsse/JSSEUtil.java: Fix for bug #782 in
+	JacORB's bugzilla system.
 
 2007-04-27  Francisco Reverbel <reverbel@ime.usp.br>
 
