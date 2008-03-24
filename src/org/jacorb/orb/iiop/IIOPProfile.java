@@ -1,7 +1,7 @@
 /*
  *        JacORB - a free Java ORB
  *
- *   Copyright (C) 1997-2004 Gerald Brose.
+ *   Copyright (C) 1997-2008 Gerald Brose.
  *
  *   This library is free software; you can redistribute it and/or
  *   modify it under the terms of the GNU Library General Public
@@ -32,7 +32,6 @@ import org.jacorb.orb.etf.ProtocolAddressBase;
 import org.omg.ETF.*;
 import org.omg.IOP.*;
 import org.omg.SSLIOP.*;
-import org.omg.CORBA.INTERNAL;
 import org.omg.CSIIOP.*;
 
 /**
@@ -42,8 +41,13 @@ import org.omg.CSIIOP.*;
 public class IIOPProfile
     extends org.jacorb.orb.etf.ProfileBase implements Cloneable
 {
-    private IIOPAddress          primaryAddress = null;
-    private Logger logger;
+    private IIOPAddress  primaryAddress = null;
+    private Logger       logger;
+
+    /** the following is used as a bit mask to check if any of these options are set */
+    private static final int MINIMUM_OPTIONS = Integrity.value | Confidentiality.value | DetectReplay.value |
+                                               DetectMisordering.value | EstablishTrustInTarget.value | EstablishTrustInClient.value;
+
 
     public IIOPProfile()
     {
@@ -415,54 +419,6 @@ public class IIOPProfile
                                              SSLHelper.class );
     }
 
-    /**
-     * If there is a component tagged with TAG_CSI_SEC_MECH_LIST,
-     * get the SSL port from this component. Return the SSL port in the
-     * TAG_TLS_SEC_TRANS component encapsulated into the transport_mech
-     * field of the first CompoundSecMech of the CSI_SEC_MECH_LIST.
-     * Return -1 if there is no component tagged with TAG_CSI_SEC_MECH_LIST
-     * or if this component specifies no SSL port.
-     */
-    public int getTLSPortFromCSIComponent()
-    {
-        CompoundSecMechList csmList =
-            (CompoundSecMechList)components.getComponent(
-                                            TAG_CSI_SEC_MECH_LIST.value,
-                                            CompoundSecMechListHelper.class);
-        if (csmList != null && csmList.mechanism_list.length > 0 &&
-                csmList.mechanism_list[0].transport_mech.tag == 
-                                                    TAG_TLS_SEC_TRANS.value)
-        {
-            byte[] tlsSecTransData =
-                csmList.mechanism_list[0].transport_mech.component_data;
-            CDRInputStream in =
-                new CDRInputStream((org.omg.CORBA.ORB)null, tlsSecTransData);
-            try
-            {
-                in.openEncapsulatedArray();
-                TLS_SEC_TRANS tls = TLS_SEC_TRANSHelper.read(in);
-                if (tls.addresses.length > 0)
-                {
-                    int ssl_port = tls.addresses[0].port;
-                    if (ssl_port != 0)
-                    {
-                        if (ssl_port < 0)
-                        {
-                            ssl_port += 65536;
-                        }
-                        return ssl_port;
-                    }
-                }
-            }
-            catch ( Exception ex )
-            {
-                logger.debug("unexpected exception", ex);
-                throw new INTERNAL(ex.toString());
-            }
-        }
-        return -1;
-
-    }
 
     /**
      * Returns the port on which SSL is available according to this profile,
@@ -470,18 +426,16 @@ public class IIOPProfile
      */
     public int getSSLPort()
     {
-        SSL ssl = getSSL();
-        if (ssl == null)
+        TLS_SEC_TRANS tls = getTlsSpecFromCSIComponent();
+        if (tls != null && tls.addresses.length > 0)
         {
-            return getTLSPortFromCSIComponent();
+            return adjustedPortNum( tls.addresses[0].port );
         }
-
-        int port = ssl.port;
-        if (port < 0)
+        else
         {
-            port += 65536;
+            SSL ssl = getSSL();
+            return adjustedPortNum( ssl.port );
         }
-        return port;
     }
 
     /**
@@ -497,12 +451,7 @@ public class IIOPProfile
 
     public boolean equals(Object other)
     {
-        if (other instanceof org.omg.ETF.Profile)
-        {
-            return this.is_match((org.omg.ETF.Profile)other);
-        }
-
-        return false;
+        return other instanceof Profile && this.is_match( (Profile) other );
     }
 
     public int hashCode()
@@ -513,5 +462,98 @@ public class IIOPProfile
     public String toString()
     {
         return primaryAddress.toString();
+    }
+
+
+    /**
+     * Returns the SSL port which should be used to communicate with an IOR containing this profile.
+     * Returns -1 if SSL should not be used.
+     *
+     * SSL is enabled only if both client and target support it, and at least one requires it. Target options
+     * are determined by reading either the SSL_SEC_TRANS component or the CSI_SEC_MECH_LIST component, if it specifies
+     * transport-level security. If both are present, the latter is used.
+     *
+     * @param client_required the CSIv2 features required by the client.
+     * @param client_supported the CSIv2 features supported by the client.
+     * @return an ssl port number or -1, if none.
+     */
+    int getSslPortIfSupported( int client_required, int client_supported )
+    {
+        TLS_SEC_TRANS tls = getTlsSpecFromCSIComponent();
+        SSL ssl = (SSL) getComponent( TAG_SSL_SEC_TRANS.value, SSLHelper.class );
+
+        if (tls != null && useSsl( client_supported, client_required, tls.target_supports, tls.target_requires ))
+        {
+            if (logger.isDebugEnabled())
+            {
+                logger.debug("Selecting TLS for connection");
+            }
+            return adjustedPortNum( tls.addresses[0].port );
+        }
+        else if (ssl != null && useSsl( client_supported, client_required, ssl.target_supports, ssl.target_requires ))
+        {
+            if (logger.isDebugEnabled())
+            {
+                logger.debug("Selecting SSL for connection");
+            }
+            return adjustedPortNum( ssl.port );
+        }
+        else if ((client_required & MINIMUM_OPTIONS) != 0)
+        {
+            throw new org.omg.CORBA.NO_PERMISSION( "Client-side policy requires SSL/TLS, but server doesn't support it" );
+        }
+        return -1;
+    }
+
+
+    private static int adjustedPortNum( short port )
+    {
+        return port < 0 ? port + 65536 : port;
+    }
+
+
+    private boolean useSsl( int clientSupports, int clientRequires, short targetSupports, short targetRequires)
+    {
+        return ((targetSupports & MINIMUM_OPTIONS) != 0) && // target supports ssl
+               ((clientSupports & MINIMUM_OPTIONS) != 0) && // client supports ssl
+               ( ((targetRequires & MINIMUM_OPTIONS) != 0) || ((clientRequires & MINIMUM_OPTIONS) != 0) ); // either side requires ssl
+    }
+
+
+    private TLS_SEC_TRANS getTlsSpecFromCSIComponent()
+    {
+        CompoundSecMechList sas = null;
+        try
+        {
+            sas = (CompoundSecMechList) getComponent( TAG_CSI_SEC_MECH_LIST.value, CompoundSecMechListHelper.class );
+        }
+        catch (Exception ex)
+        {
+            logger.info("Not able to process security mech. component");
+        }
+
+        TLS_SEC_TRANS tls = null;
+        if (sas != null && sas.mechanism_list[0].transport_mech.tag == TAG_TLS_SEC_TRANS.value)
+        {
+            try
+            {
+                byte[] tagData = sas.mechanism_list[0].transport_mech.component_data;
+                final CDRInputStream in = new CDRInputStream( null, tagData );
+                try
+                {
+                    in.openEncapsulatedArray();
+                    tls = TLS_SEC_TRANSHelper.read( in );
+                }
+                finally
+                {
+                    in.close();
+                }
+            }
+            catch ( Exception e )
+            {
+                logger.warn("Error parsing TLS_SEC_TRANS: "+e);
+            }
+        }
+        return tls;
     }
 }

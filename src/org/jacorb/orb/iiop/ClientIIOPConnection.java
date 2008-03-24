@@ -1,7 +1,7 @@
 /*
  *        JacORB - a free Java ORB
  *
- *   Copyright (C) 1997-2004 Gerald Brose.
+ *   Copyright (C) 1997-2008 Gerald Brose.
  *
  *   This library is free software; you can redistribute it and/or
  *   modify it under the terms of the GNU Library General Public
@@ -30,27 +30,11 @@ import java.util.List;
 import org.apache.avalon.framework.configuration.Configurable;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
-import org.jacorb.orb.CDRInputStream;
 import org.jacorb.orb.factory.SocketFactory;
 import org.jacorb.orb.giop.TransportManager;
 import org.jacorb.orb.listener.TCPConnectionEvent;
 import org.jacorb.orb.listener.TCPConnectionListener;
 import org.omg.CORBA.TIMEOUT;
-import org.omg.CSIIOP.CompoundSecMechList;
-import org.omg.CSIIOP.CompoundSecMechListHelper;
-import org.omg.CSIIOP.Confidentiality;
-import org.omg.CSIIOP.DetectMisordering;
-import org.omg.CSIIOP.DetectReplay;
-import org.omg.CSIIOP.EstablishTrustInClient;
-import org.omg.CSIIOP.EstablishTrustInTarget;
-import org.omg.CSIIOP.Integrity;
-import org.omg.CSIIOP.TAG_CSI_SEC_MECH_LIST;
-import org.omg.CSIIOP.TAG_TLS_SEC_TRANS;
-import org.omg.CSIIOP.TLS_SEC_TRANS;
-import org.omg.CSIIOP.TLS_SEC_TRANSHelper;
-import org.omg.SSLIOP.SSL;
-import org.omg.SSLIOP.SSLHelper;
-import org.omg.SSLIOP.TAG_SSL_SEC_TRANS;
 
 /**
  * @author Nicolas Noffke
@@ -63,7 +47,7 @@ public class ClientIIOPConnection
 {
     private int timeout = 0;
 
-    private int     ssl_port = -1;
+    private int ssl_port = -1;
     private int noOfRetries  = 5;
     private int retryInterval = 0;
     private boolean doSupportSSL = false;
@@ -75,8 +59,6 @@ public class ClientIIOPConnection
     //used by org.jacorb.test.orb.connection[Client|Server]ConnectionTimeoutTest
     public static int openTransports = 0;
 
-    //for storing exceptions during connect
-    private Exception exception = null;
 
     public ClientIIOPConnection()
     {
@@ -274,7 +256,7 @@ public class ClientIIOPConnection
 
         Iterator addressIterator = addressList.iterator();
 
-        exception = null;
+        Exception exception = null;
         socket = null;
         while (socket == null && addressIterator.hasNext())
         {
@@ -345,11 +327,11 @@ public class ClientIIOPConnection
         {
             if (exception instanceof SocketTimeoutException)
             {
-                throw new TIMEOUT("connection timeout of " + timeout + " milliseconds expired: " + exception);
+                throw new TIMEOUT("connection timeout of " + timeout + " milliseconds expired: " + exception );
             }
             else if( exception instanceof IOException )
             {
-                throw (IOException)exception;
+                throw (IOException) exception;
             }
             else
             {
@@ -429,140 +411,23 @@ public class ClientIIOPConnection
      * the server described by the 'profile'.  The result
      * is stored in the private fields use_ssl and ssl_port.
      */
-    private void checkSSL()
+    protected void checkSSL()
     {
-        // Check if SSL profile
-        if (((IIOPProfile)profile).getSSL () == null)
-        {
-            return;
-        }
+        if (!doSupportSSL) return;
 
-        CompoundSecMechList sas;
-        try
-        {
-            sas = (CompoundSecMechList)((IIOPProfile)profile).getComponent
-                                           (TAG_CSI_SEC_MECH_LIST.value,
-                                            CompoundSecMechListHelper.class);
-        }
-        catch (Exception ex)
-        {
-            logger.info("Not able to process security mech. component");
-            return;
-        }
+        int client_required = configuration.getAttributeAsInteger("jacorb.security.ssl.client.required_options", 16);
+        int client_supported = configuration.getAttributeAsInteger("jacorb.security.ssl.client.supported_options",16);
 
-        TLS_SEC_TRANS tls = null;
-        if (sas != null && sas.mechanism_list[0].transport_mech.tag == TAG_TLS_SEC_TRANS.value)
-        {
-            try
-            {
-                byte[] tagData = sas.mechanism_list[0].transport_mech.component_data;
-                final CDRInputStream in = new CDRInputStream( (org.omg.CORBA.ORB)null, tagData );
-                try
-                {
-                    in.openEncapsulatedArray();
-                    tls = TLS_SEC_TRANSHelper.read( in );
-                }
-                finally
-                {
-                    in.close();
-                }
-            }
-            catch ( Exception e )
-            {
-                logger.warn("Error parsing TLS_SEC_TRANS: "+e);
-            }
-        }
-
-        SSL ssl = (SSL)((IIOPProfile)profile).getComponent
-                                           (TAG_SSL_SEC_TRANS.value,
-                                            SSLHelper.class);
-        //if( sas != null &&
-        //    ssl != null )
-        //{
-        //    ssl.target_requires |= sas.mechanism_list[0].target_requires;
-        //}
-
-        // SSL usage is decided the following way: At least one side
-        // must require it. Therefore, we first check if it is
-        // supported by both sides, and then if it is required by at
-        // least one side. The distinction between
-        // EstablishTrustInTarget and EstablishTrustInClient is
-        // handled at the socket factory layer.
-
-        //the following is used as a bit mask to check, if any of
-        //these options are set
-        int minimum_options =
-            Integrity.value |
-            Confidentiality.value |
-            DetectReplay.value |
-            DetectMisordering.value |
-            EstablishTrustInTarget.value |
-            EstablishTrustInClient.value;
-
-        int client_required = 0;
-        int client_supported = 0;
-
-        //only read in the properties if ssl is really supported.
-        if( doSupportSSL )
-        {
-            client_required =
-                configuration.getAttributeAsInteger("jacorb.security.ssl.client.required_options", 16);
-            client_supported =
-                configuration.getAttributeAsInteger("jacorb.security.ssl.client.supported_options",16);
-        }
-
-        if( tls != null && // server knows about ssl...
-            ((tls.target_supports & minimum_options) != 0) && //...and "really" supports it
-            doSupportSSL && //client knows about ssl...
-            ((client_supported & minimum_options) != 0 )&& //...and "really" supports it
-            ( ((tls.target_requires & minimum_options) != 0) || //server ...
-              ((client_required & minimum_options) != 0))) //...or client require it
-        {
-            use_ssl  = true;
-            ssl_port = tls.addresses[0].port;
-            if (ssl_port < 0)
-            {
-                ssl_port += 65536;
-            }
-
-            if (logger.isDebugEnabled())
-            {
-                logger.debug("Selecting TLS for connection");
-            }
-        }
-        else if( ssl != null && // server knows about ssl...
-            ((ssl.target_supports & minimum_options) != 0) && //...and "really" supports it
-            doSupportSSL && //client knows about ssl...
-            ((client_supported & minimum_options) != 0 )&& //...and "really" supports it
-            ( ((ssl.target_requires & minimum_options) != 0) || //server ...
-              ((client_required & minimum_options) != 0))) //...or client require it
-        {
-            use_ssl  = true;
-            ssl_port = ssl.port;
-            if (ssl_port < 0)
-            {
-                ssl_port += 65536;
-            }
-
-            if (logger.isDebugEnabled())
-            {
-                logger.debug("Selecting SSL for connection");
-            }
-        }
-        //prevent client policy violation, i.e. opening plain TCP
-        //connections when SSL is required
-        else if( // server doesn't know ssl...
-                 doSupportSSL && //client knows about ssl...
-                 ((client_required & minimum_options) != 0)) //...and requires it
-        {
-            throw new org.omg.CORBA.NO_PERMISSION( "Client-side policy requires SSL/TLS, but server doesn't support it" );
-        }
-        else
-        {
-            use_ssl = false;
-            ssl_port = -1;
-        }
+        ssl_port = ((IIOPProfile) profile).getSslPortIfSupported( client_required, client_supported );
+        use_ssl  = ssl_port != -1;
     }
+
+
+    public int getSsl_port()
+    {
+        return ssl_port;
+    }
+
 
     private SocketFactory getSocketFactory()
     {
