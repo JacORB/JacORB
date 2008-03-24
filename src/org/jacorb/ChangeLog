@@ -1,3 +1,8 @@
+2008-03-24  Andre Spiegel  <spiegel@gnu.org>
+
+	* IIOPProfile.java, ClientIIOPConnection.java:
+	Patch by Russell Gold to fix CSIv2 recognition, bug #832.
+
 2007-11-29  Nick Cross  <nick.cross@prismtech.com>
 
 	* security/sas/GSSUPContextSpi.java: bug#800 - fix for JDK1.6 port
