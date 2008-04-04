@@ -1736,7 +1736,7 @@ public final class Delegate
             //header being writtend using the default codesets. On the
             //other hand, the server side must have already read the
             //header to discover the codeset service context.
-            out.setCodeSet( connection.getTCS(), connection.getTCSW() );
+            out.setCodeSets( connection.getTCS(), connection.getTCSW() );
 
             out.updateMutatorConnection (connection.getGIOPConnection());
 
