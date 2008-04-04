@@ -1,3 +1,10 @@
+2008-04-04  Andre Spiegel  <spiegel@gnu.org>
+
+	* orb/Delegate.java (request): Call
+	CDROutputStream.setCodeSets() instead of setCodeSet().  Part of
+	Russell Gold's patch for bug #305, had not been checked in by
+	mistake.
+
 2008-03-24  Andre Spiegel  <spiegel@gnu.org>
 
 	* orb/giop/GIOPConnection.java, orb/CDROutputStream.java,
