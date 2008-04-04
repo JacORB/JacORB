@@ -1,3 +1,8 @@
+2008-04-04  Andre Spiegel  <spiegel@gnu.org>
+
+	* orb/CDRInputStreamTest.java: Initial revision, patch by
+	Russell Gold (was not checked in previously).
+
 2008-03-24  Andre Spiegel  <spiegel@gnu.org>
 
 	* orb/CDROutputStreamTest.java, orb/CodesetTest.java: Patch by
