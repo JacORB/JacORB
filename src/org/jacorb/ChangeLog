@@ -1,3 +1,11 @@
+2008-05-05  Andre Spiegel  <spiegel@gnu.org>
+
+	* orb/giop/GIOPConnection.java (getMessage, sendMessage):
+	Remove direct calls to close() in error
+	conditions.  It is enough to call this.streamClosed() and let outer
+	objects do the real close().  This is the final patch for bug #708 as
+	suggested by Marc Heide on 2006-12-11.
+
 2008-04-04  Andre Spiegel  <spiegel@gnu.org>
 
 	* orb/Delegate.java (request): Call
