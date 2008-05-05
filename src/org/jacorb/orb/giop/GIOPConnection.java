@@ -451,11 +451,8 @@ public abstract class GIOPConnection
                           + ", incorrect magic number --> connection closed" );
         }
         
-        // close transport connection, there is nearly no chance to sync
-        // with peer on this connection again
-        close();
-        
-        // notify GIOPConnectionManager of close
+        //close transport connection, there is nearly no chance to sync with
+        //peer on this connection again
         this.streamClosed();
  
         return null;
@@ -979,18 +976,21 @@ public abstract class GIOPConnection
                 {
                     logger.error
                     (
-                        "GIOP connection closed due to errors during " +
-                        "sendMessage(), in " + this.toString()
+                        "Underlying transport connection closed due to " +
+                        "errors during sendMessage(), in " + this.toString()
                     );
                 }
-                //release write lock to prevent dead locks to 
-                //reader thread which might try to close this socket too
-                //concurrently (unfortunately write lock is requested during streamClosed())
+                // release write lock to prevent dead locks to reader
+                // thread which might try to close this socket too
+                // concurrently (unfortunately write lock is requested
+                // during streamClosed())
                 releaseWriteLock();
-                //close transport connection, there is nearly no chance to sync with
-                //peer on this connection again
-                close();
-                //signal GIOPConnectionManager to throw this connection away
+
+                // It makes no sense to use this transport any longer
+                // examples: firewall dropped connection silently,
+                //           socket system buffers full (peer didn't read 
+                //           data in time)
+                // signal GIOPConnectionManager to throw this connection away
                 this.streamClosed();
             }
             throw e;
