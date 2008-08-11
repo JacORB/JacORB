@@ -434,7 +434,14 @@ public class IIOPProfile
         else
         {
             SSL ssl = getSSL();
-            return adjustedPortNum( ssl.port );
+            if (ssl != null)
+            {
+                return adjustedPortNum( ssl.port );
+            }
+            else
+            {
+                return -1;
+            }
         }
     }
 
