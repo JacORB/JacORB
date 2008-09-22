@@ -1,5 +1,7 @@
 package org.jacorb.test.notification.node;
 
+import org.omg.CosNotification.EventHeader;
+import org.omg.CosNotification.FixedEventHeader;
 import junit.framework.Test;
 
 import org.jacorb.notification.MessageFactory;
@@ -29,6 +31,7 @@ import org.jacorb.test.notification.common.NotificationTestCase;
 import org.jacorb.test.notification.common.NotificationTestCaseSetup;
 import org.jacorb.test.notification.common.NotificationTestUtils;
 import org.omg.CORBA.Any;
+import org.omg.CosNotification.EventType;
 import org.omg.CosNotification.Property;
 import org.omg.CosNotification.PropertySeqHelper;
 import org.omg.CosNotification.StructuredEvent;
@@ -962,10 +965,34 @@ public class TCLTest extends NotificationTestCase
         runEvaluation("2", "\t1\r+\n\r1\t");
     }
 
+    public void testBug748() throws Exception {
+        EventType type = new EventType("Finance", "StockQuote");
+        FixedEventHeader fixed = new FixedEventHeader(type, "10");
+        StructuredEvent quoteEvent = new StructuredEvent();
+
+        // Complete header date
+        Property variable[] = new Property[0];
+        quoteEvent.header = new EventHeader(fixed, variable);
+        quoteEvent.filterable_data = new Property[2];
+
+        Any idAny = getORB().create_any();
+        idAny.insert_string("stockQuotes");
+        quoteEvent.filterable_data[0] = new Property("stock_id", idAny);
+
+        Any priceAny = getORB().create_any();
+        priceAny.insert_double(200.0);
+        quoteEvent.filterable_data[1] = new Property("stock_price", priceAny);
+
+        quoteEvent.remainder_of_body = getORB().create_any();
+        runEvaluation(quoteEvent, "$stock_price >= 200.00", "TRUE");
+        runEvaluation(quoteEvent, "$stock_price <= 200.00", "TRUE");
+        runEvaluation(quoteEvent, "$stock_price == 200.00", "TRUE");
+    }
+
     public static Test suite() throws Exception
     {
         return NotificationTestCase.suite("TCL Parsing and Evaluation Tests", TCLTest.class
-        //, "testBug"
+        //, "testBug748"
                 );
     }
 
