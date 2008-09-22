@@ -184,7 +184,7 @@ public class EvaluationResult
         {
             return any_.extract_longlong();
         }
-        
+
         try
         {
             return ((Double) getValue()).longValue();
@@ -356,7 +356,7 @@ public class EvaluationResult
     {
         any_ = any;
     }
-    
+
     public void setAny(Any any)
     {
         addAny(any);
@@ -438,8 +438,8 @@ public class EvaluationResult
         else if (isLongLong() || other.isLongLong())
         {
             long _l = getLongLong();
-            long _r = getLongLong();
-            
+            long _r = other.getLongLong();
+
             _result = (_l<_r ? -1 : (_l==_r ? 0 : 1));
         }
         else
