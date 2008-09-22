@@ -39,18 +39,18 @@ import org.omg.CORBA.ORB;
 
 /**
  * Adaptor to run a JMX-enabled NotificationService inside of JBoss.
- * 
- * @jmx.mbean   name = "JBossCOSNotificationService" 
+ *
+ * @jmx.mbean   name = "JBossCOSNotificationService"
  *              extends = "org.jboss.system.ServiceMBean"
- *              persistPolicy = "OnUpdate" 
- *              persistPeriod = "10" 
- *              persistLocation = "${jboss.server.data.dir}" 
- *              persistName = "COSNotification.ser" 
- *              state-action-on-update = "keep-running" 
+ *              persistPolicy = "OnUpdate"
+ *              persistPeriod = "10"
+ *              persistLocation = "${jboss.server.data.dir}"
+ *              persistName = "COSNotification.ser"
+ *              state-action-on-update = "keep-running"
  *              persistence-manager = "org.jboss.mx.persistence.ObjectStreamPersistenceManager"
- *              
- * @jboss.xmbean 
- * 
+ *
+ * @jboss.xmbean
+ *
  * @author Alphonse Bendt
  * @version $Id$
  */
@@ -65,9 +65,9 @@ public class JBossCOSNotificationService extends ServiceMBeanSupport implements
 
     private COSNotificationService delegate_;
 
-    private String iorFileName_;
+    private String iorFileName_ = "CosNotification.ior";
 
-    private String cosNamingEntry_;
+    private String cosNamingEntry_ = "CosNotification";
 
     private String additionalArguments_;
 
@@ -99,7 +99,7 @@ public class JBossCOSNotificationService extends ServiceMBeanSupport implements
     }
 
     /**
-     * @--jmx.managed-operation description = "Detyped lifecycle invocation" 
+     * @--jmx.managed-operation description = "Detyped lifecycle invocation"
      *                          impact = "ACTION"
      */
     public void jbossInternalLifecycle(String method) throws Exception
@@ -108,7 +108,7 @@ public class JBossCOSNotificationService extends ServiceMBeanSupport implements
     }
 
     /**
-     * @jmx.managed-operation   description = "create the service, do expensive operations etc" 
+     * @jmx.managed-operation   description = "create the service, do expensive operations etc"
      *                          impact = "ACTION"
      */
     public void create() throws Exception
@@ -117,7 +117,7 @@ public class JBossCOSNotificationService extends ServiceMBeanSupport implements
     }
 
     /**
-     * @jmx.managed-operation   description = "start the service, create is already called" 
+     * @jmx.managed-operation   description = "start the service, create is already called"
      *                          impact = "ACTION"
      */
     public void start() throws Exception
@@ -126,7 +126,7 @@ public class JBossCOSNotificationService extends ServiceMBeanSupport implements
     }
 
     /**
-     * @jmx.managed-operation   description = "stop the service" 
+     * @jmx.managed-operation   description = "stop the service"
      *                          impact = "ACTION"
      */
     public void stop()
@@ -135,7 +135,7 @@ public class JBossCOSNotificationService extends ServiceMBeanSupport implements
     }
 
     /**
-     * @jmx.managed-operation   description = "destroy the service, tear down" 
+     * @jmx.managed-operation   description = "destroy the service, tear down"
      *                          impact = "ACTION"
      */
     public void destroy()
@@ -144,7 +144,7 @@ public class JBossCOSNotificationService extends ServiceMBeanSupport implements
     }
 
     /**
-     * @jmx.managed-operation   description="create a new channel" 
+     * @jmx.managed-operation   description="create a new channel"
      *                          impact = "ACTION"
      */
     public String createChannel()
@@ -153,7 +153,7 @@ public class JBossCOSNotificationService extends ServiceMBeanSupport implements
     }
 
     /**
-     * @jmx.managed-attribute   description = "NameService Entry (Optional)" 
+     * @jmx.managed-attribute   description = "NameService Entry (Optional)"
      *                          access = "read-write"
      */
     public String getCOSNamingEntry()
@@ -181,7 +181,7 @@ public class JBossCOSNotificationService extends ServiceMBeanSupport implements
     }
 
     /**
-     * @jmx.managed-attribute   description="Corbaloc to access the EventChannelFactory" 
+     * @jmx.managed-attribute   description="Corbaloc to access the EventChannelFactory"
      *                          access = "read-only"
      */
     public String getCorbaloc()
@@ -190,7 +190,7 @@ public class JBossCOSNotificationService extends ServiceMBeanSupport implements
     }
 
     /**
-     * @jmx.managed-attribute   description="IOR to access the EventChannelFactory" 
+     * @jmx.managed-attribute   description="IOR to access the EventChannelFactory"
      *                          access = "read-only"
      */
     public String getIOR()
@@ -199,7 +199,7 @@ public class JBossCOSNotificationService extends ServiceMBeanSupport implements
     }
 
     /**
-     * @jmx.managed-attribute   description = "Filename the IOR should be written to" 
+     * @jmx.managed-attribute   description = "Filename the IOR should be written to"
      *                          access = "read-write"
      */
     public String getIORFile()
@@ -236,7 +236,7 @@ public class JBossCOSNotificationService extends ServiceMBeanSupport implements
 
     /**
      * @jmx.managed-attribute description = "Additional startup arguments. Setting these on an
-     *                        already running service will have no effect!" 
+     *                        already running service will have no effect!"
      *                        access = "read-write"
      */
     public String getAdditionalArguments()
@@ -295,7 +295,7 @@ public class JBossCOSNotificationService extends ServiceMBeanSupport implements
         {
             return delegate_.getEventChannelFactory();
         }
-        
+
         throw new IllegalArgumentException();
     }
 
