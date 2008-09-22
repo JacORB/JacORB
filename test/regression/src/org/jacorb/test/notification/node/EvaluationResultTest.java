@@ -93,6 +93,20 @@ public class EvaluationResultTest extends TestCase
         assertTrue(!objectUnderTest_.getBool());
     }
 
+    public void testBug790() throws Exception
+    {
+        EvaluationResult other1 = new EvaluationResult();
+        EvaluationResult other2 = new EvaluationResult();
+        objectUnderTest_.setLongLong(1000);
+        other1.setLongLong(2000);
+        other2.setLongLong(1000);
+
+        assertTrue(objectUnderTest_ + " < " + other1, objectUnderTest_.compareTo(other1) < 0);
+        assertTrue(other1.compareTo(objectUnderTest_) > 0);
+        assertEquals(0, objectUnderTest_.compareTo(other2));
+        assertEquals(0, other2.compareTo(objectUnderTest_));
+    }
+
 
     public static Test suite()
     {
