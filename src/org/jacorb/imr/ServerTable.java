@@ -165,6 +165,21 @@ public class ServerTable
             throw new UnknownServerName(name);
     }
 
+    public boolean poa_enp_reused (String name, String host, int port)
+    {   
+        POAInfo[] poas = getPOAs();
+        for (int i = 0; i < poas.length; i++)
+        {
+          if (poas[i].name.equals (name))
+            continue;
+            
+          if (poas[i].host.equals (host) && poas[i].port == port && poas[i].active == true)
+            return true;
+        }
+       
+        return false;
+    }
+
     /**
      * Get the ImRPOAInfo object of a POA.
      *

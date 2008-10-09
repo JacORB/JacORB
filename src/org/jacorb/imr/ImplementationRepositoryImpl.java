@@ -24,6 +24,7 @@ import org.apache.avalon.framework.logger.Logger;
 import org.apache.avalon.framework.configuration.*;
 
 import org.omg.GIOP.*;
+import org.omg.CORBA.SystemException;
 
 import org.jacorb.imr.RegistrationPackage.*;
 import org.jacorb.imr.AdminPackage.*;
@@ -349,7 +350,7 @@ public class ImplementationRepositoryImpl
         if (this.logger.isDebugEnabled())
         {
             this.logger.debug("ImR: registering poa " + name + " for server: " +
-                              server + " on " + host);
+                              server + " on " + host + ":" + port);
         }
 
         if( allow_auto_register &&
@@ -406,7 +407,18 @@ public class ImplementationRepositoryImpl
                 else
                 {
                     // Otherwise try a ping
-                    remap = ! (checkServerActive (_poa.host, _poa.port, id));
+
+                    // The ImplRepo may not get chance to update its
+                    // internal state due to server non-graceful
+                    // shutdown. If the address is actively using by
+                    // another server, the new endpoint(host, port)
+                    // will replace the old endpoint. 
+                    boolean enp_reused = server_table.poa_enp_reused (_poa.name, _poa.host, _poa.port);
+                    
+                    // We can not determine if the address is really
+                    // using based on the server table since it may
+                    // not be updated. We still need ping the server.
+                    remap = ! (checkServerActive (_poa.host, _poa.port, id, enp_reused ));
                 }
 
                 if (remap == false)
@@ -519,7 +531,7 @@ public class ImplementationRepositoryImpl
                     id[first.length] = org.jacorb.poa.POAConstants.OBJECT_KEY_SEP_BYTE;
 
                     if ( ! checkServerActive
-                         (servers[k].poas[0].host, servers[k].poas[0].port, id))
+                         (servers[k].poas[0].host, servers[k].poas[0].port, id, false))
                     {
                         try
                         {
@@ -1243,7 +1255,7 @@ public class ImplementationRepositoryImpl
     }
 
 
-    private boolean checkServerActive(String host, int port, byte []object_key)
+    private boolean checkServerActive(String host, int port, byte []object_key, boolean enp_reused)
     {
         ClientConnectionManager   cm           = null;
         IIOPAddress               address      = null;
@@ -1290,10 +1302,26 @@ public class ImplementationRepositoryImpl
             switch (lris.rep_hdr.locate_status.value ())
             {
                 case LocateStatusType_1_2._UNKNOWN_OBJECT:
+                case LocateStatusType_1_2._LOC_SYSTEM_EXCEPTION:
+                {
+                    
+                    SystemException se = SystemExceptionHelper.read( lris );
+                    if (enp_reused && (se instanceof org.omg.CORBA.OBJECT_NOT_EXIST))
+                    {
+                       // Endpoint is reused by another server and the new server
+                       // returned OBJECT_NOT_EXIST, so give up using this endpoint.  
+                       // The return value can be interpreted as not available endpoint.
+                       result = false;
+                    }
+                    else
+                    {
+                       result = true;
+                    }
+                    break;
+                }
                 case LocateStatusType_1_2._OBJECT_HERE:
                 case LocateStatusType_1_2._OBJECT_FORWARD:
                 case LocateStatusType_1_2._OBJECT_FORWARD_PERM:
-                case LocateStatusType_1_2._LOC_SYSTEM_EXCEPTION:
                 case LocateStatusType_1_2._LOC_NEEDS_ADDRESSING_MODE:
                 default:
                 {
@@ -1445,7 +1473,7 @@ public class ImplementationRepositoryImpl
             {
                 // At this point the server *might* be running - we
                 // just want to verify it.
-                if (! checkServerActive (_poa.host, _poa.port, object_key))
+                if (! checkServerActive (_poa.host, _poa.port, object_key, false))
                 {
                     // Server is not active so set it down
                     _server.setDown ();
