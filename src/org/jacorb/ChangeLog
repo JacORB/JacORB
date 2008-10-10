@@ -1,3 +1,18 @@
+2008-10-09  Phil Mesnier  <mesnier_p@ociweb.com>
+
+	* imr/ImplementationRepositoryImpl.java, imr/ServerTable.java:
+	Fix for bug 845 - IMR reconnect trouble
+
+2008-09-22  Alphonse Bendt  <bendt@macnews.de>
+
+	* notification/filter/EvaluationResult.java
+	(extractIntoEvaluationResult): add more switch cases. fixes #748
+
+	* notification/jmx/jboss/JBossCOSNotificationService.java (members):
+	add defaults values. fix for #803
+
+	* notification/filter/EvaluationResult.java (compareTo): fix for #790
+
 2008-08-11  Andre Spiegel  <spiegel@gnu.org>
 
 	* orb/iiop/IIOPProfile.java (getSSLPort): Add a null pointer check.
