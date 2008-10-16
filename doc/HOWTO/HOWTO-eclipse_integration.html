@@ -1,74 +1,74 @@
-<HTML>
-  <HEAD>
-    <TITLE>JacORB - Eclipse Integration mini HOW-TO</TITLE>
-    <LINK rel="stylesheet" type="text/css" href="http://www.jacorb.org/jacorb.css">
-  </HEAD>
-
-  <BODY>
-    <H1>JacORB - Eclipse Integration mini HOW-TO</H1>
-<p>
-This document describes how to set up a project in eclipse to step
-through, debug, or browse the source of JacORB.
-</p>
-<p>
-	<ol>
-		<li>A dependency of this HOWTO is the prior
-		installation of Ant, and the setting of the ANT_HOME
-		environment variable. Don't open eclipse yet.</li>
-		<li>Download and unpack the desired version of
-		JacORB. For purposes of this document, I have unpacked
-		JacORB into C:\jacorb_2_2_1.</li>
-		<li>Set your JACORB_HOME environment variable.
-			<pre>
-				set JACORB_HOME=C:\jacorb_2_2_1
-			</pre>
-		</li>
-		<li>From the JACORB_HOME directory, execute ant.</li>
-		<li>Once ant has completed successfully, open
-		eclipse.</li>
-		<li>Create a new Java project, and use JACORB_HOME as
-		the project's root.</li>
-		<li>In the Java Build Path screen, either while
-		setting up the project or by going into the project
-		properties after creating the project, you must
-		include the following source directories:
-			<ul>
-				<li>JACORB_HOME/src</li>
-				<li>JACORB_HOME/src/generated</li>
-			</ul>
-		<li>Now you must exclude certain other directories (we
-                  will exclude those parts of JacORB that do not build
-                  cleanly under eclipse in this simple
-                  setup. Depending on your needs, you may want to
-                  include some of them and work through their
-                  dependencies yourself).  Double click on "Excluded
-                  ..." beneath JACORB_HOME/src. Exclude the following
-                  directories:
-
-			<ul>
-				<li>generated</li>
-				<li>HTTPClient</li>
-				<li>omg-02-01-02</li>
-				<li>org/jacorb/notification</li>
-				<li>org/jacorb/orb/http</li>
-				<li>org/jacorb/security/level2</li>
-				<li>org/jacorb/ssl</li>
+<HTML> 
+  <HEAD> 
+    <TITLE>JacORB - Eclipse Integration mini HOW-TO</TITLE> 
+    <LINK rel="stylesheet" type="text/css" href="http://www.jacorb.org/jacorb.css"> 
+  </HEAD> 
+ 
+  <BODY> 
+    <H1>JacORB - Eclipse Integration mini HOW-TO</H1> 
+<p> 
+This document describes how to set up a project in eclipse to step 
+through, debug, or browse the source of JacORB. 
+</p> 
+<p> 
+	<ol> 
+		<li>A dependency of this HOWTO is the prior 
+		installation of Ant, and the setting of the ANT_HOME 
+		environment variable. Don't open eclipse yet.</li> 
+		<li>Download and unpack the desired version of 
+		JacORB. For purposes of this document, I have unpacked 
+		JacORB into C:\jacorb_2_2_1.</li> 
+		<li>Set your JACORB_HOME environment variable. 
+			<pre> 
+				set JACORB_HOME=C:\jacorb_2_2_1 
+			</pre> 
+		</li> 
+		<li>From the JACORB_HOME directory, execute ant.</li> 
+		<li>Once ant has completed successfully, open 
+		eclipse.</li> 
+		<li>Create a new Java project, and use JACORB_HOME as 
+		the project's root.</li> 
+		<li>In the Java Build Path screen, either while 
+		setting up the project or by going into the project 
+		properties after creating the project, you must 
+		include the following source directories: 
+			<ul> 
+				<li>JACORB_HOME/src</li> 
+				<li>JACORB_HOME/src/generated</li> 
+			</ul> 
+		<li>Now you must exclude certain other directories (we 
+                  will exclude those parts of JacORB that do not build 
+                  cleanly under eclipse in this simple 
+                  setup. Depending on your needs, you may want to 
+                  include some of them and work through their 
+                  dependencies yourself).  Double click on "Excluded 
+                  ..." beneath JACORB_HOME/src. Exclude the following 
+                  directories: 
+ 
+			<ul> 
+				<li>generated</li> 
+				<li>HTTPClient</li> 
+				<li>omg-02-01-02</li> 
+				<li>org/jacorb/notification</li> 
+				<li>org/jacorb/orb/http</li> 
+				<li>org/jacorb/security/level2</li> 
+				<li>org/jacorb/ssl</li> 
 				<li>org/jacorb/util</li>
-			</ul>
-		</li>
-		<li>Add the required jar files on the build
-		path/Libraries window. These are all located in the
-		JACORB_HOME/lib directory, plus ant.jar from your ant
-		distribution.</li>
-		<li>Let eclipse build the project.</li>
-	</ul>
-</p>
-<p>
-Thanks to Andre Spiegel for showing me how to do this.
-</p>
-<p>
-Please send your comments and bugs in this script to <a
-href="mailto:molivieri@yahoo.com">Mike Olivieri</a>
-</p>
-</body>
-</html>
+			</ul> 
+		</li> 
+		<li>Add the required jar files on the build 
+		path/Libraries window. These are all located in the 
+		JACORB_HOME/lib directory, plus ant.jar from your ant 
+		distribution.</li> 
+		<li>Let eclipse build the project.</li> 
+	</ul> 
+</p> 
+<p> 
+Thanks to Andre Spiegel for showing me how to do this. 
+</p> 
+<p> 
+Please send your comments and bugs in this script to <a 
+href="mailto:molivieri@yahoo.com">Mike Olivieri</a> 
+</p> 
+</body> 
+</html> 

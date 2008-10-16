@@ -583,7 +583,7 @@
         notification/queue/DelegatingOverflowStrategy.java,
         notification/queue/PackageTest.java,
         notification/servant/AbstractProxySupplierTest.java: added a
-        receivetimestamp to all messages. the fifo event queue willsort
+        receivetimestamp to all messages. the fifo event queue will sort
         incoming messages on the basis of this timestamp.
 
         * notification/queue/RWLockEventQueueDecoratorTest.java,
@@ -1249,7 +1249,7 @@
         * notification/servant/AbstractProxySupplierTest.java,
         notification/servant/ProxyPushSupplierImplTest.java,
         notification/servant/StructuredProxyPushSupplierImplTest.java:
-        cleaned up inheritance hierarchy of Proxies.all
+        cleaned up inheritance hierarchy of Proxies. all
         ProxyPushSuppliers have a common baseclass now.
 
         * notification/queue/PackageTest.java, notification/queue/RWLockEventQueueDecoratorTest.java (replaceDelegate):
@@ -1605,7 +1605,7 @@
         notification/TimeoutTest.java,
         notification/TypedEventMessageTest.java,
         notification/TypedNotificationChannelTest.java: organized
-        importsfixed compiler warning: static method assertEquals
+        imports fixed compiler warning: static method assertEquals
         should be accessed in a static way
 
 2004-07-30  Simon McQueen  <sm@prismtechnologies.com>

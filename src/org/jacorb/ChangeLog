@@ -2501,7 +2501,7 @@
         notification/queue/HeapEntry.java,
         notification/queue/QueueUtil.java,
         notification/queue/RWLockEventQueueDecorator.java: added a
-        receivetimestamp to all messages. the fifo event queue willsort
+        receivetimestamp to all messages. the fifo event queue will sort
         incoming messages on the basis of this timestamp.
 
         * notification/StructuredEventMessage.java,
@@ -3198,7 +3198,7 @@
 
         * notification/filter/AbstractFilter.java,
         notification/filter/CallbackManager.java: InterruptedException
-        does not occur any moredue to the switch to
+        does not occur any more due to the switch to
         backport-util-concurrent
 
         * notification/AbstractChannelFactory.java: cosmetics
@@ -3238,7 +3238,7 @@
 
 2005-10-09  Alphonse Bendt  <alphonse.bendt@it-fws.de>
 
-        * idl/SequenceType.java: fix for bug 630.thanks to Duane Griffin
+        * idl/SequenceType.java: fix for bug 630. thanks to Duane Griffin
 
 2005-10-08  Alphonse Bendt  <alphonse.bendt@it-fws.de>
 
@@ -4043,7 +4043,7 @@
         (deliverMessagesInternal): added this param to C'tor of PushOperations
 
         * notification/servant/AbstractProxySupplier.java (connectClient):
-        made method public for testing(dispose): clear pendingMessages queue
+        made method public for testing (dispose): clear pendingMessages queue
 
         * notification/impl/DefaultMessageFactory.java (addDisposeHook):
         fixed compiler warning
@@ -4111,7 +4111,7 @@
         notification/servant/StructuredProxyPullSupplierImpl.java,
         notification/servant/StructuredProxyPushSupplierImpl.java,
         notification/servant/SupplierAdminImpl.java: code cleanup: removed
-        deprecated methods, fixed compiler warnings(proxysuppliers): are
+        deprecated methods, fixed compiler warnings (proxysuppliers): are
         comparable now
 
         * notification/servant/ManageableServant.java: code cleanup:
@@ -4914,11 +4914,11 @@
 
         * notification/jmx/EventChannelFactoryControl.java,
         notification/jmx/EventChannelFactoryMBean.java,
-        notification/jmx/JMXMain.java: code cleanupadded IOR and
+        notification/jmx/JMXMain.java: code cleanup  added IOR and
         Corbaloc Attributes
 
         * notification/FilterFactoryImpl.java:
-        (ctor) removed exception from signature(loadFilterPlugins) use
+        (ctor) removed exception from signature (loadFilterPlugins) use
         ObjectUtil to load classes
 
         * notification/build.xml,
@@ -4926,7 +4926,7 @@
         notification/jmx/EventChannelFactoryMBean.java,
         notification/jmx/JMXMain.java:
         (*.java) initial work for a mgmt facility based on
-        JMX(build.xml) exclude from build for now
+        JMX (build.xml) exclude from build for now
 
         * notification/servant/AbstractProxySupplier.java:
         (handleFailedPushOperation) dispose retry operation in case it fails
@@ -5278,7 +5278,7 @@
         * notification/filter/etcl/grammar/tcl-lexer.g:
         (OTHER_TEXT) added ascii chars to OTHER_TEXT token. this fixes a
         bug reported by Mike Zhao. It was impossible to use special
-        chars as *, ~, @, etc. in string constants.
+        chars as *, ~,  @, etc. in string constants.
 
 2004-06-24  Alphonse Bendt  <bendt@inf.fu-berlin.de>
 
