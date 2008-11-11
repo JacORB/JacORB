@@ -1,3 +1,8 @@
+2008-11-11  Andre Spiegel  <spiegel@gnu.org>
+
+	* BufferManager.java (singletonConfigure): Synchronize, as
+	suggested by Simar Paul Singh in bug #834.
+
 2008-10-09  Phil Mesnier  <mesnier_p@ociweb.com>
 
 	* imr/ImplementationRepositoryImpl.java, imr/ServerTable.java:
