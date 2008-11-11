@@ -96,10 +96,13 @@ public final class BufferManager
     }
 
     /**
-     * configures the singleton
+     * Configures the singleton.  It is important that this method is
+     * synchronized over the singleton instance, to avoid race conditions
+     * with getBuffer().  The static synchronization of the calling
+     * method is not enough.
      */
 
-    private void singletonConfigure(Configuration configuration)
+    private synchronized void singletonConfigure(Configuration configuration)
     {
         time =
             configuration.getAttributeAsInteger("jacorb.bufferManagerMaxFlush", 0);
