@@ -1,3 +1,19 @@
+2008-11-11  Andre Spiegel  <spiegel@gnu.org>
+
+	* util/LogKitLoggerFactoryTest.java (testLogFileSingleton):
+	Patch by Steven Stallion to fix single-logfile assumption, bug #838.
+
+2008-10-16  Phil Mesnier  <phil.mesnier@ociweb.com>
+
+	* ChangeLog: Removing explicit ^M characters, they are preventing
+	importation of these files into Subversion.
+
+2008-09-22  Alphonse Bendt  <bendt@macnews.de>
+
+	* notification/node/TCLTest.java: test for #748
+
+	* notification/node/EvaluationResultTest.java: add test for #790
+
 2008-04-04  Andre Spiegel  <spiegel@gnu.org>
 
 	* orb/CDRInputStreamTest.java: Initial revision, patch by
