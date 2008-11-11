@@ -176,15 +176,25 @@ public class LogKitLoggerFactoryTest
         // search for the log file -- the name has a timestamp in it
         File dir = new File (getLogDirectory());
         String[] files = dir.list();
-        if (files.length != 1)
+        String file = null;
+        
+        if (files.length < 1)
         {
             fail ("no log file");
         }
-        if (!files[0].startsWith("jacorb-singleton"))
-        {
+
+        for (int i = 0; i < files.length; ++i) {
+            if (files[i].startsWith("jacorb-singleton"))
+            {
+                file = files[i];
+                break;
+            }
+        }
+        if (file == null) {
             fail ("no singleton log file found");
         }
-        File logFile = new File (getLogDirectory(), files[0]);
+
+        File logFile = new File (getLogDirectory(), file);
         BufferedReader in = new BufferedReader
         (
             new FileReader (logFile)
