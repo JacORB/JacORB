@@ -1,3 +1,9 @@
+2008-11-13  Andre Spiegel  <spiegel@gnu.org>
+
+	* orb/ExceptionTest.java (testUserException): New testcase.
+
+	* orb/ExceptionServerImpl.java (throwUserException): New method.
+
 2008-11-13  Nick Cross  <nick.cross@prismtech.com>
 
 	* orb/CorbalocTest.java: Disable security for these tests
