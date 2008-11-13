@@ -1,5 +1,7 @@
 package org.jacorb.test.orb;
 
+import java.util.*;
+
 import junit.framework.Test;
 import junit.framework.TestSuite;
 
@@ -34,11 +36,13 @@ public class ExceptionTest extends ClientServerTestCase
     {
         TestSuite suite = new JacORBTestSuite("Client/server exception tests",
                                               ExceptionTest.class);
+
         ClientServerSetup setup =
             new ClientServerSetup(suite,
                                   "org.jacorb.test.orb.ExceptionServerImpl");
 
         suite.addTest(new ExceptionTest("testRuntimeException", setup));
+        suite.addTest(new ExceptionTest("testUserException", setup));
 
         return setup;
     }
@@ -61,4 +65,22 @@ public class ExceptionTest extends ClientServerTestCase
             assertEquals("Server-side Exception: java.lang.RuntimeException: sample message", ex.getMessage());
         }
     }
+    
+    /**
+     * Checks if a user exception is properly reported back to the client.
+     */
+    public void testUserException()
+    {
+        try
+        {
+            server.throwUserException(77, "my sample message");
+            fail("should have thrown NonEmptyException");
+        }
+        catch (NonEmptyException ex)
+        {
+            assertEquals (77, ex.field1);
+            assertEquals ("my sample message", ex.field2);
+        }
+    }
+
 }
