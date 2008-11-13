@@ -1,3 +1,9 @@
+2008-11-12  Andre Spiegel  <spiegel@gnu.org>
+
+	* common/launch/JacORBLauncher.java (getTestProperties): Try first
+	to find the properties relative to jacorb.test.home. This way, the
+	resources folder does not necessarily need to be in the classpath.
+
 2008-11-11  Andre Spiegel  <spiegel@gnu.org>
 
 	* util/LogKitLoggerFactoryTest.java (testLogFileSingleton):
