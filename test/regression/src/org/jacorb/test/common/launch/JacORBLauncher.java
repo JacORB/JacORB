@@ -101,6 +101,9 @@ public abstract class JacORBLauncher
                     {
                         throw new IllegalArgumentException("cannot locate test.properties!");
                     }
+
+		    in = url.openStream();
+
                     TestUtils.log("using test.properties from " + url);
                 }
 
