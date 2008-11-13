@@ -24,6 +24,7 @@ package org.jacorb.test.common.launch;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.FileInputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.net.URL;
@@ -73,27 +74,35 @@ public abstract class JacORBLauncher
     private synchronized static Properties getTestProperties()
     {
         if (testProperties == null)
-        {
+        {          
+            InputStream in = null;
             try
             {
-            	final ClassLoader cl;
+                File d = new File (TestUtils.testHome(), "resources");
+                File f = new File (d, "test.properties");
+                if (f.exists())
+                {
+                    in = new FileInputStream (f);
+                }
+                else
+                {
+                    final ClassLoader cl;
 
-            	cl = JacORBLauncher.class.getClassLoader();
+                    cl = JacORBLauncher.class.getClassLoader();
 
-            	URL url = cl.getResource("/test.properties");
+                    URL url = cl.getResource("/test.properties");
 
-            	if (url == null)
-            	{
-            		url = JacORBLauncher.class.getResource("/test.properties");
-            	}
+                    if (url == null)
+                    {
+                        url = JacORBLauncher.class.getResource("/test.properties");
+                    }
 
-            	if (url == null)
-            	{
-            		throw new IllegalArgumentException("cannot locate test.properties!");
-            	}
-
-            	TestUtils.log("using test.properties from " + url);
-            	final InputStream in = url.openStream();
+                    if (url == null)
+                    {
+                        throw new IllegalArgumentException("cannot locate test.properties!");
+                    }
+                    TestUtils.log("using test.properties from " + url);
+                }
 
                 try
                 {
