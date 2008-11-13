@@ -25,6 +25,7 @@ import org.jacorb.orb.ORB;
 import org.jacorb.orb.ParsedIOR;
 import org.jacorb.orb.ProfileSelector;
 import org.jacorb.orb.giop.ClientConnection;
+import org.jacorb.orb.giop.CodeSet;
 import org.jacorb.orb.giop.ClientGIOPConnection;
 import org.jacorb.test.common.ORBTestCase;
 import org.omg.CONV_FRAME.CodeSetComponent;
@@ -61,7 +62,7 @@ public class ClientConnectionTest extends ORBTestCase
         ParsedIOR ior = new ParsedIOR( (ORB) orb, new IOR( "", new TaggedProfile[0] ) );
         ClientConnection connection = createClientConnection( 1, 0, ior );
 
-        assertEquals( "Default codeSet", ISO8859_1_ID, connection.getTCS().getId() );
+        assertEquals( "Default codeSet", CodeSet.getTCSDefault().getId(), connection.getTCS().getId() );
         assertEquals( "Default wide codeset", UTF16_ID, connection.getTCSW().getId() );
     }
 
@@ -73,9 +74,10 @@ public class ClientConnectionTest extends ORBTestCase
     public void testNoCodeSetSpecified() throws Exception
     {
         ParsedIOR ior = new ParsedIOR( (ORB) orb, new IOR( "", new TaggedProfile[0] ) );
+
         ClientConnection connection = createClientConnection( 1, 1, ior );
 
-        assertEquals( "Default codeSet", ISO8859_1_ID, connection.getTCS().getId() );
+        assertEquals( "Default codeSet", CodeSet.getTCSDefault().getId(), connection.getTCS().getId() );
         assertEquals( "Default wide codeset", UTF16_ID, connection.getTCSW().getId() );
     }
 
