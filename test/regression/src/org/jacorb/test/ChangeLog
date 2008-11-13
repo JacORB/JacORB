@@ -1,3 +1,12 @@
+2008-11-13  Nick Cross  <nick.cross@prismtech.com>
+
+	* orb/CorbalocTest.java: Disable security for these tests
+
+	* orb/giop/ClientConnectionTest.java: Assert to match native code
+	set to match what the machine is actually running
+
+	* common/launch/JacORBLauncher.java: Add missing openStream.
+
 2008-11-12  Andre Spiegel  <spiegel@gnu.org>
 
 	* common/launch/JacORBLauncher.java (getTestProperties): Try first
