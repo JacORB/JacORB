@@ -24,9 +24,10 @@ package org.jacorb.ir.gui.typesystem.remote;
  * 
  */
  
-import java.util.*;
-import org.omg.CORBA.*;
-import javax.swing.tree.*;
+import org.omg.CORBA.AttributeDef;
+import org.omg.CORBA.AttributeDefHelper;
+import org.omg.CORBA.AttributeMode;
+import org.omg.CORBA.IRObject;
  
 public class IRAttribute 
 	extends IRNodeWithType 

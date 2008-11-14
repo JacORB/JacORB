@@ -20,11 +20,10 @@ package org.jacorb.ir;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import org.omg.CORBA.TypeCode;
-import org.omg.CORBA.TCKind;
-import org.omg.PortableServer.POA;
-
 import org.apache.avalon.framework.logger.Logger;
+import org.omg.CORBA.TCKind;
+import org.omg.CORBA.TypeCode;
+import org.omg.PortableServer.POA;
 
 /**
  * Base class and factory for anonymous IDLType objects

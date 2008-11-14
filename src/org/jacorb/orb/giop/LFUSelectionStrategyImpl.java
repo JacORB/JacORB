@@ -20,8 +20,8 @@
 
 package org.jacorb.orb.giop;
 
-import java.util.List;
 import java.util.Iterator;
+import java.util.List;
 
 /**
  * @author Nicolas Noffke

@@ -20,10 +20,15 @@
  */
 package org.jacorb.imr.util;
 
-import org.jacorb.imr.*;
-
 import org.apache.avalon.framework.logger.Logger;
 import org.jacorb.config.Configuration;
+import org.jacorb.imr.Admin;
+import org.jacorb.imr.AdminHelper;
+import org.jacorb.imr.HostInfo;
+import org.jacorb.imr.Registration;
+import org.jacorb.imr.RegistrationHelper;
+import org.jacorb.imr.ServerInfo;
+import org.jacorb.imr.UnknownServerName;
 
 /**
  * This class is a command-line tool for administering

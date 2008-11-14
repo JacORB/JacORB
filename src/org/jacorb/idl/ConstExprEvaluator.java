@@ -22,7 +22,6 @@ package org.jacorb.idl;
 
 
 import java.util.HashMap;
-import java.lang.Double;
 
 /**
  * Based on the MathEvaluator class by The-Son LAI,

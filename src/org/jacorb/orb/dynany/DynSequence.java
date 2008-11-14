@@ -20,14 +20,17 @@ package org.jacorb.orb.dynany;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import org.omg.DynamicAny.DynAnyPackage.*;
-import org.omg.DynamicAny.*;
-
-import org.omg.CORBA.INTERNAL;
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.avalon.framework.logger.Logger;
-import org.jacorb.orb.*;
-
-import java.util.*;
+import org.jacorb.orb.Any;
+import org.jacorb.orb.CDRInputStream;
+import org.jacorb.orb.CDROutputStream;
+import org.jacorb.orb.TypeCode;
+import org.omg.CORBA.INTERNAL;
+import org.omg.DynamicAny.DynSequenceHelper;
+import org.omg.DynamicAny.DynAnyPackage.InvalidValue;
+import org.omg.DynamicAny.DynAnyPackage.TypeMismatch;
 
 /**
  * CORBA DynSequence

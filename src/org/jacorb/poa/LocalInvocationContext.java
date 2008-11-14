@@ -20,8 +20,8 @@ package org.jacorb.poa;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
  
-import org.omg.PortableServer.Servant;
 import org.omg.CORBA.ORB;
+import org.omg.PortableServer.Servant;
 
 /**
  * Stores the context informations for local object calls

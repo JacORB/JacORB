@@ -20,8 +20,9 @@
  */
 package org.jacorb.ir.gui.typesystem.remote;
 
-import org.omg.CORBA.*;
-import org.jacorb.ir.gui.typesystem.*;
+import org.jacorb.ir.gui.typesystem.AbstractContainer;
+import org.omg.CORBA.EnumDef;
+import org.omg.CORBA.EnumDefHelper;
 
 public class IREnum 
     extends IRNode 

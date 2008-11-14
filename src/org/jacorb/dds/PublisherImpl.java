@@ -29,7 +29,7 @@ package org.jacorb.dds;
 import java.lang.reflect.Method;
 import java.util.Iterator;
 import java.util.Vector;
-
+import org.omg.PortableServer.Servant;
 import org.omg.dds.DataWriter;
 import org.omg.dds.DataWriterListener;
 import org.omg.dds.DataWriterQos;
@@ -45,7 +45,6 @@ import org.omg.dds.RETCODE_PRECONDITION_NOT_MET;
 import org.omg.dds.StatusCondition;
 import org.omg.dds.Topic;
 import org.omg.dds.TopicQos;
-import org.omg.PortableServer.Servant;
 
 /**
  * A Publisher is the object responsible for the actual dissemination of publications.

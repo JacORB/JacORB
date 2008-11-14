@@ -20,8 +20,6 @@ package org.jacorb.ir;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import java.io.*;
-
 import org.apache.avalon.framework.logger.Logger;
 import org.jacorb.orb.ORB;
 

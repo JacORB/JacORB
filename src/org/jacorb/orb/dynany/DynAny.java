@@ -21,12 +21,16 @@ package org.jacorb.orb.dynany;
  */
 
 import java.io.IOException;
-
-import org.omg.CORBA.*;
-import org.omg.CORBA.portable.InputStream;
-import org.omg.DynamicAny.DynAnyPackage.*;
 import org.apache.avalon.framework.logger.Logger;
 import org.jacorb.orb.TypeCode;
+import org.omg.CORBA.BAD_INV_ORDER;
+import org.omg.CORBA.INTERNAL;
+import org.omg.CORBA.NO_IMPLEMENT;
+import org.omg.CORBA.OBJECT_NOT_EXIST;
+import org.omg.CORBA.TCKind;
+import org.omg.CORBA.portable.InputStream;
+import org.omg.DynamicAny.DynAnyPackage.InvalidValue;
+import org.omg.DynamicAny.DynAnyPackage.TypeMismatch;
 
 /**
  * CORBA DynAny

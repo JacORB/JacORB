@@ -20,11 +20,7 @@ package org.jacorb.events;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import org.omg.CosEventChannelAdmin.*;
-import org.omg.CosEventComm.*;
-import java.util.*;
-import org.jacorb.orb.*;
-import java.net.*;
+import java.util.Vector;
 
 /**
  * @author Joerg v. Frantzius, Rainer Lischetzki, Gerald Brose

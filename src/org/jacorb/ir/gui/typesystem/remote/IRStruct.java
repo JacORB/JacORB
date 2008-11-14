@@ -20,8 +20,11 @@
  */
 package org.jacorb.ir.gui.typesystem.remote;
 
-import org.omg.CORBA.*;
-import org.jacorb.ir.gui.typesystem.*;
+import org.jacorb.ir.gui.typesystem.AbstractContainer;
+import org.omg.CORBA.Contained;
+import org.omg.CORBA.StructDef;
+import org.omg.CORBA.StructDefHelper;
+import org.omg.CORBA.StructMember;
 
 /**
  * 

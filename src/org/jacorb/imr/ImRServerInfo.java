@@ -21,9 +21,9 @@
 
 package org.jacorb.imr;
 
-import java.util.*;
-
-import org.jacorb.imr.AdminPackage.*;
+import java.util.ArrayList;
+import java.util.List;
+import org.jacorb.imr.AdminPackage.IllegalServerName;
 
 /**
  * This class contains the information about a logical server.

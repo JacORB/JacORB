@@ -20,9 +20,10 @@
  */
 package org.jacorb.ir.gui.typesystem.remote;
 
-import java.util.*;
-import org.omg.CORBA.*;
-import javax.swing.tree.*;
+import org.omg.CORBA.Any;
+import org.omg.CORBA.ConstantDef;
+import org.omg.CORBA.ConstantDefHelper;
+import org.omg.CORBA.IRObject;
  
 public class IRConstant extends IRNodeWithType 
 {

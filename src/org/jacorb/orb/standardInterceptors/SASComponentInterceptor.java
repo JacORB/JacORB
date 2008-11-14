@@ -22,10 +22,9 @@ package org.jacorb.orb.standardInterceptors;
  */
 
 
-import org.apache.avalon.framework.logger.Logger;
 import org.apache.avalon.framework.configuration.ConfigurationException;
+import org.apache.avalon.framework.logger.Logger;
 import org.ietf.jgss.Oid;
-
 import org.jacorb.orb.CDROutputStream;
 import org.jacorb.orb.ORB;
 import org.jacorb.orb.portableInterceptor.IORInfoImpl;
@@ -36,7 +35,6 @@ import org.jacorb.sasPolicy.SASPolicy;
 import org.jacorb.sasPolicy.SASPolicyValues;
 import org.jacorb.sasPolicy.SAS_POLICY_TYPE;
 import org.jacorb.security.sas.ISASContext;
-
 import org.omg.ATLAS.ATLASLocator;
 import org.omg.ATLAS.ATLASProfile;
 import org.omg.ATLAS.ATLASProfileHelper;

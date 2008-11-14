@@ -20,10 +20,11 @@
 
 package org.jacorb.orb.giop;
 
-import org.apache.avalon.framework.logger.Logger;
 import org.apache.avalon.framework.configuration.Configuration;
-
-import org.jacorb.util.threadpool.*;
+import org.apache.avalon.framework.logger.Logger;
+import org.jacorb.util.threadpool.Consumer;
+import org.jacorb.util.threadpool.ConsumerFactory;
+import org.jacorb.util.threadpool.ThreadPool;
 
 /**
  * @author Nicolas Noffke

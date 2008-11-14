@@ -20,14 +20,12 @@
  */
 package org.jacorb.collection;
 
-import org.omg.CosCollection.*;
-import org.jacorb.collection.util.*;
-import java.util.*;
-import org.omg.PortableServer.POA;
-import org.omg.PortableServer.Servant;
 import org.omg.CORBA.Any;
-import org.omg.CORBA.AnyHolder;
-import org.omg.CORBA.BooleanHolder;
+import org.omg.CosCollection.ElementInvalid;
+import org.omg.CosCollection.IteratorInvalid;
+import org.omg.CosCollection.IteratorInvalidReason;
+import org.omg.CosCollection.PositionInvalid;
+import org.omg.CosCollection.SequentialIteratorOperations;
 
 class SequentialIteratorImpl extends OrderedIteratorImpl 
                              implements SequentialIteratorOperations {

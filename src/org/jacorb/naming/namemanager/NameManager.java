@@ -20,12 +20,20 @@
 
 package org.jacorb.naming.namemanager;
 
-import java.awt.*;
-import java.awt.event.*;
-
-import javax.swing.*;
-import org.omg.CosNaming.*;
-import org.jacorb.naming.*;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.event.ActionEvent;
+import java.awt.event.KeyEvent;
+import javax.swing.JFrame;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
+import javax.swing.JScrollPane;
+import javax.swing.JSplitPane;
+import javax.swing.KeyStroke;
+import org.omg.CosNaming.NamingContextExt;
+import org.omg.CosNaming.NamingContextExtHelper;
 
 /**
  * A graphical user interface for the Naming Service.

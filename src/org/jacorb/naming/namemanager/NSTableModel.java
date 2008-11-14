@@ -20,7 +20,7 @@
 
 package org.jacorb.naming.namemanager;
 
-import java.util.*;
+import java.util.Vector;
 
 public class NSTableModel
     extends javax.swing.table.DefaultTableModel

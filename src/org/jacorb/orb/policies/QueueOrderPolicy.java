@@ -20,8 +20,9 @@
  */
 package org.jacorb.orb.policies;
 
-import org.omg.CORBA.*;
-import org.omg.Messaging.*;
+import org.omg.CORBA.Policy;
+import org.omg.Messaging.QUEUE_ORDER_POLICY_TYPE;
+import org.omg.Messaging._QueueOrderPolicyLocalBase;
 
 public class QueueOrderPolicy extends _QueueOrderPolicyLocalBase
 {

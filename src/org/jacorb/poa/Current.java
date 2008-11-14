@@ -20,9 +20,10 @@ package org.jacorb.poa;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.Map;
 import org.omg.PortableServer.CurrentPackage.NoContext;
-
-import java.util.*;
 
 /**
  * This class provides access to the identity of the object on which a method

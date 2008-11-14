@@ -20,15 +20,12 @@
 
 package org.jacorb.orb.giop;
 
-import org.apache.avalon.framework.logger.Logger;
-
-import org.omg.GIOP.ReplyStatusType_1_2;
-import org.omg.CORBA.INV_POLICY;
-import org.omg.CORBA.CompletionStatus;
-
-import org.jacorb.orb.SystemExceptionHelper;
-
 import java.io.IOException;
+import org.apache.avalon.framework.logger.Logger;
+import org.jacorb.orb.SystemExceptionHelper;
+import org.omg.CORBA.CompletionStatus;
+import org.omg.CORBA.INV_POLICY;
+import org.omg.GIOP.ReplyStatusType_1_2;
 
 /**
  * @author Nicolas Noffke

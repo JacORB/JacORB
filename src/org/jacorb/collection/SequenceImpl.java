@@ -20,12 +20,12 @@
  */
 package org.jacorb.collection;
 
-import org.omg.CosCollection.*;
-import org.jacorb.collection.util.*;
+import org.jacorb.collection.util.SortedVector;
+import org.omg.CosCollection.CSequence;
+import org.omg.CosCollection.CSequenceOperations;
+import org.omg.CosCollection.Comparator;
+import org.omg.CosCollection.OperationsOperations;
 import org.omg.PortableServer.POA;
-import org.omg.PortableServer.Servant;
-import org.omg.CORBA.Any;
-import org.omg.CORBA.AnyHolder;
 
 class SequenceImpl extends SequentialCollectionImpl 
                    implements CSequenceOperations {

@@ -20,10 +20,36 @@ package org.jacorb.transaction;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import org.omg.CosTransactions.*;
+import java.util.Vector;
+import org.omg.CosTransactions.Control;
+import org.omg.CosTransactions.ControlHelper;
+import org.omg.CosTransactions.ControlOperations;
+import org.omg.CosTransactions.ControlPOATie;
+import org.omg.CosTransactions.Coordinator;
+import org.omg.CosTransactions.CoordinatorHelper;
+import org.omg.CosTransactions.CoordinatorOperations;
+import org.omg.CosTransactions.CoordinatorPOATie;
+import org.omg.CosTransactions.HeuristicCommit;
+import org.omg.CosTransactions.HeuristicHazard;
+import org.omg.CosTransactions.HeuristicMixed;
+import org.omg.CosTransactions.HeuristicRollback;
+import org.omg.CosTransactions.Inactive;
+import org.omg.CosTransactions.NotPrepared;
+import org.omg.CosTransactions.NotSubtransaction;
+import org.omg.CosTransactions.PropagationContext;
+import org.omg.CosTransactions.RecoveryCoordinator;
+import org.omg.CosTransactions.Resource;
+import org.omg.CosTransactions.Status;
+import org.omg.CosTransactions.SubtransactionAwareResource;
+import org.omg.CosTransactions.SubtransactionsUnavailable;
+import org.omg.CosTransactions.Synchronization;
+import org.omg.CosTransactions.SynchronizationUnavailable;
 import org.omg.CosTransactions.Terminator;
-
-import java.util.*;
+import org.omg.CosTransactions.TerminatorHelper;
+import org.omg.CosTransactions.TerminatorOperations;
+import org.omg.CosTransactions.TerminatorPOATie;
+import org.omg.CosTransactions.Unavailable;
+import org.omg.CosTransactions.Vote;
 
 
 /**

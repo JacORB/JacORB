@@ -20,14 +20,14 @@ package org.jacorb.ir;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import java.lang.reflect.*;
-import java.util.*;
-
+import java.lang.reflect.Method;
+import java.util.Hashtable;
+import java.util.StringTokenizer;
+import java.util.Vector;
+import org.apache.avalon.framework.logger.Logger;
 import org.omg.CORBA.ExceptionDefPOATie;
 import org.omg.CORBA.INTF_REPOS;
 import org.omg.PortableServer.POA;
-
-import org.apache.avalon.framework.logger.Logger;
 
 public class OperationDef
     extends Contained

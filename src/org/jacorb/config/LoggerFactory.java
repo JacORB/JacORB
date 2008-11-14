@@ -20,8 +20,8 @@ package org.jacorb.config;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import org.apache.avalon.framework.logger.*;
 import org.apache.avalon.framework.configuration.Configurable;
+import org.apache.avalon.framework.logger.Logger;
 
 /**
  * Shields JacORB from details of creating Avalon loggers for a

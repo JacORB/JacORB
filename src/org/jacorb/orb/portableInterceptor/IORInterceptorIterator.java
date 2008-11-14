@@ -21,10 +21,11 @@ package org.jacorb.orb.portableInterceptor;
  *
  */
 
-import org.omg.PortableInterceptor.*;
-import org.omg.CORBA.UserException;
-import org.jacorb.orb.standardInterceptors.CodeSetInfoInterceptor;
 import org.apache.avalon.framework.logger.Logger;
+import org.jacorb.orb.standardInterceptors.CodeSetInfoInterceptor;
+import org.omg.CORBA.UserException;
+import org.omg.PortableInterceptor.IORInterceptor;
+import org.omg.PortableInterceptor.Interceptor;
 
 /**
  * IORInterceptorIterator.java

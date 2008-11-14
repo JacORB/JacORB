@@ -26,7 +26,7 @@ package org.jacorb.idl;
  */
 
 import java.io.PrintWriter;
-import java.util.*;
+import java.util.Set;
 
 public class TypeDeclaration
     extends Declaration

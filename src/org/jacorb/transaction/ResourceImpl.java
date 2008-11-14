@@ -21,7 +21,13 @@ package org.jacorb.transaction;
  */
 
 
-import org.omg.CosTransactions.*;
+import org.omg.CosTransactions.HeuristicCommit;
+import org.omg.CosTransactions.HeuristicHazard;
+import org.omg.CosTransactions.HeuristicMixed;
+import org.omg.CosTransactions.HeuristicRollback;
+import org.omg.CosTransactions.NotPrepared;
+import org.omg.CosTransactions.ResourceOperations;
+import org.omg.CosTransactions.Vote;
 
 public class ResourceImpl implements ResourceOperations {
                           

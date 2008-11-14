@@ -1,10 +1,12 @@
 
 package org.jacorb.orb;
 
-import java.lang.reflect.*;
-import java.util.*;
-
-import org.omg.IOP.*;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.List;
+import org.omg.IOP.TaggedComponent;
+import org.omg.IOP.TaggedComponentSeqHelper;
 
 /**
  * Represents a list of tagged components from an IOR, along with some

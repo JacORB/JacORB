@@ -20,8 +20,9 @@
  */
 package org.jacorb.orb.policies;
 
-import org.omg.CORBA.*;
-import org.omg.Messaging.*;
+import org.omg.CORBA.Policy;
+import org.omg.Messaging.SYNC_SCOPE_POLICY_TYPE;
+import org.omg.Messaging._SyncScopePolicyLocalBase;
 
 public class SyncScopePolicy extends _SyncScopePolicyLocalBase
 {

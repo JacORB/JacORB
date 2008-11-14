@@ -20,13 +20,22 @@
  */
 package org.jacorb.collection;
 
-import org.omg.CosCollection.*;
-import org.jacorb.collection.util.*;
-import java.util.*;
-import org.omg.PortableServer.POA;
-import org.omg.PortableServer.Servant;
+import org.jacorb.collection.util.ObjectInvalid;
+import org.jacorb.collection.util.SortedVector;
 import org.omg.CORBA.Any;
 import org.omg.CORBA.AnyHolder;
+import org.omg.CosCollection.AnySequenceHolder;
+import org.omg.CosCollection.ElementInvalid;
+import org.omg.CosCollection.ElementInvalidReason;
+import org.omg.CosCollection.EmptyCollection;
+import org.omg.CosCollection.IteratorInBetween;
+import org.omg.CosCollection.IteratorInvalid;
+import org.omg.CosCollection.KeyCollection;
+import org.omg.CosCollection.KeyInvalid;
+import org.omg.CosCollection.KeySortedCollectionOperations;
+import org.omg.CosCollection.OperationsOperations;
+import org.omg.CosCollection.PositionInvalid;
+import org.omg.PortableServer.POA;
 
 class KeySortedCollectionImpl extends OrderedCollectionImpl implements KeySortedCollectionOperations {
     protected SortedVector keys;

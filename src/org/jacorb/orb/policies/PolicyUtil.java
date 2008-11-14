@@ -20,7 +20,7 @@ package org.jacorb.orb.policies;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import java.util.*;
+import java.util.Map;
 
 public class PolicyUtil
 {

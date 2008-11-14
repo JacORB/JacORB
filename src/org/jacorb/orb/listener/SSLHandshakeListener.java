@@ -20,15 +20,12 @@
 
 package org.jacorb.orb.listener;
 
-import javax.net.ssl.HandshakeCompletedEvent;
-import javax.net.ssl.HandshakeCompletedListener;
-
-import javax.security.cert.X509Certificate;
-import javax.net.ssl.SSLPeerUnverifiedException;
-
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-
+import javax.net.ssl.HandshakeCompletedEvent;
+import javax.net.ssl.HandshakeCompletedListener;
+import javax.net.ssl.SSLPeerUnverifiedException;
+import javax.security.cert.X509Certificate;
 import org.apache.avalon.framework.logger.Logger;
 
 /**

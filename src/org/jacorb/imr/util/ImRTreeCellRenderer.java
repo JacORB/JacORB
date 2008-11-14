@@ -20,10 +20,13 @@
  */
 package org.jacorb.imr.util;
 
-import javax.swing.tree.*;
-import javax.swing.*;
 import java.awt.Component;
-import org.jacorb.imr.*;
+import javax.swing.JTree;
+import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.DefaultTreeCellRenderer;
+import org.jacorb.imr.ImRInfo;
+import org.jacorb.imr.POAInfo;
+import org.jacorb.imr.ServerInfo;
 /**
  * This class sets the tooltip text for the tree cells,
  * and, if possible, enhances the test with HTML.

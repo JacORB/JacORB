@@ -21,11 +21,16 @@
 
 package org.jacorb.orb.portableInterceptor;
 
-import org.jacorb.orb.ORB;
-import org.omg.PortableInterceptor.*;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.List;
 import org.apache.avalon.framework.logger.Logger;
-
-import java.util.*;
+import org.jacorb.orb.ORB;
+import org.omg.PortableInterceptor.ClientRequestInterceptor;
+import org.omg.PortableInterceptor.Current;
+import org.omg.PortableInterceptor.IORInterceptor;
+import org.omg.PortableInterceptor.Interceptor;
+import org.omg.PortableInterceptor.ServerRequestInterceptor;
 
 /**
  * This class "manages" the portable interceptors registered

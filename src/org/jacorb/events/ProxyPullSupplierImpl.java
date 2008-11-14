@@ -20,9 +20,8 @@ package org.jacorb.events;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import org.omg.CosEventComm.*;
-import org.jacorb.orb.*;
-import java.util.*;
+import java.util.LinkedList;
+import org.omg.CosEventComm.PullConsumer;
 
 
 /**

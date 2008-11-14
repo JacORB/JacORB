@@ -20,16 +20,13 @@ package org.jacorb.ir;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import java.lang.reflect.*;
-import java.util.*;
-import java.io.*;
-
-import org.omg.CORBA.INTF_REPOS;
-import org.omg.CORBA.TypeCode;
-import org.omg.CORBA.Any;
-import org.omg.PortableServer.POA;
-
+import java.io.File;
+import java.lang.reflect.Method;
+import java.util.Enumeration;
+import java.util.Hashtable;
 import org.apache.avalon.framework.logger.Logger;
+import org.omg.CORBA.INTF_REPOS;
+import org.omg.PortableServer.POA;
 
 public class UnionDef
     extends TypedefDef

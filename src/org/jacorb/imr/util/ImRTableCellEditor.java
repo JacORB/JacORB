@@ -20,8 +20,10 @@
  */
 package org.jacorb.imr.util;
 
-import javax.swing.*;
 import java.awt.Component;
+import javax.swing.DefaultCellEditor;
+import javax.swing.JComboBox;
+import javax.swing.JTable;
 /**
  * This class sets the combo box in the server table
  * and preselects the correct host name for a server.

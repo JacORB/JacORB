@@ -20,11 +20,10 @@ package org.jacorb.poa.gui.pm;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import org.jacorb.poa.gui.POAManagerMonitorController;
-
-import java.awt.List;
 import java.awt.Checkbox;
 import java.awt.Choice;
+import java.awt.List;
+import org.jacorb.poa.gui.POAManagerMonitorController;
 
 /**
  * Implements the org.jacorb.poa.gui.POAManagerView interface

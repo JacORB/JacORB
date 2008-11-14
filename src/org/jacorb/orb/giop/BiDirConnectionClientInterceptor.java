@@ -20,12 +20,18 @@
 
 package org.jacorb.orb.giop;
 
-import org.jacorb.orb.*;
-import org.jacorb.orb.portableInterceptor.*;
-
-import org.omg.PortableInterceptor.*;
-import org.omg.IOP.*;
-import org.omg.IIOP.*;
+import org.jacorb.orb.BasicAdapter;
+import org.jacorb.orb.CDROutputStream;
+import org.jacorb.orb.ORB;
+import org.jacorb.orb.portableInterceptor.ClientRequestInfoImpl;
+import org.jacorb.orb.portableInterceptor.DefaultClientInterceptor;
+import org.omg.IIOP.BiDirIIOPServiceContext;
+import org.omg.IIOP.BiDirIIOPServiceContextHelper;
+import org.omg.IIOP.ListenPoint;
+import org.omg.IOP.BI_DIR_IIOP;
+import org.omg.IOP.ServiceContext;
+import org.omg.PortableInterceptor.ClientRequestInfo;
+import org.omg.PortableInterceptor.ForwardRequest;
 
 /**
  * @author Nicolas Noffke

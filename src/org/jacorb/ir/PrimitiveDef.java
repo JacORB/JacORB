@@ -20,9 +20,9 @@
 
 package org.jacorb.ir;
 
-import org.omg.CORBA.TCKind;
-import org.omg.CORBA.PrimitiveKind;
 import org.omg.CORBA.INTF_REPOS;
+import org.omg.CORBA.PrimitiveKind;
+import org.omg.CORBA.TCKind;
 
 public final class PrimitiveDef
     extends IRObject

@@ -20,18 +20,32 @@
  */
 package org.jacorb.orb.portableInterceptor;
 
-import org.omg.IOP.*;
-import org.omg.CORBA.*;
-import org.omg.PortableInterceptor.*;
-import org.omg.Dynamic.Parameter;
-import org.omg.ETF.*;
-
-import org.apache.avalon.framework.logger.*;
-
-import java.util.*;
-
+import java.util.ArrayList;
+import java.util.Enumeration;
+import java.util.List;
+import org.apache.avalon.framework.logger.Logger;
 import org.jacorb.orb.etf.ProfileBase;
 import org.jacorb.util.ObjectUtil;
+import org.omg.CORBA.ARG_IN;
+import org.omg.CORBA.ARG_INOUT;
+import org.omg.CORBA.ARG_OUT;
+import org.omg.CORBA.Any;
+import org.omg.CORBA.BAD_INV_ORDER;
+import org.omg.CORBA.BAD_PARAM;
+import org.omg.CORBA.CompletionStatus;
+import org.omg.CORBA.INV_POLICY;
+import org.omg.CORBA.NO_RESOURCES;
+import org.omg.CORBA.NamedValue;
+import org.omg.CORBA.ParameterMode;
+import org.omg.CORBA.Policy;
+import org.omg.CORBA.TypeCode;
+import org.omg.Dynamic.Parameter;
+import org.omg.ETF.Profile;
+import org.omg.IOP.ServiceContext;
+import org.omg.IOP.TaggedComponent;
+import org.omg.IOP.TaggedProfile;
+import org.omg.PortableInterceptor.ClientRequestInfo;
+import org.omg.PortableInterceptor.LOCATION_FORWARD;
 
 /**
  * This class represents the type of info object,

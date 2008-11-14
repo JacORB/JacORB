@@ -20,8 +20,9 @@
  */
 package org.jacorb.ir.gui.typesystem.remote;
 
-import org.omg.CORBA.*;
-import org.jacorb.ir.gui.typesystem.*;
+import org.jacorb.ir.gui.typesystem.AbstractContainer;
+import org.omg.CORBA.AliasDef;
+import org.omg.CORBA.AliasDefHelper;
 
 /**
  * 

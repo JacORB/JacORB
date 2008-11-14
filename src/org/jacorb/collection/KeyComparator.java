@@ -20,8 +20,9 @@
  */
 package org.jacorb.collection;
 
-import org.omg.CosCollection.*;
-import org.jacorb.collection.util.*;
+import org.jacorb.collection.util.ObjectComparator;
+import org.jacorb.collection.util.ObjectInvalid;
+import org.omg.CosCollection.OperationsOperations;
 
 class KeyComparator implements ObjectComparator {
     private KeyNode current = null;

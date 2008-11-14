@@ -20,10 +20,16 @@ package org.jacorb.concurrency;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import org.omg.CosConcurrencyControl.*;
-import org.omg.CosTransactions.*;
+import java.util.Enumeration;
+import java.util.Hashtable;
+import org.omg.CosConcurrencyControl.LockSet;
+import org.omg.CosConcurrencyControl.LockSetFactoryPOA;
+import org.omg.CosConcurrencyControl.TransactionalLockSet;
+import org.omg.CosConcurrencyControl.TransactionalLockSetHelper;
+import org.omg.CosTransactions.Coordinator;
+import org.omg.CosTransactions.Resource;
+import org.omg.CosTransactions.ResourceHelper;
 import org.omg.PortableServer.POA;
-import java.util.*;
 
 public class LockSetFactoryImpl extends LockSetFactoryPOA {
     public static final int REQUEST   = 1;

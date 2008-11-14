@@ -20,8 +20,11 @@
  */
 package org.jacorb.collection;
 
-import org.omg.CosCollection.*;
-import org.omg.CORBA.*;
+import org.omg.CORBA.TCKind;
+import org.omg.CosCollection.NVPair;
+import org.omg.CosCollection.Operations;
+import org.omg.CosCollection.OperationsHelper;
+import org.omg.CosCollection.ParameterInvalid;
 
 public class NVPairManager {
     private NVPair param[];

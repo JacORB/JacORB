@@ -20,11 +20,15 @@
  */
 package org.jacorb.collection;
 
-import org.omg.CosCollection.*;
+import org.omg.CosCollection.EmptyCollection;
+import org.omg.CosCollection.Iterator;
+import org.omg.CosCollection.IteratorPOATie;
+import org.omg.CosCollection.OperationsOperations;
+import org.omg.CosCollection.OrderedCollectionOperations;
+import org.omg.CosCollection.OrderedIterator;
+import org.omg.CosCollection.OrderedIteratorHelper;
+import org.omg.CosCollection.PositionInvalid;
 import org.omg.PortableServer.POA;
-import org.omg.PortableServer.Servant;
-import org.omg.CORBA.Any;
-import org.omg.CORBA.AnyHolder;
 
 class OrderedCollectionImpl extends CollectionImpl 
       implements OrderedCollectionOperations {

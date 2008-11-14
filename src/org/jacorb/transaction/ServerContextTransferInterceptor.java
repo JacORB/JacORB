@@ -21,12 +21,16 @@
 package org.jacorb.transaction;
 
 import org.apache.avalon.framework.logger.Logger;
-
-import org.omg.PortableInterceptor.*;
-import org.omg.CosTransactions.*;
+import org.omg.CosTransactions.Control;
+import org.omg.CosTransactions.ControlHelper;
+import org.omg.CosTransactions.PropagationContext;
+import org.omg.CosTransactions.PropagationContextHelper;
+import org.omg.IOP.Codec;
 import org.omg.IOP.ServiceContext;
 import org.omg.IOP.TransactionService;
-import org.omg.IOP.Codec;
+import org.omg.PortableInterceptor.ForwardRequest;
+import org.omg.PortableInterceptor.ServerRequestInfo;
+import org.omg.PortableInterceptor.ServerRequestInterceptor;
 
 /**
  * This interceptor transfers the propagation context

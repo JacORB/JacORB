@@ -20,10 +20,13 @@
  */
 package org.jacorb.transaction;
 
-import org.omg.PortableInterceptor.*;
-import org.jacorb.orb.*;
-import org.omg.IOP.*;
 import org.apache.avalon.framework.logger.Logger;
+import org.jacorb.orb.ORB;
+import org.omg.IOP.Codec;
+import org.omg.IOP.ENCODING_CDR_ENCAPS;
+import org.omg.IOP.Encoding;
+import org.omg.PortableInterceptor.ORBInitInfo;
+import org.omg.PortableInterceptor.ORBInitializer;
 
 /**
  * This class registers the ClientContextTransferInterceptor 

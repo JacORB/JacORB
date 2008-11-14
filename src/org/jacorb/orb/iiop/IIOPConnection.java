@@ -21,8 +21,8 @@
 package org.jacorb.orb.iiop;
 
 import java.io.IOException;
-import java.net.*;
-
+import java.net.Socket;
+import java.net.SocketException;
 import org.jacorb.orb.listener.SSLListenerUtil;
 
 /**

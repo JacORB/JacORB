@@ -26,9 +26,7 @@ package org.jacorb.ir.gui.typesystem.remote;
  * 
  */
  
-import java.util.*;
-import org.omg.CORBA.*;
-import javax.swing.tree.*;
+import org.omg.CORBA.IRObject;
 
 public class IRRepository 
     extends IRContainer 

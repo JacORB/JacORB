@@ -23,8 +23,8 @@ package org.jacorb.imr;
 
 import org.jacorb.imr.RegistrationPackage.DuplicatePOAName;
 import org.jacorb.imr.RegistrationPackage.IllegalPOAName;
-import org.omg.CORBA.INTERNAL;
 import org.jacorb.orb.iiop.IIOPAddress;
+import org.omg.CORBA.INTERNAL;
 
 /**
  * @author Nicolas Noffke

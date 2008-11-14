@@ -22,32 +22,59 @@ package org.jacorb.orb;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.*;
-
-import org.apache.avalon.framework.logger.Logger;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 import org.apache.avalon.framework.configuration.Configurable;
 import org.apache.avalon.framework.configuration.ConfigurationException;
-
-import org.jacorb.ir.RepositoryID;
-import org.jacorb.imr.ImRAccessImpl;
-import org.jacorb.orb.giop.*;
-import org.jacorb.orb.portableInterceptor.*;
-import org.jacorb.orb.util.*;
-import org.jacorb.poa.util.POAUtil;
-import org.jacorb.util.Time;
-import org.jacorb.util.ObjectUtil;
+import org.apache.avalon.framework.logger.Logger;
 import org.jacorb.config.Configuration;
-
-import org.omg.CORBA.*;
-import org.omg.CORBA.portable.*;
+import org.jacorb.imr.ImRAccessImpl;
+import org.jacorb.ir.RepositoryID;
+import org.jacorb.orb.giop.ClientConnection;
+import org.jacorb.orb.giop.ClientConnectionManager;
+import org.jacorb.orb.giop.LocateReplyInputStream;
+import org.jacorb.orb.giop.LocateRequestOutputStream;
+import org.jacorb.orb.giop.ReplyInputStream;
+import org.jacorb.orb.giop.ReplyPlaceholder;
+import org.jacorb.orb.giop.RequestOutputStream;
+import org.jacorb.orb.portableInterceptor.ClientInterceptorIterator;
+import org.jacorb.orb.portableInterceptor.ClientRequestInfoImpl;
+import org.jacorb.orb.util.CorbaLoc;
+import org.jacorb.poa.util.POAUtil;
+import org.jacorb.util.ObjectUtil;
+import org.jacorb.util.Time;
+import org.omg.CORBA.CompletionStatus;
+import org.omg.CORBA.INTERNAL;
+import org.omg.CORBA.INV_OBJREF;
+import org.omg.CORBA.OBJ_ADAPTER;
+import org.omg.CORBA.Policy;
+import org.omg.CORBA.SystemException;
+import org.omg.CORBA.TIMEOUT;
+import org.omg.CORBA.portable.ApplicationException;
+import org.omg.CORBA.portable.RemarshalException;
+import org.omg.CORBA.portable.ServantObject;
 import org.omg.GIOP.LocateStatusType_1_2;
-import org.omg.Messaging.*;
+import org.omg.Messaging.RELATIVE_REQ_TIMEOUT_POLICY_TYPE;
+import org.omg.Messaging.RELATIVE_RT_TIMEOUT_POLICY_TYPE;
+import org.omg.Messaging.REPLY_END_TIME_POLICY_TYPE;
+import org.omg.Messaging.REPLY_START_TIME_POLICY_TYPE;
+import org.omg.Messaging.REQUEST_END_TIME_POLICY_TYPE;
+import org.omg.Messaging.REQUEST_START_TIME_POLICY_TYPE;
+import org.omg.Messaging.SYNC_NONE;
+import org.omg.Messaging.SYNC_SCOPE_POLICY_TYPE;
+import org.omg.Messaging.SYNC_WITH_SERVER;
+import org.omg.Messaging.SYNC_WITH_TARGET;
+import org.omg.Messaging.SYNC_WITH_TRANSPORT;
 import org.omg.PortableInterceptor.SUCCESSFUL;
-import org.omg.PortableServer.POAPackage.*;
-import org.omg.TimeBase.UtcT;
-import org.omg.PortableServer.ServantLocatorPackage.CookieHolder;
 import org.omg.PortableServer.Servant;
 import org.omg.PortableServer.ServantActivator;
+import org.omg.PortableServer.POAPackage.ObjectNotActive;
+import org.omg.PortableServer.POAPackage.WrongAdapter;
+import org.omg.PortableServer.POAPackage.WrongPolicy;
+import org.omg.PortableServer.ServantLocatorPackage.CookieHolder;
+import org.omg.TimeBase.UtcT;
 
 /**
  * JacORB implementation of CORBA object reference

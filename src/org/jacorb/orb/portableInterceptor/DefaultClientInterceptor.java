@@ -20,7 +20,9 @@
 
 package org.jacorb.orb.portableInterceptor;
 
-import org.omg.PortableInterceptor.*;
+import org.omg.PortableInterceptor.ClientRequestInfo;
+import org.omg.PortableInterceptor.ClientRequestInterceptor;
+import org.omg.PortableInterceptor.ForwardRequest;
 
 public abstract class DefaultClientInterceptor
     extends org.omg.CORBA.LocalObject

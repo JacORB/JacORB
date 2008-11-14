@@ -26,11 +26,9 @@ package org.jacorb.orb.rmi;
  */
 
 import java.rmi.Remote;
-
-import javax.rmi.CORBA.Tie;
 import javax.rmi.CORBA.Stub;
+import javax.rmi.CORBA.Tie;
 import javax.rmi.CORBA.Util;
-
 import org.omg.CORBA.ORB;
 import org.omg.CORBA.portable.ObjectImpl;
 

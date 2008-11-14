@@ -20,13 +20,25 @@ package org.jacorb.collection;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import org.omg.CosCollection.*;
-import org.jacorb.collection.util.*;
-import java.util.*;
-import org.omg.PortableServer.POA;
-import org.omg.PortableServer.Servant;
+import java.util.Enumeration;
+import org.jacorb.collection.util.DynArray;
+import org.jacorb.collection.util.ObjectInvalid;
+import org.jacorb.collection.util.SortedVector;
 import org.omg.CORBA.Any;
 import org.omg.CORBA.AnyHolder;
+import org.omg.CosCollection.Command;
+import org.omg.CosCollection.ElementInvalid;
+import org.omg.CosCollection.ElementInvalidReason;
+import org.omg.CosCollection.EmptyCollection;
+import org.omg.CosCollection.IteratorHelper;
+import org.omg.CosCollection.IteratorInBetween;
+import org.omg.CosCollection.IteratorInvalid;
+import org.omg.CosCollection.IteratorInvalidReason;
+import org.omg.CosCollection.IteratorPOATie;
+import org.omg.CosCollection.OperationsOperations;
+import org.omg.CosCollection.PositionInvalid;
+import org.omg.PortableServer.POA;
+import org.omg.PortableServer.Servant;
 
 class CollectionImpl 
 {

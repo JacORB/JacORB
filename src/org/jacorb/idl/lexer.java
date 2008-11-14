@@ -20,9 +20,13 @@
 
 package org.jacorb.idl;
 
-import org.jacorb.idl.runtime.*;
-
-import java.util.*;
+import java.util.Hashtable;
+import java.util.Stack;
+import org.jacorb.idl.runtime.char_token;
+import org.jacorb.idl.runtime.float_token;
+import org.jacorb.idl.runtime.int_token;
+import org.jacorb.idl.runtime.long_token;
+import org.jacorb.idl.runtime.token;
 
 /**
  *  This  class implements  a  scanner  (aka lexical  analyzer or

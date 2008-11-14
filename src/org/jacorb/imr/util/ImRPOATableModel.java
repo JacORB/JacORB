@@ -20,9 +20,9 @@
  */
 package org.jacorb.imr.util;
 
-import javax.swing.table.*;
-import org.jacorb.imr.*;
-import javax.swing.event.*;
+import javax.swing.event.TableModelEvent;
+import javax.swing.table.AbstractTableModel;
+import org.jacorb.imr.POAInfo;
 /**
  * This is the model for the POA table. It does
  * not write back data since the entries in the POA
@@ -31,6 +31,9 @@ import javax.swing.event.*;
  * @author Nicolas Noffke
  *
  * $Log$
+ * Revision 1.8  2006-06-16 12:36:28  alphonse.bendt
+ * fixed some findbugs warnings
+ *
  * Revision 1.7  2004/05/06 12:39:59  nicolas
  * Updated Copyright notice to 2004
  *

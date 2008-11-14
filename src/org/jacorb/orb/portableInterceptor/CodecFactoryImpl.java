@@ -20,9 +20,11 @@
  */
 package org.jacorb.orb.portableInterceptor;
 
-import org.omg.IOP.*;
-import org.omg.IOP.CodecFactoryPackage.*;
 import org.omg.CORBA.ORB;
+import org.omg.IOP.Codec;
+import org.omg.IOP.CodecFactory;
+import org.omg.IOP.Encoding;
+import org.omg.IOP.CodecFactoryPackage.UnknownEncoding;
 
 /**
  * This class represents a CodecFactory. The factory

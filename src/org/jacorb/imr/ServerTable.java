@@ -20,10 +20,10 @@ package org.jacorb.imr;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import java.util.*;
-import java.io.*;
-import org.jacorb.imr.RegistrationPackage.*;
-import org.jacorb.imr.AdminPackage.*;
+import java.io.Serializable;
+import java.util.Enumeration;
+import java.util.Hashtable;
+import org.jacorb.imr.AdminPackage.DuplicateServerName;
 
 /**
  * This class represents the server table of the implementation repository.

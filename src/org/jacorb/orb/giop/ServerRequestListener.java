@@ -22,7 +22,6 @@ package org.jacorb.orb.giop;
 
 import java.io.IOException;
 import java.util.List;
-
 import org.apache.avalon.framework.configuration.Configurable;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;

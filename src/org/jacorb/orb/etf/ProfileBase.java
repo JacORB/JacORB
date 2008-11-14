@@ -21,16 +21,19 @@
 
 package org.jacorb.orb.etf;
 
-import org.apache.avalon.framework.configuration.*;
-
-import org.jacorb.orb.CDROutputStream;
+import org.apache.avalon.framework.configuration.Configurable;
 import org.jacorb.orb.CDRInputStream;
+import org.jacorb.orb.CDROutputStream;
 import org.jacorb.orb.TaggedComponentList;
-
 import org.omg.CORBA.BAD_PARAM;
 import org.omg.CORBA.MARSHAL;
-import org.omg.ETF.*;
-import org.omg.IOP.*;
+import org.omg.ETF.Profile;
+import org.omg.ETF._ProfileLocalBase;
+import org.omg.IOP.TaggedComponent;
+import org.omg.IOP.TaggedComponentHelper;
+import org.omg.IOP.TaggedComponentSeqHolder;
+import org.omg.IOP.TaggedProfile;
+import org.omg.IOP.TaggedProfileHolder;
 
 /**
  * @author Andre Spiegel

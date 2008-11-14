@@ -20,13 +20,14 @@ package org.jacorb.ir;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import java.io.*;
-
+import java.io.PrintStream;
 import org.apache.avalon.framework.logger.Logger;
 import org.jacorb.orb.ORB;
 import org.jacorb.orb.TypeCode;
 import org.omg.CORBA.INTERNAL;
-import org.omg.DynamicAny.*;
+import org.omg.DynamicAny.DynAnyFactory;
+import org.omg.DynamicAny.DynEnum;
+import org.omg.DynamicAny.DynEnumHelper;
 
 /**
  * This class prints IDL from IR-Descriptions to PrintStreams

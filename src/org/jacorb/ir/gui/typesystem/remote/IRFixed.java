@@ -20,7 +20,8 @@
  */
 package org.jacorb.ir.gui.typesystem.remote;
 
-import org.omg.CORBA.*;
+import org.omg.CORBA.FixedDef;
+import org.omg.CORBA.FixedDefHelper;
 
 /**
  * 

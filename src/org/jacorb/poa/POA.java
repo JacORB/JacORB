@@ -20,25 +20,63 @@ package org.jacorb.poa;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import org.jacorb.poa.util.*;
-import org.jacorb.poa.except.*;
-
+import java.util.Enumeration;
+import java.util.Hashtable;
+import org.apache.avalon.framework.configuration.Configurable;
+import org.apache.avalon.framework.configuration.Configuration;
+import org.apache.avalon.framework.configuration.ConfigurationException;
+import org.apache.avalon.framework.logger.Logger;
 import org.jacorb.orb.dsi.ServerRequest;
+import org.jacorb.poa.except.ApplicationError;
+import org.jacorb.poa.except.POAInternalError;
+import org.jacorb.poa.except.ParentIsHolding;
+import org.jacorb.poa.except.ResourceLimitReachedException;
+import org.jacorb.poa.util.ByteArrayKey;
+import org.jacorb.poa.util.IdUtil;
+import org.jacorb.poa.util.POAUtil;
 import org.jacorb.ssl.SSLPolicy;
 import org.jacorb.ssl.SSLPolicyValue;
 import org.jacorb.ssl.SSL_POLICY_TYPE;
 import org.jacorb.util.ObjectUtil;
-
-import org.omg.PortableServer.*;
-import org.omg.PortableServer.POAPackage.*;
+import org.omg.BiDirPolicy.BIDIRECTIONAL_POLICY_TYPE;
+import org.omg.BiDirPolicy.BidirectionalPolicy;
+import org.omg.PortableServer.AdapterActivator;
+import org.omg.PortableServer.ID_ASSIGNMENT_POLICY_ID;
+import org.omg.PortableServer.ID_UNIQUENESS_POLICY_ID;
+import org.omg.PortableServer.IMPLICIT_ACTIVATION_POLICY_ID;
+import org.omg.PortableServer.IdAssignmentPolicy;
+import org.omg.PortableServer.IdAssignmentPolicyValue;
+import org.omg.PortableServer.IdUniquenessPolicy;
+import org.omg.PortableServer.IdUniquenessPolicyValue;
+import org.omg.PortableServer.ImplicitActivationPolicy;
+import org.omg.PortableServer.ImplicitActivationPolicyValue;
+import org.omg.PortableServer.LIFESPAN_POLICY_ID;
+import org.omg.PortableServer.LifespanPolicy;
+import org.omg.PortableServer.LifespanPolicyValue;
+import org.omg.PortableServer.REQUEST_PROCESSING_POLICY_ID;
+import org.omg.PortableServer.RequestProcessingPolicy;
+import org.omg.PortableServer.RequestProcessingPolicyValue;
+import org.omg.PortableServer.SERVANT_RETENTION_POLICY_ID;
+import org.omg.PortableServer.Servant;
+import org.omg.PortableServer.ServantActivator;
+import org.omg.PortableServer.ServantManager;
+import org.omg.PortableServer.ServantRetentionPolicy;
+import org.omg.PortableServer.ServantRetentionPolicyValue;
+import org.omg.PortableServer.THREAD_POLICY_ID;
+import org.omg.PortableServer.ThreadPolicy;
+import org.omg.PortableServer.ThreadPolicyValue;
+import org.omg.PortableServer._POALocalBase;
 import org.omg.PortableServer.POAManagerPackage.State;
-
-import org.omg.BiDirPolicy.*;
-
-import org.apache.avalon.framework.logger.Logger;
-import org.apache.avalon.framework.configuration.*;
-
-import java.util.*;
+import org.omg.PortableServer.POAPackage.AdapterAlreadyExists;
+import org.omg.PortableServer.POAPackage.AdapterNonExistent;
+import org.omg.PortableServer.POAPackage.InvalidPolicy;
+import org.omg.PortableServer.POAPackage.NoServant;
+import org.omg.PortableServer.POAPackage.ObjectAlreadyActive;
+import org.omg.PortableServer.POAPackage.ObjectNotActive;
+import org.omg.PortableServer.POAPackage.ServantAlreadyActive;
+import org.omg.PortableServer.POAPackage.ServantNotActive;
+import org.omg.PortableServer.POAPackage.WrongAdapter;
+import org.omg.PortableServer.POAPackage.WrongPolicy;
 
 /**
  * The main POA class, an implementation of

@@ -21,9 +21,9 @@
 
 package org.jacorb.orb.policies;
 
-import org.omg.RTCORBA._ClientProtocolPolicyLocalBase;
 import org.omg.RTCORBA.Protocol;
 import org.omg.RTCORBA.ProtocolListHelper;
+import org.omg.RTCORBA._ClientProtocolPolicyLocalBase;
 
 /**
  * @author Steve Osselton

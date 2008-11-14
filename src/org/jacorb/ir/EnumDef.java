@@ -20,10 +20,7 @@ package org.jacorb.ir;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import java.lang.reflect.*;
-
-import org.omg.CORBA.TypeCode;
-import org.omg.CORBA.Any;
+import java.lang.reflect.Field;
 
 public class EnumDef 
     extends TypedefDef

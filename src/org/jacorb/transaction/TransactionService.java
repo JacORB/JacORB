@@ -20,11 +20,18 @@ package org.jacorb.transaction;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.PrintWriter;
 import org.apache.avalon.framework.logger.Logger;
-
-import org.omg.CosTransactions.*;
-import org.omg.CosNaming.*;
-import java.io.*;
+import org.omg.CosNaming.NameComponent;
+import org.omg.CosNaming.NamingContextExt;
+import org.omg.CosNaming.NamingContextExtHelper;
+import org.omg.CosTransactions.Control;
+import org.omg.CosTransactions.PropagationContext;
+import org.omg.CosTransactions.TransactionFactory;
+import org.omg.CosTransactions.TransactionFactoryHelper;
+import org.omg.CosTransactions.TransactionFactoryPOA;
 
 public class TransactionService 
     extends TransactionFactoryPOA 

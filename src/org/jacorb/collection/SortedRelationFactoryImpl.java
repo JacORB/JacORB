@@ -21,7 +21,15 @@
 package org.jacorb.collection;
 
 import org.jacorb.util.ObjectUtil;
-import org.omg.CosCollection.*;
+import org.omg.CosCollection.Collection;
+import org.omg.CosCollection.NVPair;
+import org.omg.CosCollection.Operations;
+import org.omg.CosCollection.OperationsOperations;
+import org.omg.CosCollection.ParameterInvalid;
+import org.omg.CosCollection.SortedRelation;
+import org.omg.CosCollection.SortedRelationFactoryPOA;
+import org.omg.CosCollection.SortedRelationHelper;
+import org.omg.CosCollection.SortedRelationPOATie;
 
 public class  SortedRelationFactoryImpl 
     extends SortedRelationFactoryPOA implements IteratorFactory 

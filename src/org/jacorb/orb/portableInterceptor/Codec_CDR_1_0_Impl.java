@@ -21,12 +21,15 @@
 
 package org.jacorb.orb.portableInterceptor;
 
-import org.omg.IOP.CodecPackage.*;
-import org.omg.IOP.Codec;
-import org.omg.CORBA.*;
-
 import org.jacorb.orb.CDRInputStream;
 import org.jacorb.orb.CDROutputStream;
+import org.omg.CORBA.Any;
+import org.omg.CORBA.ORB;
+import org.omg.CORBA.TypeCode;
+import org.omg.IOP.Codec;
+import org.omg.IOP.CodecPackage.FormatMismatch;
+import org.omg.IOP.CodecPackage.InvalidTypeForEncoding;
+import org.omg.IOP.CodecPackage.TypeMismatch;
 
 /**
  * This class represents a codec for encoding ENCODING_CDR_ENCAPS 1.0.

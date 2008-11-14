@@ -20,8 +20,10 @@
  */
 package org.jacorb.idl;
 
-import java.io.*;
-import java.util.*;
+import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 /**
  * A ReplyHandler receives replies of asynchronous invocations of

@@ -1,9 +1,9 @@
 package org.jacorb.naming.namemanager;
 
-import javax.swing.*;
-import javax.swing.tree.*;
-import java.awt.*;
-import javax.swing.table.*;
+import java.awt.Color;
+import java.awt.Component;
+import javax.swing.JTable;
+import javax.swing.table.DefaultTableCellRenderer;
 
 /**
  * 

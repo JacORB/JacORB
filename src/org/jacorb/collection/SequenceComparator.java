@@ -20,9 +20,10 @@
  */
 package org.jacorb.collection;
 
-import org.omg.CosCollection.OperationsOperations;
+import org.jacorb.collection.util.ObjectComparator;
+import org.jacorb.collection.util.ObjectInvalid;
 import org.omg.CORBA.Any;
-import org.jacorb.collection.util.*;
+import org.omg.CosCollection.OperationsOperations;
 
 class SequenceComparator implements ObjectComparator {
     private OperationsOperations ops;

@@ -24,9 +24,11 @@ package org.jacorb.ir.gui.typesystem.remote;
  * 
  */
  
-import java.util.*;
-import org.omg.CORBA.*;
-import javax.swing.tree.*;
+import org.omg.CORBA.IRObject;
+import org.omg.CORBA.PRIVATE_MEMBER;
+import org.omg.CORBA.PUBLIC_MEMBER;
+import org.omg.CORBA.ValueMemberDef;
+import org.omg.CORBA.ValueMemberDefHelper;
  
 public class IRValueMember 
     extends IRNodeWithType 

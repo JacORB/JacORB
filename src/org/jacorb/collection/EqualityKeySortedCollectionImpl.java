@@ -20,13 +20,15 @@
  */
 package org.jacorb.collection;
 
-import org.omg.CosCollection.*;
-import org.jacorb.collection.util.*;
-import java.util.*;
-import org.omg.PortableServer.POA;
-import org.omg.PortableServer.Servant;
+import org.jacorb.collection.util.ObjectInvalid;
 import org.omg.CORBA.Any;
-import org.omg.CORBA.AnyHolder;
+import org.omg.CosCollection.ElementInvalid;
+import org.omg.CosCollection.ElementInvalidReason;
+import org.omg.CosCollection.EqualityKeySortedCollectionOperations;
+import org.omg.CosCollection.IteratorInBetween;
+import org.omg.CosCollection.IteratorInvalid;
+import org.omg.CosCollection.OperationsOperations;
+import org.omg.PortableServer.POA;
 
 class EqualityKeySortedCollectionImpl 
     extends KeySortedCollectionImpl 

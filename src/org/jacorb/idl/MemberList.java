@@ -26,7 +26,8 @@
 
 package org.jacorb.idl;
 
-import java.util.*;
+import java.util.Enumeration;
+import java.util.Vector;
 
 public class MemberList
     extends SymbolList

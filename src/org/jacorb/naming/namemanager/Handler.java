@@ -20,13 +20,23 @@
 
 package org.jacorb.naming.namemanager;
 
-import java.awt.event.*;
-import java.awt.*;
-import javax.swing.tree.*;
-import javax.swing.*;
-
-import org.jacorb.naming.Name;
-import org.omg.CosNaming.*;
+import java.awt.Component;
+import java.awt.Frame;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import javax.swing.JDialog;
+import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
+import javax.swing.JPopupMenu;
+import javax.swing.JTextField;
+import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.TreePath;
 
 /**
  * This class handles the events on the tree

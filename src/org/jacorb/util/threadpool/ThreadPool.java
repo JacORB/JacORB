@@ -21,10 +21,10 @@ package org.jacorb.util.threadpool;
  *
  */
 
-import java.util.*;
+import java.util.LinkedList;
+import org.apache.avalon.framework.logger.Logger;
 import org.jacorb.config.Configuration;
 import org.omg.CORBA.NO_RESOURCES;
-import org.apache.avalon.framework.logger.Logger;
 
 /**
  * @author Nicolas Noffke

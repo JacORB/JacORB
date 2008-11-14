@@ -27,7 +27,6 @@
 package org.jacorb.dds;
 import java.util.Iterator;
 import java.util.Vector;
-
 import org.omg.dds.ContentFilteredTopic;
 import org.omg.dds.DomainParticipantListener;
 import org.omg.dds.DomainParticipantPOA;

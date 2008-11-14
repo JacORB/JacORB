@@ -20,8 +20,8 @@
 
 package org.jacorb.naming.namemanager;
 
-import java.util.*;
-import javax.swing.table.*;
+import java.util.Vector;
+import javax.swing.table.TableCellRenderer;
 
 public class NSTable 
     extends javax.swing.JTable 

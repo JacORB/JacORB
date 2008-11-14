@@ -28,9 +28,6 @@ package org.jacorb.dds;
 
 import java.util.Iterator;
 import java.util.Vector;
-
-import org.jacorb.dds.ThreadSubscriber;
-import org.jacorb.dds.DomainParticipantImpl;
 import org.jacorb.events.EventChannelImpl;
 import org.omg.CosNaming.NameComponent;
 import org.omg.CosNaming.NamingContextExt;

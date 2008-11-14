@@ -20,10 +20,31 @@ package org.jacorb.poa.util;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 import org.jacorb.poa.POAConstants;
 import org.jacorb.poa.except.POAInternalError;
-import org.omg.PortableServer.*;
+import org.omg.PortableServer.ID_ASSIGNMENT_POLICY_ID;
+import org.omg.PortableServer.ID_UNIQUENESS_POLICY_ID;
+import org.omg.PortableServer.IMPLICIT_ACTIVATION_POLICY_ID;
+import org.omg.PortableServer.IdAssignmentPolicy;
+import org.omg.PortableServer.IdAssignmentPolicyValue;
+import org.omg.PortableServer.IdUniquenessPolicy;
+import org.omg.PortableServer.IdUniquenessPolicyValue;
+import org.omg.PortableServer.ImplicitActivationPolicy;
+import org.omg.PortableServer.ImplicitActivationPolicyValue;
+import org.omg.PortableServer.LIFESPAN_POLICY_ID;
+import org.omg.PortableServer.LifespanPolicy;
+import org.omg.PortableServer.LifespanPolicyValue;
+import org.omg.PortableServer.REQUEST_PROCESSING_POLICY_ID;
+import org.omg.PortableServer.RequestProcessingPolicy;
+import org.omg.PortableServer.RequestProcessingPolicyValue;
+import org.omg.PortableServer.SERVANT_RETENTION_POLICY_ID;
+import org.omg.PortableServer.ServantRetentionPolicy;
+import org.omg.PortableServer.ServantRetentionPolicyValue;
+import org.omg.PortableServer.THREAD_POLICY_ID;
+import org.omg.PortableServer.ThreadPolicy;
+import org.omg.PortableServer.ThreadPolicyValue;
 
 /**
  * This class collects some useful routines for the POA.

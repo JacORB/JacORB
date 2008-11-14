@@ -21,7 +21,6 @@ package org.jacorb.security.sas;
  */
 
 import java.util.Hashtable;
-
 import org.apache.avalon.framework.configuration.Configurable;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
@@ -38,6 +37,7 @@ import org.jacorb.sasPolicy.SAS_POLICY_TYPE;
 import org.omg.CORBA.Any;
 import org.omg.CORBA.BAD_PARAM;
 import org.omg.CORBA.CompletionStatus;
+import org.omg.CORBA.Policy;
 import org.omg.CORBA.portable.ObjectImpl;
 import org.omg.CSI.CompleteEstablishContext;
 import org.omg.CSI.ContextError;
@@ -56,7 +56,6 @@ import org.omg.PortableInterceptor.ForwardRequest;
 import org.omg.PortableInterceptor.ORBInitInfo;
 import org.omg.PortableInterceptor.ServerRequestInfo;
 import org.omg.PortableInterceptor.ServerRequestInterceptor;
-import org.omg.CORBA.Policy;
 
 /**
  * This is the SAS Target Security Service (TSS) Interceptor

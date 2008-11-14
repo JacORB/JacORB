@@ -19,20 +19,33 @@
  */
 package org.jacorb.orb.iiop;
 
-import java.util.*;
-
-import org.apache.avalon.framework.configuration.*;
+import java.util.List;
+import org.apache.avalon.framework.configuration.Configuration;
+import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.logger.Logger;
-
 import org.jacorb.orb.CDRInputStream;
 import org.jacorb.orb.CDROutputStream;
 import org.jacorb.orb.TaggedComponentList;
 import org.jacorb.orb.etf.ProtocolAddressBase;
-
-import org.omg.ETF.*;
-import org.omg.IOP.*;
-import org.omg.SSLIOP.*;
-import org.omg.CSIIOP.*;
+import org.omg.CSIIOP.CompoundSecMechList;
+import org.omg.CSIIOP.CompoundSecMechListHelper;
+import org.omg.CSIIOP.Confidentiality;
+import org.omg.CSIIOP.DetectMisordering;
+import org.omg.CSIIOP.DetectReplay;
+import org.omg.CSIIOP.EstablishTrustInClient;
+import org.omg.CSIIOP.EstablishTrustInTarget;
+import org.omg.CSIIOP.Integrity;
+import org.omg.CSIIOP.TAG_CSI_SEC_MECH_LIST;
+import org.omg.CSIIOP.TAG_TLS_SEC_TRANS;
+import org.omg.CSIIOP.TLS_SEC_TRANS;
+import org.omg.CSIIOP.TLS_SEC_TRANSHelper;
+import org.omg.ETF.Profile;
+import org.omg.IOP.TAG_ALTERNATE_IIOP_ADDRESS;
+import org.omg.IOP.TAG_INTERNET_IOP;
+import org.omg.IOP.TaggedComponent;
+import org.omg.SSLIOP.SSL;
+import org.omg.SSLIOP.SSLHelper;
+import org.omg.SSLIOP.TAG_SSL_SEC_TRANS;
 
 /**
  * @author Andre Spiegel

@@ -20,8 +20,7 @@ package org.jacorb.idl;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import java.io.PrintWriter;
-import java.util.*;
+import java.util.Vector;
 
 /**
  * This is only a holder object for the result of the attr_raises_expr

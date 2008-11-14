@@ -21,7 +21,10 @@ package org.jacorb.transaction;
  */
 
 
-import org.omg.CosTransactions.*;
+import org.omg.CosTransactions.NotPrepared;
+import org.omg.CosTransactions.RecoveryCoordinatorOperations;
+import org.omg.CosTransactions.Resource;
+import org.omg.CosTransactions.Status;
 
 public class RecoveryCoordinatorImpl implements RecoveryCoordinatorOperations {
 

@@ -20,9 +20,7 @@ package org.jacorb.poa;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
  
-import org.jacorb.poa.util.*;
 import org.jacorb.orb.dsi.ServerRequest;
-
 import org.omg.PortableServer.Servant;
 
 /**

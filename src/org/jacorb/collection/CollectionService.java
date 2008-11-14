@@ -20,7 +20,6 @@
  */
 package org.jacorb.collection;
 
-import org.omg.CORBA.*;
 
 public interface CollectionService {
     final public String  COL_INTRF  = "collection_interface";

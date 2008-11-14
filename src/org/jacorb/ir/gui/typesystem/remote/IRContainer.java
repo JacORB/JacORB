@@ -20,9 +20,12 @@
  */
 package org.jacorb.ir.gui.typesystem.remote;
 
-import org.omg.CORBA.*;
-import javax.swing.tree.*;
-import org.jacorb.ir.gui.typesystem.*;
+import org.jacorb.ir.gui.typesystem.AbstractContainer;
+import org.omg.CORBA.Contained;
+import org.omg.CORBA.Container;
+import org.omg.CORBA.ContainerHelper;
+import org.omg.CORBA.DefinitionKind;
+import org.omg.CORBA.IRObject;
 
 /**
  * Abstrakte Oberklasse für alle Klassen, die in unserem Baum Children

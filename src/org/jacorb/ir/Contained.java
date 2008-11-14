@@ -20,12 +20,10 @@ package org.jacorb.ir;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import org.omg.CORBA.*;
-import org.omg.PortableServer.POA;
-
-import java.lang.reflect.*;
-
+import java.lang.reflect.Field;
 import org.apache.avalon.framework.logger.Logger;
+import org.omg.CORBA.INTF_REPOS;
+import org.omg.PortableServer.POA;
 
 /**
  * @version $Id$

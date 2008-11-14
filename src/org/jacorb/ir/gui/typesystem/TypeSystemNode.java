@@ -27,7 +27,6 @@ package org.jacorb.ir.gui.typesystem;
  */
 
 import java.lang.reflect.Method;
-
 import javax.swing.tree.DefaultMutableTreeNode;
 
 public abstract class TypeSystemNode

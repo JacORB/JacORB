@@ -22,7 +22,8 @@ package org.jacorb.idl;
 
 import java.io.File;
 import java.io.PrintWriter;
-import java.util.*;
+import java.util.Enumeration;
+import java.util.Set;
 
 /**
  * @author Gerald Brose

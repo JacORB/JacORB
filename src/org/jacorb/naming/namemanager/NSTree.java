@@ -21,13 +21,19 @@
 package org.jacorb.naming.namemanager;
 
 
-import java.awt.*;
-import javax.swing.tree.*;
-import javax.swing.event.*;
-import javax.swing.*;
-import org.omg.CosNaming.*;
-import org.omg.CosNaming.NamingContextPackage.*;
-import org.jacorb.naming.*;
+import java.awt.Dimension;
+import javax.swing.JOptionPane;
+import javax.swing.JTree;
+import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.DefaultTreeModel;
+import javax.swing.tree.TreePath;
+import org.jacorb.naming.Name;
+import org.omg.CosNaming.NamingContextExt;
+import org.omg.CosNaming.NamingContextExtHelper;
+import org.omg.CosNaming.NamingContextPackage.AlreadyBound;
+import org.omg.CosNaming.NamingContextPackage.CannotProceed;
+import org.omg.CosNaming.NamingContextPackage.InvalidName;
+import org.omg.CosNaming.NamingContextPackage.NotFound;
 
 /**
  *  @author Gerald Brose, FU Berlin/XTRADYNE Technologies AG

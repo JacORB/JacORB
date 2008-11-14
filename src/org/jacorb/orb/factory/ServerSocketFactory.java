@@ -33,8 +33,9 @@ package org.jacorb.orb.factory;
  * $Id$
  */
 
-import java.net.*;
 import java.io.IOException;
+import java.net.InetAddress;
+import java.net.ServerSocket;
 
 /**
  * @author Gerald Brose

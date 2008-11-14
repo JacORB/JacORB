@@ -20,40 +20,80 @@ package org.jacorb.orb;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import java.util.*;
-
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import org.apache.avalon.framework.configuration.Configurable;
+import org.apache.avalon.framework.configuration.Configuration;
+import org.apache.avalon.framework.configuration.ConfigurationException;
+import org.apache.avalon.framework.configuration.DefaultConfiguration;
+import org.apache.avalon.framework.logger.Logger;
 import org.jacorb.imr.ImRAccessImpl;
-import org.jacorb.util.*;
+import org.jacorb.orb.dii.Request;
+import org.jacorb.orb.etf.FactoriesBase;
+import org.jacorb.orb.etf.ProfileBase;
+import org.jacorb.orb.etf.ProtocolAddressBase;
+import org.jacorb.orb.giop.ClientConnectionManager;
+import org.jacorb.orb.giop.GIOPConnection;
+import org.jacorb.orb.giop.GIOPConnectionManager;
+import org.jacorb.orb.giop.TransportManager;
 import org.jacorb.orb.iiop.IIOPAddress;
 import org.jacorb.orb.iiop.IIOPProfile;
-import org.jacorb.orb.etf.*;
-import org.jacorb.orb.policies.*;
-import org.jacorb.orb.dii.Request;
-import org.jacorb.orb.giop.*;
-import org.jacorb.orb.portableInterceptor.*;
+import org.jacorb.orb.policies.PolicyManager;
+import org.jacorb.orb.portableInterceptor.CodecFactoryImpl;
+import org.jacorb.orb.portableInterceptor.IORInfoImpl;
+import org.jacorb.orb.portableInterceptor.InterceptorManager;
+import org.jacorb.orb.portableInterceptor.ORBInitInfoImpl;
 import org.jacorb.poa.RPPoolManager;
 import org.jacorb.poa.RPPoolManagerFactory;
 import org.jacorb.poa.util.POAUtil;
-
-import org.apache.avalon.framework.logger.*;
-import org.apache.avalon.framework.configuration.*;
-
-import org.omg.CORBA.BAD_PARAM;
+import org.jacorb.util.ObjectUtil;
 import org.omg.CORBA.BAD_INV_ORDER;
+import org.omg.CORBA.BAD_PARAM;
 import org.omg.CORBA.CompletionStatus;
 import org.omg.CORBA.INITIALIZE;
 import org.omg.CORBA.INTERNAL;
 import org.omg.CORBA.MARSHAL;
 import org.omg.CORBA.ORBPackage.InvalidName;
-import org.omg.CORBA.portable.ValueFactory;
 import org.omg.CORBA.portable.BoxedValueHelper;
 import org.omg.CORBA.portable.StreamableValue;
-import org.omg.Messaging.*;
-import org.omg.PortableInterceptor.*;
+import org.omg.CORBA.portable.ValueFactory;
+import org.omg.ETF.Profile;
+import org.omg.IOP.IOR;
+import org.omg.IOP.MultipleComponentProfileHelper;
+import org.omg.IOP.TAG_INTERNET_IOP;
+import org.omg.IOP.TAG_MULTIPLE_COMPONENTS;
+import org.omg.IOP.TAG_ORB_TYPE;
+import org.omg.IOP.TaggedComponent;
+import org.omg.IOP.TaggedComponentSeqHolder;
+import org.omg.IOP.TaggedProfile;
+import org.omg.IOP.TaggedProfileHolder;
+import org.omg.Messaging.MAX_HOPS_POLICY_TYPE;
+import org.omg.Messaging.QUEUE_ORDER_POLICY_TYPE;
+import org.omg.Messaging.REBIND_POLICY_TYPE;
+import org.omg.Messaging.RELATIVE_REQ_TIMEOUT_POLICY_TYPE;
+import org.omg.Messaging.RELATIVE_RT_TIMEOUT_POLICY_TYPE;
+import org.omg.Messaging.REPLY_END_TIME_POLICY_TYPE;
+import org.omg.Messaging.REPLY_PRIORITY_POLICY_TYPE;
+import org.omg.Messaging.REPLY_START_TIME_POLICY_TYPE;
+import org.omg.Messaging.REQUEST_END_TIME_POLICY_TYPE;
+import org.omg.Messaging.REQUEST_PRIORITY_POLICY_TYPE;
+import org.omg.Messaging.REQUEST_START_TIME_POLICY_TYPE;
+import org.omg.Messaging.ROUTING_POLICY_TYPE;
+import org.omg.Messaging.SYNC_SCOPE_POLICY_TYPE;
+import org.omg.PortableInterceptor.Current;
+import org.omg.PortableInterceptor.InvalidSlot;
+import org.omg.PortableInterceptor.ORBInitInfo;
+import org.omg.PortableInterceptor.ORBInitializer;
+import org.omg.PortableInterceptor.PolicyFactory;
 import org.omg.PortableServer.POAManagerPackage.AdapterInactive;
 import org.omg.PortableServer.POAManagerPackage.State;
-import org.omg.IOP.*;
-import org.omg.ETF.*;
 
 /**
  * @author Gerald Brose, FU Berlin

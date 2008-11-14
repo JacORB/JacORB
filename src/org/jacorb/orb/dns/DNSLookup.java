@@ -21,7 +21,6 @@ package org.jacorb.orb.dns;
  */
 
 import java.net.InetAddress;
-
 import org.apache.avalon.framework.configuration.Configurable;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;

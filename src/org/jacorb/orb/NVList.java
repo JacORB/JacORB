@@ -25,7 +25,10 @@ package org.jacorb.orb;
  * @version $Id$
  */
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
 
 public class NVList
     extends org.omg.CORBA.NVList

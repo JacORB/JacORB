@@ -21,8 +21,8 @@ package org.jacorb.ir;
  */
 
 import java.util.StringTokenizer;
-import org.omg.CORBA.portable.BoxedValueHelper;
 import org.omg.CORBA.INTF_REPOS;
+import org.omg.CORBA.portable.BoxedValueHelper;
 
 /**
  * This class builds CORBA repository IDs from Java classes

@@ -20,13 +20,16 @@ package org.jacorb.ir;
  *   Software Foundation, Inc., 675 Mass Ave, Cambrigde, MA 02139, USA.
  */
 
-import org.omg.PortableServer.*;
-
-import java.util.*;
-import java.io.*;
-
+import java.io.FileOutputStream;
+import java.io.PrintWriter;
+import java.util.StringTokenizer;
+import java.util.Vector;
+import org.apache.avalon.framework.configuration.Configurable;
+import org.apache.avalon.framework.configuration.Configuration;
+import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.logger.Logger;
-import org.apache.avalon.framework.configuration.*;
+import org.omg.PortableServer.POA;
+import org.omg.PortableServer.POAHelper;
 
 /**
  * The Interface Repository.

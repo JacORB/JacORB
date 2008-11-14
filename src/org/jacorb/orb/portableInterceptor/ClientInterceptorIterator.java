@@ -20,11 +20,13 @@
  */
 package org.jacorb.orb.portableInterceptor;
 
-import org.omg.PortableInterceptor.*;
-import org.omg.CORBA.UserException;
-
 import org.apache.avalon.framework.logger.Logger;
 import org.jacorb.orb.SystemExceptionHelper;
+import org.omg.CORBA.UserException;
+import org.omg.PortableInterceptor.ClientRequestInterceptor;
+import org.omg.PortableInterceptor.ForwardRequest;
+import org.omg.PortableInterceptor.Interceptor;
+import org.omg.PortableInterceptor.LOCATION_FORWARD;
 
 /**
  * This class is an iterator over an array

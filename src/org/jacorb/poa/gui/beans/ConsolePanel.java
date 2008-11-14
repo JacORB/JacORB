@@ -20,7 +20,6 @@ package org.jacorb.poa.gui.beans;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
  
-import java.util.Calendar;
 
 /**
  * Provides the functionality of a Console.

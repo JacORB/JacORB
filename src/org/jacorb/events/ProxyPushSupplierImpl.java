@@ -20,11 +20,9 @@ package org.jacorb.events;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import org.omg.CosEventComm.*;
-import org.omg.CosEventChannelAdmin.*;
-import org.omg.CORBA.*;
-import org.omg.PortableServer.*;
-import org.jacorb.orb.*;
+import org.omg.CORBA.OBJECT_NOT_EXIST;
+import org.omg.CosEventComm.Disconnected;
+import org.omg.CosEventComm.PushConsumer;
 
 /**
  * Implementation of COSEventChannelAdmin interface; ProxyPushSupplier.

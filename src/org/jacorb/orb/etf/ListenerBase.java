@@ -20,14 +20,17 @@
  */
 package org.jacorb.orb.etf;
 
-import java.util.*;
-
-import org.omg.ETF.*;
-
-import org.apache.avalon.framework.logger.*;
-import org.apache.avalon.framework.configuration.*;
-
-import org.jacorb.orb.*;
+import java.util.ArrayList;
+import java.util.List;
+import org.apache.avalon.framework.configuration.Configurable;
+import org.apache.avalon.framework.configuration.Configuration;
+import org.apache.avalon.framework.configuration.ConfigurationException;
+import org.apache.avalon.framework.logger.Logger;
+import org.jacorb.orb.ORB;
+import org.omg.ETF.Connection;
+import org.omg.ETF.Handle;
+import org.omg.ETF.Profile;
+import org.omg.ETF._ListenerLocalBase;
 
 /**
  * @author Andre Spiegel

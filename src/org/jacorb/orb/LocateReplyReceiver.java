@@ -21,7 +21,6 @@ package org.jacorb.orb;
  */
 
 import org.jacorb.orb.giop.LocateReplyInputStream;
-
 import org.omg.CORBA.portable.RemarshalException;
 
 /**

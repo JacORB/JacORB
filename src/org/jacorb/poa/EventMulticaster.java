@@ -20,8 +20,8 @@
  */
 package org.jacorb.poa;
 
-import org.omg.PortableServer.Servant;
 import org.jacorb.orb.dsi.ServerRequest;
+import org.omg.PortableServer.Servant;
 
 /**
  * This class will manage an structure of a chain of poa event listeners 

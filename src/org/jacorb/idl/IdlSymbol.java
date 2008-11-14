@@ -22,9 +22,9 @@ package org.jacorb.idl;
 
 
 import java.io.PrintWriter;
-import java.util.*;
-
-import org.apache.log.*;
+import java.util.Enumeration;
+import java.util.Hashtable;
+import org.apache.log.Logger;
 
 /**
  * Base class for all classes of the abstract IDL syntax tree

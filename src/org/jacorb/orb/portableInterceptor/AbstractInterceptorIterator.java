@@ -21,8 +21,8 @@
 
 package org.jacorb.orb.portableInterceptor;
 
-import org.omg.PortableInterceptor.*;
 import org.omg.CORBA.UserException;
+import org.omg.PortableInterceptor.Interceptor;
 
 /**
  * @author Gerald Brose

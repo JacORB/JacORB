@@ -24,10 +24,14 @@ package org.jacorb.ir.gui.typesystem.remote;
  *
  */
 
-import org.jacorb.ir.gui.typesystem.*;
-import java.util.*;
-import org.omg.CORBA.*;
-import javax.swing.tree.*;
+import java.util.Enumeration;
+import java.util.Vector;
+import org.jacorb.ir.gui.typesystem.Interface;
+import org.jacorb.ir.gui.typesystem.ModelParticipant;
+import org.jacorb.ir.gui.typesystem.TypeSystemNode;
+import org.omg.CORBA.IRObject;
+import org.omg.CORBA.InterfaceDef;
+import org.omg.CORBA.InterfaceDefHelper;
 
 public class IRInterface
     extends IRContainer

@@ -22,8 +22,6 @@
 package org.jacorb.ir.gui.typesystem.remote;
 
 
-import org.jacorb.ir.gui.typesystem.*;
-import javax.swing.tree.*;
 
 /**
  * Abstrakte Oberklasse für Elemente des IR, zu denen kein entsprechendes IRObject existiert

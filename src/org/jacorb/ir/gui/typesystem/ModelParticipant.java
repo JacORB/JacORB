@@ -20,8 +20,10 @@ package org.jacorb.ir.gui.typesystem;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import java.util.*;
-import javax.swing.tree.*;
+import java.util.Hashtable;
+import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.DefaultTreeModel;
+import javax.swing.tree.TreePath;
 
 /**
  *

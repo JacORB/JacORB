@@ -20,7 +20,8 @@
  */
 package org.jacorb.ir.gui.typesystem.remote;
 
-import org.omg.CORBA.*;
+import org.omg.CORBA.StringDef;
+import org.omg.CORBA.StringDefHelper;
 
 /**
  * 

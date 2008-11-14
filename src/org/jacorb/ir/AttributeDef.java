@@ -20,14 +20,10 @@
 
 package org.jacorb.ir;
 
-import java.lang.reflect.*;
-import java.util.*;
-
-import org.omg.CORBA.INTF_REPOS;
-import org.omg.CORBA.TypeCode;
-import org.omg.PortableServer.POA;
-
+import java.lang.reflect.Method;
 import org.apache.avalon.framework.logger.Logger;
+import org.omg.CORBA.INTF_REPOS;
+import org.omg.PortableServer.POA;
 
 public class AttributeDef
     extends Contained

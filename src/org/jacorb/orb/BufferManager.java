@@ -19,12 +19,11 @@ package org.jacorb.orb;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import java.util.*;
-
-import org.apache.avalon.framework.configuration.*;
-
-import org.omg.CORBA.NO_MEMORY;
+import java.util.ArrayList;
+import java.util.List;
+import org.apache.avalon.framework.configuration.Configuration;
 import org.omg.CORBA.BAD_INV_ORDER;
+import org.omg.CORBA.NO_MEMORY;
 
 /**
  * A BufferManager is used to share a pool of buffers and to implement

@@ -20,15 +20,39 @@ package org.jacorb.ir.gui;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import javax.swing.*;
-import javax.swing.table.*;
-import javax.swing.tree.*;
-import javax.swing.event.*;
-
-import java.awt.*;
-import java.awt.event.*;
-
-import org.jacorb.ir.gui.typesystem.*;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Container;
+import java.awt.Dimension;
+import java.awt.event.ActionListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import javax.swing.BorderFactory;
+import javax.swing.JFrame;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
+import javax.swing.JScrollPane;
+import javax.swing.JSplitPane;
+import javax.swing.JTable;
+import javax.swing.JTextArea;
+import javax.swing.JTree;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
+import javax.swing.event.TreeSelectionEvent;
+import javax.swing.event.TreeSelectionListener;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableColumn;
+import javax.swing.table.TableColumnModel;
+import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.DefaultTreeModel;
+import javax.swing.tree.TreeModel;
+import javax.swing.tree.TreePath;
+import org.jacorb.ir.gui.typesystem.AbstractContainer;
+import org.jacorb.ir.gui.typesystem.NodeMapper;
+import org.jacorb.ir.gui.typesystem.TypeAssociator;
+import org.jacorb.ir.gui.typesystem.TypeSystem;
+import org.jacorb.ir.gui.typesystem.TypeSystemNode;
 import org.jacorb.ir.gui.typesystem.remote.RemoteTypeSystem;
 
 /**

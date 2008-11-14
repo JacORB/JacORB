@@ -20,11 +20,9 @@ package org.jacorb.orb;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import java.util.*;
-
-import org.omg.ETF.Profile;
-
+import java.util.List;
 import org.jacorb.orb.giop.ClientConnectionManager;
+import org.omg.ETF.Profile;
 
 /**
  * A ProfileSelector decides, on the client side, which Profile from

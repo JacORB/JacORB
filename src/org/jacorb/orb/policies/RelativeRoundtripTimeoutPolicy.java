@@ -20,8 +20,9 @@
  */
 package org.jacorb.orb.policies;
 
-import org.omg.CORBA.*;
-import org.omg.Messaging.*;
+import org.omg.CORBA.Policy;
+import org.omg.Messaging.RELATIVE_RT_TIMEOUT_POLICY_TYPE;
+import org.omg.Messaging._RelativeRoundtripTimeoutPolicyLocalBase;
 
 /**
  * Specifies a relative timeout for a CORBA roundtrip.  It is an upper bound

@@ -20,9 +20,9 @@
  */
 package org.jacorb.imr.util;
 
-import javax.swing.table.*;
-import org.jacorb.imr.*;
-import javax.swing.event.*;
+import javax.swing.event.TableModelEvent;
+import javax.swing.table.AbstractTableModel;
+import org.jacorb.imr.ServerInfo;
 /**
  * This class is the model for the server table.
  * On user changes, it writes back its edited cells

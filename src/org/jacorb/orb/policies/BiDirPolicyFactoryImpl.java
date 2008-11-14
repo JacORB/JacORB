@@ -20,9 +20,12 @@
  */
 package org.jacorb.orb.policies;
 
-import org.omg.PortableInterceptor.*;
-import org.omg.BiDirPolicy.*;
-import org.omg.CORBA.*;
+import org.omg.BiDirPolicy.BIDIRECTIONAL_POLICY_TYPE;
+import org.omg.BiDirPolicy.BidirectionalPolicyValueHelper;
+import org.omg.CORBA.Any;
+import org.omg.CORBA.Policy;
+import org.omg.CORBA.PolicyError;
+import org.omg.PortableInterceptor.PolicyFactory;
 
 public class BiDirPolicyFactoryImpl
     extends org.omg.CORBA.LocalObject

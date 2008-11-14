@@ -26,7 +26,7 @@ package org.jacorb.naming;
  * @version $Id$
  */
 
-import  org.omg.CosNaming.*;
+import org.omg.CosNaming.Binding;
 
 public class BindingIteratorImpl
     extends org.omg.CosNaming.BindingIteratorPOA

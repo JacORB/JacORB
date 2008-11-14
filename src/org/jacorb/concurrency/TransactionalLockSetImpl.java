@@ -23,7 +23,6 @@ package org.jacorb.concurrency;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
-
 import org.omg.CosConcurrencyControl.LockCoordinator;
 import org.omg.CosConcurrencyControl.LockNotHeld;
 import org.omg.CosConcurrencyControl.TransactionalLockSet;

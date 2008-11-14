@@ -20,7 +20,8 @@
  */
 package org.jacorb.collection.util;
 
-import java.util.*;
+import java.util.Enumeration;
+import java.util.NoSuchElementException;
 
 public class DynArray 
 {

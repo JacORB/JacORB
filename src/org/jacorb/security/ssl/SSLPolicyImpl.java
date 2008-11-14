@@ -20,12 +20,11 @@
  */
 package org.jacorb.security.ssl;
 
-import org.omg.CORBA.LocalObject;
-import org.omg.CORBA.Policy;
-
 import org.jacorb.ssl.SSLPolicy;
 import org.jacorb.ssl.SSLPolicyValue;
 import org.jacorb.ssl.SSL_POLICY_TYPE;
+import org.omg.CORBA.LocalObject;
+import org.omg.CORBA.Policy;
 
 public class SSLPolicyImpl 
         extends LocalObject 

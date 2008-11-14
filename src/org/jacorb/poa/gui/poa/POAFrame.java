@@ -20,12 +20,14 @@ package org.jacorb.poa.gui.poa;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import org.jacorb.poa.gui.*;
-import org.jacorb.poa.gui.beans.*;
-import org.jacorb.poa.util.*;
-
-import java.awt.Label;
 import java.awt.Color;
+import java.awt.Label;
+import org.jacorb.poa.gui.POAMonitorController;
+import org.jacorb.poa.gui.beans.DoubleListDialog;
+import org.jacorb.poa.gui.beans.FillLevelBar;
+import org.jacorb.poa.gui.beans.MessageDialog;
+import org.jacorb.poa.util.POAUtil;
+import org.jacorb.poa.util.StringPair;
 
 /**
  * Implements the org.jacorb.poa.gui.POAView interface

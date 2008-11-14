@@ -20,13 +20,14 @@ package org.jacorb.orb.policies;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import org.apache.avalon.framework.logger.Logger;
 import org.jacorb.config.Configuration;
 import org.jacorb.util.ObjectUtil;
 import org.omg.CORBA._PolicyManagerLocalBase;
-
-import org.apache.avalon.framework.logger.*;
-
-import java.util.*;
 
 /**
  * Implementation of the ORB-level policy management interface as per

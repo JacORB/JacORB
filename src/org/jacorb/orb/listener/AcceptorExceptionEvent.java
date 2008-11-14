@@ -20,8 +20,8 @@
 
 package org.jacorb.orb.listener;
 
-import org.omg.CORBA.ORB;
 import java.util.EventObject;
+import org.omg.CORBA.ORB;
 
 /**
  * <code>AcceptorExceptionEvent</code> defines an event state object for a

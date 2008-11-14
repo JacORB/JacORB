@@ -20,8 +20,11 @@
  */
 package org.jacorb.orb.policies;
 
-import org.omg.CORBA.*;
-import org.omg.Messaging.*;
+import org.omg.CORBA.Policy;
+import org.omg.Messaging.ROUTING_POLICY_TYPE;
+import org.omg.Messaging.RoutingTypeRange;
+import org.omg.Messaging.RoutingTypeRangeHelper;
+import org.omg.Messaging._RoutingPolicyLocalBase;
 
 public class RoutingPolicy extends _RoutingPolicyLocalBase
 {

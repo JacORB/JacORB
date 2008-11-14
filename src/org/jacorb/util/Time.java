@@ -21,8 +21,10 @@ package org.jacorb.util;
  *
  */
 
-import org.omg.TimeBase.*;
-import org.jacorb.orb.*;
+import org.jacorb.orb.CDRInputStream;
+import org.jacorb.orb.CDROutputStream;
+import org.omg.TimeBase.UtcT;
+import org.omg.TimeBase.UtcTHelper;
 
 /**
  * Contains static methods to handle CORBA time values.

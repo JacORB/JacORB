@@ -27,7 +27,6 @@
 package org.jacorb.dds;
 
 import java.lang.reflect.Method;
-
 import org.omg.CORBA.Any;
 import org.omg.CosEventChannelAdmin.EventChannel;
 import org.omg.CosEventChannelAdmin.EventChannelHelper;

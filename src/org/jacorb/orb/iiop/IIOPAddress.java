@@ -20,13 +20,14 @@ package org.jacorb.orb.iiop;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import java.net.*;
-
-import org.apache.avalon.framework.configuration.*;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+import org.apache.avalon.framework.configuration.Configuration;
+import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.logger.Logger;
-import org.jacorb.orb.etf.ProtocolAddressBase;
-import org.jacorb.orb.CDROutputStream;
 import org.jacorb.orb.CDRInputStream;
+import org.jacorb.orb.CDROutputStream;
+import org.jacorb.orb.etf.ProtocolAddressBase;
 
 /**
  * @author Andre Spiegel, Phil Mesnier

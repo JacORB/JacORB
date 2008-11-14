@@ -20,9 +20,40 @@
 
 package org.jacorb.idl.javamapping;
 
-import org.jacorb.idl.*;
-
 import java.util.Enumeration;
+import org.jacorb.idl.AliasTypeSpec;
+import org.jacorb.idl.AnyType;
+import org.jacorb.idl.ArrayTypeSpec;
+import org.jacorb.idl.ConstrTypeSpec;
+import org.jacorb.idl.Declaration;
+import org.jacorb.idl.Definition;
+import org.jacorb.idl.Definitions;
+import org.jacorb.idl.EnumType;
+import org.jacorb.idl.IDLTreeVisitor;
+import org.jacorb.idl.IdlSymbol;
+import org.jacorb.idl.Interface;
+import org.jacorb.idl.InterfaceBody;
+import org.jacorb.idl.Member;
+import org.jacorb.idl.MemberList;
+import org.jacorb.idl.Method;
+import org.jacorb.idl.Module;
+import org.jacorb.idl.NativeType;
+import org.jacorb.idl.ObjectTypeSpec;
+import org.jacorb.idl.OpDecl;
+import org.jacorb.idl.Operation;
+import org.jacorb.idl.ParamDecl;
+import org.jacorb.idl.ScopedName;
+import org.jacorb.idl.SequenceType;
+import org.jacorb.idl.SimpleTypeSpec;
+import org.jacorb.idl.Spec;
+import org.jacorb.idl.StringType;
+import org.jacorb.idl.StructType;
+import org.jacorb.idl.TypeDeclaration;
+import org.jacorb.idl.TypeDef;
+import org.jacorb.idl.TypeSpec;
+import org.jacorb.idl.UnionType;
+import org.jacorb.idl.Value;
+import org.jacorb.idl.VectorType;
 
 /*
  * The compiler backend for the IDL/Java mapping

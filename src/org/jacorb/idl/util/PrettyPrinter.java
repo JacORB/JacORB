@@ -3,7 +3,6 @@ package org.jacorb.idl.util;
 import java.io.File;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-
 import org.apache.log.Logger;
 import org.jacorb.idl.parser;
 import org.jacorb.util.ObjectUtil;

@@ -20,11 +20,10 @@ package org.jacorb.naming;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import  java.util.*;
-
+import java.util.Vector;
 import org.omg.CORBA.INTERNAL;
-import  org.omg.CosNaming.*;
-import  org.omg.CosNaming.NamingContextPackage.*;
+import org.omg.CosNaming.NameComponent;
+import org.omg.CosNaming.NamingContextPackage.InvalidName;
 
 /**
  * A convenience class for names and converting

@@ -20,8 +20,9 @@
 
 package org.jacorb.naming.namemanager;
 
-import org.omg.CosNaming.*;
-import org.jacorb.naming.*;
+import org.omg.CosNaming.Binding;
+import org.omg.CosNaming.BindingType;
+import org.omg.CosNaming.NameComponent;
 
 
 public class BindNode

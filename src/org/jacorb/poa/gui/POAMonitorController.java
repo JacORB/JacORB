@@ -1,6 +1,5 @@
 package org.jacorb.poa.gui;
 
-import org.jacorb.poa.util.ByteArrayKey;
 
 /*
  *        JacORB - a free Java ORB

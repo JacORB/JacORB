@@ -21,9 +21,9 @@ package org.jacorb.idl;
  */
 
 import java.io.PrintWriter;
-import org.jacorb.idl.runtime.long_token;
-import org.jacorb.idl.runtime.int_token;
 import java.math.BigInteger;
+import org.jacorb.idl.runtime.int_token;
+import org.jacorb.idl.runtime.long_token;
 
 /**
  * @author Gerald Brose

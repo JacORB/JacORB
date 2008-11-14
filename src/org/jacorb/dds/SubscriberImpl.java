@@ -29,7 +29,7 @@ package org.jacorb.dds;
 import java.lang.reflect.Method;
 import java.util.Iterator;
 import java.util.Vector;
-
+import org.omg.PortableServer.Servant;
 import org.omg.dds.DataReader;
 import org.omg.dds.DataReaderListener;
 import org.omg.dds.DataReaderQos;
@@ -48,7 +48,6 @@ import org.omg.dds.Topic;
 import org.omg.dds.TopicDescription;
 import org.omg.dds.TopicHelper;
 import org.omg.dds.TopicQos;
-import org.omg.PortableServer.Servant;
 
 /**
  * A Subscriber is the object responsible for the actual reception of the data resulting 

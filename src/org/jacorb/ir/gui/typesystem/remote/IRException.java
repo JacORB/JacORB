@@ -20,8 +20,11 @@
  */
 package org.jacorb.ir.gui.typesystem.remote;
 
-import org.omg.CORBA.*;
-import org.jacorb.ir.gui.typesystem.*;
+import org.jacorb.ir.gui.typesystem.AbstractContainer;
+import org.omg.CORBA.ExceptionDef;
+import org.omg.CORBA.ExceptionDefHelper;
+import org.omg.CORBA.IRObject;
+import org.omg.CORBA.StructMember;
 
 public class IRException 
     extends IRNode 

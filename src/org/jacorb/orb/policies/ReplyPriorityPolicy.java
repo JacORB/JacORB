@@ -20,8 +20,11 @@
  */
 package org.jacorb.orb.policies;
 
-import org.omg.CORBA.*;
-import org.omg.Messaging.*;
+import org.omg.CORBA.Policy;
+import org.omg.Messaging.PriorityRange;
+import org.omg.Messaging.PriorityRangeHelper;
+import org.omg.Messaging.REPLY_PRIORITY_POLICY_TYPE;
+import org.omg.Messaging._ReplyPriorityPolicyLocalBase;
 
 public class ReplyPriorityPolicy extends _ReplyPriorityPolicyLocalBase
 {

@@ -20,7 +20,7 @@
 
 package org.jacorb.ir;
 
-import java.io.*;
+import java.io.File;
 
 
 public class IRFilenameFilter

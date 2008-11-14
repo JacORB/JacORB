@@ -20,13 +20,11 @@
  */
 package org.jacorb.collection;
 
-import org.omg.CosCollection.*;
-import org.jacorb.collection.util.*;
-import java.util.*;
+import org.jacorb.collection.util.SortedVector;
+import org.omg.CosCollection.OperationsOperations;
+import org.omg.CosCollection.SortedRelation;
+import org.omg.CosCollection.SortedRelationOperations;
 import org.omg.PortableServer.POA;
-import org.omg.PortableServer.Servant;
-import org.omg.CORBA.Any;
-import org.omg.CORBA.AnyHolder;
 
 public class SortedRelationImpl 
     extends EqualityKeySortedCollectionImpl 

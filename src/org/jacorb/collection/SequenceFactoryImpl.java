@@ -21,7 +21,15 @@
 package org.jacorb.collection;
 
 import org.jacorb.util.ObjectUtil;
-import org.omg.CosCollection.*;
+import org.omg.CosCollection.CSequence;
+import org.omg.CosCollection.CSequenceHelper;
+import org.omg.CosCollection.CSequencePOATie;
+import org.omg.CosCollection.Collection;
+import org.omg.CosCollection.NVPair;
+import org.omg.CosCollection.Operations;
+import org.omg.CosCollection.OperationsOperations;
+import org.omg.CosCollection.ParameterInvalid;
+import org.omg.CosCollection.SequenceFactoryPOA;
 
 public class  SequenceFactoryImpl extends SequenceFactoryPOA implements IteratorFactory {
     public final static String IMPL_CATEGORY = "ArrayBased";

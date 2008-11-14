@@ -20,19 +20,21 @@ package org.jacorb.orb.dii;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
+import java.util.Iterator;
+import org.apache.avalon.framework.logger.Logger;
+import org.jacorb.orb.ORB;
+import org.jacorb.orb.giop.ClientConnection;
+import org.jacorb.orb.giop.RequestOutputStream;
+import org.jacorb.orb.portableInterceptor.ClientInterceptorIterator;
+import org.jacorb.orb.portableInterceptor.ClientRequestInfoImpl;
+import org.jacorb.orb.portableInterceptor.InterceptorManager;
 import org.omg.CORBA.Any;
 import org.omg.CORBA.INTERNAL;
 import org.omg.CORBA.NVList;
 import org.omg.CORBA.NamedValue;
 import org.omg.CORBA.TCKind;
-import org.omg.CORBA.portable.*;
-
-import org.apache.avalon.framework.logger.Logger;
-import org.jacorb.orb.ORB;
-import org.jacorb.orb.portableInterceptor.*;
-import org.jacorb.orb.giop.*;
-
-import java.util.Iterator;
+import org.omg.CORBA.portable.ApplicationException;
+import org.omg.CORBA.portable.RemarshalException;
 
 /**
  * DII requests

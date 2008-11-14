@@ -22,18 +22,20 @@
 package org.jacorb.orb;
 
 import java.util.Enumeration;
-
-import org.apache.avalon.framework.logger.*;
-
-import org.jacorb.orb.giop.*;
-import org.jacorb.orb.portableInterceptor.*;
-
+import org.apache.avalon.framework.logger.Logger;
+import org.jacorb.orb.giop.ReplyInputStream;
+import org.jacorb.orb.portableInterceptor.ClientInterceptorIterator;
+import org.jacorb.orb.portableInterceptor.ClientRequestInfoImpl;
+import org.jacorb.orb.portableInterceptor.InterceptorManager;
 import org.omg.CORBA.portable.ApplicationException;
 import org.omg.CORBA.portable.RemarshalException;
-import org.omg.IOP.ServiceContext;
 import org.omg.GIOP.ReplyHeader_1_2;
 import org.omg.GIOP.ReplyStatusType_1_2;
-import org.omg.PortableInterceptor.*;
+import org.omg.IOP.ServiceContext;
+import org.omg.PortableInterceptor.LOCATION_FORWARD;
+import org.omg.PortableInterceptor.SUCCESSFUL;
+import org.omg.PortableInterceptor.SYSTEM_EXCEPTION;
+import org.omg.PortableInterceptor.USER_EXCEPTION;
 
 /**
  * An instance of this class handles all interactions between one particular

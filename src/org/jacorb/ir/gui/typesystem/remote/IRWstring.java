@@ -20,7 +20,8 @@ package org.jacorb.ir.gui.typesystem.remote;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import org.omg.CORBA.*;
+import org.omg.CORBA.WstringDef;
+import org.omg.CORBA.WstringDefHelper;
 
 /**
  * @author Jerome Julius

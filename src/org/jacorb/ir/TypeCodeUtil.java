@@ -20,13 +20,10 @@ package org.jacorb.ir;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import org.omg.CORBA.TCKind;
-
-import org.jacorb.orb.TypeCode;
-
-import java.util.*;
-
+import java.util.Hashtable;
 import org.apache.avalon.framework.logger.Logger;
+import org.jacorb.orb.TypeCode;
+import org.omg.CORBA.TCKind;
 
 /**
  * @author Gerald Brose, FU Berlin

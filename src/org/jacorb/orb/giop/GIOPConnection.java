@@ -20,21 +20,24 @@
 
 package org.jacorb.orb.giop;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import org.apache.avalon.framework.configuration.Configuration;
+import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.logger.Logger;
-import org.apache.avalon.framework.configuration.*;
-
-import java.io.*;
-import java.util.*;
-
-import org.omg.GIOP.*;
-import org.omg.CORBA.NO_IMPLEMENT;
-import org.omg.CORBA.CompletionStatus;
-import org.omg.ETF.*;
-
-import org.jacorb.orb.SystemExceptionHelper;
 import org.jacorb.orb.BufferManager;
-import org.jacorb.orb.iiop.*;
-import org.jacorb.util.*;
+import org.jacorb.orb.SystemExceptionHelper;
+import org.jacorb.orb.iiop.IIOPConnection;
+import org.jacorb.util.ObjectUtil;
+import org.omg.CORBA.CompletionStatus;
+import org.omg.CORBA.NO_IMPLEMENT;
+import org.omg.ETF.BufferHolder;
+import org.omg.GIOP.MsgType_1_1;
+import org.omg.GIOP.ReplyStatusType_1_2;
 
 /**
  * GIOPConnection.java

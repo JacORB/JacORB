@@ -25,10 +25,14 @@ package org.jacorb.ir.gui.typesystem.remote;
  * 
  */
  
-import java.util.*;
-import org.omg.CORBA.*;
-import javax.swing.tree.*;
-import org.jacorb.ir.gui.typesystem.*;
+import org.jacorb.ir.gui.typesystem.AbstractContainer;
+import org.jacorb.ir.gui.typesystem.TypeSystemNode;
+import org.omg.CORBA.ExceptionDef;
+import org.omg.CORBA.IRObject;
+import org.omg.CORBA.OperationDef;
+import org.omg.CORBA.OperationDefHelper;
+import org.omg.CORBA.OperationMode;
+import org.omg.CORBA.ParameterDescription;
  
 public class IROperation extends IRNodeWithType implements AbstractContainer
 {

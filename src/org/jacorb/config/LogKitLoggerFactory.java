@@ -20,17 +20,23 @@ package org.jacorb.config;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import org.apache.avalon.framework.logger.Logger;
-import org.apache.avalon.framework.logger.LogKitLogger;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
+import java.util.HashMap;
+import java.util.Map;
 import org.apache.avalon.framework.configuration.ConfigurationException;
-
-import org.apache.log.*;
-import org.apache.log.format.*;
-import org.apache.log.output.io.*;
-import org.apache.log.output.io.rotate.*;
-
-import java.util.*;
-import java.io.*;
+import org.apache.avalon.framework.logger.LogKitLogger;
+import org.apache.avalon.framework.logger.Logger;
+import org.apache.log.Hierarchy;
+import org.apache.log.LogTarget;
+import org.apache.log.format.PatternFormatter;
+import org.apache.log.output.io.WriterTarget;
+import org.apache.log.output.io.rotate.RevolvingFileStrategy;
+import org.apache.log.output.io.rotate.RotateStrategyBySize;
+import org.apache.log.output.io.rotate.RotatingFileTarget;
 
 /**
  * JacORB logger factory that creates named Avalon loggers with logkit

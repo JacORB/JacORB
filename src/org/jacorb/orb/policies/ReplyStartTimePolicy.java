@@ -20,9 +20,11 @@
  */
 package org.jacorb.orb.policies;
 
-import org.omg.CORBA.*;
-import org.omg.Messaging.*;
-import org.omg.TimeBase.*;
+import org.omg.CORBA.Policy;
+import org.omg.Messaging.REPLY_START_TIME_POLICY_TYPE;
+import org.omg.Messaging._ReplyStartTimePolicyLocalBase;
+import org.omg.TimeBase.UtcT;
+import org.omg.TimeBase.UtcTHelper;
 
 public class ReplyStartTimePolicy extends _ReplyStartTimePolicyLocalBase
 {

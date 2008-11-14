@@ -23,11 +23,8 @@ package org.jacorb.orb.giop;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-
 import org.jacorb.orb.CDROutputStream;
 import org.jacorb.util.Time;
-import org.omg.CONV_FRAME.CodeSetContext;
-import org.omg.CONV_FRAME.CodeSetContextHelper;
 import org.omg.CORBA.MARSHAL;
 import org.omg.CORBA.PrincipalHelper;
 import org.omg.GIOP.MsgType_1_1;

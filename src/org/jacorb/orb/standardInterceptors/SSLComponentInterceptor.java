@@ -20,15 +20,19 @@
  */
 package org.jacorb.orb.standardInterceptors;
 
-import org.apache.avalon.framework.configuration.*;
+import org.apache.avalon.framework.configuration.Configurable;
+import org.apache.avalon.framework.configuration.Configuration;
+import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.logger.Logger;
-
-import org.omg.PortableInterceptor.*;
+import org.jacorb.orb.CDROutputStream;
+import org.jacorb.orb.ORB;
 import org.omg.CORBA.INTERNAL;
-import org.omg.IOP.*;
-import org.omg.SSLIOP.*;
-
-import org.jacorb.orb.*;
+import org.omg.IOP.TAG_INTERNET_IOP;
+import org.omg.IOP.TaggedComponent;
+import org.omg.PortableInterceptor.IORInfo;
+import org.omg.PortableInterceptor.IORInterceptor;
+import org.omg.SSLIOP.SSL;
+import org.omg.SSLIOP.SSLHelper;
 
 /**
  * This interceptor creates an ssl TaggedComponent

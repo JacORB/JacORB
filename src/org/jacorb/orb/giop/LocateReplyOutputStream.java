@@ -19,10 +19,14 @@ package org.jacorb.orb.giop;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import java.io.*;
 import org.omg.CORBA.MARSHAL;
-import org.omg.GIOP.*;
-import org.jacorb.orb.*;
+import org.omg.GIOP.LocateReplyHeader_1_0;
+import org.omg.GIOP.LocateReplyHeader_1_0Helper;
+import org.omg.GIOP.LocateReplyHeader_1_2;
+import org.omg.GIOP.LocateReplyHeader_1_2Helper;
+import org.omg.GIOP.LocateStatusType_1_0;
+import org.omg.GIOP.LocateStatusType_1_2;
+import org.omg.GIOP.MsgType_1_1;
 
 /**
  * @author Gerald Brose, FU Berlin

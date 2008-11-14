@@ -20,8 +20,7 @@
 
 package org.jacorb.orb.giop;
 
-import org.jacorb.orb.*;
-
+import org.jacorb.orb.ORB;
 import org.omg.CORBA.portable.RemarshalException;
 
 /**

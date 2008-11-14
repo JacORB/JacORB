@@ -22,12 +22,10 @@ package org.jacorb.transport;
 
 
 import java.net.Socket;
-
 import org.jacorb.orb.iiop.IIOPAddress;
 import org.jacorb.orb.iiop.IIOPConnection;
 import org.jacorb.orb.iiop.IIOPProfile;
 import org.jacorb.transport.iiop.Current;
-import org.omg.IOP.TAG_INTERNET_IOP;
 
 
 /**

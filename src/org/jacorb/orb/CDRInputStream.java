@@ -23,17 +23,19 @@ package org.jacorb.orb;
 import java.io.IOException;
 import java.io.Serializable;
 import java.math.BigDecimal;
-import java.util.*;
-
-import org.apache.avalon.framework.configuration.*;
-import org.apache.avalon.framework.logger.*;
-
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.SortedMap;
+import java.util.TreeMap;
+import org.apache.avalon.framework.configuration.Configuration;
+import org.apache.avalon.framework.configuration.ConfigurationException;
+import org.apache.avalon.framework.logger.Logger;
 import org.jacorb.orb.giop.CodeSet;
 import org.jacorb.orb.giop.GIOPConnection;
 import org.jacorb.util.ObjectUtil;
 import org.jacorb.util.Stack;
 import org.jacorb.util.ValueHandler;
-
 import org.omg.CORBA.BAD_PARAM;
 import org.omg.CORBA.INTERNAL;
 import org.omg.CORBA.MARSHAL;
@@ -42,9 +44,9 @@ import org.omg.CORBA.StructMember;
 import org.omg.CORBA.TCKind;
 import org.omg.CORBA.UnionMember;
 import org.omg.CORBA.ValueMember;
-import org.omg.CORBA.portable.IDLEntity;
 import org.omg.CORBA.TypeCodePackage.BadKind;
 import org.omg.CORBA.TypeCodePackage.Bounds;
+import org.omg.CORBA.portable.IDLEntity;
 
 /**
  * Read CDR encoded data

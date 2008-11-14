@@ -20,8 +20,9 @@
  */
 package org.jacorb.orb.portableInterceptor;
 
-import org.omg.PortableInterceptor.*;
-import org.omg.CORBA.*;
+import org.omg.CORBA.Any;
+import org.omg.CORBA.ORB;
+import org.omg.PortableInterceptor.InvalidSlot;
 
 /**
  * This is the current object for the portable

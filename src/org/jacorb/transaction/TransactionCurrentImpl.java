@@ -20,14 +20,28 @@
  */
 package org.jacorb.transaction;
 
+import java.util.Hashtable;
 import org.apache.avalon.framework.logger.Logger;
-
-import org.omg.CosTransactions.*;
-import org.omg.CosNaming.*;
-import org.omg.IOP.*;
 import org.jacorb.orb.ORB;
 import org.omg.CORBA.Any;
-import java.util.*;
+import org.omg.CosNaming.NameComponent;
+import org.omg.CosNaming.NamingContextExt;
+import org.omg.CosNaming.NamingContextExtHelper;
+import org.omg.CosTransactions.Control;
+import org.omg.CosTransactions.ControlHelper;
+import org.omg.CosTransactions.Current;
+import org.omg.CosTransactions.HeuristicHazard;
+import org.omg.CosTransactions.HeuristicMixed;
+import org.omg.CosTransactions.InvalidControl;
+import org.omg.CosTransactions.NoTransaction;
+import org.omg.CosTransactions.PropagationContext;
+import org.omg.CosTransactions.PropagationContextHelper;
+import org.omg.CosTransactions.Status;
+import org.omg.CosTransactions.SubtransactionsUnavailable;
+import org.omg.CosTransactions.TransIdentity;
+import org.omg.CosTransactions.TransactionFactory;
+import org.omg.CosTransactions.TransactionFactoryHelper;
+import org.omg.CosTransactions.otid_t;
 
 /**
  * This class represents the transaction current.

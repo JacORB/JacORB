@@ -20,7 +20,7 @@
 
 package org.jacorb.orb.dii;
 
-import java.util.*;
+import java.util.Vector;
 
 /**
  * @author Gerald Brose

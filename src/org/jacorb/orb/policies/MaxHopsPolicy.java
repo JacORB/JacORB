@@ -20,8 +20,9 @@
  */
 package org.jacorb.orb.policies;
 
-import org.omg.CORBA.*;
-import org.omg.Messaging.*;
+import org.omg.CORBA.Policy;
+import org.omg.Messaging.MAX_HOPS_POLICY_TYPE;
+import org.omg.Messaging._MaxHopsPolicyLocalBase;
 
 public class MaxHopsPolicy extends _MaxHopsPolicyLocalBase
 {

@@ -19,8 +19,10 @@
  */
 package org.jacorb.orb.etf;
 
-import java.io.*;
-
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InterruptedIOException;
+import java.io.OutputStream;
 import org.jacorb.util.ObjectUtil;
 
 /**

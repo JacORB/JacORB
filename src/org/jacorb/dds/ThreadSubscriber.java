@@ -32,7 +32,6 @@ package org.jacorb.dds;
 import java.lang.reflect.Method;
 import java.util.Iterator;
 import java.util.Vector;
-
 import org.omg.CORBA.Any;
 import org.omg.CosEventChannelAdmin.ConsumerAdmin;
 import org.omg.CosEventChannelAdmin.EventChannel;

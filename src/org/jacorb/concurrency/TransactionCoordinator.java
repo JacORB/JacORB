@@ -20,11 +20,21 @@ package org.jacorb.concurrency;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import org.omg.CosConcurrencyControl.*;
+import java.util.Enumeration;
+import java.util.Hashtable;
+import org.omg.CosConcurrencyControl.LockCoordinator;
+import org.omg.CosConcurrencyControl.LockCoordinatorHelper;
+import org.omg.CosTransactions.Coordinator;
+import org.omg.CosTransactions.HeuristicCommit;
+import org.omg.CosTransactions.HeuristicHazard;
+import org.omg.CosTransactions.HeuristicMixed;
+import org.omg.CosTransactions.HeuristicRollback;
+import org.omg.CosTransactions.NotPrepared;
+import org.omg.CosTransactions.ResourcePOA;
+import org.omg.CosTransactions.Status;
+import org.omg.CosTransactions.Vote;
 import org.omg.PortableServer.POA;
-import org.omg.PortableServer.POAPackage.*;
-import org.omg.CosTransactions.*;
-import java.util.*;
+import org.omg.PortableServer.POAPackage.ServantNotActive;
 
 class TransactionCoordinator extends ResourcePOA /* implements Runnable */ {
     static final int ACTIVE = 0;

@@ -20,21 +20,20 @@ package org.jacorb.poa;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import java.util.*;
-
+import java.util.Enumeration;
+import java.util.Hashtable;
+import java.util.Vector;
+import org.apache.avalon.framework.logger.Logger;
 import org.jacorb.poa.except.POAInternalError;
 import org.jacorb.poa.util.ByteArrayKey;
 import org.jacorb.poa.util.POAUtil;
 import org.jacorb.poa.util.StringPair;
-
 import org.omg.CORBA.OBJ_ADAPTER;
+import org.omg.PortableServer.Servant;
+import org.omg.PortableServer.ServantActivator;
 import org.omg.PortableServer.POAPackage.ObjectAlreadyActive;
 import org.omg.PortableServer.POAPackage.ObjectNotActive;
 import org.omg.PortableServer.POAPackage.ServantAlreadyActive;
-import org.omg.PortableServer.Servant;
-import org.omg.PortableServer.ServantActivator;
-
-import org.apache.avalon.framework.logger.Logger;
 
 /**
  * This class maps object id's to servants and vice versa.

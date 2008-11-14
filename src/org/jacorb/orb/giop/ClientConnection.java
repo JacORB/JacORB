@@ -23,12 +23,10 @@ package org.jacorb.orb.giop;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
-
 import org.apache.avalon.framework.logger.Logger;
 import org.jacorb.config.Configuration;
 import org.jacorb.orb.ParsedIOR;
 import org.jacorb.util.ObjectUtil;
-import org.omg.CONV_FRAME.CodeSetComponent;
 import org.omg.CONV_FRAME.CodeSetComponentInfo;
 
 /**

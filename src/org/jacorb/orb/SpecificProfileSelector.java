@@ -20,11 +20,12 @@ package org.jacorb.orb;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import java.util.*;
-import org.omg.ETF.Profile;
+import java.util.Iterator;
+import java.util.List;
 import org.jacorb.orb.giop.ClientConnectionManager;
-import org.omg.IOP.TAG_INTERNET_IOP;
 import org.jacorb.orb.iiop.IIOPProfile;
+import org.omg.ETF.Profile;
+import org.omg.IOP.TAG_INTERNET_IOP;
 
 /**
  * @author Steve Osselton
