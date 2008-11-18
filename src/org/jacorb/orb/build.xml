@@ -12,7 +12,7 @@
 
    &common;
 
-   <target name="all" depends="init, reference, listener, compile, dns, stdInterceptors" description="Compile the ORB files"/>
+   <target name="all" depends="init, reference, listener, compile, stdInterceptors" description="Compile the ORB files"/>
 
     <target name="template" depends="reference, listener" />
 
@@ -93,12 +93,6 @@
    <target name="stdInterceptors" >
       <ant antfile="${src}/org/jacorb/orb/standardInterceptors/build.xml" dir="${basedir}"/>
    </target>
-
-
-   <target name="dns" >
-      <ant antfile="${src}/org/jacorb/orb/dns/build.xml" dir="${basedir}"/>
-   </target>
-
 
     <target name="clean" depends="init">
         <delete>

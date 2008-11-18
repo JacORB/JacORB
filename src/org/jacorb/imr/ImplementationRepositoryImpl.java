@@ -438,9 +438,9 @@ public class ImplementationRepositoryImpl
                     // internal state due to server non-graceful
                     // shutdown. If the address is actively using by
                     // another server, the new endpoint(host, port)
-                    // will replace the old endpoint. 
+                    // will replace the old endpoint.
                     boolean enp_reused = server_table.poa_enp_reused (_poa.name, _poa.host, _poa.port);
-                    
+
                     // We can not determine if the address is really
                     // using based on the server table since it may
                     // not be updated. We still need ping the server.
@@ -1130,36 +1130,19 @@ public class ImplementationRepositoryImpl
                         new ServerSocket(endpoint_port);
                 }
 
-                org.jacorb.orb.dns.DNSLookup lookup =
-                    new org.jacorb.orb.dns.DNSLookup();
-                lookup.configure(configuration);
-
-                // First deal with DNS; if we are not using DNS do fallback.
                 if( endpoint_host.length() > 0 )
                 {
-                    address = lookup.inverseLookup(
-                        InetAddress.getByName( endpoint_host ) );
+                    address = endpoint_host;
                 }
                 else
                 {
-                    address = lookup.inverseLookup(
-                        InetAddress.getLocalHost() );
-                }
-
-                if( address == null )
-                {
-                    if( endpoint_host.length() > 0 )
-                    {
-                        address = endpoint_host;
-                    }
-                    else
-                    {
-                        address = InetAddress.getLocalHost().toString();
-                    }
+                    address = InetAddress.getLocalHost().toString();
                 }
 
                 if( address.indexOf("/") >= 0 )
+                {
                     address = address.substring(address.indexOf("/") + 1);
+                }
 
                 port = server_socket.getLocalPort();
 
@@ -1330,12 +1313,12 @@ public class ImplementationRepositoryImpl
                 case LocateStatusType_1_2._UNKNOWN_OBJECT:
                 case LocateStatusType_1_2._LOC_SYSTEM_EXCEPTION:
                 {
-                    
+
                     SystemException se = SystemExceptionHelper.read( lris );
                     if (enp_reused && (se instanceof org.omg.CORBA.OBJECT_NOT_EXIST))
                     {
                        // Endpoint is reused by another server and the new server
-                       // returned OBJECT_NOT_EXIST, so give up using this endpoint.  
+                       // returned OBJECT_NOT_EXIST, so give up using this endpoint.
                        // The return value can be interpreted as not available endpoint.
                        result = false;
                     }
