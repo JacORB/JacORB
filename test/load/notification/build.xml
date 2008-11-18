@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 
 <!DOCTYPE project [
-  <!ENTITY common SYSTEM "file:../../../etc/common.xml">
+  <!ENTITY common SYSTEM "../../../etc/common.xml">
 ]>
 
 <project name="notification-load" default="all" basedir="../../..">

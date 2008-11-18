@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 
-<!DOCTYPE project [ <!ENTITY common SYSTEM "file:../../common.xml"> ]>
+<!DOCTYPE project [ <!ENTITY common SYSTEM "../../common.xml"> ]>
 
 <project name="demo" default="all" basedir="../..">
 

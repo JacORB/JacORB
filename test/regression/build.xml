@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 
-<!DOCTYPE project [ <!ENTITY common SYSTEM "file:../../etc/common.xml"> ]>
+<!DOCTYPE project [ <!ENTITY common SYSTEM "../../etc/common.xml"> ]>
 
 <project name="regression-test" default="help" basedir="../../">
 
@@ -147,7 +147,6 @@
 
             <classpath>
                 <pathelement location="${classdir}"/>
-
                 <pathelement location="${testdir}/lib/ant-testutil.jar" />
                 <pathelement location="${testdir}/resources" />
             </classpath>
@@ -307,7 +306,7 @@
             testdir="${testdir}"
             clientversion="${jacorb.test.clientversion}"
             serverversion="${jacorb.test.serverversion}"
-            showoutput="false">
+            showoutput="true">
 
             <batchtest>
                 <fileset refid="jacorb.test.fileset" />
@@ -810,7 +809,7 @@ ${jacorb.test.outdir}
     <!--                   clean up                           -->
     <!-- ==================================================== -->
 
-    <target name="clean" depends="init" description="Remove all generated source files and class files">
+    <target name="clean" depends="test-init" description="Remove all generated source files and class files">
         <delete failonerror="false" includeemptydirs="true">
             <fileset dir="${classdir}" includes="**/*" />
             <fileset dir="${src}/generated" includes="**/*" />

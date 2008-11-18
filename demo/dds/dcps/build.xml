@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="iso-8859-1"?>
-<!DOCTYPE project [ <!ENTITY common SYSTEM "file:../../../etc/common.xml"> ]>
+<!DOCTYPE project [ <!ENTITY common SYSTEM "../../../etc/common.xml"> ]>
 
 <project name="DDS-demo" default="compile" basedir="../../..">
 	

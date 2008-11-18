@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 
 <!DOCTYPE project [
-  <!ENTITY common  SYSTEM "file:../../../../../../etc/common.xml">
-  <!ENTITY jmx     SYSTEM "file:../../../../../../etc/common-jmx.xml"> 
+  <!ENTITY common  SYSTEM "../../../../../../etc/common.xml">
+  <!ENTITY jmx     SYSTEM "../../../../../../etc/common-jmx.xml"> 
 ]>
 
 <!-- $Id$ -->

@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 
-<!DOCTYPE project [ <!ENTITY common SYSTEM "file:../../../../etc/common.xml"> ]>
+<!DOCTYPE project [ <!ENTITY common SYSTEM "../../../../etc/common.xml"> ]>
 
 <project name="idl" default="all" basedir="../../../..">
 

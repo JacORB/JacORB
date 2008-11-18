@@ -1,9 +1,9 @@
 <?xml version="1.0"?>
 
 <!DOCTYPE project [
-  <!ENTITY common  SYSTEM "file:../../../../etc/common.xml" >
-  <!ENTITY xdoclet SYSTEM "file:../../../../etc/common-xdoclet.xml" >
-  <!ENTITY jmx     SYSTEM "file:../../../../etc/common-jmx.xml" >
+  <!ENTITY common  SYSTEM "../../../../etc/common.xml" >
+  <!ENTITY xdoclet SYSTEM "../../../../etc/common-xdoclet.xml" >
+  <!ENTITY jmx     SYSTEM "../../../../etc/common-jmx.xml" >
 ]>
 
 <project name="notification" default="all" basedir="../../../..">
