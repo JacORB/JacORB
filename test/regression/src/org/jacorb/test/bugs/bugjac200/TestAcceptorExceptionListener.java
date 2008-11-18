@@ -1,5 +1,6 @@
 package org.jacorb.test.bugs.bugjac200;
 
+import javax.net.ssl.SSLException;
 import org.jacorb.orb.listener.AcceptorExceptionEvent;
 import org.jacorb.util.ObjectUtil;
 
@@ -9,25 +10,14 @@ import org.jacorb.util.ObjectUtil;
 public class TestAcceptorExceptionListener
     implements org.jacorb.orb.listener.AcceptorExceptionListener
 {
-    static boolean hasBeenCreated;
+    public static volatile boolean hasBeenCreated;
+    public static volatile boolean doShutdown;
     private static boolean hasBeenCalled;
-    static boolean doShutdown;
-    static boolean shuttingDown;
     private static final Object lock = new Object();
-
-    Class sslException;
 
     public TestAcceptorExceptionListener()
     {
         hasBeenCreated = true;
-
-        try
-        {
-            sslException =
-                ObjectUtil.classForName(
-                    "javax.net.ssl.SSLException");
-        }
-        catch(ClassNotFoundException cnf) {} // NOPMD
     }
 
     /**
@@ -35,12 +25,13 @@ public class TestAcceptorExceptionListener
      */
     public void exceptionCaught(AcceptorExceptionEvent exception)
     {
+        exception.getException().printStackTrace();
+
         if ((exception.getException() instanceof Error) ||
-            (sslException != null && sslException.isInstance(exception.getException())))
+            (exception.getException() instanceof SSLException))
         {
             if (doShutdown)
             {
-                shuttingDown = true;
                 exception.getORB().shutdown(true);
             }
         }
@@ -49,6 +40,13 @@ public class TestAcceptorExceptionListener
         {
             hasBeenCalled = true;
             lock.notifyAll();
+        }
+        try
+        {
+            Thread.sleep(1000);
+        }
+        catch (InterruptedException e)
+        {
         }
     }
 
@@ -76,6 +74,5 @@ public class TestAcceptorExceptionListener
         hasBeenCreated = false;
         hasBeenCalled  = false;
         doShutdown     = false;
-        shuttingDown   = false;
     }
 }

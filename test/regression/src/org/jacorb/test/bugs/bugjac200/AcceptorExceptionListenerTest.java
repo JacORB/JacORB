@@ -7,6 +7,7 @@ import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
+import org.jacorb.test.common.CommonSetup;
 import org.jacorb.test.common.ClientServerSetup;
 import org.jacorb.test.common.TestUtils;
 import org.jacorb.util.ObjectUtil;
@@ -29,50 +30,23 @@ import org.omg.PortableServer.POAHelper;
 public class AcceptorExceptionListenerTest extends TestCase
 {
     private ORB orb;
-    private boolean orbIsDown = false;
+    private volatile boolean orbIsDown = false;
 
     public static Test suite()
     {
         TestSuite suite = new TestSuite ("AcceptorExceptionListener Test");
 
-        try
-        {
-            ObjectUtil.classForName("com.sun.net.ssl.SSLContext");
-
-            suite.addTestSuite(AcceptorExceptionListenerTest.class);
-        }
-        catch (ClassNotFoundException e) {} //NOPMD
+        suite.addTestSuite(AcceptorExceptionListenerTest.class);
 
         return suite;
     }
 
     public void setUp() throws Exception
     {
-        Properties props = new Properties();
+        Properties props = CommonSetup.loadSSLProps("jsse_client_props", "jsse_client_ks");
+
         props.put("jacorb.implname",
                   "org.jacorb.test.bugs.bugjac200.AcceptorExceptionListenerTest");
-        props.put("jacorb.security.support_ssl", "on");
-        props.put("jacorb.security.ssl.client.supported_options", "60");
-        props.put("jacorb.security.ssl.client.required_options", "60");
-        props.put("jacorb.security.ssl.server.supported_options", "60");
-        props.put("jacorb.security.ssl.server.required_options", "60");
-        props.put
-        (
-            "jacorb.security.keystore",
-            (
-                    TestUtils.testHome() +
-                File.separatorChar + ".." +
-                File.separatorChar + ".." +
-                File.separatorChar + "demo" +
-                File.separatorChar + "ssl" +
-                File.separatorChar + "jsse_client_ks"
-            )
-        );
-        props.put("jacorb.security.keystore_password", "jsse_client_ks_pass");
-        props.put("jacorb.ssl.socket_factory",
-                  "org.jacorb.security.ssl.sun_jsse.SSLSocketFactory");
-        props.put("jacorb.ssl.server_socket_factory",
-                   "org.jacorb.security.ssl.sun_jsse.SSLServerSocketFactory");
         props.put("jacorb.security.ssl.server.cipher_suites",
                   "SSL_RSA_WITH_RC4_128_MD5");
         props.put("jacorb.security.ssl.client.cipher_suites",
@@ -152,6 +126,7 @@ public class AcceptorExceptionListenerTest extends TestCase
                 }
                 catch (Exception e)
                 {
+                    e.printStackTrace();
                     exception[0] = e;
                 }
             }
