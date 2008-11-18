@@ -147,32 +147,18 @@ public abstract class Contained
                 }
                 catch( NoSuchFieldException nsfe )
                 {
-                    //                    org.jacorb.util.Debug.output(2, nsfe );
                     return null;
                 }
             }
         }
         else if( exceptClass.isAssignableFrom( c ))
         {
-            /*
-            try
-            {
-            */
-                return new org.jacorb.ir.ExceptionDef(c,
-                                                      _defined_in,
-                                                      ir,
-                                                      loader,
-                                                      poa,
-                                                      logger);
-                /*
-            }
-            catch ( Exception e )
-            {
-                // debug:
-                e.printStackTrace();
-                return null;
-            }
-                */
+            return new org.jacorb.ir.ExceptionDef(c,
+                                                  _defined_in,
+                                                  ir,
+                                                  loader,
+                                                  poa,
+                                                  logger);
         }
         else if( idlClass.isAssignableFrom( c ) )
         {

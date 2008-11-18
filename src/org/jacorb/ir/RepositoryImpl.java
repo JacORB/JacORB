@@ -60,12 +60,13 @@ public class RepositoryImpl
     /** the IR logger instance */
     private Logger logger = null;
 
+    private boolean patchPragmaPrefix;
+
     /**
      *  constructor to launch a repository with the contents of <tt>classpath</tt>
      *
      *  @param classpath a classpath string made up of directories separated by ":"
      */
-
     public RepositoryImpl( String classpath,
                            String outfile,
                            //#ifjdk 1.2
@@ -148,9 +149,16 @@ public class RepositoryImpl
     {
         this.configuration = (org.jacorb.config.Configuration)myConfiguration;
         this.logger = configuration.getNamedLogger("jacorb.ir");
+        patchPragmaPrefix = configuration.getAttributeAsBoolean("jacorb.ir.patch_pragma_prefix", false);
     }
 
     // Repository
+
+    private String idToScopedName(String id)
+    {
+        return idToScopedName(id, patchPragmaPrefix);
+    }
+
 
     /**
      * convert a repository ID to a scoped name
@@ -158,14 +166,15 @@ public class RepositoryImpl
      * @return a scoped name, e.g. "::myModule::MyInterface", or null
      * if the id argument does not begin with "IDL:"
      */
-
-    private String idToScopedName( String id )
+    public static String idToScopedName( String id, boolean patchPrefix)
     {
         String scoped = "";
 
         if( !id.startsWith("IDL:") ||
             !id.endsWith( ":1.0"))
+        {
             return null;
+        }
 
         // strip "IDL:" and ":1.0")
 
@@ -173,15 +182,27 @@ public class RepositoryImpl
                                     id.lastIndexOf(':')).replace( fileSeparator, '/' );
 
         if( base.startsWith( "omg.org") )
+        {
             base = "org/omg" + base.substring( 7 );
+        }
+
+        if (patchPrefix)
+        {
+            int firstSeparator = base.indexOf('/');
+            if (firstSeparator >= 0)
+            {
+                base = base.substring(0, firstSeparator).replace('.', '/') + "/" + base.substring(firstSeparator + 1);
+            }
+        }
 
         StringTokenizer strtok = new StringTokenizer( base, "/" );
 
         for( int i = 0; strtok.hasMoreTokens(); i++ )
+        {
             scoped = scoped + "::" + strtok.nextToken();
+        }
 
         return scoped;
-
     }
 
     /**
@@ -281,12 +302,10 @@ public class RepositoryImpl
     /**
      * lookup a scoped name in the repository
      *
-     * @param name	the name to look for
+     * @param name  the name to look for
      * @return a reference to the item with the specified name
      * or null, if not found
      */
-
-
     public org.omg.CORBA.Contained lookup( String name )
     {
         if (this.logger.isDebugEnabled())
@@ -313,10 +332,9 @@ public class RepositoryImpl
      *         all containers contained in this repository, else search
      *         until the specified depth is reached
      * @param limit_type  limit the description to objects of this type
-     * @param exclude_inherited	exclude inherited items from the description
+     * @param exclude_inherited  exclude inherited items from the description
      * @return an array of items with the specified name
      */
-
     public org.omg.CORBA.Contained[] lookup_name(
                 String search_name,
                 int levels_to_search,
@@ -363,10 +381,9 @@ public class RepositoryImpl
     /**
      * list the contents of the repository
      * @param limit_type  limit the description to objects of this type
-     * @param exclude_inherited	exclude inherited items from the description
+     * @param exclude_inherited  exclude inherited items from the description
      * @return an array of items contained in this repository
      */
-
     public org.omg.CORBA.Contained[] contents(org.omg.CORBA.DefinitionKind limit_type,
                                               boolean exclude_inherited)
     {
@@ -404,11 +421,10 @@ public class RepositoryImpl
     /**
      * describe the contents of the repository
      * @param limit_type  limit the description to objects of this type
-     * @param exclude_inherited	exclude inherited items from the description
+     * @param exclude_inherited  exclude inherited items from the description
      * @param max_returned_objs   return only so many items
      * @return an array of descriptions
      */
-
     public org.omg.CORBA.ContainerPackage.Description[] describe_contents(
                            org.omg.CORBA.DefinitionKind limit_type,
                            boolean exclude_inherited,
@@ -581,16 +597,4 @@ public class RepositoryImpl
     {
         delegate.destroy();
     }
-
-
 }
-
-
-
-
-
-
-
-
-
-

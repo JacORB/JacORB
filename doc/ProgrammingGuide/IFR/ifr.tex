@@ -1,7 +1,7 @@
 %
 % IFR
 % $Id$
-% 
+%
 
 Run--time  type information  in CORBA  is  managed by  the ORB's  {\it
 Interface Repository}  (IR) component.  It allows  to request, inspect
@@ -195,8 +195,53 @@ FullInterfaceDescription}. Since structures are  passed by value and a
 descriptions,  no  further  ---possibly  remote  ---  invocations  are
 necessary for searching the structure.
 
+\section{Interaction between \#pragma prefix and -i2jpackage}
+\label{sec:ifr_pragma_i2jpackage}
 
-%%% Local Variables: 
+Generally any use of \emph{\#pragma prefix} or \emph{-i2jpackage} should be avoided.
+if you intend to use a IDL file with the Interface Repository.
+If there is no other option there is a property that allows you to
+circumvent that restriction in some cases.
+Note however that this is a non-standard extension.
+
+If, for example you have the following IDL file:
+\begin{verbatim}
+    #pragma prefix "org.jacorb.test"
+
+    module ir
+    {
+        typedef string StringAlias;
+        typedef sequence<StringAlias> StringAliasList;
+
+        struct TestStruct
+        {
+            StringAliasList stringList;
+        };
+    };
+\end{verbatim}
+
+As you want your generated java files to reside in the package \emph{org.jacorb.test.ir} you
+need to add \emph{-i2jpackage} as an argument to the \emph{idl} command.
+\cmdline{idl -ir -i2jpackage ir:org.jacorb.test.ir myIdlFile.idl}
+Now the generated files are in the directory org/jacorb/test/ir.
+
+As the IR starts it reads in the generated classes and implicitely creates
+their Repository ID's solely based on the directory structure.
+e.g. the struct TestStruct will get the Repository ID {\tt IDL:org/jacorb/test/ir/TestStruct:1.0}
+however the correct Repository ID is {\tt IDL:org.jacorb.test/ir/TestStruct:1.0}.
+
+This will make it impossible for you to lookup the correct Repository ID successfully.
+starting of the IR will fail if the IR itself needs to look up a Repository ID during start.
+
+As a workaround you can specify the property \emph{jacorb.ir.patch\_pragma\_prefix=on} to the IR server.
+this property will cause the IR to change the first component of a requested Repository ID (Repository ID's
+consists of multiple components delimited with '/' so its org.jacorb.test in this case).
+If the first component looks like a pragma prefix (contains multiple '.') the '.' will be changed to '/'.
+
+So the incoming request for {\tt IDL:org.jacorb.test/ir/TestStruct:1.0} will be
+changed to a request for {\tt IDL:org/jacorb/test/ir/TestStruct:1.0} so that the IR will be able to resolve that.
+
+%%% Local Variables:
 %%% mode: latex
 %%% TeX-master: "../ProgrammingGuide"
-%%% End: 
+%%% End:

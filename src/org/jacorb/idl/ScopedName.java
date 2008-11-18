@@ -533,21 +533,6 @@ public class ScopedName
             pack_name = s;
     }
 
-    private String qualify( String str )
-    {
-        if( str.charAt( 0 ) == '.' )
-        {
-            return ( str.substring( 1 ) );
-        }
-        else
-        {
-            if( !pack_name.equals( "" ) )
-                return ( pack_name + "." + str );
-            else
-                return str;
-        }
-    }
-
     /**
      * replace _name by the type name it stands for  (through
      * as many levels of typedef's as necessary) As a side effect,

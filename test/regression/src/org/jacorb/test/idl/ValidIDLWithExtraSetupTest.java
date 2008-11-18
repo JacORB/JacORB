@@ -161,8 +161,13 @@ public class ValidIDLWithExtraSetupTest extends AbstractIDLTestcase
 
     public void verify_bugJac44_idl(ClassLoader cl) throws Exception
     {
-    	Class clazz = cl.loadClass("apmInterface.SA_Connection");
-    	assertNotNull(clazz);
+        Class clazz = cl.loadClass("apmInterface.SA_Connection");
+        assertNotNull(clazz);
+    }
+
+    public void verify_scoping10_idl(ClassLoader cl) throws Exception
+    {
+        assertNotNull(cl.loadClass("myTestPackage.sMyStruct"));
     }
 
     public static Test suite()

@@ -310,6 +310,9 @@ public class AbstractIDLTestcase extends TestCase
         {
             // test if a verify_ method is available and invoke it
             String file = idlFile.getName().replaceAll("\\.", "_");
+
+             TestUtils.log("look for verify_" +  file);
+
             Method method = getClass().getMethod("verify_" + file, new Class[] {ClassLoader.class});
             method.invoke(this, new Object[] {cl});
         }

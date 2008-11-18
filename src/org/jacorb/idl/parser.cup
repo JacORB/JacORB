@@ -45,7 +45,6 @@ parser code
     private static final String NO_FINAL = "";
 
     public static String out_dir = ".";
-    // Use for org.omg only.
     static String package_prefix = null;
 
     static boolean parse_only = false;
@@ -280,13 +279,13 @@ parser code
                     useUncheckedNarrow = true;
                     continue;
                 }
-                if( argv[i].equals("-backend") || argv[i].equals("-addbackend")) 
+                if( argv[i].equals("-backend") || argv[i].equals("-addbackend"))
                 {
 					if (argv[i].equals("-addbackend"))
                     {
                     	addbackend = true;
                     }
-                
+
                     if( i+1 == argv.length || argv[i+1].charAt(0)=='-' )
                         usage(argv, "-backend");
 
@@ -344,11 +343,6 @@ parser code
                 if( argv[i].startsWith("-U"))
                 {
                         tmpUnDefines.put( argv[i].substring(2), "" );
-                        continue;
-                }
-                if( argv[i].equals("-omg"))
-                {
-                        package_prefix = "org.omg";
                         continue;
                 }
                 if( argv[i].equals("-cldc10"))
@@ -984,11 +978,11 @@ specification ::=
                      {
                          if (((org.jacorb.idl.parser)CUP$parser).addbackend)
                       	 {
-                        		// before the custom backend first use 
+                        		// before the custom backend first use
                         		// the default code generator for the Java Mapping
                               RESULT.print( new java.io.PrintWriter( java.lang.System.out ) );
                       	 }
-                     
+
                           // a custom backend was provided , so let's start
                           // the visitor
                           RESULT.accept( backend );
@@ -2110,7 +2104,7 @@ attr_dcl ::=
           RESULT.getRaisesExpr = new RaisesExpr();
           RESULT.setRaisesExpr = new RaisesExpr();
       :}
-  | READONLY ATTRIBUTE param_type_spec:pts simple_declarator:sd 
+  | READONLY ATTRIBUTE param_type_spec:pts simple_declarator:sd
           raises_expr_nonempty:re
       {:
           RESULT.readOnly = true;

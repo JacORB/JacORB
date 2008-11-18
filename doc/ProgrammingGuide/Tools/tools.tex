@@ -16,6 +16,10 @@ typedefs, structs, const declarations etc.  are mapped onto
 corresponding Java classes. Additionally, stubs and skeletons for all
 interface types in the IDL specification are generated.
 
+(The  IDL  parser  was   generated  with  Scott  Hudson's  CUP  parser
+generator.  The  LALR grammar for  the CORBA IDL  is in the  file {\tt
+org/jacorb/idl/parser.cup}.)
+
 \subsection*{Compiler Options}
 
 \begin{tabbing}
@@ -98,6 +102,7 @@ JDK's rmic stub generator\\
 \> \> (e.g., incorrectly empty inheritance clauses), includes -sloppy\_names.\\
 \end{tabbing}
 
+\subsection*{i2jpackage}
 The {\tt -i2jpackage} switch can be used to flexibly redirect
 generated Java classes into packages. Using this option, any IDL scope
 x can be replaced by one (or more) Java packages y. Specifying {\tt
@@ -107,9 +112,89 @@ e.g. an IDL identifier {\tt X::Y::ident} will be mapped to {\tt
   a.b.c.y.ident} in Java. It is also possible to specify a file
 containing these mappings using the {\tt -i2jpackagefile} switch.
 
-(The  IDL  parser  was   generated  with  Scott  Hudson's  CUP  parser
-generator.  The  LALR grammar for  the CORBA IDL  is in the  file {\tt
-org/jacorb/idl/parser.cup}.)
+\subsubsection{Example 1}
+
+given the following IDL definition
+\begin{verbatim}
+struct MyStruct
+{
+    long value;
+};
+\end{verbatim}
+Invoking idl without the i2jpackage option will generate (along with other
+files) the java file MyStruct.java
+\begin{verbatim}
+
+/**
+ * Generated from IDL struct "MyStruct".
+ *
+ * @author JacORB IDL compiler V 2.3, 18-Aug-2006
+ * @version generated at 07.12.2006 11:46:28
+ */
+
+public final class MyStruct
+        implements org.omg.CORBA.portable.IDLEntity
+{
+    [...]
+}
+\end{verbatim}
+
+Note that the class does not contain a package definition.
+
+The option -i2jpackage :com.acme will place any identifier without scope into
+the java package com.acme. Thus we get:
+\begin{verbatim}
+package com.acme;
+
+/**
+ * Generated from IDL struct "MyStruct".
+ *
+ * @author JacORB IDL compiler V 2.3, 18-Aug-2006
+ * @version generated at 07.12.2006 11:46:28
+ */
+
+public final class MyStruct
+        implements org.omg.CORBA.portable.IDLEntity
+{
+    [...]
+}
+\end{verbatim}
+
+\subsubsection{Example 2}
+
+\begin{verbatim}
+module outer
+{
+    struct OuterStruct
+    {
+        long value;
+    };
+
+    module inner
+    {
+        struct InnerStruct
+        {
+            long value;
+        };
+    };
+};
+\end{verbatim}
+
+If you're not using the i2jpackage option, the IDL compiler will generate
+the classes \emph{outer.OuterStruct} and \emph{outer.inner.InnerStruct}.
+
+Again using the i2jpackage it's possible to map IDL modules to different java
+packages.
+\cmdline{idl -i2jpackage outer:com.acme.outer} will generate the classes
+\emph{com.acme.outer.OuterStruct} and \emph{com.acme.outer.inner.InnerStruct}.
+
+\cmdline{idl -idjpackage inner:com.acme.inner} will generate the classes
+\emph{outer.OuterStruct} and \emph{outer.com.acme.inner.InnerStruct}.
+
+Note: See Section \ref{sec:ifr_pragma_i2jpackage} if you intend to use the
+i2jpackage option in conjunction with the JacORB IfR and are using \#pragma
+prefix statements in your IDL.
+
 
 \subsection*{Compiler Options}
 If one is building from Ant it is possible to invoke the compiler directly

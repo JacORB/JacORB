@@ -48,7 +48,6 @@ public class JacIDL
 
     private int _debuglevel;
     private boolean _generateir;
-    private boolean _omgprefix;
     private boolean _generateincluded;
     private boolean _parseonly;
     private boolean _noskel;
@@ -92,7 +91,6 @@ public class JacIDL
      */
     public void setDestdir(File dir)
     {
-
         _destdir = dir;
     }
 
@@ -102,7 +100,6 @@ public class JacIDL
      */
     public void setSrcdir(File dir)
     {
-
         _srcdir = dir;
     }
 
@@ -112,7 +109,6 @@ public class JacIDL
      */
     public void setIncludepath(Path path)
     {
-
         _includepath = path;
     }
 
@@ -136,17 +132,7 @@ public class JacIDL
      */
     public void setGenerateir(boolean flag)
     {
-
         _generateir = flag;
-    }
-
-    /**
-     * Set the flag to use the omg package prefix
-     * @param flag the flag
-     */
-    public void setOmgprefix(boolean flag)
-    {
-        _omgprefix = flag;
     }
 
     /**
@@ -155,7 +141,6 @@ public class JacIDL
      */
     public void setAll(boolean flag)
     {
-
         _generateincluded = flag;
     }
 
@@ -165,7 +150,6 @@ public class JacIDL
      */
     public void setParseonly(boolean flag)
     {
-
         _parseonly = flag;
     }
 
@@ -185,7 +169,6 @@ public class JacIDL
      */
     public void setNostub(boolean flag)
     {
-
         _nostub = flag;
     }
 
@@ -205,7 +188,6 @@ public class JacIDL
      */
     public void setSloppynames(boolean flag)
     {
-
         _sloppynames = flag;
     }
 
@@ -373,12 +355,6 @@ public class JacIDL
                 }
             }
             GlobalInputStream.setIncludePath(_includepath.toString());
-        }
-
-        // omg package prefix
-        if (_omgprefix)
-        {
-            parser.package_prefix = "org.omg";
         }
 
         // Add the i2jpackage values to the parser

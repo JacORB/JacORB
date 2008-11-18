@@ -1,0 +1,12 @@
+#pragma prefix "org.jacorb.test"
+
+module ir
+{
+    typedef string StringAlias;
+    typedef sequence<StringAlias> StringAliasList;
+
+    struct TestStruct
+    {
+        StringAliasList stringList;
+    };
+};

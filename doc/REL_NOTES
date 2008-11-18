@@ -29,7 +29,7 @@
 
         - Object Service implementations
                 - Interoperable Naming Service (with graphical interface)
-                - Trading Service (extension of Mark Spruiell's JTrader, 
+                - Trading Service (extension of Mark Spruiell's JTrader,
                   separately available).
                 - Notification and Event Service (by Alphonse Bendt)
                 - Transaction, collection and concurrency services
@@ -45,6 +45,10 @@ x.y
 ===
     - Fixes:
         - fix to allow interoperability with TAO persistent IOR's (#735)
+    - IDL Compiler:
+        - removed -omg option (#72,#98)
+    - Interface Repository:
+        - fix to allow IDL files that use #pragma prefix to be loaded into the IR (#367).
 
 2.3
 ===
