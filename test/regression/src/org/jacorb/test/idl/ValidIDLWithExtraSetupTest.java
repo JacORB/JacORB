@@ -23,6 +23,8 @@ package org.jacorb.test.idl;
 
 import java.io.File;
 import java.lang.reflect.Constructor;
+import java.lang.reflect.Method;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -30,6 +32,8 @@ import java.util.List;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 
+import org.jacorb.orb.CDRInputStream;
+import org.jacorb.orb.CDROutputStream;
 import org.jacorb.test.common.TestUtils;
 import org.omg.CORBA.Any;
 
@@ -170,6 +174,110 @@ public class ValidIDLWithExtraSetupTest extends AbstractIDLTestcase
         assertNotNull(cl.loadClass("myTestPackage.sMyStruct"));
     }
 
+   public void verify_bugJac516_idl(ClassLoader cl) throws Exception
+   {
+       Class helperClazz = cl.loadClass("bugJac516.MyFixedHelper");
+
+       verifyWriteMethod(helperClazz);
+
+       verifyReadMethod(helperClazz);
+
+       try
+       {
+           cl.loadClass("bugJac516.Helper");
+           fail();
+       }
+       catch(ClassNotFoundException e)
+       {
+       }
+   }
+
+   private void verifyReadMethod(Class helperClazz) throws Exception
+   {
+       final org.omg.CORBA.portable.InputStream in;
+       final BigDecimal result = new BigDecimal("432.1");
+
+       if (arguments.contains("deprecated"))
+       {
+           in = new CDRInputStream(null, new byte[0])
+           {
+               public BigDecimal read_fixed()
+               {
+                   return result;
+               }
+           };
+       }
+       else
+       {
+           in = new CDRInputStream(null, new byte[0])
+           {
+               public BigDecimal read_fixed(short digits, short scale)
+               {
+                   assertEquals(4, digits);
+                   assertEquals(1, scale);
+
+                   return result;
+               }
+           };
+       }
+
+       Method readMethod = helperClazz.getMethod("read", new Class[] {org.omg.CORBA.portable.InputStream.class});
+
+       if (arguments.contains("deprecated"))
+       {
+           // due to the extra modification of the point position in
+           // the deprecated version of the stubs we need to expect another
+           // result here.
+           assertEquals(new BigDecimal("43.21"), readMethod.invoke(null, new Object[] {in}));
+       }
+       else
+       {
+           assertEquals(result, readMethod.invoke(null, new Object[] {in}));
+       }
+   }
+
+   private void verifyWriteMethod(Class helperClazz) throws Exception
+   {
+       final org.omg.CORBA.portable.OutputStream out;
+       final boolean[] success = new boolean[1];
+
+       if (arguments.contains("deprecated"))
+       {
+           out = new CDROutputStream(org.omg.CORBA.ORB.init((String[])null, null))
+           {
+               public void write_fixed(BigDecimal value, short digits, short scale)
+               {
+                   fail("generated code should invoke deprecated write_fixed method");
+               }
+
+               public void write_fixed(BigDecimal b)
+               {
+                   success[0] = true;
+               }
+           };
+       }
+       else
+       {
+           out = new CDROutputStream(org.omg.CORBA.ORB.init((String[])null, null))
+           {
+               public void write_fixed(BigDecimal value, short digits, short scale)
+               {
+                   success[0] = true;
+               }
+
+               public void write_fixed(BigDecimal b)
+               {
+                   fail("generated code should invoke non deprecated write_fixed method");
+               }
+           };
+       }
+
+       Method writeMethod = helperClazz.getMethod("write", new Class[] {org.omg.CORBA.portable.OutputStream.class, BigDecimal.class});
+       writeMethod.invoke(null, new Object[] {out, new BigDecimal("321.2")});
+
+       assertTrue("write_fixed method wasn't invoked", success[0]);
+   }
+
     public static Test suite()
     {
         TestSuite suite = new TestSuite();
@@ -188,6 +296,18 @@ public class ValidIDLWithExtraSetupTest extends AbstractIDLTestcase
         suite.addTest(new ValidIDLWithExtraSetupTest(new String[] {"-ir", "-i2jpackage", "test:de.siemens.hyades.test"}, "bug514.idl"));
         suite.addTest(new ValidIDLWithExtraSetupTest(new String[] {"-i2jpackage", ":myTestPackage"}, TEST_HOME + "/idl/compiler/succeed/scoping10.idl"));
         suite.addTest(new ValidIDLWithExtraSetupTest(new String[] {"-i2jpackage", ":apmInterface"}, "bugJac44.idl"));
+        suite.addTest(new ValidIDLWithExtraSetupTest(new String[] {"-generate_helper", "deprecated"} , "bugJac516.idl"));
+
+        try
+        {
+            org.omg.CORBA.portable.InputStream.class.getMethod("read_fixed", new Class[] {short.class, short.class});
+            suite.addTest(new ValidIDLWithExtraSetupTest(new String[] {"-generate_helper", "portable"}, "bugJac516.idl"));
+        }
+        catch(Exception e)
+        {
+            System.out.println("1 test ignored because wrong org.omg.CORBA (not the ones provided by JacORB) classes are on the bootclasspath");
+        }
+        suite.addTest(new ValidIDLWithExtraSetupTest(new String[] {"-generate_helper", "jacorb"}, "bugJac516.idl"));
 
         return suite;
     }

@@ -102,11 +102,12 @@
 
             <sequential>
                 <jacidl
-                    srcdir="${idl}"
-                    ami_callback="@{ami}"
-                    destdir="${src}/generated"
-                    includepath="${basedir}/idl/omg"
-                    includes="@{includes}" />
+                   srcdir="${idl}"
+                   ami_callback="@{ami}"
+                   destdir="${src}/generated"
+                   includepath="${basedir}/idl/omg"
+                   includes="@{includes}"
+                   helpercompat="jacorb"/>
             </sequential>
         </macrodef>
 
@@ -176,7 +177,10 @@
                             **/RMITestServant.java,
                             org/jacorb/test/notification/**,
                             org/jacorb/test/jmx/**"
-            javac-classpathref="test.classpath.compile" />
+            javac-classpathref="test.classpath.compile">
+            <javac-bootclasspath>
+            </javac-bootclasspath>
+        </jacorb-javac>
     </target>
 
     <target name="build-rmi-fixjdk14" if="rmi.ShutdownUtilDelegate" >
@@ -639,6 +643,31 @@ ${jacorb.test.outdir}
     <!-- ==================================================== -->
     <!--                  run all tests                       -->
     <!-- ==================================================== -->
+
+    <target name="run-all-failed">
+       <fileset id="failed.tests.txt" dir="${jacorb.test.outdir}" >
+          <include name="TEST*.txt"/>
+          <exclude name="TEST-org.jacorb.test.AllTest.txt" />
+
+          <or>
+             <contains text="FAILED" />
+             <contains text="Caused an Error" />
+          </or>
+       </fileset>
+
+       <pathconvert property="jacorb.test.pattern" refid="failed.tests.txt">
+          <chainedmapper>
+             <flattenmapper />
+             <unpackagemapper from="TEST-*.txt" to="*.class" />
+          </chainedmapper>
+       </pathconvert>
+
+       <echo message="re running tests: ${jacorb.test.pattern}" />
+
+       <antcall target="run">
+          <param name="jacorb.test.pattern" value="${jacorb.test.pattern}" />
+       </antcall>
+    </target>
 
 
     <target name="run-all-with-coverage" >

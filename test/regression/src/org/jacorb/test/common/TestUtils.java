@@ -549,9 +549,12 @@ public class TestUtils
         {
             javaHome = javaHome.substring(0, javaHome.length() - 4);
         }
-        String cmd = javaHome + "/bin/javac -d " + dirCompilation + " -classpath " + classpath + " @" + file.getAbsolutePath();
+        String cmd = javaHome + "/bin/javac -d " + dirCompilation + " -bootclasspath " + classpath + ":" + System.getProperty("sun.boot.class.path") + " @" + file.getAbsolutePath();
         try
         {
+            TestUtils.log("[COMPILE] " + cmd);
+            TestUtils.log("[COMPILE] " + files.length + " java files");
+
             Process proc = Runtime.getRuntime().exec(cmd);
 
             int exit = proc.waitFor();

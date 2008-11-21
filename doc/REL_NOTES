@@ -43,13 +43,19 @@
 
 x.y
 ===
-    - Fixes:
-        - fix to allow interoperability with TAO persistent IOR's (#735)
+    - ORB:
+        - pass message details from UserException's as ServiceContext over the wire if
+          JacORB specific helper/skeleton code is used [-generate_helper jacorb] (JAC#144).
     - IDL Compiler:
+        - added option that allows to control the portability level of the generated helper classes
+          [-generate_helper deprecated|portable|jacorb] (JAC#516).
         - removed -omg option (#72,#98)
     - Interface Repository:
         - fix to allow IDL files that use #pragma prefix to be loaded into the IR (#367).
-
+    - Fixes:
+        - fix to allow interoperability with TAO persistent IOR's (#735)
+        - removed usage of the deprecated read_fixed/write_fixed methods from
+          the ORB core and generated code (JAC#516).
 2.3
 ===
     - ORB:

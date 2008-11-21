@@ -72,6 +72,7 @@
       <attribute name="javac-src" default="${src}" />
       <attribute name="javac-sourcepath" default="sourcepath.base" />
       <attribute name="javac-classpathref" default="path.base" />
+      <element name="javac-bootclasspath" optional="true" />
 
       <sequential>
          <echo message="Compiling for ${ant.project.name} (JDK v${java-source-version})"/>

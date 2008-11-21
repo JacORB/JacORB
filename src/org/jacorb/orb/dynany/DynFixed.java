@@ -80,15 +80,8 @@ public final class DynFixed
 
       typeCode = TypeCode.originalType( value.type() );
 
-      try
-      {
-         anyRepresentation = (org.jacorb.orb.Any)orb.create_any();
-         anyRepresentation.read_value( value.create_input_stream(), type());
-      }
-      catch( Exception e)
-      {
-         throw new InvalidValue(e.toString());
-      }
+      anyRepresentation = (org.jacorb.orb.Any)orb.create_any();
+      anyRepresentation.read_value( value.create_input_stream(), type());
    }
 
    public String get_value()
@@ -148,10 +141,8 @@ public final class DynFixed
          }
          fixed_value = new BigDecimal( val );
 
-         org.omg.CORBA.FixedHolder holder =
-            new org.omg.CORBA.FixedHolder( fixed_value );
-
-         org.omg.CORBA.TypeCode type = holder._type();
+         org.omg.CORBA.TypeCode type = orb.create_fixed_tc
+             ((short) fixed_value.precision(), (short)fixed_value.scale());
 
          if ( type.fixed_digits() > type().fixed_digits() )
          {

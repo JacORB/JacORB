@@ -23,6 +23,7 @@ package org.jacorb.orb;
 import java.io.IOException;
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -180,8 +181,8 @@ public class CDRInputStream
      * fixes RMI/IIOP related interoperability issues with the
      * sun the orb that occured
      * while receiving serialized collections.
-     * see mailing list for details:
-     * {@link http://lists.spline.inf.fu-berlin.de/mailman/htdig/jacorb-developer/2006-May/008251.html}
+     * see <a href="http://lists.spline.inf.fu-berlin.de/mailman/htdig/jacorb-developer/2006-May/008251.html">mailing list</a>
+     * for details.
      */
     private boolean sunInteropFix;
 
@@ -223,6 +224,11 @@ public class CDRInputStream
     {
         this( orb, buf );
         this.littleEndian = littleEndian;
+    }
+
+    public CDRInputStream(byte[] buffer)
+    {
+        this(null, buffer);
     }
 
     public CDRInputStream(byte[] buffer, boolean littleEndian)
@@ -830,23 +836,53 @@ public class CDRInputStream
         }
     }
 
-    public final BigDecimal read_fixed()
+    /**
+     * @deprecated use {@link #read_fixed(short, short)} instead
+     */
+    public BigDecimal read_fixed()
     {
         handle_chunking();
 
         final StringBuffer sb = new StringBuffer();
 
-        final int c = read_fixed_internal(sb);
+        final int signum = read_fixed_internal(sb, (short)-1);
 
-        final java.math.BigDecimal result =
-            new java.math.BigDecimal( new java.math.BigInteger( sb.toString()));
+        final BigDecimal result = new BigDecimal( new BigInteger( sb.toString()));
+
+        return read_fixed_negate(signum, result);
+    }
+
+    public BigDecimal read_fixed(short digits, short scale)
+     {
+        if (digits < 1)
+        {
+            throw new BAD_PARAM("digits must be a positive value: " + digits + ".");
+        }
+
+        if (scale < 0)
+        {
+            throw new BAD_PARAM("scale must be a non-negative value: " + scale +".");
+        }
+
+        if (scale > digits)
+        {
+            throw new BAD_PARAM("scale factor " + scale + " must be less than or equal to the total number of digits " + digits + ".");
+        }
+
+        handle_chunking();
+
+        final StringBuffer sb = new StringBuffer();
+
+        final int c = read_fixed_internal(sb, digits);
+
+        final BigDecimal result = new BigDecimal( new BigInteger( sb.toString()), scale);
 
         return read_fixed_negate(c, result);
     }
 
-    private BigDecimal read_fixed_negate(final int c, final java.math.BigDecimal result)
+    private BigDecimal read_fixed_negate(final int signum, final BigDecimal result)
     {
-        if( c == 0xD )
+        if( signum == 0xD )
         {
             return result.negate();
         }
@@ -854,7 +890,12 @@ public class CDRInputStream
         return result;
     }
 
-    private int read_fixed_internal(StringBuffer sb)
+    /**
+     * @param outBuffer a string representation of the read in fixed will be appended to the buffer.
+     * @param digits the number of expected digits the read in fixed should have. -1 means unlimited.
+     * @return the signum of the read in fixed (0xC or 0xD).
+     */
+    private int read_fixed_internal(StringBuffer outBuffer, short digits)
     {
         int b = buffer[pos++];
         int c = b & 0x0F; // second half byte
@@ -863,33 +904,29 @@ public class CDRInputStream
         while(true)
         {
             c = (b & 0xF0) >>> 4;
-            sb.append(c);
+
+            if (outBuffer.length() > 0 || c != 0)
+            {
+                outBuffer.append(c);
+            }
 
             c = b & 0x0F;
             if( c == 0xC || c == 0xD )
             {
                 break;
             }
-            sb.append(c );
+            outBuffer.append(c);
 
             b = buffer[pos++];
             index++;
         }
+
+        if (digits != -1 && (outBuffer.length() != digits))
+        {
+            throw new MARSHAL("unexpected number of digits: expected " + digits + " got " + outBuffer.length() + " " + outBuffer);
+        }
+
         return c;
-    }
-
-    public final java.math.BigDecimal read_fixed(short digits, short scale)
-    {
-        handle_chunking();
-
-        final StringBuffer sb = new StringBuffer();
-
-        final int c = read_fixed_internal(sb);
-
-        final java.math.BigDecimal result =
-            new java.math.BigDecimal( new java.math.BigInteger( sb.toString()), scale);
-
-        return read_fixed_negate(c, result);
     }
 
     public final float read_float()
@@ -2496,7 +2533,20 @@ public class CDRInputStream
                 }
                 case TCKind._tk_fixed:      // 28
                 {
-                    out.write_fixed (read_fixed());
+                    final short digits = typeCode.fixed_digits();
+                    final short scale = typeCode.fixed_scale();
+                    final BigDecimal value = read_fixed(digits, scale);
+
+                    if (out instanceof CDROutputStream)
+                    {
+                        CDROutputStream cdrOut = (CDROutputStream) out;
+                        cdrOut.write_fixed(value, digits, scale);
+                    }
+                    else
+                    {
+                        // TODO can we remove this? mixed usage orb classes from different vendors ...
+                        out.write_fixed (value);
+                    }
                     break;
                 }
                 case TCKind._tk_value:      // 29
@@ -2951,11 +3001,7 @@ public class CDRInputStream
     private Class loadClass(String className, final String codebase) throws ClassNotFoundException
     {
         Class clazz;
-        //#ifjdk 1.2
         ClassLoader clazzLoader = Thread.currentThread().getContextClassLoader();
-        //#else
-        //# ClassLoader ctxcl = null;
-        //#endif
 
         if (clazzLoader == null)
         {
@@ -2988,15 +3034,15 @@ public class CDRInputStream
 
         if (!sunInteropFix || chunk_size_tag > 0 && chunk_size_tag < MAX_BLOCK_SIZE)
         {
-            // valid chunk size: set the ending position of the chunk 
-        	chunk_end_pos = pos + chunk_size_tag;
+            // valid chunk size: set the ending position of the chunk
+            chunk_end_pos = pos + chunk_size_tag;
         }
-        else 
+        else
         {
-        	// reset buffer and remember that we're not within a chunk
-        	pos = savedPos;
-        	index = savedIndex;
-        	chunk_end_pos = -1;
+            // reset buffer and remember that we're not within a chunk
+            pos = savedPos;
+            index = savedIndex;
+            chunk_end_pos = -1;
         }
     }
 

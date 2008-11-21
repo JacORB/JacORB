@@ -821,6 +821,15 @@ try
                 ps.println( "\t\t\t{" );
                 ps.println( "\t\t\t\t_out = handler.createExceptionReply();" );
                 ps.println( "\t\t\t\t" + classNames[ i ] + "Helper.write(_out, _ex" + i + ");" );
+
+                if (parser.generatedHelperPortability == parser.HELPER_JACORB)
+                {
+                    ps.println("\t\t\t\tif (handler instanceof org.jacorb.orb.dsi.ServerRequest && !" + classNames[i]+ "Helper.id().equals(_ex" + i + ".getMessage()))");
+                    ps.println("\t\t\t\t{");
+                    ps.println("\t\t\t\t\t((org.jacorb.orb.giop.ReplyOutputStream)_out).addServiceContext (org.jacorb.orb.dsi.ServerRequest.createExceptionDetailMessage (_ex" + i + ".getMessage()));");
+                    ps.println("\t\t\t\t}");
+                }
+
                 ps.println( "\t\t\t}" );
             }
         }

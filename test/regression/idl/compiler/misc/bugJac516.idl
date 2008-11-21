@@ -1,0 +1,5 @@
+module bugJac516
+{
+    typedef fixed<4,1> MyFixed;
+    valuetype BoxedFixed MyFixed;
+};

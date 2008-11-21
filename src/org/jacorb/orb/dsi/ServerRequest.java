@@ -503,9 +503,9 @@ public class ServerRequest
      * Creates a ServiceContext for transmitting an exception detail message,
      * as per section 1.15.2 of the Java Mapping.
      */
-    private ServiceContext createExceptionDetailMessage (String message)
+    public static ServiceContext createExceptionDetailMessage (String message)
     {
-        final CDROutputStream out = new CDROutputStream(orb);
+        final CDROutputStream out = new CDROutputStream();
 
         try
         {

@@ -66,7 +66,7 @@ public class DynAnyFactoryImpl
 
 
     public org.omg.DynamicAny.DynAny create_dyn_any_from_type_code( org.omg.CORBA.TypeCode typeCode )
-    throws InconsistentTypeCode
+        throws InconsistentTypeCode
     {
         final org.omg.CORBA.TypeCode _type = TypeCode.originalType( typeCode );
 
@@ -132,12 +132,8 @@ public class DynAnyFactoryImpl
         }
         catch( org.omg.DynamicAny.DynAnyPackage.TypeMismatch itc )
         {
+            logger.debug("unexpected exception during create_dyn_any_from_type_code", itc);
             throw new InconsistentTypeCode();
         }
     }
 }
-
-
-
-
-

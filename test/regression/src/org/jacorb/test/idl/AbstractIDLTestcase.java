@@ -115,7 +115,9 @@ public class AbstractIDLTestcase extends TestCase
         final String details = writer.toString();
         try
         {
-            org.jacorb.idl.parser.compile(file, writer);
+            boolean success = org.jacorb.idl.parser.compile(file, writer);
+
+            assertTrue("parser didn't succeed", success);
 
             if (failureExpected)
             {

@@ -60,6 +60,8 @@ public class JacIDL
     private boolean _unchecked_narrow;
     private boolean _generateEnhanced;
     private boolean _generatediistubs;
+    private String helperCompatLevel;
+
 
     private List _defines = new ArrayList();
     private List _undefines = new ArrayList();
@@ -120,6 +122,11 @@ public class JacIDL
     public void setDebuglevel(int level)
     {
         _debuglevel = level;
+    }
+
+    public void setHelperCompat(String in)
+    {
+        helperCompatLevel = in;
     }
 
     // ****************************************************************
@@ -294,6 +301,15 @@ public class JacIDL
 
         parser.init ();
 
+        if (helperCompatLevel != null)
+        {
+            if (parser.parseGeneratedHelperPortability(helperCompatLevel) < 0)
+            {
+                throw new BuildException("attribute helperCompability has an invalid value: valid values are: deprecated, portable, jacorb. the default is deprecated.");
+            }
+            parser.generatedHelperPortability = parser.parseGeneratedHelperPortability(helperCompatLevel);
+        }
+
         // set destination directory
         if (! _destdir.exists ())
         {
@@ -409,7 +425,7 @@ public class JacIDL
             {
                 ex.printStackTrace();
             }
-            throw new BuildException();
+            throw new BuildException(ex);
         }
         catch (ParseException ex)
         {
@@ -417,7 +433,7 @@ public class JacIDL
             {
                 ex.printStackTrace();
             }
-            throw new BuildException();
+            throw new BuildException(ex);
         }
         catch (Exception ex)
         {
@@ -425,7 +441,7 @@ public class JacIDL
             {
                 ex.printStackTrace();
             }
-            throw new BuildException();
+            throw new BuildException(ex);
         }
     }
 

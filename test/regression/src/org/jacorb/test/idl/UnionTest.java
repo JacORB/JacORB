@@ -20,24 +20,18 @@ package org.jacorb.test.idl;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-
-import org.jacorb.test.common.ORBTestCase;
+import junit.framework.TestCase;
 
 /**
  * Union.java
  *
  * IDL parse tests.
  */
-
-public class UnionTest extends ORBTestCase
+public class UnionTest extends TestCase
 {
-	// need to initialize ORB as there's a static dependency between the
-	// singleton ORB and the standard ORB. otherwise BufferManager wouldn't
-	// be intialized properly.
    public void testUnionCheckTypeCode() throws Exception
    {
-	   org.omg.CORBA.TypeCode type = org.jacorb.test.bugs.BasicConfig.MOidpairHelper.type();
-
-	   assertEquals("value0",(((org.jacorb.orb.TypeCode)type).member_name(0)));
+       org.omg.CORBA.TypeCode type = org.jacorb.test.bugs.BasicConfig.MOidpairHelper.type();
+       assertEquals("value0",(((org.jacorb.orb.TypeCode)type).member_name(0)));
    }
 }

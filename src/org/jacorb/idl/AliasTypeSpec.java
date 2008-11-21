@@ -237,7 +237,8 @@ public class AliasTypeSpec
 
             try
             {
-                if (!(originalType.typeSpec() instanceof StringType) &&
+                if (!(originalType instanceof FixedPointType) &&
+                    !(originalType.typeSpec() instanceof StringType) &&
                     !(originalType.typeSpec() instanceof SequenceType) &&
                     ! originalTypeWasScopedName &&
                     !(originalType instanceof ConstrTypeSpec &&

@@ -1059,12 +1059,7 @@ public class CDROutputStream
         }
     }
 
-    public final void write_fixed(BigDecimal value, short digits, short scale)
-    {
-        write_fixed(value);
-    }
-
-    public final void write_fixed(final java.math.BigDecimal value)
+    public void write_fixed(BigDecimal value, short digits, short scale)
     {
         String v = value.unscaledValue().toString();
         byte [] representation;
@@ -1111,6 +1106,16 @@ public class CDROutputStream
         index += representation.length;
         pos += representation.length;
     }
+
+
+    /**
+     * @deprecated
+     */
+    public void write_fixed(final java.math.BigDecimal value)
+    {
+        write_fixed(value, (short)-1, (short)-1);
+    }
+
 
     public final void write_float(final float value)
     {
@@ -2344,7 +2349,20 @@ public class CDROutputStream
                 }
                 case TCKind._tk_fixed:      // 28
                 {
-                    write_fixed (input.read_fixed());
+                    final short digits = typeCode.fixed_digits();
+                    final short scale = typeCode.fixed_scale();
+                    final BigDecimal value;
+
+                    if (input instanceof CDRInputStream)
+                    {
+                        value = ((CDRInputStream)input).read_fixed(digits, scale);
+                    }
+                    else
+                    {
+                        // TODO can we remove this? mixed usage orb classes from different vendors ...
+                        value = input.read_fixed();
+                    }
+                    write_fixed(value, digits, scale);
                     break;
                 }
                 case TCKind._tk_value:      // 29
@@ -2635,7 +2653,7 @@ public class CDROutputStream
     private void write_value_internal(final java.io.Serializable value,
                                        final String repository_id)
     {
-    	write_previous_chunk_size();
+        write_previous_chunk_size();
         check(7,4);
         getValueMap().put(value, ObjectUtil.newInteger(pos));
 

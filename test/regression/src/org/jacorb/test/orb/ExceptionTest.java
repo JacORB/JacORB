@@ -29,20 +29,16 @@ public class ExceptionTest extends ClientServerTestCase
 
     protected void tearDown() throws Exception
     {
+        Thread.sleep(1000);
         server = null;
     }
 
     public static Test suite()
     {
-        TestSuite suite = new JacORBTestSuite("Client/server exception tests",
-                                              ExceptionTest.class);
+        TestSuite suite = new JacORBTestSuite("Client/server exception tests", ExceptionTest.class);
+        ClientServerSetup setup = new ClientServerSetup(suite, ExceptionServerImpl.class.getName());
 
-        ClientServerSetup setup =
-            new ClientServerSetup(suite,
-                                  "org.jacorb.test.orb.ExceptionServerImpl");
-
-        suite.addTest(new ExceptionTest("testRuntimeException", setup));
-        suite.addTest(new ExceptionTest("testUserException", setup));
+        TestUtils.addToSuite(suite, setup, ExceptionTest.class);
 
         return setup;
     }
@@ -53,7 +49,7 @@ public class ExceptionTest extends ClientServerTestCase
      * error message.
      * @jacorb-since cvs
      */
-    public void testRuntimeException()
+    public void _testRuntimeException()
     {
         try
         {
@@ -65,15 +61,15 @@ public class ExceptionTest extends ClientServerTestCase
             assertEquals("Server-side Exception: java.lang.RuntimeException: sample message", ex.getMessage());
         }
     }
-    
+
     /**
      * Checks if a user exception is properly reported back to the client.
      */
-    public void testUserException()
+    public void _testUserException1()
     {
         try
         {
-            server.throwUserException(77, "my sample message");
+            server.throwUserExceptionWithMessage1(77, "my sample message");
             fail("should have thrown NonEmptyException");
         }
         catch (NonEmptyException ex)
@@ -83,4 +79,33 @@ public class ExceptionTest extends ClientServerTestCase
         }
     }
 
+
+    public void _testUserException2()
+    {
+        try
+        {
+            server.throwUserException();
+            fail();
+        }
+        catch(MyUserException e)
+        {
+            // expected
+            assertEquals(MyUserExceptionHelper.id(), e.getMessage());
+        }
+    }
+
+    public void testUserExceptionWithData()
+    {
+        try
+        {
+            server.throwUserExceptionWithMessage2("sample reason", "sample message");
+            fail();
+        }
+        catch(MyUserException e)
+        {
+            // expected
+            assertEquals("sample reason", e.getMessage());
+            assertEquals("sample message", e.message);
+        }
+    }
 }

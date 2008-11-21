@@ -53,17 +53,23 @@ public class ValueBoxDecl
     public TypeDeclaration declaration()
     {
         return this;
-    };
+    }
 
     public String typeName()
     {
         if (typeName == null)
+        {
             setPrintPhaseNames();
+        }
 
         if (typeSpec.typeSpec() instanceof BaseType)
+        {
             return typeName;
+        }
         else
-            return typeSpec.typeSpec().typeName();
+        {
+            return unwindTypedefs(typeSpec).getJavaTypeName();
+        }
     }
 
     public String boxTypeName()
@@ -78,12 +84,10 @@ public class ValueBoxDecl
         return false;
     }
 
-
     public void set_included(boolean i)
     {
         included = i;
     }
-
 
     public void setPackage(String s)
     {
@@ -107,12 +111,10 @@ public class ValueBoxDecl
         enclosing_symbol = s;
     }
 
-
     public String toString()
     {
         return typeName();
     }
-
 
     public void parse()
     {
@@ -138,7 +140,6 @@ public class ValueBoxDecl
 
         parsed = true;
     }
-
 
     public String className()
     {
@@ -208,10 +209,14 @@ public class ValueBoxDecl
     private void printHolderClass(String className, PrintWriter ps)
     {
         if (Environment.JAVA14 && pack_name.equals(""))
+        {
             lexer.emit_warn
                 ("No package defined for " + className + " - illegal in JDK1.4", token);
+        }
         if (!pack_name.equals(""))
+        {
             ps.println("package " + pack_name + ";");
+        }
 
         ps.println("public" + parser.getFinalString() + " class " + className + "Holder");
         ps.println("\timplements org.omg.CORBA.portable.Streamable");
@@ -334,15 +339,13 @@ public class ValueBoxDecl
 
     private void printValueClass(String className, PrintWriter ps)
     {
-        String fullClassName = className;
-
         if (Environment.JAVA14 && pack_name.equals(""))
+        {
             lexer.emit_warn
                 ("No package defined for " + className + " - illegal in JDK1.4", token);
+        }
         if (!pack_name.equals(""))
         {
-            fullClassName = pack_name + "." + className;
-
             ps.println("package " + pack_name + ";");
         }
 
@@ -390,10 +393,12 @@ public class ValueBoxDecl
 
                 File dir = new File(path);
                 if (!dir.exists())
+                {
                     if (!dir.mkdirs())
                     {
                         org.jacorb.idl.parser.fatal_error("Unable to create " + path, null);
                     }
+                }
 
                 // print the mapped java class
                 PrintWriter decl_ps;
@@ -402,7 +407,6 @@ public class ValueBoxDecl
 
                 if (typeSpec.typeSpec() instanceof BaseType)
                 {
-
                     if (GlobalInputStream.isMoreRecentThan(f))
                     {
                         decl_ps = new PrintWriter(new java.io.FileWriter(f));
@@ -468,5 +472,28 @@ public class ValueBoxDecl
     public void accept(IDLTreeVisitor visitor)
     {
         visitor.visitValue(this);
+    }
+
+    private TypeSpec unwindTypedefs(TypeSpec typedef)
+    {
+        TypeSpec spec = typedef.typeSpec();
+        TypeSpec typeSpec2 = spec.typeSpec();
+
+        if (typeSpec2 instanceof ScopedName)
+        {
+            ScopedName scopedName = (ScopedName) typeSpec2;
+
+            TypeSpec resolvedTSpec = scopedName.resolvedTypeSpec();
+            //unwind any typedefs
+            while (resolvedTSpec instanceof AliasTypeSpec )
+            {
+                resolvedTSpec =
+                    ((AliasTypeSpec)resolvedTSpec).originalType();
+            }
+
+            return resolvedTSpec;
+        }
+
+        return typedef;
     }
 }

@@ -84,10 +84,10 @@ public class FixedPointType
 
     public int getTCKind()
     {
-    	return org.omg.CORBA.TCKind._tk_fixed;
+        return org.omg.CORBA.TCKind._tk_fixed;
     }
 
-    
+
     public TypeSpec typeSpec()
     {
         return this;
@@ -246,8 +246,24 @@ public class FixedPointType
 
         StringBuffer sb = new StringBuffer();
 
-        sb.append("\t\tjava.math.BigDecimal " + fixedName + "=" + strname + ".read_fixed();\n");
-        sb.append("\t\t" + var_name + " = " + fixedName + ".movePointLeft(" + scale + ");\n");
+        if (parser.generatedHelperPortability == parser.HELPER_DEPRECATED)
+        {
+            sb.append("\t\tjava.math.BigDecimal " + fixedName + "=" + strname + ".read_fixed();\n");
+            sb.append("\t\t" + var_name + " = " + fixedName + ".movePointLeft(" + scale + ");\n");
+        }
+        else if (parser.generatedHelperPortability == parser.HELPER_PORTABLE)
+        {
+            sb.append("\t\t" + var_name + "=" + strname + ".read_fixed((short)" + digits+ ", (short)" + scale+ ");\n");
+        }
+        else if (parser.generatedHelperPortability == parser.HELPER_JACORB)
+        {
+            sb.append("\t\t" + var_name + "=((org.jacorb.orb.CDRInputStream)" + strname + ").read_fixed((short)" + digits+ ", (short)" + scale+ ");\n");
+        }
+        else
+        {
+            assert false;
+        }
+
         return sb.toString();
     }
 
@@ -270,7 +286,23 @@ public class FixedPointType
         sb.append("\t\tjava.math.BigDecimal " + max + "= new java.math.BigDecimal(\"" + mb.toString() + "\");\n");
         sb.append("\t\tif (" + var_name + ".compareTo(" + max + ") != -1)\n");
         sb.append("\t\t\tthrow new org.omg.CORBA.DATA_CONVERSION(\"more than " + digits + " digits in fixed point value\");\n");
-        sb.append("\t\t" + strname + ".write_fixed(" + var_name + ");\n");
+
+        if (parser.generatedHelperPortability == parser.HELPER_DEPRECATED)
+        {
+            sb.append("\t\t" + strname + ".write_fixed(" + var_name + ");\n");
+        }
+        else if (parser.generatedHelperPortability == parser.HELPER_PORTABLE)
+        {
+            sb.append("\t\t" + strname + ".write_fixed(" + var_name + ", (short)" + digits + ", (short)" + scale + ");\n");
+        }
+        else if (parser.generatedHelperPortability == parser.HELPER_JACORB)
+        {
+            sb.append("\t\t((org.jacorb.orb.CDROutputStream)" + strname + ").write_fixed(" + var_name + ", (short)" + digits + ", (short)" + scale + ");\n");
+        }
+        else
+        {
+            assert false;
+        }
 
         return sb.toString();
     }

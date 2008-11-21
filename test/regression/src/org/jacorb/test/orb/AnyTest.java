@@ -747,12 +747,12 @@ public class AnyTest extends ClientServerTestCase
      */
     public void testCorrectClassOnBootclasspath() throws Exception
     {
-    	TypeCode typeCode = new FixedHolder(new BigDecimal("471.1"))._type();
+        TypeCode typeCode = new FixedHolder(new BigDecimal("471.1"))._type();
 
         String message = "probably using org.omg.CORBA.* from JDK, not JacORB"
                        + " (is JacORB on the bootclasspath?)";
-    	assertEquals (message, 4, typeCode.fixed_digits());
-    	assertEquals (message, 1, typeCode.fixed_scale());
+        assertEquals (message, 4, typeCode.fixed_digits());
+        assertEquals (message, 1, typeCode.fixed_scale());
     }
 
     /**
@@ -761,7 +761,7 @@ public class AnyTest extends ClientServerTestCase
     public void test_fixed1()
         throws Exception
     {
-        java.math.BigDecimal testValue = new java.math.BigDecimal("471.1");
+        BigDecimal testValue = new BigDecimal("471.1");
 
         Any outAny = setup.getClientOrb().create_any();
         outAny.insert_fixed(testValue,
@@ -778,27 +778,10 @@ public class AnyTest extends ClientServerTestCase
     /**
      * @see #testCorrectClassOnBootclasspath()
      */
-    public void test_fixed2() throws Exception
-    {
-        java.math.BigDecimal testValue = new java.math.BigDecimal("471.1");
-
-        Any outAny = setup.getClientOrb().create_any();
-        ((org.jacorb.orb.Any)outAny).insert_fixed(testValue);
-        assertEquals(testValue, outAny.extract_fixed());
-
-        Any inAny = server.bounce_any(outAny);
-
-        assertEquals(testValue, inAny.extract_fixed());
-        assertTrue(outAny.equal(inAny));
-    }
-
-    /**
-     * @see #testCorrectClassOnBootclasspath()
-     */
     public void test_fixed_streamable()
         throws Exception
     {
-        java.math.BigDecimal testValue = new java.math.BigDecimal("471.1");
+        BigDecimal testValue = new BigDecimal("471.1");
 
         Any outAny = setup.getClientOrb().create_any();
         outAny.insert_Streamable(new FixedHolder(testValue));
@@ -812,26 +795,24 @@ public class AnyTest extends ClientServerTestCase
 
     public void test_fixed_stream1()
     {
-        java.math.BigDecimal testValue = new java.math.BigDecimal("471.1");
+        BigDecimal testValue = new BigDecimal("471.1");
         Any any = setup.getClientOrb().create_any();
         any.type (setup.getClientOrb().create_fixed_tc((short)4,(short)1));
         any.create_output_stream().write_fixed (testValue);
         // don't bounce, because we want to extract from the
         // output stream we just created
-        java.math.BigDecimal outValue = any.extract_fixed();
-        assertEquals (testValue, outValue);
+        assertEquals (testValue, any.extract_fixed());
     }
 
     public void test_fixed_stream2()
     {
-        java.math.BigDecimal testValue = new java.math.BigDecimal("471.1");
+        BigDecimal testValue = new BigDecimal("471.1");
         Any any = setup.getClientOrb().create_any();
         any.type (setup.getClientOrb().create_fixed_tc((short)4,(short)1));
         ((CDROutputStream)any.create_output_stream()).write_fixed (testValue, (short)4, (short)1);
         // don't bounce, because we want to extract from the
         // output stream we just created
-        java.math.BigDecimal outValue = any.extract_fixed();
-        assertEquals (testValue, outValue);
+        assertEquals (testValue, any.extract_fixed());
     }
 
     public void test_object()

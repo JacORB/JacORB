@@ -25,6 +25,8 @@ import java.io.File;
 import java.io.PrintWriter;
 import java.util.Enumeration;
 import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -166,7 +168,7 @@ public class StructType
     {
     	return org.omg.CORBA.TCKind._tk_struct;
     }
-    
+
     public boolean basic()
     {
         return false;
@@ -467,18 +469,67 @@ public class StructType
         ps.println("\tpublic static " + type +
                     " read (final org.omg.CORBA.portable.InputStream in)");
         ps.println("\t{");
-        ps.println("\t\t" + type + " result = new " + type + "();");
+
         if (exc)
         {
-            ps.println("\t\tif (!in.read_string().equals(id())) throw new org.omg.CORBA.MARSHAL(\"wrong id\");");
-        }
-        if (memberlist != null)
-        {
-            for (Enumeration e = memberlist.v.elements(); e.hasMoreElements();)
+            ps.println("\t\tString id = in.read_string();");
+            ps.println("\t\tif (!id.equals(id())) throw new org.omg.CORBA.MARSHAL(\"wrong id: \" + id);");
+
+            if (parser.generatedHelperPortability == parser.HELPER_JACORB)
             {
-                Member m = (Member)e.nextElement();
-                Declarator d = m.declarator;
-                ps.println("\t\t" + m.type_spec.typeSpec().printReadStatement("result." + d.name(), "in"));
+                ps.println("\t\tif (in instanceof org.jacorb.orb.giop.ReplyInputStream)");
+                ps.println("\t\t{");
+                ps.println("\t\t\torg.jacorb.orb.giop.ReplyInputStream reply = (org.jacorb.orb.giop.ReplyInputStream) in;");
+                ps.println("\t\t\torg.omg.IOP.ServiceContext context = null;");
+                ps.println("\t\t\tif ( (context = reply.getServiceContext(org.omg.IOP.ExceptionDetailMessage.value)) != null)");
+                ps.println("\t\t\t{");
+                ps.println("\t\t\t\torg.jacorb.orb.CDRInputStream details = new org.jacorb.orb.CDRInputStream(context.context_data);");
+                ps.println("\t\t\t\tdetails.openEncapsulatedArray();");
+                ps.println("\t\t\t\tid = details.read_wstring();");
+                ps.println("\t\t\t}");
+                ps.println("\t\t}");
+            }
+
+            if (memberlist != null)
+            {
+                int x = 0;
+                for (Enumeration e = memberlist.v.elements(); e.hasMoreElements();)
+                {
+                    Member member = (Member)e.nextElement();
+                    TypeSpec typeSpec = member.type_spec.typeSpec();
+
+                    String var = "x" + x++;
+                    ps.println("\t\t" + typeSpec.getJavaTypeName() + " " + var + ";");
+                    ps.println("\t\t" + typeSpec.printReadStatement(var, "in"));
+                }
+            }
+
+            ps.print("\t\tfinal " + type + " result = new " + type + "(");
+            ps.print("id");
+
+            if (memberlist != null)
+            {
+                int x=0;
+                for (Enumeration e = memberlist.v.elements(); e.hasMoreElements(); e.nextElement())
+                {
+                    ps.print(", x" + x++);
+                }
+            }
+
+            ps.println(");");
+        }
+        else
+        {
+            ps.println("\t\t" + type + " result = new " + type + "();");
+
+            if (memberlist != null)
+            {
+                for (Enumeration e = memberlist.v.elements(); e.hasMoreElements();)
+                {
+                    Member m = (Member)e.nextElement();
+                    Declarator d = m.declarator;
+                    ps.println("\t\t" + m.type_spec.typeSpec().printReadStatement("result." + d.name(), "in"));
+                }
             }
         }
         ps.println("\t\treturn result;");
@@ -662,7 +713,7 @@ public class StructType
                 ps.println(")");
 
                 ps.println("\t{");
-                ps.println("\t\tsuper(" + fullClassName + "Helper.id()+ \" \" + _reason);");
+                ps.println("\t\tsuper(_reason);");
                 for (Enumeration e = memberlist.v.elements(); e.hasMoreElements();)
                 {
                     Member m = (Member)e.nextElement();

@@ -814,12 +814,6 @@ public final class Any
     }
 
     // fixed
-
-    public void insert_fixed (BigDecimal fixed)
-    {
-    	insert_fixed(fixed, new FixedHolder(fixed)._type());
-    }
-
    public void insert_fixed(BigDecimal fixed,
                             org.omg.CORBA.TypeCode type)
    {
@@ -851,9 +845,8 @@ public final class Any
           }
           BigDecimal tmp = new BigDecimal( val );
 
-          org.omg.CORBA.FixedHolder holder =
-             new org.omg.CORBA.FixedHolder( tmp );
-          org.omg.CORBA.TypeCode tc = holder._type();
+          org.omg.CORBA.TypeCode tc = ORB.init().create_fixed_tc
+              ((short)tmp.precision(), (short)tmp.scale());
 
           if ( tc.fixed_digits() > type.fixed_digits() )
           {
@@ -885,20 +878,20 @@ public final class Any
         }
         else if (value instanceof CDROutputStream)
         {
-        	final CDRInputStream inputStream = (CDRInputStream) create_input_stream();
-        	try
-        	{
-        		return inputStream.read_fixed(typeCode.fixed_digits(), typeCode.fixed_scale());
-        	}
-        	catch(BadKind e)
-        	{
-        		// shouldn't happen due to initial check above
-        		throw new INTERNAL("should not happen");
-        	}
-        	finally
-        	{
-        		inputStream.close();
-        	}
+            final CDRInputStream inputStream = (CDRInputStream) create_input_stream();
+            try
+            {
+                return inputStream.read_fixed(typeCode.fixed_digits(), typeCode.fixed_scale());
+            }
+            catch(BadKind e)
+            {
+                // shouldn't happen due to initial check above
+                throw new INTERNAL("should not happen");
+            }
+            finally
+            {
+                inputStream.close();
+            }
         }
         else
         {
@@ -1483,7 +1476,21 @@ public final class Any
                 }
                 case TCKind._tk_fixed:     // 28
                 {
-                    output.write_fixed(extract_fixed());
+                    if (output instanceof CDROutputStream)
+                    {
+                        try
+                        {
+                            ((CDROutputStream)output).write_fixed(extract_fixed(), typeCode.fixed_digits(), typeCode.fixed_scale());
+                        }
+                        catch(BadKind e)
+                        {
+                            throw new RuntimeException("should never happen", e);
+                        }
+                    }
+                    else
+                    {
+                        output.write_fixed(extract_fixed());
+                    }
                     break;
                 }
                 case TCKind._tk_value:      // 29
