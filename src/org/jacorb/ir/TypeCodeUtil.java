@@ -27,14 +27,14 @@ import org.omg.CORBA.TCKind;
 
 /**
  * @author Gerald Brose, FU Berlin
- * @version $Id$    
+ * @version $Id$
  */
- 
+
 public class TypeCodeUtil
 {
     private static Hashtable cache = new Hashtable();
 
-    static 
+    static
     {
             cache.put( "java.lang.String", new TypeCode( TCKind._tk_string ));
             cache.put( "org.omg.CORBA.String", new TypeCode( TCKind._tk_string ));
@@ -51,11 +51,11 @@ public class TypeCodeUtil
             cache.put( "java.lang.Character",new TypeCode( TCKind._tk_char));
             cache.put( "org.omg.CORBA.TypeCode",new TypeCode( TCKind._tk_TypeCode));
             cache.put( "org.omg.CORBA.Principal",new TypeCode( TCKind._tk_Principal));
-            cache.put( "org.omg.CORBA.Object", 
+            cache.put( "org.omg.CORBA.Object",
                        new TypeCode( TCKind._tk_objref,
-                                     "IDL:omg.org/CORBA/Object:1.0", 
+                                     "IDL:omg.org/CORBA/Object:1.0",
                                      "IDL:omg.org/CORBA/Object:1.0" ));
- 
+
     }
 
 
@@ -64,7 +64,7 @@ public class TypeCodeUtil
      * in order to get at nested types, as e.g. in array of arrays of arrays
      */
 
-    public static org.omg.CORBA.TypeCode getTypeCode( Class c, 
+    public static org.omg.CORBA.TypeCode getTypeCode( Class c,
                                                       java.lang.Object o,
                                                       Logger logger )
         throws ClassNotFoundException
@@ -77,9 +77,9 @@ public class TypeCodeUtil
      * in order to get at nested types, as e.g. in array of arrays of arrays
      */
 
-    public static org.omg.CORBA.TypeCode getTypeCode( Class c, 
+    public static org.omg.CORBA.TypeCode getTypeCode( Class c,
                                                       ClassLoader classLoader,
-                                                      java.lang.Object o, 
+                                                      java.lang.Object o,
                                                       String idlName,
                                                       Logger logger )
         throws ClassNotFoundException
@@ -88,7 +88,7 @@ public class TypeCodeUtil
 
         if (logger.isDebugEnabled())
         {
-            logger.debug("TypeCodes.getTypeCode for class : " + 
+            logger.debug("TypeCodes.getTypeCode for class : " +
                          typeName + " idlName: " + idlName);
         }
 
@@ -98,7 +98,7 @@ public class TypeCodeUtil
         else
             loader = c.getClassLoader(); // important for ir
 
-        org.omg.CORBA.TypeCode _tc = 
+        org.omg.CORBA.TypeCode _tc =
             (org.omg.CORBA.TypeCode)cache.get( typeName  );
         if( _tc != null )
         {
@@ -116,7 +116,7 @@ public class TypeCodeUtil
             }
         }
 
-        // debug: 
+        // debug:
         // System.out.println("- TypeCodes.getTypeCode for class : " + c.getName() );
         if( c.isPrimitive() )
         {
@@ -140,13 +140,13 @@ public class TypeCodeUtil
                 return new TypeCode( TCKind._tk_char );
             if( typeName.equals("wchar") )
                 return new TypeCode( TCKind._tk_wchar );
-            else 
+            else
             {
-                System.err.println("- TypeCode.getTypeCode, primitive class not found " + 
+                System.err.println("- TypeCode.getTypeCode, primitive class not found " +
                                    typeName );
                 return null;
             }
-        }       
+        }
 
         /* else */
 
@@ -154,44 +154,22 @@ public class TypeCodeUtil
         Class idlEntity = null;
         try
         {
-            //#ifjdk 1.2
-                tcClass = Class.forName("org.omg.CORBA.TypeCode", true, loader );
-                idlEntity = Class.forName("org.omg.CORBA.portable.IDLEntity", true, loader);
-            //#else
-            //# tcClass = Class.forName ("org.omg.CORBA.TypeCode");
-            //# idlEntity = Class.forName ("org.omg.CORBA.portable.IDLEntity");
-            //#endif
-
-            //tcClass = loader.loadClass( "org.omg.CORBA.TypeCode" );
-            //            idlEntity = loader.loadClass( "org.omg.CORBA.portable.IDLEntity" );
-        } 
+            tcClass = Class.forName("org.omg.CORBA.TypeCode", true, loader );
+            idlEntity = Class.forName("org.omg.CORBA.portable.IDLEntity", true, loader);
+        }
         catch ( ClassNotFoundException ce )
         {
             logger.fatalError("Can't load org.jacorb base classes!", ce);
             throw ce;
-            //System.exit(1);
-        } 
+        }
         int field_size = 0;
 
-        if ( tcClass.isAssignableFrom(c)) 
+        if ( tcClass.isAssignableFrom(c))
         {
-            /*
-            try 
-            {
-            */
-                return new TypeCode( TCKind._tk_TypeCode ); 
-                /*
-            } 
-            catch ( Exception e )
-            {
-                e.printStackTrace(); 
-                return null;
-            }
-                */
-        } 
-        else 
+            return new TypeCode( TCKind._tk_TypeCode );
+        }
+        else
         {
-
             if( idlName != null && idlName.length() > 0 )
             {
                 try
@@ -222,21 +200,17 @@ public class TypeCodeUtil
                         return new TypeCode(TCKind._tk_objref);
                     else if( idlName.equals( "org.omg.CORBA.TypeCode"))
                         return new TypeCode(TCKind._tk_TypeCode);
-                    
-                    //#ifjdk 1.2
-                        Class type = Class.forName( idlName + "Helper", true, loader);
-                    //#else
-                    //# Class type = Class.forName( idlName + "Helper" );
-                    //#endif
+
+                    Class type = Class.forName( idlName + "Helper", true, loader);
 
                     return (org.omg.CORBA.TypeCode)type.getDeclaredMethod(
-                                                    "type", 
+                                                    "type",
                                                     (Class[]) null).invoke( null, (Object[]) null );
                 }
                 catch( ClassNotFoundException cnfe )
                 {
                     logger.debug("Caught Exception", cnfe );
-                    throw new RuntimeException("Could not create TypeCode for: " + 
+                    throw new RuntimeException("Could not create TypeCode for: " +
                                                c.getName() + ", no helper class for " + idlName );
                 }
                 catch( Exception e )
@@ -245,45 +219,39 @@ public class TypeCodeUtil
                 }
             }
 
-            // debug: System.out.println("TypeCodes else: " + c.getName());
             if( idlEntity.isAssignableFrom(c))
             {
                 try
                 {
-                    Class resultHelperClass =
-                            //#ifjdk 1.2
-                                Class.forName( c.getName()+ "Helper", true, loader);
-                            //#else
-                            //# Class.forName( c.getName() + "Helper" );
-                            //#endif
+                    Class resultHelperClass = Class.forName( c.getName()+ "Helper", true, loader);
 
                     return (org.omg.CORBA.TypeCode)
                         resultHelperClass.getDeclaredMethod(
-                                                    "type", 
+                                                    "type",
                                                     (Class[]) null).invoke( null, (Object[]) null );
                 }
                 catch( Exception cnfe )
                 {
                     logger.error("Caught Exception", cnfe);
-                    throw new RuntimeException("Could not create TypeCode for: " + 
+                    throw new RuntimeException("Could not create TypeCode for: " +
                                                c.getName() );
                 }
             }
-            else 
+            else
             {
-                throw new RuntimeException("Could not create TypeCode for: " + 
+                throw new RuntimeException("Could not create TypeCode for: " +
                                            c.getName() + ", not an IDLEntity" );
             }
         }
-    } 
-    
+    }
+
     private static String idToIDL( String s )
     {
         if( s.startsWith("IDL:"))
             s = s.substring( 4, s.lastIndexOf(":") );
-        else 
+        else
             s = s.replace('.','/') + ":1.0";
-        
+
         StringBuffer sb = new StringBuffer( s );
         int i = 0;
         while( i < sb.length() )

@@ -69,11 +69,7 @@ public class RepositoryImpl
      */
     public RepositoryImpl( String classpath,
                            String outfile,
-                           //#ifjdk 1.2
                               java.net.URLClassLoader loader )
-                           //#else
-                           //# ClassLoader loader )
-                           //#endif
         throws Exception
     {
         def_kind = org.omg.CORBA.DefinitionKind.dk_Repository;
@@ -128,13 +124,8 @@ public class RepositoryImpl
 
         if (this.logger.isInfoEnabled())
         {
-            //#ifjdk 1.2
             java.net.URL urls[] = loader.getURLs();
-            //#else
-            //# java.net.URL urls[] = new java.net.URL[0];
-            //#endif
-            StringBuffer sb =
-                new StringBuffer("IR configured for class path: ");
+            StringBuffer sb = new StringBuffer("IR configured for class path: ");
             for( int i = 0; i < urls.length; i++ )
             {
                 sb.append( urls[i].toString() + "\n");
