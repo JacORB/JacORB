@@ -1,3 +1,43 @@
+2008-11-21  Nick Cross  <nick.cross@prismtech.com>
+
+	* bugs/AllTest.java, bugs/bugjac516/BugJac516Test.java,
+	common/TestUtils.java, idl/AbstractIDLTestcase.java,
+	idl/UnionTest.java, idl/ValidIDLWithExtraSetupTest.java,
+	orb/AnyTest.java, orb/ExceptionServerImpl.java,
+	orb/ExceptionTest.java, orb/dynany/DynAnyFixedTest.java:
+	PrismTech patch JAC144/JAC516/JAC443. Fixes/changes for
+	propagation of userexception message detail in service
+	contexts. Fixes for read/write fixed types.
+
+2008-11-18  Nick Cross  <nick.cross@prismtech.com>
+
+	* bugs/bugjac200/AcceptorExceptionListenerTest.java,
+	bugs/bugjac200/TestAcceptorExceptionListener.java:
+	JAC476 PTech patch back - simplify tests
+
+	* bugs/AllTest.java, bugs/bug367/BugJac367IRTest.java,
+	bugs/bug367/RepositoryImplTest.java, idl/AbstractIDLTestcase.java,
+	idl/ValidIDLWithExtraSetupTest.java:
+	Patch from PrismTech:
+	JAC72 Remove -omg flag from IDL compiler and solely use i2jpackage.
+	JAC367 Fixes for loading IDL into InterfaceRepository with pragma
+	prefix and i2jpackage.
+
+2008-11-13  Nick Cross  <nick.cross@prismtech.com>
+
+	* orb/CorbalocTest.java: Disable security for these tests
+
+	* orb/giop/ClientConnectionTest.java: Assert to match native code
+	set to match what the machine is actually running
+
+	* common/launch/JacORBLauncher.java: Add missing openStream.
+
+2008-11-13  Andre Spiegel  <spiegel@gnu.org>
+
+	* common/launch/JacORBLauncher.java (getTestProperties): Try first
+	to find the properties relative to jacorb.test.home. This way, the
+	resources folder does not necessarily need to be in the classpath.
+
 2008-11-13  Andre Spiegel  <spiegel@gnu.org>
 
 	* orb/ExceptionTest.java (testUserException): New testcase.
