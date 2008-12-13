@@ -1,3 +1,38 @@
+2008-11-25  Nick Cross  <nick.cross@prismtech.com>
+
+	* ir/IRServer.java, ir/RepositoryImpl.java, ir/TypeCodeUtil.java:
+	Remove #ifjdk markers
+
+2008-11-21  Nick Cross  <nick.cross@prismtech.com>
+
+	* idl/AliasTypeSpec.java, idl/FixedPointType.java,
+	idl/JacIDL.java, idl/OpDecl.java, idl/StructType.java,
+	idl/ValueBoxDecl.java, idl/parser.cup, orb/Any.java,
+	orb/CDRInputStream.java, orb/CDROutputStream.java,
+	orb/dsi/ServerRequest.java, orb/dynany/DynAnyFactoryImpl.java,
+	orb/dynany/DynFixed.java:
+	PrismTech patch JAC144/JAC516/JAC443. Fixes/changes for
+	propagation of userexception message detail in service
+	contexts. Fixes for read/write fixed types.
+
+2008-11-18  Nick Cross  <nick.cross@prismtech.com>
+
+	* imr/ImplementationRepositoryImpl.java, orb/build.xml:
+	PrismTech patch: JAC72 Remove redundant code.
+
+	* Fix XML include file referencing to remove warning.
+
+	* idl/JacIDL.java, idl/ScopedName.java, idl/parser.cup,
+	ir/Contained.java, ir/RepositoryImpl.java:
+	Patch from PrismTech:
+	JAC72 Remove -omg flag from IDL compiler and solely use i2jpackage.
+	JAC367 Fixes for loading IDL into InterfaceRepository with pragma
+	prefix and i2jpackage.
+
+2008-11-14  Nick Cross  <nick.cross@prismtech.com>
+
+	*  Eclipse clean imports.
+
 2008-11-11  Andre Spiegel  <spiegel@gnu.org>
 
 	* BufferManager.java (singletonConfigure): Synchronize, as
