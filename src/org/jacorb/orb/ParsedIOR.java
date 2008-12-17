@@ -23,34 +23,22 @@ package org.jacorb.orb;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
-import org.apache.avalon.framework.logger.Logger;
+import java.util.*;
+
 import org.jacorb.orb.util.CorbaLoc;
+
+import org.apache.avalon.framework.logger.Logger;
+
 import org.jacorb.util.ObjectUtil;
 import org.omg.CONV_FRAME.CodeSetComponentInfo;
 import org.omg.CONV_FRAME.CodeSetComponentInfoHelper;
 import org.omg.CORBA.BAD_PARAM;
 import org.omg.CORBA.CompletionStatus;
 import org.omg.CORBA.MARSHAL;
-import org.omg.CosNaming.NamingContextExt;
-import org.omg.CosNaming.NamingContextExtHelper;
-import org.omg.ETF.Profile;
-import org.omg.GIOP.IORAddressingInfo;
-import org.omg.GIOP.KeyAddr;
-import org.omg.GIOP.ProfileAddr;
-import org.omg.GIOP.ReferenceAddr;
-import org.omg.GIOP.TargetAddress;
-import org.omg.IOP.IOR;
-import org.omg.IOP.IORHelper;
-import org.omg.IOP.TAG_CODE_SETS;
-import org.omg.IOP.TAG_JAVA_CODEBASE;
-import org.omg.IOP.TAG_MULTIPLE_COMPONENTS;
-import org.omg.IOP.TAG_ORB_TYPE;
-import org.omg.IOP.TaggedComponent;
-import org.omg.IOP.TaggedComponentSeqHolder;
-import org.omg.IOP.TaggedProfile;
-import org.omg.IOP.TaggedProfileHolder;
+import org.omg.CosNaming.*;
+import org.omg.GIOP.*;
+import org.omg.IOP.*;
+import org.omg.ETF.*;
 
 /**
  * Class to convert IOR strings into IOR structures
@@ -101,13 +89,8 @@ public class ParsedIOR
             out.beginEncapsulatedArray();
             out.write_long(ORBConstants.JACORB_ORB_ID);
             components.addComponent
-            (
-                    new TaggedComponent
-                    (
-                            TAG_ORB_TYPE.value,
-                            out.getBufferCopy()
-                    )
-            );
+	      (new TaggedComponent (TAG_ORB_TYPE.value,
+				    out.getBufferCopy()));
         }
         finally
         {
@@ -129,6 +112,45 @@ public class ParsedIOR
 
         return new IOR(repId, tps);
     }
+
+  public static IOR createObjectIOR(org.omg.ETF.Profile[] profiles)
+  {
+    String repId = "IDL:omg.org/CORBA/Object:1.0";
+    List taggedProfileList = new ArrayList();
+    for (int count = 0; count < profiles.length; count++) {
+      if (profiles[count] == null) {
+	// safety first
+	continue;
+      }
+      TaggedComponentList components = new TaggedComponentList();
+
+      final CDROutputStream out = new CDROutputStream();
+      try
+        {
+	  out.beginEncapsulatedArray();
+	  out.write_long(ORBConstants.JACORB_ORB_ID);
+	  components.addComponent
+	    (new TaggedComponent (TAG_ORB_TYPE.value,
+				  out.getBufferCopy()));
+        }
+      finally {
+	out.close();
+      }
+
+      TaggedProfileHolder tp = new TaggedProfileHolder();
+      TaggedComponentSeqHolder tcs = new TaggedComponentSeqHolder();
+      tcs.value = components.asArray();
+
+      profiles[count].marshal(tp, tcs);
+      taggedProfileList.add(tp.value);
+    }
+    // copy the profiles into the IOR
+
+    TaggedProfile[] tps = new TaggedProfile[taggedProfileList.size()];
+    taggedProfileList.toArray(tps);
+
+    return new IOR(repId, tps);
+  }
 
     /**
     * This method replaces the unfiyTargetAddress method.
@@ -560,18 +582,18 @@ public class ParsedIOR
             }
         }
         else
-        {
-            Profile profile = corbaLoc.profileList[0];
-            if (profile == null)
-            {
-                return; // could not decode any address in list
-            }
+	  {
+	    if (corbaLoc.profileList.length == 0) {
+	      // no profiles found; no point continuing
+	      return;
+	    }
+	    for (int count = 0; count < corbaLoc.profileList.length; count++) {
+	      corbaLoc.profileList[count].set_object_key(corbaLoc.getKey());
+	    }
+	    ior = createObjectIOR(corbaLoc.profileList);
+	  }
 
-            profile.set_object_key(corbaLoc.getKey());
-            ior = createObjectIOR(profile);
-        }
-
-        decode(ior);
+	decode(ior);
     }
 
     private void parse_corbaname(String object_reference)

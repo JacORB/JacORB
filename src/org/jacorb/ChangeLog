@@ -1,3 +1,9 @@
+Wed Dec 17 18:05:26 UTC 2008  Ciju John  <johnc at ociweb dot com>
+
+        * orb/ParsedIOR.java:
+          Parser was discarding additional profiles during Object
+          creation. Modified to create multi-profile Objects.
+
 2008-11-25  Nick Cross  <nick.cross@prismtech.com>
 
 	* ir/IRServer.java, ir/RepositoryImpl.java, ir/TypeCodeUtil.java:
