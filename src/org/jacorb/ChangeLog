@@ -1,8 +1,8 @@
-Wed Dec 17 18:05:26 UTC 2008  Ciju John  <johnc at ociweb dot com>
+2008-12-17  Ciju John  <johnc@ociweb.com>
 
-        * orb/ParsedIOR.java:
-          Parser was discarding additional profiles during Object
-          creation. Modified to create multi-profile Objects.
+        * orb/ParsedIOR.java: Parser was discarding additional profiles
+	  during Object creation. Modified to create multi-profile
+	  Objects.
 
 2008-11-25  Nick Cross  <nick.cross@prismtech.com>
 
