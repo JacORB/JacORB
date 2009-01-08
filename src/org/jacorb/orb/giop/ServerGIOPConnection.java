@@ -70,7 +70,7 @@ public class ServerGIOPConnection
     }
 
 
-    /*
+    /**
      * Try an orderly shutdown of this connection by sending a
      * CloseConnection message.  The CORBA spec only allows us to
      * do that if we have no more pending messages for which we
@@ -136,8 +136,7 @@ public class ServerGIOPConnection
 
 
     /**
-     * <code>sendCloseConnection</code> sends a close connection message
-     * flushing the transport.
+     * Sends a close connection message flushing the transport.
      */
     private void sendCloseConnection()
     {
