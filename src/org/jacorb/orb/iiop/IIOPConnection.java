@@ -88,7 +88,27 @@ public abstract class IIOPConnection
         }
     }
 
-    public Socket getSocket() {
+    /**
+     * <code>hashCode</code> returns the hash code value for the object. It
+     * will return the hashCode of the underlying socket. If the socket is null
+     * or closed it will return hash of the IIOPConnection itself.
+     *
+     * Note - if this is changed this may break the context minikey system.
+     *
+     * @return an <code>int</code> value
+     */
+    public int hashCode()
+    {
+        // Can't use socket.isClosed as does not exist in 1.3
+        if (socket == null || (!connected))
+        {
+            return super.hashCode();
+        }
+        return socket.hashCode();
+    }
+
+    public Socket getSocket() 
+    {
         return socket;
     }
 }

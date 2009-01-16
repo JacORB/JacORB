@@ -79,7 +79,7 @@ public class ClientIIOPConnection
         retryInterval =
             configuration.getAttributeAsInteger("jacorb.retry_interval",500);
         doSupportSSL =
-            configuration.getAttribute("jacorb.security.support_ssl","off").equals("on");
+            configuration.getAttributeAsBoolean("jacorb.security.support_ssl", false);
         transportManager =
             this.configuration.getORB().getTransportManager();
 
@@ -139,6 +139,8 @@ public class ClientIIOPConnection
                 try
                 {
                     createSocket(time_out);
+
+                    socket.setTcpNoDelay(true);
 
                     if( timeout != 0 )
                     {
