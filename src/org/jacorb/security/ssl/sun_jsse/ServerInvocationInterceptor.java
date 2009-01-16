@@ -54,8 +54,6 @@ public class ServerInvocationInterceptor
 
     private String name = null;
 
-    // private org.jacorb.security.level2.CurrentImpl current = null;
-    // private SecAttributeManager attrib_mgr = null;
     private AttributeType type = null;
 
     private HashMap sessionCredentials = new HashMap();
@@ -68,9 +66,7 @@ public class ServerInvocationInterceptor
                                        org.jacorb.orb.ORB orb)
         throws ConfigurationException
     {
-        // this.current = (CurrentImpl) current;
         this.name = DEFAULT_NAME;
-        // attrib_mgr = SecAttributeManager.getInstance();
 
         type =
             new AttributeType( new ExtensibleFamily( (short)0, (short)1 ), AccessId.value );
@@ -139,9 +135,6 @@ public class ServerInvocationInterceptor
 
         if (sessionCredentials.containsKey(session))
         {
-//            ReceivedCredentialsImpl sessionRcvCredentials =
-//                (ReceivedCredentialsImpl)sessionCredentials.get(session);
-//            current.set_received_credentials(sessionRcvCredentials);
             if (logger.isDebugEnabled())
                 logger.info("Reusing SSL session credentials." );
             return;
@@ -161,8 +154,6 @@ public class ServerInvocationInterceptor
             }
         }
 
-//         KeyAndCert kac = null;
-
         try
         {
             javax.security.cert.X509Certificate[] certs =
@@ -178,7 +169,6 @@ public class ServerInvocationInterceptor
                     certificateFactory.generateCertificate( new ByteArrayInputStream( certs[i].getEncoded()));
             }
 
-//            kac = new KeyAndCert( null, newCerts );
         }
         catch( Exception e )
         {
@@ -192,56 +182,27 @@ public class ServerInvocationInterceptor
             }
             return;
         }
-
-//        if( kac.chain == null )
-//        {
-//            if (logger.isInfoEnabled())
-//                logger.info("Client sent no certificate chain!" );
-//
-//            return;
-//        }
-
-//        SecAttribute [] atts =
-//            new SecAttribute[]{attrib_mgr.createAttribute(kac, type)} ;
-//
-//        current.set_received_credentials( new ReceivedCredentialsImpl( atts ) );
     }
 
     public void send_reply( ServerRequestInfo ri )
     {
         removeAttribute();
-//        current.remove_received_credentials();
     }
 
     public void send_exception( ServerRequestInfo ri )
         throws ForwardRequest
     {
         removeAttribute();
-//        current.remove_received_credentials();
     }
 
     public void send_other( ServerRequestInfo ri )
         throws ForwardRequest
     {
         removeAttribute();
-//        current.remove_received_credentials();
     }
 
     private void removeAttribute()
     {
-//        ReceivedCredentials creds = current.received_credentials();
-//
-//        if (creds == null)
-//        {
-//            return;
-//        }
-//
-//        SecAttribute[] attributes = creds.get_attributes(
-//            new AttributeType[]{ type } );
-//
-//        if (attributes.length != 0)
-//        {
-//            attrib_mgr.removeAttribute(attributes[0]);
-//        }
+
     }
 }
