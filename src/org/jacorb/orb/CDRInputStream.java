@@ -1224,17 +1224,33 @@ public class CDRInputStream
 
         // read size (#bytes)
         int size = _read4int( littleEndian, buffer, pos);
+
+        if (size < 1)
+        {
+            throw new MARSHAL("invalid string size: " + size);
+        }
+
         int start = pos + 4;
 
         index += (size + 4);
         pos += (size + 4);
 
+        final int stringTerminatorPosition = start + size -1;
 
-        if ((size > 0) &&
-            (buffer[ start + size - 1 ] == 0))
+        if (buffer.length < stringTerminatorPosition + 1)
+        {
+            throw new MARSHAL("buffer too small");
+        }
+
+        if ((buffer[stringTerminatorPosition] == 0))
         {
             size --;
         }
+        else
+        {
+            throw new MARSHAL("unexpected string terminator value " + Integer.toHexString(buffer[stringTerminatorPosition]) + " at buffer index " + stringTerminatorPosition);
+        }
+
         // Optimize for empty strings.
         if (size == 0)
         {
@@ -1243,11 +1259,12 @@ public class CDRInputStream
 
         if(start + size > buffer.length)
         {
+            final String message = "Size (" + size + ") invalid for string extraction from buffer length of " + buffer.length + " from position " + start;
             if (logger.isDebugEnabled())
             {
-                logger.debug( "Size (" + size + ") invalid for string extraction from buffer length of " + buffer.length + " from position " + start);
+                logger.debug(message);
             }
-            throw new MARSHAL ("Invalid size for string extraction");
+            throw new MARSHAL(message);
         }
 
         if (codesetEnabled)
@@ -1259,7 +1276,7 @@ public class CDRInputStream
             }
             catch (java.io.UnsupportedEncodingException ex)
             {
-                if (logger != null && logger.isErrorEnabled())
+                if (logger.isErrorEnabled())
                 {
                     logger.error("Charset " + codeSet.getName() + " is unsupported");
                     result = "";

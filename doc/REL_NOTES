@@ -47,6 +47,8 @@ x.y
         - pass message details from UserException's as ServiceContext over the wire if
           JacORB specific helper/skeleton code is used [-generate_helper jacorb] (JAC#144).
         - Fix for iteration during shutdown (JAC#264).
+        - added more strict checking of correct string sizes during
+          demarshalling of CDR streams (JAC#288).
     - IDL Compiler:
         - added option that allows to control the portability level of the generated helper classes
           [-generate_helper deprecated|portable|jacorb] (JAC#516).
