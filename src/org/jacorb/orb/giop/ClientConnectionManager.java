@@ -21,6 +21,7 @@ package org.jacorb.orb.giop;
  */
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 
@@ -202,7 +203,7 @@ public class ClientConnectionManager
     {
         /* release all open connections */
 
-        for( Iterator i = connections.values().iterator(); i.hasNext(); )
+        for( Iterator i = new HashSet(connections.values()).iterator(); i.hasNext(); )
         {
             ((ClientConnection) i.next()).close();
         }
