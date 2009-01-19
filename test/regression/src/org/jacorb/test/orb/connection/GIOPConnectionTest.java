@@ -52,6 +52,7 @@ public class GIOPConnectionTest
     {
         TestSuite suite = new JacORBTestSuite ("GIOPConnection Test",
                                                GIOPConnectionTest.class);
+
         suite.addTest (new GIOPConnectionTest ("testGIOP_1_0_CorrectRefusing"));
         suite.addTest (new GIOPConnectionTest ("testGIOP_1_1_IllegalMessageType"));
         suite.addTest (new GIOPConnectionTest ("testGIOP_1_1_NoImplement"));
@@ -268,7 +269,7 @@ public class GIOPConnectionTest
                                      );
 
         //manually write the first half of the string "barbaz"
-        r_out.write_ulong( 6 ); //string length
+        r_out.write_ulong( 7 ); //string length
         r_out.write_octet( (byte) 'b' );
         r_out.write_octet( (byte) 'a' );
         r_out.write_octet( (byte) 'r' );
@@ -289,6 +290,7 @@ public class GIOPConnectionTest
         m_out.write_octet( (byte) 'b' );
         m_out.write_octet( (byte) 'a' );
         m_out.write_octet( (byte) 'z' );
+        m_out.write_octet( (byte) 0);
         m_out.insertMsgSize();
 
         messages.add( m_out.getBufferCopy() );
