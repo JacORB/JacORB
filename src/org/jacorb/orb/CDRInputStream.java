@@ -2849,10 +2849,16 @@ public class CDRInputStream
 
         for (int i = 0; i < repository_ids.length; i++)
         {
-            if (repository_ids[i].equals("IDL:omg.org/CORBA/WStringValue:1.0"))
+            if (repository_ids[i].equals(org.omg.CORBA.WStringValueHelper.id()))
             {
                 // special handling of strings, according to spec
                 result = read_wstring();
+                break;
+            }
+            else if(repository_ids[i].equals(org.omg.CORBA.StringValueHelper.id()))
+            {
+                // special handling of strings, according to spec
+                result = read_string();
                 break;
             }
             else if (repository_ids[i].startsWith("RMI:javax.rmi.CORBA.ClassDesc:"))
@@ -3072,6 +3078,27 @@ public class CDRInputStream
                                                    final String codebase)
     {
         return read_untyped_value ( new String[]{ read_repository_id() }, index, codebase);
+    }
+
+    /**
+     * Reads a value using the specified factory. The preceeding single RepositoryID is ignored.
+     * since the type information is most likely redundant.
+     * It is assumed that the tag and the codebase
+     * of the value have already been read.
+     */
+    private java.io.Serializable read_typed_value( final int index,
+                                                   final String codebase,
+                                                   final org.omg.CORBA.portable.BoxedValueHelper factory)
+    {
+        String repId = read_repository_id();
+
+        if (!factory.get_id().equals(repId))
+        {
+            // just to be sure.
+            throw new MARSHAL("unexpected RepositoryID. expected: " + factory.get_id() + " got: " + repId);
+        }
+
+        return factory.read_value(this);
     }
 
     /**

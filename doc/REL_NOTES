@@ -59,6 +59,8 @@ x.y
         - fix to allow interoperability with TAO persistent IOR's (#735)
         - removed usage of the deprecated read_fixed/write_fixed methods from
           the ORB core and generated code (JAC#516).
+        - fixed wstring valuetype interoperability issue with the sun orb (JAC#352).
+        
 2.3
 ===
     - ORB:

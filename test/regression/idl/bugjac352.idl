@@ -1,0 +1,27 @@
+#include <orb.idl>
+
+module org
+{
+    module jacorb
+    {
+        module test
+        {
+            module bugs
+            {
+                module bug352
+                {
+                    valuetype WStringValues sequence<::CORBA::WStringValue>;
+
+                    interface JAC352
+                    {
+                        ::CORBA::WStringValue bounce_wstringvalue(in ::CORBA::WStringValue value);
+
+                        ::CORBA::StringValue bounce_stringvalue(in ::CORBA::StringValue value);
+
+                        WStringValues bounce_wstrings(in WStringValues value);
+                    };
+                };
+            };
+        };
+    };
+};

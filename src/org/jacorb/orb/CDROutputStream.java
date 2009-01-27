@@ -43,9 +43,12 @@ import org.omg.CORBA.DATA_CONVERSION;
 import org.omg.CORBA.INTERNAL;
 import org.omg.CORBA.MARSHAL;
 import org.omg.CORBA.NO_IMPLEMENT;
+import org.omg.CORBA.StringValueHelper;
 import org.omg.CORBA.TCKind;
+import org.omg.CORBA.WStringValueHelper;
 import org.omg.CORBA.TypeCodePackage.BadKind;
 import org.omg.CORBA.TypeCodePackage.Bounds;
+import org.omg.CORBA.portable.BoxedValueHelper;
 import org.omg.IOP.IOR;
 import org.omg.IOP.IORHelper;
 import org.omg.IOP.TaggedProfile;
@@ -178,7 +181,7 @@ public class CDROutputStream
     private boolean chunkCustomRmiValuetypes = false;
     private int compactTypeCodes = 0;
     private boolean useIndirection = true;
-
+    
     /**
      * This stream is self-configuring, i.e. configure() is private
      * and only called from the constructor
@@ -203,7 +206,7 @@ public class CDROutputStream
 
         useIndirection =
            !( configuration.getAttribute("jacorb.interop.indirection_encoding_disable","off").equals("on"));
-
+        
         isMutatorEnabled = configuration.getAttribute("jacorb.iormutator", "").length() > 0;
 
         if (isMutatorEnabled)
@@ -2424,8 +2427,9 @@ public class CDROutputStream
             write_previous_chunk_size();
             check(7,4);
             getValueMap().put (value, ObjectUtil.newInteger(pos));
-            if ((value instanceof org.omg.CORBA.portable.IDLEntity) ||
-                (value instanceof java.lang.String))
+
+            if (((value instanceof org.omg.CORBA.portable.IDLEntity) ||
+                isSimpleString(value, factory)))
             {
                 write_long (0x7fffff00 | chunkingFlag);
             }
@@ -2433,7 +2437,11 @@ public class CDROutputStream
             {
                 // repository id is required for RMI: types
                 write_long (0x7fffff02 | chunkingFlag);
-                write_repository_id (RepositoryID.repId (value.getClass()));
+
+                // TODO repId could also be fetched by factory.get_id()
+                // check if it is really necessary to go via RepositoryID.repId
+                final String repId = RepositoryID.repId (value.getClass());
+                write_repository_id (repId);
             }
             start_chunk();
             factory.write_value (this, value);
@@ -2441,6 +2449,30 @@ public class CDROutputStream
         }
     }
 
+    /**
+     * check if the specified value may be marshalled as a simple string (length, value)
+     * or it should be encoded as a valuetype.
+     */
+    private boolean isSimpleString(Serializable value, BoxedValueHelper factory)
+    {
+        if (!(value instanceof String))
+        {
+            return false;
+        }
+
+        if (factory.get_id().equals(StringValueHelper.id()))
+        {
+            return false;
+        }
+
+        if (factory.get_id().equals(WStringValueHelper.id()))
+        {
+            return false;
+        }
+
+        return true;
+    }
+    
     public void write_value(final java.io.Serializable value,
                             final java.lang.Class clazz)
     {

@@ -23,6 +23,8 @@ package org.jacorb.ir;
 import java.util.StringTokenizer;
 import org.omg.CORBA.INTF_REPOS;
 import org.omg.CORBA.portable.BoxedValueHelper;
+import org.omg.CORBA.StringValueHelper;
+import org.omg.CORBA.WStringValueHelper;
 
 /**
  * This class builds CORBA repository IDs from Java classes
@@ -60,12 +62,18 @@ public class RepositoryID
         }
         else if (repId.startsWith ("IDL:"))
         {
-            String id = repId.substring (4, repId.lastIndexOf(':'))
-                        + ( suffix != null ? suffix : "" );
-            if (id.equals ("omg.org/CORBA/WStringValue"))
+            if (repId.equals(WStringValueHelper.id()))
             {
                 return "java.lang.String";
             }
+
+            if (repId.equals(StringValueHelper.id()))
+            {
+                return "java.lang.String";
+            }
+
+            final String id = repId.substring (4, repId.lastIndexOf(':'))
+                        + ( suffix != null ? suffix : "" );
 
             int    firstSlash = id.indexOf ("/");
             final String prefix;
@@ -113,16 +121,20 @@ public class RepositoryID
         int pos = 0;
         int index = -1;
 
-        while ((index = id.indexOf("\\U", pos)) != -1){
+        while ((index = id.indexOf("\\U", pos)) != -1)
+        {
             dest.append(id.substring(pos, index));
             pos = index + 6;
             // convert the hexa val in 4 char into one char
             char theChar = (char)(Integer.parseInt(id.substring(index+2, index+6), 16));
             dest.append(theChar);
         }
-        if (pos < id.length()) {
-          dest.append(id.substring(pos));
+        
+        if (pos < id.length()) 
+        {
+           dest.append(id.substring(pos));
         }
+        
         return dest.toString();
     }
 
@@ -147,7 +159,9 @@ public class RepositoryID
                                      ClassLoader loader)
     {
         if( s.indexOf("/") < 0)
+        {
             return s;
+        }
         java.util.StringTokenizer strtok =
             new java.util.StringTokenizer( s, "/" );
 
@@ -160,19 +174,35 @@ public class RepositoryID
             String sc = strtok.nextToken();
             Class c = null;
             if( sb.toString().length() > 0 )
+            {
                 c = loadClass (sb.toString() + "." + sc, loader);
+            }
             else
+            {
                 c = loadClass (sc, loader);
+            }
             if (c == null)
+            {
                 if( sb.toString().length() > 0 )
+                {
                     sb.append( "." + sc );
+                }
                 else
+                {
                     sb.append( sc );
+                }
+            }
             else
+            {
                 if( i < count-1)
+                {
                     sb.append( "." + sc + "Package");
+                }
                 else
+                {
                     sb.append( "." + sc );
+                }
+            }
         }
 
         return sb.toString();
@@ -192,7 +222,9 @@ public class RepositoryID
                 className.startsWith("org/omg") )
             {
                 if( className.length() > 7 )
+                {
                     body = className.substring(7);
+                }
                 return "IDL:omg.org/" + scopesToIR(body) + ":1.0";
             }
             return "IDL:" + scopesToIR(className) + ":1.0" ;
@@ -204,7 +236,9 @@ public class RepositoryID
     private static String scopesToIR( String s )
     {
         if( s.indexOf(".") < 0)
+        {
             return s;
+        }
         java.util.StringTokenizer strtok =
             new java.util.StringTokenizer( s, "." );
 
@@ -214,16 +248,22 @@ public class RepositoryID
         {
             String sc = strtok.nextToken();
             if( sc.endsWith("Package"))
+            {
                 scopes[i] = sc.substring(0,sc.indexOf("Package"));
+            }
             else
+            {
                 scopes[i] = sc;
+            }
         }
 
         StringBuffer sb = new StringBuffer();
         if( scopes.length > 1 )
         {
             for( int i = 0; i < scopes.length-1; i++)
+            {
                 sb.append( scopes[i] + "/" );
+            }
         }
 
         sb.append( scopes[scopes.length-1] );
