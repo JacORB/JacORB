@@ -1,3 +1,36 @@
+2009-03-03  Andre Spiegel  <spiegel@gnu.org>
+
+	* orb/iiop/IIOPProfile.java (addAlternateAddresses): New method,
+	reads new configuration option jacorb.iiop.alternate_addresses and
+	adds TAG_ALTERNATE_IIOP_ADDRESS values to the profile for it.
+	(configure): Use it.
+
+2009-01-27  Alexander Bykov  <alexander.bykov@prismtech.com>
+
+	* ir/RepositoryID.java, orb/CDRInputStream.java,
+	orb/CDROutputStream.java: Fixed wstring valuetype interoperability
+	issue with the sun orb (JAC#352)
+
+2009-01-16  Alexander Bykov  <alexander.bykov@prismtech.com>
+
+	* orb/iiop/ClientIIOPConnection.java, orb/iiop/IIOPConnection.java:
+	Fix for IIOPConenction - Test failures (JAC#329)
+
+	* orb/CDRInputStream.java: More strict checking of correct string
+	sizes during demarshalling of CDR streams (JAC#288) has been added
+
+	* orb/giop/ClientConnectionManager.java: Fix for iteration during
+	shutdown (JAC#264)
+
+	* orb/ORB.java,
+	security/ssl/sun_jsse/ServerInvocationInterceptor.java: Security
+	Classes Cleanup (JAC#190) - commented code has been removed
+
+2009-01-08  Andre Spiegel  <spiegel@gnu.org>
+
+	* orb/giop/ServerGIOPConnection.java (tryClose, tryDiscard):
+	Fix javadoc.
+
 2008-12-17  Ciju John  <johnc@ociweb.com>
 
         * orb/ParsedIOR.java: Parser was discarding additional profiles
