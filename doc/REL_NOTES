@@ -44,17 +44,24 @@
 x.y
 ===
     - ORB:
-        - pass message details from UserException's as ServiceContext over the wire if
-          JacORB specific helper/skeleton code is used [-generate_helper jacorb] (JAC#144).
+        - new configuration option jacorb.iiop.alternate_addresses,
+          allows adding TAG_ALTERNATE_IIOP_ADDRESS components to
+          IIOP profiles without using interceptors (thanks to
+          RemedyIT for suggestion and sponsoring)
+        - pass message details from UserException's as ServiceContext over
+          the wire if JacORB specific helper/skeleton code is used 
+          [-generate_helper jacorb] (JAC#144).
         - Fix for iteration during shutdown (JAC#264).
         - added more strict checking of correct string sizes during
           demarshalling of CDR streams (JAC#288).
     - IDL Compiler:
-        - added option that allows to control the portability level of the generated helper classes
+        - added option that allows to control the portability level of
+          the generated helper classes
           [-generate_helper deprecated|portable|jacorb] (JAC#516).
         - removed -omg option (#72,#98)
     - Interface Repository:
-        - fix to allow IDL files that use #pragma prefix to be loaded into the IR (#367).
+        - fix to allow IDL files that use #pragma prefix to be loaded into 
+          the IR (#367).
     - Fixes:
         - fix to allow interoperability with TAO persistent IOR's (#735)
         - removed usage of the deprecated read_fixed/write_fixed methods from
