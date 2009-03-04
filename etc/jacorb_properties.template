@@ -446,8 +446,10 @@ jacorb.net.tcp_listener=
 #OAAddress=iiop://1.2.3.4:4711
 
 # The following option allows you to add further alternate
-# addresses to your URLs using TAG_ALTERNATE_IIOP_ADDRESS.
-# The value is a comma-separated list of host:port addresses.
+# addresses to your IORs using TAG_ALTERNATE_IIOP_ADDRESS.
+# The value is either a comma-separated list of host:port addresses,
+# or the keyword "auto", which means that JacORB should add
+# the addresses of all known network interfaces on this machine.
 #jacorb.iiop.alternate_addresses = 1.2.3.4:12,1.2.3.5:12
 
 ############################
