@@ -20,6 +20,7 @@
 package org.jacorb.orb.iiop;
 
 import java.util.*;
+import java.net.*;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.logger.Logger;
@@ -289,26 +290,77 @@ public class IIOPProfile
      */
     private void addAlternateAddresses (org.jacorb.config.Configuration config)
     {
-        List addresses = config.getAttributeList ("jacorb.iiop.alternate_addresses");
-        if (!addresses.isEmpty() && components == null)
+        String value = config.getAttribute ("jacorb.iiop.alternate_addresses", null);
+        if (value == null)
         {
-            components = new TaggedComponentList();
+            return;
         }
-        for (Iterator i = addresses.iterator(); i.hasNext();)
+        else if (value.trim().equals ("auto"))
         {
-            String addr = (String)i.next();
-            IIOPAddress iaddr = new IIOPAddress();
-            if (!iaddr.fromString (addr))
+            addNetworkAddresses();
+        }
+        else
+        {
+            List addresses = Arrays.asList (value.split(","));
+            if (!addresses.isEmpty() && components == null)
             {
-                logger.warn ("could not decode " + addr + 
-                             " from jacorb.iiop.alternate_addresses");
-                continue;
+                components = new TaggedComponentList();
             }
-            else
+            for (Iterator i = addresses.iterator(); i.hasNext();)
             {
-                components.addComponent (TAG_ALTERNATE_IIOP_ADDRESS.value,
-                                         iaddr.toCDR());
+                String addr = (String)i.next();
+                IIOPAddress iaddr = new IIOPAddress();
+                if (!iaddr.fromString (addr))
+                {
+                    logger.warn ("could not decode " + addr + 
+                                 " from jacorb.iiop.alternate_addresses");
+                    continue;
+                }
+                else
+                {
+                    components.addComponent (TAG_ALTERNATE_IIOP_ADDRESS.value,
+                                             iaddr.toCDR());
+                }
             }
+        }
+    }
+    
+    /**
+     * Adds all the network addresses of this machine to the profile
+     * as TAG_ALTERNATE_IIOP_ADDRESS.  This excludes loopback addresses,
+     * and the address that is already used as the primary address.
+     * Also excluded are non-IPv4 addresses for the moment.
+     */
+    private void addNetworkAddresses()
+    {
+        if (primaryAddress == null) return;
+        if (components == null) components = new TaggedComponentList();
+        try 
+        {
+            for (Enumeration e = NetworkInterface.getNetworkInterfaces();
+                 e.hasMoreElements();)
+            {
+                NetworkInterface ni = (NetworkInterface)e.nextElement();
+                for (Enumeration ee = ni.getInetAddresses();
+                     ee.hasMoreElements();)
+                {
+                    InetAddress addr = (InetAddress)ee.nextElement();
+                    if (addr instanceof Inet4Address &&
+                        !addr.isLoopbackAddress() && 
+                        !addr.getHostAddress().equals (primaryAddress.getIP()))
+                    {
+                        IIOPAddress iaddr = new IIOPAddress();
+                        iaddr.fromString (addr.toString().substring(1) + ":"
+                                          + primaryAddress.getPort());
+                        components.addComponent (TAG_ALTERNATE_IIOP_ADDRESS.value,
+                                                 iaddr.toCDR());
+                    }
+                }
+            }
+        } 
+        catch (SocketException ex)
+        {
+            logger.warn ("could not get network interfaces, will not add addresses");
         }
     }
     
