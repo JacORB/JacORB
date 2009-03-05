@@ -1,3 +1,10 @@
+2009-03-04  Andre Spiegel  <spiegel@gnu.org>
+
+	* orb/iiop/IIOPProfile.java (addNetworkAddresses): New function,
+	adds the addresses of all known network interfaces on this machine.
+	(addAlternateAddresses): Use it, if
+	jacorb.iiop.alternate_addresses=auto.
+
 2009-03-03  Andre Spiegel  <spiegel@gnu.org>
 
 	* orb/iiop/IIOPProfile.java (addAlternateAddresses): New method,
