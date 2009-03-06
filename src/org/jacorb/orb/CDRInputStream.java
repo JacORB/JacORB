@@ -2815,11 +2815,14 @@ public class CDRInputStream
         }
         else if (tag == 0x7fffff02)
         {
-            // Read value according to type information.
-            // Possible optimization: ignore type info and use factory for
-            // reading the value anyway, since the type information is
-            // most likely redundant.
-            return read_typed_value(start_offset, codebase);
+            final Serializable result = read_typed_value(start_offset, codebase, factory);
+
+            if (result != null)
+            {
+                getValueMap().put(ObjectUtil.newInteger(start_offset), result);
+            }
+
+            return result;
         }
         else
         {

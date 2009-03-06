@@ -181,7 +181,7 @@ public class CDROutputStream
     private boolean chunkCustomRmiValuetypes = false;
     private int compactTypeCodes = 0;
     private boolean useIndirection = true;
-    
+
     /**
      * This stream is self-configuring, i.e. configure() is private
      * and only called from the constructor
@@ -206,7 +206,7 @@ public class CDROutputStream
 
         useIndirection =
            !( configuration.getAttribute("jacorb.interop.indirection_encoding_disable","off").equals("on"));
-        
+
         isMutatorEnabled = configuration.getAttribute("jacorb.iormutator", "").length() > 0;
 
         if (isMutatorEnabled)
@@ -2438,9 +2438,7 @@ public class CDROutputStream
                 // repository id is required for RMI: types
                 write_long (0x7fffff02 | chunkingFlag);
 
-                // TODO repId could also be fetched by factory.get_id()
-                // check if it is really necessary to go via RepositoryID.repId
-                final String repId = RepositoryID.repId (value.getClass());
+                final String repId = factory.get_id();
                 write_repository_id (repId);
             }
             start_chunk();
@@ -2472,7 +2470,7 @@ public class CDROutputStream
 
         return true;
     }
-    
+
     public void write_value(final java.io.Serializable value,
                             final java.lang.Class clazz)
     {
