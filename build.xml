@@ -92,7 +92,7 @@ using VERSION_INFO: ${jacorb_version_info}
    <!--                  Libraries                           -->
    <!-- ==================================================== -->
 
-   <target name="libs" depends="init,jar,jaco"/>
+   <target name="libs" depends="init,jar,scripts"/>
 
    <target name="jar" depends="init">
       <delete file="${lib}/jacorb.jar" failonerror="false"/>
@@ -105,7 +105,7 @@ using VERSION_INFO: ${jacorb_version_info}
            />
    </target>
 
-   <target name="jaco" depends="init">
+   <target name="scripts" depends="init" description="Generate the scripts">
 
         <loadfile   srcFile="bin/resolve_jacorb_home.tok"
                     property="token.resolve-jacorb-home"
