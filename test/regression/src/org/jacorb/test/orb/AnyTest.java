@@ -70,7 +70,7 @@ public class AnyTest extends ClientServerTestCase
     public static Test suite()
     {
         Properties props = new Properties();
-        props.put("jacorb.compactTypecodes", "0");
+        props.put("jacorb.compactTypecodes", "off");
 
         TestSuite suite = new TestSuite("Client/server any tests");
         ClientServerSetup setup = new ClientServerSetup

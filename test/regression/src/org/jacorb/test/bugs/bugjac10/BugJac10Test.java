@@ -71,11 +71,11 @@ public class BugJac10Test extends ClientServerTestCase
 
         if (config == 1)
         {
-            props.setProperty ("jacorb.compactTypecodes", "2");
+            props.setProperty ("jacorb.compactTypecodes", "on");
         }
         else if (config == 2)
         {
-            props.setProperty ("jacorb.compactTypecodes", "0");
+            props.setProperty ("jacorb.compactTypecodes", "off");
         }
         else
         {

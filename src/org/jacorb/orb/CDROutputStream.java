@@ -179,7 +179,7 @@ public class CDROutputStream
     /** configurable properties */
     private boolean useBOM = false;
     private boolean chunkCustomRmiValuetypes = false;
-    private int compactTypeCodes = 0;
+    private boolean compactTypeCodes = false;
     private boolean useIndirection = true;
 
     /**
@@ -202,7 +202,7 @@ public class CDROutputStream
         chunkCustomRmiValuetypes =
             configuration.getAttribute("jacorb.interop.chunk_custom_rmi_valuetypes","off").equals("on");
         compactTypeCodes =
-            configuration.getAttributeAsInteger("jacorb.compactTypecodes", 0);
+            configuration.getAttributeAsBoolean("jacorb.compactTypecodes", false);
 
         useIndirection =
            !( configuration.getAttribute("jacorb.interop.indirection_encoding_disable","off").equals("on"));
@@ -1357,7 +1357,7 @@ public class CDROutputStream
 
     public final void write_TypeCode (org.omg.CORBA.TypeCode typeCode)
     {
-        if (compactTypeCodes > 0)
+        if (compactTypeCodes)
         {
             final String id;
             try

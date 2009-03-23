@@ -74,8 +74,8 @@ public class BugJac220Test extends ClientServerTestCase
         Properties server_props = new Properties();
 
         /* Compact typecodes needs to be set to perform the test*/
-        client_props.setProperty ("jacorb.compactTypecodes", "2");
-        server_props.setProperty ("jacorb.compactTypecodes", "2");
+        client_props.setProperty ("jacorb.compactTypecodes", "on");
+        server_props.setProperty ("jacorb.compactTypecodes", "on");
 
         ClientServerSetup setup =
             new ClientServerSetup
