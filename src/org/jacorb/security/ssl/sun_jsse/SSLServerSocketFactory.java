@@ -62,6 +62,7 @@ public class SSLServerSocketFactory
     {
         super.configure(configuration);
 
+        final org.jacorb.config.Configuration config = (org.jacorb.config.Configuration) configuration;
 
         trusteesFromKS =
             configuration.getAttributeAsBoolean("jacorb.security.jsse.trustees_from_ks", false);
@@ -146,30 +147,10 @@ public class SSLServerSocketFactory
         // Andrew T. Finnell
         // We need to obtain all the cipher suites to use from the
         // properties file.
-        String cipher_suite_list =
-            configuration.getAttribute("jacorb.security.ssl.server.cipher_suites",null );
+        final List cipher_suite_list =
+            config.getAttributeList("jacorb.security.ssl.server.cipher_suites");
 
-        if ( cipher_suite_list != null )
-        {
-            StringTokenizer tokenizer =
-                new StringTokenizer( cipher_suite_list, "," );
-
-            // Get the number of ciphers in the list
-            int tokens = tokenizer.countTokens();
-
-            if ( tokens > 0 )
-            {
-                // Create an array of strings to store the ciphers
-                cipher_suites = new String [tokens];
-
-                // This will fill the array in reverse order but that
-                // doesn't matter
-                while( tokenizer.hasMoreElements() )
-                {
-                    cipher_suites[--tokens] = tokenizer.nextToken();
-                }
-            }
-        }
+        cipher_suites = (String[]) cipher_suite_list.toArray(new String[cipher_suite_list.size()]);
     }
 
     public ServerSocket createServerSocket( int port )
@@ -190,7 +171,7 @@ public class SSLServerSocketFactory
         // Andrew T. Finnell / Change made for e-Security Inc. 2002
         // We need a way to enable the cipher suites that we would
         // like to use. We should obtain these from the properties file.
-        if( cipher_suites != null )
+        if( cipher_suites.length > 0)
         {
             s.setEnabledCipherSuites ( cipher_suites );
         }
@@ -222,7 +203,7 @@ public class SSLServerSocketFactory
         // Andrew T. Finnell / Change made for e-Security Inc. 2002
         // We need a way to enable the cipher suites that we would
         // like to use. We should obtain these from the properties file.
-        if( cipher_suites != null )
+        if( cipher_suites.length > 0)
         {
             s.setEnabledCipherSuites ( cipher_suites );
         }
@@ -255,7 +236,7 @@ public class SSLServerSocketFactory
         // Andrew T. Finnell / Change made for e-Security Inc. 2002
         // We need a way to enable the cipher suites that we would
         // like to use. We should obtain these from the properties file.
-        if( cipher_suites != null )
+        if( cipher_suites.length > 0)
         {
             s.setEnabledCipherSuites ( cipher_suites );
         }

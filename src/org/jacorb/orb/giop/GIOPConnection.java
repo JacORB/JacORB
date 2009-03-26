@@ -917,6 +917,8 @@ public abstract class GIOPConnection
         throws IOException
     {
         try
+    	{
+        try
         {
             incPendingWrite ();
             getWriteLock();
@@ -962,7 +964,13 @@ public abstract class GIOPConnection
             {
                 getStatisticsProviderAdapter().flushed();
             }
-        }
+            }
+            finally
+            {
+                decPendingWrite();
+                releaseWriteLock();
+            }
+     	}
         catch (org.omg.CORBA.COMM_FAILURE e)
         {
             if (logger.isErrorEnabled())
@@ -997,11 +1005,6 @@ public abstract class GIOPConnection
                 this.streamClosed();
             }
             throw e;
-        }
-        finally
-        {
-            decPendingWrite();
-            releaseWriteLock();
         }
     }
 

@@ -67,6 +67,8 @@ x.y
         - removed usage of the deprecated read_fixed/write_fixed methods from
           the ORB core and generated code (JAC#516).
         - fixed wstring valuetype interoperability issue with the sun orb (JAC#352).
+        - patch from bugzilla #708 to fix occasional deadlock/timeout issue within 
+          GIOPConnections (JAC#359).
         
 2.3
 ===
