@@ -106,7 +106,7 @@ public class ServerIIOPConnection
             }
             catch (IOException ex)
             {
-                throw to_COMM_FAILURE(ex, socket);
+                throw handleCommFailure(ex);
             }
             finally
             {

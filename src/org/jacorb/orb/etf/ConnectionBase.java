@@ -132,16 +132,27 @@ public abstract class ConnectionBase
         setTimeout( finalTimeout );
     }
 
+    /**
+     * this is invoked whenever a communication error occurs.
+     * subclasses must provide a appropiate implementation.
+     * the simplest possible implementation would just pass in
+     * the specified exception to to_COMM_FAILURE and return the
+     * result.
+     */
+    protected abstract org.omg.CORBA.COMM_FAILURE handleCommFailure(IOException exception);
 
-    protected org.omg.CORBA.COMM_FAILURE to_COMM_FAILURE(IOException ex)
+    /**
+     * convert the specified exception into a CORBA COMM_FAILURE
+     */
+    protected org.omg.CORBA.COMM_FAILURE to_COMM_FAILURE(IOException exception)
     {
         if (logger.isDebugEnabled())
         {
-            logger.debug("Caught exception", ex);
+            logger.debug("Caught exception", exception);
         }
 
         return new org.omg.CORBA.COMM_FAILURE("IOException: "
-                                               + ex.toString());
+                                                + exception.toString());
     }
 
 

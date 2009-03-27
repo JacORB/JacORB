@@ -136,7 +136,7 @@ public abstract class StreamConnectionBase
                     logger.debug("Transport to " + connection_info +
                                  ": stream closed " + se.getMessage() );
                 }
-                throw to_COMM_FAILURE (se);
+                throw handleCommFailure(se);
             }
 
             if( n < 0 )
@@ -188,7 +188,7 @@ public abstract class StreamConnectionBase
         }
         catch (IOException ex)
         {
-            throw to_COMM_FAILURE(ex);
+            throw handleCommFailure(ex);
         }
 
     }
@@ -213,7 +213,7 @@ public abstract class StreamConnectionBase
         }
         catch (IOException ex)
         {
-            throw to_COMM_FAILURE(ex);
+            throw handleCommFailure(ex);
         }
     }
 
@@ -230,7 +230,7 @@ public abstract class StreamConnectionBase
         }
         catch (IOException ex)
         {
-            throw to_COMM_FAILURE(ex);
+            throw handleCommFailure(ex);
         }
     }
 }

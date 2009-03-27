@@ -386,7 +386,7 @@ public class ClientIIOPConnection
                 logger.debug ("Exception when closing the socket", ex);
             }
 
-            throw to_COMM_FAILURE (ex, socket);
+            throw handleCommFailure(ex);
         }
         finally
         {
