@@ -45,11 +45,11 @@ import org.omg.GIOP.ReplyStatusType_1_2;
  * Created: Sun Aug 12 21:30:48 2002
  *
  * Configuration parameters:<br>
- * 
+ *
  * jacorb.debug.dump_incoming_messages=[on|off],        default=off<br>
  * jacorb.connection.client.connect_timeout=N,          default=0<br>
  * jacorb.connection.statistics_providers={classnames}, default=(empty)<br>
- * 
+ *
  * @author Nicolas Noffke
  * @version $Id$
  */
@@ -139,14 +139,14 @@ public abstract class GIOPConnection
         this.statistics_provider = statistics_provider;
 
         if (statistics_provider != null)
-            this.statistics_provider_adapter = 
+            this.statistics_provider_adapter =
                 new StatisticsProviderAdapter (statistics_provider);
 
         this.buf_mg = BufferManager.getInstance();
         //sasContexts = new Hashtable();
 
         this.cubbyholes = new Object[cubby_count];
-        
+
     }
 
     public void configure(Configuration configuration)
@@ -161,15 +161,15 @@ public abstract class GIOPConnection
 
         List statsProviderClassNames =
             jacorbConfiguration.getAttributeList( "jacorb.connection.statistics_providers");
-        
+
         for (Iterator iter = statsProviderClassNames.iterator (); iter.hasNext ();) {
             String className = (String) iter.next ();
             try
             {
                 Class iclass = ObjectUtil.classForName (className);
-                
-                this.statistics_provider_adapter = 
-                    new StatisticsProviderAdapter ((StatisticsProvider)iclass.newInstance(), 
+
+                this.statistics_provider_adapter =
+                    new StatisticsProviderAdapter ((StatisticsProvider)iclass.newInstance(),
                                                    statistics_provider_adapter);
             }
             catch( Exception e )
@@ -179,7 +179,7 @@ public abstract class GIOPConnection
                     logger.error
                     (
                         "Unable to create class from property " +
-                        ">jacorb.connection.statistics_provider_class<: " + 
+                        ">jacorb.connection.statistics_provider_class<: " +
                         e.toString()
                     );
                 }
@@ -374,7 +374,7 @@ public abstract class GIOPConnection
                 {
                     logger.error
                     (
-                        "Negative GIOP message size (" 
+                        "Negative GIOP message size ("
                         + msg_size + ") in " + this.toString()
                     );
                 }
@@ -384,8 +384,8 @@ public abstract class GIOPConnection
                     logger.debug
                     (
                         "TCP_IP_GIOPTransport.getMessage() with header: \n" +
-                        new String(header) + "\nsize : " 
-                        + Messages.MSG_HEADER_SIZE + ", in " + this.toString() 
+                        new String(header) + "\nsize : "
+                        + Messages.MSG_HEADER_SIZE + ", in " + this.toString()
                     );
                 }
 
@@ -410,7 +410,7 @@ public abstract class GIOPConnection
                 {
                     logger.error
                     (
-                        "Failed to read GIOP message in " + this.toString(), 
+                        "Failed to read GIOP message in " + this.toString(),
                         ex
                     );
                 }
@@ -425,7 +425,7 @@ public abstract class GIOPConnection
                     (
                         this.toString() + " BufferDump:\n" +
                         ObjectUtil.bufToString
-                        ( 
+                        (
                             inbuf.value, 0, msg_size + Messages.MSG_HEADER_SIZE
                         )
                     );
@@ -444,7 +444,7 @@ public abstract class GIOPConnection
 
         if (logger.isDebugEnabled())
         {
-            logger.debug(this.toString() + " getMessage(), invalid header read: " 
+            logger.debug(this.toString() + " getMessage(), invalid header read: "
                          + ObjectUtil.bufToString(msg_header.value, 0, 4));
         }
 
@@ -453,11 +453,11 @@ public abstract class GIOPConnection
             logger.error( "Failed to read GIOP message in " + this.toString()
                           + ", incorrect magic number --> connection closed" );
         }
-        
+
         //close transport connection, there is nearly no chance to sync with
         //peer on this connection again
         this.streamClosed();
- 
+
         return null;
     }
 
@@ -491,9 +491,9 @@ public abstract class GIOPConnection
                 {
                     if (logger.isErrorEnabled())
                     {
-                        logger.error("Invalid GIOP major version encountered: " 
+                        logger.error("Invalid GIOP major version encountered: "
                                      + Messages.getGIOPMajor( message )
-                                     + ", in " + this.toString() );                                
+                                     + ", in " + this.toString() );
                     }
 
                     buf_mg.returnBuffer( message );
@@ -651,7 +651,7 @@ public abstract class GIOPConnection
                         //GIOP 1.1 Fragmented messages currently not supported
                         if (logger.isWarnEnabled())
                         {
-                            logger.warn( "Received a fragmented GIOP 1.1 message" 
+                            logger.warn( "Received a fragmented GIOP 1.1 message"
                                         + " in " + this.toString() );
                         }
 
@@ -710,12 +710,12 @@ public abstract class GIOPConnection
                         if (logger.isErrorEnabled())
                         {
                             logger.error
-                            ( 
+                            (
                                 "Received a message of type " + msg_type +
                                 " with the more fragments follow bit set," +
                                 " but there is already an fragmented," +
                                 " incomplete message with the same request id (" +
-                                request_id + ", in " + this.toString() 
+                                request_id + ", in " + this.toString()
                             );
                         }
 
@@ -795,7 +795,7 @@ public abstract class GIOPConnection
                         {
                             logger.error
                             (
-                                "Received message with unknown message type " 
+                                "Received message with unknown message type "
                                 + msg_type + ", in " + this.toString()
                             );
                         }
@@ -918,52 +918,52 @@ public abstract class GIOPConnection
     {
         try
     	{
-        try
-        {
-            incPendingWrite ();
-            getWriteLock();
-            if (!transport.is_connected())
+            try
             {
-                tcs_negotiated = false;
-
-                if (logger.isDebugEnabled())
+                incPendingWrite ();
+                getWriteLock();
+                if (!transport.is_connected())
                 {
-                    logger.debug
-                    (
-                        this.toString() + ": sendMessage() -- opening transport"
-                    );
-                }
+                    tcs_negotiated = false;
 
-                synchronized (connect_sync)
-                {
-                    try
+                    if (logger.isDebugEnabled())
                     {
-                        transport.connect (profile, timeout);
-                        connect_sync.notifyAll();
+                        logger.debug
+                        (
+                            this.toString() + ": sendMessage() -- opening transport"
+                        );
                     }
-                    catch (RuntimeException ex)
+
+                    synchronized (connect_sync)
                     {
-                        if (logger.isDebugEnabled())
+                        try
                         {
-                            logger.debug
-                            (
-                                this.toString() +
-                                ": sendMessage() -- failed to open transport");
+                            transport.connect (profile, timeout);
+                            connect_sync.notifyAll();
                         }
-                        throw ex;
+                        catch (RuntimeException ex)
+                        {
+                            if (logger.isDebugEnabled())
+                            {
+                                logger.debug
+                                (
+                                    this.toString() +
+                                    ": sendMessage() -- failed to open transport");
+                            }
+                            throw ex;
+                        }
                     }
+
                 }
 
-            }
+                out.write_to( this );
 
-            out.write_to( this );
+                transport.flush();
 
-            transport.flush();
-
-            if (getStatisticsProviderAdapter() != null)
-            {
-                getStatisticsProviderAdapter().flushed();
-            }
+                if (getStatisticsProviderAdapter() != null)
+                {
+                    getStatisticsProviderAdapter().flushed();
+                }
             }
             finally
             {
@@ -997,7 +997,7 @@ public abstract class GIOPConnection
                 }
                 // It makes no sense to use this transport any longer
                 // examples: firewall dropped connection silently,
-                //           socket system buffers full (peer didn't read 
+                //           socket system buffers full (peer didn't read
                 //           data in time)
                 // signal GIOPConnectionManager to throw this connection away
                 this.streamClosed();
@@ -1033,7 +1033,7 @@ public abstract class GIOPConnection
 
 
     /**
-     * Get an instance of StatisticsProvider derivative, for 
+     * Get an instance of StatisticsProvider derivative, for
      * updating the transport usage statistics.
      */
     protected final StatisticsProviderAdapter getStatisticsProviderAdapter()
@@ -1043,10 +1043,10 @@ public abstract class GIOPConnection
 
 
     /**
-     * Get the statistics provider for transport usage statistics 
-     * that can be used in conjunction with the SelectionStrategy. 
-     * This is a special-case provider, usually supplied by, and 
-     * known to, the concrete SelectionStrategy. To actually update 
+     * Get the statistics provider for transport usage statistics
+     * that can be used in conjunction with the SelectionStrategy.
+     * This is a special-case provider, usually supplied by, and
+     * known to, the concrete SelectionStrategy. To actually update
      * the usage stats use getStatisticsProviderAdapter()
      */
     public final StatisticsProvider getStatisticsProvider()
@@ -1062,7 +1062,7 @@ public abstract class GIOPConnection
     public StatisticsProvider getStatisticsProvider(int no) {
         if (statistics_provider_adapter == null)
             return null;
-        
+
         return statistics_provider_adapter.find(no);
     }
 
@@ -1157,8 +1157,8 @@ public abstract class GIOPConnection
         cubbyholes[id] = obj;
     }
 
-    
-    /*default (or, package-level) access*/ 
+
+    /*default (or, package-level) access*/
     org.omg.ETF.Profile getProfile() {
         return profile;
     }
