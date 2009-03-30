@@ -902,13 +902,7 @@ public final class Delegate
 
     public org.omg.CORBA.portable.ObjectImpl getReference( org.jacorb.poa.POA _poa )
     {
-        if ( logger.isDebugEnabled() )
-        {
-            logger.debug("Delegate.getReference with POA <" +
-                          ( _poa != null ? _poa._getQualifiedName() : " empty" ) + ">" );
-        }
-
-        if ( _poa != null )   // && _poa._localStubsSupported())
+        if ( _poa != null )
         {
             poa = _poa;
         }

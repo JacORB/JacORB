@@ -968,6 +968,10 @@ public abstract class GIOPConnection
             finally
             {
                 decPendingWrite();
+                // If a COMM_FAILURE occurs this release write lock prevents
+                // dead locks to reader thread which might try to close this
+                // socket concurrently too (unfortunately write lock is
+                // requested during streamClosed())
                 releaseWriteLock();
             }
      	}
@@ -991,12 +995,6 @@ public abstract class GIOPConnection
                         "errors during sendMessage(), in " + this.toString()
                     );
                 }
-                // release write lock to prevent dead locks to reader
-                // thread which might try to close this socket too
-                // concurrently (unfortunately write lock is requested
-                // during streamClosed())
-                releaseWriteLock();
-
                 // It makes no sense to use this transport any longer
                 // examples: firewall dropped connection silently,
                 //           socket system buffers full (peer didn't read 
