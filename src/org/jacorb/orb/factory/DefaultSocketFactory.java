@@ -39,7 +39,7 @@ public class DefaultSocketFactory extends AbstractSocketFactory
         return new Socket (host, port);
     }
 
-    public Socket doCreateSocket(String host, int port, int timeout) throws IOException, UnknownHostException
+    protected Socket doCreateSocket(String host, int port, int timeout) throws IOException, UnknownHostException
     {
         final Socket socket = new Socket();
 

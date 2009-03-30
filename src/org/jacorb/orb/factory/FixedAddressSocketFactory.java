@@ -63,7 +63,7 @@ public class FixedAddressSocketFactory extends AbstractSocketFactory
         return new Socket(host, port);
     }
 
-    public Socket doCreateSocket(String host, int port, int timeout) throws IOException
+    protected Socket doCreateSocket(String host, int port, int timeout) throws IOException
     {
         Socket socket = new Socket();
 

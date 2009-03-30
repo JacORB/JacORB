@@ -54,6 +54,8 @@ x.y
         - Fix for iteration during shutdown (JAC#264).
         - added more strict checking of correct string sizes during
           demarshalling of CDR streams (JAC#288).
+        - fix for broken socket connect timeout mechanism (JAC#375).
+          
     - IDL Compiler:
         - added option that allows to control the portability level of
           the generated helper classes

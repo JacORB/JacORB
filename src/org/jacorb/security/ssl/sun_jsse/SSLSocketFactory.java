@@ -147,7 +147,7 @@ public class SSLSocketFactory
         return socket;
     }
 
-    public Socket doCreateSocket(String host, int port, int timeout) throws IOException
+    protected Socket doCreateSocket(String host, int port, int timeout) throws IOException
     {
         SSLSocket socket = (SSLSocket)factory.createSocket();
         socket.connect(new InetSocketAddress(host, port), timeout);

@@ -25,6 +25,7 @@ import java.net.BindException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.Socket;
+import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
 
 import org.apache.avalon.framework.configuration.Configuration;
@@ -124,7 +125,7 @@ public class PortRangeSocketFactory
         return port;
     }
 
-    public Socket doCreateSocket(String host, int port, int timeout) throws IOException
+    protected Socket doCreateSocket(String host, int port, int timeout) throws IOException
     {
         final InetAddress localHost = InetAddress.getLocalHost();
         int localPort;
@@ -135,9 +136,9 @@ public class PortRangeSocketFactory
 
         for (localPort = portMin; localPort <= portMax; localPort++)
         {
+            socket = new Socket();
             try
             {
-                socket = new Socket();
                 socket.bind(new InetSocketAddress(localHost, localPort));
                 socket.connect(new InetSocketAddress(host, port), timeout);
 
@@ -149,8 +150,14 @@ public class PortRangeSocketFactory
                 }
                 return socket;
             }
+            catch (SocketTimeoutException e)
+            {
+                tryToClose(socket);
+                throw e;
+            }
             catch (IOException ex)
             {
+                tryToClose(socket);
             	if (useTimeout && System.currentTimeMillis() > expireTime)
             	{
             		throw new TIMEOUT("couldn't open socket within " + timeout + ". Last exception details: " + ex.toString());
@@ -166,5 +173,17 @@ public class PortRangeSocketFactory
 
         throw new BindException ("PortRangeSocketFactory: no free port between "
             + portMin + " and " + portMax);
+    }
+
+    private void tryToClose(Socket socket)
+    {
+        try
+        {
+            socket.close();
+        }
+        catch(IOException e)
+        {
+            logger.warn("unable to close socket", e);
+        }
     }
 }
