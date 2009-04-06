@@ -156,46 +156,6 @@ public class LogKitLoggerFactory
 
 
     /**
-     * @param name - the name of the logger, which also functions
-     *        as a log category
-     * @param logFileName - the name of the file to log to
-     * @param maxLogSize - maximum size of the log file. When this size is reached
-     *        the log file will be rotated and a new log file created. A value of 0
-     *        means the log file size is unlimited.
-     *
-     * @return the new logger.
-     */
-
-    public Logger getNamedLogger(String name, String logFileName, long maxLogSize)
-        throws IOException
-    {
-        if (name == null)
-            throw new IllegalArgumentException("Log file name must not be null!");
-
-        FileOutputStream logStream =
-            new FileOutputStream(logFileName, append);
-
-        LogTarget target = null;
-        if (maxLogSize == 0)
-        {
-            // no log file rotation
-            Writer logWriter = new OutputStreamWriter(logStream);
-            target = new WriterTarget(logWriter, logFormatter);
-        }
-        else
-        {
-            // use log file rotation
-            target =
-                new RotatingFileTarget(append,
-                                       logFormatter,
-                                       new RotateStrategyBySize(maxLogSize * 1000),
-                                       new RevolvingFileStrategy(new File(logFileName), 10000));
-        }
-        return getNamedLogger(name, target);
-    }
-
-
-    /**
      * @param name the name of the logger, which also functions
      *        as a log category
      * @param target the log target for the new logger. If null, the new logger
@@ -318,11 +278,11 @@ public class LogKitLoggerFactory
 
     public void setDefaultLogFile(String fileName, long maxLogSize) throws java.io.IOException
     {
-        FileOutputStream logStream =
-            new FileOutputStream(fileName, append);
-
         if (maxLogSize == 0)
         {
+            FileOutputStream logStream =
+                new FileOutputStream(fileName, append);
+
             // no log file rotation
             Writer logWriter = new OutputStreamWriter(logStream);
             defaultTarget = new WriterTarget(logWriter, logFormatter);

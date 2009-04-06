@@ -709,7 +709,7 @@ public class JacORBConfiguration
             try
             {
                 loggerFactory.setDefaultLogFile(logFileName, maxLogSize);
-                logger = loggerFactory.getNamedLogger("jacorb",logFileName, maxLogSize);
+                logger = loggerFactory.getNamedLogger("jacorb" );
             }
             catch (IOException e)
             {
@@ -721,7 +721,9 @@ public class JacORBConfiguration
                 }
             }
         }
-        else
+        
+        // JAC#384: if here is still no logger created just use console log
+        if (logger == null) 
         {
             logger = loggerFactory.getNamedRootLogger("jacorb" );
         }
