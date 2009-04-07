@@ -185,6 +185,13 @@ the home directory. Key stores are searched in this order, and the
 first one found is taken. If this property is not set, the user will be
 prompted to enter a key store location on ORB startup.
 
+The password for the key store file can be specified using the property
+{\tt jacorb.security.keystore\_password}.
+
+\begin{verbatim}
+    jacorb.security.keystore\_password=secret
+\end{verbatim}
+
 To avoid  typing in  lots of  aliases and passwords  (one for  the key
 store, and  one for each entry  that is used), you  can define default
 aliases and passwords like this:
