@@ -721,14 +721,10 @@ will also require OAIAddr set as it is acting as a server.
 REMOVE. & class &  \\
 \hline
 \verb"jacorb.net.socket_fact"
-\verb"ory" & Sets or defines the socket factory that must implement
-the operations defined in the org.jacorb.orb.factory.SocketFactory
-interface. & class & \\
+\verb"ory" & Sets or defines the socket factory. See section \ref{sec:customSocketFactories} for details.& class & \\
 \hline
 \verb"jacorb.net.server_sock"
-\verb"et_factory" & Sets or defines the socket factory that must
-implement the operations defined in the
-org.jacorb.orb.factory.ServerSocketFactory interface. & class & \\
+\verb"et_factory" & Sets or defines the server socket factory. See section \ref{sec:customSocketFactories} for details.& class & \\
 \hline
 \verb"jacorb.net.socket_fact"
 \verb"ory.port.min" & Sets the minimum port number that can be used
@@ -940,10 +936,10 @@ no more than queue\_min requests. Default is 10. & integer \\
 \verb"pal_authenticator" & A list of qualified classnames of principle authenticator objects, separated by commas (no whitespaces.). The first entry (that can be successfully created) will be available through the principal\_authenticator property. & class \\
 \hline
 \verb"jacorb.ssl.socket_fact"
-\verb"ory" & The qualified classname of the SSL socket factory class. & class \\
+\verb"ory" & The qualified classname of the SSL socket factory class. See section \ref{sec:customSocketFactories} for details.& class \\
 \hline
 \verb"jacorb.ssl.server_sock"
-\verb"et_factory" & The qualified classname of the SSL server socket factory class. & class \\
+\verb"et_factory" & The qualified classname of the SSL server socket factory class. See section \ref{sec:customSocketFactories} for details.& class \\
 \hline
 \verb"jacorb.security.suppor"
 \verb"t_ssl" & Whether SSL security is supported. Default is off. & boolean \\
@@ -1219,6 +1215,56 @@ variable will be updated with the current transport information for the respecti
 streams. Note, altering the information within the transport is undefined. The
 mutateIncoming operation will be called for CDRInputStream operations and the
 mutateOutgoing for CDROuputStream operations.
+
+\subsection{Using custom socket factories}
+\label{sec:customSocketFactories}
+
+You may plug in custom socket factories that'll be used by JacORB to
+create sockets and server sockets. Each factory needs to implement a JacORB specific
+interface. To make your factory available to JacORB you need to set the appropriate
+configuration property to the classname of your custom factory. See the following
+sections for the available factories and their details. Please also see the javadoc documentation
+of the specified interfaces for the contract your custom factories must adhere to.
+For convenience JacORB also offers some abstract base classes that pre-implement some functionality and that you
+may choose to subclass.
+
+\subsubsection{socket factory}
+
+This factory is used by JacORB to create an outgoing non-SSL connection.
+
+\begin{description}
+\item[property] jacorb.net.socket\_factory
+\item[implemented interface] org.jacorb.orb.factory.SocketFactory
+\item[base class] org.jacorb.orb.factory.AbstractSocketFactory
+\end{description}
+
+\subsubsection{server socket factory}
+
+This factory is used by JacORB to create a server socket for incoming non-SSL connections.
+
+\begin{description}
+\item[property] jacorb.net.server\_socket\_factory
+\item[implemented interface] org.jacorb.orb.factory.ServerSocketFactory
+\item[base class] org.jacorb.orb.factory.AbstractSocketFactory
+\end{description}
+
+\subsubsection{SSL socket factory}
+
+This factory is used by JacORB to create an outgoing non-SSL connection.
+
+\begin{description}
+\item[property] jacorb.ssl.socket\_factory
+\item[implemented interface] org.jacorb.orb.factory.SocketFactory
+\end{description}
+
+\subsubsection{SSL server socket factory}
+
+This factory is used by JacORB to create a server socket for incoming SSL connections.
+
+\begin{description}
+\item[property] jacorb.ssl.server\_socket\_factory
+\item[implemented interface] org.jacorb.orb.factory.ServerSocketFactory
+\end{description}
 
 %%% Local Variables:
 %%% mode: latex

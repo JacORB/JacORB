@@ -74,6 +74,8 @@ x.y
         - fixed wstring valuetype interoperability issue with the sun orb (JAC#352).
         - patch from bugzilla #708 to fix occasional deadlock/timeout issue within 
           GIOPConnections (JAC#359).
+    - Documentation
+        - enhanced socket factory documentation (JAC#376)
         
 2.3
 ===

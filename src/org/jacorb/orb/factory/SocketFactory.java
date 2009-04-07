@@ -40,7 +40,13 @@ package org.jacorb.orb.factory;
 import java.io.IOException;
 import java.net.Socket;
 
+import org.omg.CORBA.TIMEOUT;
+
+
 /**
+ * SocketFactory is used by JacORB to create the client-side socket
+ * for an outgoing connection.
+ *
  * @author Gerald Brose
  * @version $Id$
  */
@@ -61,15 +67,19 @@ public interface SocketFactory
 
     /**
      * create a connected stream Socket.
+     * Compliant implementations must ensure to throw org.omg.CORBA.TIMEOUT
+     * in case a timeout occurs
+     * instead of the SocketTimeoutException thats available in the JDK.
      *
      * @param host the host name
      * @param port the port number
      * @param timeout the timeout value to be used in milliseconds
      * @return a connected stream Socket
      * @throws IOException
+     * @throws TIMEOUT if a timeout occurs during connect.
      */
     Socket createSocket(String host, int port, int timeout)
-        throws IOException;
+        throws IOException, TIMEOUT;
 
     /**
      * @return true if the specified socket supports SSL.
