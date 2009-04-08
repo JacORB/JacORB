@@ -133,7 +133,7 @@ public class PrintIOR
         if( iorString.startsWith( "IOR:" ))
         {
             ParsedIOR pior = new ParsedIOR(jorb, iorString );
-            printIOR(pior, orb, out);
+            printIOR(pior, out);
         }
         else
         {
@@ -147,7 +147,7 @@ public class PrintIOR
      * top-level
      */
 
-    public static void printIOR( ParsedIOR pior, org.omg.CORBA.ORB orb, PrintWriter out)
+    public static void printIOR( ParsedIOR pior, PrintWriter out)
     {
         org.omg.IOP.IOR ior = pior.getIOR();
 
