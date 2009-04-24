@@ -1,3 +1,58 @@
+2009-04-08  Alexander Bykov  <alexander.bykov@prismtech.com>
+
+	* orb/util/PrintIOR.java: JAC#380: issue test and documentation update
+
+2009-04-07  Alexander Bykov  <alexander.bykov@prismtech.com>
+
+	* orb/factory/AbstractSocketFactory.java,
+	orb/factory/SocketFactory.java: JAC#376: enhanced socket factory
+	documentation
+
+2009-04-06  Alexander Bykov  <alexander.bykov@prismtech.com>
+
+	* config/JacORBConfiguration.java,
+	config/LogKitLoggerFactory.java, config/LoggerFactory.java:
+	JAC#384: fix for bug during logfile initialization routine
+
+2009-03-30  Alexander Bykov  <alexander.bykov@prismtech.com>
+
+	* orb/factory/AbstractSocketFactory.java,
+	orb/factory/DefaultSocketFactory.java,
+	orb/factory/FixedAddressSocketFactory.java,
+	orb/factory/PortRangeSocketFactory.java,
+	security/ssl/sun_jsse/SSLSocketFactory.java: JAC#375: fix for
+	broken socket connect timeout mechanism
+
+	* orb/Delegate.java, orb/giop/GIOPConnection.java: JAC#359: fix
+	for deadlock caused by fix for bugzilla #708 (addition from
+	JAC#609)
+
+2009-03-27  Alexander Bykov  <alexander.bykov@prismtech.com>
+
+	* orb/etf/ConnectionBase.java, orb/etf/StreamConnectionBase.java,
+	orb/iiop/ClientIIOPConnection.java, orb/iiop/IIOPConnection.java,
+	orb/iiop/IIOPLoopbackConnection.java,
+	orb/iiop/ServerIIOPConnection.java: JAC#358: fixed exception
+	handling to ensure that the SSLListener is always invoked
+
+2009-03-26  Alexander Bykov  <alexander.bykov@prismtech.com>
+
+	* orb/giop/GIOPConnection.java,
+	security/ssl/sun_jsse/SSLServerSocketFactory.java,
+	security/ssl/sun_jsse/SSLSocketFactory.java: JAC#359: fix for
+	deadlock caused by fix for bugzilla #708
+
+2009-03-23  Alexander Bykov  <alexander.bykov@prismtech.com>
+
+	* orb/CDROutputStream.java: Jac#369 Make compactTypecodes a
+	boolean option
+
+2009-03-06  Alexander Bykov  <alexander.bykov@prismtech.com>
+
+	* orb/CDRInputStream.java, orb/CDROutputStream.java: JAC#352
+	PrismTech patch back - fixes for wstring valuetype
+	interoperability issue with the sun orb
+
 2009-03-04  Andre Spiegel  <spiegel@gnu.org>
 
 	* orb/iiop/IIOPProfile.java (addNetworkAddresses): New function,
