@@ -74,6 +74,8 @@ x.y
         - fixed wstring valuetype interoperability issue with the sun orb (JAC#352).
         - patch from bugzilla #708 to fix occasional deadlock/timeout issue within 
           GIOPConnections (JAC#359).
+        - let POA.reference_to_servant raise BAD_PARM if a null reference is passed in (JAC#415).
+          
     - Documentation
         - enhanced socket factory documentation (JAC#376)
         

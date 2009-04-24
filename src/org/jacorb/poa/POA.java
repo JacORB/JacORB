@@ -40,6 +40,7 @@ import org.jacorb.ssl.SSL_POLICY_TYPE;
 import org.jacorb.util.ObjectUtil;
 import org.omg.BiDirPolicy.BIDIRECTIONAL_POLICY_TYPE;
 import org.omg.BiDirPolicy.BidirectionalPolicy;
+import org.omg.CORBA.BAD_PARAM;
 import org.omg.PortableServer.AdapterActivator;
 import org.omg.PortableServer.ID_ASSIGNMENT_POLICY_ID;
 import org.omg.PortableServer.ID_UNIQUENESS_POLICY_ID;
@@ -1761,6 +1762,11 @@ public class POA
     public Servant reference_to_servant(org.omg.CORBA.Object reference)
         throws ObjectNotActive, WrongAdapter, WrongPolicy
     {
+        if (reference == null)
+        {
+            throw new BAD_PARAM("reference may not be null");
+        }
+
         checkDestructionApparent();
         checkNotLocal(reference);
 
