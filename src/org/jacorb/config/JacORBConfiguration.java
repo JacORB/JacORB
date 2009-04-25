@@ -35,8 +35,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
 import java.util.StringTokenizer;
-import org.apache.avalon.framework.configuration.Configurable;
-import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.logger.Logger;
 import org.jacorb.orb.ORB;
 import org.jacorb.util.ObjectUtil;
@@ -46,8 +44,15 @@ import org.jacorb.util.ObjectUtil;
  * @version $Id$
  */
 
-public class JacORBConfiguration
-    extends org.apache.avalon.framework.configuration.DefaultConfiguration implements Configuration
+/**
+ * @author Andre Spiegel <spiegel@gnu.org>
+ * @version $Id$
+ */
+/**
+ * @author Andre Spiegel <spiegel@gnu.org>
+ * @version $Id$
+ */
+public class JacORBConfiguration implements Configuration
 {
     private static final String CONFIG_LOG_VERBOSITY = "jacorb.config.log.verbosity";
     private static final String fileSuffix = ".properties";
@@ -59,6 +64,10 @@ public class JacORBConfiguration
 
     private static final int DEFAULT_LOG_LEVEL = 0;
 
+    /** contains the actual configuration data */
+    private Properties attributes;
+    
+    private String name;
     private final ORB orb;
 
     /** root logger instance for this configuration */
@@ -131,9 +140,12 @@ public class JacORBConfiguration
                                 boolean isApplet)
         throws ConfigurationException
     {
-        super(name);
+        super();
+        this.name = name;
         this.orb = orb;
 
+        this.attributes = new Properties();
+        
         if (isApplet)
         {
             initApplet(name, orbProperties);
@@ -497,6 +509,15 @@ public class JacORBConfiguration
 
 
     /**
+     * Sets the value of a single attribute.
+     */
+    public void setAttribute(String key, String value)
+    {
+        attributes.put(key, value);
+    }
+
+
+    /**
      * set attributes of this configuration using properties
      */
 
@@ -761,13 +782,118 @@ public class JacORBConfiguration
         }
         return packageName;
     }
+    
+    /**
+     * @see org.jacorb.config.Configuration#getAttribute(java.lang.String)
+     */
+    public String getAttribute(String key)
+    {
+        String result = attributes.getProperty(key);
+        if (result != null)
+        {
+            return result;
+        }
+        else
+        {
+            throw new ConfigurationException 
+            (
+                "attribute " + key + " is not defined"
+            );
+        }
+    }
 
     /**
-     * For a property that has a list of comma-separated values,
-     * this method returns these values as a list of Strings.
-     * If the property is not set, an empty list is returned.
+     * @see org.jacorb.config.Configuration#getAttribute(java.lang.String, java.lang.String)
      */
+    public String getAttribute(String key, String defaultValue)
+    {
+        return attributes.getProperty(key, defaultValue);
+    }
 
+    
+    /**
+     * @see org.jacorb.config.Configuration#getAttributeAsInteger(java.lang.String, int)
+     */
+    public int getAttributeAsInteger(String key, int defaultValue)
+    {
+        Object value = attributes.getProperty (key, null);
+        if (value == null)
+        {
+            return defaultValue;
+        }
+        else if (value instanceof String) 
+        {
+            try
+            {
+                int i = Integer.parseInt (((String)value).trim());
+                return i;
+            }
+            catch (NumberFormatException ex)
+            {
+                // fall through
+            }
+        }
+        throw new ConfigurationException 
+        (
+            "value for attribute " + key + " is not numeric: " + value
+        );
+    }
+
+
+    /**
+     * @see org.jacorb.config.Configuration#getAttributeAsInteger(java.lang.String)
+     */
+    public int getAttributeAsInteger(String key)
+    {
+        Object value = attributes.getProperty (key, null);
+        if (value == null)
+        {
+            throw new ConfigurationException
+            (
+                "value for attribute " + key + " is not set"
+            );
+        }
+        else
+        {
+            // we know now that the attribute does exist, so it's safe
+            // to call the other function with an arbitrary default value
+            return getAttributeAsInteger (key, 0);
+        }
+    }
+
+
+    /**
+     * @see org.jacorb.config.Configuration#getAttributeAsLong(java.lang.String, long)
+     */
+    public long getAttributeAsLong(String key, long defaultValue)
+    {
+        Object value = attributes.getProperty (key, null);
+        if (value == null)
+        {
+            return defaultValue;
+        }
+        else if (value instanceof String) 
+        {
+            try
+            {
+                long i = Long.parseLong (((String)value).trim());
+                return i;
+            }
+            catch (NumberFormatException ex)
+            {
+                // fall through
+            }
+        }
+        throw new ConfigurationException 
+        (
+            "value for attribute " + key + " is not numeric: " + value
+        );
+    }
+
+
+    /**
+     * @see org.jacorb.config.Configuration#getAttributeList(java.lang.String)
+     */
     public List getAttributeList(String key)
     {
         List result = new ArrayList();
@@ -794,14 +920,8 @@ public class JacORBConfiguration
     }
 
     /**
-     * Create an object from the given property. The class's default
-     * constructor will be used.
-     *
-     * @return an object of the class of the keys value, or null, if
-     * no class name is found for the key
-     * @throws ConfigurationException if object creation fails.
+     * @see org.jacorb.config.Configuration#getAttributeAsObject(java.lang.String)
      */
-
     public Object getAttributeAsObject( String key )
         throws ConfigurationException
     {
@@ -821,7 +941,6 @@ public class JacORBConfiguration
         try
         {
             Class clazz = ObjectUtil.classForName(className);
-
             final Object instance = clazz.newInstance();
 
             if (instance instanceof Configurable)
@@ -837,18 +956,23 @@ public class JacORBConfiguration
         }
     }
 
-    public Object getAttributeAsObject(String key, String defaultValue) throws ConfigurationException
+    /**
+     * @see org.jacorb.config.Configuration#getAttributeAsObject(java.lang.String, java.lang.String)
+     */
+    public Object getAttributeAsObject(String key, String defaultClass) throws ConfigurationException
     {
         Object result = getAttributeAsObject(key);
-
         if (result == null)
         {
-            return newInstance("default", defaultValue);
+            return newInstance("default", defaultClass);
         }
 
         return result;
     }
 
+    /**
+     * @see org.jacorb.config.Configuration#getAttributeAsBoolean(java.lang.String)
+     */
     public boolean getAttributeAsBoolean(String key)
         throws ConfigurationException
     {
@@ -863,6 +987,9 @@ public class JacORBConfiguration
         return false;
     }
 
+    /**
+     * @see org.jacorb.config.Configuration#getAttributeAsBoolean(java.lang.String, boolean)
+     */
     public boolean getAttributeAsBoolean(String key, boolean defaultValue)
     {
         String value = getAttribute(key, EMPTY_STR);
@@ -877,6 +1004,14 @@ public class JacORBConfiguration
     }
 
 
+    public String[] getAttributeNames()
+    {
+        return (String[])(attributes.keySet().toArray (new String[]{}));
+    }
+    
+    /**
+     * @see org.jacorb.config.Configuration#getAttributeNamesWithPrefix(java.lang.String)
+     */
     public List getAttributeNamesWithPrefix(String prefix)
     {
         final List attributesWithPrefix = new ArrayList();
