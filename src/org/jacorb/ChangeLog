@@ -1,3 +1,24 @@
+2009-04-25  Andre Spiegel  <spiegel@gnu.org>
+
+	Changes to remove dependency on Avalon for configuration.
+
+	* config/JacORBConfiguration.java: Remove Avalon superclass; this
+	class is now self-contained.
+
+	* config/Configuration.java (getAttribute*): New methods which
+	were formerly defined in the Avalon superinterface.
+
+	* config/Configurable.java, config/ConfigurationException.java:
+	Initial revision.
+
+	* Everywhere else: Change imports to use only JacORB's own
+	configuration classes.
+	
+2009-04-24  Alexander Bykov  <alexander.bykov@prismtech.com>
+
+	* poa/POA.java: JAC#415: let POA.reference_to_servant raise
+	BAD_PARM if a null reference is passed in
+
 2009-04-08  Alexander Bykov  <alexander.bykov@prismtech.com>
 
 	* orb/util/PrintIOR.java: JAC#380: issue test and documentation update
