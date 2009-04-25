@@ -22,7 +22,6 @@ package org.jacorb.config;
 
 import java.util.List;
 
-import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.logger.Logger;
 import org.jacorb.orb.ORB;
 
@@ -60,31 +59,59 @@ import org.jacorb.orb.ORB;
  */
 
 public interface Configuration
-    extends org.apache.avalon.framework.configuration.Configuration
 {
     /**
      * @return the ORB for which this configuration was created
      */
-
     ORB getORB();
-
 
     /**
      * @param name the name of the logger, which also functions
      *        as a log category
      * @return a Logger for a given name
      */
-
     Logger getNamedLogger(String name);
 
+    /**
+     * Returns the value of the configuration attribute with the given key.
+     * If the attribute value for this key is undefined, the exception
+     * ConfigurationException is thrown.
+     */
+    String getAttribute (String key);
 
+    /**
+     * Returns the value of the configuration attribute with the given key.
+     * If the attribute value for this key is undefined, the defaultValue
+     * is returned.
+     */
+    String getAttribute (String key, String defaultValue);
 
+    /**
+     * Returns the value of the configuration attribute with the given key,
+     * as an integer.  If the attribute value for this key is undefined,
+     * the exception ConfigurationException is thrown.
+     */
+    int getAttributeAsInteger (String key);
+
+    /**
+     * Returns the value of the configuration attribute with the given key,
+     * as an integer.  If the attribute value for this key is undefined, the
+     * defaultValue is returned.
+     */
+    int getAttributeAsInteger (String key, int defaultValue);
+
+    /**
+     * Returns the value of the configuration attribute with the given key,
+     * as a long value.  If the attribute value for this key is undefined, the
+     * defaultValue is returned.
+     */
+    long getAttributeAsLong (String key, long defaultValue);
+    
     /**
      * For a property that has a list of comma-separated values,
      * this method returns these values as a list of Strings.
      * If the property is not set, an empty list is returned.
      */
-
     List getAttributeList(String key);
 
     /**
@@ -95,19 +122,16 @@ public interface Configuration
      * no class name is found for the key
      * @throws ConfigurationException
      */
+    Object getAttributeAsObject(String key ) throws ConfigurationException;
 
-    Object getAttributeAsObject( String key ) throws ConfigurationException;
-
-    Object getAttributeAsObject( String key, String defaultValue) throws ConfigurationException;
+    Object getAttributeAsObject(String key, String defaultClass) throws ConfigurationException;
 
     boolean getAttributeAsBoolean(String key)
         throws ConfigurationException;
 
     boolean getAttributeAsBoolean(String key, boolean defaultValue);
 
-
     String getLoggerName(Class clazz);
-
 
     void setAttribute(String key, String value);
 
