@@ -25,7 +25,7 @@ package org.jacorb.test.notification.common;
 import junit.framework.Test;
 import junit.framework.TestCase;
 
-import org.apache.avalon.framework.configuration.Configuration;
+import org.jacorb.config.*;
 import org.apache.avalon.framework.logger.Logger;
 import org.jacorb.notification.MessageFactory;
 import org.jacorb.notification.container.PicoContainerFactory;

@@ -1,7 +1,7 @@
 package test.nestedproperties;
 
 import java.util.*;
-import org.apache.avalon.framework.configuration.ConfigurationException;
+import org.jacorb.config.*;
 
 public class NestedProperties
 {

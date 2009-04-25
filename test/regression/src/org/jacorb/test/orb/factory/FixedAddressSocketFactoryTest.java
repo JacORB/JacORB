@@ -3,7 +3,7 @@ package org.jacorb.test.orb.factory;
 import java.net.InetAddress;
 import java.net.Socket;
 
-import org.apache.avalon.framework.configuration.Configurable;
+import org.jacorb.config.*;
 import org.apache.avalon.framework.logger.NullLogger;
 import org.easymock.MockControl;
 import org.jacorb.config.Configuration;

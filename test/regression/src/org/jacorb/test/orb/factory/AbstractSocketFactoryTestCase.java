@@ -10,7 +10,7 @@ import java.util.Arrays;
 
 import junit.framework.TestCase;
 
-import org.apache.avalon.framework.configuration.Configurable;
+import org.jacorb.config.*;
 import org.jacorb.orb.factory.SocketFactory;
 
 import org.omg.CORBA.TIMEOUT;

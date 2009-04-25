@@ -19,7 +19,7 @@ package org.jacorb.test.orb.iiop;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 import junit.framework.TestSuite;
-import org.apache.avalon.framework.configuration.ConfigurationException;
+import org.jacorb.config.*;
 import org.jacorb.config.JacORBConfiguration;
 import org.jacorb.orb.ORB;
 import org.jacorb.orb.CDROutputStream;

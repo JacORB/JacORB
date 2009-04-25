@@ -28,7 +28,7 @@ import java.net.ServerSocket;
 
 import junit.framework.TestCase;
 
-import org.apache.avalon.framework.configuration.Configurable;
+import org.jacorb.config.*;
 import org.apache.avalon.framework.logger.Logger;
 import org.easymock.MockControl;
 import org.jacorb.config.Configuration;

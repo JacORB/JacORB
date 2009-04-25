@@ -24,7 +24,7 @@ package org.jacorb.test.orb.etf.wiop;
 import java.io.*;
 import java.net.*;
 
-import org.apache.avalon.framework.configuration.*;
+import org.jacorb.config.*;
 
 import org.omg.ETF.*;
 import org.omg.IOP.*;
