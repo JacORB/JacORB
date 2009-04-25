@@ -21,8 +21,7 @@ package org.jacorb.orb;
  */
 
 import java.util.HashSet;
-import org.apache.avalon.framework.configuration.Configuration;
-import org.apache.avalon.framework.configuration.ConfigurationException;
+import org.jacorb.config.*;
 import org.apache.avalon.framework.logger.Logger;
 import org.jacorb.config.JacORBConfiguration;
 import org.omg.CORBA.BAD_PARAM;

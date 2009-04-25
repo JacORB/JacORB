@@ -23,7 +23,7 @@ package org.jacorb.notification.servant;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.avalon.framework.configuration.Configuration;
+import org.jacorb.config.*;
 import org.jacorb.notification.MessageFactory;
 import org.jacorb.notification.OfferManager;
 import org.jacorb.notification.SubscriptionManager;

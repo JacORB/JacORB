@@ -20,8 +20,7 @@ package org.jacorb.notification.filter.etcl;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import org.apache.avalon.framework.configuration.Configuration;
-import org.apache.avalon.framework.configuration.ConfigurationException;
+import org.jacorb.config.*;
 import org.jacorb.notification.MessageFactory;
 import org.jacorb.notification.filter.AbstractFilter;
 import org.jacorb.notification.filter.FilterConstraint;

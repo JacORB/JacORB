@@ -20,9 +20,7 @@ package org.jacorb.poa;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import org.apache.avalon.framework.configuration.Configurable;
-import org.apache.avalon.framework.configuration.Configuration;
-import org.apache.avalon.framework.configuration.ConfigurationException;
+import org.jacorb.config.*;
 import org.apache.avalon.framework.logger.Logger;
 import org.jacorb.util.ObjectUtil;
 

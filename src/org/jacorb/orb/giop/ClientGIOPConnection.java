@@ -20,9 +20,7 @@
 
 package org.jacorb.orb.giop;
 
-import org.apache.avalon.framework.configuration.Configurable;
-import org.apache.avalon.framework.configuration.Configuration;
-import org.apache.avalon.framework.configuration.ConfigurationException;
+import org.jacorb.config.*;
 
 /**
  * @author Nicolas Noffke

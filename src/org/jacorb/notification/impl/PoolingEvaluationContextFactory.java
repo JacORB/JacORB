@@ -21,7 +21,7 @@
 
 package org.jacorb.notification.impl;
 
-import org.apache.avalon.framework.configuration.Configuration;
+import org.jacorb.config.*;
 import org.jacorb.notification.filter.EvaluationContext;
 import org.jacorb.notification.interfaces.EvaluationContextFactory;
 import org.jacorb.notification.util.AbstractObjectPool;

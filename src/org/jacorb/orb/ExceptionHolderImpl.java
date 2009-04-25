@@ -24,7 +24,7 @@ import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
-import org.apache.avalon.framework.configuration.Configurable;
+import org.jacorb.config.*;
 import org.apache.avalon.framework.logger.Logger;
 import org.jacorb.ir.RepositoryID;
 import org.jacorb.orb.giop.ReplyInputStream;
@@ -104,8 +104,8 @@ public class ExceptionHolderImpl
         }
     }
 
-    public void configure(org.apache.avalon.framework.configuration.Configuration configuration)
-        throws org.apache.avalon.framework.configuration.ConfigurationException
+    public void configure(Configuration configuration)
+        throws ConfigurationException
     {
         logger =
             ((org.jacorb.config.Configuration)configuration).getNamedLogger("jacorb.orb.exc_holder");

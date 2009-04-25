@@ -27,10 +27,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.avalon.framework.configuration.Configurable;
-import org.apache.avalon.framework.configuration.Configuration;
-import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.logger.Logger;
+import org.jacorb.config.*;
 import org.jacorb.orb.DefaultProfileSelector;
 import org.jacorb.orb.ORB;
 import org.jacorb.orb.ProfileSelector;

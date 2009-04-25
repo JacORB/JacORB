@@ -24,10 +24,8 @@ import java.io.FileOutputStream;
 import java.io.PrintWriter;
 import java.util.StringTokenizer;
 import java.util.Vector;
-import org.apache.avalon.framework.configuration.Configurable;
-import org.apache.avalon.framework.configuration.Configuration;
-import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.logger.Logger;
+import org.jacorb.config.*;
 import org.omg.PortableServer.POA;
 import org.omg.PortableServer.POAHelper;
 

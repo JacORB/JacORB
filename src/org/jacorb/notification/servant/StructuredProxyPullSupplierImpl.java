@@ -21,8 +21,7 @@ package org.jacorb.notification.servant;
  *
  */
 
-import org.apache.avalon.framework.configuration.Configuration;
-import org.apache.avalon.framework.configuration.ConfigurationException;
+import org.jacorb.config.*;
 import org.jacorb.notification.OfferManager;
 import org.jacorb.notification.SubscriptionManager;
 import org.jacorb.notification.engine.TaskProcessor;

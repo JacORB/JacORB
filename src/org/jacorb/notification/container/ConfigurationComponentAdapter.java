@@ -19,11 +19,11 @@
 
 package org.jacorb.notification.container;
 
-import org.apache.avalon.framework.configuration.Configuration;
 import org.omg.CORBA.ORB;
 import org.picocontainer.PicoContainer;
 import org.picocontainer.PicoIntrospectionException;
 import org.picocontainer.defaults.AbstractComponentAdapter;
+import org.jacorb.config.*;
 
 class ConfigurationComponentAdapter extends AbstractComponentAdapter
 {

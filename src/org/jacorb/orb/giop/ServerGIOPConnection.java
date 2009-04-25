@@ -20,8 +20,7 @@
 
 package org.jacorb.orb.giop;
 
-import org.apache.avalon.framework.configuration.Configuration;
-import org.apache.avalon.framework.configuration.ConfigurationException;
+import org.jacorb.config.*;
 import org.jacorb.orb.iiop.IIOPConnection;
 
 /**

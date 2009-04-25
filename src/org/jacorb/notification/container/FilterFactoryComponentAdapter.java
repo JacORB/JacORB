@@ -19,7 +19,7 @@
 
 package org.jacorb.notification.container;
 
-import org.apache.avalon.framework.configuration.Configuration;
+import org.jacorb.config.*;
 import org.apache.avalon.framework.logger.Logger;
 import org.jacorb.notification.IContainer;
 import org.jacorb.notification.conf.Attributes;

@@ -22,8 +22,7 @@ package org.jacorb.security.sas;
 
 import java.security.cert.X509Certificate;
 import javax.net.ssl.SSLSocket;
-import org.apache.avalon.framework.configuration.Configuration;
-import org.apache.avalon.framework.configuration.ConfigurationException;
+import org.jacorb.config.*;
 import org.apache.avalon.framework.logger.Logger;
 import org.jacorb.orb.dsi.ServerRequest;
 import org.jacorb.orb.giop.GIOPConnection;

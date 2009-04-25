@@ -20,7 +20,7 @@ package org.jacorb.poa;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import org.apache.avalon.framework.configuration.Configurable;
+import org.jacorb.config.*;
 
 /**
  * The POA monitor interface, known to the POA.

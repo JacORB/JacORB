@@ -22,8 +22,7 @@ package org.jacorb.notification.filter.bsh;
 
 import java.util.Date;
 
-import org.apache.avalon.framework.configuration.Configuration;
-import org.apache.avalon.framework.configuration.ConfigurationException;
+import org.jacorb.config.*;
 import org.jacorb.notification.MessageFactory;
 import org.jacorb.notification.filter.AbstractFilter;
 import org.jacorb.notification.filter.EvaluationContext;

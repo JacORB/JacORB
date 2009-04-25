@@ -25,7 +25,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import org.apache.avalon.framework.configuration.Configuration;
+import org.jacorb.config.*;
 import org.apache.avalon.framework.logger.Logger;
 import org.jacorb.notification.conf.Attributes;
 import org.jacorb.notification.conf.Default;

@@ -20,9 +20,7 @@ package org.jacorb.poa;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import org.apache.avalon.framework.configuration.Configurable;
-import org.apache.avalon.framework.configuration.Configuration;
-import org.apache.avalon.framework.configuration.ConfigurationException;
+import org.jacorb.config.*;
 import org.apache.avalon.framework.logger.Logger;
 import org.jacorb.poa.gui.POAManagerMonitorController;
 import org.jacorb.poa.gui.POAManagerMonitorView;
@@ -43,7 +41,7 @@ public class POAManagerMonitorImpl
     private POAManagerMonitorView view = null;
 
     /** the configuration object for this POA instance */
-    private org.jacorb.config.Configuration configuration = null;
+    private Configuration configuration = null;
     private Logger logger;
 
     public void configure(Configuration myConfiguration)

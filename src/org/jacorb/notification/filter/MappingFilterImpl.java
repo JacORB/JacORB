@@ -24,7 +24,7 @@ package org.jacorb.notification.filter;
 import java.util.Hashtable;
 import java.util.Map;
 
-import org.apache.avalon.framework.configuration.Configuration;
+import org.jacorb.config.*;
 import org.apache.avalon.framework.logger.Logger;
 import org.jacorb.notification.conf.Attributes;
 import org.jacorb.notification.conf.Default;

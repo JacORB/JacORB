@@ -20,7 +20,7 @@ package org.jacorb.notification;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import org.apache.avalon.framework.configuration.Configuration;
+import org.jacorb.config.*;
 import org.jacorb.notification.container.PicoContainerFactory;
 import org.jacorb.notification.servant.AbstractAdmin;
 import org.jacorb.notification.servant.AbstractSupplierAdmin;

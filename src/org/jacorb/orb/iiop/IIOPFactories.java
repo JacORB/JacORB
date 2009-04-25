@@ -21,7 +21,7 @@ package org.jacorb.orb.iiop;
  *
  */
 
-import org.apache.avalon.framework.configuration.ConfigurationException;
+import org.jacorb.config.*;
 import org.omg.ETF.Profile;
 
 /**

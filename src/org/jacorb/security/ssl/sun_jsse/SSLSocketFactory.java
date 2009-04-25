@@ -34,8 +34,7 @@ import javax.net.ssl.SSLSocket;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.TrustManagerFactory;
 
-import org.apache.avalon.framework.configuration.Configuration;
-import org.apache.avalon.framework.configuration.ConfigurationException;
+import org.jacorb.config.*;
 import org.jacorb.orb.ORB;
 import org.jacorb.orb.factory.AbstractSocketFactory;
 import org.jacorb.orb.listener.SSLHandshakeListener;

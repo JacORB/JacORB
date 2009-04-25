@@ -21,7 +21,7 @@ package org.jacorb.notification.impl;
  *
  */
 
-import org.apache.avalon.framework.configuration.Configuration;
+import org.jacorb.config.*;
 import org.jacorb.notification.AnyMessage;
 import org.jacorb.notification.MessageFactory;
 import org.jacorb.notification.StructuredEventMessage;

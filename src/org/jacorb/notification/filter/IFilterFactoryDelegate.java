@@ -21,7 +21,7 @@
 
 package org.jacorb.notification.filter;
 
-import org.apache.avalon.framework.configuration.Configuration;
+import org.jacorb.config.*;
 import org.jacorb.notification.interfaces.Disposable;
 import org.omg.CORBA.Any;
 import org.omg.CosNotifyFilter.InvalidGrammar;

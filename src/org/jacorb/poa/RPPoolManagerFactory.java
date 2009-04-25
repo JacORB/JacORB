@@ -1,6 +1,6 @@
 package org.jacorb.poa;
 
-import org.apache.avalon.framework.configuration.ConfigurationException;
+import org.jacorb.config.*;
 import org.apache.avalon.framework.logger.Logger;
 import org.jacorb.config.Configuration;
 import org.jacorb.orb.ORB;

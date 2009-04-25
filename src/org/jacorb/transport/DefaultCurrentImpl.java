@@ -23,9 +23,7 @@ package org.jacorb.transport;
 
 import java.util.Iterator;
 import java.util.List;
-import org.apache.avalon.framework.configuration.Configurable;
-import org.apache.avalon.framework.configuration.Configuration;
-import org.apache.avalon.framework.configuration.ConfigurationException;
+import org.jacorb.config.*;
 import org.apache.avalon.framework.logger.Logger;
 import org.jacorb.orb.giop.TransportListener;
 import org.omg.CORBA.LocalObject;

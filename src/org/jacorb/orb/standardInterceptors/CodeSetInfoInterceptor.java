@@ -22,9 +22,7 @@ package org.jacorb.orb.standardInterceptors;
  */
 
 
-import org.apache.avalon.framework.configuration.Configurable;
-import org.apache.avalon.framework.configuration.Configuration;
-import org.apache.avalon.framework.configuration.ConfigurationException;
+import org.jacorb.config.*;
 import org.jacorb.orb.CDROutputStream;
 import org.jacorb.orb.ORB;
 import org.jacorb.orb.giop.CodeSet;

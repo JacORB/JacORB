@@ -21,7 +21,7 @@
 
 package org.jacorb.orb.etf;
 
-import org.apache.avalon.framework.configuration.Configurable;
+import org.jacorb.config.*;
 import org.jacorb.orb.CDRInputStream;
 import org.jacorb.orb.CDROutputStream;
 import org.jacorb.orb.TaggedComponentList;

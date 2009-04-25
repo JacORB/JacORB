@@ -20,9 +20,7 @@
 
 package org.jacorb.orb.listener;
 
-import org.apache.avalon.framework.configuration.Configurable;
-import org.apache.avalon.framework.configuration.Configuration;
-import org.apache.avalon.framework.configuration.ConfigurationException;
+import org.jacorb.config.*;
 import org.apache.avalon.framework.logger.Logger;
 import org.jacorb.orb.iiop.IIOPListener;
 import org.jacorb.util.ObjectUtil;
@@ -54,22 +52,22 @@ public class DefaultAcceptorExceptionListener
      */
     public void configure(Configuration configuration)
     {
-        try
+        sslException = null;
+        String exceptionClass = configuration.getAttribute
+        (
+            "javax.net.ssl.SSLException", null
+        );
+        if (exceptionClass != null)
         {
-            String exceptionClass = configuration.getAttribute("javax.net.ssl.SSLException");
-            sslException = ObjectUtil.classForName(exceptionClass);
+            try
+            {
+                sslException = ObjectUtil.classForName(exceptionClass);
+            }
+            catch (ClassNotFoundException e)
+            {
+                // ignore
+            }
         }
-        catch(ClassNotFoundException e)
-        {
-        }
-        catch (ConfigurationException e)
-        {
-            sslException = null;
-        }
-        {
-            sslException = null;
-        }
-
         logger = ((org.jacorb.config.Configuration)configuration).getNamedLogger("jacorb.orb.iiop");
     }
 

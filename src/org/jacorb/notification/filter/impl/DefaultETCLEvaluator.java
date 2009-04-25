@@ -21,7 +21,7 @@ package org.jacorb.notification.filter.impl;
  *
  */
 
-import org.apache.avalon.framework.configuration.Configuration;
+import org.jacorb.config.*;
 import org.apache.avalon.framework.logger.Logger;
 import org.jacorb.notification.filter.ETCLEvaluator;
 import org.jacorb.notification.filter.EvaluationContext;

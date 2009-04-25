@@ -20,7 +20,7 @@
  */
 package org.jacorb.security.ssl.sun_jsse;
 
-import org.apache.avalon.framework.configuration.*;
+import org.jacorb.config.*;
 
 import java.net.*;
 import java.io.*;

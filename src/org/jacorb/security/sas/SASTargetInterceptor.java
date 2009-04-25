@@ -21,9 +21,7 @@ package org.jacorb.security.sas;
  */
 
 import java.util.Hashtable;
-import org.apache.avalon.framework.configuration.Configurable;
-import org.apache.avalon.framework.configuration.Configuration;
-import org.apache.avalon.framework.configuration.ConfigurationException;
+import org.jacorb.config.*;
 import org.apache.avalon.framework.logger.Logger;
 import org.jacorb.orb.MinorCodes;
 import org.jacorb.orb.giop.GIOPConnection;

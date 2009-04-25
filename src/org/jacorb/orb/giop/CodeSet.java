@@ -27,7 +27,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.Properties;
-import org.apache.avalon.framework.configuration.ConfigurationException;
+import org.jacorb.config.*;
 import org.apache.avalon.framework.logger.NullLogger;
 import org.jacorb.config.Configuration;
 import org.jacorb.orb.CDRInputStream;

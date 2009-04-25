@@ -22,7 +22,7 @@ package org.jacorb.orb.standardInterceptors;
  */
 
 
-import org.apache.avalon.framework.configuration.ConfigurationException;
+import org.jacorb.config.*;
 import org.apache.avalon.framework.logger.Logger;
 import org.ietf.jgss.Oid;
 import org.jacorb.orb.CDROutputStream;

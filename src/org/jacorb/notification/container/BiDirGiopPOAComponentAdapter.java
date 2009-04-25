@@ -24,7 +24,7 @@ package org.jacorb.notification.container;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.avalon.framework.configuration.Configuration;
+import org.jacorb.config.*;
 import org.apache.avalon.framework.logger.Logger;
 import org.jacorb.notification.util.LogUtil;
 import org.omg.BiDirPolicy.BIDIRECTIONAL_POLICY_TYPE;

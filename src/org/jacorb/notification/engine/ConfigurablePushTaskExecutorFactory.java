@@ -21,7 +21,7 @@
 
 package org.jacorb.notification.engine;
 
-import org.apache.avalon.framework.configuration.Configuration;
+import org.jacorb.config.*;
 import org.jacorb.notification.conf.Attributes;
 import org.jacorb.notification.conf.Default;
 

@@ -21,8 +21,7 @@ package org.jacorb.security.sas;
  */
 
 
-import org.apache.avalon.framework.configuration.Configuration;
-import org.apache.avalon.framework.configuration.ConfigurationException;
+import org.jacorb.config.*;
 import org.omg.CORBA.ORB;
 import org.omg.CSIIOP.CompoundSecMechList;
 import org.omg.IOP.Codec;

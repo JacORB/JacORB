@@ -28,9 +28,8 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.PrintWriter;
 
-import org.apache.avalon.framework.configuration.Configuration;
-import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.logger.Logger;
+import org.jacorb.config.*;
 import org.jacorb.imr.util.ImRManager;
 import org.jacorb.util.ObjectUtil;
 import org.omg.PortableServer.ForwardRequest;

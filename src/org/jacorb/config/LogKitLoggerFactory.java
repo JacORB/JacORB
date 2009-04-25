@@ -27,7 +27,6 @@ import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.util.HashMap;
 import java.util.Map;
-import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.logger.LogKitLogger;
 import org.apache.avalon.framework.logger.Logger;
 import org.apache.log.Hierarchy;
@@ -92,8 +91,8 @@ public class LogKitLoggerFactory
 
     private Configuration configuration = null;
 
-    public void configure(org.apache.avalon.framework.configuration.Configuration configuration)
-        throws org.apache.avalon.framework.configuration.ConfigurationException
+    public void configure (Configuration configuration)
+        throws ConfigurationException
     {
         this.configuration = (Configuration)configuration;
 
