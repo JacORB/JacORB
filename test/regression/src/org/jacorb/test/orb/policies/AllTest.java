@@ -34,8 +34,8 @@ public class AllTest extends TestCase
         TestSuite suite = new TestSuite ("All ORB Policies");
 
         suite.addTest (org.jacorb.test.orb.policies.PolicyHandlingTest.suite());
-        suite.addTest (org.jacorb.test.orb.policies.SyncScopeTest.suite());
-        suite.addTest (org.jacorb.test.orb.policies.TimingTest.suite());
+        suite.addTestSuite (SyncScopeTest.class);
+        suite.addTest (TimingTest.suite());
         suite.addTestSuite(PolicyManagerTest.class);
 
         return suite;

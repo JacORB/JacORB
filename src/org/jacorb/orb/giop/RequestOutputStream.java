@@ -81,6 +81,28 @@ public class RequestOutputStream
 
     private final ClientConnection connection;
 
+    private final byte[] object_key;
+
+    /**
+     * Copy constructor for <code>RequestOutputStream</code> used for SYNC_SCOPE NONE.
+     *
+     * @param other a <code>RequestOutputStream</code> value
+     */
+    public RequestOutputStream( RequestOutputStream other)
+    {
+        this((org.jacorb.orb.ORB)other.orb(),
+            other.connection,
+            other.request_id,
+            other.operation,
+            other.response_expected,
+            other.syncScope,
+            other.requestStartTime,
+            other.replyEndTime,
+            other.replyEndTime,
+            other.object_key,
+            other.giop_minor);
+    }
+
     public RequestOutputStream( org.jacorb.orb.ORB orb,
                                 ClientConnection connection,
                                 int request_id,
@@ -96,6 +118,7 @@ public class RequestOutputStream
 
         setGIOPMinor( giop_minor );
 
+        this.object_key = object_key;
         this.request_id = request_id;
         this.response_expected = response_expected;
         this.syncScope = syncScope;

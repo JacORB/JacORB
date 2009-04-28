@@ -1104,7 +1104,8 @@ public final class Delegate
         switch (ros.syncScope())
         {
             case SYNC_NONE.value:
-                passToTransport (ros);
+                RequestOutputStream copy = new RequestOutputStream(ros);
+                passToTransport (copy);
                 interceptors.handle_receive_other (SUCCESSFUL.value);
                 break;
 

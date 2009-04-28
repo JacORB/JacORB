@@ -57,7 +57,7 @@ x.y
         - fix for broken socket connect timeout mechanism (JAC#375).
         - fix for bug during logfile initialization routine
           that caused the creation of multiple empty logfiles (JAC#384).
-        
+        - fixes for stream closure with sync scope none (JAC#410).
           
     - IDL Compiler:
         - added option that allows to control the portability level of

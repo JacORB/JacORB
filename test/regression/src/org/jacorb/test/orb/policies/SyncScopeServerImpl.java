@@ -5,11 +5,13 @@ import org.jacorb.test.*;
 
 public class SyncScopeServerImpl extends SyncScopeServerPOA
 {
+    private int onewayCount = 0;
 
     public void oneway_op(int delay)
     {
         synchronized (this)
         {
+            onewayCount++;
             try
             {
                 if (delay > 0) this.wait (delay);
@@ -36,4 +38,11 @@ public class SyncScopeServerImpl extends SyncScopeServerPOA
         }
     }
 
+    public int get_oneway_count()
+    {
+        synchronized(this)
+        {
+            return onewayCount;
+        }
+    }
 }

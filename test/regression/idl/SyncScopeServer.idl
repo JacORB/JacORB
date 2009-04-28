@@ -10,6 +10,7 @@ module org
          {
             oneway void oneway_op (in long delay);
             void operation (in long delay);
+            long get_oneway_count();
          };
       };
    };

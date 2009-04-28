@@ -1,13 +1,21 @@
 
 package org.jacorb.test.orb.policies;
 
-import junit.framework.*;
+import junit.framework.TestCase;
 
-import org.omg.CORBA.*;
-import org.omg.Messaging.*;
-
-import org.jacorb.test.*;
-import org.jacorb.test.common.*;
+import org.jacorb.test.SyncScopeServer;
+import org.jacorb.test.SyncScopeServerHelper;
+import org.jacorb.test.common.ORBSetup;
+import org.jacorb.test.common.ServerSetup;
+import org.omg.CORBA.ORB;
+import org.omg.CORBA.Policy;
+import org.omg.CORBA.PolicyError;
+import org.omg.CORBA.SetOverrideType;
+import org.omg.Messaging.SYNC_NONE;
+import org.omg.Messaging.SYNC_SCOPE_POLICY_TYPE;
+import org.omg.Messaging.SYNC_WITH_SERVER;
+import org.omg.Messaging.SYNC_WITH_TARGET;
+import org.omg.Messaging.SYNC_WITH_TRANSPORT;
 
 /**
  * Tests for SyncScopePolicy.
@@ -15,37 +23,33 @@ import org.jacorb.test.common.*;
  * @author Andre Spiegel <spiegel@gnu.org>
  * @version $Id$
  */
-public class SyncScopeTest extends ClientServerTestCase
+public class SyncScopeTest extends TestCase
 {
     private final int TIME = 300;
     private SyncScopeServer server;
-
-    public SyncScopeTest (String name, ClientServerSetup setup)
-    {
-        super (name, setup);
-    }
+    private ServerSetup serverSetup;
+    private ORBSetup orbSetup;
+    private ORB orb;
 
     protected void setUp() throws Exception
     {
-        server = SyncScopeServerHelper.narrow (setup.getServerObject());
+        orbSetup = new ORBSetup(this);
+        orbSetup.setUp();
+        orb = orbSetup.getORB();
+
+        serverSetup = new ServerSetup(this, SyncScopeServerImpl.class.getName());
+        serverSetup.setUp();
+        server = SyncScopeServerHelper.narrow (orb.string_to_object(serverSetup.getServerIOR()));
     }
 
     protected void tearDown() throws Exception
     {
+        orbSetup.tearDown();
+        orbSetup = null;
+        server._release();
         server = null;
-    }
-
-    public static Test suite()
-    {
-        TestSuite suite = new TestSuite ("Sync Scope");
-        ClientServerSetup setup =
-            new ClientServerSetup
-                (suite,
-                 "org.jacorb.test.orb.policies.SyncScopeServerImpl");
-
-        TestUtils.addToSuite(suite, setup, SyncScopeTest.class);
-
-        return setup;
+        serverSetup.tearDown();
+        serverSetup = null;
     }
 
     public void test_warm_up()
@@ -54,52 +58,67 @@ public class SyncScopeTest extends ClientServerTestCase
         server.oneway_op (50);
     }
 
-    public void test_sync_none()
+    public void test_sync_none() throws Exception
     {
+        int beforeCount = server.get_oneway_count();
+
         setSyncScope (server, SYNC_NONE.value);
         long start = System.currentTimeMillis();
 
         server.oneway_op (TIME);
         long time = System.currentTimeMillis() - start;
         assertTrue ("return too late", time < TIME);
+
+        verifyOnewayWasReceived(beforeCount + 1);
     }
 
-    public void test_sync_with_transport()
+    public void test_sync_with_transport() throws Exception
     {
+        int beforeCount = server.get_oneway_count();
+        
         setSyncScope (server, SYNC_WITH_TRANSPORT.value);
         long start = System.currentTimeMillis();
         server.oneway_op (TIME);
         long time = System.currentTimeMillis() - start;
         assertTrue ("return too late", time < TIME);
+        
+        verifyOnewayWasReceived(beforeCount + 1);
     }
 
-    public void test_sync_with_server()
+    public void test_sync_with_server() throws Exception
     {
+        int beforeCount = server.get_oneway_count();
+
         setSyncScope (server, SYNC_WITH_SERVER.value);
         long start = System.currentTimeMillis();
         server.oneway_op (TIME);
         long time = System.currentTimeMillis() - start;
         assertTrue ("return too late", time < TIME);
+        
+        verifyOnewayWasReceived(beforeCount + 1);
     }
 
-    public void test_sync_with_target()
+    public void test_sync_with_target() throws Exception
     {
+        int beforeCount = server.get_oneway_count();
+
         setSyncScope (server, SYNC_WITH_TARGET.value);
         long start = System.currentTimeMillis();
         server.oneway_op (TIME);
         long time = System.currentTimeMillis() - start;
-        assertTrue ("return too early", time > TIME);
+        assertTrue ("return too early", time >= TIME);
+
+        verifyOnewayWasReceived(beforeCount + 1);
     }
 
     private void setSyncScope (SyncScopeServer server, short syncScope)
     {
-        org.omg.CORBA.ORB orb = setup.getClientOrb();
-        org.omg.CORBA.Any a   = orb.create_any();
+        org.omg.CORBA.Any a   = this.orb.create_any();
         a.insert_short (syncScope);
         try
         {
             Policy policy =
-                orb.create_policy(SYNC_SCOPE_POLICY_TYPE.value, a);
+                this.orb.create_policy(SYNC_SCOPE_POLICY_TYPE.value, a);
             server._set_policy_override (new Policy[]{ policy },
                                          SetOverrideType.ADD_OVERRIDE);
         }
@@ -107,5 +126,17 @@ public class SyncScopeTest extends ClientServerTestCase
         {
             throw new RuntimeException ("policy error: " + e);
         }
+    }
+
+    private void verifyOnewayWasReceived(int expected) throws Exception
+    {
+        final long waitUntil = System.currentTimeMillis() + 10000;
+
+        while( (server.get_oneway_count() != expected) && (System.currentTimeMillis() < waitUntil) )
+        {
+            Thread.sleep(1000);
+        }
+
+        assertEquals(expected, server.get_oneway_count());
     }
 }
