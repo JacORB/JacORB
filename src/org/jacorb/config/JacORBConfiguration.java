@@ -823,6 +823,12 @@ public class JacORBConfiguration implements Configuration
         }
         else if (value instanceof String) 
         {
+            if (((String)value).trim().length() < 1)
+            {
+                // empty string is treated as 'null' value
+                return defaultValue;
+            }
+            
             try
             {
                 int i = Integer.parseInt (((String)value).trim());
