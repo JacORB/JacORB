@@ -255,9 +255,10 @@ try
             ps.println( "\t\tif(! this._is_local())" );
             ps.println( "\t\t{" );
             ps.println( "\t\t\torg.omg.CORBA.portable.InputStream _is = null;" );
+            ps.println( "\t\t\torg.omg.CORBA.portable.OutputStream _os = null;" );
             ps.println( "\t\t\ttry" );
             ps.println( "\t\t\t{" );
-            ps.print( "\t\t\t\torg.omg.CORBA.portable.OutputStream _os = _request( \"" + idl_name + "\"," );
+            ps.print( "\t\t\t\t_os = _request( \"" + idl_name + "\"," );
 
             if( opAttribute == NO_ATTRIBUTE )
                 ps.println( " true);" );
@@ -312,23 +313,60 @@ try
             {
                 String[] exceptIds = raisesExpr.getExceptionIds();
                 String[] classNames = raisesExpr.getExceptionClassNames();
-                ps.print( "\t\t\t\t" );
+
+                ps.println( "\t\t\t\ttry" );
+                ps.println( "\t\t\t\t{" );
+
                 for( int i = 0; i < exceptIds.length; i++ )
                 {
-                    if (i > 0)
-                    {
-                        ps.print( "\t\t\t\telse " );
-                    }
-                    ps.println( "if( _id.equals(\"" + exceptIds[ i ] + "\"))" );
-                    ps.println( "\t\t\t\t{" );
-                    ps.println( "\t\t\t\t\tthrow " + classNames[ i ] + "Helper.read(_ax.getInputStream());" );
-                    ps.println( "\t\t\t\t}" );
+                    ps.println( "\t\t\t\t\tif( _id.equals(\"" + exceptIds[ i ] + "\"))" );
+                    ps.println( "\t\t\t\t\t{" );
+                    ps.println( "\t\t\t\t\t\tthrow " + classNames[ i ] + "Helper.read(_ax.getInputStream());");
+                    ps.println( "\t\t\t\t\t}" );
+                    ps.println( "\t\t\t\t\telse " );
                 }
+                ps.println( "\t\t\t\t\t{" );
+                ps.println( "\t\t\t\t\t\tthrow new RuntimeException(\"Unexpected exception \" + _id );" );
+                ps.println( "\t\t\t\t\t}" );
+                ps.println( "\t\t\t\t}" );
+                ps.println( "\t\t\t\tfinally" );
+                ps.println( "\t\t\t\t{" );
+                ps.println( "\t\t\t\ttry");
+                ps.println( "\t\t\t\t{");
+                ps.println( "\t\t\t\t\t_ax.getInputStream().close();");
+                ps.println( "\t\t\t\t}");
+                ps.println( "\t\t\t\tcatch (java.io.IOException e)");
+                ps.println( "\t\t\t\t{" );
+                ps.println( "\t\t\t\t\tthrow new RuntimeException(\"Unexpected exception \" + e.toString() );" );
+                ps.println( "\t\t\t\t}" );
+                ps.println( "\t\t\t}" );
             }
-            ps.println( "\t\t\t\tthrow new RuntimeException(\"Unexpected exception \" + _id );" );
+            else
+            {
+                ps.println( "\t\t\t\t\ttry");
+                ps.println( "\t\t\t\t\t{");
+                ps.println( "\t\t\t\t\t\t\t_ax.getInputStream().close();");
+                ps.println( "\t\t\t\t\t}");
+                ps.println( "\t\t\t\t\tcatch (java.io.IOException e)");
+                ps.println( "\t\t\t\t\t{" );
+                ps.println( "\t\t\t\t\tthrow new RuntimeException(\"Unexpected exception \" + e.toString() );" );
+                ps.println( "\t\t\t\t\t}" );
+                ps.println( "\t\t\t\tthrow new RuntimeException(\"Unexpected exception \" + _id );" );
+            }
             ps.println( "\t\t\t}" );
             ps.println( "\t\t\tfinally" );
             ps.println( "\t\t\t{" );
+            ps.println( "\t\t\t\tif (_os != null)");
+            ps.println( "\t\t\t\t{");
+            ps.println( "\t\t\t\t\ttry");
+            ps.println( "\t\t\t\t\t{");
+            ps.println( "\t\t\t\t\t\t_os.close();");
+            ps.println( "\t\t\t\t\t}");
+            ps.println( "\t\t\t\t\tcatch (java.io.IOException e)");
+            ps.println( "\t\t\t\t\t{" );
+            ps.println( "\t\t\t\t\tthrow new RuntimeException(\"Unexpected exception \" + e.toString() );" );
+            ps.println( "\t\t\t\t\t}" );
+            ps.println( "\t\t\t\t}");
             ps.println( "\t\t\t\tthis._releaseReply(_is);" );
             ps.println( "\t\t\t}" );
 

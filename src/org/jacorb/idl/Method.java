@@ -136,10 +136,11 @@ public class Method
                 ps.println( "\t\t{" );
 
                 ps.println( "\t\t\torg.omg.CORBA.portable.InputStream _is = null;" );
+                ps.println( "\t\t\torg.omg.CORBA.portable.OutputStream _os = null;" );
 
                 ps.println( "\t\t\ttry" );
                 ps.println( "\t\t\t{" );
-                ps.println( "\t\t\t\torg.omg.CORBA.portable.OutputStream _os = _request(\"_get_" + name + "\",true);" );
+                ps.println( "\t\t\t\t_os = _request(\"_get_" + name + "\",true);" );
                 ps.println( "\t\t\t\t_is = _invoke(_os);" );
                 TypeSpec ts = resultType.typeSpec();
                 ps.println( "\t\t\t\treturn " + ts.printReadExpression( "_is" ) + ";" );
@@ -148,6 +149,14 @@ public class Method
                 ps.println( "\t\t\tcatch( org.omg.CORBA.portable.ApplicationException _ax )" );
                 ps.println( "\t\t\t{" );
                 ps.println( "\t\t\t\tString _id = _ax.getId();" );
+                ps.println( "\t\t\t\t\ttry");
+                ps.println( "\t\t\t\t\t{");
+                ps.println( "\t\t\t\t\t\t\t_ax.getInputStream().close();");
+                ps.println( "\t\t\t\t\t}");
+                ps.println( "\t\t\t\t\tcatch (java.io.IOException e)");
+                ps.println( "\t\t\t\t\t{" );
+                ps.println( "\t\t\t\t\tthrow new RuntimeException(\"Unexpected exception \" + e.toString() );" );
+                ps.println( "\t\t\t\t\t}" );
 
                 if( !raisesExpr.empty() )
                 {
@@ -171,6 +180,17 @@ public class Method
                 ps.println( "\t\t\t}" );
                 ps.println( "\t\t\tfinally" );
                 ps.println( "\t\t\t{" );
+                ps.println( "\t\t\t\tif (_os != null)");
+                ps.println( "\t\t\t\t{");
+                ps.println( "\t\t\t\t\ttry");
+                ps.println( "\t\t\t\t\t{");
+                ps.println( "\t\t\t\t\t\t_os.close();");
+                ps.println( "\t\t\t\t\t}");
+                ps.println( "\t\t\t\t\tcatch (java.io.IOException e)");
+                ps.println( "\t\t\t\t\t{" );
+                ps.println( "\t\t\t\t\tthrow new RuntimeException(\"Unexpected exception \" + e.toString() );" );
+                ps.println( "\t\t\t\t\t}" );
+                ps.println( "\t\t\t\t}");
                 ps.println( "\t\t\t\tthis._releaseReply(_is);" );
                 ps.println( "\t\t\t}" );
                 ps.println( "\t\t}\n" );
@@ -228,10 +248,11 @@ public class Method
                 ps.println( "\t\tif(! this._is_local())" );
                 ps.println( "\t\t{" );
                 ps.println( "\t\t\torg.omg.CORBA.portable.InputStream _is = null;" );
+                ps.println( "\t\t\torg.omg.CORBA.portable.OutputStream _os = null;" );
 
                 ps.println( "\t\t\ttry" );
                 ps.println( "\t\t\t{" );
-                ps.println( "\t\t\t\torg.omg.CORBA.portable.OutputStream _os = _request(\"_set_" + name + "\",true);" );
+                ps.println( "\t\t\t\t_os = _request(\"_set_" + name + "\",true);" );
                 ps.println( "\t\t\t\t" + parameterType.typeSpec().printWriteStatement( "a", "_os" ) );
                 ps.println( "\t\t\t\t_is = _invoke(_os);" );
                 ps.println( "\t\t\t\treturn;" );
@@ -240,6 +261,14 @@ public class Method
                 ps.println( "\t\t\tcatch( org.omg.CORBA.portable.ApplicationException _ax )" );
                 ps.println( "\t\t\t{" );
                 ps.println( "\t\t\t\tString _id = _ax.getId();" );
+                ps.println( "\t\t\t\t\ttry");
+                ps.println( "\t\t\t\t\t{");
+                ps.println( "\t\t\t\t\t\t\t_ax.getInputStream().close();");
+                ps.println( "\t\t\t\t\t}");
+                ps.println( "\t\t\t\t\tcatch (java.io.IOException e)");
+                ps.println( "\t\t\t\t\t{" );
+                ps.println( "\t\t\t\t\tthrow new RuntimeException(\"Unexpected exception \" + e.toString() );" );
+                ps.println( "\t\t\t\t\t}" );
                 
                 if( !raisesExpr.empty() )
                 {
@@ -263,6 +292,17 @@ public class Method
                 ps.println( "\t\t\t}" );
                 ps.println( "\t\t\tfinally" );
                 ps.println( "\t\t\t{" );
+                ps.println( "\t\t\t\tif (_os != null)");
+                ps.println( "\t\t\t\t{");
+                ps.println( "\t\t\t\t\ttry");
+                ps.println( "\t\t\t\t\t{");
+                ps.println( "\t\t\t\t\t\t_os.close();");
+                ps.println( "\t\t\t\t\t}");
+                ps.println( "\t\t\t\t\tcatch (java.io.IOException e)");
+                ps.println( "\t\t\t\t\t{" );
+                ps.println( "\t\t\t\t\tthrow new RuntimeException(\"Unexpected exception \" + e.toString() );" );
+                ps.println( "\t\t\t\t\t}" );
+                ps.println( "\t\t\t\t}");
                 ps.println( "\t\t\t\tthis._releaseReply(_is);" );
                 ps.println( "\t\t\t}" );
                 ps.println( "\t\t}\n" );
@@ -318,6 +358,14 @@ public class Method
             ps.println( "\t\t\tcatch( org.omg.CORBA.portable.ApplicationException _ax )" );
             ps.println( "\t\t\t{" );
             ps.println( "\t\t\t\tString _id = _ax.getId();" );
+            ps.println( "\t\t\t\t\ttry");
+            ps.println( "\t\t\t\t\t{");
+            ps.println( "\t\t\t\t\t\t\t_ax.getInputStream().close();");
+            ps.println( "\t\t\t\t\t}");
+            ps.println( "\t\t\t\t\tcatch (java.io.IOException e)");
+            ps.println( "\t\t\t\t\t{" );
+            ps.println( "\t\t\t\t\tthrow new RuntimeException(\"Unexpected exception \" + e.toString() );" );
+            ps.println( "\t\t\t\t\t}" );
             ps.println( "\t\t\t\tthrow new RuntimeException(\"Unexpected exception \" + _id );" );
             ps.println( "\t\t\t}" );
             ps.println( "\t\t}" );
@@ -343,6 +391,14 @@ public class Method
             ps.println( "\t\t\tcatch( org.omg.CORBA.portable.ApplicationException _ax )" );
             ps.println( "\t\t\t{" );
             ps.println( "\t\t\t\tString _id = _ax.getId();" );
+            ps.println( "\t\t\t\t\ttry");
+            ps.println( "\t\t\t\t\t{");
+            ps.println( "\t\t\t\t\t\t\t_ax.getInputStream().close();");
+            ps.println( "\t\t\t\t\t}");
+            ps.println( "\t\t\t\t\tcatch (java.io.IOException e)");
+            ps.println( "\t\t\t\t\t{" );
+            ps.println( "\t\t\t\t\tthrow new RuntimeException(\"Unexpected exception \" + e.toString() );" );
+            ps.println( "\t\t\t\t\t}" );
             ps.println( "\t\t\t\tthrow new RuntimeException(\"Unexpected exception \" + _id );" );
             ps.println( "\t\t\t}" );
             ps.println( "\t\t}" );

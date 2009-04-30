@@ -64,6 +64,8 @@ x.y
           the generated helper classes
           [-generate_helper deprecated|portable|jacorb] (JAC#516).
         - removed -omg option (#72,#98)
+        - Enhance generation to close streams (RTJ#476/JAC#410).
+        
     - Interface Repository:
         - fix to allow IDL files that use #pragma prefix to be loaded into 
           the IR (#367).
