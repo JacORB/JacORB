@@ -20,36 +20,23 @@ package org.jacorb.config;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.io.InputStream;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Date;
 import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
 import java.util.StringTokenizer;
-import org.apache.avalon.framework.logger.Logger;
+
 import org.jacorb.orb.ORB;
 import org.jacorb.util.ObjectUtil;
+import org.slf4j.Logger;
 
 /**
  * @author Gerald Brose
- * @version $Id$
- */
-
-/**
- * @author Andre Spiegel <spiegel@gnu.org>
- * @version $Id$
- */
-/**
- * @author Andre Spiegel <spiegel@gnu.org>
  * @version $Id$
  */
 public class JacORBConfiguration implements Configuration
@@ -155,7 +142,7 @@ public class JacORBConfiguration implements Configuration
             init(name, orbProperties);
         }
 
-        initLogging();
+        //initLogging();
     }
 
     private static void println(String mesg)
@@ -644,111 +631,111 @@ public class JacORBConfiguration implements Configuration
      *
      * @since 2.0 beta 3
      */
-    private void initLogging()
-    {
-        final DateFormat dateFormatter = new SimpleDateFormat("yyyyMdHm");
-
-        String logFileName =
-            getAttribute("jacorb.logfile", "");
-
-        int maxLogSize =
-            getAttributeAsInteger( "jacorb.logfile.maxLogSize", 0 );
-
-        if ( !logFileName.equals(""))
-        {
-            if (orb == null) // this is the case for the singleton ORB
-            {
-                final String singletonLogFile = getAttribute("jacorb.logfile.singleton", "");
-                if (singletonLogFile.equals(""))
-                {
-                    // setting to "" effectively disables logging for the singleton orb.
-                    logFileName = "";
-                }
-                else
-                {
-                    // If it ends with implname File can't handle it so do it manually.
-                    if (logFileName.endsWith ("$implname"))
-                    {
-                        logFileName = logFileName.substring
-                            (0, logFileName.indexOf("$implname") - 1);
-                        logFileName += File.separatorChar + singletonLogFile + dateFormatter.format(new Date()) + ".log";
-                    }
-                    else
-                    {
-                        final File file = new File(logFileName);
-                        final String parent = file.getParent();
-
-                        if (parent != null)
-                        {
-                            logFileName += singletonLogFile + dateFormatter.format(new Date()) + ".log";
-                        }
-                        else
-                        {
-                            logFileName = singletonLogFile + dateFormatter.format(new Date()) + ".log";
-                        }
-                    }
-                }
-            }
-            else if (logFileName.endsWith("$implname"))
-            {
-                // Convert $implname postfix to implementation name
-                logFileName = logFileName.substring (0, logFileName.length () - 9);
-
-                final String serverId = new String(orb.getServerId());
-                String implName = getAttribute("jacorb.implname", serverId);
-                logFileName += implName + ".log";
-            }
-        }
-
-        String clzName = getAttribute("jacorb.log.loggerFactory","");
-        Class loggerFactoryClz = null;
-
-        try
-        {
-            if ( !clzName.equals(""))
-            {
-                loggerFactoryClz = org.jacorb.util.ObjectUtil.classForName(clzName);
-            }
-            else
-            {
-                loggerFactoryClz = org.jacorb.util.ObjectUtil.classForName(loggerFactoryClzName);
-            }
-            loggerFactory = (LoggerFactory)loggerFactoryClz.newInstance();
-            loggerFactory.configure( this );
-        }
-        catch (Exception e)
-        {
-            e.printStackTrace();
-        }
-
-        if (loggerFactory == null)
-        {
-            printErr("Configuration Error, could not create logger!");
-        }
-        if (!logFileName.equals(""))
-        {
-            try
-            {
-                loggerFactory.setDefaultLogFile(logFileName, maxLogSize);
-                logger = loggerFactory.getNamedLogger("jacorb" );
-            }
-            catch (IOException e)
-            {
-                logger = loggerFactory.getNamedRootLogger("jacorb");
-                if( logger.isErrorEnabled())
-                {
-                    logger.error("Could not create logger with file target: " + logFileName +
-                                 ", falling back to console log!");
-                }
-            }
-        }
-        
-        // JAC#384: if here is still no logger created just use console log
-        if (logger == null) 
-        {
-            logger = loggerFactory.getNamedRootLogger("jacorb" );
-        }
-    }
+//    private void initLogging()
+//    {
+//        final DateFormat dateFormatter = new SimpleDateFormat("yyyyMdHm");
+//
+//        String logFileName =
+//            getAttribute("jacorb.logfile", "");
+//
+//        int maxLogSize =
+//            getAttributeAsInteger( "jacorb.logfile.maxLogSize", 0 );
+//
+//        if ( !logFileName.equals(""))
+//        {
+//            if (orb == null) // this is the case for the singleton ORB
+//            {
+//                final String singletonLogFile = getAttribute("jacorb.logfile.singleton", "");
+//                if (singletonLogFile.equals(""))
+//                {
+//                    // setting to "" effectively disables logging for the singleton orb.
+//                    logFileName = "";
+//                }
+//                else
+//                {
+//                    // If it ends with implname File can't handle it so do it manually.
+//                    if (logFileName.endsWith ("$implname"))
+//                    {
+//                        logFileName = logFileName.substring
+//                            (0, logFileName.indexOf("$implname") - 1);
+//                        logFileName += File.separatorChar + singletonLogFile + dateFormatter.format(new Date()) + ".log";
+//                    }
+//                    else
+//                    {
+//                        final File file = new File(logFileName);
+//                        final String parent = file.getParent();
+//
+//                        if (parent != null)
+//                        {
+//                            logFileName += singletonLogFile + dateFormatter.format(new Date()) + ".log";
+//                        }
+//                        else
+//                        {
+//                            logFileName = singletonLogFile + dateFormatter.format(new Date()) + ".log";
+//                        }
+//                    }
+//                }
+//            }
+//            else if (logFileName.endsWith("$implname"))
+//            {
+//                // Convert $implname postfix to implementation name
+//                logFileName = logFileName.substring (0, logFileName.length () - 9);
+//
+//                final String serverId = new String(orb.getServerId());
+//                String implName = getAttribute("jacorb.implname", serverId);
+//                logFileName += implName + ".log";
+//            }
+//        }
+//
+//        String clzName = getAttribute("jacorb.log.loggerFactory","");
+//        Class loggerFactoryClz = null;
+//
+//        try
+//        {
+//            if ( !clzName.equals(""))
+//            {
+//                loggerFactoryClz = org.jacorb.util.ObjectUtil.classForName(clzName);
+//            }
+//            else
+//            {
+//                loggerFactoryClz = org.jacorb.util.ObjectUtil.classForName(loggerFactoryClzName);
+//            }
+//            loggerFactory = (LoggerFactory)loggerFactoryClz.newInstance();
+//            loggerFactory.configure( this );
+//        }
+//        catch (Exception e)
+//        {
+//            e.printStackTrace();
+//        }
+//
+//        if (loggerFactory == null)
+//        {
+//            printErr("Configuration Error, could not create logger!");
+//        }
+//        if (!logFileName.equals(""))
+//        {
+//            try
+//            {
+//                loggerFactory.setDefaultLogFile(logFileName, maxLogSize);
+//                logger = loggerFactory.getNamedLogger("jacorb" );
+//            }
+//            catch (IOException e)
+//            {
+//                logger = loggerFactory.getNamedRootLogger("jacorb");
+//                if( logger.isErrorEnabled())
+//                {
+//                    logger.error("Could not create logger with file target: " + logFileName +
+//                                 ", falling back to console log!");
+//                }
+//            }
+//        }
+//        
+//        // JAC#384: if here is still no logger created just use console log
+//        if (logger == null) 
+//        {
+//            logger = loggerFactory.getNamedRootLogger("jacorb" );
+//        }
+//    }
 
     /**
      * @return the ORB for which this configuration was created
@@ -766,9 +753,9 @@ public class JacORBConfiguration implements Configuration
      * @return a Logger for a given name
      */
 
-    public Logger getNamedLogger(String name)
+    public org.slf4j.Logger getLogger(String name)
     {
-        return loggerFactory.getNamedLogger(name);
+        return org.slf4j.LoggerFactory.getLogger(name);
     }
 
     public String getLoggerName(Class clz)
