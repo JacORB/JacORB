@@ -29,7 +29,7 @@ import java.net.ServerSocket;
 import junit.framework.TestCase;
 
 import org.jacorb.config.*;
-import org.apache.avalon.framework.logger.Logger;
+import org.slf4j.Logger;
 import org.easymock.MockControl;
 import org.jacorb.config.Configuration;
 import org.jacorb.orb.factory.PortRangeServerSocketFactory;
@@ -59,7 +59,7 @@ public class PortRangeServerSocketFactoryTest extends TestCase
         loggerControl = MockControl.createNiceControl(Logger.class);
         loggerMock = (Logger) loggerControl.getMock();
 
-        configurationMock.getNamedLogger(null);
+        configurationMock.getLogger(null);
         configurationControl.setMatcher(MockControl.ALWAYS_MATCHER);
         configurationControl.setReturnValue(loggerMock);
 

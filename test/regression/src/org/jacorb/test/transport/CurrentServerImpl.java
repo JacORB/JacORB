@@ -2,7 +2,7 @@ package org.jacorb.test.transport;
 
 import junit.framework.Assert;
 
-import org.apache.avalon.framework.logger.Logger;
+import org.slf4j.Logger;
 import org.jacorb.test.orb.transport.CurrentServer;
 import org.jacorb.test.orb.transport.CurrentServerHelper;
 import org.jacorb.test.orb.transport.CurrentServerPOA;
@@ -41,7 +41,7 @@ public class CurrentServerImpl extends CurrentServerPOA {
 
         if (orb != null)
             logger_ = ((org.jacorb.orb.ORB) orb).getConfiguration ()
-                                                .getNamedLogger ("jacorb.test.transport");
+                                                .getLogger ("jacorb.test.transport");
         else
             logger_ = null;
 

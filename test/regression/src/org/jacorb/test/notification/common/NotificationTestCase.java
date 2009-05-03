@@ -26,7 +26,7 @@ import junit.framework.Test;
 import junit.framework.TestCase;
 
 import org.jacorb.config.*;
-import org.apache.avalon.framework.logger.Logger;
+import org.slf4j.Logger;
 import org.jacorb.notification.MessageFactory;
 import org.jacorb.notification.container.PicoContainerFactory;
 import org.jacorb.notification.engine.TaskProcessor;
@@ -77,7 +77,7 @@ public abstract class NotificationTestCase extends TestCase
 
         container_ = PicoContainerFactory.createChildContainer(setup_.getPicoContainer());
 
-        logger_ = ((org.jacorb.config.Configuration) getConfiguration()).getNamedLogger(getClass()
+        logger_ = ((org.jacorb.config.Configuration) getConfiguration()).getLogger(getClass()
                 .getName()
                 + "." + getName());
 

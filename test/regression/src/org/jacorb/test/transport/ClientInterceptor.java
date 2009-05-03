@@ -1,6 +1,6 @@
 package org.jacorb.test.transport;
 
-import org.apache.avalon.framework.logger.Logger;
+import org.slf4j.Logger;
 import org.omg.CORBA.ORB;
 import org.omg.PortableInterceptor.ClientRequestInfo;
 import org.omg.PortableInterceptor.ClientRequestInterceptor;
@@ -33,7 +33,7 @@ public class ClientInterceptor
         tester_ = tester;
         orb_ = orb;
         logger_ = ((org.jacorb.orb.ORB) orb).getConfiguration ()
-                                            .getNamedLogger ("jacorb.test.transport");
+                                            .getLogger ("jacorb.test.transport");
         
         synchronized (this.getClass ()) {
             instance_ = this;

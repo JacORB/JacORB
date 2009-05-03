@@ -21,7 +21,7 @@
 
 package org.jacorb.test.notification.util;
 
-import org.apache.avalon.framework.logger.Logger;
+import org.slf4j.Logger;
 import org.jacorb.notification.util.LogUtil;
 
 import junit.framework.Test;

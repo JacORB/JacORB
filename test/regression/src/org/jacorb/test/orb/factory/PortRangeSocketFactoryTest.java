@@ -21,7 +21,7 @@ public class PortRangeSocketFactoryTest extends AbstractSocketFactoryTestCase
         MockControl configControl = MockControl.createControl(Configuration.class);
         Configuration configMock = (Configuration) configControl.getMock();
 
-        configControl.expectAndReturn(configMock.getNamedLogger("jacorb.orb.socketfactory"), new NullLogger());
+        configControl.expectAndReturn(configMock.getLogger("jacorb.orb.socketfactory"), new NullLogger());
         configControl.expectAndReturn(configMock.getAttributeAsInteger(PortRangeSocketFactory.MIN_PROP), MIN);
         configControl.expectAndReturn(configMock.getAttributeAsInteger(PortRangeSocketFactory.MAX_PROP), MAX);
         configControl.replay();

@@ -1,6 +1,6 @@
 package org.jacorb.test.transport;
 
-import org.apache.avalon.framework.logger.Logger;
+import org.slf4j.Logger;
 import org.omg.CORBA.ORB;
 
 

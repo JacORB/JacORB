@@ -2,7 +2,7 @@ package org.jacorb.test.transport;
 
 import junit.framework.Assert;
 
-import org.apache.avalon.framework.logger.Logger;
+import org.slf4j.Logger;
 import org.jacorb.transport.iiop.Current;
 import org.jacorb.transport.iiop.CurrentHelper;
 import org.omg.CORBA.ORB;

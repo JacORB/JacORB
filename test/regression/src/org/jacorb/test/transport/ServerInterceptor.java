@@ -1,6 +1,6 @@
 package org.jacorb.test.transport;
 
-import org.apache.avalon.framework.logger.Logger;
+import org.slf4j.Logger;
 import org.omg.CORBA.ORB;
 import org.omg.PortableInterceptor.ForwardRequest;
 import org.omg.PortableInterceptor.ServerRequestInfo;
@@ -26,7 +26,7 @@ public class ServerInterceptor extends org.omg.CORBA.LocalObject implements
         this.ninterceptions_ = 0;
         this.nfailures_ = 0;
         logger_ = ((org.jacorb.orb.ORB) orb).getConfiguration ()
-                                            .getNamedLogger ("jacorb.test.transport.si");
+                                            .getLogger ("jacorb.test.transport.si");
 
         logger_.info ("ServerInterceptor::created");
 

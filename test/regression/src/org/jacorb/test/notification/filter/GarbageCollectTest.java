@@ -25,7 +25,7 @@ import java.util.Collections;
 
 import junit.framework.Test;
 
-import org.apache.avalon.framework.logger.Logger;
+import org.slf4j.Logger;
 import org.easymock.MockControl;
 import org.jacorb.config.Configuration;
 import org.jacorb.notification.IContainer;
@@ -92,7 +92,7 @@ public class GarbageCollectTest extends NotificationTestCase
     public void testGCFilter() throws Exception
     {
         MockControl loggerControl = MockControl.createNiceControl(Logger.class);
-        mockConfiguration_.getNamedLogger(null);
+        mockConfiguration_.getLogger(null);
         controlConfiguration_.setMatcher(MockControl.ALWAYS_MATCHER);
         controlConfiguration_.setReturnValue(loggerControl.getMock(), MockControl.ZERO_OR_MORE);
 
