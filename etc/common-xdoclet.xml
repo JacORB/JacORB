@@ -6,7 +6,7 @@
 	</fileset>
 	
 	<pathelement location="${basedir}/classes"/>
-	<pathelement location="${basedir}/lib/avalon-framework-4.1.5.jar"/>
+	<pathelement location="${basedir}/lib/slf4j-api-1.5.6.jar"/>
 </path>
 
 <target name="xdoclet.init-jmx" depends="init" >
