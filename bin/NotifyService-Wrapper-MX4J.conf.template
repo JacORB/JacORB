@@ -11,10 +11,10 @@ wrapper.java.mainclass=org.jacorb.notification.jmx.mx4j.JMXMain
 #  needed starting from 1
 wrapper.java.classpath.1=../lib/wrapper-3.1.0.jar
 wrapper.java.classpath.2=../lib/jacorb.jar
-wrapper.java.classpath.3=../lib/logkit-1.2.jar
+wrapper.java.classpath.3=../lib/slf4j-api-1.5.6.jar
 wrapper.java.classpath.4=../lib/backport-util-concurrent.jar
 wrapper.java.classpath.5=../lib/antlr-2.7.2.jar
-wrapper.java.classpath.6=../lib/avalon-framework-4.1.5.jar
+wrapper.java.classpath.6=../lib/slf4j-jdk14-1.5.6.jar
 wrapper.java.classpath.7=../lib/picocontainer-1.2.jar
 wrapper.java.classpath.8=@MX4J_HOME@/lib/mx4j.jar
 wrapper.java.classpath.9=@MX4J_HOME@/lib/mx4j-remote.jar
