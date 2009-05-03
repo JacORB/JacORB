@@ -23,7 +23,7 @@ package org.jacorb.orb.giop;
 import java.io.IOException;
 import java.util.List;
 import org.jacorb.config.*;
-import org.apache.avalon.framework.logger.Logger;
+import org.slf4j.Logger;
 import org.jacorb.orb.ORB;
 import org.jacorb.orb.SystemExceptionHelper;
 import org.jacorb.orb.dsi.ServerRequest;
@@ -61,7 +61,7 @@ public class ServerRequestListener
     {
         org.jacorb.config.Configuration configuration = (org.jacorb.config.Configuration)myConfiguration;
         logger =
-            configuration.getNamedLogger("jacorb.giop.server.listener");
+            configuration.getLogger("jacorb.giop.server.listener");
 
         boolean supportSSL =
             configuration.getAttribute("jacorb.security.support_ssl","off").equals("on");

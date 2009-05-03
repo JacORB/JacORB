@@ -20,7 +20,7 @@
  */
 package org.jacorb.transaction;
 
-import org.apache.avalon.framework.logger.Logger;
+import org.slf4j.Logger;
 import org.jacorb.orb.ORB;
 import org.omg.IOP.Codec;
 import org.omg.IOP.ENCODING_CDR_ENCAPS;
@@ -58,7 +58,7 @@ public class TransactionInitializer
             ORB orb = ((org.jacorb.orb.portableInterceptor.ORBInitInfoImpl)info).getORB();
             Logger logger = 
               ((org.jacorb.orb.ORB)orb).getConfiguration()
-                                       .getNamedLogger("jacorb.tx_service");
+                                       .getLogger("jacorb.tx_service");
             slot_id = info.allocate_slot_id();
             
             Encoding encoding = new Encoding(ENCODING_CDR_ENCAPS.value, 

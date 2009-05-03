@@ -73,7 +73,7 @@ public class TypedConsumerAdminImpl extends ConsumerAdminImpl implements
             return TypedProxyPullSupplierHelper.narrow(_proxy.activate());
         } catch (Exception e)
         {
-            logger_.fatalError("obtain_typed_notification_pull_supplier", e);
+            logger_.error("obtain_typed_notification_pull_supplier", e);
 
             throw new UNKNOWN(e.toString());
         }
@@ -112,7 +112,7 @@ public class TypedConsumerAdminImpl extends ConsumerAdminImpl implements
             return TypedProxyPushSupplierHelper.narrow(_proxy.activate());
         } catch (Exception e)
         {
-            logger_.fatalError("obtain_typed_notification_pull_supplier", e);
+            logger_.error("obtain_typed_notification_pull_supplier", e);
 
             throw new UNKNOWN(e.toString());
         }

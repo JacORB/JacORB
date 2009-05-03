@@ -66,7 +66,7 @@ public class TypedEventChannelFactoryImpl extends AbstractChannelFactory impleme
             return TypedEventChannelHelper.narrow(_channel.activate());
         } catch (ConfigurationException e)
         {
-            logger_.fatalError("error creating typed channel", e);
+            logger_.error("error creating typed channel", e);
 
             throw new org.omg.CORBA.INTERNAL();
         }

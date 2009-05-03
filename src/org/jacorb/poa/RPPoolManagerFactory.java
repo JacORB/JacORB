@@ -1,7 +1,7 @@
 package org.jacorb.poa;
 
 import org.jacorb.config.*;
-import org.apache.avalon.framework.logger.Logger;
+import org.slf4j.Logger;
 import org.jacorb.config.Configuration;
 import org.jacorb.orb.ORB;
 
@@ -27,7 +27,7 @@ public class RPPoolManagerFactory
     {
         this.orb = orb;
         configuration = orb.getConfiguration();
-        logger = configuration.getNamedLogger("jacorb.poa.controller");
+        logger = configuration.getLogger("jacorb.poa.controller");
 
         threadPoolMin =
             configuration.getAttributeAsInteger("jacorb.poa.thread_pool_min", 5);

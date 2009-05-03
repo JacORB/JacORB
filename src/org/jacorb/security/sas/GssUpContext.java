@@ -21,7 +21,7 @@ package org.jacorb.security.sas;
  */
 
 import org.jacorb.config.*;
-import org.apache.avalon.framework.logger.Logger;
+import org.slf4j.Logger;
 import org.omg.CORBA.ORB;
 import org.omg.CSIIOP.CompoundSecMechList;
 import org.omg.GSSUP.GSSUPMechOID;
@@ -40,7 +40,7 @@ public class GssUpContext
         throws ConfigurationException
     {
         logger = 
-            ((org.jacorb.config.Configuration)configuration).getNamedLogger("jacorb.security.sas.GSSUP");
+            ((org.jacorb.config.Configuration)configuration).getLogger("jacorb.security.sas.GSSUP");
     }
 
     public static void setUsernamePassword(String username, String password) {

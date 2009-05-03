@@ -22,7 +22,7 @@ package org.jacorb.security.sas;
 
 import java.util.Hashtable;
 import org.jacorb.config.*;
-import org.apache.avalon.framework.logger.Logger;
+import org.slf4j.Logger;
 import org.jacorb.orb.MinorCodes;
 import org.jacorb.orb.giop.GIOPConnection;
 import org.jacorb.orb.portableInterceptor.ServerRequestInfoImpl;
@@ -99,7 +99,7 @@ public class SASTargetInterceptor
         throws ConfigurationException
     {
         logger = 
-            ((org.jacorb.config.Configuration)configuration).getNamedLogger("jacorb.security.sas.TSS");
+            ((org.jacorb.config.Configuration)configuration).getLogger("jacorb.security.sas.TSS");
 
         useSsl = 
             configuration.getAttribute("jacorb.security.sas.tss.requires_sas","false").equals("true");

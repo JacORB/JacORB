@@ -21,7 +21,7 @@ package org.jacorb.poa;
  */
 
 import org.jacorb.config.*;
-import org.apache.avalon.framework.logger.Logger;
+import org.slf4j.Logger;
 import org.jacorb.util.ObjectUtil;
 
 
@@ -71,7 +71,7 @@ public class POAMonitorLightImpl
         throws ConfigurationException
     {
         this.configuration = (org.jacorb.config.Configuration)myConfiguration;
-        logger = configuration.getNamedLogger("jacorb.poa.monitor");
+        logger = configuration.getLogger("jacorb.poa.monitor");
         doMonitor =
             configuration.getAttributeAsBoolean("jacorb.poa.monitoring",false);
     }

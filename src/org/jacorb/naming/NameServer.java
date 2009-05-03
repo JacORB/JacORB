@@ -28,7 +28,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.PrintWriter;
 
-import org.apache.avalon.framework.logger.Logger;
+import org.slf4j.Logger;
 import org.jacorb.config.*;
 import org.jacorb.imr.util.ImRManager;
 import org.jacorb.util.ObjectUtil;
@@ -75,7 +75,7 @@ public class NameServer
     {
         configuration = (org.jacorb.config.Configuration)myConfiguration;
         logger =
-            configuration.getNamedLogger("jacorb.naming");
+            configuration.getLogger("jacorb.naming");
 
         printIOR = configuration.getAttributeAsBoolean("jacorb.naming.print_ior", false);
 
@@ -130,7 +130,7 @@ public class NameServer
             throws ConfigurationException
         {
             this.configuration = (org.jacorb.config.Configuration)myConfiguration;
-            this.logger = configuration.getNamedLogger("jacorb.naming.activator");
+            this.logger = configuration.getLogger("jacorb.naming.activator");
         }
 
 

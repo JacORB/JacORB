@@ -21,7 +21,7 @@ package org.jacorb.orb.standardInterceptors;
  *
  */
 
-import org.apache.avalon.framework.logger.Logger;
+import org.slf4j.Logger;
 import org.jacorb.config.Configuration;
 import org.jacorb.orb.ORB;
 import org.omg.CORBA.INTERNAL;
@@ -50,7 +50,7 @@ public class IORInterceptorInitializer
     {
         final ORB orb = ((org.jacorb.orb.portableInterceptor.ORBInitInfoImpl) info).getORB();
         final Configuration config = orb.getConfiguration();
-        final Logger logger = config.getNamedLogger("org.jacorb.interceptors.ior_init");
+        final Logger logger = config.getLogger("org.jacorb.interceptors.ior_init");
 
         try
         {

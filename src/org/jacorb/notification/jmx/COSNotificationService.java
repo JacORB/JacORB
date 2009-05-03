@@ -26,7 +26,7 @@ import java.util.Properties;
 
 import javax.management.MBeanServer;
 
-import org.apache.avalon.framework.logger.Logger;
+import org.slf4j.Logger;
 import org.jacorb.notification.AbstractChannelFactory;
 import org.jacorb.notification.ConsoleMain;
 import org.jacorb.notification.EventChannelFactoryImpl;

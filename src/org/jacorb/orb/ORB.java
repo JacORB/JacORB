@@ -30,7 +30,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import org.jacorb.config.*;
-import org.apache.avalon.framework.logger.Logger;
+import org.slf4j.Logger;
 import org.jacorb.imr.ImRAccessImpl;
 import org.jacorb.orb.dii.Request;
 import org.jacorb.orb.etf.FactoriesBase;
@@ -240,7 +240,7 @@ public final class ORB
         this.configuration =
             (org.jacorb.config.Configuration)config;
         logger =
-            configuration.getNamedLogger("jacorb.orb");
+            configuration.getLogger("jacorb.orb");
 
         cacheReferences =
             configuration.getAttributeAsBoolean("jacorb.reference_caching", false);
@@ -290,7 +290,7 @@ public final class ORB
         }
         catch( BAD_INV_ORDER b)
         {
-            logger.fatalError("unexpected exception", b);
+            logger.error("unexpected exception", b);
             throw new INTERNAL(b.toString());
         }
 
@@ -367,7 +367,7 @@ public final class ORB
             return;
         }
 
-        final Logger logger = configuration.getNamedLogger("jacorb.orb.print_version");
+        final Logger logger = configuration.getLogger("jacorb.orb.print_version");
 
         logger.info("\n\t~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n" +
                     "\tJacORB V " + versionString + ", www.jacorb.org\n" +
@@ -1574,7 +1574,7 @@ public final class ORB
         }
         catch( ConfigurationException e )
         {
-            logger.fatalError("configuration exception during configure", e);
+            logger.error("configuration exception during configure", e);
 
             throw new org.omg.CORBA.INITIALIZE( e.toString() );
         }
@@ -1610,7 +1610,7 @@ public final class ORB
         }
         catch( ConfigurationException ce )
         {
-            logger.fatalError("unexpected exception", ce);
+            logger.error("unexpected exception", ce);
             throw new INTERNAL(ce.toString());
         }
     }
@@ -1629,7 +1629,7 @@ public final class ORB
         }
         catch (Exception e)
         {
-            logger.fatalError("unable to create known references map", e);
+            logger.error("unable to create known references map", e);
             throw new INTERNAL(e.toString());
         }
     }
@@ -2349,7 +2349,7 @@ public final class ORB
         }
         catch (ConfigurationException e)
         {
-            logger.fatalError("unexpected exception", e);
+            logger.error("unexpected exception", e);
             throw new INTERNAL(e.toString());
         }
     }
@@ -2549,7 +2549,7 @@ public final class ORB
                         catch (AdapterInactive e)
                         {
                             // should not happen
-                            logger.fatalError("unexpected exception", e);
+                            logger.error("unexpected exception", e);
                             throw new INTERNAL(e.toString());
                         }
                     }
@@ -2588,7 +2588,7 @@ public final class ORB
                 catch (Exception e)
                 {
                     // cannot happen
-                    logger.fatalError("unexpected exception", e);
+                    logger.error("unexpected exception", e);
                     throw new INTERNAL(e.toString());
                 }
             }

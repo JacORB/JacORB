@@ -20,7 +20,7 @@
  */
 package org.jacorb.transaction;
 
-import org.apache.avalon.framework.logger.Logger;
+import org.slf4j.Logger;
 import org.omg.CosTransactions.Control;
 import org.omg.CosTransactions.ControlHelper;
 import org.omg.CosTransactions.PropagationContext;
@@ -61,7 +61,7 @@ public class ServerContextTransferInterceptor
         this.ts_current = ts_current;
         this.orb = orb;
         this.logger =
-            ((org.jacorb.orb.ORB)orb).getConfiguration().getNamedLogger("jacorb.tx_service.interceptor");
+            ((org.jacorb.orb.ORB)orb).getConfiguration().getLogger("jacorb.tx_service.interceptor");
     }
 
     // implementation of org.omg.PortableInterceptor.InterceptorOperations interface

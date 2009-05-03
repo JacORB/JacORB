@@ -21,7 +21,7 @@ package org.jacorb.notification.util;
  *
  */
 
-import org.apache.avalon.framework.logger.Logger;
+import org.slf4j.Logger;
 import org.jacorb.notification.interfaces.Disposable;
 
 /**

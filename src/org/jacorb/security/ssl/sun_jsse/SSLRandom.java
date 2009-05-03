@@ -23,7 +23,7 @@ package org.jacorb.security.ssl.sun_jsse;
 import java.security.SecureRandom;
 
 import org.jacorb.config.*;
-import org.apache.avalon.framework.logger.Logger;
+import org.slf4j.Logger;
 
 /**
  * @author Nick Cross
@@ -64,7 +64,7 @@ public class SSLRandom implements Configurable
     {
         org.jacorb.config.Configuration config = (org.jacorb.config.Configuration) configuration;
 
-        logger = config.getNamedLogger("jacorb.security.jsse");
+        logger = config.getLogger("jacorb.security.jsse");
 
         try
         {

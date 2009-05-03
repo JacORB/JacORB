@@ -21,7 +21,7 @@
 package org.jacorb.orb.listener;
 
 import org.jacorb.config.*;
-import org.apache.avalon.framework.logger.Logger;
+import org.slf4j.Logger;
 import org.jacorb.orb.iiop.IIOPListener;
 import org.jacorb.util.ObjectUtil;
 
@@ -68,7 +68,7 @@ public class DefaultAcceptorExceptionListener
                 // ignore
             }
         }
-        logger = ((org.jacorb.config.Configuration)configuration).getNamedLogger("jacorb.orb.iiop");
+        logger = ((org.jacorb.config.Configuration)configuration).getLogger("jacorb.orb.iiop");
     }
 
     /**
@@ -90,7 +90,7 @@ public class DefaultAcceptorExceptionListener
             )
            )
         {
-            logger.fatalError("fatal exception. will shutdown orb", e.getException());
+            logger.error("fatal exception. will shutdown orb", e.getException());
 
             e.getORB().shutdown(true);
         }

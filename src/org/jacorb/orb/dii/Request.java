@@ -21,7 +21,7 @@ package org.jacorb.orb.dii;
  */
 
 import java.util.Iterator;
-import org.apache.avalon.framework.logger.Logger;
+import org.slf4j.Logger;
 import org.jacorb.orb.ORB;
 import org.jacorb.orb.giop.ClientConnection;
 import org.jacorb.orb.giop.RequestOutputStream;
@@ -119,7 +119,7 @@ public class Request
         this.context = context;
         result_value = (org.jacorb.orb.NamedValue)result;
 
-        logger = orb.getConfiguration().getNamedLogger("jacorb.dii.request");
+        logger = orb.getConfiguration().getLogger("jacorb.dii.request");
     }
 
     public org.omg.CORBA.Object target()

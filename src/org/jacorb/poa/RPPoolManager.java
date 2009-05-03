@@ -22,7 +22,7 @@ package org.jacorb.poa;
 
 import java.util.Vector;
 import org.jacorb.config.*;
-import org.apache.avalon.framework.logger.Logger;
+import org.slf4j.Logger;
 import org.jacorb.poa.except.POAInternalError;
 
 /**

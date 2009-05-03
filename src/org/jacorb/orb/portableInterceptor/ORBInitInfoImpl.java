@@ -24,7 +24,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.apache.avalon.framework.logger.Logger;
+import org.slf4j.Logger;
 import org.jacorb.orb.ORB;
 import org.omg.CORBA.INTERNAL;
 import org.omg.CORBA.Object;
@@ -72,7 +72,7 @@ public class ORBInitInfoImpl
     {
         this.orb = orb;
 
-        logger = orb.getConfiguration().getNamedLogger("jacorb.orb");
+        logger = orb.getConfiguration().getLogger("jacorb.orb");
 
         named_server_interceptors = new HashMap();
         named_client_interceptors = new HashMap();
@@ -246,7 +246,7 @@ public class ORBInitInfoImpl
         }
         catch (org.omg.CORBA.ORBPackage.InvalidName e)
         {
-            logger.fatalError("unexpected error", e);
+            logger.error("unexpected error", e);
             throw new INTERNAL(e.toString());
         }
     }

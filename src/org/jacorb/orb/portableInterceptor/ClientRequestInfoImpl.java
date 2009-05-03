@@ -23,7 +23,7 @@ package org.jacorb.orb.portableInterceptor;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
-import org.apache.avalon.framework.logger.Logger;
+import org.slf4j.Logger;
 import org.jacorb.orb.etf.ProfileBase;
 import org.jacorb.util.ObjectUtil;
 import org.omg.CORBA.ARG_IN;
@@ -89,7 +89,7 @@ public class ClientRequestInfoImpl
         super();
 
         this.orb = orb;
-        logger = orb.getConfiguration().getNamedLogger("jacorb.orb.interceptors");
+        logger = orb.getConfiguration().getLogger("jacorb.orb.interceptors");
 
         this.operation = ros.operation();
         this.response_expected = ros.response_expected();

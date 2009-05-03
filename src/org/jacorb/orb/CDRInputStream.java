@@ -30,7 +30,7 @@ import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
 import org.jacorb.config.*;
-import org.apache.avalon.framework.logger.Logger;
+import org.slf4j.Logger;
 import org.jacorb.orb.giop.CodeSet;
 import org.jacorb.orb.giop.GIOPConnection;
 import org.jacorb.util.ObjectUtil;
@@ -245,7 +245,7 @@ public class CDRInputStream
     {
         final org.jacorb.config.Configuration jacorbConfig = (org.jacorb.config.Configuration)configuration;
         logger =
-            jacorbConfig.getNamedLogger("jacorb.orb.cdr");
+            jacorbConfig.getLogger("jacorb.orb.cdr");
 
         codesetEnabled  =
             configuration.getAttribute("jacorb.codeset","on").equals("on");

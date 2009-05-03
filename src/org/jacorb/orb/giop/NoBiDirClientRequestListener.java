@@ -21,7 +21,7 @@
 package org.jacorb.orb.giop;
 
 import java.io.IOException;
-import org.apache.avalon.framework.logger.Logger;
+import org.slf4j.Logger;
 import org.jacorb.orb.SystemExceptionHelper;
 import org.omg.CORBA.CompletionStatus;
 import org.omg.CORBA.INV_POLICY;

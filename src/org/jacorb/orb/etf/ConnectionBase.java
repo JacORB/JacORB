@@ -25,7 +25,7 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 
 import org.jacorb.config.*;
-import org.apache.avalon.framework.logger.Logger;
+import org.slf4j.Logger;
 import org.jacorb.orb.ORB;
 
 /**
@@ -90,7 +90,7 @@ public abstract class ConnectionBase
         configuration = (org.jacorb.config.Configuration)config;
         orb = configuration.getORB();
 
-        logger = configuration.getNamedLogger(configuration.getLoggerName(getClass()));
+        logger = configuration.getLogger(configuration.getLoggerName(getClass()));
 
         if( configuration.getAttribute("jacorb.debug.dump_outgoing_messages","off").equals("on"))
         {

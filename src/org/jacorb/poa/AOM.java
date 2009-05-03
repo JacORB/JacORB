@@ -23,7 +23,7 @@ package org.jacorb.poa;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
-import org.apache.avalon.framework.logger.Logger;
+import org.slf4j.Logger;
 import org.jacorb.poa.except.POAInternalError;
 import org.jacorb.poa.util.ByteArrayKey;
 import org.jacorb.poa.util.POAUtil;

@@ -24,7 +24,7 @@ import java.io.FileOutputStream;
 import java.io.PrintWriter;
 import java.util.StringTokenizer;
 import java.util.Vector;
-import org.apache.avalon.framework.logger.Logger;
+import org.slf4j.Logger;
 import org.jacorb.config.*;
 import org.omg.PortableServer.POA;
 import org.omg.PortableServer.POAHelper;
@@ -137,7 +137,7 @@ public class RepositoryImpl
         throws ConfigurationException
     {
         this.configuration = (org.jacorb.config.Configuration)myConfiguration;
-        this.logger = configuration.getNamedLogger("jacorb.ir");
+        this.logger = configuration.getLogger("jacorb.ir");
         patchPragmaPrefix = configuration.getAttributeAsBoolean("jacorb.ir.patch_pragma_prefix", false);
     }
 

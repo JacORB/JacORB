@@ -22,7 +22,7 @@ package org.jacorb.ir;
 
 import java.util.Enumeration;
 import java.util.Hashtable;
-import org.apache.avalon.framework.logger.Logger;
+import org.slf4j.Logger;
 import org.omg.CORBA.INTF_REPOS;
 import org.omg.PortableServer.POA;
 

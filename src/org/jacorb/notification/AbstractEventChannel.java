@@ -27,7 +27,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.jacorb.config.*;
-import org.apache.avalon.framework.logger.Logger;
+import org.slf4j.Logger;
 import org.jacorb.notification.interfaces.Disposable;
 import org.jacorb.notification.interfaces.FilterStage;
 import org.jacorb.notification.interfaces.FilterStageSource;
@@ -198,7 +198,7 @@ public abstract class AbstractEventChannel implements IServantLifecyle, JMXManag
         defaultFilterFactory_ = filterFactory;
         container_ = factory.getContainer();
 
-        logger_ = ((org.jacorb.config.Configuration) config).getNamedLogger(getClass().getName());
+        logger_ = ((org.jacorb.config.Configuration) config).getLogger(getClass().getName());
 
         container_.registerComponentImplementation(SubscriptionManager.class);
 

@@ -22,7 +22,7 @@ package org.jacorb.notification.filter.impl;
  */
 
 import org.jacorb.config.*;
-import org.apache.avalon.framework.logger.Logger;
+import org.slf4j.Logger;
 import org.jacorb.notification.filter.ETCLEvaluator;
 import org.jacorb.notification.filter.EvaluationContext;
 import org.jacorb.notification.filter.EvaluationException;
@@ -77,7 +77,7 @@ public class DefaultETCLEvaluator implements ETCLEvaluator
     {
         orb_ = orb;
 
-        logger_ = ((org.jacorb.config.Configuration) config).getNamedLogger(getClass().getName());
+        logger_ = ((org.jacorb.config.Configuration) config).getLogger(getClass().getName());
 
         dynAnyFactory_ = dynAnyFactory;
 

@@ -21,7 +21,7 @@
 package org.jacorb.orb.standardInterceptors;
 
 import org.jacorb.config.*;
-import org.apache.avalon.framework.logger.Logger;
+import org.slf4j.Logger;
 import org.jacorb.orb.CDROutputStream;
 import org.jacorb.orb.ORB;
 import org.omg.CORBA.INTERNAL;
@@ -54,7 +54,7 @@ public class SSLComponentInterceptor
    {
         this.orb = orb;
         configure( orb.getConfiguration());
-        logger = orb.getConfiguration().getNamedLogger(getClass().getName());
+        logger = orb.getConfiguration().getLogger(getClass().getName());
     }
 
     public void configure(Configuration configuration)

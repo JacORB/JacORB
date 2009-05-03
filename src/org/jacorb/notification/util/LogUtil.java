@@ -25,12 +25,11 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Properties;
 
-import org.apache.avalon.framework.logger.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.jacorb.config.Configuration;
 import org.jacorb.config.ConfigurationException;
 import org.jacorb.config.JacORBConfiguration;
-import org.jacorb.config.LogKitLoggerFactory;
-import org.jacorb.config.LoggerFactory;
 import org.jacorb.util.ObjectUtil;
 
 /**
@@ -39,101 +38,11 @@ import org.jacorb.util.ObjectUtil;
  */
 public class LogUtil
 {
-    private static final LoggerFactory sLoggerFactory;
-
-    static
-    {
-        sLoggerFactory = newLoggerFactory();
-    }
-    
-    private static LoggerFactory newLoggerFactory()
-    {
-        try
-        {
-            Configuration config = JacORBConfiguration.getConfiguration(new Properties(), null, false);
-            
-            LoggerFactory factory = newLog4jLoggerFactory(config);
-            
-            if (factory == null)
-            {
-                factory = newLogKitFactory(config);
-            }
-            
-            if (factory == null)
-            {
-                throw new RuntimeException();
-            }
-            
-            return factory;
-        } catch (ConfigurationException e)
-        {
-            throw new RuntimeException("unable to create LoggerFactory for class " + LogUtil.class.getName());
-        }
-    }
-
-    private static LoggerFactory newLog4jLoggerFactory(Configuration config)
-    {
-        String clazzName = "org.jboss.util.Log4jLoggerFactory";
-        
-        try
-        {
-            // see if Log4j is available
-            ObjectUtil.classForName("org.apache.log4j.Level");
-            Class clazz = ObjectUtil.classForName(clazzName);
-            
-            Constructor ctor = clazz.getConstructor(new Class[0]);
-            
-            final LoggerFactory factory = (LoggerFactory) ctor.newInstance(new Object[0]);
-            
-            factory.configure(config);
-            
-            return factory;
-        } catch (IllegalArgumentException e)
-        {
-            return null;
-        } catch (ClassNotFoundException e)
-        {
-            return null;
-        } catch (SecurityException e)
-        {
-            return null;
-        } catch (NoSuchMethodException e)
-        {
-            return null;
-        } catch (InstantiationException e)
-        {
-            return null;
-        } catch (IllegalAccessException e)
-        {
-            return null;
-        } catch (InvocationTargetException e)
-        {
-            return null;
-        } catch (ConfigurationException e)
-        {
-            return null;
-        }
-    }
-    
-    private static LoggerFactory newLogKitFactory(Configuration config)
-    {
-        try
-        {
-            LogKitLoggerFactory loggerFactory = new LogKitLoggerFactory();
-            loggerFactory.configure(config);
-
-            return loggerFactory;
-        } catch (ConfigurationException e)
-        {
-            throw new RuntimeException();
-        }
-    }
-
     public static Logger getLogger(Configuration config, String name)
     {
         try
         {
-            return ((org.jacorb.config.Configuration) config).getNamedLogger(name);
+            return ((org.jacorb.config.Configuration) config).getLogger(name);
         } catch (ClassCastException e)
         {
             return getLogger(name);
@@ -142,6 +51,6 @@ public class LogUtil
 
     public static Logger getLogger(String name)
     {
-        return sLoggerFactory.getNamedLogger(name);
+        return org.slf4j.LoggerFactory.getLogger(name);
     }
 }

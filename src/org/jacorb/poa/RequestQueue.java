@@ -24,7 +24,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import org.jacorb.config.*;
-import org.apache.avalon.framework.logger.Logger;
+import org.slf4j.Logger;
 import org.jacorb.orb.dsi.ServerRequest;
 import org.jacorb.poa.except.ResourceLimitReachedException;
 import org.jacorb.poa.util.StringPair;
@@ -68,7 +68,7 @@ public class RequestQueue
         }
 
         this.configuration = (org.jacorb.config.Configuration)myConfiguration;
-        logger = configuration.getNamedLogger("jacorb.poa.queue");
+        logger = configuration.getLogger("jacorb.poa.queue");
         queueMax = configuration.getAttributeAsInteger("jacorb.poa.queue_max", 100);
         queueMin = configuration.getAttributeAsInteger("jacorb.poa.queue_min", 10);
         queueWait = configuration.getAttributeAsBoolean("jacorb.poa.queue_wait",false);

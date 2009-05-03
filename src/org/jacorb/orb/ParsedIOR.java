@@ -27,7 +27,7 @@ import java.util.*;
 
 import org.jacorb.orb.util.CorbaLoc;
 
-import org.apache.avalon.framework.logger.Logger;
+import org.slf4j.Logger;
 
 import org.jacorb.util.ObjectUtil;
 import org.omg.CONV_FRAME.CodeSetComponentInfo;
@@ -211,7 +211,7 @@ public class ParsedIOR
         super();
 
         this.orb = orb;
-        this.logger = this.orb.getConfiguration().getNamedLogger("jacorb.orb.parsedior");
+        this.logger = this.orb.getConfiguration().getLogger("jacorb.orb.parsedior");
     }
 
     /**

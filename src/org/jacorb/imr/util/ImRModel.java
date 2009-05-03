@@ -31,7 +31,7 @@ import javax.swing.table.TableModel;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreePath;
-import org.apache.avalon.framework.logger.Logger;
+import org.slf4j.Logger;
 import org.jacorb.imr.Admin;
 import org.jacorb.imr.AdminHelper;
 import org.jacorb.imr.HostInfo;
@@ -96,7 +96,7 @@ public class ImRModel
     {
     m_orb = (org.jacorb.orb.ORB)org.omg.CORBA.ORB.init(new String[0], null);
         configuration = m_orb.getConfiguration();
-        logger = configuration.getNamedLogger("jacorb.imr.model");
+        logger = configuration.getLogger("jacorb.imr.model");
 
         try
         {

@@ -25,7 +25,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
-import org.apache.avalon.framework.logger.Logger;
+import org.slf4j.Logger;
 import org.jacorb.notification.EventTypeSet;
 import org.jacorb.notification.interfaces.Disposable;
 import org.jacorb.notification.util.LogUtil;

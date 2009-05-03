@@ -23,7 +23,7 @@ package org.jacorb.poa;
 import java.util.Hashtable;
 import java.util.Vector;
 import org.jacorb.config.*;
-import org.apache.avalon.framework.logger.Logger;
+import org.slf4j.Logger;
 import org.jacorb.orb.dsi.ServerRequest;
 import org.jacorb.poa.except.CompletionRequestedException;
 import org.jacorb.poa.except.ResourceLimitReachedException;
@@ -98,7 +98,7 @@ public final class RequestController
         this.configuration =
             (org.jacorb.config.Configuration)myConfiguration;
 
-        logger = configuration.getNamedLogger("jacorb.poa.controller");
+        logger = configuration.getLogger("jacorb.poa.controller");
 
         requestQueue.configure(myConfiguration);
 

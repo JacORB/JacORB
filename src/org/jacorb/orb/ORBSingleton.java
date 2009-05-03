@@ -22,7 +22,7 @@ package org.jacorb.orb;
 
 import java.util.HashSet;
 import org.jacorb.config.*;
-import org.apache.avalon.framework.logger.Logger;
+import org.slf4j.Logger;
 import org.jacorb.config.JacORBConfiguration;
 import org.omg.CORBA.BAD_PARAM;
 import org.omg.CORBA.BAD_TYPECODE;
@@ -63,7 +63,7 @@ public class ORBSingleton
 
                 // Don't call configure method as if this has been called from ORB::ctor
                 // class construction order can cause issues.
-                logger = ((org.jacorb.config.Configuration)configuration).getNamedLogger
+                logger = ((org.jacorb.config.Configuration)configuration).getLogger
                     ("jacorb.orb.singleton");
 
                 doStrictCheckOnTypecodeCreation = configuration.getAttributeAsBoolean
@@ -90,7 +90,7 @@ public class ORBSingleton
     protected void configure(Configuration configuration) throws ConfigurationException
     {
         logger =
-            ((org.jacorb.config.Configuration)configuration).getNamedLogger("jacorb.orb");
+            ((org.jacorb.config.Configuration)configuration).getLogger("jacorb.orb");
 
         doStrictCheckOnTypecodeCreation = configuration.getAttributeAsBoolean
             ("jacorb.interop.strict_check_on_tc_creation", true);

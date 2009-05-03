@@ -23,7 +23,7 @@ package org.jacorb.poa;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import org.jacorb.config.*;
-import org.apache.avalon.framework.logger.Logger;
+import org.slf4j.Logger;
 import org.jacorb.orb.dsi.ServerRequest;
 import org.jacorb.poa.except.ApplicationError;
 import org.jacorb.poa.except.POAInternalError;
@@ -258,7 +258,7 @@ public class POA
         throws ConfigurationException
     {
         this.configuration = (org.jacorb.config.Configuration)myConfiguration;
-        logger = configuration.getNamedLogger("jacorb.poa");
+        logger = configuration.getLogger("jacorb.poa");
 
         String tmp =
             configuration.getAttribute("jacorb.implname", "");
@@ -2151,7 +2151,7 @@ public class POA
                 {
                     if ( implName == null )
                     {
-                        logger.fatalError("Cannot create a persistent poa. The implname property has not been set.");
+                        logger.error("Cannot create a persistent poa. The implname property has not been set.");
                         return i;
                     }
                 }

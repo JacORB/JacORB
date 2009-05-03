@@ -21,7 +21,7 @@ package org.jacorb.security.sas;
  */
 
 import org.jacorb.config.*;
-import org.apache.avalon.framework.logger.Logger;
+import org.slf4j.Logger;
 import org.ietf.jgss.GSSContext;
 import org.ietf.jgss.GSSCredential;
 import org.ietf.jgss.GSSException;
@@ -48,7 +48,7 @@ public class KerberosContext
         throws ConfigurationException
     {
         logger = 
-            ((org.jacorb.config.Configuration)configuration).getNamedLogger("jacorb.security.sas.Kerberos");
+            ((org.jacorb.config.Configuration)configuration).getLogger("jacorb.security.sas.Kerberos");
     }
 
     public void initClient() 

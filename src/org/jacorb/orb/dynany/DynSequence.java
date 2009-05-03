@@ -22,7 +22,7 @@ package org.jacorb.orb.dynany;
 
 import java.util.ArrayList;
 import java.util.List;
-import org.apache.avalon.framework.logger.Logger;
+import org.slf4j.Logger;
 import org.jacorb.orb.Any;
 import org.jacorb.orb.CDRInputStream;
 import org.jacorb.orb.CDROutputStream;

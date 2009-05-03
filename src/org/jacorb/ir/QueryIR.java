@@ -20,7 +20,7 @@ package org.jacorb.ir;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import org.apache.avalon.framework.logger.Logger;
+import org.slf4j.Logger;
 import org.jacorb.orb.ORB;
 
 public class QueryIR
@@ -39,7 +39,7 @@ public class QueryIR
             org.omg.CORBA.Repository ir =
                 org.omg.CORBA.RepositoryHelper.narrow( orb.resolve_initial_references( "InterfaceRepository"));
 
-            Logger logger = orb.getConfiguration().getNamedLogger("jacorb.ir");
+            Logger logger = orb.getConfiguration().getLogger("jacorb.ir");
 
             if( ir == null )
             {

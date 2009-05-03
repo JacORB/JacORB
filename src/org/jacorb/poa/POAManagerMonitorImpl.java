@@ -21,7 +21,7 @@ package org.jacorb.poa;
  */
 
 import org.jacorb.config.*;
-import org.apache.avalon.framework.logger.Logger;
+import org.slf4j.Logger;
 import org.jacorb.poa.gui.POAManagerMonitorController;
 import org.jacorb.poa.gui.POAManagerMonitorView;
 
@@ -48,7 +48,7 @@ public class POAManagerMonitorImpl
         throws ConfigurationException
     {
         this.configuration = (org.jacorb.config.Configuration)myConfiguration;
-        logger = configuration.getNamedLogger("jacorb.poa.manager_monitor");
+        logger = configuration.getLogger("jacorb.poa.manager_monitor");
     }
 
 

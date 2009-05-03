@@ -103,7 +103,7 @@ public class ProxyPullSupplierImpl
         }
         catch (InterruptedException e)
         {
-            logger_.fatalError("interrupted", e);
+            logger_.error("interrupted", e);
 
             throw new UNKNOWN();
         }

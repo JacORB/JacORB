@@ -23,7 +23,7 @@ package org.jacorb.orb.etf;
 import java.util.ArrayList;
 import java.util.List;
 import org.jacorb.config.*;
-import org.apache.avalon.framework.logger.Logger;
+import org.slf4j.Logger;
 import org.jacorb.orb.ORB;
 import org.omg.ETF.Connection;
 import org.omg.ETF.Handle;
@@ -86,7 +86,7 @@ public abstract class ListenerBase
 
         orb = configuration.getORB();
 
-        logger = configuration.getNamedLogger(configuration.getLoggerName(this.getClass()));
+        logger = configuration.getLogger(configuration.getLoggerName(this.getClass()));
     }
 
     /**

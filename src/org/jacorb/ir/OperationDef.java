@@ -24,7 +24,7 @@ import java.lang.reflect.Method;
 import java.util.Hashtable;
 import java.util.StringTokenizer;
 import java.util.Vector;
-import org.apache.avalon.framework.logger.Logger;
+import org.slf4j.Logger;
 import org.omg.CORBA.ExceptionDefPOATie;
 import org.omg.CORBA.INTF_REPOS;
 import org.omg.PortableServer.POA;

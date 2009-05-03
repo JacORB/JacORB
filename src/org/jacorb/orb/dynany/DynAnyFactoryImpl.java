@@ -20,7 +20,7 @@ package org.jacorb.orb.dynany;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import org.apache.avalon.framework.logger.Logger;
+import org.slf4j.Logger;
 import org.jacorb.orb.TypeCode;
 import org.omg.DynamicAny.DynAnyFactoryPackage.InconsistentTypeCode;
 
@@ -40,7 +40,7 @@ public class DynAnyFactoryImpl
     {
         super();
         this.orb = orb;
-        logger = orb.getConfiguration().getNamedLogger("jacorb.orb");
+        logger = orb.getConfiguration().getLogger("jacorb.orb");
     }
 
     public org.omg.DynamicAny.DynAny create_dyn_any( org.omg.CORBA.Any value )

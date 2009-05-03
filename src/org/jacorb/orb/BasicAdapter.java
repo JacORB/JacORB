@@ -25,7 +25,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.jacorb.config.*;
-import org.apache.avalon.framework.logger.Logger;
+import org.slf4j.Logger;
 import org.jacorb.orb.giop.GIOPConnection;
 import org.jacorb.orb.giop.GIOPConnectionManager;
 import org.jacorb.orb.giop.MessageReceptorPool;
@@ -88,7 +88,7 @@ public class BasicAdapter
         configuration =
             (org.jacorb.config.Configuration)myConfiguration;
         logger =
-            configuration.getNamedLogger("jacorb.orb.basic");
+            configuration.getLogger("jacorb.orb.basic");
 
         receptor_pool = new MessageReceptorPool("server", "ServerMessageReceptor", myConfiguration);
 

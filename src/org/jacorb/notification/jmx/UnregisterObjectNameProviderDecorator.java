@@ -25,7 +25,7 @@ import javax.management.InstanceNotFoundException;
 import javax.management.MBeanRegistrationException;
 import javax.management.MBeanServer;
 
-import org.apache.avalon.framework.logger.Logger;
+import org.slf4j.Logger;
 import org.jacorb.notification.interfaces.Disposable;
 import org.jacorb.notification.interfaces.JMXManageable;
 import org.jacorb.notification.util.LogUtil;

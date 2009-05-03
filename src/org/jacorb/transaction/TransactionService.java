@@ -23,7 +23,7 @@ package org.jacorb.transaction;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.PrintWriter;
-import org.apache.avalon.framework.logger.Logger;
+import org.slf4j.Logger;
 import org.omg.CosNaming.NameComponent;
 import org.omg.CosNaming.NamingContextExt;
 import org.omg.CosNaming.NamingContextExtHelper;
@@ -124,7 +124,7 @@ public class TransactionService
         org.omg.CORBA.ORB orb = 
             org.omg.CORBA.ORB.init(args, null);
         logger = 
-            ((org.jacorb.orb.ORB)orb).getConfiguration().getNamedLogger("jacorb.tx_service");
+            ((org.jacorb.orb.ORB)orb).getConfiguration().getLogger("jacorb.tx_service");
         try
         {
             org.omg.PortableServer.POA poa = 

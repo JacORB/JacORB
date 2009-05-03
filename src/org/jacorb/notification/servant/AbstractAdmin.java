@@ -29,7 +29,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.jacorb.config.*;
-import org.apache.avalon.framework.logger.Logger;
+import org.slf4j.Logger;
 import org.jacorb.notification.FilterManager;
 import org.jacorb.notification.IContainer;
 import org.jacorb.notification.MessageFactory;
@@ -201,7 +201,7 @@ public abstract class AbstractAdmin implements QoSAdminOperations,
 
         channelID_ = channel.getChannelID();
 
-        logger_ = ((org.jacorb.config.Configuration) config).getNamedLogger(getClass().getName());
+        logger_ = ((org.jacorb.config.Configuration) config).getLogger(getClass().getName());
 
         qosSettings_ = new QoSPropertySet(config, QoSPropertySet.ADMIN_QOS);
 

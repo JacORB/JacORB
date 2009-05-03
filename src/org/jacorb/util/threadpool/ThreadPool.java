@@ -22,7 +22,7 @@ package org.jacorb.util.threadpool;
  */
 
 import java.util.LinkedList;
-import org.apache.avalon.framework.logger.Logger;
+import org.slf4j.Logger;
 import org.jacorb.config.Configuration;
 import org.omg.CORBA.NO_RESOURCES;
 
@@ -66,7 +66,7 @@ public class ThreadPool
         this.max_threads = max_threads;
         this.max_idle_threads = max_idle_threads;
 
-        logger = configuration.getNamedLogger("jacorb.util.tpool");
+        logger = configuration.getLogger("jacorb.util.tpool");
     }
 
     protected synchronized Object getJob()

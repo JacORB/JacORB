@@ -132,7 +132,7 @@ public class EventChannelFactoryImpl extends AbstractChannelFactory implements
             throw e;
         } catch (Exception e)
         {
-            logger_.fatalError("create_channel", e);
+            logger_.error("create_channel", e);
 
             throw new RuntimeException();
         }

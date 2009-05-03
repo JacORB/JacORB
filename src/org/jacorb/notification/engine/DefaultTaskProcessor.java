@@ -24,7 +24,7 @@ package org.jacorb.notification.engine;
 import java.util.Date;
 
 import org.jacorb.config.*;
-import org.apache.avalon.framework.logger.Logger;
+import org.slf4j.Logger;
 import org.jacorb.notification.conf.Attributes;
 import org.jacorb.notification.conf.Default;
 import org.jacorb.notification.interfaces.Disposable;
@@ -176,7 +176,7 @@ public class DefaultTaskProcessor implements TaskProcessor, Disposable, JMXManag
                     }
                 });
 
-        logger_ = ((org.jacorb.config.Configuration) config).getNamedLogger(getClass().getName());
+        logger_ = ((org.jacorb.config.Configuration) config).getLogger(getClass().getName());
 
         logger_.info("create TaskProcessor");
 

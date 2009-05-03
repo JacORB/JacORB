@@ -27,7 +27,7 @@ import java.util.HashMap;
 import javax.net.ssl.SSLSocket;
 
 import org.jacorb.config.*;
-import org.apache.avalon.framework.logger.Logger;
+import org.slf4j.Logger;
 import org.jacorb.orb.dsi.ServerRequest;
 import org.jacorb.orb.giop.GIOPConnection;
 import org.jacorb.orb.iiop.ServerIIOPConnection;
@@ -76,7 +76,7 @@ public class ServerInvocationInterceptor
         throws ConfigurationException
     {
         logger =
-            ((org.jacorb.config.Configuration)configuration).getNamedLogger("jacorb.security.ssl.interceptor");
+            ((org.jacorb.config.Configuration)configuration).getLogger("jacorb.security.ssl.interceptor");
 
         serverSupportedOptions =
             Short.parseShort(

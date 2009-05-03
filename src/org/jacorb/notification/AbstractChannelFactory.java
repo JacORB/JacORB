@@ -31,7 +31,7 @@ import java.util.Map;
 import java.util.Properties;
 
 import org.jacorb.config.*;
-import org.apache.avalon.framework.logger.Logger;
+import org.slf4j.Logger;
 import org.jacorb.notification.conf.Attributes;
 import org.jacorb.notification.container.BiDirGiopPOAComponentAdapter;
 import org.jacorb.notification.container.PicoContainerFactory;
@@ -162,7 +162,7 @@ public abstract class AbstractChannelFactory implements ManageableServant, Dispo
 
         config_ = (Configuration) container_.getComponentInstanceOfType(Configuration.class);
 
-        logger_ = ((org.jacorb.config.Configuration) config_).getNamedLogger(getClass().getName());
+        logger_ = ((org.jacorb.config.Configuration) config_).getLogger(getClass().getName());
 
         POA _rootPOA = (POA) container_.getComponentInstanceOfType(POA.class);
 
@@ -266,7 +266,7 @@ public abstract class AbstractChannelFactory implements ManageableServant, Dispo
             eventChannelFactoryPOA_.deactivate_object(oid_);
         } catch (Exception e)
         {
-            logger_.fatalError("unable to deactivate object", e);
+            logger_.error("unable to deactivate object", e);
 
             throw new RuntimeException();
         }

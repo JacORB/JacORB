@@ -21,7 +21,7 @@ package org.jacorb.ir;
  */
 
 import java.io.PrintStream;
-import org.apache.avalon.framework.logger.Logger;
+import org.slf4j.Logger;
 import org.jacorb.orb.ORB;
 import org.jacorb.orb.TypeCode;
 import org.omg.CORBA.INTERNAL;
@@ -72,7 +72,7 @@ public class IdlWriter
 
         if( ir == null )
         {
-            logger.fatalError("No IR configured! Exiting..");
+            logger.error("No IR configured! Exiting..");
             System.exit(1);
         }
     }

@@ -24,7 +24,7 @@ package org.jacorb.transport;
 import java.util.Iterator;
 import java.util.List;
 import org.jacorb.config.*;
-import org.apache.avalon.framework.logger.Logger;
+import org.slf4j.Logger;
 import org.jacorb.orb.giop.TransportListener;
 import org.omg.CORBA.LocalObject;
 
@@ -53,7 +53,7 @@ public class DefaultCurrentImpl extends LocalObject implements Current, Transpor
         
         org.jacorb.config.Configuration cfg = (org.jacorb.config.Configuration)configuration;
         
-        logger_ = cfg.getNamedLogger ("jacorb.transport.current");
+        logger_ = cfg.getLogger ("jacorb.transport.current");
 
         // Plug-in a statistics provider, we know how to use
         List statsProviderClassNames =

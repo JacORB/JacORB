@@ -21,7 +21,7 @@ package org.jacorb.poa;
  */
 
 import org.jacorb.config.*;
-import org.apache.avalon.framework.logger.Logger;
+import org.slf4j.Logger;
 import org.jacorb.orb.dsi.ServerRequest;
 import org.jacorb.poa.except.ApplicationError;
 import org.jacorb.poa.gui.POAMonitorController;
@@ -78,7 +78,7 @@ public class POAMonitorImpl
         throws ConfigurationException
     {
         this.configuration = (org.jacorb.config.Configuration)myConfiguration;
-        logger = configuration.getNamedLogger("jacorb.poa.monitor");
+        logger = configuration.getLogger("jacorb.poa.monitor");
 
         threadPoolMin =
             configuration.getAttributeAsInteger("jacorb.poa.thread_pool_min", 5);

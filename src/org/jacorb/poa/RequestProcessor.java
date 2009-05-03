@@ -24,7 +24,7 @@ import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.Set;
 import org.jacorb.config.*;
-import org.apache.avalon.framework.logger.Logger;
+import org.slf4j.Logger;
 import org.jacorb.orb.SystemExceptionHelper;
 import org.jacorb.orb.dsi.ServerRequest;
 import org.jacorb.orb.giop.ReplyOutputStream;

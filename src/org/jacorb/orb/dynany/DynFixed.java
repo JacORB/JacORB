@@ -21,7 +21,7 @@ package org.jacorb.orb.dynany;
  */
 
 import java.math.BigDecimal;
-import org.apache.avalon.framework.logger.Logger;
+import org.slf4j.Logger;
 import org.jacorb.orb.ORB;
 import org.jacorb.orb.TypeCode;
 import org.omg.DynamicAny.DynAnyPackage.InvalidValue;

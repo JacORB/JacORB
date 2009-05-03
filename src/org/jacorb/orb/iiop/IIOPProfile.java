@@ -22,7 +22,7 @@ package org.jacorb.orb.iiop;
 import java.util.*;
 import java.net.*;
 import org.jacorb.config.*;
-import org.apache.avalon.framework.logger.Logger;
+import org.slf4j.Logger;
 import org.jacorb.orb.CDRInputStream;
 import org.jacorb.orb.CDROutputStream;
 import org.jacorb.orb.TaggedComponentList;
@@ -108,7 +108,7 @@ public class IIOPProfile
         throws ConfigurationException
     {
         configuration = (org.jacorb.config.Configuration)config;
-        logger = configuration.getNamedLogger("jacorb.iiop.profile");
+        logger = configuration.getLogger("jacorb.iiop.profile");
         if (primaryAddress != null)
         {
             primaryAddress.configure(config);

@@ -20,7 +20,7 @@
  */
 package org.jacorb.orb.portableInterceptor;
 
-import org.apache.avalon.framework.logger.Logger;
+import org.slf4j.Logger;
 import org.jacorb.orb.SystemExceptionHelper;
 import org.omg.CORBA.UserException;
 import org.omg.PortableInterceptor.ClientRequestInterceptor;

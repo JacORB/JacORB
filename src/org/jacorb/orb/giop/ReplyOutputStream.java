@@ -22,7 +22,7 @@ package org.jacorb.orb.giop;
 
 import java.io.IOException;
 
-import org.apache.avalon.framework.logger.Logger;
+import org.slf4j.Logger;
 import org.jacorb.orb.ORB;
 import org.jacorb.orb.SystemExceptionHelper;
 import org.omg.CORBA.MARSHAL;

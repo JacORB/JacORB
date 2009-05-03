@@ -30,7 +30,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.jacorb.config.*;
-import org.apache.avalon.framework.logger.Logger;
+import org.slf4j.Logger;
 import org.jacorb.notification.interfaces.Disposable;
 
 import edu.emory.mathcs.backport.java.util.concurrent.atomic.AtomicBoolean;

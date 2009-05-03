@@ -25,7 +25,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.jacorb.config.*;
-import org.apache.avalon.framework.logger.Logger;
+import org.slf4j.Logger;
 import org.jacorb.notification.util.LogUtil;
 import org.omg.BiDirPolicy.BIDIRECTIONAL_POLICY_TYPE;
 import org.omg.BiDirPolicy.BOTH;

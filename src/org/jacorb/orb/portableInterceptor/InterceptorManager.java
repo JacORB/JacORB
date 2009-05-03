@@ -24,7 +24,7 @@ package org.jacorb.orb.portableInterceptor;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
-import org.apache.avalon.framework.logger.Logger;
+import org.slf4j.Logger;
 import org.jacorb.orb.ORB;
 import org.omg.PortableInterceptor.ClientRequestInterceptor;
 import org.omg.PortableInterceptor.Current;
@@ -76,7 +76,7 @@ public class InterceptorManager
                               ORB orb)
     {
         logger =
-            orb.getConfiguration().getNamedLogger("jacorb.orb.interceptors");
+            orb.getConfiguration().getLogger("jacorb.orb.interceptors");
 
         if (logger.isInfoEnabled())
         {

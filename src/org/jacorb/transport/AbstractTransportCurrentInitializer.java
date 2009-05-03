@@ -21,7 +21,7 @@ package org.jacorb.transport;
  */
 
 import org.jacorb.config.*;
-import org.apache.avalon.framework.logger.Logger;
+import org.slf4j.Logger;
 import org.jacorb.orb.ORB;
 import org.omg.CORBA.LocalObject;
 import org.omg.PortableInterceptor.ORBInitInfo;
@@ -53,7 +53,7 @@ public abstract class AbstractTransportCurrentInitializer extends LocalObject im
     { 
 
         ORB orb = ((org.jacorb.orb.portableInterceptor.ORBInitInfoImpl) info).getORB ();
-        logger_ = orb.getConfiguration().getNamedLogger("jacorb.transport");
+        logger_ = orb.getConfiguration().getLogger("jacorb.transport");
         DefaultCurrentImpl impl = getCurrentImpl();
         try {
             impl.configure(orb.getConfiguration ());

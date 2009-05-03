@@ -27,7 +27,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.jacorb.config.*;
-import org.apache.avalon.framework.logger.Logger;
+import org.slf4j.Logger;
 import org.jacorb.notification.FilterManager;
 import org.jacorb.notification.IContainer;
 import org.jacorb.notification.OfferManager;
@@ -158,7 +158,7 @@ public abstract class AbstractProxy implements FilterAdminOperations, QoSAdminOp
 
         nullMappingFilterRef_ = MappingFilterHelper.narrow(orb.string_to_object(orb.object_to_string(null)));
 
-        logger_ = ((org.jacorb.config.Configuration) conf).getNamedLogger(getClass().getName());
+        logger_ = ((org.jacorb.config.Configuration) conf).getLogger(getClass().getName());
 
         disposedProxyDisconnectsClient_ = conf.getAttribute(
                 Attributes.DISPOSE_PROXY_CALLS_DISCONNECT,
@@ -518,7 +518,7 @@ public abstract class AbstractProxy implements FilterAdminOperations, QoSAdminOp
     {
         if (!connected_.get())
         {
-            logger_.fatalError("access on a not connected proxy");
+            logger_.error("access on a not connected proxy");
 
             destroy();
 
@@ -541,7 +541,7 @@ public abstract class AbstractProxy implements FilterAdminOperations, QoSAdminOp
     
     protected void handleDisconnected(Disconnected e)
     {
-        logger_.fatalError("Illegal state: Client think it's disconnected. "
+        logger_.error("Illegal state: Client think it's disconnected. "
                 + "Proxy thinks Client is still connected. The Proxy will be destroyed.", e);
 
         destroy();

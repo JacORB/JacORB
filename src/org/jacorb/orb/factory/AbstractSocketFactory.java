@@ -27,7 +27,7 @@ import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
 
 import org.jacorb.config.*;
-import org.apache.avalon.framework.logger.Logger;
+import org.slf4j.Logger;
 import org.omg.CORBA.TIMEOUT;
 
 /**
@@ -45,7 +45,7 @@ public abstract class AbstractSocketFactory implements SocketFactory, Configurab
     {
         org.jacorb.config.Configuration config = (org.jacorb.config.Configuration) configuration;
 
-        logger = config.getNamedLogger("jacorb.orb.socketfactory");
+        logger = config.getLogger("jacorb.orb.socketfactory");
     }
 
     /**

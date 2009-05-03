@@ -34,7 +34,7 @@ import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.InetAddress;
-import org.apache.avalon.framework.logger.Logger;
+import org.slf4j.Logger;
 import org.jacorb.config.*;
 import org.jacorb.util.threadpool.Consumer;
 import org.jacorb.util.threadpool.ConsumerFactory;
@@ -64,7 +64,7 @@ public class ServerStartupDaemonImpl
     public void configure(Configuration myConfiguration)
         throws ConfigurationException
     {
-        this.logger = ((org.jacorb.config.Configuration) myConfiguration).getNamedLogger("jacorb.imr");
+        this.logger = ((org.jacorb.config.Configuration) myConfiguration).getLogger("jacorb.imr");
 
         try
         {

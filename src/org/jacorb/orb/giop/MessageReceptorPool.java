@@ -21,7 +21,7 @@
 package org.jacorb.orb.giop;
 
 import org.jacorb.config.*;
-import org.apache.avalon.framework.logger.Logger;
+import org.slf4j.Logger;
 import org.jacorb.util.threadpool.Consumer;
 import org.jacorb.util.threadpool.ConsumerFactory;
 import org.jacorb.util.threadpool.ThreadPool;
@@ -58,7 +58,7 @@ public class MessageReceptorPool
 
         final int maxIdleThreads = configuration.getAttributeAsInteger("jacorb.connection." + config + ".max_idle_receptor_threads", MAX_IDLE_DEFAULT);
 
-        Logger logger = configuration.getNamedLogger("jacorb.orb.giop");
+        Logger logger = configuration.getLogger("jacorb.orb.giop");
 
         if (logger.isDebugEnabled())
         {

@@ -27,7 +27,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.avalon.framework.logger.Logger;
+import org.slf4j.Logger;
 import org.jacorb.config.*;
 import org.jacorb.orb.DefaultProfileSelector;
 import org.jacorb.orb.ORB;
@@ -91,7 +91,7 @@ public class TransportManager
     {
         this.configuration = (org.jacorb.config.Configuration)myConfiguration;
         logger =
-            configuration.getNamedLogger("jacorb.orb.giop");
+            configuration.getLogger("jacorb.orb.giop");
         socketFactoryManager.configure(configuration);
 
         // get factory class names

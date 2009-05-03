@@ -33,7 +33,7 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 
 import org.jacorb.config.*;
-import org.apache.avalon.framework.logger.Logger;
+import org.slf4j.Logger;
 import org.jacorb.notification.AbstractMessage;
 import org.jacorb.notification.EventTypeWrapper;
 import org.jacorb.notification.MessageFactory;

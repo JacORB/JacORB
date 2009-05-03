@@ -26,7 +26,7 @@ import java.util.Iterator;
 import java.util.Map;
 
 import org.jacorb.config.*;
-import org.apache.avalon.framework.logger.Logger;
+import org.slf4j.Logger;
 import org.jacorb.orb.ORB;
 import org.omg.CORBA.BAD_PARAM;
 import org.omg.ETF.Factories;
@@ -76,7 +76,7 @@ public class ClientConnectionManager
         receptor_pool = new MessageReceptorPool("client", "ClientMessageReceptor", myConfiguration);
 
         org.jacorb.config.Configuration configuration = (org.jacorb.config.Configuration)myConfiguration;
-        logger = configuration.getNamedLogger("jacorb.orb.giop");
+        logger = configuration.getLogger("jacorb.orb.giop");
 
         request_listener = new NoBiDirClientRequestListener(logger);
     }

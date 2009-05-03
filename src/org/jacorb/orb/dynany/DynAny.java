@@ -21,7 +21,7 @@ package org.jacorb.orb.dynany;
  */
 
 import java.io.IOException;
-import org.apache.avalon.framework.logger.Logger;
+import org.slf4j.Logger;
 import org.jacorb.orb.TypeCode;
 import org.omg.CORBA.BAD_INV_ORDER;
 import org.omg.CORBA.INTERNAL;

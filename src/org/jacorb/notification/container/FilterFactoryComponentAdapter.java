@@ -20,7 +20,7 @@
 package org.jacorb.notification.container;
 
 import org.jacorb.config.*;
-import org.apache.avalon.framework.logger.Logger;
+import org.slf4j.Logger;
 import org.jacorb.notification.IContainer;
 import org.jacorb.notification.conf.Attributes;
 import org.jacorb.notification.conf.Default;

@@ -24,7 +24,7 @@ import java.net.URLDecoder;
 import java.util.Hashtable;
 
 import org.jacorb.config.*;
-import org.apache.avalon.framework.logger.Logger;
+import org.slf4j.Logger;
 import org.jacorb.orb.CDRInputStream;
 import org.jacorb.orb.MinorCodes;
 import org.jacorb.orb.giop.ClientConnection;
@@ -101,7 +101,7 @@ public class SASClientInterceptor
         throws ConfigurationException
     {
         logger = 
-            ((org.jacorb.config.Configuration)configuration).getNamedLogger("jacorb.security.sas.CSS");
+            ((org.jacorb.config.Configuration)configuration).getLogger("jacorb.security.sas.CSS");
 
         useStateful = 
             configuration.getAttribute("jacorb.security.sas.stateful","true").equals("true");

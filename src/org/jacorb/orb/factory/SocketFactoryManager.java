@@ -23,7 +23,7 @@ package org.jacorb.orb.factory;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 
-import org.apache.avalon.framework.logger.Logger;
+import org.slf4j.Logger;
 import org.jacorb.config.*;
 import org.jacorb.orb.ORB;
 import org.jacorb.orb.listener.NullSSLSessionListener;
@@ -90,7 +90,7 @@ public class SocketFactoryManager
         throws ConfigurationException
     {
         configuration = (org.jacorb.config.Configuration)config;
-        logger = configuration.getNamedLogger("jacorb.orb.factory");
+        logger = configuration.getLogger("jacorb.orb.factory");
         serverSocketFactoryClassName = configuration.getAttribute(SERVER_SOCKET_FACTORY, DefaultServerSocketFactory.class.getName());
 
         socketFactoryClassName = configuration.getAttribute(SOCKET_FACTORY, "");

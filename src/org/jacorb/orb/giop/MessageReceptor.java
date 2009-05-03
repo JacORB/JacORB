@@ -22,7 +22,7 @@ package org.jacorb.orb.giop;
 
 import java.net.Socket;
 
-import org.apache.avalon.framework.logger.Logger;
+import org.slf4j.Logger;
 import org.jacorb.config.Configuration;
 import org.jacorb.orb.iiop.ServerIIOPConnection;
 import org.jacorb.util.threadpool.Consumer;
@@ -40,7 +40,7 @@ public class MessageReceptor
 
     public MessageReceptor(Configuration configuration)
     {
-        logger = configuration.getNamedLogger("jacorb.orb.giop");
+        logger = configuration.getLogger("jacorb.orb.giop");
         enhanceThreadName = configuration.getAttributeAsBoolean("jacorb.enhanced_thread_name", false);
     }
 

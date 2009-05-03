@@ -23,7 +23,7 @@ package org.jacorb.orb.giop;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
-import org.apache.avalon.framework.logger.Logger;
+import org.slf4j.Logger;
 import org.jacorb.config.Configuration;
 import org.jacorb.orb.ParsedIOR;
 import org.jacorb.util.ObjectUtil;
@@ -104,7 +104,7 @@ public class ClientConnection
 
         final Configuration configuration = ((org.jacorb.orb.ORB)orb).getConfiguration();
         logger =
-            configuration.getNamedLogger("jacorb.giop.conn");
+            configuration.getLogger("jacorb.giop.conn");
 
         ignoreComponentInfo = ! (configuration.getAttributeAsBoolean("jacorb.codeset", true));
 

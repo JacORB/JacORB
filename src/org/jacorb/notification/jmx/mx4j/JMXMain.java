@@ -49,7 +49,7 @@ import javax.management.remote.JMXServiceURL;
 import javax.naming.Context;
 import javax.naming.InitialContext;
 
-import org.apache.avalon.framework.logger.Logger;
+import org.slf4j.Logger;
 import org.jacorb.notification.ConsoleMain;
 import org.jacorb.notification.jmx.JMXManageableMBeanProvider;
 import org.jacorb.orb.rmi.PortableRemoteObjectDelegateImpl;

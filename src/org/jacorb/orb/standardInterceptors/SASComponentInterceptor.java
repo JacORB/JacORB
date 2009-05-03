@@ -23,7 +23,7 @@ package org.jacorb.orb.standardInterceptors;
 
 
 import org.jacorb.config.*;
-import org.apache.avalon.framework.logger.Logger;
+import org.slf4j.Logger;
 import org.ietf.jgss.Oid;
 import org.jacorb.orb.CDROutputStream;
 import org.jacorb.orb.ORB;
@@ -86,7 +86,7 @@ public class SASComponentInterceptor
 
         orb = ((org.jacorb.orb.portableInterceptor.ORBInitInfoImpl)info).getORB();
         config = orb.getConfiguration();
-        logger = config.getNamedLogger("jacorb.SAS.IOR");
+        logger = config.getLogger("jacorb.SAS.IOR");
 
         try
         {

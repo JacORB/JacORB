@@ -21,7 +21,7 @@
 package org.jacorb.transaction;
 
 
-import org.apache.avalon.framework.logger.Logger;
+import org.slf4j.Logger;
 import org.omg.IOP.Codec;
 import org.omg.IOP.ServiceContext;
 import org.omg.IOP.TransactionService;

@@ -21,7 +21,7 @@ package org.jacorb.security.sas;
  */
 
 import org.jacorb.config.*;
-import org.apache.avalon.framework.logger.Logger;
+import org.slf4j.Logger;
 import org.jacorb.orb.standardInterceptors.SASComponentInterceptor;
 import org.jacorb.sasPolicy.ATLAS_POLICY_TYPE;
 import org.jacorb.sasPolicy.SAS_POLICY_TYPE;
@@ -53,7 +53,7 @@ public class SASInitializer
         org.jacorb.orb.ORB orb = 
             ((org.jacorb.orb.portableInterceptor.ORBInitInfoImpl)info).getORB ();
         logger = 
-            orb.getConfiguration().getNamedLogger("jacorb.security.SAS");
+            orb.getConfiguration().getLogger("jacorb.security.SAS");
 
         // install the TSS interceptor
         try

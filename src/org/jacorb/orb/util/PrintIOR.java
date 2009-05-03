@@ -27,7 +27,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.List;
 
-import org.apache.avalon.framework.logger.Logger;
+import org.slf4j.Logger;
 import org.jacorb.orb.CDRInputStream;
 import org.jacorb.orb.ORBConstants;
 import org.jacorb.orb.ParsedIOR;
@@ -71,7 +71,7 @@ public class PrintIOR
         org.omg.CORBA.ORB orb = org.omg.CORBA.ORB.init(args,null);
         final org.jacorb.orb.ORB jorb = (org.jacorb.orb.ORB)orb;
         Logger logger =
-            jorb.getConfiguration().getNamedLogger("jacorb.print_ior");
+            jorb.getConfiguration().getLogger("jacorb.print_ior");
         String line, iorString = null;
 
         if( args.length != 2)
