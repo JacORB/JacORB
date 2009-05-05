@@ -33,7 +33,7 @@ import javax.net.ssl.SSLPeerUnverifiedException;
 import javax.net.ssl.SSLProtocolException;
 import javax.net.ssl.SSLSocket;
 
-import org.apache.avalon.framework.logger.Logger;
+import org.slf4j.Logger;
 import org.jacorb.orb.ORB;
 import org.jacorb.orb.iiop.IIOPConnection;
 
@@ -59,7 +59,7 @@ public class SSLListenerUtil
          if (socket instanceof SSLSocket)
         {
              SSLSessionListener listener = orb.getTransportManager().getSocketFactoryManager().getSSLListener();
-             Logger logger = orb.getConfiguration().getNamedLogger("jacorb.ssl.sessionlistener"); // TODO kategorie
+             Logger logger = orb.getConfiguration().getLogger("jacorb.ssl.sessionlistener"); // TODO kategorie
                 ((SSLSocket)socket).addHandshakeCompletedListener(new SSLHandshakeListener(logger, listener));
         }
     }
@@ -74,7 +74,7 @@ public class SSLListenerUtil
     public static void processException(ORB orb, IIOPConnection iiop, Socket socket, IOException ex)
     {
         final SSLSessionListener listener = orb.getTransportManager().getSocketFactoryManager().getSSLListener();
-        final Logger logger = orb.getConfiguration().getNamedLogger("jacorb.ssl.sessionlistener"); // TODO kategorie
+        final Logger logger = orb.getConfiguration().getLogger("jacorb.ssl.sessionlistener"); // TODO kategorie
 
         String localhost;
 
