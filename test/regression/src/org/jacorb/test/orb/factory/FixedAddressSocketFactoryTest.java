@@ -4,7 +4,6 @@ import java.net.InetAddress;
 import java.net.Socket;
 
 import org.jacorb.config.*;
-import org.apache.avalon.framework.logger.NullLogger;
 import org.easymock.MockControl;
 import org.jacorb.config.Configuration;
 import org.jacorb.orb.factory.FixedAddressSocketFactory;

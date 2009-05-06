@@ -1,9 +1,7 @@
 package org.jacorb.util;
 
 import org.jacorb.config.*;
-import org.apache.avalon.framework.logger.ConsoleLogger;
-import org.apache.avalon.framework.logger.Logger;
-import org.jacorb.config.LoggerFactory;
+import org.slf4j.Logger;
 
 /**
  * <code>ConsoleLoggerFactory</code> is a very simple example to demonstrate
