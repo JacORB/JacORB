@@ -1,3 +1,44 @@
+2009-05-06  Alexander Bykov  <alexander.bykov@prismtech.com>
+
+	* config/ConsoleLogger.java, config/LogKitLogger.java,
+	config/LogKitLoggerFactory.java, config/NullLogger.java,
+	util/ConsoleLoggerFactory.java: Added default implementations for
+	LogKit and Console loggers. Fixed compilation errors.
+
+2009-05-05  Alexander Bykov  <alexander.bykov@prismtech.com>
+
+	* config/LoggerFactory.java, orb/listener/SSLListenerUtil.java.ssl:
+	Changed Logger to org.slf4j.Logger
+
+2009-05-03  Andre Spiegel  <spiegel@gnu.org>
+
+	* config/Configuration.java (getLogger): Renamed from
+	getNamedLogger(), changed to return an SLF4J logger.
+
+	* config/JacORBConfiguration.java (getLogger): Implement new
+	interface method.
+	(getNamedLogger): Removed.
+	(initLogging): Commented out for now, we don't intend to configure
+	the backend logging system from within JacORB at all.
+
+	* Everywhere else: Change imports to use SLF4J instead of Avalon,
+	replace fatalError() with error().
+	
+2009-04-30  Alexander Bykov  <alexander.bykov@prismtech.com>
+
+	* idl/Method.java, idl/OpDecl.java: RTJ#476/JAC#410: Enhance
+	generation to close streams
+
+2009-04-29  Alexander Bykov  <alexander.bykov@prismtech.com>
+
+	* config/JacORBConfiguration.java: Use default value for numeric
+	parameters when empty string was used as parameter's value
+
+2009-04-28  Alexander Bykov  <alexander.bykov@prismtech.com>
+
+	* orb/Delegate.java, orb/giop/RequestOutputStream.java:
+	JAC#410: fixes for stream closure with sync scope none
+
 2009-04-25  Andre Spiegel  <spiegel@gnu.org>
 
 	Changes to remove dependency on Avalon for configuration.
