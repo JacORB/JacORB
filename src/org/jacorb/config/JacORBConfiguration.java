@@ -30,6 +30,10 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
 import java.util.StringTokenizer;
+import java.util.logging.Level;
+import java.util.logging.Handler;
+import java.util.logging.FileHandler;
+import java.util.logging.ConsoleHandler;
 
 import org.jacorb.orb.ORB;
 import org.jacorb.util.ObjectUtil;
@@ -49,7 +53,10 @@ public class JacORBConfiguration implements Configuration
     private static final String ON = "on";
     private static final String EMPTY_STR = "";
 
-    private static final int DEFAULT_LOG_LEVEL = 0;
+    private static final String JACORB_LOG_VERBOSITY = "jacorb.log.default.verbosity";
+    private static final String JACORB_LOG_FILE      = "jacorb.logfile";
+    private static final String JACORB_LOG_APPEND    = "jacorb.logfile.append";
+    private static final int    DEFAULT_LOG_LEVEL    = 0;
 
     /** contains the actual configuration data */
     private Properties attributes;
@@ -142,7 +149,7 @@ public class JacORBConfiguration implements Configuration
             init(name, orbProperties);
         }
 
-        //initLogging();
+        initLogging();
     }
 
     private static void println(String mesg)
@@ -622,121 +629,85 @@ public class JacORBConfiguration implements Configuration
         return result;
     }
 
-
     /**
-     * Set up JacORB logging. Will create logger factory and root
-     * logger object according to configuration parameters. The value
-     * of the property <tt>jacorb.log.loggerFactory</tt> determines the
-     * logger factory class name that is used to create the root logger.
-     *
-     * @since 2.0 beta 3
+     * Returns true if the currently used SLF4J backend is the
+     * JDK logging implementation.  This is true if and only if
+     * the SLF4J-to-JDK adapter can be found on the classpath.
      */
-//    private void initLogging()
-//    {
-//        final DateFormat dateFormatter = new SimpleDateFormat("yyyyMdHm");
-//
-//        String logFileName =
-//            getAttribute("jacorb.logfile", "");
-//
-//        int maxLogSize =
-//            getAttributeAsInteger( "jacorb.logfile.maxLogSize", 0 );
-//
-//        if ( !logFileName.equals(""))
-//        {
-//            if (orb == null) // this is the case for the singleton ORB
-//            {
-//                final String singletonLogFile = getAttribute("jacorb.logfile.singleton", "");
-//                if (singletonLogFile.equals(""))
-//                {
-//                    // setting to "" effectively disables logging for the singleton orb.
-//                    logFileName = "";
-//                }
-//                else
-//                {
-//                    // If it ends with implname File can't handle it so do it manually.
-//                    if (logFileName.endsWith ("$implname"))
-//                    {
-//                        logFileName = logFileName.substring
-//                            (0, logFileName.indexOf("$implname") - 1);
-//                        logFileName += File.separatorChar + singletonLogFile + dateFormatter.format(new Date()) + ".log";
-//                    }
-//                    else
-//                    {
-//                        final File file = new File(logFileName);
-//                        final String parent = file.getParent();
-//
-//                        if (parent != null)
-//                        {
-//                            logFileName += singletonLogFile + dateFormatter.format(new Date()) + ".log";
-//                        }
-//                        else
-//                        {
-//                            logFileName = singletonLogFile + dateFormatter.format(new Date()) + ".log";
-//                        }
-//                    }
-//                }
-//            }
-//            else if (logFileName.endsWith("$implname"))
-//            {
-//                // Convert $implname postfix to implementation name
-//                logFileName = logFileName.substring (0, logFileName.length () - 9);
-//
-//                final String serverId = new String(orb.getServerId());
-//                String implName = getAttribute("jacorb.implname", serverId);
-//                logFileName += implName + ".log";
-//            }
-//        }
-//
-//        String clzName = getAttribute("jacorb.log.loggerFactory","");
-//        Class loggerFactoryClz = null;
-//
-//        try
-//        {
-//            if ( !clzName.equals(""))
-//            {
-//                loggerFactoryClz = org.jacorb.util.ObjectUtil.classForName(clzName);
-//            }
-//            else
-//            {
-//                loggerFactoryClz = org.jacorb.util.ObjectUtil.classForName(loggerFactoryClzName);
-//            }
-//            loggerFactory = (LoggerFactory)loggerFactoryClz.newInstance();
-//            loggerFactory.configure( this );
-//        }
-//        catch (Exception e)
-//        {
-//            e.printStackTrace();
-//        }
-//
-//        if (loggerFactory == null)
-//        {
-//            printErr("Configuration Error, could not create logger!");
-//        }
-//        if (!logFileName.equals(""))
-//        {
-//            try
-//            {
-//                loggerFactory.setDefaultLogFile(logFileName, maxLogSize);
-//                logger = loggerFactory.getNamedLogger("jacorb" );
-//            }
-//            catch (IOException e)
-//            {
-//                logger = loggerFactory.getNamedRootLogger("jacorb");
-//                if( logger.isErrorEnabled())
-//                {
-//                    logger.error("Could not create logger with file target: " + logFileName +
-//                                 ", falling back to console log!");
-//                }
-//            }
-//        }
-//        
-//        // JAC#384: if here is still no logger created just use console log
-//        if (logger == null) 
-//        {
-//            logger = loggerFactory.getNamedRootLogger("jacorb" );
-//        }
-//    }
+    private boolean usingJdkLogging()
+    {
+        try
+        {
+            Class c = Class.forName ("org.slf4j.impl.JDK14LoggerAdapter");
+            return c != null;
+        }
+        catch (Exception ex)
+        {
+            return false;
+        }
+    }
 
+    private Level toJdkLogLevel (String level)
+    {
+        if (level == null || level.length() == 0)
+        {
+            return java.util.logging.Level.INFO;
+        }
+        else
+        {
+            int logLevel = getAttributeAsInteger (JACORB_LOG_VERBOSITY);
+            switch (logLevel)
+            {
+            default:
+            case 0:
+            case 1: return Level.SEVERE;
+            case 2: return Level.WARNING;
+            case 3: return Level.INFO;
+            case 4: return Level.FINEST;
+            }
+        }
+    }
+    
+    /**
+     * Configures the external logging backend from within JacORB,
+     * but only if the backend is JDK, and if one of the legacy logging
+     * properties, jacorb.log.default.verbosity or jacorb.logfile, is set.
+     * This is only meant to ease the transition as we move to SLF4J.
+     * Normally, configuration of the logging backend is completely
+     * external to JacORB and left to the user.
+     */
+    private void initLogging()
+    {
+        if (!usingJdkLogging()) return;
+        String level = getAttribute (JACORB_LOG_VERBOSITY, null);
+        String file  = getAttribute (JACORB_LOG_FILE, null);
+        if (   (level != null && level.length() > 0)
+            || (file != null && file.length() > 0))
+        {
+            java.util.logging.Logger rootLogger =
+                java.util.logging.Logger.getLogger ("jacorb");
+            rootLogger.setUseParentHandlers (false);
+            rootLogger.setLevel (toJdkLogLevel (level));
+            Handler handler = new ConsoleHandler(); 
+            if (file != null && file.length() > 0)
+            {
+                try
+                {
+                    handler = new FileHandler
+                    (
+                        file, getAttributeAsBoolean (JACORB_LOG_APPEND, false)
+                    );
+                }
+                catch (java.io.IOException ex)
+                {
+                    System.err.println ("could not write log file");
+                }
+            }
+            handler.setFormatter (new JacORBLogFormatter());
+            rootLogger.addHandler (handler);
+        }
+    }
+    
     /**
      * @return the ORB for which this configuration was created
      */
