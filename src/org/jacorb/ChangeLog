@@ -1,3 +1,11 @@
+2009-05-13  Andre Spiegel  <spiegel@gnu.org>
+
+	* config/JacORBConfiguration.java (initLogging): Rewritten to
+	configure JDK logging.
+	(ctor): Use it.
+
+	* config/JacORBLogFormatter.java: Initial revision.
+
 2009-05-06  Alexander Bykov  <alexander.bykov@prismtech.com>
 
 	* config/ConsoleLogger.java, config/LogKitLogger.java,
