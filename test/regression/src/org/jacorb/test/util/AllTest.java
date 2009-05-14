@@ -34,7 +34,7 @@ public class AllTest extends JacORBTestSuite
    {
        TestSuite suite = new AllTest ("All Util Tests");
 
-       suite.addTestSuite (LogKitLoggerFactoryTest.class);
+       //suite.addTestSuite (LogKitLoggerFactoryTest.class);
        suite.addTestSuite(StackTest.class);
        suite.addTestSuite(ObjectUtilTest.class);
 
