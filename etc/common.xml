@@ -60,7 +60,7 @@
    <mkdir dir="${src}/generated"/>
    <filter token="path" value="basedir"/>
 
-    <property name="java-source-version" value="1.4"/>
+    <property name="java-source-version" value="1.5"/>
 
    <!-- = = = = = = = = = = = = = = = = =
       macrodef: jacorb-javac
