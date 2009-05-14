@@ -64,16 +64,6 @@ public class JacORBConfiguration implements Configuration
     private String name;
     private final ORB orb;
 
-    /** root logger instance for this configuration */
-    private Logger logger = null;
-
-    /**  logger factory used to create loggers */
-    private LoggerFactory loggerFactory = null;
-
-    /**  default class name for logger factory */
-    private static final String loggerFactoryClzName =
-       "org.jacorb.config.LogKitLoggerFactory";
-
     /**
      * Factory method
      */
