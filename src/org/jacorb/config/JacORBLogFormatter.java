@@ -57,10 +57,11 @@ public class JacORBLogFormatter extends Formatter
     private String getStackTrace (Throwable t)
     {
         StringBuffer result = new StringBuffer();
-        for (StackTraceElement ste : t.getStackTrace())
+        StackTraceElement[] elements = t.getStackTrace();
+        for (int i=0; i < elements.length; i++)
         {
             result.append ("    ");
-            result.append (ste.toString());
+            result.append (elements[i].toString());
             result.append ("\n");
         }
         return result.toString();
