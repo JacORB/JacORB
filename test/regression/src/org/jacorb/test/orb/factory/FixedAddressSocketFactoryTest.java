@@ -3,11 +3,13 @@ package org.jacorb.test.orb.factory;
 import java.net.InetAddress;
 import java.net.Socket;
 
-import org.jacorb.config.*;
 import org.easymock.MockControl;
+import org.jacorb.config.Configurable;
 import org.jacorb.config.Configuration;
 import org.jacorb.orb.factory.FixedAddressSocketFactory;
 import org.jacorb.orb.factory.SocketFactory;
+
+import org.jacorb.test.common.NullLogger;
 
 /**
  * @author Alphonse Bendt

@@ -24,7 +24,7 @@ import java.lang.reflect.Field;
 
 import junit.framework.TestCase;
 
-import org.jacorb.config.NullLogger;
+import org.jacorb.test.common.NullLogger;
 import org.omg.CORBA.Any;
 import org.omg.CORBA.BAD_PARAM;
 import org.omg.CORBA.ORB;

@@ -8,6 +8,8 @@ import org.jacorb.config.Configuration;
 import org.jacorb.orb.factory.PortRangeSocketFactory;
 import org.jacorb.orb.factory.SocketFactory;
 
+import org.jacorb.test.common.NullLogger;
+
 public class PortRangeSocketFactoryTest extends AbstractSocketFactoryTestCase
 {
     private static final int MIN = 40000;
