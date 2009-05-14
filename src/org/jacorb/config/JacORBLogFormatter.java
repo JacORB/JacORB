@@ -46,12 +46,15 @@ public class JacORBLogFormatter extends Formatter
         Level level = record.getLevel();
         String message = record.getMessage();
         Throwable t = record.getThrown();
-        String result = String.format
-        (
-            "%s %s %s\n",
-            timeFormat.format (time), level, message
-        );
-        return t == null ? result : result + getStackTrace (t);
+        StringBuffer result = new StringBuffer();
+        result.append (timeFormat.format (new Long(time)));
+        result.append (" ");
+        result.append (level);
+        result.append (" ");
+        result.append (message);
+        result.append ("\n");
+        return t == null ? result.toString() 
+                         : result.toString() + getStackTrace (t);
     }
     
     private String getStackTrace (Throwable t)
