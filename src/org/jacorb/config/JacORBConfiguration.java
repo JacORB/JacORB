@@ -628,7 +628,7 @@ public class JacORBConfiguration implements Configuration
     {
         try
         {
-            Class c = Class.forName ("org.slf4j.impl.JDK14LoggerAdapter");
+            Class c = ObjectUtil.classForName ("org.slf4j.impl.JDK14LoggerAdapter");
             return c != null;
         }
         catch (Exception ex)
@@ -709,11 +709,35 @@ public class JacORBConfiguration implements Configuration
 
 
     /**
-     * @param name the name of the logger, which also functions
-     *        as a log category
-     * @return a Logger for a given name
+     * Returns a Logger that logs JacORB system messages.  This uses
+     * the SLF4J logging facade.  The actual logging backend is chosen
+     * at deployment time, by putting a corresponding SLF4J adapter
+     * jar on the classpath.
+     * 
+     * The JacORB root logger is named "jacorb", sublogger names all
+     * start with this prefix.
+     * 
+     * Here's a guideline how to use logging levels in the code:
+     * 
+     * error Conditions that indicate a bug in JacORB or user code,
+     *       or a wrong configuration.  This includes, but is not
+     *       limited to, errors that will lead to termination of the
+     *       program (fatal errors).
+     * 
+     * warn  Conditions that demand attention, but are handled properly
+     *       according to the CORBA spec.  For example, abnormal termination
+     *       of a connection, reaching of a resource limit (queue full).
+     * 
+     * info  Start/stop of subsystems, establishing and closing of connections,
+     *       registering objects with a POA.
+     * 
+     * debug Information that might be needed for finding bugs in JacORB
+     *       or user code.  Anything that relates to the normal processing
+     *       of individual messages should come under this level.  For each
+     *       CORBA message, there should at least one debug message when
+     *       subsystem boundaries are crossed (e.g. GIOPConnection -> POA
+     *       -> User Code).
      */
-
     public org.slf4j.Logger getLogger(String name)
     {
         return org.slf4j.LoggerFactory.getLogger(name);
