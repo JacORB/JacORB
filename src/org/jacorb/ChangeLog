@@ -1,3 +1,26 @@
+2009-05-15  Andre Spiegel  <spiegel@gnu.org>
+
+	* orb/CDROutputStream.java (write_value, write_repository_id,
+	write_codebase, write_value_internal): Use size() rather than pos
+	for indirection markers, accounting for deferred writes.
+	Suggested by Rob Ratcliff.
+
+2009-05-14  Andre Spiegel  <spiegel@gnu.org>
+
+	* config/JacORBLogFormatter.java: Remove some 1.5-specific code.
+
+	* config/ConsoleLogger.java, config/LogKitLogger.java,
+	config/LogKitLoggerFactory.java, config/LoggerFactory.java,
+	config/NullLogger.java, util/ConsoleLoggerFactory: Removed, these
+	files are obsolete with SLF4J.
+
+	* config/JacORBConfiguration.java (getLogger): Add a comment
+	explaining use of the different log levels.
+	(usingJdkLogging): Use ObjectUtil.classForName().
+
+	* config/JacORBConfiguration.java (logger, loggerFactory,
+	loggerFactoryClzName): Removed, these fields were no longer used.
+
 2009-05-13  Andre Spiegel  <spiegel@gnu.org>
 
 	* config/JacORBConfiguration.java (initLogging): Rewritten to
