@@ -2425,7 +2425,7 @@ public class CDROutputStream
         {
             write_previous_chunk_size();
             check(7,4);
-            getValueMap().put (value, ObjectUtil.newInteger(pos));
+            getValueMap().put (value, ObjectUtil.newInteger(size()));
 
             if (((value instanceof org.omg.CORBA.portable.IDLEntity) ||
                 isSimpleString(value, factory)))
@@ -2546,7 +2546,7 @@ public class CDROutputStream
                 pos += remainder;
             }
 
-            getRepIdMap().put (repository_id, ObjectUtil.newInteger(pos));
+            getRepIdMap().put (repository_id, ObjectUtil.newInteger(size()));
             write_string (repository_id);
         }
         else
@@ -2584,7 +2584,7 @@ public class CDROutputStream
                 pos += remainder;
             }
 
-            getCodebaseMap().put (codebase, ObjectUtil.newInteger(pos));
+            getCodebaseMap().put (codebase, ObjectUtil.newInteger(size()));
             write_string (codebase);
         }
         else
@@ -2684,7 +2684,7 @@ public class CDROutputStream
     {
         write_previous_chunk_size();
         check(7,4);
-        getValueMap().put(value, ObjectUtil.newInteger(pos));
+        getValueMap().put(value, ObjectUtil.newInteger(size()));
 
         if (value.getClass() == String.class)
         {
