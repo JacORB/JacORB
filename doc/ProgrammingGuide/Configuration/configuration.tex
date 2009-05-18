@@ -333,12 +333,24 @@ SLF4J log levels are used according to the following conventions:
   JacORB or user code.  Anything that relates to the normal processing
   path of individual messages.
 
-\item[trace] Not used in JacORB.
+\item[trace] Not used in JacORB (and discouraged by the SLF4J team).
 \end{description}
 
 \subsubsection{Configuration of JDK Logging}
 
-... to be supplied ...
+The JDK logging backend can be configured by several means, but the
+most common way is to use a separate configuration file and specify
+that file as a command line parameter to the JVM:
+
+\begin{verbatim}
+-Djava.util.logging.config.file=/path/to/config-file
+\end{verbatim}
+
+The configuration file itself contains definitions for log handlers
+(targets), log file names, and the log verbosity (level) for the
+individual loggers.  A sample file is provided in the JacORB
+distribution, under {\tt
+  JACORB\_HOME/etc/logging\_properties.template}.
 
 \subsubsection{POA Monitor}
 
@@ -714,12 +726,8 @@ also print out the current locale and all known locales.
 \verb"on" & If enabled, the ORB's version number is printed whenever
 the ORB is initialized. & boolean & on \\
 \hline
-\verb"jacorb.log.logger" & Name of the logger factory class, can be
-used & class & {\tiny \verb"org.jacorb.util" }\\
-\verb"LogFactory" & to plug in different log implementationas &  & {\tiny \verb"LogKitLoggerFactory" }\\
-\hline
 \verb"jacorb.log.default."
-\verb"verbosity" & Log levels: 0 = fatal errors, 1 =
+\verb"verbosity" & Log levels: 0 = off, 1 =
 error, 2 = warning, 3 = info, 4 = debug & integer & 0 \\
 \hline
 \verb"jacorb.logfile" & Output destination for diagnostic log file. If
@@ -727,10 +735,6 @@ not set, diagnostics are sent to standard error.& filename & unset \\
 \hline
 \verb"jacorb.logfile.append" & Whether to append to
 existing log file or overwrite (if file logging) & boolean & off \\
-\hline
-\verb"jacorb.logfile.maxLogS"
-\verb"ize" & If appending to a file sets the size in kilobytes at
-which the file is rolled over & integer & 0 \\
 \hline
 \verb"jacorb.debug.dump_outg"
 \verb"oing_messages" & Hex dump outgoing messages & boolean & off \\
@@ -749,9 +753,6 @@ which the file is rolled over & integer & 0 \\
 ~ \hfill \textbf {Property} \hfill ~ & ~ \hfill \textbf {Description} \hfill ~ & ~ \hfill \textbf {Type} \hfill ~ \endhead
 \hline
 
-\verb"jacorb.naming.log." & The log level for the name & \\
-\verb"verbosity" & service. Defaults to jacorb.log.default.verbosity & 0-4  \\
-\hline
 \verb"jacorb.naming.purge" & Whether non-active references are purged from name service
 when list operation is invoked. Default is off & on or off \\
 \hline
