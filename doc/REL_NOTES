@@ -41,8 +41,19 @@
    H I S T O R Y      O F     C H A N G E S
  -------------------------------------------
 
-x.y
-===
+2.3.1
+=====
+
+    JacORB now uses SLF4J for logging, which allows users to select a
+    logging backend simply by putting another jar on the classpath.
+    All major logging backends are supported, including Log4J, JCL,
+    and JDK logging, with the latter now being the default in the
+    distribution.  See the JacORB Programming Guide for details about
+    the new logging architecture.
+
+    In the course of this, the dependency on Apache Avalon has been
+    removed.
+
     - ORB:
         - new configuration option jacorb.iiop.alternate_addresses,
           allows adding TAG_ALTERNATE_IIOP_ADDRESS components to
