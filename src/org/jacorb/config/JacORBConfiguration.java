@@ -63,6 +63,8 @@ public class JacORBConfiguration implements Configuration
     
     private String name;
     private final ORB orb;
+    
+    private Logger logger;
 
     /**
      * Factory method
@@ -127,6 +129,7 @@ public class JacORBConfiguration implements Configuration
         super();
         this.name = name;
         this.orb = orb;
+        this.logger = getLogger ("jacorb.config");
 
         this.attributes = new Properties();
         
@@ -185,65 +188,39 @@ public class JacORBConfiguration implements Configuration
        //    that will influence further property loading
        setAttributes(System.getProperties());
 
-       int logLevel = getAttributeAsInteger(CONFIG_LOG_VERBOSITY,DEFAULT_LOG_LEVEL);
-
        // 2) look for orb.properties
        // look for common properties files in java.home/lib first
-       Properties commonProps =
-           loadPropertiesFromFile( lib + separator + "lib" + separator + COMMON_PROPS);
-
+       String propFile = lib + separator + "lib" + separator + COMMON_PROPS;
+       Properties commonProps = loadPropertiesFromFile (propFile);
        if (commonProps!= null)
        {
             setAttributes(commonProps);
-            // we don't have proper logging at this stage yet, so we can only
-            // log to the console, but we check if that is explicitly disallowed
-            logLevel = getAttributeAsInteger(CONFIG_LOG_VERBOSITY,DEFAULT_LOG_LEVEL);
             loaded = true;
-
-            if (logLevel > 2)
-            {
-                println("[ base configuration loaded from file " +
-                                   lib + separator + "lib" + separator + COMMON_PROPS + " ]");
-            }
+            logger.info ("base configuration loaded from file " + propFile);
        }
 
        // look for common properties files in user.home next
-       commonProps =
-           loadPropertiesFromFile( home + separator + COMMON_PROPS );
-
+       propFile = home + separator + COMMON_PROPS;
+       commonProps = loadPropertiesFromFile (propFile);
        if (commonProps!= null)
        {
            setAttributes(commonProps);
            loaded = true;
-
-           logLevel = getAttributeAsInteger(CONFIG_LOG_VERBOSITY,DEFAULT_LOG_LEVEL);
-           if (logLevel > 2)
-           {
-               println("[ base configuration loaded from file " +
-                                   home + separator + COMMON_PROPS + " ]");
-           }
+           logger.info ("base configuration loaded from file " + propFile);
        }
 
        // look for common properties files on the classpath next
-       commonProps =
-           loadPropertiesFromClassPath( COMMON_PROPS );
-
+       commonProps = loadPropertiesFromClassPath( COMMON_PROPS );
        if (commonProps!= null)
        {
            loaded = true;
            setAttributes(commonProps);
-           logLevel = getAttributeAsInteger(CONFIG_LOG_VERBOSITY,DEFAULT_LOG_LEVEL);
-           if (logLevel > 2)
-           {
-               println("[ base configuration loaded from classpath " +
-                                    COMMON_PROPS + " ]");
-           }
+           logger.info ("base configuration loaded from classpath "
+                        + COMMON_PROPS);
        }
 
-
        // 3) look for specific properties file
-       String configDir =
-           getAttribute("jacorb.config.dir", "");
+       String configDir = getAttribute("jacorb.config.dir", "");
 
        if (configDir.length() == 0)
        {
@@ -256,54 +233,35 @@ public class JacORBConfiguration implements Configuration
        }
        else
        {
-           logLevel = getAttributeAsInteger(CONFIG_LOG_VERBOSITY,DEFAULT_LOG_LEVEL);
-           if (logLevel > 0)
-           {
-               printErr("[ jacorb.home unset! Will use '.' ]");
-           }
+           logger.warn ("jacorb.home unset! Will use '.'");
            configDir = ".";
        }
 
-       String propFileName = configDir + separator + name + fileSuffix;
+       propFile = configDir + separator + name + fileSuffix;
 
        // now load properties file from file system
-       Properties orbConfig = loadPropertiesFromFile(propFileName );
+       Properties orbConfig = loadPropertiesFromFile (propFile);
 
        if (orbConfig!= null)
        {
            setAttributes(orbConfig);
            loaded = true;
-
-           logLevel = getAttributeAsInteger(CONFIG_LOG_VERBOSITY,DEFAULT_LOG_LEVEL);
-           if (logLevel > 2)
-           {
-               println("[ configuration " + name +
-                                  " loaded from file " + propFileName + " ]");
-           }
+           logger.info ("configuration " + name + 
+                        " loaded from file " + propFile);
        }
        else
        {
-           logLevel = getAttributeAsInteger(CONFIG_LOG_VERBOSITY,DEFAULT_LOG_LEVEL);
-           if (logLevel > 0)
-           {
-               printErr("[ File " + propFileName + " for configuration " + name +
-                                  " not found ]");
-           }
+           logger.warn ("File " + propFile + " for configuration " 
+                        + name + " not found");
        }
 
        // now load properties file from classpath
-       orbConfig = loadPropertiesFromClassPath( name + fileSuffix );
+       orbConfig = loadPropertiesFromClassPath (name + fileSuffix);
        if (orbConfig!= null)
        {
            setAttributes(orbConfig);
            loaded = true;
-
-           logLevel =
-               getAttributeAsInteger(CONFIG_LOG_VERBOSITY,DEFAULT_LOG_LEVEL);
-           if (logLevel > 2)
-           {
-               println("[ configuration " + name + " loaded from classpath]");
-           }
+           logger.info ("configuration " + name + " loaded from classpath");
        }
 
        // 4) look for additional custom properties files
@@ -319,21 +277,12 @@ public class JacORBConfiguration implements Configuration
                 {
                     setAttributes(customProps);
                     loaded = true;
-
-                    logLevel = getAttributeAsInteger(CONFIG_LOG_VERBOSITY,DEFAULT_LOG_LEVEL);
-                    if (logLevel > 2)
-                    {
-                        println("[ custom properties loaded from file " +
-                                           fileName + " ]");
-                    }
+                    logger.info ("custom properties loaded from file "
+                                 + fileName);
                 }
                 else
                 {
-                    if (logLevel > 0)
-                    {
-                        printErr("[ custom properties not found in "  +
-                                           fileName + " ]");
-                    }
+                    logger.warn ("custom properties not found in " + fileName);
                 }
            }
        }
@@ -350,10 +299,9 @@ public class JacORBConfiguration implements Configuration
            setAttributes(orbProperties);
        }
 
-       if (!loaded && logLevel > 0)
+       if (!loaded)
        {
-           // print a warning....
-           println("[ No configuration properties found for configuration " + name + " ]");
+           logger.warn ("no properties found for configuration " + name);
        }
 
     }
@@ -382,60 +330,39 @@ public class JacORBConfiguration implements Configuration
 
        // 1) load system properties to grab any command line properties
        //    that will influence further property loading
-       if ( orbProperties != null ) {
+       if ( orbProperties != null )
+       {
            setAttributes(orbProperties);
        }
 
-       int logLevel = getAttributeAsInteger(CONFIG_LOG_VERBOSITY,
-                                            DEFAULT_LOG_LEVEL);
-
        // 2) look for orb.properties
        // look for common properties files on the classpath next
-       Properties commonProps =
-           loadPropertiesFromClassPath( COMMON_PROPS );
+       Properties commonProps = loadPropertiesFromClassPath (COMMON_PROPS);
 
        if (commonProps!= null)
        {
-           loaded = true;
            setAttributes(commonProps);
-           logLevel = getAttributeAsInteger(CONFIG_LOG_VERBOSITY,
-                                            DEFAULT_LOG_LEVEL);
-           if (logLevel > 2)
-           {
-               println("[ base configuration loaded from classpath " +
-                                    COMMON_PROPS + " ]");
-           }
+           loaded = true;
+           logger.info ("base configuration loaded from classpath " +
+                        COMMON_PROPS);
        }
 
-
        // 3) look for specific properties file
-       String propFileName = name + fileSuffix;
-       Properties orbConfig = loadPropertiesFromClassPath(propFileName );
+       String propFile = name + fileSuffix;
+       Properties orbConfig = loadPropertiesFromClassPath (propFile);
 
        if (orbConfig!= null)
        {
            setAttributes(orbConfig);
            loaded = true;
-
-           logLevel = getAttributeAsInteger(CONFIG_LOG_VERBOSITY,
-                                            DEFAULT_LOG_LEVEL);
-           if (logLevel > 2)
-           {
-               println("[ configuration " + name +
-                                  " loaded from classpath " + propFileName +
-                                  " ]");
-           }
+           logger.info ("configuration " + name +
+                        " loaded from classpath " + propFile);
        }
        else
        {
-           logLevel = getAttributeAsInteger(CONFIG_LOG_VERBOSITY,
-                                            DEFAULT_LOG_LEVEL);
-           if (logLevel > 0)
-           {
-               printErr("[ File " + propFileName +
-                                  " for configuration " + name +
-                                  " not found in classpath]");
-           }
+           logger.warn ("File " + propFile +
+                        " for configuration " + name +
+                        " not found in classpath");
        }
 
        // 4) look for additional custom properties files
@@ -451,25 +378,13 @@ public class JacORBConfiguration implements Configuration
                 {
                     setAttributes(customProps);
                     loaded = true;
-
-                    logLevel =
-                        getAttributeAsInteger(CONFIG_LOG_VERBOSITY,
-                                              DEFAULT_LOG_LEVEL);
-                    if (logLevel > 2)
-                    {
-                        println(
-                            "[ custom properties loaded from classpath " +
-                            fileName + " ]");
-                    }
+                    logger.info ("custom properties loaded from classpath "
+                                 + fileName);
                 }
                 else
                 {
-                    if (logLevel > 0)
-                    {
-                        printErr(
-                            "[ custom properties " + fileName +
-                            "not found in classpath ]");
-                    }
+                    logger.warn ("custom properties " + fileName +
+                                 " not found in classpath");
                 }
            }
        }
@@ -484,10 +399,7 @@ public class JacORBConfiguration implements Configuration
 
        if (!loaded)
        {
-           // print a warning....
-           println(
-               "[ No configuration properties found for configuration " +
-               name + " ]");
+           logger.warn ("no properties found for configuration " + name); 
        }
     }
 
@@ -573,7 +485,7 @@ public class JacORBConfiguration implements Configuration
      * @return a properties object or null, if name not found
      */
 
-    private static Properties loadPropertiesFromClassPath(String name)
+    private Properties loadPropertiesFromClassPath(String name)
     {
         Properties result = null;
         try
@@ -611,10 +523,7 @@ public class JacORBConfiguration implements Configuration
         }
         catch (java.io.IOException ioe)
         {
-            // This is a more severe problem: write to the terminal, because
-            // we have no logging yet.
-            println("could not read config file: " + name);
-            ioe.printStackTrace();
+            logger.error ("could not read config file: " + name, ioe);
         }
         return result;
     }
@@ -637,6 +546,10 @@ public class JacORBConfiguration implements Configuration
         }
     }
 
+    /**
+     * For a string that contains a number from 0 to 4, returns the
+     * corresponding JDK log level.
+     */
     private Level toJdkLogLevel (String level)
     {
         if (level == null || level.length() == 0)
@@ -648,10 +561,10 @@ public class JacORBConfiguration implements Configuration
             int logLevel = getAttributeAsInteger (JACORB_LOG_VERBOSITY);
             switch (logLevel)
             {
-            default:
-            case 0:
+            case 0: return Level.OFF;
             case 1: return Level.SEVERE;
             case 2: return Level.WARNING;
+            default:
             case 3: return Level.INFO;
             case 4: return Level.FINEST;
             }
