@@ -255,163 +255,92 @@ chapter \ref{ch:naming}).
 
 \subsection{Logging}
 
-JacORB uses external log kit implementations for writing logs. The default log
-kit is the Apache LogKit implementation. To plug in another logger, a developer
-must implement the {\tt org.jacorb.util.LoggerFactory} interface and supply that
-class name as the value of the {\tt jacorb.log.loggerFactory} property.
-%%% filbreak is to keep the description of the verbatim with it.
-\filbreak
-The interface is
-\begin{small}
-\begin{verbatim}
-package org.jacorb.util;
-public interface LoggerFactory
-    String getLoggingBackendName();
-    Logger getNamedLogger(String name);
-    Logger getNamedRootLogger(String name);
-    Logger getNamedLogger(String name, String fileName, long maxFileSize)
-    void setDefaultLogFile(String fileName, long maxLogSize)
-\end{verbatim}
-\end{small}
+JacORB writes logging information through SLF4J, which is a logging
+facade that can interface with arbitary backend logging systems such
+as Log4J, JCL, or JDK logging.  To switch to a different logging
+system, all that needs to be done is to put a different library on the
+classpath.
 
-The new factory must return Loggers that implement
-{\tt org.apache.avalon.framework.logger.Logger}. An example is provided (See
-{\tt org.jacorb.util.ConsoleLogger}) which simply uses
-{\tt org.apache.avalon.framework.logger.ConsoleLogger} to output to the terminal e.g.
-\begin{small}
-\begin{verbatim}
-public class ConsoleLoggerFactory implements LoggerFactory
-    public ConsoleLoggerFactory()
-    {
-        target = new ConsoleLogger();
-    }
-...
-    public Logger getNamedLogger(String name)
-    {
-        return target;
-    }
-...
-\end{verbatim}
-\end{small}
+JacORB does not attempt to configure the external logging system
+(except for a small compatibility feature explained below).  This
+means that it is left to the user to configure the chosen logging
+system for their particular needs, for example, to choose log
+verbosity or specify the names of log files.
 
-\subsubsection*{Log levels and different log components}
+The default logging system selected in the JacORB distribution is JDK
+logging.  This is because it is already present in the JDK, and JacORB
+therefore does not need to ship any other library.  A sample
+configuration file for JDK logging is provided, which makes it easy to
+specify log file names, log rotation parameters, and the like.
 
-The JacORB logging mechanism can be fine-tuned to set different log
-levels for different components of JacORB. It is still possible to
-rely only on one single, default log level. This log level is
-specified like this (note that the properties have changed from
-previous JacORB versions!):
+There is also a special convenience feature for users upgrading from
+previous JacORB versions: \emph{If} JDK logging is used, \emph{and}
+one of the old properties {\tt jacorb.log.default.verbosity} or {\tt
+  jacorb.logfile} is set, then JacORB configures the JDK logging
+system accordingly at startup, resulting in a basic, usable logging
+configuration.  This is only meant as a feature to ease upgrading.
+For any advanced configuration, such as log file rotation, a separate
+configuration file such as the provided sample file needs to be used.
 
-\renewcommand{\baselinestretch}{0.9}
-\small{
-\begin{verbatim}
-##################################
-#                                #
-#  Default Logging configuration #
-#                                #
-##################################
+\subsubsection{Using another Logging System}
 
-# Name of the factory class that plugs in a given log kit
-# The default value is JacORB's own factory for the Apache
-# LogKit. Only edit (or uncomment) if you want a different
-# log kit.
-#jacorb.log.loggerFactory=org.jacorb.util.LogKitLoggerFactory
+The SLF4J facade is implemented in two Java libraries, a generic one
+and a backend-specific one.  The generic library is named {\tt
+  slf4j-api-1.5.6.jar} (or any other version), and the
+backend-specific library is named {\tt slf4j-jdk14-1.5.6.jar} (for JDK
+logging), or {\tt slf4j-log4j-1.5.6.jar} for Log4J, and the like.  To
+switch to a different logging system, the backend-specific library of
+SLF4J needs to be replaced, and the implementation library for that
+backend needs to be added as well.  So for example, to use Log4J, the
+following libraries need to be on the classpath: {\tt slf4j-api-1.5.6.jar},
+{\tt slf4j-log4j-1.5.6.jar}, and {\tt log4j-1.2.15.jar}.
 
-# log levels:
-#
-# 0 = fatal errors only = "almost off" (FATAL ERRORS)
-# 1 = non-fatal errors and exceptions (ERROR)
-# 2 = important messages (WARN)
-# 3 = informational messages and exceptions (INFO)
-# 4 = debug-level output (DEBUG) (may confuse the unaware user :-)
-jacorb.log.default.verbosity=3
-\end{verbatim}
-}
-\renewcommand{\baselinestretch}{1.0}
-\small\normalsize
+The JacORB distribution only ships with the generic SLF4J library and
+the JDK adapter library.  Other libraries need to be downloaded from
+the SLF4J site.
 
-For other components, the individual log levels are set using log
-properties specific to that component, e.g.,\\
-\\
-{\tt jacorb.naming.log.verbosity=0}\\
-\\
-will turn logging off for the naming service, but all other parts of
-the ORB will still use the default log level. The general pattern for
-the log level property is {\tt jacorb.<component>.log.verbosity}.
-Currently available logging components are
-\begin{small}
-\begin{itemize}
-\item activator
-\item jacorb.giop
-\item jacorb.giop.conn
-\item iiop.conn
-\item imr.locate
-\item imr.state
-\item naming
-\item orb
-\item orb.singleton
-\item orb.basic
-\item orb.factory
-\item orb.iiop
-\item orb.interceptors
-\item poa
-\item SAS
-\item SAS.CSS
-\item SAS.GSSUP
-\item SAS.TSS
-\item security
-\item security.jsse
-\item util.tpool
-\end{itemize}
-\end{small}
+\subsubsection{Logging Conventions}
 
-\subsubsection*{Logging output to a file}
+JacORB logs to a hierarchy of loggers with a root logger named {\tt
+  jacorb}.  All sub-loggers have names that start with this prefix,
+e.g. {\tt jacorb.orb}, {\tt jacorb.config}, and so on.  Settings that
+apply to the root logger usually also apply to all loggers below in
+the hierarchy (depending on the actual logging system used).
 
-The properties specific to file logging are the following:
+SLF4J defines five different logging levels: \emph{error},
+\emph{warn}, \emph{info}, \emph{debug}, and \emph{trace}.  These
+levels are mapped to the log levels of the underlying logging system.
+For JDK logging, the mapping is \emph{error} $\rightarrow$ {\tt
+  SEVERE}, \emph{warn} $\rightarrow$ {\tt WARNING}, \emph{info}
+$\rightarrow$ {\tt INFO}, \emph{debug} $\rightarrow$ {\tt FINE}, and
+\emph{trace} $\rightarrow$ {\tt FINEST}.  In JacORB's code, the
+SLF4J log levels are used according to the following conventions:
 
-\renewcommand{\baselinestretch}{0.9}
-\small{
-\begin{verbatim}
-# where does output go? Terminal is default
-jacorb.logfile=c:/tmp/jacorb.log
+\begin{description}
+\item[error] Events which suggest that there is a bug in JacORB or in
+  user code.  This includes, but is not limited to, ``fatal errors''
+  which will lead to termination of the program.
 
-# filename for logging from the singleton ORB
-# the file will be placed in the same directory
-# as jacorb.logfile
-jacorb.logfile.singleton=orbsingleton
+\item[warn] Events that demand attention, but which are handled
+  properly according to the CORBA spec.  For example, abnormal
+  termination of a connection, reaching of a resource limit (queue
+  full), and the like.
 
-# Append to an existing log file or overwrite? (Applies to
-# file logging only)
-jacorb.logfile.append=on
+\item[info] Starting and stopping of subsystems, establishing and
+  closing of connections, registering objects with a POA.
 
-# If jacorb.logfile.append is on, set rolling log size in kilobytes.
-# A value of 0 implies no rolling log
-jacorb.logfile.maxLogSize=0
-\end{verbatim}
-}
-\renewcommand{\baselinestretch}{1.0}
-\small\normalsize
+\item[debug] Information that might be needed for finding bugs in
+  JacORB or user code.  Anything that relates to the normal processing
+  path of individual messages.
 
-Unless the {\tt jacorb.logfile} property is set to a file name, output
-will be sent to the terminal. If the {\tt jacorb.logfile} property ends in
-\$implname e.g. jacorb.logfile=c:/tmp/\$implname
- and the {\tt jacorb.implname} property has been set, output will be logged
-to a file with the same name as the {\tt jacorb.implname} property value. See
-section 3.3.1 for more information on the {\tt jacorb.implname} property.
-The {\tt jacorb.logfile.append} value tells the logger whether to overwrite
-existing log files or to append to the existing log file.
-The {\tt jacorb.logfile.maxLogSize} property, finally,determines how large a log file may become before the logger
-automatically creates a new file. This value is in kilobytes. If it is
-set to 0, log files may become arbitrarily large, no log file rotation
-is used. If the value of {\tt jacorb.logfile} ends with the special string \$implname,
-this postfix will be replaced with the current ImplName of the ORB that
-uses the logging. See \ref{implname} for more details about ImplName.
+\item[trace] Not used in JacORB.
+\end{description}
 
-Note that the singleton ORB is treated in a special way. To enable filelogging for it,
-you need to additionally set the property {\tt jacorb.logfile.singleton} to a filename.
-If the property {\tt jacorb.logfile} includes a directoryname, the singleton ORB logfile
-will get this directory prepended. Otherwise its plain value will be used. A timestamp will be
-appended so that logging to the same directory won't clash. Also the suffix .log will be appended.
+\subsubsection{Configuration of JDK Logging}
+
+... to be supplied ...
+
+\subsubsection{POA Monitor}
 
 The  {\tt jacorb.poa.monitoring} property  determines whether  the POA
 should bring up a monitoring GUI  for servers that let you examine the
