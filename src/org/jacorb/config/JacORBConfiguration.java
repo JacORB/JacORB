@@ -53,9 +53,10 @@ public class JacORBConfiguration implements Configuration
     private static final String ON = "on";
     private static final String EMPTY_STR = "";
 
-    private static final String JACORB_LOG_VERBOSITY = "jacorb.log.default.verbosity";
-    private static final String JACORB_LOG_FILE      = "jacorb.logfile";
-    private static final String JACORB_LOG_APPEND    = "jacorb.logfile.append";
+    private static final String ATTR_LOG_VERBOSITY       = "jacorb.log.default.verbosity";
+    private static final String ATTR_LOG_FILE            = "jacorb.logfile";
+    private static final String ATTR_LOG_APPEND          = "jacorb.logfile.append";
+    private static final String ATTR_LOGGING_INITIALIZER = "jacorb.log.initializer";
     private static final int    DEFAULT_LOG_LEVEL    = 0;
 
     /** contains the actual configuration data */
@@ -529,49 +530,6 @@ public class JacORBConfiguration implements Configuration
     }
 
     /**
-     * Returns true if the currently used SLF4J backend is the
-     * JDK logging implementation.  This is true if and only if
-     * the SLF4J-to-JDK adapter can be found on the classpath.
-     */
-    private boolean usingJdkLogging()
-    {
-        try
-        {
-            Class c = ObjectUtil.classForName ("org.slf4j.impl.JDK14LoggerAdapter");
-            return c != null;
-        }
-        catch (Exception ex)
-        {
-            return false;
-        }
-    }
-
-    /**
-     * For a string that contains a number from 0 to 4, returns the
-     * corresponding JDK log level.
-     */
-    private Level toJdkLogLevel (String level)
-    {
-        if (level == null || level.length() == 0)
-        {
-            return java.util.logging.Level.INFO;
-        }
-        else
-        {
-            int logLevel = getAttributeAsInteger (JACORB_LOG_VERBOSITY);
-            switch (logLevel)
-            {
-            case 0: return Level.OFF;
-            case 1: return Level.SEVERE;
-            case 2: return Level.WARNING;
-            default:
-            case 3: return Level.INFO;
-            case 4: return Level.FINEST;
-            }
-        }
-    }
-    
-    /**
      * Configures the external logging backend from within JacORB,
      * but only if the backend is JDK, and if one of the legacy logging
      * properties, jacorb.log.default.verbosity or jacorb.logfile, is set.
@@ -581,34 +539,12 @@ public class JacORBConfiguration implements Configuration
      */
     private void initLogging()
     {
-        if (!usingJdkLogging()) return;
-        String level = getAttribute (JACORB_LOG_VERBOSITY, null);
-        String file  = getAttribute (JACORB_LOG_FILE, null);
-        if (   (level != null && level.length() > 0)
-            || (file != null && file.length() > 0))
-        {
-            java.util.logging.Logger rootLogger =
-                java.util.logging.Logger.getLogger ("jacorb");
-            rootLogger.setUseParentHandlers (false);
-            rootLogger.setLevel (toJdkLogLevel (level));
-            Handler handler = new ConsoleHandler(); 
-            if (file != null && file.length() > 0)
-            {
-                try
-                {
-                    handler = new FileHandler
-                    (
-                        file, getAttributeAsBoolean (JACORB_LOG_APPEND, false)
-                    );
-                }
-                catch (java.io.IOException ex)
-                {
-                    System.err.println ("could not write log file");
-                }
-            }
-            handler.setFormatter (new JacORBLogFormatter());
-            rootLogger.addHandler (handler);
-        }
+        LoggingInitializer li = (LoggingInitializer)getAttributeAsObject
+        (
+            ATTR_LOGGING_INITIALIZER,
+            "org.jacorb.config.JdkLoggingInitializer"
+        );
+        li.init (orb, this);
     }
     
     /**
