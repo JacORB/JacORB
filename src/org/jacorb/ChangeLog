@@ -1,3 +1,33 @@
+2009-05-22  Andre Spiegel  <spiegel@gnu.org>
+
+	* config/JacORBConfiguration.java (ctor): Change initialization
+	order so attributes are always set.
+	(getLogger): Add logic for splitting subloggers based on implname.
+
+	* config/JacORBConfiguration.java (initLogging): Call
+	LoggingInitializer.init() with a single parameter only.
+
+	* config/JdkLoggingInitializer.java (init): Remove ORB parameter.
+	Call substituteImplname().
+
+	* config/LoggingInitializer.java (substituteImplname): New method
+	for subclass use.
+	(init): Remove ORB parameter, that's included in the
+	configuration.
+
+2009-05-20  Andre Spiegel  <spiegel@gnu.org>
+
+	* config/JacORBConfiguration.java: Code for initializing the
+	logging backend has been externalized.
+
+	* config/JdkLoggingInitializer.java, config/LoggingInitializer.java:
+	Initial revision.
+
+2009-05-18  Andre Spiegel  <spiegel@gnu.org>
+
+	* config/JacORBConfiguration.java: Use logging even for the
+	initial messages during property-loading.
+
 2009-05-15  Andre Spiegel  <spiegel@gnu.org>
 
 	* orb/CDROutputStream.java (write_value, write_repository_id,
