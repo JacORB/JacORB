@@ -544,7 +544,7 @@ public class JacORBConfiguration implements Configuration
             ATTR_LOGGING_INITIALIZER,
             "org.jacorb.config.JdkLoggingInitializer"
         );
-        li.init (orb, this);
+        li.init (this);
     }
     
     /**
