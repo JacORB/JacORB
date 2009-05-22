@@ -5,7 +5,6 @@ import java.util.logging.FileHandler;
 import java.util.logging.Handler;
 import java.util.logging.Level;
 
-import org.jacorb.orb.ORB;
 import org.jacorb.util.ObjectUtil;
 
 /**
@@ -66,7 +65,7 @@ public class JdkLoggingInitializer extends LoggingInitializer
         }
     }
     
-    public void init (ORB orb, Configuration config)
+    public void init (Configuration config)
     {
         if (!usingJdkLogging()) return;
         String level = config.getAttribute (ATTR_LOG_VERBOSITY, null);
@@ -85,7 +84,7 @@ public class JdkLoggingInitializer extends LoggingInitializer
                 {
                     handler = new FileHandler
                     (
-                        file,
+                        substituteImplname (file, config),
                         config.getAttributeAsBoolean (ATTR_LOG_APPEND, false)
                     );
                 }
