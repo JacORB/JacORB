@@ -30,10 +30,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
 import java.util.StringTokenizer;
-import java.util.logging.Level;
-import java.util.logging.Handler;
-import java.util.logging.FileHandler;
-import java.util.logging.ConsoleHandler;
 
 import org.jacorb.orb.ORB;
 import org.jacorb.util.ObjectUtil;
@@ -130,10 +126,9 @@ public class JacORBConfiguration implements Configuration
         super();
         this.name = name;
         this.orb = orb;
+        this.attributes = new Properties();
         this.logger = getLogger ("jacorb.config");
 
-        this.attributes = new Properties();
-        
         if (isApplet)
         {
             initApplet(name, orbProperties);
@@ -563,8 +558,11 @@ public class JacORBConfiguration implements Configuration
      * at deployment time, by putting a corresponding SLF4J adapter
      * jar on the classpath.
      * 
-     * The JacORB root logger is named "jacorb", sublogger names all
-     * start with this prefix.
+     * The JacORB root logger is named "jacorb".  Sublogger names all
+     * start with this prefix.  If the property jacorb.implname is set,
+     * and the property jacorb.log.split_on_implname is true, then
+     * all loggers for that particular ORB instance are rooted in
+     * jacorb.<implname>.
      * 
      * Here's a guideline how to use logging levels in the code:
      * 
@@ -587,9 +585,21 @@ public class JacORBConfiguration implements Configuration
      *       subsystem boundaries are crossed (e.g. GIOPConnection -> POA
      *       -> User Code).
      */
-    public org.slf4j.Logger getLogger(String name)
+    public org.slf4j.Logger getLogger (String name)
     {
-        return org.slf4j.LoggerFactory.getLogger(name);
+        String loggerName = name;
+        if (getAttributeAsBoolean ("jacorb.log.split_on_implname", false))
+        {
+            String implName = getAttribute ("jacorb.implname", null);
+            if (implName != null && implName.length() > 0)
+            {
+                if (name.equals ("jacorb"))
+                    loggerName = "jacorb." + implName;
+                else if (name.startsWith ("jacorb."))
+                    loggerName = "jacorb." + implName + "." + name.substring (7);
+            }
+        }
+        return org.slf4j.LoggerFactory.getLogger (loggerName);
     }
 
     public String getLoggerName(Class clz)
