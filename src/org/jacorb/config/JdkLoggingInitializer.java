@@ -93,6 +93,7 @@ public class JdkLoggingInitializer extends LoggingInitializer
                     System.err.println ("could not write log file");
                 }
             }
+            handler.setLevel(toJdkLogLevel(level));
             handler.setFormatter (new JacORBLogFormatter());
             rootLogger.addHandler (handler);
         }
