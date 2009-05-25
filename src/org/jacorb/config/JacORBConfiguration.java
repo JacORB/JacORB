@@ -138,7 +138,8 @@ public class JacORBConfiguration implements Configuration
             init(name, orbProperties);
         }
 
-        initLogging();
+        // don't call this for the singleton orb
+        if (orb != null) initLogging();
     }
 
     private static void println(String mesg)
