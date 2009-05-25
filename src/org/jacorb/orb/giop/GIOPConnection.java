@@ -382,7 +382,7 @@ public abstract class GIOPConnection
                 {
                     logger.debug
                     (
-                        "TCP_IP_GIOPTransport.getMessage() with header: \n" +
+                        "GIOPConnection.getMessage() with header: \n" +
                         new String(header) + "\nsize : "
                         + Messages.MSG_HEADER_SIZE + ", in " + this.toString()
                     );
@@ -437,6 +437,13 @@ public abstract class GIOPConnection
                                                      Messages.MSG_HEADER_SIZE );
             }
 
+           if (logger.isDebugEnabled())
+           {
+               logger.debug ("read GIOP message of size {} from {}",
+                             msg_size + Messages.MSG_HEADER_SIZE,
+                             this.toString());
+           }
+           
             //this is the "good" exit point.
             return inbuf.value;
         }
@@ -956,9 +963,14 @@ public abstract class GIOPConnection
                 }
 
                 out.write_to( this );
-
                 transport.flush();
 
+                if (logger.isDebugEnabled())
+                {
+                    logger.debug ("wrote GIOP message of size {} to {}",
+                                  out.size(), this.toString());
+                }
+                
                 if (getStatisticsProviderAdapter() != null)
                 {
                     getStatisticsProviderAdapter().flushed();
