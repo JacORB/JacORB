@@ -1,3 +1,19 @@
+2009-05-25  Andre Spiegel  <spiegel@gnu.org>
+
+	* config/JacORBConfiguration.java (ctor): Don't call initLogging()
+	for the singleton ORB.
+
+2009-05-24  Andre Spiegel  <spiegel@gnu.org>
+
+	* orb/giop/GIOPConnection.java (getMessage, sendMessage): Add
+	debug logging statements.
+
+	* orb/etf/StreamConnectionBase.java (read, write): Add debug
+	logging statements.
+
+	* config/JdkLoggingInitializer.java (init): Set the log level on
+	the handler as well.
+
 2009-05-22  Andre Spiegel  <spiegel@gnu.org>
 
 	* config/JacORBConfiguration.java (ctor): Change initialization
