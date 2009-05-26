@@ -261,43 +261,21 @@ as Log4J, JCL, or JDK logging.  To switch to a different logging
 system, all that needs to be done is to put a different library on the
 classpath.
 
-JacORB does not attempt to configure the external logging system
-(except for a small compatibility feature explained below).  This
-means that it is left to the user to configure the chosen logging
-system for their particular needs, for example, to choose log
-verbosity or specify the names of log files.
+JacORB does not usually attempt to configure the external logging
+system.  That means it is left to you to provide a configuration for
+it, for example to set the log verbosity or to configure log file
+names.  This is done in a way that is specific to the particular
+logging system used, e.g. via property files.  As an added
+convenience, there is also a hook in JacORB that allows you to make
+some settings in the external logging system based on the
+configuration of JacORB itself, for example to choose log file names
+based on the implementation name of the server.
 
 The default logging system selected in the JacORB distribution is JDK
 logging.  This is because it is already present in the JDK, and JacORB
 therefore does not need to ship any other library.  A sample
 configuration file for JDK logging is provided, which makes it easy to
 specify log file names, log rotation parameters, and the like.
-
-There is also a special convenience feature for users upgrading from
-previous JacORB versions: \emph{If} JDK logging is used, \emph{and}
-one of the old properties {\tt jacorb.log.default.verbosity} or {\tt
-  jacorb.logfile} is set, then JacORB configures the JDK logging
-system accordingly at startup, resulting in a basic, usable logging
-configuration.  This is only meant as a feature to ease upgrading.
-For any advanced configuration, such as log file rotation, a separate
-configuration file such as the provided sample file needs to be used.
-
-\subsubsection{Using another Logging System}
-
-The SLF4J facade is implemented in two Java libraries, a generic one
-and a backend-specific one.  The generic library is named {\tt
-  slf4j-api-1.5.6.jar} (or any other version), and the
-backend-specific library is named {\tt slf4j-jdk14-1.5.6.jar} (for JDK
-logging), or {\tt slf4j-log4j-1.5.6.jar} for Log4J, and the like.  To
-switch to a different logging system, the backend-specific library of
-SLF4J needs to be replaced, and the implementation library for that
-backend needs to be added as well.  So for example, to use Log4J, the
-following libraries need to be on the classpath: {\tt slf4j-api-1.5.6.jar},
-{\tt slf4j-log4j-1.5.6.jar}, and {\tt log4j-1.2.15.jar}.
-
-The JacORB distribution only ships with the generic SLF4J library and
-the JDK adapter library.  Other libraries need to be downloaded from
-the SLF4J site.
 
 \subsubsection{Logging Conventions}
 
@@ -306,6 +284,14 @@ JacORB logs to a hierarchy of loggers with a root logger named {\tt
 e.g. {\tt jacorb.orb}, {\tt jacorb.config}, and so on.  Settings that
 apply to the root logger usually also apply to all loggers below in
 the hierarchy (depending on the actual logging system used).
+
+It is possible to split the logging hierarchy based on the
+implementation name of the ORB instance.  Different ORBs will then log
+to different loggers, which can be configured independently.  To do
+this, set the property {\tt jacorb.log.split\_on\_implname} to {\tt
+  true}.  Then, if the property {\tt jacorb.implname} is set for an
+ORB instance, the loggers for that ORB all start with the prefix {\tt
+  jacorb.$implname$.}, rather than just {\tt jacorb.}.
 
 SLF4J defines five different logging levels: \emph{error},
 \emph{warn}, \emph{info}, \emph{debug}, and \emph{trace}.  These
@@ -338,19 +324,75 @@ SLF4J log levels are used according to the following conventions:
 
 \subsubsection{Configuration of JDK Logging}
 
-The JDK logging backend can be configured by several means, but the
-most common way is to use a separate configuration file and specify
-that file as a command line parameter to the JVM:
+Since JDK logging is the default in the JacORB distribution, we
+provide some shortcuts to achieve a reasonable logging configuration
+with it easily.  If any of the two properties {\tt
+  jacorb.log.default.verbosity} or {\tt jacorb.logfile} is set, then
+JacORB configures JDK logging at startup to match these values.
+(These properties were retained from previous JacORB versions where
+JacORB configured all logging itself.)
+
+The property {\tt jacorb.log.default.verbosity} specifies the level at
+which messages are logged.  The value is a number from 0 to 4, where 0
+means no logging (off), 1 means only $error$ messages, 2 means $warn$
+messages, 3 means $info$ messages, and 4 means $debug$ messages (higher
+levels also include lower levels).
+
+The property {\tt jacorb.logfile} specifies the name of a file to
+write the log to.  If this property is not set, then logging goes to
+the console.  You may include the string ``\$implname'' in the value
+of this property; this is replaced with the value of the property
+{\tt jacorb.implname} if that is set, or ``jacorb'' otherwise.
+
+The default formatting of JDK logs is quite verbose, using two lines
+of output for every log entry.  We have provided a {\tt LogFormatter}
+class that gives a more succinct output.  This class is named {\tt
+  org.jacorb.config.JacORBLogFormatter} and is used whenever JacORB
+configures the logging system itself.
+
+For any more sophisticated configuration, such as using log file
+rotation or specifying different log levels for some of the loggers,
+you need to configure JDK logging directly.  To do this, make sure
+that the properties {\tt jacorb.log.default.verbosity} and {\tt
+  jacorb.logfile} are \emph{not} set to any value (because otherwise
+JacORB will interfere with your configuration).  Then, prepare a
+configuration file such as the one found in {\tt
+  JACORB\_HOME/etc/logging\_properties.template} with your settings.
+The name of this file needs to be passed to the JVM at startup, for
+example by providing the following command line option:
 
 \begin{verbatim}
 -Djava.util.logging.config.file=/path/to/config-file
 \end{verbatim}
 
-The configuration file itself contains definitions for log handlers
-(targets), log file names, and the log verbosity (level) for the
-individual loggers.  A sample file is provided in the JacORB
-distribution, under {\tt
-  JACORB\_HOME/etc/logging\_properties.template}.
+\subsubsection{Using another Logging System}
+
+The SLF4J facade is implemented in two Java libraries, a generic one
+and a backend-specific one.  The generic library is named {\tt
+  slf4j-api-1.5.6.jar} (or any other version), and the
+backend-specific library is named {\tt slf4j-jdk14-1.5.6.jar} (for JDK
+logging), or {\tt slf4j-log4j-1.5.6.jar} for Log4J, and the like.  To
+switch to a different logging system, the backend-specific library of
+SLF4J needs to be replaced, and the implementation library for that
+backend needs to be added as well.  So for example, to use Log4J, the
+following libraries need to be on the classpath: {\tt
+  slf4j-api-1.5.6.jar}, {\tt slf4j-log4j-1.5.6.jar}, and {\tt
+  log4j-1.2.15.jar}.  The JacORB distribution only ships with the
+generic SLF4J library and the JDK adapter library.  Other libraries
+need to be downloaded from the SLF4J site.
+
+When using another logging system besides JDK logging, JacORB does not
+attempt to configure log verbosity or log file names by itself, as
+described in the previous section.  This means that features such as
+choosing log file names based on implementation names are not
+available for other logging systems.  You can however configure this
+explicitly, for example by using the split-on-implname feature
+described above.  For more sophisticated needs, it is also possible to
+provide a {\tt LoggingInitializer} class, which is a hook provided by
+JacORB to allow configuration of a logging system based on the JacORB
+configuration.  The class needs to extend the class {\tt
+  org.jacorb.config.LoggingInitializer} and the name of the class
+needs to be specified in the property {\tt jacorb.log.initializer}.
 
 \subsubsection{POA Monitor}
 
@@ -360,9 +402,6 @@ dynamic behavior of  your POA, e.g.  how long  the request queue gets
 and whether your thread pool is  big enough.  Also, this tool lets you
 change the  state of a POA,  e.g. from {\it active}  to {\it holding}.
 Please see chapter \ref{ch:POA} on the POA for more details.
-
-The singleton ORB will use the logging component {\tt jacorb.orb.singleton} for
-logging.
 
 \section{Configuration Properties}
 
@@ -728,13 +767,19 @@ the ORB is initialized. & boolean & on \\
 \hline
 \verb"jacorb.log.default."
 \verb"verbosity" & Log levels: 0 = off, 1 =
-error, 2 = warning, 3 = info, 4 = debug & integer & 0 \\
+error, 2 = warning, 3 = info, 4 = debug & integer & unset \\
 \hline
 \verb"jacorb.logfile" & Output destination for diagnostic log file. If
 not set, diagnostics are sent to standard error.& filename & unset \\
 \hline
 \verb"jacorb.logfile.append" & Whether to append to
 existing log file or overwrite (if file logging) & boolean & off \\
+\hline
+\verb"jacorb.log.initializer" & Name of a class to initialize logging
+after the configuration has been read & class & 
+\verb"JdkLogg"
+\verb"ingInit"
+\verb"ializer" \\
 \hline
 \verb"jacorb.debug.dump_outg"
 \verb"oing_messages" & Hex dump outgoing messages & boolean & off \\
