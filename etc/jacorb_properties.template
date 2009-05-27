@@ -63,13 +63,13 @@ jacorb.orb.print_version=on
 ###########################
 
 # JacORB writes logging information through SLF4J, which passes it to an
-# arbitrary logging backend system, by default JDK logging.  JacORB does
-# not attempt to configure the backend system, that is left to the user.
-# The two properties below are only retained to ease upgrading from
-# previous JacORB versions.  If any of these properties is defined, and
-# JDK logging is in use, then JDK logging is configured by JacORB according
-# to these properties.  For a real configuration, see the file
-# logging_properties.template.
+# arbitrary external logging system, by default JDK logging.  JacORB does
+# not usually attempt to configure the logging system, that is left to the
+# user.  The two properties below are retained from previous JacORB versions
+# however.  If any of these properties is defined, and JDK logging is in
+# use, then JacORB configures it according to these properties.
+# For more sophisticated configurations, unset these properties and
+# see the file logging_properties.template.
 
 # log levels:
 #
@@ -80,12 +80,19 @@ jacorb.orb.print_version=on
 # 4 = debug-level output (FINE)
 #jacorb.log.default.verbosity=3
 
-# where does output go? Terminal is default
+# Where does output go? Terminal is default. If the filename includes
+# "$implname", that is replaced with the value of jacorb.implname, if
+# that is defined, or "jacorb" otherwise.
 #jacorb.logfile=LOGFILEPATH
 
 # append to existing logfile?  This property is only used if
 # jacorb.logfile is defined.
 #jacorb.logfile.append=false
+
+# Name of a class that is called to initialize the logging system
+# based on the JacORB configuration.  Needs to extend
+# org.jacorb.config.LoggingInitializer.
+#jacorb.log.initializer=org.jacorb.config.JdkLoggingInitializer
 
 # hexdump outgoing messages
 jacorb.debug.dump_outgoing_messages=off
