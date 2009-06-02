@@ -64,18 +64,19 @@
           [-generate_helper jacorb] (JAC#144).
         - Fix for iteration during shutdown (JAC#264).
         - added more strict checking of correct string sizes during
-          demarshalling of CDR streams (JAC#288).
-        - fix for broken socket connect timeout mechanism (JAC#375).
+          demarshalling of CDR streams.
+        - fix for broken socket connect timeout mechanism.
         - fix for bug during logfile initialization routine
-          that caused the creation of multiple empty logfiles (JAC#384).
-        - fixes for stream closure with sync scope none (JAC#410).
+          that caused the creation of multiple empty logfiles.
+        - fixes for stream closure with sync scope none.
+        
           
     - IDL Compiler:
         - added option that allows to control the portability level of
           the generated helper classes
           [-generate_helper deprecated|portable|jacorb] (JAC#516).
         - removed -omg option (#72,#98)
-        - Enhance generation to close streams (RTJ#476/JAC#410).
+        - Enhance generation to close streams (RTJ#476).
         
     - Interface Repository:
         - fix to allow IDL files that use #pragma prefix to be loaded into 
@@ -84,13 +85,15 @@
         - fix to allow interoperability with TAO persistent IOR's (#735)
         - removed usage of the deprecated read_fixed/write_fixed methods from
           the ORB core and generated code (JAC#516).
-        - fixed wstring valuetype interoperability issue with the sun orb (JAC#352).
+        - fixed wstring valuetype interoperability issue with the sun orb.
         - patch from bugzilla #708 to fix occasional deadlock/timeout issue within 
-          GIOPConnections (JAC#359).
-        - let POA.reference_to_servant raise BAD_PARM if a null reference is passed in (JAC#415).
+          GIOPConnections.
+        - let POA.reference_to_servant raise BAD_PARM if a null reference is passed in.
+        - fix that allows custom SocketFactory class plugins to specify their dependency
+          on the ORB either as org.jacorb.orb.ORB or org.omg.CORBA.ORB in their constructor.
           
     - Documentation
-        - enhanced socket factory documentation (JAC#376)
+        - enhanced socket factory documentation
         
 2.3
 ===
