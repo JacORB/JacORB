@@ -43,13 +43,12 @@
    <target name="services"
       depends="events,collections,transactions,concurrency,property" />
 
-
    <!-- ==================================================== -->
    <!--                       CORBA                          -->
    <!-- ==================================================== -->
 
    <target name="corba"
-           depends="orb,sysex,portableserver,dynany,iop,rtcorba,etf,iiop,giop,conf,messaging,interceptor,compile"/>
+           depends="orb,sysex,portableserver,dynany,iop,rtcorba,ftcorba,etf,iiop,giop,conf,messaging,interceptor,compile"/>
 
    <target name="compile">
       <idl-javac javac-includes="org/omg/CORBA/**/*.java,
@@ -59,6 +58,7 @@
                                  org/omg/IOP/**/*.java,
                                  org/omg/RTCORBA/**/*.java,
                                  org/omg/ETF/**/*.java,
+                                 org/omg/FT/**/*.java,
                                  org/omg/GIOP/**/*.java,
                                  org/omg/IIOP/**/*.java,
                                  org/omg/CONV_FRAME/**/*.java,
@@ -181,6 +181,12 @@
          includes="RTCORBA.idl"
          />
    </target>
+
+	<target name="ftcorba" depends="local-init">
+        <idl-jacidl-omg
+            includes="FTCORBA.idl"
+        />
+    </target>
 
    <target name="etf" depends="local-init">
       <idl-jacidl-omg
