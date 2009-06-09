@@ -22,33 +22,39 @@ package org.jacorb.idl;
 
 public final class Environment
 {
-    /**
-     * <code>JAVA14</code> denotes whether we are using JDK 1.4 or above.
-     */
-    static boolean JAVA14 = false;
+    static final boolean JAVA16;
 
-    /**
-     * <code>JAVA15</code> denotes whether we are using JDK 1.5 or above.
-     */
-    static boolean JAVA15 = false;
+    static final boolean JAVA14;
+
+    static final boolean JAVA15;
 
     static
     {
-        String javaVer = System.getProperty ("java.version");
-        int javaVersionAsInt = 0;
-        try
+        final String javaVer = System.getProperty ("java.specification.version");
+
+        if ("1.4".equals(javaVer))
         {
-            javaVersionAsInt = Integer.parseInt (""+javaVer.charAt(0))*10
-                             + Integer.parseInt (""+javaVer.charAt(2));
+            JAVA14 = true;
+            JAVA15 = false;
+            JAVA16 = false;
         }
-        catch (Exception javaVersionFormatChanged)
+        else if ("1.5".equals(javaVer))
         {
-            // I don't think this exception can/would ever occur but for
-            // the sake of robustness...
-            javaVersionFormatChanged.printStackTrace();
+            JAVA15 = true;
+            JAVA14 = false;
+            JAVA16 = false;
+
         }
-        JAVA14 = javaVersionAsInt >= 14;
-        JAVA15 = javaVersionAsInt >= 15;
+        else if ("1.6".equals(javaVer))
+        {
+            JAVA16 = true;
+            JAVA15 = false;
+            JAVA14 = false;
+        }
+        else
+        {
+            throw new AssertionError("should never happen");
+        }
     }
 
     /**

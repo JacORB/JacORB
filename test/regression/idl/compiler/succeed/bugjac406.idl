@@ -1,0 +1,16 @@
+interface GreetingService {
+    string greeting ( in string greetstr );
+};
+
+interface GreetingServiceExt : GreetingService
+{
+    oneway void onewayGreeting( in string greetstr);
+    // void greetingUsingValueType(in GreetingValueType_T vType);
+    // void greetignUsingValueTypeWithObject(in GreetingServiceExt greetObj, in GreetingValueType_T vType);
+    void greetingWithObject(in GreetingServiceExt greetObj);
+};
+
+interface GreetingServiceFactory : GreetingServiceExt
+{
+    GreetingServiceExt createGreetingService();
+};

@@ -69,7 +69,6 @@
         - fix for bug during logfile initialization routine
           that caused the creation of multiple empty logfiles.
         - fixes for stream closure with sync scope none.
-        
           
     - IDL Compiler:
         - added option that allows to control the portability level of
@@ -77,6 +76,7 @@
           [-generate_helper deprecated|portable|jacorb] (JAC#516).
         - removed -omg option (#72,#98)
         - Enhance generation to close streams (RTJ#476).
+        - fixed issue where the IDL compiler generated imports for the unnamed package.
         
     - Interface Repository:
         - fix to allow IDL files that use #pragma prefix to be loaded into 

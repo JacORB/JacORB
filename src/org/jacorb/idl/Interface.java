@@ -469,18 +469,25 @@ public class Interface
      */
     protected void printSuperclassImports(PrintWriter ps)
     {
-        if (inheritanceSpec.v.size() > 0)
+        if (inheritanceSpec.v.isEmpty())
         {
-            Enumeration e = inheritanceSpec.v.elements();
+            return;
+        }
 
-            for (; e.hasMoreElements();)
+        if ("".equals(pack_name))
+        {
+            return;
+        }
+
+        for (final Iterator i = inheritanceSpec.v.iterator(); i.hasNext();)
+        {
+            final ScopedName sn = (ScopedName) i.next();
+
+            if (sn.resolvedName().indexOf('.') < 0)
             {
-                ScopedName sn = (ScopedName) e.nextElement();
-
-                if (sn.resolvedName().indexOf('.') < 0)
-                {
-                    ps.println("import " + sn + ";");
-                }
+                ps.print("import ");
+                ps.print(sn.toString());
+                ps.println(';');
             }
         }
     }
