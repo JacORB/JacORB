@@ -94,6 +94,9 @@
           
     - Documentation
         - enhanced socket factory documentation
+    - Tools
+        - enhanced dior's ability to recognize different ORB types.
+        - enhanced dior to allow parsing of multiline IOR files.
         
 2.3
 ===

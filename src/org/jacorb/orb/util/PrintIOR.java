@@ -23,7 +23,7 @@ package org.jacorb.orb.util;
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.FileReader;
-import java.io.IOException;
+import java.io.LineNumberReader;
 import java.io.PrintWriter;
 import java.util.List;
 
@@ -66,53 +66,42 @@ public class PrintIOR
      * entry point from the command line
      */
 
-    public static void main(String args[])
+    public static void main(String args[]) throws Exception
     {
-        org.omg.CORBA.ORB orb = org.omg.CORBA.ORB.init(args,null);
+        final org.omg.CORBA.ORB orb = org.omg.CORBA.ORB.init(args,null);
         final org.jacorb.orb.ORB jorb = (org.jacorb.orb.ORB)orb;
-        Logger logger =
+        final Logger logger =
             jorb.getConfiguration().getLogger("jacorb.print_ior");
-        String line, iorString = null;
 
-        if( args.length != 2)
+        boolean urlForm = false;
+        String iorString = null;
+        String file = null;
+
+        if( args.length < 2 || args.length > 3)
         {
-            System.err.println("Usage: java PrintIOR [ -i ior_str | -f filename ]"); // NOPMD
-            System.exit( 1 );
+            usage();
         }
 
-        if( args[0].equals("-f"))
+        for (int i = 0; i < args.length; i++)
         {
-            try
+            if ("-u".equals(args[i]))
             {
-                BufferedReader br = new BufferedReader ( new FileReader( args[1] ), 2048 );
-                line = br.readLine();
-                if ( line != null )
-                {
-                    iorString = line;
-                    while ( line != null )
-                    {
-                        line = br.readLine();
-                        if ( line != null )
-                        {
-                            iorString = iorString + line;
-                        }
-                    }
-                }
+                urlForm = true;
             }
-            catch ( IOException ioe )
+            else if ("-i".equals(args[i]))
             {
-                ioe.printStackTrace();
-                System.exit(1);
+                iorString = args[i + 1];
+                ++i;
             }
-        }
-        else if ( args[0].equals("-i"))
-        {
-            iorString = args[1];
-        }
-        else
-        {
-            System.err.println("Usage: java PrintIOR [ -i ior_str | -f filename ]"); // NOPMD
-            System.exit( 1 );
+            else if ("-f".equals(args[i]))
+            {
+                file = args[i + 1];
+                ++i;
+            }
+            else
+            {
+                usage();
+            }
         }
 
         if( logger.isDebugEnabled() )
@@ -130,17 +119,71 @@ public class PrintIOR
 
         PrintWriter out = new PrintWriter(System.out, true);
 
+        try
+        {
+            if (iorString != null)
+            {
+                printIOR(jorb, urlForm, iorString, out);
+            }
+            else if (file != null)
+            {
+                final LineNumberReader in = new LineNumberReader(new BufferedReader(new FileReader(file)));
+                try
+                {
+                    String line = null;
+                    while( (line = in.readLine()) != null)
+                    {
+                        printIOR(jorb, urlForm, line, out);
+                    }
+                }
+                finally
+                {
+                    in.close();
+                }
+            }
+            else
+            {
+                assert false;
+            }
+        }
+        finally
+        {
+            out.flush();
+        }
+
+        orb.shutdown(true);
+    }
+
+    private static void printIOR(final org.jacorb.orb.ORB jorb, boolean urlForm, String iorString, PrintWriter out)
+    {
+
         if( iorString.startsWith( "IOR:" ))
         {
-            ParsedIOR pior = new ParsedIOR(jorb, iorString );
-            printIOR(pior, out);
+            final ParsedIOR pior = new ParsedIOR(jorb, iorString );
+            if (urlForm)
+            {
+                out.println(CorbaLoc.parseKey(pior.get_object_key()));
+            }
+            else
+            {
+                printIOR(pior, out);
+            }
         }
         else
         {
             out.println("Sorry, we only unparse IORs in the standard IOR URL scheme");
         }
-
-        orb.shutdown(true);
+    }
+    
+    private static void usage()
+    {
+        System.err.println("Usage: java PrintIOR "
+                + "[ -i ior_str ] [ -f filename] [-u]"
+                + "\n\tior_str\t IOR as String"
+                + "\n\t-f\t reads one or more IOR's from the file <filename>"
+                + "\n\t-u\t extract object key in URL-Form instead of HEX "
+                ); // NOPMD
+        System.exit( 1 );
     }
 
     /**
