@@ -33,7 +33,7 @@ import java.net.URL;
 public class ObjectUtil
 {
     //for byte -> hexchar
-    private static final char[] lookup =
+    private static final char[] HEX_LOOKUP =
         new char[]{ '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F' };
 
     private ObjectUtil()
@@ -210,6 +210,11 @@ public class ObjectUtil
         return result.toString();
     }
 
+    public static void appendHex(StringBuffer buffer, int value)
+    {
+        buffer.append(HEX_LOOKUP[value]);
+    }
+
 
     /**
      * <code>toHex</code> converts a byte into a readable string.
@@ -223,10 +228,10 @@ public class ObjectUtil
         final StringBuffer buffer = new StringBuffer();
 
         int upper = (value >> 4) & 0x0F;
-        buffer.append( lookup[upper] );
+        appendHex(buffer, upper);
 
         int lower = value & 0x0F;
-        buffer.append( lookup[lower] );
+        appendHex(buffer, lower);
 
         buffer.append( ' ' );
 

@@ -351,7 +351,8 @@ public class ServerRequest
                 if( out == null )
                 {
                     out =
-                        new ReplyOutputStream(requestId(),
+                        new ReplyOutputStream(orb,
+                                              requestId(),
                                               ReplyStatusType_1_2.from_int(replyStatus),
                                               inputStream.getGIOPMinor(),
                                               inputStream.isLocateRequest(),
@@ -452,8 +453,6 @@ public class ServerRequest
 
         out.updateMutatorConnection(connection);
 
-        out.configure(orb.getConfiguration());
-
         return out;
     }
 
@@ -464,7 +463,8 @@ public class ServerRequest
         replyStatus = ReplyStatusType_1_2._USER_EXCEPTION;
 
         out =
-            new ReplyOutputStream(requestId(),
+            new ReplyOutputStream(orb,
+                                  requestId(),
                                   ReplyStatusType_1_2.USER_EXCEPTION,
                                   inputStream.getGIOPMinor(),
                                   inputStream.isLocateRequest(),
@@ -484,7 +484,8 @@ public class ServerRequest
            original output stream*/
 
 
-        out = new ReplyOutputStream(requestId(),
+        out = new ReplyOutputStream(orb,
+                                    requestId(),
                                     ReplyStatusType_1_2.SYSTEM_EXCEPTION,
                                     inputStream.getGIOPMinor(),
                                     inputStream.isLocateRequest(),
@@ -524,7 +525,8 @@ public class ServerRequest
     {
         replyStatus = ReplyStatusType_1_2._LOCATION_FORWARD;
 
-        out = new ReplyOutputStream(requestId(),
+        out = new ReplyOutputStream(orb,
+                                    requestId(),
                                     ReplyStatusType_1_2.LOCATION_FORWARD,
                                     inputStream.getGIOPMinor(),
                                     inputStream.isLocateRequest(),
@@ -661,7 +663,8 @@ public class ServerRequest
     {
         if (out == null)
         {
-            out = new ReplyOutputStream(requestId(),
+            out = new ReplyOutputStream(orb,
+                                        requestId(),
                                         status(),
                                         inputStream.getGIOPMinor(),
                                         inputStream.isLocateRequest(),
