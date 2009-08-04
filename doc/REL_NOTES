@@ -69,6 +69,8 @@
         - fix for bug during logfile initialization routine
           that caused the creation of multiple empty logfiles.
         - fixes for stream closure with sync scope none.
+        - changed PICurrent's set_slot/get_slot to raise BAD_INV_ORDER if they're
+          called from within an ORB initializer.
           
     - IDL Compiler:
         - added option that allows to control the portability level of
