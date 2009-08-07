@@ -41,6 +41,25 @@
    H I S T O R Y      O F     C H A N G E S
  -------------------------------------------
 
+post 2.3.1
+==========
+
+    - ORB:
+        - fix that allows custom SocketFactory class plugins to
+          specify their dependency on the ORB either as
+          org.jacorb.orb.ORB or org.omg.CORBA.ORB in their
+          constructor.
+        - changed PICurrent's set_slot/get_slot to raise BAD_INV_ORDER
+          if they're called from within an ORB initializer.
+
+    - IDL Compiler: 
+        - fixed issue where the IDL compiler generated imports for the
+          unnamed package.
+
+    - Tools:
+        - enhanced dior's ability to recognize different ORB types.
+        - enhanced dior to allow parsing of multiline IOR files.
+
 2.3.1
 =====
 
@@ -69,8 +88,6 @@
         - fix for bug during logfile initialization routine
           that caused the creation of multiple empty logfiles.
         - fixes for stream closure with sync scope none.
-        - changed PICurrent's set_slot/get_slot to raise BAD_INV_ORDER if they're
-          called from within an ORB initializer.
           
     - IDL Compiler:
         - added option that allows to control the portability level of
@@ -78,7 +95,6 @@
           [-generate_helper deprecated|portable|jacorb] (JAC#516).
         - removed -omg option (#72,#98)
         - Enhance generation to close streams (RTJ#476).
-        - fixed issue where the IDL compiler generated imports for the unnamed package.
         
     - Interface Repository:
         - fix to allow IDL files that use #pragma prefix to be loaded into 
@@ -91,14 +107,9 @@
         - patch from bugzilla #708 to fix occasional deadlock/timeout issue within 
           GIOPConnections.
         - let POA.reference_to_servant raise BAD_PARM if a null reference is passed in.
-        - fix that allows custom SocketFactory class plugins to specify their dependency
-          on the ORB either as org.jacorb.orb.ORB or org.omg.CORBA.ORB in their constructor.
           
     - Documentation
         - enhanced socket factory documentation
-    - Tools
-        - enhanced dior's ability to recognize different ORB types.
-        - enhanced dior to allow parsing of multiline IOR files.
         
 2.3
 ===
