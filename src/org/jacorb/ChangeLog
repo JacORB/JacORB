@@ -1,3 +1,43 @@
+2009-08-04  Alexander Bykov  <alexander.bykov@prismtech.com>
+
+	* orb/AbstractORBInitializer.java, orb/ORB.java: Prismtech
+	JAC#440: PICurrent.set_slot/get_slot should raise BAD_INV_ORDER if
+	invoked during orb initialitzation
+
+	* imr/ImplementationRepositoryImpl.java, orb/CDROutputStream.java,
+	orb/Delegate.java, orb/ParsedIOR.java, orb/dsi/ServerRequest.java,
+	orb/giop/ClientConnectionManager.java,
+	orb/giop/GIOPConnection.java, orb/giop/MessageInputStream.java,
+	orb/giop/NoBiDirClientRequestListener.java,
+	orb/giop/ReplyOutputStream.java,
+	orb/giop/RequestOutputStream.java,
+	orb/giop/ServerRequestListener.java, util/ObjectUtil.java:
+	Pristmtech JAC#427: creation/configuration of outputstreams has
+	been clarified - always pass in an orb
+
+2009-06-12  Alexander Bykov  <alexander.bykov@prismtech.com>
+
+	* orb/util/PrintIOR.java: PrismTech JAC#400: PrintIOR output has
+	been enhanced with different ORB type recognition and multiline
+	IOR files support
+
+2009-06-09  Alexander Bykov  <alexander.bykov@prismtech.com>
+
+	* idl/Environment.java, idl/Interface.java: PrismTech JAC#406:
+	fixed issue where the IDL compiler generated imports for the
+	unnamed package
+
+2009-06-02  Alexander Bykov  <alexander.bykov@prismtech.com>
+
+	* orb/factory/SocketFactoryManager.java: PrismTech JAC#417: fix
+	that allows custom SocketFactory class plugins to specify their
+	dependency on the ORB either as org.jacorb.orb.ORB or
+	org.omg.CORBA.ORB in their constructor.
+
+2009-05-27  Andre Spiegel  <spiegel@gnu.org>
+
+	* Version 2.3.1 released.
+
 2009-05-25  Andre Spiegel  <spiegel@gnu.org>
 
 	* config/JacORBConfiguration.java (ctor): Don't call initLogging()
