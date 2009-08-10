@@ -55,6 +55,8 @@ post 2.3.1
     - IDL Compiler: 
         - fixed issue where the IDL compiler generated imports for the
           unnamed package.
+        - fixed issue where the IDL compiler removed a custom backend set 
+          through the API.
 
     - Tools:
         - enhanced dior's ability to recognize different ORB types.

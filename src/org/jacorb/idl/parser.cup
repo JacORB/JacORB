@@ -27,10 +27,10 @@ parser code
 {:
     static String command_line[] = null;
 
-    public static Hashtable pack_replace = null;
-    public static Stack scopes = null;
-    private static Hashtable tmpDefines = null;
-    private static Hashtable tmpUnDefines = null;
+    public static Hashtable pack_replace = new Hashtable();
+    public static Stack scopes = new Stack();
+    private static Hashtable tmpDefines = new Hashtable();
+    private static Hashtable tmpUnDefines = new Hashtable();
 
     public final static String currentVersion = "";
 
@@ -39,7 +39,7 @@ parser code
 
     private static final String yearString = "1997-2006";
 
-    public static org.jacorb.idl.IDLTreeVisitor generator = null;
+    private static org.jacorb.idl.IDLTreeVisitor generator = null;
 
     private static final String FINAL = " final";
     private static final String NO_FINAL = "";
@@ -102,21 +102,18 @@ parser code
      *  run from a command-line
      */
 
-    protected static void init()
+    protected static void cleanup()
     {
-        currentDate = java.text.DateFormat.getDateTimeInstance().format(new java.util.Date());
         generatedHelperPortability = HELPER_PORTABLE;
-        command_line = null;
-        pending_interfaces = new Hashtable();
-        pack_replace = new Hashtable();
-        scopes = new Stack();
-        tmpDefines = new Hashtable();
-        tmpUnDefines = new Hashtable();
+        pending_interfaces.clear();
+        pack_replace.clear();
+        scopes.clear();
+        tmpDefines.clear();
+        tmpUnDefines.clear();
         generator = null;
 
         activeParseThreads = 0;
-        InterfaceBody.parseThreads = new Vector();
-        pending_interfaces = new Hashtable();
+        InterfaceBody.parseThreads.clear();
 
         out_dir = ".";
         package_prefix = null;
@@ -149,6 +146,12 @@ parser code
 
         sloppy = false;
 
+   }
+
+    protected static final void initLogging()
+    {
+        currentDate = java.text.DateFormat.getDateTimeInstance().format(new java.util.Date());
+
         String pattern = "[%.11{category}] %.7{priority} : %{message}\\n%{throwable}";
         PatternFormatter formatter = new PatternFormatter( pattern );
         logger = Hierarchy.getDefaultHierarchy().getLoggerFor("jacorb.idl");
@@ -167,8 +170,6 @@ parser code
         }
         WriterTarget writerTarget = new WriterTarget( logWriter, formatter );
         logger.setLogTargets( new LogTarget[] { writerTarget } );
-
-        parser.openScope();
     }
 
 
@@ -219,7 +220,9 @@ parser code
         if (logWriter!= null)
               logStreamWriter = logWriter;
 
-        init();
+        initLogging();
+               
+        parser.openScope();
 
         command_line = argv;
         if( argv.length > 0 )
@@ -458,16 +461,24 @@ parser code
                 usage(argv, "Unrecognized option: " + argv[i]);
 
             }
-            for( int j=i; j < argv.length; j++)
+            
+            try
             {
-                if( argv[j].endsWith(".idl"))
+                for( int j=i; j < argv.length; j++)
                 {
-                    prepareAndParse(argv[j]);
+                    if( argv[j].endsWith(".idl"))
+                    {
+                        prepareAndParse(argv[j]);
+                    }
+                    else
+                    {
+                        throw new ParseException("Not an IDL file:" + argv[j]);
+                    }
                 }
-                else
-                {
-                    throw new ParseException("Not an IDL file:" + argv[j]);
-                }
+            }
+            finally
+            {
+                cleanup();
             }
         }
         return true;
@@ -676,7 +687,7 @@ parser code
 
     // forward declared interfaces are put into this list
 
-    static Hashtable pending_interfaces = null;
+    static Hashtable pending_interfaces = new Hashtable();
 
     public static synchronized void set_pending( String name )
     {
@@ -1012,13 +1023,11 @@ specification ::=
 
                 /* code generation phase */
 
-                if (! ((org.jacorb.idl.parser)CUP$parser).parse_only  )
+                if (! parser.parse_only  )
                 {
-                     org.jacorb.idl.IDLTreeVisitor backend =
-                        ((org.jacorb.idl.parser)CUP$parser).getGenerator();
-                     if( backend != null )
+                     if( parser.getGenerator() != null )
                      {
-                         if (((org.jacorb.idl.parser)CUP$parser).addbackend)
+                         if (parser.addbackend)
                          {
                              // before the custom backend first use
                              // the default code generator for the Java Mapping
@@ -1027,7 +1036,7 @@ specification ::=
 
                           // a custom backend was provided , so let's start
                           // the visitor
-                          RESULT.accept( backend );
+                          RESULT.accept( parser.getGenerator() );
                      }
                      else
                      {

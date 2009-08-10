@@ -1380,6 +1380,11 @@ public class UnionType
         ps.println("\t\t" + resultname + " = " + className() + "Helper.extract(" + anyname + ");");
     }
 
+    public String toString()
+    {
+        return typeName();
+    }
+
     public void accept(IDLTreeVisitor visitor)
     {
         visitor.visitUnion(this);

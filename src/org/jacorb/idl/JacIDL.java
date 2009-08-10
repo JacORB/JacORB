@@ -299,7 +299,7 @@ public class JacIDL
     {
         parser myparser = null;
 
-        parser.init ();
+        parser.initLogging();
 
         if (helperCompatLevel != null)
         {
@@ -442,6 +442,10 @@ public class JacIDL
                 ex.printStackTrace();
             }
             throw new BuildException(ex);
+        }
+        finally
+        {
+            parser.cleanup();
         }
     }
 
