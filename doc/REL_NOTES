@@ -51,6 +51,7 @@ post 2.3.1
           constructor.
         - changed PICurrent's set_slot/get_slot to raise BAD_INV_ORDER
           if they're called from within an ORB initializer.
+        - provided a implementation for org.omg.CORBA.ValueBaseHelper.
 
     - IDL Compiler: 
         - fixed issue where the IDL compiler generated imports for the

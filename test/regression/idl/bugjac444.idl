@@ -1,0 +1,23 @@
+module org
+{
+    module jacorb
+    {
+        module test
+        {
+            module bugs
+            {
+                module bugjac444
+                {
+                       abstract valuetype EventBase
+                       {
+                       };
+
+                       valuetype Event : EventBase
+                       {
+                            public long id;
+                       };
+                };
+            };
+        };
+    };
+};

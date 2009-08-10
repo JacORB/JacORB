@@ -616,4 +616,9 @@ public class TestUtils
         }
         return getStringAsBoolean(value);
     }
+    
+    public static boolean isJ2ME()
+    {
+        return "true".equalsIgnoreCase(System.getProperty("jacorb.test.j2me"));
+    }
 }
