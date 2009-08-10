@@ -57,6 +57,8 @@ post 2.3.1
           unnamed package.
         - fixed issue where the IDL compiler removed a custom backend set 
           through the API.
+        - fixed issue where nested sequences would result in invalid java 
+          code.
 
     - Tools:
         - enhanced dior's ability to recognize different ORB types.

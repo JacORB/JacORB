@@ -1,0 +1,25 @@
+module bugpt459
+{
+    union myUnion switch(long long)
+    {
+        case 1: long foo;
+        case 2: short bar;    
+    };
+	
+    typedef sequence<myUnion> myUnionSeq1;
+    
+    //nested sequence of sequence of typedef'd sequence generates 
+    //invalid java code in helper's type() method
+    typedef sequence<sequence<myUnionSeq1> > myUnionSeq2;
+    
+    struct myStruct
+    {
+        long foo;
+    };
+	
+    typedef sequence<myStruct> myStructSeq1;
+
+    //nested sequence of sequence of typedef'd sequence generates 
+    //invalid java code in helper's type() method
+    typedef sequence<sequence<myStructSeq1> > myStructSeq2;	
+};

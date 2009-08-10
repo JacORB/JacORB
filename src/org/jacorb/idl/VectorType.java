@@ -116,7 +116,8 @@ public abstract class VectorType
                 ts instanceof TypeCodeTypeSpec ||
                 ts instanceof ConstrTypeSpec || // for value types
                 ts instanceof TemplateTypeSpec ||
-                ts instanceof ObjectTypeSpec)
+                ts instanceof ObjectTypeSpec ||
+                ts instanceof ScopedName)
         {
             return ts.getTypeCodeExpression();
         }
