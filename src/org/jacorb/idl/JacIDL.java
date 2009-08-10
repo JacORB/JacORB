@@ -60,6 +60,8 @@ public class JacIDL
     private boolean _unchecked_narrow;
     private boolean _generateEnhanced;
     private boolean _generatediistubs;
+    private String _cachePlugin;
+
     private String helperCompatLevel;
 
 
@@ -245,6 +247,11 @@ public class JacIDL
         _generatediistubs = flag;
     }
 
+    public void setCachePlugin(String className)
+    {
+        _cachePlugin = className;
+    }
+
     // ****************************************************************
     // **** Nested elements
     // ******************************
@@ -352,6 +359,22 @@ public class JacIDL
         parser.generateEnhanced = _generateEnhanced;
 
         parser.generateDiiStubs = _generatediistubs;
+
+        if (_cachePlugin != null)
+        {
+            try
+            {
+                parser.setObjectCachePlugin(_cachePlugin);
+            }
+            catch(InstantiationException e)
+            {
+                throw new BuildException(e);
+            }
+            catch(IllegalAccessException e)
+            {
+                throw new BuildException(e);
+            }
+        }
 
         // include path
         if (_includepath != null)

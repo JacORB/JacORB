@@ -435,11 +435,19 @@ public class lexer
     {
         if (parser.getLogger().isErrorEnabled())
         {
-            logger.error(  GlobalInputStream.currentFile().getAbsolutePath() +
-                           ", line: " + current_line +
-                           "(" + current_position + "): " +
-                           message + "\n\t" +
-                           line.toString() );
+            if (GlobalInputStream.currentFile() != null)
+            {
+                parser.getLogger().error(  GlobalInputStream.currentFile().getAbsolutePath() +
+                               ", line: " + current_line +
+                               "(" + current_position + "): " +
+                               message + "\n\t" +
+                               line.toString() );
+            }
+            else
+            {
+                //error probably ocurred before parsing
+                parser.getLogger().error(message);
+            }
         }
         error_count++;
     }

@@ -470,6 +470,14 @@ public class StructType
                     " read (final org.omg.CORBA.portable.InputStream in)");
         ps.println("\t{");
 
+        if (parser.hasObjectCachePlugin())
+        {
+            ps.println("\t\t// ObjectCachePlugin BEGIN");
+            parser.getObjectCachePlugin().printCheckout(ps, type, "result");
+            parser.getObjectCachePlugin().printPreMemberRead(ps, this);
+            ps.println("\t\t// ObjectCachePlugin END");
+        }
+        
         if (exc)
         {
             ps.println("\t\tString id = in.read_string();");
@@ -489,38 +497,58 @@ public class StructType
                 ps.println("\t\t\t}");
                 ps.println("\t\t}");
             }
-
-            if (memberlist != null)
+            if (!parser.hasObjectCachePlugin())
             {
-                int x = 0;
-                for (Enumeration e = memberlist.v.elements(); e.hasMoreElements();)
+                if (memberlist != null)
                 {
-                    Member member = (Member)e.nextElement();
-                    TypeSpec typeSpec = member.type_spec.typeSpec();
+                    int x = 0;
+                    for (Enumeration e = memberlist.v.elements(); e.hasMoreElements();)
+                    {
+                        Member member = (Member)e.nextElement();
+                        TypeSpec typeSpec = member.type_spec.typeSpec();
 
-                    String var = "x" + x++;
-                    ps.println("\t\t" + typeSpec.getJavaTypeName() + " " + var + ";");
-                    ps.println("\t\t" + typeSpec.printReadStatement(var, "in"));
+                        String var = "x" + x++;
+                        ps.println("\t\t" + typeSpec.getJavaTypeName() + " " + var + ";");
+                        ps.println("\t\t" + typeSpec.printReadStatement(var, "in"));
+                    }
                 }
             }
 
-            ps.print("\t\tfinal " + type + " result = new " + type + "(");
-            ps.print("id");
-
-            if (memberlist != null)
+            if (parser.hasObjectCachePlugin())
             {
-                int x=0;
-                for (Enumeration e = memberlist.v.elements(); e.hasMoreElements(); e.nextElement())
+                if (memberlist != null)
                 {
-                    ps.print(", x" + x++);
+                    for (Enumeration e = memberlist.v.elements(); e.hasMoreElements();)
+                    {
+                        Member m = (Member)e.nextElement();
+                        Declarator d = m.declarator;
+                        ps.println("\t\t" + m.type_spec.typeSpec().printReadStatement("result." + d.name(), "in"));
+                    }
                 }
             }
+            else
+            {
+                ps.print("\t\tfinal " + type + " result = new " + type + "(");
+                ps.print("id");
 
-            ps.println(");");
+                if (memberlist != null)
+                {
+                    int x=0;
+                    for (Enumeration e = memberlist.v.elements(); e.hasMoreElements(); e.nextElement())
+                    {
+                        ps.print(", x" + x++);
+                    }
+                }
+
+                ps.println(");");
+            }
         }
         else
         {
-            ps.println("\t\t" + type + " result = new " + type + "();");
+            if (!parser.hasObjectCachePlugin())
+            {
+                ps.println("\t\t" + type + " result = new " + type + "();");
+            }
 
             if (memberlist != null)
             {
@@ -532,8 +560,19 @@ public class StructType
                 }
             }
         }
+
+        if (parser.hasObjectCachePlugin())
+        {
+            parser.getObjectCachePlugin().printPostMemberRead(ps, this, "result");
+        }
+
         ps.println("\t\treturn result;");
         ps.println("\t}");
+
+        if (parser.hasObjectCachePlugin())
+        {
+            parser.getObjectCachePlugin().printCheckinHelper(ps, this);
+        }
 
         /* write */
         ps.println("\tpublic static void write (final org.omg.CORBA.portable.OutputStream out, final " + type + " s)");

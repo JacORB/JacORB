@@ -103,6 +103,17 @@ public class UnionType
         return typeName;
     }
 
+    /**
+     * get this types's mapped Java name
+     */
+
+    public String getJavaTypeName()
+    {
+        if (typeName == null)
+            setPrintPhaseNames();
+        return typeName;
+    }
+    
     public String className()
     {
         String fullName = typeName();
@@ -126,6 +137,11 @@ public class UnionType
     public String holderName()
     {
         return typeName() + "Holder";
+    }
+
+    public String helperName()
+    {
+        return getJavaTypeName() + "Helper";
     }
 
     public void set_included(boolean i)
@@ -819,7 +835,16 @@ public class UnionType
 
         ps.println("\tpublic static " + className + " read (org.omg.CORBA.portable.InputStream in)");
         ps.println("\t{");
-        ps.println("\t\t" + className + " result = new " + className + " ();");
+        
+        if (parser.hasObjectCachePlugin())
+        {
+            parser.getObjectCachePlugin().printCheckout(ps, className, "result");
+            parser.getObjectCachePlugin().printPreMemberRead(ps, this);
+        }
+        else
+        {
+            ps.println("\t\t" + className + " result = new " + className + " ();");
+        }
 
         TypeSpec switch_ts_resolved = switch_type_spec;
 
@@ -979,11 +1004,8 @@ public class UnionType
             }
         }
 
-        if
-            (
-             !explicit_default_case && !switch_is_bool
-             && !switch_is_longlong && !allCasesCovered
-             )
+        if (!explicit_default_case && !switch_is_bool
+             && !switch_is_longlong && !allCasesCovered)
         {
             ps.println ("\t\t\tdefault: result.__default (disc);");
         }
@@ -1004,6 +1026,12 @@ public class UnionType
         {
             ps.println ("\t\t}"); // close switch statement
         }
+
+        if (parser.hasObjectCachePlugin())
+        {
+            parser.getObjectCachePlugin().printPostMemberRead(ps, this, "result");
+        }
+
         if (!switch_is_longlong)
         {
             ps.println ("\t\treturn result;");
