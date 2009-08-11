@@ -57,7 +57,8 @@ public abstract class ProtocolAddressBase
 
     public byte [] toCDR ()
     {
-        CDROutputStream out = new CDROutputStream();
+        final CDROutputStream out = new CDROutputStream();
+
         try
         {
             out.beginEncapsulatedArray();

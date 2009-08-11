@@ -77,12 +77,12 @@ public class ParsedIOR
      * factory method
      */
 
-    public static IOR createObjectIOR(org.omg.ETF.Profile profile)
+    public static IOR createObjectIOR(ORB orb, org.omg.ETF.Profile profile)
     {
         String repId = "IDL:omg.org/CORBA/Object:1.0";
         TaggedComponentList components = new TaggedComponentList();
 
-        final CDROutputStream out = new CDROutputStream();
+        final CDROutputStream out = new CDROutputStream(orb);
         try
         {
             out.beginEncapsulatedArray();
@@ -112,7 +112,7 @@ public class ParsedIOR
         return new IOR(repId, tps);
     }
 
-  public static IOR createObjectIOR(org.omg.ETF.Profile[] profiles)
+  public static IOR createObjectIOR(ORB orb, org.omg.ETF.Profile[] profiles)
   {
     String repId = "IDL:omg.org/CORBA/Object:1.0";
     List taggedProfileList = new ArrayList();
@@ -123,7 +123,7 @@ public class ParsedIOR
       }
       TaggedComponentList components = new TaggedComponentList();
 
-      final CDROutputStream out = new CDROutputStream();
+      final CDROutputStream out = new CDROutputStream(orb);
       try
         {
 	  out.beginEncapsulatedArray();
@@ -589,7 +589,7 @@ public class ParsedIOR
 	    for (int count = 0; count < corbaLoc.profileList.length; count++) {
 	      corbaLoc.profileList[count].set_object_key(corbaLoc.getKey());
 	    }
-	    ior = createObjectIOR(corbaLoc.profileList);
+        ior = createObjectIOR(orb, corbaLoc.profileList);
 	  }
 
 	decode(ior);

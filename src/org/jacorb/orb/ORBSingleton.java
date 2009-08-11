@@ -24,9 +24,11 @@ import java.util.HashSet;
 import org.jacorb.config.*;
 import org.slf4j.Logger;
 import org.jacorb.config.JacORBConfiguration;
+import org.omg.CORBA.BAD_INV_ORDER;
 import org.omg.CORBA.BAD_PARAM;
 import org.omg.CORBA.BAD_TYPECODE;
 import org.omg.CORBA.CompletionStatus;
+import org.omg.CORBA.INITIALIZE;
 import org.omg.CORBA.INTERNAL;
 import org.omg.CORBA.TCKind;
 import org.omg.CORBA.TypeCode;
@@ -43,6 +45,8 @@ public class ORBSingleton
 
     private boolean doStrictCheckOnTypecodeCreation;
     private Logger logger;
+    
+    protected BufferManager bufferManager;
 
     /**
      * in case a singleton orb is created the c'tor will access the JacORB configuration
@@ -73,6 +77,19 @@ public class ORBSingleton
                 {
                     logger.debug("jacorb.interop.strict_check_on_tc_creation set to " + doStrictCheckOnTypecodeCreation);
                 }
+
+                BufferManager.configure( configuration);
+
+                try
+                {
+                    bufferManager = BufferManager.getInstance();
+                }
+                catch( BAD_INV_ORDER b)
+                {
+                    logger.error("unexpected exception", b);
+                    throw new INTERNAL(b.toString());
+                }
+
                 logger.info("created ORBSingleton");
             }
         }
@@ -98,6 +115,22 @@ public class ORBSingleton
         if (logger.isDebugEnabled())
         {
             logger.debug("jacorb.interop.strict_check_on_tc_creation set to " + doStrictCheckOnTypecodeCreation);
+        }
+
+        // buffer manager is not configured yet (when called from ORB c'tor)
+        if (bufferManager == null)
+        {
+            BufferManager.configure(configuration);
+
+            try
+            {
+                bufferManager = BufferManager.getInstance();
+            }
+            catch(BAD_INV_ORDER b)
+            {
+                logger.error("unexpected exception", b);
+                throw new INTERNAL(b.toString());
+            }
         }
     }
 
@@ -818,5 +851,14 @@ public class ORBSingleton
     public void perform_work()
     {
         throw new org.omg.CORBA.NO_IMPLEMENT (FACTORY_METHODS_MESG);
+    }
+
+    public BufferManager getBufferManager()
+    {
+        if (bufferManager == null)
+        {
+            throw new INITIALIZE ("JacORB ORB Singleton not initialized");
+        }
+        return bufferManager;
     }
 }

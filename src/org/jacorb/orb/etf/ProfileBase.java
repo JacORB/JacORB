@@ -260,7 +260,7 @@ public abstract class ProfileBase
     */
     protected void initFromProfileData(byte[] data)
     {
-        final CDRInputStream in = new CDRInputStream(null, data);
+        final CDRInputStream in = new CDRInputStream(data);
 
         try
         {

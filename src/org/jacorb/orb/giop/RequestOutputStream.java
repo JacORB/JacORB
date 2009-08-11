@@ -25,6 +25,8 @@ import java.util.ArrayList;
 import java.util.List;
 import org.jacorb.orb.CDROutputStream;
 import org.jacorb.util.Time;
+import org.omg.CONV_FRAME.CodeSetContext;
+import org.omg.CONV_FRAME.CodeSetContextHelper;
 import org.omg.CORBA.MARSHAL;
 import org.omg.CORBA.PrincipalHelper;
 import org.omg.GIOP.MsgType_1_1;
@@ -33,6 +35,7 @@ import org.omg.GIOP.TargetAddressHelper;
 import org.omg.IOP.INVOCATION_POLICIES;
 import org.omg.IOP.ServiceContext;
 import org.omg.IOP.ServiceContextListHelper;
+import org.omg.IOP.TAG_CODE_SETS;
 import org.omg.Messaging.PolicyValue;
 import org.omg.Messaging.PolicyValueSeqHelper;
 import org.omg.Messaging.REPLY_END_TIME_POLICY_TYPE;
@@ -273,11 +276,28 @@ public class RequestOutputStream
         if (!conn.isTCSNegotiated())
         {
             // encapsulate context
-            addServiceContext (CodeSet.createCodesetContext (conn.getTCS(), conn.getTCSW()));
+            addServiceContext (createCodesetContext ( conn.getTCS(), conn.getTCSW()));
                        
             conn.markTCSNegotiated();
         }
         super.write_to(conn);
+    }
+
+    private ServiceContext createCodesetContext( CodeSet tcs, CodeSet tcsw )
+    {
+        // encapsulate context
+        final CDROutputStream os = new CDROutputStream( orb );
+        try
+        {
+            os.beginEncapsulatedArray();
+            CodeSetContextHelper.write( os, new CodeSetContext( tcs.getId(), tcsw.getId() ));
+
+            return new ServiceContext( TAG_CODE_SETS.value, os.getBufferCopy() );
+        }
+        finally
+        {
+            os.close();
+        }
     }
 
     /**
@@ -307,7 +327,7 @@ public class RequestOutputStream
 
     private ServiceContext createInvocationPolicies()
     {
-        final CDROutputStream out = new CDROutputStream();
+        final CDROutputStream out = new CDROutputStream( orb );
 
         try
         {

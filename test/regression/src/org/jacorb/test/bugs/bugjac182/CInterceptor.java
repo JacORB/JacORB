@@ -1,6 +1,7 @@
 package org.jacorb.test.bugs.bugjac182;
 
 import org.jacorb.orb.CDROutputStream;
+import org.jacorb.orb.ORB;
 import org.omg.CORBA.portable.ObjectImpl;
 import org.omg.IOP.ServiceContext;
 import org.omg.PortableInterceptor.ClientRequestInfo;
@@ -20,6 +21,13 @@ public class CInterceptor
     extends org.omg.CORBA.LocalObject
     implements ClientRequestInterceptor
 {
+    private final ORB orb;
+
+    public CInterceptor(ORB orb)
+    {
+        this.orb = orb;
+    }
+
     /**
      * <code>send_request</code>
      *
@@ -34,7 +42,7 @@ public class CInterceptor
         ObjectImpl o = (ObjectImpl)ri.effective_target();
 
         // This part is proprietary code to marshal the service context data
-        CDROutputStream os = new CDROutputStream ();
+        final CDROutputStream os = (CDROutputStream) orb.create_output_stream();
         if (o._is_local())
         {
             os.write_boolean (true);

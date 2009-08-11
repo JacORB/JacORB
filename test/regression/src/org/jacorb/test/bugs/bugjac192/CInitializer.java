@@ -1,5 +1,7 @@
 package org.jacorb.test.bugs.bugjac192;
 
+import org.jacorb.orb.portableInterceptor.ORBInitInfoImpl;
+import org.omg.CORBA.ORB;
 import org.omg.PortableInterceptor.ORBInitInfo;
 import org.omg.PortableInterceptor.ORBInitializer;
 import org.omg.PortableInterceptor.ORBInitInfoPackage.DuplicateName;
@@ -29,10 +31,12 @@ public class CInitializer
      */
     public void pre_init(ORBInitInfo info)
     {
+        ORB orb = ((ORBInitInfoImpl)info).getORB();
+
         try
         {
             info.add_client_request_interceptor(new AInterceptor());
-            info.add_client_request_interceptor(new BInterceptor());
+            info.add_client_request_interceptor(new BInterceptor(orb));
         }
         catch (DuplicateName e)
         {

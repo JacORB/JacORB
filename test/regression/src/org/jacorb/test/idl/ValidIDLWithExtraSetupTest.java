@@ -199,7 +199,7 @@ public class ValidIDLWithExtraSetupTest extends AbstractIDLTestcase
 
        if (arguments.contains("deprecated"))
        {
-           in = new CDRInputStream(null, new byte[0])
+           in = new CDRInputStream(new byte[0])
            {
                public BigDecimal read_fixed()
                {
@@ -209,7 +209,7 @@ public class ValidIDLWithExtraSetupTest extends AbstractIDLTestcase
        }
        else
        {
-           in = new CDRInputStream(null, new byte[0])
+           in = new CDRInputStream(new byte[0])
            {
                public BigDecimal read_fixed(short digits, short scale)
                {
@@ -243,7 +243,7 @@ public class ValidIDLWithExtraSetupTest extends AbstractIDLTestcase
 
        if (arguments.contains("deprecated"))
        {
-           out = new CDROutputStream(org.omg.CORBA.ORB.init((String[])null, null))
+           out = new CDROutputStream()
            {
                public void write_fixed(BigDecimal value, short digits, short scale)
                {
@@ -258,7 +258,7 @@ public class ValidIDLWithExtraSetupTest extends AbstractIDLTestcase
        }
        else
        {
-           out = new CDROutputStream(org.omg.CORBA.ORB.init((String[])null, null))
+           out = new CDROutputStream()
            {
                public void write_fixed(BigDecimal value, short digits, short scale)
                {

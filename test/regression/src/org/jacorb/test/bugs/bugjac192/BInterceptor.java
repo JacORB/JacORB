@@ -1,6 +1,7 @@
 package org.jacorb.test.bugs.bugjac192;
 
 import org.jacorb.orb.CDROutputStream;
+import org.omg.CORBA.ORB;
 import org.omg.IOP.ServiceContext;
 import org.omg.PortableInterceptor.ClientRequestInfo;
 import org.omg.PortableInterceptor.ClientRequestInterceptor;
@@ -18,6 +19,13 @@ public class BInterceptor
     extends org.omg.CORBA.LocalObject
     implements ClientRequestInterceptor
 {
+    private final ORB orb;
+
+    public BInterceptor(ORB orb)
+    {
+        this.orb = orb;
+    }
+
     /**
      * <code>send_request</code>
      *
@@ -30,7 +38,8 @@ public class BInterceptor
         byte []result = null;
 
         // This part is proprietary code to marshal the service context data
-        CDROutputStream os = new CDROutputStream ();
+        final CDROutputStream os = (CDROutputStream) orb.create_output_stream();
+
         os.write_boolean (true);
         result = os.getBufferCopy();
         os.close();

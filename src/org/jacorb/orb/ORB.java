@@ -148,9 +148,6 @@ public final class ORB
 
     private GIOPConnectionManager giop_connection_manager = null;
 
-    /** buffer mgmt. */
-    private BufferManager bufferManager;
-
     /**
      * Maps repository ids (strings) to objects that implement
      * org.omg.CORBA.portable.ValueFactory.  This map is used by
@@ -284,18 +281,6 @@ public final class ORB
 
         printVersion(configuration);
 
-        BufferManager.configure( configuration);
-
-        try
-        {
-            bufferManager = BufferManager.getInstance();
-        }
-        catch( BAD_INV_ORDER b)
-        {
-            logger.error("unexpected exception", b);
-            throw new INTERNAL(b.toString());
-        }
-
         configureObjectKeyMap(configuration);
 
         if (poolManagerFactory != null)
@@ -312,6 +297,7 @@ public final class ORB
         }
 
         poolManagerFactory = new RPPoolManagerFactory(this);
+        
     }
 
     /**
@@ -2634,5 +2620,4 @@ public final class ORB
     {
         return implName;
     }
-
 }

@@ -350,10 +350,10 @@ public final class Delegate
                 try
                 {
                     LocateRequestOutputStream lros =
-                        new LocateRequestOutputStream
-                            ( _pior.get_object_key(),
-                              connection.getId(),
-                              _pior.getEffectiveProfile().version().minor );
+                        new LocateRequestOutputStream( orb,
+                                                       _pior.get_object_key(),
+                                                       connection.getId(),
+                                                       _pior.getEffectiveProfile().version().minor );
 
                     LocateReplyReceiver receiver =
                         new LocateReplyReceiver(orb);

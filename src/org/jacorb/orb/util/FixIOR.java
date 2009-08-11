@@ -118,30 +118,37 @@ public class FixIOR
                 body10 = ProfileBody_1_0Helper.read (is);
                 is.close ();
 
-                os = new CDROutputStream ();
-                os.beginEncapsulatedArray ();
+                os = (CDROutputStream) orb.create_output_stream();
 
-                if (body10.iiop_version.minor > 0)
+                try
                 {
-                    is = new CDRInputStream (orb, profiles[i].profile_data);
-                    is.openEncapsulatedArray ();
-                    body11 = ProfileBody_1_1Helper.read (is);
-                    is.close ();
+                    os.beginEncapsulatedArray ();
 
-                    body11.host = host;
-                    body11.port = port;
+                    if (body10.iiop_version.minor > 0)
+                    {
+                        is = new CDRInputStream (orb, profiles[i].profile_data);
+                        is.openEncapsulatedArray ();
+                        body11 = ProfileBody_1_1Helper.read (is);
+                        is.close ();
 
-                    ProfileBody_1_1Helper.write (os, body11);
+                        body11.host = host;
+                        body11.port = port;
+
+                        ProfileBody_1_1Helper.write (os, body11);
+                    }
+                    else
+                    {
+                        body10.host = host;
+                        body10.port = port;
+
+                        ProfileBody_1_0Helper.write (os, body10);
+                    }
+                    profiles[i].profile_data = os.getBufferCopy ();
                 }
-                else
+                finally
                 {
-                    body10.host = host;
-                    body10.port = port;
-
-                    ProfileBody_1_0Helper.write (os, body10);
+                    os.close();
                 }
-                profiles[i].profile_data = os.getBufferCopy ();
-                os.close();
             }
         }
 

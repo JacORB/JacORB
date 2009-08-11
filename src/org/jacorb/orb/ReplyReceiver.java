@@ -180,14 +180,13 @@ public class ReplyReceiver
                 case ReplyStatusType_1_2._SYSTEM_EXCEPTION:
                 {
                     ExceptionHolderImpl holder =
-                        new ExceptionHolderImpl( reply );
+                        new ExceptionHolderImpl((ORB) delegate.orb(null), reply );
 
-                    org.omg.CORBA_2_3.ORB orb =
-                        ( org.omg.CORBA_2_3.ORB )replyHandlerDelegate
-                                                              .orb( null );
+                    org.omg.CORBA_2_3.ORB orb = ( org.omg.CORBA_2_3.ORB )replyHandlerDelegate.orb( null );
+
                     orb.register_value_factory
                         ( "IDL:omg.org/Messaging/ExceptionHolder:1.0",
-                          new ExceptionHolderFactory() );
+                          new ExceptionHolderFactory((ORB)orb) );
 
                     CDRInputStream input =
                         new CDRInputStream( orb, holder.marshal() );
@@ -233,7 +232,7 @@ public class ReplyReceiver
                                                               .orb( null );
             orb.register_value_factory
                 ( "IDL:omg.org/Messaging/ExceptionHolder:1.0",
-                  new ExceptionHolderFactory() );
+                  new ExceptionHolderFactory((ORB) orb));
 
             CDRInputStream input =
                 new CDRInputStream( orb, holder.marshal() );
@@ -415,10 +414,17 @@ public class ReplyReceiver
     private static class ExceptionHolderFactory
         implements org.omg.CORBA.portable.ValueFactory
     {
+        private final ORB orb;
+
+        public ExceptionHolderFactory(ORB orb)
+        {
+            this.orb = orb;
+        }
+        
         public java.io.Serializable read_value
                         ( org.omg.CORBA_2_3.portable.InputStream is )
         {
-            ExceptionHolder result = new ExceptionHolderImpl();
+            ExceptionHolder result = new ExceptionHolderImpl(orb);
             result._read( is );
             return result;
         }
@@ -471,7 +477,7 @@ public class ReplyReceiver
                         if (replyHandler != null)
                         {
                             ExceptionHolderImpl exHolder =
-                                new ExceptionHolderImpl(new org.omg.CORBA.TIMEOUT());
+                                new ExceptionHolderImpl((ORB)delegate.orb(null), new org.omg.CORBA.TIMEOUT());
                             performExceptionCallback(exHolder);
                         }
                         ready = true;

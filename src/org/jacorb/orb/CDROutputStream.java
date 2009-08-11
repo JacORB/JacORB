@@ -32,7 +32,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Stack;
 import org.jacorb.config.*;
-import org.jacorb.ir.RepositoryID;
 import org.jacorb.orb.giop.CodeSet;
 import org.jacorb.orb.giop.GIOPConnection;
 import org.jacorb.util.ObjectUtil;
@@ -155,7 +154,7 @@ public class CDROutputStream
 
     private final List deferredArrayQueue = new ArrayList();
 
-    private org.omg.CORBA.ORB orb = null;
+    protected final org.jacorb.orb.ORBSingleton orb;
 
     protected int giop_minor = 2;
 
@@ -214,8 +213,6 @@ public class CDROutputStream
                 throw new RuntimeException();
             }
         }
-
-
     }
 
 
@@ -255,6 +252,34 @@ public class CDROutputStream
 
 
     /**
+     * internal c'tor
+     * @param orb must be a JacORB ORB
+     * @param bufferSize -1 to fetch the default buffer size,
+     *        value > 0 to specify a specific size
+     */
+    private CDROutputStream(org.omg.CORBA.ORB orb, int bufferSize)
+    {
+        super();
+
+        if (! (orb instanceof ORBSingleton))
+        {
+            throw new BAD_PARAM("don't pass in a non JacORB ORB");
+        }
+
+        this.orb = (ORBSingleton) orb;
+        bufMgr = this.orb.getBufferManager(); // the BufferManager will be configured by now!
+
+        if (bufferSize == -1)
+        {
+            buffer = bufMgr.getPreferredMemoryBuffer();
+        }
+        else
+        {
+            buffer = bufMgr.getBuffer(bufferSize, true);
+        }
+    }
+
+    /**
      * OutputStreams created using  the empty constructor are used for
      * in  memory marshaling, but do  not use the  ORB's output buffer
      * manager. A stream created with this c'tor is not explicitly
@@ -263,9 +288,7 @@ public class CDROutputStream
 
     public CDROutputStream()
     {
-        super();
-        bufMgr = BufferManager.getInstance(); // the BufferManager will be configured by now!
-        buffer = bufMgr.getPreferredMemoryBuffer();
+        this(ORB.init());
     }
 
     /**
@@ -275,10 +298,10 @@ public class CDROutputStream
      */
     public CDROutputStream(final org.omg.CORBA.ORB orb)
     {
-        this();
-        if (orb != null )
+        this(orb, -1);
+
+        if (orb instanceof org.jacorb.orb.ORB)
         {
-            this.orb = orb;
             configure(((org.jacorb.orb.ORB)orb).getConfiguration());
         }
     }
@@ -290,20 +313,23 @@ public class CDROutputStream
      *  configuration only!
      */
 
-    public CDROutputStream(final byte[] buf)
+    public CDROutputStream(int bufferSize)
     {
-        super();
+        this(ORB.init(), verifyBufferSize(bufferSize));
+    }
 
-        bufMgr = BufferManager.getInstance();
-        buffer = buf;
+    private static int verifyBufferSize(int bufferSize)
+    {
+        if (bufferSize < 1)
+        {
+            throw new IllegalArgumentException("buffer should have at least size 1");
+        }
+
+        return bufferSize;
     }
 
     public org.omg.CORBA.ORB orb()
     {
-        if (orb == null)
-        {
-            orb = org.omg.CORBA.ORB.init((String[])null, null);
-        }
         return orb;
     }
 
@@ -777,7 +803,7 @@ public class CDROutputStream
             return new CDRInputStream(orb(), baos.toByteArray());
         }
 
-        byte[] result = new byte[index + 1];
+        final byte[] result = new byte[index];
         System.arraycopy(buffer, 0, result, 0, result.length);
         return new CDRInputStream(orb, result);
     }

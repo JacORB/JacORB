@@ -86,6 +86,8 @@ public class ClientServerSetup extends TestSetup {
 
     private ClientServerSetup imrSetup;
 
+    private String ior;
+
     /**
      * Constructs a new ClientServerSetup that is wrapped
      * around the specified Test.  When the test is run,
@@ -190,6 +192,8 @@ public class ClientServerSetup extends TestSetup {
 
     protected void resolveServerObject(String ior)
     {
+        this.ior = ior;
+
         serverObject = clientORBSetup.getORB().string_to_object(ior);
     }
 
@@ -219,6 +223,11 @@ public class ClientServerSetup extends TestSetup {
 
     protected final void shutdownClientORB()
     {
+    }
+
+    public String getServerIOR()
+    {
+        return ior;
     }
 
     /**

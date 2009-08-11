@@ -162,7 +162,7 @@ public class SASClientInterceptor
         try
         {
             TaggedComponent tc = ri.get_effective_component(TAG_CSI_SEC_MECH_LIST.value);
-            CDRInputStream is = new CDRInputStream( (org.omg.CORBA.ORB)null, tc.component_data);
+            CDRInputStream is = new CDRInputStream(tc.component_data);
             is.openEncapsulatedArray();
             csmList = CompoundSecMechListHelper.read( is );
         }

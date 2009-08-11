@@ -111,7 +111,7 @@ public class CodeSet
         {
             if (cs == KNOWN_ENCODINGS[i].getId()) return KNOWN_ENCODINGS[i].getName();
         }
-        return "Unknown TCS: " + toCodeSetString( cs );
+        return "Unknown TCS: 0x" + Integer.toHexString(cs);
     }
 
 
@@ -280,23 +280,6 @@ public class CodeSet
         return nativeCodeSetWchar;
     }
 
-    public static ServiceContext createCodesetContext( CodeSet tcs, CodeSet tcsw )
-    {
-        // encapsulate context
-        final CDROutputStream os = new CDROutputStream();
-        try
-        {
-            os.beginEncapsulatedArray();
-            CodeSetContextHelper.write( os, new CodeSetContext( tcs.getId(), tcsw.getId() ));
-
-            return new ServiceContext( TAG_CODE_SETS.value, os.getBufferCopy() );
-        }
-        finally
-        {
-            os.close();
-        }
-    }
-
     public static CodeSetContext getCodeSetContext( ServiceContext[] contexts )
     {
         for( int i = 0; i < contexts.length; i++ )
@@ -304,7 +287,7 @@ public class CodeSet
             if( contexts[i].context_id == TAG_CODE_SETS.value )
             {
                 // TAG_CODE_SETS found, demarshall
-                CDRInputStream is = new CDRInputStream( null, contexts[i].context_data );
+                CDRInputStream is = new CDRInputStream( contexts[i].context_data );
                 is.openEncapsulatedArray();
 
                 return CodeSetContextHelper.read( is );

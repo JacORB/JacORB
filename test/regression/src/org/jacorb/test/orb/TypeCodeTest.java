@@ -54,7 +54,7 @@ public class TypeCodeTest extends ORBTestCase
             new org.jacorb.orb.CDROutputStream(orb);
         out.write_TypeCode(outerTc);
         org.jacorb.orb.CDRInputStream in =
-            new org.jacorb.orb.CDRInputStream(this.orb, out.getBufferCopy());
+            new org.jacorb.orb.CDRInputStream(orb, out.getBufferCopy());
 
         out = new org.jacorb.orb.CDROutputStream(orb);
 

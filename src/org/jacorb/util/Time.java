@@ -162,9 +162,7 @@ public class Time
      */
     public static byte[] toCDR(UtcT time)
     {
-        // TODO: make this more efficient with mere bit shifting
-        byte[] buffer = new byte[25];
-        CDROutputStream out = new CDROutputStream(buffer);
+        CDROutputStream out = new CDROutputStream(25);
         out.beginEncapsulatedArray();
         UtcTHelper.write(out, time);
         return out.getBufferCopy();
@@ -175,7 +173,7 @@ public class Time
      */
     public static UtcT fromCDR(byte[] buffer)
     {
-        CDRInputStream in = new CDRInputStream(null, buffer);
+        CDRInputStream in = new CDRInputStream(buffer);
         in.openEncapsulatedArray();
         return UtcTHelper.read(in);
     }

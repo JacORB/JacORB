@@ -31,6 +31,7 @@ import org.jacorb.orb.giop.ReplyInputStream;
 import org.jacorb.util.ObjectUtil;
 import org.omg.CORBA.BAD_PARAM;
 import org.omg.CORBA.ExceptionList;
+import org.omg.CORBA.INTERNAL;
 import org.omg.CORBA.UserException;
 import org.omg.GIOP.ReplyStatusType_1_2;
 
@@ -47,13 +48,16 @@ public class ExceptionHolderImpl
     implements Configurable
 {
     private Logger logger = null;
+    private final ORB orb;
 
     /**
      * No-arg constructor for demarshaling.
      */
-    public ExceptionHolderImpl()
+    public ExceptionHolderImpl(ORB orb)
     {
         super();
+
+        this.orb = orb;
     }
 
     /**
@@ -62,9 +66,9 @@ public class ExceptionHolderImpl
      * either USER_EXCEPTION or SYSTEM_EXCEPTION.  If it has another
      * status, a RuntimeException is thrown.
      */
-    public ExceptionHolderImpl( ReplyInputStream inputStream )
+    public ExceptionHolderImpl(ORB orb, ReplyInputStream inputStream )
     {
-        this();
+        this(orb);
 
         int status = inputStream.getStatus().value();
         if ( status == ReplyStatusType_1_2._USER_EXCEPTION )
@@ -84,23 +88,23 @@ public class ExceptionHolderImpl
         marshaled_exception = inputStream.getBody();
     }
 
-    public ExceptionHolderImpl(org.omg.CORBA.SystemException exception)
+    public ExceptionHolderImpl(ORB orb, org.omg.CORBA.SystemException exception)
     {
-        this();
+        this(orb);
 
         is_system_exception = true;
         byte_order          = false;
 
-        final CDROutputStream output = new CDROutputStream();
+        final CDROutputStream out = new CDROutputStream(orb);
 
         try
         {
-            SystemExceptionHelper.write(output, exception);
-            marshaled_exception = output.getBufferCopy();
+            SystemExceptionHelper.write(out, exception);
+            marshaled_exception = out.getBufferCopy();
         }
         finally
         {
-            output.close();
+            out.close();
         }
     }
 
@@ -116,7 +120,7 @@ public class ExceptionHolderImpl
         throws UserException
     {
         final CDRInputStream input =
-            new CDRInputStream (marshaled_exception, byte_order);
+            new CDRInputStream (orb, marshaled_exception, byte_order);
 
         try
         {
@@ -134,16 +138,20 @@ public class ExceptionHolderImpl
             }
             catch( IOException e )
             {
-                logger.warn( "Unexpected IOException: ", e);
+                logger.error( "Unexpected IOException: ", e);
+
+                throw new INTERNAL("Unexpected IOException: " + e);
             }
 
-            org.omg.CORBA.UserException result = null;
+            final UserException result;
             try
             {
                 result = exceptionFromHelper( id, input );
             }
             catch( Exception e )
             {
+                logger.error("error reading exception", e);
+
                 throw new org.omg.CORBA.UnknownUserException();
             }
             throw result;
@@ -216,15 +224,15 @@ public class ExceptionHolderImpl
      */
     public byte[] marshal()
     {
-         final CDROutputStream output = new CDROutputStream();
+         final CDROutputStream out = new CDROutputStream( orb );
          try
          {
-             output.write_value( this, "IDL:omg.org/Messaging/ExceptionHolder:1.0" );
-             return output.getBufferCopy();
+             out.write_value( this, "IDL:omg.org/Messaging/ExceptionHolder:1.0" );
+             return out.getBufferCopy();
          }
          finally
          {
-             output.close();
+             out.close();
          }
     }
 }

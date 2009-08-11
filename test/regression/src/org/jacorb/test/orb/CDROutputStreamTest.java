@@ -26,6 +26,8 @@ import junit.framework.TestSuite;
 import org.jacorb.orb.CDROutputStream;
 import org.jacorb.orb.giop.CodeSet;
 import org.jacorb.test.common.ORBTestCase;
+import org.jacorb.test.common.TestUtils;
+import org.omg.CORBA.BAD_PARAM;
 
 import java.util.Arrays;
 
@@ -271,8 +273,24 @@ public class CDROutputStreamTest extends ORBTestCase
     }
 
 
-    public static Test suite()
+    public void testDoesNotLikeNonJacORB()
     {
-        return new TestSuite(CDROutputStreamTest.class);
+        org.omg.CORBA.ORB sunORB = org.omg.CORBA.ORB.init(new String[0], TestUtils.newSunORBProperties());
+
+        try
+        {
+            try
+            {
+                new CDROutputStream(sunORB);
+            }
+            catch(BAD_PARAM e)
+            {
+
+            }
+        }
+        finally
+        {
+            orb.shutdown(true);
+        }
     }
 }

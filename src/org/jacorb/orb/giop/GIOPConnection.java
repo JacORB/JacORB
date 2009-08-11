@@ -621,7 +621,7 @@ public abstract class GIOPConnection
                         }
 
                         MessageOutputStream out =
-                            new MessageOutputStream();
+                            new MessageOutputStream( orb );
                         out.writeGIOPMsgHeader( MsgType_1_1._MessageError,
                                                 0 );
                         out.insertMsgSize();
@@ -649,7 +649,7 @@ public abstract class GIOPConnection
                             }
 
                             MessageOutputStream out =
-                                new MessageOutputStream();
+                                new MessageOutputStream( orb );
                             out.writeGIOPMsgHeader( MsgType_1_1._MessageError,
                                                     1 );
                             out.insertMsgSize();
@@ -710,7 +710,7 @@ public abstract class GIOPConnection
                         }
 
                         MessageOutputStream out =
-                            new MessageOutputStream();
+                            new MessageOutputStream( orb );
                         out.writeGIOPMsgHeader( MsgType_1_1._MessageError,
                                                 1 );
                         out.insertMsgSize();

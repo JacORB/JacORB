@@ -639,7 +639,7 @@ public class IIOPProfile
             try
             {
                 byte[] tagData = sas.mechanism_list[0].transport_mech.component_data;
-                final CDRInputStream in = new CDRInputStream( null, tagData );
+                final CDRInputStream in = new CDRInputStream( tagData );
                 try
                 {
                     in.openEncapsulatedArray();

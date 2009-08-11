@@ -23,7 +23,6 @@ package org.jacorb.orb.giop;
 import java.io.IOException;
 
 import org.slf4j.Logger;
-import org.jacorb.orb.ORB;
 import org.jacorb.orb.SystemExceptionHelper;
 import org.omg.CORBA.MARSHAL;
 import org.omg.GIOP.LocateStatusType_1_2;
@@ -42,7 +41,7 @@ public class ReplyOutputStream
     private final boolean is_locate_reply;
     private final Logger logger;
 
-    public ReplyOutputStream ( ORB orb,
+    public ReplyOutputStream ( org.omg.CORBA.ORB orb,
                                int request_id,
                                ReplyStatusType_1_2 reply_status,
                                int giop_minor,
@@ -123,7 +122,7 @@ public class ReplyOutputStream
     {
         if( is_locate_reply )
         {
-            final ReplyInputStream in = new ReplyInputStream( null, getBufferCopy() );
+            final ReplyInputStream in = new ReplyInputStream( orb, getBufferCopy() );
             try
             {
                 final LocateReplyOutputStream out = getLocateReplyOutputStream(in);
@@ -172,7 +171,8 @@ public class ReplyOutputStream
                         status = LocateStatusType_1_2._OBJECT_HERE;
                     }
 
-                    result = new LocateReplyOutputStream( replyInputStream.rep_hdr.request_id,
+                    result = new LocateReplyOutputStream( orb,
+                                                          replyInputStream.rep_hdr.request_id,
                                                           status,
                                                           replyInputStream.getGIOPMinor() );
 
@@ -194,7 +194,8 @@ public class ReplyOutputStream
                     // LOC_SYSTEM_EXCEPTION, so we have to return
                     // OBJECT_UNKNOWN (even if it may not be unknown)
                     result =
-                        new LocateReplyOutputStream( replyInputStream.rep_hdr.request_id,
+                        new LocateReplyOutputStream( orb,
+                                                     replyInputStream.rep_hdr.request_id,
                                                      LocateStatusType_1_2._UNKNOWN_OBJECT,
                                                      replyInputStream.getGIOPMinor() );
                     break;
@@ -203,7 +204,8 @@ public class ReplyOutputStream
                 {
 
                     result =
-                        new LocateReplyOutputStream( replyInputStream.rep_hdr.request_id,
+                        new LocateReplyOutputStream( orb,
+                                                     replyInputStream.rep_hdr.request_id,
                                                      LocateStatusType_1_2._OBJECT_FORWARD,
                                                      replyInputStream.getGIOPMinor() );
 
@@ -240,7 +242,8 @@ public class ReplyOutputStream
                         status = LocateStatusType_1_2._OBJECT_HERE;
                     }
 
-                    result = new LocateReplyOutputStream( replyInputStream.rep_hdr.request_id,
+                    result = new LocateReplyOutputStream( orb,
+                                                          replyInputStream.rep_hdr.request_id,
                                                           status,
                                                           replyInputStream.getGIOPMinor() );
 
@@ -255,7 +258,8 @@ public class ReplyOutputStream
                     }
 
                     result =
-                    new LocateReplyOutputStream( replyInputStream.rep_hdr.request_id,
+                    new LocateReplyOutputStream( orb,
+                                                 replyInputStream.rep_hdr.request_id,
                                                  LocateStatusType_1_2._LOC_SYSTEM_EXCEPTION,
                                                  replyInputStream.getGIOPMinor() );
 
@@ -268,7 +272,8 @@ public class ReplyOutputStream
 
 
                     result =
-                    new LocateReplyOutputStream( replyInputStream.rep_hdr.request_id,
+                    new LocateReplyOutputStream( orb,
+                                                 replyInputStream.rep_hdr.request_id,
                                                  LocateStatusType_1_2._LOC_SYSTEM_EXCEPTION,
                                                  replyInputStream.getGIOPMinor() );
 
@@ -282,7 +287,8 @@ public class ReplyOutputStream
                 {
 
                     result =
-                    new LocateReplyOutputStream( replyInputStream.rep_hdr.request_id,
+                    new LocateReplyOutputStream( orb,
+                                                 replyInputStream.rep_hdr.request_id,
                                                  LocateStatusType_1_2._OBJECT_FORWARD,
                                                  replyInputStream.getGIOPMinor() );
 

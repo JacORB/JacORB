@@ -37,11 +37,12 @@ public class LocateRequestOutputStream
 {
     private final int request_id;
 
-    public LocateRequestOutputStream( byte[] object_key,
+    public LocateRequestOutputStream( org.omg.CORBA.ORB orb,
+                                      byte[] object_key,
                                       int request_id,
                                       int giop_minor )
     {
-        super();
+        super(orb);
 
         this.request_id = request_id;
 

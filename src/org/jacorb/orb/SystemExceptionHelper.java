@@ -192,7 +192,7 @@ public class SystemExceptionHelper
                 final ServiceContext context = input.getServiceContext(ExceptionDetailMessage.value);
                 if (context != null)
                 {
-                    final CDRInputStream data = new CDRInputStream(null, context.context_data);
+                    final CDRInputStream data = new CDRInputStream(context.context_data);
 
                     try
                     {

@@ -708,7 +708,7 @@ public class ServerRequest
         ServiceContext ctx = inputStream.getServiceContext(INVOCATION_POLICIES.value);
         if (ctx != null)
         {
-            final CDRInputStream input = new CDRInputStream (null, ctx.context_data);
+            final CDRInputStream input = new CDRInputStream (ctx.context_data);
 
             try
             {

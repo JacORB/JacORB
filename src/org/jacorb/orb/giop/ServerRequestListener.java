@@ -160,9 +160,10 @@ public class ServerRequestListener
             if( inputStream.isLocateRequest() )
             {
                 LocateReplyOutputStream lr_out =
-                new LocateReplyOutputStream(inputStream.req_hdr.request_id,
-                                            LocateStatusType_1_2._UNKNOWN_OBJECT,
-                                            inputStream.getGIOPMinor() );
+                new LocateReplyOutputStream( orb,
+                                             inputStream.req_hdr.request_id,
+                                             LocateStatusType_1_2._UNKNOWN_OBJECT,
+                                             inputStream.getGIOPMinor() );
 
                 try
                 {

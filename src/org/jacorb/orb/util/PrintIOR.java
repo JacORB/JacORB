@@ -324,8 +324,7 @@ public class PrintIOR
     private static void printCSIMechComponent( TaggedComponent taggedComponent, PrintWriter out)
     {
         final CDRInputStream is =
-            new CDRInputStream( (org.omg.CORBA.ORB)null,
-                    taggedComponent.component_data);
+            new CDRInputStream(taggedComponent.component_data);
 
         try
         {
@@ -386,7 +385,8 @@ public class PrintIOR
         }
     }
 
-    private static void printNTExportedName(byte[] nameData, PrintWriter out) {
+    private static void printNTExportedName(byte[] nameData, PrintWriter out) 
+    {
         // check for token identifier
         if (nameData.length < 2 || nameData[0] != 0x04 || nameData[1] != 0x01)
         {
@@ -420,8 +420,9 @@ public class PrintIOR
         out.println(new String(name));
     }
 
-    private static void printTlsSecTrans(byte[] tagData, PrintWriter out) {
-        CDRInputStream in = new CDRInputStream( (org.omg.CORBA.ORB)null, tagData );
+    private static void printTlsSecTrans(byte[] tagData, PrintWriter out) 
+    {
+        CDRInputStream in = new CDRInputStream(tagData );
 
         try
         {
@@ -451,8 +452,7 @@ public class PrintIOR
     private static void printCodeSetComponent( TaggedComponent taggedComponent, PrintWriter out)
     {
         final CDRInputStream is =
-            new CDRInputStream( (org.omg.CORBA.ORB)null,
-                    taggedComponent.component_data);
+            new CDRInputStream(taggedComponent.component_data);
 
         try
         {
@@ -509,9 +509,7 @@ public class PrintIOR
         org.omg.SSLIOP.SSL  ssl = null;
         if( taggedComponent.tag == 20 )
         {
-            CDRInputStream in =
-            new CDRInputStream( (org.omg.CORBA.ORB)null,
-                                taggedComponent.component_data );
+            CDRInputStream in = new CDRInputStream(taggedComponent.component_data );
             try
             {
                 in.openEncapsulatedArray();
@@ -666,8 +664,7 @@ public class PrintIOR
 
     private static void printJavaCodebaseComponent( TaggedComponent taggedComponent, PrintWriter out)
     {
-        final CDRInputStream in = new CDRInputStream( (org.omg.CORBA.ORB)null,
-                            taggedComponent.component_data );
+        final CDRInputStream in = new CDRInputStream( taggedComponent.component_data );
 
         try
         {
@@ -684,7 +681,7 @@ public class PrintIOR
 
     private static void printOrbTypeComponent (TaggedComponent taggedComponent, PrintWriter out)
     {
-        final CDRInputStream is = new CDRInputStream ((org.omg.CORBA.ORB)null, taggedComponent.component_data );
+        final CDRInputStream is = new CDRInputStream ( taggedComponent.component_data );
 
         try
         {
@@ -709,7 +706,7 @@ public class PrintIOR
 
     private static void printAlternateAddress(TaggedComponent taggedComponent, PrintWriter out)
     {
-        final CDRInputStream is = new CDRInputStream((org.omg.CORBA.ORB)null, taggedComponent.component_data);
+        final CDRInputStream is = new CDRInputStream(taggedComponent.component_data);
 
         try
         {
@@ -845,7 +842,7 @@ public class PrintIOR
 
     private static void printPolicyComponent (TaggedComponent taggedComponent, PrintWriter out)
     {
-        final CDRInputStream is = new CDRInputStream ((org.omg.CORBA.ORB)null, taggedComponent.component_data);
+        final CDRInputStream is = new CDRInputStream (taggedComponent.component_data);
 
         try
         {

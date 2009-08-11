@@ -36,11 +36,6 @@ import org.jacorb.orb.CDROutputStream;
 public class MessageOutputStream
     extends CDROutputStream
 {
-    public MessageOutputStream()
-    {
-        this( (org.omg.CORBA.ORB) null );
-    }
-
     public MessageOutputStream(org.omg.CORBA.ORB orb)
     {
         super(orb);

@@ -42,6 +42,7 @@ import org.jacorb.imr.RegistrationPackage.IllegalHostName;
 import org.jacorb.imr.RegistrationPackage.IllegalPOAName;
 import org.jacorb.imr.RegistrationPackage.InvalidSSDRef;
 import org.jacorb.orb.LocateReplyReceiver;
+import org.jacorb.orb.ORB;
 import org.jacorb.orb.ParsedIOR;
 import org.jacorb.orb.SystemExceptionHelper;
 import org.jacorb.orb.giop.ClientConnection;
@@ -1296,7 +1297,7 @@ public class ImplementationRepositoryImpl
 
         try
         {
-            lros = new LocateRequestOutputStream (object_key, connection.getId(), 2);
+            lros = new LocateRequestOutputStream ( orb, object_key, connection.getId(), 2);
             receiver = new LocateReplyReceiver((org.jacorb.orb.ORB)orb);
 
             connection.sendRequest(
@@ -1539,7 +1540,7 @@ public class ImplementationRepositoryImpl
                 addr.configure(configuration);
                 IIOPProfile p = new IIOPProfile (addr,object_key,giop_minor);
                 p.configure(configuration);
-                _ior = ParsedIOR.createObjectIOR(p);
+                _ior = ParsedIOR.createObjectIOR ((ORB)orb, p);
             }
             catch(ConfigurationException e)
             {

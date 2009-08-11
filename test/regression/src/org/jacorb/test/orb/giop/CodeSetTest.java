@@ -67,7 +67,7 @@ public class CodeSetTest extends ORBTestCase
         assertEquals( "Latin-1 set name", "ISO8859_1",               CodeSet.csName( ISO8859_1_ID ) );
         assertEquals( "UTF-8 set name",   "UTF8",                    CodeSet.csName( UTF8_ID ) );
         assertEquals( "UTF-16 set name",  "UTF16",                   CodeSet.csName( UTF16_ID ) );
-        assertEquals( "Unknown set name", "Unknown TCS: 0x0000babe", CodeSet.csName( 0x0000BABE ) );
+        assertEquals( "Unknown set name", "Unknown TCS: 0xbabe",     CodeSet.csName( 0x0000BABE ) );
     }
 
 
