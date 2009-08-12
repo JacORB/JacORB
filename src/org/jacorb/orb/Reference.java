@@ -24,7 +24,7 @@ package org.jacorb.orb;
  */
 
 public class Reference
-    extends @EXTENDS
+    extends javax.rmi.CORBA.Stub implements java.rmi.Remote
 {
     private String[] ids = {"","IDL:omg.org/CORBA/Object:1.0"};
     public String[] _ids()
