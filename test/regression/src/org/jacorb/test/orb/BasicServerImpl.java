@@ -286,4 +286,14 @@ public class BasicServerImpl extends BasicServerPOA
     {
         return 1.5E-1F;
     }
+
+    public String bounce_string(String value)
+    {
+        return value;
+    }
+
+    public String bounce_wstring(String value)
+    {
+        return value;
+    }
 }
