@@ -162,10 +162,17 @@ public class Time
      */
     public static byte[] toCDR(UtcT time)
     {
-        CDROutputStream out = new CDROutputStream(25);
-        out.beginEncapsulatedArray();
-        UtcTHelper.write(out, time);
-        return out.getBufferCopy();
+        final CDROutputStream out = new CDROutputStream();
+        try
+        {
+            out.beginEncapsulatedArray();
+            UtcTHelper.write(out, time);
+            return out.getBufferCopy();
+        }
+        finally
+        {
+            out.close();
+        }
     }
 
     /**
@@ -173,9 +180,16 @@ public class Time
      */
     public static UtcT fromCDR(byte[] buffer)
     {
-        CDRInputStream in = new CDRInputStream(buffer);
-        in.openEncapsulatedArray();
-        return UtcTHelper.read(in);
+        final CDRInputStream in = new CDRInputStream(buffer);
+        try
+        {
+            in.openEncapsulatedArray();
+            return UtcTHelper.read(in);
+        }
+        finally
+        {
+            in.close();
+        }
     }
 
     /**
