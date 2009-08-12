@@ -34,11 +34,6 @@ public class BiDirSetup extends ClientServerSetup
               clientProperties, serverProperties);
     }
 
-    public String getTestServerMain()
-    {
-        return "org.jacorb.test.orb.connection.BiDirServerImpl";
-    }
-
     protected void doSetUp() throws Exception
     {
         ORB clientOrb = getClientOrb();
