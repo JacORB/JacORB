@@ -56,27 +56,42 @@ public class IIOPProfile
 {
     private IIOPAddress  primaryAddress = null;
     private Logger       logger;
+    private SSL ssl = null;
+    private boolean isSSLSet;
+
 
     /** the following is used as a bit mask to check if any of these options are set */
     private static final int MINIMUM_OPTIONS = Integrity.value | Confidentiality.value | DetectReplay.value |
                                                DetectMisordering.value | EstablishTrustInTarget.value | EstablishTrustInClient.value;
 
+    /**
+     * flag to specify if we should check
+     * components for alternate addresses.
+     * @see getAlternateAddress()
+     */
+    private final boolean checkAlternateAddresses;
+
+    private IIOPProfile(boolean checkAlternateAddresses)
+    {
+        super();
+        this.checkAlternateAddresses = checkAlternateAddresses;
+    }
 
     public IIOPProfile()
     {
-        super();
+        this(true);
     }
 
     public IIOPProfile(byte[] data)
     {
-        this();
+        this(true);
 
         initFromProfileData(data);
     }
 
     public IIOPProfile(IIOPAddress address, byte[] objectKey, int minor)
     {
-        this();
+        this(false);
 
         this.version        = new org.omg.GIOP.Version((byte)1,(byte)minor);
         this.primaryAddress = address;
@@ -95,7 +110,7 @@ public class IIOPProfile
      */
     public IIOPProfile(String corbaloc)
     {
-        this();
+        this(false);
 
         this.version = null;
         this.primaryAddress = null;
@@ -242,14 +257,12 @@ public class IIOPProfile
         this.components = new TaggedComponentList();
         if (ident.equals("ssliop"))
         {
-            SSL ssl = new SSL();
+            ssl = new SSL();
             ssl.port = (short)primaryAddress.getPort();
-            String propname =
-                "jacorb.security.ssl.corbaloc_ssliop.supported_options";
-            ssl.target_supports = get_ssl_options(propname);
-            propname =
-                "jacorb.security.ssl.corbaloc_ssliop.required_options";
-            ssl.target_requires = get_ssl_options(propname);
+            ssl.target_supports = get_ssl_options("jacorb.security.ssl.corbaloc_ssliop.supported_options");
+            ssl.target_requires = get_ssl_options("jacorb.security.ssl.corbaloc_ssliop.required_options");
+
+            isSSLSet = true;
 
             //create the tagged component containing the ssl struct
             final CDROutputStream out = new CDROutputStream();
@@ -501,16 +514,28 @@ public class IIOPProfile
 
     public List getAlternateAddresses()
     {
-        return components.getComponents(TAG_ALTERNATE_IIOP_ADDRESS.value,
-                                        IIOPAddress.class);
+        if (checkAlternateAddresses)
+        {
+            return components.getComponents(TAG_ALTERNATE_IIOP_ADDRESS.value,
+                                            IIOPAddress.class);
+        }
+        else
+        {
+            return Collections.EMPTY_LIST;
+        }
     }
 
     public SSL getSSL()
     {
-        // TAG_SSL_SEC_TRANS must be disambiguated in case OpenORB-generated
-        // OMG classes are in the classpath.
-        return (SSL)components.getComponent( org.omg.SSLIOP.TAG_SSL_SEC_TRANS.value,
-                                             SSLHelper.class );
+        if (!isSSLSet)
+        {
+            // TAG_SSL_SEC_TRANS must be disambiguated in case OpenORB-generated
+            // OMG classes are in the classpath.
+            ssl = (SSL)components.getComponent( org.omg.SSLIOP.TAG_SSL_SEC_TRANS.value,
+                                                SSLHelper.class );
+            isSSLSet = true;
+        }
+        return ssl;
     }
 
 
@@ -527,7 +552,8 @@ public class IIOPProfile
         }
         else
         {
-            SSL ssl = getSSL();
+            getSSL();
+
             if (ssl != null)
             {
                 return adjustedPortNum( ssl.port );

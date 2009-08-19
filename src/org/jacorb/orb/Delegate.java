@@ -54,6 +54,7 @@ import org.omg.CORBA.portable.ApplicationException;
 import org.omg.CORBA.portable.RemarshalException;
 import org.omg.CORBA.portable.ServantObject;
 import org.omg.GIOP.LocateStatusType_1_2;
+import org.omg.IOP.IOR;
 import org.omg.Messaging.RELATIVE_REQ_TIMEOUT_POLICY_TYPE;
 import org.omg.Messaging.RELATIVE_RT_TIMEOUT_POLICY_TYPE;
 import org.omg.Messaging.REPLY_END_TIME_POLICY_TYPE;
@@ -84,15 +85,13 @@ import org.omg.TimeBase.UtcT;
 
 public final class Delegate
     extends org.omg.CORBA_2_3.portable.Delegate
-    implements Configurable
 {
     // WARNING: DO NOT USE _pior DIRECTLY, BECAUSE THAT IS NOT MT
     // SAFE. USE getParsedIOR() INSTEAD, AND KEEP A METHOD-LOCAL COPY
     // OF THE REFERENCE.
     private ParsedIOR _pior = null;
-    private org.omg.IOP.IOR ior = null;
+    private IOR ior = null;
     private ClientConnection connection = null;
-    private String objectReference = null;
 
     /* save original ior for fallback */
     private ParsedIOR piorOriginal = null;
@@ -107,7 +106,7 @@ public final class Delegate
     private org.jacorb.poa.POA poa;
 
     private final org.jacorb.orb.ORB orb;
-    private Logger logger = null;
+    private final Logger logger;
 
     /** set after the first attempt to determine whether
         this reference is to a local object */
@@ -138,10 +137,10 @@ public final class Delegate
     private static final ThreadLocal localInterceptors = new ThreadLocal();
 
     /** the configuration object for this delegate */
-    private Configuration configuration = null;
+    private final Configuration configuration;
 
     /** configuration properties */
-    private boolean useIMR;
+    private final boolean useIMR;
     private boolean locateOnBind;
 
     /**
@@ -179,84 +178,51 @@ public final class Delegate
 
     /* constructors: */
 
-    private Delegate(ORB orb)
+    private Delegate(ORB orb, Configuration config)
     {
         super();
 
         this.orb = orb;
+        configuration = config;
+
+        conn_mg = orb.getClientConnectionManager();
+
+        logger = ((Configuration)config).getLogger("jacorb.orb.delegate");
+        useIMR =
+            config.getAttributeAsBoolean("jacorb.use_imr", false);
+        locateOnBind =
+            config.getAttributeAsBoolean("jacorb.locate_on_bind", false);
+    }
+
+    private Delegate(ORB orb)
+    {
+        this(orb, orb.getConfiguration());
     }
 
     public Delegate ( org.jacorb.orb.ORB orb, ParsedIOR pior )
     {
         this(orb);
         _pior = pior;
-
         checkIfImR( _pior.getTypeId() );
-        conn_mg = orb.getClientConnectionManager();
     }
 
-    public Delegate( org.jacorb.orb.ORB orb, String object_reference )
+    public Delegate(org.jacorb.orb.ORB orb, IOR ior, boolean parseIORLazy)
     {
         this(orb);
+        this.ior = ior;
 
-        if ( object_reference.indexOf( "IOR:" ) != 0 )
+        if (!parseIORLazy)
         {
-            throw new org.omg.CORBA.INV_OBJREF( "Not an IOR: " +
-                                                object_reference );
+            // postpone parsing of IOR.
+            // see getParsedIOR
+            _pior = new ParsedIOR( orb, ior );
         }
-
-        this.objectReference = object_reference;
-        conn_mg = orb.getClientConnectionManager();
+        checkIfImR( ior.type_id );
     }
 
     public Delegate(org.jacorb.orb.ORB orb, org.omg.IOP.IOR ior)
     {
-        this(orb);
-        this.ior = ior;
-        conn_mg = orb.getClientConnectionManager();
-    }
-
-    /**
-     * special constructor for appligator
-     */
-    public Delegate( org.jacorb.orb.ORB orb,
-                     String object_reference,
-                     boolean _donotcheckexceptions )
-    {
-        this( orb, object_reference );
-        doNotCheckExceptions = _donotcheckexceptions;
-    }
-
-
-    public void configure(Configuration config) throws ConfigurationException
-    {
-        this.configuration = config;
-        logger =
-            ((Configuration)config).getLogger("jacorb.orb.delegate");
-        useIMR =
-            config.getAttribute("jacorb.use_imr","off").equals("on");
-        locateOnBind =
-            config.getAttribute("jacorb.locate_on_bind","off").equals("on");
-
-        if (objectReference != null)
-        {
-            _pior = new ParsedIOR( orb, objectReference);
-        }
-        else if (ior!=null)
-        {
-            _pior = new ParsedIOR( orb, ior);
-        }
-        else if (_pior == null )
-        {
-            throw new ConfigurationException("Neither objectReference nor IOR set!");
-        }
-        checkIfImR( _pior.getTypeId() );
-   }
-
-
-    public boolean doNotCheckExceptions()
-    {
-        return doNotCheckExceptions;
+        this(orb, ior, false);
     }
 
     /**

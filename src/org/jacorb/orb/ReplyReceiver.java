@@ -294,11 +294,9 @@ public class ReplyReceiver
             throw new RemarshalException();
         }
 
-        ReplyInputStream reply = ( ReplyInputStream ) in;
+        final ReplyInputStream reply = ( ReplyInputStream ) in;
 
-        ReplyStatusType_1_2 status = delegate.doNotCheckExceptions()
-                                     ? ReplyStatusType_1_2.NO_EXCEPTION
-                                     : reply.getStatus();
+        final ReplyStatusType_1_2 status = reply.getStatus();
 
         switch ( status.value() )
         {

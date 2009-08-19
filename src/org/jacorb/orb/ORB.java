@@ -170,7 +170,7 @@ public final class ORB
     public String[] _args;
 
     /* for run() and shutdown()  */
-    private final Object runSync = new java.lang.Object();
+    private final Object runSync = new Object();
     private boolean run = true;
 
     private boolean shutdown_in_progress = false;
@@ -454,15 +454,7 @@ public final class ORB
             }
         }
 
-        org.jacorb.orb.Delegate d = new Delegate(this, pior );
-        try
-        {
-            d.configure(configuration);
-        }
-        catch(ConfigurationException ce)
-        {
-            logger.error("ConfigurationException", ce);
-        }
+        final org.jacorb.orb.Delegate d = new Delegate(this, pior );
 
         object = d.getReference( null );
 
@@ -946,15 +938,8 @@ public final class ORB
             }
         }
 
-        Delegate d = new Delegate( this, ior );
-        try
-        {
-            d.configure(configuration);
-        }
-        catch(ConfigurationException ce)
-        {
-            logger.error("configuration exception", ce);
-        }
+        final Delegate d = new Delegate( this, ior );
+
         return d.getReference( poa );
     }
 
