@@ -233,7 +233,7 @@ public class ORBInitInfoImpl
     {
         checkIsValid();
 
-        return orb._args ;
+        return orb.getArgs() ;
     }
 
     public CodecFactory codec_factory()

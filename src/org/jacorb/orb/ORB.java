@@ -167,7 +167,7 @@ public final class ORB
     private Logger logger;
 
     /** command like args */
-    public String[] _args;
+    private String[] _args;
 
     /* for run() and shutdown()  */
     private final Object runSync = new Object();
@@ -2011,18 +2011,18 @@ public final class ORB
         return false;
     }
 
-    public ValueFactory register_value_factory(String id,
+    public synchronized ValueFactory register_value_factory(String id,
                                                 ValueFactory factory)
     {
         return (ValueFactory)valueFactories.put (id, factory);
     }
 
-    public void unregister_value_factory(String id)
+    public synchronized void unregister_value_factory(String id)
     {
         valueFactories.remove (id);
     }
 
-    public ValueFactory lookup_value_factory(String id)
+    public synchronized ValueFactory lookup_value_factory(String id)
     {
         ValueFactory result = (ValueFactory)valueFactories.get (id);
 
@@ -2625,5 +2625,13 @@ public final class ORB
     public String getImplName()
     {
         return implName;
+    }
+
+    /**
+     * @return the _args. Public accessor used by ORBInitInfo.
+     */
+    public String[] getArgs()
+    {
+       return _args;
     }
 }

@@ -54,6 +54,7 @@ post 2.3.1
         - provided a implementation for org.omg.CORBA.ValueBaseHelper.
         - Fix Object::duplicate(4.3.2.1).
         - Change set_policy_overrides to match 4.3.9.1 specification.
+        - Fix possible race condition with the value factory hashmap.
         
 
     - IDL Compiler: 
