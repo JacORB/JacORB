@@ -413,50 +413,71 @@ public final class ORB
     }
 
     /**
-     *  This  version of _getObject  is used for references  that have
+     * This method is used for references that have
+     * arrived over the network and is called from CDRInputStream. It
+     * does not cache entries as we are delaying creating a ParsedIOR.
+     *
+     * @param _ior an <code>org.omg.IOP.IOR</code>, the IOR.
+     * @return an <code>org.omg.CORBA.Object</code> the Object to use.
+     */
+    public org.omg.CORBA.Object _getObject(org.omg.IOP.IOR ior)
+    {
+        final org.jacorb.orb.Delegate delegate = new Delegate(this, ior, true);
+
+        return delegate.getReference( null );
+    }
+
+
+    /**
+     *  This method is used for references that have
      *  arrived over the network and is called from CDRInputStream. It
      *  removes stale cache entries
      */
 
-    public synchronized org.omg.CORBA.Object _getObject( ParsedIOR pior )
+    public synchronized org.omg.CORBA.Object _getDelegate( ParsedIOR pior )
     {
-        String key = pior.getIORString();
-        org.omg.CORBA.portable.ObjectImpl object =
-            (org.omg.CORBA.portable.ObjectImpl)knownReferences.get( key );
+        final String key = pior.getIORString();
+        org.omg.CORBA.portable.ObjectImpl object;
 
-        if( object != null )
+        if (cacheReferences)
         {
-            org.jacorb.orb.Delegate del = (org.jacorb.orb.Delegate)object._get_delegate();
-            if (del != null)
+            object =
+                (org.omg.CORBA.portable.ObjectImpl)knownReferences.get( key );
+
+            if( object != null )
             {
-                ParsedIOR delpior= del.getParsedIOR();
-                if (delpior == null)
+                org.jacorb.orb.Delegate del = (org.jacorb.orb.Delegate)object._get_delegate();
+                if (del != null)
                 {
-                    knownReferences.remove(key);
-                    if (logger.isDebugEnabled())
+                    ParsedIOR delpior= del.getParsedIOR();
+                    if (delpior == null)
                     {
-                        logger.debug("Removing an invalid reference from cache.");
+                        knownReferences.remove(key);
+                        if (logger.isDebugEnabled())
+                        {
+                            logger.debug("Removing an invalid reference from cache.");
+                        }
+                    }
+                    else if( pior.getEffectiveProfile()
+                            .is_match(delpior.getEffectiveProfile()))
+                    {
+                        return object._duplicate();
                     }
                 }
-                else if( pior.getEffectiveProfile()
-                           .is_match(delpior.getEffectiveProfile()))
+                else
                 {
-                    return object._duplicate();
+                    if (logger.isDebugEnabled())
+                    {
+                        logger.debug("Remove stale reference from cache ");
+                    }
+                    knownReferences.remove( key );
                 }
-            }
-            else
-            {
-                if (logger.isDebugEnabled())
-                {
-                    logger.debug("Remove stale reference from cache ");
-                }
-                knownReferences.remove( key );
             }
         }
 
-        final org.jacorb.orb.Delegate d = new Delegate(this, pior );
+        final org.jacorb.orb.Delegate delegate = new Delegate(this, pior);
 
-        object = d.getReference( null );
+        object = delegate.getReference( null );
 
         if( cacheReferences )
         {
@@ -1898,7 +1919,7 @@ public final class ORB
                 return null;
             }
 
-            return _getObject(pior);
+            return _getDelegate(pior);
         }
         catch (Exception e)
         {

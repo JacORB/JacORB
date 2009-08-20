@@ -51,6 +51,7 @@ import org.omg.CORBA.Policy;
 import org.omg.CORBA.SystemException;
 import org.omg.CORBA.TIMEOUT;
 import org.omg.CORBA.portable.ApplicationException;
+import org.omg.CORBA.portable.ObjectImpl;
 import org.omg.CORBA.portable.RemarshalException;
 import org.omg.CORBA.portable.ServantObject;
 import org.omg.GIOP.LocateStatusType_1_2;
@@ -121,7 +122,7 @@ public final class Delegate
 
     private ClientConnectionManager conn_mg = null;
 
-    private Map policy_overrides;
+    private final Map policy_overrides = new HashMap();
 
     private boolean doNotCheckExceptions = false; //Setting for Appligator
 
@@ -499,7 +500,7 @@ public final class Delegate
 
     public synchronized org.omg.CORBA.Object duplicate( org.omg.CORBA.Object self )
     {
-        return self;
+        return orb._getDelegate (new ParsedIOR( orb, toString()));
     }
 
     public boolean equals(java.lang.Object obj)
@@ -1949,21 +1950,26 @@ public final class Delegate
                                                      org.omg.CORBA.Policy[] policies,
                                                      org.omg.CORBA.SetOverrideType set_add )
     {
-        if (policy_overrides == null)
+        // According to CORBA 3, 4.3.9.1 this should return a new Object with
+        // the policies applied to that.
+        org.omg.CORBA.Object result = duplicate(self);
+        Delegate delResult = (Delegate)((ObjectImpl)result)._get_delegate();
+
+        synchronized(policy_overrides)
         {
-            policy_overrides = new HashMap();
-        }
-        if ( set_add == org.omg.CORBA.SetOverrideType.SET_OVERRIDE )
-        {
-            policy_overrides.clear();
+            if ( set_add == org.omg.CORBA.SetOverrideType.ADD_OVERRIDE)
+            {
+                // Need to add the overrides within this object to the new one.
+                delResult.policy_overrides.putAll (policy_overrides);
+            }
         }
 
         for ( int i = 0; i < policies.length; i++ )
         {
-            policy_overrides.put(ObjectUtil.newInteger( policies[ i ].policy_type() ), policies[ i ] );
+            delResult.policy_overrides.put(ObjectUtil.newInteger( policies[ i ].policy_type() ), policies[ i ] );
         }
 
-        return self;
+        return result;
     }
 
     public String get_codebase( org.omg.CORBA.Object self )

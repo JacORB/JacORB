@@ -1103,7 +1103,7 @@ public class CDRInputStream
             return null;
         }
 
-        return ((org.jacorb.orb.ORB)orb)._getObject( pior );
+        return ((org.jacorb.orb.ORB)orb)._getDelegate(pior);
     }
 
     public org.omg.CORBA.Object read_Object(final java.lang.Class clazz)

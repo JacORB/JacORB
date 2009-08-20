@@ -52,6 +52,9 @@ post 2.3.1
         - changed PICurrent's set_slot/get_slot to raise BAD_INV_ORDER
           if they're called from within an ORB initializer.
         - provided a implementation for org.omg.CORBA.ValueBaseHelper.
+        - Fix Object::duplicate(4.3.2.1).
+        - Change set_policy_overrides to match 4.3.9.1 specification.
+        
 
     - IDL Compiler: 
         - fixed issue where the IDL compiler generated imports for the

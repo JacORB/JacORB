@@ -108,7 +108,8 @@ public class SpecificProfileSelectorTest extends AbstractWIOPTestCase
 
         ClientProtocolPolicy policy = rtORB.create_client_protocol_policy(new Protocol[] {new Protocol(new WIOPFactories().profile_tag(), null, null)});
 
-        basicServer._set_policy_override(new Policy[] {policy}, SetOverrideType.SET_OVERRIDE);
+        basicServer = BasicServerHelper.narrow (basicServer._set_policy_override
+                (new Policy[] {policy}, SetOverrideType.SET_OVERRIDE));
 
         basicServer.ping();
         assertTrue("should use WIOP as transport", WIOPFactories.isTransportInUse());
@@ -120,7 +121,8 @@ public class SpecificProfileSelectorTest extends AbstractWIOPTestCase
 
         ClientProtocolPolicy policy = rtORB.create_client_protocol_policy(new Protocol[] {new Protocol(ORBConstants.JAC_NOSSL_PROFILE_ID, null, null)});
 
-        basicServer._set_policy_override(new Policy[] {policy}, SetOverrideType.SET_OVERRIDE);
+        basicServer = BasicServerHelper.narrow (basicServer._set_policy_override
+                (new Policy[] {policy}, SetOverrideType.SET_OVERRIDE));
 
         basicServer.ping();
 

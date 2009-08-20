@@ -62,7 +62,7 @@ public class SyncScopeTest extends TestCase
     {
         int beforeCount = server.get_oneway_count();
 
-        setSyncScope (server, SYNC_NONE.value);
+        server = setSyncScope (server, SYNC_NONE.value);
         long start = System.currentTimeMillis();
 
         server.oneway_op (TIME);
@@ -76,7 +76,7 @@ public class SyncScopeTest extends TestCase
     {
         int beforeCount = server.get_oneway_count();
         
-        setSyncScope (server, SYNC_WITH_TRANSPORT.value);
+        server = setSyncScope (server, SYNC_WITH_TRANSPORT.value);
         long start = System.currentTimeMillis();
         server.oneway_op (TIME);
         long time = System.currentTimeMillis() - start;
@@ -89,7 +89,7 @@ public class SyncScopeTest extends TestCase
     {
         int beforeCount = server.get_oneway_count();
 
-        setSyncScope (server, SYNC_WITH_SERVER.value);
+        server = setSyncScope (server, SYNC_WITH_SERVER.value);
         long start = System.currentTimeMillis();
         server.oneway_op (TIME);
         long time = System.currentTimeMillis() - start;
@@ -102,7 +102,7 @@ public class SyncScopeTest extends TestCase
     {
         int beforeCount = server.get_oneway_count();
 
-        setSyncScope (server, SYNC_WITH_TARGET.value);
+        server = setSyncScope (server, SYNC_WITH_TARGET.value);
         long start = System.currentTimeMillis();
         server.oneway_op (TIME);
         long time = System.currentTimeMillis() - start;
@@ -111,7 +111,7 @@ public class SyncScopeTest extends TestCase
         verifyOnewayWasReceived(beforeCount + 1);
     }
 
-    private void setSyncScope (SyncScopeServer server, short syncScope)
+    private SyncScopeServer setSyncScope (SyncScopeServer server, short syncScope)
     {
         org.omg.CORBA.Any a   = this.orb.create_any();
         a.insert_short (syncScope);
@@ -119,8 +119,9 @@ public class SyncScopeTest extends TestCase
         {
             Policy policy =
                 this.orb.create_policy(SYNC_SCOPE_POLICY_TYPE.value, a);
-            server._set_policy_override (new Policy[]{ policy },
+            org.omg.CORBA.Object r = server._set_policy_override (new Policy[]{ policy },
                                          SetOverrideType.ADD_OVERRIDE);
+            return SyncScopeServerHelper.narrow (r);
         }
         catch (PolicyError e)
         {
