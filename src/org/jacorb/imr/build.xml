@@ -12,9 +12,7 @@
    &common;
 
    <target name="all" depends="init,load-taskdef">
-      <antcall target="jacorb-javac">
-         <param name="javac-includes" value="org/jacorb/imr/*.java,org/jacorb/imr/util/*.java"/>
-      </antcall>
+      <jacorb-javac javac-includes="org/jacorb/imr/*.java,org/jacorb/imr/util/*.java"/>
    </target>
 
 

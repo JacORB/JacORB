@@ -11,20 +11,21 @@
 
    &common;
 
+    <target name="_init" depends="init">
+        <available classname="org.ietf.jgss.GSSManager" property="jgss.present" />
+    </target>
 
-   <target name="all" depends="init">
-      <available classname="org.ietf.jgss.GSSManager" property="jgss.present" />
-      <antcall target="jacorb-javac">
-         <param name="javac-includes" value="org/jacorb/orb/standardInterceptors/*.java"/>
-         <param name="javac-excludes" value="org/jacorb/orb/standardInterceptors/SASComponentInterceptor.java"/>
-      </antcall>
-      <antcall target="compile-sas"/>
-   </target>
+    <target name="compile">
+        <jacorb-javac
+            javac-includes="org/jacorb/orb/standardInterceptors/*.java"
+            javac-excludes="org/jacorb/orb/standardInterceptors/SASComponentInterceptor.java" />
+    </target>
 
+    <target name="compile-sas" if="jgss.present">
+        <jacorb-javac
+            javac-includes="org/jacorb/orb/standardInterceptors/SASComponentInterceptor.java"/>
+    </target>
 
-   <target name="compile-sas" if="jgss.present">
-      <antcall target="jacorb-javac">
-         <param name="javac-includes" value="org/jacorb/orb/standardInterceptors/SASComponentInterceptor.java"/>
-      </antcall>
-   </target>
+    <target name="all" depends="_init, compile, compile-sas" />
+
 </project>

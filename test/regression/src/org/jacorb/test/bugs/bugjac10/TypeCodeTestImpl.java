@@ -1,7 +1,5 @@
 package org.jacorb.test.bugs.bugjac10;
 
-import org.jacorb.test.bugs.bugjac10.TypeCodeTestPOA;
-
 import org.omg.CORBA.TypeCode;
 import org.omg.CORBA.TypeCodeHolder;
 
@@ -15,7 +13,7 @@ import org.omg.CORBA.TypeCodeHolder;
  * @author <a href="mailto:cj@prismtechnologies.com"></a>
  * @version 1.0
  */
-public class TypeCodeTestImpl extends TypeCodeTestPOA
+public class TypeCodeTestImpl extends TypeCodeTestServerPOA
 {
     public TypeCode respond (boolean compact,
                              TypeCode argin,

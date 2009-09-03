@@ -6,12 +6,14 @@ import java.io.IOException;
 import java.io.LineNumberReader;
 
 import org.jacorb.ir.IRServer;
-import org.jacorb.test.common.ClientServerSetup;
+import org.jacorb.test.common.TestServer;
 
 public class IRServerRunner
 {
     public static void main(String[] args) throws Exception
     {
+        TestServer.startReaperThread();
+
         final String iorFileName = getIORFileName();
         final String classpath = getClasspath();
 
@@ -35,9 +37,7 @@ public class IRServerRunner
 
         File iorFile = new File(iorFileName);
 
-        long timeout = System.currentTimeMillis() + ClientServerSetup.getTestTimeout();
-
-        while(System.currentTimeMillis() < timeout && !(iorFile.canRead()))
+        while(!(iorFile.canRead()))
         {
             Thread.sleep(1000);
         }
@@ -48,7 +48,7 @@ public class IRServerRunner
 
         if (ior == null)
         {
-            throw new IllegalArgumentException("could not read IOR within " + ClientServerSetup.getTestTimeout() + " ms");
+            throw new IllegalArgumentException("could not read IOR");
         }
 
         System.out.println("SERVER IOR: " + ior);

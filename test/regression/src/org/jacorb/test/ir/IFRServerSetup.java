@@ -66,6 +66,7 @@ public class IFRServerSetup extends TestSetup
 
         Properties serverProps = new Properties();
         serverProps.setProperty(CommonSetup.JACORB_REGRESSION_DISABLE_SECURITY, "true");
+        serverProps.setProperty(CommonSetup.JACORB_REGRESSION_DISABLE_IMR, "true");
         serverProps.setProperty("jacorb.test.ir.classpath", dirGeneration.toString());
         serverProps.setProperty("jacorb.test.ir.iorfile", iorFile.toString());
         serverProps.setProperty("jacorb.ir.log.verbosity", "2");
@@ -75,6 +76,7 @@ public class IFRServerSetup extends TestSetup
         Properties clientProps = new Properties();
         clientProps.setProperty("ORBInitRef.InterfaceRepository", "file://" + iorFile.toString());
         clientProps.setProperty(CommonSetup.JACORB_REGRESSION_DISABLE_SECURITY, "true");
+        clientProps.setProperty(CommonSetup.JACORB_REGRESSION_DISABLE_IMR, "true");
 
         clientServerSetup = new ClientServerSetup(null, IRServerRunner.class.getName(), "ignored", clientProps, serverProps);
 

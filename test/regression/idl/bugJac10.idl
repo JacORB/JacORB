@@ -118,7 +118,7 @@ module org
                   C_array_e_TypeCode v43;
                };
 
-               interface TypeCodeTest
+               interface TypeCodeTestServer
                {
                      CORBA::TypeCode respond (in boolean compact, in CORBA::TypeCode argin, out CORBA::TypeCode argout, inout CORBA::TypeCode arginout);
                };

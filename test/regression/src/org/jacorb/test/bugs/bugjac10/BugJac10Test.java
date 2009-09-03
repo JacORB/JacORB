@@ -34,7 +34,7 @@ import org.jacorb.test.common.ClientServerTestCase;
  */
 public class BugJac10Test extends ClientServerTestCase
 {
-    private TypeCodeTest server;
+    private TypeCodeTestServer server;
 
     public BugJac10Test (String name, ClientServerSetup setup)
     {
@@ -43,7 +43,7 @@ public class BugJac10Test extends ClientServerTestCase
 
     public void setUp() throws Exception
     {
-        server = TypeCodeTestHelper.narrow( setup.getServerObject() );
+        server = TypeCodeTestServerHelper.narrow( setup.getServerObject() );
     }
 
     protected void tearDown() throws Exception
@@ -109,34 +109,18 @@ public class BugJac10Test extends ClientServerTestCase
      */
     public void test_compact_tc_on()
     {
-        org.omg.CORBA.TypeCode argin;
-        org.omg.CORBA.TypeCodeHolder argout;
-        argout = new org.omg.CORBA.TypeCodeHolder();
-        org.omg.CORBA.TypeCodeHolder arginout;
-        arginout = new org.omg.CORBA.TypeCodeHolder();
-        org.omg.CORBA.TypeCode _ret = null;
+        final org.omg.CORBA.TypeCode argin = C_exceptHelper.type();
+        final org.omg.CORBA.TypeCodeHolder argout = new org.omg.CORBA.TypeCodeHolder();
+        final org.omg.CORBA.TypeCodeHolder arginout = new org.omg.CORBA.TypeCodeHolder();
+        arginout.value = C_exceptHelper.type();
 
-        argin = C_exceptHelper.type ();
-        arginout.value = C_exceptHelper.type ();
+        final org.omg.CORBA.TypeCode result = server.respond(true, argin, argout, arginout);
 
-        _ret = server.respond (true, argin, argout, arginout);
+        assertTrue(C_exceptHelper.type().get_compact_typecode().equal(result));
 
-        if (!(C_exceptHelper.type ().get_compact_typecode ().equal(_ret)))
-        {
-            fail ("_ret value error in test_compact_tc_on");
-        }
+        assertTrue(C_exceptHelper.type().get_compact_typecode().equal(argout.value));
 
-        if (!(C_exceptHelper.type ().get_compact_typecode ().equal
-              (argout.value)))
-        {
-            fail ("argout value error in test_compact_tc_on");
-        }
-
-        if (!(C_exceptHelper.type ().get_compact_typecode ().equal
-              (arginout.value)))
-        {
-            fail ("arginout value error in test_compact_tc_on");
-        }
+        assertTrue(C_exceptHelper.type().get_compact_typecode().equal(arginout.value));
     }
 
     /**
@@ -144,33 +128,17 @@ public class BugJac10Test extends ClientServerTestCase
      */
     public void test_compact_tc_off()
     {
-        org.omg.CORBA.TypeCode argin;
-        org.omg.CORBA.TypeCodeHolder argout;
-        argout = new org.omg.CORBA.TypeCodeHolder();
-        org.omg.CORBA.TypeCodeHolder arginout;
-        arginout = new org.omg.CORBA.TypeCodeHolder();
-        org.omg.CORBA.TypeCode _ret = null;
+        final org.omg.CORBA.TypeCode argin = C_exceptHelper.type();
+        final org.omg.CORBA.TypeCodeHolder argout = new org.omg.CORBA.TypeCodeHolder();
+        final org.omg.CORBA.TypeCodeHolder arginout = new org.omg.CORBA.TypeCodeHolder();
+        arginout.value = C_exceptHelper.type();
 
-        argin = C_exceptHelper.type ();
-        arginout.value = C_exceptHelper.type ();
+        final org.omg.CORBA.TypeCode result = server.respond(false, argin, argout, arginout);
 
-        _ret = server.respond (false, argin, argout, arginout);
+        assertTrue(C_exceptHelper.type().equal(result));
 
-        if (!(C_exceptHelper.type ().equal(_ret)))
-        {
-            fail ("_ret value error in test_compact_tc_off");
-        }
+        assertTrue(C_exceptHelper.type().equal(argout.value));
 
-        if (!(C_exceptHelper.type ().equal
-              (argout.value)))
-        {
-            fail ("argout value error in test_compact_tc_off");
-        }
-
-        if (!(C_exceptHelper.type ().equal
-              (arginout.value)))
-        {
-            fail ("arginout value error in test_compact_tc_off");
-        }
+        assertTrue(C_exceptHelper.type().equal(arginout.value));
     }
 }

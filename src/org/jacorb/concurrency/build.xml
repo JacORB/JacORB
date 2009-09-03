@@ -12,8 +12,6 @@
    &common;
 
    <target name="all" depends="init">
-      <antcall target="jacorb-javac">
-         <param name="javac-includes" value="org/jacorb/concurrency/**/*.java"/>
-      </antcall>
+      <jacorb-javac javac-includes="org/jacorb/concurrency/**/*.java"/>
    </target>
 </project>

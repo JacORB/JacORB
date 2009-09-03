@@ -35,6 +35,7 @@ import java.util.Properties;
 public class CommonSetup
 {
     public static final String JACORB_REGRESSION_DISABLE_SECURITY = "jacorb.regression.disable_security";
+    public static final String JACORB_REGRESSION_DISABLE_IMR = "jacorb.regression.disable_imr";
 
     /**
      * its assumed that the property file and the keystore file

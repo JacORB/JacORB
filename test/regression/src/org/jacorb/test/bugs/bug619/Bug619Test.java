@@ -28,6 +28,7 @@ import junit.framework.TestSuite;
 
 import org.jacorb.test.common.ClientServerSetup;
 import org.jacorb.test.common.ClientServerTestCase;
+import org.jacorb.test.common.CommonSetup;
 import org.jacorb.test.common.TestUtils;
 import org.omg.CORBA.NO_MEMORY;
 
@@ -115,11 +116,16 @@ public class Bug619Test extends ClientServerTestCase
             {
                 pusher.verify(2000);
                 fail();
-            } catch (NO_MEMORY e)
+            } 
+            catch (NO_MEMORY e)
             {
                 // expected
             }
-        }
+            finally
+            {
+                pusher.interrupt();
+            }
+       }
     }
 
     protected void setUp() throws Exception
@@ -139,6 +145,9 @@ public class Bug619Test extends ClientServerTestCase
         Properties clientProps = new Properties();
         Properties serverProps = new Properties();
         serverProps.put("jacorb.test.maxmemory", "64m");
+        serverProps.setProperty(CommonSetup.JACORB_REGRESSION_DISABLE_IMR, "true");
+        clientProps.setProperty(CommonSetup.JACORB_REGRESSION_DISABLE_IMR, "true");
+
         ClientServerSetup setup = new ClientServerSetup(suite, OutOfMemoryImpl.class.getName(),
                 clientProps, serverProps);
 

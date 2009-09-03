@@ -53,6 +53,9 @@ public class IDLTestSetup extends TestSetup
     public final void setUp() throws Exception
     {
         dirGeneration = TestUtils.createTempDir("IDL_CLASSES");
+
+        TestUtils.log("[IDLTestSetup] using temporary directory " + dirGeneration + " for IDL generation");
+
         String[] args = createJacIDLArgs(dirGeneration, getIDLFile(idlFile), getIDLArgs(idlArgs));
 
         runJacIDLInProcess(idlFile.toString(), args, false);
@@ -100,6 +103,8 @@ public class IDLTestSetup extends TestSetup
         final String details = writer.toString();
         try
         {
+            TestUtils.log("[IDLTestSetup] run JacIDL on file " + file + " with args " + Arrays.asList(args));
+
             org.jacorb.idl.parser.compile(args, writer);
 
             if (failureExpected)

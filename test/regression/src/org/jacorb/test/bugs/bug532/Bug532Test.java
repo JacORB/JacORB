@@ -22,6 +22,7 @@ package org.jacorb.test.bugs.bug532;
 
 import org.jacorb.test.common.ORBTestCase;
 import org.omg.CORBA.Any;
+import org.omg.CORBA.ORB;
 
 /**
  * Test for bug 532, CDROutputStream.create_input_stream completely fails
@@ -36,8 +37,12 @@ public class Bug532Test extends ORBTestCase
 {
     public void testLargeByteArrayToAnyInsertion()
     {
+        ORB orb = org.omg.CORBA.ORB.init(new String[]{}, null);
+
         byte[] bytes = new byte[4001];
         Any any = orb.create_any();
         ByteSequenceHelper.insert(any, bytes);
+
+        orb.shutdown(true);
     }
 }

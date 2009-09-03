@@ -1,9 +1,7 @@
-package org.jacorb.test.orb.connection;
-
 /*
  *        JacORB  - a free Java ORB
  *
- *   Copyright (C) 1997-2005  Gerald Brose.
+ *   Copyright (C) 1997-2006 The JacORB project.
  *
  *   This library is free software; you can redistribute it and/or
  *   modify it under the terms of the GNU Library General Public
@@ -20,25 +18,23 @@ package org.jacorb.test.orb.connection;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import junit.framework.*;
-import org.jacorb.test.common.*;
+package org.jacorb.test.ant;
 
-public class AllTest extends JacORBTestSuite
+import org.apache.tools.ant.filters.TokenFilter.ChainableReaderFilter;
+
+/**
+ * @author Alphonse Bendt
+ * @version $Id$
+ */
+public class SumFilter extends ChainableReaderFilter
 {
-   public AllTest (String name)
-   {
-      super (name);
-   }
+    private double value = 0;
+    public String filter(String arg0)
+    {
+        arg0 = arg0.replace(',', '.');
 
-   public static Test suite ()
-   {
-      TestSuite suite = new AllTest ("All orb/connection");
+        value += Double.parseDouble(arg0);
 
-      suite.addTest( GIOPConnectionTest.suite() );
-      suite.addTest( BiDirTest.suite() );
-      suite.addTest( ClientConnectionTimeoutTest.suite() );
-      suite.addTest( ServerConnectionTimeoutTest.suite() );
-
-      return suite;
-   }
+        return Long.toString(Math.round(value));
+    }
 }

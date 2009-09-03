@@ -12,9 +12,7 @@
    &common;
 
    <target name="all" depends="init">
-      <antcall target="jacorb-javac">
-         <param name="javac-includes" value="org/jacorb/security/ssl/*.java"/>
-      </antcall>
+      <jacorb-javac javac-includes="org/jacorb/security/ssl/*.java"/>
       <ant antfile="${src}/org/jacorb/security/ssl/sun_jsse/build.xml" dir="${basedir}"/>
    </target>
 </project>

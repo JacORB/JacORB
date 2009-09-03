@@ -12,9 +12,7 @@
    &common;
 
    <target name="all" depends="init,load-taskdef,idl,coscompile">
-      <antcall target="jacorb-javac">
-         <param name="javac-includes" value="org/jacorb/events/**.java"/>
-      </antcall>
+      <jacorb-javac javac-includes="org/jacorb/events/**.java"/>
    </target>
 
 
@@ -23,18 +21,14 @@
               destdir="${src}/generated"
               includepath="${idl}/omg"
               includes="channel.idl"/>
-      <antcall target="jacorb-javac">
-         <param name="javac-src" value="${src}/generated"/>
-         <param name="javac-includes" value="org/jacorb/events/**.java"/>
-      </antcall>
+      <jacorb-javac javac-src="${src}/generated"
+      	            javac-includes="org/jacorb/events/**.java"/>
    </target>
 
 
    <target name="coscompile">
-      <antcall target="jacorb-javac">
-         <param name="javac-src" value="${src}/generated"/>
-         <param name="javac-includes" value="org/omg/CosEvent*/**.java"/>
-      </antcall>
+      <jacorb-javac javac-src="${src}/generated"
+      	            javac-includes="org/omg/CosEvent*/**.java"/>
    </target>
 
 

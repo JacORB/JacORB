@@ -34,7 +34,7 @@ public class MultipleServerTest extends TestCase
     protected void setUp() throws Exception
     {
         Properties props = new Properties();
-        props.put(ClientServerSetup.JACORB_REGRESSION_DISABLE_IMR, "true");
+        props.put(CommonSetup.JACORB_REGRESSION_DISABLE_IMR, "true");
         props.put(CommonSetup.JACORB_REGRESSION_DISABLE_SECURITY, "true");
 
         setup1 = new ServerSetup(this, BasicServerImpl.class.getName());

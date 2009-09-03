@@ -20,15 +20,11 @@
 
 
    <target name="base">
-      <antcall target="jacorb-javac">
-         <param name="javac-includes" value="org/jacorb/poa/except/*.java,org/jacorb/poa/policy/*.java,org/jacorb/poa/**.java,org/jacorb/poa/util/*.java"/>
-      </antcall>
+      <jacorb-javac javac-includes="org/jacorb/poa/except/*.java,org/jacorb/poa/policy/*.java,org/jacorb/poa/**.java,org/jacorb/poa/util/*.java"/>
    </target>
 
 
    <target name="gui" if="swing.present">
-      <antcall target="jacorb-javac">
-         <param name="javac-includes" value="org/jacorb/poa/gui/**.java,org/jacorb/poa/gui/**/**.java"/>
-      </antcall>
+      <jacorb-javac javac-includes="org/jacorb/poa/gui/**.java,org/jacorb/poa/gui/**/**.java"/>
    </target>
 </project>

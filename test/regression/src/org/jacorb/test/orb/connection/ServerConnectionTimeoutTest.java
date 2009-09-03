@@ -62,11 +62,6 @@ public class ServerConnectionTimeoutTest extends ClientServerTestCase
         Properties server_props = new Properties();
         server_props.setProperty( "jacorb.connection.server.timeout", "1000" );
 
-        if (TestUtils.isJDK13())
-        {
-            server_props.setProperty(CommonSetup.JACORB_REGRESSION_DISABLE_SECURITY, "true");
-        }
-
         ClientServerSetup setup =
             new ClientServerSetup( suite,
                                    ConnectionTimeoutServerImpl.class.getName(),

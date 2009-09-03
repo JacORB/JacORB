@@ -21,16 +21,12 @@
 
 
    <target name="compile" if="jgss.present">
-      <antcall target="jacorb-javac">
-         <param name="javac-includes" value="org/jacorb/security/sas/*.java"/>
-         <param name="javac-excludes" value="org/jacorb/security/sas/NT_*.java"/>
-      </antcall>
+      <jacorb-javac javac-includes="org/jacorb/security/sas/*.java"
+      	            javac-excludes="org/jacorb/security/sas/NT_*.java"/>
    </target>
 
 
    <target name="jaas" if="jaas.modules.present">
-      <antcall target="jacorb-javac">
-         <param name="javac-includes" value="org/jacorb/security/sas/NT_*.java"/>
-      </antcall>
+      <jacorb-javac javac-includes="org/jacorb/security/sas/NT_*.java"/>
    </target>
 </project>

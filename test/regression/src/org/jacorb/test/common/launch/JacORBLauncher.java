@@ -24,11 +24,8 @@ package org.jacorb.test.common.launch;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.FileInputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.net.URL;
-import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -38,6 +35,7 @@ import java.util.Map;
 import java.util.Properties;
 
 import org.jacorb.test.common.TestUtils;
+import org.jacorb.util.ObjectUtil;
 
 /**
  * A JacORBLauncher runs a given main class against a specified
@@ -49,7 +47,7 @@ import org.jacorb.test.common.TestUtils;
  * @author Andre Spiegel spiegel@gnu.org
  * @version $Id$
  */
-public abstract class JacORBLauncher
+public class JacORBLauncher
 {
     private final static Map LAUNCHER_SHORTCUTS;
 
@@ -57,79 +55,70 @@ public abstract class JacORBLauncher
     {
         Map launchers = new HashMap();
 
-        launchers.put("direct", DirectLauncher.class);
-        launchers.put("jaco", JacoLauncher.class);
-        launchers.put("tao", TAOLauncher.class);
+        launchers.put("direct", "org.jacorb.test.common.launch.DirectLauncher");
+        launchers.put("jaco", "org.jacorb.test.common.launch.JacoLauncher");
+        launchers.put("tao", "org.jacorb.test.common.launch.TAOLauncher");
 
         LAUNCHER_SHORTCUTS = Collections.unmodifiableMap(launchers);
     }
 
-    private static Properties testProperties;
-    private static List       versions;
+    private final Properties testProperties;
+    private List       versions;
+    private ClassLoader classLoader;
+
+    private String propertyPrefix;
+
+    public JacORBLauncher(InputStream in, Properties additionalProps) throws IOException
+    {
+        testProperties = getTestProperties(in, additionalProps);
+    }
+
+    public JacORBLauncher(InputStream in) throws IOException
+    {
+        testProperties = getTestProperties(in, System.getProperties());
+    }
+
+    public void setClassLoader(ClassLoader classLoader)
+    {
+        this.classLoader = classLoader;
+    }
+
+    public void setPropertyPrefix(String prefix)
+    {
+        propertyPrefix = prefix;
+    }
 
     /**
      * Loads and returns the properties defined in the file test.properties
      * in the regression suite.
+     * @throws IOException
      */
-    private synchronized static Properties getTestProperties()
+    private Properties getTestProperties(InputStream in, Properties additionalProps) throws IOException
     {
-        if (testProperties == null)
-        {          
-            InputStream in = null;
-            try
+        Properties testProperties = new Properties();
+        testProperties.load (in);
+
+        final Iterator i = additionalProps.keySet().iterator();
+        while(i.hasNext())
+        {
+            String key = (String) i.next();
+
+            if (key.startsWith("jacorb.test.jacorb_version"))
             {
-                File d = new File (TestUtils.testHome(), "resources");
-                File f = new File (d, "test.properties");
-                if (f.exists())
-                {
-                    in = new FileInputStream (f);
-                }
-                else
-                {
-                    final ClassLoader cl;
+                final String value = additionalProps.getProperty(key);
 
-                    cl = JacORBLauncher.class.getClassLoader();
-
-                    URL url = cl.getResource("/test.properties");
-
-                    if (url == null)
-                    {
-                        url = JacORBLauncher.class.getResource("/test.properties");
-                    }
-
-                    if (url == null)
-                    {
-                        throw new IllegalArgumentException("cannot locate test.properties!");
-                    }
-
-		    in = url.openStream();
-
-                    TestUtils.log("using test.properties from " + url);
-                }
-
-                try
-                {
-                    testProperties = new Properties();
-                    testProperties.load (in);
-                }
-                finally
-                {
-                    in.close();
-                }
-            }
-            catch (IOException ex)
-            {
-                testProperties = null;
-                throw new RuntimeException (ex);
+                TestUtils.log("[JacORBLauncher] merge in " + key + "=" + value);
+                testProperties.put(key, value);
             }
         }
+
         return testProperties;
     }
 
     /**
      * Returns a list of all the available JacORB versions.
      */
-    private synchronized static List getVersions()
+    private List getVersions()
     {
         if (versions == null)
         {
@@ -137,7 +126,7 @@ public abstract class JacORBLauncher
             for (int i=0; ; i++)
             {
                 String key = "jacorb.test.jacorb_version." + i + ".id";
-                String value = getTestProperties().getProperty(key);
+                String value = testProperties.getProperty(key);
                 if (value == null)
                 {
                     break;
@@ -157,12 +146,12 @@ public abstract class JacORBLauncher
      * @param mainClass
      * @param processArgs
      */
-    public static Launcher getLauncher (String version,
-                                        boolean useCoverage,
-                                        String classpath,
-                                        Properties properties,
-                                        String mainClass,
-                                        String[] processArgs)
+    public Launcher getLauncher (String version,
+                                 boolean useCoverage,
+                                 String classpath,
+                                 Properties properties,
+                                 String mainClass,
+                                 String[] processArgs)
     {
         int index = getVersions().indexOf(version);
         if (index == -1)
@@ -171,27 +160,48 @@ public abstract class JacORBLauncher
                     "Launcher version " + version + " not available. available: " + getVersions());
         }
 
-        final String home = locateHome(version, index);
+        final String home = locateHome(properties, version, index);
 
-        final String launcherClassName = lookupLauncher(version, index);
+        String launcherClassName = lookupLauncher(version, index);
+
+        if (LAUNCHER_SHORTCUTS.containsKey(launcherClassName))
+        {
+            launcherClassName = (String) LAUNCHER_SHORTCUTS.get(launcherClassName);
+        }
 
         final Properties props = new Properties();
 
-        addCustomProps(index, props, getTestProperties());
+        if (propertyPrefix != null)
+        {
+            for (Iterator i = System.getProperties().keySet().iterator(); i.hasNext(); )
+            {
+                String key = (String) i.next();
 
-        props.putAll(properties);
+                if (key.startsWith(propertyPrefix))
+                {
+                    props.setProperty(key, System.getProperty(key));
+                }
+            }
+        }
+
+        addCustomProps(index, props, testProperties);
+
+        if (properties != null)
+        {
+            props.putAll(properties);
+        }
 
         try
         {
             final Class launcherClass;
 
-            if (LAUNCHER_SHORTCUTS.containsKey(launcherClassName))
+            if (classLoader == null)
             {
-                launcherClass = (Class) LAUNCHER_SHORTCUTS.get(launcherClassName);
+                launcherClass = ObjectUtil.classForName(launcherClassName);
             }
             else
             {
-                launcherClass = Class.forName (launcherClassName);
+                launcherClass = classLoader.loadClass(launcherClassName);
             }
 
             Launcher launcher = (Launcher) launcherClass.newInstance();
@@ -223,10 +233,10 @@ public abstract class JacORBLauncher
         }
     }
 
-    private static String lookupLauncher(String version, int index)
+    private String lookupLauncher(String version, int index)
     {
         final String key = "jacorb.test.jacorb_version." + index + ".launcher";
-        String launcherClassName = getTestProperties().getProperty(key);
+        String launcherClassName = testProperties.getProperty(key);
         if (launcherClassName == null)
         {
             throw new IllegalArgumentException("No launcher class defined for JacORB version " + version);
@@ -234,20 +244,20 @@ public abstract class JacORBLauncher
         return launcherClassName;
     }
 
-    private static String locateHome(String version, int index)
+    private String locateHome(Properties props, String version, int index)
     {
         String key = "jacorb.test.jacorb_version." + index + ".home";
-        String home = getTestProperties().getProperty(key);
+        String home = testProperties.getProperty(key);
         if (home == null)
         {
             if (version.equals("cvs"))
             {
-                home = getCVSHome();
+                home = getCVSHome(props);
             }
         }
         else if ("cvs".equals(home))
         {
-            home = getCVSHome();
+            home = getCVSHome(props);
         }
         return home;
     }
@@ -274,13 +284,35 @@ public abstract class JacORBLauncher
         }
     }
 
-    private static String getCVSHome()
+    private static String getCVSHome(Properties props)
     {
-        final String testHome = TestUtils.testHome();
+        String jacorbHome = props.getProperty("jacorb.home");
+
+        if (jacorbHome == null)
+        {
+            jacorbHome = System.getProperty("jacorb.home");
+        }
+
+        if (jacorbHome != null)
+        {
+            return jacorbHome;
+        }
+
+        String testHome = props.getProperty("jacorb.test.home");
 
         if (testHome == null)
         {
-            throw new IllegalArgumentException("need to set testhome (-Djacorb.test.home)");
+            testHome = System.getProperty("jacorb.test.home");
+        }
+
+        if (testHome == null)
+        {
+            testHome = TestUtils.testHome();
+        }
+
+        if (testHome == null)
+        {
+            throw new RuntimeException("cannot determine jacorb.test.home");
         }
 
         return new File(testHome).getParentFile().getParentFile().toString();

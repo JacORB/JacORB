@@ -107,7 +107,7 @@ public class BugJac359Test extends ClientServerTestCase
         };
 
         thread.start();
-        thread.join(2000);
+        thread.join(TestUtils.getMediumTimeout());
 
         assertFalse(result[0]);
         assertNotNull(exception[0]);

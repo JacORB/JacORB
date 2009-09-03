@@ -79,6 +79,7 @@ public abstract class AbstractLauncher implements Launcher
 
     public void setJacorbHome(File jacorbHome)
     {
+        TestUtils.log("using JacORB home: " + jacorbHome);
         this.jacorbHome = jacorbHome;
     }
 
@@ -121,5 +122,10 @@ public abstract class AbstractLauncher implements Launcher
     protected List propsToArgList(Properties props)
     {
         return TestUtils.propsToArgList(props);
+    }
+
+    public String getLauncherDetails(String prefix)
+    {
+        return "";
     }
 }

@@ -23,10 +23,17 @@ package org.jacorb.test.orb;
 
 import java.util.Properties;
 
-import junit.framework.*;
+import junit.framework.Test;
+import junit.framework.TestSuite;
 
-import org.jacorb.test.*;
-import org.jacorb.test.common.*;
+import org.jacorb.test.IIOPAddressServer;
+import org.jacorb.test.IIOPAddressServerHelper;
+import org.jacorb.test.Sample;
+import org.jacorb.test.common.ClientServerSetup;
+import org.jacorb.test.common.ClientServerTestCase;
+import org.jacorb.test.common.CommonSetup;
+import org.jacorb.test.common.JacORBTestSuite;
+import org.jacorb.test.common.TestUtils;
 
 /**
  * Tests components of type TAG_ALTERNATE_IIOP_ADDRESS within IORs.
@@ -84,6 +91,9 @@ public class AlternateIIOPAddressTest extends ClientServerTestCase
         // combinations.
         client_props.setProperty(CommonSetup.JACORB_REGRESSION_DISABLE_SECURITY, "true");
         server_props.setProperty(CommonSetup.JACORB_REGRESSION_DISABLE_SECURITY, "true");
+
+        client_props.setProperty(CommonSetup.JACORB_REGRESSION_DISABLE_IMR, "true");
+        server_props.setProperty(CommonSetup.JACORB_REGRESSION_DISABLE_IMR, "true");
 
         ClientServerSetup setup =
             new ClientServerSetup (suite,

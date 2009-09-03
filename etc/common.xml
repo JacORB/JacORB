@@ -4,7 +4,7 @@
 <!-- This should not be called directly; instead it      -->
 <!-- should be included with '&common;' syntax.          -->
 
-<target name="base-init" >
+<target name="base-init" unless="BASE-INIT">
    <property name="dirs.base" value="${basedir}"/>
    <property name="src" value="${dirs.base}/src"/>
    <property name="src.generated" value="${src}/generated" />
@@ -12,33 +12,30 @@
    <property name="idl" value="${dirs.base}/idl"/>
 </target>
 
-<target name="set-architecture" >
-   <condition property="architecture" value="windows">
-      <or>
-         <os family="windows"/>
-         <os family="dos"/>
-      </or>
-   </condition>
-   <property name="architecture" value="unix"/>
-</target>
 
-<!-- Call base-init first. The regression tests call this but -->
-<!-- have their own base-init                                 -->
-<target name="init" depends="base-init, set-architecture">
+<target name="init-properties">
+    <condition property="available.jdk15" value="true" >
+      <and>
+         <equals arg2="${ant.java.version}" arg1="1.5"/>
+
+         <not>
+             <isset property="dir.j2me" />
+         </not>
+      </and>
+   </condition>
+
    <property name="debug" value="true"/>
 
-   <!-- This value only used under Ant 1.5 -->
-   <property name="debuglevel" value="lines,source"/>
+   <property name="debuglevel" value="vars,lines,source"/>
 
    <!-- Location of the compiled classes -->
-   <pathconvert property="classdir" targetos="${architecture}">
-      <path>
-         <pathelement location="${dirs.base}/classes"/>
-      </path>
-   </pathconvert>
+   <property name="classdir" value="${dirs.base}/classes" />
 
+    <property name="java-source-version" value="1.5"/>
+</target>
+
+<target name="init-path">
    <path id="path.base" >
-<!--      <pathelement location="${dirs.base}/classes"/> -->
       <pathelement location="${basedir}/classes"/>
 
       <!-- include all jars located in lib except the jacorb.jar -->
@@ -47,36 +44,32 @@
          <exclude name="jacorb.jar" />
          <exclude name="idl.jar" />
       </fileset>
-      <pathelement path="${java.class.path}"/>
-      <pathelement path="${sun.boot.class.path}"/>
    </path>
 
    <path id="sourcepath.base">
-      <pathelement location="${src}" />
       <pathelement location="${src.generated}" />
+      <pathelement location="${src}" />
    </path>
+</target>
 
-   <mkdir dir="${classdir}"/>
-   <mkdir dir="${src}/generated"/>
-   <filter token="path" value="basedir"/>
-
-    <property name="java-source-version" value="1.5"/>
-
+<target name="init-javac-common">
    <!-- = = = = = = = = = = = = = = = = =
       macrodef: jacorb-javac
       = = = = = = = = = = = = = = = = = -->
-   <macrodef name="jacorb-javac">
+   <macrodef name="jacorb-javac-common">
       <attribute name="javac-includes" />
       <attribute name="javac-encoding" default="ISO-8859-1" />
       <attribute name="javac-excludes" default="" />
       <attribute name="javac-src" default="${src}" />
       <attribute name="javac-sourcepath" default="sourcepath.base" />
       <attribute name="javac-classpathref" default="path.base" />
+      <attribute name="target-info" />
       <element name="javac-bootclasspath" optional="true" />
 
       <sequential>
-         <echo message="Compiling for ${ant.project.name} (JDK v${java-source-version})"/>
+         <echo message="Compiling project ${ant.project.name}. Target: @{target-info}, JVM version: ${java-source-version}"/>
 
+         <mkdir dir="${classdir}"/>
          <javac srcdir="@{javac-src}"
                 encoding="@{javac-encoding}"
                 destdir="${classdir}"
@@ -88,12 +81,50 @@
                 excludes="@{javac-excludes}"
                 source="${java-source-version}"
                 target="${java-source-version}" >
-            <src path="@{javac-src}" />
             <src path="${src.generated}" />
+            <src path="@{javac-src}" />
+
+            <javac-bootclasspath />
          </javac>
       </sequential>
    </macrodef>
 </target>
+
+<target name="init-javac-jdk" unless="dir.j2me">
+
+    <path id="bootclasspath">
+        <path path="${sun.boot.class.path}" />
+    </path>
+
+    <presetdef name="jacorb-javac">
+        <jacorb-javac-common target-info="JDK (1.4+)" />
+    </presetdef>
+</target>
+
+<target name="init-javac-j2me" if="dir.j2me">
+    <echo message="detected J2ME in ${dir.j2me}" />
+
+    <path id="bootclasspath">
+        <fileset dir="${dir.j2me}">
+            <include name="lib/btclasses.zip" />
+            <include name="lib/**/*.jar" />
+        </fileset>
+    </path>
+
+    <presetdef name="jacorb-javac">
+        <jacorb-javac-common target-info="J2ME (FP 1.1.2)" >
+            <javac-bootclasspath>
+                <bootclasspath>
+                    <path refid="bootclasspath" />
+                </bootclasspath>
+            </javac-bootclasspath>
+        </jacorb-javac-common>
+    </presetdef>
+</target>
+
+<!-- Call base-init first. The regression tests call this but -->
+<!-- have their own base-init                                 -->
+<target name="init" depends="base-init, init-properties, init-path, init-javac-common, init-javac-jdk, init-javac-j2me" />
 
 <target name="whats-my-classpath" depends="init"
         description="Outputs the classpath that will be used for compilation of JacORB">
@@ -102,52 +133,14 @@
    <echo />
    <pathconvert property="_sourcepath" refid="sourcepath.base" pathsep="${line.separator}" />
    <echo message="Sourcepath:${line.separator}${_sourcepath}" />
+   <echo />
+   <pathconvert property="_bootclasspath" refid="bootclasspath" pathsep="${line.separator}" />
+   <echo message="Bootclasspath:${line.separator}${_bootclasspath}" />
 </target>
 
 <target name="load-taskdef" depends="init">
    <taskdef name="jacidl" classname="org.jacorb.idl.JacIDL" classpathref="path.base"/>
 </target>
-
-
-<target name="check-src" unless="javac-src">
-   <property name="javac-src" value="${src}"/>
-</target>
-
-
-<target name="check-excludes" unless="javac-excludes">
-   <property name="javac-excludes" value=""/>
-</target>
-
-
-<target name="check-includes" unless="javac-includes">
-   <fail message="Pass javac-includes to target"/>
-</target>
-
-
-<target name="check-sourcepath" depends="init" unless="javac-sourcepath">
-   <property name="javac-sourcepath" value="sourcepath.base" />
-</target>
-
-
-<!-- This target is a compatibility wrapper to allow either                  -->
-<!-- a Ant 14 or Ant                                                         -->
-<!-- 15 to be used. Optional parameters are:                                 -->
-<!-- javac-src        Defaults to ${src}                                     -->
-<!-- javac-excludes   For file selection; defaults to ''                     -->
-<!-- javac-sourcepath  Compile Option Sourcepath; defaults to ''              -->
-<!-- javac-classpathref Classpath Ref; defaults to path.base -->
-<!-- Mandatory parameter is:                                                 -->
-<!-- javac-includes   Specifies which files to compile.                      -->
-<!--                                                                         -->
-<target name="jacorb-javac" depends="check-includes,check-sourcepath,check-src,check-excludes">
-   <jacorb-javac javac-src="${javac-src}"
-                 javac-classpathref="path.base"
-                 javac-sourcepath="${javac-sourcepath}"
-                 javac-includes="${javac-includes}"
-                 javac-excludes="${javac-excludes}">
-   </jacorb-javac>
-</target>
-
 
 <target name="visualize-ant-dependencies" description="run Grand to visualize the ant target dependencies" >
    <available file="${basedir}/lib/build/grand.jar" property="available.grand" />
@@ -156,4 +149,8 @@
    <mkdir dir="${basedir}/build" />
    <grand output="${basedir}/build/${ant.project.name}-ant.dot" />
    <echo message="wrote ${basedir}/build/${ant.project.name}-ant.dot" />
+</target>
+
+<target name="j2me:verify">
+    <fail unless="dir.j2me" message="you need to specify the location of your J2ME installation by setting the property dir.j2me (-Ddir.j2me=...)" />
 </target>

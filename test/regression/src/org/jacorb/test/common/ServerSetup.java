@@ -21,7 +21,9 @@
 package org.jacorb.test.common;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.lang.ref.WeakReference;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -90,12 +92,13 @@ public class ServerSetup extends TestSetup
 
         this.testServer = getTestServer(testServer);
         this.servantName = servantName;
-        testTimeout = getTestTimeout();
 
         if (optionalProperties != null)
         {
             serverOrbProperties.putAll(optionalProperties);
         }
+
+        testTimeout = getTestServerTimeout2();
 
         serverArgs.add(servantName);
     }
@@ -105,9 +108,17 @@ public class ServerSetup extends TestSetup
         this(test, null, servantName, null);
     }
 
-    public static long getTestTimeout()
+    /**
+     * how long should we wait for a testserver to come up?
+     */
+    public static long getTestServerTimeout()
     {
-        return TestUtils.getSystemPropertyAsLong("jacorb.test.timeout", 15000);
+        return Long.getLong("jacorb.test.timeout.server", new Long(120000)).longValue();
+    }
+
+    private long getTestServerTimeout2()
+    {
+        return Long.parseLong(serverOrbProperties.getProperty("jacorb.test.timeout.server", Long.toString(getTestServerTimeout())));
     }
 
     private String getTestServer(String optionalTestServer)
@@ -134,9 +145,12 @@ public class ServerSetup extends TestSetup
 
         Properties serverProperties = new Properties();
         serverProperties.setProperty("jacorb.log.default.verbosity", "0");
-        serverProperties.putAll (serverOrbProperties);
+        serverProperties.setProperty("org.omg.CORBA.ORBClass", "org.jacorb.orb.ORB");
+        serverProperties.setProperty("org.omg.CORBA.ORBSingletonClass", "org.jacorb.orb.ORBSingleton");
         serverProperties.put ("jacorb.implname", servantName);
 
+        serverProperties.putAll (serverOrbProperties);
+        
         if (coverage)
         {
             String outDir = System.getProperty("jacorb.test.outdir");
@@ -144,7 +158,28 @@ public class ServerSetup extends TestSetup
             serverProperties.put("emma.verbosity.level", System.getProperty("emma.verbosity.level", "quiet") );
         }
 
-        final Launcher launcher = JacORBLauncher.getLauncher (serverVersion,
+        URL launcherConfiguration = getClass().getResource(System.getProperty("jacorb.test.launcher.configuration", "/test.properties"));
+        TestUtils.log("using launcherConfiguration: " + launcherConfiguration);
+
+        assertNotNull("unable to access launcher configuration", launcherConfiguration);
+        final InputStream in = launcherConfiguration.openStream();
+        JacORBLauncher launcherFactory;
+
+        Properties launcherProps = System.getProperties();
+
+        patchLauncherProps(launcherProps);
+
+        try
+        {
+            launcherFactory = new JacORBLauncher(in, launcherProps);
+        }
+        finally
+        {
+            in.close();
+        }
+
+        final Launcher launcher = 
+            launcherFactory.getLauncher(serverVersion,
                     coverage,
                     System.getProperty("java.class.path"),
                     serverProperties,
@@ -173,6 +208,10 @@ public class ServerSetup extends TestSetup
         }
     }
 
+    protected void patchLauncherProps(Properties launcherProps)
+    {
+    }
+
     protected String[] getServerArgs()
     {
         return (String[])serverArgs.toArray(new String[serverArgs.size()]);
@@ -182,21 +221,41 @@ public class ServerSetup extends TestSetup
     {
         if (serverProcess != null)
         {
-            serverProcess.destroy();
-            serverProcess.waitFor();
-            serverProcess = null;
-
             outListener.setDestroyed();
             errListener.setDestroyed();
 
             outListener = null;
             errListener = null;
 
+            serverProcess.destroy();
+            serverProcess.waitFor();
+            serverProcess = null;
+
             serverIOR = null;
+
+            Thread.sleep(1000);
         }
     }
 
     public String getServerIOR()
+    {
+//      if (serverIOR == null)
+//      {
+//      if (serverIORFailedMesg == null)
+//      {
+//      String exc = errListener.getException(1000);
+
+//      String details = dumpStreamListener();
+
+//      serverIORFailedMesg = "could not access IOR for Server.\nServant: " + servantName + "\nTimeout: " + testTimeout + " millis.\nThis maybe caused by: " + exc + '\n' + details;
+//      }
+//      fail(serverIORFailedMesg);
+//      }
+
+        return serverIOR;
+    }
+
+    public String getServerIorOrNull()
     {
         return serverIOR;
     }
@@ -233,7 +292,7 @@ public class ServerSetup extends TestSetup
      */
     public boolean isSSLEnabled()
     {
-        final String sslProperty = System.getProperty("jacorb.test.ssl");
+        final String sslProperty = serverOrbProperties.getProperty("jacorb.test.ssl", System.getProperty("jacorb.test.ssl"));
         final boolean useSSL = TestUtils.getStringAsBoolean(sslProperty);
 
         return useSSL && !isPropertySet(CommonSetup.JACORB_REGRESSION_DISABLE_SECURITY);

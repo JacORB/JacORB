@@ -8,6 +8,8 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Arrays;
 
+import javax.net.ssl.SSLSocket;
+
 import junit.framework.TestCase;
 
 import org.jacorb.config.*;
@@ -61,6 +63,12 @@ public abstract class AbstractSocketFactoryTestCase extends TestCase
                             {
                                 received[pos++] = (byte) x;
                             }
+
+                            if ( ! (socket instanceof SSLSocket) && ! socket.isClosed ())
+                            {
+                               socket.shutdownOutput ();
+                            }
+                            socket.close ();
                         }
                         catch (Exception e)
                         {
@@ -105,7 +113,6 @@ public abstract class AbstractSocketFactoryTestCase extends TestCase
             serverSocket.close();
             thread.interrupt();
         }
-
     }
 
     protected void checkSocketIsConnected(Socket socket) throws IOException, InterruptedException

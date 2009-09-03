@@ -31,7 +31,7 @@ import org.jacorb.test.common.TestUtils;
 /**
  * RMITests client: Sun ORB, server: JacORB
  */
-public class SunJacORBRMITest extends RMITestCase
+public class SunJacORBRMITest extends AbstractRMITestCase
 {
     public SunJacORBRMITest(String name, ClientServerSetup setup)
     {

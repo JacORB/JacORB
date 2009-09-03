@@ -11,13 +11,9 @@
    &common;
 
    <target name="all" depends="init,load-taskdef,idl">
-      <antcall target="jacorb-javac">
-         <param name="javac-src" value="${src}/generated"/>
-         <param name="javac-includes" value="org/jacorb/util/tracing/*.java,org/jacorb/util/tracing/**/*.java"/>
-      </antcall>
-      <antcall target="jacorb-javac">
-         <param name="javac-includes" value="org/jacorb/util/tracing/*.java"/>
-      </antcall>
+      <jacorb-javac javac-src="${src}/generated" 
+         javac-includes="org/jacorb/util/tracing/*.java,org/jacorb/util/tracing/**/*.java"/>
+      <jacorb-javac javac-includes="org/jacorb/util/tracing/*.java"/>
    </target>
 
 

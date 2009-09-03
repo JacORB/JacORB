@@ -21,6 +21,9 @@ package org.jacorb.test.common;
  *   MA 02110-1301, USA.
  */
 
+import java.io.File;
+import java.io.IOException;
+import java.net.MalformedURLException;
 import java.util.Properties;
 
 import junit.extensions.TestSetup;
@@ -76,15 +79,13 @@ import org.omg.PortableServer.POA;
  */
 public class ClientServerSetup extends TestSetup {
 
-    public static final String JACORB_REGRESSION_DISABLE_IMR = "jacorb.regression.disable_imr";
-
     private final ServerSetup serverSetup;
     private final ORBSetup clientORBSetup;
 
     protected final String               servantName;
     protected org.omg.CORBA.Object       serverObject;
 
-    private ClientServerSetup imrSetup;
+    private ServerSetup imrSetup;
 
     private String ior;
 
@@ -122,21 +123,55 @@ public class ClientServerSetup extends TestSetup {
     {
         super(test);
 
+        if (optionalClientProperties == null)
+        {
+            optionalClientProperties = new Properties();
+        }
+        
+        if (optionalServerProperties == null)
+        {
+            optionalServerProperties = new Properties();
+        }
+
         if (isSSLDisabled(optionalClientProperties, optionalServerProperties))
         {
             // if ssl is disabled in one of the properties make sure to copy
             // this information to both property sets.
-            if (optionalClientProperties == null)
-            {
-                optionalClientProperties = new Properties();
-            }
             optionalClientProperties.setProperty(CommonSetup.JACORB_REGRESSION_DISABLE_SECURITY, "true");
 
-            if (optionalServerProperties == null)
-            {
-                optionalServerProperties = new Properties();
-            }
             optionalServerProperties.setProperty(CommonSetup.JACORB_REGRESSION_DISABLE_SECURITY, "true");
+        }
+
+        if (isIMREnabled(optionalClientProperties, optionalServerProperties))
+        {
+            final Properties imrServerProps = new Properties();
+
+            File imrIOR;
+            try
+            {
+                imrIOR = File.createTempFile("imr", ".ior");
+                imrIOR.deleteOnExit();
+            }
+            catch (IOException e)
+            {
+                throw new RuntimeException(e);
+            }
+
+            imrSetup = new ServerSetup(this, ImplementationRepositoryRunner.class.getName(), imrIOR.toString(), imrServerProps);
+
+            final Properties imrProps = new Properties();
+            imrProps.put("jacorb.use_imr", "on");
+            try
+            {
+                imrProps.put("ORBInitRef.ImplementationRepository", imrIOR.toURL().toString());
+            }
+            catch (MalformedURLException e)
+            {
+                throw new RuntimeException(e);
+            }
+
+            optionalClientProperties.putAll(imrProps);
+            optionalServerProperties.putAll(imrProps);
         }
 
         serverSetup = new ServerSetup(this, testServer, servantName, optionalServerProperties);
@@ -162,11 +197,6 @@ public class ClientServerSetup extends TestSetup {
         return result;
     }
 
-    public static long getTestTimeout()
-    {
-        return ServerSetup.getTestTimeout();
-    }
-
     public void setUp() throws Exception
     {
         setUpInternal();
@@ -180,14 +210,24 @@ public class ClientServerSetup extends TestSetup {
 
     private void setUpInternal() throws Exception
     {
+        if (imrSetup != null)
+        {
+            TestUtils.log("starting ImR");
+            imrSetup.setUp();
+
+            imrSetup.getServerIOR();
+        }
+
         serverSetup.setUp();
         clientORBSetup.setUp();
-
-        resolveServerObject(serverSetup.getServerIOR());
     }
 
-    protected final void initSecurity()
+    private void resolveServerObject()
     {
+        if (serverObject == null)
+        {
+            resolveServerObject(serverSetup.getServerIOR());
+        }
     }
 
     protected void resolveServerObject(String ior)
@@ -197,6 +237,10 @@ public class ClientServerSetup extends TestSetup {
         serverObject = clientORBSetup.getORB().string_to_object(ior);
     }
 
+    protected final void initSecurity()
+    {
+    }
+    
     public void tearDown() throws Exception
     {
         doTearDown();
@@ -227,6 +271,8 @@ public class ClientServerSetup extends TestSetup {
 
     public String getServerIOR()
     {
+        resolveServerObject();
+
         return ior;
     }
 
@@ -236,6 +282,8 @@ public class ClientServerSetup extends TestSetup {
      */
     public org.omg.CORBA.Object getServerObject()
     {
+        resolveServerObject();
+
         return serverObject;
     }
 
@@ -262,6 +310,28 @@ public class ClientServerSetup extends TestSetup {
         return clientORBSetup.getRootPOA();
     }
 
+    /**
+     * check is IMR testing is disabled for this setup
+     */
+    private boolean isIMREnabled(Properties clientProps, Properties serverProps)
+    {
+        boolean isEnabled = Boolean.getBoolean("jacorb.test.imr")
+                || TestUtils.getStringAsBoolean(clientProps.getProperty("jacorb.test.imr"))
+                || TestUtils.getStringAsBoolean(serverProps.getProperty("jacorb.test.imr"));
+
+        boolean isDisabled = TestUtils.getStringAsBoolean(clientProps.getProperty(CommonSetup.JACORB_REGRESSION_DISABLE_IMR, "false"))
+            || TestUtils.getStringAsBoolean(serverProps.getProperty(CommonSetup.JACORB_REGRESSION_DISABLE_IMR, "false"));
+
+        boolean result = isEnabled && !isDisabled;
+
+        if (isDisabled)
+        {
+            clientProps.setProperty("jacorb.use_imr", "off");
+            serverProps.setProperty("jacorb.use_imr", "off");
+        }
+
+        return result;
+    }
 
     public boolean isSSLEnabled()
     {

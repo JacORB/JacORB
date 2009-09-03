@@ -29,9 +29,7 @@
 	</target>
 
 	<target name="all" depends="local.init, fail" if="available.bsh">
-		<antcall target="jacorb-javac">
-			<param name="javac-includes" value="${current.package}/*.java" />
-		</antcall>
+		<jacorb-javac javac-includes="${current.package}/*.java" />
 	</target>
 
 </project>

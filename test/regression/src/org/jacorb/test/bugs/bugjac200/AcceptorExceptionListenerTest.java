@@ -83,13 +83,12 @@ public class AcceptorExceptionListenerTest extends TestCase
 
         startAcceptor(exception);
 
-        Thread.sleep(20000);
+        Thread.sleep(TestUtils.getMediumTimeout());
 
-        assertNull(exception[0]);
+        assertNull("exception during orb start: " + exception[0], exception[0]);
 
-        assertTrue("Acceptor was not created",
-                   TestAcceptorExceptionListener.hasBeenCreated);
-        assertTrue("Acceptor not called", TestAcceptorExceptionListener.getHasBeenCalled(ClientServerSetup.getTestTimeout(), true));
+        assertTrue("Acceptor was not created", TestAcceptorExceptionListener.hasBeenCreated);
+        assertTrue("Acceptor not called", TestAcceptorExceptionListener.getHasBeenCalled(TestUtils.getMediumTimeout(), true));
         assertFalse(orbIsDown);
     }
 
@@ -101,12 +100,11 @@ public class AcceptorExceptionListenerTest extends TestCase
 
         startAcceptor(exception);
 
-        Thread.sleep(20000);
+        Thread.sleep(TestUtils.getMediumTimeout());
 
-        assertNull(exception[0]);
-        assertTrue("Listener was not created",
-                   TestAcceptorExceptionListener.hasBeenCreated);
-        assertTrue("Listener was not invoked", TestAcceptorExceptionListener.getHasBeenCalled(ClientServerSetup.getTestTimeout(), true));
+        assertNull("exception during orb start: " + exception[0], exception[0]);
+        assertTrue("Listener was not created", TestAcceptorExceptionListener.hasBeenCreated);
+        assertTrue("Listener was not invoked", TestAcceptorExceptionListener.getHasBeenCalled(TestUtils.getMediumTimeout(), true));
         assertTrue("ORB was not shutdown", orbIsDown);
     }
 

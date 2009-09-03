@@ -14,9 +14,7 @@
    <target name="all" depends="init,compile" description="Compile config files"/>
 
    <target name="compile">
-      <antcall target="jacorb-javac">
-         <param name="javac-includes" value="org/jacorb/config/*.java"/>
-      </antcall>
+      <jacorb-javac javac-includes="org/jacorb/config/*.java"/>
    </target>
 
 

@@ -13,8 +13,6 @@
 
    <target name="all" depends="init">
       <ant antfile="${src}/org/jacorb/util/tracing/build.xml" dir="${basedir}"/>
-      <antcall target="jacorb-javac">
-         <param name="javac-includes" value="org/jacorb/util/*.java,org/jacorb/util/**/*.java"/>
-      </antcall>
+      <jacorb-javac javac-includes="org/jacorb/util/*.java,org/jacorb/util/**/*.java"/>
    </target>
 </project>

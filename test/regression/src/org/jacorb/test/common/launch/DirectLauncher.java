@@ -21,8 +21,11 @@ package org.jacorb.test.common.launch;
  *   MA 02110-1301, USA.
  */
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -43,12 +46,15 @@ public class DirectLauncher extends AbstractLauncher
 {
     private static boolean assertsEnabled;
 
-    static {
+    static 
+    {
         assertsEnabled = false;
         assert assertsEnabled = true; // Intentional side effect!!!
     }
 
     private List command;
+    private String javaHome;
+    private String javaCommand;
 
     public void init()
     {
@@ -70,9 +76,18 @@ public class DirectLauncher extends AbstractLauncher
         {
             String[] cmd = toStringArray(command);
 
-            TestUtils.log("[DirectLauncher] launch: " + command);
+            StringBuffer buff = new StringBuffer();
+            for (int i = 0; i < cmd.length; i++)
+            {
+                buff.append(cmd[i]);
+                buff.append(' ');
+            }
 
-            Process proc = rt.exec (cmd);
+            final String[] env = new String[] {};
+            TestUtils.log("[DirectLaucnher] environment " + Arrays.asList(env));
+            TestUtils.log("[DirectLauncher] launch: " + buff);
+
+            Process proc = rt.exec(cmd, null);
             return proc;
         }
         catch (IOException ex)
@@ -88,9 +103,9 @@ public class DirectLauncher extends AbstractLauncher
                               String mainClass,
                               String[] args)
     {
-        final String javaHome = getPropertyWithDefault(props, "jacorb.java.home", System.getProperty("java.home"));
+        javaHome = getPropertyWithDefault(props, "jacorb.java.home", System.getProperty("java.home"));
         final String jvm = getPropertyWithDefault(props, "jacorb.jvm", "/bin/java");
-        final String javaCommand = javaHome + jvm;
+        javaCommand = javaHome + jvm;
 
         final List cmdList = new ArrayList();
         cmdList.add (javaCommand);
@@ -110,12 +125,11 @@ public class DirectLauncher extends AbstractLauncher
             cmdList.add (classpath);
         }
 
-        cmdList.add ("-Xmx" + getMaxHeapSize(props));
-
-        cmdList.add ("-Dorg.omg.CORBA.ORBClass=org.jacorb.orb.ORB");
-        cmdList.add ("-Dorg.omg.CORBA.ORBSingletonClass=org.jacorb.orb.ORBSingleton");
-
-        cmdList.addAll (propsToArgList(props));
+        if (props != null)
+        {
+            cmdList.add ("-Xmx" + getMaxHeapSize(props));
+            cmdList.addAll (propsToArgList(props));
+        }
 
         cmdList.add ("-Djacorb.home=" + jacorbHome);
 
@@ -146,5 +160,38 @@ public class DirectLauncher extends AbstractLauncher
     private String getMaxHeapSize(Properties props)
     {
         return getPropertyWithDefault(props, "jacorb.test.maxheapsize", "64m");
+    }
+    public String getLauncherDetails(String prefix)
+    {
+        try
+        {
+            final String javaVersionCommand = javaCommand + " -version";
+            Process proc = Runtime.getRuntime().exec(javaVersionCommand);
+
+            try
+            {
+                InputStream inputStream = proc.getErrorStream();
+                BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
+
+                String line = null;
+                StringBuffer buffer = new StringBuffer();
+                while((line = reader.readLine()) != null)
+                {
+                    buffer.append(prefix);
+                    buffer.append(line);
+                    buffer.append('\n');
+                }
+
+                return buffer.toString();
+            }
+            finally
+            {
+                proc.destroy();
+            }
+        }
+        catch(Exception e)
+        {
+            throw new RuntimeException(e);
+        }
     }
 }

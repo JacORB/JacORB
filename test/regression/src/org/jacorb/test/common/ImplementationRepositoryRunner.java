@@ -13,6 +13,8 @@ public class ImplementationRepositoryRunner
 {
     public static void main(String[] args)
     {
+        TestServer.startReaperThread();
+
         ImplementationRepositoryImpl.main(new String[] {"-printIOR"});
     }
 }

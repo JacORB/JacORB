@@ -56,7 +56,7 @@ public class Bug351Test extends ClientServerTestCase
             new ClientServerSetup( suite,
                                    "org.jacorb.test.bugs.bug351.ValueServerImpl" );
 
-        suite.addTest( new Bug351Test( "testBug", setup ));
+        TestUtils.addToSuite(suite, setup, Bug351Test.class);
 
         return setup;
     }

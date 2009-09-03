@@ -13,9 +13,7 @@
 
 
    <target name="all" depends="init">
-      <antcall target="jacorb-javac">
-         <param name="javac-includes" value="org/jacorb/security/ssl/sun_jsse/*.java"/>
-      </antcall>
+      <jacorb-javac javac-includes="org/jacorb/security/ssl/sun_jsse/*.java"/>
    </target>
 
    <target name="patch" depends="init">

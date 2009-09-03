@@ -24,6 +24,7 @@ import org.jacorb.test.common.ORBTestCase;
 import org.jacorb.test.orb.BasicServerImpl;
 import org.omg.CORBA.Policy;
 import org.omg.PortableServer.POA;
+import org.omg.PortableServer.POAHelper;
 
 /**
  * <code>TestCase</code> tests rapid activation and deactivation of
@@ -39,16 +40,20 @@ public class Bug344Test extends ORBTestCase
      * ID (i.e. using a new one each time) and using servant_to_id to obtain
      * the ID to deactivate_the_object.
      */
-	public void testActivateDeactivate1 () throws Exception
-	{
-		BasicServerImpl soi = new BasicServerImpl();
+    public void testActivateDeactivate1 () throws Exception
+    {
+        POA poa = POAHelper.narrow(orb.resolve_initial_references("RootPOA"));
 
-		for (int count=0;count<100;count++)
-		{
-			rootPOA.activate_object( soi);
-			rootPOA.deactivate_object(rootPOA.servant_to_id(soi));
-		}
-	}
+        poa.the_POAManager().activate();
+
+        BasicServerImpl soi = new BasicServerImpl();
+
+        for (int count=0;count<100;count++)
+        {
+            poa.activate_object( soi);
+            poa.deactivate_object(poa.servant_to_id(soi));
+        }
+    }
 
 
     /**
@@ -57,16 +62,20 @@ public class Bug344Test extends ORBTestCase
      */
 	public void testActivateDeactivate2 () throws Exception
 	{
-		BasicServerImpl soi = new BasicServerImpl();
+        POA poa = POAHelper.narrow(orb.resolve_initial_references("RootPOA"));
 
-		// This will activate it so do deactivate first
-		byte []id = rootPOA.servant_to_id( soi );
+        poa.the_POAManager().activate();
 
-		for (int count=0;count<100;count++)
-		{
-			rootPOA.deactivate_object(id);
-			rootPOA.activate_object_with_id(id, soi);
-		}
+        BasicServerImpl soi = new BasicServerImpl();
+
+        // This will activate it so do deactivate first
+        byte []id = poa.servant_to_id( soi );
+
+        for (int count=0;count<100;count++)
+        {
+            poa.deactivate_object(id);
+            poa.activate_object_with_id(id, soi);
+        }
 	}
 
 
@@ -76,25 +85,27 @@ public class Bug344Test extends ORBTestCase
      */
 	public void testActivateDeactivate3 () throws Exception
 	{
-		// create POA
-		Policy policies[] = new Policy[3];
-		policies[0] = rootPOA.create_id_assignment_policy(
-				org.omg.PortableServer.IdAssignmentPolicyValue.SYSTEM_ID);
-		policies[1] = rootPOA.create_id_uniqueness_policy(
-				org.omg.PortableServer.IdUniquenessPolicyValue.MULTIPLE_ID);
-		policies[2] = rootPOA.create_servant_retention_policy(
-				org.omg.PortableServer.ServantRetentionPolicyValue.RETAIN);
+        POA rootPoa = POAHelper.narrow(orb.resolve_initial_references("RootPOA"));
 
-		POA poa = rootPOA.create_POA("system_id", rootPOA.the_POAManager(), policies);
+        // create POA
+        Policy policies[] = new Policy[3];
+        policies[0] = rootPoa.create_id_assignment_policy(
+                org.omg.PortableServer.IdAssignmentPolicyValue.SYSTEM_ID);
+        policies[1] = rootPoa.create_id_uniqueness_policy(
+                org.omg.PortableServer.IdUniquenessPolicyValue.MULTIPLE_ID);
+        policies[2] = rootPoa.create_servant_retention_policy(
+                org.omg.PortableServer.ServantRetentionPolicyValue.RETAIN);
 
-		BasicServerImpl soi = new BasicServerImpl();
+        POA poa = rootPoa.create_POA("system_id", rootPoa.the_POAManager(), policies);
 
-		byte [] id = poa.activate_object(soi);
+        BasicServerImpl soi = new BasicServerImpl();
 
-		for (int count=0;count<100;count++)
-		{
-			poa.deactivate_object(id);
-			poa.activate_object_with_id( id, soi);
-		}
+        byte [] id = poa.activate_object(soi);
+
+        for (int count=0;count<100;count++)
+        {
+            poa.deactivate_object(id);
+            poa.activate_object_with_id( id, soi);
+        }
 	}
 }

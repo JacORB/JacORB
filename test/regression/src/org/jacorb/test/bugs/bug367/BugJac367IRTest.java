@@ -23,7 +23,9 @@ package org.jacorb.test.bugs.bug367;
 import java.util.Properties;
 
 import junit.framework.Test;
+import junit.framework.TestSuite;
 
+import org.jacorb.test.common.TestUtils;
 import org.jacorb.test.ir.AbstractIRServerTestCase;
 import org.jacorb.test.ir.IFRServerSetup;
 
@@ -40,6 +42,11 @@ public class BugJac367IRTest extends AbstractIRServerTestCase
 
     public static Test suite()
     {
+        if (TestUtils.isJ2ME())
+        {
+            return new TestSuite();
+        }
+
         Properties props = new Properties();
         props.setProperty("jacorb.ir.patch_pragma_prefix", "on");
 

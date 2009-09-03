@@ -36,7 +36,6 @@ public class Bug459Test extends TestCase
     {
         public Any bounce_any(Any inAny)
         {
-
             return inAny;
         }
     }

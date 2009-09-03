@@ -110,14 +110,8 @@ public class StreamListener extends Thread
     public void setDestroyed()
     {
         active = false;
-        try
-        {
-            in.close();
-        }
-        catch (IOException e)
-        {
-            e.printStackTrace();
-        }
+
+        interrupt();
     }
 
     public String getBuffer()
@@ -185,6 +179,15 @@ public class StreamListener extends Thread
                 System.out.println("StreamListener exiting");
                 break;
             }
+        }
+
+        try
+        {
+            in.close();
+        }
+        catch (IOException e)
+        {
+            // do nothing
         }
     }
 

@@ -22,27 +22,21 @@ package org.jacorb.test.common.launch;
  */
 
 import java.io.File;
-import java.io.FileOutputStream;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.OutputStream;
+import java.io.InputStream;
 import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.lang.reflect.Method;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.Date;
-import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
-
-import junit.framework.AssertionFailedError;
-import junit.framework.Test;
-import junit.framework.TestResult;
 
 import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.Project;
@@ -51,10 +45,9 @@ import org.apache.tools.ant.taskdefs.ExecuteWatchdog;
 import org.apache.tools.ant.taskdefs.LogStreamHandler;
 import org.apache.tools.ant.taskdefs.optional.junit.BatchTest;
 import org.apache.tools.ant.taskdefs.optional.junit.FormatterElement;
-import org.apache.tools.ant.taskdefs.optional.junit.JUnitResultFormatter;
-import org.apache.tools.ant.taskdefs.optional.junit.JUnitTest;
 import org.apache.tools.ant.types.Parameter;
 import org.apache.tools.ant.types.Path;
+import org.apache.tools.ant.types.PropertySet;
 import org.jacorb.test.common.TestUtils;
 import org.jacorb.util.ObjectUtil;
 
@@ -94,7 +87,6 @@ public class TestLauncher extends Task
 
     private String serverVersion = "cvs";
     private String clientVersion = "cvs";
-    private long timeout = 15000;
     private String maxMemory = "64m";
 
     private String suite;
@@ -112,7 +104,10 @@ public class TestLauncher extends Task
 
     private final List batchTests = new ArrayList();
 
-    private void printTestHeader (PrintWriter out)
+    private File launcherConfiguration;
+    private JacORBLauncher launcherFactory;
+
+    private void printTestHeader (PrintWriter out, String clientDetails, String serverDetails)
     {
         out.println("-------------------------------------------------------------------------------");
         out.println();
@@ -120,24 +115,24 @@ public class TestLauncher extends Task
         out.println();
         out.println("  Date:     " + getTestDateString());
         out.println("  User:     " + getTestUser());
-        out.println("  Platform: " + getTestPlatform());
         out.println();
         out.println("  Client Version:   " + getClientVersion());
+        out.println(clientDetails);
         out.println("  Server Version:   " + getServerVersion());
+        out.println(serverDetails);
         out.println("  Coverage:         " + (getCoverage() ? "yes" : "no"));
         out.println("  SSL:              " + (useSSL ? "yes" : "no"));
         out.println("  IMR:              " + (useIMR ? "yes" : "no"));
-        out.println("  Timeout:          " + timeout);
         out.println("  -Xmx:             " + maxMemory);
         out.println();
         out.println("-------------------------------------------------------------------------------");
         out.println();
     }
 
-    private void printTestHeader (PrintStream out)
+    private void printTestHeader (PrintStream out, String clientDetails, String serverDetails)
     {
         PrintWriter writer = new PrintWriter (out);
-        printTestHeader(writer);
+        printTestHeader(writer, clientDetails, serverDetails);
         writer.flush();
     }
 
@@ -181,15 +176,6 @@ public class TestLauncher extends Task
         return System.getProperty ("user.name", "<unknown>");
     }
 
-    private String getTestPlatform()
-    {
-        return "java " + System.getProperty ("java.version")
-             + " (" + System.getProperty ("java.vendor") + ") "
-             + System.getProperty ("os.name") + " "
-             + System.getProperty ("os.version") + " ("
-             + System.getProperty ("os.arch") + ")";
-    }
-
     public void setTestTimeout(long timeout)
     {
         testTimeout = timeout;
@@ -203,11 +189,6 @@ public class TestLauncher extends Task
     public void setSuite(String suite)
     {
         this.suite = suite;
-    }
-
-    public void setTimeout(long timeout)
-    {
-        this.timeout = timeout;
     }
 
     public void setMaxMemory(String value)
@@ -243,6 +224,11 @@ public class TestLauncher extends Task
         props.setProperty(var.getName(), var.getValue());
     }
 
+    public void addConfiguredSyspropertyset(PropertySet sysp)
+    {
+        props.putAll(sysp.getProperties());
+    }
+
     public void addConfiguredClasspath(Path path)
     {
         classpath.add(path);
@@ -261,6 +247,12 @@ public class TestLauncher extends Task
     public void setShowoutput(boolean value)
     {
         showOutput = value;
+    }
+
+    public void setLauncherConfiguration(File file)
+    {
+        launcherConfiguration = file;
+        props.setProperty("jacorb.test.launcherconfigfile", file.toString());
     }
 
     public BatchTest createBatchTest()
@@ -308,167 +300,77 @@ public class TestLauncher extends Task
 
     private void executeInternal() throws IOException, InterruptedException
     {
-        outDir.mkdir();
+        Properties props = prepareProps();
 
-        final String testHome = TestUtils.osDependentPath(testDir.getAbsolutePath());
+        initLauncherFactory();
 
-        // TODO don't do that
-        // testhome should be passed in to JacORBLauncher instead
-        System.setProperty("jacorb.test.home", testHome);
+        List args = prepareArgs();
 
-        final Properties props = newPropertiesForTest(testHome);
+        String[] processArgs = (String[]) args.toArray(new String[args.size()]);
 
-        final List allTests;
+        // the bootclasspath is determined by the launcher.
+        log("TestLauncher ARGS:\n" + format(args), Project.MSG_VERBOSE);
+        log("TestLauncher PROPS:\n" + format(props), Project.MSG_VERBOSE);
+        log("TestLauncher CLASSPATH:\n    " + formatClasspath(), Project.MSG_VERBOSE);
 
-        if (suite != null)
-        {
-            allTests = Collections.singletonList(suite);
-        }
-        else
-        {
-            allTests = new ArrayList();
-            Iterator i = batchTests.iterator();
-            while(i.hasNext())
-            {
-                BatchTest test = (BatchTest) i.next();
-                Enumeration e = test.elements();
-                while(e.hasMoreElements())
-                {
-                    JUnitTest jtest = (JUnitTest) e.nextElement();
-                    allTests.add(jtest.getName());
-                }
-            }
-        }
+        final Launcher junitLauncher = prepareJUnitLauncher(props, processArgs);
 
-        iterateTests(allTests, props);
-    }
+        // only used to print out the details of the launcher.
+        // normally the serverLauncher will be launched from within the junit process launched
+        // by junitLauncher.
+        final Launcher serverLauncher = launcherFactory.getLauncher(getServerVersion(), false, null, props, null, null);
 
-    private void iterateTests(List tests, final Properties props) throws IOException, InterruptedException
-    {
-        printHeader();
+        printBanner(junitLauncher.getLauncherDetails("    "), serverLauncher.getLauncherDetails("    "));
 
-        final Iterator i = tests.iterator();
-        while(i.hasNext())
-        {
-            String suite = (String) i.next();
-
-            final String[] processArgs = newArgsForTest(suite);
-
-            log("TestLauncher ARGS:\n" + format(processArgs), Project.MSG_VERBOSE);
-            log("TestLauncher PROPS:\n" + format(props), Project.MSG_VERBOSE);
-            log("TestLauncher CLASSPATH:\n    " + formatClasspath(), Project.MSG_VERBOSE);
-
-            final Process process = startJUnitProcess(props, processArgs);
-
-            final ExecuteWatchdog watchDog;
-
-            if (testTimeout == 0)
-            {
-                watchDog = null;
-            }
-            else
-            {
-                watchDog = new ExecuteWatchdog(testTimeout);
-                watchDog.start(process);
-            }
-
-            int retCode = process.waitFor();
-
-            if (watchDog != null && watchDog.killedProcess())
-            {
-                JUnitTest test = new JUnitTest(suite);
-
-                try
-                {
-                    logTimeout((FormatterElement[]) formatters.toArray(new FormatterElement[formatters.size()]), test);
-                }
-                catch (Exception e)
-                {
-                    throw new BuildException();
-                }
-
-                getProject().setNewProperty(errorProperty, "true");
-            }
-
-            if (errorProperty != null && retCode != 0)
-            {
-                getProject().setNewProperty(errorProperty, "true");
-            }
-        }
-    }
-
-    private Process startJUnitProcess(final Properties props, final String[] processArgs)
-    {
-        final String mainClass = "org.apache.tools.ant.taskdefs.optional.junit.JUnitTestRunner";
-        final Launcher launcher = JacORBLauncher.getLauncher
-        (
-            getClientVersion(), getCoverage(), buildClasspath(), props, mainClass, processArgs
-        );
-
-        final Process process = launcher.launch();
+        final Process process = junitLauncher.launch();
 
         final LogStreamHandler logHandler = new LogStreamHandler(this, Project.MSG_INFO, Project.MSG_WARN);
         logHandler.setProcessErrorStream(process.getErrorStream());
         logHandler.setProcessOutputStream(process.getInputStream());
         logHandler.setProcessInputStream(process.getOutputStream());
         logHandler.start();
-        return process;
-    }
 
-    private void printHeader() throws IOException
-    {
-        final PrintWriter out = new PrintWriter(new FileWriter(new File(outDir, "header.txt")));
-        try
+        final ExecuteWatchdog watchDog;
+
+        if (testTimeout == 0)
         {
-            printTestHeader(out);
+            watchDog = null;
         }
-        finally
+        else
         {
-            out.close();
+            watchDog = new ExecuteWatchdog(testTimeout);
+            watchDog.start(process);
         }
 
-        printTestHeader (System.out);
-    }
+        int retCode = process.waitFor();
 
-    private String format(String[] args)
-    {
-        return format(Arrays.asList(args));
-    }
-
-    private String[] newArgsForTest(String suite)
-    {
-        List args = new ArrayList();
-        args.add(suite);
-        args.add("printsummary=withOutAndErr");
-        args.add("showoutput=" + Boolean.toString(showOutput));
-
-        Iterator i = formatters.iterator();
-        while(i.hasNext())
+        if (watchDog != null && watchDog.killedProcess())
         {
-            FormatterElement formatter = (FormatterElement) i.next();
-            if (formatter.shouldUse(this))
-            {
-                StringBuffer buffer = new StringBuffer("formatter=");
-                buffer.append(formatter.getClassname());
-                final File outputFile = getOutput(suite, formatter);
-                if (outputFile != null)
-                {
-                    buffer.append(',');
-                    buffer.append(outputFile);
-                }
-
-                args.add(buffer.toString());
-            }
+            throw new BuildException("hit timeout " + testTimeout + " during execution of tests");
         }
 
-        String[] processArgs = (String[]) args.toArray(new String[args.size()]);
-
-        // the bootclasspath is determined by the launcher.
-
-        return processArgs;
+        if (errorProperty != null && retCode != 0)
+        {
+            getProject().setNewProperty(errorProperty, "true");
+        }
     }
 
-    private Properties newPropertiesForTest(String testHome) throws IOException
+    private Launcher prepareJUnitLauncher(Properties props, String[] processArgs)
+    {
+        final String mainClass = "org.apache.tools.ant.taskdefs.optional.junit.JUnitTestRunner";
+        final Launcher launcher = launcherFactory.getLauncher
+        (
+            getClientVersion(),
+            getCoverage(),
+            buildClasspath(),
+            props,
+            mainClass,
+            processArgs
+        );
+        return launcher;
+    }
+
+    private Properties prepareProps() throws IOException
     {
         Properties props = new Properties();
 
@@ -476,15 +378,6 @@ public class TestLauncher extends Task
         props.setProperty("jacorb.config.log.verbosity", "0");
 
         props.putAll(this.props);
-
-        props.put("jacorb.test.coverage", Boolean.toString(coverage));
-        props.put("jacorb.test.ssl", Boolean.toString(useSSL));
-        props.put("jacorb.test.imr", Boolean.toString(useIMR));
-        props.put("jacorb.test.client.version", getClientVersion());
-        props.put("jacorb.test.server.version", getServerVersion());
-        props.put("jacorb.test.timeout", Long.toString(timeout));
-        props.put("jacorb.test.outdir", outDir.getAbsolutePath());
-        props.put("jacorb.test.home", testHome);
 
         try
         {
@@ -519,16 +412,75 @@ public class TestLauncher extends Task
 
         if (getCoverage())
         {
-            String coveragePath = outDir + "/coverage-client.ec";
-            coveragePath = TestUtils.osDependentPath(coveragePath);
-            props.put ("emma.coverage.out.file", coveragePath);
+            File coveragePath = new File(outDir, "coverage-client.ec");
+            props.put ("emma.coverage.out.file", coveragePath.toString());
             props.put ("emma.verbosity.level", "quiet" );
         }
-
         return props;
     }
 
-    protected File getOutput(String suite, FormatterElement fe)
+    private List prepareArgs()
+    {
+        List args = new ArrayList();
+        args.add(suite);
+        args.add("printsummary=withOutAndErr");
+        args.add("showoutput=" + Boolean.toString(showOutput));
+
+        Iterator i = formatters.iterator();
+        while(i.hasNext())
+        {
+            FormatterElement formatter = (FormatterElement) i.next();
+
+            if (!formatter.shouldUse(this))
+            {
+                continue;
+            }
+            StringBuffer buffer = new StringBuffer("formatter=");
+            buffer.append(formatter.getClassname());
+            final File outputFile = getOutput(formatter, this);
+            if (outputFile != null)
+            {
+                buffer.append(',');
+                buffer.append(outputFile);
+            }
+
+            args.add(buffer.toString());
+        }
+        return args;
+    }
+
+    private void printBanner(String clientDetails, String serverDetails) throws IOException
+    {
+        outDir.mkdir();
+
+        PrintWriter out = new PrintWriter(new FileWriter(new File(outDir, "header.txt")));
+        try
+        {
+            printTestHeader(out, clientDetails, serverDetails);
+        }
+        finally
+        {
+            out.close();
+        }
+
+        printTestHeader (System.out, clientDetails, serverDetails);
+    }
+
+    private void initLauncherFactory() throws FileNotFoundException, IOException
+    {
+        InputStream in = new FileInputStream(launcherConfiguration);
+        try
+        {
+            launcherFactory = new JacORBLauncher(in, props);
+            launcherFactory.setClassLoader(getClass().getClassLoader());
+        }
+        finally
+        {
+            in.close();
+        }
+    }
+
+    protected File getOutput(FormatterElement fe, TestLauncher test)
     {
         boolean useFile = true;
         try
@@ -624,65 +576,5 @@ public class TestLauncher extends Task
             buffer.append('\n');
         }
         return buffer.toString();
-    }
-
-    /**
-     * copied from ant's JUnitTask
-     */
-    private void logTimeout(FormatterElement[] feArray, JUnitTest test) throws Exception
-    {
-        test.setCounts(1, 0, 1);
-        test.setProperties(getProject().getProperties());
-        for (int i = 0; i < feArray.length; i++)
-        {
-            FormatterElement fe = feArray[i];
-
-            if (!fe.shouldUse(this))
-            {
-                continue;
-            }
-
-            File outFile = getOutput(test.getName(), fe);
-
-            Method method = fe.getClass().getDeclaredMethod("createFormatter", new Class[] {ClassLoader.class});
-            method.setAccessible(true);
-
-            JUnitResultFormatter formatter = (JUnitResultFormatter) method.invoke(fe, new Object[] {getClass().getClassLoader()});
-            if (outFile != null && formatter != null )
-            {
-                try
-                {
-                    OutputStream out = new FileOutputStream(outFile);
-                    addTimeout(test, formatter, out);
-                } catch (IOException e) {
-                    // ignore
-                }
-            }
-        }
-    }
-
-    /**
-     * copied from ant's JUnitTask
-     */
-    private void addTimeout(JUnitTest test,
-                            JUnitResultFormatter formatter,
-                            OutputStream out) {
-
-
-        formatter.setOutput(out);
-        formatter.startTestSuite(test);
-
-        //the trick to integrating test output to the formatter, is to
-        //create a special test class that asserts a timout occurred,
-        //and tell the formatter that it raised.
-        Test t = new Test() {
-                public int countTestCases() { return 1; }
-                public void run(TestResult r) {
-                    throw new AssertionFailedError("Timeout occurred");
-                }
-            };
-        formatter.startTest(t);
-        formatter.addError(t, new AssertionFailedError("Timeout occurred"));
-        formatter.endTestSuite(test);
     }
 }

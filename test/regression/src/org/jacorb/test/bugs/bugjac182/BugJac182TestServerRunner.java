@@ -2,6 +2,7 @@ package org.jacorb.test.bugs.bugjac182;
 
 import java.lang.reflect.Constructor;
 
+import org.jacorb.test.common.TestServer;
 import org.omg.CORBA.ORB;
 import org.omg.CORBA.Policy;
 import org.omg.PortableServer.ImplicitActivationPolicyValue;
@@ -20,6 +21,8 @@ public class BugJac182TestServerRunner
      */
     public static void main (String[] args) throws Exception
     {
+        TestServer.startReaperThread();
+
         //init ORB
         ORB serverOrb = ORB.init( args, null );
 

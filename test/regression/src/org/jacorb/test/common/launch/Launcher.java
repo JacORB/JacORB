@@ -28,4 +28,5 @@ public interface Launcher
 {
     Process launch();
     String getCommand();
+    String getLauncherDetails(String prefix);
 }

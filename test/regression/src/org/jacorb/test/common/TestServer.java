@@ -120,6 +120,8 @@ public class TestServer
 
     public static void main (String[] args)
     {
+        Thread reaperThread = startReaperThread();
+
         Logger logger = null;
         try
         {
@@ -167,6 +169,7 @@ public class TestServer
                 log("configured Servant");
             }
 
+            final String ior;
             if (useCorbaloc())
             {
                 String oid = System.getProperty ("jacorb.test.corbaloc.objectid");
@@ -178,14 +181,18 @@ public class TestServer
                     + "/" + System.getProperty ("jacorb.test.corbaloc.poaname")
                     + "/" + System.getProperty ("jacorb.test.corbaloc.objectid"));
 
-                System.out.println ("SERVER IOR: " + getCorbaloc());
+                ior = "SERVER IOR: " + getCorbaloc();
             }
             else
             {
                 // create the object reference
                 org.omg.CORBA.Object obj = poa.servant_to_reference( servant );
-                System.out.println ("SERVER IOR: " + orb.object_to_string(obj));
+                ior = "SERVER IOR: " + orb.object_to_string(obj);
             }
+
+            System.out.println(ior);
+
+            TestUtils.log("using IOR: " + ior);
             System.out.flush();
 
             if (logger != null)
@@ -206,6 +213,41 @@ public class TestServer
                 System.err.println ("TestServer error " + e);
             }
         }
+
+        reaperThread.interrupt();
+   }
+
+    /**
+     * start a reaper thread that ensures that the TestServer is shutdown eventually.
+     * this should happen even if the client process that started the TestServer fails
+     * to do that.
+     */
+    public static Thread startReaperThread()
+    {
+        // wait twice the global timeout. should be enough
+        // as usually the test that started us is killed after
+        // the global timeout has passed.
+        // could produce odd results in eclipse as the testrunner doesn't support timeouts there.
+        final long timeout = Long.getLong("jacorb.test.timeout.global", 240000).longValue() * 2;
+
+        Thread reaperThread = new Thread()
+        {
+            public void run()
+            {
+                try
+                {
+                    Thread.sleep(timeout);
+                    System.err.println("WARNING: TestServer is killing itself after waiting " + timeout + "!");
+                    System.exit(1);
+                }
+                catch (InterruptedException e)
+                {
+                }
+            }
+        };
+        reaperThread.setDaemon(true);
+        reaperThread.start();
+        return reaperThread;
     }
 
     private static void log(String msg)

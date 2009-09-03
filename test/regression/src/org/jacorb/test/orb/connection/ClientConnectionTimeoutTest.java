@@ -30,7 +30,6 @@ import org.jacorb.test.TestIf;
 import org.jacorb.test.TestIfHelper;
 import org.jacorb.test.common.ClientServerSetup;
 import org.jacorb.test.common.ClientServerTestCase;
-import org.jacorb.test.common.CommonSetup;
 import org.jacorb.test.common.TestUtils;
 
 /**
@@ -61,12 +60,7 @@ public class ClientConnectionTimeoutTest extends ClientServerTestCase
         TestSuite suite = new TestSuite( "Client connection idle-timeout tests" );
 
         Properties client_props = new Properties();
-        client_props.setProperty( "jacorb.connection.client.idle_timeout", "1000" );
-
-        if (TestUtils.isJDK13())
-        {
-            client_props.setProperty(CommonSetup.JACORB_REGRESSION_DISABLE_SECURITY, "true");
-        }
+        client_props.setProperty( "jacorb.connection.client.idle_timeout", "2000" );
 
         ClientServerSetup setup =
             new ClientServerSetup( suite,
