@@ -250,6 +250,7 @@
         <propertyset id="jacorb.test.properties" >
             <propertyref prefix="jacorb.test" />
             <propertyref prefix="emma" />
+            <propertyref prefix="jacorb.home" />
         </propertyset>
 
         <jacunit-banner outputproperty="jacorb.test.testbanner" >
