@@ -99,10 +99,10 @@ public class SSLServerSocketFactory
         }
 
         keystore_location =
-            configuration.getAttribute("jacorb.security.keystore","UNSET");
+            configuration.getAttribute("jacorb.security.keystore");
 
         keystore_passphrase =
-            configuration.getAttribute("jacorb.security.keystore_password","UNSET" );
+            configuration.getAttribute("jacorb.security.keystore_password");
 
         try
         {

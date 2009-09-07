@@ -81,10 +81,10 @@ public class SSLSocketFactory
             configuration.getAttributeAsBoolean("jacorb.security.jsse.trustees_from_ks", false);
 
         keystore_location =
-            configuration.getAttribute("jacorb.security.keystore", "UNSET");
+            configuration.getAttribute("jacorb.security.keystore");
 
         keystore_passphrase =
-            configuration.getAttribute("jacorb.security.keystore_password", "UNSET");
+            configuration.getAttribute("jacorb.security.keystore_password");
 
         clientSupportedOptions =
             Short.parseShort(

@@ -55,6 +55,8 @@ post 2.3.1
         - Fix Object::duplicate(4.3.2.1).
         - Change set_policy_overrides to match 4.3.9.1 specification.
         - Fix possible race condition with the value factory hashmap.
+        - modified the JSSE socket factories to throw INITIALIZE if
+          no ssl keystore is set or if the filename is wrong.
         
 
     - IDL Compiler: 
