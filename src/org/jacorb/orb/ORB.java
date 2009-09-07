@@ -33,6 +33,7 @@ import org.jacorb.config.*;
 import org.slf4j.Logger;
 import org.jacorb.imr.ImRAccessImpl;
 import org.jacorb.orb.dii.Request;
+import org.jacorb.orb.dynany.DynAnyFactoryImpl;
 import org.jacorb.orb.etf.FactoriesBase;
 import org.jacorb.orb.etf.ProfileBase;
 import org.jacorb.orb.etf.ProtocolAddressBase;
@@ -203,8 +204,7 @@ public final class ORB
     /* policy factories, from portable interceptor spec */
     private final Map policy_factories = Collections.synchronizedMap(new HashMap());
 
-    private static final String [] services  =
-        {"RootPOA","POACurrent", "DynAnyFactory", "PICurrent", "CodecFactory", "RTORB",};
+    private final static HashSet services = new HashSet(Arrays.asList(new String[] {"RootPOA","POACurrent", "DynAnyFactory", "PICurrent", "CodecFactory", "RTORB",}));
 
     private boolean bidir_giop = false;
 
@@ -994,9 +994,9 @@ public final class ORB
 
     public String[] list_initial_services()
     {
-        final List list = new ArrayList(initial_references.size() + services.length);
+        final List list = new ArrayList(initial_references.size() + services.size());
 
-        list.addAll(Arrays.asList(services));
+        list.addAll(services);
 
         for( Iterator i = initial_references.keySet().iterator(); i.hasNext();)
         {
@@ -1193,7 +1193,9 @@ public final class ORB
     }
 
 
-    public void referenceCreated(org.omg.CORBA.Object o) {}
+    public void referenceCreated(org.omg.CORBA.Object o)
+    {
+    }
 
     public boolean get_service_information( short service_type,
                                             org.omg.CORBA.ServiceInformationHolder service_information)
@@ -1206,95 +1208,92 @@ public final class ORB
      */
 
     public org.omg.CORBA.Object resolve_initial_references(String identifier)
-    throws org.omg.CORBA.ORBPackage.InvalidName
+        throws org.omg.CORBA.ORBPackage.InvalidName
     {
         if ( initial_references.containsKey(identifier) )
         {
             return (org.omg.CORBA.Object)initial_references.get(identifier);
         }
 
-        org.omg.CORBA.Object obj = null;
-        String url = null;
+        org.omg.CORBA.Object obj = resolveConfigInitRef(identifier);
 
-        try
+        if (obj == null)
         {
-            url = configuration.getAttribute("ORBInitRef." + identifier);
-        }
-        catch( Exception e )
-        {
-            // ignore
-        }
-
-        if( url != null )
-        {
-            try
+            if ("RootPOA".equals(identifier))
             {
-                obj = this.string_to_object( url );
+                return getRootPOA();
             }
-            catch( Exception e )
+            else if ("POACurrent".equals(identifier))
             {
-                if (logger.isErrorEnabled())
+                return getPOACurrent();
+            }
+            else if ("SecurityCurrent".equals(identifier))
+            {
+                throw new InvalidName("Level2 SecurityImplementation has been removed");
+            }
+            else if ("DynAnyFactory".equals(identifier))
+            {
+                obj = new DynAnyFactoryImpl( this );
+            }
+            else if ("PICurrent".equals(identifier))
+            {
+                return piCurrent;
+            }
+            else if ("ORBPolicyManager".equals(identifier))
+            {   
+                if (policyManager == null)
                 {
-                    logger.error( "Could not create initial reference for \"" +
-                            identifier + "\"\n" +
-                            "Please check property \"ORBInitRef." +
-                            identifier + '\"' );
+                    policyManager = new PolicyManager(this.getConfiguration());
                 }
-                if (logger.isDebugEnabled())
-                {
-                    logger.debug( e.getMessage() );
-                }
-
+                return policyManager;
+            }
+            else if ("CodecFactory".equals(identifier))
+            {
+                obj = new CodecFactoryImpl(this);
+            }
+            else if ("RTORB".equals(identifier))
+            {
+                obj = getRTORB();
+            }
+            else
+            {
                 throw new org.omg.CORBA.ORBPackage.InvalidName();
             }
         }
-        else if ("RootPOA".equals(identifier))
-        {
-            return getRootPOA();
-        }
-        else if ("POACurrent".equals(identifier))
-        {
-            return getPOACurrent();
-        }
-        else if ("SecurityCurrent".equals(identifier))
-        {
-            throw new InvalidName("Level2 SecurityImplementation has been removed");
-        }
-        else if ("DynAnyFactory".equals(identifier))
-        {
-            obj = new org.jacorb.orb.dynany.DynAnyFactoryImpl( this );
-        }
-        else if ("PICurrent".equals(identifier))
-        {
-            return piCurrent;
-        }
-        else if ("ORBPolicyManager".equals(identifier))
-        {
-            if (policyManager == null)
-            {
-                policyManager = new PolicyManager(this.getConfiguration());
-            }
-            return policyManager;
-        }
-        else if ("CodecFactory".equals(identifier))
-        {
-            obj = new CodecFactoryImpl(this);
-        }
-        else if ("RTORB".equals(identifier))
-        {
-            obj = getRTORB();
-        }
-        else
-        {
-            throw new org.omg.CORBA.ORBPackage.InvalidName();
-        }
-
+        
         if (obj != null)
         {
             initial_references.put (identifier, obj);
         }
 
         return obj;
+    }
+
+    private org.omg.CORBA.Object resolveConfigInitRef(String identifier) throws InvalidName
+    {
+        String url = configuration.getAttribute("ORBInitRef." + identifier, null);
+
+        if (url == null)
+        {
+            return null;
+        }
+
+        try
+        {
+            return this.string_to_object( url );
+        }
+        catch( Exception e )
+        {
+            if (logger.isErrorEnabled())
+            {
+                logger.error( "Could not create initial reference for \"" +
+                        identifier + "\"\n" +
+                        "Please check property \"ORBInitRef." +
+                        identifier + '\"', e);
+            }
+
+            throw new org.omg.CORBA.ORBPackage.InvalidName();
+        }
     }
 
     /**
