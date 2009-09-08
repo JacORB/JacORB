@@ -14,11 +14,7 @@
    <target name="all" depends="init,compile"/>
 
    <target name="compile">
-      <jacorb-javac javac-includes="org/jacorb/ir/*.java,org/jacorb/ir/**/*.java"/>
-   </target>
-
-
-   <target name="clean" depends="init">
-         <delete dir="${classdir}/org/jacorb/ir"/>
+      <jacorb-javac javac-includes="org/jacorb/ir/*.java, 
+      	                            org/jacorb/ir/**/*.java"/>
    </target>
 </project>

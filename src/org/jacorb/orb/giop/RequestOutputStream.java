@@ -100,7 +100,7 @@ public class RequestOutputStream
             other.response_expected,
             other.syncScope,
             other.requestStartTime,
-            other.replyEndTime,
+            other.requestEndTime,
             other.replyEndTime,
             other.object_key,
             other.giop_minor);

@@ -206,6 +206,11 @@ public class ValueTest extends ClientServerTestCase
 
     public void test_pass_list_in_any()
     {
+        if (TestUtils.isJ2ME())
+        {
+            return;
+        }
+
         Node n1 = new NodeImpl(1);
         Node n2 = new NodeImpl(2);
         Node n3 = new NodeImpl(3);

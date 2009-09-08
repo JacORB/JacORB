@@ -275,6 +275,11 @@ public class CDROutputStreamTest extends ORBTestCase
 
     public void testDoesNotLikeNonJacORB()
     {
+        if (TestUtils.isJ2ME())
+        {
+            return;
+        }
+
         org.omg.CORBA.ORB sunORB = org.omg.CORBA.ORB.init(new String[0], TestUtils.newSunORBProperties());
 
         try

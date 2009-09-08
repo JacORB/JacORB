@@ -86,6 +86,8 @@ public class ServerSetup extends TestSetup
 
     protected final List serverArgs = new ArrayList();
 
+    private String serverIORFailedMesg;
+
     public ServerSetup(Test test, String testServer, String servantName, Properties optionalProperties)
     {
         super(test);
@@ -223,7 +225,6 @@ public class ServerSetup extends TestSetup
         {
             outListener.setDestroyed();
             errListener.setDestroyed();
-
             outListener = null;
             errListener = null;
 
@@ -239,18 +240,18 @@ public class ServerSetup extends TestSetup
 
     public String getServerIOR()
     {
-//      if (serverIOR == null)
-//      {
-//      if (serverIORFailedMesg == null)
-//      {
-//      String exc = errListener.getException(1000);
+        if (serverIOR == null)
+        {
+            if (serverIORFailedMesg == null)
+            {
+                String exc = errListener.getException(1000);
 
-//      String details = dumpStreamListener();
+                String details = dumpStreamListener();
 
-//      serverIORFailedMesg = "could not access IOR for Server.\nServant: " + servantName + "\nTimeout: " + testTimeout + " millis.\nThis maybe caused by: " + exc + '\n' + details;
-//      }
-//      fail(serverIORFailedMesg);
-//      }
+                serverIORFailedMesg = "could not access IOR for Server.\nServant: " + servantName + "\nTimeout: " + testTimeout + " millis.\nThis maybe caused by: " + exc + '\n' + details;
+            }
+            fail(serverIORFailedMesg);
+        }
 
         return serverIOR;
     }

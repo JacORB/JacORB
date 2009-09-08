@@ -85,7 +85,7 @@ public class Bug400Test extends ORBTestCase
 
         org.omg.CORBA.Object ref = poa.create_reference_with_id(
                 "some_oid".getBytes(),
-                ObjectHelper.id());
+                BasicServerHelper.id());
 
         try
         {

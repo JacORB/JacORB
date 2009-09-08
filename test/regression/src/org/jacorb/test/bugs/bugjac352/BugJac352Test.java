@@ -28,6 +28,12 @@ public class BugJac352Test extends ClientServerTestCase
 
     public static Test suite()
     {
+        if (TestUtils.isJ2ME())
+        {
+            // J2ME doesn't provide an ORB
+            return new TestSuite();
+        }
+
         TestSuite suite = new TestSuite(BugJac352Test.class.getName());
         Properties clientProps = new Properties();
         clientProps.setProperty(CommonSetup.JACORB_REGRESSION_DISABLE_SECURITY, "true");

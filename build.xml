@@ -49,6 +49,40 @@ using VERSION_INFO: ${jacorb_version_info}
     <target name="version" depends="init, version-gen" />
 
 
+
+   <!-- ==== -->
+   <!-- J2ME -->
+   <!-- ==== -->
+
+    <target name="jdk:patch" unless="dir.j2me" >
+        <copy todir="${src.generated}" overwrite="true">
+            <fileset dir="${src}">
+                <include name="**/*.jdk" />
+                <exclude name="generated/**" />
+            </fileset>
+
+            <globmapper from="*.jdk" to="*.java"/>
+        </copy>
+
+        <property name="jaco.jvm" value="java" />
+    </target>
+
+    <target name="j2me:patch" if="dir.j2me">
+        <copy todir="${src.generated}" overwrite="true">
+            <fileset dir="${src}">
+                <include name="**/*.j2me" />
+                <exclude name="generated/**" />
+            </fileset>
+
+            <globmapper from="*.j2me" to="*.java"/>
+        </copy>
+        <jacorb-javac javac-includes="java/**/*.java" />
+
+        <property name="jaco.jvm" value="cvm" />
+    </target>
+
+	<target name="j2me:all" depends="j2me:verify, whats-my-classpath, all" description="Build JacORB ME (requires CDC 1.1.2 with Foundation Profile and SSL extension)"/>
+
    <!-- ==================================================== -->
    <!--                   IDL compiler                       -->
    <!-- ==================================================== -->
@@ -105,19 +139,30 @@ using VERSION_INFO: ${jacorb_version_info}
            />
    </target>
 
-   <target name="scripts" depends="init" description="Generate the scripts">
+   <target name="scripts" depends="init, j2me:patch, jdk:patch" description="Generate the scripts">
 
-        <loadfile   srcFile="bin/resolve_jacorb_home.tok"
-                    property="token.resolve-jacorb-home"
-                    failonerror="true"/>
+        <macrodef name="jacorb-loadfile">
+            <attribute name="srcFile" />
+            <attribute name="property" />
 
-        <loadfile   srcFile="bin/resolve_jaco_cmd.tok"
-                    property="token.resolve-jaco-cmd"
-                    failonerror="true"/>
+            <sequential>
+                <loadfile   srcFile="@{srcFile}"
+                            property="@{property}"
+                            failonerror="true" />
+            </sequential>
+        </macrodef>
 
-        <loadfile   srcFile="bin/resolve_java_cmd.tok"
-                    property="token.resolve-java-cmd"
-                    failonerror="true"/>
+        <jacorb-loadfile
+                srcFile="bin/resolve_jacorb_home.tok"
+                property="token.resolve-jacorb-home" />
+
+        <jacorb-loadfile
+                srcFile="bin/resolve_${jaco.jvm}_cmd.tok"
+                property="token.resolve-java-cmd" />
+
+        <jacorb-loadfile
+                srcFile="bin/resolve_jaco_cmd.tok"
+                property="token.resolve-jaco-cmd" />
 
         <copy todir="bin" overwrite="true">
             <fileset dir="bin">
@@ -137,8 +182,6 @@ using VERSION_INFO: ${jacorb_version_info}
                         value="${token.resolve-jaco-cmd}" />
                 <filter token="JACORB_HOME"
                         value="${basedir}" />
-                <filter token="JAVA_CMD"
-                        value="java" />
                 <filter token="DONT_EDIT"
                         value="don't edit this file. edit the template instead" />
             </filterset>

@@ -16,26 +16,4 @@
       <jacorb-javac javac-includes="org/jacorb/security/ssl/sun_jsse/*.java"/>
    </target>
 
-   <target name="patch" depends="init">
-           <property name="local" value="${dirs.base}/src/org/jacorb/security/ssl/sun_jsse"/>
-           <patch patchfile="${local}/SSLSocketFactory.java.patch"
-                  originalfile="${local}/SSLSocketFactory.java"
-                  backups="yes" />
-           <patch patchfile="${local}/SSLServerSocketFactory.java.patch"
-                  originalfile="${local}/SSLServerSocketFactory.java"
-                  backups="yes" />
-   </target>
-
-   <target name="unpatch" depends="init">
-       <property name="local"
-            value="${dirs.base}/src/org/jacorb/security/ssl/sun_jsse"/>
-           <patch patchfile="${local}/SSLSocketFactory.java.patch"
-                  originalfile="${local}/SSLSocketFactory.java"
-                  backups="no"
-                  reverse="yes" />
-           <patch patchfile="${local}/SSLServerSocketFactory.java.patch"
-                  originalfile="${local}/SSLServerSocketFactory.java"
-                  backups="no"
-                  reverse="yes" />
-   </target>
 </project>

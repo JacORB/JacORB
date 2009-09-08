@@ -25,6 +25,7 @@ import java.util.HashSet;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 
+import org.apache.regexp.RE;
 import org.jacorb.test.common.ClientServerSetup;
 import org.jacorb.test.common.ClientServerTestCase;
 import org.jacorb.test.common.TestUtils;
@@ -219,9 +220,14 @@ public class POAThreadingTest extends ClientServerTestCase
         thread2.join();
         thread3.join();
 
-        // Get the result...
-        String resultStr = server.getResult().replaceAll("\\[|\\]", "");
+        // can't use JDK 1.4 methods here
+        // as they aren't supported under J2ME
 
-        return resultStr.split("\\s*,\\s*");
+        // Get the result...
+        RE subst = new RE("\\[|\\]");
+        String resultStr = subst.subst(server.getResult(), "");
+
+        RE split = new RE("\\s*,\\s*");
+        return split.split(resultStr);
     }
 }

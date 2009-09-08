@@ -29,6 +29,7 @@ import java.net.UnknownHostException;
 import org.jacorb.config.*;
 import org.jacorb.orb.BasicAdapter;
 import org.jacorb.orb.etf.ProtocolAddressBase;
+import org.jacorb.orb.factory.ServerSocketFactory;
 import org.jacorb.orb.factory.SocketFactoryManager;
 import org.jacorb.orb.listener.AcceptorExceptionEvent;
 import org.jacorb.orb.listener.AcceptorExceptionListener;
@@ -36,6 +37,7 @@ import org.jacorb.orb.listener.DefaultAcceptorExceptionListener;
 import org.jacorb.orb.listener.SSLListenerUtil;
 import org.jacorb.orb.listener.TCPConnectionEvent;
 import org.jacorb.orb.listener.TCPConnectionListener;
+import org.omg.CORBA.NO_RESOURCES;
 import org.omg.CSIIOP.Confidentiality;
 import org.omg.CSIIOP.DetectMisordering;
 import org.omg.CSIIOP.DetectReplay;
@@ -376,7 +378,10 @@ public class IIOPListener
     {
         private final Object runSync = new Object();
         private final boolean keepAlive;
+        private final IIOPAddress addressToUse;
+        protected final int soTimeout;
         protected ServerSocket serverSocket;
+        protected String info = "";
 
         protected boolean terminated = false;
 
@@ -392,7 +397,7 @@ public class IIOPListener
          */
         private boolean firstPass;
 
-        protected Acceptor(String name)
+        protected Acceptor(String name, IIOPAddress target)
         {
             super();
             // initialization deferred to init() method due to JDK bug
@@ -400,6 +405,7 @@ public class IIOPListener
             setName(name);
 
             keepAlive = configuration.getAttributeAsBoolean("jacorb.connection.server.keepalive", false);
+            soTimeout = configuration.getAttributeAsInteger("jacorb.listener.server_socket_timeout", 0);
 
             try
             {
@@ -410,6 +416,13 @@ public class IIOPListener
                 logger.error("couldn't create a AcceptorExceptionListener", e);
                 throw new IllegalArgumentException("wrong configuration: " + e);
             }
+            
+            addressToUse = target;
+        }
+
+        protected Acceptor(String name)
+        {
+            this(name, address);
         }
 
         public void init()
@@ -418,7 +431,7 @@ public class IIOPListener
 
             if( logger.isDebugEnabled() )
             {
-                logger.debug( "Created socket listener on " +
+                logger.debug( "Created " + info + "socket listener on " +
                               serverSocket.getInetAddress() + ":" + serverSocket.getLocalPort() );
             }
        }
@@ -443,6 +456,18 @@ public class IIOPListener
 
         public final void run()
         {
+            try
+            {
+                runLoop();
+            }
+            finally
+            {
+                logger.info(info + "Listener exiting");
+            }
+        }
+
+        public final void runLoop()
+        {
             while(true)
             {
                 try
@@ -451,11 +476,6 @@ public class IIOPListener
                     {
                         if (terminated)
                         {
-                            if (logger.isInfoEnabled())
-                            {
-                                logger.info( "Listener exited");
-                            }
-
                             return;
                         }
                     }
@@ -465,9 +485,45 @@ public class IIOPListener
                     try
                     {
                         Socket socket = serverSocket.accept();
+
+                        if (terminated)
+                        {
+                            // JAC#439
+                            // serverSocket.close() and interruption of the
+                            // Listener thread seem not to reliable prevent
+                            // the serverSocket from accepting further connection requests.
+                            // so we might come here although the IIOPListener was already
+                            // shutdown.
+                            // TODO: prohably it would be better to use
+                            // SocketChannel socketChannel = serverSocket.getChannel().accept();
+                            // Socket socket = socketChannel.socket();
+                            // for more reliability
+
+                            socket.close();
+                            if (logger.isInfoEnabled())
+                            {
+                                logger.info("closed Socket " + socket + " as " + info + "ServerSocket was closed.");
+                            }
+                            return;
+                        }
+
                         setup(socket);
-                        deliverConnection (socket);
-                        firstPass = true;
+                        
+                        try
+                        {
+                            deliverConnection(socket);
+                            firstPass = true;
+                        }
+                        catch(NO_RESOURCES e)
+                        {
+                            // as no ServerMessageReceptor
+                            // was created for this socket
+                            // we'll at least close
+                            // the socket
+
+                            socket.close();
+                            throw e;
+                        }
                     }
                     finally
                     {
@@ -492,7 +548,7 @@ public class IIOPListener
         {
             if (!isTerminated)
             {
-                logger.warn("unexpected exception in runloop", exception);
+                logger.warn("unexpected exception in " + info + "Acceptor runloop", exception);
             }
 
             acceptorExceptionListener.exceptionCaught
@@ -530,7 +586,7 @@ public class IIOPListener
             {
                 if (logger.isWarnEnabled())
                 {
-                    logger.warn("failed to close ServerSocket", e);
+                    logger.warn("failed to close " + info + "ServerSocket", e);
                 }
             }
 
@@ -562,23 +618,39 @@ public class IIOPListener
             return addr;
         }
 
-        /**
-         * Template method that creates the server socket.
-         */
         protected ServerSocket createServerSocket()
+        {
+            final InetAddress configuredHost = addressToUse.getConfiguredHost();
+            final int port = addressToUse.getPort();
+
+            return createServerSocket(configuredHost, port);
+        }
+
+        protected ServerSocket createServerSocket(final InetAddress host, final int port)
         {
             try
             {
-                return socketFactoryManager.getServerSocketFactory()
-                           .createServerSocket (address.getPort(),
-                                                20,
-                                                address.getConfiguredHost());
+                final ServerSocket result = getServerSocketFactory().createServerSocket(port,
+                        20,
+                        host);
+
+                if (soTimeout > 0)
+                {
+                    result.setSoTimeout(soTimeout);
+                }
+
+                return result;
             }
             catch (IOException ex)
             {
-                logger.warn("could not create server socket port: " + address.getPort() + " host: " + address.getConfiguredHost(), ex);
-                throw new org.omg.CORBA.INITIALIZE ("Could not create server socket (" + address.getPort() + "): " + ex.toString());
+                logger.warn("could not create " + info + "ServerSocket port: " + port + " host: " + host, ex);
+                throw new org.omg.CORBA.INITIALIZE ("Could not create " + info + "ServerSocket (" + port + "): " + ex.toString());
             }
+        }
+
+        protected ServerSocketFactory getServerSocketFactory()
+        {
+            return socketFactoryManager.getServerSocketFactory();
         }
 
         /**
@@ -592,7 +664,14 @@ public class IIOPListener
              socket.setSoTimeout(serverTimeout);
              socket.setKeepAlive(keepAlive);
 
-             SSLListenerUtil.addListener(orb, socket);
+             try
+             {
+                 SSLListenerUtil.addListener(orb, socket);
+             }
+             catch(Throwable t)
+             {
+                 logger.warn("unexpected exception in ssl listener", t);
+             }
 
              doSetup(socket);
         }
@@ -629,47 +708,17 @@ public class IIOPListener
         private final Object renewSocketSync = new Object();
         private boolean renewingSocket;
         private boolean blockedOnAccept;
-        private final int soTimeout;
 
         private SSLAcceptor()
         {
-            super("SSLServerSocketListener");
-
-            soTimeout = configuration.getAttributeAsInteger("jacorb.listener.server_socket_timeout", 0);
+            super("SSLServerSocketListener", sslAddress);
+            info = "SSL";
         }
 
-        protected ServerSocket createServerSocket()
+        protected ServerSocketFactory getServerSocketFactory()
         {
-            try
-            {
-                int port = sslAddress.getPort();
-                InetAddress configuredHost = sslAddress.getConfiguredHost();
-                ServerSocket socket = newServerSocket(port, configuredHost);
-
-                return socket;
-            }
-            catch (IOException e)
-            {
-                logger.warn("could not create SSL server socket", e);
-                throw new org.omg.CORBA.INITIALIZE("Could not create SSL server socket");
-            }
+            return socketFactoryManager.getSSLServerSocketFactory();
         }
-
-        private ServerSocket newServerSocket(int port, InetAddress configuredHost) throws IOException
-        {
-            ServerSocket socket = socketFactoryManager.getSSLServerSocketFactory()
-                        .createServerSocket (port,
-                                             20,
-                                             configuredHost);
-
-            if (soTimeout > 0)
-            {
-                serverSocket.setSoTimeout(soTimeout);
-            }
-
-            return socket;
-        }
-
         protected void deliverConnection(Socket socket)
         {
             IIOPListener.this.deliverConnection (socket, true);
@@ -731,8 +780,8 @@ public class IIOPListener
         public void renewSSLServerSocket()
         {
             //remember old settings
-            int oldPort = serverSocket.getLocalPort();
-            InetAddress oldAddress = serverSocket.getInetAddress();
+            final InetAddress oldAddress = serverSocket.getInetAddress();
+            final int oldPort = serverSocket.getLocalPort();
 
             try
             {
@@ -766,17 +815,8 @@ public class IIOPListener
                     logger.warn("failed to close SSLServerSocket", e);
                 }
 
-                try
-                {
-                    //create new ServerSocket with old host/port
-                    serverSocket = newServerSocket(oldPort, oldAddress);
-                }
-                catch (Exception e)
-                {
-                    logger.warn("Failed to create SSLServerSocket", e);
-                    throw new org.omg.CORBA.INITIALIZE(
-                        "Could not create SSL server socket: " + e);
-                }
+                //create new ServerSocket with old host/port
+                serverSocket = createServerSocket(oldAddress, oldPort);
             }
             finally
             {

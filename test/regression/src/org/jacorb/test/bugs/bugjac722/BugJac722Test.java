@@ -46,6 +46,11 @@ public class BugJac722Test extends ClientServerTestCase
 
     public static Test suite()
     {
+        if (TestUtils.isJ2ME())
+        {
+            return new TestSuite();
+        }
+
         TestSuite suite = new TestSuite(BugJac722Test.class.getName());
 
         ClientServerSetup setup = new ClientServerSetup(suite, AnyServerImpl.class.getName());

@@ -41,7 +41,7 @@ public class StreamListener extends Thread
     private String id;
     private String ior = null;
     private String exception = null;
-    private boolean active = true;
+    private volatile boolean active = true;
     private final StringBuffer buffer = new StringBuffer();
 
     public StreamListener(InputStream stream, String id)
@@ -125,6 +125,8 @@ public class StreamListener extends Thread
         buffer.append("Starttime: " + new Date());
         buffer.append('\n');
 
+        PatternWrapper pattern = PatternWrapper.init("^(\\w+\\.)+\\w+: .*");
+
         while (active)
         {
             try
@@ -143,12 +145,12 @@ public class StreamListener extends Thread
                     buffer.append('\n');
                     setIOR(line.substring(12));
                 }
-                else if (line.matches("^(\\w+\\.)+\\w+: .*"))
+                else if (pattern.match(line) > 0)
                 {
                     buffer.append("Detected Exception: " + new Date());
                     buffer.append('\n');
-                    setException(line);
                     System.out.println("[ SERVER " + id + " " + line + " ]");
+                    setException(line);
                 }
                 else
                 {
@@ -157,26 +159,30 @@ public class StreamListener extends Thread
             }
             catch (IOException ex)
             {
-                System.out.println("IOException reading from server: " + ex);
+                if (active)
+                {
+                    System.out.println(id + ": IOException reading from server: " + ex);
+                    ex.printStackTrace();
+                }
                 break;
             }
             catch (NullPointerException ex)
             {
-                System.out.println("NullPointerException reading from server.");
+                System.out.println(id + ": NullPointerException reading from server.");
                 if (active)
                 {
                     ex.printStackTrace();
                 }
                 else
                 {
-                    System.out.println ("Server has been destroyed so likely this is JDK bugs 4956099, 4505257 or 4728096");
+                    System.out.println (id + ": Server has been destroyed so likely this is JDK bugs 4956099, 4505257 or 4728096");
                 }
                 break;
             }
             catch (Exception ex)
             {
-                System.out.println("Exception reading from server: " + ex);
-                System.out.println("StreamListener exiting");
+                System.out.println(id + ": Exception reading from server: " + ex);
+                System.out.println(id + ": StreamListener exiting");
                 break;
             }
         }

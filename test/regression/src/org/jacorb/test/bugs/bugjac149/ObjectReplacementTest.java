@@ -56,6 +56,11 @@ public class ObjectReplacementTest extends ClientServerTestCase
      */
     public static Test suite ()
     {
+        if (TestUtils.isJ2ME())
+        {
+            return new TestSuite();
+        }
+
         TestSuite suite = new TestSuite ("ObjectReplacement Test");
         Properties props = new Properties();
 

@@ -1,8 +1,7 @@
 package org.jacorb.orb.listener;
 
+import java.security.cert.Certificate;
 import java.util.EventObject;
-
-import javax.security.cert.X509Certificate;
 
 import java.io.IOException;
 
@@ -47,7 +46,7 @@ public class SSLSessionEvent extends EventObject
      * <code>peerCerts</code> is an array of X509Certificates for the remote
      * connection
      */
-    private final X509Certificate [] peerCerts;
+    private final Certificate [] peerCerts;
 
     /**
      * <code>ex</code> the Exception that caused this event to be created
@@ -63,18 +62,18 @@ public class SSLSessionEvent extends EventObject
      *                 just been created and not connected.
      * @param remotePort an <code>int</code> value, maybe -1 if a Socket has
      *                 just been created and not connected.
-     * @param peerCerts a <code>X509Certificate</code>[] value
+     * @param certs a <code>Certificate</code>[] value
      * @param localPort an <code>int</code> value
      * @param localIP a <code>String</code> value
      */
     public SSLSessionEvent
-        (Object source, String remoteIP, int remotePort, X509Certificate [] peerCerts, int localPort, String localIP, IOException ex)
+        (Object source, String remoteIP, int remotePort, Certificate [] certs, int localPort, String localIP, IOException ex)
     {
         super (source);
 
         this.remoteIP   = remoteIP;
         this.remotePort = remotePort;
-        this.peerCerts  = peerCerts;
+        this.peerCerts  = certs;
         this.localPort  = localPort;
         this.localIP    = localIP;
         this.ex         = ex;
@@ -156,13 +155,13 @@ public class SSLSessionEvent extends EventObject
     }
 
     /**
-     * Returns the <code>X509Certificate</code> chain for the remote object.
+     * Returns the <code>Certificate</code> chain for the remote object.
      * This may return null if the certificates were not available when
      * this event was created
      *
-     * @return An array of <code>X509Certificate</code> objects.
+     * @return An array of <code>Certificate</code> objects.
      */
-    public X509Certificate [] getPeerCertificateChain ()
+    public Certificate [] getPeerCertificateChain ()
     {
         return peerCerts;
     }

@@ -12,8 +12,8 @@
    &common;
 
    <target name="check-props">
-      <available classname="org.ietf.jgss.GSSManager" property="jgss.present" />
-      <available classname="com.tagish.auth.Utils" property="jaas.modules.present" />
+      <available classname="org.ietf.jgss.GSSManager" property="jgss.present" classpathref="bootclasspath" ignoresystemclasses="true" />
+      <available classname="com.tagish.auth.Utils" property="jaas.modules.present" classpathref="bootclasspath" ignoresystemclasses="true" />
    </target>
 
 

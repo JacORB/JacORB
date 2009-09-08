@@ -69,6 +69,11 @@ public class AnyTest extends ClientServerTestCase
 
     public static Test suite()
     {
+        if (TestUtils.isJ2ME())
+        {
+            return new TestSuite();
+        }
+
         Properties props = new Properties();
         props.put("jacorb.compactTypecodes", "off");
 
@@ -86,110 +91,8 @@ public class AnyTest extends ClientServerTestCase
         // the information is not lost which tests
         // should be excluded eventually.
 
-//        suite.addTest(new AnyTest("test_empty", setup));
-//        suite.addTest(new AnyTest("test_short", setup));
-//        suite.addTest(new AnyTest("test_short_streamable", setup));
-//        suite.addTest(new AnyTest("test_ushort", setup));
-//        suite.addTest(new AnyTest("test_long", setup));
-//        suite.addTest(new AnyTest("test_long_streamable", setup));
-//        suite.addTest(new AnyTest("test_ulong", setup));
-//        suite.addTest(new AnyTest("test_longlong", setup));
-//        suite.addTest(new AnyTest("test_ulonglong", setup));
-//        suite.addTest(new AnyTest("test_float", setup));
-//        suite.addTest(new AnyTest("test_float_streamable", setup));
-//        suite.addTest(new AnyTest("test_double", setup));
-//        suite.addTest(new AnyTest("test_double_streamable", setup));
-//        suite.addTest(new AnyTest("test_char", setup));
-//        suite.addTest(new AnyTest("test_char_streamable", setup));
-//        suite.addTest(new AnyTest("test_wchar", setup));
-//        suite.addTest(new AnyTest("test_octet", setup));
-//        suite.addTest(new AnyTest("test_octet_streamable", setup));
-//        suite.addTest(new AnyTest("test_any", setup));
-//        suite.addTest(new AnyTest("test_any_streamable", setup));
-//        suite.addTest(new AnyTest("test_string", setup));
-//        suite.addTest(new AnyTest("test_string_streamable", setup));
-//        suite.addTest(new AnyTest("test_wstring", setup));
-//
-//        if ( ! TestUtils.isCVM())
-//        {
-//            suite.addTest(new AnyTest("test_fixed", setup));
-//            suite.addTest(new AnyTest("test_fixed_streamable", setup));
-//        }
-//
-//        suite.addTest(new AnyTest("test_object", setup));
-//        suite.addTest(new AnyTest("test_object_streamable", setup));
-//        suite.addTest(new AnyTest("test_object2", setup));
-//        suite.addTest(new AnyTest("test_object_null", setup));
-//        suite.addTest(new AnyTest("test_TypeCode", setup));
-//
-//        if ( ! TestUtils.isCDC())
-//        {
-//            suite.addTest(new AnyTest("test_value_box_string", setup));
-//            //suite.addTest(new AnyTest("test_value_box_string_streamable", setup));
-//        }
-//
-//        if ( ! TestUtils.isCVM())
-//        {
-//            suite.addTest(new AnyTest("test_value_box_string2", setup));
-//        }
-//
-//        suite.addTest(new AnyTest("test_value_null", setup));
-//
-//        if ( ! TestUtils.isCVM())
-//        {
-//            suite.addTest(new AnyTest("test_value_box_string_helper", setup));
-//            suite.addTest(new AnyTest("test_value_box_string_helper2", setup));
-//            suite.addTest(new AnyTest("test_value_box_string_helper3", setup));
-//            suite.addTest(new AnyTest("test_value_box_long", setup));
-//            suite.addTest(new AnyTest("test_value_box_long2", setup));
-//            //suite.addTest(new AnyTest("test_value_box_long_streamable", setup));
-//            suite.addTest(new AnyTest("test_value_box_long_helper", setup));
-//            suite.addTest(new AnyTest("test_value_box_long_helper2", setup));
-//            suite.addTest(new AnyTest("test_value_box_long_helper3", setup));
-//            //[Nico-possibly invalid]
-//            //suite.addTest(new AnyTest("test_valuetype", setup));
-//            suite.addTest(new AnyTest("test_valuetype2", setup));
-//            //suite.addTest(new AnyTest("test_valuetype_streamable", setup));
-//            suite.addTest(new AnyTest("test_valuetype_helper", setup));
-//            suite.addTest(new AnyTest("test_valuetype_helper2", setup));
-//            suite.addTest(new AnyTest("test_valuetype_helper3", setup));
-//        }
-//
-//        suite.addTest(new AnyTest("test_recursive_struct", setup));
-//        suite.addTest(new AnyTest("test_recursive_struct_streamable", setup));
-//        suite.addTest(new AnyTest("test_repeated_struct", setup));
-//        suite.addTest(new AnyTest("test_repeated_struct_streamable", setup));
-//        suite.addTest(new AnyTest("test_recursive_union", setup));
-//        suite.addTest(new AnyTest("test_recursive_union_streamable", setup));
-//        suite.addTest(new AnyTest("test_recursive_struct_union", setup));
-//        suite.addTest(new AnyTest("test_recursive_struct_union_streamable", setup));
-//        suite.addTest(new AnyTest("test_alias", setup));
-//        suite.addTest(new AnyTest("test_alias2", setup));
-//        suite.addTest(new AnyTest("test_alias3", setup));
-//        suite.addTest(new AnyTest("test_alias4", setup));
-//        suite.addTest(new AnyTest("test_equal", setup));
-//        suite.addTest(new AnyTest("test_equal2", setup));
-//        suite.addTest(new AnyTest("test_short_disc_union", setup));
-//        suite.addTest(new AnyTest("test_short_disc_union_streamable", setup));
-//        suite.addTest(new AnyTest("test_short_disc_union_manual", setup));
-//        suite.addTest(new AnyTest("test_long_disc_union", setup));
-//        suite.addTest(new AnyTest("test_long_disc_union_streamable", setup));
-//        suite.addTest(new AnyTest("test_long_disc_union_manual", setup));
-//        suite.addTest(new AnyTest("test_ushort_disc_union", setup));
-//        suite.addTest(new AnyTest("test_ushort_disc_union_streamable", setup));
-//        suite.addTest(new AnyTest("test_ushort_disc_union_manual", setup));
-//        suite.addTest(new AnyTest("test_ulong_disc_union", setup));
-//        suite.addTest(new AnyTest("test_ulong_disc_union_streamable", setup));
-//        suite.addTest(new AnyTest("test_ulong_disc_union_manual", setup));
-//        suite.addTest(new AnyTest("test_boolean_disc_union", setup));
-//        suite.addTest(new AnyTest("test_boolean_disc_union_streamable", setup));
-//        suite.addTest(new AnyTest("test_boolean_disc_union_manual", setup));
-//        suite.addTest(new AnyTest("test_char_disc_union", setup));
-//        suite.addTest(new AnyTest("test_char_disc_union_streamable", setup));
-//        suite.addTest(new AnyTest("test_char_disc_union_manual", setup));
-//        suite.addTest(new AnyTest("test_enum_disc_union", setup));
-//        suite.addTest(new AnyTest("test_enum_disc_union_streamable", setup));
-//        suite.addTest(new AnyTest("test_enum_disc_union_manual", setup));
+        // TestUtils.addToSuite(suite, setup, AnyTest.class, "test_");
+        // TestUtils.addToSuite(suite, setup, AnyTest.class, "testRMI");
 
         return setup;
     }
@@ -948,7 +851,7 @@ public class AnyTest extends ClientServerTestCase
         }
     }
 
-    public void test_value_box_string()
+    public void testRMI_value_box_string()
         throws Exception
     {
         String testValue = "foo";
@@ -963,7 +866,7 @@ public class AnyTest extends ClientServerTestCase
     }
 
     // use any.insert_value with explicit typecode
-    public void test_value_box_string2()
+    public void testRMI_value_box_string2()
         throws Exception
     {
         String testValue = "foo";
@@ -1009,7 +912,7 @@ public class AnyTest extends ClientServerTestCase
     }
 
     //insert with helper, extract manually
-    public void test_value_box_string_helper()
+    public void testRMI_value_box_string_helper()
         throws Exception
     {
         String testValue = "foo";
@@ -1024,7 +927,7 @@ public class AnyTest extends ClientServerTestCase
     }
 
     //insert manually, extract with helper
-    public void test_value_box_string_helper2()
+    public void testRMI_value_box_string_helper2()
         throws Exception
     {
         String testValue = "foo";
@@ -1040,7 +943,7 @@ public class AnyTest extends ClientServerTestCase
     }
 
     //insert and extract with helper
-    public void test_value_box_string_helper3()
+    public void testRMI_value_box_string_helper3()
         throws Exception
     {
         String testValue = "foo";
@@ -1053,7 +956,7 @@ public class AnyTest extends ClientServerTestCase
         assertTrue(outAny.equal(inAny));
     }
 
-    public void test_value_box_long()
+    public void testRMI_value_box_long()
         throws Exception
     {
         MyBoxedLong testValue = new MyBoxedLong(4711);
@@ -1070,7 +973,7 @@ public class AnyTest extends ClientServerTestCase
     }
 
     // use any.insert_value with explicit typecode
-    public void test_value_box_long2()
+    public void testRMI_value_box_long2()
         throws Exception
     {
         MyBoxedLong testValue = new MyBoxedLong(4711);
@@ -1105,7 +1008,7 @@ public class AnyTest extends ClientServerTestCase
     }
 
     //insert with helper, extract manually
-    public void test_value_box_long_helper()
+    public void testRMI_value_box_long_helper()
         throws Exception
     {
         MyBoxedLong testValue = new MyBoxedLong(4711);
@@ -1122,7 +1025,7 @@ public class AnyTest extends ClientServerTestCase
     }
 
     //insert manually, extract with helper
-    public void test_value_box_long_helper2()
+    public void testRMI_value_box_long_helper2()
         throws Exception
     {
         MyBoxedLong testValue = new MyBoxedLong(4711);
@@ -1137,7 +1040,7 @@ public class AnyTest extends ClientServerTestCase
     }
 
     //insert and extract with helper
-    public void test_value_box_long_helper3()
+    public void testRMI_value_box_long_helper3()
         throws Exception
     {
         MyBoxedLong testValue = new MyBoxedLong(4711);
@@ -1165,7 +1068,7 @@ public class AnyTest extends ClientServerTestCase
     }
 
     // use any.insert_value with explicit typecode
-    public void test_valuetype2()
+    public void testRMI_valuetype2()
         throws Exception
     {
         MyValueType testValue = new MyValueTypeImpl(4711);
@@ -1195,7 +1098,7 @@ public class AnyTest extends ClientServerTestCase
     }
 
     //insert with helper, extract manually
-    public void test_valuetype_helper()
+    public void testRMI_valuetype_helper()
         throws Exception
     {
         MyValueType testValue = new MyValueTypeImpl(4711);
@@ -1210,7 +1113,7 @@ public class AnyTest extends ClientServerTestCase
     }
 
     //insert manually, extract with helper
-    public void test_valuetype_helper2()
+    public void testRMI_valuetype_helper2()
         throws Exception
     {
         MyValueType testValue = new MyValueTypeImpl(4711);
@@ -1226,7 +1129,7 @@ public class AnyTest extends ClientServerTestCase
     }
 
     //insert and extract with helper
-    public void test_valuetype_helper3()
+    public void testRMI_valuetype_helper3()
         throws Exception
     {
         MyValueType testValue = new MyValueTypeImpl(4711);
@@ -2017,10 +1920,6 @@ public class AnyTest extends ClientServerTestCase
         {
             // ok
         }
-        catch (Exception ex)
-        {
-            fail ("should have thrown BAD_OPERATION");
-        }
     }
 
     public void test_to_string()
@@ -2050,10 +1949,6 @@ public class AnyTest extends ClientServerTestCase
         catch (org.omg.CORBA.BAD_PARAM ex)
         {
             // ok, this seems to be required by the spec
-        }
-        catch (Exception ex)
-        {
-            fail ("should have raised BAD_PARAM");
         }
     }
 
