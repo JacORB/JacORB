@@ -10,11 +10,7 @@
     <property name="dir.classes-instrumented" value="${basedir}/classes-instrumented" />
     <property name="dir.test" value="${basedir}/test/regression" />
 
-    <tstamp>
-        <format property="jacorb.test.testid" pattern="yyyy-MM-dd.HH-mm-ss" />
-    </tstamp>
-    
-    <property name="jacorb.test.outdir" value="${dir.test}/output/${jacorb.test.testid}" />
+    <property name="jacorb.test.outdir" value="${dir.test}/output" />
 
     <!-- ==================================================== -->
     <!--             JacORB Tests build file                  -->
