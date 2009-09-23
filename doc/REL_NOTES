@@ -59,6 +59,9 @@ post 2.3.1
           no ssl keystore is set or if the filename is wrong.
         - made the object key mapping feature more efficient (ORB.addObjectKey,
           properties jacorb.orb.objectKeyMap).
+        - fixed a bug that prevented to use an ORB with 
+          jacorb.giop_minor_version=0.
+                    
         
 
     - IDL Compiler: 

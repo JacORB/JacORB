@@ -266,7 +266,7 @@ public class IIOPListener
                 ("no acceptors found, cannot create address profile");
         }
 
-        IIOPProfile result = new IIOPProfile(address,null);
+        IIOPProfile result = new IIOPProfile(address, null, orb.getGIOPMinorVersion());
         if (sslAcceptor != null && generateSSLComponents)
         {
              result.addComponent (TAG_SSL_SEC_TRANS.value,
