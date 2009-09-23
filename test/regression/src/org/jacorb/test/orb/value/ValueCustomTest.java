@@ -25,6 +25,7 @@ import junit.framework.TestSuite;
 
 import org.jacorb.test.common.ClientServerSetup;
 import org.jacorb.test.common.ClientServerTestCase;
+import org.jacorb.test.common.TestUtils;
 
 /**
  * <code>ValueCustomTest</code> tests that JacORB handles custom valuetypes.
@@ -74,8 +75,7 @@ public class ValueCustomTest extends ClientServerTestCase
             new ClientServerSetup(suite,
                                   "org.jacorb.test.orb.value.CustomValueExchangeImpl");
 
-        suite.addTest(new ValueCustomTest("test_value_custom_good1", setup));
-        suite.addTest(new ValueCustomTest("test_value_custom_fail1", setup));
+        TestUtils.addToSuite(suite, setup, ValueCustomTest.class);
 
         return setup;
     }

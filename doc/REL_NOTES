@@ -57,6 +57,8 @@ post 2.3.1
         - Fix possible race condition with the value factory hashmap.
         - modified the JSSE socket factories to throw INITIALIZE if
           no ssl keystore is set or if the filename is wrong.
+        - made the object key mapping feature more efficient (ORB.addObjectKey,
+          properties jacorb.orb.objectKeyMap).
         
 
     - IDL Compiler: 
