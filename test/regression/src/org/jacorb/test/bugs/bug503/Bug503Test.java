@@ -37,7 +37,7 @@ public class Bug503Test extends ORBTestCase
     private BasicServer innerServer;
     private BasicServer outerServer;
 
-    protected void patchORBProperties(String testName, Properties props)
+    protected void patchOrbProperties(Properties props)
     {
         // this is to prevent that this test picks up
         // jacorb.properties. the properties might configure some
