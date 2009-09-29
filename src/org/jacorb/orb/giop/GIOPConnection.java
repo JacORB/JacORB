@@ -28,7 +28,7 @@ import java.util.List;
 import java.util.Map;
 import org.jacorb.config.*;
 import org.slf4j.Logger;
-import org.jacorb.orb.BufferManager;
+import org.jacorb.orb.IBufferManager;
 import org.jacorb.orb.ORB;
 import org.jacorb.orb.SystemExceptionHelper;
 import org.jacorb.orb.iiop.IIOPConnection;
@@ -84,7 +84,7 @@ public abstract class GIOPConnection
 
     //map request id (Integer) to ByteArrayInputStream
     private final Map fragments = new HashMap();
-    private final BufferManager buf_mg;
+    private IBufferManager buf_mg;
 
     private boolean dump_incoming = false;
     private long timeout = 0;
@@ -144,9 +144,6 @@ public abstract class GIOPConnection
             this.statistics_provider_adapter =
                 new StatisticsProviderAdapter (statistics_provider);
 
-        this.buf_mg = BufferManager.getInstance();
-        //sasContexts = new Hashtable();
-
         this.cubbyholes = new Object[cubby_count];
 
     }
@@ -156,6 +153,8 @@ public abstract class GIOPConnection
     {
         org.jacorb.config.Configuration jacorbConfiguration = (org.jacorb.config.Configuration) configuration;
         this.orb = jacorbConfiguration.getORB();
+
+        buf_mg = orb.getBufferManager();
 
         logger = jacorbConfiguration.getLogger("jacorb.giop.conn");
         dump_incoming =
@@ -334,7 +333,8 @@ public abstract class GIOPConnection
 
         try
         {
-            transport.read (msg_header, 0,
+            transport.read (msg_header,
+                            0,
                             Messages.MSG_HEADER_SIZE,
                             Messages.MSG_HEADER_SIZE,
                             0);
@@ -362,7 +362,7 @@ public abstract class GIOPConnection
             return null;
         }
 
-        byte[] header = msg_header.value;
+        final byte[] header = msg_header.value;
 
         //(minimally) decode GIOP message header. Main checks should
         //be done one layer above.
@@ -1084,7 +1084,8 @@ public abstract class GIOPConnection
      * @param no
      * @return
      */
-    public StatisticsProvider getStatisticsProvider(int no) {
+    public StatisticsProvider getStatisticsProvider(int no)
+    {
         if (statistics_provider_adapter == null)
             return null;
 

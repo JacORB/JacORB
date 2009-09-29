@@ -38,22 +38,25 @@ import org.omg.CORBA.NO_MEMORY;
  * @version $Id$
 */
 
-public final class BufferManager
+public final class BufferManager extends AbstractBufferManager
 {
     /** the buffer pool */
-    private List[] bufferPool;
+    private final List[] bufferPool;
     // The 'extra-large' buffer cache.
     private byte[] bufferMax = null;
 
-    /** the maximal buffer size managed since the buffer
-    pool is ordered by buffer size in log2 steps */
+    /**
+     * the maximal buffer size managed since the buffer
+     * pool is ordered by buffer size in log2 steps
+     */
 
-    private static int MAX;
+    private final int MAX;
 
-    /** the buffer at pos n has size 2**(n+MIN_OFFSET)
-    so the smallest available buffer is 2**MIN_OFFSET,
-        the largest buffers managed are 2**(MIN_OFFSET+MAX-1)
-    */
+    /**
+     * the buffer at pos n has size 2**(n+MIN_OFFSET)
+     * so the smallest available buffer is 2**MIN_OFFSET,
+     * the largest buffers managed are 2**(MIN_OFFSET+MAX-1)
+     */
 
     private static final int MIN_OFFSET = 5;
 
@@ -72,26 +75,17 @@ public final class BufferManager
      * 0 : Active, never flushed
      * >0: Active with reaper flush thread.
      */
-    private static int time = 0;
-
-    /** the singleton instance */
-    private final static BufferManager singleton = new BufferManager();
-
-    private static boolean configured = false;
+    private final int time;
 
     /**
-     * configures the BufferManager, in turn configures the singleton.
-     * Must be called before getInstance() !
+     * used to create the singleton ORB buffermanager
+     * @param configuration
      */
-    public synchronized static void configure(Configuration configuration)
+    public BufferManager(Configuration configuration)
     {
-        singleton.singletonConfigure(configuration);
-        configured = true;
-    }
-
-    private BufferManager()
-    {
-        super();
+        this(
+            configuration.getAttributeAsInteger("jacorb.bufferManagerMaxFlush", 0),
+            configuration.getAttributeAsInteger("jacorb.maxManagedBufSize", 18));
     }
 
     /**
@@ -101,13 +95,10 @@ public final class BufferManager
      * method is not enough.
      */
 
-    private synchronized void singletonConfigure(Configuration configuration)
+    private BufferManager(int time, int max)
     {
-        time =
-            configuration.getAttributeAsInteger("jacorb.bufferManagerMaxFlush", 0);
-
-        MAX =
-            configuration.getAttributeAsInteger("jacorb.maxManagedBufSize", 18);
+        this.time = time;
+        this.MAX = max;
 
         bufferPool = new List[ MAX ];
 
@@ -151,21 +142,6 @@ public final class BufferManager
     }
 
     /**
-     * May only be called after configure()
-     * @throws BAD_INV_ORDER if not previously configured
-     */
-
-    public synchronized static BufferManager getInstance()
-        throws BAD_INV_ORDER
-    {
-        if (!configured)
-        {
-            throw new BAD_INV_ORDER("Buffer Manager not configured");
-        }
-        return singleton;
-    }
-
-    /**
      * Log 2, rounded up
      */
 
@@ -204,13 +180,6 @@ public final class BufferManager
         return getBuffer( MEM_BUFSIZE );
     }
 
-
-    public byte[] getBuffer( int initial )
-    {
-        return getBuffer(initial, false);
-    }
-
-
     /**
      * <code>getBuffer</code> returns a new buffer.
      *
@@ -222,7 +191,7 @@ public final class BufferManager
 
     public synchronized byte[] getBuffer( int initial, boolean cdrStr )
     {
-        byte [] result;
+        final byte [] result;
         List s;
 
         int log = log2up(initial);
@@ -270,12 +239,6 @@ public final class BufferManager
         }
         return result;
     }
-
-    public void returnBuffer(byte[] current)
-    {
-        returnBuffer (current, false);
-    }
-
 
     /**
      * Describe <code>returnBuffer</code> method here.
@@ -325,6 +288,7 @@ public final class BufferManager
         if (reaper != null)
         {
             reaper.dispose();
+            reaper = null;
         }
     }
 

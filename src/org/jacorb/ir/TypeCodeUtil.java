@@ -20,7 +20,9 @@ package org.jacorb.ir;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import java.util.Hashtable;
+import java.util.HashMap;
+import java.util.Map;
+
 import org.slf4j.Logger;
 import org.jacorb.orb.TypeCode;
 import org.omg.CORBA.TCKind;
@@ -32,7 +34,7 @@ import org.omg.CORBA.TCKind;
 
 public class TypeCodeUtil
 {
-    private static Hashtable cache = new Hashtable();
+    private static final Map cache = new HashMap();
 
     static
     {

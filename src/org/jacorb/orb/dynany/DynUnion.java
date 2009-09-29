@@ -48,7 +48,7 @@ public final class DynUnion
 
    DynUnion( org.omg.DynamicAny.DynAnyFactory dynFactory,
              org.omg.CORBA.TypeCode tc,
-             org.omg.CORBA.ORB orb,
+             org.jacorb.orb.ORB orb,
              Logger logger  )
     throws TypeMismatch
    {

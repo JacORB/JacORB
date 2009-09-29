@@ -22,6 +22,7 @@ package org.jacorb.orb.giop;
 
 import java.io.IOException;
 import org.jacorb.orb.CDROutputStream;
+import org.omg.CORBA.ORB;
 
 /**
  * MessageOutputStream.java
@@ -36,7 +37,7 @@ import org.jacorb.orb.CDROutputStream;
 public class MessageOutputStream
     extends CDROutputStream
 {
-    public MessageOutputStream(org.omg.CORBA.ORB orb)
+    public MessageOutputStream(ORB orb)
     {
         super(orb);
     }

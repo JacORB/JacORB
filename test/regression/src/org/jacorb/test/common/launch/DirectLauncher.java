@@ -161,6 +161,7 @@ public class DirectLauncher extends AbstractLauncher
     {
         return getPropertyWithDefault(props, "jacorb.test.maxheapsize", "64m");
     }
+    
     public String getLauncherDetails(String prefix)
     {
         try

@@ -46,7 +46,7 @@ public class DynAny
    protected int pos = -1;
    protected int limit = 0;
    protected final org.omg.DynamicAny.DynAnyFactory dynFactory;
-   protected final org.omg.CORBA.ORB orb;
+   protected final org.jacorb.orb.ORB orb;
    private final Logger logger;
 
    /**
@@ -54,7 +54,7 @@ public class DynAny
     */
    private org.omg.CORBA.Any anyRepresentation;
 
-   protected DynAny(org.omg.DynamicAny.DynAnyFactory factory, org.omg.CORBA.ORB orb, Logger logger)
+   protected DynAny(org.omg.DynamicAny.DynAnyFactory factory, org.jacorb.orb.ORB orb, Logger logger)
    {
        super();
        this.orb = orb;
@@ -64,7 +64,8 @@ public class DynAny
 
    DynAny( org.omg.DynamicAny.DynAnyFactory dynFactory,
            org.omg.CORBA.TypeCode type,
-           org.omg.CORBA.ORB orb, Logger logger)
+           org.jacorb.orb.ORB orb,
+           Logger logger)
       throws TypeMismatch
    {
       this(dynFactory, orb, logger);

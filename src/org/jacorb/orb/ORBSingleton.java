@@ -46,7 +46,7 @@ public class ORBSingleton
     private boolean doStrictCheckOnTypecodeCreation;
     private Logger logger;
     
-    protected BufferManager bufferManager;
+    protected IBufferManager bufferManager;
 
     /**
      * in case a singleton orb is created the c'tor will access the JacORB configuration
@@ -63,7 +63,7 @@ public class ORBSingleton
         {
             if (isSingleton)
             {
-                Configuration configuration = JacORBConfiguration.getConfiguration(null, null, false);
+                final org.jacorb.config.Configuration configuration = JacORBConfiguration.getConfiguration(null, null, false);
 
                 // Don't call configure method as if this has been called from ORB::ctor
                 // class construction order can cause issues.
@@ -73,21 +73,12 @@ public class ORBSingleton
                 doStrictCheckOnTypecodeCreation = configuration.getAttributeAsBoolean
                     ("jacorb.interop.strict_check_on_tc_creation", true);
 
+                final BufferManagerFactory bufferManagerFactory = newBufferManagerFactory(configuration);
+                bufferManager = bufferManagerFactory.newSingletonBufferManager(configuration);
+
                 if (logger.isDebugEnabled())
                 {
                     logger.debug("jacorb.interop.strict_check_on_tc_creation set to " + doStrictCheckOnTypecodeCreation);
-                }
-
-                BufferManager.configure( configuration);
-
-                try
-                {
-                    bufferManager = BufferManager.getInstance();
-                }
-                catch( BAD_INV_ORDER b)
-                {
-                    logger.error("unexpected exception", b);
-                    throw new INTERNAL(b.toString());
                 }
 
                 logger.info("created ORBSingleton");
@@ -99,6 +90,11 @@ public class ORBSingleton
         }
     }
 
+    private BufferManagerFactory newBufferManagerFactory(final org.jacorb.config.Configuration configuration) throws ConfigurationException
+    {
+        return (BufferManagerFactory) configuration.getAttributeAsObject(BufferManagerFactory.PARAM_NAME, DefaultBufferManagerFactory.class.getName());
+    }
+
     public ORBSingleton()
     {
         this(true);
@@ -106,31 +102,20 @@ public class ORBSingleton
 
     protected void configure(Configuration configuration) throws ConfigurationException
     {
-        logger =
-            ((org.jacorb.config.Configuration)configuration).getLogger("jacorb.orb");
+       logger = configuration.getLogger("jacorb.orb");
 
         doStrictCheckOnTypecodeCreation = configuration.getAttributeAsBoolean
             ("jacorb.interop.strict_check_on_tc_creation", true);
 
+        BufferManagerFactory bufferManagerFactory = newBufferManagerFactory(configuration);
+        bufferManager = bufferManagerFactory.newBufferManager(((ORBSingleton)ORB.init()).getBufferManager(), configuration);
+
+
         if (logger.isDebugEnabled())
         {
+            logger.debug("BufferManagerFactory: " + bufferManagerFactory);
+            logger.debug("BufferManager: " + bufferManager);
             logger.debug("jacorb.interop.strict_check_on_tc_creation set to " + doStrictCheckOnTypecodeCreation);
-        }
-
-        // buffer manager is not configured yet (when called from ORB c'tor)
-        if (bufferManager == null)
-        {
-            BufferManager.configure(configuration);
-
-            try
-            {
-                bufferManager = BufferManager.getInstance();
-            }
-            catch(BAD_INV_ORDER b)
-            {
-                logger.error("unexpected exception", b);
-                throw new INTERNAL(b.toString());
-            }
         }
     }
 
@@ -853,12 +838,8 @@ public class ORBSingleton
         throw new org.omg.CORBA.NO_IMPLEMENT (FACTORY_METHODS_MESG);
     }
 
-    public BufferManager getBufferManager()
+    public IBufferManager getBufferManager()
     {
-        if (bufferManager == null)
-        {
-            throw new INITIALIZE ("JacORB ORB Singleton not initialized");
-        }
         return bufferManager;
     }
 }

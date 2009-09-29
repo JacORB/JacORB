@@ -20,7 +20,7 @@
  */
 package org.jacorb.orb.portableInterceptor;
 
-import org.omg.CORBA.ORB;
+import org.jacorb.orb.ORB;
 import org.omg.IOP.Codec;
 import org.omg.IOP.CodecFactory;
 import org.omg.IOP.Encoding;

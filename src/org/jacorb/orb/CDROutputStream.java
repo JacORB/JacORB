@@ -26,6 +26,7 @@ import java.io.OutputStream;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.IdentityHashMap;
 import java.util.List;
@@ -74,7 +75,7 @@ public class CDROutputStream
         size, but that have not yet been written */
     private int deferred_writes;
 
-    private BufferManager bufMgr;
+    private final IBufferManager bufMgr;
     protected byte[] buffer;
 
     private boolean closed;
@@ -154,7 +155,7 @@ public class CDROutputStream
 
     private final List deferredArrayQueue = new ArrayList();
 
-    protected final org.jacorb.orb.ORBSingleton orb;
+    protected org.jacorb.orb.ORBSingleton orb;
 
     protected int giop_minor = 2;
 
@@ -215,7 +216,6 @@ public class CDROutputStream
         }
     }
 
-
     /**
      * Inserts a 4-byte integer into the buffer at the specified position. Does not modify the current buffer position.
      * @param value the value to inser
@@ -250,6 +250,16 @@ public class CDROutputStream
         }
     }
 
+    private CDROutputStream(IBufferManager bufferManager)
+    {
+        if (bufferManager == null)
+        {
+            throw new IllegalArgumentException();
+        }
+
+        bufMgr = bufferManager;
+        buffer = bufMgr.getPreferredMemoryBuffer();
+    }
 
     /**
      * internal c'tor
@@ -284,11 +294,14 @@ public class CDROutputStream
      * in  memory marshaling, but do  not use the  ORB's output buffer
      * manager. A stream created with this c'tor is not explicitly
      * configured, i.e. it will use default configuration only
+     *
+     * @deprecated use the constructor that accepts an ORB whenever possible
+     * @see #CDROutputStream(ORBSingleton)
      */
 
     public CDROutputStream()
     {
-        this(ORB.init());
+        this(((ORBSingleton)ORB.init()).getBufferManager());
     }
 
     /**
@@ -302,7 +315,14 @@ public class CDROutputStream
 
         if (orb instanceof org.jacorb.orb.ORB)
         {
-            configure(((org.jacorb.orb.ORB)orb).getConfiguration());
+            try
+            {
+                configure(((org.jacorb.orb.ORB)orb).getConfiguration());
+            }
+            catch(ConfigurationException e)
+            {
+                throw new INTERNAL(e.getMessage());
+            }
         }
     }
 
@@ -330,6 +350,10 @@ public class CDROutputStream
 
     public org.omg.CORBA.ORB orb()
     {
+        if (orb == null)
+        {
+            orb = (ORB) org.omg.CORBA.ORB.init((String[])null, null);
+        }
         return orb;
     }
 
@@ -527,7 +551,7 @@ public class CDROutputStream
      */
     private void check(final int i, final int align)
     {
-        int remainder = align - (index % align);
+        final int remainder = align - (index % align);
 
         check (i + remainder);
 
@@ -535,26 +559,8 @@ public class CDROutputStream
         {
             // Clear padding. Allowing for possible buffer end.
             int topad = Math.min (buffer.length - pos, 8);
-            int j = 0;
-            switch (topad)
-            {
-                case 8:
-                buffer[pos + j++] = (byte)0;
-                case 7:
-                buffer[pos + j++] = (byte)0;
-                case 6:
-                buffer[pos + j++] = (byte)0;
-                case 5:
-                buffer[pos + j++] = (byte)0;
-                case 4:
-                buffer[pos + j++] = (byte)0;
-                case 3:
-                buffer[pos + j++] = (byte)0;
-                case 2:
-                buffer[pos + j++] = (byte)0;
-                case 1:
-                buffer[pos + j++] = (byte)0;
-            }
+
+            Arrays.fill(buffer, pos, pos + topad, (byte)0);
 
             index += remainder;
             pos += remainder;
@@ -568,14 +574,32 @@ public class CDROutputStream
 
     private final void check(final int i)
     {
-        if (buffer == null || (pos + i + 2) > buffer.length)
+        final int requiredSize = pos + i + 2;
+        if (buffer == null || requiredSize > buffer.length)
         {
-            final byte[] new_buf = bufMgr.getBuffer( pos+i+2, true);
+            final int new_size;
+
+            if (buffer == null)
+            {
+                new_size = requiredSize;
+            }
+            else
+            {
+                int _result = buffer.length;
+                while(requiredSize > _result)
+                {
+                    _result *= 3;
+                }
+                new_size = _result;
+            }
+
+            final byte[] new_buf = bufMgr.getBuffer( new_size, true);
 
             if (buffer != null)
             {
-                System.arraycopy(buffer,0,new_buf,0,pos);
+                System.arraycopy(buffer, 0, new_buf, 0, pos);
             }
+
             // Change buffer size so return the old one.
             bufMgr.returnBuffer (buffer, true);
 
@@ -1194,8 +1218,7 @@ public class CDROutputStream
 
         check(3 + length*4,4);
 
-
-        int remainder = 4 - (index % 4);
+        final int remainder = 4 - (index % 4);
         if (remainder != 4)
         {
             index += remainder;
@@ -1357,7 +1380,7 @@ public class CDROutputStream
 
         check(2*length + 3);
 
-        int remainder = 2 - (index % 2);
+        final int remainder = 2 - (index % 2);
         if (remainder != 2)
         {
             index += remainder;

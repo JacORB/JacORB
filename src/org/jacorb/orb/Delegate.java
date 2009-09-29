@@ -37,6 +37,7 @@ import org.jacorb.orb.giop.LocateRequestOutputStream;
 import org.jacorb.orb.giop.ReplyInputStream;
 import org.jacorb.orb.giop.ReplyPlaceholder;
 import org.jacorb.orb.giop.RequestOutputStream;
+import org.jacorb.orb.policies.PolicyManager;
 import org.jacorb.orb.portableInterceptor.ClientInterceptorIterator;
 import org.jacorb.orb.portableInterceptor.ClientRequestInfoImpl;
 import org.jacorb.orb.util.CorbaLoc;
@@ -583,9 +584,9 @@ public final class Delegate
     {
         Policy result = null;
 
-        if (policy_overrides != null)
+        synchronized(policy_overrides)
         {
-            Integer key = ObjectUtil.newInteger(policy_type);
+            final Integer key = ObjectUtil.newInteger(policy_type);
             result = (Policy)policy_overrides.get(key);
         }
 
@@ -596,7 +597,7 @@ public final class Delegate
             // TODO: currently not implemented
 
             // check at the ORB-level
-            org.omg.CORBA.PolicyManager policyManager = orb.getPolicyManager();
+            final PolicyManager policyManager = orb.getPolicyManager();
             if (policyManager != null)
             {
                 Policy[] orbPolicies = policyManager.get_policy_overrides (new int[] {policy_type});
@@ -1957,16 +1958,15 @@ public final class Delegate
 
         synchronized(policy_overrides)
         {
-            if ( set_add == org.omg.CORBA.SetOverrideType.ADD_OVERRIDE)
+            if ( set_add == org.omg.CORBA.SetOverrideType.SET_OVERRIDE )
             {
-                // Need to add the overrides within this object to the new one.
-                delResult.policy_overrides.putAll (policy_overrides);
+                policy_overrides.clear();
             }
-        }
 
-        for ( int i = 0; i < policies.length; i++ )
-        {
-            delResult.policy_overrides.put(ObjectUtil.newInteger( policies[ i ].policy_type() ), policies[ i ] );
+            for ( int i = 0; i < policies.length; i++ )
+            {
+                policy_overrides.put(ObjectUtil.newInteger( policies[ i ].policy_type() ), policies[ i ] );
+            }
         }
 
         return result;

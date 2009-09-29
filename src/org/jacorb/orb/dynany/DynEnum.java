@@ -45,7 +45,7 @@ public final class DynEnum
 
    DynEnum( org.omg.DynamicAny.DynAnyFactory dynFactory,
             org.omg.CORBA.TypeCode type,
-            org.omg.CORBA.ORB orb,
+            org.jacorb.orb.ORB orb,
             Logger logger)
      throws TypeMismatch
   {

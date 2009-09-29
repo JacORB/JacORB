@@ -131,6 +131,7 @@ public class RequestProcessor
     {
         terminate = true;
         notify();
+        interrupt();
     }
 
     /**

@@ -46,11 +46,11 @@ public class TypeCode
     extends org.omg.CORBA.TypeCode
 {
     private final int         kind;
+    private TCKind tcKind;
 
-    private String      id = null;
-    private String      name = null;
+    private final String      id;
+    private final String      name;
 
-    private int         member_count = 0;
     private String []   member_name = null;
     private org.omg.CORBA.TypeCode [] member_type = null;
     private short []    member_visibility = null;
@@ -67,17 +67,17 @@ public class TypeCode
     private short       digits;
 
     /** if this TC is recursive */
-    private boolean     recursive = false;
+    private final boolean     recursive;
     private TypeCode    actualTypecode = null;
     private boolean     secondIteration = false;
 
-    private static org.omg.CORBA.TypeCode[]  primitive_tcs = new TypeCode[34];
+    private final static org.omg.CORBA.TypeCode[]  primitive_tcs = new TypeCode[34];
 
     /**
      * Maps the java.lang.Class objects for primitive types to
      * their corresponding TypeCode objects.
      */
-    private static Map primitive_tcs_map = new HashMap();
+    private final static Map primitive_tcs_map = new HashMap();
 
     static
     {
@@ -156,17 +156,32 @@ public class TypeCode
         return ( ! is_recursive() && primitive_tcs[kind] != null );
     }
 
+    private TypeCode(int kind, String id, String name, boolean recursive)
+    {
+        super();
+
+        this.kind = kind;
+        this.recursive = recursive;
+        this.id = id;
+
+        if( name != null )
+        {
+            this.name = name.replace('.','_'); // for orbixWeb Interop
+        }
+        else
+        {
+            this.name = "";
+        }
+    }
 
     /**
      * Constructor for primitive types, called only from
      * static initializer and org.jacorb.ir.TypeCodeUtil
      */
 
-    public TypeCode( int _kind )
+    public TypeCode( int kind )
     {
-        super();
-
-        kind = _kind;
+        this(kind, null, null, false);
     }
 
      // TypeCode constructors for every conceivable type follow.
@@ -178,38 +193,27 @@ public class TypeCode
      */
     public TypeCode( String id )
     {
-        this(-1);
-        this.id = id;
-        recursive = true;
+        this(-1, id, null, true);
     }
 
     /**
      * Constructor for tk_struct and tk_except
      */
 
-    public TypeCode ( int _kind,
-                      String _id,
-                      String _name,
-                      org.omg.CORBA.StructMember[] _members)
+    public TypeCode ( int kind,
+            String id,
+            String name,
+            org.omg.CORBA.StructMember[] members)
     {
-        this(_kind);
-
-        id =  _id;
-        if( _name != null )
+        this(kind, id, name, false);
+        
+        member_name = new String[members.length];
+        member_type = new org.omg.CORBA.TypeCode[members.length];
+        
+        for( int i = 0; i < members.length; i++ )
         {
-            name = _name.replace('.','_'); // for orbixWeb Interop
-        }
-        else
-        {
-            name = "";
-        }
-        member_count = _members.length;
-        member_name = new String[member_count];
-        member_type = new org.omg.CORBA.TypeCode[member_count];
-        for( int i = 0; i < member_count; i++ )
-        {
-            member_name[i] = _members[i].name;
-            member_type[i] = _members[i].type;
+            member_name[i] = members[i].name;
+            member_type[i] = members[i].type;
         }
     }
 
@@ -217,39 +221,29 @@ public class TypeCode
      * Constructor for  tk_union
      */
 
-    public TypeCode ( String _id,
-                      String _name,
-                      org.omg.CORBA.TypeCode _discriminator_type,
-                      org.omg.CORBA.UnionMember[] _members )
+    public TypeCode ( String id,
+            String name,
+            org.omg.CORBA.TypeCode _discriminator_type,
+            org.omg.CORBA.UnionMember[] members )
     {
-        this(TCKind._tk_union);
-
-        id   =  _id ;
-        if (_name != null)
-        {
-            name = _name.replace('.','_'); // for orbixWeb Interop
-        }
-        else
-        {
-            name = "";
-        }
+        this(TCKind._tk_union, id, name, false);
+        
         discriminator_type = _discriminator_type;
-
-        member_count = _members.length;
-        member_name  = new String[member_count];
-        member_label = new Any[member_count];
-        member_type  = new org.omg.CORBA.TypeCode[member_count];
-
-        for( int i = 0; i < member_count; i++ )
+        
+        member_name  = new String[members.length];
+        member_label = new Any[members.length];
+        member_type  = new org.omg.CORBA.TypeCode[members.length];
+        
+        for( int i = 0; i < members.length; i++ )
         {
-            member_name[i] = _members[i].name;
-            member_label[i] = (Any)_members[i].label;
+            member_name[i] = members[i].name;
+            member_label[i] = (Any)members[i].label;
             if( member_label[i].kind().equals( TCKind.tk_octet ) &&
                 ((Byte)member_label[i].value()).byteValue() == (byte)0 )
             {
                 default_index = i;
             }
-            member_type[i] = _members[i].type;
+            member_type[i] = members[i].type;
         }
     }
 
@@ -257,48 +251,29 @@ public class TypeCode
      * Constructor for tk_enum
      */
 
-    public TypeCode (java.lang.String _id,
-                     java.lang.String _name,
-                     java.lang.String[] _members)
+    public TypeCode (java.lang.String id,
+            java.lang.String name,
+            java.lang.String[] members)
     {
-        this(TCKind._tk_enum);
-
-        id = _id;
-        if (_name != null)
-        {
-            name = _name.replace('.','_'); // for orbixWeb Interop
-        }
-        else
-        {
-            name = "";
-        }
-        member_count = _members.length;
-        member_name = new String[member_count];
-
-        System.arraycopy(_members, 0, member_name, 0, member_count);
+        this(TCKind._tk_enum, id, name, false);
+        
+        member_name = new String[members.length];
+        
+        System.arraycopy(members, 0, member_name, 0, members.length);
     }
 
     /**
      * Constructor for tk_alias, tk_value_box
      */
 
-    public TypeCode (int _kind,
-                     String _id,
-                     String _name,
-                     org.omg.CORBA.TypeCode _original_type)
+    public TypeCode (int kind,
+            String id,
+            String name,
+            org.omg.CORBA.TypeCode original_type)
     {
-        this(_kind);
-
-        id = _id;
-        if (_name != null)
-        {
-            name = _name.replace('.','_'); // for orbixWeb Interop
-        }
-        else
-        {
-            name = "";
-        }
-        content_type = _original_type;
+        this(kind, id, name, false);
+        
+        content_type = original_type;
     }
 
     /**
@@ -306,49 +281,39 @@ public class TypeCode
      * tk_local_interface
      */
 
-    public TypeCode (int _kind,
-                     java.lang.String _id,
-                     java.lang.String _name)
+    public TypeCode (int kind,
+            java.lang.String id,
+            java.lang.String name)
     {
-        this(_kind);
-
-        id   = _id;
-        if (_name != null)
-        {
-            name = _name.replace('.','_'); // for orbixWeb Interop
-        }
-        else
-        {
-            name = "";
-        }
+        this(kind, id, name, false);
     }
 
     /**
      * Constructor for tk_string, tk_wstring
      */
 
-    public TypeCode ( int _kind, int _bound )
+    public TypeCode ( int kind, int bound )
     {
-        this(_kind);
+        this(kind);
 
-        length = _bound;
+        length = bound;
     }
 
     /**
      * Constructor for tk_sequence, tk_array
      */
 
-    public TypeCode (int _kind,
-                     int _bound,
-                     org.omg.CORBA.TypeCode _element_type)
+    public TypeCode (int kind,
+            int bound,
+            org.omg.CORBA.TypeCode element_type)
     {
-        this(_kind);
+        this(kind);
 
-        length = _bound;
-        content_type = _element_type;
+        length = bound;
+        content_type = element_type;
         if (content_type == null)
         {
-           throw new org.omg.CORBA.BAD_PARAM ("TypeCode.ctor, content_type null");
+            throw new org.omg.CORBA.BAD_PARAM ("TypeCode.ctor, content_type null");
         }
     }
 
@@ -369,22 +334,13 @@ public class TypeCode
      */
 
     public TypeCode (String id,
-                     String _name,
-                     short type_modifier,
-                     org.omg.CORBA.TypeCode concrete_base,
-                     org.omg.CORBA.ValueMember[] members)
+            String name,
+            short type_modifier,
+            org.omg.CORBA.TypeCode concrete_base,
+            org.omg.CORBA.ValueMember[] members)
     {
-        this(TCKind._tk_value);
+        this(TCKind._tk_value, id, name, false);
 
-        this.id = id;
-        if (_name != null)
-        {
-            name = _name.replace('.','_'); // for orbixWeb Interop
-        }
-        else
-        {
-            name = "";
-        }
         value_modifier = type_modifier;
         content_type = concrete_base;
         setValueMembers(members);
@@ -397,7 +353,7 @@ public class TypeCode
 
     private void setValueMembers(org.omg.CORBA.ValueMember[] members)
     {
-        member_count = (members != null) ? members.length : 0;
+        int member_count = (members != null) ? members.length : 0;
         member_name = new String[member_count];
         member_type = new org.omg.CORBA.TypeCode[member_count];
         member_visibility = new short[member_count];
@@ -572,26 +528,22 @@ public class TypeCode
 
     public org.omg.CORBA.TCKind kind()
     {
-       if (is_recursive ())
-       {
-          checkActualTC ();
-          return actualTypecode.kind ();
-       }
+        if (tcKind == null)
+        {
+            if (is_recursive())
+            {
+                checkActualTC();
+                tcKind = actualTypecode.kind();
+            }
+            else
+            {
+                tcKind = TCKind.from_int(kind);
+            }
+        }
 
-       return org.omg.CORBA.TCKind.from_int (kind);
+        return tcKind;
     }
 
-
-    public int _kind()
-    {
-       if (is_recursive ())
-       {
-          checkActualTC ();
-          return actualTypecode._kind ();
-       }
-
-       return kind;
-    }
 
     public java.lang.String id()
         throws org.omg.CORBA.TypeCodePackage.BadKind
@@ -698,7 +650,7 @@ public class TypeCode
             case   TCKind._tk_union:
             case   TCKind._tk_value:
             case   TCKind._tk_enum:
-                return member_count;
+                return member_name.length;
             default:
                 throw new org.omg.CORBA.TypeCodePackage.BadKind();
         }
@@ -722,7 +674,7 @@ public class TypeCode
         case TCKind._tk_value:
         case TCKind._tk_enum:
         {
-            if( index >= 0 && index < member_count )
+            if( index >= 0 && index < member_name.length )
             {
                 return member_name[index];
             }
@@ -750,7 +702,7 @@ public class TypeCode
             case TCKind._tk_union:
             case TCKind._tk_value:
             {
-                if( index >= 0 && index < member_count )
+                if( index >= 0 && index < member_name.length )
                 {
                     return member_type[index];
                 }
@@ -775,7 +727,7 @@ public class TypeCode
         {
             throw new org.omg.CORBA.TypeCodePackage.BadKind();
         }
-        if( index < 0 || index >= member_count )
+        if( index < 0 || index >= member_name.length )
         {
             throw new  org.omg.CORBA.TypeCodePackage.Bounds();
         }
@@ -879,10 +831,9 @@ public class TypeCode
     public org.omg.CORBA.TypeCode get_compact_typecode()
     {
         // New typecode with same kind, id and a blank name.
-        TypeCode result = new TypeCode (kind, id, "");
+        final TypeCode result = new TypeCode (kind, id, "", recursive);
 
         // Duplicate the original typecode.
-        result.member_count = member_count;
 
         // Member names are optional, so compact them down for transmission.
         // Check whether we are doing full compaction or not.
@@ -922,7 +873,6 @@ public class TypeCode
         result.scale = scale;
         result.digits = digits;
 
-        result.recursive = recursive;
         result.actualTypecode = actualTypecode;
         result.secondIteration = secondIteration;
 
@@ -938,7 +888,7 @@ public class TypeCode
         {
             throw new org.omg.CORBA.TypeCodePackage.BadKind();
         }
-        if (index < 0 || index >= member_count)
+        if (index < 0 || index >= member_name.length)
         {
             throw new org.omg.CORBA.TypeCodePackage.Bounds();
         }

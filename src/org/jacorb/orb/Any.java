@@ -59,9 +59,9 @@ public final class Any
 {
     private org.omg.CORBA.TypeCode typeCode;
     private java.lang.Object value;
-    private final org.omg.CORBA.ORB orb;
+    private final org.jacorb.orb.ORBSingleton orb;
 
-    Any(org.omg.CORBA.ORB orb)
+    Any(org.jacorb.orb.ORBSingleton orb)
     {
         super();
 
@@ -559,9 +559,7 @@ public final class Any
      */
     public void insert_boolean (boolean bool)
     {
-        // Equivilant to the static valueOf factory which is only
-        // available post 1.4.
-        value = (bool ? Boolean.TRUE : Boolean.FALSE );
+        value = Boolean.valueOf(bool);
         typeCode = orb.get_primitive_tc (TCKind.tk_boolean);
     }
 
@@ -1115,14 +1113,7 @@ public final class Any
 
     public org.omg.CORBA.portable.OutputStream create_output_stream()
     {
-        if(orb instanceof org.jacorb.orb.ORB)
-        {
-            value = new CDROutputStream(orb);
-        }
-        else
-        {
-            value = new CDROutputStream();
-        }
+        value = new CDROutputStream( orb );
 
         return (CDROutputStream)value;
     }
@@ -1134,16 +1125,8 @@ public final class Any
             return new org.jacorb.orb.CDRInputStream( orb, ((CDROutputStream)value).getBufferCopy());
         }
 
-        final org.jacorb.orb.CDROutputStream out;
-
-        if(orb instanceof org.jacorb.orb.ORB)
-        {
-            out = new org.jacorb.orb.CDROutputStream(orb);
-        }
-        else
-        {
-            out = new org.jacorb.orb.CDROutputStream();
-        }
+        final org.jacorb.orb.CDROutputStream out =
+            new org.jacorb.orb.CDROutputStream(orb);
 
         try
         {
