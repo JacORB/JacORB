@@ -114,7 +114,9 @@ public class ORBSetup extends TestSetup
      */
     public boolean isSSLEnabled()
     {
-        final boolean useSSL = CommonSetup.getSystemPropertyAsBoolean("jacorb.test.ssl");
+        final String sslProperty = orbProps.getProperty("jacorb.test.ssl", System.getProperty("jacorb.test.ssl"));
+
+        final boolean useSSL = TestUtils.getStringAsBoolean(sslProperty);
 
         return useSSL && !isPropertySet(CommonSetup.JACORB_REGRESSION_DISABLE_SECURITY);
     }

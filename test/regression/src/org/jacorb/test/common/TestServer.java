@@ -129,7 +129,9 @@ public class TestServer
             if (useCorbaloc())
             {
                 props.put ("OAPort",
-                           System.getProperty("jacorb.test.corbaloc.port"));
+                           System.getProperty("jacorb.test.corbaloc.port", "0"));
+                props.put ("OASSLPort",
+                        System.getProperty("jacorb.test.corbaloc.sslport", "0"));
                 props.put ("jacorb.implname",
                            System.getProperty("jacorb.test.corbaloc.implname"));
             }
@@ -211,6 +213,7 @@ public class TestServer
             else
             {
                 System.err.println ("TestServer error " + e);
+                e.printStackTrace();
             }
         }
 

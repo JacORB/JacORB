@@ -145,9 +145,10 @@ public abstract class ProfileBase
                 profileDataStream.write_long(this.components.size() + compSeq.value.length);
 
                 // Write the TaggedProfiles (ours first, then the ORB's)
-                for (int i = 0; i < this.components.asArray().length; i++)
+                final TaggedComponent[] ourTaggedProfiles = components.asArray();
+                for (int i = 0; i < ourTaggedProfiles.length; i++)
                 {
-                    TaggedComponentHelper.write(profileDataStream, this.components.asArray()[i]);
+                    TaggedComponentHelper.write(profileDataStream, ourTaggedProfiles[i]);
                 }
                 for (int i = 0; i < compSeq.value.length; i++)
                 {

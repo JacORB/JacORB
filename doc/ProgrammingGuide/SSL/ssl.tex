@@ -393,6 +393,31 @@ allows the developer to initialize a single static SecureRandom
 in a separate thread at the start of their main before any ORB
 calls are done.
 
+\section{Security and corbaloc}
+
+If you want to put together a corbaloc that points to your SSL enabled server object the following 
+needs to be ensured:
+
+normally an IOR string contains additional components that describe the exact SSL setup for a given 
+server object. However this additional information cannot be attached to a corbaloc.
+JacORB provides an extensions to address that shortcoming.
+
+By using the JacORB specific protocol extension \emph{ssliop} you can tell ORB that the corbaloc points
+to a SSL enabled target. When the corbaloc is resolved with orb.string\_to\_object() and the protocol extension is set,
+JacORB will act as the target had the SSL specific tagged components 
+set\footnote{you need to ensure that the corbaloc used GIOP v1.2 as otherwise tagged components are not supported}.
+
+By default the SSL option EstablishTrustInTarget
+will be used both for supported and required SSL options of the created stub.
+Using the property jacorb.security.ssl.corbaloc\_ssliop.supported\_options this can be further customized. Have a look at 
+the configuration chapter for more details.
+
+Example of a corbaloc
+\small{
+\begin{verbatim}
+    corbaloc:ssliop:1.2@hostname:port/object_key
+\end{verbatim}
+}
 
 %%% Local Variables:
 %%% mode: latex

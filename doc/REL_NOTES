@@ -61,8 +61,6 @@ post 2.3.1
           properties jacorb.orb.objectKeyMap).
         - fixed a bug that prevented to use an ORB with 
           jacorb.giop_minor_version=0.
-                    
-        
 
     - IDL Compiler: 
         - fixed issue where the IDL compiler generated imports for the
@@ -75,6 +73,10 @@ post 2.3.1
     - Tools:
         - enhanced dior's ability to recognize different ORB types.
         - enhanced dior to allow parsing of multiline IOR files.
+
+    - Documentation
+        - added section about the usage of corbaloc in conjunction
+          with SSL enabled servers.
 
 2.3.1
 =====
