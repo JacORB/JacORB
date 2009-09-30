@@ -30,6 +30,7 @@ import org.jacorb.orb.ORBConstants;
 import org.jacorb.test.BasicServer;
 import org.jacorb.test.BasicServerHelper;
 import org.jacorb.test.common.ClientServerSetup;
+import org.jacorb.test.common.CommonSetup;
 import org.jacorb.test.common.TestUtils;
 import org.jacorb.test.orb.etf.wiop.WIOPFactories;
 import org.omg.CORBA.ORB;
@@ -56,11 +57,6 @@ public class SpecificProfileSelectorTest extends AbstractWIOPTestCase
 
     public void doSetUp() throws Exception
     {
-        Properties clientProps = new Properties();
-        clientProps.setProperty("jacorb.transport.factories",
-                                "org.jacorb.orb.iiop.IIOPFactories," +
-                                "org.jacorb.test.orb.etf.wiop.WIOPFactories");
-
         // need a unbound delegate for every testrun.
         clientOrb = setup.getClientOrb();
         basicServer = BasicServerHelper.narrow(clientOrb.string_to_object(clientOrb.object_to_string(server)));
@@ -81,8 +77,8 @@ public class SpecificProfileSelectorTest extends AbstractWIOPTestCase
         Properties clientProps = new Properties();
 
         // WIOP does not support SSL.
-        clientProps.setProperty("jacorb.regression.disable_security",
-                                "true");
+        clientProps.setProperty(CommonSetup.JACORB_REGRESSION_DISABLE_SECURITY, "true");
+
         clientProps.setProperty("jacorb.transport.factories",
                 "org.jacorb.orb.iiop.IIOPFactories," +
                 "org.jacorb.test.orb.etf.wiop.WIOPFactories");
