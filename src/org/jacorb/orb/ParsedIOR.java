@@ -431,7 +431,7 @@ public class ParsedIOR
      * @exception IllegalArgumentException if object_reference is null or the
      * designated resource cannot be found.
      */
-    protected void parse(String object_reference)
+    private void parse(String object_reference)
         throws IllegalArgumentException
     {
         if (object_reference == null)

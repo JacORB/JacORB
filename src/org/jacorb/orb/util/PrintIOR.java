@@ -250,7 +250,7 @@ public class PrintIOR
 
         // Print any unknown tags. This block is a simplified version of the private
         // ParsedIOR::decode function.
-        for (int i=0; i<ior.profiles.length; i++)
+        for (int i=0; i < ior.profiles.length; i++)
         {
             int tag = ior.profiles[i].tag;
             boolean found = false;
