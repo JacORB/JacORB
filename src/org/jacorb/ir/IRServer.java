@@ -1,5 +1,10 @@
 package org.jacorb.ir;
 
+import java.net.URL;
+import java.net.URLClassLoader;
+import java.util.Properties;
+import java.util.StringTokenizer;
+
 /*
  *        JacORB - a free Java ORB
  *
@@ -36,43 +41,42 @@ public class IRServer
      */
     public static void main( String args[] )
     {
-        System.setProperty ("jacorb.implname", "InterfaceRepository");
-
         if( args.length != 2)
         {
-            System.err.println("Usage: java org.jacorb.ir.IRServer <classpath> <IOR filename>");
+            System.err.println("Usage: jaco org.jacorb.ir.IRServer <classpath> <IOR filename>");
             System.exit(1);
         }
 
         try
         {
-            java.util.StringTokenizer strtok =
-                new java.util.StringTokenizer( args[0], java.io.File.pathSeparator );
+            StringTokenizer strtok =
+                new StringTokenizer( args[0], java.io.File.pathSeparator );
 
-            java.net.URL [] urls = new java.net.URL[strtok.countTokens()];
+            URL[] urls = new URL[strtok.countTokens()];
             for( int i = 0; strtok.hasMoreTokens(); i++ )
             {
                 urls[i] = new java.io.File( strtok.nextToken() ).toURL();
             }
 
-            java.net.URLClassLoader classLoader = new java.net.URLClassLoader( urls );
+            URLClassLoader classLoader = new URLClassLoader( urls );
 
             Class repositoryClass = classLoader.loadClass("org.jacorb.ir.RepositoryImpl");
 
+
+            Properties props = new Properties();
+            props.setProperty("jacorb.orb.objectKeyMap.InterfaceRepository",
+                              "InterfaceRepository/InterfaceRepositoryPOA/IfR");
+            props.setProperty ("jacorb.implname", "InterfaceRepository");
+            
+            org.omg.CORBA.ORB orb = org.omg.CORBA.ORB.init( args, props );
+            
             Object repository =
                 repositoryClass.getConstructors()[0].newInstance(
-                                     new Object[]{ args[0] ,
-                                                   args[1],
-                                                   classLoader });
+                        new Object[]{ args[0], args[1], classLoader, orb });
 
             repositoryClass.getDeclaredMethod("loadContents", (Class[]) null ).invoke( repository, (Object[]) null );
 
-            Object lock = new Object();
-            synchronized( lock )
-            {
-                lock.wait();
-            }
-
+            orb.run();
         }
         catch( Exception e )
         {

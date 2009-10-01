@@ -22,12 +22,22 @@ package org.jacorb.ir;
 
 import java.io.FileOutputStream;
 import java.io.PrintWriter;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.util.StringTokenizer;
 import java.util.Vector;
 import org.slf4j.Logger;
 import org.jacorb.config.*;
+import org.omg.CORBA.ORB;
+import org.omg.CORBA.Policy;
+import org.omg.CORBA.Repository;
+import org.omg.CORBA.RepositoryHelper;
+import org.omg.CORBA.RepositoryPOATie;
+import org.omg.PortableServer.IdAssignmentPolicyValue;
+import org.omg.PortableServer.LifespanPolicyValue;
 import org.omg.PortableServer.POA;
 import org.omg.PortableServer.POAHelper;
+import org.omg.PortableServer.Servant;
 
 /**
  * The Interface Repository.
@@ -67,7 +77,8 @@ public class RepositoryImpl
      */
     public RepositoryImpl( String classpath,
                            String outfile,
-                              java.net.URLClassLoader loader )
+                           URLClassLoader loader,
+                           ORB orb)
         throws Exception
     {
         def_kind = org.omg.CORBA.DefinitionKind.dk_Repository;
@@ -78,25 +89,38 @@ public class RepositoryImpl
 
         StringTokenizer strtok =
             new StringTokenizer( classpath , java.io.File.pathSeparator );
-        //            new StringTokenizer( classpath , ";" );
 
-        String [] paths =
-            new String [ strtok.countTokens() ];
+        String [] paths = new String [ strtok.countTokens() ];
 
-        containers =
-            new Container[ paths.length ];
-
-        org.omg.CORBA.ORB orb =
-            org.omg.CORBA.ORB.init( new String[0], null );
+        containers = new Container[ paths.length ];
 
         this.configure(((org.jacorb.orb.ORB) orb).getConfiguration());
 
+        // need a regular SYSTEM_ID poa for IfR operation                
         poa = POAHelper.narrow(orb.resolve_initial_references("RootPOA"));
 
-        org.omg.CORBA.Repository myRef =
-            org.omg.CORBA.RepositoryHelper.narrow(
-                poa.servant_to_reference( new org.omg.CORBA.RepositoryPOATie( this ) ) );
+        //create necessary policies
+        Policy[] policies = new Policy[]{
+                poa.create_lifespan_policy(LifespanPolicyValue.PERSISTENT),
+                poa.create_id_assignment_policy(IdAssignmentPolicyValue.USER_ID)};
+            
+        //create persistent POA for IfR object
+        POA ifrPOA = poa.create_POA( "InterfaceRepositoryPOA", 
+                poa.the_POAManager(), 
+                policies );
+            
+        //destroy policies
+        for (int i=0; i<policies.length; i++)
+        {
+            policies[i].destroy();
+        }
 
+        Servant servant =  new RepositoryPOATie( this );            
+        ifrPOA.activate_object_with_id("IfR".getBytes(), servant);
+
+        Repository myRef =
+            RepositoryHelper.narrow(
+                    ifrPOA.servant_to_reference( servant ) );
 
         for( int i = 0; strtok.hasMoreTokens(); i++ )
         {
@@ -118,15 +142,16 @@ public class RepositoryImpl
         out.println( orb.object_to_string( myRef ) );
         setReference( myRef );
         out.close();
+        ifrPOA.the_POAManager().activate();
         poa.the_POAManager().activate();
 
         if (this.logger.isInfoEnabled())
         {
-            java.net.URL urls[] = loader.getURLs();
+            URL urls[] = loader.getURLs();
             StringBuffer sb = new StringBuffer("IR configured for class path: ");
             for( int i = 0; i < urls.length; i++ )
             {
-                sb.append( urls[i].toString() + "\n");
+                sb.append( urls[i].toString() ).append("\n");
             }
 
             logger.info(sb.toString());

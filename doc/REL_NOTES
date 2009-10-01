@@ -72,6 +72,9 @@ post 2.3.1
           through the API.
         - fixed issue where nested sequences would result in invalid java 
           code.
+          
+     - Interface Repository:
+        - Use a persistent POA for the repository servant.
 
     - Tools:
         - enhanced dior's ability to recognize different ORB types.
