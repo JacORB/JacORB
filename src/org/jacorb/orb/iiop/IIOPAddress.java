@@ -47,6 +47,7 @@ public class IIOPAddress
     private boolean dnsEnabled = false;
     private boolean hideZoneID = true;
     private Logger logger;
+    private boolean doEagerResolve;
 
     /**
      * Creates a new IIOPAddress for <code>host</code> and <code>port</code>.
@@ -64,6 +65,19 @@ public class IIOPAddress
         source_name = hoststr;
 
         init_port(port);
+
+        if (doEagerResolve)
+        {
+            init_host();
+        }
+    }
+
+    /**
+     * Creates a new IIOPAddress that will be initialized later by a string
+     */
+    public IIOPAddress()
+    {
+        super();
     }
 
     private void init_port(int port)
@@ -78,14 +92,6 @@ public class IIOPAddress
         }
     }
 
-    /**
-     * Creates a new IIOPAddress that will be initialized later by a string
-     */
-    public IIOPAddress()
-    {
-        super();
-    }
-
     public void configure(Configuration configuration)
         throws ConfigurationException
     {
@@ -95,9 +101,10 @@ public class IIOPAddress
             configuration.getAttribute("jacorb.dns.enable","off").equals("on");
         hideZoneID =
             configuration.getAttribute("jacorb.ipv6.hide_zoneid","on").equals("on");
-    }
+        doEagerResolve = configuration.getAttributeAsBoolean("jacorb.dns.eager_resolve", false);
+   }
 
-    /*
+    /**
      * The InetAddress class can handle both IPv4 and IPv6 addresses.  If the
      * address is not in a valid format, an exception is thrown.  For this
      * reason, isIP() is no longer needed.
@@ -133,16 +140,14 @@ public class IIOPAddress
         {
             host = localhost;
         }
-        else {
-           //String hostname = source_name;
-           //String ip = null;
-
+        else
+        {
             int slash = source_name.indexOf('/');
             if (slash > 0)
             {
-                //fixes two problems, 1) if the user specifed
-                //the network bits, 2) if the user used the
-                //name/ip format
+                // fixes two problems:
+                // 1) if the user specified the network bits,
+                // 2) if the user used the name/ip format
                 source_name = source_name.substring(0,slash);
             }
 
@@ -160,7 +165,7 @@ public class IIOPAddress
                 }
                 catch (UnknownHostException ex)
                 {
-                    if (logger != null && logger.isWarnEnabled())
+                    if (logger.isWarnEnabled())
                     {
                         logger.warn ("init_host, " + source_name + " unresolvable" );
                     }
@@ -176,10 +181,9 @@ public class IIOPAddress
             }
             else
             {
-                if (logger != null && logger.isWarnEnabled())
+                if (logger.isWarnEnabled())
                 {
-                    logger.warn ("init_host, " + source_name +
-                            " is local-link address");
+                    logger.warn ("init_host, " + source_name + " is local-link address");
                 }
                 unresolvable = true;
                 host = null; //will allow binds on all interfaces
@@ -193,7 +197,7 @@ public class IIOPAddress
         String host = in.read_string();
         short  port = in.read_ushort();
 
-        return (new IIOPAddress(host, port));
+        return new IIOPAddress(host, port);
     }
 
     /**
@@ -247,6 +251,11 @@ public class IIOPAddress
     {
         host = null;
         source_name = hn;
+
+        if (doEagerResolve)
+        {
+            init_host();
+        }
     }
 
     /**
@@ -296,13 +305,13 @@ public class IIOPAddress
 
     public int hashCode()
     {
-        if (this.source_name != null)
+        if (source_name != null)
         {
-            return this.source_name.hashCode() + port;
+            return source_name.hashCode() + port;
         }
-        else if (this.host != null)
+        else if (host != null)
         {
-            return this.host.hashCode() + port;
+            return host.hashCode() + port;
         }
         else
         {
@@ -312,7 +321,7 @@ public class IIOPAddress
 
     public String toString()
     {
-        return this.getHostname() + ":" + port;
+        return getHostname() + ":" + port;
     }
 
     public boolean fromString(String s)
