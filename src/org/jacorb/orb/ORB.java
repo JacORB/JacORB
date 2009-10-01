@@ -169,7 +169,7 @@ public final class ORB
     private Logger logger;
 
     /** command like args */
-    private String[] _args;
+    private String[] arguments;
 
     /* for run() and shutdown()  */
     private final Object runSync = new Object();
@@ -224,6 +224,16 @@ public final class ORB
     private boolean failOnORBInitializerError;
 
     private boolean inORBInitializer;
+
+    /**
+     * 4.5.3.3
+     *
+     * The ORB default initial reference argument, -ORBDefaultInitRef, assists in
+     * resolution of initial references not explicitly specified with -ORBInitRef.
+     * -ORBDefaultInitRef requires a URL that, after appending a slash ‘/’ character and a
+     * stringified object key, forms a new URL to identify an initial object reference.
+     */
+    private String defaultInitRef;
 
     public ORB()
     {
@@ -1252,6 +1262,10 @@ public final class ORB
             {
                 obj = getRTORB();
             }
+            else if (defaultInitRef != null)
+            {
+                return string_to_object(defaultInitRef + "/" + identifier);
+            }
             else
             {
                 throw new org.omg.CORBA.ORBPackage.InvalidName();
@@ -1470,78 +1484,106 @@ public final class ORB
                                                                         this,
                                                                         false)); // no applet support
         }
-        catch( ConfigurationException ce )
+        catch( ConfigurationException e )
         {
-            if ( logger != null && logger.isErrorEnabled())
-            {
-                logger.error("error during configuration", ce);
-            }
-            else
-            {
-                ce.printStackTrace();
-            }
+            logger.error("error during configuration", e);
 
-            throw new org.omg.CORBA.INITIALIZE( ce.getMessage() );
+            throw new org.omg.CORBA.INITIALIZE( e.getMessage() );
         }
-
-        /*
-         * find -ORBInitRef args and add them to Environment
-         * (overwriting existing props).
-         */
 
         if( args != null )
         {
-            _args = args;
+            arguments = args;
             for( int i = 0; i < args.length; i++ )
             {
-                String arg = args[ i ].trim();
+                String arg = args[i].trim();
 
-                if( arg.startsWith( "-ORBInitRef." ))
+                if (!arg.startsWith("-ORB"))
                 {
-                    //This is the wrong jacorb form -ORBInitRef.<name>=<val>
+                    continue;
+                }
 
-                    //get rid of the leading `-'
-                    String prop = arg.substring( 1 );
+                // Strip the leading '-'.
+                arg = arg.substring( 1 );
 
-                    //find the equals char that separates prop name from
-                    //prop value
-                    int equals_pos = prop.indexOf( '=' );
-                    if ( equals_pos == -1 )
+                if (arg.equals("ORBDefaultInitRef"))
+                {
+                    defaultInitRef = args[++i].trim();
+
+                    continue;
+                }
+
+                // Look for an '=' in the argument
+                int equals_pos = arg.indexOf('=');
+
+                final String propertyName;
+                final String propertyValue;
+
+                if (equals_pos == -1)
+                {
+                    //This is the compliant form like: -ORBInitRef <name>=<val>
+
+                    if (arg.indexOf('.') >= 0)
                     {
-                        throw new org.omg.CORBA.BAD_PARAM( "InitRef format invalid for " + prop );
+                        // ORBInitRef.<name> value
+                        throw new BAD_PARAM("-ORBInitRef.xxx yyy is not a valid format. Use -ORBInitRef name=value");
                     }
 
-                    //add the property to environment
-                    ((JacORBConfiguration)configuration).setAttribute( prop.substring( 0, equals_pos ),
-                                                                       prop.substring( equals_pos + 1) );
-                }
-                else if ("-ORBInitRef".equals(arg))
-                {
-                    //This is the compliant form -ORBInitRef <name>=<val>
-
                     //Is there a next arg?
-                    if( (args.length - 1) < (i + 1) )
+                    if( (i + 1) >= (args.length) )
                     {
-                        logger.error("WARNING: -ORBInitRef argument without value");
-
-                        throw new BAD_PARAM("-ORBInitRef argument without value");
+                        throw new BAD_PARAM("Invalid ORBInitRef format: -ORB<option> argument without value" );
                     }
 
                     String prop = args[ ++i ].trim();
 
                     //find the equals char that separates prop name from
                     //prop value
-                    int equals_pos = prop.indexOf( '=' );
-                    if ( equals_pos == -1 )
+                    equals_pos = prop.indexOf('=');
+                    if (equals_pos < 0)
                     {
-                        throw new org.omg.CORBA.BAD_PARAM( "InitRef format invalid for " + prop );
+                        if (arg.equals("ORBInitRef"))
+                        {
+                            throw new BAD_PARAM("Invalid ORBInitRef format -ORBInitRef " + prop + ". it should be -ORBInitRef name=value.");
+                        }
+                        // Form is -ORBWhatever value
+                        propertyName = arg;
+                        propertyValue = prop;
                     }
+                    else
+                    {
+                        // Form is -ORBWhatever name=value
+                        // add the property to environment
 
-                    //add the property to environment
-                     ((JacORBConfiguration)configuration).setAttribute( "ORBInitRef." +
-                                                                         prop.substring( 0, equals_pos ),
-                                                                         prop.substring( equals_pos + 1) );
+                        propertyName = arg + "." + prop.substring( 0, equals_pos );
+                        propertyValue = prop.substring( equals_pos + 1);
+
+                        if (propertyValue.length() == 0)
+                        {
+                            throw new BAD_PARAM("Invalid ORBInitRef format: -ORBInitRef name=value. value may not be omitted.");
+                        }
+                    }
                 }
+                else
+                {
+                    //This is the wrong jacorb form -ORBInitRef.<name>=<val>
+                    //get rid of the leading =
+                    //add the property to environment
+
+                    propertyName = arg.substring( 0, equals_pos );
+                    propertyValue = arg.substring( equals_pos + 1);
+
+                    if (propertyValue.length() == 0)
+                    {
+                        throw new BAD_PARAM("Invalid ORBInitRef format: -ORBInitRef name=value. value may not be omitted.");
+                    }
+                }
+
+                if (logger.isDebugEnabled())
+                {
+                    logger.debug("adding attribute " + propertyName + "=" + propertyValue);
+                }
+                configuration.setAttribute(propertyName, propertyValue);
             }
         }
 
@@ -2574,10 +2616,10 @@ public final class ORB
         return poolManagerFactory.newRPPoolManager(isSingleThreaded);
     }
 
-  public void notifyTransportListeners(GIOPConnection gc) {
-    
-    transport_manager.notifyTransportListeners (gc);
-  }
+    public void notifyTransportListeners(GIOPConnection gc) 
+    {
+        transport_manager.notifyTransportListeners (gc);
+    }
 
     public String getImplName()
     {
@@ -2585,11 +2627,11 @@ public final class ORB
     }
 
     /**
-     * @return the _args. Public accessor used by ORBInitInfo.
+     * @return the arguments. Public accessor used by ORBInitInfo.
      */
     public String[] getArgs()
     {
-       return _args;
+       return arguments;
     }
 
     public int getGIOPMinorVersion()

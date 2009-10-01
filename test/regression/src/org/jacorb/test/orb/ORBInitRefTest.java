@@ -1,6 +1,8 @@
 package org.jacorb.test.orb;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
@@ -38,8 +40,18 @@ public class ORBInitRefTest extends ClientServerTestCase
         props.setProperty(CommonSetup.JACORB_REGRESSION_DISABLE_SECURITY, "true");
         props.setProperty(CommonSetup.JACORB_REGRESSION_DISABLE_IMR, "true");
 
+        Properties serverProps = new Properties();
+
+        serverProps.setProperty("jacorb.test.corbaloc.enable", "true");
+        serverProps.setProperty("jacorb.test.corbaloc.implname", "ORBInitRefTestImpl");
+        serverProps.setProperty("jacorb.test.corbaloc.poaname", "ORBInitRefTestPOA");
+        serverProps.setProperty("jacorb.test.corbaloc.objectid", "ORBInitRefTestID");
+        serverProps.setProperty("jacorb.test.corbaloc.port", "57231");
+
+        serverProps.setProperty("jacorb.test.corbaloc.shortcut", "ORBInitRefServer");
+
         TestSuite suite = new TestSuite();
-        ClientServerSetup setup = new ClientServerSetup(suite, BasicServerImpl.class.getName(), props, props);
+        ClientServerSetup setup = new ClientServerSetup(suite, BasicServerImpl.class.getName(), props, serverProps);
 
         TestUtils.addToSuite(suite, setup, ORBInitRefTest.class);
 
@@ -61,13 +73,12 @@ public class ORBInitRefTest extends ClientServerTestCase
     public void testORBInitRef() throws Exception
     {
         args.add("-ORBInitRef");
-        args.add("BasicServer=" + setup.getServerObject().toString());
+        args.add("BasicServer=" + setup.getServerIOR());
 
         testORB();
     }
 
-    // TODO
-    public void _testORBInitRefIncomplete() throws Exception
+    public void testORBInitRefIncomplete() throws Exception
     {
         args.add("-ORBInitRef");
         args.add("BasicServer=");
@@ -82,8 +93,7 @@ public class ORBInitRefTest extends ClientServerTestCase
         }
     }
 
-    // TODO
-    public void _testORBInitRefIncomplete2() throws Exception
+    public void testORBInitRefIncomplete2() throws Exception
     {
         args.add("-ORBInitRef");
         args.add("BasicServer");
@@ -100,13 +110,12 @@ public class ORBInitRefTest extends ClientServerTestCase
 
     public void testJacORBSpecificORBInitRef() throws Exception
     {
-        args.add("-ORBInitRef.BasicServer="+setup.getServerObject().toString());
+        args.add("-ORBInitRef.BasicServer=" + setup.getServerIOR());
 
         testORB();
     }
 
-    // TODO
-    public void _testJacORBSpecificORBInitRefIncomplete() throws Exception
+    public void testJacORBSpecificORBInitRefIncomplete() throws Exception
     {
         args.add("-ORBInitRef.BasicServer=");
 
@@ -134,16 +143,25 @@ public class ORBInitRefTest extends ClientServerTestCase
         }
     }
 
-    private void testORB() throws InvalidName
+    private ORB testORB() throws InvalidName
     {
         ORB orb = newORB(args);
         BasicServer server = BasicServerHelper.narrow(orb.resolve_initial_references("BasicServer"));
         assertFalse(server.bounce_boolean(false));
+
+        return orb;
     }
 
     public void testORBDefaultInitRef() throws Exception
     {
-        // TODO
+        args.add("-ORBDefaultInitRef");
+        args.add("corbaloc::localhost:57231");
+        args.add("-ORBInitRef");
+        args.add("BasicServer=" + setup.getServerIOR());
+
+        ORB orb = testORB();
+        BasicServer server = BasicServerHelper.narrow(orb.resolve_initial_references("ORBInitRefServer"));
+        assertFalse(server.bounce_boolean(false));
     }
 
     protected void tearDown() throws Exception
@@ -156,6 +174,18 @@ public class ORBInitRefTest extends ClientServerTestCase
 
         orbs.clear();
         args.clear();
+    }
+
+    public void _testListInitialReferences() throws Exception
+    {
+        args.add("-ORBInitRef");
+        args.add("BasicServer=" + setup.getServerIOR());
+
+        ORB orb = newORB(args);
+
+        HashSet set = new HashSet(Arrays.asList(orb.list_initial_services()));
+
+        assertTrue(set.contains("BasicServer"));
     }
 
     private ORB newORB(List args)

@@ -62,6 +62,8 @@ post 2.3.1
         - fixed a bug that prevented to use an ORB with 
           jacorb.giop_minor_version=0.
         - improved PrintIOR output.
+        - fixed handling of -ORBInitRef parameters and added handling 
+          of -ORBDefaultInitRef parameter.
 
     - IDL Compiler: 
         - fixed issue where the IDL compiler generated imports for the
