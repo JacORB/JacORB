@@ -39,6 +39,8 @@ parser code
 
     private static final String yearString = "1997-2006";
 
+    private static final String versionInfo = org.jacorb.util.BuildVersion.versionInfo;
+
     private static org.jacorb.idl.IDLTreeVisitor generator = null;
 
     private static final String FINAL = " final";
@@ -631,7 +633,7 @@ parser code
     {
         System.out.println("JacORB IDL compiler V" +  compiler_version +
                            ",\n   (C) The JacORB Project contributors, " +
-                           yearString + ".");
+                           yearString + "." + versionInfo);
     }
 
     /* override error routines */

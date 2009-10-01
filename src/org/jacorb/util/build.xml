@@ -11,8 +11,18 @@
 
    &common;
 
-   <target name="all" depends="init">
+   <target name="all" depends="init, compile">
       <ant antfile="${src}/org/jacorb/util/tracing/build.xml" dir="${basedir}"/>
-      <jacorb-javac javac-includes="org/jacorb/util/*.java,org/jacorb/util/**/*.java"/>
    </target>
+
+    <target name="compile">
+        <jacorb-javac javac-includes="org/jacorb/util/*.java,
+                                      org/jacorb/util/**/*.java"
+                      javac-excludes="**/tracing/**" />
+
+        <jacorb-javac javac-includes="org/jacorb/util/*.java"
+                      javac-src="${src.generated}"/>
+
+    </target>
+
 </project>

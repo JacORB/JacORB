@@ -44,11 +44,11 @@ public interface IBufferManager
     void returnBuffer(byte[] buf);
 
     /**
-     * @param current a <code>byte[]</code> value
+     * @param buffer a <code>byte[]</code> value
      * @param cdrStr a <code>boolean</code> value value to denote if CDROuputStream is
      *               caller (may use cache in this situation)
      */
-    void returnBuffer(byte[] buffer, boolean b);
+    void returnBuffer(byte[] buffer, boolean cdrStr);
 
     /**
      * <code>getBuffer</code> returns a new buffer.

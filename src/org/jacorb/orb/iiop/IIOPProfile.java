@@ -67,7 +67,7 @@ public class IIOPProfile
     /**
      * flag to specify if we should check
      * components for alternate addresses.
-     * @see getAlternateAddress()
+     * @see #getAlternateAddresses()
      */
     private final boolean checkAlternateAddresses;
 
