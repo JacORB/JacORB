@@ -23,6 +23,9 @@ package org.jacorb.test.config;
 
 import java.util.Properties;
 import java.io.*;
+import java.net.URL;
+import java.net.URLClassLoader;
+
 import org.omg.CORBA.*;
 import junit.framework.*;
 import org.jacorb.test.common.*;
@@ -53,6 +56,13 @@ public class ConfigurationTest extends JacORBTestCase
 
     protected void setUp() throws Exception
     {
+        Thread.currentThread().setContextClassLoader(
+                new URLClassLoader(
+                        new URL[] 
+                        {
+                            new File(TestUtils.jacorbHome(), "/classes").toURL(), 
+                            new File(TestUtils.testHome(), "/classes").toURL()
+                        }, null));
         oldProps.putAll(System.getProperties());
     }
 
@@ -78,7 +88,7 @@ public class ConfigurationTest extends JacORBTestCase
     {
         try
         {
-            createPropertiesFile("classes/orb.properties",
+            createPropertiesFile("classes/jacorb.properties",
                                  "jacorb.connection.client.connect_timeout=33099");
 
             Properties props = new Properties();
