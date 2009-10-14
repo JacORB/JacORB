@@ -1958,14 +1958,15 @@ public final class Delegate
 
         synchronized(policy_overrides)
         {
-            if ( set_add == org.omg.CORBA.SetOverrideType.SET_OVERRIDE )
+            if ( set_add == org.omg.CORBA.SetOverrideType.ADD_OVERRIDE)
             {
-                policy_overrides.clear();
+                // Need to add the overrides within this object to the new one.
+                delResult.policy_overrides.putAll (policy_overrides);
             }
 
             for ( int i = 0; i < policies.length; i++ )
             {
-                policy_overrides.put(ObjectUtil.newInteger( policies[ i ].policy_type() ), policies[ i ] );
+                delResult.policy_overrides.put(ObjectUtil.newInteger( policies[ i ].policy_type() ), policies[ i ] );
             }
         }
 
