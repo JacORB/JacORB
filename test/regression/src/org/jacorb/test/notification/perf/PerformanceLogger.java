@@ -7,8 +7,8 @@ import java.util.Map;
 import org.omg.CORBA.Any;
 import org.omg.CosNotification.StructuredEvent;
 
-import org.jacorb.test.notification.TimingTest;
-import org.jacorb.test.notification.TimingTestHelper;
+import org.jacorb.test.notification.Timing;
+import org.jacorb.test.notification.TimingHelper;
 import org.jacorb.test.notification.PerformanceListener;
 
 class PerformanceLogger implements PerformanceListener
@@ -108,7 +108,7 @@ class PerformanceLogger implements PerformanceListener
 
     public void eventSent( Any event, long currentTime, long took )
     {
-        //      TimingTest _t = TimingTestHelper.extract(event);
+        //      Timing _t = TimingHelper.extract(event);
         //      synchronized(allEntries_) {
         //          LogEntry _entry = (LogEntry)allEntries_.get(event);
         //          if (_entry == null) {
@@ -126,7 +126,7 @@ class PerformanceLogger implements PerformanceListener
 
     public void eventReceived( Any event, long currentTime )
     {
-        TimingTest _t = TimingTestHelper.extract( event );
+        Timing _t = TimingHelper.extract( event );
         Integer _key = new Integer( _t.id );
 
         synchronized ( allEntries_ )

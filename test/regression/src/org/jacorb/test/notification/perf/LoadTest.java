@@ -69,7 +69,7 @@ public class LoadTest extends NotificationTestCase
         ORB orb = getORB();
 
         factory = EventChannelFactoryHelper.narrow(orb
-                .resolve_initial_references("NotificationService"));
+                .resolve_initial_references("JACORB-NotificationService"));
 
         intHolder = new IntHolder();
 

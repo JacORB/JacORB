@@ -28,6 +28,12 @@ import org.omg.CORBA.Any;
 
 public class AnyTest extends ORBTestCase
 {
+    public void testAny()
+    {
+        // Should be at least one 'test*' method.
+        // Remove this method when test's implementation be done  
+    }
+    
     public void _testAny()
     {
         Any theAny = null;

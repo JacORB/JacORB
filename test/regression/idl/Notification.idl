@@ -7,7 +7,7 @@ module org {
 	typedef sequence<string> StringSeq;
 	typedef sequence<long> NumberSeq;
 	
-	struct TimingTest {
+	struct Timing {
 	  long id;
 	  long currentTime;
 	};
