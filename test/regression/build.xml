@@ -792,7 +792,8 @@ Tests run: ${result.testCount}, Failures: ${result.testFailures}, Errors: ${resu
     <!--                   clean up                           -->
     <!-- ==================================================== -->
 
-    <target name="clean" depends="test-base-init, init" description="Remove all generated source files and class files">
+    <target name="clean" depends="jacunit-realclean" 
+            description="Remove all generated source files and class files">
         <delete failonerror="false" includeemptydirs="true">
             <fileset dir="${classdir}" includes="**/*" />
             <fileset dir="${src}/generated" includes="**/*" />
