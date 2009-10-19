@@ -9,7 +9,7 @@
 
     <property name="dir.classes-instrumented" value="${basedir}/classes-instrumented" />
     <property name="dir.test" value="${basedir}/test/regression" />
-
+	
     <property name="jacorb.test.outdir" value="${dir.test}/output" />
 
     <!-- ==================================================== -->
@@ -155,7 +155,7 @@
         </condition>
 
         <!-- By default, we do run naming and notification tests -->
-        <property name="jacorb.exclude-services" value="false"/>
+    	<property name="jacorb.test.exclude-services" value="false"/>
         <property name="jacorb.test.verbose" value="false" />
 
         <!-- timeout if we want in tests for something to happen that takes a while -->
@@ -287,14 +287,16 @@
 
             <batchtest todir="${jacorb.test.outdir}" >
                 <fileset dir="${dir.test}/classes" includes="${jacorb.test.pattern}">
-                	<exclude name="**/AllTest.class" />
+                    <exclude name="**/AllTest.class" />
                     <exclude name="**/PackageTest.class" />
 
                     <exclude name="org/jacorb/test/idl/**" if="jacorb.test.j2me"/>
                     <exclude name="org/jacorb/test/imr/**" if="jacorb.test.j2me"/>
                     <exclude name="org/jacorb/test/ir/**" if="jacorb.test.j2me"/>
                     <exclude name="org/jacorb/test/orb/rmi/**" if="jacorb.test.j2me"/>
+
                     <exclude name="org/jacorb/test/naming/**" if="jacorb.test.exclude-services" />
+                    <exclude name="org/jacorb/test/notification/**" if="jacorb.test.exclude-services" />
 
                     <exclude name="org/jacorb/test/common/**" />
                 </fileset>
@@ -450,7 +452,6 @@ Tests run: ${result.testCount}, Failures: ${result.testFailures}, Errors: ${resu
                 <html outfile="${dir.server}/index.html"/>
             </report>
         </emma>
-
         <echo file="${jacorb.test.coverage.dir}/index.html" >
             &lt;html&gt;
             &lt;a href="coverage-combined/index.html" &gt; coverage-combined &lt;/a&gt;
@@ -605,8 +606,8 @@ Tests run: ${result.testCount}, Failures: ${result.testFailures}, Errors: ${resu
     <!--                  code coverage                       -->
     <!-- ==================================================== -->
 
-    <target name="instrument" depends="test-init"
-          description="Instrument the main JacORB code for coverage analysis">
+    <target name="instrument" depends="test-init" if="jacorb.test.coverage.process"
+            description="Instrument the main JacORB code for coverage analysis">
 
         <pathconvert pathsep="," property="_generated.sources">
             <path>
