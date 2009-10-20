@@ -1,9 +1,13 @@
 package org.jacorb.config;
 
+import java.io.FileOutputStream;
+import java.io.OutputStream;
 import java.util.logging.ConsoleHandler;
 import java.util.logging.FileHandler;
 import java.util.logging.Handler;
 import java.util.logging.Level;
+import java.util.logging.LogRecord;
+import java.util.logging.StreamHandler;
 
 import org.jacorb.util.ObjectUtil;
 
@@ -77,16 +81,25 @@ public class JdkLoggingInitializer extends LoggingInitializer
                 java.util.logging.Logger.getLogger ("jacorb");
             rootLogger.setUseParentHandlers (false);
             rootLogger.setLevel (toJdkLogLevel (level));
+            
+            Handler[] handlers = rootLogger.getHandlers();
+            if (handlers != null && handlers.length > 0)
+            {
+                for (int i = 0; i < handlers.length; i++)
+                {
+                    handlers[i].close();
+                    rootLogger.removeHandler(handlers[i]);
+                }
+            }
+            
             Handler handler = new ConsoleHandler(); 
             if (file != null && file.length() > 0)
             {
                 try
                 {
-                    handler = new FileHandler
-                    (
-                        substituteImplname (file, config),
-                        config.getAttributeAsBoolean (ATTR_LOG_APPEND, false)
-                    );
+                    OutputStream outStream =  new FileOutputStream (substituteImplname (file, config), 
+                            config.getAttributeAsBoolean (ATTR_LOG_APPEND, false));
+                    handler = new StreamHandler (outStream, new JacORBLogFormatter());
                 }
                 catch (java.io.IOException ex)
                 {
