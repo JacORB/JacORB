@@ -57,11 +57,14 @@ public class JacORBConfiguration implements Configuration
 
     /** contains the actual configuration data */
     private Properties attributes;
-    
+
     private String name;
     private final ORB orb;
-    
+
     private Logger logger;
+
+    private LoggingInitializer li;
+
 
     /**
      * Factory method
@@ -243,12 +246,12 @@ public class JacORBConfiguration implements Configuration
        {
            setAttributes(orbConfig);
            loaded = true;
-           logger.info ("configuration " + name + 
+           logger.info ("configuration " + name +
                         " loaded from file " + propFile);
        }
        else
        {
-           logger.warn ("File " + propFile + " for configuration " 
+           logger.warn ("File " + propFile + " for configuration "
                         + name + " not found");
        }
 
@@ -396,7 +399,7 @@ public class JacORBConfiguration implements Configuration
 
        if (!loaded)
        {
-           logger.warn ("no properties found for configuration " + name); 
+           logger.warn ("no properties found for configuration " + name);
        }
     }
 
@@ -535,14 +538,25 @@ public class JacORBConfiguration implements Configuration
      */
     private void initLogging()
     {
-        LoggingInitializer li = (LoggingInitializer)getAttributeAsObject
+        li = (LoggingInitializer)getAttributeAsObject
         (
             ATTR_LOGGING_INITIALIZER,
             "org.jacorb.config.JdkLoggingInitializer"
         );
         li.init (this);
     }
-    
+
+
+    /**
+     * Calls shutdown on the logging sub-system. This may be a no-op
+     * depending upon the logging backend.
+     */
+    public void shutdownLogging ()
+    {
+        li.shutdownLogging ();
+    }
+
+
     /**
      * @return the ORB for which this configuration was created
      */
@@ -558,27 +572,27 @@ public class JacORBConfiguration implements Configuration
      * the SLF4J logging facade.  The actual logging backend is chosen
      * at deployment time, by putting a corresponding SLF4J adapter
      * jar on the classpath.
-     * 
+     *
      * The JacORB root logger is named "jacorb".  Sublogger names all
      * start with this prefix.  If the property jacorb.implname is set,
      * and the property jacorb.log.split_on_implname is true, then
      * all loggers for that particular ORB instance are rooted in
      * jacorb.<implname>.
-     * 
+     *
      * Here's a guideline how to use logging levels in the code:
-     * 
+     *
      * error Conditions that indicate a bug in JacORB or user code,
      *       or a wrong configuration.  This includes, but is not
      *       limited to, errors that will lead to termination of the
      *       program (fatal errors).
-     * 
+     *
      * warn  Conditions that demand attention, but are handled properly
      *       according to the CORBA spec.  For example, abnormal termination
      *       of a connection, reaching of a resource limit (queue full).
-     * 
+     *
      * info  Start/stop of subsystems, establishing and closing of connections,
      *       registering objects with a POA.
-     * 
+     *
      * debug Information that might be needed for finding bugs in JacORB
      *       or user code.  Anything that relates to the normal processing
      *       of individual messages should come under this level.  For each
@@ -603,6 +617,8 @@ public class JacORBConfiguration implements Configuration
         return org.slf4j.LoggerFactory.getLogger (loggerName);
     }
 
+
+
     public String getLoggerName(Class clz)
     {
         final String clazzName = clz.getName();
@@ -614,7 +630,7 @@ public class JacORBConfiguration implements Configuration
         }
         return packageName;
     }
-    
+
     /**
      * @see org.jacorb.config.Configuration#getAttribute(java.lang.String)
      */
@@ -627,7 +643,7 @@ public class JacORBConfiguration implements Configuration
         }
         else
         {
-            throw new ConfigurationException 
+            throw new ConfigurationException
             (
                 "attribute " + key + " is not defined"
             );
@@ -642,7 +658,7 @@ public class JacORBConfiguration implements Configuration
         return attributes.getProperty(key, defaultValue);
     }
 
-    
+
     /**
      * @see org.jacorb.config.Configuration#getAttributeAsInteger(java.lang.String, int)
      */
@@ -653,14 +669,14 @@ public class JacORBConfiguration implements Configuration
         {
             return defaultValue;
         }
-        else if (value instanceof String) 
+        else if (value instanceof String)
         {
             if (((String)value).trim().length() < 1)
             {
                 // empty string is treated as 'null' value
                 return defaultValue;
             }
-            
+
             try
             {
                 int i = Integer.parseInt (((String)value).trim());
@@ -671,7 +687,7 @@ public class JacORBConfiguration implements Configuration
                 // fall through
             }
         }
-        throw new ConfigurationException 
+        throw new ConfigurationException
         (
             "value for attribute " + key + " is not numeric: " + value
         );
@@ -710,7 +726,7 @@ public class JacORBConfiguration implements Configuration
         {
             return defaultValue;
         }
-        else if (value instanceof String) 
+        else if (value instanceof String)
         {
             try
             {
@@ -722,7 +738,7 @@ public class JacORBConfiguration implements Configuration
                 // fall through
             }
         }
-        throw new ConfigurationException 
+        throw new ConfigurationException
         (
             "value for attribute " + key + " is not numeric: " + value
         );
@@ -846,7 +862,7 @@ public class JacORBConfiguration implements Configuration
     {
         return (String[])(attributes.keySet().toArray (new String[]{}));
     }
-    
+
     /**
      * @see org.jacorb.config.Configuration#getAttributeNamesWithPrefix(java.lang.String)
      */

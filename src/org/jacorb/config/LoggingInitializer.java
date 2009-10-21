@@ -34,7 +34,9 @@ public abstract class LoggingInitializer
     public static final String ATTR_LOG_VERBOSITY = "jacorb.log.default.verbosity";
     public static final String ATTR_LOG_FILE      = "jacorb.logfile";
     public static final String ATTR_LOG_APPEND    = "jacorb.logfile.append";
-    
+    public static final String ATTR_LOG_SIZE      = "jacorb.logfile.maxLogSize";
+    public static final String ATTR_LOG_ROTATE    = "jacorb.logfile.rotateCount";
+
     /**
      * If the given filename contains the string "$implname", replaces
      * that string with the value of the configuration attribute
@@ -67,12 +69,22 @@ public abstract class LoggingInitializer
             }
         }
     }
-    
+
     /**
      * Implement this method to provide initialization for a given logging
      * backend.  The method should check itself whether the chosen logging
      * backend is active (by verifying that the corresponding SLF4J adapter
      * class is on the classpath).
      */
-    public abstract void init (Configuration config);            
+    public abstract void init (Configuration config);
+
+
+    /**
+     * No-op function that may be overridden by implementation to provide
+     * shutdown facility on logging. This may be useful if the logging backend
+     * requires special shutdown.
+     */
+    public void shutdownLogging ()
+    {
+    }
 }

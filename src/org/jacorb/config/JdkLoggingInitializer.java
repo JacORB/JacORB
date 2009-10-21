@@ -1,13 +1,9 @@
 package org.jacorb.config;
 
-import java.io.FileOutputStream;
-import java.io.OutputStream;
 import java.util.logging.ConsoleHandler;
 import java.util.logging.FileHandler;
 import java.util.logging.Handler;
 import java.util.logging.Level;
-import java.util.logging.LogRecord;
-import java.util.logging.StreamHandler;
 
 import org.jacorb.util.ObjectUtil;
 
@@ -18,23 +14,24 @@ import org.jacorb.util.ObjectUtil;
  */
 public class JdkLoggingInitializer extends LoggingInitializer
 {
-
     /**
-     * Returns true if the currently used SLF4J backend is the
+     * True if the currently used SLF4J backend is the
      * JDK logging implementation.  This is true if and only if
      * the SLF4J-to-JDK adapter can be found on the classpath.
      */
-    private boolean usingJdkLogging()
+    private static final boolean ISJDKLOGGING;
+
+    static
     {
+        Class c = null;
         try
         {
-            Class c = ObjectUtil.classForName ("org.slf4j.impl.JDK14LoggerAdapter");
-            return c != null;
+            c = ObjectUtil.classForName ("org.slf4j.impl.JDK14LoggerAdapter");
         }
         catch (Exception ex)
         {
-            return false;
         }
+        ISJDKLOGGING = (c != null);
     }
 
     /**
@@ -60,7 +57,7 @@ public class JdkLoggingInitializer extends LoggingInitializer
                 default:
                 case 3: return Level.INFO;
                 case 4: return Level.FINEST;
-                }                
+                }
             }
             catch (NumberFormatException ex)
             {
@@ -68,10 +65,10 @@ public class JdkLoggingInitializer extends LoggingInitializer
             }
         }
     }
-    
+
     public void init (Configuration config)
     {
-        if (!usingJdkLogging()) return;
+        if (!ISJDKLOGGING) return;
         String level = config.getAttribute (ATTR_LOG_VERBOSITY, null);
         String file  = config.getAttribute (ATTR_LOG_FILE, null);
         if (   (level != null && level.length() > 0)
@@ -81,35 +78,76 @@ public class JdkLoggingInitializer extends LoggingInitializer
                 java.util.logging.Logger.getLogger ("jacorb");
             rootLogger.setUseParentHandlers (false);
             rootLogger.setLevel (toJdkLogLevel (level));
-            
-            Handler[] handlers = rootLogger.getHandlers();
-            if (handlers != null && handlers.length > 0)
-            {
-                for (int i = 0; i < handlers.length; i++)
-                {
-                    handlers[i].close();
-                    rootLogger.removeHandler(handlers[i]);
-                }
-            }
-            
-            Handler handler = new ConsoleHandler(); 
+
+            // Ensure there is only one handler
+            purgeHandlers (rootLogger);
+
+            Handler handler;
+
             if (file != null && file.length() > 0)
             {
                 try
                 {
-                    OutputStream outStream =  new FileOutputStream (substituteImplname (file, config), 
-                            config.getAttributeAsBoolean (ATTR_LOG_APPEND, false));
-                    handler = new StreamHandler (outStream, new JacORBLogFormatter());
+                    handler = new FileHandler
+                    (
+                        substituteImplname (file, config),
+                        config.getAttributeAsInteger (ATTR_LOG_SIZE, 0),
+                        config.getAttributeAsInteger (ATTR_LOG_ROTATE, 1),
+                        config.getAttributeAsBoolean (ATTR_LOG_APPEND, false)
+                    );
                 }
                 catch (java.io.IOException ex)
                 {
                     System.err.println ("could not write log file");
+                    handler = new ConsoleHandler();
                 }
+            }
+            else
+	    {
+		handler = new ConsoleHandler();
             }
             handler.setLevel(toJdkLogLevel(level));
             handler.setFormatter (new JacORBLogFormatter());
             rootLogger.addHandler (handler);
         }
     }
-    
+
+
+    public void shutdownLogging ()
+    {
+        if (ISJDKLOGGING)
+        {
+            // Clear lock files.
+            java.util.logging.Logger rootLogger =
+               java.util.logging.Logger.getLogger ("jacorb");
+
+            Handler handlers[] = rootLogger.getHandlers();
+
+            purgeHandlers (rootLogger);
+
+            if (handlers.length > 0)
+            {
+                // So we don't loose any logs revert to console based logging.
+                java.util.logging.Handler c = new java.util.logging.ConsoleHandler();
+                c.setFormatter (handlers[0].getFormatter());
+                c.setLevel     (handlers[0].getLevel());
+                rootLogger.addHandler (c);
+             }
+        }
+    }
+
+
+    private void purgeHandlers (java.util.logging.Logger rootLogger)
+    {
+        // Ensure there is only one handler
+        Handler[] handlers = rootLogger.getHandlers();
+        if (handlers != null && handlers.length > 0)
+        {
+            for (int i = 0; i < handlers.length; i++)
+            {
+                handlers[i].close();
+                rootLogger.removeHandler(handlers[i]);
+            }
+        }
+    }
 }

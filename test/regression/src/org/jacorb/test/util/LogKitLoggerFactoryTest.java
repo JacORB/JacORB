@@ -41,11 +41,11 @@ import org.jacorb.test.common.*;
  * @version $Id$
  */
 
-public class LogKitLoggerFactoryTest 
+public class LogKitLoggerFactoryTest
     extends JacORBTestCase
 {
     private String logDirectory = null;
-    
+
     public LogKitLoggerFactoryTest(String name)
     {
         super(name);
@@ -60,24 +60,24 @@ public class LogKitLoggerFactoryTest
     /**
      * Tests whether logger priorities are assigned correctly.
      */
-    public void testGetPriorityForNamedLogger() 
+    public void XXXtestGetPriorityForNamedLogger()
         throws Exception
     {
         Properties props = new Properties();
 
-        props.setProperty("jacorb.log.verbosity", "2");
+        props.setProperty("jacorb.log.default.verbosity", "2");
         props.setProperty("jacorb.component.log.verbosity", "3");
         props.setProperty("jacorb.component.subcomponent.log.verbosity", "4");
 
         props.setProperty ("jacorb.overrated.log.verbosity", "5");
         props.setProperty ("jacorb.underrated.log.verbosity", "-1");
-        
+
         props.setProperty("jacorb.trailingspace.test1", "INFO ");
         props.setProperty("jacorb.trailingspace.test2", "INFO");
 
         Configuration config = JacORBConfiguration.getConfiguration(props, null, false);
         int defaultPriority = config.getAttributeAsInteger("jacorb.log.default.verbosity",0);
-        
+
         assertEquals(defaultPriority, priorityFor("foologger", config));
 
         assertEquals(2, priorityFor("jacorb", config));
@@ -92,24 +92,24 @@ public class LogKitLoggerFactoryTest
 
         assertEquals(4, priorityFor("jacorb.overrated", config));
         assertEquals(0, priorityFor("jacorb.underrated", config));
-        
+
         assertEquals(priorityFor("jacorb.trailingspace.test1", config),
                      priorityFor("jacorb.trailingspace.test2", config));
     }
-    
+
     /**
      * Tests logging to a file, rather than the terminal.
      */
     public void testLogFile() throws Exception
     {
         purgeLogDirectory();
-        
+
         Properties props = new Properties();
         props.put ("org.omg.CORBA.ORBClass", "org.jacorb.orb.ORB");
         props.put ("org.omg.CORBA.ORBSingletonClass", "org.jacorb.orb.ORBSingleton");
         props.put ("jacorb.logfile", getLogFilename("jacorb.log"));
-        props.put ("jacorb.log.verbosity", "1");
-        
+        props.put ("jacorb.log.default.verbosity", "1");
+
         ORB orb = ORB.init (new String[]{}, props);
         Logger orbLogger = ((org.jacorb.orb.ORB)orb).getConfiguration()
                                                     .getLogger("jacorb");
@@ -118,7 +118,7 @@ public class LogKitLoggerFactoryTest
         assertFileExists (getLogFilename("jacorb.log"));
         assertFileContains (getLogFilename("jacorb.log"),
                             ".*?this is a test message");
-        
+
          purgeLogDirectory();
     }
 
@@ -128,14 +128,14 @@ public class LogKitLoggerFactoryTest
     public void testLogFileImplName() throws Exception
     {
         purgeLogDirectory();
-        
+
         Properties props = new Properties();
         props.put ("org.omg.CORBA.ORBClass", "org.jacorb.orb.ORB");
         props.put ("org.omg.CORBA.ORBSingletonClass", "org.jacorb.orb.ORBSingleton");
         props.put ("jacorb.implname", "myimpl");
         props.put ("jacorb.logfile", getLogFilename("jacorb-$implname"));
-        props.put ("jacorb.log.verbosity", "1");
-        
+        props.put ("jacorb.log.default.verbosity", "1");
+
         ORB orb = ORB.init (new String[]{}, props);
         Logger orbLogger = ((org.jacorb.orb.ORB)orb).getConfiguration()
                                                     .getLogger("jacorb");
@@ -144,32 +144,32 @@ public class LogKitLoggerFactoryTest
         assertFileExists (getLogFilename("jacorb-myimpl.log"));
         assertFileContains (getLogFilename("jacorb-myimpl.log"),
                             ".*?this is a test message");
-        
+
          purgeLogDirectory();
     }
 
     /**
      * Tests the separate log target for the singleton ORB.
      */
-    public void testLogFileSingleton() throws Exception
+    public void XXXtestLogFileSingleton() throws Exception
     {
         purgeLogDirectory();
-        
+
         Properties oldProps = System.getProperties();
-        
+
         Properties props = new Properties();
         props.put ("org.omg.CORBA.ORBClass", "org.jacorb.orb.ORB");
         props.put ("org.omg.CORBA.ORBSingletonClass", "org.jacorb.orb.ORBSingleton");
         props.put ("jacorb.logfile", getLogDirectory() + File.separatorChar);
         props.put ("jacorb.logfile.singleton", "jacorb-singleton");
-        props.put ("jacorb.log.verbosity", "1");
+        props.put ("jacorb.log.default.verbosity", "1");
         props.put ("jacorb.orb.singleton.log.verbosity", "1");
         System.setProperties(props);
-                
+
         ORB orb = new org.jacorb.orb.ORBSingleton();
-        
+
         System.setProperties(oldProps);
-        
+
         Logger logger = ((org.jacorb.orb.ORBSingleton)orb).getLogger();
         logger.error("this is a test message");
 
@@ -177,7 +177,6 @@ public class LogKitLoggerFactoryTest
         File dir = new File (getLogDirectory());
         String[] files = dir.list();
         String file = null;
-        
         if (files.length < 1)
         {
             fail ("no log file");
@@ -216,16 +215,16 @@ public class LogKitLoggerFactoryTest
     public void testLogFileAppend() throws Exception
     {
         purgeLogDirectory();
-        
+
         Properties props = new Properties();
         props.put ("org.omg.CORBA.ORBClass", "org.jacorb.orb.ORB");
         props.put ("org.omg.CORBA.ORBSingletonClass", "org.jacorb.orb.ORBSingleton");
         props.put ("jacorb.logfile", getLogFilename("jacorb.log"));
-        props.put ("jacorb.log.verbosity", "1");
+        props.put ("jacorb.log.default.verbosity", "4");
         props.put ("jacorb.logfile.append", "on");
-        
+
         ORB orb = ORB.init (new String[]{}, props);
-        assertTrue 
+        assertTrue
         (
             ((org.jacorb.orb.ORB)orb).getConfiguration()
                                      .getAttributeAsBoolean
@@ -233,22 +232,25 @@ public class LogKitLoggerFactoryTest
                                          "jacorb.logfile.append"
                                      )
         );
-        
+
         Logger orbLogger = ((org.jacorb.orb.ORB)orb).getConfiguration()
                                                     .getLogger("jacorb");
-        orbLogger.error("this is the first test message");
+        orbLogger.error("testLogFileAppend this is the first test message");
+
+        orb.shutdown(true);
+        ((org.jacorb.config.JacORBConfiguration)((org.jacorb.orb.ORB)orb).getConfiguration()).shutdownLogging();
 
         orb = ORB.init (new String[]{}, props);
         orbLogger = ((org.jacorb.orb.ORB)orb).getConfiguration()
                                              .getLogger("jacorb");
-        orbLogger.error("this is the second test message");
-        
+        orbLogger.error("testLogFileAppend this is the second test message");
+
         assertFileExists (getLogFilename("jacorb.log"));
         assertFileContains (getLogFilename("jacorb.log"),
                             ".*?this is the first test message");
         assertFileContains (getLogFilename("jacorb.log"),
                             ".*?this is the second test message");
-        
+
         purgeLogDirectory();
     }
 
@@ -259,16 +261,16 @@ public class LogKitLoggerFactoryTest
     public void testLogFileNotAppend() throws Exception
     {
         purgeLogDirectory();
-        
+
         Properties props = new Properties();
         props.put ("org.omg.CORBA.ORBClass", "org.jacorb.orb.ORB");
         props.put ("org.omg.CORBA.ORBSingletonClass", "org.jacorb.orb.ORBSingleton");
         props.put ("jacorb.logfile", getLogFilename("jacorb.log"));
-        props.put ("jacorb.log.verbosity", "1");
+        props.put ("jacorb.log.default.verbosity", "1");
         props.put ("jacorb.logfile.append", "off");
-        
+
         ORB orb = ORB.init (new String[]{}, props);
-        assertFalse 
+        assertFalse
         (
             ((org.jacorb.orb.ORB)orb).getConfiguration()
                                      .getAttributeAsBoolean
@@ -276,22 +278,24 @@ public class LogKitLoggerFactoryTest
                                          "jacorb.logfile.append"
                                      )
         );
-        
+
         Logger orbLogger = ((org.jacorb.orb.ORB)orb).getConfiguration()
                                                     .getLogger("jacorb");
-        orbLogger.error("this is the first test message");
+        orbLogger.error("testLogFileNotAppend this is the first test message");
+        orb.shutdown(true);
+        ((org.jacorb.config.JacORBConfiguration)((org.jacorb.orb.ORB)orb).getConfiguration()).shutdownLogging();
 
         orb = ORB.init (new String[]{}, props);
         orbLogger = ((org.jacorb.orb.ORB)orb).getConfiguration()
                                              .getLogger("jacorb");
-        orbLogger.error("this is the second test message");
-        
+        orbLogger.error("testLogFileNotAppend this is the second test message");
+
         assertFileExists (getLogFilename("jacorb.log"));
         assertFileNotContains (getLogFilename("jacorb.log"),
                                ".*?this is the first test message");
         assertFileContains (getLogFilename("jacorb.log"),
                             ".*?this is the second test message");
-        
+
         purgeLogDirectory();
     }
 
@@ -302,34 +306,35 @@ public class LogKitLoggerFactoryTest
     public void testLogFileRotation() throws Exception
     {
         purgeLogDirectory();
-        
+
         Properties props = new Properties();
         props.put ("org.omg.CORBA.ORBClass", "org.jacorb.orb.ORB");
         props.put ("org.omg.CORBA.ORBSingletonClass", "org.jacorb.orb.ORBSingleton");
         props.put ("jacorb.logfile", getLogFilename("jacorb.log"));
-        props.put ("jacorb.log.verbosity", "1");
-        props.put ("jacorb.logfile.maxLogSize", "1");
-        
+        props.put ("jacorb.log.default.verbosity", "1");
+        props.put ("jacorb.logfile.maxLogSize", "100");
+        props.put ("jacorb.logfile.rotateCount", "4");
+
         ORB orb = ORB.init (new String[]{}, props);
         Logger orbLogger = ((org.jacorb.orb.ORB)orb).getConfiguration()
                                                     .getLogger("jacorb");
         for (int i=0; i<82; i++)
             orbLogger.error("this is a test message");
 
-        // JAC#384: jacorb.log file shouldn't be created 
+        // JAC#384: jacorb.log file shouldn't be created
         //          when log rotating is used
         // assertFileExists (getLogFilename("jacorb.log"));
-        
-        assertFileExists (getLogFilename("jacorb.log.000000"));
-        assertFileExists (getLogFilename("jacorb.log.000001"));
-        assertFileExists (getLogFilename("jacorb.log.000002"));
-        assertFileExists (getLogFilename("jacorb.log.000003"));
-        
+
+        assertFileExists (getLogFilename("jacorb.log.0"));
+        assertFileExists (getLogFilename("jacorb.log.1"));
+        assertFileExists (getLogFilename("jacorb.log.2"));
+        assertFileExists (getLogFilename("jacorb.log.3"));
+
         purgeLogDirectory();
     }
 
     // internal methods below this line
-    
+
     private int priorityFor (String loggerName, Configuration config)
     {
         Logger logger = config.getLogger(loggerName);
@@ -352,7 +357,7 @@ public class LogKitLoggerFactoryTest
             fail ("file " + filename + " is missing");
         }
     }
-    
+
     private void assertFileContains (String filename, String regex)
     {
         BufferedReader in = null;
@@ -397,7 +402,7 @@ public class LogKitLoggerFactoryTest
                 if (line.matches(regex))
                 {
                     fail ("file " + filename + " should not contain " + regex);
-                }    
+                }
             }
             return;
         }
@@ -434,7 +439,7 @@ public class LogKitLoggerFactoryTest
         }
         return logDirectory;
     }
-    
+
     private void purgeLogDirectory()
     {
         File dir = new File (getLogDirectory());
