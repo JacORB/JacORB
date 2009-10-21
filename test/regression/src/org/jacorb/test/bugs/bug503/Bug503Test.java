@@ -80,14 +80,7 @@ public class Bug503Test extends ORBTestCase
         innerServer = null;
     }
     
-    public void testDummy ()
-    {
-    	// Dummy test. Remove this method when test suite 
-    	// will be in action
-    }
-
-	// temporary disabled
-    public void _testIsLocalWorks() throws Exception
+    public void testIsLocalWorks() throws Exception
     {
         assertTrue(outerServer.bounce_boolean(true));
     }
