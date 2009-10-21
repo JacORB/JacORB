@@ -104,7 +104,7 @@ public class Bug619Test extends ClientServerTestCase
         super(name, setup);
     }
 
-    public void testOutOfMemoryShouldFail() throws Exception
+    public void XXXtestOutOfMemoryShouldFail() throws Exception
     {
         int[] data = new int[10000000];
         for (int i = 0; i < 10; i++)
@@ -116,7 +116,7 @@ public class Bug619Test extends ClientServerTestCase
             {
                 pusher.verify(2000);
                 fail();
-            } 
+            }
             catch (NO_MEMORY e)
             {
                 // expected
