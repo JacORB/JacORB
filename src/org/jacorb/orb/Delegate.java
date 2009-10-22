@@ -37,6 +37,7 @@ import org.jacorb.orb.giop.LocateRequestOutputStream;
 import org.jacorb.orb.giop.ReplyInputStream;
 import org.jacorb.orb.giop.ReplyPlaceholder;
 import org.jacorb.orb.giop.RequestOutputStream;
+import org.jacorb.orb.iiop.IIOPProfile;
 import org.jacorb.orb.policies.PolicyManager;
 import org.jacorb.orb.portableInterceptor.ClientInterceptorIterator;
 import org.jacorb.orb.portableInterceptor.ClientRequestInfoImpl;
@@ -56,6 +57,7 @@ import org.omg.CORBA.portable.ObjectImpl;
 import org.omg.CORBA.portable.RemarshalException;
 import org.omg.CORBA.portable.ServantObject;
 import org.omg.GIOP.LocateStatusType_1_2;
+import org.omg.ETF.Profile;
 import org.omg.IOP.IOR;
 import org.omg.Messaging.RELATIVE_REQ_TIMEOUT_POLICY_TYPE;
 import org.omg.Messaging.RELATIVE_RT_TIMEOUT_POLICY_TYPE;
@@ -75,6 +77,8 @@ import org.omg.PortableServer.POAPackage.ObjectNotActive;
 import org.omg.PortableServer.POAPackage.WrongAdapter;
 import org.omg.PortableServer.POAPackage.WrongPolicy;
 import org.omg.PortableServer.ServantLocatorPackage.CookieHolder;
+import org.omg.SSLIOP.SSL;
+import org.omg.SSLIOP.SSLHelper;
 import org.omg.TimeBase.UtcT;
 
 /**
@@ -295,10 +299,13 @@ public final class Delegate
             }
 
             org.omg.ETF.Profile profile = _pior.getEffectiveProfile();
+
             if (profile == null)
             {
                 throw new org.omg.CORBA.COMM_FAILURE ("no effective profile");
             }
+
+            patchSSL(profile, _pior);
 
             connection = conn_mg.getConnection(profile);
             bound = true;
@@ -398,6 +405,31 @@ public final class Delegate
 
             //wake up threads waiting for the pior
             bind_sync.notifyAll();
+        }
+    }
+
+    private void patchSSL(Profile profile, ParsedIOR ior)
+    {
+        if (!(profile instanceof IIOPProfile))
+        {
+            return;
+        }
+
+        IIOPProfile iiopProfile = (IIOPProfile) profile;
+
+        if (iiopProfile.version().minor != 0)
+        {
+            return;
+        }
+
+        TaggedComponentList multipleComponents = ior.getMultipleComponents();
+
+        SSL ssl = (SSL)multipleComponents.getComponent( org.omg.SSLIOP.TAG_SSL_SEC_TRANS.value, SSLHelper.class );
+
+        if (ssl != null)
+        {
+            logger.debug("patching GIOP 1.0 profile to contain SSL information from the multiple components profile");
+            iiopProfile.addComponent(org.omg.SSLIOP.TAG_SSL_SEC_TRANS.value, ssl, SSLHelper.class);
         }
     }
 

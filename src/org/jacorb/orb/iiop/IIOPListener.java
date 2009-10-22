@@ -416,7 +416,7 @@ public class IIOPListener
                 logger.error("couldn't create a AcceptorExceptionListener", e);
                 throw new IllegalArgumentException("wrong configuration: " + e);
             }
-            
+
             addressToUse = target;
         }
 
@@ -508,7 +508,7 @@ public class IIOPListener
                         }
 
                         setup(socket);
-                        
+
                         try
                         {
                             deliverConnection(socket);
@@ -551,15 +551,24 @@ public class IIOPListener
                 logger.warn("unexpected exception in " + info + "Acceptor runloop", exception);
             }
 
-            acceptorExceptionListener.exceptionCaught
-            (
-                new AcceptorExceptionEvent
+            doHandleExceptionInRunLoop(exception, isTerminated);
+
+            try
+            {
+                acceptorExceptionListener.exceptionCaught
                 (
-                    this,
-                    ((BasicAdapter) up).getORB(),
-                    exception
-                )
-            );
+                    new AcceptorExceptionEvent
+                    (
+                        this,
+                        ((BasicAdapter) up).getORB(),
+                        exception
+                    )
+                );
+            }
+            catch(Exception e)
+            {
+                logger.error("error in Acceptor Exception Listener: " + acceptorExceptionListener + " while handling exception: " + exception, e);
+            }
         }
 
         protected void doHandleExceptionInRunLoop(Exception exception, boolean isTerminated)
