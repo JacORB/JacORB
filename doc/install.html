@@ -19,6 +19,7 @@
 <li><a href="#pre">Prerequisites</a>
 <li><a href="#inst">Installation</a>
 <li><a href="#build">Building JacORB</a> (optional)
+<li><a href="#build-jboss-notification-service">Building JBoss Service for the Notification Service</a> (optional)
 </ul>
 
 <a name="pre"/>
@@ -28,7 +29,7 @@
 <ul>
 <li>JDK 1.5 or later
 
-<li>Version 1.5 or later of the Jakarta Ant build tool, available from
+<li>Version 1.7.1 or later of the Jakarta Ant build tool, available from
     <a
     href="http://jakarta.apache.org/ant">http://jakarta.apache.org/ant</a>.
 
@@ -37,11 +38,6 @@
     JDK 1.4, or the IAIK cryptography provider
     and SSL implementation, available from <a
     href="http://www.iaik.at">http://www.iaik.at</a>
-
- <li>for using names instead of ip adresses in IORs:
- <p>
- Either use JDK1.4 or use dnsjava 1.1.6 (or above) available from
- http://www.xbill.org/dnsjava. See step 7 for instructions.
 
 </ul>
 
@@ -118,7 +114,6 @@ This release has been tested on:
             -classpath ${JACORB_HOME}/lib/jacorb.jar:\<br>
             ${JACORB_HOME}/lib/logkit-1.2.jar:\<br>
             ${JACORB_HOME}/lib/avalon-framework-4.1.5.jar:\<br>
-            ${JACORB_HOME}/lib/concurrent-1.3.2.jar:\<br>
             ${JACORB_HOME}/lib/antlr-2.7.2.jar<br>
           </tt>
 </ol>
@@ -136,18 +131,6 @@ This release has been tested on:
            template and replace the @@@XYZ_HOME@@@ placeholders by
            your actual paths.
    </ol>
-   <li>
-   If you prefer host names instead of IP addresses in your IORs
-   you have to install dnsjava (make its classes present) and
-   recompile <tt>src/org/jacorb/orb/dns</tt>. To recompile, do an "ant" in that
-   dir, and an "ant libs" in the JacORB root dir. If you're absolutely
-   sure that you're not using the jacorb.jar, you can omit rebuilding
-   the libs.<br>
-   <p>
-   If the IP addresses aren't resolved properly at all, see the
-   dnsjava docs on how to set properties to tell dnsjava where to look
-   for the DNS servers.
-
 
 <a name="build"/>
 <h2>Building JacORB (Optional)</h2>
@@ -155,9 +138,7 @@ This release has been tested on:
 
 <p>   Ensure that Ant (See version requirements above) is installed on your
    system and that you are starting with a clean environment. The
-   easiest way to start is with your CLASSPATH unset. If CLASSPATH
-   is set to anything, it must contain
-   <tt>${installdir}/lib/logkit-1.2.jar</tt>!
+   easiest way to start is with your CLASSPATH unset.
 
 <p>   N.B. Windows users should ensure that JacORB is installed in a path
  that does not contain spaces. Errors will be encountered building the
@@ -168,15 +149,8 @@ This release has been tested on:
    <p>
    <tt>$> ant</tt>
    <p>
-   By default debugging is turned off when building JacORB. To build
-   JacORB with debugging turned on, you need to call "ant -Ddebug=on"
-   in the installation directory:
-   <p>
-   <tt>$> ant -Ddebug=on</tt>
-   <p>
-   Under Ant1.5 and above the debuglevel may also be set e.g.
-   <p>
-   <tt>$> ant -Ddebug=on -Ddebuglevel=lines,source,vars</tt>
+   By default debugging is turned on when building JacORB. By default
+   debuglevel is set to <tt>lines,source,vars</tt>
 
    <h3>NOTES:</h3>
 
@@ -219,6 +193,27 @@ in
 <tt>${installdir}/classes</tt>
 <p>
 By default debugging is turned off. See above for instructions on this.
+
+<a name="build-jboss-notification-service">
+  <h2>Building JBoss Service for the Notification Service (Optional)</h2>
+</a>
+
+<p>In order to build the JBoss service (jboss-cosnotification.sar in the lib
+directory), the paths to JBOSS_HOME for the <a
+  href="http://labs.jboss.com/jbossas/downloads" target="_blank">JBoss
+  Application Server</a> and MX4J_HOME for the <a
+  href="http://mx4j.sourceforge.net/" target="_blank">MX4J implementation</a> of
+the Java Management Extensions (JMX) have to be specified for the ant build
+process.  There are two possible alternatives for this task.</p>
+
+<ol>
+  <li>Set the paths in the environment variables named JBOSS_HOME and MX4J_HOME
+  respectively.</li>
+  <li>Call ant with the additional parameters
+  <tt>-Djboss.home=&lt;path-to-jboss-installation&gt;
+    -Dmx4j.home=&lt;path-to-mx4j-installation&gt;</tt></li>
+</ol>
+
 
 </blockquote>
 
