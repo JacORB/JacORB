@@ -1,0 +1,7 @@
+interface truc {
+  long coin (in long l);
+};
+
+interface bug665 : truc {
+  octet test (in octet a);
+};
