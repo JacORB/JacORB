@@ -776,8 +776,17 @@ public class CDRInputStream
             }
             else
             {
-                throw new MARSHAL ("Unexpected boolean value: " + bb
-                                   + " pos: " + pos + " index: " + index);
+                if (laxBooleanEncoding)
+                {
+                    // Technically only valid values are 0 (false) and 1 (true)
+                    // however some ORBs send values other than 1 for true.
+                    value[j] = true;
+                }
+                else
+                {
+                    throw new MARSHAL ("Unexpected boolean value: " + bb
+                                       + " pos: " + pos + " index: " + index);
+                }
             }
         }
     }
