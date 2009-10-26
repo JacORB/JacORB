@@ -443,7 +443,7 @@ public class InterfaceBody
             else
                 name = ops[ i ].opName();
 
-            ps.println( "\t\tm_opsHash.put ( \"" + name + "\", new java.lang.Integer(" + i + "));" );
+            ps.println( "\t\tm_opsHash.put ( \"" + name + "\", Integer.valueOf(" + i + "));" );
         }
 
         ps.println( "\t}" );
