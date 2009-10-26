@@ -15,8 +15,18 @@
    &common;
 
    <!-- top-level target -->
-   <target name="all" depends="version,init,compiler,omg_idl,jacorb,libs"
+   <target name="all" depends="init,src-check,version-gen,compiler,omg_idl,jacorb,libs"
            description="Build JacORB.  To build with debugging, use -Ddebug=true."/>
+
+   <target name="src-check">
+      <fail message="Unable to find src files. Is this a binary distribution?">
+         <condition>
+            <not>
+               <available file="${src}/org/jacorb/build.xml"/>
+            </not>
+         </condition>
+      </fail>
+   </target>
 
     <target name="version-gen" >
         <tstamp />
@@ -45,9 +55,6 @@ using VERSION_INFO: ${jacorb_version_info}
             </fileset>
         </delete>
     </target>
-
-    <target name="version" depends="init, version-gen" />
-
 
 
    <!-- ==== -->
