@@ -24,8 +24,9 @@ import java.io.IOException;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
-import org.jacorb.config.*;
-import org.slf4j.Logger;
+import org.jacorb.config.Configurable;
+import org.jacorb.config.Configuration;
+import org.jacorb.config.ConfigurationException;
 import org.omg.CORBA.INTERNAL;
 import org.omg.CosNaming.Binding;
 import org.omg.CosNaming.BindingIteratorHelper;
@@ -44,6 +45,7 @@ import org.omg.CosNaming.NamingContextPackage.InvalidName;
 import org.omg.CosNaming.NamingContextPackage.NotEmpty;
 import org.omg.CosNaming.NamingContextPackage.NotFound;
 import org.omg.CosNaming.NamingContextPackage.NotFoundReason;
+import org.slf4j.Logger;
 
 /**
  *      The implementation for the CORBAService Naming
@@ -72,10 +74,10 @@ public class NamingContextImpl
     private boolean doPurge = false;
 
     /** the logger used by the naming service implementation */
-    private static Logger logger = null;
+    private transient Logger logger = null;
 
     /** the POAs used */
-    transient private org.omg.PortableServer.POA poa;
+    private transient org.omg.PortableServer.POA poa;
     private static org.omg.PortableServer.POA rootPoa;
     private static org.omg.CORBA.ORB orb;
 
@@ -417,39 +419,6 @@ public class NamingContextImpl
         return names.size() + contexts.size();
     }
 
-
-
-    /**
-     *  list all bindings
-     */
-
-    private Binding[] list()
-    {
-        Binding[] result;
-        cleanup();
-
-        int how_many = how_many();
-
-        Enumeration n = names.keys();
-        Enumeration c = contexts.keys();
-
-        result = new Binding[how_many];
-        for( ; n.hasMoreElements() && how_many > 0; how_many-- )
-        {
-            result[how_many-1] =
-                new Binding(((Name)n.nextElement()).components(),
-                            BindingType.nobject );
-        }
-
-        for( ; c.hasMoreElements() && how_many > 0; how_many-- )
-        {
-            result[how_many-1] =
-                new Binding(((Name)c.nextElement()).components(),
-                            BindingType.ncontext);
-        }
-
-        return result;
-    }
 
     /**
      *  list all bindings
