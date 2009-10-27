@@ -14,7 +14,7 @@
 * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 * GNU Library General Public License for more details.
 *
-* You should have received a copy of the GNU Library General Public 
+* You should have received a copy of the GNU Library General Public
 * License along with this program; if not, write to the Free Software
 * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
 * 02111-1307, USA.
@@ -48,9 +48,9 @@ import org.omg.dds.TopicQos;
 
 /**
  * A Publisher is the object responsible for the actual dissemination of publications.
- * The Publisher acts on the behalf of one or several DataWriter objects that belong to 
+ * The Publisher acts on the behalf of one or several DataWriter objects that belong to
  * it. When it is informed of a change to the data associated with one of its DataWriter
- * objects, it decides when it is appropriate to actually send the data-update message. 
+ * objects, it decides when it is appropriate to actually send the data-update message.
  * In making this decision, it considers any extra information that goes with the data
  * (timestamp, writer, etc.) as well as the QoS of the Publisher and the DataWriter.
  */
@@ -62,18 +62,17 @@ public class PublisherImpl extends PublisherPOA  {
 	private PublisherQos qos ;
 	private DomainParticipant DP_Parent ;
 	private DataWriterQos Default_DataWriterqos ;
-	//put  message of publisher  in channel event 
-	private Supplier Sup ;
+	//put  message of publisher  in channel event
 	private PublisherListener listner ;
-	
+
 	public PublisherImpl(PublisherQos qos ,PublisherListener listner , DomainParticipant DP ){
 		this.qos = qos ;
 		this.listner = listner ;
 		Vector_DataWriter = new Vector() ;
 		this.DP_Parent = DP ;
 	}
-	
-	
+
+
 	/**
 	 * @param a_topic
 	 * @param qos
@@ -82,10 +81,10 @@ public class PublisherImpl extends PublisherPOA  {
 	 */
 	public DataWriter create_datawriter(Topic a_topic, DataWriterQos qos,
 			DataWriterListener a_listener) {
-		
+
 		DataWriter DW = null ;
 		Servant impl;
-	   
+
 		try{
 			Class type = Class.forName(a_topic.get_type_name()+"DataWriterImpl") ;
 			Class typehelper = Class.forName(a_topic.get_type_name()+"DataWriterHelper") ;
@@ -104,22 +103,23 @@ public class PublisherImpl extends PublisherPOA  {
 			valu_param_constructor[4] = orb ;
 			valu_param_constructor[5] =  poa ;
 			impl = (Servant)type.getConstructor(type_param_constructor).newInstance(valu_param_constructor);
-			
+
 			org.omg.CORBA.Object oref = poa.servant_to_reference(impl);
 			Class  type_param_narrow [] = new Class [1 ];
 			org.omg.CORBA.Object valu_param_narrow [] = new org.omg.CORBA.Object[1];
 			valu_param_narrow[0] = oref ;
 			type_param_narrow[0] = Class.forName("org.omg.CORBA.Object") ;
 			Method Narrow = typehelper.getMethod("narrow",type_param_narrow );
-			DW = (DataWriter) Narrow.invoke(null ,valu_param_narrow);									
-			add( DW);															
+			DW = (DataWriter) Narrow.invoke(null, (Object[])valu_param_narrow);
+
+			add( DW);
 		}
 		catch(Exception e){
-			
+
 			System.out.println(e);
 			e.printStackTrace();
 		}
-		
+
 		return DW;
 	}
 
@@ -128,7 +128,7 @@ public class PublisherImpl extends PublisherPOA  {
 	 * @return
 	 */
 	public int delete_datawriter(DataWriter a_datawriter) {
-	
+
 		if(_this() ==   a_datawriter.get_publisher()){
 			remove(a_datawriter);
 			return RETCODE_OK.value ;
@@ -153,7 +153,7 @@ public class PublisherImpl extends PublisherPOA  {
 	/**
 	 * Not Implemented
 	 * @return
-	 */	
+	 */
 	public int delete_contained_entities() {
 		return 0;
 	}
@@ -164,7 +164,7 @@ public class PublisherImpl extends PublisherPOA  {
 	 */
 	public int set_qos(PublisherQos qos) {
 		this.qos = qos ;
-		
+
 		return RETCODE_OK.value ;
 	}
 
@@ -195,7 +195,7 @@ public class PublisherImpl extends PublisherPOA  {
 	/**
 	 * Not Implemented
 	 * @return
-	 */	
+	 */
 	public int suspend_publications() {
 		return 0;
 	}
@@ -203,7 +203,7 @@ public class PublisherImpl extends PublisherPOA  {
 	/**
 	 * Not Implemented
 	 * @return
-	 */	
+	 */
 	public int resume_publications() {
 		return 0;
 	}
@@ -211,7 +211,7 @@ public class PublisherImpl extends PublisherPOA  {
 	/**
 	 * Not Implemented
 	 * @return
-	 */	
+	 */
 	public int begin_coherent_changes() {
 		return 0;
 	}
@@ -219,7 +219,7 @@ public class PublisherImpl extends PublisherPOA  {
 	/**
 	 * Not Implemented
 	 * @return
-	 */	
+	 */
 	public int end_coherent_changes() {
 		return 0;
 	}
@@ -254,7 +254,7 @@ public class PublisherImpl extends PublisherPOA  {
 	 */
 	public int copy_from_topic_qos(DataWriterQosHolder a_datawriter_qos,
 			TopicQos a_topic_qos) {
-		
+
 		a_datawriter_qos.value.deadline = a_topic_qos.deadline ;
 		a_datawriter_qos.value.destination_order = a_topic_qos.destination_order ;
 		a_datawriter_qos.value.durability = a_topic_qos.durability ;
@@ -263,14 +263,14 @@ public class PublisherImpl extends PublisherPOA  {
 		a_datawriter_qos.value.liveliness = a_topic_qos.liveliness ;
 		a_datawriter_qos.value.reliability = a_topic_qos.reliability ;
 		a_datawriter_qos.value.resource_limits = a_topic_qos.resource_limits ;
-				 
+
 		return RETCODE_OK.value;
 	}
 
 	/**
 	 * Not Implemented
 	 * @return
-	 */	
+	 */
 	public int enable() {
 		return 0;
 	}
@@ -278,26 +278,26 @@ public class PublisherImpl extends PublisherPOA  {
 	/**
 	 * Not Implemented
 	 * @return
-	 */	
-	public StatusCondition get_statuscondition() {	
+	 */
+	public StatusCondition get_statuscondition() {
 		return null;
 	}
 
 	/**
 	 * Not Implemented
 	 * @return
-	 */	
+	 */
 	public int get_status_changes() {
 		return 0;
 	}
-	
+
 	/**
 	 * @param orb The orb to set.
 	 */
 	public void setORB(org.omg.CORBA.ORB orb) {
 		this.orb = orb;
 	}
-	
+
 	/**
 	 * @param poa The poa to set.
 	 */
@@ -311,7 +311,7 @@ public class PublisherImpl extends PublisherPOA  {
 	public Vector getVector_DataWriter() {
 		return Vector_DataWriter;
 	}
-	
+
 	/**
 	 * @param arg0
 	 * @return
@@ -319,7 +319,7 @@ public class PublisherImpl extends PublisherPOA  {
 	public boolean add(Object arg0) {
 		return Vector_DataWriter.add(arg0);
 	}
-	
+
 	/**
 	 * @param arg0
 	 * @return
@@ -327,12 +327,12 @@ public class PublisherImpl extends PublisherPOA  {
 	public boolean remove(Object arg0) {
 		return Vector_DataWriter.remove(arg0);
 	}
-	
+
 	/**
 	 * @return
 	 */
 	public boolean isDeletable(){
 		return getVector_DataWriter().isEmpty();
 	}
-	
+
 }

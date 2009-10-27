@@ -14,7 +14,7 @@
 * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 * GNU Library General Public License for more details.
 *
-* You should have received a copy of the GNU Library General Public 
+* You should have received a copy of the GNU Library General Public
 * License along with this program; if not, write to the Free Software
 * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
 * 02111-1307, USA.
@@ -50,13 +50,13 @@ import org.omg.dds.TopicHelper;
 import org.omg.dds.TopicQos;
 
 /**
- * A Subscriber is the object responsible for the actual reception of the data resulting 
- * from its subscriptions. A Subscriber acts on the behalf of one or several DataReader 
- * objects that are related to it. When it receives data (from the other parts of the 
- * system), it builds the list of concerned DataReader objects, and then indicates to 
- * the application that data is available, through its listener or by enabling related 
- * conditions. The application can access the list of concerned DataReader objects 
- * through the operation get_datareaders and then access the data available though 
+ * A Subscriber is the object responsible for the actual reception of the data resulting
+ * from its subscriptions. A Subscriber acts on the behalf of one or several DataReader
+ * objects that are related to it. When it receives data (from the other parts of the
+ * system), it builds the list of concerned DataReader objects, and then indicates to
+ * the application that data is available, through its listener or by enabling related
+ * conditions. The application can access the list of concerned DataReader objects
+ * through the operation get_datareaders and then access the data available though
  * operations on the DataReader.
  */
 public class SubscriberImpl extends SubscriberPOA {
@@ -70,7 +70,7 @@ public class SubscriberImpl extends SubscriberPOA {
 	// represent the data wrote by the datawriter
 	private Object instance ;
 	private SubscriberListener listner ;
-	
+
 	/**
 	 * @param qos
 	 * @param listner
@@ -82,7 +82,7 @@ public class SubscriberImpl extends SubscriberPOA {
 		Vector_DataReaders = new Vector() ;
 		this.DP_Parent = DP ;
 	}
-	
+
 	/**
 	 * @param a_topic
 	 * @param qos
@@ -93,9 +93,9 @@ public class SubscriberImpl extends SubscriberPOA {
 			DataReaderQos qos, DataReaderListener a_listener) {
 		DataReader DR = null ;
 		Servant impl;
-		
+
 		try{
-			
+
 			Class type = Class.forName(a_topic.get_type_name()+"DataReaderImpl") ;
 			Class typehelper = Class.forName(a_topic.get_type_name()+"DataReaderHelper") ;
 			Class type_param_constructor [] = new  Class[6] ;
@@ -113,22 +113,22 @@ public class SubscriberImpl extends SubscriberPOA {
 			valu_param_constructor[4] = orb ;
 			valu_param_constructor[5] =  poa ;
 			impl = (Servant)type.getConstructor(type_param_constructor).newInstance(valu_param_constructor);
-						
+
 			org.omg.CORBA.Object oref = poa.servant_to_reference(impl);
 			Class  type_param_narrow [] = new Class [1 ];
 			org.omg.CORBA.Object valu_param_narrow [] = new org.omg.CORBA.Object[1];
 			valu_param_narrow[0] = oref ;
 			type_param_narrow[0] = Class.forName("org.omg.CORBA.Object") ;
 			Method Narrow = typehelper.getMethod("narrow",type_param_narrow );
-			DR = (DataReader) Narrow.invoke(null ,valu_param_narrow);
+			DR = (DataReader) Narrow.invoke(null, (Object[])valu_param_narrow);
 			add( DR);
-			
+
 		}
 		catch(Exception e){
 			System.out.println("Eroor "+e);
 			e.printStackTrace();
 		}
-		
+
 		return DR;
 	}
 
@@ -147,7 +147,7 @@ public class SubscriberImpl extends SubscriberPOA {
 	/**
 	 * Not Implemented
 	 * @return
-	 */	
+	 */
 	public int delete_contained_entities() {
 		return 0;
 	}
@@ -156,17 +156,17 @@ public class SubscriberImpl extends SubscriberPOA {
 	 * @param topic_name
 	 * @return
 	 */
-	public DataReader lookup_datareader(String topic_name) {		
+	public DataReader lookup_datareader(String topic_name) {
 		Iterator It = Vector_DataReaders.iterator();
 		DataReader  temp ;
-		
+
 		while(It.hasNext()){
 			temp = (DataReader)It.next() ;
 			if(temp.get_topicdescription().get_name().equals(topic_name)) {
 				return temp ;
 			}
-		}		
-		
+		}
+
 		return null ;
 	}
 
@@ -180,18 +180,18 @@ public class SubscriberImpl extends SubscriberPOA {
 	public int get_datareaders(DataReaderSeqHolder readers, int sample_states,
 			int view_states, int instance_states) {
 		readers.value = (DataReader []) getVector_DataReaders().toArray() ;
-		
+
 		return RETCODE_OK.value ;
 	}
 
 	/**
-	 * @param 
+	 * @param
 	 * @return
 	 */
 	public void notify_datareaders() {
 		Iterator It = Vector_DataReaders.iterator();
 		DataReader  temp ;
-		
+
 		while(It.hasNext()){
 			temp = (DataReader)It.next() ;
 			temp.get_listener().on_data_available(temp);
@@ -204,7 +204,7 @@ public class SubscriberImpl extends SubscriberPOA {
 	 */
 	public int set_qos(SubscriberQos qos) {
 		this.qos = qos ;
-		
+
 		return RETCODE_OK.value ;
 	}
 
@@ -222,7 +222,7 @@ public class SubscriberImpl extends SubscriberPOA {
 	 */
 	public int set_listener(SubscriberListener a_listener, int mask) {
 		this.listner = a_listener ;
-		
+
 		return RETCODE_OK.value ;
 	}
 
@@ -236,7 +236,7 @@ public class SubscriberImpl extends SubscriberPOA {
 	/**
 	 * Not Implemented
 	 * @return
-	 */		
+	 */
 	public int begin_access() {
 		return 0;
 	}
@@ -244,7 +244,7 @@ public class SubscriberImpl extends SubscriberPOA {
 	/**
 	 * Not Implemented
 	 * @return
-	 */	
+	 */
 	public int end_access() {
 		return 0;
 	}
@@ -280,7 +280,7 @@ public class SubscriberImpl extends SubscriberPOA {
 	 */
 	public int copy_from_topic_qos(DataReaderQosHolder a_datareader_qos,
 			TopicQos a_topic_qos) {
-		
+
 		 a_datareader_qos.value.deadline = a_topic_qos.deadline ;
 		 a_datareader_qos.value.destination_order = a_topic_qos.destination_order ;
 		 a_datareader_qos.value.durability = a_topic_qos.durability ;
@@ -296,7 +296,7 @@ public class SubscriberImpl extends SubscriberPOA {
 	/**
 	 * Not Implemented
 	 * @return
-	 */	
+	 */
 	public int enable() {
 		return 0;
 	}
@@ -304,7 +304,7 @@ public class SubscriberImpl extends SubscriberPOA {
 	/**
 	 * Not Implemented
 	 * @return
-	 */		
+	 */
 	public StatusCondition get_statuscondition() {
 		return null;
 	}
@@ -312,7 +312,7 @@ public class SubscriberImpl extends SubscriberPOA {
 	/**
 	 * Not Implemented
 	 * @return
-	 */	
+	 */
 	public int get_status_changes() {
 		return 0;
 	}
@@ -320,7 +320,7 @@ public class SubscriberImpl extends SubscriberPOA {
 	/**
 	 * Not Implemented
 	 * @return
-	 */		
+	 */
 	public boolean isDeletable(){
 		return getVector_DataReaders().isEmpty();
 	}
@@ -339,7 +339,7 @@ public class SubscriberImpl extends SubscriberPOA {
 	public boolean add(DataReader DR) {
 		return Vector_DataReaders.add(DR);
 	}
-	
+
 	/**
 	 * @param arg0
 	 * @return
@@ -347,40 +347,40 @@ public class SubscriberImpl extends SubscriberPOA {
 	public boolean remove(DataReader DR) {
 		return Vector_DataReaders.remove(DR);
 	}
-	
+
 	/**
 	 * @return Returns the dP_Parent.
 	 */
 	public DomainParticipant getDP_Parent() {
 		return DP_Parent;
 	}
-	
+
 	/**
 	 * @param orb The orb to set.
 	 */
 	public void setORB(org.omg.CORBA.ORB orb) {
 		this.orb = orb;
 	}
-	
+
 	/**
 	 * @param poa The poa to set.
 	 */
 	public void setPOA(org.omg.PortableServer.POA poa) {
 		this.poa = poa;
 	}
-	
+
 	/**
 	 * @return Returns the instance.
 	 */
 	public Object getInstance() {
 		return instance;
 	}
-	
+
 	/**
 	 * @param instance The instance to set.
 	 */
 	public void setInstance(Object instance) {
 		this.instance = instance;
-		
+
 	}
 }
