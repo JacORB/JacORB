@@ -326,7 +326,7 @@ public class ClientIIOPConnection
         {
             if (exception instanceof SocketTimeoutException)
             {
-                throw new TIMEOUT("connection timeout of " + timeout + " milliseconds expired: " + exception );
+                throw new TIMEOUT("connection timeout of " + time_out + " milliseconds expired: " + exception );
             }
             else if( exception instanceof IOException )
             {
