@@ -225,16 +225,16 @@ public class JacORBConfiguration implements Configuration
        if (configDir.length() == 0)
        {
            configDir = getAttribute ("jacorb.home", "");
-       }
 
-       if (configDir.length() != 0 )
-       {
-           configDir += separator + "etc";
-       }
-       else
-       {
-           logger.warn ("jacorb.home unset! Will use '.'");
-           configDir = ".";
+           if (configDir.length() != 0 )
+           {
+               configDir += separator + "etc";
+           }
+           else
+           {
+               logger.warn ("jacorb.home unset! Will use '.'");
+               configDir = ".";
+           }
        }
 
        propFile = configDir + separator + name + fileSuffix;
