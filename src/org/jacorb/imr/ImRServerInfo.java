@@ -95,7 +95,7 @@ public class ImRServerInfo
         final POAInfo[] _info;
         synchronized(poas)
         {
-            ImRPOAInfo[] _poas = (ImRPOAInfo[]) poas.toArray(new ImRPOAInfo[poas.size()]);
+            ImRPOAInfo[] _poas = (ImRPOAInfo[]) poas.toArray(new ImRPOAInfo[0]);
 
              _info = new POAInfo[_poas.length];
             for (int i = 0; i < _info.length; i++)
@@ -143,9 +143,9 @@ public class ImRServerInfo
         final String[] names;
         synchronized(poas)
         {
-            ImRPOAInfo[] _poas = (ImRPOAInfo[]) poas.toArray(new POAInfo[poas.size()]);
+            ImRPOAInfo[] _poas = (ImRPOAInfo[]) poas.toArray(new ImRPOAInfo[0]);
 
-             names = new String[_poas.length];
+            names = new String[_poas.length];
             for (int i = 0; i < names.length; i++)
             {
                 names[i] = _poas[i].name;
