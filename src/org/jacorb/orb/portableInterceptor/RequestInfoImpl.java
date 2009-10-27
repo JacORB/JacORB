@@ -154,7 +154,7 @@ public abstract class RequestInfoImpl
         Integer _id = ObjectUtil.newInteger(id);
         if (! reply_ctx.containsKey(_id))
         {
-            throw new BAD_PARAM("No ServiceContext with id " + id, 23,
+            throw new BAD_PARAM("No ServiceContext with id " + id, 26,
                                 CompletionStatus.COMPLETED_MAYBE);
         }
 
@@ -166,7 +166,7 @@ public abstract class RequestInfoImpl
         Integer _id = ObjectUtil.newInteger(id);
         if (! request_ctx.containsKey(_id))
         {
-            throw new BAD_PARAM("No ServiceContext with id " + id, 23,
+            throw new BAD_PARAM("No ServiceContext with id " + id, 26,
                                 CompletionStatus.COMPLETED_MAYBE);
         }
 
