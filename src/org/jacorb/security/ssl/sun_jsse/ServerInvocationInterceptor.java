@@ -124,6 +124,11 @@ public class ServerInvocationInterceptor
             return;
         }
 
+        if (! (connection.getTransport() instanceof ServerIIOPConnection))
+        {
+            return;
+        }
+
         ServerIIOPConnection transport =
             (ServerIIOPConnection)connection.getTransport();
 
