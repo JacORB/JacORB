@@ -79,10 +79,11 @@ module org
             void pass_inout_double (inout double x);
             double return_double();
             double bounce_double (in double x);
-            
+
             // string parameters
             string bounce_string (in string x);
-            wstring bounce_wstring (in wstring x); 
+            wstring bounce_wstring (in wstring x);
+            wchar bounce_wchar(in wchar value);
          };
       };
    };

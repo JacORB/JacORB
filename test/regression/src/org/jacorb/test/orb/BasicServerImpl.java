@@ -296,4 +296,9 @@ public class BasicServerImpl extends BasicServerPOA
     {
         return value;
     }
+
+    public char bounce_wchar(char value)
+    {
+        return value;
+    }
 }

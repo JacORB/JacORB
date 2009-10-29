@@ -67,6 +67,8 @@ post 2.3.1
         - fixes for platform java detection in jaco script.
         - fixed issue with deadlock in AOM - move access to requestController
           outside synchronised block.
+        - added more strict checking for wstring/wchar types during demarshalling.
+          GIOP 1.0 does not allow them.
 
     - IDL Compiler:
         - fixed issue where the IDL compiler generated imports for the

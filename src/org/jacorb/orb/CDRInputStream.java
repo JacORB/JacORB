@@ -33,10 +33,12 @@ import org.jacorb.config.*;
 import org.slf4j.Logger;
 import org.jacorb.orb.giop.CodeSet;
 import org.jacorb.orb.giop.GIOPConnection;
+import org.jacorb.orb.giop.Messages;
 import org.jacorb.util.ObjectUtil;
 import org.jacorb.util.Stack;
 import org.jacorb.util.ValueHandler;
 import org.omg.CORBA.BAD_PARAM;
+import org.omg.CORBA.CompletionStatus;
 import org.omg.CORBA.INTERNAL;
 import org.omg.CORBA.MARSHAL;
 import org.omg.CORBA.NO_IMPLEMENT;
@@ -47,6 +49,7 @@ import org.omg.CORBA.ValueMember;
 import org.omg.CORBA.TypeCodePackage.BadKind;
 import org.omg.CORBA.TypeCodePackage.Bounds;
 import org.omg.CORBA.portable.IDLEntity;
+import org.omg.GIOP.MsgType_1_1;
 
 /**
  * Read CDR encoded data
@@ -2047,6 +2050,12 @@ public class CDRInputStream
 
     public final char read_wchar()
     {
+        if (giop_minor == 0)
+        {
+            final int minor = Messages.getMsgType( buffer ) == MsgType_1_1._Reply ? 6 : 5;
+            throw new MARSHAL("GIOP 1.0 does not support the type wchar", minor, CompletionStatus.COMPLETED_NO);
+        }
+
         handle_chunking();
 
         if (giop_minor == 2)
@@ -2137,6 +2146,12 @@ public class CDRInputStream
 
     public final String read_wstring()
     {
+        if (giop_minor == 0)
+        {
+            final int minor = Messages.getMsgType( buffer ) == MsgType_1_1._Reply ? 6 : 5;
+            throw new MARSHAL("GIOP 1.0 does not support the IDL type wstring", minor, CompletionStatus.COMPLETED_NO);
+        }
+
         handle_chunking();
 
         int remainder = 4 - (index % 4);
