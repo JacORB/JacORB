@@ -166,9 +166,6 @@ public final class ORB
 
     private final ObjectKeyMap objectKeyMap = new ObjectKeyMap(this);
 
-    /** the ORB object's logger */
-    private Logger logger;
-
     /** command like args */
     private String[] arguments;
 
@@ -250,8 +247,6 @@ public final class ORB
 
         this.configuration =
             (org.jacorb.config.Configuration)config;
-        logger =
-            configuration.getLogger("jacorb.orb");
 
         cacheReferences =
             configuration.getAttributeAsBoolean("jacorb.reference_caching", false);
