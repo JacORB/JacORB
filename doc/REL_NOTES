@@ -73,6 +73,8 @@ post 2.3.1
           through the API.
         - fixed issue where nested sequences would result in invalid java
           code.
+        - changed generated stub code so that rmi repository id is skipped
+          for idl defined valuetypes.
 
      - Interface Repository:
         - Use a persistent POA for the repository servant.

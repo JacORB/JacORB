@@ -485,8 +485,11 @@ public class ValueDecl
 
     public String printWriteStatement(String var_name, String streamname)
     {
+        // pass in null repository id to prevent CDROutputStream
+        // to resolve the RMI repository ID
+
         return "((org.omg.CORBA_2_3.portable.OutputStream)" + streamname + ")"
-            + ".write_value (" + var_name + ");";
+            + ".write_value (" + var_name + ", (String)null);";
     }
 
     public String printReadExpression(String streamname)
