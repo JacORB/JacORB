@@ -65,6 +65,8 @@ post 2.3.1
         - fixed handling of -ORBInitRef parameters and added handling
           of -ORBDefaultInitRef parameter.
         - fixes for platform java detection in jaco script.
+        - fixed issue with deadlock in AOM - move access to requestController
+          outside synchronised block.
 
     - IDL Compiler:
         - fixed issue where the IDL compiler generated imports for the
