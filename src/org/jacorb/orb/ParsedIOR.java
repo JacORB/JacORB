@@ -22,26 +22,36 @@ package org.jacorb.orb;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.lang.reflect.Method;
 import java.net.URL;
-import java.util.*;
-
-import javax.naming.Context;
-import javax.naming.InitialContext;
-
+import java.util.ArrayList;
+import java.util.List;
 import org.jacorb.orb.util.CorbaLoc;
-
-import org.slf4j.Logger;
-
 import org.jacorb.util.ObjectUtil;
 import org.omg.CONV_FRAME.CodeSetComponentInfo;
 import org.omg.CONV_FRAME.CodeSetComponentInfoHelper;
 import org.omg.CORBA.BAD_PARAM;
 import org.omg.CORBA.CompletionStatus;
 import org.omg.CORBA.MARSHAL;
-import org.omg.CosNaming.*;
-import org.omg.GIOP.*;
-import org.omg.IOP.*;
-import org.omg.ETF.*;
+import org.omg.CosNaming.NamingContextExt;
+import org.omg.CosNaming.NamingContextExtHelper;
+import org.omg.ETF.Profile;
+import org.omg.GIOP.IORAddressingInfo;
+import org.omg.GIOP.KeyAddr;
+import org.omg.GIOP.ProfileAddr;
+import org.omg.GIOP.ReferenceAddr;
+import org.omg.GIOP.TargetAddress;
+import org.omg.IOP.IOR;
+import org.omg.IOP.IORHelper;
+import org.omg.IOP.TAG_CODE_SETS;
+import org.omg.IOP.TAG_JAVA_CODEBASE;
+import org.omg.IOP.TAG_MULTIPLE_COMPONENTS;
+import org.omg.IOP.TAG_ORB_TYPE;
+import org.omg.IOP.TaggedComponent;
+import org.omg.IOP.TaggedComponentSeqHolder;
+import org.omg.IOP.TaggedProfile;
+import org.omg.IOP.TaggedProfileHolder;
+import org.slf4j.Logger;
 
 /**
  * Class to convert IOR strings into IOR structures
@@ -680,37 +690,55 @@ public class ParsedIOR
         }
     }
 
-    private void parse_jndi(String jndiName)
-    {
-        if (logger.isDebugEnabled())
-        {
-            logger.debug("Trying to resolve JNDI/IOR from name: " + jndiName);
-        }
 
-        try
-        {
-            final Context context = new InitialContext();
+   private void parse_jndi (String jndiName)
+   {
+      if (logger.isDebugEnabled ())
+      {
+         logger.debug ("Trying to resolve JNDI/IOR from name: " + jndiName);
+      }
 
-            try
+      try
+      {
+         // javax.naming.Context initialContext =
+         // new javax.naming.InitialContext ();
+         // obj = initialContext.lookup (jndiName);
+
+         // Replaced lines above with reflected equivalent so will compile &
+         // run on VM's that do not include javax.naming.*.
+         // for jndi based name resolution to work obviously javax.naming
+         // classes must be in available.
+         //
+
+         final Class initialContextClazz = Class.forName ("javax.naming.InitialContext");
+         final Object initialContext = initialContextClazz.newInstance ();
+
+         try
+         {
+            final Class[] types = new Class[] { String.class };
+            final Object[] params = new Object[] { jndiName };
+
+            final Method method = initialContextClazz.getMethod ("lookup", types);
+            final Object result = method.invoke (initialContext, params);
+
+            if (result == null)
             {
-                final java.lang.Object obj = context.lookup(jndiName);
-                if (obj == null)
-                {
-                    throw new IllegalArgumentException("Null JNDI/IOR: " + jndiName);
-                }
-                parse(obj.toString());
+
+               throw new IllegalArgumentException ("Null JNDI/IOR: " + jndiName);
             }
-            finally
-            {
-                context.close();
-            }
-        }
-        catch (Exception ex)
-        {
-            throw new IllegalArgumentException(
-                "Failed to lookup JNDI/IOR: " + ex);
-        }
-    }
+            parse (result.toString ());
+         }
+         finally
+         {
+            Method closeMethod = initialContextClazz.getMethod ("close", (Class[])null);
+            closeMethod.invoke (initialContext, (Object[])null);
+         }
+      }
+      catch (Exception ex)
+      {
+         throw new IllegalArgumentException ("Failed to lookup JNDI/IOR: " + jndiName + ": " + ex);
+      }
+   }
 
     /**
      * Returns the component with the given tag, searching the effective
