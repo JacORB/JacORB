@@ -59,20 +59,21 @@ post 2.3.1
           no ssl keystore is set or if the filename is wrong.
         - made the object key mapping feature more efficient (ORB.addObjectKey,
           properties jacorb.orb.objectKeyMap).
-        - fixed a bug that prevented to use an ORB with 
+        - fixed a bug that prevented to use an ORB with
           jacorb.giop_minor_version=0.
         - improved PrintIOR output.
-        - fixed handling of -ORBInitRef parameters and added handling 
+        - fixed handling of -ORBInitRef parameters and added handling
           of -ORBDefaultInitRef parameter.
+        - fixes for platform java detection in jaco script.
 
-    - IDL Compiler: 
+    - IDL Compiler:
         - fixed issue where the IDL compiler generated imports for the
           unnamed package.
-        - fixed issue where the IDL compiler removed a custom backend set 
+        - fixed issue where the IDL compiler removed a custom backend set
           through the API.
-        - fixed issue where nested sequences would result in invalid java 
+        - fixed issue where nested sequences would result in invalid java
           code.
-          
+
      - Interface Repository:
         - Use a persistent POA for the repository servant.
 
@@ -103,7 +104,7 @@ post 2.3.1
           IIOP profiles without using interceptors (thanks to
           RemedyIT for suggestion and sponsoring)
         - pass message details from UserException's as ServiceContext over
-          the wire if JacORB specific helper/skeleton code is used 
+          the wire if JacORB specific helper/skeleton code is used
           [-generate_helper jacorb] (JAC#144).
         - Fix for iteration during shutdown (JAC#264).
         - added more strict checking of correct string sizes during
@@ -112,29 +113,29 @@ post 2.3.1
         - fix for bug during logfile initialization routine
           that caused the creation of multiple empty logfiles.
         - fixes for stream closure with sync scope none.
-          
+
     - IDL Compiler:
         - added option that allows to control the portability level of
           the generated helper classes
           [-generate_helper deprecated|portable|jacorb] (JAC#516).
         - removed -omg option (#72,#98)
         - Enhance generation to close streams (RTJ#476).
-        
+
     - Interface Repository:
-        - fix to allow IDL files that use #pragma prefix to be loaded into 
+        - fix to allow IDL files that use #pragma prefix to be loaded into
           the IR (#367).
     - Fixes:
         - fix to allow interoperability with TAO persistent IOR's (#735)
         - removed usage of the deprecated read_fixed/write_fixed methods from
           the ORB core and generated code (JAC#516).
         - fixed wstring valuetype interoperability issue with the sun orb.
-        - patch from bugzilla #708 to fix occasional deadlock/timeout issue within 
+        - patch from bugzilla #708 to fix occasional deadlock/timeout issue within
           GIOPConnections.
         - let POA.reference_to_servant raise BAD_PARM if a null reference is passed in.
-          
+
     - Documentation
         - enhanced socket factory documentation
-        
+
 2.3
 ===
     - ORB:

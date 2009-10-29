@@ -1,10 +1,10 @@
 # Test if JRE_HOME or JAVA_HOME provide java-binary
 # if not fall back to path
-if [ -x "$JRE_HOME/bin/java" ]
+if [ -n "$JRE_HOME" ] && [ -x "$JRE_HOME/bin/java" ]
 then
     RESOLVED_JAVA_CMD=$JRE_HOME/bin/java
 else
-    if [ -x "$JAVA_HOME/bin/java" ]
+    if [ -n "$JAVA_HOME" ] && [ -x "$JAVA_HOME/bin/java" ]
     then
         RESOLVED_JAVA_CMD=$JAVA_HOME/bin/java
     else
