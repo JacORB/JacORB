@@ -28,7 +28,7 @@ import java.util.List;
 
 import org.jacorb.notification.interfaces.Message;
 
-import edu.emory.mathcs.backport.java.util.PriorityQueue;
+import java.util.PriorityQueue;
 
 public abstract class AbstractBoundedEventHeap extends AbstractBoundedEventQueue
 {

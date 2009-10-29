@@ -51,7 +51,7 @@ import org.omg.CosTypedNotifyComm.TypedPullSupplier;
 import org.omg.CosTypedNotifyComm.TypedPullSupplierHelper;
 import org.omg.CosTypedNotifyComm.TypedPullSupplierPOATie;
 
-import edu.emory.mathcs.backport.java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.ScheduledFuture;
 
 /**
  * @author Alphonse Bendt

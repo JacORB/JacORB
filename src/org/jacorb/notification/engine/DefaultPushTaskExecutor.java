@@ -27,8 +27,8 @@ import java.util.List;
 
 import org.jacorb.notification.interfaces.Disposable;
 
-import edu.emory.mathcs.backport.java.util.concurrent.LinkedBlockingQueue;
-import edu.emory.mathcs.backport.java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class DefaultPushTaskExecutor implements PushTaskExecutor, Disposable
 {

@@ -38,12 +38,12 @@ import org.picocontainer.defaults.AssignabilityRegistrationException;
 public class CORBAObjectComponentAdapter extends AbstractComponentAdapter
 {
     private static final long serialVersionUID = 1L;
-    
+
     private final org.omg.CORBA.Object delegate_;
 
     /**
      * Component Adapter to specify a reference to a CORBA Object.
-     * 
+     *
      * @param service CORBA Interface the delegate offers
      * @param delegate CORBA object that offers the service
      */
@@ -66,9 +66,9 @@ public class CORBAObjectComponentAdapter extends AbstractComponentAdapter
             {
                 _helperClass = ObjectUtil.classForName(_helperClassName);
             }
-            
+
             Method _idMethod = _helperClass.getMethod("id", new Class[0]);
-            String _id = (String) _idMethod.invoke(null, null);
+            String _id = (String) _idMethod.invoke(null, (Object[])null);
 
             if (!delegate._is_a(_id))
             {

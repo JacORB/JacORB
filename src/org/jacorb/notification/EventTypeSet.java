@@ -28,8 +28,8 @@ import java.util.TreeSet;
 
 import org.omg.CosNotification.EventType;
 
-import edu.emory.mathcs.backport.java.util.concurrent.locks.ReadWriteLock;
-import edu.emory.mathcs.backport.java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 /**
  * Utility class that manages Sets of EventTypes. EventTypes can be added and removed.

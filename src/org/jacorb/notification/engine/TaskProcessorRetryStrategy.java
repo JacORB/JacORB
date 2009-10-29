@@ -22,7 +22,7 @@ package org.jacorb.notification.engine;
 
 import org.jacorb.notification.interfaces.IProxyPushSupplier;
 
-import edu.emory.mathcs.backport.java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * @author Alphonse Bendt

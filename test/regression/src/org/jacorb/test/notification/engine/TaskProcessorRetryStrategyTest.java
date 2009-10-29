@@ -30,7 +30,7 @@ import org.jacorb.notification.engine.TaskProcessor;
 import org.jacorb.notification.engine.TaskProcessorRetryStrategy;
 import org.omg.CORBA.TRANSIENT;
 
-import edu.emory.mathcs.backport.java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.ScheduledFuture;
 
 /**
  * @author Alphonse Bendt

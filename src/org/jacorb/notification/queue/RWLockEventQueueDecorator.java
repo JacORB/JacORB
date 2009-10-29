@@ -28,8 +28,8 @@ import java.util.List;
 import org.jacorb.notification.interfaces.Message;
 import org.jacorb.notification.queue.MessageQueue.DiscardListener;
 
-import edu.emory.mathcs.backport.java.util.concurrent.locks.ReadWriteLock;
-import edu.emory.mathcs.backport.java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 /**
  * @author Alphonse Bendt

@@ -33,7 +33,7 @@ import org.jacorb.config.*;
 import org.slf4j.Logger;
 import org.jacorb.notification.interfaces.Disposable;
 
-import edu.emory.mathcs.backport.java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * Abstract Base Class for Simple Pooling Mechanism. Subclasses must at least implement the method

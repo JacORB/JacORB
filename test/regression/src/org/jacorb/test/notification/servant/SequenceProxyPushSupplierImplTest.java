@@ -45,7 +45,7 @@ import org.omg.CosNotifyChannelAdmin.ProxyType;
 import org.omg.CosNotifyComm.SequencePushConsumer;
 import org.omg.TimeBase.TimeTHelper;
 
-import edu.emory.mathcs.backport.java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.ScheduledFuture;
 
 public class SequenceProxyPushSupplierImplTest extends NotificationTestCase
 {

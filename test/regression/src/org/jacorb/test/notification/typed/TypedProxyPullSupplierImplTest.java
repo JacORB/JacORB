@@ -41,8 +41,8 @@ import org.omg.CosNotifyComm.PullConsumerPOA;
 import org.omg.CosTypedNotifyChannelAdmin.TypedProxyPullSupplier;
 import org.omg.CosTypedNotifyChannelAdmin.TypedProxyPullSupplierHelper;
 
-import edu.emory.mathcs.backport.java.util.concurrent.CountDownLatch;
-import edu.emory.mathcs.backport.java.util.concurrent.TimeUnit;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author Alphonse Bendt

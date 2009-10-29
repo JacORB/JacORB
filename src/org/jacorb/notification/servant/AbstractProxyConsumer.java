@@ -53,7 +53,7 @@ import org.omg.CosNotifyComm.NotifySubscribeHelper;
 import org.omg.CosNotifyComm.NotifySubscribeOperations;
 import org.omg.PortableServer.POA;
 
-import edu.emory.mathcs.backport.java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * @jmx.mbean extends = "AbstractProxyMBean"

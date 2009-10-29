@@ -24,8 +24,8 @@ package org.jacorb.notification.servant;
 import org.jacorb.notification.conf.Default;
 import org.omg.CosEventComm.Disconnected;
 
-import edu.emory.mathcs.backport.java.util.concurrent.Semaphore;
-import edu.emory.mathcs.backport.java.util.concurrent.TimeUnit;
+import java.util.concurrent.Semaphore;
+import java.util.concurrent.TimeUnit;
 
 public class PullMessagesOperation
 {

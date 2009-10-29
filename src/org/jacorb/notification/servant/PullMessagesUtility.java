@@ -24,7 +24,7 @@ package org.jacorb.notification.servant;
 import org.jacorb.notification.engine.TaskProcessor;
 import org.jacorb.notification.interfaces.MessageSupplier;
 
-import edu.emory.mathcs.backport.java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.ScheduledFuture;
 
 public class PullMessagesUtility
 {

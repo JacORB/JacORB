@@ -28,7 +28,7 @@ import junit.framework.TestSuite;
 
 import org.jacorb.notification.util.AbstractObjectPool;
 
-import edu.emory.mathcs.backport.java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * @author Alphonse Bendt
