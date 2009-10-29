@@ -283,6 +283,11 @@ jacorb.enhanced_thread_name=off
 # then this will be used to mutate incoming/outgoing Objects
 #jacorb.iormutator=
 
+# When calling is_a JacORB can attempt to search for local repository ID information
+# to avoid the cost of a remote call. In most scenarios this is quicker than the remote
+# call. With some complicated hierarchies it may be quicker to turn this off.
+# jacorb.avoidIsARemoteCall=on
+
 # If true enable codesets. If false, this will ignore all codesetComponentInfo profiles
 # within an IOR and also disable explicit marshalling with codesets (re Strings).
 # jacorb.codeset=off
@@ -292,7 +297,7 @@ jacorb.enhanced_thread_name=off
 # jacorb.native_char_codeset=ISO8859_1
 
 # Overrides the detection from the local environment for the codeset used to
-# transmit wide characters. ote that this property is only effective once per JVM.
+# transmit wide characters. Note that this property is only effective once per JVM.
 # jacorb.native_wchar_codeset=UTF16
 
 

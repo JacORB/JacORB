@@ -150,6 +150,11 @@ public final class Delegate
     private boolean locateOnBind;
 
     /**
+     * Always attempt to locate is_a information locally rather than remotely.
+     */
+    private boolean avoidIsARemoteCall=true;
+
+    /**
      * 03-09-04: 1.5.2.2
      *
      * boolean threadlocal to ensure that
@@ -198,6 +203,8 @@ public final class Delegate
             config.getAttributeAsBoolean("jacorb.use_imr", false);
         locateOnBind =
             config.getAttributeAsBoolean("jacorb.locate_on_bind", false);
+        avoidIsARemoteCall =
+            config.getAttributeAsBoolean("jacorb.avoidIsARemoteCall", true);
     }
 
     private Delegate(ORB orb)
@@ -1346,7 +1353,8 @@ public final class Delegate
         // CosNaming JNDI provider calls _is_a() on some weird ObjectImpl
         // instances whose _ids() method returns an array of length two,
         // containing two Strings equal to "IDL:omg.org/CORBA/Object:1.0".)
-        if (!ids[0].equals("IDL:omg.org/CORBA/Object:1.0"))
+        if (avoidIsARemoteCall &&
+            !ids[0].equals("IDL:omg.org/CORBA/Object:1.0"))
         {
             // Try to avoid remote call - is it a derived type?
             try

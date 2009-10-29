@@ -729,6 +729,11 @@ jacorb.net.socket\_factory.port.min above & integer & disabled\\
 that the thread started to the Thread name. To be used to correlate running
 threads with entries in debug logs. & string & off\\
 \hline
+\verb"jacorb.avoidIsARemoteC"
+\verb"all" & Always attempt to search for local repository ID information to avoid
+the cost of a remote call. In most scenarios this is quicker than the remote call.
+With some complicated hierarchies it may be quicker to turn this off. & boolean & on\\
+\hline
 \verb"jacorb.native_char_cod"
 \verb"eset" & Overrides the detection from the local environment for the codeset
 used to transmit characters. Note that this property is only effective once per
@@ -776,7 +781,7 @@ not set, diagnostics are sent to standard error.& filename & unset \\
 existing log file or overwrite (if file logging) & boolean & off \\
 \hline
 \verb"jacorb.log.initializer" & Name of a class to initialize logging
-after the configuration has been read & class & 
+after the configuration has been read & class &
 \verb"JdkLogg"
 \verb"ingInit"
 \verb"ializer" \\
