@@ -1,9 +1,11 @@
 package org.jacorb.test.orb;
 
+import java.lang.reflect.Field;
 import junit.framework.AssertionFailedError;
 import junit.framework.Test;
 import junit.framework.TestSuite;
-
+import org.jacorb.orb.CDROutputStream;
+import org.jacorb.orb.ExceptionHolderImpl;
 import org.jacorb.test.AMI_CallbackServerHandler;
 import org.jacorb.test.AMI_CallbackServerHandlerOperations;
 import org.jacorb.test.AMI_CallbackServerHandlerPOATie;
@@ -15,6 +17,7 @@ import org.jacorb.test._CallbackServerStub;
 import org.jacorb.test.common.CallbackTestCase;
 import org.jacorb.test.common.ClientServerSetup;
 import org.jacorb.test.common.TestUtils;
+import org.omg.CORBA.UserException;
 import org.omg.Messaging.ExceptionHolder;
 
 public class CallbackTest extends CallbackTestCase
@@ -368,4 +371,52 @@ public class CallbackTest extends CallbackTestCase
         handler.wait_for_reply( 500 );
     }
 
+
+    public void test_jac492_exceptionholderlogging()
+    {
+        // This decidely hacky set of code is to provoke a rather unlikely error
+        // from exception holder which in turn reveals that logging has not been
+        // configured which throws another error.
+        ExceptionHolder eh = new ExceptionHolderImpl ((org.jacorb.orb.ORB)setup.getClientOrb ());
+        try
+        {
+            final Field fields[] = ExceptionHolder.class.getDeclaredFields();
+            CDROutputStream cdr = new CDROutputStream (setup.getClientOrb ());
+            cdr.write_string ("Dummy_id");
+
+            for (int i = 0; i < fields.length; ++i)
+            {
+                if ("marshaled_exception".equals(fields[i].getName()))
+                {
+                    Field f = fields[i];
+                    f.setAccessible(true);
+                    f.set (eh, cdr.getBufferCopy ());
+                    break;
+                }
+            }
+            eh.raise_exception ();
+
+            fail ("No exception raised");
+        }
+        catch (NullPointerException e)
+        {
+            fail ("Raised a null pointer exception" + e);
+        }
+        catch (org.omg.CORBA.UnknownUserException e)
+        {
+            // Success - expected exception.
+        }
+      catch (IllegalArgumentException e)
+      {
+         fail ("Wrong exception thrown" + e);
+      }
+      catch (IllegalAccessException e)
+      {
+         fail ("Wrong exception thrown" + e);
+      }
+      catch (UserException e)
+      {
+         fail ("Wrong exception thrown" + e);
+      }
+    }
 }

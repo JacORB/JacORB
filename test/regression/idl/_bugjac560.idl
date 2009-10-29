@@ -1,0 +1,12 @@
+#pragma prefix "idl.cms.cerent";
+
+module Node
+{
+     exception xNoSuchDefault {
+     };
+
+    interface BugJac560Service
+    {
+        void exc(in boolean act) raises (xNoSuchDefault);
+    };
+};

@@ -1,0 +1,15 @@
+#pragma prefix "test.jacorb.org"
+
+module bugjac511a
+{
+    module bugjac511b
+    {
+        exception TestException {};
+
+        interface BugJac511Server
+        {
+            void request_sending_exception()
+                raises (TestException);
+        };
+    };
+};

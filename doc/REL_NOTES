@@ -69,6 +69,9 @@ post 2.3.1
           outside synchronised block.
         - added more strict checking for wstring/wchar types during demarshalling.
           GIOP 1.0 does not allow them.
+        - fixed issue where exceptions during AMI didn't work
+          if the IDL was specified with pragma prefix.
+        - Fix ExceptionHolderImpl Configuration
 
     - IDL Compiler:
         - fixed issue where the IDL compiler generated imports for the

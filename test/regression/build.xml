@@ -9,7 +9,7 @@
 
     <property name="dir.classes-instrumented" value="${basedir}/classes-instrumented" />
     <property name="dir.test" value="${basedir}/test/regression" />
-	
+
     <property name="jacorb.test.outdir" value="${dir.test}/output" />
 
     <!-- ==================================================== -->
@@ -78,20 +78,14 @@
             </sequential>
         </macrodef>
 
-        <macrodef name="process-idl">
-            <attribute name="includes" />
-            <attribute name="ami" default="false"/>
-
-            <sequential>
-                <jacidl
-                    srcdir="${idl}"
-                    ami_callback="@{ami}"
-                    destdir="${src}/generated"
-                    includepath="${basedir}/idl/omg"
-                    includes="@{includes}"
-                    helpercompat="jacorb"/>
-            </sequential>
-        </macrodef>
+       <presetdef name="process-idl">
+          <jacidl
+             srcdir="${idl}"
+             ami_callback="@{ami}"
+             destdir="${src}/generated"
+             includepath="${basedir}/idl/omg"
+             helpercompat="jacorb"/>
+       </presetdef>
     </target>
 
 
@@ -103,7 +97,7 @@
                                       idl,
                                       compile-src,
                                       compile-rmic,
-    	                              compile-src-notification,
+                                      compile-src-notification,
                                       instrument" />
 
     <target name="compile-src" >
@@ -111,7 +105,7 @@
             javac-excludes="generated/**,
                             **/RMITestServant.java,
                             org/jacorb/test/notification/**,
-        	                org/jacorb/test/jmx/**"
+                                org/jacorb/test/jmx/**"
             javac-classpathref="cp.compile-test" />
     </target>
 
@@ -123,7 +117,7 @@
         <jacorb-javac javac-includes="**/RMITestServant.java" javac-classpathref="cp.compile-test" />
     </target>
 
-	<target name="compile-src-notification" unless="NO_BUILD">
+        <target name="compile-src-notification" unless="NO_BUILD">
         <jacorb-javac
               javac-includes="org/jacorb/test/notification/**/*.java"
               javac-excludes="org/jacorb/test/notification/plugins/**,
@@ -155,7 +149,7 @@
         </condition>
 
         <!-- By default, we do run naming and notification tests -->
-    	<property name="jacorb.test.exclude-services" value="false"/>
+        <property name="jacorb.test.exclude-services" value="false"/>
         <property name="jacorb.test.verbose" value="false" />
 
         <!-- timeout if we want in tests for something to happen that takes a while -->
@@ -189,7 +183,7 @@
 
         <property name="jacorb.test.rmi.jvmarg" value="-Djacorb.test.ignoredKey=ignoredValue" />
 
-    	
+
         <mkdir dir="${jacorb.test.outdir}" />
     </target>
 
@@ -480,7 +474,7 @@ Tests run: ${result.testCount}, Failures: ${result.testFailures}, Errors: ${resu
                      idl-tests,
                      idl-anyserver,
                      idl-basicserver,
-	                 idl-arrayserver,
+                     idl-arrayserver,
                      idl-codesetserver,
                      idl-charserver,
                      idl-longlongseqserver,
@@ -500,6 +494,7 @@ Tests run: ${result.testCount}, Failures: ${result.testFailures}, Errors: ${resu
                      idl-shutdown,
                      idl-dii,
                      idl-bugs,
+                     idl-ami-bugs,
                      idl-transport-current-server" />
 
     <!-- ==================================================== -->
@@ -526,7 +521,7 @@ Tests run: ${result.testCount}, Failures: ${result.testFailures}, Errors: ${resu
        <process-idl includes="ArrayServer.idl" />
     </target>
 
-	<target name="idl-codesetserver">
+    <target name="idl-codesetserver">
         <process-idl includes="CodesetServer.idl" />
     </target>
 
@@ -539,15 +534,15 @@ Tests run: ${result.testCount}, Failures: ${result.testFailures}, Errors: ${resu
     </target>
 
     <target name="idl-callbackserver">
-        <process-idl includes="CallbackServer.idl" ami="true"/>
+        <process-idl includes="CallbackServer.idl" ami_callback="true"/>
     </target>
 
     <target name="idl-timingserver">
-        <process-idl includes="TimingServer.idl" ami="true" />
+        <process-idl includes="TimingServer.idl" ami_callback="true" />
     </target>
 
     <target name="idl-syncscopeserver">
-        <process-idl includes="SyncScopeServer.idl" ami="true" />
+        <process-idl includes="SyncScopeServer.idl" ami_callback="true" />
     </target>
 
     <target name="idl-connectiontimeout">
@@ -599,7 +594,15 @@ Tests run: ${result.testCount}, Failures: ${result.testFailures}, Errors: ${resu
     </target>
 
     <target name="idl-bugs">
-        <process-idl includes="bug*.idl"/>
+       <process-idl includes="bug*.idl"/>
+
+        <process-idl includes="_bugjac560.idl" ami_callback="true" >
+           <i2jpackage names="Node:cerent.cms.idl.Node"/>
+        </process-idl>
+     </target>
+
+    <target name="idl-ami-bugs">
+       <process-idl includes="ami_bug*.idl" ami_callback="true" />
     </target>
 
     <!-- ==================================================== -->
@@ -792,7 +795,7 @@ Tests run: ${result.testCount}, Failures: ${result.testFailures}, Errors: ${resu
     <!--                   clean up                           -->
     <!-- ==================================================== -->
 
-    <target name="clean" depends="jacunit-realclean" 
+    <target name="clean" depends="jacunit-realclean"
             description="Remove all generated source files and class files">
         <delete failonerror="false" includeemptydirs="true">
             <fileset dir="${classdir}" includes="**/*" />
