@@ -1,0 +1,31 @@
+// Bugzilla 762 / 718
+
+module bug762
+{
+   union Floats switch (short)
+   {
+      case (3*4): float f;
+      case (2 << 1): double d;
+      default: double n;
+   };
+
+
+   typedef short Short_Type;
+
+   const Short_Type aaa = 100;
+
+   const Short_Type bbb = aaa + 1;
+   const Short_Type ccc = (aaa + 2);
+   const Short_Type eee = aaa + 3;
+
+   union Shorts switch (short)
+   {
+      case aaa: short a;
+      case (bbb): double d;
+      case ccc: double e;
+      case eee: double f;
+      default: double n;
+   };
+
+
+};

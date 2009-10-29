@@ -113,7 +113,7 @@ public class UnionType
             setPrintPhaseNames();
         return typeName;
     }
-    
+
     public String className()
     {
         String fullName = typeName();
@@ -835,7 +835,7 @@ public class UnionType
 
         ps.println("\tpublic static " + className + " read (org.omg.CORBA.portable.InputStream in)");
         ps.println("\t{");
-        
+
         if (parser.hasObjectCachePlugin())
         {
             parser.getObjectCachePlugin().printCheckout(ps, className, "result");
@@ -1240,11 +1240,11 @@ public class UnionType
                             (tocheck instanceof LongType) ||
                             (tocheck instanceof LongLongType))
                         {
-                            ps.print("\t\t\tlabel_any." + tocheck.printInsertExpression() + " (");
+                            ps.print("\t\t\tlabel_any." + tocheck.printInsertExpression() + " ((");
                         }
                         else if (tocheck instanceof ShortType)
                         {
-                            ps.print("\t\t\tlabel_any." + tocheck.printInsertExpression() + " ((short)");
+                            ps.print("\t\t\tlabel_any." + tocheck.printInsertExpression() + " ((short)(");
                         }
                         else
                         {
@@ -1252,7 +1252,7 @@ public class UnionType
                                                        + tocheck.typeName() + ":" + tocheck + ": " + tocheck.typeSpec()
                                                        + ": " + tocheck.getClass().getName());
                         }
-                        ps.println(((ConstExpr)o).value() + ");");
+                        ps.println(((ConstExpr)o).value() + "));");
                 }
                 else if (switch_is_enum)
                 {
