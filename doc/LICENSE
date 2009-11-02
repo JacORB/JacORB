@@ -2,9 +2,7 @@
                         JacORB Licensing
                         ----------------
 
-                   JacORB 2.2.3, January 2006
-
-(C) The JacORB project, 1997-2006
+(C) The JacORB project, 1997-2009
 
 JacORB is free software may be used in accordance with the terms of
 the GNU LIBRARY GENERAL PUBLIC LICENSE as reproduced below.  JacORB is
@@ -14,7 +12,10 @@ retained in all redistributions of JacORB or parts thereof.
 
 -- Licenses of included libraries ---
 
-This product includes parts of the CUP Parser Generator libarary, v 0.9e, 
+This product includes software copyrighted by SLF4J (http://www.slf4j.org).
+Please see the license included below.
+
+This product includes parts of the CUP Parser Generator libarary, v 0.9e,
 Copyright 1996-1999 by Scott Hudson, Frank Flannery, C. Scott Ananian.
 
 This product includes software developed by the Apache Software
@@ -25,13 +26,9 @@ This product includes version 2.7.2 of the ANTLR parser and compiler
 framework (http://www.antlr.org), which is in the public domain and
 may be freely redistribued.
 
-This product includes the "backport-util-concurrent" class library maintained by
-Dawid Kurzyniec (http://www.mathcs.emory.edu/dcl/util/backport-util-concurrent/), according to the license
-reproduced below.
-
 This product includes software copyrighted by TanukiSoftware
 (http://wrapper.tanukisoftware.org), according to the Tanuki license
-reproduced below. 
+reproduced below.
 
 This product includes software copyrighted by the PicoContainer Organization
 (http://www.picocontainer.org), according to the license reproduced below.
@@ -173,7 +170,7 @@ such a program is covered only if its contents constitute a work based
 on the Library (independent of the use of the Library in a tool for
 writing it).  Whether that is true depends on what the Library does
 and what the program that uses the Library does.
-  
+
   1. You may copy and distribute verbatim copies of the Library's
 complete source code as you receive it, in any medium, provided that
 you conspicuously and appropriately publish on each copy an
@@ -524,34 +521,34 @@ That's all there is to it!
  ============================================================================
                    The Apache Software License, Version 1.1
  ============================================================================
- 
+
  Copyright (C) 1997-2003 The Apache Software Foundation. All rights reserved.
- 
+
  Redistribution and use in source and binary forms, with or without modifica-
  tion, are permitted provided that the following conditions are met:
- 
+
  1. Redistributions of  source code must  retain the above copyright  notice,
     this list of conditions and the following disclaimer.
- 
+
  2. Redistributions in binary form must reproduce the above copyright notice,
     this list of conditions and the following disclaimer in the documentation
     and/or other materials provided with the distribution.
- 
+
  3. The end-user documentation included with the redistribution, if any, must
     include  the following  acknowledgment:  "This product includes  software
     developed  by the  Apache Software Foundation  (http://www.apache.org/)."
     Alternately, this  acknowledgment may  appear in the software itself,  if
     and wherever such third-party acknowledgments normally appear.
- 
- 4. The names "LogKit", "Jakarta" and "Apache Software Foundation"  must not 
+
+ 4. The names "LogKit", "Jakarta" and "Apache Software Foundation"  must not
     be used to endorse or promote products derived from this software without
-    prior written permission. For written permission, please contact 
+    prior written permission. For written permission, please contact
     apache@apache.org.
- 
+
  5. Products  derived from this software may not  be called "Apache", nor may
     "Apache" appear  in their name,  without prior written permission  of the
     Apache Software Foundation.
- 
+
  THIS SOFTWARE IS PROVIDED ``AS IS'' AND ANY EXPRESSED OR IMPLIED WARRANTIES,
  INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND
  FITNESS  FOR A PARTICULAR  PURPOSE ARE  DISCLAIMED.  IN NO  EVENT SHALL  THE
@@ -562,59 +559,10 @@ That's all there is to it!
  ANY  THEORY OF LIABILITY,  WHETHER  IN CONTRACT,  STRICT LIABILITY,  OR TORT
  (INCLUDING  NEGLIGENCE OR  OTHERWISE) ARISING IN  ANY WAY OUT OF THE  USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- 
+
  This software  consists of voluntary contributions made  by many individuals
- on  behalf of the Apache Software  Foundation. For more  information on the 
+ on  behalf of the Apache Software  Foundation. For more  information on the
  Apache Software Foundation, please see <http://www.apache.org/>.
- 
-=================================================================
-
-The software comprising backport-util-concurrent is based in large
-part on the code from JSR166, and the package dl.util.concurrent.
-The software has been released to the public domain, as explained at:
-http://creativecommons.org/licenses/publicdomain, excepting portions
-of the class 
-edu.emory.mathcs.backport.java.util.concurrent.CopyOnWriteArrayList, 
-which were adapted from class java.util.ArrayList, written by Sun 
-Microsystems, Inc, which are used with kind permission, and subject 
-to the following:
-
-Copyright 2002-2004 Sun Microsystems, Inc. All rights reserved. Use is
-subject to the following license terms.
-
-  "Sun hereby grants you a non-exclusive, worldwide, non-transferrable
-  license to use and distribute the Java Software technologies as part
-  of a larger work in source and binary forms, with or without
-  modification, provided that the following conditions are met:
-
-   -Neither the name of or trademarks of Sun may be used to endorse or
-    promote products derived from the Java Software technology without
-    specific prior written permission.
-
-   -Redistributions of source or binary code must be accompanied by the
-    following notice and disclaimers:
-
-    Portions copyright Sun Microsystems, Inc. Used with kind permission.
-
-    This software is provided AS IS, without a warranty of any kind.  ALL
-    EXPRESS OR IMPLIED CONDITIONS, REPRESENTATIONS AND
-    WARRANTIES, INCLUDING ANY IMPLIED WARRANTY OF
-    MERCHANTABILITY, FITNESS FOR A PARTICULAR PUPOSE OR
-    NON-INFRINGEMENT, ARE HEREBY EXCLUDED. SUN
-    MICROSYSTEMS, INC. AND ITS LICENSORS SHALL NOT BE LIABLE
-    FOR ANY DAMAGES SUFFERED BY LICENSEE AS A RESULT OF
-    USING, MODIFYING OR DISTRIBUTING THE SOFTWARE OR ITS
-    DERIVATIVES. IN NO EVENT WILL SUN MICROSYSTEMS, INC. OR
-    ITS LICENSORS BE LIABLE FOR ANY LOST REVENUE, PROFIT OR
-    DATA, OR FOR DIRECT, INDIRECT,CONSQUENTIAL, INCIDENTAL
-    OR PUNITIVE DAMAGES, HOWEVER CAUSED AND REGARDLESS OF
-    THE THEORY OR LIABILITY, ARISING OUT OF THE USE OF OR
-    INABILITY TO USE SOFTWARE, EVEN IF SUN MICROSYSTEMS, INC.
-    HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH DAMAGES.
-
-    You acknowledge that Software is not designed, licensed or intended for
-    use in the design, construction, operation or maintenance of any nuclear
-    facility."
 
 =================================================================
 
@@ -632,12 +580,12 @@ following conditions:
 The above copyright notice and this permission notice shall be
 included in all copies or substantial portions of the Software.
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, 
-EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES 
-OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND 
-NON-INFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT 
-HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, 
-WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING 
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
+OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+NON-INFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
 FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
 
@@ -649,46 +597,62 @@ Copyright (c) 2001 Silver Egg Technology
 
 Permission is hereby granted, free of charge, to any person
 obtaining a copy of this software and associated documentation
-files (the "Software"), to deal in the Software without 
-restriction, including without limitation the rights to use, 
-copy, modify, merge, publish, distribute, sub-license, and/or 
+files (the "Software"), to deal in the Software without
+restriction, including without limitation the rights to use,
+copy, modify, merge, publish, distribute, sub-license, and/or
 sell copies of the Software, and to permit persons to whom the
-Software is furnished to do so, subject to the following 
+Software is furnished to do so, subject to the following
 conditions:
 
 The above copyright notice and this permission notice shall be
 included in all copies or substantial portions of the Software.
- 
-=================================================================
 
+=================================================================
 
 Copyright (c) 2003-2004, PicoContainer Organization
 All rights reserved.
 
-Redistribution and use in source and binary forms, with or without 
+Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
 
-  Redistributions of source code must retain the above copyright notice, this 
-  list of conditions and the following disclaimer. 
+  Redistributions of source code must retain the above copyright notice, this
+  list of conditions and the following disclaimer.
 
   Redistributions in binary form must reproduce the above copyright notice,
-  this list of conditions and the following disclaimer in the documentation 
-  and/or other materials provided with the distribution. 
+  this list of conditions and the following disclaimer in the documentation
+  and/or other materials provided with the distribution.
 
-  Neither the name of the PicoContainer Organization nor the names of its 
-  contributors may be used to endorse or promote products derived from this 
-  software without specific prior written permission. 
+  Neither the name of the PicoContainer Organization nor the names of its
+  contributors may be used to endorse or promote products derived from this
+  software without specific prior written permission.
 
-THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" 
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
 AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE 
-ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE 
-LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR 
-CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF 
-SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS 
-INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN 
-CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) 
-ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE 
+IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE
+LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGE.
 
+=================================================================
 
+SLF4J source code and binaries are distributed under the MIT license.
+
+Copyright (c) 2004-2008 QOS.ch All rights reserved. Permission is hereby
+granted, free of charge, to any person obtaining a copy of this software and
+associated documentation files (the "Software"), to deal in the Software without
+restriction, including without limitation the rights to use, copy, modify,
+merge, publish, distribute, sublicense, and/or sell copies of the Software, and
+to permit persons to whom the Software is furnished to do so, subject to the
+following conditions: The above copyright notice and this permission notice
+shall be included in all copies or substantial portions of the Software. THE
+SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
+INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A
+PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
