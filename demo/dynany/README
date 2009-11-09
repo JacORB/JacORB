@@ -1,22 +1,12 @@
 Objective:
 
-    This example shows how to create and use DynamicAny objects. This 
-    demonstrates many of the types including char, string, arrays, enum, 
-    structs.    
-    
+    This example shows how to create and use DynamicAny objects. This
+    demonstrates many of the types including char, string, arrays, enum,
+    structs.
+
 How to Run:
     Compile:
-        ant
+        ant compile
 
-    Run NamingServer:
-        ns -Djacorb.naming.ior_filename=/path/to/NS_Ref
-
-    Run Server:
-        jaco demo.dynany.Server
-
-    Run Client:
-        jaco demo.dynany.Client
-
-Note: 
-    Make sure that jacorb.properties is in place and has the name server
-    reference such as - ORBInitRef.NameService=file:/path/to/NS_Ref
+    Run demo:
+        ant demo

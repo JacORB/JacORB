@@ -19,11 +19,11 @@ chapter in the programming guide.
        Running this demo with Sun JSSE (SDK 1.4+)
        ------------------------------------------
 
-For the server:
-$> jaco -Dcustom.props=jsse_server_props demo.ssl.Server ior
+$> ant demo
 
-For the client:
-$> jaco -Dcustom.props=jsse_client_props demo.ssl.Client ior
+that will start a server and two clients. the first client
+will try to connect to the server without using SSL. the second
+client will use the correct SSL configuration.
 
        How to generate the JSSE keystores
        ----------------------------------

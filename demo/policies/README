@@ -1,4 +1,12 @@
-  A simple demo that shows how to use CORBA QoS policies at the level
-  of individual objects, or ORB-wide. This is a variaton on hello
-  world and relies on IOR files rather than the naming service.
- 
+Objective:
+
+    A simple demo that shows how to use CORBA QoS policies at the level
+    of individual objects, or ORB-wide.
+
+How to Run:
+    Compile:
+        ant compile
+
+    Run Demo:
+        ant demo
+      

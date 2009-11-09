@@ -1,56 +1,18 @@
 <?xml version="1.0"?>
 
-<!DOCTYPE project [ <!ENTITY common SYSTEM "../../etc/common.xml"> ]>
+<project name="JacORB policies demo" default="demo" basedir=".">
 
-<project name="demo" default="all" basedir="../..">
+    <import file="../common/common-demo.xml" />
 
-  &common;
+    <target name="demo" depends="compile" >
+        <run-demo>
+            <run-server>
+                <run-default-server classname="demo.policies.Server" />
+            </run-server>
 
-
-  <!-- ==================================================== -->
-  <!--             Demo build file                         -->
-  <!-- ==================================================== -->
-
-   <target name="policies.init" depends="init">
-	<property name="name" value="policies"/>
-	<property name="dirs.base" value="${basedir}"/>
-	<property name="classdir" value="${dirs.base}/classes"/>
-	<property name="lib" value="${dirs.base}/lib"/>
-        <property name="dest" value="${dirs.base}/demo/${name}/generated"/>
-	<property name="include" value="${dirs.base}/idl/omg"/>
-   </target>
-
-   <target name="all" depends="policies.init,idl">
-	<javac srcdir="${dest}"
-               destdir="${classdir}"
-	       includes="**/*.java"
-	        />
-
-	<javac srcdir="${dirs.base}"
-               destdir="${classdir}"
-	       includes="demo/${name}/*.java"
-	        />
-   </target>
-
-
-   <target name="idl" depends="policies.init,load-taskdef">
-        <mkdir dir="${dest}" />
-        <jacidl srcdir="demo/${name}"
-                destdir="${dest}"
-                includepath="${include}"
-	        includes="*.idl"/>
-   </target>
-
-
-
-   <target name="clean" depends="policies.init">
-           <delete dir="${classdir}/demo/policies"/>
-           <delete dir="${dest}"/>
-   </target>
-
+            <run-client>
+                <run-default-client classname="demo.policies.Client" />
+            </run-client>
+        </run-demo>
+    </target>
 </project>
-
-
-
-
-

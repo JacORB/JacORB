@@ -5,10 +5,7 @@ Objective:
     
 How to Run:
     Compile:
-        ant
+        ant compile
 
-    Run Server:
-        jaco demo.hello.Server <IOR-file>
-
-    Run Client:
-        jaco demo.hello.Client <IOR-file>
+    Run Demo:
+        ant demo

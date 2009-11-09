@@ -1,57 +1,8 @@
 <?xml version="1.0"?>
 
-<!DOCTYPE project [ <!ENTITY common SYSTEM "../../etc/common.xml"> ]>
+<project name="JacORB SAS demo" default="demo" basedir=".">
 
-<project name="demo" default="all" basedir="../..">
+    <import file="../common/common-demo.xml" />
 
-  &common;
-
-
-  <!-- ==================================================== -->
-  <!--             Demo build file                         -->
-  <!-- ==================================================== -->
-
-   <target name="sas.init" depends="init">
-	<property name="name" value="sas"/>
-	<property name="dirs.base" value="${basedir}"/>
-	<property name="classdir" value="${dirs.base}/classes"/>
-	<property name="lib" value="${dirs.base}/lib"/>
-        <property name="dest" value="${dirs.base}/demo/${name}/generated"/>
-	<property name="include" value="${dirs.base}/idl"/>
-   </target>
-
-   <target name="all" depends="sas.init,idl">
-	<javac srcdir="${dest}"
-               destdir="${classdir}"
-	       includes="**/*.java"
-	        />
-
-	<javac srcdir="${dirs.base}/demo/${name}/src"
-               destdir="${classdir}"
-	       includes="**/*.java"
-	excludes="**/List*.java"
-	        />
-   </target>
-
-
-   <target name="idl" depends="sas.init,load-taskdef">
-        <mkdir dir="${dest}" />
-        <jacidl srcdir="${dirs.base}/demo/${name}/src"
-                destdir="${dest}"
-                includepath="${include}"
-	        includes="*.idl"/>
-   </target>
-
-
-
-   <target name="clean" depends="sas.init">
-           <delete dir="${classdir}/demo/sas"/>
-           <delete dir="${dest}"/>
-   </target>
-
+    <target name="demo" depends="compile" />
 </project>
-
-
-
-
-

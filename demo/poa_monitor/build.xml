@@ -1,56 +1,8 @@
 <?xml version="1.0"?>
 
-<!DOCTYPE project [ <!ENTITY common SYSTEM "../../etc/common.xml"> ]>
+<project name="JacORB POA Monitor demo" default="demo" basedir=".">
 
-<project name="demo" default="all" basedir="../..">
+    <import file="../common/common-demo.xml" />
 
-  <!-- ==================================================== -->
-  <!--             Demo build file                         -->
-  <!-- ==================================================== -->
-
-   &common;
-
-   <target name="myinit" depends="init">
-	<property name="name" value="poa_monitor"/>
-	<property name="dirs.base" value="${basedir}"/>
-	<property name="classdir" value="${dirs.base}/classes"/>
-	<property name="lib" value="${dirs.base}/lib"/>
-	<property name="include" value="${dirs.base}/idl/omg"/>
-        <property name="dest" value="${dirs.base}/demo/${name}/generated"/>
-   </target>
-
-   <target name="all" depends="myinit,idl">
-	<javac srcdir="${dest}"
-               destdir="${classdir}"
-	       includes="demo/${name}/**/*.java"
-               classpathref="path.base"
-	        />
-	<javac srcdir="${dirs.base}"
-               destdir="${classdir}"
-               classpathref="path.base"
-	       includes="demo/${name}/foox/**/*.java,demo/${name}/user_poa/**/*.java,demo/${name}/root_poa/*.java,demo/${name}/client/*.java"
-	        />
-   </target>
-
-
-
-   <target name="idl" depends="myinit,load-taskdef">
-        <mkdir dir="${dest}" />
-        <jacidl srcdir="demo/${name}"
-                destdir="${dest}"
-                includepath="${include}"
-	        includes="*.idl"/>
-   </target>
-
-
-   <target name="clean">
-           <delete dir="${classdir}/demo/${name}"/>    
-	   <delete dir="${dest}"/>	
-   </target>
-
+    <target name="demo" depends="compile" />
 </project>
-
-
-
-
-

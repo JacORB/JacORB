@@ -1,4 +1,4 @@
-CLASSPATH=../../../classes
+CLASSPATH=build/classes:$CLASSPATH
 export CLASSPATH
 
 echo "start WhiteboardFactory"

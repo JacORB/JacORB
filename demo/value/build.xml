@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+
+<project name="JacORB valuetype demo" default="demo" basedir=".">
+
+    <import file="../common/common-demo.xml" />
+
+    <target name="demo" depends="compile" >
+        <run-demo>
+            <run-server>
+                <run-default-server classname="demo.value.Server" />
+            </run-server>
+
+            <run-client>
+                <run-default-client classname="demo.value.Client" />
+            </run-client>
+        </run-demo>
+    </target>
+</project>

@@ -1,50 +1,19 @@
 <?xml version="1.0"?>
 
-<!DOCTYPE project [ <!ENTITY common SYSTEM "../../etc/common.xml"> ]>
+<project name="JacORB union demo" default="demo" basedir=".">
 
-<project name="demo" default="all" basedir="../..">
-  &common;
+    <import file="../common/common-demo.xml" />
 
-  <!-- ==================================================== -->
-  <!--             Demo build file                         -->
-  <!-- ==================================================== -->
+    <target name="demo" depends="compile">
+        <run-demo>
+            <run-server>
+                <run-default-server classname="demo.unions.Server" />
+            </run-server>
 
-   <target name="unioninit" depends="init">
-	<property name="name" value="unions"/>
-	<property name="dirs.base" value="${basedir}"/>
-	<property name="classdir" value="${dirs.base}/classes"/>
-	<property name="lib" value="${dirs.base}/lib"/>
-        <property name="dest" value="${dirs.base}/demo/${name}/generated"/>
-	<property name="include" value="${dirs.base}/idl"/>
-   </target>
-
-   <target name="all" depends="unioninit,idl">
-	<javac srcdir="${dest}"
-               destdir="${classdir}"
-	       includes="**/*.java"
-	        />
-	<javac srcdir="${dirs.base}"
-               destdir="${classdir}"
-	       includes="demo/${name}/*.java"
-	        />
-   </target>
-
-   <target name="idl" depends="unioninit, load-taskdef">
-        <mkdir dir="${dest}" />
-        <jacidl srcdir="demo/${name}"
-                destdir="${dest}"
-                includepath="${include}"
-	        includes="*.idl"/>
-   </target>
-
-   <target name="clean" depends="unioninit" >
-	   <delete dir="${classdir}/demo/${name}"/>
-	   <delete dir="${dest}"/>
-   </target>
+            <run-client>
+                <run-default-server classname="demo.unions.Client" />
+            </run-client>
+        </run-demo>
+    </target>
 
 </project>
-
-
-
-
-

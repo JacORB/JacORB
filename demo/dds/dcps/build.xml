@@ -1,27 +1,16 @@
 <?xml version="1.0" encoding="iso-8859-1"?>
-<!DOCTYPE project [ <!ENTITY common SYSTEM "../../../etc/common.xml"> ]>
 
-<project name="DDS-demo" default="compile" basedir="../../..">
+<project name="DDS-demo" default="compile" basedir=".">
 	
-	  <!-- ==================================================== -->
-	  <!--             DDS demo build file                      -->
-	  <!-- ==================================================== -->
-
-	&common;
-
-	<property name="build.dir" 			value="${basedir}/classes"/>
-	<property name="generated.dir" 		value="${basedir}/demo/dds/dcps/generated"/>
-	<property name="include"            value="${basedir}/idl/omg"/>
-	<property name="src.dir"            value="demo/dds/dcps" />
-    <target name="dds.init" depends="init, load-taskdef">
-		<mkdir dir="${generated.dir}"/>
-	</target>
-
-	<path id="project.path">
-		<pathelement location="${basedir}/classes"/>
-		<pathelement location="${basedir}/lib/jacorb.jar"/>		
-	</path>
+	<property name="jacorb.dir" value="../../.."/>
 	
+    <import file="../../common/common-demo.xml" />
+	
+    <!-- ==================================================== -->
+	<!--             DDS demo build file                      -->
+    <!-- ==================================================== -->
+	
+
 	<!--===========================================================-->
 	<!--==========================    HELP    =====================-->
 	<!--===========================================================-->	
@@ -32,34 +21,9 @@
 		<echo message="- foo : to compile and run the foo example"/>
 		<echo message="- temperature : to run the temperature example"/>		
 	</target>
-	
 
 	<!--===========================================================-->
-	<!--===========================   IDL   =======================-->
-	<!--===========================================================-->	
-	<target name="idl" depends="dds.init">
-		<jacidl destdir="${generated.dir}" srcdir="demo/dds/dcps"
-                includepath="${include}"
-	            includes="**/*.idl"/>
-	</target>
-
-	<!--===========================================================-->
-	<!--========================    COMPILE    ====================-->
-	<!--===========================================================-->	
-	<target name="compile" depends="idl">
-		<javac srcdir="${generated.dir}" destdir="${build.dir}" debug="on">
-			<classpath refid="project.path"/>
-			<include name="**/*.java"/>
-		</javac>
-		
-		<javac srcdir="${basedir}" destdir="${build.dir}" debug="on">
-			<classpath refid="project.path"/>
-			<include name="demo/dds/dcps/**/*.java"/>		
-		</javac>		
-	</target>
-
-	<!--===========================================================-->
-	<!--======================    Foo Exemple    ==================-->
+	<!--======================    Foo Example    ==================-->
 	<!--===========================================================-->		
 	<target name="foo" >
 		<parallel>	
@@ -87,7 +51,7 @@
 	</target>
 		
 	<!--===========================================================-->
-	<!--==================   Temperature Exemple    ===============-->
+	<!--==================   Temperature Example    ===============-->
 	<!--===========================================================-->
 	<target name="temperature" >	
 		<parallel>	
@@ -114,15 +78,4 @@
 				</sequential>		 
 		</parallel>		 
 	</target>
-	
-	
-	
-	<!--===================================-->
-	<!--==========     CLEAN     ==========-->
-	<!--===================================-->
-	<target name="clean">
-		<delete dir="${build.dir}/demo/dds/dcps"/>
-		<delete dir="${generated.dir}"/>
-	</target>
-	
 </project>

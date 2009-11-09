@@ -1,55 +1,11 @@
-<?xml version="1.0" encoding="iso-8859-1"?>
+<?xml version="1.0"?>
 
-<!DOCTYPE project [ 
-  <!ENTITY common SYSTEM "../../../etc/common.xml" > 
-]>
+<project name="JacORB Notification Service Office demo" default="demo" basedir=".">
 
-<project name="demo" default="all" basedir="../../..">
+	<property name="jacorb.dir" value="../../.."/>
+	
+    <import file="../../common/common-demo.xml" />
 
-  <!-- ==================================================== -->
-  <!--             Demo build file                         -->
-  <!-- ==================================================== -->
-
-  &common;
-
-   <target name="demo.init" depends="init" >
-    <property name="name" value="notification/office"/>
-    <property name="dirs.base" value="${basedir}"/>
-    <property name="classdir" value="${dirs.base}/classes"/>
-    <property name="compile.option.debug" value="true" />
-
-    <path id="demo.classpath">
-      <pathelement location="${basedir}/classes" />
-    </path>
-
-    <mkdir dir="${dirs.base}/demo/${name}/generated" />
-   </target>
-
-  <target name="all" depends="demo.init, idl.compile" >
-        <javac srcdir="${dirs.base}/demo/${name}/"
-               destdir="${classdir}"
-               includes="**.java" />
-  </target>
-
-  <target name="idl" depends="demo.init, load-taskdef" >
-    <jacidl srcdir="${dirs.base}/demo/${name}"
-      includepath="${idl}/omg"
-      includes="*.idl"
-      destdir="${dirs.base}/demo/${name}/generated" />
-  </target>
-
-  <target name="idl.compile" depends="demo.init, idl" >
-        <javac 
-	  srcdir="${dirs.base}/demo/${name}/generated/"
-	  debug="${compile.option.debug}"
-	  destdir="${classdir}"
-	  classpathref="demo.classpath"
-	  includes="**/*.java" />
-  </target>
-
-  <target name="clean" depends="demo.init">
-    <delete dir="${dirs.base}/demo/${name}/generated/" />
-    <delete dir="${classdir}/demo/${name}" />
-  </target>
+    <target name="demo" depends="compile" />
 
 </project>

@@ -1,51 +1,24 @@
 <?xml version="1.0"?>
 
-<!DOCTYPE project [ <!ENTITY common SYSTEM "../../etc/common.xml"> ]>
+<project name="JacORB arrays demo" default="demo" basedir=".">
 
-<project name="demo" default="all" basedir="../..">
+    <import file="../common/common-demo.xml" />
 
-  <!-- ==================================================== -->
-  <!--             Demo build file                         -->
-  <!-- ==================================================== -->
+    <target name="demo" depends="compile" >
+        <run-demo>
+            <run-server>
+                <jaco classname="demo.arrays.Server" >
+                    <arg value="${ior.file}" />
+                    <arg value="${killfile.file}" />
+                </jaco>
+            </run-server>
 
-    &common;
-
-   <target name="arrays.init">
-	<property name="name" value="arrays"/>
-	<property name="dirs.base" value="${basedir}"/>
-	<property name="classdir" value="${dirs.base}/classes"/>
-	<property name="lib" value="${dirs.base}/lib"/>
-        <property name="dest" value="${dirs.base}/demo/${name}/generated"/>
-	<property name="include" value="${dirs.base}/idl/omg"/>
-   </target>
-
-   <target name="all" depends="arrays.init,idl">
-	<javac srcdir="${dirs.base}/demo/${name}/generated/"
-               destdir="${classdir}"
-	       includes="**/*.java"
-	        />
-	<javac srcdir="${dirs.base}"
-               destdir="${classdir}"
-	       includes="demo/${name}/*.java"
-	        />
-   </target>
-
-   <target name="idl" depends="arrays.init,load-taskdef">
-        <mkdir dir="${dest}" />
-        <jacidl srcdir="demo/${name}"
-                destdir="${dest}"
-                includepath="${include}"
-	        includes="*.idl"/>
-   </target>
-
-   <target name="clean" depends="arrays.init">
-           <delete dir="${classdir}/demo/${name}"/>
-           <delete dir="${dest}"/>
-   </target>
+            <run-client>
+                <jaco classname="demo.arrays.Client" >
+                    <arg value="${ior.file}" />
+                </jaco>
+            </run-client>
+        </run-demo>
+    </target>
 
 </project>
-
-
-
-
-

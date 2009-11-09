@@ -1,62 +1,31 @@
 <?xml version="1.0"?>
 
-<!DOCTYPE project [ <!ENTITY common SYSTEM "../../etc/common.xml"> ]>
+<project name="JacORB SSL Demo" default="demo" basedir=".">
 
-<project name="demo" default="all" basedir="../..">
+    <import file="../common/common-demo.xml" />
 
-   &common;
+    <target name="demo" depends="compile" >
+        <run-demo>
+            <run-server>
+                <jaco classname="demo.ssl.Server" >
+                    <jvmarg value="-Dcustom.props=${resources.dir}/jsse_server_props" />
+                    <arg value="${ior.file}" />
+                    <arg value="${killfile.file}" />
+                </jaco>
+            </run-server>
 
-  <!-- ==================================================== -->
-  <!--             Demo build file                         -->
-  <!-- ==================================================== -->
+            <run-client>
+                <echo message="first try without SSL (should fail)" />
+                <jaco classname="demo.ssl.Client" >
+                    <arg value="${ior.file}" />
+                </jaco>
 
-   <target name="ssl.init" depends="init,check-jsse,check-iaik">
-   <property name="name" value="ssl"/>
-   <property name="dirs.base" value="${basedir}"/>
-   <property name="classdir" value="${dirs.base}/classes"/>
-   <property name="lib" value="${dirs.base}/lib"/>
-   <property name="include" value="${dirs.base}/idl"/>
-   </target>
-
-   <target name="check-jsse" unless="ssl.present">
-        <available classname="com.sun.net.ssl.SSLContext" property="ssl.present" />
-   </target>
-
-   <target name="check-iaik" unless="ssl.present">
-        <available classname="iaik.x509.X509Certificate" property="ssl.present" />
-   </target>
-
-   <target name="all" depends="compile,error" />
-
-   <target name="error" unless="ssl.present">
-        <echo message="IAIK JCE or Sun JSSE classes are not present!"/>
-        <echo message="Please add the corresponding IAIK jar file to your classpath or use Java SDK 1.4+" />
-   </target>
-
-
-   <target name="compile" depends="idl" if="ssl.present">
-   <javac srcdir="${dirs.base}/demo/${name}/generated"
-               destdir="${classdir}"
-          includes="demo/${name}/**/*.java"
-           />
-   <javac srcdir="${dirs.base}"
-               destdir="${classdir}"
-          includes="demo/${name}/*.java"
-           />
-   </target>
-
-   <target name="idl" depends="ssl.init,load-taskdef">
-        <mkdir dir="${dirs.base}/demo/${name}/generated" />
-        <jacidl srcdir="demo/${name}"
-                destdir="${dirs.base}/demo/${name}/generated"
-                includepath="${include}"
-                includes="*.idl"/>
-   </target>
-
-   <target name="clean" depends="ssl.init">
-      <delete dir="${classdir}/demo/${name}"/>
-      <delete dir="${dirs.base}/demo/${name}/generated"/>
-   </target>
-
+                <echo message="next try with SSL enabled (should succeed)" />
+                <jaco classname="demo.ssl.Client" >
+                    <jvmarg value="-Dcustom.props=${resources.dir}/jsse_client_props" />
+                    <arg value="${ior.file}" />
+                </jaco>
+            </run-client>
+        </run-demo>
+    </target>
 </project>
-

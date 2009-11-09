@@ -1,57 +1,11 @@
-<?xml version="1.0" encoding="iso-8859-1"?>
+<?xml version="1.0"?>
 
-<!DOCTYPE project [
-  <!ENTITY common SYSTEM "../../../etc/common.xml" >
-]>
+<project name="JacORB Notification Service Whiteboard demo" default="demo" basedir=".">
 
-<project name="Notification Demo" default="all" basedir="../../..">
+	<property name="jacorb.dir" value="../../.."/>
+	
+    <import file="../../common/common-demo.xml" />
 
-  <!-- ==================================================== -->
-  <!--             Demo build file                         -->
-  <!-- ==================================================== -->
-
-  &common;
-
-  <target name="demo.init" depends="init" >
-    <property name="dir.src"
-      value="${basedir}/demo/notification/whiteboard" />
-
-    <property name="dir.generated"
-      value="${basedir}/demo/notification/generated" />
-
-    <property name="dir.classes"
-      value="${basedir}/classes/demo/notification" />
-
-    <mkdir dir="${dir.generated}" />
-  </target>
-
-  <target name="all" depends="demo.init, idl" >
-	<path id="path.src">
-		<pathelement location="${dir.generated}" />
-	</path>
-
-    <!-- jacorb-javac
-      javac-includes="**/*.java"
-      javac-src="${dir.src}"
-      javac-sourcepath="${dir.generated}" / -->
-
-      	<javac srcdir="${dir.generated}"
-               destdir="${classdir}"/>
-        <javac srcdir="${dir.src}"
-               destdir="${classdir}"/>
-
-  </target>
-
-  <target name="idl" depends="demo.init, load-taskdef" >
-    <jacidl srcdir="${basedir}/demo/notification/whiteboard"
-      includepath="${idl}/omg"
-      includes="*.idl"
-      destdir="${dir.generated}" />
-  </target>
-
-  <target name="clean">
-    <delete dir="${dir.generated}" />
-    <delete dir="${basedir}/classes/demo/notification" />
-  </target>
+    <target name="demo" depends="compile" />
 
 </project>

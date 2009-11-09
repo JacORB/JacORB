@@ -6,18 +6,7 @@ Objective:
 
 How to Run:
     Compile:
-        ant
+        ant compile
 
-    Run NamingServer:
-        ns -Djacorb.naming.ior_filename=/path/to/NS_Ref
-
-    Run Server:
-        jaco demo.mtclient.Server
-
-    Run Client:
-        jaco demo.mtclient.Client
-
-Note:
-    Make sure that jacorb.properties is in place (in the current dir) and has 
-    the name server reference such as -
-    ORBInitRef.NameService=file:/path/to/NS_Ref
+    Run Demo:
+        ant demo

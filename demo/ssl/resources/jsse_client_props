@@ -1,0 +1,19 @@
+jacorb.security.support_ssl=on
+
+# IIOP/SSL parameters (numbers are decimal values):
+# EstablishTrustInClient = 40
+# EstablishTrustInTarget = 20
+# mutual authentication = 60
+jacorb.security.ssl.client.supported_options=60
+jacorb.security.ssl.client.required_options=60
+
+jacorb.ssl.socket_factory=org.jacorb.security.ssl.sun_jsse.SSLSocketFactory
+jacorb.ssl.server_socket_factory=org.jacorb.security.ssl.sun_jsse.SSLServerSocketFactory
+
+jacorb.security.keystore_password=jsse_client_ks_pass
+jacorb.security.keystore=jsse_client_ks
+
+# Read trusted certificates from the keystore
+jacorb.security.jsse.trustees_from_ks=on
+
+#jacorb.security.jsse.log.verbosity=4

@@ -1,56 +1,32 @@
 <?xml version="1.0"?>
 
-<!DOCTYPE project [ <!ENTITY common SYSTEM "../../etc/common.xml"> ]>
+<project name="JacORB grid demo" default="demo" basedir=".">
 
-<project name="demo" default="all" basedir="../..">
+    <import file="../common/common-demo.xml" />
 
-  &common;
+    <target name="demo" depends="compile" >
+        <run-demo>
+            <run-server>
+                <run-default-server classname="demo.grid.Server" />
+            </run-server>
 
+            <run-client>
+                <run-default-client classname="demo.grid.Client" />
+            </run-client>
+        </run-demo>
 
-  <!-- ==================================================== -->
-  <!--             Demo build file                         -->
-  <!-- ==================================================== -->
+        <delete file="${ior.file}" />
+        <delete file="${killfile.file}" />
 
-   <target name="gridinit" depends="init">
-	<property name="name" value="grid"/>
-	<property name="dirs.base" value="${basedir}"/>
-	<property name="classdir" value="${dirs.base}/classes"/>
-	<property name="lib" value="${dirs.base}/lib"/>
-        <property name="dest" value="${dirs.base}/demo/${name}/generated"/>
-	<property name="include" value="${dirs.base}/idl/omg"/>
-   </target>
+        <run-demo>
+            <run-server>
+                <run-default-server classname="demo.grid.TieServer" />
+            </run-server>
 
-   <target name="all" depends="gridinit,idl">
-	<javac srcdir="${dest}"
-               destdir="${classdir}"
-	       includes="**/*.java"
-	        />
-
-	<javac srcdir="${dirs.base}"
-               destdir="${classdir}"
-	       includes="demo/${name}/*.java"
-	        />
-   </target>
-
-
-   <target name="idl" depends="gridinit,load-taskdef">
-        <mkdir dir="${dest}" />
-        <jacidl srcdir="demo/${name}"
-                destdir="${dest}"
-                includepath="${include}"
-	        includes="*.idl"/>
-   </target>
-
-
-
-   <target name="clean" depends="gridinit">
-           <delete dir="${classdir}/demo/grid"/>
-           <delete dir="${dest}"/>
-   </target>
+            <run-client>
+                <run-default-client classname="demo.grid.Client" />
+            </run-client>
+        </run-demo>
+    </target>
 
 </project>
-
-
-
-
-

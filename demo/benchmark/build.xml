@@ -1,56 +1,24 @@
 <?xml version="1.0"?>
 
-<!DOCTYPE project [ <!ENTITY common SYSTEM "../../etc/common.xml"> ]>
+<project name="JacORB benchmark demo" default="demo" basedir=".">
 
-<project name="demo" default="all" basedir="../..">
+    <import file="../common/common-demo.xml" />
 
-  &common;
+    <target name="demo" depends="compile">
+        <run-demo>
+            <run-server>
+                <jaco classname="demo.benchmark.Server" >
+                    <arg value="${ior.file}" />
+                    <arg value="${killfile.file}" />
+                </jaco>
+            </run-server>
 
-
-  <!-- ==================================================== -->
-  <!--             Demo build file                         -->
-  <!-- ==================================================== -->
-
-   <target name="benchmark.init" depends="init">
-	<property name="name" value="benchmark"/>
-	<property name="dirs.base" value="${basedir}"/>
-	<property name="classdir" value="${dirs.base}/classes"/>
-	<property name="lib" value="${dirs.base}/lib"/>
-        <property name="dest" value="${dirs.base}/demo/${name}/generated"/>
-	<property name="include" value="${dirs.base}/idl/omg"/>
-   </target>
-
-   <target name="all" depends="benchmark.init,idl">
-	<javac srcdir="${dest}"
-               destdir="${classdir}"
-	       includes="**/*.java"
-	        />
-
-	<javac srcdir="${dirs.base}"
-               destdir="${classdir}"
-	       includes="demo/${name}/*.java"
-	        />
-   </target>
-
-
-   <target name="idl" depends="benchmark.init,load-taskdef">
-        <mkdir dir="${dest}" />
-        <jacidl srcdir="demo/${name}"
-                destdir="${dest}"
-                includepath="${include}"
-	        includes="*.idl"/>
-   </target>
-
-
-
-   <target name="clean" depends="benchmark.init">
-           <delete dir="${classdir}/demo/benchmark"/>
-           <delete dir="${dest}"/>
-   </target>
+            <run-client>
+                <jaco classname="demo.benchmark.Client" inputstring="auto:1000" >
+                    <arg value="${ior.file}" />
+                </jaco>
+            </run-client>
+        </run-demo>
+    </target>
 
 </project>
-
-
-
-
-

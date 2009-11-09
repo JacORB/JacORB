@@ -8,22 +8,7 @@ Objective:
     
 How to Run:
     Compile:
-        ant
+        ant compile
 
-    Run NamingServer:
-        ns -Djacorb.naming.ior_filename=/path/to/NS_Ref
-
-    Run Server:
-        jaco demo.benchmark.Server
-
-    Run Client:
-        jaco demo.bemnchmark.Client
-
-    Inorder to test colocated cerver invocations run naming server, then
-    server as explained above.  Finally run ColocatedServer as:
-        jaco demo.benchmark.ColocatedServer
-
-Note:
-    Make sure that jacorb.properties is in place(in the current dir) and has 
-    the name server reference such as -
-    ORBInitRef.NameService=file:/path/to/NS_Ref
+    Run Demo:
+        ant demo

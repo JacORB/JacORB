@@ -1,31 +1,9 @@
 <?xml version="1.0"?>
 
-<project name="demo" default="all" basedir="../..">
+<project name="JacORB Events demo" default="demo" basedir=".">
 
-  <!-- ==================================================== -->
-  <!--             Demo build file                         -->
-  <!-- ==================================================== -->
+    <import file="../common/common-demo.xml" />
 
-   <target name="init">
-	<property name="name" value="events"/>
-	<property name="dirs.base" value="${basedir}"/>
-	<property name="classdir" value="${dirs.base}/classes"/>
-   </target>
-
-   <target name="all" depends="init">
-	<javac srcdir="${dirs.base}/demo/${name}/"
-               destdir="${classdir}"
-	       includes="**.java"
-	        />
-   </target>
-
-   <target name="clean">
-	   <delete dir="${classdir}/demo/${name}"/>
-   </target>
+    <target name="demo" depends="compile" />
 
 </project>
-
-
-
-
-

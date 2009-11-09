@@ -1,52 +1,48 @@
 <?xml version="1.0"?>
 
-<!DOCTYPE project [ <!ENTITY common SYSTEM "../../etc/common.xml"> ]>
+<project name="JacORB interceptor demo" default="demo" basedir=".">
 
-<project name="any" default="all" basedir="../..">
+    <import file="../common/common-demo.xml" />
 
-  <!-- ==================================================== -->
-  <!--             Demo build file                         -->
-  <!-- ==================================================== -->
+    <target name="demo" depends="compile" >
 
-   &common;
+        <mkdir dir="${tmp.dir}" />
+        <tempfile property="killfile.file" destdir="${tmp.dir}" prefix="kill" />
+        <tempfile property="ior1.file" destdir="${tmp.dir}" prefix="server" suffix=".ior" />
+        <tempfile property="ior2.file" destdir="${tmp.dir}" prefix="server" suffix=".ior" />
 
-   <target name="myinit" depends="init">
-	<property name="name" value="interceptors"/>
-	<property name="dirs.base" value="${basedir}"/>
-	<property name="classdir" value="${dirs.base}/classes"/>
-	<property name="lib" value="${dirs.base}/lib"/>
-        <property name="dest" value="${dirs.base}/demo/${name}/generated"/>
-	<property name="include" value="${dirs.base}/idl/omg"/>
-   </target>
+        <parallel>
+            <sequential>
+                <jaco classname="demo.interceptors.Server1" >
+                    <arg value="${ior1.file}" />
+                    <arg value="${killfile.file}" />
+                </jaco>
+            </sequential>
 
-   <target name="all" depends="myinit,idl">
-	<javac srcdir="${dest}"
-               destdir="${classdir}"
-	       includes="demo/${name}/**/*.java"
-               />
-	<javac srcdir="${dirs.base}"
-               destdir="${classdir}"
-	       includes="demo/${name}/*.java"
-                />
-   </target>
+            <sequential>
+                <jaco classname="demo.interceptors.Server2" >
+                    <arg value="${ior2.file}" />
+                    <arg value="${killfile.file}" />
+                </jaco>
+            </sequential>
 
-   <target name="idl" depends="myinit,load-taskdef">
-        <mkdir dir="${dest}" />
-        <jacidl srcdir="demo/${name}"
-                destdir="${dest}"
-                includepath="${include}"
-	        includes="*.idl"/>
-   </target>
+            <sequential>
+                <waitfor maxwait="30" maxwaitunit="second">
+                    <and>
+                        <available file="${ior1.file}"/>
+                        <available file="${ior2.file}"/>
+                    </and>
+                </waitfor>
 
+                <jaco classname="demo.interceptors.Client" >
+                    <arg value="${ior1.file}" />
+                    <arg value="${ior2.file}" />
+                </jaco>
 
-   <target name="clean" depends="myinit">
-	   <delete dir="${classdir}/demo/${name}"/>
-	   <delete dir="${dest}"/>
-   </target>
+                <touch file="${killfile.file}" />
+            </sequential>
+
+        </parallel>
+    </target>
 
 </project>
-
-
-
-
-

@@ -1,0 +1,23 @@
+jacorb.security.support_ssl=on
+
+# This interceptor is only here so that the demo server can print out the client certificate
+# It is not required for SSL to work
+org.omg.PortableInterceptor.ORBInitializerClass.ForwardInit=org.jacorb.security.ssl.sun_jsse.SecurityServiceInitializer
+
+# IIOP/SSL parameters (numbers are decimal values):
+# EstablishTrustInClient = 40
+# EstablishTrustInTarget = 20
+# mutual authentication = 60
+jacorb.security.ssl.server.supported_options=60
+jacorb.security.ssl.server.required_options=60
+
+jacorb.ssl.socket_factory=org.jacorb.security.ssl.sun_jsse.SSLSocketFactory
+jacorb.ssl.server_socket_factory=org.jacorb.security.ssl.sun_jsse.SSLServerSocketFactory
+
+jacorb.security.keystore=jsse_server_ks
+jacorb.security.keystore_password=jsse_server_ks_pass
+
+# Read trusted certificates from the keystore
+jacorb.security.jsse.trustees_from_ks=on
+
+#jacorb.security.jsse.log.verbosity=4

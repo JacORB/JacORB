@@ -2,8 +2,6 @@ module demo {
 
    module value {
 
-      module idl {
-
          valuetype boxedLong   long;
          valuetype boxedString string;
 
@@ -18,8 +16,6 @@ module demo {
 
             string receive_list   (in Node node_);
          };
-
-      };
 
    };
 

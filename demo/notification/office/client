@@ -1,4 +1,4 @@
-CLASSPATH=../../../classes
+CLASSPATH=./build/classes:../../../classes
 export CLASSPATH
 
 ../../../bin/jaco demo.notification.office.PrintClient
