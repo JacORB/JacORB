@@ -82,7 +82,8 @@ post 2.3.1
           code.
         - changed generated stub code so that rmi repository id is skipped
           for idl defined valuetypes.
-        - additional parentheses around const expression in labels in unions
+        - additional parentheses around const expression in labels in unions.
+        - fixed issue in generated code when extracting sequence from any.
 
      - Interface Repository:
         - Use a persistent POA for the repository servant.

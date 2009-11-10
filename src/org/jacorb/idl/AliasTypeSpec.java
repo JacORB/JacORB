@@ -477,6 +477,10 @@ public class AliasTypeSpec
         }
         else
         {
+            ps.println ("\t\tif ( any.type().kind() == org.omg.CORBA.TCKind.tk_null)");
+            ps.println ("\t\t{");
+            ps.println ("\t\t\tthrow new org.omg.CORBA.BAD_OPERATION (\"Can't extract from Any with null type.\");");
+            ps.println ("\t\t}");
             ps.println("\t\treturn read (any.create_input_stream ());");
         }
 
