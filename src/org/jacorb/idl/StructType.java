@@ -875,7 +875,7 @@ public class StructType
                 {
                     // print the mapped holder class unless it is for
                     // a system exception
-                    if(  ( ! exc ) && ( ! isSystemException( className ) ) )
+                    if( ! isSystemException( className ) )
                     {
                         PrintWriter printWriter = new PrintWriter
                             (new java.io.FileWriter(f));

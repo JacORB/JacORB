@@ -84,6 +84,8 @@ post 2.3.1
           for idl defined valuetypes.
         - additional parentheses around const expression in labels in unions.
         - fixed issue in generated code when extracting sequence from any.
+        - fixed issue where holder classes for user-defined exceptions 
+          weren't generated
 
      - Interface Repository:
         - Use a persistent POA for the repository servant.

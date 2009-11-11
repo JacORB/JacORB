@@ -1,0 +1,27 @@
+module org
+{
+	module jacorb
+   	{
+    	module test
+      	{
+         	module bugs
+         	{
+         		module bugpt480
+				{
+					exception ExceptionOne
+					{
+						string reason;
+					};
+				
+					interface Foo
+					{
+						exception ExceptionTwo
+						{
+							unsigned long reason;
+						};
+					};
+				};
+			};
+		};
+	};
+};
