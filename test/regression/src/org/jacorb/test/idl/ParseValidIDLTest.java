@@ -100,6 +100,21 @@ public class ParseValidIDLTest extends AbstractIDLTestcase
         nodeClazz.getDeclaredField("children");
     }
 
+    public void verify_bugpt480_idl(ClassLoader cl) throws Exception
+    {
+        cl.loadClass("org.jacorb.test.bugs.bugpt480.ExceptionOne");
+
+        cl.loadClass("org.jacorb.test.bugs.bugpt480.ExceptionOneHelper");
+
+        cl.loadClass("org.jacorb.test.bugs.bugpt480.ExceptionOneHolder");
+
+        cl.loadClass("org.jacorb.test.bugs.bugpt480.FooPackage.ExceptionTwo");
+
+        cl.loadClass("org.jacorb.test.bugs.bugpt480.FooPackage.ExceptionTwoHelper");
+
+        cl.loadClass("org.jacorb.test.bugs.bugpt480.FooPackage.ExceptionTwoHolder");
+    }
+
     public static Test suite()
     {
         final String dir = TestUtils.testHome() + "/idl/compiler/succeed";

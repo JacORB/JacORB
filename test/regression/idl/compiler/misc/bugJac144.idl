@@ -1,0 +1,14 @@
+module bugjac144
+{
+    struct MyStruct
+    {
+        string member1;
+        long member2;
+    };
+
+    exception MyException
+    {
+        string member1;
+        long member2;
+    };
+};

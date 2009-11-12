@@ -729,12 +729,18 @@ parser code
     public static void setObjectCachePlugin(String pluginClass)
         throws InstantiationException, IllegalAccessException
     {
-        // custom cache plugin
-        Class cachePluginClass = null;
+        final Class cachePluginClass;
         
         try
         {
-            cachePluginClass = Class.forName( pluginClass );
+            if (Thread.currentThread().getContextClassLoader() == null)
+            {
+                cachePluginClass = Class.forName( pluginClass );
+            }
+            else
+            {
+                cachePluginClass = Thread.currentThread().getContextClassLoader().loadClass(pluginClass);
+            }
         }
         catch( ClassNotFoundException cnfe )
         {
