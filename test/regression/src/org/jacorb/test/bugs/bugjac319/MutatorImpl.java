@@ -64,7 +64,7 @@ public class MutatorImpl extends IORMutator
     public IOR mutateIncoming (IOR object)
     {
         ORB orb = ORB.init(new String[0], null);
-        ParsedIOR ior = new ParsedIOR ((org.jacorb.orb.ORB) orb, BugJac319AbstractTest.IMRIOR);
+        ParsedIOR ior = new ParsedIOR ((org.jacorb.orb.ORB) orb, BugJac319AbstractTestCase.IMRIOR);
 
         totalIncomingObjects++;
 

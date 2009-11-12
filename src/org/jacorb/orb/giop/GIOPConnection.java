@@ -31,6 +31,7 @@ import org.slf4j.Logger;
 import org.jacorb.orb.IBufferManager;
 import org.jacorb.orb.ORB;
 import org.jacorb.orb.SystemExceptionHelper;
+import org.jacorb.orb.etf.StreamConnectionBase;
 import org.jacorb.orb.iiop.IIOPConnection;
 import org.jacorb.util.ObjectUtil;
 import org.omg.CORBA.CompletionStatus;
@@ -1033,7 +1034,11 @@ public abstract class GIOPConnection
 
     public final boolean isSSL()
     {
-        return transport instanceof IIOPConnection && ((IIOPConnection) transport).isSSL();
+        if (transport instanceof StreamConnectionBase)
+        {
+            return ((StreamConnectionBase)transport).isSSL();
+        }
+        return false;
     }
 
     public void close()

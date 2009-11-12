@@ -1,7 +1,5 @@
 package org.jacorb.test.transport;
 
-import junit.framework.Assert;
-
 import org.slf4j.Logger;
 import org.jacorb.transport.iiop.Current;
 import org.jacorb.transport.iiop.CurrentHelper;
@@ -9,10 +7,12 @@ import org.omg.CORBA.ORB;
 import org.omg.CORBA.Object;
 
 
-public class IIOPTester implements AbstractTester {
-    public void test_transport_current(ORB orb, Logger logger) {
-
-        try {
+public class IIOPTester implements AbstractTester
+{
+    public void test_transport_current(ORB orb, Logger logger)
+    {
+        try
+        {
             // Get the Current object.
             Object tcobject = orb.resolve_initial_references ("JacOrbIIOPTransportCurrent");
 
@@ -24,11 +24,9 @@ public class IIOPTester implements AbstractTester {
             logger.info("TC: ["+tc.id()+"] sent="+tc.messages_sent ()+"("+tc.bytes_sent ()+")"
                         +", received="+tc.messages_received ()+"("+tc.bytes_received ()+")");
         }
-        catch (Exception ex) {
-            ex.printStackTrace ();
-            Assert.fail ("Unexpected exception" + ex);
+        catch(Exception e)
+        {
+            throw new RuntimeException(e);
         }
     }
-
-
 }

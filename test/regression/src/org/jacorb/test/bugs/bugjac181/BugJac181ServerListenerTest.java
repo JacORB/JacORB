@@ -19,11 +19,14 @@ public class BugJac181ServerListenerTest extends TestCase
     {
         TCPListener.reset();
 
+        Properties clientProps = new Properties();
+        clientProps.put("jacorb.iiop.enable_loopback", "off");
+
         Properties serverProps = new Properties();
-
         serverProps.put(SocketFactoryManager.TCP_LISTENER, TCPListener.class.getName());
+        serverProps.put("jacorb.iiop.enable_loopback", "off");
 
-        clientORB = ORB.init(new String[0], null);
+        clientORB = ORB.init(new String[0], clientProps);
         serverORB = ORB.init(new String[0], serverProps);
 
         POA rootPOA = POAHelper.narrow(serverORB.resolve_initial_references("RootPOA"));

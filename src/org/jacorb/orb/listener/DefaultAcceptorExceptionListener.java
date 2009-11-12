@@ -80,7 +80,7 @@ public class DefaultAcceptorExceptionListener
     {
         if (logger.isDebugEnabled())
         {
-            logger.debug("Caught acceptor event: " + e);
+            logger.debug("Caught acceptor event", e.getException());
         }
 
         if ((e.getException() instanceof Error) ||

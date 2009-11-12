@@ -116,7 +116,9 @@ public class ClientIIOPConnection
                 final IIOPLoopbackInputStream lis = new IIOPLoopbackInputStream() ;
                 final IIOPLoopbackOutputStream los = new IIOPLoopbackOutputStream() ;
 
-                loopback.initLoopback(lis, los) ;
+                String connectionDetails = profile + " using loopback connection";
+                connection_info = connectionDetails;
+                loopback.initLoopback(connectionDetails, lis, los) ;
 
                 in_stream = lis ;
                 out_stream = los ;
@@ -230,10 +232,20 @@ public class ClientIIOPConnection
 
         while (addressIterator.hasNext())
         {
-            final IIOPAddress address = (IIOPAddress)addressIterator.next() ;
+            final IIOPAddress address = (IIOPAddress) ((IIOPAddress)addressIterator.next()).copy();
+
+            if (iiopProfile.getSSL() != null)
+            {
+                address.setPort(iiopProfile.getSSLPort());
+            }
+
             final IIOPLoopback loopback = registry.getLoopback(address) ;
             if (loopback != null)
             {
+                if (logger.isDebugEnabled())
+                {
+                    logger.debug("connect to " + address + " using IIOPLoopback");
+                }
                 return loopback ;
             }
         }

@@ -72,6 +72,8 @@ post 2.3.1
         - fixed issue where exceptions during AMI didn't work
           if the IDL was specified with pragma prefix.
         - Fix ExceptionHolderImpl Configuration
+        - fix for the IIOPLoopback feature. It didn't work when connecting to
+          the actual IP of the host instead of 127.0.0.1.
 
     - IDL Compiler:
         - fixed issue where the IDL compiler generated imports for the

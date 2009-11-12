@@ -22,6 +22,9 @@ public class IIOPServerTest extends TestCase
     protected void setUp() throws Exception
     {
         ServerInterceptor.reset ();
+
+        Properties clientProps = new Properties();
+
         Properties serverProps = new Properties();
 
         // We need the TC functionality
@@ -44,7 +47,7 @@ public class IIOPServerTest extends TestCase
         org.omg.CORBA.Object obj = rootPOA.servant_to_reference(si);
         String objString = serverORB.object_to_string(obj);
 
-        clientORB = ORB.init(new String[0], null);
+        clientORB = ORB.init(new String[0], clientProps);
         server_ = CurrentServerHelper.narrow(clientORB.string_to_object(objString));
 
         new Thread()

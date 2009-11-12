@@ -50,6 +50,14 @@ public class IIOPAddress
     private boolean doEagerResolve;
 
     /**
+     * Creates a new IIOPAddress that will be initialized later by a string
+     */
+    public IIOPAddress()
+    {
+        super();
+    }
+
+    /**
      * Creates a new IIOPAddress for <code>host</code> and <code>port</code>.
      * @param hoststr either a DNS name, or a textual representation of a
      *     numeric IP address (dotted decimal)
@@ -70,14 +78,6 @@ public class IIOPAddress
         {
             init_host();
         }
-    }
-
-    /**
-     * Creates a new IIOPAddress that will be initialized later by a string
-     */
-    public IIOPAddress()
-    {
-        super();
     }
 
     private void init_port(int port)
@@ -238,8 +238,7 @@ public class IIOPAddress
             return source_name;
         }
 
-        return dnsEnabled ? host.getCanonicalHostName() :
-            host.getHostAddress();
+        return dnsEnabled ? host.getCanonicalHostName() : host.getHostAddress();
     }
 
     /**
@@ -293,30 +292,14 @@ public class IIOPAddress
     {
         if (other instanceof IIOPAddress)
         {
-            IIOPAddress x = (IIOPAddress)other;
-            if (this.port == x.port)
-            {
-                return this.source_name.equals(x.source_name);
-            }
-            return false;
+            return toString().equals(other.toString());
         }
         return false;
     }
 
     public int hashCode()
     {
-        if (source_name != null)
-        {
-            return source_name.hashCode() + port;
-        }
-        else if (host != null)
-        {
-            return host.hashCode() + port;
-        }
-        else
-        {
-            return port;
-        }
+       return toString().hashCode();
     }
 
     public String toString()

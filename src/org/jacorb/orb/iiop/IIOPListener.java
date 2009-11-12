@@ -171,9 +171,12 @@ public class IIOPListener
             sslAcceptor.init();
         }
 
-        loopbackAcceptor = new LoopbackAcceptor() ;
-
         profile = createAddressProfile();
+
+        if (configuration.getAttributeAsBoolean("jacorb.iiop.enable_loopback", true))
+        {
+            loopbackAcceptor = new LoopbackAcceptor();
+        }
     }
 
 
@@ -197,7 +200,10 @@ public class IIOPListener
      */
     public void destroy()
     {
-        loopbackAcceptor.terminate() ;
+        if (loopbackAcceptor != null)
+        {
+            loopbackAcceptor.terminate();
+        }
 
         if (sslAcceptor != null)
         {
@@ -842,37 +848,63 @@ public class IIOPListener
 
     private class LoopbackAcceptor implements IIOPLoopback
     {
+        private final IIOPAddress listenerAddress;
+        private final IIOPAddress loopbackAddress;
+        private final boolean isSSL;
+
+        public LoopbackAcceptor()
+        {
+            final IIOPProfile iiopProfile = (IIOPProfile)IIOPListener.this.profile;
+            listenerAddress = (IIOPAddress)iiopProfile.getAddress().copy();
+
+            loopbackAddress = (IIOPAddress) listenerAddress.copy();
+            loopbackAddress.setHostname("127.0.0.1");
+            isSSL = iiopProfile.getSSL() != null;
+
+            if (isSSL)
+            {
+                listenerAddress.setPort(iiopProfile.getSSLPort());
+                loopbackAddress.setPort(iiopProfile.getSSLPort());
+            }
+       }
+
         public void start()
         {
-            IIOPLoopbackRegistry.getRegistry().register(getAddress(), this);
+            IIOPLoopbackRegistry.getRegistry().register(listenerAddress, this);
+            IIOPLoopbackRegistry.getRegistry().register(loopbackAddress, this);
         }
 
         public void terminate()
         {
-            IIOPLoopbackRegistry.getRegistry().unregister(getAddress());
+            IIOPLoopbackRegistry.getRegistry().unregister(listenerAddress);
+            IIOPLoopbackRegistry.getRegistry().unregister(loopbackAddress);
         }
 
-        public void initLoopback(final IIOPLoopbackInputStream lis,
-                                 final IIOPLoopbackOutputStream los)
+        public void initLoopback(final String connectionInfo,
+                final IIOPLoopbackInputStream lis,
+                final IIOPLoopbackOutputStream los)
         {
-            final IIOPLoopbackConnection connection =
-                new IIOPLoopbackConnection(lis, los) ;
+            final IIOPLoopbackConnection connection = new IIOPLoopbackConnection(lis, los)
+            {
+                {
+                    connection_info = connectionInfo;
+                }
+                
+                public boolean isSSL()
+                {
+                    return isSSL;
+                }
+            };
+
             try
             {
                 connection.configure(configuration);
             }
-            catch( ConfigurationException ce )
+            catch(ConfigurationException e)
             {
-                throw new org.omg.CORBA.INTERNAL("ConfigurationException: " + ce.toString());
+                throw new RuntimeException("should never happen", e);
             }
             deliverConnection(connection);
-        }
-
-        private IIOPAddress getAddress()
-        {
-            final IIOPProfile profile =
-                (IIOPProfile)IIOPListener.this.profile;
-            return (IIOPAddress)profile.getAddress();
         }
     }
 }

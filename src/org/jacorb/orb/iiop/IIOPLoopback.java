@@ -26,6 +26,7 @@ package org.jacorb.orb.iiop;
  */
 public interface IIOPLoopback
 {
-    public void initLoopback(final IIOPLoopbackInputStream pis, 
-                             final IIOPLoopbackOutputStream pos) ;
+    void initLoopback(final String connectionInfo,
+                      final IIOPLoopbackInputStream pis,
+                      final IIOPLoopbackOutputStream pos) ;
 }

@@ -5,9 +5,9 @@ import junit.framework.Test;
 import org.jacorb.test.common.ClientServerSetup;
 
 /**
- * @see org.jacorb.test.bugs.bugjac319.BugJac319AbstractTest
+ * @see org.jacorb.test.bugs.bugjac319.BugJac319AbstractTestCase
  */
-public class BugJac319MutatorTest extends BugJac319AbstractTest
+public class BugJac319MutatorTest extends BugJac319AbstractTestCase
 {
     public BugJac319MutatorTest(String name, ClientServerSetup setup)
     {
@@ -33,6 +33,6 @@ public class BugJac319MutatorTest extends BugJac319AbstractTest
 
     public static Test suite()
     {
-        return BugJac319AbstractTest.suite(true, BugJac319MutatorTest.class);
+        return BugJac319AbstractTestCase.suite(true, BugJac319MutatorTest.class);
     }
 }

@@ -31,14 +31,17 @@ class IIOPLoopbackOutputStream extends OutputStream
 {
     private IIOPLoopbackInputStream lis ;
     
-    IIOPLoopbackOutputStream()
+    public IIOPLoopbackOutputStream()
     {
+        super();
     }
     
-    IIOPLoopbackOutputStream(final IIOPLoopbackInputStream lis)
+    public IIOPLoopbackOutputStream(final IIOPLoopbackInputStream lis)
         throws IOException
     {
-        lis.connect(this) ;
+        this();
+
+        lis.connect(this);
     }
     
     public synchronized void write(final byte[] b, final int off, final int len)

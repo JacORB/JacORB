@@ -128,6 +128,11 @@ public class BasicAdapter
         }
         else
         {
+            if (tags.contains("off"))
+            {
+                tags.remove("off");
+            }
+
             for (Iterator i = tags.iterator(); i.hasNext();)
             {
                 String s = ((String)i.next());

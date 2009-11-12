@@ -38,13 +38,15 @@ class IIOPLoopbackInputStream extends InputStream
     private int writerIndex ;
     private int readerIndex ;
     
-    IIOPLoopbackInputStream()
+    public IIOPLoopbackInputStream()
     {
+        super();
     }
     
-    IIOPLoopbackInputStream(final IIOPLoopbackOutputStream los)
+    public IIOPLoopbackInputStream(final IIOPLoopbackOutputStream los)
         throws IOException
     {
+        this();
         connect(los) ;
     }
     

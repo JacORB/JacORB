@@ -245,4 +245,6 @@ public abstract class StreamConnectionBase
             throw handleCommFailure(ex);
         }
     }
+
+    public abstract boolean isSSL();
 }
