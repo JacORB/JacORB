@@ -74,6 +74,9 @@ post 2.3.1
         - Fix ExceptionHolderImpl Configuration
         - fix for the IIOPLoopback feature. It didn't work when connecting to
           the actual IP of the host instead of 127.0.0.1.
+        - added property to enable the Socket Option SO_REUSEADDR
+          for server sockets (jacorb.connection.server.reuse_address).
+        
 
     - IDL Compiler:
         - fixed issue where the IDL compiler generated imports for the

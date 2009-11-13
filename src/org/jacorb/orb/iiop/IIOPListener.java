@@ -389,6 +389,7 @@ public class IIOPListener
         private final boolean keepAlive;
         private final IIOPAddress addressToUse;
         protected final int soTimeout;
+        protected final boolean reuseAddress;
         protected ServerSocket serverSocket;
         protected String info = "";
 
@@ -415,6 +416,7 @@ public class IIOPListener
 
             keepAlive = configuration.getAttributeAsBoolean("jacorb.connection.server.keepalive", false);
             soTimeout = configuration.getAttributeAsInteger("jacorb.listener.server_socket_timeout", 0);
+            reuseAddress = configuration.getAttributeAsBoolean("jacorb.connection.server.reuse_address", false);
 
             try
             {
@@ -648,13 +650,17 @@ public class IIOPListener
         {
             try
             {
-                final ServerSocket result = getServerSocketFactory().createServerSocket(port,
-                        20,
-                        host);
+                final ServerSocket result = 
+                    getServerSocketFactory().createServerSocket(port, 20, host);
 
                 if (soTimeout > 0)
                 {
                     result.setSoTimeout(soTimeout);
+                }
+
+                if (reuseAddress)
+                {
+                    result.setReuseAddress(true);
                 }
 
                 return result;
