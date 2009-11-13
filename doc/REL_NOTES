@@ -88,6 +88,9 @@ post 2.3.1
         - fixed issue in generated code when extracting sequence from any.
         - fixed issue where holder classes for user-defined exceptions 
           weren't generated
+        - fixed IDL parser issue where repository ID using pragma prefix with more
+          than 1 space before ID caused an parse error.
+         
 
      - Interface Repository:
         - Use a persistent POA for the repository servant.

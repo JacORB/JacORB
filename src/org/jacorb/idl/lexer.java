@@ -812,7 +812,7 @@ public class lexer
                 String name = get_string();
                 if( name.equals( "prefix" ) )
                 {
-                    advance();
+                    swallow_whitespace();
                     currentPragmaPrefix = get_string();
                 }
                 else if( name.equals( "version" ) )
