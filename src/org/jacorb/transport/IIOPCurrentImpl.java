@@ -24,8 +24,10 @@ package org.jacorb.transport;
 import java.net.Socket;
 import org.jacorb.orb.iiop.IIOPAddress;
 import org.jacorb.orb.iiop.IIOPConnection;
+import org.jacorb.orb.iiop.IIOPLoopbackConnection;
 import org.jacorb.orb.iiop.IIOPProfile;
 import org.jacorb.transport.iiop.Current;
+import org.omg.ETF.Connection;
 
 
 /**
@@ -36,57 +38,100 @@ import org.jacorb.transport.iiop.Current;
  * @author Iliyan Jeliazkov
  */
 
-public class IIOPCurrentImpl extends DefaultCurrentImpl implements Current {
+public class IIOPCurrentImpl extends DefaultCurrentImpl implements Current 
+{
+    public int remote_port() throws NoContext 
+    {
+        Connection transport = getTransport();
 
-    /**
-     * ctor
-     * 
-     * @param c -
-     *            Configuration
-     */
-    public IIOPCurrentImpl() {
+        if (transport instanceof IIOPConnection)
+        {
+            return ((IIOPAddress) ((IIOPProfile) getLatestTransportCurentEvent ().profile ()).getAddress ()).getPort ();
+        }
+        else if (transport instanceof IIOPLoopbackConnection)
+        {
+            return 0;
+        }
+        else
+        {
+            return -1;
+        }
     }
 
+    public String remote_host() throws NoContext 
+    {
+        Connection transport = getTransport();
 
-    public int remote_port() throws NoContext {
-
-        return ((IIOPAddress) ((IIOPProfile) getLatestTransportCurentEvent ().profile ()).getAddress ()).getPort ();
+        if (transport instanceof IIOPConnection)
+        {
+            return ((IIOPAddress) ((IIOPProfile) getLatestTransportCurentEvent ().profile ()).getAddress ()).getHostname ();
+        }
+        else if (transport instanceof IIOPLoopbackConnection)
+        {
+            return "127.0.0.1 (loopback)";
+        }
+        else
+        {
+            return "unknown";
+        }
     }
 
+    public int local_port() throws NoContext 
+    {
+        Connection transport = getTransport();
 
-    public String remote_host() throws NoContext {
-
-        return ((IIOPAddress) ((IIOPProfile) getLatestTransportCurentEvent ().profile ()).getAddress ()).getHostname ();
+        if (transport instanceof IIOPConnection)
+        {
+            Socket so = ((IIOPConnection)transport).getSocket ();
+            if (so == null) return 0;
+            return so.getLocalPort();
+        }
+        else if (transport instanceof IIOPLoopbackConnection)
+        {
+            return 0;
+        }
+        else
+        {
+            return -1;
+        }
     }
-
-
-    public int local_port() throws NoContext {
-
-        Socket so = ((IIOPConnection) getLatestTransportCurentEvent ().transport ()).getSocket ();
-        if (so == null) return 0;
-        return so.getLocalPort();
-    }
-
 
     public String local_host() throws NoContext {
 
-        Socket so = ((IIOPConnection) getLatestTransportCurentEvent ().transport ()).getSocket ();
-        if (so == null) return null;
-        return so.getLocalAddress ().getCanonicalHostName ();
+        Connection transport = getTransport();
+
+        if (transport instanceof IIOPConnection)
+        {
+            Socket so = ((IIOPConnection)transport).getSocket ();
+            if (so == null) return null;
+            return so.getLocalAddress ().getCanonicalHostName ();
+        }
+        else if (transport instanceof IIOPLoopbackConnection)
+        {
+            return "127.0.0.1 (loopback)";
+        }
+        else
+        {
+            return "unknown";
+        }
     }
 
+    private Connection getTransport() throws NoContext
+    {
+        return getLatestTransportCurentEvent().transport();
+    }
 
-    public String toString() {
-
-        try {
+    public String toString()
+    {
+        try
+        {
             return getClass ().getName () + "[ " + local_host () + ':'
                             + local_port () + '-' + remote_host () + ':'
                             + remote_port () + ']';
         }
-        catch (NoContext e) {
+        catch (NoContext e)
+        {
             return getClass ().getName () + "[ NoContext ]";
         }
     }
-
-
 }
