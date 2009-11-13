@@ -1,6 +1,5 @@
 package org.jacorb.test.poa;
 
-import org.jacorb.test.common.TestServer;
 import org.omg.CORBA.ORB;
 import org.omg.CORBA.Policy;
 import org.omg.PortableServer.ImplicitActivationPolicyValue;
@@ -18,8 +17,6 @@ public class BiDirDelegateTestServerRunner
      */
     public static void main (String[] args)
     {
-        TestServer.startReaperThread();
-
         try
         {
             //init ORB

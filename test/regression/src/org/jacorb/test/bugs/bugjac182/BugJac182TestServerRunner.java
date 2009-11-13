@@ -21,8 +21,6 @@ public class BugJac182TestServerRunner
      */
     public static void main (String[] args) throws Exception
     {
-        TestServer.startReaperThread();
-
         //init ORB
         ORB serverOrb = ORB.init( args, null );
 

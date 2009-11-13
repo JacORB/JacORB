@@ -57,6 +57,8 @@ public class CommonSetup
             + File.separatorChar
             + "ssl"
             + File.separatorChar
+            + "resources"
+            + File.separatorChar
             + propertyFilename
         );
 

@@ -28,7 +28,10 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 
 import junit.framework.Assert;
@@ -83,17 +86,36 @@ public class DirectLauncher extends AbstractLauncher
                 buff.append(' ');
             }
 
-            final String[] env = new String[] {};
-            TestUtils.log("[DirectLaucnher] environment " + Arrays.asList(env));
-            TestUtils.log("[DirectLauncher] launch: " + buff);
+            Map env = new HashMap();
+            String pidDir = getPropertyWithDefault(properties, "jacorb.test.piddir", System.getProperty("java.io.tmpdir"));
 
-            Process proc = rt.exec(cmd, null);
+            env.put("JACUNIT_PID_DIR", pidDir);
+
+            TestUtils.log("[DirectLauncher] launch: " + buff);
+            TestUtils.log("[DirectLauncher] environment " + env);
+
+            Process proc = rt.exec(cmd, formatEnv(env));
             return proc;
         }
         catch (IOException ex)
         {
             throw new RuntimeException(ex);
         }
+    }
+
+    private String[] formatEnv(Map env)
+    {
+        String[] result = new String[env.size()];
+
+        int idx = 0;
+        Iterator i = env.keySet().iterator();
+        while(i.hasNext())
+        {
+            Object key = i.next();
+            result[idx++] = key + "=" + env.get(key);
+        }
+
+        return result;
     }
 
     private List buildCMDLine(File jacorbHome,
@@ -108,6 +130,8 @@ public class DirectLauncher extends AbstractLauncher
         javaCommand = javaHome + jvm;
 
         final List cmdList = new ArrayList();
+
+        cmdList.add(new File(jacorbHome, "bin/launch.sh").toString());
         cmdList.add (javaCommand);
 
         if (assertsEnabled)

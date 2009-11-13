@@ -12,8 +12,6 @@ public class IRServerRunner
 {
     public static void main(String[] args) throws Exception
     {
-        TestServer.startReaperThread();
-
         final String iorFileName = getIORFileName();
         final String classpath = getClasspath();
 

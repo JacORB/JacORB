@@ -120,8 +120,6 @@ public class TestServer
 
     public static void main (String[] args)
     {
-        Thread reaperThread = startReaperThread();
-
         Logger logger = null;
         try
         {
@@ -216,41 +214,6 @@ public class TestServer
                 e.printStackTrace();
             }
         }
-
-        reaperThread.interrupt();
-   }
-
-    /**
-     * start a reaper thread that ensures that the TestServer is shutdown eventually.
-     * this should happen even if the client process that started the TestServer fails
-     * to do that.
-     */
-    public static Thread startReaperThread()
-    {
-        // wait twice the global timeout. should be enough
-        // as usually the test that started us is killed after
-        // the global timeout has passed.
-        // could produce odd results in eclipse as the testrunner doesn't support timeouts there.
-        final long timeout = Long.getLong("jacorb.test.timeout.global", 240000).longValue() * 2;
-
-        Thread reaperThread = new Thread()
-        {
-            public void run()
-            {
-                try
-                {
-                    Thread.sleep(timeout);
-                    System.err.println("WARNING: TestServer is killing itself after waiting " + timeout + "!");
-                    System.exit(1);
-                }
-                catch (InterruptedException e)
-                {
-                }
-            }
-        };
-        reaperThread.setDaemon(true);
-        reaperThread.start();
-        return reaperThread;
     }
 
     private static void log(String msg)

@@ -183,6 +183,7 @@
 
         <property name="jacorb.test.rmi.jvmarg" value="-Djacorb.test.ignoredKey=ignoredValue" />
 
+        <property name="jacorb.test.piddir" value="${jacorb.test.outdir}/pid" />
 
         <mkdir dir="${jacorb.test.outdir}" />
     </target>
@@ -251,7 +252,9 @@
 
         <property name="_bootclasspath" refid="_test.bootclasspath" />
 
-        <jacorb-junit
+        <mkdir dir="${jacorb.test.piddir}" />
+
+    	<jacorb-junit
                 fork="true"
                 includeantruntime="true"
                 timeout="${jacorb.test.timeout.global}"
@@ -296,7 +299,14 @@
                 </fileset>
             </batchtest>
         </jacorb-junit>
-    </target>
+
+        <exec executable="/bin/bash">
+            <arg value="-c" />
+            <arg value="kill -9 $(ls ${jacorb.test.piddir}) 2>/dev/null" />
+        </exec>
+
+        <delete dir="${jacorb.test.piddir}" includes="**/*" />
+   </target>
 
     <target name="jacunit-clean" depends="jacunit-checkargs" >
         <delete>

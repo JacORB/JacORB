@@ -95,11 +95,6 @@ public abstract class AbstractLauncher implements Launcher
         return ((String[])list.toArray (new String[list.size()]));
     }
 
-    protected String getProperty(Properties props, String name)
-    {
-        return props.getProperty(name, System.getProperty(name));
-    }
-
     protected String getPropertyWithDefault(Properties props, String name, String defaultValue)
     {
         return props.getProperty(name, System.getProperty(name, defaultValue));
