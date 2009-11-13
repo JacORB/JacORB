@@ -192,7 +192,10 @@ public class IIOPListener
             sslAcceptor.start();
         }
 
-        loopbackAcceptor.start() ;
+        if (loopbackAcceptor != null)
+        {
+            loopbackAcceptor.start();
+        }
     }
 
     /**
