@@ -76,7 +76,6 @@ post 2.3.1
           the actual IP of the host instead of 127.0.0.1.
         - added property to enable the Socket Option SO_REUSEADDR
           for server sockets (jacorb.connection.server.reuse_address).
-        
 
     - IDL Compiler:
         - fixed issue where the IDL compiler generated imports for the
@@ -91,9 +90,10 @@ post 2.3.1
         - fixed issue in generated code when extracting sequence from any.
         - fixed issue where holder classes for user-defined exceptions 
           weren't generated
-        - fixed IDL parser issue where repository ID using pragma prefix with more
-          than 1 space before ID caused an parse error.
-         
+        - fixed IDL parser issue where repository ID using pragma prefix 
+          with more than 1 space before ID caused an parse error.
+        - fixes for IDL compiler struct/typedef/array compilation outside 
+          of modules.
 
      - Interface Repository:
         - Use a persistent POA for the repository servant.

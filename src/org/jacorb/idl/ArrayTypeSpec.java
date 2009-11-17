@@ -182,10 +182,14 @@ public class ArrayTypeSpec
         try
         {
             if (!typedefd)
+            {
                 NameTable.define(full_name(), "type");
 
-            if (!NameTable.isDefined(typeName(), "type"))
-                NameTable.define(typeName(), "type");
+                // change for Prismtech JAC#572 here
+                // 
+                if (!NameTable.isDefined(typeName(), "type"))
+                    NameTable.define(typeName(), "type");
+            }
         }
         catch (NameAlreadyDefined n)
         {
