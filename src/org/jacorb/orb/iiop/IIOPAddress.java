@@ -93,9 +93,9 @@ public class IIOPAddress
         super.configure(configuration);
         logger = this.configuration.getLogger("jacorb.iiop.address");
         dnsEnabled =
-            configuration.getAttribute("jacorb.dns.enable","off").equals("on");
+            configuration.getAttributeAsBoolean("jacorb.dns.enable", false);
         hideZoneID =
-            configuration.getAttribute("jacorb.ipv6.hide_zoneid","on").equals("on");
+            configuration.getAttributeAsBoolean("jacorb.ipv6.hide_zoneid", true);
         doEagerResolve = configuration.getAttributeAsBoolean("jacorb.dns.eager_resolve", true);
 
         if (doEagerResolve)
