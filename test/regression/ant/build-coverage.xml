@@ -1,0 +1,52 @@
+<project name="build-coverage">
+    <dirname property="dir.coverage.base" file="${ant.file.build-coverage}"/>
+
+    <property name="dir.coverage.work" value="${basedir}/test/regression/coverage" />
+    <property name="dir.classes-instrumented" value="${dir.coverage.work}/classes-instrumented" />
+    <property name="dir.coverage.tmp" value="${dir.coverage.work}/tmp" />
+
+    <property name="tool.coverage" value="cobertura" />
+
+    <import file="${dir.coverage.base}/coverage-${tool.coverage}.xml" />
+
+    <macrodef name="coverage-path">
+        <attribute name="id" />
+
+        <sequential>
+            <path id="@{id}">
+                <pathelement location="${dir.classes-instrumented}" />
+                <path refid="classpath.coverage" />
+            </path>
+        </sequential>
+    </macrodef>
+
+    <macrodef name="coverage-report-indexfile">
+        <attribute name="destdir" />
+
+        <sequential>
+            <echoxml file="@{destdir}/index.html" >
+                <html>
+                    <a href="coverage-combined/index.html">coverage-combined</a>
+                    <br/>
+                    <a href="coverage-client/index.html">coverage-client</a>
+                    <br/>
+                    <a href="coverage-server/index.html">coverage-server</a>
+                </html>
+            </echoxml>
+        </sequential>
+    </macrodef>
+
+    <macrodef name="coverage-report-dirs">
+        <attribute name="destdir" />
+
+        <sequential>
+            <property name="dir.combined" value="@{destdir}/coverage-combined" />
+            <property name="dir.client" value="@{destdir}/coverage-client/" />
+            <property name="dir.server" value="@{destdir}/coverage-server" />
+
+            <mkdir dir="${dir.combined}" />
+            <mkdir dir="${dir.client}" />
+            <mkdir dir="${dir.server}" />
+        </sequential>
+    </macrodef>
+</project>

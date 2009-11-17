@@ -5,10 +5,11 @@
 <project name="regression-test" default="run-all" basedir="../../">
 
     <property name="jacorb.home" value="${basedir}" />
-    <property file="${basedir}/test/regression/build.properties" />
+    <property file="${jacorb.home}/test/regression/build.properties" />
 
-    <property name="dir.classes-instrumented" value="${basedir}/classes-instrumented" />
-    <property name="dir.test" value="${basedir}/test/regression" />
+    <property name="dir.test" value="${jacorb.home}/test/regression" />
+
+    <import file="${dir.test}/ant/build-coverage.xml" />
 
     <property name="jacorb.test.outdir" value="${dir.test}/output" />
 
@@ -30,36 +31,24 @@
     </target>
 
     <target name="test-init" depends="test-base-init,init,load-taskdef">
-        <path id="cp.test">
+        <path id="cp.compile-test">
             <pathelement location="${dir.test}/classes" />
 
             <fileset dir="${dir.test}/lib">
                 <include name="*.jar" />
-                <exclude name="emma*.jar"/>
             </fileset>
+
+        	<path refid="path.base" />
         </path>
 
-        <path id="cp.compile-test">
-            <path refid="cp.test" />
-            <path refid="path.base" />
+        <path id="cp.test">
+            <path refid="cp.compile-test" />
+
+        	<path path="${java.class.path}" />
         </path>
 
         <available classname="com.sun.corba.se.internal.iiop.ShutdownUtilDelegate"
                property="isAvailable.ShutdownUtilDelegate" />
-
-        <!-- include emma tasks for code coverage -->
-
-        <path id="cp.emma">
-            <pathelement location="${dir.test}/lib/emma.jar"/>
-        </path>
-
-        <path id="cp.emma.ant">
-            <path refid="cp.emma" />
-            <pathelement location="${dir.test}/lib/emma_ant.jar"/>
-        </path>
-
-        <taskdef resource="emma_ant.properties"
-                 classpathref="cp.emma.ant"/>
 
         <macrodef name="jacorb-rmic">
             <attribute name="classname" />
@@ -103,11 +92,13 @@
     <target name="compile-src" >
         <jacorb-javac javac-includes="**"
             javac-excludes="generated/**,
-                            **/RMITestServant.java,
-                            org/jacorb/test/notification/**,
-                                org/jacorb/test/jmx/**"
+                           **/RMITestServant.java,
+        	               org/jacorb/test/notification/**,
+        	               org/jacorb/test/jmx/**"
             javac-classpathref="cp.compile-test" />
     </target>
+
+    <path path="${java.class.path}" />
 
     <target name="compile-rmic" >
         <jacorb-rmic
@@ -142,10 +133,6 @@
 
         <condition property="jacorb.test.imr" value="true">
             <isset property="TEST_IMR"/>
-        </condition>
-
-        <condition property="jacorb.test.coverage.process" value="true">
-            <isset property="jacorb.test.coverage" />
         </condition>
 
         <!-- By default, we do run naming and notification tests -->
@@ -188,19 +175,21 @@
         <mkdir dir="${jacorb.test.outdir}" />
     </target>
 
-    <target name="jacunit-coverage-enabled" if="jacorb.test.coverage.process" >
-        <property name="emma.coverage.out.file" value="${jacorb.test.outdir}/coverage-client.ec" />
-        <property name="emma.verbosity.level" value="quiet" />
-        <property name="jacorb.test.coverage" value="true" />
+    <target name="jacunit-coverage-enabled" if="jacorb.test.coverage" >
+        <coverage-propset id="ps.coverage" />
+
+        <coverage-path id="cp.coverage" />
 
         <path id="_test.bootclasspath">
-            <pathelement location="${dir.jacorb.client}/classes-instrumented" />
-            <path refid="cp.emma" />
+            <path refid="cp.coverage" />
             <path refid="cp.jacorb.client" />
         </path>
     </target>
 
-    <target name="jacunit-coverage-disabled" unless="jacorb.test.coverage.process" >
+    <target name="jacunit-coverage-disabled" unless="jacorb.test.coverage" >
+
+        <propertyset id="ps.coverage" />
+
         <path id="_test.bootclasspath">
             <path refid="cp.jacorb.client" />
         </path>
@@ -239,14 +228,16 @@
                 classpathref="cp.test" />
 
         <propertyset id="jacorb.test.properties" >
+            <propertyset refid="ps.coverage" />
             <propertyref prefix="jacorb.test" />
-            <propertyref prefix="emma" />
             <propertyref prefix="jacorb.home" />
         </propertyset>
 
         <jacunit-banner outputproperty="jacorb.test.testbanner" >
             <syspropertyset refid="jacorb.test.properties" />
         </jacunit-banner>
+
+        <path path="${java.class.path}" />
 
         <echo message="${jacorb.test.testbanner}" level="verbose" />
 
@@ -314,7 +305,6 @@
                 <include name="header.txt" />
                 <include name="TESTS-TestSuites.xml" />
                 <include name="*.tmp" />
-                <include name="**/*.ec" unless="jacorb.test.coverage.skip"/>
             </fileset>
         </delete>
     </target>
@@ -396,75 +386,9 @@ Tests run: ${result.testCount}, Failures: ${result.testFailures}, Errors: ${resu
         </concat>
     </target>
 
-    <target name="jacunit-coverage-report" depends="jacunit-checkargs" if="jacorb.test.coverage.process" unless="jacorb.test.coverage.skip" >
-
+    <target name="jacunit-coverage-report" if="jacorb.test.coverage" >
         <property name="jacorb.test.coverage.dir" value="${jacorb.test.outdir}/coverage" />
-
-        <path id="path.src" >
-            <pathelement location="${basedir}/src" />
-            <pathelement location="${basedir}/src/generated" />
-        </path>
-
-        <property name="dir.combined" value="${jacorb.test.coverage.dir}/coverage-combined" />
-        <property name="dir.client" value="${jacorb.test.coverage.dir}/coverage-client/" />
-        <property name="dir.server" value="${jacorb.test.coverage.dir}/coverage-server" />
-
-        <mkdir dir="${dir.combined}" />
-        <mkdir dir="${dir.client}" />
-        <mkdir dir="${dir.server}" />
-
-        <emma>
-            <report sourcepathref="path.src"
-                    columns="name,line,method,class"
-                    sort="+name">
-                <fileset dir="${basedir}">
-                    <include name="coverage.em"/>
-                </fileset>
-
-                <fileset dir="${jacorb.test.outdir}" >
-                    <include name="coverage-client.ec"/>
-                    <include name="coverage-server.ec"/>
-                </fileset>
-                <html outfile="${dir.combined}/index.html"/>
-            </report>
-
-            <report sourcepathref="path.src"
-                    columns="name,line,method,class"
-                    sort="+name">
-                <fileset dir="${basedir}">
-                    <include name="coverage.em"/>
-                </fileset>
-
-                <fileset dir="${jacorb.test.outdir}" >
-                    <include name="coverage-client.ec"/>
-                </fileset>
-
-                <html outfile="${dir.client}/index.html"/>
-            </report>
-
-            <report sourcepathref="path.src"
-                    columns="name,line,method,class"
-                    sort="+name">
-                <fileset dir="${basedir}">
-                    <include name="coverage.em"/>
-                </fileset>
-
-                <fileset dir="${jacorb.test.outdir}" >
-                    <include name="coverage-server.ec"/>
-                </fileset>
-
-                <html outfile="${dir.server}/index.html"/>
-            </report>
-        </emma>
-        <echo file="${jacorb.test.coverage.dir}/index.html" >
-            &lt;html&gt;
-            &lt;a href="coverage-combined/index.html" &gt; coverage-combined &lt;/a&gt;
-            &lt;br/&gt;
-            &lt;a href="coverage-client/index.html" &gt; coverage-client &lt;/a&gt;
-            &lt;br/&gt;
-            &lt;a href="coverage-server/index.html" &gt; coverage-server &lt;/a&gt;
-            &lt;/html&gt;
-        </echo>
+        <coverage-report destdir="${jacorb.test.coverage.dir}" />
     </target>
 
     <target name="jacunit-checkfail" if="jacorb.test.shouldantfail" >
@@ -622,30 +546,21 @@ Tests run: ${result.testCount}, Failures: ${result.testFailures}, Errors: ${resu
     <target name="instrument" depends="test-init" if="jacorb.test.coverage.process"
             description="Instrument the main JacORB code for coverage analysis">
 
-        <pathconvert pathsep="," property="_generated.sources">
-            <path>
-                <fileset dir="${basedir}/src/generated">
-                    <include name="**/*.java" />
-                </fileset>
-            </path>
+        <coverage-instrument>
+            <fileset dir="${basedir}/classes" >
+                <include name="**/*.class"/>
 
-            <mapper type="package" from="${basedir}/src/generated/*.java" to="*" />
-        </pathconvert>
+                <exclude name="org/jacorb/ir/gui/**"/>
+                <exclude name="org/jacorb/naming/namemanager/**"/>
+                <exclude name="org/jacorb/poa/gui/**"/>
+                <exclude name="org/jacorb/trading/**"/>
 
-        <emma>
-            <instr instrpath="${basedir}/classes"
-             mode="copy"
-             outdir="${dir.classes-instrumented}"
-             outfile="${basedir}/coverage.em">
-                <filter excludes="${_generated.sources}"  />
-                <filter excludes="org.omg.*"/>
-                <filter excludes="Cos*"/>
-                <filter excludes="org.jacorb.ir.gui*"/>
-                <filter excludes="org.jacorb.naming.namemanager.*"/>
-                <filter excludes="org.jacorb.poa.gui.*"/>
-                <filter excludes="org.jacorb.trading.*"/>
-            </instr>
-        </emma>
+                <!-- exclude everything that has a corresponding .java source file in src/generated -->
+                <present present="srconly" targetdir="${basedir}/src/generated" >
+                    <mapper type="glob" from="*.class" to="*.java"/>
+                </present>
+            </fileset>
+        </coverage-instrument>
     </target>
 
     <target name="show">
@@ -683,9 +598,9 @@ Tests run: ${result.testCount}, Failures: ${result.testFailures}, Errors: ${resu
     <target name="run-all" description="Run and build all Jacorb tests. For any run*&#13;&#10;
                             tests the following -D parameters are&#13;&#10;
                             available:&#13;&#10;
-                            jacorb.test.ssl=true/false&#13;&#10;
-                            jacorb.test.coverage=true/false&#13;&#10;
-                            jacorb.test.verbose=true/false" depends="build-all, run">
+                            jacorb.test.ssl=true [default:true] &#13;&#10;
+                            jacorb.test.coverage=true [default:false] &#13;&#10;
+                            jacorb.test.verbose=true [default:false]" depends="build-all, run">
     </target>
 
     <!-- ==================================================== -->
@@ -810,11 +725,9 @@ Tests run: ${result.testCount}, Failures: ${result.testFailures}, Errors: ${resu
         <delete failonerror="false" includeemptydirs="true">
             <fileset dir="${classdir}" includes="**/*" />
             <fileset dir="${src}/generated" includes="**/*" />
-            <fileset dir="${basedir}/classes-instrumented" includes="**/*"/>
+            <fileset dir="${dir.test}/coverage" />
+            <fileset dir="${jacorb.test.outdir}" />
             <fileset file="${src}/org/jacorb/test/orb/rmi/FixSunDelegateBug.java"/>
-            <fileset dir="${basedir}">
-                <include name="coverage.em"/>
-            </fileset>
         </delete>
     </target>
 </project>

@@ -1,0 +1,126 @@
+<project name="coverage-emma">
+
+    <dirname property="dir.emma.base" file="${ant.file.coverage-emma}" />
+
+    <path id="classpath.coverage">
+        <fileset dir="${dir.emma.base}/emma-2.0.5312">
+            <include name="*.jar" />
+        </fileset>
+    </path>
+
+    <taskdef resource="emma_ant.properties" classpathref="classpath.coverage"/>
+
+    <macrodef name="coverage-instrument">
+        <element name="fileset-arg" implicit="true" />
+
+        <sequential>
+            <pathconvert property="coverage.emma.includes" pathsep=",">
+                <path>
+                    <fileset-arg />
+                </path>
+
+                <mapper type="package" from="${basedir}/classes/*.class" to="*" />
+
+            </pathconvert>
+
+            <emma>
+                <instr instrpath="${basedir}/classes"
+                     mode="copy"
+                     outdir="${dir.classes-instrumented}"
+                     outfile="${dir.coverage.tmp}/coverage.em">
+                    <filter includes="${coverage.emma.includes}"  />
+                </instr>
+            </emma>
+        </sequential>
+    </macrodef>
+
+    <macrodef name="coverage-propset">
+        <attribute name="id" />
+
+        <sequential>
+            <!--
+                coverage specific properties that need to be passed to the junit client/server process
+                this is done implicitely by using propertyref's with prefix
+             -->
+
+            <property name="emma.coverage.out.file"
+                    value="${dir.coverage.tmp}/coverage-client.ec" />
+
+            <property name="jacorb.test.serverproperty.emma.coverage.out.file"
+                    value="${dir.coverage.tmp}/coverage-server.ec" />
+
+            <property name="jacorb.test.coverage.classes-instrumented"
+                    value="${dir.classes-instrumented}" />
+
+            <property name="jacorb.test.coverage.classpath.server"
+                    refid="classpath.coverage" />
+
+            <propertyset id="@{id}">
+                <propertyref prefix="emma" />
+            </propertyset>
+        </sequential>
+    </macrodef>
+
+    <macrodef name="coverage-report">
+        <attribute name="destdir" />
+
+        <sequential>
+            <echo message="copy report to @{destdir}" />
+
+            <coverage-report-dirs destdir="@{destdir}" />
+
+            <path id="coverage.emma.src" >
+                <pathelement location="${basedir}/src" />
+                <pathelement location="${basedir}/src/generated" />
+            </path>
+
+            <emma>
+                <report sourcepathref="coverage.emma.src"
+                        columns="name,line,method,class"
+                        sort="+name">
+                    <fileset dir="${dir.coverage.tmp}">
+                        <include name="coverage.em"/>
+                    </fileset>
+
+                    <fileset dir="${dir.coverage.tmp}" >
+                        <include name="coverage-client.ec"/>
+                        <include name="coverage-server.ec"/>
+                    </fileset>
+
+                    <html outfile="${dir.combined}/index.html"/>
+                </report>
+
+                <report sourcepathref="coverage.emma.src"
+                        columns="name,line,method,class"
+                        sort="+name">
+                    <fileset dir="${dir.coverage.tmp}">
+                        <include name="coverage.em"/>
+                    </fileset>
+
+                    <fileset dir="${dir.coverage.tmp}" >
+                        <include name="coverage-client.ec"/>
+                    </fileset>
+
+                    <html outfile="${dir.client}/index.html"/>
+                </report>
+
+                <report sourcepathref="coverage.emma.src"
+                        columns="name,line,method,class"
+                        sort="+name">
+                    <fileset dir="${dir.coverage.tmp}">
+                        <include name="coverage.em"/>
+                    </fileset>
+
+                    <fileset dir="${dir.coverage.tmp}" >
+                        <include name="coverage-server.ec"/>
+                    </fileset>
+
+                    <html outfile="${dir.server}/index.html"/>
+                </report>
+            </emma>
+
+            <coverage-report-indexfile destdir="@{destdir}" />
+        </sequential>
+    </macrodef>
+
+</project>

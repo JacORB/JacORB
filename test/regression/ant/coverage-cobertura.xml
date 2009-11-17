@@ -1,0 +1,87 @@
+<project name="coverage-cobertura" >
+
+    <dirname property="dir.cobertura.base" file="${ant.file.coverage-cobertura}"/>
+
+    <path id="classpath.coverage">
+        <fileset dir="${dir.cobertura.base}/cobertura-1.9.3">
+            <include name="*.jar" />
+        </fileset>
+    </path>
+
+    <target name="load-cobertura-taskdefs" if="jacorb.test.coverage">
+       <taskdef resource="tasks.properties" classpathref="classpath.coverage" />
+    </target>
+
+    <macrodef name="coverage-instrument">
+        <element name="fileset-arg" implicit="true" />
+        <sequential>
+            <mkdir dir="${dir.coverage.tmp}" />
+
+            <cobertura-instrument todir="${dir.classes-instrumented}" datafile="${dir.coverage.tmp}/coverage-client.ser" >
+                <fileset-arg />
+            </cobertura-instrument>
+
+            <copy tofile="${dir.coverage.tmp}/coverage-server.ser" file="${dir.coverage.tmp}/coverage-client.ser" />
+        </sequential>
+    </macrodef>
+
+    <macrodef name="coverage-propset">
+        <attribute name="id" />
+
+        <sequential>
+            <!--
+                coverage specific properties that need to be passed to the junit client/server process
+                this is done implicitely by using propertyref's with prefix
+             -->
+
+            <property name="net.sourceforge.cobertura.datafile"
+                    value="${dir.coverage.tmp}/coverage-client.ser" />
+
+            <property name="jacorb.test.serverproperty.net.sourceforge.cobertura.datafile"
+                    value="${dir.coverage.tmp}/coverage-server.ser" />
+
+            <property name="jacorb.test.coverage.classes-instrumented"
+                    value="${dir.classes-instrumented}" />
+
+            <property name="jacorb.test.coverage.classpath.server"
+                    refid="classpath.coverage" />
+
+            <propertyset id="@{id}">
+                <propertyref prefix="net.sourceforge.cobertura" />
+            </propertyset>
+        </sequential>
+    </macrodef>
+
+    <macrodef name="coverage-report">
+        <attribute name="destdir" />
+
+        <sequential>
+           <echo message="copy report to @{destdir}" />
+
+            <coverage-report-dirs destdir="@{destdir}" />
+
+            <cobertura-merge datafile="${dir.coverage.tmp}/coverage-combined.ser">
+                <fileset dir="${dir.coverage.tmp}">
+                    <include name="coverage-client.ser" />
+                    <include name="coverage-server.ser" />
+                </fileset>
+            </cobertura-merge>
+
+            <cobertura-report format="html" destdir="${dir.combined}" datafile="${dir.coverage.tmp}/coverage-combined.ser">
+                <fileset dir="${basedir}/src" />
+            </cobertura-report>
+
+            <cobertura-report format="html" destdir="${dir.server}" datafile="${dir.coverage.tmp}/coverage-server.ser">
+                <fileset dir="${basedir}/src" />
+            </cobertura-report>
+
+            <cobertura-report format="html" destdir="${dir.client}" datafile="${dir.coverage.tmp}/coverage-client.ser">
+                <fileset dir="${basedir}/src" />
+            </cobertura-report>
+
+            <coverage-report-indexfile destdir="@{destdir}" />
+
+        </sequential>
+    </macrodef>
+
+</project>

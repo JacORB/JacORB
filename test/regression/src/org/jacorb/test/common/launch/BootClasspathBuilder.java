@@ -49,7 +49,17 @@ public class BootClasspathBuilder
 
         if (useCoverage)
         {
-            File instrumentedClasses = new File (jacorbHome, "classes-instrumented");
+            String coverageDir = System.getProperty("jacorb.test.coverage.classes-instrumented");
+
+            final File instrumentedClasses;
+            if (coverageDir == null)
+            {
+                instrumentedClasses = new File (jacorbHome, "test/regression/classes-instrumented");
+            }
+            else
+            {
+                instrumentedClasses = new File (coverageDir);
+            }
 
             if (!instrumentedClasses.exists())
             {
@@ -84,12 +94,14 @@ public class BootClasspathBuilder
 
         if (useCoverage)
         {
-            final File emmaJar = new File(jacorbHome, "test/regression/lib/emma.jar");
-            if (!emmaJar.exists())
-            {
-                throw new IllegalArgumentException("cannot locate emma.jar at " + emmaJar);
-            }
-            entries.add(emmaJar.toString());
+            entries.add(System.getProperty("jacorb.test.coverage.classpath.server"));
+
+//            final File emmaJar = new File(jacorbHome, "test/regression/lib/emma.jar");
+//            if (!emmaJar.exists())
+//            {
+//                throw new IllegalArgumentException("cannot locate emma.jar at " + emmaJar);
+//            }
+//            entries.add(emmaJar.toString());
         }
 
         final StringBuffer buffer = new StringBuffer();

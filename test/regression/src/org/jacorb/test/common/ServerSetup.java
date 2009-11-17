@@ -99,6 +99,10 @@ public class ServerSetup extends TestSetup
         {
             serverOrbProperties.putAll(optionalProperties);
         }
+        else
+        {
+            serverOrbProperties.setProperty("jacorb.log.initializer", MyNullLoggerInitializer.class.getName());
+        }
 
         testTimeout = getTestServerTimeout2();
 
