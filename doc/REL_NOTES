@@ -76,6 +76,7 @@ post 2.3.1
           the actual IP of the host instead of 127.0.0.1.
         - added property to enable the Socket Option SO_REUSEADDR
           for server sockets (jacorb.connection.server.reuse_address).
+        - allow to configure eager/lazy DNS resolution.
 
     - IDL Compiler:
         - fixed issue where the IDL compiler generated imports for the
