@@ -150,6 +150,13 @@ public final class Delegate
     private boolean locateOnBind;
 
     /**
+     * specify if this Delegate should drop its connection to the remote ORB after
+     * a non-recoverable SystemException occured. non-recoverable SystemException
+     * couldn't be handled by rebind.
+     */
+    private boolean disconnectAfterNonRecoverableSystemException;
+
+    /**
      * Always attempt to locate is_a information locally rather than remotely.
      */
     private boolean avoidIsARemoteCall=true;
@@ -205,6 +212,8 @@ public final class Delegate
             config.getAttributeAsBoolean("jacorb.locate_on_bind", false);
         avoidIsARemoteCall =
             config.getAttributeAsBoolean("jacorb.avoidIsARemoteCall", true);
+        disconnectAfterNonRecoverableSystemException = 
+            config.getAttributeAsBoolean("jacorb.delegate.disconnect_after_systemexception", false);
     }
 
     private Delegate(ORB orb)
@@ -1018,6 +1027,7 @@ public final class Delegate
             interceptors.handle_send_request();
         }
 
+        ClientConnection connectionToUse = null;
 
         try
         {
@@ -1040,7 +1050,6 @@ public final class Delegate
                 pending_replies.add(receiver);
             }
 
-            ClientConnection cltconn = null;
             synchronized (bind_sync)
             {
                 if (ros.getConnection() != connection)
@@ -1051,11 +1060,11 @@ public final class Delegate
                     // another connection, so try again
                     throw new RemarshalException();
                 }
-                cltconn = connection;
+                connectionToUse = connection;
             }
             // Use the local copy of the client connection to avoid trouble
             // with something else affecting the real connection.
-            cltconn.sendRequest(ros, receiver, ros.requestId(), true);
+            connectionToUse.sendRequest(ros, receiver, ros.requestId(), true);
         }
         catch ( org.omg.CORBA.SystemException cfe )
         {
@@ -1079,6 +1088,8 @@ public final class Delegate
             {
                 throw new RemarshalException();
             }
+
+            disconnect(connectionToUse);
 
             throw cfe;
         }
@@ -1104,6 +1115,38 @@ public final class Delegate
         return null;
     }
 
+    private void disconnect(ClientConnection connectionInUse)
+    {
+        if (connectionInUse == null)
+        {
+            return;
+        }
+
+        if (!disconnectAfterNonRecoverableSystemException)
+        {
+            return;
+        }
+
+        synchronized(bind_sync)
+        {
+            if (connection == null)
+            {
+                return;
+            }
+
+            if (connection != connectionInUse)
+            {
+                return;
+            }
+
+            logger.debug("release the connection");
+
+            conn_mg.releaseConnection( connection );
+            connection = null;
+            bound = false;
+        }
+    }
+    
     private void invoke_oneway (RequestOutputStream ros,
                                 ClientInterceptorHandler interceptors)
         throws RemarshalException, ApplicationException

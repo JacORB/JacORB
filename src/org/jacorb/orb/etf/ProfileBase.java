@@ -21,6 +21,9 @@
 
 package org.jacorb.orb.etf;
 
+import java.util.Collection;
+import java.util.Collections;
+
 import org.jacorb.config.*;
 import org.jacorb.orb.CDRInputStream;
 import org.jacorb.orb.CDROutputStream;
@@ -286,5 +289,13 @@ public abstract class ProfileBase
         {
             in.close();
         }
+    }
+
+    /**
+     * @return a Collection of ListenPoints that represent the endpoints contained in this IIOPProfile.
+     */
+    public Collection asListenPoints()
+    {
+        return Collections.EMPTY_LIST;
     }
 }

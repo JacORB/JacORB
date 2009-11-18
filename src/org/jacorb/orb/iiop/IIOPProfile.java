@@ -40,6 +40,7 @@ import org.omg.CSIIOP.TAG_TLS_SEC_TRANS;
 import org.omg.CSIIOP.TLS_SEC_TRANS;
 import org.omg.CSIIOP.TLS_SEC_TRANSHelper;
 import org.omg.ETF.Profile;
+import org.omg.IIOP.ListenPoint;
 import org.omg.IOP.TAG_ALTERNATE_IIOP_ADDRESS;
 import org.omg.IOP.TAG_INTERNET_IOP;
 import org.omg.IOP.TaggedComponent;
@@ -131,14 +132,7 @@ public class IIOPProfile
 
         if (corbalocStr != null)
         {
-            try
-            {
-                decode_corbaloc(corbalocStr);
-            }
-            catch(Exception e)
-            {
-                logger.debug("unable to decode_corbaloc", e);
-            }
+            decode_corbaloc(corbalocStr);
         }
         
         addAlternateAddresses ((org.jacorb.config.Configuration)config);
@@ -247,7 +241,7 @@ public class IIOPProfile
         }
         catch( ConfigurationException ce)
         {
-            logger.warn("ConfigurationException", ce );
+            throw new RuntimeException(ce);
         }
         decode_extensions(protocol_identifier.toLowerCase());
     }
@@ -682,5 +676,69 @@ public class IIOPProfile
             }
         }
         return tls;
+    }
+
+    public Collection asListenPoints()
+    {
+        List result = new ArrayList();
+
+        if (getSSL() == null)
+        {
+            result.add(new ListenPoint(primaryAddress.getHostname(), (short)primaryAddress.getPort()));
+        }
+        else
+        {
+            if (getSSLPort() == 0)
+            {
+                result.add(new ListenPoint(primaryAddress.getHostname(), (short)primaryAddress.getPort()));
+            }
+            else
+            {
+                result.add(new ListenPoint(primaryAddress.getHostname(), (short)getSSLPort()));
+            }
+        }
+
+        Iterator it = getAlternateAddresses().iterator();
+
+        while(it.hasNext())
+        {
+            IIOPAddress addr = (IIOPAddress) it.next();
+            result.add(new ListenPoint(addr.getHostname(), (short)addr.getPort()));
+        }
+
+        return result;
+    }
+
+    /**
+     * copy this (ssl) IIOPProfile. thereby replace the port of the primaryAddress with
+     * the SSL port from the tagged components.
+     */
+    public IIOPProfile toNonSSL()
+    {
+        assert getSSL() != null;
+
+        IIOPProfile result = new IIOPProfile(new IIOPAddress(primaryAddress.getHostname(), getSSLPort()), objectKey);
+
+        try
+        {
+            result.configure(configuration);
+        }
+        catch (ConfigurationException e)
+        {
+            throw new RuntimeException(e);
+        }
+
+        TaggedComponent[] taggedComponents = components.asArray();
+        for (int i = 0; i < taggedComponents.length; i++)
+        {
+            if (taggedComponents[i].tag == org.omg.SSLIOP.TAG_SSL_SEC_TRANS.value)
+            {
+                continue;
+            }
+
+            result.components.addComponent(taggedComponents[i]);
+        }
+
+        return result;
     }
 }

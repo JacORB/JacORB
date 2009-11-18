@@ -28,6 +28,7 @@ import java.util.Map;
 import org.jacorb.config.*;
 import org.slf4j.Logger;
 import org.jacorb.orb.ORB;
+import org.jacorb.orb.iiop.IIOPProfile;
 import org.omg.CORBA.BAD_PARAM;
 import org.omg.ETF.Factories;
 
@@ -93,6 +94,18 @@ public class ClientConnectionManager
 
         ClientConnection clientConnection =
             (ClientConnection)connections.get( profile );
+
+        if (clientConnection == null && profile instanceof IIOPProfile)
+        {
+            IIOPProfile iiopProfile = (IIOPProfile) profile;
+
+            if (iiopProfile.getSSL() != null)
+            {
+                final IIOPProfile sslProfile = iiopProfile.toNonSSL();
+
+                clientConnection = (ClientConnection) connections.get(sslProfile);
+            }
+        }
 
         if (clientConnection == null)
         {

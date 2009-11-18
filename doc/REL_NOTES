@@ -77,6 +77,8 @@ post 2.3.1
         - added property to enable the Socket Option SO_REUSEADDR
           for server sockets (jacorb.connection.server.reuse_address).
         - allow to configure eager/lazy DNS resolution.
+        - fixes for BiDirectional GIOP and SSL.
+        
 
     - IDL Compiler:
         - fixed issue where the IDL compiler generated imports for the

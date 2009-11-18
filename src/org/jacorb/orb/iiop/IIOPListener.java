@@ -138,7 +138,7 @@ public class IIOPListener
             configuration.getAttributeAsInteger("jacorb.connection.server.timeout",0);
 
         supportSSL =
-            configuration.getAttribute("jacorb.security.support_ssl","off").equals("on");
+            configuration.getAttributeAsBoolean("jacorb.security.support_ssl", false);
 
         target_supports =
             Integer.parseInt(
@@ -155,7 +155,7 @@ public class IIOPListener
 
 
         generateSSLComponents =
-            configuration.getAttribute("jacorb.security.ssl_components_added_by_ior_interceptor","off").equals("off");
+            configuration.getAttributeAsBoolean("jacorb.security.ssl_components_added_by_ior_interceptor", true);
 
 
         if (!isSSLRequired() ||

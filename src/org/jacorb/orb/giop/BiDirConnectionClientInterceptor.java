@@ -20,11 +20,19 @@
 
 package org.jacorb.orb.giop;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
+
 import org.jacorb.orb.BasicAdapter;
 import org.jacorb.orb.CDROutputStream;
 import org.jacorb.orb.ORB;
+import org.jacorb.orb.etf.ProfileBase;
 import org.jacorb.orb.portableInterceptor.ClientRequestInfoImpl;
 import org.jacorb.orb.portableInterceptor.DefaultClientInterceptor;
+import org.omg.ETF.Profile;
 import org.omg.IIOP.BiDirIIOPServiceContext;
 import org.omg.IIOP.BiDirIIOPServiceContextHelper;
 import org.omg.IIOP.ListenPoint;
@@ -74,34 +82,37 @@ public class BiDirConnectionClientInterceptor
             {
                 BasicAdapter ba = orb.getBasicAdapter();
 
-                ListenPoint lp = new ListenPoint( ba.getAddress(),
-                                                  (short) ba.getPort() );
+                List endpoints = ba.getEndpointProfiles();
 
-                ListenPoint[] points = null;
-                if( ba.hasSSLListener() )
+                Iterator i = endpoints.iterator();
+                final List listenPoints = new ArrayList();
+                while(i.hasNext())
                 {
-                    ListenPoint ssl_lp =
-                        new ListenPoint( ba.getAddress(),
-                                         (short) ba.getSSLPort() );
+                    Profile profile = (Profile) i.next();
 
-                    points = new ListenPoint[]{ lp, ssl_lp };
-                }
-                else
-                {
-                    points = new ListenPoint[]{ lp };
+                    if (profile instanceof ProfileBase)
+                    {
+                        listenPoints.addAll(((ProfileBase)profile).asListenPoints());
+                    }
+                    else
+                    {
+                        listenPoints.addAll(getListenPoints(profile));
+                    }
                 }
 
-                BiDirIIOPServiceContext b =
-                    new BiDirIIOPServiceContext( points );
+                ListenPoint[] listenPointsArray = (ListenPoint[]) listenPoints.toArray(new ListenPoint[listenPoints.size()]);
+
+                BiDirIIOPServiceContext context =
+                    new BiDirIIOPServiceContext( listenPointsArray );
                 org.omg.CORBA.Any any = orb.create_any();
-                BiDirIIOPServiceContextHelper.insert( any, b );
+                BiDirIIOPServiceContextHelper.insert( any, context );
 
                 final CDROutputStream cdr_out = new CDROutputStream(orb);
 
                 try
                 {
                     cdr_out.beginEncapsulatedArray();
-                    BiDirIIOPServiceContextHelper.write( cdr_out, b );
+                    BiDirIIOPServiceContextHelper.write( cdr_out, context );
 
                     bidir_ctx = new ServiceContext( BI_DIR_IIOP.value,
                             cdr_out.getBufferCopy() );
@@ -122,5 +133,10 @@ public class BiDirConnectionClientInterceptor
                 conn.setRequestListener(orb.getBasicAdapter().getRequestListener());
             }
         }
+    }
+
+    protected Collection getListenPoints(Profile profile)
+    {
+        return Collections.EMPTY_LIST;
     }
 }
