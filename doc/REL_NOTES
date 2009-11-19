@@ -52,9 +52,9 @@ post 2.3.1
         - changed PICurrent's set_slot/get_slot to raise BAD_INV_ORDER
           if they're called from within an ORB initializer.
         - provided a implementation for org.omg.CORBA.ValueBaseHelper.
-        - Fix Object::duplicate(4.3.2.1).
+        - fix Object::duplicate(4.3.2.1).
         - Change set_policy_overrides to match 4.3.9.1 specification.
-        - Fix possible race condition with the value factory hashmap.
+        - fix possible race condition with the value factory hashmap.
         - modified the JSSE socket factories to throw INITIALIZE if
           no ssl keystore is set or if the filename is wrong.
         - made the object key mapping feature more efficient (ORB.addObjectKey,
@@ -71,14 +71,14 @@ post 2.3.1
           GIOP 1.0 does not allow them.
         - fixed issue where exceptions during AMI didn't work
           if the IDL was specified with pragma prefix.
-        - Fix ExceptionHolderImpl Configuration
+        - fix ExceptionHolderImpl Configuration
         - fix for the IIOPLoopback feature. It didn't work when connecting to
           the actual IP of the host instead of 127.0.0.1.
         - added property to enable the Socket Option SO_REUSEADDR
           for server sockets (jacorb.connection.server.reuse_address).
         - allow to configure eager/lazy DNS resolution.
         - fixes for BiDirectional GIOP and SSL.
-        
+        - fix for client interceptor send_request exception propagation.
 
     - IDL Compiler:
         - fixed issue where the IDL compiler generated imports for the

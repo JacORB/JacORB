@@ -134,10 +134,6 @@ public class ClientInterceptorIterator
                 logger.error("unexpected exception", _bk);
             }
         }
-        catch (Exception e)
-        {
-            logger.error("unexpected exception during invoke", e);
-        }
 
         info.caller_op = op;
     }
