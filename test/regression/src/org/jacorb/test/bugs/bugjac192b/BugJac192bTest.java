@@ -52,7 +52,7 @@ public class BugJac192bTest extends ORBTestCase
         server = JAC192bHelper.narrow( serverObject );
     }
 
-	protected void patchOrbProperties(Properties client_props) {
+	protected void patchORBProperties(Properties client_props) {
 		client_props.put("org.omg.PortableInterceptor.ORBInitializerClass.CInitializer",
         "org.jacorb.test.bugs.bugjac192b.CInitializer");
 	}

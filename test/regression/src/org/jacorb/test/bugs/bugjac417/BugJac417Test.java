@@ -43,7 +43,7 @@ public class BugJac417Test extends ORBTestCase
     private MockControl configControl;
     private Configuration configMock;
 
-    protected void patchOrbProperties(Properties properties)
+    protected void patchORBProperties(Properties properties)
     {
         properties.setProperty(SocketFactoryManager.SUPPORT_SSL, "false");
     }

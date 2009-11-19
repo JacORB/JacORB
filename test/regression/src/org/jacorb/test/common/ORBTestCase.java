@@ -20,7 +20,7 @@ public class ORBTestCase extends TestCase
     	properties.setProperty("org.omg.CORBA.ORBClass", "org.jacorb.orb.ORB");
     	properties.setProperty("org.omg.CORBA.ORBSingletonClass", "org.jacorb.orb.ORBSingleton");
 
-    	patchOrbProperties(properties);
+    	patchORBProperties(properties);
 
         orb = ORB.init(new String[0], properties);
         rootPOA = POAHelper.narrow(orb.resolve_initial_references( "RootPOA" ));
@@ -30,7 +30,7 @@ public class ORBTestCase extends TestCase
         rootPOA.the_POAManager().activate();
     }
 
-    protected void patchOrbProperties(Properties properties)
+    protected void patchORBProperties(Properties properties)
     {
 	}
 
