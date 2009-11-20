@@ -97,9 +97,10 @@ post 2.3.1
           with more than 1 space before ID caused an parse error.
         - fixes for IDL compiler struct/typedef/array compilation outside 
           of modules.
+        - enhance generation to null delegate objects.
 
      - Interface Repository:
-        - Use a persistent POA for the repository servant.
+        - use a persistent POA for the repository servant.
 
     - Tools:
         - enhanced dior's ability to recognize different ORB types.
