@@ -3,16 +3,9 @@
 %
 
 This chapter explains the general mechanism for configuring JacORB
-and lists all configuration properties. Note that ORB configuration
-has changed from version 2.1 to 2.2, in particular the names and
-locations of the standard configuration files.
-
-If you are upgrading from a previous version, please note that JacORB
-will still work with the old files, but you will have to copy your
-existing {\tt jacorb.properties} file to {\tt
-  JacORB\_HOME/etc/jacorb.properties}, or rename it to {\tt
-  orb.properties} if you want it loaded from your user home directory
-as before.
+and lists all configuration properties. Note that as JacORB's
+configuration has been updated it is recommended to use the new
+jacorb.properties file supplied with this version.
 
 \section{Properties}
 
@@ -116,12 +109,7 @@ Note, however, that the added flexibility of using multiple
 configuration files may lead to individual properties defined in
 multiple files. You must know the order in which your configuration
 files are loaded to avoid confusion over property settings not having
-the expected effect! For this reason, JacORB outputs log messages to
-the terminal that show the names of the properties files as they are
-loaded. This log message always goes to the terminal because the
-actual JacORB logging is not yet configured at this stage. It can be
-suppressed by setting the {\tt jacorb.config.log.verbosity} property
-to a value below 3.
+the expected effect!
 
 \subsubsection{Custom properties files}
 
@@ -209,7 +197,7 @@ containing command line arguments):
 We are now ready to have a look at the most basic JacORB configuration
 properties. As a starting point, you should look at the file {\tt
   /etc/jacorb\_properties.template}, which you can adapt to your own
-needs.
+needs (e.g. renaming to jacorb.properties or orb.properties as required).
 
 \subsection{Initial references}
 
