@@ -24,13 +24,13 @@ package org.jacorb.config;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.logging.Formatter;
-import java.util.logging.LogRecord;
 import java.util.logging.Level;
+import java.util.logging.LogRecord;
 
 /**
  * A formatter for JDK logs which produces a more concise log output
  * than the standard JDK setting.
- * 
+ *
  * @author Andre Spiegel <spiegel@gnu.org>
  * @version $Id$
  */
@@ -38,36 +38,31 @@ public class JacORBLogFormatter extends Formatter
 {
     private static final DateFormat timeFormat
       = new SimpleDateFormat ("yyyy-MM-dd HH:mm:ss.SSS");
-    
+
     public String format (LogRecord record)
     {
-        long time = record.getMillis();
-        String loggerName = record.getLoggerName();
-        Level level = record.getLevel();
-        String message = record.getMessage();
-        Throwable t = record.getThrown();
-        StringBuffer result = new StringBuffer();
-        result.append (timeFormat.format (new Long(time)));
-        result.append (" ");
-        result.append (level);
-        result.append (" ");
-        result.append (message);
-        result.append ("\n");
-        return t == null ? result.toString() 
-                         : result.toString() + getStackTrace (t);
+       long time = record.getMillis();
+       Level level = record.getLevel();
+       String message = record.getMessage();
+       Throwable t = record.getThrown();
+       String result = String.format
+       (
+           "%s %s %s\n",
+           timeFormat.format (time), level, message
+       );
+       return t == null ? result : result + getStackTrace (t);
     }
-    
+
     private String getStackTrace (Throwable t)
     {
-        StringBuffer result = new StringBuffer();
-        StackTraceElement[] elements = t.getStackTrace();
-        for (int i=0; i < elements.length; i++)
-        {
-            result.append ("    ");
-            result.append (elements[i].toString());
-            result.append ("\n");
-        }
-        return result.toString();
+       StringBuffer result = new StringBuffer();
+       for (StackTraceElement ste : t.getStackTrace())
+       {
+           result.append ("    ");
+           result.append (ste.toString());
+           result.append ("\n");
+       }
+       return result.toString();
     }
 
 }
