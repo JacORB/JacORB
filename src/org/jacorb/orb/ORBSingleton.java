@@ -27,6 +27,7 @@ import org.jacorb.config.JacORBConfiguration;
 import org.omg.CORBA.BAD_PARAM;
 import org.omg.CORBA.BAD_TYPECODE;
 import org.omg.CORBA.CompletionStatus;
+import org.omg.CORBA.INITIALIZE;
 import org.omg.CORBA.INTERNAL;
 import org.omg.CORBA.TCKind;
 import org.omg.CORBA.TypeCode;
@@ -106,8 +107,14 @@ public class ORBSingleton
             ("jacorb.interop.strict_check_on_tc_creation", true);
 
         BufferManagerFactory bufferManagerFactory = newBufferManagerFactory(configuration);
-        bufferManager = bufferManagerFactory.newBufferManager(((ORBSingleton)ORB.init()).getBufferManager(), configuration);
 
+        org.omg.CORBA.ORB single = org.omg.CORBA.ORB.init();
+        if ( ! (single instanceof ORBSingleton))
+        {
+            throw new INITIALIZE ("Singleton ORB not a JacORB singleton");
+        }
+        bufferManager = bufferManagerFactory.newBufferManager
+            (((ORBSingleton)single).getBufferManager(), configuration);
 
         if (logger.isDebugEnabled())
         {
@@ -838,6 +845,10 @@ public class ORBSingleton
 
     public IBufferManager getBufferManager()
     {
+        if (bufferManager == null)
+        {
+            throw new INITIALIZE ("JacORB ORB Singleton not initialized");
+        }
         return bufferManager;
     }
 }
