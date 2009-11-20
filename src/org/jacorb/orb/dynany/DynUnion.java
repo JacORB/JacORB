@@ -192,8 +192,10 @@ public final class DynUnion
            out.write_value( discriminator.type(),
                    discriminator.create_input_stream() );
 
-           out.write_value( member.type(),
-                   member.to_any().create_input_stream());
+           if (member != null)
+           {
+              out.write_value( member.type(), member.to_any().create_input_stream());
+           }
 
            org.omg.CORBA.Any out_any = orb.create_any();
 

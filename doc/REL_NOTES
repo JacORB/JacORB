@@ -79,6 +79,7 @@ post 2.3.1
         - allow to configure eager/lazy DNS resolution.
         - fixes for BiDirectional GIOP and SSL.
         - fix for client interceptor send_request exception propagation.
+        - fixes for DynUnion.to_any.
 
     - IDL Compiler:
         - fixed issue where the IDL compiler generated imports for the

@@ -1,0 +1,33 @@
+
+module org
+{
+    module jacorb
+    {
+        module test
+        {
+            module bugs
+            {
+               module bugjac590
+               {
+                  union BooleanUnion switch(boolean)
+                  {
+                     case FALSE: long value;
+                  };
+
+                  enum MyEnum {A, B, C};
+                  union EnumUnion switch(MyEnum)
+                  {
+                     case B: long value;
+                  };
+
+                  interface BooleanUnionInt
+                  {
+                     void f(in BooleanUnion x, out BooleanUnion y);
+                     void g(in EnumUnion x, out EnumUnion y);
+                     void e(in EnumUnion y);
+                  };
+               };
+            };
+        };
+    };
+};
