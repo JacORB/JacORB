@@ -49,13 +49,6 @@ public class IIOPServerTest extends TestCase
 
         clientORB = ORB.init(new String[0], clientProps);
         server_ = CurrentServerHelper.narrow(clientORB.string_to_object(objString));
-
-        new Thread()
-        {
-            public void run() {
-                serverORB.run();
-            };
-        }.start();
     }
 
     protected void tearDown() throws Exception
@@ -71,9 +64,5 @@ public class IIOPServerTest extends TestCase
         assertEquals("Three interceptions required on the server side", 6, ServerInterceptor.interceptions());
         assertEquals("Unexpected failures", 0, ServerInterceptor.failures());
     }
-
-    public static Test suite() {
-        return new TestSuite(IIOPServerTest.class);
-    }
-
 }
+

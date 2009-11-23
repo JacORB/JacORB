@@ -39,13 +39,6 @@ public class FrameworkServerTest extends TestCase
         org.omg.CORBA.Object obj = rootPOA.servant_to_reference(new CurrentServerImpl(serverORB, new DefaultTester()));
         String objString = serverORB.object_to_string(obj);
 
-        new Thread()
-        {
-            public void run() {
-                serverORB.run();
-            };
-        }.start();
-        
         Thread.sleep(1000);
         clientORB = ORB.init(new String[0], null);
         server_ = CurrentServerHelper.narrow(clientORB.string_to_object(objString));
@@ -69,9 +62,4 @@ public class FrameworkServerTest extends TestCase
         // ...
         assertEquals("Unexpected failures", 0, ServerInterceptor.failures());
     }
-
-    public static Test suite() {
-        return new TestSuite(FrameworkServerTest.class);
-    }
-
 }
