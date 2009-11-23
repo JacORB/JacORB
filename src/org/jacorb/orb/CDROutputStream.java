@@ -155,7 +155,7 @@ public class CDROutputStream
 
     private final List deferredArrayQueue = new ArrayList();
 
-    protected org.jacorb.orb.ORBSingleton orb;
+    protected final org.jacorb.orb.ORBSingleton orb;
 
     protected int giop_minor = 2;
 
@@ -250,17 +250,6 @@ public class CDROutputStream
         }
     }
 
-    private CDROutputStream(IBufferManager bufferManager)
-    {
-        if (bufferManager == null)
-        {
-            throw new IllegalArgumentException();
-        }
-
-        bufMgr = bufferManager;
-        buffer = bufMgr.getPreferredMemoryBuffer();
-    }
-
     /**
      * internal c'tor
      * @param orb must be a JacORB ORB
@@ -277,7 +266,7 @@ public class CDROutputStream
         }
 
         this.orb = (ORBSingleton) orb;
-        bufMgr = this.orb.getBufferManager(); // the BufferManager will be configured by now!
+        bufMgr = this.orb.getBufferManager();
 
         if (bufferSize == -1)
         {
@@ -288,22 +277,6 @@ public class CDROutputStream
             buffer = bufMgr.getBuffer(bufferSize, true);
         }
     }
-
-    /**
-     * OutputStreams created using  the empty constructor are used for
-     * in  memory marshaling, but do  not use the  ORB's output buffer
-     * manager. A stream created with this c'tor is not explicitly
-     * configured, i.e. it will use default configuration only
-     *
-     * @deprecated use the constructor that accepts an ORB whenever possible
-     * @see #CDROutputStream(ORBSingleton)
-     */
-
-    public CDROutputStream()
-    {
-        this(((ORBSingleton)ORB.init()).getBufferManager());
-    }
-
     /**
      * OutputStreams created using this constructor
      * are used also for in memory marshaling, but do use the
@@ -315,15 +288,18 @@ public class CDROutputStream
 
         if (orb instanceof org.jacorb.orb.ORB)
         {
-            try
-            {
-                configure(((org.jacorb.orb.ORB)orb).getConfiguration());
-            }
-            catch(ConfigurationException e)
-            {
-                throw new INTERNAL(e.getMessage());
-            }
+            configure(((org.jacorb.orb.ORB)orb).getConfiguration());
         }
+    }
+
+    /**
+     * OutputStreams created using  the empty constructor are used for
+     * in  memory marshaling. A stream created with this c'tor is not explicitly
+     * configured, i.e. it will use default configuration only
+     */
+    public CDROutputStream()
+    {
+        this(ORB.init());
     }
 
     /**
@@ -332,7 +308,6 @@ public class CDROutputStream
      *  is not explicitly configured, i.e. it will use default
      *  configuration only!
      */
-
     public CDROutputStream(int bufferSize)
     {
         this(ORB.init(), verifyBufferSize(bufferSize));
@@ -350,10 +325,6 @@ public class CDROutputStream
 
     public org.omg.CORBA.ORB orb()
     {
-        if (orb == null)
-        {
-            orb = (ORB) org.omg.CORBA.ORB.init((String[])null, null);
-        }
         return orb;
     }
 
