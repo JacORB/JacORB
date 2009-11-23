@@ -120,13 +120,7 @@ public class BugJac593Test extends ORBTestCase
             System.err.println ("Caught " + e);
             System.exit (-1);
         }
-        catch (INITIALIZE e)
-        {
-            // should be thrown
-            System.exit (0);
-        }
-        // this code should be unreached for this case
-        System.exit (1);
+        System.exit (0);
     }
 
 

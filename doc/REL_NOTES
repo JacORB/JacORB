@@ -80,6 +80,7 @@ post 2.3.1
         - fixes for BiDirectional GIOP and SSL.
         - fix for client interceptor send_request exception propagation.
         - fixes for DynUnion.to_any.
+        - fix for initialising the ORB with properties.
 
     - IDL Compiler:
         - fixed issue where the IDL compiler generated imports for the
