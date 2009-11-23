@@ -25,6 +25,7 @@ import java.util.Properties;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 
+import org.jacorb.orb.iiop.IIOPProfile;
 import org.jacorb.test.BasicServer;
 import org.jacorb.test.BasicServerHelper;
 import org.jacorb.test.common.ClientServerSetup;
@@ -39,6 +40,7 @@ import org.jacorb.test.orb.BasicServerImpl;
  */
 public class BugJac486Test extends ClientServerTestCase
 {
+    private static final String objectKey = "/BugJac486Test/BugJac486POA/BugJac486ID";
     private static final String sslPort = "48120";
 
     public BugJac486Test(String name, ClientServerSetup setup)
@@ -46,34 +48,34 @@ public class BugJac486Test extends ClientServerTestCase
         super(name, setup);
     }
 
-    public void testSsliopCorbalocRequiresGiop12() throws Exception
+    public void testSSLIOPCorbalocRequiresGIOP12_1() throws Exception
     {
         try
         {
-            runTest("corbaloc::localhost:" + sslPort + "/BugJac486Test/BugJac486POA/BugJac486ID");
+            IIOPProfile profile = new IIOPProfile("corbaloc:ssliop:localhost:" + sslPort + objectKey);
+            profile.configure(((org.jacorb.orb.ORB)setup.getClientOrb()).getConfiguration());
+            fail();
+        }
+        catch(IllegalArgumentException e)
+        {
+        }
+    }
+
+    public void testAccessSecureAcceptorWithoutSSLShouldFail() throws Exception
+    {
+        try
+        {
+            runTest("corbaloc::1.2@localhost:" + sslPort + objectKey);
             fail();
         }
         catch(Exception e)
         {
         }
     }
-
-    public void testAccessSSL() throws Exception
-    {
-        try
-        {
-            runTest("corbaloc::1.2@localhost:" + sslPort + "/BugJac486Test/BugJac486POA/BugJac486ID");
-            fail();
-        }
-        catch(Exception e)
-        {
-        }
-    }
-
 
     public void testAccessSSLWithJacorbSpecificExtension() throws Exception
     {
-        runTest("corbaloc:ssliop:1.2@localhost:" + sslPort + "/BugJac486Test/BugJac486POA/BugJac486ID");
+        runTest("corbaloc:ssliop:1.2@localhost:" + sslPort + objectKey);
     }
 
     private void runTest(String corbaLoc)
@@ -99,6 +101,8 @@ public class BugJac486Test extends ClientServerTestCase
 
         clientProps.setProperty(CommonSetup.JACORB_REGRESSION_DISABLE_IMR, "true");
         serverProps.setProperty(CommonSetup.JACORB_REGRESSION_DISABLE_IMR, "true");
+
+        clientProps.setProperty("jacorb.delegate.disconnect_after_systemexception", "on");
 
         TestSuite suite = new TestSuite(BugJac486Test.class.getName());
         ClientServerSetup setup = new ClientServerSetup(suite, BasicServerImpl.class.getName(), clientProps, serverProps);
