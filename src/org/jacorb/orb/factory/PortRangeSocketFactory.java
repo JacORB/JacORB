@@ -28,6 +28,8 @@ import java.net.Socket;
 import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
 
+import javax.net.ssl.SSLSocket;
+
 import org.jacorb.config.*;
 import org.omg.CORBA.TIMEOUT;
 
@@ -178,6 +180,10 @@ public class PortRangeSocketFactory
     {
         try
         {
+            if ( ! (socket instanceof SSLSocket) && ! socket.isClosed())
+            {
+                socket.shutdownOutput();
+            }
             socket.close();
         }
         catch(IOException e)

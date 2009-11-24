@@ -2,6 +2,8 @@ package org.jacorb.test.orb.factory;
 
 import java.net.Socket;
 
+import javax.net.ssl.SSLSocket;
+
 import org.jacorb.config.*;
 import org.easymock.MockControl;
 import org.jacorb.config.Configuration;
@@ -37,5 +39,10 @@ public class PortRangeSocketFactoryTest extends AbstractSocketFactoryTestCase
         Socket socket = objectUnderTest.createSocket(hostname, serverPort);
         assertTrue(socket.getLocalPort() >= MIN);
         assertTrue(socket.getLocalPort() <= MAX);
+        if ( ! (socket instanceof SSLSocket) && ! socket.isClosed ())
+        {
+           socket.shutdownOutput ();
+        }
+        socket.close ();
     }
 }

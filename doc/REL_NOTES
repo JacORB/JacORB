@@ -82,6 +82,8 @@ post 2.3.1
         - fixes for DynUnion.to_any.
         - fix for initialising the ORB with properties.
         - allow SSL keystore to be configurable.
+        - call shutdownOutput before closing socket as recommended by
+          http://java.sun.com/j2se/1.5.0/docs/guide/net/articles/connection_release.html
 
     - IDL Compiler:
         - fixed issue where the IDL compiler generated imports for the
@@ -94,11 +96,11 @@ post 2.3.1
           for idl defined valuetypes.
         - additional parentheses around const expression in labels in unions.
         - fixed issue in generated code when extracting sequence from any.
-        - fixed issue where holder classes for user-defined exceptions
+        - fixed issue where holder classes for user-defined exceptions 
           weren't generated
-        - fixed IDL parser issue where repository ID using pragma prefix
+        - fixed IDL parser issue where repository ID using pragma prefix 
           with more than 1 space before ID caused an parse error.
-        - fixes for IDL compiler struct/typedef/array compilation outside
+        - fixes for IDL compiler struct/typedef/array compilation outside 
           of modules.
         - enhance generation to null delegate objects.
 

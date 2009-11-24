@@ -26,6 +26,9 @@ import java.net.SocketTimeoutException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+
+import javax.net.ssl.SSLSocket;
+
 import org.jacorb.config.*;
 import org.jacorb.orb.factory.SocketFactory;
 import org.jacorb.orb.giop.TransportManager;
@@ -364,6 +367,10 @@ public class ClientIIOPConnection
         {
             if (socket != null)
             {
+                if ( ! (socket instanceof SSLSocket) && ! socket.isClosed())
+                {
+                    socket.shutdownOutput();
+                }
                 socket.close();
             }
 

@@ -3,12 +3,13 @@ package org.jacorb.test.orb.factory;
 import java.net.InetAddress;
 import java.net.Socket;
 
+import javax.net.ssl.SSLSocket;
+
 import org.easymock.MockControl;
 import org.jacorb.config.Configurable;
 import org.jacorb.config.Configuration;
 import org.jacorb.orb.factory.FixedAddressSocketFactory;
 import org.jacorb.orb.factory.SocketFactory;
-
 import org.jacorb.test.common.NullLogger;
 
 /**
@@ -26,24 +27,44 @@ public class FixedAddressSocketFactoryTest extends AbstractSocketFactoryTestCase
     {
         Socket socket = objectUnderTest.createSocket(hostname, serverPort);
         checkSocketIsConnected(socket);
+        if ( ! (socket instanceof SSLSocket) && ! socket.isClosed ())
+        {
+           socket.shutdownOutput ();
+        }
+        socket.close ();
     }
 
     public void testSetLocalhost2() throws Exception
     {
         Socket socket = objectUnderTest.createSocket(hostname, serverPort, 1000);
         checkSocketIsConnected(socket);
+        if ( ! (socket instanceof SSLSocket) && ! socket.isClosed ())
+        {
+           socket.shutdownOutput ();
+        }
+        socket.close ();
     }
 
     public void testSetHostname() throws Exception
     {
         Socket socket = objectUnderTest.createSocket(hostname, serverPort);
         checkSocketIsConnected(socket);
+        if ( ! (socket instanceof SSLSocket) && ! socket.isClosed ())
+        {
+           socket.shutdownOutput ();
+        }
+        socket.close ();
     }
 
     public void testSetHostname2() throws Exception
     {
         Socket socket = objectUnderTest.createSocket(hostname, serverPort, 1000);
         checkSocketIsConnected(socket);
+        if ( ! (socket instanceof SSLSocket) && ! socket.isClosed ())
+        {
+           socket.shutdownOutput ();
+        }
+        socket.close ();
     }
 
     protected void configureObjectUnderTest(String name, Configurable configurable) throws Exception

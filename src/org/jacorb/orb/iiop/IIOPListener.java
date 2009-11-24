@@ -26,6 +26,9 @@ import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.UnknownHostException;
+
+import javax.net.ssl.SSLSocket;
+
 import org.jacorb.config.*;
 import org.jacorb.orb.BasicAdapter;
 import org.jacorb.orb.etf.ProtocolAddressBase;
@@ -510,7 +513,12 @@ public class IIOPListener
                             // Socket socket = socketChannel.socket();
                             // for more reliability
 
+                            if ( ! (socket instanceof SSLSocket) && ! socket.isClosed())
+                            {
+                                socket.shutdownOutput();
+                            }
                             socket.close();
+                            
                             if (logger.isInfoEnabled())
                             {
                                 logger.info("closed Socket " + socket + " as " + info + "ServerSocket was closed.");
@@ -532,6 +540,10 @@ public class IIOPListener
                             // we'll at least close
                             // the socket
 
+                            if ( ! (socket instanceof SSLSocket) && ! socket.isClosed())
+                            {
+                                socket.shutdownOutput();
+                            }
                             socket.close();
                             throw e;
                         }

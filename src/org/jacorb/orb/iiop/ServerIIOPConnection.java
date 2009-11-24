@@ -24,6 +24,8 @@ import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.net.Socket;
 
+import javax.net.ssl.SSLSocket;
+
 import org.jacorb.config.*;
 import org.jacorb.orb.listener.TCPConnectionEvent;
 import org.jacorb.orb.listener.TCPConnectionListener;
@@ -89,6 +91,10 @@ public class ServerIIOPConnection
         {
             try
             {
+                if ( ! (socket instanceof SSLSocket) && ! socket.isClosed())
+                {
+                    socket.shutdownOutput();
+                }
                 socket.close();
 
                 //this will cause exceptions when trying to read from
