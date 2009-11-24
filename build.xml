@@ -47,7 +47,7 @@ using VERSION_INFO: ${jacorb_version_info}
         </copy>
 
         <!-- need to delete the classes that depend on the version number -->
-        <delete>
+        <delete failonerror="false">
             <fileset dir="${classdir}">
                 <include name="org/jacorb/orb/ORB.class" />
                 <include name="org/jacorb/idl/parser.class" />
