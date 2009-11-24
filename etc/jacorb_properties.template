@@ -585,6 +585,13 @@ jacorb.security.keystore_password=
 # SSL keystore used:
 # jacorb.security.keystore_type=JKS
 
+# Which algorithms to use to initialize the client/server SSL socket factories
+# Use IbmX509 with IBM JDKs
+#jacorb.security.jsse.server.key_manager_algorithm=SunX509
+#jacorb.security.jsse.server.trust_manager_algorithm=SunX509
+#jacorb.security.jsse.client.key_manager_algorithm=SunX509
+#jacorb.security.jsse.client.trust_manager_algorithm=SunX509
+
 #
 # Sun JSSE specific settings
 #

@@ -56,6 +56,8 @@ public class SSLServerSocketFactory
     private String keystore_location = null;
     private String keystore_passphrase = null;
     private String keystore_type = null;
+    private String keyManagerAlgorithm = null;
+    private String trustManagerAlgorithm = null;
 
     public void configure(Configuration configuration)
         throws ConfigurationException
@@ -106,6 +108,12 @@ public class SSLServerSocketFactory
 
         keystore_type=
            configuration.getAttribute("jacorb.security.keystore_type", "JKS");
+
+        keyManagerAlgorithm =
+           configuration.getAttribute("jacorb.security.jsse.server.key_manager_algorithm","SunX509");
+
+        trustManagerAlgorithm =
+           configuration.getAttribute("jacorb.security.jsse.server.trust_manager_algorithm","SunX509");
 
         try
         {
@@ -262,9 +270,10 @@ public class SSLServerSocketFactory
     {
         KeyStore key_store =
             KeyStoreUtil.getKeyStore( keystore_location,
-                                      keystore_passphrase.toCharArray() );
+                                      keystore_passphrase.toCharArray(),
+                                      keystore_type);
 
-        KeyManagerFactory kmf = KeyManagerFactory.getInstance( "SunX509" );
+        KeyManagerFactory kmf = KeyManagerFactory.getInstance(keyManagerAlgorithm);
         kmf.init( key_store, keystore_passphrase.toCharArray() );
         TrustManagerFactory tmf = null;
 
@@ -273,7 +282,7 @@ public class SSLServerSocketFactory
         if(( serverRequiredOptions & 0x40) != 0 ||
            ( serverSupportedOptions & 0x40) != 0)
         {
-            tmf = TrustManagerFactory.getInstance( "SunX509" );
+            tmf = TrustManagerFactory.getInstance(trustManagerAlgorithm);
 
             if( trusteesFromKS )
             {

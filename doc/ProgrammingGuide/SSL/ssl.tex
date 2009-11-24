@@ -185,11 +185,25 @@ the home directory. Key stores are searched in this order, and the
 first one found is taken. If this property is not set, the user will be
 prompted to enter a key store location on ORB startup.
 
-The password for the key store file can be specified using the property
+The password for the key store file can be specified by using the property
 {\tt jacorb.security.keystore\_password}.
 
 \begin{verbatim}
-    jacorb.security.keystore\_password=secret
+    jacorb.security.keystore_password=secret
+\end{verbatim}
+
+By default the KeyStore type uses JKS; to change this alter the property
+{\tt jacorb.security.keystore\_type}.
+
+The SSL socket factory algorithms are initialised by default to SunX509. On
+other JDK implementations (e.g. IBM) this can be changed (to e.g.
+{\tt IbmX509}) by altering the following properties:
+
+\begin{verbatim}
+    jacorb.security.jsse.server.key_manager_algorithm=SunX509
+    jacorb.security.jsse.server.trust_manager_algorithm=SunX509
+    jacorb.security.jsse.client.key_manager_algorithm=SunX509
+    jacorb.security.jsse.client.trust_manager_algorithm=SunX509
 \end{verbatim}
 
 To avoid  typing in  lots of  aliases and passwords  (one for  the key
@@ -395,21 +409,21 @@ calls are done.
 
 \section{Security and corbaloc}
 
-If you want to put together a corbaloc that points to your SSL enabled server object the following 
+If you want to put together a corbaloc that points to your SSL enabled server object the following
 needs to be ensured:
 
-normally an IOR string contains additional components that describe the exact SSL setup for a given 
+normally an IOR string contains additional components that describe the exact SSL setup for a given
 server object. However this additional information cannot be attached to a corbaloc.
 JacORB provides an extensions to address that shortcoming.
 
 By using the JacORB specific protocol extension \emph{ssliop} you can tell ORB that the corbaloc points
 to a SSL enabled target. When the corbaloc is resolved with orb.string\_to\_object() and the protocol extension is set,
-JacORB will act as the target had the SSL specific tagged components 
+JacORB will act as the target had the SSL specific tagged components
 set\footnote{you need to ensure that the corbaloc used GIOP v1.2 as otherwise tagged components are not supported}.
 
 By default the SSL option EstablishTrustInTarget
 will be used both for supported and required SSL options of the created stub.
-Using the property jacorb.security.ssl.corbaloc\_ssliop.supported\_options this can be further customized. Have a look at 
+Using the property jacorb.security.ssl.corbaloc\_ssliop.supported\_options this can be further customized. Have a look at
 the configuration chapter for more details.
 
 Example of a corbaloc

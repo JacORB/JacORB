@@ -61,6 +61,8 @@ public class SSLSocketFactory
     private final SSLSessionListener sslListener;
     private SSLRandom sslRandom;
     private String keystore_type = null;
+    private String keyManagerAlgorithm = null;
+    private String trustManagerAlgorithm = null;
 
     public SSLSocketFactory(ORB orb)
     {
@@ -88,6 +90,12 @@ public class SSLSocketFactory
 
         keystore_type=
            configuration.getAttribute("jacorb.security.keystore_type", "JKS");
+
+        keyManagerAlgorithm =
+           configuration.getAttribute("jacorb.security.jsse.server.key_manager_algorithm","SunX509");
+
+        trustManagerAlgorithm =
+           configuration.getAttribute("jacorb.security.jsse.server.trust_manager_algorithm","SunX509");
 
         clientSupportedOptions =
             Short.parseShort(
@@ -204,13 +212,13 @@ public class SSLSocketFactory
             //client is supported
             if( ( clientSupportedOptions & 0x40) != 0 )
             {
-                kmf = KeyManagerFactory.getInstance( "SunX509" );
+                kmf = KeyManagerFactory.getInstance(keyManagerAlgorithm );
                 kmf.init( key_store, keystore_passphrase.toCharArray() );
             }
         }
 
         TrustManagerFactory tmf =
-            TrustManagerFactory.getInstance( "SunX509" );
+            TrustManagerFactory.getInstance(trustManagerAlgorithm);
 
         if( key_store != null && trusteesFromKS )
         {

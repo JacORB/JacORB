@@ -953,6 +953,22 @@ no more than queue\_min requests. Default is 10. & integer \\
 \verb"jacorb.security.keysto"
 \verb"re_type" & The SSL keystore type. Defaults to JKS. & string \\
 \hline
+\verb"jacorb.security.jsse.s"
+\verb"erver.key_manager_a"
+\verb"lgorithm" & The algorithm used to initialise the SSL socket factories. Defaults to SunX509. Change to IbmX509 for IBM JDKs. & string \\
+\hline
+\verb"jacorb.security.jsse.s"
+\verb"erver.trust_manager_a"
+\verb"lgorithm" & The algorithm used to initialise the SSL socket factories. Defaults to SunX509. Change to IbmX509 for IBM JDKs. & string \\
+\hline
+\verb"jacorb.security.jsse.c"
+\verb"lient.key_manager_a"
+\verb"lgorithm" & The algorithm used to initialise the SSL socket factories. Defaults to SunX509. Change to IbmX509 for IBM JDKs. & string \\
+\hline
+\verb"jacorb.security.jsse.c"
+\verb"lient.trust_manager_a"
+\verb"lgorithm" & The algorithm used to initialise the SSL socket factories. Defaults to SunX509. Change to IbmX509 for IBM JDKs. & string \\
+\hline
 \verb"jacorb.security.jsse.t"
 \verb"rustees_from_ks" & Sun JSSE specific settings: Use the keystore to take trusted certificates from. Default is off. & boolean \\
 \hline
