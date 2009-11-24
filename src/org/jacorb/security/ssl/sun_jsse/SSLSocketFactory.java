@@ -26,15 +26,14 @@ import java.net.Socket;
 import java.net.UnknownHostException;
 import java.security.KeyStore;
 import java.util.List;
-
 import javax.net.SocketFactory;
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSocket;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.TrustManagerFactory;
-
-import org.jacorb.config.*;
+import org.jacorb.config.Configuration;
+import org.jacorb.config.ConfigurationException;
 import org.jacorb.orb.ORB;
 import org.jacorb.orb.factory.AbstractSocketFactory;
 import org.jacorb.orb.listener.SSLHandshakeListener;
@@ -61,6 +60,7 @@ public class SSLSocketFactory
     private String keystore_passphrase = null;
     private final SSLSessionListener sslListener;
     private SSLRandom sslRandom;
+    private String keystore_type = null;
 
     public SSLSocketFactory(ORB orb)
     {
@@ -85,6 +85,9 @@ public class SSLSocketFactory
 
         keystore_passphrase =
             configuration.getAttribute("jacorb.security.keystore_password");
+
+        keystore_type=
+           configuration.getAttribute("jacorb.security.keystore_type", "JKS");
 
         clientSupportedOptions =
             Short.parseShort(
@@ -195,7 +198,8 @@ public class SSLSocketFactory
         {
             key_store =
                 KeyStoreUtil.getKeyStore( keystore_location,
-                                          keystore_passphrase.toCharArray() );
+                                          keystore_passphrase.toCharArray(),
+                                          keystore_type);
             //only add own credentials, if establish trust in
             //client is supported
             if( ( clientSupportedOptions & 0x40) != 0 )

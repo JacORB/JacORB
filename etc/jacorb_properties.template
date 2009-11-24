@@ -582,6 +582,8 @@ jacorb.security.ssl.server.required_options=0
 # truststore.
 jacorb.security.keystore=
 jacorb.security.keystore_password=
+# SSL keystore used:
+# jacorb.security.keystore_type=JKS
 
 #
 # Sun JSSE specific settings

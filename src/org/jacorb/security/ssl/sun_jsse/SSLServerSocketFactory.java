@@ -20,21 +20,20 @@
  */
 package org.jacorb.security.ssl.sun_jsse;
 
-import org.jacorb.config.*;
-
-import java.net.*;
-import java.io.*;
-import java.security.*;
-import java.util.*;
-
-// for use with JSSE 1.0.x
-//import com.sun.net.ssl.TrustManager;
-//import com.sun.net.ssl.KeyManagerFactory;
-//import com.sun.net.ssl.TrustManagerFactory;
-//import com.sun.net.ssl.SSLContext;
-//import com.sun.net.ssl.*;
-import javax.net.ssl.*;
-import javax.net.*;
+import java.io.IOException;
+import java.net.InetAddress;
+import java.net.ServerSocket;
+import java.security.KeyStore;
+import java.util.List;
+import javax.net.ServerSocketFactory;
+import javax.net.ssl.KeyManagerFactory;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLServerSocket;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.TrustManagerFactory;
+import org.jacorb.config.Configurable;
+import org.jacorb.config.Configuration;
+import org.jacorb.config.ConfigurationException;
 
 /**
  * @author Nicolas Noffke
@@ -56,6 +55,7 @@ public class SSLServerSocketFactory
     private short serverRequiredOptions = 0;
     private String keystore_location = null;
     private String keystore_passphrase = null;
+    private String keystore_type = null;
 
     public void configure(Configuration configuration)
         throws ConfigurationException
@@ -103,6 +103,9 @@ public class SSLServerSocketFactory
 
         keystore_passphrase =
             configuration.getAttribute("jacorb.security.keystore_password");
+
+        keystore_type=
+           configuration.getAttribute("jacorb.security.keystore_type", "JKS");
 
         try
         {

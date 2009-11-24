@@ -20,9 +20,11 @@ package org.jacorb.security.ssl.sun_jsse;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import java.security.*;
-import java.io.*;
-
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.security.KeyStore;
 import org.jacorb.util.ObjectUtil;
 
 /**
@@ -37,9 +39,9 @@ public class KeyStoreUtil
      * @return - a fully loaded and operational KeyStore
      * @param file_name - a keystore file name to be loaded
      * @param storepass - the password for managing the keystore
+    * @param keystoreType
      */
-    public static KeyStore getKeyStore( String file_name,
-                                        char[] storepass )
+    static KeyStore getKeyStore( String file_name, char[] storepass, String keystoreType )
         throws IOException, java.security.GeneralSecurityException
     {
         InputStream in = null;
@@ -80,7 +82,7 @@ public class KeyStoreUtil
                                       file_name);
         }
 
-        KeyStore ks = KeyStore.getInstance( "JKS" );
+        KeyStore ks = KeyStore.getInstance(keystoreType);
         ks.load( in, storepass );
         in.close();
         return ks;
