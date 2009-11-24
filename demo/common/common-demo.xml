@@ -4,7 +4,7 @@
     <property name="classes.dir"    value="${build.dir}/classes"/>
 
     <property name="idl.dir"        value="idl" />
-    <property name="gen.dir"        value="${build.dir}/java" />
+    <property name="gen.dir"        value="${build.dir}/generated" />
     <property name="resources.dir"  value="resources" />
     <property name="jacorb.dir"     value="../.." />
 
@@ -44,7 +44,7 @@
     </target>
 
     <target name="idl" depends="idl.taskdef">
-        <jacidl srcdir="${idl.dir}" destdir="${gen.dir}" includes="*.idl" helpercompat="jacorb" 
+        <jacidl srcdir="${idl.dir}" destdir="${gen.dir}" includes="*.idl" helpercompat="jacorb"
     	   includepath="${jacorb.dir}/idl/omg" />
     </target>
 
