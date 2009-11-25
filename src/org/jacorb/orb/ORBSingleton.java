@@ -81,6 +81,14 @@ public class ORBSingleton
                 }
 
                 logger.info("created ORBSingleton");
+
+                ClassLoader omgcl  = org.omg.CORBA.ORB.class.getClassLoader ();
+                ClassLoader thiscl = this.getClass().getClassLoader();
+
+                if (omgcl != thiscl)
+                {
+                   logger.warn ("OMG.ORB classloader does not match JacORB ORBSingleton classloader. This may cause problems; see the ProgrammingGuide for further details");
+                }
             }
         }
         catch (ConfigurationException e)

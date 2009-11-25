@@ -1,0 +1,74 @@
+%
+% $Id: classloader.tex,v 1.1 2009-06-05 07:45:40 rnc Exp $
+%
+
+This chapter explains some of the problems that may be encountered with classpath and classloaders.
+
+\section{Running applications}
+
+By default JacORB is shipped with runtime scripts to simplify running
+an application.  These scripts use the Java Endorsed Standards
+Override Mechanism in order to ensure that the JacORB implementation
+classes and the supplied OMG classes are found in preference to any
+bundled within the JVM. This mechanism is documented here
+http://java.sun.com/j2se/1.5.0/docs/guide/standards
+
+
+The mechanism utilises the Xbootclasspath to place the classes first. If
+this is not used then the Sun OMG classes may be found first. The issue
+that may be encountered here is if JacORB is released with newer versions 
+of the OMG classes than is distributed within the JVM. Therefore the JacORB 
+classes should be used in preference.
+
+
+\subsection{ORBSingleton}
+Unlike an ORB.init(args,props) where a developer may pass arguments initialising
+an ORBSingleton with ORB.init() does not. This means that unless the developer has
+either
+
+\begin{itemize}
+\item Started the JVM supplying ORBSingletonClass and ORBClass properties
+\item Overridden System properties prior to calling ORBInit with ORBSingletonClass and ORBClass properties
+\end{itemize}
+
+ the OMG ORB class will initialise the wrong ORBSingleton \textbf{if} endorsed 
+directories are \textbf{not} being used. If endorsed directories are being used
+the JacORB OMG ORB class will automatically load the correct Singleton.
+
+
+\section{Interaction with Classloaders}
+
+The endorsed directory mechanism means that the JacORB classes will be loaded
+into the bootstrap classloader. If the developer has chosen to instantiate their
+own child classloader and load the JacORB classes within this (e.g. via URLClassLoader 
+downloading the classes over the network) several problems may be encountered:
+
+\subsubsection{Garbage Collection}
+The Sun JVM will load its OMG ORB classes in preference to those within the child
+classloader. This means that it will retain a static link to the JacORB ORBSingleton
+implementation within the child classloader. Therefore the classes cannot be fully garbage
+collected once the classloader is disposed of.
+
+\subsubsection{Class Conflict}
+As described above the Sun OMG ORB class matains a static ORBSingleton reference. If a second
+class loader is instantiated, as a ORBSingleton already exists in the parent bootclassloader
+it will not be created. However when the JacORB code checks that
+
+{\tt ORB.init () instanceof org.jacorb.orb.ORBSingleton }
+
+it will fail. This is because the ORBSingleton class created in the first classloader is different
+to the ORBSingleton class created in the second classloader. This behaviour is documented within the
+Java Language Specification here http://java.sun.com/docs/books/jls/third\_edition/html/execution.html\#12.1.1
+and a paper describing the behaviour may be found here http://www.tedneward.com/files/Papers/JavaStatics/JavaStatics.pdf
+
+
+\subsubsection{Solving the Problem}
+The above problem occurs as java.net.URLClassLoader uses the parent-first class-loader delegation model.
+To solve the issue, the simplest and most effective solution is to use child-first class-loader delegation
+model. An example of this may be found here http://www.qos.ch/logging/classloader.jsp
+
+This model ensures that parent delegation occurs only \textbf{after} an unsuccessful attempt to load a class from
+the child. Therefore the org.omg.CORBA.* classes supplied with JacORB would be found and used in preference to
+the OMG classes supplied by Sun in the bootclassloader. The ORBSingleton would be created entirely within the child
+classloader with no external references. This means the second classloader would also create its own, entirely 
+isolated Singleton class.  

@@ -104,7 +104,7 @@ post 2.3.1
           of modules.
         - enhance generation to null delegate objects.
 
-     - Interface Repository:
+    - Interface Repository:
         - use a persistent POA for the repository servant.
 
     - Tools:
@@ -114,6 +114,8 @@ post 2.3.1
     - Documentation
         - added section about the usage of corbaloc in conjunction
           with SSL enabled servers.
+        - Classloader chapter added.
+          
 
 2.3.1
 =====
