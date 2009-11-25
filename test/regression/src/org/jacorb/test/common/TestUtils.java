@@ -37,8 +37,11 @@ import junit.framework.AssertionFailedError;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileFilter;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.FilenameFilter;
 import java.io.IOException;
@@ -627,5 +630,34 @@ public class TestUtils
     public static long getMediumTimeout()
     {
         return Long.getLong("jacorb.test.timeout.medium", 20000).longValue();
+    }
+
+    /**
+     * wait until a server IOR shows up (file size > 0) and print it out
+     * to stdout so it can be picked up by a client process.
+     */
+    public static void printServerIOR(File iorFile)
+                                                    throws InterruptedException,
+                                                    FileNotFoundException,
+                                                    IOException
+    {
+        long maxWait = System.currentTimeMillis() + ServerSetup.getTestServerTimeout();
+
+        while(iorFile.length() == 0 && System.currentTimeMillis() < maxWait)
+        {
+            Thread.sleep(1000);
+        }
+
+        Thread.sleep(1000);
+
+        BufferedReader in = new BufferedReader(new FileReader(iorFile));
+        String ior = in.readLine();
+
+        if (ior == null)
+        {
+            throw new IllegalArgumentException("cannot read IOR from file " + iorFile + " within " + ServerSetup.getTestServerTimeout());
+        }
+
+        System.out.println("SERVER IOR: " + ior);
     }
 }

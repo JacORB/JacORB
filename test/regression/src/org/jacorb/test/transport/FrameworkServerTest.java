@@ -2,9 +2,7 @@ package org.jacorb.test.transport;
 
 import java.util.Properties;
 
-import junit.framework.Test;
 import junit.framework.TestCase;
-import junit.framework.TestSuite;
 
 import org.jacorb.test.orb.transport.CurrentServer;
 import org.jacorb.test.orb.transport.CurrentServerHelper;

@@ -1,12 +1,10 @@
 package org.jacorb.test.ir;
 
 import java.io.File;
-import java.io.FileReader;
 import java.io.IOException;
-import java.io.LineNumberReader;
 
 import org.jacorb.ir.IRServer;
-import org.jacorb.test.common.TestServer;
+import org.jacorb.test.common.TestUtils;
 
 public class IRServerRunner
 {
@@ -31,25 +29,9 @@ public class IRServerRunner
 
         thread.start();
 
-        Thread.sleep(1000);
-
         File iorFile = new File(iorFileName);
 
-        while(!(iorFile.canRead()))
-        {
-            Thread.sleep(1000);
-        }
-
-        LineNumberReader in = new LineNumberReader(new FileReader(iorFile));
-
-        String ior = in.readLine();
-
-        if (ior == null)
-        {
-            throw new IllegalArgumentException("could not read IOR");
-        }
-
-        System.out.println("SERVER IOR: " + ior);
+        TestUtils.printServerIOR(iorFile);
     }
 
     private static String getClasspath()
