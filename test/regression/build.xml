@@ -543,7 +543,7 @@ Tests run: ${result.testCount}, Failures: ${result.testFailures}, Errors: ${resu
     <!--                  code coverage                       -->
     <!-- ==================================================== -->
 
-    <target name="instrument" depends="test-init" if="jacorb.test.coverage.process"
+    <target name="instrument" depends="test-init" if="jacorb.test.coverage"
             description="Instrument the main JacORB code for coverage analysis">
 
         <coverage-instrument>

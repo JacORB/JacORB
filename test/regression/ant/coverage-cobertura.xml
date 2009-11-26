@@ -8,9 +8,7 @@
         </fileset>
     </path>
 
-    <target name="load-cobertura-taskdefs" if="jacorb.test.coverage">
-       <taskdef resource="tasks.properties" classpathref="classpath.coverage" />
-    </target>
+   <taskdef resource="tasks.properties" classpathref="classpath.coverage" />
 
     <macrodef name="coverage-instrument">
         <element name="fileset-arg" implicit="true" />
