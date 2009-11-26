@@ -75,7 +75,7 @@ public class BugJac461Test extends ClientServerTestCase
 
         //read japanese from file
         BufferedReader in = new BufferedReader(
-                new InputStreamReader(getClass().getResourceAsStream("japanese_case4537.txt"), "Shift-JIS"));
+                new InputStreamReader(getClass().getResourceAsStream("japanese_case4537.txt"), "SJIS"));
 
         line = in.readLine();
         assertNotNull(line);
