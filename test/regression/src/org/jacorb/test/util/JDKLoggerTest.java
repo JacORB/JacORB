@@ -20,18 +20,17 @@ package org.jacorb.test.util;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import java.util.*;
-import java.io.*;
-
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.Properties;
 import junit.framework.TestSuite;
-
-import org.omg.CORBA.*;
-
-import org.slf4j.Logger;
 import org.jacorb.config.Configuration;
-import org.jacorb.config.JacORBConfiguration;
-
-import org.jacorb.test.common.*;
+import org.jacorb.test.common.JacORBTestCase;
+import org.jacorb.test.common.TestUtils;
+import org.omg.CORBA.ORB;
+import org.slf4j.Logger;
 
 
 /**
@@ -41,60 +40,20 @@ import org.jacorb.test.common.*;
  * @version $Id$
  */
 
-public class LogKitLoggerFactoryTest
+public class JDKLoggerTest
     extends JacORBTestCase
 {
     private String logDirectory = null;
 
-    public LogKitLoggerFactoryTest(String name)
+    public JDKLoggerTest(String name)
     {
         super(name);
     }
 
     public static TestSuite suite()
     {
-        TestSuite suite = new TestSuite(LogKitLoggerFactoryTest.class);
+        TestSuite suite = new TestSuite(JDKLoggerTest.class);
         return suite;
-    }
-
-    /**
-     * Tests whether logger priorities are assigned correctly.
-     */
-    public void XXXtestGetPriorityForNamedLogger()
-        throws Exception
-    {
-        Properties props = new Properties();
-
-        props.setProperty("jacorb.log.default.verbosity", "2");
-        props.setProperty("jacorb.component.log.verbosity", "3");
-        props.setProperty("jacorb.component.subcomponent.log.verbosity", "4");
-
-        props.setProperty ("jacorb.overrated.log.verbosity", "5");
-        props.setProperty ("jacorb.underrated.log.verbosity", "-1");
-
-        props.setProperty("jacorb.trailingspace.test1", "INFO ");
-        props.setProperty("jacorb.trailingspace.test2", "INFO");
-
-        Configuration config = JacORBConfiguration.getConfiguration(props, null, false);
-        int defaultPriority = config.getAttributeAsInteger("jacorb.log.default.verbosity",0);
-
-        assertEquals(defaultPriority, priorityFor("foologger", config));
-
-        assertEquals(2, priorityFor("jacorb", config));
-        assertEquals(2, priorityFor("jacorb.other_component", config));
-        assertEquals(2, priorityFor("jacorb.other_component.sub", config));
-
-        assertEquals(3, priorityFor("jacorb.component", config));
-        assertEquals(3, priorityFor("jacorb.component.subcomponent2", config));
-
-        assertEquals(4, priorityFor("jacorb.component.subcomponent", config));
-        assertEquals(4, priorityFor("jacorb.component.subcomponent.sub", config));
-
-        assertEquals(4, priorityFor("jacorb.overrated", config));
-        assertEquals(0, priorityFor("jacorb.underrated", config));
-
-        assertEquals(priorityFor("jacorb.trailingspace.test1", config),
-                     priorityFor("jacorb.trailingspace.test2", config));
     }
 
     /**
@@ -150,6 +109,9 @@ public class LogKitLoggerFactoryTest
 
     /**
      * Tests the separate log target for the singleton ORB.
+     *
+     * Disabling this test for now and JDK logger behaves strangely with multiple loggers/ORB
+     * - the most recent ORB(full or singleton) takes over the logging.
      */
     public void XXXtestLogFileSingleton() throws Exception
     {

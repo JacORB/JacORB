@@ -30,9 +30,10 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
 import java.util.StringTokenizer;
-
+import java.util.logging.Level;
 import org.jacorb.orb.ORB;
 import org.jacorb.util.ObjectUtil;
+import org.omg.CORBA.NO_IMPLEMENT;
 import org.slf4j.Logger;
 
 /**
@@ -41,7 +42,6 @@ import org.slf4j.Logger;
  */
 public class JacORBConfiguration implements Configuration
 {
-    private static final String CONFIG_LOG_VERBOSITY = "jacorb.config.log.verbosity";
     private static final String fileSuffix = ".properties";
     private static final String COMMON_PROPS = "orb" + fileSuffix;
 
@@ -49,16 +49,11 @@ public class JacORBConfiguration implements Configuration
     private static final String ON = "on";
     private static final String EMPTY_STR = "";
 
-    private static final String ATTR_LOG_VERBOSITY       = "jacorb.log.default.verbosity";
-    private static final String ATTR_LOG_FILE            = "jacorb.logfile";
-    private static final String ATTR_LOG_APPEND          = "jacorb.logfile.append";
     private static final String ATTR_LOGGING_INITIALIZER = "jacorb.log.initializer";
-    private static final int    DEFAULT_LOG_LEVEL    = 0;
 
     /** contains the actual configuration data */
     private Properties attributes;
 
-    private String name;
     private final ORB orb;
 
     private Logger logger;
@@ -86,7 +81,7 @@ public class JacORBConfiguration implements Configuration
             catch ( SecurityException e )
             {
                 isApplet = true;
-                println("Could not access system property 'ORBid' - will use default...");
+                System.err.println ("Could not access system property 'ORBid' - will use default...");
             }
         }
 
@@ -127,33 +122,57 @@ public class JacORBConfiguration implements Configuration
         throws ConfigurationException
     {
         super();
-        this.name = name;
         this.orb = orb;
         this.attributes = new Properties();
         this.logger = getLogger ("jacorb.config");
 
+        ArrayList delayedLogging = new ArrayList ();
         if (isApplet)
         {
-            initApplet(name, orbProperties);
+           initApplet(delayedLogging, name, orbProperties);
         }
         else
         {
-            init(name, orbProperties);
+           init(delayedLogging, name, orbProperties);
         }
 
-        // don't call this for the singleton orb
-        if (orb != null) initLogging();
+        initLogging();
+
+        // This delays logging out any information about the loading of the properties
+        // or configuration until any logging subsystem has been setup.
+        for (int i=0; i<delayedLogging.size (); i++)
+        {
+           Object obj = delayedLogging.get(i);
+
+           // The arraylist normally contains just a string object. In some cases we wish
+           // to log using e.g. Warning level. It would be possible to create a wrapper
+           // object for every logging message. However this allows a simple quick shortcut.
+           if (obj instanceof String)
+           {
+              logger.info ((String)obj);
+           }
+           else if (obj instanceof DelayedConfigOutput)
+           {
+              if (((DelayedConfigOutput)obj).level == Level.INFO)
+              {
+                 logger.info (((DelayedConfigOutput)obj).message);
+              }
+              else if (((DelayedConfigOutput)obj).level == Level.WARNING)
+              {
+                 logger.warn (((DelayedConfigOutput)obj).message);
+              }
+              else
+              {
+                 throw new NO_IMPLEMENT("Only info/warn delayed logging implemented.");
+              }
+           }
+           else
+           {
+              logger.error ("Invalid type of object to store in delayed logging cache.");
+           }
+        }
     }
 
-    private static void println(String mesg)
-    {
-        System.out.println(mesg); // NOPMD
-    }
-
-    private static void printErr(String mesg)
-    {
-        System.err.println(mesg); // NOPMD
-    }
 
     /**
      * loads properties from files.
@@ -167,11 +186,12 @@ public class JacORBConfiguration implements Configuration
      * 5) the ORB properties set in the client code and passed in
      * through ORB.init().
      * (Note that these will thus always take effect!)
+    * @param delayedLogging2
      *
      * @param name the name for the ORB instance, may not be null.
      */
 
-    private void init(String name, Properties orbProperties)
+    private void init(ArrayList delayedLogging, String name, Properties orbProperties)
         throws ConfigurationException
    {
        if( name == null )
@@ -188,6 +208,14 @@ public class JacORBConfiguration implements Configuration
        //    that will influence further property loading
        setAttributes(System.getProperties());
 
+       // 1.5) load passed-in properties that might influence further
+       // property loading.  This will allow me to pass in jacorb.home,
+       // jacorb.config.dir, and jacorb.config.log.verbosity.
+       if (orbProperties != null)
+       {
+           loaded = true;
+           setAttributes(orbProperties);
+       }
        // 2) look for orb.properties
        // look for common properties files in java.home/lib first
        String propFile = lib + separator + "lib" + separator + COMMON_PROPS;
@@ -196,7 +224,7 @@ public class JacORBConfiguration implements Configuration
        {
             setAttributes(commonProps);
             loaded = true;
-            logger.info ("base configuration loaded from file " + propFile);
+            delayedLogging.add ("base configuration loaded from file " + propFile);
        }
 
        // look for common properties files in user.home next
@@ -206,7 +234,7 @@ public class JacORBConfiguration implements Configuration
        {
            setAttributes(commonProps);
            loaded = true;
-           logger.info ("base configuration loaded from file " + propFile);
+           delayedLogging.add ("base configuration loaded from file " + propFile);
        }
 
        // look for common properties files on the classpath next
@@ -215,8 +243,8 @@ public class JacORBConfiguration implements Configuration
        {
            loaded = true;
            setAttributes(commonProps);
-           logger.info ("base configuration loaded from classpath "
-                        + COMMON_PROPS);
+           delayedLogging.add ("base configuration loaded from classpath "
+                   + COMMON_PROPS);
        }
 
        // 3) look for specific properties file
@@ -232,7 +260,7 @@ public class JacORBConfiguration implements Configuration
            }
            else
            {
-               logger.warn ("jacorb.home unset! Will use '.'");
+               delayedLogging.add (new DelayedConfigOutput (Level.WARNING, "jacorb.home unset! Will use '.'"));
                configDir = ".";
            }
        }
@@ -246,13 +274,8 @@ public class JacORBConfiguration implements Configuration
        {
            setAttributes(orbConfig);
            loaded = true;
-           logger.info ("configuration " + name +
-                        " loaded from file " + propFile);
-       }
-       else
-       {
-           logger.warn ("File " + propFile + " for configuration "
-                        + name + " not found");
+
+           delayedLogging.add ("configuration " + name + " loaded from file " + propFile);
        }
 
        // now load properties file from classpath
@@ -261,7 +284,7 @@ public class JacORBConfiguration implements Configuration
        {
            setAttributes(orbConfig);
            loaded = true;
-           logger.info ("configuration " + name + " loaded from classpath");
+           delayedLogging.add ("configuration " + name + " loaded from classpath");
        }
 
        // 4) look for additional custom properties files
@@ -277,12 +300,11 @@ public class JacORBConfiguration implements Configuration
                 {
                     setAttributes(customProps);
                     loaded = true;
-                    logger.info ("custom properties loaded from file "
-                                 + fileName);
+                    delayedLogging.add ("custom properties loaded from file " + fileName);
                 }
                 else
                 {
-                    logger.warn ("custom properties not found in " + fileName);
+                    delayedLogging.add (new DelayedConfigOutput (Level.WARNING, "custom properties not found in " + fileName));
                 }
            }
        }
@@ -291,7 +313,7 @@ public class JacORBConfiguration implements Configuration
        //    command line args override properties from files
        setAttributes( System.getProperties() );
 
-       // 6) load properties passed to ORB.init(), these will override any
+       // 6) load properties passed to ORB.init() again, these will override any
        // settings in config files or system properties!
        if (orbProperties != null)
        {
@@ -324,9 +346,8 @@ public class JacORBConfiguration implements Configuration
 
        if (!loaded)
        {
-           logger.warn ("no properties found for configuration " + name);
+           delayedLogging.add (new DelayedConfigOutput (Level.WARNING, "no properties found for configuration " + name));
        }
-
     }
 
     /**
@@ -338,11 +359,12 @@ public class JacORBConfiguration implements Configuration
      * specific configuration file for the ORB (if any) 4) the ORB properties
      * set in the client code and passed in through ORB.init().  (Note that
      * these will thus always take effect!)
+    * @param delayedLogging2
      *
      * @param name the name for the ORB instance, may not be null.
      */
 
-    private void initApplet(String name, Properties orbProperties)
+    private void initApplet(ArrayList delayedLogging, String name, Properties orbProperties)
         throws ConfigurationException
    {
        if( name == null )
@@ -366,8 +388,7 @@ public class JacORBConfiguration implements Configuration
        {
            setAttributes(commonProps);
            loaded = true;
-           logger.info ("base configuration loaded from classpath " +
-                        COMMON_PROPS);
+           delayedLogging.add ("base configuration loaded from classpath " + COMMON_PROPS);
        }
 
        // 3) look for specific properties file
@@ -378,14 +399,13 @@ public class JacORBConfiguration implements Configuration
        {
            setAttributes(orbConfig);
            loaded = true;
-           logger.info ("configuration " + name +
-                        " loaded from classpath " + propFile);
+           delayedLogging.add ("configuration " + name + " loaded from classpath " + propFile);
        }
        else
        {
-           logger.warn ("File " + propFile +
-                        " for configuration " + name +
-                        " not found in classpath");
+           delayedLogging.add (new DelayedConfigOutput (Level.WARNING, "File " + propFile +
+                   " for configuration " + name +
+                   " not found in classpath"));
        }
 
        // 4) look for additional custom properties files
@@ -401,13 +421,11 @@ public class JacORBConfiguration implements Configuration
                 {
                     setAttributes(customProps);
                     loaded = true;
-                    logger.info ("custom properties loaded from classpath "
-                                 + fileName);
+                    delayedLogging.add ("custom properties loaded from classpath " + fileName);
                 }
                 else
                 {
-                    logger.warn ("custom properties " + fileName +
-                                 " not found in classpath");
+                    delayedLogging.add (new DelayedConfigOutput (Level.WARNING, "custom properties " + fileName + " not found in classpath"));
                 }
            }
        }
@@ -422,7 +440,7 @@ public class JacORBConfiguration implements Configuration
 
        if (!loaded)
        {
-           logger.warn ("no properties found for configuration " + name);
+           delayedLogging.add (new DelayedConfigOutput (Level.WARNING, "no properties found for configuration " + name));
        }
     }
 
@@ -455,10 +473,8 @@ public class JacORBConfiguration implements Configuration
 
             String key = (String)obj;
             Object value = properties.getProperty(key);
-            if (value instanceof String || value == null)
-            {
-                setAttribute(key, (String)value);
-            }
+
+            setAttribute(key, (String)value);
         }
     }
 
@@ -469,7 +485,7 @@ public class JacORBConfiguration implements Configuration
      * @return a properties object or null, if fileName not found
      */
 
-    private static Properties loadPropertiesFromFile(String fileName)
+    private Properties loadPropertiesFromFile(String fileName)
     {
         try
         {
@@ -495,8 +511,7 @@ public class JacORBConfiguration implements Configuration
         {
             // This is probably a more severe problem with the config file.
             // Write to the terminal, because we have no logging yet.
-            println("could not read config file: " + fileName);
-            e.printStackTrace();
+            logger.error ("could not read config file: " + fileName);
             return null;
         }
     }
@@ -692,28 +707,26 @@ public class JacORBConfiguration implements Configuration
         {
             return defaultValue;
         }
-        else if (value instanceof String)
-        {
-            if (((String)value).trim().length() < 1)
-            {
-                // empty string is treated as 'null' value
-                return defaultValue;
-            }
 
-            try
-            {
-                int i = Integer.parseInt (((String)value).trim());
-                return i;
-            }
-            catch (NumberFormatException ex)
-            {
-                // fall through
-            }
+        if (((String)value).trim().length() < 1)
+        {
+           // empty string is treated as 'null' value
+           return defaultValue;
         }
-        throw new ConfigurationException
-        (
+
+        try
+        {
+           int i = Integer.parseInt (((String)value).trim());
+
+           return i;
+        }
+        catch (NumberFormatException ex)
+        {
+           throw new ConfigurationException
+           (
             "value for attribute " + key + " is not numeric: " + value
-        );
+           );
+        }
     }
 
 
@@ -749,22 +762,20 @@ public class JacORBConfiguration implements Configuration
         {
             return defaultValue;
         }
-        else if (value instanceof String)
+
+        try
         {
-            try
-            {
-                long i = Long.parseLong (((String)value).trim());
-                return i;
-            }
-            catch (NumberFormatException ex)
-            {
-                // fall through
-            }
+           long i = Long.parseLong (((String)value).trim());
+
+           return i;
         }
-        throw new ConfigurationException
-        (
+        catch (NumberFormatException ex)
+        {
+           throw new ConfigurationException
+           (
             "value for attribute " + key + " is not numeric: " + value
-        );
+           );
+        }
     }
 
 
@@ -904,5 +915,26 @@ public class JacORBConfiguration implements Configuration
         }
 
         return Collections.unmodifiableList(attributesWithPrefix);
+    }
+
+
+    /**
+     * DelayedConfigOutput is a hack. Its a simple wrapper to indicate to
+     * getConfiguration that this message should be output at a particular
+     * logging level.
+     *
+     * Even if the level backend is not JDK logging, this still allows us
+     * to switch on the level.
+     */
+    private static class DelayedConfigOutput
+    {
+       java.util.logging.Level level;
+       String message;
+
+       public DelayedConfigOutput (Level warning, String string)
+       {
+          level = warning;
+          message = string;
+       }
     }
 }

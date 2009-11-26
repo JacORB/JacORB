@@ -4,8 +4,8 @@ import java.util.logging.ConsoleHandler;
 import java.util.logging.FileHandler;
 import java.util.logging.Handler;
 import java.util.logging.Level;
-
 import org.jacorb.util.ObjectUtil;
+import org.omg.CORBA.ORB;
 
 /**
  * A LoggingInitializer for the JDK logging system.
@@ -32,6 +32,13 @@ public class JdkLoggingInitializer extends LoggingInitializer
         {
         }
         ISJDKLOGGING = (c != null);
+
+        // This horror is to ensure that the Singleton logging is always set up first.
+        // Otherwise what happens is either the Singleton logging goes to console, or
+        // the full ORB logging uses the Singleton log file. This is mainly because
+        // JDK logging does not allow separate Logger('jacorb') instances. Which means
+        // they use each others logfile.
+        ORB.init ();
     }
 
     /**
@@ -68,9 +75,14 @@ public class JdkLoggingInitializer extends LoggingInitializer
 
     public void init (Configuration config)
     {
-        if (!ISJDKLOGGING) return;
+        if (!ISJDKLOGGING)
+        {
+           return;
+        }
+
         String level = config.getAttribute (ATTR_LOG_VERBOSITY, null);
         String file  = config.getAttribute (ATTR_LOG_FILE, null);
+
         if (   (level != null && level.length() > 0)
             || (file != null && file.length() > 0))
         {
@@ -103,8 +115,8 @@ public class JdkLoggingInitializer extends LoggingInitializer
                 }
             }
             else
-	    {
-		handler = new ConsoleHandler();
+            {
+               handler = new ConsoleHandler();
             }
             handler.setLevel(toJdkLogLevel(level));
             handler.setFormatter (new JacORBLogFormatter());
