@@ -29,8 +29,10 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import org.jacorb.config.*;
-import org.slf4j.Logger;
+
+import org.jacorb.config.Configurable;
+import org.jacorb.config.Configuration;
+import org.jacorb.config.ConfigurationException;
 import org.jacorb.imr.ImRAccessImpl;
 import org.jacorb.orb.dii.Request;
 import org.jacorb.orb.dynany.DynAnyFactoryImpl;
@@ -94,6 +96,7 @@ import org.omg.PortableInterceptor.ORBInitializer;
 import org.omg.PortableInterceptor.PolicyFactory;
 import org.omg.PortableServer.POAManagerPackage.AdapterInactive;
 import org.omg.PortableServer.POAManagerPackage.State;
+import org.slf4j.Logger;
 
 /**
  * @author Gerald Brose, FU Berlin
@@ -631,25 +634,6 @@ public final class ORB
         return clientConnectionManager;
     }
 
-    public synchronized GIOPConnectionManager getGIOPConnectionManager()
-    {
-        if (giop_connection_manager == null)
-        {
-            giop_connection_manager =
-                new GIOPConnectionManager();
-            try
-            {
-                giop_connection_manager.configure(configuration);
-            }
-            catch( ConfigurationException ce )
-            {
-                throw new INTERNAL(ce.toString());
-            }
-        }
-        return giop_connection_manager;
-    }
-
-
     /**
      * Take a string rather then a Delegate object to prevent data race
      * warning.
@@ -977,7 +961,8 @@ public final class ORB
             basicAdapter = new BasicAdapter( this,
                                              rootpoa,
                                              getTransportManager(),
-                                             getGIOPConnectionManager() );
+                                             giop_connection_manager 
+                                             );
 
             try
             {
@@ -1000,11 +985,7 @@ public final class ORB
         final List list = new ArrayList(initial_references.size() + services.size());
 
         list.addAll(services);
-
-        for( Iterator i = initial_references.keySet().iterator(); i.hasNext();)
-        {
-            list.add( i.next() );
-        }
+        list.addAll(initial_references.keySet());
 
         return (String[]) list.toArray( new String[list.size()] );
     }
@@ -1618,10 +1599,10 @@ public final class ORB
         {
             final List orb_initializers = getORBInitializers();
             final ORBInitInfoImpl initInfo = new ORBInitInfoImpl(this);
+            
+            initManagers();
 
             interceptorPreInit(orb_initializers, initInfo);
-
-            initClientConnectionManager();
 
             initKnownReferencesMap();
 
@@ -1635,19 +1616,26 @@ public final class ORB
         }
     }
 
-    private void initClientConnectionManager()
+    private void initManagers()
     {
         try
         {
-            clientConnectionManager =
-                new ClientConnectionManager( this,
-                                             getTransportManager(),
-                                             getGIOPConnectionManager());
+            transport_manager = new TransportManager(this);
+
+            transport_manager.configure(configuration);
+
+            giop_connection_manager = new GIOPConnectionManager();
+
+            giop_connection_manager.configure(configuration);
+            
+            clientConnectionManager = new ClientConnectionManager(this,
+                                                                  transport_manager,
+                                                                  giop_connection_manager);
             clientConnectionManager.configure(configuration);
         }
         catch( ConfigurationException ce )
         {
-            logger.error("unexpected exception", ce);
+            logger.error("Unexpected exception configuring managers", ce);
             throw new INTERNAL(ce.toString());
         }
     }
@@ -2263,20 +2251,8 @@ public final class ORB
         return interceptor_manager;
     }
 
-    public synchronized TransportManager getTransportManager()
+    public TransportManager getTransportManager()
     {
-        if (transport_manager == null)
-        {
-            transport_manager = new TransportManager(this);
-            try
-            {
-                transport_manager.configure(configuration);
-            }
-            catch( ConfigurationException e )
-            {
-                throw new INITIALIZE(e.toString());
-            }
-        }
         return transport_manager;
     }
 
