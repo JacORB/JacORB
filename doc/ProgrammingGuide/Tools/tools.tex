@@ -46,11 +46,10 @@ not \\
 (default is off). See chapter \ref{ch:AMI}\\
 \>  -ami\_polling  \>  generate AMI poller and sendp methods (default
 is off). See chapter \ref{ch:AMI}\\
-\>  -backend classname \>  use classname as compiler (code generator)
-backend.  The default code generator \\
-\> \>class is {\tt org.jacorb.idl.javamapping.JavaMappingGeneratingVisitor}\\
-\> \>  (c.f. API documentation). Custom generators must implement the
-interface\\
+\>  -addbackend classname \>  classname as code generator\\
+\>  -backend classname \>  use classname as compiler (code generator) backend.\\
+\> \>If no generator is specified then it will default to simple file output.\\
+\> \>Custom generators must implement the interface\\
 \> \> {\tt org.jacorb.idl.IDLTreeVisitor}\\
 \> -i2jpackage x:a.b.c \>  replace IDL package name x by a.b.c in
 generated Java code \\
