@@ -436,9 +436,9 @@ try
             ps.println( "\t\t\treturn;" );
 
 
-        if( !is_local ) ps.println( "\t\t}\n" );
+        if( !is_local ) ps.println( "\t\t}" + Environment.NL );
 
-        ps.println( "\t\t}\n" ); // end while
+        ps.println( "\t\t}" + Environment.NL ); // end while
     }
 
     /**
@@ -593,7 +593,7 @@ try
 
         ps.print( ")" );
         raisesExpr.print( ps );
-        ps.println( "\n\t{" );
+        ps.println( Environment.NL + "\t{" );
 
         if ( parser.generateDiiStubs )
         {
@@ -604,7 +604,7 @@ try
             printStreamBody(ps, classname, idl_name, is_local, is_abstract);
         }
 
-         ps.println( "\t}\n" ); // end method^M
+         ps.println( "\t}" + Environment.NL ); // end method^M
      }
 
     public void print_sendc_Method( PrintWriter ps,
@@ -629,8 +629,8 @@ try
             }
         }
 
-        ps.print( ")" );
-        ps.println( "\n\t{" );
+        ps.print( ")"  + Environment.NL );
+        ps.println( "\t{" );
         ps.println( "\t\twhile(true)" );
         ps.println( "\t\t{" );
         ps.println( "\t\t\ttry" );
@@ -665,8 +665,8 @@ try
         ps.println( "\t\t\t{" );
         ps.println( "\t\t\t}" );
 
-        ps.println( "\t\t}\n" ); // end while
-        ps.println( "\t}\n" ); // end method
+        ps.println( "\t\t}" + Environment.NL ); // end while
+        ps.println( "\t}" + Environment.NL ); // end method
     }
 
     public void printDelegatedMethod( PrintWriter ps )
@@ -685,7 +685,7 @@ try
 
         ps.print( ")" );
         raisesExpr.print( ps );
-        ps.println( "\n\t{" );
+        ps.println( Environment.NL + "\t{" );
 
 
         if( opAttribute == NO_ATTRIBUTE &&
@@ -705,7 +705,7 @@ try
             ps.print( ( (ParamDecl)e.nextElement() ).simple_declarator );
         }
         ps.println( ");" );
-        ps.println( "\t}\n" );
+        ps.println( "\t}" + Environment.NL );
     }
 
     public void printInvocation( PrintWriter ps )

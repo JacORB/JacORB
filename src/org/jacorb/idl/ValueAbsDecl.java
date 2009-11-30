@@ -325,7 +325,7 @@ public class ValueAbsDecl
                         lexer.emit_warn
                             ("No package defined for " + name + " - illegal in JDK1.4", token);
                     if (!pack_name.equals(""))
-                        ps.println("package " + pack_name + ";\n");
+                        ps.println("package " + pack_name + ";" + Environment.NL);
 
                     printClassComment("abstract value type", name, ps);
 
@@ -357,7 +357,7 @@ public class ValueAbsDecl
                         }
                     }
 
-                    ps.println("\n{");
+                    ps.println(Environment.NL + "{");
                     if (body != null)
                     {
                         // forward declaration

@@ -248,16 +248,19 @@ public class FixedPointType
 
         if (parser.generatedHelperPortability == parser.HELPER_DEPRECATED)
         {
-            sb.append("\t\tjava.math.BigDecimal " + fixedName + "=" + strname + ".read_fixed();\n");
-            sb.append("\t\t" + var_name + " = " + fixedName + ".movePointLeft(" + scale + ");\n");
+            sb.append("\t\tjava.math.BigDecimal " + fixedName + "=" + strname + ".read_fixed();" + Environment.NL);
+            sb.append("\t\t" + var_name + " = " + fixedName + ".movePointLeft(" + scale + ");" + Environment.NL);
         }
         else if (parser.generatedHelperPortability == parser.HELPER_PORTABLE)
         {
-            sb.append("\t\t" + var_name + "=" + strname + ".read_fixed((short)" + digits+ ", (short)" + scale+ ");\n");
+            sb.append("\t\t" + var_name + "=" + strname + ".read_fixed((short)" 
+                      + digits + ", (short)" + scale+ ");" + Environment.NL);
         }
         else if (parser.generatedHelperPortability == parser.HELPER_JACORB)
         {
-            sb.append("\t\t" + var_name + "=((org.jacorb.orb.CDRInputStream)" + strname + ").read_fixed((short)" + digits+ ", (short)" + scale+ ");\n");
+            sb.append("\t\t" + var_name + "=((org.jacorb.orb.CDRInputStream)" 
+                      + strname + ").read_fixed((short)" + digits 
+                      + ", (short)" + scale + ");" + Environment.NL);
         }
         else
         {
@@ -274,8 +277,10 @@ public class FixedPointType
             mb.append("0");
 
         StringBuffer sb = new StringBuffer();
-        sb.append("\n\t\tif (" + var_name + ".scale() != " + scale + ")\n");
-        sb.append("\t\t\tthrow new org.omg.CORBA.DATA_CONVERSION(\"wrong scale in fixed point value, expecting " + scale + ", got \" + " + var_name + ".scale());\n");
+        sb.append(Environment.NL);
+        sb.append("\t\tif (" + var_name + ".scale() != " + scale + ")" + Environment.NL);
+        sb.append("\t\t\tthrow new org.omg.CORBA.DATA_CONVERSION(\"wrong scale in fixed point value, expecting " 
+                  + scale + ", got \" + " + var_name + ".scale());" + Environment.NL);
 
         String max = null;
         if (hashCode() > 0)
@@ -283,21 +288,26 @@ public class FixedPointType
         else
             max = "_max" + (-1 * hashCode());
 
-        sb.append("\t\tjava.math.BigDecimal " + max + "= new java.math.BigDecimal(\"" + mb.toString() + "\");\n");
-        sb.append("\t\tif (" + var_name + ".compareTo(" + max + ") != -1)\n");
-        sb.append("\t\t\tthrow new org.omg.CORBA.DATA_CONVERSION(\"more than " + digits + " digits in fixed point value\");\n");
+        sb.append("\t\tjava.math.BigDecimal " + max + "= new java.math.BigDecimal(\"" 
+                  + mb.toString() + "\");" + Environment.NL);
+        sb.append("\t\tif (" + var_name + ".compareTo(" + max + ") != -1)" + Environment.NL);
+        sb.append("\t\t\tthrow new org.omg.CORBA.DATA_CONVERSION(\"more than " + digits 
+                  + " digits in fixed point value\");" + Environment.NL);
 
         if (parser.generatedHelperPortability == parser.HELPER_DEPRECATED)
         {
-            sb.append("\t\t" + strname + ".write_fixed(" + var_name + ");\n");
+            sb.append("\t\t" + strname + ".write_fixed(" + var_name + ");" + Environment.NL);
         }
         else if (parser.generatedHelperPortability == parser.HELPER_PORTABLE)
         {
-            sb.append("\t\t" + strname + ".write_fixed(" + var_name + ", (short)" + digits + ", (short)" + scale + ");\n");
+            sb.append("\t\t" + strname + ".write_fixed(" + var_name 
+                      + ", (short)" + digits + ", (short)" + scale + ");" + Environment.NL);
         }
         else if (parser.generatedHelperPortability == parser.HELPER_JACORB)
         {
-            sb.append("\t\t((org.jacorb.orb.CDROutputStream)" + strname + ").write_fixed(" + var_name + ", (short)" + digits + ", (short)" + scale + ");\n");
+            sb.append("\t\t((org.jacorb.orb.CDROutputStream)" + strname 
+                      + ").write_fixed(" + var_name + ", (short)" + digits 
+                      + ", (short)" + scale + ");" + Environment.NL);
         }
         else
         {

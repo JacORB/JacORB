@@ -677,6 +677,6 @@ public class IdlSymbol
         ps.println(" *");
         ps.println(" * @author JacORB IDL compiler V " + parser.compiler_version);
         ps.println(" * @version generated at " + parser.currentDate);
-        ps.println(" */\n");
+        ps.println(" */" + Environment.NL);
     }
 }

@@ -372,7 +372,7 @@ public class StructType
         ps.println("\timplements org.omg.CORBA.portable.Streamable");
         ps.println("{");
 
-        ps.println("\tpublic " + getJavaTypeName() + " value;\n");
+        ps.println("\tpublic " + getJavaTypeName() + " value;" + Environment.NL);
 
         ps.println("\tpublic " + className + "Holder ()");
         ps.println("\t{");
@@ -411,7 +411,7 @@ public class StructType
         }
         if (!pack_name.equals(""))
         {
-            ps.println("package " + pack_name + ";\n");
+            ps.println("package " + pack_name + ";" + Environment.NL);
         }
 
         printImport(ps);
@@ -458,7 +458,7 @@ public class StructType
 
         ps.println("\t\t}");
         ps.println("\t\treturn _type;");
-        ps.println("\t}\n");
+        ps.println("\t}" + Environment.NL);
 
         String type = getJavaTypeName();
         TypeSpec.printInsertExtractMethods(ps, type);
@@ -930,60 +930,71 @@ public class StructType
         printwriter.println("\t{ ");
 
         StringBuffer buffer = new StringBuffer("\t\tif (this == o) return true;");
-        buffer.append("\n");
+        buffer.append(Environment.NL);
         buffer.append("\t\tif (o == null) return false;");
-        buffer.append("\n");
-        buffer.append("\n");
-        buffer.append("\t\tif (o instanceof " + s + " )\n\t\t{");
-        buffer.append("\n");
+        buffer.append(Environment.NL);
+        buffer.append(Environment.NL);
+        buffer.append("\t\tif (o instanceof " + s + " )" + Environment.NL + "\t\t{");
+        buffer.append(Environment.NL);
         buffer.append("\t\t\tfinal " + s + " obj = ( " + s + " )o;");
-        buffer.append("\n");
+        buffer.append(Environment.NL);
         buffer.append("\t\t\tboolean res = true; ");
-        buffer.append("\n");
+        buffer.append(Environment.NL);
         buffer.append("\t\t\tdo { ");
-        buffer.append("\n");
+        buffer.append(Environment.NL);
         for(Enumeration enumeration = memberlist.v.elements(); enumeration.hasMoreElements();)
         {
             Member member = (Member)enumeration.nextElement();
             if(BaseType.isBasicName(member.type_spec.toString()) && !member.type_spec.toString().equals("String") && !member.type_spec.toString().equals("java.lang.String") && member.type_spec.toString().indexOf("[") < 0)
             {
                 buffer.append("\t\t\t\tres = (this." + member.declarator.toString() + " == obj." + member.declarator.toString() + ");");
-                buffer.append("\n\t\t\t\tif (!res) break;\n\n");
+                buffer.append(Environment.NL);
+                buffer.append("\t\t\t\tif (!res) break;" + Environment.NL + Environment.NL);
             }
             else
             {
                 if(member.type_spec.toString().indexOf("[") >= 0)
                 {
-                    buffer.append("\t\t\t\tres = (this." + member.declarator.toString() + " == obj." + member.declarator.toString() + ") || (this." + member.declarator.toString() + " != null && obj." + member.declarator.toString() + " != null && this." + member.declarator.toString() + ".length == obj." + member.declarator.toString() + ".length);\n");
+                    buffer.append("\t\t\t\tres = (this." + member.declarator.toString() + " == obj." 
+                                  + member.declarator.toString() + ") || (this." + member.declarator.toString() 
+                                  + " != null && obj." + member.declarator.toString() + " != null && this." 
+                                  + member.declarator.toString() + ".length == obj." + member.declarator.toString() 
+                                  + ".length);" + Environment.NL);
 
-                    buffer.append("\t\t\t\tif (res)\n\n\t\t\t\t{\n");
-                    buffer.append("\t\t\t\t\tres = java.util.Arrays.equals(this." + member.declarator.toString() + ", obj." + member.declarator.toString() + ");");
-                    buffer.append("\n\t\t\t\t}\n");
-                    buffer.append("\t\t\t\tif(!res) break;\n\n");
+                    buffer.append("\t\t\t\tif (res)" + Environment.NL + Environment.NL 
+                                  + "\t\t\t\t{" + Environment.NL);
+                    buffer.append("\t\t\t\t\tres = java.util.Arrays.equals(this." + member.declarator.toString() 
+                                  + ", obj." + member.declarator.toString() + ");" + Environment.NL);
+                    buffer.append("\t\t\t\t}" + Environment.NL);
+                    buffer.append("\t\t\t\tif(!res) break;" + Environment.NL + Environment.NL);
                 }
                 else
                 {
-                    buffer.append("\t\t\t\tres = (this." + member.declarator.toString() + " == obj." + member.declarator.toString() + ") || (this." + member.declarator.toString() + " != null && obj." + member.declarator.toString() + " != null && this." + member.declarator.toString() + ".equals (obj." + member.declarator.toString() + "));");
-                    buffer.append("\n\t\t\t\tif (!res) break;\n\n");
+                    buffer.append("\t\t\t\tres = (this." + member.declarator.toString() + " == obj." 
+                                  + member.declarator.toString() + ") || (this." + member.declarator.toString() 
+                                  + " != null && obj." + member.declarator.toString() + " != null && this." 
+                                  + member.declarator.toString() + ".equals (obj." + member.declarator.toString() 
+                                  + "));" + Environment.NL);
+                    buffer.append("\t\t\t\tif (!res) break;" + Environment.NL + Environment.NL);
                 }
             }
         }
 
         buffer.append("\t\t\t}");
-        buffer.append("\n");
+        buffer.append(Environment.NL);
         buffer.append("\t\t\twhile(false);");
-        buffer.append("\n");
+        buffer.append(Environment.NL);
         buffer.append("\t\t\treturn res;");
-        buffer.append("\n");
+        buffer.append(Environment.NL);
         buffer.append("\t\t}");
-        buffer.append("\n");
-        buffer.append("\t\telse\n\t\t{\n");
+        buffer.append(Environment.NL);
+        buffer.append("\t\telse" + Environment.NL + "\t\t{" + Environment.NL);
         buffer.append("\t\t\treturn false;");
-        buffer.append("\n");
+        buffer.append(Environment.NL);
         buffer.append("\t\t}");
-        buffer.append("\n");
+        buffer.append(Environment.NL);
         buffer.append("\t}");
-        buffer.append("\n");
+        buffer.append(Environment.NL);
 
         printwriter.println(buffer.toString());
         printwriter.println();
@@ -995,14 +1006,15 @@ public class StructType
         printwriter.println("\t{ ");
 
         StringBuffer buffer = new StringBuffer("\t\tfinal java.lang.StringBuffer _ret  =  new java.lang.StringBuffer(\"struct " + s + " {\"); ");
-        buffer.append("\n");
+        buffer.append(Environment.NL);
         buffer.append("\t\t_ret.append(\"\\n\"); ");
         for(Enumeration enumeration = memberlist.v.elements(); enumeration.hasMoreElements();)
         {
             Member member = (Member)enumeration.nextElement();
-            buffer.append("\n");
-            buffer.append("\t\t_ret.append(\"" + member.type_spec.toString() + " " + member.declarator.toString() + "=\");");
-            buffer.append("\n");
+            buffer.append(Environment.NL);
+            buffer.append("\t\t_ret.append(\"" + member.type_spec.toString() + " " 
+                          + member.declarator.toString() + "=\");");
+            buffer.append(Environment.NL);
             if(member.type_spec.toString().indexOf("[") < 0)
             {
                 buffer.append("\t\t_ret.append(" + member.declarator.toString() + ");");
@@ -1010,31 +1022,31 @@ public class StructType
             else
             {
                 buffer.append("\t\t_ret.append(\"{\");");
-                buffer.append("\n");
+                buffer.append(Environment.NL);
                 buffer.append("\t\tif(" + member.declarator.toString() + "== null){");
-                buffer.append("\n");
+                buffer.append(Environment.NL);
                 buffer.append("\t\t\t_ret.append(" + member.declarator.toString() + ");");
-                buffer.append("\n");
+                buffer.append(Environment.NL);
                 buffer.append("\t\t}else { ");
-                buffer.append("\n");
+                buffer.append(Environment.NL);
                 buffer.append("\t\t\tfor(int $counter =0; $counter < " + member.declarator.toString() + ".length; $counter++){ ");
-                buffer.append("\n");
+                buffer.append(Environment.NL);
                 buffer.append("\t\t\t\t_ret.append(" + member.declarator + "[$counter]);");
-                buffer.append("\n");
+                buffer.append(Environment.NL);
                 buffer.append("\t\t\t\tif($counter < " + member.declarator.toString() + ".length-1) { ");
-                buffer.append("\n");
+                buffer.append(Environment.NL);
                 buffer.append("\t\t\t\t\t_ret.append(\",\");");
-                buffer.append("\n");
+                buffer.append(Environment.NL);
                 buffer.append("\t\t\t\t} ");
-                buffer.append("\n");
+                buffer.append(Environment.NL);
                 buffer.append("\t\t\t}");
-                buffer.append("\n");
+                buffer.append(Environment.NL);
                 buffer.append("\t\t} ");
-                buffer.append("\n");
+                buffer.append(Environment.NL);
                 buffer.append("\t\t_ret.append(\"}\");");
-                buffer.append("\n");
+                buffer.append(Environment.NL);
             }
-            buffer.append("\n");
+            buffer.append(Environment.NL);
             if(enumeration.hasMoreElements())
             {
                 buffer.append("\t\t_ret.append(\",\\n\");");
@@ -1044,9 +1056,9 @@ public class StructType
             }
         }
 
-        buffer.append("\n");
-        buffer.append("\t\t_ret.append(\"}\");");
-        buffer.append("\n\t\treturn _ret.toString();");
+        buffer.append(Environment.NL);
+        buffer.append("\t\t_ret.append(\"}\");" + Environment.NL);
+        buffer.append("\t\treturn _ret.toString();");
 
         printwriter.println(buffer);
         printwriter.println("\t} ");

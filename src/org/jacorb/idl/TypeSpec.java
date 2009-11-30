@@ -233,12 +233,12 @@ public class TypeSpec
         ps.println( "\t{" );
         ps.println( "\t\tany.type(type());" );
         ps.println( "\t\twrite( any.create_output_stream(),s);" );
-        ps.println( "\t}\n" );
+        ps.println( "\t}" + Environment.NL );
 
         ps.println( "\tpublic static " + type + " extract (final org.omg.CORBA.Any any)" );
         ps.println( "\t{" );
         ps.println( "\t\treturn read(any.create_input_stream());" );
-        ps.println( "\t}\n" );
+        ps.println( "\t}" + Environment.NL );
     }
 
     /**

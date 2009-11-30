@@ -455,11 +455,15 @@ public class Interface
     protected void printPackage (PrintWriter ps)
     {
         if (Environment.JAVA14 && pack_name.equals(""))
+        {
             lexer.emit_warn
                 ("No package defined for " + name + " - illegal in JDK1.4", token);
+        }
 
         if (!pack_name.equals (""))
-            ps.println ("package " + pack_name + ";\n");
+        {
+            ps.println ("package " + pack_name + ";" + Environment.NL);
+        }
     }
 
 
@@ -589,7 +593,7 @@ public class Interface
             }
         }
 
-        ps.println("\n{");
+        ps.println(Environment.NL + "{");
 
         // body can be null for forward declaration
         if (body != null)
@@ -664,7 +668,7 @@ public class Interface
             }
             while (e.hasMoreElements());
 
-            ps.print("\n");
+            ps.print(Environment.NL);
         }
 
         ps.println("{");
@@ -869,11 +873,11 @@ public class Interface
         {
             ps.println("\t\ttry");
             ps.println("\t\t{");
-            ps.println("\t\torg.omg.CORBA.Object __o = any.extract_Object();\n");
-            ps.println("\t\t" + name + " __r = narrow(__o);\n");
+            ps.println("\t\torg.omg.CORBA.Object __o = any.extract_Object();" + Environment.NL);
+            ps.println("\t\t" + name + " __r = narrow(__o);" + Environment.NL);
             ps.println("\t\tif (__o != null && __o != __r)");
             ps.println("\t\t{");
-            ps.println("\t\t\t((org.omg.CORBA.portable.ObjectImpl)__o)._set_delegate(null);\n");
+            ps.println("\t\t\t((org.omg.CORBA.portable.ObjectImpl)__o)._set_delegate(null);" + Environment.NL);
             ps.println("\t\t}");
             ps.println("\t\treturn __r;");
             ps.println("\t\t}");
@@ -1078,7 +1082,7 @@ public class Interface
         ps.println("\tpublic String[] _ids()");
         ps.println("\t{");
         ps.println("\t\treturn ids;");
-        ps.println("\t}\n");
+        ps.println("\t}" + Environment.NL);
 
         if (!parser.cldc10)
         {
@@ -1125,7 +1129,7 @@ public class Interface
             ps.println("\t\t{");    //{
             ps.println("\t\t\tthrow new RuntimeException(\"Class " + fullName + " was not found.\");");
             ps.println("\t\t}");    //}
-            ps.println("\t}\n");
+            ps.println("\t}" + Environment.NL);
         }
 
         body.printStubMethods(ps, name, is_local, is_abstract);
@@ -1146,8 +1150,8 @@ public class Interface
         printImport(ps);
         printClassComment("interface", name, ps);
 
-        ps.print("public abstract class " + name + "POA");
-        ps.println("\n\textends org.omg.PortableServer.Servant");
+        ps.print("public abstract class " + name + "POA" + Environment.NL);
+        ps.println("\textends org.omg.PortableServer.Servant");
         ps.println("\timplements org.omg.CORBA.portable.InvokeHandler, " + javaName() + "Operations");
         ps.println("{");
 
@@ -1195,7 +1199,7 @@ public class Interface
 
         body.printSkelInvocations(ps);
 
-        ps.println("\t}\n");
+        ps.println("\t}" + Environment.NL);
 
         ps.println("\tpublic String[] _all_interfaces(org.omg.PortableServer.POA poa, byte[] obj_id)");
 
@@ -1232,7 +1236,7 @@ public class Interface
         ps.println("\textends " + name + "POA");
         ps.println("{");
 
-        ps.println("\tprivate " + name + "Operations _delegate;\n");
+        ps.println("\tprivate " + name + "Operations _delegate;" + Environment.NL);
         ps.println("\tprivate POA _poa;");
 
         ps.println("\tpublic " + name + "POATie(" + name + "Operations delegate)");
@@ -1289,12 +1293,12 @@ public class Interface
         }
 
         printPackage(ps);
-        ps.println("\n/**");
+        ps.println(Environment.NL + "/**");
         ps.println(" * This class contains generated Interface Repository information.");
         ps.println(" * @author JacORB IDL compiler.");
-        ps.println(" */");
+        ps.println(" */" + Environment.NL);
 
-        ps.println("\npublic class " + name + "IRHelper");
+        ps.println("public class " + name + "IRHelper");
         ps.println("{");
 
         String HASHTABLE = System.getProperty ("java.version").startsWith ("1.1")
@@ -1327,12 +1331,12 @@ public class Interface
         }
 
         printPackage(ps);
-        ps.println("\n/**");
+        ps.println(Environment.NL +"/**");
         ps.println(" * Abstract base class for implementations of local interface " + name);
         ps.println(" * @author JacORB IDL compiler.");
-        ps.println(" */");
+        ps.println(" */" + Environment.NL);
 
-        ps.println("\npublic abstract class _" + name + "LocalBase");
+        ps.println("public abstract class _" + name + "LocalBase");
         ps.println("\textends org.omg.CORBA.LocalObject");
         ps.println("\timplements " + name);
         ps.println("{");
@@ -1375,7 +1379,7 @@ public class Interface
         ps.println("\textends _" + name + "LocalBase");
         ps.println("{");
 
-        ps.println("\tprivate " + name + "Operations _delegate;\n");
+        ps.println("\tprivate " + name + "Operations _delegate;" + Environment.NL);
 
         ps.println("\tpublic " + name + "LocalTie(" + name + "Operations delegate)");
         ps.println("\t{");

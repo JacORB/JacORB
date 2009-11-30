@@ -275,7 +275,7 @@ public class ArrayTypeSpec
         sb.append(var_name + " = new " + type.substring(0, type.indexOf("[")));
         sb.append("[" + length() + "]");
 
-        sb.append(type.substring(type.indexOf(']') + 1) + ";\n");
+        sb.append(type.substring(type.indexOf(']') + 1) + ";" + Environment.NL);
 
 
         if (elementTypeSpec() instanceof BaseType &&
@@ -294,13 +294,14 @@ public class ArrayTypeSpec
                 idx_variable = (char)(var_name.charAt(var_name.length() - 2) + 1);
                 indent = "    ";
             }
-            sb.append("\t\t" + indent + "for (int " + idx_variable + "=0;" +
-                      idx_variable + "<" + length() + ";" + idx_variable + "++)\n\t\t" + indent + "{\n");
+            sb.append("\t\t" + indent + "for (int " + idx_variable + "=0;" 
+                      + idx_variable + "<" + length() + ";" + idx_variable + "++)" + Environment.NL
+                      + "\t\t" + indent + "{" + Environment.NL);
 
             sb.append("\t\t\t" + indent +
                       elementTypeSpec().printReadStatement(var_name +
-                                                           "[" + idx_variable + "]", streamname) + "\n");
-            sb.append("\t\t" + indent + "}\n");
+                                                           "[" + idx_variable + "]", streamname) + Environment.NL);
+            sb.append("\t\t" + indent + "}" + Environment.NL);
         }
         return sb.toString();
     }
@@ -309,9 +310,9 @@ public class ArrayTypeSpec
     {
         StringBuffer sb = new StringBuffer();
         String type = typeName();
-        sb.append("\t\tif (" + var_name + ".length<" + length() +
-                  ")\n\t\t\tthrow new org.omg.CORBA.MARSHAL(\"Incorrect array size \"+" +
-                  var_name + ".length+\", expecting " + length() + "\");\n");
+        sb.append("\t\tif (" + var_name + ".length<" + length() + ")" + Environment.NL +
+                  "\t\t\tthrow new org.omg.CORBA.MARSHAL(\"Incorrect array size \"+" +
+                  var_name + ".length+\", expecting " + length() + "\");" + Environment.NL);
 
         if (elementTypeSpec() instanceof BaseType &&
             !(elementTypeSpec() instanceof AnyType))
@@ -329,10 +330,13 @@ public class ArrayTypeSpec
                 idx_variable = (char)(var_name.charAt(var_name.length() - 2) + 1);
                 indent = "    ";
             }
-            sb.append("\t\t" + indent + "for (int " + idx_variable + "=0; " + idx_variable + "<" + length() + ";" + idx_variable + "++)\n\t\t" + indent + "{\n");
+            sb.append("\t\t" + indent + "for (int " + idx_variable + "=0; " + idx_variable 
+                      + "<" + length() + ";" + idx_variable + "++)" + Environment.NL
+                      + "\t\t" + indent + "{" + Environment.NL);
             sb.append("\t\t\t" + indent + elementTypeSpec().printWriteStatement(var_name
-                                                                                + "[" + idx_variable + "]", streamname) + "\n");
-            sb.append("\t\t" + indent + "}\n");
+                                                                                + "[" + idx_variable + "]", streamname) 
+                                                                                + Environment.NL);
+            sb.append("\t\t" + indent + "}" + Environment.NL);
         }
         return sb.toString();
     }
@@ -344,7 +348,7 @@ public class ArrayTypeSpec
             lexer.emit_warn
                 ("No package defined for " + className + " - illegal in JDK1.4", token);
         if (!pack_name.equals(""))
-            ps.println("package " + pack_name + ";\n");
+            ps.println("package " + pack_name + ";" + Environment.NL);
 
         String type = typeName();
 
@@ -357,7 +361,7 @@ public class ArrayTypeSpec
         ps.println("\t{");
         ps.println("\t}");
 
-        ps.println("\tpublic " + className + "Holder (final " + type + " initial)\n\t{");
+        ps.println("\tpublic " + className + "Holder (final " + type + " initial)" + Environment.NL + "\t{");
         ps.println("\t\tvalue = initial;");
         ps.println("\t}");
 
@@ -421,8 +425,8 @@ public class ArrayTypeSpec
         }
         else
         {
-            ps.println("\t\tfor (int i = 0; i < " + length() + "; i++)\n\t\t{");
-            ps.println("\t\t\t" + elementTypeSpec().printReadStatement("result[i]", "_in") + "\n\t\t}");
+            ps.println("\t\tfor (int i = 0; i < " + length() + "; i++)" + Environment.NL + "\t\t{");
+            ps.println("\t\t\t" + elementTypeSpec().printReadStatement("result[i]", "_in") + Environment.NL + "\t\t}");
         }
         ps.println("\t\treturn result;");
         ps.println("\t}");
@@ -444,8 +448,9 @@ public class ArrayTypeSpec
         }
         else
         {
-            ps.println("\t\tfor (int i = 0; i < s.length; i++)\n\t\t{");
-            ps.println("\t\t\t" + elementTypeSpec().printWriteStatement("s[i]", "out") + "\n\t\t}");
+            ps.println("\t\tfor (int i = 0; i < s.length; i++)" + Environment.NL + "\t\t{");
+            ps.println("\t\t\t" + elementTypeSpec().printWriteStatement("s[i]", "out") 
+                       + Environment.NL + "\t\t}");
         }
         ps.println("\t}");
         ps.println("}");

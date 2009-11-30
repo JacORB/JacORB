@@ -279,8 +279,8 @@ public class ValueDecl
                         continue;
                     }
                     logger.error(" Declaration is " + ts.declaration().getClass());
-                    parser.fatal_error("Non-value type in inheritance spec: \n\t" +
-                                        inheritanceSpec, token);
+                    parser.fatal_error("Non-value type in inheritance spec: " + Environment.NL 
+                                       + "\t" + inheritanceSpec, token);
                 }
 
                 for(Enumeration e = inheritanceSpec.getSupportedInterfaces();
@@ -292,8 +292,8 @@ public class ValueDecl
                     {
                         continue;
                     }
-                    parser.fatal_error("Non-interface type in supported interfaces list:\n\t" +
-                                        inheritanceSpec, token);
+                    parser.fatal_error("Non-interface type in supported interfaces list: " + Environment.NL
+                                       + "\t" + inheritanceSpec, token);
                 }
             }
             NameTable.parsed_interfaces.put(full_name(), "");
@@ -521,7 +521,7 @@ public class ValueDecl
 
             if (pack_name.length() > 0)
             {
-                out.println("package " + pack_name + ";\n");
+                out.println("package " + pack_name + ";" + Environment.NL);
             }
 
             printClassComment("valuetype", name, out);
@@ -731,7 +731,7 @@ public class ValueDecl
 
             if (pack_name.length() > 0)
             {
-                out.println("package " + pack_name + ";\n");
+                out.println("package " + pack_name + ";" + Environment.NL);
             }
 
             printClassComment("valuetype", name, out);
@@ -770,7 +770,7 @@ public class ValueDecl
         {
             out.println("\t\t" + ((StateMember)i.next()).writeStatement("os"));
         }
-        out.println("\t}\n");
+        out.println("\t}" + Environment.NL);
     }
 
     /**
@@ -793,7 +793,7 @@ public class ValueDecl
         {
             out.println("\t\t" + ((StateMember)i.next()).readStatement("os"));
         }
-        out.println("\t}\n");
+        out.println("\t}" + Environment.NL);
     }
 
     private void printHelper(File dir)
@@ -809,7 +809,7 @@ public class ValueDecl
 
             if (pack_name.length() > 0)
             {
-                out.println("package " + pack_name + ";\n");
+                out.println("package " + pack_name + ";" + Environment.NL);
             }
 
             printClassComment("valuetype", name, out);
@@ -886,7 +886,7 @@ public class ValueDecl
 
             if (pack_name.length() > 0)
             {
-                out.println("package " + pack_name + ";\n");
+                out.println("package " + pack_name + ";" + Environment.NL);
             }
 
             printClassComment("valuetype", name, out);

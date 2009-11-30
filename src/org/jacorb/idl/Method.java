@@ -193,7 +193,7 @@ public class Method
                 ps.println( "\t\t\t\t}");
                 ps.println( "\t\t\t\tthis._releaseReply(_is);" );
                 ps.println( "\t\t\t}" );
-                ps.println( "\t\t}\n" );
+                ps.println( "\t\t}" + Environment.NL);
 
                 // local part
                 ps.println( "\t\telse" );
@@ -227,8 +227,8 @@ public class Method
             ps.println( "\t\t}" );
             ps.println( "\t\treturn _result;" );
             ps.println( "\t\t}" );
-            if( !is_local ) ps.println( "\t\t}\n" );
-            ps.println( "\t}\n" );
+            if( !is_local ) ps.println( "\t\t}" + Environment.NL );
+            ps.println( "\t}" + Environment.NL );
         }
         else
         {
@@ -305,7 +305,7 @@ public class Method
                 ps.println( "\t\t\t\t}");
                 ps.println( "\t\t\t\tthis._releaseReply(_is);" );
                 ps.println( "\t\t\t}" );
-                ps.println( "\t\t}\n" );
+                ps.println( "\t\t}" + Environment.NL );
 
                 // local part
                 ps.println( "\t\telse" );
@@ -328,8 +328,8 @@ public class Method
             ps.println( "\t\t\t\t}" );
             ps.println( "\t\t\t\treturn;" );
             ps.println( "\t\t\t}" );
-            if( !is_local ) ps.println( "\t\t}\n" );
-            ps.println( "\t}\n" );
+            if( !is_local ) ps.println( "\t\t}" + Environment.NL );
+            ps.println( "\t}" + Environment.NL );
         }
     }
 
@@ -369,7 +369,7 @@ public class Method
             ps.println( "\t\t\t\tthrow new RuntimeException(\"Unexpected exception \" + _id );" );
             ps.println( "\t\t\t}" );
             ps.println( "\t\t}" );
-            ps.println( "\t}\n" );
+            ps.println( "\t}" + Environment.NL );
         }
         else
         {
@@ -402,7 +402,7 @@ public class Method
             ps.println( "\t\t\t\tthrow new RuntimeException(\"Unexpected exception \" + _id );" );
             ps.println( "\t\t\t}" );
             ps.println( "\t\t}" );
-            ps.println( "\t}\n" );
+            ps.println( "\t}" + Environment.NL );
         }
     }
 
@@ -417,7 +417,7 @@ public class Method
             ps.println();
             ps.println( "\t{" );
             ps.println( "\t\treturn _delegate." + name + "();" );
-            ps.println( "\t}\n" );
+            ps.println( "\t}" + Environment.NL );
         }
         else
         {
@@ -429,7 +429,7 @@ public class Method
             ps.println();
             ps.println( "\t{" );
             ps.println( "\t\t_delegate." + name + "(a);" );
-            ps.println( "\t}\n" );
+            ps.println( "\t}" + Environment.NL );
         }
     }
 

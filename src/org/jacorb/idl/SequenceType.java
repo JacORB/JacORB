@@ -189,24 +189,26 @@ public class SequenceType
         // make local variable name unique
         lgt = lgt + getNumber();
 
-        buffer.append("int " + lgt + " = " + streamname + ".read_long();\n");
+        buffer.append("int " + lgt + " = " + streamname + ".read_long();" + Environment.NL);
         if (length != 0)
         {
-            buffer.append("\t\tif (" + lgt + " > " + length + ")\n");
-            buffer.append("\t\t\tthrow new org.omg.CORBA.MARSHAL(\"Sequence length incorrect!\");\n");
+            buffer.append("\t\tif (" + lgt + " > " + length + ")" + Environment.NL);
+            buffer.append("\t\t\tthrow new org.omg.CORBA.MARSHAL(\"Sequence length incorrect!\");" + Environment.NL);
         }
 
-        buffer.append("\t\ttry\n\t\t{\n" );
-        buffer.append("\t\t\t int x = " + streamname + ".available();\n" );
-        buffer.append("\t\t\t if ( x > 0 && " + lgt + " > x )\n" );
-        buffer.append("\t\t\t\t{\n" );
-        buffer.append("\t\t\t\t\tthrow new org.omg.CORBA.MARSHAL(\"Sequence length too large. Only \" + x + \" available and trying to assign \" + " + lgt + ");\n");
-        buffer.append("\t\t\t\t}\n" );
-        buffer.append("\t\t}\n\t\tcatch (java.io.IOException e)\n\t\t{\n\t\t}\n");
+        buffer.append("\t\ttry" + Environment.NL + "\t\t{" + Environment.NL );
+        buffer.append("\t\t\t int x = " + streamname + ".available();" + Environment.NL );
+        buffer.append("\t\t\t if ( x > 0 && " + lgt + " > x )" + Environment.NL );
+        buffer.append("\t\t\t\t{" + Environment.NL );
+        buffer.append("\t\t\t\t\tthrow new org.omg.CORBA.MARSHAL(\"Sequence length too large. Only \" + x + \" available and trying to assign \" + " 
+                      + lgt + ");" + Environment.NL);
+        buffer.append("\t\t\t\t}" + Environment.NL );
+        buffer.append("\t\t}" + Environment.NL + "\t\tcatch (java.io.IOException e)" + Environment.NL 
+                      + "\t\t{" + Environment.NL + "\t\t}" + Environment.NL);
 
 
         buffer.append("\t\t" + var_name + " = new " + type.substring(0, type.indexOf('[')) +
-                  "[" + lgt + "]" + type.substring(type.indexOf(']') + 1) + ";\n");
+                  "[" + lgt + "]" + type.substring(type.indexOf(']') + 1) + ";" + Environment.NL);
 
         TypeSpec elemType = elementTypeSpec();
         while (elemType instanceof AliasTypeSpec)
@@ -236,16 +238,17 @@ public class SequenceType
                 idx_variable = (char)(var_name.charAt(var_name.length() - 2) + 1);
                 indent = "    ";
             }
-            buffer.append("\t\t" + indent + "for (int " + idx_variable + "=0;" +
-                      idx_variable + "<" + var_name + ".length;" + idx_variable + "++)\n\t\t" + indent + "{\n");
+            buffer.append("\t\t" + indent + "for (int " + idx_variable + "=0;" 
+                          + idx_variable + "<" + var_name + ".length;" + idx_variable 
+                          + "++)" + Environment.NL + "\t\t" + indent + "{" + Environment.NL);
 
             buffer.append("\t\t\t" + indent +
                       elementTypeSpec().printReadStatement(var_name +
                                                            "[" + idx_variable + "]",
                                                            streamname)
-                      + "\n");
+                      + Environment.NL);
 
-            buffer.append("\t\t" + indent + "}\n");
+            buffer.append("\t\t" + indent + "}" + Environment.NL);
 
         }
         return buffer.toString();
@@ -257,10 +260,11 @@ public class SequenceType
         StringBuffer buffer = new StringBuffer();
         if (length != 0)
         {
-            buffer.append("\t\tif (" + var_name + ".length > " + length + ")\n");
+            buffer.append("\t\tif (" + var_name + ".length > " + length + ")" + Environment.NL);
             buffer.append("\t\t\tthrow new org.omg.CORBA.MARSHAL(\"Incorrect sequence length\");");
         }
-        buffer.append("\n\t\t" + streamname + ".write_long(" + var_name + ".length);\n");
+        buffer.append(Environment.NL);
+        buffer.append("\t\t" + streamname + ".write_long(" + var_name + ".length);" + Environment.NL);
 
         TypeSpec elemType = elementTypeSpec();
         while (elemType instanceof AliasTypeSpec)
@@ -290,15 +294,16 @@ public class SequenceType
                 idx_variable = (char)(var_name.charAt(var_name.length() - 2) + 1);
                 indent = "    ";
             }
-            buffer.append("\t\t" + indent + "for (int " + idx_variable + "=0; " +
-                      idx_variable + "<" + var_name + ".length;" +
-                      idx_variable + "++)\n\t\t" + indent + "{\n");
+            buffer.append("\t\t" + indent + "for (int " + idx_variable + "=0; " 
+                          + idx_variable + "<" + var_name + ".length;" 
+                          + idx_variable + "++)"  + Environment.NL 
+                          + "\t\t" + indent + "{" + Environment.NL);
 
             buffer.append("\t\t\t" + indent +
                       elementTypeSpec().printWriteStatement(var_name
                                                             + "[" + idx_variable + "]",
-                                                            streamname) + "\n");
-            buffer.append("\t\t" + indent + "}\n");
+                                                            streamname) + Environment.NL);
+            buffer.append("\t\t" + indent + "}" + Environment.NL);
         }
         return buffer.toString();
     }
@@ -421,7 +426,7 @@ public class SequenceType
         }
         if (!pack_name.equals(""))
         {
-            out.println("package " + pack_name + ";\n");
+            out.println("package " + pack_name + ";" + Environment.NL);
         }
 
         String type = typeName();
@@ -439,7 +444,8 @@ public class SequenceType
         out.println("\t{");
         out.println("\t}");
 
-        out.println("\tpublic " + className + "Holder (final " + type + " initial)\n\t{");
+        out.println("\tpublic " + className + "Holder (final " + type + " initial)" 
+                    + Environment.NL + "\t{");
         out.println("\t\tvalue = initial;");
         out.println("\t}");
 

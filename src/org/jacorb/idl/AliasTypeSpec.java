@@ -386,7 +386,7 @@ public class AliasTypeSpec
         ps.println("\timplements org.omg.CORBA.portable.Streamable");
         ps.println("{");
 
-        ps.println("\tpublic " + originalType.typeName() + " value;\n");
+        ps.println("\tpublic " + originalType.typeName() + " value;" + Environment.NL);
 
         ps.println("\tpublic " + className + "Holder ()");
         ps.println("\t{");
@@ -440,7 +440,7 @@ public class AliasTypeSpec
                     className + "Helper");
         ps.println("{");
 
-        ps.println("\tprivate static org.omg.CORBA.TypeCode _type = null;\n");
+        ps.println("\tprivate static org.omg.CORBA.TypeCode _type = null;" + Environment.NL);
         String type = originalType.typeName();
 
         ps.println("\tpublic static void insert (org.omg.CORBA.Any any, " +
@@ -464,7 +464,7 @@ public class AliasTypeSpec
             ps.println("\t\tany.type (type ());");
             ps.println("\t\twrite (any.create_output_stream (), s);");
         }
-        ps.println("\t}\n");
+        ps.println("\t}" + Environment.NL);
 
         ps.println("\tpublic static " + type + " extract (final org.omg.CORBA.Any any)");
         ps.println("\t{");
@@ -484,7 +484,7 @@ public class AliasTypeSpec
             ps.println("\t\treturn read (any.create_input_stream ());");
         }
 
-        ps.println("\t}\n");
+        ps.println("\t}" + Environment.NL);
 
         ps.println("\tpublic static org.omg.CORBA.TypeCode type ()");
         ps.println("\t{");
@@ -497,7 +497,7 @@ public class AliasTypeSpec
 
         ps.println("\t\t}");
         ps.println("\t\treturn _type;");
-        ps.println("\t}\n");
+        ps.println("\t}" + Environment.NL);
 
         printIdMethod(ps); // inherited from IdlSymbol
 
@@ -508,7 +508,7 @@ public class AliasTypeSpec
         ps.println("\t\t" + type + " _result;");
         ps.println("\t\t" + originalType.printReadStatement("_result", "_in"));
         ps.println("\t\treturn _result;");
-        ps.println("\t}\n");
+        ps.println("\t}" + Environment.NL);
 
         /* write */
         ps.println("\tpublic static void write (final org.omg.CORBA.portable.OutputStream _out, " + type + " _s)");

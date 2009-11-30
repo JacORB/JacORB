@@ -28,6 +28,8 @@ public final class Environment
 
     static final boolean JAVA15;
 
+    static final String NL = System.getProperty("line.separator");
+    
     static
     {
         final String javaVer = System.getProperty ("java.specification.version");

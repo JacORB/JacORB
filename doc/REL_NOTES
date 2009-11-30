@@ -103,6 +103,8 @@ post 2.3.1
         - fixes for IDL compiler struct/typedef/array compilation outside 
           of modules.
         - enhance generation to null delegate objects.
+        - fixed issue where CR/LF symbols were incorrect in generated 
+          files (bugzilla #483).  
 
     - Interface Repository:
         - use a persistent POA for the repository servant.

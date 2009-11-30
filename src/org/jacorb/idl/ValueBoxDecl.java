@@ -222,7 +222,7 @@ public class ValueBoxDecl
         ps.println("\timplements org.omg.CORBA.portable.Streamable");
         ps.println("{");
 
-        ps.println("\tpublic " + typeName() + " value;\n");
+        ps.println("\tpublic " + typeName() + " value;" + Environment.NL);
 
         ps.println("\tpublic " + className + "Holder ()");
         ps.println("\t{");
@@ -281,12 +281,12 @@ public class ValueBoxDecl
         ps.println( "\tpublic static void insert (final org.omg.CORBA.Any any, final " + type + " s)" );
         ps.println( "\t{" );
         ps.println( "\t\tany.insert_Value(s, type());" );
-        ps.println( "\t}\n" );
+        ps.println( "\t}" + Environment.NL );
 
         ps.println( "\tpublic static " + type + " extract (final org.omg.CORBA.Any any)" );
         ps.println( "\t{" );
         ps.println( "\t\treturn (" + type + ") any.extract_Value();" );
-        ps.println( "\t}\n" );
+        ps.println( "\t}" + Environment.NL );
 
 
         printIdMethod(ps); // inherited from IdlSymbol

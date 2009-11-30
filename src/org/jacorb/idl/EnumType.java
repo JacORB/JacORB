@@ -148,7 +148,7 @@ public class EnumType
                 catch (NameAlreadyDefined p)
                 {
                     parser.error("Identifier " + enum_ident +
-                                  " already defined in immediate scope\n",
+                                  " already defined in immediate scope" + Environment.NL,
                                   token);
                 }
             }
@@ -220,7 +220,7 @@ public class EnumType
         ps.println("\timplements org.omg.CORBA.portable.Streamable");
         ps.println("{");
 
-        ps.println("\tpublic " + className + " value;\n");
+        ps.println("\tpublic " + className + " value;" + Environment.NL);
 
         ps.println("\tpublic " + className + "Holder ()");
         ps.println("\t{");
@@ -287,7 +287,7 @@ public class EnumType
         ps.println("\t\t\t_type = " + sb.toString() + ";");
         ps.println("\t\t}");
         ps.println("\t\treturn _type;");
-        ps.println("\t}\n");
+        ps.println("\t}" + Environment.NL);
 
         String type = typeName();
 
@@ -297,7 +297,7 @@ public class EnumType
         ps.println("\tpublic static " + className + " read (final org.omg.CORBA.portable.InputStream in)");
         ps.println("\t{");
         ps.println("\t\treturn " + className + ".from_int(in.read_long());");
-        ps.println("\t}\n");
+        ps.println("\t}" + Environment.NL);
 
         ps.println("\tpublic static void write (final org.omg.CORBA.portable.OutputStream out, final " + className + " s)");
         ps.println("\t{");
@@ -319,7 +319,7 @@ public class EnumType
         printClassComment("enum", className, pw);
 
         pw.println("public" + parser.getFinalString() + " class " + className);
-        pw.println("\timplements org.omg.CORBA.portable.IDLEntity\n{");
+        pw.println("\timplements org.omg.CORBA.portable.IDLEntity" + Environment.NL + "{");
 
         pw.println("\tprivate int value = -1;");
 
