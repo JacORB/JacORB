@@ -263,12 +263,25 @@ the CORBA Security Service  Specification and reproduced here from the
 % sections go into some more detail about what specific property values
 % mean.
 
+\subsection{Protocols}
+
+The JSSE is capable of supporting SSL versions 2.0 and 3.0 and Transport
+ Layer Security (TLS) 1.0. To enable different protocols in the JSSE layer
+use the below properties.
+
+\begin{verbatim}
+jacorb.security.ssl.client.protocols
+jacorb.security.ssl.server.protocols
+\end{verbatim}
+
+ Refer to the JSSE documentation for valid SSLSocket/SSLContext protocol values.
+
 \subsection{Client side and server side configuration}
 On both the client side and the server side supported and required
 options can be configured. The following tables explain the settings
 for supported and required options for client and server.
 
-\begin{table}
+\begin{table}[h]
 \caption{Client side supported options}
 \begin{tabular}{|p{7cm}|p{7cm}|}
 \hline
@@ -289,7 +302,7 @@ store, to enable it to authenticate to the server. \\
 \end{table}
 
 
-\begin{table}
+\begin{table}[h]
 \caption{Client side required options}
 \begin{tabular}{|p{7cm}|p{7cm}|}
 \hline
@@ -309,7 +322,7 @@ the server. \\
 \end{tabular}
 \end{table}
 
-\begin{table}
+\begin{table}[h]
 \caption{Server side supported options}
 \begin{tabular}{|p{7cm}|p{7cm}|}
 \hline
@@ -336,8 +349,8 @@ client can't force its own authentication).\\
 \hline
 \end{tabular}
 \end{table}
-\begin{table}
 
+\begin{table}[h]
 \caption{Server side required options}
 \begin{tabular}{|p{7cm}|p{7cm}|}
 \hline
@@ -356,6 +369,8 @@ certificates for the authentication process.\\
 \end{tabular}
 \end{table}
 
+% Force the above floating tables to appear.
+\clearpage
 \section{SecureRandom Plugin System}
 \label{secureRandomPlugin}
 Under certain platforms (e.g. J2ME CDC platforms) when the JSSE
