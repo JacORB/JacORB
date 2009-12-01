@@ -24,7 +24,7 @@ package org.jacorb.idl;
 import java.io.PrintWriter;
 import java.util.Enumeration;
 import java.util.Hashtable;
-import org.apache.log.Logger;
+import org.jacorb.idl.util.IDLLogger;
 
 /**
  * Base class for all classes of the abstract IDL syntax tree
@@ -59,7 +59,7 @@ public class IdlSymbol
     protected static final char fileSeparator =
         System.getProperty( "file.separator" ).charAt( 0 );
 
-    Logger logger;
+    IDLLogger logger;
 
     /** the posizion in the IDL file where this symbol was found by the lexer,
         needed for better error messages */

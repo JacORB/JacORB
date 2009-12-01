@@ -50,7 +50,7 @@ public class NameTable
 
     public static final Map parsed_interfaces = new Hashtable();
 
-    static org.apache.log.Logger logger;
+    static org.jacorb.idl.util.IDLLogger logger;
 
     public static void init()
     {

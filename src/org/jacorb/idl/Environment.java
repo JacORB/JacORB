@@ -60,28 +60,26 @@ public final class Environment
     }
 
     /**
-     * <code>intToPriority</code> returns the priority level for a given integer.
-     * It is a copy of the method in util/LogKitLoggerFactory copied to ensure
-     * that the idl compiler can be standalone.
+     * <code>intToLevel</code> returns the logging level for a given integer.
      *
-     * @param priority an <code>int</code> value
-     * @return an <code>org.apache.log.Priority</code> value
+     * @param level an <code>int</code> value
+     * @return an <code>java.util.logging.Level</code> value
      */
-    public static org.apache.log.Priority intToPriority(int priority)
+    public static java.util.logging.Level intToLevel(int level)
     {
-        switch (priority)
+        switch (level)
         {
             case 4 :
-                return org.apache.log.Priority.DEBUG;
+                return org.jacorb.idl.util.IDLLogger.DEBUG;
             case 3 :
-                return org.apache.log.Priority.INFO;
+                return org.jacorb.idl.util.IDLLogger.INFO;
             case 2 :
-                return org.apache.log.Priority.WARN;
+                return org.jacorb.idl.util.IDLLogger.WARN;
             case 1 :
-                return org.apache.log.Priority.ERROR;
+                return org.jacorb.idl.util.IDLLogger.ERROR;
             case 0 :
             default :
-                return org.apache.log.Priority.FATAL_ERROR;
+                return org.jacorb.idl.util.IDLLogger.FATAL_ERROR;
         }
     }
 }

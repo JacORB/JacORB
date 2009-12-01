@@ -44,7 +44,7 @@ public class GlobalInputStream
     private static boolean eof;
     private static File currentFile;
     private static String[] path_names;
-    private static org.apache.log.Logger logger;
+    private static org.jacorb.idl.util.IDLLogger logger;
 
     /** stack of information for lexical scopes */
     static java.util.Stack positions;

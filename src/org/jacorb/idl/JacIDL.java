@@ -403,7 +403,7 @@ public class JacIDL
         }
 
         // Set the logging priority
-        parser.getLogger().setPriority(Environment.intToPriority(_debuglevel));
+        parser.getLogger().setLevel(Environment.intToLevel(_debuglevel));
 
         // setup input file lists
         resetFileLists();

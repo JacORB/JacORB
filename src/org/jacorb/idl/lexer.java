@@ -22,6 +22,8 @@ package org.jacorb.idl;
 
 import java.util.Hashtable;
 import java.util.Stack;
+
+import org.jacorb.idl.parser;
 import org.jacorb.idl.runtime.char_token;
 import org.jacorb.idl.runtime.float_token;
 import org.jacorb.idl.runtime.int_token;
@@ -55,7 +57,7 @@ import org.jacorb.idl.runtime.token;
 
 public class lexer
 {
-    private static org.apache.log.Logger logger = parser.getLogger();
+    private static org.jacorb.idl.util.IDLLogger logger = parser.getLogger();
 
     /** First and second character of lookahead. */
     protected static int next_char;

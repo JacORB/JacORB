@@ -1,12 +1,18 @@
 package org.jacorb.idl;
 
-import java.io.*;
-import java.util.*;
-import org.jacorb.idl.runtime.*;
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.io.StringWriter;
+import java.io.Writer;
+import java.util.Enumeration;
+import java.util.Hashtable;
+import java.util.Stack;
+import java.util.Vector;
 
-import org.apache.log.*;
-import org.apache.log.format.*;
-import org.apache.log.output.io.*;
+import org.jacorb.idl.util.IDLLogger;
 
 /**
  *
@@ -91,7 +97,7 @@ parser code
 
     private static int activeParseThreads;
 
-    private static Logger logger;
+    private static IDLLogger logger;
     private static Writer logStreamWriter = null;
 
     /*  a la CORBA 2.4, allow forward declarations that remain undefined */
@@ -157,11 +163,6 @@ parser code
     {
         currentDate = java.text.DateFormat.getDateTimeInstance().format(new java.util.Date());
 
-        String pattern = "[%.11{category}] %.7{priority} : %{message}\\n%{throwable}";
-        PatternFormatter formatter = new PatternFormatter( pattern );
-        logger = Hierarchy.getDefaultHierarchy().getLoggerFor("jacorb.idl");
-        logger.setPriority( Priority.ERROR );
-
         // check if the environment's logStream has been set
         Writer logWriter;
         if( logStreamWriter != null )
@@ -173,8 +174,8 @@ parser code
             OutputStream outStream = System.err;
             logWriter = new OutputStreamWriter( outStream );
         }
-        WriterTarget writerTarget = new WriterTarget( logWriter, formatter );
-        logger.setLogTargets( new LogTarget[] { writerTarget } );
+        
+        logger = IDLLogger.getLogger("jacorb.idl", IDLLogger.ERROR, logWriter);
     }
 
 
@@ -344,7 +345,7 @@ parser code
 
                     int level = Integer.parseInt( argv[++i] );
 
-                    logger.setPriority(Environment.intToPriority(level));
+                    logger.setLevel(Environment.intToLevel(level));
 
                     continue;
                 }
@@ -874,7 +875,7 @@ parser code
      * IDL compiler
      */
 
-    public static final Logger getLogger()
+    public static final IDLLogger getLogger()
     {
         return logger;
     }

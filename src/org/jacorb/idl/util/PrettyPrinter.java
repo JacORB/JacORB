@@ -3,7 +3,6 @@ package org.jacorb.idl.util;
 import java.io.File;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import org.apache.log.Logger;
 import org.jacorb.idl.parser;
 import org.jacorb.util.ObjectUtil;
 
@@ -23,7 +22,7 @@ public class PrettyPrinter {
             return;
         }
 
-        final Logger logger = parser.getLogger();
+        final IDLLogger logger = parser.getLogger();
         try {
             // Create an instance of the Jalopy bean
             Class clazz = ObjectUtil.classForName("de.hunsicker.jalopy.Jalopy");
