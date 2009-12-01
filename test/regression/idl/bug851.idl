@@ -1,0 +1,5 @@
+module bug581
+{
+  const double MAX_DOUBLE   =  1.0e+300;
+  const double MIN_DOUBLE   = -1.0e+300;
+};

@@ -234,29 +234,45 @@ public class ConstDecl extends Declaration
                          ts.getClass() + ") = " + const_type.toString());
         }
 
+        // Bugzilla #851 - Infinity values wrapping
+        String exprStr = const_expr.toString();
+        if (exprStr != null && exprStr.contains("Infinity"))
+        {
+            logger.warn("[" + token.line_no + ":" + token.char_pos + "]" 
+                        + "Infinity value used in const declaration");
+            if (exprStr.startsWith("-"))
+            {
+                exprStr = "Double.NEGATIVE_INFINITY";
+            }
+            else
+            {
+                exprStr = "Double.POSITIVE_INFINITY";
+            }
+        }
+        
         if (ts instanceof ShortType)
         {
             // short constant values have to be cast explicitly
-            return ("(short)(" + const_expr.toString() + ")");
+            return ("(short)(" + exprStr + ")");
         }
         else if (ts instanceof FloatType)
         {
             // float constant values have to be cast explicitly
-            return ("(float)(" + const_expr.toString() + ")");
+            return ("(float)(" + exprStr + ")");
         }
         else if (ts instanceof OctetType)
         {
             // byte constant values have to be cast explicitly
-            return ("(byte)(" + const_expr.toString() + ")");
+            return ("(byte)(" + exprStr + ")");
         }
         else if (ts instanceof FixedPointConstType ||
                  ts instanceof FixedPointType)
         {
-            return ("new java.math.BigDecimal (" + const_expr.toString() + ")");
+            return ("new java.math.BigDecimal (" + exprStr + ")");
         }
         else
         {
-            return const_expr.toString();
+            return exprStr;
         }
     }
 }

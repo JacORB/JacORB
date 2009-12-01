@@ -104,7 +104,9 @@ post 2.3.1
           of modules.
         - enhance generation to null delegate objects.
         - fixed issue where CR/LF symbols were incorrect in generated 
-          files (bugzilla #483).  
+          files (bugzilla #483).
+        - fixed issue where IDL compiler generates erroneous code for 
+          the infinity float values (bugzilla #851)   
 
     - Interface Repository:
         - use a persistent POA for the repository servant.
