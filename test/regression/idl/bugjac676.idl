@@ -1,0 +1,27 @@
+module org
+{
+    module jacorb
+    {
+        module test
+        {
+            module bugs
+            {
+                module bugjac676
+                {
+                    struct StructOne
+                    {
+                        string<19> NormalBound;
+                        string     NormalString;
+                    };
+                    
+                    interface TestBoundedString
+                    {
+                        StructOne get_object ();
+                        StructOne get_bad_object ();
+                        void set_object (in StructOne obj); 
+                    };
+                };
+            };
+        };
+    };
+};

@@ -30,6 +30,8 @@ import java.io.PrintWriter;
 public class StringType
     extends TemplateTypeSpec
 {
+    private static int tmpResultsCount = 0;
+
     public ConstExpr max = null;
     private boolean wide = false;
 
@@ -140,22 +142,67 @@ public class StringType
 
     public String printReadStatement( String var_name, String strname )
     {
+        String readExpr;
         if( wide )
         {
-            return var_name + "=" + strname + ".read_wstring();";
+            readExpr = var_name + "=" + strname + ".read_wstring()";
         }
-        return var_name + "=" + strname + ".read_string();";
+        else
+        {
+            readExpr = var_name + "=" + strname + ".read_string()";
+        }   
+
+        // JAC#676: bounds check has been added
+        if( max != null )
+        {
+            String varName = 
+                getFullName( ScopedName.unPseudoName( pack_name.length() > 0 ? pack_name + "." + name : name ));
+            
+            readExpr = "if( (" + readExpr + ").length() > " + max.pos_int_const() 
+                + " ) throw new org.omg.CORBA.BAD_PARAM(\"String bounds violation for " + varName 
+                + ": only not greater than <" + max.pos_int_const() + "> length is allowed\")";
+        }
+        
+        readExpr += ";";
+        return readExpr;
     }
 
     public String printWriteStatement( String var_name, String strname )
     {
+        // JAC#676: bounds check has been added
+
+        // prevent multiple calls when the method call is passed
+        // as var_name - get the operation result into temporary
+        // holder
+        String tmpResultName = "tmpResult" + tmpResultsCount++;
+        String writeStat = "java.lang.String " + tmpResultName + " = " + var_name + ";\n";
+             
+
+        String writeExpr;
         if( wide )
         {
-            return strname + ".write_wstring(" + var_name + ");";
+            writeExpr = strname + ".write_wstring( " + tmpResultName + " )";
         }
-        return strname + ".write_string(" + var_name + ");";
-    }
+        else 
+        {
+            writeExpr = strname + ".write_string( " + tmpResultName + " )";
+        }
 
+       
+        if( max != null)
+        {
+            writeStat += "if( " + tmpResultName + ".length() > " + max.pos_int_const() 
+                + " ) { throw new org.omg.CORBA.BAD_PARAM( \"String bounds violation for " + var_name 
+                + ": only not greater than <" + max.pos_int_const() + "> length is allowed\"); } else { "
+                + writeExpr + "; }";
+        }
+        else
+        {
+            writeStat += writeExpr + ";";
+        }
+        
+        return writeStat;
+    }
 
     public String printInsertExpression()
     {

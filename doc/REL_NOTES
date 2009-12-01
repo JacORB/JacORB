@@ -106,7 +106,9 @@ post 2.3.1
         - fixed issue where CR/LF symbols were incorrect in generated 
           files (bugzilla #483).
         - fixed issue where IDL compiler generates erroneous code for 
-          the infinity float values (bugzilla #851)   
+          the infinity float values (bugzilla #851).
+        - fix for IDL detecting the bounds violations for string type. 
+           
 
     - Interface Repository:
         - use a persistent POA for the repository servant.
