@@ -25,6 +25,7 @@ package org.jacorb.idl;
  */
 
 import java.io.PrintWriter;
+import java.util.Set;
 
 public class ObjectTypeSpec
     extends TypeSpec
@@ -81,7 +82,12 @@ public class ObjectTypeSpec
         return "org.omg.CORBA.ORB.init().get_primitive_tc( org.omg.CORBA.TCKind.tk_objref)";
     }
 
-    public String id()
+    public String getTypeCodeExpression(Set knownTypes)
+    {
+        return getTypeCodeExpression();
+    }
+
+   public String id()
     {
         return "IDL:omg.org/CORBA/Object:1.0";
     }

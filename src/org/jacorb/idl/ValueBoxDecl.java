@@ -195,7 +195,7 @@ public class ValueBoxDecl
                 className = className.substring(className.lastIndexOf('.') + 1);
             sb.append("org.omg.CORBA.ORB.init().create_value_box_tc(" +
                        helperName() + ".id(),\"" + className + "\"," +
-                       typeSpec.typeSpec().getTypeCodeExpression() + ")");
+                       typeSpec.typeSpec().getTypeCodeExpression(knownTypes) + ")");
 
             return sb.toString();
         }

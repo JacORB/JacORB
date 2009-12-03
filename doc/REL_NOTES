@@ -84,7 +84,7 @@ post 2.3.1
         - allow SSL keystore to be configurable.
         - call shutdownOutput before closing socket as recommended by
           http://java.sun.com/j2se/1.5.0/docs/guide/net/articles/connection_release.html
-        - applied patch from JacORB Bugzilla 801 for AOM Thread creation.
+        - applied patch from JacORB Bugzilla #801 for AOM Thread creation.
 
     - IDL Compiler:
         - fixed issue where the IDL compiler generated imports for the
@@ -111,6 +111,9 @@ post 2.3.1
         - fix for IDL detecting the bounds violations for string type. 
         - changed IDL compiler logging from Apache LogKit to native JDK 
           logging.
+        - applied patch from JacORB bugzila #673/674 which fixes issue where
+          Helper.type() method implementation for recursive valuetypes was 
+          incorrect.
 
     - Interface Repository:
         - use a persistent POA for the repository servant.

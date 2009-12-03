@@ -30,6 +30,7 @@ package org.jacorb.idl;
 
 import java.io.PrintWriter;
 import java.util.Hashtable;
+import java.util.Set;
 import java.util.Stack;
 
 public class ScopedName
@@ -652,6 +653,11 @@ public class ScopedName
     public String getTypeCodeExpression()
     {
         return resolvedTypeSpec().getTypeCodeExpression();
+    }
+
+    public String getTypeCodeExpression(Set knownTypes)
+    {
+        return resolvedTypeSpec().getTypeCodeExpression(knownTypes);
     }
 
     public String id()

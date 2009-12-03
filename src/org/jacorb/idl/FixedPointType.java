@@ -22,6 +22,7 @@ package org.jacorb.idl;
 
 import java.io.File;
 import java.io.PrintWriter;
+import java.util.Set;
 
 /**
  * @author Gerald Brose
@@ -230,6 +231,10 @@ public class FixedPointType
         return "org.omg.CORBA.ORB.init().create_fixed_tc((short)" + digits + ",(short)" + scale + ")";
     }
 
+    public String getTypeCodeExpression(Set knownTypes)
+    {
+        return getTypeCodeExpression();
+    }
 
     public String printReadExpression(String strname)
     {

@@ -144,10 +144,8 @@ public class TypeSpec
 
     public String getTypeCodeExpression( Set knownTypes )
     {
-        if( type_spec instanceof ConstrTypeSpec )
-            return type_spec.getTypeCodeExpression( knownTypes );
-        else
-            return getTypeCodeExpression();
+        System.out.println("Add TypeSpec.GetTypeCodeExpression for " + this.getClass());
+        return type_spec.getTypeCodeExpression( knownTypes );
     }
 
     /**

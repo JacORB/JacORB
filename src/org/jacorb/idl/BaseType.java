@@ -28,6 +28,7 @@ package org.jacorb.idl;
  */
 
 import java.io.PrintWriter;
+import java.util.Set;
 
 public class BaseType
     extends SimpleTypeSpec
@@ -114,6 +115,11 @@ public class BaseType
     }
 
     public String getTypeCodeExpression()
+    {
+        return typeCodeExpressionSkeleton( getTCKind() );
+    }
+
+    public String getTypeCodeExpression(Set knownTypes)
     {
         return typeCodeExpressionSkeleton( getTCKind() );
     }

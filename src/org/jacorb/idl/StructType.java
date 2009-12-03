@@ -338,7 +338,7 @@ public class StructType
 
     public String getTypeCodeExpression()
     {
-        return full_name() + "Helper.type()";
+        return getTypeCodeExpression(new HashSet());
     }
 
     public String getTypeCodeExpression(Set knownTypes)
@@ -348,7 +348,36 @@ public class StructType
             return this.getRecursiveTypeCodeExpression();
         }
 
-        return this.getTypeCodeExpression();
+        knownTypes.add(this);
+        
+        StringBuffer sb = new StringBuffer();
+        sb.append("org.omg.CORBA.ORB.init().create_" +
+                (exc ? "exception" : "struct") + "_tc(" +
+                getJavaTypeName() + "Helper.id(),\"" + className() + "\",");
+
+        if (memberlist != null)
+        {
+            sb.append("new org.omg.CORBA.StructMember[]{");
+            for (Enumeration e = memberlist.v.elements(); e.hasMoreElements();)
+            {
+                Set knownTypesLocal = new HashSet(knownTypes);
+                Member m = (Member)e.nextElement();
+                Declarator d = m.declarator;
+                sb.append("new org.omg.CORBA.StructMember(\"" + d.name() + "\", ");
+                sb.append(m.type_spec.typeSpec().getTypeCodeExpression(knownTypesLocal));
+                sb.append(", null)");
+                if (e.hasMoreElements())
+                    sb.append(",");
+            }
+            sb.append("}");
+        }
+        else
+        {
+            sb.append("new org.omg.CORBA.StructMember[0]");
+        }
+        sb.append(")");
+        
+        return sb.toString();
     }
 
 
@@ -428,33 +457,7 @@ public class StructType
         ps.println("\t\tif (_type == null)");
         ps.println("\t\t{");
 
-        StringBuffer sb = new StringBuffer();
-        sb.append("org.omg.CORBA.ORB.init().create_" +
-                (exc ? "exception" : "struct") + "_tc(" +
-                getJavaTypeName() + "Helper.id(),\"" + className() + "\",");
-
-        if (memberlist != null)
-        {
-            sb.append("new org.omg.CORBA.StructMember[]{");
-            for (Enumeration e = memberlist.v.elements(); e.hasMoreElements();)
-            {
-                Member m = (Member)e.nextElement();
-                Declarator d = m.declarator;
-                sb.append("new org.omg.CORBA.StructMember(\"" + d.name() + "\", ");
-                sb.append(m.type_spec.typeSpec().getTypeCodeExpression());
-                sb.append(", null)");
-                if (e.hasMoreElements())
-                    sb.append(",");
-            }
-            sb.append("}");
-        }
-        else
-        {
-            sb.append("new org.omg.CORBA.StructMember[0]");
-        }
-        sb.append(")");
-
-        ps.println("\t\t\t_type = " + sb.toString() + ";");
+        ps.println("\t\t\t_type = " + getTypeCodeExpression() + ";");
 
         ps.println("\t\t}");
         ps.println("\t\treturn _type;");

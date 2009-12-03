@@ -21,6 +21,7 @@
 package org.jacorb.idl;
 
 import java.io.PrintWriter;
+import java.util.Set;
 
 /**
  * Common super class for arrays and sequences
@@ -104,13 +105,14 @@ public abstract class VectorType
     }
 
 
-    protected String elementTypeExpression()
+    protected String elementTypeExpression(Set knownTypes)
     {
         TypeSpec ts = type_spec.typeSpec();
 
         if( ts instanceof AliasTypeSpec )
         {
-            return type_spec.full_name() + "Helper.type()";
+            //TODO: Check for recursive TypeCodes?
+        	return type_spec.full_name() + "Helper.type()";
         }
         else if( ts instanceof BaseType ||
                 ts instanceof TypeCodeTypeSpec ||

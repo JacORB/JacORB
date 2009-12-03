@@ -26,6 +26,7 @@ package org.jacorb.idl;
  */
 
 import java.io.PrintWriter;
+import java.util.Set;
 
 public class TypeCodeTypeSpec
         extends TypeSpec
@@ -80,6 +81,11 @@ public class TypeCodeTypeSpec
     public String getTypeCodeExpression()
     {
         return "org.omg.CORBA.ORB.init().get_primitive_tc( org.omg.CORBA.TCKind.tk_TypeCode)";
+    }
+
+    public String getTypeCodeExpression(Set knownTypes)
+    {
+        return getTypeCodeExpression();
     }
 
     public void print( PrintWriter ps )

@@ -306,6 +306,7 @@ public class UnionType
      * @return a string for an expression of type TypeCode that
      * describes this type
      */
+    //TODO: fix TypeCodeExpression for recursive types!
     public String getTypeCodeExpression()
     {
         return typeName() + "Helper.type()";

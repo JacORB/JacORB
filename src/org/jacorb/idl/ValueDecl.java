@@ -414,8 +414,9 @@ public class ValueDecl
         "new org.omg.CORBA.ValueMember[] {");
         for(Iterator i = stateMembers.v.iterator(); i.hasNext();)
         {
-            StateMember m = (StateMember)i.next();
-            result.append(getValueMemberExpression(m, knownTypes));
+            Set knownTypesLocal = new HashSet(knownTypes);
+        	StateMember m = (StateMember)i.next();
+            result.append(getValueMemberExpression(m, knownTypesLocal));
             if (i.hasNext()) result.append(", ");
         }
         result.append("})");
@@ -425,6 +426,15 @@ public class ValueDecl
     private String getValueMemberExpression(StateMember m, Set knownTypes)
     {
         TypeSpec typeSpec = m.typeSpec();
+        //if the type is not a basic type and is in the typeMap
+        //use the typeSpec saved within the TypeMap
+        if (typeSpec.full_name() != null &&
+        		!typeSpec.full_name().equals("IDL:*primitive*:1.0")
+        		&&
+        		TypeMap.typemap.containsKey(typeSpec.full_name()))
+        	typeSpec =  TypeMap.map(typeSpec.full_name());
+
+        String memberTypeExpression = typeSpec.getTypeCodeExpression(knownTypes);
         short access = m.isPublic
             // the symbolic constants might not be defined under jdk 1.1
             ? (short)1  // org.omg.CORBA.PUBLIC_MEMBER.value
@@ -433,7 +443,7 @@ public class ValueDecl
         return "new org.omg.CORBA.ValueMember (" +
             "\"" + m.name + "\", \"" + typeSpec.id() +
             "\", \"" + name + "\", \"1.0\", " +
-            typeSpec.getTypeCodeExpression(knownTypes) + ", null, " +
+            memberTypeExpression + ", null, " +
             "(short)" + access + ")";
     }
 

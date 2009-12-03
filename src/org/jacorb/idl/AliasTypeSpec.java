@@ -22,6 +22,8 @@ package org.jacorb.idl;
 
 import java.io.File;
 import java.io.PrintWriter;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * @author Gerald Brose
@@ -194,9 +196,17 @@ public class AliasTypeSpec
 
     public String getTypeCodeExpression()
     {
-        return full_name() + "Helper.type()";
+        return getTypeCodeExpression(new HashSet());
     }
 
+    public String getTypeCodeExpression(Set knownTypes)
+    {
+        //TODO: what happens, when actual type is in knownTypes?
+        return "org.omg.CORBA.ORB.init().create_alias_tc(" +
+               full_name() + "Helper.id(), \"" + name + "\"," +
+               originalType.typeSpec().getTypeCodeExpression(knownTypes) + ")";
+    }
+    
     public String className()
     {
         String fullName = full_name();
@@ -491,9 +501,7 @@ public class AliasTypeSpec
         ps.println("\t\tif (_type == null)");
         ps.println("\t\t{");
 
-        ps.println("\t\t\t_type = org.omg.CORBA.ORB.init().create_alias_tc(" +
-                    full_name() + "Helper.id(), \"" + name + "\"," +
-                    originalType.typeSpec().getTypeCodeExpression() + ");");
+        ps.println("\t\t\t_type = " + getTypeCodeExpression() + ";");
 
         ps.println("\t\t}");
         ps.println("\t\treturn _type;");
