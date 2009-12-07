@@ -296,7 +296,10 @@
             <arg value="kill -9 $(ls ${jacorb.test.piddir}) 2>/dev/null" />
         </exec>
 
-        <delete dir="${jacorb.test.piddir}" includes="**/*" />
+        <delete failonerror="false" >
+            <fileset dir="${jacorb.test.piddir}" includes="**/*"/>
+        </delete >
+
    </target>
 
     <target name="jacunit-clean" depends="jacunit-checkargs" >
