@@ -9,8 +9,9 @@
    <!-- $Id$ -->
    <!-- ==================================================== -->
 
-    <property file="${basedir}/build.properties" />
-    <property environment="env" />
+   <property file="${basedir}/build.properties" />
+   <property environment="env" />
+   <property name="jvm-name" value="java"/>
 
    &common;
 
@@ -187,6 +188,7 @@ using VERSION_INFO: ${jacorb_version_info}
                         value="${token.resolve-java-cmd}" />
                 <filter token="RESOLVE_JACO_CMD"
                         value="${token.resolve-jaco-cmd}" />
+                <filter token="JAVA_CMD" value="${jvm-name}" />
                 <filter token="JACORB_HOME"
                         value="${basedir}" />
                 <filter token="DONT_EDIT"
