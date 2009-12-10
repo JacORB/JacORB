@@ -710,12 +710,6 @@ jacorb.poa.queue_min=10
 
 jacorb.naming.log.verbosity=3
 
-#
-# name of the logger factory. Implement your own subclass of
-# org.jacorb.util.LoggerFactory and enter class name here to
-# customize logging behavior. Built-in default is org.jacorb.util.LogKitLoggerFactory
-#jacorb.log.loggerFactory=
-
 # Whether non active references are purged from name service
 # when list operation is invoked.
 

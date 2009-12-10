@@ -97,22 +97,22 @@ post 2.3.1
           for idl defined valuetypes.
         - additional parentheses around const expression in labels in unions.
         - fixed issue in generated code when extracting sequence from any.
-        - fixed issue where holder classes for user-defined exceptions 
+        - fixed issue where holder classes for user-defined exceptions
           weren't generated
-        - fixed IDL parser issue where repository ID using pragma prefix 
+        - fixed IDL parser issue where repository ID using pragma prefix
           with more than 1 space before ID caused an parse error.
-        - fixes for IDL compiler struct/typedef/array compilation outside 
+        - fixes for IDL compiler struct/typedef/array compilation outside
           of modules.
         - enhance generation to null delegate objects.
-        - fixed issue where CR/LF symbols were incorrect in generated 
+        - fixed issue where CR/LF symbols were incorrect in generated
           files (bugzilla #483).
-        - fixed issue where IDL compiler generates erroneous code for 
+        - fixed issue where IDL compiler generates erroneous code for
           the infinity float values (bugzilla #851).
-        - fix for IDL detecting the bounds violations for string type. 
-        - changed IDL compiler logging from Apache LogKit to native JDK 
+        - fix for IDL detecting the bounds violations for string type.
+        - changed IDL compiler logging from Apache LogKit to native JDK
           logging.
         - applied patch from JacORB bugzila #673/674 which fixes issue where
-          Helper.type() method implementation for recursive valuetypes was 
+          Helper.type() method implementation for recursive valuetypes was
           incorrect.
 
     - Interface Repository:
@@ -126,7 +126,7 @@ post 2.3.1
         - added section about the usage of corbaloc in conjunction
           with SSL enabled servers.
         - Classloader chapter added.
-          
+
 
 2.3.1
 =====
@@ -482,7 +482,7 @@ post 2.3.1
 
       - IDL Compiler:
                 - fixed inheritance error (bug #345)
-                - now using the Aoachae logkit loggin API
+                - now using the Apache logkit logging API
 
       - Notification Services: now included! HOT!
 
