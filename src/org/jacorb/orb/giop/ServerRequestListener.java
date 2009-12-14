@@ -27,6 +27,7 @@ import org.slf4j.Logger;
 import org.jacorb.orb.ORB;
 import org.jacorb.orb.SystemExceptionHelper;
 import org.jacorb.orb.dsi.ServerRequest;
+import org.jacorb.poa.GOA;
 import org.jacorb.poa.POA;
 import org.omg.CONV_FRAME.CodeSetContext;
 import org.omg.CORBA.CompletionStatus;
@@ -34,6 +35,7 @@ import org.omg.CORBA.NO_PERMISSION;
 import org.omg.CORBA.OBJECT_NOT_EXIST;
 import org.omg.GIOP.LocateStatusType_1_2;
 import org.omg.GIOP.ReplyStatusType_1_2;
+import org.omg.PortableGroup.TagGroupTaggedComponent;
 
 /**
  * @author Nicolas Noffke
@@ -80,7 +82,7 @@ public class ServerRequestListener
     public void requestReceived( byte[] request,
                                  GIOPConnection connection )
     {
-        RequestInputStream inputStream = new RequestInputStream( orb, request );
+        RequestInputStream inputStream = new RequestInputStream( orb, connection, request );
 
         if( require_ssl && ! connection.isSSL() )
         {
@@ -223,6 +225,13 @@ public class ServerRequestListener
         String res;
         List scopes;
 
+        //MIOP reception of messages from group
+        TagGroupTaggedComponent tagGroup = request.getTagGroup();
+        if(tagGroup != null)
+        {
+            ((GOA)rootPOA).processGroupRequest(tagGroup,request);
+            return;
+        }
         try
         {
             // This is similar to code within ORB::findPOA but

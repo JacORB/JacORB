@@ -29,7 +29,7 @@
       </fail>
    </target>
 
-    <target name="version-gen" >
+   <target name="version-gen" >
         <tstamp />
 
         <property name="BuildNo" value="${TODAY} ${TSTAMP}" />
@@ -228,7 +228,7 @@ using VERSION_INFO: ${jacorb_version_info}
       <delete file="${lib}/core_jacorb.jar"/>
       <jar jarfile="${lib}/core_jacorb.jar"
            basedir="${classdir}"
-           includes="org/jacorb/orb/**,org/jacorb/poa/**,org/jacorb/util/**,org/jacorb/security/ssl/**,org/omg/CONV_FRAME/**,org/omg/CORBA/**,org/omg/CORBA_2_3/**,org/omg/CosNaming/**,org/omg/Dynamic/**,org/omg/DynamicAny/**,org/omg/GIOP/**,org/omg/IIOP/**,org/omg/IOP/**,org/omg/Portable*/**,org/omg/BiDirPolicy/**,org/omg/ETF/**,org/omg/SSLIOP/**,org/omg/TimeBase/**"
+           includes="org/jacorb/orb/**,org/jacorb/poa/**,org/jacorb/util/**,org/jacorb/security/ssl/**,org/omg/CONV_FRAME/**,org/omg/CORBA/**,org/omg/CORBA_2_3/**,org/omg/CosNaming/**,org/omg/Dynamic/**,org/omg/DynamicAny/**,org/omg/GIOP/**,org/omg/IIOP/**,org/omg/IOP/**,org/omg/Portable*/**,org/omg/BiDirPolicy/**,org/omg/ETF/**,org/omg/SSLIOP/**,org/omg/TimeBase/**,org/omg/MIOP/**"
            excludes="org/jacorb/poa/gui/*,org/jacorb/util/tracing/*"
            />
    </target>
@@ -273,7 +273,6 @@ using VERSION_INFO: ${jacorb_version_info}
    <!-- ==================================================== -->
 
     <target name="clean" depends="init" description="Clean the checkout">
-        <ant dir="${src}/org/jacorb" target="clean"/>
         <delete file="${basedir}/bin/idl"/>
         <delete file="${basedir}/bin/idl.bat"/>
         <delete file="${basedir}/bin/jaco"/>
@@ -285,6 +284,12 @@ using VERSION_INFO: ${jacorb_version_info}
         </delete>
         <delete failonerror="false" includeemptydirs="true">
             <fileset dir="${src.generated}" includes="**/*" />
+        </delete>
+         <delete failonerror="false" >
+            <fileset dir="${basedir}/src/org/jacorb/idl" >
+                <include name="**/parser.java"/>
+                <include name="**/sym.java"/>
+            </fileset>
         </delete>
     </target>
 

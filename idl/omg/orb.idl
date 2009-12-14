@@ -172,8 +172,9 @@ module CORBA
    valuetype StringValue string;
    valuetype WStringValue wstring;
 
-
    exception WrongTransaction {};
+
+   exception INV_OBJREF {};
 };
 
 

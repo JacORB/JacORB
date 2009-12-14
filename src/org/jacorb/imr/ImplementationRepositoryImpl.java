@@ -1375,7 +1375,7 @@ public class ImplementationRepositoryImpl
             logger.debug("requestReceived");
             connection.incPendingMessages();
 
-            final RequestInputStream in = new RequestInputStream( orb, request );
+            final RequestInputStream in = new RequestInputStream( orb, connection, request );
 
             try
             {

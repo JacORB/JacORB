@@ -449,7 +449,7 @@ public abstract class GIOPConnection
                              msg_size + Messages.MSG_HEADER_SIZE,
                              this.toString());
            }
-           
+
             //this is the "good" exit point.
             return inbuf.value;
         }
@@ -684,7 +684,7 @@ public abstract class GIOPConnection
 
                             sendMessage( out );
                             buf_mg.returnBuffer( message );
-                            
+
 
                             continue;
                         }
@@ -951,7 +951,7 @@ public abstract class GIOPConnection
                     {
                         logger.debug
                         (
-                            this.toString() + ": sendMessage() -- opening transport"
+                            this.toString() + ": sendMessage() -- opening transport" + transport
                         );
                     }
 
@@ -985,7 +985,7 @@ public abstract class GIOPConnection
                     logger.debug ("wrote GIOP message of size {} to {}",
                                   out.size(), this.toString());
                 }
-                
+
                 if (getStatisticsProviderAdapter() != null)
                 {
                     getStatisticsProviderAdapter().flushed();

@@ -32,9 +32,11 @@ import org.jacorb.orb.CDRInputStream;
 import org.jacorb.orb.ORBConstants;
 import org.jacorb.orb.ParsedIOR;
 import org.jacorb.orb.TaggedComponentList;
+import org.jacorb.orb.etf.ProfileBase;
 import org.jacorb.orb.giop.CodeSet;
 import org.jacorb.orb.iiop.IIOPAddress;
 import org.jacorb.orb.iiop.IIOPProfile;
+import org.jacorb.orb.miop.MIOPProfile;
 import org.omg.CONV_FRAME.CodeSetComponentInfoHelper;
 import org.omg.CSIIOP.CompoundSecMechList;
 import org.omg.CSIIOP.CompoundSecMechListHelper;
@@ -46,11 +48,14 @@ import org.omg.CSIIOP.TLS_SEC_TRANS;
 import org.omg.CSIIOP.TLS_SEC_TRANSHelper;
 import org.omg.IOP.TAG_ALTERNATE_IIOP_ADDRESS;
 import org.omg.IOP.TAG_CODE_SETS;
+import org.omg.IOP.TAG_GROUP;
 import org.omg.IOP.TAG_JAVA_CODEBASE;
 import org.omg.IOP.TAG_MULTIPLE_COMPONENTS;
 import org.omg.IOP.TAG_ORB_TYPE;
 import org.omg.IOP.TAG_POLICIES;
 import org.omg.IOP.TaggedComponent;
+import org.omg.PortableGroup.TagGroupTaggedComponent;
+import org.omg.PortableGroup.TagGroupTaggedComponentHelper;
 import org.omg.RTCORBA.PRIORITY_BANDED_CONNECTION_POLICY_TYPE;
 import org.omg.RTCORBA.PRIORITY_MODEL_POLICY_TYPE;
 import org.omg.RTCORBA.PriorityModel;
@@ -175,7 +180,7 @@ public class PrintIOR
             out.println("Sorry, we only unparse IORs in the standard IOR URL scheme");
         }
     }
-    
+
     private static void usage()
     {
         System.err.println("Usage: java PrintIOR "
@@ -205,20 +210,26 @@ public class PrintIOR
         {
             out.println("\tProfile Id:\t\t" + i);
 
-            IIOPProfile profile = (IIOPProfile)profiles.get(i);
+            ProfileBase profile = (ProfileBase)profiles.get(i);
             out.println("\tIIOP Version:\t\t" +
                                (int)profile.version().major + "." +
                                (int)profile.version().minor);
-
-            out.println("\tHost:\t\t\t" +
-                               ((IIOPAddress)profile.getAddress()).getOriginalHost());
-            int port = ((IIOPAddress)profile.getAddress()).getPort();
-            if( port < 0 )
+            if (profile instanceof IIOPProfile)
             {
-                port += 65536;
-            }
+                out.println("\tHost:\t\t\t" +
+                  ((IIOPAddress)((IIOPProfile)profile).getAddress()).getOriginalHost());
+                int port = ((IIOPAddress)((IIOPProfile)profile).getAddress()).getPort();
+                if( port < 0 )
+                {
+                    port += 65536;
+                }
 
-            out.println("\tPort:\t\t\t" + port );
+                out.println("\tPort:\t\t\t" + port );
+            }
+            else if (profile instanceof MIOPProfile)
+            {
+                out.println ("MIOPProfile:\t" + ((MIOPProfile)profile).toString ());
+            }
             out.println("\tObject key (URL):\t" + CorbaLoc.parseKey( profile.get_object_key()));
             out.print  ("\tObject key (hex):\t0x" );
             dumpHex( profile.get_object_key(), out);
@@ -341,6 +352,12 @@ public class PrintIOR
                     out.println("\t#"+ i + ": TAG_NULL_TAG");
                     break;
                 }
+                case TAG_GROUP.value:
+                {
+                    out.println ("\t#" + i + ": TAG_GROUP");
+                    printTagGroupTaggedComponent (taggedComponents[i], out);
+                    break;
+                }
                 default:
                 {
                     out.println("\tUnknown tag : " +
@@ -414,7 +431,7 @@ public class PrintIOR
         }
     }
 
-    private static void printNTExportedName(byte[] nameData, PrintWriter out) 
+    private static void printNTExportedName(byte[] nameData, PrintWriter out)
     {
         // check for token identifier
         if (nameData.length < 2 || nameData[0] != 0x04 || nameData[1] != 0x01)
@@ -449,7 +466,7 @@ public class PrintIOR
         out.println(new String(name));
     }
 
-    private static void printTlsSecTrans(byte[] tagData, PrintWriter out) 
+    private static void printTlsSecTrans(byte[] tagData, PrintWriter out)
     {
         CDRInputStream in = new CDRInputStream(tagData );
 
@@ -748,6 +765,19 @@ public class PrintIOR
         }
     }
 
+    private static void printTagGroupTaggedComponent(TaggedComponent taggedComponent, PrintWriter out)
+    {
+        final CDRInputStream is = new CDRInputStream((org.omg.CORBA.ORB)null, taggedComponent.component_data);
+
+        is.openEncapsulatedArray();
+        TagGroupTaggedComponent tagGroup = TagGroupTaggedComponentHelper.read (is);
+        is.close ();
+
+        out.println ("\t\tVersion: " + tagGroup.group_version.major + ":" + tagGroup.group_version.minor);
+        out.println ("\t\tDomain: " + tagGroup.group_domain_id);
+        out.println ("\t\tObjectGroupID: " + tagGroup.object_group_id);
+        out.println ("\t\tObject Version: " + tagGroup.object_group_ref_version);
+    }
 
     public static void dumpHex(byte[] values)
     {

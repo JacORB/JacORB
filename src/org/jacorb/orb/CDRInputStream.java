@@ -29,8 +29,8 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
-import org.jacorb.config.*;
-import org.slf4j.Logger;
+import org.jacorb.config.Configuration;
+import org.jacorb.config.ConfigurationException;
 import org.jacorb.orb.giop.CodeSet;
 import org.jacorb.orb.giop.GIOPConnection;
 import org.jacorb.orb.giop.Messages;
@@ -50,6 +50,7 @@ import org.omg.CORBA.TypeCodePackage.BadKind;
 import org.omg.CORBA.TypeCodePackage.Bounds;
 import org.omg.CORBA.portable.IDLEntity;
 import org.omg.GIOP.MsgType_1_1;
+import org.slf4j.Logger;
 
 /**
  * Read CDR encoded data
@@ -530,7 +531,7 @@ public class CDRInputStream
         }
     }
 
-    protected final void skip(final int distance)
+    public final void skip(final int distance)
     {
         pos += distance;
         index += distance;

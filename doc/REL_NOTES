@@ -85,6 +85,8 @@ post 2.3.1
         - call shutdownOutput before closing socket as recommended by
           http://java.sun.com/j2se/1.5.0/docs/guide/net/articles/connection_release.html
         - applied patch from JacORB Bugzilla #801 for AOM Thread creation.
+        - New MIOP ETF transport added. Original design and implementation by Alysson Bessani. Further work on implementation,
+          specification compliance, interoperability and integration by Nick Cross.
 
     - IDL Compiler:
         - fixed issue where the IDL compiler generated imports for the

@@ -90,7 +90,7 @@ public class ServiceContextTransportingOutputStream
         return header_end;
     }
 
-    private int getBodyBegin()
+    public int getBodyBegin()
     {
         return header_end + header_padding;
     }
@@ -308,21 +308,6 @@ public class ServiceContextTransportingOutputStream
         }
 
         contexts.add( ctx );
-    }
-
-
-    /**
-     * private hack...
-     */
-
-    public byte[] getBody()
-    {
-        byte [] result =
-            orb.getBufferManager().getBuffer( size() - getBodyBegin());
-
-        System.arraycopy( getBufferCopy(), getBodyBegin(), result, 0, result.length );
-
-        return result;
     }
 
 

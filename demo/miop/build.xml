@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+
+<project name="JacORB MIOP demo" default="demo" basedir=".">
+
+    <import file="../common/common-demo.xml" />
+
+    <target name="demo" depends="compile">
+        <run-demo>
+            <run-server>
+                <run-default-server classname="demo.miop.Server" />
+            </run-server>
+
+            <run-client>
+                <run-default-client classname="demo.miop.Client" />
+            </run-client>
+        </run-demo>
+    </target>
+
+</project>

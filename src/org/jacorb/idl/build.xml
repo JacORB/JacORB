@@ -28,7 +28,6 @@
     </target>
 
     <target name="parser" unless="parser.notRequired" depends="init" >
-<!--        <mkdir dir="${src.generated}/org/jacorb/idl" /> -->
         <java classname="java_cup.Main" fork="true" dir="${src}/org/jacorb/idl" input="${src}/org/jacorb/idl/parser.cup" >
            <arg value="-progress"/>
            <arg value="-nosummary"/>
@@ -36,15 +35,5 @@
                 <pathelement path="${basedir}/lib/build/java_cup.jar" />
             </classpath>
         </java>
-    </target>
-
-    <target name="clean" depends="init">
-        <!-- don't delete yet as this currently breaks the PT build -->
-      <!--  <delete >
-            <fileset dir="${src}/org/jacorb/idl" >
-                <include name="**/parser.java"/>
-                <include name="**/sym.java"/>
-            </fileset>
-        </delete> -->
     </target>
 </project>

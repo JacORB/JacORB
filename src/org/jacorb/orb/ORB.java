@@ -307,7 +307,7 @@ public final class ORB
         }
 
         poolManagerFactory = new RPPoolManagerFactory(this);
-        
+
     }
 
     /**
@@ -752,6 +752,15 @@ public final class ORB
              i.hasNext();)
         {
             Profile profile = (Profile)i.next();
+
+            //MIOP
+            //if it is a group profile, it can't be added to the object ior
+            //so do nothing
+            if(profile instanceof org.jacorb.orb.miop.MIOPProfile)
+            {
+                continue;
+            }
+
             profile.set_object_key (objectKey);
             profiles.add (profile);
             profileTags[n++] = profile.tag();
@@ -1224,7 +1233,7 @@ public final class ORB
                 return piCurrent;
             }
             else if ("ORBPolicyManager".equals(identifier))
-            {   
+            {
                 if (policyManager == null)
                 {
                     policyManager = new PolicyManager(this.getConfiguration());
@@ -1248,7 +1257,7 @@ public final class ORB
                 throw new org.omg.CORBA.ORBPackage.InvalidName();
             }
         }
-        
+
         if (obj != null)
         {
             initial_references.put (identifier, obj);
@@ -2588,7 +2597,7 @@ public final class ORB
         return poolManagerFactory.newRPPoolManager(isSingleThreaded);
     }
 
-    public void notifyTransportListeners(GIOPConnection gc) 
+    public void notifyTransportListeners(GIOPConnection gc)
     {
         transport_manager.notifyTransportListeners (gc);
     }

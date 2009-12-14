@@ -48,19 +48,6 @@ public abstract class PatternWrapper
 
         if (sDefaultInstance == null)
         {
-            try
-            {
-                Class.forName("org.apache.regexp.RE");
-                sDefaultInstance = Class.forName("org.jacorb.test.common.JakartaRegexpPatternWrapper");
-            } catch (ClassNotFoundException e)
-            {
-                // no problem
-                // recoverable error
-            }
-        }
-
-        if (sDefaultInstance == null)
-        {
             throw REGEXP_NOT_AVAILABLE;
         }
     }

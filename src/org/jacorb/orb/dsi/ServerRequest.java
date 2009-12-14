@@ -22,8 +22,6 @@ package org.jacorb.orb.dsi;
 
 import java.util.Iterator;
 import java.util.List;
-
-import org.slf4j.Logger;
 import org.jacorb.config.Configuration;
 import org.jacorb.orb.CDRInputStream;
 import org.jacorb.orb.CDROutputStream;
@@ -40,13 +38,19 @@ import org.omg.CORBA.BAD_PARAM;
 import org.omg.GIOP.ReplyStatusType_1_2;
 import org.omg.IOP.INVOCATION_POLICIES;
 import org.omg.IOP.ServiceContext;
+import org.omg.IOP.TAG_GROUP;
+import org.omg.MIOP.UIPMC_ProfileBody;
+import org.omg.MIOP.UIPMC_ProfileBodyHelper;
 import org.omg.Messaging.PolicyValue;
 import org.omg.Messaging.PolicyValueSeqHelper;
 import org.omg.Messaging.REPLY_END_TIME_POLICY_TYPE;
 import org.omg.Messaging.REQUEST_END_TIME_POLICY_TYPE;
 import org.omg.Messaging.REQUEST_START_TIME_POLICY_TYPE;
+import org.omg.PortableGroup.TagGroupTaggedComponent;
+import org.omg.PortableGroup.TagGroupTaggedComponentHelper;
 import org.omg.PortableInterceptor.ForwardRequest;
 import org.omg.TimeBase.UtcT;
+import org.slf4j.Logger;
 
 /**
  * @author Gerald Brose, FU Berlin
@@ -74,8 +78,8 @@ public class ServerRequest
     private final boolean cachePoaNames;
 
     private int replyStatus = ReplyStatusType_1_2._NO_EXCEPTION;
-    private final byte[] oid;
-    private final byte[] object_key;
+    private byte[] oid;
+    private byte[] object_key;
     private org.omg.CORBA.Object reference = null;
     /**
      * <code>rest_of_name</code> is target poa's name in relation to parent.
@@ -93,11 +97,12 @@ public class ServerRequest
 
     private final org.jacorb.orb.ORB orb;
 
-    private boolean usePreconstructedReply = false; //for appligator
-
     private ServerRequestInfoImpl info = null;
 
     private final Logger logger;
+
+    //MIOP
+    private TagGroupTaggedComponent tagGroup = null;
 
 
     public ServerRequest( org.jacorb.orb.ORB orb,
@@ -116,10 +121,44 @@ public class ServerRequest
 
         calcTimingPolicies();
 
-        object_key =
-            orb.mapObjectKey(org.jacorb.orb.ParsedIOR.extractObjectKey(inStream.req_hdr.target, orb));
+        // MIOP
+        if(connection.getTransport() instanceof org.jacorb.orb.miop.ServerMIOPConnection)
+        {
+            CDRInputStream uipmcInStream = new CDRInputStream (orb, inStream.req_hdr.target.profile ().profile_data);
+            uipmcInStream.openEncapsulatedArray ();
+            UIPMC_ProfileBody upb = UIPMC_ProfileBodyHelper.read (uipmcInStream);
+            uipmcInStream.close();
 
+            for (int i=0; i<upb.components.length; i++)
+            {
+                if (upb.components[i].tag == TAG_GROUP.value)
+                {
+                    CDRInputStream groupInStream = new CDRInputStream (orb, upb.components[i].component_data);
+                    groupInStream.openEncapsulatedArray();
+                    tagGroup = TagGroupTaggedComponentHelper.read (groupInStream);
+                    groupInStream.close ();
+                    break;
+                }
+            }
+        }
+        else
+        {
+            object_key = orb.mapObjectKey(org.jacorb.orb.ParsedIOR.extractObjectKey(inStream.req_hdr.target, orb));
+            oid = org.jacorb.poa.util.POAUtil.extractOID( object_key );
+        }
+    }
+
+    //MIOP
+    //seter for object Id
+    public void setObjectKey(byte[] objectKey)
+    {
+        object_key = objectKey;
         oid = org.jacorb.poa.util.POAUtil.extractOID( object_key );
+    }
+
+    public TagGroupTaggedComponent getTagGroup()
+    {
+        return tagGroup;
     }
 
     /*
@@ -167,12 +206,15 @@ public class ServerRequest
             CDROutputStream _out = ((CDROutputStream)any.create_output_stream());
 
             // get a copy of the content of this reply
-            byte[] result_buf = out.getBody();
+            byte[] result_buf = orb.getBufferManager().getBuffer( out.size() - out.getBodyBegin());
+
+            System.arraycopy( out.getBufferCopy(), out.getBodyBegin(), result_buf, 0, result_buf.length );
 
             // ... and insert it
             _out.setBuffer( result_buf  );
             // important: set the _out buffer's position to the end of the contents!
             _out.skip( result_buf.length );
+
             return any;
         }
         return result;
@@ -326,21 +368,6 @@ public class ServerRequest
     {
         if( responseExpected() )
         {
-            //shortcut for appligator
-            if (usePreconstructedReply)
-            {
-                try
-                {
-                    connection.sendReply( out );
-                }
-                catch( Exception ioe )
-                {
-                    logger.info("Error replying to request!", ioe);
-                }
-
-                return;
-            }
-
             if( logger.isDebugEnabled() )
             {
                 logger.debug( "ServerRequest: reply to " + operation() );
@@ -691,11 +718,6 @@ public class ServerRequest
     public GIOPConnection getConnection()
     {
         return connection;
-    }
-
-    public void setUsePreconstructedReply(boolean use)
-    {
-        usePreconstructedReply = use;
     }
 
     /**

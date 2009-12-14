@@ -22,8 +22,9 @@ package org.jacorb.poa;
 
 import java.util.Enumeration;
 import java.util.Hashtable;
-import org.jacorb.config.*;
-import org.slf4j.Logger;
+import org.jacorb.config.Configurable;
+import org.jacorb.config.Configuration;
+import org.jacorb.config.ConfigurationException;
 import org.jacorb.orb.dsi.ServerRequest;
 import org.jacorb.poa.except.ApplicationError;
 import org.jacorb.poa.except.POAInternalError;
@@ -76,6 +77,7 @@ import org.omg.PortableServer.POAPackage.ServantAlreadyActive;
 import org.omg.PortableServer.POAPackage.ServantNotActive;
 import org.omg.PortableServer.POAPackage.WrongAdapter;
 import org.omg.PortableServer.POAPackage.WrongPolicy;
+import org.slf4j.Logger;
 
 /**
  * The main POA class, an implementation of
@@ -174,7 +176,7 @@ public class POA
 
     private boolean configured = false;
 
-    private POA(org.jacorb.orb.ORB _orb,
+    POA(org.jacorb.orb.ORB _orb,
                 String _name,
                 POA _parent,
                 POAManager _poaManager,
@@ -555,7 +557,7 @@ public class POA
             new org.jacorb.poa.policy.ImplicitActivationPolicy(ImplicitActivationPolicyValue.IMPLICIT_ACTIVATION);
 
         POA rootPOA =
-            new POA(orb, POAConstants.ROOT_POA_NAME, null, poaMgr, policies);
+            new GOA(orb, POAConstants.ROOT_POA_NAME, null, poaMgr, policies);
 
         return rootPOA;
     }
@@ -867,7 +869,7 @@ public class POA
                 a_POAManager == null ? new POAManager(orb) : (POAManager) a_POAManager;
 
             child =
-                new POA(orb, poa_name, this, aPOAManager, policyList);
+                new GOA(orb, poa_name, this, aPOAManager, policyList);
 
             try
             {
@@ -984,15 +986,19 @@ public class POA
             throw new WrongPolicy();
         }
 
+        ((GOA)this).clearGroupRegistration(oid);
+
+        ByteArrayKey oidbak = new ByteArrayKey (oid);
+
         aom.remove(
-            oid,
+            oidbak,
             requestController,
             useServantManager() ? (ServantActivator)servantManager : null,
             this,
             false
                   );
 
-        createdReferences.remove( new ByteArrayKey(oid));
+        createdReferences.remove(oidbak);
     }
 
 
@@ -1144,7 +1150,7 @@ public class POA
      *
      * @return a <code>byte[]</code> value.
      */
-    private synchronized byte[] generateObjectId()
+    synchronized byte[] generateObjectId()
     {
         if (isPersistent())
         {

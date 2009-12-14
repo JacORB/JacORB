@@ -1,0 +1,49 @@
+#ifndef _MIOP_IDL_
+#define _MIOP_IDL_
+
+//#ifndef _PRE_3_0_COMPILER_
+#pragma prefix "omg.org"
+#include <IOP.idl>
+#include <GIOP.idl>
+/*
+#else
+import ::IOP;
+import ::GIOP;
+#endif //_PRE_3_0_COMPILER_
+*/
+
+module MIOP
+{
+/*
+#ifndef _PRE_3_0_COMPILER_
+   typeprefix MIOP "omg.org";
+#endif // _PRE_3_0_COMPILER_
+*/
+
+   typedef sequence <octet, 252> UniqueId;
+
+   struct PacketHeader_1_0
+   {
+      char magic[4];
+      octet hdr_version;
+      octet flags;
+      unsigned short packet_length;
+      unsigned long packet_number;
+      unsigned long number_of_packets;
+      UniqueId Id;
+   };
+
+   typedef GIOP::Version Version;
+
+   typedef string Address;
+
+   struct UIPMC_ProfileBody
+   {
+      Version miop_version;
+      Address the_address;
+      short the_port;
+      sequence<IOP::TaggedComponent> components;
+   };
+};
+
+#endif

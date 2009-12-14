@@ -24,6 +24,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import org.jacorb.orb.CDROutputStream;
+import org.jacorb.orb.miop.MIOPProfile;
+import org.jacorb.orb.miop.MulticastUtil;
 import org.jacorb.util.Time;
 import org.omg.CONV_FRAME.CodeSetContext;
 import org.omg.CONV_FRAME.CodeSetContextHelper;
@@ -36,6 +38,9 @@ import org.omg.IOP.INVOCATION_POLICIES;
 import org.omg.IOP.ServiceContext;
 import org.omg.IOP.ServiceContextListHelper;
 import org.omg.IOP.TAG_CODE_SETS;
+import org.omg.IOP.TAG_UIPMC;
+import org.omg.IOP.TaggedProfile;
+import org.omg.MIOP.UIPMC_ProfileBodyHelper;
 import org.omg.Messaging.PolicyValue;
 import org.omg.Messaging.PolicyValueSeqHelper;
 import org.omg.Messaging.REPLY_END_TIME_POLICY_TYPE;
@@ -142,29 +147,37 @@ public class RequestOutputStream
         writeGIOPMsgHeader( MsgType_1_1._Request,
                             giop_minor );
 
+        boolean isMIOP = (connection != null && connection.getRegisteredProfile () instanceof MIOPProfile);
+
         switch( giop_minor )
         {
             case 0 :
-            {
-                // GIOP 1.0 inlining
-                ServiceContextListHelper.write( this , Messages.service_context );
-                write_ulong( request_id);
-                write_boolean( response_expected );
-                write_long( object_key.length );
-                write_octet_array( object_key, 0, object_key.length);
-                write_string( operation);
-                PrincipalHelper.write( this, principal);
-
-                break;
-            }
             case 1 :
             {
-                //GIOP 1.1
+                //GIOP 1.0/1.1 inlined
                 ServiceContextListHelper.write( this , Messages.service_context );
                 write_ulong( request_id);
                 write_boolean( response_expected );
-                write_long( object_key.length );
-                write_octet_array( object_key, 0, object_key.length);
+
+                if (giop_minor == 1)
+                {
+                    write_octet_array( reserved,0,3 );
+                }
+
+                if (isMIOP)
+                {
+                    write_char_array (MulticastUtil.MAGIC, 0, MulticastUtil.MAGIC.length);
+                    write_long (TAG_UIPMC.value);
+                    this.beginEncapsulation ();
+                    UIPMC_ProfileBodyHelper.write (this, ((MIOPProfile)connection.getRegisteredProfile ()).getUIPMCProfile ());
+                    this.endEncapsulation ();
+                }
+                else
+                {
+                    write_long( object_key.length );
+                    write_octet_array( object_key, 0, object_key.length);
+                }
+
                 write_string( operation);
                 PrincipalHelper.write( this, principal);
 
@@ -174,10 +187,18 @@ public class RequestOutputStream
             {
                 //GIOP 1.2
                 TargetAddress addr = new TargetAddress();
-                addr.object_key( object_key );
+
+                if (isMIOP)
+                {
+                    TaggedProfile uipmc = new TaggedProfile (org.omg.IOP.TAG_UIPMC.value, MulticastUtil.getEncapsulatedUIPMCProfile (orb, connection));
+                    addr.profile (uipmc);
+                }
+                else
+                {
+                    addr.object_key( object_key );
+                }
 
                 // inlined RequestHeader_1_2Helper.write method
-
                 write_ulong( request_id);
                 if (response_expected)
                 {
@@ -277,7 +298,6 @@ public class RequestOutputStream
         {
             // encapsulate context
             addServiceContext (createCodesetContext ( conn.getTCS(), conn.getTCSW()));
-                       
             conn.markTCSNegotiated();
         }
         super.write_to(conn);

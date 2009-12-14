@@ -16,19 +16,19 @@
    <target name="all" depends="init, subdirs" />
 
    <!-- Do all the template copying first to avoid cross-dependacy problems -->
-   <target name="subdirs" 
-      depends="config, 
-   	           util, 
-   	           transport, 
-   	           orb, 
-   	           poa, 
+   <target name="subdirs"
+      depends="config,
+   	           util,
+   	           transport,
+   	           orb,
+   	           poa,
    	           ir,
    	           imr,
-   	           naming, 
-   	           tracing, 
-   	           security, 
-   	           transaction, 
-   	           collection, 
+   	           naming,
+   	           tracing,
+   	           security,
+   	           transaction,
+   	           collection,
    	           concurrency,
    	           events,
    	           dds,
@@ -99,9 +99,4 @@
    <target name="notification" depends="init">
       <ant antfile="${src}/org/jacorb/notification/build.xml" dir="${basedir}"/>
    </target>
-
-   <target name="clean" depends="init">
-      <ant antfile="${src}/org/jacorb/idl/build.xml" target="clean" dir="${basedir}" />
-   </target>
-
 </project>

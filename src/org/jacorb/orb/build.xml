@@ -25,6 +25,7 @@
              org/jacorb/orb/giop/*.java,
              org/jacorb/orb/iiop/*.java,
              org/jacorb/orb/listener/*.java,
+             org/jacorb/orb/miop/*.java,
              org/jacorb/orb/policies/*.java,
              org/jacorb/orb/portableInterceptor/*.java,
              org/jacorb/orb/rmi/*.java,

@@ -749,7 +749,8 @@ public class ParsedIOR
     private Object getComponent (int tag, Class helper)
     {
         Object result = null;
-        if (effectiveProfile instanceof org.jacorb.orb.etf.ProfileBase)
+        if (effectiveProfile instanceof org.jacorb.orb.etf.ProfileBase &&
+            ((org.jacorb.orb.etf.ProfileBase)effectiveProfile).getComponents() != null)
         {
             // TODO Should there be a component access mechanism for all
             //      ETF profiles?  Clarify with OMG.

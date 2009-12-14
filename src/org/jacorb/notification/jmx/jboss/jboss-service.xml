@@ -2,12 +2,12 @@
 <!DOCTYPE server>
 
 <server>
-  <classpath codebase="lib" archives="jacorb.jar, jboss-cosnotification.jar, backport-util-concurrent.jar, picocontainer-1.2"/>
-    <mbean code="org.jacorb.notification.jmx.jboss.JBossCOSNotificationService" 
+  <classpath codebase="lib" archives="jacorb.jar, jboss-cosnotification.jar, picocontainer-1.2"/>
+    <mbean code="org.jacorb.notification.jmx.jboss.JBossCOSNotificationService"
          name="NotificationService:type=EventChannelFactory"
          xmbean-dd="org/jacorb/notification/jmx/jboss/JBossCOSNotificationService.xml" >
     <depends>jboss:service=CorbaORB</depends>
     <depends>jboss:service=CorbaNaming</depends>
   </mbean>
-  
+
 </server>

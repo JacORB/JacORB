@@ -1,6 +1,6 @@
 package org.jacorb.test.bugs.bugjac513;
 
-import org.apache.regexp.RE;
+import org.jacorb.test.common.PatternWrapper;
 
 public class GIOP_1_0_Test extends AbstractGIOPMinorVersionTestCase
 {
@@ -11,11 +11,11 @@ public class GIOP_1_0_Test extends AbstractGIOPMinorVersionTestCase
 
     protected void verifyPrintIOROutput(String result)
     {
-        RE re = new RE("IIOP Version:\\s+1\\.0");
-        assertTrue(re.match(result));
+        PatternWrapper re = PatternWrapper.init("IIOP Version:\\s+1\\.0");
+        assertTrue(re.match(result) != 0);
 
-        re = new RE("Found \\d Tagged Components");
-        assertFalse(re.match(result));
+        re = PatternWrapper.init ("Found \\d Tagged Components");
+        assertFalse(re.match(result) != 0);
 
         assertTrue(result.indexOf("Unknown profile") < 0);
     }

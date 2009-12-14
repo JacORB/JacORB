@@ -37,6 +37,7 @@ import org.omg.IOP.TaggedComponentHelper;
 import org.omg.IOP.TaggedComponentSeqHolder;
 import org.omg.IOP.TaggedProfile;
 import org.omg.IOP.TaggedProfileHolder;
+import org.slf4j.Logger;
 
 /**
  * @author Andre Spiegel
@@ -52,6 +53,7 @@ public abstract class ProfileBase
 
     protected org.jacorb.config.Configuration configuration;
     protected String corbalocStr = null;
+    protected Logger logger;
 
     /**
     * ETF defined operation to set the object key on this profile.

@@ -6,7 +6,7 @@
 #pragma prefix "omg.org"
 
 module IOP
-{ 
+{
     local interface Codec
     {
         exception InvalidTypeForEncoding {};
@@ -88,6 +88,10 @@ module IOP
     const ServiceId	UnknownExceptionInfo = 9;
     const ServiceId ExceptionDetailMessage = 14;
     const ServiceId	SecurityAttributeService = 15;
+
+    const ProfileId TAG_UIPMC = 3;
+    const ComponentId TAG_GROUP = 39;
+    const ComponentId TAG_GROUP_IIOP = 40;
 
 };  // IOP module
 

@@ -39,33 +39,6 @@ public class IIOPFactories
         addressClz = IIOPAddress.class;
     }
 
-/*    public Profile demarshal_profile(TaggedProfileHolder tagged_profile,
-                                      TaggedComponentSeqHolder components)
-    {
-        if (tagged_profile.value.tag != TAG_INTERNET_IOP.value)
-        {
-            throw new org.omg.CORBA.BAD_PARAM
-                ("wrong profile for IIOP transport, tag: "
-                 + tagged_profile.value.tag);
-        }
-        else
-        {
-            IIOPProfile result =
-                new IIOPProfile(tagged_profile.value.profile_data);
-            try
-            {
-                result.configure(configuration);
-            }
-            catch(ConfigurationException e)
-            {
-                throw new org.omg.CORBA.INTERNAL("ConfigurationException: " + e.getMessage());
-            }
-
-            components.value = result.getComponents().asArray();
-            return result;
-        }
-    }*/
-
     public int profile_tag()
     {
         return org.omg.IOP.TAG_INTERNET_IOP.value;

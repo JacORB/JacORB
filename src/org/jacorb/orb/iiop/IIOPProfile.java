@@ -19,10 +19,19 @@
  */
 package org.jacorb.orb.iiop;
 
-import java.util.*;
-import java.net.*;
-import org.jacorb.config.*;
-import org.slf4j.Logger;
+import java.net.Inet4Address;
+import java.net.InetAddress;
+import java.net.NetworkInterface;
+import java.net.SocketException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Enumeration;
+import java.util.Iterator;
+import java.util.List;
+import org.jacorb.config.Configuration;
+import org.jacorb.config.ConfigurationException;
 import org.jacorb.orb.CDRInputStream;
 import org.jacorb.orb.CDROutputStream;
 import org.jacorb.orb.TaggedComponentList;
@@ -56,7 +65,6 @@ public class IIOPProfile
     extends org.jacorb.orb.etf.ProfileBase implements Cloneable
 {
     private IIOPAddress  primaryAddress = null;
-    private Logger       logger;
     private SSL ssl = null;
     private boolean isSSLSet;
 
@@ -125,6 +133,7 @@ public class IIOPProfile
     {
         configuration = (org.jacorb.config.Configuration)config;
         logger = configuration.getLogger("jacorb.iiop.profile");
+
         if (primaryAddress != null)
         {
             primaryAddress.configure(config);
@@ -134,7 +143,7 @@ public class IIOPProfile
         {
             decode_corbaloc(corbalocStr);
         }
-        
+
         addAlternateAddresses ((org.jacorb.config.Configuration)config);
     }
 
@@ -318,7 +327,7 @@ public class IIOPProfile
                 IIOPAddress iaddr = new IIOPAddress();
                 if (!iaddr.fromString (addr))
                 {
-                    logger.warn ("could not decode " + addr + 
+                    logger.warn ("could not decode " + addr +
                                  " from jacorb.iiop.alternate_addresses");
                     continue;
                 }
@@ -330,7 +339,7 @@ public class IIOPProfile
             }
         }
     }
-    
+
     /**
      * Adds all the network addresses of this machine to the profile
      * as TAG_ALTERNATE_IIOP_ADDRESS.  This excludes loopback addresses,
@@ -341,7 +350,7 @@ public class IIOPProfile
     {
         if (primaryAddress == null) return;
         if (components == null) components = new TaggedComponentList();
-        try 
+        try
         {
             for (Enumeration e = NetworkInterface.getNetworkInterfaces();
                  e.hasMoreElements();)
@@ -352,7 +361,7 @@ public class IIOPProfile
                 {
                     InetAddress addr = (InetAddress)ee.nextElement();
                     if (addr instanceof Inet4Address &&
-                        !addr.isLoopbackAddress() && 
+                        !addr.isLoopbackAddress() &&
                         !addr.getHostAddress().equals (primaryAddress.getIP()))
                     {
                         IIOPAddress iaddr = new IIOPAddress();
@@ -363,13 +372,13 @@ public class IIOPProfile
                     }
                 }
             }
-        } 
+        }
         catch (SocketException ex)
         {
             logger.warn ("could not get network interfaces, will not add addresses");
         }
     }
-    
+
     /**
     * Writes the bytes that would make up the ETF::AddressProfile bytes (new spec)
     * to a stream.

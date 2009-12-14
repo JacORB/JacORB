@@ -340,8 +340,8 @@ public class GIOPConnectionTest
         //listener?
         assertTrue( request_listener.getRequest() != null );
 
-        RequestInputStream r_in =
-            new RequestInputStream( orb, request_listener.getRequest() );
+        RequestInputStream r_in = new RequestInputStream
+            ( orb, null, request_listener.getRequest() );
 
         //is the body correct?
         assertEquals( "barbaz", r_in.read_string() );

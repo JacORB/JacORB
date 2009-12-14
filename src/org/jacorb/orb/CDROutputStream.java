@@ -217,20 +217,6 @@ public class CDROutputStream
         }
     }
 
-    /**
-     * Inserts a 4-byte integer into the buffer at the specified position. Does not modify the current buffer position.
-     * @param value the value to inser
-     * @param pos the position at which to insert it.
-     */
-    protected void insertLongInBuffer( int value, int pos )
-    {
-        //using big endian byte ordering
-        buffer[pos]   = (byte)((value >> 24) & 0xFF);
-        buffer[pos+1] = (byte)((value >> 16) & 0xFF);
-        buffer[pos+2] = (byte)((value >>  8) & 0xFF);
-        buffer[pos+3] = (byte) (value        & 0xFF);
-    }
-
 
     private static class DeferredWriteFrame
     {
@@ -501,7 +487,7 @@ public class CDROutputStream
      * This version of check does both array length checking and
      * data type alignment. It is a convenience method.
      */
-    private void check(final int i, final int align)
+    public final void check(final int i, final int align)
     {
         final int remainder = align - (index % align);
 
@@ -523,7 +509,6 @@ public class CDROutputStream
      * check whether the current buffer is big enough to receive
      * i more bytes. If it isn't, get a bigger buffer.
      */
-
     private final void check(final int i)
     {
         final int requiredSize = pos + i + 2;
@@ -626,7 +611,7 @@ public class CDROutputStream
     {
         /* set the index for alignment to 0, i.e. align relative to the
            beginning of the encapsulation */
-        resetIndex();
+        index = 0;
 
         // byte_order flag set to FALSE
 
@@ -689,23 +674,12 @@ public class CDROutputStream
         return bos.toByteArray();
     }
 
-    private void resetIndex()
-    {
-        index = 0;
-    }
 
     public int size()
     {
         return pos + deferred_writes;
     }
 
-    public void reset()
-    {
-        deferredArrayQueue.clear();
-        pos = 0;
-        deferred_writes = 0;
-        index = 0;
-    }
 
     protected void finalize() throws Throwable
     {
@@ -741,23 +715,23 @@ public class CDROutputStream
         pos += amount;
     }
 
+    /**
+     * Replace existing buffer by and new one and reset indices.
+     *
+     * @param b the new buffer
+     */
     public void setBuffer(final byte[] b)
     {
         bufMgr.returnBuffer( buffer, true );
 
         buffer = b;
 
-        reset();
+        deferredArrayQueue.clear();
+        pos = 0;
+        deferred_writes = 0;
+        index = 0;
     }
 
-    // For appligator
-
-    public void setBufferWithoutReset (byte[] b, int size)
-    {
-        close();
-        buffer = b;
-        pos = size;
-    }
 
     /**************************************************
      * The following operations are from OutputStream *

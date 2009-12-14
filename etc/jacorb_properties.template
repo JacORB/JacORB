@@ -300,7 +300,6 @@ jacorb.enhanced_thread_name=off
 # transmit wide characters. Note that this property is only effective once per JVM.
 # jacorb.native_wchar_codeset=UTF16
 
-
 ###########################################
 #                                         #
 #         Interoperability                #
@@ -388,6 +387,29 @@ jacorb.net.tcp_listener=
 
 #org.omg.PortableInterceptor.ORBInitializerClass.bidir_init=org.jacorb.orb.giop.BiDirConnectionInitializer
 
+
+###########################################
+#                                         #
+#         Multicast IOP                   #
+#                                         #
+###########################################
+
+# Multicast socket configuration parameters
+# Timeout used in socket.receivePacket
+#jacorb.miop.timeout=100
+# TTL of multicast packets
+#jacorb.miop.time_to_live=5
+
+# Number of messages to be processed simultaneously
+#jacorb.miop.number_of_messages=10
+# Maximum number of incomplete messages tolerated
+#jacorb.miop.incomplete_messages_threshold=5
+# Timeout for a packet collection be completed
+#jacorb.miop.message_completion_timeout=500
+
+# Packet max size. Typically this should not be changed
+# unless jumbo frames have been configured.
+#jacorb.miop.packet_max_size=1500
 
 ###########################################
 #                                         #
@@ -677,7 +699,9 @@ jacorb.poa.queue_min=10
 ###################################
 
 # Names of the factories classes for all installed transport plug-ins
-# (comma-separated list).
+# (comma-separated list). To enable MIOP Transport add
+# org.jacorb.orb.miop.MIOPFactories.
+
 
 #jacorb.transport.factories=org.jacorb.orb.iiop.IIOPFactories
 
@@ -692,6 +716,9 @@ jacorb.poa.queue_min=10
 # Name of a class that selects the transport profile to use on the
 # client side.
 
+# To enable MIOP profile selection change this to be
+# ...selector=org.jacorb.orb.miop.MIOPProfileSelector
+#
 #jacorb.transport.client.selector=org.jacorb.orb.DefaultProfileSelector
 
 

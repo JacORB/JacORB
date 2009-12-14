@@ -25,8 +25,14 @@ import java.util.List;
 import java.util.StringTokenizer;
 
 import org.jacorb.orb.ORB;
+import org.jacorb.orb.ParsedIOR;
+import org.jacorb.orb.iiop.IIOPAddress;
 import org.jacorb.orb.iiop.IIOPProfile;
+import org.jacorb.orb.miop.MIOPProfile;
 import org.omg.ETF.Profile;
+import org.omg.GIOP.Version;
+import org.omg.MIOP.UIPMC_ProfileBody;
+import org.omg.PortableGroup.TagGroupTaggedComponent;
 
 /**
  * @author Gerald Brose
@@ -129,7 +135,13 @@ public class CorbaLoc
         }
 
         String sb;
-        if( addr.indexOf('/') == -1 )
+        boolean isMIOP  = (addr.indexOf ("miop") != -1);
+        if (isMIOP && addr.indexOf (",iiop") != -1)
+        {
+            throw new IllegalArgumentException("MIOP Profile does not support Gateway Profiles.");
+        }
+
+        if( ! isMIOP && addr.indexOf('/') == -1 )
         {
             sb = addr.substring( addr.indexOf(':')+1 );
             if (addr.startsWith("corbaloc:rir:"))
@@ -146,12 +158,13 @@ public class CorbaLoc
         }
         else
         {
-            sb = addr.substring( addr.indexOf(':')+1, addr.indexOf('/') );
+            sb = addr.substring( addr.indexOf(':')+1, isMIOP ? addr.length () : addr.indexOf('/') );
             keyString = addr.substring(  addr.indexOf('/')+1 );
             key = parseKey( keyString );
         }
 
-        if( sb.indexOf(',') > 0 )
+        // ! MIOP as we don't currently support gateway profiles.
+        if( ! isMIOP && sb.indexOf(',') > 0 )
         {
             StringTokenizer tokenizer = new StringTokenizer( sb, "," );
             profileList = new Profile[tokenizer.countTokens()];
@@ -330,6 +343,128 @@ public class CorbaLoc
         return buffer.toString();
     }
 
+    public static String generateCorbaloc (org.omg.CORBA.ORB orb, org.omg.CORBA.Object ref)
+    {
+        ParsedIOR pior = new ParsedIOR((org.jacorb.orb.ORB)orb, orb.object_to_string (ref));
+
+        Profile profile = pior.getEffectiveProfile();
+
+        if (profile instanceof IIOPProfile)
+        {
+            return createCorbalocForIIOPProfile ((IIOPProfile)profile);
+        }
+        else if (profile instanceof MIOPProfile)
+        {
+            return createCorbalocForMIOPProfile ((MIOPProfile)profile);
+        }
+        else
+        {
+            throw new IllegalArgumentException ("Profile type not suported: tag number=" +
+                                                profile.tag ());
+        }
+    }
+
+
+    /**
+     * Create a corbaloc string for a IIOP profile.
+     *
+     * @param profile the IIOP profile
+     * @return the created crobaloc string
+     */
+    private static String createCorbalocForIIOPProfile (IIOPProfile profile)
+    {
+        StringBuffer sb = new StringBuffer ("iiop:");
+        sb.append (createString (profile.version ()));
+        sb.append ("@");
+        sb.append (((IIOPAddress)profile.getAddress ()).getIP ());
+        sb.append (":");
+        sb.append (((IIOPAddress)profile.getAddress ()).getPort ());
+        sb.append ("/");
+        sb.append (parseKey (profile.get_object_key ()));
+
+        return sb.toString ();
+    }
+
+
+    /**
+     * Create a corbaloc string for a MIOP profile.
+     *
+     * @param profile the MIOP profile
+     * @return the created crobaloc string
+     */
+    private static String createCorbalocForMIOPProfile (MIOPProfile profile)
+    {
+        StringBuffer sb = new StringBuffer ("miop:");
+
+        sb.append (createString (profile.version ()));
+        sb.append ("@");
+        sb.append (createString (profile.getTagGroup ()));
+        sb.append ("/");
+        sb.append (createString (profile.getUIPMCProfile ()));
+
+        // group's IIOP component
+        sb.append (";");
+        sb.append (createCorbalocForIIOPProfile (profile.getGroupIIOPProfile ()));
+
+        return sb.toString ();
+    }
+
+
+    /**
+     * Returns a String version of the tag_group.
+     *
+     * @param groupInfo
+     * @return the created corbaloc string
+     */
+    private static String createString (TagGroupTaggedComponent groupInfo)
+    {
+        StringBuffer sb = new StringBuffer ();
+        sb.append (createString (groupInfo.group_version));
+        sb.append ("-");
+        sb.append (groupInfo.group_domain_id);
+        sb.append ("-");
+        sb.append (groupInfo.object_group_id);
+        if (groupInfo.object_group_ref_version != 0)
+        {
+            sb.append ("-");
+            sb.append (groupInfo.object_group_ref_version);
+        }
+        return sb.toString ();
+    }
+
+
+    /**
+     * Returns a String version of the uipmc profile address.
+     *
+     * @param uipmc
+     * @return the created crobaloc string
+     */
+    private static String createString (UIPMC_ProfileBody uipmc)
+    {
+        StringBuffer sb = new StringBuffer ();
+        sb.append (uipmc.the_address);
+        sb.append (":");
+        sb.append (uipmc.the_port);
+        return sb.toString ();
+    }
+
+
+    /**
+     * Returns a String version of the Version.
+     *
+     * @param version
+     * @return the created corbaloc string
+     */
+    private static String createString (Version version)
+    {
+        StringBuffer sb = new StringBuffer ();
+        sb.append (version.major);
+        sb.append (".");
+        sb.append (version.minor);
+        return sb.toString ();
+    }
+
+
     public static void main(String[] args)
     {
         String [] noarg = new String[]{};
@@ -339,5 +474,4 @@ public class CorbaLoc
             System.out.println( new CorbaLoc(orb, args[i] ).toString());
         }
     }
-
 }

@@ -1,0 +1,136 @@
+%
+% Contents???
+% Properties
+% Corbaloc
+% Demo example
+
+
+JacORB has an implementation of MIOP written as an ETF plugin. This
+conforms to version 03-01-11 of the Unreliable Multicast Inter-ORB
+Protocol specification.
+
+
+\section{Enabling the MIOP Transport}
+In order to enable the ETF transport plugin the following configuration
+properties must be altered.
+\begin{verbatim}
+jacorb.transport.factories
+jacorb.transport.client.selector
+\end{verbatim}
+By default these properties are configured to use the IIOP transport. For example
+to select both IIOP and MIOP transports:
+\begin{verbatim}
+jacorb.transport.factories=org.jacorb.orb.iiop.IIOPFactories,
+                           org.jacorb.orb.miop.MIOPFactories
+jacorb.transport.client.selector=
+                           org.jacorb.orb.miop.MIOPProfileSelector
+\end{verbatim}
+
+
+\section{Configuring the MIOP Transport}
+\label{miopConfig}
+A number of extra configuration properties have been added for the transport.
+
+
+
+\begin{small}
+\begin{longtable}{|p{5cm}|p{9cm}|p{2cm}|}
+\caption{MIOP Configuration}\\
+\hline
+~ \hfill \textbf {Property} \hfill ~ & ~ \hfill \textbf {Description} \hfill ~ & ~ \hfill \textbf {Type} \hfill ~ \endhead
+\hline
+\verb"jacorb.miop.timeout" & Timeout used in MIOP requests. Default is 100. &
+ integer \\
+\hline
+\verb"jacorb.miop.time_to_"
+\verb"live" & TTL used for multicast UDP packets. Default
+is 5 seconds. & integer \\
+\hline
+\verb"jacorb.miop.incomplete_"
+\verb"messages_threshold" & Maximum number of incomplete messages allowed.
+Default 5. & integer \\
+\hline
+\verb"jacorb.miop.message_"
+\verb"completion_timeout" & Timeout for packet collection to be completed.
+Default 500ms. & integer \\
+\hline
+\verb"jacorb.miop.packet_"
+\verb"max_size" & This is the maximum size of the frame buffer. This defaults
+to 1500 bytes which is the typical value for most network interfaces. From this
+the IP, UDP and UMIOP headers will be deducted which will leave 1412 bytes for
+the MIOP packet. & integer \\
+\hline
+\end{longtable}
+\end{small}
+
+
+
+\section{MIOP Example}
+
+A new demo has been included within {\tt <JacORB>/demo/miop}. This section will
+describe how to run this demo including its use of MIOP corbaloc strings.
+
+Assuming the developer has installed Ant {\small version 1.7.1} or above then
+the example may be compiled by typing {\tt ant} within the {\tt <JacORB>/demo/miop}
+directory. The classes will be compiled to {\tt <JacORB>/classes} which may
+need to be added to the classpath.
+
+
+To run the server:
+\begin{small}
+\begin{verbatim}
+jaco demo.miop.Server
+\end{verbatim}
+\end{small}
+
+To run the client:
+\begin{small}
+\begin{verbatim}
+jaco demo.miop.Client
+\end{verbatim}
+\end{small}
+
+This is the simplest configuration and will simply send two oneway requests via
+UDP to the server. By default the Server will write out a miop.ior file
+containing the following corbaloc:
+
+\begin{verbatim}
+corbaloc:miop:1.0@1.0-TestDomain-1/224.1.239.2:1234;
+         iiop:1.2@10.1.0.4:38148/4222541922/%00%16%0F%205=%25%02%01I%0C
+\end{verbatim}
+The Group IIOP Profile key string will not remain constant. The server takes a
+single optional argument:
+\begin{tabbing}
+XX \= XXXXXXXXXXXXX \= XX \kill
+\>  -noGroupProfile \>  Don't write IIOP Group Profile
+request.\\
+\end{tabbing}
+This will create a corbaloc as shown below and is useful for interoperating
+with ORBs that do not support the Group Profile.
+\begin{verbatim}
+corbaloc:miop:1.0@1.0-TestDomain-1/224.1.239.2:1234
+\end{verbatim}
+
+
+The Client takes two optional arguments:
+\begin{tabbing}
+XX \= XXXXXXXXXXXXX \= XX \kill
+\>  -fragment \>  Trigger fragmentation by sending a larger request.\\
+\>  [IOR|Corbaloc] \> Don't use miop.ior but this supplied IOR or Corbaloc.\\
+\end{tabbing}
+
+The second optional argument is useful if interoperating with another ORB.
+
+\subsection{Two way requests and MIOP}
+The demo client does an unchecked\_narrow on the supplied corbaloc/URL. This is
+because a MIOP URL does not normally support a two-way is\_a request unless a
+Group IIOP profile has also been encoded into the corbaloc. By default the
+JacORB demo server will create the Group IIOP profile as well:
+
+\begin{verbatim}
+corbaloc:miop:1.0@1.0-TestDomain-1/224.1.239.2:1234;
+         iiop:1.0@10.1.0.4:36840/7150661784/%00%16%0F%1B*@2%02,%1A
+\end{verbatim}
+
+It is not guaranteed that other ORBs (e.g. TAO) will create the Group IIOP
+profile.

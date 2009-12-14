@@ -20,6 +20,7 @@
  */
 package org.jacorb.orb.etf;
 
+
 import java.util.ArrayList;
 import java.util.List;
 import org.jacorb.config.*;
@@ -29,6 +30,7 @@ import org.omg.ETF.Connection;
 import org.omg.ETF.Handle;
 import org.omg.ETF.Profile;
 import org.omg.ETF._ListenerLocalBase;
+
 
 /**
  * @author Andre Spiegel
@@ -75,7 +77,7 @@ public abstract class ListenerBase
      * Connections will only be put into this list
      * if no Handle has been set.
      */
-    private final List incoming_connections = new ArrayList();
+    protected final List incoming_connections = new ArrayList();
 
     private boolean terminated = false;
 

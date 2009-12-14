@@ -4,7 +4,7 @@
   	<fileset dir="${dir.xdoclet}" >
 		<include name="*.jar" />
 	</fileset>
-	
+
 	<pathelement location="${basedir}/classes"/>
 	<pathelement location="${basedir}/lib/slf4j-api-1.5.10.jar"/>
 </path>
@@ -14,21 +14,21 @@
 	<taskdef name="jmxdoclet" classname="xdoclet.modules.jmx.JMXDocletTask">
    		<classpath refid="path.xdoclet"/>
 	</taskdef>
-	
+
 	<macrodef name="jacorb-jmxgen" >
 		<attribute name="destdir" default="${src}/generated" />
 		<attribute name="srcdir" default="${src}" />
 		<element name="files" />
 		<element name="tasks" />
-	
+
 		<sequential>
-			<jmxdoclet destdir="@{destdir}" force="false" verbose="true" excludedtags="author, version">
+			<jmxdoclet destdir="@{destdir}" force="false" verbose="false" excludedtags="author, version">
 	    			<fileset dir="@{srcdir}">
 	         		<files />
 	      		</fileset>
-	      	
+
 	      		<tasks />
-	      	
+
 	      		<!-- Generate the mlet file -->
       	  		<!--
       	  			<mlet destinationFile="mbeans.mlet" destdir="${basedir}/conf"/>

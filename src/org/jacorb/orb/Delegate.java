@@ -30,6 +30,8 @@ import org.jacorb.config.*;
 import org.slf4j.Logger;
 import org.jacorb.imr.ImRAccessImpl;
 import org.jacorb.ir.RepositoryID;
+import org.jacorb.orb.iiop.IIOPProfile;
+import org.jacorb.orb.miop.MIOPProfile;
 import org.jacorb.orb.giop.ClientConnection;
 import org.jacorb.orb.giop.ClientConnectionManager;
 import org.jacorb.orb.giop.LocateReplyInputStream;
@@ -97,7 +99,25 @@ public final class Delegate
     // OF THE REFERENCE.
     private ParsedIOR _pior = null;
     private IOR ior = null;
-    private ClientConnection connection = null;
+
+    /**
+     * Normally a delegate only has one connection open at a time. With the addition
+     * of MIOP it is possible for the user to request a two-way operation (via e.g. IIOP)
+     * and then a one-way operation via MIOP. Rather than repeatedly calling
+     * ConnectionManager.getConnection the additional MIOP connection will also be cached
+     * here.
+     */
+    private ClientConnection connections[] = new ClientConnection[2];
+
+    private static final int IIOP = 0;
+    private static final int MIOP = 1;
+
+    /**
+     * The current connection; this should be either 0 or 1 where
+     * 0 = IIOP
+     * 1 = MIOP
+     */
+    private int currentConnection = IIOP;
 
     /* save original ior for fallback */
     private ParsedIOR piorOriginal = null;
@@ -129,8 +149,6 @@ public final class Delegate
 
     private final Map policy_overrides = new HashMap();
 
-    private boolean doNotCheckExceptions = false; //Setting for Appligator
-
     private CookieHolder cookie = null;
 
     private String invokedOperation = null;
@@ -148,6 +166,13 @@ public final class Delegate
     /** configuration properties */
     private final boolean useIMR;
     private boolean locateOnBind;
+
+   /**
+    * This is the default GIOP minor version configured by JacORB. Most of the time
+    * JacORB will use whatever is within the effective profile. In the case of MIOP this
+    * information may not be available to it will use this to set the GIOP version.
+    */
+    private int defaultGiopMinor;
 
     /**
      * specify if this Delegate should drop its connection to the remote ORB after
@@ -210,9 +235,11 @@ public final class Delegate
             config.getAttributeAsBoolean("jacorb.use_imr", false);
         locateOnBind =
             config.getAttributeAsBoolean("jacorb.locate_on_bind", false);
+        defaultGiopMinor = configuration.getAttributeAsInteger
+            ("jacorb.giop_minor_version", 2);
         avoidIsARemoteCall =
             config.getAttributeAsBoolean("jacorb.avoidIsARemoteCall", true);
-        disconnectAfterNonRecoverableSystemException = 
+        disconnectAfterNonRecoverableSystemException =
             config.getAttributeAsBoolean("jacorb.delegate.disconnect_after_systemexception", false);
     }
 
@@ -323,7 +350,18 @@ public final class Delegate
 
             patchSSL(profile, _pior);
 
-            connection = conn_mg.getConnection(profile);
+            //MIOP
+            if(profile instanceof MIOPProfile)
+            {
+                connections[MIOP] = conn_mg.getConnection(profile);
+                profile = ((MIOPProfile)profile).getGroupIIOPProfile();
+            }
+
+            if (profile != null)
+            {
+                connections[IIOP] = conn_mg.getConnection(profile);
+            }
+
             bound = true;
 
             /* The delegate could query the server for the object
@@ -343,13 +381,13 @@ public final class Delegate
                     LocateRequestOutputStream lros =
                         new LocateRequestOutputStream( orb,
                                                        _pior.get_object_key(),
-                                                       connection.getId(),
+                                                       connections[currentConnection].getId(),
                                                        _pior.getEffectiveProfile().version().minor );
 
                     LocateReplyReceiver receiver =
                         new LocateReplyReceiver(orb);
 
-                    connection.sendRequest( lros,
+                    connections[currentConnection].sendRequest( lros,
                                             receiver,
                                             lros.getRequestId(),
                                             true ); //response expected
@@ -503,11 +541,16 @@ public final class Delegate
 
             _pior = ior;
 
-            if (connection != null)
-            {
-                conn_mg.releaseConnection( connection );
-                connection = null;
-            }
+             if (connections[IIOP] != null)
+             {
+                 conn_mg.releaseConnection( connections[IIOP] );
+                 connections[IIOP] = null;
+             }
+             if ( connections[MIOP] != null )
+             {
+                 conn_mg.releaseConnection( connections[MIOP] );
+                 connections[MIOP] = null;
+             }
 
             //to tell bind() that it has to take action
             bound = false;
@@ -528,7 +571,7 @@ public final class Delegate
 
         return new org.jacorb.orb.dii.Request( self,
                                                orb,
-                                               connection,
+                                               connections[currentConnection],
                                                getParsedIOR().get_object_key(),
                                                operation,
                                                args,
@@ -835,7 +878,7 @@ public final class Delegate
         synchronized ( bind_sync )
         {
             bind();
-            return connection;
+            return connections[currentConnection];
         }
     }
 
@@ -998,10 +1041,10 @@ public final class Delegate
             self,
             this,
             piorOriginal,
-            connection
+            connections[currentConnection]
         );
 
-        orb.notifyTransportListeners (connection.getGIOPConnection());
+        orb.notifyTransportListeners (connections[currentConnection].getGIOPConnection());
 
         if (orb.hasRequestInterceptors())
         {
@@ -1052,7 +1095,7 @@ public final class Delegate
 
             synchronized (bind_sync)
             {
-                if (ros.getConnection() != connection)
+                if (ros.getConnection() != connections[currentConnection])
                 {
                     logger.debug("invoke: RemarshalException");
 
@@ -1060,10 +1103,10 @@ public final class Delegate
                     // another connection, so try again
                     throw new RemarshalException();
                 }
-                connectionToUse = connection;
+                connectionToUse = connections[currentConnection];
             }
             // Use the local copy of the client connection to avoid trouble
-            // with something else affecting the real connection.
+            // with something else affecting the real connections[currentConnection].
             connectionToUse.sendRequest(ros, receiver, ros.requestId(), true);
         }
         catch ( org.omg.CORBA.SystemException cfe )
@@ -1107,7 +1150,7 @@ public final class Delegate
             // This call blocks until the reply arrives.
             org.omg.CORBA.portable.InputStream is = receiver.getReply();
 
-            ((CDRInputStream)is).updateMutatorConnection (connection.getGIOPConnection());
+            ((CDRInputStream)is).updateMutatorConnection (connections[currentConnection].getGIOPConnection());
 
             return is;
         }
@@ -1129,24 +1172,24 @@ public final class Delegate
 
         synchronized(bind_sync)
         {
-            if (connection == null)
+            if (connections[currentConnection] == null)
             {
                 return;
             }
 
-            if (connection != connectionInUse)
+            if (connections[currentConnection] != connectionInUse)
             {
                 return;
             }
 
             logger.debug("release the connection");
 
-            conn_mg.releaseConnection( connection );
-            connection = null;
+            conn_mg.releaseConnection( connections[currentConnection] );
+            connections[currentConnection] = null;
             bound = false;
         }
     }
-    
+
     private void invoke_oneway (RequestOutputStream ros,
                                 ClientInterceptorHandler interceptors)
         throws RemarshalException, ApplicationException
@@ -1160,7 +1203,7 @@ public final class Delegate
                 break;
 
             case SYNC_WITH_TRANSPORT.value:
-                connection.sendRequest (ros, false);
+                connections[currentConnection].sendRequest (ros, false);
                 interceptors.handle_receive_other (SUCCESSFUL.value);
                 break;
 
@@ -1173,7 +1216,15 @@ public final class Delegate
                                                        null);
                 rcv.configure(configuration);
 
-                connection.sendRequest (ros, rcv, ros.requestId(), true);
+                if (connections[MIOP] != null)
+                {
+                    connections[MIOP].sendRequest(ros,false);
+                }
+                else
+                {
+                    connections[IIOP].sendRequest (ros, rcv, ros.requestId(), true);
+                }
+
                 ReplyInputStream in = rcv.getReply();
                 interceptors.handle_receive_reply (in);
                 break;
@@ -1191,7 +1242,7 @@ public final class Delegate
         {
             public void run()
             {
-                connection.sendRequest (ros, false);
+                connections[currentConnection].sendRequest (ros, false);
             }
         },
         "PassToTransport").start();
@@ -1677,10 +1728,10 @@ public final class Delegate
             }
 
 
-            if ( connection != null )
+            if ( connections[currentConnection] != null )
             {
-                conn_mg.releaseConnection( connection );
-                connection = null;
+                conn_mg.releaseConnection( connections[currentConnection] );
+                connections[currentConnection] = null;
             }
             bound = false;
 
@@ -1725,7 +1776,7 @@ public final class Delegate
             bind();
             return new org.jacorb.orb.dii.Request( self,
                                                    orb,
-                                                   connection,
+                                                   connections[currentConnection],
                                                    getParsedIOR().get_object_key(),
                                                    operation );
         }
@@ -1780,33 +1831,68 @@ public final class Delegate
 
             ParsedIOR ior = getParsedIOR();
 
+            //MIOP
+            //the object key must be the representant objectKey if the reply is
+            //expected and the request is a group request
+            org.omg.ETF.Profile profile = ior.getEffectiveProfile();
+            byte[] objectKey = profile.get_object_key();
+
+            // Default to the version within the EffectiveProfile
+            int giopMinor = profile.version().minor;
+
+            if(profile instanceof MIOPProfile)
+            {
+                if(responseExpected)
+                {
+                    IIOPProfile ip = ((MIOPProfile)profile).getGroupIIOPProfile();
+                    if (ip == null)
+                    {
+                        throw new INV_OBJREF ("No Group IIOP Profile so unable to send a two-way request.");
+                    }
+                    objectKey = ip.get_object_key();
+                    currentConnection = IIOP;
+                }
+                else
+                {
+                    currentConnection = MIOP;
+                }
+                // If we are using MIOP then it encodes its own version. So at this point we set
+                // the version for GIOP to be the one configured.
+                giopMinor = defaultGiopMinor;
+            }
+            else
+            {
+                currentConnection = IIOP;
+            }
+
             RequestOutputStream out =
                 new RequestOutputStream( orb,
-                                         connection,
-                                         connection.getId(),
+                                         connections[currentConnection],
+                                         connections[currentConnection].getId(),
                                          operation,
                                          responseExpected,
                                          getSyncScope(),
                                          getRequestStartTime(),
                                          requestEndTime,
                                          replyEndTime,
-                                         ior.get_object_key(), ior.getEffectiveProfile().version().minor );
+                                         objectKey,
+                                         giopMinor);
 
             // CodeSets are only negotiated once per connection,
             // not for each individual request
             // (CORBA 3.0, 13.10.2.6, second paragraph).
-            if (!connection.isTCSNegotiated())
+            if (!connections[currentConnection].isTCSNegotiated())
             {
-                connection.setCodeSet(ior);
+                connections[currentConnection].setCodeSet(ior);
             }
 
             //Setting the codesets not until here results in the
             //header being writtend using the default codesets. On the
             //other hand, the server side must have already read the
             //header to discover the codeset service context.
-            out.setCodeSets( connection.getTCS(), connection.getTCSW() );
+            out.setCodeSets( connections[currentConnection].getTCS(), connections[currentConnection].getTCSW() );
 
-            out.updateMutatorConnection (connection.getGIOPConnection());
+            out.updateMutatorConnection (connections[currentConnection].getGIOPConnection());
 
             return out;
         }

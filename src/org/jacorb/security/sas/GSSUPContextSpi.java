@@ -302,9 +302,11 @@ public final class GSSUPContextSpi
         mechOid = null;
     }
 
-    /*
-     * NOTE : This method was added for a jdk1.6.x port because of a
-     * compilation error from this class.
+    /**
+     * NOTE : This method was added for a jdk1.6.x port
+     * because of a compilation error from this class.
+     *
+     * @see sun.security.jgss.spi.GSSContextSpi#isInitiator()
      */
     public boolean isInitiator ()
     {
