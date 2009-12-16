@@ -27,8 +27,6 @@ import java.util.Iterator;
 import java.util.Vector;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
-
-import org.slf4j.Logger;
 import org.jacorb.poa.except.POAInternalError;
 import org.jacorb.poa.util.ByteArrayKey;
 import org.jacorb.poa.util.POAUtil;
@@ -39,6 +37,7 @@ import org.omg.PortableServer.ServantActivator;
 import org.omg.PortableServer.POAPackage.ObjectAlreadyActive;
 import org.omg.PortableServer.POAPackage.ObjectNotActive;
 import org.omg.PortableServer.POAPackage.ServantAlreadyActive;
+import org.slf4j.Logger;
 
 /**
  * This class maps object id's to servants and vice versa.
@@ -389,15 +388,13 @@ public class AOM
         return servant;
     }
 
-    protected void remove( byte[] oid,
-                           RequestController requestController,
-                           ServantActivator servantActivator,
-                           POA poa,
-                           boolean cleanupInProgress)
+    void remove( ByteArrayKey oidbak,
+                 RequestController requestController,
+                 ServantActivator servantActivator,
+                 POA poa,
+                 boolean cleanupInProgress)
         throws ObjectNotActive
     {
-        ByteArrayKey oidbak = new ByteArrayKey( oid );
-
         // check that the same oid is not already being deactivated
         // (this must be synchronized to avoid having two independent
         // threads register the same oid)
@@ -411,12 +408,6 @@ public class AOM
 
             deactivationList.addElement(oidbak);
         }
-
-        final byte[] oid_ = oid;
-        final RequestController requestController_ = requestController;
-        final ServantActivator servantActivator_ = servantActivator;
-        final POA poa_ = poa;
-        final boolean cleanupInProgress_ = cleanupInProgress;
 
         RemovalStruct rs = new RemovalStruct (oidbak,
                                               requestController,
