@@ -91,6 +91,7 @@ public class IIOPProfile
         this(true);
     }
 
+
     public IIOPProfile(byte[] data)
     {
         this(true);
@@ -131,12 +132,13 @@ public class IIOPProfile
     public void configure(Configuration config)
         throws ConfigurationException
     {
-        configuration = (org.jacorb.config.Configuration)config;
+        super.configure(config);
+
         logger = configuration.getLogger("jacorb.iiop.profile");
 
         if (primaryAddress != null)
         {
-            primaryAddress.configure(config);
+            primaryAddress.configure(configuration);
         }
 
         if (corbalocStr != null)
@@ -144,7 +146,7 @@ public class IIOPProfile
             decode_corbaloc(corbalocStr);
         }
 
-        addAlternateAddresses ((org.jacorb.config.Configuration)config);
+        addAlternateAddresses (configuration);
     }
 
     /**
@@ -243,15 +245,8 @@ public class IIOPProfile
             }
         }
         primaryAddress = new IIOPAddress(host,port);
+        primaryAddress.configure(configuration);
 
-        try
-        {
-            primaryAddress.configure(configuration);
-        }
-        catch( ConfigurationException ce)
-        {
-            throw new RuntimeException(ce);
-        }
         decode_extensions(protocol_identifier.toLowerCase());
     }
 
@@ -325,6 +320,7 @@ public class IIOPProfile
             {
                 String addr = (String)i.next();
                 IIOPAddress iaddr = new IIOPAddress();
+                iaddr.configure (config);
                 if (!iaddr.fromString (addr))
                 {
                     logger.warn ("could not decode " + addr +
@@ -365,6 +361,7 @@ public class IIOPProfile
                         !addr.getHostAddress().equals (primaryAddress.getIP()))
                     {
                         IIOPAddress iaddr = new IIOPAddress();
+                        iaddr.configure (configuration);
                         iaddr.fromString (addr.toString().substring(1) + ":"
                                           + primaryAddress.getPort());
                         components.addComponent (TAG_ALTERNATE_IIOP_ADDRESS.value,
@@ -403,14 +400,7 @@ public class IIOPProfile
         this.primaryAddress = IIOPAddress.read(addressProfileStream);
         if (configuration != null)
         {
-            try
-            {
-                primaryAddress.configure(configuration);
-            }
-            catch( ConfigurationException ce)
-            {
-                logger.warn("ConfigurationException", ce );
-            }
+           primaryAddress.configure(configuration);
         }
     }
 
@@ -434,14 +424,7 @@ public class IIOPProfile
 
         if (configuration != null)
         {
-            try
-            {
-                result.primaryAddress.configure(configuration);
-            }
-            catch( ConfigurationException ce)
-            {
-                logger.warn("ConfigurationException", ce );
-            }
+           result.primaryAddress.configure(configuration);
         }
 
         result.version = new org.omg.GIOP.Version(this.version.major,
@@ -519,8 +502,19 @@ public class IIOPProfile
     {
         if (checkAlternateAddresses)
         {
-            return components.getComponents(TAG_ALTERNATE_IIOP_ADDRESS.value,
-                                            IIOPAddress.class);
+            List alternates = components.getComponents(TAG_ALTERNATE_IIOP_ADDRESS.value,
+                                                       IIOPAddress.class);
+
+            if (alternates != null)
+            {
+               for( int i=0; i < alternates.size(); i++ )
+               {
+                  IIOPAddress alter = (IIOPAddress)alternates.get(i);
+                  alter.configure(configuration);
+               }
+            }
+
+            return alternates;
         }
         else
         {
@@ -726,16 +720,11 @@ public class IIOPProfile
     {
         assert getSSL() != null;
 
-        IIOPProfile result = new IIOPProfile(new IIOPAddress(primaryAddress.getHostname(), getSSLPort()), objectKey);
+        IIOPAddress address = new IIOPAddress(primaryAddress.getHostname(), getSSLPort());
+        address.configure (configuration);
 
-        try
-        {
-            result.configure(configuration);
-        }
-        catch (ConfigurationException e)
-        {
-            throw new RuntimeException(e);
-        }
+        IIOPProfile result = new IIOPProfile(address, objectKey);
+        result.configure(configuration);
 
         TaggedComponent[] taggedComponents = components.asArray();
         for (int i = 0; i < taggedComponents.length; i++)

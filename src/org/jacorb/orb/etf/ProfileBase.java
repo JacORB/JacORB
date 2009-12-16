@@ -23,8 +23,9 @@ package org.jacorb.orb.etf;
 
 import java.util.Collection;
 import java.util.Collections;
-
-import org.jacorb.config.*;
+import org.jacorb.config.Configurable;
+import org.jacorb.config.Configuration;
+import org.jacorb.config.ConfigurationException;
 import org.jacorb.orb.CDRInputStream;
 import org.jacorb.orb.CDROutputStream;
 import org.jacorb.orb.TaggedComponentList;
@@ -54,6 +55,18 @@ public abstract class ProfileBase
     protected org.jacorb.config.Configuration configuration;
     protected String corbalocStr = null;
     protected Logger logger;
+
+    public void configure(Configuration configuration) throws ConfigurationException
+    {
+       if( configuration == null )
+       {
+          throw new ConfigurationException("ProfileBase: given configuration was null");
+       }
+
+       this.configuration = (org.jacorb.config.Configuration)configuration;
+    }
+
+
 
     /**
     * ETF defined operation to set the object key on this profile.

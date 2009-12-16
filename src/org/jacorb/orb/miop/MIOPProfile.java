@@ -3,8 +3,8 @@ package org.jacorb.orb.miop;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.StringTokenizer;
-import org.jacorb.config.*;
-import org.slf4j.Logger;
+import org.jacorb.config.Configuration;
+import org.jacorb.config.ConfigurationException;
 import org.jacorb.orb.CDRInputStream;
 import org.jacorb.orb.CDROutputStream;
 import org.jacorb.orb.ORB;
@@ -125,7 +125,7 @@ public class MIOPProfile extends ProfileBase
     */
    public void configure (Configuration config) throws ConfigurationException
    {
-      configuration = (org.jacorb.config.Configuration)config;
+      super.configure(configuration);
 
       logger = configuration.getLogger ("jacorb.miop");
 

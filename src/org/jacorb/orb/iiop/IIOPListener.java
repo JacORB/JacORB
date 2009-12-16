@@ -26,10 +26,9 @@ import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.UnknownHostException;
-
 import javax.net.ssl.SSLSocket;
-
-import org.jacorb.config.*;
+import org.jacorb.config.Configuration;
+import org.jacorb.config.ConfigurationException;
 import org.jacorb.orb.BasicAdapter;
 import org.jacorb.orb.etf.ProtocolAddressBase;
 import org.jacorb.orb.factory.ServerSocketFactory;
@@ -88,10 +87,10 @@ public class IIOPListener
     private int target_requires = 0;
     private boolean generateSSLComponents = true;
 
-    public void configure(Configuration configuration)
+    public void configure(Configuration config)
         throws ConfigurationException
     {
-        super.configure(configuration);
+        super.configure(config);
 
         socketFactoryManager = orb.getTransportManager().getSocketFactoryManager();
 
@@ -279,13 +278,14 @@ public class IIOPListener
         }
 
         IIOPProfile result = new IIOPProfile(address, null, orb.getGIOPMinorVersion());
+        result.configure(configuration);
+
         if (sslAcceptor != null && generateSSLComponents)
         {
              result.addComponent (TAG_SSL_SEC_TRANS.value,
                                   createSSL(), SSLHelper.class);
         }
 
-        result.configure(configuration);
         return result;
     }
 

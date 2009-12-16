@@ -126,6 +126,7 @@ public abstract class FactoriesBase
             }
             catch( ConfigurationException e )
             {
+                e.printStackTrace();
                 throw new org.omg.CORBA.INTERNAL("ConfigurationException: " + e.toString());
             }
         }

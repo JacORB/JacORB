@@ -45,6 +45,11 @@ public abstract class ProtocolAddressBase
     public void configure(Configuration configuration)
         throws ConfigurationException
     {
+        if( configuration == null )
+        {
+            throw new ConfigurationException("ProtocolAddressBase: given configuration was null");
+        }
+
         this.configuration = (org.jacorb.config.Configuration)configuration;
     }
 
