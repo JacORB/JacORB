@@ -125,7 +125,7 @@ public class MIOPProfile extends ProfileBase
     */
    public void configure (Configuration config) throws ConfigurationException
    {
-      super.configure(configuration);
+      super.configure(config);
 
       logger = configuration.getLogger ("jacorb.miop");
 
