@@ -23,9 +23,7 @@ package org.jacorb.test.idl;
 
 import java.io.File;
 import java.lang.reflect.Method;
-
 import junit.framework.Test;
-
 import org.jacorb.test.common.TestUtils;
 
 /**
@@ -119,8 +117,8 @@ public class ParseValidIDLTest extends AbstractIDLTestcase
     public void verify_bugjac569_idl(ClassLoader cl) throws Exception
     {
         Class clazz = cl.loadClass("PragmaBug.TestHelper");
-        Method method = clazz.getMethod("id", null);
-        assertEquals("IDL:acme.com/PragmaBug/Test:1.0", method.invoke(null, null));
+        Method method = clazz.getMethod("id", (Class[])null);
+        assertEquals("IDL:acme.com/PragmaBug/Test:1.0", method.invoke(null, (Object[])null));
     }
 
     public static Test suite()
