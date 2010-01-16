@@ -1,9 +1,8 @@
 package org.jacorb.test.orb;
 
-import org.jacorb.test.CodesetServerPOA;
-import org.omg.CORBA.CharHolder;
-import org.jacorb.orb.giop.CodeSet;
 import java.util.Arrays;
+
+import org.jacorb.test.CodesetServerPOA;
 
 
 /**

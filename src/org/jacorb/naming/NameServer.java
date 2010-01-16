@@ -28,8 +28,8 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.PrintWriter;
 
-import org.slf4j.Logger;
-import org.jacorb.config.*;
+import org.jacorb.config.Configuration;
+import org.jacorb.config.ConfigurationException;
 import org.jacorb.imr.util.ImRManager;
 import org.jacorb.util.ObjectUtil;
 import org.omg.PortableServer.ForwardRequest;
@@ -39,6 +39,7 @@ import org.omg.PortableServer.POA;
 import org.omg.PortableServer.RequestProcessingPolicyValue;
 import org.omg.PortableServer.Servant;
 import org.omg.PortableServer._ServantActivatorLocalBase;
+import org.slf4j.Logger;
 
 /**
  *  The name server application

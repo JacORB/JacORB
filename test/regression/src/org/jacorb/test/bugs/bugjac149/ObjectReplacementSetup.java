@@ -1,9 +1,7 @@
 package org.jacorb.test.bugs.bugjac149;
 
-import junit.framework.*;
-
-
 import java.util.Properties;
+import junit.framework.Test;
 import org.jacorb.test.common.ClientServerSetup;
 
 

@@ -8,7 +8,6 @@ import junit.framework.TestSuite;
 import org.jacorb.test.common.ClientServerSetup;
 import org.jacorb.test.common.ClientServerTestCase;
 import org.jacorb.test.common.TestUtils;
-import org.omg.CORBA.ORB;
 
 /**
  * <code>TestCaseImpl</code> tests that the context key system works even if

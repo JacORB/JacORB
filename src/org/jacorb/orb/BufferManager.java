@@ -338,7 +338,10 @@ public final class BufferManager extends AbstractBufferManager
                     }
                 }
 
-                bufferMax = null;
+                synchronized(BufferManager.this)
+                {
+                    bufferMax = null;
+                }
             }
         }
 

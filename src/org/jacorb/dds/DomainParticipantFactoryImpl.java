@@ -28,6 +28,7 @@ package org.jacorb.dds;
 
 import java.util.Iterator;
 import java.util.Vector;
+
 import org.jacorb.events.EventChannelImpl;
 import org.omg.CosNaming.NameComponent;
 import org.omg.CosNaming.NamingContextExt;
@@ -45,7 +46,8 @@ import org.omg.dds.RETCODE_PRECONDITION_NOT_MET;
  * is either a pre-existing singleton object that can be accessed by means of
  * the get_instance class operation on the DomainParticipantFactory.
  */
-public class DomainParticipantFactoryImpl extends DomainParticipantFactoryPOA {
+public class DomainParticipantFactoryImpl extends DomainParticipantFactoryPOA
+{
 
     private org.omg.CORBA.ORB orb;
 
@@ -67,7 +69,8 @@ public class DomainParticipantFactoryImpl extends DomainParticipantFactoryPOA {
      * @param poa
      *            The new pOA value
      */
-    public void setPOA(org.omg.PortableServer.POA poa) {
+    public void setPOA (org.omg.PortableServer.POA poa)
+    {
         this.poa = poa;
     }
 
@@ -77,28 +80,32 @@ public class DomainParticipantFactoryImpl extends DomainParticipantFactoryPOA {
      * @param orb
      *            The new oRB value
      */
-    public void setORB(org.omg.CORBA.ORB orb) {
+    public void setORB (org.omg.CORBA.ORB orb)
+    {
         this.orb = orb;
     }
 
-    public DomainParticipantFactoryImpl(org.omg.CORBA.ORB orb,
-            org.omg.PortableServer.POA poa) {
+    public DomainParticipantFactoryImpl (org.omg.CORBA.ORB orb,
+            org.omg.PortableServer.POA poa)
+    {
         this.orb = orb;
         this.poa = poa;
-        try {
-            NamingContextExt nc = NamingContextExtHelper.narrow(orb
-                    .resolve_initial_references("NameService"));
-            EventChannelImpl channel = new EventChannelImpl(orb, poa);
-            org.omg.CORBA.Object o = poa.servant_to_reference(channel);
+        try
+        {
+            NamingContextExt nc = NamingContextExtHelper.narrow (orb.resolve_initial_references ("NameService"));
+            EventChannelImpl channel = new EventChannelImpl (orb, poa);
+            org.omg.CORBA.Object o = poa.servant_to_reference (channel);
             /* event channel used by event service */
-            nc.rebind(nc.to_name("eventchannel"), o);
-        } catch (Exception e) {
+            nc.rebind (nc.to_name ("eventchannel"), o);
+        }
+        catch (Exception e)
+        {
 
         }
-        allParticipant = new Vector();
+        allParticipant = new Vector ();
         /* thread send message for all suscriber */
-        Consummer = new ThreadSubscriber(orb, poa);
-        Consummer.start();
+        Consummer = new ThreadSubscriber (orb, poa);
+        Consummer.start ();
     }
 
     /**
@@ -106,41 +113,44 @@ public class DomainParticipantFactoryImpl extends DomainParticipantFactoryPOA {
      * DomainParticipant signifies that the calling application intends to join
      * the Domain identified by the domainId argument.
      */
-    public org.omg.dds.DomainParticipant create_participant(int domainId,
+    public org.omg.dds.DomainParticipant create_participant (int domainId,
             org.omg.dds.DomainParticipantQos qos,
-            org.omg.dds.DomainParticipantListener a_listener) {
+            org.omg.dds.DomainParticipantListener a_listener)
+    {
 
         org.omg.dds.DomainParticipant ref = null;
-        org.jacorb.dds.DomainParticipantImpl impl = new org.jacorb.dds.DomainParticipantImpl(
-                domainId, qos, a_listener);
-        impl.setORB(orb);
-        impl.setPOA(poa);
+        org.jacorb.dds.DomainParticipantImpl impl = new org.jacorb.dds.DomainParticipantImpl (domainId,
+                                                                                              qos,
+                                                                                              a_listener);
+        impl.setORB (orb);
+        impl.setPOA (poa);
 
-        try {
+        try
+        {
             // get the root naming context
 
-            ref = has_domainId(domainId);
-            if (ref != null)
-                return ref;
-            org.omg.CORBA.Object objRef = orb
-                    .resolve_initial_references("NameService");
+            ref = has_domainId (domainId);
+            if (ref != null) return ref;
+            org.omg.CORBA.Object objRef = orb.resolve_initial_references ("NameService");
             // Use NamingContextExt which is part of the Interoperable
             // Naming Service (INS) specification.
-            NamingContextExt ncRef = NamingContextExtHelper.narrow(objRef);
+            NamingContextExt ncRef = NamingContextExtHelper.narrow (objRef);
             // get object reference from the servant (and implicitly register
             // it)
-            org.omg.CORBA.Object oref = poa.servant_to_reference(impl);
-            ref = org.omg.dds.DomainParticipantHelper.narrow(oref);
+            org.omg.CORBA.Object oref = poa.servant_to_reference (impl);
+            ref = org.omg.dds.DomainParticipantHelper.narrow (oref);
 
-            if (ncRef != null) {
+            if (ncRef != null)
+            {
                 // bind the Object Reference in Naming
-                NameComponent path[] = ncRef.to_name(new Integer(domainId)
-                        .toString());
-                ncRef.rebind(path, ref);
-                allParticipant.add(ref);
-                Consummer.add(ref);
+                NameComponent path[] = ncRef.to_name (new Integer (domainId).toString ());
+                ncRef.rebind (path, ref);
+                allParticipant.add (ref);
+                Consummer.add (ref);
             }
-        } catch (Exception e) {
+        }
+        catch (Exception e)
+        {
         }
         return ref;
     }
@@ -154,27 +164,31 @@ public class DomainParticipantFactoryImpl extends DomainParticipantFactoryPOA {
      * @return RETCODE_OK.value if succes Otherwise the error
      *         PRECONDITION_NOT_MET is returned.
      */
-    public int delete_participant(org.omg.dds.DomainParticipant a_participant) {
+    public int delete_participant (org.omg.dds.DomainParticipant a_participant)
+    {
 
-        try {
-            boolean delete_ok = ((DomainParticipantImpl) poa
-                    .reference_to_servant(a_participant)).isDeletable();
-            if (delete_ok) {
-                org.omg.CORBA.Object objRef = orb
-                        .resolve_initial_references("NameService");
+        try
+        {
+            boolean delete_ok = ((DomainParticipantImpl) poa.reference_to_servant (a_participant)).isDeletable ();
+            if (delete_ok)
+            {
+                org.omg.CORBA.Object objRef = orb.resolve_initial_references ("NameService");
                 // Use NamingContextExt which is part of the Interoperable
                 // Naming Service (INS) specification.
-                NamingContextExt ncRef = NamingContextExtHelper.narrow(objRef);
-                String id = new Integer(a_participant.get_domain_id())
-                        .toString();
-                NameComponent path[] = ncRef.to_name(id);
-                ncRef.unbind(path);
-            } else {
+                NamingContextExt ncRef = NamingContextExtHelper.narrow (objRef);
+                String id = new Integer (a_participant.get_domain_id ()).toString ();
+                NameComponent path[] = ncRef.to_name (id);
+                ncRef.unbind (path);
+            }
+            else
+            {
                 return RETCODE_PRECONDITION_NOT_MET.value;
             }
-        } catch (Exception e) {
-            System.err.println("ERROR: " + e);
-            e.printStackTrace(System.out);
+        }
+        catch (Exception e)
+        {
+            System.err.println ("ERROR: " + e);
+            e.printStackTrace (System.out);
         }
 
         return RETCODE_OK.value;
@@ -184,13 +198,17 @@ public class DomainParticipantFactoryImpl extends DomainParticipantFactoryPOA {
      * @param domainId
      * @return a participant has a same domainId
      */
-    public DomainParticipant has_domainId(int domainId) {
-        Iterator it = allParticipant.iterator();
+    public DomainParticipant has_domainId (int domainId)
+    {
+        Iterator it = allParticipant.iterator ();
         DomainParticipant temp;
-        while (it.hasNext()) {
-            temp = (DomainParticipant) it.next();
-            if (temp.get_domain_id() == domainId)
+        while (it.hasNext ())
+        {
+            temp = (DomainParticipant) it.next ();
+            if (temp.get_domain_id () == domainId)
+            {
                 return temp;
+            }
         }
         return null;
     }
@@ -199,22 +217,23 @@ public class DomainParticipantFactoryImpl extends DomainParticipantFactoryPOA {
      * @param domainId
      * @return a Participant has a same domaiId
      */
-    public org.omg.dds.DomainParticipant lookup_participant(int domainId) {
+    public org.omg.dds.DomainParticipant lookup_participant (int domainId)
+    {
 
         org.omg.dds.DomainParticipant ref = null;
-        try {
-            org.omg.CORBA.Object objRef = orb
-                    .resolve_initial_references("NameService");
+        try
+        {
+            org.omg.CORBA.Object objRef = orb.resolve_initial_references ("NameService");
             // Use NamingContextExt instead of NamingContext. This is
             // part of the Interoperable naming Service.
-            NamingContextExt ncRef = NamingContextExtHelper.narrow(objRef);
-            ref = DomainParticipantHelper.narrow(ncRef.resolve_str(new Integer(
-                    domainId).toString()));
+            NamingContextExt ncRef = NamingContextExtHelper.narrow (objRef);
+            ref = DomainParticipantHelper.narrow (ncRef.resolve_str (new Integer (domainId).toString ()));
         }
 
-        catch (Exception e) {
-            System.err.println("ERROR: " + e);
-            e.printStackTrace(System.out);
+        catch (Exception e)
+        {
+            System.err.println ("ERROR: " + e);
+            e.printStackTrace (System.out);
         }
         return ref;
     }
@@ -223,14 +242,16 @@ public class DomainParticipantFactoryImpl extends DomainParticipantFactoryPOA {
      * @param qos
      * @return
      */
-    public int set_default_participant_qos(org.omg.dds.DomainParticipantQos qos) {
+    public int set_default_participant_qos (org.omg.dds.DomainParticipantQos qos)
+    {
 
         this.defaultqos = qos;
         return 0;
     }
 
-    public void get_default_participant_qos(
-            org.omg.dds.DomainParticipantQosHolder qos) {
+    public void get_default_participant_qos (
+            org.omg.dds.DomainParticipantQosHolder qos)
+    {
 
         qos.value = this.defaultqos;
     }
@@ -238,14 +259,16 @@ public class DomainParticipantFactoryImpl extends DomainParticipantFactoryPOA {
     /**
      * @return Returns the orb.
      */
-    public org.omg.CORBA.ORB getOrb() {
+    public org.omg.CORBA.ORB getOrb ()
+    {
         return orb;
     }
 
     /**
      * @return Returns the poa.
      */
-    public org.omg.PortableServer.POA getPoa() {
+    public org.omg.PortableServer.POA getPoa ()
+    {
         return poa;
     }
 }

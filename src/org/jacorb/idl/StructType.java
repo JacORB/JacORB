@@ -25,8 +25,6 @@ import java.io.File;
 import java.io.PrintWriter;
 import java.util.Enumeration;
 import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
 import java.util.Set;
 
 /**

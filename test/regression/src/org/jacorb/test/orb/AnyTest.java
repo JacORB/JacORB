@@ -43,10 +43,10 @@ import org.omg.CORBA.IntHolder;
 import org.omg.CORBA.LongHolder;
 import org.omg.CORBA.ShortHolder;
 import org.omg.CORBA.StringHolder;
+import org.omg.CORBA.TCKind;
 import org.omg.CORBA.TypeCode;
 import org.omg.CORBA.TypeCodeHolder;
-import org.omg.CORBA.TCKind;
-import org.omg.CORBA.portable.*;
+import org.omg.CORBA.portable.Streamable;
 
 public class AnyTest extends ClientServerTestCase
 {

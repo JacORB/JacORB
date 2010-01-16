@@ -1,10 +1,8 @@
 package org.jacorb.test.bugs.bugjac149;
 
 
-import java.io.*;
-
-import java.rmi.*;
-
+import java.io.Serializable;
+import java.rmi.RemoteException;
 
 /**
  * RMI/IIOP equivalent interface for IPing

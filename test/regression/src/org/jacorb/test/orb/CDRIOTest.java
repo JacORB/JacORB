@@ -20,13 +20,15 @@ package org.jacorb.test.orb;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import junit.framework.*;
-import org.omg.CORBA.ORB;
-import org.omg.CORBA.portable.InputStream;
-
 import java.io.IOException;
 
-import org.jacorb.test.common.*;
+import junit.framework.Test;
+import junit.framework.TestSuite;
+
+import org.jacorb.test.common.JacORBTestCase;
+import org.jacorb.test.common.JacORBTestSuite;
+import org.omg.CORBA.ORB;
+import org.omg.CORBA.portable.InputStream;
 
 /**
  * Test CDRInputStream and CDROutputStream.

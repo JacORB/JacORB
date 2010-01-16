@@ -26,8 +26,8 @@ import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.Properties;
+
 import org.jacorb.test.common.ORBTestCase;
-import org.omg.CORBA.INITIALIZE;
 import org.omg.CORBA.ORB;
 
 

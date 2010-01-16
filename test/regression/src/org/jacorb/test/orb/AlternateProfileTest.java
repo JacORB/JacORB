@@ -23,17 +23,22 @@ package org.jacorb.test.orb;
 
 import java.util.Properties;
 
-import junit.framework.*;
+import junit.framework.Test;
+import junit.framework.TestSuite;
 
-import org.jacorb.orb.iiop.IIOPProfile;
 import org.jacorb.orb.iiop.IIOPAddress;
-
+import org.jacorb.orb.iiop.IIOPProfile;
+import org.jacorb.test.IIOPAddressServer;
+import org.jacorb.test.IIOPAddressServerHelper;
+import org.jacorb.test.Sample;
+import org.jacorb.test.common.ClientServerSetup;
+import org.jacorb.test.common.ClientServerTestCase;
+import org.jacorb.test.common.CommonSetup;
+import org.jacorb.test.common.JacORBTestSuite;
+import org.jacorb.test.common.TestUtils;
 import org.omg.CORBA.portable.Delegate;
 import org.omg.IOP.TAG_INTERNET_IOP;
 import org.omg.IOP.TaggedProfile;
-
-import org.jacorb.test.*;
-import org.jacorb.test.common.*;
 
 /**
  * This test is similar to AlternateIIOPAddressTest, but it uses the

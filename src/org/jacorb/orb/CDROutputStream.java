@@ -218,6 +218,7 @@ public class CDROutputStream
     }
 
 
+
     private static class DeferredWriteFrame
     {
         public int write_pos = 0;
@@ -509,6 +510,7 @@ public class CDROutputStream
      * check whether the current buffer is big enough to receive
      * i more bytes. If it isn't, get a bigger buffer.
      */
+
     private final void check(final int i)
     {
         final int requiredSize = pos + i + 2;
@@ -863,6 +865,11 @@ public class CDROutputStream
      */
     public final void write_string(final String s)
     {
+        if( s == null )
+        {
+            throw new MARSHAL("Cannot marshall null string.");
+        }
+
         // size leaves room for ulong, plus the string itself (one or more
         // bytes per char in the string, depending on the codeset), plus the
         // terminating NUL char
@@ -870,11 +877,6 @@ public class CDROutputStream
         // sizePosition is the position in the buffer for the size to be
         // written.
         int sizePosition;
-
-        if( s == null )
-        {
-            throw new MARSHAL("Cannot marshall null string.");
-        }
 
         if (codesetEnabled)
         {

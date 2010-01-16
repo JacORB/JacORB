@@ -20,11 +20,21 @@ package org.jacorb.test.orb;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import junit.framework.*;
+import junit.framework.Test;
+import junit.framework.TestSuite;
 
-import org.jacorb.test.common.*;
-import org.omg.CORBA.*;
-import org.jacorb.test.*;
+import org.jacorb.test.BasicServer;
+import org.jacorb.test.BasicServerHelper;
+import org.jacorb.test.common.ClientServerSetup;
+import org.jacorb.test.common.ClientServerTestCase;
+import org.jacorb.test.common.JacORBTestSuite;
+import org.omg.CORBA.BooleanHolder;
+import org.omg.CORBA.ByteHolder;
+import org.omg.CORBA.DoubleHolder;
+import org.omg.CORBA.FloatHolder;
+import org.omg.CORBA.IntHolder;
+import org.omg.CORBA.LongHolder;
+import org.omg.CORBA.ShortHolder;
 
 public class BasicTest extends ClientServerTestCase
 {

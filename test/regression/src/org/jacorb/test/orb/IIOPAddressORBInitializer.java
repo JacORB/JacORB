@@ -1,8 +1,9 @@
 
 package org.jacorb.test.orb;
 
-import org.omg.CORBA.*;
-import org.omg.PortableInterceptor.*;
+import org.omg.CORBA.LocalObject;
+import org.omg.PortableInterceptor.ORBInitInfo;
+import org.omg.PortableInterceptor.ORBInitializer;
 import org.omg.PortableInterceptor.ORBInitInfoPackage.DuplicateName;
 
 /**

@@ -209,7 +209,7 @@ public final class Any
                 }
                 else //if (otherValue != null)
                 {
-                    // For this case otherValue must be null. Can there
+                    // For this case otherValue must be non-null. Can there
                     // be a case where an actual object instance represents
                     // a null object reference? Ignore the FindBugs complaint
                     // here.

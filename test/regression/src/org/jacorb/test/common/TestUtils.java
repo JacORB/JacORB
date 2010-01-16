@@ -21,22 +21,6 @@ package org.jacorb.test.common;
  *
  */
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Method;
-import java.net.*;
-import java.rmi.NoSuchObjectException;
-import java.rmi.Remote;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Iterator;
-import java.util.List;
-
-import junit.extensions.TestSetup;
-import junit.framework.Assert;
-import junit.framework.AssertionFailedError;
-import junit.framework.Test;
-import junit.framework.TestSuite;
-
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileFilter;
@@ -49,10 +33,26 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.LineNumberReader;
 import java.io.PrintWriter;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Method;
+import java.net.URL;
+import java.net.URLClassLoader;
+import java.rmi.NoSuchObjectException;
+import java.rmi.Remote;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Properties;
 
 import javax.rmi.PortableRemoteObject;
 import javax.rmi.CORBA.Stub;
+
+import junit.extensions.TestSetup;
+import junit.framework.Assert;
+import junit.framework.AssertionFailedError;
+import junit.framework.Test;
+import junit.framework.TestSuite;
 
 /**
  * Utility class used to setup JUnit-TestSuite
@@ -245,7 +245,7 @@ public class TestUtils
         return osDepPath1 + pathSeperator + osDepPath2;
     }
     /**
-     * In addition to file and path seperators being differnt,
+     * In addition to file and path separators being different,
      * Windows requires an additional environment variable for
      * SystemRoot in DirectLauncer.
      */
@@ -256,8 +256,8 @@ public class TestUtils
 
     /**
      * Returns the SystemRoot, should be used on Windows only.  This
-     * is necessary to pevent the following error:
-     * "Unrecognized Windows Sockets error: 10106: create"
+     * is necessary to prevent the following error:
+     * "Unrecognised Windows Sockets error: 10106: create"
      */
     public static String systemRoot() throws RuntimeException, java.io.IOException
     {
@@ -310,7 +310,7 @@ public class TestUtils
         return systemRoot;
     }
 
-    /*
+    /**
      * Private method to get the set command.  This is necessary because
      * if SystemRoot has not been set, it needs to be set for DirectLauncer.
      */

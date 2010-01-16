@@ -1,13 +1,13 @@
 package org.jacorb.test.orb;
 
-import org.omg.PortableServer.*;
-
-import org.jacorb.orb.iiop.IIOPAddress;
+import org.jacorb.config.Configurable;
 import org.jacorb.config.Configuration;
-
-import org.jacorb.test.*;
-
-import org.jacorb.config.*;
+import org.jacorb.config.ConfigurationException;
+import org.jacorb.orb.iiop.IIOPAddress;
+import org.jacorb.test.IIOPAddressServerPOA;
+import org.jacorb.test.Sample;
+import org.jacorb.test.SampleHelper;
+import org.omg.PortableServer.POA;
 
 /**
  * @author Andre Spiegel

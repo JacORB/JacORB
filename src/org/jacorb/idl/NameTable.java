@@ -80,7 +80,7 @@ public class NameTable
 
     /**
      * check IDL scoping rules
-     * @throws NameAlreadyDefined, or the derived IllegalRedefinition
+     * @throws NameAlreadyDefined or the derived IllegalRedefinition
      */
 
     private static void checkScopingRules( String name, String kind )

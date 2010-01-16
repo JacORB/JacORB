@@ -1,6 +1,6 @@
 package org.jacorb.test.bugs.bug401;
 
-import org.omg.CORBA.*;
+import org.omg.CORBA.Any;
 
 public class AnyServant extends AnyServerPOA
 {

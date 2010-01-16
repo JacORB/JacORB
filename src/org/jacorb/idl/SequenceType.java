@@ -25,8 +25,6 @@ import java.io.PrintWriter;
 import java.util.HashSet;
 import java.util.Set;
 
-import sun.reflect.ReflectionFactory.GetReflectionFactoryAction;
-
 /**
  * IDL sequences.
  *

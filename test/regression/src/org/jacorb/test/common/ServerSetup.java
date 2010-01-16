@@ -150,7 +150,11 @@ public class ServerSetup extends TestSetup
         boolean coverage = TestUtils.getSystemPropertyAsBoolean("jacorb.test.coverage", false);
 
         Properties serverProperties = new Properties();
-        serverProperties.setProperty("jacorb.log.default.verbosity", "0");
+        serverProperties.setProperty
+        (
+            "jacorb.log.default.verbosity",
+            (TestUtils.verbose ? "4" : "0")
+        );
         serverProperties.setProperty("org.omg.CORBA.ORBClass", "org.jacorb.orb.ORB");
         serverProperties.setProperty("org.omg.CORBA.ORBSingletonClass", "org.jacorb.orb.ORBSingleton");
         serverProperties.put ("jacorb.implname", servantName);

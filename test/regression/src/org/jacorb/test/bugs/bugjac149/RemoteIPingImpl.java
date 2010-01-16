@@ -1,10 +1,8 @@
 package org.jacorb.test.bugs.bugjac149;
 
-import javax.rmi.*;
-
-import java.io.*;
-
-import java.rmi.*;
+import java.io.Serializable;
+import java.rmi.RemoteException;
+import javax.rmi.PortableRemoteObject;
 
 
 /**

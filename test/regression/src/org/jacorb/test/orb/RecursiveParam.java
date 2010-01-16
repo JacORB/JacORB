@@ -20,11 +20,17 @@ package org.jacorb.test.orb;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import junit.framework.*;
-import org.jacorb.test.common.*;
-import org.jacorb.test.*;
-import org.jacorb.test.RecursiveParamServerPackage.*;
-import org.jacorb.test.RecursiveParamServerPackage.ParmPackage.*;
+import junit.framework.Test;
+import junit.framework.TestSuite;
+
+import org.jacorb.test.RecursiveParamServer;
+import org.jacorb.test.RecursiveParamServerHelper;
+import org.jacorb.test.RecursiveParamServerPackage.Parm;
+import org.jacorb.test.RecursiveParamServerPackage.blubT;
+import org.jacorb.test.RecursiveParamServerPackage.blubTHelper;
+import org.jacorb.test.RecursiveParamServerPackage.ParmPackage.ParmValue;
+import org.jacorb.test.common.ClientServerSetup;
+import org.jacorb.test.common.ClientServerTestCase;
 
 public class RecursiveParam extends ClientServerTestCase
 {

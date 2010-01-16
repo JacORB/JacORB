@@ -1,10 +1,6 @@
 package org.jacorb.test.bugs.bug387;
 
-import org.omg.CORBA.*;
-import org.omg.CORBA.portable.InputStream;
-import org.omg.CORBA.portable.OutputStream;
-import org.omg.CORBA.portable.ResponseHandler;
-import org.omg.PortableServer.*;
+import org.omg.CORBA.Any;
 
 public class TestInterfaceImpl extends TestInterfacePOA {
     

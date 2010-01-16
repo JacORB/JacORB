@@ -135,7 +135,7 @@ public class ORBInitTest extends TestCase
         props.put("org.omg.PortableInterceptor.ORBInitializerClass.none.existen.class", "");
         props.put("jacorb.orb_initializer.fail_on_error", "off");
 
-        ORB orb = initORB((String[]) null, props);
+        initORB((String[]) null, props);
     }
 
     public void testORBInitializerFailConstructorException()

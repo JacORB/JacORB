@@ -1,13 +1,7 @@
 package org.jacorb.test.orb;
 
-import java.io.*;
-import junit.framework.*;
-import junit.extensions.*;
-import org.omg.CORBA.*;
-import org.omg.PortableServer.*;
-import org.jacorb.util.*;
-import org.jacorb.test.*;
-import org.jacorb.test.LongLongSeqServerPackage.*;
+import org.jacorb.test.LongLongSeqServerPOA;
+import org.jacorb.test.LongLongSeqServerPackage.SeqLongLongHolder;
 
 
 public class LongLongSeqServerImpl extends LongLongSeqServerPOA

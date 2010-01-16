@@ -80,7 +80,8 @@ public class Bug619Test extends ClientServerTestCase
                     try
                     {
                         wait(timeout);
-                    } catch (InterruptedException e)
+                    } 
+                    catch (InterruptedException e)
                     {
                         // ignore
                     }
@@ -124,6 +125,8 @@ public class Bug619Test extends ClientServerTestCase
             finally
             {
                 pusher.interrupt();
+                pusher.join();
+                Thread.sleep(5000);
             }
        }
     }

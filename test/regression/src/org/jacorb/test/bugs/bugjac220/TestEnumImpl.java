@@ -1,6 +1,6 @@
 package org.jacorb.test.bugs.bugjac220;
 
-import org.omg.CORBA.*;
+import org.omg.CORBA.Any;
 
 /**
  * Implementation to test passing of an enum TypeCode.  This is

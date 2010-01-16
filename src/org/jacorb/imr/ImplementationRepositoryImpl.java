@@ -31,8 +31,9 @@ import java.lang.reflect.Method;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
-import org.slf4j.Logger;
-import org.jacorb.config.*;
+
+import org.jacorb.config.Configuration;
+import org.jacorb.config.ConfigurationException;
 import org.jacorb.imr.AdminPackage.DuplicateServerName;
 import org.jacorb.imr.AdminPackage.FileOpFailed;
 import org.jacorb.imr.AdminPackage.IllegalServerName;
@@ -71,6 +72,7 @@ import org.omg.PortableServer.IdAssignmentPolicyValue;
 import org.omg.PortableServer.LifespanPolicyValue;
 import org.omg.PortableServer.POA;
 import org.omg.PortableServer.POAHelper;
+import org.slf4j.Logger;
 
 /**
  * This is the main class of the JacORB implementation repository.

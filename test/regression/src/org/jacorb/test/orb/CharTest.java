@@ -81,10 +81,9 @@ public class CharTest extends ClientServerTestCase
 
     public void test_pass_in_char_illegal()
     {
-        short result = -1;
         try
         {
-            result = server.pass_in_char( (char)256 );
+            server.pass_in_char( (char)256 );
             fail( "exception expected for (char)256" );
         }
         catch( org.omg.CORBA.DATA_CONVERSION e ) { }
@@ -95,7 +94,7 @@ public class CharTest extends ClientServerTestCase
 
         try
         {
-            result = server.pass_in_char( EURO_SIGN );
+            server.pass_in_char( EURO_SIGN );
             fail( "exception expected for euro sign" );
         }
         catch( org.omg.CORBA.DATA_CONVERSION e ) { }
@@ -106,7 +105,7 @@ public class CharTest extends ClientServerTestCase
 
         try
         {
-            result = server.pass_in_char( (char)0xffff );
+            server.pass_in_char( (char)0xffff );
             fail( "exception expected for (char)0xffff" );
         }
         catch( org.omg.CORBA.DATA_CONVERSION e ) { }
@@ -192,7 +191,7 @@ public class CharTest extends ClientServerTestCase
     {
         try
         {
-            char result = server.return_char( (short)EURO_SIGN );
+            server.return_char( (short)EURO_SIGN );
             fail( "exception expected for euro sign" );
         }
         catch( org.omg.CORBA.DATA_CONVERSION e ) { }
@@ -276,7 +275,6 @@ public class CharTest extends ClientServerTestCase
         {
             wcharSeqHolder argout = new wcharSeqHolder();
             wcharSeqHolder arginout = new wcharSeqHolder( new char[]{ 'a', 'a' } );
-            wcharSeqHolder argin = new wcharSeqHolder( new char[]{ 'a', 'a' } );
 
             for( int i = 0; i < 1000; i++ )
             {
