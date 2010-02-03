@@ -69,69 +69,82 @@ public class BiDirConnectionClientInterceptor
         // nothing to do
     }
 
+    synchronized private void init_bidir_ctx ()
+    {
+        if (bidir_ctx != null)
+            return;
+
+        BasicAdapter ba = orb.getBasicAdapter();
+                       
+        List endpoints = ba.getEndpointProfiles();
+                       
+        Iterator i = endpoints.iterator();
+        final List listenPoints = new ArrayList();
+        while(i.hasNext())
+        {
+            Profile profile = (Profile) i.next();
+                       
+            if (profile instanceof ProfileBase)
+            {
+                listenPoints.addAll(((ProfileBase)profile).asListenPoints());
+            }
+            else
+            {
+                listenPoints.addAll(getListenPoints(profile));
+            }
+        }
+
+        ListenPoint[] listenPointsArray = 
+            (ListenPoint[]) listenPoints.toArray(new ListenPoint[listenPoints.size()]);
+                       
+        BiDirIIOPServiceContext context =
+            new BiDirIIOPServiceContext( listenPointsArray );
+        org.omg.CORBA.Any any = orb.create_any();
+        BiDirIIOPServiceContextHelper.insert( any, context );
+
+        final CDROutputStream cdr_out = new CDROutputStream(orb);
+
+        try
+        {
+            cdr_out.beginEncapsulatedArray();
+            BiDirIIOPServiceContextHelper.write( cdr_out, context );
+            
+            bidir_ctx = new ServiceContext( BI_DIR_IIOP.value,
+                                            cdr_out.getBufferCopy() );
+        }
+        finally
+        {
+            cdr_out.close();
+        }
+    }
+
     public void send_request( ClientRequestInfo ri )
         throws ForwardRequest
     {
         //only send a BiDir service context if our orb allows it, and
         //the connection was initiated in this process
 
-        if( orb.useBiDirGIOP() &&
-            ((ClientRequestInfoImpl) ri).connection.isClientInitiated() )
+        if( !orb.useBiDirGIOP() ||
+            !((ClientRequestInfoImpl) ri).connection.isClientInitiated() )
+            return;
+
+        if( bidir_ctx == null )
         {
-            if( bidir_ctx == null )
-            {
-                BasicAdapter ba = orb.getBasicAdapter();
-
-                List endpoints = ba.getEndpointProfiles();
-
-                Iterator i = endpoints.iterator();
-                final List listenPoints = new ArrayList();
-                while(i.hasNext())
-                {
-                    Profile profile = (Profile) i.next();
-
-                    if (profile instanceof ProfileBase)
-                    {
-                        listenPoints.addAll(((ProfileBase)profile).asListenPoints());
-                    }
-                    else
-                    {
-                        listenPoints.addAll(getListenPoints(profile));
-                    }
-                }
-
-                ListenPoint[] listenPointsArray = (ListenPoint[]) listenPoints.toArray(new ListenPoint[listenPoints.size()]);
-
-                BiDirIIOPServiceContext context =
-                    new BiDirIIOPServiceContext( listenPointsArray );
-                org.omg.CORBA.Any any = orb.create_any();
-                BiDirIIOPServiceContextHelper.insert( any, context );
-
-                final CDROutputStream cdr_out = new CDROutputStream(orb);
-
-                try
-                {
-                    cdr_out.beginEncapsulatedArray();
-                    BiDirIIOPServiceContextHelper.write( cdr_out, context );
-
-                    bidir_ctx = new ServiceContext( BI_DIR_IIOP.value,
-                            cdr_out.getBufferCopy() );
-                }
-                finally
-                {
-                    cdr_out.close();
-                }
-            }
-
+            init_bidir_ctx ();
+        }
+       
+        if ( !((ClientRequestInfoImpl) ri).connection.isListenPointListSent() )
+        {
             ri.add_request_service_context( bidir_ctx, true );
+        }
 
-            //if this connection isn't "bidir'ed" yet, do so now
-            GIOPConnection conn = ((ClientRequestInfoImpl) ri).connection.getGIOPConnection();
-            if(conn.getRequestListener() instanceof
-               NoBiDirClientRequestListener)
-            {
-                conn.setRequestListener(orb.getBasicAdapter().getRequestListener());
-            }
+        //if this connection isn't "bidir'ed" yet, do so now
+        GIOPConnection conn =
+            ((ClientRequestInfoImpl) ri).connection.getGIOPConnection();
+        if(conn.getRequestListener() instanceof
+           NoBiDirClientRequestListener)
+        {
+            conn.setRequestListener(orb.getBasicAdapter().getRequestListener());
         }
     }
 

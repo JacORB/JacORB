@@ -60,6 +60,7 @@ public class ClientConnection
     private final ClientConnectionManager conn_mg;
 
     private final boolean client_initiated;
+    private boolean listen_point_list_sent = false;
 
     /**
      * <code>gracefulStreamClose</code> indicates if the stream has been closed
@@ -248,6 +249,21 @@ public class ClientConnection
     public boolean isClientInitiated()
     {
         return client_initiated;
+    }
+
+    /**
+     * Used as part of the configuration of a bidirectional connection
+     * Not only returns the value of the listen point list sent flag,
+     * it also sets the value. This is effectively a one-shot method
+     * that ensures only the first caller gets the opportunity to send
+     * a listen point list as part of a BiDirIIOP context.
+     */
+
+    public synchronized boolean isListenPointListSent()
+    {
+        boolean rtn = listen_point_list_sent;
+        listen_point_list_sent = true;
+        return rtn;
     }
 
     /**
