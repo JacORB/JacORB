@@ -1,39 +1,40 @@
-// $Id$
+//File: TimeBase.idl
+//Part of the Time Service
+// Note: if your IDL compiler does not yet support the
+//   "long long" data type, compile this module with the
+//   preprocessor definition "NOLONGLONG". With many
+//   compilers this would be done with a qualifier on
+//   the command line, something like -DNOLONGLONG
 
-#ifndef _TIME_BASE_IDL
-#define _TIME_BASE_IDL
+#ifndef _TIME_BASE_IDL_
+#define _TIME_BASE_IDL_
 #pragma prefix "omg.org"
 
-#include <orb.idl>
+module TimeBase {
 
-module TimeBase 
-{
-		
 #ifdef NOLONGLONG
-    struct ulonglong {
-	unsigned long low;
-	unsigned long high;
-    };
-    typedef ulonglong TimeT;
+   struct ulonglong{
+      unsigned long     low;
+      unsigned long    high;
+   };
+   typedef ulonglong     TimeT;
 #else
-    typedef unsigned long long TimeT;
+   typedef unsigned long long  TimeT;
 #endif
-		
-    typedef TimeT              InaccuracyT;
-    typedef short              TdfT;
-		
-    struct UtcT {
-	TimeT            time;    // 8 octets
-	unsigned long    inacclo; // 4 octets
-	unsigned short   inacchi; // 4 octets
-	TdfT             tdf;     // 2 octets
-	// total 16 octets
-    };
-		
-    struct IntervalT {
-	TimeT            lower_bound;
-	TimeT            upper_bound;
-    };
 
+   typedef TimeT       InaccuracyT;
+   typedef short       TdfT;
+   struct UtcT {
+      TimeT      time;    // 8 octets
+      unsigned long  inacclo;  // 4 octets
+      unsigned short  inacchi;  // 2 octets
+      TdfT      tdf;    // 2 octets
+      // total 16 octets.
+   };
+
+   struct IntervalT {
+      TimeT      lower_bound;
+      TimeT      upper_bound;
+   };
 };
-#endif /* _TIME_BASE_IDL */
+#endif /* ifndef _TIME_BASE_IDL_ */

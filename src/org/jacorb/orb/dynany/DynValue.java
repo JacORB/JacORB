@@ -20,6 +20,7 @@ package org.jacorb.orb.dynany;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
+import org.omg.CORBA.NO_IMPLEMENT;
 import org.omg.DynamicAny.NameValuePair;
 import org.omg.DynamicAny.DynAnyPackage.InvalidValue;
 import org.omg.DynamicAny.DynAnyPackage.TypeMismatch;
@@ -81,4 +82,19 @@ public final class DynValue
         throw new org.omg.CORBA.NO_IMPLEMENT
             (DYN_VALUE_NYI);
     }
+
+   public boolean is_null ()
+   {
+      throw new NO_IMPLEMENT ("NYI");
+   }
+
+   public void set_to_null ()
+   {
+      throw new NO_IMPLEMENT ("NYI");
+   }
+
+   public void set_to_value ()
+   {
+      throw new NO_IMPLEMENT ("NYI");
+   }
 }

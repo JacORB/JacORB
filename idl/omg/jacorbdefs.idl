@@ -1,0 +1,13 @@
+#ifndef _JACORB_DEFINES_
+#define _JACORB_DEFINES_
+
+// This block has been added by JacORB to aid compilation when including this
+// file. By setting the define JacORB and passing it to the IDL compiler a
+// developer ensures that they use the same options as were used to generate the
+// core stubs.
+#define JACORB
+#define _PRE_3_0_COMPILER_
+#define GIOP_1_1
+#define GIOP_1_2
+
+#endif

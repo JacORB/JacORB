@@ -1,0 +1,865 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta name="ProgId" content="Word.Document">
+   <meta name="Generator" content="Microsoft Word 9">
+   <meta name="Originator" content="Microsoft Word 9">
+   <meta name="GENERATOR" content="Mozilla/4.79 [en] (Win98; U) [Netscape]">
+   <title>Frequently Asked Questions</title>
+<link rel=File-List href="./CORBA_IDL_FAQ_files/filelist.xml">
+<!--[if gte mso 9]><xml>
+ <o:DocumentProperties>
+  <o:Author>Daniel R. Frantz</o:Author>
+  <o:LastAuthor>Daniel R. Frantz</o:LastAuthor>
+  <o:Revision>13</o:Revision>
+  <o:TotalTime>1846</o:TotalTime>
+  <o:LastPrinted>1999-09-22T01:11:00Z</o:LastPrinted>
+  <o:Created>1999-09-20T01:27:00Z</o:Created>
+  <o:LastSaved>1999-11-12T04:07:00Z</o:LastSaved>
+  <o:Pages>4</o:Pages>
+  <o:Words>2089</o:Words>
+  <o:Characters>11910</o:Characters>
+  <o:Company>Microsoft</o:Company>
+  <o:Lines>99</o:Lines>
+  <o:Paragraphs>23</o:Paragraphs>
+  <o:CharactersWithSpaces>14626</o:CharactersWithSpaces>
+  <o:Version>9.2720</o:Version>
+ </o:DocumentProperties>
+ <o:CustomDocumentProperties>
+  <o:Version dt:dt="string">9.0.2111</o:Version>
+  <o:Language dt:dt="string">1033</o:Language>
+ </o:CustomDocumentProperties>
+ <o:OfficeDocumentSettings>
+  <o:RelyOnVML/>
+ </o:OfficeDocumentSettings>
+</xml><![endif]-->
+<!--[if gte mso 9]><xml>
+ <w:WordDocument>
+  <w:DisplayHorizontalDrawingGridEvery>0</w:DisplayHorizontalDrawingGridEvery>
+  <w:DisplayVerticalDrawingGridEvery>0</w:DisplayVerticalDrawingGridEvery>
+  <w:UseMarginsForDrawingGridOrigin/>
+ </w:WordDocument>
+</xml><![endif]-->
+<style>
+<!--
+ /* Font Definitions */
+@font-face
+  {font-family:Tahoma;
+  panose-1:2 11 6 4 3 5 4 4 2 4;
+  mso-font-charset:0;
+  mso-generic-font-family:swiss;
+  mso-font-pitch:variable;
+  mso-font-signature:553679495 -2147483648 8 0 66047 0;}
+ /* Style Definitions */
+p.MsoNormal, li.MsoNormal, div.MsoNormal
+  {mso-style-parent:"";
+  margin-top:0in;
+  margin-right:0in;
+  margin-bottom:6.0pt;
+  margin-left:0in;
+  mso-pagination:widow-orphan;
+  font-size:12.0pt;
+  font-family:Arial;
+  mso-fareast-font-family:"Times New Roman";
+  mso-bidi-font-family:"Times New Roman";}
+h1
+  {mso-style-next:Normal;
+  margin-top:12.0pt;
+  margin-right:0in;
+  margin-bottom:3.0pt;
+  margin-left:0in;
+  mso-pagination:widow-orphan;
+  page-break-after:avoid;
+  mso-outline-level:1;
+  font-size:18.0pt;
+  mso-bidi-font-size:16.0pt;
+  font-family:Arial;
+  mso-bidi-font-family:"Times New Roman";
+  mso-font-kerning:16.0pt;}
+h2
+  {mso-style-next:Normal;
+  margin-top:12.0pt;
+  margin-right:0in;
+  margin-bottom:3.0pt;
+  margin-left:0in;
+  mso-pagination:widow-orphan;
+  page-break-after:avoid;
+  mso-outline-level:2;
+  font-size:12.0pt;
+  mso-bidi-font-size:14.0pt;
+  font-family:Arial;
+  mso-bidi-font-family:"Times New Roman";
+  font-style:italic;}
+h3
+  {mso-style-next:Normal;
+  margin-top:12.0pt;
+  margin-right:0in;
+  margin-bottom:3.0pt;
+  margin-left:0in;
+  mso-pagination:widow-orphan;
+  page-break-after:avoid;
+  mso-outline-level:3;
+  font-size:12.0pt;
+  mso-bidi-font-size:13.0pt;
+  font-family:Arial;
+  mso-bidi-font-family:"Times New Roman";}
+h4
+  {mso-style-next:Normal;
+  margin-top:12.0pt;
+  margin-right:0in;
+  margin-bottom:3.0pt;
+  margin-left:0in;
+  mso-pagination:widow-orphan;
+  page-break-after:avoid;
+  mso-outline-level:4;
+  font-size:14.0pt;
+  font-family:Arial;
+  mso-bidi-font-family:"Times New Roman";}
+p.MsoListBullet, li.MsoListBullet, div.MsoListBullet
+  {mso-style-update:auto;
+  margin-top:0in;
+  margin-right:0in;
+  margin-bottom:6.0pt;
+  margin-left:.25in;
+  text-indent:-.25in;
+  mso-pagination:widow-orphan;
+  mso-list:l9 level1 lfo3;
+  tab-stops:list .25in;
+  font-size:12.0pt;
+  font-family:Arial;
+  mso-fareast-font-family:"Times New Roman";
+  mso-bidi-font-family:"Times New Roman";}
+a:link, span.MsoHyperlink
+  {color:blue;
+  text-decoration:underline;
+  text-underline:single;}
+a:visited, span.MsoHyperlinkFollowed
+  {color:purple;
+  text-decoration:underline;
+  text-underline:single;}
+p.MsoDocumentMap, li.MsoDocumentMap, div.MsoDocumentMap
+  {margin-top:0in;
+  margin-right:0in;
+  margin-bottom:6.0pt;
+  margin-left:0in;
+  mso-pagination:widow-orphan;
+  background:navy;
+  font-size:12.0pt;
+  font-family:Tahoma;
+  mso-fareast-font-family:"Times New Roman";}
+span.IDLchar
+  {mso-style-name:IDLchar;
+  mso-ascii-font-family:Arial;
+  mso-hansi-font-family:Arial;
+  font-weight:bold;}
+span.CodeChar
+  {mso-style-name:CodeChar;
+  mso-ascii-font-family:"Courier New";
+  mso-hansi-font-family:"Courier New";
+  mso-bidi-font-family:"Courier New";}
+p.idlcar, li.idlcar, div.idlcar
+  {mso-style-name:idlcar;
+  margin-top:0in;
+  margin-right:0in;
+  margin-bottom:6.0pt;
+  margin-left:0in;
+  mso-pagination:widow-orphan;
+  font-size:12.0pt;
+  font-family:Arial;
+  mso-fareast-font-family:"Times New Roman";
+  mso-bidi-font-family:"Times New Roman";}
+@page Section1
+  {size:8.5in 11.0in;
+  margin:1.0in 1.25in 1.0in 1.25in;
+  mso-header-margin:.5in;
+  mso-footer-margin:.5in;
+  mso-paper-source:0;}
+div.Section1
+  {page:Section1;}
+ /* List Definitions */
+@list l0
+  {mso-list-id:-132;
+  mso-list-type:simple;
+  mso-list-template-ids:-655582866;}
+@list l0:level1
+  {mso-level-tab-stop:1.25in;
+  mso-level-number-position:left;
+  margin-left:1.25in;
+  text-indent:-.25in;}
+@list l1
+  {mso-list-id:-131;
+  mso-list-type:simple;
+  mso-list-template-ids:2081191408;}
+@list l1:level1
+  {mso-level-tab-stop:1.0in;
+  mso-level-number-position:left;
+  margin-left:1.0in;
+  text-indent:-.25in;}
+@list l2
+  {mso-list-id:-130;
+  mso-list-type:simple;
+  mso-list-template-ids:-1828029120;}
+@list l2:level1
+  {mso-level-tab-stop:.75in;
+  mso-level-number-position:left;
+  margin-left:.75in;
+  text-indent:-.25in;}
+@list l3
+  {mso-list-id:-129;
+  mso-list-type:simple;
+  mso-list-template-ids:-791646286;}
+@list l3:level1
+  {mso-level-tab-stop:.5in;
+  mso-level-number-position:left;
+  text-indent:-.25in;}
+@list l4
+  {mso-list-id:-128;
+  mso-list-type:simple;
+  mso-list-template-ids:682791484;}
+@list l4:level1
+  {mso-level-number-format:bullet;
+  mso-level-text:\F0B7;
+  mso-level-tab-stop:1.25in;
+  mso-level-number-position:left;
+  margin-left:1.25in;
+  text-indent:-.25in;
+  font-family:Symbol;}
+@list l5
+  {mso-list-id:-127;
+  mso-list-type:simple;
+  mso-list-template-ids:2060514878;}
+@list l5:level1
+  {mso-level-number-format:bullet;
+  mso-level-text:\F0B7;
+  mso-level-tab-stop:1.0in;
+  mso-level-number-position:left;
+  margin-left:1.0in;
+  text-indent:-.25in;
+  font-family:Symbol;}
+@list l6
+  {mso-list-id:-126;
+  mso-list-type:simple;
+  mso-list-template-ids:527236404;}
+@list l6:level1
+  {mso-level-number-format:bullet;
+  mso-level-text:\F0B7;
+  mso-level-tab-stop:.75in;
+  mso-level-number-position:left;
+  margin-left:.75in;
+  text-indent:-.25in;
+  font-family:Symbol;}
+@list l7
+  {mso-list-id:-125;
+  mso-list-type:simple;
+  mso-list-template-ids:-860427994;}
+@list l7:level1
+  {mso-level-number-format:bullet;
+  mso-level-text:\F0B7;
+  mso-level-tab-stop:.5in;
+  mso-level-number-position:left;
+  text-indent:-.25in;
+  font-family:Symbol;}
+@list l8
+  {mso-list-id:-120;
+  mso-list-type:simple;
+  mso-list-template-ids:1925225270;}
+@list l8:level1
+  {mso-level-tab-stop:.25in;
+  mso-level-number-position:left;
+  margin-left:.25in;
+  text-indent:-.25in;}
+@list l9
+  {mso-list-id:-119;
+  mso-list-type:simple;
+  mso-list-template-ids:-772614674;}
+@list l9:level1
+  {mso-level-number-format:bullet;
+  mso-level-style-link:"List Bullet";
+  mso-level-text:\F0B7;
+  mso-level-tab-stop:.25in;
+  mso-level-number-position:left;
+  margin-left:.25in;
+  text-indent:-.25in;
+  font-family:Symbol;}
+@list l10
+  {mso-list-id:1907449403;
+  mso-list-type:hybrid;
+  mso-list-template-ids:-2073785086 67698689 67698691 67698693 67698689 67698691 67698693 67698689 67698691 67698693;}
+@list l10:level1
+  {mso-level-number-format:bullet;
+  mso-level-text:\F0B7;
+  mso-level-tab-stop:.5in;
+  mso-level-number-position:left;
+  text-indent:-.25in;
+  font-family:Symbol;}
+@list l10:level2
+  {mso-level-tab-stop:1.0in;
+  mso-level-number-position:left;
+  text-indent:-.25in;}
+@list l10:level3
+  {mso-level-tab-stop:1.5in;
+  mso-level-number-position:left;
+  text-indent:-.25in;}
+@list l10:level4
+  {mso-level-tab-stop:2.0in;
+  mso-level-number-position:left;
+  text-indent:-.25in;}
+@list l10:level5
+  {mso-level-tab-stop:2.5in;
+  mso-level-number-position:left;
+  text-indent:-.25in;}
+@list l10:level6
+  {mso-level-tab-stop:3.0in;
+  mso-level-number-position:left;
+  text-indent:-.25in;}
+@list l10:level7
+  {mso-level-tab-stop:3.5in;
+  mso-level-number-position:left;
+  text-indent:-.25in;}
+@list l10:level8
+  {mso-level-tab-stop:4.0in;
+  mso-level-number-position:left;
+  text-indent:-.25in;}
+@list l10:level9
+  {mso-level-tab-stop:4.5in;
+  mso-level-number-position:left;
+  text-indent:-.25in;}
+ol
+  {margin-bottom:0in;}
+ul
+  {margin-bottom:0in;}
+-->
+</style>
+</head>
+<body link="#0000FF" vlink="#800080" lang="EN-US" style="tab-interval:.5in">
+
+<div class=Section1>
+<center>
+<h1 style="margin-top:0in;text-align:center">
+“Compilable” CORBA IDL for CORBA 3.0</h1></center>
+
+<center>Document number formal/02-07-02</center>
+
+<center>
+<h1 style="margin-top:0in;text-align:center">
+Frequently Asked Questions</h1></center>
+
+<h3>
+Introduction</h3>
+The ZIP file associated with this document contains the IDL and PIDL from
+the CORBA Core Chapters 1 through 16 and 21 through 24 as found in the
+formally published CORBA 3.0 specification formal/02-06-33.
+<h3>
+Table of Contents</h3>
+
+<ul style='margin-top:0in' type=disc>
+<li class="MsoNormal" style="mso-list:l10 level1 lfo6;tab-stops:list .5in">
+<a href="#_How_do_I">What is “Compilable CORBA IDL”?</a></li>
+
+<li class="MsoNormal" style="mso-list:l10 level1 lfo6;tab-stops:list .5in">
+<a href="#_Who_should_use">Who should use this IDL? How should it be used?</a></li>
+
+<li class="MsoNormal" style="mso-list:l10 level1 lfo6;tab-stops:list .5in">
+<a href="#_Is_it_really">Is it really the same as in the CORBA document?</a></li>
+
+<li class="MsoNormal" style="mso-list:l10 level1 lfo6;tab-stops:list .5in">
+<a href="#_What_is_in">What is in the package?</a></li>
+
+<li class="MsoNormal" style="mso-list:l10 level1 lfo6;tab-stops:list .5in">
+<a href="#_What_happened_to">What happened to PIDL? This looks like all
+IDL.</a></li>
+
+<li class="MsoNormal" style="mso-list:l10 level1 lfo6;tab-stops:list .5in">
+<a href="#_Will_the_package">Will the package really compile? I thought
+you couldn’t compile PIDL.</a></li>
+
+<li class="MsoNormal" style="mso-list:l10 level1 lfo6;tab-stops:list .5in">
+<a href="#_How_is_the">How is the package organized?</a></li>
+</ul>
+
+<div class="MsoNormal"><![if !supportEmptyParas]><![endif]><o:p></o:p></div>
+
+<h3>
+<a NAME="_How_do_I"></a>What is “Compilable CORBA IDL”??</h3>
+
+<div class="MsoNormal">“Compilable CORBA IDL” is a package of files that
+faithfully represents the eighteen IDL modules in the CORBA 3 document
+formal/02-06-33.</div>
+
+<div class="MsoNormal"><a NAME="_Why_is_it"></a><a href="#_top">Back to
+top</a>
+<div class="MsoNormal"><![if !supportEmptyParas]><![endif]><o:p></o:p></div>
+</div>
+
+<h3>
+<a NAME="_Who_should_use"></a>Who should use this IDL? How should it be
+used?</h3>
+
+<div class="MsoNormal">If you are an application writer, you may need up
+to four of the nine modules defined in this package. The other five are
+internal to the ORB and are used to define protocol interoperability, a
+subject best left to the trolls who live under the (interoperability) bridge.
+If you are an ORB provider, you and your fellow trolls need all of it.</div>
+
+<div class="MsoNormal">If you are writing an application, you may need
+operations and data definitions from the&nbsp;<span class=IDLchar>CORBA</span>,&nbsp;<span
+class=IDLchar>DynamicAny</span>,&nbsp;<span class=IDLchar>BiDirPolicy</span>,
+or<span
+class=IDLchar> PortableServer</span> modules. You may need their
+operations and data definitions, but you may not need the IDL itself. For
+three of the four,&nbsp;<span
+class=IDLchar>DynamicAny, BiDirPolicy,</span>
+and<span class=IDLchar> PortableServer</span>, you will not use the IDL
+directly. That is, you won’t include their files into your own IDL file
+in order to use their data definitions or interfaces in your own IDL declarations.
+You <i>will</i> use language specific header files in your application
+programs for all four of these modules. Your ORB provider will have crafted
+those language header files using the IDL declarations in the modules.
+In a sense, the ORB provider has already compiled these four modules (perhaps
+by hand), producing stub-equivalents in those header files. You need to
+know what the IDL is for all four so that you can use your language’s mapping
+of the IDL, but you don’t use the IDL directly for three of them.</div>
+
+<div class="MsoNormal">The&nbsp;<span class=IDLchar>CORBA</span> module
+is different. It contains definitions of data types and interfaces that
+you can use in your own IDL files. OMG has specified that the name of the
+file containing the&nbsp;<span
+class=IDLchar>CORBA</span> module should
+be&nbsp;<span style='font-family:"Courier New"'>&lt;orb.idl></span>. Your
+ORB provider makes this file available in the system library.
+<p>If you are using a pre-3.0 IDL compiler, by using a&nbsp;<span
+class=IDLchar>#include</span>
+directive to bring it into your IDL file, you can use its data types and
+inherit from its interfaces. The ORB provider uses the definitions in the
+CORBA document to populate that&nbsp;<span style='font-family:
+"Courier New"'>orb.idl</span>
+file. This package simply formalizes the somewhat informal description
+or the&nbsp;<span class=IDLchar>CORBA</span> module in the CORBA document
+for the benefit of ORB providers so they can make it available to you.
+That means that you don’t have to extract the IDL from this package to
+use it yourself. Indeed, you shouldn’t use any file other than that supplied
+by your ORB provider because that file also contains any special restrictions
+and extensions that your provider has documented.
+<p>The IDL files are setup to be optionally compiled by compilers that
+do not understand the&nbsp;<span
+class=IDLchar>import</span> ,&nbsp;<span
+class=IDLchar>typeid</span>&nbsp;
+and&nbsp;<span
+class=IDLchar>typeprefix</span>&nbsp; directives. If you
+have such a compiler, define the macro&nbsp;<span style='font-family:"Courier New"'>_PRE_3_0_COMPILER_</span>
+to cause the compiler to use the&nbsp;<span
+class=IDLchar>#include</span>&nbsp;
+directives equivalent to the&nbsp;<span
+class=IDLchar>import</span>&nbsp;
+directives.
+<p>If you are using a&nbsp;<span
+class=IDLchar>#include</span> directives
+to bring in definitions into your IDL file, and are using the file&nbsp;<span style='font-family:"Courier New"'>FT.idl</span>,
+make sure that you let your IDL compiler know which directory the CORBA
+Services related IDL files are located using the&nbsp;<span style='font-family:"Courier New"'>-I</span>
+option of the IDL compiler. The CORBA Services related IDL files that&nbsp;<span style='font-family:"Courier New"'>FT.idl</span>
+depends on are not included in this package.
+<p>Some pr-3.0 IDL compilers may not be abe to handle&nbsp;<span class=IDLchar>local
+interfaces</span>. If you are using such a define&nbsp; the macro&nbsp;<span style='font-family:"Courier New"'>_NO_LOCAL_</span>
+before attempting to compile any of the files. This will cause the macro
+"<span class=IDLchar>#define local&nbsp;</span>" to be inseted at the right
+places. If you find a 3.0 or later compiler that cannot handle&nbsp;<span class=IDLchar>local
+interfaces</span>, complain to the purveyor of said compiler, since it
+is not conformant with CORBA 3.0.
+<p>If you are using a 3.0 or later IDL compiler you can simply use the&nbsp;<span class=IDLchar>import</span>
+directive of the compiler to import entire modules.
+<br>By default the Interface Repository Code for the Component Repository
+will not be compiled. In order to include this code in the compilation
+define the macro&nbsp;<span style='font-family:"Courier New"'>_COMPONENT_REPOSITORY_</span>
+before compiling&nbsp;<span style='font-family:"Courier New"'>&lt;orb.idl></span>.</div>
+
+<div class="MsoNormal">So, if you’re an application developer, you’ll only
+use one of the nine IDL modules directly. You won’t even take that one
+IDL module from this package. Application developers don’t need this package
+except for its documentation value. ORB providers use it only as a summary
+of what’s already in the CORBA document.</div>
+
+<div class="MsoNormal"><a href="#_top">Back to top</a></div>
+
+<div class="MsoNormal"><![if !supportEmptyParas]><![endif]><o:p></o:p></div>
+
+<h3>
+<a NAME="_Is_it_really"></a>Is it really the same as in the CORBA document?</h3>
+
+<div class="MsoNormal">To repeat the answer to the first question, this
+package “faithfully represents” the IDL in the CORBA document. That is
+a very carefully chosen phrase. If you compare the CORBA module in this
+package with the IDL in the CORBA 3.0 document line-by-line, there are
+differences.</div>
+
+<div class="MsoNormal">Most of the IDL in the document is presented pedagogically
+rather than as a file intended to be compiled. This is especially true
+for the CORBA module, which is quite large and which is explained in several
+chapters.</div>
+
+<div class="MsoListBullet"><![if !supportLists]><span style='font-family:Symbol'>&middot;<span
+style='font:7.0pt "Times New Roman"'></span></span><![endif]>When
+describing the&nbsp;<span class=IDLchar>CORBA::Object</span> interface
+in Section 4.3, the statement “<span class=IDLchar>typedef string InterfaceId</span>”
+appears in the IDL. When describing the Interface Repository, the same&nbsp;<span class=IDLchar>typedef</span>
+is repeated in Section 10.5.1. It’s repeated because it’s easier to understand
+the data types being used when the definition is close at hand. However,
+if you were to blindly extract the IDL fragments and try to compile them
+exactly as given, an IDL compiler would complain about multiple definitions
+of the&nbsp;<span class=IDLchar>InterfaceId</span> identifier.&nbsp;<span style='font-size:10.0pt;mso-bidi-font-size:12.0pt'>(The
+elves tried it.)</span> The IDL in the compilable package deletes this
+repeated definition, and another like it (<span class=IDLchar>Flags</span>),
+leaving only one of each.</div>
+
+<div class="MsoListBullet"><![if !supportLists]><span style='font-family:Symbol'>&middot;<span
+style='font:7.0pt "Times New Roman"'></span></span><![endif]>There
+are “forward references” to the same interfaces in multiple chapters. IDL
+compilers complain about this.&nbsp;<span
+style='font-size:10.0pt;mso-bidi-font-size:12.0pt'>(Again,
+ask the elves or try it yourself.)</span> You could attempt to avoid forward
+references by arranging the interface definitions in a different order.
+However, Professor Somebody’s Syntax Graph Theorem says it’s not always
+possible to avoid a forward reference; that’s why it’s a part of IDL. A
+stylistic choice was made for the compilable IDL to list <i>all</i> interfaces
+at the beginning of the&nbsp;<span
+class=IDLchar>CORBA</span> module as
+forward references. This avoids the need for any deep analysis about which
+forward references are needed and, as a by-product, helps document the&nbsp;<span class=IDLchar>CORBA</span>
+module.</div>
+
+<div class="MsoListBullet"><![if !supportLists]><span style='font-family:Symbol'>&middot;<span
+style='font:7.0pt "Times New Roman"'></span></span><![endif]>Some
+IDL for the&nbsp;<span class=IDLchar>CORBA</span> module (the declaration
+of&nbsp;<span class=IDLchar>NamedValue</span>) is listed in two chapters,
+Chapter 4 (as kind of a forward reference needed by&nbsp;<span
+class=IDLchar>CORBA::Object</span>)
+and the Chapter 7 (where it is explained in association with the&nbsp;<span class=IDLchar>CORBA::Request</span>
+object). Because of ordering constraints, the full declaration was moved
+from the later chapter’s file (<span class=CodeChar><span style='font-family:"Courier New"'>CORBA_Request.idl</span></span>)
+to the earlier chapter’s file (<span class=CodeChar><span style='font-family:
+"Courier New"'>CORBA_Object.idl</span></span>);
+since both are&nbsp;<span
+class=IDLchar>CORBA</span> module, this is a
+valid change.</div>
+
+<div class="MsoListBullet"><![if !supportLists]><span style='font-family:Symbol'>&middot;<span
+style='font:7.0pt "Times New Roman"'></span></span><![endif]>The
+IDL for TypeCode has been separated out from the IDL for InterfaceRepository
+into a separate file TypeCode.idl, and it has been noted that TypeCode
+is now specified in Chapter 4.</div>
+
+<div class="MsoNormal">&nbsp;All the IDL in the package is the same as
+that listed in the CORBA text, but in different relative locations than
+in the text.</div>
+
+<div class="MsoNormal"><a href="#_top">Back to top</a></div>
+
+<h3>
+<a NAME="_What_is_in"></a>What is in the package?</h3>
+
+<div class="MsoNormal">The base CORBA 3 document (excluding the components
+extension chapters) specifies seventeen&nbsp; modules. This package contains
+the IDL that makes up those seventeen modules. There are more than seventeen
+IDL files in the package because the definitions of the modules are spread
+across several chapters. Some modules are defined entirely within one chapter
+and are listed in this package in one file. Pieces of the&nbsp;<span class=IDLchar>IOP</span>
+module appear in two chapters and pieces of the&nbsp;<span class=IDLchar>CORBA</span>
+module appear in about ten chapters. This package keeps the chapter structure
+of the IDL definitions relatively intact by putting each chapter’s contribution
+to a module into a separate file and then using&nbsp;<span class=IDLchar>#include</span>
+on that file. If a chapter defines multiple interfaces, they are usually
+put into a separate file. There are 36 IDL files.</div>
+
+<div class="MsoNormal">This separation of a module into multiple files
+is strictly for convenience of reference. It is likely (but not necessary)
+that an ORB provider would physically merge the files. Note that the CORBA
+IDL Style Guide only partly applies to files that do not contain a full
+module definition. For example, file names can’t be taken from the module
+name (since only one file can have the module name). File names are part
+of the CORBA standard, but only for the first level files, those that contain
+a module statement.</div>
+
+<div class="MsoNormal"><a href="#_top">Back to top</a></div>
+
+<div class="MsoNormal"><![if !supportEmptyParas]><![endif]><o:p></o:p></div>
+
+<h3>
+<a NAME="_Where_can_I"></a><a NAME="_Sounds_like_weasel"></a><a NAME="_Why_doesn’t_…?"></a><a NAME="_Who_is_…?"></a><a NAME="_What_happened_to"></a>What
+happened to PIDL? This all looks like IDL.</h3>
+
+<div class="MsoNormal">In truth, PIDL is not really a different language
+from IDL, at least in the way it’s currently used in OMG. PIDL is not formally
+specified but, in practice, it follows the same syntax as IDL. It’s simply
+easier that way for the people inventing the CORBA specifications. When
+the CORBA document designates something as PIDL, it means that the normal
+language mapping rules don’t necessarily apply. The language mapping may
+have to do something special for that construct; on the other hand, the
+language mapping might not do something different than usual, in which
+case it’s useful to have PIDL be the same as IDL.</div>
+
+<div class="MsoNormal"><a href="#_top">Back to top</a></div>
+
+<div class="MsoNormal"><![if !supportEmptyParas]><![endif]><o:p></o:p></div>
+
+<h3>
+<a NAME="_What_is_…?"></a><a NAME="_Will_the_package"></a>Will the package
+really compile? I thought you couldn’t compile PIDL.</h3>
+
+<div class="MsoNormal">Of the eighteen modules in the CORBA document, fifteen
+compile without problems. The three remaining modules,&nbsp;<span class=IDLchar>CORBA</span>,&nbsp;<span class=IDLchar>PortableServer</span>
+and&nbsp;<span class=IDLchar>Messaging</span>, are the subjects of the
+rest of this section. The discussion gets a little detailed, so feel free
+to skip it, specially if you don't plan to try to run these modules through
+an IDL compiler. Language purists will have fun and you know what they’re
+like.</div>
+
+<div class="MsoNormal">But first, a reminder: only one module (the&nbsp;<span
+class=IDLchar>CORBA</span>
+module subset in&nbsp;<span class=CodeChar><span
+style='font-family:"Courier New"'>orb.idl</span></span>)
+ever really sees an IDL compiler, so only that module <i>must </i>compile
+correctly from a strictly application viewpoint. Having the other seventeen
+compile correctly is nice but, since applications never see them, whether
+they compile or not doesn’t affect applications. What is more important
+is that that the content of the modules is unambiguous so that their internal
+use by an ORB provider will be correct. The easiest way of guaranteeing
+this is by making sure the modules are syntactically correct, that is,
+that they compile.</div>
+
+<div class="MsoNormal">The&nbsp;<span class=IDLchar>CORBA</span> module
+contains both PIDL and IDL definitions. The&nbsp;<span class=CodeChar><span style='font-family:"Courier New"'>orb.idl</span></span>
+file supplied in this package contains only the IDL part because the&nbsp;<span
+class=CodeChar><span style='font-family:"Courier New"'>orb.idl</span></span>
+file is visible to applications and an IDL compiler must be able to parse
+it. Since it has only IDL, that subset of the&nbsp;<span class=IDLchar>CORBA</span>
+module compiles just fine.</div>
+
+<div class="MsoNormal">So what about the PIDL pieces? Even though PIDL
+is not formally defined and it need not be compilable, this package verifies
+that the PIDL parts of the&nbsp;<span class=IDLchar>CORBA</span> module
+are syntactically equivalent to valid IDL statements. (Note: this doesn’t
+say that the PIDL can be used as IDL, only that it is syntactically well-formed
+according to the IDL rules.) Showing this well-formedness is not difficult
+because almost all OMG PIDL is equivalent to OMG IDL. It does take a trick
+or two, however, because “almost all” isn’t “all”.</div>
+
+<div class="MsoNormal">One other facet of IDL causes compilation problems
+for conforming compilers. Both the&nbsp;<span class=IDLchar>CORBA</span>,&nbsp;<span
+class=IDLchar>PortableServer</span>
+and&nbsp;<span class=IDLchar>Messaging</span> modules use the&nbsp;<span class=IDLchar>native</span>
+keyword. This keyword was designed to be part of IDL as a notational convenience
+for OMG documents that need a way of specifying that an entity needs special
+language mapping. Languages must map every&nbsp;<span class=IDLchar>native</span>
+type individually. In one sense, the&nbsp;<span class=IDLchar>native</span>
+keyword is a kind of formalized PIDL. IDL compilers available to application
+programmers do not usually allow applications to use the&nbsp;<span class=IDLchar>native</span>
+keyword to define a data type. If they did allow it, they wouldn’t know
+what to generate for stubs and skeletons because the definition is supplied
+by a language binding. As a result, most IDL compilers don’t accept&nbsp;<span
+class=IDLchar>native</span>
+at all. Only an ORB provider deals with the&nbsp;<span
+class=IDLchar>native</span>
+keyword; the provider must supply a language mapping to them by hand. Since&nbsp;<span class=IDLchar>native</span>
+is part of the IDL in this package, it can only be compiled by tricking
+an IDL compiler.</div>
+
+<div class="MsoNormal">Since&nbsp;<span class=IDLchar>native</span> and
+PIDL aren’t intended to be compiled, a language mapping specifies what
+the PIDL corresponds to in a header file. An ORB provider supplies that
+language header file with the language mapping results. Applications include
+that header file in their language files and get the definitions they need.</div>
+
+<div class="MsoNormal">To validate syntax correctness of the PIDL, the
+package file<span style='font-family:"Courier New"'>pseudo_orb.idl</span>
+includes all the statements designated as PIDL. This file will compile
+– with the aid of two tricks. The first trick is necessary because three
+of the objects defined in PIDL have names that collide, intentionally,
+with IDL keywords:&nbsp;<span class=IDLchar>Object</span>,<span class=IDLchar>ValueBase</span>,
+and&nbsp;<span class=IDLchar>context</span>. Feeding the PIDL definition
+for the similarly named interfaces directly into an IDL compiler would
+be an act of madness. An IDL compiler will reject each of the interfaces
+so defined.&nbsp;<span style='font-size:10.0pt;mso-bidi-font-size:
+12.0pt'>(The
+elves tried it and failed – they’ve never claimed to be sane.)</span></div>
+
+<div class="MsoNormal">The trick uses the IDL preprocessor to change what
+the IDL compiler sees. For the conflict with the&nbsp;<span class=IDLchar>Object</span>
+keyword, for example, the&nbsp;<span style='font-family:"Courier New"'>pseudo_orb.idl</span>
+file has the statement, “<span class=IDLchar>#define Object OObject</span>”.
+That hides the keyword conflict but still allows valid syntax checking.
+The other keywords are treated the same way.</div>
+
+<div class="MsoNormal">The second trick involves the&nbsp;<span class=IDLchar>native</span>
+keyword, which, as explained above, is not usually accepted by an IDL compiler.
+Since it appears in&nbsp;<span class=IDLchar>CORBA</span>,&nbsp;&nbsp;<span class=IDLchar>PortableServer</span>
+and&nbsp;<span class=IDLchar>Messaging</span> modules, they use the preprocessor
+again to change what the compiler sees. They contain “<span class=IDLchar>#define
+native typedef long</span>”. After preprocessing, the compiler sees an
+innocuous type definition for the identifier being declared&nbsp;<span class=IDLchar>native</span>.
+That is sufficient to allow the compiler to continue checking syntax. Since
+these files don’t generate stubs, the trickery doesn’t matter. You can
+enable this trick by setting defining the compiler macro&nbsp;<span style='font-family:"Courier New"'>_MASK_NATIVE_</span>.
+<br>&nbsp;</div>
+
+<div class="MsoNormal"><a href="#_top">Back to top</a></div>
+
+<div class="MsoNormal"><![if !supportEmptyParas]><![endif]><o:p></o:p></div>
+
+<h3>
+<a NAME="_How_is_the"></a>How is the package organized?</h3>
+
+<div class="MsoNormal">It is a&nbsp;<span style='font-family:"Courier New"'>.zip</span>
+file containing 38 files, 37 of which are IDL and the other is this file.
+The&nbsp;<span
+style='font-family:"Courier New"'>.zip</span> file has
+paths (directories) so you can unzip one of two ways: into one directory
+or into four subdirectories. The four subdirectories are organized as follows.</div>
+
+<div class="MsoListBullet"><![if !supportLists]><span style='font-family:Symbol'>&middot;<span
+style='font:7.0pt "Times New Roman"'></span></span><![endif]>CORBA_IDL
+– Real IDL files for the CORBA module</div>
+
+<div class="MsoListBullet" style="margin-left:.5in;tab-stops:list .5in"><![if !supportLists]><span
+style='font-family:Symbol'>&middot;<span style='font:7.0pt "Times New Roman"'></span></span><![endif]>orb.idl
+– The “main” file; it has the&nbsp;<span
+class=IDLchar>module</span> statement
+and has&nbsp;<span class=IDLchar>#include</span> statement to bring in
+the others.<o:p></o:p></div>
+
+<div class="MsoListBullet" style="margin-left:.5in;tab-stops:list .5in"><![if !supportLists]><span
+style='font-family:Symbol'>&middot;<span style='font:7.0pt "Times New Roman"'></span></span><![endif]>CORBA_Current.idl</div>
+
+<div class="MsoListBullet" style="margin-left:.5in;tab-stops:list .5in"><![if !supportLists]><span
+style='font-family:Symbol'>&middot;<span style='font:7.0pt "Times New Roman"'></span></span><![endif]>CORBA_CustomMarshal.idl<o:p></o:p></div>
+
+<div class="MsoListBullet" style="margin-left:.5in;tab-stops:list .5in"><![if !supportLists]><span
+style='font-family:Symbol'>&middot;<span style='font:7.0pt "Times New Roman"'></span></span><![endif]>CORBA_DomainManager.idl<o:p></o:p></div>
+
+<div class="MsoListBullet" style="margin-left:.5in;tab-stops:list .5in"><![if !supportLists]><span
+style='font-family:Symbol'>&middot;<span style='font:7.0pt "Times New Roman"'></span></span><![endif]>CORBA_InterfaceRepository.idl<o:p></o:p></div>
+
+<div class="MsoListBullet" style="margin-left:.5in;tab-stops:list .5in"><![if !supportLists]><span
+style='font-family:Symbol'>&middot;<span style='font:7.0pt "Times New Roman"'></span></span><![endif]>CORBA_Policy.idl<o:p></o:p></div>
+
+<div class="MsoListBullet" style="margin-left:.5in;tab-stops:list .5in"><![if !supportLists]><span
+style='font-family:Symbol'>&middot;<span style='font:7.0pt "Times New Roman"'></span></span><![endif]>CORBA_StandardExceptions.idl<o:p></o:p></div>
+
+<div class="MsoListBullet" style="margin-left:.5in;tab-stops:list .5in"><![if !supportLists]><span
+style='font-family:Symbol'>&middot;<span style='font:7.0pt "Times New Roman"'></span></span><![endif]>CORBA_Pollable.idl</div>
+
+<div class="MsoListBullet" style="margin-left:.5in;tab-stops:list .5in"><![if !supportLists]><span
+style='font-family:Symbol'>&middot;<span style='font:7.0pt "Times New Roman"'></span></span><![endif]>CORBA_Stream.idl</div>
+
+<div class="MsoListBullet" style="margin-left:.5in;tab-stops:list .5in"><![if !supportLists]><span
+style='font-family:Symbol'>&middot;<span style='font:7.0pt "Times New Roman"'></span></span><![endif]>CORBA_TypeCode.idl<o:p></o:p></div>
+
+<div class="MsoListBullet"><![if !supportLists]><span style='font-family:Symbol'>&middot;<span
+style='font:7.0pt "Times New Roman"'></span></span><![endif]>CORBA_PIDL
+– PIDL files for the CORBA module</div>
+
+<div class="MsoListBullet" style="margin-left:.5in;tab-stops:list .5in"><![if !supportLists]><span
+style='font-family:Symbol'>&middot;<span style='font:7.0pt "Times New Roman"'></span></span><![endif]>pseudo_orb.idl
+– The “main” file; it has the&nbsp;<span
+class=IDLchar>module</span> statement
+and has&nbsp;<span class=IDLchar>#include</span> statement to bring in
+the others.<o:p></o:p></div>
+
+<div class="MsoListBullet" style="margin-left:.5in;tab-stops:list .5in"><![if !supportLists]><span
+style='font-family:Symbol'>&middot;<span style='font:7.0pt "Times New Roman"'></span></span><![endif]>CORBA_Context.idl<span style='mso-tab-count:4'></span><o:p></o:p></div>
+
+<div class="MsoListBullet" style="margin-left:.5in;tab-stops:list .5in"><![if !supportLists]><span
+style='font-family:Symbol'>&middot;<span style='font:7.0pt "Times New Roman"'></span></span><![endif]>CORBA_NVList.idl<span style='mso-tab-count:4'></span><o:p></o:p></div>
+
+<div class="MsoListBullet" style="margin-left:.5in;tab-stops:list .5in"><![if !supportLists]><span
+style='font-family:Symbol'>&middot;<span style='font:7.0pt "Times New Roman"'></span></span><![endif]>CORBA_Object.idl<span style='mso-tab-count:4'></span><o:p></o:p></div>
+
+<div class="MsoListBullet" style="margin-left:.5in;tab-stops:list .5in"><![if !supportLists]><span
+style='font-family:Symbol'>&middot;<span style='font:7.0pt "Times New Roman"'></span></span><![endif]>CORBA_ORB.idl<span style='mso-tab-count:5'></span><o:p></o:p></div>
+
+<div class="MsoListBullet" style="margin-left:.5in;tab-stops:list .5in"><![if !supportLists]><span
+style='font-family:Symbol'>&middot;<span style='font:7.0pt "Times New Roman"'></span></span><![endif]>CORBA_ORB_init.idl<span style='mso-tab-count:4'></span><o:p></o:p></div>
+
+<div class="MsoListBullet" style="margin-left:.5in;tab-stops:list .5in"><![if !supportLists]><span
+style='font-family:Symbol'>&middot;<span style='font:7.0pt "Times New Roman"'></span></span><![endif]>CORBA_Request.idl<span style='mso-tab-count:3'></span><span
+style='mso-tab-count:1'></span></div>
+
+<div class="MsoListBullet" style="margin-left:.5in;tab-stops:list .5in"><![if !supportLists]><span
+style='font-family:Symbol'>&middot;<span style='font:7.0pt "Times New Roman"'></span></span><![endif]>CORBA_ServerRequest.idl<span style='mso-tab-count:2'></span><o:p></o:p></div>
+
+<div class="MsoListBullet" style="margin-left:.5in;tab-stops:list .5in"><![if !supportLists]><span
+style='font-family:Symbol'>&middot;<span style='font:7.0pt "Times New Roman"'></span></span><![endif]>CORBA_ValueBase.idl<span style='mso-tab-count:3'></span></div>
+
+<div class="MsoListBullet"><![if !supportLists]><span style='font-family:Symbol'>&middot;<span
+style='font:7.0pt "Times New Roman"'></span></span><![endif]>Interop
+– Files associated with protocol issues. All but IOP_DCE.idl are independent
+modules; that is part of the IOP module.&nbsp;<o:p></o:p></div>
+
+<div class="MsoListBullet" style="margin-left:.5in;tab-stops:list .5in"><![if !supportLists]><span
+style='font-family:Symbol'>&middot;<span style='font:7.0pt "Times New Roman"'></span></span><![endif]>BiDirPolicy.idl<span style='mso-tab-count:4'></span><o:p></o:p></div>
+
+<div class="MsoListBullet" style="margin-left:.5in;tab-stops:list .5in"><![if !supportLists]><span
+style='font-family:Symbol'>&middot;<span style='font:7.0pt "Times New Roman"'></span></span><![endif]>CONV_FRAME.IDL<span style='mso-tab-count:5'></span><o:p></o:p></div>
+
+<div class="MsoListBullet" style="margin-left:.5in;tab-stops:list .5in"><![if !supportLists]><span
+style='font-family:Symbol'>&middot;<span style='font:7.0pt "Times New Roman"'></span></span><![endif]>GIOP.idl<span style='mso-tab-count:6'></span><o:p></o:p></div>
+
+<div class="MsoListBullet" style="margin-left:.5in;tab-stops:list .5in"><![if !supportLists]><span
+style='font-family:Symbol'>&middot;<span style='font:7.0pt "Times New Roman"'></span></span><![endif]>IIOP.idl<span style='mso-tab-count:6'></span><o:p></o:p></div>
+
+<div class="MsoListBullet" style="margin-left:.5in;tab-stops:list .5in"><![if !supportLists]><span
+style='font-family:Symbol'>&middot;<span style='font:7.0pt "Times New Roman"'></span></span><![endif]>IOP.idl<span style='mso-tab-count:6'></span><o:p></o:p></div>
+
+<div class="MsoListBullet" style="margin-left:.5in;tab-stops:list .5in"><![if !supportLists]><span
+style='font-family:Symbol'>&middot;<span style='font:7.0pt "Times New Roman"'></span></span><![endif]>IOP_DCE.idl<span style='mso-tab-count:5'></span><o:p></o:p></div>
+
+<div class="MsoListBullet" style="margin-left:.5in;tab-stops:list .5in"><![if !supportLists]><span
+style='font-family:Symbol'>&middot;<span style='font:7.0pt "Times New Roman"'></span></span><![endif]>SendingContext.idl<span style='mso-tab-count:5'></span><o:p></o:p></div>
+
+<div class="MsoListBullet" style="margin-left:.5in;tab-stops:list .5in"><![if !supportLists]><span
+style='font-family:Symbol'>&middot;<span style='font:7.0pt "Times New Roman"'></span></span><![endif]>CSI.idl<span style='mso-tab-count:5'></span><o:p></o:p></div>
+
+<div class="MsoListBullet" style="margin-left:.5in;tab-stops:list .5in"><![if !supportLists]><span
+style='font-family:Symbol'>&middot;<span style='font:7.0pt "Times New Roman"'></span></span><![endif]>CSIIOP.idl<span style='mso-tab-count:5'></span><o:p></o:p></div>
+
+<div class="MsoListBullet" style="margin-left:.5in;tab-stops:list .5in"><![if !supportLists]><span
+style='font-family:Symbol'>&middot;<span style='font:7.0pt "Times New Roman"'></span></span><![endif]>GSSUP.idl<span style='mso-tab-count:4'></span></div>
+
+<div class="MsoListBullet"><![if !supportLists]><span style='font-family:Symbol'>&middot;<span
+style='font:7.0pt "Times New Roman"'></span></span><![endif]>Misc
+– Files that don’t fit the above categories. All are independant modules
+that use definitions from various other modules as identified by the&nbsp;<span class=IDLchar>import</span>&nbsp;
+or&nbsp;<span class=IDLchar>#include</span>&nbsp; statements in each file.&nbsp;<o:p></o:p></div>
+
+<div class="MsoListBullet" style="margin-left:.5in;tab-stops:list .5in"><![if !supportLists]><span
+style='font-family:Symbol'>&middot;<span style='font:7.0pt "Times New Roman"'></span></span><![endif]>Dynamic.idl<span style='mso-tab-count:5'></span><o:p></o:p></div>
+
+<div class="MsoListBullet" style="margin-left:.5in;tab-stops:list .5in"><![if !supportLists]><span
+style='font-family:Symbol'>&middot;<span style='font:7.0pt "Times New Roman"'></span></span><![endif]>DynamicAny.idl<span style='mso-tab-count:5'></span><o:p></o:p></div>
+
+<div class="MsoListBullet" style="margin-left:.5in;tab-stops:list .5in"><![if !supportLists]><span
+style='font-family:Symbol'>&middot;<span style='font:7.0pt "Times New Roman"'></span></span><![endif]>Messaging.idl<span style='mso-tab-count:5'></span><o:p></o:p></div>
+
+<div class="MsoListBullet" style="margin-left:.5in;tab-stops:list .5in"><![if !supportLists]><span
+style='font-family:Symbol'>&middot;<span style='font:7.0pt "Times New Roman"'></span></span><![endif]>MessageRouting.idl<span style='mso-tab-count:5'></span><o:p></o:p></div>
+
+<div class="MsoListBullet" style="margin-left:.5in;tab-stops:list .5in"><![if !supportLists]><span
+style='font-family:Symbol'>&middot;<span style='font:7.0pt "Times New Roman"'></span></span><![endif]>PortableInterceptor.idl<span style='mso-tab-count:5'></span><o:p></o:p></div>
+
+<div class="MsoListBullet" style="margin-left:.5in;tab-stops:list .5in"><![if !supportLists]><span
+style='font-family:Symbol'>&middot;<span style='font:7.0pt "Times New Roman"'></span></span><![endif]>PortableServer.idl<span style='mso-tab-count:5'></span><o:p></o:p></div>
+
+<div class="MsoListBullet" style="margin-left:.5in;tab-stops:list .5in"><![if !supportLists]><span
+style='font-family:Symbol'>&middot;<span style='font:7.0pt "Times New Roman"'></span></span><![endif]>FT.idl<span style='mso-tab-count:5'></span><o:p></o:p></div>
+
+<div class="MsoNormal"><![if !supportEmptyParas]><![endif]><o:p></o:p></div>
+
+<center>
+<p>Last revised: July 25, 2002&nbsp;<span style='font-size:10.0pt;mso-bidi-font-size:12.0pt'>(by
+Chief Sidekick of King Elf, of&nbsp; Elf Enterprises, PLC:-))</span>
+<br>based on the version in formal/00-04-01originally created&nbsp;<span style='font-size:10.0pt;mso-bidi-font-size:12.0pt'>(by
+King Elf, of Elf Enterprises, PLC)</span></center>
+</div>
+
+</body>
+</html>

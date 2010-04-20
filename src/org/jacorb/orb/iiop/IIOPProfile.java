@@ -44,7 +44,7 @@ import org.omg.CSIIOP.DetectReplay;
 import org.omg.CSIIOP.EstablishTrustInClient;
 import org.omg.CSIIOP.EstablishTrustInTarget;
 import org.omg.CSIIOP.Integrity;
-import org.omg.CSIIOP.TAG_CSI_SEC_MECH_LIST;
+import org.omg.IOP.TAG_CSI_SEC_MECH_LIST;
 import org.omg.CSIIOP.TAG_TLS_SEC_TRANS;
 import org.omg.CSIIOP.TLS_SEC_TRANS;
 import org.omg.CSIIOP.TLS_SEC_TRANSHelper;

@@ -22,9 +22,16 @@ package org.jacorb.ir;
 
 import java.util.Enumeration;
 import java.util.Hashtable;
-import org.slf4j.Logger;
+import org.omg.CORBA.AbstractInterfaceDef;
+import org.omg.CORBA.ExtInitializer;
+import org.omg.CORBA.ExtValueDef;
 import org.omg.CORBA.INTF_REPOS;
+import org.omg.CORBA.InterfaceDef;
+import org.omg.CORBA.LocalInterfaceDef;
+import org.omg.CORBA.NO_IMPLEMENT;
+import org.omg.CORBA.ValueDef;
 import org.omg.PortableServer.POA;
+import org.slf4j.Logger;
 
 /**
  * @version $Id$
@@ -42,7 +49,7 @@ public class ExceptionDef
     private Logger logger;
     private ClassLoader loader;
     private POA poa;
-  
+
     public ExceptionDef(Class c,
                         org.omg.CORBA.Container _defined_in,
                         org.omg.CORBA.Repository ir,
@@ -121,7 +128,7 @@ public class ExceptionDef
     {
         for( int i = 0; i < members.length; i++ )
         {
-            members[i].type_def = IDLType.create( members[i].type, 
+            members[i].type_def = IDLType.create( members[i].type,
                                                   containing_repository,
                                                   this.logger,
                                                   this.poa);
@@ -323,6 +330,25 @@ public class ExceptionDef
         return new org.omg.CORBA.ContainedPackage.Description( org.omg.CORBA.DefinitionKind.dk_Exception, a);
     }
 
+   public AbstractInterfaceDef create_abstract_interface (String id, String name, String version,
+            AbstractInterfaceDef[] baseInterfaces)
+   {
+      throw new NO_IMPLEMENT ("NYI");
+   }
+
+   public ExtValueDef create_ext_value (String id, String name, String version, boolean isCustom,
+            boolean isAbstract, ValueDef baseValue, boolean isTruncatable,
+            ValueDef[] abstractBaseValues, InterfaceDef[] supportedInterfaces,
+            ExtInitializer[] initializers)
+   {
+      throw new NO_IMPLEMENT ("NYI");
+   }
+
+   public LocalInterfaceDef create_local_interface (String id, String name, String version,
+            InterfaceDef[] baseInterfaces)
+   {
+      throw new NO_IMPLEMENT ("NYI");
+   }
 }
 
 

@@ -1,181 +1,140 @@
+// File: orb.idl
+// From CORBA 3.0
+#ifndef _ORB_IDL_
+#define _ORB_IDL_
 
-// Some definitions from the CORBA module as needed
-// by other modules. This file is for declaration
-// purposes only!!
+#include <jacorbdefs.idl>
 
-// $Id$
-
-#ifndef _ORB_IDL
-#define _ORB_IDL
-
-/*
-  the following pragma is proprietary to JacORB. It ensures
-  that no code is ever generated when this file is included in
-  other files even when the -all compiler option is set
-*/
-
-//#pragma inhibit_code_generation
+#ifdef _PRE_3_0_COMPILER_
 #pragma prefix "omg.org"
+#else
+typeprefix CORBA "omg.org"
+#endif
 
-module CORBA
-{
+#ifdef _PRE_3_0_COMPILER_
+#ifdef _NO_LOCAL_
+#define local
+#endif
+#endif
+
+// This module brings together many files defining the CORBA module
+//   (It really ought to be called CORBA.idl, but that's history.)
+// This file includes only the "real" interfaces that are included
+//   in the "orb.idl" interface supplied by every ORB and that can be
+//   brought into an IDL compilation by "import ::CORBA"
+//   or in pre-3.0 IDL compilers by the include directive
+//   "#include <orb.idl>".
+
+module CORBA {
+
+// The following forward references list *all* the interfaces and valuetypes
+//   defined in the CORBA module. This serves two purposes: documentation
+//   and compilability. Documentation is nice: since some of the interfaces
+//   must be declared as forward references, it is more consistent to
+//   declare them all.
+//
+//   As far as compilability, it might be possible to avoid having to declare
+//   many of the forward reference by rearranging the order of the interface
+//   declarations, but there's no reason to do bother doing that. After all,
+//   that's the reason for the design of forward references. Doing a forward
+//   reference allows the definition order to be relatively logical.In
+//   particular, it allows the "include"s to be done in chapter order
+//   (almost), the only exception being the InterfaceRepository (Chapter 10).
+//   It contains some data definitions needed by Chapter 4 interfaces.
+//   The other reason not to try to rearrange the order is that it's hard.
+
+// Forward references, alphabetically
+    interface ConstructionPolicy;        // Chapter  4, CORBA_DomainManager.idl
+    local interface Current;             // Chapter  4, CORBA_Current.idl
+    interface DomainManager;             // Chapter  4, CORBA_DomainManager.idl
+    interface Policy;                    // Chapter  4, CORBA_Policy.idl
+    local interface PollableSet;         // Chapter  7, CORBA_Pollable.idl
+    abstract valuetype CustomMarshal;    // Chapter  5, CORBA_valuetype.idl
+    abstract valuetype DataInputStream;  // Chapter  5, CORBA_Stream.idl
+    abstract valuetype DataOutputStream; // Chapter  5, CORBA_Stream.idl
+
+// Forward references to Chapter 10, CORBA_InterfaceRepository.idl
+    interface AbstractInterfaceDef;
+    interface AliasDef;
+    interface ArrayDef;
+    interface AttributeDef;
+    interface ConstantDef;
+    interface Contained;
+    interface Container;
+    interface EnumDef;
+    interface ExceptionDef;
+    interface ExtInterfaceDef;
+    interface ExtValueDef;
+    interface ExtAbstractInterfaceDef;
+    interface ExtLocalInterfaceDef;
+    interface FixedDef;
+    interface IDLType;
+    interface InterfaceDef;
+    interface IRObject;
+    interface LocalInterfaceDef;
+    interface ModuleDef;
+    interface NativeDef;
+    interface OperationDef;
+    interface PrimitiveDef;
+    interface Repository;
+    interface SequenceDef;
+    interface StringDef;
+    interface StructDef;
+    interface TypeCode;
+    interface TypedefDef;
+    interface UnionDef;
+    interface ValueDef;
+    interface ValueBoxDef;
+    interface ValueMemberDef;
+    interface WstringDef;
+
+    typedef string Identifier;
+
+// Chapter 3: IDL Syntax and Semantics
+#include <CORBA_StandardExceptions.idl>
+
+// Chapter 4: ORB Interface
+#include <CORBA_Current.idl>
+#include <CORBA_Policy.idl>
+#include <CORBA_DomainManager.idl>
+
+// Chapter 7: Pollable
+#include <CORBA_Pollable.idl>
+
+// Chapter 10: The Interface Repository
+#include <CORBA_InterfaceRepository.idl>
+
+// more Chapter 4: ORB Interface
+// CORBA_TypeCode.idl depends on CORBA_InterfaceRepository.idl
+#include <CORBA_TypeCode.idl>
+
+// Chapter 5: Value Type Semantics
+#include <CORBA_CustomMarshal.idl>
+#include <CORBA_Stream.idl>
+
+
+#ifdef JACORB
    typedef unsigned short ServiceOption;
    typedef unsigned short ServiceDetailType;
 
-   // for PortableInterceptors
-   typedef sequence<string> StringSeq;
-   typedef sequence<wstring> WStringSeq;
-   typedef sequence<octet> OctetSeq;
-
-   typedef unsigned long PolicyType;
-
-   // actually, Current is pseudo, but we need it this way so everything compiles
-   interface Current {};
-
-   pseudo interface Environment{};
-   pseudo interface NamedValue {};
-   pseudo interface NVList {};
-
-   // not suitable for deriving user-defined interfaces !
-   enum TCKind {
-      tk_null, tk_void,
-      tk_short, tk_long, tk_ushort, tk_ulong,
-      tk_float, tk_double, tk_boolean, tk_char,
-      tk_octet, tk_any, tk_TypeCode, tk_Principal, tk_objref,
-      tk_struct, tk_union, tk_enum, tk_string,
-      tk_sequence, tk_array, tk_alias, tk_except,
-      tk_longlong, tk_ulonglong, tk_longdouble,
-      tk_wchar, tk_wstring, tk_fixed, tk_value,
-      tk_value_box,
-      tk_native, tk_abstract_interface,
-      tk_local_interface // latest addition
-   };
-
-   // not suitable for deriving user-defined interfaces
-   typedef string Identifier;
-   typedef string RepositoryId;
-
-   pseudo interface TypeCode {}; // PIDL
-//       exception Bounds {};
-//       exception BadKind {};
-
-//       // for all TypeCode kinds
-//       boolean equal (in TypeCode tc);
-//       TCKind kind ();
-
-//       boolean equivalent(in TypeCode tc);
-//       TypeCode get_compact_typecode();
-
-//       // for tk_objref, tk_struct, tk_union, tk_enum,
-//       // tk_alias, and tk_except
-//       RepositoryId id () raises (BadKind);
-
-//       // for tk_objref, tk_struct, tk_union, tk_enum,
-//       // tk_alias, and tk_except
-//       Identifier name () raises (BadKind);
-
-//       // for tk_struct, tk_union, tk_enum, and tk_except
-//       unsigned long member_count () raises (BadKind);
-//       Identifier member_name (in unsigned long index)
-//          raises (BadKind, Bounds);
-
-//       // for tk_struct, tk_union, and tk_except
-//       TypeCode member_type (in unsigned long index)
-//          raises (BadKind, Bounds);
-
-//       // for tk_union
-//       any member_label (in unsigned long index)
-//          raises (BadKind, Bounds);
-//       TypeCode discriminator_type () raises (BadKind);
-//       long default_index () raises (BadKind);
-
-//       // for tk_string, tk_sequence, and tk_array
-//       unsigned long length () raises (BadKind);
-
-//       // for tk_sequence, tk_array, and tk_alias
-//       TypeCode content_type () raises (BadKind);
-
-//    };
-
-
-   interface InterfaceDef     {};
-
-   /* this is the original PIDL from the lang. mapping,
-      but we do not use it! Instead...
-
-      pseudo interface Principal
-      {
-      attribute sequence<octet> name;
-      };
-   */
-
-   /* ... we use this little hack. It saves us fiddling with
-      the generated code that uses  Principals. Actually, we
-      should not be doing this....
-   */
-
-   typedef sequence<octet> Principal;
-
-   interface IDLType {};
-
-   enum OperationMode {OP_NORMAL, OP_ONEWAY};
-   enum ParameterMode {PARAM_IN, PARAM_OUT, PARAM_INOUT};
-
-   struct ParameterDescription {
-      Identifier name;
-      TypeCode type;
-      IDLType type_def;
-      ParameterMode mode;
-   };
-   typedef sequence <ParameterDescription> ParDescriptionSeq;
-
-   interface Policy
-   {
-      readonly attribute PolicyType policy_type;
-      Policy copy();
-      void destroy();
-   };
-
-   typedef sequence <Policy> PolicyList;
-
-   interface DomainManager
-   {
-      Policy get_domain_policy(in PolicyType policy_type);
-   };
-
-   interface ConstructionPolicy: Policy
-   {
-      void make_domain_manager(in InterfaceDef object_type,
-                               in boolean constr_policy);
-   };
-
-   typedef sequence <DomainManager> DomainManagersList;
-
-
-   typedef short PolicyErrorCode;
-   const PolicyErrorCode BAD_POLICY = 0;
-   const PolicyErrorCode UNSUPPORTED_POLICY = 1;
-   const PolicyErrorCode BAD_POLICY_TYPE = 2;
-   const PolicyErrorCode BAD_POLICY_VALUE = 3;
-   const PolicyErrorCode UNSUPPORTED_POLICY_VALUE = 4;
-
-   exception PolicyError
-   {
-      PolicyErrorCode reason;
-   };
-
    exception UserException {};
-   pseudo interface ExceptionList {};
-
+   exception WrongTransaction {};
 
    // Taken from 04-03-12 CORBA 3.0.3
    valuetype StringValue string;
    valuetype WStringValue wstring;
 
-   exception WrongTransaction {};
+   // This is the original PIDL from the Java language mapping
+   // but we do not use it! Instead...
+   // pseudo interface Principal
+   //   {
+   //   attribute sequence<octet> name;
+   //   };
+   // ... we use this little hack. It saves us fiddling with
+   //   the generated code that uses Principals.
+   typedef sequence<octet> Principal;
 
-   exception INV_OBJREF {};
+#endif
 };
 
-
-#endif /* _ORB_IDL */
+#endif // _ORB_IDL_

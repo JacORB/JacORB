@@ -29,6 +29,7 @@ import org.omg.CORBA.BAD_TYPECODE;
 import org.omg.CORBA.CompletionStatus;
 import org.omg.CORBA.INITIALIZE;
 import org.omg.CORBA.INTERNAL;
+import org.omg.CORBA.NO_IMPLEMENT;
 import org.omg.CORBA.TCKind;
 import org.omg.CORBA.TypeCode;
 
@@ -44,7 +45,7 @@ public class ORBSingleton
 
     private boolean doStrictCheckOnTypecodeCreation;
     protected Logger logger;
-    
+
     protected IBufferManager bufferManager;
 
     /**
@@ -446,6 +447,12 @@ public class ORBSingleton
         checkTCRepositoryId( id );
         return new org.jacorb.orb.TypeCode( id );
     }
+
+    public org.omg.CORBA.TypeCode create_recursive_sequence_tc (int bound, int offset)
+    {
+        throw new NO_IMPLEMENT ("create_recursive_sequence_tc - NYI");
+    }
+
 
     public TypeCode create_sequence_tc( int bound, TypeCode element_type)
     {

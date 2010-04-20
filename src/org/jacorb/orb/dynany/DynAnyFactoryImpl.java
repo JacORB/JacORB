@@ -20,9 +20,12 @@ package org.jacorb.orb.dynany;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import org.slf4j.Logger;
 import org.jacorb.orb.TypeCode;
+import org.omg.CORBA.Any;
+import org.omg.CORBA.NO_IMPLEMENT;
+import org.omg.DynamicAny.MustTruncate;
 import org.omg.DynamicAny.DynAnyFactoryPackage.InconsistentTypeCode;
+import org.slf4j.Logger;
 
 /**
  * @author Gerald Brose, FU Berlin
@@ -136,4 +139,21 @@ public class DynAnyFactoryImpl
             throw new InconsistentTypeCode();
         }
     }
+
+   public org.omg.DynamicAny.DynAny create_dyn_any_without_truncation (Any value)
+            throws MustTruncate, InconsistentTypeCode
+   {
+      throw new NO_IMPLEMENT ("NYI");
+   }
+
+   public Any[] create_multiple_anys (org.omg.DynamicAny.DynAny[] values)
+   {
+      throw new NO_IMPLEMENT ("NYI");
+   }
+
+   public org.omg.DynamicAny.DynAny[] create_multiple_dyn_anys (Any[] values, boolean allowTruncate)
+            throws MustTruncate, InconsistentTypeCode
+   {
+      throw new NO_IMPLEMENT ("NYI");
+   }
 }

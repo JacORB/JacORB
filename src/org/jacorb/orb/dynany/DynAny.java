@@ -21,7 +21,6 @@ package org.jacorb.orb.dynany;
  */
 
 import java.io.IOException;
-import org.slf4j.Logger;
 import org.jacorb.orb.TypeCode;
 import org.omg.CORBA.BAD_INV_ORDER;
 import org.omg.CORBA.INTERNAL;
@@ -31,6 +30,7 @@ import org.omg.CORBA.TCKind;
 import org.omg.CORBA.portable.InputStream;
 import org.omg.DynamicAny.DynAnyPackage.InvalidValue;
 import org.omg.DynamicAny.DynAnyPackage.TypeMismatch;
+import org.slf4j.Logger;
 
 /**
  * CORBA DynAny
@@ -592,6 +592,26 @@ public class DynAny
       }
    }
 
+   public long[] get_longlong_seq() throws InvalidValue, TypeMismatch
+   {
+       throw new NO_IMPLEMENT("DynAny::get_longlong_seq not implemented.");
+   }
+
+   public long[] get_ulonglong_seq() throws InvalidValue, TypeMismatch
+   {
+       throw new NO_IMPLEMENT("DynAny::get_ulonglong_seq not implemented.");
+   }
+
+   public double[] get_longdouble_seq() throws InvalidValue, TypeMismatch
+   {
+       throw new NO_IMPLEMENT("DynAny::get_longdouble_seq not implemented.");
+   }
+
+   public double[] get_double_seq() throws InvalidValue, TypeMismatch
+   {
+       throw new NO_IMPLEMENT("DynAny::get_double_seq not implemented.");
+   }
+
    public long get_ulonglong() throws TypeMismatch
    {
       checkDestroyed ();
@@ -618,6 +638,11 @@ public class DynAny
       {
          throw new TypeMismatch();
       }
+   }
+
+   public char[] get_wchar_seq() throws InvalidValue, TypeMismatch
+   {
+       throw new NO_IMPLEMENT("DynAny::get_wchar_seq not implemented.");
    }
 
    public java.lang.String get_wstring() throws TypeMismatch
@@ -806,5 +831,122 @@ public class DynAny
    {
        logger.debug("An unexpected error occured", cause);
        return new INTERNAL(cause.toString());
+   }
+
+   public boolean[] get_boolean_seq () throws InvalidValue, TypeMismatch
+   {
+      throw new NO_IMPLEMENT ("NYI");
+   }
+
+   public char[] get_char_seq () throws InvalidValue, TypeMismatch
+   {
+      throw new NO_IMPLEMENT ("NYI");
+   }
+
+   public float[] get_float_seq () throws InvalidValue, TypeMismatch
+   {
+      throw new NO_IMPLEMENT ("NYI");
+   }
+
+   public int[] get_long_seq () throws InvalidValue, TypeMismatch
+   {
+      throw new NO_IMPLEMENT ("NYI");
+   }
+
+   public double get_longdouble () throws InvalidValue, TypeMismatch
+   {
+      throw new NO_IMPLEMENT ("NYI");
+   }
+
+   public byte[] get_octet_seq () throws InvalidValue, TypeMismatch
+   {
+      throw new NO_IMPLEMENT ("NYI");
+   }
+
+   public short[] get_short_seq () throws InvalidValue, TypeMismatch
+   {
+      throw new NO_IMPLEMENT ("NYI");
+   }
+
+   public int[] get_ulong_seq () throws InvalidValue, TypeMismatch
+   {
+      throw new NO_IMPLEMENT ("NYI");
+   }
+
+   public short[] get_ushort_seq () throws InvalidValue, TypeMismatch
+   {
+      throw new NO_IMPLEMENT ("NYI");
+   }
+
+   public void insert_boolean_seq (boolean[] value) throws InvalidValue, TypeMismatch
+   {
+      throw new NO_IMPLEMENT ("NYI");
+   }
+
+   public void insert_char_seq (char[] value) throws InvalidValue, TypeMismatch
+   {
+      throw new NO_IMPLEMENT ("NYI");
+   }
+
+   public void insert_double_seq (double[] value) throws InvalidValue, TypeMismatch
+   {
+      throw new NO_IMPLEMENT ("NYI");
+   }
+
+   public void insert_float_seq (float[] value) throws InvalidValue, TypeMismatch
+   {
+      throw new NO_IMPLEMENT ("NYI");
+   }
+
+   public void insert_long_seq (int[] value) throws InvalidValue, TypeMismatch
+   {
+      throw new NO_IMPLEMENT ("NYI");
+   }
+
+   public void insert_longdouble (double value) throws InvalidValue, TypeMismatch
+   {
+      throw new NO_IMPLEMENT ("NYI");
+   }
+
+   public void insert_longdouble_seq (double[] value) throws InvalidValue, TypeMismatch
+   {
+      throw new NO_IMPLEMENT ("NYI");
+   }
+
+   public void insert_longlong_seq (long[] value) throws InvalidValue, TypeMismatch
+   {
+      throw new NO_IMPLEMENT ("NYI");
+   }
+
+   public void insert_octet_seq (byte[] value) throws InvalidValue, TypeMismatch
+   {
+      throw new NO_IMPLEMENT ("NYI");
+   }
+
+   public void insert_short_seq (short[] value) throws InvalidValue, TypeMismatch
+   {
+      throw new NO_IMPLEMENT ("NYI");
+
+
+   }
+
+   public void insert_ulong_seq (int[] value) throws InvalidValue, TypeMismatch
+   {
+      throw new NO_IMPLEMENT ("NYI");
+   }
+
+   public void insert_ulonglong_seq (long[] value) throws InvalidValue, TypeMismatch
+   {
+      throw new NO_IMPLEMENT ("NYI");
+   }
+
+   public void insert_ushort_seq (short[] value) throws InvalidValue, TypeMismatch
+   {
+      throw new NO_IMPLEMENT ("NYI");
+   }
+
+   public void insert_wchar_seq (char[] value) throws InvalidValue, TypeMismatch
+   {
+      throw new NO_IMPLEMENT ("NYI");
    }
 }

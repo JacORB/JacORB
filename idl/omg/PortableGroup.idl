@@ -1,30 +1,29 @@
 #ifndef _PortableGroup_IDL_
 #define _PortableGroup_IDL_
 
-//#ifndef _PRE_3_0_COMPILER_
+#include <jacorbdefs.idl>
+
+#ifdef _PRE_3_0_COMPILER_
 #pragma prefix "omg.org"
 #include <PortableServer.idl>// CORBA 3.0, Chapter 11
 #include <CosNaming.idl>// 98-10-19.idl
 #include <IOP.idl>// from 98-03-01.idl
 #include "GIOP.idl"// from 98-03-01.idl
 #include <orb.idl>
-/*
 #else
 import ::IOP;
 import ::GIOP;
 import ::CORBA;
 import ::PortableServer::POA;
 #endif //_PRE_3_0_COMPILER_
-*/
+
 
 
 module PortableGroup
 {
-/*
 #ifndef _PRE_3_0_COMPILER_
    typeprefix PortableGroup "omg.org";
 #endif // _PRE_3_0_COMPILER_
-*/
 
 // Was GroupInfo in spec but TagGroupTaggedComponent in Consolidated IDL.
 // TAO also uses the latter form.

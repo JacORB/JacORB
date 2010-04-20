@@ -1,5 +1,11 @@
 package org.jacorb.orb;
 
+import org.omg.CORBA.Any;
+import org.omg.CORBA.AnySeqHolder;
+import org.omg.CORBA.BadFixedValue;
+import org.omg.CORBA.DoubleSeqHolder;
+import org.omg.CORBA.NO_IMPLEMENT;
+
 /*
  *        JacORB - a free Java ORB
  *
@@ -313,4 +319,20 @@ public class DataInputStream
     {
         delegate.read_double_array( seq.value, offset, length );
     }
+
+   public Any read_fixed (short digits, short scale) throws BadFixedValue
+   {
+      throw new NO_IMPLEMENT ("NYI");
+   }
+
+   public void read_fixed_array (AnySeqHolder seq, int offset, int length, short digits, short scale)
+            throws BadFixedValue
+   {
+      throw new NO_IMPLEMENT ("NYI");
+   }
+
+   public void read_long_double_array (DoubleSeqHolder seq, int offset, int length)
+   {
+      throw new NO_IMPLEMENT ("NYI");
+   }
 }

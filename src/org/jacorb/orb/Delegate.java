@@ -1371,6 +1371,19 @@ public final class Delegate
         }
     }
 
+
+
+   /**
+    * <code>repository_id</code> returns a repository ID.
+    *
+    * @return a <code>String</code> value
+    */
+   public String repository_id (org.omg.CORBA.Object self)
+   {
+       return getParsedIOR().getTypeId();
+   }
+
+
     /**
      * Determines whether the object denoted by self
      * has type logical_type_id or a subtype of it
@@ -2117,6 +2130,13 @@ public final class Delegate
     }
 
     public org.omg.CORBA.Object set_policy_override( org.omg.CORBA.Object self,
+                                                     org.omg.CORBA.Policy[] policies,
+                                                     org.omg.CORBA.SetOverrideType set_add )
+    {
+        return set_policy_override (self, policies, set_add);
+    }
+
+    public org.omg.CORBA.Object set_policy_overrides( org.omg.CORBA.Object self,
                                                      org.omg.CORBA.Policy[] policies,
                                                      org.omg.CORBA.SetOverrideType set_add )
     {

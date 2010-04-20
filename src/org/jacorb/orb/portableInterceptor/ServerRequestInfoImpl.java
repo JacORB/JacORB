@@ -22,12 +22,12 @@ package org.jacorb.orb.portableInterceptor;
  */
 
 import java.util.Enumeration;
-
 import org.jacorb.orb.dsi.ServerRequest;
 import org.omg.CORBA.Any;
 import org.omg.CORBA.BAD_INV_ORDER;
 import org.omg.CORBA.CompletionStatus;
 import org.omg.CORBA.INV_POLICY;
+import org.omg.CORBA.NO_IMPLEMENT;
 import org.omg.CORBA.NO_RESOURCES;
 import org.omg.CORBA.Policy;
 import org.omg.CORBA.SystemException;
@@ -346,4 +346,40 @@ public class ServerRequestInfoImpl
 
         reply_ctx.put(_id, service_context);
     }
+
+   public String[] adapter_name ()
+   {
+      if (caller_op != ServerInterceptorIterator.RECEIVE_REQUEST_SERVICE_CONTEXTS)
+      {
+         throw new NO_IMPLEMENT("NYI");
+      }
+      else
+      {
+         throw new BAD_INV_ORDER (14, CompletionStatus.COMPLETED_MAYBE);
+      }
+   }
+
+   public String orb_id ()
+   {
+      if (caller_op != ServerInterceptorIterator.RECEIVE_REQUEST_SERVICE_CONTEXTS)
+      {
+         return orb.id ();
+      }
+      else
+      {
+         throw new BAD_INV_ORDER (14, CompletionStatus.COMPLETED_MAYBE);
+      }
+   }
+
+   public String server_id ()
+   {
+      if (caller_op != ServerInterceptorIterator.RECEIVE_REQUEST_SERVICE_CONTEXTS)
+      {
+         throw new NO_IMPLEMENT("NYI");
+      }
+      else
+      {
+         throw new BAD_INV_ORDER (14, CompletionStatus.COMPLETED_MAYBE);
+      }
+   }
 }

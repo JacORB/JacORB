@@ -1,32 +1,32 @@
 // File: Dynamic.idl
-// Used primarily for Interceptors
+// CORBA 3.0, Chapter 21
 
 #ifndef _DYNAMIC_IDL_
 #define _DYNAMIC_IDL_
 
-#ifndef CORBA3
-#define local  
-#endif
+#include <jacorbdefs.idl>
 
-#include <orb.idl>
-
+#ifdef _PRE_3_0_COMPILER_
 #pragma prefix "omg.org"
+#include <orb.idl>
+#else
+import ::CORBA;
+#endif // _PRE_3_0_COMPILER_
 
 module Dynamic {
+#ifndef _PRE_3_0_COMPILER_
+    typeprefix Dynamic "omg.org";
+#endif // _PRE_3_0_COMPILER_
 
-  struct Parameter {
-    any argument;
-    CORBA::ParameterMode mode;
-  };
+    struct Parameter {
+        any argument;
+        CORBA::ParameterMode mode;
+    };
 
-  typedef sequence<Parameter> ParameterList;
+    typedef sequence<Parameter> ParameterList;
+    typedef CORBA::StringSeq ContextList;
+    typedef sequence<CORBA::TypeCode> ExceptionList;
+    typedef CORBA::StringSeq RequestContext;
 
-  typedef CORBA::StringSeq ContextList;
-
-  typedef sequence<CORBA::TypeCode> ExceptionList;
-
-  typedef CORBA::StringSeq RequestContext;
-
-};
+}; // module Dynamic
 #endif // _DYNAMIC_IDL_
-

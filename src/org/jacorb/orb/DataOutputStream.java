@@ -1,5 +1,9 @@
 package org.jacorb.orb;
 
+import org.omg.CORBA.Any;
+import org.omg.CORBA.BadFixedValue;
+import org.omg.CORBA.NO_IMPLEMENT;
+
 /*
  *        JacORB - a free Java ORB
  *
@@ -319,4 +323,19 @@ public class DataOutputStream
     {
         delegate.write_double_array( seq, offset, length );
     }
+
+   public void write_fixed (Any fixedValue) throws BadFixedValue
+   {
+      throw new NO_IMPLEMENT ("NYI");
+   }
+
+   public void write_fixed_array (Any[] seq, int offset, int length) throws BadFixedValue
+   {
+      throw new NO_IMPLEMENT ("NYI");
+   }
+
+   public void write_long_double_array (double[] seq, int offset, int length)
+   {
+      throw new NO_IMPLEMENT ("NYI");
+   }
 }

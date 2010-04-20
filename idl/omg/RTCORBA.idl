@@ -1,167 +1,277 @@
+//Real-time CORBA Specification, v1.2 - OMG IDL Summary File
+//Object Management Group, Inc.
+//Copyright © 1998,1999, Alcatel
+//Copyright © 1989- 2001, Hewlett-Packard Company
+//Copyright © 1998,1999, Highlander Communications, L.C.
+//Copyright © 1998,1999, Inprise Corporation
+//Copyright © 1995 - 2001, IONA Technologies, Ltd.
+//Copyright © 1998 - 2001, Lockheed Martin Federal Systems, Inc.
+//Copyright © 1998,1999, 2001, Lucent Technologies, Inc.
+//Copyright © 1998,1999, Nortel Networks
+//Copyright © 2002,Object Management Group, Inc.
+//Copyright © 1998,1999, 2001, Objective Interface Systems, Inc.
+//Copyright © 1998,1999, Object-Oriented Concepts, Inc.
+//Copyright © 1991 - 2001, Sun Microsystems, Inc.
+//Copyright © 1998,1999, Tri-Pacific Software, Inc.
+//The companies listed above have granted to the Object Management Group, Inc.
+//(OMG) a nonexclusive, royalty-free, paid up, worldwide license to copy and
+//distribute this document and to modify this document and distribute copies of
+//the modified version. Each of the copyright holders listed above has agreed
+//that no person shall be deemed to have infringed the copyright in the included
+//material of any such copyright holder by reason of having used the
+//specification set forth herein or having conformed any computer software to
+//the specification.
+//
+//This file contains OMG IDL from the Real-time CORBA Specification, v1.2.
+//OMG regularly publishes a summary file that contains all the "code" parts of
+//an OMG formal document. Every formal document line that is IDL, PIDL, or
+//language code is included in the summary file. The reason for such a listing
+//is to give readers an electronic version of the "code" so that they can
+//extract pieces of it. Readers might want to test an example, include it in
+//their own code, or use it for documentation purposes. Having the code lines
+//available electronically means there is less likelihood of a transcription
+//error.
+//
 //File: RTCORBA.idl
+// IDL
 #ifndef _RT_CORBA_IDL_
 #define _RT_CORBA_IDL_
-#include <orb.idl>
-#include <IOP.idl>
-#include <TimeBase.idl>
+
+#include <jacorbdefs.idl>
+
+#ifdef _PRE_3_0_COMPILER_
 #pragma prefix "omg.org"
-// IDL
 
-// Most of this file is commented out at the moment; we're only using
-// this for a few definitions that are needed in ETF.idl.
+#include <orb.idl>
+#ifdef JACORB
+#include <IOP.idl>
+#else
+#include <iop.idl>
+#endif
+#include <TimeBase.idl>
+#else
+import ::CORBA;
+import ::IOP;
+import ::TimeBase;
+#endif
 
-module RTCORBA
-{
+module RTCORBA {
 
-//   typedef short NativePriority;
-//   typedef short Priority;
-//   const Priority minPriority = 0;
-//   const Priority maxPriority = 32767;
+#ifndef _PRE_3_0_COMPILER_
+   typeprefix RTCORBA "omg.org";
+#endif
 
-  typedef short NativePriority;
-  typedef short Priority;
-  const Priority minPriority = 0;
-  const Priority maxPriority = 32767;
+   typedef short NativePriority;
+   typedef short Priority;
 
-//   native PriorityMapping;
-//   native PriorityTransform;
-//   // Threadpool types
-//   typedef unsigned long ThreadpoolId;
-//   struct ThreadpoolLane {
-//     Priority lane_priority;
-//     unsigned long static_threads;
-//     unsigned long dynamic_threads;
-//   };
-//   typedef sequence <ThreadpoolLane> ThreadpoolLanes;
+   const Priority minPriority = 0;
+   const Priority maxPriority = 32767;
+
+   native PriorityMapping;
+   native PriorityTransform;
+
+   // Threadpool types
+   typedef unsigned long ThreadpoolId;
+
+   struct ThreadpoolLane {
+      Priority       lane_priority;
+      unsigned long  static_threads;
+      unsigned long  dynamic_threads;
+   };
+
+   typedef sequence <ThreadpoolLane> ThreadpoolLanes;
+
    // Priority Model Policy
    const CORBA::PolicyType PRIORITY_MODEL_POLICY_TYPE = 40;
-   enum PriorityModel
-   {
-     CLIENT_PROPAGATED,
-     SERVER_DECLARED
-   };
-//   local interface PriorityModelPolicy : CORBA::Policy {
-//     readonly attribute PriorityModel priority_model;
-//     readonly attribute Priority server_priority;
-//   };
-//   // Threadpool Policy
-//   const CORBA::PolicyType THREADPOOL_POLICY_TYPE = 41;
-//   local interface ThreadpoolPolicy : CORBA::Policy {
-//     readonly attribute ThreadpoolId threadpool;
-//   };
 
-  local interface ProtocolProperties {};
+   enum PriorityModel {
+      CLIENT_PROPAGATED,
+      SERVER_DECLARED
+   };
+
+   local interface PriorityModelPolicy : CORBA::Policy {
+
+      readonly attribute PriorityModel priority_model;
+      readonly attribute Priority      server_priority;
+
+   };
+
+   // Threadpool Policy
+   const CORBA::PolicyType THREADPOOL_POLICY_TYPE = 41;
+
+   local interface ThreadpoolPolicy : CORBA::Policy     {
+      readonly attribute ThreadpoolId threadpool;
+   };
+
+   local interface ProtocolProperties {};
 
    struct Protocol {
-     IOP::ProfileId protocol_type;
-     ProtocolProperties orb_protocol_properties;
-     ProtocolProperties transport_protocol_properties;
+      IOP::ProfileId          protocol_type;
+      ProtocolProperties orb_protocol_properties;
+      ProtocolProperties transport_protocol_properties;
    };
+
    typedef sequence <Protocol> ProtocolList;
-//   // Server Protocol Policy
-//   const CORBA::PolicyType SERVER_PROTOCOL_POLICY_TYPE = 42;
-//   local interface ServerProtocolPolicy : CORBA::Policy {
-//     readonly attribute ProtocolList protocols;
-//   };
+
+   // Server Protocol Policy
+   const CORBA::PolicyType SERVER_PROTOCOL_POLICY_TYPE = 42;
+
+   local interface ServerProtocolPolicy : CORBA::Policy     {
+      readonly attribute ProtocolList protocols;
+   };
+
    // Client Protocol Policy
    const CORBA::PolicyType CLIENT_PROTOCOL_POLICY_TYPE = 43;
+
    local interface ClientProtocolPolicy : CORBA::Policy {
-     readonly attribute ProtocolList protocols;
+      readonly attribute ProtocolList protocols;
    };
-//   // Private Connection Policy
-//   const CORBA::PolicyType
-//   PRIVATE_CONNECTION_POLICY_TYPE = 44;
-//   local interface PrivateConnectionPolicy : CORBA::Policy {};
 
-  local interface TCPProtocolProperties : ProtocolProperties
-  {
-    attribute long send_buffer_size;
-    attribute long recv_buffer_size;
-    attribute boolean keep_alive;
-    attribute boolean dont_route;
-    attribute boolean no_delay;
-  };
+   // Private Connection Policy
+   const CORBA::PolicyType PRIVATE_CONNECTION_POLICY_TYPE = 44;
 
-//   struct PriorityBand {
-//     Priority low;
-//     Priority high;
-//   };
-//   typedef sequence <PriorityBand> PriorityBands;
+   local interface PrivateConnectionPolicy : CORBA::Policy {};
+
+   local interface TCPProtocolProperties : ProtocolProperties {
+      attribute long     send_buffer_size;
+      attribute long     recv_buffer_size;
+      attribute boolean  keep_alive;
+      attribute boolean  dont_route;
+      attribute boolean  no_delay;
+   };
+
+   struct PriorityBand {
+      Priority low;
+      Priority high;
+   };
+
+   typedef sequence <PriorityBand> PriorityBands;
+
    // PriorityBandedConnectionPolicy
    const CORBA::PolicyType PRIORITY_BANDED_CONNECTION_POLICY_TYPE = 45;
-//   local interface PriorityBandedConnectionPolicy : CORBA::Policy {
-//     readonly attribute PriorityBands priority_bands;
-//   };
 
-//   local interface Current : CORBA::Current {
-//     attribute Priority the_priority;
-//   };
-//   local interface Mutex {
-//     void lock( );
-//     void unlock( );
-//     boolean try_lock ( in TimeBase::TimeT max_wait );
-//     // if max_wait = 0 then return immediately
-//   };
-   local interface RTORB
-   {
-//     Mutex create_mutex( );
-//     void destroy_mutex( in Mutex the_mutex );
-//     exception InvalidThreadpool {};
-//     ThreadpoolId create_threadpool
-//     (
-//      in unsigned long stacksize,
-//      in unsigned long static_threads,
-//      in unsigned long dynamic_threads,
-//      in Priority default_priority,
-//      in boolean allow_request_buffering,
-//      in unsigned long max_buffered_requests,
-//      in unsigned long max_request_buffer_size
-//      );
-//     ThreadpoolId create_threadpool_with_lanes
-//     (
-//      in unsigned long stacksize,
-//      in ThreadpoolLanes lanes,
-//      in boolean allow_borrowing
-//      in boolean allow_request_buffering,
-//      in unsigned long max_buffered_requests,
-//      in unsigned long max_request_buffer_size
-//      );
-//     void destroy_threadpool ( in ThreadpoolId threadpool )
-//       raises (InvalidThreadpool);
-//     PriorityModelPolicy create_priority_model_policy
-//     (
-//      in PriorityModel priority_model,
-//      in Priority server_priority
-//     );
-//     ThreadpoolPolicy create_threadpool_policy
-//     (
-//      in ThreadpoolId threadpool
-//      );
+   local interface PriorityBandedConnectionPolicy : CORBA::Policy {
+      readonly attribute PriorityBands priority_bands;
+   };
 
-//     PriorityBandedConnectionPolicy
-//     create_priority_banded_connection_policy
-//     (
-//      in PriorityBands priority_bands
-//      );
-//     ServerProtocolPolicy create_server_protocol_policy
-//     (
-//      in ProtocolList protocols
-//      );
+   local interface Current : CORBA::Current {
+      attribute Priority the_priority;
+   };
 
-      ClientProtocolPolicy create_client_protocol_policy
-      (
-          in ProtocolList protocols
-      );
+   local interface Mutex     {
 
-//     PrivateConnectionPolicy create_private_connection_policy ();
-//     TCPProtocolProperties create_tcp_protocol_properties
-//     (
-//      in long send_buffer_size,
-//      in long recv_buffer_size,
-//      in boolean keep_alive,
-//      in boolean dont_route,
-//      in boolean no_delay
-//      );
-  };
+      void lock( );
+      void unlock( );
+      boolean try_lock ( in TimeBase::TimeT max_wait );
+      // if max_wait = 0 then return immediately
+   };
+
+   local interface RTORB {
+
+      Mutex create_mutex( );
+      void destroy_mutex( in Mutex the_mutex );
+
+      exception InvalidThreadpool {};
+
+      ThreadpoolId create_threadpool (
+         in unsigned long    stacksize,
+         in unsigned long  static_threads,
+         in unsigned long  dynamic_threads,
+         in Priority    default_priority,
+         in boolean    allow_request_buffering,
+         in unsigned long  max_buffered_requests,
+         in unsigned long  max_request_buffer_size );
+
+      ThreadpoolId create_threadpool_with_lanes (
+         in unsigned long  stacksize,
+         in ThreadpoolLanes  lanes,
+         in boolean    allow_borrowing,
+         in boolean    allow_request_buffering,
+         in unsigned long  max_buffered_requests,
+         in unsigned long  max_request_buffer_size );
+
+      void destroy_threadpool ( in ThreadpoolId threadpool )
+         raises (InvalidThreadpool);
+
+      PriorityModelPolicy create_priority_model_policy (
+         in PriorityModel priority_model,
+         in Priority      server_priority
+                                                       );
+      ThreadpoolPolicy create_threadpool_policy (
+         in ThreadpoolId threadpool
+                                                );
+
+      PriorityBandedConnectionPolicy
+      create_priority_banded_connection_policy (
+         in PriorityBands priority_bands
+                                               );
+      ServerProtocolPolicy create_server_protocol_policy (
+         in ProtocolList protocols
+                                                         );
+      ClientProtocolPolicy create_client_protocol_policy (
+         in ProtocolList protocols
+                                                         );
+      PrivateConnectionPolicy create_private_connection_policy (
+                                                               );
+
+      TCPProtocolProperties create_tcp_protocol_properties (
+         in long    send_buffer_size,
+         in long    recv_buffer_size,
+         in boolean keep_alive,
+         in boolean dont_route,
+         in boolean no_delay
+                                                           );
+
+   }; // End interface RTORB
+
 }; // End module RTCORBA
 #endif // _RT_CORBA_IDL_
+//
+//File: RTPortableServer.idl
+#ifndef _RT_PORTABLE_SERVER_IDL_
+#define _RT_PORTABLE_SERVER_IDL_
+#ifdef _PRE_3_0_COMPILER_
+#pragma prefix "omg.org"
+
+#include <PortableServer.idl>
+#include <RTCORBA.idl>
+#else
+import ::PortableServer;
+import ::RTCORBA;
+#endif
+
+// IDL
+module RTPortableServer {
+
+#ifndef _PRE_3_0_COMPILER_
+   typeprefix RTCORBA "omg.org";
+#endif
+
+   local interface POA : PortableServer::POA {
+
+      Object create_reference_with_priority (
+         in CORBA::RepositoryId intf,
+         in RTCORBA::Priority priority_ )
+         raises ( WrongPolicy );
+
+      Object create_reference_with_id_and_priority (
+         in PortableServer::ObjectId oid,
+         in CORBA::RepositoryId intf,
+         in RTCORBA::Priority priority_ )
+         raises ( WrongPolicy );
+
+      PortableServer::ObjectId activate_object_with_priority (
+         in PortableServer::Servant p_servant,
+         in RTCORBA::Priority priority_ )
+         raises ( ServantAlreadyActive, WrongPolicy );
+
+      void activate_object_with_id_and_priority (
+         in PortableServer::ObjectId oid,
+         in PortableServer::Servant p_servant,
+         in RTCORBA::Priority priority_ )
+         raises ( ServantAlreadyActive,
+                  ObjectAlreadyActive, WrongPolicy );
+   };
+
+};
+#endif // _RT_PORTABLE_SERVER_IDL_

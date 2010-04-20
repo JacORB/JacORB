@@ -2,9 +2,10 @@ package org.omg.CORBA;
 
 
 /**
- * Custom Helper class for CORBA System Exceptions.
+ * <code>SystemExceptionHelper</code> has been implemented as there is no
+ * org.omg.CORBA.SystemExceptionHelper provided by OMG -
+ * see http://www.omg.org/issues/issue3750.txt
  */
-
 public final class SystemExceptionHelper
 {
    private static org.omg.CORBA.TypeCode _type = org.omg.CORBA.ORB.init().create_exception_tc( org.omg.CORBA.SystemExceptionHelper.id(),"SystemException",new org.omg.CORBA.StructMember[]{new org.omg.CORBA.StructMember("minor",org.omg.CORBA.ORB.init().get_primitive_tc(org.omg.CORBA.TCKind.from_int(5)),null),new org.omg.CORBA.StructMember("completed",org.omg.CORBA.ORB.init().create_enum_tc(org.omg.CORBA.CompletionStatusHelper.id(),"CompletionStatus",new String[]{"COMPLETED_YES","COMPLETED_NO","COMPLETED_MAYBE"}),null)});
@@ -65,6 +66,10 @@ public final class SystemExceptionHelper
       else if (s instanceof org.omg.CORBA.BAD_PARAM)
       {
          return org.omg.CORBA.BAD_PARAMHelper.type ();
+      }
+      else if (s instanceof org.omg.CORBA.BAD_QOS)
+      {
+         return org.omg.CORBA.BAD_QOSHelper.type ();
       }
       else if (s instanceof org.omg.CORBA.BAD_TYPECODE)
       {
@@ -158,6 +163,14 @@ public final class SystemExceptionHelper
       {
          return org.omg.CORBA.PERSIST_STOREHelper.type ();
       }
+      else if (s instanceof org.omg.CORBA.REBIND)
+      {
+         return org.omg.CORBA.REBINDHelper.type ();
+      }
+      else if (s instanceof org.omg.CORBA.TIMEOUT)
+      {
+         return org.omg.CORBA.TIMEOUTHelper.type ();
+      }
       else if (s instanceof org.omg.CORBA.TRANSACTION_MODE)
       {
          return org.omg.CORBA.TRANSACTION_MODEHelper.type ();
@@ -206,6 +219,10 @@ public final class SystemExceptionHelper
       else if (s instanceof org.omg.CORBA.BAD_PARAM)
       {
          return org.omg.CORBA.BAD_PARAMHelper.id ();
+      }
+      else if (s instanceof org.omg.CORBA.BAD_QOS)
+      {
+         return org.omg.CORBA.BAD_QOSHelper.id ();
       }
       else if (s instanceof org.omg.CORBA.BAD_TYPECODE)
       {
@@ -299,6 +316,14 @@ public final class SystemExceptionHelper
       {
          return org.omg.CORBA.PERSIST_STOREHelper.id ();
       }
+      else if (s instanceof org.omg.CORBA.REBIND)
+      {
+        return org.omg.CORBA.REBINDHelper.id ();
+      }
+      else if (s instanceof org.omg.CORBA.TIMEOUT)
+      {
+        return org.omg.CORBA.TIMEOUTHelper.id ();
+      }
       else if (s instanceof org.omg.CORBA.TRANSACTION_MODE)
       {
          return org.omg.CORBA.TRANSACTION_MODEHelper.id ();
@@ -347,6 +372,10 @@ public final class SystemExceptionHelper
       else if (id.equals (org.omg.CORBA.BAD_PARAMHelper.id ()))
       {
          return new org.omg.CORBA.BAD_PARAM ();
+      }
+      else if (id.equals (org.omg.CORBA.BAD_QOSHelper.id ()))
+      {
+         return new org.omg.CORBA.BAD_QOS ();
       }
       else if (id.equals (org.omg.CORBA.BAD_TYPECODEHelper.id ()))
       {
@@ -439,6 +468,14 @@ public final class SystemExceptionHelper
       else if (id.equals (org.omg.CORBA.PERSIST_STOREHelper.id ()))
       {
          return new org.omg.CORBA.PERSIST_STORE ();
+      }
+      else if (id.equals (org.omg.CORBA.REBINDHelper.id ()))
+      {
+         return new org.omg.CORBA.REBIND ();
+      }
+      else if (id.equals (org.omg.CORBA.TIMEOUTHelper.id ()))
+      {
+         return new org.omg.CORBA.TIMEOUT ();
       }
       else if (id.equals (org.omg.CORBA.TRANSACTION_MODEHelper.id ()))
       {

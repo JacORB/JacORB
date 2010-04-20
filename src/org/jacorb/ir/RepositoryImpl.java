@@ -26,6 +26,15 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.StringTokenizer;
 import java.util.Vector;
+import org.jacorb.config.Configurable;
+import org.jacorb.config.Configuration;
+import org.jacorb.config.ConfigurationException;
+import org.omg.CORBA.AbstractInterfaceDef;
+import org.omg.CORBA.ExtInitializer;
+import org.omg.CORBA.ExtValueDef;
+import org.omg.CORBA.InterfaceDef;
+import org.omg.CORBA.LocalInterfaceDef;
+import org.omg.CORBA.NO_IMPLEMENT;
 import org.slf4j.Logger;
 import org.jacorb.config.Configurable;
 import org.jacorb.config.Configuration;
@@ -35,11 +44,13 @@ import org.omg.CORBA.Policy;
 import org.omg.CORBA.Repository;
 import org.omg.CORBA.RepositoryHelper;
 import org.omg.CORBA.RepositoryPOATie;
+import org.omg.CORBA.ValueDef;
 import org.omg.PortableServer.IdAssignmentPolicyValue;
 import org.omg.PortableServer.LifespanPolicyValue;
 import org.omg.PortableServer.POA;
 import org.omg.PortableServer.POAHelper;
 import org.omg.PortableServer.Servant;
+import org.slf4j.Logger;
 
 /**
  * The Interface Repository.
@@ -98,26 +109,26 @@ public class RepositoryImpl
 
         this.configure(((org.jacorb.orb.ORB) orb).getConfiguration());
 
-        // need a regular SYSTEM_ID poa for IfR operation                
+        // need a regular SYSTEM_ID poa for IfR operation
         poa = POAHelper.narrow(orb.resolve_initial_references("RootPOA"));
 
         //create necessary policies
         Policy[] policies = new Policy[]{
                 poa.create_lifespan_policy(LifespanPolicyValue.PERSISTENT),
                 poa.create_id_assignment_policy(IdAssignmentPolicyValue.USER_ID)};
-            
+
         //create persistent POA for IfR object
-        POA ifrPOA = poa.create_POA( "InterfaceRepositoryPOA", 
-                poa.the_POAManager(), 
+        POA ifrPOA = poa.create_POA( "InterfaceRepositoryPOA",
+                poa.the_POAManager(),
                 policies );
-            
+
         //destroy policies
         for (int i=0; i<policies.length; i++)
         {
             policies[i].destroy();
         }
 
-        Servant servant =  new RepositoryPOATie( this );            
+        Servant servant =  new RepositoryPOATie( this );
         ifrPOA.activate_object_with_id("IfR".getBytes(), servant);
 
         Repository myRef =
@@ -613,4 +624,24 @@ public class RepositoryImpl
     {
         delegate.destroy();
     }
+
+   public AbstractInterfaceDef create_abstract_interface (String id, String name, String version,
+            AbstractInterfaceDef[] baseInterfaces)
+   {
+      throw new NO_IMPLEMENT ("NYI");
+   }
+
+   public ExtValueDef create_ext_value (String id, String name, String version, boolean isCustom,
+            boolean isAbstract, ValueDef baseValue, boolean isTruncatable,
+            ValueDef[] abstractBaseValues, InterfaceDef[] supportedInterfaces,
+            ExtInitializer[] initializers)
+   {
+      throw new NO_IMPLEMENT ("NYI");
+   }
+
+   public LocalInterfaceDef create_local_interface (String id, String name, String version,
+            InterfaceDef[] baseInterfaces)
+   {
+      throw new NO_IMPLEMENT ("NYI");
+   }
 }

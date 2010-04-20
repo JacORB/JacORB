@@ -1,0 +1,42 @@
+// File: CORBA_Policy.idl
+// CORBA 3.0, Chapter 4
+
+    typedef unsigned long PolicyType;
+
+    // Basic IDL definition
+    interface Policy {
+        readonly attribute PolicyType policy_type;
+        Policy copy();
+        void destroy();
+    };
+
+    typedef sequence <Policy> PolicyList;
+    typedef sequence <PolicyType> PolicyTypeSeq;
+
+    typedef short PolicyErrorCode;
+    exception PolicyError {PolicyErrorCode reason;};
+
+    const PolicyErrorCode BAD_POLICY = 0;
+    const PolicyErrorCode UNSUPPORTED_POLICY = 1;
+    const PolicyErrorCode BAD_POLICY_TYPE = 2;
+    const PolicyErrorCode BAD_POLICY_VALUE = 3;
+    const PolicyErrorCode UNSUPPORTED_POLICY_VALUE = 4;
+
+#ifdef JACORB
+// Copied from 03-01-10 Mapping (ptc/2003-01-08 Final Report)
+    enum SetOverrideType {SET_OVERRIDE, ADD_OVERRIDE};
+
+    exception InvalidPolicies {
+	sequence<unsigned short>        indicies;
+    };
+
+    local interface PolicyManager {
+	PolicyList      get_policy_overrides(in PolicyTypeSeq ts);
+
+ 	void            set_policy_overrides(in PolicyList policies,
+					     in SetOverrideType set_add)
+	raises(InvalidPolicies);
+    };
+
+    local interface PolicyCurrent : PolicyManager, Current { };
+#endif

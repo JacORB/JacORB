@@ -21,12 +21,14 @@ package org.jacorb.orb;
  */
 
 import org.omg.CORBA.BAD_PARAM;
+import org.omg.CORBA.NO_IMPLEMENT;
 import org.omg.CORBA.ORB;
 import org.omg.CORBA.Repository;
 import org.omg.CORBA.RepositoryHelper;
 import org.omg.CORBA.ORBPackage.InvalidName;
 import org.omg.PortableServer.POA;
 import org.omg.PortableServer.POAHelper;
+import org.omg.PortableServer.Servant;
 import org.omg.PortableServer.CurrentPackage.NoContext;
 import org.omg.PortableServer.POAPackage.ServantNotActive;
 import org.omg.PortableServer.POAPackage.WrongPolicy;
@@ -179,7 +181,7 @@ public class ServantDelegate
         check();
         return false;
     }
-    
+
     public org.omg.CORBA.Object get_component(org.omg.PortableServer.Servant self)
     {
         check();
@@ -289,4 +291,9 @@ public class ServantDelegate
 
         return _out;
     }
+
+   public String repository_id (Servant self)
+   {
+      throw new NO_IMPLEMENT ("NYI");
+   }
 }

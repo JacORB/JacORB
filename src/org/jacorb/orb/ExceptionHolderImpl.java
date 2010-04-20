@@ -32,6 +32,8 @@ import org.jacorb.util.ObjectUtil;
 import org.omg.CORBA.BAD_PARAM;
 import org.omg.CORBA.ExceptionList;
 import org.omg.CORBA.INTERNAL;
+import org.omg.CORBA.TypeCode;
+import org.omg.CORBA.NO_IMPLEMENT;
 import org.omg.CORBA.UserException;
 import org.omg.GIOP.ReplyStatusType_1_2;
 
@@ -124,6 +126,11 @@ public class ExceptionHolderImpl
             ((org.jacorb.config.Configuration)configuration).getLogger("jacorb.orb.exc_holder");
     }
 
+
+    public void raise_exception_with_list (TypeCode[] exc_list) throws UserException
+    {
+        throw new NO_IMPLEMENT ("NYI");
+    }
 
     public void raise_exception()
         throws UserException

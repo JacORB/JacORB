@@ -39,6 +39,7 @@ import org.jacorb.ssl.SSL_POLICY_TYPE;
 import org.jacorb.util.ObjectUtil;
 import org.omg.BiDirPolicy.BIDIRECTIONAL_POLICY_TYPE;
 import org.omg.BiDirPolicy.BidirectionalPolicy;
+import org.omg.CORBA.NO_IMPLEMENT;
 import org.omg.CORBA.BAD_PARAM;
 import org.omg.PortableServer.AdapterActivator;
 import org.omg.PortableServer.ID_ASSIGNMENT_POLICY_ID;
@@ -2065,6 +2066,11 @@ public class POA
         return POAUtil.unmaskStr(name);
     }
 
+    public byte[] id()
+    {
+        throw new NO_IMPLEMENT( "NYI" ) ;
+    }
+
     public org.omg.PortableServer.POA the_parent()
     {
         checkDestructionApparent();
@@ -2097,6 +2103,11 @@ public class POA
     {
         checkDestructionApparent();
         return poaManager;
+    }
+
+    public  org.omg.PortableServer.POAManagerFactory the_POAManagerFactory()
+    {
+        throw new NO_IMPLEMENT ("Not yet implemented");
     }
 
     /**
