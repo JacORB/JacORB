@@ -861,15 +861,16 @@ public class CDROutputStream
      * optimised for whether it is writing a blank string or for whether codeset
      * translation is active.
      *
-     * @param s a <code>String</code> value
+     * @param value a <code>String</code> value
      */
-    public final void write_string(final String s)
+    public final void write_string(final String value)
     {
-        if( s == null )
+        if( value == null )
         {
             throw new MARSHAL("Cannot marshall null string.");
         }
 
+        final int valueLength = value.length();
         // size leaves room for ulong, plus the string itself (one or more
         // bytes per char in the string, depending on the codeset), plus the
         // terminating NUL char
@@ -878,43 +879,53 @@ public class CDROutputStream
         // written.
         int sizePosition;
 
-        if (codesetEnabled)
+        if (valueLength == 0)
         {
-            // in the worst case (UTF-8) a string char might take up to 3 bytes
-            size = 4 + 3 * s.length() + 1;
+            // Blank string; just write size and terminator. Don't need to
+            // align here as these methods will do it for us.
+            write_long( 1 );
+            write_octet( (byte)0 );
         }
         else
         {
-            // just one byte per string char
-            size = 4 + s.length() + 1;
-        }
-        check(size, 4);
-        sizePosition = pos;
-
-        pos += 4;
-        index += 4;
-
-        for (int i = 0; i < s.length(); i++)
-        {
             if (codesetEnabled)
             {
-                // alignment/check must happen prior to calling.
-                codeSet.write_char( this, s.charAt(i), false, false, giop_minor );
+                // in the worst case (UTF-8) a string char might take up to 3 bytes
+                size = 4 + 3 * value.length() + 1;
             }
             else
             {
-                buffer[pos++] = (byte)s.charAt(i);
-                index++;
+                // just one byte per string char
+                size = 4 + value.length() + 1;
             }
+            check(size, 4);
+            sizePosition = pos;
+
+            pos += 4;
+            index += 4;
+
+            for (int i = 0; i < value.length(); i++)
+            {
+                if (codesetEnabled)
+                {
+                    // alignment/check must happen prior to calling.
+                    codeSet.write_char( this, value.charAt(i), false, false, giop_minor );
+                }
+                else
+                {
+                    buffer[pos++] = (byte)value.charAt(i);
+                    index++;
+                }
+            }
+
+            buffer[ pos++ ] = (byte) 0; //terminating NUL char
+            index ++;
+
+            // Now write the size back in.
+            size = pos - (sizePosition + 4); // compute translated size
+
+            _write4int( buffer, sizePosition, size);
         }
-
-        buffer[ pos++ ] = (byte) 0; //terminating NUL char
-        index ++;
-
-        // Now write the size back in.
-        size = pos - (sizePosition + 4); // compute translated size
-
-        _write4int( buffer, sizePosition, size);
     }
 
     public final void write_wchar(final char c)

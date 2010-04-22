@@ -11,10 +11,11 @@ import org.omg.CORBA.Object;
 
 public class DefaultTester implements AbstractTester {
     
-   /* (non-Javadoc)
-     * @see org.jacorb.test.transport.AbstractTester#test_transport_current(org.omg.CORBA.ORB, org.apache.avalon.framework.logger.Logger)
+    /* (non-Javadoc)
+     * @see org.jacorb.test.transport.AbstractTester#test_transport_current(org.omg.CORBA.ORB, org.slf4j.Logger)
      */
-    public void test_transport_current(ORB orb, Logger logger) {
+    public void test_transport_current(ORB orb, Logger logger) 
+    {
     
         try {
             // Get the Current object.

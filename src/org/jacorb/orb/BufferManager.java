@@ -22,7 +22,6 @@ package org.jacorb.orb;
 import java.util.ArrayList;
 import java.util.List;
 import org.jacorb.config.*;
-import org.omg.CORBA.BAD_INV_ORDER;
 import org.omg.CORBA.NO_MEMORY;
 
 /**

@@ -380,6 +380,12 @@ public class EnumType
         pw.println("\t\tvalue = i;");
         pw.println("\t}");
 
+        pw.println("\t/**");
+        pw.println("\t * Designate replacement object when deserialized from stream. See");
+        pw.println("\t * http://www.omg.org/docs/ptc/02-01-03.htm#Issue4271");
+        pw.println("\t *");
+        pw.println("\t * @throws java.io.ObjectStreamException");
+        pw.println("\t */");
         pw.println("\tjava.lang.Object readResolve()");
         if (!parser.cldc10 )
             pw.println("\tthrows java.io.ObjectStreamException");
