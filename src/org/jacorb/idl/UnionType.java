@@ -342,6 +342,8 @@ public class UnionType
         pw.println("\timplements org.omg.CORBA.portable.IDLEntity");
         pw.println("{");
 
+        printSerialVersionUID(pw);
+
         TypeSpec ts = switch_type_spec.typeSpec();
 
         while(ts instanceof ScopedName || ts instanceof AliasTypeSpec)

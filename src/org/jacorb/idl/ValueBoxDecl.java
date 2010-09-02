@@ -352,6 +352,9 @@ public class ValueBoxDecl
         ps.println("public class " + className);
         ps.println("\timplements org.omg.CORBA.portable.ValueBase");
         ps.println("{");
+
+        printSerialVersionUID(ps);
+
         ps.println("\tpublic " + typeSpec.typeName() + " value;");
         ps.println("\tprivate static String[] _ids = { " + className + "Helper.id() };");
 

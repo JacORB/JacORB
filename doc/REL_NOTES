@@ -117,6 +117,7 @@ post 2.3.1
         - applied patch from JacORB bugzila #673/674 which fixes issue where
           Helper.type() method implementation for recursive valuetypes was
           incorrect.
+        - add default serialVersionUID generation (#802)
 
     - Interface Repository:
         - use a persistent POA for the repository servant.

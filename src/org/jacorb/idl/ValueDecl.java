@@ -647,6 +647,8 @@ public class ValueDecl
 
             out.println("{");
 
+            printSerialVersionUID(out);
+
             // collect and print repository ids that this value type can
             // truncated to.
 

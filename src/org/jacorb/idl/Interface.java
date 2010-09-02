@@ -106,7 +106,7 @@ public class Interface
     public TypeDeclaration declaration()
     {
         return this;
-    };
+    }
 
     public String typeName()
     {
@@ -595,6 +595,11 @@ public class Interface
 
         ps.println(Environment.NL + "{");
 
+        if(is_pseudo)
+        {
+            printSerialVersionUID(ps);
+        }
+
         // body can be null for forward declaration
         if (body != null)
         {
@@ -1073,6 +1078,8 @@ public class Interface
         ps.println("\timplements " + javaName());
         ps.println("{");
 
+        printSerialVersionUID(ps);
+
         ps.print("\tprivate String[] ids = {");
         String[] ids = get_ids();
         for (int i = 0; i < ids.length - 1; i++)
@@ -1340,6 +1347,9 @@ public class Interface
         ps.println("\textends org.omg.CORBA.LocalObject");
         ps.println("\timplements " + name);
         ps.println("{");
+
+        printSerialVersionUID(ps);
+
         ps.print("\tprivate String[] _type_ids = {");
         String[] ids = get_ids();
 
@@ -1378,6 +1388,8 @@ public class Interface
         ps.println("public class " + name + "LocalTie");
         ps.println("\textends _" + name + "LocalBase");
         ps.println("{");
+
+        printSerialVersionUID(ps);
 
         ps.println("\tprivate " + name + "Operations _delegate;" + Environment.NL);
 

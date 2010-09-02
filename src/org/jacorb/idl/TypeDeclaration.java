@@ -213,4 +213,10 @@ public class TypeDeclaration
     {
         type_decl.printExtractResult(ps, resultname, anyname, resulttype);
     }
+
+    public void printSerialVersionUID(PrintWriter ps)
+    {
+        ps.println("\t/** Serial version UID. */");
+        ps.println("\tprivate static final long serialVersionUID = 1L;");
+    }
 }

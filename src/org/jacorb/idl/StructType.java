@@ -132,7 +132,7 @@ public class StructType
     public TypeDeclaration declaration()
     {
         return this;
-    };
+    }
 
     public String typeName()
     {
@@ -639,6 +639,8 @@ public class StructType
         }
 
         ps.println("{");
+
+        printSerialVersionUID(ps);
 
         if (exc)
         {
