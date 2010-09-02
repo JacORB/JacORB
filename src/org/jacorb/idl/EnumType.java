@@ -149,8 +149,7 @@ public class EnumType
                 catch (NameAlreadyDefined p)
                 {
                     parser.error("Identifier " + enum_ident +
-                                  " already defined in immediate scope" + Environment.NL,
-                                  token);
+                                  " already defined in immediate scope", token);
                 }
             }
         }

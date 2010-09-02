@@ -73,7 +73,6 @@ public final class POAUtil
     public static String convert( byte[] data )
     {
         StringBuffer result = new StringBuffer ();
-        result.append ('\n');
         int k = 0;
 
         for (int j = 0; j < data.length; j++)
@@ -98,8 +97,6 @@ public final class POAUtil
                 {
                     result.append ((data[k] < 32) ? '.' : (char) data[k]);
                 }
-
-                result.append ('\n');
             }
         }
         return result.toString ();

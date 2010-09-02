@@ -167,7 +167,7 @@ public class EvaluationContext extends AbstractPoolable
     {
         if (logger_.isDebugEnabled())
         {
-            logger_.debug("extractFromAny" + "\n\trootname=" + rootName + "\n\tvalue=" + any);
+            logger_.debug("extractFromAny" + "\trootname=" + rootName + "\tvalue=" + any);
         }
 
         EvaluationResult _result = null;

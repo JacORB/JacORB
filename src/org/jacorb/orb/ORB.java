@@ -107,6 +107,7 @@ public final class ORB
     extends ORBSingleton
     implements org.jacorb.poa.POAListener, Configurable
 {
+    private static final String NL = System.getProperty("line.separator");
     private static final String versionString = org.jacorb.util.Version.version;
     private static final String dateString = org.jacorb.util.Version.date;
     private static final String nullIORString =
@@ -367,10 +368,10 @@ public final class ORB
 
         final Logger logger = configuration.getLogger("jacorb.orb.print_version");
 
-        logger.info("\n\t~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n" +
-                    "\tJacORB V " + versionString + ", www.jacorb.org\n" +
+        logger.info(NL + "\t~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"+ NL +
+                    "\tJacORB V " + versionString + ", www.jacorb.org" + NL +
                     "\t(C) The JacORB project " +
-                    dateString + BuildVersion.versionInfo + "\n" +
+                    dateString + BuildVersion.versionInfo + NL +
                     "\t~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
     }
 
@@ -1284,7 +1285,7 @@ public final class ORB
             if (logger.isErrorEnabled())
             {
                 logger.error( "Could not create initial reference for \"" +
-                        identifier + "\"\n" +
+                        identifier + "\"" + NL +
                         "Please check property \"ORBInitRef." +
                         identifier + '\"', e);
             }

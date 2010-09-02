@@ -588,7 +588,7 @@ public class CDRInputStream
 
             if (logger.isDebugEnabled())
             {
-                logger.debug("Size of CDR encapsulation larger than buffer, swapping byte order\n" +
+                logger.debug("Size of CDR encapsulation larger than buffer, swapping byte order. " +
                              "Size of CDR encapsulation was " + size + ", is now " + temp);
             }
 

@@ -130,6 +130,8 @@ post 2.3.1
           with SSL enabled servers.
         - Classloader chapter added.
 
+    - Fixes:
+        - new lines in log messages fix (#873)
 
 2.3.1
 =====
