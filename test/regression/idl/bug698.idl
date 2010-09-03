@@ -1,0 +1,40 @@
+module org {
+ module jacorb {
+  module test {
+   module bugs {
+    module bug698 {
+					
+        valuetype A
+        {
+            public long val;
+        };
+
+        typedef sequence<A> AList;
+        typedef sequence<octet> ByteArray;
+
+        valuetype Top
+        {
+            public ByteArray byteArray;
+            public AList as;
+        };
+
+	    valuetype AValueType {  };
+
+	    struct TestStruct
+	    {
+   		    sequence<octet> byteArray;
+   		    AValueType a1;
+   		    AValueType a2;
+	    };
+	
+	    interface Server
+	    {
+            Top sendTop(in Top tp);
+            TestStruct sendTestStruct(in TestStruct ts);
+        };
+    
+    };
+   };
+  };
+ };
+};
