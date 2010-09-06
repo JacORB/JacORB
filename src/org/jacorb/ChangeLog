@@ -1,3 +1,8 @@
+2010-09-06  Andre Spiegel  <spiegel@gnu.org>
+
+	* orb/giop/ClientGIOPConnection.java (closeAllowReopen): Commit
+	final patch from bug #708, as submitted on 2009-06-08.
+
 2010-09-02  Alexander Bykov  <alexander.bykov@prismtech.com>
 
 	* idl/EnumType.java, idl/Interface.java, idl/StructType.java,
