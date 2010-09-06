@@ -1,3 +1,523 @@
+2010-09-02  Alexander Bykov  <alexander.bykov@prismtech.com>
+
+	* idl/EnumType.java, idl/Interface.java, idl/StructType.java,
+	idl/TypeDeclaration.java, idl/UnionType.java,
+	idl/ValueBoxDecl.java, idl/ValueDecl.java: Bugzilla #802: add
+	default serialVersionUID generation
+
+	* idl/EnumType.java, notification/filter/EvaluationContext.java,
+	orb/CDRInputStream.java, orb/ORB.java, poa/util/POAUtil.java:
+	Bugzilla #873: new lines in log messages fix
+
+2010-04-22  Alexander Bykov  <alexander.bykov@prismtech.com>
+
+	* idl/EnumType.java, orb/BufferManager.java, orb/CDROutputStream.java:
+	Prismtech JAC#377: Tidy code, clean imports, minor fixes.
+
+2010-04-20  Alexander Bykov  <alexander.bykov@prismtech.com>
+
+	* ir/Container.java, ir/ExceptionDef.java, ir/InterfaceDef.java,
+	ir/ModuleDef.java, ir/RepositoryImpl.java, ir/StructDef.java,
+	ir/UnionDef.java, orb/DataInputStream.java,
+	orb/DataOutputStream.java, orb/Delegate.java,
+	orb/ExceptionHolderImpl.java, orb/ORBSingleton.java,
+	orb/RTORB.java, orb/ServantDelegate.java, orb/dynany/DynAny.java,
+	orb/dynany/DynAnyFactoryImpl.java, orb/dynany/DynValue.java,
+	orb/iiop/IIOPProfile.java,
+	orb/portableInterceptor/ServerRequestInfoImpl.java,
+	orb/standardInterceptors/SASComponentInterceptor.java,
+	orb/util/PrintIOR.java, poa/POA.java,
+	security/sas/SASClientInterceptor.java: bug451: Update mapping
+	from 02-01-02 to 03-01-02 and simplify the orb.idl/Corba.idl
+	files.
+
+2010-02-03  Alexander Bykov  <alexander.bykov@prismtech.com>
+
+	* orb/giop/BiDirConnectionClientInterceptor.java,
+	orb/giop/ClientConnection.java: Optimize the transmission of bidir
+	contexts. Since the data is invariant, only one context need be
+	sent per connection. Sending more increases bandwidth utilization
+	and adds a processing burden on the server. This change adds a new
+	state member to ClientConnection and tests this value as a
+	condition of sending the context. The Bidir context interceptor is
+	refactored for clarity.
+
+2010-01-16  Alexander Bykov  <alexander.bykov@prismtech.com>
+
+	* collection/PositionalIteratorImpl.java,
+	collection/SequenceFactoryImpl.java,
+	collection/SortedRelationFactoryImpl.java,
+	dds/DomainParticipantFactoryImpl.java, idl/NameTable.java,
+	idl/SequenceType.java, idl/StructType.java,
+	imr/ImplementationRepositoryImpl.java,
+	imr/ServerStartupDaemonImpl.java, ir/RepositoryImpl.java,
+	naming/NameServer.java, orb/Any.java, orb/BufferManager.java,
+	orb/CDROutputStream.java, orb/etf/ConnectionBase.java: Prismtech
+	JAC#377: Tidy code, clean imports, minor fixes.
+
+2009-12-16  Prismtech
+
+	* orb/etf/FactoriesBase.java, orb/miop/MIOPProfile.java,
+	orb/etf/ProfileBase.java, orb/etf/ProtocolAddressBase.java,
+	orb/iiop/IIOPAddress.java, orb/iiop/IIOPListener.java,
+	orb/iiop/IIOPProfile.java: Bugzilla 557 - Fix IIOPAddress
+	configuration in getAlternateAddresses. Simplify configuration.
+
+	* poa/AOM.java: JAC#738/JAC#721 Add MIOP Transport.
+
+2009-12-14  Prismtech
+
+	* build.xml, idl/build.xml, imr/ImplementationRepositoryImpl.java,
+	notification/jmx/jboss/build.xml,
+	notification/jmx/jboss/jboss-service.xml, orb/CDRInputStream.java,
+	orb/CDROutputStream.java, orb/Delegate.java, orb/ORB.java,
+	orb/ParsedIOR.java, orb/build.xml, orb/dsi/ServerRequest.java,
+	orb/etf/ListenerBase.java, orb/etf/ProfileBase.java,
+	orb/giop/GIOPConnection.java, orb/giop/RequestInputStream.java,
+	orb/giop/RequestOutputStream.java,
+	orb/giop/ServerRequestListener.java,
+	orb/giop/ServiceContextTransportingOutputStream.java,
+	orb/iiop/IIOPFactories.java, orb/iiop/IIOPListener.java,
+	orb/iiop/IIOPProfile.java, orb/iiop/ServerIIOPConnection.java,
+	orb/miop/ClientMIOPConnection.java,
+	orb/miop/FragmentedMessage.java, orb/miop/MIOPConnection.java,
+	orb/miop/MIOPFactories.java, orb/miop/MIOPListener.java,
+	orb/miop/MIOPProfile.java, orb/miop/MIOPProfileSelector.java,
+	orb/miop/MulticastUtil.java, orb/miop/ServerMIOPConnection.java,
+	orb/util/CorbaLoc.java, orb/util/PrintIOR.java, poa/AGM.java,
+	poa/GOA.java, poa/POA.java, security/sas/GSSUPContextSpi.java:
+	JAC#738/JAC#721 Add MIOP Transport.
+
+2009-12-10  Prismtech
+
+	* orb/CDROutputStream.java: Remove unused code
+
+2009-12-03  Prismtech
+
+	* idl/AliasTypeSpec.java, idl/ArrayTypeSpec.java,
+	idl/BaseType.java, idl/EnumType.java, idl/FixedPointType.java,
+	idl/ObjectTypeSpec.java, idl/ScopedName.java,
+	idl/SequenceType.java, idl/StringType.java, idl/StructType.java,
+	idl/TypeCodeTypeSpec.java, idl/TypeSpec.java, idl/UnionType.java,
+	idl/ValueBoxDecl.java, idl/ValueDecl.java, idl/VectorType.java:
+	Bugzilla #673/674 - cumulative patch from #674 ticket was applied
+
+2009-12-01  Prismtech
+
+	* poa/AOM.java, poa/RequestController.java: Prismtech
+	JAC#652/Bugzilla #801: applied patch from JacORB Bugzilla 801 for
+	AOM Thread creation, improved threads docs
+
+	* idl/Environment.java, idl/GlobalInputStream.java,
+	idl/IdlSymbol.java, idl/JacIDL.java, idl/NameTable.java,
+	idl/lexer.java, idl/parser.cup, idl/util/IDLLogger.java,
+	idl/util/PrettyPrinter.java: changed IDL compiler logging from
+	Apache LogKit to native JDK logging
+
+	* idl/StringType.java: Prismtech JAC#676 - string bounds checking
+	has been added
+
+	* idl/ConstDecl.java: Bugzilla #851: fixed issue where IDL
+	compiler generates erroneous code for the infinity float values
+
+2009-11-30  Prismtech
+
+	* idl/AliasTypeSpec.java, idl/ArrayTypeSpec.java,
+	idl/EnumType.java, idl/Environment.java, idl/FixedPointType.java,
+	idl/IdlSymbol.java, idl/Interface.java, idl/Method.java,
+	idl/Module.java, idl/OpDecl.java, idl/SequenceType.java,
+	idl/StructType.java, idl/TypeSpec.java, idl/UnionType.java,
+	idl/ValueAbsDecl.java, idl/ValueBoxDecl.java, idl/ValueDecl.java:
+	Bugzilla #483 - fixed issue where CR/LF symbols were incorrect in
+	generated files
+
+2009-11-27  Prismtech
+
+	* orb/ORB.java: Bugzilla 825 - fixed deadlock in Orb /
+	ClientConnectionManager
+
+	* security/sas/KerberosContext.java: Bugzilla 830 - fix for
+	NullPointerException when connecting to non-SAS corba object
+
+2009-11-26  Prismtech
+
+	* config/JacORBConfiguration.java,
+	config/JdkLoggingInitializer.java, config/LoggingInitializer.java:
+	Rename LogKitLoggerTest to JDKLogger test as test is now verifying
+	jdk logging backend not logkit.  Use delayed logging in
+	JacORBConfiguration to prevent spurious console messages if log
+	files are being used.  Tidied code.  Add patch from Bugzilla 575.
+	Unique file name for singleton orb.  Fix for Singleton logging
+	file with JDK logger.
+
+	* orb/giop/TransportListener.java,
+	orb/iiop/IIOPLoopbackConnection.java: PrismTech JAC#528 Detect
+	loopback in logging toString to avoid nullptr/timeouts in
+	overnights with bidir.
+
+2009-11-25  Prismtech
+
+	* orb/ORBSingleton.java: Prismtech JAC#702: Detect different
+	classloaders and print warning. Added ProgrammingGuide Classloader
+	chapter.
+
+2009-11-24  Prismtech
+
+	* orb/factory/PortRangeSocketFactory.java,
+	orb/iiop/ClientIIOPConnection.java, orb/iiop/IIOPListener.java,
+	orb/iiop/ServerIIOPConnection.java: Prismtech JAC#598: call
+	shutdownOutput before socket close
+
+	* security/ssl/sun_jsse/SSLServerSocketFactory.java,
+	security/ssl/sun_jsse/SSLSocketFactory.java: Bugzilla#729 Apply
+	patch to allow configurable SSL algorithms.
+
+	* security/sas/GssUpContext.java: Bugzilla#768 Applied patch for
+	authentication from Jan Janecek.
+
+	* security/ssl/sun_jsse/KeyStoreUtil.java,
+	security/ssl/sun_jsse/SSLServerSocketFactory.java,
+	security/ssl/sun_jsse/SSLSocketFactory.java: Bugzilla#240 - add
+	jacorb.security.keystore_type
+
+2009-11-23  Prismtech
+
+	* config/JacORBConfiguration.java: Prismtech JAC#600: fix for
+	initialising the ORB with properties
+
+	* orb/CDROutputStream.java: Prismtech JAC#456: changed
+	CDR(Input|Output)Stream c'tors to accept org.omg.CORBA.ORB. Added
+	internal checks that ensure that actual orb is a jacorb orb. Fixed
+	invokers of CDR streams not to pass in null references.
+
+2009-11-20  Prismtech
+
+	* orb/ORBSingleton.java: Prismtech JAC#593: added test and better
+	error checking in singleton
+
+	* config/JacORBLogFormatter.java: Revert to original 1.1 version
+	has we support JDK1.5 and above only now.
+
+	* orb/dynany/DynUnion.java: Prismtech JAC#590: fix for
+	DynUnion:to_any null ptr
+
+	* idl/Interface.java: Prismtech JAC#555: enhance generation to
+	null delegate objects
+
+2009-11-19  Prismtech
+
+	* orb/portableInterceptor/ClientInterceptorIterator.java,
+	poa/RequestProcessor.java: Prismtech JAC#562: fix for client
+	interceptor send_request exception propagation
+
+2009-11-18  Prismtech
+
+	* orb/Delegate.java, orb/etf/ProfileBase.java,
+	orb/giop/BiDirConnectionClientInterceptor.java,
+	orb/giop/ClientConnectionManager.java, orb/iiop/IIOPListener.java,
+	orb/iiop/IIOPProfile.java: Prismtech JAC#563: added fixes for
+	BiDirectional GIOP and SSL
+
+2009-11-17  Prismtech
+
+	* orb/iiop/IIOPAddress.java: Prismtech JAC#542: allow to configure
+	eager/lazy DNS resolution
+
+	* idl/ArrayTypeSpec.java: Prismtech JAC#572: fixes for IDL
+	compiler struct/typedef/array compilation outside of modules
+
+2009-11-13  Prismtech
+
+	* orb/iiop/IIOPListener.java: Prismtech JAC#567: added property to
+	enable the Socket Option SO_REUSEADDR for server
+	sockets (jacorb.connection.server.reuse_address)
+
+	* orb/iiop/IIOPListener.java, transport/IIOPCurrentImpl.java:
+	Prismtech JAC#524: fix for the IIOPLoopback feature
+
+	* idl/lexer.java: Prismtech JAC#569 fixed IDL parser issue where
+	repository ID using pragma prefix with more than 1 space before ID
+	caused an parse error
+
+2009-11-12  Prismtech
+
+	* orb/BasicAdapter.java, orb/etf/StreamConnectionBase.java,
+	orb/giop/GIOPConnection.java, orb/iiop/ClientIIOPConnection.java,
+	orb/iiop/IIOPAddress.java, orb/iiop/IIOPConnection.java,
+	orb/iiop/IIOPListener.java, orb/iiop/IIOPLoopback.java,
+	orb/iiop/IIOPLoopbackConnection.java,
+	orb/iiop/IIOPLoopbackInputStream.java,
+	orb/iiop/IIOPLoopbackOutputStream.java,
+	orb/listener/DefaultAcceptorExceptionListener.java: Prismtech
+	JAC#524: fix for the IIOPLoopback feature
+
+	* idl/parser.cup: Prismtech JAC#553: added context classloaded
+	usage to parser and regression test
+
+2009-11-11  Prismtech
+
+	* idl/StructType.java: Prismtech JAC#480: fixed issue where holder
+	classes for user-defined exceptions weren't generated
+
+2009-11-10  Prismtech
+
+	* idl/AliasTypeSpec.java: Prismtech JAC#491: fix for issue in
+	generated code when extracting sequence from any
+
+2009-10-29  Prismtech
+
+	* idl/UnionType.java: Bugzilla 718/762 Additional parentheses
+	around labels in unions
+
+	* orb/ORB.java, orb/ORBSingleton.java: Prismtech JAC#518: removed
+	superfluous logger variable
+
+	* orb/ExceptionHolderImpl.java: PrismTech JAC#511/JAC#492/JAC#560
+	- exceptions during AMI seem not to work if the IDL was specified
+	with pragma prefix / ExceptionHolderImpl configuration.
+
+	* orb/CDRInputStream.java: PrismTech JAC#512 Added stricter
+	checking for wstring/char types during demarshalling.
+
+	* poa/AOM.java: PrismTech JAC#519 Fix deadlock in AOM.
+
+	* orb/ParsedIOR.java: PrismTech JAC#526 Remove static dependancy
+	on javax.naming for those JVMs that don't support it (e.g. some
+	J2ME variants).
+
+	* idl/ValueDecl.java: PrismTech JAC#449 - Skip rmi repository id
+	generation for idl defined valuetypes
+
+	* notification/AbstractChannelFactory.java,
+	notification/AbstractEventChannel.java,
+	notification/EventTypeSet.java, notification/FilterManager.java,
+	notification/container/CORBAObjectComponentAdapter.java,
+	notification/engine/DefaultPushTaskExecutor.java,
+	notification/engine/DefaultTaskExecutor.java,
+	notification/engine/DefaultTaskProcessor.java,
+	notification/engine/TaskExecutor.java,
+	notification/engine/TaskProcessor.java,
+	notification/engine/TaskProcessorRetryStrategy.java,
+	notification/filter/AbstractFilter.java,
+	notification/filter/CallbackManager.java,
+	notification/filter/FilterFactoryImpl.java,
+	notification/queue/AbstractBoundedEventHeap.java,
+	notification/queue/RWLockEventQueueDecorator.java,
+	notification/servant/AbstractAdmin.java,
+	notification/servant/AbstractProxy.java,
+	notification/servant/AbstractProxyConsumer.java,
+	notification/servant/AbstractProxyPushSupplier.java,
+	notification/servant/PullMessagesOperation.java,
+	notification/servant/PullMessagesUtility.java,
+	notification/servant/SequenceProxyPushSupplierImpl.java,
+	notification/util/AbstractObjectPool.java: Remove
+	backport-util-concurrent and use JDK15 classes.
+
+	* orb/Delegate.java: Bugzilla 500. Add avoidIsARemoteCall property
+
+2009-10-27  Prismtech
+
+	* imr/ImRServerInfo.java: Bugzilla 736. Fix array type.
+
+	* orb/iiop/ClientIIOPConnection.java:
+	Bugzilla 760. Report time_out instead of timeout in message.
+
+	* security/ssl/sun_jsse/ServerInvocationInterceptor.java:
+	Bugzilla 866 - fix for classcast exception.
+
+	* naming/NamingContextImpl.java: Buzilla 664 - make logger transient
+
+	* dds/PublisherImpl.java, dds/SubscriberImpl.java:
+	Add casts to prevent warnings
+
+	* config/JacORBConfiguration.java:
+	Bugzilla 595 - only append etc if jacorb.config.dir is unset.
+
+	* orb/portableInterceptor/RequestInfoImpl.java:
+	Bugzilla 831 Change minor code to comply with spec.
+
+2009-10-26  Prismtech
+
+	* idl/InterfaceBody.java: Bugzilla867 - use Integer.valueOf.
+
+	* orb/CDRInputStream.java:
+	Commit patch for boolean encoding from bugzilla 792
+
+2009-10-22  Prismtech
+
+	* orb/Delegate.java, orb/build.xml, orb/iiop/IIOPListener.java:
+	PrismTech JAC#525 Patch giop 1.0 profile with ssl information from
+	multiple component profile if available. Minor fix to build file.
+
+2009-10-21  Prismtech
+
+	* config/JacORBConfiguration.java,
+	config/JdkLoggingInitializer.java, config/LoggingInitializer.java:
+	Use FileHandler again in JdkLoggingInitializer. Add optional
+	shutdownLogging function. Add
+	jacorb.logfile.maxLogSize/jacorb.logfile.rotateCount. Fix tests.
+
+2009-10-20  Prismtech
+
+	* config/JdkLoggingInitializer.java: Used StreamHandler instead of
+	FileHandler to avoid redundant lock files creation
+
+2009-10-14  Prismtech
+
+	* orb/Delegate.java: Prismtech JAC#493/431 - fixed
+	Delegate.set_policy_overrides
+
+2009-10-01  Prismtech
+
+	* idl/parser.cup, orb/IBufferManager.java, orb/ORB.java,
+	orb/iiop/IIOPProfile.java, util/build.xml: Prismtech JAC#418: rest
+	of changes have been returned
+
+	* ir/IRServer.java, ir/RepositoryImpl.java: Prismtech JAC#465: use
+	a persistent POA for the repository servant
+
+	* orb/iiop/IIOPAddress.java: Prismtech JAC#514: added extra
+	property to allow eager resolution
+
+	* orb/ORB.java: Prismtech JAC#353: fixed ORB parameters processing
+
+2009-09-30  Prismtech
+
+	* orb/ParsedIOR.java, orb/util/PrintIOR.java: Prismtech JAC#434:
+	print message when encountering unknown profile in PrintIOR.
+
+	* orb/etf/ProfileBase.java: Prismtech JAC#486: added regression
+	test, updated documentation
+
+2009-09-29  Prismtech
+
+	* ir/TypeCodeUtil.java, orb/AbstractBufferManager.java,
+	orb/Any.java, orb/BufferManager.java,
+	orb/BufferManagerFactory.java, orb/CDROutputStream.java,
+	orb/DefaultBufferManagerFactory.java, orb/Delegate.java,
+	orb/IBufferManager.java, orb/NonCachingBufferManagerFactory.java,
+	orb/ORBSingleton.java, orb/TypeCode.java, orb/dynany/DynAny.java,
+	orb/dynany/DynArray.java, orb/dynany/DynEnum.java,
+	orb/dynany/DynSequence.java, orb/dynany/DynStruct.java,
+	orb/dynany/DynUnion.java, orb/giop/GIOPConnection.java,
+	orb/giop/MessageOutputStream.java,
+	orb/giop/ServiceContextTransportingOutputStream.java,
+	orb/policies/PolicyManager.java,
+	orb/portableInterceptor/CodecFactoryImpl.java,
+	orb/portableInterceptor/CodecImpl.java,
+	orb/portableInterceptor/Codec_CDR_1_0_Impl.java,
+	poa/RequestProcessor.java: Prismtech JAC#429: performance
+	enhancements
+
+2009-09-23  Prismtech
+
+	* orb/ORB.java, orb/iiop/IIOPListener.java, orb/util/PrintIOR.java:
+	Prismtech JAC#513: fixed GIOP minor version processing
+
+	* orb/ORB.java, orb/ObjectKeyMap.java: Prismtech JAC#347:
+	extracted Object Key Mapping logic, added test, added caching
+
+2009-09-08  Prismtech
+
+	* build.xml, ir/build.xml, orb/giop/RequestOutputStream.java,
+	orb/iiop/IIOPListener.java,
+	orb/listener/SSLHandshakeListener.java,
+	orb/listener/SSLSessionEvent.java, security/build.xml,
+	security/sas/build.xml, security/ssl/sun_jsse/build.xml: Prismtech
+	JAC#478: rest of the port to J2ME CDC v1.1.2 Foundation Profile
+
+2009-09-07  Prismtech
+
+	* security/ssl/sun_jsse/SSLServerSocketFactory.java,
+	security/ssl/sun_jsse/SSLSocketFactory.java: Prismtech JAC#482:
+	let jsse factories throw exception if keystore is not set or wrong
+
+	* orb/ORB.java: Prismtech JAC#386: code cleanup
+
+2009-09-03  Prismtech
+
+	* collection/build.xml, concurrency/build.xml, config/build.xml,
+	dds/build.xml, events/build.xml, imr/build.xml, ir/build.xml,
+	naming/build.xml, notification/filter/bsh/build.xml,
+	orb/portableInterceptor/build.xml,
+	orb/standardInterceptors/build.xml, poa/build.xml,
+	security/sas/build.xml, security/ssl/build.xml,
+	security/ssl/sun_jsse/build.xml, transaction/build.xml,
+	transport/build.xml, util/build.xml, util/tracing/build.xml:
+	Prismtech JAC#476/478: regression tests framework refactor
+
+2009-08-20  Prismtech
+
+	* orb/ORB.java, orb/portableInterceptor/ORBInitInfoImpl.java:
+	Prismtech JAC#398: fix possible race condition with the value
+	factory hashmap.
+
+	* orb/CDRInputStream.java, orb/Delegate.java, orb/ORB.java,
+	orb/portableInterceptor/ClientRequestInfoImpl.java: Prismtech
+	JAC#493/431 - fix Object::duplicate(4.3.2.1), change
+	set_policy_overrides to match 4.3.9.1 specification
+
+2009-08-19  Prismtech
+
+	* orb/Delegate.java, orb/ORB.java, orb/ReplyReceiver.java,
+	orb/iiop/IIOPProfile.java: Prismtech JAC#349: removed Configurable
+	interface from Delegate, (decode_extensions): set isSSLSet flag
+	after ssl has been initialized
+
+2009-08-12  Prismtech
+
+	* build.xml, orb/Reference.java, orb/Reference.template,
+	orb/build.xml, orb/listener/SSLListenerUtil.java,
+	orb/listener/SSLListenerUtil.java.nossl,
+	orb/listener/SSLListenerUtil.java.ssl,
+	orb/listener/SSLSessionEvent.java,
+	orb/listener/SSLSessionEvent.java.nossl,
+	orb/listener/SSLSessionEvent.java.ssl, util/ValueHandler.dummy,
+	util/ValueHandler.java, util/ValueHandler.real, util/build.xml:
+	Prismtech JAC#447: remove java template files for pre jdk1.3
+
+	* util/Time.java: Prismtech JAC#487: toCDR and fromCDR
+	implementation fix
+
+2009-08-11  Prismtech
+
+	* imr/ImplementationRepositoryImpl.java, orb/CDRInputStream.java,
+	orb/CDROutputStream.java, orb/Delegate.java,
+	orb/ExceptionHolderImpl.java, orb/ORB.java, orb/ORBSingleton.java,
+	orb/ParsedIOR.java, orb/ReplyReceiver.java,
+	orb/SystemExceptionHelper.java, orb/TaggedComponentList.java,
+	orb/dsi/ServerRequest.java, orb/etf/ProfileBase.java,
+	orb/etf/ProtocolAddressBase.java, orb/giop/CodeSet.java,
+	orb/giop/GIOPConnection.java,
+	orb/giop/LocateReplyOutputStream.java,
+	orb/giop/LocateRequestOutputStream.java,
+	orb/giop/MessageOutputStream.java,
+	orb/giop/ReplyOutputStream.java,
+	orb/giop/RequestOutputStream.java,
+	orb/giop/ServerRequestListener.java,
+	orb/giop/ServiceContextTransportingOutputStream.java,
+	orb/iiop/IIOPProfile.java, orb/util/FixIOR.java,
+	orb/util/PrintIOR.java, security/sas/SASClientInterceptor.java,
+	util/Time.java: Prismtech JAC#456: changed CDR(Input|Output)Stream
+	c'tors to accept org.omg.CORBA.ORB, added internal checks that
+	ensure that actual orb is a jacorb orb, fixed invokers of CDR
+	streams not to pass in null references
+
+2009-08-10  Prismtech
+
+	* idl/JacIDL.java, idl/ObjectCachePlugin.java, idl/OpDecl.java,
+	idl/StructType.java, idl/UnionType.java, idl/lexer.java,
+	idl/parser.cup: Prismtech JAC#457: abstract API has been
+	integrated into the IDL compiler to allow to plug in custom
+	implementation
+
+	* idl/VectorType.java: Prismtech JAC#459: fixed issue where nested
+	sequences would result in invalid java code.
+
+	* idl/JacIDL.java, idl/UnionType.java, idl/parser.cup: Prismtech
+	JAC#453: fixed issue where the IDL compiler removed a custom
+	backend set through the API
+
 2009-08-04  Alexander Bykov  <alexander.bykov@prismtech.com>
 
 	* orb/AbstractORBInitializer.java, orb/ORB.java: Prismtech
