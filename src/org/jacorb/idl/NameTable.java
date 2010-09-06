@@ -158,9 +158,11 @@ public class NameTable
                 // modules may be "reopened", no further checks or table entries
                 return;
             }
-            // This check ensures that we can't redefine a name with a different type.
+            // This check ensures that we can't redefine a name with a
+            // different type.
             // We also need to ignore any pending forward declarations.
-            else if (names.containsKey (name) &&
+            else if (org.jacorb.idl.parser.strict_names &&
+                     names.containsKey (name) &&
                      ! names.get(name).equals (kind) &&
                      parser.get_pending (name) == null)
             {
