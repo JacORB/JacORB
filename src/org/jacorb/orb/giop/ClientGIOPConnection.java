@@ -125,9 +125,12 @@ public class ClientGIOPConnection
 
         try
         {
+            //Solve potential deadlock caused by COMM_FAILURE.
+            //The strategy is getting write_lock before sync
+            //connect_sync when you need both of them.
+            getWriteLock();
             synchronized (connect_sync)
             {
-                getWriteLock();
                 transport.close();
                 // We expect that the same transport can be reconnected
                 // after a close, something that the ETF draft isn't
