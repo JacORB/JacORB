@@ -154,15 +154,16 @@ public class OpDecl
 
 
             String typeN = (param.paramTypeSpec.typeName().indexOf( "." ) < 0 ? param.paramTypeSpec.typeName() : param.paramTypeSpec.typeName().substring( param.paramTypeSpec.typeName().lastIndexOf( "." ) + 1 ));
-
-            if (typeN.toUpperCase().equals (param.simple_declarator.toString().toUpperCase()))
+            
+            if (   (parser.strict_names && typeN.toUpperCase().equals (param.simple_declarator.toString().toUpperCase()))
+                || typeN.equals (param.simple_declarator.toString()))
             {
                 parser.error("In operation " + full_name() + " argument " + param.simple_declarator + " clashes with type " + param.paramTypeSpec.typeName());
             }
 
             param.parse();
 
-try
+            try
             {
                 NameTable.define( full_name() + "." +
                                   param.simple_declarator.name(),
