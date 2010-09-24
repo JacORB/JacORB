@@ -1,4 +1,13 @@
+2010-09-24  Andre Spiegel  <spiegel@gnu.org>
+
+	* idl/OpDecl.java (parse): Put case-insensitive name clash check
+	under the strict_names option, allow differences only in case
+	under sloppy_names.
+
 2010-09-06  Andre Spiegel  <spiegel@gnu.org>
+
+	* idl/NameTable.java (define): Put illegal redefinition check
+	under sloppy_names / strict_names option.
 
 	* orb/giop/ClientGIOPConnection.java (closeAllowReopen): Commit
 	final patch from bug #708, as submitted on 2009-06-08.
