@@ -69,7 +69,7 @@ public class ServerIIOPConnection
             socket.getPort()
         );
 
-        profile = new IIOPProfile(address, null);
+        profile = new IIOPProfile(address, null, orb.getGIOPMinorVersion());
         profile.configure(configuration);
 
         connection_info = address.toString();

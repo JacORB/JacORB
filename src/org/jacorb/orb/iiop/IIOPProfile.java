@@ -109,11 +109,6 @@ public class IIOPProfile
         this.components     = new TaggedComponentList();
     }
 
-    public IIOPProfile(IIOPAddress address, byte[] objectKey)
-    {
-        this(address, objectKey, 2);
-    }
-
     /**
      * Constructs an IIOPProfile from a corbaloc URL.  Only to be used
      * from the corbaloc parser.
@@ -568,8 +563,8 @@ public class IIOPProfile
     public IIOPProfile to_GIOP_1_0()
     {
         IIOPProfile result = new IIOPProfile(this.primaryAddress,
-                                              this.objectKey);
-        result.version.minor = 0;
+                                             this.objectKey,
+                                             0);
         return result;
     }
 
@@ -723,7 +718,7 @@ public class IIOPProfile
         IIOPAddress address = new IIOPAddress(primaryAddress.getHostname(), getSSLPort());
         address.configure (configuration);
 
-        IIOPProfile result = new IIOPProfile(address, objectKey);
+        IIOPProfile result = new IIOPProfile(address, objectKey, configuration.getORB().getGIOPMinorVersion());
         result.configure(configuration);
 
         TaggedComponent[] taggedComponents = components.asArray();

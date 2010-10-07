@@ -1282,7 +1282,7 @@ public class ImplementationRepositoryImpl
             address = new IIOPAddress (host, port);
             address.configure(configuration);
 
-            IIOPProfile iiopProfile = new IIOPProfile(address, object_key);
+            IIOPProfile iiopProfile = new IIOPProfile(address, object_key, ((org.jacorb.orb.ORB)orb).getGIOPMinorVersion());
             iiopProfile.configure(configuration);
 
             connection = cm.getConnection(iiopProfile);

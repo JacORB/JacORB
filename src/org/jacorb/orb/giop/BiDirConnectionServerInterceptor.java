@@ -102,7 +102,7 @@ public class BiDirConnectionServerInterceptor
                 logger.debug("Client conn. added to target " + addr );
             }
 
-            conn_mg.addConnection( connection, new IIOPProfile (addr, null) );
+            conn_mg.addConnection( connection, new IIOPProfile (addr, null, connection.profile.version().minor));
         }
     }
 

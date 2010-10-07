@@ -72,7 +72,8 @@ public class GIOPConnectionTest
         private org.omg.ETF.Profile profile = new IIOPProfile
         (
             new IIOPAddress ("127.0.0.1", 4711),
-            null
+            null,
+            orb.getGIOPMinorVersion()
         );
 
         public DummyTransport( List messages )

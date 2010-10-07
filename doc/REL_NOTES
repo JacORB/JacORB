@@ -88,6 +88,7 @@ post 2.3.1
         - New MIOP ETF transport added. Original design and implementation by Alysson Bessani. Further work on implementation,
           specification compliance, interoperability and integration by Nick Cross.
         - Updated Java mapping from 02-01-02 to 03-01-02 and simplified IDL files [Bugzilla 451].
+        - fix jacorb.giop_minor_version property usage (bugzilla 879)
 
     - IDL Compiler:
         - fixed issue where the IDL compiler generated imports for the
