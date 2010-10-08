@@ -53,14 +53,19 @@ public class ClientIIOPConnectionTest extends ORBTestCase
 {
 
     private TestConnection testConnection = new TestConnection();
-    private IIOPProfile iiopProfile = new IIOPProfile( new IIOPAddress( "localhost", 4000 ),
-                                                       null,
-                                                       ((org.jacorb.orb.ORB)orb).getGIOPMinorVersion());
+    private IIOPProfile iiopProfile;
 
     private static final short SSL_FEATURE = (short) 16;
     private static final short NOT_REQUIRED = (short) 0;
     private static final short NOT_SUPPORTED = (short) 0;
 
+
+    protected void doSetUp() throws Exception
+    {
+        iiopProfile = new IIOPProfile( new IIOPAddress( "localhost", 4000 ),
+                                       null,
+                                       ((org.jacorb.orb.ORB)orb).getGIOPMinorVersion());
+    }
 
     public static TestSuite suite()
     {
