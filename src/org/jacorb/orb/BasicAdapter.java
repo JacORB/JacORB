@@ -404,8 +404,16 @@ public class BasicAdapter
                 request_listener,
                 reply_listener
             );
-        receptor_pool.connectionCreated( giopConnection );
-        return true;
+
+        if ( giopConnection == null )
+        {
+            return false;
+        }
+        else
+        {
+            receptor_pool.connectionCreated( giopConnection );
+            return true;
+        }
     }
 
     /**

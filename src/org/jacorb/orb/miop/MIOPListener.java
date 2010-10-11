@@ -9,7 +9,8 @@ package org.jacorb.orb.miop;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
-import org.jacorb.config.*;
+import org.jacorb.config.Configuration;
+import org.jacorb.config.ConfigurationException;
 import org.omg.CORBA.BAD_INV_ORDER;
 import org.omg.CORBA.NO_IMPLEMENT;
 import org.omg.ETF.Connection;
@@ -116,18 +117,7 @@ public class MIOPListener extends org.jacorb.orb.etf.ListenerBase
       }
       c.connect (profile, 0);
 
-      if (up != null)
-      {
-         up.add_input (c);
-      }
-      else
-      {
-         synchronized (incoming_connections)
-         {
-            incoming_connections.add (c);
-            incoming_connections.notifyAll ();
-         }
-      }
+      deliverConnection (c);
    }
 
 

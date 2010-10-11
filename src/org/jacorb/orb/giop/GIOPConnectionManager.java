@@ -108,10 +108,12 @@ public class GIOPConnectionManager
         {
             if (selection_strategy == null)
             {
-                if (logger.isErrorEnabled())
+                //reject new connections
+                if (logger.isWarnEnabled())
                 {
-                    logger.error( "No. of max server giop connections set, but no SelectionStrategy present" );
+                    logger.warn( "Number of max server giop connections reached and no SelectionStrategy present - Rejecting new connection" );
                 }
+                return null;
             }
             else
             {
