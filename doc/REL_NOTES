@@ -120,6 +120,7 @@ post 2.3.1
           Helper.type() method implementation for recursive valuetypes was
           incorrect.
         - add default serialVersionUID generation (#802)
+        - Use HashMap rather than Hashtable in skeleton code
 
     - Interface Repository:
         - use a persistent POA for the repository servant.
