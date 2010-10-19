@@ -392,7 +392,12 @@ public class IIOPProfile
     public void readAddressProfile(CDRInputStream addressProfileStream)
     {
         this.version = org.omg.GIOP.VersionHelper.read(addressProfileStream);
-        this.primaryAddress = IIOPAddress.read(addressProfileStream);
+
+        String hostname = addressProfileStream.read_string();
+        short port = addressProfileStream.read_ushort();
+
+        this.primaryAddress = new IIOPAddress (hostname, port);
+
         if (configuration != null)
         {
            primaryAddress.configure(configuration);
@@ -497,19 +502,8 @@ public class IIOPProfile
     {
         if (checkAlternateAddresses)
         {
-            List alternates = components.getComponents(TAG_ALTERNATE_IIOP_ADDRESS.value,
-                                                       IIOPAddress.class);
-
-            if (alternates != null)
-            {
-               for( int i=0; i < alternates.size(); i++ )
-               {
-                  IIOPAddress alter = (IIOPAddress)alternates.get(i);
-                  alter.configure(configuration);
-               }
-            }
-
-            return alternates;
+            return components.getComponents
+                (configuration, TAG_ALTERNATE_IIOP_ADDRESS.value, IIOPAddress.class);
         }
         else
         {

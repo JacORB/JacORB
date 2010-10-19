@@ -93,16 +93,21 @@ public class RequestQueue
     }
 
     /**
-     * Adds a request to this queue.  The properties
-     * <code>jacorb.poa.queue_{min,max,wait}</code> specify what happens
-     * when the queue is full, i.e. when it already contains
-     * <code>queue_max</code> requests.  If <code>queue_wait</code> is
-     * <i>off</i>, then this method does not add the request and throws a
-     * <code>ResourceLimitReachedException</code>.  If <code>queue_wait</code>
-     * is <i>on</i>, then this method blocks until no more than
-     * <code>queue_min</code> requests are in the queue; it then adds the
-     * request, and returns.
-     */
+       * Adds a request to this queue. The properties
+       * <code>jacorb.poa.queue_{min,max,wait}</code> specify what happens when
+       * the queue is full, i.e. when it already contains <code>queue_max</code>
+       * requests. If <code>queue_wait</code> is <i>off</i>, then this method
+       * does not add the request and throws a
+       * <code>ResourceLimitReachedException</code>. If <code>queue_wait</code>
+       * is <i>on</i>, then this method blocks until no more than
+       * <code>queue_min</code> requests are in the queue; it then adds the
+       * request, and returns.
+       *
+       * @param request the request
+       *
+       * @throws ResourceLimitReachedException the resource limit reached
+       *         exception
+       */
 
     protected synchronized void add(ServerRequest request)
         throws ResourceLimitReachedException
@@ -158,6 +163,11 @@ public class RequestQueue
         }
     }
 
+    /**
+       * Adds the request queue listener.
+       *
+       * @param listener the listener
+       */
     protected synchronized void addRequestQueueListener(RequestQueueListener listener)
     {
         checkIsConfigured();
@@ -165,6 +175,11 @@ public class RequestQueue
         queueListener = EventMulticaster.add(queueListener, listener);
     }
 
+    /**
+       * Deliver content.
+       *
+       * @return the string pair[]
+       */
     protected synchronized StringPair[] deliverContent()
     {
         checkIsConfigured();
@@ -180,7 +195,13 @@ public class RequestQueue
         return result;
     }
 
-    protected synchronized ServerRequest getElementAndRemove(int rid)
+    /**
+     * Only used by the POA GUI.
+     *
+     * @param rid the rid
+     * @return the element and remove
+     */
+    synchronized ServerRequest getElementAndRemove(int rid)
     {
         checkIsConfigured();
 
@@ -207,6 +228,11 @@ public class RequestQueue
         return null;
     }
 
+    /**
+     * Used by the RequestController - gets the first element
+     *
+     * @return the first
+     */
     protected synchronized ServerRequest getFirst()
     {
         checkIsConfigured();
@@ -218,6 +244,11 @@ public class RequestQueue
         return null;
     }
 
+    /**
+     * Used by the RequestController - checks if is empty.
+     *
+     * @return true, if is empty
+     */
     protected boolean isEmpty()
     {
         checkIsConfigured();
@@ -225,6 +256,11 @@ public class RequestQueue
         return queue.isEmpty();
     }
 
+    /**
+     * Used by the RequestController - removes the first.
+     *
+     * @return the server request
+     */
     protected synchronized ServerRequest removeFirst()
     {
         checkIsConfigured();
@@ -244,6 +280,11 @@ public class RequestQueue
         return null;
     }
 
+    /**
+     * Used by the RequestController - removes the last.
+     *
+     * @return the server request
+     */
     protected synchronized ServerRequest removeLast()
     {
         checkIsConfigured();
@@ -262,17 +303,30 @@ public class RequestQueue
         return null;
     }
 
+    /**
+     * Removes the request queue listener.
+     *
+     * @param listener the listener
+     */
     protected synchronized void removeRequestQueueListener(RequestQueueListener listener)
     {
         checkIsConfigured();
         queueListener = EventMulticaster.remove(queueListener, listener);
     }
 
+    /**
+     * Size.
+     *
+     * @return the int
+     */
     protected int size()
     {
         return queue.size();
     }
 
+    /**
+     * Check is configured.
+     */
     private void checkIsConfigured()
     {
         if (!configured)

@@ -26,8 +26,7 @@ import java.io.FileReader;
 import java.io.LineNumberReader;
 import java.io.PrintWriter;
 import java.util.List;
-
-import org.slf4j.Logger;
+import org.jacorb.config.ConfigurationException;
 import org.jacorb.orb.CDRInputStream;
 import org.jacorb.orb.ORBConstants;
 import org.jacorb.orb.ParsedIOR;
@@ -38,19 +37,20 @@ import org.jacorb.orb.iiop.IIOPAddress;
 import org.jacorb.orb.iiop.IIOPProfile;
 import org.jacorb.orb.miop.MIOPProfile;
 import org.omg.CONV_FRAME.CodeSetComponentInfoHelper;
+import org.omg.CORBA.ORB;
 import org.omg.CSIIOP.CompoundSecMechList;
 import org.omg.CSIIOP.CompoundSecMechListHelper;
-import org.omg.IOP.TAG_CSI_SEC_MECH_LIST;
-import org.omg.IOP.TAG_NULL_TAG;
 import org.omg.CSIIOP.TAG_SECIOP_SEC_TRANS;
 import org.omg.CSIIOP.TAG_TLS_SEC_TRANS;
 import org.omg.CSIIOP.TLS_SEC_TRANS;
 import org.omg.CSIIOP.TLS_SEC_TRANSHelper;
 import org.omg.IOP.TAG_ALTERNATE_IIOP_ADDRESS;
 import org.omg.IOP.TAG_CODE_SETS;
+import org.omg.IOP.TAG_CSI_SEC_MECH_LIST;
 import org.omg.IOP.TAG_GROUP;
 import org.omg.IOP.TAG_JAVA_CODEBASE;
 import org.omg.IOP.TAG_MULTIPLE_COMPONENTS;
+import org.omg.IOP.TAG_NULL_TAG;
 import org.omg.IOP.TAG_ORB_TYPE;
 import org.omg.IOP.TAG_POLICIES;
 import org.omg.IOP.TaggedComponent;
@@ -60,6 +60,7 @@ import org.omg.RTCORBA.PRIORITY_BANDED_CONNECTION_POLICY_TYPE;
 import org.omg.RTCORBA.PRIORITY_MODEL_POLICY_TYPE;
 import org.omg.RTCORBA.PriorityModel;
 import org.omg.SSLIOP.TAG_SSL_SEC_TRANS;
+import org.slf4j.Logger;
 
 /**
  * @author Gerald Brose
@@ -172,7 +173,7 @@ public class PrintIOR
             }
             else
             {
-                printIOR(pior, out);
+                printIOR(jorb, pior, out);
             }
         }
         else
@@ -196,7 +197,7 @@ public class PrintIOR
      * top-level
      */
 
-    public static void printIOR( ParsedIOR pior, PrintWriter out)
+    public static void printIOR (ORB orb, ParsedIOR pior, PrintWriter out)
     {
         org.omg.IOP.IOR ior = pior.getIOR();
 
@@ -244,7 +245,7 @@ public class PrintIOR
                                        " Tagged Components--" );
                 }
 
-                printTaggedComponents( profile.getComponents().asArray(), out);
+                printTaggedComponents(orb, profile.getComponents().asArray(), out);
             }
             out.print("\n");
         }
@@ -256,7 +257,7 @@ public class PrintIOR
             out.println("Components in MULTIPLE_COMPONENTS profile: " +
                                multiple_components.size() );
 
-            printTaggedComponents( multiple_components.asArray(), out);
+            printTaggedComponents(orb, multiple_components.asArray(), out);
         }
 
         // Print any unknown tags. This block is a simplified version of the private
@@ -294,7 +295,7 @@ public class PrintIOR
      * recognized.
      */
 
-    private static void printTaggedComponents( TaggedComponent[] taggedComponents, PrintWriter out )
+    private static void printTaggedComponents( ORB orb, TaggedComponent[] taggedComponents, PrintWriter out )
     {
         for( int i = 0; i < taggedComponents.length; i++ )
         {
@@ -303,13 +304,13 @@ public class PrintIOR
                 case TAG_SSL_SEC_TRANS.value:
                 {
                     out.println("\t#"+ i + ": TAG_SSL_SEC_TRANS");
-                    printSSLTaggedComponent( taggedComponents[i], out);
+                    printSSLTaggedComponent(taggedComponents[i], out);
                     break;
                 }
                 case TAG_CSI_SEC_MECH_LIST.value:
                 {
                     out.println("\t#"+ i + ": TAG_CSI_SEC_MECH_LIST");
-                    printCSIMechComponent( taggedComponents[i], out);
+                    printCSIMechComponent(taggedComponents[i], out);
                     break;
                 }
                 case TAG_SECIOP_SEC_TRANS.value:
@@ -320,25 +321,25 @@ public class PrintIOR
                 case TAG_ALTERNATE_IIOP_ADDRESS.value:
                 {
                     out.println("\t#"+ i + ": TAG_ALTERNATE_IIOP_ADDRESS");
-                    printAlternateAddress(taggedComponents[i], out);
+                    printAlternateAddress(orb, taggedComponents[i], out);
                     break;
                 }
                 case TAG_CODE_SETS.value:
                 {
                     out.println("\t#"+ i + ": TAG_CODE_SETS");
-                    printCodeSetComponent( taggedComponents[i], out);
+                    printCodeSetComponent(taggedComponents[i], out);
                     break;
                 }
                 case TAG_JAVA_CODEBASE.value:
                 {
                     out.println("\t#"+ i + ": TAG_JAVA_CODEBASE");
-                    printJavaCodebaseComponent( taggedComponents[i], out);
+                    printJavaCodebaseComponent(taggedComponents[i], out);
                     break;
                 }
                 case TAG_ORB_TYPE.value:
                 {
                     out.println("\t#"+ i + ": TAG_ORB_TYPE");
-                    printOrbTypeComponent( taggedComponents[i], out);
+                    printOrbTypeComponent(taggedComponents[i], out);
                     break;
                 }
                 case TAG_POLICIES.value:
@@ -367,10 +368,9 @@ public class PrintIOR
         }
     }
 
-    private static void printCSIMechComponent( TaggedComponent taggedComponent, PrintWriter out)
+    private static void printCSIMechComponent(TaggedComponent taggedComponent, PrintWriter out)
     {
-        final CDRInputStream is =
-            new CDRInputStream(taggedComponent.component_data);
+        final CDRInputStream is = new CDRInputStream(taggedComponent.component_data);
 
         try
         {
@@ -495,10 +495,9 @@ public class PrintIOR
         }
     }
 
-    private static void printCodeSetComponent( TaggedComponent taggedComponent, PrintWriter out)
+    private static void printCodeSetComponent(TaggedComponent taggedComponent, PrintWriter out)
     {
-        final CDRInputStream is =
-            new CDRInputStream(taggedComponent.component_data);
+        final CDRInputStream is = new CDRInputStream(taggedComponent.component_data);
 
         try
         {
@@ -708,7 +707,7 @@ public class PrintIOR
     }
 
 
-    private static void printJavaCodebaseComponent( TaggedComponent taggedComponent, PrintWriter out)
+    private static void printJavaCodebaseComponent(TaggedComponent taggedComponent, PrintWriter out)
     {
         final CDRInputStream in = new CDRInputStream( taggedComponent.component_data );
 
@@ -727,7 +726,7 @@ public class PrintIOR
 
     private static void printOrbTypeComponent (TaggedComponent taggedComponent, PrintWriter out)
     {
-        final CDRInputStream is = new CDRInputStream ( taggedComponent.component_data );
+        final CDRInputStream is = new CDRInputStream (taggedComponent.component_data );
 
         try
         {
@@ -750,14 +749,28 @@ public class PrintIOR
         }
     }
 
-    private static void printAlternateAddress(TaggedComponent taggedComponent, PrintWriter out)
+    private static void printAlternateAddress(ORB orb, TaggedComponent taggedComponent, PrintWriter out)
     {
         final CDRInputStream is = new CDRInputStream(taggedComponent.component_data);
 
         try
         {
             is.openEncapsulatedArray();
-            out.println("\t\tAddress: " + IIOPAddress.read(is));
+            String hostname = is.read_string();
+            short port = is.read_ushort();
+
+            IIOPAddress result = new IIOPAddress (hostname, port);
+            try
+            {
+               result.configure(((org.jacorb.orb.ORB)orb).getConfiguration ());
+            }
+            catch( ConfigurationException ce)
+            {
+               ((org.jacorb.orb.ORB)orb).getConfiguration ().getLogger ("PrintIOR").warn("ConfigurationException", ce );
+            }
+
+
+            out.println("\t\tAddress: " + result.toString ());
         }
         finally
         {
@@ -779,19 +792,6 @@ public class PrintIOR
         out.println ("\t\tObject Version: " + tagGroup.object_group_ref_version);
     }
 
-    public static void dumpHex(byte[] values)
-    {
-        final PrintWriter printWriter = new PrintWriter(System.out);
-        try
-        {
-            dumpHex(values, printWriter);
-        }
-        finally
-        {
-            printWriter.close();
-        }
-    }
-
     private static void dumpHex(byte values[], PrintWriter out)
     {
         for (int i=0; i<values.length; i++)
@@ -806,98 +806,7 @@ public class PrintIOR
         }
     }
 
-    private static final char hexDigit[] = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
-                               'A', 'B', 'C', 'D', 'E', 'F'
-    };
 
-    public static String dump ( byte values[] ) {
-        StringBuffer buffer = new StringBuffer();
-
-        for ( int i = 0; i < values.length; i++ )
-        {
-            buffer.append(values[i]);
-            buffer.append(' ');
-        }
-
-        return buffer.toString();
-    }
-
-    public static String dump ( int values[] ) {
-        StringBuffer buffer = new StringBuffer();
-
-        for ( int i = 0; i < values.length; i++ )
-        {
-            buffer.append(values[i]);
-
-            buffer.append(' ');
-        }
-
-        return buffer.toString();
-    }
-
-    public static String dump ( byte value ) {
-        StringBuffer buffer = new StringBuffer();
-
-        buffer.append(hexDigit[ (value >> 4) & 0x0f]);
-        buffer.append(hexDigit[ (value ) & 0x0f]);
-
-        return buffer.toString();
-    }
-
-    public static String dump ( short value ) {
-        StringBuffer buffer = new StringBuffer();
-
-        buffer.append(hexDigit[ ( value >> 12 ) & 0x0f ]);
-        buffer.append(hexDigit[ ( value >>  9 ) & 0x0f ]);
-        buffer.append(hexDigit[ ( value >>  4 ) & 0x0f ]);
-        buffer.append(hexDigit[ ( value       ) & 0x0f ]);
-
-        return buffer.toString();
-    }
-
-    public static String dump ( int value ) {
-        StringBuffer buffer = new StringBuffer();
-
-        buffer.append(hexDigit[ ( value >> 28 ) & 0x0f ]);
-        buffer.append(hexDigit[ ( value >> 24 ) & 0x0f ]);
-        buffer.append(hexDigit[ ( value >> 20 ) & 0x0f ]);
-        buffer.append(hexDigit[ ( value >> 16 ) & 0x0f ]);
-        buffer.append(hexDigit[ ( value >> 12 ) & 0x0f ]);
-        buffer.append(hexDigit[ ( value >>  8 ) & 0x0f ]);
-        buffer.append(hexDigit[ ( value >>  4 ) & 0x0f ]);
-        buffer.append(hexDigit[ ( value       ) & 0x0f ]);
-
-        return buffer.toString();
-    }
-
-    public static String dump ( byte values[], boolean withChar )
-    {
-        StringBuffer buffer = new StringBuffer();
-
-        char c;
-        int len = values.length;
-        for ( int i = 0; i < len; i++ )
-        {
-            if ( 0 == i % 16 )
-            {
-                buffer.append('\n');
-            }
-            if ( values[ i ] > ( byte ) 31 && values[ i ] < ( byte ) 127 )
-            {
-                c = ( char ) values[ i ];
-            }
-            else {
-                c = ' ';
-            }
-            buffer.append(':');
-            buffer.append(hexDigit[ ( values [ i ] >> 4 ) & 0x0f ]);
-            buffer.append(hexDigit[ values [ i ] & 0x0f ]);
-            buffer.append(' ');
-            buffer.append(c);
-        }
-
-        return buffer.toString();
-    }
 
     private static void printPolicyComponent (TaggedComponent taggedComponent, PrintWriter out)
     {

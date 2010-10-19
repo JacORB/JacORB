@@ -97,7 +97,7 @@ public class BugJac380Test extends ORBTestCase
 
             StringWriter out = new StringWriter();
             final PrintWriter printWriter = new PrintWriter(out);
-            PrintIOR.printIOR(parsedIOR, printWriter);
+            PrintIOR.printIOR(orb, parsedIOR, printWriter);
             printWriter.close();
 
             return out.toString();

@@ -69,7 +69,7 @@ public abstract class AbstractGIOPMinorVersionTestCase extends ORBTestCase
         ParsedIOR ior = ((Delegate)((ObjectImpl)server)._get_delegate()).getParsedIOR();
 
         StringWriter out = new StringWriter();
-        PrintIOR.printIOR(ior, new PrintWriter(out));
+        PrintIOR.printIOR(orb, ior, new PrintWriter(out));
 
         String result = out.toString();
         verifyPrintIOROutput(result);

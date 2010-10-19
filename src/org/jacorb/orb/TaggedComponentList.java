@@ -5,9 +5,11 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
+import org.jacorb.config.Configurable;
+import org.jacorb.config.Configuration;
+import org.jacorb.config.ConfigurationException;
 import org.omg.IOP.TaggedComponent;
 import org.omg.IOP.TaggedComponentSeqHelper;
-
 /**
  * Represents a list of tagged components from an IOR, along with some
  * generic methods to find and access individual components.
@@ -222,16 +224,31 @@ public class TaggedComponentList implements Cloneable
      * TaggedComponentList.  Each individual component is read with
      * the given helper class.  If no components with the given tag
      * can be found, an empty list is returned.
+     *
+     * The only caller of this currently is IIOPProfile using a helper
+     * of IIOPAddress. To prevent non-configured IIOPAddresses we configure
+     * them here.
      */
-    public List getComponents (int tag, Class helper)
+    public List getComponents (Configuration configuration, int tag, Class helper)
     {
         List result = new ArrayList();
         for (int i=0; i < components.length; i++)
         {
             if (components[i].tag == tag)
             {
-                result.add (getComponentData (components[i].component_data,
-                                              helper));
+               Object element = getComponentData (components[i].component_data, helper);
+               if (element instanceof Configurable)
+               {
+                  try
+                  {
+                     ((Configurable)element).configure(configuration);
+                  }
+                  catch( ConfigurationException e )
+                  {
+                     throw new org.omg.CORBA.INTERNAL("ConfigurationException: " + e.toString());
+                  }
+               }
+               result.add (element);
             }
         }
         return result;

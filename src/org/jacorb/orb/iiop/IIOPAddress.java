@@ -93,6 +93,7 @@ public class IIOPAddress
     {
         super.configure(configuration);
 
+
         logger = this.configuration.getLogger("jacorb.iiop.address");
         dnsEnabled =
             configuration.getAttributeAsBoolean("jacorb.dns.enable", false);
@@ -194,13 +195,15 @@ public class IIOPAddress
     }
 
 
+    // This is called by TaggedComponentList.getComponents from IIOPProfile.
     public static IIOPAddress read(org.omg.CORBA.portable.InputStream in)
     {
-        String host = in.read_string();
-        short  port = in.read_ushort();
+       String host = in.read_string();
+       short  port = in.read_ushort();
 
-        return new IIOPAddress(host, port);
+       return new IIOPAddress(host, port);
     }
+
 
     /**
      * Returns the host part of this IIOPAddress, as a numeric IP address in
@@ -388,13 +391,6 @@ public class IIOPAddress
         }
         cdr.write_string(hostname);
         cdr.write_ushort( (short) port);
-    }
-
-    static public IIOPAddress read (CDRInputStream cdr)
-    {
-        String hostname = cdr.read_string();
-        short port = cdr.read_ushort();
-        return new IIOPAddress (hostname,port);
     }
 
     /**

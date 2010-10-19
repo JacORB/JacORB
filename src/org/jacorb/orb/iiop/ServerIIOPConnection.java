@@ -28,7 +28,6 @@ import org.jacorb.config.Configuration;
 import org.jacorb.config.ConfigurationException;
 import org.jacorb.orb.listener.TCPConnectionEvent;
 import org.jacorb.orb.listener.TCPConnectionListener;
-
 /**
  * ServerIIOPConnection.java
  *
@@ -68,6 +67,7 @@ public class ServerIIOPConnection
             socket.getInetAddress().getHostAddress(),
             socket.getPort()
         );
+        address.configure (configuration);
 
         profile = new IIOPProfile(address, null, orb.getGIOPMinorVersion());
         profile.configure(configuration);

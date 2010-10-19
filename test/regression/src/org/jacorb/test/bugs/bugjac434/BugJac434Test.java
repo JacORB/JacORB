@@ -40,7 +40,7 @@ public class BugJac434Test extends ORBTestCase
        StringWriter sw = new StringWriter();
        PrintWriter pw = new PrintWriter (sw, true);
 
-       PrintIOR.printIOR (pIOR, pw);
+       PrintIOR.printIOR (orb, pIOR, pw);
 
        String result = sw.toString ();
 
