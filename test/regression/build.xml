@@ -95,7 +95,13 @@
                            **/RMITestServant.java,
         	               org/jacorb/test/notification/**,
         	               org/jacorb/test/jmx/**"
-            javac-classpathref="cp.compile-test" />
+            javac-classpathref="cp.compile-test">
+           <javac-bootclasspath>
+              <bootclasspath>
+                 <pathelement path="${basedir}/lib/jacorb.jar:${sun.boot.class.path}" />
+              </bootclasspath>
+           </javac-bootclasspath>
+        </jacorb-javac>
     </target>
 
     <path path="${java.class.path}" />
