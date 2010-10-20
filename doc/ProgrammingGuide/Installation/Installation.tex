@@ -26,10 +26,14 @@ files ({\tt build.xml}) are written for this tool. To rebuild JacORB
 completely, just type {\tt ant} in the installation directory.  Optionally,
 you might want to do a {\tt ant clean} first.
 
-For SSL, you need an implementation of the SSL protocol. We currently support:
+For SSL, you need an implementation of the SSL protocol. We currently support
+Oracle's JSSE Reference implementation included in the JDK.
 
+\subsection{Dependencies}
+
+JacORB depends upon the following third party software
 \begin{enumerate}
-\item Sun's JSSE Reference implementation included in the JDK.
+\item Simple Logging Facade For Java (SLF4J Version 1.5.0)
 \end{enumerate}
 
 
