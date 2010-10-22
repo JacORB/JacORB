@@ -81,6 +81,7 @@ public class PrintIOR
             jorb.getConfiguration().getLogger("jacorb.print_ior");
 
         boolean urlForm = false;
+        boolean corbalocForm = false;
         String iorString = null;
         String file = null;
 
@@ -94,6 +95,10 @@ public class PrintIOR
             if ("-u".equals(args[i]))
             {
                 urlForm = true;
+            }
+            else if ("-c".equals(args[i]))
+            {
+                corbalocForm = true;
             }
             else if ("-i".equals(args[i]))
             {
@@ -128,11 +133,7 @@ public class PrintIOR
 
         try
         {
-            if (iorString != null)
-            {
-                printIOR(jorb, urlForm, iorString, out);
-            }
-            else if (file != null)
+           if (file != null)
             {
                 final LineNumberReader in = new LineNumberReader(new BufferedReader(new FileReader(file)));
                 try
@@ -140,7 +141,7 @@ public class PrintIOR
                     String line = null;
                     while( (line = in.readLine()) != null)
                     {
-                        printIOR(jorb, urlForm, line, out);
+                       iorString = line;
                     }
                 }
                 finally
@@ -148,11 +149,34 @@ public class PrintIOR
                     in.close();
                 }
             }
-            else
-            {
-                assert false;
-            }
+
+
+           if( iorString.startsWith( "IOR:" ))
+           {
+              final ParsedIOR pior = new ParsedIOR(jorb, iorString );
+              if (urlForm)
+              {
+                 out.println(CorbaLoc.parseKey(pior.get_object_key()));
+              }
+              else if (corbalocForm)
+              {
+                  out.println (printCorbalocIOR (orb, iorString));
+              }
+              else
+              {
+                 printIOR(jorb, pior, out);
+              }
+           }
+           else
+           {
+              out.println("Sorry, we only unparse IORs in the standard IOR URL scheme");
+           }
         }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+
         finally
         {
             out.flush();
@@ -161,25 +185,38 @@ public class PrintIOR
         orb.shutdown(true);
     }
 
-    private static void printIOR(final org.jacorb.orb.ORB jorb, boolean urlForm, String iorString, PrintWriter out)
-    {
 
-        if( iorString.startsWith( "IOR:" ))
-        {
-            final ParsedIOR pior = new ParsedIOR(jorb, iorString );
-            if (urlForm)
-            {
-                out.println(CorbaLoc.parseKey(pior.get_object_key()));
-            }
-            else
-            {
-                printIOR(jorb, pior, out);
-            }
-        }
-        else
-        {
-            out.println("Sorry, we only unparse IORs in the standard IOR URL scheme");
-        }
+    /**
+     * Given a IOR string this will decode it and output a corbaloc::... string.
+     *
+     * Split off into a separate function from main so its easier to be called programmatically.
+     */
+    public static String printCorbalocIOR (org.omg.CORBA.ORB orb, String iorString)
+    {
+       if ( ! (orb instanceof org.jacorb.orb.ORB))
+       {
+          throw new RuntimeException ("ORB must be a JacORB ORB.");
+       }
+       final ParsedIOR pior = new ParsedIOR((org.jacorb.orb.ORB)orb, iorString );
+
+       StringBuffer result = new StringBuffer();
+
+       result.append ("corbaloc:iiop:");
+
+       ProfileBase profile = (ProfileBase)pior.getEffectiveProfile ();
+       if (profile instanceof IIOPProfile)
+       {
+          result.append (((IIOPAddress)((IIOPProfile)profile).getAddress()).getOriginalHost());
+          result.append (':');
+          result.append (((IIOPAddress)((IIOPProfile)profile).getAddress()).getPort());
+          result.append ('/');
+          result.append (CorbaLoc.parseKey(pior.get_object_key()));
+       }
+       else
+       {
+          throw new RuntimeException ("Sorry, only print corbaloc strings for IIOP profiles.");
+       }
+       return result.toString ();
     }
 
     private static void usage()
