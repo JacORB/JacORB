@@ -23,9 +23,6 @@ public class Server
         GoodDayImpl goodDayImpl = new GoodDayImpl( "Somewhere" );
 
         // create the object reference
-        org.omg.CORBA.Object obj =
-            poa.servant_to_reference( goodDayImpl );
-
         org.omg.CORBA.Object o = poa.servant_to_reference(new GoodDayImpl("somewhere"));
 
         PrintWriter ps = new PrintWriter(new FileOutputStream(new File( args[0] )));

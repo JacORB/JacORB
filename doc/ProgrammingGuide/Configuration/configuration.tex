@@ -1060,7 +1060,7 @@ Persistent objects are those that may live beyond the lifetime of the process th
 
 The implname property allows a program to run with a different implementation name so that it will not accept references created by another persistent POA with the same POA name. A common problem is where the developer has two persistent servers running with the same implname and POA names when one tries to contact the other. Rather than calling server x, server y performs local call. This is because there is no way of distinguishing the two servers; the developer should have used different implnames (e.g. UUIDs).
 
-\subsubsection{Corbaloc with JacORB Implname and CORBA Objects}
+\subsection{Corbaloc Strings}
 
 Normally corbaloc is used to provide a shortcut to refer to CORBA objects. However the stringified key portion corresponds to the octet sequence in the object\_key member of a GIOP Request or LocateRequest header as defined in section 15.4 of CORBA 2.3. Further the key\_string uses the escape conventions described in RFC 2396 to map away from octet values that cannot directly be part of a URL. This means the key string might look like:
 \small{
@@ -1097,6 +1097,8 @@ Example usage
 {\tt jacorb.orb.objectKeyMap.NameService=file:///home/rnc/NameSingleton.ior}
 
 This then allows the corbaloc key portion to simply be 'NameService'.
+
+The JacORB utility {\tt dior} may be used to decode IORs. This has an additional command line option to output a corbaloc representation of an IOR. See chapter \ref{ch:tools}.
 
 \subsection{JacORB Network Event Logging}
 \label{eventLogging}

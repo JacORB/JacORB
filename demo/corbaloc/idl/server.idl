@@ -1,0 +1,13 @@
+module demo
+{
+    module corbaloc {
+
+        interface GoodDay {
+            
+            string hello_simple();
+            
+        };
+               
+    };
+
+};

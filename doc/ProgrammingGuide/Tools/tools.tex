@@ -393,7 +393,12 @@ JacORB comes with a simple utility to decode an interoperable object reference
 
 \subsection*{Usage}
 
-\cmdline{dior -i <IOR-string> | -f <filename>}
+\cmdline{dior [-u] [-c] -i <IOR-string> | -f <filename>}
+
+\begin{itemize}
+\item Option '-u' Decodes and prints the object key.
+\item Option '-c' Decodes and prints a corbaloc representation of the objectkey.
+\end{itemize}
 
 \subsection*{Example}
 
