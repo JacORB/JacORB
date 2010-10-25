@@ -130,6 +130,7 @@ post 2.3.1
     - Tools:
         - enhanced dior's ability to recognize different ORB types.
         - enhanced dior to allow parsing of multiline IOR files.
+        - enhanced dior to add optional output of corbaloc strings.
 
     - Documentation
         - added section about the usage of corbaloc in conjunction
