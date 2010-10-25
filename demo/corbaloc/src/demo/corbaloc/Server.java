@@ -38,8 +38,8 @@ public class Server
          policies[0] = rootPOA.create_lifespan_policy(LifespanPolicyValue.PERSISTENT);
          policies[1] = rootPOA.create_id_assignment_policy(IdAssignmentPolicyValue.USER_ID);
 
-         POA helloPOATransient = rootPOA.create_POA
-            ("HelloPOAT", rootPOA.the_POAManager(), policies);
+         POA helloPOAPersistent = rootPOA.create_POA
+            ("HelloPOAP", rootPOA.the_POAManager(), policies);
 
 
          // Setup a second POA with a transient policy therebye producing a different corbaloc.
@@ -48,22 +48,21 @@ public class Server
          policies[1] = rootPOA.create_id_assignment_policy (IdAssignmentPolicyValue.SYSTEM_ID);
          policies[2] = rootPOA.create_implicit_activation_policy (ImplicitActivationPolicyValue.IMPLICIT_ACTIVATION);
 
-         POA helloPOAPersistent = rootPOA.create_POA
-            ("HelloPOAP", rootPOA.the_POAManager(), policies);
+         POA helloPOATransient = rootPOA.create_POA
+            ("HelloPOAT", rootPOA.the_POAManager(), policies);
 
-         helloPOATransient.the_POAManager().activate();
          helloPOAPersistent.the_POAManager().activate();
-
+         helloPOATransient.the_POAManager().activate();
 
          // create a GoodDay object
          GoodDayImpl goodDayImpl = new GoodDayImpl("SomewhereP");
-         helloPOATransient.activate_object_with_id(helloID.getBytes(), goodDayImpl);
+         helloPOAPersistent.activate_object_with_id(helloID.getBytes(), goodDayImpl);
 
          // Manually create a persistent based corbaloc.
          String corbalocStr = "corbaloc::localhost:"
          + props.getProperty("OAPort") + "/"
          + props.getProperty("jacorb.implname") + "/"
-         + helloPOATransient.the_name() + "/" + helloID;
+         + helloPOAPersistent.the_name() + "/" + helloID;
 
          System.out.println("Server 1 can be reached with:");
          System.out.println("   " + corbalocStr + "\n");
@@ -76,7 +75,7 @@ public class Server
          ps.close();
 
          // Setup second server
-         org.omg.CORBA.Object objT = helloPOAPersistent.servant_to_reference(new GoodDayImpl("SomewhereT"));
+         org.omg.CORBA.Object objT = helloPOATransient.servant_to_reference(new GoodDayImpl("SomewhereT"));
 
          // Use the PrintIOR utility function to extract a transient corbaloc string.
          corbalocStr = PrintIOR.printCorbalocIOR (orb, orb.object_to_string(objT));
