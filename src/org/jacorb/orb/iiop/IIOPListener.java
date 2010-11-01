@@ -476,7 +476,14 @@ public class IIOPListener
             }
             finally
             {
-                logger.info(info + "Listener exiting");
+                if (!terminated)
+                {
+                    logger.error(info + "Listener is unexpectedly exiting. the ORB is in an non-functional state!");
+                }
+                else
+                {
+                    logger.info(info + "Listener exiting");
+                }
             }
         }
 
@@ -559,6 +566,10 @@ public class IIOPListener
                     {
                         handleExceptionInRunLoop(e, terminated);
                     }
+                }
+                catch(OutOfMemoryError e)
+                {
+                    logger.error("OutOfMemory", e);
                 }
             }
         }

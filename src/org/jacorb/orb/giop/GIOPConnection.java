@@ -32,7 +32,6 @@ import org.jacorb.orb.IBufferManager;
 import org.jacorb.orb.ORB;
 import org.jacorb.orb.SystemExceptionHelper;
 import org.jacorb.orb.etf.StreamConnectionBase;
-import org.jacorb.orb.iiop.IIOPConnection;
 import org.jacorb.util.ObjectUtil;
 import org.omg.CORBA.CompletionStatus;
 import org.omg.CORBA.NO_IMPLEMENT;
@@ -476,237 +475,184 @@ public abstract class GIOPConnection
     public final void receiveMessages()
         throws IOException
     {
-        while( true )
+        while(!do_close)
         {
-            byte[] message = getMessage();
-
-            if( message == null )
+            try
             {
-                    if( do_close )
-                    {
-                        return;
-                    }
+                receiveMessagesLoop();
+            }
+            catch(Exception e)
+            {
+                logger.error("Unexpected error during receiveMessages. Lost a message!", e);
+            }
+        }
+    }
 
-                    continue;
+    private void receiveMessagesLoop() throws IOException
+    {
+        byte[] message = getMessage();
+        
+        if( message == null )
+        {
+            return;
+        }
+
+        synchronized( pendingUndecidedSync )
+        {
+            if( discard_messages )
+            {
+                buf_mg.returnBuffer( message );
+                return;
             }
 
-            synchronized( pendingUndecidedSync )
+            //check major version
+            if( Messages.getGIOPMajor( message ) != 1 )
             {
-                if( discard_messages )
+                if (logger.isErrorEnabled())
                 {
-                    buf_mg.returnBuffer( message );
-                    continue;
+                    logger.error("Invalid GIOP major version encountered: "
+                                 + Messages.getGIOPMajor( message )
+                                 + ", in " + this.toString() );
                 }
 
-                //check major version
-                if( Messages.getGIOPMajor( message ) != 1 )
+                buf_mg.returnBuffer( message );
+                return;
+            }
+
+            int msg_type = Messages.getMsgType( message );
+
+            if( msg_type == MsgType_1_1._Fragment )
+            {
+                //GIOP 1.0 messages aren't allowed to be fragmented
+                if( Messages.getGIOPMinor( message ) == 0 )
                 {
-                    if (logger.isErrorEnabled())
+                    if (logger.isWarnEnabled())
                     {
-                        logger.error("Invalid GIOP major version encountered: "
-                                     + Messages.getGIOPMajor( message )
-                                     + ", in " + this.toString() );
+                        logger.warn
+                        (
+                             "Received a GIOP 1.0 message of type Fragment"
+                             + " in " + this.toString()
+                        );
                     }
 
-                    buf_mg.returnBuffer( message );
-                    continue;
-                }
+                    final MessageOutputStream out =
+                        new MessageOutputStream(orb);
 
-                int msg_type = Messages.getMsgType( message );
-
-                if( msg_type == MsgType_1_1._Fragment )
-                {
-                    //GIOP 1.0 messages aren't allowed to be fragmented
-                    if( Messages.getGIOPMinor( message ) == 0 )
+                    try
                     {
-                        if (logger.isWarnEnabled())
-                        {
-                            logger.warn
-                            (
-                                "Received a GIOP 1.0 message of type Fragment"
-                                + " in " + this.toString()
-                            );
-                        }
-
-                        final MessageOutputStream out =
-                            new MessageOutputStream(orb);
-
-                        try
-                        {
-                            out.writeGIOPMsgHeader(MsgType_1_1._MessageError, 0);
-                            out.insertMsgSize();
-                            sendMessage( out );
-                            buf_mg.returnBuffer( message );
-                        }
-                        finally
-                        {
-                            out.close();
-                        }
-                        continue;
-                    }
-
-                    //GIOP 1.1 Fragmented messages currently not supported
-                    if( Messages.getGIOPMinor( message ) == 1 )
-                    {
-                        if (logger.isWarnEnabled())
-                        {
-                            logger.warn( "Received a GIOP 1.1 Fragment message"
-                                        + " in " + this.toString());
-                        }
-
-                        //Can't return a message in this case, because
-                        //GIOP 1.1 fragments don't have request
-                        //ids. Therefore, just discard.
-                        buf_mg.returnBuffer( message );
-
-                        continue;
-                    }
-
-                    //for now, only GIOP 1.2 from here on
-
-                    Integer request_id = ObjectUtil.newInteger
-                    (
-                        Messages.getRequestId( message )
-                    );
-
-                    //sanity check
-                    if( ! fragments.containsKey( request_id ))
-                    {
-                        if (logger.isErrorEnabled())
-                        {
-                            logger.error( "No previous Fragment to this one in "
-                                         + this.toString());
-                        }
-
-                        //Drop this one and continue
-                        buf_mg.returnBuffer( message );
-
-                        continue;
-                    }
-
-                    ByteArrayOutputStream b_out = (ByteArrayOutputStream)
-                        fragments.get( request_id );
-
-                    //add the message contents to stream (discarding the
-                    //GIOP message header and the request id ulong of the
-                    //Fragment header)
-                    b_out.write( message,
-                                 Messages.MSG_HEADER_SIZE + 4 ,
-                                 Messages.getMsgSize(message) - 4 );
-
-                    if( Messages.moreFragmentsFollow( message ))
-                    {
-                        //more to follow, so don't hand over to processing
-                        buf_mg.returnBuffer( message );
-                        continue;
-                    }
-
-                    buf_mg.returnBuffer( message );
-
-                    //silently replace the original message buffer and type
-                    message = b_out.toByteArray();
-                    msg_type = Messages.getMsgType( message );
-
-                    fragments.remove( request_id );
-                }
-                else if( Messages.moreFragmentsFollow( message ) )
-                {
-                    //GIOP 1.0 messages aren't allowed to be fragmented
-                    if( Messages.getGIOPMinor( message ) == 0 )
-                    {
-                        if (logger.isWarnEnabled())
-                        {
-                            logger.warn( "Received a GIOP 1.0 message "
-                                       + "with the \"more fragments follow\""
-                                       + "bits set in " + this.toString() );
-                        }
-
-                        MessageOutputStream out =
-                            new MessageOutputStream( orb );
-                        out.writeGIOPMsgHeader( MsgType_1_1._MessageError,
-                                                0 );
+                        out.writeGIOPMsgHeader(MsgType_1_1._MessageError, 0);
                         out.insertMsgSize();
                         sendMessage( out );
                         buf_mg.returnBuffer( message );
-
-                        continue;
                     }
-
-                    //If GIOP 1.1, only Request and Reply messages may be fragmented
-                    if( Messages.getGIOPMinor( message ) == 1 )
+                    finally
                     {
-                        if( msg_type != MsgType_1_1._Request &&
-                            msg_type != MsgType_1_1._Reply )
-                        {
-                            if (logger.isWarnEnabled())
-                            {
-                                logger.warn
-                                (
-                                    "Received a GIOP 1.1 message of type " +
-                                    msg_type + " with the " + "" +
-                                    "\"more fragments follow\" bits set" +
-                                    " in " + this.toString()
-                                );
-                            }
+                        out.close();
+                    }
+                    return;
+                }
 
-                            MessageOutputStream out =
-                                new MessageOutputStream( orb );
-                            out.writeGIOPMsgHeader( MsgType_1_1._MessageError,
-                                                    1 );
-                            out.insertMsgSize();
-                            sendMessage( out );
-                            buf_mg.returnBuffer( message );
-
-                            continue;
-                        }
-
-                        //GIOP 1.1 Fragmented messages currently not supported
-                        if (logger.isWarnEnabled())
-                        {
-                            logger.warn( "Received a fragmented GIOP 1.1 message"
-                                        + " in " + this.toString() );
-                        }
-
-                        int giop_minor = Messages.getGIOPMinor( message );
-
-                        final ReplyOutputStream out =
-                                new ReplyOutputStream( orb,
-                                    Messages.getRequestId( message ),
-                                    ReplyStatusType_1_2.SYSTEM_EXCEPTION,
-                                    giop_minor,
-                                    false,
-                                    logger);//no locate reply
-
-                        try
-                        {
-                            SystemExceptionHelper.write( out,
-                                    new NO_IMPLEMENT( 0, CompletionStatus.COMPLETED_NO ));
-
-                            sendMessage( out );
-                            buf_mg.returnBuffer( message );
-
-
-                            continue;
-                        }
-                        finally
-                        {
-                            out.close();
-                        }
+                //GIOP 1.1 Fragmented messages currently not supported
+                if( Messages.getGIOPMinor( message ) == 1 )
+                {
+                    if (logger.isWarnEnabled())
+                    {
+                        logger.warn( "Received a GIOP 1.1 Fragment message"
+                                     + " in " + this.toString());
                     }
 
-                    //check, that only the correct message types are fragmented
-                    if( msg_type == MsgType_1_1._CancelRequest ||
-                        msg_type == MsgType_1_1._CloseConnection ||
-                        msg_type == MsgType_1_1._CancelRequest )
+                    //Can't return a message in this case, because
+                    //GIOP 1.1 fragments don't have request
+                    //ids. Therefore, just discard.
+                    buf_mg.returnBuffer( message );
+
+                    return;
+                }
+
+                //for now, only GIOP 1.2 from here on
+
+                Integer request_id = ObjectUtil.newInteger
+                (
+                     Messages.getRequestId( message )
+                );
+
+                //sanity check
+                if( ! fragments.containsKey( request_id ))
+                {
+                    if (logger.isErrorEnabled())
+                    {
+                        logger.error( "No previous Fragment to this one in "
+                                      + this.toString());
+                    }
+
+                    //Drop this one and continue
+                    buf_mg.returnBuffer( message );
+
+                    return;
+                }
+
+                ByteArrayOutputStream b_out = (ByteArrayOutputStream)
+                    fragments.get( request_id );
+
+                //add the message contents to stream (discarding the
+                //GIOP message header and the request id ulong of the
+                //Fragment header)
+                b_out.write( message,
+                             Messages.MSG_HEADER_SIZE + 4 ,
+                             Messages.getMsgSize(message) - 4 );
+
+                if( Messages.moreFragmentsFollow( message ))
+                {
+                    //more to follow, so don't hand over to processing
+                    buf_mg.returnBuffer( message );
+                    return;
+                }
+
+                buf_mg.returnBuffer( message );
+
+                //silently replace the original message buffer and type
+                message = b_out.toByteArray();
+                msg_type = Messages.getMsgType( message );
+
+                fragments.remove( request_id );
+            }
+            else if( Messages.moreFragmentsFollow( message ) )
+            {
+                //GIOP 1.0 messages aren't allowed to be fragmented
+                if( Messages.getGIOPMinor( message ) == 0 )
+                {
+                    if (logger.isWarnEnabled())
+                    {
+                        logger.warn( "Received a GIOP 1.0 message "
+                                     + "with the \"more fragments follow\""
+                                     + "bits set in " + this.toString() );
+                    }
+
+                    MessageOutputStream out =
+                        new MessageOutputStream( orb );
+                    out.writeGIOPMsgHeader( MsgType_1_1._MessageError, 
+                                            0 );
+                    out.insertMsgSize();
+                    sendMessage( out );
+                    buf_mg.returnBuffer( message );
+
+                    return;
+                }
+
+                //If GIOP 1.1, only Request and Reply messages may be fragmented
+                if( Messages.getGIOPMinor( message ) == 1 )
+                {
+                    if( msg_type != MsgType_1_1._Request &&
+                            msg_type != MsgType_1_1._Reply )
                     {
                         if (logger.isWarnEnabled())
                         {
                             logger.warn
                             (
-                                "Received a GIOP message of type " + msg_type +
-                                " with the \"more fragments follow\" bits set, " +
-                                "but this message type isn't allowed to be " +
-                                "fragmented, in " + this.toString()
+                                 "Received a GIOP 1.1 message of type " +
+                                 msg_type + " with the " + "" +
+                                 "\"more fragments follow\" bits set" +
+                                 " in " + this.toString()
                             );
                         }
 
@@ -718,113 +664,171 @@ public abstract class GIOPConnection
                         sendMessage( out );
                         buf_mg.returnBuffer( message );
 
-                        continue;
+                        return;
                     }
 
-                    //if we're here, it's the first part of a fragmented message
-                    Integer request_id =
-                        new Integer( Messages.getRequestId( message )); // NOPMD
-
-                    //sanity check
-                    if( fragments.containsKey( request_id ))
+                    //GIOP 1.1 Fragmented messages currently not supported
+                    if (logger.isWarnEnabled())
                     {
-                        if (logger.isErrorEnabled())
-                        {
-                            logger.error
-                            (
-                                "Received a message of type " + msg_type +
-                                " with the more fragments follow bit set," +
-                                " but there is already an fragmented," +
-                                " incomplete message with the same request id (" +
-                                request_id + ", in " + this.toString()
-                            );
-                        }
+                        logger.warn( "Received a fragmented GIOP 1.1 message"
+                                     + " in " + this.toString() );
+                    }
 
-                        //Drop this one and continue
+                    int giop_minor = Messages.getGIOPMinor( message );
+
+                    final ReplyOutputStream out =
+                        new ReplyOutputStream( orb,
+                                               Messages.getRequestId( message ),
+                                               ReplyStatusType_1_2.SYSTEM_EXCEPTION,
+                                               giop_minor,
+                                               false,
+                                               logger);//no locate reply
+
+                    try
+                    {
+                        SystemExceptionHelper.write( out,
+                                                     new NO_IMPLEMENT( 0, CompletionStatus.COMPLETED_NO ));
+
+                        sendMessage( out );
                         buf_mg.returnBuffer( message );
 
-                        continue;
+                        return;
+                    }
+                    finally
+                    {
+                        out.close();
+                    }
+                }
+
+                //check, that only the correct message types are fragmented
+                if( msg_type == MsgType_1_1._CancelRequest ||
+                        msg_type == MsgType_1_1._CloseConnection ||
+                        msg_type == MsgType_1_1._CancelRequest )
+                {
+                    if (logger.isWarnEnabled())
+                    {
+                        logger.warn
+                        (
+                             "Received a GIOP message of type " + msg_type +
+                             " with the \"more fragments follow\" bits set, " +
+                             "but this message type isn't allowed to be " +
+                             "fragmented, in " + this.toString()
+                        );
                     }
 
-                    //create new stream and add to table
-                    ByteArrayOutputStream b_out = new ByteArrayOutputStream();
-                    fragments.put( request_id, b_out );
-
-                    //add the message contents to stream
-                    b_out.write( message,
-                                 0,
-                                 Messages.MSG_HEADER_SIZE +
-                                 Messages.getMsgSize(message) );
-
-
+                    MessageOutputStream out =
+                        new MessageOutputStream( orb );
+                    out.writeGIOPMsgHeader( MsgType_1_1._MessageError,
+                                            1 );
+                    out.insertMsgSize();
+                    sendMessage( out );
                     buf_mg.returnBuffer( message );
 
-                    //This message isn't yet complete
-                    continue;
+                    return;
                 }
 
-                switch( msg_type )
+                //if we're here, it's the first part of a fragmented message
+                Integer request_id =
+                    new Integer( Messages.getRequestId( message )); // NOPMD
+
+                //sanity check
+                if( fragments.containsKey( request_id ))
                 {
-                    case MsgType_1_1._Request:
+                    if (logger.isErrorEnabled())
                     {
-                        getRequestListener().requestReceived( message, this );
+                        logger.error
+                        (
+                             "Received a message of type " + msg_type +
+                             " with the more fragments follow bit set," +
+                             " but there is already an fragmented," +
+                             " incomplete message with the same request id (" +
+                             request_id + ", in " + this.toString()
+                        );
+                    }
 
-                        break;
-                    }
-                    case MsgType_1_1._Reply:
-                    {
-                        getReplyListener().replyReceived( message, this );
+                    //Drop this one and continue
+                    buf_mg.returnBuffer( message );
 
-                        break;
-                    }
-                    case MsgType_1_1._CancelRequest:
-                    {
-                        getRequestListener().cancelRequestReceived( message, this );
-
-                        break;
-                    }
-                    case MsgType_1_1._LocateRequest:
-                    {
-                        getRequestListener().locateRequestReceived( message, this );
-
-                        break;
-                    }
-                    case MsgType_1_1._LocateReply:
-                    {
-                        getReplyListener().locateReplyReceived( message, this );
-
-                        break;
-                    }
-                    case MsgType_1_1._CloseConnection:
-                    {
-                        getReplyListener().closeConnectionReceived( message, this );
-
-                        break;
-                    }
-                    case MsgType_1_1._MessageError:
-                    {
-                        break;
-                    }
-                    case MsgType_1_1._Fragment:
-                    {
-                        //currently not reached
-                        break;
-                    }
-                    default:
-                    {
-                        if (logger.isErrorEnabled())
-                        {
-                            logger.error
-                            (
-                                "Received message with unknown message type "
-                                + msg_type + ", in " + this.toString()
-                            );
-                        }
-                        buf_mg.returnBuffer( message );
-                    }
+                    return;
                 }
-            }//synchronized( pendingUndecidedSync )
-        }
+
+                //create new stream and add to table
+                ByteArrayOutputStream b_out = new ByteArrayOutputStream();
+                fragments.put( request_id, b_out );
+
+                //add the message contents to stream
+                b_out.write( message,
+                             0,
+                             Messages.MSG_HEADER_SIZE +
+                             Messages.getMsgSize(message) );
+
+                buf_mg.returnBuffer( message );
+
+                //This message isn't yet complete
+                return;
+            }
+
+            switch( msg_type )
+            {
+                case MsgType_1_1._Request:
+                {
+                    getRequestListener().requestReceived( message, this );
+
+                    break;
+                }
+                case MsgType_1_1._Reply:
+                {
+                    getReplyListener().replyReceived( message, this );
+                    
+                    break;
+                }
+                case MsgType_1_1._CancelRequest:
+                {
+                    getRequestListener().cancelRequestReceived( message, this );
+
+                    break;
+                }
+                case MsgType_1_1._LocateRequest:
+                {
+                    getRequestListener().locateRequestReceived( message, this );
+
+                    break;
+                }
+                case MsgType_1_1._LocateReply:
+                {
+                    getReplyListener().locateReplyReceived( message, this );
+
+                    break;
+                }
+                case MsgType_1_1._CloseConnection:
+                {
+                    getReplyListener().closeConnectionReceived( message, this );
+
+                    break;
+                }
+                case MsgType_1_1._MessageError:
+                {
+                    break;
+                }
+                case MsgType_1_1._Fragment:
+                {
+                    //currently not reached
+                    break;
+                }
+                default:
+                {
+                    if (logger.isErrorEnabled())
+                    {
+                        logger.error
+                        (
+                             "Received message with unknown message type "
+                             + msg_type + ", in " + this.toString()
+                        );
+                    }
+                    buf_mg.returnBuffer( message );
+                }
+            }
+        }//synchronized( pendingUndecidedSync )
     }
 
     protected final void getWriteLock()

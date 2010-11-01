@@ -222,7 +222,6 @@ public class ServerRequestListener
     private void deliverRequest( ServerRequest request )
     {
         POA tmp_poa = rootPOA;
-        String res;
         List scopes;
 
         //MIOP reception of messages from group
@@ -273,7 +272,7 @@ public class ServerRequestListener
 
             for( int i = 0; i < scopes.size(); i++)
             {
-                res = ((String)scopes.get (i));
+                final String res = ((String)scopes.get (i));
 
                 if( res.equals(""))
                 {

@@ -191,7 +191,6 @@ public final class BufferManager extends AbstractBufferManager
     public synchronized byte[] getBuffer( int initial, boolean cdrStr )
     {
         final byte [] result;
-        List s;
 
         int log = log2up(initial);
 
@@ -206,15 +205,18 @@ public final class BufferManager extends AbstractBufferManager
                 }
                 else
                 {
-                    // Using cache so do below determination
-                    if (bufferMax == null || bufferMax.length < initial)
+                    synchronized(this)
                     {
-                        // Autocache really large values for speed
-                        bufferMax = new byte[initial*2];
+                        // Using cache so do below determination
+                        if (bufferMax == null || bufferMax.length < initial)
+                        {
+                            // Autocache really large values for speed
+                            bufferMax = new byte[initial*2];
+                        }
+                        // Else return the cached buffer
+                        result = bufferMax;
+                        bufferMax = null;
                     }
-                    // Else return the cached buffer
-                    result = bufferMax;
-                    bufferMax = null;
                 }
             }
             catch (OutOfMemoryError e)
@@ -224,7 +226,11 @@ public final class BufferManager extends AbstractBufferManager
         }
         else
         {
-            s = bufferPool[log > MIN_OFFSET ? log-MIN_OFFSET : 0 ];
+            final List s;
+            synchronized(this)
+            {
+                s = bufferPool[log > MIN_OFFSET ? log - MIN_OFFSET : 0 ];
+            }
 
             if(!s.isEmpty())
             {
@@ -246,7 +252,7 @@ public final class BufferManager extends AbstractBufferManager
      * @param cdrStr a <code>boolean</code> value value to denote if CDROuputStream is
      *               caller (may use cache in this situation)
      */
-    public synchronized void returnBuffer(byte[] current, boolean cdrStr)
+    public void returnBuffer(byte[] current, boolean cdrStr)
     {
         if (current != null)
         {
@@ -256,21 +262,27 @@ public final class BufferManager extends AbstractBufferManager
             {
                 if( log_curr > MAX )
                 {
-                    // Only cache if CDROutputStream is called, cache is enabled &
-                    // the new value is > than the cached value.
-                    if (cdrStr &&
-                        (time >= 0 &&
-                         (bufferMax == null || bufferMax.length < current.length)))
+                    synchronized(this)
                     {
-                        bufferMax = current;
+                        // Only cache if CDROutputStream is called, cache is enabled &
+                        // the new value is > than the cached value.
+                        if (cdrStr &&
+                                (time >= 0 &&
+                                        (bufferMax == null || bufferMax.length < current.length)))
+                        {
+                            bufferMax = current;
+                        }
+                        return;
                     }
-                    return;
                 }
 
-                List s = bufferPool[ log_curr-MIN_OFFSET ];
-                if( s.size() < THRESHOLD )
+                synchronized(this)
                 {
-                    s.add( current );
+                    List s = bufferPool[ log_curr - MIN_OFFSET ];
+                    if( s.size() < THRESHOLD )
+                    {
+                        s.add( current );
+                    }
                 }
             }
         }

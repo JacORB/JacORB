@@ -160,7 +160,16 @@ public class JacORBLauncher
                     "Launcher version " + version + " not available. available: " + getVersions());
         }
 
-        final String home = locateHome(properties, version, index);
+        String home = null;
+
+        try
+        {
+            home = locateHome(properties, version, index);
+        }
+        catch(Exception e)
+        {
+            TestUtils.log("unable to locate JacORB home. classpath will be only be set using the System property java.class.path: " + e.getMessage());
+        }
 
         String launcherClassName = lookupLauncher(version, index);
 
@@ -197,7 +206,7 @@ public class JacORBLauncher
 
             if (classLoader == null)
             {
-                launcherClass = ObjectUtil.classForName(launcherClassName);
+                launcherClass = TestUtils.classForName(launcherClassName);
             }
             else
             {

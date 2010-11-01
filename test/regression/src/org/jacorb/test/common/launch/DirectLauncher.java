@@ -139,9 +139,10 @@ public class DirectLauncher extends AbstractLauncher
             cmdList.add("-ea");
         }
 
-        Assert.assertNotNull("need to specify jacorbHome", jacorbHome);
-
-        cmdList.add(new BootClasspathBuilder(jacorbHome, coverage).getBootClasspath());
+        if (jacorbHome != null)
+        {
+            cmdList.add(new BootClasspathBuilder(jacorbHome, coverage).getBootClasspath());
+        }
 
         if (classpath != null && classpath.length() > 0)
         {
@@ -155,7 +156,10 @@ public class DirectLauncher extends AbstractLauncher
             cmdList.addAll (propsToArgList(props));
         }
 
-        cmdList.add ("-Djacorb.home=" + jacorbHome);
+        if (jacorbHome != null)
+        {
+            cmdList.add ("-Djacorb.home=" + jacorbHome);
+        }
 
         if (TestUtils.isWindows())
         {

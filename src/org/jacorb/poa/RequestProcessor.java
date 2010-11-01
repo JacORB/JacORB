@@ -25,6 +25,7 @@ import java.util.HashSet;
 import java.util.Set;
 import org.jacorb.config.*;
 import org.slf4j.Logger;
+import org.jacorb.orb.ORB;
 import org.jacorb.orb.SystemExceptionHelper;
 import org.jacorb.orb.dsi.ServerRequest;
 import org.jacorb.orb.giop.ReplyOutputStream;
@@ -496,19 +497,20 @@ public class RequestProcessor
 
     private void process()
     {
+        final ORB orb = controller.getORB();
         ServerRequestInfoImpl info = null;
 
         // Notify parties interested in using information about a Transport
-        controller.getORB().notifyTransportListeners(request.getConnection());
+        orb.notifyTransportListeners(request.getConnection());
 
-        if (controller.getORB().hasServerRequestInterceptors())
+        if (orb.hasServerRequestInterceptors())
         {
             //RequestInfo attributes
-            info = new ServerRequestInfoImpl(controller.getORB(),
+            info = new ServerRequestInfoImpl(orb,
                                              request,
                                              servant);
 
-            InterceptorManager manager = controller.getORB().getInterceptorManager();
+            InterceptorManager manager = orb.getInterceptorManager();
             info.setCurrent (manager.getEmptyCurrent());
 
             if(! invokeInterceptors( info,
@@ -624,7 +626,7 @@ public class RequestProcessor
         if (info != null)
         {
             InterceptorManager manager =
-                controller.getORB().getInterceptorManager();
+                orb.getInterceptorManager();
             info.setCurrent (manager.getCurrent());
 
             short op = 0;

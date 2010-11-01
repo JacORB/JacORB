@@ -120,6 +120,8 @@ public class TestServer
 
     public static void main (String[] args)
     {
+        Thread.currentThread().setContextClassLoader(TestServer.class.getClassLoader());
+
         Logger logger = null;
         try
         {
@@ -154,11 +156,11 @@ public class TestServer
 
             log("init POA");
 
-            String className = args[0];
+            final String servantName = args[0];
 
-            log("use ServantClass: " + className);
+            log("use ServantClass: " + servantName);
 
-            Class servantClass = Class.forName (className);
+            Class servantClass = TestUtils.classForName(servantName);
             Servant servant = ( Servant ) servantClass.newInstance();
 
             log("using Servant: " + servant);
