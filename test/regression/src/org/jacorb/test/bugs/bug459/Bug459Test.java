@@ -43,19 +43,20 @@ public class Bug459Test extends TestCase
     public void testIt() throws Exception
     {
         MyAnyServer myServer = new MyAnyServer();
+        Properties props = new Properties();
+        props.put("org.omg.CORBA.ORBClass", "org.jacorb.orb.ORB");
+        props.put("org.omg.CORBA.ORBSingletonClass", "org.jacorb.orb.ORBSingleton");
 
         for (int run = 0; run < 5; run++)
         {
             // initialize ORB
-            Properties props = new Properties();
-            props.put("org.omg.CORBA.ORBClass", "org.jacorb.orb.ORB");
-            props.put("org.omg.CORBA.ORBSingletonClass", "org.jacorb.orb.ORBSingleton");
             org.omg.CORBA.ORB orb = org.omg.CORBA.ORB.init(new String[0], props);
             POA poa = POAHelper.narrow(orb.resolve_initial_references("RootPOA"));
 
             poa.the_POAManager().activate();
 
-            myServer._this(orb);
+            org.omg.CORBA.Object o = myServer._this(orb);
+            o._release();
 
             orb.shutdown(true);
         }

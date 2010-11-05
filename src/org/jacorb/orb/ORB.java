@@ -1994,6 +1994,12 @@ public final class ORB
                 new org.jacorb.orb.ServantDelegate( this );
             ((org.omg.PortableServer.Servant)wrapper)._set_delegate(delegate);
         }
+        if (((org.omg.PortableServer.Servant)wrapper)._get_delegate().orb((org.omg.PortableServer.Servant)wrapper) != this)
+        {
+            org.jacorb.orb.ServantDelegate delegate =
+                new org.jacorb.orb.ServantDelegate( this );
+            ((org.omg.PortableServer.Servant)wrapper)._set_delegate(delegate);
+        }
     }
 
     public String object_to_string( org.omg.CORBA.Object obj)
