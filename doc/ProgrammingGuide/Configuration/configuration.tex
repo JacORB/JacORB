@@ -443,6 +443,10 @@ cache for CDROutputStreams. If -1 then off, if zero then this is
 feature is enabled, if greater than zero then it is enabled and
 flushed every x seconds & integer & -1 \\
 \hline
+\verb"jacorb.deferredArrayQu"
+\verb"eue" & JacORB will delay internally transferring bytes to the stream;
+this is the size of this internal queue. Size in k. & integer & 8. \\
+\hline
 \verb"jacorb.connection.del"
 \verb"ay_close" & Normally, a jacorb server will close the TCP/IP connection
 right after sending a CloseConnection message. However, it may occasionally

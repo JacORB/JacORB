@@ -154,7 +154,10 @@ public class CDROutputStream
     /** True if write_value_internal called writeReplace */
     private boolean writeReplaceCalled = false;
 
+    /** deferredArrayQueue is initialized on demand in write_octet_array */
     private final List deferredArrayQueue = new ArrayList();
+
+    private int deferredArrayQueueSize;
 
     protected final org.jacorb.orb.ORBSingleton orb;
 
@@ -215,6 +218,8 @@ public class CDROutputStream
                 throw new RuntimeException();
             }
         }
+
+        deferredArrayQueueSize = (configuration.getAttributeAsInteger("jacorb.deferredArrayQueue", 8)) * 1000;
     }
 
 
@@ -1275,7 +1280,7 @@ public class CDROutputStream
     {
         if( value != null )
         {
-            if( length > 4000 )
+            if( deferredArrayQueueSize > 0 && length > deferredArrayQueueSize )
             {
                 deferredArrayQueue.add( new DeferredWriteFrame( index, offset, length, value ));
                 index += length;

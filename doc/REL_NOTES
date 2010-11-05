@@ -92,6 +92,7 @@ post 2.3.1
         - fix jacorb.giop_minor_version property usage (bugzilla 879)
         - Fix for handling of max_server_connections. (bugzilla 878)
         - Fix for decoding and output of IORs with multiple TAG_ALTERNATE_IIOP_ADDRESS.
+        - Allow the ORBs internal deferredArrayWrites to be configurable.
 
     - IDL Compiler:
         - fixed issue where the IDL compiler generated imports for the

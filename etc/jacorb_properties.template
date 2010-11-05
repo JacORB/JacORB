@@ -147,6 +147,11 @@ jacorb.maxManagedBufSize=18
 # This value defaults to 0 if not set.
 #jacorb.bufferManagerMaxFlush=-1
 
+# Size of the deferredArrayQueue. JacORB will delay transferring bytes
+# internally to the stream if the size is over this value.
+# Default is 8K and 0=off.
+jacorb.deferredArrayQueue=8
+
 # Normally, a jacorb server will close the TCP/IP connection right
 # after sending a CloseConnection message. However, it may
 # occasionally happen that the client sends a message into the closed
