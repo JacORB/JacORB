@@ -1,0 +1,6 @@
+module A
+{
+    typeprefix B "typeprefix.test";
+
+    interface a1 {};    
+};

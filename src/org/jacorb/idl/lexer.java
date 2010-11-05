@@ -211,6 +211,7 @@ public class lexer
         keywords.put( "TRUE", new Integer( sym.TRUE ) );
         keywords.put( "truncatable", new Integer( sym.TRUNCATABLE ) );
         keywords.put( "typedef", new Integer( sym.TYPEDEF ) );
+        keywords.put( "typeprefix", new Integer( sym.TYPEPREFIX ) );
         keywords.put( "unsigned", new Integer( sym.UNSIGNED ) );
         keywords.put( "union", new Integer( sym.UNION ) );
         keywords.put( "ValueBase", new Integer( sym.VALUEBASE ) );

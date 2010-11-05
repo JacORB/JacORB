@@ -1,0 +1,9 @@
+module bugjac753
+{
+    module A9
+    {
+	    interface a1 {};
+	};
+};
+
+typeprefix bugjac753::A9 "typeprefix.test";

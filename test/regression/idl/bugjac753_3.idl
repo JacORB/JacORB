@@ -1,0 +1,13 @@
+module bugjac753
+{
+    module A3
+    {
+        typeprefix A3 "typeprefix.test";
+
+        interface a31 {};
+
+        typeprefix A3 "typeprefix.test2";
+    
+        interface a32 {};
+    };
+};

@@ -24,6 +24,9 @@ package org.jacorb.idl;
 import java.io.PrintWriter;
 import java.util.Enumeration;
 import java.util.Hashtable;
+import java.util.Iterator;
+import java.util.Map.Entry;
+
 import org.jacorb.idl.util.IDLLogger;
 
 /**
@@ -527,11 +530,14 @@ public class IdlSymbol
                 {
                     sb.append( name );
                 }
-                if( token != null && token.pragma_prefix.length() > 0 )
+
+                String typePrefix = this.getPrefix();
+                if( token != null && token.pragma_prefix.length() > 0 ||
+                    typePrefix != null)
                 {
                     _id =
                     (
-                        "IDL:" + token.pragma_prefix +
+                        "IDL:" + (typePrefix != null ? typePrefix : token.pragma_prefix) +
                         "/" + sb.toString().replace( '.', '/' ) + ":" + version ()
                     );
                 }
@@ -546,6 +552,41 @@ public class IdlSymbol
             logger.debug( "Id for name " + name + " is " + _id );
         }
         return _id;
+    }
+
+    /**
+     * Gets prefix which was set by "typeprefix"
+     * 
+     * @return Returns null if typeprefix undefined
+     */
+    private String getPrefix()
+    {
+        //check directly defined typeprefix for this module
+        String prefix = TypePrefixes.getDefined(this.pack_name);
+
+        if(prefix != null)
+        {
+            return prefix;
+        }
+
+        //calculate inherited prefix from parent modules
+        int len = Integer.MAX_VALUE;
+        for(Iterator i = TypePrefixes.getTypePrefixes().entrySet().iterator() ; i.hasNext();)
+        {
+            Entry e = (Entry)i.next();
+            String pack_name = (String)e.getKey();
+            if(this.pack_name.startsWith(pack_name))
+            {
+                int tempLen = this.pack_name.length() - pack_name.length();
+                if(len > this.pack_name.length() - pack_name.length())
+                {
+                    len = tempLen;
+                    prefix = (String)e.getValue();
+                }
+            }
+        }
+
+        return prefix;
     }
 
     private String version()

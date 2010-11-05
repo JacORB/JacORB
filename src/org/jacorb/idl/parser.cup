@@ -909,7 +909,7 @@ terminal org.jacorb.idl.runtime.token
   DEFAULT, DOUBLE, ENUM, EXCEPTION, FACTORY, FALSE, FIXED, FLOAT, GETRAISES,
   IN, INOUT, INTERFACE, LOCAL, LONG, MODULE, NATIVE, OBJECT, OCTET, ONEWAY, OUT,
   PRIVATE, PUBLIC, PSEUDO, RAISES, READONLY, SETRAISES, SEQUENCE, SHORT, STRING,
-  STRUCT, SUPPORTS, SWITCH, TRUE, TRUNCATABLE, TYPEDEF, UNSIGNED, UNION,
+  STRUCT, SUPPORTS, SWITCH, TRUE, TRUNCATABLE, TYPEDEF, TYPEPREFIX, UNSIGNED, UNION,
   VALUEBASE, VALUETYPE, VOID, WCHAR, WSTRING,
   SEMI, COMMA, STAR, DOT, COLON, EQUALS, PLUS, MINUS, LPAREN, RPAREN,
   LCBRACE, RCBRACE, LSBRACE, RSBRACE, LESSTHAN, GREATERTHAN, QUOTE, DBLQUOTE,
@@ -942,6 +942,7 @@ non terminal Spec specification;
 non terminal Definition definition;
 non terminal Definitions definitions;
 non terminal Module module;
+non terminal TypePrefixDecl type_prefix_decl;
 non terminal Interface interface;
 non terminal InterfaceBody interface_body;
 non terminal Definition export;
@@ -1144,12 +1145,15 @@ definition ::=
         | module:m SEMI
                 {:
                         RESULT.set_declaration(m);
-                 :}
-
+                :}
+        | type_prefix_decl:pt SEMI
+                {:
+                        RESULT.set_declaration(pt);
+                :}
         | value:m SEMI
                 {:
                         RESULT.set_declaration(m);
-                 :}
+                :}
         ;
 
 // #3
@@ -1163,6 +1167,14 @@ module ::=
 
                 d.setEnclosingSymbol(RESULT);
                 parser.closeScope( (Scope)RESULT );
+        :}
+        ;
+
+type_prefix_decl ::=
+        TYPEPREFIX scopename:m DBLQUOTE ID:p DBLQUOTE
+        {:
+                        RESULT.scopedname = m;
+                        RESULT.prefix = p.str_val;
         :}
         ;
 

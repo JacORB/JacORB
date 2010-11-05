@@ -1,0 +1,11 @@
+#pragma prefix prefix.test1
+
+module bugjac753
+{
+    module A1
+    {
+        typeprefix A1 "typeprefix.test";
+
+        interface a11 {};
+    };
+};
