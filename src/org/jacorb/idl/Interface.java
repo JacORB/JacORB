@@ -282,9 +282,9 @@ public class Interface
             ctspec.c_type_spec = this;
 
             if (is_pseudo)
-                NameTable.define(full_name(), "pseudo interface");
+                NameTable.define(full_name(), IDLTypes.PSEUDO_INTERFACE);
             else
-                NameTable.define(full_name(), "interface");
+                NameTable.define(full_name(), IDLTypes.INTERFACE);
 
             TypeMap.typedef(full_name(), ctspec);
         }

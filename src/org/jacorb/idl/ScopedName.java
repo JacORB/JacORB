@@ -168,7 +168,6 @@ public class ScopedName
     private TypeSpec resolvedSpec = null;
     private String resolvedName = null;
     private boolean resolved = false;
-    private Interface resolvedInterface = null;
     boolean set = false;
     public String typeName = null;
 
@@ -258,7 +257,7 @@ public class ScopedName
 
     public boolean is_pseudo()
     {
-        return NameTable.isDefined( resolvedName(), "pseudo interface" );
+        return NameTable.isDefined( resolvedName(), IDLTypes.PSEUDO_INTERFACE );
     }
 
     public TypeSpec resolvedTypeSpec()

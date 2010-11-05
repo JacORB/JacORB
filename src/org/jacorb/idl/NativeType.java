@@ -104,7 +104,7 @@ public class NativeType
         try
         {
             ctspec.c_type_spec = this;
-            NameTable.define( full_name(), "native" );
+            NameTable.define( full_name(), IDLTypes.NATIVE );
             TypeMap.typedef( full_name(), ctspec );
         }
         catch( NameAlreadyDefined n )
@@ -140,27 +140,4 @@ public class NativeType
     {
         visitor.visitNative( this );
     }
-
-
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

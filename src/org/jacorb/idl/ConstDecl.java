@@ -77,7 +77,7 @@ public class ConstDecl extends Declaration
         const_expr.setDeclaration(this);
         try
         {
-            NameTable.define(full_name(), "constant");
+            NameTable.define(full_name(), IDLTypes.CONSTANT);
         }
         catch (NameAlreadyDefined p)
         {

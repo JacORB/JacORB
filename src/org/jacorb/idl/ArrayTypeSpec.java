@@ -185,12 +185,12 @@ public class ArrayTypeSpec
         {
             if (!typedefd)
             {
-                NameTable.define(full_name(), "type");
+                NameTable.define(full_name(), IDLTypes.TYPE);
 
                 // change for Prismtech JAC#572 here
                 // 
-                if (!NameTable.isDefined(typeName(), "type"))
-                    NameTable.define(typeName(), "type");
+                if (!NameTable.isDefined(typeName(), IDLTypes.TYPE))
+                    NameTable.define(typeName(), IDLTypes.TYPE);
             }
         }
         catch (NameAlreadyDefined n)
@@ -540,6 +540,4 @@ public class ArrayTypeSpec
     {
         throw new RuntimeException("DII-stubs not completely implemented for array types!");
     }
- 
-
 }

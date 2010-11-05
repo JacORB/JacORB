@@ -410,7 +410,7 @@ public class SequenceType
         }
         try
         {
-            NameTable.define(full_name(), "type");
+            NameTable.define(full_name(), IDLTypes.TYPE);
         }
         catch (NameAlreadyDefined n)
         {

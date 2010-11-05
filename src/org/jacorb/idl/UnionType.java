@@ -208,7 +208,7 @@ public class UnionType
         {
             ScopedName.definePseudoScope(full_name());
             ctspec.c_type_spec = this;
-            NameTable.define(full_name(), "type-union");
+            NameTable.define(full_name(), IDLTypes.TYPE_UNION);
             TypeMap.typedef(full_name(), ctspec);
         }
         catch (NameAlreadyDefined nad)

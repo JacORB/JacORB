@@ -247,7 +247,7 @@ public class StructType
 
             ctspec.c_type_spec = this;
 
-            NameTable.define(full_name(), "type-struct");
+            NameTable.define(full_name(), IDLTypes.TYPE_STRUCT);
             TypeMap.typedef(full_name(), ctspec);
         }
         catch (NameAlreadyDefined nad)

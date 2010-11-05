@@ -34,7 +34,7 @@ import java.util.StringTokenizer;
 
 public class NameTable
 {
-    private static final Hashtable names = new Hashtable( 10000 );
+    private static final Hashtable/*<String, IDLTypes>*/ names = new Hashtable/*<String, IDLTypes>*/( 10000 );
 
     private static final Map shadows = new Hashtable();
 
@@ -62,18 +62,18 @@ public class NameTable
         operationSources.clear();
         parsed_interfaces.clear();
 
-        names.put( "char", "type" );
-        names.put( "boolean", "type" );
-        names.put( "long", "type" );
-        names.put( "long", "type" );
-        names.put( "short", "type" );
-        names.put( "int", "type" );
-        names.put( "float", "type" );
-        names.put( "double", "type" );
-        names.put( "byte", "type" );
-        names.put( "void", "type" );
-        names.put( "org.omg.CORBA.Any", "type" );
-        names.put( "org.omg.CORBA.Object", "interface" );
+        names.put( "char", IDLTypes.TYPE );
+        names.put( "boolean", IDLTypes.TYPE );
+        names.put( "long", IDLTypes.TYPE );
+        names.put( "long", IDLTypes.TYPE );
+        names.put( "short", IDLTypes.TYPE );
+        names.put( "int", IDLTypes.TYPE );
+        names.put( "float", IDLTypes.TYPE );
+        names.put( "double", IDLTypes.TYPE );
+        names.put( "byte", IDLTypes.TYPE );
+        names.put( "void", IDLTypes.TYPE );
+        names.put( "org.omg.CORBA.Any", IDLTypes.TYPE );
+        names.put( "org.omg.CORBA.Object", IDLTypes.INTERFACE );
 
         logger = parser.getLogger();
     }
@@ -82,17 +82,16 @@ public class NameTable
      * check IDL scoping rules
      * @throws NameAlreadyDefined or the derived IllegalRedefinition
      */
-
-    private static void checkScopingRules( String name, String kind )
+    private static void checkScopingRules( String name, IDLTypes kind )
         throws NameAlreadyDefined
     {
         if( logger.isDebugEnabled() )
         {
             logger.debug("NameTable.checkScopingRules:  " +
-                         name + " kind: " + kind );
+                         name + " kind: " + kind.name() );
         }
 
-        if( kind.equals( "argument" ) )
+        if( kind == IDLTypes.ARGUMENT )
         {
             return; // no checks in outer scopes ???
         }
@@ -109,9 +108,8 @@ public class NameTable
 
         if( logger.isDebugEnabled() )
         {
-            logger.debug(
-                         "NameTable.checkScopingRules2:  " +
-                         name + " kind: " + kind );
+            logger.debug("NameTable.checkScopingRules2:  " +
+                         name + " kind: " + kind.name() );
         }
 
         if( scopes.length > 1 &&
@@ -131,13 +129,13 @@ public class NameTable
      *  @throws NameAlreadyDefined if the name is already defined
      */
 
-    public static void define( String name, String kind )
+    public static void define( String name, IDLTypes kind )
         throws NameAlreadyDefined
     {
         if( logger.isInfoEnabled() )
         {
             logger.info( "NameTable.define2: putting " +
-                        name + " kind " + kind + " hash: " +
+                        name + " kind " + kind.name() + " hash: " +
                         name.hashCode() );
         }
 
@@ -153,7 +151,7 @@ public class NameTable
             // or interface name. If it has been
             // explicitly defined in this scope, we have an error
 
-            if( kind.equals( "module" ) )
+            if( kind == IDLTypes.MODULE )
             {
                 // modules may be "reopened", no further checks or table entries
                 return;
@@ -169,8 +167,8 @@ public class NameTable
                 throw new IllegalRedefinition( name );
             }
             else if( !shadows.containsKey( name ) ||
-                     kind.equals( "operation" ) ||
-                     kind.equals( "interface" ) )
+                     kind == IDLTypes.OPERATION ||
+                     kind == IDLTypes.INTERFACE )
             {
                 throw new NameAlreadyDefined( name );
             }
@@ -185,7 +183,7 @@ public class NameTable
                 shadows.remove( name );
                 names.remove( name );
 
-                if( kind.startsWith( "type" ) )
+                if( IDLTypes.isTypeKind(kind) )
                 {
                     // remove the inherited type definition, a new one will be
                     // added soon under this name! Addition of this line fixes
@@ -200,15 +198,20 @@ public class NameTable
             checkScopingRules( name, kind );
         }
 
-        names.put( name, kind );
-
-        /* block identifiers that only differ in case */
+        /* block identifiers that only differ in case 
+         * 
+         *  JAC#584: when the name already in uppercase 
+         *  at first add dummy name then override it 
+         *  if necessary   
+        */
         if( org.jacorb.idl.parser.strict_names )
         {
-            names.put( name.toUpperCase(), "dummy" );
+            names.put( name.toUpperCase(), IDLTypes.DUMMY );
         }
 
-        if( kind.equals( "operation" ) )
+        names.put( name, kind );
+
+        if( kind == IDLTypes.OPERATION )
         {
             operationSources.put( name, name.substring( 0, name.lastIndexOf( "." ) ) );
         }
@@ -268,7 +271,7 @@ public class NameTable
             // illegal multiple inheritance of a the same op name
             throw new NameAlreadyDefined( name );
         }
-        names.put( name, "operation" );
+        names.put( name, IDLTypes.OPERATION );
         operationSources.put( name, inheritedFrom );
     }
 
@@ -277,14 +280,14 @@ public class NameTable
      *  @throws NameAlreadyDefined if a name is already defined
      */
 
-    private static void defineShadows( Hashtable shadowEntries )
+    private static void defineShadows( Hashtable/*<String, IDLTypes>*/ shadowEntries )
         throws NameAlreadyDefined
     {
         String firstViolation = null;
         for( Enumeration e = shadowEntries.keys(); e.hasMoreElements(); )
         {
             String name = (String)e.nextElement();
-            String kind = (String)shadowEntries.get( name );
+            IDLTypes kind = (IDLTypes)shadowEntries.get( name );
             if( names.containsKey( name ) )
             {
                 firstViolation = name;
@@ -297,7 +300,7 @@ public class NameTable
                     logger.debug( "Put shadow " + name );
                 }
                 shadows.put( name, "" );
-                if( kind.equals( "operation" ) )
+                if( kind == IDLTypes.OPERATION )
                 {
                     operationSources.put( name, name.substring( 0, name.lastIndexOf( "." ) ) );
                 }
@@ -318,7 +321,7 @@ public class NameTable
                                                  SymbolList ancestors )
         throws NameAlreadyDefined
     {
-        Hashtable shadowNames = new Hashtable();
+        Hashtable/*<String, IDLTypes>*/ shadowNames = new Hashtable/*<String, IDLTypes>*/();
         for( Enumeration e = names.keys(); e.hasMoreElements(); )
         {
             String key = (String)e.nextElement();
@@ -337,7 +340,7 @@ public class NameTable
                 String anc = ( (ScopedName)( i.nextElement() ) ).resolvedName();
                 if( s.equals( anc ) )
                 {
-                    String kind = (String)names.get( key );
+                    IDLTypes kind = (IDLTypes)names.get( key );
                     if( logger.isDebugEnabled() )
                     {
                         logger.debug( "NameTable.inheritFrom ancestor " + anc +
@@ -350,7 +353,7 @@ public class NameTable
                     // if the name we inherit is a typedef'd name, we need
                     // to typedef the inherited name as well
 
-                    if( kind.startsWith( "type" ) )
+                    if( IDLTypes.isTypeKind(kind) )
                     {
                         if( logger.isDebugEnabled() )
                             logger.debug( "- NameTable.inherit type from:  " + key );
@@ -369,7 +372,7 @@ public class NameTable
                         }
                         shadowNames.put( name + key.substring( key.lastIndexOf( '.' ) ), kind );
                     }
-                    else if( kind.equals( "operation" ) )
+                    else if( kind == IDLTypes.OPERATION )
                     {
                         if( logger.isDebugEnabled() )
                             logger.debug( "- NameTable.inherit operation from:  " +
@@ -382,7 +385,7 @@ public class NameTable
                     else
                     {
                         if( logger.isDebugEnabled() ) {
-                            logger.debug("- NameTable.inherit " + kind + " from:  " + key);
+                            logger.debug("- NameTable.inherit " + kind.name() + " from:  " + key);
                         }
                     }
 
@@ -417,14 +420,14 @@ public class NameTable
         return ( names.containsKey( name ) );
     }
 
-    public static boolean isDefined( String name, String kind )
+    public static boolean isDefined( String name, IDLTypes kind )
     {
         if( !names.containsKey( name ) )
         {
             return false;
         }
-        String k = (String)names.get( name );
-        return ( k.compareTo( kind ) == 0 );
+
+        return names.get( name ) == kind;
     }
 
 

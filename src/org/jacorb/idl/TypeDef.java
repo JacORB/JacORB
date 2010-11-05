@@ -125,7 +125,7 @@ public class TypeDef
                 alias.set_included( included );
 
                 typeSpecs.addElement( alias );
-                NameTable.define( d.full_name(), "type" );
+                NameTable.define( d.full_name(), IDLTypes.TYPE );
                 TypeMap.typedef( d.full_name(), alias );
             }
             catch( NameAlreadyDefined n )

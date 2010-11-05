@@ -141,7 +141,7 @@ public class OpDecl
 
         try
         {
-            NameTable.define( full_name(), "operation" );
+            NameTable.define( full_name(), IDLTypes.OPERATION );
         }
         catch( NameAlreadyDefined nad )
         {
@@ -167,7 +167,7 @@ public class OpDecl
             {
                 NameTable.define( full_name() + "." +
                                   param.simple_declarator.name(),
-                                  "argument" );
+                                  IDLTypes.ARGUMENT );
             }
             catch( NameAlreadyDefined nad )
             {
@@ -1007,7 +1007,4 @@ public class OpDecl
     {
         visitor.visitOpDecl( this );
     }
-
-
-
 }

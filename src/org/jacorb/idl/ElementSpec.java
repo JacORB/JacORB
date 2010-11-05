@@ -126,7 +126,7 @@ public class ElementSpec
 
         try
         {
-            NameTable.define( containingUnion.full_name() + "." + declarator.name(), "declarator" );
+            NameTable.define( containingUnion.full_name() + "." + declarator.name(), IDLTypes.DECLARATOR );
         }
         catch( NameAlreadyDefined nad )
         {

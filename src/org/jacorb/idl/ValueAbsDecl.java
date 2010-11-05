@@ -83,7 +83,7 @@ public class ValueAbsDecl
     public TypeDeclaration declaration()
     {
         return this;
-    };
+    }
 
     public String typeName()
     {
@@ -142,7 +142,7 @@ public class ValueAbsDecl
             ScopedName.definePseudoScope(full_name());
             ctspec.c_type_spec = this;
 
-            NameTable.define(full_name(), "type");
+            NameTable.define(full_name(), IDLTypes.TYPE);
             TypeMap.typedef(full_name(), ctspec);
         }
         catch (IllegalRedefinition ill)

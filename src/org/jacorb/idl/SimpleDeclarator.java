@@ -56,7 +56,7 @@ public class SimpleDeclarator
         // add sloppy_declarator behavior here....
         try
         {
-            NameTable.define( full_name(), "declarator" );
+            NameTable.define( full_name(), IDLTypes.DECLARATOR );
         }
         catch( NameAlreadyDefined p )
         {
@@ -101,28 +101,3 @@ public class SimpleDeclarator
         return name;
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

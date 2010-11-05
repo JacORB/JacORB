@@ -166,7 +166,7 @@ public class ValueDecl
 
             ctspec.c_type_spec = this;
 
-            NameTable.define(full_name(), "type");
+            NameTable.define(full_name(), IDLTypes.TYPE);
             TypeMap.typedef(full_name(), ctspec);
         }
         catch (NameAlreadyDefined nad)

@@ -76,7 +76,7 @@ public class InitDecl
 
         try
         {
-            NameTable.define( full_name(), "factory" );
+            NameTable.define( full_name(), IDLTypes.FACTORY );
         }
         catch( NameAlreadyDefined nad )
         {
@@ -91,7 +91,7 @@ public class InitDecl
             {
                 NameTable.define( full_name() + "." +
                         param.simple_declarator.name(),
-                        "argument" );
+                        IDLTypes.ARGUMENT );
             }
             catch( NameAlreadyDefined nad )
             {

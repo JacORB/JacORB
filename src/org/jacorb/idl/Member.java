@@ -251,7 +251,7 @@ public class Member
                 try
                 {
                     NameTable.define( containingType + "." + declarator.name(),
-                            "declarator" );
+                                      IDLTypes.DECLARATOR );
                 }
                 catch( NameAlreadyDefined nad )
                 {
