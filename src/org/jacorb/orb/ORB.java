@@ -726,16 +726,19 @@ public final class ORB
 
     public org.omg.CORBA.ContextList create_context_list()
     {
+        work_pending();
         throw new org.omg.CORBA.NO_IMPLEMENT ();
     }
 
     public org.omg.CORBA.Environment create_environment()
     {
+        work_pending();
         throw new org.omg.CORBA.NO_IMPLEMENT ();
     }
 
     public org.omg.CORBA.portable.OutputStream create_output_stream()
     {
+        work_pending();
         return new CDROutputStream(this);
     }
 
@@ -894,6 +897,7 @@ public final class ORB
 
     public org.omg.CORBA.Context get_default_context ()
     {
+        work_pending();
         throw new org.omg.CORBA.NO_IMPLEMENT ();
     }
 
@@ -992,6 +996,8 @@ public final class ORB
 
     public String[] list_initial_services()
     {
+        work_pending();
+
         final List list = new ArrayList(initial_references.size() + services.size());
 
         list.addAll(services);
@@ -1204,6 +1210,8 @@ public final class ORB
     public org.omg.CORBA.Object resolve_initial_references(String identifier)
         throws org.omg.CORBA.ORBPackage.InvalidName
     {
+        work_pending();
+
         if ( initial_references.containsKey(identifier) )
         {
             return (org.omg.CORBA.Object)initial_references.get(identifier);
@@ -1325,6 +1333,8 @@ public final class ORB
      * @param id The references human-readable id, e.g. "MyService".
      * @param obj The objects reference.
      * @exception InvalidName A reference with id has already been registered.
+        work_pending();
+
      */
 
     public void register_initial_reference( String id, org.omg.CORBA.Object obj )
@@ -1373,6 +1383,7 @@ public final class ORB
 
     public void send_multiple_requests_oneway( org.omg.CORBA.Request[] req )
     {
+        work_pending();
         for( int i = 0; i < req.length; i++ )
         {
             req[i].send_oneway();
@@ -1381,6 +1392,7 @@ public final class ORB
 
     public void send_multiple_requests_deferred( org.omg.CORBA.Request[] req )
     {
+        work_pending();
         for( int i = 0; i < req.length; i++ )
         {
             req[i].send_deferred();
@@ -1389,6 +1401,7 @@ public final class ORB
 
     public boolean poll_next_response()
     {
+        work_pending();
         if( requests.size () == 0 )
         {
             throw new org.omg.CORBA.BAD_INV_ORDER
@@ -1414,6 +1427,7 @@ public final class ORB
 
     public org.omg.CORBA.Request get_next_response ()
     {
+        work_pending();
         if( requests.size () == 0 )
         {
             throw new org.omg.CORBA.BAD_INV_ORDER
@@ -1910,6 +1924,7 @@ public final class ORB
         }
     }
 
+
     public void destroy()
     {
         if( destroyed )
@@ -1936,7 +1951,7 @@ public final class ORB
 
     public org.omg.CORBA.Object string_to_object (String str)
     {
-        perform_work();
+        work_pending();
 
         if (str == null)
         {
@@ -2004,7 +2019,7 @@ public final class ORB
 
     public String object_to_string( org.omg.CORBA.Object obj)
     {
-        perform_work();
+        work_pending();
 
         if (obj == null)
         {
@@ -2276,23 +2291,28 @@ public final class ORB
 
     public org.omg.CORBA.ExceptionList create_exception_list ()
     {
+        work_pending();
         return new org.jacorb.orb.dii.ExceptionList ();
     }
 
     public org.omg.CORBA.NVList create_list (int count)
     {
+        work_pending();
         return new org.jacorb.orb.NVList (this, count);
     }
 
     public org.omg.CORBA.NamedValue create_named_value
         (String name, org.omg.CORBA.Any value, int flags)
     {
+        work_pending();
         return new org.jacorb.orb.NamedValue (name, value, flags);
     }
 
     public org.omg.CORBA.NVList create_operation_list (org.omg.CORBA.Object obj)
     {
         org.omg.CORBA.OperationDef oper;
+
+        work_pending();
 
         if (obj instanceof org.omg.CORBA.OperationDef)
         {
@@ -2312,6 +2332,9 @@ public final class ORB
         (org.omg.CORBA.OperationDef oper)
     {
         int no = 0;
+
+        work_pending();
+
         final org.omg.CORBA.ParameterDescription[] params = oper.params ();
 
         if (params != null)
@@ -2505,6 +2528,8 @@ public final class ORB
 
     public void connect(org.omg.CORBA.Object obj)
     {
+        work_pending();
+
         if (!(obj instanceof org.omg.CORBA.portable.ObjectImpl))
         {
             throw new BAD_PARAM("connect parameter must extend " +
@@ -2554,6 +2579,8 @@ public final class ORB
 
     public void disconnect(org.omg.CORBA.Object obj)
     {
+        work_pending();
+
         if (!(obj instanceof org.omg.CORBA.portable.ObjectImpl))
         {
             throw new BAD_PARAM("disconnect parameter must extend " +

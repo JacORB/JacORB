@@ -52,6 +52,7 @@ post 2.3.1
         - changed PICurrent's set_slot/get_slot to raise BAD_INV_ORDER
           if they're called from within an ORB initializer.
         - provided a implementation for org.omg.CORBA.ValueBaseHelper.
+       - Improve checks for if an ORB has been shutdown.
         - fix Object::duplicate(4.3.2.1).
        - Fix for initialisation of a ServantDelegate
         - Change set_policy_overrides to match 4.3.9.1 specification.
