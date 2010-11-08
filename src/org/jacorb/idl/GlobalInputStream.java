@@ -61,6 +61,19 @@ public class GlobalInputStream
         logger = parser.getLogger();
     }
 
+    public static void cleanUp()
+    {
+        stream = null;
+        lookahead_stack = null;
+        included = false;
+        expandedText = null;
+        pos = 0;
+        eof = false;
+        currentFile = null;
+        path_names = null;
+        logger = null;
+    }
+
     public static void setInput(String fname)
         throws java.io.IOException
     {

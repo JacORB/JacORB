@@ -114,6 +114,7 @@ parser code
 
     protected static void cleanup()
     {
+        GlobalInputStream.cleanUp();
         generatedHelperPortability = HELPER_PORTABLE;
         pending_interfaces.clear();
         pack_replace.clear();
@@ -731,12 +732,12 @@ parser code
         throws InstantiationException, IllegalAccessException
     {
         final Class cachePluginClass;
-        
+
         try
         {
             if (Thread.currentThread().getContextClassLoader() == null)
             {
-                cachePluginClass = Class.forName( pluginClass );
+                cachePluginClass = Class.forName(pluginClass);
             }
             else
             {
