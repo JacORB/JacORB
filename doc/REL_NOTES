@@ -134,6 +134,7 @@ post 2.3.1
           i2jpackage through. (JAC#608)
         - Fix for IDL compiler union generation - added additional check that prevents explicitly
           defined cases usage for __default(_discriminator) method (JAC#565).
+        - Fix for IDL compiler when the enum declaration is used in 'switch' clause of union (JAC#570).
 
     - Interface Repository:
         - use a persistent POA for the repository servant.

@@ -1,0 +1,21 @@
+module org
+{
+    module jacorb
+    {
+        module test
+        {
+            module bugs
+            {
+                module bugjac570
+                {
+                    union uni1 switch (enum color1 { black, white })
+                    {
+                        case white: long f1;
+                    };
+                };
+            };
+        };
+    };
+};
+
+            

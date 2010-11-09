@@ -1353,6 +1353,13 @@ public class UnionType
             {
                 try
                 {
+                    // JAC570: when the enum declaration is used in union declaration
+                    // the following code will generate implementation classes for enum
+                    if (switch_type_spec.type_spec instanceof ConstrTypeSpec)
+                    {
+                        switch_type_spec.print(ps);
+                    }
+
                     switch_body.print(ps);
 
                     String className = className();
