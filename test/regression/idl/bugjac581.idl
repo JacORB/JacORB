@@ -1,0 +1,20 @@
+
+module org
+{
+    module jacorb
+    {
+        module test
+        {
+            module bugs
+            {
+               module bugjac581
+               {
+                  union BooleanUnion switch(boolean)
+                  {
+                     case FALSE: long value;
+                  };
+               };
+            };
+        };
+    };
+};

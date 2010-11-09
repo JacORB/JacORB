@@ -621,7 +621,7 @@ public class UnionType
                     label[ i ] = null;
                     thisCaseIsDefault = true;
                 }
-                else if (o instanceof ConstExpr)
+                else if (o != null && o instanceof ConstExpr)
                 {
                     label[ i ] = ((ConstExpr)o).value();
                 }
@@ -909,6 +909,7 @@ public class UnionType
         boolean was_default;
         int caseLabelNum;
         String defaultCases = null;
+        int caseCount = 0;
 
         e = switch_body.caseListVector.elements ();
         while (e.hasMoreElements ())
@@ -924,6 +925,7 @@ public class UnionType
             for (int i = 0; i < caseLabelNum; i++)
             {
                 Object o = cse.case_label_list.v.elementAt (i);
+                caseCount++;
 
                 if (o == null)
                 {
@@ -1016,6 +1018,20 @@ public class UnionType
         {
             ps.println ("\t\tresult.__default (disc);");
             ps.println ("\t\treturn result;");
+        }
+        // How can we have boolean with more than two cases?
+        if (switch_is_bool && caseCount > 2)
+        {
+           System.err.println ("Case count is larger than two for a boolean expression");
+           throw new RuntimeException ("Case count is larger than two for a boolean expression");
+        }
+        // If we have has boolean with one case then add a default.
+        if (!explicit_default_case && switch_is_bool && caseCount != 2)
+        {
+           ps.println ("\t\t\telse");
+           ps.println ("\t\t\t{");
+           ps.println ("\t\t\t\tresult.__default (disc);");
+           ps.println ("\t\t\t}");
         }
 
         // Print out default cases last
