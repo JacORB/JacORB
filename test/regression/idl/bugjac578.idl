@@ -1,0 +1,31 @@
+module org
+{
+    module jacorb
+    {
+        module test
+        {
+            module bugs
+            {
+                module bugjac578
+                {
+                    interface i1
+                    {
+                        // valid ranges
+                        const unsigned short us1 = 0;
+                        const unsigned short us2 = 65535;
+                        const short s1 = -32768;
+                        const short s2 = 32768;
+                        const unsigned long ul1 = 0;
+                        const unsigned long ul2 = 4294967295;
+                        const long l1 = -2147483648;
+                        const long l2 = 2147483647;
+                        const unsigned long long ull1 = 0;
+                        const unsigned long long ull2 = 18446744073709551615;
+                        const long long ll1 = -9223372036854775808;
+                        const long long ll2 = 9223372036854775807;
+                    };
+                };
+            };
+        };
+    };
+};

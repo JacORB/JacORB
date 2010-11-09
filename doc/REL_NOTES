@@ -135,6 +135,7 @@ post 2.3.1
         - Fix for IDL compiler union generation - added additional check that prevents explicitly
           defined cases usage for __default(_discriminator) method (JAC#565).
         - Fix for IDL compiler when the enum declaration is used in 'switch' clause of union (JAC#570).
+        - Fix for IDL integer types ranges checking (JAC#578).
 
     - Interface Repository:
         - use a persistent POA for the repository servant.

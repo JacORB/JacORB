@@ -22,6 +22,7 @@ package org.jacorb.idl;
 
 import java.io.PrintWriter;
 import java.math.BigInteger;
+
 import org.jacorb.idl.runtime.int_token;
 import org.jacorb.idl.runtime.long_token;
 
@@ -33,7 +34,17 @@ import org.jacorb.idl.runtime.long_token;
 public class Literal
     extends IdlSymbol
 {
-    private static BigInteger maximum;
+    private static final BigInteger IDL_SHORT_MIN = new BigInteger ("-32768");
+    private static final BigInteger IDL_SHORT_MAX = new BigInteger ("32768");
+    private static final BigInteger IDL_UNSIGNED_MIN = new BigInteger ("0");
+    private static final BigInteger IDL_UNSIGNED_SHORT_MAX = new BigInteger ("65535");
+    private static final BigInteger IDL_LONG_MIN = new BigInteger ("-2147483648");
+    private static final BigInteger IDL_LONG_MAX = new BigInteger ("2147483647");
+    private static final BigInteger IDL_UNSIGNED_LONG_MAX = new BigInteger ("4294967295");
+    private static final BigInteger IDL_LONG_LONG_MIN = new BigInteger ("-9223372036854775808");
+    private static final BigInteger IDL_LONG_LONG_MAX = new BigInteger ("9223372036854775807");
+    private static final BigInteger IDL_UNSIGNED_LONG_LONG_MAX = new BigInteger ("18446744073709551615");
+
     public String string;
     public boolean wide;
     public org.jacorb.idl.runtime.token token;
@@ -65,87 +76,11 @@ public class Literal
                 ts = ((AliasTypeSpec)ts).originalType ();
             }
 
-            // If its unsigned may need to fit the value into a signed
-            // value.
-            if (ts instanceof IntType)
-            {
-                if (((IntType)ts).unsigned &&
-                    ts instanceof LongLongType &&
-                    token instanceof fixed_token)
-                {
-                    // Need to reset the unsigned value to fit into a
-                    // signed long value.
-                    if (maximum == null)
-                    {
-                        maximum = new BigInteger ("18446744073709551615");
-                    }
-                    BigInteger current = new BigInteger (string);
-                    if (current.compareTo (maximum ) > 0)
-                    {
-                        parser.error ("Value too big for unsigned long");
-                    }
-                    else
-                    {
-                        token = new long_token
-                        (
-                            ((fixed_token)token).sym,
-                            ((fixed_token)token).fixed_val.longValue ()
-                        );
-                        string = Long.toString (((long_token)token).long_val);
-                    }
-                }
-                else if (((IntType)ts).unsigned == true &&
-                         ts instanceof LongType &&
-                         token instanceof long_token)
-                {
-                    // Need to reset the unsigned value to fit into a
-                    // signed integer value. Will need to replace the
-                    // token so it is a int_token not a long.
-                    if (((long_token)token).long_val > 4294967295L )
-                    {
-                        parser.error
-                        (
-                            "Value (" +
-                            ((long_token)token).long_val +
-                            ") too big for unsigned long"
-                        );
-                    }
-                    else
-                    {
-                        token = new int_token
-                        (
-                            ((long_token)token).sym,
-                            (int)((long_token)token).long_val
-                        );
-                        string = Integer.toString (((int_token)token).int_val);
-                    }
-                }
-                // Not unsigned but still have a long token for a Java Int type
-                else if (ts instanceof LongType && token instanceof long_token)
-                {
-                    parser.error
-                    (
-                        "Value (" +
-                        ((long_token)token).long_val +
-                        ") too big for Java int"
-                    );
-                }
-                // Not unsigned but still have a fixed_token for a Java Long type
-                else if (ts instanceof LongLongType && token instanceof fixed_token)
-                {
-                    parser.error
-                    (
-                        "Value (" +
-                        ((fixed_token)token).fixed_val.toString () +
-                        ") too big for Java long"
-                    );
-                }
-            }
-
             if( logger.isWarnEnabled() )
                 logger.warn( "Literal " + ts.getClass().getName() + " " +
                              ( token != null? token.getClass().getName() :"<no token>" ) );
 
+            // At first check the float types and strings
             if( ts instanceof FloatPtType &&
                     !( token instanceof org.jacorb.idl.runtime.float_token ) )
             {
@@ -160,13 +95,108 @@ public class Literal
             {
                 if( wide && !( (StringType)ts ).isWide() )
                     parser.error( "Illegal assignment of wide string constant to string!" );
-
             }
-            else if( ( ts instanceof LongType ) || ( ts instanceof ShortType ) )
+            else if( ts instanceof IntType )
             {
-                if( token instanceof org.jacorb.idl.runtime.long_token )
+                // COS578 constant value check was reworked
+
+                // convert constant for the comparison
+                BigInteger value = null;
+
+                if( token instanceof int_token
+                    || token instanceof long_token
+                    || token instanceof fixed_token )
                 {
-                    parser.error( "Illegal assignment from long long" );
+                    value = new BigInteger( string );
+                }
+                else
+                {
+                    parser.error( "Illegal assignment to '" + ts.getIDLTypeName()
+                        + "' of '" + string + "' value" );
+
+                    // do not check further conditions
+                    return;
+                }
+
+                // check the unsigned values first
+                if( ( (IntType)ts ).unsigned )
+                {
+                    if( value.compareTo( IDL_UNSIGNED_MIN ) < 0 )
+                    {
+                        parser.error( "Value " + value.toString() + " is too small for unsigned type" );
+                    }
+                    else if( ts instanceof LongLongType )
+                    {
+                        if( value.compareTo( IDL_UNSIGNED_LONG_LONG_MAX ) > 0 )
+                        {
+                            parser.error( "Value " + value.toString()
+                                    + " is too big for unsigned long long" );
+                        }
+                        else if( token instanceof fixed_token )
+                        {
+                            token = new long_token
+                            (
+                                ((fixed_token)token).sym,
+                                ((fixed_token)token).fixed_val.longValue ()
+                            );
+                            string = Long.toString (((long_token)token).long_val);
+                        }
+                    }
+                    else if( ts instanceof LongType )
+                    {
+                        if( value.compareTo (IDL_UNSIGNED_LONG_MAX) > 0 )
+                        {
+                            parser.error( "Value " + value.toString() + " is too big for unsigned long" );
+                        }
+                        else if( token instanceof long_token )
+                        {
+                            token = new int_token
+                            (
+                                ((long_token)token).sym,
+                                (int)((long_token)token).long_val
+                            );
+                            string = Integer.toString (((int_token)token).int_val);
+                        }
+                    }
+                    else if( ts instanceof ShortType
+                                && value.compareTo( IDL_UNSIGNED_SHORT_MAX ) > 0 )
+                    {
+                        parser.error( "Value " + value.toString() + " is too big for unsigned long" );
+                    }
+                }
+                // then checking the signed type ranges
+                else if( ts instanceof LongLongType )
+                {
+                    if( value.compareTo( IDL_LONG_LONG_MIN ) < 0 )
+                    {
+                        parser.error( "Value " + value.toString() + " is too small for long long type" );
+                    }
+                    else if( value.compareTo( IDL_LONG_LONG_MAX ) > 0 )
+                    {
+                        parser.error( "Value " + value.toString() + " is too big for long long type" );
+                    }
+                }
+                else if( ts instanceof LongType )
+                {
+                    if( value.compareTo (IDL_LONG_MIN) < 0 )
+                    {
+                        parser.error( "Value " + value.toString() + " is too small for long type" );
+                    }
+                    else if( value.compareTo (IDL_LONG_MAX) > 0 )
+                    {
+                        parser.error( "Value " + value.toString() + " is too big for long type" );
+                    }
+                }
+                else if (ts instanceof ShortType)
+                {
+                    if( value.compareTo (IDL_SHORT_MIN) < 0 )
+                    {
+                        parser.error( "Value " + value.toString() + " is too small for short type" );
+                    }
+                    else if( value.compareTo (IDL_SHORT_MAX) > 0 )
+                    {
+                        parser.error( "Value " + value.toString() + " is too big for short type" );
+                    }
                 }
             }
         }

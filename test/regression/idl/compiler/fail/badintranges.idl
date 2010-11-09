@@ -1,0 +1,34 @@
+module org
+{
+    module jacorb
+    {
+        module test
+        {
+            module bugs
+            {
+                module bugjac578
+                {
+                    interface fail_i1
+                    {
+                        // illegal assignment
+                        const short s0 = "asdasdas";
+
+                        // range fails                  
+                        const unsigned short us1 = -1;
+                        const unsigned short us2 = 65536;
+                        const short s1 = -32769;
+                        const short s2 = 32769;
+                        const unsigned long ul1 = -1;
+                        const unsigned long ul2 = 4294967296;
+                        const long l1 = -2147483649;
+                        const long l2 = 2147483648;
+                        const unsigned long long ull1 = -1;
+                        const unsigned long long ull2 = 18446744073709551616;
+                        const long long ll1 = -9223372036854775809;
+                        const long long ll2 = 9223372036854775808;
+                    };
+                };
+            };
+        };
+    };
+};
