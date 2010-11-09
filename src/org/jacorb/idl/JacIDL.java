@@ -20,12 +20,16 @@
 
 package org.jacorb.idl;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+
 import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.DirectoryScanner;
+import org.apache.tools.ant.Project;
 import org.apache.tools.ant.taskdefs.MatchingTask;
 import org.apache.tools.ant.types.Path;
 import org.apache.tools.ant.util.GlobPatternMapper;
@@ -54,6 +58,7 @@ public class JacIDL
     private boolean _nostub;
     private boolean _sloppyforward;
     private boolean _sloppynames;
+    private boolean _sloppyidentifiers;
     private boolean _nofinal;
     private boolean _ami_callback;
     private boolean _force_overwrite;
@@ -201,6 +206,15 @@ public class JacIDL
     }
 
     /**
+     * Set the flag to use sloppy identifiers.
+     * @param flag the flag
+     */
+    public void setSloppyidentifiers(boolean flag)
+    {
+        _sloppyidentifiers = flag;
+    }
+
+    /**
      * Setter for 'nofinal' property that indicates whether generated code should have
      * a final class definition.
      * @param nofinal <code>true</true> for definitions that are not final.
@@ -252,6 +266,11 @@ public class JacIDL
         _cachePlugin = className;
     }
 
+    public void seti2jpackagefile(File pkgfile)
+    {
+        packageFileHelper(pkgfile);
+    }
+
     // ****************************************************************
     // **** Nested elements
     // ******************************
@@ -292,11 +311,52 @@ public class JacIDL
         */
         public void setNames(String names)
         {
-            _i2jpackages.add(names);
+            addPackage(names);
+        }
+
+        /**
+         * Handle the equivalent of -i2jpackagefile argument to parser.java
+         * @param file the file which contains packagefrom:packageto lines
+         */
+        public void setFile(File pkgfile)
+        {
+            packageFileHelper(pkgfile);
         }
     }
 
     // *****************************************************************
+
+    // Helper for handling i2jpackage tags
+    private void addPackage(String mapping)
+    {
+        // Testing bad format now avoids a System.exit() in parser.java later
+        if (mapping.indexOf(':') < 0)
+            throw new BuildException("i2jpackage mapping format: "+mapping);
+        _i2jpackages.add(mapping);
+    }
+
+    private void packageFileHelper(File pkgfile)
+    {
+        // Reader code copied from parser's handling of i2jpackagefile - refactor?
+        try
+        {
+            BufferedReader in = new BufferedReader(new FileReader(pkgfile));
+            String mapping;
+            while ((mapping = in.readLine()) != null)
+            {
+                // Allow/ignore blank lines and comment lines
+                if (mapping.trim().length() > 0 && !mapping.startsWith("#"))
+                {
+                    addPackage(mapping);
+                }
+            }
+            in.close();
+        }
+        catch (IOException e)
+        {
+            throw new BuildException("i2jpackage failure in file "+pkgfile, e);
+        }
+    }
 
     /**
      * The execute() method of the task.
@@ -344,6 +404,9 @@ public class JacIDL
 
         // sloppy names
         parser.strict_names = (!_sloppynames);
+
+        // sloppy identifiers
+        parser.strict_identifiers = (!_sloppyidentifiers);
 
         // nofinal
         parser.setGenerateFinalCode(!_nofinal);
@@ -498,7 +561,7 @@ public class JacIDL
 
         for (int i = 0; i < newfiles.length; i++)
         {
-            log("scan file: " + newfiles[ i ].getPath());
+            log("scan file: " + newfiles[ i ].getPath(), Project.MSG_DEBUG);
             file = newfiles[ i ];
             if (!file.exists())
             {
@@ -512,7 +575,6 @@ public class JacIDL
 
     public File[] getFileList()
     {
-
         return _compileList;
     }
 

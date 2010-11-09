@@ -438,7 +438,8 @@ Tests run: ${result.testCount}, Failures: ${result.testFailures}, Errors: ${resu
                      idl-dii,
                      idl-bugs,
                      idl-ami-bugs,
-                     idl-transport-current-server" />
+                     idl-transport-current-server,
+                     idl-bugjac608"/>
 
     <!-- ==================================================== -->
     <!--                compile Tests.idl                     -->
@@ -546,6 +547,19 @@ Tests run: ${result.testCount}, Failures: ${result.testFailures}, Errors: ${resu
 
     <target name="idl-ami-bugs">
        <process-idl includes="ami_bug*.idl" ami_callback="true" />
+    </target>
+
+    <target name="idl-bugjac608" >
+       <jacidl
+          includes="antBugJac608.idl"
+          srcdir="${idl}"
+          ami_callback="false"
+          destdir="${src}/generated"
+          includepath="${basedir}/idl/omg"
+          helpercompat="jacorb"
+          sloppyidentifiers="true">
+          <i2jpackage names="antBugJac608:org.jacorb.test.antBugJac608"/>
+       </jacidl>
     </target>
 
     <!-- ==================================================== -->

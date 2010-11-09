@@ -130,6 +130,8 @@ post 2.3.1
         - Reset include path between multiple runs of jacidl. (JAC#537)
         - Fixes for IDL compiler union discriminators. (JAC#581)
         - Added -sloppy_identifiers to permit certain illegal identifiers (JAC#441)
+        - Enhance Ant JacIDL task to add error checking, pass sloppy identifiers and
+          i2jpackage through. (JAC#608)
 
     - Interface Repository:
         - use a persistent POA for the repository servant.

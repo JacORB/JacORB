@@ -1,0 +1,14 @@
+
+#include <IOP.idl>
+
+
+module antBugJac608
+{
+   typedef string FooBar;
+
+   interface Jac608
+   {
+      void op1( in FooBar FooBar );
+      void op2( in IOP::IOR anIor );
+   };
+};
