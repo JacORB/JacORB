@@ -755,6 +755,21 @@ public class UnionType
 
             pw.println("\tpublic void __default (" + ts.typeName() + " _discriminator)");
             pw.println("\t{");
+            pw.print("\t\tif( ");
+            for ( int i = 0; i < allCaseLabels.size (); i++ )
+            {
+                String lab = (String) allCaseLabels.elementAt( i );
+                if (i == 0)
+                {
+                    pw.print(" _discriminator == " + lab);
+                }
+                else
+                {
+                    pw.print(" || _discriminator == " + lab);
+                }
+            }
+            pw.println(" )"+Environment.NL+"\t\t\tthrow new org.omg.CORBA.BAD_PARAM( \"Illegal value is used in __default method\","
+                    + " 34, org.omg.CORBA.CompletionStatus.COMPLETED_NO );"+Environment.NL);
             pw.println("\t\tdiscriminator = _discriminator;");
             pw.println("\t}");
         }

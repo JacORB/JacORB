@@ -1,0 +1,26 @@
+module org
+{
+    module jacorb
+    {
+        module test
+        {
+            module bugs
+            {
+                module bugjac565
+                {
+                    interface Modulator
+                    {
+                        enum States { one, two, three, four };
+
+                        // only one case from enum is covered
+                        union Mode switch (States)
+                        {
+                            case one : string refresh;
+                            case three : short count;
+                        };
+                    };
+                };
+            };
+        };
+    };
+};

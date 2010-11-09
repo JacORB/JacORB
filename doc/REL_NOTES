@@ -132,6 +132,8 @@ post 2.3.1
         - Added -sloppy_identifiers to permit certain illegal identifiers (JAC#441)
         - Enhance Ant JacIDL task to add error checking, pass sloppy identifiers and
           i2jpackage through. (JAC#608)
+        - Fix for IDL compiler union generation - added additional check that prevents explicitly
+          defined cases usage for __default(_discriminator) method (JAC#565).
 
     - Interface Repository:
         - use a persistent POA for the repository servant.
