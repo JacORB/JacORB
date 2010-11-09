@@ -323,6 +323,7 @@ public class ValidIDLWithExtraSetupTest extends AbstractIDLTestcase
 
         suite.addTest(new ValidIDLWithExtraSetupTest(new String[] {"-cacheplugin", BugJac144ObjectCachePlugin.class.getName()}, "bugJac144.idl"));
         suite.addTest(new ValidIDLWithExtraSetupTest(new String[] {}, "bugJac144.idl"));
+        suite.addTest(new ValidIDLWithExtraSetupTest("-sloppy_identifiers", TEST_HOME + "/idl/compiler/fail/collision.idl"));
 
         return suite;
     }

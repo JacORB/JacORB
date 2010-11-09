@@ -152,13 +152,18 @@ public class OpDecl
         {
             ParamDecl param = (ParamDecl)e.nextElement();
 
-
-            String typeN = (param.paramTypeSpec.typeName().indexOf( "." ) < 0 ? param.paramTypeSpec.typeName() : param.paramTypeSpec.typeName().substring( param.paramTypeSpec.typeName().lastIndexOf( "." ) + 1 ));
-            
-            if (   (parser.strict_names && typeN.toUpperCase().equals (param.simple_declarator.toString().toUpperCase()))
-                || typeN.equals (param.simple_declarator.toString()))
+            if (parser.strict_identifiers)
             {
-                parser.error("In operation " + full_name() + " argument " + param.simple_declarator + " clashes with type " + param.paramTypeSpec.typeName());
+                String typeN = (param.paramTypeSpec.typeName().indexOf(".") < 0
+                                                                               ? param.paramTypeSpec.typeName()
+                                                                               : param.paramTypeSpec.typeName().substring(param.paramTypeSpec.typeName().lastIndexOf(".") + 1));
+                if ((parser.strict_names && typeN.toUpperCase().equals(param.simple_declarator.toString().toUpperCase()))
+                        || typeN.equals(param.simple_declarator.toString()))
+                {
+                    parser.error("In operation " + full_name() + " argument "
+                            + param.simple_declarator + " clashes with type "
+                            + param.paramTypeSpec.typeName());
+                }
             }
 
             param.parse();

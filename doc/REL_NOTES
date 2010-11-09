@@ -129,6 +129,7 @@ post 2.3.1
         - Support for typeprefix has been added to the idl compiler. (JAC#753)
         - Reset include path between multiple runs of jacidl. (JAC#537)
         - Fixes for IDL compiler union discriminators. (JAC#581)
+        - Added -sloppy_identifiers to permit certain illegal identifiers (JAC#441)
 
     - Interface Repository:
         - use a persistent POA for the repository servant.

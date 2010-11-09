@@ -159,7 +159,8 @@ public class NameTable
             // This check ensures that we can't redefine a name with a
             // different type.
             // We also need to ignore any pending forward declarations.
-            else if (org.jacorb.idl.parser.strict_names &&
+            else if (parser.strict_identifiers &&
+                     org.jacorb.idl.parser.strict_names &&
                      names.containsKey (name) &&
                      ! names.get(name).equals (kind) &&
                      parser.get_pending (name) == null)
