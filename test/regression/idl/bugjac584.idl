@@ -1,0 +1,12 @@
+struct S
+{
+    long l;
+};
+
+struct T
+{
+    S anArray[1];
+    S otherArray[1];
+};
+
+            
