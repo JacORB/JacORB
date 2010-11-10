@@ -1,0 +1,20 @@
+
+module org
+{
+   module jacorb
+   {
+      module test
+      {
+         module bugs
+         {
+            module bugjac583
+            {
+               const string teststr1 = "123" "45";
+
+               const wstring teststr2 = L"zzz123" L"yxy45";
+
+            };
+         };
+      };
+   };
+};

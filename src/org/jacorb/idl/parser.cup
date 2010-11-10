@@ -1756,18 +1756,25 @@ literal ::=
 string_literal ::=
         DBLQUOTE ID:i DBLQUOTE
                  {: RESULT.string = "\"" + i.str_val + "\""; :}
+        | DBLQUOTE ID:i DBLQUOTE DBLQUOTE ID:j DBLQUOTE
+                 {: RESULT.string = "\"" + i.str_val + j.str_val + "\""; :}
         | DBLQUOTE DBLQUOTE
                  {: RESULT.string = "\"\""; :}
         | LDBLQUOTE ID:i DBLQUOTE
                  {:
                         RESULT.string = "\"" + i.str_val + "\"";
                         RESULT.wide = true;
-                  :}
+                 :}
+        | LDBLQUOTE ID:i DBLQUOTE LDBLQUOTE ID:j DBLQUOTE
+                 {:
+                        RESULT.string = "\"" + i.str_val + j.str_val + "\"";
+                        RESULT.wide = true;
+                 :}
         | LDBLQUOTE DBLQUOTE
                  {:
                         RESULT.string = "\"\"";
                         RESULT.wide = true;
-                  :}
+                 :}
         ;
 
 // #26
