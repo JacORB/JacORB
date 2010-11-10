@@ -1688,7 +1688,7 @@ unary_expr ::=
 
 // #22
 unary_op ::=
-          MINUS SPACE {: RESULT.str_val = "-"; :}
+          MINUS {: RESULT.str_val = "-"; :}
         | PLUS {: RESULT.str_val = "+"; :}
         | TILDE {: RESULT.str_val = "~"; :}
         ;
@@ -1707,16 +1707,6 @@ literal ::=
                 {:
                         RESULT.string = "" + n.int_val;
                         RESULT.token = n;
-                :}
-        | MINUS NUMBER:n
-                {:
-                        RESULT.string = "-" + n.int_val;
-                        RESULT.token = n;
-                :}
-        | MINUS LONG_NUMBER:l
-                {:
-                        RESULT.string = "-" + l.long_val;
-                        RESULT.token = l;
                 :}
         | LONG_NUMBER:l
                 {:

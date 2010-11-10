@@ -1,0 +1,18 @@
+module org
+{
+    module jacorb
+    {
+        module test
+        {
+            module bugs
+            {
+                module bugjac585
+                {
+                    const long v = 1;
+                    const long w = -v;
+                    const long a = v - w;
+                };
+            };
+        };
+    };
+};

@@ -138,6 +138,7 @@ post 2.3.1
         - Fix for IDL integer types ranges checking (JAC#578).
         - Fixes for IDL compiler when concatenating string literals (JAC#583).
         - Fix for IDL compiler array naming (JAC#584).
+        - Fix for IDL compiler unary minus in constant definition (JAC#585).
 
     - Interface Repository:
         - use a persistent POA for the repository servant.
