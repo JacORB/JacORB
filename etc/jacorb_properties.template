@@ -125,6 +125,10 @@ jacorb.retries=5
 # how many msecs. do we wait between retries
 jacorb.retry_interval=500
 
+# Buffer manager factory. Default factory is
+# org.jacorb.orb.DefaultBufferManagerFactory
+# jacorb.buffermanager.factory=org.jacorb.orb.DefaultBufferManagerFactory
+
 # log2 of maximum buffer size managed by the internal
 # buffer manager.
 #

@@ -428,6 +428,22 @@ directly be established & integer & 5 \\
 \verb"jacorb.retry_interval" & Time in milliseconds to wait between
 retries & millisec. & 500 \\
 \hline
+\verb"jacorb.buffermanager.f"
+\verb"actory" & This parameter allow to define buffer manager
+factory. Here are 3 options already implemented:
+\begin{enumerate}
+\item org.jacorb.orb.DefaultBufferManagerFactory that will create
+    default buffer manager implementation
+\item org.jacorb.orb.JDK15BufferManagerFactory that uses JDK 1.5 (or
+    above) buffer manager implementation based on the soft references
+    (java.lang.ref.SoftReference).
+\item org.jacorb.orb.NonCachingBufferManagerFactory that uses simple
+    buffer manager implementation without any caching.
+\end{enumerate}
+Also, custom-made buffer manager factories allowed. They must implement
+the org.jacorb.orb.BufferManagerFactory interface.
+& class & org.jacorb.orb.DefaultBufferManagerFactory \\
+\hline
 \verb"jacorb.maxManagedBufSi"
 \verb"ze" & This is NOT the maximum buffer size that can be used, but
 just the largest size of buffers that will be kept and managed. This

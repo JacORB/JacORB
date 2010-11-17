@@ -69,7 +69,7 @@ post 2.3.1
         - fixes for platform java detection in jaco script.
         - fixed issue with deadlock in AOM - move access to requestController
           outside synchronised block.
-        - added more strict checking for wstring/wchar types during demarshalling.
+        - added more strict checking for wstring/wchar types during demarshalling
           GIOP 1.0 does not allow them.
         - fixed issue where exceptions during AMI didn't work
           if the IDL was specified with pragma prefix.
@@ -91,8 +91,8 @@ post 2.3.1
           specification compliance, interoperability and integration by Nick Cross.
         - Updated Java mapping from 02-01-02 to 03-01-02 and simplified IDL files [Bugzilla 451].
         - Add test for to verify OMG stub code get_component is available.
-        - fix jacorb.giop_minor_version property usage (bugzilla 879)
-        - Fix for handling of max_server_connections. (bugzilla 878)
+        - fix jacorb.giop_minor_version property usage (bugzilla 879).
+        - Fix for handling of max_server_connections. (bugzilla 878).
         - Fix for decoding and output of IORs with multiple TAG_ALTERNATE_IIOP_ADDRESS.
         - Allow the ORBs internal deferredArrayWrites to be configurable.
 
@@ -108,7 +108,7 @@ post 2.3.1
         - additional parentheses around const expression in labels in unions.
         - fixed issue in generated code when extracting sequence from any.
         - fixed issue where holder classes for user-defined exceptions
-          weren't generated
+          weren't generated.
         - fixed IDL parser issue where repository ID using pragma prefix
           with more than 1 space before ID caused an parse error.
         - fixes for IDL compiler struct/typedef/array compilation outside
@@ -124,8 +124,8 @@ post 2.3.1
         - applied patch from JacORB bugzila #673/674 which fixes issue where
           Helper.type() method implementation for recursive valuetypes was
           incorrect.
-        - add default serialVersionUID generation (#802)
-        - Use HashMap rather than Hashtable in skeleton code
+        - add default serialVersionUID generation (#802).
+        - Use HashMap rather than Hashtable in skeleton code.
         - Support for typeprefix has been added to the idl compiler. (JAC#753)
         - Reset include path between multiple runs of jacidl. (JAC#537)
         - Fixes for IDL compiler union discriminators. (JAC#581)
@@ -152,9 +152,10 @@ post 2.3.1
         - added section about the usage of corbaloc in conjunction
           with SSL enabled servers.
         - Classloader chapter added.
+        - added buffer manager factory configuration details.
 
     - Fixes:
-        - new lines in log messages fix (#873)
+        - new lines in log messages fix (#873).
 
 2.3.1
 =====
