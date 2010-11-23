@@ -446,18 +446,22 @@ the org.jacorb.orb.BufferManagerFactory interface.
 \hline
 \verb"jacorb.maxManagedBufSi"
 \verb"ze" & This is NOT the maximum buffer size that can be used, but
-just the largest size of buffers that will be kept and managed. This
-value will be added to an internal constant of 5, so the real value in
-bytes is 2** (5 + maxManagedBufSize - 1). You only need to increase
-this value if you are dealing with LOTS of LARGE data structures. You
+just the largest size of buffers that will be kept and managed. The 
+real value of the maximal managed buffer size in bytes is 
+(2**maxManagedBufSize). You only need to increase this value if you 
+are dealing with LOTS of LARGE data structures. You
 may decrease it to make the buffer manager release large buffers
-immediately rather than keeping them for later reuse & integer & 18 \\
+immediately rather than keeping them for later reuse & integer & 22 \\
 \hline
 \verb"jacorb.bufferManagerFl"
 \verb"ushMax" & Whether to use an additional unlimited size buffer
 cache for CDROutputStreams. If -1 then off, if zero then this is
 feature is enabled, if greater than zero then it is enabled and
 flushed every x seconds & integer & -1 \\
+\hline
+\verb"jacorb.bufferManagerTh"
+\verb"reshold" & Maximum number of buffers of the same size held 
+in pool. & integer & 20. \\
 \hline
 \verb"jacorb.deferredArrayQu"
 \verb"eue" & JacORB will delay internally transferring bytes to the stream;

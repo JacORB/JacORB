@@ -19,9 +19,12 @@ package org.jacorb.orb;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
+import java.util.AbstractList;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
-import org.jacorb.config.*;
+import org.jacorb.config.Configuration;
+import org.omg.CORBA.INTERNAL;
 import org.omg.CORBA.NO_MEMORY;
 
 /**
@@ -30,42 +33,51 @@ import org.omg.CORBA.NO_MEMORY;
  * allocations and deallocations and the overall memory footprint.
  * Buffers are generally created on demand.
  *
- * The BufferManager uses a singleton pattern, so will only be a single
- * shared BuffferManager across all ORBs in a process.
- *
- * @author Gerald Brose, FU Berlin
+ * @author Gerald Brose
  * @version $Id$
 */
 
-public final class BufferManager extends AbstractBufferManager
+public class BufferManager extends AbstractBufferManager
 {
-    /** the buffer pool */
-    private final List[] bufferPool;
-    // The 'extra-large' buffer cache.
+   /**
+    * Smallest size of arrays that will be cached for reuse. This equates to
+    * 1023 (calculated by (1 << ( 9 + 1 ) ) - 1 = 1023 )
+    */
+   private static final int MIN_CACHE = 9;
+
+   /**
+    * Precompute Log2
+    */
+   private static final double LOG2 = Math.log (2.0);
+
+    /**
+     * The buffer pool
+     */
+    protected final Collection[] bufferPool;
+
+    /**
+     * The 'extra-large' buffer cache.
+     */
     private byte[] bufferMax = null;
 
+   /**
+    * The maximal buffer size managed since the buffer pool is ordered by buffer
+    * size in log2 steps.
+    *
+    * The default size of 22 means that it will manage 2^(22) = 4Mb.
+    */
+    private final int maxManagedBufferSize;
+
     /**
-     * the maximal buffer size managed since the buffer
-     * pool is ordered by buffer size in log2 steps
+     * Max number of buffers of the same size held in pool.
+     *
+     * Default value is 20.
      */
-
-    private final int MAX;
+    private final int threshold;
 
     /**
-     * the buffer at pos n has size 2**(n+MIN_OFFSET)
-     * so the smallest available buffer is 2**MIN_OFFSET,
-     * the largest buffers managed are 2**(MIN_OFFSET+MAX-1)
+     * Purge thread for QoS purging of the bufferMax cache.
      */
-
-    private static final int MIN_OFFSET = 5;
-
-    /** max number of buffers of the same size held in pool */
-
-    private static final int THRESHOLD = 20;
-    private static final int MEM_BUFSIZE = 256;
-    private static final int MIN_PREFERRED_BUFS = 10;
-
-    // Purge thread for QoS purging of the bufferMax cache.
     private Reaper reaper;
 
     /**
@@ -76,54 +88,32 @@ public final class BufferManager extends AbstractBufferManager
      */
     private final int time;
 
+
     /**
      * used to create the singleton ORB buffermanager
      * @param configuration
      */
     public BufferManager(Configuration configuration)
     {
-        this(
-            configuration.getAttributeAsInteger("jacorb.bufferManagerMaxFlush", 0),
-            configuration.getAttributeAsInteger("jacorb.maxManagedBufSize", 18));
-    }
+        this.time = configuration.getAttributeAsInteger("jacorb.bufferManagerMaxFlush", 0);
+        this.maxManagedBufferSize = configuration.getAttributeAsInteger("jacorb.maxManagedBufSize", 22);
+        this.threshold = configuration.getAttributeAsInteger("jacorb.bufferManagerThreshold", 20);
 
-    /**
-     * Configures the singleton.  It is important that this method is
-     * synchronized over the singleton instance, to avoid race conditions
-     * with getBuffer().  The static synchronization of the calling
-     * method is not enough.
-     */
+        bufferPool = initBufferPool(configuration, maxManagedBufferSize);
 
-    private BufferManager(int time, int max)
-    {
-        this.time = time;
-        this.MAX = max;
+        // Partly prefill the cache with some buffers.
+        int sizes [] = new int [] {1023, 2047};
 
-        bufferPool = new List[ MAX ];
-
-        for( int i = 0; i < MAX; i++)
+        for (int i = 0; i < sizes.length; i++)
         {
-            bufferPool[ i ] = new ArrayList();
+            for( int min = 0; min < 10; min++ )
+            {
+                int position = calcLog(sizes[i]) - MIN_CACHE ;
+                storeBuffer(position, new byte[sizes[i]]);
+            }
         }
 
-        /* create a number of buffers for the preferred memory buffer
-           size */
-
-        int m_pos = 0;
-        int j = MEM_BUFSIZE;
-
-        while( j > 1 )
-        {
-            j = j >> 1;
-            m_pos++;
-        }
-
-        for( int min = 0; min < MIN_PREFERRED_BUFS; min++ )
-        {
-            bufferPool[ m_pos -MIN_OFFSET ].add(new byte[ MEM_BUFSIZE ]);
-        }
-
-        if (time > 0)
+        if ( time > 0)
         {
             if (reaper != null)
             {
@@ -140,78 +130,82 @@ public final class BufferManager extends AbstractBufferManager
         }
     }
 
-    /**
-     * Log 2, rounded up
-     */
-
-    private static final int log2up(int n)
+    protected void storeBuffer(final int position, final byte[] buffer)
     {
-        int l =0;
-        int nn = n-1;
-        while( (nn >>l) != 0 )
+        bufferPool[ position ].add(buffer);
+    }
+
+    protected Collection[] initBufferPool(Configuration configuration, int maxSize)
+    {
+        final List[] bufferPool = new List[maxSize];
+
+        for( int i = 0; i < bufferPool.length; i++)
         {
-            l++;
+            bufferPool[ i ] = (List) new ArrayList (threshold);
         }
 
-        return l;
+        return bufferPool;
     }
 
 
     /**
-     * Log 2, rounded down
+     * Calculate log2 of given value.
+     *
+     * Incorporates shortcut for known memory buffer size and non-cached values.
+     *
+     * @param value
+     * @return
      */
-
-    private static final int log2down(int n)
+    private static final int calcLog (int value)
     {
-        int l =0;
-        int nn = n;
-        while( (nn >>l) != 0 )
+        // Shortcut for uncached_data_length
+        if (value <= 1023 )
         {
-            l++;
+            return MIN_CACHE;
         }
-
-        return l-1;
+        else
+        {
+            return (int)(Math.floor (Math.log (value) / LOG2));
+        }
     }
 
-
-    public byte[] getPreferredMemoryBuffer()
-    {
-        return getBuffer( MEM_BUFSIZE );
-    }
 
     /**
      * <code>getBuffer</code> returns a new buffer.
      *
-     * @param initial an <code>int</code> value
-     * @param cdrStr a <code>boolean</code> value to denote if CDROuputStream is caller
-     *               (may use cache in this situation)
+     * @param size an <code>int</code> value
      * @return a <code>byte[]</code> value
      */
 
-    public synchronized byte[] getBuffer( int initial, boolean cdrStr )
+    public byte[] getBuffer( int size )
     {
-        final byte [] result;
+        byte [] result = null;
 
-        int log = log2up(initial);
+        if (size < 0)
+        {
+           throw new INTERNAL ("Unable to cache and create buffer of negative size. Possible overflow issue.");
+        }
 
-        if (log >= MAX)
+        final int log = calcLog(size);
+
+        if (log > maxManagedBufferSize)
         {
             try
             {
-                if (!cdrStr || time < 0)
+                if (time < 0)
                 {
                     // Defaults to returning asked for size
-                    result = new byte[initial];
+                    result = new byte[size];
                 }
                 else
                 {
                     synchronized(this)
                     {
                         // Using cache so do below determination
-                        if (bufferMax == null || bufferMax.length < initial)
+                        if (bufferMax == null || bufferMax.length < size)
                         {
                             // Autocache really large values for speed
-                            bufferMax = new byte[initial*2];
+                            bufferMax = new byte[size];
                         }
                         // Else return the cached buffer
                         result = bufferMax;
@@ -226,23 +220,39 @@ public final class BufferManager extends AbstractBufferManager
         }
         else
         {
-            final List s;
-            synchronized(this)
-            {
-                s = bufferPool[log > MIN_OFFSET ? log - MIN_OFFSET : 0 ];
-            }
+            int index = (log > MIN_CACHE ? log - MIN_CACHE : 0);
+            final Collection s = bufferPool[index];
+            result = doFetchBuffer(s);
 
-            if(!s.isEmpty())
+            if (result == null)
             {
-                // pop least recently added buffer from the list
-                result = (byte[])s.remove(s.size()-1);
-            }
-            else
-            {
-                result = new byte[log > MIN_OFFSET ? 1<<log : 1 << MIN_OFFSET ];
+                // .. = 1 << MIN_CACHE + 1
+                // 64 = 1 << 5 + 1
+                // 128 = 1 << 6 + 1
+                // 255 = 1 << 7 + 1
+                // 512 = 1 << 8 + 1
+                // 1024 = 1 << 9 + 1
+                // 2048 = 1 << 10 + 1
+                result = new byte[ ( log > MIN_CACHE ? 1 << log + 1 : 1024 ) - 1];
             }
         }
         return result;
+    }
+
+    protected byte[] doFetchBuffer(Collection list)
+    {
+        synchronized(list)
+        {
+            final int size = list.size();
+
+            if (size > 0)
+            {
+                // pop least recently added buffer from the list
+                return (byte[])((AbstractList)list).remove(size-1);
+            }
+        }
+
+        return null;
     }
 
     /**
@@ -256,11 +266,11 @@ public final class BufferManager extends AbstractBufferManager
     {
         if (current != null)
         {
-            int log_curr = log2down(current.length);
+           int log_curr = calcLog(current.length);
 
-            if( log_curr >= MIN_OFFSET )
+            if( log_curr >= MIN_CACHE)
             {
-                if( log_curr > MAX )
+                if( log_curr > maxManagedBufferSize )
                 {
                     synchronized(this)
                     {
@@ -276,26 +286,31 @@ public final class BufferManager extends AbstractBufferManager
                     }
                 }
 
-                synchronized(this)
-                {
-                    List s = bufferPool[ log_curr - MIN_OFFSET ];
-                    if( s.size() < THRESHOLD )
-                    {
-                        s.add( current );
-                    }
-                }
+                final Collection s = bufferPool[ log_curr-MIN_CACHE ];
+
+                doReturnBuffer(s, current, threshold);
             }
         }
     }
 
-    public synchronized void release()
+    protected void doReturnBuffer(Collection list, byte[] buffer, final int threshold)
     {
-        // printStatistics();
-        for( int i= MAX; i > 0; )
+        synchronized(list)
         {
-            i--;
-            bufferPool[i].clear();
+            if( list.size() < threshold )
+            {
+                list.add( buffer );
+            }
         }
+    }
+
+    public void release()
+    {
+        for( int i= 0; i < bufferPool.length; ++i)
+        {
+           bufferPool[i].clear();
+        }
+
         if (reaper != null)
         {
             reaper.dispose();
@@ -303,8 +318,7 @@ public final class BufferManager extends AbstractBufferManager
         }
     }
 
-
-    private class Reaper extends Thread
+    private final class Reaper extends Thread
     {
         private boolean done = false;
         private int sleepInterval = 0;

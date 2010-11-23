@@ -87,14 +87,17 @@ post 2.3.1
         - call shutdownOutput before closing socket as recommended by
           http://java.sun.com/j2se/1.5.0/docs/guide/net/articles/connection_release.html
         - applied patch from JacORB Bugzilla #801 for AOM Thread creation.
-        - New MIOP ETF transport added. Original design and implementation by Alysson Bessani. Further work on implementation,
-          specification compliance, interoperability and integration by Nick Cross.
+        - New MIOP ETF transport added. Original design and implementation by Alysson Bessani. 
+          Further work on implementation, specification compliance, interoperability and 
+          integration by Nick Cross.
         - Updated Java mapping from 02-01-02 to 03-01-02 and simplified IDL files [Bugzilla 451].
         - Add test for to verify OMG stub code get_component is available.
         - fix jacorb.giop_minor_version property usage (bugzilla 879).
         - Fix for handling of max_server_connections. (bugzilla 878).
         - Fix for decoding and output of IORs with multiple TAG_ALTERNATE_IIOP_ADDRESS.
         - Allow the ORBs internal deferredArrayWrites to be configurable.
+        - BufferManager implementation has been reworked - code simplifying and 
+          tiding.
 
     - IDL Compiler:
         - fixed issue where the IDL compiler generated imports for the
@@ -126,19 +129,19 @@ post 2.3.1
           incorrect.
         - add default serialVersionUID generation (#802).
         - Use HashMap rather than Hashtable in skeleton code.
-        - Support for typeprefix has been added to the idl compiler. (JAC#753)
-        - Reset include path between multiple runs of jacidl. (JAC#537)
-        - Fixes for IDL compiler union discriminators. (JAC#581)
-        - Added -sloppy_identifiers to permit certain illegal identifiers (JAC#441)
+        - Support for typeprefix has been added to the idl compiler.
+        - Reset include path between multiple runs of jacidl.
+        - Fixes for IDL compiler union discriminators.
+        - Added -sloppy_identifiers to permit certain illegal identifiers.
         - Enhance Ant JacIDL task to add error checking, pass sloppy identifiers and
-          i2jpackage through. (JAC#608)
+          i2jpackage through.
         - Fix for IDL compiler union generation - added additional check that prevents explicitly
-          defined cases usage for __default(_discriminator) method (JAC#565).
-        - Fix for IDL compiler when the enum declaration is used in 'switch' clause of union (JAC#570).
-        - Fix for IDL integer types ranges checking (JAC#578).
-        - Fixes for IDL compiler when concatenating string literals (JAC#583).
-        - Fix for IDL compiler array naming (JAC#584).
-        - Fix for IDL compiler unary minus in constant definition (JAC#585).
+          defined cases usage for __default(_discriminator) method.
+        - Fix for IDL compiler when the enum declaration is used in 'switch' clause of union.
+        - Fix for IDL integer types ranges checking.
+        - Fixes for IDL compiler when concatenating string literals.
+        - Fix for IDL compiler array naming.
+        - Fix for IDL compiler unary minus in constant definition.
         - Fix for IDL compiler package generation for nested types (Bugzilla #700).
 
     - Interface Repository:
@@ -156,7 +159,7 @@ post 2.3.1
         - added buffer manager factory configuration details.
 
     - Fixes:
-        - new lines in log messages fix (#873).
+        - new lines in log messages fix (bugzilla #873).
 
 2.3.1
 =====

@@ -1,0 +1,19 @@
+module org
+{
+    module jacorb
+    {
+        module test
+        {
+            module bugs
+            {
+                module bugjac774
+                {
+                   interface MyServer
+                   {
+                      long testBuffer(in long size);
+                   };
+                };
+            };
+        };
+    };
+};

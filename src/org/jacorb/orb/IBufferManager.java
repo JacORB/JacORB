@@ -33,7 +33,7 @@ public interface IBufferManager
 {
     /**
      * @return a buffer that has a pre-configured size
-     * @see #getBuffer(int, boolean)
+     * @see #getBuffer(int)
      */
     byte[] getPreferredMemoryBuffer();
 
@@ -54,15 +54,7 @@ public interface IBufferManager
      * <code>getBuffer</code> returns a new buffer.
      *
      * @param size an <code>int</code> value
-     * @param cdrStr a <code>boolean</code> value to denote if CDROuputStream is caller
-     *               (may use cache in this situation)
      * @return a <code>byte[]</code> value
-     */
-    byte[] getBuffer(int size, boolean cdrStr);
-
-    /**
-     * equals getBuffer(size, false);
-     * @see #getBuffer(int, boolean)
      */
     byte[] getBuffer(int size);
 

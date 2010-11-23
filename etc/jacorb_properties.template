@@ -129,19 +129,18 @@ jacorb.retry_interval=500
 # org.jacorb.orb.DefaultBufferManagerFactory
 # jacorb.buffermanager.factory=org.jacorb.orb.DefaultBufferManagerFactory
 
-# log2 of maximum buffer size managed by the internal
-# buffer manager.
-#
 # This is NOT the maximum buffer size that
 # can be used, but just the largest size of buffers that
-# will be kept and managed. This value will be added to
-# an internal constant of 5, so the real value in bytes
-# is 2**(5+maxManagedBufSize-1). You only need to increase this
+# will be kept and managed. You only need to increase this
 # value if you are dealing with LOTS of LARGE data structures.
 # You may decrease it to make the buffer manager release large
 # buffers immediately rather than keeping them for later
-# reuse.
-jacorb.maxManagedBufSize=18
+# reuse. This value equates to 2^22 = 4MB
+jacorb.maxManagedBufSize=22
+
+# Max number of buffers of the same size held in pool.
+# Default value is 20.
+# jacorb.bufferManagerThreshold=20
 
 # If this value is 0 an extra unlimited size buffer cache is created
 # for the CDROutputStreams. If this value is > 0 then the cache will

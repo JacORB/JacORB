@@ -364,6 +364,7 @@ public class ServerRequest
     }
 
 
+    // BasicAdapter / ServerRequestListener / IMR
     public void reply()
     {
         if( responseExpected() )
@@ -452,6 +453,12 @@ public class ServerRequest
             catch ( Exception ioe )
             {
                 logger.info("Error replying to request!", ioe);
+            }
+            finally
+            {
+                out.close();
+                // nullify output stream to force its recreation on next call
+                out = null;
             }
         }
     }

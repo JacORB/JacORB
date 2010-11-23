@@ -267,7 +267,7 @@ public class CDROutputStream
         }
         else
         {
-            buffer = bufMgr.getBuffer(bufferSize, true);
+            buffer = bufMgr.getBuffer(bufferSize);
         }
     }
     /**
@@ -537,7 +537,7 @@ public class CDROutputStream
                 new_size = _result;
             }
 
-            final byte[] new_buf = bufMgr.getBuffer( new_size, true);
+            final byte[] new_buf = bufMgr.getBuffer(new_size);
 
             if (buffer != null)
             {

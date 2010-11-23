@@ -34,7 +34,7 @@ public class NonCachingBufferManagerFactory implements BufferManagerFactory
 {
     private final static IBufferManager bufferManager = new AbstractBufferManager()
     {
-        public byte[] getBuffer(int size, boolean cdrStr)
+        public byte[] getBuffer(int size)
         {
             return new byte[size];
         }
