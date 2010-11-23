@@ -139,6 +139,7 @@ post 2.3.1
         - Fixes for IDL compiler when concatenating string literals (JAC#583).
         - Fix for IDL compiler array naming (JAC#584).
         - Fix for IDL compiler unary minus in constant definition (JAC#585).
+        - Fix for IDL compiler package generation for nested types (Bugzilla #700).
 
     - Interface Repository:
         - use a persistent POA for the repository servant.

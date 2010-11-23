@@ -1,0 +1,27 @@
+module org
+{
+    module jacorb
+    {
+        module test
+        {
+            module bugs
+            {
+                module bug700
+                {
+                    struct MyUnion;
+
+                    typedef sequence<MyUnion> MyUnionSeq;
+
+                    union MyUnion switch (boolean)
+                    {
+                    case TRUE:
+                        struct NestedStruct
+                        {
+                            MyUnionSeq union_seq;
+                        } nested_struct;
+                    };
+                };
+            };
+        };
+    };
+};

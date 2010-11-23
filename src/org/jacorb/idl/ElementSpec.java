@@ -61,7 +61,8 @@ public class ElementSpec
            {
               tmpRef = tmpRef.substring( 0, tmpRef.lastIndexOf( "Package" ) );
            }
-           if (ScopedName.isPseudoScope (tmpRef))
+           if (ScopedName.isPseudoScope (tmpRef)
+               || ((ConstrTypeSpec)typeSpec.typeSpec ()).c_type_spec instanceof StructType)
            {
               ((ConstrTypeSpec)typeSpec.typeSpec ()).c_type_spec.pack_name =
                  ((ConstrTypeSpec)typeSpec.typeSpec ()).c_type_spec.pack_name + "." + ut.name + "Package";
