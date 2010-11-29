@@ -1,0 +1,25 @@
+module org
+{
+    module jacorb
+    {
+        module test
+        {
+            module bugs
+            {
+                module bugjac732
+                {
+                    union uni1 switch (enum color1 {black, white} ) 
+                    {
+                        case ::org::jacorb::test::bugs::bugjac732::uni1::white : long f1;
+                    };
+
+                    union uni2 switch (short)
+                    {
+                        case 0 : enum color2 {black, white} uni_inline_enum;
+                        case 1 : sequence<::org::jacorb::test::bugs::bugjac732::uni2::color2> uni_inline_seq;
+                    };
+                };
+            };
+        };
+    };
+};

@@ -91,13 +91,6 @@ public class Case
     public void setTypeSpec( TypeSpec s )
     {
         type_spec = s;
-        // JAC570: don't set package name when the enum 
-        // declaration is used inline in the switch clause 
-        // to prevent package name duplication
-        if( type_spec != null && !(type_spec.type_spec instanceof ConstrTypeSpec) )
-        {
-            type_spec.setPackage( pack_name );
-        }
     }
 
     private String enumTypeName()

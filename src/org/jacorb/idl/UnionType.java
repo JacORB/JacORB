@@ -1458,4 +1458,19 @@ public class UnionType
     {
         visitor.visitUnion(this);
     }
+
+    public void set_name(String n)
+    {
+        super.set_name(n);
+
+        if (switch_type_spec != null)
+        {
+            switch_type_spec.setPackage( n );
+        }
+
+        if (switch_body != null)
+        {
+            switch_body.setPackage( n );
+        }
+    }
 }
