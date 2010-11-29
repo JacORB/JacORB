@@ -1311,11 +1311,11 @@ public final class Any
                     ((org.omg.CORBA_2_3.portable.InputStream)input).read_abstract_interface();
                 if (obj instanceof org.omg.CORBA.Object)
                 {
-                    insert_Object((org.omg.CORBA.Object)obj);
+                    insert_object(type, (org.omg.CORBA.Object)obj);
                 }
                 else
                 {
-                    insert_Value((java.io.Serializable)obj);
+                    insert_Value((java.io.Serializable)obj, type);
                 }
                 break;
             }
