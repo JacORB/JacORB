@@ -2132,7 +2132,7 @@ public final class Delegate
                                                      org.omg.CORBA.Policy[] policies,
                                                      org.omg.CORBA.SetOverrideType set_add )
     {
-        return set_policy_override (self, policies, set_add);
+        return set_policy_overrides (self, policies, set_add);
     }
 
     public org.omg.CORBA.Object set_policy_overrides( org.omg.CORBA.Object self,
