@@ -433,6 +433,7 @@ Tests run: ${result.testCount}, Failures: ${result.testFailures}, Errors: ${resu
                      idl-notification-typed,
                      idl-value,
                      idl-value-test,
+                     idl-abstract-interface,
                      idl-exception,
                      idl-shutdown,
                      idl-dii,
@@ -523,6 +524,10 @@ Tests run: ${result.testCount}, Failures: ${result.testFailures}, Errors: ${resu
 
     <target name="idl-value-test">
           <process-idl includes="ValueTest.idl" />
+    </target>
+
+    <target name="idl-abstract-interface">
+          <process-idl includes="Abstract_Interface.idl" />
     </target>
 
     <target name="idl-exception">

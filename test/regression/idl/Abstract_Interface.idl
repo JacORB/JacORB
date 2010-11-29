@@ -1,0 +1,60 @@
+/*
+ * Test IDL for abstract interface test
+ */
+
+module org
+{
+   module jacorb
+   {
+      module test
+      {
+         module orb
+         {
+            module value
+            {
+				exception BadInput
+				{
+				  string message;
+				};
+				
+				abstract interface Base
+				{
+				  string base_op (in string inarg)
+				    raises (BadInput);
+				};
+				
+				interface Foo : Base
+				{
+				  string foo_op (in string inarg)
+				    raises (BadInput);
+				};
+				
+				interface Passer
+				{
+				  void pass_ops (out Base outarg);
+				  void pass_state (out Base outarg);
+				  void pass_nil (out Base outarg);
+				  oneway void shutdown ();
+				};
+				
+				valuetype BaseNode
+				{
+				  public BaseNode left;
+				  public BaseNode right;
+				};
+				
+				valuetype StringNode : BaseNode
+				{
+				  public string name;
+				};
+				
+				valuetype TreeController supports Base
+				{
+				  public BaseNode root;
+				};
+            };
+         };
+      };
+   };
+};
+
