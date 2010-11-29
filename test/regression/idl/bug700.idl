@@ -8,7 +8,7 @@ module org
             {
                 module bug700
                 {
-                    struct MyUnion;
+                    union MyUnion;
 
                     typedef sequence<MyUnion> MyUnionSeq;
 
