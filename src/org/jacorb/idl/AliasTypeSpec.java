@@ -248,6 +248,7 @@ public class AliasTypeSpec
             try
             {
                 if (!(originalType instanceof FixedPointType) &&
+                    !(originalType.typeSpec() instanceof ArrayTypeSpec) &&
                     !(originalType.typeSpec() instanceof StringType) &&
                     !(originalType.typeSpec() instanceof SequenceType) &&
                     ! originalTypeWasScopedName &&

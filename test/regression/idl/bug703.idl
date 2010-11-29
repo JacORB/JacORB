@@ -1,0 +1,21 @@
+module org
+{
+    module jacorb
+    {
+        module test
+        {
+            module bugs
+            {
+                module bug703
+                {
+                    typedef octet ID[16];
+
+                    struct Node
+                    {
+                        ID uuid;
+                    };
+                };
+            };
+        };
+    };
+};

@@ -144,6 +144,7 @@ post 2.3.1
         - Fix for IDL compiler unary minus in constant definition.
         - Fix for IDL compiler package generation for nested types (Bugzilla #700).
         - Fix fir IDL compiler unions scope processing.
+        - Fix typecode for typedef'd array (Bugzilla #703).
 
     - Interface Repository:
         - use a persistent POA for the repository servant.
