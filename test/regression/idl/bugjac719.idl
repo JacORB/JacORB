@@ -1,0 +1,31 @@
+module org
+{
+    module jacorb
+    {
+        module test
+        {
+            module bugs
+            {
+                module bugjac719
+                {
+		            enum Size { SMALL, MEDIUM, LARGE };
+
+                    struct A 
+                    { 
+                        long x; 
+                    };
+                        
+                    typedef A arrayA[10];
+                        
+                    union UnionStartMultiDimArrayStruct switch (Size)
+                    {
+                        case MEDIUM:
+                            arrayA threeDimA[2][3];
+                        default:
+                            A myA;
+                    };
+                };
+            };
+        };
+    };
+};
