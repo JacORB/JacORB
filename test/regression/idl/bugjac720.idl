@@ -1,0 +1,24 @@
+module org
+{
+    module jacorb
+    {
+        module test
+        {
+            module bugs
+            {
+                module bugjac720
+                {
+                    enum Color { Red, Green, Blue };
+                    union DefaultMultipleValuesUnion switch (Color)
+                    {
+                        case Red:
+                            long redCase;
+                        default:
+                            long defaultCase;
+                    };
+                };
+            };
+        };
+    };
+};
+

@@ -722,7 +722,7 @@ public class UnionType
                         String lab = (String) unusedCaseLabels.elementAt (i);
                         if (! lab.equals (defaultStr))
                         {
-                            pw.print (" && discriminator != " + lab);
+                            pw.print (" && _discriminator != " + lab);
                         }
                     }
                 }

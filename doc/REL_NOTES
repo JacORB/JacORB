@@ -148,6 +148,8 @@ post 2.3.1
         - Fix for IDL compiler failure when multiple unions specify the same branch name.
         - Fix for IDL compiler issue where Java keywords that have been added
           since JDK1.5 are used as identifiers.
+        - Fix for IDL compiler issue where compiler incorrectly checks discriminator in default 
+          branch.
 
     - Interface Repository:
         - use a persistent POA for the repository servant.
