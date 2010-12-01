@@ -20,10 +20,10 @@
 
 package org.jacorb.idl;
 
+import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Stack;
 
-import org.jacorb.idl.parser;
 import org.jacorb.idl.runtime.char_token;
 import org.jacorb.idl.runtime.float_token;
 import org.jacorb.idl.runtime.int_token;
@@ -88,7 +88,7 @@ public class lexer
     /** Table of Java reserved names.
      */
 
-    protected static Hashtable java_keywords = new Hashtable();
+    protected static HashSet java_keywords = new HashSet();
 
     /** Table of single character symbols.  For ease of implementation, we
      *  store all unambiguous single character tokens in this table of Integer
@@ -265,66 +265,69 @@ public class lexer
 
         /* set up reserved Java names */
 
-        java_keywords.put( "abstract", "" );
-        java_keywords.put( "boolean", "" );
-        java_keywords.put( "break", "" );
-        java_keywords.put( "byte", "" );
-        java_keywords.put( "case", "" );
-        java_keywords.put( "catch", "" );
-        java_keywords.put( "char", "" );
-        java_keywords.put( "class", "" );
-        java_keywords.put( "const", "" );
-        java_keywords.put( "continue", "" );
-        java_keywords.put( "default", "" );
-        java_keywords.put( "do", "" );
-        java_keywords.put( "double", "" );
-        java_keywords.put( "else", "" );
-        java_keywords.put( "extends", "" );
-        java_keywords.put( "false", "" );
-        java_keywords.put( "final", "" );
-        java_keywords.put( "finally", "" );
-        java_keywords.put( "float", "" );
-        java_keywords.put( "for", "" );
-        java_keywords.put( "goto", "" );
-        java_keywords.put( "if", "" );
-        java_keywords.put( "implements", "" );
-        java_keywords.put( "import", "" );
-        java_keywords.put( "instanceof", "" );
-        java_keywords.put( "int", "" );
-        java_keywords.put( "interface", "" );
-        java_keywords.put( "long", "" );
-        java_keywords.put( "native", "" );
-        java_keywords.put( "new", "" );
-        java_keywords.put( "null", "" );
-        java_keywords.put( "package", "" );
-        java_keywords.put( "private", "" );
-        java_keywords.put( "protected", "" );
-        java_keywords.put( "public", "" );
-        java_keywords.put( "return", "" );
-        java_keywords.put( "short", "" );
-        java_keywords.put( "static", "" );
-        java_keywords.put( "super", "" );
-        java_keywords.put( "switch", "" );
-        java_keywords.put( "synchronized", "" );
-        java_keywords.put( "true", "" );
-        java_keywords.put( "this", "" );
-        java_keywords.put( "throw", "" );
-        java_keywords.put( "throws", "" );
-        java_keywords.put( "transient", "" );
-        java_keywords.put( "try", "" );
-        java_keywords.put( "void", "" );
-        java_keywords.put( "volatile", "" );
-        java_keywords.put( "while", "" );
+        java_keywords.add( "abstract" );
+        java_keywords.add( "assert");
+        java_keywords.add( "boolean" );
+        java_keywords.add( "break" );
+        java_keywords.add( "byte" );
+        java_keywords.add( "case" );
+        java_keywords.add( "catch" );
+        java_keywords.add( "char" );
+        java_keywords.add( "class" );
+        java_keywords.add( "const" );
+        java_keywords.add( "continue" );
+        java_keywords.add( "default" );
+        java_keywords.add( "do" );
+        java_keywords.add( "double" );
+        java_keywords.add( "else" );
+        java_keywords.add( "enum");
+        java_keywords.add( "extends" );
+        java_keywords.add( "false" );
+        java_keywords.add( "final" );
+        java_keywords.add( "finally" );
+        java_keywords.add( "float" );
+        java_keywords.add( "for" );
+        java_keywords.add( "goto" );
+        java_keywords.add( "if" );
+        java_keywords.add( "implements" );
+        java_keywords.add( "import" );
+        java_keywords.add( "instanceof" );
+        java_keywords.add( "int" );
+        java_keywords.add( "interface" );
+        java_keywords.add( "long" );
+        java_keywords.add( "native" );
+        java_keywords.add( "new" );
+        java_keywords.add( "null" );
+        java_keywords.add( "package" );
+        java_keywords.add( "private" );
+        java_keywords.add( "protected" );
+        java_keywords.add( "public" );
+        java_keywords.add( "return" );
+        java_keywords.add( "short" );
+        java_keywords.add( "static" );
+        java_keywords.add( "strictfp");
+        java_keywords.add( "super" );
+        java_keywords.add( "switch" );
+        java_keywords.add( "synchronized" );
+        java_keywords.add( "true" );
+        java_keywords.add( "this" );
+        java_keywords.add( "throw" );
+        java_keywords.add( "throws" );
+        java_keywords.add( "transient" );
+        java_keywords.add( "try" );
+        java_keywords.add( "void" );
+        java_keywords.add( "volatile" );
+        java_keywords.add( "while" );
 
-        java_keywords.put( "clone", "" );
-        java_keywords.put( "equals", "" );
-        java_keywords.put( "finalize", "" );
-        java_keywords.put( "getClass", "" );
-        java_keywords.put( "hashCode", "" );
-        java_keywords.put( "notify", "" );
-        java_keywords.put( "notifyAll", "" );
-        java_keywords.put( "toString", "" );
-        java_keywords.put( "wait", "" );
+        java_keywords.add( "clone" );
+        java_keywords.add( "equals" );
+        java_keywords.add( "finalize" );
+        java_keywords.add( "getClass" );
+        java_keywords.add( "hashCode" );
+        java_keywords.add( "notify" );
+        java_keywords.add( "notifyAll" );
+        java_keywords.add( "toString" );
+        java_keywords.add( "wait" );
 
 
 
@@ -1114,7 +1117,7 @@ public class lexer
 
     private static boolean needsJavaEscape( String s )
     {
-        return ( java_keywords.containsKey( s ) );
+        return ( java_keywords.contains( s ) );
     }
 
     /**
@@ -1288,8 +1291,6 @@ public class lexer
                 /* Try to scan octal/hexadecimal numbers, might even find a float */
                 if( next_char == '0' )
                 {
-                    long l_val = 0;
-                    long l_val_old = 0;
                     int radix = 8;
                     int digit = 0;
                     advance();
@@ -1357,7 +1358,6 @@ public class lexer
                 {
                     StringBuffer value = new StringBuffer();
                     StringBuffer fraction = null;
-                    int exp = 0;
 
                     if ( next_char == '-' )
                     {

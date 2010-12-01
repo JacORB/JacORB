@@ -1,0 +1,80 @@
+module org
+{
+    module jacorb
+    { 
+    	module test
+    	{
+    	    module bugs
+    	    {
+    	        module bugjac717
+    	        {
+                    struct javaKeywordStruct 
+                    {
+                        long _abstract;
+                        long assert;
+                        long _boolean;
+                        long break;
+                        long byte;
+                        long _case;
+                        long catch;
+                        long _char;
+                        long class;
+                        long clone;
+                        long _const;
+                        long continue;
+                        long _default;
+                        long do;
+                        long _double;
+                        long else;
+                        long _enum;
+                        long equals;
+                        long extends;
+                        long _false;
+                        long final;
+                        long finalize;
+                        long finally;
+                        long _float;
+                        long for;
+                        long getClass;
+                        long goto;
+                        long hashCode;
+                        long if;
+                        long implements;
+                        long _import;
+                        long instanceof;
+                        long int;
+                        long _interface;
+                        long _long;
+                        long _native;
+                        long new;
+                        long notify;
+                        long notifyAll;
+                        long null;
+                        long package;
+                        long _private;
+                        long protected;
+                        long _public;
+                        long return;
+                        long _short;
+                        long static;
+                        long super;
+                        long _switch;
+                        long synchronized;
+                        long this;
+                        long throw;
+                        long throws;
+                        long toString;
+                        long transient;
+                        long _true;
+                        long try;
+                        long _void;
+                        long volatile;
+                        long wait;
+                        long while;
+                    };
+                };
+            };
+        };
+    };
+};
+
