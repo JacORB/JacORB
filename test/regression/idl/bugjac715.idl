@@ -1,0 +1,26 @@
+module org
+{
+    module jacorb
+    { 
+        module test
+        {
+            module bugs
+            {
+                 module bugjac715
+                 {
+                     union basicTypeArrayUnion switch (char) 
+                     {
+                         case 'b':  
+                             char charCase[2];
+                     };
+
+                     union userTypeUnion switch (char) 
+                     {
+                         case 'a':
+                             char charCase[2][2];
+                     };
+                 };
+             };
+         };
+    };
+};

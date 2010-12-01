@@ -66,6 +66,8 @@ public class ElementSpec
             logger.debug("EelementSpec.parse(): element_spec is " +  typeSpec.typeSpec().getClass().getName());
         }
 
+        boolean addName = true;
+
         if( typeSpec.typeSpec() instanceof TemplateTypeSpec ||
             typeSpec.typeSpec() instanceof ConstrTypeSpec )
         {
@@ -108,9 +110,22 @@ public class ElementSpec
             }
         }
 
+        // JAC#715: Array types processing moved here from org.jacorb.idl.UnionType class.
+        //          Fixed array names scope.
+        if( declarator.d instanceof ArrayDeclarator )
+        {
+            typeSpec = new ArrayTypeSpec( new_num(), typeSpec,
+                (ArrayDeclarator)declarator.d, containingUnion.full_name() );
+            typeSpec.parse();
+            addName = false; // name has already added by the array typescpec parsing
+        }
+
         try
         {
-            NameTable.define( containingUnion.full_name() + "." + declarator.name(), IDLTypes.DECLARATOR );
+            if( addName )
+            {
+                NameTable.define( containingUnion.full_name() + "." + declarator.name(), IDLTypes.DECLARATOR );
+            }
         }
         catch( NameAlreadyDefined nad )
         {
