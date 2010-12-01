@@ -717,7 +717,7 @@ parser code
 
     static Hashtable pending_interfaces = new Hashtable();
 
-    public static synchronized void set_pending( String name )
+    public static synchronized void set_pending( String name, Object type )
     {
          // name will only be marked pending if it has not already been
          // parsed before and if is not already pending
@@ -726,7 +726,7 @@ parser code
          if( ! ( pending_interfaces.containsKey(use) ||
                  NameTable.parsed_interfaces.containsKey(use)) )
          {
-                 pending_interfaces.put(use, new Object());
+                 pending_interfaces.put(use, type);
          }
     }
 

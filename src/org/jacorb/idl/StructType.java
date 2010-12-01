@@ -258,8 +258,17 @@ public class StructType
             }
             else
             {
-                if (parser.get_pending (full_name ()) != null)
+                Object forwardDeclaration = parser.get_pending (full_name());
+
+                if (forwardDeclaration != null)
                 {
+                    if (! (forwardDeclaration instanceof StructType))
+                    {
+                        parser.error("Forward declaration types mismatch for "
+                                     + full_name()
+                                     + ": name already defined with another type" , token);
+                    }
+
                     if (memberlist != null)
                     {
                         justAnotherOne = true;
@@ -292,7 +301,7 @@ public class StructType
         {
             // i am forward declared, must set myself as
             // pending further parsing
-            parser.set_pending(full_name());
+            parser.set_pending(full_name(), this);
             forwardDecl = true;
         }
         parsed = true;

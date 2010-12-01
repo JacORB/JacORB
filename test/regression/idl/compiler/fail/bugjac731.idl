@@ -1,0 +1,20 @@
+module org
+{
+    module jacorb
+    {
+        module test
+        {
+            module bugs
+            {
+                module bugjac731
+                {
+                    union I;
+                    interface I
+                    {
+                        void doSomething();
+                    };
+                };
+            };
+        };
+    };
+};

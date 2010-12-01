@@ -220,10 +220,9 @@ public class ValueAbsDecl
         {
             // i am forward declared, must set myself as
             // pending further parsing
-            parser.set_pending(full_name());
+            parser.set_pending(full_name(), this);
         }
     }
-
 
     ValueBody getBody()
     {

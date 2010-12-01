@@ -150,6 +150,8 @@ post 2.3.1
           since JDK1.5 are used as identifiers.
         - Fix for IDL compiler issue where compiler incorrectly checks discriminator in default 
           branch.
+        - Fix for IDL compiler issue where no error is generated when a forward declared union is 
+          defined as an interface.
 
     - Interface Repository:
         - use a persistent POA for the repository servant.

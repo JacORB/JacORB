@@ -62,7 +62,7 @@ public class InterfaceBody
 
         public void run()
         {
-            parser.set_pending( b.full_name() );
+            parser.set_pending( b.full_name(), b );
             Object o = null;
             for( Enumeration e = inheritance_spec.v.elements(); e.hasMoreElements(); )
             {
@@ -200,7 +200,7 @@ public class InterfaceBody
             }
             if( pending )
             {
-                parser.set_pending( full_name() );
+                parser.set_pending( full_name(), o );
                 new ParseThread( this );
             }
             else

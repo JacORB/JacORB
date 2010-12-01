@@ -213,8 +213,17 @@ public class UnionType
         }
         catch (NameAlreadyDefined nad)
         {
-            if (parser.get_pending (full_name ()) != null)
+            Object forwardDeclaration = parser.get_pending (full_name ());
+
+            if (forwardDeclaration != null)
             {
+                if (! (forwardDeclaration instanceof UnionType))
+                {
+                    parser.error("Forward declaration types mismatch for "
+                            + full_name() 
+                            + ": name already defined with another type" , token);
+                }
+
                 if (switch_type_spec == null)
                 {
                     justAnotherOne = true;
@@ -290,7 +299,7 @@ public class UnionType
         {
             // i am forward declared, must set myself as
             // pending further parsing
-            parser.set_pending(full_name());
+            parser.set_pending(full_name(), this);
         }
     }
 
