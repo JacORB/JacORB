@@ -463,6 +463,47 @@ flushed every x seconds & integer & -1 \\
 \verb"reshold" & Maximum number of buffers of the same size held 
 in pool. & integer & 20. \\
 \hline
+\verb"jacorb.buffermanager.e"
+\verb"xpansionpolicy" & This parameter allow to define buffer manager
+expansion policy. Here are 3 options already implemented:
+\begin{enumerate}
+\item org.jacorb.orb.buffermanager.DefaultExpansionPolicy that will 
+    return new buffer's size that bigger or equal to the requested.
+    Sizes calculation are performed by code:
+\begin{small}
+\begin{verbatim}
+        double multiplier = scale - Math.log (requestedSize) / divider;
+        multiplier = (multiplier < 1.0) ? 1.0 : multiplier;
+        newSize = (int) Math.floor ( multiplier * requestedSize );
+\end{verbatim}
+\end{small}
+     where scale and divider parameters are configurable (see description 
+     below).
+\item org.jacorb.orb.buffermanager.LinearExpansionPolicy that returns exactly
+     requested size.
+\item org.jacorb.orb.buffermanager.DoubleExpansionPolicy that returns new
+     size wich equals requested size * 2.
+\end{enumerate}
+Also, custom-made buffer manager expansion policies are allowed. They must 
+implement the org.jacorb.orb.buffermanager.BufferManagerExpansionPolicy 
+interface. Please note that expansion policy support is implemented in the
+default buffer manager implementation (org.jacorb.orb.BufferManager). 
+Custom-made buffer manager implementation need to have their own expansion
+policy support implementation.
+& class & org.jacorb.orb.buffermanager.DefaultExpansionPolicy \\
+\hline
+\verb"jacorb.buffermanager.d"
+\verb"efaultexpansionpolicy."
+\verb"scale" & Scale parameter for the org.jacorb.orb.buffermanager.DefaultExpansionPolicy
+buffer sizes calculation (see the formula above). 
+ & float & 4 \\
+\hline
+\verb"jacorb.buffermanager.d"
+\verb"efaultexpansionpolicy."
+\verb"divider" & Divider parameter for the org.jacorb.orb.buffermanager.DefaultExpansionPolicy
+buffer sizes calculation (see the formula above). 
+ & float & 6 \\
+\hline
 \verb"jacorb.deferredArrayQu"
 \verb"eue" & JacORB will delay internally transferring bytes to the stream;
 this is the size of this internal queue. Size in k. & integer & 8. \\

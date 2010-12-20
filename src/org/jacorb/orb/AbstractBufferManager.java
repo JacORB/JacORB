@@ -62,4 +62,11 @@ public abstract class AbstractBufferManager implements IBufferManager
    public void returnBuffer (byte[] buffer, boolean b)
    {
    }
+
+   public byte[] getExpandedBuffer (int size)
+   {
+       // No expansion policy defined just return the 
+       // buffer with the requested size
+       return getBuffer (size);
+   }
 }

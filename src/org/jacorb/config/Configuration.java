@@ -139,4 +139,6 @@ public interface Configuration
      * with the specified prefix
      */
     List getAttributeNamesWithPrefix(String string);
+
+    double getAttributeAsFloat (String key, double defaultValue);
 }

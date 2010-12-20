@@ -150,6 +150,23 @@ jacorb.maxManagedBufSize=22
 # This value defaults to 0 if not set.
 #jacorb.bufferManagerMaxFlush=-1
 
+# This parameter allow to define buffer manager expansion policy. 
+# Default value is org.jacorb.orb.buffermanager.DefaultExpansionPolicy. 
+# It will return new buffer's size that bigger or equal to the requested.
+# Sizes calculation are performed by code:
+#        double multiplier = scale - Math.log (requestedSize) / divider;
+#        multiplier = (multiplier < 1.0) ? 1.0 : multiplier;
+#        newSize = (int) Math.floor ( multiplier * requestedSize );
+#jacorb.buffermanager.expansionpolicy=org.jacorb.orb.buffermanager.DefaultExpansionPolicy
+
+# Scale parameter for the org.jacorb.orb.buffermanager.DefaultExpansionPolicy
+# buffer sizes calculation (see the formula above). 
+#jacorb.buffermanager.defaultexpansionpolicy.scale=4
+
+# Divider parameter for the org.jacorb.orb.buffermanager.DefaultExpansionPolicy
+# buffer sizes calculation (see the formula above).
+#jacorb.buffermanager.defaultexpansionpolicy.divider=6
+
 # Size of the deferredArrayQueue. JacORB will delay transferring bytes
 # internally to the stream if the size is over this value.
 # Default is 8K and 0=off.

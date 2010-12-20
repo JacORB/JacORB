@@ -23,7 +23,12 @@ import java.util.AbstractList;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+
+import org.jacorb.config.Configurable;
 import org.jacorb.config.Configuration;
+import org.jacorb.config.ConfigurationException;
+import org.jacorb.orb.buffermanager.BufferManagerExpansionPolicy;
+import org.jacorb.orb.buffermanager.DefaultExpansionPolicy;
 import org.omg.CORBA.INTERNAL;
 import org.omg.CORBA.NO_MEMORY;
 
@@ -88,6 +93,11 @@ public class BufferManager extends AbstractBufferManager
      */
     private final int time;
 
+    /**
+     * <code>expansionPolicy</code> defines how buffer sizes
+     * will be calculated
+     */
+    private BufferManagerExpansionPolicy expansionPolicy;
 
     /**
      * used to create the singleton ORB buffermanager
@@ -98,6 +108,21 @@ public class BufferManager extends AbstractBufferManager
         this.time = configuration.getAttributeAsInteger("jacorb.bufferManagerMaxFlush", 0);
         this.maxManagedBufferSize = configuration.getAttributeAsInteger("jacorb.maxManagedBufSize", 22);
         this.threshold = configuration.getAttributeAsInteger("jacorb.bufferManagerThreshold", 20);
+
+        try
+        {
+            expansionPolicy = (BufferManagerExpansionPolicy) 
+                configuration.getAttributeAsObject ("jacorb.buffermanager.expansionpolicy", 
+                                                    DefaultExpansionPolicy.class.getName ());
+            if (expansionPolicy instanceof Configurable)
+            {
+                ((Configurable)expansionPolicy).configure (configuration);
+            }
+        }
+        catch (ConfigurationException e) 
+        {
+            this.expansionPolicy = null;
+        }
 
         bufferPool = initBufferPool(configuration, maxManagedBufferSize);
 
@@ -169,6 +194,22 @@ public class BufferManager extends AbstractBufferManager
         }
     }
 
+
+    public byte[] getExpandedBuffer( int size )
+    {
+        if (size < 0)
+        {
+           throw new INTERNAL ("Unable to cache and create buffer of negative size. Possible overflow issue.");
+        }
+
+        // Use the expansion policy if available
+        if (expansionPolicy != null)
+        {
+            size = expansionPolicy.getExpandedSize (size);
+        }
+        
+        return getBuffer (size); 
+    }
 
     /**
      * <code>getBuffer</code> returns a new buffer.

@@ -32,4 +32,21 @@ public class ServerImpl extends MyServerPOA
         }
         return 0;
     }
+
+    public int testExpandedBuffer(int size)
+    {
+        try
+        {
+            System.out.print ("JAC774: requesting buffer with size: " + size);
+            BufferManager bm = new BufferManager(JacORBConfiguration.getConfiguration(null, null, false));
+            byte buffer[] = bm.getExpandedBuffer (size);
+            System.out.println (" done. Returned size is:" + buffer.length);
+            return buffer.length;
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+            return -1;
+        }
+    }
 }

@@ -11,6 +11,7 @@ module org
                    interface MyServer
                    {
                       long testBuffer(in long size);
+                      long testExpandedBuffer(in long size);
                    };
                 };
             };

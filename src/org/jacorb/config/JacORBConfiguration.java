@@ -937,4 +937,28 @@ public class JacORBConfiguration implements Configuration
           message = string;
        }
     }
+
+
+    public double getAttributeAsFloat (String key, double defaultValue)
+    {
+        Object value = attributes.getProperty (key, null);
+        if (value == null)
+        {
+            return defaultValue;
+        }
+
+        try
+        {
+           double ret = Double.parseDouble (((String)value).trim());
+
+           return ret;
+        }
+        catch (NumberFormatException ex)
+        {
+           throw new ConfigurationException
+           (
+             "value for attribute " + key + " is not numeric: " + value
+           );
+        }
+    }
 }

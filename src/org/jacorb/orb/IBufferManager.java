@@ -59,6 +59,15 @@ public interface IBufferManager
     byte[] getBuffer(int size);
 
     /**
+     * <code>getExpandedBuffer</code> returns a new buffer which size
+     * will be calculated according to BufferManager expansion policy.
+     *
+     * @param size an <code>int</code> value
+     * @return a <code>byte[]</code> value
+     */
+    byte[] getExpandedBuffer (int requiredSize);
+
+    /**
      * release all resources that are held by this buffer
      */
     void release();

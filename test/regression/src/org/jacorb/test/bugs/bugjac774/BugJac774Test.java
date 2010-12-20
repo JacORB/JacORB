@@ -46,7 +46,7 @@ public class BugJac774Test extends ClientServerTestCase
         server = null;
     }
 
-    public void testBugjac774()
+    public void testSimpleBuffer()
     {
         for(int i = 1; i <= 10; i++)
         {
@@ -69,6 +69,53 @@ public class BugJac774Test extends ClientServerTestCase
                     fail("Unexpected exception during buffer allocation. See the server output for the details.");
                 }
             }
+        }
+    }
+
+    public void testExpandedBuffer()
+    {
+        // check small buffers
+        for(int i = 1; i <= 10; i++)
+        {
+            int size = 1024 * i;
+
+            int returnedSize = server.testExpandedBuffer(size);
+            
+            if (returnedSize < 0)
+            {
+                fail("Unexpected exception during buffer allocation. See the server output for the details.");
+            }
+
+            System.out.println("Buffer requested: " + size + " allocated: " + returnedSize + "B");
+        }
+
+        // check medium buffers
+        for(int i = 1; i <= 100; i++)
+        {
+            int size = 1024 * 1024 * i;
+            
+            int returnedSize = server.testExpandedBuffer(size);
+            
+            if (returnedSize < 0)
+            {
+                fail("Unexpected exception during buffer allocation. See the server output for the details.");
+            }
+
+            System.out.println("Buffer requested: " + size / 1024 + " allocated: " + returnedSize / 1024 + "kB");
+        }
+
+        for(int i = 1; i <= 10; i++)
+        {
+            int size = 50 * 1024 * 1024 * i;
+
+            int returnedSize = server.testExpandedBuffer(size);
+            
+            if (returnedSize < 0)
+            {
+                fail("Unexpected exception during buffer allocation. See the server output for the details.");
+            }
+
+            System.out.println("Buffer requested: " + size / 1024 / 1024  + " allocated: " + returnedSize / 1024 / 1024 + "MB");
         }
     }
 

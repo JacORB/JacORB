@@ -521,23 +521,7 @@ public class CDROutputStream
         final int requiredSize = pos + i + 2;
         if (buffer == null || requiredSize > buffer.length)
         {
-            final int new_size;
-
-            if (buffer == null)
-            {
-                new_size = requiredSize;
-            }
-            else
-            {
-                int _result = buffer.length;
-                while(requiredSize > _result)
-                {
-                    _result *= 3;
-                }
-                new_size = _result;
-            }
-
-            final byte[] new_buf = bufMgr.getBuffer(new_size);
+            final byte[] new_buf = bufMgr.getExpandedBuffer(requiredSize);
 
             if (buffer != null)
             {
