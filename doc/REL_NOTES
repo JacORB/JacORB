@@ -87,8 +87,8 @@ post 2.3.1
         - call shutdownOutput before closing socket as recommended by
           http://java.sun.com/j2se/1.5.0/docs/guide/net/articles/connection_release.html
         - applied patch from JacORB Bugzilla #801 for AOM Thread creation.
-        - New MIOP ETF transport added. Original design and implementation by Alysson Bessani. 
-          Further work on implementation, specification compliance, interoperability and 
+        - New MIOP ETF transport added. Original design and implementation by Alysson Bessani.
+          Further work on implementation, specification compliance, interoperability and
           integration by Nick Cross.
         - Updated Java mapping from 02-01-02 to 03-01-02 and simplified IDL files [Bugzilla 451].
         - Add test for to verify OMG stub code get_component is available.
@@ -96,10 +96,10 @@ post 2.3.1
         - Fix for handling of max_server_connections. (bugzilla 878).
         - Fix for decoding and output of IORs with multiple TAG_ALTERNATE_IIOP_ADDRESS.
         - Allow the ORBs internal deferredArrayWrites to be configurable.
-        - BufferManager implementation has been reworked - code simplifying and 
+        - BufferManager implementation has been reworked - code simplifying and
           tiding.
         - Added buffer manager expansion policies support.
-          
+
 
     - IDL Compiler:
         - fixed issue where the IDL compiler generated imports for the
@@ -150,10 +150,11 @@ post 2.3.1
         - Fix for IDL compiler failure when multiple unions specify the same branch name.
         - Fix for IDL compiler issue where Java keywords that have been added
           since JDK1.5 are used as identifiers.
-        - Fix for IDL compiler issue where compiler incorrectly checks discriminator in default 
+        - Fix for IDL compiler issue where compiler incorrectly checks discriminator in default
           branch.
-        - Fix for IDL compiler issue where no error is generated when a forward declared union is 
+        - Fix for IDL compiler issue where no error is generated when a forward declared union is
           defined as an interface.
+        - Fix for newline parsing with included files.
 
     - Interface Repository:
         - use a persistent POA for the repository servant.

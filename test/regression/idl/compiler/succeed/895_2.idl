@@ -1,0 +1,7 @@
+module M895
+{
+   typedef wstring MY_W;
+};
+#ifdef A
+#define FOO
+#endif

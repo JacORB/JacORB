@@ -1,0 +1,6 @@
+module M895
+{
+   typedef wstring MY_W_2;
+};
+#ifdef B
+#endif

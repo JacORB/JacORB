@@ -23,7 +23,6 @@ package org.jacorb.idl;
 import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Stack;
-
 import org.jacorb.idl.runtime.char_token;
 import org.jacorb.idl.runtime.float_token;
 import org.jacorb.idl.runtime.int_token;
@@ -659,13 +658,12 @@ public class lexer
                 else if( !useIncludePath && ( next_char != '\"' ) )
                     emit_error( "Syntax error in #include directive, expecting \"" );
 
-                /* swallow to '\n', '\f', or EOF */
-                while( next_char != '\n' && next_char != '\f' && next_char != '\r' &&
-                        next_char != EOF_CHAR )
-                {
-                    advance();
-                }
+                // Don't skip forward here and swallow \n,\f etc just in case the included
+                // file does not end on a newline. The newline from the include will ensure
+                // the included file is terminated.
+
                 GlobalInputStream.include( fname, next_char2, useIncludePath );
+
                 current_line = 0;
                 advance();
                 advance();
@@ -956,10 +954,10 @@ public class lexer
         {
             while( next_char != ' ' && next_char != '\t' && next_char != '\r' &&
                     next_char != '\n' && next_char != '\f' && next_char != EOF_CHAR &&
-                    next_char != '\"' && next_char != '<' && next_char != '>' )
+                    next_char != '\"' && next_char != '<' && next_char != '>')
             {
-                sb.append( (char)next_char );
-                advance();
+               sb.append( (char)next_char );
+               advance();
             }
         }
         return sb.toString();

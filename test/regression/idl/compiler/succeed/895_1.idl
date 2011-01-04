@@ -1,0 +1,13 @@
+
+
+#include <895_2.idl>
+#include <895_3.idl>
+
+module M895
+{
+   interface foo
+   {
+      typedef MY_W myw1;
+      typedef MY_W_2 myw2;
+   };
+};
