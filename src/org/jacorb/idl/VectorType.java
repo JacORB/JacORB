@@ -35,8 +35,6 @@ import java.util.Set;
 public abstract class VectorType
     extends TemplateTypeSpec
 {
-    TypeSpec type_spec;
-
     public VectorType( int num )
     {
         super( num );

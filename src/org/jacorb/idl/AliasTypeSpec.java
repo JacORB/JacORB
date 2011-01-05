@@ -262,6 +262,11 @@ public class AliasTypeSpec
                     originalType.print(ps);
                 }
 
+                if(originalType.typeSpec() instanceof ArrayTypeSpec)
+                {
+                    originalType.type_spec.print(ps);
+                }
+
                 String className = className();
 
                 String path =

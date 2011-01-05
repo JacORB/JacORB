@@ -1,6 +1,7 @@
-
-
 module bug703
 {
-   typedef octet UUID[16];
+    typedef struct Lime6
+    {
+        char WaterMelon6[13];
+    } Coconut6[15];
 };
