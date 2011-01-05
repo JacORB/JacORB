@@ -317,7 +317,6 @@ public class ArrayTypeSpec
     public String printWriteStatement(String var_name, String streamname)
     {
         StringBuffer sb = new StringBuffer();
-        String type = typeName();
         sb.append("\t\tif (" + var_name + ".length<" + length() + ")" + Environment.NL +
                   "\t\t\tthrow new org.omg.CORBA.MARSHAL(\"Incorrect array size \"+" +
                   var_name + ".length+\", expecting " + length() + "\");" + Environment.NL);
@@ -377,8 +376,6 @@ public class ArrayTypeSpec
         ps.println("\t{");
         ps.println("\t\treturn " + className + "Helper.type ();");
         ps.println("\t}");
-
-        TypeSpec m = type_spec;
 
         ps.println("\tpublic void _read (final org.omg.CORBA.portable.InputStream _in)");
         ps.println("\t{");
