@@ -59,9 +59,6 @@ public class InterfaceDef
     private OperationDef[]                       op_defs;
     private org.omg.CORBA.OperationDescription[] operations;
 
-    // to be done !!
-    private boolean is_abstract = false;
-
     private AttributeDef[]                       att_defs;
     private org.omg.CORBA.AttributeDescription[] attributes;
 
@@ -561,15 +558,6 @@ public class InterfaceDef
     }
 
 
-    public boolean is_abstract()
-    {
-        return false;
-    }
-
-    public void is_abstract(boolean arg)
-    {
-    }
-
     /**
      * @return  an array containing interface definitions of the superclass and
      * the interfaces extended by this class. Has length 0 if this class
@@ -701,8 +689,7 @@ public class InterfaceDef
                                               operations,
                                               attributes,
                                               base_names,
-                                              typeCode,
-                                              is_abstract );
+                                              typeCode);
         }
         return fullDescription;
     }
@@ -999,8 +986,7 @@ public class InterfaceDef
     public org.omg.CORBA.InterfaceDef create_interface(/*RepositoryId*/ String id,
                                                        /*Identifier*/ String name,
                                                        /*VersionSpec*/ String version,
-                                                       /*InterfaceDefSeq*/ org.omg.CORBA.InterfaceDef[] base_interfaces,
-                                                       boolean is_abstract )
+                                                       /*InterfaceDefSeq*/ org.omg.CORBA.InterfaceDef[] base_interfaces)
     {
         return null;
     }
@@ -1071,8 +1057,7 @@ public class InterfaceDef
                                                                         id,
                                                                         def_in,
                                                                         version,
-                                                                        base_names,
-                                                                        false )
+                                                                        base_names)
                 );
         return new org.omg.CORBA.ContainedPackage.Description(
                          org.omg.CORBA.DefinitionKind.dk_Interface, a);

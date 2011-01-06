@@ -193,8 +193,9 @@ interface Container : IRObject {
       in RepositoryId                 id,
       in Identifier                   name,
       in VersionSpec                  version,
-      in InterfaceDefSeq              base_interfaces,
-      in boolean                      is_abstract
+      in InterfaceDefSeq              base_interfaces
+      // Removed: http://www.omg.org/issues/issue3015.txt
+      // in boolean                      is_abstract
                                  );
    ValueDef create_value(
       in RepositoryId                 id,
@@ -432,7 +433,10 @@ typedef sequence <ExtAttributeDescription> ExtAttrDescriptionSeq;
 interface InterfaceDef : Container, Contained, IDLType {
    // read/write interface
    attribute InterfaceDefSeq       base_interfaces;
-   attribute boolean               is_abstract;
+
+   // Removed: http://www.omg.org/issues/issue3015.txt
+   // attribute boolean               is_abstract;
+
    // read interface
    boolean is_a (in RepositoryId   interface_id
                 );
@@ -445,7 +449,9 @@ interface InterfaceDef : Container, Contained, IDLType {
       AttrDescriptionSeq          attributes;
       RepositoryIdSeq             base_interfaces;
       TypeCode                    type;
-      boolean                     is_abstract;
+
+      // Removed: http://www.omg.org/issues/issue3015.txt
+      // boolean                     is_abstract;
    };
    FullInterfaceDescription describe_interface();
    // write interface
@@ -473,7 +479,9 @@ struct InterfaceDescription {
    RepositoryId                    defined_in;
    VersionSpec                     version;
    RepositoryIdSeq                 base_interfaces;
-   boolean                         is_abstract;
+
+   // Removed: http://www.omg.org/issues/issue3015.txt
+   // boolean                         is_abstract;
 };
 
 interface InterfaceAttrExtension {

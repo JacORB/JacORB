@@ -474,8 +474,7 @@ public class UnionDef
                     /*RepositoryId*/ String id,
                     /*Identifier*/ String name,
                     /*VersionSpec*/ String version,
-                    /*InterfaceDefSeq*/ org.omg.CORBA.InterfaceDef[] base_interfaces,
-                    boolean is_abstract )
+                    /*InterfaceDefSeq*/ org.omg.CORBA.InterfaceDef[] base_interfaces)
     {
         return null;
     }

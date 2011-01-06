@@ -218,8 +218,7 @@ public class ExceptionDef
                     String id,
                     String name,
                     String version,
-                    /*InterfaceDefSeq*/ org.omg.CORBA.InterfaceDef[] base_interfaces,
-                    boolean is_abstract )
+                    /*InterfaceDefSeq*/ org.omg.CORBA.InterfaceDef[] base_interfaces)
     {
         return null;
     }
@@ -350,5 +349,3 @@ public class ExceptionDef
       throw new NO_IMPLEMENT ("NYI");
    }
 }
-
-

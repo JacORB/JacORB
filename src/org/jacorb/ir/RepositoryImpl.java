@@ -568,11 +568,10 @@ public class RepositoryImpl
     public org.omg.CORBA.InterfaceDef create_interface(String id,
                                                        String name,
                                                        String version,
-                                                       org.omg.CORBA.InterfaceDef[] base_interfaces,
-                                                       boolean is_abstract )
+                                                       org.omg.CORBA.InterfaceDef[] base_interfaces )
     {
         return delegate.create_interface( id,  name,  version,
-                    base_interfaces, is_abstract );
+                    base_interfaces);
     }
 
     /**

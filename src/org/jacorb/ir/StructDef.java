@@ -448,8 +448,7 @@ public class StructDef
                                                        String id,
                                                        String name,
                                                        String version,
-                                                       org.omg.CORBA.InterfaceDef[] base_interfaces,
-                                                       boolean is_abstract )
+                                                       org.omg.CORBA.InterfaceDef[] base_interfaces)
     {
         return null;
     }
