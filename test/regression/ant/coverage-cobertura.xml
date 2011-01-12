@@ -3,7 +3,7 @@
     <dirname property="dir.cobertura.base" file="${ant.file.coverage-cobertura}"/>
 
     <path id="classpath.coverage">
-        <fileset dir="${dir.cobertura.base}/cobertura-1.9.3">
+        <fileset dir="${dir.cobertura.base}/cobertura-1.9.4.1">
             <include name="*.jar" />
         </fileset>
     </path>
