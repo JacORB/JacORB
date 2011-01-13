@@ -155,7 +155,8 @@ post 2.3.1
         - Fix for IDL compiler issue where no error is generated when a forward declared union is
           defined as an interface.
         - Fix for newline parsing with included files.
-
+   - Naming Service:
+        - Fix for BindingIterator leak (Bugzilla 647).
     - Interface Repository:
         - use a persistent POA for the repository servant.
         - Fix IDL to remove is_abstract to bring into compliance with specification

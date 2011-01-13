@@ -41,21 +41,19 @@ import org.omg.CosNaming.NamingContextPackage.NotFound;
  */
 
 public class NSTree
-    extends JTree 
+    extends JTree
 {
-    public static final int MAX_BIND = 40;
     private NamingContextExt rootContext;
-    private ContextNode rootNode;
     private Dimension size;
     private boolean created;
     private org.omg.CORBA.ORB orb;
 
     public static NSTable nsTable;
 
-    public NSTree(int width, 
+    public NSTree(int width,
                   int height,
-                  NSTable theTable, 
-                  NamingContextExt rootCntxt, 
+                  NSTable theTable,
+                  NamingContextExt rootCntxt,
                   org.omg.CORBA.ORB orb)
     {
         this.orb = orb;
@@ -68,7 +66,7 @@ public class NSTree
 	rootContext = rootCntxt;
 	ContextNode cn = new ContextNode(rootContext,(DefaultTreeModel)getModel());
 	cn.setNode(root);
-	root.setUserObject(cn);	
+	root.setUserObject(cn);
     }
 
     /**
@@ -80,9 +78,9 @@ public class NSTree
     {
 	TreePath path = null;
 	int length = 0;
-	try 
-	{ 
-	    path = getSelectionPath(); 
+	try
+	{
+	    path = getSelectionPath();
 	    length = path.getPathCount();
 	}
 	catch (Exception e)
@@ -121,7 +119,7 @@ public class NSTree
 	    context.bind_new_context(bindname.components());
 	    update();
 	}
-	else 
+	else
 	{
 	    JOptionPane.showMessageDialog(this,
                                           "Please select a naming context",
@@ -135,9 +133,9 @@ public class NSTree
     {
 	TreePath path = null;
 	int length = 0;
-	try 
-	{ 
-	    path = getSelectionPath(); 
+	try
+	{
+	    path = getSelectionPath();
 	    length = path.getPathCount();
 	}
 	catch (Exception e)
@@ -172,9 +170,9 @@ public class NSTree
 
 	    if( bindname.components() == null )
 		System.err.println("name is null ");
-                                                   
+
             try
-            {                                                   
+            {
                 context.bind( bindname.components(), orb.string_to_object( ior ));
             }
             catch( AlreadyBound ab )
@@ -186,7 +184,7 @@ public class NSTree
             }
 	    update();
 	}
-	else 
+	else
 	{
 	    JOptionPane.showMessageDialog(this,
                                           "Please select a naming context",
@@ -196,32 +194,32 @@ public class NSTree
 
 
 
-    public Dimension getPreferredSize() 
-    { 
-	if (!created) 
-	{ 
-	    created = true; 
-	    return size; 
+    public Dimension getPreferredSize()
+    {
+	if (!created)
+	{
+	    created = true;
+	    return size;
 	}
-	else 
+	else
 	    return super.getPreferredSize();
     }
 
     /**
      * unbind a context and remove it from this tree
      */
-	
+
     public void unbind()
     {
 	DefaultMutableTreeNode node;
 	NamingContextExt context = rootContext;
 	TreePath path = null;
 	int length = 0;
-	try 
-	{ 
-	    path = getSelectionPath(); 
+	try
+	{
+	    path = getSelectionPath();
 	    length = path.getPathCount();
-	    if (length > 1) 
+	    if (length > 1)
 	    {
 		for (int i = 1; i < length-1; i++)
 		{
@@ -229,7 +227,7 @@ public class NSTree
 		    ContextNode bind = (ContextNode)node.getUserObject();
 		    context = NamingContextExtHelper.narrow(context.resolve(bind.getName()));
 		}
-	    } 
+	    }
 
 	    if (length > 0)
 	    {
@@ -238,14 +236,14 @@ public class NSTree
 		context.unbind(binding.getName());
 		DefaultTreeModel model = (DefaultTreeModel)getModel();
 		model.removeNodeFromParent(node);
-                
+
                 // select the parent node and display its content
                 DefaultMutableTreeNode parent = (DefaultMutableTreeNode)path.getPathComponent(length-2);
                 setSelectionPath(new TreePath(parent.getPath()));
 		((ContextNode)parent.getUserObject()).display();
 	    }
 	}
-	catch (Exception e) 
+	catch (Exception e)
 	{
             e.printStackTrace();
 
@@ -260,7 +258,7 @@ public class NSTree
     /**
      * update the entire tree of contexts
      */
-	 
+
     public synchronized void update()
     {
 	DefaultTreeModel model = (DefaultTreeModel)getModel();
