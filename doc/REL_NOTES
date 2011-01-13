@@ -61,6 +61,8 @@ post 2.3.1
           no ssl keystore is set or if the filename is wrong.
         - made the object key mapping feature more efficient (ORB.addObjectKey,
           properties jacorb.orb.objectKeyMap).
+       - Remove finalize from Delegate to improve performance and scalability. Client code is now
+         responsible for calling _release on CORBA Objects as necessary.
         - fixed a bug that prevented to use an ORB with
           jacorb.giop_minor_version=0.
         - improved PrintIOR output.

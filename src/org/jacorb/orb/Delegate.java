@@ -605,24 +605,16 @@ public final class Delegate
         return equals( obj );
     }
 
-    /**
-     * Called when a client-side stub is garbage-collected.
-     * In effect, this method causes the Delegate to unregister
-     * itself from the underlying GIOPConnection.  If there are
-     * no other Delegates using that connection, it will be
-     * closed and disposed of altogether.
-     */
-    protected void finalize() throws Throwable
-    {
-        try
-        {
-            release(null);
-        }
-        finally
-        {
-            super.finalize();
-        }
-    }
+    // The finalize method has been removed due to performance and scalability
+    //  issues.
+    //
+    // This method was called when a client-side stub was garbage-collected.  In
+    // effect it caused the Delegate to unregister itself from the underlying
+    // GIOPConnection and if there were no other Delegates using that
+    // connection, it was be closed and disposed of altogether.
+    //
+    // This therefore moves the responsibility to the client code to call _release.
+    //
 
     public org.omg.CORBA.DomainManager[] get_domain_managers
     ( org.omg.CORBA.Object self )
