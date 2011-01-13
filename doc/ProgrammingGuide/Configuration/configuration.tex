@@ -446,9 +446,9 @@ the org.jacorb.orb.BufferManagerFactory interface.
 \hline
 \verb"jacorb.maxManagedBufSi"
 \verb"ze" & This is NOT the maximum buffer size that can be used, but
-just the largest size of buffers that will be kept and managed. The 
-real value of the maximal managed buffer size in bytes is 
-(2**maxManagedBufSize). You only need to increase this value if you 
+just the largest size of buffers that will be kept and managed. The
+real value of the maximal managed buffer size in bytes is
+(2**maxManagedBufSize). You only need to increase this value if you
 are dealing with LOTS of LARGE data structures. You
 may decrease it to make the buffer manager release large buffers
 immediately rather than keeping them for later reuse & integer & 22 \\
@@ -460,14 +460,14 @@ feature is enabled, if greater than zero then it is enabled and
 flushed every x seconds & integer & -1 \\
 \hline
 \verb"jacorb.bufferManagerTh"
-\verb"reshold" & Maximum number of buffers of the same size held 
+\verb"reshold" & Maximum number of buffers of the same size held
 in pool. & integer & 20. \\
 \hline
 \verb"jacorb.buffermanager.e"
 \verb"xpansionpolicy" & This parameter allow to define buffer manager
 expansion policy. Here are 3 options already implemented:
 \begin{enumerate}
-\item org.jacorb.orb.buffermanager.DefaultExpansionPolicy that will 
+\item org.jacorb.orb.buffermanager.DefaultExpansionPolicy that will
     return new buffer's size that bigger or equal to the requested.
     Sizes calculation are performed by code:
 \begin{small}
@@ -477,17 +477,17 @@ expansion policy. Here are 3 options already implemented:
         newSize = (int) Math.floor ( multiplier * requestedSize );
 \end{verbatim}
 \end{small}
-     where scale and divider parameters are configurable (see description 
+     where scale and divider parameters are configurable (see description
      below).
 \item org.jacorb.orb.buffermanager.LinearExpansionPolicy that returns exactly
      requested size.
 \item org.jacorb.orb.buffermanager.DoubleExpansionPolicy that returns new
      size wich equals requested size * 2.
 \end{enumerate}
-Also, custom-made buffer manager expansion policies are allowed. They must 
-implement the org.jacorb.orb.buffermanager.BufferManagerExpansionPolicy 
+Also, custom-made buffer manager expansion policies are allowed. They must
+implement the org.jacorb.orb.buffermanager.BufferManagerExpansionPolicy
 interface. Please note that expansion policy support is implemented in the
-default buffer manager implementation (org.jacorb.orb.BufferManager). 
+default buffer manager implementation (org.jacorb.orb.BufferManager).
 Custom-made buffer manager implementation need to have their own expansion
 policy support implementation.
 & class & org.jacorb.orb.buffermanager.DefaultExpansionPolicy \\
@@ -495,13 +495,13 @@ policy support implementation.
 \verb"jacorb.buffermanager.d"
 \verb"efaultexpansionpolicy."
 \verb"scale" & Scale parameter for the org.jacorb.orb.buffermanager.DefaultExpansionPolicy
-buffer sizes calculation (see the formula above). 
+buffer sizes calculation (see the formula above).
  & float & 4 \\
 \hline
 \verb"jacorb.buffermanager.d"
 \verb"efaultexpansionpolicy."
 \verb"divider" & Divider parameter for the org.jacorb.orb.buffermanager.DefaultExpansionPolicy
-buffer sizes calculation (see the formula above). 
+buffer sizes calculation (see the formula above).
  & float & 6 \\
 \hline
 \verb"jacorb.deferredArrayQu"
@@ -861,8 +861,8 @@ after the configuration has been read & class &
 \verb"jacorb.naming.purge" & Whether non-active references are purged from name service
 when list operation is invoked. Default is off & on or off \\
 \hline
-\verb"jacorb.naming.noping" & Whether resolve should return references without trying to
-ping them to see if they're still alive first. Default is ping (off) &
+\verb"jacorb.naming.ping" & Whether resolve should return references without trying to
+ping them to see if they're still alive first. Default is no ping (off) &
 on or off\\
 \hline
 \verb"jacorb.naming." & The file where the name server & string\\

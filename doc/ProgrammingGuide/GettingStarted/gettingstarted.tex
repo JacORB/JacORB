@@ -462,6 +462,17 @@ public class TieServer
                 name[0] = new NameComponent("grid", "whatever");
                 nc.bind( name, o );
             }
+
+        }
+        catch ( Exception e )
+        {
+            e.printStackTrace();
+        }
+        orb.run();
+    }
+}
+\end{verbatim}
+
 \subsection{Using Object.\_release}
 
 Previously {\tt org.jacorb.orb.Delegate} overrode
@@ -474,17 +485,7 @@ However, as this has performance and scalability issues the finalize was
 removed. This moves the responsiblity to the developer whom is now responsible
 for calling the CORBA.\_release method themselves.
 
-        }
-        catch ( Exception e )
-        {
-            e.printStackTrace();
-        }
-        orb.run();
-    }
-}
-\end{verbatim}
-
-%%% Local Variables: 
+%%% Local Variables:
 %%% mode: latex
 %%% TeX-master: "../ProgrammingGuide"
-%%% End: 
+%%% End:

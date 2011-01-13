@@ -150,8 +150,8 @@ jacorb.maxManagedBufSize=22
 # This value defaults to 0 if not set.
 #jacorb.bufferManagerMaxFlush=-1
 
-# This parameter allow to define buffer manager expansion policy. 
-# Default value is org.jacorb.orb.buffermanager.DefaultExpansionPolicy. 
+# This parameter allow to define buffer manager expansion policy.
+# Default value is org.jacorb.orb.buffermanager.DefaultExpansionPolicy.
 # It will return new buffer's size that bigger or equal to the requested.
 # Sizes calculation are performed by code:
 #        double multiplier = scale - Math.log (requestedSize) / divider;
@@ -160,7 +160,7 @@ jacorb.maxManagedBufSize=22
 #jacorb.buffermanager.expansionpolicy=org.jacorb.orb.buffermanager.DefaultExpansionPolicy
 
 # Scale parameter for the org.jacorb.orb.buffermanager.DefaultExpansionPolicy
-# buffer sizes calculation (see the formula above). 
+# buffer sizes calculation (see the formula above).
 #jacorb.buffermanager.defaultexpansionpolicy.scale=4
 
 # Divider parameter for the org.jacorb.orb.buffermanager.DefaultExpansionPolicy
@@ -759,18 +759,15 @@ jacorb.poa.queue_min=10
 # 2 = important messages (WARN)
 # 3 = informational messages and exceptions (INFO)
 # 4 = debug-level output (DEBUG) (may confuse the unaware user :-)
-
 jacorb.naming.log.verbosity=3
 
 # Whether non active references are purged from name service
 # when list operation is invoked.
-
-jacorb.naming.purge=on
+jacorb.naming.purge=off
 
 # Whether resolve should return references without trying to
 # ping them to see if they're still alive first.
-
-jacorb.naming.noping=on
+jacorb.naming.ping=off
 
 # The file where the name server drops its IOR
 jacorb.naming.ior_filename=c:/NS_Ref

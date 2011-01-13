@@ -68,7 +68,7 @@ public class NamingContextImpl
     private transient org.jacorb.config.Configuration configuration = null;
 
     /** no tests of bound objects for existence */
-    private boolean noPing = false;
+    private boolean ping = false;
 
     /** purge? */
     private boolean doPurge = false;
@@ -91,7 +91,7 @@ public class NamingContextImpl
         this.configuration = (org.jacorb.config.Configuration)myConfiguration;
         logger = configuration.getLogger("jacorb.naming");
         doPurge = configuration.getAttribute("jacorb.naming.purge","off").equals("on");
-        noPing = configuration.getAttribute("jacorb.naming.noping","off").equals("on");
+        ping = configuration.getAttribute("jacorb.naming.ping","off").equals("on");
     }
 
 
@@ -586,7 +586,7 @@ public class NamingContextImpl
             if (result == null)
                 throw new NotFound(NotFoundReason.missing_node, n.components());
 
-            if ( !noPing && isDead(result))
+            if ( ping && isDead(result))
             {
                 throw new NotFound(NotFoundReason.missing_node, n.components());
             }
