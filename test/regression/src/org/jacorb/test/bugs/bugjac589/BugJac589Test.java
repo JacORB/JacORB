@@ -22,6 +22,7 @@ package org.jacorb.test.bugs.bugjac589;
  */
 
 
+import java.util.Properties;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 import org.jacorb.test.BasicServer;
@@ -61,7 +62,10 @@ public class BugJac589Test extends ClientServerTestCase
 
         TestSuite suite = new TestSuite(BugJac589Test.class.getName());
 
-        ClientServerSetup setup = new ClientServerSetup(suite, BasicServerImpl.class.getName());
+        Properties clientProperties = new Properties();
+        clientProperties.put("jacorb.connection.client.connect_timeout", "20000");
+
+        ClientServerSetup setup = new ClientServerSetup(suite, BasicServerImpl.class.getName(), clientProperties, clientProperties);
 
         TestUtils.addToSuite(suite, setup, BugJac589Test.class);
 
