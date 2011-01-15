@@ -440,7 +440,8 @@ Tests run: ${result.testCount}, Failures: ${result.testFailures}, Errors: ${resu
                      idl-bugs,
                      idl-ami-bugs,
                      idl-transport-current-server,
-                     idl-bugjac608"/>
+                     idl-bugjac608,
+                     idl-miop"/>
 
     <!-- ==================================================== -->
     <!--                compile Tests.idl                     -->
@@ -565,6 +566,10 @@ Tests run: ${result.testCount}, Failures: ${result.testFailures}, Errors: ${resu
           sloppyidentifiers="true">
           <i2jpackage names="antBugJac608:org.jacorb.test.antBugJac608"/>
        </jacidl>
+    </target>
+
+    <target name="idl-miop">
+          <process-idl includes="MIOP.idl" />
     </target>
 
     <!-- ==================================================== -->
