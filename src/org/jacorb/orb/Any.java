@@ -1098,7 +1098,7 @@ public final class Any
         else
         {
             this.value    = null;
-            this.typeCode = new TypeCode (TCKind._tk_null);
+            this.typeCode = TypeCode.get_primitive_tc (TCKind._tk_null);
         }
     }
 

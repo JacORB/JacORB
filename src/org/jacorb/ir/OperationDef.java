@@ -51,7 +51,7 @@ public class OperationDef
 
     private boolean defined = false;
 
-    private Logger logger;    
+    private Logger logger;
     private ClassLoader loader;
     private POA poa;
 
@@ -79,9 +79,9 @@ public class OperationDef
            throw new INTF_REPOS ("Idef argument null" );
         }
 
-        id( RepositoryID.toRepositoryID( 
-                RepositoryID.className( i_def.id(), loader) + "/" + name(), 
-                false, 
+        id( RepositoryID.toRepositoryID(
+                RepositoryID.className( i_def.id(), loader) + "/" + name(),
+                false,
                 loader));
 
         version(id().substring( id().lastIndexOf(':')));
@@ -155,10 +155,10 @@ public class OperationDef
                                           returnTypeName,
                                           this.logger);
 
-            result_def = org.jacorb.ir.IDLType.create( result, 
-                                                       containing_repository,
-                                                       this.logger,
-                                                       this.poa);
+            result_def = IDLType.create( result,
+                                         containing_repository,
+                                         this.logger,
+                                         this.poa);
         }
         catch( Exception e )
         {
@@ -189,7 +189,7 @@ public class OperationDef
                     ExceptionDef ex =  new ExceptionDef( ex_classes[ ix ],
                                                          defined_in,
                                                          containing_repository,
-                                                         this.loader, 
+                                                         this.loader,
                                                          this.poa,
                                                          this.logger);
                     org.omg.CORBA.ExceptionDef exRef =
@@ -300,7 +300,7 @@ public class OperationDef
 						    org.omg.CORBA.CompletionStatus.COMPLETED_NO);
             }
             org.omg.CORBA.IDLType type_def =
-                IDLType.create( tc, containing_repository, 
+                IDLType.create( tc, containing_repository,
                                 this.logger, this.poa );
             params[i] =
                 new org.omg.CORBA.ParameterDescription( name, tc, type_def, mode);

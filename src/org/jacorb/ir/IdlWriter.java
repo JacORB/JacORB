@@ -22,12 +22,12 @@ package org.jacorb.ir;
 
 import java.io.PrintStream;
 import org.slf4j.Logger;
-import org.jacorb.orb.ORB;
 import org.jacorb.orb.TypeCode;
 import org.omg.CORBA.INTERNAL;
 import org.omg.DynamicAny.DynAnyFactory;
 import org.omg.DynamicAny.DynEnum;
 import org.omg.DynamicAny.DynEnumHelper;
+import org.omg.CORBA.ORB;
 
 /**
  * This class prints IDL from IR-Descriptions to PrintStreams

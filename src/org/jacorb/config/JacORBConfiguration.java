@@ -31,9 +31,9 @@ import java.util.List;
 import java.util.Properties;
 import java.util.StringTokenizer;
 import java.util.logging.Level;
-import org.jacorb.orb.ORB;
 import org.jacorb.util.ObjectUtil;
 import org.omg.CORBA.NO_IMPLEMENT;
+import org.omg.CORBA.ORB;
 import org.slf4j.Logger;
 
 /**
@@ -599,9 +599,9 @@ public class JacORBConfiguration implements Configuration
      * @return the ORB for which this configuration was created
      */
 
-    public ORB getORB()
+    public org.jacorb.orb.ORB getORB()
     {
-        return orb;
+        return (org.jacorb.orb.ORB)orb;
     }
 
 

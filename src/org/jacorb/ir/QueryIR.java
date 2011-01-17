@@ -21,7 +21,9 @@ package org.jacorb.ir;
  */
 
 import org.slf4j.Logger;
-import org.jacorb.orb.ORB;
+import org.jacorb.config.JacORBConfiguration;
+import org.omg.CORBA.ORB;
+
 
 public class QueryIR
 {
@@ -35,11 +37,11 @@ public class QueryIR
 
         try
         {
-            ORB orb = (ORB) org.omg.CORBA.ORB.init( args, null );
+            ORB orb = ORB.init( args, null );
             org.omg.CORBA.Repository ir =
                 org.omg.CORBA.RepositoryHelper.narrow( orb.resolve_initial_references( "InterfaceRepository"));
 
-            Logger logger = orb.getConfiguration().getLogger("jacorb.ir");
+            Logger logger = JacORBConfiguration.getConfiguration(null,orb,false).getLogger("jacorb.ir");
 
             if( ir == null )
             {
@@ -55,7 +57,9 @@ public class QueryIR
                 idlw.printContained( c, 2 );
             }
             else
+            {
                 System.out.println( args[0] + " not found in IR.");
+        }
         }
         catch ( Exception e)
         {
