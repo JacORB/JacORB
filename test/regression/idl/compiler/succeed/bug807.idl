@@ -1,0 +1,26 @@
+
+
+module org
+{
+   module jacorb
+   {
+      module test
+      {
+         module idl
+         {
+            module bug807
+            {
+               const long B=120/2;
+               typedef long tableL1[B];
+
+               typedef long tableL2[666/2];
+
+               typedef short s [1*1];
+
+               typedef unsigned long long ull[11%5];
+
+            };
+         };
+      };
+   };
+};

@@ -157,6 +157,7 @@ post 2.3.1
         - Fix for IDL compiler issue where no error is generated when a forward declared union is
           defined as an interface.
         - Fix for newline parsing with included files.
+        - Fix for typedef with array and operator.
    - Naming Service:
         - Fix for BindingIterator leak (Bugzilla 647).
         - Renamed configuration properties and default to off.

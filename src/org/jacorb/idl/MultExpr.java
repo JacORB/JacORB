@@ -83,11 +83,17 @@ public class MultExpr extends IdlSymbol
         {
             int z = mult_expr.pos_int_const();
             if( operator.equals( "*" ) )
-                y *= z;
+            {
+                y = z * y;
+            }
             else if( operator.equals( "/" ) )
-                y /= z;
+            {
+                y = z / y;
+            }
             else if( operator.equals( "%" ) )
-                y %= z;
+            {
+                y = z % y;
+            }
         }
         return y;
     }
