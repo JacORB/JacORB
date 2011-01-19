@@ -116,7 +116,7 @@ public class SSLSocketFactory
             }
         }
 
-        if (JSSEUtil.isJDK14() && configuration.getAttribute("jacorb.security.ssl.client.protocols", null) != null)
+        if (configuration.getAttribute("jacorb.security.ssl.client.protocols", null) != null)
         {
             enabledProtocols = (String[]) ((org.jacorb.config.Configuration)configuration).getAttributeList
                                             ("jacorb.security.ssl.client.protocols").toArray();
@@ -183,7 +183,7 @@ public class SSLSocketFactory
 
         if (enabledProtocols != null)
         {
-            JSSEUtil.setEnabledProtocols(socket, enabledProtocols);
+           socket.setEnabledProtocols (enabledProtocols);
         }
 
         socket.addHandshakeCompletedListener(new SSLHandshakeListener(logger, sslListener));
@@ -197,8 +197,6 @@ public class SSLSocketFactory
     private SocketFactory createSocketFactory()
         throws IOException, java.security.GeneralSecurityException
     {
-        JSSEUtil.registerSecurityProvider();
-
         KeyManagerFactory kmf = null;
         KeyStore key_store = null;
 

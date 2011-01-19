@@ -573,23 +573,24 @@ jacorb.java_exec=java -Dorg.omg.CORBA.ORBClass=org.jacorb.orb.ORB -Dorg.omg.CORB
 #                       #
 #########################
 
+# Whether SSL security is enabled.
+jacorb.security.support_ssl=off
+
 #
 # The port number used by SSL, will be dynmically assigned
 # by default
 #
-
 #OASSLPort=4711
 
 # This interceptor must be set if programs need access to
 # certificates using the CORBA Security API, SSL works also
 # without this interceptor
+#org.omg.PortableInterceptor.ORBInitializerClass.ForwardInit=org.jacorb.security.ssl.sun_jsse.SecurityServiceInitializer
 
-#org.omg.PortableInterceptor.ORBInitializerClass.ForwardInit=org.jacorb.security.ssl.SecurityServiceInitializer
-
-# the qualified classname of the ssl socket factory class
+# The qualified classname of the ssl socket factory class
 jacorb.ssl.socket_factory=org.jacorb.security.ssl.sun_jsse.SSLSocketFactory
 
-# the qualified classname of the ssl server socket factory class
+# The qualified classname of the ssl server socket factory class
 jacorb.ssl.server_socket_factory=org.jacorb.security.ssl.sun_jsse.SSLServerSocketFactory
 
 # IIOP/SSL parameters (numbers are hex values, without the leading "0x"):
@@ -598,9 +599,6 @@ jacorb.ssl.server_socket_factory=org.jacorb.security.ssl.sun_jsse.SSLServerSocke
 # EstablishTrustInTarget = 20
 # mutual authentication = 60
 # please see the programming guide for more explanation
-
-jacorb.security.support_ssl=off
-
 jacorb.security.ssl.client.supported_options=0
 jacorb.security.ssl.client.required_options=0
 
@@ -639,6 +637,12 @@ jacorb.security.keystore_password=
 #jacorb.security.jsse.client.key_manager_algorithm=SunX509
 #jacorb.security.jsse.client.trust_manager_algorithm=SunX509
 
+# A user defined javax.net.ssl.TrustManager implemementation class name.
+# Will be used to intialise the SSLContext. See JSSE docs for javax.net.ssl.SSLContext#init().
+# Must be capable of instantiation via a no arg constructor.
+#jacorb.security.ssl.client.trust_manager=my.trust.Manager
+#jacorb.security.ssl.server.trust_manager=my.trust.Manager
+
 #
 # Sun JSSE specific settings
 #
@@ -653,15 +657,8 @@ jacorb.security.ssl.client.cipher_suites=
 # A comma seperated list of the names of the protocols to be set enabled on
 # the SSL socket.  See the JSSE documentation for
 # javax.net.ssl.SSLSocket#setEnabledProtocols()
-# NOTE: Does only apply to jdk1.4 and above
 #jacorb.security.ssl.client.protocols=
 #jacorb.security.ssl.server.protocols=
-
-# A user defined javax.net.ssl.TrustManager implemementation class name.
-# Will be used to intialise the SSLContext. See JSSE docs for javax.net.ssl.SSLContext#init().
-# Must be capable of instantiation via a no arg constructor.
-#jacorb.security.ssl.client.trust_manager=my.trust.Manager
-#jacorb.security.ssl.server.trust_manager=my.trust.Manager
 
 # Class name for a class that implements JacORB JSRandom interface. This
 # will be used to get a SecureRandom.
@@ -671,6 +668,10 @@ jacorb.security.randomClassPlugin=
 # The SSL listener listens for SSL sessions and should be implemented as defined
 # by org.jacorb.orb.listener.SSLSessionListener
 jacorb.security.ssl.ssl_listener=
+
+# Whether to override the default behaviour of not opening an unsecured acceptor when SSL is required.
+# Useful for interop with foreign ORBs that don't implement IIOP/SSL correctly.
+#jacorb.security.ssl.always_open_unsecured_address=false
 
 #########################
 #                       #
@@ -687,7 +688,7 @@ jacorb.poa.monitoring=off
 # 2 = important messages (WARN)
 # 3 = informational messages and exceptions (INFO)
 # 4 = debug-level output (DEBUG) (may confuse the unaware user :-)
-jacorb.poa.log.verbosity=3
+#jacorb.poa.log.verbosity=3
 
 # thread pool configuration for request processing
 jacorb.poa.thread_pool_max=20
@@ -759,7 +760,7 @@ jacorb.poa.queue_min=10
 # 2 = important messages (WARN)
 # 3 = informational messages and exceptions (INFO)
 # 4 = debug-level output (DEBUG) (may confuse the unaware user :-)
-jacorb.naming.log.verbosity=3
+#jacorb.naming.log.verbosity=3
 
 # Whether non active references are purged from name service
 # when list operation is invoked.
@@ -814,7 +815,7 @@ jacorb.notification.stop_time_supported = on
 jacorb.notification.proxy.destroy_causes_disconnect = on
 
 # Notification Service log levels:
-org.jacorb.notification.log.verbosity = 3
+#org.jacorb.notification.log.verbosity = 3
 
 ########################################
 #                                      #
@@ -822,9 +823,13 @@ org.jacorb.notification.log.verbosity = 3
 #                                      #
 ########################################
 
-jacorb.SAS.log.verbosity=INFO
-jacorb.SAS.CSS.log.verbosity=INFO
-jacorb.SAS.TSS.log.verbosity=INFO
+# Logger configuration
+#jacorb.security.sas.log.verbosity=3
+#jacorb.security.sas.GSSUP.log.verbosity=3
+#jacorb.security.sas.TSS.log.verbosity=3
+#jacorb.security.sas.CSS.log.verbosity=3
+#jacorb.security.sas.Kerberos.log.verbosity=3
+
 
 # This option defines the specific SAS context generator/validator
 # Currently supported contexts include:
@@ -843,6 +848,12 @@ jacorb.SAS.TSS.log.verbosity=INFO
 # This option is used for GSSUP security and sets up the GSS Provider
 # Comment out this line if you are not using GSS UP authentication
 #org.omg.PortableInterceptor.ORBInitializerClass.GSSUPProvider=org.jacorb.security.sas.GSSUPProviderInitializer
+
+# Whether to create stateful context lists
+# jacorb.security.sas.stateful=true
+
+# Whether SSL is required.
+#jacorb.security.sas.tss.requires_sas=false
 
 ########################################
 #                                      #

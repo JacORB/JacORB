@@ -130,7 +130,7 @@ public class SSLServerSocketFactory
             }
         }
 
-        if (JSSEUtil.isJDK14() && configuration.getAttribute("jacorb.security.ssl.server.protocols", null) != null)
+        if (configuration.getAttribute("jacorb.security.ssl.server.protocols", null) != null)
         {
             enabledProtocols = (String[]) ((org.jacorb.config.Configuration)configuration).getAttributeList
                                             ("jacorb.security.ssl.server.protocols").toArray();
@@ -140,8 +140,6 @@ public class SSLServerSocketFactory
                              configuration.getAttribute("jacorb.security.ssl.server.protocols", ""));
             }
         }
-
-        JSSEUtil.registerSecurityProvider();
 
         try
         {
@@ -170,9 +168,9 @@ public class SSLServerSocketFactory
         SSLServerSocket s = (SSLServerSocket)
             factory.createServerSocket( port );
 
-        if (JSSEUtil.wantClientAuth(request_mutual_auth, require_mutual_auth))
+        if (request_mutual_auth)
         {
-            JSSEUtil.setWantClientAuth(s, request_mutual_auth);
+           s.setWantClientAuth (request_mutual_auth);
         }
         else if (require_mutual_auth)
         {
@@ -189,7 +187,7 @@ public class SSLServerSocketFactory
 
         if (enabledProtocols != null)
         {
-            JSSEUtil.setEnabledProtocols(s, enabledProtocols);
+           s.setEnabledProtocols (enabledProtocols);
         }
 
         return s;
@@ -202,9 +200,9 @@ public class SSLServerSocketFactory
         SSLServerSocket s = (SSLServerSocket)
             factory.createServerSocket( port, backlog );
 
-        if (JSSEUtil.wantClientAuth(request_mutual_auth, require_mutual_auth))
+        if (request_mutual_auth)
         {
-            JSSEUtil.setWantClientAuth(s, request_mutual_auth);
+           s.setWantClientAuth (request_mutual_auth);
         }
         else if (require_mutual_auth)
         {
@@ -221,7 +219,7 @@ public class SSLServerSocketFactory
 
         if (enabledProtocols != null)
         {
-            JSSEUtil.setEnabledProtocols(s, enabledProtocols);
+           s.setEnabledProtocols (enabledProtocols);
         }
 
         return s;
@@ -235,9 +233,9 @@ public class SSLServerSocketFactory
         SSLServerSocket s = (SSLServerSocket)
             factory.createServerSocket( port, backlog, ifAddress );
 
-        if (JSSEUtil.wantClientAuth(request_mutual_auth, require_mutual_auth))
+        if (request_mutual_auth)
         {
-            JSSEUtil.setWantClientAuth(s, request_mutual_auth);
+           s.setWantClientAuth (request_mutual_auth);
         }
         else if (require_mutual_auth)
         {
@@ -254,7 +252,7 @@ public class SSLServerSocketFactory
 
         if (enabledProtocols != null)
         {
-            JSSEUtil.setEnabledProtocols(s, enabledProtocols);
+           s.setEnabledProtocols (enabledProtocols);
         }
 
         return s;

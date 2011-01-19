@@ -101,7 +101,7 @@ public class SASClientInterceptor
         throws ConfigurationException
     {
         logger =
-            ((org.jacorb.config.Configuration)configuration).getLogger("jacorb.security.sas.CSS");
+            ((org.jacorb.config.Configuration)configuration).getLogger("jacorb.security.sas.CSS.log.verbosity");
 
         useStateful =
             configuration.getAttribute("jacorb.security.sas.stateful","true").equals("true");
@@ -180,9 +180,10 @@ public class SASClientInterceptor
 
         if(csmList != null &&
            csmList.mechanism_list[0].as_context_mech.target_supports == 0 &&
-            csmList.mechanism_list[0].as_context_mech.target_requires == 0 &&
-            csmList.mechanism_list[0].sas_context_mech.target_supports == 0 &&
-           csmList.mechanism_list[0].sas_context_mech.target_requires == 0) {
+           csmList.mechanism_list[0].as_context_mech.target_requires == 0 &&
+           csmList.mechanism_list[0].sas_context_mech.target_supports == 0 &&
+           csmList.mechanism_list[0].sas_context_mech.target_requires == 0)
+        {
             return;
         }
 

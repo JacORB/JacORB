@@ -1,13 +1,13 @@
 % $Id$
 
-The Security Attribute Service (SAS) is part of the Common Secure 
+The Security Attribute Service (SAS) is part of the Common Secure
 Interoperability Specification, Version 2 (CSIv2) CORBA specification.
 It is defined in the Secure Interoperability chapter (chapter 24) of the
 CORBA 3.0.2 Specification.
 
 \section{Overview}
 
-The SAS specification defines the interchange between a Client Security 
+The SAS specification defines the interchange between a Client Security
 Service (CSS) and a Target Security Service (TSS)
 for the exchange of security authentication and authorization
 elements. This information is exchanged in the Service Context of the GIOP
@@ -22,7 +22,7 @@ GSSUP and Kerberos.
 The SAS service is activated based on entries in the JacORB properties file
 and CORBA Properties assigned to the POA.
 
-The following is a part of the JacORB properties file that is used by 
+The following is a part of the JacORB properties file that is used by
 the SAS.
 
 \begin{scriptsize}
@@ -34,15 +34,19 @@ the SAS.
 #                                      #
 ########################################
 
-jacorb.SAS.log.verbosity=INFO
-jacorb.SAS.CSS.log.verbosity=INFO
-jacorb.SAS.TSS.log.verbosity=INFO
+# Logger configuration
+#jacorb.security.sas.log.verbosity=3
+#jacorb.security.sas.GSSUP.log.verbosity=3
+#jacorb.security.sas.TSS.log.verbosity=3
+#jacorb.security.sas.CSS.log.verbosity=3
+#jacorb.security.sas.Kerberos.log.verbosity=3
 
 # This option defines the specific SAS context generator/validator
 # Currently supported contexts include:
 #    GssUpContext      - Uses GSSUP security
 #    KerberosContext   - uses Kerberos security
 # At least one context must be selected for SAS support
+#jacorb.security.sas.contextClass=org.jacorb.security.sas.NullContext
 jacorb.security.sas.contextClass=org.jacorb.security.sas.GssUpContext
 #jacorb.security.sas.contextClass=org.jacorb.security.sas.KerberosContext
 
@@ -53,13 +57,19 @@ org.omg.PortableInterceptor.ORBInitializerClass.SAS=org.jacorb.security.sas.SASI
 # This option is used for GSSUP security and sets up the GSS Provider
 # Comment out this line if you are not using GSS UP authentication
 org.omg.PortableInterceptor.ORBInitializerClass.GSSUPProvider=org.jacorb.security.sas.GSSUPProviderInitializer
+
+# Whether to support stateful contexts
+# jacorb.security.sas.stateful=true
+
+# Whether SSL is required.
+#jacorb.security.sas.tss.requires_sas=false
 \end{verbatim}
 \end{scriptsize}
 
 
 \section{GSSUP Example}
 
-The GSSUP (GSS Username/Password) example demonstrates the simplest 
+The GSSUP (GSS Username/Password) example demonstrates the simplest
 usage of the SAS service. In this example, username and password
 pairs are send via the SAS service. The client registers its username
 and password with the GSSUP Context which is later used CSS interceptor
@@ -218,7 +228,7 @@ public class GssUpServer extends SASDemoPOA {
                         policies[2] = orb.create_policy(SAS_POLICY_TYPE.value, sasAny);
                         POA securePOA = rootPOA.create_POA("SecurePOA", rootPOA.the_POAManager(), policies);
                         rootPOA.the_POAManager().activate();
-                        
+
                         // create object and write out IOR
                         GssUpServer server = new GssUpServer(orb);
                         securePOA.activate_object_with_id("SecureObject".getBytes(), server);
@@ -227,7 +237,7 @@ public class GssUpServer extends SASDemoPOA {
                         pw.println(orb.object_to_string(demo));
                         pw.flush();
                         pw.close();
-                        
+
                         // run the ORB
                         orb.run();
                 } catch (Exception e) {
@@ -241,7 +251,7 @@ public class GssUpServer extends SASDemoPOA {
 \section{Kerberos Example}
 
 The Kerberos example demonstrates how to integrate the use of a kerberos
-service to provide authentication credentials to the SAS service. 
+service to provide authentication credentials to the SAS service.
 In this example, the Java(TM) Authentication and Authorization Service (JAAS)
 is used to perform the Kerberos login
 and to return the principal and Kerberos ticket.
@@ -290,10 +300,10 @@ import javax.security.auth.login.LoginException;
 import org.omg.CORBA.ORB;
 
 public class KerberosClient {
-        private static Principal myPrincipal = null; 
-        private static Subject mySubject = null;        
+        private static Principal myPrincipal = null;
+        private static Subject mySubject = null;
         private static ORB orb = null;
-        
+
         public KerberosClient(String args[]) {
 
                 try {
@@ -325,7 +335,7 @@ public class KerberosClient {
                         ex.printStackTrace();
                 }
         }
-        
+
         public static void main(String args[]) {
                 if (args.length != 3) {
                         System.out.println("Usage: java demo.sas.KerberosClient <ior_file> <username> <password>");
@@ -380,7 +390,7 @@ The following is the JAAS logon configuration for the CSS:
 
 \begin{scriptsize}
 \begin{verbatim}
-KerberosClient 
+KerberosClient
 {
     com.sun.security.auth.module.Krb5LoginModule required storeKey=true useTicketCache=true debug=true;
 };
@@ -416,8 +426,8 @@ import org.omg.CORBA.Any;
 import org.omg.CSIIOP.EstablishTrustInClient;
 
 public class KerberosServer extends SASDemoPOA {
-        private static Principal myPrincipal = null; 
-        private static Subject mySubject = null;        
+        private static Principal myPrincipal = null;
+        private static Subject mySubject = null;
         private ORB orb;
 
         public KerberosServer(ORB orb) {
@@ -434,7 +444,7 @@ public class KerberosServer extends SASDemoPOA {
                         System.out.println("printSAS Error: " + e);
                 }
         }
-        
+
         public KerberosServer(String[] args) {
                 try {
                         // initialize the ORB and POA.
@@ -448,7 +458,7 @@ public class KerberosServer extends SASDemoPOA {
                         policies[2] = orb.create_policy(SAS_POLICY_TYPE.value, sasAny);
                         POA securePOA = rootPOA.create_POA("SecurePOA", rootPOA.the_POAManager(), policies);
                         rootPOA.the_POAManager().activate();
-                        
+
                         // create object and write out IOR
                         securePOA.activate_object_with_id("SecureObject".getBytes(), this);
                         org.omg.CORBA.Object demo = securePOA.servant_to_reference(this);
@@ -515,14 +525,14 @@ The following is the JAAS logon configuration for the TSS:
 
 \begin{scriptsize}
 \begin{verbatim}
-KerberosService 
+KerberosService
 {
     com.sun.security.auth.module.Krb5LoginModule required storeKey=true principal="testService@OPENROADSCONSULTING.COM" debug=true;
 };
 \end{verbatim}
 \end{scriptsize}
 
-%%% Local Variables: 
+%%% Local Variables:
 %%% mode: latex
 %%% TeX-master: "../ProgrammingGuide"
-%%% End: 
+%%% End:

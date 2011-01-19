@@ -964,17 +964,14 @@ no more than queue\_min requests. Default is 10. & integer \\
 \hline
 ~ \hfill \textbf {Property} \hfill ~ & ~ \hfill \textbf {Description} \hfill ~ & ~ \hfill \textbf {Type} \hfill ~ \endhead
 \hline
+\verb"jacorb.security.suppor"
+\verb"t_ssl" & Whether SSL security is supported. Default is off. & boolean \\
+\hline
 \verb"OASSLPort" & The port number used by SSL, will be dynamically assigned by default. & port \\
 \hline
 \verb"org.omg.PortableInterc"
 \verb"eptor.ORBInitializerCl"
-\verb"ass.ForwardInit" & Portable interceptor required to support SSL. Not set by default. & class \\
-\hline
-\verb"jacorb.security.access"
-\verb"_decision" & The qualified classname of access decision object. & class \\
-\hline
-\verb"jacorb.security.princi"
-\verb"pal_authenticator" & A list of qualified classnames of principle authenticator objects, separated by commas (no whitespaces.). The first entry (that can be successfully created) will be available through the principal\_authenticator property. & class \\
+\verb"ass.ForwardInit" & Portable interceptor required to support SSL. This interceptor must be set if programs need access to certificates using the CORBA Security API, SSL works also without this interceptor. Not set by default and may be set to org.jacorb.security.ssl..sun\_jsse.SecurityServiceInitializer. & class \\
 \hline
 \verb"jacorb.ssl.socket_fact"
 \verb"ory" & The qualified classname of the SSL socket factory class. See section \ref{sec:customSocketFactories} for details.& class \\
@@ -982,11 +979,15 @@ no more than queue\_min requests. Default is 10. & integer \\
 \verb"jacorb.ssl.server_sock"
 \verb"et_factory" & The qualified classname of the SSL server socket factory class. See section \ref{sec:customSocketFactories} for details.& class \\
 \hline
-\verb"jacorb.security.suppor"
-\verb"t_ssl" & Whether SSL security is supported. Default is off. & boolean \\
-\hline
 \verb"jacorb.security.ssl.cl"
-\verb"ient.supported_options" & SSL client supported options - IIOP/SSL parameters (numbers are hex values, without the leading 0x): NoProtection = 1, EstablishTrustInClient = 40, EstablishTrustInTarget = 20, mutual authentication = 60. Default is 0. Please see the programming guide for more explanation. & integer \\
+\verb"ient.supported_options" & SSL client supported options - IIOP/SSL parameters (numbers are hex values, without the leading 0x):
+\begin{enumerate}
+\item NoProtection = 1
+\item EstablishTrustInClient = 40
+\item EstablishTrustInTarget = 20
+\item Mutual authentication = 60
+\end{enumerate}
+Default is 0. Please see the programming guide for more explanation. & integer \\
 \hline
 \verb"jacorb.security.ssl.cl"
 \verb"ient.required_options" & SSL client required options (See IIOP/SSL parameters above). Default is 0. & integer \\
@@ -1004,10 +1005,6 @@ no more than queue\_min requests. Default is 10. & integer \\
 \verb"jacorb.security.ssl.co"
 \verb"rbaloc_ssliop.required"
 \verb"_options" &  Default is 0. & integer \\
-\hline
-\verb"jacorb.security.ssl.al"
-\verb"ways_open_unsecured_en"
-\verb"dpoint" &  Default is FALSE. The secure interoperabilty spec states that targets that require SSL shall not open (or publicise in their IORs) an unsecured listen port. Some ORBs (we're looking at you, MICO) apparently don't like this. Setting this switch to TRUE will override the correct behaviour for interoperability. Attempts to access the unsecured port should be met with a NO\_PERMISSION exception. & boolean \\
 \hline
 \verb"jacorb.security.keysto"
 \verb"re" & The name and location of the keystore. This may be absolute or relative to the home directory. NOTE (for Sun JSSE users): The javax.net.ssl.trustStore [Password] properties doesn't seem to take effect, so you may want to add trusted certificates to normal keystores. In this case, please set the property jacorb.security.jsse.trustees\_from\_ks to on, so trusted certificates are taken from the keystore instead of a dedicated truststore.  & file \\
@@ -1034,6 +1031,12 @@ no more than queue\_min requests. Default is 10. & integer \\
 \verb"lient.trust_manager_a"
 \verb"lgorithm" & The algorithm used to initialise the SSL socket factories. Defaults to SunX509. Change to IbmX509 for IBM JDKs. & string \\
 \hline
+\verb"jacorb.security.jsse.c"
+\verb"lient.trust_manager" & A user defined javax.net.ssl.TrustManager implemementation class name. Will be used to intialise the SSLContext. See JSSE docs for javax.net.ssl.SSLContext\#init(). Must be capable of instantiation via a no arg constructor. & string \\
+\hline
+\verb"jacorb.security.jsse.s"
+\verb"erver.trust_manager" & A user defined javax.net.ssl.TrustManager implemementation class name. Will be used to intialise the SSLContext. See JSSE docs for javax.net.ssl.SSLContext\#init(). Must be capable of instantiation via a no arg constructor. & string \\
+\hline
 \verb"jacorb.security.jsse.t"
 \verb"rustees_from_ks" & Sun JSSE specific settings: Use the keystore to take trusted certificates from. Default is off. & boolean \\
 \hline
@@ -1043,6 +1046,12 @@ no more than queue\_min requests. Default is 10. & integer \\
 \verb"jacorb.security.ssl.cl"
 \verb"ient.cipher_suites" & See jacorb.security.ssl.server.cipher\_suites above. & string \\
 \hline
+\verb"jacorb.security.ssl.cl"
+\verb"ient.protocols" & Sun JSSE specific settings: Comma separated list of names of protocols to be set. See the JSSE documentation for javax.net.ssl.SSLSocket\#setEnabledProtocols(). & string \\
+\hline
+\verb"jacorb.security.ssl.se"
+\verb"rver.protocols" & Sun JSSE specific settings: Comma separated list of names of protocols to be set. See the JSSE documentation for javax.net.ssl.SSLSocket\#setEnabledProtocols(). & string \\
+\hline
 \verb"jacorb.security.random"
 \verb"classPlugin" & Classname for secure random plugin. See \ref{secureRandomPlugin} & string \\
 \hline
@@ -1050,8 +1059,46 @@ no more than queue\_min requests. Default is 10. & integer \\
 \verb"l_listener" & Defines a listener for SSL connection events. See \ref{eventLogging}.
 & string \\
 \hline
+\verb"jacorb.security.ssl.al"
+\verb"ways_open_unsecured_en"
+\verb"dpoint" &  Default is FALSE. The secure interoperabilty spec states that targets that require SSL shall not open (or publicise in their IORs) an unsecured listen port. Some ORBs (we're looking at you, MICO) apparently don't like this. Setting this switch to TRUE will override the correct behaviour for interoperability. Attempts to access the unsecured port should be met with a NO\_PERMISSION exception. & boolean \\
+\hline
 \end{longtable}
 \end{small}
+
+
+\begin{small}
+\begin{longtable}{|p{5cm}|p{9cm}|p{2cm}|}
+\caption{Security Attribute Service (SAS) Configuration}\\
+\hline
+~ \hfill \textbf {Property} \hfill ~ & ~ \hfill \textbf {Description} \hfill ~ & ~ \hfill \textbf {Type} \hfill ~ \endhead
+\hline
+\verb"jacorb.security.sas"
+\verb"contextClass" & Defines the specific SAS context generator/validator. Currently supported contexts include:
+\begin{enumerate}
+\item NullContext       - Sends a NULL SAS Context
+\item GssUpContext      - Uses GSSUP security
+\item KerberosContext   - uses Kerberos security
+\end{enumerate}
+At least one context must be selected for SAS support & string \\
+\hline
+\verb"rg.omg.PortableInterc"
+\verb"eptor.ORBInitializerC"
+\verb"lass.SAS" & This initializer installs the SAS interceptors. & string \\
+\hline
+\verb"rg.omg.PortableInterc"
+\verb"eptor.ORBInitializerC"
+\verb"lass.GSSUPProvider" & This option is used for GSSUP security and sets up the GSS Provider. & string \\
+\hline
+\verb"jacorb.security.sas"
+\verb".stateful" & Whether to support stateful contexts. Default true. & boolean \\
+\hline
+\verb"jacorb.security.sas"
+\verb".tss.requires_sas" & Whether SSL connection is required. Default false. & boolean \\
+\hline
+\end{longtable}
+\end{small}
+
 
 \subsubsection{Acceptor Exception Event Plugin}
 \label{acceptorevent}

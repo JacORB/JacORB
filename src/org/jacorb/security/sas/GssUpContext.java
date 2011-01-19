@@ -41,7 +41,7 @@ public class GssUpContext
         throws ConfigurationException
     {
         logger =
-            ((org.jacorb.config.Configuration)configuration).getLogger("jacorb.security.sas.GSSUP");
+            ((org.jacorb.config.Configuration)configuration).getLogger("jacorb.security.sas.GSSUP.log.verbosity");
     }
 
     public static void setUsernamePassword(String username, String password) {
