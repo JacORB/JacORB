@@ -23,11 +23,7 @@ import junit.framework.TestSuite;
 
 public class BugJac774Test extends ClientServerTestCase
 {
-    // -Xmx values below are experimentally found for the
-    // mentioned platforms. Most *nix systems allows to use
-    // -Xmx up to 2500 MB but for WIN23 is only 1500 MB
-    private static final int WIN32_XMX = 1500;
-    private static final int XMX = 1800;
+    private static final int XMX = 1500;
 
     private MyServer server;
 
@@ -119,23 +115,12 @@ public class BugJac774Test extends ClientServerTestCase
         }
     }
 
-    private static int getXmx()
-    {
-        if(System.getProperty("sun.arch.data.model").equals("32") &&
-           System.getProperty("os.name").startsWith("Windows"))
-        {
-            return WIN32_XMX;
-        }
-
-        return XMX;
-    }
-
     public static Test suite()
     {
         TestSuite suite = new TestSuite();
 
         Properties serverProps = new Properties();
-        serverProps.setProperty("jacorb.test.maxheapsize", getXmx()+"m");
+        serverProps.setProperty("jacorb.test.maxheapsize", XMX+"m");
 
         ClientServerSetup setup =
         new ClientServerSetup( suite, ServerImpl.class.getName(), serverProps, serverProps);
