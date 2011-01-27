@@ -2,18 +2,20 @@ package org.jacorb.test.miop;
 
 public class GreetingImpl extends GreetingServicePOA
 {
-   public GreetingImpl()
-   {
-      System.out.println("Hello created!");
-   }
+    private String greeting;
 
-   public void greeting_oneway(String s)
-   {
-      System.out.println("### Received a string of length " + s.length () + " with '" + s + "'");
-   }
+    public GreetingImpl()
+    {
+        System.out.println("Hello created!");
+    }
 
-   public void shutdown ()
-   {
-      System.out.println("### Received a shutdown operation.");
-   }
+    public void greeting_oneway(String s)
+    {
+        greeting = s;
+    }
+
+    public String greeting_check()
+    {
+        return greeting;
+    }
 }

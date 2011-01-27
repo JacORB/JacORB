@@ -11,7 +11,7 @@ module org
             interface GreetingService
             {
                oneway void greeting_oneway (in string str);
-               oneway void shutdown ();
+               string greeting_check ();
             };
          };
       };

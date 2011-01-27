@@ -87,9 +87,13 @@ public class MIOPTest extends TestCase
         // Use an unchecked narrow so it doesn't do an is_a call remotely.
         GreetingService helloGroup = GreetingServiceHelper.unchecked_narrow(orb.string_to_object(groupURL));
 
-        helloGroup.greeting_oneway("Oneway call");
+        String s = "Oneway call";
+        helloGroup.greeting_oneway(s);
 
-        helloGroup.shutdown ();
+        if(!helloGroup.greeting_check().equals(s))
+        {
+            fail("Wrong answer");
+        }
 
         // A normal narrow should do a remote call. This will need the group IIOP profile which
         // may not have been transmitted so we do this part last.
