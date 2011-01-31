@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+
+<project name="Jacorb interoperability" default="compile">
+
+    <macrodef name="iterate">
+        <attribute name="target" />
+        <sequential>
+            <subant target="@{target}">
+                <fileset dir="." includes="*/build.xml" />
+            </subant>
+        </sequential>
+    </macrodef>
+
+    <target name="compile">
+        <iterate target="compile" />
+    </target>
+
+    <target name="clean">
+        <iterate target="clean" />
+    </target>
+
+</project>

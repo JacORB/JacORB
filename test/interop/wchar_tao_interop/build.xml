@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+
+<project name="wchar tao interoperability" default="compile" basedir="../../..">
+
+    <property name="path" value="${basedir}/test/interop/wchar_tao_interop" />
+
+    <target name="compile">
+        <ant antfile="${path}/jacorb/build.xml" target="compile" />
+    </target>
+
+    <target name="clean">
+        <ant antfile="${path}/jacorb/build.xml" target="clean" />
+    </target>
+
+</project>

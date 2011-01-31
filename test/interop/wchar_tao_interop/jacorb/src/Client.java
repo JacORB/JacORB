@@ -1,4 +1,6 @@
-import org.omg.CORBA.*;
+package wchar_tao_interop;
+
+import wchar_tao_interop.GoodDayPackage.WStringException;
 
 import java.io.*;
 /**
@@ -66,7 +68,7 @@ public class Client
         {
             gd.test();
         }
-        catch( GoodDayPackage.WStringException wse )
+        catch( WStringException wse )
         {
             System.out.println("Exception: " + wse.why );
         }
