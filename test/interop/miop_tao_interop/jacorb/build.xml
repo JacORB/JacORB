@@ -1,0 +1,66 @@
+<?xml version="1.0"?>
+
+<project name="miop_jac" default="compile" basedir="../../../..">
+
+    <!-- ==================================================== -->
+    <!--             test build file                          -->
+    <!-- ==================================================== -->
+
+    <target name="init">
+        <property name="name" value="interop/miop_tao_interop/jacorb" />
+        <property name="dirs.base" value="${basedir}" />
+        <property name="classdir" value="${dirs.base}/classes" />
+        <property name="lib" value="${dirs.base}/lib" />
+        <property name="include" value="${dirs.base}/idl" />
+        <property name="idlflags" value="-I${include}/omg -ir  -d ${dirs.base}/test/${name}/generated" />
+    </target>
+
+    <target name="compile" depends="init, idl">
+        <javac destdir="${classdir}">
+            <src path="${dirs.base}/test/${name}/src" />
+            <src path="${dirs.base}/test/${name}/generated" />
+        </javac>
+    </target>
+
+    <target name="clean" depends="init">
+        <delete dir="${classdir}/miop_tao_interop" />
+        <delete dir="${dirs.base}/test/${name}/generated" />
+    </target>
+
+    <target name="idl" depends="init">
+        <java classname="org.jacorb.idl.parser" fork="yes" classpath="${lib}/idl.jar;${java.class.path}">
+            <arg line="${idlflags} ${dirs.base}/test/interop/miop_tao_interop/Hello.idl" />
+        </java>
+    </target>
+
+    <target name="run_server" depends="compile">
+        <java classname="miop_tao_interop.Server" fork="true">
+            <jvmarg value="-Djava.endorsed.dirs=${lib}" />
+            <jvmarg value="-Dorg.omg.CORBA.ORBClass=org.jacorb.orb.ORB" />
+            <jvmarg value="-Dorg.omg.CORBA.ORBSingletonClass=org.jacorb.orb.ORBSingleton" />
+            <classpath location="${classdir}" />
+            <arg line="-o server.ior -u corbaloc:miop:1.0@1.0-domain-1/225.10.10.10:17502 -s 1 -p 100000 -t 1 -c 10" />
+        </java>
+    </target>
+
+    <target name="run_client" depends="compile">
+        <java classname="miop_tao_interop.Client" fork="true">
+            <jvmarg value="-Djava.endorsed.dirs=${lib}" />
+            <jvmarg value="-Dorg.omg.CORBA.ORBClass=org.jacorb.orb.ORB" />
+            <jvmarg value="-Dorg.omg.CORBA.ORBSingletonClass=org.jacorb.orb.ORBSingleton" />
+            <classpath location="${classdir}" />
+            <arg line="-k file://server.ior -p 100000 -t 1 -c 10 -s 1000 -f 0" />
+        </java>
+    </target>
+
+    <target name="stop_server" depends="compile">
+        <java classname="miop_tao_interop.Client" fork="true">
+            <jvmarg value="-Djava.endorsed.dirs=${lib}" />
+            <jvmarg value="-Dorg.omg.CORBA.ORBClass=org.jacorb.orb.ORB" />
+            <jvmarg value="-Dorg.omg.CORBA.ORBSingletonClass=org.jacorb.orb.ORBSingleton" />
+            <classpath location="${classdir}" />
+            <arg line="-k file://server.ior -x" />
+        </java>
+    </target>
+
+</project>

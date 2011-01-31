@@ -1,0 +1,18 @@
+// $Id: Hello.idl,v 1.1 2011-01-17 16:54:20 vz Exp $
+module miop_tao_interop
+{
+    typedef sequence<octet> Octets;
+
+    const string ClientIDs =
+        "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+
+    interface UIPMC_Object {
+        oneway void process (in Octets payload);
+    };
+
+    interface Hello {
+        UIPMC_Object get_object ();
+
+        oneway void shutdown ();
+    };
+};

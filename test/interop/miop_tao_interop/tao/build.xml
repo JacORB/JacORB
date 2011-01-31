@@ -1,0 +1,46 @@
+<?xml version="1.0"?>
+
+<project name="miop_tao" default="compile" basedir="../../../..">
+
+    <target name="init">
+        <property name="name" value="interop/miop_tao_interop/tao" />
+        <property environment="env" />
+        <property name="mpc" value="${env.TAO_ROOT}/bin/mwc.pl" />
+        <property name="mpc_args" value="-type gnuace -template prism" />
+    </target>
+
+    <target name="compile" depends="init">
+        <exec dir="${basedir}/test/${name}" executable="${mpc}">
+            <arg line="${mpc_args}" />
+        </exec>
+
+        <exec dir="${basedir}/test/${name}" executable="make" />
+    </target>
+
+    <target name="clean" depends="init">
+        <delete>
+            <fileset dir="${basedir}/test/${name}"
+                     excludes="build.xml client.cpp server.cpp Hello_Impl.* tao764_regression.mpc uipmc.conf" />
+        </delete>
+        <delete dir="${basedir}/test/${name}/.obj" />
+    </target>
+
+    <target name="run_server" depends="compile">
+        <exec dir="${basedir}/test/${name}" executable="${basedir}/test/${name}/server">
+            <arg line="-ORBSvcConf uipmc.conf -ORBMIOPFragmentsCleanupDelay 1000 -o ${basedir}/server.ior -u corbaloc:miop:1.0@1.0-domain-1/225.10.10.10:17882 -s 1 -p 100000 -t 1 -c 10" />
+        </exec>
+    </target>
+
+    <target name="run_client" depends="compile">
+        <exec dir="${basedir}/test/${name}" executable="${basedir}/test/${name}/client">
+            <arg line="-ORBSvcConf uipmc.conf -k file://${basedir}/server.ior -p 100000 -t 1 -c 10 -s 1000 -f 0" />
+        </exec>
+    </target>
+
+    <target name="stop_server" depends="compile">
+        <exec dir="${basedir}/test/${name}" executable="${basedir}/test/${name}/client">
+            <arg line="-ORBSvcConf uipmc.conf -k file://${basedir}/server.ior -x" />
+        </exec>
+    </target>
+
+</project>

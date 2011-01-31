@@ -1,0 +1,32 @@
+<?xml version="1.0"?>
+
+<project name="miop tao interoperability" default="compile" basedir="../../..">
+
+    <property name="path" value="${basedir}/test/interop/miop_tao_interop" />
+
+    <target name="compile">
+        <ant antfile="${path}/jacorb/build.xml" target="compile" />
+    </target>
+
+    <target name="clean">
+        <ant antfile="${path}/jacorb/build.xml" target="clean" />
+        <ant antfile="${path}/tao/build.xml" target="clean" />
+    </target>
+
+    <target name="jac_server">
+        <ant antfile="${path}/jacorb/build.xml" target="run_server" />
+    </target>
+
+    <target name="jac_client">
+        <ant antfile="${path}/jacorb/build.xml" target="run_client" />
+    </target>
+
+    <target name="tao_server">
+        <ant antfile="${path}/tao/build.xml" target="run_server" />
+    </target>
+
+    <target name="tao_client">
+        <ant antfile="${path}/tao/build.xml" target="run_client" />
+    </target>
+
+</project>
