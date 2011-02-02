@@ -1,9 +1,7 @@
 package org.jacorb.test.miop;
 
 import java.util.Properties;
-
 import junit.framework.TestCase;
-
 import org.jacorb.orb.util.CorbaLoc;
 import org.omg.CORBA.INV_OBJREF;
 import org.omg.PortableGroup.GOA;
@@ -42,7 +40,7 @@ public class MIOPTest extends TestCase
 
                 groupURL = miopURL + ";" + CorbaLoc.generateCorbaloc (orb, helloServant._this());
 
-                System.err.println ("Corbaloc: " + groupURL);
+                System.out.println ("Corbaloc: " + groupURL);
 
                 this.isReady = true;
                 orb.run();
@@ -67,6 +65,7 @@ public class MIOPTest extends TestCase
         Server server = new Server();
         serverThread =  new Thread(server);
         serverThread.start();
+
         while(!server.isReady)
         {
             try
@@ -80,26 +79,30 @@ public class MIOPTest extends TestCase
         }
     }
 
-    public void testMIOP()
+    public void testMIOP() throws InterruptedException
     {
         org.omg.CORBA.ORB orb = org.omg.CORBA.ORB.init((String[])null,props);
 
         // Use an unchecked narrow so it doesn't do an is_a call remotely.
-        GreetingService helloGroup = GreetingServiceHelper.unchecked_narrow(orb.string_to_object(groupURL));
+        GreetingService helloGroup = GreetingServiceHelper.unchecked_narrow(orb.string_to_object(miopURL));
 
         String s = "Oneway call";
         helloGroup.greeting_oneway(s);
 
-        if(!helloGroup.greeting_check().equals(s))
-        {
-            fail("Wrong answer");
-        }
+        //Wait for the server receives the first request.
+        Thread.sleep(1000);
 
         // A normal narrow should do a remote call. This will need the group IIOP profile which
         // may not have been transmitted so we do this part last.
         try
         {
            helloGroup = GreetingServiceHelper.narrow(orb.string_to_object(groupURL));
+
+           String response = helloGroup.greeting_check();
+           if(!response.equals(s))
+           {
+               fail("Wrong response: expected \""+s+"\" received \""+response+"\"");
+           }
         }
         catch (INV_OBJREF e)
         {
