@@ -8,8 +8,7 @@
     enum CompletionStatus {COMPLETED_YES,
                             COMPLETED_NO,
                             COMPLETED_MAYBE};
-// Blank body as exceptions inherit members from SystemException
-#define ex_body {}
+#define ex_body {unsigned long minor; CompletionStatus completed;}
 #else
 #define ex_body {unsigned long minor; completion_status completed;}
 
