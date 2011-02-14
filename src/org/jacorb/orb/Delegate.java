@@ -490,7 +490,7 @@ public final class Delegate
     {
         String object_reference = orb.object_to_string(obj);
 
-        if (object_reference.indexOf( "IOR:" ) == 0)
+        if (object_reference != null && object_reference.indexOf( "IOR:" ) == 0)
         {
             rebind(new ParsedIOR( orb, object_reference));
         }
