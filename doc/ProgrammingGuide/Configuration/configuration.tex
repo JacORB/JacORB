@@ -327,11 +327,22 @@ messages, 3 means $info$ messages, and 4 means $debug$ messages (higher
 levels also include lower levels).
 
 The property {\tt jacorb.logfile} specifies the name of a file to
-write the log to.  If this property is not set, then logging goes to
-the console.  You may include the string ``\$implname'' in the value
-of this property; this is replaced with the value of the property
-{\tt jacorb.implname} if that is set, or ``jacorb'' otherwise.
-
+write the log to.  If the {\tt jacorb.logfile} property is not set, output 
+will be sent to the terminal. 
+If the {\tt jacorb.logfile} property is set to an explicity filename then
+output will be sent to that file. Note that it is \emph{NOT} recommended that 
+multiple JVM processes send output to the same file as this could lead to file
+corruption. Alternatively if the {\tt jacorb.logfile} property ends in
+{\tt \$implname} e.g. 
+\small{
+\begin{verbatim}
+jacorb.logfile=c:/tmp/$implname
+\end{verbatim}
+}
+\small\normalsize
+and the {\tt jacorb.implname} property has been set, output will be logged
+to a file with the same name as the {\tt jacorb.implname} property value. See
+section \ref{implname} for more information on the {\tt jacorb.implname} property.
 The default formatting of JDK logs is quite verbose, using two lines
 of output for every log entry.  We have provided a {\tt LogFormatter}
 class that gives a more succinct output.  This class is named {\tt
