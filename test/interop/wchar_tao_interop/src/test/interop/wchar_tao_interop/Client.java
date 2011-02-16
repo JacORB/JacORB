@@ -1,6 +1,6 @@
-package wchar_tao_interop;
+package test.interop.wchar_tao_interop;
 
-import wchar_tao_interop.GoodDayPackage.WStringException;
+import test.interop.wchar_tao_interop.GoodDayPackage.WStringException;
 
 import java.io.*;
 /**

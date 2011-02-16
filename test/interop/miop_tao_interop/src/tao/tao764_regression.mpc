@@ -4,7 +4,7 @@
 
 project(*IDL): taoidldefaults {
   IDL_Files {
-    ../Hello.idl
+    ../../idl/Hello.idl
   }
   custom_only = 1
 }

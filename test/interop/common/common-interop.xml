@@ -1,0 +1,65 @@
+<?xml version="1.0"?>
+
+<project name="common-interop">
+
+    <property name="src.dir" value="src" />
+    <property name="build.dir" value="build" />
+    <property name="idl.dir" value="idl" />
+    <property name="classes.dir" value="${build.dir}/classes" />
+    <property name="gen.dir" value="${build.dir}/generated" />
+    <property name="jacorb.dir" value="../../.." />
+    <property name="jacorb.lib" value="${jacorb.dir}/lib" />
+
+    <path id="jacorb.classpath">
+        <pathelement location="${jacorb.dir}/classes" />
+        <fileset dir="${jacorb.lib}">
+            <include name="*.jar" />
+        </fileset>
+    </path>
+
+    <path id="interop.classpath">
+        <pathelement location="${classes.dir}" />
+        <pathelement location="${resources.dir}" />
+    </path>
+
+    <taskdef name="jacorbidl" classname="org.jacorb.idl.JacIDL" classpathref="jacorb.classpath" />
+
+    <target name="idl">
+        <jacorbidl srcdir="${idl.dir}"
+                destdir="${gen.dir}"
+                includes="*.idl"
+                helpercompat="jacorb"
+                includepath="${jacorb.dir}/idl/omg" />
+    </target>
+
+    <target name="compile" depends="idl">
+        <mkdir dir="${classes.dir}" />
+
+        <javac destdir="${classes.dir}" debug="true">
+            <src path="${src.dir}" />
+            <src path="${gen.dir}" />
+            <classpath refid="jacorb.classpath" />
+        </javac>
+    </target>
+
+    <target name="clean">
+        <delete dir="${build.dir}" />
+    </target>
+
+    <macrodef name="run-java" taskname="java">
+        <attribute name="classname" />
+        <attribute name="argline" />
+
+        <sequential>
+            <java classname="@{classname}" fork="true">
+                <jvmarg value="-Xbootclasspath/p:${jacorb.dir}/classes" />
+                <jvmarg value="-Djava.endorsed.dirs=${jacorb.lib}" />
+                <jvmarg value="-Dorg.omg.CORBA.ORBClass=org.jacorb.orb.ORB" />
+                <jvmarg value="-Dorg.omg.CORBA.ORBSingletonClass=org.jacorb.orb.ORBSingleton" />
+                <classpath refid="interop.classpath" />
+                <arg line="@{argline}" />
+            </java>
+        </sequential>
+    </macrodef>
+
+</project>

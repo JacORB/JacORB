@@ -1,32 +1,57 @@
 <?xml version="1.0"?>
 
-<project name="miop tao interoperability" default="compile" basedir="../../..">
+<project name="miop tao interoperability" default="compile">
 
-    <property name="path" value="${basedir}/test/interop/miop_tao_interop" />
+    <import file="../common/common-interop.xml" />
 
-    <target name="compile">
-        <ant antfile="${path}/jacorb/build.xml" target="compile" />
+    <target name="jacorb_server" depends="compile">
+        <run-java classname="test.interop.miop_tao_interop.Server"
+                  argline="-o ${build.dir}/server.ior -u corbaloc:miop:1.0@1.0-domain-1/225.10.10.10:17502 -s 1 -p 100000 -t 1 -c 10" />
     </target>
 
-    <target name="clean">
-        <ant antfile="${path}/jacorb/build.xml" target="clean" />
-        <ant antfile="${path}/tao/build.xml" target="clean" />
+    <target name="jacorb_client" depends="compile">
+        <run-java classname="test.interop.miop_tao_interop.Client"
+                  argline="-k file://${build.dir}/server.ior -p 100000 -t 1 -c 10 -s 1000 -f 0" />
     </target>
 
-    <target name="jac_server">
-        <ant antfile="${path}/jacorb/build.xml" target="run_server" />
+    <target name="jacorb_server_stop" depends="compile">
+        <run-java classname="test.interop.miop_tao_interop.Client" argline="-k file://${build.dir}/server.ior -x" />
     </target>
 
-    <target name="jac_client">
-        <ant antfile="${path}/jacorb/build.xml" target="run_client" />
+    <property name="tao.src" value="${src.dir}/tao" />
+    <property name="tao.obj" value="${build.dir}/tao" />
+    <property environment="env" />
+    <property name="mpc" value="${env.TAO_ROOT}/bin/mwc.pl" />
+    <property name="mpc_args" value="-type gnuace -template prism" />
+
+    <target name="compile_tao">
+        <copy todir="${build.dir}">
+            <fileset dir="${src.dir}" includes="tao/**" />
+        </copy>
+
+        <exec dir="${tao.obj}" executable="${mpc}">
+            <arg line="${mpc_args}" />
+        </exec>
+
+        <exec dir="${tao.obj}" executable="make" />
     </target>
 
-    <target name="tao_server">
-        <ant antfile="${path}/tao/build.xml" target="run_server" />
+    <target name="tao_server" depends="compile_tao">
+        <exec dir="${tao.obj}" executable="${basedir}/${tao.obj}/server">
+            <arg line="-ORBSvcConf uipmc.conf -ORBMIOPFragmentsCleanupDelay 1000 -o ${basedir}/${build.dir}/server.ior -u corbaloc:miop:1.0@1.0-domain-1/225.10.10.10:17882 -s 1 -p 100000 -t 1 -c 10" />
+        </exec>
     </target>
 
-    <target name="tao_client">
-        <ant antfile="${path}/tao/build.xml" target="run_client" />
+    <target name="tao_client" depends="compile_tao">
+        <exec dir="${tao.obj}" executable="${basedir}/${tao.obj}/client">
+            <arg line="-ORBSvcConf uipmc.conf -k file://${basedir}/${build.dir}/server.ior -p 100000 -t 1 -c 10 -s 1000 -f 0" />
+        </exec>
+    </target>
+
+    <target name="tao_server_stop" depends="compile_tao">
+        <exec dir="${tao.obj}" executable="${basedir}/${tao.obj}/client">
+            <arg line="-ORBSvcConf uipmc.conf -k file://${basedir}/${build.dir}/server.ior -x" />
+        </exec>
     </target>
 
 </project>

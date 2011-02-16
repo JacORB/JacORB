@@ -86,10 +86,10 @@ parse_args (int argc, ACE_TCHAR *argv[])
 class ClientThread : public ACE_Task_Base
 {
 public:
-  ClientThread (miop_tao_interop::UIPMC_Object_ptr obj, CORBA::ULong payload,
+  ClientThread (test::interop::miop_tao_interop::UIPMC_Object_ptr obj, CORBA::ULong payload,
                 CORBA::ULong offset, CORBA::ULong calls,
                 CORBA::ULong sleep)
-    : obj_ (miop_tao_interop::UIPMC_Object::_duplicate (obj))
+    : obj_ (test::interop::miop_tao_interop::UIPMC_Object::_duplicate (obj))
     , payload_ (payload)
     , calls_ (calls)
     , id_ (offset)
@@ -103,11 +103,11 @@ public:
       {
         CORBA::ULong i = this->id_++;
 
-        miop_tao_interop::Octets seq (this->payload_);
+        test::interop::miop_tao_interop::Octets seq (this->payload_);
         seq.length (this->payload_);
 
         CORBA::Octet *buff = seq.get_buffer ();
-        ACE_OS::memset (buff, miop_tao_interop::ClientIDs[i], this->payload_);
+        ACE_OS::memset (buff, test::interop::miop_tao_interop::ClientIDs[i], this->payload_);
 
         ACE_Time_Value tv (0, 1000 * this->sleep_);
         for (CORBA::ULong j = 0; j < this->calls_; ++j)
@@ -127,7 +127,7 @@ public:
   }
 
 private:
-  miop_tao_interop::UIPMC_Object_var obj_;
+  test::interop::miop_tao_interop::UIPMC_Object_var obj_;
 
   CORBA::ULong payload_;
   CORBA::ULong calls_;
@@ -149,7 +149,7 @@ ACE_TMAIN (int argc, ACE_TCHAR *argv[])
                            ACE_TEXT ("ERROR: wrong arguments\n")),
                           -1);
 
-      if (id_offset + client_threads >= ACE_OS::strlen (miop_tao_interop::ClientIDs))
+      if (id_offset + client_threads >= ACE_OS::strlen (test::interop::miop_tao_interop::ClientIDs))
         ACE_ERROR_RETURN ((LM_ERROR,
                            ACE_TEXT ("ERROR: too many clients\n")),
                           -1);
@@ -157,7 +157,7 @@ ACE_TMAIN (int argc, ACE_TCHAR *argv[])
       CORBA::Object_var obj = orb->string_to_object (ior);
 
       // Create Hello reference.
-      miop_tao_interop::Hello_var hello = miop_tao_interop::Hello::_narrow (obj.in ());
+      test::interop::miop_tao_interop::Hello_var hello = test::interop::miop_tao_interop::Hello::_narrow (obj.in ());
 
       if (CORBA::is_nil (hello.in ()))
         ACE_ERROR_RETURN ((LM_ERROR,
@@ -168,7 +168,7 @@ ACE_TMAIN (int argc, ACE_TCHAR *argv[])
         hello->shutdown ();
       else
         {
-          miop_tao_interop::UIPMC_Object_var uipmc_obj = hello->get_object ();
+          test::interop::miop_tao_interop::UIPMC_Object_var uipmc_obj = hello->get_object ();
 
           {
             // start clients

@@ -8,7 +8,7 @@
 #include "ace/Hash_Map_Manager_T.h"
 #include "HelloS.h"
 
-class UIPMC_Object_Impl : public virtual POA_miop_tao_interop::UIPMC_Object
+class UIPMC_Object_Impl : public virtual POA_test::interop::miop_tao_interop::UIPMC_Object
 {
 public:
   UIPMC_Object_Impl (CORBA::ULong payload, CORBA::ULong clients, CORBA::ULong calls);
@@ -16,7 +16,7 @@ public:
   ~UIPMC_Object_Impl (void);
 
   // The skeleton methods
-  virtual void process (miop_tao_interop::Octets const &payload);
+  virtual void process (test::interop::miop_tao_interop::Octets const &payload);
 
 private:
   CORBA::ULong payload_;
@@ -32,21 +32,21 @@ private:
 };
 
 
-class Hello_Impl : public virtual POA_miop_tao_interop::Hello
+class Hello_Impl : public virtual POA_test::interop::miop_tao_interop::Hello
 {
 public:
   // Constructor
-  Hello_Impl (CORBA::ORB_ptr orb, miop_tao_interop::UIPMC_Object_ptr obj);
+  Hello_Impl (CORBA::ORB_ptr orb, test::interop::miop_tao_interop::UIPMC_Object_ptr obj);
 
   // The skeleton methods
-  virtual miop_tao_interop::UIPMC_Object_ptr get_object (void);
+  virtual test::interop::miop_tao_interop::UIPMC_Object_ptr get_object (void);
 
   virtual void shutdown (void);
 
 private:
   CORBA::ORB_var orb_;
 
-  miop_tao_interop::UIPMC_Object_var obj_;
+  test::interop::miop_tao_interop::UIPMC_Object_var obj_;
 };
 
 #endif // _HELLOS_IMPL_H_

@@ -1,4 +1,4 @@
-package miop_tao_interop;
+package test.interop.miop_tao_interop;
 
 import java.util.Properties;
 import java.util.Arrays;

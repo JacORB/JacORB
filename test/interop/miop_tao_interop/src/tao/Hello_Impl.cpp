@@ -26,7 +26,7 @@ UIPMC_Object_Impl::~UIPMC_Object_Impl (void)
   for (CORBA::ULong i = 0; i < this->clients_; ++i)
     {
       CORBA::ULong count = 0;
-      this->received_.find (miop_tao_interop::ClientIDs[i], count);
+      this->received_.find (test::interop::miop_tao_interop::ClientIDs[i], count);
 
       if (count != this->calls_)
         // This perfectly ok for MIOP to lose messages.
@@ -34,12 +34,12 @@ UIPMC_Object_Impl::~UIPMC_Object_Impl (void)
         ACE_DEBUG ((LM_DEBUG,
                     ACE_TEXT ("DEBUG: expected %d messages from '%c' client ")
                     ACE_TEXT ("but only %d encountered\n"),
-                    this->calls_, miop_tao_interop::ClientIDs[i], count));
+                    this->calls_, test::interop::miop_tao_interop::ClientIDs[i], count));
     }
 }
 
 void
-UIPMC_Object_Impl::process (miop_tao_interop::Octets const &payload)
+UIPMC_Object_Impl::process (test::interop::miop_tao_interop::Octets const &payload)
 {
   if (this->payload_ != payload.length ())
     {
@@ -54,7 +54,7 @@ UIPMC_Object_Impl::process (miop_tao_interop::Octets const &payload)
   CORBA::Octet c = payload[0];
   this->received_.find (c, count);
 
-  miop_tao_interop::Octets seq (this->payload_);
+  test::interop::miop_tao_interop::Octets seq (this->payload_);
   seq.length (this->payload_);
   CORBA::Octet *buff = seq.get_buffer ();
   ACE_OS::memset (buff, c, this->payload_);
@@ -69,7 +69,7 @@ UIPMC_Object_Impl::process (miop_tao_interop::Octets const &payload)
       return;
     }
 
-  if (ACE_OS::strchr (miop_tao_interop::ClientIDs, c) == 0)
+  if (ACE_OS::strchr (test::interop::miop_tao_interop::ClientIDs, c) == 0)
     {
       ACE_ERROR ((LM_ERROR,
                   ACE_TEXT ("ERROR: client id '%c' doesn't match any known value\n"),
@@ -86,16 +86,16 @@ UIPMC_Object_Impl::process (miop_tao_interop::Octets const &payload)
 }
 
 Hello_Impl::Hello_Impl (CORBA::ORB_ptr orb,
-                        miop_tao_interop::UIPMC_Object_ptr obj)
+                        test::interop::miop_tao_interop::UIPMC_Object_ptr obj)
   : orb_ (CORBA::ORB::_duplicate (orb))
-  , obj_ (miop_tao_interop::UIPMC_Object::_duplicate (obj))
+  , obj_ (test::interop::miop_tao_interop::UIPMC_Object::_duplicate (obj))
 {
 }
 
-miop_tao_interop::UIPMC_Object_ptr
+test::interop::miop_tao_interop::UIPMC_Object_ptr
 Hello_Impl::get_object (void)
 {
-  return miop_tao_interop::UIPMC_Object::_duplicate (this->obj_.in ());
+  return test::interop::miop_tao_interop::UIPMC_Object::_duplicate (this->obj_.in ());
 }
 
 void

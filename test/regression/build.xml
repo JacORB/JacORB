@@ -87,7 +87,8 @@
                                       compile-src,
                                       compile-rmic,
                                       compile-src-notification,
-                                      instrument" />
+                                      instrument,
+                                      compile-interop" />
 
     <target name="compile-src" >
         <jacorb-javac javac-includes="**"
@@ -114,12 +115,20 @@
         <jacorb-javac javac-includes="**/RMITestServant.java" javac-classpathref="cp.compile-test" />
     </target>
 
-        <target name="compile-src-notification" unless="NO_BUILD">
+   <target name="compile-src-notification" unless="NO_BUILD">
         <jacorb-javac
               javac-includes="org/jacorb/test/notification/**/*.java"
               javac-excludes="org/jacorb/test/notification/plugins/**,
                               org/jacorb/test/notification/jmx/**"
               javac-classpathref="cp.compile-test" />
+    </target>
+
+    <target name="compile-interop">
+        <ant antfile="${basedir}/test/interop/build.xml" target="compile" inheritall="false"/>
+    </target>
+
+    <target name="clean-interop">
+        <ant antfile="${basedir}/test/interop/build.xml" target="clean" inheritall="false"/>
     </target>
 
     <!-- run the tests -->
@@ -753,7 +762,7 @@ Tests run: ${result.testCount}, Failures: ${result.testFailures}, Errors: ${resu
     <!--                   clean up                           -->
     <!-- ==================================================== -->
 
-    <target name="clean" depends="jacunit-realclean"
+    <target name="clean" depends="jacunit-realclean, clean-interop"
             description="Remove all generated source files and class files">
         <delete failonerror="false" includeemptydirs="true">
             <fileset dir="${classdir}" includes="**/*" />

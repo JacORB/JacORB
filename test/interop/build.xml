@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 
-<project name="Jacorb interoperability" default="compile">
+<project name="Jacorb interoperability" default="compile" basedir=".">
 
     <macrodef name="iterate">
         <attribute name="target" />

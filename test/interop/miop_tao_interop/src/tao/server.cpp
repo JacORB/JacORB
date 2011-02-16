@@ -136,8 +136,8 @@ ACE_TMAIN (int argc, ACE_TCHAR *argv[])
       // Activate UIPMC Object.
       root_goa->activate_object_with_id (id.in (), uipmc_impl);
 
-      miop_tao_interop::UIPMC_Object_var uipmc_obj =
-        miop_tao_interop::UIPMC_Object::_unchecked_narrow (obj.in ());
+      test::interop::miop_tao_interop::UIPMC_Object_var uipmc_obj =
+        test::interop::miop_tao_interop::UIPMC_Object::_unchecked_narrow (obj.in ());
 
       if (CORBA::is_nil (uipmc_obj.in ()))
         ACE_ERROR_RETURN ((LM_ERROR,
