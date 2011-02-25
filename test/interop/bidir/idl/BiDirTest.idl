@@ -1,0 +1,19 @@
+module test
+{
+    module interop
+    {
+        module bidir
+        {
+
+            interface ClientCallback
+            {
+                void hello( in string message );
+            };
+
+            interface CallbackServer
+            {
+                void callback_hello( in ClientCallback cc, in string message );
+            };
+        };
+    };
+};

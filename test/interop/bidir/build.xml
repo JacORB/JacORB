@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+
+<project name="bidir" default="compile">
+
+    <import file="../common/common-interop.xml" />
+
+    <target name="jacorb_server" depends="compile">
+        <run-java classname="test.interop.bidir.Server" argline="${build.dir}/ior.ior" />
+    </target>
+
+    <target name="jacorb_client" depends="compile">
+        <run-java classname="test.interop.bidir.Client" argline="${build.dir}/ior.ior" />
+    </target>
+
+</project>

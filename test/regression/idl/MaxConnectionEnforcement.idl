@@ -1,0 +1,28 @@
+module org
+{
+    module jacorb
+    {
+        module test
+        {
+            module orb
+            {
+                module connection
+                {        
+                    module maxconnectionenforcement
+                    {
+                        interface CallbackIf
+                        {
+                            boolean opOnCallback();
+                        };
+
+                        interface TestIf
+                        {
+                            boolean op();
+                            boolean doCallback( in CallbackIf callback );
+                        };
+                    };
+                };
+            };
+        };
+    };
+};

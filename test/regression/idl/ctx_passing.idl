@@ -1,0 +1,19 @@
+module org
+{
+    module jacorb
+    {
+        module test
+        {
+            module interceptor
+            {
+                module ctx_passing
+                {
+                    interface TestObject
+                    {
+                        void foo();            
+                    };
+                };
+            };
+        };
+    };
+};

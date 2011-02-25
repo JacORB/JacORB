@@ -450,7 +450,9 @@ Tests run: ${result.testCount}, Failures: ${result.testFailures}, Errors: ${resu
                      idl-ami-bugs,
                      idl-transport-current-server,
                      idl-bugjac608,
-                     idl-miop"/>
+                     idl-miop,
+                     idl-interceptor,
+                     idl-max-connection-enforcement" />
 
     <!-- ==================================================== -->
     <!--                compile Tests.idl                     -->
@@ -502,6 +504,7 @@ Tests run: ${result.testCount}, Failures: ${result.testFailures}, Errors: ${resu
 
     <target name="idl-connectiontimeout">
         <process-idl includes="ConnectionTimeout.idl" />
+        <process-idl includes="ConnectionTimeout2.idl" />
     </target>
 
     <target name="idl-bidir">
@@ -578,7 +581,15 @@ Tests run: ${result.testCount}, Failures: ${result.testFailures}, Errors: ${resu
     </target>
 
     <target name="idl-miop">
-          <process-idl includes="MIOP.idl" />
+        <process-idl includes="MIOP.idl" />
+    </target>
+
+    <target name="idl-interceptor">
+        <process-idl includes="ctx_passing.idl" />
+    </target>
+
+    <target name="idl-max-connection-enforcement">
+        <process-idl includes="MaxConnectionEnforcement.idl" />
     </target>
 
     <!-- ==================================================== -->
