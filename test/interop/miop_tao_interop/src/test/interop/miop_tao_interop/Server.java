@@ -115,6 +115,7 @@ public class Server implements Runnable
 
         uipmcImpl.final_check();
 
-        System.out.println("\nServer finished successfully.");
+        System.out.println();
+        System.out.println("Server finished successfully.");
     }
 }

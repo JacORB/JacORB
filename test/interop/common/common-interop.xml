@@ -26,10 +26,10 @@
 
     <target name="idl">
         <jacorbidl srcdir="${idl.dir}"
-                destdir="${gen.dir}"
-                includes="*.idl"
-                helpercompat="jacorb"
-                includepath="${jacorb.dir}/idl/omg" />
+                   destdir="${gen.dir}"
+                   includes="*.idl"
+                   helpercompat="jacorb"
+                   includepath="${jacorb.dir}/idl/omg" />
     </target>
 
     <target name="compile" depends="idl">
@@ -48,7 +48,7 @@
 
     <macrodef name="run-java" taskname="java">
         <attribute name="classname" />
-        <attribute name="argline" />
+        <attribute name="argline" default="" />
 
         <sequential>
             <java classname="@{classname}" fork="true">

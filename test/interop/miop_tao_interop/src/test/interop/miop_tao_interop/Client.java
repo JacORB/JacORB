@@ -129,6 +129,7 @@ public class Client implements Runnable
                 orb.perform_work();
         }
 
-        System.out.println("\nClient finished successfully.");
+        System.out.println();
+        System.out.println("Client finished successfully.");
     }
 }

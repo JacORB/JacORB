@@ -1,8 +1,9 @@
 package test.interop.bug360;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
 import org.omg.CORBA.Any;
-import org.omg.CosNaming.NamingContextExt;
-import org.omg.CosNaming.NamingContextExtHelper;
 
 public class Client
 {
@@ -12,14 +13,44 @@ public class Client
     {
         try
         {
-            org.omg.CORBA.ORB orb = org.omg.CORBA.ORB.init(args,null);
+            if( args.length != 1 )
+            {
+                System.out.println( "Usage: jaco Client <ior_file>" );
+                System.exit( 1 );
+            }
 
-            // get hold of the naming service
-            NamingContextExt nc =
-                NamingContextExtHelper.narrow( orb.resolve_initial_references("NameService"));
+            File f = new File( args[ 0 ] );
 
-            consumer =
-                onewayPushConsumerHelper.narrow( nc.resolve(nc.to_name("bug360.service")));
+            //check if file exists
+            if( ! f.exists() )
+            {
+                System.out.println("File " + args[0] +
+                                   " does not exist.");
+
+                System.exit( -1 );
+            }
+
+            //check if args[0] points to a directory
+            if( f.isDirectory() )
+            {
+                System.out.println("File " + args[0] +
+                                   " is a directory.");
+
+                System.exit( -1 );
+            }
+
+            BufferedReader br =
+                new BufferedReader( new FileReader( f ));
+
+            // get object reference from command-line argument file
+            org.omg.CORBA.ORB orb = org.omg.CORBA.ORB.init( args, null );
+
+            org.omg.CORBA.Object obj =
+                orb.string_to_object( br.readLine() );
+
+            br.close();
+
+            consumer = onewayPushConsumerHelper.narrow( obj );
 
             // create a new any
             Any a = org.omg.CORBA.ORB.init().create_any();
