@@ -1,3 +1,0 @@
-This is a test demonstrating that JacORB's configuration now correctly processes configuration
-derived from nested property classes. If this test is run against unpatched versions of JacORB,
-it will fail.
