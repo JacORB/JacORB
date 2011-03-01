@@ -29,7 +29,7 @@ public final class Environment
     static final boolean JAVA15;
 
     static final String NL = System.getProperty("line.separator");
-    
+
     static
     {
         final String javaVer = System.getProperty ("java.specification.version");
@@ -55,7 +55,7 @@ public final class Environment
         }
         else
         {
-            throw new AssertionError("should never happen");
+            throw new AssertionError("Java VM version outside of currently accepted range (1.4 - 1.6)");
         }
     }
 
