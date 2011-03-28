@@ -159,7 +159,8 @@ post 2.3.1
           defined as an interface.
         - Fix for newline parsing with included files.
         - Fix for typedef with array and operator.
-   - Naming Service:
+        - Fix for IDL compiler for generation of system exception classes.
+    - Naming Service:
         - Fix for BindingIterator leak (Bugzilla 647).
         - Renamed configuration properties and default to off.
     - Interface Repository:

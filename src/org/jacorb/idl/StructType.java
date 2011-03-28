@@ -732,11 +732,15 @@ public class StructType
         {
             // print member declarations
 
+            if ( ! isSystemException( className ) )
+            {
             for (Enumeration e = memberlist.v.elements(); e.hasMoreElements();)
             {
                 ((Member)e.nextElement()).member_print(ps, "\tpublic ");
                 ps.println();
             }
+            }
+
 
             if (parser.generateEnhanced)
             {
