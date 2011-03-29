@@ -1188,7 +1188,13 @@ public class Interface
 
         ps.println("\t{");
 
-        ps.println("\t\treturn " + javaName() + "Helper.narrow(_this_object());");
+        ps.println("\t\t" + "org.omg.CORBA.Object __o = _this_object() ;" ) ;
+        ps.println("\t\t" + javaName() + " __r = " + javaName() + "Helper.narrow(__o);");
+        ps.println("\t\tif (__o != null && __o != __r)");
+        ps.println("\t\t{");
+        ps.println("\t\t\t((org.omg.CORBA.portable.ObjectImpl)__o)._set_delegate(null);\n");
+        ps.println("\t\t}");
+        ps.println("\t\treturn __r;");
 
         ps.println("\t}");
 
@@ -1196,7 +1202,13 @@ public class Interface
 
         ps.println("\t{");
 
-        ps.println("\t\treturn " + javaName() + "Helper.narrow(_this_object(orb));");
+        ps.println("\t\t" + "org.omg.CORBA.Object __o = _this_object(orb) ;" ) ;
+        ps.println("\t\t" + javaName() + " __r = " + javaName() + "Helper.narrow(__o);");
+        ps.println("\t\tif (__o != null && __o != __r)");
+        ps.println("\t\t{");
+        ps.println("\t\t\t((org.omg.CORBA.portable.ObjectImpl)__o)._set_delegate(null);\n");
+        ps.println("\t\t}");
+        ps.println("\t\treturn __r;");
 
         ps.println("\t}");
 
@@ -1268,12 +1280,24 @@ public class Interface
 
         ps.println("\tpublic " + javaName() + " _this()");
         ps.println("\t{");
-        ps.println("\t\treturn " + javaName() + "Helper.narrow(_this_object());");
+        ps.println("\t\t" + "org.omg.CORBA.Object __o = _this_object() ;" ) ;
+        ps.println("\t\t" + javaName() + " __r = " + javaName() + "Helper.narrow(__o);");
+        ps.println("\t\tif (__o != null && __o != __r)");
+        ps.println("\t\t{");
+        ps.println("\t\t\t((org.omg.CORBA.portable.ObjectImpl)__o)._set_delegate(null);\n");
+        ps.println("\t\t}");
+        ps.println("\t\treturn __r;");
         ps.println("\t}");
 
         ps.println("\tpublic " + javaName() + " _this(org.omg.CORBA.ORB orb)");
         ps.println("\t{");
-        ps.println("\t\treturn " + javaName() + "Helper.narrow(_this_object(orb));");
+        ps.println("\t\t" + "org.omg.CORBA.Object __o = _this_object(orb) ;" ) ;
+        ps.println("\t\t" + javaName() + " __r = " + javaName() + "Helper.narrow(__o);");
+        ps.println("\t\tif (__o != null && __o != __r)");
+        ps.println("\t\t{");
+        ps.println("\t\t\t((org.omg.CORBA.portable.ObjectImpl)__o)._set_delegate(null);\n");
+        ps.println("\t\t}");
+        ps.println("\t\treturn __r;");
         ps.println("\t}");
 
         ps.println("\tpublic " + name + "Operations _delegate()");

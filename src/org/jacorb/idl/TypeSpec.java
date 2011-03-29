@@ -235,7 +235,24 @@ public class TypeSpec
 
         ps.println( "\tpublic static " + type + " extract (final org.omg.CORBA.Any any)" );
         ps.println( "\t{" );
-        ps.println( "\t\treturn read(any.create_input_stream());" );
+
+        ps.println( "\t\torg.omg.CORBA.portable.InputStream in = any.create_input_stream();" );
+        ps.println( "\t\ttry" );
+        ps.println( "\t\t{" );
+        ps.println( "\t\t\treturn read (in);" );
+        ps.println( "\t\t}" );
+        ps.println( "\t\tfinally" );
+        ps.println( "\t\t{" );
+
+        ps.println( "\t\t\ttry");
+        ps.println( "\t\t\t{");
+        ps.println( "\t\t\t\tin.close();" );
+        ps.println( "\t\t\t}");
+        ps.println( "\t\t\tcatch (java.io.IOException e)");
+        ps.println( "\t\t\t{" );
+        ps.println( "\t\t\tthrow new RuntimeException(\"Unexpected exception \" + e.toString() );" );
+        ps.println( "\t\t\t}" );
+        ps.println( "\t\t}" );
         ps.println( "\t}" + Environment.NL );
     }
 

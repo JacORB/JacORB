@@ -121,7 +121,8 @@ post 2.3.1
           with more than 1 space before ID caused an parse error.
         - fixes for IDL compiler struct/typedef/array compilation outside
           of modules.
-        - enhance generation to null delegate objects.
+        - Enhance generation to close inputstreams.
+        - Enhance generation to null delegate objects.
         - fixed issue where CR/LF symbols were incorrect in generated
           files (bugzilla #483).
         - fixed issue where IDL compiler generates erroneous code for
@@ -148,7 +149,7 @@ post 2.3.1
         - Fix for IDL compiler array naming.
         - Fix for IDL compiler unary minus in constant definition.
         - Fix for IDL compiler package generation for nested types (Bugzilla #700).
-        - Fix fir IDL compiler unions scope processing.
+        - Fix for IDL compiler unions scope processing.
         - Fix typecode for typedef'd array (Bugzilla #703).
         - Fix for IDL compiler failure when multiple unions specify the same branch name.
         - Fix for IDL compiler issue where Java keywords that have been added
@@ -160,6 +161,7 @@ post 2.3.1
         - Fix for newline parsing with included files.
         - Fix for typedef with array and operator.
         - Fix for IDL compiler for generation of system exception classes.
+        - native types containing #pragma prefix "omg.org" weren't processed properly.
     - Naming Service:
         - Fix for BindingIterator leak (Bugzilla 647).
         - Renamed configuration properties and default to off.

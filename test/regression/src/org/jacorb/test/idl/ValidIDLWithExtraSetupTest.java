@@ -24,6 +24,7 @@ package org.jacorb.test.idl;
 import java.io.File;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
+import java.lang.reflect.Method;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -37,6 +38,8 @@ import org.jacorb.orb.CDROutputStream;
 import org.jacorb.test.common.TestUtils;
 import org.jacorb.test.idl.bugjac144.BugJac144ObjectCachePlugin;
 import org.omg.CORBA.Any;
+import org.omg.PortableServer.POA;
+import org.omg.PortableServer.Servant;
 
 /**
  * these tests do not fit in the standard scheme
@@ -290,6 +293,13 @@ public class ValidIDLWithExtraSetupTest extends AbstractIDLTestcase
        assertTrue("write_fixed method wasn't invoked", success[0]);
    }
 
+    public void verify_bugRTJ519_idl(ClassLoader cl) throws Exception
+    {
+        Class clazz = cl.loadClass("test.TestInterface");
+        Method method = clazz.getMethod("test_method", new Class[] {Servant.class, POA.class});
+        assertNotNull(method);
+    }
+
     public static Test suite()
     {
         TestSuite suite = new TestSuite();
@@ -325,6 +335,7 @@ public class ValidIDLWithExtraSetupTest extends AbstractIDLTestcase
         suite.addTest(new ValidIDLWithExtraSetupTest(new String[] {}, "bugJac144.idl"));
         suite.addTest(new ValidIDLWithExtraSetupTest("-sloppy_identifiers", TEST_HOME + "/idl/compiler/fail/collision.idl"));
         suite.addTest(new ValidIDLWithExtraSetupTest(new String[] {"-all", "-I" + TEST_HOME + IDL_DIR} , "895_1.idl"));
+        suite.addTest(new ValidIDLWithExtraSetupTest(new String[] {"-I" + TEST_HOME + "/../../idl/omg"}, "bugRTJ519.idl"));
         return suite;
     }
 }

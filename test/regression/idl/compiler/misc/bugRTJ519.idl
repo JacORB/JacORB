@@ -1,0 +1,9 @@
+#include <PortableServer.idl>
+
+module test
+{
+    local interface TestInterface
+    {
+        void test_method ( in PortableServer::Servant s, in PortableServer::POA p );
+    };
+};

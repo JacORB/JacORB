@@ -49,7 +49,9 @@ public class NativeType
     public void setEnclosingSymbol( IdlSymbol s )
     {
         if( enclosing_symbol != null && enclosing_symbol != s )
+        {
             throw new RuntimeException( "Compiler Error: trying to reassign container for " + name );
+        }
         enclosing_symbol = s;
     }
 
@@ -60,10 +62,33 @@ public class NativeType
 
     public String typeName()
     {
+        final String _name;
+
         if( pack_name.length() > 0 )
-            return ScopedName.unPseudoName( pack_name + "." + name );
+        {
+            // hack time:
+            // we need to look at the omg prefix of the declaration
+            // for this native type and prepend it to the typename.
+            // sometimes its already there. sometimes not ...
+            final String declaratorOMGPrefix = declarator.omgPrefix();
+
+            final String prefix;
+            if (pack_name.startsWith(declaratorOMGPrefix))
+            {
+                prefix = pack_name;
+            }
+            else
+            {
+                prefix = declaratorOMGPrefix + pack_name;
+            }
+
+            _name = prefix + "." + name;
+        }
         else
-            return ScopedName.unPseudoName( name );
+        {
+            _name = name;
+        }
+        return ScopedName.unPseudoName( _name );
     }
 
 
@@ -71,9 +96,13 @@ public class NativeType
     {
         s = parser.pack_replace( s );
         if( pack_name.length() > 0 )
+        {
             pack_name = s + "." + pack_name;
+        }
         else
+        {
             pack_name = s;
+    }
     }
 
     public boolean basic()
@@ -134,7 +163,7 @@ public class NativeType
     }
 
     /**
-     */ 
+     */
 
     public void accept( IDLTreeVisitor visitor )
     {

@@ -40,8 +40,8 @@ public class Bug879Test extends ORBTestCase
 
     public void testInitGiop1_1() throws IOException
     {
-        ServerSocket sSocket = new ServerSocket(1234);
-        Socket socket = new Socket((String)null, 1234);
+        ServerSocket sSocket = new ServerSocket(4321);
+        Socket socket = new Socket((String)null, 4321);
 
         ServerIIOPConnection serverIIOPConnection = new ServerIIOPConnection(socket, false, null);
         serverIIOPConnection.configure(((org.jacorb.orb.ORB)orb).getConfiguration());
