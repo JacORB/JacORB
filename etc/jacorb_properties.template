@@ -280,6 +280,10 @@ jacorb.giop.add_1_0_profiles=off
 # Use DNS names in IORs
 jacorb.dns.enable=off
 
+# Force the FQDN host name lookup. Turn off if exactly the given host 
+# names (e.g. "short" names) should be used in IORs  
+#jacorb.dns.force_lookup=on
+
 # Compact Typecodes (off/on)
 jacorb.compactTypecodes=off
 

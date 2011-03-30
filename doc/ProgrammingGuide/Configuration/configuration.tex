@@ -668,7 +668,10 @@ objects & class & Hashtable \\
 \verb"jacorb.dns.enable" & Use DNS names in IORs, rather than numeric
 IP addresses & boolean & off \\
 \hline
-\verb"jacorb.dns.eager\_resolve" & resolve DNS names in IORs eagerly & boolean & on \\
+\verb"jacorb.dns.eager_resolve" & resolve DNS names in IORs eagerly & boolean & on \\
+\hline
+\verb"jacorb.dns.force_lookup" & Forces FQDN host name reverse lookup. 
+Turn off if "short" host name need to be used in IORs & boolean & on \\
 \hline
 \verb"jacorb.compactTypecode"
 \verb"s" & Whether to send compact typecodes. Options are 0 (off), on (full compaction of all optional parameters) & boolean & on \\

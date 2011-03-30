@@ -49,6 +49,7 @@ public class IIOPAddress
     private boolean hideZoneID = true;
     private Logger logger;
     private boolean doEagerResolve;
+    private boolean forceDNSLookup = true;
 
     /**
      * Creates a new IIOPAddress that will be initialized later by a string
@@ -105,6 +106,7 @@ public class IIOPAddress
         {
             init_host();
         }
+        forceDNSLookup = configuration.getAttributeAsBoolean("jacorb.dns.force_lookup", true);
    }
 
     /**
@@ -223,7 +225,12 @@ public class IIOPAddress
             return source_name;
         }
 
-        return host.getHostAddress();
+        if (! dnsEnabled)
+        {
+           return host.getHostAddress();
+        }
+
+        return forceDNSLookup ? host.getCanonicalHostName() : host.getHostName();
     }
 
     /**
