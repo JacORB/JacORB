@@ -826,7 +826,6 @@ aid debugging of codeset issues. It will print out the current system encoding v
 If the developer is running under a Unix based system and passes the argument -a it will
 also print out the current locale and all known locales.
 
-
 \begin{small}
 \begin{longtable}{|p{5cm}|p{7.5cm}|p{1.5cm}|p{1.5cm}|}
 \caption{Logging Configuration}\\
@@ -1390,6 +1389,50 @@ This factory is used by JacORB to create a server socket for incoming SSL connec
 \item[property] jacorb.ssl.server\_socket\_factory
 \item[implemented interface] org.jacorb.orb.factory.ServerSocketFactory
 \end{description}
+
+\subsection{Using the JacORB with NAT and firewall}
+Network Address Translation (NAT) frequently causes a lot of problems if internal CORBA objects need to be accessed from outside the NAT network.
+Cause of these problems is that object IORs contains host's IP address but internal (inside the NAT) IPs are not accessible from outer network.
+Simplest solution is using the {\tt jacorb.ior\_proxy\_host} and DNS names instead of IP addresses.
+E.g. we have the 192.168.10.* network managed by NAT. Its gateway has inner IP: 192.168.10.1 and outer IP: 10.30.102.67.
+Here are 2 cases:
+\begin{itemize}
+\item Client JacORB application. No additional adjustments need to be done for the client application except firewall 
+(if exists) configuration to allow passing the outgoing connection to the server object(s).
+\item Server or acting both client and server JacORB application. There is additional adjustments are required.
+\end{itemize}
+
+To make server object behind the NAT accessible from outer network the following configuration steps need to be done:
+\begin{itemize}
+\item Check that DNS name for the host is set. It should be mapped e.g. to the 192.168.10.128 IP inside NAT and to 10.30.102.67 outside the NAT.
+\item Update the {\tt jacorb.properties} file (host has 'server-host' DNS name for example). Set following properties to:
+\begin{small}
+\begin{verbatim}
+jacorb.ior_proxy_host=server-host
+jacorb.dns.enable=on
+\end{verbatim}
+\end{small}
+\item Choose and define the server object's port (this will allow to easy port mapping by NAT and firewall). This could be done either by {\tt jacorb.properties} file editing. e.g.:
+\begin{small}
+\begin{verbatim}
+OAPort=57998
+\end{verbatim}
+\end{small}
+where 57998 is pre-defined port number or by using the {\tt -DOAPort=57998} command line parameter.
+Note if {\tt OAPort} parameter is defined in {\tt jacorb.properties} it will be used for all server objects that are using the same {\tt jacorb.properties} file. 
+Thus, for many server objects command line parameter is more applicable.
+Also, remember that ports with numbers below the 1024 are treated as system ports and require root privileges for their creation.
+\item Setup port forwarding in NAT and firewall according to their configuration guides. Note that port numbers should be the same, e,g. if server uses 15242 port
+it should have bound to the 15242 gateway port.
+\end{itemize}
+If Implementation repository is used the corresponding properties {\tt jacorb.imr.ior\_proxy\_host} and {\tt jacorb.imr.ior\_proxy\_port} need to be defined similar 
+to the {\tt jacorb.ior\_proxy\_host} and {\tt jacorb.ior\_proxy\_port}.
+
+Also, using the {\tt jacorb.ior\_proxy\_address} property is more convenient but it should be defined for each server object independently to prevent errors during
+ports creation.
+
+Parameter {\tt jacorb.dns.force\_resolve} allow to controlling host's Fully Qualified Domain Names (FQDN) resolution. If there is necessity to use only "short" DNS names
+this parameter need to be set to 'off' value. Otherwise the canonical (full) hosts DNS names will be used in IORs by default.
 
 %%% Local Variables:
 %%% mode: latex
