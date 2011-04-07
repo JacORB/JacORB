@@ -33,6 +33,9 @@ import org.jacorb.orb.ORB;
 import org.jacorb.orb.SystemExceptionHelper;
 import org.jacorb.orb.etf.StreamConnectionBase;
 import org.jacorb.util.ObjectUtil;
+import org.jacorb.util.TimerQueue;
+import org.jacorb.util.TimerQueueAction;
+
 import org.omg.CORBA.CompletionStatus;
 import org.omg.CORBA.NO_IMPLEMENT;
 import org.omg.ETF.BufferHolder;
@@ -62,6 +65,12 @@ public abstract class GIOPConnection
      */
     protected final org.omg.ETF.Profile    profile;
     protected org.omg.ETF.Connection transport = null;
+
+    private ConnectionReset server_write_monitor = null;
+    private ConnectionReset client_write_monitor = null;
+    private ConnectionReset write_monitor = null;
+
+    private TimerQueue timer_queue = null;
 
     private RequestListener request_listener = null;
     private ReplyListener reply_listener = null;
@@ -126,6 +135,33 @@ public abstract class GIOPConnection
 
     protected ORB orb;
 
+    public class ConnectionReset extends TimerQueueAction
+    {
+        long relative;
+
+        public ConnectionReset (long ms)
+        {
+            super(ms);
+            relative = ms;
+        }
+
+        public void reset ()
+        {
+            set_relative (relative);
+        }
+
+        public void expire ()
+        {
+            if (logger.isErrorEnabled())
+            {
+                logger.error("Write to connection exceeded time limit. " +
+                             "Transport forced closed.");
+            }
+            do_close = true;
+            transport.close();
+        }
+    }
+
     public GIOPConnection( org.omg.ETF.Profile profile,
                            org.omg.ETF.Connection transport,
                            RequestListener request_listener,
@@ -162,6 +198,24 @@ public abstract class GIOPConnection
         timeout =
             configuration.getAttributeAsInteger("jacorb.connection.client.connect_timeout", 90000);
 
+        int max_request_write_time =
+            configuration.getAttributeAsInteger("jacorb.connection.request.write_timeout", 0);
+        int max_reply_write_time =
+            configuration.getAttributeAsInteger("jacorb.connection.reply.write_timeout", 0);
+
+        logger.info ("max request time = " + max_request_write_time +
+                     " max reply time = " + max_reply_write_time);
+        if (max_request_write_time > 0 || max_reply_write_time > 0)
+            {
+                timer_queue = orb.getTimerQueue();
+                if (max_reply_write_time > 0)
+                    server_write_monitor =
+                        new ConnectionReset (max_reply_write_time);
+                if (max_request_write_time > 0)
+                    client_write_monitor =
+                        new ConnectionReset (max_request_write_time);
+            }
+
         List statsProviderClassNames =
             jacorbConfiguration.getAttributeList( "jacorb.connection.statistics_providers");
 
@@ -188,6 +242,16 @@ public abstract class GIOPConnection
                 }
             }
         }
+    }
+
+    protected void use_server_write_monitor()
+    {
+        write_monitor = server_write_monitor;
+    }
+
+    protected void use_client_write_monitor()
+    {
+        write_monitor = client_write_monitor;
     }
 
 
@@ -491,7 +555,7 @@ public abstract class GIOPConnection
     private void receiveMessagesLoop() throws IOException
     {
         byte[] message = getMessage();
-        
+
         if( message == null )
         {
             return;
@@ -630,7 +694,7 @@ public abstract class GIOPConnection
 
                     MessageOutputStream out =
                         new MessageOutputStream( orb );
-                    out.writeGIOPMsgHeader( MsgType_1_1._MessageError, 
+                    out.writeGIOPMsgHeader( MsgType_1_1._MessageError,
                                             0 );
                     out.insertMsgSize();
                     sendMessage( out );
@@ -779,7 +843,7 @@ public abstract class GIOPConnection
                 case MsgType_1_1._Reply:
                 {
                     getReplyListener().replyReceived( message, this );
-                    
+
                     break;
                 }
                 case MsgType_1_1._CancelRequest:
@@ -891,7 +955,13 @@ public abstract class GIOPConnection
 
     public final void write( byte[] fragment, int start, int size )
     {
+        if (write_monitor != null)
+            write_monitor.reset();
+        if (timer_queue != null)
+            timer_queue.add(write_monitor);
         transport.write( false, false, fragment, start, size, 0 );
+        if (timer_queue != null)
+            timer_queue.remove(write_monitor);
 
         if (getStatisticsProviderAdapter() != null)
         {

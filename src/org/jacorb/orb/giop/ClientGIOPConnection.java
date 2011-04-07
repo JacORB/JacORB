@@ -49,6 +49,7 @@ public class ClientGIOPConnection
 
         ignore_pending_messages_on_timeout =
             configuration.getAttribute("jacorb.connection.client.timeout_ignores_pending_messages","off").equals("on");
+        use_client_write_monitor ();
     }
 
     /**
