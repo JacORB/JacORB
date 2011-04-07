@@ -37,6 +37,7 @@ public abstract class LoggingInitializer
     public static final String ATTR_LOG_APPEND    = "jacorb.logfile.append";
     public static final String ATTR_LOG_SIZE      = "jacorb.logfile.maxLogSize";
     public static final String ATTR_LOG_ROTATE    = "jacorb.logfile.rotateCount";
+    public static final String ATTR_LOG_THREAD_ID = "jacorb.log.showThread";
 
     /**
      * If the given filename contains the string "$implname", replaces

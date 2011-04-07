@@ -80,6 +80,11 @@ jacorb.orb.print_version=on
 # 4 = debug-level output (FINE)
 #jacorb.log.default.verbosity=3
 
+# JacORB is intrinsically multithreaded, and when used in a multithreaded
+# application can have many threads doing similar or identical functions.
+# Set this option to true to include a thread ID value in the log messasge.
+#jacorb.log.showThread=false
+
 # Where does output go? Terminal is default. If the filename includes
 # "$implname", that is replaced with the value of jacorb.implname, if
 # that is defined, or "jacorb" otherwise.
@@ -280,8 +285,8 @@ jacorb.giop.add_1_0_profiles=off
 # Use DNS names in IORs
 jacorb.dns.enable=off
 
-# Force the FQDN host name lookup. Turn off if exactly the given host 
-# names (e.g. "short" names) should be used in IORs  
+# Force the FQDN host name lookup. Turn off if exactly the given host
+# names (e.g. "short" names) should be used in IORs
 #jacorb.dns.force_lookup=on
 
 # Compact Typecodes (off/on)

@@ -37,32 +37,47 @@ import java.util.logging.LogRecord;
 public class JacORBLogFormatter extends Formatter
 {
     private static final DateFormat timeFormat
-      = new SimpleDateFormat ("yyyy-MM-dd HH:mm:ss.SSS");
+        = new SimpleDateFormat ("yyyy-MM-dd HH:mm:ss.SSS");
+
+    private boolean showThread = false;
+
+    public JacORBLogFormatter (boolean show_thread)
+    {
+        showThread = show_thread;
+    }
 
     public String format (LogRecord record)
     {
-       long time = record.getMillis();
-       Level level = record.getLevel();
-       String message = record.getMessage();
-       Throwable t = record.getThrown();
-       String result = String.format
-       (
-           "%s %s %s\n",
-           timeFormat.format (time), level, message
-       );
-       return t == null ? result : result + getStackTrace (t);
+        String result;
+        if (showThread) {
+            result = String.format
+                ( "%s %s [%d] %s\n",
+                  timeFormat.format (record.getMillis()),
+                  record.getLevel(),
+                  record.getThreadID(),
+                  record.getMessage() );
+        }
+        else {
+            result = String.format
+                ( "%s %s %s\n",
+                  timeFormat.format (record.getMillis()),
+                  record.getLevel(),
+                  record.getMessage() );
+        }
+
+        Throwable t = record.getThrown();
+        return t == null ? result : result + getStackTrace (t);
     }
 
     private String getStackTrace (Throwable t)
     {
-       StringBuffer result = new StringBuffer();
-       for (StackTraceElement ste : t.getStackTrace())
-       {
-           result.append ("    ");
-           result.append (ste.toString());
-           result.append ("\n");
-       }
-       return result.toString();
+        StringBuffer result = new StringBuffer();
+        for (StackTraceElement ste : t.getStackTrace()) {
+            result.append ("    ");
+            result.append (ste.toString());
+            result.append ("\n");
+        }
+        return result.toString();
     }
 
 }

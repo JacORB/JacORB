@@ -33,11 +33,12 @@ public class JdkLoggingInitializer extends LoggingInitializer
         }
         ISJDKLOGGING = (c != null);
 
-        // This horror is to ensure that the Singleton logging is always set up first.
-        // Otherwise what happens is either the Singleton logging goes to console, or
-        // the full ORB logging uses the Singleton log file. This is mainly because
-        // JDK logging does not allow separate Logger('jacorb') instances. Which means
-        // they use each others logfile.
+        // This horror is to ensure that the Singleton logging is
+        // always set up first.  Otherwise what happens is either the
+        // Singleton logging goes to console, or the full ORB logging
+        // uses the Singleton log file. This is mainly because JDK
+        // logging does not allow separate Logger('jacorb')
+        // instances. Which means they use each others logfile.
         ORB.init ();
     }
 
@@ -82,6 +83,7 @@ public class JdkLoggingInitializer extends LoggingInitializer
 
         String level = config.getAttribute (ATTR_LOG_VERBOSITY, null);
         String file  = config.getAttribute (ATTR_LOG_FILE, null);
+        boolean showThread = config.getAttributeAsBoolean (ATTR_LOG_THREAD_ID, false);
 
         if (   (level != null && level.length() > 0)
             || (file != null && file.length() > 0))
@@ -119,7 +121,7 @@ public class JdkLoggingInitializer extends LoggingInitializer
                handler = new ConsoleHandler();
             }
             handler.setLevel(toJdkLogLevel(level));
-            handler.setFormatter (new JacORBLogFormatter());
+            handler.setFormatter (new JacORBLogFormatter(showThread));
             rootLogger.addHandler (handler);
         }
     }
