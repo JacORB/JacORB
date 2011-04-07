@@ -149,7 +149,7 @@ public class CodeSet
 
             if (ncsw != null && ! ("".equals (ncsw)))
             {
-                CodeSet codeset = getCodeSet(ncsc);
+                CodeSet codeset = getCodeSet(ncsw);
                 if (codeset != NULL_CODE_SET)
                 {
                     nativeCodeSetWchar = codeset;
