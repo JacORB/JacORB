@@ -148,7 +148,7 @@ public abstract class ConnectionBase
     {
         if (logger.isDebugEnabled())
         {
-            logger.debug("Caught exception", exception);
+            logger.debug("to_COMM_FAILURE: Caught exception", exception);
         }
 
         return new org.omg.CORBA.COMM_FAILURE("IOException: "

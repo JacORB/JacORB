@@ -313,7 +313,7 @@ public class ServerRequest
                     }
                     catch (Exception e)
                     {
-                        logger.info("Caught exception ", e);
+                        logger.info("DSI arguments: Caught exception ", e);
                     }
                 }
 
