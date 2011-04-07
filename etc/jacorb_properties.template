@@ -177,6 +177,12 @@ jacorb.maxManagedBufSize=22
 # Default is 8K and 0=off.
 jacorb.deferredArrayQueue=8
 
+# Create a timer queue object that manages general timed waits using a single
+# thread to wait and notify registered callback objects at the appropriate time.
+# Setting known timer queue dependant options will implicitly enable the use
+# of the timer queue.
+# jacorb.use_timer_queue=false
+
 # Normally, a jacorb server will close the TCP/IP connection right
 # after sending a CloseConnection message. However, it may
 # occasionally happen that the client sends a message into the closed
@@ -215,6 +221,15 @@ jacorb.connection.client.connect_timeout=90000
 
 # max time (msecs) a server keeps a connection open if nothing happens
 #jacorb.connection.server.timeout=10000
+
+# max time (msecs) a client or server will wait to actually perform a send.
+# This protects against situations where a hung peer, which has not closed
+# the connection, can cause a thread in jacorb to wait indefinitely.
+# Separate time out values are specified for requests and replies to allow
+# distinct control for applications that behave as both clients and servers.
+# These timeouts depend on the timer queue being enabled.
+#jacorb.connection.request.write_timeout=0
+#jacorb.connection.reply.write_timeout=0
 
 # because JacORB uses blocking network IO, it assigns a thread to each
 # connection to listen and read messages. Threads are taken from a thread pool

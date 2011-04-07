@@ -56,6 +56,8 @@ import org.jacorb.poa.except.POAInternalError;
 import org.jacorb.poa.util.POAUtil;
 import org.jacorb.util.BuildVersion;
 import org.jacorb.util.ObjectUtil;
+import org.jacorb.util.TimerQueue;
+
 import org.omg.CORBA.BAD_INV_ORDER;
 import org.omg.CORBA.BAD_PARAM;
 import org.omg.CORBA.CompletionStatus;
@@ -125,6 +127,7 @@ public final class ORB
     private boolean giopAdd_1_0_Profiles;
     private String hashTableClassName;
     private boolean useIMR;
+    private boolean useTimerQueue;
 
     private ProtocolAddressBase imrProxyAddress = null;
     private ProtocolAddressBase iorProxyAddress;
@@ -154,6 +157,15 @@ public final class ORB
     private TransportManager transport_manager = null;
 
     private GIOPConnectionManager giop_connection_manager = null;
+
+    /**
+     * The timer queue is a single thread along with a time-sorted list of
+     * event handlers. When the timer fires, either a notification is sent
+     * to an object to wake other threads, or a _simple_ action is performed.
+     * Since the timer queue instance requires a thread, it is only created
+     * when first asked for. the queue is internally synchronized.
+     */
+    private TimerQueue timer_queue = null;
 
     /**
      * Maps repository ids (strings) to objects that implement
@@ -289,6 +301,14 @@ public final class ORB
         iorProxyAddress = createAddress(host, port, address);
 
         failOnORBInitializerError = configuration.getAttributeAsBoolean("jacorb.orb_initializer.fail_on_error", false);
+
+        useTimerQueue = configuration.getAttributeAsBoolean("jacorb.use_timer_queue", false);
+        // There are features that if enabled require the use of the timer queue
+        // and thus need to ensure the timer queue is available.
+        if (!useTimerQueue)
+            useTimerQueue =
+                configuration.getAttribute("jacorb.connection.request.write_timeout") != null ||
+                configuration.getAttribute("jacorb.connection.reply.write_timeout") != null;
 
         printVersion(configuration);
 
@@ -975,7 +995,7 @@ public final class ORB
             basicAdapter = new BasicAdapter( this,
                                              rootpoa,
                                              getTransportManager(),
-                                             giop_connection_manager 
+                                             giop_connection_manager
                                              );
 
             try
@@ -1623,7 +1643,7 @@ public final class ORB
         {
             final List orb_initializers = getORBInitializers();
             final ORBInitInfoImpl initInfo = new ORBInitInfoImpl(this);
-            
+
             initManagers();
 
             interceptorPreInit(orb_initializers, initInfo);
@@ -1651,11 +1671,18 @@ public final class ORB
             giop_connection_manager = new GIOPConnectionManager();
 
             giop_connection_manager.configure(configuration);
-            
+
             clientConnectionManager = new ClientConnectionManager(this,
                                                                   transport_manager,
                                                                   giop_connection_manager);
             clientConnectionManager.configure(configuration);
+
+            if (useTimerQueue)
+            {
+                timer_queue = new TimerQueue();
+                timer_queue.configure(configuration);
+                timer_queue.start();
+            }
         }
         catch( ConfigurationException ce )
         {
@@ -1879,6 +1906,9 @@ public final class ORB
 
             return;
         }
+
+        if (useTimerQueue)
+            timer_queue.halt();
 
         logger.info("ORB going down...");
 
@@ -2285,6 +2315,11 @@ public final class ORB
     public TransportManager getTransportManager()
     {
         return transport_manager;
+    }
+
+    public TimerQueue getTimerQueue ()
+    {
+        return timer_queue;
     }
 
     /* DII helper methods */
