@@ -16,7 +16,9 @@
 
    <target name="compile">
       <jacorb-javac
-        javac-includes="org/jacorb/orb/dii/*.java,
+        javac-includes=
+            "org/jacorb/orb/buffermanager/*.java,
+             org/jacorb/orb/dii/*.java,
              org/jacorb/orb/diop/*.java
              org/jacorb/orb/dsi/*.java,
              org/jacorb/orb/dynany/*.java,
