@@ -104,7 +104,12 @@ post 2.3.1
         - Added buffer manager expansion policies support.
         - added jacorb.dns.force_lookup property that allow to turn on/off FQDN host
           name reverse lookup for IIOPAddress and IORs.
-
+        - Fixed error in Codeset configuration setting NCSW.
+        - Added optional thread ID to log output. Use property
+          jacorb.log.showThread to enable.
+        - Added new explicit timeout for blocked sends, use properties
+          jacorb.connection.request.write_timeout and
+          jacorb.connection.reply.write_timeout to enable.
 
     - IDL Compiler:
         - fixed issue where the IDL compiler generated imports for the
@@ -182,7 +187,7 @@ post 2.3.1
         - Classloader chapter added.
         - added buffer manager factory configuration details.
         - update SSL/SAS documentation.
-        - added NAT and firewall network configuration section. 
+        - added NAT and firewall network configuration section.
 
     - Fixes:
         - new lines in log messages fix (bugzilla #873).
