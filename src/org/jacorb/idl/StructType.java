@@ -390,11 +390,6 @@ public class StructType
 
     private void printHolderClass(String className, PrintWriter ps)
     {
-        if (Environment.JAVA14 && pack_name.equals(""))
-        {
-            lexer.emit_warn
-                ("No package defined for " + className + " - illegal in JDK1.4", token);
-        }
         if (!pack_name.equals(""))
         {
             ps.println("package " + pack_name + ";");
@@ -440,11 +435,6 @@ public class StructType
 
     private void printHelperClass(String className, PrintWriter ps)
     {
-        if (Environment.JAVA14 && pack_name.equals(""))
-        {
-            lexer.emit_warn
-                ("No package defined for " + className + " - illegal in JDK1.4", token);
-        }
         if (!pack_name.equals(""))
         {
             ps.println("package " + pack_name + ";" + Environment.NL);
@@ -608,11 +598,6 @@ public class StructType
 
     private void printStructClass(String className, PrintWriter ps)
     {
-        if (Environment.JAVA14 && pack_name.equals(""))
-        {
-            lexer.emit_warn
-                ("No package defined for " + className + " - illegal in JDK1.4", token);
-        }
         String fullClassName = className;
 
         if (!pack_name.equals(""))

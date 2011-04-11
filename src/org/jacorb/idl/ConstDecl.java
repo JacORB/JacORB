@@ -194,9 +194,6 @@ public class ConstDecl extends Declaration
                 if (logger.isDebugEnabled())
                     logger.debug("ConstDecl.print " + fname);
 
-                if (Environment.JAVA14 && pack_name.equals(""))
-                    lexer.emit_warn
-                        ("No package defined for " + className + " - illegal in JDK1.4", token);
                 if (!pack_name.equals(""))
                     pw.println("package " + pack_name + ";");
 

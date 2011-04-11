@@ -320,9 +320,6 @@ public class ValueAbsDecl
                 {
                     PrintWriter ps = new PrintWriter(new java.io.FileWriter(f));
 
-                    if (Environment.JAVA14 && pack_name.equals(""))
-                        lexer.emit_warn
-                            ("No package defined for " + name + " - illegal in JDK1.4", token);
                     if (!pack_name.equals(""))
                         ps.println("package " + pack_name + ";" + Environment.NL);
 

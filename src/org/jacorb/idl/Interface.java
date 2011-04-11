@@ -307,7 +307,7 @@ public class Interface
                 if (! (forwardDeclaration instanceof Interface))
                 {
                     parser.error("Forward declaration types mismatch for "
-                                 + full_name() 
+                                 + full_name()
                                  + ": name already defined with another type" , token);
                 }
 
@@ -463,12 +463,6 @@ public class Interface
 
     protected void printPackage (PrintWriter ps)
     {
-        if (Environment.JAVA14 && pack_name.equals(""))
-        {
-            lexer.emit_warn
-                ("No package defined for " + name + " - illegal in JDK1.4", token);
-        }
-
         if (!pack_name.equals (""))
         {
             ps.println ("package " + pack_name + ";" + Environment.NL);
@@ -800,14 +794,14 @@ public class Interface
                 printStubInterposition(ps);
                 printElseNarrowFailed(ps);
             }
-        } 
+        }
         else
         {
             printElseNarrowFailed (ps);
         }
         ps.println("\t}");
     }
-    
+
     /**
      * Generates the code for a narrow method with which a stub is inserted
      * between an object implementation and the client.
@@ -822,7 +816,7 @@ public class Interface
         ps.println("\t\t\treturn stub;");
         ps.println("\t\t}");
     }
-    
+
     /**
      * Prints the else clause of a narrow method that signals general failure.
      */
@@ -833,7 +827,7 @@ public class Interface
         ps.println("\t\t\tthrow new org.omg.CORBA.BAD_PARAM(\"Narrow failed\");");
         ps.println("\t\t}");
     }
-    
+
     /**
      * Generate the helper class for an interface
      */
@@ -1000,7 +994,7 @@ public class Interface
             printNarrow (ps, true,  true);  // checked, CORBA Object
             printNarrow (ps, false, true);  // unchecked, CORBA Object
         }
-        
+
         ps.println("}");
         ps.close();
     }
@@ -1041,7 +1035,7 @@ public class Interface
 
         return ids;
     }
-    
+
     /**
      * Returns true if this interface has at least one abstract base type.
      */
@@ -1064,7 +1058,7 @@ public class Interface
         }
         return false;
     }
-    
+
     /**
      * Generates a stub class for this Interface
      */

@@ -22,42 +22,7 @@ package org.jacorb.idl;
 
 public final class Environment
 {
-    static final boolean JAVA16;
-
-    static final boolean JAVA14;
-
-    static final boolean JAVA15;
-
     static final String NL = System.getProperty("line.separator");
-
-    static
-    {
-        final String javaVer = System.getProperty ("java.specification.version");
-
-        if ("1.4".equals(javaVer))
-        {
-            JAVA14 = true;
-            JAVA15 = false;
-            JAVA16 = false;
-        }
-        else if ("1.5".equals(javaVer))
-        {
-            JAVA15 = true;
-            JAVA14 = false;
-            JAVA16 = false;
-
-        }
-        else if ("1.6".equals(javaVer))
-        {
-            JAVA16 = true;
-            JAVA15 = false;
-            JAVA14 = false;
-        }
-        else
-        {
-            throw new AssertionError("Java VM version outside of currently accepted range (1.4 - 1.6)");
-        }
-    }
 
     /**
      * <code>intToLevel</code> returns the logging level for a given integer.
