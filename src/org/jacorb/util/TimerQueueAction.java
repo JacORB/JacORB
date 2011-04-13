@@ -23,26 +23,25 @@ package org.jacorb.util;
 
 import java.util.Calendar;
 
-
 /**
- * Defines a single thread with a queue enabling notification of timer 
+ * Defines a single thread with a queue enabling notification of timer
  * expiration. The priniciple is to have a time ordered list of notification
  * objects. The thread waits until the next closest expiration time in the
  * queue. The thread is interrupted whenever a new entry is queued. Whenever
- * awaken, either by interruption or expiration, the thread notifies all 
- * expired waiters, removing them from the queue. The timer queue entries 
+ * awaken, either by interruption or expiration, the thread notifies all
+ * expired waiters, removing them from the queue. The timer queue entries
  * consist of an absolute expiry time, and an action object typically the
- * action will be to wake another thread, but it could do something more 
- * specialized. The specialized action should not be blocking or it may 
+ * action will be to wake another thread, but it could do something more
+ * specialized. The specialized action should not be blocking or it may
  * adversely affect the performance of the timer queue.
  *
  * @author Phil Mesnier <mesnier_p@ociweb.com>
- * @version $ $
+ * @version $Id$
  */
 public class TimerQueueAction
 {
     private Object notifyTarget = null;
-    public Calendar trigger = null;
+    public Long trigger = null;
 
     public TimerQueueAction ()
     {
@@ -59,27 +58,26 @@ public class TimerQueueAction
         notifyTarget = target;
     }
 
-    public TimerQueueAction ( Calendar absolute ) 
+    public TimerQueueAction ( Calendar absolute )
     {
-        trigger = absolute;
+        trigger = new Long(absolute.getTimeInMillis());
     }
 
     public TimerQueueAction ( Calendar absolute, Object target )
     {
-        trigger = absolute;
+        trigger = new Long (absolute.getTimeInMillis());
         notifyTarget = target;
     }
 
     public void set_relative (long relative)
     {
-        trigger = Calendar.getInstance();
-        long now = trigger.getTimeInMillis();
-        trigger.setTimeInMillis (now + relative);
+        long now = System.currentTimeMillis();
+        trigger = new Long (now + relative);
     }
 
     public void set_absolute (Calendar absolute)
     {
-        trigger = absolute;
+        trigger = new Long (absolute.getTimeInMillis());
     }
 
     public void expire ()
@@ -94,7 +92,7 @@ public class TimerQueueAction
 
     public long expiryTime ()
     {
-        return trigger.getTimeInMillis();
+        return trigger.longValue();
     }
 
 } // end of class Action

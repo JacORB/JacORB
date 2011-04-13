@@ -23,30 +23,31 @@ package org.jacorb.util;
 
 import java.util.SortedMap;
 import java.util.TreeMap;
-import java.util.Comparator;
-import java.util.Calendar;
+//import java.util.Comparator;
+//import java.util.Calendar;
 import java.util.Iterator;
 import org.jacorb.config.*;
 import org.slf4j.Logger;
 
 
 /**
- * Defines a single thread with a queue enabling notification of timer 
+ * Defines a single thread with a queue enabling notification of timer
  * expiration. The priniciple is to have a time ordered list of notification
  * objects. The thread waits until the next closest expiration time in the
  * queue. The thread is interrupted whenever a new entry is queued. Whenever
- * awaken, either by interruption or expiration, the thread notifies all 
- * expired waiters, removing them from the queue. The timer queue entries 
+ * awaken, either by interruption or expiration, the thread notifies all
+ * expired waiters, removing them from the queue. The timer queue entries
  * consist of an absolute expiry time, and an action object typically the
- * action will be to wake another thread, but it could do something more 
- * specialized. The specialized action should not be blocking or it may 
+ * action will be to wake another thread, but it could do something more
+ * specialized. The specialized action should not be blocking or it may
  * adversely affect the performance of the timer queue.
  *
  * @author Phil Mesnier <mesnier_p@ociweb.com>
- * @version $ $
+ * @version $Id$
  */
 public class TimerQueue extends Thread
 {
+    /*
     public class CalCompare implements Comparator<Calendar>
     {
         public int compare (Calendar l, Calendar r)
@@ -60,14 +61,15 @@ public class TimerQueue extends Thread
         }
 
     }
+    */
 
-    private SortedMap<Calendar, TimerQueueAction> pending;
+    private SortedMap<Long, TimerQueueAction> pending;
     private boolean running;
     protected Logger logger;
 
     public TimerQueue ()
     {
-        pending = new TreeMap<Calendar, TimerQueueAction>(new CalCompare());
+        pending = new TreeMap<Long, TimerQueueAction>();
         running = true;
     }
 
@@ -88,7 +90,7 @@ public class TimerQueue extends Thread
             pending.notifyAll();
         }
     }
-       
+
     public void add (TimerQueueAction a)
     {
         if (a == null)
@@ -96,7 +98,7 @@ public class TimerQueue extends Thread
         synchronized (pending) {
             if (logger.isDebugEnabled())
                 logger.debug ("Timer Queue adding action");
-            pending.put (a.trigger , a);
+            pending.put (a.trigger, a);
             pending.notifyAll();
         }
     }
@@ -128,8 +130,8 @@ public class TimerQueue extends Thread
             return 0;
         else {
             // get smallest wait time
-            Calendar next = pending.firstKey();
-            return next.getTimeInMillis() - Calendar.getInstance().getTimeInMillis();
+            long next = pending.firstKey();
+            return next - System.currentTimeMillis();
         }
     }
 
@@ -138,10 +140,11 @@ public class TimerQueue extends Thread
         if (!running || pending.size() == 0)
             return;
         // no synch needed, only called while already synchronized
-        Calendar tt = Calendar.getInstance();
-        tt.setTimeInMillis (tt.getTimeInMillis()+1);
-        
-        SortedMap<Calendar, TimerQueueAction> exp = pending.headMap(tt);
+        Long onemilli = new Long(System.currentTimeMillis() + 1);
+        // Calendar tt = Calendar.getInstance();
+        // tt.setTimeInMillis (onemilli);
+
+        SortedMap<Long, TimerQueueAction> exp = pending.headMap(onemilli);
         for (Iterator<TimerQueueAction> iter = exp.values().iterator();
              iter.hasNext(); ) {
             TimerQueueAction a = iter.next();
@@ -175,5 +178,5 @@ public class TimerQueue extends Thread
             }
         }
     }
-        
+
 }
