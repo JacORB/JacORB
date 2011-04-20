@@ -110,6 +110,8 @@ post 2.3.1
         - Added new explicit timeout for blocked sends, use properties
           jacorb.connection.request.write_timeout and
           jacorb.connection.reply.write_timeout to enable.
+        - Fixed incorrect child POA processing (bugzilla #806).
+          
 
     - IDL Compiler:
         - fixed issue where the IDL compiler generated imports for the
