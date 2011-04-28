@@ -43,6 +43,7 @@ public class BugJac542Test extends TestCase
         
         configControl.expectAndReturn(configMock.getLogger("jacorb.iiop.address"), new MyNullLogger());
         configControl.expectAndReturn(configMock.getAttributeAsBoolean("jacorb.dns.enable", false), true);
+        configControl.expectAndReturn(configMock.getAttributeAsBoolean("jacorb.dns.force_lookup", true), true);
         configControl.expectAndReturn(configMock.getAttributeAsBoolean("jacorb.ipv6.hide_zoneid", true), true);
         configControl.expectAndReturn(configMock.getAttributeAsBoolean("jacorb.dns.eager_resolve", true), true);
         
