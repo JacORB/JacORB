@@ -94,8 +94,8 @@
         <jacorb-javac javac-includes="**"
                       javac-excludes="generated/**,
                            **/RMITestServant.java,
-        	               org/jacorb/test/notification/**,
-        	               org/jacorb/test/jmx/**"
+                           org/jacorb/test/notification/**,
+                           org/jacorb/test/jmx/**"
                       javac-classpathref="cp.compile-test">
             <javac-bootclasspath>
                 <bootclasspath>
@@ -560,6 +560,9 @@ Tests run: ${result.testCount}, Failures: ${result.testFailures}, Errors: ${resu
         <process-idl includes="_bugjac560.idl" ami_callback="true">
             <i2jpackage names="Node:cerent.cms.idl.Node" />
         </process-idl>
+        
+        <process-idl includes="_bugjac801.idl" generateEnhanced="true"/>
+
     </target>
 
     <target name="idl-ami-bugs">

@@ -1,0 +1,31 @@
+module org
+{
+    module jacorb
+    {
+        module test
+        {
+            module bugs
+            {
+                module bugjac801
+                {
+                    enum B 
+                    {
+                        case1,
+                        case2,
+                        case3,
+                        case4
+                    };
+                    
+                    union A switch ( B ) 
+                    {
+                        case case1:
+                        case case2: boolean toto;
+                        case case3:
+                        case case4: short titi;
+                    };
+                };
+            };
+        };
+    };
+};
+ 

@@ -171,6 +171,8 @@ post 2.3.1
         - Fix for typedef with array and operator.
         - Fix for IDL compiler for generation of system exception classes.
         - native types containing #pragma prefix "omg.org" weren't processed properly.
+        - Improve toString on stubs for UnionType.
+        
     - Naming Service:
         - Fix for BindingIterator leak (Bugzilla 647).
         - Renamed configuration properties and default to off.
