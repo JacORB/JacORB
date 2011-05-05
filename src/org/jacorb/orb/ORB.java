@@ -303,12 +303,15 @@ public final class ORB
         failOnORBInitializerError = configuration.getAttributeAsBoolean("jacorb.orb_initializer.fail_on_error", false);
 
         useTimerQueue = configuration.getAttributeAsBoolean("jacorb.use_timer_queue", false);
+        
         // There are features that if enabled require the use of the timer queue
         // and thus need to ensure the timer queue is available.
         if (!useTimerQueue)
+        {
             useTimerQueue =
-                configuration.getAttribute("jacorb.connection.request.write_timeout") != null ||
-                configuration.getAttribute("jacorb.connection.reply.write_timeout") != null;
+                configuration.getAttributeAsInteger("jacorb.connection.request.write_timeout", 0) > 0 ||
+                configuration.getAttributeAsInteger("jacorb.connection.reply.write_timeout", 0) > 0;
+        }
 
         printVersion(configuration);
 
