@@ -961,4 +961,10 @@ public class JacORBConfiguration implements Configuration
            );
         }
     }
+
+
+    public boolean isAttributeSet(String name)
+    {
+        return getAttribute(name, "").length() > 0;
+    }
 }

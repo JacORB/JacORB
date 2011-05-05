@@ -20,7 +20,8 @@ package org.jacorb.poa;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import java.util.Vector;
+import java.util.LinkedList;
+import java.util.HashSet;
 import org.jacorb.config.*;
 import org.slf4j.Logger;
 import org.jacorb.poa.except.POAInternalError;
@@ -44,16 +45,16 @@ public abstract class RPPoolManager
     /**
      * <code>pool</code> is the set of currently available (inactive) request processors
      */
-    private Vector pool;
+    private final LinkedList pool;
     /**
      * <code>activeProcessors</code> is the set of currently active processors
      */
-    private Vector activeProcessors;
+    private final HashSet activeProcessors;
     /**
      * <code>unused_size</code> represents the current number of unused request processors
      * in the pool.
      */
-    private int unused_size;
+    private int numberOfProcessors;
     /**
      * <code>max_pool_size</code> is the maximum size of the pool.
      */
@@ -76,11 +77,30 @@ public abstract class RPPoolManager
         min_pool_size = min;
         logger = _logger;
         configuration = _configuration;
+
+        pool = new LinkedList();
+        activeProcessors = new HashSet();
+    }
+
+    private void init()
+    {
+        if (inUse)
+        {
+            return;
+        }
+
+        for (int i = 0; i < min_pool_size; i++)
+        {
+            addProcessor();
+        }
+
+        inUse = true;
     }
 
     private void addProcessor()
     {
-        RequestProcessor rp = new RequestProcessor(this);
+        final RequestProcessor rp = new RequestProcessor(this);
+
         try
         {
             rp.configure(this.configuration);
@@ -91,8 +111,8 @@ public abstract class RPPoolManager
         }
         current._addContext(rp, rp);
         rp.setDaemon(true);
-        pool.addElement(rp);
-        unused_size++;
+        pool.addFirst(rp);
+        ++numberOfProcessors;
         rp.start();
     }
 
@@ -111,7 +131,7 @@ public abstract class RPPoolManager
      */
     protected synchronized void destroy(boolean really)
     {
-        if (pool == null || inUse == false)
+        if (!inUse)
         {
             return;
         }
@@ -129,8 +149,8 @@ public abstract class RPPoolManager
             }
         }
 
-        RequestProcessor[] rps = new RequestProcessor[pool.size()];
-        pool.copyInto(rps);
+        RequestProcessor[] rps = (RequestProcessor[]) pool.toArray(new RequestProcessor[pool.size()]);
+
         for (int i=0; i<rps.length; i++)
         {
             if (rps[i].isActive())
@@ -138,11 +158,12 @@ public abstract class RPPoolManager
                 throw new POAInternalError("error: request processor is active (RequestProcessorPM.destroy)");
             }
 
-            pool.removeElement(rps[i]);
-            unused_size--;
+            pool.remove(rps[i]);
+            --numberOfProcessors;
             current._removeContext(rps[i]);
             rps[i].end();
         }
+
         inUse = false;
     }
 
@@ -152,7 +173,7 @@ public abstract class RPPoolManager
 
     protected int getPoolCount()
     {
-        return (pool == null) ? 0 : pool.size();
+        return pool.size();
     }
 
     /**
@@ -161,7 +182,7 @@ public abstract class RPPoolManager
 
     protected synchronized int getPoolSize()
     {
-        return unused_size;
+        return numberOfProcessors;
     }
 
     /**
@@ -175,13 +196,9 @@ public abstract class RPPoolManager
 
     protected synchronized RequestProcessor getProcessor()
     {
-        if (!inUse)
-        {
             init();
-            inUse = true;
-        }
 
-        if (pool.isEmpty() && unused_size < max_pool_size)
+        if (pool.isEmpty() && numberOfProcessors < max_pool_size)
         {
             addProcessor();
         }
@@ -198,13 +215,14 @@ public abstract class RPPoolManager
             {
             }
         }
-        RequestProcessor requestProcessor = (RequestProcessor) pool.remove( pool.size() - 1 );
+
+        RequestProcessor requestProcessor = (RequestProcessor) pool.removeFirst();
         activeProcessors.add (requestProcessor);
 
         // notify a pool manager listener
         if (pmListener != null)
         {
-            pmListener.processorRemovedFromPool(requestProcessor, pool.size(), unused_size);
+            pmListener.processorRemovedFromPool(requestProcessor, pool.size(), numberOfProcessors);
         }
 
         return requestProcessor;
@@ -220,15 +238,6 @@ public abstract class RPPoolManager
         }
     }
 
-    private void init()
-    {
-        pool = new Vector(max_pool_size);
-        activeProcessors = new Vector(max_pool_size);
-        for (int i = 0; i < min_pool_size; i++)
-        {
-            addProcessor();
-        }
-    }
 
     /**
      * gives a processor back into the pool if the number of
@@ -242,17 +251,19 @@ public abstract class RPPoolManager
 
         if (pool.size() < min_pool_size)
         {
-            pool.addElement(rp);
+            pool.addFirst(rp);
         }
         else
         {
-            unused_size--;
+            numberOfProcessors--;
             current._removeContext(rp);
             rp.end();
         }
         // notify a pool manager listener
         if (pmListener != null)
-            pmListener.processorAddedToPool(rp, pool.size(), unused_size);
+        {
+            pmListener.processorAddedToPool(rp, pool.size(), numberOfProcessors);
+        }
 
         // notify whoever is waiting for the release of active processors
         notifyAll();

@@ -155,7 +155,8 @@ public class CDROutputStream
     private boolean writeReplaceCalled = false;
 
     /** deferredArrayQueue is initialized on demand in write_octet_array */
-    private final List deferredArrayQueue = new ArrayList();
+    /* deferredArrayQueue is initialized on demand in write_octet_array */
+    private List deferredArrayQueue;
 
     private int deferredArrayQueueSize;
 
@@ -192,30 +193,31 @@ public class CDROutputStream
 
     private void configure(Configuration configuration)
     {
+        final org.jacorb.config.Configuration jconfig = (org.jacorb.config.Configuration)configuration;
+
        codesetEnabled  =
             configuration.getAttribute("jacorb.codeset","on").equals("on");
 
-        useBOM =
-            configuration.getAttribute("jacorb.use_bom","off").equals("on");
+        useBOM = configuration.getAttributeAsBoolean("jacorb.use_bom",false);
 
-        chunkCustomRmiValuetypes =
-            configuration.getAttribute("jacorb.interop.chunk_custom_rmi_valuetypes","off").equals("on");
+        chunkCustomRmiValuetypes = configuration.getAttributeAsBoolean("jacorb.interop.chunk_custom_rmi_valuetypes", false);
+
         compactTypeCodes =
             configuration.getAttributeAsBoolean("jacorb.compactTypecodes", false);
 
-        useIndirection =
-           !( configuration.getAttribute("jacorb.interop.indirection_encoding_disable","off").equals("on"));
+        useIndirection = !( configuration.getAttributeAsBoolean("jacorb.interop.indirection_encoding_disable", false));
 
-        isMutatorEnabled = configuration.getAttribute("jacorb.iormutator", "").length() > 0;
+        isMutatorEnabled = jconfig.isAttributeSet("jacorb.iormutator");
 
         if (isMutatorEnabled)
         {
             try
             {
-                mutator = (IORMutator) ((org.jacorb.config.Configuration)configuration).getAttributeAsObject("jacorb.iormutator");
-            } catch (ConfigurationException e)
+                mutator = (IORMutator) (jconfig).getAttributeAsObject("jacorb.iormutator");
+            }
+            catch (ConfigurationException e)
             {
-                throw new RuntimeException();
+                throw new org.omg.CORBA.INTERNAL ("Caught configuration exception" + e);
             }
         }
 
@@ -226,10 +228,10 @@ public class CDROutputStream
 
     private static class DeferredWriteFrame
     {
-        public int write_pos = 0;
-        public int start = 0;
-        public int length = 0;
-        public byte[] buf = null;
+        public final int write_pos;
+        public final int start;
+        public final int length;
+        public final byte[] buf;
 
         public DeferredWriteFrame( int write_pos, int start,
                                    int length, byte[] buf )
@@ -385,7 +387,7 @@ public class CDROutputStream
 
         DeferredWriteFrame next_frame = null;
 
-        if(deferredArrayQueue.size() > 0 )
+        if (deferredArrayQueue != null && deferredArrayQueue.size() > 0 )
         {
             // find the first frame that falls within the current window,
             // i.e. that need s to be written
@@ -426,7 +428,8 @@ public class CDROutputStream
                 next_frame = null;
 
                 // and look up the next frame
-                if(list_idx < deferredArrayQueue.size() )
+                if( deferredArrayQueue != null &&
+                    list_idx < deferredArrayQueue.size() )
                 {
                     next_frame = (DeferredWriteFrame)deferredArrayQueue.get( list_idx++ );
                     if( next_frame.write_pos > start + length )
@@ -485,7 +488,7 @@ public class CDROutputStream
 
         buffer = null;
         closed = true;
-        deferredArrayQueue.clear();
+        deferredArrayQueue = null;
         deferred_writes = 0;
     }
 
@@ -717,7 +720,7 @@ public class CDROutputStream
 
         buffer = b;
 
-        deferredArrayQueue.clear();
+        deferredArrayQueue = null;
         pos = 0;
         deferred_writes = 0;
         index = 0;
@@ -880,12 +883,12 @@ public class CDROutputStream
             if (codesetEnabled)
             {
                 // in the worst case (UTF-8) a string char might take up to 3 bytes
-                size = 4 + 3 * value.length() + 1;
+                size = 4 + 3 * valueLength + 1;
             }
             else
             {
                 // just one byte per string char
-                size = 4 + value.length() + 1;
+                size = 4 + valueLength + 1;
             }
             check(size, 4);
             sizePosition = pos;
@@ -893,7 +896,7 @@ public class CDROutputStream
             pos += 4;
             index += 4;
 
-            for (int i = 0; i < value.length(); i++)
+            for (int i = 0; i < valueLength; i++)
             {
                 if (codesetEnabled)
                 {
@@ -1266,6 +1269,10 @@ public class CDROutputStream
         {
             if( deferredArrayQueueSize > 0 && length > deferredArrayQueueSize )
             {
+                if (deferredArrayQueue == null)
+                {
+                    deferredArrayQueue = new ArrayList();
+                }
                 deferredArrayQueue.add( new DeferredWriteFrame( index, offset, length, value ));
                 index += length;
                 deferred_writes += length;

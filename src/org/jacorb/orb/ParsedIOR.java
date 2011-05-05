@@ -764,7 +764,11 @@ public class ParsedIOR
         return components.getComponent (tag, helper);
     }
 
-    private static class LongHelper
+    /**
+     * <code>LongHelper</code> is a wrapper class so component access for
+     * ETF profiles may use the same interface.
+     */
+    static class LongHelper
     {
         public static Integer read (org.omg.CORBA.portable.InputStream in)
         {
@@ -780,7 +784,11 @@ public class ParsedIOR
         return (Integer)getComponent (tag, LongHelper.class);
     }
 
-    private static class StringHelper
+    /**
+     * <code>StringHelper</code> is a wrapper class so component access for
+     * ETF profiles may use the same interface.
+     */
+    static class StringHelper
     {
         public static String read (org.omg.CORBA.portable.InputStream in)
         {

@@ -20,8 +20,7 @@ package org.jacorb.poa;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import java.util.Hashtable;
-import java.util.Vector;
+import java.util.HashSet;
 import org.jacorb.config.*;
 import org.slf4j.Logger;
 import org.jacorb.orb.dsi.ServerRequest;
@@ -45,12 +44,12 @@ public final class RequestController
     extends Thread
     implements Configurable
 {
-    private POA 			poa;
-    private org.jacorb.orb.ORB		orb;
-    private RequestQueue 		requestQueue;
-    private AOM 			aom;
-    private final RPPoolManager		poolManager;
-    private int                         localRequests = 0;
+    private final POA                poa;
+    private final org.jacorb.orb.ORB orb;
+    private final RequestQueue       requestQueue;
+    private final AOM                aom;
+    private final RPPoolManager	     poolManager;
+    private int                      localRequests = 0;
 
     private static int count = 0;
 
@@ -59,22 +58,20 @@ public final class RequestController
 
     /** this controller's logger instance */
     private Logger                    logger;
-    private int threadPoolMax = 0;
 
     // stores all active requests
-    private Hashtable 			activeRequestTable;
+    private final HashSet             activeRequestTable;
     // RequestProcessor -> oid
     // for synchronisation with the object deactiviation process
-    private Vector 			deactivationList = new Vector();
+    private final HashSet             deactivationList = new HashSet();
     // oid's
 
     // other synchronisation stuff
-    private boolean			            terminate;
-    private boolean 			        waitForCompletionCalled;
-    private boolean 			        waitForShutdownCalled;
-    private final java.lang.Object      queueLog = new java.lang.Object();
-    private int                         threadPriority = Thread.MAX_PRIORITY;
-
+    private boolean		   terminate;
+    private boolean 		   waitForCompletionCalled;
+    private boolean 		   waitForShutdownCalled;
+    private final java.lang.Object queueLog       = new java.lang.Object();
+    private int                    threadPriority = Thread.MAX_PRIORITY;
 
     RequestController( POA _poa,
             org.jacorb.orb.ORB _orb,
@@ -86,11 +83,15 @@ public final class RequestController
         aom = _aom;
         orb = _orb;
 
-        requestQueue = new RequestQueue(this);
+        requestQueue = new RequestQueue();
 
         poolManager = _poolManager;
-    }
 
+        int threadPoolMax =
+            _orb.getConfiguration().getAttributeAsInteger("jacorb.poa.thread_pool_max", 20);
+
+        activeRequestTable = poa.isSingleThreadModel() ? new HashSet(1) : new HashSet(threadPoolMax);
+    }
 
     public void configure(Configuration myConfiguration)
         throws ConfigurationException
@@ -102,14 +103,9 @@ public final class RequestController
 
         requestQueue.configure(myConfiguration);
 
-        threadPoolMax =
-            configuration.getAttributeAsInteger("jacorb.poa.thread_pool_max", 20);
-
         threadPriority =
             configuration.getAttributeAsInteger("jacorb.poa.thread_priority",
                                                 Thread.MAX_PRIORITY);
-
-        activeRequestTable = poa.isSingleThreadModel() ? new Hashtable(1) : new Hashtable(threadPoolMax);
 
         if( threadPriority < Thread.MIN_PRIORITY )
         {
@@ -170,9 +166,9 @@ public final class RequestController
      * a call indicates that the object deactivation process is complete
      */
 
-    synchronized void freeObject( byte[] oid )
+    synchronized void freeObject(ByteArrayKey oid)
     {
-        deactivationList.removeElement( new ByteArrayKey( oid ) );
+        deactivationList.remove( oid );
     }
 
     AOM getAOM()
@@ -210,7 +206,7 @@ public final class RequestController
     }
 
 
-    boolean isDeactivating (ByteArrayKey oid)
+    synchronized boolean isDeactivating (ByteArrayKey oid)
     {
         return deactivationList.contains( oid );
     }
@@ -228,7 +224,7 @@ public final class RequestController
         Servant servant = null;
         ServantManager servantManager = null;
         boolean invalid = false;
-        ByteArrayKey oid = new ByteArrayKey( request.objectId() );
+        final ByteArrayKey oid = request.objectIdAsByteArrayKey();
 
         synchronized (this)
         {
@@ -327,7 +323,7 @@ public final class RequestController
             }
             /* below  this point it's  save that the request  is valid
                (all preconditions can be met) */
-            activeRequestTable.put(request, oid);
+            activeRequestTable.add(oid);
         }
 
         // get and initialize a processor for request processing
@@ -348,6 +344,11 @@ public final class RequestController
         throws ResourceLimitReachedException
     {
         requestQueue.add(request);
+
+        if (requestQueue.size() == 1)
+        {
+            continueToWork();
+        }
     }
 
     /**
@@ -379,8 +380,7 @@ public final class RequestController
 
     synchronized void resetPreviousCompletionCall()
     {
-        if (logger.isDebugEnabled())
-            logger.debug("reset a previous completion call");
+        logger.debug("reset a previous completion call");
 
         waitForCompletionCalled = false;
         notifyAll(); /* maybe somebody waits for completion */
@@ -400,7 +400,8 @@ public final class RequestController
      */
     synchronized void finish (ServerRequest request)
     {
-        activeRequestTable.remove (request);
+        final ByteArrayKey oid = request.objectIdAsByteArrayKey();
+        activeRequestTable.remove (oid);
         notifyAll();
     }
 
@@ -514,7 +515,6 @@ public final class RequestController
         {
             try
             {
-                if (logger.isDebugEnabled())
                     logger.debug("somebody waits for completion and there are active processors");
                 wait();
             }
@@ -528,16 +528,16 @@ public final class RequestController
      * called from external  thread for synchronizing with the request
      * controller thread, a caller  waits for completion of all active
      * requests on this object. No new requests on this object will be
-     *  started from  now  on  because a  steady  stream of  incomming
+     *  started from  now  on  because a  steady  stream of  incoming
      *  requests  could keep  the  object  from  being deactivated,  a
      *  servant may  invoke recursive  method calls  on the  object it
      *  incarnates  and deactivation  should  not necessarily  prevent
      * those invocations.
      */
 
-    synchronized void waitForObjectCompletion( ByteArrayKey oidbak )
+    synchronized void waitForObjectCompletion( ByteArrayKey oid )
     {
-        while (activeRequestTable.contains(oidbak))
+        while (activeRequestTable.contains(oid))
         {
             try
             {
@@ -549,12 +549,12 @@ public final class RequestController
         }
         if (logger.isDebugEnabled())
         {
-            logger.debug( POAUtil.convert(oidbak.getBytes ()) +
+            logger.debug( POAUtil.convert(oid.getBytes ()) +
                           "all active processors for this object have finished");
 
         }
 
-        deactivationList.addElement( oidbak );
+        deactivationList.add( oid );
     }
 
     /**
@@ -566,15 +566,17 @@ public final class RequestController
 
     private void waitForQueue()
     {
+        if (logger.isDebugEnabled())
+        {
+            logger.debug("waiting for queue");
+        }
+
         synchronized (queueLog)
         {
-            if (logger.isDebugEnabled())
-            {
-                logger.debug("waiting for queue");
-            }
-
-            while ((requestQueue.isEmpty() || poa.isHolding() || waitForShutdownCalled) &&
-                !terminate)
+            while ((requestQueue.isEmpty() ||
+                    POAUtil.isHolding (poa.the_POAManager().get_state()) ||
+                    waitForShutdownCalled) &&
+                   !terminate)
             {
                 try
                 {

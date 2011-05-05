@@ -40,7 +40,6 @@ public class RequestQueue
     implements Configurable
 {
     private RequestQueueListener queueListener;
-    private final RequestController controller;
 
     /** the configuration object for this queue */
     private org.jacorb.config.Configuration configuration = null;
@@ -48,16 +47,10 @@ public class RequestQueue
     private int queueMin;
     private int queueMax;
     private boolean queueWait;
-    private List queueListeners;
 
     private boolean configured = false;
 
     private final LinkedList queue = new LinkedList();
-
-    protected RequestQueue(RequestController controller)
-    {
-        this.controller = controller;
-    }
 
     public synchronized void configure(Configuration myConfiguration)
         throws ConfigurationException
@@ -72,8 +65,7 @@ public class RequestQueue
         queueMax = configuration.getAttributeAsInteger("jacorb.poa.queue_max", 100);
         queueMin = configuration.getAttributeAsInteger("jacorb.poa.queue_min", 10);
         queueWait = configuration.getAttributeAsBoolean("jacorb.poa.queue_wait",false);
-        queueListeners = configuration.getAttributeList("jacorb.poa.queue_listeners");
-        configured = true;
+        List queueListeners = configuration.getAttributeList("jacorb.poa.queue_listeners");
 
         for (Iterator i = queueListeners.iterator(); i.hasNext();)
         {
@@ -90,6 +82,8 @@ public class RequestQueue
                                                   ex);
             }
         }
+
+        configured = true;
     }
 
     /**
@@ -143,11 +137,6 @@ public class RequestQueue
             }
         }
         queue.add(request);
-
-        if (queue.size() == 1)
-        {
-            controller.continueToWork();
-        }
 
         if (logger.isDebugEnabled())
         {

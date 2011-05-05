@@ -275,12 +275,13 @@ public class CDRInputStream
         cometInteropFix =
             configuration.getAttribute("jacorb.interop.comet","off").equals("on");
         laxBooleanEncoding =
-            configuration.getAttribute("jacorb.interop.lax_boolean_encoding","off").equals("on");
+            configuration.getAttributeAsBoolean("jacorb.interop.lax_boolean_encoding", false);
         cacheTypecodes =
-            configuration.getAttribute("jacorb.cacheTypecodes","off").equals("on");
+            configuration.getAttributeAsBoolean("jacorb.cacheTypecodes", false);
         sunInteropFix =
-            configuration.getAttribute("jacorb.interop.sun", "off").equalsIgnoreCase("on");
-        isMutatorEnabled = configuration.getAttribute("jacorb.iormutator", "").length() > 0;
+            configuration.getAttributeAsBoolean("jacorb.interop.sun", false);
+
+        isMutatorEnabled = jacorbConfig.isAttributeSet("jacorb.iormutator");
 
         if (isMutatorEnabled)
         {

@@ -65,7 +65,7 @@ public class ServerGIOPConnection
         super.configure(configuration);
 
         delayClose =
-            configuration.getAttribute("jacorb.connection.delay_close","off").equals("on");
+            configuration.getAttributeAsBoolean("jacorb.connection.delay_close", false);
         use_server_write_monitor();
     }
 

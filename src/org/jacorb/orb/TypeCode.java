@@ -836,8 +836,6 @@ public class TypeCode
         // Duplicate the original typecode.
 
         // Member names are optional, so compact them down for transmission.
-        // Check whether we are doing full compaction or not.
-        //        if (Environment.getCompactTypecodes() > 1 && member_name != null)
         if ( member_name != null)
         {
             result.member_name = new String [member_name.length];

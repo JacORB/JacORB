@@ -20,11 +20,11 @@ package org.jacorb.poa;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import java.util.Enumeration;
+import java.util.Collections;
 import java.util.HashSet;
-import java.util.Hashtable;
+import java.util.HashMap;
 import java.util.Iterator;
-import java.util.Vector;
+import java.util.Map;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import org.jacorb.poa.except.POAInternalError;
@@ -57,22 +57,16 @@ public class AOM
 
     // an ObjectID can appear only once, but an servant can have multiple ObjectId's
     // if MULTIPLE_ID is set
-    private final Hashtable           objectMap = new Hashtable(); // oid -> servant
+    private final Map           objectMap = new HashMap(); // oid -> servant
 
     // only meaningful if UNIQUE_ID is set
     // only for performance improvements (brose: is that still true?)
-    private Hashtable           servantMap;             // servant -> oid
+    private final Map           servantMap;             // servant -> oid
 
     // for synchronisation of servant activator calls
-    private final Vector              etherealisationList = new Vector();
-    private final Vector              incarnationList = new Vector();
-
-    private final Vector              deactivationList = new Vector();
-    /**
-     * <code>deactivationListLock</code> is a lock to protect two consecutive
-     * operations on the list, used in remove().
-     */
-    private final byte [] deactivationListLock = new byte[0];
+    private final HashSet              etherealisationList = new HashSet();
+    private final HashSet              incarnationList = new HashSet();
+    private final HashSet              deactivationList = new HashSet();
 
     private BlockingQueue removalQueue = new LinkedBlockingQueue();
 
@@ -105,7 +99,11 @@ public class AOM
 
         if (unique)
         {
-            servantMap = new Hashtable();
+            servantMap = new HashMap();
+        }
+        else
+        {
+            servantMap = Collections.EMPTY_MAP;
         }
 
         Thread thread = new Thread ("AOMRemoval")
@@ -144,11 +142,18 @@ public class AOM
      * @exception ObjectAlreadyActive if an error occurs
      * @exception ServantAlreadyActive if an error occurs
      */
-    protected synchronized void add( byte[] oid, Servant servant )
+    protected void add( byte[] oid, Servant servant )
         throws ObjectAlreadyActive, ServantAlreadyActive
     {
         ByteArrayKey oidbak = new ByteArrayKey (oid);
 
+        add(oidbak, servant);
+    }
+
+
+    protected synchronized void add(ByteArrayKey oidbak, Servant servant) throws ObjectAlreadyActive, ServantAlreadyActive
+    {
+        final byte[] oid = oidbak.getBytes();
         /* an inCarnation and activation with the same oid has
            priority, a reactivation for the same oid blocks until
            etherealization is complete */
@@ -162,8 +167,7 @@ public class AOM
                // This is to check whether we are attempting to reactivate
                // a servant that is currently being deactivated with another ID.
                (
-                   servantMap != null &&
-                   servantMap.get( servant ) != null &&
+                   servantMap.containsKey( servant ) &&
                    deactivationList.contains(servantMap.get( servant ))
                ))
         {
@@ -209,20 +213,25 @@ public class AOM
     }
 
 
-
     protected synchronized void addAOMListener(AOMListener listener)
     {
         aomListener = EventMulticaster.add(aomListener, listener);
     }
 
 
-    boolean isDeactivating (ByteArrayKey oid)
+    synchronized boolean isDeactivating(ByteArrayKey oid)
     {
         return deactivationList.contains (oid);
     }
 
 
-    protected boolean contains(Servant servant)
+    protected synchronized boolean contains(Servant servant)
+    {
+        return _contains(servant);
+    }
+
+
+    private boolean _contains(Servant servant)
     {
         if (unique)
         {
@@ -230,20 +239,19 @@ public class AOM
         }
         else
         {
-            return objectMap.contains(servant);
+            return objectMap.containsValue(servant);
         }
     }
 
 
     protected synchronized StringPair[] deliverContent()
     {
-        StringPair[] result = new StringPair[objectMap.size()];
-        ByteArrayKey oidbak;
-        Enumeration en = objectMap.keys();
+        final StringPair[] result = new StringPair[objectMap.size()];
+        Iterator en = objectMap.keySet().iterator();
 
         for ( int i = 0; i < result.length; i++ )
         {
-            oidbak = (ByteArrayKey) en.nextElement();
+            final ByteArrayKey oidbak = (ByteArrayKey) en.next();
             result[i] = new StringPair
             (
                 oidbak.toString(),
@@ -254,7 +262,7 @@ public class AOM
 
     }
 
-    protected byte[] getObjectId(Servant servant)
+    protected synchronized byte[] getObjectId(Servant servant)
     {
         if (!unique)
         {
@@ -271,22 +279,22 @@ public class AOM
         return null;
     }
 
-
-
     protected Servant getServant(byte[] oid)
     {
         return (Servant) objectMap.get( new ByteArrayKey( oid ) );
     }
 
+    protected synchronized Servant getServant(ByteArrayKey oid)
+    {
+        return (Servant) objectMap.get(oid);
+    }
 
-
-
-    protected synchronized Servant incarnate( byte[] oid,
+    protected synchronized Servant incarnate( ByteArrayKey oidbak,
                                               ServantActivator servant_activator,
                                               org.omg.PortableServer.POA poa )
         throws org.omg.PortableServer.ForwardRequest
     {
-        ByteArrayKey oidbak = new ByteArrayKey( oid );
+        final byte[] oid = oidbak.getBytes();
         Servant servant = null;
 
         if (logger.isInfoEnabled())
@@ -322,14 +330,14 @@ public class AOM
             throw new OBJ_ADAPTER("Servant Activator for " + POAUtil.convert(oid) + " was null.");
         }
 
-        incarnationList.addElement(oidbak);
+        incarnationList.add(oidbak);
         try
         {
             servant = servant_activator.incarnate(oid, poa);
         }
         finally
         {
-            incarnationList.removeElement(oidbak);
+            incarnationList.remove(oidbak);
             notifyAll();
         }
 
@@ -370,7 +378,7 @@ public class AOM
 
                 try
                 {
-                    add(oid, servant);
+                    add(oidbak, servant);
                 }
                 catch (ObjectAlreadyActive e)
                 {
@@ -388,26 +396,20 @@ public class AOM
         return servant;
     }
 
-    void remove( ByteArrayKey oidbak,
+    synchronized void remove( ByteArrayKey oidbak,
                  RequestController requestController,
                  ServantActivator servantActivator,
                  POA poa,
                  boolean cleanupInProgress)
         throws ObjectNotActive
     {
-        // check that the same oid is not already being deactivated
-        // (this must be synchronized to avoid having two independent
-        // threads register the same oid)
-        synchronized( deactivationListLock )
+        if ( !objectMap.containsKey( oidbak ) ||
+             deactivationList.contains( oidbak ) )
         {
-            if ( !objectMap.containsKey( oidbak ) ||
-                 deactivationList.contains( oidbak ) )
-            {
-                throw new ObjectNotActive();
-            }
-
-            deactivationList.addElement(oidbak);
+            throw new ObjectNotActive();
         }
+
+        deactivationList.add(oidbak);
 
         RemovalStruct rs = new RemovalStruct (oidbak,
                                               requestController,
@@ -446,7 +448,7 @@ public class AOM
         if (!objectMap.containsKey(oidbak))
         {
             // should not happen but ...
-            deactivationList.removeElement(oidbak);
+            deactivationList.remove(oidbak);
             return;
         }
 
@@ -464,7 +466,7 @@ public class AOM
         {
             if (requestController != null)
             {
-                requestController.freeObject(oid);
+                requestController.freeObject(oidbak);
             }
         }
     }
@@ -476,6 +478,7 @@ public class AOM
 
         if ((servant = (Servant)objectMap.get(oidbak)) == null)
         {
+            deactivationList.remove(oidbak);
             return;
         }
 
@@ -491,7 +494,7 @@ public class AOM
         // Wait to remove the oid from the deactivationList here so that the
         // object map can be cleared out first. This ensures we don't
         // reactivate an object we're currently deactivating.
-        deactivationList.removeElement(oidbak);
+        deactivationList.remove(oidbak);
 
         if (logger.isInfoEnabled())
         {
@@ -529,7 +532,7 @@ public class AOM
             {
             }
         }
-        etherealisationList.addElement(oidbak);
+        etherealisationList.add(oidbak);
 
         try
         {
@@ -539,7 +542,7 @@ public class AOM
                 poa,
                 servant,
                 cleanupInProgress,
-                contains(servant)
+                _contains(servant)
             );
 
             if (logger.isInfoEnabled())
@@ -566,14 +569,14 @@ public class AOM
         }
         finally
         {
-            etherealisationList.removeElement(oidbak);
+            etherealisationList.remove(oidbak);
             notifyAll();
         }
     }
 
-    protected void removeAll( ServantActivator servant_activator,
-                              POA poa,
-                              boolean cleanup_in_progress )
+    protected synchronized void removeAll( ServantActivator servant_activator,
+                                           POA poa,
+                                           boolean cleanup_in_progress )
     {
         final Iterator i = new HashSet(objectMap.keySet()).iterator();
         while (i.hasNext())
@@ -588,7 +591,7 @@ public class AOM
         aomListener = EventMulticaster.remove(aomListener, listener);
     }
 
-    protected int size()
+    protected synchronized int size()
     {
         return objectMap.size();
     }

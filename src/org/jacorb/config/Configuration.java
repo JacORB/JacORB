@@ -105,7 +105,7 @@ public interface Configuration
      * defaultValue is returned.
      */
     long getAttributeAsLong (String key, long defaultValue);
-    
+
     /**
      * For a property that has a list of comma-separated values,
      * this method returns these values as a list of Strings.
@@ -116,6 +116,13 @@ public interface Configuration
     /**
      * Create an object from the given property. The class's default
      * constructor will be used.
+
+    /**
+     * checks if a attribute is set (non-empty string).
+     */
+    boolean isAttributeSet(String name);
+
+    /**
      *
      * @return an object of the class of the keys value, or null, if
      * no class name is found for the key

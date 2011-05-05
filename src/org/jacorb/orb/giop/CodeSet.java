@@ -438,13 +438,11 @@ public class CodeSet
      */
     public static interface OutputBuffer
     {
-
         /**
          * Writes the specified byte to the buffer.
          * @param b the byte to write
          */
         void write_byte( byte b );
-
 
         /**
          * Forces short (2-byte) alignment and writes the specified value to the buffer.
@@ -811,7 +809,7 @@ public class CodeSet
             return false;
         }
     }
-    
+
 
     static private class Ucs2CodeSet extends TwoByteCodeSet
     {
@@ -856,9 +854,9 @@ public class CodeSet
     public static void main (String args[])
     {
         if (args != null && args.length > 0 &&
-            (args[0].equals("-h") || ! args[0].equals("-a")))
+            ! (args[0].equals("-h") || args[0].equals("-a") || args[0].equals("-l")))
         {
-            System.out.println("Usage: org.jacorb.orb.connection.CodeSet [-a]");
+            System.out.println("Usage: org.jacorb.orb.connection.CodeSet [-a | -l <codeset>] ");
             System.exit(1);
         }
 
@@ -880,10 +878,7 @@ public class CodeSet
         System.out.println("Default WChar encoding: " + nativeCodeSetWchar.getName() );
 
         // If we're not using Windows do some extra debug, printing out the locale information.
-        if ((osName.toLowerCase ()).indexOf ("windows") == -1 &&
-            args != null &&
-            args.length == 1 &&
-            args[0].equals ("-a"))
+        if ((osName.toLowerCase ()).indexOf ("windows") == -1)
         {
             System.out.println("Locale is:");
             try
@@ -910,28 +905,40 @@ public class CodeSet
             }
 
 
-            System.out.println("All available locales are:");
-            try
+            if (args != null &&
+                args.length == 1 &&
+                args[0].equals ("-a"))
             {
-                Process locale = Runtime.getRuntime().exec ("locale -a");
-
-                BufferedReader buffer = new BufferedReader
-                    (new InputStreamReader (locale.getInputStream()));
-
-                while (true)
+                System.out.println("All available locales are:");
+                try
                 {
-                    String line = buffer.readLine();
-                    if (line == null)
+                    Process locale = Runtime.getRuntime().exec ("locale -a");
+
+                    BufferedReader buffer = new BufferedReader
+                        (new InputStreamReader (locale.getInputStream()));
+
+                    while (true)
                     {
-                        break;
+                        String line = buffer.readLine();
+                        if (line == null)
+                        {
+                            break;
+                        }
+                        System.out.println("        " + line);
                     }
-                    System.out.println("        " + line);
+                    buffer.close();
                 }
-                buffer.close();
+                catch (IOException e)
+                {
+                    System.err.println("Caught exception " + e);
+                }
             }
-            catch (IOException e)
+            else if (args != null &&
+                     args.length == 2 &&
+                     args[0].equals ("-l"))
             {
-                System.err.println("Caught exception " + e);
+                CodeSet c = getCodeSet(args[1]);
+                System.out.println ("Codeset " + args[1] + " is " + c.getName());
             }
         }
     }

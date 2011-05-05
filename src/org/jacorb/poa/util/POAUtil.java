@@ -179,8 +179,7 @@ public final class POAUtil
             if (object_key[i] == POAConstants.OBJECT_KEY_SEP_BYTE
                 && (i==0 || object_key[i-1] != POAConstants.MASK_BYTE))
             {
-                byte[] result = IdUtil.extract(object_key, 0, i);
-                return unmaskStr( new String(result) );
+                return unmaskStr( object_key, 0, i );
             }
         }
         throw new POAInternalError("error extracting impl name from object_key: "+
@@ -199,10 +198,8 @@ public final class POAUtil
             if (object_key[i] == POAConstants.OBJECT_KEY_SEP_BYTE
                 && (i==0 || object_key[i-1] != POAConstants.MASK_BYTE))
             {
-                i++;
-                byte[] result =
-                    IdUtil.extract(object_key, i, object_key.length - i);
-                return unmaskId(result);
+                ++i;
+                return unmaskId(object_key, i, object_key.length - i);
             }
         }
         throw new POAInternalError("error extracting oid from object_key: "+
@@ -253,7 +250,7 @@ public final class POAUtil
         }
 
         begin++;
-        return new String(IdUtil.extract(object_key, begin, end-begin));
+        return new String(object_key, begin, end-begin);
     }
 
 
@@ -268,20 +265,21 @@ public final class POAUtil
      */
     public static List extractScopedPOANames (String poa_name)
     {
-        List scopes = new ArrayList();
+        final List scopes = new ArrayList();
+        final int length = poa_name.length();
 
-        if (poa_name.length () > 0)
+        if (length > 0)
         {
             // Fill in the list with the poa_names.
             int previous = 0, current=0;
 
-            for ( ; current < poa_name.length (); current++)
+            for ( ; current < length; ++current)
             {
                 // If we've found a separator skip over it and add to the vector
                 if (poa_name.charAt (current) == POAConstants.OBJECT_KEY_SEPARATOR)
                 {
                     scopes.add (poa_name.substring (previous, current));
-                    current++;
+                    ++current;
                     previous = current;
                 }
             }
@@ -391,15 +389,44 @@ public final class POAUtil
         return new String(unmaskId(str.getBytes()));
     }
 
+    private static String unmaskStr(byte[] data, int offset, int length)
+    {
+        return new String(unmaskId(data, offset, length));
+    }
 
     /**
      * unmasks the object key separator bytes
      */
 
-    public static byte[] unmaskId(byte[] id)
+    public static byte[] unmaskId(final byte[] id)
     {
-        int altered = id.length;
-        for (int i=0; i<id.length; i++)
+        final int altered = getAltered(id, 0, id.length);
+
+        if (altered == id.length)
+        {
+            return id;
+        }
+        else
+        {
+            return unmaskId(id, 0, id.length, altered);
+        }
+    }
+
+    /**
+     * unmasks the object key separator bytes
+     */
+
+    private static byte[] unmaskId(final byte[] id, final int start, final int length)
+    {
+        int altered = getAltered(id, start, length);
+
+        return unmaskId(id, start, length, altered);
+    }
+
+    private static int getAltered(final byte[] id, final int start, final int length)
+    {
+        int altered = length;
+        for (int i=start; i<start + length; i++)
         {
             if (id[i] == POAConstants.MASK_BYTE)
             {
@@ -407,42 +434,39 @@ public final class POAUtil
                 i++;
             }
         }
-        if (altered == id.length) return id;
+        return altered;
+    }
 
-        byte[] result = new byte[altered];
+    private static byte[] unmaskId(final byte[] id, final int start, final int length, final int altered)
+    {
+        final byte[] result = new byte[altered];
 
-        altered = 0;
-        for (int i=0; i<id.length; i++)
+        for (int i=start, resultIdx = 0; i< start + length; ++i, ++resultIdx)
         {
             if (id[i] == POAConstants.MASK_BYTE)
             {
                 if (id[i+1] == POAConstants.MASK_MASK_BYTE)
                 {
-                    result[altered] = POAConstants.MASK_BYTE;
+                    result[resultIdx] = POAConstants.MASK_BYTE;
                 }
                 else if (id[i+1] == POAConstants.SEPA_MASK_BYTE)
                 {
-                    result[altered] = POAConstants.OBJECT_KEY_SEP_BYTE;
-
+                    result[resultIdx] = POAConstants.OBJECT_KEY_SEP_BYTE;
                 }
                 else
                 {
                     throw new POAInternalError("error: forbidden byte sequence \""
                                                +POAConstants.MASK_BYTE+id[i+1]+"\" (unmaskId)");
                 }
-                i++;
-
+                ++i;
             }
             else
             {
-                result[altered] = id[i];
+                result[resultIdx] = id[i];
             }
-            altered++;
         }
         return result;
     }
-
-
 
 
     /**
@@ -466,7 +490,4 @@ public final class POAUtil
 
         return sb.toString();
     }
-
-
-
 }

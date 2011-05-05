@@ -21,7 +21,8 @@ package org.jacorb.orb.giop;
  */
 
 import java.io.IOException;
-import java.util.Vector;
+import java.util.ArrayList;
+import java.util.List;
 import org.jacorb.orb.CDROutputStream;
 import org.jacorb.orb.ORBConstants;
 import org.omg.CORBA.MARSHAL;
@@ -62,7 +63,7 @@ public class ServiceContextTransportingOutputStream
     private static ServiceContext padding_ctx =
         new ServiceContext (ORBConstants.SERVICE_PADDING_CONTEXT, new byte[0]);
 
-    private Vector contexts;
+    private List contexts;
 
     public ServiceContextTransportingOutputStream(ORB orb)
     {
@@ -158,7 +159,7 @@ public class ServiceContextTransportingOutputStream
                     //the service context array
 
                     //For GIOP 1.1, we have to add a padding context
-                    contexts.addElement( padding_ctx );
+                    contexts.add( padding_ctx );
 
                     ctx_out = createContextStream();
 
@@ -304,7 +305,7 @@ public class ServiceContextTransportingOutputStream
     {
         if( contexts == null )
         {
-            contexts = new Vector();
+            contexts = new ArrayList();
         }
 
         contexts.add( ctx );
@@ -321,7 +322,7 @@ public class ServiceContextTransportingOutputStream
         for( int i = 0; i < contexts.size(); i++ )
         {
             ServiceContextHelper.write( out,
-                                        (ServiceContext) contexts.elementAt( i ));
+                                        (ServiceContext) contexts.get( i ));
         }
 
         return out;

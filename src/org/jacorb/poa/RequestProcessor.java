@@ -222,7 +222,7 @@ public class RequestProcessor
         try
         {
 
-            servant = controller.getAOM().incarnate( request.objectId(),
+            servant = controller.getAOM().incarnate( request.objectIdAsByteArrayKey(),
                                                      (ServantActivator) servantManager,
                                                      controller.getPOA());
             if (servant == null)

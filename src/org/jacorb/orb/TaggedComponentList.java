@@ -4,6 +4,12 @@ package org.jacorb.orb;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import org.jacorb.orb.ParsedIOR.LongHelper;
+import org.jacorb.orb.ParsedIOR.StringHelper;
+import org.jacorb.util.ObjectUtil;
+import org.omg.CONV_FRAME.CodeSetComponentHelper;
+import org.omg.CONV_FRAME.CodeSetComponentInfo;
+import org.omg.CONV_FRAME.CodeSetComponentInfoHelper;
 import java.util.List;
 import org.jacorb.config.Configurable;
 import org.jacorb.config.Configuration;
@@ -191,33 +197,6 @@ public class TaggedComponentList implements Cloneable
         return null;
     }
 
-    /**
-     * Returns the first component with the given tag, which is assumed
-     * to be a CDR string.  If no component with the given tag exists,
-     * returns null.
-     */
-    public String getStringComponent (int tag)
-    {
-        for (int i=0; i < components.length; i++)
-        {
-            if (components[i].tag == tag)
-            {
-                final CDRInputStream in =
-                    new CDRInputStream (components[i].component_data);
-
-                try
-                {
-                    in.openEncapsulatedArray();
-                    return in.read_string();
-                }
-                finally
-                {
-                    in.close();
-                }
-            }
-        }
-        return null;
-    }
 
     /**
      * Returns a List of all components with the given tag from this
@@ -260,37 +239,60 @@ public class TaggedComponentList implements Cloneable
      */
     private Object getComponentData (byte[] data, Class helper)
     {
+        java.lang.Object result = null;
+
+        final CDRInputStream in = new CDRInputStream (data);
+
         try
         {
-            Method readMethod =
-                helper.getMethod ("read",
-                                  new Class[] { org.omg.CORBA.portable.InputStream.class });
-            final CDRInputStream in = new CDRInputStream (data);
+            in.openEncapsulatedArray();
 
-            try
+            if (helper == CodeSetComponentInfoHelper.class)
             {
-                in.openEncapsulatedArray();
-                return readMethod.invoke (null, new Object[] { in });
+                result = new CodeSetComponentInfo();
+
+                ((CodeSetComponentInfo)result).ForCharData =
+                    (CodeSetComponentHelper.read(in));
+                ((CodeSetComponentInfo)result).ForWcharData =
+                    (CodeSetComponentHelper.read(in));
             }
-            finally
+            else if (helper == ParsedIOR.LongHelper.class)
             {
-                in.close();
+                result = new Integer (in.read_long());
+            }
+            else if (helper == ParsedIOR.StringHelper.class)
+            {
+                result = in.read_string();
+            }
+            else
+            {
+                try
+                {
+                    Method readMethod = helper.getMethod
+                        ("read", new Class[] { org.omg.CORBA.portable.InputStream.class });
+                    result = readMethod.invoke (null, new Object[] { in });
+                }
+                catch (NoSuchMethodException ex)
+                {
+                    throw new RuntimeException ("Helper " + helper.getName()
+                                                + " has no appropriate read() method.");
+                }
+                catch (IllegalAccessException ex)
+                {
+                    throw new RuntimeException ("Cannot access read() method of helper "
+                                                + helper.getName());
+                }
+                catch (InvocationTargetException ex)
+                {
+                    throw new RuntimeException ("Exception while reading component data: "
+                                                + ex.getTargetException());
+                }
             }
         }
-        catch (NoSuchMethodException ex)
+        finally
         {
-            throw new RuntimeException ("Helper " + helper.getName()
-                                        + " has no appropriate read() method.");
+            in.close();
         }
-        catch (IllegalAccessException ex)
-        {
-            throw new RuntimeException ("Cannot access read() method of helper "
-                                        + helper.getName());
-        }
-        catch (InvocationTargetException ex)
-        {
-            throw new RuntimeException ("Exception while reading component data: "
-                                        + ex.getTargetException());
-        }
+        return result;
     }
 }
