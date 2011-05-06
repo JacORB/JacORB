@@ -110,7 +110,7 @@ public class ClientRequestInfoImpl
         }
         else
         {
-            this.target = orb._getDelegate(pior);
+            this.target = orb._getDelegate(piorOriginal);
         }
 
         Profile profile = pior.getEffectiveProfile();

@@ -303,7 +303,7 @@ public final class ORB
         failOnORBInitializerError = configuration.getAttributeAsBoolean("jacorb.orb_initializer.fail_on_error", false);
 
         useTimerQueue = configuration.getAttributeAsBoolean("jacorb.use_timer_queue", false);
-        
+
         // There are features that if enabled require the use of the timer queue
         // and thus need to ensure the timer queue is available.
         if (!useTimerQueue)
@@ -487,10 +487,8 @@ public final class ORB
                     if (delpior == null)
                     {
                         knownReferences.remove(key);
-                        if (logger.isDebugEnabled())
-                        {
-                            logger.debug("Removing an invalid reference from cache.");
-                        }
+
+                        logger.debug("Removing an invalid reference from cache.");
                     }
                     else if( pior.getEffectiveProfile()
                             .is_match(delpior.getEffectiveProfile()))
@@ -500,10 +498,7 @@ public final class ORB
                 }
                 else
                 {
-                    if (logger.isDebugEnabled())
-                    {
-                        logger.debug("Remove stale reference from cache ");
-                    }
+                    logger.debug("Remove stale reference from cache ");
                     knownReferences.remove( key );
                 }
             }
@@ -664,7 +659,10 @@ public final class ORB
      */
     synchronized void _release( String iorString )
     {
+        if (cacheReferences)
+        {
         knownReferences.remove( iorString );
+    }
     }
 
 
@@ -2003,10 +2001,7 @@ public final class ORB
         }
         catch (Exception e)
         {
-            if (logger.isErrorEnabled())
-            {
-                logger.error("Exception while converting string to object", e);
-            }
+            logger.error("Exception while converting string to object", e);
             throw new BAD_PARAM(10, CompletionStatus.COMPLETED_NO);
         }
     }

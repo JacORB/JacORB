@@ -42,6 +42,7 @@ import org.jacorb.orb.policies.PolicyManager;
 import org.jacorb.orb.portableInterceptor.ClientInterceptorIterator;
 import org.jacorb.orb.portableInterceptor.ClientRequestInfoImpl;
 import org.jacorb.orb.util.CorbaLoc;
+import org.omg.IOP.IOR;
 import org.jacorb.poa.util.POAUtil;
 import org.jacorb.util.ObjectUtil;
 import org.jacorb.util.Time;
@@ -144,7 +145,7 @@ public final class Delegate
 
     private boolean locate_on_bind_performed = false;
 
-    private ClientConnectionManager conn_mg = null;
+    private final ClientConnectionManager conn_mg;
 
     private final Map policy_overrides = new HashMap();
 
@@ -200,6 +201,7 @@ public final class Delegate
             return Boolean.FALSE;
         }
     };
+
 
     /**
      * A general note on the synchronization concept
@@ -263,7 +265,7 @@ public final class Delegate
         {
             // postpone parsing of IOR.
             // see getParsedIOR
-            _pior = new ParsedIOR( orb, ior );
+            _pior = new ParsedIOR( orb, ior);
         }
         checkIfImR( ior.type_id );
     }
@@ -297,14 +299,6 @@ public final class Delegate
     }
 
     /**
-     * @see #bind(boolean)
-     */
-    private void bind()
-    {
-        bind(false);
-    }
-
-    /**
      * This bind is a combination of the old _init() and bind()
      * operations. It first inits this delegate with the information
      * supplied by the (parsed) IOR. Then it requests a new
@@ -315,12 +309,8 @@ public final class Delegate
      * sent. This has the advantage, that COMM_FAILURES can only occur
      * inside of _invoke, where they get handled properly (falling
      * back, etc.)
-     *
-     * @param rebind a <code>boolean</code> value which denotes if rebind
-     *               was the caller. If so, we will avoid checking client
-     *               protocols as that will have already been done.
      */
-    private void bind(boolean rebind)
+    private void bind()
     {
         synchronized (bind_sync)
         {
@@ -329,15 +319,12 @@ public final class Delegate
                 return;
             }
 
-            if (!rebind)
+            // Check if ClientProtocolPolicy set, if so, set profile
+            // selector for IOR that selects effective profile for protocol
+            org.omg.RTCORBA.Protocol[] protocols = getClientProtocols();
+            if (protocols != null)
             {
-                // Check if ClientProtocolPolicy set, if so, set profile
-                // selector for IOR that selects effective profile for protocol
-                org.omg.RTCORBA.Protocol[] protocols = getClientProtocols();
-                if (protocols != null)
-                {
-                    _pior.setProfileSelector(new SpecificProfileSelector(protocols));
-                }
+                _pior.setProfileSelector(new SpecificProfileSelector(protocols));
             }
 
             org.omg.ETF.Profile profile = _pior.getEffectiveProfile();
@@ -422,15 +409,11 @@ public final class Delegate
                     case LocateStatusType_1_2._LOC_SYSTEM_EXCEPTION :
                         {
                             throw SystemExceptionHelper.read( lris );
-
-                            //break;
                         }
 
                     case LocateStatusType_1_2._LOC_NEEDS_ADDRESSING_MODE :
                         {
                             throw new org.omg.CORBA.NO_IMPLEMENT( "Server responded to LocateRequest with a status of LOC_NEEDS_ADDRESSING_MODE, but this isn't yet implemented by JacORB" );
-
-                            //break;
                         }
 
                     default :
@@ -453,11 +436,7 @@ public final class Delegate
                         logger.warn( e.getMessage() );
                     }
                 }
-
             }
-
-            //wake up threads waiting for the pior
-            bind_sync.notifyAll();
         }
     }
 
@@ -500,13 +479,13 @@ public final class Delegate
         }
     }
 
-    public void rebind(ParsedIOR ior)
+    public void rebind(ParsedIOR pior)
     {
         synchronized ( bind_sync )
         {
             // Do the ParsedIORs currently match.
             final ParsedIOR originalIOR = getParsedIOR();
-            boolean originalMatch = originalIOR.equals(ior);
+            boolean originalMatch = originalIOR.equals(pior);
 
             // Check if ClientProtocolPolicy set, if so, set profile
             // selector for IOR that selects effective profile for protocol
@@ -514,19 +493,19 @@ public final class Delegate
 
             if (protocols != null)
             {
-                ior.setProfileSelector(new SpecificProfileSelector(protocols));
+                pior.setProfileSelector(new SpecificProfileSelector(protocols));
             }
 
             // While the target override may have altered the effective profile so that
             // the IORs are now equal if the original ones do not match we still have to
             // disconnect so that the connection is made with the correct effective profile.
-            if (originalMatch && ior.equals(originalIOR))
+            if (originalMatch && pior.equals(originalIOR))
             {
                 //already bound to target so just return
                 return ;
             }
 
-            if (piorLastFailed != null && piorLastFailed.equals(ior))
+            if (piorLastFailed != null && piorLastFailed.equals(pior))
             {
                 //we've already failed to bind to the ior
                 throw new org.omg.CORBA.TRANSIENT();
@@ -538,7 +517,7 @@ public final class Delegate
                 piorOriginal = _pior;
             }
 
-            _pior = ior;
+            _pior = pior;
 
              if (connections[TransportType.IIOP.ordinal ()] != null)
              {
@@ -560,7 +539,7 @@ public final class Delegate
 
     public org.omg.CORBA.Request create_request( org.omg.CORBA.Object self,
             org.omg.CORBA.Context ctx,
-            java.lang.String operation ,
+            String operation,
             org.omg.CORBA.NVList args,
             org.omg.CORBA.NamedValue result )
     {
@@ -616,8 +595,7 @@ public final class Delegate
     // This therefore moves the responsibility to the client code to call _release.
     //
 
-    public org.omg.CORBA.DomainManager[] get_domain_managers
-    ( org.omg.CORBA.Object self )
+    public org.omg.CORBA.DomainManager[] get_domain_managers( org.omg.CORBA.Object self )
     {
         return null;
     }
@@ -717,7 +695,6 @@ public final class Delegate
                 String _id = _ax.getId();
                 throw new INTERNAL( "Unexpected exception " + _id );
             }
-
         }
     } // get_policy
 
@@ -869,6 +846,7 @@ public final class Delegate
         synchronized ( bind_sync )
         {
             bind();
+
             return connections[currentConnection.ordinal ()];
         }
     }
@@ -909,15 +887,19 @@ public final class Delegate
     {
         synchronized ( bind_sync )
         {
-            while ( _pior == null )
+            // If the _pior has not been initialised due to the lazy
+            // initialisation use the ior to create one.
+            if (_pior == null)
             {
-                try
+                if (ior == null)
                 {
-                    bind_sync.wait();
+                    // should never happen due to the checks in configure
+                    throw new INTERNAL ("Internal error - unable to initialise ParsedIOR as IOR is null");
                 }
-                catch ( InterruptedException ie )
+                else
                 {
-                    // ignored
+                    _pior = new ParsedIOR (orb, ior);
+                    ior = null;
                 }
             }
 
@@ -1792,6 +1774,7 @@ public final class Delegate
         synchronized ( bind_sync )
         {
             bind();
+
             return new org.jacorb.orb.dii.Request( self,
                                                    orb,
                                                    connections[currentConnection.ordinal ()],

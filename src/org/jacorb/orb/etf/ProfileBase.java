@@ -200,7 +200,10 @@ public abstract class ProfileBase
                  + tagged_profile.value.tag);
         }
         initFromProfileData(tagged_profile.value.profile_data);
-        components.value = getComponents().asArray();
+        if (components != null)
+        {
+            components.value = getComponents().asArray();
+        }
     }
 
     /**

@@ -348,7 +348,7 @@ public class ParsedIOR
                 CDROutputStream out = new CDROutputStream( orb );
                 out.beginEncapsulatedArray();
 
-                IORHelper.write(out,ior);
+                IORHelper.write(out, ior);
 
                 byte bytes[] = out.getBufferCopy();
 
@@ -364,10 +364,7 @@ public class ParsedIOR
             }
             catch (Exception e)
             {
-                if (logger.isErrorEnabled())
-                {
-                    logger.error("Error in building IIOP-IOR", e);
-                }
+                logger.error("Error in building IIOP-IOR", e);
                 throw new org.omg.CORBA.UNKNOWN("Error in building IIOP-IOR");
             }
         }
@@ -394,7 +391,6 @@ public class ParsedIOR
     {
         effectiveProfile = getProfileSelector().selectProfile
            (profiles, orb.getClientConnectionManager());
-        ior_str = getIORString();
 
         if (effectiveProfile != null)
         {
@@ -430,6 +426,11 @@ public class ParsedIOR
     }
 
     public boolean isNull()
+    {
+        return isNull(ior);
+    }
+
+    public static boolean isNull(IOR ior)
     {
         return "".equals (ior.type_id) && ior.profiles.length == 0;
     }
@@ -583,10 +584,7 @@ public class ParsedIOR
             }
             catch (Exception e)
             {
-                if (logger.isErrorEnabled())
-                {
-                    logger.error(e.getMessage());
-                }
+                logger.error("Invalid corbaloc URL", e);
                 throw new IllegalArgumentException("Invalid corbaloc: URL");
             }
         }

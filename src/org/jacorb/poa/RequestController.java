@@ -277,7 +277,7 @@ public final class RequestController
 
             if (!invalid && poa.isRetain())
             {
-                servant = aom.getServant(request.objectId());
+                servant = aom.getServant(oid);
             }
 
             if (servant == null)

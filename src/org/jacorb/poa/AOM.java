@@ -281,7 +281,7 @@ public class AOM
 
     protected Servant getServant(byte[] oid)
     {
-        return (Servant) objectMap.get( new ByteArrayKey( oid ) );
+        return getServant( new ByteArrayKey( oid ) );
     }
 
     protected synchronized Servant getServant(ByteArrayKey oid)
