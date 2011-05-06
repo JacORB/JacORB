@@ -319,22 +319,24 @@ public final class Delegate
                 return;
             }
 
+            final ParsedIOR ior = getParsedIOR();
+
             // Check if ClientProtocolPolicy set, if so, set profile
             // selector for IOR that selects effective profile for protocol
             org.omg.RTCORBA.Protocol[] protocols = getClientProtocols();
             if (protocols != null)
             {
-                _pior.setProfileSelector(new SpecificProfileSelector(protocols));
+                ior.setProfileSelector(new SpecificProfileSelector(protocols));
             }
 
-            org.omg.ETF.Profile profile = _pior.getEffectiveProfile();
+            org.omg.ETF.Profile profile = ior.getEffectiveProfile();
 
             if (profile == null)
             {
                 throw new org.omg.CORBA.COMM_FAILURE ("no effective profile");
             }
 
-            patchSSL(profile, _pior);
+            patchSSL(profile, ior);
 
             //MIOP
             if(profile instanceof MIOPProfile)
@@ -366,9 +368,9 @@ public final class Delegate
                 {
                     LocateRequestOutputStream lros =
                         new LocateRequestOutputStream( orb,
-                                                       _pior.get_object_key(),
+                                                       ior.get_object_key(),
                                                        connections[currentConnection.ordinal ()].getId(),
-                                                       _pior.getEffectiveProfile().version().minor );
+                                                       ior.getEffectiveProfile().version().minor );
 
                     LocateReplyReceiver receiver =
                         new LocateReplyReceiver(orb);
@@ -936,8 +938,10 @@ public final class Delegate
             poa = _poa;
         }
 
+        final String typeId = ior == null ? typeId() : ior.type_id;
+
         org.omg.CORBA.portable.ObjectImpl reference =
-            new org.jacorb.orb.Reference( typeId() );
+            new org.jacorb.orb.Reference( typeId );
 
         reference._set_delegate( this );
 
@@ -1385,6 +1389,11 @@ public final class Delegate
          * the most derived type. In this case, the ids returned by
          * the helper won't contain the most derived type
          */
+
+        if (ior != null && ior.type_id.equals(logical_type_id))
+        {
+            return true;
+        }
 
         ParsedIOR pior = getParsedIOR();
 
