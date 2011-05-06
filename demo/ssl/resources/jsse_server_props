@@ -4,7 +4,7 @@ jacorb.security.support_ssl=on
 # It is not required for SSL to work
 org.omg.PortableInterceptor.ORBInitializerClass.ForwardInit=org.jacorb.security.ssl.sun_jsse.SecurityServiceInitializer
 
-# IIOP/SSL parameters (numbers are decimal values):
+# IIOP/SSL parameters (numbers are hex values, without the leading "0x"):
 # EstablishTrustInClient = 40
 # EstablishTrustInTarget = 20
 # mutual authentication = 60

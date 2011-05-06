@@ -696,11 +696,18 @@ public class JacORBConfiguration implements Configuration
         return attributes.getProperty(key, defaultValue);
     }
 
-
     /**
      * @see org.jacorb.config.Configuration#getAttributeAsInteger(java.lang.String, int)
      */
     public int getAttributeAsInteger(String key, int defaultValue)
+    {
+        return getAttributeAsInteger (key, defaultValue, 10);
+    }
+
+    /**
+     * @see org.jacorb.config.Configuration#getAttributeAsInteger(java.lang.String, int, int)
+     */
+    public int getAttributeAsInteger(String key, int defaultValue, int radix)
     {
         Object value = attributes.getProperty (key, null);
         if (value == null)
@@ -716,7 +723,7 @@ public class JacORBConfiguration implements Configuration
 
         try
         {
-           int i = Integer.parseInt (((String)value).trim());
+           int i = Integer.parseInt (((String)value).trim(), radix);
 
            return i;
         }

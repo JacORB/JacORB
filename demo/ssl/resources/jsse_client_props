@@ -1,6 +1,6 @@
 jacorb.security.support_ssl=on
 
-# IIOP/SSL parameters (numbers are decimal values):
+# IIOP/SSL parameters (numbers are hex values, without the leading "0x"):
 # EstablishTrustInClient = 40
 # EstablishTrustInTarget = 20
 # mutual authentication = 60
