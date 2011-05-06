@@ -187,6 +187,11 @@ public final class Delegate
     private boolean avoidIsARemoteCall=true;
 
     /**
+     *  Denote whether to allow orbPolicies or do optimised version
+     */
+    private boolean disableClientOrbPolicies;
+
+    /**
      * 03-09-04: 1.5.2.2
      *
      * boolean threadlocal to ensure that
@@ -242,6 +247,7 @@ public final class Delegate
             config.getAttributeAsBoolean("jacorb.avoidIsARemoteCall", true);
         disconnectAfterNonRecoverableSystemException =
             config.getAttributeAsBoolean("jacorb.delegate.disconnect_after_systemexception", false);
+        disableClientOrbPolicies = config.getAttributeAsBoolean("jacorb.disableClientOrbPolicies", false);
     }
 
     private Delegate(ORB orb)
@@ -645,6 +651,11 @@ public final class Delegate
     public org.omg.CORBA.Policy get_client_policy(int policy_type)
     {
         Policy result = null;
+
+        if (disableClientOrbPolicies)
+        {
+            return null;
+        }
 
         synchronized(policy_overrides)
         {

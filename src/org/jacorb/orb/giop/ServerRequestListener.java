@@ -274,7 +274,7 @@ public class ServerRequestListener
             {
                 final String res = ((String)scopes.get (i));
 
-                if( res.equals(""))
+                if( res.length() == 0)
                 {
                     break;
                 }

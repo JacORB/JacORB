@@ -346,21 +346,28 @@ public class ParsedIOR
             try
             {
                 CDROutputStream out = new CDROutputStream( orb );
-                out.beginEncapsulatedArray();
-
-                IORHelper.write(out, ior);
-
-                byte bytes[] = out.getBufferCopy();
-
-                StringBuffer sb = new StringBuffer("IOR:");
-
-                for (int j = 0; j < bytes.length; j++)
+                try
                 {
-                    ObjectUtil.appendHex(sb, (bytes[j] >> 4) & 0xF);
-                    ObjectUtil.appendHex(sb, (bytes[j]     ) & 0xF);
-                }
+                    out.beginEncapsulatedArray();
 
-                ior_str = sb.toString();
+                    IORHelper.write(out, ior);
+
+                    byte bytes[] = out.getBufferCopy();
+
+                    StringBuffer sb = new StringBuffer("IOR:");
+
+                    for (int j = 0; j < bytes.length; j++)
+                    {
+                        ObjectUtil.appendHex(sb, (bytes[j] >> 4) & 0xF);
+                        ObjectUtil.appendHex(sb, (bytes[j]     ) & 0xF);
+                    }
+
+                    ior_str = sb.toString();
+                }
+                finally
+                {
+                    out.close();
+                }
             }
             catch (Exception e)
             {
@@ -492,7 +499,7 @@ public class ParsedIOR
             }
             if (content == null)
             {
-                throw new IllegalArgumentException("Invalid or unreadable URL/IOR: " + object_reference);
+                throw new BAD_PARAM("Invalid or unreadable URL/IOR: " + object_reference);
             }
             parse(content);
         }

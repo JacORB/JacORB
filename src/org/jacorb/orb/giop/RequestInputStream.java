@@ -211,16 +211,4 @@ public class RequestInputStream
     {
         return is_locate_request;
     }
-
-    protected void finalize() throws Throwable
-    {
-        try
-        {
-            close();
-        }
-        finally
-        {
-            super.finalize();
-        }
-    }
 }

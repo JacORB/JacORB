@@ -37,6 +37,11 @@ package org.jacorb.orb;
 
 public final class ORBConstants
 {
+    /**
+     * <code>VMCID</code> is the Vendor Minor Codeset ID. According to
+     * ftp://ftp.omg.org/pub/docs/ptc/01-08-35.txt the VMCID is equivilant
+     * to the VSCID
+     */
     public static final int VMCID                   = 0x4A430000;
     public static final int JACORB_ORB_ID           = 0x4A414300;
     public static final int SERVICE_PADDING_CONTEXT = 0x4A414301;

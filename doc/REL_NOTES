@@ -112,6 +112,7 @@ post 2.3.1
           jacorb.connection.reply.write_timeout to enable.
         - Fixed incorrect child POA processing (bugzilla #806).
         - Performance optimisations
+        - Added property to disable client orb policies for performance.
 
 
     - IDL Compiler:

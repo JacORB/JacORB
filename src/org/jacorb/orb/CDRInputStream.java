@@ -443,6 +443,7 @@ public class CDRInputStream
                     ((_buffer[_pos+1] & 0xff) <<  8) +
                     ((_buffer[_pos]   & 0xff) <<  0));
         }
+
         return (((_buffer[_pos]   & 0xff) << 24) +
                 ((_buffer[_pos+1] & 0xff) << 16) +
                 ((_buffer[_pos+2] & 0xff) <<  8) +
@@ -739,25 +740,7 @@ public class CDRInputStream
         index++;
         byte value = buffer[pos++];
 
-        if (value == 0)
-        {
-            return false;
-        }
-
-        if (value == 1)
-        {
-            return true;
-        }
-
-        if (laxBooleanEncoding)
-        {
-            // Technically only valid values are 0 (false) and 1 (true)
-            // however some ORBs send values other than 1 for true.
-            return true;
-        }
-
-        throw new MARSHAL("Unexpected boolean value: " + value
-                + " pos: " + pos + " index: " + index);
+        return parseBoolean(value);
     }
 
     /** arrays */
@@ -766,32 +749,48 @@ public class CDRInputStream
        (final boolean[] value, final int offset, final int length)
     {
         handle_chunking();
-        byte bb;
-        for (int j = offset; j < offset + length; j++)
+
+        if (length == 0)
         {
-            index++;
-            bb = buffer[pos++];
-            if (bb == 1)
+            return;
+        }
+
+        final int until = offset + length;
+
+        int j = offset;
+        do
+        {
+            final byte bb = buffer[pos++];
+            value[j] = parseBoolean(bb);
+            ++j;
+        }
+        while(j < until);
+
+        index += length;
+    }
+
+    private final boolean parseBoolean(final byte value)
+    {
+        if (value == 0)
+        {
+            return false;
+        }
+        else
+        {
+            if (value == 1)
             {
-                value[j] = true;
+                return true;
             }
-            else if (bb == 0)
+            else if (laxBooleanEncoding)
             {
-                value[j] = false;
+                // Technically only valid values are 0 (false) and 1 (true)
+                // however some ORBs send values other than 1 for true.
+                return true;
             }
             else
             {
-                if (laxBooleanEncoding)
-                {
-                    // Technically only valid values are 0 (false) and 1 (true)
-                    // however some ORBs send values other than 1 for true.
-                    value[j] = true;
-                }
-                else
-                {
-                    throw new MARSHAL ("Unexpected boolean value: " + bb
-                                       + " pos: " + pos + " index: " + index);
-                }
+                throw new MARSHAL ("Unexpected boolean value: " + value
+                        + " pos: " + pos);
             }
         }
     }
@@ -1047,12 +1046,7 @@ public class CDRInputStream
             pos += remainder;
         }
 
-        if (littleEndian)
-        {
-            return (_read_long() & 0xFFFFFFFFL) + ((long) _read_long() << 32);
-        }
-
-        return ((long) _read_long() << 32) + (_read_long() & 0xFFFFFFFFL);
+        return _read_longlong();
     }
 
     public final void read_longlong_array

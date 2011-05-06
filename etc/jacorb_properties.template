@@ -436,6 +436,8 @@ jacorb.net.tcp_listener=
 
 #org.omg.PortableInterceptor.ORBInitializerClass.bidir_init=org.jacorb.orb.giop.BiDirConnectionInitializer
 
+# Disable client side ORB policies for speed.
+jacorb.disableClientOrbPolicies=off
 
 ###########################################
 #                                         #

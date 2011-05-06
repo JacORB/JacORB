@@ -479,23 +479,6 @@ public class POA
             // key is generated from him
             if (request.remainingPOAName() == null)
             {
-                if (!previouslyGeneratedObjectKey(request.objectKey()))
-                {
-                    if (logger.isWarnEnabled())
-                    {
-                        logger.warn(logPrefix +
-                                    " rid: " + request.requestId() +
-                                    " opname: " + request.operation() +
-                                    " _invoke: object key not previously generated!");
-                        if (logger.isDebugEnabled())
-                        {
-                            logger.debug(logPrefix +
-                                         " ObjectKey : " + org.jacorb.orb.util.CorbaLoc.parseKey(request.objectKey()) +
-                                         " to POA Id : " + org.jacorb.orb.util.CorbaLoc.parseKey(getPOAId()) + " mismatch.");
-                        }
-                    }
-                    throw new WrongAdapter();
-                }
                 if (isSystemId() && !previouslyGeneratedObjectId(request.objectId()) )
                 {
                     if (logger.isWarnEnabled())

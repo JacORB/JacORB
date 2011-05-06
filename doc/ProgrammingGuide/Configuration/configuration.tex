@@ -327,13 +327,13 @@ messages, 3 means $info$ messages, and 4 means $debug$ messages (higher
 levels also include lower levels).
 
 The property {\tt jacorb.logfile} specifies the name of a file to
-write the log to.  If the {\tt jacorb.logfile} property is not set, output 
-will be sent to the terminal. 
+write the log to.  If the {\tt jacorb.logfile} property is not set, output
+will be sent to the terminal.
 If the {\tt jacorb.logfile} property is set to an explicity filename then
-output will be sent to that file. Note that it is \emph{NOT} recommended that 
+output will be sent to that file. Note that it is \emph{NOT} recommended that
 multiple JVM processes send output to the same file as this could lead to file
 corruption. Alternatively if the {\tt jacorb.logfile} property ends in
-{\tt \$implname} e.g. 
+{\tt \$implname} e.g.
 \small{
 \begin{verbatim}
 jacorb.logfile=c:/tmp/$implname
@@ -670,7 +670,7 @@ IP addresses & boolean & off \\
 \hline
 \verb"jacorb.dns.eager_resolve" & resolve DNS names in IORs eagerly & boolean & on \\
 \hline
-\verb"jacorb.dns.force_lookup" & Forces FQDN host name reverse lookup. 
+\verb"jacorb.dns.force_lookup" & Forces FQDN host name reverse lookup.
 Turn off if "short" host name need to be used in IORs & boolean & on \\
 \hline
 \verb"jacorb.compactTypecode"
@@ -797,6 +797,10 @@ jacorb.net.socket\_factory.port.min above & integer & disabled\\
 \verb"_name" & Temporarily adds connection endpoints and time (in milliseconds)
 that the thread started to the Thread name. To be used to correlate running
 threads with entries in debug logs. & string & off\\
+\hline
+\verb"jacorb.disableClientOr"
+\verb"bPolicies" &
+Disable client side ORB policies for speed. & boolean & off\\
 \hline
 \verb"jacorb.avoidIsARemoteC"
 \verb"all" & Always attempt to search for local repository ID information to avoid
@@ -1397,7 +1401,7 @@ Simplest solution is using the {\tt jacorb.ior\_proxy\_host} and DNS names inste
 E.g. we have the 192.168.10.* network managed by NAT. Its gateway has inner IP: 192.168.10.1 and outer IP: 10.30.102.67.
 Here are 2 cases:
 \begin{itemize}
-\item Client JacORB application. No additional adjustments need to be done for the client application except firewall 
+\item Client JacORB application. No additional adjustments need to be done for the client application except firewall
 (if exists) configuration to allow passing the outgoing connection to the server object(s).
 \item Server or acting both client and server JacORB application. There is additional adjustments are required.
 \end{itemize}
@@ -1419,13 +1423,13 @@ OAPort=57998
 \end{verbatim}
 \end{small}
 where 57998 is pre-defined port number or by using the {\tt -DOAPort=57998} command line parameter.
-Note if {\tt OAPort} parameter is defined in {\tt jacorb.properties} it will be used for all server objects that are using the same {\tt jacorb.properties} file. 
+Note if {\tt OAPort} parameter is defined in {\tt jacorb.properties} it will be used for all server objects that are using the same {\tt jacorb.properties} file.
 Thus, for many server objects command line parameter is more applicable.
 Also, remember that ports with numbers below the 1024 are treated as system ports and require root privileges for their creation.
 \item Setup port forwarding in NAT and firewall according to their configuration guides. Note that port numbers should be the same, e,g. if server uses 15242 port
 it should have bound to the 15242 gateway port.
 \end{itemize}
-If Implementation repository is used the corresponding properties {\tt jacorb.imr.ior\_proxy\_host} and {\tt jacorb.imr.ior\_proxy\_port} need to be defined similar 
+If Implementation repository is used the corresponding properties {\tt jacorb.imr.ior\_proxy\_host} and {\tt jacorb.imr.ior\_proxy\_port} need to be defined similar
 to the {\tt jacorb.ior\_proxy\_host} and {\tt jacorb.ior\_proxy\_port}.
 
 Also, using the {\tt jacorb.ior\_proxy\_address} property is more convenient but it should be defined for each server object independently to prevent errors during

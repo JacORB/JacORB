@@ -505,7 +505,8 @@ public class CDROutputStream
         if (remainder != align)
         {
             // Clear padding. Allowing for possible buffer end.
-            int topad = Math.min (buffer.length - pos, 8);
+            final int blp = buffer.length - pos;
+            final int topad = (blp <= 8 ? blp : 8);
 
             Arrays.fill(buffer, pos, pos + topad, (byte)0);
 
@@ -674,18 +675,6 @@ public class CDROutputStream
         return pos + deferred_writes;
     }
 
-
-    protected void finalize() throws Throwable
-    {
-        try
-        {
-            bufMgr.returnBuffer( buffer, true );
-        }
-        finally
-        {
-            super.finalize();
-        }
-    }
 
     public final void skip(final int step)
     {
@@ -1296,9 +1285,9 @@ public class CDROutputStream
     {
         check(3,2);
 
-        buffer[pos]   = (byte)((value >>  8) & 0xFF);
-        buffer[pos+1] = (byte)(value & 0xFF);
-        index += 2; pos+=2;
+        buffer[pos++] = (byte)((value >> 8) & 0xFF);
+        buffer[pos++] = (byte)( value       & 0xFF);
+        index += 2;
     }
 
     public final void write_short_array
@@ -1326,9 +1315,8 @@ public class CDROutputStream
         {
             for( int i = offset; i < offset+length; i++ )
             {
-                buffer[pos]   = (byte)((value[i] >>>  8) & 0xFF);
-                buffer[pos+1] = (byte)( value[i] & 0xFF);
-                pos += 2;
+                buffer[pos++] = (byte)((value[i] >>  8) & 0xFF );
+                buffer[pos++] = (byte)( value[i]        & 0xFF );
             }
             index += 2*length;
         }

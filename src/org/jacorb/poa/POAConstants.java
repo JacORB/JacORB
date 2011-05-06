@@ -28,10 +28,6 @@ package org.jacorb.poa;
  */
 public class POAConstants
 {
-    /* request queue */
-    public final static int QUEUE_CAPACITY_INI = 10;
-    public final static int QUEUE_CAPACITY_INC = 10;
-
     /* shutdown states */
     public final static int NOT_CALLED = 0;
     public final static int SHUTDOWN_IN_PROGRESS = 1;

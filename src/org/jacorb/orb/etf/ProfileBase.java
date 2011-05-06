@@ -30,6 +30,7 @@ import org.jacorb.orb.CDRInputStream;
 import org.jacorb.orb.CDROutputStream;
 import org.jacorb.orb.TaggedComponentList;
 import org.omg.CORBA.BAD_PARAM;
+import org.omg.CORBA.INTERNAL;
 import org.omg.CORBA.MARSHAL;
 import org.omg.ETF.Profile;
 import org.omg.ETF._ProfileLocalBase;
@@ -132,11 +133,11 @@ public abstract class ProfileBase
             // You're going to have to define your own marshal operation
             // for littleEndian profiles.
             // The CDROutputStream only does big endian currently.
-            throw new BAD_PARAM("We can only marshal big endian stylee profiles !!");
+            throw new BAD_PARAM("We can only marshal big endian style profiles !!");
         }
 
         // Start a CDR encapsulation for the profile_data
-        CDROutputStream profileDataStream = new CDROutputStream();
+        final CDROutputStream profileDataStream = new CDROutputStream();
         try
         {
             profileDataStream.beginEncapsulatedArray();
@@ -153,24 +154,33 @@ public abstract class ProfileBase
                 case 0 :
                     // For GIOP 1.0 there were no tagged components
                     break;
-                default :
+                case 1:
+                    // fallthrough
+                case 2:
+                {
                     // Assume minor != 0 means 1.1 onwards and encode the TaggedComponents
                     if (compSeq == null)
                     {
                         compSeq = new TaggedComponentSeqHolder (new TaggedComponent[0]);
                     }
-                // Write the length of the TaggedProfile sequence.
-                profileDataStream.write_long(this.components.size() + compSeq.value.length);
+                    // Write the length of the TaggedProfile sequence.
+                    profileDataStream.write_long(this.components.size() + compSeq.value.length);
 
-                // Write the TaggedProfiles (ours first, then the ORB's)
-                final TaggedComponent[] ourTaggedProfiles = components.asArray();
-                for (int i = 0; i < ourTaggedProfiles.length; i++)
-                {
-                    TaggedComponentHelper.write(profileDataStream, ourTaggedProfiles[i]);
+                    // Write the TaggedProfiles (ours first, then the ORB's)
+                    final TaggedComponent[] ourTaggedProfiles = components.asArray();
+                    for (int i = 0; i < ourTaggedProfiles.length; i++)
+                    {
+                        TaggedComponentHelper.write(profileDataStream, ourTaggedProfiles[i]);
+                    }
+                    for (int i = 0; i < compSeq.value.length; i++)
+                    {
+                        TaggedComponentHelper.write(profileDataStream, compSeq.value[i]);
+                    }
+                    break;
                 }
-                for (int i = 0; i < compSeq.value.length; i++)
+                default:
                 {
-                    TaggedComponentHelper.write(profileDataStream, compSeq.value[i]);
+                    throw new INTERNAL("Unknown GIOP version tag " + version.minor + " when marshalling for IIOPProfile");
                 }
             }
 
