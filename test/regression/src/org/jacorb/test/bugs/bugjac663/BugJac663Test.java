@@ -29,47 +29,33 @@ public class BugJac663Test extends TestCase
     {
     }
 
-   public void testJac663 ()
+   public void testJac663 () throws Exception
    {
-      ORB orb = null;
-      POA rootPOA = null;
+      ORB orb = ORB.init(new String [0], null);
 
-      try
-      {
-         orb = ORB.init(new String [0], null);
+      org.omg.CORBA.Object obj = orb.resolve_initial_references("RootPOA");
 
-         org.omg.CORBA.Object obj
-            = orb.resolve_initial_references("RootPOA");
+      POA rootPOA = POAHelper.narrow(obj);
 
-         rootPOA = POAHelper.narrow(obj);
+      rootPOA.the_POAManager().activate();
 
-         rootPOA.the_POAManager().activate();
+      TestThread thr = new TestThread (orb);
 
-         TestThread thr = new TestThread (orb, rootPOA);
+      thr.start();
 
-         thr.start();
+      thr.join();
 
-         thr.join();
-      }
-      catch (Exception e)
-      {
-         e.printStackTrace();
-      }
+      orb.shutdown (true);
    }
 }
 
 class TestThread extends Thread
 {
    private ORB orb;
-   private POA poa;
 
-   public TestThread
-   (
-      org.omg.CORBA.ORB orb,
-      org.omg.PortableServer.POA poa)
+   public TestThread (org.omg.CORBA.ORB orb)
    {
       this.orb = orb;
-      this.poa= poa;
    }
 
    public void run()
@@ -82,7 +68,7 @@ class TestThread extends Thread
       {
       }
 
-      JAC663ServerImpl serverImpl = new JAC663ServerImpl (orb, poa);
+      JAC663ServerImpl serverImpl = new JAC663ServerImpl (orb);
 
       JAC663Server server = serverImpl._this(orb);
 

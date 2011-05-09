@@ -1176,7 +1176,7 @@ public final class Delegate
         }
         catch ( org.omg.CORBA.SystemException cfe )
         {
-            logger.debug("invoke: SystemException");
+            logger.debug("invoke[-->]: SystemException", cfe);
 
             if( !async )
             {
@@ -1216,15 +1216,33 @@ public final class Delegate
             }
         }
 
-        if ( !async && receiver != null )
+        try
         {
-            // Synchronous invocation, response expected.
-            // This call blocks until the reply arrives.
-            org.omg.CORBA.portable.InputStream is = receiver.getReply();
+            if ( !async && receiver != null )
+            {
+                // Synchronous invocation, response expected.
+                // This call blocks until the reply arrives.
+                org.omg.CORBA.portable.InputStream is = receiver.getReply();
 
-            ((CDRInputStream)is).updateMutatorConnection (connectionToUse.getGIOPConnection());
+                ((CDRInputStream)is).updateMutatorConnection (connectionToUse.getGIOPConnection());
 
-            return is;
+                return is;
+            }
+        }
+        catch(SystemException e)
+        {
+            logger.debug("invoke[<--]: SystemException", e);
+
+            // If the attempt to read the reply throws a system exception its possible that
+            // the pending_replies will not get cleaned up.
+            synchronized (pending_replies)
+            {
+                pending_replies.remove (receiver);
+            }
+
+            disconnect(connectionToUse);
+
+            throw e;
         }
 
         return null;

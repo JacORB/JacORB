@@ -116,6 +116,8 @@ post 2.3.1
         - Fixed SSL properties reading and processing (bugzilla #820).
         - Implemented portable interceptors correctly for local objects.
         - New lines in log messages fix (bugzilla #873).
+        - Remove ReplyReceiver from pending_replies if an error happens when reading the reply.
+        - Fix servantdelegate bind issue to prevent cached object delegate being set to null.
         - Fix for Current overwriting in local calls between Client/ServerRequestInfo
 
     - IDL Compiler:

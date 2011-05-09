@@ -8,15 +8,10 @@ import org.omg.PortableServer.CurrentHelper;
 
 public class JAC663ServerImpl extends JAC663ServerPOA
 {
-   private ORB orb;
-   private POA poa;
    private Current current;
 
-   public JAC663ServerImpl (ORB orb, POA poa)
+   public JAC663ServerImpl (ORB orb)
    {
-      this.orb = orb;
-      this.poa = poa;
-
       try
       {
          org.omg.CORBA.Object obj = orb.resolve_initial_references ("POACurrent");
