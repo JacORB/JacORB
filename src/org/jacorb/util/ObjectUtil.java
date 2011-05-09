@@ -292,6 +292,6 @@ public class ObjectUtil
      */
     public static Integer newInteger(int value)
     {
-        return new Integer(value); // NOPMD
+        return Integer.valueOf(value);
     }
 }

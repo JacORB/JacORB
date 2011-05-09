@@ -22,6 +22,7 @@ package org.jacorb.orb;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -31,6 +32,7 @@ import org.jacorb.imr.ImRAccessImpl;
 import org.jacorb.ir.RepositoryID;
 import org.jacorb.orb.giop.ClientConnection;
 import org.jacorb.orb.giop.ClientConnectionManager;
+import org.jacorb.orb.giop.GIOPConnection;
 import org.jacorb.orb.giop.LocateReplyInputStream;
 import org.jacorb.orb.giop.LocateRequestOutputStream;
 import org.jacorb.orb.giop.ReplyInputStream;
@@ -46,6 +48,7 @@ import org.omg.IOP.IOR;
 import org.jacorb.poa.util.POAUtil;
 import org.jacorb.util.ObjectUtil;
 import org.jacorb.util.Time;
+import org.omg.CORBA.BAD_PARAM;
 import org.omg.CORBA.COMM_FAILURE;
 import org.omg.CORBA.CompletionStatus;
 import org.omg.CORBA.INTERNAL;
@@ -138,7 +141,7 @@ public final class Delegate
         this reference is to a local object */
     private boolean resolved_locality = false;
 
-    private final Set     pending_replies      = new HashSet();
+    private final Set     pending_replies;
     private final Barrier pending_replies_sync = new Barrier();
 
     private final java.lang.Object bind_sync = new java.lang.Object();
@@ -147,7 +150,7 @@ public final class Delegate
 
     private final ClientConnectionManager conn_mg;
 
-    private final Map policy_overrides = new HashMap();
+    private final Map policy_overrides;
 
     private CookieHolder cookie = null;
 
@@ -226,8 +229,7 @@ public final class Delegate
 
 
     /* constructors: */
-
-    private Delegate(ORB orb, Configuration config)
+    private Delegate(ORB orb, Configuration config, boolean parseIORLazy)
     {
         super();
 
@@ -248,30 +250,64 @@ public final class Delegate
         disconnectAfterNonRecoverableSystemException =
             config.getAttributeAsBoolean("jacorb.delegate.disconnect_after_systemexception", false);
         disableClientOrbPolicies = config.getAttributeAsBoolean("jacorb.disableClientOrbPolicies", false);
+
+        if (parseIORLazy)
+        {
+            // reference received across the net
+            // create maps with minimal size to save some memory
+            pending_replies = new HashSet(0);
+
+            if (disableClientOrbPolicies)
+            {
+                policy_overrides = Collections.EMPTY_MAP;
+            }
+            else
+            {
+                policy_overrides = new HashMap(0);
+            }
+        }
+        else
+        {
+            // reference locally created
+            // standard initialization
+            pending_replies = new HashSet();
+
+            if (disableClientOrbPolicies)
+            {
+                policy_overrides = Collections.EMPTY_MAP;
+            }
+            else
+            {
+                policy_overrides = new HashMap();
+            }
+        }
     }
 
-    private Delegate(ORB orb)
+    private Delegate(ORB orb, boolean parseIORLazy)
     {
-        this(orb, orb.getConfiguration());
+        this(orb, orb.getConfiguration(), parseIORLazy);
     }
 
     public Delegate ( org.jacorb.orb.ORB orb, ParsedIOR pior )
     {
-        this(orb);
+        this(orb, false);
         _pior = pior;
         checkIfImR( _pior.getTypeId() );
     }
 
     public Delegate(org.jacorb.orb.ORB orb, IOR ior, boolean parseIORLazy)
     {
-        this(orb);
+        this(orb, parseIORLazy);
         this.ior = ior;
 
-        if (!parseIORLazy)
+        if (parseIORLazy)
         {
             // postpone parsing of IOR.
             // see getParsedIOR
-            _pior = new ParsedIOR( orb, ior);
+        }
+        else
+        {
+            getParsedIOR();
         }
         checkIfImR( ior.type_id );
     }
@@ -576,7 +612,7 @@ public final class Delegate
         throw new org.omg.CORBA.NO_IMPLEMENT();
     }
 
-    public synchronized org.omg.CORBA.Object duplicate( org.omg.CORBA.Object self )
+    public org.omg.CORBA.Object duplicate( org.omg.CORBA.Object self )
     {
         return orb._getDelegate (new ParsedIOR( orb, toString()));
     }
@@ -1021,16 +1057,25 @@ public final class Delegate
 
         RequestOutputStream ros      = (RequestOutputStream)os;
         ReplyReceiver       receiver = null;
-        final ClientInterceptorHandler interceptors = new ClientInterceptorHandler
-        (
-            (ClientInterceptorHandler)localInterceptors.get(),
-            orb,
-            ros,
-            self,
-            this,
-            piorOriginal,
-            connections[currentConnection.ordinal ()]
-        );
+        final ClientInterceptorHandler interceptors;
+
+        if (orb.hasClientRequestInterceptors())
+        {
+            interceptors = new DefaultClientInterceptorHandler
+            (
+                    (DefaultClientInterceptorHandler)localInterceptors.get(),
+                    orb,
+                    ros,
+                    self,
+                    this,
+                    piorOriginal,
+                    connections[currentConnection.ordinal ()]
+            );
+        }
+        else
+        {
+            interceptors = NullClientInterceptorHandler.getInstance();
+        }
 
         if ( connections[currentConnection.ordinal ()] != null )
         {
@@ -1806,43 +1851,46 @@ public final class Delegate
     /**
      */
 
-    public synchronized org.omg.CORBA.portable.OutputStream request
-                                                 ( org.omg.CORBA.Object self,
+    public org.omg.CORBA.portable.OutputStream request(org.omg.CORBA.Object self,
                                                    String operation,
                                                    boolean responseExpected )
     {
         orb.perform_work();
 
-        // Compute the deadlines for this request based on any absolute or
-        // relative timing policies that have been specified.  Compute this
-        // now, because it is the earliest possible time, and therefore any
-        // relative timeouts will cover the entire invocation.
+        UtcT requestEndTime = null;
+        UtcT replyEndTime = null;
 
-        UtcT requestEndTime = getRequestEndTime();
-        long requestTimeout = getRelativeRequestTimeout();
-
-        if ((requestTimeout != 0) || (requestEndTime != null))
+        if (!disableClientOrbPolicies)
         {
-            requestEndTime = Time.earliest(Time.corbaFuture (requestTimeout),
-                                           requestEndTime);
-            if (Time.hasPassed(requestEndTime))
+            // Compute the deadlines for this request based on any absolute or
+            // relative timing policies that have been specified.  Compute this
+            // now, because it is the earliest possible time, and therefore any
+            // relative timeouts will cover the entire invocation.
+
+            requestEndTime = getRequestEndTime();
+            final long requestTimeout = getRelativeRequestTimeout();
+
+            if ((requestTimeout > 0) || (requestEndTime != null))
             {
-                throw new TIMEOUT("Request End Time exceeded prior to invocation",
-                                  0, CompletionStatus.COMPLETED_NO);
+                requestEndTime = Time.earliest(Time.corbaFuture (requestTimeout), requestEndTime);
+                if (Time.hasPassed(requestEndTime))
+                {
+                    throw new TIMEOUT("Request End Time exceeded prior to invocation",
+                                      0, CompletionStatus.COMPLETED_NO);
+                }
             }
-        }
 
-        UtcT replyEndTime     = getReplyEndTime();
-        long roundtripTimeout = getRelativeRoundtripTimeout();
+            replyEndTime     = getReplyEndTime();
+            final long roundtripTimeout = getRelativeRoundtripTimeout();
 
-        if ((roundtripTimeout != 0) || (replyEndTime != null))
-        {
-            replyEndTime = Time.earliest(Time.corbaFuture (roundtripTimeout),
-                                         replyEndTime);
-            if (Time.hasPassed(replyEndTime))
+            if ((roundtripTimeout > 0) || (replyEndTime != null))
             {
-                throw new TIMEOUT("Reply End Time exceeded prior to invocation",
-                                  0, CompletionStatus.COMPLETED_NO);
+                replyEndTime = Time.earliest(Time.corbaFuture (roundtripTimeout), replyEndTime);
+                if (Time.hasPassed(replyEndTime))
+                {
+                    throw new TIMEOUT("Reply End Time exceeded prior to invocation",
+                                      0, CompletionStatus.COMPLETED_NO);
+                }
             }
         }
 
@@ -2148,6 +2196,11 @@ public final class Delegate
                                                      org.omg.CORBA.Policy[] policies,
                                                      org.omg.CORBA.SetOverrideType set_add )
     {
+        if (disableClientOrbPolicies)
+        {
+            throw new BAD_PARAM("policy override is disabled per configuration");
+        }
+
         // According to CORBA 3, 4.3.9.1 this should return a new Object with
         // the policies applied to that.
         org.omg.CORBA.Object result = duplicate(self);

@@ -21,7 +21,7 @@ package org.jacorb.orb.portableInterceptor;
  *
  */
 
-import java.util.Enumeration;
+import java.util.Iterator;
 import org.jacorb.orb.dsi.ServerRequest;
 import org.omg.CORBA.Any;
 import org.omg.CORBA.BAD_INV_ORDER;
@@ -122,9 +122,9 @@ public class ServerRequestInfoImpl
         forward_reference = request.getForwardReference();
     }
 
-    public Enumeration getReplyServiceContexts()
+    public Iterator getReplyServiceContexts()
     {
-        return reply_ctx.elements();
+        return reply_ctx.values().iterator();
     }
 
     /**

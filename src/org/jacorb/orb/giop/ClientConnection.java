@@ -25,6 +25,7 @@ import java.util.Iterator;
 import java.util.Map;
 import org.slf4j.Logger;
 import org.jacorb.config.Configuration;
+import org.jacorb.config.ConfigurationException;
 import org.jacorb.orb.ParsedIOR;
 import org.jacorb.util.ObjectUtil;
 import org.omg.CONV_FRAME.CodeSetComponentInfo;
@@ -122,7 +123,16 @@ public class ClientConnection
         connection.setReplyListener( this );
         connection.setConnectionListener( this );
 
-        replies = new HashMap();
+        try
+        {
+            replies = (Map) configuration.getAttributeAsObject("java.util.Map", HashMap.class.getName());
+        }
+        catch (ConfigurationException e)
+        {
+            // should never happen
+            throw new RuntimeException(e);
+        }
+
         sasContexts = new HashMap();
     }
 

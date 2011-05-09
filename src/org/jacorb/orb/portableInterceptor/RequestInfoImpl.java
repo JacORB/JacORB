@@ -21,7 +21,8 @@
 
 package org.jacorb.orb.portableInterceptor;
 
-import java.util.Hashtable;
+import java.util.HashMap;
+import java.util.Map;
 import org.jacorb.util.ObjectUtil;
 import org.omg.CORBA.Any;
 import org.omg.CORBA.BAD_PARAM;
@@ -58,8 +59,8 @@ public abstract class RequestInfoImpl
     protected short reply_status;
     protected org.omg.PortableInterceptor.Current current = null;
 
-    protected final Hashtable request_ctx;
-    protected final Hashtable reply_ctx;
+    protected final Map request_ctx;
+    protected final Map reply_ctx;
 
     protected short caller_op = -1;
 
@@ -67,8 +68,8 @@ public abstract class RequestInfoImpl
     {
         super();
 
-        request_ctx = new Hashtable();
-        reply_ctx = new Hashtable();
+        request_ctx = new HashMap();
+        reply_ctx = new HashMap();
     }
 
     /**
@@ -78,9 +79,12 @@ public abstract class RequestInfoImpl
      */
     public void setRequestServiceContexts(ServiceContext[] ctx)
     {
-        for (int _i = 0; _i < ctx.length; _i++)
+        synchronized(request_ctx)
         {
-            request_ctx.put(ObjectUtil.newInteger(ctx[_i].context_id), ctx[_i]);
+            for (int i = 0; i < ctx.length; i++)
+            {
+                request_ctx.put(Integer.valueOf(ctx[i].context_id), ctx[i]);
+            }
         }
     }
 
@@ -91,9 +95,12 @@ public abstract class RequestInfoImpl
      */
     public void setReplyServiceContexts(ServiceContext[] ctx)
     {
-        for (int _i = 0; _i < ctx.length; _i++)
+        synchronized(reply_ctx)
         {
-            reply_ctx.put(ObjectUtil.newInteger(ctx[_i].context_id), ctx[_i]);
+            for (int i = 0; i < ctx.length; i++)
+            {
+                reply_ctx.put(Integer.valueOf(ctx[i].context_id), ctx[i]);
+            }
         }
     }
 
@@ -151,26 +158,36 @@ public abstract class RequestInfoImpl
 
     public ServiceContext get_reply_service_context(int id)
     {
-        Integer _id = ObjectUtil.newInteger(id);
-        if (! reply_ctx.containsKey(_id))
+        final ServiceContext result;
+
+        synchronized(reply_ctx)
         {
-            throw new BAD_PARAM("No ServiceContext with id " + id, 26,
-                                CompletionStatus.COMPLETED_MAYBE);
+            result = (ServiceContext) reply_ctx.get(Integer.valueOf(id));
         }
 
-        return (ServiceContext) reply_ctx.get(_id);
+        if (result == null)
+        {
+            throw new BAD_PARAM("No ServiceContext with id " + id, 23, CompletionStatus.COMPLETED_MAYBE);
+        }
+
+        return result;
     }
 
     public ServiceContext get_request_service_context(int id)
     {
-        Integer _id = ObjectUtil.newInteger(id);
-        if (! request_ctx.containsKey(_id))
+        final ServiceContext result;
+
+        synchronized(request_ctx)
         {
-            throw new BAD_PARAM("No ServiceContext with id " + id, 26,
-                                CompletionStatus.COMPLETED_MAYBE);
+            result = (ServiceContext) request_ctx.get(Integer.valueOf(id));
         }
 
-        return (ServiceContext) request_ctx.get(_id);
+        if (result == null)
+        {
+            throw new BAD_PARAM("No ServiceContext with id " + id, 23, CompletionStatus.COMPLETED_MAYBE);
+        }
+
+        return result;
     }
 
     public Any get_slot(int id) throws InvalidSlot

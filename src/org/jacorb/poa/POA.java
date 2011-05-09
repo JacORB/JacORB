@@ -20,6 +20,8 @@ package org.jacorb.poa;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import org.jacorb.config.Configurable;
@@ -160,7 +162,7 @@ public class POA
     // default: SSL_NOT_REQUIRED
     protected SSLPolicy                 sslPolicy;
 
-    private final Hashtable all_policies;
+    private final Map all_policies;
 
     /** key: , value: CORBA.Object */
     private final Hashtable createdReferences;
@@ -191,7 +193,7 @@ public class POA
         poaManager = _poaManager;
         logPrefix = "POA " + name;
 
-        all_policies = new Hashtable();
+        all_policies = new HashMap();
         createdReferences = new Hashtable();
 
         if (policies != null)

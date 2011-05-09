@@ -22,6 +22,7 @@ package org.jacorb.orb.portableInterceptor;
 
 import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.Iterator;
 import java.util.List;
 import org.slf4j.Logger;
 import org.jacorb.orb.etf.ProfileBase;
@@ -193,9 +194,9 @@ public class ClientRequestInfoImpl
      * data aligning purposes.
      */
 
-    public Enumeration getRequestServiceContexts()
+    public Iterator getRequestServiceContexts()
     {
-        return request_ctx.elements();
+        return request_ctx.values().iterator();
     }
 
     // implementation                        of
