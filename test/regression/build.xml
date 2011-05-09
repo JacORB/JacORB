@@ -422,6 +422,8 @@ Tests run: ${result.testCount}, Failures: ${result.testFailures}, Errors: ${resu
 
     <target name="idl-wrapped"
             depends="test-init,
+                     idl-localpitest,
+                     idl-helloserver,
                      idl-tests,
                      idl-anyserver,
                      idl-basicserver,
@@ -456,6 +458,14 @@ Tests run: ${result.testCount}, Failures: ${result.testFailures}, Errors: ${resu
     <!-- ==================================================== -->
     <!--                compile Tests.idl                     -->
     <!-- ==================================================== -->
+
+    <target name="idl-localpitest">
+         <process-idl includes="LocalPITest.idl" />
+    </target>
+
+    <target name="idl-helloserver">
+         <process-idl includes="Hello.idl" />
+    </target>
 
     <target name="idl-transport-current-server">
         <process-idl includes="TransportCurrentServer.idl" />
@@ -560,7 +570,7 @@ Tests run: ${result.testCount}, Failures: ${result.testFailures}, Errors: ${resu
         <process-idl includes="_bugjac560.idl" ami_callback="true">
             <i2jpackage names="Node:cerent.cms.idl.Node" />
         </process-idl>
-        
+
         <process-idl includes="_bugjac801.idl" generateEnhanced="true"/>
 
     </target>
@@ -704,6 +714,17 @@ Tests run: ${result.testCount}, Failures: ${result.testFailures}, Errors: ${resu
         </antcall>
     </target>
 
+    <!-- ==================================================== -->
+    <!--                  run openorb tests                   -->
+    <!-- ==================================================== -->
+
+
+    <target name="run-all-openorb"
+          description="Run all Openorb tests in the orb package">
+        <antcall target="run-all">
+            <param name="jacorb.test.pkg" value="org/openorb/orb/test/**" />
+        </antcall>
+    </target>
 
     <!-- ==================================================== -->
     <!--                  run rmi tests                       -->

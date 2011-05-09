@@ -22,8 +22,8 @@
 package org.jacorb.orb.portableInterceptor;
 
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
-import org.jacorb.util.ObjectUtil;
 import org.omg.CORBA.Any;
 import org.omg.CORBA.BAD_PARAM;
 import org.omg.CORBA.CompletionStatus;
@@ -59,6 +59,8 @@ public abstract class RequestInfoImpl
     protected short reply_status;
     protected org.omg.PortableInterceptor.Current current = null;
 
+    protected short sync_scope;
+
     protected final Map request_ctx;
     protected final Map reply_ctx;
 
@@ -89,6 +91,27 @@ public abstract class RequestInfoImpl
     }
 
     /**
+     * This is a method to be used when handling local calls that involve
+     * portable interceptors.  There is no request/stream so we need
+     * to get the service contexts as an array
+     */
+    public ServiceContext[] getRequestServiceContextsArray()
+    {
+        ServiceContext [] ctxts = new ServiceContext [request_ctx.size()];
+
+        Iterator iter = request_ctx.values().iterator();
+        int i = 0;
+
+        while (iter.hasNext())
+        {
+            ctxts[i] = (ServiceContext) iter.next();
+            i++;
+        }
+
+        return ctxts;
+    }
+
+    /**
      * Make the existing reply ServiceContexts available to
      * the interceptors. Only one ServiceContext per id
      * is allowed.
@@ -102,6 +125,27 @@ public abstract class RequestInfoImpl
                 reply_ctx.put(Integer.valueOf(ctx[i].context_id), ctx[i]);
             }
         }
+    }
+
+    /**
+     * This is a method to be used when handling local calls that involve
+     * portable interceptors.  There is no request/stream so we need
+     * to get the service contexts as an array
+     */
+    public ServiceContext[] getReplyServiceContextsArray()
+    {
+        ServiceContext [] ctxts = new ServiceContext [reply_ctx.size()];
+
+        Iterator iter = reply_ctx.values().iterator();
+        int i = 0;
+
+        while (iter.hasNext())
+        {
+            ctxts[i] = (ServiceContext) iter.next();
+            i++;
+        }
+
+        return ctxts;
     }
 
     public void setArguments (Parameter[] args)
@@ -231,8 +275,11 @@ public abstract class RequestInfoImpl
         return result;
     }
 
+    /**
+     * Return the sync_scope as set in the constructor
+     */
     public short sync_scope()
     {
-        return org.omg.Messaging.SYNC_WITH_TRANSPORT.value;
+        return sync_scope;
     }
 }

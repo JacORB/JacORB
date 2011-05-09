@@ -21,10 +21,8 @@
 package org.jacorb.orb.portableInterceptor;
 
 import java.util.ArrayList;
-import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.List;
-import org.slf4j.Logger;
 import org.jacorb.orb.etf.ProfileBase;
 import org.jacorb.util.ObjectUtil;
 import org.omg.CORBA.ARG_IN;
@@ -47,6 +45,7 @@ import org.omg.IOP.TaggedComponent;
 import org.omg.IOP.TaggedProfile;
 import org.omg.PortableInterceptor.ClientRequestInfo;
 import org.omg.PortableInterceptor.LOCATION_FORWARD;
+import org.slf4j.Logger;
 
 /**
  * This class represents the type of info object,
@@ -95,6 +94,8 @@ public class ClientRequestInfoImpl
         this.operation = ros.operation();
         this.response_expected = ros.response_expected();
         this.received_exception = orb.create_any();
+
+        sync_scope = ros.syncScope();
 
         if ( ros.getRequest() != null )
         {
@@ -153,6 +154,79 @@ public class ClientRequestInfoImpl
         {
             forward_reference = original.forward_reference;
         }
+    }
+
+    /**
+     * Constructor for local calls involving portable interceptors.  With
+     * local calls there is no Request/streams so we need to set the data
+     * directly
+     */
+    public ClientRequestInfoImpl ( org.jacorb.orb.ORB orb,
+                                   String operation,
+                                   boolean response_expected,
+                                   short sync_scope,
+                                   org.omg.CORBA.Object self,
+                                   org.jacorb.orb.Delegate delegate,
+                                   org.jacorb.orb.ParsedIOR piorOriginal)
+    {
+        super();
+
+        this.orb = orb;
+        logger = orb.getConfiguration().getLogger("jacorb.orb.interceptors");
+
+        this.operation = operation;
+        this.response_expected = response_expected;
+        this.received_exception = orb.create_any();
+        this.sync_scope = sync_scope;
+
+        this.effective_target = self;
+
+        org.jacorb.orb.ParsedIOR pior = delegate.getParsedIOR();
+
+        if ( piorOriginal == null )
+        {
+            this.target = self;
+        }
+        else
+        {
+            this.target = orb._getDelegate (piorOriginal);
+        }
+
+        Profile profile = pior.getEffectiveProfile();
+
+        // If this ParsedIOR is using a profile that extends ProfileBase e.g. IIOPProfile
+        // and WIOP (within the regression suite) then grab the effective profile and the
+        // possibly null effective_components.
+        if (profile instanceof ProfileBase)
+        {
+            final ProfileBase profileBase = (ProfileBase)profile;
+
+            this.effective_profile    = (profileBase).asTaggedProfile();
+            this.effective_components =
+                (
+                        (profileBase).getComponents() == null ?
+                                new org.omg.IOP.TaggedComponent[0]             :
+                                    (profileBase).getComponents().asArray()
+                );
+        }
+        else
+        {
+            this.effective_components = new org.omg.IOP.TaggedComponent[ 0 ];
+            effective_profile = null;
+        }
+
+        this.delegate = delegate;
+
+        InterceptorManager manager = orb.getInterceptorManager();
+
+        this.current = manager.getCurrent();
+
+        /* The following do not exist with a local call so nullify them for compilation
+         * reasons because they are declared as final
+         */
+        request_os = null;
+        connection = null;
+
     }
 
     public final void setRequest(org.jacorb.orb.dii.Request request)
@@ -262,7 +336,7 @@ public class ClientRequestInfoImpl
                                     10, CompletionStatus.COMPLETED_MAYBE);
         }
 
-        return org.omg.Messaging.SYNC_WITH_TRANSPORT.value;
+        return sync_scope;
     }
 
     public short reply_status()

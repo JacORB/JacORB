@@ -32,7 +32,6 @@ import org.jacorb.imr.ImRAccessImpl;
 import org.jacorb.ir.RepositoryID;
 import org.jacorb.orb.giop.ClientConnection;
 import org.jacorb.orb.giop.ClientConnectionManager;
-import org.jacorb.orb.giop.GIOPConnection;
 import org.jacorb.orb.giop.LocateReplyInputStream;
 import org.jacorb.orb.giop.LocateRequestOutputStream;
 import org.jacorb.orb.giop.ReplyInputStream;
@@ -43,16 +42,20 @@ import org.jacorb.orb.miop.MIOPProfile;
 import org.jacorb.orb.policies.PolicyManager;
 import org.jacorb.orb.portableInterceptor.ClientInterceptorIterator;
 import org.jacorb.orb.portableInterceptor.ClientRequestInfoImpl;
+import org.jacorb.orb.portableInterceptor.InterceptorManager;
+import org.jacorb.orb.portableInterceptor.ServerInterceptorIterator;
+import org.jacorb.orb.portableInterceptor.ServerRequestInfoImpl;
 import org.jacorb.orb.util.CorbaLoc;
-import org.omg.IOP.IOR;
 import org.jacorb.poa.util.POAUtil;
 import org.jacorb.util.ObjectUtil;
 import org.jacorb.util.Time;
+import org.omg.CORBA.BAD_INV_ORDER;
 import org.omg.CORBA.BAD_PARAM;
 import org.omg.CORBA.COMM_FAILURE;
 import org.omg.CORBA.CompletionStatus;
 import org.omg.CORBA.INTERNAL;
 import org.omg.CORBA.INV_OBJREF;
+import org.omg.CORBA.OBJECT_NOT_EXIST;
 import org.omg.CORBA.OBJ_ADAPTER;
 import org.omg.CORBA.Policy;
 import org.omg.CORBA.SystemException;
@@ -64,6 +67,7 @@ import org.omg.CORBA.portable.ServantObject;
 import org.omg.ETF.Profile;
 import org.omg.GIOP.LocateStatusType_1_2;
 import org.omg.IOP.IOR;
+import org.omg.IOP.ServiceContext;
 import org.omg.Messaging.RELATIVE_REQ_TIMEOUT_POLICY_TYPE;
 import org.omg.Messaging.RELATIVE_RT_TIMEOUT_POLICY_TYPE;
 import org.omg.Messaging.REPLY_END_TIME_POLICY_TYPE;
@@ -75,7 +79,11 @@ import org.omg.Messaging.SYNC_SCOPE_POLICY_TYPE;
 import org.omg.Messaging.SYNC_WITH_SERVER;
 import org.omg.Messaging.SYNC_WITH_TARGET;
 import org.omg.Messaging.SYNC_WITH_TRANSPORT;
+import org.omg.PortableInterceptor.ForwardRequest;
+import org.omg.PortableInterceptor.LOCATION_FORWARD;
 import org.omg.PortableInterceptor.SUCCESSFUL;
+import org.omg.PortableInterceptor.SYSTEM_EXCEPTION;
+import org.omg.PortableInterceptor.USER_EXCEPTION;
 import org.omg.PortableServer.Servant;
 import org.omg.PortableServer.ServantActivator;
 import org.omg.PortableServer.POAPackage.ObjectNotActive;
@@ -1090,20 +1098,31 @@ public final class Delegate
             {
                 interceptors.handle_send_request();
             }
-            catch (RuntimeException e)
+            catch (RemarshalException re)
+            {
+                // RemarshalExceptions explicitely caught, because in
+                // that case, localInterceptors must stay set
+                throw re;
+            }
+            catch (Throwable e)
             {
                 // If we are throwing a system exception then this will disrupt the call path.
                 // Therefore nullify localInterceptors so it doesn't appear we are still in an
-                // interceptor call. RemarshalExceptions are explicitly not caught, because in
-                // that case, localInterceptors must stay set
-
+                // interceptor call.
                 localInterceptors.set(null);
-                throw e;
+                throw new RuntimeException ("Problem calling interceptor.send_request", e);
             }
         }
         else
         {
-            interceptors.handle_send_request();
+            try
+            {
+                interceptors.handle_send_request();
+            }
+            catch (ForwardRequest fwd)
+            {
+                // Should not happen for remote requests
+            }
         }
 
         ClientConnection connectionToUse = null;
@@ -1170,7 +1189,14 @@ public final class Delegate
                }
             }
 
-            interceptors.handle_receive_exception ( cfe );
+            try
+            {
+                interceptors.handle_receive_exception ( cfe );
+            }
+            catch (ForwardRequest fwd)
+            {
+                // Should not happen for remote requests
+            }
 
             // The exception is a TRANSIENT, so try rebinding.
             if ( cfe instanceof org.omg.CORBA.TRANSIENT && try_rebind() )
@@ -1245,12 +1271,26 @@ public final class Delegate
             case SYNC_NONE.value:
                 RequestOutputStream copy = new RequestOutputStream(ros);
                 passToTransport (copy);
-                interceptors.handle_receive_other (SUCCESSFUL.value);
+                try
+                {
+                    interceptors.handle_receive_other (SUCCESSFUL.value);
+                }
+                catch (ForwardRequest fwd)
+                {
+                    // Should not happen for remote requests
+                }
                 break;
 
             case SYNC_WITH_TRANSPORT.value:
                 connections[currentConnection.ordinal ()].sendRequest (ros, false);
-                interceptors.handle_receive_other (SUCCESSFUL.value);
+                try
+                {
+                    interceptors.handle_receive_other (SUCCESSFUL.value);
+                }
+                catch (ForwardRequest fwd)
+                {
+                    /// Should not happen for remote requests
+                }
                 break;
 
             case SYNC_WITH_SERVER.value:
@@ -1272,7 +1312,14 @@ public final class Delegate
                 }
 
                 ReplyInputStream in = rcv.getReply();
-                interceptors.handle_receive_reply (in);
+                try
+                {
+                    interceptors.handle_receive_reply (in);
+                }
+                catch (ForwardRequest fwd)
+                {
+                    /// Should not happen for remote requests
+                }
                 break;
 
             default:
@@ -1403,7 +1450,7 @@ public final class Delegate
         {
             intercept_iter.iterate( info, op );
         }
-        catch ( org.omg.PortableInterceptor.ForwardRequest fwd )
+        catch (ForwardRequest fwd )
         {
             rebind(fwd.forward);
             throw new RemarshalException();
@@ -1648,11 +1695,6 @@ public final class Delegate
         if (ignoreNextCallToIsLocal.get() == Boolean.TRUE)
         {
             ignoreNextCallToIsLocal.set(Boolean.FALSE);
-            return false;
-        }
-
-        if (localInterceptors.get() == null && orb.hasRequestInterceptors())
-        {
             return false;
         }
 
@@ -1975,6 +2017,60 @@ public final class Delegate
 
     public void servant_postinvoke( org.omg.CORBA.Object self, ServantObject servant )
     {
+        if (orb.hasRequestInterceptors())
+        {
+            ServerRequestInfoImpl sinfo = ( (ServantObjectImpl) servant).getServerRequestInfo();
+            DefaultClientInterceptorHandler interceptors =
+                ( (ServantObjectImpl) servant).getClientInterceptorHandler();
+
+            if (sinfo != null && interceptors != null)
+            {
+                interceptors.getInfo ().setReplyServiceContexts (sinfo.getReplyServiceContextsArray());
+
+                try
+                {
+                    if (sinfo.reply_status() == SUCCESSFUL.value)
+                    {
+                        interceptors.handle_receive_reply (null);
+                    }
+                    else if (sinfo.reply_status() == SYSTEM_EXCEPTION.value)
+                    {
+                        interceptors.handle_receive_exception (
+                            SystemExceptionHelper.read (sinfo.sending_exception().create_input_stream()));
+                    }
+                    else if (sinfo.reply_status() == LOCATION_FORWARD.value)
+                    {
+                        /**
+                         * If the ForwardRequest was thrown at the send_exception interception
+                         * point we will not be able to get the forward_reference from the
+                         * server info and a BAD_INV_ORDER will be thrown.  In that case handle
+                         * as a simple receive_other.
+                         */
+                        try
+                        {
+                            interceptors.handle_location_forward (null, sinfo.forward_reference());
+                        }
+                        catch (BAD_INV_ORDER bio)
+                        {
+                            interceptors.handle_receive_other(sinfo.reply_status());
+                        }
+                    }
+                    else if (sinfo.reply_status() == USER_EXCEPTION.value)
+                    {
+                        interceptors.handle_receive_other (sinfo.reply_status());
+                    }
+                }
+                catch (ForwardRequest fwd)
+                {
+                    throw new RuntimeException (fwd);
+                }
+                catch (RemarshalException re)
+                {
+                    // Should not happen for a local invocation
+                }
+            }
+        }
+
         if (poa != null)
         {
             if ( poa.isUseServantManager() &&
@@ -2009,6 +2105,11 @@ public final class Delegate
             poa.removeLocalRequest();
         }
         orb.getPOACurrent()._removeContext( Thread.currentThread() );
+
+        if (orb.getInterceptorManager() != null)
+        {
+            orb.getInterceptorManager().removeTSCurrent();
+        }
     }
 
     /**
@@ -2020,20 +2121,75 @@ public final class Delegate
                                             String operation,
                                             Class expectedType )
     {
+        InterceptorManager manager = null;
+        ServerInterceptorIterator interceptorIterator = null;
+        ServerRequestInfoImpl sinfo = null;
+        ServiceContext [] contexts = null;
+        DefaultClientInterceptorHandler interceptors = null;
+
+        boolean doPostInvoke = false;
+
         if (poa == null)
         {
             resolvePOA(self);
         }
 
-        if (poa != null)
+        if (poa == null)
         {
-            // remember that a local request is outstanding. On
-            //  any exit through an exception, this must be cleared again,
-            // otherwise the POA will hangon destruction (bug #400).
-            poa.addLocalRequest();
+            if (logger.isWarnEnabled())
+            {
+                logger.warn("No POA! servant_preinvoke returns null");
+            }
 
-            ServantObject so = new ServantObject();
+            return null;
+        }
 
+        // remember that a local request is outstanding. On
+        //  any exit through an exception, this must be cleared again,
+        // otherwise the POA will hangon destruction (bug #400).
+        poa.addLocalRequest();
+
+        final ServantObject servantObject = (ServantObject) new ServantObjectImpl();
+
+        ( (ServantObjectImpl) servantObject).setORB (orb);
+
+        try
+        {
+            if (orb.hasClientRequestInterceptors())
+            {
+
+                // DefaultClientInterceptorHandler will create a new ClientRequestInfo
+                // which will call getCurrent. This will add a value to piCurrent.
+                interceptors = new DefaultClientInterceptorHandler(orb,
+                                                                   operation,
+                                                                   true,
+                                                                   SYNC_WITH_TARGET.value,
+                                                                   self,
+                                                                   this,
+                                                                   piorOriginal);
+            }
+
+            if (orb.hasRequestInterceptors() && interceptors != null)
+            {
+                try
+                {
+                    interceptors.handle_send_request();
+                }
+                catch (ForwardRequest fwd)
+                {
+                    ( (ObjectImpl) self)._set_delegate ( ( (ObjectImpl) fwd.forward)._get_delegate());
+                    return null;
+                }
+                catch (RemarshalException re)
+                {
+                    // Should not happen for a local server invocation.
+                }
+            }
+
+            if (interceptors != null)
+            {
+                contexts = interceptors.getInfo().getRequestServiceContextsArray();
+            }
             try
             {
                 if ( ( poa.isRetain() && !poa.isUseServantManager() ) ||
@@ -2042,7 +2198,7 @@ public final class Delegate
                     // no ServantManagers, but AOM use
                     try
                     {
-                        so.servant = poa.reference_to_servant( self );
+                       servantObject.servant = poa.reference_to_servant( self );
                     }
                     catch( WrongAdapter e )
                     {
@@ -2068,14 +2224,14 @@ public final class Delegate
                     byte [] oid =
                     POAUtil.extractOID( getParsedIOR().get_object_key() );
                     org.omg.PortableServer.ServantManager sm =
-                        poa.get_servant_manager();
+                    poa.get_servant_manager();
 
                     if ( poa.isRetain() )
                     {
                         // ServantManager is a ServantActivator. Use the AOM to
                         // incarnate this or return the servant. It will correctly
                         // synchrnoize the requests.
-                        so.servant = poa._incarnateServant(oid, (ServantActivator)sm);
+                        servantObject.servant = poa._incarnateServant(oid, (ServantActivator)sm);
                     }
                     else
                     {
@@ -2088,7 +2244,7 @@ public final class Delegate
                         // store this for postinvoke
 
                         cookie =
-                           new org.omg.PortableServer.ServantLocatorPackage.CookieHolder();
+                        new org.omg.PortableServer.ServantLocatorPackage.CookieHolder();
 
                         invokedOperation = operation;
 
@@ -2096,9 +2252,9 @@ public final class Delegate
 
                         try
                         {
-                            so.servant =
-                                sl.preinvoke( oid, poa, operation, cookie );
-			    ok = true;
+                            servantObject.servant =
+                            sl.preinvoke( oid, poa, operation, cookie );
+                            ok = true;
                         }
                         finally
                         {
@@ -2114,7 +2270,7 @@ public final class Delegate
                 }
                 else
                 {
-                    throw new INTERNAL("Internal error: we should not have gotten to this piece of code!");
+                    throw new INTERNAL("Internal error: we should not have got to this piece of code!");
                 }
             }
             catch( WrongPolicy e )
@@ -2129,15 +2285,17 @@ public final class Delegate
                 {
                     logger.debug("Caught forwardrequest to " + e.forward_reference + " from " + self );
                 }
-                return servant_preinvoke(e.forward_reference, operation, expectedType);
+                ( (ObjectImpl) self)._set_delegate ( ( (ObjectImpl) e.forward_reference)._get_delegate());
+
+                return null;
             }
 
-            if ( !expectedType.isInstance( so.servant ) )
+            if ( !expectedType.isInstance( servantObject.servant ) )
             {
                 if( logger.isWarnEnabled() )
                 {
                     logger.warn("Expected " + expectedType +
-                                " got " + so.servant.getClass() );
+                                " got " + servantObject.servant.getClass() );
                 }
 
                 ignoreNextCallToIsLocal.set(Boolean.TRUE);
@@ -2145,23 +2303,151 @@ public final class Delegate
                 poa.removeLocalRequest();
                 return null;
             }
-            orb.getPOACurrent()._addContext(
-                    Thread.currentThread(),
-                    new org.jacorb.poa.LocalInvocationContext(
-                            orb,
-                            poa,
-                            getObjectId(),
-                            ( org.omg.PortableServer.Servant ) so.servant
-                    )
+
+
+            orb.getPOACurrent()._addContext
+            (
+                Thread.currentThread(),
+                new org.jacorb.poa.LocalInvocationContext
+                (
+                    orb,
+                    poa,
+                    getObjectId(),
+                    ( org.omg.PortableServer.Servant ) servantObject.servant
+                )
             );
-            return so;
+
+            ( (org.jacorb.orb.ServantObjectImpl )servantObject).setClientInterceptorHandler (interceptors);
+
+            if (orb.hasServerRequestInterceptors())
+            {
+                sinfo = new ServerRequestInfoImpl
+                (
+                    orb,
+                    contexts,
+                    (org.omg.PortableServer.Servant) servantObject.servant,
+                    operation,
+                    true,
+                    SYNC_WITH_TARGET.value
+                );
+
+                manager = orb.getInterceptorManager();
+                sinfo.setCurrent (manager.getEmptyCurrent());
+                interceptorIterator = manager.getServerIterator();
+
+                ( (org.jacorb.orb.ServantObjectImpl ) servantObject).setServerRequestInfo (sinfo);
+
+
+                try
+                {
+                   interceptorIterator.iterate
+                   (
+                       sinfo,
+                       ServerInterceptorIterator.RECEIVE_REQUEST_SERVICE_CONTEXTS
+                   );
+
+                   manager.setTSCurrent (sinfo.current());
+
+                   interceptorIterator.iterate
+                   (
+                       sinfo,
+                       ServerInterceptorIterator.RECEIVE_REQUEST
+                   );
+                }
+                catch (ForwardRequest fwd)
+                {
+                    if (interceptors != null)
+                    {
+                        interceptors.handle_location_forward (null, fwd.forward);
+                    }
+
+                    doPostInvoke = true;
+                    ( (ObjectImpl) self)._set_delegate ( ( (ObjectImpl) fwd.forward)._get_delegate());
+                    return null;
+                }
+                catch (Exception ex)
+                {
+                    if (interceptors != null && orb.hasRequestInterceptors())
+                    {
+                        try
+                        {
+                            if (ex instanceof SystemException)
+                            {
+                                interceptors.handle_receive_exception ( (SystemException) ex);
+                            }
+                            else if (ex instanceof ApplicationException)
+                            {
+                                interceptors.handle_receive_exception ( (ApplicationException) ex, null);
+                            }
+                        }
+                        catch (ForwardRequest fwd)
+                        {
+                            doPostInvoke = true;
+                            ( (ObjectImpl) self)._set_delegate ( ( (ObjectImpl) fwd.forward)._get_delegate());
+                            return null;
+                        }
+                    }
+
+                    throw ex;
+                }
+
+                /**
+                 * If this is an internal ORB call from is_a or non_existent then we need
+                 * to complete the interception point SEND_REPLY.  In other situations this will
+                 * happen in the stub via the normalCompletion call but this will not be
+                 * the case for internal ORB Calls
+                 */
+                if (operation.equals ("_is_a") || operation.equals ("_non_existent") ||
+                    operation.equals("_interface") || operation.equals ("_get_component"))
+                {
+                    interceptorIterator.iterate
+                    (
+                        sinfo,
+                        ServerInterceptorIterator.SEND_REPLY
+                    );
+                }
+            }
+
+            return servantObject;
         }
-        if (logger.isWarnEnabled())
+        catch (Exception e)
         {
-            logger.warn("No POA! servant_preinvoke returns null");
+            doPostInvoke = true;
+
+            logger.error("unexpected exception during servant_preinvoke", e);
+
+            if (e instanceof OBJECT_NOT_EXIST)
+            {
+                throw (OBJECT_NOT_EXIST)e;
+            }
+
+            if (e instanceof ObjectNotActive)
+            {
+                throw new OBJECT_NOT_EXIST();
+            }
+
+            if (e instanceof RuntimeException)
+            {
+                throw (RuntimeException) e;
+            }
+
+            throw new OBJ_ADAPTER("unexpected exception: " + e);
         }
-        return null;
+        finally
+        {
+            if (doPostInvoke)
+            {
+                /**
+                 * If we get an exception at this point we must remove the current
+                 * invocation context or any attempt to destroy the POA will result
+                 * in a BAD_INV_ORDER
+                 */
+                orb.getPOACurrent()._removeContext (Thread.currentThread());
+                poa.removeLocalRequest();
+            }
+        }
     }
+
 
     public String toString()
     {

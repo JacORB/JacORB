@@ -22,8 +22,6 @@
 package org.jacorb.orb;
 
 import java.util.Iterator;
-import java.util.Enumeration;
-import org.slf4j.Logger;
 import org.jacorb.orb.giop.ReplyInputStream;
 import org.jacorb.orb.portableInterceptor.ClientInterceptorIterator;
 import org.jacorb.orb.portableInterceptor.ClientRequestInfoImpl;
@@ -33,10 +31,12 @@ import org.omg.CORBA.portable.RemarshalException;
 import org.omg.GIOP.ReplyHeader_1_2;
 import org.omg.GIOP.ReplyStatusType_1_2;
 import org.omg.IOP.ServiceContext;
+import org.omg.PortableInterceptor.ForwardRequest;
 import org.omg.PortableInterceptor.LOCATION_FORWARD;
 import org.omg.PortableInterceptor.SUCCESSFUL;
 import org.omg.PortableInterceptor.SYSTEM_EXCEPTION;
 import org.omg.PortableInterceptor.USER_EXCEPTION;
+import org.slf4j.Logger;
 
 /**
  * An instance of this class handles all interactions between one particular
@@ -49,6 +49,8 @@ public class DefaultClientInterceptorHandler implements ClientInterceptorHandler
 {
     private final ClientRequestInfoImpl info;
     private final Logger logger;
+
+    private boolean isLocal = false;
 
     /**
      * Constructs an interceptor handler for the given parameters.
@@ -93,36 +95,74 @@ public class DefaultClientInterceptorHandler implements ClientInterceptorHandler
             orb.getConfiguration().getLogger("jacorb.orb.client_interceptors");
     }
 
-    public void handle_send_request() throws RemarshalException
+    /**
+     * Constructor to be used for calls involving local objects that have interceptors,
+     * these calls will not have input or output streams, or requests
+     */
+    public DefaultClientInterceptorHandler (org.jacorb.orb.ORB orb,
+                                            String operation,
+                                            boolean response_expected,
+                                            short sync_scope,
+                                            org.omg.CORBA.Object self,
+                                            org.jacorb.orb.Delegate delegate,
+                                            org.jacorb.orb.ParsedIOR piorOriginal)
+    {
+       info = new ClientRequestInfoImpl (orb,
+                                         operation,
+                                         response_expected,
+                                         sync_scope,
+                                         self,
+                                         delegate,
+                                         piorOriginal);
+
+        isLocal = true;
+
+        logger =
+            orb.getConfiguration().getLogger("jacorb.orb.client_interceptors");
+    }
+
+
+    public void handle_send_request()
+        throws RemarshalException, ForwardRequest
     {
         if ( info != null )
         {
             invokeInterceptors ( info, ClientInterceptorIterator.SEND_REQUEST );
 
-            // Add any new service contexts to the message
-            Iterator ctx = info.getRequestServiceContexts();
-
-            while ( ctx.hasNext() )
+            /**
+             * If it's local then there is no request output stream so we
+             * can't do this here
+             */
+            if ( !(isLocal) )
             {
-                info.request_os.addServiceContext
-                                       ( ( ServiceContext ) ctx.next() );
+
+                // Add any new service contexts to the message
+                Iterator ctx = info.getRequestServiceContexts();
+
+                while ( ctx.hasNext() )
+                {
+                    info.request_os.addServiceContext
+                        ( ( ServiceContext ) ctx.next() );
+                }
             }
         }
     }
 
     public void handle_location_forward ( ReplyInputStream     reply,
                                           org.omg.CORBA.Object forward_reference )
-        throws RemarshalException
+        throws RemarshalException, ForwardRequest
     {
         if ( info != null )
         {
             info.setReplyStatus (LOCATION_FORWARD.value);
-            info.setReplyServiceContexts( reply.rep_hdr.service_context );
-
             info.setForwardReference (forward_reference);
 
-            //allow interceptors access to reply input stream
-            info.reply_is = reply;
+            if (reply != null)
+            {
+                //allow interceptors access to reply input stream
+                info.reply_is = reply;
+                info.setReplyServiceContexts( reply.rep_hdr.service_context );
+            }
 
             invokeInterceptors( info,
                                 ClientInterceptorIterator.RECEIVE_OTHER );
@@ -130,43 +170,54 @@ public class DefaultClientInterceptorHandler implements ClientInterceptorHandler
     }
 
     public void handle_receive_reply ( ReplyInputStream reply )
-        throws RemarshalException
+        throws RemarshalException, ForwardRequest
     {
         if ( info != null )
         {
-            ReplyHeader_1_2 header = reply.rep_hdr;
+            if (reply != null)
+            {
+                ReplyHeader_1_2 header = reply.rep_hdr;
 
-            if ( header.reply_status.value() == ReplyStatusType_1_2._NO_EXCEPTION )
+                if ( header.reply_status.value() == ReplyStatusType_1_2._NO_EXCEPTION )
+                {
+                    info.setReplyStatus (SUCCESSFUL.value);
+
+                    info.setReplyServiceContexts( header.service_context );
+
+                    // the case that invoke was called from
+                    // dii.Request._invoke() will be handled inside
+                    // of dii.Request._invoke() itself, because the
+                    // result will first be available there
+                    if ( info.request_os.getRequest() == null )
+                    {
+                        InterceptorManager manager = info.orb.getInterceptorManager();
+                        info.setCurrent (manager.getCurrent());
+
+                        //allow interceptors access to reply input stream
+                        info.reply_is = reply;
+
+                        invokeInterceptors( info,
+                                            ClientInterceptorIterator.RECEIVE_REPLY );
+                    }
+                    else
+                    {
+                        info.request_os.getRequest().setInfo( info );
+                    }
+                }
+            }
+            else
             {
                 info.setReplyStatus (SUCCESSFUL.value);
 
-                info.setReplyServiceContexts( header.service_context );
+                invokeInterceptors( info,
+                                    ClientInterceptorIterator.RECEIVE_REPLY );
 
-                // the case that invoke was called from
-                // dii.Request._invoke() will be handled inside
-                // of dii.Request._invoke() itself, because the
-                // result will first be available there
-                if ( info.request_os.getRequest() == null )
-                {
-                    InterceptorManager manager = info.orb.getInterceptorManager();
-                    info.setCurrent (manager.getCurrent());
-
-                    //allow interceptors access to reply input stream
-                    info.reply_is = reply;
-
-                    invokeInterceptors( info,
-                                        ClientInterceptorIterator.RECEIVE_REPLY );
-                }
-                else
-                {
-                    info.request_os.getRequest().setInfo( info );
-                }
             }
         }
     }
 
     public void handle_receive_other ( short reply_status )
-        throws RemarshalException
+        throws RemarshalException, ForwardRequest
     {
         if ( info != null )
         {
@@ -176,14 +227,14 @@ public class DefaultClientInterceptorHandler implements ClientInterceptorHandler
     }
 
     public void handle_receive_exception ( org.omg.CORBA.SystemException exception )
-        throws RemarshalException
+        throws RemarshalException, ForwardRequest
     {
         handle_receive_exception ( exception, null );
     }
 
     public void handle_receive_exception ( org.omg.CORBA.SystemException exception,
                                            ReplyInputStream reply )
-        throws RemarshalException
+        throws RemarshalException, ForwardRequest
     {
         if ( info != null )
         {
@@ -215,7 +266,7 @@ public class DefaultClientInterceptorHandler implements ClientInterceptorHandler
 
     public void handle_receive_exception ( ApplicationException exception,
                                            ReplyInputStream reply )
-        throws RemarshalException
+        throws RemarshalException, ForwardRequest
     {
         if ( info != null )
         {
@@ -237,29 +288,41 @@ public class DefaultClientInterceptorHandler implements ClientInterceptorHandler
             }
             info.setReplyStatus (USER_EXCEPTION.value);
 
-            try
+            if (reply != null)
             {
-                reply.reset();
-            }
-            catch ( Exception e )
-            {
-                // shouldn't happen anyway
-                logger.warn("unexpected exception", e);
-            }
+                try
+                {
+                    reply.reset();
+                }
+                catch ( Exception e )
+                {
+                    // shouldn't happen anyway
+                    logger.warn("unexpected exception", e);
+                }
 
-            info.setReplyServiceContexts ( reply.rep_hdr.service_context );
-            info.reply_is = reply;
+                info.setReplyServiceContexts ( reply.rep_hdr.service_context );
+                info.reply_is = reply;
+            }
 
             invokeInterceptors ( info,
                                  ClientInterceptorIterator.RECEIVE_EXCEPTION );
         }
     }
 
+    /**
+     * Where it is a local call there are not streams/requests so we need to get
+     * data directly from the info.
+     */
+    public ClientRequestInfoImpl getInfo()
+    {
+        return info;
+    }
+
     private void invokeInterceptors( ClientRequestInfoImpl info, short op )
-      throws RemarshalException
+        throws RemarshalException, ForwardRequest
     {
         final ClientInterceptorIterator intercept_iter =
-            info.orb.getInterceptorManager().getClientIterator();
+        info.orb.getInterceptorManager().getClientIterator();
 
         try
         {
@@ -276,9 +339,20 @@ public class DefaultClientInterceptorHandler implements ClientInterceptorHandler
             // http://www.omg.org/issues/issue5266.txt.
             info.setForwardReference(fwd.forward);
 
-            info.delegate.rebind(fwd.forward );
+            /**
+             * If its a local call there is no reply so we simply rethrow
+             * the ForwardRequest
+             */
+            if (isLocal)
+            {
+                throw fwd;
+            }
+            else
+            {
+                info.delegate.rebind(fwd.forward );
 
-            throw new RemarshalException();
+                throw new RemarshalException();
+            }
         }
         catch ( org.omg.CORBA.UserException ue )
         {

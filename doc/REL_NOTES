@@ -114,7 +114,9 @@ post 2.3.1
         - Performance optimisations
         - Added property to disable client orb policies for performance.
         - Fixed SSL properties reading and processing (bugzilla #820).
-          
+        - Implemented portable interceptors correctly for local objects.
+        - New lines in log messages fix (bugzilla #873).
+        - Fix for Current overwriting in local calls between Client/ServerRequestInfo
 
     - IDL Compiler:
         - fixed issue where the IDL compiler generated imports for the
@@ -175,7 +177,8 @@ post 2.3.1
         - Fix for IDL compiler for generation of system exception classes.
         - native types containing #pragma prefix "omg.org" weren't processed properly.
         - Improve toString on stubs for UnionType.
-        
+        - Implemented Portability Stubs and Skeletons as per 4.21.6 of IDL to Java Mapping
+
     - Naming Service:
         - Fix for BindingIterator leak (Bugzilla 647).
         - Renamed configuration properties and default to off.
@@ -195,9 +198,6 @@ post 2.3.1
         - added buffer manager factory configuration details.
         - update SSL/SAS documentation.
         - added NAT and firewall network configuration section.
-
-    - Fixes:
-        - new lines in log messages fix (bugzilla #873).
 
 2.3.1
 =====

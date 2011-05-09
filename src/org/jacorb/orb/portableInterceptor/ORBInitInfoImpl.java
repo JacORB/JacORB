@@ -24,7 +24,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.slf4j.Logger;
+import java.util.TreeMap;
 import org.jacorb.orb.ORB;
 import org.omg.CORBA.INTERNAL;
 import org.omg.CORBA.Object;
@@ -37,6 +37,7 @@ import org.omg.PortableInterceptor.PolicyFactory;
 import org.omg.PortableInterceptor.ServerRequestInterceptor;
 import org.omg.PortableInterceptor.ORBInitInfoPackage.DuplicateName;
 import org.omg.PortableInterceptor.ORBInitInfoPackage.InvalidName;
+import org.slf4j.Logger;
 
 /**
  * This class represents the type of info object
@@ -74,13 +75,18 @@ public class ORBInitInfoImpl
 
         logger = orb.getConfiguration().getLogger("jacorb.orb");
 
-        named_server_interceptors = new HashMap();
-        named_client_interceptors = new HashMap();
+        /**
+         * If an interceptor is named it may be used to sort the
+         * interceptors - see CORBA spec 16.3.  A HashMap does not
+         * guarantee order so use a TreeMap instead
+         */
+        named_server_interceptors = new TreeMap();
+        named_client_interceptors = new TreeMap();
 
         anonymous_server_interceptors = new ArrayList();
         anonymous_client_interceptors = new ArrayList();
 
-        named_ior_interceptors = new HashMap();
+        named_ior_interceptors = new TreeMap();
         anonymous_ior_interceptors = new ArrayList();
 
         policy_factories = new HashMap();

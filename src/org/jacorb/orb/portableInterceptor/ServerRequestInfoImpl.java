@@ -21,22 +21,26 @@ package org.jacorb.orb.portableInterceptor;
  *
  */
 
+import java.util.ArrayList;
 import java.util.Iterator;
 import org.jacorb.orb.dsi.ServerRequest;
+import org.jacorb.poa.POA;
 import org.omg.CORBA.Any;
 import org.omg.CORBA.BAD_INV_ORDER;
 import org.omg.CORBA.CompletionStatus;
 import org.omg.CORBA.INV_POLICY;
-import org.omg.CORBA.NO_IMPLEMENT;
 import org.omg.CORBA.NO_RESOURCES;
 import org.omg.CORBA.Policy;
 import org.omg.CORBA.SystemException;
 import org.omg.CORBA.TypeCode;
+import org.omg.CORBA.UserException;
 import org.omg.Dynamic.Parameter;
 import org.omg.IOP.ServiceContext;
 import org.omg.PortableInterceptor.InvalidSlot;
 import org.omg.PortableInterceptor.LOCATION_FORWARD;
+import org.omg.PortableInterceptor.SYSTEM_EXCEPTION;
 import org.omg.PortableInterceptor.ServerRequestInfo;
+import org.omg.PortableInterceptor.USER_EXCEPTION;
 import org.omg.PortableServer.Servant;
 
 /**
@@ -52,13 +56,21 @@ public class ServerRequestInfoImpl
     extends RequestInfoImpl
     implements ServerRequestInfo
 {
-
     //from ServerRequestInfo
     private byte[] adapter_id = null;
+    private String [] adapter_name = null;
     private String target_most_derived_interface = null;
 
     private Servant servant = null;
     private final org.jacorb.orb.ORB orb;
+
+    private final String operation;
+
+    private final boolean response_expected;
+
+    private final int requestId;
+
+    private final byte [] objectId;
 
     public final ServerRequest request;
 
@@ -72,6 +84,11 @@ public class ServerRequestInfoImpl
 
         this.orb = orb;
         this.request = request;
+        operation = request.operation();
+        response_expected = request.responseExpected();
+        sync_scope = request.syncScope();
+        requestId = request.requestId();
+        objectId = request.objectId();
 
         if (servant != null)
         {
@@ -79,6 +96,44 @@ public class ServerRequestInfoImpl
         }
 
         setRequestServiceContexts(request.getServiceContext());
+
+        sending_exception = orb.create_any();
+    }
+
+    /**
+     * This constructor is to cater for local calls where portable
+     * interceptors are involved.  These calls are now handled
+     * locally rather than via the remote request mechanism so ther
+     * will be no request from which to obtain information
+     */
+    public ServerRequestInfoImpl( org.jacorb.orb.ORB orb,
+                                  ServiceContext [] contexts,
+                                  Servant servant,
+                                  String operation,
+                                  boolean response_expected,
+                                  short sync_scope)
+    {
+        super();
+
+        this.orb = orb;
+        this.operation = operation;
+        this.response_expected = response_expected;
+        this.sync_scope = sync_scope;
+        requestId = 0;
+
+        objectId = null;
+        request = null;
+
+
+        if (servant != null)
+        {
+            setServant(servant);
+        }
+
+        if (contexts != null)
+        {
+           setRequestServiceContexts(contexts);
+        }
 
         sending_exception = orb.create_any();
     }
@@ -96,6 +151,24 @@ public class ServerRequestInfoImpl
         adapter_id = poa.getPOAId();
         String[] all_ifs = servant._all_interfaces(poa, servant._object_id());
         target_most_derived_interface = all_ifs[0];
+
+        POA parent = poa;
+        ArrayList al = new ArrayList ();
+
+        while (parent != null)
+        {
+           al.add (parent.the_name ());
+           parent = (POA) parent.the_parent ();
+         }
+         int size = al.size ();
+         adapter_name = new String [size];
+
+         // We can't just do toArray as otherwise adapter_name would be in
+         // reverse order.
+         for (int j = 0, i = (size-1); i >= 0; i--, j++)
+         {
+            adapter_name [j] = (String)al.get (i);
+         }
     }
 
     /**
@@ -104,23 +177,56 @@ public class ServerRequestInfoImpl
 
     public void update()
     {
-        if (! request.streamBased())
+        if (request != null)
         {
-            Any user_ex = request.except();
-            if (user_ex != null)
+            if (! request.streamBased())
             {
-                sending_exception = user_ex;
+                Any user_ex = request.except();
+                if (user_ex != null)
+                {
+                    sending_exception = user_ex;
+                }
             }
-        }
 
-        SystemException sys_ex = request.getSystemException();
-        if (sys_ex != null)
-        {
-            org.jacorb.orb.SystemExceptionHelper.insert(sending_exception, sys_ex);
-        }
+            SystemException sys_ex = request.getSystemException();
+            if (sys_ex != null)
+            {
+                org.jacorb.orb.SystemExceptionHelper.insert(sending_exception, sys_ex);
+            }
 
-        forward_reference = request.getForwardReference();
+            forward_reference = request.getForwardReference();
+        }
     }
+
+    /**
+     * Method introduced for local invocations as there is no Reply or Stream
+     * involved
+     */
+    public void updateException (Throwable ex)
+    {
+        if (ex instanceof org.omg.CORBA.SystemException)
+        {
+            org.jacorb.orb.SystemExceptionHelper.insert (sending_exception,
+                                                         ( org.omg.CORBA.SystemException) ex);
+            setReplyStatus (SYSTEM_EXCEPTION.value);
+        }
+        else if (ex instanceof org.omg.PortableInterceptor.ForwardRequest)
+        {
+            forward_reference = (( org.omg.PortableInterceptor.ForwardRequest) ex).forward;
+            setReplyStatus (LOCATION_FORWARD.value);
+        }
+        else if (ex instanceof UserException)
+        {
+            org.jacorb.orb.SystemExceptionHelper.insert
+            (
+                sending_exception,
+                new org.omg.CORBA.UNKNOWN ("Received UserException " + ex)
+            );
+
+            setReplyStatus (USER_EXCEPTION.value);
+        }
+    }
+
 
     public Iterator getReplyServiceContexts()
     {
@@ -174,7 +280,10 @@ public class ServerRequestInfoImpl
 
         try
         {
-            result = request.result();
+            if (request != null)
+            {
+                result = request.result();
+            }
         }
         catch(Exception e)
         {
@@ -191,7 +300,7 @@ public class ServerRequestInfoImpl
 
     public short sync_scope()
     {
-        return org.omg.Messaging.SYNC_WITH_TRANSPORT.value;
+        return sync_scope;
     }
 
     public short reply_status()
@@ -233,16 +342,17 @@ public class ServerRequestInfoImpl
 
     public String operation()
     {
-        return request.operation();
+        return operation;
     }
 
     public int request_id()
     {
-        return request.requestId();
+        return requestId;
     }
 
-    public boolean response_expected() {
-        return request.responseExpected();
+    public boolean response_expected()
+    {
+        return response_expected;
     }
 
     // implementation of ServerRequestInfoOperations interface
@@ -266,7 +376,7 @@ public class ServerRequestInfoImpl
                                     10, CompletionStatus.COMPLETED_MAYBE);
         }
 
-        return request.objectId();
+        return objectId;
     }
 
     public byte[] adapter_id()
@@ -279,6 +389,49 @@ public class ServerRequestInfoImpl
 
         return adapter_id;
     }
+
+    public String orb_id()
+    {
+        if (caller_op == ServerInterceptorIterator.RECEIVE_REQUEST_SERVICE_CONTEXTS)
+        {
+            throw new BAD_INV_ORDER ("The attribute \"orb_id\" is currently invalid!",
+                                     14,
+                                     CompletionStatus.COMPLETED_MAYBE);
+        }
+
+        return orb.id();
+    }
+
+    public String server_id()
+    {
+        if (caller_op == ServerInterceptorIterator.RECEIVE_REQUEST_SERVICE_CONTEXTS)
+        {
+            throw new NO_RESOURCES ("The attribute \"server_id\" is not available",
+                                    1,
+                                    CompletionStatus.COMPLETED_MAYBE);
+        }
+        else
+        {
+            throw new BAD_INV_ORDER ("The attribute \"server_id\" is currently invalid!",
+                                     14,
+                                     CompletionStatus.COMPLETED_MAYBE);
+        }
+    }
+
+
+
+    public String [] adapter_name()
+    {
+        if (caller_op == ServerInterceptorIterator.RECEIVE_REQUEST_SERVICE_CONTEXTS)
+        {
+            throw new BAD_INV_ORDER ("The attribute \"adapter_name\" is currently invalid!",
+                                     14,
+                                     CompletionStatus.COMPLETED_MAYBE);
+        }
+
+        return adapter_name;
+    }
+
 
     public String target_most_derived_interface()
     {
@@ -346,40 +499,4 @@ public class ServerRequestInfoImpl
 
         reply_ctx.put(_id, service_context);
     }
-
-   public String[] adapter_name ()
-   {
-      if (caller_op != ServerInterceptorIterator.RECEIVE_REQUEST_SERVICE_CONTEXTS)
-      {
-         throw new NO_IMPLEMENT("NYI");
-      }
-      else
-      {
-         throw new BAD_INV_ORDER (14, CompletionStatus.COMPLETED_MAYBE);
-      }
-   }
-
-   public String orb_id ()
-   {
-      if (caller_op != ServerInterceptorIterator.RECEIVE_REQUEST_SERVICE_CONTEXTS)
-      {
-         return orb.id ();
-      }
-      else
-      {
-         throw new BAD_INV_ORDER (14, CompletionStatus.COMPLETED_MAYBE);
-      }
-   }
-
-   public String server_id ()
-   {
-      if (caller_op != ServerInterceptorIterator.RECEIVE_REQUEST_SERVICE_CONTEXTS)
-      {
-         throw new NO_IMPLEMENT("NYI");
-      }
-      else
-      {
-         throw new BAD_INV_ORDER (14, CompletionStatus.COMPLETED_MAYBE);
-      }
-   }
 }

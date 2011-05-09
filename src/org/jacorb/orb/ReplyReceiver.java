@@ -34,6 +34,7 @@ import org.omg.CORBA.portable.ApplicationException;
 import org.omg.CORBA.portable.InvokeHandler;
 import org.omg.CORBA.portable.RemarshalException;
 import org.omg.CORBA.portable.ServantObject;
+import org.omg.PortableInterceptor.ForwardRequest;
 import org.omg.GIOP.ReplyStatusType_1_2;
 import org.omg.Messaging.ExceptionHolder;
 import org.omg.TimeBase.UtcT;
@@ -154,7 +155,19 @@ public class ReplyReceiver
 
     private void performCallback ( ReplyInputStream reply )
     {
-        // TODO: Call interceptors.
+        /**
+         * Calls to interceptors are now done in the servant_preinvoke
+         * method.  When handling local calls using the servant_preinvoke
+         * and servant_postinvoke method the pre invocation interceptor
+         * calls are done in servant_preinvoke, the invocation is then
+         * made and the server side response interception calls are done
+         * in the normalCompletion/exceptionalCompletion methods in the
+         * ServantObject.  These methods are normally called by the stubs
+         * but in this case there is no stub so the calls must be made
+         * here.  The servant_postinvoke method will call the client
+         * interception points according to the reply e.g. successful,
+         * exception etc.
+         */
 
         org.omg.CORBA.portable.Delegate replyHandlerDelegate =
             ( ( org.omg.CORBA.portable.ObjectImpl ) replyHandler )
@@ -174,11 +187,13 @@ public class ReplyReceiver
                         ._invoke( operation,
                                   reply,
                                   new DummyResponseHandler() );
+
                     break;
                 }
                 case ReplyStatusType_1_2._USER_EXCEPTION:
                 case ReplyStatusType_1_2._SYSTEM_EXCEPTION:
                 {
+
                     ExceptionHolderImpl holder =
                         new ExceptionHolderImpl((ORB) delegate.orb(null), reply );
 
@@ -198,10 +213,21 @@ public class ReplyReceiver
                     break;
                 }
             }
+
+            if (so instanceof org.omg.CORBA.portable.ServantObjectExt)
+            {
+                ( (org.omg.CORBA.portable.ServantObjectExt)so).normalCompletion();
+            }
         }
         catch ( Exception e )
         {
             logger.warn("Exception during callback", e);
+
+            if (so instanceof org.omg.CORBA.portable.ServantObjectExt)
+            {
+                ( (org.omg.CORBA.portable.ServantObjectExt)
+                  so).exceptionalCompletion (e);
+            }
         }
         finally
         {
@@ -215,7 +241,19 @@ public class ReplyReceiver
      */
     private void performExceptionCallback (ExceptionHolderImpl holder)
     {
-        // TODO: Call interceptors.
+        /**
+         * Calls to interceptors are now done in the servant_preinvoke
+         * method.  When handling local calls using the servant_preinvoke
+         * and servant_postinvoke method the pre invocation interceptor
+         * calls are done in servant_preinvoke, the invocation is then
+         * made and the server side response interception calls are done
+         * in the normalCompletion/exceptionalCompletion methods in the
+         * ServantObject.  These methods are normally called by the stubs
+         * but in this case there is no stub so the calls must be made
+         * here.  The servant_postinvoke method will call the client
+         * interception points according to the reply e.g. successful,
+         * exception etc.
+         */
 
         org.omg.CORBA.portable.Delegate replyHandlerDelegate =
             ( ( org.omg.CORBA.portable.ObjectImpl ) replyHandler )
@@ -241,12 +279,23 @@ public class ReplyReceiver
                 ._invoke( operation + "_excep",
                           input,
                           new DummyResponseHandler() );
+
+            if (so instanceof org.omg.CORBA.portable.ServantObjectExt)
+            {
+                ( (org.omg.CORBA.portable.ServantObjectExt)so).normalCompletion();
+            }
         }
         catch ( Exception e )
         {
             if (logger.isWarnEnabled())
             {
                 logger.warn("Exception during callback: " + e.toString() );
+            }
+
+            if (so instanceof org.omg.CORBA.portable.ServantObjectExt)
+            {
+                ( (org.omg.CORBA.portable.ServantObjectExt)
+                  so).exceptionalCompletion (e);
             }
         }
         finally
@@ -283,7 +332,15 @@ public class ReplyReceiver
         }
         catch ( SystemException se )
         {
+            try
+            {
             interceptors.handle_receive_exception( se );
+            }
+            catch (ForwardRequest fwd)
+            {
+                //should  not happen with a remote request
+            }
+
             throw se;
         }
         catch ( RemarshalException re )
@@ -302,26 +359,54 @@ public class ReplyReceiver
         {
             case ReplyStatusType_1_2._NO_EXCEPTION:
             {
-                interceptors.handle_receive_reply ( reply );
+                try
+                {
+                    interceptors.handle_receive_reply ( reply );
+                }
+                catch (ForwardRequest fwd)
+                {
+                    // should not happen with a remote request
+                }
                 return reply;
             }
             case ReplyStatusType_1_2._USER_EXCEPTION:
             {
                 ApplicationException ae = getApplicationException ( reply );
-                interceptors.handle_receive_exception( ae, reply );
+                try
+                {
+                    interceptors.handle_receive_exception( ae, reply );
+                }
+                catch (ForwardRequest fwd)
+                {
+                    // should not happen with a remote request
+                }
                 throw ae;
             }
             case ReplyStatusType_1_2._SYSTEM_EXCEPTION:
             {
                 SystemException se = SystemExceptionHelper.read ( reply );
-                interceptors.handle_receive_exception( se, reply );
+                try
+                {
+                    interceptors.handle_receive_exception( se, reply );
+                }
+                catch (ForwardRequest fwd)
+                {
+                    // should not happen with a remote request
+                }
                 throw se;
             }
             case ReplyStatusType_1_2._LOCATION_FORWARD:
             case ReplyStatusType_1_2._LOCATION_FORWARD_PERM:
             {
                 org.omg.CORBA.Object forward_reference = reply.read_Object();
-                interceptors.handle_location_forward( reply, forward_reference );
+                try
+                {
+                    interceptors.handle_location_forward( reply, forward_reference );
+                }
+                catch (ForwardRequest fwd)
+                {
+                    // should not happen with a remote request
+                }
                 doRebind( forward_reference );
                 throw new RemarshalException();
             }
@@ -418,7 +503,7 @@ public class ReplyReceiver
         {
             this.orb = orb;
         }
-        
+
         public java.io.Serializable read_value
                         ( org.omg.CORBA_2_3.portable.InputStream is )
         {

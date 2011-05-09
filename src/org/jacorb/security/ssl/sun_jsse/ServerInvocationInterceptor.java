@@ -109,7 +109,17 @@ public class ServerInvocationInterceptor
         throws ForwardRequest
     {
         ServerRequest request = ((ServerRequestInfoImpl) ri).request;
-        GIOPConnection connection = request.getConnection();
+        GIOPConnection connection = null;
+
+        /**
+         * If this is a loopback request there may be no request. Handling
+         * of local server objects with interceptors is now done locally
+         * rather than via the remote mechanism.
+         */
+        if (request != null)
+        {
+           connection = request.getConnection();
+        }
 
         // lookup for context
         if (connection == null)

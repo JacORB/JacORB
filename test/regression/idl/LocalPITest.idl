@@ -1,0 +1,26 @@
+
+module org
+{
+   module jacorb
+   {
+      module test
+      {
+         module orb
+         {
+            module localinterceptors
+            {
+               interface PIServer
+               {
+                  void sendMessage ( in string msg );
+
+                  string returnMessage ( in string msg );
+
+                  void throwException (in string msg );
+
+                  void shutdown ();
+               };
+            };
+         };
+      };
+   };
+};

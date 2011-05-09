@@ -41,7 +41,7 @@ public class Method
     private boolean pseudo;
 
 
-    public Method(TypeSpec res, TypeSpec params, String name, 
+    public Method(TypeSpec res, TypeSpec params, String name,
                   RaisesExpr raisesExpr, boolean pseudo)
     {
         resultType = res;
@@ -132,30 +132,33 @@ public class Method
             //
             if( !is_local )
             {
-                ps.println( "\t\tif(! this._is_local())" );
-                ps.println( "\t\t{" );
-
-                ps.println( "\t\t\torg.omg.CORBA.portable.InputStream _is = null;" );
-                ps.println( "\t\t\torg.omg.CORBA.portable.OutputStream _os = null;" );
-
-                ps.println( "\t\t\ttry" );
+                ps.println( "\t\t\tif(! this._is_local())" );
                 ps.println( "\t\t\t{" );
-                ps.println( "\t\t\t\t_os = _request(\"_get_" + name + "\",true);" );
-                ps.println( "\t\t\t\t_is = _invoke(_os);" );
+
+                ps.println( "\t\t\t\torg.omg.CORBA.portable.InputStream _is = null;" );
+                ps.println( "\t\t\t\torg.omg.CORBA.portable.OutputStream _os = null;" );
+
+                ps.println( "\t\t\t\ttry" );
+                ps.println( "\t\t\t\t{" );
+                ps.println( "\t\t\t\t\t_os = _request(\"_get_" + name + "\",true);" );
+                ps.println( "\t\t\t\t\t_is = _invoke(_os);" );
                 TypeSpec ts = resultType.typeSpec();
-                ps.println( "\t\t\t\treturn " + ts.printReadExpression( "_is" ) + ";" );
-                ps.println( "\t\t\t}" );
-                ps.println( "\t\t\tcatch( org.omg.CORBA.portable.RemarshalException _rx ){}" );
-                ps.println( "\t\t\tcatch( org.omg.CORBA.portable.ApplicationException _ax )" );
-                ps.println( "\t\t\t{" );
-                ps.println( "\t\t\t\tString _id = _ax.getId();" );
+                ps.println( "\t\t\t\t\treturn " + ts.printReadExpression( "_is" ) + ";" );
+                ps.println( "\t\t\t\t}" );
+                ps.println( "\t\t\t\tcatch( org.omg.CORBA.portable.RemarshalException _rx )");
+                ps.println( "\t\t\t\t\t{" );
+                ps.println( "\t\t\t\t\t\tcontinue;");
+                ps.println( "\t\t\t\t\t}" );
+                ps.println( "\t\t\t\tcatch( org.omg.CORBA.portable.ApplicationException _ax )" );
+                ps.println( "\t\t\t\t{" );
+                ps.println( "\t\t\t\t\tString _id = _ax.getId();" );
                 ps.println( "\t\t\t\t\ttry");
                 ps.println( "\t\t\t\t\t{");
-                ps.println( "\t\t\t\t\t\t\t_ax.getInputStream().close();");
+                ps.println( "\t\t\t\t\t\t_ax.getInputStream().close();");
                 ps.println( "\t\t\t\t\t}");
                 ps.println( "\t\t\t\t\tcatch (java.io.IOException e)");
                 ps.println( "\t\t\t\t\t{" );
-                ps.println( "\t\t\t\t\tthrow new RuntimeException(\"Unexpected exception \" + e.toString() );" );
+                ps.println( "\t\t\t\t\t\tthrow new RuntimeException(\"Unexpected exception \" + e.toString() );" );
                 ps.println( "\t\t\t\t\t}" );
 
                 if( !raisesExpr.empty() )
@@ -174,60 +177,78 @@ public class Method
                         ps.println( "\t\t\t\t\tthrow " + classNames[ i ] + "Helper.read(_ax.getInputStream());" );
                         ps.println( "\t\t\t\t}" );
                     }
-                }                
-                
-                ps.println( "\t\t\t\tthrow new RuntimeException(\"Unexpected exception \" + _id );" );
-                ps.println( "\t\t\t}" );
-                ps.println( "\t\t\tfinally" );
-                ps.println( "\t\t\t{" );
-                ps.println( "\t\t\t\tif (_os != null)");
-                ps.println( "\t\t\t\t{");
-                ps.println( "\t\t\t\t\ttry");
+                }
+
+                ps.println( "\t\t\t\t\t\tthrow new RuntimeException(\"Unexpected exception \" + _id );" );
+                ps.println( "\t\t\t\t}" );
+                ps.println( "\t\t\t\tfinally" );
+                ps.println( "\t\t\t\t{" );
+                ps.println( "\t\t\t\t\tif (_os != null)");
                 ps.println( "\t\t\t\t\t{");
-                ps.println( "\t\t\t\t\t\t_os.close();");
+                ps.println( "\t\t\t\t\t\ttry");
+                ps.println( "\t\t\t\t\t\t{");
+                ps.println( "\t\t\t\t\t\t\t_os.close();");
+                ps.println( "\t\t\t\t\t\t}");
+                ps.println( "\t\t\t\t\t\tcatch (java.io.IOException e)");
+                ps.println( "\t\t\t\t\t\t{" );
+                ps.println( "\t\t\t\t\t\t\tthrow new RuntimeException(\"Unexpected exception \" + e.toString() );" );
+                ps.println( "\t\t\t\t\t\t}" );
                 ps.println( "\t\t\t\t\t}");
-                ps.println( "\t\t\t\t\tcatch (java.io.IOException e)");
-                ps.println( "\t\t\t\t\t{" );
-                ps.println( "\t\t\t\t\tthrow new RuntimeException(\"Unexpected exception \" + e.toString() );" );
-                ps.println( "\t\t\t\t\t}" );
-                ps.println( "\t\t\t\t}");
-                ps.println( "\t\t\t\tthis._releaseReply(_is);" );
-                ps.println( "\t\t\t}" );
-                ps.println( "\t\t}" + Environment.NL);
+                ps.println( "\t\t\t\t\tthis._releaseReply(_is);" );
+                ps.println( "\t\t\t\t}" );
+                ps.println( "\t\t\t}" + Environment.NL );
 
                 // local part
-                ps.println( "\t\telse" );
-                ps.println( "\t\t{" );
+                ps.println( "\t\t\telse" );
+                ps.println( "\t\t\t{" );
             }
 
-            ps.println( "\t\torg.omg.CORBA.portable.ServantObject _so = _servant_preinvoke( \"_get_" + name + "\", _opsClass);" );
+            ps.println( "\t\t\t\torg.omg.CORBA.portable.ServantObject _so = _servant_preinvoke( \"_get_" + name + "\", _opsClass);" );
 
-            ps.println( "\t\tif( _so == null )" );
-            ps.println( "\t\t\tthrow new org.omg.CORBA.UNKNOWN(\"local invocations not supported!\");" );
+            ps.println( "\t\t\t\tif( _so == null )" );
+            ps.println( "\t\t\t\t\tcontinue;" );
+
             if( is_abstract )
             {
-                ps.println( "\t\t\t" + classname + " _localServant = (" +
+                ps.println( "\t\t\t\t" + classname + " _localServant = (" +
                             classname + ")_so.servant;" );
             }
             else
             {
-                ps.println( "\t\t\t" + classname + "Operations _localServant = (" +
+                ps.println( "\t\t\t\t" + classname + "Operations _localServant = (" +
                             classname + "Operations)_so.servant;" );
             }
 
-            ps.println( "\t\t\t" + resultType + " _result;" );
+            ps.println( "\t\t\t\t" + resultType + " _result;" );
 
-            ps.println( "\t\ttry" );
-            ps.println( "\t\t{" );
-            ps.println( "\t\t\t_result = _localServant." + name + "();" );
-            ps.println( "\t\t}" );
-            ps.println( "\t\tfinally" );
-            ps.println( "\t\t{" );
-            ps.println( "\t\t\t_servant_postinvoke(_so);" );
-            ps.println( "\t\t}" );
-            ps.println( "\t\treturn _result;" );
-            ps.println( "\t\t}" );
-            if( !is_local ) ps.println( "\t\t}" + Environment.NL );
+            ps.println( "\t\t\t\ttry" );
+            ps.println( "\t\t\t\t{" );
+            ps.println( "\t\t\t\t\t_result = _localServant." + name + "();" );
+
+            ps.println( "\t\t\t\t\tif ( _so instanceof org.omg.CORBA.portable.ServantObjectExt) ");
+            ps.println( "\t\t\t\t\t\t((org.omg.CORBA.portable.ServantObjectExt)_so).normalCompletion();");
+            ps.println( "\t\t\t\t\t\treturn _result;" );
+
+            ps.println( "\t\t\t\t}" );
+            ps.println( "\t\t\t\tcatch (RuntimeException re) ");
+            ps.println( "\t\t\t\t{" );
+            ps.println( "\t\t\t\t\tif ( _so instanceof org.omg.CORBA.portable.ServantObjectExt) ");
+            ps.println( "\t\t\t\t\t\t((org.omg.CORBA.portable.ServantObjectExt)_so).exceptionalCompletion(re);");
+            ps.println( "\t\t\t\t\tthrow re;");
+            ps.println( "\t\t\t\t}" );
+            ps.println( "\t\t\t\tcatch (java.lang.Error err) ");
+            ps.println( "\t\t\t\t{" );
+            ps.println( "\t\t\t\t\tif ( _so instanceof org.omg.CORBA.portable.ServantObjectExt) ");
+            ps.println( "\t\t\t\t\t\t((org.omg.CORBA.portable.ServantObjectExt)_so).exceptionalCompletion(err);");
+            ps.println( "\t\t\t\t\tthrow err;");
+            ps.println( "\t\t\t\t}" );
+            ps.println( "\t\t\t\tfinally" );
+            ps.println( "\t\t\t\t{" );
+            ps.println( "\t\t\t\t\t_servant_postinvoke(_so);" );
+            ps.println( "\t\t\t\t}" );
+
+            if( !is_local ) ps.println( "\t\t\t}" + Environment.NL );
+            ps.println( "\t\t}" + Environment.NL );
             ps.println( "\t}" + Environment.NL );
         }
         else
@@ -245,31 +266,34 @@ public class Method
             //
             if( !is_local )
             {
-                ps.println( "\t\tif(! this._is_local())" );
-                ps.println( "\t\t{" );
-                ps.println( "\t\t\torg.omg.CORBA.portable.InputStream _is = null;" );
-                ps.println( "\t\t\torg.omg.CORBA.portable.OutputStream _os = null;" );
+                ps.println( "\t\t\tif(! this._is_local())" );
+                ps.println( "\t\t\t{" );
+                ps.println( "\t\t\t\torg.omg.CORBA.portable.InputStream _is = null;" );
+                ps.println( "\t\t\t\torg.omg.CORBA.portable.OutputStream _os = null;" );
 
-                ps.println( "\t\t\ttry" );
-                ps.println( "\t\t\t{" );
-                ps.println( "\t\t\t\t_os = _request(\"_set_" + name + "\",true);" );
-                ps.println( "\t\t\t\t" + parameterType.typeSpec().printWriteStatement( "a", "_os" ) );
-                ps.println( "\t\t\t\t_is = _invoke(_os);" );
-                ps.println( "\t\t\t\treturn;" );
-                ps.println( "\t\t\t}" );
-                ps.println( "\t\t\tcatch( org.omg.CORBA.portable.RemarshalException _rx ){}" );
-                ps.println( "\t\t\tcatch( org.omg.CORBA.portable.ApplicationException _ax )" );
-                ps.println( "\t\t\t{" );
-                ps.println( "\t\t\t\tString _id = _ax.getId();" );
-                ps.println( "\t\t\t\t\ttry");
-                ps.println( "\t\t\t\t\t{");
-                ps.println( "\t\t\t\t\t\t\t_ax.getInputStream().close();");
-                ps.println( "\t\t\t\t\t}");
-                ps.println( "\t\t\t\t\tcatch (java.io.IOException e)");
+                ps.println( "\t\t\t\ttry" );
+                ps.println( "\t\t\t\t{" );
+                ps.println( "\t\t\t\t\t_os = _request(\"_set_" + name + "\",true);" );
+
+                ps.println( "\t\t\t\t\t" + parameterType.typeSpec().printWriteStatement( "a", "_os" ) );
+                ps.println( "\t\t\t\t\t_is = _invoke(_os);" );
+                ps.println( "\t\t\t\t\treturn;" );
+                ps.println( "\t\t\t\t}" );
+                ps.println( "\t\t\t\tcatch( org.omg.CORBA.portable.RemarshalException _rx )" );
                 ps.println( "\t\t\t\t\t{" );
-                ps.println( "\t\t\t\t\tthrow new RuntimeException(\"Unexpected exception \" + e.toString() );" );
+                ps.println( "\t\t\t\t\t\tcontinue;");
                 ps.println( "\t\t\t\t\t}" );
-                
+                ps.println( "\t\t\t\tcatch( org.omg.CORBA.portable.ApplicationException _ax )" );
+                ps.println( "\t\t\t\t{" );
+                ps.println( "\t\t\t\t\tString _id = _ax.getId();" );
+                ps.println( "\t\t\t\t\t\ttry");
+                ps.println( "\t\t\t\t\t\t{");
+                ps.println( "\t\t\t\t\t\t\t\t_ax.getInputStream().close();");
+                ps.println( "\t\t\t\t\t\t}");
+                ps.println( "\t\t\t\t\t\tcatch (java.io.IOException e)");
+                ps.println( "\t\t\t\t\t\t{" );
+                ps.println( "\t\t\t\t\t\t\tthrow new RuntimeException(\"Unexpected exception \" + e.toString() );" );
+                ps.println( "\t\t\t\t\t\t}" );
                 if( !raisesExpr.empty() )
                 {
                     String[] exceptIds = raisesExpr.getExceptionIds();
@@ -286,49 +310,67 @@ public class Method
                         ps.println( "\t\t\t\t\tthrow " + classNames[ i ] + "Helper.read(_ax.getInputStream());" );
                         ps.println( "\t\t\t\t}" );
                     }
-                }                
-                
-                ps.println( "\t\t\t\tthrow new RuntimeException(\"Unexpected exception \" + _id );" );
-                ps.println( "\t\t\t}" );
-                ps.println( "\t\t\tfinally" );
-                ps.println( "\t\t\t{" );
-                ps.println( "\t\t\t\tif (_os != null)");
-                ps.println( "\t\t\t\t{");
-                ps.println( "\t\t\t\t\ttry");
+                }
+                ps.println( "\t\t\t\t\t\t\tthrow new RuntimeException(\"Unexpected exception \" + _id );" );
+                ps.println( "\t\t\t\t}" );
+                ps.println( "\t\t\t\tfinally" );
+                ps.println( "\t\t\t\t{" );
+                ps.println( "\t\t\t\t\tif (_os != null)");
                 ps.println( "\t\t\t\t\t{");
-                ps.println( "\t\t\t\t\t\t_os.close();");
+                ps.println( "\t\t\t\t\t\ttry");
+                ps.println( "\t\t\t\t\t\t{");
+                ps.println( "\t\t\t\t\t\t\t_os.close();");
+                ps.println( "\t\t\t\t\t\t}");
+                ps.println( "\t\t\t\t\t\tcatch (java.io.IOException e)");
+                ps.println( "\t\t\t\t\t\t{" );
+                ps.println( "\t\t\t\t\t\t\tthrow new RuntimeException(\"Unexpected exception \" + e.toString() );" );
+                ps.println( "\t\t\t\t\t\t}" );
                 ps.println( "\t\t\t\t\t}");
-                ps.println( "\t\t\t\t\tcatch (java.io.IOException e)");
-                ps.println( "\t\t\t\t\t{" );
-                ps.println( "\t\t\t\t\tthrow new RuntimeException(\"Unexpected exception \" + e.toString() );" );
-                ps.println( "\t\t\t\t\t}" );
-                ps.println( "\t\t\t\t}");
-                ps.println( "\t\t\t\tthis._releaseReply(_is);" );
-                ps.println( "\t\t\t}" );
-                ps.println( "\t\t}" + Environment.NL );
+                ps.println( "\t\t\t\t\tthis._releaseReply(_is);" );
+                ps.println( "\t\t\t\t}" );
+                ps.println( "\t\t\t}" + Environment.NL );
 
                 // local part
-                ps.println( "\t\telse" );
-                ps.println( "\t\t{" );
-
+                ps.println( "\t\t\telse" );
+                ps.println( "\t\t\t{" );
             }
-            ps.println( "\t\t\torg.omg.CORBA.portable.ServantObject _so = _servant_preinvoke( \"_set_" + name + "\", _opsClass);" );
+            ps.println( "\t\t\t\torg.omg.CORBA.portable.ServantObject _so = _servant_preinvoke( \"_set_" + name + "\", _opsClass);" );
 
-            ps.println( "\t\t\tif( _so == null )" );
-            ps.println( "\t\t\t\tthrow new org.omg.CORBA.UNKNOWN(\"local invocations not supported!\");" );
-            ps.println( "\t\t\t" + classname + "Operations _localServant = (" + classname + "Operations)_so.servant;" );
+            ps.println( "\t\t\t\tif( _so == null )" );
+            ps.println( "\t\t\t\t\tcontinue;" );
+
+            ps.println( "\t\t\t\t" + classname + "Operations _localServant = (" +
+                            classname + "Operations)_so.servant;" );
 
             ps.println( "\t\t\t\ttry" );
             ps.println( "\t\t\t\t{" );
+
             ps.println( "\t\t\t\t\t_localServant." + name + "(a);" );
+
+            ps.println( "\t\t\t\t\tif ( _so instanceof org.omg.CORBA.portable.ServantObjectExt) ");
+            ps.println( "\t\t\t\t\t\t((org.omg.CORBA.portable.ServantObjectExt)_so).normalCompletion();");
+            ps.println( "\t\t\t\t\treturn;");
+
+            ps.println( "\t\t\t\t}" );
+            ps.println( "\t\t\t\tcatch (RuntimeException re) ");
+            ps.println( "\t\t\t\t{" );
+            ps.println( "\t\t\t\t\tif ( _so instanceof org.omg.CORBA.portable.ServantObjectExt) ");
+            ps.println( "\t\t\t\t\t\t((org.omg.CORBA.portable.ServantObjectExt)_so).exceptionalCompletion(re);");
+            ps.println( "\t\t\t\t\tthrow re;");
+            ps.println( "\t\t\t\t}" );
+            ps.println( "\t\t\t\tcatch (java.lang.Error err) ");
+            ps.println( "\t\t\t\t{" );
+            ps.println( "\t\t\t\t\tif ( _so instanceof org.omg.CORBA.portable.ServantObjectExt) ");
+            ps.println( "\t\t\t\t\t\t((org.omg.CORBA.portable.ServantObjectExt)_so).exceptionalCompletion(err);");
+            ps.println( "\t\t\t\t\tthrow err;");
             ps.println( "\t\t\t\t}" );
             ps.println( "\t\t\t\tfinally" );
             ps.println( "\t\t\t\t{" );
             ps.println( "\t\t\t\t\t_servant_postinvoke(_so);" );
             ps.println( "\t\t\t\t}" );
-            ps.println( "\t\t\t\treturn;" );
-            ps.println( "\t\t\t}" );
-            if( !is_local ) ps.println( "\t\t}" + Environment.NL );
+
+            if( !is_local ) ps.println( "\t\t\t}" + Environment.NL );
+            ps.println( "\t\t}" + Environment.NL );
             ps.println( "\t}" + Environment.NL );
         }
     }
@@ -440,7 +482,7 @@ public class Method
             ps.println( "\t\t\ttry" );
             ps.println( "\t\t\t{" );
         }
-        
+
         ps.println( "\t\t\t_out = handler.createReply();" );
         ps.print( "\t\t\t" );
 
@@ -452,7 +494,7 @@ public class Method
         {
             ps.println( name + "(" + parameterType.printReadExpression( "_input" ) + ");" );
         }
-        
+
         if( !raisesExpr.empty() )
         {
             ps.println( "\t\t\t}" );
@@ -466,7 +508,7 @@ public class Method
                 ps.println( "\t\t\t\t" + classNames[ i ] + "Helper.write(_out, _ex" + i + ");" );
                 ps.println( "\t\t\t}" );
             }
-        }        
+        }
     }
 
     public void accept( IDLTreeVisitor visitor )

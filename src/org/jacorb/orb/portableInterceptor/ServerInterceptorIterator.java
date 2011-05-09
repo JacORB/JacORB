@@ -70,6 +70,16 @@ public class ServerInterceptorIterator
         setDirection( (op == RECEIVE_REQUEST_SERVICE_CONTEXTS) ||
                 (op == RECEIVE_REQUEST));
 
+        /**
+         * If we are in an intermediate point we need to handle
+         * reverse calls for all registered interceptors as they
+         * will all have completed a start point e.g
+         * RECEIVE_REQUEST_SERVICE_CONTEXTS.  The only intermediate
+         * point is RECEIVE_REQUEST.  See RequestInterceptorIterator
+         * for more details.
+         */
+        setIntermediatePoint (op == RECEIVE_REQUEST);
+
         iterate();
 
         //propagate last exception upwards

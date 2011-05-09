@@ -1,0 +1,37 @@
+/*
+* Copyright (C) The Community OpenORB Project. All rights reserved.
+*
+* This software is published under the terms of The OpenORB Community Software
+* License version 1.0, a copy of which has been included with this distribution
+* in the LICENSE.txt file.
+*/
+
+#ifndef _TEST_POA_IDL_
+#define _TEST_POA_IDL_
+
+//#pragma prefix "openorb.org"
+
+module org
+{
+   module openorb
+   {
+      module orb
+      {
+         module test
+         {
+            module adapter
+            {
+               module poa
+               {
+                  interface Hello
+                  {
+                     void hello_op( in string msg );
+                  };
+               };
+            };
+         };
+      };
+   };
+};
+
+

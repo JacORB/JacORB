@@ -258,13 +258,13 @@ public class OpDecl
         //
         if( !is_local )
         {
-            ps.println( "\t\tif(! this._is_local())" );
-            ps.println( "\t\t{" );
-            ps.println( "\t\t\torg.omg.CORBA.portable.InputStream _is = null;" );
-            ps.println( "\t\t\torg.omg.CORBA.portable.OutputStream _os = null;" );
-            ps.println( "\t\t\ttry" );
+            ps.println( "\t\t\tif(! this._is_local())" );
             ps.println( "\t\t\t{" );
-            ps.print( "\t\t\t\t_os = _request( \"" + idl_name + "\"," );
+            ps.println( "\t\t\t\torg.omg.CORBA.portable.InputStream _is = null;" );
+            ps.println( "\t\t\t\torg.omg.CORBA.portable.OutputStream _os = null;" );
+            ps.println( "\t\t\t\ttry" );
+            ps.println( "\t\t\t\t{" );
+            ps.print( "\t\t\t\t\t_os = _request( \"" + idl_name + "\"," );
 
             if( opAttribute == NO_ATTRIBUTE )
                 ps.println( " true);" );
@@ -277,15 +277,15 @@ public class OpDecl
             {
                 ParamDecl p = ( (ParamDecl)e.nextElement() );
                 if( p.paramAttribute != ParamDecl.MODE_OUT )
-                    ps.println( "\t\t\t\t" + p.printWriteStatement( "_os" ) );
+                    ps.println( "\t\t\t\t\t" + p.printWriteStatement( "_os" ) );
             }
 
-            ps.println( "\t\t\t\t_is = _invoke(_os);" );
+            ps.println( "\t\t\t\t\t_is = _invoke(_os);" );
 
             if( opAttribute == 0 &&
                 !( opTypeSpec.typeSpec() instanceof VoidTypeSpec ) )
             {
-                ps.println( "\t\t\t\t" + opTypeSpec.toString() + " _result = " +
+                ps.println( "\t\t\t\t\t" + opTypeSpec.toString() + " _result = " +
                             opTypeSpec.typeSpec().printReadExpression( "_is" ) + ";" );
             }
 
@@ -294,7 +294,7 @@ public class OpDecl
                 ParamDecl p = (ParamDecl)e2.nextElement();
                 if( p.paramAttribute != ParamDecl.MODE_IN )
                 {
-                    ps.println( "\t\t\t\t" + p.simple_declarator + ".value = " +
+                    ps.println( "\t\t\t\t\t" + p.simple_declarator + ".value = " +
                                 p.printReadExpression( "_is" ) + ";" );
                 }
             }
@@ -302,50 +302,53 @@ public class OpDecl
             if( opAttribute == NO_ATTRIBUTE &&
                 !( opTypeSpec.typeSpec() instanceof VoidTypeSpec ) )
             {
-                ps.println( "\t\t\t\treturn _result;" );
+                ps.println( "\t\t\t\t\treturn _result;" );
             }
             else
-                ps.println( "\t\t\t\treturn;" );
+                ps.println( "\t\t\t\t\treturn;" );
 
             /* catch exceptions */
 
-            ps.println( "\t\t\t}" );
-            ps.println( "\t\t\tcatch( org.omg.CORBA.portable.RemarshalException _rx ){}" );
-            ps.println( "\t\t\tcatch( org.omg.CORBA.portable.ApplicationException _ax )" );
-            ps.println( "\t\t\t{" );
-            ps.println( "\t\t\t\tString _id = _ax.getId();" );
+            ps.println( "\t\t\t\t}" );
+            ps.println( "\t\t\t\tcatch( org.omg.CORBA.portable.RemarshalException _rx )" );
+            ps.println( "\t\t\t\t\t{" );
+            ps.println( "\t\t\t\t\t\tcontinue;" );
+            ps.println( "\t\t\t\t\t}" );
+            ps.println( "\t\t\t\tcatch( org.omg.CORBA.portable.ApplicationException _ax )" );
+            ps.println( "\t\t\t\t{" );
+            ps.println( "\t\t\t\t\tString _id = _ax.getId();" );
 
             if( !raisesExpr.empty() )
             {
                 String[] exceptIds = raisesExpr.getExceptionIds();
                 String[] classNames = raisesExpr.getExceptionClassNames();
 
-                ps.println( "\t\t\t\ttry" );
-                ps.println( "\t\t\t\t{" );
+                ps.println( "\t\t\t\t\ttry" );
+                ps.println( "\t\t\t\t\t{" );
 
                 for( int i = 0; i < exceptIds.length; i++ )
                 {
-                    ps.println( "\t\t\t\t\tif( _id.equals(\"" + exceptIds[ i ] + "\"))" );
-                    ps.println( "\t\t\t\t\t{" );
-                    ps.println( "\t\t\t\t\t\tthrow " + classNames[ i ] + "Helper.read(_ax.getInputStream());");
-                    ps.println( "\t\t\t\t\t}" );
-                    ps.println( "\t\t\t\t\telse " );
+                    ps.println( "\t\t\t\t\t\tif( _id.equals(\"" + exceptIds[ i ] + "\"))" );
+                    ps.println( "\t\t\t\t\t\t{" );
+                    ps.println( "\t\t\t\t\t\t\tthrow " + classNames[ i ] + "Helper.read(_ax.getInputStream());");
+                    ps.println( "\t\t\t\t\t\t}" );
+                    ps.println( "\t\t\t\t\t\telse " );
                 }
+                ps.println( "\t\t\t\t\t\t{" );
+                ps.println( "\t\t\t\t\t\t\tthrow new RuntimeException(\"Unexpected exception \" + _id );" );
+                ps.println( "\t\t\t\t\t\t}" );
+                    ps.println( "\t\t\t\t\t}" );
+                ps.println( "\t\t\t\t\tfinally" );
                 ps.println( "\t\t\t\t\t{" );
-                ps.println( "\t\t\t\t\t\tthrow new RuntimeException(\"Unexpected exception \" + _id );" );
+                ps.println( "\t\t\t\t\t\ttry");
+                ps.println( "\t\t\t\t\t\t{");
+                ps.println( "\t\t\t\t\t\t\t_ax.getInputStream().close();");
+                ps.println( "\t\t\t\t\t\t}");
+                ps.println( "\t\t\t\t\t\tcatch (java.io.IOException e)");
+                ps.println( "\t\t\t\t\t\t{" );
+                ps.println( "\t\t\t\t\t\t\tthrow new RuntimeException(\"Unexpected exception \" + e.toString() );" );
+                ps.println( "\t\t\t\t\t\t}" );
                 ps.println( "\t\t\t\t\t}" );
-                ps.println( "\t\t\t\t}" );
-                ps.println( "\t\t\t\tfinally" );
-                ps.println( "\t\t\t\t{" );
-                ps.println( "\t\t\t\ttry");
-                ps.println( "\t\t\t\t{");
-                ps.println( "\t\t\t\t\t_ax.getInputStream().close();");
-                ps.println( "\t\t\t\t}");
-                ps.println( "\t\t\t\tcatch (java.io.IOException e)");
-                ps.println( "\t\t\t\t{" );
-                ps.println( "\t\t\t\t\tthrow new RuntimeException(\"Unexpected exception \" + e.toString() );" );
-                ps.println( "\t\t\t\t}" );
-                ps.println( "\t\t\t}" );
             }
             else
             {
@@ -355,9 +358,9 @@ public class OpDecl
                 ps.println( "\t\t\t\t\t}");
                 ps.println( "\t\t\t\t\tcatch (java.io.IOException e)");
                 ps.println( "\t\t\t\t\t{" );
-                ps.println( "\t\t\t\t\tthrow new RuntimeException(\"Unexpected exception \" + e.toString() );" );
+                ps.println( "\t\t\t\t\t\tthrow new RuntimeException(\"Unexpected exception \" + e.toString() );" );
                 ps.println( "\t\t\t\t\t}" );
-                ps.println( "\t\t\t\tthrow new RuntimeException(\"Unexpected exception \" + _id );" );
+                ps.println( "\t\t\t\t\tthrow new RuntimeException(\"Unexpected exception \" + _id );" );
             }
             ps.println( "\t\t\t}" );
             ps.println( "\t\t\tfinally" );
@@ -370,7 +373,7 @@ public class OpDecl
             ps.println( "\t\t\t\t\t}");
             ps.println( "\t\t\t\t\tcatch (java.io.IOException e)");
             ps.println( "\t\t\t\t\t{" );
-            ps.println( "\t\t\t\t\tthrow new RuntimeException(\"Unexpected exception \" + e.toString() );" );
+            ps.println( "\t\t\t\t\t\tthrow new RuntimeException(\"Unexpected exception \" + e.toString() );" );
             ps.println( "\t\t\t\t\t}" );
             ps.println( "\t\t\t\t}");
             ps.println( "\t\t\t\tthis._releaseReply(_is);" );
@@ -385,7 +388,7 @@ public class OpDecl
         ps.println( "\t\t\torg.omg.CORBA.portable.ServantObject _so = _servant_preinvoke( \"" + idl_name + "\", _opsClass );" );
 
         ps.println( "\t\t\tif( _so == null )" );
-        ps.println( "\t\t\t\tthrow new org.omg.CORBA.UNKNOWN(\"local invocations not supported!\");" );
+        ps.println( "\t\t\t\tcontinue;" );
 
         if( is_abstract )
         {
@@ -428,19 +431,52 @@ public class OpDecl
         }
         ps.println( ");" );
 
+        ps.println( "\t\t\t\tif ( _so instanceof org.omg.CORBA.portable.ServantObjectExt) ");
+        ps.println( "\t\t\t\t\t((org.omg.CORBA.portable.ServantObjectExt)_so).normalCompletion();");
+
+        if( opAttribute == 0 && !( opTypeSpec.typeSpec() instanceof VoidTypeSpec ) )
+        {
+            ps.println( "\t\t\t\treturn _result;" );
+        }
+        else
+        {
+            ps.println( "\t\t\t\treturn;" );
+        }
+
+        ps.println( "\t\t\t}" );
+
+        if( !raisesExpr.empty() )
+        {
+            String[] exceptIds = raisesExpr.getExceptionIds();
+            String[] classNames = raisesExpr.getExceptionClassNames();
+
+            for( int i = 0; i < exceptIds.length; i++ )
+            {
+                ps.println( "\t\t\tcatch (" + classNames[ i ] + " ex) ");
+                ps.println( "\t\t\t{" );
+                ps.println( "\t\t\t\tif ( _so instanceof org.omg.CORBA.portable.ServantObjectExt) ");
+                ps.println( "\t\t\t\t\t((org.omg.CORBA.portable.ServantObjectExt)_so).exceptionalCompletion(ex);");
+                ps.println( "\t\t\t\tthrow ex;");
+                ps.println( "\t\t\t}" );
+            }
+        }
+
+        ps.println( "\t\t\tcatch (RuntimeException re) ");
+        ps.println( "\t\t\t{" );
+        ps.println( "\t\t\t\tif ( _so instanceof org.omg.CORBA.portable.ServantObjectExt) ");
+        ps.println( "\t\t\t\t\t((org.omg.CORBA.portable.ServantObjectExt)_so).exceptionalCompletion(re);");
+        ps.println( "\t\t\t\tthrow re;");
+        ps.println( "\t\t\t}" );
+        ps.println( "\t\t\tcatch (java.lang.Error err) ");
+        ps.println( "\t\t\t{" );
+        ps.println( "\t\t\t\tif ( _so instanceof org.omg.CORBA.portable.ServantObjectExt) ");
+        ps.println( "\t\t\t\t\t((org.omg.CORBA.portable.ServantObjectExt)_so).exceptionalCompletion(err);");
+        ps.println( "\t\t\t\tthrow err;");
         ps.println( "\t\t\t}" );
         ps.println( "\t\t\tfinally" );
         ps.println( "\t\t\t{" );
         ps.println( "\t\t\t\t_servant_postinvoke(_so);" );
         ps.println( "\t\t\t}" );
-
-        if( opAttribute == 0 && !( opTypeSpec.typeSpec() instanceof VoidTypeSpec ) )
-        {
-            ps.println( "\t\t\treturn _result;" );
-        }
-        else
-            ps.println( "\t\t\treturn;" );
-
 
         if( !is_local ) ps.println( "\t\t}" + Environment.NL );
 
@@ -725,11 +761,11 @@ public class OpDecl
         /* read args */
 
         int argc = 0;
-        
+
         if (parser.hasObjectCachePlugin())
         {
             parser.getObjectCachePlugin().printPreParamRead(ps, paramDecls);
-        } 
+        }
 
         for( Enumeration e = paramDecls.elements(); e.hasMoreElements(); )
         {

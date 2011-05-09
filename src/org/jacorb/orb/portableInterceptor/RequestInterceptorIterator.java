@@ -40,6 +40,8 @@ public abstract class RequestInterceptorIterator
     protected short op = -1;
     protected Exception interceptor_ex = null;
 
+    protected boolean intermediatePoint = false;
+
     public RequestInterceptorIterator(Interceptor[] interceptors)
     {
         super(interceptors);
@@ -58,8 +60,24 @@ public abstract class RequestInterceptorIterator
     {
         if (! reversed && forward)
         {
+            /**
+             * If we are at an intermediate interception point e.g. receive_request then
+             * any failure results in all previous interceptors that have completed being
+             * called.  See OMG 16.4.10.1 Server-side flow rules and in particular the
+             * scenario where an exception is raised at the B.receive_request interception
+             * point - page 374.  The intermediatePoint flag is true if receive_request so
+             * we call all the interceptors in reverse order.
+             */
+            if (! intermediatePoint)
+            {
             increment *= -1;
             index += (2 * increment);
+            }
+            else
+            {
+                index = interceptors.length - 1;
+                increment = -1;
+            }
 
             reversed = true;
         }
@@ -80,4 +98,10 @@ public abstract class RequestInterceptorIterator
             increment = -1;
         }
     }
+
+    protected void setIntermediatePoint(boolean intermediatePoint)
+    {
+        this.intermediatePoint = intermediatePoint;
+    }
+
 } // RequestInterceptorIterator
