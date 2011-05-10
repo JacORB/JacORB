@@ -703,7 +703,7 @@ public final class Delegate
 
         synchronized(policy_overrides)
         {
-            final Integer key = ObjectUtil.newInteger(policy_type);
+            final Integer key = Integer.valueOf(policy_type);
             result = (Policy)policy_overrides.get(key);
         }
 
@@ -2519,7 +2519,7 @@ public final class Delegate
 
             for ( int i = 0; i < policies.length; i++ )
             {
-                delResult.policy_overrides.put(ObjectUtil.newInteger( policies[ i ].policy_type() ), policies[ i ] );
+                delResult.policy_overrides.put(Integer.valueOf(policies[ i ].policy_type()), policies[ i ] );
             }
         }
 

@@ -1364,7 +1364,7 @@ public class CDRInputStream
 
         final int kind = read_long();
         final int start_pos = pos - 4;
-        final Integer startPosition = ObjectUtil.newInteger( start_pos );
+        final Integer startPosition = Integer.valueOf(start_pos);
 
         if (logger != null && logger.isDebugEnabled())
         {
@@ -1378,7 +1378,7 @@ public class CDRInputStream
                 // recursive or repeated TC
                 int negative_offset = read_long();
 
-                final Integer origTCStartPos = ObjectUtil.newInteger(pos - 4 + negative_offset);
+                final Integer origTCStartPos = Integer.valueOf((pos - 4 + negative_offset));
 
                 // need to check for repeated typecode first since a recursive
                 // typecode may also be repeated (i.e. both maps have an entry
@@ -1873,7 +1873,7 @@ public class CDRInputStream
                              final Integer old_start )
     {
         final SortedMap sortedMap = ((TreeMap)tcMap).subMap
-            ( old_start, ObjectUtil.newInteger( size + old_start.intValue() ) );
+            ( old_start, Integer.valueOf((size + old_start.intValue())) );
 
         // If we have found anything between the original start position and the size.
         if( sortedMap.size() > 0 )
@@ -1890,7 +1890,7 @@ public class CDRInputStream
                 // tc and the original start added onto the new start.
                 toMerge.put
                 (
-                    ObjectUtil.newInteger( new_start + (value - old_start.intValue() ) ),
+                    Integer.valueOf((new_start + (value - old_start.intValue() ))),
                     entry.getValue()
                 );
             }
@@ -2846,7 +2846,7 @@ public class CDRInputStream
 
             if( result != null )
             {
-                getValueMap().put(ObjectUtil.newInteger(start_offset), result);
+                getValueMap().put(Integer.valueOf(start_offset), result);
             }
 
             return result;
@@ -2857,7 +2857,7 @@ public class CDRInputStream
 
             if (result != null)
             {
-                getValueMap().put(ObjectUtil.newInteger(start_offset), result);
+                getValueMap().put(Integer.valueOf(start_offset), result);
             }
 
             return result;
@@ -3038,7 +3038,7 @@ public class CDRInputStream
         // value type instances may be null...
         if( result != null )
         {
-            getValueMap().put(ObjectUtil.newInteger(index), result);
+            getValueMap().put(Integer.valueOf(index), result);
         }
 
         return result;
@@ -3175,7 +3175,7 @@ public class CDRInputStream
             int index = read_long();
             index = index + pos - 4;
 
-            String repId = (String)getRepIdMap().get(ObjectUtil.newInteger(index));
+            String repId = (String)getRepIdMap().get(Integer.valueOf(index));
             if (repId == null)
             {
                 throw new MARSHAL("stale RepositoryID indirection");
@@ -3189,7 +3189,7 @@ public class CDRInputStream
         int start_offset = pos;
         String repId = read_string();
 
-        getRepIdMap().put(ObjectUtil.newInteger(start_offset), repId);
+        getRepIdMap().put(Integer.valueOf(start_offset), repId);
         return repId;
     }
 
@@ -3206,7 +3206,7 @@ public class CDRInputStream
             // indirection
             int index = read_long();
             index = index + pos - 4;
-            String codebase = (String)getCodebaseMap().get(ObjectUtil.newInteger(index));
+            String codebase = (String)getCodebaseMap().get(Integer.valueOf(index));
             if (codebase == null)
             {
                 throw
@@ -3220,7 +3220,7 @@ public class CDRInputStream
         index -= 4;
         int start_offset = pos;
         String codebase = read_string();
-        getCodebaseMap().put (ObjectUtil.newInteger(start_offset), codebase);
+        getCodebaseMap().put (Integer.valueOf(start_offset), codebase);
         return codebase;
     }
 
@@ -3233,7 +3233,7 @@ public class CDRInputStream
         // indirection
         int index = read_long();
         index = index + pos - 4;
-        java.lang.Object value = getValueMap().get (ObjectUtil.newInteger(index));
+        java.lang.Object value = getValueMap().get (Integer.valueOf(index));
 
         if (value == null)
         {
@@ -3313,7 +3313,7 @@ public class CDRInputStream
      */
     public void register_value(final java.io.Serializable value)
     {
-        getValueMap().put(ObjectUtil.newInteger(currentValueIndex), value);
+        getValueMap().put(Integer.valueOf(currentValueIndex), value);
     }
 
     /**

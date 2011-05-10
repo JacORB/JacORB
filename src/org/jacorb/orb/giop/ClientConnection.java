@@ -284,7 +284,7 @@ public class ClientConnection
                              int request_id,
                              boolean response_expected )
     {
-        Integer key = ObjectUtil.newInteger( request_id );
+        Integer key = Integer.valueOf(request_id);
 
         synchronized( replies )
         {
@@ -344,7 +344,7 @@ public class ClientConnection
     {
         connection.decPendingMessages();
 
-        Integer key = ObjectUtil.newInteger( Messages.getRequestId( reply ));
+        Integer key = Integer.valueOf(Messages.getRequestId( reply ));
 
         ReplyPlaceholder placeholder = null;
 
@@ -377,7 +377,7 @@ public class ClientConnection
     {
         connection.decPendingMessages();
 
-        Integer key = ObjectUtil.newInteger( Messages.getRequestId( reply ));
+        Integer key = Integer.valueOf(Messages.getRequestId( reply ));
 
         ReplyPlaceholder placeholder = null;
 

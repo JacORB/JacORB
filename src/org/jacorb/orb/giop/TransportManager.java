@@ -143,7 +143,7 @@ public class TransportManager
         {
             loadFactories();
         }
-        return (Factories)factoriesMap.get (ObjectUtil.newInteger(tag));
+        return (Factories)factoriesMap.get (Integer.valueOf(tag));
     }
 
     /**

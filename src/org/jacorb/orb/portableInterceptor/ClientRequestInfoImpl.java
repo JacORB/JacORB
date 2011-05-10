@@ -528,7 +528,7 @@ public class ClientRequestInfoImpl
                                     CompletionStatus.COMPLETED_MAYBE);
         }
 
-        Integer _id = ObjectUtil.newInteger(service_context.context_id);
+        Integer _id = Integer.valueOf(service_context.context_id);
 
         if (! replace && request_ctx.containsKey(_id))
         {

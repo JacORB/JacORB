@@ -111,7 +111,7 @@ public class PolicyManager
 
             for (int i = 0; i < ts.length; i++ )
             {
-                final Object policy = policy_overrides.get( ObjectUtil.newInteger( ts[i] ));
+                final Object policy = policy_overrides.get( Integer.valueOf(ts[i]));
                 if (policy != null)
                 {
                     policyList.add(policy);
@@ -201,7 +201,7 @@ public class PolicyManager
                                                       policies[i].policy_type() );
             }
             // else:
-            Integer key = ObjectUtil.newInteger( policies[i].policy_type());
+            Integer key = Integer.valueOf(policies[i].policy_type());
             if ( newPolicies.put( key, policies[i] ) != null )
             {
                 throw new org.omg.CORBA.BAD_PARAM( "Multiple policies of type " +

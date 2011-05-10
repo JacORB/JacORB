@@ -1532,7 +1532,7 @@ public class CDROutputStream
 
                             // remember tc start pos before we start writing it
                             // out
-                            Integer tcStartPos = ObjectUtil.newInteger(pos);
+                            Integer tcStartPos = Integer.valueOf(pos);
                             recursiveTCMap.put(typeCode.id(), tcStartPos);
 
                             beginEncapsulation();
@@ -1556,7 +1556,7 @@ public class CDROutputStream
                         {
                             write_long( _kind  );
 
-                            final Integer tcStartPos = ObjectUtil.newInteger( pos );
+                            final Integer tcStartPos = Integer.valueOf(pos);
                             recursiveTCMap.put( typeCode.id(), tcStartPos );
 
                             beginEncapsulation();
@@ -1588,7 +1588,7 @@ public class CDROutputStream
                             write_long( _kind  );
                             // remember tc start pos before we start writing it
                             // out
-                            final Integer tcStartPos = ObjectUtil.newInteger( pos );
+                            final Integer tcStartPos = Integer.valueOf(pos);
                             recursiveTCMap.put( typeCode.id(), tcStartPos );
 
                             beginEncapsulation();
@@ -1632,7 +1632,7 @@ public class CDROutputStream
                         {
                             write_long( _kind  );
 
-                            final Integer tcStartPos = ObjectUtil.newInteger( pos );
+                            final Integer tcStartPos = Integer.valueOf(pos);
                             recursiveTCMap.put( typeCode.id(), tcStartPos );
 
                             beginEncapsulation();
@@ -1672,7 +1672,7 @@ public class CDROutputStream
 
                             // remember tc start pos before we start writing it
                             // out
-                            Integer tcStartPos = ObjectUtil.newInteger(pos);
+                            Integer tcStartPos = Integer.valueOf(pos);
                             recursiveTCMap.put(typeCode, tcStartPos);
 
                             beginEncapsulation();
@@ -1698,7 +1698,7 @@ public class CDROutputStream
 
                             // remember tc start pos before we start writing it
                             // out
-                            Integer tcStartPos = ObjectUtil.newInteger(pos);
+                            Integer tcStartPos = Integer.valueOf(pos);
                             recursiveTCMap.put(typeCode, tcStartPos);
 
                             beginEncapsulation();
@@ -1725,7 +1725,7 @@ public class CDROutputStream
 
                             // remember tc start pos before we start writing it
                             // out
-                            Integer tcStartPos = ObjectUtil.newInteger(pos);
+                            Integer tcStartPos = Integer.valueOf(pos);
                             recursiveTCMap.put(typeCode, tcStartPos);
 
                             beginEncapsulation();
@@ -1786,7 +1786,7 @@ public class CDROutputStream
                         {
                             write_long( _kind  );
 
-                            final Integer tcStartPos = ObjectUtil.newInteger( pos );
+                            final Integer tcStartPos = Integer.valueOf(pos);
                             recursiveTCMap.put( typeCode.id(), tcStartPos );
 
                             beginEncapsulation();
@@ -1827,7 +1827,7 @@ public class CDROutputStream
                         else
                         {
                             write_long( _kind  );
-                            final Integer tcStartPos = ObjectUtil.newInteger( pos );
+                            final Integer tcStartPos = Integer.valueOf(pos);
                             recursiveTCMap.put( typeCode.id(), tcStartPos );
 
                             beginEncapsulation();
@@ -1855,7 +1855,7 @@ public class CDROutputStream
                         else
                         {
                             write_long( _kind  );
-                            final Integer tcStartPos = ObjectUtil.newInteger( pos );
+                            final Integer tcStartPos = Integer.valueOf(pos);
                             recursiveTCMap.put( typeCode.id(), tcStartPos );
 
                             beginEncapsulation();
@@ -2393,7 +2393,7 @@ public class CDROutputStream
         {
             write_previous_chunk_size();
             check(7,4);
-            getValueMap().put (value, ObjectUtil.newInteger(size()));
+            getValueMap().put (value, Integer.valueOf(size()));
 
             if (((value instanceof org.omg.CORBA.portable.IDLEntity) ||
                 isSimpleString(value, factory)))
@@ -2514,7 +2514,7 @@ public class CDROutputStream
                 pos += remainder;
             }
 
-            getRepIdMap().put (repository_id, ObjectUtil.newInteger(size()));
+            getRepIdMap().put (repository_id, Integer.valueOf(size()));
             write_string (repository_id);
         }
         else
@@ -2552,7 +2552,7 @@ public class CDROutputStream
                 pos += remainder;
             }
 
-            getCodebaseMap().put (codebase, ObjectUtil.newInteger(size()));
+            getCodebaseMap().put (codebase, Integer.valueOf(size()));
             write_string (codebase);
         }
         else
@@ -2652,7 +2652,7 @@ public class CDROutputStream
     {
         write_previous_chunk_size();
         check(7,4);
-        getValueMap().put(value, ObjectUtil.newInteger(size()));
+        getValueMap().put(value, Integer.valueOf(size()));
 
         if (value.getClass() == String.class)
         {

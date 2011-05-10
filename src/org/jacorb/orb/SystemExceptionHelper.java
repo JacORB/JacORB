@@ -222,7 +222,7 @@ public class SystemExceptionHelper
 
             return (org.omg.CORBA.SystemException)ctor.newInstance(
                     new Object[]{"Server-side Exception: " + message,
-                            ObjectUtil.newInteger(minor),
+                            Integer.valueOf(minor),
                             completed});
         }
         catch (Exception e )

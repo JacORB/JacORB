@@ -725,7 +725,7 @@ public final class ORB
                 return new
                     org.jacorb.orb.policies.ClientProtocolPolicy (value);
             default:
-                final PolicyFactory factory = (PolicyFactory)policy_factories.get(ObjectUtil.newInteger(type));
+                final PolicyFactory factory = (PolicyFactory)policy_factories.get(Integer.valueOf(type));
 
                 if (factory == null)
                 {
@@ -742,7 +742,7 @@ public final class ORB
      */
     public boolean hasPolicyFactoryForType(int type)
     {
-        return (policy_factories.containsKey(ObjectUtil.newInteger(type)) );
+        return (policy_factories.containsKey(Integer.valueOf(type)) );
     }
 
     public org.omg.CORBA.ContextList create_context_list()
@@ -792,7 +792,7 @@ public final class ORB
 
             TaggedComponentList profileComponents = new TaggedComponentList();
             profileComponents.addComponent(create_ORB_TYPE_ID());
-            componentMap.put(ObjectUtil.newInteger(profile.tag()), profileComponents);
+            componentMap.put(Integer.valueOf(profile.tag()), profileComponents);
 
             if (profile instanceof ProfileBase)
             {
@@ -808,7 +808,7 @@ public final class ORB
         }
 
         TaggedComponentList multipleComponents = new TaggedComponentList();
-        componentMap.put(ObjectUtil.newInteger(TAG_MULTIPLE_COMPONENTS.value),
+        componentMap.put(Integer.valueOf(TAG_MULTIPLE_COMPONENTS.value),
                          multipleComponents);
 
         // invoke IOR interceptors
@@ -844,7 +844,7 @@ public final class ORB
 
             // shuffle all components over into the multiple components profile
             TaggedComponentList iiopComponents =
-                (TaggedComponentList)componentMap.get(ObjectUtil.newInteger(TAG_INTERNET_IOP.value));
+                (TaggedComponentList)componentMap.get(Integer.valueOf(TAG_INTERNET_IOP.value));
 
             multipleComponents.addAll(iiopProfile.getComponents());
             multipleComponents.addAll(iiopComponents);
@@ -876,7 +876,7 @@ public final class ORB
         {
             final Profile p = (Profile)profiles.get(i);
             final TaggedComponentList c =
-                (TaggedComponentList)componentMap.get(ObjectUtil.newInteger (p.tag()));
+                (TaggedComponentList)componentMap.get(Integer.valueOf(p.tag()));
             tc.value = c.asArray();
             p.marshal (tp, tc);
             tps[i] = tp.value;

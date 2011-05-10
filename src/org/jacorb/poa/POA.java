@@ -200,7 +200,7 @@ public class POA
         {
             for (int i=0; i<policies.length; i++)
             {
-                all_policies.put(ObjectUtil.newInteger( policies[i].policy_type() ),
+                all_policies.put(Integer.valueOf(policies[i].policy_type()),
                                   policies[i]);
 
                 switch (policies[i].policy_type())
@@ -2303,7 +2303,7 @@ public class POA
 
     public org.omg.CORBA.Policy getPolicy(int type)
     {
-        return (org.omg.CORBA.Policy) all_policies.get(ObjectUtil.newInteger(type));
+        return (org.omg.CORBA.Policy) all_policies.get(Integer.valueOf(type));
     }
 
     public void addLocalRequest()

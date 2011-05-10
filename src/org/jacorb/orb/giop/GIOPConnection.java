@@ -635,10 +635,7 @@ public abstract class GIOPConnection
 
                 //for now, only GIOP 1.2 from here on
 
-                Integer request_id = ObjectUtil.newInteger
-                (
-                     Messages.getRequestId( message )
-                );
+                Integer request_id = Integer.valueOf(Messages.getRequestId( message ));
 
                 //sanity check
                 if( ! fragments.containsKey( request_id ))
