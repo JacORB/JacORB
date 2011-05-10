@@ -2353,11 +2353,13 @@ public final class Delegate
 
             if (orb.hasServerRequestInterceptors())
             {
+
                 sinfo = new ServerRequestInfoImpl
                 (
                     orb,
                     contexts,
                     (org.omg.PortableServer.Servant) servantObject.servant,
+                    getObjectId(),
                     operation,
                     true,
                     SYNC_WITH_TARGET.value

@@ -2445,7 +2445,9 @@ public class LocalPITest extends TestCase
             }
 
             // request information
-            ri.object_id();
+            byte []oi = ri.object_id();
+            assertTrue (oi != null);
+
             byte []aid = ri.adapter_id();
 
             assertTrue (aid != null);
@@ -2669,7 +2671,8 @@ public class LocalPITest extends TestCase
             }
 
             // request information
-            ri.object_id();
+            byte []oi = ri.object_id();
+            assertTrue (oi != null);
             byte []aid = ri.adapter_id();
 
             assertTrue (aid != null);
@@ -2886,7 +2889,9 @@ public class LocalPITest extends TestCase
             }
 
             // request information
-            ri.object_id();
+            byte []oi = ri.object_id();
+            assertTrue (oi != null);
+
             byte []aid = ri.adapter_id();
 
             assertTrue (aid != null);

@@ -120,6 +120,7 @@ post 2.3.1
         - Fix servantdelegate bind issue to prevent cached object delegate being set to null.
         - Fix for Current overwriting in local calls between Client/ServerRequestInfo
         - Fix for sync policies and null pointer within Delegate.
+        - Propagate objectId to ServerRequestInfo for local calls.
 
     - IDL Compiler:
         - fixed issue where the IDL compiler generated imports for the
