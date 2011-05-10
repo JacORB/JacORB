@@ -3,7 +3,7 @@ package org.jacorb.idl;
 /*
  *        JacORB  - a free Java ORB
  *
- *   Copyright (C) 1997-2007 The JacORB Team
+ *   Copyright (C) 1997-2011 Gerald Brose / The JacORB Team.
  *
  *   This library is free software; you can redistribute it and/or
  *   modify it under the terms of the GNU Library General Public
