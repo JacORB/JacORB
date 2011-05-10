@@ -114,6 +114,11 @@ public class ServerSetup extends TestSetup
         this(test, null, servantName, null);
     }
 
+    public ServerSetup(Test test, String servantName, Properties optionalProps)
+    {
+        this(test, null, servantName, optionalProps);
+    }
+
     /**
      * how long should we wait for a testserver to come up?
      */
@@ -160,7 +165,7 @@ public class ServerSetup extends TestSetup
         serverProperties.put ("jacorb.implname", servantName);
 
         serverProperties.putAll (serverOrbProperties);
-        
+
         if (coverage)
         {
             String outDir = System.getProperty("jacorb.test.outdir");
@@ -188,7 +193,7 @@ public class ServerSetup extends TestSetup
             in.close();
         }
 
-        final Launcher launcher = 
+        final Launcher launcher =
             launcherFactory.getLauncher(serverVersion,
                     coverage,
                     System.getProperty("java.class.path"),

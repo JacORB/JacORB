@@ -1129,25 +1129,6 @@ public final class Delegate
 
         try
         {
-            if ( !ros.response_expected() )  // oneway op
-            {
-                invoke_oneway (ros, interceptors);
-                return null;
-            }
-            // response expected, synchronous or asynchronous
-            receiver = new ReplyReceiver(this, ros.operation(), ros.getReplyEndTime(),
-                    interceptors, replyHandler);
-            receiver.configure(configuration);
-
-            // Store the receiver in pending_replies, so in the
-            // case of a LocationForward a RemarshalException can
-            // be thrown to *all* waiting threads.
-
-            synchronized (pending_replies)
-            {
-                pending_replies.add(receiver);
-            }
-
             synchronized (bind_sync)
             {
                if ( ! bound )
@@ -1170,9 +1151,32 @@ public final class Delegate
                     throw new RemarshalException();
                 }
             }
-            // Use the local copy of the client connection to avoid trouble
-            // with something else affecting the real connections[currentConnection].
-            connectionToUse.sendRequest(ros, receiver, ros.requestId(), true);
+
+            if ( !ros.response_expected() )  // oneway op
+            {
+                invoke_oneway (ros, connectionToUse, interceptors);
+            }
+            else
+            {
+                // response expected, synchronous or asynchronous
+                receiver = new ReplyReceiver(this, ros.operation(), ros.getReplyEndTime(),
+                                             interceptors, replyHandler);
+                receiver.configure(configuration);
+
+                // Store the receiver in pending_replies, so in the
+                // case of a LocationForward a RemarshalException can
+                // be thrown to *all* waiting threads.
+
+                synchronized (pending_replies)
+                {
+                    pending_replies.add(receiver);
+                }
+
+
+                // Use the local copy of the client connection to avoid trouble
+                // with something else affecting the real connections[currentConnection].
+                connectionToUse.sendRequest(ros, receiver, ros.requestId(), true);
+            }
         }
         catch ( org.omg.CORBA.SystemException cfe )
         {
@@ -1281,6 +1285,7 @@ public final class Delegate
     }
 
     private void invoke_oneway (RequestOutputStream ros,
+                                ClientConnection connectionToUse,
                                 ClientInterceptorHandler interceptors)
         throws RemarshalException, ApplicationException
     {
@@ -1288,7 +1293,7 @@ public final class Delegate
         {
             case SYNC_NONE.value:
                 RequestOutputStream copy = new RequestOutputStream(ros);
-                passToTransport (copy);
+                passToTransport (connectionToUse, copy);
                 try
                 {
                     interceptors.handle_receive_other (SUCCESSFUL.value);
@@ -1300,7 +1305,7 @@ public final class Delegate
                 break;
 
             case SYNC_WITH_TRANSPORT.value:
-                connections[currentConnection.ordinal ()].sendRequest (ros, false);
+                connectionToUse.sendRequest (ros, false);
                 try
                 {
                     interceptors.handle_receive_other (SUCCESSFUL.value);
@@ -1326,7 +1331,8 @@ public final class Delegate
                 }
                 else
                 {
-                    connections[TransportType.IIOP.ordinal ()].sendRequest (ros, rcv, ros.requestId(), true);
+                    connectionToUse.sendRequest (ros, rcv, ros.requestId(), true);
+                    // connections[TransportType.IIOP.ordinal ()].sendRequest (ros, rcv, ros.requestId(), true);
                 }
 
                 ReplyInputStream in = rcv.getReply();
@@ -1347,13 +1353,23 @@ public final class Delegate
         }
     }
 
-    private void passToTransport (final RequestOutputStream ros)
+    private void passToTransport (final ClientConnection connectionToUse, final RequestOutputStream ros)
     {
         new Thread (new Runnable()
         {
             public void run()
             {
-                connections[currentConnection.ordinal ()].sendRequest (ros, false);
+                try
+                {
+                    connectionToUse.sendRequest (ros, false);
+                }
+                catch (Throwable e)
+                {
+                    if (logger.isWarnEnabled())
+                    {
+                        logger.warn ("Caught CORBA SystemException ", e);
+                    }
+                }
             }
         },
         "PassToTransport").start();
@@ -2145,8 +2161,6 @@ public final class Delegate
         ServiceContext [] contexts = null;
         DefaultClientInterceptorHandler interceptors = null;
 
-        boolean doPostInvoke = false;
-
         if (poa == null)
         {
             resolvePOA(self);
@@ -2379,7 +2393,6 @@ public final class Delegate
                         interceptors.handle_location_forward (null, fwd.forward);
                     }
 
-                    doPostInvoke = true;
                     ( (ObjectImpl) self)._set_delegate ( ( (ObjectImpl) fwd.forward)._get_delegate());
                     return null;
                 }
@@ -2400,7 +2413,6 @@ public final class Delegate
                         }
                         catch (ForwardRequest fwd)
                         {
-                            doPostInvoke = true;
                             ( (ObjectImpl) self)._set_delegate ( ( (ObjectImpl) fwd.forward)._get_delegate());
                             return null;
                         }
@@ -2430,7 +2442,7 @@ public final class Delegate
         }
         catch (Exception e)
         {
-            doPostInvoke = true;
+            poa.removeLocalRequest();
 
             logger.error("unexpected exception during servant_preinvoke", e);
 
@@ -2450,19 +2462,6 @@ public final class Delegate
             }
 
             throw new OBJ_ADAPTER("unexpected exception: " + e);
-        }
-        finally
-        {
-            if (doPostInvoke)
-            {
-                /**
-                 * If we get an exception at this point we must remove the current
-                 * invocation context or any attempt to destroy the POA will result
-                 * in a BAD_INV_ORDER
-                 */
-                orb.getPOACurrent()._removeContext (Thread.currentThread());
-                poa.removeLocalRequest();
-            }
         }
     }
 

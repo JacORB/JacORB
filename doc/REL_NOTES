@@ -119,6 +119,7 @@ post 2.3.1
         - Remove ReplyReceiver from pending_replies if an error happens when reading the reply.
         - Fix servantdelegate bind issue to prevent cached object delegate being set to null.
         - Fix for Current overwriting in local calls between Client/ServerRequestInfo
+        - Fix for sync policies and null pointer within Delegate.
 
     - IDL Compiler:
         - fixed issue where the IDL compiler generated imports for the
