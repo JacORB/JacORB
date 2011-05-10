@@ -45,11 +45,11 @@ public class BugJac_384Test extends TestCase
 
         props.setProperty("org.omg.CORBA.ORBClass", "org.jacorb.orb.ORB");
         props.setProperty("org.omg.CORBA.ORBSingletonClass", "org.jacorb.orb.ORBSingleton");
-        props.setProperty("jacorb.log.default.verbosity", "3");
+        props.setProperty("jacorb.log.default.verbosity", "4");
         props.setProperty("jacorb.logfile", dir.getAbsolutePath() + "/logfile.txt");
         props.setProperty("jacorb.logfile.append", "on");
-        props.setProperty("jacorb.logfile.maxLogSize", "1000");
-        props.setProperty("jacorb.logfile.rotateCount", "2000");
+        props.setProperty("jacorb.logfile.maxLogSize", "1500");
+        props.setProperty("jacorb.logfile.rotateCount", "2");
 
         ORB orb = ORB.init(new String[0], props);
         orb.shutdown(true);
