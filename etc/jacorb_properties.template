@@ -80,6 +80,16 @@ jacorb.orb.print_version=on
 # 4 = debug-level output (FINE)
 #jacorb.log.default.verbosity=3
 
+# If logging to file whether to append to existing file or overwrite
+#jacorb.logfile.append=off
+
+# Denotes the maximum size that may be written to the logfile in bytes.
+# A value of 0 implies no limit
+#jacorb.logfile.maxLogSize=0
+
+# Number of logfiles to use.
+#jacorb.logfile.rotateCount=1
+
 # JacORB is intrinsically multithreaded, and when used in a multithreaded
 # application can have many threads doing similar or identical functions.
 # Set this option to true to include a thread ID value in the log messasge.
