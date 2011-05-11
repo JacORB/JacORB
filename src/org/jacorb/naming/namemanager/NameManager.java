@@ -32,8 +32,8 @@ import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.KeyStroke;
-import org.omg.CosNaming.NamingContextExt;
-import org.omg.CosNaming.NamingContextExtHelper;
+import org.omg.CosNaming.NamingContext;
+import org.omg.CosNaming.NamingContextHelper;
 
 /**
  * A graphical user interface for the Naming Service.
@@ -71,7 +71,7 @@ public class NameManager
         JMenuItem create =  new JMenuItem("BindNewContext", KeyEvent.VK_N);
         create.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_N, ActionEvent.CTRL_MASK));
 
-	JMenuItem bindObject = new JMenuItem("Bind Object", KeyEvent.VK_B);
+        JMenuItem bindObject = new JMenuItem("Bind Object", KeyEvent.VK_B);
         bindObject.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_B, ActionEvent.CTRL_MASK));
 
         JMenuItem unbind =  new JMenuItem("Unbind name", KeyEvent.VK_U);
@@ -89,11 +89,11 @@ public class NameManager
         menubar.add(editMenu);
         menubar.add(helpMenu);
 
-        NamingContextExt rootContext = null;
+        NamingContext rootContext = null;
         try
         {
             rootContext =
-                NamingContextExtHelper.narrow( orb.resolve_initial_references("NameService"));
+                NamingContextHelper.narrow( orb.resolve_initial_references("NameService"));
         }
         catch (Exception e)
         {
