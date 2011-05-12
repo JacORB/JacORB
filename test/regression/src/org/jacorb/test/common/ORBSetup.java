@@ -125,4 +125,12 @@ public class ORBSetup extends TestSetup
     {
         return TestUtils.getStringAsBoolean(orbProps.getProperty(property, "false"));
     }
+
+    public void patchORBProperties (Properties clientProperties)
+    {
+        if (clientProperties != null && clientProperties.size () > 0)
+        {
+            orbProps.putAll (clientProperties);
+        }
+    }
 }

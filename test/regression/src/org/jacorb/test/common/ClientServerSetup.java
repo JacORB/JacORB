@@ -337,4 +337,14 @@ public class ClientServerSetup extends TestSetup {
     {
         return clientORBSetup.isSSLEnabled() && serverSetup.isSSLEnabled();
     }
+
+    public void patchServerPropertires (Properties serverProperties)
+    {
+        serverSetup.patchServerProperties (serverProperties);
+    }
+
+    public void patchClientPropertires (Properties clientProperties)
+    {
+        clientORBSetup.patchORBProperties (clientProperties);
+    }
 }

@@ -324,4 +324,12 @@ public class ServerSetup extends TestSetup
         details.append(errListener.toString());
         return details.toString();
     }
+
+    public void patchServerProperties (Properties serverProperties)
+    {
+        if (serverProperties != null && serverProperties.size () > 0)
+        {
+            serverOrbProperties.putAll (serverProperties);
+        }
+    }
 }
