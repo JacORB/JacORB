@@ -20,7 +20,8 @@
 
 package org.jacorb.orb.giop;
 
-import org.jacorb.config.*;
+import org.jacorb.config.Configuration;
+import org.jacorb.config.ConfigurationException;
 import org.jacorb.orb.iiop.IIOPConnection;
 
 /**
@@ -172,7 +173,7 @@ public class ServerGIOPConnection
         {
             logger.error
             (
-                "COMM_FAILURE in sendCloseConnection(), in " + this.toString(), 
+                "COMM_FAILURE in sendCloseConnection(), in " + this.toString(),
                 e
             );
         }
@@ -246,6 +247,8 @@ public class ServerGIOPConnection
         {
           return "ServerGIOPConnection to "
                 + profile.toString()
+                + " from "
+                + orb.getBasicAdapter ().getEndpointProfiles ()
                 + " (" + Integer.toHexString(this.hashCode()) + ")";
         }
         return super.toString();

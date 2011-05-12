@@ -23,7 +23,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-
 import org.jacorb.config.Configurable;
 import org.jacorb.config.Configuration;
 import org.jacorb.config.ConfigurationException;
@@ -65,7 +64,7 @@ public abstract class ConnectionBase
 
     /** shared with sub classes */
     protected Logger logger;
-    protected org.jacorb.config.Configuration configuration;
+    protected Configuration configuration;
     protected String connection_info;
     protected ORB orb;
 
