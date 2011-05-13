@@ -1,7 +1,7 @@
 /*
  *        JacORB - a free Java ORB
  *
- *   Copyright (C) 2004 Thomas Leineweber.
+ *   Copyright (C) 2004-2011 Gerald Brose / The JacORB Team.
  *
  *   This library is free software; you can redistribute it and/or
  *   modify it under the terms of the GNU Library General Public
@@ -24,7 +24,7 @@ package org.jacorb.idl;
  * This Exception will be thrown when there is no Helper class
  * available for a specific CORBA type. It has no methods or fields
  * as it is used only as a kind of marker.
- * 
+ *
  * @author Thomas Leineweber
  * @version $Id$
  */

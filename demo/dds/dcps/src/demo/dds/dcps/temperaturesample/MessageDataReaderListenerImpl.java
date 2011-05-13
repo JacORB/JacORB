@@ -1,7 +1,7 @@
 /*
 *  DDS (Data Distribution Service) for JacORB
 *
-* Copyright (C) 2005  , Ahmed yehdih <ahmed.yehdih@gmail.com>, fouad
+* Copyright (C) 2005-2011 Gerald Brose / The JacORB Team.
 * allaoui <fouad.allaoui@gmail.com>, Didier Donsez (didier.donsez@ieee.org)
 *
 * This program is free software; you can redistribute it and/or
