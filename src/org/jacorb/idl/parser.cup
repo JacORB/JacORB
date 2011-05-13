@@ -1,5 +1,25 @@
 package org.jacorb.idl;
 
+/*
+ *        JacORB - a free Java ORB
+ *
+ *   Copyright (C) 1997-2011 Gerald Brose / The JacORB Team.
+ *
+ *   This library is free software; you can redistribute it and/or
+ *   modify it under the terms of the GNU Library General Public
+ *   License as published by the Free Software Foundation; either
+ *   version 2 of the License, or (at your option) any later version.
+ *
+ *   This library is distributed in the hope that it will be useful,
+ *   but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ *   Library General Public License for more details.
+ *
+ *   You should have received a copy of the GNU Library General Public
+ *   License along with this library; if not, write to the Free
+ *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ */
+
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
@@ -181,7 +201,7 @@ parser code
             OutputStream outStream = System.err;
             logWriter = new OutputStreamWriter( outStream );
         }
-        
+
         logger = IDLLogger.getLogger("jacorb.idl", IDLLogger.ERROR, logWriter);
     }
 
@@ -234,7 +254,7 @@ parser code
               logStreamWriter = logWriter;
 
         initLogging();
-               
+
         parser.openScope();
 
         command_line = argv;
@@ -487,7 +507,7 @@ parser code
                 usage(argv, "Unrecognized option: " + argv[i]);
 
             }
-            
+
             try
             {
                 for( int j=i; j < argv.length; j++)
@@ -739,7 +759,7 @@ parser code
     {
         return generator;
     }
-    
+
     public static void setObjectCachePlugin(String pluginClass)
         throws InstantiationException, IllegalAccessException
     {
@@ -765,15 +785,15 @@ parser code
         {
             throw new ParseException( "Not a valid cache plugin: " + pluginClass );
         }
-        
+
         objectCachePlugin = (ObjectCachePlugin) cachePluginClass.newInstance();
     }
-    
+
     public static void setObjectCachePlugin(ObjectCachePlugin plugin)
     {
         objectCachePlugin = plugin;
     }
-    
+
     public static ObjectCachePlugin getObjectCachePlugin()
     {
         return objectCachePlugin;

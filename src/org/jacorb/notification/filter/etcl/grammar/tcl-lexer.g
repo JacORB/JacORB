@@ -6,7 +6,7 @@ package org.jacorb.notification.filter.etcl;
 /*
  *        JacORB - a free Java ORB
  *
- *   Copyright (C) 1999-2005 Gerald Brose
+ *   Copyright (C) 1999-2011 Gerald Brose / The JacORB Team.
  *
  *   This library is free software; you can redistribute it and/or
  *   modify it under the terms of the GNU Library General Public
@@ -102,7 +102,7 @@ RPAREN     : ')'  ;
 
 // '$' switches to the component lexer
 // otherwise it wouldn't be possible to recognize
-// $.1 
+// $.1
 // the Standard Lexer would recognize DOLLAR FLOAT which is wrong.
 // it should be DOLLAR DOT INTEGER
 DOLLAR     : '$' { toggleLexer(); };
@@ -185,10 +185,10 @@ protected OTHER
      ;
 
 // these may appear within text but not within identifiers
-// according to OMG Trader Constraint Language all ASCII chars 
+// according to OMG Trader Constraint Language all ASCII chars
 // that are not ALPHA, DIGIT or SPECIAL
 protected OTHER_TEXT
-    : ('.'|'!'|'"'|'#'|'$'|'%'|'&'|'('|')'|'*'|'+'|','|'-'|';'|'<'|'>'|'='|'?'|'@'|'['|']'|'^'|'`'|'{'|'|'|'}'|'~') 
+    : ('.'|'!'|'"'|'#'|'$'|'%'|'&'|'('|')'|'*'|'+'|','|'-'|';'|'<'|'>'|'='|'?'|'@'|'['|']'|'^'|'`'|'{'|'|'|'}'|'~')
     ;
 
 protected SPECIAL

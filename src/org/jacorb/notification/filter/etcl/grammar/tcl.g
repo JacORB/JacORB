@@ -6,7 +6,7 @@ package org.jacorb.notification.filter.etcl;
 /*
  *        JacORB - a free Java ORB
  *
- *   Copyright (C) 1999-2005 Gerald Brose
+ *   Copyright (C) 1999-2011 Gerald Brose / The JacORB Team.
  *
  *   This library is free software; you can redistribute it and/or
  *   modify it under the terms of the GNU Library General Public
@@ -90,7 +90,7 @@ tokens {
 public static AbstractTCLNode parse( String data )
 		throws ParseException
 {
-   try 
+   try
    {
       final TokenStreamSelector _selector = new TokenStreamSelector();
 
@@ -98,15 +98,15 @@ public static AbstractTCLNode parse( String data )
       final TCLLexer _tclLexer = new TCLLexer( new StringReader( data ) );
       _tclLexer.setTokenStreamSelector( _selector );
 
-      final ComponentLexer _compLexer = 
+      final ComponentLexer _compLexer =
          new ComponentLexer( _tclLexer.getInputState() );
 
       _compLexer.setTokenStreamSelector( _selector );
 
-      _selector.addInputStream( _tclLexer, 
+      _selector.addInputStream( _tclLexer,
                                 TCLLexer.LEXER_NAME );
 
-      _selector.addInputStream( _compLexer, 
+      _selector.addInputStream( _compLexer,
                                 ComponentLexer.LEXER_NAME );
 
       _selector.select( TCLLexer.LEXER_NAME );
@@ -119,12 +119,12 @@ public static AbstractTCLNode parse( String data )
 
       // return AST tree
       return ( AbstractTCLNode ) _parser.getAST();
-   } 
-   catch (TokenStreamException e) 
+   }
+   catch (TokenStreamException e)
    {
       throw new ParseException(data, e);
-   } 
-   catch (RecognitionException e) 
+   }
+   catch (RecognitionException e)
    {
       throw new ParseException(data, e);
    }
@@ -237,7 +237,7 @@ compDot
     ;
 
 compArray
-    : LBRACKET! NUMBER<AST=org.jacorb.notification.filter.etcl.ArrayOperator>{#NUMBER.setType(ARRAY);} RBRACKET! compExt 
+    : LBRACKET! NUMBER<AST=org.jacorb.notification.filter.etcl.ArrayOperator>{#NUMBER.setType(ARRAY);} RBRACKET! compExt
     ;
 
 compAssoc
