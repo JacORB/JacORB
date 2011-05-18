@@ -28,11 +28,11 @@ import java.util.concurrent.locks.ReentrantLock;
 public class SelectorRequest {
 
   public enum Type {
-    CONNECT, READ, WRITE
+    CONNECT, ACCEPT, READ, WRITE
       }
 
   public enum Status {
-    PENDING, ASSIGNED, EXPIRED, FAILED, SUCCESS, SHUTDOWN, CLOSED
+    PENDING, ASSIGNED, READY, EXPIRED, FAILED, FINISHED, SHUTDOWN, CLOSED
       }
 
   public final Type type;
@@ -40,12 +40,12 @@ public class SelectorRequest {
   public final SocketChannel channel;
   public SelectionKey key = null;
   public final int op;
-  public final Callback callback;
+  public final SelectorRequestCallback callback;
   public final Date deadline;
 
   private final ReentrantLock lock = new ReentrantLock();
 
-  public SelectorRequest (Type type, SocketChannel channel, Callback callback, Date deadline) {
+  public SelectorRequest (Type type, SocketChannel channel, SelectorRequestCallback callback, Date deadline) {
     this.type = type;
     switch (type) {
     case CONNECT:
@@ -98,13 +98,4 @@ public class SelectorRequest {
     return status;
   }
 
-  public abstract class Callback {
-
-    /**
-       The callback to requestor. The return value determines if
-       request needs to be re-registered.
-       return: true (re-register action), false (don't register)
-     */
-    protected abstract boolean call (SelectorRequest action);
-  }
 }

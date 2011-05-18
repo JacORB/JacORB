@@ -212,36 +212,46 @@ public class SelectorManager extends Thread {
             continue;
           }
 
-          int op = 0;
-          SelectorRequest.Type jobType = SelectorRequest.Type.CONNECT;
-          // delegate work to worker thread
-          if (key.isConnectable()) {
-            op = SelectionKey.OP_CONNECT;
-            jobType = SelectorRequest.Type.CONNECT;
-          }
-          else if (key.isReadable()) {
-            op = SelectionKey.OP_READ;
-            jobType = SelectorRequest.Type.READ;
-          } else if (key.isWritable()) {
-            op = SelectionKey.OP_WRITE;
-            jobType = SelectorRequest.Type.WRITE;
-          }
-
-          if (op != 0) {
-            // disable op bit for SelectionKey
-            int currentOps = key.interestOps ();
-            int newOps = currentOps ^ op; // exclusive or
-            try {
-              key.interestOps (newOps);
-            }
-            catch (CancelledKeyException ex) {
-              // let the worker deal with this
-            }
-
+          // loop four times to account for each of the ecah of the possible IO operations
+          //  connect, accept, read, write
+          for (int count = 0; count < 4; count++) {
+            int op = 0;
+            SelectorRequest.Type jobType = SelectorRequest.Type.CONNECT;
             // delegate work to worker thread
-            SendJob sendJob = new SendJob (key, jobType);
-            FutureTask task = new FutureTask (sendJob);
-            executor.execute (task);
+            if (key.isConnectable()) {
+              op = SelectionKey.OP_CONNECT;
+              jobType = SelectorRequest.Type.CONNECT;
+            }
+            else if (key.isAcceptable()) {
+              op = SelectionKey.OP_ACCEPT;
+              jobType = SelectorRequest.Type.ACCEPT;
+            } else if (key.isReadable()) {
+              op = SelectionKey.OP_READ;
+              jobType = SelectorRequest.Type.READ;
+            } else if (key.isWritable()) {
+              op = SelectionKey.OP_WRITE;
+              jobType = SelectorRequest.Type.WRITE;
+            }
+            else {
+              break;
+            }
+
+            if (op != 0) {
+              // disable op bit for SelectionKey
+              int currentOps = key.interestOps ();
+              int newOps = currentOps ^ op; // exclusive or
+              try {
+                key.interestOps (newOps);
+              }
+              catch (CancelledKeyException ex) {
+                // let the worker deal with this
+              }
+
+              // delegate work to worker thread
+              SendJob sendJob = new SendJob (key, jobType);
+              FutureTask task = new FutureTask (sendJob);
+              executor.execute (task);
+            }
           }
         }
       }
@@ -262,6 +272,9 @@ public class SelectorManager extends Thread {
     }
   }
 
+  /**
+   * Called in Selector thread
+   */
   private void cleanup () {
 
     cleanup (connectRequestsPool);
@@ -276,6 +289,9 @@ public class SelectorManager extends Thread {
 
   }
 
+  /**
+   * Called in Selector thread
+   */
   private void cleanup (RequestorPool pool) {
 
     synchronized (pool) {
@@ -285,6 +301,9 @@ public class SelectorManager extends Thread {
     }
   }
 
+  /**
+   * Called in Selector thread
+   */
   private void cleanup (RequestsBuffer requestsBuffer) {
     synchronized (requestsBuffer) {
       for (Iterator<SelectorRequest> iter = requestsBuffer.iterator(); iter.hasNext();) {
@@ -361,38 +380,110 @@ public class SelectorManager extends Thread {
     return true;
   }
 
+  /**
+   * Called in Selector thread
+   */
   private void reActivateRequest (SelectorRequest request) {
 
-    try {
-      int currentOps = request.key.interestOps ();
-      int newOps = currentOps | request.op;
-      request.key.interestOps (newOps);
+    if (!request.channel.isConnected ()) {
+      removeClosedRequests (request.key);
     }
-    catch (Exception ex) {
-      // channel interest ops weren't updated, so current ops are fine. We aren't leaving around extra ops
-      // internal data structures don't need cleanup as request wasn't inserted yet.
-      logger.error ("Failed to update selector interest ops for this channel.");
-      request.setStatus (SelectorRequest.Status.FAILED);
+    else {
+      try {
+        int currentOps = request.key.interestOps ();
+        int newOps = currentOps | request.op;
+        request.key.interestOps (newOps);
+      }
+      catch (Exception ex) {
+        // channel interest ops weren't updated, so current ops are fine. We aren't leaving around extra ops
+        // internal data structures don't need cleanup as request wasn't inserted yet.
+        logger.error ("Failed to update selector interest ops for this channel.");
+        request.setStatus (SelectorRequest.Status.FAILED);
 
-      // call back request callable in worker thread
-      SendJob sendJob = new SendJob (request);
-      FutureTask task = new FutureTask (sendJob);
-      executor.execute (task);
+        // call back request callable in worker thread
+        SendJob sendJob = new SendJob (request);
+        FutureTask task = new FutureTask (sendJob);
+        executor.execute (task);
+      }
     }
   }
 
+  /**
+   * Called in Selector thread
+   */
+  private void removeClosedRequests (SelectionKey key) {
+
+    // cancel key
+    key.cancel ();
+
+    // traverse pools and cleanup requests mapped to this key
+    removeClosedRequests (key, connectRequestsPool);
+    removeClosedRequests (key, writeRequestsPool);
+    removeClosedRequests (key, readRequestsPool);
+  }
+
+  /**
+   * Called in Selector thread
+   */
+  private void removeClosedRequests (SelectionKey key, RequestorPool pool) {
+
+    RequestsBuffer requestBuffer;
+    synchronized (connectRequestsPool) {
+      requestBuffer = connectRequestsPool.remove (key);
+    }
+    removeClosedRequests (requestBuffer);
+  }
+
+  /**
+   * Called in Selector thread
+   */
+  private void removeClosedRequests (RequestsBuffer requestBuffer) {
+
+    if (requestBuffer != null) {
+      RequestsBuffer myRequestBuffer = new RequestsBuffer();
+      synchronized (requestBuffer) {
+
+        // move requests to a local container out from the common container
+        for (Iterator<SelectorRequest> iter = requestBuffer.iterator(); iter.hasNext();) {
+          myRequestBuffer.add (0, iter.next ());
+          iter.remove();
+        }
+      }
+
+      SelectorRequest request;
+      for (Iterator<SelectorRequest> iter = myRequestBuffer.iterator(); iter.hasNext();) {
+        request = iter.next ();
+        request.setStatus (SelectorRequest.Status.CLOSED);
+
+        // call back request callable in worker thread
+        SendJob sendJob = new SendJob (request);
+        FutureTask task = new FutureTask (sendJob);
+        executor.execute (task);
+      }
+      myRequestBuffer.clear ();
+    }
+  }
+
+  /**
+   * Called in Selector thread
+   */
   private void insertIntoActivePool (SelectorRequest request) {
 
-    switch (request.type) {
-    case CONNECT:
-      insertIntoActivePool (connectRequestsPool, request);
-      break;
-    case WRITE:
-      insertIntoActivePool (writeRequestsPool, request);
-      break;
-    case READ:
-      insertIntoActivePool (readRequestsPool, request);
-      break;
+    if (!request.channel.isConnected ()) {
+      removeClosedRequests (request.key);
+    }
+    else {
+      switch (request.type) {
+      case CONNECT:
+        insertIntoActivePool (connectRequestsPool, request);
+        break;
+      case WRITE:
+        insertIntoActivePool (writeRequestsPool, request);
+        break;
+      case READ:
+        insertIntoActivePool (readRequestsPool, request);
+        break;
+      }
     }
   }
 
@@ -403,6 +494,9 @@ public class SelectorManager extends Thread {
   // 2.1 If the list buffer isn't empty, the key will not be enabled in the selector for that action.
   //     In that case it is either already enabled for that role or a worker is currently active in thet role.
   //     We do not want two workers active in teh same role on the same channel.
+  /**
+   * Called in Selector thread
+   */
   private void insertIntoActivePool (RequestorPool pool, SelectorRequest request) {
 
     // if this is the first time selector is seeing this channel, acquire a key
@@ -460,6 +554,9 @@ public class SelectorManager extends Thread {
     }
   }
 
+  /**
+   * Called in Selector thread
+   */
   private void insertByTime (RequestsBuffer actions, SelectorRequest newAction) {
 
     synchronized (actions) {
@@ -476,6 +573,9 @@ public class SelectorManager extends Thread {
     }
   }
 
+  /**
+   * Called in Selector thread
+   */
   private long cleanupExpiredRequests () {
 
     long sleepTime = Long.MAX_VALUE;
@@ -519,49 +619,9 @@ public class SelectorManager extends Thread {
     return sleepTime;
   }
 
-  /*
-    private void finishConnection (SelectionKey key) {
-
-    SocketChannel socketChannel = (SocketChannel) key.channel();
-
-    boolean connected = false;
-    boolean failed = false;
-    if (running) {
-    try {
-    connected = socketChannel.finishConnect();
-    }
-    catch (IOException e) {
-    logger.error ("IOEXception while finishing connection: " + e.getMessage());
-    key.cancel ();
-    failed = true;
-    }
-    }
-
-    LinkedList<SelectorRequest> actions;
-    synchronized (connectRequestsPool) {
-    actions = connectRequestsPool.get (key);
-    connectRequestsPool.remove (key);
-    }
-    if (actions != null) {
-    for (Iterator<SelectorRequest> iterator = actions.iterator(); iterator.hasNext();) {
-    SelectorRequest action = iterator.next ();
-    if (connected) {
-    action.status = SelectorRequest.Status.CONNECTED;
-    }
-    if (failed) {
-    action.status = SelectorRequest.Status.FAILED;
-    }
-
-    // notify requestor
-    if (action.callback != null) {
-    action.callback.call ();
-    }
-    }
-    actions.clear ();
-    }
-    }
-  */
-
+  /**
+   * Called in Worker thread
+   */
   private void callbackRequestor (SelectionKey key, RequestorPool pool) {
 
     RequestsBuffer requestsBuffer = pool.get(key);
@@ -590,7 +650,7 @@ public class SelectorManager extends Thread {
     }
 
     if (request != null) {
-      request.setStatus (SelectorRequest.Status.ASSIGNED);
+      request.setStatus (SelectorRequest.Status.READY);
 
       boolean reActivate = false;
       if (request.callback != null) {
@@ -600,12 +660,23 @@ public class SelectorManager extends Thread {
         catch (Exception ex) {
           // discard any uncaught requestor exceptions
         }
+
+        // if connected is closed, try to reactivate the request. this will let
+        //  the selector loop to cleanup the channel from its structures.
+        //  Unwanted behavior of calling the requestor callback again.
+        if (!request.channel.isConnected()) {
+          reActivate = true;
+        }
+      }
+
+      if (reActivate) {
+        request.setStatus (SelectorRequest.Status.ASSIGNED);
       }
 
       if (!reActivate) {
         // request complete; remove it from buffer and activate key only if buffer has more elements
         synchronized (requestsBuffer) {
-          request.setStatus (SelectorRequest.Status.SUCCESS); // required to indicate request callback has finished
+          request.setStatus (SelectorRequest.Status.FINISHED); // required to indicate request callback has finished
           requestsBuffer.remove (0);
           // cleanup expired requests
           request = null;
@@ -642,6 +713,9 @@ public class SelectorManager extends Thread {
     }
   }
 
+  /**
+   * Called in Worker thread
+   */
   private void handleAction (SelectionKey key, SelectorRequest.Type type, SelectorRequest request) {
 
     // if request object is available just call its callable object
