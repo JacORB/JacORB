@@ -22,6 +22,7 @@ package org.jacorb.orb;
 
 import java.util.Iterator;
 import java.util.Set;
+
 import org.jacorb.config.*;
 import org.slf4j.Logger;
 import org.jacorb.orb.giop.MessageInputStream;
@@ -37,6 +38,9 @@ import org.omg.CORBA.portable.ServantObject;
 import org.omg.GIOP.ReplyStatusType_1_2;
 import org.omg.Messaging.ExceptionHolder;
 import org.omg.TimeBase.UtcT;
+import org.jacorb.util.SelectorManager;
+import org.jacorb.util.SelectorRequest;
+import org.jacorb.util.SelectorRequestCallback;
 
 /**
  * A special ReplyPlaceholder that receives replies to normal requests,
@@ -63,18 +67,20 @@ public class ReplyReceiver
 
     private final String operation;
     private final Timer timer;
+  private final SelectorTimer selectorTimer;
+  private org.omg.TimeBase.UtcT replyEndTime;
 
     private Logger logger;
 
     /** configuration properties */
     private boolean retry_on_failure = false;
 
-
     public ReplyReceiver( org.jacorb.orb.Delegate        delegate,
                           String                         operation,
                           org.omg.TimeBase.UtcT          replyEndTime,
                           ClientInterceptorHandler       interceptors,
-                          org.omg.Messaging.ReplyHandler replyHandler )
+                          org.omg.Messaging.ReplyHandler replyHandler,
+                          SelectorManager selectorManager)
     {
         super((org.jacorb.orb.ORB)delegate.orb(null));
 
@@ -82,18 +88,26 @@ public class ReplyReceiver
         this.operation        = operation;
         this.interceptors     = interceptors;
         this.replyHandler     = replyHandler;
+        this.replyEndTime = replyEndTime;
 
-        if (replyEndTime != null)
-        {
+        if (replyEndTime != null) {
+          if (selectorManager == null) {
+            selectorTimer = null;
             timer = new Timer(replyEndTime);
             timer.setName("ReplyReceiver Timer" );
             timer.start();
-        }
-        else
-        {
+          }
+          else {
             timer = null;
+            selectorTimer = new SelectorTimer ();
+            long duration = org.jacorb.util.Time.millisTo (replyEndTime);
+            selectorManager.add (new SelectorRequest (selectorTimer, System.nanoTime() + duration*1000000));
+          }
         }
-
+        else {
+          timer = null;
+          selectorTimer = null;
+        }
     }
 
     public void configure(Configuration configuration)
@@ -112,9 +126,13 @@ public class ReplyReceiver
             return; // discard reply
         }
 
-        if (timer != null)
-        {
+        if (replyEndTime != null) {
+          if (selectorTimer != null) {
+            selectorTimer.wakeup ();
+          }
+          else {
             timer.wakeup();
+          }
         }
 
         Set pending_replies = delegate.get_pending_replies();
@@ -269,7 +287,7 @@ public class ReplyReceiver
            // Map to RemarshalException to force rebind attempt.
            try
            {
-               getInputStream(timer != null);  // block until reply is available
+               getInputStream (replyEndTime != null);  // block until reply is available
            }
            catch (org.omg.CORBA.COMM_FAILURE ex)
            {
@@ -418,7 +436,7 @@ public class ReplyReceiver
         {
             this.orb = orb;
         }
-        
+
         public java.io.Serializable read_value
                         ( org.omg.CORBA_2_3.portable.InputStream is )
         {
@@ -495,4 +513,37 @@ public class ReplyReceiver
             }
         }
     }
+
+  class SelectorTimer extends SelectorRequestCallback {
+
+    private boolean awakened = false;
+
+    public boolean call (SelectorRequest request) {
+
+      synchronized (lock) {
+        if (request.status == SelectorRequest.Status.EXPIRED && !awakened) {
+          timeoutException = true;
+
+          if (replyHandler != null) {
+            ExceptionHolderImpl exHolder =
+              new ExceptionHolderImpl((ORB)delegate.orb(null), new org.omg.CORBA.TIMEOUT());
+            performExceptionCallback(exHolder);
+          }
+          ready = true;
+          lock.notifyAll();
+        }
+      }
+
+      return false;
+    }
+
+    private void wakeup () {
+      synchronized (lock) {
+        awakened         = true;
+        timeoutException = false;
+        lock.notifyAll(); // is this necessary
+      }
+    }
+  }
+
 }
