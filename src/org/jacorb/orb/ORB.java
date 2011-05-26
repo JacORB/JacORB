@@ -57,6 +57,7 @@ import org.jacorb.poa.util.POAUtil;
 import org.jacorb.util.BuildVersion;
 import org.jacorb.util.ObjectUtil;
 import org.jacorb.util.TimerQueue;
+import org.jacorb.util.SelectorManager;
 
 import org.omg.CORBA.BAD_INV_ORDER;
 import org.omg.CORBA.BAD_PARAM;
@@ -128,6 +129,7 @@ public final class ORB
     private String hashTableClassName;
     private boolean useIMR;
     private boolean useTimerQueue;
+  private boolean useSelectorManager;
 
     private ProtocolAddressBase imrProxyAddress = null;
     private ProtocolAddressBase iorProxyAddress;
@@ -166,6 +168,11 @@ public final class ORB
      * when first asked for. the queue is internally synchronized.
      */
     private TimerQueue timer_queue = null;
+
+  /**
+     The selectorManager is a wrappper around the NIO Selector
+   */
+  private SelectorManager selectorManager = null;
 
     /**
      * Maps repository ids (strings) to objects that implement
@@ -303,7 +310,9 @@ public final class ORB
         failOnORBInitializerError = configuration.getAttributeAsBoolean("jacorb.orb_initializer.fail_on_error", false);
 
         useTimerQueue = configuration.getAttributeAsBoolean("jacorb.use_timer_queue", false);
-        
+
+        useSelectorManager = configuration.getAttributeAsBoolean("jacorb.connection.nonblocking", false);
+
         // There are features that if enabled require the use of the timer queue
         // and thus need to ensure the timer queue is available.
         if (!useTimerQueue)
@@ -1667,6 +1676,19 @@ public final class ORB
     {
         try
         {
+          // Starting up Selector manager first.
+          //  It's timer service may be required for other managers
+          if (useSelectorManager) {
+            try {
+              selectorManager = new SelectorManager ();
+              selectorManager.configure (configuration);
+              selectorManager.start ();
+            }
+            catch (Exception e) {
+                throw new ConfigurationException ("SelectorManager initialization failed", e);
+            }
+          }
+
             transport_manager = new TransportManager(this);
 
             transport_manager.configure(configuration);
@@ -1949,6 +1971,12 @@ public final class ORB
         {
             shutdown_in_progress = false;
             shutdown_synch.notifyAll();
+        }
+
+        // shutdown the selector loop.
+        // At this point there should not be any pending requests.
+        if (useSelectorManager) {
+          selectorManager.halt ();
         }
 
         if (logger.isInfoEnabled())
@@ -2324,6 +2352,10 @@ public final class ORB
     {
         return timer_queue;
     }
+
+  public SelectorManager getSelectorManager () {
+    return selectorManager;
+  }
 
     /* DII helper methods */
 
