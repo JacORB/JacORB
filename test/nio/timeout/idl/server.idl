@@ -1,0 +1,14 @@
+module test
+{
+  module nio
+  {
+    module timeout {
+
+      interface GoodDay {
+
+	string hello_simple (in long id, in string data);
+
+      };
+    };
+  };
+};
