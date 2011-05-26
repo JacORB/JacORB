@@ -23,9 +23,13 @@ package org.jacorb.util;
 public abstract class SelectorRequestCallback {
 
   /**
-     The callback to requestor. The return value determines if
-     request needs to be re-registered.
-     return: true (re-register action), false (don't register)
+   * Requester overrides this method to do intended activity.
+   * This is non-blocking api so keep your callback activities short; do IO, don't wait here.
+   * Before doubng anything check request status.
+   * The callback can happen in user or selector thread.
+   * If request needs to remain on top of requests stack for this action
+   *  simply return true;
+   * A return value of false will cleanup request from Selector pool.
   */
   protected abstract boolean call (SelectorRequest action);
 }

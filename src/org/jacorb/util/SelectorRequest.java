@@ -28,7 +28,7 @@ import java.util.concurrent.locks.ReentrantLock;
 public class SelectorRequest {
 
   public enum Type {
-    CONNECT, ACCEPT, READ, WRITE
+    CONNECT, ACCEPT, READ, WRITE, TIMER
       }
 
   public enum Status {
@@ -41,11 +41,13 @@ public class SelectorRequest {
   public SelectionKey key = null;
   public final int op;
   public final SelectorRequestCallback callback;
-  public final Date deadline;
+  public final long nanoDeadline;
 
   private final ReentrantLock lock = new ReentrantLock();
 
-  public SelectorRequest (Type type, SocketChannel channel, SelectorRequestCallback callback, Date deadline) {
+  // deadline is an absolute time. It has to be based upon System.nanoTime() and is used as such
+  // deadline of '0' is infinite
+  public SelectorRequest (Type type, SocketChannel channel, SelectorRequestCallback callback, long nanoDeadline) {
     this.type = type;
     switch (type) {
     case CONNECT:
@@ -62,38 +64,56 @@ public class SelectorRequest {
     }
     this.channel = channel;
     this.callback = callback;
-    this.deadline = (deadline != null ? deadline : new Date (Long.MAX_VALUE));
+    this.nanoDeadline = (nanoDeadline == 0 ? Long.MAX_VALUE : nanoDeadline);
+  }
+
+  // constructor for creating timer requests
+  // deadline is an absolute time. It has to be based upon System.nanoTime() and is used as such
+  // deadline of '0' is infinite
+  public SelectorRequest (SelectorRequestCallback callback, long nanoDeadline) {
+    type = Type.TIMER;
+    op = 0;
+    channel = null;
+    this.callback = callback;
+    this.nanoDeadline = (nanoDeadline == 0 ? Long.MAX_VALUE : nanoDeadline);
   }
 
   public void setStatus (Status status) {
-    lock.lock ();
-    try {
+
+    synchronized (lock) {
       this.status = status;
 
       // the below might just need to be notify()
-      lock.notifyAll();
-    }
-    finally {
-      lock.unlock();
+      lock.notify();
     }
   }
 
-  public Status waitOnCompletion (long timeout) {
+  // deadline is an absolute time. It has to be based upon System.nanoTime() and is used as such
+  // deadline of '0' is infinite
+  public Status waitOnCompletion (long nanoDeadline) {
 
-    lock.lock ();
+    long myNanoDeadline = (nanoDeadline == 0 ? Long.MAX_VALUE : nanoDeadline);
 
-    try {
-      while (status == Status.PENDING || status == Status.ASSIGNED) {
+    synchronized (lock) {
+      while (myNanoDeadline > System.nanoTime() && (status == null || status == Status.PENDING || status == Status.READY || status == Status.ASSIGNED)) {
+
+        long remaining = myNanoDeadline - System.nanoTime();
+        long millis = remaining/1000000;
+        int nanos = (int)(remaining - (millis * 1000000));
+
         try {
-          lock.wait (timeout);
+          lock.wait (millis, nanos);
         }
         catch (InterruptedException e) {
           // ignored
         }
+        catch (IllegalArgumentException ex) {
+
+          // indicates we have run out of time
+          // if the value of timeout is negative or the value of nanos is not in the range 0-999999.
+          break;
+        }
       }
-    }
-    finally {
-      lock.unlock ();
     }
     return status;
   }
