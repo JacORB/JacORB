@@ -142,7 +142,7 @@ public class ServerGIOPConnection
     {
         try
         {
-            getWriteLock();
+            getWriteLock(0);
 
             write( CLOSE_CONNECTION_MESSAGE,
                    0,
@@ -172,7 +172,7 @@ public class ServerGIOPConnection
         {
             logger.error
             (
-                "COMM_FAILURE in sendCloseConnection(), in " + this.toString(), 
+                "COMM_FAILURE in sendCloseConnection(), in " + this.toString(),
                 e
             );
         }

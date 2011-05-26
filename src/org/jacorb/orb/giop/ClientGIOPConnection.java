@@ -129,7 +129,7 @@ public class ClientGIOPConnection
             //Solve potential deadlock caused by COMM_FAILURE.
             //The strategy is getting write_lock before sync
             //connect_sync when you need both of them.
-            getWriteLock();
+            getWriteLock(0);
             synchronized (connect_sync)
             {
                 transport.close();
