@@ -118,6 +118,10 @@ public abstract class ConnectionBase
         return connected;
     }
 
+  protected synchronized void setConnected (boolean connected) {
+    this.connected = connected;
+  }
+
     /**
      * This is used to tell the transport that a CloseConnection has
      * been sent, and that it should set a timeout in case the client
@@ -215,4 +219,3 @@ public abstract class ConnectionBase
         return localhost;
     }
 }
-
