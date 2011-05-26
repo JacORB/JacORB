@@ -35,12 +35,16 @@ import org.jacorb.orb.etf.StreamConnectionBase;
 import org.jacorb.util.ObjectUtil;
 import org.jacorb.util.TimerQueue;
 import org.jacorb.util.TimerQueueAction;
+import org.jacorb.util.Time;
+import java.util.concurrent.locks.ReentrantLock;
+import java.util.concurrent.TimeUnit;
 
 import org.omg.CORBA.CompletionStatus;
 import org.omg.CORBA.NO_IMPLEMENT;
 import org.omg.ETF.BufferHolder;
 import org.omg.GIOP.MsgType_1_1;
 import org.omg.GIOP.ReplyStatusType_1_2;
+import org.omg.CORBA.TIMEOUT;
 
 /**
  * GIOPConnection.java
@@ -78,8 +82,10 @@ public abstract class GIOPConnection
 
     protected Object connect_sync = new Object();
 
-    private boolean writer_active = false;
-    private final Object write_sync = new Object();
+  private ReentrantLock writeLock = new ReentrantLock ();
+
+    // private boolean writer_active = false;
+    // private final Object write_sync = new Object();
 
     protected Logger logger;
 
@@ -96,7 +102,7 @@ public abstract class GIOPConnection
     private IBufferManager buf_mg;
 
     private boolean dump_incoming = false;
-    private long timeout = 0;
+    private long connectTimeout = 0;
 
     private final BufferHolder msg_header
         = new BufferHolder (new byte[Messages.MSG_HEADER_SIZE]);
@@ -134,6 +140,11 @@ public abstract class GIOPConnection
     protected StatisticsProviderAdapter statistics_provider_adapter = null;
 
     protected ORB orb;
+
+  // deadline for current send operation
+  private org.omg.TimeBase.UtcT sendDeadline = null;
+
+  private boolean loggerDebugEnabled = false;
 
     public class ConnectionReset extends TimerQueueAction
     {
@@ -193,9 +204,12 @@ public abstract class GIOPConnection
         buf_mg = orb.getBufferManager();
 
         logger = jacorbConfiguration.getLogger("jacorb.giop.conn");
+
+        loggerDebugEnabled = logger.isDebugEnabled();
+
         dump_incoming =
             configuration.getAttributeAsBoolean("jacorb.debug.dump_incoming_messages", false);
-        timeout =
+        connectTimeout =
             configuration.getAttributeAsInteger("jacorb.connection.client.connect_timeout", 90000);
 
         int max_request_write_time =
@@ -215,6 +229,11 @@ public abstract class GIOPConnection
                     client_write_monitor =
                         new ConnectionReset (max_request_write_time);
             }
+
+        // boolean blockingConnection = configuration.getAttributeAsBoolean("jacorb.connection.blocking", true);
+        // if (blockingConnection) {
+        //   selectorManager = org.getSelectorManager ();
+        // }
 
         List statsProviderClassNames =
             jacorbConfiguration.getAttributeList( "jacorb.connection.statistics_providers");
@@ -895,33 +914,35 @@ public abstract class GIOPConnection
         }//synchronized( pendingUndecidedSync )
     }
 
-    protected final void getWriteLock()
+  // timeout is in milliseconds and is an interval
+    protected final boolean getWriteLock (long timeout)
     {
-        synchronized( write_sync )
-        {
-            while( writer_active )
-            {
-                try
-                {
-                    write_sync.wait();
-                }
-                catch( InterruptedException e )
-                {
-                }
-            }
+      long startTime = System.currentTimeMillis();
+      long endTime = (timeout > 0 ? startTime + timeout : Long.MAX_VALUE);
 
-            writer_active = true;
+      while (endTime > startTime) {
+
+        long remainingTime = endTime - startTime;
+        try {
+          return writeLock.tryLock (remainingTime, TimeUnit.MILLISECONDS);
         }
+        catch (InterruptedException ex) {
+          // disregard
+        }
+      }
+
+      return false;
     }
 
     protected final void releaseWriteLock()
     {
-        synchronized( write_sync )
-        {
-            writer_active = false;
-
-            write_sync.notifyAll();
-        }
+      try {
+        writeLock.unlock ();
+      }
+      catch (IllegalMonitorStateException ex) {
+        // This allows threads that have failed to acquire this lock to safely
+        //  attempt an unlock.
+      }
     }
 
     private final synchronized void incPendingWrite()
@@ -959,7 +980,14 @@ public abstract class GIOPConnection
             write_monitor.reset();
         if (timer_queue != null)
             timer_queue.add(write_monitor);
-        transport.write( false, false, fragment, start, size, 0 );
+        if (sendDeadline != null) {
+          long time = Time.millisTo(sendDeadline);
+          time = (time == 0 ? -1 : time);
+          transport.write( false, false, fragment, start, size, time);
+        }
+        else {
+          transport.write( false, false, fragment, start, size, 0 );
+        }
         if (timer_queue != null)
             timer_queue.remove(write_monitor);
 
@@ -997,7 +1025,8 @@ public abstract class GIOPConnection
             incPendingMessages();
         }
 
-        sendMessage( out );
+        RequestOutputStream ros      = (RequestOutputStream)out;
+        sendMessage( out, ros.getReplyEndTime() );
     }
 
     public final void sendReply( MessageOutputStream out )
@@ -1008,7 +1037,12 @@ public abstract class GIOPConnection
         sendMessage( out );
     }
 
-    private final void sendMessage( MessageOutputStream out )
+  private final void sendMessage (MessageOutputStream out)
+    throws IOException {
+    sendMessage (out, null);
+  }
+
+  private final void sendMessage( MessageOutputStream out, org.omg.TimeBase.UtcT sendDeadline)
         throws IOException
     {
         try
@@ -1016,7 +1050,17 @@ public abstract class GIOPConnection
             try
             {
                 incPendingWrite ();
-                getWriteLock();
+                long timeout = (sendDeadline == null ? 0 : Time.millisTo(sendDeadline));
+                if (loggerDebugEnabled) {
+                  logger.debug ("GIOPConnection.sendMessage timeout (millis): " + timeout);
+                }
+                if (!getWriteLock(timeout)) {
+                  throw new TIMEOUT("Failed to aquire transport lock");
+                }
+
+                // save send deadline for use later in the stack
+                this.sendDeadline = sendDeadline;
+
                 if (!transport.is_connected())
                 {
                     tcs_negotiated = false;
@@ -1033,8 +1077,9 @@ public abstract class GIOPConnection
                     {
                         try
                         {
-                            transport.connect (profile, timeout);
-                            connect_sync.notifyAll();
+                          long myConnectTimeout = (timeout != 0 && timeout < connectTimeout ? timeout : connectTimeout);
+                          transport.connect (profile, myConnectTimeout);
+                          connect_sync.notifyAll();
                         }
                         catch (RuntimeException ex)
                         {
@@ -1067,6 +1112,8 @@ public abstract class GIOPConnection
             }
             finally
             {
+              sendDeadline = null;
+
                 decPendingWrite();
                 // If a COMM_FAILURE occurs this release write lock prevents
                 // dead locks to reader thread which might try to close this
