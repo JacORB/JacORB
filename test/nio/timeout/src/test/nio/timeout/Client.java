@@ -8,7 +8,6 @@ import java.util.concurrent.*;
 
 public class Client
 {
-
   public static final int MSEC_FACTOR = 10000;
   public static final int ONE_SECOND = 1000 * MSEC_FACTOR;
   public static final int QUATER_SECOND = 250 * MSEC_FACTOR;
@@ -92,23 +91,23 @@ public class Client
 
       // get PolicyManager and create policies ....
       PolicyManager policyManager =
-	PolicyManagerHelper.narrow( orb.resolve_initial_references("ORBPolicyManager"));
+        PolicyManagerHelper.narrow( orb.resolve_initial_references("ORBPolicyManager"));
 
       // create an timeout value of 1 sec. The unit is a time
       // step of 100 nano secs., so 10000 of these make up a
       // micro second.
       Any rrtPolicyAny = orb.create_any();
-      // rrtPolicyAny.insert_ulonglong (ONE_SECOND);
-      rrtPolicyAny.insert_ulonglong (QUATER_SECOND);
+      rrtPolicyAny.insert_ulonglong (ONE_SECOND);
+       //rrtPolicyAny.insert_ulonglong (QUATER_SECOND);
 
       // create a relative roundtrip timeout policy and set this
       // policy ORB-wide
       Policy rrtPolicy =
-	orb.create_policy( RELATIVE_RT_TIMEOUT_POLICY_TYPE.value,
-			   rrtPolicyAny );
+        orb.create_policy( RELATIVE_RT_TIMEOUT_POLICY_TYPE.value,
+        		   rrtPolicyAny );
 
       policyManager.set_policy_overrides( new Policy[] {rrtPolicy},
-					  SetOverrideType.ADD_OVERRIDE);
+        				  SetOverrideType.ADD_OVERRIDE);
 
       System.out.println ("Client connected to server. Sleeping for 10 seconds");
       try {
@@ -185,14 +184,14 @@ public class Client
       catch (InterruptedException ex) {
         // disregard
       }
+    }
 
-      System.out.println ("Shutting down the ORB");
-      try {
-        orb.shutdown (true);
-      }
-      catch (Exception ex) {
-        ex.printStackTrace();
-      }
+    System.out.println ("Shutting down the ORB");
+    try {
+      orb.shutdown (true);
+    }
+    catch (Exception ex) {
+      ex.printStackTrace();
     }
   }
 }

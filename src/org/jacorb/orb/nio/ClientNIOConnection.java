@@ -61,7 +61,7 @@ public class ClientNIOConnection
 
     long nanoDeadline = (timeout == 0 ? Long.MAX_VALUE : System.nanoTime() + timeout*1000000);
 
-    if( !connected ) {
+    if( !is_connected() ) {
       if (server_profile instanceof IIOPProfile) {
         this.profile = (IIOPProfile) server_profile;
       }
@@ -71,8 +71,8 @@ public class ClientNIOConnection
             + "to a non-IIOP profile: " + server_profile.getClass());
       }
 
-      if (logger.isDebugEnabled()) {
-        logger.debug("Trying to establish client connection with timeout " + timeout);
+      if (isDebugEnabled) {
+        logger.debug(Thread.currentThread().getName() + "> Trying to establish client connection with timeout " + timeout);
       }
 
       int retryCount = 0;
@@ -91,7 +91,7 @@ public class ClientNIOConnection
                         ( (timeout == 0) ? "" : " Timeout: " + timeout));
           }
 
-          connected = true;
+          setConnected (true);
           return;
         }
         catch (TIMEOUT ex) {
@@ -99,7 +99,9 @@ public class ClientNIOConnection
           throw ex;
         }
         catch (IOException ex) {
-          logger.debug("Exception", ex);
+          if (isDebugEnabled) {
+            logger.debug(Thread.currentThread().getName() + "> Exception", ex);
+          }
 
           //only sleep and print message if we're actually
           //going to retry
@@ -129,7 +131,7 @@ public class ClientNIOConnection
 
   public synchronized void close() {
 
-    if (!connected) {
+    if (!is_connected()) {
       return;
     }
 
@@ -138,8 +140,10 @@ public class ClientNIOConnection
         channel.close();
       }
 
+      setConnected (false);
+
       // this was copied from ClientIIOPConnection. Don't see why
-      //  this woudl be required, but its included anyways
+      //  this would be required, but its included anyways
       if (in_stream != null) {
         in_stream.close();
       }
@@ -151,12 +155,10 @@ public class ClientNIOConnection
         logger.info("Client-side TCP transport to " +
                     connection_info + " closed.");
       }
-
-      connected = false;
     }
     catch (IOException ex) {
-      if (logger.isDebugEnabled()) {
-        logger.debug ("Exception when closing the channel", ex);
+      if (isDebugEnabled) {
+        logger.debug (Thread.currentThread().getName() + "> Exception when closing the channel", ex);
       }
 
       throw handleCommFailure(ex);
@@ -191,7 +193,7 @@ public class ClientNIOConnection
           connection_info = "[" + ipAddress + "]:" + port;
         }
 
-        if (logger.isDebugEnabled()) {
+        if (isDebugEnabled) {
           logger.debug("Trying to connect to " + connection_info);
         }
 
@@ -208,7 +210,7 @@ public class ClientNIOConnection
         logger.info ("Thread " + Thread.currentThread().getId() + ": Request status: " +
                       request.status.toString());
 
-        if (request.status == SelectorRequest.Status.EXPIRED) {
+        if (request.status == SelectorRequest.Status.EXPIRED || !request.isFinalized()) {
           throw new TIMEOUT("connection timeout expired");
         }
         else if (request.status == SelectorRequest.Status.FAILED ||
@@ -247,10 +249,12 @@ public class ClientNIOConnection
 
   private class ConnectCallback extends SelectorRequestCallback {
 
-    public boolean call (SelectorRequest action) {
+    public boolean call (SelectorRequest request) {
 
       try {
-        action.channel.finishConnect ();
+        if (request.status == SelectorRequest.Status.READY) {
+          request.channel.finishConnect ();
+        }
       }
       catch (Exception ex) {
         logger.error ("Exception while finishing connection: " + ex.toString());

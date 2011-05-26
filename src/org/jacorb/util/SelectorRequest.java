@@ -88,6 +88,11 @@ public class SelectorRequest {
     }
   }
 
+  public boolean isFinalized () {
+    // PENDING, ASSIGNED & READY are intermediate states
+    return status != null && status != Status.PENDING && status != Status.ASSIGNED && status != Status.READY;
+  }
+
   // deadline is an absolute time. It has to be based upon System.nanoTime() and is used as such
   // deadline of '0' is infinite
   public Status waitOnCompletion (long nanoDeadline) {
@@ -95,7 +100,7 @@ public class SelectorRequest {
     long myNanoDeadline = (nanoDeadline == 0 ? Long.MAX_VALUE : nanoDeadline);
 
     synchronized (lock) {
-      while (myNanoDeadline > System.nanoTime() && (status == null || status == Status.PENDING || status == Status.READY || status == Status.ASSIGNED)) {
+      while (myNanoDeadline > System.nanoTime() && !isFinalized()) {
 
         long remaining = myNanoDeadline - System.nanoTime();
         long millis = remaining/1000000;

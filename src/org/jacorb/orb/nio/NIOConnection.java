@@ -42,12 +42,20 @@ public abstract class NIOConnection
   private int timeout;
   protected SocketChannel channel = null;
   protected SelectorManager selectorManager = null;
+  private int maxWriteAttempts = 0;
+  private int failedWriteAttempts = 0;
+  protected boolean isDebugEnabled = false;
 
   public void configure(Configuration config)
     throws ConfigurationException {
 
     super.configure (config);
+
+    isDebugEnabled = logger.isDebugEnabled();
+
     selectorManager = orb.getSelectorManager ();
+
+    maxWriteAttempts = configuration.getAttributeAsInteger("jacorb.nio.maxWriteAttempts", 0);
 
     try {
       channel = SocketChannel.open ();
@@ -107,7 +115,7 @@ public abstract class NIOConnection
     }
     request.waitOnCompletion (nanoDeadline);
 
-    if (request.status == SelectorRequest.Status.EXPIRED) {
+    if (request.status == SelectorRequest.Status.EXPIRED || !request.isFinalized()) {
       throw new TIMEOUT("Message expired before write attempt.");
     }
     else if (request.status == SelectorRequest.Status.FAILED) {
@@ -147,7 +155,7 @@ public abstract class NIOConnection
     }
     request.waitOnCompletion (nanoDeadline);
 
-    if (request.status == SelectorRequest.Status.EXPIRED) {
+    if (request.status == SelectorRequest.Status.EXPIRED || !request.isFinalized()) {
       throw new TIMEOUT("Message expired before write attempt.");
     }
     else if (request.status == SelectorRequest.Status.FAILED || request.status == SelectorRequest.Status.SHUTDOWN) {
@@ -180,10 +188,10 @@ public abstract class NIOConnection
       this.min_length = min_length;
     }
 
-    public boolean call (SelectorRequest action) {
+    public boolean call (SelectorRequest request) {
 
       try {
-        if (action.status == SelectorRequest.Status.READY) {
+        if (request.status == SelectorRequest.Status.READY) {
 
           //while (byteBuffer.position() < min_length) {
           int numRead = channel.read (byteBuffer);
@@ -191,9 +199,10 @@ public abstract class NIOConnection
             // Remote entity shut the socket down cleanly. Do the
             // same from our end and cancel the channel.
             channel.close();
+            //close (); // close connection instead of channel directly
 
-            if (logger.isDebugEnabled()) {
-              logger.debug("Transport to " + connection_info +
+            if (isDebugEnabled) {
+              logger.debug(Thread.currentThread().getName() + "> Transport to " + connection_info +
                            ": stream closed on read  < 0" );
             }
           }
@@ -213,13 +222,14 @@ public abstract class NIOConnection
       catch (IOException ex) {
         try {
           channel.close();
+          // close (); // close connection instead of channel directly
         }
         catch (IOException ex2) {
           logger.error ("Failed to close channel: " + ex2.toString());
         }
 
-        if (logger.isDebugEnabled()) {
-          logger.debug("Got IOException in read(). Transport to " + connection_info +
+        if (isDebugEnabled) {
+          logger.debug(Thread.currentThread().getName() + "> Got IOException in read(). Transport to " + connection_info +
                        ": stream closed: " + ex.toString());
         }
       }
@@ -245,32 +255,52 @@ public abstract class NIOConnection
       byteBuffer.flip ();
     }
 
-    public boolean call (SelectorRequest action) {
+    public boolean call (SelectorRequest request) {
       try {
-        if (action.status == SelectorRequest.Status.READY) {
+        if (request.status == SelectorRequest.Status.READY) {
 
           int bytesRemaining = byteBuffer.remaining ();
           channel.write (byteBuffer);
 
           int bytesWritten = bytesRemaining - byteBuffer.remaining ();
-          if (logger.isDebugEnabled()) {
-            logger.debug ("wrote {} bytes to {}", bytesWritten, connection_info);
+          if (isDebugEnabled) {
+            logger.debug (Thread.currentThread().getName() + "> wrote {} bytes to {}", bytesWritten, connection_info);
           }
           // if buffer isn't empty request to be reactivated
           if (byteBuffer.hasRemaining()) {
             return true;
           }
         }
+        else {
+          failedWriteAttempts++;
+          if (failedWriteAttempts >= maxWriteAttempts) {
+
+            boolean isConnected;
+            synchronized (channel) {
+              isConnected = channel.isConnected();
+              if (isConnected) {
+                channel.close();
+                // close (); // close connection instead of channel directly
+              }
+            }
+
+            if (isDebugEnabled) {
+              logger.debug (Thread.currentThread().getName() + "> Write attempts exceeded maximum allowed attempts (" + maxWriteAttempts +
+                            "). " + (isConnected ? "Closing channel." : "Channel already closed."));
+            }
+          }
+        }
       }
       catch (IOException ex) {
         try {
           channel.close();
+          // close (); // close connection instead of channel directly
         }
         catch (IOException ex2) {
           logger.error ("Failed to close channel: " + ex2.toString());
         }
-        if (logger.isDebugEnabled()) {
-          logger.debug("Got IOException in write(). Transport to " + connection_info +
+        if (isDebugEnabled) {
+          logger.debug(Thread.currentThread().getName() + "> Got IOException in write(). Transport to " + connection_info +
                        ": stream closed: " + ex.toString());
         }
       }

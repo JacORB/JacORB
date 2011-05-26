@@ -116,7 +116,7 @@ public class SelectorManager extends Thread {
         synchronized (newRequests) {
           for (Iterator<SelectorRequest> newRequestsIter = newRequests.iterator (); newRequestsIter.hasNext();) {
             SelectorRequest request = newRequestsIter.next ();
-            request.setStatus (SelectorRequest.Status.PENDING);
+            //request.setStatus (SelectorRequest.Status.PENDING);
             insertIntoActivePool (request);
           }
           newRequests.clear ();
@@ -170,6 +170,7 @@ public class SelectorManager extends Thread {
             continue;
           }
 
+          try {
           // loop four times to account for each of the ecah of the possible IO operations
           //  connect, accept, read, write
           boolean checkConnect, checkAccept, checkRead, checkWrite;
@@ -222,6 +223,18 @@ public class SelectorManager extends Thread {
               executor.execute (task);
             }
           }
+          }
+          catch (CancelledKeyException ex) {
+            // explicit key cancellations are only doen by the selector thread, so the only way we
+            // got here is if another thread closed the assocated channel. In that case simple
+            // cleanup any requests associated with this key and continue.
+
+            if (loggerDebugEnabled) {
+              logger.debug (Thread.currentThread().getName()
+                            + "> Cleaning up requests associated with key: " + key.toString());
+            }
+            cleanup (key);
+          }
         }
       }
     }
@@ -247,6 +260,32 @@ public class SelectorManager extends Thread {
     }
     catch (Exception ex) {
       logger.error ("Exception in Selector manager cleanup. Bailing out: " + ex.toString());
+      ex.printStackTrace ();
+    }
+  }
+
+  /**
+   * Called in Selector thread
+   */
+  private void cleanup (SelectionKey key) {
+
+    cleanup (connectRequestsPool, key);
+    cleanup (writeRequestsPool, key);
+    cleanup (readRequestsPool, key);
+  }
+
+  /**
+   * Called in Selector thread
+   */
+  private void cleanup (RequestorPool pool, SelectionKey key) {
+
+    RequestsBuffer requestsBuffer = null;
+    synchronized (pool) {
+      requestsBuffer = pool.remove (key);
+    }
+
+    if (key != null) {
+      cleanup (requestsBuffer);
     }
   }
 
@@ -354,10 +393,19 @@ public class SelectorManager extends Thread {
 
     switch (request.type) {
     case CONNECT:
+      if (request.channel == null) {
+        request.setStatus (SelectorRequest.Status.FAILED);
+        immediateCallback = true;
+      }
+      break;
     case WRITE:
     case READ:
       if (request.channel == null) {
         request.setStatus (SelectorRequest.Status.FAILED);
+        immediateCallback = true;
+      }
+      else if (!request.channel.isConnected()) {
+        request.setStatus (SelectorRequest.Status.CLOSED);
         immediateCallback = true;
       }
       break;
@@ -389,6 +437,8 @@ public class SelectorManager extends Thread {
       logger.debug (Thread.currentThread().getName()
                     + "> Adding request to new requests buffer. Request type: " + request.type.toString());
     }
+
+    request.setStatus (SelectorRequest.Status.PENDING);
     synchronized (newRequests) {
       newRequests.add (newRequests.size(), request);
     }
@@ -402,7 +452,8 @@ public class SelectorManager extends Thread {
    */
   private void reActivateRequest (SelectorRequest request) {
 
-    if (request.type != SelectorRequest.Type.CONNECT && request.type != SelectorRequest.Type.TIMER
+    //if (request.type != SelectorRequest.Type.CONNECT && request.type != SelectorRequest.Type.TIMER
+    if (request.type != SelectorRequest.Type.TIMER
         && !request.channel.isConnected ()) {
       removeClosedRequests (request.key);
     }
@@ -680,6 +731,11 @@ public class SelectorManager extends Thread {
           //  don't refire the status update.
           if (request.status != SelectorRequest.Status.EXPIRED) {
             request.setStatus (SelectorRequest.Status.EXPIRED);
+
+            // cleanup connection expiry requests explicitly as this is probably the last chance to clean it up
+            if (request.type == SelectorRequest.Type.CONNECT && request.key != null) {
+              cleanup (connectRequestsPool, request.key);
+            }
           }
 
           // Regardless of who set expired status (worker or us) its our job to issue the
