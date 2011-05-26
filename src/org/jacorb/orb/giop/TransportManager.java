@@ -43,8 +43,8 @@ import org.omg.ETF.Factories;
  * This class manages Transports. On the one hand it creates them, and
  * on the other it enforces an upper limit on the open transports.
  *
- * The class also receives notifications from threads that are about do use a 
- * Transport and notifies any interested listeners. "Use" is defined as 
+ * The class also receives notifications from threads that are about do use a
+ * Transport and notifies any interested listeners. "Use" is defined as
  * sending (or handling) a request.
  *
  * @author Nicolas Noffke
@@ -76,7 +76,7 @@ public class TransportManager
     private List factoriesList = null;
 
     /**
-     * The first listener (in a chain of instances), representing 
+     * The first listener (in a chain of instances), representing
      * parties with interest in Transport events.
      */
     private TransportListener listener = null;
@@ -100,7 +100,14 @@ public class TransportManager
 
         if (factoryClassNames.isEmpty())
         {
+          boolean useNonBlockingTransport = configuration.getAttributeAsBoolean("jacorb.connection.nonblocking", false);
+
+          if (useNonBlockingTransport) {
+            factoryClassNames.add("org.jacorb.orb.nio.NIOFactories");
+          }
+          else {
             factoryClassNames.add("org.jacorb.orb.iiop.IIOPFactories");
+          }
         }
 
         // get profile selector info
@@ -260,5 +267,5 @@ public class TransportManager
             };
         }
     }
- 
+
 }
