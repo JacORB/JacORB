@@ -134,7 +134,7 @@ public class SelectorManager extends Thread {
         long sleepTime = cleanupExpiredRequests ();
 
         if (loggerDebugEnabled) {
-          logger.debug (Thread.currentThread().getName() + "> Selector will wait for "
+          logger.debug ("Selector will wait for "
                         + (sleepTime == Long.MAX_VALUE ? 0 : sleepTime) + " millis.");
         }
 
@@ -148,15 +148,14 @@ public class SelectorManager extends Thread {
 
         // // this will be verbose. Uncomment cautiously
         // if (loggerDebugEnabled) {
-        //   logger.debug (Thread.currentThread().getName() + "> select() finished. Gonna check if selector loop can be broken.");
+        //   logger.debug ("select() finished. Gonna check if selector loop can be broken.");
         // }
 
         synchronized (lock) {
 
           if (!running) {
             if (loggerDebugEnabled) {
-              logger.debug (Thread.currentThread().getName()
-                            + "> Breaking out of Selector loop; 'running' flag was disabled.");
+              logger.debug ("Breaking out of Selector loop; 'running' flag was disabled.");
             }
             break;
           }
@@ -171,58 +170,58 @@ public class SelectorManager extends Thread {
           }
 
           try {
-          // loop four times to account for each of the ecah of the possible IO operations
-          //  connect, accept, read, write
-          boolean checkConnect, checkAccept, checkRead, checkWrite;
-          checkConnect = checkAccept = checkRead = checkWrite = true;
-          for (int count = 0; count < 4; count++) {
-            int op = 0;
-            SelectorRequest.Type jobType = SelectorRequest.Type.CONNECT;
-            // delegate work to worker thread
-            if (checkConnect && key.isConnectable()) {
-              checkConnect = false;
-              op = SelectionKey.OP_CONNECT;
-              jobType = SelectorRequest.Type.CONNECT;
-            }
-            else if (checkAccept && key.isAcceptable()) {
-              checkAccept = false;
-              op = SelectionKey.OP_ACCEPT;
-              jobType = SelectorRequest.Type.ACCEPT;
-            } else if (checkRead && key.isReadable()) {
-              checkRead = false;
-              op = SelectionKey.OP_READ;
-              jobType = SelectorRequest.Type.READ;
-            } else if (checkWrite && key.isWritable()) {
-              checkWrite = false;
-              op = SelectionKey.OP_WRITE;
-              jobType = SelectorRequest.Type.WRITE;
-            }
-            else {
-              break;
-            }
-
-            if (op != 0) {
-
-              if (loggerDebugEnabled) {
-                logger.debug (Thread.currentThread().getName() + " Key " + key.toString() + " ready for action: " + jobType.toString());
-              }
-
-              // disable op bit for SelectionKey
-              int currentOps = key.interestOps ();
-              int newOps = currentOps ^ op; // exclusive or
-              try {
-                key.interestOps (newOps);
-              }
-              catch (CancelledKeyException ex) {
-                // let the worker deal with this
-              }
-
+            // loop four times to account for each of the ecah of the possible IO operations
+            //  connect, accept, read, write
+            boolean checkConnect, checkAccept, checkRead, checkWrite;
+            checkConnect = checkAccept = checkRead = checkWrite = true;
+            for (int count = 0; count < 4; count++) {
+              int op = 0;
+              SelectorRequest.Type jobType = SelectorRequest.Type.CONNECT;
               // delegate work to worker thread
-              SendJob sendJob = new SendJob (key, jobType);
-              FutureTask task = new FutureTask (sendJob);
-              executor.execute (task);
+              if (checkConnect && key.isConnectable()) {
+                checkConnect = false;
+                op = SelectionKey.OP_CONNECT;
+                jobType = SelectorRequest.Type.CONNECT;
+              }
+              else if (checkAccept && key.isAcceptable()) {
+                checkAccept = false;
+                op = SelectionKey.OP_ACCEPT;
+                jobType = SelectorRequest.Type.ACCEPT;
+              } else if (checkRead && key.isReadable()) {
+                checkRead = false;
+                op = SelectionKey.OP_READ;
+                jobType = SelectorRequest.Type.READ;
+              } else if (checkWrite && key.isWritable()) {
+                checkWrite = false;
+                op = SelectionKey.OP_WRITE;
+                jobType = SelectorRequest.Type.WRITE;
+              }
+              else {
+                break;
+              }
+
+              if (op != 0) {
+
+                if (loggerDebugEnabled) {
+                  logger.debug ("Key " + key.toString() + " ready for action: " + jobType.toString());
+                }
+
+                // disable op bit for SelectionKey
+                int currentOps = key.interestOps ();
+                int newOps = currentOps ^ op; // exclusive or
+                try {
+                  key.interestOps (newOps);
+                }
+                catch (CancelledKeyException ex) {
+                  // let the worker deal with this
+                }
+
+                // delegate work to worker thread
+                SendJob sendJob = new SendJob (key, jobType);
+                FutureTask task = new FutureTask (sendJob);
+                executor.execute (task);
+              }
             }
-          }
           }
           catch (CancelledKeyException ex) {
             // explicit key cancellations are only doen by the selector thread, so the only way we
@@ -230,8 +229,7 @@ public class SelectorManager extends Thread {
             // cleanup any requests associated with this key and continue.
 
             if (loggerDebugEnabled) {
-              logger.debug (Thread.currentThread().getName()
-                            + "> Cleaning up requests associated with key: " + key.toString());
+              logger.debug ("Cleaning up requests associated with key: " + key.toString());
             }
             cleanup (key);
           }
@@ -248,13 +246,12 @@ public class SelectorManager extends Thread {
       // clean up all pending requests
 
       if (loggerDebugEnabled) {
-        logger.debug (Thread.currentThread().getName()
-                      + "> SelectorManager loop is broken. Cleaning up pending requests");
+        logger.debug ("SelectorManager loop is broken. Cleaning up pending requests");
       }
       cleanup ();
 
       if (loggerDebugEnabled) {
-        logger.debug (Thread.currentThread().getName() + "> Issuing shutdown command to Threadpool executor.");
+        logger.debug ("Issuing shutdown command to Threadpool executor.");
       }
       executor.shutdown ();
     }
@@ -284,7 +281,7 @@ public class SelectorManager extends Thread {
       requestsBuffer = pool.remove (key);
     }
 
-    if (key != null) {
+    if (requestsBuffer != null) {
       cleanup (requestsBuffer);
     }
   }
@@ -327,10 +324,12 @@ public class SelectorManager extends Thread {
         SelectorRequest request = iter.next();
 
         if (loggerDebugEnabled) {
-          logger.debug (Thread.currentThread().getName() + "> Cleaning up request. Request type: "
+          logger.debug ("Cleaning up request. Request type: "
                         + request.type.toString() + ", Request status: " + request.status.toString());
         }
-        request.setStatus (SelectorRequest.Status.SHUTDOWN);
+        if (!running) {
+          request.setStatus (SelectorRequest.Status.SHUTDOWN);
+        }
 
         // delegate work to worker thread
         SendJob sendJob = new SendJob (request);
@@ -350,7 +349,7 @@ public class SelectorManager extends Thread {
       else {
 
         if (loggerDebugEnabled) {
-          logger.debug (Thread.currentThread().getName() + "> Halting Selector Manager.");
+          logger.debug ("Halting Selector Manager.");
         }
 
         running = false;
@@ -359,7 +358,7 @@ public class SelectorManager extends Thread {
     }
 
     if (loggerDebugEnabled) {
-      logger.debug (Thread.currentThread().getName() + "> Waiting for Threadpool executor to wind down.");
+      logger.debug ("Waiting for Threadpool executor to wind down.");
     }
     // wait until all threadpool tasks have finished
     while (!executor.isTerminated()) {
@@ -414,8 +413,7 @@ public class SelectorManager extends Thread {
     if (immediateCallback) {
       if (request.callback != null) {
         if (loggerDebugEnabled) {
-          logger.debug (Thread.currentThread().getName()
-                        + "> Immediate Requestor callback in client thread. Request type: " + request.type.toString() +
+          logger.debug ("Immediate Requestor callback in client thread. Request type: " + request.type.toString() +
                         ", Request status: " + request.status.toString());
         }
 
@@ -427,15 +425,14 @@ public class SelectorManager extends Thread {
         }
 
         if (loggerDebugEnabled) {
-          logger.debug (Thread.currentThread().getName() + "> Callback concluded");
+          logger.debug ("Callback concluded");
         }
       }
       return false;
     }
 
     if (loggerDebugEnabled) {
-      logger.debug (Thread.currentThread().getName()
-                    + "> Adding request to new requests buffer. Request type: " + request.type.toString());
+      logger.debug ("Adding request to new requests buffer. Request type: " + request.type.toString());
     }
 
     request.setStatus (SelectorRequest.Status.PENDING);
@@ -460,8 +457,7 @@ public class SelectorManager extends Thread {
     else {
 
       if (loggerDebugEnabled) {
-        logger.debug (Thread.currentThread().getName()
-                      + "> Reactivating request. Request type: " + request.type.toString());
+        logger.debug ("Reactivating request. Request type: " + request.type.toString());
       }
 
       try {
@@ -493,7 +489,7 @@ public class SelectorManager extends Thread {
     }
 
     if (loggerDebugEnabled) {
-      logger.debug (Thread.currentThread().getName() + "> Removing request matching key " + key.toString());
+      logger.debug ("Removing request matching key " + key.toString());
     }
 
     // cancel key
@@ -553,8 +549,7 @@ public class SelectorManager extends Thread {
   private void insertIntoActivePool (SelectorRequest request) {
 
     if (loggerDebugEnabled) {
-      logger.debug (Thread.currentThread().getName()
-                    + "> Inserting request into active pool. Request type: " + request.type.toString());
+      logger.debug ("Inserting request into active pool. Request type: " + request.type.toString());
     }
 
     if (request.type != SelectorRequest.Type.CONNECT && request.type != SelectorRequest.Type.TIMER
@@ -668,8 +663,7 @@ public class SelectorManager extends Thread {
     RequestsBuffer requests = timeOrderedRequests;
 
     if (loggerDebugEnabled) {
-      logger.debug (Thread.currentThread().getName()
-                    + "> Inserting request into timed requests buffer. Request type: " + newRequest.type.toString());
+      logger.debug ("Inserting request into timed requests buffer. Request type: " + newRequest.type.toString());
     }
 
     synchronized (requests) {
@@ -694,8 +688,7 @@ public class SelectorManager extends Thread {
   private long cleanupExpiredRequests () {
 
     if (loggerDebugEnabled) {
-      logger.debug (Thread.currentThread().getName()
-                    + "Enter SelectorManager.cleanupExpiredRequests()");
+      logger.debug ("Enter SelectorManager.cleanupExpiredRequests()");
     }
 
     long sleepTime = 0;//Long.MAX_VALUE;
@@ -704,8 +697,7 @@ public class SelectorManager extends Thread {
         SelectorRequest request = iter.next();
 
         if (loggerDebugEnabled) {
-          logger.debug (Thread.currentThread().getName()
-                        + "Checking expiry on request. Request type: " + request.type.toString()
+          logger.debug ("Checking expiry on request. Request type: " + request.type.toString()
                         + ", request status: " + request.status.toString());
         }
 
@@ -715,14 +707,14 @@ public class SelectorManager extends Thread {
           continue;
         }
 
+        long currentNanoTime = System.nanoTime();
         // if still pending and time expired, no action is being taken, just expire the sucker
         // leave the op registration alone. We don't know if another request is pending. Upon
         //  firing, selector will check if any unpired requests are pending.
-        if (request.nanoDeadline <= System.nanoTime()) {
+        if (request.nanoDeadline <= currentNanoTime) {
 
           if (loggerDebugEnabled) {
-            logger.debug (Thread.currentThread().getName()
-                          + "> Cleaning up expired request from timed requests queue:\n" +
+            logger.debug ("Cleaning up expired request from timed requests queue:\n" +
                           "\trequest type: " + request.type.toString() +
                           ", request status: " + request.status.toString());
           }
@@ -749,8 +741,8 @@ public class SelectorManager extends Thread {
         }
 
         // the first non-pending, still to expire action gives us the next sleep time.
-        sleepTime = (request.nanoDeadline - System.nanoTime())/ 1000000;
-        sleepTime = (sleepTime < 0 ? 1 : sleepTime); // cannot return sleepTime 0 as thats an infinity
+        sleepTime = (request.nanoDeadline - currentNanoTime)/ 1000000; // convert to milli
+        sleepTime = (sleepTime <= 0 ? 1 : sleepTime); // cannot return sleepTime 0 as thats an infinity
         break;
       }
     }
@@ -795,8 +787,7 @@ public class SelectorManager extends Thread {
       if (request.callback != null) {
 
         if (loggerDebugEnabled) {
-          logger.debug (Thread.currentThread().getName()
-                        + "> Requestor callback in worker thread. Request type: " + request.type.toString());
+          logger.debug ("Requestor callback in worker thread. Request type: " + request.type.toString());
         }
 
         try {
@@ -807,8 +798,7 @@ public class SelectorManager extends Thread {
         }
 
         if (loggerDebugEnabled) {
-          logger.debug (Thread.currentThread().getName()
-                        + "> Callback concluded. Reactivation request: " + (reActivate ? "TRUE" : "FALSE"));
+          logger.debug ("Callback concluded. Reactivation request: " + (reActivate ? "TRUE" : "FALSE"));
         }
 
         // if connected is closed, try to reactivate the request. this will let
@@ -869,7 +859,7 @@ public class SelectorManager extends Thread {
   private void handleAction (SelectionKey key, SelectorRequest.Type type, SelectorRequest request) {
 
     if (loggerDebugEnabled) {
-      logger.debug (Thread.currentThread().getName() + "> Enter SelectorManager.handleAction");
+      logger.debug ("Enter SelectorManager.handleAction");
     }
 
     // if request object is available just call its callable object
@@ -877,8 +867,7 @@ public class SelectorManager extends Thread {
       if (request.callback != null) {
 
         if (loggerDebugEnabled) {
-          logger.debug (Thread.currentThread().getName()
-                        + "> Selector Worker thread " + Thread.currentThread().getId() + " calling request callback directly:\n" +
+          logger.debug ("Selector Worker thread calling request callback directly:\n" +
                         "\tRequest type: " + request.type.toString() + ", Request status: " + request.status.toString());
         }
 
@@ -890,7 +879,7 @@ public class SelectorManager extends Thread {
         }
 
         if (loggerDebugEnabled) {
-          logger.debug (Thread.currentThread().getName() + "> Callback concluded");
+          logger.debug ("Callback concluded");
         }
       }
     }

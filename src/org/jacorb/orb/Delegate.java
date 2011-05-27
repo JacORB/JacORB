@@ -1141,7 +1141,12 @@ public final class Delegate
                 throw new RemarshalException();
             }
 
-            disconnect(connectionToUse);
+            if (!(cfe instanceof org.omg.CORBA.TIMEOUT)) {
+              if (logger.isDebugEnabled()) {
+                logger.debug (this.toString() + ":invoke_internal: closing connection due to " + cfe.getMessage());
+              }
+              disconnect(connectionToUse);
+            }
 
             throw cfe;
         }

@@ -917,12 +917,11 @@ public abstract class GIOPConnection
   // timeout is in milliseconds and is an interval
     protected final boolean getWriteLock (long timeout)
     {
-      long startTime = System.currentTimeMillis();
-      long endTime = (timeout > 0 ? startTime + timeout : Long.MAX_VALUE);
+      long endTime = (timeout > 0 ? System.currentTimeMillis() + timeout : Long.MAX_VALUE);
 
-      while (endTime > startTime) {
+      while (endTime > System.currentTimeMillis()) {
 
-        long remainingTime = endTime - startTime;
+        long remainingTime = endTime - System.currentTimeMillis();
         try {
           return writeLock.tryLock (remainingTime, TimeUnit.MILLISECONDS);
         }

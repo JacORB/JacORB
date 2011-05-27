@@ -16,7 +16,7 @@ public class GoodDayImpl
 
   public String hello_simple (int id, String data)
   {
-    System.out.print (" <" + requestCount.getAndIncrement() + "," + data.length() + ">");
+    System.out.print (" <" + requestCount.getAndIncrement() + "," + id + "," + data.length() + ">");
 
     try {
       Thread.currentThread().sleep (500);

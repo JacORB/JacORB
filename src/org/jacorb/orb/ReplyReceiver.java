@@ -520,18 +520,30 @@ public class ReplyReceiver
 
     public boolean call (SelectorRequest request) {
 
-      synchronized (lock) {
-        if (request.status == SelectorRequest.Status.EXPIRED && !awakened) {
-          timeoutException = true;
+      if (logger.isDebugEnabled()) {
+        logger.debug ("Request callback. Request type: " + request.type.toString()
+                      + ", request status: " + request.status.toString());
+      }
 
-          if (replyHandler != null) {
-            ExceptionHolderImpl exHolder =
-              new ExceptionHolderImpl((ORB)delegate.orb(null), new org.omg.CORBA.TIMEOUT());
-            performExceptionCallback(exHolder);
+      synchronized (lock) {
+        if (request.status == SelectorRequest.Status.EXPIRED) {
+          if (!awakened) {
+            timeoutException = true;
+
+            if (replyHandler != null) {
+              ExceptionHolderImpl exHolder =
+                new ExceptionHolderImpl((ORB)delegate.orb(null), new org.omg.CORBA.TIMEOUT());
+              performExceptionCallback(exHolder);
+            }
           }
-          ready = true;
-          lock.notifyAll();
         }
+        else {
+          // something bad happened (SHUTDOWN, FAILED throw a COM_FAILURE)
+          communicationException = true;
+        }
+
+        ready = true;
+        lock.notifyAll();
       }
 
       return false;

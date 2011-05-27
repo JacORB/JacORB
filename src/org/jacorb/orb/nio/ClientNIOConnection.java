@@ -72,7 +72,7 @@ public class ClientNIOConnection
       }
 
       if (isDebugEnabled) {
-        logger.debug(Thread.currentThread().getName() + "> Trying to establish client connection with timeout " + timeout);
+        logger.debug("Trying to establish client connection with timeout " + timeout);
       }
 
       int retryCount = 0;
@@ -84,13 +84,21 @@ public class ClientNIOConnection
           // in_stream = Channels.newInputStream (channel);
           // out_stream = Channels.newOutputStream (channel);
 
+          SocketChannel myChannel;
+          synchronized (this) {
+            myChannel = channel;
+          }
+
           if (logger.isInfoEnabled()) {
             logger.info("Connected to " + connection_info +
                         " from local port " +
-                        channel.socket().getLocalPort() +
+                        myChannel.socket().getLocalPort() +
                         ( (timeout == 0) ? "" : " Timeout: " + timeout));
           }
 
+          synchronized (this) {
+            failedWriteAttempts = 0;
+          }
           setConnected (true);
           return;
         }
@@ -100,7 +108,7 @@ public class ClientNIOConnection
         }
         catch (IOException ex) {
           if (isDebugEnabled) {
-            logger.debug(Thread.currentThread().getName() + "> Exception", ex);
+            logger.debug("Exception", ex);
           }
 
           //only sleep and print message if we're actually
@@ -135,9 +143,14 @@ public class ClientNIOConnection
       return;
     }
 
+    SocketChannel myChannel;
+    synchronized (this) {
+      myChannel = channel;
+    }
+
     try {
-      if (channel != null) {
-        channel.close();
+      if (myChannel != null) {
+        myChannel.close();
       }
 
       setConnected (false);
@@ -158,14 +171,14 @@ public class ClientNIOConnection
     }
     catch (IOException ex) {
       if (isDebugEnabled) {
-        logger.debug (Thread.currentThread().getName() + "> Exception when closing the channel", ex);
+        logger.debug ("Exception when closing the channel", ex);
       }
 
       throw handleCommFailure(ex);
     }
   }
 
-  private void connectChannel (long nanoDeadline)
+  private synchronized void connectChannel (long nanoDeadline)
     throws IOException {
 
     List addressList = new ArrayList();
@@ -177,10 +190,15 @@ public class ClientNIOConnection
     Exception exception = null;
     // initialize channel
 
+    //SocketChannel myChannel = SocketChannel.open();
+
     while (addressIterator.hasNext()) {
+      SocketChannel myChannel = null;
       try {
-        channel = SocketChannel.open();
-        channel.configureBlocking(false);
+        //channel = SocketChannel.open();
+        //channel.configureBlocking(false);
+        myChannel = SocketChannel.open();
+        myChannel.configureBlocking(false);
 
         IIOPAddress address = (IIOPAddress)addressIterator.next();
 
@@ -197,17 +215,19 @@ public class ClientNIOConnection
           logger.debug("Trying to connect to " + connection_info);
         }
 
-        channel.connect (new InetSocketAddress (ipAddress, port));
+        //channel.connect (new InetSocketAddress (ipAddress, port));
+        myChannel.connect (new InetSocketAddress (ipAddress, port));
 
-        SelectorRequest request = new SelectorRequest (SelectorRequest.Type.CONNECT, channel,
+        //SelectorRequest request = new SelectorRequest (SelectorRequest.Type.CONNECT, channel,
+        SelectorRequest request = new SelectorRequest (SelectorRequest.Type.CONNECT, myChannel,
                                                        new ConnectCallback (), nanoDeadline);
-        logger.info ("Thread " + Thread.currentThread().getId() + ": Adding connect request.");
+        logger.info ("Adding connect request.");
         selectorManager.add (request);
-        logger.info ("Thread " + Thread.currentThread().getId() + ": Wait for request completion.");
+        logger.info ("Wait for request completion.");
         request.waitOnCompletion (nanoDeadline);
 
-        logger.info ("Thread " + Thread.currentThread().getId() + ": Finished waitOnCompletion()");
-        logger.info ("Thread " + Thread.currentThread().getId() + ": Request status: " +
+        logger.info ("Finished waitOnCompletion()");
+        logger.info ("Request status: " +
                       request.status.toString());
 
         if (request.status == SelectorRequest.Status.EXPIRED || !request.isFinalized()) {
@@ -219,7 +239,12 @@ public class ClientNIOConnection
           // Somethings wrong with SelectorManager. Unwise to proceed
           throw new IOException ("SelectorManager is corrupted");
         }
-        else if (channel.isConnected()) {
+        //else if (channel.isConnected()) {
+        else if (myChannel.isConnected()) {
+
+          synchronized (this) {
+            channel = myChannel;
+          }
           // we are connected
           break;
         }
@@ -229,7 +254,10 @@ public class ClientNIOConnection
       }
 
       // TBD: selectorManager.remove (request);
-      channel.close ();
+      //channel.close ();
+      if (myChannel != null) {
+        myChannel.close ();
+      }
     }
 
     if (exception != null) {
@@ -251,9 +279,19 @@ public class ClientNIOConnection
 
     public boolean call (SelectorRequest request) {
 
+      SocketChannel myChannel = request.channel;
+
+      if (isDebugEnabled) {
+        logger.debug("Connect callback. Request status: " + request.status.toString());
+      }
+
       try {
         if (request.status == SelectorRequest.Status.READY) {
-          request.channel.finishConnect ();
+          myChannel.finishConnect ();
+
+          if (isDebugEnabled) {
+            logger.debug("Connection establishment finished");
+          }
         }
       }
       catch (Exception ex) {

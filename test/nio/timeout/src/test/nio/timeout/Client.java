@@ -97,7 +97,7 @@ public class Client
       // step of 100 nano secs., so 10000 of these make up a
       // micro second.
       Any rrtPolicyAny = orb.create_any();
-      rrtPolicyAny.insert_ulonglong (ONE_SECOND);
+      rrtPolicyAny.insert_ulonglong (ONE_SECOND*2);
        //rrtPolicyAny.insert_ulonglong (QUATER_SECOND);
 
       // create a relative roundtrip timeout policy and set this
