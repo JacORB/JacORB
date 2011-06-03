@@ -1,6 +1,7 @@
 <project name="coverage-cobertura" >
 
     <dirname property="dir.cobertura.base" file="${ant.file.coverage-cobertura}"/>
+    <property name="coverage.format" value="html"/>
 
     <path id="classpath.coverage">
         <fileset dir="${dir.cobertura.base}/cobertura-1.9.4.1">
@@ -65,15 +66,15 @@
                 </fileset>
             </cobertura-merge>
 
-            <cobertura-report format="html" destdir="${dir.combined}" datafile="${dir.coverage.tmp}/coverage-combined.ser">
+            <cobertura-report format="${coverage.format}" destdir="${dir.combined}" datafile="${dir.coverage.tmp}/coverage-combined.ser">
                 <fileset dir="${basedir}/src" />
             </cobertura-report>
 
-            <cobertura-report format="html" destdir="${dir.server}" datafile="${dir.coverage.tmp}/coverage-server.ser">
+            <cobertura-report format="${coverage.format}" destdir="${dir.server}" datafile="${dir.coverage.tmp}/coverage-server.ser">
                 <fileset dir="${basedir}/src" />
             </cobertura-report>
 
-            <cobertura-report format="html" destdir="${dir.client}" datafile="${dir.coverage.tmp}/coverage-client.ser">
+            <cobertura-report format="${coverage.format}" destdir="${dir.client}" datafile="${dir.coverage.tmp}/coverage-client.ser">
                 <fileset dir="${basedir}/src" />
             </cobertura-report>
 
