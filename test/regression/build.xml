@@ -148,8 +148,10 @@
             <isset property="TEST_IMR" />
         </condition>
 
-        <!-- By default, we do run naming and notification tests -->
-        <property name="jacorb.test.exclude-services" value="false" />
+       <!-- By default, we do run naming and notification tests -->
+       <!-- Don't set the property as it looks for the property's existence -->
+       <!-- rather than its value -->
+       <!-- ...property name="jacorb.test.exclude-services" value="false" -->
         <property name="jacorb.test.verbose" value="false" />
 
         <!-- timeout if we want in tests for something to happen that takes a while -->
