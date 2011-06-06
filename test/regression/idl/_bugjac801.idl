@@ -23,9 +23,42 @@ module org
                         case case3:
                         case case4: short titi;
                     };
+
+                   typedef boolean Empty;
+
+                   union OptSArrayElapsedTimeOnPointElapsedTimeOnItemsMAX_EET_POINT switch(boolean) {
+                    case TRUE :                     string value;
+                    case FALSE :                    Empty Nothing;
+                   };
+                   union OptSArrayElapsedTimeOnFIRElapsedTimeOnItemsMAX_EET_FIR switch(boolean) {
+                    case TRUE :                     short value;
+                    case FALSE :                     Empty Nothing;
+                };
+
+                   struct ElapsedTimeOnItems
+                   {
+                      OptSArrayElapsedTimeOnPointElapsedTimeOnItemsMAX_EET_POINT eetptField;
+                      OptSArrayElapsedTimeOnFIRElapsedTimeOnItemsMAX_EET_FIR eetfirField;
+            };
+                    union OptElapsedTimeOnItems switch(boolean)
+                    {
+                       case TRUE :                       ElapsedTimeOnItems value;
+                       case FALSE :                      Empty Nothing;
+        };
+
+                   union LongSwitch switch(long)
+                    {
+                       case 1 :                       string value;
+                       case 2 :                      long Nothing;
+};
+ 
+                   union SimpleSwitch switch(boolean)
+                    {
+                       case TRUE :                       string value;
+                       case FALSE :                      long Nothing;
+                    };
                 };
             };
         };
     };
 };
- 

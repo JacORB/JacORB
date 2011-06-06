@@ -785,11 +785,11 @@ public class UnionType
         }
         else
         {
-            pw.println ("\t\t" + switch_type_spec.typeSpec().printWriteStatement("discriminator ", "out"));
             if (switch_is_bool)
             {
                 /* special case: booleans are no switch type in java */
                 case_str = "if (discriminator  ==";
+                colon_str = ")";
                 // colon_str and default_str are already set correctly
             }
             else if (switch_is_longlong)
