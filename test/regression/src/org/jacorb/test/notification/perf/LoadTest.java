@@ -86,7 +86,7 @@ public class LoadTest extends NotificationTestCase
         return NotificationTestCase.suite(LoadTest.class);
     }
 
-    public void testLoad() throws Exception
+    public void XXXtestLoad() throws Exception
     {
         final List received = new ArrayList();
 
@@ -104,9 +104,9 @@ public class LoadTest extends NotificationTestCase
                 {
                     e.printStackTrace();
                 }
-                
+
                 System.out.println("Received ...");
-                
+
                 super.push_structured_event(event);
             }
         };

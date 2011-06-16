@@ -83,7 +83,7 @@ public class PerformanceTest extends NotificationTestCase
 
     /**
      * Creates a new <code>PerformanceTest</code> instance.
-     * 
+     *
      * @param name
      *            test name
      */
@@ -187,7 +187,7 @@ public class PerformanceTest extends NotificationTestCase
         measureFilterLatency("$type_name == 'TESTING'", _event, _runs);
 
         measureFilterLatency("$domain_name == 'TESTING'", _event, _runs);
-        
+
         Thread.sleep(120000);
     }
 
@@ -219,7 +219,7 @@ public class PerformanceTest extends NotificationTestCase
         String _expression = filterString;
         _constraintExp[0] = new ConstraintExp(_eventType, _expression);
         _filter.add_constraints(_constraintExp);
-        
+
         return _filter;
     }
 
@@ -241,18 +241,18 @@ public class PerformanceTest extends NotificationTestCase
                 + " in average: " + (_total / runs));
     }
 
-    public void testLoad() throws Exception
+    public void XXXtestLoad() throws Exception
     {
         final AtomicBoolean active = new AtomicBoolean(true);
-        
+
         final StructuredPushReceiver receiver = new StructuredPushReceiver(getClientORB());
-        
+
         receiver.connect(channel_, false);
 
         final StructuredPushSender sender = new StructuredPushSender(getClientORB());
 
         sender.connect(channel_, false);
-        
+
         while (active.get())
         {
             final StructuredEvent[] data = new StructuredEvent[1000];
@@ -261,7 +261,7 @@ public class PerformanceTest extends NotificationTestCase
             {
                 data[x] = testUtils_.getStructuredEvent();
             }
-            
+
             final CountDownLatch latch = new CountDownLatch(1);
             new Thread()
             {
@@ -291,16 +291,16 @@ public class PerformanceTest extends NotificationTestCase
 
             Thread.sleep(60000);
 
-            System.out.println(receiver);            
+            System.out.println(receiver);
         }
-        
+
         sender.shutdown();
-        
+
         receiver.shutdown();
     }
 
     public static Test suite() throws Exception
     {
-        return NotificationTestCase.suite(PerformanceTest.class, "_testMeasureFilterLatency");
+        return NotificationTestCase.suite(PerformanceTest.class);//, "_testMeasureFilterLatency");
     }
 }
