@@ -68,9 +68,11 @@ import org.omg.CORBA.ORBPackage.InvalidName;
 import org.omg.CORBA.portable.BoxedValueHelper;
 import org.omg.CORBA.portable.StreamableValue;
 import org.omg.CORBA.portable.ValueFactory;
+import org.omg.CSIIOP.*;
 import org.omg.ETF.Profile;
 import org.omg.IOP.IOR;
 import org.omg.IOP.MultipleComponentProfileHelper;
+import org.omg.IOP.TAG_CSI_SEC_MECH_LIST;
 import org.omg.IOP.TAG_INTERNET_IOP;
 import org.omg.IOP.TAG_MULTIPLE_COMPONENTS;
 import org.omg.IOP.TAG_ORB_TYPE;
@@ -799,10 +801,13 @@ public final class ORB
                 // use proxy or ImR address if necessary
                 patchAddress((ProfileBase)profile, repId, _transient);
 
+                TaggedComponentList components =
+                    (TaggedComponentList)componentMap.get(Integer.valueOf(TAG_INTERNET_IOP.value));
+
                 // patch primary address port to 0 if SSL is required
-                if (poa.isSSLRequired())
+                if (poa.isSSLRequired() || isSSLRequiredInComponentList(components))
                 {
-                    ((ProfileBase)profile).patchPrimaryAddress(null);
+                    ((ProfileBase)profile).patchPrimaryAddress(new IIOPAddress(null, 0));
                 }
             }
         }
@@ -883,6 +888,43 @@ public final class ORB
         }
 
         return new IOR(repId, tps);
+    }
+
+    public boolean isSSLRequiredInComponentList(TaggedComponentList components)
+    {
+        int minimum_options = Integrity.value | Confidentiality.value |
+                              DetectReplay.value | DetectMisordering.value;
+
+        if(components == null)
+        {
+            return false;
+        }
+
+        CompoundSecMechList csmList =
+            (CompoundSecMechList)components.getComponent(
+                                            TAG_CSI_SEC_MECH_LIST.value,
+                                            CompoundSecMechListHelper.class);
+
+        if (csmList != null && csmList.mechanism_list.length > 0 &&
+                csmList.mechanism_list[0].transport_mech.tag ==
+                                                    TAG_TLS_SEC_TRANS.value)
+        {
+            byte[] tlsSecTransData =
+                csmList.mechanism_list[0].transport_mech.component_data;
+            CDRInputStream in =
+                new CDRInputStream((org.omg.CORBA.ORB)null, tlsSecTransData);
+            try
+            {
+                in.openEncapsulatedArray();
+                TLS_SEC_TRANS tls = TLS_SEC_TRANSHelper.read(in);
+                return (tls.target_requires & minimum_options) != 0;
+            }
+            catch ( Exception ex )
+            {
+                throw new INTERNAL(ex.toString());
+            }
+        }
+        return false;
     }
 
     private TaggedProfile createMultipleComponentsProfile
