@@ -124,6 +124,8 @@ post 2.3.1
         - Fix for setting port address to zero when SSL is in use or when an
           IORInterceptor adds a CSI component with transport protection.
           (24.5.1 from CORBA 04-03-01).
+        - Added jacorb.interop.null_string_encoding to allow handling of null strings.
+          Thanks to Fabiano Ghisla.
 
     - IDL Compiler:
         - fixed issue where the IDL compiler generated imports for the

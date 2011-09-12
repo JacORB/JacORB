@@ -399,6 +399,10 @@ jacorb.interop.chunk_custom_rmi_valuetypes=on
 # http://lists.spline.inf.fu-berlin.de/mailman/htdig/jacorb-developer/2006-May/008251.html
 jacorb.interop.sun=off
 
+# Some ORBs (e.g. Visibroker) do not correctly encode empty strings
+# saving one byte on the payload. Turn this on if you run into null strings.
+jacorb.interop.null_string_encoding=off
+
 ###########################################
 #                                         #
 #         Socket Factories                #
