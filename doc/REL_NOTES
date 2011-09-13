@@ -46,6 +46,8 @@ post 2.3.1
 
     - ORB:
         - fix that allows custom SocketFactory class plugins to
+       - Bind client socket to wildcard address instead of localhost in 
+         PortRangeSocketFactory (JAC#596)
           specify their dependency on the ORB either as
           org.jacorb.orb.ORB or org.omg.CORBA.ORB in their
           constructor.

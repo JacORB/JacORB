@@ -38,7 +38,6 @@ import org.jacorb.poa.util.POAUtil;
 import org.jacorb.ssl.SSLPolicy;
 import org.jacorb.ssl.SSLPolicyValue;
 import org.jacorb.ssl.SSL_POLICY_TYPE;
-import org.jacorb.util.ObjectUtil;
 import org.omg.BiDirPolicy.BIDIRECTIONAL_POLICY_TYPE;
 import org.omg.BiDirPolicy.BidirectionalPolicy;
 import org.omg.CORBA.NO_IMPLEMENT;

@@ -162,10 +162,10 @@ public class ParsedIOR
   }
 
     /**
-    * This method replaces the unfiyTargetAddress method.
+    * This method replaces the unifyTargetAddress method.
     * <P>
     * It will extract an object key from any given GIOP::TargetAddress
-    * assuming an appropriate ETF::Factories implementation is availble
+    * assuming an appropriate ETF::Factories implementation is available
     * for the profile in use.
     */
     public static byte[] extractObjectKey(TargetAddress addr, ORB orb)
@@ -777,7 +777,7 @@ public class ParsedIOR
     {
         public static Integer read (org.omg.CORBA.portable.InputStream in)
         {
-            return new Integer (in.read_long());
+            return Integer.valueOf (in.read_long());
         }
     }
 

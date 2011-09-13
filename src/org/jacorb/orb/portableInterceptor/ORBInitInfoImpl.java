@@ -288,7 +288,7 @@ public class ORBInitInfoImpl
             throw new org.omg.CORBA.BAD_PARAM("Actual parameter policy_factory is null!");
         }
 
-        final Integer key = new Integer(type);
+        final Integer key = Integer.valueOf (type);
         if (policy_factories.containsKey(key))
         {
             throw new org.omg.CORBA.BAD_INV_ORDER("A PolicyFactory for type " + type +

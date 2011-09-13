@@ -85,7 +85,7 @@ public class IORInfoImpl extends org.omg.CORBA.LocalObject
     public void add_ior_component_to_profile(TaggedComponent component, int id)
     {
         TaggedComponentList list =
-            (TaggedComponentList)components.get (new Integer (id));
+            (TaggedComponentList)components.get(Integer.valueOf (id));
         if (list == null)
         {
             throw new org.omg.CORBA.BAD_PARAM
@@ -119,7 +119,7 @@ public class IORInfoImpl extends org.omg.CORBA.LocalObject
         Policy policy = null;
         if (policy_overrides != null)
         {
-            policy = (Policy)policy_overrides.get (new Integer(type));
+            policy = (Policy)policy_overrides.get (Integer.valueOf (type));
         }
         return (policy != null) ? policy : poa.getPolicy(type);
     }

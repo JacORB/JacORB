@@ -72,17 +72,16 @@ public class PortRangeSocketFactory
         throws IOException, UnknownHostException
     {
         int localPort;
-        InetAddress localHost = InetAddress.getLocalHost ();
-
         for (localPort = portMin; localPort <= portMax; localPort++)
         {
             try
             {
-                final Socket socket = new Socket (host, port, localHost, localPort);
+                //use null as local InetAddress so InetSocketAddress will set the IP address to
+                //the any/wildcard address
+                final Socket socket = new Socket (host, port, null, localPort);
                 if (logger.isDebugEnabled())
                 {
-                    logger.debug("PortRangeSocketFactory: Created server socket at "
-                                 + ":" + localPort);
+                    logger.debug("PortRangeSocketFactory: Created socket at :" + localPort);
                 }
 
                 return socket;
@@ -128,7 +127,6 @@ public class PortRangeSocketFactory
 
     protected Socket doCreateSocket(String host, int port, int timeout) throws IOException
     {
-        final InetAddress localHost = InetAddress.getLocalHost();
         int localPort;
         Socket socket;
 
@@ -140,13 +138,15 @@ public class PortRangeSocketFactory
             socket = new Socket();
             try
             {
-                socket.bind(new InetSocketAddress(localHost, localPort));
+                //use null as InetAddress so InetSocketAddress will set the IP address to
+                //the any/wildcard address
+                socket.bind(new InetSocketAddress((InetAddress) null, localPort));
                 socket.connect(new InetSocketAddress(host, port), timeout);
 
                 if (logger.isWarnEnabled())
                 {
                     logger.warn("PortRangeSocketFactory: Created socket between "
-                            + localHost.getHostAddress () + ":" + localPort
+                            + socket.getLocalAddress().getHostAddress () + ":" + localPort
                             + " and " + host + ":" + port);
                 }
                 return socket;

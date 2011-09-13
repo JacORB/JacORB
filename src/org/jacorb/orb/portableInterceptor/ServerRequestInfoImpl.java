@@ -490,7 +490,7 @@ public class ServerRequestInfoImpl
     public void add_reply_service_context(ServiceContext service_context,
                                           boolean replace)
     {
-        Integer _id = new Integer(service_context.context_id);
+        Integer _id = Integer.valueOf (service_context.context_id);
 
         if (! replace && reply_ctx.containsKey(_id))
         {
