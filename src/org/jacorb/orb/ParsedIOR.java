@@ -591,7 +591,7 @@ public class ParsedIOR
             }
             catch (Exception e)
             {
-                logger.error("Invalid corbaloc URL", e);
+                logger.error(("Invalid corbaloc URL " + corbaLoc.getKeyString ()), e);
                 throw new IllegalArgumentException("Invalid corbaloc: URL");
             }
         }

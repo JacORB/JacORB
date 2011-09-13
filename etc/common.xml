@@ -14,16 +14,6 @@
 
 
 <target name="init-properties">
-    <condition property="available.jdk15" value="true" >
-      <and>
-         <equals arg2="${ant.java.version}" arg1="1.5"/>
-
-         <not>
-             <isset property="dir.j2me" />
-         </not>
-      </and>
-   </condition>
-
    <property name="debug" value="true"/>
 
    <property name="debuglevel" value="vars,lines,source"/>

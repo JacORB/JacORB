@@ -542,43 +542,37 @@ public class PrintIOR
             is.openEncapsulatedArray();
 
             org.omg.CONV_FRAME.CodeSetComponentInfo codeSet =
-                CodeSetComponentInfoHelper.read( is );
+            CodeSetComponentInfoHelper.read( is );
 
             if( codeSet != null )
             {
                 out.println("\t\tForChar native code set Id: " +
-                        CodeSet.csName(codeSet.ForCharData.native_code_set ));
+                            CodeSet.csName(codeSet.ForCharData.native_code_set ));
                 out.print("\t\tChar Conversion Code Sets: ");
                 for( int ji = 0; ji < codeSet.ForCharData.conversion_code_sets.length; ji++ )
                 {
-                    out.println( CodeSet.csName( codeSet.ForCharData.conversion_code_sets[ji] ) );
+                    out.print( CodeSet.csName( codeSet.ForCharData.conversion_code_sets[ji] ) );
 
                     if( ji < (codeSet.ForCharData.conversion_code_sets.length - 1) )
                     {
                         out.print( ", " );
                     }
                 }
-                if (codeSet.ForCharData.conversion_code_sets.length == 0 )
-                {
-                    out.print("\n");
-                }
+                out.print("\n");
 
                 out.println("\t\tForWChar native code set Id: " +
-                        CodeSet.csName(codeSet.ForWcharData.native_code_set ));
+                            CodeSet.csName(codeSet.ForWcharData.native_code_set ));
                 out.print("\t\tWChar Conversion Code Sets: ");
                 for( int ji = 0; ji < codeSet.ForWcharData.conversion_code_sets.length; ji++ )
                 {
-                    out.println( CodeSet.csName( codeSet.ForWcharData.conversion_code_sets[ji] ));
+                    out.print( CodeSet.csName( codeSet.ForWcharData.conversion_code_sets[ji] ));
 
                     if( ji < (codeSet.ForWcharData.conversion_code_sets.length - 1) )
                     {
                         out.print( ", " );
                     }
                 }
-                if (codeSet.ForCharData.conversion_code_sets.length == 0 )
-                {
-                    out.print("\n");
-                }
+                out.print("\n");
             }
         }
         finally
