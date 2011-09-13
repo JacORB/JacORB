@@ -838,7 +838,7 @@ public class ValueDecl
             out.println("public abstract class " + name + "Helper");
             out.println("{");
 
-            out.println("\tprivate static org.omg.CORBA.TypeCode type = null;");
+            out.println("\tprivate static org.omg.CORBA.TypeCode typeCode;");
 
             // insert() / extract()
 
@@ -855,12 +855,15 @@ public class ValueDecl
 
             // type() / id()
 
-            out.println("\tpublic static org.omg.CORBA.TypeCode type()");
+            out.println("\tpublic synchronized static org.omg.CORBA.TypeCode type()");
             out.println("\t{");
-            out.println("\t\tif (type == null)");
-            out.println("\t\t\ttype = " + getTypeCodeExpression() + ";");
-            out.println("\t\treturn type;");
+            out.println("\t\tif (typeCode == null)");
+            out.println("\t\t{");
+            out.println("\t\t\ttypeCode = " + getTypeCodeExpression() + ";");
+            out.println("\t\t}");
+            out.println("\t\treturn typeCode;");
             out.println("\t}");
+
             out.println("\tpublic static String id()");
             out.println("\t{");
             out.println("\t\treturn \"" + id() + "\";");
@@ -878,7 +881,7 @@ public class ValueDecl
                         "(org.omg.CORBA.portable.OutputStream os, " +
                         javaName() + " val)");
             out.println("\t{");
-            out.println("((org.omg.CORBA_2_3.portable.OutputStream)os)" +
+            out.println("\t\t((org.omg.CORBA_2_3.portable.OutputStream)os)" +
                         ".write_value (val, \"" + id() + "\");");
             out.println("\t}");
 
