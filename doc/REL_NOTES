@@ -43,6 +43,7 @@
 
 post 2.3.1
 ==========
+       - An implementation of the Object::create_request operation has been added with an exception list. (JAC#631).
 
     - ORB:
         - fix that allows custom SocketFactory class plugins to
@@ -129,6 +130,7 @@ post 2.3.1
         - Bind client socket to wildcard address instead of localhost in
           PortRangeSocketFactory
         - Allow OAIAddr to be specified when using PortRangeSocketFactory.
+        - Fix delegate bind issue to prevent cached object delegate being set to null.
 
     - IDL Compiler:
         - fixed issue where the IDL compiler generated imports for the

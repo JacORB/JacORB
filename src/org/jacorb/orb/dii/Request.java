@@ -33,6 +33,8 @@ import org.omg.CORBA.INTERNAL;
 import org.omg.CORBA.NVList;
 import org.omg.CORBA.NamedValue;
 import org.omg.CORBA.TCKind;
+import org.omg.CORBA.UNKNOWN;
+import org.omg.CORBA.NO_IMPLEMENT;
 import org.omg.CORBA.portable.ApplicationException;
 import org.omg.CORBA.portable.RemarshalException;
 
@@ -56,8 +58,6 @@ public class Request
     private final org.omg.CORBA.ExceptionList exceptions;
     private final org.jacorb.orb.ORB orb;
 
-    // TODO need to remove some logging statements again or wrap them in isDebugEnabled
-    // added the extra log statements to trace a spurious test failure.
     private final Logger logger;
 
     private final org.omg.CORBA.ContextList contexts = new ContextListImpl();
@@ -122,6 +122,37 @@ public class Request
         logger = orb.getConfiguration().getLogger("jacorb.dii.request");
     }
 
+    public Request( org.omg.CORBA.Object target,
+                    ORB orb,
+                    ClientConnection connection,
+                    byte[] obj_key,
+                    String op,
+                    org.omg.CORBA.NVList args,
+                    org.omg.CORBA.Context context,
+                    org.omg.CORBA.NamedValue result,
+                    org.omg.CORBA.ExceptionList exceptions,
+                    org.omg.CORBA.ContextList contexts )
+    {
+        super();
+
+        this.target = target;
+        this.orb = orb;
+        this.connection = connection;
+        this.object_key = obj_key;
+        this.operation = op;
+        this.exceptions = exceptions;
+        this.arguments = args;
+        this.context = context;
+        result_value = (org.jacorb.orb.NamedValue)result;
+
+        if (contexts != null)
+        {
+            throw new NO_IMPLEMENT ("The contexts parameters has not yet been implemented - pass null for this");
+        }
+
+        logger = orb.getConfiguration().getLogger("jacorb.dii.request");
+    }
+
     public org.omg.CORBA.Object target()
     {
         return target;
@@ -142,6 +173,22 @@ public class Request
         return result_value;
     }
 
+    /**
+     * The <code>env</code> method returns a CORBA Environment object. This
+     * allows a user to retrieve any exceptions that were thrown during
+     * processing of this request.
+     * If the remote process throws a known exception i.e. one that has been
+     * provided within the ExceptionList parameter then actual exception may
+     * be extracted via this function from the UnknownUserException Any that
+     * is passed back.
+     * If the remote process throws a CORBA system exception or a Java exception
+     * then these will also be stored within this env parameter.
+     * If the remote process throws a UserException that has not been defined
+     * via the ExceptionList then a CORBA UNKNOWN will be thrown containing the
+     * typecode of the unknown exception.
+     *
+     * @return an <code>org.omg.CORBA.Environment</code> value
+     */
     public org.omg.CORBA.Environment env()
     {
         return env;
@@ -244,6 +291,11 @@ public class Request
 
     private void _invoke( boolean response_expected )
     {
+        if (logger.isDebugEnabled ())
+        {
+            logger.debug("DII::Request for " + target);
+        }
+
         while (true)
         {
             org.jacorb.orb.Delegate delegate =
@@ -266,7 +318,6 @@ public class Request
 
                 try
                 {
-                    logger.debug("delegate.invoke(...)");
                     reply = delegate.invoke(target, out);
 
                     if( response_expected )
@@ -295,20 +346,20 @@ public class Request
                 }
                 catch (RemarshalException e)
                 {
-                    logger.debug("RemarshalException", e);
                     // Try again
                     continue;
                 }
                 catch (ApplicationException e)
                 {
-                    logger.debug("ApplicationException", e);
+                   if (logger.isDebugEnabled ())
+                   {
+                      logger.debug("DII Request caught ApplicationException", e);
+                   }
 
                     org.omg.CORBA.Any any;
                     org.omg.CORBA.TypeCode typeCode;
                     String id = e.getId ();
-                    int count = exceptions.count ();
-
-                    logger.debug("exceptions.count: " + count);
+                    int count = (exceptions == null ? 0 : exceptions.count ());
 
                     for (int i = 0; i < count; i++)
                     {
@@ -316,11 +367,12 @@ public class Request
                         {
                             typeCode = exceptions.item (i);
 
-                            logger.debug(typeCode + " == " + id + "?");
-
                             if (id.equals (typeCode.id ()))
                             {
-                                logger.debug("YES");
+                               if (logger.isDebugEnabled ())
+                               {
+                                  logger.debug ("Found matching typecode of " + id + " to throw.");
+                               }
                                 any = orb.create_any ();
                                 any.read_value (e.getInputStream (), typeCode);
                                 env.exception (new org.omg.CORBA.UnknownUserException (any));
@@ -336,12 +388,23 @@ public class Request
                             break;
                         }
                     }
+                    if (count == 0)
+                    {
+                        env.exception
+                        (
+                            new UNKNOWN
+                               ("Caught an unknown exception with typecode id of " + e.getInputStream ().read_string ())
+                        );
+                    }
 
                     break;
                 }
                 catch (Exception e)
                 {
-                    logger.debug("Exception", e);
+                   if (logger.isDebugEnabled ())
+                   {
+                      logger.debug("DII Request caught Exception", e);
+                   }
                     env.exception (e);
                     break;
                 }

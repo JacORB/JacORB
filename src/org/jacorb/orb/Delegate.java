@@ -612,12 +612,25 @@ public final class Delegate
     public org.omg.CORBA.Request create_request( org.omg.CORBA.Object self,
             org.omg.CORBA.Context ctx,
             String operation,
-            org.omg.CORBA.NVList arg_list,
+            org.omg.CORBA.NVList args,
             org.omg.CORBA.NamedValue result,
             org.omg.CORBA.ExceptionList exceptions,
             org.omg.CORBA.ContextList contexts )
     {
-        throw new org.omg.CORBA.NO_IMPLEMENT();
+        checkORB();
+
+        bind();
+
+        return new org.jacorb.orb.dii.Request( self,
+                                               orb,
+                                               connections[currentConnection.ordinal ()],
+                                               getParsedIOR().get_object_key(),
+                                               operation,
+                                               args,
+                                               ctx,
+                                               result,
+                                               exceptions,
+                                               contexts);
     }
 
     public org.omg.CORBA.Object duplicate( org.omg.CORBA.Object self )

@@ -1,0 +1,30 @@
+module org
+{
+    module jacorb
+    {
+        module test
+        {
+            module bugs
+            {
+                module bugjac631
+                {
+                   exception MyOwnException {
+                      long errorCode;
+                      string message;
+                   };
+
+                   interface MyServer
+                   {
+                      // minimal test an integer as input and as output, also
+                      // returns an integer value
+                      // happens to throw a MyOwnException
+                      // this is just to ensure that comm's are OK
+                      long myFunction(
+                         in  long paramIn,
+                         out long paramOut ) raises (MyOwnException);
+                   };
+                };
+            };
+        };
+    };
+};

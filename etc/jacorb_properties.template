@@ -359,6 +359,9 @@ jacorb.enhanced_thread_name=off
 # transmit wide characters. Note that this property is only effective once per JVM.
 # jacorb.native_wchar_codeset=UTF16
 
+# By default JacORB will remove the ZoneID so IORs will work off-host.
+# jacorb.ipv6.hide_zoneid=on
+
 ###########################################
 #                                         #
 #         Interoperability                #
