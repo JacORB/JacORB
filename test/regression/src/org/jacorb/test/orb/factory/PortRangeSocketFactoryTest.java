@@ -27,6 +27,7 @@ public class PortRangeSocketFactoryTest extends AbstractSocketFactoryTestCase
         configControl.expectAndReturn(configMock.getLogger("jacorb.orb.socketfactory"), new NullLogger());
         configControl.expectAndReturn(configMock.getAttributeAsInteger(PortRangeSocketFactory.MIN_PROP), MIN);
         configControl.expectAndReturn(configMock.getAttributeAsInteger(PortRangeSocketFactory.MAX_PROP), MAX);
+        configControl.expectAndReturn(configMock.getAttribute("OAIAddr", ""), "");
         configControl.replay();
 
         factory.configure(configMock);
@@ -36,7 +37,9 @@ public class PortRangeSocketFactoryTest extends AbstractSocketFactoryTestCase
 
     public void testPortsAreCreatedInCorrectRange() throws Exception
     {
+
         Socket socket = objectUnderTest.createSocket(hostname, serverPort);
+
         assertTrue(socket.getLocalPort() >= MIN);
         assertTrue(socket.getLocalPort() <= MAX);
         if ( ! (socket instanceof SSLSocket) && ! socket.isClosed ())

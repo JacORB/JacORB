@@ -24,9 +24,9 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.Socket;
-import java.net.UnknownHostException;
 
 import org.jacorb.config.*;
+import org.jacorb.orb.iiop.IIOPAddress;
 
 /**
  * a SocketFactory implementation that allows
@@ -68,6 +68,11 @@ public class FixedAddressSocketFactory extends AbstractSocketFactory
 
         if (localEndpoint != null)
         {
+            if (logger.isDebugEnabled())
+            {
+                logger.debug("Will create client socket bound to endpoint " +
+                             localEndpoint );
+            }
             socket.bind(new InetSocketAddress(localEndpoint, 0));
         }
 
@@ -88,19 +93,7 @@ public class FixedAddressSocketFactory extends AbstractSocketFactory
         String oaiAddr = config.getAttribute("OAIAddr", "");
         if (oaiAddr.length() > 0)
         {
-            try
-            {
-                localEndpoint = InetAddress.getByName(oaiAddr);
-            }
-            catch (UnknownHostException e)
-            {
-                if (logger.isWarnEnabled())
-                {
-                    logger.warn(
-                        "Failed to create InetAddress from property OAIAddr >" +
-                        oaiAddr + "<", e);
-                }
-            }
+            localEndpoint = (new IIOPAddress(oaiAddr, -1)).getConfiguredHost ();
         }
     }
 }

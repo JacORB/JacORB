@@ -97,7 +97,14 @@
     </path>
 
     <presetdef name="jacorb-javac">
-        <jacorb-javac-common target-info="JDK (1.4+)" />
+        <jacorb-javac-common target-info="JDK (1.5+)">
+            <javac-bootclasspath>
+                <bootclasspath>
+                   <pathelement path="${basedir}/classes"/>
+                   <path refid="bootclasspath"/>
+                </bootclasspath>
+            </javac-bootclasspath>
+        </jacorb-javac-common>
     </presetdef>
 </target>
 
@@ -105,6 +112,7 @@
     <echo message="detected J2ME in ${dir.j2me}" />
 
     <path id="bootclasspath">
+        <pathelement path="${basedir}/classes"/>
         <fileset dir="${dir.j2me}">
             <include name="lib/btclasses.zip" />
             <include name="lib/**/*.jar" />

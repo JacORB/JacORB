@@ -28,7 +28,11 @@ import java.net.Socket;
 import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
 
+
+
+
 import javax.net.ssl.SSLSocket;
+import org.jacorb.orb.iiop.IIOPAddress;
 
 import org.jacorb.config.*;
 import org.omg.CORBA.TIMEOUT;
@@ -52,10 +56,22 @@ public class PortRangeSocketFactory
     private int portMin;
     private int portMax;
 
+    /**
+     * <code>localEndpoint</code> allows OAIAddr to set which host to use on a multihomed
+     * host. May be null.
+     */
+    private InetAddress localEndpoint;
+
     public void configure(Configuration config)
         throws ConfigurationException
     {
         super.configure(config);
+
+        String oaiAddr = config.getAttribute("OAIAddr", "");
+        if (oaiAddr.length() > 0)
+        {
+            localEndpoint = (new IIOPAddress(oaiAddr, -1)).getConfiguredHost ();
+        }
 
        // Get configured max and min port numbers
         portMin = getPortProperty(config, MIN_PROP);
@@ -78,10 +94,13 @@ public class PortRangeSocketFactory
             {
                 //use null as local InetAddress so InetSocketAddress will set the IP address to
                 //the any/wildcard address
-                final Socket socket = new Socket (host, port, null, localPort);
+                final Socket socket = new Socket();
+                socket.bind (new InetSocketAddress(localEndpoint, localPort));
+                socket.connect(new InetSocketAddress(host, port));
+
                 if (logger.isDebugEnabled())
                 {
-                    logger.debug("PortRangeSocketFactory: Created socket at :" + localPort);
+                    logger.debug("PortRangeSocketFactory: Created socket at :" + localPort + " with socket " + socket);
                 }
 
                 return socket;
@@ -138,9 +157,7 @@ public class PortRangeSocketFactory
             socket = new Socket();
             try
             {
-                //use null as InetAddress so InetSocketAddress will set the IP address to
-                //the any/wildcard address
-                socket.bind(new InetSocketAddress((InetAddress) null, localPort));
+                socket.bind (new InetSocketAddress (localEndpoint, localPort));
                 socket.connect(new InetSocketAddress(host, port), timeout);
 
                 if (logger.isWarnEnabled())
@@ -180,7 +197,7 @@ public class PortRangeSocketFactory
     {
         try
         {
-            if ( ! (socket instanceof SSLSocket) && ! socket.isClosed())
+            if ( ! (socket instanceof SSLSocket) && ! socket.isClosed() && socket.isConnected())
             {
                 socket.shutdownOutput();
             }

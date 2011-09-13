@@ -97,11 +97,6 @@
                            org/jacorb/test/notification/**,
                            org/jacorb/test/jmx/**"
                       javac-classpathref="cp.compile-test">
-            <javac-bootclasspath>
-                <bootclasspath>
-                    <pathelement path="${basedir}/lib/jacorb.jar:${sun.boot.class.path}" />
-                </bootclasspath>
-            </javac-bootclasspath>
         </jacorb-javac>
     </target>
 
@@ -162,7 +157,7 @@
 
         <property name="jacorb.test.pkg" value="**" />
         <property name="jacorb.test.pattern" value="${jacorb.test.pkg}/*Test.class" />
-        <property name="jacorb.test.timeout.global" value="240000" />
+        <property name="jacorb.test.timeout.global" value="480000" />
 
         <property name="jacorb.test.maxmemory" value="256m" />
 
