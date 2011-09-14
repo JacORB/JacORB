@@ -21,7 +21,10 @@
    <!-- Location of the compiled classes -->
    <property name="classdir" value="${dirs.base}/classes" />
 
-    <property name="java-source-version" value="1.5"/>
+   <condition property="java-source-version" value="1.6">
+      <available classname="java.util.Deque"/>
+   </condition>
+   <property name="java-source-version" value="1.5"/>
 </target>
 
 <target name="init-path">
@@ -57,7 +60,7 @@
       <element name="javac-bootclasspath" optional="true" />
 
       <sequential>
-         <echo message="Compiling project ${ant.project.name}. Target: @{target-info}, JVM version: ${java-source-version}"/>
+         <echo message="Compiling project ${ant.project.name}. Target: @{target-info}"/>
 
          <mkdir dir="${classdir}"/>
          <javac srcdir="@{javac-src}"

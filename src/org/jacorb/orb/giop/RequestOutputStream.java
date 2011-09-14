@@ -98,17 +98,24 @@ public class RequestOutputStream
      */
     public RequestOutputStream( RequestOutputStream other)
     {
-        this((org.jacorb.orb.ORB)other.orb(),
-            other.connection,
-            other.request_id,
-            other.operation,
-            other.response_expected,
-            other.syncScope,
-            other.requestStartTime,
-            other.requestEndTime,
-            other.replyEndTime,
-            other.object_key,
-            other.giop_minor);
+        super(other.orb);
+
+        this.object_key = other.object_key;
+        this.request_id = other.request_id;
+        this.response_expected = other.response_expected;
+        this.syncScope = other.syncScope;
+        this.operation = other.operation;
+        this.connection = other.connection;
+        this.requestStartTime = other.requestStartTime;
+        this.requestEndTime   = other.requestEndTime;
+        this.replyEndTime     = other.replyEndTime;
+        this.contexts = other.contexts;
+        this.header_end = other.header_end;
+        this.header_padding = other.header_padding;
+        this.giop_minor = other.giop_minor;
+
+        byte[] copy = other.getBufferCopy();
+        write_octet_array (copy, 0, copy.length);
     }
 
     public RequestOutputStream( org.jacorb.orb.ORB orb,

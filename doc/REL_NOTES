@@ -131,6 +131,7 @@ post 2.3.1
           PortRangeSocketFactory
         - Allow OAIAddr to be specified when using PortRangeSocketFactory.
         - Fix delegate bind issue to prevent cached object delegate being set to null.
+        - Fix for oneway/sync scope none with parameters.
 
     - IDL Compiler:
         - fixed issue where the IDL compiler generated imports for the

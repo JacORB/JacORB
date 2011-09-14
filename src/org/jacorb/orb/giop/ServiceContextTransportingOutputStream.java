@@ -44,18 +44,6 @@ public class ServiceContextTransportingOutputStream
     extends MessageOutputStream
 {
     /**
-     * <code>header_end</code> represents the end of the GIOP message header.
-     * Only valid if header_padding != 0
-     */
-    private int header_end = -1;
-
-    /**
-     * <code>header_padding</code> represents the number of bytes used for padding
-     * between header and body
-     */
-    private int header_padding = 0;
-
-    /**
      * <code>padding_ctx</code> is used if ServiceContexts are actually added.
      * This will be the last context, and the context_data is used to fill up
      * to the next 8 byte boundary
@@ -63,7 +51,19 @@ public class ServiceContextTransportingOutputStream
     private static ServiceContext padding_ctx =
         new ServiceContext (ORBConstants.SERVICE_PADDING_CONTEXT, new byte[0]);
 
-    private List contexts;
+    /**
+     * <code>header_end</code> represents the end of the GIOP message header.
+     * Only valid if header_padding != 0
+     */
+    protected int header_end = -1;
+
+    /**
+     * <code>header_padding</code> represents the number of bytes used for padding
+     * between header and body
+     */
+    protected int header_padding = 0;
+
+    protected List contexts;
 
     public ServiceContextTransportingOutputStream(ORB orb)
     {
