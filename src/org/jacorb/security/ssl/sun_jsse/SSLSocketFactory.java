@@ -118,8 +118,11 @@ public class SSLSocketFactory
 
         if (configuration.getAttribute("jacorb.security.ssl.client.protocols", null) != null)
         {
-            enabledProtocols = (String[]) ((org.jacorb.config.Configuration)configuration).getAttributeList
-                                            ("jacorb.security.ssl.client.protocols").toArray();
+            List l = ((org.jacorb.config.Configuration)configuration).getAttributeList
+               ("jacorb.security.ssl.server.protocols");
+            enabledProtocols = new String [l.size ()];
+            enabledProtocols = (String[])l.toArray(enabledProtocols);
+
             if (logger.isDebugEnabled())
             {
                 logger.debug("Setting user specified client enabled protocols : " +

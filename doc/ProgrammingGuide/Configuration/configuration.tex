@@ -160,6 +160,7 @@ ORB initial references for NameService the following may be used:
     jaco -DORBInitRef.NameService=file:///usr/users/...../NameService.ior
         Server
 \end{verbatim}
+}
 
 The ORB configuration mechanism will give configuration properties
 passed in this way precedence over property values found in
@@ -174,6 +175,7 @@ parameter of the classes main method. For example
     jaco Server
         -ORBInitRef.NameService=file:///usr/users/..../NameService.ior
 \end{verbatim}
+}
 
 \subsection{Arguments to ORB.init()}
 
@@ -423,6 +425,11 @@ supported. & URL & unset \\
 \verb"eptor.ORBInitializerCl"
 \verb"ass.<name>" & A portable interceptor initializer class
 instantiated at ORB creation. & class & unset \\
+\hline
+\verb"org.omg.PortableInterc"
+\verb"eptor.ORBInitializerCl"
+\verb"ass.standard_init" & Standard portable interceptor. DO NOT
+REMOVE. & class &  \\
 \hline
 \verb"jacorb.orb.objectKeyMa"
 \verb"p.<name>" & Maps an object key to an arbitrary string thereby
@@ -686,6 +693,30 @@ to save reparsing portions of the object key& boolean & off \\
 \verb".fail_on_error" & Control, if failing ORBInitializers should make the
 complete {\tt ORB.init()} fail. & boolean & off \\
 \hline
+\verb"jacorb.disableClientOr"
+\verb"bPolicies" &
+Disable client side ORB policies for speed. & boolean & off\\
+\hline
+\verb"jacorb.avoidIsARemoteC"
+\verb"all" & Always attempt to search for local repository ID information to avoid
+the cost of a remote call. In most scenarios this is quicker than the remote call.
+With some complicated hierarchies it may be quicker to turn this off. & boolean & on\\
+\hline
+\verb"jacorb.native_char_cod"
+\verb"eset" & Overrides the detection from the local environment for the codeset
+used to transmit characters. Note that this property is only effective once per
+JVM. & string & off\\
+\hline
+\verb"jacorb.native_wchar_co"
+\verb"deset" & Overrides the detection from the local environment for the codeset
+used to transmit wide characters. ote that this property is only effective once per
+JVM. & string & off\\
+\hline
+\verb"jacorb.codeset" &
+Enabling this will do codeset translation on marshalling. Disabling it will force
+JacORB to ignore all codeset component info profiles and to disable translation on
+marshalling. & boolean & on\\
+\hline
 \verb"jacorb.acceptor_"
 \verb"exception_listener"
 \verb"_class" & A class implementing interface {\tt
@@ -715,10 +746,23 @@ as VisiBroker and ORBacus & boolean & off \\
 \verb"null_string_encoding" & Allow reading and writing of null strings.
 This can be useful for ORBs such as VisiBroker. & boolean & off \\
 \hline
-\verb"org.omg.PortableInterc"
-\verb"eptor.ORBInitializerCl"
-\verb"ass.bidir_init" & This portable interceptor must be configured
-to support bi-directional GIOP & class & unset \\
+\end{longtable}
+\end{small}
+
+\textbf{Note:} The class {\tt org.jacorb.orb.giop.CodeSet} provides a main method to
+aid debugging of codeset issues. It will print out the current system encoding values.
+If the developer is running under a Unix based system and passes the argument -a it will
+also print out the current locale and all known locales.
+
+
+
+
+\begin{small}
+\begin{longtable}{|p{5cm}|p{7.5cm}|p{1.5cm}|p{1.5cm}|}
+\caption{Network Configuration}\\
+\hline
+~ \hfill \textbf {Property} \hfill ~ & ~ \hfill \textbf {Description}
+\hfill ~ & ~ \hfill \textbf {Type} \hfill ~ & \hfill \textbf{Default} \endhead
 \hline
 \verb"jacorb.ior_proxy_addre"
 \verb"ss" & Used to supply an alternative
@@ -770,11 +814,6 @@ will also require OAIAddr set as it is acting as a server.
 \hline
 \verb"OAPort" & See OAIAddr above (ignored if OAAddress is set) & port & unset \\
 \hline
-\verb"org.omg.PortableInterc"
-\verb"eptor.ORBInitializerCl"
-\verb"ass.standard_init" & Standard portable interceptor. DO NOT
-REMOVE. & class &  \\
-\hline
 \verb"jacorb.net.socket_fact"
 \verb"ory" & Sets or defines the socket factory. See section \ref{sec:customSocketFactories} for details.& class & \\
 \hline
@@ -796,35 +835,6 @@ jacorb.net.socket\_factory.port.min above & integer & disabled\\
 \verb"jacorb.net.tcp_listene"
 \verb"r" & Defines a listener for TCP connection events. See \ref{eventLogging}.
 & string & disabled\\
-\hline
-\verb"jacorb.enhanced_thread"
-\verb"_name" & Temporarily adds connection endpoints and time (in milliseconds)
-that the thread started to the Thread name. To be used to correlate running
-threads with entries in debug logs. & string & off\\
-\hline
-\verb"jacorb.disableClientOr"
-\verb"bPolicies" &
-Disable client side ORB policies for speed. & boolean & off\\
-\hline
-\verb"jacorb.avoidIsARemoteC"
-\verb"all" & Always attempt to search for local repository ID information to avoid
-the cost of a remote call. In most scenarios this is quicker than the remote call.
-With some complicated hierarchies it may be quicker to turn this off. & boolean & on\\
-\hline
-\verb"jacorb.native_char_cod"
-\verb"eset" & Overrides the detection from the local environment for the codeset
-used to transmit characters. Note that this property is only effective once per
-JVM. & string & off\\
-\hline
-\verb"jacorb.native_wchar_co"
-\verb"deset" & Overrides the detection from the local environment for the codeset
-used to transmit wide characters. ote that this property is only effective once per
-JVM. & string & off\\
-\hline
-\verb"jacorb.codeset" &
-Enabling this will do codeset translation on marshalling. Disabling it will force
-JacORB to ignore all codeset component info profiles and to disable translation on
-marshalling. & boolean & on\\
 \hline
 \end{longtable}
 \end{small}
@@ -867,6 +877,11 @@ after the configuration has been read & class &
 \hline
 \verb"jacorb.debug.dump_inco"
 \verb"ming_messages" & Hex dump incoming messages & boolean & off \\
+\hline
+\verb"jacorb.enhanced_thread"
+\verb"_name" & Temporarily adds connection endpoints and time (in milliseconds)
+that the thread started to the Thread name. To be used to correlate running
+threads with entries in debug logs. & string & off\\
 \hline
 \end{longtable}
 \end{small}

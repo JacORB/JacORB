@@ -43,8 +43,6 @@
 
 post 2.3.1
 ==========
-       - An implementation of the Object::create_request operation has been added with an exception list. (JAC#631).
-
     - ORB:
         - fix that allows custom SocketFactory class plugins to
           specify their dependency on the ORB either as
@@ -132,6 +130,9 @@ post 2.3.1
         - Allow OAIAddr to be specified when using PortRangeSocketFactory.
         - Fix delegate bind issue to prevent cached object delegate being set to null.
         - Fix for oneway/sync scope none with parameters.
+        - An implementation of the Object::create_request operation has been added with an exception list.
+        - Fix for attribute setting of jacorb.security.ssl.*.protocols
+        - Network configuration improvements.
 
     - IDL Compiler:
         - fixed issue where the IDL compiler generated imports for the
