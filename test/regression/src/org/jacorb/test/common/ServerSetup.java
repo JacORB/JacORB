@@ -28,6 +28,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Properties;
+import java.util.Iterator;
 
 import junit.extensions.TestSetup;
 import junit.framework.Test;
@@ -166,11 +167,23 @@ public class ServerSetup extends TestSetup
 
         serverProperties.putAll (serverOrbProperties);
 
-        if (coverage)
+        final String prefix = "jacorb.test.serverproperty.";
+        final Iterator i = System.getProperties().keySet().iterator();
+
+        while(i.hasNext())
         {
-            String outDir = System.getProperty("jacorb.test.outdir");
-            serverProperties.put ("emma.coverage.out.file", outDir + "/coverage-server.ec");
-            serverProperties.put("emma.verbosity.level", System.getProperty("emma.verbosity.level", "quiet") );
+            String key = (String) i.next();
+
+            if (!key.startsWith(prefix))
+            {
+                continue;
+            }
+
+            String value = System.getProperty(key);
+
+            String propName = key.substring(prefix.length());
+
+            serverProperties.setProperty(propName, value);
         }
 
         URL launcherConfiguration = getClass().getResource(System.getProperty("jacorb.test.launcher.configuration", "/test.properties"));
