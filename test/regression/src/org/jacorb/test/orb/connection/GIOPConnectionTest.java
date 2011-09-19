@@ -58,6 +58,7 @@ public class GIOPConnectionTest
         suite.addTest (new GIOPConnectionTest ("testGIOP_1_1_NoImplement"));
         suite.addTest (new GIOPConnectionTest ("testGIOP_1_2_CorrectFragmentedRequest"));
         suite.addTest (new GIOPConnectionTest ("testGIOP_1_2_CorrectCloseOnGarbage"));
+        suite.addTest (new GIOPConnectionTest ("testGIOP_1_1_CorrectRequest"));
 
         return suite;
     }
@@ -733,6 +734,81 @@ public class GIOPConnectionTest
         //no message is written (makes no real sense)
         assertTrue( transport.getWrittenMessage() != null );
         assertTrue( transport.getWrittenMessage().length == 0 );
+    }
+
+    public void testGIOP_1_1_CorrectRequest()
+    {
+        List messages = new Vector();
+
+        RequestOutputStream r_out =
+            new RequestOutputStream( orb, //ClientConnection
+                                     (ClientConnection) null,           //request id
+                                     0,       //operation
+                                     "foo",        // response expected
+                                     true,   // SYNC_SCOPE (irrelevant)
+                                     (short)-1,        //request start time
+                                     null,        //request end time
+                                     null,        //reply start time
+                                     null, //object key
+                                     new byte[1], 1            // giop minor
+                                     );
+
+        String message = "Request";
+        r_out.write_string(message);
+        r_out.insertMsgSize();
+
+        messages.add( r_out.getBufferCopy() );
+
+        DummyTransport transport =
+            new DummyTransport( messages );
+
+        DummyRequestListener request_listener =
+            new DummyRequestListener();
+
+        DummyReplyListener reply_listener =
+            new DummyReplyListener();
+
+        GIOPConnectionManager giopconn_mg =
+            new GIOPConnectionManager();
+        try
+        {
+            giopconn_mg.configure (config);
+        }
+        catch (Exception e)
+        {
+        }
+
+        ServerGIOPConnection conn =
+            giopconn_mg.createServerGIOPConnection( null,
+                                                    transport,
+                                                    request_listener,
+                                                    reply_listener );
+
+        try
+        {
+            //will not return until an IOException is thrown (by the
+            //DummyTransport)
+            conn.receiveMessages();
+        }
+        catch( IOException e )
+        {
+            //o.k., thrown by DummyTransport
+        }
+        catch( Exception e )
+        {
+            e.printStackTrace();
+            fail( "Caught exception: " + e );
+        }
+
+        //did the GIOPConnection hand the complete request over to the
+        //listener?
+        assertTrue( request_listener.getRequest() != null );
+
+        RequestInputStream r_in =
+        new RequestInputStream( orb, null, request_listener.getRequest() );
+
+        //is the body correct?
+        assertEquals( message, r_in.read_string() );
     }
 
 }// GIOPConnectionTest

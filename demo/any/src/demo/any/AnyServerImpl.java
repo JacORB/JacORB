@@ -5,18 +5,18 @@ import org.omg.CORBA.TCKind;
 import org.omg.CORBA.StringSeqHelper;
 import org.omg.CORBA.OctetSeqHelper;
 
-public class AnyServerImpl 
+public class AnyServerImpl
     extends AnyServerPOA
 {
     org.omg.CORBA.ORB orb = org.omg.CORBA.ORB.init();
 
     public AnyServerImpl(){}
 
-    public java.lang.String generic(Any a) 
+    public java.lang.String generic(Any a)
     {
 	String result = "<empty>";
 	try
-	{ 		
+	{
             int kind =  a.type().kind().value();
 
 	    switch( kind )
@@ -43,19 +43,19 @@ public class AnyServerImpl
 		result = "WString: " + a.extract_wstring();
 		break;
 	    case TCKind._tk_struct:
-		if( NodeHelper.type().equal( a.type()))
-		{		
+		if( NodeHelper.type().equivalent( a.type()))
+		{
 		    StringBuffer sb = new StringBuffer();
 		    Node t = NodeHelper.extract( a );
 		    sb.append( " " + t.name );
 		    do
-		    {			
+		    {
 			t = t.next[0];
 			sb.append( " " + t.name );
 		    }
 		    while( t.next.length > 0 );
 		    result = sb.toString();
-		}	
+		}
 		break;
 	    case TCKind._tk_union:
 		Nums n = NumsHelper.extract( a );
@@ -86,36 +86,36 @@ public class AnyServerImpl
 	    case TCKind._tk_alias:
 		System.out.print("Alias: ");
 		Any alias_any = a;
-                if( alias_any.type().equal( MyStringSeqHelper.type()))
+                if( alias_any.type().equivalent( MyStringSeqHelper.type()))
                 {
                     String[] stra = MyStringSeqHelper.extract( alias_any );
                     for( int slen = 0; slen < stra.length; slen++ )
                         result += stra[slen];
                 }
-                else if( alias_any.type().equal( myWStringHelper.type()))
+                else if( alias_any.type().equivalent( myWStringHelper.type()))
                 {
                     result = myWStringHelper.extract( alias_any );
                 }
-                else if( alias_any.type().equal( OctetSeqHelper.type()))
+                else if( alias_any.type().equivalent( OctetSeqHelper.type()))
                 {
                     byte[] octets = OctetSeqHelper.extract( a );
                     result = "Octet Sequence: " + octets[0];
                 }
-                else if( alias_any.type().equal( stringsHelper.type()))
+                else if( alias_any.type().equivalent( stringsHelper.type()))
                 {
                     String[] str3 = stringsHelper.extract( a );
                     result = "Array: " + str3[1];
                 }
                 else
-                    System.out.println("Unknown alias, type kind: " + 
+                    System.out.println("Unknown alias, type kind: " +
                                        alias_any.type().kind().value() );
 
 		break;
 	    default:
 		System.out.println("Unknown, kind " + a.type().kind().value());
-		
+
 	    }
-	} 
+	}
 	catch ( Exception e )
 	{
 	    e.printStackTrace();
@@ -124,5 +124,3 @@ public class AnyServerImpl
 	return result;
     }
 }
-
-

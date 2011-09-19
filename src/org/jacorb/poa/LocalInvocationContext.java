@@ -19,7 +19,7 @@ package org.jacorb.poa;
  *   License along with this library; if not, write to the Free
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
- 
+
 import org.omg.CORBA.ORB;
 import org.omg.PortableServer.Servant;
 
@@ -29,37 +29,38 @@ import org.omg.PortableServer.Servant;
  * @author Reimo Tiedemann, FU Berlin
  * @version 1.00, 09/20/99, RT
  */
-public class LocalInvocationContext implements InvocationContext {
-	private ORB orb;
-	private POA poa;
-	private Servant servant;
-	private byte[] oid;
-	
-	private LocalInvocationContext() {
-	}
-	public LocalInvocationContext(ORB _orb, POA _poa, byte[] _oid, Servant _servant) {
-		orb = _orb;
-		poa = _poa;
-		oid = _oid;
-		servant = _servant;
-	}
-	public byte[] getObjectId() {
-		return oid;
-	}
-	public ORB getORB() {
-		return orb;
-	}
-	public POA getPOA() {
-		return poa;
-	}
-	public Servant getServant() {
-		return servant;
-	}
+public class LocalInvocationContext implements InvocationContext
+{
+    private ORB orb;
+    private POA poa;
+    private Servant servant;
+    private byte[] oid;
+
+    public LocalInvocationContext(ORB _orb, POA _poa, byte[] _oid, Servant _servant)
+    {
+        orb = _orb;
+        poa = _poa;
+        oid = _oid;
+        servant = _servant;
+    }
+
+    public byte[] getObjectId()
+    {
+        return oid;
+    }
+
+    public ORB getORB()
+    {
+        return orb;
+    }
+
+    public POA getPOA()
+    {
+        return poa;
+    }
+
+    public Servant getServant()
+    {
+        return servant;
+    }
 }
-
-
-
-
-
-
-

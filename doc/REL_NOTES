@@ -128,11 +128,14 @@ post 2.3.1
         - Bind client socket to wildcard address instead of localhost in
           PortRangeSocketFactory
         - Allow OAIAddr to be specified when using PortRangeSocketFactory.
+        - Fix for the incorrect GIOP v1.1 message header creation in RequestOutputStream
         - Fix delegate bind issue to prevent cached object delegate being set to null.
         - Fix for oneway/sync scope none with parameters.
         - An implementation of the Object::create_request operation has been added with an exception list.
         - Fix for attribute setting of jacorb.security.ssl.*.protocols
         - Network configuration improvements.
+    - POA:
+        - Modify AOMRemoval thread to shutdown on POA shutdown.
 
     - IDL Compiler:
         - fixed issue where the IDL compiler generated imports for the

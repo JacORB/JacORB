@@ -19,20 +19,20 @@ package org.jacorb.poa;
  *   License along with this library; if not, write to the Free
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
- 
+
 import org.jacorb.orb.dsi.ServerRequest;
 import org.omg.PortableServer.Servant;
 
 /**
- * The adapter which can receives poa events. It implements all poa related 
+ * The adapter which can receives poa events. It implements all poa related
  * listener interfaces. The methods in this class are empty.
- * This class is provided as a convenience for easily creating poa listeners 
+ * This class is provided as a convenience for easily creating poa listeners
  * by extending this class and overriding only the methods of interest.
  *
  * @author Reimo Tiedemann, FU Berlin
  * @version 1.01, 06/20/99, RT
  */
-abstract public class POAAdapter 
+abstract public class POAAdapter
 	implements AOMListener, POAListener, RequestQueueListener, RPPoolManagerListener {
 	public void objectActivated(byte[] oid, Servant servant, int aom_size) {
 	}
@@ -47,7 +47,7 @@ abstract public class POAAdapter
 	public void processorRemovedFromPool(RequestProcessor processor, int pool_count, int pool_size) {
 	}
 	public void referenceCreated(org.omg.CORBA.Object object) {
-		/* reference creation will not propagated in this version */ 
+		/* reference creation will not propagated in this version */
 	}
 	public void requestAddedToQueue(ServerRequest request, int queue_size) {
 	}
@@ -58,10 +58,3 @@ abstract public class POAAdapter
 	public void servantIncarnated(byte[] oid, Servant servant) {
 	}
 }
-
-
-
-
-
-
-

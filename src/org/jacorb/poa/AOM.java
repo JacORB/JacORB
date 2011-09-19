@@ -70,32 +70,27 @@ public class AOM
 
     private BlockingQueue removalQueue = new LinkedBlockingQueue();
 
-    class RemovalStruct
-    {
-        ByteArrayKey oidbak;
-        RequestController requestController;
-        ServantActivator servantActivator;
-        POA poa;
-        boolean cleanupInProgress;
+    /**
+     * AOMRemoval thread - accessed from POA to signal shutdown.
+     */
+    AOMRemoval aomRemoval;
 
-        public RemovalStruct (ByteArrayKey oidbak,
-                              RequestController requestController,
-                              ServantActivator servantActivator,
-                              POA poa,
-                              boolean cleanupInProgress)
-        {
-            this.oidbak = oidbak;
-            this.requestController = requestController;
-            this.servantActivator = servantActivator;
-            this.poa = poa;
-            this.cleanupInProgress = cleanupInProgress;
-        }
-    }
+    /**
+     * Counter for AOMRemoval threads
+     */
+    private static int count = 0;
+
+    /**
+     * Marker object used to signal the end of the removalQueue.
+     */
+    private static final Object END = new Object();
+
 
     protected AOM (boolean _unique, Logger _logger)
     {
         unique = _unique;
         logger = _logger;
+        aomRemoval = new AOMRemoval ();
 
         if (unique)
         {
@@ -105,31 +100,8 @@ public class AOM
         {
             servantMap = Collections.EMPTY_MAP;
         }
-
-        Thread thread = new Thread ("AOMRemoval")
-        {
-            public void run()
-            {
-                while (true)
-                {
-                    try
-                    {
-                        RemovalStruct rs = (RemovalStruct) removalQueue.take();
-                        _remove (rs.oidbak,
-                                 rs.requestController,
-                                 rs.servantActivator,
-                                 rs.poa,
-                                 rs.cleanupInProgress);
-                    }
-                    catch (InterruptedException ie)
-                    {
-                    }
-                }
-            }
-        };
-
-        thread.setDaemon (true);
-        thread.start();
+        aomRemoval.setDaemon (true);
+        aomRemoval.start ();
     }
 
 
@@ -594,5 +566,73 @@ public class AOM
     protected synchronized int size()
     {
         return objectMap.size();
+    }
+
+
+    class AOMRemoval extends Thread
+    {
+        private boolean run = true;
+
+        public AOMRemoval ()
+        {
+            super ("AOMRemoval-" + (++count));
+        }
+
+        public void end()
+        {
+            run = false;
+            try
+            {
+               removalQueue.put (END);
+            }
+            catch (InterruptedException ex)
+            {
+            }
+        }
+
+        public void run()
+        {
+            while (run)
+            {
+                try
+                {
+                    Object rso = removalQueue.take();
+                    if (rso != END)
+                    {
+                       RemovalStruct rs = (RemovalStruct)rso;
+                        _remove (rs.oidbak,
+                                 rs.requestController,
+                                 rs.servantActivator,
+                                 rs.poa,
+                                 rs.cleanupInProgress);
+                    }
+                }
+                catch (InterruptedException ie)
+                {
+                }
+            }
+        }
+    }
+
+    class RemovalStruct
+    {
+        ByteArrayKey oidbak;
+        RequestController requestController;
+        ServantActivator servantActivator;
+        POA poa;
+        boolean cleanupInProgress;
+
+        public RemovalStruct (ByteArrayKey oidbak,
+                              RequestController requestController,
+                              ServantActivator servantActivator,
+                              POA poa,
+                              boolean cleanupInProgress)
+        {
+            this.oidbak = oidbak;
+            this.requestController = requestController;
+            this.servantActivator = servantActivator;
+            this.poa = poa;
+            this.cleanupInProgress = cleanupInProgress;
+        }
     }
 }
