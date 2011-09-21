@@ -1,0 +1,37 @@
+module org
+{
+    module jacorb
+    {
+        module test
+        {
+            module bugs
+            {
+                module bugjac755
+                {
+                    union uni1 switch (enum color1 {black, white} ) 
+                    {
+                        case ::org::jacorb::test::bugs::bugjac755::uni1::white : long f1;
+                    };
+
+                    union uni2 switch (enum color1 {black, white} ) 
+                    {
+                        case ::org::jacorb::test::bugs::bugjac755::uni2::white : long f1;
+                        default : long f2;
+                    };
+                    
+                    union uni3 switch (enum color1 {black, white} ) 
+                    {
+                        case ::org::jacorb::test::bugs::bugjac755::uni3::white :
+                        default: long f1;
+                        };
+                    
+                    union uni4 switch (enum color1 {black, white} ) 
+                    {
+                        case ::org::jacorb::test::bugs::bugjac755::uni4::white : long f1;
+                        case ::org::jacorb::test::bugs::bugjac755::uni4::black : long f2;
+                    };
+                };
+            };
+        };
+    };
+};

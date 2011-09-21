@@ -62,8 +62,9 @@ public class AbstractTestCase extends ClientServerTestCase
 
 
         // set the sync scope policy on an object reference
+        server = JAC235Helper.narrow( 
         server._set_policy_override( new Policy[] {syncPolicy},
-                                  SetOverrideType.ADD_OVERRIDE);
+                SetOverrideType.ADD_OVERRIDE ) );
     }
 
     protected void setTimeout(final int timeoutInMillis) throws Exception

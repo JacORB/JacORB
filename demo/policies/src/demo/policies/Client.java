@@ -84,8 +84,9 @@ public class Client
             orb.create_policy( SYNC_SCOPE_POLICY_TYPE.value, syncPolicyAny  );
 
         // set the sync scope policy on an object reference
-        goodDay._set_policy_override( new Policy[] {syncPolicy},
-                SetOverrideType.ADD_OVERRIDE);
+        goodDay = GoodDayHelper.narrow(
+           goodDay._set_policy_override( new Policy[] {syncPolicy},
+                                         SetOverrideType.ADD_OVERRIDE) );
 
         // try to invoke the operation and print the result: this
         // should result in a timeout exception because the server
@@ -109,8 +110,9 @@ public class Client
             orb.create_policy( RELATIVE_RT_TIMEOUT_POLICY_TYPE.value,
                     objRrtPolicyAny );
 
-        goodDay._set_policy_override( new Policy[] {objRrtPolicy},
-                SetOverrideType.ADD_OVERRIDE);
+        goodDay = GoodDayHelper.narrow(
+           goodDay._set_policy_override( new Policy[] {objRrtPolicy},
+                                         SetOverrideType.ADD_OVERRIDE));
 
         // see what the effective policy is now...
         Policy objPol =
@@ -132,4 +134,3 @@ public class Client
         }
     }
 }
-

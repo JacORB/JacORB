@@ -272,7 +272,6 @@ public class POA
         }
 
         watermark = generateWatermark();
-
         aom = isRetain() ? new AOM( isUniqueId(), logger) : null;
 
         // GB: modified
@@ -529,7 +528,7 @@ public class POA
      * called from orb to obtain the RootPOA
      */
 
-    static public POA _POA_init(org.jacorb.orb.ORB orb)
+    public static POA _POA_init(org.jacorb.orb.ORB orb)
     {
         POAManager poaMgr = new POAManager(orb);
 
@@ -1738,15 +1737,42 @@ public class POA
         checkDestructionApparent ();
         checkNotLocal (reference);
 
-        byte[] objectId = POAUtil.extractOID(reference);
+        byte[] objectId;
+        byte[] objectKey = orb.mapObjectKey (((org.jacorb.orb.Delegate) ((org.omg.CORBA.portable.ObjectImpl) reference)._get_delegate()).getObjectKey());
 
-        /* not spec (isSystemId) */
+        try
+        {
+            objectId = POAUtil.extractOID(objectKey);
+        }
+        catch (POAInternalError e)
+        {
+            if (logger.isWarnEnabled())
+            {
+                logger.warn
+                (
+                    logPrefix +
+                    "Unable to extract OID from objectKey: " +
+                    (new String(objectKey))
+                );
+            }
+            throw new WrongAdapter();
+        }
+
         if (isSystemId() && !previouslyGeneratedObjectId(objectId))
         {
             if (logger.isWarnEnabled())
             {
                 logger.warn(logPrefix + "oid: " + POAUtil.convert(objectId) +
                             "reference_to_id: oid not previously generated!");
+            }
+            throw new WrongAdapter();
+        }
+        else if (!isSystemId() && !_getQualifiedName().equals (POAUtil.extractPOAName(objectKey)))
+        {
+            if (logger.isWarnEnabled())
+            {
+                logger.warn(logPrefix + "reference: " + new String (objectKey) +
+                            "reference_to_id: reference not previously generated for this POA!");
             }
             throw new WrongAdapter();
         }
@@ -1770,15 +1796,42 @@ public class POA
             throw new WrongPolicy();
         }
 
-        byte[] objectId = POAUtil.extractOID(reference);
+        byte[] objectId;
+        byte[] objectKey = orb.mapObjectKey (((org.jacorb.orb.Delegate) ((org.omg.CORBA.portable.ObjectImpl) reference)._get_delegate()).getObjectKey());
 
-        /* not spec (isSystemId) */
+        try
+        {
+            objectId = POAUtil.extractOID(objectKey);
+        }
+        catch (POAInternalError e)
+        {
+            if (logger.isWarnEnabled())
+            {
+                logger.warn
+                (
+                    logPrefix +
+                    "Unable to extract OID from objectKey: " +
+                    (new String(objectKey))
+                );
+            }
+            throw new WrongAdapter();
+        }
+
         if (isSystemId() && !previouslyGeneratedObjectId(objectId))
         {
             if (logger.isWarnEnabled())
             {
                 logger.warn(logPrefix + "oid: " + POAUtil.convert(objectId) +
                             "reference_to_servant: oid not previously generated!");
+            }
+            throw new WrongAdapter();
+        }
+        else if (!isSystemId() && !_getQualifiedName().equals (POAUtil.extractPOAName(objectKey)))
+        {
+            if (logger.isWarnEnabled())
+            {
+                logger.warn(logPrefix + "reference: " + new String (objectKey) +
+                            "reference_to_id: reference not previously generated for this POA!");
             }
             throw new WrongAdapter();
         }

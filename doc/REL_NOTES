@@ -135,9 +135,12 @@ post 2.3.1
         - Fix for attribute setting of jacorb.security.ssl.*.protocols
         - Network configuration improvements.
     - POA:
+        - Fix for reference_to_id error checking.
         - Modify AOMRemoval thread to shutdown on POA shutdown.
 
     - IDL Compiler:
+        - Fix for IDL compiler issue where a union with an enum discriminator could send through
+          a non-defined value.
         - Fix for IDL compiler issue forward declared interface and inherited interface.
         - Fix for IDL compiler issue where compiler generates incorrect type code for sequences
           of local interface.

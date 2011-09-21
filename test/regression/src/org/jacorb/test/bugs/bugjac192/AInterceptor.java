@@ -56,9 +56,9 @@ public class AInterceptor
                 Policy[] wiopP = new Policy[]
                     { rtorb.create_client_protocol_policy(new Protocol[] { wiop }) };
 
-                ri.effective_target()._set_policy_override(wiopP, SetOverrideType.SET_OVERRIDE);
+                org.omg.CORBA.Object obj = ri.effective_target()._set_policy_override(wiopP, SetOverrideType.SET_OVERRIDE);
 
-                throw new ForwardRequest (ri.effective_target());
+                throw new ForwardRequest (obj);
             }
             catch (InvalidName e)
             {
