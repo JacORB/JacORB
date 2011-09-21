@@ -86,16 +86,6 @@ public class OrExpr extends IdlSymbol
         return xor_expr.pos_int_const();
     }
 
-    public String value()
-    {
-        String x = "";
-        if( or_expr != null )
-        {
-            x = or_expr.value() + " | ";
-        }
-        return x + xor_expr.value();
-    }
-
     public String toString()
     {
         String x = "";

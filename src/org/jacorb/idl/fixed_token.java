@@ -31,9 +31,7 @@ package org.jacorb.idl;
  * @author  Gerald Brose
  */
 
-public class fixed_token
-    extends org.jacorb.idl.runtime.long_token
-    implements java.io.Serializable
+public class fixed_token extends org.jacorb.idl.runtime.long_token
 {
     public java.math.BigDecimal fixed_val;
 
@@ -48,26 +46,3 @@ public class fixed_token
     }
 
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

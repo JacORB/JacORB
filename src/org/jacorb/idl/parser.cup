@@ -1072,8 +1072,8 @@ specification ::=
 
                 RESULT.definitions = (Vector)ds.v.clone();
 
-                if( ((org.jacorb.idl.parser)CUP$parser).package_prefix != null )
-                        RESULT.setPackage( ((org.jacorb.idl.parser)CUP$parser).package_prefix );
+                if( parser.package_prefix != null )
+                        RESULT.setPackage( parser.package_prefix );
 
                 RESULT.parse();
 
@@ -1275,7 +1275,6 @@ interface ::=
         | LOCAL INTERFACE ID:i
           {:
                 RESULT.set_token(i);
-                RESULT.set_abstract();
                 RESULT.set_locality( true );
                 parser.closeScope( (Scope)RESULT );
           :}
@@ -1726,17 +1725,17 @@ literal ::=
           NUMBER:n
                 {:
                         RESULT.string = "" + n.int_val;
-                        RESULT.token = n;
+                        RESULT.primitiveToken = n;
                 :}
         | LONG_NUMBER:l
                 {:
                         RESULT.string = "" + l.long_val;
-                        RESULT.token = l;
+                        RESULT.primitiveToken = l;
                 :}
         | QUOTE CH:c QUOTE
                 {:
                         RESULT.string = "\'" + c.char_val + "\'";
-                        RESULT.token = c;
+                        RESULT.primitiveToken = c;
                 :}
         | string_literal:s
                 {:
@@ -1746,12 +1745,12 @@ literal ::=
         | FIXED_NUMBER:f
                 {:
                         RESULT.string = "" + f.fixed_val;
-                        RESULT.token = f;
+                        RESULT.primitiveToken = f;
                 :}
         | FLOAT_NUMBER:n
                 {:
                         RESULT.string = "" + n.float_val ;
-                        RESULT.token = n;
+                        RESULT.primitiveToken = n;
                 :}
         | TRUE
                 {:

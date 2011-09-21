@@ -578,7 +578,7 @@ public class ScopedName
             return y.typeName();
         }
 
-        if( y instanceof ScopedName && y != null && x != y )
+        if( y instanceof ScopedName && x != y )
         {
             return unMap( y.typeName() );
         }
@@ -589,12 +589,6 @@ public class ScopedName
         {
             resolvedSpec = y;
             return y.typeName();
-        }
-
-        if( y == null )
-        {
-            resolvedSpec = x;
-            return x.typeName();
         }
 
         resolvedSpec = y;

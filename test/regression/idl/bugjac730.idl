@@ -1,0 +1,21 @@
+module org
+{
+    module jacorb
+    {
+        module test
+        {
+            module bugs
+            {
+                module bugjac730
+                {
+                    local interface I;
+                    typedef sequence<I> SeqI;
+                    local interface I{};
+                    
+                    local interface J{};
+                    typedef sequence<J> SeqJ;
+                };
+            };
+        };
+    };
+};

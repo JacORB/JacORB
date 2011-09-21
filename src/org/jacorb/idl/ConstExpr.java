@@ -67,11 +67,6 @@ public class ConstExpr
         return or_expr.get_token();
     }
 
-    public String value()
-    {
-        return or_expr.value();
-    }
-
     public void setPackage( String s )
     {
         s = parser.pack_replace( s );

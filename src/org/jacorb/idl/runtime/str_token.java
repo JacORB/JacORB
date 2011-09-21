@@ -1,6 +1,7 @@
 package org.jacorb.idl.runtime;
 
-/** This subclass of token represents symbols that need to maintain one
+/**
+ *  This subclass of token represents symbols that need to maintain one
  *  String value as an attribute.  It maintains that value in the public
  *  field str_val.
  *
@@ -9,27 +10,24 @@ package org.jacorb.idl.runtime;
  * @author  Scott Hudson
  */
 
-public class str_token 
-	extends token 
+public class str_token extends token
 {
+    /** The stored string value. */
+    public String str_val;
 
-  /** Full constructor. */
-  public str_token(int term_num, String v)
+
+    /** Full constructor. */
+    public str_token(int term_num, String v)
     {
-      /* super class does most of the work */
-      super(term_num);
-      str_val = v;
+        /* super class does most of the work */
+        super(term_num);
+        str_val = v;
     }
 
-  /** Constructor for value defaulting to an empty string. */
-  public str_token(int term_num)
+
+    /** Constructor for value defaulting to an empty string. */
+    public str_token(int term_num)
     {
-      this(term_num, "");
+        this(term_num, "");
     }
-
-  /** The stored string value. */
-  public String str_val;
-
-};
-
-
+}

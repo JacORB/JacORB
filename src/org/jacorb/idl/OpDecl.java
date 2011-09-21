@@ -889,7 +889,6 @@ public class OpDecl
         for( Enumeration e = paramDecls.elements(); e.hasMoreElements(); )
         {
             ParamDecl p = (ParamDecl)e.nextElement();
-            TypeSpec ts = p.paramTypeSpec;
             if( p.paramAttribute != ParamDecl.MODE_IN )
             {
                 ps.println( "\t\t\t\t" + p.printWriteStatement( ( "_arg" + ( argc ) ), "_out" ) );

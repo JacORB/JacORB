@@ -81,16 +81,6 @@ public class XorExpr
         return and_expr.pos_int_const();
     }
 
-    public String value()
-    {
-        String x = "";
-        if( xor_expr != null )
-        {
-            x = xor_expr.value() + "^";
-        }
-        return x + and_expr.value();
-    }
-
     public String toString()
     {
         String x = "";

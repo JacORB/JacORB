@@ -25,6 +25,7 @@ import java.math.BigInteger;
 
 import org.jacorb.idl.runtime.int_token;
 import org.jacorb.idl.runtime.long_token;
+import org.jacorb.idl.runtime.token;
 
 /**
  * @author Gerald Brose
@@ -47,7 +48,7 @@ public class Literal
 
     public String string;
     public boolean wide;
-    public org.jacorb.idl.runtime.token token;
+    public token primitiveToken;
 
     private ConstDecl declared_in;
 
@@ -55,6 +56,7 @@ public class Literal
     {
         super( num );
     }
+
 
     public void setDeclaration( ConstDecl declared_in )
     {
@@ -78,16 +80,16 @@ public class Literal
 
             if( logger.isWarnEnabled() )
                 logger.warn( "Literal " + ts.getClass().getName() + " " +
-                             ( token != null? token.getClass().getName() :"<no token>" ) );
+                             ( primitiveToken != null? primitiveToken.getClass().getName() :"<no token>" ) );
 
             // At first check the float types and strings
             if( ts instanceof FloatPtType &&
-                    !( token instanceof org.jacorb.idl.runtime.float_token ) )
+                    !( primitiveToken instanceof org.jacorb.idl.runtime.float_token ) )
             {
                 parser.error( "Expecting float/double constant!" );
             }
             else if( ts instanceof FixedPointConstType &&
-                    !( token instanceof fixed_token ) )
+                    !( primitiveToken instanceof fixed_token ) )
             {
                 parser.error( "Expecting fixed point constant (perhaps a missing \"d\")!" );
             }
@@ -103,9 +105,9 @@ public class Literal
                 // convert constant for the comparison
                 BigInteger value = null;
 
-                if( token instanceof int_token
-                    || token instanceof long_token
-                    || token instanceof fixed_token )
+                if( primitiveToken instanceof int_token
+                    || primitiveToken instanceof long_token
+                    || primitiveToken instanceof fixed_token )
                 {
                     value = new BigInteger( string );
                 }
@@ -132,14 +134,14 @@ public class Literal
                             parser.error( "Value " + value.toString()
                                     + " is too big for unsigned long long" );
                         }
-                        else if( token instanceof fixed_token )
+                        else if( primitiveToken instanceof fixed_token )
                         {
-                            token = new long_token
+                            primitiveToken = new long_token
                             (
-                                ((fixed_token)token).sym,
-                                ((fixed_token)token).fixed_val.longValue ()
+                                ((fixed_token)primitiveToken).sym,
+                                ((fixed_token)primitiveToken).fixed_val.longValue ()
                             );
-                            string = Long.toString (((long_token)token).long_val);
+                            string = Long.toString (((long_token)primitiveToken).long_val);
                         }
                     }
                     else if( ts instanceof LongType )
@@ -148,14 +150,14 @@ public class Literal
                         {
                             parser.error( "Value " + value.toString() + " is too big for unsigned long" );
                         }
-                        else if( token instanceof long_token )
+                        else if( primitiveToken instanceof long_token )
                         {
-                            token = new int_token
+                            primitiveToken = new int_token
                             (
-                                ((long_token)token).sym,
-                                (int)((long_token)token).long_val
+                                ((long_token)primitiveToken).sym,
+                                (int)((long_token)primitiveToken).long_val
                             );
-                            string = Integer.toString (((int_token)token).int_val);
+                            string = Integer.toString (((int_token)primitiveToken).int_val);
                         }
                     }
                     else if( ts instanceof ShortType
@@ -206,7 +208,7 @@ public class Literal
     {
         String result = string;
 
-        if (token instanceof org.jacorb.idl.runtime.long_token)
+        if (primitiveToken instanceof org.jacorb.idl.runtime.long_token)
         {
             if (string.indexOf( '.' ) > 0 )
             {

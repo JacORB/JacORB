@@ -26,10 +26,8 @@ package org.jacorb.idl;
  */
 
 import java.io.PrintWriter;
-import java.io.Serializable;
 
 public interface Operation
-    extends Serializable
 {
     /**
      * <code>name</code> gives the plain name of the operation
@@ -81,24 +79,3 @@ public interface Operation
     void accept( IDLTreeVisitor visitor );
 
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

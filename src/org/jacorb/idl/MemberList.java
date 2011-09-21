@@ -33,7 +33,6 @@ public class MemberList
     extends SymbolList
 {
     Vector extendVector = new Vector();
-    private TypeDeclaration containingType;
     private boolean parsed = false;
 
     public MemberList( int num )
@@ -43,7 +42,6 @@ public class MemberList
 
     public void setContainingType( TypeDeclaration t )
     {
-        containingType = t;
         Enumeration e = v.elements();
         for( ; e.hasMoreElements(); )
         {

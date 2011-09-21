@@ -1159,11 +1159,11 @@ public class UnionType
                             (tocheck instanceof LongType) ||
                             (tocheck instanceof LongLongType))
                         {
-                            ps.print("\t\t\tlabel_any." + tocheck.printInsertExpression() + " (");
+                            ps.print("\t\t\tlabel_any." + tocheck.printInsertExpression() + " ((");
                         }
                         else if (tocheck instanceof ShortType)
                         {
-                            ps.print("\t\t\tlabel_any." + tocheck.printInsertExpression() + " ((short)");
+                            ps.print("\t\t\tlabel_any." + tocheck.printInsertExpression() + " ((short)(");
                         }
                         else
                         {
@@ -1171,7 +1171,7 @@ public class UnionType
                                                        + tocheck.typeName() + ":" + tocheck + ": " + tocheck.typeSpec()
                                                        + ": " + tocheck.getClass().getName());
                         }
-                        ps.println(((ConstExpr)o) + ");");
+                        ps.println(((ConstExpr)o) + "));");
                 }
                 else if (switch_is_enum)
                 {

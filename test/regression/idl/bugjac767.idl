@@ -1,0 +1,24 @@
+module org
+{
+    module jacorb
+    {
+        module test
+        {
+            module bugs
+            {
+                module bugjac767
+                {
+                    local interface Listener;
+
+   					local interface Listener
+   					{
+   					};
+
+   					local interface DataWriterListener : Listener
+   					{
+   					};
+				};
+            };
+        };
+    };
+};

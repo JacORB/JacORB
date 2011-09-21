@@ -89,13 +89,13 @@ public class ConstDecl extends Declaration
         t.typeName = name;
         values.put(t.resolvedName() +
                    (contained() ? "" : ".value"),
-                   const_expr.value());
+                   const_expr.toString());
 
         if (logger.isDebugEnabled())
         {
             logger.debug("ConstDecl.parse, put value: " + t.resolvedName() +
                          (contained() ? "" : ".value") + " , " +
-                         const_expr.value());
+                         const_expr);
         }
 
         declarations.put(t.resolvedName(), this);
@@ -266,6 +266,25 @@ public class ConstDecl extends Declaration
                  ts instanceof FixedPointType)
         {
             return ("new java.math.BigDecimal (" + exprStr + ")");
+        }
+        else if (ts instanceof LongLongType)
+        {
+           String cast = "";
+           try
+           {
+              if (const_expr.or_expr.xor_expr.and_expr.shift_expr.operator != null ||
+                  const_expr.or_expr.xor_expr.and_expr.shift_expr.add_expr.operator != null ||
+                  const_expr.or_expr.xor_expr.and_expr.shift_expr.add_expr.mult_expr.operator != null
+              )
+              {
+                 cast = "(long)";
+              }
+           }
+           catch (Exception e)
+           {
+              // Don't care if any of the above cause null ptr - just won't do cast.
+           }
+           return (cast + const_expr.toString());
         }
         else
         {

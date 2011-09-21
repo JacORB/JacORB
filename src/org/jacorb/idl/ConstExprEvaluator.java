@@ -42,20 +42,9 @@ import java.util.HashMap;
 
 public class ConstExprEvaluator
 {
-    protected static   Operator[]   operators = null;
+    private static   Operator[]   operators = null;
     private   Node    node                    = null;
     private   String  expression              = null;
-    private   HashMap variables               = new HashMap();
-
-    /**
-     * creates an empty ConstExprEvaluator.
-     * You need to use setExpression(String s) to assign an expression string to it.
-     */
-
-    public ConstExprEvaluator()
-    {
-        init();
-    }
 
     /**
      * creates a ConstExprEvaluator and assign the expression string.
@@ -63,34 +52,11 @@ public class ConstExprEvaluator
 
     public ConstExprEvaluator(String s)
     {
-        init();
-        setExpression(s);
-    }
-
-    private void init()
-    {
-        if ( operators == null )
-            initializeOperators();
-    }
-
-    /**
-     * sets the expression
-     */
-
-    public void setExpression(String s)
-    {
-        expression = s;
-    }
-
-    /**
-     * resets the evaluator
-     */
-
-    public void reset()
-    {
-        node   = null;
-        expression   = null;
-        variables   = new HashMap();
+       if ( operators == null )
+       {
+          initializeOperators();
+       }
+       expression = s;
     }
 
 
@@ -113,6 +79,7 @@ public class ConstExprEvaluator
         catch (Exception e)
         {
             lexer.emit_error("unexpected exception: " + e.getMessage());
+            e.printStackTrace();
             // TODO throw exception?
             return null;
         }
@@ -125,7 +92,9 @@ public class ConstExprEvaluator
             if ( n.getOperator().getType() == 1 )
                 n.setValue ( evaluateExpression( n.getOperator(), evaluate( n.getLeft() ), null ) );
             else if ( n.getOperator().getType() == 2 )
+            {
                 n.setValue( evaluateExpression( n.getOperator(), evaluate( n.getLeft() ), evaluate( n.getRight() ) ) );
+            }
         }
         return n.getValue();
     }
@@ -182,15 +151,6 @@ public class ConstExprEvaluator
         operators[9]  = new Operator("%"  , 2, 10);
     }
 
-    /**
-     * gets the variable's value that was assigned previously
-     */
-
-    public Double getVariable(String s)
-    {
-        return( Double )variables.get(s);
-    }
-
     private Double getDouble(String s)
     {
         if ( s == null )
@@ -203,18 +163,13 @@ public class ConstExprEvaluator
         }
         catch(Exception e)
         {
-            return getVariable(s);
         }
 
         return res;
     }
 
-    protected Operator[] getOperators()
-    {
-        return operators;
-    }
 
-    protected class Operator
+    static protected class Operator
     {
         private String op;
         private int type;
@@ -338,7 +293,6 @@ public class ConstExprEvaluator
 
         private Operator getOperator(String s, int start)
         {
-            Operator[] operators = getOperators();
             String temp = s.substring(start);
             temp = getNextWord(temp);
             for (int i=0; i<operators.length; i++)

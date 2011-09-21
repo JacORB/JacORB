@@ -1,0 +1,18 @@
+module bugrtj999
+{
+   const long BIT_NUM = 10;
+
+   const long long TWO = 2;
+
+   const long long THIS_DOESNT_WORK = 16 << BIT_NUM;
+
+   const long long THIS_WORKS = TWO << BIT_NUM;
+
+   const long bar  = TWO << BIT_NUM;
+
+   const long foo = 22 << 3;
+
+   const long long multilong = 23 * TWO;
+
+   const long long addlong = 23 + TWO;
+};

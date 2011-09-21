@@ -83,16 +83,6 @@ public class ShiftExpr
         return add_expr.pos_int_const();
     }
 
-    public String value()
-    {
-        String x = "";
-        if( shift_expr != null )
-        {
-            x = shift_expr.value() + operator;
-        }
-        return x + add_expr.value();
-    }
-
     public String toString()
     {
         String x = "";

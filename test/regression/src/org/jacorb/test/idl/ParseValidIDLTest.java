@@ -22,6 +22,7 @@
 package org.jacorb.test.idl;
 
 import java.io.File;
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import junit.framework.Test;
 import org.jacorb.test.common.TestUtils;
@@ -97,6 +98,35 @@ public class ParseValidIDLTest extends AbstractIDLTestcase
         nodeClazz.getDeclaredField("name");
         nodeClazz.getDeclaredField("description");
         nodeClazz.getDeclaredField("children");
+    }
+
+    /**
+     * <code>verify_bugrtj999_idl</code> verifies that IDl with long constants
+     * and shift/multiply/etc operators generate the correct long/int values.
+     *
+     * These hardcoded values come from VisiBroker8.0 which generates the values
+     * inline as opposed to relying on the Java JVM.
+     *
+     * @param cl a <code>ClassLoader</code> value
+     * @exception Exception if an error occurs
+     */
+    public void verify_bugrtj999_idl(ClassLoader cl) throws Exception
+    {
+        Class clazz = cl.loadClass("bugrtj999.THIS_DOESNT_WORK");
+        Field f = clazz.getDeclaredField ("value");
+        assertTrue (16384L == f.getLong (null));
+
+        clazz = cl.loadClass("bugrtj999.addlong");
+        f = clazz.getDeclaredField ("value");
+        assertTrue (25L == f.getLong (null));
+
+        clazz = cl.loadClass("bugrtj999.THIS_WORKS");
+        f = clazz.getDeclaredField ("value");
+        assertTrue (2048L == f.getLong (null));
+
+        clazz = cl.loadClass("bugrtj999.foo");
+        f = clazz.getDeclaredField ("value");
+        assertTrue (176 == f.getInt (null));
     }
 
     public void verify_bugpt480_idl(ClassLoader cl) throws Exception

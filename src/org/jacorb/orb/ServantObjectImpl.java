@@ -1,18 +1,10 @@
 package org.jacorb.orb;
 
-import org.omg.CORBA.SystemException;
-import org.omg.CORBA.UserException;
-
-import org.omg.CORBA.portable.ApplicationException;
-import org.omg.CORBA.portable.RemarshalException;
-import org.omg.CORBA.portable.ServantObjectExt;
-import org.omg.CORBA.portable.ObjectImpl;
-
-import org.jacorb.orb.portableInterceptor.ServerRequestInfoImpl;
-import org.jacorb.orb.portableInterceptor.ServerInterceptorIterator;
 import org.jacorb.orb.portableInterceptor.InterceptorManager;
-
-import org.omg.PortableInterceptor.LOCATION_FORWARD;
+import org.jacorb.orb.portableInterceptor.ServerInterceptorIterator;
+import org.jacorb.orb.portableInterceptor.ServerRequestInfoImpl;
+import org.omg.CORBA.UserException;
+import org.omg.CORBA.portable.ServantObjectExt;
 import org.omg.PortableInterceptor.SUCCESSFUL;
 import org.omg.PortableInterceptor.SYSTEM_EXCEPTION;
 import org.omg.PortableInterceptor.USER_EXCEPTION;
@@ -95,7 +87,7 @@ public class ServantObjectImpl extends ServantObjectExt
 
     /**
      * This method is called if the exception thrown is a RuntimeException
-     * @param the RuntimeException
+     * @param re the RuntimeException
      */
     public void exceptionalCompletion (RuntimeException re)
     {
@@ -104,7 +96,7 @@ public class ServantObjectImpl extends ServantObjectExt
 
     /**
      * This method is called if the exception thrown is an Error
-     * @param the RuntimeException
+     * @param err the RuntimeException
      */
     public void exceptionalCompletion (Error err)
     {
@@ -143,7 +135,7 @@ public class ServantObjectImpl extends ServantObjectExt
 
     /**
      * Set a reference to the ORB to be used in subsequent processing
-     * @param the orb reference
+     * @param orb the orb reference
      */
     public void setORB (org.jacorb.orb.ORB orb)
     {
@@ -152,7 +144,7 @@ public class ServantObjectImpl extends ServantObjectExt
 
     /**
      * Set the server request info associated with this Servant
-     * @param the ServerRequestInfoImpl
+     * @param sinfo the ServerRequestInfoImpl
      */
     public void setServerRequestInfo (ServerRequestInfoImpl sinfo)
     {
@@ -163,7 +155,7 @@ public class ServantObjectImpl extends ServantObjectExt
      * Set the local client interceptor handler that was instantiated
      * during servant_preinvoke, we need this to handle any necessary
      * interception points if an exception occurs
-     * @param the ClientInterceptorHandler
+     * @param interceptors the ClientInterceptorHandler
      */
     public void setClientInterceptorHandler (DefaultClientInterceptorHandler interceptors)
     {
@@ -171,8 +163,9 @@ public class ServantObjectImpl extends ServantObjectExt
     }
 
     /**
-     * Accessor method to get the ServerRequestInfoImpl
-     * @return the sinfo
+     * Accessor method to get the ServerRequestInfoImpl.
+     *
+     * @return the server request info
      */
     public ServerRequestInfoImpl getServerRequestInfo()
     {

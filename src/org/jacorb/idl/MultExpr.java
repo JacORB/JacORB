@@ -98,16 +98,6 @@ public class MultExpr extends IdlSymbol
         return y;
     }
 
-    public String value()
-    {
-        String x = "";
-        if( mult_expr != null )
-        {
-            x = mult_expr.value() + operator;
-        }
-        return x + unary_expr.value();
-    }
-
     public String toString()
     {
         String x = "";

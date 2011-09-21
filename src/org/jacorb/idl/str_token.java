@@ -31,12 +31,8 @@ package org.jacorb.idl;
  * @author  Gerald Brose
  */
 
-public class str_token
-    extends org.jacorb.idl.runtime.str_token
-    implements java.io.Serializable
+public class str_token extends org.jacorb.idl.runtime.str_token
 {
-
-    public String str_val;
     public String line_val;
     public int line_no;
     public int char_pos;
@@ -67,6 +63,3 @@ public class str_token
 
 
 }
-
-
-

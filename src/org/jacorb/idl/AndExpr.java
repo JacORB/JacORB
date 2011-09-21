@@ -88,16 +88,6 @@ public class AndExpr
         return shift_expr.pos_int_const();
     }
 
-    public String value()
-    {
-        String x = "";
-        if (and_expr != null)
-        {
-            x = and_expr.value() + "&";
-        }
-        return x + shift_expr.value();
-    }
-
     public String toString()
     {
         String x = "";

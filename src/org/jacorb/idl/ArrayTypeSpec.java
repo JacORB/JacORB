@@ -35,11 +35,9 @@ public class ArrayTypeSpec
     extends VectorType
 {
     ArrayDeclarator declarator = null;
-    String typename = null;
     String dimensionStr = "";
     public int[] dims = null;
     int my_dim = 0;
-    String typeSig;
 
     private boolean written = false;
 
@@ -188,7 +186,7 @@ public class ArrayTypeSpec
                 NameTable.define(full_name(), IDLTypes.TYPE);
 
                 // change for Prismtech JAC#572 here
-                // 
+                //
                 if (!NameTable.isDefined(typeName(), IDLTypes.TYPE))
                     NameTable.define(typeName(), IDLTypes.TYPE);
             }
@@ -213,7 +211,7 @@ public class ArrayTypeSpec
     {
         return getTypeCodeExpression(new HashSet());
     }
-    
+
     public String getTypeCodeExpression(Set knownTypes)
     {
         //TODO: what happens, when actual type is in knownTypes?
@@ -228,7 +226,7 @@ public class ArrayTypeSpec
     {
     	return org.omg.CORBA.TCKind._tk_array;
     }
-    
+
     public String helperName()
     {
         return ScopedName.unPseudoName(full_name()) + "Helper";
@@ -302,7 +300,7 @@ public class ArrayTypeSpec
                 idx_variable = (char)(var_name.charAt(var_name.length() - 2) + 1);
                 indent = "    ";
             }
-            sb.append("\t\t" + indent + "for (int " + idx_variable + "=0;" 
+            sb.append("\t\t" + indent + "for (int " + idx_variable + "=0;"
                       + idx_variable + "<" + length() + ";" + idx_variable + "++)" + Environment.NL
                       + "\t\t" + indent + "{" + Environment.NL);
 
@@ -337,11 +335,11 @@ public class ArrayTypeSpec
                 idx_variable = (char)(var_name.charAt(var_name.length() - 2) + 1);
                 indent = "    ";
             }
-            sb.append("\t\t" + indent + "for (int " + idx_variable + "=0; " + idx_variable 
+            sb.append("\t\t" + indent + "for (int " + idx_variable + "=0; " + idx_variable
                       + "<" + length() + ";" + idx_variable + "++)" + Environment.NL
                       + "\t\t" + indent + "{" + Environment.NL);
             sb.append("\t\t\t" + indent + elementTypeSpec().printWriteStatement(var_name
-                                                                                + "[" + idx_variable + "]", streamname) 
+                                                                                + "[" + idx_variable + "]", streamname)
                                                                                 + Environment.NL);
             sb.append("\t\t" + indent + "}" + Environment.NL);
         }
@@ -448,7 +446,7 @@ public class ArrayTypeSpec
         else
         {
             ps.println("\t\tfor (int i = 0; i < s.length; i++)" + Environment.NL + "\t\t{");
-            ps.println("\t\t\t" + elementTypeSpec().printWriteStatement("s[i]", "out") 
+            ps.println("\t\t\t" + elementTypeSpec().printWriteStatement("s[i]", "out")
                        + Environment.NL + "\t\t}");
         }
         ps.println("\t}");

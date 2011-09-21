@@ -31,8 +31,6 @@ import java.util.Set;
 public class TypeDeclaration
     extends Declaration
 {
-    boolean typedefd = false;
-
     public TypeDeclaration type_decl;
 
     public TypeDeclaration( int num )

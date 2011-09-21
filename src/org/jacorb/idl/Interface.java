@@ -174,7 +174,18 @@ public class Interface
 
     public String getTypeCodeExpression()
     {
-        if (is_abstract)
+        if (is_local)
+        {
+            return
+            (
+             "org.omg.CORBA.ORB.init().create_local_interface_tc(\"" +
+             id() +
+             "\", \"" +
+             name +
+             "\")"
+             );
+        }
+        else if (is_abstract)
         {
             return
                 (

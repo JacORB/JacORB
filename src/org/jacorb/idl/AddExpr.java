@@ -92,16 +92,6 @@ public class AddExpr extends IdlSymbol
         return y;
     }
 
-    public String value()
-    {
-        String x = "";
-        if( add_expr != null )
-        {
-            x = add_expr.value() + operator;
-        }
-        return x + mult_expr.value();
-    }
-
     public String toString()
     {
         String x = "";
