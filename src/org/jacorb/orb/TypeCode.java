@@ -206,10 +206,10 @@ public class TypeCode
             org.omg.CORBA.StructMember[] members)
     {
         this(kind, id, name, false);
-        
+
         member_name = new String[members.length];
         member_type = new org.omg.CORBA.TypeCode[members.length];
-        
+
         for( int i = 0; i < members.length; i++ )
         {
             member_name[i] = members[i].name;
@@ -227,13 +227,13 @@ public class TypeCode
             org.omg.CORBA.UnionMember[] members )
     {
         this(TCKind._tk_union, id, name, false);
-        
+
         discriminator_type = _discriminator_type;
-        
+
         member_name  = new String[members.length];
         member_label = new Any[members.length];
         member_type  = new org.omg.CORBA.TypeCode[members.length];
-        
+
         for( int i = 0; i < members.length; i++ )
         {
             member_name[i] = members[i].name;
@@ -256,9 +256,9 @@ public class TypeCode
             java.lang.String[] members)
     {
         this(TCKind._tk_enum, id, name, false);
-        
+
         member_name = new String[members.length];
-        
+
         System.arraycopy(members, 0, member_name, 0, members.length);
     }
 
@@ -272,7 +272,7 @@ public class TypeCode
             org.omg.CORBA.TypeCode original_type)
     {
         this(kind, id, name, false);
-        
+
         content_type = original_type;
     }
 
@@ -1580,5 +1580,38 @@ public class TypeCode
       {
          throw new org.omg.CORBA.BAD_INV_ORDER ();
       }
+   }
+
+   public boolean equals(Object obj)
+   {
+       if (this == obj)
+       {
+           return true;
+       }
+
+       if (! (obj instanceof org.omg.CORBA.TypeCode))
+       {
+           return false;
+       }
+
+       return equal((org.omg.CORBA.TypeCode)obj);
+   }
+
+
+   public int hashCode()
+   {
+       final int result;
+
+       if (id == null)
+       {
+           // for primitive typecodes
+           result = super.hashCode();
+       }
+       else
+       {
+           result = id.hashCode();
+       }
+
+       return result;
    }
 }

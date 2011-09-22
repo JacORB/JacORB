@@ -281,6 +281,9 @@ public class RequestProcessor
 
     private void invokeOperation()
     {
+        String operation = request.operation();
+        boolean specialOperation = false;
+
         try
         {
             if (servant instanceof org.omg.CORBA.portable.InvokeHandler)
@@ -288,20 +291,38 @@ public class RequestProcessor
                 if (logger.isDebugEnabled())
                 {
                     logger.debug("rid: " + request.requestId() +
-                                 " opname: " + request.operation() +
+                                 " opname: " + operation +
                                  " invokeOperation on servant (stream based)");
                 }
 
-                if( specialOperations.contains(request.operation()))
+                if (specialOperations.contains(operation))
+                {
+                    if ("_get_policy".equals (operation))
+                    {
+                        // Check the number of args. If zero, then we assuming it's a "_get_policy"
+                        // operation that was generated for an attribute named 'policy', instead
+                        // of the 'get_policy' method on CORBA::Object
+                        if (request.arguments() != null && request.arguments().count() >= 1)
+                        {
+                            specialOperation = true;
+                        }
+                    }
+                    else
+                    {
+                        specialOperation = true;
+                    }
+                }
+
+                if (specialOperation)
                 {
                     ((org.jacorb.orb.ServantDelegate)servant._get_delegate())._invoke(servant,
-                                                                                      request.operation(),
+                                                                                      operation,
                                                                                       request.getInputStream(),
                                                                                       request);
                 }
                 else
                 {
-                    ((InvokeHandler) servant)._invoke(request.operation(),
+                    ((InvokeHandler) servant)._invoke(operation,
                                                       request.getInputStream(),
                                                       request);
                 }
@@ -312,15 +333,15 @@ public class RequestProcessor
                 if (logger.isDebugEnabled())
                 {
                     logger.debug("rid: " + request.requestId() +
-                                 " opname: " + request.operation() +
+                                 " opname: " + operation +
                                  " invoke operation on servant (dsi based)");
                 }
-                if( specialOperations.contains(request.operation()) &&
+                if( specialOperations.contains(operation) &&
                     !(servant instanceof org.jacorb.orb.Forwarder) )
                 {
                     ((org.jacorb.orb.ServantDelegate)servant._get_delegate())
                         ._invoke(servant,
-                                 request.operation(),
+                                 operation,
                                  request.getInputStream(),
                                  request);
                 }
@@ -334,7 +355,7 @@ public class RequestProcessor
                 if (logger.isWarnEnabled())
                 {
                     logger.warn("rid: " + request.requestId() +
-                                " opname: " + request.operation() +
+                                " opname: " + operation +
                                 " unknown servant type (neither stream nor dsi based)");
                 }
             }
@@ -345,7 +366,7 @@ public class RequestProcessor
             if (logger.isInfoEnabled())
             {
                 logger.info("rid: " + request.requestId() +
-                            " opname: " + request.operation() +
+                            " opname: " + operation +
                             " invocation: system exception was thrown.",
                             e);
             }
@@ -357,7 +378,7 @@ public class RequestProcessor
             if (logger.isErrorEnabled())
             {
                 logger.error("rid: " + request.requestId() +
-                             " opname: " + request.operation() +
+                             " opname: " + operation +
                              " invocation: Caught OutOfMemory invoking operation.",
                              e);
             }
@@ -369,7 +390,7 @@ public class RequestProcessor
             if (logger.isErrorEnabled())
             {
                 logger.error("rid: " + request.requestId() +
-                             " opname: " + request.operation() +
+                             " opname: " + operation +
                              " invocation: throwable was thrown.",
                              e);
             }

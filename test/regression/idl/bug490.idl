@@ -1,0 +1,25 @@
+#include <orb.idl>
+
+module org
+{
+   module jacorb
+   {
+      module test
+      {
+         module bugs
+         {
+            module bug490
+            {
+               enum WritePolicy {
+                  WP_ON_REQUEST, WP_IMMEDIATE, WP_AS_NEEDED, WP_NEVER
+               };
+
+               interface GoodDay {
+
+                  readonly attribute WritePolicy policy;  // 'policy' is not a keyword
+               };
+            };
+         };
+      };
+   };
+};
