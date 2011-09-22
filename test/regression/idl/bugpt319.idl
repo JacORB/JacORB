@@ -1,0 +1,19 @@
+module org
+{
+   module jacorb
+   {
+      module test
+      {
+         module bugs
+         {
+            module bugpt319
+            {
+               interface PT319
+               {
+                  Object getObject(in Object id);
+               };
+            };
+         };
+      };
+   };
+};
