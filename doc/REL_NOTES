@@ -133,7 +133,6 @@ post 2.3.1
         - Fix for oneway/sync scope none with parameters.
         - An implementation of the Object::create_request operation has been added with an exception list.
         - Fix for attribute setting of jacorb.security.ssl.*.protocols
-        - Network configuration improvements.
     - POA:
         - Fix for reference_to_id error checking.
         - Modify AOMRemoval thread to shutdown on POA shutdown.
@@ -220,6 +219,7 @@ post 2.3.1
         - enhanced dior to add optional output of corbaloc strings.
 
     - Documentation
+        - Configuration layout and network configuration improved.
         - added section about the usage of corbaloc in conjunction
           with SSL enabled servers.
         - Classloader chapter added.
