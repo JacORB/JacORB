@@ -1,0 +1,68 @@
+module org
+{
+    module jacorb
+    {
+        module test
+        {
+            module bugs
+            {
+                module bugjac445
+                {
+                    struct A
+                    {
+                        long value;
+                    };
+
+                    struct B
+                    {
+                        A a_struct;
+                        long value;
+                    };
+
+                    struct RepeatedStruct
+                    {
+                        A member1;
+                        A member2;
+                        B member3;
+                        B member4;
+                    };
+
+                    struct First
+                    {
+                        B b_struct;
+                    };
+
+                    struct Second
+                    {
+                        B b_struct;
+                        A a_struct;
+                    };
+
+                    struct Both
+                    {
+                        any first_any;
+                        any second_any;
+                    };
+
+                    struct RecursiveA
+                    {
+                        long value;
+                        sequence<RecursiveA> member;
+                    };
+
+                    struct RecursiveB
+                    {
+                        long value;
+                        RecursiveA a_struct;
+                    };
+
+                    struct RecursiveC
+                    {
+                        RecursiveB b_struct;
+                        RecursiveA a_struct;
+                    };
+                };
+            };
+        };
+    };
+};

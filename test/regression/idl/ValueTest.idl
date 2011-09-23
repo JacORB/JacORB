@@ -64,6 +64,15 @@ module org
                {
                   Account create_account( in string name, in string address, in float balance ) ;
                };
+
+               valuetype RecursiveValueType;
+               typedef sequence<RecursiveValueType> RecValueTypeSeq;
+
+               valuetype RecursiveValueType
+               {
+                       private string name;
+                       private RecValueTypeSeq seq;
+               };
             };
          };
       };

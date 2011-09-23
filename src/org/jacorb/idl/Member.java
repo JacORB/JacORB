@@ -265,7 +265,7 @@ public class Member
              */
             m.type_spec = ts;
             m.pack_name = this.pack_name;
-            m.name = this.name;
+            m.name = declaratorName;
             extendVector.addElement( m );
         }
         declarators = null;

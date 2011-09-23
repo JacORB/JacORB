@@ -215,6 +215,8 @@ public class TypeCode
             member_name[i] = members[i].name;
             member_type[i] = members[i].type;
         }
+
+        resolveRecursion();
     }
 
     /**
@@ -245,6 +247,8 @@ public class TypeCode
             }
             member_type[i] = members[i].type;
         }
+
+        resolveRecursion();
     }
 
     /**
@@ -844,10 +848,6 @@ public class TypeCode
                 result.member_name[i] = "";
             }
         }
-        else
-        {
-            result.member_name = member_name;
-        }
 
         // Compact the member types down as well.
         if (member_type != null)
@@ -866,15 +866,18 @@ public class TypeCode
         result.discriminator_type = discriminator_type;
         result.default_index = default_index;
         result.length = length;
-        result.content_type = content_type;
+
+        if (content_type != null)
+        {
+            result.content_type = content_type.get_compact_typecode();
+        }
 
         result.scale = scale;
         result.digits = digits;
 
-        result.actualTypecode = actualTypecode;
         result.secondIteration = secondIteration;
 
-        result.resolveRecursion ();
+        result.resolveRecursion(result);
         return result;
     }
 
@@ -1080,7 +1083,7 @@ public class TypeCode
 
     public String toString()
     {
-        return idlTypeName();
+        return "{TypeCode: Kind=" + kind + " (" + kindToString(kind) + "), ID=" + id + ", recursive=" + recursive + "}";
     }
 
     /**
@@ -1089,7 +1092,7 @@ public class TypeCode
      * the place holder return TRUE.
      */
 
-    public boolean is_recursive()
+    private boolean is_recursive()
     {
         return recursive;
     }
@@ -1101,6 +1104,48 @@ public class TypeCode
     {
         return (typeCode instanceof TypeCode) ? ((TypeCode)typeCode).is_recursive()
                                         : false;
+    }
+
+    private String kindToString(int kind)
+    {
+        switch (kind) {
+            case -1 : return "recursive";
+            case TCKind._tk_null: return "tk_null";
+            case TCKind._tk_void: return "tk_void";
+            case TCKind._tk_short: return "tk_short";
+            case TCKind._tk_long: return "tk_long";
+            case TCKind._tk_ushort: return "tk_ushort";
+            case TCKind._tk_ulong: return "tk_ulong";
+            case TCKind._tk_float: return "tk_float";
+            case TCKind._tk_double: return "tk_double";
+            case TCKind._tk_boolean: return "tk_boolean";
+            case TCKind._tk_char: return "tk_char";
+            case TCKind._tk_octet: return "tk_octet";
+            case TCKind._tk_any: return "tk_any";
+            case TCKind._tk_TypeCode: return "tk_TypeCode";
+            case TCKind._tk_Principal: return "tk_Principal";
+            case TCKind._tk_objref: return "tk_objref";
+            case TCKind._tk_struct: return "tk_struct";
+            case TCKind._tk_union: return "tk_union";
+            case TCKind._tk_enum: return "tk_enum";
+            case TCKind._tk_string: return "tk_string";
+            case TCKind._tk_sequence: return "tk_sequence";
+            case TCKind._tk_array: return "tk_array";
+            case TCKind._tk_alias: return "tk_alias";
+            case TCKind._tk_except: return "tk_except";
+            case TCKind._tk_longlong: return "tk_longlong";
+            case TCKind._tk_ulonglong: return "tk_ulonglong";
+            case TCKind._tk_longdouble: return "tk_longdouble";
+            case TCKind._tk_wchar: return "tk_wchar";
+            case TCKind._tk_wstring: return "tk_wstring";
+            case TCKind._tk_fixed: return "tk_fixed";
+            case TCKind._tk_value: return "tk_value";
+            case TCKind._tk_value_box: return "tk_value_box";
+            case TCKind._tk_native: return "tk_native";
+            case TCKind._tk_abstract_interface: return "tk_abstract_interface";
+            case TCKind._tk_local_interface: return "tk_local_interface";
+            default: throw new org.omg.CORBA.BAD_PARAM();
+        }
     }
 
     /**
@@ -1308,7 +1353,6 @@ public class TypeCode
                                           0,
                                           create_tc(clazz.getComponentType(),
                                                     knownTypes)));
-            knownTypes.put(clazz, newTypeCode);
             return newTypeCode;
         }
         else if (java.rmi.Remote.class.isAssignableFrom(clazz))
@@ -1337,7 +1381,7 @@ public class TypeCode
                 Method typeMethod = helperClass.getMethod("type", (Class[]) null);
                 TypeCode newTypeCode =
                     (TypeCode)typeMethod.invoke(null, (Object[]) null);
-                knownTypes.put(clazz, newTypeCode);
+
                 return newTypeCode;
             }
             catch (ClassNotFoundException e)
@@ -1381,7 +1425,6 @@ public class TypeCode
             TypeCode newTypeCode = new TypeCode(TCKind._tk_abstract_interface,
                                                 RepositoryID.repId(clazz),
                                                 clazz.getName());
-            knownTypes.put(clazz, newTypeCode);
             return newTypeCode;
         }
         else // clz is mapped to a valuetype
@@ -1400,6 +1443,7 @@ public class TypeCode
                              new ValueMember[0]);
             knownTypes.put(clazz, newTypeCode);
             newTypeCode.setValueMembers(getValueMembers(clazz, knownTypes));
+            knownTypes.remove(clazz);
             return newTypeCode;
         }
     }
@@ -1482,11 +1526,9 @@ public class TypeCode
    /*
     * Resolve any recursive TypeCodes contained within this TypeCode. This
     * TypeCode is the actual (non-recursive) TypeCode that replaces any
-    * recursive TypeCodes with the same RepositoryId.  This operation should
-    * only be called on union or struct TypeCodes since it is only these
-    * TypeCodes that can be recursive.
+    * recursive TypeCodes with the same RepositoryId.
     */
-   void resolveRecursion ()
+   private void resolveRecursion ()
    {
       if (kind == TCKind._tk_struct || kind == TCKind._tk_union)
       {

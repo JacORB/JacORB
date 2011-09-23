@@ -178,7 +178,7 @@ public class ValueDecl
                 if (! (forwardDeclaration instanceof ValueDecl))
                 {
                     parser.error("Forward declaration types mismatch for "
-                            + full_name() 
+                            + full_name()
                             + ": name already defined with another type" , token);
                 }
 
@@ -288,7 +288,7 @@ public class ValueDecl
                         continue;
                     }
                     logger.error(" Declaration is " + ts.declaration().getClass());
-                    parser.fatal_error("Non-value type in inheritance spec: " + Environment.NL 
+                    parser.fatal_error("Non-value type in inheritance spec: " + Environment.NL
                                        + "\t" + inheritanceSpec, token);
                 }
 
@@ -395,8 +395,6 @@ public class ValueDecl
             return this.getRecursiveTypeCodeExpression();
         }
 
-        knownTypes.add(this);
-
         String baseType = "null";
 
         // Only add e.g. FooHelper.type() for those inherited non-abstract ValueTypes.
@@ -413,14 +411,14 @@ public class ValueDecl
                 // type modifier
                 "(short)" +
                 (this.isCustomMarshalled()
-                        // symbolic constants might not be defined under jdk 1.1
-                        ? 1 // org.omg.CORBA.VM_CUSTOM.value
-                                : 0 // org.omg.CORBA.VM_NONE.value
+                        ? org.omg.CORBA.VM_CUSTOM.value
+                        : org.omg.CORBA.VM_NONE.value
                 ) + ", " +
                 // concrete base type
                 baseType + ", " +
                 // value members
         "new org.omg.CORBA.ValueMember[] {");
+        knownTypes.add(this);
         for(Iterator i = stateMembers.v.iterator(); i.hasNext();)
         {
             Set knownTypesLocal = new HashSet(knownTypes);
@@ -428,6 +426,7 @@ public class ValueDecl
             result.append(getValueMemberExpression(m, knownTypesLocal));
             if (i.hasNext()) result.append(", ");
         }
+        knownTypes.remove(this);
         result.append("})");
         return result.toString();
     }
@@ -445,9 +444,8 @@ public class ValueDecl
 
         String memberTypeExpression = typeSpec.getTypeCodeExpression(knownTypes);
         short access = m.isPublic
-            // the symbolic constants might not be defined under jdk 1.1
-            ? (short)1  // org.omg.CORBA.PUBLIC_MEMBER.value
-            : (short)0; // org.omg.CORBA.PRIVATE_MEMBER.value
+            ? org.omg.CORBA.PUBLIC_MEMBER.value
+            : org.omg.CORBA.PRIVATE_MEMBER.value;
 
         return "new org.omg.CORBA.ValueMember (" +
             "\"" + m.name + "\", \"" + typeSpec.id() +

@@ -62,6 +62,50 @@ public class ValueTest extends ClientServerTestCase
         return setup;
     }
 
+    public void testCompactTypeCode() throws Exception
+    {
+        TypeCode typeCode = AccountHelper.type();
+
+        assertEquals(3, typeCode.member_count());
+
+        assertEquals("name", typeCode.member_name(0));
+        assertEquals("address", typeCode.member_name(1));
+        assertEquals("balance", typeCode.member_name(2));
+
+        TypeCode compacted = typeCode.get_compact_typecode();
+
+        assertEquals(3, compacted.member_count());
+
+        assertEquals("", compacted.member_name(0));
+        assertEquals("", compacted.member_name(1));
+        assertEquals("", compacted.member_name(2));
+    }
+
+    public void testRecursiveCompactedTypeCode() throws Exception
+    {
+        TypeCode typeCode = RecursiveValueTypeHelper.type();
+
+        assertEquals(2, typeCode.member_count());
+        assertEquals("name", typeCode.member_name(0));
+        assertEquals("seq", typeCode.member_name(1));
+
+        final TypeCode nested = typeCode.member_type(1).content_type().content_type();
+        assertEquals("name", nested.member_name(0));
+        assertEquals("seq", nested.member_name(1));
+
+        TypeCode compacted = typeCode.get_compact_typecode();
+
+        assertEquals(2, compacted.member_count());
+        assertEquals("", compacted.member_name(0));
+        assertEquals("", compacted.member_name(1));
+
+        final TypeCode nested2 = compacted.member_type(1).content_type().content_type();
+        assertEquals(compacted, nested2);
+        assertEquals("", nested2.member_name(0));
+        assertEquals("", nested2.member_name(1));
+
+    }
+
     public void test_pass_boxed_long()
     {
         boxedLong p1 = new boxedLong(774);

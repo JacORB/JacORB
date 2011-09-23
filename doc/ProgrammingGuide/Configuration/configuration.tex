@@ -808,6 +808,33 @@ This factory is used by JacORB to create a server socket for incoming SSL connec
 \end{longtable}
 \end{small}
 
+\subsubsection{Compacting Typecodes}
+\label{compact-typecode}
+Using the proprty
+\begin{verbatim}
+jacorb.compactTypecodes=off
+\end{verbatim}
+causes JacORB to strip off all optional information from Typecode's before marshalling them.
+This will remove all optional data from the typecode (essentially the equivilant of
+calling get\_compact\_typecode). This produces smaller network packages and thereby can give a positive effect on performance.
+
+Disadvantages of this are that the CORBA Notification Service relies on typecodes for complex
+filter notation and this also may cause interoperability problems with other orbs during typecode
+comparisons. For instance the comparison of Typecode's that were received across the net with
+local one's (from a Helper class) using \emph{equal} will fail.
+
+That's because the following holds (see OMG doc):
+\begin{verbatim}
+MyTypeHelper.id().equal(MyTypeHelper.id()) => TRUE
+MyTypeHelper.id().equal(MyTypeHelper.id()
+    .get_compacted_typecode()) => FALSE
+\end{verbatim}
+
+JacORB will (if compaction is enabled) always invoke \emph{get\_compacted\_typecode} before marshalling a typecode.
+
+Note: it's not necessary to compare TypeCode's using \emph{equal}. The method \emph{equivalent} does a less strict comparison
+that omits the optional information.
+
 \section{Configuration Properties}
 
 A comprehensive listing and description of the properties which are used
@@ -1091,7 +1118,7 @@ IP addresses & boolean & off \\
 Turn off if "short" host name need to be used in IORs & boolean & on \\
 \hline
 \verb"jacorb.compactTypecode"
-\verb"s" & Whether to send compact typecodes. Options are 0 (off), on (full compaction of all optional parameters) & boolean & on \\
+\verb"s" & Whether to send compact typecodes. Options are off or on (full compaction of all optional parameters). See \ref{compact-typecode} & boolean & off \\
 \hline
 \verb"jacorb.cacheTypecodes" & Whether to cache read
 typecodes  & boolean & off \\

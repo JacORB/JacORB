@@ -1,0 +1,51 @@
+module org
+{
+    module jacorb
+    {
+        module test
+        {
+            module bugs
+            {
+                module bugjac462
+                {
+                    struct MyStructA
+                    {
+                        string name;
+                    };
+
+                    struct MyStructB
+                    {
+                        string name;
+                    };
+
+                    struct ComplexA
+                    {
+                        MyStructA structA;
+                        MyStructA structB;
+                    };
+
+                    struct ComplexB
+                    {
+                        MyStructB structA;
+                        MyStructB structB;
+                    };
+
+                    struct ComplexC
+                    {
+                        ComplexA struct1;
+                        ComplexA struct2;
+                    };
+
+                    struct TProject;
+                    typedef TProject TProjectAlias;
+                    typedef sequence<TProject> TProjectSeq;
+                    struct TProject {
+                        long id;
+                        TProjectSeq projects;
+                        TProjectAlias alias;
+                    };
+                };
+            };
+        };
+    };
+};

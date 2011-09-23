@@ -50,6 +50,10 @@ import org.jacorb.orb.portableInterceptor.CodecFactoryImpl;
 import org.jacorb.orb.portableInterceptor.IORInfoImpl;
 import org.jacorb.orb.portableInterceptor.InterceptorManager;
 import org.jacorb.orb.portableInterceptor.ORBInitInfoImpl;
+import org.jacorb.orb.typecode.NullTypeCodeCache;
+import org.jacorb.orb.typecode.NullTypeCodeCompactor;
+import org.jacorb.orb.typecode.TypeCodeCache;
+import org.jacorb.orb.typecode.TypeCodeCompactor;
 import org.jacorb.poa.RPPoolManager;
 import org.jacorb.poa.RPPoolManagerFactory;
 import org.jacorb.poa.except.POAInternalError;
@@ -313,6 +317,30 @@ public final class ORB
             useTimerQueue =
                 configuration.getAttributeAsInteger("jacorb.connection.request.write_timeout", 0) > 0 ||
                 configuration.getAttributeAsInteger("jacorb.connection.reply.write_timeout", 0) > 0;
+        }
+
+        boolean cacheTypeCodes = configuration.getAttributeAsBoolean("jacorb.cacheTypecodes", false);
+
+        if (cacheTypeCodes)
+        {
+            typeCodeCache = (TypeCodeCache) configuration.getAttributeAsObject("jacorb.cacheTypecodes.class", "org.jacorb.orb.typecode.JDK15TypeCodeCache");
+            logger.info("enabled TypeCodeCache: "  + typeCodeCache.getClass().getName());
+        }
+        else
+        {
+            typeCodeCache = NullTypeCodeCache.getInstance();
+        }
+
+        boolean compactTypeCodes = configuration.getAttributeAsBoolean("jacorb.compactTypecodes", false);
+
+        if (compactTypeCodes)
+        {
+            typeCodeCompactor = (TypeCodeCompactor) configuration.getAttributeAsObject("jacorb.compactTypecodes.class", "org.jacorb.orb.typecode.JDK15TypeCodeCompactor");
+            logger.info("enabled TypeCodeCompactor: " + typeCodeCompactor.getClass().getName());
+        }
+        else
+        {
+            typeCodeCompactor = NullTypeCodeCompactor.getInstance();
         }
 
         printVersion(configuration);
@@ -2462,7 +2490,6 @@ public final class ORB
 
         objectKeyMap.configureObjectKeyMap(configuration);
     }
-
 
     /**
      * <code>addObjectKey </code> is a proprietary method that allows the

@@ -577,6 +577,20 @@ public class AnyTest extends ClientServerTestCase
         assertTrue (outValue.equal(testValue));
     }
 
+    public void test_any_stream_singleton()
+    {
+        Any testValue = setup.getClientOrb().create_any();
+        testValue.insert_wstring("hello world");
+
+        Any any = org.omg.CORBA.ORB.init().create_any();
+        any.type (setup.getClientOrb().get_primitive_tc(TCKind.tk_any));
+        any.create_output_stream().write_any (testValue);
+        // don't bounce, because we want to extract from the
+        // output stream we just created
+        Any outValue = any.extract_any();
+        assertTrue (outValue.equal(testValue));
+    }
+
     public void test_string()
         throws Exception
     {
@@ -1982,5 +1996,26 @@ public class AnyTest extends ClientServerTestCase
         any1.insert_Object(null, AnyServerHelper.type());
         assertFalse(any1.equals(any2));
         assertFalse(any2.equals(any1));
+    }
+
+    public void testUnionWithDefault()
+    {
+        UnionWithDefault union = new UnionWithDefault();
+        Any any = setup.getClientOrb().create_any();
+        UnionWithDefaultHelper.insert(any, union);
+
+        Any bouncedAny= server.bounce_any(any);
+        UnionWithDefault bouncedUnion = UnionWithDefaultHelper.extract(bouncedAny);
+
+        assertEquals(union.s3(), bouncedUnion.s3());
+    }
+
+    public void testIndirectionToNestedObject()
+    {
+        Any any = setup.getClientOrb().create_any();
+        IndirectionToNestedObjectHelper.insert(any, new IndirectionToNestedObject(new NestedObject(server), server));
+        IndirectionToNestedObject bounced = IndirectionToNestedObjectHelper.extract(server.bounce_any(any));
+        assertEquals(server, bounced.member1.member1);
+        assertEquals(server, bounced.member2);
     }
 }

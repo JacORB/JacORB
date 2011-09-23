@@ -20,6 +20,8 @@ package org.jacorb.test.bugs.bugjac81;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
+import org.omg.CORBA.TCKind;
+
 import junit.framework.TestCase;
 
 public class BoundedStringTest extends TestCase
@@ -36,7 +38,7 @@ public class BoundedStringTest extends TestCase
 
     public void test3() throws Exception
     {
-        assertEquals("string", org.jacorb.test.bugs.bugjac81.StructOneHelper.type().member_type(0).toString());
+        assertEquals(TCKind.tk_string, org.jacorb.test.bugs.bugjac81.StructOneHelper.type().member_type(0).kind());
     }
 
     public void test4() throws Exception

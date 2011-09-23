@@ -43,6 +43,17 @@ module org
                   Recursive member3;
               };
 
+              struct NestedObject
+              {
+                  Object member1;
+              };
+
+              struct IndirectionToNestedObject
+              {
+                  NestedObject member1;
+                  Object member2;
+              };
+
               exception RecursiveException
               {
                   sequence<RecursiveException> member;
@@ -82,6 +93,13 @@ module org
 
               union CharDiscUnion switch (char){
                   case 'c' : string s;
+              };
+
+              union UnionWithDefault switch (short)
+              {
+                 case 1  : boolean s1;
+                 case 2  : string  s2;
+                 default : long    s3;
               };
 
               enum TestEnum { foo };

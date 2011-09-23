@@ -23,7 +23,6 @@ package org.jacorb.orb;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-
 import org.jacorb.config.*;
 import org.slf4j.Logger;
 import org.jacorb.ir.RepositoryID;
@@ -95,7 +94,7 @@ public class ExceptionHolderImpl
             throw new BAD_PARAM( "attempt to create ExceptionHolder " +
                                         "for non-exception reply" );
         }
-        byte_order          = inputStream.littleEndian;
+        byte_order          = inputStream.getLittleEndian();
         marshaled_exception = inputStream.getBody();
     }
 

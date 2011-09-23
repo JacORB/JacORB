@@ -314,7 +314,7 @@ jacorb.dns.enable=off
 # names (e.g. "short" names) should be used in IORs
 #jacorb.dns.force_lookup=on
 
-# Compact Typecodes (off/on)
+# Compact Typecodes (off[Default]/on)
 jacorb.compactTypecodes=off
 
 # Cache typecode on read

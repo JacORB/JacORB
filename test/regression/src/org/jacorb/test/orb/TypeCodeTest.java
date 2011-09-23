@@ -26,6 +26,12 @@ import org.omg.CORBA.*;
 
 public class TypeCodeTest extends ORBTestCase
 {
+    class MyClass
+    {
+        String member1;
+        String member2;
+    }
+
     /**
      * Test that jacorb handles some self-constructed broken typecodes
      * well. The constructed typecode is in principal recursive, but not
@@ -60,5 +66,19 @@ public class TypeCodeTest extends ORBTestCase
 
         //need to write out typecode, to check it's consistency completely
         out.write_TypeCode(in.read_TypeCode());
+    }
+
+    public void testEquals()
+    {
+        TypeCode tc = orb.create_string_tc(10);
+        assertFalse(tc.equals("bla"));
+    }
+
+    public void testCreateDynamicTypeCode() throws Exception
+    {
+        TypeCode typeCode = org.jacorb.orb.TypeCode.create_tc(MyClass.class);
+
+        assertEquals(2, typeCode.member_count());
+        assertEquals(typeCode.member_type(0).type_modifier(), typeCode.member_type(1).type_modifier());
     }
 }

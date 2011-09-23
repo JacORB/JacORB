@@ -23,6 +23,10 @@ package org.jacorb.orb;
 import java.util.HashSet;
 import org.jacorb.config.*;
 import org.slf4j.Logger;
+import org.jacorb.orb.typecode.NullTypeCodeCache;
+import org.jacorb.orb.typecode.NullTypeCodeCompactor;
+import org.jacorb.orb.typecode.TypeCodeCache;
+import org.jacorb.orb.typecode.TypeCodeCompactor;
 import org.jacorb.config.JacORBConfiguration;
 import org.omg.CORBA.BAD_PARAM;
 import org.omg.CORBA.BAD_TYPECODE;
@@ -47,6 +51,10 @@ public class ORBSingleton
     protected Logger logger;
 
     protected IBufferManager bufferManager;
+
+    protected TypeCodeCache typeCodeCache;
+
+    protected TypeCodeCompactor typeCodeCompactor;
 
     /**
      * in case a singleton orb is created the c'tor will access the JacORB configuration
@@ -75,6 +83,9 @@ public class ORBSingleton
 
                 final BufferManagerFactory bufferManagerFactory = newBufferManagerFactory(configuration);
                 bufferManager = bufferManagerFactory.newSingletonBufferManager(configuration);
+
+                typeCodeCache = NullTypeCodeCache.getInstance();
+                typeCodeCompactor = NullTypeCodeCompactor.getInstance();
 
                 if (logger.isDebugEnabled())
                 {
@@ -321,7 +332,7 @@ public class ORBSingleton
      * @param checkName
      * @returns TypeCode
      */
-    TypeCode create_enum_tc( String id,
+    public TypeCode create_enum_tc( String id,
                              String name,
                              String [] members,
                              boolean checkName)
@@ -378,7 +389,7 @@ public class ORBSingleton
      * @param checkName
      * @returns TypeCode
      */
-    TypeCode create_exception_tc( String id,
+    public TypeCode create_exception_tc( String id,
                                   String name,
                                   org.omg.CORBA.StructMember[] members,
                                   boolean checkName)
@@ -493,7 +504,7 @@ public class ORBSingleton
      * @param checkName
      * @returns TypeCode
      */
-    TypeCode create_struct_tc(String id,
+    public TypeCode create_struct_tc(String id,
                               String name,
                               org.omg.CORBA.StructMember [] members,
                               boolean checkName)
@@ -536,8 +547,6 @@ public class ORBSingleton
                                          name,
                                          members);
 
-        // resolve any recursive references to this TypeCode in its members
-        typeCode.resolveRecursion();
         return typeCode;
     }
 
@@ -560,7 +569,7 @@ public class ORBSingleton
      * @param checkName
      * @returns TypeCode
      */
-    TypeCode create_union_tc( String id,
+    public TypeCode create_union_tc( String id,
                               String name,
                               TypeCode discriminator_type,
                               org.omg.CORBA.UnionMember [] members,
@@ -647,7 +656,7 @@ public class ORBSingleton
                                         members);
 
         // resolve any recursive references to this TypeCode in its members
-        typeCode.resolveRecursion();
+
         return typeCode;
     }
 
@@ -865,5 +874,15 @@ public class ORBSingleton
             throw new INITIALIZE ("JacORB ORB Singleton not initialized");
         }
         return bufferManager;
+    }
+
+    public TypeCodeCache getTypeCodeCache()
+    {
+        return typeCodeCache;
+    }
+
+    public TypeCodeCompactor getTypeCodeCompactor()
+    {
+        return typeCodeCompactor;
     }
 }

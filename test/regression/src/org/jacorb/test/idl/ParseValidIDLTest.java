@@ -26,6 +26,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import junit.framework.Test;
 import org.jacorb.test.common.TestUtils;
+import org.omg.CORBA.TypeCode;
 
 /**
  * this test will try to process and compile all idl files included
@@ -149,6 +150,17 @@ public class ParseValidIDLTest extends AbstractIDLTestcase
         Class clazz = cl.loadClass("PragmaBug.TestHelper");
         Method method = clazz.getMethod("id", (Class[])null);
         assertEquals("IDL:acme.com/PragmaBug/Test:1.0", method.invoke(null, (Object[])null));
+    }
+
+    public void verify_valueTest_idl(ClassLoader cl) throws Exception
+    {
+        Class clazz = cl.loadClass("test.ValueTestHelper");
+        Method method = clazz.getMethod("type", new Class[0]);
+        TypeCode result = (TypeCode) method.invoke(null, new Object[0]);
+
+        assertEquals(2, result.member_count());
+        assertEquals("member1", result.member_name(0));
+        assertEquals("member2", result.member_name(1));
     }
 
     public static Test suite()
