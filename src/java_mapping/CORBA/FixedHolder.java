@@ -23,18 +23,46 @@ public class FixedHolder
 
    public TypeCode _type()
    {
-      short digits = (short)value.precision();
-      short scale = (short)value.scale();
+      String s = value.toString();
+      short digits =0;
+      short scale = 0;
 
+       if ( s.startsWith("-") )
+       {
+           s = s.substring(1);
+       }
+
+       if ( ! s.startsWith("0.") )
+       {
+          for( int i = 0; i < s.length(); i++ )
+          {
+             if ( s.charAt(i) == '.' )
+             {
+                break;
+             }
+             digits++;
+          }
+       }
+
+       int decimal = s.indexOf('.');
+       if ( decimal != -1 )
+       {
+          s = s.substring( decimal + 1 );
+          for( int i = 0; i < s.length(); i++ )
+          {
+             digits++;
+             scale++;
+          }
+       }
       return ORB.init().create_fixed_tc( digits, scale );
    }
+
 
    /**
     * @deprecated use another method to read the fixed e.g.{@link org.omg.CORBA.portable.InputStream#read_fixed(short, short)}
     */
    public void _read(org.omg.CORBA.portable.InputStream in)
    {
-      value = in.read_fixed();
        // unable to read
        // because when the fixed is read off the stream, the
        // BigDecimal can't be reconstructed to the original digits and scale without explicitly

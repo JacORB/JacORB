@@ -903,7 +903,7 @@ public class CDRInputStream
             index++;
         }
 
-        if (digits != -1 && (outBuffer.length() != digits))
+        if (digits != -1 && (outBuffer.length() > digits))
         {
             throw new MARSHAL("unexpected number of digits: expected " + digits + " got " + outBuffer.length() + " " + outBuffer);
         }

@@ -843,8 +843,7 @@ public final class Any
           }
           BigDecimal tmp = new BigDecimal( val );
 
-          org.omg.CORBA.TypeCode tc = ORB.init().create_fixed_tc
-              ((short)tmp.precision(), (short)tmp.scale());
+          org.omg.CORBA.TypeCode tc = new FixedHolder(tmp)._type();
 
           if ( tc.fixed_digits() > type.fixed_digits() )
           {

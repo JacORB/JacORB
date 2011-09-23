@@ -138,6 +138,7 @@ post 2.3.1
         - Fixed marshalling error: Found indirection marker, but no corresponding original typecode.
         - Change default of compactTypecodes to be off (no compaction)
         - Fix for non-configured CDRInputStream when created with a ORBSingleton.
+        - Fix for the problem with handling negative values in DynFixed.
 
     - POA:
         - Fix for reference_to_id error checking.

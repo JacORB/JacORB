@@ -57,19 +57,6 @@ public class BugJac516Test extends ORBTestCase
         }
     }
 
-    public void testReadFixedWithWrongDigitsFails2()
-    {
-        try
-        {
-            in.read_fixed((short)5, (short)1);
-            fail();
-        }
-        catch(MARSHAL e)
-        {
-        }
-    }
-
-
     public void testReadFixedScaleBelowZeroShouldFail()
     {
         try
