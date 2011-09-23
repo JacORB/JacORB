@@ -104,7 +104,9 @@ public class BugJac503Test extends AbstractWIOPTestCase
 
     public void testForwardRequestInClientInterceptor() throws Exception
     {
-        ForwardInterceptor.protocols = new Protocol[] {new Protocol(new WIOPFactories().profile_tag(), null, null)};
+        WIOPFactories factories = new WIOPFactories();
+        factories.configure (((org.jacorb.orb.ORB)clientOrb).getConfiguration ());
+        ForwardInterceptor.protocols = new Protocol[] {new Protocol(factories.profile_tag(), null, null)};
 
         basicServer.ping();
 

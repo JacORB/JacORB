@@ -111,7 +111,29 @@ public class WIOPFactories
         {
             IIOPProfile result
                 = new IIOPProfile (tagged_profile.value.profile_data);
+
+            try
+            {
+                result.configure (configuration);
+            }
+            catch( ConfigurationException e )
+            {
+                throw new org.omg.CORBA.INTERNAL("ConfigurationException: " + e.toString());
+            }
+            
+
+            try
+            {
+                result.configure (configuration);
+            }
+            catch( ConfigurationException e )
+            {
+                throw new org.omg.CORBA.INTERNAL("ConfigurationException: " + e.toString());
+            }
+            
             components.value = result.getComponents().asArray();
+            
+            
             return new WIOPProfile (result, this.tag);
         }
     }

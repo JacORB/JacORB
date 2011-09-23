@@ -21,13 +21,13 @@ package org.jacorb.orb;
  */
 
 import java.util.HashSet;
-import org.jacorb.config.*;
-import org.slf4j.Logger;
+import org.jacorb.config.Configuration;
+import org.jacorb.config.ConfigurationException;
+import org.jacorb.config.JacORBConfiguration;
 import org.jacorb.orb.typecode.NullTypeCodeCache;
 import org.jacorb.orb.typecode.NullTypeCodeCompactor;
 import org.jacorb.orb.typecode.TypeCodeCache;
 import org.jacorb.orb.typecode.TypeCodeCompactor;
-import org.jacorb.config.JacORBConfiguration;
 import org.omg.CORBA.BAD_PARAM;
 import org.omg.CORBA.BAD_TYPECODE;
 import org.omg.CORBA.CompletionStatus;
@@ -36,6 +36,7 @@ import org.omg.CORBA.INTERNAL;
 import org.omg.CORBA.NO_IMPLEMENT;
 import org.omg.CORBA.TCKind;
 import org.omg.CORBA.TypeCode;
+import org.slf4j.Logger;
 
 /**
  * @author Gerald Brose, FU Berlin
@@ -57,6 +58,11 @@ public class ORBSingleton
     protected TypeCodeCompactor typeCodeCompactor;
 
     /**
+     * the configuration object for this ORB instance
+     */
+    protected org.jacorb.config.Configuration configuration;
+
+    /**
      * in case a singleton orb is created the c'tor will access the JacORB configuration
      * to configure the orb. otherwise configure needs to be called to properly set up
      * the created instance.
@@ -71,7 +77,7 @@ public class ORBSingleton
         {
             if (isSingleton)
             {
-                final org.jacorb.config.Configuration configuration = JacORBConfiguration.getConfiguration(null, null, false);
+                configuration = JacORBConfiguration.getConfiguration(null, null, false);
 
                 // Don't call configure method as if this has been called from ORB::ctor
                 // class construction order can cause issues.
@@ -119,9 +125,11 @@ public class ORBSingleton
         this(true);
     }
 
-    protected void configure(Configuration configuration) throws ConfigurationException
+    protected void configure(Configuration config) throws ConfigurationException
     {
-       logger = configuration.getLogger("jacorb.orb");
+        configuration = (org.jacorb.config.Configuration) config;
+
+        logger = configuration.getLogger("jacorb.orb");
 
         doStrictCheckOnTypecodeCreation = configuration.getAttributeAsBoolean
             ("jacorb.interop.strict_check_on_tc_creation", true);
@@ -174,6 +182,16 @@ public class ORBSingleton
             || ( character >= 'A' && character <= 'Z');
     }
 
+    /**
+     * Some parts of JacORB cannot be elegantly configured from the outside
+     * and need access to the ORB's configuration retrieve config settings.
+     * This method should only be used in those restricted cases!
+     */
+
+    public final org.jacorb.config.Configuration getConfiguration()
+    {
+        return configuration;
+    }
 
     /**
      * Determine if a character is ok for the middle of an id.
@@ -185,7 +203,6 @@ public class ORBSingleton
            || (ch == '_')
            || (ch >= '0' && ch <= '9');
     }
-
 
     /**
      * code>checkTCName</code> checks that a name is a legal IDL name

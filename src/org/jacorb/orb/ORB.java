@@ -29,7 +29,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
 import org.jacorb.config.Configurable;
 import org.jacorb.config.Configuration;
 import org.jacorb.config.ConfigurationException;
@@ -61,7 +60,6 @@ import org.jacorb.poa.util.POAUtil;
 import org.jacorb.util.BuildVersion;
 import org.jacorb.util.ObjectUtil;
 import org.jacorb.util.TimerQueue;
-
 import org.omg.CORBA.BAD_INV_ORDER;
 import org.omg.CORBA.BAD_PARAM;
 import org.omg.CORBA.CompletionStatus;
@@ -72,7 +70,15 @@ import org.omg.CORBA.ORBPackage.InvalidName;
 import org.omg.CORBA.portable.BoxedValueHelper;
 import org.omg.CORBA.portable.StreamableValue;
 import org.omg.CORBA.portable.ValueFactory;
-import org.omg.CSIIOP.*;
+import org.omg.CSIIOP.CompoundSecMechList;
+import org.omg.CSIIOP.CompoundSecMechListHelper;
+import org.omg.CSIIOP.Confidentiality;
+import org.omg.CSIIOP.DetectMisordering;
+import org.omg.CSIIOP.DetectReplay;
+import org.omg.CSIIOP.Integrity;
+import org.omg.CSIIOP.TAG_TLS_SEC_TRANS;
+import org.omg.CSIIOP.TLS_SEC_TRANS;
+import org.omg.CSIIOP.TLS_SEC_TRANSHelper;
 import org.omg.ETF.Profile;
 import org.omg.IOP.IOR;
 import org.omg.IOP.MultipleComponentProfileHelper;
@@ -120,11 +126,6 @@ public final class ORB
     private static final String dateString = org.jacorb.util.Version.date;
     private static final String nullIORString =
         "IOR:00000000000000010000000000000000";
-
-    /**
-     * the configuration object for this ORB instance
-     */
-    private org.jacorb.config.Configuration configuration = null;
 
     // configuration properties
     private boolean cacheReferences;
@@ -266,9 +267,6 @@ public final class ORB
     public void configure(Configuration config) throws ConfigurationException
     {
         super.configure(config);
-
-        this.configuration =
-            (org.jacorb.config.Configuration)config;
 
         cacheReferences =
             configuration.getAttributeAsBoolean("jacorb.reference_caching", false);
@@ -428,16 +426,6 @@ public final class ORB
                     "\t~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
     }
 
-    /**
-     * Some parts of JacORB cannot be elegantly configured from the outside
-     * and need access to the ORB's configuration retrieve config settings.
-     * This method should only be used in those restricted cases!
-     */
-
-    public org.jacorb.config.Configuration getConfiguration()
-    {
-        return configuration;
-    }
 
     /**
      * Overrides id() in org.omg.CORBA_2_5.ORB
@@ -561,10 +549,11 @@ public final class ORB
         }
 
         String refImplName = null;
+        final byte[] delegateObjectKey = delegate.getObjectKey();
 
         try
         {
-            refImplName = POAUtil.extractImplName( delegate.getObjectKey() );
+            refImplName = POAUtil.extractImplName( delegateObjectKey );
         }
         catch(POAInternalError e)
         {
@@ -605,7 +594,7 @@ public final class ORB
         {
             org.jacorb.poa.POA tmp_poa = rootpoa;
             String poa_name =
-                POAUtil.extractPOAName( delegate.getObjectKey() );
+                POAUtil.extractPOAName( delegateObjectKey );
 
             /* strip scoped poa name (first part of the object key before "::",
              *  will be empty for the root poa
