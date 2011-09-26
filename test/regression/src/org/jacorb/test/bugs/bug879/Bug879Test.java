@@ -33,7 +33,7 @@ import org.jacorb.test.common.ORBTestCase;
  */
 public class Bug879Test extends ORBTestCase
 {
-    protected void patchORBProperties(Properties props)
+    protected void patchORBProperties(String testName, Properties props) throws Exception
     {
         props.setProperty("jacorb.giop_minor_version", "1");
     }

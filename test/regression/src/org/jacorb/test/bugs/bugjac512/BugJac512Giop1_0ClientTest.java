@@ -35,7 +35,7 @@ import org.omg.GIOP.ReplyStatusType_1_2;
  */
 public class BugJac512Giop1_0ClientTest extends ORBTestCase
 {
-    protected void patchORBProperties(String testName, Properties props)
+    protected void patchORBProperties(String testName, Properties props) throws Exception
     {
         props.setProperty("jacorb.giop_minor_version", "0");
     }

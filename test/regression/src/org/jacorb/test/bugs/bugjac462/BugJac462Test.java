@@ -21,7 +21,6 @@
 package org.jacorb.test.bugs.bugjac462;
 
 import java.util.Properties;
-
 import org.jacorb.orb.CDRInputStream;
 import org.jacorb.orb.CDROutputStream;
 import org.jacorb.test.common.ORBTestCase;
@@ -33,13 +32,13 @@ import org.omg.CORBA.TypeCode;
  */
 public class BugJac462Test extends ORBTestCase
 {
-    protected void patchORBProperties(String testName, Properties props)
+    protected void patchORBProperties(String testName, Properties props) throws Exception
     {
         props.setProperty("jacorb.cacheTypecodes", "on");
         props.setProperty("jacorb.compactTypecodes", "off");
     }
 
-    public void testBug2() throws Exception
+    public void testBug462() throws Exception
     {
         CDROutputStream out1 = (CDROutputStream) orb.create_output_stream();
         out1.write_TypeCode(ComplexAHelper.type());
@@ -71,7 +70,7 @@ public class BugJac462Test extends ORBTestCase
     }
 
     public void testMultipleReadsAreAnsweredFromCache()
-        {
+    {
         CDROutputStream out = (CDROutputStream) orb.create_output_stream();
         out.write_TypeCode(ComplexAHelper.type());
 

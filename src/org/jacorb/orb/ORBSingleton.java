@@ -95,6 +95,8 @@ public class ORBSingleton
 
                 if (logger.isDebugEnabled())
                 {
+                    logger.debug("BufferManagerFactory: " + bufferManagerFactory);
+                    logger.debug("BufferManager: " + bufferManager);
                     logger.debug("jacorb.interop.strict_check_on_tc_creation set to " + doStrictCheckOnTypecodeCreation);
                 }
 
@@ -895,11 +897,19 @@ public class ORBSingleton
 
     public TypeCodeCache getTypeCodeCache()
     {
+        if (bufferManager == null)
+        {
+            throw new INITIALIZE ("JacORB ORB Singleton not initialized");
+        }
         return typeCodeCache;
     }
 
     public TypeCodeCompactor getTypeCodeCompactor()
     {
+        if (bufferManager == null)
+        {
+            throw new INITIALIZE ("JacORB ORB Singleton not initialized");
+        }
         return typeCodeCompactor;
     }
 }

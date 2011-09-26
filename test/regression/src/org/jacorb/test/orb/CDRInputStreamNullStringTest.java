@@ -33,9 +33,10 @@ public class CDRInputStreamNullStringTest extends ORBTestCase
         return new TestSuite( CDRInputStreamNullStringTest.class );
     }
 
-    protected void patchORBProperties(java.util.Properties properties) {
+    protected void patchORBProperties(String testName, java.util.Properties properties) throws Exception
+    {
     	properties.put("jacorb.interop.null_string_encoding", "on");
-    };
+    }
 
     public void testZeroSizedNullEncodedString() throws Exception
     {

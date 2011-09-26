@@ -52,10 +52,11 @@ public class BugJac192bTest extends ORBTestCase
         server = JAC192bHelper.narrow( serverObject );
     }
 
-	protected void patchORBProperties(Properties client_props) {
-		client_props.put("org.omg.PortableInterceptor.ORBInitializerClass.CInitializer",
-        "org.jacorb.test.bugs.bugjac192b.CInitializer");
-	}
+    protected void patchORBProperties(String testName, Properties client_props) throws Exception
+    {
+        client_props.put("org.omg.PortableInterceptor.ORBInitializerClass.CInitializer",
+                         "org.jacorb.test.bugs.bugjac192b.CInitializer");
+    }
 
     /**
      * <code>test_interceptorerror</code> tests that if an interceptor throws a

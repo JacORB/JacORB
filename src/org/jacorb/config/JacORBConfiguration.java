@@ -269,7 +269,6 @@ public class JacORBConfiguration implements Configuration
 
        // now load properties file from file system
        Properties orbConfig = loadPropertiesFromFile (propFile);
-
        if (orbConfig!= null)
        {
            setAttributes(orbConfig);
@@ -511,7 +510,8 @@ public class JacORBConfiguration implements Configuration
         {
             // This is probably a more severe problem with the config file.
             // Write to the terminal, because we have no logging yet.
-            logger.error ("could not read config file: " + fileName);
+            System.err.println("could not read config file: " + fileName);
+            e.printStackTrace();
             return null;
         }
     }
@@ -561,7 +561,10 @@ public class JacORBConfiguration implements Configuration
         }
         catch (java.io.IOException ioe)
         {
-            logger.error ("could not read config file: " + name, ioe);
+            // This is a more severe problem: write to the terminal, because
+            // we have no logging yet.
+            System.err.println("could not read config file: " + name);
+            ioe.printStackTrace();
         }
         return result;
     }

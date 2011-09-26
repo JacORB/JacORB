@@ -35,7 +35,7 @@ import org.omg.CORBA.Any;
  */
 public class BugJac45Test extends ORBTestCase
 {
-    protected void patchORBProperties(Properties props)
+    protected void patchORBProperties(String testName, Properties props) throws Exception
     {
     	props.setProperty("jacorb.bufferManagerMaxFlush", "0");
     }

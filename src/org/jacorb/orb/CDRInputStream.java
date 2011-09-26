@@ -209,20 +209,13 @@ public class CDRInputStream
 
         try
         {
-            if (this.orb instanceof org.jacorb.orb.ORB)
-            {
-                final org.jacorb.orb.ORB jorb = (org.jacorb.orb.ORB)this.orb;
-                configure((jorb).getConfiguration());
-            }
-            else if (this.orb instanceof ORBSingleton)
-            {
-                configure (JacORBConfiguration.getConfiguration(null, null, false));
-            }
+            configure(((ORBSingleton)this.orb).getConfiguration());
         }
         catch( ConfigurationException e )
         {
             throw new INTERNAL("ConfigurationException: " + e);
         }
+
         typeCodeCache = ((ORBSingleton)this.orb).getTypeCodeCache();
     }
 

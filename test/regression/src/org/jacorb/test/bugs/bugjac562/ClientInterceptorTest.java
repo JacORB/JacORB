@@ -37,7 +37,7 @@ public class ClientInterceptorTest extends ORBTestCase
 {
     BasicServer server;
 
-    protected void patchORBProperties(Properties props)
+    protected void patchORBProperties(String testName, Properties props) throws Exception
     {
         props.setProperty("jacorb.orb_initializer.fail_on_error", "true");
         props.setProperty("org.omg.PortableInterceptor.ORBInitializerClass." + ClientInterceptorInit.class.getName(), "");

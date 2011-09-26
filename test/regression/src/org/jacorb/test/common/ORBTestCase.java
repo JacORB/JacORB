@@ -1,9 +1,7 @@
 package org.jacorb.test.common;
 
 import java.util.Properties;
-
 import junit.framework.TestCase;
-
 import org.omg.CORBA.ORB;
 import org.omg.PortableServer.POA;
 import org.omg.PortableServer.POAHelper;
@@ -20,7 +18,7 @@ public class ORBTestCase extends TestCase
     	properties.setProperty("org.omg.CORBA.ORBClass", "org.jacorb.orb.ORB");
     	properties.setProperty("org.omg.CORBA.ORBSingletonClass", "org.jacorb.orb.ORBSingleton");
 
-    	patchORBProperties(properties);
+    	patchORBProperties(getName(), properties);
 
         orb = ORB.init(new String[0], properties);
         rootPOA = POAHelper.narrow(orb.resolve_initial_references( "RootPOA" ));
@@ -30,11 +28,11 @@ public class ORBTestCase extends TestCase
         rootPOA.the_POAManager().activate();
     }
 
-    protected void patchORBProperties(Properties properties)
+    protected void patchORBProperties(String testName, Properties properties) throws Exception
     {
-	}
+    }
 
-	protected void doSetUp() throws Exception
+    protected void doSetUp() throws Exception
     {
     }
 
