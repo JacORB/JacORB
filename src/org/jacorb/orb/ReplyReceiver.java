@@ -22,8 +22,8 @@ package org.jacorb.orb;
 
 import java.util.Iterator;
 import java.util.Set;
-import org.jacorb.config.*;
-import org.slf4j.Logger;
+import org.jacorb.config.Configurable;
+import org.jacorb.config.Configuration;
 import org.jacorb.orb.giop.MessageInputStream;
 import org.jacorb.orb.giop.ReplyInputStream;
 import org.jacorb.orb.giop.ReplyPlaceholder;
@@ -34,10 +34,11 @@ import org.omg.CORBA.portable.ApplicationException;
 import org.omg.CORBA.portable.InvokeHandler;
 import org.omg.CORBA.portable.RemarshalException;
 import org.omg.CORBA.portable.ServantObject;
-import org.omg.PortableInterceptor.ForwardRequest;
 import org.omg.GIOP.ReplyStatusType_1_2;
 import org.omg.Messaging.ExceptionHolder;
+import org.omg.PortableInterceptor.ForwardRequest;
 import org.omg.TimeBase.UtcT;
+import org.slf4j.Logger;
 
 /**
  * A special ReplyPlaceholder that receives replies to normal requests,

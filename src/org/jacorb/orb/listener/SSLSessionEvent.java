@@ -1,9 +1,8 @@
 package org.jacorb.orb.listener;
 
+import java.io.IOException;
 import java.security.cert.Certificate;
 import java.util.EventObject;
-
-import java.io.IOException;
 
 /**
  * <code>SSLSessionEvent</code> defines an event state object for a

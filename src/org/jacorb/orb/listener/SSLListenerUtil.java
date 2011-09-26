@@ -25,17 +25,15 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
-
 import javax.net.ssl.SSLException;
 import javax.net.ssl.SSLHandshakeException;
 import javax.net.ssl.SSLKeyException;
 import javax.net.ssl.SSLPeerUnverifiedException;
 import javax.net.ssl.SSLProtocolException;
 import javax.net.ssl.SSLSocket;
-
-import org.slf4j.Logger;
 import org.jacorb.orb.ORB;
 import org.jacorb.orb.iiop.IIOPConnection;
+import org.slf4j.Logger;
 
 
 /**

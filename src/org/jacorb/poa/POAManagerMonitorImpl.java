@@ -20,10 +20,12 @@ package org.jacorb.poa;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import org.jacorb.config.*;
-import org.slf4j.Logger;
+import org.jacorb.config.Configurable;
+import org.jacorb.config.Configuration;
+import org.jacorb.config.ConfigurationException;
 import org.jacorb.poa.gui.POAManagerMonitorController;
 import org.jacorb.poa.gui.POAManagerMonitorView;
+import org.slf4j.Logger;
 
 
 /**

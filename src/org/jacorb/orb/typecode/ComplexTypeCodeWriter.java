@@ -21,9 +21,7 @@
 package org.jacorb.orb.typecode;
 
 import java.util.Map;
-
 import org.jacorb.orb.CDROutputStream;
-import org.jacorb.util.ObjectUtil;
 import org.omg.CORBA.TypeCode;
 import org.omg.CORBA.TypeCodePackage.BadKind;
 import org.omg.CORBA.TypeCodePackage.Bounds;

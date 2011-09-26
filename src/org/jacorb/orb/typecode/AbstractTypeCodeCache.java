@@ -22,9 +22,10 @@ package org.jacorb.orb.typecode;
 
 import java.util.Arrays;
 import java.util.Map;
+import org.jacorb.config.Configurable;
+import org.jacorb.config.Configuration;
+import org.jacorb.config.ConfigurationException;
 import org.slf4j.Logger;
-
-import org.jacorb.config.*;
 
 /**
  * @author Alphonse Bendt

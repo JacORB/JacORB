@@ -21,7 +21,6 @@
 package org.jacorb.orb.typecode;
 
 import java.util.Map;
-
 import org.jacorb.orb.CDROutputStream;
 import org.omg.CORBA.TCKind;
 import org.omg.CORBA.TypeCode;

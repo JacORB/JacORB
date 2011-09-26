@@ -21,11 +21,11 @@ package org.jacorb.orb.portableInterceptor;
  *
  */
 
-import org.slf4j.Logger;
 import org.jacorb.orb.standardInterceptors.CodeSetInfoInterceptor;
 import org.omg.CORBA.UserException;
 import org.omg.PortableInterceptor.IORInterceptor;
 import org.omg.PortableInterceptor.Interceptor;
+import org.slf4j.Logger;
 
 /**
  * IORInterceptorIterator.java

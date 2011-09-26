@@ -22,7 +22,6 @@
 package org.jacorb.orb.portableInterceptor;
 
 import java.util.HashSet;
-
 import org.omg.PortableInterceptor.ClientRequestInfo;
 import org.omg.PortableInterceptor.ClientRequestInterceptor;
 import org.omg.PortableInterceptor.ForwardRequest;

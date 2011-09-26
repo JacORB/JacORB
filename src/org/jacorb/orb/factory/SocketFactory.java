@@ -39,7 +39,6 @@ package org.jacorb.orb.factory;
 
 import java.io.IOException;
 import java.net.Socket;
-
 import org.omg.CORBA.TIMEOUT;
 
 

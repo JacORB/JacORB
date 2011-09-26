@@ -20,10 +20,11 @@
 
 package org.jacorb.orb.listener;
 
-import org.jacorb.config.*;
-import org.slf4j.Logger;
+import org.jacorb.config.Configurable;
+import org.jacorb.config.Configuration;
 import org.jacorb.orb.iiop.IIOPListener;
 import org.jacorb.util.ObjectUtil;
+import org.slf4j.Logger;
 
 /**
  * The JacORB default implementation of interface

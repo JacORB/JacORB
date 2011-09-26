@@ -21,11 +21,10 @@ package org.jacorb.orb.giop;
  */
 
 import java.net.Socket;
-
-import org.slf4j.Logger;
 import org.jacorb.config.Configuration;
 import org.jacorb.orb.iiop.ServerIIOPConnection;
 import org.jacorb.util.threadpool.Consumer;
+import org.slf4j.Logger;
 
 /**
  * @author Nicolas Noffke

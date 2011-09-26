@@ -26,11 +26,10 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.slf4j.Logger;
 import org.jacorb.config.Configuration;
-import org.jacorb.util.ObjectUtil;
 import org.omg.CORBA.SetOverrideType;
 import org.omg.CORBA._PolicyManagerLocalBase;
+import org.slf4j.Logger;
 
 /**
  * Implementation of the ORB-level policy management interface as per

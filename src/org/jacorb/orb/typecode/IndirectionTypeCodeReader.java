@@ -21,11 +21,10 @@
 package org.jacorb.orb.typecode;
 
 import java.util.Map;
-import org.slf4j.Logger;
 import org.jacorb.orb.CDRInputStream;
-import org.jacorb.util.ObjectUtil;
 import org.omg.CORBA.MARSHAL;
 import org.omg.CORBA.TypeCode;
+import org.slf4j.Logger;
 
 /**
  * @author Alphonse Bendt

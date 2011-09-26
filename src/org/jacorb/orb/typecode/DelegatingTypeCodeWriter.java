@@ -22,7 +22,6 @@ package org.jacorb.orb.typecode;
 
 import java.util.HashMap;
 import java.util.Map;
-
 import org.jacorb.orb.CDROutputStream;
 import org.jacorb.orb.TypeCode;
 import org.omg.CORBA.MARSHAL;

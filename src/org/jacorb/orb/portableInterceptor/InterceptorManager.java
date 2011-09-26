@@ -24,13 +24,13 @@ package org.jacorb.orb.portableInterceptor;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
-import org.slf4j.Logger;
 import org.jacorb.orb.ORB;
 import org.omg.PortableInterceptor.ClientRequestInterceptor;
 import org.omg.PortableInterceptor.Current;
 import org.omg.PortableInterceptor.IORInterceptor;
 import org.omg.PortableInterceptor.Interceptor;
 import org.omg.PortableInterceptor.ServerRequestInterceptor;
+import org.slf4j.Logger;
 
 /**
  * This class "manages" the portable interceptors registered

@@ -21,11 +21,9 @@
 package org.jacorb.orb.typecode;
 
 import java.util.Map;
-
 import org.jacorb.orb.CDRInputStream;
 import org.jacorb.orb.ORB;
 import org.jacorb.orb.ORBSingleton;
-import org.jacorb.util.ObjectUtil;
 import org.omg.CORBA.BAD_PARAM;
 import org.omg.CORBA.TypeCode;
 

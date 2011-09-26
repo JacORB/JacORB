@@ -20,13 +20,13 @@ package org.jacorb.transport;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import org.jacorb.config.*;
-import org.slf4j.Logger;
+import org.jacorb.config.ConfigurationException;
 import org.jacorb.orb.ORB;
 import org.omg.CORBA.LocalObject;
 import org.omg.PortableInterceptor.ORBInitInfo;
 import org.omg.PortableInterceptor.ORBInitializer;
 import org.omg.PortableInterceptor.ORBInitInfoPackage.InvalidName;
+import org.slf4j.Logger;
 
 /**
  * An instance of this class plugs-in the ORB initialization mechanism to make

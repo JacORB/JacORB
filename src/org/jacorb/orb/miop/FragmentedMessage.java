@@ -1,7 +1,9 @@
 package org.jacorb.orb.miop;
 
 import java.io.ByteArrayOutputStream;
-import org.jacorb.config.*;
+import org.jacorb.config.Configurable;
+import org.jacorb.config.Configuration;
+import org.jacorb.config.ConfigurationException;
 import org.omg.MIOP.PacketHeader_1_0;
 
 

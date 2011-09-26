@@ -20,11 +20,11 @@
 
 package org.jacorb.orb.giop;
 
-import org.jacorb.config.*;
-import org.slf4j.Logger;
+import org.jacorb.config.Configuration;
 import org.jacorb.util.threadpool.Consumer;
 import org.jacorb.util.threadpool.ConsumerFactory;
 import org.jacorb.util.threadpool.ThreadPool;
+import org.slf4j.Logger;
 
 /**
  * @author Nicolas Noffke

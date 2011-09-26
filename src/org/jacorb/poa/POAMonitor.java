@@ -20,7 +20,7 @@ package org.jacorb.poa;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import org.jacorb.config.*;
+import org.jacorb.config.Configurable;
 
 /**
  * The POA monitor interface, known to the POA.

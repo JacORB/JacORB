@@ -20,11 +20,12 @@ package org.jacorb.poa;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import java.util.LinkedList;
 import java.util.HashSet;
-import org.jacorb.config.*;
-import org.slf4j.Logger;
+import java.util.LinkedList;
+import org.jacorb.config.Configuration;
+import org.jacorb.config.ConfigurationException;
 import org.jacorb.poa.except.POAInternalError;
+import org.slf4j.Logger;
 
 /**
  * This class provides and manages a pool of ready started threads for

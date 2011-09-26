@@ -20,7 +20,6 @@
 
 package org.jacorb.orb.giop;
 
-import org.slf4j.Logger;
 import org.jacorb.orb.ORB;
 import org.omg.BiDirPolicy.BIDIRECTIONAL_POLICY_TYPE;
 import org.omg.IOP.Codec;
@@ -28,6 +27,7 @@ import org.omg.IOP.ENCODING_CDR_ENCAPS;
 import org.omg.IOP.Encoding;
 import org.omg.PortableInterceptor.ORBInitInfo;
 import org.omg.PortableInterceptor.ORBInitializer;
+import org.slf4j.Logger;
 
 /**
  * @author Nicolas Noffke

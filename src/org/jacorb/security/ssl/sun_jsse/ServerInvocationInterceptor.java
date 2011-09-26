@@ -23,11 +23,10 @@ package org.jacorb.security.ssl.sun_jsse;
 import java.io.ByteArrayInputStream;
 import java.security.cert.CertificateFactory;
 import java.util.HashMap;
-
 import javax.net.ssl.SSLSocket;
-
-import org.jacorb.config.*;
-import org.slf4j.Logger;
+import org.jacorb.config.Configurable;
+import org.jacorb.config.Configuration;
+import org.jacorb.config.ConfigurationException;
 import org.jacorb.orb.dsi.ServerRequest;
 import org.jacorb.orb.giop.GIOPConnection;
 import org.jacorb.orb.iiop.ServerIIOPConnection;
@@ -38,6 +37,7 @@ import org.omg.PortableInterceptor.ServerRequestInterceptor;
 import org.omg.Security.AccessId;
 import org.omg.Security.AttributeType;
 import org.omg.Security.ExtensibleFamily;
+import org.slf4j.Logger;
 
 /**
  * @author Nicolas Noffke

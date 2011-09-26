@@ -21,12 +21,11 @@ package org.jacorb.util;
  *
  */
 
+import java.util.Iterator;
 import java.util.SortedMap;
 import java.util.TreeMap;
-//import java.util.Comparator;
-//import java.util.Calendar;
-import java.util.Iterator;
-import org.jacorb.config.*;
+import org.jacorb.config.Configuration;
+import org.jacorb.config.ConfigurationException;
 import org.slf4j.Logger;
 
 

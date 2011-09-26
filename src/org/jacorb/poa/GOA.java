@@ -3,7 +3,6 @@ package org.jacorb.poa;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
-import org.slf4j.Logger;
 import org.jacorb.orb.Delegate;
 import org.jacorb.orb.ORB;
 import org.jacorb.orb.dsi.ServerRequest;
@@ -23,6 +22,7 @@ import org.omg.PortableServer.POAPackage.ObjectNotActive;
 import org.omg.PortableServer.POAPackage.WrongAdapter;
 import org.omg.PortableServer.POAPackage.WrongPolicy;
 import org.omg.RTCORBA.ProtocolProperties;
+import org.slf4j.Logger;
 
 
 /**

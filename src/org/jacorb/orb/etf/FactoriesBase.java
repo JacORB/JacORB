@@ -20,7 +20,9 @@
  */
 package org.jacorb.orb.etf;
 
-import org.jacorb.config.*;
+import org.jacorb.config.Configurable;
+import org.jacorb.config.Configuration;
+import org.jacorb.config.ConfigurationException;
 import org.omg.ETF.Connection;
 import org.omg.ETF.Listener;
 import org.omg.ETF.Profile;

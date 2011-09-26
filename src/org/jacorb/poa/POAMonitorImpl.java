@@ -20,8 +20,9 @@ package org.jacorb.poa;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import org.jacorb.config.*;
-import org.slf4j.Logger;
+import org.jacorb.config.Configurable;
+import org.jacorb.config.Configuration;
+import org.jacorb.config.ConfigurationException;
 import org.jacorb.orb.dsi.ServerRequest;
 import org.jacorb.poa.except.ApplicationError;
 import org.jacorb.poa.gui.POAMonitorController;
@@ -36,6 +37,7 @@ import org.omg.PortableServer.REQUEST_PROCESSING_POLICY_ID;
 import org.omg.PortableServer.SERVANT_RETENTION_POLICY_ID;
 import org.omg.PortableServer.Servant;
 import org.omg.PortableServer.THREAD_POLICY_ID;
+import org.slf4j.Logger;
 
 /**
  * This class extends the POA with a monitoring gui. It implements all

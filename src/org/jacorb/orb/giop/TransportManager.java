@@ -26,9 +26,9 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-
-import org.slf4j.Logger;
-import org.jacorb.config.*;
+import org.jacorb.config.Configurable;
+import org.jacorb.config.Configuration;
+import org.jacorb.config.ConfigurationException;
 import org.jacorb.orb.DefaultProfileSelector;
 import org.jacorb.orb.ORB;
 import org.jacorb.orb.ProfileSelector;
@@ -38,6 +38,7 @@ import org.jacorb.orb.giop.TransportListener.Event;
 import org.jacorb.util.ObjectUtil;
 import org.omg.CORBA.BAD_PARAM;
 import org.omg.ETF.Factories;
+import org.slf4j.Logger;
 
 /**
  * This class manages Transports. On the one hand it creates them, and

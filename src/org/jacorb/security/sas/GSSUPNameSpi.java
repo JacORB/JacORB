@@ -21,7 +21,6 @@ package org.jacorb.security.sas;
  */
 
 import java.security.Provider;
-
 import org.ietf.jgss.GSSException;
 import org.ietf.jgss.Oid;
 import org.omg.CORBA.Any;
@@ -29,7 +28,6 @@ import org.omg.CORBA.ORB;
 import org.omg.GSSUP.InitialContextToken;
 import org.omg.GSSUP.InitialContextTokenHelper;
 import org.omg.IOP.Codec;
-
 import sun.security.jgss.spi.GSSNameSpi;
 
 /**

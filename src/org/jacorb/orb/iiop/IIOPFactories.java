@@ -21,7 +21,7 @@ package org.jacorb.orb.iiop;
  *
  */
 
-import org.jacorb.config.*;
+import org.jacorb.config.ConfigurationException;
 import org.omg.ETF.Profile;
 
 /**

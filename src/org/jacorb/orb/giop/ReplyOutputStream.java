@@ -21,14 +21,13 @@ package org.jacorb.orb.giop;
  */
 
 import java.io.IOException;
-
-import org.slf4j.Logger;
 import org.jacorb.orb.SystemExceptionHelper;
 import org.omg.CORBA.MARSHAL;
 import org.omg.GIOP.LocateStatusType_1_2;
 import org.omg.GIOP.MsgType_1_1;
 import org.omg.GIOP.ReplyStatusType_1_0;
 import org.omg.GIOP.ReplyStatusType_1_2;
+import org.slf4j.Logger;
 
 /**
  * @author Gerald Brose

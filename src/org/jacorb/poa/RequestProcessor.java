@@ -20,11 +20,12 @@ package org.jacorb.poa;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import java.util.Iterator;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Set;
-import org.jacorb.config.*;
-import org.slf4j.Logger;
+import org.jacorb.config.Configurable;
+import org.jacorb.config.Configuration;
+import org.jacorb.config.ConfigurationException;
 import org.jacorb.orb.ORB;
 import org.jacorb.orb.SystemExceptionHelper;
 import org.jacorb.orb.dsi.ServerRequest;
@@ -49,6 +50,7 @@ import org.omg.PortableServer.ServantActivator;
 import org.omg.PortableServer.ServantLocator;
 import org.omg.PortableServer.ServantManager;
 import org.omg.PortableServer.ServantLocatorPackage.CookieHolder;
+import org.slf4j.Logger;
 
 /**
  * This thread performs the request processing, the actual method invocation and

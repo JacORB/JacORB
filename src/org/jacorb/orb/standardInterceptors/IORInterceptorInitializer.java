@@ -21,12 +21,12 @@ package org.jacorb.orb.standardInterceptors;
  *
  */
 
-import org.slf4j.Logger;
 import org.jacorb.config.Configuration;
 import org.jacorb.orb.ORB;
 import org.omg.CORBA.INTERNAL;
 import org.omg.PortableInterceptor.ORBInitInfo;
 import org.omg.PortableInterceptor.ORBInitializer;
+import org.slf4j.Logger;
 
 /**
  * This class initializes the default IOR interceptors

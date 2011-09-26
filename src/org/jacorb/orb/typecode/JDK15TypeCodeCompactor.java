@@ -22,8 +22,6 @@ package org.jacorb.orb.typecode;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-
-import org.jacorb.orb.typecode.AbstractTypeCodeCompactor;
 import org.omg.CORBA.TypeCode;
 
 /**

@@ -20,13 +20,13 @@
  */
 package org.jacorb.orb.portableInterceptor;
 
-import org.slf4j.Logger;
 import org.jacorb.orb.SystemExceptionHelper;
 import org.omg.CORBA.UserException;
 import org.omg.PortableInterceptor.ClientRequestInterceptor;
 import org.omg.PortableInterceptor.ForwardRequest;
 import org.omg.PortableInterceptor.Interceptor;
 import org.omg.PortableInterceptor.LOCATION_FORWARD;
+import org.slf4j.Logger;
 
 /**
  * This class is an iterator over an array

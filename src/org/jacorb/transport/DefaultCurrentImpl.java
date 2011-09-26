@@ -23,10 +23,12 @@ package org.jacorb.transport;
 
 import java.util.Iterator;
 import java.util.List;
-import org.jacorb.config.*;
-import org.slf4j.Logger;
+import org.jacorb.config.Configurable;
+import org.jacorb.config.Configuration;
+import org.jacorb.config.ConfigurationException;
 import org.jacorb.orb.giop.TransportListener;
 import org.omg.CORBA.LocalObject;
+import org.slf4j.Logger;
 
 /**
  * 

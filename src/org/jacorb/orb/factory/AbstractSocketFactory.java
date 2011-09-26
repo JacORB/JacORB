@@ -25,10 +25,11 @@ import java.io.IOException;
 import java.net.Socket;
 import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
-
-import org.jacorb.config.*;
-import org.slf4j.Logger;
+import org.jacorb.config.Configurable;
+import org.jacorb.config.Configuration;
+import org.jacorb.config.ConfigurationException;
 import org.omg.CORBA.TIMEOUT;
+import org.slf4j.Logger;
 
 /**
  * abstract base class for JacORB's default SocketFactory implementations.

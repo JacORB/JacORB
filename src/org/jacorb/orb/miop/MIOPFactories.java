@@ -1,6 +1,8 @@
 package org.jacorb.orb.miop;
 
-import org.jacorb.config.*;
+import org.jacorb.config.Configurable;
+import org.jacorb.config.Configuration;
+import org.jacorb.config.ConfigurationException;
 import org.omg.CORBA.BAD_PARAM;
 import org.omg.ETF.Connection;
 import org.omg.ETF.Listener;

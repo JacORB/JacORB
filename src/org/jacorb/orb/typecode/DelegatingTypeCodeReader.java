@@ -23,12 +23,10 @@ package org.jacorb.orb.typecode;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
-
-import org.slf4j.Logger;
 import org.jacorb.orb.CDRInputStream;
-import org.jacorb.util.ObjectUtil;
 import org.omg.CORBA.MARSHAL;
 import org.omg.CORBA.TypeCode;
+import org.slf4j.Logger;
 
 /**
  * this class is the entry point into the TypeCode reading logic.

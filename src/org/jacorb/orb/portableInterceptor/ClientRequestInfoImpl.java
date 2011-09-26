@@ -24,7 +24,6 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import org.jacorb.orb.etf.ProfileBase;
-import org.jacorb.util.ObjectUtil;
 import org.omg.CORBA.ARG_IN;
 import org.omg.CORBA.ARG_INOUT;
 import org.omg.CORBA.ARG_OUT;
