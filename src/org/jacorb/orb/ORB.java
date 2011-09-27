@@ -417,13 +417,13 @@ public final class ORB
             return;
         }
 
-        final Logger logger = configuration.getLogger("jacorb.orb.print_version");
+        Logger versionLogger = configuration.getLogger("jacorb.orb.print_version");
 
-        logger.info(NL + "\t~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"+ NL +
-                    "\tJacORB V " + versionString + ", www.jacorb.org" + NL +
-                    "\t(C) The JacORB project " +
-                    dateString + BuildVersion.versionInfo + NL +
-                    "\t~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+        versionLogger.info(NL + "\t~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"+ NL +
+                           "\tJacORB V " + versionString + ", www.jacorb.org" + NL +
+                           "\t(C) The JacORB project " +
+                           dateString + BuildVersion.versionInfo + NL +
+                           "\t~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
     }
 
 
@@ -1357,29 +1357,29 @@ public final class ORB
 
     private org.omg.CORBA.Object resolveConfigInitRef(String identifier) throws InvalidName
     {
-        String url = configuration.getAttribute("ORBInitRef." + identifier, null);
+       String url = configuration.getAttribute("ORBInitRef." + identifier, null);
 
-        if (url == null)
-        {
-            return null;
-        }
+       if (url == null)
+       {
+          return null;
+       }
 
-        try
-        {
-            return this.string_to_object( url );
-        }
-        catch( Exception e )
-        {
-            if (logger.isErrorEnabled())
-            {
-                logger.error( "Could not create initial reference for \"" +
-                        identifier + "\"" + NL +
-                        "Please check property \"ORBInitRef." +
-                        identifier + '\"', e);
-            }
+       try
+       {
+          return this.string_to_object( url );
+       }
+       catch( Exception e )
+       {
+          if (logger.isErrorEnabled())
+          {
+             logger.error( "Could not create initial reference for \"" +
+                           identifier + "\"" + NL +
+                           "Please check property \"ORBInitRef." +
+                           identifier + '\"', e);
+          }
 
-            throw new org.omg.CORBA.ORBPackage.InvalidName();
-        }
+          throw new org.omg.CORBA.ORBPackage.InvalidName();
+       }
     }
 
     /**
@@ -1567,6 +1567,7 @@ public final class ORB
         }
         catch( ConfigurationException e )
         {
+            e.printStackTrace ();
             logger.error("error during configuration", e);
 
             throw new org.omg.CORBA.INITIALIZE( e.getMessage() );
@@ -1876,12 +1877,12 @@ public final class ORB
 
             if (name.length() == 0 && prop_name.length() > initializer_prefix.length())
             {
-                name = prop_name.substring( initializer_prefix.length() );
+               name = prop_name.substring( initializer_prefix.length() );
             }
 
             if( name == null )
             {
-                continue;
+               continue;
             }
 
             try

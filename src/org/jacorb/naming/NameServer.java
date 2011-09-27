@@ -27,7 +27,6 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.PrintWriter;
-
 import org.jacorb.config.Configuration;
 import org.jacorb.config.ConfigurationException;
 import org.jacorb.imr.util.ImRManager;
@@ -93,7 +92,7 @@ public class NameServer
         if( !directory.equals("") )
             filePrefix = directory + File.separatorChar + filePrefix;
 
-        if ( configuration.getAttribute("jacorb.use_imr","off").equals("on") )
+        if ( configuration.getAttributeAsBoolean("jacorb.use_imr",false) )
         {
 
             // don't supply "imr_register", so a ns started by an imr_ssd
@@ -128,7 +127,6 @@ public class NameServer
         }
 
         public void configure(Configuration myConfiguration)
-            throws ConfigurationException
         {
             this.configuration = (org.jacorb.config.Configuration)myConfiguration;
             this.logger = configuration.getLogger("jacorb.naming.activator");

@@ -36,6 +36,7 @@ import org.jacorb.orb.CDRInputStream;
 import org.jacorb.orb.CDROutputStream;
 import org.jacorb.orb.TaggedComponentList;
 import org.jacorb.orb.etf.ProtocolAddressBase;
+import org.omg.CORBA.INTERNAL;
 import org.omg.CSIIOP.CompoundSecMechList;
 import org.omg.CSIIOP.CompoundSecMechListHelper;
 import org.omg.CSIIOP.Confidentiality;
@@ -153,7 +154,7 @@ public class IIOPProfile
      * This preserves compatilibility with TAO, and falls in
      * line with RFC 2732 and discussion on OMG news groups.
      */
-    private void decode_corbaloc(final String address)
+    private void decode_corbaloc(final String address) throws ConfigurationException
     {
         String addr = address;
         String host = "127.0.0.1"; //default to localhost
@@ -245,7 +246,7 @@ public class IIOPProfile
         decode_extensions(protocol_identifier.toLowerCase());
     }
 
-    private void decode_extensions(String ident)
+    private void decode_extensions(String ident) throws ConfigurationException
     {
         this.components = new TaggedComponentList();
         if (ident.equals("ssliop"))
@@ -278,7 +279,7 @@ public class IIOPProfile
         }
     }
 
-    private short get_ssl_options(String propname)
+    private short get_ssl_options(String propname) throws ConfigurationException
     {
         //For the time being, we only use EstablishTrustInTarget,
         //because we don't handle any of the other options anyway.
@@ -293,7 +294,7 @@ public class IIOPProfile
      * Adds further addresses to this profile as TAG_ALTERNATE_IIOP_ADDRESS,
      * if this has been configured in the Configuration.
      */
-    private void addAlternateAddresses (org.jacorb.config.Configuration config)
+    private void addAlternateAddresses (org.jacorb.config.Configuration config) throws ConfigurationException
     {
         String value = config.getAttribute ("jacorb.iiop.alternate_addresses", null);
         if (value == null)
@@ -336,8 +337,9 @@ public class IIOPProfile
      * as TAG_ALTERNATE_IIOP_ADDRESS.  This excludes loopback addresses,
      * and the address that is already used as the primary address.
      * Also excluded are non-IPv4 addresses for the moment.
+    * @throws ConfigurationException
      */
-    private void addNetworkAddresses()
+    private void addNetworkAddresses() throws ConfigurationException
     {
         if (primaryAddress == null) return;
         if (components == null) components = new TaggedComponentList();
@@ -400,7 +402,15 @@ public class IIOPProfile
 
         if (configuration != null)
         {
-           primaryAddress.configure(configuration);
+           try
+           {
+              primaryAddress.configure(configuration);
+           }
+           catch (ConfigurationException ex)
+           {
+              logger.error ("Error configuring address", ex);
+              throw new INTERNAL ("Error configuring address" + ex);
+           }
         }
     }
 
@@ -424,7 +434,15 @@ public class IIOPProfile
 
         if (configuration != null)
         {
-           result.primaryAddress.configure(configuration);
+           try
+           {
+              result.primaryAddress.configure(configuration);
+           }
+           catch (ConfigurationException ex)
+           {
+              logger.error ("Error configuring address", ex);
+              throw new INTERNAL ("Error configuring address" + ex);
+           }
         }
 
         result.version = new org.omg.GIOP.Version(this.version.major,
@@ -709,11 +727,22 @@ public class IIOPProfile
     {
         assert getSSL() != null;
 
-        IIOPAddress address = new IIOPAddress(primaryAddress.getHostname(), getSSLPort());
-        address.configure (configuration);
+        IIOPAddress address = null;
+        IIOPProfile result = null;
 
-        IIOPProfile result = new IIOPProfile(address, objectKey, configuration.getORB().getGIOPMinorVersion());
-        result.configure(configuration);
+        try
+        {
+           address = new IIOPAddress(primaryAddress.getHostname(), getSSLPort());
+           address.configure (configuration);
+
+           result = new IIOPProfile(address, objectKey, configuration.getORB().getGIOPMinorVersion());
+           result.configure(configuration);
+        }
+        catch (ConfigurationException ex)
+        {
+           logger.error ("Error configuring address", ex);
+           throw new INTERNAL ("Error configuring address" + ex);
+        }
 
         TaggedComponent[] taggedComponents = components.asArray();
         for (int i = 0; i < taggedComponents.length; i++)

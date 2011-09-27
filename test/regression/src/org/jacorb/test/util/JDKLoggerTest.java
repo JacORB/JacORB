@@ -26,7 +26,6 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.Properties;
 import junit.framework.TestSuite;
-import org.jacorb.config.Configuration;
 import org.jacorb.test.common.JacORBTestCase;
 import org.jacorb.test.common.TestUtils;
 import org.omg.CORBA.ORB;
@@ -186,14 +185,6 @@ public class JDKLoggerTest
         props.put ("jacorb.logfile.append", "on");
 
         ORB orb = ORB.init (new String[]{}, props);
-        assertTrue
-        (
-            ((org.jacorb.orb.ORB)orb).getConfiguration()
-                                     .getAttributeAsBoolean
-                                     (
-                                         "jacorb.logfile.append"
-                                     )
-        );
 
         Logger orbLogger = ((org.jacorb.orb.ORB)orb).getConfiguration()
                                                     .getLogger("jacorb");
@@ -232,14 +223,6 @@ public class JDKLoggerTest
         props.put ("jacorb.logfile.append", "off");
 
         ORB orb = ORB.init (new String[]{}, props);
-        assertFalse
-        (
-            ((org.jacorb.orb.ORB)orb).getConfiguration()
-                                     .getAttributeAsBoolean
-                                     (
-                                         "jacorb.logfile.append"
-                                     )
-        );
 
         Logger orbLogger = ((org.jacorb.orb.ORB)orb).getConfiguration()
                                                     .getLogger("jacorb");
@@ -295,21 +278,6 @@ public class JDKLoggerTest
         purgeLogDirectory();
     }
 
-    // internal methods below this line
-
-    private int priorityFor (String loggerName, Configuration config)
-    {
-        Logger logger = config.getLogger(loggerName);
-        if (logger.isDebugEnabled())
-            return 4;
-        else if (logger.isInfoEnabled())
-            return 3;
-        else if (logger.isWarnEnabled())
-            return 2;
-        else if (logger.isErrorEnabled())
-            return 1;
-        return 0;
-    }
 
     private void assertFileExists (String filename)
     {

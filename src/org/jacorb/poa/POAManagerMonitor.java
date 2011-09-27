@@ -23,7 +23,7 @@ package org.jacorb.poa;
 import org.jacorb.config.Configurable;
 
 /**
- * The POAManager monitor interface, known to the POAManager 
+ * The POAManager monitor interface, known to the POAManager
  *
  * @author Reimo Tiedemann, FU Berlin
  * @version 1.01, 12/08/99, RT

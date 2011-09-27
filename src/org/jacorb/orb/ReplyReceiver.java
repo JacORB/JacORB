@@ -24,6 +24,7 @@ import java.util.Iterator;
 import java.util.Set;
 import org.jacorb.config.Configurable;
 import org.jacorb.config.Configuration;
+import org.jacorb.config.ConfigurationException;
 import org.jacorb.orb.giop.MessageInputStream;
 import org.jacorb.orb.giop.ReplyInputStream;
 import org.jacorb.orb.giop.ReplyPlaceholder;
@@ -102,12 +103,12 @@ public class ReplyReceiver
 
     }
 
-    public void configure(Configuration configuration)
+    public void configure(Configuration configuration) throws ConfigurationException
     {
-        logger =
-            ((org.jacorb.config.Configuration)configuration).getLogger("jacorb.orb.rep_recv");
-        retry_on_failure =
-            configuration.getAttributeAsBoolean("jacorb.connection.client.retry_on_failure", false);
+       super.configure (configuration);
+
+        logger = configuration.getLogger("jacorb.orb.rep_recv");
+        retry_on_failure = configuration.getAttributeAsBoolean("jacorb.connection.client.retry_on_failure", false);
     }
 
 

@@ -21,8 +21,9 @@ package org.jacorb.security.ssl.sun_jsse;
  */
 
 import java.security.SecureRandom;
-
-import org.jacorb.config.*;
+import org.jacorb.config.Configurable;
+import org.jacorb.config.Configuration;
+import org.jacorb.config.ConfigurationException;
 import org.slf4j.Logger;
 
 /**
@@ -60,10 +61,8 @@ public class SSLRandom implements Configurable
         return result;
     }
 
-    public void configure(Configuration configuration) throws ConfigurationException
+    public void configure(Configuration config) throws ConfigurationException
     {
-        org.jacorb.config.Configuration config = (org.jacorb.config.Configuration) configuration;
-
         logger = config.getLogger("jacorb.security.jsse");
 
         try
@@ -73,7 +72,7 @@ public class SSLRandom implements Configurable
 
             if (logger.isDebugEnabled())
             {
-                logger.debug("Using JSRandom " + config.getAttribute("jacorb.security.randomClassPlugin") + " implemented by " + randomImpl);
+                logger.debug("Using JSRandom implemented by " + randomImpl);
             }
         }
         catch (ConfigurationException e)

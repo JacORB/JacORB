@@ -1,16 +1,11 @@
 package org.jacorb.test.bugs.bugjac200;
 
-import java.io.File;
 import java.util.Properties;
-
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
-
 import org.jacorb.test.common.CommonSetup;
-import org.jacorb.test.common.ClientServerSetup;
 import org.jacorb.test.common.TestUtils;
-import org.jacorb.util.ObjectUtil;
 import org.omg.CORBA.ORB;
 import org.omg.PortableServer.POAHelper;
 

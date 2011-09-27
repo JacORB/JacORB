@@ -21,16 +21,8 @@
 
 package org.jacorb.notification.util;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
-import java.util.Properties;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.jacorb.config.Configuration;
-import org.jacorb.config.ConfigurationException;
-import org.jacorb.config.JacORBConfiguration;
-import org.jacorb.util.ObjectUtil;
+import org.slf4j.Logger;
 
 /**
  * @author Alphonse Bendt

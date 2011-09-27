@@ -42,7 +42,7 @@ public class StructType
     private boolean parsed = false;
     private ScopeData scopeData;
     private boolean forwardDecl;
-    private static final HashSet systemExceptionNames;
+    private static final HashSet<String> systemExceptionNames;
 
     static
     {
@@ -356,7 +356,7 @@ public class StructType
         }
 
         knownTypes.add(this);
-        
+
         StringBuffer sb = new StringBuffer();
         sb.append("org.omg.CORBA.ORB.init().create_" +
                 (exc ? "exception" : "struct") + "_tc(" +
@@ -383,7 +383,7 @@ public class StructType
             sb.append("new org.omg.CORBA.StructMember[0]");
         }
         sb.append(")");
-        
+
         return sb.toString();
     }
 
@@ -477,7 +477,7 @@ public class StructType
             parser.getObjectCachePlugin().printPreMemberRead(ps, this);
             ps.println("\t\t// ObjectCachePlugin END");
         }
-        
+
         if (exc)
         {
             ps.println("\t\tString id = in.read_string();");
@@ -956,25 +956,25 @@ public class StructType
             {
                 if(member.type_spec.toString().indexOf("[") >= 0)
                 {
-                    buffer.append("\t\t\t\tres = (this." + member.declarator.toString() + " == obj." 
-                                  + member.declarator.toString() + ") || (this." + member.declarator.toString() 
-                                  + " != null && obj." + member.declarator.toString() + " != null && this." 
-                                  + member.declarator.toString() + ".length == obj." + member.declarator.toString() 
+                    buffer.append("\t\t\t\tres = (this." + member.declarator.toString() + " == obj."
+                                  + member.declarator.toString() + ") || (this." + member.declarator.toString()
+                                  + " != null && obj." + member.declarator.toString() + " != null && this."
+                                  + member.declarator.toString() + ".length == obj." + member.declarator.toString()
                                   + ".length);" + Environment.NL);
 
-                    buffer.append("\t\t\t\tif (res)" + Environment.NL + Environment.NL 
+                    buffer.append("\t\t\t\tif (res)" + Environment.NL + Environment.NL
                                   + "\t\t\t\t{" + Environment.NL);
-                    buffer.append("\t\t\t\t\tres = java.util.Arrays.equals(this." + member.declarator.toString() 
+                    buffer.append("\t\t\t\t\tres = java.util.Arrays.equals(this." + member.declarator.toString()
                                   + ", obj." + member.declarator.toString() + ");" + Environment.NL);
                     buffer.append("\t\t\t\t}" + Environment.NL);
                     buffer.append("\t\t\t\tif(!res) break;" + Environment.NL + Environment.NL);
                 }
                 else
                 {
-                    buffer.append("\t\t\t\tres = (this." + member.declarator.toString() + " == obj." 
-                                  + member.declarator.toString() + ") || (this." + member.declarator.toString() 
-                                  + " != null && obj." + member.declarator.toString() + " != null && this." 
-                                  + member.declarator.toString() + ".equals (obj." + member.declarator.toString() 
+                    buffer.append("\t\t\t\tres = (this." + member.declarator.toString() + " == obj."
+                                  + member.declarator.toString() + ") || (this." + member.declarator.toString()
+                                  + " != null && obj." + member.declarator.toString() + " != null && this."
+                                  + member.declarator.toString() + ".equals (obj." + member.declarator.toString()
                                   + "));" + Environment.NL);
                     buffer.append("\t\t\t\tif (!res) break;" + Environment.NL + Environment.NL);
                 }
@@ -1013,7 +1013,7 @@ public class StructType
         {
             Member member = (Member)enumeration.nextElement();
             buffer.append(Environment.NL);
-            buffer.append("\t\t_ret.append(\"" + member.type_spec.toString() + " " 
+            buffer.append("\t\t_ret.append(\"" + member.type_spec.toString() + " "
                           + member.declarator.toString() + "=\");");
             buffer.append(Environment.NL);
             if(member.type_spec.toString().indexOf("[") < 0)

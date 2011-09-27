@@ -24,8 +24,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
-
-import org.jacorb.config.*;
+import org.jacorb.config.Configuration;
+import org.jacorb.config.ConfigurationException;
 import org.jacorb.notification.MessageFactory;
 import org.jacorb.notification.OfferManager;
 import org.jacorb.notification.SubscriptionManager;
@@ -36,6 +36,7 @@ import org.jacorb.notification.interfaces.Message;
 import org.jacorb.notification.interfaces.MessageSupplier;
 import org.omg.CORBA.ARG_OUT;
 import org.omg.CORBA.Any;
+import org.omg.CORBA.INTERNAL;
 import org.omg.CORBA.InterfaceDef;
 import org.omg.CORBA.InterfaceDefHelper;
 import org.omg.CORBA.NVList;
@@ -57,7 +58,7 @@ import org.omg.PortableServer.Servant;
 /**
  * @jmx.mbean extends = "AbstractProxyConsumerMBean"
  * @jboss.xmbean
- * 
+ *
  * @author Alphonse Bendt
  * @version $Id$
  */
@@ -98,8 +99,17 @@ public class TypedProxyPullConsumerImpl extends AbstractProxyConsumer implements
 
         pollUtil_ = new PullMessagesUtility(taskProcessor, this);
 
-        pollInterval_ = config.getAttributeAsLong(Attributes.PULL_CONSUMER_POLL_INTERVAL,
-                Default.DEFAULT_PULL_CONSUMER_POLL_INTERVAL);
+        try
+        {
+           pollInterval_ = config.getAttributeAsLong(Attributes.PULL_CONSUMER_POLL_INTERVAL,
+                                                     Default.DEFAULT_PULL_CONSUMER_POLL_INTERVAL);
+        }
+        catch (ConfigurationException ex)
+        {
+           config.getLogger ("TypedProxyPullConsumerImpl").error
+              ("Error configuring " + Attributes.PULL_CONSUMER_POLL_INTERVAL, ex);
+           throw new INTERNAL ("Error configuring TypedProxyPullConsumerImpl" + ex);
+        }
 
         pullMessagesOperation_ = new PullMessagesOperation(this);
     }

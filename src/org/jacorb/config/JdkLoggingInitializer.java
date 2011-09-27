@@ -115,6 +115,11 @@ public class JdkLoggingInitializer extends LoggingInitializer
                     System.err.println ("could not write log file");
                     handler = new ConsoleHandler();
                 }
+               catch (ConfigurationException ex)
+               {
+                  System.err.println ("could not write log file due to configuration exception " + ex);
+                  handler = new ConsoleHandler();
+               }
             }
             else
             {

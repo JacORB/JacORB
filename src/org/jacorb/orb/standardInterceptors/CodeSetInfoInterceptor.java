@@ -44,19 +44,11 @@ public class CodeSetInfoInterceptor
 {
     private final org.omg.IOP.TaggedComponent tagc;
 
-    public CodeSetInfoInterceptor(ORB orb)
+    public CodeSetInfoInterceptor(ORB orb) throws ConfigurationException
     {
         super();
 
-        try
-        {
             configure(orb.getConfiguration());
-        }
-        catch (ConfigurationException ex)
-        {
-            ex.printStackTrace();
-            // will have to do with defaults
-        }
 
         // encapsulate it into TaggedComponent
         final CDROutputStream out = new CDROutputStream( orb );

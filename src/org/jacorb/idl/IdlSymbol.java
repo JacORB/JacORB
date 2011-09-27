@@ -22,11 +22,10 @@ package org.jacorb.idl;
 
 
 import java.io.PrintWriter;
-import java.util.Enumeration;
+import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.Map.Entry;
-
 import org.jacorb.idl.util.IDLLogger;
 
 /**
@@ -55,7 +54,7 @@ public class IdlSymbol
     protected IdlSymbol enclosing_symbol;
 
     protected String omg_package_prefix = "";
-    private Hashtable imports = new Hashtable();
+    private HashSet<String> imports = new HashSet<String>();
 
     String typeName;
 
@@ -286,9 +285,10 @@ public class IdlSymbol
     {
         if( !pack_name.equals( "" ) )
         {
-            for( Enumeration e = imports.keys(); e.hasMoreElements(); )
+           Iterator i = imports.iterator ();
+            while (i.hasNext ())
             {
-                String name = (String)e.nextElement();
+                String name = (String)i.next();
                 ps.println( "import " + name + ";" );
             }
             ps.println();
@@ -309,7 +309,7 @@ public class IdlSymbol
             logger.debug( "addImportedAlias " + alias );
         if( alias.indexOf( '.' ) < 0 && !BaseType.isBasicName( alias ) )
         {
-            imports.put( alias + "Helper", "" );
+            imports.add( alias + "Helper");
         }
     }
 
@@ -357,9 +357,9 @@ public class IdlSymbol
 
             if( ( type == null ) || !BaseType.isBasicName( type.toString() ) )
             {
-                imports.put( name, "" );
+                imports.add( name );
             }
-            imports.put( name + "Helper", "" );
+            imports.add( name + "Helper" );
         }
     }
 
@@ -379,7 +379,7 @@ public class IdlSymbol
             if( logger.isDebugEnabled() )
                 logger.debug( "addImportedNameHolder " + name );
 
-            imports.put( name, "" );
+            imports.add( name );
         }
     }
 
@@ -556,7 +556,7 @@ public class IdlSymbol
 
     /**
      * Gets prefix which was set by "typeprefix"
-     * 
+     *
      * @return Returns null if typeprefix undefined
      */
     private String getPrefix()

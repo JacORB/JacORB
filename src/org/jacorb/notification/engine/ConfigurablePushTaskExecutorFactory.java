@@ -21,13 +21,14 @@
 
 package org.jacorb.notification.engine;
 
-import org.jacorb.config.*;
+import org.jacorb.config.Configuration;
+import org.jacorb.config.ConfigurationException;
 import org.jacorb.notification.conf.Attributes;
 import org.jacorb.notification.conf.Default;
 
 public class ConfigurablePushTaskExecutorFactory extends DefaultPushTaskExecutorFactory
 {
-    public ConfigurablePushTaskExecutorFactory(Configuration config)
+    public ConfigurablePushTaskExecutorFactory(Configuration config) throws ConfigurationException
     {
         super(config.getAttributeAsInteger(Attributes.DELIVER_POOL_WORKERS,
                 Default.DEFAULT_DELIVER_POOL_WORKERS));

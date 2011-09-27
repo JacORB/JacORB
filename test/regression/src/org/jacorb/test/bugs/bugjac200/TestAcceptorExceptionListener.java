@@ -2,7 +2,6 @@ package org.jacorb.test.bugs.bugjac200;
 
 import javax.net.ssl.SSLException;
 import org.jacorb.orb.listener.AcceptorExceptionEvent;
-import org.jacorb.util.ObjectUtil;
 
 /**
  * @author Nicolas Noffke

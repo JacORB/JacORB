@@ -21,7 +21,8 @@ package org.jacorb.notification.servant;
  *
  */
 
-import org.jacorb.config.*;
+import org.jacorb.config.Configuration;
+import org.jacorb.config.ConfigurationException;
 import org.jacorb.notification.MessageFactory;
 import org.jacorb.notification.OfferManager;
 import org.jacorb.notification.SubscriptionManager;
@@ -31,6 +32,7 @@ import org.jacorb.notification.engine.TaskProcessor;
 import org.jacorb.notification.interfaces.Message;
 import org.jacorb.notification.interfaces.MessageSupplier;
 import org.omg.CORBA.BooleanHolder;
+import org.omg.CORBA.INTERNAL;
 import org.omg.CORBA.ORB;
 import org.omg.CosEventChannelAdmin.AlreadyConnected;
 import org.omg.CosEventComm.Disconnected;
@@ -46,7 +48,7 @@ import org.omg.PortableServer.Servant;
 /**
  * @jmx.mbean extends ="AbstractProxyConsumerMBean"
  * @jboss.xmbean
- * 
+ *
  * @author Alphonse Bendt
  * @version $Id$
  */
@@ -72,8 +74,16 @@ public class StructuredProxyPullConsumerImpl extends AbstractProxyConsumer imple
         super(admin, orb, poa, config, taskProcessor, mf, supplierAdmin, offerManager,
                 subscriptionManager);
 
-        pollInterval_ = config.getAttributeAsLong(Attributes.PULL_CONSUMER_POLL_INTERVAL,
-                Default.DEFAULT_PULL_CONSUMER_POLL_INTERVAL);
+        try
+        {
+           pollInterval_ = config.getAttributeAsLong(Attributes.PULL_CONSUMER_POLL_INTERVAL,
+                                                     Default.DEFAULT_PULL_CONSUMER_POLL_INTERVAL);
+        }
+        catch (ConfigurationException ex)
+        {
+           logger_.error ("Error configuring StructuredProxyPullConsumerImpl ", ex);
+           throw new INTERNAL ("Error configuring StructuredProxyPullConsumerImpl " + ex);
+        }
 
         pollUtil_ = new PullMessagesUtility(taskProcessor, this);
 

@@ -25,11 +25,12 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-
-import org.jacorb.config.*;
+import org.jacorb.config.Configuration;
+import org.jacorb.config.ConfigurationException;
 import org.jacorb.notification.conf.Attributes;
 import org.jacorb.notification.conf.Default;
 import org.omg.CORBA.Any;
+import org.omg.CORBA.INTERNAL;
 import org.omg.CosNotification.MaxConsumers;
 import org.omg.CosNotification.MaxQueueLength;
 import org.omg.CosNotification.MaxSuppliers;
@@ -57,7 +58,7 @@ public class AdminPropertySet
         _adminProps.add(MaxConsumers.value);
         _adminProps.add(MaxSuppliers.value);
         _adminProps.add(RejectNewEvents.value);
-        
+
         sAdminPropertyNames_ = Collections.unmodifiableSet(_adminProps);
     }
 
@@ -69,52 +70,57 @@ public class AdminPropertySet
 
     public AdminPropertySet(Configuration config)
     {
-        super();
-    
-        int _maxConsumersDefault =
-            config.getAttributeAsInteger(Attributes.MAX_NUMBER_CONSUMERS,
-                                       Default.DEFAULT_MAX_NUMBER_CONSUMERS);
+       super();
 
-        Any _maxConsumersDefaultAny = sORB.create_any();
-        _maxConsumersDefaultAny.insert_long( _maxConsumersDefault );
+       try
+       {
+          int _maxConsumersDefault = config.getAttributeAsInteger(Attributes.MAX_NUMBER_CONSUMERS,
+                                                                  Default.DEFAULT_MAX_NUMBER_CONSUMERS);
+          Any _maxConsumersDefaultAny = sORB.create_any();
+          _maxConsumersDefaultAny.insert_long( _maxConsumersDefault );
 
-        //////////////////////////////
+          //////////////////////////////
 
-        int _maxSuppliersDefault =
-            config.getAttributeAsInteger(Attributes.MAX_NUMBER_SUPPLIERS,
-                                       Default.DEFAULT_MAX_NUMBER_SUPPLIERS);
+          int _maxSuppliersDefault =
+             config.getAttributeAsInteger(Attributes.MAX_NUMBER_SUPPLIERS,
+                                          Default.DEFAULT_MAX_NUMBER_SUPPLIERS);
 
-        Any _maxSuppliersDefaultAny = sORB.create_any();
-        _maxSuppliersDefaultAny.insert_long(_maxSuppliersDefault);
+          Any _maxSuppliersDefaultAny = sORB.create_any();
+          _maxSuppliersDefaultAny.insert_long(_maxSuppliersDefault);
 
-        //////////////////////////////
+          //////////////////////////////
 
-        int _maxQueueLength =
-            config.getAttributeAsInteger(Attributes.MAX_QUEUE_LENGTH,
-                                       Default.DEFAULT_MAX_QUEUE_LENGTH);
+          int _maxQueueLength =
+             config.getAttributeAsInteger(Attributes.MAX_QUEUE_LENGTH,
+                                          Default.DEFAULT_MAX_QUEUE_LENGTH);
 
-        Any _maxQueueLengthAny = sORB.create_any();
-        _maxQueueLengthAny.insert_long(_maxQueueLength);
+          Any _maxQueueLengthAny = sORB.create_any();
+          _maxQueueLengthAny.insert_long(_maxQueueLength);
 
-        //////////////////////////////
+          //////////////////////////////
 
-        boolean _rejectNewEvents =
-            config.getAttribute(Attributes.REJECT_NEW_EVENTS,
-                              Default.DEFAULT_REJECT_NEW_EVENTS).equals("on");
+          boolean _rejectNewEvents =
+             config.getAttribute(Attributes.REJECT_NEW_EVENTS,
+                                 Default.DEFAULT_REJECT_NEW_EVENTS).equals("on");
 
-        Any _rejectNewEventsAny = sORB.create_any();
-        _rejectNewEventsAny.insert_boolean(_rejectNewEvents);
+          Any _rejectNewEventsAny = sORB.create_any();
+          _rejectNewEventsAny.insert_boolean(_rejectNewEvents);
 
-        //////////////////////////////
+          //////////////////////////////
 
-        defaultProperties_ = new Property[] {
-            new Property(MaxConsumers.value, _maxConsumersDefaultAny),
-            new Property(MaxSuppliers.value, _maxSuppliersDefaultAny),
-            new Property(MaxQueueLength.value, _maxQueueLengthAny),
-            new Property(RejectNewEvents.value, _rejectNewEventsAny)
-        };
+          defaultProperties_ = new Property[] {
+                   new Property(MaxConsumers.value, _maxConsumersDefaultAny),
+                   new Property(MaxSuppliers.value, _maxSuppliersDefaultAny),
+                   new Property(MaxQueueLength.value, _maxQueueLengthAny),
+                   new Property(RejectNewEvents.value, _rejectNewEventsAny)
+          };
 
-        set_admin(defaultProperties_);
+          set_admin(defaultProperties_);
+       }
+       catch (ConfigurationException ex)
+       {
+          throw new INTERNAL ("Configuration exception" + ex);
+       }
     }
 
 

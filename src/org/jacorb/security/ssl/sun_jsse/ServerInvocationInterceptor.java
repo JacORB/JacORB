@@ -57,8 +57,8 @@ public class ServerInvocationInterceptor
     private HashMap sessionCredentials = new HashMap();
 
     private Logger logger;
-    private short serverSupportedOptions = 0;
-    private short serverRequiredOptions = 0;
+    private int serverSupportedOptions = 0;
+    private int serverRequiredOptions = 0;
 
     public ServerInvocationInterceptor(org.omg.SecurityLevel2.Current current,
                                        org.jacorb.orb.ORB orb)
@@ -75,18 +75,11 @@ public class ServerInvocationInterceptor
     public void configure(Configuration configuration)
         throws ConfigurationException
     {
-        logger =
-            ((org.jacorb.config.Configuration)configuration).getLogger("jacorb.security.ssl.interceptor");
+        logger = configuration.getLogger("jacorb.security.ssl.interceptor");
 
-        serverSupportedOptions =
-            Short.parseShort(
-                configuration.getAttribute("jacorb.security.ssl.server.supported_options","20"),
-                16); // 16 is the base as we take the string value as hex!
+        serverSupportedOptions = configuration.getAttributeAsInteger("jacorb.security.ssl.server.supported_options",20,16); // 16 is the base as we take the string value as hex!
 
-        serverRequiredOptions =
-            Short.parseShort(
-                configuration.getAttribute("jacorb.security.ssl.server.required_options","0"),
-                16);
+        serverRequiredOptions = configuration.getAttributeAsInteger("jacorb.security.ssl.server.required_options",0,16);
     }
 
 

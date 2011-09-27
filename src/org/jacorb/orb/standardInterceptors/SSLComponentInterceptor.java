@@ -48,8 +48,8 @@ public class SSLComponentInterceptor
     private final ORB orb;
     private final Logger logger;
     private TaggedComponent tc = null;
-    private short supported = 0;
-    private short required = 0;
+    private int supported = 0;
+    private int required = 0;
 
     public SSLComponentInterceptor( ORB orb )
         throws ConfigurationException
@@ -62,15 +62,9 @@ public class SSLComponentInterceptor
     public void configure(Configuration configuration)
         throws ConfigurationException
     {
-        supported =
-            Short.parseShort(
-                configuration.getAttribute("jacorb.security.ssl.server.supported_options","20"),
-                16); // 16 is the base as we take the string value as hex!
+        supported = configuration.getAttributeAsInteger("jacorb.security.ssl.server.supported_options",20,16); // 16 is the base as we take the string value as hex!
 
-        required =
-            Short.parseShort(
-                configuration.getAttribute("jacorb.security.ssl.server.required_options","0"),
-                16);
+        required = configuration.getAttributeAsInteger("jacorb.security.ssl.server.required_options",0,16);
 
     }
 
@@ -111,9 +105,9 @@ public class SSLComponentInterceptor
             if( tc == null )
             {
                 SSL ssl =
-                    new SSL ( supported,
-                              required,
-                              (short) orb.getBasicAdapter().getSSLPort());
+                    new SSL ( (short)supported,
+                              (short)required,
+                              (short)orb.getBasicAdapter().getSSLPort());
 
                 //we don't support delegation 0x80 -> NoDelegation we don't
                 //care if the other side delegates, so no required options are

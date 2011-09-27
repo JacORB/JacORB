@@ -420,8 +420,8 @@ public class InterfaceBody
             return;
         }
 
-        ps.print  ( "\tstatic private final java.util.HashMap");
-        ps.println( " m_opsHash = new java.util.HashMap();" );
+        ps.print  ( "\tstatic private final java.util.HashMap<String,Integer>");
+        ps.println( " m_opsHash = new java.util.HashMap<String,Integer>();" );
 
         ps.println( "\tstatic" );
         ps.println( "\t{" );

@@ -63,7 +63,7 @@ public final class RequestController
     private Logger                    logger;
 
     // stores all active requests
-    private final HashSet             activeRequestTable;
+    private HashSet             activeRequestTable;
     // RequestProcessor -> oid
     // for synchronisation with the object deactiviation process
     private final HashSet             deactivationList = new HashSet();
@@ -85,15 +85,9 @@ public final class RequestController
         poa = _poa;
         aom = _aom;
         orb = _orb;
-
-        requestQueue = new RequestQueue();
-
         poolManager = _poolManager;
 
-        int threadPoolMax =
-            _orb.getConfiguration().getAttributeAsInteger("jacorb.poa.thread_pool_max", 20);
-
-        activeRequestTable = poa.isSingleThreadModel() ? new HashSet(1) : new HashSet(threadPoolMax);
+        requestQueue = new RequestQueue();
     }
 
     public void configure(Configuration myConfiguration)
@@ -103,6 +97,11 @@ public final class RequestController
             (org.jacorb.config.Configuration)myConfiguration;
 
         logger = configuration.getLogger("jacorb.poa.controller");
+
+        int threadPoolMax =
+            orb.getConfiguration().getAttributeAsInteger("jacorb.poa.thread_pool_max", 20);
+
+        activeRequestTable = poa.isSingleThreadModel() ? new HashSet(1) : new HashSet(threadPoolMax);
 
         requestQueue.configure(myConfiguration);
 

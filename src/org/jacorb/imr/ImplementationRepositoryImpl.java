@@ -31,7 +31,6 @@ import java.lang.reflect.Method;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
-
 import org.jacorb.config.Configuration;
 import org.jacorb.config.ConfigurationException;
 import org.jacorb.imr.AdminPackage.DuplicateServerName;
@@ -1301,6 +1300,7 @@ public class ImplementationRepositoryImpl
         {
             lros = new LocateRequestOutputStream ( orb, object_key, connection.getId(), 2);
             receiver = new LocateReplyReceiver((org.jacorb.orb.ORB)orb);
+            receiver.configure (configuration);
 
             connection.sendRequest(
                 lros,

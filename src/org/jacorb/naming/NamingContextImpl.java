@@ -90,8 +90,8 @@ public class NamingContextImpl
     {
         this.configuration = (org.jacorb.config.Configuration)myConfiguration;
         logger = configuration.getLogger("jacorb.naming");
-        doPurge = configuration.getAttribute("jacorb.naming.purge","off").equals("on");
-        ping = configuration.getAttribute("jacorb.naming.ping","off").equals("on");
+        doPurge = configuration.getAttributeAsBoolean("jacorb.naming.purge",false);
+        ping = configuration.getAttributeAsBoolean("jacorb.naming.ping",false);
     }
 
 

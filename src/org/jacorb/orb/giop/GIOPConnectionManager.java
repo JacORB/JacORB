@@ -23,10 +23,11 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
-
-import org.jacorb.config.*;
-import org.slf4j.Logger;
+import org.jacorb.config.Configurable;
+import org.jacorb.config.Configuration;
+import org.jacorb.config.ConfigurationException;
 import org.jacorb.util.ObjectUtil;
+import org.slf4j.Logger;
 
 /**
  * @author Nicolas Noffke
@@ -77,19 +78,18 @@ public class GIOPConnectionManager
             configuration.getAttributeAsInteger(
                 "jacorb.connection.wait_for_idle_interval", 500 );
 
-        final String statisticsProviderProperty = "jacorb.connection.statistics_provider_class";
-
-        if( configuration.isAttributeSet(statisticsProviderProperty) )
+        String statProviderClass = configuration.getAttribute ("jacorb.connection.statistics_provider_class", "");
+        if (statProviderClass.length () > 0)
         {
             try
             {
-                statistics_provider_class = ObjectUtil.classForName( configuration.getAttribute(statisticsProviderProperty) );
+                statistics_provider_class = ObjectUtil.classForName (statProviderClass);
             }
             catch( Exception e )
             {
                 if (logger.isErrorEnabled())
                 {
-                    logger.error( "Unable to create class from property >" + statisticsProviderProperty + "<: " + e.toString() );
+                    logger.error( "Unable to create statistics_provider_class from property >" + statProviderClass + "<: " + e.toString() );
                 }
             }
         }

@@ -20,7 +20,8 @@ package org.jacorb.notification.servant;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import org.jacorb.config.*;
+import org.jacorb.config.Configuration;
+import org.jacorb.config.ConfigurationException;
 import org.jacorb.notification.MessageFactory;
 import org.jacorb.notification.OfferManager;
 import org.jacorb.notification.SubscriptionManager;
@@ -31,6 +32,7 @@ import org.jacorb.notification.interfaces.Message;
 import org.jacorb.notification.interfaces.MessageSupplier;
 import org.omg.CORBA.Any;
 import org.omg.CORBA.BooleanHolder;
+import org.omg.CORBA.INTERNAL;
 import org.omg.CORBA.ORB;
 import org.omg.CosEventChannelAdmin.AlreadyConnected;
 import org.omg.CosEventComm.Disconnected;
@@ -44,7 +46,7 @@ import org.omg.PortableServer.Servant;
 /**
  * @jmx.mbean extends = "AbstractProxyConsumerMBean"
  * @jboss.xmbean
- * 
+ *
  * @author Alphonse Bendt
  * @version $Id$
  */
@@ -72,11 +74,19 @@ public class ProxyPullConsumerImpl extends AbstractProxyConsumer implements
         super(admin, orb, poa, conf, taskProcessor, messageFactory, null, offerManager,
                 subscriptionManager);
 
-        pollInterval_ = conf.getAttributeAsLong(Attributes.PULL_CONSUMER_POLL_INTERVAL,
-                Default.DEFAULT_PULL_CONSUMER_POLL_INTERVAL);
+        try
+        {
+           pollInterval_ = conf.getAttributeAsLong(Attributes.PULL_CONSUMER_POLL_INTERVAL,
+                                                   Default.DEFAULT_PULL_CONSUMER_POLL_INTERVAL);
+        }
+        catch (ConfigurationException ex)
+        {
+           logger_.error ("Error configuring ProxyPullConsumerImpl ", ex);
+           throw new INTERNAL ("Error configuring ProxyPullConsumerImpl " + ex);
+        }
 
         pullMessagesOperation_ = new PullMessagesOperation(this);
-        
+
         pollTaskUtility_ = new PullMessagesUtility(taskProcessor, this);
     }
 

@@ -30,6 +30,7 @@ import java.util.Set;
 import java.util.Stack;
 
 import org.jacorb.config.Configuration;
+import org.jacorb.config.ConfigurationException;
 import org.jacorb.imr.ImRAccessImpl;
 import org.jacorb.ir.RepositoryID;
 import org.jacorb.orb.giop.ClientConnection;
@@ -307,13 +308,20 @@ public final class Delegate
             config.getAttributeAsBoolean("jacorb.use_imr", false);
         locateOnBind =
             config.getAttributeAsBoolean("jacorb.locate_on_bind", false);
-        defaultGiopMinor = configuration.getAttributeAsInteger
-            ("jacorb.giop_minor_version", 2);
         avoidIsARemoteCall =
             config.getAttributeAsBoolean("jacorb.avoidIsARemoteCall", true);
         disconnectAfterNonRecoverableSystemException =
             config.getAttributeAsBoolean("jacorb.delegate.disconnect_after_systemexception", false);
         disableClientOrbPolicies = config.getAttributeAsBoolean("jacorb.disableClientOrbPolicies", false);
+        try
+        {
+           defaultGiopMinor = configuration.getAttributeAsInteger ("jacorb.giop_minor_version", 2);
+        }
+        catch (ConfigurationException ex)
+        {
+            logger.error ("Configuration exception retrieving giop minor version", ex);
+            throw new INTERNAL ("Configuration exception retrieving giop minor version" + ex);
+        }
 
         if (parseIORLazy)
         {
@@ -478,8 +486,8 @@ public final class Delegate
                                                        connections[currentConnection.ordinal ()].getId(),
                                                        ior.getEffectiveProfile().version().minor );
 
-                    LocateReplyReceiver receiver =
-                        new LocateReplyReceiver(orb);
+                    LocateReplyReceiver receiver = new LocateReplyReceiver(orb);
+                    receiver.configure (configuration);
 
                     connections[currentConnection.ordinal ()].sendRequest( lros,
                                             receiver,
@@ -1296,7 +1304,15 @@ public final class Delegate
                 // response expected, synchronous or asynchronous
                 receiver = new ReplyReceiver(this, ros.operation(), ros.getReplyEndTime(),
                                              interceptors, replyHandler);
-                receiver.configure(configuration);
+                try
+                {
+                   receiver.configure(configuration);
+                }
+                catch (ConfigurationException ex)
+                {
+                   logger.error ("Configuration problem with ReplyReceiver", ex);
+                   throw new INTERNAL ("Caught configuration exception setting up ReplyReceiver.");
+                }
 
                 // Store the receiver in pending_replies, so in the
                 // case of a LocationForward a RemarshalException can
@@ -1491,7 +1507,15 @@ public final class Delegate
                                                        ros.getReplyEndTime(),
                                                        interceptors,
                                                        null);
-                rcv.configure(configuration);
+                try
+                {
+                   rcv.configure(configuration);
+                }
+                catch (ConfigurationException ex)
+                {
+                   logger.error ("Configuration problem with ReplyReceiver", ex);
+                   throw new INTERNAL ("Caught configuration exception setting up ReplyReceiver.");
+                }
 
                 if (connections[TransportType.MIOP.ordinal ()] != null)
                 {

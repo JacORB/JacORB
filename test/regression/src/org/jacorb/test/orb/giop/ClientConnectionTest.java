@@ -19,14 +19,16 @@ package org.jacorb.test.orb.giop;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
  */
+import java.util.ArrayList;
+import java.util.Properties;
 import junit.framework.TestSuite;
 import org.easymock.MockControl;
 import org.jacorb.orb.ORB;
 import org.jacorb.orb.ParsedIOR;
 import org.jacorb.orb.ProfileSelector;
 import org.jacorb.orb.giop.ClientConnection;
-import org.jacorb.orb.giop.CodeSet;
 import org.jacorb.orb.giop.ClientGIOPConnection;
+import org.jacorb.orb.giop.CodeSet;
 import org.jacorb.test.common.ORBTestCase;
 import org.omg.CONV_FRAME.CodeSetComponent;
 import org.omg.CONV_FRAME.CodeSetComponentInfo;
@@ -35,8 +37,6 @@ import org.omg.ETF.Profile;
 import org.omg.GIOP.Version;
 import org.omg.IOP.IOR;
 import org.omg.IOP.TaggedProfile;
-
-import java.util.ArrayList;
 
 /**
  * @author <a href="mailto:russell.gold@oracle.com">Russell Gold</a>
@@ -50,6 +50,11 @@ public class ClientConnectionTest extends ORBTestCase
     public static TestSuite suite()
     {
         return new TestSuite( ClientConnectionTest.class );
+    }
+
+    protected void patchORBProperties(String testName, Properties props) throws Exception
+    {
+        props.setProperty("jacorb.codeset", "true");
     }
 
 
@@ -131,7 +136,8 @@ public class ClientConnectionTest extends ORBTestCase
         {
             createClientConnection( 1, 2, ior );
             fail( "Should have rejected unknown codeset 0x111111" );
-        } catch (CODESET_INCOMPATIBLE e)
+        }
+        catch (CODESET_INCOMPATIBLE e)
         {
         }
     }

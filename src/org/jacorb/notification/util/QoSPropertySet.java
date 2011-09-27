@@ -25,12 +25,13 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-
-import org.jacorb.config.*;
+import org.jacorb.config.Configuration;
+import org.jacorb.config.ConfigurationException;
 import org.jacorb.notification.conf.Attributes;
 import org.jacorb.notification.conf.Default;
 import org.omg.CORBA.Any;
 import org.omg.CORBA.BAD_OPERATION;
+import org.omg.CORBA.INTERNAL;
 import org.omg.CosNotification.AnyOrder;
 import org.omg.CosNotification.BestEffort;
 import org.omg.CosNotification.ConnectionReliability;
@@ -104,7 +105,7 @@ public class QoSPropertySet extends PropertySet
 
     private static final Any trueAny;
     private static final Any falseAny;
-    
+
     ////////////////////////////////////////
 
     static {
@@ -129,19 +130,19 @@ public class QoSPropertySet extends PropertySet
         _validChannelQoS.add(PacingInterval.value);
 
         sValidChannelQoSNames_ = Collections.unmodifiableSet(_validChannelQoS);
-        
+
         ////////////////////
 
         HashSet _adminNames = new HashSet(sValidChannelQoSNames_);
         _adminNames.remove(EventReliability.value);
         sValidAdminQoSNames_ = Collections.unmodifiableSet(_adminNames);
-    
+
         ////////////////////
 
         sValidProxyQoSNames_ = sValidAdminQoSNames_;
 
         ////////////////////
-        
+
         HashSet _validMessageQoS = new HashSet();
         _validMessageQoS.add(EventReliability.value);
         _validMessageQoS.add(Priority.value);
@@ -196,9 +197,24 @@ public class QoSPropertySet extends PropertySet
 
     private void configure (Configuration conf)
     {
-        int _maxEventsPerConsumerDefault =
+       int _maxEventsPerConsumerDefault;
+       int _maxBatchSize;
+
+       try
+       {
+        _maxEventsPerConsumerDefault =
             conf.getAttributeAsInteger( Attributes.MAX_EVENTS_PER_CONSUMER,
                                         Default.DEFAULT_MAX_EVENTS_PER_CONSUMER );
+        _maxBatchSize =
+           conf.getAttributeAsInteger(Attributes.MAX_BATCH_SIZE,
+                                      Default.DEFAULT_MAX_BATCH_SIZE);
+       }
+       catch (ConfigurationException ex)
+       {
+          logger_.error ("Error configuring QoSPropertySet ", ex);
+          throw new INTERNAL ("Error configuring QoSPropertySet " + ex);
+       }
+
 
         maxEventsPerConsumerDefault_ = sORB.create_any();
         maxEventsPerConsumerDefault_.insert_long(_maxEventsPerConsumerDefault);
@@ -207,7 +223,7 @@ public class QoSPropertySet extends PropertySet
         maxEventsPerConsumerLow_ = sORB.create_any();
 
         maxEventsPerConsumerLow_.insert_long(0);
-        maxEventsPerConsumerHigh_.insert_long(Integer.MAX_VALUE);        
+        maxEventsPerConsumerHigh_.insert_long(Integer.MAX_VALUE);
 
         ////////////////////
 
@@ -236,10 +252,6 @@ public class QoSPropertySet extends PropertySet
         _isStopTimeSupportedDefault.insert_boolean(_isStopTimeSupported);
 
         ////////////////////
-
-        int _maxBatchSize =
-            conf.getAttributeAsInteger(Attributes.MAX_BATCH_SIZE,
-                                       Default.DEFAULT_MAX_BATCH_SIZE);
 
         Any _maxBatchSizeDefault = sORB.create_any();
         _maxBatchSizeDefault.insert_long(_maxBatchSize);
@@ -288,7 +300,7 @@ public class QoSPropertySet extends PropertySet
         super();
 
         configure(configuration);
-        
+
         switch (type)
             {
             case CHANNEL_QOS:

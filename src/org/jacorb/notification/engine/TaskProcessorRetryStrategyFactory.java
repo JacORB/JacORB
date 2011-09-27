@@ -21,7 +21,8 @@
 
 package org.jacorb.notification.engine;
 
-import org.jacorb.config.*;
+import org.jacorb.config.Configuration;
+import org.jacorb.config.ConfigurationException;
 import org.jacorb.notification.conf.Attributes;
 import org.jacorb.notification.conf.Default;
 import org.jacorb.notification.interfaces.IProxyPushSupplier;
@@ -35,13 +36,13 @@ public class TaskProcessorRetryStrategyFactory implements RetryStrategyFactory
     private final TaskProcessor taskProcessor_;
     private final int backoutInterval_;
 
-    public TaskProcessorRetryStrategyFactory(Configuration config, TaskProcessor taskProcessor)
+    public TaskProcessorRetryStrategyFactory(Configuration config, TaskProcessor taskProcessor) throws ConfigurationException
     {
         super();
-        
+
         backoutInterval_ = config.getAttributeAsInteger(Attributes.BACKOUT_INTERVAL,
                 Default.DEFAULT_BACKOUT_INTERVAL);
-        
+
         taskProcessor_ = taskProcessor;
     }
 

@@ -26,6 +26,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
@@ -37,32 +38,81 @@ import org.omg.CORBA.ORB;
 import org.slf4j.Logger;
 
 /**
+ * The Class JacORBConfiguration.
+ *
  * @author Gerald Brose
  * @version $Id$
  */
 public class JacORBConfiguration implements Configuration
 {
+    /**
+     * The Constant fileSuffix.
+     */
     private static final String fileSuffix = ".properties";
+
+    /**
+     * The Constant COMMON_PROPS.
+     */
     private static final String COMMON_PROPS = "orb" + fileSuffix;
 
+    /**
+     * The Constant TRUE.
+     */
     private static final String TRUE = "true";
-    private static final String ON = "on";
-    private static final String EMPTY_STR = "";
 
+    /**
+     * The Constant ON.
+     */
+    private static final String ON = "on";
+
+    /**
+     * The Constant ATTR_LOGGING_INITIALIZER.
+     */
     private static final String ATTR_LOGGING_INITIALIZER = "jacorb.log.initializer";
 
-    /** contains the actual configuration data */
-    private Properties attributes;
 
+    /**
+     * Contains the actual configuration data.
+     *
+     * To speed up the access of frequently requested configuration values a set
+     * of dedicated hashmaps provide String, Boolean and Number storage.
+     */
+    private HashMap<String,String> stringAttributes = new HashMap<String,String>();
+
+    /**
+     * The boolean attributes.
+     */
+    private HashMap<String,Boolean> booleanAttributes = new HashMap<String,Boolean>();
+
+    /**
+     * The number attributes.
+     */
+    private HashMap<String, Number> numberAttributes = new HashMap<String, Number> ();
+
+    /**
+     * The orb.
+     */
     private final ORB orb;
 
+    /**
+     * The logger.
+     */
     private Logger logger;
 
+    /**
+     * The li.
+     */
     private LoggingInitializer li;
 
 
     /**
-     * Factory method
+     * Factory method.
+     *
+     * @param props the props
+     * @param orb the orb
+     * @param isApplet the is applet
+     * @return the configuration
+     * @throws ConfigurationException the configuration exception
      */
     public static Configuration getConfiguration(Properties props,
                                                  ORB orb,
@@ -113,6 +163,12 @@ public class JacORBConfiguration implements Configuration
     /**
      * Create a configuration using the properties passed
      * into ORB.init()
+     *
+     * @param name the name
+     * @param orbProperties the orb properties
+     * @param orb the orb
+     * @param isApplet the is applet
+     * @throws ConfigurationException the configuration exception
      */
 
     private JacORBConfiguration(String name,
@@ -123,7 +179,6 @@ public class JacORBConfiguration implements Configuration
     {
         super();
         this.orb = orb;
-        this.attributes = new Properties();
         this.logger = getLogger ("jacorb.config");
 
         ArrayList delayedLogging = new ArrayList ();
@@ -186,9 +241,11 @@ public class JacORBConfiguration implements Configuration
      * 5) the ORB properties set in the client code and passed in
      * through ORB.init().
      * (Note that these will thus always take effect!)
-    * @param delayedLogging2
      *
+     * @param delayedLogging the delayed logging
      * @param name the name for the ORB instance, may not be null.
+     * @param orbProperties the orb properties
+     * @throws ConfigurationException the configuration exception
      */
 
     private void init(ArrayList delayedLogging, String name, Properties orbProperties)
@@ -358,9 +415,11 @@ public class JacORBConfiguration implements Configuration
      * specific configuration file for the ORB (if any) 4) the ORB properties
      * set in the client code and passed in through ORB.init().  (Note that
      * these will thus always take effect!)
-    * @param delayedLogging2
      *
+     * @param delayedLogging the delayed logging
      * @param name the name for the ORB instance, may not be null.
+     * @param orbProperties the orb properties
+     * @throws ConfigurationException the configuration exception
      */
 
     private void initApplet(ArrayList delayedLogging, String name, Properties orbProperties)
@@ -446,18 +505,31 @@ public class JacORBConfiguration implements Configuration
 
     /**
      * Sets the value of a single attribute.
+     *
+     * @param key the key
+     * @param value the value
      */
     public void setAttribute(String key, String value)
     {
-        attributes.put(key, value);
+        stringAttributes.put(key, value);
+    }
+
+    /* (non-Javadoc)
+     * @see org.jacorb.config.Configuration#setAttribute(java.lang.String, int)
+     */
+    public void setAttribute(String key, int value)
+    {
+        numberAttributes.put(key, value);
     }
 
 
     /**
-     * set attributes of this configuration using properties
+     * set attributes of this configuration using properties.
+     *
+     * @param properties the new attributes
      */
 
-    void setAttributes(Properties properties)
+    private void setAttributes(Properties properties)
     {
         Enumeration e = properties.propertyNames ();
         while (e.hasMoreElements ())
@@ -479,7 +551,8 @@ public class JacORBConfiguration implements Configuration
 
 
     /**
-     * Loads properties from a file
+     * Loads properties from a file.
+     *
      * @param fileName the name of a properties file
      * @return a properties object or null, if fileName not found
      */
@@ -518,7 +591,8 @@ public class JacORBConfiguration implements Configuration
 
 
     /**
-     * load properties file from classpath
+     * load properties file from classpath.
+     *
      * @param name the name of the properties file.
      * @return a properties object or null, if name not found
      */
@@ -576,8 +650,10 @@ public class JacORBConfiguration implements Configuration
      * This is only meant to ease the transition as we move to SLF4J.
      * Normally, configuration of the logging backend is completely
      * external to JacORB and left to the user.
+     *
+     * @throws ConfigurationException the configuration exception
      */
-    private void initLogging()
+    private void initLogging() throws ConfigurationException
     {
         li = (LoggingInitializer)getAttributeAsObject
         (
@@ -599,6 +675,8 @@ public class JacORBConfiguration implements Configuration
 
 
     /**
+     * Gets the oRB.
+     *
      * @return the ORB for which this configuration was created
      */
 
@@ -623,43 +701,55 @@ public class JacORBConfiguration implements Configuration
      * Here's a guideline how to use logging levels in the code:
      *
      * error Conditions that indicate a bug in JacORB or user code,
-     *       or a wrong configuration.  This includes, but is not
-     *       limited to, errors that will lead to termination of the
-     *       program (fatal errors).
+     * or a wrong configuration.  This includes, but is not
+     * limited to, errors that will lead to termination of the
+     * program (fatal errors).
      *
      * warn  Conditions that demand attention, but are handled properly
-     *       according to the CORBA spec.  For example, abnormal termination
-     *       of a connection, reaching of a resource limit (queue full).
+     * according to the CORBA spec.  For example, abnormal termination
+     * of a connection, reaching of a resource limit (queue full).
      *
      * info  Start/stop of subsystems, establishing and closing of connections,
-     *       registering objects with a POA.
+     * registering objects with a POA.
      *
      * debug Information that might be needed for finding bugs in JacORB
-     *       or user code.  Anything that relates to the normal processing
-     *       of individual messages should come under this level.  For each
-     *       CORBA message, there should at least one debug message when
-     *       subsystem boundaries are crossed (e.g. GIOPConnection -> POA
-     *       -> User Code).
+     * or user code.  Anything that relates to the normal processing
+     * of individual messages should come under this level.  For each
+     * CORBA message, there should at least one debug message when
+     * subsystem boundaries are crossed (e.g. GIOPConnection -> POA
+     * -> User Code).
+     *
+     * @param name the name
+     * @return the logger
+     * @throws ConfigurationException the configuration exception
      */
     public org.slf4j.Logger getLogger (String name)
     {
         String loggerName = name;
         if (getAttributeAsBoolean ("jacorb.log.split_on_implname", false))
         {
-            String implName = getAttribute ("jacorb.implname", null);
-            if (implName != null && implName.length() > 0)
-            {
-                if (name.equals ("jacorb"))
-                    loggerName = "jacorb." + implName;
-                else if (name.startsWith ("jacorb."))
-                    loggerName = "jacorb." + implName + "." + name.substring (7);
-            }
+           String implName = getAttribute ("jacorb.implname", null);
+
+           if (implName != null && implName.length() > 0)
+           {
+              if (name.equals ("jacorb"))
+              {
+                 loggerName = "jacorb." + implName;
+              }
+              else if (name.startsWith ("jacorb."))
+              {
+                 loggerName = "jacorb." + implName + "." + name.substring (7);
+              }
+           }
         }
         return org.slf4j.LoggerFactory.getLogger (loggerName);
     }
 
 
 
+    /* (non-Javadoc)
+     * @see org.jacorb.config.Configuration#getLoggerName(java.lang.Class)
+     */
     public String getLoggerName(Class clz)
     {
         final String clazzName = clz.getName();
@@ -673,123 +763,168 @@ public class JacORBConfiguration implements Configuration
     }
 
     /**
+     * Gets the attribute
+     *
+     * @param key the key
+     * @return the attribute
+     * @throws ConfigurationException the configuration exception
      * @see org.jacorb.config.Configuration#getAttribute(java.lang.String)
      */
-    public String getAttribute(String key)
+    public String getAttribute(String key) throws ConfigurationException
     {
-        String result = attributes.getProperty(key);
-        if (result != null)
-        {
-            return result;
-        }
-        else
-        {
-            throw new ConfigurationException
-            (
-                "attribute " + key + " is not defined"
-            );
-        }
+       String result = getAttribute (key, null);
+
+       if (result == null)
+       {
+           throw new ConfigurationException
+           (
+               "attribute " + key + " is not defined"
+           );
+       }
+
+       return result;
     }
 
     /**
+     * getAttribute
      * @see org.jacorb.config.Configuration#getAttribute(java.lang.String, java.lang.String)
      */
     public String getAttribute(String key, String defaultValue)
     {
-        return attributes.getProperty(key, defaultValue);
-    }
+       String result = stringAttributes.get (key);
+
+       if (result == null && defaultValue != null)
+       {
+          stringAttributes.put (key, defaultValue);
+
+          result = defaultValue;
+       }
+       return result;
+   }
 
     /**
-     * @see org.jacorb.config.Configuration#getAttributeAsInteger(java.lang.String, int)
+     * Gets the attribute as integer.
+     *
+     * @param key the key
+     * @param defaultValue the default value
+     * @return the attribute as integer
+     * @throws ConfigurationException the configuration exception
+     * @see org.jacorb.config.Configuration#getAttributeAsInteger(java.lang.String, int, int)
      */
-    public int getAttributeAsInteger(String key, int defaultValue)
+    public int getAttributeAsInteger(String key, int defaultValue) throws ConfigurationException
     {
         return getAttributeAsInteger (key, defaultValue, 10);
     }
 
     /**
-     * @see org.jacorb.config.Configuration#getAttributeAsInteger(java.lang.String, int, int)
+     * Returns the integer value of the specified key.
+     *
+     * @param key the key
+     * @param defaultValue the default value
+     * @param radix the radix
+     * @return the attribute as integer
+     * @throws ConfigurationException the configuration exception
      */
-    public int getAttributeAsInteger(String key, int defaultValue, int radix)
+    public int getAttributeAsInteger(String key, int defaultValue, int radix) throws ConfigurationException
     {
-        Object value = attributes.getProperty (key, null);
-        if (value == null)
-        {
-            return defaultValue;
-        }
+       Number result = numberAttributes.get (key);
 
-        if (((String)value).trim().length() < 1)
-        {
-           // empty string is treated as 'null' value
-           return defaultValue;
-        }
+       if (result == null)
+       {
+          String value = stringAttributes.remove (key);
 
-        try
-        {
-           int i = Integer.parseInt (((String)value).trim(), radix);
+          if (value == null)
+          {
+             result = Integer.valueOf (defaultValue);
+          }
+          else
+          {
+             try
+             {
+                result = Integer.parseInt (value.trim(), radix);
+             }
+             catch (NumberFormatException ex)
+             {
+                throw new ConfigurationException
+                (
+                 "value for attribute " + key + " is not numeric: " + value
+                );
+             }
+          }
+          numberAttributes.put (key, result);
+       }
 
-           return i;
-        }
-        catch (NumberFormatException ex)
-        {
-           throw new ConfigurationException
-           (
-            "value for attribute " + key + " is not numeric: " + value
-           );
-        }
+       return result.intValue ();
     }
 
 
     /**
-     * @see org.jacorb.config.Configuration#getAttributeAsInteger(java.lang.String)
+     * Validates the key exists and then returns the value.
+     *
+     * @param key the key
+     * @return the attribute as integer
+     * @throws ConfigurationException the configuration exception
      */
-    public int getAttributeAsInteger(String key)
+    public int getAttributeAsInteger(String key) throws ConfigurationException
     {
-        Object value = attributes.getProperty (key, null);
-        if (value == null)
+        if ( ! stringAttributes.containsKey (key) && ! numberAttributes.containsKey (key))
         {
             throw new ConfigurationException
             (
-                "value for attribute " + key + " is not set"
+                "Value for attribute " + key + " is not set"
             );
         }
-        else
-        {
-            // we know now that the attribute does exist, so it's safe
-            // to call the other function with an arbitrary default value
-            return getAttributeAsInteger (key, 0);
-        }
+        return getAttributeAsInteger (key, -1, 10);
     }
 
 
     /**
+     * Gets the attribute as long.
+     *
+     * @param key the key
+     * @param defaultValue the default value
+     * @return the attribute as long
+     * @throws ConfigurationException the configuration exception
      * @see org.jacorb.config.Configuration#getAttributeAsLong(java.lang.String, long)
      */
-    public long getAttributeAsLong(String key, long defaultValue)
+    public long getAttributeAsLong(String key, long defaultValue) throws ConfigurationException
     {
-        Object value = attributes.getProperty (key, null);
-        if (value == null)
-        {
-            return defaultValue;
-        }
+       Number result = numberAttributes.get (key);
 
-        try
-        {
-           long i = Long.parseLong (((String)value).trim());
+       if (result == null)
+       {
+          String value = stringAttributes.remove (key);
 
-           return i;
-        }
-        catch (NumberFormatException ex)
-        {
-           throw new ConfigurationException
-           (
-            "value for attribute " + key + " is not numeric: " + value
-           );
-        }
+          if (value == null)
+          {
+             result = Long.valueOf (defaultValue);
+          }
+          else
+          {
+             try
+             {
+                result = Long.parseLong (value.trim());
+             }
+             catch (NumberFormatException ex)
+             {
+                throw new ConfigurationException
+                (
+                 "value for attribute " + key + " is not numeric: " + value
+                );
+             }
+          }
+          numberAttributes.put (key, result);
+       }
+
+       return result.longValue ();
     }
 
 
     /**
+     * Gets the attribute list.
+     *
+     * @param key the key
+     * @return the attribute list
      * @see org.jacorb.config.Configuration#getAttributeList(java.lang.String)
      */
     public List getAttributeList(String key)
@@ -818,22 +953,13 @@ public class JacORBConfiguration implements Configuration
     }
 
     /**
-     * @see org.jacorb.config.Configuration#getAttributeAsObject(java.lang.String)
+     * New instance.
+     *
+     * @param key the key
+     * @param className the class name
+     * @return the object
+     * @throws ConfigurationException the configuration exception
      */
-    public Object getAttributeAsObject( String key )
-        throws ConfigurationException
-    {
-        String className = getAttribute(key, null);
-
-        if(  className != null && className.length() > 0 )
-        {
-            return newInstance(key, className);
-        }
-
-        return null;
-    }
-
-
     private Object newInstance(String key, String className) throws ConfigurationException
     {
         try
@@ -854,60 +980,94 @@ public class JacORBConfiguration implements Configuration
         }
     }
 
+
     /**
+     * Gets the attribute as object.
+     *
+     * @param key the key
+     * @return the attribute as object
+     * @throws ConfigurationException the configuration exception
+     * @see org.jacorb.config.Configuration#getAttributeAsObject(java.lang.String)
+     */
+    public Object getAttributeAsObject( String key )
+        throws ConfigurationException
+    {
+        return getAttributeAsObject(key, "");
+    }
+
+    /**
+     * Gets the attribute as object.
+     *
+     * @param key the key
+     * @param defaultClass the default class
+     * @return the attribute as object
+     * @throws ConfigurationException the configuration exception
      * @see org.jacorb.config.Configuration#getAttributeAsObject(java.lang.String, java.lang.String)
      */
     public Object getAttributeAsObject(String key, String defaultClass) throws ConfigurationException
     {
-        Object result = getAttributeAsObject(key);
-        if (result == null)
-        {
-            return newInstance("default", defaultClass);
-        }
+       Object result = null;
+       String classname = getAttribute (key, "");
 
-        return result;
+       if (classname.length() > 0 )
+       {
+          result = newInstance(key, classname);
+       }
+       else if (defaultClass != null && defaultClass.length () > 0)
+       {
+          result = newInstance("default", defaultClass);
+       }
+
+       return result;
     }
 
     /**
-     * @see org.jacorb.config.Configuration#getAttributeAsBoolean(java.lang.String)
-     */
-    public boolean getAttributeAsBoolean(String key)
-        throws ConfigurationException
-    {
-        String value = getAttribute(key);
-
-        if (value != null && value.length() > 0)
-        {
-            value = value.trim().toLowerCase();
-            return ON.equals(value) || TRUE.equals(value);
-        }
-
-        return false;
-    }
-
-    /**
-     * @see org.jacorb.config.Configuration#getAttributeAsBoolean(java.lang.String, boolean)
+     * Return the attribute as a boolean. A default value must be supplied and the
+     * key/value is cached.
+     *
+     * @param key the key
+     * @param defaultValue the default value
+     * @return the attribute as boolean
      */
     public boolean getAttributeAsBoolean(String key, boolean defaultValue)
     {
-        String value = getAttribute(key, EMPTY_STR);
+       Boolean result = booleanAttributes.get (key);
 
-        if (value.length() > 0)
-        {
-            value = value.trim().toLowerCase();
-            return ON.equals(value) || TRUE.equals(value);
-        }
+       if (result == null)
+       {
+          String value = stringAttributes.remove(key);
 
-        return defaultValue;
+          if (value == null)
+          {
+             result = Boolean.valueOf (defaultValue);
+          }
+          else
+          {
+             value = value.trim().toLowerCase();
+             result = Boolean.valueOf ((ON.equals(value) || TRUE.equals(value)));
+          }
+          booleanAttributes.put (key, result);
+       }
+
+       return result;
     }
 
 
-    public String[] getAttributeNames()
+    /**
+     * Gets the attribute names.
+     *
+     * @return the attribute names
+     */
+    private String[] getAttributeNames()
     {
-        return (String[])(attributes.keySet().toArray (new String[]{}));
+        return (String[])(stringAttributes.keySet().toArray (new String[]{}));
     }
 
     /**
+     * Gets the attribute names with prefix.
+     *
+     * @param prefix the prefix
+     * @return the attribute names with prefix
      * @see org.jacorb.config.Configuration#getAttributeNamesWithPrefix(java.lang.String)
      */
     public List getAttributeNamesWithPrefix(String prefix)
@@ -938,9 +1098,23 @@ public class JacORBConfiguration implements Configuration
      */
     private static class DelayedConfigOutput
     {
+
+       /**
+        * The level.
+        */
        java.util.logging.Level level;
+
+       /**
+        * The message.
+        */
        String message;
 
+       /**
+        * Instantiates a new delayed config output.
+        *
+        * @param warning the warning
+        * @param string the string
+        */
        public DelayedConfigOutput (Level warning, String string)
        {
           level = warning;
@@ -949,32 +1123,38 @@ public class JacORBConfiguration implements Configuration
     }
 
 
-    public double getAttributeAsFloat (String key, double defaultValue)
+    /* (non-Javadoc)
+     * @see org.jacorb.config.Configuration#getAttributeAsFloat(java.lang.String, double)
+     */
+    public double getAttributeAsFloat (String key, double defaultValue) throws ConfigurationException
     {
-        Object value = attributes.getProperty (key, null);
-        if (value == null)
-        {
-            return defaultValue;
-        }
+       Number result = numberAttributes.get (key);
 
-        try
-        {
-           double ret = Double.parseDouble (((String)value).trim());
+       if (result == null)
+       {
+          String value = stringAttributes.remove (key);
 
-           return ret;
-        }
-        catch (NumberFormatException ex)
-        {
-           throw new ConfigurationException
-           (
-             "value for attribute " + key + " is not numeric: " + value
-           );
-        }
-    }
+          if (value == null)
+          {
+             result = Double.valueOf (defaultValue);
+          }
+          else
+          {
+             try
+             {
+                result = Double.parseDouble (value.trim());
+             }
+             catch (NumberFormatException ex)
+             {
+                throw new ConfigurationException
+                (
+                 "value for attribute " + key + " is not numeric: " + value
+                );
+             }
+          }
+          numberAttributes.put (key, result);
+       }
 
-
-    public boolean isAttributeSet(String name)
-    {
-        return getAttribute(name, "").length() > 0;
+       return result.doubleValue ();
     }
 }

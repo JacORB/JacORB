@@ -143,10 +143,11 @@ post 2.3.1
           re-reading.
         - Fix for request handling to ensure RelativeRoundtripPolicy and REQUEST_DURATION_POLICY
           timeouts bound the entire invocation including any embedded invocations/re-invocations.
-        - Fix to ensure that current contexts are added and cleared correctly when handling 
+        - Fix to ensure that current contexts are added and cleared correctly when handling
           embedded calls.
         - Fix for local interceptors to prevent client PICurrent being overwritten by
           a server PICurrent.
+        - Improved Configuration storage and made the usage more consistent.
 
     - POA:
         - Fix for reference_to_id error checking.

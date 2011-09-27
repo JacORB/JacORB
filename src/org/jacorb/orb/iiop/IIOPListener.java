@@ -143,17 +143,13 @@ public class IIOPListener
             configuration.getAttributeAsBoolean("jacorb.security.support_ssl", false);
 
         target_supports =
-            Integer.parseInt(
-                configuration.getAttribute("jacorb.security.ssl.server.supported_options","20"),
-                16); // 16 is the base as we take the string value as hex!
+           configuration.getAttributeAsInteger("jacorb.security.ssl.server.supported_options", 20, 16); // 16 is the base as we take the string value as hex!
 
         // make sure that the minimum options are always in the set of supported options
         target_supports |= MIN_SSL_OPTIONS;
 
         target_requires =
-            Integer.parseInt(
-                configuration.getAttribute("jacorb.security.ssl.server.required_options","0"),
-                16);
+           configuration.getAttributeAsInteger("jacorb.security.ssl.server.required_options", 0, 16);
 
 
         generateSSLComponents =
@@ -410,7 +406,7 @@ public class IIOPListener
          */
         private boolean firstPass;
 
-        protected Acceptor(String name, IIOPAddress target)
+        protected Acceptor(String name, IIOPAddress target) throws ConfigurationException
         {
             super();
             // initialization deferred to init() method due to JDK bug
@@ -434,7 +430,7 @@ public class IIOPListener
             addressToUse = target;
         }
 
-        protected Acceptor(String name)
+        protected Acceptor(String name) throws ConfigurationException
         {
             this(name, address);
         }
@@ -756,7 +752,7 @@ public class IIOPListener
         private boolean renewingSocket;
         private boolean blockedOnAccept;
 
-        private SSLAcceptor()
+        private SSLAcceptor() throws ConfigurationException
         {
             super("SSLServerSocketListener", sslAddress);
             info = "SSL";

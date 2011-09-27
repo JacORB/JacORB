@@ -21,7 +21,6 @@ package org.jacorb.config;
  */
 
 import java.util.List;
-
 import org.jacorb.orb.ORB;
 
 /**
@@ -72,11 +71,16 @@ public interface Configuration
     org.slf4j.Logger getLogger(String name);
 
     /**
+     * Uses the class name to return a name suitable for naming the logger.
+     */
+    String getLoggerName(Class clazz);
+
+    /**
      * Returns the value of the configuration attribute with the given key.
      * If the attribute value for this key is undefined, the exception
      * ConfigurationException is thrown.
      */
-    String getAttribute (String key);
+    String getAttribute (String key) throws ConfigurationException;
 
     /**
      * Returns the value of the configuration attribute with the given key.
@@ -90,44 +94,49 @@ public interface Configuration
      * as an integer.  If the attribute value for this key is undefined,
      * the exception ConfigurationException is thrown.
      */
-    int getAttributeAsInteger (String key);
+    int getAttributeAsInteger (String key) throws ConfigurationException;
 
     /**
      * Returns the value of the configuration attribute with the given key,
      * as an integer.  If the attribute value for this key is undefined, the
      * defaultValue is returned.
      */
-    int getAttributeAsInteger (String key, int defaultValue);
+    int getAttributeAsInteger (String key, int defaultValue) throws ConfigurationException;
 
     /**
      * Returns the value of the configuration attribute with the given key,
-     * as an integer using the radix as number base for the value.  If the 
+     * as an integer using the radix as number base for the value.  If the
      * attribute value for this key is undefined, the defaultValue is returned.
      */
-    int getAttributeAsInteger (String key, int defaultValue, int radix);
+    int getAttributeAsInteger (String key, int defaultValue, int radix) throws ConfigurationException;
 
     /**
      * Returns the value of the configuration attribute with the given key,
      * as a long value.  If the attribute value for this key is undefined, the
      * defaultValue is returned.
      */
-    long getAttributeAsLong (String key, long defaultValue);
-    
+    long getAttributeAsLong (String key, long defaultValue) throws ConfigurationException;
+
+    /**
+     * Returns the value of the configuration attribute with the given key,
+     * as a float value.  If the attribute value for this key is undefined, the
+     * defaultValue is returned.
+     */
+    double getAttributeAsFloat (String key, double defaultValue) throws ConfigurationException;
+
+    /**
+     * Returns the value of the configuration attribute with the given key,
+     * as a boolean value.  If the attribute value for this key is undefined, the
+     * defaultValue is returned.
+     */
+    boolean getAttributeAsBoolean(String key, boolean defaultValue);
+
     /**
      * For a property that has a list of comma-separated values,
      * this method returns these values as a list of Strings.
      * If the property is not set, an empty list is returned.
      */
     List getAttributeList(String key);
-
-    /**
-     * Create an object from the given property. The class's default
-     * constructor will be used.
-
-    /**
-     * checks if a attribute is set (non-empty string).
-     */
-    boolean isAttributeSet(String name);
 
     /**
      *
@@ -139,20 +148,23 @@ public interface Configuration
 
     Object getAttributeAsObject(String key, String defaultClass) throws ConfigurationException;
 
-    boolean getAttributeAsBoolean(String key)
-        throws ConfigurationException;
-
-    boolean getAttributeAsBoolean(String key, boolean defaultValue);
-
-    String getLoggerName(Class clazz);
-
+    /**
+     * Sets the given string attribute with the given value
+     * @param key
+     * @param value
+     */
     void setAttribute(String key, String value);
+
+    /**
+     * Sets the given int attribute with the given value
+     * @param key
+     * @param value
+     */
+    void setAttribute(String key, int value);
 
     /**
      * return all attribute names that start
      * with the specified prefix
      */
     List getAttributeNamesWithPrefix(String string);
-
-    double getAttributeAsFloat (String key, double defaultValue);
 }

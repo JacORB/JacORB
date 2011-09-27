@@ -20,11 +20,9 @@
 
 package org.jacorb.test.bugs.bug879;
 
-import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Properties;
-
 import org.jacorb.orb.iiop.ServerIIOPConnection;
 import org.jacorb.test.common.ORBTestCase;
 
@@ -38,7 +36,7 @@ public class Bug879Test extends ORBTestCase
         props.setProperty("jacorb.giop_minor_version", "1");
     }
 
-    public void testInitGiop1_1() throws IOException
+    public void testInitGiop1_1() throws Exception
     {
         ServerSocket sSocket = new ServerSocket(4321);
         Socket socket = new Socket((String)null, 4321);

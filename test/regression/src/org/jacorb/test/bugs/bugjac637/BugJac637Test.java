@@ -22,11 +22,10 @@
 package org.jacorb.test.bugs.bugjac637;
 
 import java.util.Properties;
-import java.applet.Applet;
 import junit.framework.TestCase;
 import org.omg.CORBA.BAD_INV_ORDER;
-import org.omg.CORBA.OperationDef;
 import org.omg.CORBA.ORB;
+import org.omg.CORBA.OperationDef;
 
 /**
  * <code>BugJac637Test</code> tests that calling operations on

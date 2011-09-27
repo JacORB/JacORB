@@ -29,12 +29,12 @@ import org.slf4j.Logger;
 
 /**
  * A lightweight implementation of a POAManager monitor
- * 
+ *
  * @author Reimo Tiedemann, FU Berlin
  * @version 1.03, 12/08/99, RT
  */
 
-public class POAManagerMonitorLightImpl 
+public class POAManagerMonitorLightImpl
     implements POAManagerMonitor, Configurable
 {
     private POAManager model = null;
@@ -43,41 +43,40 @@ public class POAManagerMonitorLightImpl
     private Logger logger;
     private boolean doMonitor;
 
-    public void addPOA(String name) 
+    public void addPOA(String name)
     {
     }
 
     public void closeMonitor() {
     }
 
-    public void init(POAManager poaManager) 
+    public void init(POAManager poaManager)
     {
         model = poaManager;
     }
-       
+
     public void configure(Configuration myConfiguration)
-        throws ConfigurationException
     {
         this.configuration = (org.jacorb.config.Configuration)myConfiguration;
+
         logger = configuration.getLogger("jacorb.poa.manager_monitor");
-        doMonitor = 
-            configuration.getAttributeAsBoolean("jacorb.poa.monitoring",false);
+        doMonitor = configuration.getAttributeAsBoolean("jacorb.poa.monitoring",false);
     }
 
-    public void openMonitor() 
+    public void openMonitor()
     {
-        if ( doMonitor ) 
+        if ( doMonitor )
         {
-            try 
+            try
             {
-                POAManagerMonitor newMonitor = 
+                POAManagerMonitor newMonitor =
                     (POAManagerMonitor)ObjectUtil.classForName("org.jacorb.poa.POAManagerMonitorImpl").newInstance();
                 newMonitor.init(model);
                 newMonitor.configure(configuration);
                 model.setMonitor(newMonitor);
                 newMonitor.openMonitor();
-            } 
-            catch (Throwable exception) 
+            }
+            catch (Throwable exception)
             {
                 if (logger.isErrorEnabled())
                     logger.error( "Exception in closeMonitor(): " + exception.getMessage());

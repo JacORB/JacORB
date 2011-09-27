@@ -1,13 +1,13 @@
 package org.jacorb.test.transport;
 
-import org.slf4j.Logger;
 import org.omg.CORBA.ORB;
 import org.omg.PortableInterceptor.ClientRequestInfo;
 import org.omg.PortableInterceptor.ClientRequestInterceptor;
 import org.omg.PortableInterceptor.ForwardRequest;
+import org.slf4j.Logger;
 
-public class ClientInterceptor 
-    extends org.omg.CORBA.LocalObject 
+public class ClientInterceptor
+    extends org.omg.CORBA.LocalObject
     implements ClientRequestInterceptor {
 
     private static ClientInterceptor instance_ = null;
@@ -18,23 +18,14 @@ public class ClientInterceptor
     private final AbstractTester tester_;
     private final ORB orb_;
 
-    
-    /**
-     * Need hide the default ctor because we don't want to 
-     * have this instantiated via (simplistic) reflection.
-     */
-    private ClientInterceptor() {
-        this (null, null);
-    }
-    
-    
+
     public ClientInterceptor(ORB orb, AbstractTester tester) {
 
         tester_ = tester;
         orb_ = orb;
         logger_ = ((org.jacorb.orb.ORB) orb).getConfiguration ()
                                             .getLogger ("jacorb.test.transport");
-        
+
         synchronized (this.getClass ()) {
             instance_ = this;
         }

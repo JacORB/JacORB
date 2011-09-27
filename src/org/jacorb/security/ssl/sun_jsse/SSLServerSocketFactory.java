@@ -51,8 +51,8 @@ public class SSLServerSocketFactory
     private String[] cipher_suites = null;
     private String[] enabledProtocols = null;
     private TrustManager trustManager = null;
-    private short serverSupportedOptions = 0;
-    private short serverRequiredOptions = 0;
+    private int serverSupportedOptions = 0;
+    private int serverRequiredOptions = 0;
     private String keystore_location = null;
     private String keystore_passphrase = null;
     private String keystore_type = null;
@@ -70,15 +70,9 @@ public class SSLServerSocketFactory
             configuration.getAttributeAsBoolean("jacorb.security.jsse.trustees_from_ks", false);
 
 
-        serverSupportedOptions =
-            Short.parseShort(
-                configuration.getAttribute("jacorb.security.ssl.server.supported_options","20"),
-                16); // 16 is the base as we take the string value as hex!
+        serverSupportedOptions = configuration.getAttributeAsInteger("jacorb.security.ssl.server.supported_options",20,16); // 16 is the base as we take the string value as hex!
 
-        serverRequiredOptions =
-            Short.parseShort(
-                configuration.getAttribute("jacorb.security.ssl.server.required_options","0"),
-                16);
+        serverRequiredOptions = configuration.getAttributeAsInteger("jacorb.security.ssl.server.required_options",0,16);
 
         if( (serverSupportedOptions & 0x40) != 0 )
         {

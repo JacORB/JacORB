@@ -48,7 +48,7 @@ public class POAManager
     {
         orb = _orb;
         monitor = new POAManagerMonitorLightImpl();
-        monitor.configure(orb.getConfiguration());
+        ((POAManagerMonitorLightImpl)monitor).configure(orb.getConfiguration());
         monitor.init(this);
         monitor.openMonitor();
         monitor.printMessage("ready");

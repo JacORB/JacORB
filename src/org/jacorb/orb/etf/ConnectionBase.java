@@ -93,7 +93,7 @@ public abstract class ConnectionBase
 
         logger = configuration.getLogger(configuration.getLoggerName(getClass()));
 
-        if( configuration.getAttribute("jacorb.debug.dump_outgoing_messages","off").equals("on"))
+        if(configuration.getAttributeAsBoolean("jacorb.debug.dump_outgoing_messages",false))
         {
             b_out = new ByteArrayOutputStream();
         }

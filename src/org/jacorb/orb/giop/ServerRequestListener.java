@@ -60,15 +60,13 @@ public class ServerRequestListener
         this.rootPOA = rootPOA;
     }
 
-    public void configure(Configuration myConfiguration)
+    public void configure(Configuration configuration)
         throws ConfigurationException
     {
-        org.jacorb.config.Configuration configuration = (org.jacorb.config.Configuration)myConfiguration;
         logger =
             configuration.getLogger("jacorb.giop.server.listener");
 
-        boolean supportSSL =
-            configuration.getAttribute("jacorb.security.support_ssl","off").equals("on");
+        boolean supportSSL = configuration.getAttributeAsBoolean("jacorb.security.support_ssl",false);
 
         if( supportSSL )
         {

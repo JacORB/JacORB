@@ -16,7 +16,7 @@ import java.util.logging.StreamHandler;
 
 public class IDLLogger
 {
-   
+
    /**
     * @author ykovalek
     * Wrapper class for java.io.Writer to provide IDL compiler compatibility
@@ -28,13 +28,7 @@ public class IDLLogger
        protected Writer writer;
        protected String encoding;
        private byte[] buf=new byte[1];
-       
-       public WriterOutputStream(Writer writer, String encoding)
-       {
-           this.writer = writer; 
-           this.encoding = encoding;
-       }
-       
+
        public WriterOutputStream(Writer writer)
        {
            this.writer = writer;
@@ -54,7 +48,7 @@ public class IDLLogger
            writer.flush();
        }
 
-       public void write(byte[] b) 
+       public void write(byte[] b)
            throws IOException
        {
            if (encoding == null)
@@ -79,35 +73,35 @@ public class IDLLogger
            write(buf);
        }
    }
-   
+
    public static final Level DEBUG = Level.ALL;
    public static final Level INFO = Level.FINEST;
    public static final Level WARN = Level.WARNING;
    public static final Level ERROR = Level.SEVERE;
    public static final Level FATAL_ERROR = Level.SEVERE;
    public static final Level NONE = Level.OFF;
-   
+
    private static IDLLogger theLogger;
-   
+
    private Logger logger;
-   
+
    /**
     * Class constructor.
     * @param name a <code>String</code> name for logged entity
-    * @param level a <code>java.util.logging.Level</code> value 
+    * @param level a <code>java.util.logging.Level</code> value
     * @param writer a <code>java.io.Writer</code> where to send the log output
     */
    private IDLLogger(String name, Level level, Writer writer)
    {
       this.logger = Logger.getLogger(name);
       this.logger.setLevel(level);
-      
+
       this.logger.addHandler(new StreamHandler(new WriterOutputStream(writer), new SimpleFormatter()));
    }
-   
+
    /**
     * @param name a <code>String</code> name for logged entity
-    * @param level a <code>java.util.logging.Level</code> value 
+    * @param level a <code>java.util.logging.Level</code> value
     * @param writer a <code>java.io.Writer</code> where to send the log output
     * @return a <code>org.jacorb.idl.util.IDLLogger</code> logger
     */
@@ -119,7 +113,7 @@ public class IDLLogger
       }
       return IDLLogger.theLogger;
    }
-   
+
    /**
     * Sets the logging level. Use one of the levels defined in
     * <code>org.jacorb.idl.util.IDLLogger</code> The parameter
@@ -130,7 +124,7 @@ public class IDLLogger
    {
       this.logger.setLevel(level);
    }
-   
+
    /**
     * Queries the delegate logger whether the debug level is enabled.
     * @return true or false
@@ -139,7 +133,7 @@ public class IDLLogger
    {
       return this.logger.isLoggable(IDLLogger.DEBUG);
    }
-   
+
    /**
     * Queries the delegate logger whether the info level is enabled.
     * @return true or false
@@ -148,7 +142,7 @@ public class IDLLogger
    {
       return this.logger.isLoggable(IDLLogger.INFO);
    }
-   
+
    /**
     * Queries the delegate logger whether the warn level is enabled.
     * @return true or false
@@ -157,7 +151,7 @@ public class IDLLogger
    {
       return this.logger.isLoggable(IDLLogger.WARN);
    }
-   
+
    /**
     * Queries the delegate logger whether the error level is enabled.
     * @return true or false
@@ -166,7 +160,7 @@ public class IDLLogger
    {
       return this.logger.isLoggable(IDLLogger.ERROR);
    }
-   
+
    /**
     * Queries the delegate logger whether the fatal error level is enabled.
     * @return true or false
@@ -175,7 +169,7 @@ public class IDLLogger
    {
       return this.logger.isLoggable(IDLLogger.FATAL_ERROR);
    }
-   
+
    /**
     * Queries the delegate logger whether the specified logging level is enabled.
     * It's best to check against the levels defined in the wrapper class
@@ -186,7 +180,7 @@ public class IDLLogger
    {
       return this.logger.isLoggable(level);
    }
-   
+
    /**
     * Logs a debug level message
     * @param message a <code>java.lang.String</code>
@@ -195,7 +189,7 @@ public class IDLLogger
    {
       this.logger.log(IDLLogger.DEBUG, message);
    }
-   
+
    /**
     * Logs a debug level message
     * @param message a <code>java.lang.String</code>
@@ -214,7 +208,7 @@ public class IDLLogger
    {
       this.logger.log(IDLLogger.WARN, message);
    }
-   
+
    /**
     * Logs a warn level message
     * @param message a <code>java.lang.String</code>
@@ -233,7 +227,7 @@ public class IDLLogger
    {
       this.logger.log(IDLLogger.ERROR, message);
    }
-   
+
    /**
     * Logs an error level message
     * @param message a <code>java.lang.String</code>
@@ -243,7 +237,7 @@ public class IDLLogger
    {
       this.logger.log(IDLLogger.ERROR, message, th);
    }
-   
+
    /**
     * Logs a fatal error level message
     * @param message a <code>java.lang.String</code>
@@ -252,7 +246,7 @@ public class IDLLogger
    {
       this.logger.log(IDLLogger.FATAL_ERROR, message);
    }
-   
+
    /**
     * Logs a fatal error level message
     * @param message a <code>java.lang.String</code>
@@ -271,7 +265,7 @@ public class IDLLogger
    {
       this.logger.log(IDLLogger.INFO, message);
    }
-   
+
    /**
     * Logs an info level message
     * @param message a <code>java.lang.String</code>

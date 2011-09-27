@@ -19,14 +19,8 @@ public abstract class AbstractOrbInitializer extends org.omg.CORBA.LocalObject i
     }
 
 
-    private AbstractOrbInitializer() {
-
-        this (null, null);
-    }
-
-
     /**
-     * 
+     *
      * @param param1
      *            <description>
      */
@@ -36,7 +30,7 @@ public abstract class AbstractOrbInitializer extends org.omg.CORBA.LocalObject i
 
 
     /**
-     * 
+     *
      * @param param1
      *            <description>
      */
@@ -50,7 +44,7 @@ public abstract class AbstractOrbInitializer extends org.omg.CORBA.LocalObject i
                                                                             clienttester_));
 
             if (servertester_ != null)
-                info.add_server_request_interceptor(new ServerInterceptor(orb, 
+                info.add_server_request_interceptor(new ServerInterceptor(orb,
                                                                           servertester_));
         }
         catch (Exception e) {

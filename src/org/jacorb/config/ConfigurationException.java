@@ -26,16 +26,16 @@ package org.jacorb.config;
  * @author Andre Spiegel <spiegel@gnu.org>
  * @version $Id$
  */
-public class ConfigurationException extends RuntimeException
+public class ConfigurationException extends Exception
 {
     public ConfigurationException (String message)
     {
         super (message);
     }
-    
+
     public ConfigurationException (String message, Throwable cause)
     {
         super (message, cause);
     }
-        
+
 }

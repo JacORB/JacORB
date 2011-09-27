@@ -20,18 +20,15 @@ package org.jacorb.orb;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import org.jacorb.config.JacORBConfiguration;
 import java.io.IOException;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.util.Map.Entry;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.*;
+import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import java.util.HashSet;
 import java.util.SortedMap;
 import java.util.TreeMap;
 import org.jacorb.config.Configuration;
@@ -39,6 +36,8 @@ import org.jacorb.config.ConfigurationException;
 import org.jacorb.orb.giop.CodeSet;
 import org.jacorb.orb.giop.GIOPConnection;
 import org.jacorb.orb.giop.Messages;
+import org.jacorb.orb.typecode.DelegatingTypeCodeReader;
+import org.jacorb.orb.typecode.TypeCodeCache;
 import org.jacorb.util.ObjectUtil;
 import org.jacorb.util.Stack;
 import org.jacorb.util.ValueHandler;
@@ -53,8 +52,6 @@ import org.omg.CORBA.TypeCodePackage.Bounds;
 import org.omg.CORBA.portable.IDLEntity;
 import org.omg.GIOP.MsgType_1_1;
 import org.slf4j.Logger;
-import org.jacorb.orb.typecode.DelegatingTypeCodeReader;
-import org.jacorb.orb.typecode.TypeCodeCache;
 
 /**
  * Read CDR encoded data
@@ -263,27 +260,16 @@ public class CDRInputStream
     private void configure(Configuration configuration)
         throws ConfigurationException
     {
-        final org.jacorb.config.Configuration jacorbConfig = (org.jacorb.config.Configuration)configuration;
-        logger =
-            jacorbConfig.getLogger("jacorb.orb.cdr");
+        logger = configuration.getLogger("jacorb.orb.cdr");
 
-        codesetEnabled  =
-            configuration.getAttribute("jacorb.codeset","on").equals("on");
-        cometInteropFix =
-            configuration.getAttribute("jacorb.interop.comet","off").equals("on");
-        laxBooleanEncoding =
-            configuration.getAttributeAsBoolean("jacorb.interop.lax_boolean_encoding", false);
-        sunInteropFix =
-            configuration.getAttributeAsBoolean("jacorb.interop.sun", false);
-        nullStringEncoding =
-            configuration.getAttributeAsBoolean("jacorb.interop.null_string_encoding", false);
+        codesetEnabled  = configuration.getAttributeAsBoolean ("jacorb.codeset", false);
+        cometInteropFix = configuration.getAttributeAsBoolean ("jacorb.interop.comet",false);
+        laxBooleanEncoding = configuration.getAttributeAsBoolean("jacorb.interop.lax_boolean_encoding", false);
+        sunInteropFix = configuration.getAttributeAsBoolean("jacorb.interop.sun", false);
+        nullStringEncoding = configuration.getAttributeAsBoolean("jacorb.interop.null_string_encoding", false);
 
-        isMutatorEnabled = jacorbConfig.isAttributeSet("jacorb.iormutator");
-
-        if (isMutatorEnabled)
-        {
-            mutator = (IORMutator) jacorbConfig.getAttributeAsObject("jacorb.iormutator");
-        }
+        mutator = (IORMutator) configuration.getAttributeAsObject("jacorb.iormutator");
+        isMutatorEnabled = (mutator != null);
     }
 
     /**

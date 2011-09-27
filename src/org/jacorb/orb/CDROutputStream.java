@@ -33,11 +33,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Stack;
 import org.jacorb.config.Configuration;
-import org.jacorb.orb.typecode.DelegatingTypeCodeWriter;
-import org.jacorb.orb.typecode.TypeCodeCompactor;
 import org.jacorb.config.ConfigurationException;
 import org.jacorb.orb.giop.CodeSet;
 import org.jacorb.orb.giop.GIOPConnection;
+import org.jacorb.orb.typecode.DelegatingTypeCodeWriter;
+import org.jacorb.orb.typecode.TypeCodeCompactor;
 import org.jacorb.util.ObjectUtil;
 import org.jacorb.util.ValueHandler;
 import org.omg.CORBA.BAD_PARAM;
@@ -191,12 +191,9 @@ public class CDROutputStream
      * and only called from the constructor
      */
 
-    private void configure(Configuration configuration)
+    private void configure(Configuration configuration) throws ConfigurationException
     {
-        final org.jacorb.config.Configuration jconfig = (org.jacorb.config.Configuration)configuration;
-
-       codesetEnabled  =
-            configuration.getAttribute("jacorb.codeset","on").equals("on");
+       codesetEnabled  = configuration.getAttributeAsBoolean ("jacorb.codeset", false);
 
         useBOM = configuration.getAttributeAsBoolean("jacorb.use_bom",false);
 
@@ -207,19 +204,9 @@ public class CDROutputStream
         nullStringEncoding =
             configuration.getAttributeAsBoolean("jacorb.interop.null_string_encoding", false);
 
-        isMutatorEnabled = jconfig.isAttributeSet("jacorb.iormutator");
+        mutator = (IORMutator) configuration.getAttributeAsObject("jacorb.iormutator");
 
-        if (isMutatorEnabled)
-        {
-            try
-            {
-                mutator = (IORMutator) (jconfig).getAttributeAsObject("jacorb.iormutator");
-            }
-            catch (ConfigurationException e)
-            {
-                throw new org.omg.CORBA.INTERNAL ("Caught configuration exception" + e);
-            }
-        }
+        isMutatorEnabled = (mutator != null);
 
         deferredArrayQueueSize = (configuration.getAttributeAsInteger("jacorb.deferredArrayQueue", 8)) * 1000;
     }
@@ -284,7 +271,14 @@ public class CDROutputStream
 
         if (orb instanceof org.jacorb.orb.ORB)
         {
-            configure(((org.jacorb.orb.ORB)orb).getConfiguration());
+            try
+            {
+                configure(((org.jacorb.orb.ORB)orb).getConfiguration());
+            }
+            catch(ConfigurationException e)
+            {
+                throw new INTERNAL(e.getMessage());
+            }
         }
     }
 

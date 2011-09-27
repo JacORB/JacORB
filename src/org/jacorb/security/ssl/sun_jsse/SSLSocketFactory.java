@@ -55,7 +55,7 @@ public class SSLSocketFactory
     private TrustManager trustManager = null;
 
     private boolean trusteesFromKS = false;
-    private short clientSupportedOptions = 0;
+    private int clientSupportedOptions = 0;
     private String keystore_location = null;
     private String keystore_passphrase = null;
     private final SSLSessionListener sslListener;
@@ -73,8 +73,6 @@ public class SSLSocketFactory
         throws ConfigurationException
     {
         super.configure(configuration);
-
-        final org.jacorb.config.Configuration config = (org.jacorb.config.Configuration) configuration;
 
         sslRandom = new SSLRandom();
         sslRandom.configure(configuration);
@@ -97,10 +95,7 @@ public class SSLSocketFactory
         trustManagerAlgorithm =
            configuration.getAttribute("jacorb.security.jsse.server.trust_manager_algorithm","SunX509");
 
-        clientSupportedOptions =
-            Short.parseShort(
-                configuration.getAttribute("jacorb.security.ssl.client.supported_options", "0"),
-                16);
+        clientSupportedOptions = configuration.getAttributeAsInteger("jacorb.security.ssl.client.supported_options", 0, 16);
         try
         {
             trustManager = (TrustManager) ((org.jacorb.config.Configuration)configuration).getAttributeAsObject
@@ -144,7 +139,7 @@ public class SSLSocketFactory
         // We need to obtain all the cipher suites to use from the
         // properties file.
         final List cipher_suite_list =
-            config.getAttributeList("jacorb.security.ssl.client.cipher_suites");
+            configuration.getAttributeList("jacorb.security.ssl.client.cipher_suites");
 
         cipher_suites = (String[]) cipher_suite_list.toArray(new String[cipher_suite_list.size()]);
     }
