@@ -22,6 +22,8 @@
 package org.jacorb.orb;
 
 import java.util.Iterator;
+import java.util.Map;
+
 import org.jacorb.orb.giop.ReplyInputStream;
 import org.jacorb.orb.portableInterceptor.ClientInterceptorIterator;
 import org.jacorb.orb.portableInterceptor.ClientRequestInfoImpl;
@@ -85,7 +87,8 @@ public class DefaultClientInterceptorHandler implements ClientInterceptorHandler
                     self,
                     delegate,
                     piorOriginal,
-                    connection);
+                    connection, 
+                    (Map) Delegate.getInvocationContext().peek());
         }
         else
         {
@@ -113,7 +116,8 @@ public class DefaultClientInterceptorHandler implements ClientInterceptorHandler
                                          sync_scope,
                                          self,
                                          delegate,
-                                         piorOriginal);
+                                         piorOriginal,
+                                         (Map) Delegate.getInvocationContext().peek());
 
         isLocal = true;
 

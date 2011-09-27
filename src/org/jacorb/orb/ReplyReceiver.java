@@ -28,8 +28,10 @@ import org.jacorb.orb.giop.MessageInputStream;
 import org.jacorb.orb.giop.ReplyInputStream;
 import org.jacorb.orb.giop.ReplyPlaceholder;
 import org.jacorb.util.Time;
+import org.omg.CORBA.CompletionStatus;
 import org.omg.CORBA.MARSHAL;
 import org.omg.CORBA.SystemException;
+import org.omg.CORBA.TIMEOUT;
 import org.omg.CORBA.portable.ApplicationException;
 import org.omg.CORBA.portable.InvokeHandler;
 import org.omg.CORBA.portable.RemarshalException;
@@ -71,6 +73,7 @@ public class ReplyReceiver
     /** configuration properties */
     private boolean retry_on_failure = false;
 
+    private UtcT replyEndTime = null;
 
     public ReplyReceiver( org.jacorb.orb.Delegate        delegate,
                           String                         operation,
@@ -84,6 +87,7 @@ public class ReplyReceiver
         this.operation        = operation;
         this.interceptors     = interceptors;
         this.replyHandler     = replyHandler;
+        this.replyEndTime     = replyEndTime;
 
         if (replyEndTime != null)
         {
@@ -335,7 +339,7 @@ public class ReplyReceiver
         {
             try
             {
-            interceptors.handle_receive_exception( se );
+                interceptors.handle_receive_exception( se );
             }
             catch (ForwardRequest fwd)
             {
@@ -368,6 +372,8 @@ public class ReplyReceiver
                 {
                     // should not happen with a remote request
                 }
+
+                checkTimeout();
                 return reply;
             }
             case ReplyStatusType_1_2._USER_EXCEPTION:
@@ -381,6 +387,8 @@ public class ReplyReceiver
                 {
                     // should not happen with a remote request
                 }
+                
+                checkTimeout();
                 throw ae;
             }
             case ReplyStatusType_1_2._SYSTEM_EXCEPTION:
@@ -394,6 +402,8 @@ public class ReplyReceiver
                 {
                     // should not happen with a remote request
                 }
+                
+                checkTimeout();
                 throw se;
             }
             case ReplyStatusType_1_2._LOCATION_FORWARD:
@@ -408,6 +418,8 @@ public class ReplyReceiver
                 {
                     // should not happen with a remote request
                 }
+                
+                checkTimeout();
                 doRebind( forward_reference );
                 throw new RemarshalException();
             }
@@ -422,6 +434,20 @@ public class ReplyReceiver
                 throw new MARSHAL
                     ("Received unexpected reply status: " + status.value() );
             }
+        }
+    }
+
+    /**
+     * This method is used to check that if there is a timeout set for this request that is
+     * has elapsed while an interceptor was invoked.
+     */
+    private void checkTimeout()
+    {
+        if (replyEndTime != null && Time.hasPassed (replyEndTime))
+        {
+            throw new TIMEOUT("Reply End Time exceeded",
+                              3,
+                              CompletionStatus.COMPLETED_NO);
         }
     }
 

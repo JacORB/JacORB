@@ -3,7 +3,7 @@ package org.jacorb.test.common;
 /*
  *        JacORB  - a free Java ORB
  *
- *   Copyright (C) 1997-2011 Gerald Brose / The JacORB Team.
+ *   Copyright (C) 1997-2003  Gerald Brose.
  *
  *   This library is free software; you can redistribute it and/or
  *   modify it under the terms of the GNU Library General Public
@@ -37,8 +37,8 @@ import java.util.Date;
  */
 public class StreamListener extends Thread
 {
-    private BufferedReader in;
-    private String id;
+    private final BufferedReader in;
+    private final String id;
     private String ior = null;
     private String exception = null;
     private volatile boolean active = true;
@@ -58,7 +58,16 @@ public class StreamListener extends Thread
      */
     public String getIOR(long timeout)
     {
-        final long waitUntil = System.currentTimeMillis() + timeout;
+        final long waitUntil;
+
+        if (timeout == 0)
+        {
+            waitUntil = Long.MAX_VALUE;
+        }
+        else
+        {
+            waitUntil = System.currentTimeMillis() + timeout;
+        }
 
         synchronized (this)
         {
@@ -193,7 +202,6 @@ public class StreamListener extends Thread
         }
         catch (IOException e)
         {
-            // do nothing
         }
     }
 

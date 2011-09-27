@@ -1,7 +1,7 @@
 /*
  *        JacORB  - a free Java ORB
  *
- *   Copyright (C) 1997-2011 Gerald Brose / The JacORB Team.
+ *   Copyright (C) 1997-2006 The JacORB project.
  *
  *   This library is free software; you can redistribute it and/or
  *   modify it under the terms of the GNU Library General Public
@@ -26,13 +26,11 @@ import java.lang.ref.WeakReference;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
-import java.util.Iterator;
-
 import junit.extensions.TestSetup;
 import junit.framework.Test;
-
 import org.jacorb.test.common.launch.JacORBLauncher;
 import org.jacorb.test.common.launch.Launcher;
 
@@ -96,13 +94,18 @@ public class ServerSetup extends TestSetup
         this.testServer = getTestServer(testServer);
         this.servantName = servantName;
 
-        if (optionalProperties != null)
+        if (TestUtils.verbose)
         {
-            serverOrbProperties.putAll(optionalProperties);
+            serverOrbProperties.setProperty("jacorb.log.default.verbosity", "4");
         }
         else
         {
             serverOrbProperties.setProperty("jacorb.log.initializer", MyNullLoggerInitializer.class.getName());
+        }
+
+        if (optionalProperties != null)
+        {
+            serverOrbProperties.putAll(optionalProperties);
         }
 
         testTimeout = getTestServerTimeout2();
@@ -152,8 +155,8 @@ public class ServerSetup extends TestSetup
     {
         initSecurity();
 
-        String serverVersion = System.getProperty ("jacorb.test.server.version", "cvs");
-        boolean coverage = TestUtils.getSystemPropertyAsBoolean("jacorb.test.coverage", false);
+        final String serverVersion = System.getProperty ("jacorb.test.server.version", "cvs");
+        final boolean coverage = TestUtils.getSystemPropertyAsBoolean("jacorb.test.coverage", false);
 
         Properties serverProperties = new Properties();
         serverProperties.setProperty
@@ -166,6 +169,7 @@ public class ServerSetup extends TestSetup
         serverProperties.put ("jacorb.implname", servantName);
 
         serverProperties.putAll (serverOrbProperties);
+
 
         final String prefix = "jacorb.test.serverproperty.";
         final Iterator i = System.getProperties().keySet().iterator();
@@ -208,11 +212,11 @@ public class ServerSetup extends TestSetup
 
         final Launcher launcher =
             launcherFactory.getLauncher(serverVersion,
-                    coverage,
-                    System.getProperty("java.class.path"),
-                    serverProperties,
-                    getTestServerMain(),
-                    getServerArgs());
+                                        coverage,
+                                        System.getProperty("java.class.path"),
+                                        serverProperties,
+                                        getTestServerMain(),
+                                        getServerArgs());
 
         serverProcess = launcher.launch();
 
@@ -220,20 +224,11 @@ public class ServerSetup extends TestSetup
         // is shutdown even if this JVM is going down unexpectedly
         Runtime.getRuntime().addShutdownHook(new ProcessShutdown(serverProcess));
 
-        outListener = new StreamListener (serverProcess.getInputStream(), outName);
-        errListener = new StreamListener (serverProcess.getErrorStream(), errName);
+        outListener = new StreamListener (serverProcess.getInputStream(), servantName + '-' + outName);
+        errListener = new StreamListener (serverProcess.getErrorStream(), servantName + '-' + errName);
         outListener.start();
         errListener.start();
         serverIOR = outListener.getIOR(testTimeout);
-
-        if (serverIOR == null)
-        {
-            String exc = errListener.getException(1000);
-
-            String details = dumpStreamListener();
-
-            fail("could not access IOR for Server.\nServant: " + servantName + "\nTimeout: " + testTimeout + " millis.\nThis maybe caused by: " + exc + '\n' + details);
-        }
     }
 
     protected void patchLauncherProps(Properties launcherProps)
@@ -337,7 +332,7 @@ public class ServerSetup extends TestSetup
         details.append(errListener.toString());
         return details.toString();
     }
-
+    
     public void patchServerProperties (Properties serverProperties)
     {
         if (serverProperties != null && serverProperties.size () > 0)

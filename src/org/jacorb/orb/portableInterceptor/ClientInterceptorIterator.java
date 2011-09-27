@@ -20,13 +20,17 @@
  */
 package org.jacorb.orb.portableInterceptor;
 
+import java.util.HashMap;
+import java.util.Stack;
+
+import org.slf4j.Logger;
+import org.jacorb.orb.Delegate;
 import org.jacorb.orb.SystemExceptionHelper;
 import org.omg.CORBA.UserException;
 import org.omg.PortableInterceptor.ClientRequestInterceptor;
 import org.omg.PortableInterceptor.ForwardRequest;
 import org.omg.PortableInterceptor.Interceptor;
 import org.omg.PortableInterceptor.LOCATION_FORWARD;
-import org.slf4j.Logger;
 
 /**
  * This class is an iterator over an array
@@ -48,6 +52,15 @@ public class ClientInterceptorIterator
     private ClientRequestInfoImpl info = null;
     private final Logger logger;
 
+    /**
+     * This is used to indicate that a current context popped from the Delegates
+     * invocationContext stack was pushed there prior to an interceptor call.  We
+     * need this to ensure that the context is not popped if a CORBA call is made
+     * by the interceptor.  The context must be popped on return from the
+     * interceptor.
+     */
+    private static final String INTERCEPTOR_CALL = "interceptor_call";
+
     public ClientInterceptorIterator(Logger logger, Interceptor[] interceptors)
     {
         super(interceptors);
@@ -64,6 +77,14 @@ public class ClientInterceptorIterator
         // ok, op <= SEND_POLL is more efficient but
         // less understandable
         setDirection((op == SEND_REQUEST) || (op == SEND_POLL));
+
+        /**
+         * See RequestInterceptorIterator for full explanation
+         * of this method.  The client interceptor flow has no
+         * intermediate points so this is always false.  It has
+         * been included for completeness.
+         */
+        setIntermediatePoint (false);
 
         /**
          * See RequestInterceptorIterator for full explanation
@@ -97,6 +118,21 @@ public class ClientInterceptorIterator
 
         try
         {
+            /**
+             * A new context is added for every interceptor call.  This is
+             * because the interceptor may perform a CORBA call and the
+             * policies on the object it calls may be different to those on
+             * the original object e.g. the original object could have a
+             * timeout policy of 10 minutes whereas the object called by the
+             * interceptor could have a timeout policy of 2 minutes.  This
+             * also follows that each interceptor could call a different
+             * object with different timeout policies
+             */
+            HashMap currentCtxt = new HashMap();
+            currentCtxt.put (INTERCEPTOR_CALL, "true");
+
+            ( (Stack) Delegate.getInvocationContext()).push (currentCtxt);
+
             switch (op)
             {
                 case SEND_REQUEST :
@@ -141,6 +177,14 @@ public class ClientInterceptorIterator
             {
                 logger.error("unexpected exception", _bk);
             }
+        }
+        finally
+        {
+            /**
+             * Pop the invocation context on return from the interceptor call - whatever
+             * happens
+             */
+            ( (Stack) Delegate.getInvocationContext()).pop ();
         }
 
         info.caller_op = op;

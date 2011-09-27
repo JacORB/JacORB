@@ -27,6 +27,8 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.Stack;
+
 import org.jacorb.config.Configuration;
 import org.jacorb.imr.ImRAccessImpl;
 import org.jacorb.ir.RepositoryID;
@@ -162,6 +164,8 @@ public final class Delegate
 
     private CookieHolder cookie = null;
 
+    private boolean clearCurrentContext = true;
+
     private String invokedOperation = null;
 
     /**
@@ -202,6 +206,14 @@ public final class Delegate
      */
     private boolean disableClientOrbPolicies;
 
+    private static final String REQUEST_END_TIME = "request_end_time";
+
+    private static final String REPLY_END_TIME = "reply_end_time";
+
+    private static final String INTERCEPTOR_CALL = "interceptor_call";
+
+    private static final String SERVANT_PREINVOKE = "servant_preinvoke";
+
     /**
      * 03-09-04: 1.5.2.2
      *
@@ -218,6 +230,50 @@ public final class Delegate
         }
     };
 
+
+    /**
+     * @see #getInvocationContext()
+     * @see #clearInvocationContext()
+     * This is a <code>Stack</code> containing HashMaps.  The HashMap will
+     * contain values that apply to the current invocation.  A Stack of
+     * HashMaps is needed to cater for the fact that invocations can be
+     * made within invocations and the values may differ for each invocation.
+     * We need to retain the values for the original invocation as well as
+     * apply the correct values for any internal invocation.
+     */
+    private static final ThreadLocal invocationContext = new ThreadLocal()
+    {
+        protected Object initialValue()
+        {
+            return new Stack ();
+        };
+    };
+
+    /**
+     * access the current invocation context (its a Stack of Maps).
+     * this context lives as long as the invocation is active.
+     * especially it outlives RemarshalExceptions and thus
+     * can be used to share information between mutiple requests
+     * that are done as part of an invocation.
+     */
+    public static final Stack getInvocationContext()
+    {
+        return (Stack) invocationContext.get();
+    }
+
+    /**
+     * clear the current invocation context. must be invoked
+     * before control is returned to the client
+     * (exceptions, orderly termination).
+     * mustn't be reset in case of RemarshalExceptions.
+     */
+    public static void clearInvocationContext()
+    {
+        if ( ! ( (Stack) getInvocationContext()).empty())
+        {
+            ( (Stack) getInvocationContext()).pop();
+        }
+    }
 
     /**
      * A general note on the synchronization concept
@@ -1061,13 +1117,52 @@ public final class Delegate
         return invoke_internal (self, os, null, false);
     }
 
+    private org.omg.CORBA.portable.InputStream invoke_internal
+                                        ( org.omg.CORBA.Object self,
+                                          org.omg.CORBA.portable.OutputStream os,
+                                          org.omg.Messaging.ReplyHandler replyHandler,
+                                          boolean async )
+        throws ApplicationException, RemarshalException
+    {
+        try
+        {
+            final org.omg.CORBA.portable.InputStream in =
+                _invoke_internal(self, os, replyHandler, async);
+
+            if (clearCurrentContext)
+            {
+                clearInvocationContext();
+            }
+
+            return in;
+        }
+        catch(ApplicationException e)
+        {
+            if (clearCurrentContext)
+            {
+                clearInvocationContext();
+            }
+
+            throw e;
+        }
+        catch(SystemException t)
+        {
+            if (clearCurrentContext)
+            {
+                clearInvocationContext();
+            }
+
+            throw t;
+        }
+    }
+
     /**
      * Internal implementation of both invoke() methods.  Note that
      * the boolean argument <code>async</code> is necessary to differentiate
      * between synchronous and asynchronous calls, because the ReplyHandler
      * can be null even for an asynchronous call.
      */
-    private org.omg.CORBA.portable.InputStream invoke_internal
+    private org.omg.CORBA.portable.InputStream _invoke_internal
                                ( org.omg.CORBA.Object self,
                                  org.omg.CORBA.portable.OutputStream os,
                                  org.omg.Messaging.ReplyHandler replyHandler,
@@ -1077,6 +1172,25 @@ public final class Delegate
         checkORB();
 
         RequestOutputStream ros      = (RequestOutputStream)os;
+
+        Stack invocationStack = (Stack) invocationContext.get ();
+
+        /**
+         * We must just peek as we do not want to remove the context from
+         * the Stack
+         */
+        Map currentCtxt = (Map) invocationStack.peek();
+        UtcT reqET = null;
+        UtcT repET = null;
+
+        if (currentCtxt != null)
+        {
+            reqET = (UtcT) currentCtxt.get (REQUEST_END_TIME);
+            repET = (UtcT) currentCtxt.get (REPLY_END_TIME);
+
+            checkTimeout (reqET, repET);
+        }
+
         ReplyReceiver       receiver = null;
         final ClientInterceptorHandler interceptors;
 
@@ -1123,7 +1237,15 @@ public final class Delegate
                 // Therefore nullify localInterceptors so it doesn't appear we are still in an
                 // interceptor call.
                 localInterceptors.set(null);
-                throw new RuntimeException ("Problem calling interceptor.send_request", e);
+
+                if (e instanceof TIMEOUT)
+                {
+                    throw (TIMEOUT) e;
+                }
+                else
+                {
+                    throw new RuntimeException ("Problem calling interceptor.send_request", e);
+                }
             }
         }
         else
@@ -1243,6 +1365,11 @@ public final class Delegate
 
                 ((CDRInputStream)is).updateMutatorConnection (connectionToUse.getGIOPConnection());
 
+                if (clearCurrentContext)
+                {
+                    clearInvocationContext();
+                }
+
                 return is;
             }
         }
@@ -1263,6 +1390,34 @@ public final class Delegate
         }
 
         return null;
+    }
+
+    /**
+     * Internal method to check whether the timeouts have been exceeded.
+     * @param reqET the request end time
+     * @param repET the reply end time param
+     */
+    private void checkTimeout (UtcT reqET, UtcT repET)
+    {
+        if (reqET != null)
+        {
+            if (Time.hasPassed(reqET))
+            {
+                throw new TIMEOUT("Request End Time exceeded",
+                                  2,
+                                  CompletionStatus.COMPLETED_NO);
+            }
+        }
+
+        if (repET != null)
+        {
+            if (Time.hasPassed(repET))
+            {
+                throw new TIMEOUT("Reply End Time exceeded",
+                                  3,
+                                  CompletionStatus.COMPLETED_NO);
+            }
+        }
     }
 
     private void disconnect(ClientConnection connectionInUse)
@@ -1946,8 +2101,34 @@ public final class Delegate
     {
         orb.perform_work();
 
-        UtcT requestEndTime = null;
-        UtcT replyEndTime = null;
+        Stack invocationStack = (Stack) invocationContext.get ();
+        Map currentCtxt = null;
+
+        if (! invocationStack.empty())
+        {
+            currentCtxt = (Map) invocationStack.peek();
+
+            /**
+             * If the context was created as an interceptor call was
+             * being made then don't clear it as part of this
+             * request.  It will be cleared on return from the
+             * interceptor call
+             */
+            if (currentCtxt.containsKey (INTERCEPTOR_CALL))
+            {
+                clearCurrentContext = false;
+            }
+        }
+
+        if (currentCtxt == null)
+        {
+            currentCtxt = new HashMap();
+
+            invocationStack.push (currentCtxt);
+        }
+
+        UtcT requestEndTime = (UtcT) currentCtxt.get (REQUEST_END_TIME);
+        UtcT replyEndTime = (UtcT) currentCtxt.get (REPLY_END_TIME);
 
         if (!disableClientOrbPolicies)
         {
@@ -1956,29 +2137,82 @@ public final class Delegate
             // now, because it is the earliest possible time, and therefore any
             // relative timeouts will cover the entire invocation.
 
-            requestEndTime = getRequestEndTime();
-            final long requestTimeout = getRelativeRequestTimeout();
-
-            if ((requestTimeout > 0) || (requestEndTime != null))
+            if (requestEndTime == null)
             {
-                requestEndTime = Time.earliest(Time.corbaFuture (requestTimeout), requestEndTime);
-                if (Time.hasPassed(requestEndTime))
+                requestEndTime = getRequestEndTime();
+                final long requestTimeout = getRelativeRequestTimeout();
+
+                if ((requestTimeout > 0) || (requestEndTime != null))
                 {
-                    throw new TIMEOUT("Request End Time exceeded prior to invocation",
-                                      0, CompletionStatus.COMPLETED_NO);
+                    requestEndTime = Time.earliest(Time.corbaFuture (requestTimeout), requestEndTime);
+
+                    if (Time.hasPassed(requestEndTime))
+                    {
+                        if (clearCurrentContext)
+                        {
+                           clearInvocationContext();
+                        }
+
+                        throw new TIMEOUT("Request End Time exceeded prior to invocation",
+                                          2,
+                                          CompletionStatus.COMPLETED_NO);
+                    }
+                }
+
+                currentCtxt.put (REQUEST_END_TIME, requestEndTime);
+            }
+            else
+            {
+                if (Time.hasPassed (requestEndTime))
+                {
+                    if (clearCurrentContext)
+                    {
+                       clearInvocationContext();
+                    }
+
+                    throw new TIMEOUT("Request End Time exceeded",
+                                      2,
+                                      CompletionStatus.COMPLETED_NO);
                 }
             }
 
-            replyEndTime     = getReplyEndTime();
-            final long roundtripTimeout = getRelativeRoundtripTimeout();
-
-            if ((roundtripTimeout > 0) || (replyEndTime != null))
+            if (replyEndTime == null)
             {
-                replyEndTime = Time.earliest(Time.corbaFuture (roundtripTimeout), replyEndTime);
+                replyEndTime = getReplyEndTime();
+
+                final long roundtripTimeout = getRelativeRoundtripTimeout();
+
+                if ((roundtripTimeout > 0) || (replyEndTime != null))
+                {
+                    replyEndTime = Time.earliest(Time.corbaFuture (roundtripTimeout), replyEndTime);
+
+                    if (Time.hasPassed(replyEndTime))
+                    {
+                        if (clearCurrentContext)
+                        {
+                           clearInvocationContext();
+                        }
+
+                        throw new TIMEOUT("Reply End Time exceeded prior to invocation",
+                                          3,
+                                          CompletionStatus.COMPLETED_NO);
+                    }
+                }
+
+                currentCtxt.put (REPLY_END_TIME, replyEndTime);
+            }
+            else
+            {
                 if (Time.hasPassed(replyEndTime))
                 {
-                    throw new TIMEOUT("Reply End Time exceeded prior to invocation",
-                                      0, CompletionStatus.COMPLETED_NO);
+                    if (clearCurrentContext)
+                    {
+                        clearInvocationContext();
+                    }
+
+                    throw new TIMEOUT("Reply End Time exceeded",
+                                      3,
+                                      CompletionStatus.COMPLETED_NO);
                 }
             }
         }
@@ -2188,6 +2422,11 @@ public final class Delegate
 
             return null;
         }
+
+        HashMap currentContext = new HashMap();
+        currentContext.put (SERVANT_PREINVOKE, "true");
+        
+        getInvocationContext ().push (new HashMap());
 
         // remember that a local request is outstanding. On
         //  any exit through an exception, this must be cleared again,
@@ -2477,6 +2716,10 @@ public final class Delegate
             }
 
             throw new OBJ_ADAPTER("unexpected exception: " + e);
+        }
+        finally
+        {
+            clearInvocationContext();
         }
     }
 

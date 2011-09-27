@@ -1,0 +1,25 @@
+
+module org
+{
+   module jacorb
+   {
+      module test
+      {
+         module bugs
+         {
+            module bugjac670
+            {
+               interface GreetingService
+               {
+                  string greeting(in string greetstr);
+               };
+
+               interface GSLoadBalancer : GreetingService
+               {
+                  void addGreetingService (in GreetingService greetObj);
+               };
+            };
+         };
+      };
+   };
+};

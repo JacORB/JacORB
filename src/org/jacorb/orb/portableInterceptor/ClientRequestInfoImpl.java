@@ -23,6 +23,8 @@ package org.jacorb.orb.portableInterceptor;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+
 import org.jacorb.orb.etf.ProfileBase;
 import org.omg.CORBA.ARG_IN;
 import org.omg.CORBA.ARG_INOUT;
@@ -75,6 +77,8 @@ public class ClientRequestInfoImpl
     public org.jacorb.orb.giop.ReplyInputStream reply_is = null;
 
     public final org.jacorb.orb.giop.ClientConnection connection;
+    
+    private final Map invocationContext;
 
     public ClientRequestInfoImpl
                       ( org.jacorb.orb.ORB orb,
@@ -83,7 +87,8 @@ public class ClientRequestInfoImpl
                         org.omg.CORBA.Object self,
                         org.jacorb.orb.Delegate delegate,
                         org.jacorb.orb.ParsedIOR piorOriginal,
-                        org.jacorb.orb.giop.ClientConnection connection )
+                        org.jacorb.orb.giop.ClientConnection connection,
+                        Map invocationContext)
     {
         super();
 
@@ -153,6 +158,13 @@ public class ClientRequestInfoImpl
         {
             forward_reference = original.forward_reference;
         }
+
+        this.invocationContext = invocationContext;
+
+        if (logger.isDebugEnabled())
+        {
+            logger.debug("created with invocationContext: " + invocationContext);
+        }
     }
 
     /**
@@ -166,7 +178,8 @@ public class ClientRequestInfoImpl
                                    short sync_scope,
                                    org.omg.CORBA.Object self,
                                    org.jacorb.orb.Delegate delegate,
-                                   org.jacorb.orb.ParsedIOR piorOriginal)
+                                   org.jacorb.orb.ParsedIOR piorOriginal, 
+                                   Map invocationContext)
     {
         super();
 
@@ -215,6 +228,7 @@ public class ClientRequestInfoImpl
         }
 
         this.delegate = delegate;
+        this.invocationContext = invocationContext;
 
         InterceptorManager manager = orb.getInterceptorManager();
 

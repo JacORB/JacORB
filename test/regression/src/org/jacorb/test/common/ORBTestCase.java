@@ -1,26 +1,28 @@
 package org.jacorb.test.common;
 
 import java.util.Properties;
+
 import junit.framework.TestCase;
+
 import org.omg.CORBA.ORB;
 import org.omg.PortableServer.POA;
 import org.omg.PortableServer.POAHelper;
 
-public class ORBTestCase extends TestCase
+public abstract class ORBTestCase extends TestCase
 {
     protected ORB orb;
     protected POA rootPOA;
 
     protected final void setUp() throws Exception
     {
-    	Properties properties = new Properties();
+        Properties props = new Properties();
 
-    	properties.setProperty("org.omg.CORBA.ORBClass", "org.jacorb.orb.ORB");
-    	properties.setProperty("org.omg.CORBA.ORBSingletonClass", "org.jacorb.orb.ORBSingleton");
+        props.setProperty("org.omg.CORBA.ORBClass", "org.jacorb.orb.ORB");
+        props.setProperty("org.omg.CORBA.ORBSingleton", "org.jacorb.orb.ORBSingleton");
 
-    	patchORBProperties(getName(), properties);
+        patchORBProperties(getName(), props);
 
-        orb = ORB.init(new String[0], properties);
+        orb = ORB.init(getORBArgs(getName()), props);
         rootPOA = POAHelper.narrow(orb.resolve_initial_references( "RootPOA" ));
 
         doSetUp();
@@ -28,7 +30,12 @@ public class ORBTestCase extends TestCase
         rootPOA.the_POAManager().activate();
     }
 
-    protected void patchORBProperties(String testName, Properties properties) throws Exception
+    protected String[] getORBArgs(String testName)
+    {
+        return new String[0];
+    }
+
+    protected void patchORBProperties(String testName, Properties props) throws Exception
     {
     }
 

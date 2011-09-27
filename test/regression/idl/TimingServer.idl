@@ -13,6 +13,12 @@ module org
 
             long long server_time (in long delay);
          };
+
+         interface ComplexTimingServer: TimingServer
+         {
+            void setServerConfig (in long fwdPoint, in Object fwd);
+            long forwardOperation (in long id, in long delay);
+         };
       };
    };
 };
