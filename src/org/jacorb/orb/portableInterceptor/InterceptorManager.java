@@ -67,6 +67,12 @@ public class InterceptorManager
 
     private static final ThreadLocal piCurrent = new ThreadLocal();
 
+    /**
+     * This is to hold the PICurrent for local invocations that involve interceptors to prevent the
+     * client PICurrent being overwritten by a server PICurrent
+     */
+    private static final ThreadLocal localPICurrent = new ThreadLocal ();
+
     public static final PICurrentImpl EMPTY_CURRENT = new PICurrentImpl(null, 0);
 
     public InterceptorManager(List client_interceptors,
@@ -105,13 +111,45 @@ public class InterceptorManager
      */
     public Current getCurrent()
     {
-        Current value = (Current)piCurrent.get();
+        Current value = null;
+
+        if (localPICurrent.get () != null)
+        {
+           value = (Current)localPICurrent.get ();
+        }
+
         if (value == null)
         {
-            value = getEmptyCurrent();
-            piCurrent.set(value);
+           value = (Current)piCurrent.get();
+
+           if (value == null)
+           {
+               value = getEmptyCurrent();
+               piCurrent.set(value);
+           }
         }
         return value;
+    }
+
+    public boolean hasCurrent()
+    {
+       return (piCurrent.get() != null);
+    }
+
+    /**
+     * Set the local PICurrent with the servers PICurrent
+     */
+    public void setLocalPICurrent (Current localCurrent)
+    {
+       localPICurrent.set (localCurrent);
+    }
+
+    /**
+     * When the local invocation is complete we should clear the local PICurrent
+     */
+    public void removeLocalPICurrent ()
+    {
+       localPICurrent.set (null);
     }
 
     /**
@@ -226,8 +264,8 @@ public class InterceptorManager
             }
         }
 
-        if (null!=piCurrent.get()) {
-            removeTSCurrent();
-        }
+        // Clear the static threadlocals.
+        piCurrent.set (null);
+        localPICurrent.set (null);
     }
 } // InterceptorManager

@@ -103,7 +103,7 @@ public class ServerInterceptorIterator
                 case RECEIVE_REQUEST_SERVICE_CONTEXTS :
                 {
                     ((ServerRequestInterceptor) interceptor).
-                    receive_request_service_contexts(info);
+                        receive_request_service_contexts(info);
                     break;
                 }
                 case RECEIVE_REQUEST :

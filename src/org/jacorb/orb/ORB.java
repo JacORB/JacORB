@@ -1994,6 +1994,11 @@ public final class ORB
 
         poolManagerFactory.destroy();
 
+        if( interceptor_manager != null )
+        {
+            interceptor_manager.destroy();
+        }
+
         // notify all threads waiting in orb.run()
         synchronized( runSync )
         {
@@ -2028,11 +2033,6 @@ public final class ORB
             {
                 shutdown( true );
             }
-        }
-
-        if( interceptor_manager != null )
-        {
-            interceptor_manager.destroy();
         }
 
         // other clean up possible here ?

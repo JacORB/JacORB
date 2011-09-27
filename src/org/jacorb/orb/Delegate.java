@@ -2298,98 +2298,108 @@ public final class Delegate
 
     public void servant_postinvoke( org.omg.CORBA.Object self, ServantObject servant )
     {
-        if (orb.hasRequestInterceptors())
+        try
         {
-            ServerRequestInfoImpl sinfo = ( (ServantObjectImpl) servant).getServerRequestInfo();
-            DefaultClientInterceptorHandler interceptors =
-                ( (ServantObjectImpl) servant).getClientInterceptorHandler();
-
-            if (sinfo != null && interceptors != null)
+            if (orb.hasRequestInterceptors())
             {
-                interceptors.getInfo ().setReplyServiceContexts (sinfo.getReplyServiceContextsArray());
+                ServerRequestInfoImpl sinfo = ( (ServantObjectImpl) servant).getServerRequestInfo();
+            
+                DefaultClientInterceptorHandler interceptors =
+                    ( (ServantObjectImpl) servant).getClientInterceptorHandler();
 
-                try
+                if (sinfo != null && interceptors != null)
                 {
-                    if (sinfo.reply_status() == SUCCESSFUL.value)
+                    interceptors.getInfo ().setReplyServiceContexts (sinfo.getReplyServiceContextsArray());
+
+                    try
                     {
-                        interceptors.handle_receive_reply (null);
-                    }
-                    else if (sinfo.reply_status() == SYSTEM_EXCEPTION.value)
-                    {
-                        interceptors.handle_receive_exception (
-                            SystemExceptionHelper.read (sinfo.sending_exception().create_input_stream()));
-                    }
-                    else if (sinfo.reply_status() == LOCATION_FORWARD.value)
-                    {
-                        /**
-                         * If the ForwardRequest was thrown at the send_exception interception
-                         * point we will not be able to get the forward_reference from the
-                         * server info and a BAD_INV_ORDER will be thrown.  In that case handle
-                         * as a simple receive_other.
-                         */
-                        try
+                        if (sinfo.reply_status() == SUCCESSFUL.value)
                         {
-                            interceptors.handle_location_forward (null, sinfo.forward_reference());
+                            interceptors.handle_receive_reply (null);
                         }
-                        catch (BAD_INV_ORDER bio)
+                        else if (sinfo.reply_status() == SYSTEM_EXCEPTION.value)
                         {
-                            interceptors.handle_receive_other(sinfo.reply_status());
+                            interceptors.handle_receive_exception (
+                                SystemExceptionHelper.read (sinfo.sending_exception().create_input_stream()));
+                        }
+                        else if (sinfo.reply_status() == LOCATION_FORWARD.value)
+                        {
+                            /**
+                             * If the ForwardRequest was thrown at the send_exception interception
+                             * point we will not be able to get the forward_reference from the
+                             * server info and a BAD_INV_ORDER will be thrown.  In that case handle
+                             * as a simple receive_other.
+                             */
+                            try
+                            {
+                                interceptors.handle_location_forward (null, sinfo.forward_reference());
+                            }
+                            catch (BAD_INV_ORDER bio)
+                            {
+                                interceptors.handle_receive_other(sinfo.reply_status());
+                            }
+                        }
+                        else if (sinfo.reply_status() == USER_EXCEPTION.value)
+                        {
+                            interceptors.handle_receive_other (sinfo.reply_status());
                         }
                     }
-                    else if (sinfo.reply_status() == USER_EXCEPTION.value)
+                    catch (ForwardRequest fwd)
                     {
-                        interceptors.handle_receive_other (sinfo.reply_status());
+                        throw new RuntimeException (fwd);
+                    }
+                    catch (RemarshalException re)
+                    {
+                        // Should not happen for a local invocation
                     }
                 }
-                catch (ForwardRequest fwd)
+            }
+
+            if (poa != null)
+            {
+                if ( poa.isUseServantManager() &&
+                        ! poa.isRetain() &&
+                        cookie != null &&
+                        invokedOperation != null )
                 {
-                    throw new RuntimeException (fwd);
-                }
-                catch (RemarshalException re)
-                {
-                    // Should not happen for a local invocation
+                    // ServantManager is a ServantLocator:
+                    // call postinvoke
+                    try
+                    {
+                        byte [] oid =
+                            POAUtil.extractOID( getParsedIOR().get_object_key() );
+                        org.omg.PortableServer.ServantLocator sl =
+                            ( org.omg.PortableServer.ServantLocator ) poa.get_servant_manager();
+
+                        sl.postinvoke( oid, poa, invokedOperation, cookie.value, (Servant)servant.servant );
+
+                        // delete stored values
+                        cookie = null;
+                        invokedOperation = null;
+                    }
+                    catch ( Throwable e )
+                    {
+                        if (logger.isWarnEnabled())
+                        {
+                            logger.warn( e.getMessage() );
+                        }
+                    }
                 }
             }
         }
-
-        if (poa != null)
+        finally
         {
-            if ( poa.isUseServantManager() &&
-                 ! poa.isRetain() &&
-                 cookie != null &&
-                 invokedOperation != null )
+            if (poa != null)
             {
-                // ServantManager is a ServantLocator:
-                // call postinvoke
-                try
-                {
-                    byte [] oid =
-                    POAUtil.extractOID( getParsedIOR().get_object_key() );
-                    org.omg.PortableServer.ServantLocator sl =
-                        ( org.omg.PortableServer.ServantLocator ) poa.get_servant_manager();
-
-                    sl.postinvoke( oid, poa, invokedOperation, cookie.value, (Servant)servant.servant );
-
-                    // delete stored values
-                    cookie = null;
-                    invokedOperation = null;
-                }
-                catch ( Throwable e )
-                {
-                    if (logger.isWarnEnabled())
-                    {
-                        logger.warn( e.getMessage() );
-                    }
-                }
-
+                poa.removeLocalRequest();
             }
-            poa.removeLocalRequest();
-        }
-        orb.getPOACurrent()._removeContext( Thread.currentThread() );
+            
+            orb.getPOACurrent()._removeContext( Thread.currentThread() );
 
-        if (orb.getInterceptorManager() != null)
-        {
-            orb.getInterceptorManager().removeTSCurrent();
+             if (orb.getInterceptorManager() != null)
+             {
+                 orb.getInterceptorManager().removeLocalPICurrent ();
+             }
         }
     }
 
@@ -2441,9 +2451,6 @@ public final class Delegate
         {
             if (orb.hasClientRequestInterceptors())
             {
-
-                // DefaultClientInterceptorHandler will create a new ClientRequestInfo
-                // which will call getCurrent. This will add a value to piCurrent.
                 interceptors = new DefaultClientInterceptorHandler(orb,
                                                                    operation,
                                                                    true,
@@ -2632,7 +2639,7 @@ public final class Delegate
                        ServerInterceptorIterator.RECEIVE_REQUEST_SERVICE_CONTEXTS
                    );
 
-                   manager.setTSCurrent (sinfo.current());
+                   manager.setLocalPICurrent (sinfo.current ());
 
                    interceptorIterator.iterate
                    (
@@ -2699,6 +2706,13 @@ public final class Delegate
             poa.removeLocalRequest();
 
             logger.error("unexpected exception during servant_preinvoke", e);
+
+            orb.getPOACurrent()._removeContext( Thread.currentThread() );
+
+            if (orb.getInterceptorManager() != null)
+            {
+               orb.getInterceptorManager().removeLocalPICurrent ();
+            }
 
             if (e instanceof OBJECT_NOT_EXIST)
             {

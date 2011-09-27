@@ -12,6 +12,7 @@ import junit.framework.Test;
 import junit.framework.TestSuite;
 import junit.framework.TestCase;
 
+import org.jacorb.test.common.ORBSetup;
 import org.omg.CORBA.Policy;
 import org.omg.PortableServer.ImplicitActivationPolicyValue;
 import org.omg.PortableServer.POA;
@@ -65,8 +66,7 @@ public class PITest extends TestCase
 
    private org.omg.CORBA.ORB orb;
    private POA rootPOA;
-
-   private static String [] args = new String [0];
+   private ORBSetup clientSetup;
 
    /**
     * The constructor is responsible for constructing a test category and
@@ -83,34 +83,13 @@ public class PITest extends TestCase
       s_retryCount = 0;
    }
 
-   public static Test suite ()
-   {
-      TestSuite suite = new TestSuite (PITest.class);
-
-      return suite;
-   }
-
    private void init ()
    {
       try
       {
-         if (orb != null)
-         {
-            orb.destroy ();
-         }
+         orb = clientSetup.getORB();
+         rootPOA = clientSetup.getRootPOA ();
 
-         Properties props = new java.util.Properties();
-         props.setProperty( "org.omg.PortableInterceptor.ORBInitializerClass."
-                            + EmptyInitializer.class.getName(), "" );
-
-         props.setProperty ("jacorb.codeSet", "on");
-         props.setProperty ("org.omg.PortableInterceptor.ORBInitializerClass.standard_init",
-                            "org.jacorb.orb.standardInterceptors.IORInterceptorInitializer");
-
-         // find the root poa
-         orb = org.omg.CORBA.ORB.init (args, props);
-
-         rootPOA = (POA) orb.resolve_initial_references ("RootPOA");
          Policy [] pols = new Policy [1];
          pols[0] = rootPOA.create_implicit_activation_policy
             (ImplicitActivationPolicyValue.IMPLICIT_ACTIVATION);
@@ -120,10 +99,11 @@ public class PITest extends TestCase
 
          svrRef = ( new HelloImpl (newPOA))._this (orb);
 
-         rootPOA.the_POAManager().activate();
          m_cltRef = HelloHelper.narrow (svrRef);
          s_any = orb.create_any();
          s_any.insert_boolean (true);
+
+         s_slotID = 0;
          s_visitMask = 0;
          s_throwExcept = 0;
          s_retryCount = 0;
@@ -136,13 +116,26 @@ public class PITest extends TestCase
 
    protected void setUp () throws Exception
    {
+       Properties props = new java.util.Properties();
+       props.setProperty( "org.omg.PortableInterceptor.ORBInitializerClass."
+                          + EmptyInitializer.class.getName(), "" );
+
+       props.setProperty ("jacorb.codeSet", "on");
+       props.setProperty ("org.omg.PortableInterceptor.ORBInitializerClass.standard_init",
+                          "org.jacorb.orb.standardInterceptors.IORInterceptorInitializer");
+
+       clientSetup = new ORBSetup (this, props);
+       clientSetup.setUp ();
    }
 
    protected void tearDown () throws Exception
    {
+      svrRef._release ();
+      m_cltRef._release ();
       svrRef = null;
       m_cltRef = null;
 
+      clientSetup.tearDown ();
    }
 
    /**

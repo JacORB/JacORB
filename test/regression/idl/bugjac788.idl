@@ -1,0 +1,43 @@
+#ifndef  TEST_HELLO_IDL_
+#define  TEST_HELLO_IDL_
+
+module org
+{
+   module jacorb
+   {
+      module test
+      {
+         module bugs
+         {
+            module bugjac788
+            {
+               /**
+                * Comput interface
+                */
+               interface ComputInterface
+               {
+                  long get_result(in unsigned long time_ms);
+               };
+
+               /**
+                * Hello interface
+                */
+               interface HelloInterface
+               {
+                  /**
+                   * hello
+                   */
+                  void hello();
+
+                  /*
+                   * send_exception
+                   */
+                  void send_TRANSIENT_exception();
+               };
+            };
+         };
+      };
+   };
+};
+
+#endif // TEST_HELLO_IDL_
