@@ -3,7 +3,7 @@ package org.jacorb.util;
 /*
  *        JacORB - a free Java ORB
  *
- *   Copyright (C) 2002-2004 Gerald Brose
+ *   Copyright (C) 2011 Gerald Brose
  *
  *   This library is free software; you can redistribute it and/or
  *   modify it under the terms of the GNU Library General Public
@@ -23,8 +23,6 @@ package org.jacorb.util;
 
 import java.util.SortedMap;
 import java.util.TreeMap;
-//import java.util.Comparator;
-//import java.util.Calendar;
 import java.util.Iterator;
 import org.jacorb.config.*;
 import org.slf4j.Logger;
@@ -47,22 +45,6 @@ import org.slf4j.Logger;
  */
 public class TimerQueue extends Thread
 {
-    /*
-    public class CalCompare implements Comparator<Calendar>
-    {
-        public int compare (Calendar l, Calendar r)
-        {
-            return l.compareTo (r);
-        }
-
-        public boolean equals ( Object o )
-        {
-            return o instanceof CalCompare;
-        }
-
-    }
-    */
-
     private SortedMap<Long, TimerQueueAction> pending;
     private boolean running;
     protected Logger logger;
@@ -74,16 +56,18 @@ public class TimerQueue extends Thread
     }
 
     public void configure(Configuration configuration)
-        throws ConfigurationException
+    throws ConfigurationException
     {
-        org.jacorb.config.Configuration jacorbConfiguration = (org.jacorb.config.Configuration) configuration;
+        org.jacorb.config.Configuration jacorbConfiguration =
+            (org.jacorb.config.Configuration) configuration;
 
         logger = jacorbConfiguration.getLogger("jacorb.util");
     }
 
     public void halt ()
     {
-        synchronized (pending) {
+        synchronized (pending)
+        {
             running = false;
             if (logger.isInfoEnabled())
                 logger.info ("Timer Queue halted");
@@ -95,7 +79,8 @@ public class TimerQueue extends Thread
     {
         if (a == null)
             return;
-        synchronized (pending) {
+        synchronized (pending)
+        {
             if (logger.isDebugEnabled())
                 logger.debug ("Timer Queue adding action");
             pending.put (a.trigger, a);
@@ -107,7 +92,8 @@ public class TimerQueue extends Thread
     {
         if (a == null)
             return;
-        synchronized (pending) {
+        synchronized (pending)
+        {
             if (logger.isDebugEnabled())
                 logger.debug ("Timer Queue removing action");
             if (pending.remove (a.trigger) == a)
@@ -118,7 +104,8 @@ public class TimerQueue extends Thread
 
     public int depth ()
     {
-        synchronized (pending) {
+        synchronized (pending)
+        {
             return pending.size();
         }
     }
@@ -128,7 +115,8 @@ public class TimerQueue extends Thread
         // no synch needed, only called while already synchronized
         if ( pending.size() == 0)
             return 0;
-        else {
+        else
+        {
             // get smallest wait time
             long next = pending.firstKey();
             return next - System.currentTimeMillis();
@@ -141,12 +129,11 @@ public class TimerQueue extends Thread
             return;
         // no synch needed, only called while already synchronized
         Long onemilli = new Long(System.currentTimeMillis() + 1);
-        // Calendar tt = Calendar.getInstance();
-        // tt.setTimeInMillis (onemilli);
 
         SortedMap<Long, TimerQueueAction> exp = pending.headMap(onemilli);
         for (Iterator<TimerQueueAction> iter = exp.values().iterator();
-             iter.hasNext(); ) {
+                iter.hasNext(); )
+        {
             TimerQueueAction a = iter.next();
             pending.remove (a.trigger);
             a.expire();
@@ -158,18 +145,24 @@ public class TimerQueue extends Thread
         if (logger.isInfoEnabled())
             logger.info ("Timer Queue starting");
 
-        while (running) {
-            synchronized (pending) {
+        while (running)
+        {
+            synchronized (pending)
+            {
                 long delay = waitTime();
-                try {
-                    if (delay == 0) {
+                try
+                {
+                    if (delay == 0)
+                    {
                         pending.wait();
                     }
-                    else {
+                    else
+                    {
                         pending.wait(delay);
                     }
                 }
-                catch (InterruptedException ex) {
+                catch (InterruptedException ex)
+                {
                     // no worries
                     if (logger.isDebugEnabled())
                         logger.debug("TimerQueue interrupted");

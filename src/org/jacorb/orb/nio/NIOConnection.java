@@ -1,7 +1,7 @@
 /*
  *        JacORB - a free Java ORB
  *
- *   Copyright (C) 1997-2004 Gerald Brose.
+ *   Copyright (C) 2011 Gerald Brose.
  *
  *   This library is free software; you can redistribute it and/or
  *   modify it under the terms of the GNU Library General Public
@@ -37,369 +37,379 @@ import org.omg.CORBA.TIMEOUT;
  * @version $Id$
  */
 public abstract class NIOConnection
-    extends StreamConnectionBase
+        extends StreamConnectionBase
 {
-  private int timeout;
-  protected SocketChannel channel = null;
-  protected SelectorManager selectorManager = null;
-  private int maxConsecutiveTimeouts = 0;
-  protected int failedWriteAttempts = 0;
-  protected boolean isDebugEnabled = false;
+    private int timeout;
+    protected SocketChannel channel = null;
+    protected SelectorManager selectorManager = null;
+    private int maxConsecutiveTimeouts = 0;
+    protected int failedWriteAttempts = 0;
+    protected boolean isDebugEnabled = false;
 
-  public void configure(Configuration config)
-    throws ConfigurationException {
+    public void configure(Configuration config)
+    throws ConfigurationException
+    {
 
-    super.configure (config);
+        super.configure (config);
 
-    isDebugEnabled = logger.isDebugEnabled();
+        isDebugEnabled = logger.isDebugEnabled();
 
-    selectorManager = orb.getSelectorManager ();
+        selectorManager = orb.getSelectorManager ();
 
-    maxConsecutiveTimeouts = configuration.getAttributeAsInteger("jacorb.nio.maxConsecutiveTimeouts", 0);
+        maxConsecutiveTimeouts = configuration.getAttributeAsInteger("jacorb.nio.maxConsecutiveTimeouts", 0);
 
-    try {
-      channel = SocketChannel.open ();
-    }
-    catch (Exception ex) {
-      logger.error ("Unable to initialize channel: " + ex.toString());
-      // can't do much more
-    }
-  }
-
-  // /* no SSL support yet */
-  public boolean isSSL() {
-    return false;
-  }
-
-  @Override // ConnectionBase
-  public synchronized boolean is_connected() {
-    if (isDebugEnabled) {
-      logger.debug (this.toString() + ".is_connected()");
+        try
+        {
+            channel = SocketChannel.open ();
+        }
+        catch (Exception ex)
+        {
+            logger.error ("Unable to initialize channel: " + ex.toString());
+            // can't do much more
+        }
     }
 
-    return connected && channel.isConnected();
-  }
-
-  protected synchronized void setConnected (boolean connected) {
-    this.connected = connected;
-  }
-
-  @Override // ConnectionBase
-  protected COMM_FAILURE handleCommFailure(IOException e) {
-    return to_COMM_FAILURE(e);
-  }
-
-  @Override // ConnectionBase
-  protected void setTimeout(int timeout) {
-    this.timeout = timeout;
-  }
-
-  @Override // ConnectionBase
-  protected int getTimeout() {
-    return timeout;
-  }
-
-  //boolean is_connected();
-
-  // time_out is probably in milli seconds
-  @Override
-  public int read (org.omg.ETF.BufferHolder data,
-                   int offset,
-                   int min_length,
-                   int max_length,
-                   long time_out) {
-
-    SocketChannel myChannel;
-    synchronized (this){
-      myChannel = channel;
+    // /* no SSL support yet */
+    public boolean isSSL()
+    {
+        return false;
     }
 
-    if (!myChannel.isConnected()) {
-      throw new org.omg.CORBA.COMM_FAILURE ("read() did not return any data");
+    @Override // ConnectionBase
+    public synchronized boolean is_connected()
+    {
+        if (isDebugEnabled)
+        {
+            logger.debug (this.toString() + ".is_connected()");
+        }
+
+        return connected && channel.isConnected();
     }
 
-    long nanoDeadline = (time_out == 0 ? Long.MAX_VALUE : System.nanoTime() + time_out*1000000);
-    ReadCallback callback = new ReadCallback (data, offset, min_length, max_length);
-    SelectorRequest request = new SelectorRequest (SelectorRequest.Type.READ, myChannel,
-                                                   callback, nanoDeadline);
-
-    if (!selectorManager.add (request)) {
-      if (request.status == SelectorRequest.Status.EXPIRED) {
-        throw new TIMEOUT("Message expired before write attempt.");
-      }
-      else {
-        throw handleCommFailure(new IOException("Unable to add read request to SelectorManager"));
-      }
-    }
-    request.waitOnCompletion (nanoDeadline);
-
-    if (request.status == SelectorRequest.Status.EXPIRED || !request.isFinalized()) {
-      throw new TIMEOUT("Message expired before write attempt.");
-    }
-    else if (request.status == SelectorRequest.Status.FAILED) {
-      throw new org.omg.CORBA.COMM_FAILURE ("Read request failed. Request status: FAILED");
-    }
-    else if (request.status == SelectorRequest.Status.SHUTDOWN) {
-      throw new org.omg.CORBA.TRANSIENT ("Read request failed. Request status: SHUTDOWN");
+    protected synchronized void setConnected (boolean connected)
+    {
+        this.connected = connected;
     }
 
-    return callback.readLength;
-  }
+    @Override // ConnectionBase
+    protected COMM_FAILURE handleCommFailure(IOException e)
+    {
+        return to_COMM_FAILURE(e);
+    }
 
-  // time_out is probably in milli seconds
-  @Override
-  public void write (boolean is_first,
+    @Override // ConnectionBase
+    protected void setTimeout(int timeout)
+    {
+        this.timeout = timeout;
+    }
+
+    @Override // ConnectionBase
+    protected int getTimeout()
+    {
+        return timeout;
+    }
+
+    //boolean is_connected();
+
+    // time_out is probably in milli seconds
+    @Override
+    public int read (org.omg.ETF.BufferHolder data,
+                     int offset,
+                     int min_length,
+                     int max_length,
+                     long time_out)
+    {
+
+        SocketChannel myChannel;
+        synchronized (this)
+        {
+            myChannel = channel;
+        }
+
+        if (!myChannel.isConnected())
+        {
+            throw new org.omg.CORBA.COMM_FAILURE ("read() did not return any data");
+        }
+
+        long nanoDeadline = (time_out == 0 ? Long.MAX_VALUE : System.nanoTime() + time_out * 1000000);
+        ReadCallback callback = new ReadCallback (data, offset, min_length, max_length);
+        SelectorRequest request = new SelectorRequest (SelectorRequest.Type.READ, myChannel,
+                callback, nanoDeadline);
+
+        if (!selectorManager.add (request))
+        {
+            if (request.status == SelectorRequest.Status.EXPIRED)
+            {
+                throw new TIMEOUT("Message expired before write attempt.");
+            }
+            else
+            {
+                throw handleCommFailure(new IOException("Unable to add read request to SelectorManager"));
+            }
+        }
+        request.waitOnCompletion (nanoDeadline);
+
+        if (request.status == SelectorRequest.Status.EXPIRED || !request.isFinalized())
+        {
+            throw new TIMEOUT("Message expired before write attempt.");
+        }
+        else if (request.status == SelectorRequest.Status.FAILED)
+        {
+            throw new org.omg.CORBA.COMM_FAILURE ("Read request failed. Request status: FAILED");
+        }
+        else if (request.status == SelectorRequest.Status.SHUTDOWN)
+        {
+            throw new org.omg.CORBA.TRANSIENT ("Read request failed. Request status: SHUTDOWN");
+        }
+
+        return callback.readLength;
+    }
+
+    // time_out is probably in milli seconds
+    @Override
+    public void write (boolean is_first,
                        boolean is_last,
                        byte[] data,
                        int offset,
                        int length,
-                       long time_out) {
+                       long time_out)
+    {
 
-    SocketChannel myChannel;
-    synchronized (this){
-      myChannel = channel;
-    }
-
-    if (!myChannel.isConnected()) {
-      throw handleCommFailure(new IOException("Channel has been closed"));
-    }
-
-    long nanoDeadline = (time_out == 0 ? Long.MAX_VALUE : System.nanoTime() + time_out*1000000);
-    WriteCallback writeCallback = new WriteCallback (data, offset, length);
-    SelectorRequest request = new SelectorRequest (SelectorRequest.Type.WRITE, myChannel,
-                                                   writeCallback, nanoDeadline);
-
-    if (!selectorManager.add (request)) {
-      if (request.status == SelectorRequest.Status.EXPIRED) {
-        throw new TIMEOUT("Message expired before write attempt.");
-      }
-      else {
-        throw handleCommFailure(new IOException("Unable to add write request to SelectorManager"));
-      }
-    }
-    request.waitOnCompletion (nanoDeadline);
-
-    if (!writeCallback.writeFinished()) {
-
-      int failCount = 0;
-      synchronized (this) {
-        failCount = ++failedWriteAttempts;
-      }
-
-      if (failCount >= maxConsecutiveTimeouts) {
-
-        boolean isConnected;
-        isConnected = myChannel.isConnected();
-        try {
-          myChannel.close();
-        }
-        catch (IOException ex) {
-          // disregard
-          logger.debug ("Exception while trying to close channel after write failure. "
-                        + ex.getMessage());
+        SocketChannel myChannel;
+        synchronized (this)
+        {
+            myChannel = channel;
         }
 
-        if (isDebugEnabled) {
-          logger.debug ("Write attempts exceeded maximum allowed attempts (" + maxConsecutiveTimeouts +
-                        "). " + (isConnected ? "Closing channel." : "Channel already closed."));
+        if (!myChannel.isConnected())
+        {
+            throw handleCommFailure(new IOException("Channel has been closed"));
         }
 
-        return;
-      }
+        long nanoDeadline = (time_out == 0 ? Long.MAX_VALUE : System.nanoTime() + time_out * 1000000);
+        WriteCallback writeCallback = new WriteCallback (data, offset, length);
+        SelectorRequest request = new SelectorRequest (SelectorRequest.Type.WRITE, myChannel,
+                writeCallback, nanoDeadline);
 
-      throw new TIMEOUT("Message expired before write attempt.");
-
-      // if (request.status == SelectorRequest.Status.EXPIRED || !request.isFinalized()) {
-      //   throw new TIMEOUT("Message expired before write attempt.");
-      // }
-      // else if (request.status == SelectorRequest.Status.FAILED || request.status == SelectorRequest.Status.SHUTDOWN) {
-      //   throw handleCommFailure(new IOException("Write request failed. Request status: " +
-      //                                           (request.status == SelectorRequest.Status.FAILED ? "FAILED" : "SHUTDOWN")));
-      // }
-    }
-    else {
-      synchronized (this) {
-        failedWriteAttempts = 0;
-      }
-    }
-
-    // if (request.status == SelectorRequest.Status.EXPIRED || !request.isFinalized()) {
-    //   throw new TIMEOUT("Message expired before write attempt.");
-    // }
-    // else {
-    //   failedWriteAttempts++;
-    //   if (failedWriteAttempts >= maxConsecutiveTimeouts) {
-
-    //     boolean isConnected;
-    //     isConnected = myChannel.isConnected();
-    //     try {
-    //       myChannel.close();
-    //     }
-    //     catch (IOException ex) {
-    //       // disregard
-    //       logger.debug ("Exception while trying to close channel after write failure. "
-    //                     + ex.getMessage());
-    //     }
-
-    //     if (isDebugEnabled) {
-    //       logger.debug ("Write attempts exceeded maximum allowed attempts (" + maxConsecutiveTimeouts +
-    //                     "). " + (isConnected ? "Closing channel." : "Channel already closed."));
-    //     }
-    //   }
-    //   else {
-    //     if (request.status == SelectorRequest.Status.FAILED || request.status == SelectorRequest.Status.SHUTDOWN) {
-    //       throw handleCommFailure(new IOException("Write request failed. Request status: " +
-    //                                               (request.status == SelectorRequest.Status.FAILED ? "FAILED" : "SHUTDOWN")));
-    //     }
-    //   }
-    // }
-
-    // else assume the message is gonne (at least at a place where it is beyond app control)
-  }
-
-  public void flush() {
-    // no op
-  }
-
-  private class ReadCallback extends SelectorRequestCallback {
-
-    private final ByteBuffer byteBuffer;
-    private final org.omg.ETF.BufferHolder data;
-    private final int offset;
-    private final int min_length;
-    public int readLength = 0;
-
-    public ReadCallback (org.omg.ETF.BufferHolder data, int offset, int min_length, int max_length) {
-      super ();
-
-      byteBuffer = ByteBuffer.allocate (max_length);
-      byteBuffer.clear ();
-
-      this.data = data;
-      this.offset = offset;
-      this.min_length = min_length;
-    }
-
-    public boolean call (SelectorRequest request) {
-
-      SocketChannel myChannel = request.channel;
-      try {
-        if (request.status == SelectorRequest.Status.READY) {
-
-          // synchronized (this) {
-          //   myChannel = channel;
-          // }
-
-          //while (byteBuffer.position() < min_length) {
-          int numRead = myChannel.read (byteBuffer);
-          if (numRead < 0) {
-            // Remote entity shut the socket down cleanly. Do the
-            // same from our end and cancel the channel.
-            myChannel.close();
-            //close (); // close connection instead of channel directly
-
-            if (isDebugEnabled) {
-              logger.debug("Transport to " + connection_info +
-                           ": stream closed on read  < 0" );
+        if (!selectorManager.add (request))
+        {
+            if (request.status == SelectorRequest.Status.EXPIRED)
+            {
+                throw new TIMEOUT("Message expired before write attempt.");
             }
-          }
-          else {
-            if (byteBuffer.position() < min_length) {
-              // need more data, reactivate channel by returning true
-              return true;
+            else
+            {
+                throw handleCommFailure(new IOException("Unable to add write request to SelectorManager"));
             }
-            else {
-              readLength = byteBuffer.position();
-              byteBuffer.rewind ();
-              byteBuffer.get (data.value, offset, readLength);
+        }
+        request.waitOnCompletion (nanoDeadline);
+
+        if (!writeCallback.writeFinished())
+        {
+
+            int failCount = 0;
+            synchronized (this)
+            {
+                failCount = ++failedWriteAttempts;
             }
-          }
+
+            if (failCount >= maxConsecutiveTimeouts)
+            {
+
+                boolean isConnected;
+                isConnected = myChannel.isConnected();
+                try
+                {
+                    myChannel.close();
+                }
+                catch (IOException ex)
+                {
+                    // disregard
+                    logger.debug ("Exception while trying to close channel after write failure. "
+                                  + ex.getMessage());
+                }
+
+                if (isDebugEnabled)
+                {
+                    logger.debug ("Write attempts exceeded maximum allowed attempts (" + maxConsecutiveTimeouts +
+                                  "). " + (isConnected ? "Closing channel." : "Channel already closed."));
+                }
+
+                return;
+            }
+
+            throw new TIMEOUT("Message expired before write attempt.");
+
         }
-      }
-      catch (IOException ex) {
-        try {
-          myChannel.close();
-          // close (); // close connection instead of channel directly
-        }
-        catch (IOException ex2) {
-          logger.error ("Failed to close channel: " + ex2.toString());
+        else
+        {
+            synchronized (this)
+            {
+                failedWriteAttempts = 0;
+            }
         }
 
-        if (isDebugEnabled) {
-          logger.debug("Got IOException in read(). Transport to " + connection_info +
-                       ": stream closed: " + ex.toString());
-        }
-      }
-
-      return false;
     }
 
-  }
-
-  private class WriteCallback extends SelectorRequestCallback {
-
-    final ByteBuffer byteBuffer;
-    final int length;
-    private int writeCount = 0;
-
-    public synchronized boolean writeFinished () {
-      return writeCount == length;
+    public void flush()
+    {
+        // no op
     }
 
-    public WriteCallback (byte[] data, int offset, int length) {
-      super ();
+    private class ReadCallback extends SelectorRequestCallback
+    {
 
-      this.length = length;
+        private final ByteBuffer byteBuffer;
+        private final org.omg.ETF.BufferHolder data;
+        private final int offset;
+        private final int min_length;
+        public int readLength = 0;
 
-      // allocate a bytebuffer with the input data size
-      byteBuffer = ByteBuffer.allocate (length);
-      byteBuffer.clear ();
+        public ReadCallback (org.omg.ETF.BufferHolder data, int offset, int min_length, int max_length)
+        {
+            super ();
 
-      // copy bytes into ByteBuffer
-      byteBuffer.put (data, offset, length);
-      byteBuffer.flip ();
+            byteBuffer = ByteBuffer.allocate (max_length);
+            byteBuffer.clear ();
+
+            this.data = data;
+            this.offset = offset;
+            this.min_length = min_length;
+        }
+
+        public boolean call (SelectorRequest request)
+        {
+
+            SocketChannel myChannel = request.channel;
+            try
+            {
+                if (request.status == SelectorRequest.Status.READY)
+                {
+                    int numRead = myChannel.read (byteBuffer);
+                    if (numRead < 0)
+                    {
+                        // Remote entity shut the socket down cleanly. Do the
+                        // same from our end and cancel the channel.
+                        myChannel.close();
+
+                        if (isDebugEnabled)
+                        {
+                            logger.debug("Transport to " + connection_info +
+                                         ": stream closed on read  < 0" );
+                        }
+                    }
+                    else
+                    {
+                        if (byteBuffer.position() < min_length)
+                        {
+                            // need more data, reactivate channel by returning true
+                            return true;
+                        }
+                        else
+                        {
+                            readLength = byteBuffer.position();
+                            byteBuffer.rewind ();
+                            byteBuffer.get (data.value, offset, readLength);
+                        }
+                    }
+                }
+            }
+            catch (IOException ex)
+            {
+                try
+                {
+                    myChannel.close();
+                }
+                catch (IOException ex2)
+                {
+                    logger.error ("Failed to close channel: " + ex2.toString());
+                }
+
+                if (isDebugEnabled)
+                {
+                    logger.debug("Got IOException in read(). Transport to " + connection_info +
+                                 ": stream closed: " + ex.toString());
+                }
+            }
+
+            return false;
+        }
+
     }
 
-    public boolean call (SelectorRequest request) {
+    private class WriteCallback extends SelectorRequestCallback
+    {
 
-      SocketChannel myChannel = request.channel;
-      // synchronized (this) {
-      //   myChannel = channel;
-      // }
+        final ByteBuffer byteBuffer;
+        final int length;
+        private int writeCount = 0;
 
-      try {
-        if (request.status == SelectorRequest.Status.READY) {
-
-          int bytesWritten = myChannel.write (byteBuffer);
-          synchronized (this) {
-            writeCount += bytesWritten;
-          }
-
-          if (isDebugEnabled) {
-            logger.debug ("wrote {} bytes to {}", bytesWritten, connection_info);
-          }
-          // if buffer isn't empty request to be reactivated
-          if (byteBuffer.hasRemaining()) {
-            return true;
-          }
+        public synchronized boolean writeFinished ()
+        {
+            return writeCount == length;
         }
-      }
-      catch (IOException ex) {
-        try {
-          myChannel.close();
-          // close (); // close connection instead of channel directly
-        }
-        catch (IOException ex2) {
-          logger.error ("Failed to close channel: " + ex2.toString());
-        }
-        if (isDebugEnabled) {
-          logger.debug("Got IOException in write(). Transport to " + connection_info +
-                       ": stream closed: " + ex.toString());
-        }
-      }
 
-      return false;
+        public WriteCallback (byte[] data, int offset, int length)
+        {
+            super ();
+
+            this.length = length;
+
+            // allocate a bytebuffer with the input data size
+            byteBuffer = ByteBuffer.allocate (length);
+            byteBuffer.clear ();
+
+            // copy bytes into ByteBuffer
+            byteBuffer.put (data, offset, length);
+            byteBuffer.flip ();
+        }
+
+        public boolean call (SelectorRequest request)
+        {
+
+            SocketChannel myChannel = request.channel;
+
+            try
+            {
+                if (request.status == SelectorRequest.Status.READY)
+                {
+
+                    int bytesWritten = myChannel.write (byteBuffer);
+                    synchronized (this)
+                    {
+                        writeCount += bytesWritten;
+                    }
+
+                    if (isDebugEnabled)
+                    {
+                        logger.debug ("wrote {} bytes to {}", bytesWritten, connection_info);
+                    }
+                    // if buffer isn't empty request to be reactivated
+                    if (byteBuffer.hasRemaining())
+                    {
+                        return true;
+                    }
+                }
+            }
+            catch (IOException ex)
+            {
+                try
+                {
+                    myChannel.close();
+                }
+                catch (IOException ex2)
+                {
+                    logger.error ("Failed to close channel: " + ex2.toString());
+                }
+                if (isDebugEnabled)
+                {
+                    logger.debug("Got IOException in write(). Transport to " + connection_info +
+                                 ": stream closed: " + ex.toString());
+                }
+            }
+
+            return false;
+        }
     }
-  }
 
 }

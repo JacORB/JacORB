@@ -3,7 +3,7 @@ package org.jacorb.orb.giop;
 /*
  *        JacORB - a free Java ORB
  *
- *   Copyright (C) 1997-2004 Gerald Brose.
+ *   Copyright (C) 1997-2011 Gerald Brose.
  *
  *   This library is free software; you can redistribute it and/or
  *   modify it under the terms of the GNU Library General Public
@@ -52,7 +52,7 @@ import org.omg.ETF.Factories;
  * */
 
 public class TransportManager
-    implements Configurable
+        implements Configurable
 {
     /** the configuration object  */
     private org.jacorb.config.Configuration configuration = null;
@@ -87,7 +87,7 @@ public class TransportManager
     }
 
     public void configure(Configuration myConfiguration)
-        throws ConfigurationException
+    throws ConfigurationException
     {
         this.configuration = (org.jacorb.config.Configuration)myConfiguration;
         logger =
@@ -100,14 +100,17 @@ public class TransportManager
 
         if (factoryClassNames.isEmpty())
         {
-          boolean useNonBlockingTransport = configuration.getAttributeAsBoolean("jacorb.connection.nonblocking", false);
+            boolean useNonBlockingTransport =
+                configuration.getAttributeAsBoolean("jacorb.connection.nonblocking", false);
 
-          if (useNonBlockingTransport) {
-            factoryClassNames.add("org.jacorb.orb.nio.NIOFactories");
-          }
-          else {
-            factoryClassNames.add("org.jacorb.orb.iiop.IIOPFactories");
-          }
+            if (useNonBlockingTransport)
+            {
+                factoryClassNames.add("org.jacorb.orb.nio.NIOFactories");
+            }
+            else
+            {
+                factoryClassNames.add("org.jacorb.orb.iiop.IIOPFactories");
+            }
         }
 
         // get profile selector info
@@ -221,46 +224,58 @@ public class TransportManager
         catch (Exception e)
         {
             throw new BAD_PARAM
-                ("could not instantiate Factories class " + className
-                 + ", exception: " + e);
+            ("could not instantiate Factories class " + className
+             + ", exception: " + e);
         }
     }
 
-	public void notifyTransportListeners(GIOPConnection giopc) {
+    public void notifyTransportListeners(GIOPConnection giopc)
+    {
 
-        if (listener != null) {
+        if (listener != null)
+        {
             listener.transportSelected (new Event (giopc));
         }
     }
 
-    public void addTransportListener(TransportListener tl) {
+    public void addTransportListener(TransportListener tl)
+    {
 
-        if (logger.isInfoEnabled ()) {
+        if (logger.isInfoEnabled ())
+        {
             logger.info ("Transport listener to add: " + tl);
         }
 
-        if (tl != null) {
+        if (tl != null)
+        {
             addTransportListenerImpl (tl);
         }
     }
 
-    private synchronized void addTransportListenerImpl(final TransportListener tl) {
+    private synchronized void addTransportListenerImpl(final TransportListener tl)
+    {
 
-        if (listener == null) {
+        if (listener == null)
+        {
             listener = tl;
         }
-        else {
+        else
+        {
 
-            listener = new TransportListener () {
+            listener = new TransportListener ()
+            {
 
                 private final TransportListener next_ = listener;
 
-                public void transportSelected(Event event) {
+                public void transportSelected(Event event)
+                {
 
-                    try {
+                    try
+                    {
                         tl.transportSelected (event);
                     }
-                    finally {
+                    finally
+                    {
                         next_.transportSelected (event);
                     }
                 }

@@ -3,7 +3,7 @@ package org.jacorb.orb;
 /*
  *        JacORB - a free Java ORB
  *
- *   Copyright (C) 1997-2004 Gerald Brose.
+ *   Copyright (C) 1997-2011 Gerald Brose.
  *
  *   This library is free software; you can redistribute it and/or
  *   modify it under the terms of the GNU Library General Public
@@ -57,8 +57,8 @@ import org.jacorb.util.SelectorRequestCallback;
  */
 
 public class ReplyReceiver
-    extends ReplyPlaceholder
-    implements Configurable
+        extends ReplyPlaceholder
+        implements Configurable
 {
     private final org.jacorb.orb.Delegate  delegate;
     private final ClientInterceptorHandler interceptors;
@@ -67,8 +67,8 @@ public class ReplyReceiver
 
     private final String operation;
     private final Timer timer;
-  private final SelectorTimer selectorTimer;
-  private org.omg.TimeBase.UtcT replyEndTime;
+    private final SelectorTimer selectorTimer;
+    private org.omg.TimeBase.UtcT replyEndTime;
 
     private Logger logger;
 
@@ -80,7 +80,7 @@ public class ReplyReceiver
                           org.omg.TimeBase.UtcT          replyEndTime,
                           ClientInterceptorHandler       interceptors,
                           org.omg.Messaging.ReplyHandler replyHandler,
-                          SelectorManager selectorManager)
+                          SelectorManager                selectorManager)
     {
         super((org.jacorb.orb.ORB)delegate.orb(null));
 
@@ -88,25 +88,29 @@ public class ReplyReceiver
         this.operation        = operation;
         this.interceptors     = interceptors;
         this.replyHandler     = replyHandler;
-        this.replyEndTime = replyEndTime;
+        this.replyEndTime     = replyEndTime;
 
-        if (replyEndTime != null) {
-          if (selectorManager == null) {
-            selectorTimer = null;
-            timer = new Timer(replyEndTime);
-            timer.setName("ReplyReceiver Timer" );
-            timer.start();
-          }
-          else {
-            timer = null;
-            selectorTimer = new SelectorTimer ();
-            long duration = org.jacorb.util.Time.millisTo (replyEndTime);
-            selectorManager.add (new SelectorRequest (selectorTimer, System.nanoTime() + duration*1000000));
-          }
+        if (replyEndTime != null)
+        {
+            if (selectorManager == null)
+            {
+                selectorTimer = null;
+                timer = new Timer(replyEndTime);
+                timer.setName("ReplyReceiver Timer" );
+                timer.start();
+            }
+            else
+            {
+                timer = null;
+                selectorTimer = new SelectorTimer ();
+                long duration = org.jacorb.util.Time.millisTo (replyEndTime);
+                selectorManager.add (new SelectorRequest (selectorTimer, System.nanoTime() + duration*1000000));
+            }
         }
-        else {
-          timer = null;
-          selectorTimer = null;
+        else
+        {
+            timer = null;
+            selectorTimer = null;
         }
     }
 
@@ -126,13 +130,16 @@ public class ReplyReceiver
             return; // discard reply
         }
 
-        if (replyEndTime != null) {
-          if (selectorTimer != null) {
-            selectorTimer.wakeup ();
-          }
-          else {
-            timer.wakeup();
-          }
+        if (replyEndTime != null)
+        {
+            if (selectorTimer != null)
+            {
+                selectorTimer.wakeup ();
+            }
+            else
+            {
+                timer.wakeup();
+            }
         }
 
         Set pending_replies = delegate.get_pending_replies();
@@ -176,7 +183,7 @@ public class ReplyReceiver
 
         org.omg.CORBA.portable.Delegate replyHandlerDelegate =
             ( ( org.omg.CORBA.portable.ObjectImpl ) replyHandler )
-                                                         ._get_delegate();
+            ._get_delegate();
 
         ServantObject so =
             replyHandlerDelegate.servant_preinvoke( replyHandler,
@@ -189,9 +196,9 @@ public class ReplyReceiver
                 case ReplyStatusType_1_2._NO_EXCEPTION:
                 {
                     ((InvokeHandler)so.servant)
-                        ._invoke( operation,
-                                  reply,
-                                  new DummyResponseHandler() );
+                    ._invoke( operation,
+                              reply,
+                              new DummyResponseHandler() );
                     break;
                 }
                 case ReplyStatusType_1_2._USER_EXCEPTION:
@@ -203,16 +210,16 @@ public class ReplyReceiver
                     org.omg.CORBA_2_3.ORB orb = ( org.omg.CORBA_2_3.ORB )replyHandlerDelegate.orb( null );
 
                     orb.register_value_factory
-                        ( "IDL:omg.org/Messaging/ExceptionHolder:1.0",
-                          new ExceptionHolderFactory((ORB)orb) );
+                    ( "IDL:omg.org/Messaging/ExceptionHolder:1.0",
+                      new ExceptionHolderFactory((ORB)orb) );
 
                     CDRInputStream input =
                         new CDRInputStream( orb, holder.marshal() );
 
                     ((InvokeHandler)so.servant)
-                        ._invoke( operation + "_excep",
-                                  input,
-                                  new DummyResponseHandler() );
+                    ._invoke( operation + "_excep",
+                              input,
+                              new DummyResponseHandler() );
                     break;
                 }
             }
@@ -237,7 +244,7 @@ public class ReplyReceiver
 
         org.omg.CORBA.portable.Delegate replyHandlerDelegate =
             ( ( org.omg.CORBA.portable.ObjectImpl ) replyHandler )
-                                                         ._get_delegate();
+            ._get_delegate();
 
         ServantObject so =
             replyHandlerDelegate.servant_preinvoke( replyHandler,
@@ -246,19 +253,19 @@ public class ReplyReceiver
         try
         {
             org.omg.CORBA_2_3.ORB orb =
-                    ( org.omg.CORBA_2_3.ORB )replyHandlerDelegate
-                                                              .orb( null );
+                ( org.omg.CORBA_2_3.ORB )replyHandlerDelegate
+                .orb( null );
             orb.register_value_factory
-                ( "IDL:omg.org/Messaging/ExceptionHolder:1.0",
-                  new ExceptionHolderFactory((ORB) orb));
+            ( "IDL:omg.org/Messaging/ExceptionHolder:1.0",
+              new ExceptionHolderFactory((ORB) orb));
 
             CDRInputStream input =
                 new CDRInputStream( orb, holder.marshal() );
 
             ((InvokeHandler)so.servant)
-                ._invoke( operation + "_excep",
-                          input,
-                          new DummyResponseHandler() );
+            ._invoke( operation + "_excep",
+                      input,
+                      new DummyResponseHandler() );
         }
         catch ( Exception e )
         {
@@ -278,26 +285,26 @@ public class ReplyReceiver
      * If the reply contains any exceptions, they are rethrown.
      */
     public synchronized ReplyInputStream getReply()
-        throws RemarshalException, ApplicationException
+    throws RemarshalException, ApplicationException
     {
         try
         {
-           // On NT connection closure due to service shutdown is not
-           // detected until this point, resulting in a COMM_FAILURE.
-           // Map to RemarshalException to force rebind attempt.
-           try
-           {
-               getInputStream (replyEndTime != null);  // block until reply is available
-           }
-           catch (org.omg.CORBA.COMM_FAILURE ex)
-           {
-               if (retry_on_failure)
-               {
-                   throw new RemarshalException();
-               }
-               //rethrow
-               throw ex;
-           }
+            // On NT connection closure due to service shutdown is not
+            // detected until this point, resulting in a COMM_FAILURE.
+            // Map to RemarshalException to force rebind attempt.
+            try
+            {
+                getInputStream (replyEndTime != null);  // block until reply is available
+            }
+            catch (org.omg.CORBA.COMM_FAILURE ex)
+            {
+                if (retry_on_failure)
+                {
+                    throw new RemarshalException();
+                }
+                //rethrow
+                throw ex;
+            }
         }
         catch ( SystemException se )
         {
@@ -346,13 +353,13 @@ public class ReplyReceiver
             case ReplyStatusType_1_2._NEEDS_ADDRESSING_MODE:
             {
                 throw new org.omg.CORBA.NO_IMPLEMENT(
-                            "WARNING: Got reply status NEEDS_ADDRESSING_MODE "
-                          + "(not implemented)." );
+                    "WARNING: Got reply status NEEDS_ADDRESSING_MODE "
+                    + "(not implemented)." );
             }
             default:
             {
                 throw new MARSHAL
-                    ("Received unexpected reply status: " + status.value() );
+                ("Received unexpected reply status: " + status.value() );
             }
         }
     }
@@ -395,7 +402,7 @@ public class ReplyReceiver
         {
             reply.reset();
         }
-        catch( java.io.IOException ioe )
+        catch ( java.io.IOException ioe )
         {
             logger.error("unexpected Exception in reset()", ioe );
         }
@@ -412,7 +419,7 @@ public class ReplyReceiver
      * so we use it to check for timing constraints.
      */
     private class DummyResponseHandler
-        implements org.omg.CORBA.portable.ResponseHandler
+            implements org.omg.CORBA.portable.ResponseHandler
     {
         public org.omg.CORBA.portable.OutputStream createReply()
         {
@@ -428,7 +435,7 @@ public class ReplyReceiver
     }
 
     private static class ExceptionHolderFactory
-        implements org.omg.CORBA.portable.ValueFactory
+            implements org.omg.CORBA.portable.ValueFactory
     {
         private final ORB orb;
 
@@ -438,7 +445,7 @@ public class ReplyReceiver
         }
 
         public java.io.Serializable read_value
-                        ( org.omg.CORBA_2_3.portable.InputStream is )
+        ( org.omg.CORBA_2_3.portable.InputStream is )
         {
             ExceptionHolder result = new ExceptionHolderImpl(orb);
             result._read( is );
@@ -514,48 +521,68 @@ public class ReplyReceiver
         }
     }
 
-  class SelectorTimer extends SelectorRequestCallback {
+    /**
+     * And alternative timer helper. This one integrates with the
+     * SelectorManager framework, extending the SelectorRequestCallback.
+     * The timer is computed as a wait limit for the selector when the
+     * timeout event is registered.
+     * When the timeout goes off, this Timer makes sure
+     * that the enclosing ReplyReceiver is deactivated, and that
+     * everybody associated with it is notified appropriately.
+     * The timeout can be cancelled by calling wakeup() on a Timer.
+     */
+    class SelectorTimer extends SelectorRequestCallback
+    {
 
-    private boolean awakened = false;
+        private boolean awakened = false;
 
-    public boolean call (SelectorRequest request) {
+        public boolean call (SelectorRequest request)
+        {
 
-      if (logger.isDebugEnabled()) {
-        logger.debug ("Request callback. Request type: " + request.type.toString()
-                      + ", request status: " + request.status.toString());
-      }
-
-      synchronized (lock) {
-        if (request.status == SelectorRequest.Status.EXPIRED) {
-          if (!awakened) {
-            timeoutException = true;
-
-            if (replyHandler != null) {
-              ExceptionHolderImpl exHolder =
-                new ExceptionHolderImpl((ORB)delegate.orb(null), new org.omg.CORBA.TIMEOUT());
-              performExceptionCallback(exHolder);
+            if (logger.isDebugEnabled())
+            {
+                logger.debug ("Request callback. Request type: " + request.type.toString()
+                              + ", request status: " + request.status.toString());
             }
-          }
+
+            synchronized (lock)
+            {
+                if (request.status == SelectorRequest.Status.EXPIRED)
+                {
+                    if (!awakened)
+                    {
+                        timeoutException = true;
+
+                        if (replyHandler != null)
+                        {
+                            ExceptionHolderImpl exHolder =
+                                new ExceptionHolderImpl((ORB)delegate.orb(null), new org.omg.CORBA.TIMEOUT());
+                            performExceptionCallback(exHolder);
+                        }
+                    }
+                }
+                else
+                {
+                    // something bad happened (SHUTDOWN, FAILED throw a COM_FAILURE)
+                    communicationException = true;
+                }
+
+                ready = true;
+                lock.notifyAll();
+            }
+
+            return false;
         }
-        else {
-          // something bad happened (SHUTDOWN, FAILED throw a COM_FAILURE)
-          communicationException = true;
+
+        private void wakeup ()
+        {
+            synchronized (lock)
+            {
+                awakened         = true;
+                timeoutException = false;
+                lock.notifyAll();
+            }
         }
-
-        ready = true;
-        lock.notifyAll();
-      }
-
-      return false;
     }
-
-    private void wakeup () {
-      synchronized (lock) {
-        awakened         = true;
-        timeoutException = false;
-        lock.notifyAll(); // is this necessary
-      }
-    }
-  }
 
 }

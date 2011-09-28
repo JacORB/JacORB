@@ -3,7 +3,7 @@ package org.jacorb.util;
 /*
  *        JacORB - a free Java ORB
  *
- *   Copyright (C) 2002-2004 Gerald Brose
+ *   Copyright (C) 2002-2011 Gerald Brose
  *
  *   This library is free software; you can redistribute it and/or
  *   modify it under the terms of the GNU Library General Public
@@ -205,7 +205,7 @@ public class Time
             long delta = Time.millisTo(time);
             long then = now + delta;
 
-            while(delta > 0)
+            while (delta > 0)
             {
                 try
                 {

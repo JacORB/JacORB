@@ -1,7 +1,7 @@
 /*
  *        JacORB - a free Java ORB
  *
- *   Copyright (C) 1997-2004 Gerald Brose.
+ *   Copyright (C) 1997-2011 Gerald Brose.
  *
  *   This library is free software; you can redistribute it and/or
  *   modify it under the terms of the GNU Library General Public
@@ -229,11 +229,6 @@ public abstract class GIOPConnection
                     client_write_monitor =
                         new ConnectionReset (max_request_write_time);
             }
-
-        // boolean blockingConnection = configuration.getAttributeAsBoolean("jacorb.connection.blocking", true);
-        // if (blockingConnection) {
-        //   selectorManager = org.getSelectorManager ();
-        // }
 
         List statsProviderClassNames =
             jacorbConfiguration.getAttributeList( "jacorb.connection.statistics_providers");

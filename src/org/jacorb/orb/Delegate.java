@@ -3,7 +3,7 @@ package org.jacorb.orb;
 /*
  *        JacORB - a free Java ORB
  *
- *   Copyright (C) 1997-2004 Gerald Brose.
+ *   Copyright (C) 1997-2011 Gerald Brose.
  *
  *   This library is free software; you can redistribute it and/or
  *   modify it under the terms of the GNU Library General Public
@@ -153,7 +153,7 @@ public final class Delegate
 
     private String invokedOperation = null;
 
-  private final SelectorManager selectorManager;
+    private final SelectorManager selectorManager;
 
     /**
      * <code>localInterceptors</code> stores the ClientInterceptorHandler that is

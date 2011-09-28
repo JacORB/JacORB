@@ -3,7 +3,7 @@ package org.jacorb.util;
 /*
  *        JacORB - a free Java ORB
  *
- *   Copyright (C) 2002-2004 Gerald Brose
+ *   Copyright (C) 2011 Gerald Brose
  *
  *   This library is free software; you can redistribute it and/or
  *   modify it under the terms of the GNU Library General Public
@@ -83,8 +83,10 @@ public class TimerQueueAction
     public void expire ()
     {
         // subclass this to do something besides notify a waiter
-        if ( notifyTarget != null ) {
-            synchronized (notifyTarget) {
+        if ( notifyTarget != null )
+        {
+            synchronized (notifyTarget)
+            {
                 notifyTarget.notifyAll();
             }
         }

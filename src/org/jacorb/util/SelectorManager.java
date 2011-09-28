@@ -1,7 +1,7 @@
 /*
  *        JacORB - a free Java ORB
  *
- *   Copyright (C) 1997-2008 Gerald Brose.
+ *   Copyright (C) 2011 Gerald Brose.
  *
  *   This library is free software; you can redistribute it and/or
  *   modify it under the terms of the GNU Library General Public
@@ -47,966 +47,1187 @@ import java.util.concurrent.locks.ReentrantLock;
 import org.jacorb.config.*;
 import org.slf4j.Logger;
 
-public class SelectorManager extends Thread {
+/**
+ * Defines the entity which waits for I/O and time events to occur and
+ * dispatches notifications to the interested request callbacks. This is
+ * used primarily to manage asynchronous I/O using the NIO package but
+ * could be used to help orchestrate other sorts of asynch event handling
+ * in the future.
+ *
+ * @auther Ciju John <johnc@ociweb.com>
+ * @version $Id$
+ */
+public class SelectorManager extends Thread
+{
 
-  final private RequestorPool connectRequestsPool;
-  final private RequestorPool writeRequestsPool;
-  final private RequestorPool readRequestsPool;
+    final private RequestorPool connectRequestsPool;
+    final private RequestorPool writeRequestsPool;
+    final private RequestorPool readRequestsPool;
 
-  final private RequestsBuffer timeOrderedRequests;
-  final private RequestsBuffer newRequests;
-  final private RequestsBuffer reActivateBuffer;
+    final private RequestsBuffer timeOrderedRequests;
+    final private RequestsBuffer newRequests;
+    final private RequestsBuffer reActivateBuffer;
 
-  final private Selector selector;
-  private boolean running;
-  private Logger logger;
+    final private Selector selector;
+    private boolean running;
+    private Logger logger;
 
-  final private ExecutorService executor;
-  private int threadPoolMin = 2;
-  private int threadPoolMax = 10;
-  private int threadPoolKeepAliveTime = 60; // seconds
-  private int executorPendingQueueSize = 5;
+    final private ExecutorService executor;
+    private int threadPoolMin = 2;
+    private int threadPoolMax = 10;
+    private int threadPoolKeepAliveTime = 60; // seconds
+    private int executorPendingQueueSize = 5;
 
-  private boolean loggerDebugEnabled = false;
-  private final ReentrantLock lock = new ReentrantLock();
+    private boolean loggerDebugEnabled = false;
+    private final ReentrantLock lock = new ReentrantLock();
 
-  public SelectorManager () {
+    /**
+     * Constructs a new Selector Manager. Typically called by the ORB
+     */
+    public SelectorManager ()
+    {
 
-    running = true;
+        running = true;
 
-    try {
-      connectRequestsPool = new RequestorPool ();
-      writeRequestsPool = new RequestorPool ();
-      readRequestsPool = new RequestorPool ();
+        try
+        {
+            connectRequestsPool = new RequestorPool ();
+            writeRequestsPool = new RequestorPool ();
+            readRequestsPool = new RequestorPool ();
 
-      timeOrderedRequests = new RequestsBuffer ();
-      newRequests = new RequestsBuffer ();
-      reActivateBuffer = new RequestsBuffer ();
+            timeOrderedRequests = new RequestsBuffer ();
+            newRequests = new RequestsBuffer ();
+            reActivateBuffer = new RequestsBuffer ();
 
-      selector = SelectorProvider.provider().openSelector ();
-      executor = new ThreadPoolExecutor (threadPoolMin, threadPoolMax, threadPoolKeepAliveTime
-                                         , TimeUnit.SECONDS, new ArrayBlockingQueue<Runnable>(executorPendingQueueSize),
-                                         new SelectorManagerThreadFactory(), new ThreadPoolExecutor.CallerRunsPolicy());
+            selector = SelectorProvider.provider().openSelector ();
+            executor = new ThreadPoolExecutor (threadPoolMin,
+                                               threadPoolMax,
+                                               threadPoolKeepAliveTime,
+                                               TimeUnit.SECONDS,
+                                               new ArrayBlockingQueue<Runnable>(executorPendingQueueSize),
+                                               new SelectorManagerThreadFactory(),
+                                               new ThreadPoolExecutor.CallerRunsPolicy());
+        }
+        catch (IOException ex)
+        {
+            throw new RuntimeException (ex);
+        }
     }
-    catch (IOException ex) {
 
-      // System.out.println ("Got an exception in SelectorManager contstructor: " + ex.getMessage());
-      throw new RuntimeException (ex);
+    /**
+     * Gives the SelectorManager an oportunity to configure itself. Follows the pattern
+     * common to JacORB objects.
+     */
+    public void configure(Configuration configuration)
+    throws ConfigurationException
+    {
+
+        if (configuration == null)
+        {
+            throw new ConfigurationException ("SelectorManager.configure was " +
+                                              "passed a null Configuration object");
+        }
+
+        org.jacorb.config.Configuration jacorbConfiguration =
+            (org.jacorb.config.Configuration) configuration;
+        logger = jacorbConfiguration.getLogger("jacorb.util");
+
+        loggerDebugEnabled = logger.isDebugEnabled();
     }
-  }
 
-  public void configure(Configuration configuration)
-    throws ConfigurationException {
+    /**
+     * The thread function
+     */
+    public void run ()
+    {
 
-    if (configuration == null) {
-      throw new ConfigurationException ("SelectorManager.configure was passed a null Configuration object");
-    }
+        try
+        {
+            while (running)
+            {
 
-    org.jacorb.config.Configuration jacorbConfiguration = (org.jacorb.config.Configuration) configuration;
-    logger = jacorbConfiguration.getLogger("jacorb.util");
+                synchronized (newRequests)
+                {
+                    for (Iterator<SelectorRequest> newRequestsIter =
+                             newRequests.iterator (); newRequestsIter.hasNext();)
+                    {
+                        SelectorRequest request = newRequestsIter.next ();
+                        //request.setStatus (SelectorRequest.Status.PENDING);
+                        insertIntoActivePool (request);
+                    }
+                    newRequests.clear ();
+                }
 
-    loggerDebugEnabled = logger.isDebugEnabled();
-  }
+                synchronized (reActivateBuffer)
+                {
+                    for (Iterator<SelectorRequest> reActivateIter = reActivateBuffer.iterator ();
+                         reActivateIter.hasNext();)
+                    {
+                        SelectorRequest request = reActivateIter.next ();
+                        reActivateRequest (request);
+                    }
+                    reActivateBuffer.clear ();
+                }
 
-  public void run () {
+                // cleanup expired requests & compute next sleep unit
+                long sleepTime = cleanupExpiredRequests ();
 
-    try {
-      while (running) {
+                if (loggerDebugEnabled)
+                {
+                    logger.debug ("Selector will wait for "
+                                  + (sleepTime == Long.MAX_VALUE ? 0 : sleepTime) + " millis.");
+                }
 
-        synchronized (newRequests) {
-          for (Iterator<SelectorRequest> newRequestsIter = newRequests.iterator (); newRequestsIter.hasNext();) {
-            SelectorRequest request = newRequestsIter.next ();
-            //request.setStatus (SelectorRequest.Status.PENDING);
-            insertIntoActivePool (request);
-          }
-          newRequests.clear ();
-        }
+                try
+                {
+                    selector.select (sleepTime);
+                }
+                catch (IllegalArgumentException ex)
+                {
+                    logger.error ("Select timeout (" + sleepTime + ") argument flawed: " + ex.toString());
+                    // shouldn't be any problem to continue;
+                }
 
-        synchronized (reActivateBuffer) {
-          for (Iterator<SelectorRequest> reActivateIter = reActivateBuffer.iterator (); reActivateIter.hasNext();) {
-            SelectorRequest request = reActivateIter.next ();
-            reActivateRequest (request);
-          }
-          reActivateBuffer.clear ();
-        }
+                // // this will be verbose. Uncomment cautiously
+                // if (loggerDebugEnabled)
+                // {
+                //     logger.debug ("select() finished. Gonna check if selector loop can be broken.");
+                // }
 
-        // cleanup expired requests & compute next sleep unit
-        long sleepTime = cleanupExpiredRequests ();
+                synchronized (lock)
+                {
 
-        if (loggerDebugEnabled) {
-          logger.debug ("Selector will wait for "
-                        + (sleepTime == Long.MAX_VALUE ? 0 : sleepTime) + " millis.");
-        }
+                    if (!running)
+                    {
+                        if (loggerDebugEnabled)
+                        {
+                            logger.debug ("Breaking out of Selector loop; 'running' flag was disabled.");
+                        }
+                        break;
+                    }
+                }
 
-        try {
-          selector.select (sleepTime);
-        }
-        catch (IllegalArgumentException ex) {
-          logger.error ("Select timeout ("+ sleepTime + ") argument flawed: " + ex.toString());
-          // shouldn't be any problem to continue;
-        }
+                for (Iterator iter = selector.selectedKeys().iterator(); iter.hasNext();)
+                {
+                    SelectionKey key = (SelectionKey) iter.next();
+                    iter.remove();
 
-        // // this will be verbose. Uncomment cautiously
-        // if (loggerDebugEnabled) {
-        //   logger.debug ("select() finished. Gonna check if selector loop can be broken.");
-        // }
+                    if (!key.isValid())
+                    {
+                        continue;
+                    }
 
-        synchronized (lock) {
+                    try
+                    {
+                        // loop four times to account for each of the ecah of the possible IO operations
+                        //  connect, accept, read, write
+                        boolean checkConnect, checkAccept, checkRead, checkWrite;
+                        checkConnect = checkAccept = checkRead = checkWrite = true;
+                        for (int count = 0; count < 4; count++)
+                        {
+                            int op = 0;
+                            SelectorRequest.Type jobType = SelectorRequest.Type.CONNECT;
+                            // delegate work to worker thread
+                            if (checkConnect && key.isConnectable())
+                            {
+                                checkConnect = false;
+                                op = SelectionKey.OP_CONNECT;
+                                jobType = SelectorRequest.Type.CONNECT;
+                            }
+                            else if (checkAccept && key.isAcceptable())
+                            {
+                                checkAccept = false;
+                                op = SelectionKey.OP_ACCEPT;
+                                jobType = SelectorRequest.Type.ACCEPT;
+                            }
+                            else if (checkRead && key.isReadable())
+                            {
+                                checkRead = false;
+                                op = SelectionKey.OP_READ;
+                                jobType = SelectorRequest.Type.READ;
+                            }
+                            else if (checkWrite && key.isWritable())
+                            {
+                                checkWrite = false;
+                                op = SelectionKey.OP_WRITE;
+                                jobType = SelectorRequest.Type.WRITE;
+                            }
+                            else
+                            {
+                                break;
+                            }
 
-          if (!running) {
-            if (loggerDebugEnabled) {
-              logger.debug ("Breaking out of Selector loop; 'running' flag was disabled.");
+                            if (op != 0)
+                            {
+
+                                if (loggerDebugEnabled)
+                                {
+                                    logger.debug ("Key " + key.toString() +
+                                                  " ready for action: " + jobType.toString());
+                                }
+
+                                // disable op bit for SelectionKey
+                                int currentOps = key.interestOps ();
+                                int newOps = currentOps ^ op; // exclusive or
+                                try
+                                {
+                                    key.interestOps (newOps);
+                                }
+                                catch (CancelledKeyException ex)
+                                {
+                                    // let the worker deal with this
+                                }
+
+                                // delegate work to worker thread
+                                SendJob sendJob = new SendJob (key, jobType);
+                                FutureTask task = new FutureTask (sendJob);
+                                executor.execute (task);
+                            }
+                        }
+                    }
+                    catch (CancelledKeyException ex)
+                    {
+                        // explicit key cancellations are only doen by
+                        // the selector thread, so the only way we got
+                        // here is if another thread closed the
+                        // assocated channel. In that case simple
+                        // cleanup any requests associated with this
+                        // key and continue.
+
+                        if (loggerDebugEnabled)
+                        {
+                            logger.debug ("Cleaning up requests associated with key: " + key.toString());
+                        }
+                        cleanup (key);
+                    }
+                }
             }
-            break;
-          }
+        }
+        catch (Exception ex)
+        {
+            logger.error ("Exception in Selector loop. Bailing out: " + ex.toString());
+            ex.printStackTrace ();
+        }
+        running = false;
+
+        try
+        {
+            // clean up all pending requests
+
+            if (loggerDebugEnabled)
+            {
+                logger.debug ("SelectorManager loop is broken. Cleaning up pending requests");
+            }
+            cleanup ();
+
+            if (loggerDebugEnabled)
+            {
+                logger.debug ("Issuing shutdown command to Threadpool executor.");
+            }
+            executor.shutdown ();
+        }
+        catch (Exception ex)
+        {
+            logger.error ("Exception in Selector manager cleanup. Bailing out: " + ex.toString());
+            ex.printStackTrace ();
+        }
+    }
+
+    /**
+     * Called in Selector thread
+     */
+    private void cleanup (SelectionKey key)
+    {
+
+        cleanup (connectRequestsPool, key);
+        cleanup (writeRequestsPool, key);
+        cleanup (readRequestsPool, key);
+    }
+
+    /**
+     * Called in Selector thread
+     */
+    private void cleanup (RequestorPool pool, SelectionKey key)
+    {
+
+        RequestsBuffer requestsBuffer = null;
+        synchronized (pool)
+        {
+            requestsBuffer = pool.remove (key);
         }
 
-        for (Iterator iter = selector.selectedKeys().iterator(); iter.hasNext();) {
-          SelectionKey key = (SelectionKey) iter.next();
-          iter.remove();
+        if (requestsBuffer != null)
+        {
+            cleanup (requestsBuffer);
+        }
+    }
 
-          if (!key.isValid()) {
-            continue;
-          }
+    /**
+     * Called in Selector thread
+     */
+    private void cleanup ()
+    {
 
-          try {
-            // loop four times to account for each of the ecah of the possible IO operations
-            //  connect, accept, read, write
-            boolean checkConnect, checkAccept, checkRead, checkWrite;
-            checkConnect = checkAccept = checkRead = checkWrite = true;
-            for (int count = 0; count < 4; count++) {
-              int op = 0;
-              SelectorRequest.Type jobType = SelectorRequest.Type.CONNECT;
-              // delegate work to worker thread
-              if (checkConnect && key.isConnectable()) {
-                checkConnect = false;
-                op = SelectionKey.OP_CONNECT;
-                jobType = SelectorRequest.Type.CONNECT;
-              }
-              else if (checkAccept && key.isAcceptable()) {
-                checkAccept = false;
-                op = SelectionKey.OP_ACCEPT;
-                jobType = SelectorRequest.Type.ACCEPT;
-              } else if (checkRead && key.isReadable()) {
-                checkRead = false;
-                op = SelectionKey.OP_READ;
-                jobType = SelectorRequest.Type.READ;
-              } else if (checkWrite && key.isWritable()) {
-                checkWrite = false;
-                op = SelectionKey.OP_WRITE;
-                jobType = SelectorRequest.Type.WRITE;
-              }
-              else {
-                break;
-              }
+        cleanup (connectRequestsPool);
+        cleanup (writeRequestsPool);
+        cleanup (readRequestsPool);
 
-              if (op != 0) {
+        cleanup (reActivateBuffer);
+        cleanup (newRequests);
 
-                if (loggerDebugEnabled) {
-                  logger.debug ("Key " + key.toString() + " ready for action: " + jobType.toString());
+        // the time ordered requests have already been cleaned up during above cleanup
+        timeOrderedRequests.clear ();
+
+    }
+
+    /**
+     * Called in Selector thread
+     */
+    private void cleanup (RequestorPool pool)
+    {
+
+        synchronized (pool)
+        {
+            for (Enumeration<RequestsBuffer> e = pool.elements (); e.hasMoreElements();)
+            {
+                cleanup (e.nextElement());
+            }
+        }
+    }
+
+    /**
+     * Called in Selector thread
+     */
+    private void cleanup (RequestsBuffer requestsBuffer)
+    {
+        synchronized (requestsBuffer)
+        {
+            for (Iterator<SelectorRequest> iter = requestsBuffer.iterator(); iter.hasNext();)
+            {
+                SelectorRequest request = iter.next();
+
+                if (loggerDebugEnabled)
+                {
+                    logger.debug ("Cleaning up request. Request type: "
+                                  + request.type.toString() + ", Request status: " + request.status.toString());
                 }
-
-                // disable op bit for SelectionKey
-                int currentOps = key.interestOps ();
-                int newOps = currentOps ^ op; // exclusive or
-                try {
-                  key.interestOps (newOps);
-                }
-                catch (CancelledKeyException ex) {
-                  // let the worker deal with this
+                if (!running)
+                {
+                    request.setStatus (SelectorRequest.Status.SHUTDOWN);
                 }
 
                 // delegate work to worker thread
-                SendJob sendJob = new SendJob (key, jobType);
+                SendJob sendJob = new SendJob (request);
                 FutureTask task = new FutureTask (sendJob);
                 executor.execute (task);
-              }
             }
-          }
-          catch (CancelledKeyException ex) {
-            // explicit key cancellations are only doen by the selector thread, so the only way we
-            // got here is if another thread closed the assocated channel. In that case simple
-            // cleanup any requests associated with this key and continue.
+            requestsBuffer.clear ();
+        }
+    }
 
-            if (loggerDebugEnabled) {
-              logger.debug ("Cleaning up requests associated with key: " + key.toString());
+    /**
+     * signals the run loop to terminate
+     */
+    public synchronized void halt ()
+    {
+
+        synchronized (lock)
+        {
+            if (!running)
+            {
+                return;
             }
-            cleanup (key);
-          }
-        }
-      }
-    }
-    catch (Exception ex) {
-      logger.error ("Exception in Selector loop. Bailing out: " + ex.toString());
-      ex.printStackTrace ();
-    }
-    running = false;
+            else
+            {
 
-    try {
-      // clean up all pending requests
+                if (loggerDebugEnabled)
+                {
+                    logger.debug ("Halting Selector Manager.");
+                }
 
-      if (loggerDebugEnabled) {
-        logger.debug ("SelectorManager loop is broken. Cleaning up pending requests");
-      }
-      cleanup ();
-
-      if (loggerDebugEnabled) {
-        logger.debug ("Issuing shutdown command to Threadpool executor.");
-      }
-      executor.shutdown ();
-    }
-    catch (Exception ex) {
-      logger.error ("Exception in Selector manager cleanup. Bailing out: " + ex.toString());
-      ex.printStackTrace ();
-    }
-  }
-
-  /**
-   * Called in Selector thread
-   */
-  private void cleanup (SelectionKey key) {
-
-    cleanup (connectRequestsPool, key);
-    cleanup (writeRequestsPool, key);
-    cleanup (readRequestsPool, key);
-  }
-
-  /**
-   * Called in Selector thread
-   */
-  private void cleanup (RequestorPool pool, SelectionKey key) {
-
-    RequestsBuffer requestsBuffer = null;
-    synchronized (pool) {
-      requestsBuffer = pool.remove (key);
-    }
-
-    if (requestsBuffer != null) {
-      cleanup (requestsBuffer);
-    }
-  }
-
-  /**
-   * Called in Selector thread
-   */
-  private void cleanup () {
-
-    cleanup (connectRequestsPool);
-    cleanup (writeRequestsPool);
-    cleanup (readRequestsPool);
-
-    cleanup (reActivateBuffer);
-    cleanup (newRequests);
-
-    // the time ordered requests have already been cleaned up during above cleanup
-    timeOrderedRequests.clear ();
-
-  }
-
-  /**
-   * Called in Selector thread
-   */
-  private void cleanup (RequestorPool pool) {
-
-    synchronized (pool) {
-      for (Enumeration<RequestsBuffer> e = pool.elements (); e.hasMoreElements();) {
-        cleanup (e.nextElement());
-      }
-    }
-  }
-
-  /**
-   * Called in Selector thread
-   */
-  private void cleanup (RequestsBuffer requestsBuffer) {
-    synchronized (requestsBuffer) {
-      for (Iterator<SelectorRequest> iter = requestsBuffer.iterator(); iter.hasNext();) {
-        SelectorRequest request = iter.next();
-
-        if (loggerDebugEnabled) {
-          logger.debug ("Cleaning up request. Request type: "
-                        + request.type.toString() + ", Request status: " + request.status.toString());
-        }
-        if (!running) {
-          request.setStatus (SelectorRequest.Status.SHUTDOWN);
+                running = false;
+                selector.wakeup ();
+            }
         }
 
-        // delegate work to worker thread
-        SendJob sendJob = new SendJob (request);
-        FutureTask task = new FutureTask (sendJob);
-        executor.execute (task);
-      }
-      requestsBuffer.clear ();
-    }
-  }
-
-  public synchronized void halt () {
-
-    synchronized (lock) {
-      if (!running) {
-        return;
-      }
-      else {
-
-        if (loggerDebugEnabled) {
-          logger.debug ("Halting Selector Manager.");
+        if (loggerDebugEnabled)
+        {
+            logger.debug ("Waiting for Threadpool executor to wind down.");
         }
-
-        running = false;
-        selector.wakeup ();
-      }
-    }
-
-    if (loggerDebugEnabled) {
-      logger.debug ("Waiting for Threadpool executor to wind down.");
-    }
-    // wait until all threadpool tasks have finished
-    while (!executor.isTerminated()) {
-      try {
-        executor.awaitTermination (Long.MAX_VALUE, TimeUnit.SECONDS);
-      }
-      catch (InterruptedException e) {
-        // ignored
-      }
-    }
-  }
-
-  public boolean add (SelectorRequest request) {
-
-    boolean immediateCallback = false;
-    if (request == null) {
-      return false;
-    }
-    if (request.type == null) {
-      request.setStatus (SelectorRequest.Status.FAILED);
-      immediateCallback = true;
-    }
-    if (request.nanoDeadline <= System.nanoTime()) {
-      request.setStatus (SelectorRequest.Status.EXPIRED);
-      immediateCallback = true;
-    }
-    if (!running) {
-      request.setStatus (SelectorRequest.Status.SHUTDOWN);
-      immediateCallback = true;
-    }
-
-    switch (request.type) {
-    case CONNECT:
-      if (request.channel == null) {
-        request.setStatus (SelectorRequest.Status.FAILED);
-        immediateCallback = true;
-      }
-      break;
-    case WRITE:
-    case READ:
-      if (request.channel == null) {
-        request.setStatus (SelectorRequest.Status.FAILED);
-        immediateCallback = true;
-      }
-      else if (!request.channel.isConnected()) {
-        request.setStatus (SelectorRequest.Status.CLOSED);
-        immediateCallback = true;
-      }
-      break;
-    }
-
-    if (immediateCallback) {
-      if (request.callback != null) {
-        if (loggerDebugEnabled) {
-          logger.debug ("Immediate Requestor callback in client thread. Request type: " + request.type.toString() +
-                        ", Request status: " + request.status.toString());
+        // wait until all threadpool tasks have finished
+        while (!executor.isTerminated())
+        {
+            try
+            {
+                executor.awaitTermination (Long.MAX_VALUE, TimeUnit.SECONDS);
+            }
+            catch (InterruptedException e)
+            {
+                // ignored
+            }
         }
+    }
 
-        try {
-          request.callback.call (request);
+    /**
+     * Adds a new request entity to the requestor pool.
+     * @param request is the event to be added to the pool
+     * @returns true if the request was successfully added
+     */
+    public boolean add (SelectorRequest request)
+    {
+
+        boolean immediateCallback = false;
+        if (request == null)
+        {
+            return false;
         }
-        catch (Exception ex) {
-          // disregrad any client exceptions
+        if (request.type == null)
+        {
+            request.setStatus (SelectorRequest.Status.FAILED);
+            immediateCallback = true;
         }
-
-        if (loggerDebugEnabled) {
-          logger.debug ("Callback concluded");
-        }
-      }
-      return false;
-    }
-
-    if (loggerDebugEnabled) {
-      logger.debug ("Adding request to new requests buffer. Request type: " + request.type.toString());
-    }
-
-    request.setStatus (SelectorRequest.Status.PENDING);
-    synchronized (newRequests) {
-      newRequests.add (newRequests.size(), request);
-    }
-
-    selector.wakeup ();
-    return true;
-  }
-
-  /**
-   * Called in Selector thread
-   */
-  private void reActivateRequest (SelectorRequest request) {
-
-    //if (request.type != SelectorRequest.Type.CONNECT && request.type != SelectorRequest.Type.TIMER
-    if (request.type != SelectorRequest.Type.TIMER
-        && !request.channel.isConnected ()) {
-      removeClosedRequests (request.key);
-    }
-    else {
-
-      if (loggerDebugEnabled) {
-        logger.debug ("Reactivating request. Request type: " + request.type.toString());
-      }
-
-      try {
-        int currentOps = request.key.interestOps ();
-        int newOps = currentOps | request.op;
-        request.key.interestOps (newOps);
-      }
-      catch (Exception ex) {
-        // channel interest ops weren't updated, so current ops are fine. We aren't leaving around extra ops
-        // internal data structures don't need cleanup as request wasn't inserted yet.
-        logger.error ("Failed to update selector interest ops for this channel.");
-        request.setStatus (SelectorRequest.Status.FAILED);
-
-        // call back request callable in worker thread
-        SendJob sendJob = new SendJob (request);
-        FutureTask task = new FutureTask (sendJob);
-        executor.execute (task);
-      }
-    }
-  }
-
-  /**
-   * Called in Selector thread
-   */
-  private void removeClosedRequests (SelectionKey key) {
-
-    if (key == null) {
-      return;
-    }
-
-    if (loggerDebugEnabled) {
-      logger.debug ("Removing request matching key " + key.toString());
-    }
-
-    // cancel key
-    key.cancel ();
-
-    // traverse pools and cleanup requests mapped to this key
-    removeClosedRequests (key, connectRequestsPool);
-    removeClosedRequests (key, writeRequestsPool);
-    removeClosedRequests (key, readRequestsPool);
-  }
-
-  /**
-   * Called in Selector thread
-   */
-  private void removeClosedRequests (SelectionKey key, RequestorPool pool) {
-
-    RequestsBuffer requestBuffer;
-    synchronized (pool) {
-      requestBuffer = pool.remove (key);
-    }
-    removeClosedRequests (requestBuffer);
-  }
-
-  /**
-   * Called in Selector thread
-   */
-  private void removeClosedRequests (RequestsBuffer requestBuffer) {
-
-    if (requestBuffer != null) {
-      RequestsBuffer myRequestBuffer = new RequestsBuffer();
-      synchronized (requestBuffer) {
-
-        // move requests to a local container out from the common container
-        for (Iterator<SelectorRequest> iter = requestBuffer.iterator(); iter.hasNext();) {
-          myRequestBuffer.add (0, iter.next ());
-          iter.remove();
-        }
-      }
-
-      SelectorRequest request;
-      for (Iterator<SelectorRequest> iter = myRequestBuffer.iterator(); iter.hasNext();) {
-        request = iter.next ();
-        request.setStatus (SelectorRequest.Status.CLOSED);
-
-        // call back request callable in worker thread
-        SendJob sendJob = new SendJob (request);
-        FutureTask task = new FutureTask (sendJob);
-        executor.execute (task);
-      }
-      myRequestBuffer.clear ();
-    }
-  }
-
-  /**
-   * Called in Selector thread
-   */
-  private void insertIntoActivePool (SelectorRequest request) {
-
-    if (loggerDebugEnabled) {
-      logger.debug ("Inserting request into active pool. Request type: " + request.type.toString());
-    }
-
-    if (request.type != SelectorRequest.Type.CONNECT && request.type != SelectorRequest.Type.TIMER
-        && !request.channel.isConnected ()) {
-      removeClosedRequests (request.key);
-    }
-    else {
-      switch (request.type) {
-      case CONNECT:
-        insertIntoActivePool (connectRequestsPool, request);
-        break;
-      case WRITE:
-        insertIntoActivePool (writeRequestsPool, request);
-        break;
-      case READ:
-        insertIntoActivePool (readRequestsPool, request);
-        break;
-      case TIMER:
-        insertIntoTimedBuffer (request);
-        break;
-      }
-    }
-  }
-
-  // This method does three functions:
-  // 1.0 If the channel is being seen for the first time by this selector a key will be created.
-  // 1.1 If this chanenel is in a particular role for the first time, a new list buffer in the particualr pool will be created
-  // 2.0 If the list buffer is empty, the key will be enabled in the selector for that action.
-  // 2.1 If the list buffer isn't empty, the key will not be enabled in the selector for that action.
-  //     In that case it is either already enabled for that role or a worker is currently active in thet role.
-  //     We do not want two workers active in teh same role on the same channel.
-  /**
-   * Called in Selector thread
-   */
-  private void insertIntoActivePool (RequestorPool pool, SelectorRequest request) {
-
-    // if this is the first time selector is seeing this channel, acquire a key
-    //  no synchronization required as only one thread shoudl be inserting this channel at the moment
-
-    request.key = request.channel.keyFor (selector);
-    if (request.key == null) {
-      try {
-        request.key = request.channel.register (selector, request.op);
-      }
-      catch (ClosedChannelException e) {
-        logger.error ("Got exception trying to register closed channel.");
-        request.setStatus (SelectorRequest.Status.CLOSED);
-
-        // call back request callable in worker thread
-        SendJob sendJob = new SendJob (request);
-        FutureTask task = new FutureTask (sendJob);
-        executor.execute (task);
-
-        return;
-      }
-    }
-
-    RequestsBuffer requests = null;
-    synchronized (pool) {
-
-      // Acquire pool lock and check if a list exists for this key. If not create one
-      requests = pool.get (request.key);
-      if (requests == null) {
-        requests = new RequestsBuffer ();
-        pool.put (request.key, requests);
-      }
-    }
-
-    boolean opUpdateFailed = false;
-    int newOps = 0;
-    try {
-      synchronized (requests) {
-        if (requests.isEmpty ()) {
-          // ops registration will be repeated if this is the first time the channel is being seen
-          int currentOps = request.key.interestOps ();
-          newOps = currentOps | request.op;
-          request.key.interestOps (newOps);
-        }
-        requests.add (requests.size(), request);
-      }
-
-      insertIntoTimedBuffer (request);
-    }
-    catch (CancelledKeyException ex) {
-      logger.error ("Failed to update selector interest ops as the key is already cancelled.");
-      opUpdateFailed = true;
-    }
-    catch (IllegalArgumentException ex) {
-      logger.error ("Failed to update selector interest ops as the key. Illegal ops: " + newOps);
-      opUpdateFailed = true;
-    }
-
-    if (opUpdateFailed) {
-      // channel interest ops weren't updated, so current ops are fine. We aren't leaving around extra ops
-      // internal data structures don't need cleanup as request wasn't inserted yet.
-      logger.error ("Failed to update selector interest ops for this channel.");
-      request.setStatus (SelectorRequest.Status.FAILED);
-
-      // call back request callable in worker thread
-      SendJob sendJob = new SendJob (request);
-      FutureTask task = new FutureTask (sendJob);
-      executor.execute (task);
-    }
-  }
-
-  /**
-   * Called in Selector thread
-   */
-  private void insertIntoTimedBuffer (SelectorRequest newRequest) {
-
-    RequestsBuffer requests = timeOrderedRequests;
-
-    if (loggerDebugEnabled) {
-      logger.debug ("Inserting request into timed requests buffer. Request type: " + newRequest.type.toString());
-    }
-
-    synchronized (requests) {
-      boolean inserted = false;
-      int indx = requests.size ();
-      for (ListIterator<SelectorRequest> iter = requests.listIterator(requests.size()); iter.hasPrevious();) {
-        SelectorRequest request = iter.previous();
-        // iterate till a request with earlier deadline is seen
-        if (request.nanoDeadline < newRequest.nanoDeadline) {
-          break;
-        }
-        indx--;
-      }
-      requests.add (indx, newRequest);
-    }
-  }
-
-  /**
-   * Called in Selector thread
-   * Returns shortest expiration time in millisecond resolution
-   */
-  private long cleanupExpiredRequests () {
-
-    if (loggerDebugEnabled) {
-      logger.debug ("Enter SelectorManager.cleanupExpiredRequests()");
-    }
-
-    long sleepTime = 0;//Long.MAX_VALUE;
-    synchronized (timeOrderedRequests) {
-      for (Iterator<SelectorRequest> iter = timeOrderedRequests.iterator (); iter.hasNext();) {
-        SelectorRequest request = iter.next();
-
-        if (loggerDebugEnabled) {
-          logger.debug ("Checking expiry on request. Request type: " + request.type.toString()
-                        + ", request status: " + request.status.toString());
-        }
-
-        // if not pending, some action is being taken, don't interfere
-        if (request.status != SelectorRequest.Status.PENDING) {
-          iter.remove ();
-          continue;
-        }
-
-        long currentNanoTime = System.nanoTime();
-        // if still pending and time expired, no action is being taken, just expire the sucker
-        // leave the op registration alone. We don't know if another request is pending. Upon
-        //  firing, selector will check if any unpired requests are pending.
-        if (request.nanoDeadline <= currentNanoTime) {
-
-          if (loggerDebugEnabled) {
-            logger.debug ("Cleaning up expired request from timed requests queue:\n" +
-                          "\trequest type: " + request.type.toString() +
-                          ", request status: " + request.status.toString());
-          }
-
-          // a worker thread may already have caught the expired request. In that case
-          //  don't refire the status update.
-          if (request.status != SelectorRequest.Status.EXPIRED) {
+        if (request.nanoDeadline <= System.nanoTime())
+        {
             request.setStatus (SelectorRequest.Status.EXPIRED);
+            immediateCallback = true;
+        }
+        if (!running)
+        {
+            request.setStatus (SelectorRequest.Status.SHUTDOWN);
+            immediateCallback = true;
+        }
 
-            // cleanup connection expiry requests explicitly as this is probably the last chance to clean it up
-            if (request.type == SelectorRequest.Type.CONNECT && request.key != null) {
-              cleanup (connectRequestsPool, request.key);
+        switch (request.type)
+        {
+            case CONNECT:
+                if (request.channel == null)
+                {
+                    request.setStatus (SelectorRequest.Status.FAILED);
+                    immediateCallback = true;
+                }
+                break;
+            case WRITE:
+            case READ:
+                if (request.channel == null)
+                {
+                    request.setStatus (SelectorRequest.Status.FAILED);
+                    immediateCallback = true;
+                }
+                else if (!request.channel.isConnected())
+                {
+                    request.setStatus (SelectorRequest.Status.CLOSED);
+                    immediateCallback = true;
+                }
+                break;
+        }
+
+        if (immediateCallback)
+        {
+            if (request.callback != null)
+            {
+                if (loggerDebugEnabled)
+                {
+                    logger.debug ("Immediate Requestor callback in client thread. Request type: " + request.type.toString() +
+                                  ", Request status: " + request.status.toString());
+                }
+
+                try
+                {
+                    request.callback.call (request);
+                }
+                catch (Exception ex)
+                {
+                    // disregrad any client exceptions
+                }
+
+                if (loggerDebugEnabled)
+                {
+                    logger.debug ("Callback concluded");
+                }
             }
-          }
-
-          // Regardless of who set expired status (worker or us) its our job to issue the
-          //  request for a request callback.
-          // call back request callable in worker thread
-          SendJob sendJob = new SendJob (request);
-          FutureTask task = new FutureTask (sendJob);
-          executor.execute (task);
-          iter.remove ();
-          continue;
+            return false;
         }
 
-        // the first non-pending, still to expire action gives us the next sleep time.
-        sleepTime = (request.nanoDeadline - currentNanoTime)/ 1000000; // convert to milli
-        sleepTime = (sleepTime <= 0 ? 1 : sleepTime); // cannot return sleepTime 0 as thats an infinity
-        break;
-      }
+        if (loggerDebugEnabled)
+        {
+            logger.debug ("Adding request to new requests buffer. Request type: " + request.type.toString());
+        }
+
+        request.setStatus (SelectorRequest.Status.PENDING);
+        synchronized (newRequests)
+        {
+            newRequests.add (newRequests.size(), request);
+        }
+
+        selector.wakeup ();
+        return true;
     }
 
-    return sleepTime;
-  }
+    /**
+     * Called in Selector thread
+     */
+    private void reActivateRequest (SelectorRequest request)
+    {
 
-  /**
-   * Called in Worker thread
-   */
-  private void callbackRequestor (SelectionKey key, RequestorPool pool) {
-
-    RequestsBuffer requestsBuffer = pool.get(key);
-    SelectorRequest request = null;
-
-    synchronized (requestsBuffer) {
-      for (Iterator<SelectorRequest> iter = requestsBuffer.iterator(); iter.hasNext();) {
-        request = iter.next();
-
-        // if current request is already marked expired, remove from list & go on
-        if (request.status == SelectorRequest.Status.EXPIRED) {
-          request = null;
-          iter.remove ();
-          continue;
+        //if (request.type != SelectorRequest.Type.CONNECT && request.type != SelectorRequest.Type.TIMER
+        if (request.type != SelectorRequest.Type.TIMER
+                && !request.channel.isConnected ())
+        {
+            removeClosedRequests (request.key);
         }
+        else
+        {
 
-        // if current request isn't expired but its status hasn't been updated update status.
-        //  expiration callback will be done by selector loop
-        if (request.status == SelectorRequest.Status.PENDING && request.nanoDeadline <= System.nanoTime()) {
-          request.setStatus (SelectorRequest.Status.EXPIRED);
-          iter.remove ();
-          continue;
-        }
-        break;
-      }
-    }
-
-    if (request != null) {
-      request.setStatus (SelectorRequest.Status.READY);
-
-      boolean reActivate = false;
-      if (request.callback != null) {
-
-        if (loggerDebugEnabled) {
-          logger.debug ("Requestor callback in worker thread. Request type: " + request.type.toString());
-        }
-
-        try {
-          reActivate = request.callback.call (request);
-        }
-        catch (Exception ex) {
-          // discard any uncaught requestor exceptions
-        }
-
-        if (loggerDebugEnabled) {
-          logger.debug ("Callback concluded. Reactivation request: " + (reActivate ? "TRUE" : "FALSE"));
-        }
-
-        // if connected is closed, try to reactivate the request. this will let
-        //  the selector loop to cleanup the channel from its structures.
-        //  Unwanted behavior of calling the requestor callback again.
-        if (!request.channel.isConnected()) {
-          reActivate = true;
-        }
-      }
-
-      if (reActivate) {
-        request.setStatus (SelectorRequest.Status.ASSIGNED);
-      }
-
-      if (!reActivate) {
-        // request complete; remove it from buffer and activate key only if buffer has more elements
-        synchronized (requestsBuffer) {
-          request.setStatus (SelectorRequest.Status.FINISHED); // required to indicate request callback has finished
-          requestsBuffer.remove (0);
-          // cleanup expired requests
-          request = null;
-          for (Iterator<SelectorRequest> iter = requestsBuffer.iterator(); iter.hasNext();) {
-            request = iter.next();
-
-            // if current request is already marked expired, remove from list & go on
-            if (request.status == SelectorRequest.Status.EXPIRED) {
-              iter.remove();
-              request = null;
-              continue;
+            if (loggerDebugEnabled)
+            {
+                logger.debug ("Reactivating request. Request type: " + request.type.toString());
             }
 
-            // if current request isn't expired but its status hasn't been updated update status.
-            //  expiration callback will be done by selector loop
-            if (request.nanoDeadline <= System.nanoTime()) {
-              request.setStatus (SelectorRequest.Status.EXPIRED);
-              iter.remove();
-              request = null;
-              continue;
+            try
+            {
+                int currentOps = request.key.interestOps ();
+                int newOps = currentOps | request.op;
+                request.key.interestOps (newOps);
             }
-            break;
-          }
+            catch (Exception ex)
+            {
+                // channel interest ops weren't updated, so current ops are fine. We aren't leaving around extra ops
+                // internal data structures don't need cleanup as request wasn't inserted yet.
+                logger.error ("Failed to update selector interest ops for this channel.");
+                request.setStatus (SelectorRequest.Status.FAILED);
+
+                // call back request callable in worker thread
+                SendJob sendJob = new SendJob (request);
+                FutureTask task = new FutureTask (sendJob);
+                executor.execute (task);
+            }
         }
-      }
-
-      // if any requests are pending re-active key
-      if (request != null) {
-        synchronized (reActivateBuffer) {
-          reActivateBuffer.add (0, request);
-          selector.wakeup ();
-        }
-      }
-    }
-  }
-
-  /**
-   * Called in Worker thread
-   */
-  private void handleAction (SelectionKey key, SelectorRequest.Type type, SelectorRequest request) {
-
-    if (loggerDebugEnabled) {
-      logger.debug ("Enter SelectorManager.handleAction");
     }
 
-    // if request object is available just call its callable object
-    if (request != null) {
-      if (request.callback != null) {
+    /**
+     * Called in Selector thread
+     */
+    private void removeClosedRequests (SelectionKey key)
+    {
 
-        if (loggerDebugEnabled) {
-          logger.debug ("Selector Worker thread calling request callback directly:\n" +
-                        "\tRequest type: " + request.type.toString() + ", Request status: " + request.status.toString());
+        if (key == null)
+        {
+            return;
         }
 
-        try {
-          request.callback.call (request);
-        }
-        catch (Exception ex) {
-          // ignore client exceptions
+        if (loggerDebugEnabled)
+        {
+            logger.debug ("Removing request matching key " + key.toString());
         }
 
-        if (loggerDebugEnabled) {
-          logger.debug ("Callback concluded");
+        // cancel key
+        key.cancel ();
+
+        // traverse pools and cleanup requests mapped to this key
+        removeClosedRequests (key, connectRequestsPool);
+        removeClosedRequests (key, writeRequestsPool);
+        removeClosedRequests (key, readRequestsPool);
+    }
+
+    /**
+     * Called in Selector thread
+     */
+    private void removeClosedRequests (SelectionKey key, RequestorPool pool)
+    {
+
+        RequestsBuffer requestBuffer;
+        synchronized (pool)
+        {
+            requestBuffer = pool.remove (key);
         }
-      }
-    }
-    else {
-      // else we have more work
-      switch (type) {
-      case CONNECT:
-        callbackRequestor (key, connectRequestsPool);
-        break;
-      case WRITE:
-        callbackRequestor (key, writeRequestsPool);
-        break;
-      case READ:
-        callbackRequestor (key, readRequestsPool);
-        break;
-      }
-    }
-  }
-
-  private class RequestsBuffer {
-    public LinkedList<SelectorRequest> requests = new LinkedList<SelectorRequest> ();
-
-    public Iterator<SelectorRequest> iterator () {
-      return requests.iterator ();
+        removeClosedRequests (requestBuffer);
     }
 
-    public ListIterator<SelectorRequest> listIterator (int index) {
-      return requests.listIterator (index);
+    /**
+     * Called in Selector thread
+     */
+    private void removeClosedRequests (RequestsBuffer requestBuffer)
+    {
+
+        if (requestBuffer != null)
+        {
+            RequestsBuffer myRequestBuffer = new RequestsBuffer();
+            synchronized (requestBuffer)
+            {
+
+                // move requests to a local container out from the common container
+                for (Iterator<SelectorRequest> iter = requestBuffer.iterator(); iter.hasNext();)
+                {
+                    myRequestBuffer.add (0, iter.next ());
+                    iter.remove();
+                }
+            }
+
+            SelectorRequest request;
+            for (Iterator<SelectorRequest> iter = myRequestBuffer.iterator(); iter.hasNext();)
+            {
+                request = iter.next ();
+                request.setStatus (SelectorRequest.Status.CLOSED);
+
+                // call back request callable in worker thread
+                SendJob sendJob = new SendJob (request);
+                FutureTask task = new FutureTask (sendJob);
+                executor.execute (task);
+            }
+            myRequestBuffer.clear ();
+        }
     }
 
-    public SelectorRequest get (int index) {
-      return requests.get(index);
+    /**
+     * Called in Selector thread
+     */
+    private void insertIntoActivePool (SelectorRequest request)
+    {
+
+        if (loggerDebugEnabled)
+        {
+            logger.debug ("Inserting request into active pool. Request type: " + request.type.toString());
+        }
+
+        if (request.type != SelectorRequest.Type.CONNECT && request.type != SelectorRequest.Type.TIMER
+                && !request.channel.isConnected ())
+        {
+            removeClosedRequests (request.key);
+        }
+        else
+        {
+            switch (request.type)
+            {
+                case CONNECT:
+                    insertIntoActivePool (connectRequestsPool, request);
+                    break;
+                case WRITE:
+                    insertIntoActivePool (writeRequestsPool, request);
+                    break;
+                case READ:
+                    insertIntoActivePool (readRequestsPool, request);
+                    break;
+                case TIMER:
+                    insertIntoTimedBuffer (request);
+                    break;
+            }
+        }
     }
 
-    public void clear () {
-      requests.clear ();
+    // This method does the following functions:
+    // 1.0 If the channel is being seen for the first time by this selector a key will be created.
+    // 1.1 If this channel is in a particular role for the first time, a new list buffer in the particualr pool will be created
+    // 2.0 If the list buffer is empty, the key will be enabled in the selector for that action.
+    // 2.1 If the list buffer isn't empty, the key will not be enabled in the selector for that action.
+    //     In that case it is either already enabled for that role or a worker is currently active in thet role.
+    //     We do not want two workers active in the same role on the same channel.
+    /**
+     * Called in Selector thread
+     */
+    private void insertIntoActivePool (RequestorPool pool, SelectorRequest request)
+    {
+
+        // if this is the first time selector is seeing this channel, acquire a key
+        //  no synchronization required as only one thread shoudl be inserting this channel at the moment
+
+        request.key = request.channel.keyFor (selector);
+        if (request.key == null)
+        {
+            try
+            {
+                request.key = request.channel.register (selector, request.op);
+            }
+            catch (ClosedChannelException e)
+            {
+                logger.error ("Got exception trying to register closed channel.");
+                request.setStatus (SelectorRequest.Status.CLOSED);
+
+                // call back request callable in worker thread
+                SendJob sendJob = new SendJob (request);
+                FutureTask task = new FutureTask (sendJob);
+                executor.execute (task);
+
+                return;
+            }
+        }
+
+        RequestsBuffer requests = null;
+        synchronized (pool)
+        {
+
+            // Acquire pool lock and check if a list exists for this key. If not create one
+            requests = pool.get (request.key);
+            if (requests == null)
+            {
+                requests = new RequestsBuffer ();
+                pool.put (request.key, requests);
+            }
+        }
+
+        boolean opUpdateFailed = false;
+        int newOps = 0;
+        try
+        {
+            synchronized (requests)
+            {
+                if (requests.isEmpty ())
+                {
+                    // ops registration will be repeated if this is the first time the channel is being seen
+                    int currentOps = request.key.interestOps ();
+                    newOps = currentOps | request.op;
+                    request.key.interestOps (newOps);
+                }
+                requests.add (requests.size(), request);
+            }
+
+            insertIntoTimedBuffer (request);
+        }
+        catch (CancelledKeyException ex)
+        {
+            logger.error ("Failed to update selector interest ops as the key is already cancelled.");
+            opUpdateFailed = true;
+        }
+        catch (IllegalArgumentException ex)
+        {
+            logger.error ("Failed to update selector interest ops as the key. Illegal ops: " + newOps);
+            opUpdateFailed = true;
+        }
+
+        if (opUpdateFailed)
+        {
+            // channel interest ops weren't updated, so current ops are fine. We aren't leaving around extra ops
+            // internal data structures don't need cleanup as request wasn't inserted yet.
+            logger.error ("Failed to update selector interest ops for this channel.");
+            request.setStatus (SelectorRequest.Status.FAILED);
+
+            // call back request callable in worker thread
+            SendJob sendJob = new SendJob (request);
+            FutureTask task = new FutureTask (sendJob);
+            executor.execute (task);
+        }
     }
 
-    public void add (int index, SelectorRequest request) {
-      requests.add (index, request);
+    /**
+     * Called in Selector thread
+     */
+    private void insertIntoTimedBuffer (SelectorRequest newRequest)
+    {
+
+        RequestsBuffer requests = timeOrderedRequests;
+
+        if (loggerDebugEnabled)
+        {
+            logger.debug ("Inserting request into timed requests buffer. Request type: " + newRequest.type.toString());
+        }
+
+        synchronized (requests)
+        {
+            boolean inserted = false;
+            int indx = requests.size ();
+            for (ListIterator<SelectorRequest> iter = requests.listIterator(requests.size()); iter.hasPrevious();)
+            {
+                SelectorRequest request = iter.previous();
+                // iterate till a request with earlier deadline is seen
+                if (request.nanoDeadline < newRequest.nanoDeadline)
+                {
+                    break;
+                }
+                indx--;
+            }
+            requests.add (indx, newRequest);
+        }
     }
 
-    public SelectorRequest remove (int index) {
-      return requests.remove (index);
+    /**
+     * Called in Selector thread
+     * Returns shortest expiration time in millisecond resolution
+     */
+    private long cleanupExpiredRequests ()
+    {
+
+        if (loggerDebugEnabled)
+        {
+            logger.debug ("Enter SelectorManager.cleanupExpiredRequests()");
+        }
+
+        long sleepTime = 0;//Long.MAX_VALUE;
+        synchronized (timeOrderedRequests)
+        {
+            for (Iterator<SelectorRequest> iter = timeOrderedRequests.iterator (); iter.hasNext();)
+            {
+                SelectorRequest request = iter.next();
+
+                if (loggerDebugEnabled)
+                {
+                    logger.debug ("Checking expiry on request. Request type: " + request.type.toString()
+                                  + ", request status: " + request.status.toString());
+                }
+
+                // if not pending, some action is being taken, don't interfere
+                if (request.status != SelectorRequest.Status.PENDING)
+                {
+                    iter.remove ();
+                    continue;
+                }
+
+                long currentNanoTime = System.nanoTime();
+                // if still pending and time expired, no action is being taken, just expire the sucker
+                // leave the op registration alone. We don't know if another request is pending. Upon
+                //  firing, selector will check if any unpired requests are pending.
+                if (request.nanoDeadline <= currentNanoTime)
+                {
+
+                    if (loggerDebugEnabled)
+                    {
+                        logger.debug ("Cleaning up expired request from timed requests queue:\n" +
+                                      "\trequest type: " + request.type.toString() +
+                                      ", request status: " + request.status.toString());
+                    }
+
+                    // a worker thread may already have caught the expired request. In that case
+                    //  don't refire the status update.
+                    if (request.status != SelectorRequest.Status.EXPIRED)
+                    {
+                        request.setStatus (SelectorRequest.Status.EXPIRED);
+
+                        // cleanup connection expiry requests
+                        // explicitly as this is probably the last
+                        // chance to clean it up
+                        if (request.type == SelectorRequest.Type.CONNECT && request.key != null)
+                        {
+                            cleanup (connectRequestsPool, request.key);
+                        }
+                    }
+
+                    // Regardless of who set expired status (worker or us) its our job to issue the
+                    //  request for a request callback.
+                    // call back request callable in worker thread
+                    SendJob sendJob = new SendJob (request);
+                    FutureTask task = new FutureTask (sendJob);
+                    executor.execute (task);
+                    iter.remove ();
+                    continue;
+                }
+
+                // the first non-pending, still to expire action gives us the next sleep time.
+                sleepTime = (request.nanoDeadline - currentNanoTime) / 1000000; // convert to milli
+                sleepTime = (sleepTime <= 0 ? 1 : sleepTime); // cannot return sleepTime 0 as thats an infinity
+                break;
+            }
+        }
+
+        return sleepTime;
     }
 
-    public int size () {
-      return requests.size ();
+    /**
+     * Called in Worker thread
+     */
+    private void callbackRequestor (SelectionKey key, RequestorPool pool)
+    {
+
+        RequestsBuffer requestsBuffer = pool.get(key);
+        SelectorRequest request = null;
+
+        synchronized (requestsBuffer)
+        {
+            for (Iterator<SelectorRequest> iter = requestsBuffer.iterator(); iter.hasNext();)
+            {
+                request = iter.next();
+
+                // if current request is already marked expired, remove from list & go on
+                if (request.status == SelectorRequest.Status.EXPIRED)
+                {
+                    request = null;
+                    iter.remove ();
+                    continue;
+                }
+
+                // if current request isn't expired but its status hasn't been updated update status.
+                //  expiration callback will be done by selector loop
+                if (request.status == SelectorRequest.Status.PENDING && request.nanoDeadline <= System.nanoTime())
+                {
+                    request.setStatus (SelectorRequest.Status.EXPIRED);
+                    iter.remove ();
+                    continue;
+                }
+                break;
+            }
+        }
+
+        if (request != null)
+        {
+            request.setStatus (SelectorRequest.Status.READY);
+
+            boolean reActivate = false;
+            if (request.callback != null)
+            {
+
+                if (loggerDebugEnabled)
+                {
+                    logger.debug ("Requestor callback in worker thread. Request type: " + request.type.toString());
+                }
+
+                try
+                {
+                    reActivate = request.callback.call (request);
+                }
+                catch (Exception ex)
+                {
+                    // discard any uncaught requestor exceptions
+                }
+
+                if (loggerDebugEnabled)
+                {
+                    logger.debug ("Callback concluded. Reactivation request: " + (reActivate ? "TRUE" : "FALSE"));
+                }
+
+                // if connected is closed, try to reactivate the request. this will let
+                //  the selector loop to cleanup the channel from its structures.
+                //  Unwanted behavior of calling the requestor callback again.
+                if (!request.channel.isConnected())
+                {
+                    reActivate = true;
+                }
+            }
+
+            if (reActivate)
+            {
+                request.setStatus (SelectorRequest.Status.ASSIGNED);
+            }
+
+            if (!reActivate)
+            {
+                // request complete; remove it from buffer and activate key only if buffer has more elements
+                synchronized (requestsBuffer)
+                {
+                    request.setStatus (SelectorRequest.Status.FINISHED); // required to indicate request callback has finished
+                    requestsBuffer.remove (0);
+                    // cleanup expired requests
+                    request = null;
+                    for (Iterator<SelectorRequest> iter = requestsBuffer.iterator(); iter.hasNext();)
+                    {
+                        request = iter.next();
+
+                        // if current request is already marked expired, remove from list & go on
+                        if (request.status == SelectorRequest.Status.EXPIRED)
+                        {
+                            iter.remove();
+                            request = null;
+                            continue;
+                        }
+
+                        // if current request isn't expired but its status hasn't been updated update status.
+                        //  expiration callback will be done by selector loop
+                        if (request.nanoDeadline <= System.nanoTime())
+                        {
+                            request.setStatus (SelectorRequest.Status.EXPIRED);
+                            iter.remove();
+                            request = null;
+                            continue;
+                        }
+                        break;
+                    }
+                }
+            }
+
+            // if any requests are pending re-active key
+            if (request != null)
+            {
+                synchronized (reActivateBuffer)
+                {
+                    reActivateBuffer.add (0, request);
+                    selector.wakeup ();
+                }
+            }
+        }
     }
 
-    public boolean isEmpty () {
-      return requests.isEmpty ();
-    }
-  }
+    /**
+     * Called in Worker thread
+     */
+    private void handleAction (SelectionKey key, SelectorRequest.Type type, SelectorRequest request)
+    {
 
-  private class RequestorPool {
-    public Hashtable<SelectionKey, RequestsBuffer> pool = new Hashtable<SelectionKey, RequestsBuffer> ();
+        if (loggerDebugEnabled)
+        {
+            logger.debug ("Enter SelectorManager.handleAction");
+        }
 
-    public RequestsBuffer get (SelectionKey key) {
-      return pool.get (key);
-    }
+        // if request object is available just call its callable object
+        if (request != null)
+        {
+            if (request.callback != null)
+            {
 
-    public RequestsBuffer put (SelectionKey key, RequestsBuffer requestBuffer) {
-      return pool.put (key, requestBuffer);
-    }
+                if (loggerDebugEnabled)
+                {
+                    logger.debug ("Selector Worker thread calling request callback directly:\n" +
+                                  "\tRequest type: " + request.type.toString() + ", Request status: " + request.status.toString());
+                }
 
-    public RequestsBuffer remove (SelectionKey key) {
-      return pool.remove (key);
-    }
+                try
+                {
+                    request.callback.call (request);
+                }
+                catch (Exception ex)
+                {
+                    // ignore client exceptions
+                }
 
-    public Enumeration<RequestsBuffer> elements() {
-      return pool.elements ();
-    }
-  }
-
-  private static class SelectorManagerThreadFactory implements ThreadFactory
-  {
-    private static final AtomicInteger poolNumber = new AtomicInteger(1);
-    private final ThreadGroup group;
-    private final AtomicInteger threadNumber = new AtomicInteger(1);
-    private final String namePrefix;
-
-
-    private SelectorManagerThreadFactory() {
-      SecurityManager s = System.getSecurityManager();
-      group = (s != null ? s.getThreadGroup() : Thread.currentThread().getThreadGroup());
-      namePrefix = "SelectorManager worker-" + poolNumber.getAndIncrement() + "-thread-";
-    }
-
-
-    public Thread newThread(Runnable runnable) {
-      Thread t = new Thread(group, runnable, namePrefix + threadNumber.getAndIncrement(), 0);
-      if (t.isDaemon()) {
-        t.setDaemon(false);
-      }
-
-      if (t.getPriority() != Thread.NORM_PRIORITY) {
-        t.setPriority(Thread.NORM_PRIORITY);
-      }
-
-      return t;
-    }
-  }
-
-  // a SendJob is a helper class used to send requests in background
-  private class SendJob implements Callable
-  {
-    private SelectionKey key = null;
-    private SelectorRequest.Type type = null;
-    private SelectorRequest request = null;
-
-    SendJob (SelectionKey key, SelectorRequest.Type type) {
-      this.key = key;
-      this.type = type;
+                if (loggerDebugEnabled)
+                {
+                    logger.debug ("Callback concluded");
+                }
+            }
+        }
+        else
+        {
+            // else we have more work
+            switch (type)
+            {
+                case CONNECT:
+                    callbackRequestor (key, connectRequestsPool);
+                    break;
+                case WRITE:
+                    callbackRequestor (key, writeRequestsPool);
+                    break;
+                case READ:
+                    callbackRequestor (key, readRequestsPool);
+                    break;
+            }
+        }
     }
 
-    SendJob (SelectorRequest request) {
-      this.request = request;
+    private class RequestsBuffer
+    {
+        public LinkedList<SelectorRequest> requests = new LinkedList<SelectorRequest> ();
+
+        public Iterator<SelectorRequest> iterator ()
+        {
+            return requests.iterator ();
+        }
+
+        public ListIterator<SelectorRequest> listIterator (int index)
+        {
+            return requests.listIterator (index);
+        }
+
+        public SelectorRequest get (int index)
+        {
+            return requests.get(index);
+        }
+
+        public void clear ()
+        {
+            requests.clear ();
+        }
+
+        public void add (int index, SelectorRequest request)
+        {
+            requests.add (index, request);
+        }
+
+        public SelectorRequest remove (int index)
+        {
+            return requests.remove (index);
+        }
+
+        public int size ()
+        {
+            return requests.size ();
+        }
+
+        public boolean isEmpty ()
+        {
+            return requests.isEmpty ();
+        }
     }
 
-    public java.lang.Object call()
-      throws Exception {
+    private class RequestorPool
+    {
+        public Hashtable<SelectionKey, RequestsBuffer> pool = new Hashtable<SelectionKey, RequestsBuffer> ();
 
-      if (running) {
-          handleAction (key, type, request);
-      }
-      return (null);
+        public RequestsBuffer get (SelectionKey key)
+        {
+            return pool.get (key);
+        }
+
+        public RequestsBuffer put (SelectionKey key, RequestsBuffer requestBuffer)
+        {
+            return pool.put (key, requestBuffer);
+        }
+
+        public RequestsBuffer remove (SelectionKey key)
+        {
+            return pool.remove (key);
+        }
+
+        public Enumeration<RequestsBuffer> elements()
+        {
+            return pool.elements ();
+        }
     }
-  }
+
+    private static class SelectorManagerThreadFactory implements ThreadFactory
+    {
+        private static final AtomicInteger poolNumber = new AtomicInteger(1);
+        private final ThreadGroup group;
+        private final AtomicInteger threadNumber = new AtomicInteger(1);
+        private final String namePrefix;
+
+
+        private SelectorManagerThreadFactory()
+        {
+            SecurityManager s = System.getSecurityManager();
+            group = (s != null ? s.getThreadGroup() : Thread.currentThread().getThreadGroup());
+            namePrefix = "SelectorManager worker-" + poolNumber.getAndIncrement() + "-thread-";
+        }
+
+
+        public Thread newThread(Runnable runnable)
+        {
+            Thread t = new Thread(group, runnable, namePrefix + threadNumber.getAndIncrement(), 0);
+            if (t.isDaemon())
+            {
+                t.setDaemon(false);
+            }
+
+            if (t.getPriority() != Thread.NORM_PRIORITY)
+            {
+                t.setPriority(Thread.NORM_PRIORITY);
+            }
+
+            return t;
+        }
+    }
+
+    // a SendJob is a helper class used to send requests in background
+    private class SendJob implements Callable
+    {
+        private SelectionKey key = null;
+        private SelectorRequest.Type type = null;
+        private SelectorRequest request = null;
+
+        SendJob (SelectionKey key, SelectorRequest.Type type)
+        {
+            this.key = key;
+            this.type = type;
+        }
+
+        SendJob (SelectorRequest request)
+        {
+            this.request = request;
+        }
+
+        public java.lang.Object call()
+        throws Exception
+        {
+
+            if (running)
+            {
+                handleAction (key, type, request);
+            }
+            return (null);
+        }
+    }
 }

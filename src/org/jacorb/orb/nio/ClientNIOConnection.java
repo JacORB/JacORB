@@ -1,7 +1,7 @@
 /*
  *        JacORB - a free Java ORB
  *
- *   Copyright (C) 1997-2008 Gerald Brose.
+ *   Copyright (C) 2011 Gerald Brose.
  *
  *   This library is free software; you can redistribute it and/or
  *   modify it under the terms of the GNU Library General Public
@@ -41,265 +41,298 @@ import org.jacorb.orb.iiop.IIOPProfile;
 import org.jacorb.orb.iiop.IIOPAddress;
 
 public class ClientNIOConnection
-  extends NIOConnection
-  implements Configurable
+        extends NIOConnection
+        implements Configurable
 {
-  private int noOfRetries  = 5;
-  private int retryInterval = 0;
+    private int noOfRetries  = 5;
+    private int retryInterval = 0;
 
-  public void configure(Configuration configuration)
+    public void configure(Configuration configuration)
     throws ConfigurationException
-  {
-    super.configure(configuration);
+    {
+        super.configure(configuration);
 
-    noOfRetries = configuration.getAttributeAsInteger("jacorb.retries", 5);
-    retryInterval = configuration.getAttributeAsInteger("jacorb.retry_interval",500);
-  }
+        noOfRetries = configuration.getAttributeAsInteger("jacorb.retries", 5);
+        retryInterval = configuration.getAttributeAsInteger("jacorb.retry_interval", 500);
+    }
 
-  // time_out is in milliseconds
-  public synchronized void connect(org.omg.ETF.Profile server_profile, long timeout) {
+    // time_out is in milliseconds
+    public synchronized void connect(org.omg.ETF.Profile server_profile, long timeout)
+    {
 
-    long nanoDeadline = (timeout == 0 ? Long.MAX_VALUE : System.nanoTime() + timeout*1000000);
+        long nanoDeadline = (timeout == 0 ? Long.MAX_VALUE : System.nanoTime() + timeout * 1000000);
 
-    if( !is_connected() ) {
-      if (server_profile instanceof IIOPProfile) {
-        this.profile = (IIOPProfile) server_profile;
-      }
-      else {
-        throw new org.omg.CORBA.BAD_PARAM
-          ( "attempt to connect an IIOP connection "
-            + "to a non-IIOP profile: " + server_profile.getClass());
-      }
+        if ( !is_connected() )
+        {
+            if (server_profile instanceof IIOPProfile)
+            {
+                this.profile = (IIOPProfile) server_profile;
+            }
+            else
+            {
+                throw new org.omg.CORBA.BAD_PARAM
+                ( "attempt to connect an IIOP connection "
+                  + "to a non-IIOP profile: " + server_profile.getClass());
+            }
 
-      if (isDebugEnabled) {
-        logger.debug("Trying to establish client connection with timeout " + timeout);
-      }
+            if (isDebugEnabled)
+            {
+                logger.debug("Trying to establish client connection with timeout " + timeout);
+            }
 
-      int retryCount = 0;
-      for (retryCount = 0; retryCount < noOfRetries; retryCount++) {
+            int retryCount = 0;
+            for (retryCount = 0; retryCount < noOfRetries; retryCount++)
+            {
 
-        try {
-          connectChannel (nanoDeadline);
+                try
+                {
+                    connectChannel (nanoDeadline);
 
-          // in_stream = Channels.newInputStream (channel);
-          // out_stream = Channels.newOutputStream (channel);
+                    SocketChannel myChannel;
+                    synchronized (this)
+                    {
+                        myChannel = channel;
+                    }
 
-          SocketChannel myChannel;
-          synchronized (this) {
+                    if (logger.isInfoEnabled())
+                    {
+                        logger.info("Connected to " + connection_info +
+                                    " from local port " +
+                                    myChannel.socket().getLocalPort() +
+                                    ( (timeout == 0) ? "" : " Timeout: " + timeout));
+                    }
+
+                    synchronized (this)
+                    {
+                        failedWriteAttempts = 0;
+                    }
+                    setConnected (true);
+                    return;
+                }
+                catch (TIMEOUT ex)
+                {
+                    profile = null;
+                    throw ex;
+                }
+                catch (IOException ex)
+                {
+                    if (isDebugEnabled)
+                    {
+                        logger.debug("Exception", ex);
+                    }
+
+                    //only sleep and print message if we're actually
+                    //going to retry
+                    if (retryCount < noOfRetries - 1)
+                    {
+                        if (logger.isInfoEnabled())
+                        {
+                            logger.info("Retrying to connect to " +
+                                        connection_info );
+                        }
+
+                        try
+                        {
+                            Thread.sleep( retryInterval );
+                        }
+                        catch ( InterruptedException i )
+                        {
+                        }
+                    }
+                }
+            }
+
+            if (retryCount == noOfRetries)
+            {
+                profile = null;
+                throw new org.omg.CORBA.TRANSIENT
+                ( "Retries exceeded, couldn't reconnect to " +
+                  connection_info );
+            }
+        }
+    }
+
+    public synchronized void close()
+    {
+
+        if (!is_connected())
+        {
+            return;
+        }
+
+        SocketChannel myChannel;
+        synchronized (this)
+        {
             myChannel = channel;
-          }
-
-          if (logger.isInfoEnabled()) {
-            logger.info("Connected to " + connection_info +
-                        " from local port " +
-                        myChannel.socket().getLocalPort() +
-                        ( (timeout == 0) ? "" : " Timeout: " + timeout));
-          }
-
-          synchronized (this) {
-            failedWriteAttempts = 0;
-          }
-          setConnected (true);
-          return;
         }
-        catch (TIMEOUT ex) {
-          profile = null;
-          throw ex;
-        }
-        catch (IOException ex) {
-          if (isDebugEnabled) {
-            logger.debug("Exception", ex);
-          }
 
-          //only sleep and print message if we're actually
-          //going to retry
-          if (retryCount < noOfRetries-1) {
-            if (logger.isInfoEnabled()) {
-              logger.info("Retrying to connect to " +
-                          connection_info );
+        try
+        {
+            if (myChannel != null)
+            {
+                myChannel.close();
             }
 
-            try {
-              Thread.sleep( retryInterval );
+            setConnected (false);
+
+            // this was copied from ClientIIOPConnection. Don't see why
+            //  this would be required, but its included anyways
+            if (in_stream != null)
+            {
+                in_stream.close();
             }
-            catch( InterruptedException i ) {
+            if (out_stream != null)
+            {
+                out_stream.close();
             }
-          }
+
+            if (logger.isInfoEnabled())
+            {
+                logger.info("Client-side TCP transport to " +
+                            connection_info + " closed.");
+            }
         }
-      }
+        catch (IOException ex)
+        {
+            if (isDebugEnabled)
+            {
+                logger.debug ("Exception when closing the channel", ex);
+            }
 
-      if (retryCount == noOfRetries) {
-        profile = null;
-        throw new org.omg.CORBA.TRANSIENT
-          ( "Retries exceeded, couldn't reconnect to " +
-            connection_info );
-      }
-    }
-  }
-
-  public synchronized void close() {
-
-    if (!is_connected()) {
-      return;
-    }
-
-    SocketChannel myChannel;
-    synchronized (this) {
-      myChannel = channel;
+            throw handleCommFailure(ex);
+        }
     }
 
-    try {
-      if (myChannel != null) {
-        myChannel.close();
-      }
+    private synchronized void connectChannel (long nanoDeadline)
+    throws IOException
+    {
 
-      setConnected (false);
+        List addressList = new ArrayList();
+        addressList.add(((IIOPProfile)profile).getAddress());
+        addressList.addAll(((IIOPProfile)profile).getAlternateAddresses());
 
-      // this was copied from ClientIIOPConnection. Don't see why
-      //  this would be required, but its included anyways
-      if (in_stream != null) {
-        in_stream.close();
-      }
-      if (out_stream != null) {
-        out_stream.close();
-      }
+        Iterator addressIterator = addressList.iterator();
 
-      if (logger.isInfoEnabled()) {
-        logger.info("Client-side TCP transport to " +
-                    connection_info + " closed.");
-      }
-    }
-    catch (IOException ex) {
-      if (isDebugEnabled) {
-        logger.debug ("Exception when closing the channel", ex);
-      }
+        Exception exception = null;
 
-      throw handleCommFailure(ex);
-    }
-  }
+        while (addressIterator.hasNext())
+        {
+            SocketChannel myChannel = null;
+            try
+            {
+                myChannel = SocketChannel.open();
+                myChannel.configureBlocking(false);
 
-  private synchronized void connectChannel (long nanoDeadline)
-    throws IOException {
+                IIOPAddress address = (IIOPAddress)addressIterator.next();
 
-    List addressList = new ArrayList();
-    addressList.add(((IIOPProfile)profile).getAddress());
-    addressList.addAll(((IIOPProfile)profile).getAlternateAddresses());
+                final String ipAddress = address.getIP();
+                final int port = address.getPort();
+                if (ipAddress.indexOf(':') == -1)
+                {
+                    connection_info = ipAddress + ":" + port;
+                }
+                else
+                {
+                    connection_info = "[" + ipAddress + "]:" + port;
+                }
 
-    Iterator addressIterator = addressList.iterator();
+                if (isDebugEnabled)
+                {
+                    logger.debug("Trying to connect to " + connection_info);
+                }
 
-    Exception exception = null;
-    // initialize channel
+                myChannel.connect (new InetSocketAddress (ipAddress, port));
 
-    //SocketChannel myChannel = SocketChannel.open();
+                SelectorRequest request = new SelectorRequest (SelectorRequest.Type.CONNECT, myChannel,
+                        new ConnectCallback (), nanoDeadline);
+                selectorManager.add (request);
+                request.waitOnCompletion (nanoDeadline);
 
-    while (addressIterator.hasNext()) {
-      SocketChannel myChannel = null;
-      try {
-        //channel = SocketChannel.open();
-        //channel.configureBlocking(false);
-        myChannel = SocketChannel.open();
-        myChannel.configureBlocking(false);
+                if (request.status == SelectorRequest.Status.EXPIRED || !request.isFinalized())
+                {
+                    throw new TIMEOUT("connection timeout expired");
+                }
+                else if (request.status == SelectorRequest.Status.FAILED ||
+                         request.status == SelectorRequest.Status.SHUTDOWN ||
+                         request.status == SelectorRequest.Status.CLOSED)
+                {
+                    // Somethings wrong with SelectorManager. Unwise to proceed
+                    throw new IOException ("SelectorManager is corrupted");
+                }
+                else if (myChannel.isConnected())
+                {
 
-        IIOPAddress address = (IIOPAddress)addressIterator.next();
+                    synchronized (this)
+                    {
+                        channel = myChannel;
+                    }
+                    // we are connected
+                    break;
+                }
+            }
+            catch (Exception ex)
+            {
+                exception = ex;
+            }
 
-        final String ipAddress = address.getIP();
-        final int port = address.getPort();
-        if (ipAddress.indexOf(':') == -1) {
-          connection_info = ipAddress + ":" + port;
+            // TBD: selectorManager.remove (request);
+            if (myChannel != null)
+            {
+                myChannel.close ();
+            }
         }
-        else {
-          connection_info = "[" + ipAddress + "]:" + port;
+
+        if (exception != null)
+        {
+            if (exception instanceof TIMEOUT)
+            {
+                throw (TIMEOUT) exception;
+            }
+            else if ( exception instanceof IOException )
+            {
+                throw (IOException) exception;
+            }
+            else
+            {
+                //not expected, because all used methods just throw IOExceptions or TIMEOUT
+                //but... never say never ;o)
+                throw new IOException ( "Unexpected exception occured: " + exception.toString() );
+            }
         }
-
-        if (isDebugEnabled) {
-          logger.debug("Trying to connect to " + connection_info);
-        }
-
-        //channel.connect (new InetSocketAddress (ipAddress, port));
-        myChannel.connect (new InetSocketAddress (ipAddress, port));
-
-        //SelectorRequest request = new SelectorRequest (SelectorRequest.Type.CONNECT, channel,
-        SelectorRequest request = new SelectorRequest (SelectorRequest.Type.CONNECT, myChannel,
-                                                       new ConnectCallback (), nanoDeadline);
-        logger.info ("Adding connect request.");
-        selectorManager.add (request);
-        logger.info ("Wait for request completion.");
-        request.waitOnCompletion (nanoDeadline);
-
-        logger.info ("Finished waitOnCompletion()");
-        logger.info ("Request status: " +
-                      request.status.toString());
-
-        if (request.status == SelectorRequest.Status.EXPIRED || !request.isFinalized()) {
-          throw new TIMEOUT("connection timeout expired");
-        }
-        else if (request.status == SelectorRequest.Status.FAILED ||
-                 request.status == SelectorRequest.Status.SHUTDOWN ||
-                 request.status == SelectorRequest.Status.CLOSED) {
-          // Somethings wrong with SelectorManager. Unwise to proceed
-          throw new IOException ("SelectorManager is corrupted");
-        }
-        //else if (channel.isConnected()) {
-        else if (myChannel.isConnected()) {
-
-          synchronized (this) {
-            channel = myChannel;
-          }
-          // we are connected
-          break;
-        }
-      }
-      catch (Exception ex) {
-        exception = ex;
-      }
-
-      // TBD: selectorManager.remove (request);
-      //channel.close ();
-      if (myChannel != null) {
-        myChannel.close ();
-      }
     }
 
-    if (exception != null) {
-      if (exception instanceof TIMEOUT) {
-        throw (TIMEOUT) exception;
-      }
-      else if( exception instanceof IOException ) {
-        throw (IOException) exception;
-      }
-      else {
-        //not expected, because all used methods just throw IOExceptions or TIMEOUT
-        //but... never say never ;o)
-        throw new IOException ( "Unexpected exception occured: " + exception.toString() );
-      }
-    }
-  }
+    private class ConnectCallback extends SelectorRequestCallback
+    {
 
-  private class ConnectCallback extends SelectorRequestCallback {
+        public boolean call (SelectorRequest request)
+        {
 
-    public boolean call (SelectorRequest request) {
+            SocketChannel myChannel = request.channel;
 
-      SocketChannel myChannel = request.channel;
+            if (isDebugEnabled)
+            {
+                logger.debug("Connect callback. Request status: " + request.status.toString());
+            }
 
-      if (isDebugEnabled) {
-        logger.debug("Connect callback. Request status: " + request.status.toString());
-      }
+            try
+            {
+                if (request.status == SelectorRequest.Status.READY)
+                {
+                    myChannel.finishConnect ();
 
-      try {
-        if (request.status == SelectorRequest.Status.READY) {
-          myChannel.finishConnect ();
+                    if (isDebugEnabled)
+                    {
+                        logger.debug("Connection establishment finished");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                logger.error ("Exception while finishing connection: " + ex.toString());
+            }
 
-          if (isDebugEnabled) {
-            logger.debug("Connection establishment finished");
-          }
+            return false;
         }
-      }
-      catch (Exception ex) {
-        logger.error ("Exception while finishing connection: " + ex.toString());
-      }
-
-    return false;
     }
-  }
 
 }

@@ -1,7 +1,7 @@
 /*
  *        JacORB - a free Java ORB
  *
- *   Copyright (C) 1997-2008 Gerald Brose.
+ *   Copyright (C) 2011 Gerald Brose.
  *
  *   This library is free software; you can redistribute it and/or
  *   modify it under the terms of the GNU Library General Public
@@ -20,16 +20,25 @@
 
 package org.jacorb.util;
 
-public abstract class SelectorRequestCallback {
+/**
+ * Base class for the callback handlers to be suppied to the SelectorRequest
+ * object. You supply an implementation of the call method.
+ *
+ * @author Ciju John <johnc@ociweb.com>
+ * @version $Id$
+ */
+public abstract class SelectorRequestCallback
+{
 
-  /**
-   * Requester overrides this method to do intended activity.
-   * This is non-blocking api so keep your callback activities short; do IO, don't wait here.
-   * Before doubng anything check request status.
-   * The callback can happen in user or selector thread.
-   * If request needs to remain on top of requests stack for this action
-   *  simply return true;
-   * A return value of false will cleanup request from Selector pool.
-  */
-  protected abstract boolean call (SelectorRequest action);
+    /**
+     * called when the registered event occurs. It is called in the SelectorManager
+     * thread, so it should be a non-blocking call. It should be used only to retrieve
+     * or send whatever can be right away. If more needs to be done then a subsequent
+     * call can handle that.
+     * @param action is the SelectorRequest that triggered the callback
+     * @returns true if more waiting is required, in which case the SelectorRequest will
+     * stay in the pool. A return of fall indicates that the Selector request may be
+     * cleaned up.
+    */
+    protected abstract boolean call (SelectorRequest action);
 }

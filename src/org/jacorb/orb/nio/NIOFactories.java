@@ -1,7 +1,7 @@
 /*
  *        JacORB - a free Java ORB
  *
- *   Copyright (C) 1999-2004 Gerald Brose
+ *   Copyright (C) 2011 Gerald Brose
  *
  *   This library is free software; you can redistribute it and/or
  *   modify it under the terms of the GNU Library General Public
@@ -35,48 +35,11 @@ import org.jacorb.orb.iiop.IIOPProfile;
  *  initialization bit.
  */
 public class NIOFactories
-  extends org.jacorb.orb.etf.FactoriesBase
+        extends org.jacorb.orb.iiop.IIOPFactories
 {
-  static {
-    connectionClz = ClientNIOConnection.class;
-    listenerClz = IIOPListener.class;
-    profileClz = IIOPProfile.class;
-    addressClz = IIOPAddress.class;
-  }
-
-  public int profile_tag() {
-    return org.omg.IOP.TAG_INTERNET_IOP.value;
-  }
-
-  public Profile decode_corbaloc (String corbaloc) {
-    int colon = corbaloc.indexOf (':');
-    String token = corbaloc.substring (0,colon).toLowerCase();
-    if (token.length() == 0 ||
-        "iiop".equals (token) ||
-        "ssliop".equals (token)) {
-      IIOPProfile result = new IIOPProfile(corbaloc);
-      try {
-        result.configure(configuration);
-      }
-      catch(ConfigurationException e) {
-        throw new org.omg.CORBA.INTERNAL("ConfigurationException: " + e);
-      }
-
-      return result;
+    static
+    {
+        connectionClz = ClientNIOConnection.class;
     }
-    return null;
-  }
-
-  public int match_tag(String address) {
-    if (address == null) {
-      return -1;
-    }
-    int colon = address.indexOf (':');
-    String token = address.substring (0,colon).toLowerCase();
-    if ("iiop".equals (token) || "ssliop".equals (token)) {
-      return colon+1;
-    }
-    return -1;
-  }
 
 }
