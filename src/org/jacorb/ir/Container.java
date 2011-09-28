@@ -225,7 +225,7 @@ public class Container
                                                (( full_name != null ?
                                                  full_name + fileSeparator :
                                                  ""
-                                                ) + dirs[k]).replace('/', '.'),
+                                                ) + dirs[k]).replace(fileSeparator, '.'),
                                                this_container,
                                                containing_repository,
                                                this.loader,

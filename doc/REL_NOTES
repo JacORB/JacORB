@@ -228,7 +228,8 @@ post 2.3.1
 
     - Interface Repository:
         - use a persistent POA for the repository servant.
-        - Fix IDL to remove is_abstract to bring into compliance with specification
+        - Fix IDL to remove is_abstract to bring into compliance with specification.
+        - Fix for problem with encapsulated modules loading (Bugzilla 884).
 
     - Tools:
         - enhanced dior's ability to recognize different ORB types.
