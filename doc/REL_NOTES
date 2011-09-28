@@ -220,6 +220,7 @@ post 2.3.1
         - native types containing #pragma prefix "omg.org" weren't processed properly.
         - Improve and fix toString on stubs for UnionType.
         - Implemented Portability Stubs and Skeletons as per 4.21.6 of IDL to Java Mapping
+        - Improve typecode generation to use lazy initialization class holder idiom.
 
     - Naming Service:
         - Fix for BindingIterator leak (Bugzilla 647).

@@ -886,7 +886,125 @@ public class UnionType
 
         ps.println("public" + parser.getFinalString() + " class " + className + "Helper");
         ps.println("{");
-        ps.println("\tprivate static org.omg.CORBA.TypeCode _type;");
+
+        ps.println("\tprivate static class TypeCodeHolder");
+        ps.println("\t{");
+        ps.println("\t\tstatic final org.omg.CORBA.TypeCode _type = createUnionType();");
+        ps.println("\t\tstatic org.omg.CORBA.TypeCode createUnionType()");
+        ps.println("\t\t{");
+
+        Enumeration e;
+        Case cse;
+        int caseLabelNum;
+
+        ps.println("\t\t\torg.omg.CORBA.UnionMember[] members = new org.omg.CORBA.UnionMember[" + labels + "];");
+        ps.println("\t\t\torg.omg.CORBA.Any label_any;");
+
+        TypeSpec label_t = switch_type_spec.typeSpec();
+
+        if (label_t instanceof ScopedName)
+        {
+            label_t = ((ScopedName)label_t).resolvedTypeSpec();
+        }
+
+        label_t = label_t.typeSpec();
+        e = switch_body.caseListVector.elements ();
+
+        int mi = 0;
+
+        while (e.hasMoreElements ())
+        {
+            cse = (Case) e.nextElement();
+            TypeSpec t = cse.element_spec.typeSpec;
+
+            if (t instanceof ScopedName)
+                t = ((ScopedName)t).resolvedTypeSpec();
+
+            t = t.typeSpec();
+            Declarator d = cse.element_spec.declarator;
+
+            caseLabelNum = cse.case_label_list.v.size();
+            for (int i = 0; i < caseLabelNum; i++)
+            {
+                Object o = cse.case_label_list.v.elementAt(i);
+
+                ps.println("\t\t\tlabel_any = org.omg.CORBA.ORB.init().create_any ();");
+
+                TypeSpec tocheck = label_t;
+                if (label_t instanceof AliasTypeSpec)
+                {
+                    tocheck =  ((AliasTypeSpec)label_t).originalType();
+                }
+
+                if (o == null)
+                {
+                    ps.println("\t\t\tlabel_any.insert_octet ((byte)0);");
+                }
+                else if (tocheck instanceof BaseType)
+                {
+                    if ((tocheck instanceof CharType) ||
+                            (tocheck instanceof BooleanType) ||
+                            (tocheck instanceof LongType) ||
+                            (tocheck instanceof LongLongType))
+                        {
+                            ps.print("\t\t\tlabel_any." + tocheck.printInsertExpression() + " ((");
+                        }
+                        else if (tocheck instanceof ShortType)
+                        {
+                            ps.print("\t\t\tlabel_any." + tocheck.printInsertExpression() + " ((short)(");
+                        }
+                        else
+                        {
+                            throw new RuntimeException("Compiler error: unrecognized BaseType: "
+                                                       + tocheck.typeName() + ":" + tocheck + ": " + tocheck.typeSpec()
+                                                       + ": " + tocheck.getClass().getName());
+                        }
+                        ps.println(((ConstExpr)o) + "));");
+                }
+                else if (switch_is_enum)
+                {
+                    String _t = ((ScopedName)o).typeName();
+                    ps.println("\t\t\t" + _t.substring(0, _t.lastIndexOf('.'))
+                               + "Helper.insert(label_any, " + _t + ");");
+                }
+                else
+                {
+                    throw new RuntimeException("Compiler error: unrecognized label type: " + tocheck.typeName());
+                }
+
+                ps.print
+                    (
+                     "\t\t\tmembers[" +
+                     (mi++) +
+                     "] = new org.omg.CORBA.UnionMember (\"" +
+                     d.deEscapeName() +
+                     "\", label_any, "
+                     );
+
+                if (t instanceof ConstrTypeSpec)
+                {
+                    try
+                    {
+                        ps.print(t.typeSpec().helperName() + ".type(),");
+                    } catch (NoHelperException ex)
+                    {
+                        ps.print(t.typeSpec().getTypeCodeExpression() + ",");
+                    }
+                }
+                else
+                {
+                    ps.print(t.typeSpec().getTypeCodeExpression() + ",");
+                }
+
+                ps.println("null);");
+            }
+        }
+        ps.print("\t\t\torg.omg.CORBA.TypeCode ret = org.omg.CORBA.ORB.init().create_union_tc(id(),\"" + className() + "\",");
+        ps.println(switch_type_spec.typeSpec().getTypeCodeExpression() + ", members);");
+        ps.println("\t\t\treturn ret;");
+        ps.println("\t\t}");
+
+        ps.println("\t}"  + Environment.NL);
 
         TypeSpec.printInsertExtractMethods(ps, typeName());
 
@@ -914,9 +1032,6 @@ public class UnionType
             switch_ts_resolved = ((ScopedName)switch_type_spec.type_spec).resolvedTypeSpec();
         }
 
-        Enumeration e;
-        Case cse;
-        int caseLabelNum;
         String indent1 = "\t\t\t";
         String indent2 = "\t\t\t\t";
         String tryIndent = "";
@@ -1106,116 +1221,8 @@ public class UnionType
 
         ps.println("\tpublic static org.omg.CORBA.TypeCode type ()");
         ps.println("\t{");
-        ps.println("\t\tif (_type == null)");
-        ps.println("\t\t{");
-        ps.println("\t\t\torg.omg.CORBA.UnionMember[] members = new org.omg.CORBA.UnionMember[" + labels + "];");
-        ps.println("\t\t\torg.omg.CORBA.Any label_any;");
-
-        TypeSpec label_t = switch_type_spec.typeSpec();
-
-        if (label_t instanceof ScopedName)
-        {
-            label_t = ((ScopedName)label_t).resolvedTypeSpec();
-        }
-
-
-        label_t = label_t.typeSpec();
-        e = switch_body.caseListVector.elements ();
-
-        int mi = 0;
-
-        while (e.hasMoreElements ())
-        {
-            cse = (Case) e.nextElement();
-            TypeSpec t = cse.element_spec.typeSpec;
-
-            if (t instanceof ScopedName)
-                t = ((ScopedName)t).resolvedTypeSpec();
-
-            t = t.typeSpec();
-            Declarator d = cse.element_spec.declarator;
-
-            caseLabelNum = cse.case_label_list.v.size();
-            for (int i = 0; i < caseLabelNum; i++)
-            {
-                Object o = cse.case_label_list.v.elementAt(i);
-
-                ps.println("\t\t\tlabel_any = org.omg.CORBA.ORB.init().create_any ();");
-
-                TypeSpec tocheck = label_t;
-                if (label_t instanceof AliasTypeSpec)
-                {
-                    tocheck =  ((AliasTypeSpec)label_t).originalType();
-                }
-
-                if (o == null)
-                {
-                    ps.println("\t\t\tlabel_any.insert_octet ((byte)0);");
-                }
-                else if (tocheck instanceof BaseType)
-                {
-                    if ((tocheck instanceof CharType) ||
-                            (tocheck instanceof BooleanType) ||
-                            (tocheck instanceof LongType) ||
-                            (tocheck instanceof LongLongType))
-                        {
-                            ps.print("\t\t\tlabel_any." + tocheck.printInsertExpression() + " ((");
-                        }
-                        else if (tocheck instanceof ShortType)
-                        {
-                            ps.print("\t\t\tlabel_any." + tocheck.printInsertExpression() + " ((short)(");
-                        }
-                        else
-                        {
-                            throw new RuntimeException("Compiler error: unrecognized BaseType: "
-                                                       + tocheck.typeName() + ":" + tocheck + ": " + tocheck.typeSpec()
-                                                       + ": " + tocheck.getClass().getName());
-                        }
-                        ps.println(((ConstExpr)o) + "));");
-                }
-                else if (switch_is_enum)
-                {
-                    String _t = ((ScopedName)o).typeName();
-                    ps.println("\t\t\t" + _t.substring(0, _t.lastIndexOf('.'))
-                               + "Helper.insert(label_any, " + _t + ");");
-                }
-                else
-                {
-                    throw new RuntimeException("Compiler error: unrecognized label type: " + tocheck.typeName());
-                }
-
-                ps.print
-                    (
-                     "\t\t\tmembers[" +
-                     (mi++) +
-                     "] = new org.omg.CORBA.UnionMember (\"" +
-                     d.deEscapeName() +
-                     "\", label_any, "
-                     );
-
-                if (t instanceof ConstrTypeSpec)
-                {
-                    try
-                    {
-                        ps.print(t.typeSpec().helperName() + ".type(),");
-                    } catch (NoHelperException ex)
-                    {
-                        ps.print(t.typeSpec().getTypeCodeExpression() + ",");
-                    }
-                }
-                else
-                {
-                    ps.print(t.typeSpec().getTypeCodeExpression() + ",");
-                }
-
-                ps.println("null);");
-            }
-        }
-        ps.print("\t\t\t _type = org.omg.CORBA.ORB.init().create_union_tc(id(),\"" + className() + "\",");
-        ps.println(switch_type_spec.typeSpec().getTypeCodeExpression() + ", members);");
-        ps.println("\t\t}");
-        ps.println("\t\treturn _type;");
-        ps.println("\t}");
+        ps.println("\t\treturn TypeCodeHolder._type;");
+        ps.println("\t}" + Environment.NL);
 
         ps.println("}"); // end of helper class
     }
