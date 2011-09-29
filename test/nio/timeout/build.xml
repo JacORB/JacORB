@@ -1,0 +1,55 @@
+<?xml version="1.0"?>
+
+<!-- <!DOCTYPE project [ <!ENTITY common SYSTEM "../../../etc/common.xml"> ]> -->
+
+<project name="test" default="all" basedir="../../..">
+
+  <!-- &common; -->
+
+  <!-- ==================================================== -->
+  <!--                   build file                         -->
+  <!-- ==================================================== -->
+
+   <target name="timeout.init">
+	<property name="name" value="nio/timeout"/>
+	<property name="dirs.base" value="${basedir}"/>
+	<property name="classdir" value="${dirs.base}/classes"/>
+	<property name="lib" value="${dirs.base}/lib"/>
+	<property name="include" value="${dirs.base}/idl"/>
+        <property name="dest" value="${dirs.base}/test/${name}/generated"/>
+	<property name="idlflags" value="-I${include}/omg -ir -d ${dirs.base}/test/${name}/generated"/>
+   </target>
+
+   <target name="all" depends="timeout.init,idl">
+	<javac srcdir="${dirs.base}"
+               destdir="${classdir}"
+	       includes="test/${name}/generated/**/*.java,test/${name}/src/**/*.java"
+	       debug="on"
+	        />
+   </target>
+
+   <target name="idl" depends="timeout.init">
+        <mkdir dir="${dest}" />
+        <java classname="org.jacorb.idl.parser"
+              fork="yes"
+              classpath="${lib}/idl.jar;${java.class.path}">
+
+	      <arg line="${idlflags}
+	      ${dirs.base}/test/${name}/idl/server.idl"/>
+         </java>
+   </target>
+
+   <!-- <target name="idl" depends="timeout.init,load-taskdef"> -->
+   <!--      <mkdir dir="${dest}" /> -->
+   <!--      <jacidl srcdir="test/${name}" -->
+   <!--              destdir="${dest}" -->
+   <!--              includepath="${include}" -->
+   <!-- 	        includes="*.idl"/> -->
+   <!-- </target> -->
+
+   <target name="clean" depends="timeout.init">
+	   <delete dir="${classdir}/test/${name}"/>
+	   <delete dir="${dirs.base}/test/${name}/generated"/>
+   </target>
+
+</project>
