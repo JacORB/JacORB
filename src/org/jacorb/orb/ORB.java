@@ -60,6 +60,7 @@ import org.jacorb.poa.util.POAUtil;
 import org.jacorb.util.BuildVersion;
 import org.jacorb.util.ObjectUtil;
 import org.jacorb.util.TimerQueue;
+import org.jacorb.util.SelectorManager;
 import org.omg.CORBA.BAD_INV_ORDER;
 import org.omg.CORBA.BAD_PARAM;
 import org.omg.CORBA.CompletionStatus;
@@ -135,6 +136,7 @@ public final class ORB
     private String hashTableClassName;
     private boolean useIMR;
     private boolean useTimerQueue;
+    private boolean useSelectorManager;
 
     private ProtocolAddressBase imrProxyAddress = null;
     private ProtocolAddressBase iorProxyAddress;
@@ -173,6 +175,11 @@ public final class ORB
      * when first asked for. the queue is internally synchronized.
      */
     private TimerQueue timer_queue = null;
+
+    /**
+       The selectorManager is a wrappper around the NIO Selector
+     */
+    private SelectorManager selectorManager = null;
 
     /**
      * Maps repository ids (strings) to objects that implement
@@ -226,7 +233,7 @@ public final class ORB
     /* policy factories, from portable interceptor spec */
     private final Map policy_factories = Collections.synchronizedMap(new HashMap());
 
-    private final static HashSet services = new HashSet(Arrays.asList(new String[] {"RootPOA","POACurrent", "DynAnyFactory", "PICurrent", "CodecFactory", "RTORB",}));
+    private final static HashSet services = new HashSet(Arrays.asList(new String[] {"RootPOA", "POACurrent", "DynAnyFactory", "PICurrent", "CodecFactory", "RTORB",}));
 
     private boolean bidir_giop = false;
 
@@ -287,18 +294,18 @@ public final class ORB
             configuration.getAttributeAsBoolean("jacorb.use_imr", false);
 
         String host =
-            configuration.getAttribute("jacorb.imr.ior_proxy_host",null);
+            configuration.getAttribute("jacorb.imr.ior_proxy_host", null);
         int port =
-            configuration.getAttributeAsInteger("jacorb.imr.ior_proxy_port",-1);
+            configuration.getAttributeAsInteger("jacorb.imr.ior_proxy_port", -1);
         String address =
-            configuration.getAttribute("jacorb.imr.ior_proxy_address",null);
+            configuration.getAttribute("jacorb.imr.ior_proxy_address", null);
 
         imrProxyAddress = createAddress(host, port, address);
 
         host =
             configuration.getAttribute("jacorb.ior_proxy_host", null);
         port =
-            configuration.getAttributeAsInteger("jacorb.ior_proxy_port",-1);
+            configuration.getAttributeAsInteger("jacorb.ior_proxy_port", -1);
         address =
             configuration.getAttribute("jacorb.ior_proxy_address", null);
 
@@ -307,6 +314,8 @@ public final class ORB
         failOnORBInitializerError = configuration.getAttributeAsBoolean("jacorb.orb_initializer.fail_on_error", false);
 
         useTimerQueue = configuration.getAttributeAsBoolean("jacorb.use_timer_queue", false);
+
+        useSelectorManager = configuration.getAttributeAsBoolean("jacorb.connection.nonblocking", false);
 
         // There are features that if enabled require the use of the timer queue
         // and thus need to ensure the timer queue is available.
@@ -400,7 +409,7 @@ public final class ORB
         }
         catch (Exception ex)
         {
-            logger.error ("error initializing ProxyAddress",ex);
+            logger.error ("error initializing ProxyAddress", ex);
             throw new INITIALIZE(ex.toString());
         }
 
@@ -419,7 +428,7 @@ public final class ORB
 
         Logger versionLogger = configuration.getLogger("jacorb.orb.print_version");
 
-        versionLogger.info(NL + "\t~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"+ NL +
+        versionLogger.info(NL + "\t~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~" + NL +
                            "\tJacORB V " + versionString + ", www.jacorb.org" + NL +
                            "\t(C) The JacORB project " +
                            dateString + BuildVersion.versionInfo + NL +
@@ -443,7 +452,7 @@ public final class ORB
 
     public void turnOnBiDirGIOP()
     {
-        if( ! bidir_giop )
+        if ( ! bidir_giop )
         {
             bidir_giop = true;
 
@@ -456,7 +465,7 @@ public final class ORB
         List factorylist = getTransportManager().getFactoriesList();
         ProtocolAddressBase result = null;
         for (Iterator i = factorylist.iterator();
-             i.hasNext() && result == null;)
+                i.hasNext() && result == null;)
         {
             FactoriesBase f = (FactoriesBase)i.next();
             result = f.create_protocol_address(address);
@@ -496,20 +505,20 @@ public final class ORB
             object =
                 (org.omg.CORBA.portable.ObjectImpl)knownReferences.get( key );
 
-            if( object != null )
+            if ( object != null )
             {
                 org.jacorb.orb.Delegate del = (org.jacorb.orb.Delegate)object._get_delegate();
                 if (del != null)
                 {
-                    ParsedIOR delpior= del.getParsedIOR();
+                    ParsedIOR delpior = del.getParsedIOR();
                     if (delpior == null)
                     {
                         knownReferences.remove(key);
 
                         logger.debug("Removing an invalid reference from cache.");
                     }
-                    else if( pior.getEffectiveProfile()
-                            .is_match(delpior.getEffectiveProfile()))
+                    else if ( pior.getEffectiveProfile()
+                              .is_match(delpior.getEffectiveProfile()))
                     {
                         return object._duplicate();
                     }
@@ -526,7 +535,7 @@ public final class ORB
 
         object = delegate.getReference( null );
 
-        if( cacheReferences )
+        if ( cacheReferences )
         {
             knownReferences.put( key, object );
         }
@@ -543,7 +552,7 @@ public final class ORB
     org.jacorb.poa.POA findPOA( org.jacorb.orb.Delegate delegate,
                                 org.omg.CORBA.Object reference )
     {
-        if( rootpoa == null || basicAdapter == null )
+        if ( rootpoa == null || basicAdapter == null )
         {
             return null;
         }
@@ -555,20 +564,20 @@ public final class ORB
         {
             refImplName = POAUtil.extractImplName( delegateObjectKey );
         }
-        catch(POAInternalError e)
+        catch (POAInternalError e)
         {
-            if( logger.isDebugEnabled() )
+            if ( logger.isDebugEnabled() )
             {
                 logger.debug("findPOA: reference generated by foreign POA", e);
             }
             return null;
         }
 
-        if( refImplName == null )
+        if ( refImplName == null )
         {
-            if( implName.length() > 0 || serverIdStr.length() > 0)
+            if ( implName.length() > 0 || serverIdStr.length() > 0)
             {
-                if( logger.isDebugEnabled() )
+                if ( logger.isDebugEnabled() )
                 {
                     logger.debug("findPOA: impl_name mismatch - null != " + implName);
                 }
@@ -577,10 +586,10 @@ public final class ORB
         }
         else
         {
-            if( !(implName.equals(refImplName)) &&
-                !(serverIdStr.equals(refImplName)) )
+            if ( !(implName.equals(refImplName)) &&
+                    !(serverIdStr.equals(refImplName)) )
             {
-                if( logger.isDebugEnabled() )
+                if ( logger.isDebugEnabled() )
                 {
                     logger.debug("findPOA: impl_name mismatch - " +
                                  refImplName + " != " + implName);
@@ -601,11 +610,11 @@ public final class ORB
              */
             List scopes = POAUtil.extractScopedPOANames (poa_name);
 
-            for( int i = 0; i < scopes.size(); i++)
+            for ( int i = 0; i < scopes.size(); i++)
             {
                 String res = ((String)scopes.get( i ));
 
-                if( "".equals (res))
+                if ( "".equals (res))
                 {
                     break;
                 }
@@ -630,7 +639,7 @@ public final class ORB
                 }
                 catch ( org.jacorb.poa.except.ParentIsHolding p )
                 {
-                    if( logger.isDebugEnabled() )
+                    if ( logger.isDebugEnabled() )
                     {
                         logger.debug("findPOA: holding adapter");
                     }
@@ -639,10 +648,10 @@ public final class ORB
             }
             byte[] objectId = POAUtil.extractOID( reference );
 
-            if( tmp_poa.isSystemId()
-               && ! tmp_poa.previouslyGeneratedObjectId(objectId))
+            if ( tmp_poa.isSystemId()
+                    && ! tmp_poa.previouslyGeneratedObjectId(objectId))
             {
-                if( logger.isDebugEnabled() )
+                if ( logger.isDebugEnabled() )
                 {
                     logger.debug("findPOA: not a previously generated object key.");
                 }
@@ -651,15 +660,15 @@ public final class ORB
 
             return tmp_poa;
         }
-        catch( Exception e )
+        catch ( Exception e )
         {
-            if( logger.isErrorEnabled() )
+            if ( logger.isErrorEnabled() )
             {
                 logger.error(e.getMessage());
             }
         }
 
-        if( logger.isDebugEnabled() )
+        if ( logger.isDebugEnabled() )
         {
             logger.debug("findPOA: nothing found");
         }
@@ -697,52 +706,52 @@ public final class ORB
      */
 
     public org.omg.CORBA.Policy create_policy( int type, org.omg.CORBA.Any value )
-        throws org.omg.CORBA.PolicyError
+    throws org.omg.CORBA.PolicyError
     {
         switch (type)
         {
             case MAX_HOPS_POLICY_TYPE.value:
                 return new
-                    org.jacorb.orb.policies.MaxHopsPolicy (value);
+                       org.jacorb.orb.policies.MaxHopsPolicy (value);
             case QUEUE_ORDER_POLICY_TYPE.value:
                 return new
-                    org.jacorb.orb.policies.QueueOrderPolicy (value);
+                       org.jacorb.orb.policies.QueueOrderPolicy (value);
             case REBIND_POLICY_TYPE.value:
                 return new
-                    org.jacorb.orb.policies.RebindPolicy (value);
+                       org.jacorb.orb.policies.RebindPolicy (value);
             case RELATIVE_REQ_TIMEOUT_POLICY_TYPE.value:
-              return new
-                org.jacorb.orb.policies.RelativeRequestTimeoutPolicy (value);
+                return new
+                       org.jacorb.orb.policies.RelativeRequestTimeoutPolicy (value);
             case RELATIVE_RT_TIMEOUT_POLICY_TYPE.value:
-              return new
-                org.jacorb.orb.policies.RelativeRoundtripTimeoutPolicy (value);
+                return new
+                       org.jacorb.orb.policies.RelativeRoundtripTimeoutPolicy (value);
             case REPLY_END_TIME_POLICY_TYPE.value:
                 return new
-                    org.jacorb.orb.policies.ReplyEndTimePolicy (value);
+                       org.jacorb.orb.policies.ReplyEndTimePolicy (value);
             case REPLY_PRIORITY_POLICY_TYPE.value:
                 return new
-                    org.jacorb.orb.policies.ReplyPriorityPolicy (value);
+                       org.jacorb.orb.policies.ReplyPriorityPolicy (value);
             case REPLY_START_TIME_POLICY_TYPE.value:
                 return new
-                    org.jacorb.orb.policies.ReplyStartTimePolicy (value);
+                       org.jacorb.orb.policies.ReplyStartTimePolicy (value);
             case REQUEST_END_TIME_POLICY_TYPE.value:
                 return new
-                    org.jacorb.orb.policies.RequestEndTimePolicy (value);
+                       org.jacorb.orb.policies.RequestEndTimePolicy (value);
             case REQUEST_PRIORITY_POLICY_TYPE.value:
                 return new
-                    org.jacorb.orb.policies.RequestPriorityPolicy (value);
+                       org.jacorb.orb.policies.RequestPriorityPolicy (value);
             case REQUEST_START_TIME_POLICY_TYPE.value:
                 return new
-                    org.jacorb.orb.policies.RequestStartTimePolicy (value);
+                       org.jacorb.orb.policies.RequestStartTimePolicy (value);
             case ROUTING_POLICY_TYPE.value:
                 return new
-                    org.jacorb.orb.policies.RoutingPolicy (value);
+                       org.jacorb.orb.policies.RoutingPolicy (value);
             case SYNC_SCOPE_POLICY_TYPE.value:
                 return new
-                    org.jacorb.orb.policies.SyncScopePolicy (value);
+                       org.jacorb.orb.policies.SyncScopePolicy (value);
             case org.omg.RTCORBA.CLIENT_PROTOCOL_POLICY_TYPE.value:
                 return new
-                    org.jacorb.orb.policies.ClientProtocolPolicy (value);
+                       org.jacorb.orb.policies.ClientProtocolPolicy (value);
             default:
                 final PolicyFactory factory = (PolicyFactory)policy_factories.get(Integer.valueOf(type));
 
@@ -793,14 +802,14 @@ public final class ORB
         int[] profileTags = new int[basicAdapter.getEndpointProfiles().size()];
         int n = 0;
         for (Iterator i = basicAdapter.getEndpointProfiles().iterator();
-             i.hasNext();)
+                i.hasNext();)
         {
             Profile profile = (Profile)i.next();
 
             //MIOP
             //if it is a group profile, it can't be added to the object ior
             //so do nothing
-            if(profile instanceof org.jacorb.orb.miop.MIOPProfile)
+            if (profile instanceof org.jacorb.orb.miop.MIOPProfile)
             {
                 continue;
             }
@@ -835,7 +844,7 @@ public final class ORB
 
         // invoke IOR interceptors
         if ((interceptor_manager != null) &&
-            interceptor_manager.hasIORInterceptors())
+                interceptor_manager.hasIORInterceptors())
         {
             IORInfoImpl info = new IORInfoImpl(this, poa,
                                                componentMap,
@@ -859,7 +868,7 @@ public final class ORB
 
         IIOPProfile iiopProfile = findIIOPProfile(profiles);
         if ( (iiopProfile != null)
-             && ( this.giopMinorVersion == 0 || this.giopAdd_1_0_Profiles ))
+                && ( this.giopMinorVersion == 0 || this.giopAdd_1_0_Profiles ))
         {
             Profile profile_1_0 = iiopProfile.to_GIOP_1_0();
             profiles.add(profile_1_0);
@@ -894,7 +903,7 @@ public final class ORB
         TaggedComponentSeqHolder  tc = new TaggedComponentSeqHolder();
         final TaggedProfileHolder tp = new TaggedProfileHolder();
 
-        for (int i=0; i<profiles.size(); i++)
+        for (int i = 0; i < profiles.size(); i++)
         {
             final Profile p = (Profile)profiles.get(i);
             final TaggedComponentList c =
@@ -945,16 +954,16 @@ public final class ORB
     }
 
     private TaggedProfile createMultipleComponentsProfile
-                                  (TaggedComponentList components)
+    (TaggedComponentList components)
     {
         CDROutputStream out = new CDROutputStream(this);
         out.beginEncapsulatedArray();
         MultipleComponentProfileHelper.write(out, components.asArray());
         return new TaggedProfile
-        (
-            TAG_MULTIPLE_COMPONENTS.value,
-            out.getBufferCopy()
-        );
+               (
+                   TAG_MULTIPLE_COMPONENTS.value,
+                   out.getBufferCopy()
+               );
     }
 
     /**
@@ -988,7 +997,7 @@ public final class ORB
      */
     public org.jacorb.orb.BasicAdapter getBasicAdapter()
     {
-        if( basicAdapter == null )
+        if ( basicAdapter == null )
         {
             throw new INITIALIZE("Adapters not initialized; resolve RootPOA.");
         }
@@ -1019,18 +1028,18 @@ public final class ORB
      * @return a new CORBA Object reference
      */
     public org.omg.CORBA.Object getReference( org.jacorb.poa.POA poa,
-                                              byte[] object_key,
-                                              String rep_id,
-                                              boolean _transient )
+            byte[] object_key,
+            String rep_id,
+            boolean _transient )
     {
         org.omg.IOP.IOR ior = createIOR
-        (
-            (rep_id == null ? "IDL:omg.org/CORBA/Object:1.0" : rep_id),
-            object_key,
-            _transient,
-            poa,
-            null
-        );
+                              (
+                                  (rep_id == null ? "IDL:omg.org/CORBA/Object:1.0" : rep_id),
+                                  object_key,
+                                  _transient,
+                                  poa,
+                                  null
+                              );
 
         if (ior == null)
         {
@@ -1046,9 +1055,9 @@ public final class ORB
     }
 
     public synchronized org.jacorb.poa.POA getRootPOA()
-        throws org.omg.CORBA.INITIALIZE
+    throws org.omg.CORBA.INITIALIZE
     {
-        if( rootpoa == null )
+        if ( rootpoa == null )
         {
             rootpoa = org.jacorb.poa.POA._POA_init(this);
 
@@ -1056,14 +1065,14 @@ public final class ORB
                                              rootpoa,
                                              getTransportManager(),
                                              giop_connection_manager
-                                             );
+                                           );
 
             try
             {
                 rootpoa.configure(configuration);
                 basicAdapter.configure(configuration);
             }
-            catch( ConfigurationException ce )
+            catch ( ConfigurationException ce )
             {
                 throw new org.omg.CORBA.INITIALIZE("ConfigurationException: " +
                                                    ce.toString() );
@@ -1103,13 +1112,13 @@ public final class ORB
          * use_imr policy is set via the "jacorb.orb.use_imr" property
          */
 
-        if( poa.isPersistent() )
+        if ( poa.isPersistent() )
         {
             persistentPOACount++;
 
             getImR ();
 
-            if( imr != null )
+            if ( imr != null )
             {
                 /* Register the POA */
                 String server_name = implName;
@@ -1121,7 +1130,7 @@ public final class ORB
 
                     imr.registerPOA (server_name + "/" +
                                      poa._getQualifiedName(),
-                                 server_name, // logical server name
+                                     server_name, // logical server name
                                      sep_host, sep_port);
                 }
             }
@@ -1132,13 +1141,13 @@ public final class ORB
     private synchronized void getImR ()
     {
         /* Lookup the implementation repository */
-        if( imr == null && useIMR )
+        if ( imr == null && useIMR )
         {
             try
             {
                 imr = ImRAccessImpl.connect(this);
             }
-            catch( Exception e )
+            catch ( Exception e )
             {
                 // If we failed to resolve the IMR set the reference to null.
                 if (logger.isWarnEnabled())
@@ -1150,7 +1159,7 @@ public final class ORB
                     logger.debug(e.getMessage());
                 }
 
-                if( e instanceof org.omg.CORBA.INTERNAL )
+                if ( e instanceof org.omg.CORBA.INTERNAL )
                 {
                     throw new org.omg.CORBA.OBJ_ADAPTER ("Unable to resolve ImR");
                 }
@@ -1206,10 +1215,10 @@ public final class ORB
             out.write_long( ORBConstants.JACORB_ORB_ID );
 
             return new TaggedComponent
-            (
-                    TAG_ORB_TYPE.value,
-                    out.getBufferCopy()
-            );
+                   (
+                       TAG_ORB_TYPE.value,
+                       out.getBufferCopy()
+                   );
         }
         finally
         {
@@ -1229,17 +1238,19 @@ public final class ORB
     {
         ProtocolAddressBase address = iorProxyAddress;
 
-        if( address == null )
+        if ( address == null )
         {
             //property not set
 
             List eplist = getBasicAdapter().getEndpointProfiles();
-            for (Iterator i = eplist.iterator(); i.hasNext(); ) {
+            for (Iterator i = eplist.iterator(); i.hasNext(); )
+            {
                 Profile p = (Profile)i.next();
-                if (p instanceof IIOPProfile) {
+                if (p instanceof IIOPProfile)
+                {
                     address = ((IIOPProfile)p).getAddress();
                     break;
-            }
+                }
             }
         }
         else
@@ -1249,8 +1260,8 @@ public final class ORB
                 logger.info("Using proxy address " +
                             address.toString() +
                             " in IOR" );
+            }
         }
-    }
 
         return address;
     }
@@ -1258,14 +1269,14 @@ public final class ORB
 
     public void poaStateChanged(org.jacorb.poa.POA poa, int new_state)
     {
-        if( ( new_state == org.jacorb.poa.POAConstants.DESTROYED ||
-              new_state == org.jacorb.poa.POAConstants.INACTIVE )  &&
-            poa.isPersistent() && imr != null
-            )
+        if ( ( new_state == org.jacorb.poa.POAConstants.DESTROYED ||
+                new_state == org.jacorb.poa.POAConstants.INACTIVE )  &&
+                poa.isPersistent() && imr != null
+           )
         {
             /* if all persistent POAs in this server have gone down, unregister
                the server */
-            if( --persistentPOACount == 0 )
+            if ( --persistentPOACount == 0 )
             {
                 imr.setServerDown(implName);
             }
@@ -1288,7 +1299,7 @@ public final class ORB
      */
 
     public org.omg.CORBA.Object resolve_initial_references(String identifier)
-        throws org.omg.CORBA.ORBPackage.InvalidName
+    throws org.omg.CORBA.ORBPackage.InvalidName
     {
         work_pending();
 
@@ -1395,11 +1406,11 @@ public final class ORB
 
     private synchronized org.jacorb.orb.RTORB getRTORB()
     {
-       if (rtORB == null)
-       {
-          rtORB = new org.jacorb.orb.RTORB (this);
-       }
-       return rtORB;
+        if (rtORB == null)
+        {
+            rtORB = new org.jacorb.orb.RTORB (this);
+        }
+        return rtORB;
     }
 
     /**
@@ -1418,10 +1429,10 @@ public final class ORB
      */
 
     public void register_initial_reference( String id, org.omg.CORBA.Object obj )
-        throws InvalidName
+    throws InvalidName
     {
         if (id == null || id.length() == 0 ||
-            initial_references.containsKey(id) )
+                initial_references.containsKey(id) )
         {
             throw new InvalidName();
         }
@@ -1441,11 +1452,11 @@ public final class ORB
             logger.info("ORB run");
         }
 
-        synchronized( runSync )
+        synchronized ( runSync )
         {
             try
             {
-                while( run )
+                while ( run )
                 {
                     runSync.wait();
                 }
@@ -1464,7 +1475,7 @@ public final class ORB
     public void send_multiple_requests_oneway( org.omg.CORBA.Request[] req )
     {
         work_pending();
-        for( int i = 0; i < req.length; i++ )
+        for ( int i = 0; i < req.length; i++ )
         {
             req[i].send_oneway();
         }
@@ -1473,7 +1484,7 @@ public final class ORB
     public void send_multiple_requests_deferred( org.omg.CORBA.Request[] req )
     {
         work_pending();
-        for( int i = 0; i < req.length; i++ )
+        for ( int i = 0; i < req.length; i++ )
         {
             req[i].send_deferred();
         }
@@ -1482,20 +1493,20 @@ public final class ORB
     public boolean poll_next_response()
     {
         work_pending();
-        if( requests.size () == 0 )
+        if ( requests.size () == 0 )
         {
             throw new org.omg.CORBA.BAD_INV_ORDER
-                ( 11, org.omg.CORBA.CompletionStatus.COMPLETED_NO );
+            ( 11, org.omg.CORBA.CompletionStatus.COMPLETED_NO );
         }
 
-        synchronized( requests )
+        synchronized ( requests )
         {
             Request req;
             Iterator iter = requests.iterator();
-            while( iter.hasNext() )
+            while ( iter.hasNext() )
             {
                 req = (Request)iter.next();
-                if( req.poll_response() )
+                if ( req.poll_response() )
                 {
                     request = req;
                     return true;
@@ -1508,16 +1519,16 @@ public final class ORB
     public org.omg.CORBA.Request get_next_response ()
     {
         work_pending();
-        if( requests.size () == 0 )
+        if ( requests.size () == 0 )
         {
             throw new org.omg.CORBA.BAD_INV_ORDER
-                ( 11, org.omg.CORBA.CompletionStatus.COMPLETED_NO );
+            ( 11, org.omg.CORBA.CompletionStatus.COMPLETED_NO );
         }
 
-        synchronized( requests )
+        synchronized ( requests )
         {
             Request req = null;
-            if( request != null )
+            if ( request != null )
             {
                 request.get_response();
                 req = request;
@@ -1526,13 +1537,13 @@ public final class ORB
             }
 
             Iterator iter;
-            while( true )
+            while ( true )
             {
                 iter = requests.iterator();
-                while( iter.hasNext() )
+                while ( iter.hasNext() )
                 {
                     req = (Request)iter.next();
-                    if( req.poll_response() )
+                    if ( req.poll_response() )
                     {
                         req.get_response();
                         return req;
@@ -1562,10 +1573,10 @@ public final class ORB
         try
         {
             configure( org.jacorb.config.JacORBConfiguration.getConfiguration(props,
-                                                                        this,
-                                                                        false)); // no applet support
+                        this,
+                        false)); // no applet support
         }
-        catch( ConfigurationException e )
+        catch ( ConfigurationException e )
         {
             e.printStackTrace ();
             logger.error("error during configuration", e);
@@ -1573,10 +1584,10 @@ public final class ORB
             throw new org.omg.CORBA.INITIALIZE( e.getMessage() );
         }
 
-        if( args != null )
+        if ( args != null )
         {
             arguments = args;
-            for( int i = 0; i < args.length; i++ )
+            for ( int i = 0; i < args.length; i++ )
             {
                 String arg = args[i].trim();
 
@@ -1612,7 +1623,7 @@ public final class ORB
                     }
 
                     //Is there a next arg?
-                    if( (i + 1) >= (args.length) )
+                    if ( (i + 1) >= (args.length) )
                     {
                         throw new BAD_PARAM("Invalid ORBInitRef format: -ORB<option> argument without value" );
                     }
@@ -1683,10 +1694,10 @@ public final class ORB
         try
         {
             configure( org.jacorb.config.JacORBConfiguration.getConfiguration(props,
-                                                                             this,
-                                                                             true)); //applet support
+                       this,
+                       true)); //applet support
         }
-        catch( ConfigurationException e )
+        catch ( ConfigurationException e )
         {
             logger.error("configuration exception during configure", e);
 
@@ -1725,6 +1736,22 @@ public final class ORB
     {
         try
         {
+            // Starting up Selector manager first.
+            //  It's timer service may be required for other managers
+            if (useSelectorManager)
+            {
+                try
+                {
+                    selectorManager = new SelectorManager ();
+                    selectorManager.configure (configuration);
+                    selectorManager.start ();
+                }
+                catch (Exception e)
+                {
+                    throw new ConfigurationException ("SelectorManager initialization failed", e);
+                }
+            }
+
             transport_manager = new TransportManager(this);
 
             transport_manager.configure(configuration);
@@ -1734,8 +1761,8 @@ public final class ORB
             giop_connection_manager.configure(configuration);
 
             clientConnectionManager = new ClientConnectionManager(this,
-                                                                  transport_manager,
-                                                                  giop_connection_manager);
+                    transport_manager,
+                    giop_connection_manager);
             clientConnectionManager.configure(configuration);
 
             if (useTimerQueue)
@@ -1745,7 +1772,7 @@ public final class ORB
                 timer_queue.start();
             }
         }
-        catch( ConfigurationException ce )
+        catch ( ConfigurationException ce )
         {
             logger.error("Unexpected exception configuring managers", ce);
             throw new INTERNAL(ce.toString());
@@ -1792,11 +1819,11 @@ public final class ORB
         {
             interceptor_manager = new InterceptorManager
             (
-                    client_interceptors,
-                    server_interceptors,
-                    ior_intercept,
-                    info.getSlotCount(),
-                    this
+                client_interceptors,
+                server_interceptors,
+                ior_intercept,
+                info.getSlotCount(),
+                this
             );
         }
 
@@ -1870,7 +1897,7 @@ public final class ORB
         final String initializer_prefix = "org.omg.PortableInterceptor.ORBInitializerClass.";
         final List prop_names = configuration.getAttributeNamesWithPrefix(initializer_prefix);
 
-        for(Iterator i = prop_names.iterator(); i.hasNext();)
+        for (Iterator i = prop_names.iterator(); i.hasNext();)
         {
             final String prop_name = (String) i.next();
             String name = configuration.getAttribute( prop_name, "" );
@@ -1880,7 +1907,7 @@ public final class ORB
                name = prop_name.substring( initializer_prefix.length() );
             }
 
-            if( name == null )
+            if ( name == null )
             {
                continue;
             }
@@ -1892,7 +1919,7 @@ public final class ORB
                 if (newInstance instanceof ORBInitializer)
                 {
                     orb_initializers.add(newInstance);
-                    if( logger.isDebugEnabled())
+                    if ( logger.isDebugEnabled())
                     {
                         logger.debug("added ORBInitializer: " + name);
                     }
@@ -1925,12 +1952,12 @@ public final class ORB
 
     public void shutdown( boolean wait_for_completion )
     {
-        if(logger.isInfoEnabled())
+        if (logger.isInfoEnabled())
         {
             logger.info("prepare ORB for shutdown...");
         }
 
-        synchronized( shutdown_synch )
+        synchronized ( shutdown_synch )
         {
             if (shutdown_in_progress && !wait_for_completion)
             {
@@ -1941,13 +1968,13 @@ public final class ORB
                 return;
             }
 
-            while(shutdown_in_progress)
+            while (shutdown_in_progress)
             {
                 try
                 {
                     shutdown_synch.wait();
                 }
-                catch( InterruptedException ie )
+                catch ( InterruptedException ie )
                 {
                     // ignore
                 }
@@ -1956,10 +1983,10 @@ public final class ORB
             shutdown_in_progress = true;
         }
 
-        if(!isRunning())
+        if (!isRunning())
         {
             // ORB is already down.
-            synchronized( shutdown_synch )
+            synchronized ( shutdown_synch )
             {
                 shutdown_in_progress = false;
                 shutdown_synch.notifyAll();
@@ -1973,13 +2000,13 @@ public final class ORB
 
         logger.info("ORB going down...");
 
-        if( rootpoa != null )
+        if ( rootpoa != null )
         {
             rootpoa.destroy(true, wait_for_completion);
             rootpoa = null;
         }
 
-        if( basicAdapter != null )
+        if ( basicAdapter != null )
         {
             basicAdapter.stopListeners();
         }
@@ -2001,17 +2028,24 @@ public final class ORB
         }
 
         // notify all threads waiting in orb.run()
-        synchronized( runSync )
+        synchronized ( runSync )
         {
             run = false;
             runSync.notifyAll();
         }
 
         // notify all threads waiting for shutdown to complete
-        synchronized( shutdown_synch )
+        synchronized ( shutdown_synch )
         {
             shutdown_in_progress = false;
             shutdown_synch.notifyAll();
+        }
+
+        // shutdown the selector loop.
+        // At this point there should not be any pending requests.
+        if (useSelectorManager)
+        {
+            selectorManager.halt ();
         }
 
         if (logger.isInfoEnabled())
@@ -2023,14 +2057,14 @@ public final class ORB
 
     public void destroy()
     {
-        if( destroyed )
+        if ( destroyed )
         {
             throw new org.omg.CORBA.OBJECT_NOT_EXIST();
         }
 
         synchronized (runSync)
         {
-            if( run )
+            if ( run )
             {
                 shutdown( true );
             }
@@ -2052,7 +2086,7 @@ public final class ORB
         try
         {
             ParsedIOR pior = new ParsedIOR( this, str );
-            if( pior.isNull() )
+            if ( pior.isNull() )
             {
                 return null;
             }
@@ -2071,7 +2105,7 @@ public final class ORB
      */
 
     public org.omg.CORBA.Object get_value_def(String repid)
-        throws org.omg.CORBA.BAD_PARAM
+    throws org.omg.CORBA.BAD_PARAM
     {
         throw new org.omg.CORBA.NO_IMPLEMENT();
     }
@@ -2081,7 +2115,7 @@ public final class ORB
      */
     public void set_delegate( java.lang.Object wrapper )
     {
-        if( ! (wrapper instanceof org.omg.PortableServer.Servant) )
+        if ( ! (wrapper instanceof org.omg.PortableServer.Servant) )
         {
             throw new org.omg.CORBA.BAD_PARAM("Argument must be of type org.omg.PortableServer.Servant");
         }
@@ -2090,7 +2124,7 @@ public final class ORB
         {
             ((org.omg.PortableServer.Servant)wrapper)._get_delegate();
         }
-        catch( org.omg.CORBA.BAD_INV_ORDER bio )
+        catch ( org.omg.CORBA.BAD_INV_ORDER bio )
         {
             // only set the delegate if it has not been set already
             org.jacorb.orb.ServantDelegate delegate =
@@ -2116,7 +2150,7 @@ public final class ORB
 
         if (obj instanceof org.omg.CORBA.LocalObject)
         {
-           throw new org.omg.CORBA.MARSHAL ("Attempt to stringify a local object");
+            throw new org.omg.CORBA.MARSHAL ("Attempt to stringify a local object");
         }
 
         Object delegate =
@@ -2127,8 +2161,8 @@ public final class ORB
         }
 
         throw new BAD_PARAM("Argument has a delegate whose class is "
-                + delegate.getClass().getName()
-                + ", a org.jacorb.orb.Delegate was expected");
+                            + delegate.getClass().getName()
+                            + ", a org.jacorb.orb.Delegate was expected");
     }
 
     public void perform_work ()
@@ -2146,14 +2180,14 @@ public final class ORB
             }
 
             throw new org.omg.CORBA.BAD_INV_ORDER
-                (4, org.omg.CORBA.CompletionStatus.COMPLETED_NO);
+            (4, org.omg.CORBA.CompletionStatus.COMPLETED_NO);
         }
 
         return false;
     }
 
     public synchronized ValueFactory register_value_factory(String id,
-                                                ValueFactory factory)
+            ValueFactory factory)
     {
         return (ValueFactory)valueFactories.put (id, factory);
     }
@@ -2211,7 +2245,7 @@ public final class ORB
      * implementation that has a no-arg constructor.
      */
     private class JacORBValueFactory
-        implements org.omg.CORBA.portable.ValueFactory
+            implements org.omg.CORBA.portable.ValueFactory
     {
         private final Class implementationClass;
 
@@ -2223,14 +2257,14 @@ public final class ORB
         }
 
         public java.io.Serializable read_value
-          (org.omg.CORBA_2_3.portable.InputStream is)
+        (org.omg.CORBA_2_3.portable.InputStream is)
         {
             java.lang.Object implObj = instantiate (implementationClass);
 
             if (implObj instanceof org.omg.CORBA.portable.Streamable)
             {
                 StreamableValue value =
-                (StreamableValue)instantiate (implementationClass);
+                    (StreamableValue)instantiate (implementationClass);
 
                 return is.read_value(value);
             }
@@ -2290,14 +2324,14 @@ public final class ORB
         catch (IllegalAccessException e)
         {
             throw new IllegalArgumentException("cannot instantiate class "
-                                        + clazz.getName()
-                                        + " (IllegalAccessException)");
+                                               + clazz.getName()
+                                               + " (IllegalAccessException)");
         }
         catch (InstantiationException e)
         {
             throw new IllegalArgumentException("cannot instantiate class "
-                                        + clazz.getName()
-                                        + " (InstantiationException)");
+                                               + clazz.getName()
+                                               + " (InstantiationException)");
         }
     }
 
@@ -2380,6 +2414,11 @@ public final class ORB
         return timer_queue;
     }
 
+    public SelectorManager getSelectorManager ()
+    {
+        return selectorManager;
+    }
+
     /* DII helper methods */
 
     public org.omg.CORBA.ExceptionList create_exception_list ()
@@ -2395,7 +2434,7 @@ public final class ORB
     }
 
     public org.omg.CORBA.NamedValue create_named_value
-        (String name, org.omg.CORBA.Any value, int flags)
+    (String name, org.omg.CORBA.Any value, int flags)
     {
         work_pending();
         return new org.jacorb.orb.NamedValue (name, value, flags);
@@ -2422,7 +2461,7 @@ public final class ORB
      * @deprecated use {@link #create_operation_list (org.omg.CORBA.Object)} instead
      */
     public org.omg.CORBA.NVList create_operation_list
-        (org.omg.CORBA.OperationDef oper)
+    (org.omg.CORBA.OperationDef oper)
     {
         int no = 0;
 
@@ -2537,8 +2576,8 @@ public final class ORB
      * by forwarding each invocation to a thread-dependent target.
      */
     private class PICurrent
-        extends org.omg.CORBA.LocalObject
-        implements org.omg.PortableInterceptor.Current
+            extends org.omg.CORBA.LocalObject
+            implements org.omg.PortableInterceptor.Current
     {
         // Helper method that returns the actual
         // target of a PICurrent invocation
@@ -2559,13 +2598,13 @@ public final class ORB
         // org.omg.PortableInterceptor.Current implementation ---
 
         public org.omg.CORBA.Any get_slot(int id)
-            throws InvalidSlot
+        throws InvalidSlot
         {
             return getTarget().get_slot(id);
         }
 
         public void set_slot(int id, org.omg.CORBA.Any data)
-            throws InvalidSlot
+        throws InvalidSlot
         {
             getTarget().set_slot(id, data);
         }
@@ -2592,7 +2631,7 @@ public final class ORB
      * Servant class used by connect and disconnect
      */
     static class HandlerWrapper extends org.omg.PortableServer.Servant
-                                implements org.omg.CORBA.portable.InvokeHandler
+            implements org.omg.CORBA.portable.InvokeHandler
     {
         private final org.omg.CORBA.portable.InvokeHandler wrappedHandler;
 
@@ -2608,10 +2647,10 @@ public final class ORB
         }
 
         public org.omg.CORBA.portable.OutputStream _invoke(
-                                String method,
-                                org.omg.CORBA.portable.InputStream input,
-                                org.omg.CORBA.portable.ResponseHandler handler)
-            throws org.omg.CORBA.SystemException
+            String method,
+            org.omg.CORBA.portable.InputStream input,
+            org.omg.CORBA.portable.ResponseHandler handler)
+        throws org.omg.CORBA.SystemException
         {
             return wrappedHandler._invoke(method, input, handler);
         }
@@ -2696,7 +2735,7 @@ public final class ORB
                 try
                 {
                     getRootPOA().deactivate_object(
-                                        getRootPOA().servant_to_id(servant));
+                        getRootPOA().servant_to_id(servant));
                 }
                 catch (Exception e)
                 {
@@ -2738,7 +2777,7 @@ public final class ORB
      */
     public String[] getArgs()
     {
-       return arguments;
+        return arguments;
     }
 
     public int getGIOPMinorVersion()

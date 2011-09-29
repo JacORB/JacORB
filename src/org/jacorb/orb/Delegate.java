@@ -97,6 +97,7 @@ import org.omg.SSLIOP.SSL;
 import org.omg.SSLIOP.SSLHelper;
 import org.omg.TimeBase.UtcT;
 import org.slf4j.Logger;
+import org.jacorb.util.SelectorManager;
 
 /**
  * JacORB implementation of CORBA object reference
@@ -168,6 +169,8 @@ public final class Delegate
     private boolean clearCurrentContext = true;
 
     private String invokedOperation = null;
+
+    private final SelectorManager selectorManager;
 
     /**
      * <code>localInterceptors</code> stores the ClientInterceptorHandler that is
@@ -302,6 +305,8 @@ public final class Delegate
         configuration = config;
 
         conn_mg = orb.getClientConnectionManager();
+
+        selectorManager = orb.getSelectorManager ();
 
         logger = ((Configuration)config).getLogger("jacorb.orb.delegate");
         useIMR =
@@ -1303,7 +1308,7 @@ public final class Delegate
             {
                 // response expected, synchronous or asynchronous
                 receiver = new ReplyReceiver(this, ros.operation(), ros.getReplyEndTime(),
-                                             interceptors, replyHandler);
+                                             interceptors, replyHandler, selectorManager);
                 try
                 {
                    receiver.configure(configuration);
@@ -1359,7 +1364,12 @@ public final class Delegate
                 throw new RemarshalException();
             }
 
-            disconnect(connectionToUse);
+            if (!(cfe instanceof org.omg.CORBA.TIMEOUT)) {
+              if (logger.isDebugEnabled()) {
+                logger.debug (this.toString() + ":invoke_internal: closing connection due to " + cfe.getMessage());
+              }
+              disconnect(connectionToUse);
+            }
 
             throw cfe;
         }
@@ -1506,7 +1516,7 @@ public final class Delegate
                                                        ros.operation(),
                                                        ros.getReplyEndTime(),
                                                        interceptors,
-                                                       null);
+                                                       null, selectorManager);
                 try
                 {
                    rcv.configure(configuration);
@@ -2327,7 +2337,7 @@ public final class Delegate
             if (orb.hasRequestInterceptors())
             {
                 ServerRequestInfoImpl sinfo = ( (ServantObjectImpl) servant).getServerRequestInfo();
-            
+
                 DefaultClientInterceptorHandler interceptors =
                     ( (ServantObjectImpl) servant).getClientInterceptorHandler();
 
@@ -2417,7 +2427,7 @@ public final class Delegate
             {
                 poa.removeLocalRequest();
             }
-            
+
             orb.getPOACurrent()._removeContext( Thread.currentThread() );
 
              if (orb.getInterceptorManager() != null)
@@ -2459,7 +2469,7 @@ public final class Delegate
 
         HashMap currentContext = new HashMap();
         currentContext.put (SERVANT_PREINVOKE, "true");
-        
+
         getInvocationContext ().push (new HashMap());
 
         // remember that a local request is outstanding. On
