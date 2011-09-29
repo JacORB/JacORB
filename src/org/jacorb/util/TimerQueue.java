@@ -3,7 +3,7 @@ package org.jacorb.util;
 /*
  * JacORB - a free Java ORB
  *
- * Copyright (C) 2002-2011 Gerald Brose / The JacORB Team.
+ * Copyright (C) 2011 Gerald Brose / The JacORB Team.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Library General Public License as published by the Free
@@ -154,27 +154,26 @@ public class TimerQueue extends Thread
       {
          synchronized (pending)
          {
-            long delay = waitTime ();
-            try
-            {
-               if (delay == 0)
-               {
-                  pending.wait ();
-               }
-               else
-               {
-                  pending.wait (delay);
-               }
-            }
-            catch (InterruptedException ex)
-            {
-               // no worries
-               if (logger.isDebugEnabled ())
-                  logger.debug ("TimerQueue interrupted");
-            }
-            triggerExpired ();
+             long delay = waitTime ();
+             try
+             {
+                 if (delay == 0)
+                 {
+                     pending.wait ();
+                 }
+                 else
+                 {
+                     pending.wait (delay);
+                 }
+             }
+             catch (InterruptedException ex)
+             {
+                 // no worries
+                 if (logger.isDebugEnabled ())
+                     logger.debug ("TimerQueue interrupted");
+             }
+             triggerExpired ();
          }
       }
    }
-
 }

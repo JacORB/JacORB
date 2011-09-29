@@ -205,7 +205,7 @@ public class Time
             long delta = Time.millisTo(time);
             long then = now + delta;
 
-            while(delta > 0)
+            while (delta > 0)
             {
                 try
                 {
