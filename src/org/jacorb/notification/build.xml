@@ -162,7 +162,7 @@
 						javac-includes="org/jacorb/notification/**/*.java"
 					 	javac-excludes="org/jacorb/notification/WrapperMain.java,
 			                  			org/jacorb/notification/filter/bsh/**,
-      			              			org/jacorb/notification/jmx/**" />
+                                                                org/jacorb/notification/jmx/jboss/**" />
 
 		<jacorb-javac javac-classpathref="classpath" javac-includes="org/jacorb/notification/WrapperMain.java" />
 

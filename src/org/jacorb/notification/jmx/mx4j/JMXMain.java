@@ -64,7 +64,7 @@ import org.tanukisoftware.wrapper.jmx.WrapperManagerMBean;
 
 /**
  * MX4J specific startup class for JMX-enabled Notification Service
- * 
+ *
  * @author Alphonse Bendt
  * @version $Id$
  */
@@ -75,7 +75,7 @@ public class JMXMain implements WrapperListener
     private static boolean sUseHTTPConnector = false;
 
     private static boolean sUseMX4J;
-    
+
     private ObjectName notificationServiceName_;
 
     private final List connectors_ = new ArrayList();
@@ -119,7 +119,7 @@ public class JMXMain implements WrapperListener
         mbeanServer_.createMBean("mx4j.tools.adaptor.http.XSLTProcessor", _processorName, null);
 
         mbeanServer_.setAttribute(_connectorName, new Attribute("ProcessorName", _processorName));
-        
+
         connectors_.add(_connectorName);
     }
 
@@ -138,7 +138,7 @@ public class JMXMain implements WrapperListener
         _environment.put("java.naming.corba.orb", orb_);
 
         InitialContext context = new InitialContext(new Hashtable(_environment));
-        
+
         try
         {
             context.unbind("COSNotification");
@@ -147,9 +147,9 @@ public class JMXMain implements WrapperListener
         {
             context.close();
         }
-        
+
         // create the JMXCconnectorServer
-        final JMXConnectorServer _connectorServer = 
+        final JMXConnectorServer _connectorServer =
             JMXConnectorServerFactory.newJMXConnectorServer(_serviceURL, _environment, mbeanServer_);
 
         // register the JMXConnectorServer in the MBeanServer
@@ -177,12 +177,12 @@ public class JMXMain implements WrapperListener
             registerWrapperManager();
 
             startIIOPConnector();
-            
+
             if (sUseHTTPConnector)
             {
                 startHTTPConnector();
             }
-            
+
             return null;
         } catch (Exception e)
         {
@@ -219,12 +219,12 @@ public class JMXMain implements WrapperListener
     private void initORB(String[] args) throws InvalidName, AdapterInactive
     {
         final Properties _props = ConsoleMain.parseProperties(args);
-        
+
         orb_ = ORB.init(args, _props);
-        
+
         PortableRemoteObjectDelegateImpl.setORB(orb_);
-        
-        logger_ = ((org.jacorb.orb.ORB) orb_).getConfiguration().getNamedLogger(
+
+        logger_ = ((org.jacorb.orb.ORB) orb_).getConfiguration().getLogger(
                 getClass().getName());
 
         final Thread _orbRunner = new Thread("ORB-Thread")
@@ -305,7 +305,7 @@ public class JMXMain implements WrapperListener
     public static void main(String[] args) throws Exception
     {
         final List list = new ArrayList(Arrays.asList(args));
-        
+
         if (list.remove("-mx4j"))
         {
             sUseMX4J = true;
@@ -316,11 +316,11 @@ public class JMXMain implements WrapperListener
         {
             sUseHTTPConnector = true;
         }
-        
-        System.setProperty("javax.rmi.CORBA.PortableRemoteObjectClass", PortableRemoteObjectDelegateImpl.class.getName());        
-        
+
+        System.setProperty("javax.rmi.CORBA.PortableRemoteObjectClass", PortableRemoteObjectDelegateImpl.class.getName());
+
         final JMXMain main = new JMXMain();
-        
+
         WrapperManager.start(main, (String[])list.toArray(new String[list.size()]));
     }
 }
