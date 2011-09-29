@@ -29,6 +29,7 @@ import org.jacorb.orb.portableInterceptor.ClientInterceptorIterator;
 import org.jacorb.orb.portableInterceptor.ClientRequestInfoImpl;
 import org.jacorb.orb.portableInterceptor.InterceptorManager;
 import org.omg.CORBA.Any;
+import org.omg.CORBA.CompletionStatus;
 import org.omg.CORBA.INTERNAL;
 import org.omg.CORBA.NVList;
 import org.omg.CORBA.NamedValue;
@@ -361,6 +362,11 @@ public class Request
                     String id = e.getId ();
                     int count = (exceptions == null ? 0 : exceptions.count ());
 
+                    // since count > 0, this means that we were provided a
+                    // list of exceptions that can be thrown by the invoked
+                    // operation.  see if the ApplicationException we
+                    // received matches any item in the exception list and
+                    // set it if it does
                     for (int i = 0; i < count; i++)
                     {
                         try
@@ -393,7 +399,12 @@ public class Request
                         env.exception
                         (
                             new UNKNOWN
-                               ("Caught an unknown exception with typecode id of " + e.getInputStream ().read_string ())
+                            (
+                                "Caught an unknown exception with typecode id of " +
+                                e.getInputStream ().read_string (),
+                                0,
+                                CompletionStatus.COMPLETED_YES
+                            )
                         );
                     }
 

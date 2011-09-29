@@ -159,7 +159,6 @@ public class ClientConnection
         CodeSetComponentInfo info = pior.getCodeSetComponentInfo();
         if (info != null && !ignoreComponentInfo)
         {
-           logger.debug ("### checking codesets ");
             connection.markTCSNegotiated(); // even if this aborts, we should not try negotiating again.
             connection.setCodeSets( CodeSet.getNegotiatedCodeSet( info, /* wide */ false ),
                                     CodeSet.getNegotiatedCodeSet( info, /* wide */ true ) );
