@@ -47,12 +47,12 @@ import org.omg.CosNotification.UnsupportedAdmin;
 public class AdminPropertySet
     extends PropertySet {
 
-    private final static Set sAdminPropertyNames_;
+    private final static Set<String> sAdminPropertyNames_;
 
     private final Property[] defaultProperties_;
 
     static {
-        HashSet _adminProps = new HashSet();
+        HashSet<String> _adminProps = new HashSet<String>();
 
         _adminProps.add(MaxQueueLength.value);
         _adminProps.add(MaxConsumers.value);
@@ -64,7 +64,7 @@ public class AdminPropertySet
 
     ////////////////////////////////////////
 
-    private final Set validNames_ = sAdminPropertyNames_;
+    private final Set<String> validNames_ = sAdminPropertyNames_;
 
     ////////////////////////////////////////
 
@@ -124,7 +124,7 @@ public class AdminPropertySet
     }
 
 
-    public Set getValidNames()
+    public Set<String> getValidNames()
     {
         return validNames_;
     }
@@ -144,7 +144,7 @@ public class AdminPropertySet
 
     public void validate_admin(Property[] ps) throws UnsupportedAdmin
     {
-        List _errors = new ArrayList();
+        List<PropertyError> _errors = new ArrayList<PropertyError>();
 
         checkPropertyExistence(ps, _errors);
 

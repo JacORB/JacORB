@@ -74,9 +74,9 @@ public class QoSPropertySet extends PropertySet
     private Property[] defaultChannelQoS_;
     private Property[] defaultAdminQoS_;
 
-    private static final Set sValidChannelQoSNames_;
-    private static final Set sValidAdminQoSNames_;
-    private static final Set sValidProxyQoSNames_;
+    private static final Set<String> sValidChannelQoSNames_;
+    private static final Set<String> sValidAdminQoSNames_;
+    private static final Set<String> sValidProxyQoSNames_;
 
     private static final Any connectionReliabilityLow_;
     private static final Any connectionReliabilityHigh_;
@@ -116,7 +116,7 @@ public class QoSPropertySet extends PropertySet
 
         //////////////////////////////
 
-        HashSet _validChannelQoS = new HashSet();
+        HashSet<String> _validChannelQoS = new HashSet<String>();
         _validChannelQoS.add(EventReliability.value);
         _validChannelQoS.add(ConnectionReliability.value);
         _validChannelQoS.add(Priority.value);
@@ -133,7 +133,7 @@ public class QoSPropertySet extends PropertySet
 
         ////////////////////
 
-        HashSet _adminNames = new HashSet(sValidChannelQoSNames_);
+        HashSet<String> _adminNames = new HashSet<String>(sValidChannelQoSNames_);
         _adminNames.remove(EventReliability.value);
         sValidAdminQoSNames_ = Collections.unmodifiableSet(_adminNames);
 
@@ -143,7 +143,7 @@ public class QoSPropertySet extends PropertySet
 
         ////////////////////
 
-        HashSet _validMessageQoS = new HashSet();
+        HashSet<String> _validMessageQoS = new HashSet<String>();
         _validMessageQoS.add(EventReliability.value);
         _validMessageQoS.add(Priority.value);
         _validMessageQoS.add(StartTime.value);
@@ -291,7 +291,7 @@ public class QoSPropertySet extends PropertySet
 
     ////////////////////////////////////////
 
-    private final Set validNames_;
+    private final Set<String> validNames_;
 
     ////////////////////////////////////////
 
@@ -323,7 +323,7 @@ public class QoSPropertySet extends PropertySet
 
     ////////////////////////////////////////
 
-    protected Set getValidNames()
+    protected Set<String> getValidNames()
     {
         return validNames_;
     }
@@ -345,7 +345,7 @@ public class QoSPropertySet extends PropertySet
                              NamedPropertyRangeSeqHolder namedPropertyRange)
         throws UnsupportedQoS
     {
-        List _errors = new ArrayList();
+        List<PropertyError> _errors = new ArrayList<PropertyError>();
 
         checkPropertyExistence(props, _errors);
 
@@ -361,7 +361,7 @@ public class QoSPropertySet extends PropertySet
     }
 
 
-    private short checkIsShort(String name, Any value, List errors) throws BAD_OPERATION {
+    private short checkIsShort(String name, Any value, List<PropertyError> errors) throws BAD_OPERATION {
         try {
             return value.extract_short();
         } catch (BAD_OPERATION e) {
@@ -372,7 +372,7 @@ public class QoSPropertySet extends PropertySet
     }
 
 
-    private void logError(List errors,
+    private void logError(List<PropertyError> errors,
                           QoSError_code error_code,
                           String name,
                           Any value,
@@ -390,7 +390,7 @@ public class QoSPropertySet extends PropertySet
     }
 
 
-    private void checkPropertyValues(Property[] props, List errors)
+    private void checkPropertyValues(Property[] props, List<PropertyError> errors)
     {
         for (int x = 0; x < props.length; ++x) {
             final String _name = props[x].name;

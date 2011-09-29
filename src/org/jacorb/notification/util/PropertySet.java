@@ -29,14 +29,13 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
-import org.slf4j.Logger;
 import org.omg.CORBA.Any;
 import org.omg.CORBA.ORB;
 import org.omg.CosNotification.Property;
 import org.omg.CosNotification.PropertyError;
 import org.omg.CosNotification.PropertyRange;
 import org.omg.CosNotification.QoSError_code;
+import org.slf4j.Logger;
 
 /**
  * @author Alphonse Bendt
@@ -56,11 +55,11 @@ public abstract class PropertySet
 
     protected final Logger logger_ = LogUtil.getLogger(getClass().getName());
 
-    private final Map listeners_ = new HashMap();
+    private final HashMap<String, List<PropertySetListener>> listeners_ = new HashMap<String, List<PropertySetListener>>();
 
     private boolean modified_ = true;
 
-    private final Map properties_ = new HashMap();
+    private final Map<String, Any> properties_ = new HashMap<String, Any>();
 
     private Property[] arrayView_ = null;
 
@@ -76,16 +75,16 @@ public abstract class PropertySet
 
     public void addPropertySetListener(String property, PropertySetListener listener)
     {
-        final List _list;
+        final List<PropertySetListener> _list;
 
         if (!listeners_.containsKey(property))
         {
-            _list = new ArrayList();
+            _list = new ArrayList<PropertySetListener>();
             listeners_.put(property, _list);
         }
         else
         {
-            _list = (List) listeners_.get(property);
+            _list = (List<PropertySetListener>) listeners_.get(property);
         }
 
         _list.add(listener);
@@ -97,7 +96,7 @@ public abstract class PropertySet
         {
             Property[] _props = new Property[properties_.size()];
 
-            Iterator i = properties_.keySet().iterator();
+            Iterator<String> i = properties_.keySet().iterator();
             int x = 0;
             while (i.hasNext())
             {
@@ -107,11 +106,11 @@ public abstract class PropertySet
             arrayView_ = _props;
             modified_ = false;
         }
-        
+
         return arrayView_;
     }
 
-    public Map toMap()
+    public Map<String, Any> toMap()
     {
         return Collections.unmodifiableMap(properties_);
     }
@@ -133,7 +132,7 @@ public abstract class PropertySet
 
     protected void set_properties(Property[] props)
     {
-        final HashSet _toBeNotified = new HashSet();
+        final HashSet<PropertySetListener> _toBeNotified = new HashSet<PropertySetListener>();
 
         for (int x = 0; x < props.length; ++x)
         {
@@ -150,7 +149,7 @@ public abstract class PropertySet
             {
                 if (!props[x].value.equals(_oldValue))
                 {
-                    _toBeNotified.addAll((List) listeners_.get(props[x].name));
+                    _toBeNotified.addAll(listeners_.get(props[x].name));
                 }
             }
         }
@@ -160,7 +159,7 @@ public abstract class PropertySet
             modified_ = true;
         }
 
-        Iterator i = _toBeNotified.iterator();
+        Iterator<?> i = _toBeNotified.iterator();
         while (i.hasNext())
         {
             try
@@ -173,9 +172,9 @@ public abstract class PropertySet
         }
     }
 
-    abstract Set getValidNames();
+    abstract Set<?> getValidNames();
 
-    protected void checkPropertyExistence(Property[] props, List errorList)
+    protected void checkPropertyExistence(Property[] props, List<PropertyError> errorList)
     {
         for (int x = 0; x < props.length; ++x)
         {
@@ -198,11 +197,11 @@ public abstract class PropertySet
 
     ////////////////////////////////////////
 
-    public static Property[] map2Props(Map props)
+    public static Property[] map2Props(Map<?, ?> props)
     {
         Property[] _ps = new Property[props.size()];
 
-        Iterator i = props.keySet().iterator();
+        Iterator<?> i = props.keySet().iterator();
         int x = 0;
         while (i.hasNext())
         {
