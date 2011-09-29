@@ -278,6 +278,10 @@ jacorb.connection.client.connect_timeout=90000
 # COMM_FAILURE.
 #jacorb.connection.client.keepalive=off
 
+# Enable the use of non-blcoking I/O
+#jacorb.connection.nonblocking=off
+
+
 #jacorb.reference_caching=off
 
 # Sets a timeout on the (SSL) server socket. This is a workaround for JDK 1.3

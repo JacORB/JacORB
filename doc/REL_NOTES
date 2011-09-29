@@ -44,6 +44,9 @@
 post 2.3.1
 ==========
     - ORB:
+        - now supports non-blocking I/O for the client side. Makes use of the
+          Java nio package. Connection establishment, sending requests and
+          awaiting response can now be timed and nonblocking.
         - fix that allows custom SocketFactory class plugins to
           specify their dependency on the ORB either as
           org.jacorb.orb.ORB or org.omg.CORBA.ORB in their
