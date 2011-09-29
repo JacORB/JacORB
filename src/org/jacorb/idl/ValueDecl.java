@@ -847,8 +847,6 @@ public class ValueDecl
             out.println("\t\treturn TypeCodeHolder._type;");
             out.println("\t}" + Environment.NL);
 
-            out.println("\tprivate static org.omg.CORBA.TypeCode typeCode;");
-
             // insert() / extract()
 
             out.println("\tpublic static void insert " +
