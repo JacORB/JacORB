@@ -128,6 +128,13 @@
 				<mx4jdescription />
 			</tasks>
 		</jacorb-jmxgen>
+               <echo message="Compiling mx4j"/>
+               <jacorb-javac javac-classpathref="classpath"
+                             javac-includes="org/jacorb/notification/**/*.java"
+                             javac-excludes="org/jacorb/notification/WrapperMain.java,
+                                             org/jacorb/notification/filter/bsh/**,
+                                             org/jacorb/notification/jmx/jboss/**" />
+
 	</target>
 
 	<target name="jmx.jboss" if="jboss.home">
@@ -162,7 +169,7 @@
 						javac-includes="org/jacorb/notification/**/*.java"
 					 	javac-excludes="org/jacorb/notification/WrapperMain.java,
 			                  			org/jacorb/notification/filter/bsh/**,
-                                                                org/jacorb/notification/jmx/jboss/**" />
+                                                                org/jacorb/notification/jmx/**" />
 
 		<jacorb-javac javac-classpathref="classpath" javac-includes="org/jacorb/notification/WrapperMain.java" />
 
