@@ -86,9 +86,9 @@ public class ClientIIOPConnection
         transportManager =
             this.configuration.getORB().getTransportManager();
         client_required =
-           configuration.getAttributeAsInteger("jacorb.security.ssl.client.required_options", 16, 16);
+           configuration.getAttributeAsInteger("jacorb.security.ssl.client.required_options", 0x10, 16);
         client_supported =
-           configuration.getAttributeAsInteger("jacorb.security.ssl.client.supported_options", 16, 16);
+           configuration.getAttributeAsInteger("jacorb.security.ssl.client.supported_options", 0x10, 16);
 
         keepAlive = configuration.getAttributeAsBoolean("jacorb.connection.client.keepalive", false);
 

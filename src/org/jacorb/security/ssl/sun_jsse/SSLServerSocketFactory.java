@@ -70,9 +70,9 @@ public class SSLServerSocketFactory
             configuration.getAttributeAsBoolean("jacorb.security.jsse.trustees_from_ks", false);
 
 
-        serverSupportedOptions = configuration.getAttributeAsInteger("jacorb.security.ssl.server.supported_options",20,16); // 16 is the base as we take the string value as hex!
+        serverSupportedOptions = configuration.getAttributeAsInteger("jacorb.security.ssl.server.supported_options", 0x20, 16); // 16 is the base as we take the string value as hex!
 
-        serverRequiredOptions = configuration.getAttributeAsInteger("jacorb.security.ssl.server.required_options",0,16);
+        serverRequiredOptions = configuration.getAttributeAsInteger("jacorb.security.ssl.server.required_options", 0, 16);
 
         if( (serverSupportedOptions & 0x40) != 0 )
         {

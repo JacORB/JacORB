@@ -143,7 +143,7 @@ public class IIOPListener
             configuration.getAttributeAsBoolean("jacorb.security.support_ssl", false);
 
         target_supports =
-           configuration.getAttributeAsInteger("jacorb.security.ssl.server.supported_options", 20, 16); // 16 is the base as we take the string value as hex!
+           configuration.getAttributeAsInteger("jacorb.security.ssl.server.supported_options", 0x20, 16); // 16 is the base as we take the string value as hex!
 
         // make sure that the minimum options are always in the set of supported options
         target_supports |= MIN_SSL_OPTIONS;

@@ -62,9 +62,9 @@ public class SSLComponentInterceptor
     public void configure(Configuration configuration)
         throws ConfigurationException
     {
-        supported = configuration.getAttributeAsInteger("jacorb.security.ssl.server.supported_options",20,16); // 16 is the base as we take the string value as hex!
+        supported = configuration.getAttributeAsInteger("jacorb.security.ssl.server.supported_options", 0x20, 16); // 16 is the base as we take the string value as hex!
 
-        required = configuration.getAttributeAsInteger("jacorb.security.ssl.server.required_options",0,16);
+        required = configuration.getAttributeAsInteger("jacorb.security.ssl.server.required_options", 0, 16);
 
     }
 
