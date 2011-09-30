@@ -20,7 +20,7 @@ public class MIOPTestServer
                 ("jacorb.transport.factories", "org.jacorb.orb.iiop.IIOPFactories,org.jacorb.orb.miop.MIOPFactories");
             props.setProperty
                 ("jacorb.transport.client.selector", "org.jacorb.orb.miop.MIOPProfileSelector");
-            
+
             org.omg.CORBA.ORB  orb = org.omg.CORBA.ORB.init(args, props);
 
             GreetingService helloGroup = GreetingServiceHelper.unchecked_narrow(orb.string_to_object(miopURL));
@@ -32,7 +32,7 @@ public class MIOPTestServer
             poa.the_POAManager().activate();
             GOA goa = GOAHelper.narrow(poa);
 
-            
+
             final String servantName = args[0];
             Class servantClass = TestUtils.classForName(servantName);
             Servant helloServant = ( Servant ) servantClass.newInstance();
@@ -44,7 +44,7 @@ public class MIOPTestServer
 
             System.out.println("SERVER IOR: "+groupURL);
 
-            TestUtils.log("using IOR: " + groupURL);
+            System.out.println ("Using IOR: " + groupURL);
             System.out.flush();
 
             orb.run();
