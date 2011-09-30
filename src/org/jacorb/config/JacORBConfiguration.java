@@ -123,7 +123,8 @@ public class JacORBConfiguration implements Configuration
         // configuration
         String orbID = "jacorb"; // default id
         String myOrbID = null;
-        if ( !isApplet ) {
+        if ( !isApplet )
+        {
             try
             {
                 myOrbID = System.getProperty("ORBid");
@@ -331,7 +332,8 @@ public class JacORBConfiguration implements Configuration
            setAttributes(orbConfig);
            loaded = true;
 
-           delayedLogging.add ("configuration " + name + " loaded from file " + propFile);
+           delayedLogging.add ("configuration " + name + " loaded from file " + propFile +
+                               (orb == null ? " for ORBSingleton" : " for " + orb));
        }
 
        // now load properties file from classpath
@@ -340,7 +342,8 @@ public class JacORBConfiguration implements Configuration
        {
            setAttributes(orbConfig);
            loaded = true;
-           delayedLogging.add ("configuration " + name + " loaded from classpath");
+           delayedLogging.add ("configuration " + name + " loaded from classpath" +
+                               (orb == null ? " for ORBSingleton" : " for " + orb));
        }
 
        // 4) look for additional custom properties files
