@@ -100,9 +100,14 @@ using VERSION_INFO: ${jacorb_version_info}
            basedir="${classdir}"
            includes="org/jacorb/**,org/omg/**"
            excludes="org/jacorb/idl/**,org/jacorb/demo/**,org/jacorb/test/**,org/jacorb/notification/jmx/jboss/**,org/omg/CosTransactions/**,org/jacorb/transaction/**"
-           manifest="${basedir}/etc/jacorb_jar.manifest"
            index="true"
            />
+         <manifest>
+            <attribute name="Implementation-Title" value="JacORB"/>
+            <attribute name="Implementation-URL" value="www.jacorb.org"/>
+            <attribute name="Class-Path" value="slf4j-api-1.5.6.jar  slf4j-jdk14-1.5.6.jar antlr-2.7.2.jar"/>
+         </manifest>
+      </jar>
    </target>
 
    <target name="sources-jar" depends="init">
