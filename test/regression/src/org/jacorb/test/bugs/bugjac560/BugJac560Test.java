@@ -44,11 +44,6 @@ public class BugJac560Test extends ClientServerTestCase
 {
     private BugJac560Service server;
 
-    static
-    {
-        System.setProperty("jacorb.test.verbose", "true");
-    }
-
     public BugJac560Test(String name, ClientServerSetup setup)
     {
         super(name, setup);
@@ -56,11 +51,9 @@ public class BugJac560Test extends ClientServerTestCase
 
     public static Test suite()
     {
-        Properties props = new Properties();
-        props.setProperty("jacorb.log.default.verbosity", "4");
-
         TestSuite suite = new TestSuite(BugJac560Test.class.getName());
-        ClientServerSetup setup = new ClientServerSetup(suite, BugJac560ServiceImpl.class.getName(), null, props);
+        ClientServerSetup setup = new ClientServerSetup
+            (suite, BugJac560ServiceImpl.class.getName(), null, null);
         TestUtils.addToSuite(suite, setup, BugJac560Test.class);
 
         return setup;
