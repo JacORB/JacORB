@@ -46,11 +46,11 @@ public abstract class RPPoolManager
     /**
      * <code>pool</code> is the set of currently available (inactive) request processors
      */
-    private final LinkedList pool;
+    private final LinkedList<RequestProcessor> pool;
     /**
      * <code>activeProcessors</code> is the set of currently active processors
      */
-    private final HashSet activeProcessors;
+    private final HashSet<RequestProcessor> activeProcessors;
     /**
      * <code>unused_size</code> represents the current number of unused request processors
      * in the pool.
@@ -79,8 +79,8 @@ public abstract class RPPoolManager
         logger = _logger;
         configuration = _configuration;
 
-        pool = new LinkedList();
-        activeProcessors = new HashSet();
+        pool = new LinkedList<RequestProcessor>();
+        activeProcessors = new HashSet<RequestProcessor>();
     }
 
     private void init()
@@ -197,7 +197,7 @@ public abstract class RPPoolManager
 
     protected synchronized RequestProcessor getProcessor()
     {
-            init();
+        init();
 
         if (pool.isEmpty() && numberOfProcessors < max_pool_size)
         {
