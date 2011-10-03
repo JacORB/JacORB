@@ -159,7 +159,7 @@
         <property name="jacorb.test.pattern" value="${jacorb.test.pkg}/*Test.class" />
         <property name="jacorb.test.timeout.global" value="480000" />
 
-        <property name="jacorb.test.maxmemory" value="256m" />
+        <property name="jacorb.test.maxmemory" value="384m" />
 
         <property name="jacorb.test.server.version" value="cvs" />
         <property name="jacorb.test.client.version" value="cvs" />
