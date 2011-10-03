@@ -5,6 +5,7 @@
 This chapter explains some of the problems that may be encountered with classpath and classloaders.
 
 \section{Running applications}
+\label{appRunningEndorsed}
 
 By default JacORB is shipped with runtime scripts to simplify running
 an application.  These scripts use the Java Endorsed Standards
@@ -16,8 +17,8 @@ http://java.sun.com/j2se/1.5.0/docs/guide/standards
 
 The mechanism utilises the Xbootclasspath to place the classes first. If
 this is not used then the Sun OMG classes may be found first. The issue
-that may be encountered here is if JacORB is released with newer versions 
-of the OMG classes than is distributed within the JVM. Therefore the JacORB 
+that may be encountered here is if JacORB is released with newer versions
+of the OMG classes than is distributed within the JVM. Therefore the JacORB
 classes should be used in preference.
 
 
@@ -31,7 +32,7 @@ either
 \item Overridden System properties prior to calling ORBInit with ORBSingletonClass and ORBClass properties
 \end{itemize}
 
- the OMG ORB class will initialise the wrong ORBSingleton \textbf{if} endorsed 
+ the OMG ORB class will initialise the wrong ORBSingleton \textbf{if} endorsed
 directories are \textbf{not} being used. If endorsed directories are being used
 the JacORB OMG ORB class will automatically load the correct Singleton.
 
@@ -40,7 +41,7 @@ the JacORB OMG ORB class will automatically load the correct Singleton.
 
 The endorsed directory mechanism means that the JacORB classes will be loaded
 into the bootstrap classloader. If the developer has chosen to instantiate their
-own child classloader and load the JacORB classes within this (e.g. via URLClassLoader 
+own child classloader and load the JacORB classes within this (e.g. via URLClassLoader
 downloading the classes over the network) several problems may be encountered:
 
 \subsubsection{Garbage Collection}
@@ -70,5 +71,5 @@ model. An example of this may be found here http://www.qos.ch/logging/classloade
 This model ensures that parent delegation occurs only \textbf{after} an unsuccessful attempt to load a class from
 the child. Therefore the org.omg.CORBA.* classes supplied with JacORB would be found and used in preference to
 the OMG classes supplied by Sun in the bootclassloader. The ORBSingleton would be created entirely within the child
-classloader with no external references. This means the second classloader would also create its own, entirely 
-isolated Singleton class.  
+classloader with no external references. This means the second classloader would also create its own, entirely
+isolated Singleton class.

@@ -186,6 +186,86 @@ public class gridImpl
 \end{verbatim}
 }
 
+\subsection{The Tie Approach}
+
+If your implementation class cannot inherit from the generated servant
+class  {\tt  MyServerPOA} because,  e.g.,  you  need  to inherit  from
+another  base class,  you can  use the  tie approach.  Put  simply, it
+replaces  inheritance by  delegation. Instead  of inheriting  from the
+generated  base  class, your  implementation  needs  to implement  the
+generated {\em operations interface} {\tt MyServerOperations}:
+
+\begin{verbatim}
+package demo.grid;
+
+import demo.grid.MyServerPackage.MyException;
+
+public class gridOperationsImpl
+    implements MyServerOperations
+{
+...
+}
+\end{verbatim}
+
+Your server is then written as follows:
+
+\begin{verbatim}
+package demo.grid;
+
+import java.io.*;
+import org.omg.CosNaming.*;
+
+public class TieServer
+{
+    public static void main( String[] args )
+    {
+        org.omg.CORBA.ORB orb =
+            org.omg.CORBA.ORB.init(args, null);
+        try
+        {
+            org.omg.PortableServer.POA poa =
+                org.omg.PortableServer.POAHelper.narrow(
+                     orb.resolve_initial_references("RootPOA"));
+
+            // use the operations implementation and wrap it in
+            // a tie object
+
+            org.omg.CORBA.Object o =
+                poa.servant_to_reference(
+                     new MyServerPOATie( new gridOperationsImpl()) );
+
+            poa.the_POAManager().activate();
+
+            if( args.length == 1 )
+            {
+                // write the object reference to args[0]
+
+                PrintWriter ps = new PrintWriter(
+                    new FileOutputStream(new File( args[0] )));
+                ps.println( orb.object_to_string( o ) );
+                ps.close();
+            }
+            else
+            {
+                NamingContextExt nc =
+                     NamingContextExtHelper.narrow(
+                        orb.resolve_initial_references("NameService"));
+                NameComponent [] name = new NameComponent[1];
+                name[0] = new NameComponent("grid", "whatever");
+                nc.bind( name, o );
+            }
+
+        }
+        catch ( Exception e )
+        {
+            e.printStackTrace();
+        }
+        orb.run();
+    }
+}
+\end{verbatim}
+
+
 \section{Writing the Server}
 
 To actually instantiate a {\tt  gridImpl} object which can be accessed
@@ -359,6 +439,9 @@ converted to  a Name. The result  is an object reference  of type {\tt
 org.omg.CORBA.Object}  which has  to be  narrowed to  the type  we are
 expecting, i.e. {\tt MyServer}.
 
+\subsection{Running the Example Application}
+\label{runningExampleApp}
+
 After compiling everything we're now  ready to actually run the server
 and the  client on  different (virtual) machines.  Make sure  the name
 server is running before starting  either the server or the client. If
@@ -392,85 +475,6 @@ Setting (30,13) to 470.11
 New value at (30,13): 470.11
 MyException, reason: This is only a test exception, no harm done :-)
 done.
-\end{verbatim}
-
-\subsection{The Tie Approach}
-
-If your implementation class cannot inherit from the generated servant
-class  {\tt  MyServerPOA} because,  e.g.,  you  need  to inherit  from
-another  base class,  you can  use the  tie approach.  Put  simply, it
-replaces  inheritance by  delegation. Instead  of inheriting  from the
-generated  base  class, your  implementation  needs  to implement  the
-generated {\em operations interface} {\tt MyServerOperations}:
-
-\begin{verbatim}
-package demo.grid;
-
-import demo.grid.MyServerPackage.MyException;
-
-public class gridOperationsImpl
-    implements MyServerOperations
-{
-...
-}
-\end{verbatim}
-
-Your server is then written as follows:
-
-\begin{verbatim}
-package demo.grid;
-
-import java.io.*;
-import org.omg.CosNaming.*;
-
-public class TieServer
-{
-    public static void main( String[] args )
-    {
-        org.omg.CORBA.ORB orb =
-            org.omg.CORBA.ORB.init(args, null);
-        try
-        {
-            org.omg.PortableServer.POA poa =
-                org.omg.PortableServer.POAHelper.narrow(
-                     orb.resolve_initial_references("RootPOA"));
-
-            // use the operations implementation and wrap it in
-            // a tie object
-
-            org.omg.CORBA.Object o =
-                poa.servant_to_reference(
-                     new MyServerPOATie( new gridOperationsImpl()) );
-
-            poa.the_POAManager().activate();
-
-            if( args.length == 1 )
-            {
-                // write the object reference to args[0]
-
-                PrintWriter ps = new PrintWriter(
-                    new FileOutputStream(new File( args[0] )));
-                ps.println( orb.object_to_string( o ) );
-                ps.close();
-            }
-            else
-            {
-                NamingContextExt nc =
-                     NamingContextExtHelper.narrow(
-                        orb.resolve_initial_references("NameService"));
-                NameComponent [] name = new NameComponent[1];
-                name[0] = new NameComponent("grid", "whatever");
-                nc.bind( name, o );
-            }
-
-        }
-        catch ( Exception e )
-        {
-            e.printStackTrace();
-        }
-        orb.run();
-    }
-}
 \end{verbatim}
 
 \subsection{Using Object.\_release}

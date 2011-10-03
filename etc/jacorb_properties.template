@@ -278,7 +278,7 @@ jacorb.connection.client.connect_timeout=90000
 # COMM_FAILURE.
 #jacorb.connection.client.keepalive=off
 
-# Enable the use of non-blcoking I/O
+# Enable the use of non-blcoking I/O (NIO)
 #jacorb.connection.nonblocking=off
 
 

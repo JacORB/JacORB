@@ -1,4 +1,4 @@
 @echo off
-rem Starts the JacORB Interface Repositor server
+rem Starts the JacORB Interface Repository
 echo "IR"
 jaco org.jacorb.ir.IRServer %*

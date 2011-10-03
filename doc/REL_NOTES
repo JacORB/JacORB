@@ -224,6 +224,8 @@ post 2.3.1
         - Improve and fix toString on stubs for UnionType.
         - Implemented Portability Stubs and Skeletons as per 4.21.6 of IDL to Java Mapping
         - Improve typecode generation to use lazy initialization class holder idiom.
+        - Split ORB jar delivery into jacorb.jar (ORB/IMR/IR/NamingService) and
+          jacorb-services.jar (all other services e.g. Notification/Transaction/Collection)/
 
     - Naming Service:
         - Fix for BindingIterator leak (Bugzilla 647).
@@ -248,6 +250,7 @@ post 2.3.1
         - added buffer manager factory configuration details.
         - update SSL/SAS documentation.
         - added NAT and firewall network configuration section.
+        - Updates for installation.
 
 2.3.1
 =====

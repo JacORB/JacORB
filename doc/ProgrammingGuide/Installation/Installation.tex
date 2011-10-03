@@ -5,11 +5,11 @@ an overview of the package contents.
 \section{Downloading JacORB}
 
 
-JacORB can be downloaded as a g-zipped tar--archive or as a zip--archive
-from the  JacORB home page  at
-\href{http://www.jacorb.org}{http://www.jacorb.org}.
+JacORB can be downloaded as a source or binary distribution in a
+g-zipped tar--archive or zip--archive format from the JacORB home
+page at \href{http://www.jacorb.org}{http://www.jacorb.org}.
 
-To install JacORB, first unzip  and untar (or simply unzip) the archive
+To install JacORB, first unzip and untar (or simply unzip) the archive
 somewhere.  This will result  in a new directory {\tt \JacORBDir}.
 After this follow the instructions in {\tt \JacORBDir/doc/INSTALL}.
 
@@ -20,14 +20,32 @@ After this follow the instructions in {\tt \JacORBDir/doc/INSTALL}.
 
 JacORB requires JDK 1.5 or above properly installed on your machine.  To build
 JacORB (and compile the examples) you need to have the XML--based make tool
-``Ant'' installed on your machine.  Ant can be downloaded from
-\href{http://jakarta.apache.org/ant}{http://jakarta.apache.org/ant}. All make
-files ({\tt build.xml}) are written for this tool. To rebuild JacORB
-completely, just type {\tt ant} in the installation directory.  Optionally,
-you might want to do a {\tt ant clean} first.
+``Ant'' installed on your machine (version 1.7.1 or greater).  Ant can be downloaded
+from \href{http://jakarta.apache.org/ant}{http://jakarta.apache.org/ant}. All make
+files ({\tt build.xml}) are written for this tool.
 
+To rebuild JacORB completely, just type {\tt ant} in the installation directory. Optionally,
+you might want to do a {\tt ant realclean} first. It might be neccessary to set the following
+environment variable prior to invoking Ant:
+\small{
+\begin{verbatim}
+   export ANT_OPTS="-Xmx256m"
+\end{verbatim}
+}
 For SSL, you need an implementation of the SSL protocol. We currently support
 Oracle's JSSE Reference implementation included in the JDK.
+
+\subsection{Libraries}
+Once JacORB is installed, the bin directory should contain the scripts used to assist in
+running JacORB applications (see \ref{runningExampleApp}) and \ref{appRunningEndorsed}).
+The lib directory contains the JacORB libraries and third party libraries required by the ORB
+and services (See below). JacORB libraries have been split as follows:
+
+\begin{itemize}
+\item jacorb.jar          - containing the ORB, IMR, IR and NamingService
+\item jacorb-services.jar - containing all other services (e.g. Notification, DDS, Collection etc).
+\item idl.jar             - containing the IDL compiler.
+\end{itemize}
 
 \subsection{Dependencies}
 
@@ -35,6 +53,8 @@ JacORB depends upon the following third party software
 \begin{enumerate}
 \item Simple Logging Facade For Java (SLF4J Version 1.5.0)
 \end{enumerate}
+
+Note that the services may depend upon further third party libraries.
 
 
 %%% Local Variables:
