@@ -3,6 +3,8 @@ package org.jacorb.test.miop;
 import java.util.Properties;
 import junit.framework.Test;
 import junit.framework.TestSuite;
+
+import org.jacorb.test.bugs.bugjac802.BugJac802Test;
 import org.jacorb.test.common.ClientServerSetup;
 import org.jacorb.test.common.ClientServerTestCase;
 import org.jacorb.test.common.TestUtils;
@@ -23,7 +25,7 @@ public class MIOPTest extends ClientServerTestCase
     public static Test suite()
     {
         TestSuite suite = new TestSuite(MIOPTest.class.getName());
-
+        
         Properties props = new Properties ();
         props.setProperty
             ("jacorb.transport.factories", "org.jacorb.orb.iiop.IIOPFactories,org.jacorb.orb.miop.MIOPFactories");
@@ -31,8 +33,16 @@ public class MIOPTest extends ClientServerTestCase
             ("jacorb.transport.client.selector", "org.jacorb.orb.miop.MIOPProfileSelector");
 
         ClientServerSetup setup = new ClientServerSetup(suite, MIOPTestServer.class.getName(), GreetingImpl.class.getName(), props, props);
-
-        TestUtils.addToSuite(suite, setup, MIOPTest.class);
+        
+        // MIOP doesn't support SSL 
+        if (!setup.isSSLEnabled ())
+        {
+            TestUtils.addToSuite(suite, setup, MIOPTest.class);
+        }
+        else
+        {
+            System.err.println("Test ignored as SSL doesn't supported (" + MIOPTest.class.getName() + ")");
+        }
 
         return setup;
     }
