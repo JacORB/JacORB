@@ -177,7 +177,7 @@ using VERSION_INFO: ${jacorb_version_info}
          <manifest>
             <attribute name="Implementation-Title" value="JacORB"/>
             <attribute name="Implementation-URL" value="www.jacorb.org"/>
-            <attribute name="Class-Path" value="slf4j-api-1.5.10.jar  slf4j-jdk14-1.5.10.jar"/>
+            <attribute name="Class-Path" value="slf4j-api-1.6.2.jar slf4j-jdk14-1.6.2.jar"/>
          </manifest>
       </jar>
       <jar jarfile="${lib}/jacorb-services.jar"
@@ -518,7 +518,7 @@ using VERSION_INFO: ${jacorb_version_info}
                 timeout="12000000">
             <sourcePath path="${src}"/>
             <auxClasspath path="${classdir}"/>
-            <auxClasspath path="${basedir}/lib/slf4j-api-1.5.10.jar"/>
+            <auxClasspath path="${basedir}/lib/slf4j-api-1.6.2.jar"/>
             <systemProperty name="findbugs.de.comment" value="true"/>
             <class location="${basedir}/classes/org/jacorb/imr"/>
             <class location="${basedir}/classes/org/jacorb/orb"/>

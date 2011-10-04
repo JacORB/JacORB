@@ -252,6 +252,9 @@ post 2.3.1
         - added NAT and firewall network configuration section.
         - Updates for installation.
 
+    - Misc
+        - Update SLF4J libraries to 1.6.2
+
 2.3.1
 =====
 
