@@ -77,7 +77,7 @@ public class ClientNIOConnection
 
             if (isDebugEnabled)
             {
-                logger.debug("Trying to establish client connection with timeout " + timeout);
+                logger.debug("Trying to establish an NIO client connection with timeout " + timeout);
             }
 
             int retryCount = 0;

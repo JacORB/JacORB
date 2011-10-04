@@ -136,7 +136,7 @@ public interface Configuration
      * this method returns these values as a list of Strings.
      * If the property is not set, an empty list is returned.
      */
-    List getAttributeList(String key);
+    List<String> getAttributeList(String key);
 
     /**
      *

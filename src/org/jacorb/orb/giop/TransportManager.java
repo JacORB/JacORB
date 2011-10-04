@@ -60,21 +60,26 @@ public class TransportManager
 
     /** configuration properties */
     private Logger logger = null;
-    private List factoryClassNames = null;
+    private List<String> factoryClassNames = null;
     private ProfileSelector profileSelector = null;
     private final SocketFactoryManager socketFactoryManager;
 
     /**
+     * Denotes whether to use NIO for IIOP transport.
+     */
+    private boolean useNonBlockingIIOPTransport = false;
+
+    /**
      * Maps ETF Profile tags (Integer) to ETF Factories objects.
      */
-    private Map  factoriesMap  = null;
+    private Map<Integer,Factories>  factoriesMap  = null;
 
     /**
      * List of all installed ETF Factories.  This list contains an
      * instance of each Factories class, ordered in the same way as
      * they were specified in the jacorb.transport.factories property.
      */
-    private List factoriesList = null;
+    private List<Factories> factoriesList = null;
 
     /**
      * The first listener (in a chain of instances), representing
@@ -90,28 +95,19 @@ public class TransportManager
     public void configure(Configuration myConfiguration)
     throws ConfigurationException
     {
-        this.configuration = (org.jacorb.config.Configuration)myConfiguration;
-        logger =
-            configuration.getLogger("jacorb.orb.giop");
+        configuration = myConfiguration;
+        logger = configuration.getLogger("jacorb.orb.giop");
+        useNonBlockingIIOPTransport = configuration.getAttributeAsBoolean
+            ("jacorb.connection.nonblocking", false);
+
         socketFactoryManager.configure(configuration);
 
         // get factory class names
-        factoryClassNames =
-            this.configuration.getAttributeList("jacorb.transport.factories");
+        factoryClassNames = configuration.getAttributeList("jacorb.transport.factories");
 
         if (factoryClassNames.isEmpty())
         {
-            boolean useNonBlockingTransport =
-                configuration.getAttributeAsBoolean("jacorb.connection.nonblocking", false);
-
-            if (useNonBlockingTransport)
-            {
-                factoryClassNames.add("org.jacorb.orb.nio.NIOFactories");
-            }
-            else
-            {
-                factoryClassNames.add("org.jacorb.orb.iiop.IIOPFactories");
-            }
+           factoryClassNames.add("org.jacorb.orb.iiop.IIOPFactories");
         }
 
         // get profile selector info
@@ -154,7 +150,7 @@ public class TransportManager
         {
             loadFactories();
         }
-        return (Factories)factoriesMap.get (Integer.valueOf(tag));
+        return factoriesMap.get (tag);
     }
 
     /**
@@ -162,7 +158,7 @@ public class TransportManager
      * in the same order as they were specified in the
      * jacorb.transport.factories property.
      */
-    public synchronized List getFactoriesList()
+    public synchronized List<Factories> getFactoriesList()
     {
         if (factoriesList == null)
         {
@@ -186,14 +182,14 @@ public class TransportManager
             throw new org.omg.CORBA.INTERNAL("factoryClassNames may not be null");
         }
 
-        factoriesMap  = new HashMap();
-        factoriesList = new ArrayList();
+        factoriesMap  = new HashMap<Integer,Factories>();
+        factoriesList = new ArrayList<Factories>();
 
-        for (Iterator i = factoryClassNames.iterator(); i.hasNext();)
+        for (Iterator<String> i = factoryClassNames.iterator(); i.hasNext();)
         {
             String className = (String)i.next();
             Factories factories = instantiateFactories(className);
-            factoriesMap.put(Integer.valueOf(factories.profile_tag()), factories); // NOPMD
+            factoriesMap.put(factories.profile_tag(), factories); // NOPMD
             factoriesList.add (factories);
         }
     }
@@ -205,11 +201,17 @@ public class TransportManager
     {
         try
         {
+           if (useNonBlockingIIOPTransport &&
+               "org.jacorb.orb.iiop.IIOPFactories".equals (className))
+           {
+              className = "org.jacorb.orb.nio.NIOFactories";
+           }
+
             // ObjectUtil.classForName() uses the context class loader.
             // This is important here because JacORB might be on the
             // bootclasspath, and the external transport on the normal
             // classpath.
-            Class clazz = ObjectUtil.classForName(className);
+            Class<?> clazz = ObjectUtil.classForName(className);
             Object instance = clazz.newInstance();
 
             if (instance instanceof Configurable)

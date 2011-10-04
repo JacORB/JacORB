@@ -930,9 +930,9 @@ public class JacORBConfiguration implements Configuration
      * @return the attribute list
      * @see org.jacorb.config.Configuration#getAttributeList(java.lang.String)
      */
-    public List getAttributeList(String key)
+    public List<String> getAttributeList(String key)
     {
-        List result = new ArrayList();
+        List<String> result = new ArrayList<String>();
         String value = null;
 
         try
