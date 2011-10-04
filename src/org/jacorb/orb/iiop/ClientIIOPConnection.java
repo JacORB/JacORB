@@ -440,7 +440,6 @@ public class ClientIIOPConnection
         // Check if SSL profile
         if (((IIOPProfile)profile).getSSL () == null)
         {
-            logger.warn ("checkSSL(): non-SSL IIOP profile is used.");
             return;
         }
 
