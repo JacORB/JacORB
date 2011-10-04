@@ -1062,6 +1062,11 @@ closed directly. Instead, it is waited for the client to do so
 first. Please see \ref{connection_management}. & boolean & off \\
 \hline
 
+\verb"jacorb.connection.non"
+\verb"blocking" & This property enables use of non-blocking I/O (NIO) on IIOP
+based transports. & boolean & off \\
+\hline
+
 \verb"jacorb.listener.server"
 \verb"_socket_timeout" & Sets a timeout on the (SSL) server socket. This is a
 workaround for JDK 1.3 on linux where a thread blocked on \verb"accept()"
