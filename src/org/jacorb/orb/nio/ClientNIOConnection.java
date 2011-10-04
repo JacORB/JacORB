@@ -20,25 +20,20 @@
 
 package org.jacorb.orb.nio;
 
-import java.nio.channels.SocketChannel;
 import java.io.IOException;
-import java.net.Socket;
+import java.net.InetSocketAddress;
+import java.nio.channels.SocketChannel;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.ArrayList;
-import java.net.InetSocketAddress;
-import java.lang.Thread;
-
-import org.jacorb.config.*;
-import org.jacorb.orb.factory.SocketFactory;
-import org.omg.CORBA.TIMEOUT;
+import org.jacorb.config.Configurable;
+import org.jacorb.config.Configuration;
+import org.jacorb.config.ConfigurationException;
+import org.jacorb.orb.iiop.IIOPAddress;
+import org.jacorb.orb.iiop.IIOPProfile;
 import org.jacorb.util.SelectorRequest;
 import org.jacorb.util.SelectorRequestCallback;
-import org.jacorb.orb.iiop.IIOPProfile;
-import org.jacorb.orb.iiop.IIOPAddress;
-import org.jacorb.util.Time;
-import org.jacorb.orb.iiop.IIOPProfile;
-import org.jacorb.orb.iiop.IIOPAddress;
+import org.omg.CORBA.TIMEOUT;
 
 public class ClientNIOConnection
         extends NIOConnection
@@ -118,7 +113,7 @@ public class ClientNIOConnection
                 {
                     if (isDebugEnabled)
                     {
-                        logger.debug("Exception", ex);
+                        logger.debug("Exception connecting {}", ex.getMessage (), ex);
                     }
 
                     //only sleep and print message if we're actually
@@ -303,7 +298,6 @@ public class ClientNIOConnection
 
     private class ConnectCallback extends SelectorRequestCallback
     {
-
         public boolean call (SelectorRequest request)
         {
 
@@ -328,7 +322,7 @@ public class ClientNIOConnection
             }
             catch (Exception ex)
             {
-                logger.error ("Exception while finishing connection: " + ex.toString());
+                logger.error ("Exception while finishing connection {} ", ex.getMessage (), ex);
             }
 
             return false;

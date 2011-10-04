@@ -142,13 +142,12 @@ public class SSLServerSocketFactory
         {
             factory = createServerSocketFactory();
         }
-        catch( Exception e )
+        catch(Exception e)
         {
-            logger.warn("Unable to create ServerSocketFactory", e);
+            logger.warn("Unable to create ServerSocketFactory : {}", e.getMessage (), e);
 
             throw new ConfigurationException("Unable to create ServerSocketFactory!", e);
         }
-
 
         // Andrew T. Finnell
         // We need to obtain all the cipher suites to use from the
