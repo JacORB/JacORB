@@ -1,12 +1,16 @@
 package org.jacorb.test.orb.connection;
 
-import java.util.Properties;
-
-import org.jacorb.test.*;
-import org.omg.CORBA.*;
-import org.omg.GIOP.*;
-import org.omg.BiDirPolicy.*;
-import org.omg.PortableServer.*;
+import org.jacorb.test.BiDirServerPOA;
+import org.jacorb.test.ClientCallback;
+import org.omg.BiDirPolicy.BIDIRECTIONAL_POLICY_TYPE;
+import org.omg.BiDirPolicy.BOTH;
+import org.omg.BiDirPolicy.BidirectionalPolicyValueHelper;
+import org.omg.CORBA.Any;
+import org.omg.CORBA.Policy;
+import org.omg.PortableServer.IdAssignmentPolicyValue;
+import org.omg.PortableServer.ImplicitActivationPolicyValue;
+import org.omg.PortableServer.LifespanPolicyValue;
+import org.omg.PortableServer.POA;
 
 /**
  * @author Andre Spiegel

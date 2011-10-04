@@ -1,21 +1,34 @@
 package org.jacorb.test.orb.connection;
 
-import org.jacorb.orb.giop.*;
-import org.jacorb.orb.iiop.*;
-
-import java.io.*;
-import java.util.*;
-
-import org.omg.ETF.BufferHolder;
-import org.omg.ETF.Profile;
-import org.omg.GIOP.*;
-import org.jacorb.orb.*;
-
-import junit.framework.*;
-import org.jacorb.test.common.*;
-
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Vector;
+import junit.framework.Test;
+import junit.framework.TestSuite;
 import org.jacorb.config.Configuration;
 import org.jacorb.config.JacORBConfiguration;
+import org.jacorb.orb.ORB;
+import org.jacorb.orb.giop.ClientConnection;
+import org.jacorb.orb.giop.GIOPConnection;
+import org.jacorb.orb.giop.GIOPConnectionManager;
+import org.jacorb.orb.giop.LocateRequestOutputStream;
+import org.jacorb.orb.giop.MessageOutputStream;
+import org.jacorb.orb.giop.Messages;
+import org.jacorb.orb.giop.ReplyInputStream;
+import org.jacorb.orb.giop.ReplyListener;
+import org.jacorb.orb.giop.RequestInputStream;
+import org.jacorb.orb.giop.RequestListener;
+import org.jacorb.orb.giop.RequestOutputStream;
+import org.jacorb.orb.giop.ServerGIOPConnection;
+import org.jacorb.orb.iiop.IIOPAddress;
+import org.jacorb.orb.iiop.IIOPProfile;
+import org.jacorb.test.common.JacORBTestCase;
+import org.jacorb.test.common.JacORBTestSuite;
+import org.omg.ETF.BufferHolder;
+import org.omg.ETF.Profile;
+import org.omg.GIOP.MsgType_1_1;
 
 /**
  * GIOPConnectionTest.java
@@ -64,7 +77,7 @@ public class GIOPConnectionTest
     }
 
 
-    private class DummyTransport extends org.omg.ETF._ConnectionLocalBase
+    class DummyTransport extends org.omg.ETF._ConnectionLocalBase
     {
         private boolean closed = false;
         private byte[] data = null;
@@ -77,20 +90,20 @@ public class GIOPConnectionTest
             orb.getGIOPMinorVersion()
         );
 
-        public DummyTransport( List messages )
+        public DummyTransport( List<byte[]> messages )
         {
             // convert the message list into a plain byte array
 
             int size = 0;
-            for (Iterator i = messages.iterator(); i.hasNext();)
+            for (Iterator<byte[]> i = messages.iterator(); i.hasNext();)
             {
-                size += ((byte[])i.next()).length;
+                size += i.next().length;
             }
             data = new byte[size];
             int index = 0;
-            for (Iterator i = messages.iterator(); i.hasNext();)
+            for (Iterator<byte[]> i = messages.iterator(); i.hasNext();)
             {
-                byte[] msg = (byte[])i.next();
+                byte[] msg = i.next();
                 System.arraycopy(msg, 0, data, index, msg.length);
                 index += msg.length;
             }
@@ -255,7 +268,7 @@ public class GIOPConnectionTest
 
     public void testGIOP_1_2_CorrectFragmentedRequest()
     {
-        List messages = new Vector();
+        List<byte[]> messages = new Vector<byte[]>();
 
         RequestOutputStream r_out =
             new RequestOutputStream( orb, //ClientConnection
@@ -351,7 +364,7 @@ public class GIOPConnectionTest
 
     public void testGIOP_1_0_CorrectRefusing()
     {
-        List messages = new Vector();
+        List<byte[]> messages = new Vector<byte[]>();
 
         RequestOutputStream r_out =
             new RequestOutputStream( orb, //ClientConnection
@@ -474,7 +487,7 @@ public class GIOPConnectionTest
 
     public void testGIOP_1_1_IllegalMessageType()
     {
-        List messages = new Vector();
+        List<byte[]> messages = new Vector<byte[]>();
 
         LocateRequestOutputStream r_out =
             new LocateRequestOutputStream(
@@ -551,7 +564,7 @@ public class GIOPConnectionTest
 
     public void testGIOP_1_1_NoImplement()
     {
-        List messages = new Vector();
+        List<byte[]> messages = new Vector<byte[]>();
 
         RequestOutputStream r_out =
             new RequestOutputStream( orb, //ClientConnection
@@ -676,7 +689,7 @@ public class GIOPConnectionTest
 
     public void testGIOP_1_2_CorrectCloseOnGarbage()
     {
-        List messages = new Vector();
+        List<byte[]> messages = new Vector<byte[]>();
 
         String garbage = "This is a garbage message";
         byte[] b = garbage.getBytes();
@@ -738,7 +751,7 @@ public class GIOPConnectionTest
 
     public void testGIOP_1_1_CorrectRequest()
     {
-        List messages = new Vector();
+        List<byte[]> messages = new Vector<byte[]>();
 
         RequestOutputStream r_out =
             new RequestOutputStream( orb, //ClientConnection
