@@ -27,6 +27,7 @@ import junit.extensions.TestSetup;
 import junit.framework.Test;
 
 import org.jacorb.test.common.ClientServerSetup;
+import org.jacorb.test.common.CommonSetup;
 import org.jacorb.test.common.TestUtils;
 import org.jacorb.test.ir.IFRServerSetup;
 import org.omg.CORBA.ORB;
@@ -58,6 +59,8 @@ public class TypedServerTestSetup extends TestSetup
 
     	Properties props = new Properties();
     	props.setProperty("ORBInitRef.InterfaceRepository", ifrSetup.getRepository().toString());
+        // FIXME: bugzilla #820 - disabled security for some regression tests
+    	props.setProperty (CommonSetup.JACORB_REGRESSION_DISABLE_SECURITY, "true");
     	clientServerSetup = new ClientServerSetup(fTest, TypedServerTestRunner.class.getName(), IGNORED, props, props);
     	clientServerSetup.setUp();
     }

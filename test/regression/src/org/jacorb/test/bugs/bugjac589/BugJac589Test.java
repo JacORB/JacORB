@@ -29,6 +29,7 @@ import org.jacorb.test.BasicServer;
 import org.jacorb.test.BasicServerHelper;
 import org.jacorb.test.common.ClientServerSetup;
 import org.jacorb.test.common.ClientServerTestCase;
+import org.jacorb.test.common.CommonSetup;
 import org.jacorb.test.common.TestUtils;
 import org.jacorb.test.orb.BasicServerImpl;
 import org.omg.CORBA.TRANSIENT;
@@ -63,6 +64,8 @@ public class BugJac589Test extends ClientServerTestCase
         TestSuite suite = new TestSuite(BugJac589Test.class.getName());
 
         Properties clientProperties = new Properties();
+        // FIXME: bugzilla #820 - disabled security for some regression tests
+        clientProperties.put(CommonSetup.JACORB_REGRESSION_DISABLE_SECURITY, "true");
         clientProperties.put("jacorb.connection.client.connect_timeout", "20000");
 
         ClientServerSetup setup = new ClientServerSetup(suite, BasicServerImpl.class.getName(), clientProperties, clientProperties);

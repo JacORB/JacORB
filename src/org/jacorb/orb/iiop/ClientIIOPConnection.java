@@ -437,22 +437,10 @@ public class ClientIIOPConnection
      */
     protected void checkSSL()
     {
-        // Check if SSL profile
-        if (((IIOPProfile)profile).getSSL () == null)
-        {
-            return;
-        }
+        if (!doSupportSSL) return;
 
-        if (doSupportSSL)
-        {
-            ssl_port = ((IIOPProfile) profile).getSslPortIfSupported( client_required, client_supported );
-            use_ssl  = ssl_port != -1;
-        }
-        else
-        {
-            use_ssl = false;
-            ssl_port = -1;
-        }
+        ssl_port = ((IIOPProfile) profile).getSslPortIfSupported( client_required, client_supported );
+        use_ssl  = ssl_port != -1;
     }
 
 
