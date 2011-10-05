@@ -85,7 +85,7 @@ public class MaxConnetcionEnforcementTest extends ClientServerTestCase
             final TestIf remoteObj = TestIfHelper.narrow( setup.getServerObject() );
 
             final int callInterval = 1;
-            int threads = 100;
+            int threads = 10;
 
             List threadPool = new LinkedList();
             Thread thread;
@@ -97,7 +97,7 @@ public class MaxConnetcionEnforcementTest extends ClientServerTestCase
                         {
                             try
                             {
-                                int c = 100;
+                                int c = 10;
                                 while( c-- > 0 )
                                 {
                                     if( Math.abs( rnd.nextInt() ) % 3 > 0 )
@@ -122,7 +122,7 @@ public class MaxConnetcionEnforcementTest extends ClientServerTestCase
                 thread.start();
                 threadPool.add(thread);
             }
-            
+
             for(Object thr_obj : threadPool )
             {
                 ((Thread)thr_obj).join();
