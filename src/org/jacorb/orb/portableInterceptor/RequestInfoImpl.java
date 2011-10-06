@@ -21,8 +21,8 @@
 
 package org.jacorb.orb.portableInterceptor;
 
+import java.util.Collection;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 import org.omg.CORBA.Any;
 import org.omg.CORBA.BAD_PARAM;
@@ -61,8 +61,8 @@ public abstract class RequestInfoImpl
 
     protected short sync_scope;
 
-    protected final Map request_ctx;
-    protected final Map reply_ctx;
+    protected final Map<Integer, ServiceContext> request_ctx;
+    protected final Map<Integer, ServiceContext> reply_ctx;
 
     protected short caller_op = -1;
 
@@ -70,8 +70,8 @@ public abstract class RequestInfoImpl
     {
         super();
 
-        request_ctx = new HashMap();
-        reply_ctx = new HashMap();
+        request_ctx = new HashMap<Integer, ServiceContext>();
+        reply_ctx = new HashMap<Integer, ServiceContext>();
     }
 
     /**
@@ -85,7 +85,7 @@ public abstract class RequestInfoImpl
         {
             for (int i = 0; i < ctx.length; i++)
             {
-                request_ctx.put(Integer.valueOf(ctx[i].context_id), ctx[i]);
+                request_ctx.put(ctx[i].context_id, ctx[i]);
             }
         }
     }
@@ -95,20 +95,9 @@ public abstract class RequestInfoImpl
      * portable interceptors.  There is no request/stream so we need
      * to get the service contexts as an array
      */
-    public ServiceContext[] getRequestServiceContextsArray()
+    public Collection<ServiceContext> getRequestServiceContexts()
     {
-        ServiceContext [] ctxts = new ServiceContext [request_ctx.size()];
-
-        Iterator iter = request_ctx.values().iterator();
-        int i = 0;
-
-        while (iter.hasNext())
-        {
-            ctxts[i] = (ServiceContext) iter.next();
-            i++;
-        }
-
-        return ctxts;
+       return request_ctx.values ();
     }
 
     /**
@@ -122,7 +111,7 @@ public abstract class RequestInfoImpl
         {
             for (int i = 0; i < ctx.length; i++)
             {
-                reply_ctx.put(Integer.valueOf(ctx[i].context_id), ctx[i]);
+                reply_ctx.put(ctx[i].context_id, ctx[i]);
             }
         }
     }
@@ -132,20 +121,9 @@ public abstract class RequestInfoImpl
      * portable interceptors.  There is no request/stream so we need
      * to get the service contexts as an array
      */
-    public ServiceContext[] getReplyServiceContextsArray()
+    public Collection<ServiceContext> getReplyServiceContexts()
     {
-        ServiceContext [] ctxts = new ServiceContext [reply_ctx.size()];
-
-        Iterator iter = reply_ctx.values().iterator();
-        int i = 0;
-
-        while (iter.hasNext())
-        {
-            ctxts[i] = (ServiceContext) iter.next();
-            i++;
-        }
-
-        return ctxts;
+       return reply_ctx.values ();
     }
 
     public void setArguments (Parameter[] args)
@@ -206,7 +184,7 @@ public abstract class RequestInfoImpl
 
         synchronized(reply_ctx)
         {
-            result = (ServiceContext) reply_ctx.get(Integer.valueOf(id));
+            result = (ServiceContext) reply_ctx.get(id);
         }
 
         if (result == null)

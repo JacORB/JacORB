@@ -20,8 +20,8 @@ package org.jacorb.poa;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
+import java.util.Collection;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Set;
 import org.jacorb.config.Configurable;
 import org.jacorb.config.Configuration;
@@ -86,19 +86,21 @@ public class RequestProcessor
     /** this processor's logger instance, obtained from the request controller */
     private Logger logger;
 
-    private final static Set specialOperations;
+    /**
+     * ID for RequestProcessor
+     */
     private static int count = 0;
+
+    private final static Set<String> specialOperations;
 
     static
     {
-        specialOperations = new HashSet(50);
+        specialOperations = new HashSet<String>(10);
         specialOperations.add("_is_a");
         specialOperations.add("_interface");
         specialOperations.add("_non_existent");
-
         specialOperations.add("_get_policy");
         specialOperations.add("_set_policy_overrides");
-
         specialOperations.add("_get_component");
     }
 
@@ -556,11 +558,11 @@ public class RequestProcessor
                 //processing and return here. The service contexts for
                 //the result have to be set, of course.
                 ReplyOutputStream out = request.getReplyOutputStream();
-                Iterator ctx = info.getReplyServiceContexts();
+                Collection<ServiceContext> ctx = info.getReplyServiceContexts ();
 
-                while( ctx.hasNext() )
+                for (ServiceContext s: ctx)
                 {
-                    out.addServiceContext( (ServiceContext) ctx.next() );
+                    out.addServiceContext(s);
                 }
 
                 return;
@@ -621,14 +623,12 @@ public class RequestProcessor
                             invokePostInvoke();
                         }
 
-                        ReplyOutputStream out =
-                            request.getReplyOutputStream();
-                        Iterator ctx =
-                            info.getReplyServiceContexts();
+                        ReplyOutputStream out = request.getReplyOutputStream();
+                        Collection<ServiceContext> ctx = info.getReplyServiceContexts ();
 
-                        while( ctx.hasNext() )
+                        for (ServiceContext s: ctx)
                         {
-                            out.addServiceContext( (ServiceContext) ctx.next() );
+                            out.addServiceContext(s);
                         }
 
                         return;
@@ -694,14 +694,12 @@ public class RequestProcessor
 
             invokeInterceptors(info, op);
 
-            ReplyOutputStream out =
-                request.get_out();
-            Iterator ctx =
-                info.getReplyServiceContexts();
+            ReplyOutputStream out = request.get_out();
+            Collection<ServiceContext> ctx = info.getReplyServiceContexts ();
 
-            while( ctx.hasNext() )
+            for (ServiceContext s: ctx)
             {
-                out.addServiceContext( (ServiceContext) ctx.next() );
+                out.addServiceContext(s);
             }
 
             manager.removeTSCurrent();

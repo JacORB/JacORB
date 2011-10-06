@@ -22,13 +22,13 @@ package org.jacorb.orb;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
-
 import org.jacorb.config.Configuration;
 import org.jacorb.config.ConfigurationException;
 import org.jacorb.imr.ImRAccessImpl;
@@ -51,6 +51,7 @@ import org.jacorb.orb.portableInterceptor.ServerRequestInfoImpl;
 import org.jacorb.orb.util.CorbaLoc;
 import org.jacorb.poa.util.POAUtil;
 import org.jacorb.util.ObjectUtil;
+import org.jacorb.util.SelectorManager;
 import org.jacorb.util.Time;
 import org.omg.CORBA.BAD_INV_ORDER;
 import org.omg.CORBA.BAD_PARAM;
@@ -97,7 +98,6 @@ import org.omg.SSLIOP.SSL;
 import org.omg.SSLIOP.SSLHelper;
 import org.omg.TimeBase.UtcT;
 import org.slf4j.Logger;
-import org.jacorb.util.SelectorManager;
 
 /**
  * JacORB implementation of CORBA object reference
@@ -2343,7 +2343,8 @@ public final class Delegate
 
                 if (sinfo != null && interceptors != null)
                 {
-                    interceptors.getInfo ().setReplyServiceContexts (sinfo.getReplyServiceContextsArray());
+                   Collection<ServiceContext> ctx = sinfo.getReplyServiceContexts();
+                   interceptors.getInfo ().setReplyServiceContexts (ctx.toArray (new ServiceContext[ctx.size ()]));
 
                     try
                     {
@@ -2449,7 +2450,7 @@ public final class Delegate
         InterceptorManager manager = null;
         ServerInterceptorIterator interceptorIterator = null;
         ServerRequestInfoImpl sinfo = null;
-        ServiceContext [] contexts = null;
+        Collection<ServiceContext> contexts = null;
         DefaultClientInterceptorHandler interceptors = null;
 
         if (poa == null)
@@ -2513,7 +2514,7 @@ public final class Delegate
 
             if (interceptors != null)
             {
-                contexts = interceptors.getInfo().getRequestServiceContextsArray();
+                contexts = interceptors.getInfo().getRequestServiceContexts();
             }
             try
             {

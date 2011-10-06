@@ -26,6 +26,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.ReentrantLock;
 import org.jacorb.config.Configuration;
 import org.jacorb.config.ConfigurationException;
 import org.jacorb.orb.IBufferManager;
@@ -33,17 +35,15 @@ import org.jacorb.orb.ORB;
 import org.jacorb.orb.SystemExceptionHelper;
 import org.jacorb.orb.etf.StreamConnectionBase;
 import org.jacorb.util.ObjectUtil;
+import org.jacorb.util.Time;
 import org.jacorb.util.TimerQueue;
 import org.jacorb.util.TimerQueueAction;
-import org.jacorb.util.Time;
-import java.util.concurrent.locks.ReentrantLock;
-import java.util.concurrent.TimeUnit;
 import org.omg.CORBA.CompletionStatus;
 import org.omg.CORBA.NO_IMPLEMENT;
+import org.omg.CORBA.TIMEOUT;
 import org.omg.ETF.BufferHolder;
 import org.omg.GIOP.MsgType_1_1;
 import org.omg.GIOP.ReplyStatusType_1_2;
-import org.omg.CORBA.TIMEOUT;
 import org.slf4j.Logger;
 
 /**
@@ -98,7 +98,7 @@ public abstract class GIOPConnection
     private boolean tcs_negotiated = false;
 
     //map request id (Integer) to ByteArrayInputStream
-    private final Map fragments = new HashMap();
+    private final Map<Integer, ByteArrayOutputStream> fragments = new HashMap<Integer, ByteArrayOutputStream>();
     private IBufferManager buf_mg;
 
     private boolean dump_incoming = false;
@@ -225,14 +225,14 @@ public abstract class GIOPConnection
                     new ConnectionReset (max_request_write_time);
         }
 
-        List statsProviderClassNames = configuration.getAttributeList( "jacorb.connection.statistics_providers");
+        List<String> statsProviderClassNames = configuration.getAttributeList( "jacorb.connection.statistics_providers");
 
-        for (Iterator iter = statsProviderClassNames.iterator (); iter.hasNext ();)
+        for (Iterator<String> iter = statsProviderClassNames.iterator (); iter.hasNext ();)
         {
             String className = (String) iter.next ();
             try
             {
-                Class iclass = ObjectUtil.classForName (className);
+                Class<?> iclass = ObjectUtil.classForName (className);
 
                 this.statistics_provider_adapter =
                     new StatisticsProviderAdapter ((StatisticsProvider)iclass.newInstance(),
@@ -642,7 +642,7 @@ public abstract class GIOPConnection
 
                 //for now, only GIOP 1.2 from here on
 
-                Integer request_id = Integer.valueOf(Messages.getRequestId( message ));
+                int request_id = Messages.getRequestId( message );
 
                 //sanity check
                 if ( ! fragments.containsKey( request_id ))
