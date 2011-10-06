@@ -70,8 +70,6 @@ public abstract class GIOPConnection
     protected final org.omg.ETF.Profile    profile;
     protected org.omg.ETF.Connection transport = null;
 
-    private ConnectionReset server_write_monitor = null;
-    private ConnectionReset client_write_monitor = null;
     private ConnectionReset write_monitor = null;
 
     private TimerQueue timer_queue = null;
@@ -207,25 +205,7 @@ public abstract class GIOPConnection
         connectTimeout =
             configuration.getAttributeAsInteger("jacorb.connection.client.connect_timeout", 90000);
 
-        int max_request_write_time =
-            configuration.getAttributeAsInteger("jacorb.connection.request.write_timeout", 0);
-        int max_reply_write_time =
-            configuration.getAttributeAsInteger("jacorb.connection.reply.write_timeout", 0);
-
-        logger.info ("max request time = " + max_request_write_time +
-                     " max reply time = " + max_reply_write_time);
-        if (max_request_write_time > 0 || max_reply_write_time > 0)
-        {
-            timer_queue = orb.getTimerQueue();
-            if (max_reply_write_time > 0)
-                server_write_monitor =
-                    new ConnectionReset (max_reply_write_time);
-            if (max_request_write_time > 0)
-                client_write_monitor =
-                    new ConnectionReset (max_request_write_time);
-        }
-
-        List<String> statsProviderClassNames = configuration.getAttributeList( "jacorb.connection.statistics_providers");
+        List statsProviderClassNames = configuration.getAttributeList( "jacorb.connection.statistics_providers");
 
         for (Iterator<String> iter = statsProviderClassNames.iterator (); iter.hasNext ();)
         {
@@ -253,16 +233,13 @@ public abstract class GIOPConnection
         }
     }
 
-    protected void use_server_write_monitor()
+    protected void init_write_monitor(int timeout)
     {
-        write_monitor = server_write_monitor;
+        if (timeout <= 0)
+            return;
+        timer_queue = orb.getTimerQueue();
+        write_monitor = new ConnectionReset (timeout);
     }
-
-    protected void use_client_write_monitor()
-    {
-        write_monitor = client_write_monitor;
-    }
-
 
     public final void setCodeSets( CodeSet TCS, CodeSet TCSW )
     {

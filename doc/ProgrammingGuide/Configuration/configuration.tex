@@ -1067,6 +1067,22 @@ first. Please see \ref{connection_management}. & boolean & off \\
 based transports. & boolean & off \\
 \hline
 
+\verb"jacorb.connection.req"
+\verb"uest.write_timeout" & Sets the maximum amount of time in milliseconds
+a client will spend waiting to write a request. Effective when using blocking
+I/O to ensure a hung peer will not lock up a the client. A request that cannot
+be sent before the deadline expires is discarded, the connection is closed,
+and an exception is raised to the client application. \\
+\hline
+
+\verb"jacorb.connection.rep"
+\verb"ly.write_timeout" & Sets the maximum amount of time in milliseconds
+a server will spend waiting to write a reply. Effective when using blocking
+I/O to ensure a hung peer will not lock up a the server. A reply that cannot
+be sent before the deadline expires is discarded and the connection is
+closed. \\
+\hline
+
 \verb"jacorb.listener.server"
 \verb"_socket_timeout" & Sets a timeout on the (SSL) server socket. This is a
 workaround for JDK 1.3 on linux where a thread blocked on \verb"accept()"

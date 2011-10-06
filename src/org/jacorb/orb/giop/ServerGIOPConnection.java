@@ -58,8 +58,6 @@ public class ServerGIOPConnection
         this.manager = manager;
     }
 
-
-
     public void configure(Configuration configuration)
         throws ConfigurationException
     {
@@ -67,9 +65,12 @@ public class ServerGIOPConnection
 
         delayClose =
             configuration.getAttributeAsBoolean("jacorb.connection.delay_close", false);
-        use_server_write_monitor();
-    }
 
+        int max_reply_write_time =
+            configuration.getAttributeAsInteger("jacorb.connection.reply.write_timeout", 0);
+
+        init_write_monitor (max_reply_write_time);
+    }
 
     /**
      * Try an orderly shutdown of this connection by sending a
