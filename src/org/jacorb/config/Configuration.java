@@ -73,7 +73,7 @@ public interface Configuration
     /**
      * Uses the class name to return a name suitable for naming the logger.
      */
-    String getLoggerName(Class clazz);
+    String getLoggerName(Class<?> clazz);
 
     /**
      * Returns the value of the configuration attribute with the given key.
@@ -166,5 +166,5 @@ public interface Configuration
      * return all attribute names that start
      * with the specified prefix
      */
-    List getAttributeNamesWithPrefix(String string);
+    List<String> getAttributeNamesWithPrefix(String string);
 }

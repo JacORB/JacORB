@@ -23,7 +23,7 @@ public class JdkLoggingInitializer extends LoggingInitializer
 
     static
     {
-        Class c = null;
+        Class<?> c = null;
         try
         {
             c = ObjectUtil.classForName ("org.slf4j.impl.JDK14LoggerAdapter");
