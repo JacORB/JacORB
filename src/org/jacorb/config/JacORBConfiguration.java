@@ -954,6 +954,36 @@ public class JacORBConfiguration implements Configuration
         }
         return result;
     }
+    
+    public String[] getAttributeAsStringsArray(String key)
+    {
+        String value = null;
+
+        try
+        {
+            value = getAttribute(key);
+        }
+        catch( ConfigurationException ce)
+        {
+            // ignore
+        }
+        
+        if (value == null)
+        {
+            return null;
+        }
+        
+        List<String> values = getAttributeList (key);
+        
+        // Return null if key is defined but has empty value
+        if (values.size () < 1)
+        {
+            return null;
+        }
+        
+        return (String[]) values.toArray (new String[values.size ()]);
+    }
+    
 
     /**
      * New instance.

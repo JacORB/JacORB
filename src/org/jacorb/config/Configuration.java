@@ -137,6 +137,13 @@ public interface Configuration
      * If the property is not set, an empty list is returned.
      */
     List<String> getAttributeList(String key);
+    
+    /**
+     * For a property that has a list of comma-separated values,
+     * this method returns these values as a array of Strings.
+     * If the property is not set or has empty value, null is returned.
+     */
+    String[] getAttributeAsStringsArray(String key);
 
     /**
      *

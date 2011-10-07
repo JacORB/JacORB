@@ -39,52 +39,93 @@ public class KeyStoreUtil
      * @return - a fully loaded and operational KeyStore
      * @param file_name - a keystore file name to be loaded
      * @param storepass - the password for managing the keystore
-    * @param keystoreType
+     * @param keystoreType
+     * @param keystoreProvider
      */
-    static KeyStore getKeyStore( String file_name, char[] storepass, String keystoreType )
+    static KeyStore getKeyStore (String file_name, char[] storepass, String keystoreType)
         throws IOException, java.security.GeneralSecurityException
     {
-        InputStream in = null;
+        return getKeyStore (file_name, storepass, keystoreType, null);
+    }
 
-        java.net.URL url =  ObjectUtil.getResource(file_name);
-        if (url != null)
+        /**
+     * @return - a fully loaded and operational KeyStore
+     * @param file_name - a keystore file name to be loaded
+     * @param storepass - the password for managing the keystore
+     * @param keystoreType
+     * @param keystoreProvider
+     */
+    static KeyStore getKeyStore (String file_name, char[] storepass, String keystoreType, String keystoreProvider)
+        throws IOException, java.security.GeneralSecurityException
+    {
+        KeyStore ks = KeyStore.getInstance(keystoreType);
+
+        // Bugzilla #883: PKCS 11 and CRL support for SSL
+        if ("PKCS11".equalsIgnoreCase (keystoreType)) 
         {
-            in = url.openStream();
+            // create key store with specified provider
+            ks = KeyStore.getInstance (keystoreType, keystoreProvider);
         }
         else
         {
-            //try unchanged name first
-            File f = new File( file_name );
-            if( ! f.exists() )
+            ks = KeyStore.getInstance(keystoreType);
+        }
+
+        InputStream in = null;
+        
+        // Process key store file strictly for the JKS key store type
+        if ("JKS".equalsIgnoreCase (keystoreType))
+        {
+            java.net.URL url =  ObjectUtil.getResource(file_name);
+            if (url != null)
             {
-                //try to prepend home dir
-                String name =
-                    System.getProperty( "user.home" ) +
-                    System.getProperty( "file.separator" ) +
-                    file_name;
+                in = url.openStream();
+            }
+            else
+            {
+                //try unchanged name first
+                File f = new File( file_name );
+                if( ! f.exists() )
+                {
+                    //try to prepend home dir
+                    String name =
+                        System.getProperty( "user.home" ) +
+                        System.getProperty( "file.separator" ) +
+                        file_name;
 
-                f = new File( name );
+                    f = new File( name );
 
-                if(f.exists())
+                    if(f.exists())
+                    {
+                        in = new FileInputStream( f );
+                    }
+                }
+                else
                 {
                     in = new FileInputStream( f );
                 }
             }
-            else
+
+            if (in == null)
             {
-                in = new FileInputStream( f );
+                throw new IOException("Unable to find keystore file " +
+                                      file_name);
             }
         }
 
-        if (in == null)
+        // Bugzilla #883: PKCS 11 and CRL support for SSL
+        // Store password for "WINDOWS-MY" store type doesn't need to be set
+        if ("WINDOWS-MY".equalsIgnoreCase (keystoreType))
         {
-                throw new IOException("Unable to find keystore file " +
-                                      file_name);
+            storepass = null;
         }
-
-        KeyStore ks = KeyStore.getInstance(keystoreType);
+        
         ks.load( in, storepass );
-        in.close();
+        
+        if (in != null)
+        {
+            in.close();
+        }
         return ks;
     }
 }

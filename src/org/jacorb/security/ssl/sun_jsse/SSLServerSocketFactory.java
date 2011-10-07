@@ -20,13 +20,29 @@
  */
 package org.jacorb.security.ssl.sun_jsse;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.InetAddress;
 import java.net.ServerSocket;
+import java.security.GeneralSecurityException;
 import java.security.KeyStore;
-import java.util.List;
+import java.security.cert.CRL;
+import java.security.cert.CertPathParameters;
+import java.security.cert.CertStore;
+import java.security.cert.CertStoreParameters;
+import java.security.cert.CertificateFactory;
+import java.security.cert.CollectionCertStoreParameters;
+import java.security.cert.PKIXBuilderParameters;
+import java.security.cert.X509CertSelector;
+import java.util.Collection;
+import java.util.Date;
+import java.util.Iterator;
 import javax.net.ServerSocketFactory;
+import javax.net.ssl.CertPathTrustManagerParameters;
 import javax.net.ssl.KeyManagerFactory;
+import javax.net.ssl.ManagerFactoryParameters;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLServerSocket;
 import javax.net.ssl.TrustManager;
@@ -58,6 +74,14 @@ public class SSLServerSocketFactory
     private String keystore_type = null;
     private String keyManagerAlgorithm = null;
     private String trustManagerAlgorithm = null;
+    
+    private String keystore_provider = null; // e.g. SunPKCS11-NSS
+    private String truststore_type = null; 
+    private String truststore_location = null;
+    private String truststore_passphrase = null;
+    private String truststore_provider = null;
+    private boolean support_crl = false;    // CRL support on/off
+    private String crl_file = null;         // absolute path to the CRL file
 
     public void configure(Configuration configuration)
         throws ConfigurationException
@@ -108,6 +132,27 @@ public class SSLServerSocketFactory
 
         trustManagerAlgorithm =
            configuration.getAttribute("jacorb.security.jsse.server.trust_manager_algorithm","SunX509");
+        
+        keystore_provider =
+            configuration.getAttribute("jacorb.security.keystore_provider", null);
+
+        truststore_type =
+            configuration.getAttribute("jacorb.security.truststore_type", null);
+
+        truststore_location =
+            configuration.getAttribute("jacorb.security.truststore", null);
+
+        truststore_passphrase =
+            configuration.getAttribute("jacorb.security.truststore_password", null);
+
+        truststore_provider =
+            configuration.getAttribute("jacorb.security.truststore_provider", null);
+
+        crl_file =
+            configuration.getAttribute("jacorb.security.crl_file", null);
+
+        support_crl =
+            configuration.getAttributeAsBoolean("jacorb.security.support_crl", false);
 
         try
         {
@@ -124,18 +169,11 @@ public class SSLServerSocketFactory
             }
         }
 
-        if (configuration.getAttribute("jacorb.security.ssl.server.protocols", null) != null)
+        enabledProtocols = configuration.getAttributeAsStringsArray ("jacorb.security.ssl.server.protocols");
+        if (enabledProtocols != null && logger.isDebugEnabled())
         {
-            List l = ((org.jacorb.config.Configuration)configuration).getAttributeList
-               ("jacorb.security.ssl.server.protocols");
-            enabledProtocols = new String [l.size ()];
-            enabledProtocols = (String[])l.toArray(enabledProtocols);
-
-            if (logger.isDebugEnabled())
-            {
-                logger.debug("Setting user specified server enabled protocols : " +
-                             configuration.getAttribute("jacorb.security.ssl.server.protocols", ""));
-            }
+            logger.debug("Setting user specified server enabled protocols : " +
+                         configuration.getAttribute("jacorb.security.ssl.server.protocols", ""));
         }
 
         try
@@ -152,10 +190,7 @@ public class SSLServerSocketFactory
         // Andrew T. Finnell
         // We need to obtain all the cipher suites to use from the
         // properties file.
-        final List cipher_suite_list =
-            config.getAttributeList("jacorb.security.ssl.server.cipher_suites");
-
-        cipher_suites = (String[]) cipher_suite_list.toArray(new String[cipher_suite_list.size()]);
+        cipher_suites = config.getAttributeAsStringsArray ("jacorb.security.ssl.server.cipher_suites");
     }
 
     public ServerSocket createServerSocket( int port )
@@ -176,7 +211,7 @@ public class SSLServerSocketFactory
         // Andrew T. Finnell / Change made for e-Security Inc. 2002
         // We need a way to enable the cipher suites that we would
         // like to use. We should obtain these from the properties file.
-        if( cipher_suites.length > 0)
+        if (cipher_suites != null)
         {
             s.setEnabledCipherSuites ( cipher_suites );
         }
@@ -208,9 +243,9 @@ public class SSLServerSocketFactory
         // Andrew T. Finnell / Change made for e-Security Inc. 2002
         // We need a way to enable the cipher suites that we would
         // like to use. We should obtain these from the properties file.
-        if( cipher_suites.length > 0)
+        if (cipher_suites != null)
         {
-            s.setEnabledCipherSuites ( cipher_suites );
+            s.setEnabledCipherSuites (cipher_suites);
         }
 
         if (enabledProtocols != null)
@@ -241,9 +276,9 @@ public class SSLServerSocketFactory
         // Andrew T. Finnell / Change made for e-Security Inc. 2002
         // We need a way to enable the cipher suites that we would
         // like to use. We should obtain these from the properties file.
-        if( cipher_suites.length > 0)
+        if (cipher_suites != null)
         {
-            s.setEnabledCipherSuites ( cipher_suites );
+            s.setEnabledCipherSuites (cipher_suites);
         }
 
         if (enabledProtocols != null)
@@ -265,26 +300,90 @@ public class SSLServerSocketFactory
         KeyStore key_store =
             KeyStoreUtil.getKeyStore( keystore_location,
                                       keystore_passphrase.toCharArray(),
-                                      keystore_type);
+                                      keystore_type, 
+                                      keystore_provider);
 
         KeyManagerFactory kmf = KeyManagerFactory.getInstance(keyManagerAlgorithm);
-        kmf.init( key_store, keystore_passphrase.toCharArray() );
-        TrustManagerFactory tmf = null;
 
+        // Bugzilla #883: PKCS 11 and CRL support for SSL
+        // Password for "WINDOWS-MY" store type doesn't need to be set
+        if ("WINDOWS-MY".equalsIgnoreCase (keystore_type))
+        {
+            kmf.init( key_store, null );
+            
+        }
+        else
+        {
+            kmf.init( key_store, keystore_passphrase.toCharArray() );
+        }
+        
+        TrustManagerFactory tmf = null;
+        KeyStore trust_store = null;
         //only add trusted certs, if establish trust in client
         //is required
         if(( serverRequiredOptions & 0x40) != 0 ||
            ( serverSupportedOptions & 0x40) != 0)
         {
-            tmf = TrustManagerFactory.getInstance(trustManagerAlgorithm);
+            tmf = TrustManagerFactory.getInstance (trustManagerAlgorithm);
 
             if( trusteesFromKS )
             {
-                tmf.init( key_store );
+                trust_store = key_store;
+                
             }
             else
             {
-                tmf.init( (KeyStore) null );
+                if ( "PKCS11".equalsIgnoreCase(truststore_type) ) 
+                {
+                    trust_store = KeyStore.getInstance (truststore_type, truststore_provider);
+                    trust_store.load (null, truststore_passphrase.toCharArray());
+                }
+                else if ( "WINDOWS-ROOT".equalsIgnoreCase(truststore_type) )
+                {
+                    trust_store = KeyStore.getInstance("WINDOWS-ROOT");
+                    trust_store.load (null, null);
+                }
+                else if (truststore_location != null && truststore_passphrase != null)
+                {
+                    trust_store = KeyStoreUtil.getKeyStore(truststore_location, 
+                                                           truststore_passphrase.toCharArray(),
+                                                           truststore_type);
+                }
+                logger.debug ("SSLServerSocketFactory: loaded trust store: " 
+                              + ((trust_store != null) ? trust_store.getProvider() : "default (null)"));
+              
+            }
+            
+            if( trust_store != null && support_crl )
+            {
+                CertPathParameters pkixParams =  null;
+                
+                //create the selector to filter the trusted CA from others.
+                X509CertSelector x509CertSelector = new X509CertSelector();
+                x509CertSelector.setCertificateValid( new Date() );
+
+                PKIXBuilderParameters xparams = new PKIXBuilderParameters( trust_store, x509CertSelector );
+                Collection<? extends CRL> crls = getCRLs();
+
+                CertStoreParameters cparam = new CollectionCertStoreParameters( crls );
+                CertStore cs = CertStore.getInstance( "Collection", cparam );
+
+                //Specify that revocation checking is to be enabled
+                xparams.setRevocationEnabled( true );
+                
+                //add the certificate store
+                xparams.addCertStore( cs );
+                pkixParams = xparams;
+
+                //Wrap them as trust manager parameters
+                ManagerFactoryParameters trustParams = new CertPathTrustManagerParameters( pkixParams );
+
+                //Pass parameters to factory to be passed to CertPath implementation
+                tmf.init( trustParams );
+            }
+            else 
+            {
+                tmf.init( trust_store );
             }
         }
 
@@ -292,7 +391,7 @@ public class SSLServerSocketFactory
 
         if (trustManager == null)
         {
-            trustManagers = (tmf == null)? null : tmf.getTrustManagers();
+            trustManagers = (tmf == null) ? null : tmf.getTrustManagers();
         }
         else
         {
@@ -310,4 +409,51 @@ public class SSLServerSocketFactory
 
         return ctx.getServerSocketFactory();
     }
+    
+    private Collection<? extends CRL> getCRLs () throws IOException, GeneralSecurityException
+    {
+        logger.debug( "SSLServerSocketFactory: Loading the CRLs from file: " + crl_file );
+        File crlFile = new File( crl_file );
+        Collection <? extends CRL> crls = null;
+        InputStream is = null;
+        try
+        {
+            CertificateFactory cf = CertificateFactory.getInstance( "X.509" );
+            is = new FileInputStream( crlFile );
+            crls = cf.generateCRLs( is );
+
+            if (logger.isDebugEnabled ())
+            {
+                logger.debug ("SSLServerSocketFactory: Found CLRs:");
+                Iterator <? extends CRL> it = crls.iterator ();
+                while (it.hasNext ())
+                {
+                    logger.debug (it.next().toString ());
+                }
+            }
+                
+        }
+        catch ( IOException ex )
+        {
+            logger.error ("SSLServerSocketFactory: CLRs loading failed: ", ex);
+            throw ex;
+        }
+        catch (GeneralSecurityException gse)
+        {
+            logger.error ("SSLServerSocketFactory: CLRs security error: ", gse);
+            throw gse;
+        }
+        finally
+        {
+            if (is != null)
+            {
+                try
+                {
+                    is.close ();
+                }
+                catch (Exception ex) { /* ignored */ }
+            }
+        }
+        return crls;
+   }
 }
