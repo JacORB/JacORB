@@ -1064,7 +1064,9 @@ first. Please see \ref{connection_management}. & boolean & off \\
 
 \verb"jacorb.connection.non"
 \verb"blocking" & This property enables use of non-blocking I/O (NIO) on IIOP
-based transports. & boolean & off \\
+based transports. & boolean & off. Note that this feature is currently only
+for client-side connections, and only for plain IIOP - not SSL. There is no
+technical reason for these restrictions, simply lack of current need. \\
 \hline
 
 \verb"jacorb.connection.req"
