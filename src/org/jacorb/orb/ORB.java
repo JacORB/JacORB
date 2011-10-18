@@ -1454,15 +1454,15 @@ public final class ORB
 
         synchronized ( runSync )
         {
-            try
+            while ( run )
             {
-                while ( run )
+                try
                 {
                     runSync.wait();
                 }
-            }
-            catch (InterruptedException ex)
-            {
+                catch (InterruptedException ex)
+                {
+                }
             }
         }
 

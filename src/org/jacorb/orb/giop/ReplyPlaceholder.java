@@ -110,16 +110,16 @@ public abstract class ReplyPlaceholder
 
         synchronized(lock)
         {
-            try
+            while(!ready && System.currentTimeMillis() < _maxWait)
             {
-                while(!ready && System.currentTimeMillis() < _maxWait)
+                try
                 {
                     lock.wait( _timeout );
                 }
-            }
-            catch( InterruptedException e )
-            {
-                // ignored
+                catch( InterruptedException e )
+                {
+                    // ignored
+                }
             }
 
             if (!ready && _shouldUseTimeout)

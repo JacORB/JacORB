@@ -137,9 +137,11 @@ public class POAManager
             thread.start();
             if (wait_for_completion)
             {
-                try {
+                try
+                {
                     thread.join();
-                } catch (InterruptedException e) {}
+                }
+                catch (InterruptedException e) {}
             }
         }
     }
@@ -188,9 +190,11 @@ public class POAManager
             thread.start();
             if (wait_for_completion)
             {
-                try {
+                try
+                {
                     thread.join();
-                } catch (InterruptedException e) {}
+                }
+                catch (InterruptedException e) {}
             }
         }
     }
@@ -266,9 +270,11 @@ public class POAManager
             thread.start();
             if (wait_for_completion)
             {
-                try {
+                try
+                {
                     thread.join();
-                } catch (InterruptedException e) {}
+                }
+                catch (InterruptedException e) {}
             }
         }
     }

@@ -385,20 +385,20 @@ public class BufferManager extends AbstractBufferManager
             while (true)
             {
                 // Sleep (note time check on wake to catch premature awakening bug)
-
-                try
+                time = sleepInterval + System.currentTimeMillis();
+                synchronized(this)
                 {
-                    time = sleepInterval + System.currentTimeMillis();
-                    synchronized(this)
+                    while(!done && System.currentTimeMillis() <= time)
                     {
-                        while(!done && System.currentTimeMillis() <= time)
+                        try
                         {
                             wait(sleepInterval);
                         }
+                        catch (InterruptedException ex)
+                        {
+                            // ignored
+                        }
                     }
-                }
-                catch (InterruptedException ex) {
-                    // ignored
                 }
 
                 // Check not shutting down

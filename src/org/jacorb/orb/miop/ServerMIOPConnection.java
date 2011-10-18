@@ -140,7 +140,7 @@ public class ServerMIOPConnection extends MIOPConnection implements Runnable
     */
    public synchronized boolean wait_next_data (long timeout)
    {
-      if (fullMessages.isEmpty ())
+      while (fullMessages.isEmpty ())
       {
          try
          {

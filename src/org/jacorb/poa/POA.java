@@ -1041,7 +1041,8 @@ public class POA
             try
             {
                 thread.join();
-            } catch (InterruptedException e) {}
+            }
+            catch (InterruptedException e) {}
         }
     }
 

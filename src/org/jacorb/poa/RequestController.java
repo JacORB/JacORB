@@ -520,7 +520,7 @@ public final class RequestController
         {
             try
             {
-                    logger.debug("somebody waits for completion and there are active processors");
+                logger.debug("somebody waits for completion and there are active processors");
                 wait();
             }
             catch (InterruptedException e)
