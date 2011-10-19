@@ -12,6 +12,7 @@ import org.omg.CORBA.TIMEOUT;
 import org.omg.CORBA.ORB;
 import org.omg.CORBA.Any;
 import org.omg.CORBA.Policy;
+import org.omg.CORBA.SetOverrideType;
 import org.omg.Messaging.RELATIVE_RT_TIMEOUT_POLICY_TYPE;
 
 import org.jacorb.test.TestIf;
@@ -34,7 +35,7 @@ public class NIOTest extends ClientServerTestCase
 
     public static Test suite()
     {
-        TestSuite suite = new TestSuite(NIOTest.class);
+        TestSuite suite = new TestSuite(NIOTest.class.getName());
 
         Properties props = new Properties ();
         props.setProperty ("jacorb.connection.nonblocking", "on");
@@ -69,19 +70,17 @@ public class NIOTest extends ClientServerTestCase
     public void testNIO() throws Exception
     {
         ORB orb = setup.getClientOrb();
-        //String ior = setup.getServerIOR();
-        //System.out.println ("getServerIOR returned " + ior);
         org.omg.CORBA.Object ref = orb.string_to_object( nioTestURL );
-        // Use an unchecked narrow so it doesn't do an is_a call remotely.
-        server = TestIfHelper.narrow(ref);
 
         Any rrtPolicyAny = orb.create_any();
         rrtPolicyAny.insert_ulonglong (ONE_SECOND*2);
  
-        Policy rrtPolicy =
+        Policy policies[] = new Policy[1];
+        policies[0] =
             orb.create_policy (RELATIVE_RT_TIMEOUT_POLICY_TYPE.value,
                                rrtPolicyAny);
-
+      
+        server = TestIfHelper.narrow(ref._set_policy_override (policies, SetOverrideType.ADD_OVERRIDE));
 
         try
         {
