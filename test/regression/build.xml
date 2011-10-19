@@ -775,6 +775,17 @@ Tests run: ${result.testCount}, Failures: ${result.testFailures}, Errors: ${resu
     </target>
 
     <!-- ==================================================== -->
+    <!--                 run nio tests                  -->
+    <!-- ==================================================== -->
+
+
+    <target name="run-all-nio" description="Run all Jacorb tests in the nio package">
+        <antcall target="run-all">
+            <param name="jacorb.test.pkg" value="org/jacorb/test/nio/**" />
+        </antcall>
+    </target>
+
+     <!-- ==================================================== -->
     <!--                 run notification tests               -->
     <!-- ==================================================== -->
 
