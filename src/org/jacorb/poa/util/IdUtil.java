@@ -1,6 +1,8 @@
 package org.jacorb.poa.util;
 
 import java.util.Arrays;
+import java.util.Random;
+
 
 /*
  *        JacORB - a free Java ORB
@@ -31,6 +33,7 @@ import java.util.Arrays;
 
 public final class IdUtil
 {
+    private static final Random rnd = new Random (9999);
 
     public static byte[] concat(byte[] first, byte[] second)
     {
@@ -42,15 +45,13 @@ public final class IdUtil
 
     /**
      * creates an id as a concatenation of the current time in msec
-     * and random_len random bytes
+     * and 4 random bytes
      */
-
-    public static byte[] createId(int random_len)
+    public static byte[] createId()
     {
-	byte[] time = toId(System.currentTimeMillis());
-	long range = (long) Math.pow(10, random_len)-1;
-	byte[] random = toId((long)(Math.random()*range));
-	return concat(time, random);
+        byte[] time = toId (System.nanoTime());
+        byte[] random = toId (rnd.nextLong());
+        return concat(time, random);
     }
 
     public static boolean equals(byte[] first, byte[] second)
@@ -107,17 +108,15 @@ public final class IdUtil
         }
 
         byte[] result = new byte[str.length()/2];
-	StringBuffer number = new StringBuffer("xx");
+ 	StringBuffer number = new StringBuffer("xx");
 
         for (int i=0; i<result.length; i++)
         {
 	    number.setCharAt(0, str.charAt(i*2));
 	    number.setCharAt(1, str.charAt(i*2+1));
-	    result[i] = new Integer(number.toString()).byteValue();
-	}
-	for (int i=0; i<result.length; i++)
-        {
-	    if (result[i] == org.jacorb.poa.POAConstants.OBJECT_KEY_SEP_BYTE)
+	    result[i] = Integer.valueOf(number.toString()).byteValue();
+
+            if (result[i] == org.jacorb.poa.POAConstants.OBJECT_KEY_SEP_BYTE)
             {
 		result[i] = (byte) 48;     // char 0 , hex 30
 	    }

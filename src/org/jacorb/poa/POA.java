@@ -1139,7 +1139,7 @@ public class POA
     {
         if (isPersistent())
         {
-            return IdUtil.concat(IdUtil.createId(4), watermark);
+            return IdUtil.concat(IdUtil.createId(), watermark);
         }
 
         // Synchonize as the increment is not an atomic operation.
@@ -1157,7 +1157,7 @@ public class POA
             }
             else
             {
-                watermark = IdUtil.createId(4);
+                watermark = IdUtil.createId();
             }
         }
         return watermark;
