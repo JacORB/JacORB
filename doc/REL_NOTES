@@ -231,6 +231,7 @@ post 2.3.1
     - Naming Service:
         - Fix for BindingIterator leak (Bugzilla 647).
         - Renamed configuration properties and default to off.
+        - Work around cyclic graphs when running NamingManager
         - Fix for memory leaks (Bugzilla 835) and Mico interoperability (Bugzilla 617).
 
     - Interface Repository:

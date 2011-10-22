@@ -23,7 +23,7 @@ package org.jacorb.naming;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
-import java.util.Hashtable;
+import java.util.HashSet;
 import org.omg.CosNaming.Binding;
 import org.omg.CosNaming.BindingHolder;
 import org.omg.CosNaming.BindingIteratorHolder;
@@ -44,7 +44,7 @@ import org.omg.CosNaming.NamingContextHelper;
 public class ContextLister
 {
     public NamingContext root_context;
-    private Hashtable contexts = new Hashtable();
+    private HashSet<String> contexts = new HashSet<String>();
     private org.omg.CORBA.ORB orb;
 
     public ContextLister(org.omg.CORBA.ORB orb)
@@ -90,12 +90,12 @@ public class ContextLister
     }
 
     private void mark(NamingContext nc) {
-        contexts.put( orb.object_to_string(nc), "" );
+        contexts.add ( orb.object_to_string(nc));
     }
 
     private boolean isMarked(NamingContext nc)
     {
-        return contexts.containsKey(orb.object_to_string(nc));
+        return contexts.contains(orb.object_to_string(nc));
     }
 
 
@@ -108,6 +108,7 @@ public class ContextLister
     {
         if( isMarked(n))
         {
+           System.out.println ("Loop detected for " + n);
             return;
         }
 

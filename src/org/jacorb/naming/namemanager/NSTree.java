@@ -65,7 +65,7 @@ public class NSTree extends JTree
       size = new Dimension (width, height);
       nsTable = theTable;
       rootContext = rootCntxt;
-      ContextNode cn = new ContextNode (rootContext, (DefaultTreeModel)getModel ());
+      ContextNode cn = new ContextNode (orb, rootContext, (DefaultTreeModel)getModel ());
       cn.setNode (root);
       root.setUserObject (cn);
    }

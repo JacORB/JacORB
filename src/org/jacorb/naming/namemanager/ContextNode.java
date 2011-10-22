@@ -20,11 +20,13 @@ package org.jacorb.naming.namemanager;
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
+import java.util.HashSet;
 import java.util.Vector;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import org.jacorb.orb.iiop.IIOPAddress;
 import org.jacorb.orb.iiop.IIOPProfile;
+import org.omg.CORBA.ORB;
 import org.omg.CosNaming.Binding;
 import org.omg.CosNaming.BindingIteratorHolder;
 import org.omg.CosNaming.BindingListHolder;
@@ -59,21 +61,28 @@ public class ContextNode
 
    private String                 myName;
 
+   private ORB orb;
 
-   public ContextNode (NamingContext context, DefaultTreeModel model)
+   private static HashSet<String> contexts = new HashSet<String>();
+
+
+
+   public ContextNode (ORB orb, NamingContext context, DefaultTreeModel model)
    {
       used = false;
       this.model = model;
       this.context = context;
+      this.orb = orb;
    }
 
 
-   public ContextNode (NamingContext context, Binding b, DefaultTreeModel model)
+   public ContextNode (ORB orb, NamingContext context, Binding b, DefaultTreeModel model)
    {
       used = false;
       this.model = model;
       this.context = context;
       binding = b;
+      this.orb = orb;
    }
 
 
@@ -145,6 +154,15 @@ public class ContextNode
    {
       try
       {
+         if( isMarked(this.context))
+         {
+            System.out.println ("Loop detected for " + this.context);
+             return;
+         }
+
+         mark(this.context);
+
+
          BindingListHolder blsoh = new BindingListHolder ();
          BindingIteratorHolder bioh = new BindingIteratorHolder ();
          ContextNode context_node;
@@ -177,7 +195,7 @@ public class ContextNode
          for (int i = 0; i < bindings.length; i++)
          {
             if (bindings[i].binding_type == BindingType.ncontext)
-               contexts[--context_count] = new ContextNode (
+               contexts[--context_count] = new ContextNode (orb,
                         NamingContextHelper.narrow (context.resolve (bindings[i].binding_name)),
                         bindings[i], model);
             else
@@ -310,6 +328,14 @@ public class ContextNode
       }
    }
 
+   private void mark(NamingContext nc) {
+       contexts.add ( orb.object_to_string(nc));
+   }
+
+   private boolean isMarked(NamingContext nc)
+   {
+       return contexts.contains(orb.object_to_string(nc));
+   }
 
    private Vector createRow (NameComponent last, org.jacorb.orb.ParsedIOR pior)
    {
