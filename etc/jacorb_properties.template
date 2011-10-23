@@ -409,6 +409,13 @@ jacorb.interop.sun=off
 # saving one byte on the payload. Turn this on if you run into null strings.
 jacorb.interop.null_string_encoding=off
 
+
+# RMI/IIOP maximum stream format version.
+# Default is 1 as used for GIOP v1.2 messages.
+# Maximiun version 2 is used by default for GIOP v1.3 messages.
+# JacORB has limited support of version 2 streams for the GIOP v1.2 messages.
+# jacorb.interop.maximum_stream_format_version=1
+
 ###########################################
 #                                         #
 #         Socket Factories                #
