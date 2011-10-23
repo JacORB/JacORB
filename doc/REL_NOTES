@@ -152,6 +152,7 @@ post 2.3.1
           a server PICurrent.
         - Improved Configuration storage and made the usage more consistent.
         - Added PKCS key storage type and CRL support for SSL (experimental, bugzilla 883).
+        - Fix for chunking and boolean types.
 
     - POA:
         - Fix for reference_to_id error checking.

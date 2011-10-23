@@ -415,10 +415,23 @@ public class CDRInputStream
 
     private final void handle_chunking()
     {
-        int remainder = 4 - (index % 4);
-        int aligned_pos = (remainder != 4) ? pos + remainder : pos;
+        handle_chunking (true);
+    }
 
-        if (chunk_end_pos >= pos && chunk_end_pos <= aligned_pos)
+    private final void handle_chunking(boolean align)
+    {
+        if (align)
+        {
+            int remainder = 4 - (index % 4);
+            int aligned_pos = (remainder != 4) ? pos + remainder : pos;
+            align = ( chunk_end_pos >= pos && chunk_end_pos <= aligned_pos );
+        }
+        else
+        {
+            align = ( chunk_end_pos == pos );
+        }
+
+        if ( align )
         {
             chunk_end_pos = -1;
             int saved_pos = pos;
@@ -666,7 +679,7 @@ public class CDRInputStream
 
     public final boolean read_boolean()
     {
-        handle_chunking();
+        handle_chunking(false);
         index++;
         byte value = buffer[pos++];
 
@@ -733,7 +746,7 @@ public class CDRInputStream
      */
     public final char read_char()
     {
-        handle_chunking();
+        handle_chunking(false);
 
         index++;
         return (char)(buffer[pos++] & 0xFF);
@@ -1085,7 +1098,7 @@ public class CDRInputStream
 
     public final byte read_octet()
     {
-        handle_chunking();
+        handle_chunking(false);
         index++;
         return buffer[pos++];
     }
