@@ -56,7 +56,7 @@ public class SelectorRequest
     public final SocketChannel channel;
     public SelectionKey key = null;
     public final int op;
-    public final SelectorRequestCallback callback;
+    public SelectorRequestCallback callback;
     public final long nanoDeadline;
 
     private final ReentrantLock lock = new ReentrantLock();
@@ -109,7 +109,7 @@ public class SelectorRequest
         this.nanoDeadline = (nanoDeadline == 0 ? Long.MAX_VALUE : nanoDeadline);
     }
 
-    /**
+   /**
      * Called by the SelectorManager to notify a change of status. Will wake up
      * a thread blocked in waitOnCOmpletion
      */
