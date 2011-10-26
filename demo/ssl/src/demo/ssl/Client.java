@@ -66,7 +66,7 @@ public class Client
         }
         catch(Exception e)
         {
-            System.out.println("[Client] failed to invoke");
+            System.out.println("[Client] failed to invoke: " + e.getMessage());
             System.exit(1);
         }
     }
