@@ -135,7 +135,6 @@ public final class ORB
     private boolean giopAdd_1_0_Profiles;
     private String hashTableClassName;
     private boolean useIMR;
-    private boolean useTimerQueue;
     private boolean useSelectorManager;
 
     private ProtocolAddressBase imrProxyAddress = null;
@@ -173,6 +172,8 @@ public final class ORB
      * to an object to wake other threads, or a _simple_ action is performed.
      * Since the timer queue instance requires a thread, it is only created
      * when first asked for. the queue is internally synchronized.
+     *
+     * The timer queue is a wrapper around the selector manager
      */
     private TimerQueue timer_queue = null;
 
@@ -313,9 +314,7 @@ public final class ORB
 
         failOnORBInitializerError = configuration.getAttributeAsBoolean("jacorb.orb_initializer.fail_on_error", false);
 
-        useTimerQueue = configuration.getAttributeAsBoolean("jacorb.use_timer_queue", false);
-
-        useSelectorManager = configuration.getAttributeAsBoolean("jacorb.connection.nonblocking", false);
+        boolean useTimerQueue = configuration.getAttributeAsBoolean("jacorb.use_timer_queue", false);
 
         // There are features that if enabled require the use of the timer queue
         // and thus need to ensure the timer queue is available.
@@ -325,6 +324,9 @@ public final class ORB
                 configuration.getAttributeAsInteger("jacorb.connection.request.write_timeout", 0) > 0 ||
                 configuration.getAttributeAsInteger("jacorb.connection.reply.write_timeout", 0) > 0;
         }
+
+        useSelectorManager = useTimerQueue ||
+            configuration.getAttributeAsBoolean("jacorb.connection.nonblocking", false);
 
         boolean cacheTypeCodes = configuration.getAttributeAsBoolean("jacorb.cacheTypecodes", false);
 
@@ -1745,6 +1747,7 @@ public final class ORB
                     selectorManager = new SelectorManager ();
                     selectorManager.configure (configuration);
                     selectorManager.start ();
+                    timer_queue = new TimerQueue(selectorManager);
                 }
                 catch (Exception e)
                 {
@@ -1765,12 +1768,6 @@ public final class ORB
                     giop_connection_manager);
             clientConnectionManager.configure(configuration);
 
-            if (useTimerQueue)
-            {
-                timer_queue = new TimerQueue();
-                timer_queue.configure(configuration);
-                timer_queue.start();
-            }
         }
         catch ( ConfigurationException ce )
         {
@@ -1994,9 +1991,6 @@ public final class ORB
 
             return;
         }
-
-        if (useTimerQueue)
-            timer_queue.halt();
 
         logger.info("ORB going down...");
 

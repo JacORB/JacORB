@@ -38,46 +38,55 @@ import java.util.Calendar;
  * @author Phil Mesnier <mesnier_p@ociweb.com>
  * @version $Id$
  */
-public class TimerQueueAction
+public class TimerQueueAction extends SelectorRequest
 {
     private Object notifyTarget = null;
-    public Long trigger = null;
 
-    public TimerQueueAction ()
+    private class Callback extends SelectorRequestCallback
     {
+        public boolean call (SelectorRequest action)
+        {
+            if (action instanceof TimerQueueAction)
+                ((TimerQueueAction)action).expire();
+            return false;
+        }
     }
 
     public TimerQueueAction ( long relative )
     {
-        set_relative (relative);
+        super(null, toAbsoluteNano (relative));
+        callback = new Callback();
     }
 
-    public TimerQueueAction ( long relative, Object target  )
+    public TimerQueueAction ( long relative, Object target )
     {
-        set_relative (relative);
+        super(null, toAbsoluteNano(relative));
         notifyTarget = target;
+        callback = new Callback();
     }
 
     public TimerQueueAction ( Calendar absolute )
     {
-        trigger = new Long(absolute.getTimeInMillis());
+        super(null, toAbsoluteNano(absolute));
+        callback = new Callback();
     }
 
     public TimerQueueAction ( Calendar absolute, Object target )
     {
-        trigger = new Long (absolute.getTimeInMillis());
+        super(null, toAbsoluteNano(absolute));
         notifyTarget = target;
+        callback = new Callback();
     }
 
-    public void set_relative (long relative)
+    private static long toAbsoluteNano (Calendar absolute)
     {
-        long now = System.currentTimeMillis();
-        trigger = new Long (now + relative);
+        return absolute.getTimeInMillis() * 1000000;
     }
 
-    public void set_absolute (Calendar absolute)
+    private static long toAbsoluteNano (long relative)
     {
-        trigger = new Long (absolute.getTimeInMillis());
+        long now = System.nanoTime();
+        return now + relative * 1000000;
     }
 
     public void expire ()
@@ -92,9 +101,4 @@ public class TimerQueueAction
         }
     }
 
-    public long expiryTime ()
-    {
-        return trigger.longValue();
-    }
-
-} // end of class Action
+}

@@ -39,141 +39,41 @@ import org.slf4j.Logger;
  * specialized action should not be blocking or it may adversely affect the
  * performance of the timer queue.
  *
+ * This is a passthru to the SelectorManager instance and should probably
+ * go away
+ *
  * @author Phil Mesnier <mesnier_p@ociweb.com>
  * @version $Id$
  */
-public class TimerQueue extends Thread
+public class TimerQueue
 {
-   private SortedMap<Long, TimerQueueAction> pending;
-   private boolean                           running;
-   protected Logger                          logger;
+    SelectorManager impl;
+
+    public TimerQueue (SelectorManager sm)
+    {
+        impl = sm;
+    }
+
+    public void halt ()
+    {
+        impl.halt();
+    }
 
 
-   public TimerQueue ()
-   {
-      pending = new TreeMap<Long, TimerQueueAction> ();
-      running = true;
-   }
+    public void add (TimerQueueAction a)
+    {
+        impl.add (a);
+    }
 
 
-   public void configure (Configuration configuration)
-   {
-      logger = configuration.getLogger ("jacorb.util");
-   }
+    public void remove (TimerQueueAction a)
+    {
+        impl.remove (a);
+    }
 
+    public int depth ()
+    {
+        return impl.poolSize(SelectorRequest.Type.TIMER);
+    }
 
-   public void halt ()
-   {
-      synchronized (pending)
-      {
-         running = false;
-         if (logger.isInfoEnabled ())
-            logger.info ("Timer Queue halted");
-         pending.notifyAll ();
-      }
-   }
-
-
-   public void add (TimerQueueAction a)
-   {
-      if (a == null)
-         return;
-      synchronized (pending)
-      {
-         if (logger.isDebugEnabled ())
-            logger.debug ("Timer Queue adding action");
-         pending.put (a.trigger, a);
-         pending.notifyAll ();
-      }
-   }
-
-
-   public void remove (TimerQueueAction a)
-   {
-      if (a == null)
-         return;
-      synchronized (pending)
-      {
-         if (logger.isDebugEnabled ())
-            logger.debug ("Timer Queue removing action");
-         if (pending.remove (a.trigger) == a)
-            pending.notifyAll ();
-         // what if remove returns non-null but not a?
-      }
-   }
-
-
-   public int depth ()
-   {
-      synchronized (pending)
-      {
-         return pending.size ();
-      }
-   }
-
-
-   private long waitTime ()
-   {
-      // no synch needed, only called while already synchronized
-      if (pending.size () == 0)
-         return 0;
-      else
-      {
-         // get smallest wait time
-         long next = pending.firstKey ();
-         return next - System.currentTimeMillis ();
-      }
-   }
-
-
-   private void triggerExpired ()
-   {
-      if (!running || pending.size () == 0)
-         return;
-      // no synch needed, only called while already synchronized
-      Long onemilli = new Long (System.currentTimeMillis () + 1);
-      // Calendar tt = Calendar.getInstance();
-      // tt.setTimeInMillis (onemilli);
-
-      SortedMap<Long, TimerQueueAction> exp = pending.headMap (onemilli);
-      for (Iterator<TimerQueueAction> iter = exp.values ().iterator (); iter.hasNext ();)
-      {
-         TimerQueueAction a = iter.next ();
-         pending.remove (a.trigger);
-         a.expire ();
-      }
-   }
-
-
-   public void run ()
-   {
-      if (logger.isInfoEnabled ())
-         logger.info ("Timer Queue starting");
-
-      while (running)
-      {
-         synchronized (pending)
-         {
-             long delay = waitTime ();
-             try
-             {
-                 if (delay == 0)
-                 {
-                     pending.wait ();
-                 }
-                 else
-                 {
-                     pending.wait (delay);
-                 }
-             }
-             catch (InterruptedException ex)
-             {
-                 // no worries
-                 if (logger.isDebugEnabled ())
-                     logger.debug ("TimerQueue interrupted");
-             }
-             triggerExpired ();
-         }
-      }
-   }
 }

@@ -44,6 +44,9 @@
 post 2.3.1
 ==========
     - ORB:
+        - Timer Queue implementation added prior to NIO has been merged
+          with the Selector framework used to support NIO. The write timeouts
+          for blocking I/O still work and the interface is the same.
         - now supports non-blocking I/O for the client side. Makes use of the
           Java nio package. Connection establishment, sending requests and
           awaiting response can now be timed and nonblocking.

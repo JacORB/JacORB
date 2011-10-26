@@ -1,6 +1,7 @@
 package test.timerqueue;
 
 import java.util.Calendar;
+import java.util.Properties;
 import org.jacorb.util.TimerQueue;
 import org.jacorb.util.TimerQueueAction;
 import org.jacorb.orb.ORB;
@@ -10,12 +11,13 @@ public class Test
 {
     public TimerQueue tq;
     private ORB orb;
+    private int threadcount = 0;
 
 
-    public class TestAction extends TimerQueueAction 
+    public class TestAction extends TimerQueueAction
     {
         private int id;
-        public TestAction (long duration, int ident) 
+        public TestAction (long duration, int ident)
         {
             super(duration);
             id = ident;
@@ -23,9 +25,9 @@ public class Test
 
         public void expire ()
         {
-            System.out.println ("TestAction[" + id + 
-                                "].expire called on thread[" + 
-                                Thread.currentThread().getId() + "] at " + 
+            System.out.println ("TestAction[" + id +
+                                "].expire called on thread[" +
+                                Thread.currentThread().getId() + "] at " +
                                 nowstr());
         }
     }
@@ -35,7 +37,7 @@ public class Test
         public Object sync = null;
         private TimerQueueAction act;
         private int id;
-        
+
 
         public TestNotifyWaiter (long duration, int ident)
         {
@@ -62,14 +64,14 @@ public class Test
             long tid = Thread.currentThread().getId();
             if (sync == null) {
                 tq.add(act);
-                System.out.println ("Thread[" + tid + 
+                System.out.println ("Thread[" + tid +
                                     "] not waiting, action should fire independently");
                 return;
             }
-     
+
             synchronized (sync) {
-                System.out.println ("Thread[" + tid + 
-                                    "] entering wait for id = " + id + 
+                System.out.println ("Thread[" + tid +
+                                    "] entering wait for id = " + id +
                                     " at " + nowstr());
                 tq.add(act);
                 try {
@@ -79,20 +81,20 @@ public class Test
                     System.out.println ("Thread[" + tid + "] interrupted");
                 }
                 System.out.println ("Thread[" + tid +
-                                    "] finishing for id = " + id + 
+                                    "] finishing for id = " + id +
                                     " at " + nowstr());
             }
         }
-                
+
     }
 
     public static String nowstr ()
     {
         Calendar c = Calendar.getInstance();
-        String result = 
+        String result =
             "" + c.get(Calendar.HOUR) +
             ":" + c.get(Calendar.MINUTE) +
-            ":" + c.get(Calendar.SECOND) + 
+            ":" + c.get(Calendar.SECOND) +
             ".";
         int msec = 1000 + c.get(Calendar.MILLISECOND);
         String msecStr = Integer.toString(msec);
@@ -104,13 +106,16 @@ public class Test
     public void setUp()
         throws Exception
     {
-        orb = (ORB) ORB.init(new String[0], null);
+        Properties props = new Properties ();
+        props.setProperty ("jacorb.use_timer_queue", "on");
+        threadcount = Thread.activeCount();
+
+        orb = (ORB) ORB.init(new String[0], props);
         tq = orb.getTimerQueue();
     }
 
     public void runTest ()
     {
-        int initial = Thread.activeCount();
         System.out.println ("Starting test at " + nowstr());
         TestNotifyWaiter waiters[] = new TestNotifyWaiter[10];
         long dur = 1000;
@@ -123,16 +128,18 @@ public class Test
         try {
             Thread.sleep (10);
             System.out.println ("All threads started at " + nowstr());
-            int active = Thread.activeCount() - initial;
+            int active = Thread.activeCount() - threadcount;
             System.out.println ("Active thread count is " + active +
                                 " wait count = " + tq.depth());
             Thread.sleep (1000);
             waiters[9].cancel();
             waiters[8].cancel();
+            Thread.sleep (10);
             System.out.println ("After canceling wait count = " + tq.depth());
             Thread.sleep (5000);
-            System.out.println ("Test exiting at " + nowstr());            
-            active = Thread.activeCount() - initial;
+            System.out.println ("Test exiting at " + nowstr());
+            orb.shutdown(true);
+            active = Thread.activeCount() - threadcount;
             System.out.println ("stuck threads = " + active);
         }
         catch( InterruptedException ex )
