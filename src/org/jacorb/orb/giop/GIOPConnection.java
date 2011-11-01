@@ -70,7 +70,7 @@ public abstract class GIOPConnection
     protected final org.omg.ETF.Profile    profile;
     protected org.omg.ETF.Connection transport = null;
 
-    private ConnectionReset write_monitor = null;
+    private Long write_monitor_timeout = null;
 
     private TimerQueue timer_queue = null;
 
@@ -150,11 +150,6 @@ public abstract class GIOPConnection
         {
             super(ms);
             relative = ms;
-        }
-
-        public void reset ()
-        {
-            set_relative (relative);
         }
 
         public void expire ()
@@ -238,7 +233,7 @@ public abstract class GIOPConnection
         if (timeout <= 0)
             return;
         timer_queue = orb.getTimerQueue();
-        write_monitor = new ConnectionReset (timeout);
+        write_monitor_timeout = new Long (timeout);
     }
 
     public final void setCodeSets( CodeSet TCS, CodeSet TCSW )
@@ -938,8 +933,9 @@ public abstract class GIOPConnection
 
     public final void write( byte[] fragment, int start, int size )
     {
-        if (write_monitor != null)
-            write_monitor.reset();
+        ConnectionReset write_monitor = null;
+        if (write_monitor_timeout != null)
+            write_monitor = new ConnectionReset (write_monitor_timeout.longValue());
         if (timer_queue != null)
             timer_queue.add(write_monitor);
         if (sendDeadline != null)
