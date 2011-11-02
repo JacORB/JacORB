@@ -34,7 +34,6 @@ import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.Set;
-import org.jacorb.idl.util.PrettyPrinter;
 
 public class Interface
     extends TypeDeclaration
@@ -449,14 +448,7 @@ public class Interface
             final File f = new File(dir, typeName + ".java");
             if (GlobalInputStream.isMoreRecentThan(f))
             {
-                PrintWriter ps = new PrintWriter(new java.io.FileWriter(f))
-                {
-                    public void close()
-                    {
-                        super.close();
-                        PrettyPrinter.prettify(f);
-                    }
-                };
+                PrintWriter ps = new PrintWriter(new java.io.FileWriter(f));
                 return ps;
             }
 
