@@ -21,6 +21,7 @@ package org.jacorb.config;
  */
 
 import java.util.List;
+import java.util.Properties;
 import org.jacorb.orb.ORB;
 
 /**
@@ -59,23 +60,6 @@ import org.jacorb.orb.ORB;
 public interface Configuration
 {
     /**
-     * @return the ORB for which this configuration was created
-     */
-    ORB getORB();
-
-    /**
-     * @param name the name of the logger, which also functions
-     *        as a log category
-     * @return a Logger for a given name
-     */
-    org.slf4j.Logger getLogger(String name);
-
-    /**
-     * Uses the class name to return a name suitable for naming the logger.
-     */
-    String getLoggerName(Class<?> clazz);
-
-    /**
      * Returns the value of the configuration attribute with the given key.
      * If the attribute value for this key is undefined, the exception
      * ConfigurationException is thrown.
@@ -88,6 +72,20 @@ public interface Configuration
      * is returned.
      */
     String getAttribute (String key, String defaultValue);
+
+    /**
+     * Returns the value of the configuration attribute with the given key,
+     * as a boolean value.  If the attribute value for this key is undefined, the
+     * defaultValue is returned.
+     */
+    boolean getAttributeAsBoolean(String key, boolean defaultValue);
+
+    /**
+     * Returns the value of the configuration attribute with the given key,
+     * as a float value.  If the attribute value for this key is undefined, the
+     * defaultValue is returned.
+     */
+    double getAttributeAsFloat (String key, double defaultValue) throws ConfigurationException;
 
     /**
      * Returns the value of the configuration attribute with the given key,
@@ -118,34 +116,6 @@ public interface Configuration
     long getAttributeAsLong (String key, long defaultValue) throws ConfigurationException;
 
     /**
-     * Returns the value of the configuration attribute with the given key,
-     * as a float value.  If the attribute value for this key is undefined, the
-     * defaultValue is returned.
-     */
-    double getAttributeAsFloat (String key, double defaultValue) throws ConfigurationException;
-
-    /**
-     * Returns the value of the configuration attribute with the given key,
-     * as a boolean value.  If the attribute value for this key is undefined, the
-     * defaultValue is returned.
-     */
-    boolean getAttributeAsBoolean(String key, boolean defaultValue);
-
-    /**
-     * For a property that has a list of comma-separated values,
-     * this method returns these values as a list of Strings.
-     * If the property is not set, an empty list is returned.
-     */
-    List<String> getAttributeList(String key);
-    
-    /**
-     * For a property that has a list of comma-separated values,
-     * this method returns these values as a array of Strings.
-     * If the property is not set or has empty value, null is returned.
-     */
-    String[] getAttributeAsStringsArray(String key);
-
-    /**
      *
      * @return an object of the class of the keys value, or null, if
      * no class name is found for the key
@@ -156,11 +126,41 @@ public interface Configuration
     Object getAttributeAsObject(String key, String defaultClass) throws ConfigurationException;
 
     /**
-     * Sets the given string attribute with the given value
-     * @param key
-     * @param value
+     * For a property that has a list of comma-separated values,
+     * this method returns these values as a array of Strings.
+     * If the property is not set or has empty value, null is returned.
      */
-    void setAttribute(String key, String value);
+    String[] getAttributeAsStringsArray(String key);
+
+    /**
+     * For a property that has a list of comma-separated values,
+     * this method returns these values as a list of Strings.
+     * If the property is not set, an empty list is returned.
+     */
+    List<String> getAttributeList(String key);
+
+    /**
+     * return all attribute names that start
+     * with the specified prefix
+     */
+    List<String> getAttributeNamesWithPrefix(String string);
+
+    /**
+     * @param name the name of the logger, which also functions
+     *        as a log category
+     * @return a Logger for a given name
+     */
+    org.slf4j.Logger getLogger(String name);
+
+    /**
+     * Uses the class name to return a name suitable for naming the logger.
+     */
+    String getLoggerName(Class<?> clazz);
+
+    /**
+     * @return the ORB for which this configuration was created
+     */
+    ORB getORB();
 
     /**
      * Sets the given int attribute with the given value
@@ -170,8 +170,18 @@ public interface Configuration
     void setAttribute(String key, int value);
 
     /**
-     * return all attribute names that start
-     * with the specified prefix
+     * Sets the given string attribute with the given value
+     * @param key
+     * @param value
      */
-    List<String> getAttributeNamesWithPrefix(String string);
+    void setAttribute(String key, String value);
+
+
+    /**
+     * Sets the attributes of this configuration using Properties.
+     *
+     * @param key
+     * @param value
+     */
+    void setAttributes(Properties value);
 }

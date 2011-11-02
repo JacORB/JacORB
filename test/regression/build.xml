@@ -96,7 +96,8 @@
                            **/RMITestServant.java,
                            org/jacorb/test/notification/**,
                            org/jacorb/test/jmx/**"
-                      javac-classpathref="cp.compile-test">
+                      javac-classpathref="cp.compile-test"
+                      javac-xlint="">
         </jacorb-javac>
     </target>
 
@@ -105,14 +106,15 @@
     <target name="compile-rmic">
         <jacorb-rmic classname="org.jacorb.test.orb.rmi.RMITestImpl" />
         <jacorb-rmic classname="org.jacorb.test.bugs.bugjac149.RemoteIPingImpl" />
-        <jacorb-javac javac-includes="**/RMITestServant.java" javac-classpathref="cp.compile-test" />
+        <jacorb-javac javac-includes="**/RMITestServant.java" javac-classpathref="cp.compile-test" javac-xlint=""/>
     </target>
 
     <target name="compile-src-notification" unless="NO_BUILD">
         <jacorb-javac javac-includes="org/jacorb/test/notification/**/*.java"
                       javac-excludes="org/jacorb/test/notification/plugins/**,
                               org/jacorb/test/notification/jmx/**"
-                      javac-classpathref="cp.compile-test" />
+                      javac-classpathref="cp.compile-test"
+                      javac-xlint=""/>
     </target>
 
     <target name="compile-interop">

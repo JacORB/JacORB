@@ -71,6 +71,31 @@ public class JacORBConfiguration implements Configuration
     private static final String ATTR_LOGGING_INITIALIZER = "jacorb.log.initializer";
 
 
+   /*
+    * <code>useTCCL</code> controls which class loader policy JacORB should use throughout
+    * the codebase. By default it will attempt to load using the Thread Context Class Loader.
+    * To support integration in some deployment scenarios it is also possible to use Class.forName.
+    * This may be set by setting jacorb.classloaderpolicy system property to either tccl or forname.
+    *
+    * Note that this is duplicated within org.omg.CORBA.ORB
+    * (to avoid cross-dependencies)
+    */
+    public static final boolean useTCCL;
+
+    static
+    {
+        String clpolicy = System.getProperty ("jacorb.classloaderpolicy", "tccl");
+        if (clpolicy.equalsIgnoreCase ("forname"))
+        {
+            useTCCL = false;
+        }
+        else
+        {
+            useTCCL = true;
+        }
+    }
+
+
     /**
      * Contains the actual configuration data.
      *
@@ -532,9 +557,9 @@ public class JacORBConfiguration implements Configuration
      * @param properties the new attributes
      */
 
-    private void setAttributes(Properties properties)
+    public void setAttributes(Properties properties)
     {
-        Enumeration e = properties.propertyNames ();
+        Enumeration<?> e = properties.propertyNames ();
         while (e.hasMoreElements ())
         {
             Object obj = e.nextElement ();
@@ -548,6 +573,10 @@ public class JacORBConfiguration implements Configuration
             String key = (String)obj;
             Object value = properties.getProperty(key);
 
+            if (!(value instanceof String))
+            {
+                continue;
+            }
             setAttribute(key, (String)value);
         }
     }
@@ -954,7 +983,7 @@ public class JacORBConfiguration implements Configuration
         }
         return result;
     }
-    
+
     public String[] getAttributeAsStringsArray(String key)
     {
         String value = null;
@@ -967,23 +996,23 @@ public class JacORBConfiguration implements Configuration
         {
             // ignore
         }
-        
+
         if (value == null)
         {
             return null;
         }
-        
+
         List<String> values = getAttributeList (key);
-        
+
         // Return null if key is defined but has empty value
         if (values.size () < 1)
         {
             return null;
         }
-        
+
         return (String[]) values.toArray (new String[values.size ()]);
     }
-    
+
 
     /**
      * New instance.

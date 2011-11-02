@@ -194,6 +194,11 @@ containing command line arguments):
 \end{verbatim}
 }
 
+\subsubsection{ORBSingleton}
+A user does not have to use a properties file just passing arguments to ORB.init(...)
+to configure the ORB. In order to allow the singleton ORB to be configured JacORB will
+implicitly pass all ORB.init(...) arguments to the singleton for configuration purposes.
+
 \section{Configuration Options}
 
 We are now ready to have a look at the most basic JacORB configuration
@@ -808,9 +813,9 @@ This factory is used by JacORB to create a server socket for incoming SSL connec
 \end{longtable}
 \end{small}
 
-\subsubsection{Compacting Typecodes}
+\subsection{Compacting Typecodes}
 \label{compact-typecode}
-Using the proprty
+Using the property
 \begin{verbatim}
 jacorb.compactTypecodes=off
 \end{verbatim}
@@ -834,6 +839,31 @@ JacORB will (if compaction is enabled) always invoke \emph{get\_compacted\_typec
 
 Note: it's not necessary to compare TypeCode's using \emph{equal}. The method \emph{equivalent} does a less strict comparison
 that omits the optional information.
+
+
+\subsection{Loading Classes and Resources}
+\label{tccl}
+JacORB has two different policies it may use to load classes and resources. By default it will attempt to load
+using the thread context class loader. To support integration in some deployment scenarios with specialised class
+loader schemes it is also possible to configure to use Class.forName where the class loader is the defining class
+loader of the current class.
+
+In order to use this the \emph{system property}
+\begin{verbatim}
+jacorb.classloaderpolicy=[tccl|forname]
+\end{verbatim}
+may be used. Note that this property \emph{MUST} be set before any calls to org.omg.* or org.jacorb.* code. Setting this
+to 'tccl' will mean JacORB will use the thread context class loader to resolve classes and resources. Setting it to
+'forname' means that JacORB will use the defining class loader. Internally JacORB will use this pseudocode:
+
+\begin{verbatim}
+   if (useTCCL) {
+      return Thread.currentThread().getContextClassLoader().loadClass(name);
+   } else {
+      return Class.forName(name);
+   }
+\end{verbatim}
+
 
 \section{Configuration Properties}
 
@@ -1202,6 +1232,10 @@ By default JacORB will remove the ZoneID so IORs will work off-host. & boolean &
 \verb"all" & Always attempt to search for local repository ID information to avoid
 the cost of a remote call. In most scenarios this is quicker than the remote call.
 With some complicated hierarchies it may be quicker to turn this off. & boolean & on\\
+\hline
+\verb"jacorb.useTCCL" &
+Whether to use the thread context class loader to resolve loading classes and resources.
+If false, falls back to using Class.forName defining classloader. & boolean & on\\
 \hline
 \verb"jacorb.native_char_cod"
 \verb"eset" & Overrides the detection from the local environment for the codeset
@@ -1585,14 +1619,19 @@ At least one context must be selected for SAS support & string \\
 \verb"verbosity" & service. Defaults to jacorb.log.default.verbosity & 0-4  \\
 \hline
 \verb"jacorb.naming.purge" & Whether non-active references are purged from name service
-when list operation is invoked. Default is off & on or off \\
+when list operation is invoked. Default is off & boolean\\
 \hline
 \verb"jacorb.naming.noping" & Whether resolve should return references without trying to
-ping them to see if they're still alive first. Default is ping (off) &
-on or off\\
+ping them to see if they're still alive first. Default is ping (off) & boolean\\
 \hline
 \verb"jacorb.naming." & The file where the name server & string\\
 \verb"ior_filename" &  drops its IOR (default unset) &   \\
+\hline
+\verb"jacorb.naming." & Whether to print the IOR to console & boolean\\
+\verb"print_ior" & (Default off) &\\
+\hline
+\verb"jacorb.naming." & Where to store the naming data & string\\
+\verb"db_dir" & files. (Default current directory) & \\
 \hline
 \end{longtable}
 \end{small}

@@ -59,8 +59,8 @@ import org.jacorb.poa.except.POAInternalError;
 import org.jacorb.poa.util.POAUtil;
 import org.jacorb.util.BuildVersion;
 import org.jacorb.util.ObjectUtil;
-import org.jacorb.util.TimerQueue;
 import org.jacorb.util.SelectorManager;
+import org.jacorb.util.TimerQueue;
 import org.omg.CORBA.BAD_INV_ORDER;
 import org.omg.CORBA.BAD_PARAM;
 import org.omg.CORBA.CompletionStatus;
@@ -1584,6 +1584,13 @@ public final class ORB
             throw new org.omg.CORBA.INITIALIZE( e.getMessage() );
         }
 
+        Configuration orbsingletonConfig = ((ORBSingleton)ORB.init ()).configuration;
+
+        if (props != null)
+        {
+           orbsingletonConfig.setAttributes (props);
+        }
+
         if ( args != null )
         {
             arguments = args;
@@ -1677,6 +1684,9 @@ public final class ORB
                     logger.debug("adding attribute " + propertyName + "=" + propertyValue);
                 }
                 configuration.setAttribute(propertyName, propertyValue);
+
+                // Upload this ORB argument to the Singleton.
+                orbsingletonConfig.setAttribute (propertyName, propertyValue);
             }
         }
 

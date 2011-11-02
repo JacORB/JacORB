@@ -219,8 +219,66 @@ using VERSION_INFO: ${jacorb_version_info}
       </jar>
    </target>
 
-   <target name="scripts" depends="init, j2me:patch, jdk:patch" description="Generate the scripts">
+   <!-- This target will split the JacORB jar into jacorb.jar containing JUST the implementation -->
+   <!-- code and omg.jar containing the generated stubs -->
+   <target name="jar_impl_omg" depends="init">
+      <delete file="${lib}/jacorb.jar" failonerror="false"/>
+      <delete file="${lib}/omg.jar" failonerror="false"/>
+      <jar jarfile="${lib}/jacorb.jar"
+           basedir="${classdir}"
+           includes="org/jacorb/**"
+           excludes="org/jacorb/idl/**,
+                     org/jacorb/demo/**,
+                     org/jacorb/test/**,
+                     org/jacorb/concurrency/**,
+                     org/jacorb/collection/**,
+                     org/jacorb/dds/**,
+                     org/jacorb/events/**,
+                     org/jacorb/notification/**,
+                     org/jacorb/transaction/**,
+                     "
+           index="true">
+         <manifest>
+            <attribute name="Implementation-Title" value="JacORB"/>
+            <attribute name="Implementation-URL" value="www.jacorb.org"/>
+            <attribute name="Class-Path" value="slf4j-api-1.6.2.jar slf4j-jdk14-1.6.2.jar"/>
+         </manifest>
+      </jar>
+      <jar jarfile="${lib}/omg.jar"
+           basedir="${classdir}"
+           includes="org/omg/**"
+           excludes="org/omg/BridgeTransactionMgmt/**,
+                     org/omg/CosBridgeAdmin/**,
+                     org/omg/CosCollection/**,
+                     org/omg/CosConcurrencyControl/**,
+                     org/omg/CosEventChannelAdmin/**,
+                     org/omg/CosEventComm/**,
+                     org/omg/CosNotification/**,
+                     org/omg/CosNotifyChannelAdmin/**,
+                     org/omg/CosNotifyChannelAdminAck/**,
+                     org/omg/CosNotifyComm/**,
+                     org/omg/CosNotifyCommAck/**,
+                     org/omg/CosNotifyFilter/**,
+                     org/omg/CosTime/**,
+                     org/omg/CosTrading/**,
+                     org/omg/CosTransactions/**,
+                     org/omg/CosTypedEventChannelAdmin/**,
+                     org/omg/CosTypedEventComm/**,
+                     org/omg/CosTypedEventNotifyChannelAdmin/**,
+                     org/omg/CosTypedEventNotifyComm/**,
+                     org/omg/dds/**,
+                     org/omg/TimeBase/**
+                     "
+           index="true">
+         <manifest>
+            <attribute name="Implementation-Title" value="JacORB"/>
+            <attribute name="Implementation-URL" value="www.jacorb.org"/>
+            <attribute name="Class-Path" value="slf4j-api-1.6.2.jar slf4j-jdk14-1.6.2.jar"/>
+         </manifest>
+      </jar>
+   </target>
 
+   <target name="scripts" depends="init, j2me:patch, jdk:patch" description="Generate the scripts">
         <macrodef name="jacorb-loadfile">
             <attribute name="srcFile" />
             <attribute name="property" />
@@ -292,51 +350,6 @@ using VERSION_INFO: ${jacorb_version_info}
             <exclude name="*template*" />
          </fileset>
       </chmod>
-   </target>
-
-   <!-- This target creates a jar file that contains the -->
-   <!-- core ORB components and (generated) OMG classes -->
-   <target name="core_jacorb_jar" depends="init">
-      <delete file="${lib}/core_jacorb.jar"/>
-      <jar jarfile="${lib}/core_jacorb.jar"
-           basedir="${classdir}"
-           includes="org/jacorb/orb/**,org/jacorb/poa/**,org/jacorb/util/**,org/jacorb/security/ssl/**,org/omg/CONV_FRAME/**,org/omg/CORBA/**,org/omg/CORBA_2_3/**,org/omg/CosNaming/**,org/omg/Dynamic/**,org/omg/DynamicAny/**,org/omg/GIOP/**,org/omg/IIOP/**,org/omg/IOP/**,org/omg/Portable*/**,org/omg/BiDirPolicy/**,org/omg/ETF/**,org/omg/SSLIOP/**,org/omg/TimeBase/**,org/omg/MIOP/**"
-           excludes="org/jacorb/poa/gui/*,org/jacorb/util/tracing/*"
-           />
-   </target>
-
-   <!-- This target creates a jar file that contains the -->
-   <!-- following JacORB services and utilities: -->
-   <!-- ImR + GUI, IR + GUI, POA GUI, Tracing, Proxy -->
-   <target name="jacorb_services_jar" depends="init">
-      <delete file="${lib}/jacorb_services.jar"/>
-      <jar jarfile="${lib}/jacorb_services.jar"
-           basedir="${classdir}"
-           includes="org/jacorb/imr/**,org/jacorb/ir/**,org/jacorb/poa/gui/*,org/jacorb/util/CAD*,org/jacorb/util/tracing/*,org/jacorb/proxy/*"
-           />
-   </target>
-
-   <!-- This target creates a jar file that contains the -->
-   <!-- following OMG services: -->
-   <!-- Concurrency, Events, Transaction, but not Naming -->
-   <target name="omg_services_jar" depends="init">
-      <delete file="${lib}/omg_services.jar"/>
-      <jar jarfile="${lib}/omg_services.jar"
-           basedir="${classdir}"
-           includes="org/jacorb/concurrency/**,org/jacorb/events/**,org/jacorb/transaction/**,org/omg/Cos*/**"
-           excludes="org/omg/CosNaming/**"
-           />
-   </target>
-
-
-   <!-- This target creates a jar file that contains the -->
-   <!-- (genrated) OMG and JacORB security classes -->
-   <target name="security_jar" depends="init">
-      <delete file="${lib}/security.jar"/>
-      <jar jarfile="${lib}/security.jar"
-           basedir="${classdir}"
-           includes="org/jacorb/security/**,org/omg/Security*/**,org/omg/SSLIOP/**,org/omg/TimeBase/**"
-           />
    </target>
 
 
