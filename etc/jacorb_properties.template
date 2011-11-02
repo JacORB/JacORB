@@ -819,6 +819,11 @@ jacorb.naming.ping=off
 # The file where the name server drops its IOR
 jacorb.naming.ior_filename=c:/NS_Ref
 
+# Print the ior
+#jacorb.naming.print_ior=false
+
+# Where to put the data files (defaults to current directory)
+#jacorb.naming.db_dir=
 
 ########################################################
 #                                                      #

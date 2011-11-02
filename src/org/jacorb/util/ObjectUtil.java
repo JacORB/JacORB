@@ -24,6 +24,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import org.jacorb.config.JacORBConfiguration;
 
 /**
  * @author Gerald Brose, FU Berlin
@@ -130,7 +131,7 @@ public class ObjectUtil
      * @throws ExceptionInInitializerError if the class initialization fails
      */
 
-    public static Class classForName(String name)
+    public static Class<?> classForName(String name)
         throws ClassNotFoundException, IllegalArgumentException
     {
         if (name == null)
@@ -138,21 +139,28 @@ public class ObjectUtil
             throw new IllegalArgumentException("Class name must not be null!");
         }
 
-        try
+        if (JacORBConfiguration.useTCCL)
         {
-            // Here we prefer classLoader.loadClass() over the three-argument
-            // form of Class.forName(), as the latter is reported to cause
-            // caching of stale Class instances (due to a buggy cache of
-            // loaded classes).
-            return Thread.currentThread().getContextClassLoader().loadClass(name);
+           try
+           {
+              // Here we prefer classLoader.loadClass() over the three-argument
+              // form of Class.forName(), as the latter is reported to cause
+              // caching of stale Class instances (due to a buggy cache of
+              // loaded classes).
+              return Thread.currentThread().getContextClassLoader().loadClass(name);
+           }
+           catch (Exception e)
+           {
+              // As a fallback, we prefer Class.forName(name) because it loads
+              // array classes (i.e., it handles arguments like
+              // "[Lsome.class.Name;" or "[[I;", which classLoader.loadClass()
+              // does not handle).
+              return Class.forName(name);
+           }
         }
-        catch (Exception e)
+        else
         {
-            // As a fallback, we prefer Class.forName(name) because it loads
-            // array classes (i.e., it handles arguments like
-            // "[Lsome.class.Name;" or "[[I;", which classLoader.loadClass()
-            // does not handle).
-            return Class.forName(name);
+           return Class.forName(name);
         }
     }
 
@@ -278,10 +286,10 @@ public class ObjectUtil
 
     public static URL getResource(String name)
     {
-        if (Thread.currentThread().getContextClassLoader() != null)
-        {
-            return Thread.currentThread().getContextClassLoader().getResource(name);
-        }
-        return ObjectUtil.class.getResource(name);
+       if (JacORBConfiguration.useTCCL && Thread.currentThread().getContextClassLoader() != null)
+       {
+          return Thread.currentThread().getContextClassLoader().getResource(name);
+       }
+       return ObjectUtil.class.getResource(name);
     }
 }

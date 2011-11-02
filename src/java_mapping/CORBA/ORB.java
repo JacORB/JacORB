@@ -34,6 +34,30 @@ abstract public class ORB
 
    private static ORB _singleton_orb;
 
+   /*
+    * <code>useTCCL</code> controls which class loader policy JacORB should use throughout
+    * the codebase. By default it will attempt to load using the Thread Context Class Loader.
+    * To support integration in some deployment scenarios it is also possible to use Class.forName.
+    * This may be set by setting jacorb.classloaderpolicy system property to either tccl or forname.
+    *
+    * Note that this is duplicated within org.jacorb.config.JacORBConfiguration
+    * (to avoid cross-dependencies)
+    */
+   public static final boolean useTCCL;
+
+   static
+   {
+      String clpolicy = System.getProperty ("jacorb.classloaderpolicy", "tccl");
+      if (clpolicy.equalsIgnoreCase ("forname"))
+      {
+         useTCCL = false;
+      }
+      else
+      {
+         useTCCL = true;
+      }
+   }
+
 
    public String id()
    {
@@ -292,13 +316,20 @@ abstract public class ORB
    {
       final ClassLoader cl;
 
-      if (Thread.currentThread().getContextClassLoader() != null)
+      if (useTCCL)
       {
-         cl = Thread.currentThread().getContextClassLoader();
+         if (Thread.currentThread().getContextClassLoader() != null)
+         {
+            cl = Thread.currentThread().getContextClassLoader();
+         }
+         else
+         {
+            cl = ClassLoader.getSystemClassLoader();
+         }
       }
       else
       {
-         cl = ClassLoader.getSystemClassLoader();
+         cl = ORB.class.getClassLoader ();
       }
 
       try

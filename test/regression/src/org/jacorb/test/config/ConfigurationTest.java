@@ -21,15 +21,20 @@ package org.jacorb.test.config;
  *
  */
 
-import java.util.Properties;
-import java.io.*;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.net.URL;
 import java.net.URLClassLoader;
-
-import org.omg.CORBA.*;
-import junit.framework.*;
-import org.jacorb.test.common.*;
-import org.jacorb.config.*;
+import java.util.Properties;
+import junit.framework.Test;
+import junit.framework.TestSuite;
+import org.jacorb.config.Configuration;
+import org.jacorb.config.JacORBConfiguration;
+import org.jacorb.test.common.JacORBTestCase;
+import org.jacorb.test.common.TestUtils;
+import org.omg.CORBA.ORB;
 
 /**
  * Tests the various configuration mechanisms, properties files, and
@@ -54,7 +59,8 @@ public class ConfigurationTest extends JacORBTestCase
         return result;
     }
 
-    protected void setUp() throws Exception
+    @SuppressWarnings("deprecation")
+   protected void setUp() throws Exception
     {
         Thread.currentThread().setContextClassLoader(
                 new URLClassLoader(
@@ -469,6 +475,34 @@ public class ConfigurationTest extends JacORBTestCase
             deletePropertiesFile ("classes/applet-special.properties");
         }
     }
+
+
+    /**
+     * Verify that ORB.init() properties end up in the JacORB configuration.
+     */
+    public void testOrbInitSingletonProperties() throws Exception
+    {
+        Properties props = new Properties();
+        props.put("org.omg.CORBA.ORBClass", "org.jacorb.orb.ORB");
+        props.put("org.omg.CORBA.ORBSingletonClass",
+                  "org.jacorb.orb.ORBSingleton");
+        props.put("jacorb.connection.client.connect_timeout", "33707");
+
+        ORB orb = ORB.init(new String[] {}, props);
+
+        int timeout = ((org.jacorb.orb.ORB) orb).getConfiguration()
+                    .getAttributeAsInteger(
+                            "jacorb.connection.client.connect_timeout", 0);
+        assertEquals(33707, timeout);
+
+        ORB singleton = ORB.init ();
+
+        timeout = ((org.jacorb.orb.ORBSingleton)singleton).getConfiguration()
+                 .getAttributeAsInteger(
+                         "jacorb.connection.client.connect_timeout", 0);
+        assertEquals(33707, timeout);
+    }
+
 
     /**
      * Convenience method for creating an os-dependent filename relative
