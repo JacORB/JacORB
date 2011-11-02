@@ -20,11 +20,6 @@ package org.jacorb.util;
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import java.util.Iterator;
-import java.util.SortedMap;
-import java.util.TreeMap;
-import org.jacorb.config.Configuration;
-import org.slf4j.Logger;
 
 
 /**
