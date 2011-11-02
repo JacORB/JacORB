@@ -12,7 +12,7 @@
    &common;
 
    <target name="all" depends="init,load-taskdef,idl,coscompile">
-      <jacorb-javac javac-includes="org/jacorb/events/**.java"/>
+      <jacorb-javac javac-includes="org/jacorb/events/**.java" javac-xlint=""/>
    </target>
 
 
@@ -22,13 +22,15 @@
               includepath="${idl}/omg"
               includes="channel.idl"/>
       <jacorb-javac javac-src="${src}/generated"
-      	            javac-includes="org/jacorb/events/**.java"/>
+      	            javac-includes="org/jacorb/events/**.java"
+                    javac-xlint=""/>
    </target>
 
 
    <target name="coscompile">
       <jacorb-javac javac-src="${src}/generated"
-      	            javac-includes="org/omg/CosEvent*/**.java"/>
+      	            javac-includes="org/omg/CosEvent*/**.java"
+                    javac-xlint=""/>
    </target>
 
 

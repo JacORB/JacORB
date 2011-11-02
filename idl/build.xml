@@ -13,7 +13,7 @@
 
    <target name="local-init" depends="init, load-taskdef" >
       <presetdef name="idl-javac">
-         <jacorb-javac javac-src="${src.generated}" />
+         <jacorb-javac javac-src="${src.generated}" javac-xlint=""/>
       </presetdef>
 
       <presetdef name="idl-jacidl-jacorb">

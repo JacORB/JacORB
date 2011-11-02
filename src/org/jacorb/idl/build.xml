@@ -15,7 +15,7 @@
       <!-- have no affect and not alter parser.java                  -->
       <replace file="${src}/org/jacorb/idl/parser.java" token="java_cup.runtime"
                value="org.jacorb.idl.runtime" />
-      <jacorb-javac javac-includes="org/jacorb/idl/**/*.java"/>
+      <jacorb-javac javac-includes="org/jacorb/idl/**/*.java" javac-xlint=""/>
    </target>
 
     <target name="check" depends="init" >

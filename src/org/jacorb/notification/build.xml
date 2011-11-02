@@ -133,7 +133,8 @@
                              javac-includes="org/jacorb/notification/**/*.java"
                              javac-excludes="org/jacorb/notification/WrapperMain.java,
                                              org/jacorb/notification/filter/bsh/**,
-                                             org/jacorb/notification/jmx/jboss/**" />
+                                             org/jacorb/notification/jmx/jboss/**"
+                             javac-xlint=""/>
 
 	</target>
 
@@ -169,9 +170,10 @@
 						javac-includes="org/jacorb/notification/**/*.java"
 					 	javac-excludes="org/jacorb/notification/WrapperMain.java,
 			                  			org/jacorb/notification/filter/bsh/**,
-                                                                org/jacorb/notification/jmx/**" />
+                                                                org/jacorb/notification/jmx/**"
+                                                javac-xlint=""/>
 
-		<jacorb-javac javac-classpathref="classpath" javac-includes="org/jacorb/notification/WrapperMain.java" />
+		<jacorb-javac javac-classpathref="classpath" javac-includes="org/jacorb/notification/WrapperMain.java" javac-xlint=""/>
 
 		<antcall target="server.sar" />
 	</target>
