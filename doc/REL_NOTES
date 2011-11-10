@@ -159,6 +159,8 @@ post 2.3.1
         - Allow ORB props/args to be propagated to the Singleton config.
         - Add system property jacorb.classloaderpolicy for whether to resolve classes via thread
           context class loader or the defining class loader.
+        - Fix for Bug852 - preserve original typecode when marshalling objects within Any
+          (thanks to Zoltan Bordas of OpenSpirit Corp).
 
     - POA:
         - Fix for reference_to_id error checking.
@@ -262,7 +264,7 @@ post 2.3.1
         - Updates for installation.
 
     - Misc
-        - Update SLF4J libraries to 1.6.2
+        - Update SLF4J libraries to 1.6.4
 
 2.3.1
 =====

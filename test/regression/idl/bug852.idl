@@ -1,0 +1,24 @@
+module org
+{
+   module jacorb
+   {
+      module test
+      {
+         module bugs
+         {
+            module bug852
+            {
+               interface AnyServerBase
+               {
+                  string generic(in any a);
+               };
+
+               interface AnyServer :  AnyServerBase
+               {
+                  any roundtripany(in any a);
+               };
+            };
+         };
+      };
+   };
+};

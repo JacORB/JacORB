@@ -1219,7 +1219,9 @@ public final class Any
             }
             case TCKind._tk_objref:     // 14
             {
-                insert_Object( input.read_Object());
+                // Bug852 modification to attempt to use the original type ID to
+                // create the object embedded in the any.
+                insert_Object( input.read_Object(), type);
                 break;
             }
             case TCKind._tk_struct:     // 15
