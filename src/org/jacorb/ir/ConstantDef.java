@@ -174,7 +174,7 @@ public class ConstantDef
 
         try
         {
-            value.insert_object(typeCode,
+            value.insert(typeCode,
                                 field.get(null) );
         }
         catch ( Exception e )

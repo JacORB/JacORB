@@ -1311,7 +1311,7 @@ public final class Any
                     ((org.omg.CORBA_2_3.portable.InputStream)input).read_abstract_interface();
                 if (obj instanceof org.omg.CORBA.Object)
                 {
-                    insert_object(type, (org.omg.CORBA.Object)obj);
+                    insert(type, (org.omg.CORBA.Object)obj);
                 }
                 else
                 {
@@ -1513,9 +1513,10 @@ public final class Any
     }
 
     /**
-     * Convenience method for making a shallow copy of an Any.
+     * Convenience method for making a shallow copy of an Any. This is NOT
+     * recommended for external use.
      */
-    public void insert_object(org.omg.CORBA.TypeCode typeCode,
+    public void insert(org.omg.CORBA.TypeCode typeCode,
                              java.lang.Object object)
     {
         this.typeCode = typeCode;

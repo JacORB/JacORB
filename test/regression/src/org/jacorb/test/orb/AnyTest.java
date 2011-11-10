@@ -1971,7 +1971,7 @@ public class AnyTest extends ClientServerTestCase
         Any any1 = setup.getClientOrb().create_any();
         any1.insert_string("foobar");
         Any any2 = setup.getClientOrb().create_any();
-        ((org.jacorb.orb.Any)any2).insert_object(any1.type(),
+        ((org.jacorb.orb.Any)any2).insert(any1.type(),
                                                  any1.extract_string());
         assertTrue (any1.extract_string() == any2.extract_string());
     }

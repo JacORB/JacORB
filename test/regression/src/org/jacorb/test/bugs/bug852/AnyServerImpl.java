@@ -16,7 +16,6 @@ public class AnyServerImpl
         return "generic";
     }
 
-    @Override
     public Any roundtripany(Any a) {
         Any any = org.omg.CORBA.ORB.init().create_any();
 
