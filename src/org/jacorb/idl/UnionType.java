@@ -103,17 +103,6 @@ public class UnionType
         return typeName;
     }
 
-    /**
-     * get this types's mapped Java name
-     */
-
-    public String getJavaTypeName()
-    {
-        if (typeName == null)
-            setPrintPhaseNames();
-        return typeName;
-    }
-
     public String className()
     {
         String fullName = typeName();
@@ -141,7 +130,7 @@ public class UnionType
 
     public String helperName()
     {
-        return getJavaTypeName() + "Helper";
+        return typeName() + "Helper";
     }
 
     public void set_included(boolean i)

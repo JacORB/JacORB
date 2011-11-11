@@ -141,27 +141,6 @@ public class StructType
         return typeName;
     }
 
-    /**
-     * get this types's mapped Java name
-     */
-
-    public String getJavaTypeName()
-    {
-        if (typeName == null)
-            setPrintPhaseNames();
-        return typeName;
-    }
-
-
-    /**
-     * get this symbol's IDL type name
-     */
-
-    public String getIDLTypeName()
-    {
-        return getJavaTypeName(); // TODO
-    }
-
     public int getTCKind()
     {
     	return org.omg.CORBA.TCKind._tk_struct;
@@ -254,7 +233,7 @@ public class StructType
         {
             if (exc)
             {
-                parser.error("Struct " + getJavaTypeName() + " already defined", token);
+                parser.error("Struct " + typeName() + " already defined", token);
             }
             else
             {
@@ -281,15 +260,15 @@ public class StructType
                 }
                 else
                 {
-                    parser.error("Struct " + getJavaTypeName() + " already defined", token);
+                    parser.error("Struct " + typeName() + " already defined", token);
                 }
             }
         }
         if (memberlist != null)
         {
-            ScopedName.addRecursionScope(getJavaTypeName());
+            ScopedName.addRecursionScope(typeName());
             memberlist.parse();
-            ScopedName.removeRecursionScope(getJavaTypeName());
+            ScopedName.removeRecursionScope(typeName());
 
             if (exc == false)
             {
@@ -309,7 +288,7 @@ public class StructType
 
     public String className()
     {
-        String fullName = getJavaTypeName();
+        String fullName = typeName();
         if (fullName.indexOf('.') > 0)
         {
             return fullName.substring(fullName.lastIndexOf('.') + 1);
@@ -330,12 +309,12 @@ public class StructType
 
     public String holderName()
     {
-        return getJavaTypeName() + "Holder";
+        return typeName() + "Holder";
     }
 
     public String helperName()
     {
-        return getJavaTypeName() + "Helper";
+        return typeName() + "Helper";
     }
 
     /**
@@ -360,7 +339,7 @@ public class StructType
         StringBuffer sb = new StringBuffer();
         sb.append("org.omg.CORBA.ORB.init().create_" +
                 (exc ? "exception" : "struct") + "_tc(" +
-                getJavaTypeName() + "Helper.id(),\"" + className() + "\",");
+                typeName() + "Helper.id(),\"" + className() + "\",");
 
         if (memberlist != null)
         {
@@ -403,30 +382,30 @@ public class StructType
         ps.println("\timplements org.omg.CORBA.portable.Streamable");
         ps.println("{");
 
-        ps.println("\tpublic " + getJavaTypeName() + " value;" + Environment.NL);
+        ps.println("\tpublic " + typeName() + " value;" + Environment.NL);
 
         ps.println("\tpublic " + className + "Holder ()");
         ps.println("\t{");
         ps.println("\t}");
 
-        ps.println("\tpublic " + className + "Holder(final " + getJavaTypeName() + " initial)");
+        ps.println("\tpublic " + className + "Holder(final " + typeName() + " initial)");
         ps.println("\t{");
         ps.println("\t\tvalue = initial;");
         ps.println("\t}");
 
         ps.println("\tpublic org.omg.CORBA.TypeCode _type ()");
         ps.println("\t{");
-        ps.println("\t\treturn " + getJavaTypeName() + "Helper.type ();");
+        ps.println("\t\treturn " + typeName() + "Helper.type ();");
         ps.println("\t}");
 
         ps.println("\tpublic void _read(final org.omg.CORBA.portable.InputStream _in)");
         ps.println("\t{");
-        ps.println("\t\tvalue = " + getJavaTypeName() + "Helper.read(_in);");
+        ps.println("\t\tvalue = " + typeName() + "Helper.read(_in);");
         ps.println("\t}");
 
         ps.println("\tpublic void _write(final org.omg.CORBA.portable.OutputStream _out)");
         ps.println("\t{");
-        ps.println("\t\t" + getJavaTypeName() + "Helper.write(_out, value);");
+        ps.println("\t\t" + typeName() + "Helper.write(_out, value);");
         ps.println("\t}");
 
         ps.println("}");
@@ -457,7 +436,7 @@ public class StructType
         ps.println("\t\treturn TypeCodeHolder._type;");
         ps.println("\t}" + Environment.NL);
 
-        String type = getJavaTypeName();
+        String type = typeName();
         TypeSpec.printInsertExtractMethods(ps, type);
 
         printIdMethod(ps); // inherited from IdlSymbol
@@ -505,7 +484,7 @@ public class StructType
                         TypeSpec typeSpec = member.type_spec.typeSpec();
 
                         String var = "x" + x++;
-                        ps.println("\t\t" + typeSpec.getJavaTypeName() + " " + var + ";");
+                        ps.println("\t\t" + typeSpec.typeName() + " " + var + ";");
                         ps.println("\t\t" + typeSpec.printReadStatement(var, "in"));
                     }
                 }

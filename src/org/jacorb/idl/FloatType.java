@@ -40,22 +40,6 @@ public class FloatType
         return "float";
     }
 
-    /**
-     * get this types's mapped Java name
-     */
-    public String getJavaTypeName()
-    {
-        return "float";
-    }
-
-    /**
-     * get this symbol's IDL type name
-     */
-    public String getIDLTypeName()
-    {
-        return "float";
-    }
-
     public TypeSpec typeSpec()
     {
         return this;

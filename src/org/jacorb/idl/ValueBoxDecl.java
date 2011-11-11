@@ -68,7 +68,7 @@ public class ValueBoxDecl
         }
         else
         {
-            return unwindTypedefs(typeSpec).getJavaTypeName();
+            return unwindTypedefs(typeSpec).typeName();
         }
     }
 

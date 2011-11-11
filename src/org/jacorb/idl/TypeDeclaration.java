@@ -56,27 +56,6 @@ public class TypeDeclaration
     }
 
     /**
-     * get this types's mapped Java name
-     */
-
-    public String getJavaTypeName()
-    {
-        return type_decl.getJavaTypeName();
-    }
-
-
-    /**
-     * get this symbol's IDL type name
-     */
-
-    public String getIDLTypeName()
-    {
-        return type_decl.getIDLTypeName();
-    }
-
-
-
-    /**
      *  we have to be able to distinguish between explicitly typedef'd
      *  type names and anonymously defined type names
      */

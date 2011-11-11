@@ -52,26 +52,6 @@ public class LongLongType
         return "long";
     }
 
-    /**
-     * get this types's mapped Java name
-     */
-    public String getJavaTypeName()
-    {
-        return typeName();
-    }
-
-    /**
-     * get this symbol's IDL type name
-     */
-    public String getIDLTypeName()
-    {
-        if( unsigned )
-        {
-            return "unsigned long long";
-        }
-        return "long long";
-    }
-
     public boolean basic()
     {
         return true;

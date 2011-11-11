@@ -77,11 +77,6 @@ public class FixedPointType
         return "java.math.BigDecimal";
     }
 
-    public String getIDLTypeName()
-    {
-        return "fixed";
-    }
-
 
     public int getTCKind()
     {
@@ -255,13 +250,13 @@ public class FixedPointType
         }
         else if (parser.generatedHelperPortability == parser.HELPER_PORTABLE)
         {
-            sb.append("\t\t" + var_name + "=" + strname + ".read_fixed((short)" 
+            sb.append("\t\t" + var_name + "=" + strname + ".read_fixed((short)"
                       + digits + ", (short)" + scale+ ");" + Environment.NL);
         }
         else if (parser.generatedHelperPortability == parser.HELPER_JACORB)
         {
-            sb.append("\t\t" + var_name + "=((org.jacorb.orb.CDRInputStream)" 
-                      + strname + ").read_fixed((short)" + digits 
+            sb.append("\t\t" + var_name + "=((org.jacorb.orb.CDRInputStream)"
+                      + strname + ").read_fixed((short)" + digits
                       + ", (short)" + scale + ");" + Environment.NL);
         }
         else
@@ -281,7 +276,7 @@ public class FixedPointType
         StringBuffer sb = new StringBuffer();
         sb.append(Environment.NL);
         sb.append("\t\tif (" + var_name + ".scale() != " + scale + ")" + Environment.NL);
-        sb.append("\t\t\tthrow new org.omg.CORBA.DATA_CONVERSION(\"wrong scale in fixed point value, expecting " 
+        sb.append("\t\t\tthrow new org.omg.CORBA.DATA_CONVERSION(\"wrong scale in fixed point value, expecting "
                   + scale + ", got \" + " + var_name + ".scale());" + Environment.NL);
 
         String max = null;
@@ -290,10 +285,10 @@ public class FixedPointType
         else
             max = "_max" + (-1 * hashCode());
 
-        sb.append("\t\tjava.math.BigDecimal " + max + "= new java.math.BigDecimal(\"" 
+        sb.append("\t\tjava.math.BigDecimal " + max + "= new java.math.BigDecimal(\""
                   + mb.toString() + "\");" + Environment.NL);
         sb.append("\t\tif (" + var_name + ".compareTo(" + max + ") != -1)" + Environment.NL);
-        sb.append("\t\t\tthrow new org.omg.CORBA.DATA_CONVERSION(\"more than " + digits 
+        sb.append("\t\t\tthrow new org.omg.CORBA.DATA_CONVERSION(\"more than " + digits
                   + " digits in fixed point value\");" + Environment.NL);
 
         if (parser.generatedHelperPortability == parser.HELPER_DEPRECATED)
@@ -302,13 +297,13 @@ public class FixedPointType
         }
         else if (parser.generatedHelperPortability == parser.HELPER_PORTABLE)
         {
-            sb.append("\t\t" + strname + ".write_fixed(" + var_name 
+            sb.append("\t\t" + strname + ".write_fixed(" + var_name
                       + ", (short)" + digits + ", (short)" + scale + ");" + Environment.NL);
         }
         else if (parser.generatedHelperPortability == parser.HELPER_JACORB)
         {
-            sb.append("\t\t((org.jacorb.orb.CDROutputStream)" + strname 
-                      + ").write_fixed(" + var_name + ", (short)" + digits 
+            sb.append("\t\t((org.jacorb.orb.CDROutputStream)" + strname
+                      + ").write_fixed(" + var_name + ", (short)" + digits
                       + ", (short)" + scale + ");" + Environment.NL);
         }
         else

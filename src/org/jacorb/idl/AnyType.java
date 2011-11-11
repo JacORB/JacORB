@@ -45,15 +45,6 @@ public class AnyType
         return "org.omg.CORBA.Any";
     }
 
-    /**
-     * @return the string "any".
-     */
-
-    public String getIDLTypeName()
-    {
-        return "any";
-    }
-
 
     public TypeSpec typeSpec()
     {
@@ -108,7 +99,7 @@ public class AnyType
     {
         ps.println("\t\t" + resultname + " = (" + resulttype + ")" + anyname + ".extract_any();");
     }
- 
+
 }
 
 

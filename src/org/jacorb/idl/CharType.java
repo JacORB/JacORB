@@ -62,10 +62,6 @@ public class CharType
         return "char";
     }
 
-    public String getIDLTypeName()
-    {
-        return ( wide ? "wchar" : "char" );
-    }
 
     public TypeSpec typeSpec()
     {
