@@ -1094,9 +1094,9 @@ first. Please see \ref{connection_management}. & boolean & off \\
 
 \verb"jacorb.connection.non"
 \verb"blocking" & This property enables use of non-blocking I/O (NIO) on IIOP
-based transports. & boolean & off. Note that this feature is currently only
-for client-side connections, and only for plain IIOP - not SSL. There is no
-technical reason for these restrictions, simply lack of current need. \\
+based transports. Note that this feature is currently only for client-side 
+connections, and only for plain IIOP - not SSL. There is no technical reason 
+for these restrictions, simply lack of current need. & boolean & off. \\
 \hline
 
 \verb"jacorb.connection.req"
@@ -1104,7 +1104,7 @@ technical reason for these restrictions, simply lack of current need. \\
 a client will spend waiting to write a request. Effective when using blocking
 I/O to ensure a hung peer will not lock up a the client. A request that cannot
 be sent before the deadline expires is discarded, the connection is closed,
-and an exception is raised to the client application. \\
+and an exception is raised to the client application. & millisec & 0 \\
 \hline
 
 \verb"jacorb.connection.rep"
@@ -1112,7 +1112,7 @@ and an exception is raised to the client application. \\
 a server will spend waiting to write a reply. Effective when using blocking
 I/O to ensure a hung peer will not lock up a the server. A reply that cannot
 be sent before the deadline expires is discarded and the connection is
-closed. \\
+closed. & millisec & 0 \\
 \hline
 
 \verb"jacorb.listener.server"
