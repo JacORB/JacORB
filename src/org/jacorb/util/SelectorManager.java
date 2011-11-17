@@ -1210,11 +1210,11 @@ public class SelectorManager extends Thread
                 synchronized (bufferLock)
                 {
                     reActivateBuffer.push (request);
-        if (loggerDebugEnabled)
-        {
-            logger.debug ("Adding reactivate request. Request type: "
-                          + request.type.toString());
-        }
+                    if (loggerDebugEnabled)
+                    {
+                        logger.debug ("Adding reactivate request. Request type: "
+                                      + request.type.toString());
+                    }
 
                     selector.wakeup ();
                 }
@@ -1314,7 +1314,7 @@ public class SelectorManager extends Thread
         {
             try
             {
-                return requests.pop();
+                return requests.removeFirst();
             }
             catch (NoSuchElementException ex)
             {
@@ -1324,7 +1324,7 @@ public class SelectorManager extends Thread
 
         public void push (SelectorRequest request)
         {
-            requests.push (request);
+            requests.addFirst (request);
         }
 
         public SelectorRequest get (int index)
