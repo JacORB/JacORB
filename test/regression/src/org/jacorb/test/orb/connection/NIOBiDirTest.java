@@ -33,7 +33,10 @@ public class NIOBiDirTest extends BiDirTest
 
         BiDirSetup setup = new BiDirSetup (suite, properties, properties);
 
-        suite.addTest (new NIOBiDirTest ("test_callback", setup));
+        if ( ! setup.isSSLEnabled ())
+        {
+            suite.addTest (new NIOBiDirTest ("test_callback", setup));
+        }
 
         return setup;
     }
