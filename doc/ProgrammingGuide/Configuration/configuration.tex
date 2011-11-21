@@ -409,6 +409,14 @@ and whether your thread pool is  big enough.  Also, this tool lets you
 change the  state of a POA,  e.g. from {\it active}  to {\it holding}.
 Please see chapter \ref{ch:POA} on the POA for more details.
 
+\subsection{NIO Support}
+Client side non-blocking I/O support has been added to JacORB. This
+implementation consists of refactored connector and connection handler that
+use callbacks to improve asynch performance. The property
+\begin{verbatim}
+jacorb.connection.nonblocking=on/off
+\end{verbatim}
+is used to enable this capability.
 
 \subsection{Typecode Compaction}
 \label{compact-typecode}
@@ -927,7 +935,7 @@ factory. Here are 3 options already implemented:
 \end{enumerate}
 Also, custom-made buffer manager factories allowed. They must implement
 the org.jacorb.orb.BufferManagerFactory interface.
-& class & org.jacorb.orb.DefaultBufferManagerFactory \\
+& class & \tiny{org.jacorb.\-orb.\-DefaultBufferManagerFactory} \\
 \hline
 \verb"jacorb.maxManagedBufSi"
 \verb"ze" & This is NOT the maximum buffer size that can be used, but
@@ -955,13 +963,13 @@ expansion policy. Here are 3 options already implemented:
 \item org.jacorb.orb.buffermanager.DefaultExpansionPolicy that will
     return new buffer's size that bigger or equal to the requested.
     Sizes calculation are performed by code:
-\begin{small}
+\begin{tiny}
 \begin{verbatim}
-        double multiplier = scale - Math.log (requestedSize) / divider;
-        multiplier = (multiplier < 1.0) ? 1.0 : multiplier;
-        newSize = (int) Math.floor ( multiplier * requestedSize );
+double multiplier = scale - Math.log (requestedSize) / divider;
+multiplier = (multiplier < 1.0) ? 1.0 : multiplier;
+newSize = (int) Math.floor ( multiplier * requestedSize );
 \end{verbatim}
-\end{small}
+\end{tiny}
      where scale and divider parameters are configurable (see description
      below).
 \item org.jacorb.orb.buffermanager.LinearExpansionPolicy that returns exactly
@@ -975,7 +983,10 @@ interface. Please note that expansion policy support is implemented in the
 default buffer manager implementation (org.jacorb.orb.BufferManager).
 Custom-made buffer manager implementation need to have their own expansion
 policy support implementation.
-& class & org.jacorb.orb.buffermanager.DefaultExpansionPolicy \\
+& class & org.jacorb.
+orb.
+buffermanager.
+DefaultExpansionPolicy \\
 \hline
 \verb"jacorb.buffermanager.d"
 \verb"efaultexpansionpolicy."
@@ -1094,8 +1105,8 @@ first. Please see \ref{connection_management}. & boolean & off \\
 
 \verb"jacorb.connection.non"
 \verb"blocking" & This property enables use of non-blocking I/O (NIO) on IIOP
-based transports. Note that this feature is currently only for client-side 
-connections, and only for plain IIOP - not SSL. There is no technical reason 
+based transports. Note that this feature is currently only for client-side
+connections, and only for plain IIOP - not SSL. There is no technical reason
 for these restrictions, simply lack of current need. & boolean & off. \\
 \hline
 
