@@ -1,3 +1,1106 @@
+2011-11-21  Nick Cross  <jacorb@goots.org>
+
+	* orb/: NIOBasicTest.java, connection/NIOBiDirTest.java: Exclude
+	  NIO tests when doing an SSL test run
+
+2011-11-10  Nick Cross  <jacorb@goots.org>
+
+	* bugs/bug852/AnyServerImpl.java, orb/AnyTest.java: Refactor
+	  renaming internal Any method. Fix compile annotation issue.
+
+2011-11-10  Nick Cross  <jacorb@goots.org>
+
+	* bugs/bug852/: AnyServerImpl.java, Bug852Test.java: Bug852 - add
+	  fix for Any.read_value() with type ID of derived type
+
+2011-11-02  Nick Cross  <jacorb@goots.org>
+
+	* config/ConfigurationTest.java: Propagate config to singleton. Add
+	  ability to configure classloading method.
+
+2011-11-02  Nick Cross  <jacorb@goots.org>
+
+	* config/ConfigurationTest.java: Propagate config to singleton. Add
+	  ability to configure classloading method.
+
+2011-10-19  Phil Mesnier  <mesnier_p@ociweb.com>
+
+	* nio/NIOTest.java: Fixed test anomalies
+
+2011-10-19  Phil Mesnier  <mesnier_p@ociweb.com>
+
+	* nio/: NIOTest.java, NIOTestServer.java, NIOTimerTest.java: Added
+	  new test for nio based messaging
+
+2011-10-05  Alexander Bykov  <alexander.bykov@prismtech.com>
+
+	* notification/common/TypedServerTestSetup.java,
+	  notification/typed/TypedProxyPullConsumerImplTest.java,
+	  bugs/bugjac589/BugJac589Test.java: bugzilla #820,
+	  PrismtechJAC#802: rolled back recent changes in
+	  ClientIIOPConnection, disabled security for few regression tests
+
+2011-10-05  Nick Cross  <jacorb@goots.org>
+
+	*
+	  orb/connection/maxconnectionenforcement/MaxConnetcionEnforcementTest.java:
+	  Drop the threads/iterations to avoid oom
+
+2011-10-04  Nick Cross  <jacorb@goots.org>
+
+	* orb/: NIOBasicTest.java, connection/BiDirServerImpl.java,
+	  connection/GIOPConnectionTest.java, connection/NIOBiDirTest.java,
+	  connection/ServerConnectionTimeoutTest.java: Tidy tests. Add NIO
+	  tests extending BasicTest and BiDirTest
+
+2011-10-04  Alexander Bykov  <alexander.bykov@prismtech.com>
+
+	* miop/MIOPTest.java: bugzilla #820, PrismtechJAC#802: fixed
+	  failures when non-SSL IIOP profiles is used, turned off MIOP
+	  regression test
+
+2011-10-03  Nick Cross  <jacorb@goots.org>
+
+	* bugs/bugjac560/BugJac560Test.java: Remove verbose property
+	  overrides
+
+2011-09-30  Nick Cross  <jacorb@goots.org>
+
+	* miop/MIOPTestServer.java: Alter output
+
+2011-09-27  Nick Cross  <jacorb@goots.org>
+
+	* bugs/bug879/Bug879Test.java,
+	  bugs/bugjac200/AcceptorExceptionListenerTest.java,
+	  bugs/bugjac200/TestAcceptorExceptionListener.java,
+	  bugs/bugjac486/BugJac486Test.java,
+	  bugs/bugjac637/BugJac637Test.java,
+	  common/MyNullLoggerInitializer.java,
+	  orb/IIOPAddressServerImpl.java,
+	  orb/giop/ClientConnectionTest.java,
+	  transport/AbstractOrbInitializer.java,
+	  transport/ClientInterceptor.java, util/JDKLoggerTest.java:
+	  Bugzilla 902 - Configuration optimisation - use native maps for
+	  storage. Minor code improvement and cleanup.
+
+2011-09-27  Alexander Bykov  <alexander.bykov@prismtech.com>
+
+	* bugs/bugjac788/: BugJac788Test.java, ComputInterfaceImpl.java,
+	  HelloInterfaceImpl.java, TestClientRequestInterceptorImpl.java,
+	  TestORBInitializer.java, TestServerRequestInterceptorImpl.java:
+	  Prismtech JAC#788: prevent client picurrent interceptor being
+	  overwritten by server picurrent
+
+2011-09-27  Alexander Bykov  <alexander.bykov@prismtech.com>
+
+	* bugs/bugjac670/BugJac670Test.java,
+	  bugs/bugjac670/GSLoadBalancerImpl.java,
+	  bugs/bugjac670/GSLoadBalancerInitializer.java,
+	  bugs/bugjac670/GSLoadBalancerInterceptor.java,
+	  bugs/bugjac670/GSLoadBalancerServer.java,
+	  bugs/bugjac670/GreetingServiceImpl.java,
+	  bugs/bugjac670/GreetingServiceServer.java,
+	  bugs/bugjac685/BugJac685Test.java,
+	  bugs/bugjac685/BugJac685TestServer.java,
+	  bugs/bugjac685/NameServiceRunner.java,
+	  bugs/bugjac685/NameServiceSetup.java,
+	  bugs/bugjac685/SessionFactoryServant.java,
+	  bugs/bugjac685/SessionServant.java,
+	  bugs/bugrtj634/CInitializer.java,
+	  bugs/bugrtj634/CInterceptor.java, bugs/bugrtj634/RTJ634Test.java,
+	  bugs/bugrtj634/SInitializer.java,
+	  bugs/bugrtj634/SInterceptor.java,
+	  bugs/bugrtj634/TimingServerImpl.java, common/ORBTestCase.java,
+	  common/ServerSetup.java, common/StreamListener.java,
+	  orb/policies/ClientInterceptor.java,
+	  orb/policies/ClientPIInitializer.java,
+	  orb/policies/ComplexTimingServerImpl.java,
+	  orb/policies/ComplexTimingWithPIsTest.java,
+	  orb/policies/IORInterceptor.java,
+	  orb/policies/ServerInterceptor.java,
+	  orb/policies/ServerPIInitializer.java,
+	  orb/policies/TestConfig.java: PrismtechJAC#670/685/603/RTJ634:
+	  fix for relative roundtrip timeout problems
+
+2011-09-26  Nick Cross  <jacorb@goots.org>
+
+	* bugs/bug879/Bug879Test.java, bugs/bugjac192b/BugJac192bTest.java,
+	  bugs/bugjac45/BugJac45Test.java,
+	  bugs/bugjac462/BugJac462Test.java,
+	  bugs/bugjac512/BugJac512Giop1_0ClientTest.java,
+	  bugs/bugjac513/AbstractGIOPMinorVersionTestCase.java,
+	  bugs/bugjac562/ClientInterceptorTest.java,
+	  common/ORBTestCase.java, orb/CDRInputStreamNullStringTest.java:
+	  Fixes for configuration and test framework
+
+2011-09-23  Nick Cross  <jacorb@goots.org>
+
+	* bugs/bugjac503/BugJac503Test.java,
+	  orb/etf/wiop/WIOPFactories.java: PrismTech JAC#770 Fix for
+	  configuration caching performance issue.
+
+2011-09-23  Nick Cross  <jacorb@goots.org>
+
+	* bugs/: bugjac516/BugJac516Test.java,
+	  bugjac683/BugJac683Test.java: PrismTech JAC#683 Fix negative
+	  values in dynfixed.
+
+2011-09-23  Nick Cross  <jacorb@goots.org>
+
+	* bugs/bugjac10/TypeCodeTestImpl.java,
+	  bugs/bugjac445/BugJac445Test.java,
+	  bugs/bugjac462/BugJac462Test.java,
+	  bugs/bugjac81/BoundedStringTest.java, idl/ParseValidIDLTest.java,
+	  orb/AnyTest.java, orb/TypeCodeTest.java,
+	  orb/typecode/PrimitiveTypeCodeReaderTest.java,
+	  orb/value/ValueTest.java: PrismTech
+	  JAC#445/JAC#462/JAC#534/JAC#536/JAC#703 Change compactTypecode
+	  default to off. Rewrite typecode caching to fix indirection
+	  errors - add typecodereader/writer to handle typecodes
+
+2011-09-22  Nick Cross  <jacorb@goots.org>
+
+	* bugs/bug490/: Bug490Test.java, GoodDayImpl.java: Add typecode
+	  equals/hashcode and fix issue with policy operation name
+
+2011-09-22  Nick Cross  <jacorb@goots.org>
+
+	* bugs/bugpt319/: BugPt319Test.java, MutatorImpl.java,
+	  PT319Impl.java: Prismtech JAC#722 Add test for mutator class
+	  caching
+
+2011-09-21  Nick Cross  <jacorb@goots.org>
+
+	* bugs/: bugjac192/AInterceptor.java,
+	  bugjac235/AbstractTestCase.java,
+	  bugjac646/ReferenceToIdTest.java, bugjac755/Bugjac755Test.java,
+	  bugjac755/TAOInputStreamEmulBugjac755.java: PrismTech
+	  JAC#755/JAC#759/JAC#646 reference_to_id fix. set_policies usage
+	  fixes. union testcase
+
+2011-09-21  Nick Cross  <jacorb@goots.org>
+
+	* bugs/bugjac730/BugJac730Test.java,
+	  bugs/bugjac767/Bugjac767Test.java, idl/ParseValidIDLTest.java:
+	  PrismTech JAC#767/JAC#730/JAC#737 Fix for longlong constant
+	  generation. Fix for forward declared/inherited interface. Fix for
+	  local interface sequence typecode.
+
+2011-09-19  Nick Cross  <jacorb@goots.org>
+
+	* bugs/bugjac696/BugJac696Test.java,
+	  orb/connection/GIOPConnectionTest.java: PrismTech
+	  JAC#696/JAC#705/JAC#725. Add test for giop header size issue. Fix
+	  for demo/any. Fix for AOM so it is stopped on POA destruction.
+
+2011-09-14  Nick Cross  <jacorb@goots.org>
+
+	* bugs/bug619/Bug619Test.java: PrismTech JAC#669 / Bugzilla 619 Fix
+	  and test for outofmem.
+
+2011-09-14  Nick Cross  <jacorb@goots.org>
+
+	* common/ServerSetup.java: PrismTech JAC#698 Cobertura/Properties
+	  fix
+
+2011-09-14  Nick Cross  <jacorb@goots.org>
+
+	* bugs/bugjac671/BugJac671Test.java: Prismtech JAC#671 Add test
+
+2011-09-14  Nick Cross  <jacorb@goots.org>
+
+	* orb/policies/SyncScopeTest.java: PrismTech JAC#673/JAC#667 Build
+	  xml and sync scope plus test.
+
+2011-09-13  Nick Cross  <jacorb@goots.org>
+
+	* bugs/bugjac501/BugJac501Test.java: PrismTech JAC#501 Improve
+	  output, tidy xml, add test.
+
+2011-09-13  Nick Cross  <jacorb@goots.org>
+
+	* bugs/bugjac460/BugJac460Test.java: PrismTech JAC#460/JAC#379
+	  Minor generated code improvement and added test
+
+2011-09-13  Nick Cross  <jacorb@goots.org>
+
+	* bugs/bugjac631/: BugJac631Test.java, ServerImpl.java: PrismTech
+	  JAC#616/JAC#631. Add documentation. Add Object::create_request
+	  operation.
+
+2011-09-13  Nick Cross  <jacorb@goots.org>
+
+	* orb/factory/PortRangeSocketFactoryTest.java: PrismTech
+	  JAC#591,JAC#611,JAC#629,JAC#632 Port factory and minor build
+	  improvement.
+
+2011-09-12  Nick Cross  <jacorb@goots.org>
+
+	* orb/: CDRInputStreamNullStringTest.java, CDRInputStreamTest.java:
+	  Bugzilla 904/JAC#639 Enable interop null string marshalling.
+
+2011-06-16  Nick Cross  <jacorb@goots.org>
+
+	* notification/: perf/LoadTest.java, perf/PerformanceTest.java,
+	  typed/TypedProxyPullSupplierImplTest.java: Bugzilla 903 -
+	  disabled tests to ensure we have a clean run until someone has
+	  time to fix them.
+
+2011-06-06  Nick Cross  <jacorb@goots.org>
+
+	* bugs/bugjac801/BugJac801Test.java: JAC#803 Fix toString for
+	  certain IDL.
+
+2011-05-13  Nick Cross  <jacorb@goots.org>
+
+	* bugs/bug532/Bug532Test.java, orb/etf/AbstractWIOPTestCase.java:
+	  Update and normalise copyright statements.
+
+2011-05-12  Alexander Bykov  <alexander.bykov@prismtech.com>
+
+	* bugs/bugjac802/BugJac802Test.java, common/ClientServerSetup.java,
+	  common/ORBSetup.java, common/ServerSetup.java: bugzilla #820,
+	  PrismtechJAC#802: added regression test
+
+2011-05-10  Nick Cross  <jacorb@goots.org>
+
+	* Update and normalise copyright statements.
+
+2011-05-10  Nick Cross  <jacorb@goots.org>
+
+	* orb/localinterceptors/LocalPITest.java: PrismTech patchback
+	  JAC#704 Fix for serverrequestinfo and local calls.
+
+2011-05-10  Nick Cross  <jacorb@goots.org>
+
+	* bugs/bugjac384/BugJac_384Test.java: Fix test case
+
+2011-05-10  Nick Cross  <jacorb@goots.org>
+
+	* bugs/bugjac488/BugJac488Test.java,
+	  bugs/bugjac488/PingReceiverImpl.java, common/ServerSetup.java:
+	  PrismTech patch back JAC#668/JAC#684 Fix for sync none and null
+	  ptr in Delegate.  Fix for Delegate.servant_preinvoke
+	  removeLocalRequest.
+
+2011-05-09  Nick Cross  <jacorb@goots.org>
+
+	* bugs/: bugjac662/BugJac662Test.java,
+	  bugjac662/PingReceiverImpl.java, bugjac663/BugJac663Test.java,
+	  bugjac663/JAC663ServerImpl.java: PrismTech JAC#662/JAC#663 patch
+	  back.  ServantDelegate: Return duplicate to prevent cached object
+	  delegate being set to null Delegate: Fix memory leak in delegate
+	  pending_replies.
+
+2011-05-09  Nick Cross  <jacorb@goots.org>
+
+	* bugs/bugjac660/BugJac660Test.java,
+	  bugs/bugjac660/ClientInterceptor.java,
+	  bugs/bugjac660/Initializer.java,
+	  bugs/bugjac660/ServerInterceptor.java,
+	  bugs/bugjac663/BugJac663Test.java,
+	  bugs/bugjac663/JAC663ServerImpl.java,
+	  orb/localinterceptors/LocalPITest.java,
+	  orb/localinterceptors/RemotePIServerImpl.java,
+	  orb/localinterceptors/RemoteServer.java: PrismTech JAC#647
+	  Implement PortableInterceptors for local calls.
+
+2011-05-06  Nick Cross  <jacorb@goots.org>
+
+	* orb/IncomingReferencesAreLazilyCreatedTest.java: PrismTech
+	  JAC#533 parse references received across the net lazily
+
+2011-04-28  Alexander Bykov  <alexander.bykov@prismtech.com>
+
+	* bugs/bugjac542/BugJac542Test.java: Prismtech JAC#796: regression
+	  test fixed
+
+2011-04-28  Alexander Bykov  <alexander.bykov@prismtech.com>
+
+	* bugs/bugjac801/BugJac801Test.java: Prismtech JAC#801: Fix
+	  toString on union and refactor uniontype
+
+2011-03-29  Nick Cross  <jacorb@goots.org>
+
+	* bugs/bug879/Bug879Test.java, idl/ValidIDLWithExtraSetupTest.java,
+	  orb/factory/AbstractSocketFactoryTestCase.java: Enhance
+	  generation to close inputstreams, null delegate objects and fix
+	  for native types containing #pragma prefix "omg.org". Also fixes
+	  for regression tests. PrismTech RTJ852/887/519
+
+2011-02-25  Alexander Bykov  <alexander.bykov@prismtech.com>
+
+	* interceptor/ctx_passing/CTXPassingTest.java,
+	  interceptor/ctx_passing/ClientInitializer.java,
+	  interceptor/ctx_passing/ClientInterceptor.java,
+	  interceptor/ctx_passing/ServerInitializer.java,
+	  interceptor/ctx_passing/ServerInterceptor.java,
+	  interceptor/ctx_passing/TestObjectImpl.java,
+	  nestedproperties/NestedPropertiesTest.java,
+	  nestedproperties/README,
+	  orb/connection/maxconnectionenforcement/CallbackIfImpl.java,
+	  orb/connection/maxconnectionenforcement/MaxConnetcionEnforcementTest.java,
+	  orb/connection/maxconnectionenforcement/TestIfImpl.java,
+	  orb/connection/maxconnectionenforcement/TestServer.java,
+	  orb/connection/timeout/GridImpl.java,
+	  orb/connection/timeout/README,
+	  orb/connection/timeout/TimeoutTest.java: PrismTech JAC#790: Add
+	  tests converted from the old code
+
+2011-02-11  Alexander Bykov  <alexander.bykov@prismtech.com>
+
+	* miop/: GreetingImpl.java, MIOPTest.java, MIOPTestServer.java:
+	  PrismTech JAC#787 converted to multi-process test
+
+2011-02-02  Alexander Bykov  <alexander.bykov@prismtech.com>
+
+	* miop/: GreetingImpl.java, MIOPTest.java: PrismTech JAC#787 add
+	  delay and fix calls ordering
+
+2011-01-27  Alexander Bykov  <alexander.bykov@prismtech.com>
+
+	* miop/: GreetingImpl.java, MIOPTest.java: PrismTech JAC#787 add
+	  answer check
+
+2011-01-20  Nick Cross  <jacorb@goots.org>
+
+	* bugs/bugjac774/BugJac774Test.java: JAC#774 Drop memory allocation
+	  to 1500 for all platforms.
+
+2011-01-15  Alexander Bykov  <alexander.bykov@prismtech.com>
+
+	* bugs/bugjac589/BugJac589Test.java: PrismTech JAC#589
+	  "jacorb.connection.client.connect_timeout" set to 20000 for
+	  reduce regression test run time
+
+2011-01-15  Alexander Bykov  <alexander.bykov@prismtech.com>
+
+	* miop/: GreetingImpl.java, MIOPTest.java: PrismTech JAC#787 Import
+	  MIOP demo to jacorb regression tests
+
+2011-01-06  Nick Cross  <jacorb@goots.org>
+
+	* idl/ValidIDLWithExtraSetupTest.java: Add test for Bugzilla 895
+
+2010-12-20  Alexander Bykov  <alexander.bykov@prismtech.com>
+
+	* bugs/bugjac774/: BugJac774Test.java, ServerImpl.java: Prismtech
+	  JAC#773: added buffer manager expansion policies support
+
+2010-12-01  Alexander Bykov  <alexander.bykov@prismtech.com>
+
+	* bugs/bugjac720/BugJac720Test.java: PrismTech JAC#720
+	  Discriminator value(s) checking in default branch has been fixed
+
+2010-12-01  Alexander Bykov  <alexander.bykov@prismtech.com>
+
+	* bugs/bugjac719/BugJac719Test.java: PrismTech JAC#719 Fixed Arrays
+	  of typedefs of arrays handling within the unions
+
+2010-11-29  Martin Corino  <mcorino@remedy.nl>
+
+	* orb/value/: AbstractInterfaceTest.java, FooImpl.java,
+	  PasserImpl.java, StringNodeDefaultFactory.java,
+	  StringNodeImpl.java, TreeControllerImpl.java: Added test for
+	  abstract interface with valuetype and concrete interface.
+
+2010-11-29  Alexander Bykov  <alexander.bykov@prismtech.com>
+
+	* bugs/bug703/Bug703Test.java: Bugzilla #703 - fix typecode for
+	  typedef'd array
+
+2010-11-23  Alexander Bykov  <alexander.bykov@prismtech.com>
+
+	* bugs/bugjac774/: BugJac774Test.java, ServerImpl.java: Prismtech
+	  JAC#774: BufferManager rework and documentation update
+
+2010-11-23  Alexander Bykov  <alexander.bykov@prismtech.com>
+
+	* bugs/bug700/Bug700Test.java: Bugzilla #700 Fix for IDL compiler
+	  package generation for nested types
+
+2010-11-09  Alexander Bykov  <alexander.bykov@prismtech.com>
+
+	* bugs/bugjac565/BugJac565Test.java: PrismTech JAC#565 Fix for IDL
+	  compiler union generation - added additional check that prevents
+	  explicitly defined cases usage for __default(_discriminator)
+	  method
+
+2010-11-09  Alexander Bykov  <alexander.bykov@prismtech.com>
+
+	* idl/ValidIDLWithExtraSetupTest.java: PrismTech JAC#441 Added
+	  -sloppy_identifiers to permit certain illegal identifiers
+
+2010-11-09  Alexander Bykov  <alexander.bykov@prismtech.com>
+
+	* bugs/bugjac581/BugJac581Test.java: PrismTech JAC#581 Fixes for
+	  IDL compiler union discriminators
+
+2010-11-05  Nick Cross  <jacorb@goots.org>
+
+	* bugs/bugjac637/BugJac637Test.java: PrismTech JAC#637 Checks for
+	  if an ORB has been shutdown
+
+2010-11-05  Nick Cross  <jacorb@goots.org>
+
+	* bugs/bug459/Bug459Test.java: PrismTech JAC#638 Fix for
+	  initialisation of a ServantDelegate
+
+2010-11-05  Alexander Bykov  <alexander.bykov@prismtech.com>
+
+	* bugs/bugjac753/Bugjac753Test.java: JAC#753: Support typeprefix
+	  has been added to the idl compiler
+
+2010-11-01  Alexander Bykov  <alexander.bykov@prismtech.com>
+
+	* common/: TestServer.java, TestUtils.java,
+	  launch/DirectLauncher.java, launch/JacORBLauncher.java: Prismtech
+	  JAC#523: changes to make the orb more stable against outofmemory
+	  and test framework improvements
+
+2010-10-19  Nick Cross  <jacorb@goots.org>
+
+	* bugs/: bug380/BugJac380Test.java, bugjac434/BugJac434Test.java,
+	  bugjac513/AbstractGIOPMinorVersionTestCase.java,
+	  bugjac779/InvalidIORTest.java: PTECH JAC#779 Fix nullpointer in
+	  dior caused by non-configured iiopaddress.
+
+2010-10-19  Nick Cross  <jacorb@goots.org>
+
+	* bugs/bugjac589/BugJac589Test.java: PTECH JAC#589 Verify
+	  get_component operation is available.
+
+2010-10-11  Nick Cross  <jacorb@goots.org>
+
+	* bugs/bug878/: Bug878MaxServerConnectionsFailTest.java,
+	  Bug878MaxServerConnectionsPassTest.java: Bugzilla 878 - fix for
+	  handling of max_server_connections.
+
+2010-10-08  Alexander Bykov  <alexander.bykov@prismtech.com>
+
+	* orb/iiop/ClientIIOPConnectionTest.java: Bugzilla #879: fix
+	  jacorb.giop_minor_version property usage (test init fix)
+
+2010-10-07  Alexander Bykov  <alexander.bykov@prismtech.com>
+
+	* bugs/bug879/Bug879Test.java,
+	  orb/connection/GIOPConnectionTest.java,
+	  orb/iiop/ClientIIOPConnectionTest.java: Bugzilla #879: fix
+	  jacorb.giop_minor_version property usage
+
+2010-09-03  Alexander Bykov  <alexander.bykov@prismtech.com>
+
+	* bugs/bug698/: AImpl.java, AValueTypeImpl.java, Bug698Test.java,
+	  ServerImpl.java, TopImpl.java: Bugzilla #698: add regression test
+
+2010-04-22  Alexander Bykov  <alexander.bykov@prismtech.com>
+
+	* transport/DefaultTester.java: Prismtech JAC#377: Tidy code, clean
+	  imports, minor fixes.
+
+2010-04-20  Nick Cross  <jacorb@goots.org>
+
+	* orb/iiop/ClientIIOPConnectionTest.java: bug451: Update mapping
+	  from 02-01-02 to 03-01-02 and simplify the orb.idl/Corba.idl
+	  files.
+
+2010-01-16  Alexander Bykov  <alexander.bykov@prismtech.com>
+
+	* orb/AlternateIIOPAddress2Test.java,
+	  orb/AlternateProfileTest.java, orb/AnyTest.java,
+	  orb/BasicTest.java, orb/CDRIOTest.java, orb/CharTest.java,
+	  orb/CodesetServerImpl.java, orb/ExceptionTest.java,
+	  orb/IIOPAddressORBInitializer.java,
+	  orb/IIOPAddressServerImpl.java, orb/IIOPProfileInterceptor.java,
+	  orb/ORBInitTest.java, orb/RecursiveParam.java,
+	  bugs/bug351/Bug351Test.java, bugs/bug384/AImpl.java,
+	  bugs/bug384/BImpl.java, bugs/bug384/Bug384Test.java,
+	  bugs/bug387/Bug387Test.java, bugs/bug387/TestInterfaceImpl.java,
+	  bugs/bug401/AnyServant.java, bugs/bug401/Bug401Test.java,
+	  bugs/bug619/Bug619Test.java,
+	  bugs/bugjac149/ModelReplacement.java,
+	  bugs/bugjac149/ObjectReplacementSetup.java,
+	  bugs/bugjac149/PingProxy.java, bugs/bugjac149/RemoteIPing.java,
+	  bugs/bugjac149/RemoteIPingImpl.java,
+	  bugs/bugjac182/JAC182Impl.java,
+	  bugs/bugjac192/BugJac192Test.java,
+	  bugs/bugjac192/SInterceptor.java,
+	  bugs/bugjac220/TestEnumImpl.java,
+	  bugs/bugjac593/BugJac593Test.java,
+	  bugs/bugjac676/BugJac676Test.java, common/ServerSetup.java,
+	  common/TestServer_before_2_2.java, common/TestUtils.java,
+	  orb/IIOPAddressInterceptor.java, orb/LongLongSeqServerImpl.java:
+	  Prismtech JAC#377: Tidy code, clean imports, minor fixes.
+
+2009-12-16  Nick Cross  <jacorb@goots.org>
+
+	* idl/ParseValidIDLTest.java: Add casts to avoid compile warnings
+
+2009-12-14  Nick Cross  <jacorb@goots.org>
+
+	* bugs/bugjac513/Add_1_0_ProfilesTest.java,
+	  bugs/bugjac513/GIOP_1_0_Test.java,
+	  bugs/bugjac513/GIOP_1_1_Test.java,
+	  bugs/bugjac513/GIOP_1_2_Test.java,
+	  common/JDK14PatternWrapper.java, common/PatternWrapper.java,
+	  orb/connection/GIOPConnectionTest.java: JAC#738/JAC#721 Add MIOP
+	  Transport.
+
+2009-12-08  Nick Cross  <jacorb@goots.org>
+
+	* bugs/bug832/: Bug832Impl.java, Bug832Test.java,
+	  Bug832TestServerRunner.java, SInitializer.java,
+	  SInterceptor.java: Bug832 Add test.
+
+2009-12-01  Alexander Bykov  <alexander.bykov@prismtech.com>
+
+	* bugs/bugjac676/: BugJac676Test.java, TestBoundedStringImpl.java:
+	  Prismtech JAC#676 - string bounds checking has been added
+
+2009-11-26  Nick Cross  <jacorb@goots.org>
+
+	* util/: JDKLoggerTest.java, LogKitLoggerFactoryTest.java: Rename
+	  LogKitLoggerTest to JDKLogger test as test is now verifying jdk
+	  logging backend not logkit.  Use delayed logging in
+	  JacORBConfiguration to prevent spurious console messages if log
+	  files are being used.  Tidied code.  Add patch from Bugzilla 575.
+	  Unique file name for singleton orb.	Fix for Singleton logging
+	  file with JDK logger.
+
+2009-11-26  Nick Cross  <jacorb@goots.org>
+
+	* bugs/bugjac461/BugJac461Test.java: Minor fix for compatibility
+	  with IBM JDKs
+
+2009-11-25  Alexander Bykov  <alexander.bykov@prismtech.com>
+
+	* common/TestUtils.java, ir/IRServerRunner.java,
+	  transport/FrameworkServerTest.java: Regression test failures fix.
+	  Removed unused imports.
+
+2009-11-24  Alexander Bykov  <alexander.bykov@prismtech.com>
+
+	* orb/factory/: FixedAddressSocketFactoryTest.java,
+	  PortRangeSocketFactoryTest.java: Prismtech JAC#598: call
+	  shutdownOutput before socket close
+
+2009-11-23  Alexander Bykov  <alexander.bykov@prismtech.com>
+
+	* bugs/bugjac593/BugJac593Test.java: Prismtech JAC#600: fix for
+	  initialising the ORB with properties
+
+2009-11-23  Alexander Bykov  <alexander.bykov@prismtech.com>
+
+	* idl/PackageTest.java, jmx/PackageTest.java,
+	  naming/PackageTest.java, notification/evaluate/PackageTest.java,
+	  notification/filter/PackageTest.java,
+	  notification/lifecycle/PackageTest.java,
+	  notification/node/PackageTest.java,
+	  notification/servant/PackageTest.java,
+	  notification/util/PackageTest.java,
+	  transport/FrameworkServerTest.java,
+	  transport/IIOPServerTest.java, transport/PackageTest.java,
+	  notification/PackageTest.java,
+	  notification/container/PackageTest.java,
+	  notification/engine/PackageTest.java,
+	  notification/typed/PackageTest.java, orb/dynany/PackageTest.java:
+	  Regression test failures fix
+
+2009-11-23  Alexander Bykov  <alexander.bykov@prismtech.com>
+
+	* bugs/bugjac486/BugJac486Test.java: Prismtech JAC#563: added fixes
+	  for BiDirectional GIOP and SSL
+
+2009-11-20  Alexander Bykov  <alexander.bykov@prismtech.com>
+
+	* bugs/bugjac593/BugJac593Test.java: Prismtech JAC#593: added test
+	  and better error checking in singleton
+
+2009-11-20  Alexander Bykov  <alexander.bykov@prismtech.com>
+
+	* bugs/bugjac590/: BooleanUnionIntServerImpl.java,
+	  BugJac590Test.java: Prismtech JAC#590: fix for DynUnion:to_any
+	  null ptr
+
+2009-11-19  Alexander Bykov  <alexander.bykov@prismtech.com>
+
+	* bugs/bug503/Bug503Test.java, bugs/bugjac45/BugJac45Test.java,
+	  bugs/bugjac513/AbstractGIOPMinorVersionTestCase.java,
+	  bugs/bugjac192b/BugJac192bTest.java,
+	  bugs/bugjac417/BugJac417Test.java, common/ORBTestCase.java: Fixed
+	  methods' naming
+
+2009-11-19  Alexander Bykov  <alexander.bykov@prismtech.com>
+
+	* bugs/bugjac562/: ClientInterceptor.java,
+	  ClientInterceptorInit.java, ClientInterceptorTest.java,
+	  ServerInterceptor.java, ServerInterceptorInit.java,
+	  ServerInterceptorTest.java: Prismtech JAC#562: fix for client
+	  interceptor send_request exception propagation
+
+2009-11-18  Alexander Bykov  <alexander.bykov@prismtech.com>
+
+	* bugs/bugjac563/: BugJac563Test.java, OCKeyStore, OCTrustStore:
+	  Prismtech JAC#563: added fixes for BiDirectional GIOP and SSL
+
+2009-11-17  Alexander Bykov  <alexander.bykov@prismtech.com>
+
+	* bugs/bugjac542/BugJac542Test.java: Prismtech JAC#542: allow to
+	  configure eager/lazy DNS resolution
+
+2009-11-17  Alexander Bykov  <alexander.bykov@prismtech.com>
+
+	* common/: MyNullLoggerInitializer.java, ServerSetup.java,
+	  launch/BootClasspathBuilder.java: Prismtech JAC#561: added
+	  cobertura test coverage report, added possibility to switch
+	  between cobettura and emma coverage
+
+2009-11-13  Alexander Bykov  <alexander.bykov@prismtech.com>
+
+	* bugs/bugjac182/BugJac182TestServerRunner.java,
+	  common/CommonSetup.java,
+	  common/ImplementationRepositoryRunner.java,
+	  common/TestServer.java, common/launch/AbstractLauncher.java,
+	  common/launch/DirectLauncher.java, ir/IRServerRunner.java,
+	  poa/BiDirDelegateTestServerRunner.java: Prismtech JAC#564: fix
+	  for problem with test system where server processes spawned
+	  during Testsuite are not always killed
+
+2009-11-13  Alexander Bykov  <alexander.bykov@prismtech.com>
+
+	* idl/ParseValidIDLTest.java: Prismtech JAC#569 fixed IDL parser
+	  issue where repository ID using pragma prefix with more than 1
+	  space before ID caused an parse error
+
+2009-11-13  Alexander Bykov  <alexander.bykov@prismtech.com>
+
+	* bugs/bugjac524/: BugJac524ORBInit.java,
+	  BugJac524TCPConnectionListener.java, BugJac524Test.java,
+	  OrbWithoutListenerTest.java: Prismtech JAC#524: added test for
+	  the issue
+
+2009-11-12  Alexander Bykov  <alexander.bykov@prismtech.com>
+
+	* bugs/bugjac181/BugJac181ServerListenerTest.java,
+	  bugs/bugjac181/BugJac181Test.java,
+	  bugs/bugjac319/BugJac319AbstractTest.java,
+	  bugs/bugjac319/BugJac319AbstractTestCase.java,
+	  bugs/bugjac319/BugJac319MutatorTest.java,
+	  bugs/bugjac319/BugJac319NoMutatorTest.java,
+	  bugs/bugjac319/MutatorImpl.java, transport/AbstractTester.java,
+	  transport/IIOPServerTest.java, transport/IIOPTester.java:
+	  Prismtech JAC#524: fix for the IIOPLoopback feature
+
+2009-11-12  Alexander Bykov  <alexander.bykov@prismtech.com>
+
+	* idl/: ParseValidIDLTest.java, ValidIDLWithExtraSetupTest.java,
+	  bugjac144/BugJac144ObjectCachePlugin.java: Prismtech JAC#553:
+	  added context classloaded usage to parser and regression test
+
+2009-11-10  Alexander Bykov  <alexander.bykov@prismtech.com>
+
+	* bugs/bugjac491/BugJac491Test.java: Prismtech JAC#491: fix for
+	  issue in generated code when extracting sequence from any
+
+2009-10-29  Nick Cross  <jacorb@goots.org>
+
+	* bugs/bugjac511/BugJac511ServerImpl.java,
+	  bugs/bugjac511/BugJac511Test.java,
+	  bugs/bugjac560/BugJac560ServiceImpl.java,
+	  bugs/bugjac560/BugJac560Test.java, orb/CallbackTest.java:
+	  PrismTech JAC#511/JAC#492/JAC#560 - exceptions during AMI seem
+	  not to work if the IDL was specified with pragma prefix /
+	  ExceptionHolderImpl configuration.
+
+2009-10-29  Nick Cross  <jacorb@goots.org>
+
+	* bugs/bugjac512/BugJac512Giop1_0ClientTest.java,
+	  bugs/bugjac512/BugJac512Giop1_0ServerTest.java,
+	  orb/BasicServerImpl.java: PrismTech JAC#512 Added stricter
+	  checking for wstring/char types during demarshalling.
+
+2009-10-29  Nick Cross  <jacorb@goots.org>
+
+	* config/ConfigurationTest.java: Updates for property directory
+	  changes
+
+2009-10-29  Nick Cross  <jacorb@goots.org>
+
+	* notification/: AdminLimitTest.java, AnyPushReceiver.java,
+	  CosEventPullSender.java, EventChannelTest.java,
+	  StartTimeTest.java, StructuredEventChannelTest.java,
+	  StructuredPushReceiver.java, bugs/DeadlockBugTest.java,
+	  engine/TaskProcessorRetryStrategyTest.java,
+	  perf/PerformanceTest.java,
+	  servant/ProxyPushSupplierImplTest.java,
+	  servant/PullMessagesUtilityTest.java,
+	  servant/SequenceProxyPushSupplierImplTest.java,
+	  typed/TypedProxyPullConsumerImplTest.java,
+	  typed/TypedProxyPullSupplierImplTest.java,
+	  typed/TypedProxyPushSupplierImplTest.java,
+	  util/ObjectPoolTest.java: Remove backport-util-concurrent and use
+	  JDK15 classes.
+
+2009-10-21  Nick Cross  <jacorb@goots.org>
+
+	* bugs/bug619/Bug619Test.java: Disable test for now
+
+2009-10-21  Nick Cross  <jacorb@goots.org>
+
+	* bugs/bugjac384/BugJac_384Test.java,
+	  util/LogKitLoggerFactoryTest.java: Use FileHandler again in
+	  JdkLoggingInitializer. Add optional shutdownLogging function. Add
+	  jacorb.logfile.maxLogSize/jacorb.logfile.rotateCount. Fix tests.
+
+2009-10-21  Alexander Bykov  <alexander.bykov@prismtech.com>
+
+	* bugs/: bug503/Bug503Test.java, bugjac503/BugJac503Test.java:
+	  Prismtech JAC#503: fixed tests disabling
+
+2009-10-20  Alexander Bykov  <alexander.bykov@prismtech.com>
+
+	* bugs/bug503/Bug503Test.java: Prismtech JAC#503: test is temporary
+	  disabled
+
+2009-10-19  Alexander Bykov  <alexander.bykov@prismtech.com>
+
+	* notification/perf/: AnyTest.java, LoadTest.java,
+	  PerformanceLogger.java: Prismtech JAC476/478: fixed classes
+	  naming
+
+2009-10-14  Alexander Bykov  <alexander.bykov@prismtech.com>
+
+	* config/ConfigurationTest.java: Fixed classpath for the test
+	  configuration lookup
+
+2009-10-01  Alexander Bykov  <alexander.bykov@prismtech.com>
+
+	* orb/ORBInitRefTest.java: Prismtech JAC#353: fixed ORB parameters
+	  processing
+
+2009-09-30  Alexander Bykov  <alexander.bykov@prismtech.com>
+
+	* bugs/bugjac434/BugJac434Test.java: Prismtech JAC#434: print
+	  message when encountering unknown profile in PrintIOR.
+
+2009-09-30  Alexander Bykov  <alexander.bykov@prismtech.com>
+
+	* bugs/bugjac486/BugJac486Test.java, common/ORBSetup.java,
+	  common/TestServer.java: Prismtech JAC#486: added regression test,
+	  updated documentation
+
+2009-09-30  Alexander Bykov  <alexander.bykov@prismtech.com>
+
+	* bugs/bugjac503/BugJac503Test.java,
+	  bugs/bugjac503/ClientORBInit.java,
+	  bugs/bugjac503/ForwardInterceptor.java,
+	  orb/etf/SpecificProfileSelectorTest.java: Prismtech JAC#503:
+	  added regression test
+
+2009-09-29  Alexander Bykov  <alexander.bykov@prismtech.com>
+
+	* common/launch/TestLauncher.java: Prismtech JAC#476/478: removed
+	  redundant launcher
+
+2009-09-29  Alexander Bykov  <alexander.bykov@prismtech.com>
+
+	* common/launch/DirectLauncher.java: Prismtech JAC#429: performance
+	  enhancements
+
+2009-09-24  Alexander Bykov  <alexander.bykov@prismtech.com>
+
+	* bugs/bug503/Bug503Test.java: Prismtech JAC#503: fixed orb
+	  properties patching
+
+2009-09-23  Alexander Bykov  <alexander.bykov@prismtech.com>
+
+	* bugs/bugjac513/: AbstractGIOPMinorVersionTestCase.java,
+	  Add_1_0_ProfilesTest.java, GIOP_1_0_SSL_Test.java,
+	  GIOP_1_0_Test.java, GIOP_1_1_Test.java, GIOP_1_2_Test.java:
+	  Prismtech JAC#513: fixed GIOP minor version processing
+
+2009-09-23  Alexander Bykov  <alexander.bykov@prismtech.com>
+
+	* orb/: ObjectKeyMapTest.java, value/ValueCustomTest.java:
+	  Prismtech JAC#347: extracted Object Key Mapping logic, added
+	  test, added caching
+
+2009-09-08  Alexander Bykov  <alexander.bykov@prismtech.com>
+
+	* bugs/bug400/Bug400Test.java,
+	  bugs/bugjac149/ObjectReplacementTest.java,
+	  bugs/bugjac178/POAThreadingTest.java,
+	  bugs/bugjac352/BugJac352Test.java,
+	  bugs/bugjac722/BugJac722Test.java,
+	  common/JakartaRegexpPatternWrapper.java,
+	  common/PatternWrapper.java, common/ServerSetup.java,
+	  common/StreamListener.java, orb/AnyTest.java,
+	  orb/CDROutputStreamTest.java, orb/value/ValueTest.java: Prismtech
+	  JAC#478: rest of the port to J2ME CDC v1.1.2 Foundation Profile
+
+2009-09-07  Alexander Bykov  <alexander.bykov@prismtech.com>
+
+	* bugs/bugjac482/BugJac482Test.java: Prismtech JAC#482: let jsse
+	  factories throw exception if keystore is not set or wrong
+
+2009-09-03  Alexander Bykov  <alexander.bykov@prismtech.com>
+
+	* naming/AllTest.java, naming/ContextTest.java,
+	  orb/policies/AllTest.java, bugs/AllTest.java,
+	  bugs/bug344/Bug344Test.java, bugs/bug619/Bug619Test.java,
+	  common/ClientServerSetup.java, common/CommonSetup.java,
+	  common/IDLTestSetup.java,
+	  common/ImplementationRepositoryRunner.java,
+	  common/ServerSetup.java, common/StreamListener.java,
+	  common/TestServer.java, common/TestUtils.java,
+	  common/launch/AbstractLauncher.java,
+	  common/launch/DirectLauncher.java,
+	  common/launch/JacORBLauncher.java, common/launch/Launcher.java,
+	  common/launch/PrintTestBanner.java,
+	  common/launch/TestLauncher.java, ir/AllTest.java,
+	  ir/IFRServerSetup.java, ir/IRServerRunner.java, orb/AllTest.java,
+	  orb/AlternateIIOPAddress2Test.java,
+	  orb/AlternateIIOPAddressTest.java, orb/AlternateProfileTest.java,
+	  orb/ORBInitRefTest.java, orb/etf/AllTest.java,
+	  orb/rmi/AbstractRMITestCase.java, orb/rmi/AllTest.java,
+	  poa/AllTest.java, poa/BiDirDelegateTestServerRunner.java,
+	  poa/QueueNoWaitTest.java, poa/QueueWaitTest.java, AllTest.java,
+	  ant/JacUnitTest.java, ant/SumFilter.java,
+	  bugs/bug228/Bug228Test.java, bugs/bug351/Bug351Test.java,
+	  bugs/bug367/BugJac367IRTest.java, bugs/bug387/Bug387Test.java,
+	  bugs/bug503/Bug503Test.java, bugs/bug532/Bug532Test.java,
+	  bugs/bugjac10/BugJac10Test.java,
+	  bugs/bugjac10/TypeCodeTestImpl.java,
+	  bugs/bugjac200/AcceptorExceptionListenerTest.java,
+	  notification/AllTest.java, orb/connection/AllTest.java,
+	  orb/connection/ClientConnectionTimeoutTest.java,
+	  orb/connection/ServerConnectionTimeoutTest.java,
+	  orb/dynany/AllTest.java, orb/rmi/JacORBJacORBRMITest.java,
+	  orb/rmi/JacORBSunRMITest.java, orb/rmi/SunJacORBRMITest.java,
+	  orb/rmi/SunSunRMITest.java, transport/AllTest.java,
+	  bugs/bug459/Bug459Test.java,
+	  bugs/bugjac182/BugJac182TestServerRunner.java,
+	  bugs/bugjac330/MultipleServerTest.java,
+	  bugs/bugjac359/BugJac359Test.java, dii/AllTest.java,
+	  idl/AllTest.java, orb/factory/AbstractSocketFactoryTestCase.java,
+	  orb/factory/AllTest.java, util/AllTest.java: Prismtech
+	  JAC#476/478: regression tests framework refactor
+
+2009-08-20  Alexander Bykov  <alexander.bykov@prismtech.com>
+
+	* bugs/AllTest.java, bugs/bugjac493/TimingServerImpl.java,
+	  bugs/bugjac493/TimingTest.java,
+	  orb/etf/SpecificProfileSelectorTest.java,
+	  orb/policies/SyncScopeTest.java, orb/policies/TimingTest.java:
+	  Prismtech JAC#493/431 - fix Object::duplicate(4.3.2.1), change
+	  set_policy_overrides to match 4.3.9.1 specification
+
+2009-08-13  Alexander Bykov  <alexander.bykov@prismtech.com>
+
+	* bugs/AllTest.java: Prismtech JAC#394: test has been added to the
+	  regression suite
+
+2009-08-12  Alexander Bykov  <alexander.bykov@prismtech.com>
+
+	* bugs/bugjac417/BugJac417Test.java: Prismtech JAC#417: failed test
+	  fix
+
+2009-08-12  Alexander Bykov  <alexander.bykov@prismtech.com>
+
+	* bugs/bug367/BugJac367IRTest.java, orb/connection/BiDirSetup.java:
+	  Prismtech JAC#374: minor changes
+
+2009-08-12  Alexander Bykov  <alexander.bykov@prismtech.com>
+
+	* bugs/AllTest.java, bugs/bugjac461/BugJac461Test.java,
+	  orb/BasicServerImpl.java: Prismtech JAC#461: test for the issue,
+	  no fix is required
+
+2009-08-11  Alexander Bykov  <alexander.bykov@prismtech.com>
+
+	* bugs/bugjac182/CInitializer.java,
+	  bugs/bugjac182/CInterceptor.java, common/ClientServerSetup.java,
+	  orb/connection/GIOPConnectionTest.java,
+	  idl/ValidIDLWithExtraSetupTest.java, orb/AllTest.java,
+	  orb/CDROutputStreamTest.java, orb/TypeCodeTest.java,
+	  bugs/AllTest.java, bugs/bugjac192/BInterceptor.java,
+	  bugs/bugjac192/CInitializer.java,
+	  bugs/bugjac449/BugJac449Test.java,
+	  bugs/bugjac456/BugJac456Test.java, orb/giop/CodeSetTest.java:
+	  Prismtech JAC#456: changed CDR(Input|Output)Stream c'tors to
+	  accept org.omg.CORBA.ORB, added internal checks that ensure that
+	  actual orb is a jacorb orb, fixed invokers of CDR streams not to
+	  pass in null references
+
+2009-08-10  Alexander Bykov  <alexander.bykov@prismtech.com>
+
+	* bugs/AllTest.java, bugs/bugjac444/BugJac444Test.java,
+	  bugs/bugjac444/EventImpl.java, common/TestUtils.java: Prismtech
+	  JAC#444: provided a implementation for
+	  org.omg.CORBA.ValueBaseHelper
+
+2009-08-04  Alexander Bykov  <alexander.bykov@prismtech.com>
+
+	* bugs/: AllTest.java, bugjac440/BugJac440Test.java,
+	  bugjac440/ORBInitializer.java: Prismtech JAC#440:
+	  PICurrent.set_slot/get_slot should raise BAD_INV_ORDER if invoked
+	  during orb initialitzation
+
+2009-08-04  Alexander Bykov  <alexander.bykov@prismtech.com>
+
+	* common/JacORBTestCase.java: Pristmtech JAC#427:
+	  creation/configuration of outputstreams has been clarified -
+	  always pass in an orb
+
+2009-06-02  Alexander Bykov  <alexander.bykov@prismtech.com>
+
+	* bugs/: AllTest.java, bugjac417/BugJac417Test.java,
+	  bugjac417/ConfigurableFactory.java,
+	  bugjac417/FailingFactory.java, bugjac417/NoPublicCtor.java,
+	  bugjac417/SocketFactoryJacORB.java,
+	  bugjac417/SocketFactoryNoArgsCtor.java,
+	  bugjac417/SocketFactoryOMG.java, bugjac417/WrongFactory.java:
+	  PrismTech JAC#417: fix that allows custom SocketFactory class
+	  plugins to specify their dependency on the ORB either as
+	  org.jacorb.orb.ORB or org.omg.CORBA.ORB in their constructor.
+
+2009-05-14  Andre Spiegel  <spiegel@gnu.org>
+
+	* util/AllTest.java: (suite): Disable LogKitLoggerFactoryTest.
+
+2009-05-14  Andre Spiegel  <spiegel@gnu.org>
+
+	* orb/: CreateTypeCodesTest.java,
+	  factory/FixedAddressSocketFactoryTest.java,
+	  factory/PortRangeSocketFactoryTest.java,
+	  policies/PolicyManagerTest.java: Get the NullLogger from
+	  org.jacorb.test.common
+
+2009-05-14  Andre Spiegel  <spiegel@gnu.org>
+
+	* common/NullLogger.java: Moved here from org.jacorb.config.
+
+2009-05-06  Alexander Bykov  <alexander.bykov@prismtech.com>
+
+	* orb/policies/PolicyManagerTest.java,
+	  orb/AlternateIIOPAddressTest.java, orb/CreateTypeCodesTest.java,
+	  orb/factory/FixedAddressSocketFactoryTest.java,
+	  orb/factory/PortRangeSocketFactoryTest.java,
+	  common/MyNullLogger.java: Added default implementations for
+	  LogKit and Console loggers. Fixed compilation errors.
+
+2009-05-03  Andre Spiegel  <spiegel@gnu.org>
+
+	* notification/common/NotificationTestCase.java,
+	  notification/filter/GarbageCollectTest.java,
+	  notification/perf/PerformanceTest.java,
+	  notification/util/LogUtilTest.java, common/TestServer.java,
+	  orb/factory/FixedAddressSocketFactoryTest.java,
+	  orb/factory/PortRangeServerSocketFactoryTest.java,
+	  orb/factory/PortRangeSocketFactoryTest.java,
+	  orb/policies/PolicyManagerTest.java,
+	  transport/AbstractTester.java, transport/ClientInterceptor.java,
+	  transport/CurrentServerImpl.java, transport/DefaultTester.java,
+	  transport/IIOPTester.java, transport/ServerInterceptor.java,
+	  util/LogKitLoggerFactoryTest.java: Replace Avalon logging with
+	  SLF4J.
+
+2009-04-28  Alexander Bykov  <alexander.bykov@prismtech.com>
+
+	* orb/policies/: AllTest.java, SyncScopeServerImpl.java,
+	  SyncScopeTest.java: JAC#410: fixes for stream closure with sync
+	  scope none
+
+2009-04-25  Andre Spiegel  <spiegel@gnu.org>
+
+	* bugs/bugjac166/ServerImpl.java, bugs/bugjac178/JAC178Impl.java,
+	  bugs/bugjac181/JAC181Impl.java, bugs/bugjac189/JAC189Impl.java,
+	  bugs/bugjac192/JAC192Impl.java, bugs/bugjac251/JAC251Impl.java,
+	  common/TestServer.java, dii/DynamicServer.java,
+	  notification/common/NotificationTestCase.java,
+	  notification/common/NotificationTestCaseSetup.java,
+	  notification/container/CoreContainerFactoryTest.java,
+	  orb/IIOPAddressServerImpl.java, orb/etf/wiop/WIOPFactories.java,
+	  orb/factory/AbstractSocketFactoryTestCase.java,
+	  orb/factory/FixedAddressSocketFactoryTest.java,
+	  orb/factory/PortRangeServerSocketFactoryTest.java,
+	  orb/factory/PortRangeSocketFactoryTest.java,
+	  orb/iiop/ClientIIOPConnectionTest.java: Use new jacorb-native
+	  configuration classes.
+
+2009-04-24  Alexander Bykov  <alexander.bykov@prismtech.com>
+
+	* bugs/: AllTest.java, bugjac415/BugJac415Test.java: JAC#415: let
+	  POA.reference_to_servant raise BAD_PARM if a null reference is
+	  passed in
+
+2009-04-08  Alexander Bykov  <alexander.bykov@prismtech.com>
+
+	* bugs/: AllTest.java, bug380/BugJac380Test.java: JAC#380: issue
+	  test and documentation update
+
+2009-04-06  Alexander Bykov  <alexander.bykov@prismtech.com>
+
+	* bugs/AllTest.java, bugs/bugjac384/BugJac_384Test.java,
+	  util/LogKitLoggerFactoryTest.java: JAC#384: fix for bug during
+	  logfile initialization routine
+
+2009-03-26  Alexander Bykov  <alexander.bykov@prismtech.com>
+
+	* bugs/: AllTest.java, bugjac359/BugJac359Test.java: JAC#359: fix
+	  for deadlock caused by fix for bugzilla #708
+
+2009-03-23  Alexander Bykov  <alexander.bykov@prismtech.com>
+
+	* orb/AnyTest.java, bugs/bugjac10/BugJac10Test.java,
+	  bugs/bugjac220/BugJac220Test.java: Jac#369 Make compactTypecodes
+	  a boolean option
+
+2009-03-06  Nick Cross  <jacorb@goots.org>
+
+	* bugs/AllTest.java: JAC#352 PrismTech patch back - fixes for
+	  wstring valuetype interoperability issue with the sun orb
+
+2009-03-06  Andre Spiegel  <spiegel@gnu.org>
+
+	* orb/AlternateIIOPAddressAutoTest.java: Do not override the
+	  primary address, because that doesn't work on all test
+	  environments.  Leave a comment to explain this.
+
+2009-03-04  Andre Spiegel  <spiegel@gnu.org>
+
+	* orb/AllTest.java: Add AlternateIIOPAddressAutoTest.
+
+2009-03-04  Andre Spiegel  <spiegel@gnu.org>
+
+	* orb/AlternateIIOPAddressAutoTest.java: Initial revision.
+
+2009-03-03  Andre Spiegel  <spiegel@gnu.org>
+
+	* orb/AllTest.java: Add AlternateIIOPAddressConfigTest.
+
+2009-03-03  Andre Spiegel  <spiegel@gnu.org>
+
+	* orb/AlternateIIOPAddressConfigTest.java: Initial revision.
+
+2009-01-27  Alexander Bykov  <alexander.bykov@prismtech.com>
+
+	* bugs/bugjac352/: BugJac352Test.java, Jac352Server.java: Fixed
+	  wstring valuetype interoperability issue with the sun orb
+	  (JAC#352)
+
+2009-01-19  Alexander Bykov  <alexander.bykov@prismtech.com>
+
+	* orb/connection/GIOPConnectionTest.java: More strict checking of
+	  correct string sizes during demarshalling of CDR streams
+	  (JAC#288) has been added
+
+2009-01-16  Alexander Bykov  <alexander.bykov@prismtech.com>
+
+	* bugs/bugjac288/BugJac288Test.java: More strict checking of
+	  correct string sizes during demarshalling of CDR streams
+	  (JAC#288) has been added
+
 2008-11-21  Nick Cross  <nick.cross@prismtech.com>
 
 	* bugs/AllTest.java, bugs/bugjac516/BugJac516Test.java,
