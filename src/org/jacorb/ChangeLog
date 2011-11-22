@@ -1,3 +1,1176 @@
+2011-11-17  Phil Mesnier  <mesnier_p@ociweb.com>
+
+	* util/SelectorManager.java: SelectorManager was using some Java
+	  1.6 only extensions to the LinkedList class. This fix enables
+	  building on Java 1.5
+
+2011-11-11  Nick Cross  <jacorb@goots.org>
+
+	* idl/: AnyType.java, CharType.java, FixedPointType.java,
+	  FloatType.java, Literal.java, LongLongType.java, LongType.java,
+	  OctetType.java, ShortType.java, StringType.java, StructType.java,
+	  TypeDeclaration.java, TypeSpec.java, UnionType.java,
+	  ValueBoxDecl.java: Bug715 - Simplify code removing
+	  getJavaTypeName and getIDLTypeName
+
+2011-11-10  Nick Cross  <jacorb@goots.org>
+
+	* orb/TypeCode.java: Simplify code removing redundant method.
+
+2011-11-10  Nick Cross  <jacorb@goots.org>
+
+	* ir/ConstantDef.java, orb/Any.java,
+	  orb/portableInterceptor/PICurrentImpl.java: Refactor renaming
+	  internal Any method. Fix compile annotation issue.
+
+2011-11-10  Nick Cross  <jacorb@goots.org>
+
+	* orb/Any.java: Bug852 - add fix for Any.read_value() with type ID
+	  of derived type
+
+2011-11-02  Nick Cross  <jacorb@goots.org>
+
+	* config/Configuration.java, config/JacORBConfiguration.java,
+	  orb/CDROutputStream.java, orb/ORB.java, orb/ORBSingleton.java,
+	  util/ObjectUtil.java: Propagate config to singleton. Add ability
+	  to configure classloading method.
+
+2011-11-02  Nick Cross  <jacorb@goots.org>
+
+	* config/Configuration.java, config/JacORBConfiguration.java,
+	  orb/CDROutputStream.java, orb/ORB.java, orb/ORBSingleton.java,
+	  util/ObjectUtil.java: Propagate config to singleton. Add ability
+	  to configure classloading method.
+
+2011-11-02  Nick Cross  <jacorb@goots.org>
+
+	* util/: SelectorManager.java, TimerQueue.java: Clean imports
+
+2011-11-02  Nick Cross  <jacorb@goots.org>
+
+	* idl/: Interface.java, util/PrettyPrinter.java: Remove old unused
+	  code
+
+2011-11-02  Nick Cross  <jacorb@goots.org>
+
+	* events/build.xml, idl/build.xml, notification/build.xml: Summary:
+
+	  Don't run xlint for certain subsets
+
+2011-11-01  Phil Mesnier  <mesnier_p@ociweb.com>
+
+	* orb/giop/GIOPConnection.java: Modify the blocking I/O write
+	  timeout handler to work with refactored TimerQueueAction
+
+2011-10-31  Phil Mesnier  <mesnier_p@ociweb.com>
+
+	* util/SelectorManager.java: goes along with commit for TimerQueue
+	  modifications
+
+2011-10-26  Phil Mesnier  <mesnier_p@ociweb.com>
+
+	* util/SelectorRequest.java: Refactored to make the code a little
+	  easier to understand and more efficient. Added hooks to support
+	  the TimerQueue interface.src/org/jacorb/util/SelectorManager.java
+
+2011-10-26  Phil Mesnier  <mesnier_p@ociweb.com>
+
+	* orb/ORB.java, util/TimerQueue.java, util/TimerQueueAction.java:
+	  Reimplement the TimerQueue as a wrapper around the
+	  SelectorManager. TimerQueueAction objects now wrap
+	  SelectorRequest objects. The interface is the same.
+
+2011-10-23  Nick Cross  <jacorb@goots.org>
+
+	* orb/CDRInputStream.java, orb/CDROutputStream.java,
+	  util/ValueHandler.java: BZ888 Initial trial commit for
+	  ValueStream implementation
+
+2011-10-23  Nick Cross  <jacorb@goots.org>
+
+	* orb/CDRInputStream.java: Fix for chunking, interop and
+	  boolean/char/octets. Thanks to Stefan Guilhen/RedHat.
+
+2011-10-22  Nick Cross  <jacorb@goots.org>
+
+	* naming/: ContextLister.java, namemanager/ContextNode.java,
+	  namemanager/NSTree.java: Summary: BZ300 - Fix for naming manager
+	  and cyclic graphs
+
+2011-10-19  Nick Cross  <jacorb@goots.org>
+
+	* poa/: POA.java, util/IdUtil.java: BZ#371 Refactored code and
+	  changed to use nanotime
+
+2011-10-18  Nick Cross  <jacorb@goots.org>
+
+	* orb/BufferManager.java, orb/ORB.java,
+	  orb/giop/ReplyPlaceholder.java,
+	  orb/miop/ServerMIOPConnection.java, poa/POA.java,
+	  poa/POAManager.java, poa/RequestController.java: Small refactor
+	  to try/catch InterruptedException for wait inside conditional
+	  loop consistently.
+
+2011-10-07  Alexander Bykov  <alexander.bykov@prismtech.com>
+
+	* config/Configuration.java, config/JacORBConfiguration.java,
+	  security/ssl/sun_jsse/KeyStoreUtil.java,
+	  security/ssl/sun_jsse/SSLServerSocketFactory.java,
+	  security/ssl/sun_jsse/SSLSocketFactory.java: bugzilla #883: PKCS
+	  and CRL support for SSL has been added
+
+2011-10-06  Phil Mesnier  <mesnier_p@ociweb.com>
+
+	* orb/giop/: ClientGIOPConnection.java, GIOPConnection.java,
+	  ServerGIOPConnection.java: Refactored the timer configuration to
+	  avoid the use of unnecessary objects. Added documentation for the
+	  write timeout vaoues to the programmers guide.
+
+2011-10-06  Nick Cross  <jacorb@goots.org>
+
+	* orb/DefaultClientInterceptorHandler.java, orb/Delegate.java,
+	  orb/giop/GIOPConnection.java,
+	  orb/portableInterceptor/ClientRequestInfoImpl.java,
+	  orb/portableInterceptor/RequestInfoImpl.java,
+	  orb/portableInterceptor/ServerRequestInfoImpl.java,
+	  poa/RequestProcessor.java: Fix compile warnings and simplify code
+
+2011-10-06  Nick Cross  <jacorb@goots.org>
+
+	* config/: Configuration.java, JacORBConfiguration.java,
+	  JdkLoggingInitializer.java: Fix compile warnings
+
+2011-10-05  Alexander Bykov  <alexander.bykov@prismtech.com>
+
+	* orb/iiop/ClientIIOPConnection.java: bugzilla #820,
+	  PrismtechJAC#802: rolled back recent changes in
+	  ClientIIOPConnection, disabled security for few regression tests
+
+2011-10-04  Alexander Bykov  <alexander.bykov@prismtech.com>
+
+	* orb/iiop/ClientIIOPConnection.java: bugzilla #820,
+	  PrismtechJAC#802: removed redundant warning printout
+
+2011-10-04  Nick Cross  <jacorb@goots.org>
+
+	* orb/nio/ClientNIOConnection.java,
+	  security/ssl/sun_jsse/SSLServerSocketFactory.java: Improve
+	  logging
+
+2011-10-04  Alexander Bykov  <alexander.bykov@prismtech.com>
+
+	* orb/iiop/ClientIIOPConnection.java: bugzilla #820,
+	  PrismtechJAC#802: fixed failures when non-SSL IIOP profiles is
+	  used, turned off MIOP regression test
+
+2011-10-04  Nick Cross  <jacorb@goots.org>
+
+	* config/Configuration.java, config/JacORBConfiguration.java,
+	  orb/giop/TransportManager.java, orb/nio/ClientNIOConnection.java:
+	  Refactor transportmanager to enable nonblocking on factory
+	  instantiation. Use generics.
+
+2011-10-03  Nick Cross  <jacorb@goots.org>
+
+	* poa/RPPoolManager.java: Compilation warnings
+
+2011-09-30  Alexander Bykov  <alexander.bykov@prismtech.com>
+
+	* orb/giop/ServerRequestListener.java,
+	  orb/iiop/ClientIIOPConnection.java, orb/iiop/IIOPListener.java,
+	  orb/standardInterceptors/SSLComponentInterceptor.java,
+	  security/ssl/sun_jsse/SSLServerSocketFactory.java,
+	  security/ssl/sun_jsse/ServerInvocationInterceptor.java: bugzilla
+	  #820, PrismtechJAC#802: fixed default values
+
+2011-09-30  Nick Cross  <jacorb@goots.org>
+
+	* config/JacORBConfiguration.java: Add better logging
+
+2011-09-30  Nick Cross  <jacorb@goots.org>
+
+	* notification/build.xml: Bugzilla 746. JMXMain depends on mx4j so
+	  only compile if that is available
+
+2011-09-29  Phil Mesnier  <mesnier_p@ociweb.com>
+
+	* orb/: Delegate.java, ORB.java, ReplyReceiver.java,
+	  etf/ConnectionBase.java, giop/ClientGIOPConnection.java,
+	  giop/GIOPConnection.java, giop/ServerGIOPConnection.java,
+	  giop/TransportManager.java: Adding hooks to enable use of
+	  nonblocking I/O and minor text formatting cleanup
+
+2011-09-29  Phil Mesnier  <mesnier_p@ociweb.com>
+
+	* orb/: nio/ClientNIOConnection.java, nio/NIOConnection.java,
+	  nio/NIOFactories.java, build.xml: new classes to support
+	  non-blocking I/O. Currently only client-side support is
+	  available. Enable by setting the property
+	  "jacorb.connect.nonblocking=on"
+
+2011-09-29  Phil Mesnier  <mesnier_p@ociweb.com>
+
+	* util/: SelectorManager.java, SelectorRequest.java,
+	  SelectorRequestCallback.java: New classes to support the use of
+	  non-blocking I/O
+
+2011-09-29  Phil Mesnier  <mesnier_p@ociweb.com>
+
+	* util/: Time.java, TimerQueue.java, TimerQueueAction.java: Minor
+	  code formatting updates
+
+2011-09-29  Nick Cross  <jacorb@goots.org>
+
+	* notification/: build.xml, jmx/mx4j/JMXMain.java: Compile JMXMain
+	  by default. Might help fix bugzilla746
+
+2011-09-29  Nick Cross  <jacorb@goots.org>
+
+	* orb/: dii/Request.java, giop/ClientConnection.java: Remove debug
+	  line. Add completion code to exception.
+
+2011-09-29  Nick Cross  <jacorb@goots.org>
+
+	* idl/ValueDecl.java: Improve typecode generation to use lazy
+	  initialization class holder idiom.
+
+2011-09-29  Nick Cross  <jacorb@goots.org>
+
+	* notification/util/: AdminPropertySet.java, PropertySet.java,
+	  QoSPropertySet.java: Fix compile warnings
+
+2011-09-28  Phil Mesnier  <mesnier_p@ociweb.com>
+
+	* orb/Delegate.java, orb/ORB.java, orb/ReplyReceiver.java,
+	  orb/giop/GIOPConnection.java, orb/giop/TransportManager.java,
+	  orb/nio/ClientNIOConnection.java, orb/nio/NIOConnection.java,
+	  orb/nio/NIOFactories.java, util/SelectorManager.java,
+	  util/SelectorRequest.java, util/SelectorRequestCallback.java,
+	  util/Time.java, util/TimerQueue.java, util/TimerQueueAction.java:
+	  added documentation, improved code style by applying astyle rules
+
+2011-09-28  Nick Cross  <jacorb@goots.org>
+
+	* idl/: AliasTypeSpec.java, EnumType.java, Interface.java,
+	  StructType.java, UnionType.java, ValueDecl.java: Improve typecode
+	  generation to use lazy initialization class holder idiom.
+
+2011-09-28  Alexander Bykov  <alexander.bykov@prismtech.com>
+
+	* ir/Container.java: bugzilla #884: fixed path separator replacing
+
+2011-09-27  Nick Cross  <jacorb@goots.org>
+
+	* config/Configuration.java, config/ConfigurationException.java,
+	  config/JacORBConfiguration.java, config/JacORBLogFormatter.java,
+	  config/JdkLoggingInitializer.java, idl/IdlSymbol.java,
+	  idl/InterfaceBody.java, idl/StructType.java,
+	  idl/util/IDLLogger.java, imr/ImplementationRepositoryImpl.java,
+	  naming/NameServer.java, naming/NamingContextImpl.java,
+	  notification/engine/ConfigurablePushTaskExecutorFactory.java,
+	  notification/engine/DefaultTaskFactory.java,
+	  notification/engine/DefaultTaskProcessor.java,
+	  notification/engine/TaskProcessorRetryStrategyFactory.java,
+	  notification/filter/MappingFilterImpl.java,
+	  notification/servant/ProxyPullConsumerImpl.java,
+	  notification/servant/SequenceProxyPullConsumerImpl.java,
+	  notification/servant/StructuredProxyPullConsumerImpl.java,
+	  notification/servant/TypedProxyPullConsumerImpl.java,
+	  notification/util/AdminPropertySet.java,
+	  notification/util/LogUtil.java,
+	  notification/util/QoSPropertySet.java, orb/BufferManager.java,
+	  orb/CDRInputStream.java, orb/CDROutputStream.java,
+	  orb/Delegate.java, orb/ORB.java, orb/ReplyReceiver.java,
+	  orb/etf/ConnectionBase.java, orb/giop/ClientConnection.java,
+	  orb/giop/GIOPConnection.java,
+	  orb/giop/GIOPConnectionManager.java,
+	  orb/giop/MessageReceptorPool.java,
+	  orb/giop/ReplyPlaceholder.java,
+	  orb/giop/ServerRequestListener.java,
+	  orb/iiop/ClientIIOPConnection.java, orb/iiop/IIOPListener.java,
+	  orb/iiop/IIOPProfile.java,
+	  orb/standardInterceptors/CodeSetInfoInterceptor.java,
+	  orb/standardInterceptors/IORInterceptorInitializer.java,
+	  orb/standardInterceptors/SSLComponentInterceptor.java,
+	  poa/POAManager.java, poa/POAManagerMonitor.java,
+	  poa/POAManagerMonitorLightImpl.java, poa/RequestController.java,
+	  security/ssl/sun_jsse/SSLRandom.java,
+	  security/ssl/sun_jsse/SSLServerSocketFactory.java,
+	  security/ssl/sun_jsse/SSLSocketFactory.java,
+	  security/ssl/sun_jsse/ServerInvocationInterceptor.java,
+	  util/TimerQueue.java: Bugzilla 902 - Configuration optimisation -
+	  use native maps for storage. Minor code improvement and cleanup.
+
+2011-09-27  Alexander Bykov  <alexander.bykov@prismtech.com>
+
+	* orb/: portableInterceptor/InterceptorManager.java,
+	  portableInterceptor/ServerInterceptorIterator.java,
+	  Delegate.java, ORB.java: Prismtech JAC#788: prevent client
+	  picurrent interceptor being overwritten by server picurrent
+
+2011-09-27  Alexander Bykov  <alexander.bykov@prismtech.com>
+
+	* orb/: DefaultClientInterceptorHandler.java, Delegate.java,
+	  ReplyReceiver.java,
+	  portableInterceptor/ClientInterceptorIterator.java,
+	  portableInterceptor/ClientRequestInfoImpl.java:
+	  PrismtechJAC#670/685/603/RTJ634: fix for relative roundtrip
+	  timeout problems
+
+2011-09-26  Nick Cross  <jacorb@goots.org>
+
+	* orb/etf/FactoriesBase.java, orb/etf/ListenerBase.java,
+	  orb/etf/ProtocolAddressBase.java,
+	  orb/factory/AbstractSocketFactory.java,
+	  orb/factory/FixedAddressSocketFactory.java,
+	  orb/factory/PortRangeServerSocketFactory.java,
+	  orb/factory/PortRangeSocketFactory.java,
+	  orb/factory/SocketFactory.java,
+	  orb/factory/SocketFactoryManager.java,
+	  orb/giop/BiDirConnectionClientInterceptor.java,
+	  orb/giop/BiDirConnectionInitializer.java,
+	  orb/giop/ClientConnection.java,
+	  orb/giop/ClientConnectionManager.java,
+	  orb/giop/ClientGIOPConnection.java, orb/giop/CodeSet.java,
+	  orb/giop/GIOPConnection.java, orb/giop/MessageReceptor.java,
+	  orb/giop/MessageReceptorPool.java,
+	  orb/giop/NoBiDirClientRequestListener.java,
+	  orb/giop/ReplyOutputStream.java,
+	  orb/giop/RequestInputStream.java,
+	  orb/giop/ServerRequestListener.java,
+	  orb/giop/TransportManager.java,
+	  orb/iiop/ClientIIOPConnection.java, orb/iiop/IIOPAddress.java,
+	  orb/iiop/IIOPConnection.java, orb/iiop/IIOPFactories.java,
+	  orb/iiop/IIOPProfile.java,
+	  orb/listener/DefaultAcceptorExceptionListener.java,
+	  orb/listener/SSLHandshakeListener.java,
+	  orb/listener/SSLListenerUtil.java,
+	  orb/listener/SSLSessionEvent.java,
+	  orb/miop/ClientMIOPConnection.java,
+	  orb/miop/FragmentedMessage.java, orb/miop/MIOPFactories.java,
+	  orb/policies/PolicyManager.java,
+	  orb/portableInterceptor/ClientInterceptorIterator.java,
+	  orb/portableInterceptor/ClientRequestInfoImpl.java,
+	  orb/portableInterceptor/IORInfoImpl.java,
+	  orb/portableInterceptor/IORInterceptorIterator.java,
+	  orb/portableInterceptor/InterceptorManager.java,
+	  orb/portableInterceptor/RecursionAwareCI.java,
+	  orb/standardInterceptors/CodeSetInfoInterceptor.java,
+	  orb/standardInterceptors/IORInterceptorInitializer.java,
+	  orb/standardInterceptors/SASComponentInterceptor.java,
+	  orb/standardInterceptors/SSLComponentInterceptor.java,
+	  orb/typecode/AbstractInterfaceTypeCodeReader.java,
+	  orb/typecode/AbstractInterfaceTypeCodeWriter.java,
+	  orb/typecode/AbstractTypeCodeCache.java,
+	  orb/typecode/AbstractTypeCodeCompactor.java,
+	  orb/typecode/AbstractTypeCodeReader.java,
+	  orb/typecode/AliasTypeCodeReader.java,
+	  orb/typecode/AliasTypeCodeWriter.java,
+	  orb/typecode/ComplexTypeCodeReader.java,
+	  orb/typecode/ComplexTypeCodeWriter.java,
+	  orb/typecode/DelegatingTypeCodeReader.java,
+	  orb/typecode/DelegatingTypeCodeWriter.java,
+	  orb/typecode/EnumTypeCodeReader.java,
+	  orb/typecode/EnumTypeCodeWriter.java,
+	  orb/typecode/ExceptTypeCodeReader.java,
+	  orb/typecode/ExceptTypeCodeWriter.java,
+	  orb/typecode/IndirectionTypeCodeReader.java,
+	  orb/typecode/JDK15TypeCodeCompactor.java,
+	  orb/typecode/ObjectReferenceTypeCodeReader.java,
+	  orb/typecode/ObjectReferenceTypeCodeWriter.java,
+	  orb/typecode/PrimitiveTypeCodeReader.java,
+	  orb/typecode/PrimitiveTypeCodeWriter.java,
+	  orb/typecode/SequenceTypeCodeReader.java,
+	  orb/typecode/SequenceTypeCodeWriter.java,
+	  orb/typecode/SimpleTypeCodeReader.java,
+	  orb/typecode/SimpleTypeCodeWriter.java,
+	  orb/typecode/StructTypeCodeReader.java,
+	  orb/typecode/StructTypeCodeWriter.java,
+	  orb/typecode/TypeCodeReader.java,
+	  orb/typecode/TypeCodeWriter.java,
+	  orb/typecode/UnionTypeCodeReader.java,
+	  orb/typecode/UnionTypeCodeWriter.java,
+	  orb/typecode/ValueBoxTypeCodeReader.java,
+	  orb/typecode/ValueBoxTypeCodeWriter.java,
+	  orb/typecode/ValueTypeCodeReader.java,
+	  orb/typecode/ValueTypeCodeWriter.java, poa/AOM.java,
+	  poa/GOA.java, poa/POA.java, poa/POAManagerMonitorImpl.java,
+	  poa/POAManagerMonitorLightImpl.java, poa/POAMonitor.java,
+	  poa/POAMonitorImpl.java, poa/POAMonitorLightImpl.java,
+	  poa/RPPoolManager.java, poa/RPPoolManagerFactory.java,
+	  poa/RequestProcessor.java, poa/RequestQueue.java,
+	  security/sas/GSSUPNameSpi.java, security/sas/ISASContext.java,
+	  security/sas/SASInitializer.java,
+	  security/sas/SASTargetInterceptor.java,
+	  security/ssl/sun_jsse/ServerInvocationInterceptor.java,
+	  transport/AbstractTransportCurrentInitializer.java,
+	  transport/DefaultCurrentImpl.java, util/TimerQueue.java,
+	  orb/BasicAdapter.java, orb/ExceptionHolderImpl.java,
+	  orb/ReplyReceiver.java, orb/TaggedComponentList.java,
+	  orb/Any.java: Clean imports
+
+2011-09-26  Nick Cross  <jacorb@goots.org>
+
+	* config/JacORBConfiguration.java, orb/CDRInputStream.java,
+	  orb/ORBSingleton.java: Fixes for configuration and test framework
+
+2011-09-23  Nick Cross  <jacorb@goots.org>
+
+	* orb/: ORB.java, ORBSingleton.java: PrismTech JAC#770 Fix for
+	  configuration caching performance issue.
+
+2011-09-23  Nick Cross  <jacorb@goots.org>
+
+	* orb/: Any.java, CDRInputStream.java, dynany/DynFixed.java:
+	  PrismTech JAC#683 Fix negative values in dynfixed.
+
+2011-09-23  Nick Cross  <jacorb@goots.org>
+
+	* idl/Member.java, idl/ValueDecl.java, orb/CDRInputStream.java,
+	  orb/CDROutputStream.java, orb/ExceptionHolderImpl.java,
+	  orb/ORB.java, orb/ORBSingleton.java, orb/TypeCode.java,
+	  orb/build.xml, orb/typecode/AbstractInterfaceTypeCodeReader.java,
+	  orb/typecode/AbstractInterfaceTypeCodeWriter.java,
+	  orb/typecode/AbstractTypeCodeCache.java,
+	  orb/typecode/AbstractTypeCodeCompactor.java,
+	  orb/typecode/AbstractTypeCodeReader.java,
+	  orb/typecode/AliasTypeCodeReader.java,
+	  orb/typecode/AliasTypeCodeWriter.java,
+	  orb/typecode/ComplexTypeCodeReader.java,
+	  orb/typecode/ComplexTypeCodeWriter.java,
+	  orb/typecode/DelegatingTypeCodeReader.java,
+	  orb/typecode/DelegatingTypeCodeWriter.java,
+	  orb/typecode/EnumTypeCodeReader.java,
+	  orb/typecode/EnumTypeCodeWriter.java,
+	  orb/typecode/ExceptTypeCodeReader.java,
+	  orb/typecode/ExceptTypeCodeWriter.java,
+	  orb/typecode/IndirectionTypeCodeReader.java,
+	  orb/typecode/JDK15TypeCodeCache.java,
+	  orb/typecode/JDK15TypeCodeCompactor.java,
+	  orb/typecode/NullTypeCodeCache.java,
+	  orb/typecode/NullTypeCodeCompactor.java,
+	  orb/typecode/ObjectReferenceTypeCodeReader.java,
+	  orb/typecode/ObjectReferenceTypeCodeWriter.java,
+	  orb/typecode/PrimitiveTypeCodeReader.java,
+	  orb/typecode/PrimitiveTypeCodeWriter.java,
+	  orb/typecode/SequenceTypeCodeReader.java,
+	  orb/typecode/SequenceTypeCodeWriter.java,
+	  orb/typecode/SimpleTypeCodeReader.java,
+	  orb/typecode/SimpleTypeCodeWriter.java,
+	  orb/typecode/StructTypeCodeReader.java,
+	  orb/typecode/StructTypeCodeWriter.java,
+	  orb/typecode/TypeCodeCache.java,
+	  orb/typecode/TypeCodeCompactor.java,
+	  orb/typecode/TypeCodeReader.java,
+	  orb/typecode/TypeCodeWriter.java,
+	  orb/typecode/UnionTypeCodeReader.java,
+	  orb/typecode/UnionTypeCodeWriter.java,
+	  orb/typecode/ValueBoxTypeCodeReader.java,
+	  orb/typecode/ValueBoxTypeCodeWriter.java,
+	  orb/typecode/ValueTypeCodeReader.java,
+	  orb/typecode/ValueTypeCodeWriter.java: PrismTech
+	  JAC#445/JAC#462/JAC#534/JAC#536/JAC#703 Change compactTypecode
+	  default to off. Rewrite typecode caching to fix indirection
+	  errors - add typecodereader/writer to handle typecodes
+
+2011-09-22  Nick Cross  <jacorb@goots.org>
+
+	* orb/TypeCode.java, poa/RequestProcessor.java: Add typecode
+	  equals/hashcode and fix issue with policy operation name
+
+2011-09-22  Nick Cross  <jacorb@goots.org>
+
+	* orb/CDROutputStream.java: Bugzilla #853: Apply (modified) string
+	  optimisation patch from Richard Hash.
+
+2011-09-21  Nick Cross  <jacorb@goots.org>
+
+	* poa/POA.java: PrismTech JAC#755/JAC#759/JAC#646 reference_to_id
+	  fix. set_policies usage fixes. union testcase
+
+2011-09-21  Nick Cross  <jacorb@goots.org>
+
+	* idl/AddExpr.java, idl/AndExpr.java, idl/ArrayTypeSpec.java,
+	  idl/ConstDecl.java, idl/ConstExpr.java,
+	  idl/ConstExprEvaluator.java, idl/ElementSpec.java,
+	  idl/Interface.java, idl/Literal.java, idl/MemberList.java,
+	  idl/MultExpr.java, idl/OpDecl.java, idl/Operation.java,
+	  idl/OrExpr.java, idl/PrimaryExpr.java, idl/ScopedName.java,
+	  idl/ShiftExpr.java, idl/TypeDeclaration.java, idl/UnaryExpr.java,
+	  idl/UnionType.java, idl/XorExpr.java, idl/fixed_token.java,
+	  idl/parser.cup, idl/str_token.java, idl/runtime/str_token.java,
+	  orb/ServantObjectImpl.java: PrismTech JAC#767/JAC#730/JAC#737 Fix
+	  for longlong constant generation. Fix for forward
+	  declared/inherited interface. Fix for local interface sequence
+	  typecode.
+
+2011-09-19  Nick Cross  <jacorb@goots.org>
+
+	* poa/: AOM.java, LocalInvocationContext.java, POA.java,
+	  POAAdapter.java: PrismTech JAC#696/JAC#705/JAC#725. Add test for
+	  giop header size issue. Fix for demo/any. Fix for AOM so it is
+	  stopped on POA destruction.
+
+2011-09-14  Nick Cross  <jacorb@goots.org>
+
+	* poa/RequestProcessor.java: PrismTech JAC#669 / Bugzilla 619 Fix
+	  and test for outofmem.
+
+2011-09-14  Nick Cross  <jacorb@goots.org>
+
+	* security/ssl/sun_jsse/: SSLServerSocketFactory.java,
+	  SSLSocketFactory.java: PrismTech JAC#651/JAC#432 Security config
+	  fixes and doc improvement.
+
+2011-09-14  Nick Cross  <jacorb@goots.org>
+
+	* orb/giop/: RequestOutputStream.java,
+	  ServiceContextTransportingOutputStream.java: PrismTech
+	  JAC#673/JAC#667 Build xml and sync scope plus test.
+
+2011-09-13  Nick Cross  <jacorb@goots.org>
+
+	* orb/: ParsedIOR.java, util/PrintIOR.java: PrismTech JAC#501
+	  Improve output, tidy xml, add test.
+
+2011-09-13  Nick Cross  <jacorb@goots.org>
+
+	* idl/: Interface.java, ValueDecl.java: PrismTech JAC#460/JAC#379
+	  Minor generated code improvement and added test
+
+2011-09-13  Nick Cross  <jacorb@goots.org>
+
+	* orb/: Delegate.java, dii/Request.java: PrismTech JAC#616/JAC#631.
+	  Add documentation. Add Object::create_request operation.
+
+2011-09-13  Nick Cross  <jacorb@goots.org>
+
+	* orb/factory/: FixedAddressSocketFactory.java,
+	  PortRangeSocketFactory.java: PrismTech
+	  JAC#591,JAC#611,JAC#629,JAC#632 Port factory and minor build
+	  improvement.
+
+2011-09-13  Nick Cross  <jacorb@goots.org>
+
+	* orb/ParsedIOR.java, orb/factory/PortRangeSocketFactory.java,
+	  orb/giop/TransportManager.java,
+	  orb/portableInterceptor/IORInfoImpl.java,
+	  orb/portableInterceptor/ORBInitInfoImpl.java,
+	  orb/portableInterceptor/ServerRequestInfoImpl.java, poa/POA.java,
+	  poa/util/IdUtil.java: PrismTech JAC#507/JAC#596. Minor
+	  performance code tweaks and wildcard port binding in
+	  portrangesocketfactory
+
+2011-09-12  Nick Cross  <jacorb@goots.org>
+
+	* orb/: CDRInputStream.java, CDROutputStream.java: Bugzilla
+	  904/JAC#639 Enable interop null string marshalling.
+
+2011-07-29  Nick Cross  <jacorb@goots.org>
+
+	* orb/ORB.java: Fix for setting port to zero when SSL is in use.
+	  Thanks to Stefan Guilhen / RedHat.
+
+2011-06-06  Nick Cross  <jacorb@goots.org>
+
+	* idl/UnionType.java: JAC#803 Fix toString for certain IDL.
+
+2011-05-27  Ciju John  <johnc at ociweb dot com>
+
+	* orb/Delegate.java, orb/ReplyReceiver.java,
+	  orb/etf/ConnectionBase.java, orb/giop/GIOPConnection.java,
+	  orb/nio/ClientNIOConnection.java, orb/nio/NIOConnection.java,
+	  util/SelectorManager.java: Fixes for timeout based connection
+	  recycling logic. Several thread synchronization issues.
+
+2011-05-26  Ciju John  <johnc at ociweb dot com>
+
+	* orb/nio/ClientNIOConnection.java, orb/nio/NIOConnection.java,
+	  util/SelectorManager.java, util/SelectorRequest.java: Add
+	  configuration to close down write channel after x failed write
+	  attempts. Connection re-establishment needs more work.
+
+2011-05-26  Ciju John  <johnc at ociweb dot com>
+
+	* orb/etf/ConnectionBase.java: add setter method for connection
+	  status
+
+2011-05-26  Ciju John  <johnc at ociweb dot com>
+
+	* orb/Delegate.java: Keeps a reference to the Selectormanager
+	  passing it to ReplyReceivers.
+
+2011-05-26  Ciju John  <johnc at ociweb dot com>
+
+	* orb/ORB.java: manage SelectorManager life cycle
+
+2011-05-26  Ciju John  <johnc at ociweb dot com>
+
+	* orb/ReplyReceiver.java: ReplyReceiver can use the SelectorManager
+	  to time an expected response. This mimics current behavior
+	  without spawning a new timer thread
+
+2011-05-26  Ciju John  <johnc at ociweb dot com>
+
+	* orb/build.xml: add nio to build
+
+2011-05-26  Ciju John  <johnc at ociweb dot com>
+
+	* orb/giop/GIOPConnection.java: Use Reentrant locks for timed
+	  transport locking. Pass timeout info to underlying transport.
+	  Improved debug logging.
+
+2011-05-26  Ciju John  <johnc at ociweb dot com>
+
+	* orb/giop/TransportManager.java: Transport manager uses connection
+	  type configuration to select between NIOfactory and IIOPFactory.
+
+2011-05-26  Ciju John  <johnc at ociweb dot com>
+
+	* orb/giop/: ClientGIOPConnection.java, ServerGIOPConnection.java:
+	  No functional change. getWriteLock() now accepts a timeout.
+	  Passing 0 is wait-forever, this maintaining prior semantics.
+
+2011-05-26  Ciju John  <johnc at ociweb dot com>
+
+	* orb/nio/ClientNIOConnection.java: ClientNIOConnection overrides
+	  the connect method. It registers a callback with the
+	  SelectorManager for doing the actual work.
+
+2011-05-26  Ciju John  <johnc at ociweb dot com>
+
+	* orb/nio/NIOConnection.java: NIOConnection overwrites the basic
+	  read and write methods. It registers a callback with the
+	  SelectorManager for doing the actual work.
+
+2011-05-26  Ciju John  <johnc at ociweb dot com>
+
+	* orb/nio/NIOFactories.java: Adding NIOFactories which is a close
+	  copy of IIOPFactories.
+
+2011-05-26  Ciju John  <johnc at ociweb dot com>
+
+	* util/SelectorManager.java: Additional debug logging. Improved
+	  exception handling. Fix couple of race conditions by adding
+	  synchronization points. Additional documentation
+
+2011-05-26  Ciju John  <johnc at ociweb dot com>
+
+	* util/: SelectorRequest.java, SelectorRequestCallback.java:
+	  Request tracks time in nanoseconds. Improved logging, exception
+	  handling and additional documentation.
+
+2011-05-18  Ciju John  <johnc at ociweb dot com>
+
+	* util/: SelectorManager.java, SelectorRequest.java,
+	  SelectorRequestCallback.java: Fleshed out the Selector request
+	  callback interface into its own file. Added channel closure
+	  cleanup code to the SelectorManager.
+
+2011-05-18  Ciju John  <johnc at ociweb dot com>
+
+	* util/: SelectorManager.java, SelectorRequest.java: Add NIO
+	  support classes: SupportManager is a wrapper around NIO Selector,
+	  SelectorRequest is teh client request for a speceific NIO IO
+	  activity.
+
+2011-05-13  Nick Cross  <jacorb@goots.org>
+
+	* dds/DomainParticipantFactoryImpl.java,
+	  dds/DomainParticipantImpl.java, dds/EntityImpl.java,
+	  dds/PublisherImpl.java, dds/SubscriberImpl.java,
+	  dds/Supplier.java, dds/ThreadSubscriber.java, dds/TopicImpl.java,
+	  idl/NoHelperException.java: Update and normalise copyright
+	  statements.
+
+2011-05-13  Nick Cross  <jacorb@goots.org>
+
+	* idl/parser.cup, notification/filter/etcl/grammar/comp-lexer.g,
+	  notification/filter/etcl/grammar/tcl-lexer.g,
+	  notification/filter/etcl/grammar/tcl.g,
+	  orb/factory/DefaultServerSocketFactory.java,
+	  orb/factory/DefaultSocketFactory.java,
+	  orb/factory/FixedAddressSocketFactory.java,
+	  orb/factory/PortRangeSocketFactory.java,
+	  orb/factory/SocketFactory.java,
+	  orb/factory/SocketFactoryManager.java,
+	  security/sas/SASClientInterceptor.java,
+	  security/sas/SASTargetInterceptor.java,
+	  security/ssl/sun_jsse/ServerInvocationInterceptor.java,
+	  util/BuildVersion.template: Update and normalise copyright
+	  statements.
+
+2011-05-12  Nick Cross  <jacorb@goots.org>
+
+	* orb/etf/ConnectionBase.java, orb/giop/ServerGIOPConnection.java,
+	  poa/RequestController.java: Bugzilla 795 Print out object key and
+	  connection information
+
+2011-05-11  Nick Cross  <jacorb@goots.org>
+
+	* naming/: BindingIteratorImpl.java, ContextLister.java,
+	  NamingContextImpl.java, namemanager/ContextNode.java,
+	  namemanager/NSTree.java, namemanager/NameManager.java: Fix for
+	  memory leaks (Bugzilla 835) and Mico interoperability (Bugzilla
+	  617).
+
+2011-05-10  Nick Cross  <jacorb@goots.org>
+
+	* Update and normalise copyright statements.
+
+2011-05-10  Nick Cross  <jacorb@goots.org>
+
+	* orb/: Delegate.java,
+	  portableInterceptor/ServerRequestInfoImpl.java: PrismTech
+	  patchback JAC#704 Fix for serverrequestinfo and local calls.
+
+2011-05-10  Nick Cross  <jacorb@goots.org>
+
+	* orb/Any.java, orb/CDRInputStream.java, orb/CDROutputStream.java,
+	  orb/Delegate.java, orb/ORB.java, orb/SystemExceptionHelper.java,
+	  orb/giop/ClientConnection.java, orb/giop/GIOPConnection.java,
+	  orb/giop/TransportManager.java, orb/policies/PolicyManager.java,
+	  orb/portableInterceptor/ClientRequestInfoImpl.java, poa/POA.java,
+	  util/ObjectUtil.java: Remove and inline ObjectUtil.newInteger
+
+2011-05-10  Nick Cross  <jacorb@goots.org>
+
+	* orb/Delegate.java: PrismTech patch back JAC#668/JAC#684 Fix for
+	  sync none and null ptr in Delegate.  Fix for
+	  Delegate.servant_preinvoke removeLocalRequest.
+
+2011-05-09  Nick Cross  <jacorb@goots.org>
+
+	* orb/: Delegate.java, ServantDelegate.java: PrismTech
+	  JAC#662/JAC#663 patch back.  ServantDelegate: Return duplicate to
+	  prevent cached object delegate being set to null Delegate: Fix
+	  memory leak in delegate pending_replies.
+
+2011-05-09  Nick Cross  <jacorb@goots.org>
+
+	* idl/Method.java, idl/OpDecl.java,
+	  orb/ClientInterceptorHandler.java,
+	  orb/DefaultClientInterceptorHandler.java, orb/Delegate.java,
+	  orb/ReplyReceiver.java, orb/ServantObjectImpl.java,
+	  orb/portableInterceptor/ClientInterceptorIterator.java,
+	  orb/portableInterceptor/ClientRequestInfoImpl.java,
+	  orb/portableInterceptor/ORBInitInfoImpl.java,
+	  orb/portableInterceptor/RequestInfoImpl.java,
+	  orb/portableInterceptor/RequestInterceptorIterator.java,
+	  orb/portableInterceptor/ServerInterceptorIterator.java,
+	  orb/portableInterceptor/ServerRequestInfoImpl.java,
+	  security/ssl/sun_jsse/ServerInvocationInterceptor.java: PrismTech
+	  JAC#647 Implement PortableInterceptors for local calls.
+
+2011-05-09  Nick Cross  <jacorb@goots.org>
+
+	* orb/ClientInterceptorHandler.java,
+	  orb/DefaultClientInterceptorHandler.java, orb/Delegate.java,
+	  orb/JDK15BufferManagerFactory.java,
+	  orb/JDK15NonSyncBufferManager.java,
+	  orb/NullClientInterceptorHandler.java,
+	  orb/giop/ClientConnection.java,
+	  orb/portableInterceptor/ClientRequestInfoImpl.java,
+	  orb/portableInterceptor/RequestInfoImpl.java,
+	  orb/portableInterceptor/ServerRequestInfoImpl.java, poa/POA.java,
+	  poa/RequestProcessor.java, util/ObjectUtil.java: PrismTech
+	  JAC#533 Performance improvements, refactoring some code to allow
+	  delayed init.
+
+2011-05-06  Alexander Bykov  <alexander.bykov@prismtech.com>
+
+	* config/Configuration.java, config/JacORBConfiguration.java,
+	  orb/giop/ServerRequestListener.java,
+	  orb/iiop/ClientIIOPConnection.java: bugzilla #820,
+	  PrismtechJAC#802: fixed SSL properties reading and processing
+
+2011-05-06  Nick Cross  <jacorb@goots.org>
+
+	* orb/CDRInputStream.java, orb/CDROutputStream.java,
+	  orb/Delegate.java, orb/ORBConstants.java, orb/ParsedIOR.java,
+	  orb/etf/ProfileBase.java, orb/giop/ReplyInputStream.java,
+	  orb/giop/RequestInputStream.java,
+	  orb/giop/ServerRequestListener.java, poa/POA.java,
+	  poa/POAConstants.java: PrismTech JAC#6 Performance changes. Add
+	  optional (default:off) disable client side orb policies.
+
+2011-05-06  Nick Cross  <jacorb@goots.org>
+
+	* orb/Delegate.java: PrismTech JAC#533 parse references received
+	  across the net lazily
+
+2011-05-06  Nick Cross  <jacorb@goots.org>
+
+	* orb/CDRInputStream.java, orb/Delegate.java, orb/ORB.java,
+	  orb/ParsedIOR.java, orb/etf/ProfileBase.java,
+	  orb/portableInterceptor/ClientRequestInfoImpl.java, poa/AOM.java,
+	  poa/RequestController.java: PrismTech JAC#102 Performance
+	  improvements and code simplification returned to OS.
+
+2011-05-05  Nick Cross  <jacorb@goots.org>
+
+	* config/Configuration.java, config/JacORBConfiguration.java,
+	  orb/CDRInputStream.java, orb/CDROutputStream.java,
+	  orb/ParsedIOR.java, orb/TaggedComponentList.java,
+	  orb/TypeCode.java, orb/dsi/ServerRequest.java,
+	  orb/giop/ClientGIOPConnection.java, orb/giop/CodeSet.java,
+	  orb/giop/GIOPConnection.java,
+	  orb/giop/GIOPConnectionManager.java,
+	  orb/giop/ServerGIOPConnection.java,
+	  orb/giop/ServiceContextTransportingOutputStream.java,
+	  poa/AOM.java, poa/POA.java, poa/RPPoolManager.java,
+	  poa/RequestController.java, poa/RequestProcessor.java,
+	  poa/RequestQueue.java, poa/util/POAUtil.java: PrismTech JAC#362
+	  Performance optimisations returned to OS.
+
+2011-05-05  Alexander Bykov  <alexander.bykov@prismtech.com>
+
+	* orb/ORB.java: Minor fix for possible ConfigurationException when
+	  attributes aren't defined
+
+2011-04-28  Alexander Bykov  <alexander.bykov@prismtech.com>
+
+	* idl/UnionType.java: Prismtech JAC#801: Fix toString on union and
+	  refactor uniontype
+
+2011-04-20  Alexander Bykov  <alexander.bykov@prismtech.com>
+
+	* orb/: BasicAdapter.java, giop/ServerRequestListener.java:
+	  Bugzilla #806, Prismtech JAC#798: fixed incorrect child POA
+	  processing
+
+2011-04-13  Phil Mesnier  <mesnier_p@ociweb.com>
+
+	* util/: TimerQueue.java, TimerQueueAction.java: Don't use Calendar
+	  as the base time unit.
+
+2011-04-11  Nick Cross  <jacorb@goots.org>
+
+	* idl/: AliasTypeSpec.java, ArrayTypeSpec.java, ConstDecl.java,
+	  EnumType.java, Environment.java, FixedPointType.java,
+	  Interface.java, SequenceType.java, StructType.java,
+	  UnionType.java, ValueAbsDecl.java, ValueBoxDecl.java: JAC#795
+	  Remove usage of java version checks as redundant now.
+
+2011-04-07  Phil Mesnier  <mesnier_p@ociweb.com>
+
+	* orb/ORB.java, util/TimerQueue.java, util/TimerQueueAction.java:
+	  For bug 900 - A timer queue feature that uses registered
+	  callbacks rather than spawning multiple threads to wait for
+	  specific amounts of time during otherwise blocking events. So far
+	  only new functionality depends on the timer queue, see bug 899.
+	  Eventually other timeouts will be replaced, as appropriate.
+
+2011-04-07  Phil Mesnier  <mesnier_p@ociweb.com>
+
+	* orb/giop/: ClientGIOPConnection.java, GIOPConnection.java,
+	  ServerGIOPConnection.java: For bug 899, add the ability to time
+	  out writes separate from using round-trip-timeout.
+
+2011-04-07  Phil Mesnier  <mesnier_p@ociweb.com>
+
+	* orb/giop/CodeSet.java: Fixed the configuration to use the correct
+	  string when setting the ncsw.
+
+2011-04-07  Phil Mesnier  <mesnier_p@ociweb.com>
+
+	* orb/: dsi/ServerRequest.java, etf/ConnectionBase.java: Made debug
+	  output more explicit
+
+2011-04-07  Phil Mesnier  <mesnier_p@ociweb.com>
+
+	* config/: JacORBLogFormatter.java, JdkLoggingInitializer.java,
+	  LoggingInitializer.java: Added optional thread id to Logger,
+	  controlled by new property jacorb.log.showThread.
+
+2011-04-07  Phil Mesnier  <mesnier_p@ociweb.com>
+
+	* orb/build.xml: Fixed to include new buffermanager implementation
+	  classes.
+
+2011-03-30  Alexander Bykov  <alexander.bykov@prismtech.com>
+
+	* orb/iiop/IIOPAddress.java: Prismtech	JAC#796: added possibility
+	  to turn on/off DNS names reverse lookup
+
+2011-03-29  Nick Cross  <jacorb@goots.org>
+
+	* idl/: Interface.java, NativeType.java, TypeSpec.java: Enhance
+	  generation to close inputstreams, null delegate objects and fix
+	  for native types containing #pragma prefix "omg.org". Also fixes
+	  for regression tests. PrismTech RTJ852/887/519
+
+2011-03-28  Nick Cross  <jacorb@goots.org>
+
+	* idl/StructType.java: Fix for IDL compiler for generation of
+	  system exception classes. (PrismTech RTJ#844)
+
+2011-03-01  simon.mcqueen
+
+	* idl/Environment.java: More meaningful, and indeed correct, error
+	  message
+
+2011-02-14  Nick Cross  <jacorb@goots.org>
+
+	* orb/Delegate.java: JAC#603 Fix possible null ptr
+
+2011-01-19  Nick Cross  <jacorb@goots.org>
+
+	* security/: sas/GssUpContext.java, sas/KerberosContext.java,
+	  sas/SASClientInterceptor.java, sas/SASInitializer.java,
+	  sas/SASTargetInterceptor.java, ssl/sun_jsse/JSSEUtil.java,
+	  ssl/sun_jsse/README.jsse1_0_3,
+	  ssl/sun_jsse/SSLServerSocketFactory.java,
+	  ssl/sun_jsse/SSLSocketFactory.java: Bugzilla 794 Update SSL & SAS
+	  documentation. Remove more pre-jdk15 code support.
+
+2011-01-18  Nick Cross  <jacorb@goots.org>
+
+	* orb/Delegate.java: PrismTech JAC#630 / Bugzilla 789 Fix for
+	  nullptr in Delegate. Use enum instead of int for connection
+	  index.
+
+2011-01-17  Nick Cross  <jacorb@goots.org>
+
+	* idl/MultExpr.java: Bug807 Add fix for typedef array with
+	  operator.
+
+2011-01-17  Nick Cross  <jacorb@goots.org>
+
+	* config/JacORBConfiguration.java, ir/Contained.java,
+	  ir/IDLType.java, ir/IdlWriter.java, ir/OperationDef.java,
+	  ir/QueryIR.java, ir/RepositoryImpl.java, ir/TypeCodeUtil.java,
+	  orb/Any.java: PrismTech JAC#785 Make InterfaceRepository use more
+	  generic CORBA code.
+
+2011-01-13  Nick Cross  <jacorb@goots.org>
+
+	* naming/NamingContextImpl.java: Bugzilla 857 - simplify naming
+	  properties and default to off.
+
+2011-01-13  Nick Cross  <jacorb@goots.org>
+
+	* orb/Delegate.java: PrismTech JAC#741 / Bugzilla 756 : Remove
+	  finalize from Delegate for performance and scalability. Client
+	  code responsible for calling release.
+
+2011-01-13  Nick Cross  <jacorb@goots.org>
+
+	* naming/namemanager/: ContextNode.java, NSTree.java: Bugzilla 647
+	  - Fix for binding iterator leak.
+
+2011-01-06  Nick Cross  <jacorb@goots.org>
+
+	* ir/: Container.java, ExceptionDef.java, InterfaceDef.java,
+	  ModuleDef.java, RepositoryImpl.java, StructDef.java,
+	  UnionDef.java: Bugzilla 757 - bring IR IDL into compliance with
+	  specification.
+
+2011-01-05  Alexander Bykov  <alexander.bykov@prismtech.com>
+
+	* idl/ArrayTypeSpec.java: code cleanup
+
+2011-01-05  Alexander Bykov  <alexander.bykov@prismtech.com>
+
+	* idl/: AliasTypeSpec.java, VectorType.java: Bugzilla #703 -
+	  additional fix typecode for typedef'd array
+
+2011-01-04  Nick Cross  <jacorb@goots.org>
+
+	* idl/lexer.java: Bug895 - fix for newlines with included files.
+
+2010-12-20  Alexander Bykov  <alexander.bykov@prismtech.com>
+
+	* config/Configuration.java, config/JacORBConfiguration.java,
+	  orb/AbstractBufferManager.java, orb/BufferManager.java,
+	  orb/CDROutputStream.java, orb/IBufferManager.java,
+	  orb/buffermanager/BufferManagerExpansionPolicy.java,
+	  orb/buffermanager/DefaultExpansionPolicy.java,
+	  orb/buffermanager/DoubleExpansionPolicy.java,
+	  orb/buffermanager/LinearExpansionPolicy.java: Prismtech JAC#773:
+	  added buffer manager expansion policies support
+
+2010-12-01  Alexander Bykov  <alexander.bykov@prismtech.com>
+
+	* idl/: Interface.java, InterfaceBody.java, StructType.java,
+	  UnionType.java, ValueAbsDecl.java, ValueDecl.java, parser.cup:
+	  PrismTech JAC#731 Fix for the forward declaration processing -
+	  added type check
+
+2010-12-01  Alexander Bykov  <alexander.bykov@prismtech.com>
+
+	* idl/UnionType.java: PrismTech JAC#720 Discriminator value(s)
+	  checking in default branch has been fixed
+
+2010-12-01  Alexander Bykov  <alexander.bykov@prismtech.com>
+
+	* idl/lexer.java: PrismTech JAC#717 Fix for IDL compiler issue
+	  where Java keywords that have been added since JDK1.5 are used as
+	  identifiers
+
+2010-12-01  Alexander Bykov  <alexander.bykov@prismtech.com>
+
+	* idl/: ElementSpec.java, UnionType.java: PrismTech JAC#715 Fix for
+	  IDL compiler failure when multiple unions specify the same branch
+	  name
+
+2010-11-29  Martin Corino  <mcorino@remedy.nl>
+
+	* orb/Any.java: Enabled unmarshaling of abstract interface for
+	  dynamically defined types, i.e. no IDL generated Helper classes.
+
+2010-11-29  Martin Corino  <mcorino@remedy.nl>
+
+	* orb/Delegate.java: fixed recursion loop in
+	  org.jacorb.orb.Delegate.set_policy_override () leading to stack
+	  overflow.
+
+2010-11-29  Alexander Bykov  <alexander.bykov@prismtech.com>
+
+	* idl/AliasTypeSpec.java: Bugzilla #703 - fix typecode for
+	  typedef'd array
+
+2010-11-29  Alexander Bykov  <alexander.bykov@prismtech.com>
+
+	* idl/: Case.java, ElementSpec.java, UnionType.java: PrismTech
+	  JAC#732 Fix for IDL compiler unions scope processing
+
+2010-11-23  Alexander Bykov  <alexander.bykov@prismtech.com>
+
+	* orb/: AbstractBufferManager.java, BufferManager.java,
+	  CDROutputStream.java, IBufferManager.java,
+	  NonCachingBufferManagerFactory.java, dsi/ServerRequest.java:
+	  Prismtech JAC#774: BufferManager rework and documentation update
+
+2010-11-23  Alexander Bykov  <alexander.bykov@prismtech.com>
+
+	* idl/ElementSpec.java: Bugzilla #700 Fix for IDL compiler package
+	  generation for nested types
+
+2010-11-10  Alexander Bykov  <alexander.bykov@prismtech.com>
+
+	* idl/parser.cup: PrismTech JAC#585 Fix for IDL compiler unary
+	  minus in constant definition
+
+2010-11-10  Alexander Bykov  <alexander.bykov@prismtech.com>
+
+	* idl/parser.cup: PrismTech JAC#583 Fixes for IDL compiler when
+	  concatenating string literals
+
+2010-11-09  Alexander Bykov  <alexander.bykov@prismtech.com>
+
+	* idl/Literal.java: PrismTech JAC#578 Fix for IDL integer types
+	  ranges checking
+
+2010-11-09  Alexander Bykov  <alexander.bykov@prismtech.com>
+
+	* idl/: Case.java, UnionType.java: PrismTech JAC#570 Fix for IDL
+	  compiler when the enum declaration is used in 'switch' clause of
+	  union
+
+2010-11-09  Alexander Bykov  <alexander.bykov@prismtech.com>
+
+	* idl/UnionType.java: PrismTech JAC#565 Fix for IDL compiler union
+	  generation - added additional check that prevents explicitly
+	  defined cases usage for __default(_discriminator) method
+
+2010-11-09  Alexander Bykov  <alexander.bykov@prismtech.com>
+
+	* idl/JacIDL.java: PrismTech JAC#608 Enhance Ant JacIDL task to add
+	  error checking, pass sloppy identifiers and i2jpackage through
+
+2010-11-09  Alexander Bykov  <alexander.bykov@prismtech.com>
+
+	* idl/: NameTable.java, OpDecl.java, parser.cup: PrismTech JAC#441
+	  Added -sloppy_identifiers to permit certain illegal identifiers
+
+2010-11-09  Alexander Bykov  <alexander.bykov@prismtech.com>
+
+	* idl/UnionType.java: PrismTech JAC#581 Fixes for IDL compiler
+	  union discriminators
+
+2010-11-08  Alexander Bykov  <alexander.bykov@prismtech.com>
+
+	* idl/: GlobalInputStream.java, parser.cup: JAC#537 reset include
+	  path between multiple runs of jacidl
+
+2010-11-05  Nick Cross  <jacorb@goots.org>
+
+	* orb/ORB.java: PrismTech JAC#637 Checks for if an ORB has been
+	  shutdown
+
+2010-11-05  Nick Cross  <jacorb@goots.org>
+
+	* orb/ORB.java: PrismTech JAC#638 Fix for initialisation of a
+	  ServantDelegate
+
+2010-11-05  Nick Cross  <jacorb@goots.org>
+
+	* orb/CDROutputStream.java: BZ#713 Allow the deferred write array
+	  size to be configurable and up size to 8000.
+
+2010-11-05  Alexander Bykov  <alexander.bykov@prismtech.com>
+
+	* idl/: Interface.java, ArrayTypeSpec.java, ConstDecl.java,
+	  ElementSpec.java, EnumType.java, IDLTypes.java, InitDecl.java,
+	  Member.java, Module.java, NameTable.java, NativeType.java,
+	  OpDecl.java, ReplyHandler.java, ScopedName.java,
+	  SequenceType.java, SimpleDeclarator.java, StructType.java,
+	  TypeDef.java, UnionType.java, ValueAbsDecl.java,
+	  ValueBoxDecl.java, ValueDecl.java: JAC#753: Code style fix
+
+2010-11-05  Alexander Bykov  <alexander.bykov@prismtech.com>
+
+	* idl/: IdlSymbol.java, TypePrefixDecl.java, TypePrefixes.java,
+	  lexer.java, parser.cup: JAC#753: Support typeprefix has been
+	  added to the idl compiler
+
+2010-11-01  Alexander Bykov  <alexander.bykov@prismtech.com>
+
+	* orb/BufferManager.java, orb/Delegate.java,
+	  orb/giop/GIOPConnection.java,
+	  orb/giop/ServerRequestListener.java, orb/iiop/IIOPListener.java,
+	  poa/RequestProcessor.java: Prismtech JAC#523: changes to make the
+	  orb more stable against outofmemory and test framework
+	  improvements
+
+2010-10-22  Nick Cross  <jacorb@goots.org>
+
+	* orb/util/PrintIOR.java: Bugzilla 812 - add corbaloc example and
+	  enhance PrintIOR (dior) to output
+
+2010-10-22  Nick Cross  <jacorb@goots.org>
+
+	* orb/util/PrintIOR.java: Bugzilla 812 - add corbaloc example and
+	  enhance PrintIOR (dior) to output
+
+2010-10-19  Nick Cross  <jacorb@goots.org>
+
+	* orb/TaggedComponentList.java,
+	  orb/giop/BiDirConnectionServerInterceptor.java,
+	  orb/iiop/IIOPAddress.java, orb/iiop/IIOPProfile.java,
+	  orb/iiop/ServerIIOPConnection.java, orb/util/PrintIOR.java,
+	  poa/RequestQueue.java: PTECH JAC#779 Fix nullpointer in dior
+	  caused by non-configured iiopaddress.
+
+2010-10-11  Nick Cross  <jacorb@goots.org>
+
+	* idl/InterfaceBody.java: PTech JAC#451 Use a HashMap instead of a
+	  Hashtable for opsIndex in Skeleton code
+
+2010-10-11  Nick Cross  <jacorb@goots.org>
+
+	* orb/: BasicAdapter.java, etf/ListenerBase.java,
+	  giop/GIOPConnectionManager.java, miop/MIOPListener.java: Bugzilla
+	  878 - fix for handling of max_server_connections.
+
+2010-10-07  Alexander Bykov  <alexander.bykov@prismtech.com>
+
+	* imr/ImplementationRepositoryImpl.java,
+	  orb/giop/BiDirConnectionServerInterceptor.java,
+	  orb/iiop/IIOPProfile.java, orb/iiop/ServerIIOPConnection.java:
+	  Bugzilla #879: fix jacorb.giop_minor_version property usage
+
 2010-09-24  Andre Spiegel  <spiegel@gnu.org>
 
 	* idl/OpDecl.java (parse): Put case-insensitive name clash check
