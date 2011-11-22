@@ -150,7 +150,7 @@ parser code
         objectCachePlugin = null;
 
         activeParseThreads = 0;
-        InterfaceBody.parseThreads.clear();
+        InterfaceBody.clearParseThreads ();
 
         out_dir = ".";
         package_prefix = null;
