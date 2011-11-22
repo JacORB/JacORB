@@ -34,6 +34,22 @@ approach of the OMG. Occasionally people have requested to allow for multiple
 connections to the same server, but nobody has yet presented a good argument
 that more connections would speed up things considerably.
 
+Connections are typically blocking, with a separate thread used to handle
+sending and receving data and managing time-outs. In cases of heavy load
+where the client may connect to dozens or hundreds of servers, and is using
+timeouts, this behavior can lead to very poor performance due to thead
+thrashing. To avoid this problem, JacORB 3.0.0 now makes available a non\-
+blocking mode for client side connections. Enabling this feature causes the
+client to use non-blocking connection establishment, sending of requests and
+receiving replies. In this mode, the client uses a single thread or possibly a
+small pool of threads to wait for many connections to be ready for reading
+or writing. 
+
+Non\-blocking I/O is currently only available for handling client side
+connections using plain IIOP. Server side support for receiving requests
+and sending replies is not yet available. Integration of SSL is also not
+available at this time.
+
 On the server side, the property {\tt
   jacorb.connection.max\_server\_connection} allows to set the maximum number
 of TCP/IP connections that will be listened on for requests. When using a
@@ -138,6 +154,8 @@ To configure connection management, the following properties are provided:
 \item {\tt jacorb.connection.delay\_close} If turned on, JacORB will delay
   closing of TCP/IP connections to avoid certain situations, where message
   loss can occur. See also section \ref{connection_management_limitations}.
+\item {\tt jacorb.connection.nonblocking} Enables the use of NIO for client
+  side connection management.
 \end{description}
 
 \subsection{Limitations}
@@ -165,7 +183,6 @@ enabled by setting the property {\tt jacorb.connection.delay\_close}
 to ``yes''. When non-JacORB clients are used care has to be taken that
 these ORBs do actively close the connection upon receiving a
 CloseConnection message.
-
 
 %%% Local Variables:
 %%% mode: latex
