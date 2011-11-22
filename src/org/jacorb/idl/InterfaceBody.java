@@ -36,98 +36,20 @@ import java.util.Vector;
 public class InterfaceBody
     extends IdlSymbol
 {
-    public Vector v;
+    public Vector<Definition> v;
     public Interface my_interface;
     SymbolList inheritance_spec = null;
     private Operation[] methods = null;
     private String waitingName = "";
 
     /** list of parse threads created and either active or still blocked */
-    public static Vector parseThreads = new Vector();
-
-    public class ParseThread
-        extends Thread
-    {
-        private final InterfaceBody b;
-        private boolean running = false;
-
-        public ParseThread( InterfaceBody _b )
-        {
-            b = _b;
-            setDaemon( true );
-            parseThreads.addElement( this );
-            parser.incActiveParseThreads();
-            start();
-        }
-
-        public void run()
-        {
-            parser.set_pending( b.full_name(), b );
-            Object o = null;
-            for( Enumeration e = inheritance_spec.v.elements(); e.hasMoreElements(); )
-            {
-                waitingName = ( (ScopedName)( e.nextElement() ) ).resolvedName();
-                o = parser.get_pending( waitingName );
-                if( o != null )
-                {
-                    try
-                    {
-                        synchronized( o )
-                        {
-                            o.wait();
-                            running = true;
-                        }
-                    }
-                    catch( InterruptedException ie )
-                    {
-                        logger.info( "ParseThread " + this + " interrupted!" );
-                    }
-                }
-            }
-            b.internal_parse();
-
-            exitParseThread();
-        }
-
-        /**
-         * check whether this thread will eventually run
-         * @return true if the thread can run or is currently running
-         *         false if it is still blocked or has just returned from run()
-         */
-
-        public synchronized boolean isRunnable()
-        {
-            boolean result = running || checkWaitCondition();
-            if( logger.isWarnEnabled() )
-                logger.warn( "Thread is runnable: " + result );
-            return result;
-        }
-
-        private synchronized void exitParseThread()
-        {
-            parser.remove_pending( b.full_name() );
-            parser.decActiveParseThreads();
-            parseThreads.removeElement( this );
-            running = false;
-        }
-
-        /**
-         * @return  true, if waiting condition is true,
-         * i.e., if thread still needs to wait.
-         */
-
-        private boolean checkWaitCondition()
-        {
-            return ( parser.get_pending( waitingName ) == null );
-        }
-
-    }
+    private static Vector<ParseThread> parseThreads = new Vector<ParseThread>();
 
 
     public InterfaceBody( int num )
     {
         super( num );
-        v = new Vector();
+        v = new Vector<Definition>();
     }
 
     public void commit()
@@ -236,9 +158,9 @@ public class InterfaceBody
             }
         }
         Definition d = null;
-        for( Enumeration e = v.elements(); e.hasMoreElements(); )
+        for( Enumeration<Definition> e = v.elements(); e.hasMoreElements(); )
         {
-            d = (Definition)e.nextElement();
+            d = e.nextElement();
             Declaration dec = d.get_declaration();
             if( is_pseudo )
                 dec.set_pseudo();
@@ -256,9 +178,9 @@ public class InterfaceBody
         if( ps != null )
             throw new RuntimeException( "Compiler Error, interface body cannot be printed thus!" );
 
-        for( Enumeration e = v.elements(); e.hasMoreElements(); )
+        for( Enumeration<Definition> e = v.elements(); e.hasMoreElements(); )
         {
-            Declaration d = ( (Definition)e.nextElement() ).get_declaration();
+            Declaration d = e.nextElement().get_declaration();
             if( !( d instanceof OpDecl ) )
                 d.print( ps );
         }
@@ -273,9 +195,9 @@ public class InterfaceBody
             ps.println( "\t/* operations  */" );
         }
 
-        for( Enumeration e = v.elements(); e.hasMoreElements(); )
+        for( Enumeration<Definition> e = v.elements(); e.hasMoreElements(); )
         {
-            Definition d = (Definition)e.nextElement();
+            Definition d = e.nextElement();
             if( d.get_declaration() instanceof OpDecl )
             {
                 ( (OpDecl)d.get_declaration() ).printSignature( ps );
@@ -300,9 +222,9 @@ public class InterfaceBody
             ps.println( "\t/* constants */" );
         }
 
-        for( Enumeration e = v.elements(); e.hasMoreElements(); )
+        for( Enumeration<Definition> e = v.elements(); e.hasMoreElements(); )
         {
-            Definition d = (Definition)e.nextElement();
+            Definition d = e.nextElement();
             if( d.get_declaration() instanceof ConstDecl )
             {
                 ( (ConstDecl)d.get_declaration() ).printContained( ps );
@@ -314,9 +236,9 @@ public class InterfaceBody
 
     public void printInterfaceMethods( PrintWriter ps )
     {
-        for( Enumeration e = v.elements(); e.hasMoreElements(); )
+        for( Enumeration<Definition> e = v.elements(); e.hasMoreElements(); )
         {
-            Definition d = (Definition)e.nextElement();
+            Definition d = e.nextElement();
             if( !( d.get_declaration() instanceof ConstDecl ) && is_pseudo() )
             {
                 ( (IdlSymbol)d ).print( ps );
@@ -329,9 +251,9 @@ public class InterfaceBody
         if( methods == null )
         {
             Hashtable table = new Hashtable();
-            for( Enumeration e = v.elements(); e.hasMoreElements(); )
+            for( Enumeration<Definition> e = v.elements(); e.hasMoreElements(); )
             {
-                Definition d = (Definition)e.nextElement();
+                Definition d = e.nextElement();
                 if( d.get_declaration() instanceof OpDecl )
                 {
                     table.put( ( (OpDecl)d.get_declaration() ).signature(), d.get_declaration() );
@@ -437,7 +359,10 @@ public class InterfaceBody
                */
 
             String name;
-            if( ops[ i ] instanceof OpDecl && ops[ i ].opName().startsWith( "_" ) )
+
+            // Bug894: Bit of a hack - if this OpDecl was created by the AMI code don't strip '_'
+            if( ops[ i ] instanceof OpDecl && ops[ i ].opName().startsWith( "_" ) &&
+                ! (((OpDecl)ops[i]).myInterface instanceof ReplyHandler))
             {
                name = ops[ i ].opName().substring( 1 );
             }
@@ -445,7 +370,6 @@ public class InterfaceBody
             {
                name = ops[ i ].opName();
             }
-
             ps.println( "\t\tm_opsHash.put ( \"" + name + "\", Integer.valueOf(" + i + "));" );
         }
 
@@ -492,9 +416,9 @@ public class InterfaceBody
 
     void getIRInfo( Hashtable irInfoTable )
     {
-        for( Enumeration e = v.elements(); e.hasMoreElements(); )
+        for( Enumeration<Definition> e = v.elements(); e.hasMoreElements(); )
         {
-            Definition d = (Definition)e.nextElement();
+            Definition d = e.nextElement();
             if( d.get_declaration() instanceof OpDecl )
             {
                 ( (OpDecl)d.get_declaration() ).getIRInfo( irInfoTable );
@@ -515,4 +439,86 @@ public class InterfaceBody
     }
 
 
+    static void clearParseThreads()
+    {
+       parseThreads.clear();
+    }
+
+
+    public class ParseThread extends Thread
+    {
+       private final InterfaceBody b;
+       private boolean running = false;
+
+       public ParseThread( InterfaceBody _b )
+       {
+          b = _b;
+          setDaemon( true );
+          parseThreads.addElement( this );
+          parser.incActiveParseThreads();
+          start();
+       }
+
+       public void run()
+       {
+          parser.set_pending( b.full_name(), b );
+          Object o = null;
+          for( Enumeration e = inheritance_spec.v.elements(); e.hasMoreElements(); )
+          {
+             waitingName = ( (ScopedName)( e.nextElement() ) ).resolvedName();
+             o = parser.get_pending( waitingName );
+             if( o != null )
+             {
+                try
+                {
+                   synchronized( o )
+                   {
+                      o.wait();
+                      running = true;
+                   }
+                }
+                catch( InterruptedException ie )
+                {
+                   logger.info( "ParseThread " + this + " interrupted!" );
+                }
+             }
+          }
+          b.internal_parse();
+
+          exitParseThread();
+       }
+
+       /**
+        * check whether this thread will eventually run
+        * @return true if the thread can run or is currently running
+        *         false if it is still blocked or has just returned from run()
+        */
+
+       public synchronized boolean isRunnable()
+       {
+          boolean result = running || checkWaitCondition();
+          if( logger.isWarnEnabled() )
+             logger.warn( "Thread is runnable: " + result );
+          return result;
+       }
+
+       private synchronized void exitParseThread()
+       {
+          parser.remove_pending( b.full_name() );
+          parser.decActiveParseThreads();
+          parseThreads.removeElement( this );
+          running = false;
+       }
+
+       /**
+        * @return  true, if waiting condition is true,
+        * i.e., if thread still needs to wait.
+        */
+
+       private boolean checkWaitCondition()
+       {
+          return ( parser.get_pending( waitingName ) == null );
+       }
+
+    }
 }

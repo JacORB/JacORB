@@ -1,0 +1,4 @@
+interface Alpha
+{
+   readonly attribute short beta;
+};

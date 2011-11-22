@@ -235,6 +235,7 @@ post 2.3.1
         - Implemented Portability Stubs and Skeletons as per 4.21.6 of IDL to Java Mapping
         - Improve typecode generation to use lazy initialization class holder idiom.
         - Refactor to simplify code (bug715)
+        - Fix for incorrect opsHash keys for AMI POA (bug894)
 
     - Naming Service:
         - Fix for BindingIterator leak (Bugzilla 647).

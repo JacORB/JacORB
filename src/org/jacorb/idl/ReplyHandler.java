@@ -88,9 +88,9 @@ public class ReplyHandler extends Interface
      */
     private void createOperations (Interface parent)
     {
-        for (Iterator i = parent.body.v.iterator(); i.hasNext();)
+        for (Iterator<Definition> i = parent.body.v.iterator(); i.hasNext();)
         {
-              Declaration d = ((Definition)i.next()).get_declaration();
+              Declaration d = i.next().get_declaration();
               if (d instanceof OpDecl)
               {
                     createOperationsFor ((OpDecl)d);
@@ -141,17 +141,17 @@ public class ReplyHandler extends Interface
         {
             SimpleDeclarator decl = (SimpleDeclarator)i.next();
             body.addDefinition
-              (new OpDecl (this, "get_" + decl.name,
+              (new OpDecl (this, "_get_" + decl.name,
                            parameterList (d.param_type_spec, "ami_return_val")));
             body.addDefinition
-              (new OpDecl (this, "get_" + decl.name + "_excep",
+              (new OpDecl (this, "_get_" + decl.name + "_excep",
                            excepParameterList()));
             if (!d.readOnly)
             {
                 body.addDefinition
-                  (new OpDecl (this, "set_" + decl.name, new ArrayList()));
+                  (new OpDecl (this, "_set_" + decl.name, new ArrayList()));
                 body.addDefinition
-                  (new OpDecl (this, "set_" + decl.name + "_excep",
+                  (new OpDecl (this, "_set_" + decl.name + "_excep",
                                excepParameterList()));
             }
         }
