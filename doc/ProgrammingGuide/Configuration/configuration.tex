@@ -416,7 +416,13 @@ use callbacks to improve asynch performance. The property
 \begin{verbatim}
 jacorb.connection.nonblocking=on/off
 \end{verbatim}
-is used to enable this capability.
+is used to enable this capability. Non\-blocking I/O is currently only
+available for handling client side connections using plain IIOP.
+Server side support for receiving requests and sending replies is not yet
+available. Integration of SSL is also not available at this time.
+
+For more details see \ref{connection_management}
+
 
 \subsection{Typecode Compaction}
 \label{compact-typecode}
