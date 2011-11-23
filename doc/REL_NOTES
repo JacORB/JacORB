@@ -41,8 +41,15 @@
    H I S T O R Y      O F     C H A N G E S
  -------------------------------------------
 
-3.0
-===
+post 3.0 beta 1
+===============
+    - Fixes:
+        - Fixed empty configuration parameters' values processing for Integer,
+          Long, Float and Boolean types.
+
+
+3.0 beta 1
+==========
     - ORB:
         - Timer Queue implementation added prior to NIO has been merged
           with the Selector framework used to support NIO. The write timeouts
