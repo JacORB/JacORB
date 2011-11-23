@@ -869,6 +869,11 @@ public class JacORBConfiguration implements Configuration
           {
              result = Integer.valueOf (defaultValue);
           }
+          else if (value.trim().length() < 1)
+          {
+              // treat empty values as non-defined (null)
+              result = Integer.valueOf (defaultValue);
+          }
           else
           {
              try
@@ -930,6 +935,11 @@ public class JacORBConfiguration implements Configuration
           if (value == null)
           {
              result = Long.valueOf (defaultValue);
+          }
+          else if (value.trim().length() < 1)
+          {
+              // treat empty values as non-defined (null)
+              result = Long.valueOf (defaultValue);
           }
           else
           {
@@ -1103,6 +1113,11 @@ public class JacORBConfiguration implements Configuration
           {
              result = Boolean.valueOf (defaultValue);
           }
+          else if (value.trim().length() < 1)
+          {
+              // treat empty values as non-defined (null)
+              result = Boolean.valueOf (defaultValue);
+          }
           else
           {
              value = value.trim().toLowerCase();
@@ -1199,6 +1214,11 @@ public class JacORBConfiguration implements Configuration
           if (value == null)
           {
              result = Double.valueOf (defaultValue);
+          }
+          else if (value.trim().length() < 1)
+          {
+              // treat empty values as non-defined (null)
+              result = Double.valueOf (defaultValue);
           }
           else
           {
