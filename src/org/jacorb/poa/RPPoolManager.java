@@ -150,7 +150,7 @@ public abstract class RPPoolManager
             }
         }
 
-        RequestProcessor[] rps = (RequestProcessor[]) pool.toArray(new RequestProcessor[pool.size()]);
+        RequestProcessor[] rps = pool.toArray(new RequestProcessor[pool.size()]);
 
         for (int i=0; i<rps.length; i++)
         {

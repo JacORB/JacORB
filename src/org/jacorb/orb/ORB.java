@@ -2519,9 +2519,7 @@ public final class ORB
      */
     private void configureObjectKeyMap (Configuration config)
     {
-        final org.jacorb.config.Configuration configuration = (org.jacorb.config.Configuration)config;
-
-        objectKeyMap.configureObjectKeyMap(configuration);
+        objectKeyMap.configureObjectKeyMap(config);
     }
 
     /**

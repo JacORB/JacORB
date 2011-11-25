@@ -86,10 +86,8 @@ public class BasicAdapter
     public void configure(Configuration myConfiguration)
         throws ConfigurationException
     {
-        configuration =
-            (org.jacorb.config.Configuration)myConfiguration;
-        logger =
-            configuration.getLogger("jacorb.orb.basic");
+        configuration = myConfiguration;
+        logger = configuration.getLogger("jacorb.orb.basic");
 
         receptor_pool = new MessageReceptorPool("server", "ServerMessageReceptor", myConfiguration);
 

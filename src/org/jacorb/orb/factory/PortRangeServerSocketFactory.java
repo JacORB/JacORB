@@ -60,7 +60,7 @@ public class PortRangeServerSocketFactory
     public void configure(Configuration config)
         throws ConfigurationException
     {
-        logger = ((org.jacorb.config.Configuration)config).getLogger("jacorb.orb.port_rang_fctry");
+        logger = config.getLogger("jacorb.orb.port_rang_fctry");
 
         // Get configured max and min port numbers
         portMin = getPortProperty(config, MIN_PROP);

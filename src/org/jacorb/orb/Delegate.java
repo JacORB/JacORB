@@ -920,8 +920,9 @@ public final class Delegate
     }
 
     /**
-     * @deprecated Deprecated by CORBA 2.3
+     * Deprecated by CORBA 2.3
      */
+    @Deprecated
     public org.omg.CORBA.InterfaceDef get_interface( org.omg.CORBA.Object self )
     {
         return org.omg.CORBA.InterfaceDefHelper.narrow( get_interface_def( self ) ) ;

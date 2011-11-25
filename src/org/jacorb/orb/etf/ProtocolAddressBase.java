@@ -52,7 +52,7 @@ public abstract class ProtocolAddressBase
             throw new ConfigurationException("ProtocolAddressBase: given configuration was null");
         }
 
-        this.configuration = (org.jacorb.config.Configuration)configuration;
+        this.configuration = configuration;
     }
 
 
