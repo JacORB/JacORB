@@ -40,13 +40,6 @@ public abstract class FactoriesBase
 {
     protected org.jacorb.config.Configuration configuration;
 
-    protected static Class connectionClz;
-
-    protected static Class listenerClz;
-
-    protected static Class profileClz;
-
-    protected static Class addressClz;
 
     public void configure(Configuration configuration)
         throws ConfigurationException
@@ -63,8 +56,15 @@ public abstract class FactoriesBase
     */
     public Connection create_connection(ProtocolProperties props)
     {
-        return (Connection) newInstance(connectionClz, "ETF::Connection");
+       Connection result = create_connection_internal ();
+       configureResult (result);
+       return result;
     }
+
+    /**
+     * Sub-classes should return the correct type of connection
+     */
+    protected abstract Connection create_connection_internal ();
 
     /**
     * ETF defined operation to create a connection.
@@ -73,23 +73,25 @@ public abstract class FactoriesBase
                                     int stacksize,
                                     short base_priority)
     {
-        return (Listener) newInstance(listenerClz, "ETF::Listener");
+       return create_listener_internal ();
     }
 
-    public Profile demarshal_profile(TaggedProfileHolder tagged_profile,
-                                     TaggedComponentSeqHolder components)
-    {
-        final ProfileBase profile = (ProfileBase)newInstance(profileClz, "ETF::Profile");
-        profile.demarshal(tagged_profile, components);
-        return profile;
-    }
+    /**
+     * Sub-classes should return the correct type of listener
+     */
+    protected abstract Listener create_listener_internal();
+
+
+    public abstract Profile demarshal_profile(TaggedProfileHolder tagged_profile,
+                                              TaggedComponentSeqHolder components);
 
     // Although not part of the ETF IDL for a Factory object, this is the best
     // place to add a new method for creating protocol address instances
     public ProtocolAddressBase create_protocol_address(String addr)
     {
-        final ProtocolAddressBase address = (ProtocolAddressBase)newInstance(addressClz, "ETF::ProtocolAddressBase");
+        final ProtocolAddressBase address = create_address_internal();
         final int address_start = this.match_tag(addr);
+
         if (address_start >= 0)
         {
             // general form is "prot://address"
@@ -101,36 +103,39 @@ public abstract class FactoriesBase
         return address;
     }
 
+
+    /**
+     * Sub-classes should return the correct type of address
+     */
+    protected abstract ProtocolAddressBase create_address_internal ();
+
+
     public int match_tag(String address)
     {
         return -1;
     }
 
+    /**
+     * Sub-classes should implement corbaloc decoding
+     */
     public abstract Profile decode_corbaloc (String corbaloc);
 
-    private Object newInstance(final Class clazz, final String description)
+    /**
+     * If the object is configurable call configure on it.
+     * @param o
+     */
+    protected void configureResult (Object o)
     {
-        Object connection = null;
-        try
-        {
-            connection = clazz.newInstance();
-        }
-        catch (Exception e)
-        {
-            throw new org.omg.CORBA.INTERNAL("Cannot instantiate " + description + " class: " + e.toString());
-        }
-
-        if (connection instanceof Configurable)
-        {
-            try
-            {
-                ((Configurable)connection).configure(configuration);
-            }
-            catch( ConfigurationException e )
-            {
-                throw new org.omg.CORBA.INTERNAL("ConfigurationException: " + e.toString());
-            }
-        }
-        return connection;
+       if (o instanceof Configurable)
+       {
+          try
+          {
+             ((Configurable)o).configure(configuration);
+          }
+          catch( ConfigurationException e )
+          {
+             throw new org.omg.CORBA.INTERNAL("ConfigurationException: " + e.toString());
+          }
+       }
     }
 }

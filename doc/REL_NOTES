@@ -43,6 +43,8 @@
 
 post 3.0 beta 1
 ===============
+    - ORB:
+        - Refactor ETF factories to remove static information.
     - Fixes:
         - Fixed empty configuration parameters' values processing for Integer,
           Long, Float and Boolean types.

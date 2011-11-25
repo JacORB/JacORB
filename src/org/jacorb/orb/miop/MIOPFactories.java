@@ -3,16 +3,16 @@ package org.jacorb.orb.miop;
 import org.jacorb.config.Configurable;
 import org.jacorb.config.Configuration;
 import org.jacorb.config.ConfigurationException;
+import org.jacorb.orb.etf.FactoriesBase;
+import org.jacorb.orb.etf.ProtocolAddressBase;
+import org.jacorb.orb.iiop.IIOPAddress;
 import org.omg.CORBA.BAD_PARAM;
 import org.omg.ETF.Connection;
 import org.omg.ETF.Listener;
 import org.omg.ETF.Profile;
-import org.omg.ETF._FactoriesLocalBase;
 import org.omg.IOP.TAG_UIPMC;
-import org.omg.IOP.TaggedComponent;
 import org.omg.IOP.TaggedComponentSeqHolder;
 import org.omg.IOP.TaggedProfileHolder;
-import org.omg.RTCORBA.ProtocolProperties;
 
 
 /**
@@ -21,13 +21,27 @@ import org.omg.RTCORBA.ProtocolProperties;
  * @author Alysson Neves Bessani
  * @version 1.0
  */
-public class MIOPFactories extends _FactoriesLocalBase implements Configurable
+public class MIOPFactories extends FactoriesBase implements Configurable
 {
    // the MIOP group listener for this ORB
-   private MIOPListener  listener = null;
+   private MIOPListener listener = null;
 
-   private Configuration configuration = null;
 
+   /**
+    * Return the correct type of connection
+    */
+   protected Connection create_connection_internal ()
+   {
+      return new ClientMIOPConnection();
+   }
+
+   /**
+    * Return the correct type of address
+    */
+   protected ProtocolAddressBase create_address_internal ()
+   {
+      return new IIOPAddress();
+   }
 
    /**
     * Configure this object.
@@ -38,57 +52,19 @@ public class MIOPFactories extends _FactoriesLocalBase implements Configurable
     */
    public void configure (Configuration configuration) throws ConfigurationException
    {
-
       this.configuration = configuration;
    }
 
 
    /**
-    * Creates a new client connection.
-    *
-    * @param protocolProperties unused in JacORB
-    * @return a client connection
+    * Return the correct type of listener
     */
-   public Connection create_connection (ProtocolProperties protocolProperties)
-   {
-      ClientMIOPConnection clientConnection = new ClientMIOPConnection ();
-
-      try
-      {
-         clientConnection.configure (configuration);
-      }
-      catch (ConfigurationException ce)
-      {
-         throw new org.omg.CORBA.INTERNAL ("ConfigurationException: " + ce.getMessage ());
-      }
-
-      return clientConnection;
-   }
-
-
-   /**
-    * Creates a listener or get the existing one.
-    *
-    * @param protocolProperties unused in JacORB
-    * @param stackSize unused in JacORB
-    * @param basePriority unused in JacORB
-    * @return the MIOP group listener.
-    */
-   public Listener create_listener (ProtocolProperties protocolProperties, int stackSize,
-            short basePriority)
+   public Listener create_listener_internal ()
    {
       if (listener == null)
       {
-         listener = new MIOPListener ();
-
-         try
-         {
-            listener.configure (configuration);
-         }
-         catch (ConfigurationException ce)
-         {
-            throw new org.omg.CORBA.INTERNAL ("ConfigurationException: " + ce.getMessage ());
-         }
+         listener = new MIOPListener();
+         configureResult (listener);
       }
 
       return listener;
@@ -110,25 +86,15 @@ public class MIOPFactories extends _FactoriesLocalBase implements Configurable
       {
          throw new BAD_PARAM ("wrong profile for MIOP transport: tag = " + taggedProfile.value.tag);
       }
-      else
-      {
-         MIOPProfile profile = new MIOPProfile (taggedProfile.value.profile_data);
 
-         try
-         {
-            profile.configure (configuration);
-         }
-         catch (ConfigurationException ce)
-         {
-            throw new org.omg.CORBA.INTERNAL ("ConfigurationException: " + ce.getMessage ());
-         }
+      MIOPProfile profile = new MIOPProfile (taggedProfile.value.profile_data);
 
-         taggedComponentSeq.value = new TaggedComponent[0];
-         return profile;
-      }
+      configureResult (profile);
 
+      taggedComponentSeq.value = new TaggedComponent[0];
+
+      return profile;
    }
-
 
    /**
     * Returns the UMIOP profile tag number.

@@ -135,7 +135,7 @@ public class MIOPProfile extends ProfileBase
       {
          if (logger.isDebugEnabled ())
          {
-            logger.debug ("MIOPProfile parsing corbaloc.");
+            logger.debug ("MIOPProfile parsing corbaloc: " + corbalocStr);
          }
 
          // I create the profile from the corbaloc

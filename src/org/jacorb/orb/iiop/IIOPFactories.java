@@ -22,7 +22,13 @@ package org.jacorb.orb.iiop;
  */
 
 import org.jacorb.config.ConfigurationException;
+import org.jacorb.orb.etf.ProfileBase;
+import org.jacorb.orb.etf.ProtocolAddressBase;
+import org.omg.ETF.Connection;
+import org.omg.ETF.Listener;
 import org.omg.ETF.Profile;
+import org.omg.IOP.TaggedComponentSeqHolder;
+import org.omg.IOP.TaggedProfileHolder;
 
 /**
  * @author Andre Spiegel
@@ -31,13 +37,48 @@ import org.omg.ETF.Profile;
 public class IIOPFactories
     extends org.jacorb.orb.etf.FactoriesBase
 {
-    static
+    /**
+     * Demarshall and return the correct type of profile
+     */
+    public ProfileBase demarshal_profile (TaggedProfileHolder tagged_profile,
+                                              TaggedComponentSeqHolder components)
     {
-        connectionClz = ClientIIOPConnection.class;
-        listenerClz = IIOPListener.class;
-        profileClz = IIOPProfile.class;
-        addressClz = IIOPAddress.class;
+        final ProfileBase profile = new IIOPProfile ();
+
+        configureResult (profile);
+
+        profile.demarshal(tagged_profile, components);
+
+       return profile;
     }
+
+    /**
+     * Return the correct type of address
+     */
+    protected ProtocolAddressBase create_address_internal ()
+    {
+       return new IIOPAddress();
+    }
+
+
+    /**
+     * Return the correct type of connection
+     */
+    protected Connection create_connection_internal ()
+    {
+       return new ClientIIOPConnection();
+    }
+
+    /**
+     * Return the correct type of listener
+     */
+    protected Listener create_listener_internal ()
+    {
+       IIOPListener result = new IIOPListener();
+       configureResult (result);
+       return result;
+    }
+
 
     public int profile_tag()
     {

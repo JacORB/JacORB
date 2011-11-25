@@ -30,7 +30,7 @@ public class MIOPListener extends org.jacorb.orb.etf.ListenerBase
    /**
     * The table with active connections
     */
-   private Map connections = new HashMap ();
+   private Map<Short, Connection> connections = new HashMap<Short, Connection> ();
 
 
     /**
@@ -54,9 +54,9 @@ public class MIOPListener extends org.jacorb.orb.etf.ListenerBase
     */
    public void destroy ()
    {
-      for (Iterator i = connections.keySet ().iterator (); i.hasNext ();)
+      for (Iterator<Short> i = connections.keySet ().iterator (); i.hasNext ();)
       {
-         removeGroupConnection (((Short)i.next ()).shortValue ());
+         removeGroupConnection (i.next ());
       }
       super.destroy ();
    }
@@ -80,7 +80,7 @@ public class MIOPListener extends org.jacorb.orb.etf.ListenerBase
          if (result != null)
          {
             MIOPProfile profile = (MIOPProfile)result.get_server_profile ();
-            connections.put (new Short (profile.getUIPMCProfile ().the_port), result);
+            connections.put (Short.valueOf (profile.getUIPMCProfile ().the_port), result);
          }
 
          return result;
