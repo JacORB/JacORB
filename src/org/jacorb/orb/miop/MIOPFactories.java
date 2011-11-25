@@ -11,6 +11,7 @@ import org.omg.ETF.Connection;
 import org.omg.ETF.Listener;
 import org.omg.ETF.Profile;
 import org.omg.IOP.TAG_UIPMC;
+import org.omg.IOP.TaggedComponent;
 import org.omg.IOP.TaggedComponentSeqHolder;
 import org.omg.IOP.TaggedProfileHolder;
 
