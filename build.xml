@@ -18,20 +18,28 @@
    <target name="all" depends="version,init,compiler,omg_idl,jacorb,libs"
            description="Build JacORB.  To build with debugging, use -Ddebug=true."/>
 
-    <target name="version-gen" >
-        <tstamp />
+   <target name="version-gen" >
+        <tstamp>
+          <format property="TIME" pattern="k:m:s"/>
+        </tstamp>
+        <loadfile srcFile="${src}/org/jacorb/util/Version.java" property="JVERSION">
+          <filterchain>
+            <containsregex pattern=".*version = &quot;(.*)&quot;;"
+                           replace="\1"/>
+            <striplinebreaks/>
+          </filterchain>
+        </loadfile>
 
-        <property name="BuildNo" value="${TODAY} ${TSTAMP}" />
-        <property name="jacorb_version_info" value="\n       (${BuildNo})" />
+        <property name="BuildNo" value="${TODAY} ${TIME}" />
+        <property name="jacorb_version_info" value="(Build ${BuildNo})" />
 
         <echo>
-using BUILD_NUMBER: ${BuildNo}
-using VERSION_INFO: ${jacorb_version_info}
+using JacORB Version: ${JVERSION}
+using BUILD_NUMBER:   ${BuildNo}
         </echo>
 
         <copy file="${src}/org/jacorb/util/BuildVersion.template" tofile="${src.generated}/org/jacorb/util/BuildVersion.java" overwrite="true">
             <filterset>
-                <filter token="BUILD_NUMBER" value="${BuildNo}"/>
                 <filter token="VERSION_INFO" value="${jacorb_version_info}" />
             </filterset>
         </copy>
@@ -60,8 +68,13 @@ using VERSION_INFO: ${jacorb_version_info}
    <target name="idllib" depends="idlsrc" >
       <jar jarfile="${lib}/idl.jar"
            basedir="${classdir}"
-           includes="org/jacorb/idl/**"
-           />
+           includes="org/jacorb/idl/**">
+         <manifest>
+           <attribute name="Implementation-Version" value="${JVERSION}" />
+           <attribute name="Implementation-Title" value="JacORB"/>
+           <attribute name="Implementation-URL" value="www.jacorb.org"/>
+         </manifest>
+      </jar>
    </target>
 
    <target name="idlsrc">
@@ -101,11 +114,12 @@ using VERSION_INFO: ${jacorb_version_info}
            includes="org/jacorb/**,org/omg/**"
            excludes="org/jacorb/idl/**,org/jacorb/demo/**,org/jacorb/test/**,org/jacorb/notification/jmx/jboss/**,org/omg/CosTransactions/**,org/jacorb/transaction/**"
            index="true"
-           />
+           >
          <manifest>
-            <attribute name="Implementation-Title" value="JacORB"/>
-            <attribute name="Implementation-URL" value="www.jacorb.org"/>
-            <attribute name="Class-Path" value="slf4j-api-1.5.6.jar  slf4j-jdk14-1.5.6.jar antlr-2.7.2.jar"/>
+             <attribute name="Implementation-Version" value="${JVERSION}" />
+             <attribute name="Implementation-Title" value="JacORB"/>
+             <attribute name="Implementation-URL" value="www.jacorb.org"/>
+             <attribute name="Class-Path" value="slf4j-api-1.5.6.jar  slf4j-jdk14-1.5.6.jar antlr-2.7.2.jar"/>
          </manifest>
       </jar>
    </target>
