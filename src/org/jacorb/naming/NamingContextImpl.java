@@ -804,6 +804,12 @@ public class NamingContextImpl
                o._release();
             }
         }
+        catch (org.omg.CORBA.NO_IMPLEMENT ni)
+        {
+            // not a failure, the peer is alive, it just doesn't 
+            // implement _non_existent()
+            non_exist = false;
+        }
         catch (org.omg.CORBA.SystemException e)
         {
             non_exist = true;
