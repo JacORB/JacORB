@@ -20,8 +20,13 @@ package org.jacorb.orb.iiop;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
+import java.net.Inet6Address;
 import java.net.InetAddress;
+import java.net.NetworkInterface;
+import java.net.SocketException;
 import java.net.UnknownHostException;
+import java.util.Collections;
+
 import org.jacorb.config.Configuration;
 import org.jacorb.config.ConfigurationException;
 import org.jacorb.orb.CDROutputStream;
@@ -122,24 +127,9 @@ public class IIOPAddress
 
     private void init_host()
     {
-        InetAddress localhost = null;
+        InetAddress localhost = getLocalHost();
         boolean hasZoneId = false;
-        try
-        {
-            localhost = InetAddress.getLocalHost();
-        }
-        catch (UnknownHostException ex)
-        {
-            try
-            {
-                //get loopback
-                localhost = InetAddress.getByName(null);
-            }
-            catch (UnknownHostException ex2)
-            {
-            }
-        }
-
+        
         if (source_name == null || source_name.length() == 0 )
         {
             host = localhost;
@@ -437,4 +427,95 @@ public class IIOPAddress
             setPort(other.port);
         }
     }
+    
+    /**
+     * Returns a string representation of the localhost address.
+     */
+    public static String getLocalHostAddress (Logger logger)
+    {
+        InetAddress addr = getLocalHost();
+        if (addr != null)
+        {
+            return addr.getHostAddress();
+        }
+        else
+        {
+            logger.warn ("Unable to resolve local IP address - using default");
+            return "127.0.0.1";
+        }
+    }
+    
+    /**
+     * Returns an address for the localhost that is reasonable to use
+     * in the IORs we produce.
+     */
+    public static InetAddress getLocalHost()
+    {
+        InetAddress result = null;
+        try
+        {
+            result = InetAddress.getLocalHost();
+            
+            // if this is an IPv6 address, make sure it's a reasonable one
+            
+            if (result instanceof Inet6Address
+                && (result.isLinkLocalAddress()
+                    || result.isLoopbackAddress()))
+            {
+                InetAddress betterAddress = getGoodIPv6Address();
+                if (betterAddress != null)
+                {
+                    result = betterAddress;
+                }
+            }
+            
+        }
+        catch (UnknownHostException ex)
+        {
+            try
+            {
+                result = InetAddress.getByName(null);
+            }
+            catch (UnknownHostException ex2)
+            {
+                // give up
+            }
+        }
+        
+        return result;
+        
+    }
+    
+    /**
+     * Iterate over all network interfaces and addresses to find
+     * an IPv6 address that is neither link-local nor loopback.
+     * If one is found, return it.  If not, return null.
+     */
+    private static Inet6Address getGoodIPv6Address() 
+    {
+        Inet6Address result = null;
+        try
+        {
+            for (NetworkInterface ni : 
+                 Collections.list(NetworkInterface.getNetworkInterfaces()))
+            {
+                for (InetAddress ia :
+                     Collections.list(ni.getInetAddresses()))
+                {     
+                    if (ia instanceof Inet6Address
+                        && !(ia.isLinkLocalAddress()
+                             || ia.isLoopbackAddress()))
+                    {
+                        return (Inet6Address)ia;
+                    }
+                }
+            }
+        }
+        catch (SocketException ex)
+        {
+            // something went wrong, fall through, null is okay in this case
+        }
+        return result;
+    }
+    
 }
