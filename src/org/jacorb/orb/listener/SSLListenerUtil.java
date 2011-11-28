@@ -22,18 +22,15 @@ package org.jacorb.orb.listener;
  */
 
 import java.io.IOException;
-import java.net.InetAddress;
-import java.net.Socket;
-import java.net.UnknownHostException;
-import javax.net.ssl.SSLException;
-import javax.net.ssl.SSLHandshakeException;
-import javax.net.ssl.SSLKeyException;
-import javax.net.ssl.SSLPeerUnverifiedException;
-import javax.net.ssl.SSLProtocolException;
-import javax.net.ssl.SSLSocket;
+import java.net.*;
+
+import javax.net.ssl.*;
+
 import org.jacorb.orb.ORB;
 import org.jacorb.orb.iiop.IIOPConnection;
+import org.jacorb.orb.iiop.IIOPAddress;
 import org.slf4j.Logger;
+
 
 
 /**
@@ -74,21 +71,7 @@ public class SSLListenerUtil
         final SSLSessionListener listener = orb.getTransportManager().getSocketFactoryManager().getSSLListener();
         final Logger logger = orb.getConfiguration().getLogger("jacorb.ssl.sessionlistener"); // TODO kategorie
 
-        String localhost;
-
-        try
-        {
-            localhost = InetAddress.getLocalHost().getHostAddress();
-        }
-        catch (UnknownHostException e)
-        {
-            if (logger.isDebugEnabled())
-            {
-                logger.debug("Unable to resolve local IP address - using default");
-            }
-
-            localhost = "127.0.0.1";
-        }
+        String localhost = IIOPAddress.getLocalHostAddress(logger);
 
         // Not nice, but as a javax.net.ssl.SSLException extends
         // java.io.IOException we need to work out which one it is in order

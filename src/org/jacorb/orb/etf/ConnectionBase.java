@@ -21,13 +21,12 @@ package org.jacorb.orb.etf;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
-import org.jacorb.config.Configurable;
-import org.jacorb.config.Configuration;
-import org.jacorb.config.ConfigurationException;
+
+import org.jacorb.config.*;
 import org.jacorb.orb.ORB;
+import org.jacorb.orb.iiop.IIOPAddress;
 import org.slf4j.Logger;
+
 
 /**
  * This an abstract base implementation of the ETF::Connection interface.
@@ -196,21 +195,6 @@ public abstract class ConnectionBase
 
     protected final String getLocalhost()
     {
-        String localhost;
-
-        try
-        {
-            localhost = InetAddress.getLocalHost().getHostAddress();
-        }
-        catch (UnknownHostException uhe)
-        {
-            if (logger.isDebugEnabled())
-            {
-                logger.debug("Unable to resolve local host - using default 127.0.0.1");
-            }
-
-            localhost = "127.0.0.1";
-        }
-        return localhost;
+        return IIOPAddress.getLocalHostAddress(logger);
     }
 }

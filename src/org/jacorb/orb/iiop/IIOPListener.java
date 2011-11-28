@@ -361,24 +361,7 @@ public class IIOPListener
 
     private String getLocalhost()
     {
-        String localhost;
-
-         try
-         {
-             localhost =
-             InetAddress.getLocalHost().getHostAddress();
-         }
-         catch (UnknownHostException uhe)
-         {
-             if (logger.isDebugEnabled())
-             {
-                 logger.debug
-                     ("Unable to resolve local host - using default 127.0.0.1");
-             }
-
-             localhost = "127.0.0.1";
-         }
-        return localhost;
+        return IIOPAddress.getLocalHostAddress (logger);
     }
 
     public class Acceptor

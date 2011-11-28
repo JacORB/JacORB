@@ -23,10 +23,11 @@ package org.jacorb.orb.listener;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.security.cert.Certificate;
-import javax.net.ssl.HandshakeCompletedEvent;
-import javax.net.ssl.HandshakeCompletedListener;
-import javax.net.ssl.SSLPeerUnverifiedException;
+
+import javax.net.ssl.*;
+import org.jacorb.orb.iiop.IIOPAddress;
 import org.slf4j.Logger;
+
 /**
  * <code>SSLHandshakeListener</code> implements the SSL Handshake Listener
  * in order to detect a successful SSL connection. It then passes this information
@@ -72,20 +73,7 @@ public class SSLHandshakeListener implements HandshakeCompletedListener
             certs = new Certificate[0];
         }
 
-        try
-        {
-            localhost = InetAddress.getLocalHost().getHostAddress();
-        }
-        catch (UnknownHostException uhe)
-        {
-            if (logger.isDebugEnabled())
-            {
-                logger.debug
-                    ("Unable to resolve local IP address - using default");
-            }
-
-            localhost = "127.0.0.1";
-        }
+        localhost = IIOPAddress.getLocalHostAddress (logger);
 
         sslListener.sessionCreated
         (

@@ -1137,7 +1137,7 @@ public class ImplementationRepositoryImpl
                 }
                 else
                 {
-                    address = InetAddress.getLocalHost().toString();
+                    address = IIOPAddress.getLocalHostAddress(logger);
                 }
 
                 if( address.indexOf("/") >= 0 )
