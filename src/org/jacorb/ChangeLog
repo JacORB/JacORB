@@ -1,3 +1,18 @@
+2011-11-23  Andre Spiegel  <spiegel@gnu.org>
+
+	* Version 3.0 beta 1 released.
+
+2011-11-22  Nick Cross  <jacorb@goots.org>
+
+	* orb/giop/ClientConnection.java, orb/giop/CodeSet.java:
+	Add debug to print codeset information
+
+	* idl/parser.cup:
+	Bug894 Add fix for incorrect m_opsHash keys for AMI POA. Refactor code.
+
+	* idl/InterfaceBody.java, idl/ReplyHandler.java:
+	Bug894 Add fix for incorrect m_opsHash keys for AMI POA.
+
 2011-11-17  Phil Mesnier  <mesnier_p@ociweb.com>
 
 	* util/SelectorManager.java: SelectorManager was using some Java
