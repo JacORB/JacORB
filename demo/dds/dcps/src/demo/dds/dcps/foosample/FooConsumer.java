@@ -34,6 +34,7 @@ import org.omg.dds.DataReaderListener;
 import org.omg.dds.DataReaderListenerHelper;
 import org.omg.dds.DataReaderQos;
 import org.omg.dds.DeadlineQosPolicy;
+import org.omg.dds.DestinationOrderQosPolicy;
 import org.omg.dds.DestinationOrderQosPolicyKind;
 import org.omg.dds.DomainParticipant;
 import org.omg.dds.DomainParticipantFactory;
@@ -44,13 +45,26 @@ import org.omg.dds.DurabilityQosPolicyKind;
 import org.omg.dds.Duration_t;
 import org.omg.dds.EntityFactoryQosPolicy;
 import org.omg.dds.GroupDataQosPolicy;
+import org.omg.dds.HistoryQosPolicy;
+import org.omg.dds.HistoryQosPolicyKind;
+import org.omg.dds.LatencyBudgetQosPolicy;
+import org.omg.dds.LifespanQosPolicy;
+import org.omg.dds.LivelinessQosPolicy;
+import org.omg.dds.LivelinessQosPolicyKind;
+import org.omg.dds.OwnershipQosPolicy;
+import org.omg.dds.OwnershipQosPolicyKind;
 import org.omg.dds.LivelinessQosPolicyKind;
 import org.omg.dds.PartitionQosPolicy;
+import org.omg.dds.ReaderDataLifecycleQosPolicy;
+import org.omg.dds.ResourceLimitsQosPolicy;
+import org.omg.dds.ReliabilityQosPolicy;
 import org.omg.dds.ReliabilityQosPolicyKind;
 import org.omg.dds.Subscriber;
 import org.omg.dds.SubscriberQos;
+import org.omg.dds.TimeBasedFilterQosPolicy;
 import org.omg.dds.TopicDataQosPolicy;
 import org.omg.dds.TopicQos;
+import org.omg.dds.TransportPriorityQosPolicy;
 import org.omg.dds.UserDataQosPolicy;
 import org.omg.PortableServer.POA;
 import org.omg.PortableServer.POAHelper;
@@ -99,20 +113,82 @@ public class FooConsumer implements Runnable {
             String rname = "DomainParticipantFactory";
             byte tab[ ] = new byte [1];
             tab[0] = 1 ;
-            org.omg.dds.UserDataQosPolicy UDQP  = new UserDataQosPolicy(tab);
-            DomainParticipantQos DPQOS = new DomainParticipantQos(UDQP,new EntityFactoryQosPolicy()) ;
+            UserDataQosPolicy UDQP  = new UserDataQosPolicy(tab);
+            DomainParticipantQos DPQOS =
+                new DomainParticipantQos(UDQP,new EntityFactoryQosPolicy()) ;
             domainparticipantFactory = DomainParticipantFactoryHelper.narrow(ncRef.resolve_str(rname));
-            TopicQos tq = new TopicQos(new TopicDataQosPolicy(tab),new DurabilityQosPolicy( DurabilityQosPolicyKind.from_int(0),new Duration_t(0,0)),new DeadlineQosPolicy(new Duration_t(0,0)),new org.omg.dds.LatencyBudgetQosPolicy(new Duration_t(0,0)),new org.omg.dds.LivelinessQosPolicy (LivelinessQosPolicyKind.from_int(0),new Duration_t(0,0)),new org.omg.dds.ReliabilityQosPolicy(ReliabilityQosPolicyKind.from_int(0),new Duration_t(0,0)),new org.omg.dds.DestinationOrderQosPolicy(DestinationOrderQosPolicyKind.from_int(0)),new org.omg.dds.HistoryQosPolicy(org.omg.dds.HistoryQosPolicyKind.from_int(0),0),new org.omg.dds.ResourceLimitsQosPolicy(0,0,0),new org.omg.dds.TransportPriorityQosPolicy(0),new org.omg.dds.LifespanQosPolicy (new Duration_t(0,0)),new org.omg.dds.OwnershipQosPolicy(org.omg.dds.OwnershipQosPolicyKind.from_int(0)));
-            domainparticipant = domainparticipantFactory.create_participant(0,DPQOS,null);            
-            topic = domainparticipant.create_topic("foo","demo.dds.dcps.foosample.Foo",tq ,null);            
+
+            TopicQos tq =  new TopicQos(
+                new TopicDataQosPolicy(tab),
+                new DurabilityQosPolicy( 
+                    DurabilityQosPolicyKind.from_int(0),
+                    new Duration_t(0,0)),
+                new DeadlineQosPolicy(new Duration_t(0,0)),
+                new LatencyBudgetQosPolicy(new Duration_t(0,0)),
+                new LivelinessQosPolicy(
+                    LivelinessQosPolicyKind.from_int(0),
+                    new Duration_t(0,0)),
+                new ReliabilityQosPolicy(
+                    ReliabilityQosPolicyKind.from_int(0),
+                    new Duration_t(0,0)),
+                new DestinationOrderQosPolicy(
+                    DestinationOrderQosPolicyKind.from_int(0)),
+                new HistoryQosPolicy(
+                    HistoryQosPolicyKind.from_int(0),0),
+                new ResourceLimitsQosPolicy(0,0,0),
+                new TransportPriorityQosPolicy(0),
+                new LifespanQosPolicy (new Duration_t(0,0)),
+                new OwnershipQosPolicy(
+                    OwnershipQosPolicyKind.from_int(0)));
+
+            domainparticipant = 
+                domainparticipantFactory.create_participant(0,DPQOS,null);
+            topic = 
+                domainparticipant.create_topic("foo",
+                                               "demo.dds.dcps.foosample.Foo",
+                                               tq ,null);            
             String  st  [] = new String [1];
             st[0] = "" ;
-            suscriberqos = new SubscriberQos(new org.omg.dds.PresentationQosPolicy( org.omg.dds.PresentationQosPolicyAccessScopeKind.from_int(0), false  ,false ), new PartitionQosPolicy(st),new GroupDataQosPolicy(tab),new org.omg.dds.EntityFactoryQosPolicy(false));        
+            suscriberqos = new SubscriberQos(
+                new org.omg.dds.PresentationQosPolicy(
+                    org.omg.dds.PresentationQosPolicyAccessScopeKind.from_int(0),
+                    false  ,false ), 
+                new PartitionQosPolicy(st),
+                new GroupDataQosPolicy(tab),
+                new org.omg.dds.EntityFactoryQosPolicy(false)); 
+       
             suscriber = domainparticipant.create_subscriber(suscriberqos,null);
-            datareaderqos = new DataReaderQos(new DurabilityQosPolicy( DurabilityQosPolicyKind.from_int(0),new Duration_t(0,0)),new DeadlineQosPolicy(new Duration_t(0,0)),new org.omg.dds.LatencyBudgetQosPolicy(new Duration_t(0,0)),new org.omg.dds.LivelinessQosPolicy (LivelinessQosPolicyKind.from_int(0),new Duration_t(0,0)),new org.omg.dds.ReliabilityQosPolicy(ReliabilityQosPolicyKind.from_int(0),new Duration_t(0,0)),new org.omg.dds.DestinationOrderQosPolicy(DestinationOrderQosPolicyKind.from_int(0)),new org.omg.dds.HistoryQosPolicy(org.omg.dds.HistoryQosPolicyKind.from_int(0),0),new org.omg.dds.ResourceLimitsQosPolicy(0,0,0),new org.omg.dds.UserDataQosPolicy(tab) , new org.omg.dds.TimeBasedFilterQosPolicy(new Duration_t(0,0) ) , new org.omg.dds.ReaderDataLifecycleQosPolicy(new Duration_t(0,0)));
+            datareaderqos = new DataReaderQos(
+                new DurabilityQosPolicy( 
+                    DurabilityQosPolicyKind.from_int(0),
+                    new Duration_t(0,0)),
+                new DeadlineQosPolicy(new Duration_t(0,0)),
+                new LatencyBudgetQosPolicy(new Duration_t(0,0)),
+                new LivelinessQosPolicy (
+                    LivelinessQosPolicyKind.from_int(0),
+                    new Duration_t(0,0)),
+                new ReliabilityQosPolicy(
+                    ReliabilityQosPolicyKind.from_int(0),
+                    new Duration_t(0,0)),
+                new DestinationOrderQosPolicy(
+                    DestinationOrderQosPolicyKind.from_int(0)),
+                new HistoryQosPolicy(
+                    HistoryQosPolicyKind.from_int(0),0),
+                new ResourceLimitsQosPolicy(0,0,0),
+                new UserDataQosPolicy(tab) ,
+                new TimeBasedFilterQosPolicy(new Duration_t(0,0)),
+                new ReaderDataLifecycleQosPolicy(new Duration_t(0,0)));
+
             datareader = suscriber. create_datareader(topic,datareaderqos,null);
             foodatareader = FooDataReaderHelper.narrow(datareader);
-            DataReaderListener listener = DataReaderListenerHelper.narrow(poa.servant_to_reference(new FooDataReaderListenerImpl())) ;
+            DataReaderListener listener = 
+                DataReaderListenerHelper.narrow(poa.servant_to_reference(new FooDataReaderListenerImpl())) ;
+
+            if (foodatareader == null) {
+                System.out.println ("Unable to get FooDataReader reference");
+                return;
+            }
+
             foodatareader.set_listener(listener,0);	
             orb.run();              
         }

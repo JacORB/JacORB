@@ -177,6 +177,10 @@ public class FooProducer implements Runnable {
             datawriter = publisher
                     .create_datawriter(topic, datawriterqos, null);
             foodatawriter = FooDataWriterHelper.narrow(datawriter);
+            if (foodatawriter == null) {
+                System.out.println ("Unable to get FooDataWriter reference");
+                return;
+            }
             double dummy = 0;
             BufferedReader console;
             console = new BufferedReader(new InputStreamReader(System.in));
