@@ -87,14 +87,12 @@
       <!-- The mapping (03-01-02) is missing ORB::destroy - patch it   -->
       <!-- in here.                                                    -->
       <replace summary="true" file="${src.generated}/org/omg/CORBA/ORB.java">
-         <replacetoken><![CDATA[public void shutdown(boolean wait_for_completion) {
-      throw new org.omg.CORBA.NO_IMPLEMENT();]]></replacetoken>
-         <replacevalue><![CDATA[public void shutdown(boolean wait_for_completion) {
+        <replacetoken><![CDATA[public void shutdown(boolean wait_for_completion) {]]></replacetoken>
+        <replacevalue><![CDATA[public void destroy() {
       throw new org.omg.CORBA.NO_IMPLEMENT();
    }
 
-   public void destroy() {
-      throw new org.omg.CORBA.NO_IMPLEMENT();]]></replacevalue>
+   public void shutdown(boolean wait_for_completion) {]]></replacevalue>
       </replace>
 
       <!-- Copy missing mapping code (From RT Specification 05-01-04 -->
