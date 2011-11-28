@@ -32,6 +32,7 @@ package org.jacorb.dds;
 import java.lang.reflect.Method;
 import java.util.Iterator;
 import java.util.Vector;
+import org.jacorb.util.ObjectUtil;
 import org.omg.CORBA.Any;
 import org.omg.CosEventChannelAdmin.ConsumerAdmin;
 import org.omg.CosEventChannelAdmin.EventChannel;
@@ -171,7 +172,7 @@ public class ThreadSubscriber extends Thread  implements PushConsumerOperations{
             type_param_extract[0] = Any.class ;
             
             try{
-                typehelper  = Class.forName(topic.get_type_name()+"Helper") ;
+                typehelper  = ObjectUtil.classForName(topic.get_type_name()+"Helper") ;
                 Method extract = typehelper.getMethod("extract",type_param_extract);
                 instance = extract.invoke(null ,valu_param_extract);
             }

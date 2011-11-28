@@ -29,6 +29,7 @@ package org.jacorb.dds;
 import java.lang.reflect.Method;
 import java.util.Iterator;
 import java.util.Vector;
+import org.jacorb.util.ObjectUtil;
 import org.omg.PortableServer.Servant;
 import org.omg.dds.DataReader;
 import org.omg.dds.DataReaderListener;
@@ -96,8 +97,8 @@ public class SubscriberImpl extends SubscriberPOA {
 
 		try{
 
-			Class type = Class.forName(a_topic.get_type_name()+"DataReaderImpl") ;
-			Class typehelper = Class.forName(a_topic.get_type_name()+"DataReaderHelper") ;
+			Class type = ObjectUtil.classForName(a_topic.get_type_name()+"DataReaderImpl") ;
+			Class typehelper = ObjectUtil.classForName(a_topic.get_type_name()+"DataReaderHelper") ;
 			Class type_param_constructor [] = new  Class[6] ;
 			Object valu_param_constructor [] = new Object[6] ;
 			type_param_constructor[0] = DataReaderQos.class ;
@@ -118,7 +119,7 @@ public class SubscriberImpl extends SubscriberPOA {
 			Class  type_param_narrow [] = new Class [1 ];
 			org.omg.CORBA.Object valu_param_narrow [] = new org.omg.CORBA.Object[1];
 			valu_param_narrow[0] = oref ;
-			type_param_narrow[0] = Class.forName("org.omg.CORBA.Object") ;
+			type_param_narrow[0] = ObjectUtil.classForName("org.omg.CORBA.Object") ;
 			Method Narrow = typehelper.getMethod("narrow",type_param_narrow );
 			DR = (DataReader) Narrow.invoke(null, (Object[])valu_param_narrow);
 			add( DR);

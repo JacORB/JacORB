@@ -29,6 +29,7 @@ package org.jacorb.dds;
 import java.lang.reflect.Method;
 import java.util.Iterator;
 import java.util.Vector;
+import org.jacorb.util.ObjectUtil;
 import org.omg.PortableServer.Servant;
 import org.omg.dds.DataWriter;
 import org.omg.dds.DataWriterListener;
@@ -86,8 +87,8 @@ public class PublisherImpl extends PublisherPOA  {
 		Servant impl;
 
 		try{
-			Class type = Class.forName(a_topic.get_type_name()+"DataWriterImpl") ;
-			Class typehelper = Class.forName(a_topic.get_type_name()+"DataWriterHelper") ;
+			Class type = ObjectUtil.classForName(a_topic.get_type_name()+"DataWriterImpl") ;
+			Class typehelper = ObjectUtil.classForName(a_topic.get_type_name()+"DataWriterHelper") ;
 			Class type_param_constructor [] = new  Class[6] ;
 			Object valu_param_constructor [] = new Object[6] ;
 			type_param_constructor[0] = DataWriterQos.class ;
@@ -108,7 +109,7 @@ public class PublisherImpl extends PublisherPOA  {
 			Class  type_param_narrow [] = new Class [1 ];
 			org.omg.CORBA.Object valu_param_narrow [] = new org.omg.CORBA.Object[1];
 			valu_param_narrow[0] = oref ;
-			type_param_narrow[0] = Class.forName("org.omg.CORBA.Object") ;
+			type_param_narrow[0] = ObjectUtil.classForName("org.omg.CORBA.Object") ;
 			Method Narrow = typehelper.getMethod("narrow",type_param_narrow );
 			DW = (DataWriter) Narrow.invoke(null, (Object[])valu_param_narrow);
 

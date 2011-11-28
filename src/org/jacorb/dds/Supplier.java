@@ -27,6 +27,7 @@
 package org.jacorb.dds;
 
 import java.lang.reflect.Method;
+import org.jacorb.util.ObjectUtil;
 import org.omg.CORBA.Any;
 import org.omg.CosEventChannelAdmin.EventChannel;
 import org.omg.CosEventChannelAdmin.EventChannelHelper;
@@ -81,11 +82,11 @@ public class Supplier extends PushSupplierPOA {
             Any any = orb.create_any();
             TopicHelper.insert(any,topic);
             proxyPushConsumer.push( any );               
-            typehelper  = Class.forName(topic.get_type_name()+"Helper") ;            
+            typehelper  = ObjectUtil.classForName(topic.get_type_name()+"Helper") ;            
             valu_param_insert[0] = any ;
             valu_param_insert[1] = instance ;
             type_param_insert[0] = Any.class ;
-            type_param_insert[1] = Class.forName(topic.get_type_name()) ;
+            type_param_insert[1] =  ObjectUtil.classForName(topic.get_type_name()) ;
             Method Insert = typehelper.getMethod("insert",type_param_insert);
             Insert.invoke(null ,valu_param_insert);                  
             proxyPushConsumer.push( any );                                    
