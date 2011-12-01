@@ -53,6 +53,11 @@ public class CodeSet
     private static final CodeSet ISO8859_1_CODESET = new Iso8859_1CodeSet();
 
     /**
+     * <code>ISO8859_15</code> represents Latin Alphabet No. 9
+     */
+    private static final CodeSet ISO8859_15_CODESET = new Iso8859_15CodeSet();
+
+    /**
      * <code>UTF8</code> represents UTF8 1-6 bytes for every character
      * X/Open UTF-8; UCS Transformation Format 8 (UTF-8)
      */
@@ -78,7 +83,7 @@ public class CodeSet
     /**
      * All of the encodings supported by Jacorb. These should be listed in order of preference.
      */
-    private static CodeSet[] KNOWN_ENCODINGS = { ISO8859_1_CODESET, UTF16_CODESET, UTF8_CODESET , UCS2_CODESET };
+    private static CodeSet[] KNOWN_ENCODINGS = { ISO8859_1_CODESET, ISO8859_15_CODESET, UTF16_CODESET, UTF8_CODESET , UCS2_CODESET };
 
 
     /**
@@ -601,6 +606,15 @@ public class CodeSet
 
 
         /**
+         * Only used for derived codesets
+         */
+        protected Iso8859_1CodeSet(int i, String name)
+        {
+            super( i, name);
+        }
+
+
+        /**
          * Returns true if 'wide' is not specified.
          */
         public boolean supportsCharacterData( boolean wide )
@@ -612,6 +626,66 @@ public class CodeSet
         public void write_char( OutputBuffer buffer, char c, boolean write_bom, boolean write_length_indicator, int giop_minor )
         {
             buffer.write_byte( (byte) c );
+        }
+    }
+
+
+    static private class Iso8859_15CodeSet extends Iso8859_1CodeSet {
+
+        private Iso8859_15CodeSet()
+        {
+            super( 0x0001000F, "ISO8859_15" );
+        }
+
+        public void write_char( OutputBuffer buffer, char c, boolean write_bom, boolean write_length_indicator, int giop_minor )
+        {
+            switch (c)
+            {
+                case '\u20AC':
+                {
+                    buffer.write_byte((byte) 0xA4);
+                    break;
+                }
+                case '\u0160':
+                {
+                    buffer.write_byte((byte) 0xA6);
+                    break;
+                }
+                case '\u0161':
+                {
+                    buffer.write_byte((byte) 0xA8);
+                    break;
+                }
+                case '\u017D':
+                {
+                    buffer.write_byte((byte) 0xB4);
+                    break;
+                }
+                case '\u017E':
+                {
+                    buffer.write_byte((byte) 0xB8);
+                    break;
+                }
+                case '\u0152':
+                {
+                    buffer.write_byte((byte) 0xBC);
+                    break;
+                }
+                case '\u0153':
+                {
+                    buffer.write_byte((byte) 0xBD);
+                    break;
+                }
+                case '\u0178':
+                {
+                    buffer.write_byte((byte) 0xBE);
+                    break;
+                }
+                default:
+                {
+                    super.write_char (buffer, c, write_bom, write_length_indicator, giop_minor);
+                }
+            }
         }
     }
 
