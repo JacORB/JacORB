@@ -248,6 +248,217 @@ JacORB name  server. This URL  will be used  by the ORB to  locate the
 file  used to  store  the  name server's  object  reference (see  also
 chapter \ref{ch:naming}).
 
+\subsection{Acceptor Exception Event Plugin}
+\label{acceptorevent}
+This plugin is implemented by {\tt
+org.jacorb.orb.listener.AcceptorExceptionListener}.
+\begin{small}
+\begin{verbatim}
+package org.jacorb.orb.listener;
+public interface AcceptorExceptionListener extends EventListener
+    void exceptionCaught(AcceptorExceptionEvent ae);
+\end{verbatim}
+\end{small}
+The configuration property is
+\begin{verbatim}
+jacorb.acceptor_exception_listener
+\end{verbatim}
+If the server listener thread receives an exception while doing the {\tt
+ServerSocket.accept()} it will construct a {\tt
+org.jacorb.orb.listener.AcceptorExceptionEvent} and notify the configured
+implementation. The Event allows the following to be retrieved:
+\begin{small}
+\begin{verbatim}
+    public ORB getORB()
+    public Throwable getException()
+\end{verbatim}
+\end{small}
+The default implementation, {\tt
+org.jacorb.orb.listener.DefaultAcceptor\-ExceptionListener}, will simply shutdown
+the ORB on all Errors and for SSLExceptions that are thrown before any socket
+connections have been made. If the developer wishes they may plugin
+their own for more fine grained control.
+
+In order to detect whether the exception has been thrown on the first attempt
+or any attempt after that the developer may use the following function within
+their listener implementation.
+\begin{small}
+\begin{verbatim}
+    public void exceptionCaught(AcceptorExceptionEvent ae) {
+    ...
+       if (((org.jacorb.orb.iiop.IIOPListener.Acceptor)
+                   ae.getSource()).getAcceptorSocketLoop()) {
+      ...
+\end{verbatim}
+\end{small}
+{\tt getAcceptorSocketLoop} returns false if the event has been thrown on the
+initial loop, or true on any loop after that.
+
+Note that if the default implementation is used it is possible that due to e.g.
+an SSLException the listener will fail to accept on the server socket after the
+root POA is resolved which means that the ORB will be shutdown. Therefore future
+calls on that POA will fail with a 'POA destroyed' message.
+
+\subsection{Codesets}
+JacORB implements codeset negotiation through {\tt org.jacorb.orb.giop.CodeSet}. Codesets
+that are currently supported are
+\begin{itemize}
+\item ISO8859\_1
+\item ISO8859\_15
+\item UTF8
+\item UTF16
+\item UCS2
+\end{itemize}
+
+\textbf{Note:} The class {\tt org.jacorb.orb.giop.CodeSet} provides a main method to
+aid debugging of codeset issues. It will print out the current system encoding values.
+If the developer is running under a Unix based system and passes the argument -a it will
+also print out the current locale and all known locales.
+
+\subsection{Compacting Typecodes}
+\label{compact-typecode}
+Using the property
+\begin{verbatim}
+jacorb.compactTypecodes=off
+\end{verbatim}
+causes JacORB to strip off all optional information from Typecode's before marshalling them.
+This will remove all optional data from the typecode (essentially the equivilant of
+calling get\_compact\_typecode). This produces smaller network packages and thereby can give a positive effect on performance.
+
+Disadvantages of this are that the CORBA Notification Service relies on typecodes for complex
+filter notation and this also may cause interoperability problems with other orbs during typecode
+comparisons. For instance the comparison of Typecode's that were received across the net with
+local one's (from a Helper class) using \emph{equal} will fail.
+
+That's because the following holds (see OMG doc):
+\begin{verbatim}
+MyTypeHelper.id().equal(MyTypeHelper.id()) => TRUE
+MyTypeHelper.id().equal(MyTypeHelper.id()
+    .get_compacted_typecode()) => FALSE
+\end{verbatim}
+
+JacORB will (if compaction is enabled) always invoke \emph{get\_compacted\_typecode} before marshalling a typecode.
+
+Note: it's not necessary to compare TypeCode's using \emph{equal}. The method \emph{equivalent} does a less strict comparison
+that omits the optional information.
+
+\subsection{Implname and CORBA Objects}
+\label{implname}
+A JacORB object key consists of {\tt <impl name>/<poa name>/<object oid>}. The lifespan of CORBA objects are defined by the POA policy LifespanPolicyValue.
+
+Transient objects are those whose lifespans are bounded by the process in which they were created. Once a transient object has been destroyed any clients still holding references to those objects should receive a OBJECT\_NOT\_EXIST. This applies even if the transient object is recreated as it is a new object reference. To achieve this JacORB replaces the implname portion of the key with transient data.
+
+Persistent objects are those that may live beyond the lifetime of the process that created them. The implname property should be configured in this case. It should be set to a unique name to to form part of the object identity. If it is not set, an exception will be thrown. This property may be configured in the jacorb.properties (where an example shows it set to StandardImplName) or in the code of the server e.g.
+\small{
+\begin{verbatim}
+    /* create and set properties */
+    java.util.Properties props = new java.util.Properties();
+    props.setProperty("jacorb.use_imr","on");
+    props.setProperty("jacorb.implname","MyName");
+
+    /* init ORB  */
+    orb = org.omg.CORBA.ORB.init(args, props);
+\end{verbatim}
+}
+
+The implname property allows a program to run with a different implementation name so that it will not accept references created by another persistent POA with the same POA name. A common problem is where the developer has two persistent servers running with the same implname and POA names when one tries to contact the other. Rather than calling server x, server y performs local call. This is because there is no way of distinguishing the two servers; the developer should have used different implnames (e.g. UUIDs).
+
+\subsubsection{Corbaloc with JacORB Implname and CORBA Objects}
+
+Normally corbaloc is used to provide a shortcut to refer to CORBA objects. However the stringified key portion corresponds to the octet sequence in the object\_key member of a GIOP Request or LocateRequest header as defined in section 15.4 of CORBA 2.3. Further the key\_string uses the escape conventions described in RFC 2396 to map away from octet values that cannot directly be part of a URL. This means the key string might look like:
+\small{
+\begin{verbatim}
+corbaloc:iiop:10.1.0.4:18000/FooBar/ServiceName/V_3%f1%1c%9b%11%db%b7%e9
+         %bdsnQ%ea%85qV_3%f0%1c%9b%11%db%b7%e9%bdsnQ%ea%85TA5%f0%1c%9b%11
+         %db%b7%e9%bdsnQ%ea%85
+\end{verbatim}
+}
+With JacORB, for persistent objects, the developer may configure the implname, poa name and object key. This should mean that the corbaloc sequence should be more readable:
+\small{
+\begin{verbatim}
+corbaloc:iiop:10.1.0.4:42811/imr_demo/ImRDemoServerPOA/imr_demo
+\end{verbatim}
+}
+With a transient object the key may look like:
+\small{
+\begin{verbatim}
+corbaloc:iiop:10.1.0.4:42818/2649480905/%00%14%3e45%0d%0b!%10%3e
+\end{verbatim}
+}
+As it is not possible to construct a transient object with a readable key some developers may find it useful to use the objectKeyMap facility within JacORB to refer to their transient objects. Note the objectKey functionality may also be used with persistent objects.
+
+This property provides more readable corbaloc URLs by mapping the actual object key to an arbitrary string. The mapping below would permit clients of a name service to access it using corbaloc::ipaddress:portnum/NameService. The property also accepts the following mappings:
+\begin{itemize}
+\item IOR, resource, jndi, URL (e.g. file, http)
+\end{itemize}
+Note that {\tt jacorb.orb.objectKeyMap.name} is configurable both through the jacorb.properties file and through the proprietary function
+
+{\tt ORB::addObjectKey(String name, String)}
+
+Example usage
+
+{\tt jacorb.orb.objectKeyMap.NameService=file:///home/rnc/NameSingleton.ior}
+
+This then allows the corbaloc key portion to simply be 'NameService'.
+
+\subsection{IORMutator}
+\label{iorMutator}
+
+An enhancement has been added to JacORB that allows a developer to alter incoming
+and outgoing objects at a very low level within the ORB. While the majority of the
+users would not require this ability, it is useful within scenarios where for instance,
+a user is running with legacy network elements which have multiple, identical IP
+addresses. This allows them to mutate the IORs as shown below.
+
+\textbf{This is a very powerful ability that must be used with caution. As it operates
+at the CDRStream level it is easy to break the ORB and cause unpredictable behaviour}
+
+\subsubsection{Adding a Mutator}
+The developer should firstly extend the following abstract class.
+\begin{small}
+\begin{verbatim}
+package org.jacorb.orb.IORMutator;
+public abstract class IORMutator
+    protected org.omg.ETF.Connection connection;
+
+    public abstract IOR mutateIncoming (IOR object);
+    public abstract IOR mutateOutgoing (IOR object);
+\end{verbatim}
+\end{small}
+The classname should then be specified in the property
+\begin{verbatim}
+jacorb.iormutator
+\end{verbatim}
+
+The IORMutator class also has a {\tt org.omg.ETF.Connection connection} variable. This
+variable will be updated with the current transport information for the respective
+streams. Note, altering the information within the transport is undefined. The
+mutateIncoming operation will be called for CDRInputStream operations and the
+mutateOutgoing for CDROuputStream operations.
+
+\subsection{Loading Classes and Resources}
+\label{tccl}
+JacORB has two different policies it may use to load classes and resources. By default it will attempt to load
+using the thread context class loader. To support integration in some deployment scenarios with specialised class
+loader schemes it is also possible to configure to use Class.forName where the class loader is the defining class
+loader of the current class.
+
+In order to use this the \emph{system property}
+\begin{verbatim}
+jacorb.classloaderpolicy=[tccl|forname]
+\end{verbatim}
+may be used. Note that this property \emph{MUST} be set before any calls to org.omg.* or org.jacorb.* code. Setting this
+to 'tccl' will mean JacORB will use the thread context class loader to resolve classes and resources. Setting it to
+'forname' means that JacORB will use the defining class loader. Internally JacORB will use this pseudocode:
+
+\begin{verbatim}
+   if (useTCCL) {
+      return Thread.currentThread().getContextClassLoader().loadClass(name);
+   } else {
+      return Class.forName(name);
+   }
+\end{verbatim}
+
 \subsection{Logging}
 
 JacORB writes logging information through SLF4J, which is a logging
@@ -409,271 +620,6 @@ and whether your thread pool is  big enough.  Also, this tool lets you
 change the  state of a POA,  e.g. from {\it active}  to {\it holding}.
 Please see chapter \ref{ch:POA} on the POA for more details.
 
-\subsection{NIO Support}
-Client side non-blocking I/O support has been added to JacORB. This
-implementation consists of refactored connector and connection handler that
-use callbacks to improve asynch performance. The property
-\begin{verbatim}
-jacorb.connection.nonblocking=on/off
-\end{verbatim}
-is used to enable this capability. Non\-blocking I/O is currently only
-available for handling client side connections using plain IIOP.
-Server side support for receiving requests and sending replies is not yet
-available. Integration of SSL is also not available at this time.
-
-For more details see \ref{connection_management}
-
-
-\subsection{Typecode Compaction}
-\label{compact-typecode}
-Using the proprty
-\begin{verbatim}
-jacorb.compactTypecodes=off
-\end{verbatim}
-causes JacORB to strip off all optional information from Typecode's before marshalling them.
-This will remove all optional data from the typecode (essentially the equivilant of
-calling get\_compact\_typecode). This produces smaller network packages and thereby can give a positive effect on performance.
-
-Disadvantages of this are that the CORBA Notification Service relies on typecodes for complex
-filter notation and this also may cause interoperability problems with other orbs during typecode
-comparisons. For instance the comparison of Typecode's that were received across the net with
-local one's (from a Helper class) using \emph{equal} will fail.
-
-That's because the following holds (see OMG doc):
-\begin{verbatim}
-MyTypeHelper.id().equal(MyTypeHelper.id()) => TRUE
-MyTypeHelper.id().equal(MyTypeHelper.id()
-    .get_compacted_typecode()) => FALSE
-\end{verbatim}
-
-JacORB will (if compaction is enabled) always invoke \emph{get\_compacted\_typecode} before marshalling a typecode.
-
-Note: it's not necessary to compare TypeCode's using \emph{equal}. The method \emph{equivalent} does a less strict comparison
-that omits the optional information.
-
-\subsection{Acceptor Exception Event Plugin}
-\label{acceptorevent}
-This plugin is implemented by {\tt
-org.jacorb.orb.listener.AcceptorExceptionListener}.
-\begin{small}
-\begin{verbatim}
-package org.jacorb.orb.listener;
-public interface AcceptorExceptionListener extends EventListener
-    void exceptionCaught(AcceptorExceptionEvent ae);
-\end{verbatim}
-\end{small}
-The configuration property is
-\begin{verbatim}
-jacorb.acceptor_exception_listener
-\end{verbatim}
-If the server listener thread receives an exception while doing the {\tt
-ServerSocket.accept()} it will construct a {\tt
-org.jacorb.orb.listener.AcceptorExceptionEvent} and notify the configured
-implementation. The Event allows the following to be retrieved:
-\begin{small}
-\begin{verbatim}
-    public ORB getORB()
-    public Throwable getException()
-\end{verbatim}
-\end{small}
-The default implementation, {\tt
-org.jacorb.orb.listener.DefaultAcceptor\-ExceptionListener}, will simply shutdown
-the ORB on all Errors and for SSLExceptions that are thrown before any socket
-connections have been made. If the developer wishes they may plugin
-their own for more fine grained control.
-
-In order to detect whether the exception has been thrown on the first attempt
-or any attempt after that the developer may use the following function within
-their listener implementation.
-\begin{small}
-\begin{verbatim}
-    public void exceptionCaught(AcceptorExceptionEvent ae) {
-    ...
-       if (((org.jacorb.orb.iiop.IIOPListener.Acceptor)
-                   ae.getSource()).getAcceptorSocketLoop()) {
-      ...
-\end{verbatim}
-\end{small}
-{\tt getAcceptorSocketLoop} returns false if the event has been thrown on the
-initial loop, or true on any loop after that.
-
-Note that if the default implementation is used it is possible that due to e.g.
-an SSLException the listener will fail to accept on the server socket after the
-root POA is resolved which means that the ORB will be shutdown. Therefore future
-calls on that POA will fail with a 'POA destroyed' message.
-
-\subsection{Implname and CORBA Objects}
-\label{implname}
-A JacORB object key consists of {\tt <impl name>/<poa name>/<object oid>}. The lifespan of CORBA objects are defined by the POA policy LifespanPolicyValue.
-
-Transient objects are those whose lifespans are bounded by the process in which they were created. Once a transient object has been destroyed any clients still holding references to those objects should receive a OBJECT\_NOT\_EXIST. This applies even if the transient object is recreated as it is a new object reference. To achieve this JacORB replaces the implname portion of the key with transient data.
-
-Persistent objects are those that may live beyond the lifetime of the process that created them. The implname property should be configured in this case. It should be set to a unique name to to form part of the object identity. If it is not set, an exception will be thrown. This property may be configured in the jacorb.properties (where an example shows it set to StandardImplName) or in the code of the server e.g.
-\small{
-\begin{verbatim}
-    /* create and set properties */
-    java.util.Properties props = new java.util.Properties();
-    props.setProperty("jacorb.use_imr","on");
-    props.setProperty("jacorb.implname","MyName");
-
-    /* init ORB  */
-    orb = org.omg.CORBA.ORB.init(args, props);
-\end{verbatim}
-}
-
-The implname property allows a program to run with a different implementation name so that it will not accept references created by another persistent POA with the same POA name. A common problem is where the developer has two persistent servers running with the same implname and POA names when one tries to contact the other. Rather than calling server x, server y performs local call. This is because there is no way of distinguishing the two servers; the developer should have used different implnames (e.g. UUIDs).
-
-\subsubsection{Corbaloc with JacORB Implname and CORBA Objects}
-
-Normally corbaloc is used to provide a shortcut to refer to CORBA objects. However the stringified key portion corresponds to the octet sequence in the object\_key member of a GIOP Request or LocateRequest header as defined in section 15.4 of CORBA 2.3. Further the key\_string uses the escape conventions described in RFC 2396 to map away from octet values that cannot directly be part of a URL. This means the key string might look like:
-\small{
-\begin{verbatim}
-corbaloc:iiop:10.1.0.4:18000/FooBar/ServiceName/V_3%f1%1c%9b%11%db%b7%e9
-         %bdsnQ%ea%85qV_3%f0%1c%9b%11%db%b7%e9%bdsnQ%ea%85TA5%f0%1c%9b%11
-         %db%b7%e9%bdsnQ%ea%85
-\end{verbatim}
-}
-With JacORB, for persistent objects, the developer may configure the implname, poa name and object key. This should mean that the corbaloc sequence should be more readable:
-\small{
-\begin{verbatim}
-corbaloc:iiop:10.1.0.4:42811/imr_demo/ImRDemoServerPOA/imr_demo
-\end{verbatim}
-}
-With a transient object the key may look like:
-\small{
-\begin{verbatim}
-corbaloc:iiop:10.1.0.4:42818/2649480905/%00%14%3e45%0d%0b!%10%3e
-\end{verbatim}
-}
-As it is not possible to construct a transient object with a readable key some developers may find it useful to use the objectKeyMap facility within JacORB to refer to their transient objects. Note the objectKey functionality may also be used with persistent objects.
-
-This property provides more readable corbaloc URLs by mapping the actual object key to an arbitrary string. The mapping below would permit clients of a name service to access it using corbaloc::ipaddress:portnum/NameService. The property also accepts the following mappings:
-\begin{itemize}
-\item IOR, resource, jndi, URL (e.g. file, http)
-\end{itemize}
-Note that {\tt jacorb.orb.objectKeyMap.name} is configurable both through the jacorb.properties file and through the proprietary function
-
-{\tt ORB::addObjectKey(String name, String)}
-
-Example usage
-
-{\tt jacorb.orb.objectKeyMap.NameService=file:///home/rnc/NameSingleton.ior}
-
-This then allows the corbaloc key portion to simply be 'NameService'.
-
-\subsection{Network Event Logging}
-\label{eventLogging}
-
-An enhancement has been added to JacORB that allows a developer to monitor TCP and SSL connections.
-Note that for both of these implementations full information may only retrieved with a successful connection;
-e.g. if the connection could not be established there will be no certificates.
-
-\subsubsection{TCP Monitoring}
-
-To monitor TCP connections a developer should implement the following interface
-\begin{small}
-\begin{verbatim}
-package org.jacorb.orb.listener;
-public interface TCPConnectionListener extends EventListener
-    void connectionOpened(TCPConnectionEvent e);
-    void connectionClosed(TCPConnectionEvent e);
-\end{verbatim}
-\end{small}
-The classname should then be specified in the property
-\begin{verbatim}
-jacorb.net.tcp_listener
-\end{verbatim}
-
-The standard java event interface is followed; the developer's code will receive the
-TCPConnectionEvent which allows the following information to be retrieved:
-\begin{small}
-\begin{verbatim}
-    public String getLocalIP()
-    public int getLocalPort()
-    public String getRemoteIP()
-    public int getRemotePort()
-\end{verbatim}
-\end{small}
-Note that the TCPConnectionEvent extends java.util.EventObject and the EventObject.getSource
-operation will return the IIOPConnection of the TCP connection.
-
-\subsubsection{SSL Monitoring}
-
-To monitor SSL sessions a developer should implement the following interface
-\begin{small}
-\begin{verbatim}
-package org.jacorb.orb.listener;
-public interface SSLSessionListener extends EventListener
-    void sessionCreated(SSLSessionEvent e);
-    void handshakeException(SSLSessionEvent e);
-    void keyException(SSLSessionEvent e);
-    void peerUnverifiedException(SSLSessionEvent e);
-    void protocolException(SSLSessionEvent e);
-    void sslException(SSLSessionEvent e);
-\end{verbatim}
-\end{small}
-The classname should then be specified in the property
-\begin{verbatim}
-jacorb.security.ssl.ssl_listener
-\end{verbatim}
-
-The standard java event interface is followed; the developer's code will receive the
-SSLSessionEvent which allows the following information to be retrieved:
-\begin{small}
-\begin{verbatim}
-    public String getLocalIP()
-    public int getLocalPort()
-    public String getRemoteIP()
-    public int getRemotePort()
-    public String getRemoteDN()
-    public X509Certificate[] getPeerCertificateChain()
-\end{verbatim}
-\end{small}
-
-Note that getRemoteDN will simply return a concatenated string of the
-certificates. For that reason it is deprecated; getPeerCertificateChain should
-be used instead as that allows a developer to extract specific information from
-the certificate.  In order to detect a succesful handshake the implementation
-delegates to the JSSE {\tt javax.net.ssl.HandShakeCompletedListener}. When using
-JDK1.3 JSSE the JSSE may not throw for instance a handshakeException but a
-sslException. Similar to above, SSLSessionEvent extends java.util.EventObject. The
-EventObject.getSource operation will return the source of the HandshakeCompletedEvent.
-
-\subsection{IORMutator}
-\label{iorMutator}
-
-An enhancement has been added to JacORB that allows a developer to alter incoming
-and outgoing objects at a very low level within the ORB. While the majority of the
-users would not require this ability, it is useful within scenarios where for instance,
-a user is running with legacy network elements which have multiple, identical IP
-addresses. This allows them to mutate the IORs as shown below.
-
-\textbf{This is a very powerful ability that must be used with caution. As it operates
-at the CDRStream level it is easy to break the ORB and cause unpredictable behaviour}
-
-\subsubsection{Adding a Mutator}
-The developer should firstly extend the following abstract class.
-\begin{small}
-\begin{verbatim}
-package org.jacorb.orb.IORMutator;
-public abstract class IORMutator
-    protected org.omg.ETF.Connection connection;
-
-    public abstract IOR mutateIncoming (IOR object);
-    public abstract IOR mutateOutgoing (IOR object);
-\end{verbatim}
-\end{small}
-The classname should then be specified in the property
-\begin{verbatim}
-jacorb.iormutator
-\end{verbatim}
-
-The IORMutator class also has a {\tt org.omg.ETF.Connection connection} variable. This
-variable will be updated with the current transport information for the respective
-streams. Note, altering the information within the transport is undefined. The
-mutateIncoming operation will be called for CDRInputStream operations and the
-mutateOutgoing for CDROuputStream operations.
-
 \subsection{Network and Sockets}
 
 \subsubsection{IP Addresses}
@@ -827,57 +773,97 @@ This factory is used by JacORB to create a server socket for incoming SSL connec
 \end{longtable}
 \end{small}
 
-\subsection{Compacting Typecodes}
-\label{compact-typecode}
-Using the property
+\subsection{Network Event Logging}
+\label{eventLogging}
+
+An enhancement has been added to JacORB that allows a developer to monitor TCP and SSL connections.
+Note that for both of these implementations full information may only retrieved with a successful connection;
+e.g. if the connection could not be established there will be no certificates.
+
+\subsubsection{TCP Monitoring}
+
+To monitor TCP connections a developer should implement the following interface
+\begin{small}
 \begin{verbatim}
-jacorb.compactTypecodes=off
+package org.jacorb.orb.listener;
+public interface TCPConnectionListener extends EventListener
+    void connectionOpened(TCPConnectionEvent e);
+    void connectionClosed(TCPConnectionEvent e);
 \end{verbatim}
-causes JacORB to strip off all optional information from Typecode's before marshalling them.
-This will remove all optional data from the typecode (essentially the equivilant of
-calling get\_compact\_typecode). This produces smaller network packages and thereby can give a positive effect on performance.
-
-Disadvantages of this are that the CORBA Notification Service relies on typecodes for complex
-filter notation and this also may cause interoperability problems with other orbs during typecode
-comparisons. For instance the comparison of Typecode's that were received across the net with
-local one's (from a Helper class) using \emph{equal} will fail.
-
-That's because the following holds (see OMG doc):
+\end{small}
+The classname should then be specified in the property
 \begin{verbatim}
-MyTypeHelper.id().equal(MyTypeHelper.id()) => TRUE
-MyTypeHelper.id().equal(MyTypeHelper.id()
-    .get_compacted_typecode()) => FALSE
-\end{verbatim}
-
-JacORB will (if compaction is enabled) always invoke \emph{get\_compacted\_typecode} before marshalling a typecode.
-
-Note: it's not necessary to compare TypeCode's using \emph{equal}. The method \emph{equivalent} does a less strict comparison
-that omits the optional information.
-
-
-\subsection{Loading Classes and Resources}
-\label{tccl}
-JacORB has two different policies it may use to load classes and resources. By default it will attempt to load
-using the thread context class loader. To support integration in some deployment scenarios with specialised class
-loader schemes it is also possible to configure to use Class.forName where the class loader is the defining class
-loader of the current class.
-
-In order to use this the \emph{system property}
-\begin{verbatim}
-jacorb.classloaderpolicy=[tccl|forname]
-\end{verbatim}
-may be used. Note that this property \emph{MUST} be set before any calls to org.omg.* or org.jacorb.* code. Setting this
-to 'tccl' will mean JacORB will use the thread context class loader to resolve classes and resources. Setting it to
-'forname' means that JacORB will use the defining class loader. Internally JacORB will use this pseudocode:
-
-\begin{verbatim}
-   if (useTCCL) {
-      return Thread.currentThread().getContextClassLoader().loadClass(name);
-   } else {
-      return Class.forName(name);
-   }
+jacorb.net.tcp_listener
 \end{verbatim}
 
+The standard java event interface is followed; the developer's code will receive the
+TCPConnectionEvent which allows the following information to be retrieved:
+\begin{small}
+\begin{verbatim}
+    public String getLocalIP()
+    public int getLocalPort()
+    public String getRemoteIP()
+    public int getRemotePort()
+\end{verbatim}
+\end{small}
+Note that the TCPConnectionEvent extends java.util.EventObject and the EventObject.getSource
+operation will return the IIOPConnection of the TCP connection.
+
+\subsubsection{SSL Monitoring}
+
+To monitor SSL sessions a developer should implement the following interface
+\begin{small}
+\begin{verbatim}
+package org.jacorb.orb.listener;
+public interface SSLSessionListener extends EventListener
+    void sessionCreated(SSLSessionEvent e);
+    void handshakeException(SSLSessionEvent e);
+    void keyException(SSLSessionEvent e);
+    void peerUnverifiedException(SSLSessionEvent e);
+    void protocolException(SSLSessionEvent e);
+    void sslException(SSLSessionEvent e);
+\end{verbatim}
+\end{small}
+The classname should then be specified in the property
+\begin{verbatim}
+jacorb.security.ssl.ssl_listener
+\end{verbatim}
+
+The standard java event interface is followed; the developer's code will receive the
+SSLSessionEvent which allows the following information to be retrieved:
+\begin{small}
+\begin{verbatim}
+    public String getLocalIP()
+    public int getLocalPort()
+    public String getRemoteIP()
+    public int getRemotePort()
+    public String getRemoteDN()
+    public X509Certificate[] getPeerCertificateChain()
+\end{verbatim}
+\end{small}
+
+Note that getRemoteDN will simply return a concatenated string of the
+certificates. For that reason it is deprecated; getPeerCertificateChain should
+be used instead as that allows a developer to extract specific information from
+the certificate.  In order to detect a succesful handshake the implementation
+delegates to the JSSE {\tt javax.net.ssl.HandShakeCompletedListener}. When using
+JDK1.3 JSSE the JSSE may not throw for instance a handshakeException but a
+sslException. Similar to above, SSLSessionEvent extends java.util.EventObject. The
+EventObject.getSource operation will return the source of the HandshakeCompletedEvent.
+
+\subsection{NIO Support}
+Client side non-blocking I/O support has been added to JacORB. This
+implementation consists of refactored connector and connection handler that
+use callbacks to improve asynch performance. The property
+\begin{verbatim}
+jacorb.connection.nonblocking=on/off
+\end{verbatim}
+is used to enable this capability. Non\-blocking I/O is currently only
+available for handling client side connections using plain IIOP.
+Server side support for receiving requests and sending replies is not yet
+available. Integration of SSL is also not available at this time.
+
+For more details see \ref{connection_management}
 
 \section{Configuration Properties}
 
@@ -1267,16 +1253,10 @@ JVM. & string & off\\
 \verb"jacorb.codeset" &
 Enabling this will do codeset translation on marshalling. Disabling it will force
 JacORB to ignore all codeset component info profiles and to disable translation on
-marshalling. & boolean & on\\
+marshalling. & boolean & off\\
 \hline
 \end{longtable}
 \end{small}
-
-\textbf{Note:} The class {\tt org.jacorb.orb.giop.CodeSet} provides a main method to
-aid debugging of codeset issues. It will print out the current system encoding values.
-If the developer is running under a Unix based system and passes the argument -a it will
-also print out the current locale and all known locales.
-
 
 \subsection{Network Configuration}
 \begin{small}

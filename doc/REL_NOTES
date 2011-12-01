@@ -6,7 +6,7 @@
 
  Features
 
-        - free CORBA 2.0/2.3/3.0 implementation (LGPL license)
+        - free CORBA 2.0/2.3/3.0/3.1 implementation (LGPL license)
 
         - 100% Java, no native code
         - fully multithreaded, very good performance
@@ -51,9 +51,13 @@ post 3.0 beta 1
         - Integrate suggested patch from Bug 810 to address the problem of
           an infinite loop that might be raised due to certain errors when
           using the Implementation Repository (IMR).  Note that this is an
-          incomplete fix. Along with Bug 896, interactions with the IMR 
-          require general updating, which is an effort that will require 
+          incomplete fix. Along with Bug 896, interactions with the IMR
+          require general updating, which is an effort that will require
           sponsorship.
+    - Misc:
+        - Improve version identification in output/jar manifests.
+        - Fixes for building under Windows platforms.
+
 
 3.0 beta 1
 ==========
