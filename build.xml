@@ -42,7 +42,7 @@
         </loadfile>
 
         <property name="BuildNo" value="${TODAY} ${TIME}" />
-        <property name="jacorb_version_info" value="(Build ${BuildNo})" />
+        <property name="jacorb_version_info" value=" (Build ${BuildNo})" />
 
         <echo>
 using JacORB Version: ${JVERSION}
