@@ -613,6 +613,11 @@ jacorb.java_exec=java -Dorg.omg.CORBA.ORBClass=org.jacorb.orb.ORB -Dorg.omg.CORB
 # protocol-independent form for assigning imr proxy endpoint
 #jacorb.imr.ior_proxy_address=iiop://1.2.3.4:4711
 
+# As a patch for bug810, a limit can be placed on the number of times JacORB attempts
+# to invoke on a remote peer via the TAO IMR service. The default value is 0, which
+# does not limit, or positive integer value can be used to limit retries
+#jacorb.maxBuiltinRetries=0
+
 #########################
 #                       #
 #   SSL Configuration   #

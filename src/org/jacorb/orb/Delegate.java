@@ -186,6 +186,9 @@ public final class Delegate
     private final boolean useIMR;
     private boolean locateOnBind;
 
+    /** mitigate the symptom of an infinite loop in some imr failure cases, see bug 810 */
+    private int maxBuiltinRetries = 0;
+
    /**
     * This is the default GIOP minor version configured by JacORB. Most of the time
     * JacORB will use whatever is within the effective profile. In the case of MIOP this
@@ -315,6 +318,21 @@ public final class Delegate
             config.getAttributeAsBoolean("jacorb.locate_on_bind", false);
         avoidIsARemoteCall =
             config.getAttributeAsBoolean("jacorb.avoidIsARemoteCall", true);
+        try
+        {
+            maxBuiltinRetries = 
+                config.getAttributeAsInteger ("jacorb.maxBuiltinRetries", 0);
+            if (maxBuiltinRetries < 0)
+            {
+                logger.error ("Configuration error - max builtin retries < 0");
+                throw new INTERNAL ("Configuration error - max builtin retries < 0");
+            }
+        }
+        catch (ConfigurationException ex)
+        {
+            logger.error ("Configuration exception retrieving max builtin retries", ex);
+            throw new INTERNAL ("Configuration exception retrieving max builtin retries" + ex);
+        }
         disconnectAfterNonRecoverableSystemException =
             config.getAttributeAsBoolean("jacorb.delegate.disconnect_after_systemexception", false);
         disableClientOrbPolicies = config.getAttributeAsBoolean("jacorb.disableClientOrbPolicies", false);
@@ -959,26 +977,8 @@ public final class Delegate
             }
         }
 
-        org.omg.CORBA.portable.OutputStream os;
-        org.omg.CORBA.portable.InputStream is;
-
-        while (true)
-        {
-            try
-            {
-                os = request(self, "_interface", true);
-                is = invoke(self, os);
-                return is.read_Object();
-            }
-            catch (RemarshalException re) // NOPMD
-            {
-                // Ignored
-            }
-            catch (Exception ex)
-            {
-                return null;
-            }
-        }
+        org.omg.CORBA.portable.InputStream is = invokeBuiltin (self, "_interface", null);
+        return (is == null) ? null : is.read_Object();
     }
 
     ClientConnection getConnection()
@@ -1875,27 +1875,8 @@ public final class Delegate
             logger.debug("trying is_a remotely");
         }
 
-        org.omg.CORBA.portable.OutputStream os;
-        org.omg.CORBA.portable.InputStream is;
-
-        while (true)
-        {
-            try
-            {
-                os = request(self, "_is_a", true);
-                os.write_string(logical_type_id);
-                is = invoke(self, os);
-                return is.read_boolean();
-            }
-            catch (RemarshalException re) // NOPMD
-            {
-                // Ignored
-            }
-            catch (ApplicationException ax)
-            {
-                throw new INTERNAL("Unexpected exception " + ax.getId());
-            }
-        }
+        org.omg.CORBA.portable.InputStream is = invokeBuiltin (self, "_is_a", logical_type_id);
+        return (is == null) ? false : is.read_boolean();
     }
 
     public boolean is_equivalent(org.omg.CORBA.Object self,
@@ -1983,26 +1964,8 @@ public final class Delegate
             }
         }
 
-        org.omg.CORBA.portable.OutputStream os;
-        org.omg.CORBA.portable.InputStream is;
-
-        while (true)
-        {
-            try
-            {
-                os = request(self, "_non_existent", true);
-                is = invoke(self, os);
-                return is.read_boolean();
-            }
-            catch (RemarshalException re) // NOPMD
-            {
-                // ignored
-            }
-            catch (ApplicationException e)
-            {
-                throw new INTERNAL( "Unexpected exception " + e.getId() );
-            }
-        }
+        org.omg.CORBA.portable.InputStream is = invokeBuiltin (self, "_non_existent", null);
+        return (is == null) ? false : is.read_boolean();
     }
 
 
@@ -2029,27 +1992,35 @@ public final class Delegate
             }
         }
 
-        org.omg.CORBA.portable.OutputStream os;
-        org.omg.CORBA.portable.InputStream is;
+        org.omg.CORBA.portable.InputStream is = invokeBuiltin (self, "_get_component", null);
+        return (is == null) ? null : is.read_Object();
+    }
 
-        while (true)
+    private org.omg.CORBA.portable.InputStream invokeBuiltin (org.omg.CORBA.Object self, String op, String arg)
+    {
+        org.omg.CORBA.portable.OutputStream os;
+        // The old behavior was to loop forever, which will happen here if maxBuiltinRetries is 0.
+        for (int retries = 0; maxBuiltinRetries == 0 || retries < maxBuiltinRetries; retries ++)
         {
             try
             {
-                os = request(self, "_get_component", true);
-                is = invoke(self, os);
-                return is.read_Object();
+                os = request(self, op, true);
+                if (arg != null)
+                    os.write_string(arg);
+                return invoke(self, os);
             }
             catch (RemarshalException re) // NOPMD
             {
-                // ignored
+                // Ignored
             }
-            catch (ApplicationException e)
+            catch (ApplicationException ax)
             {
-                throw new INTERNAL( "Unexpected exception " + e.getId() );
+                throw new INTERNAL("Unexpected exception " + ax.getId());
             }
         }
+        return null;
     }
+
 
     public org.omg.CORBA.ORB orb( org.omg.CORBA.Object self )
     {

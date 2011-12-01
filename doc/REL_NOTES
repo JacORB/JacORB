@@ -48,7 +48,12 @@ post 3.0 beta 1
     - Fixes:
         - Fixed empty configuration parameters' values processing for Integer,
           Long, Float and Boolean types.
-
+        - Integrate suggested patch from Bug 810 to address the problem of
+          an infinite loop that might be raised due to certain errors when
+          using the Implementation Repository (IMR).  Note that this is an
+          incomplete fix. Along with Bug 896, interactions with the IMR 
+          require general updating, which is an effort that will require 
+          sponsorship.
 
 3.0 beta 1
 ==========
