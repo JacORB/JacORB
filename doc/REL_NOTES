@@ -57,7 +57,8 @@ post 3.0 beta 1
     - Misc:
         - Improve version identification in output/jar manifests.
         - Fixes for building under Windows platforms.
-
+        - Add wrapper scripts enabling IMR_SSD, the service startup daemon,
+          to be registered as a windows NT service.
 
 3.0 beta 1
 ==========
