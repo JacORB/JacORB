@@ -49,6 +49,11 @@
    <!-- = = = = = = = = = = = = = = = = =
       macrodef: jacorb-javac
       = = = = = = = = = = = = = = = = = -->
+
+   <!-- Set the property xlint to "-Xlint -Xlint:-serial -Xlint:-deprecation" to see -->
+   <!-- compile warnings -->
+   <property name="xlint" value=""/>
+
    <macrodef name="jacorb-javac-common">
       <attribute name="javac-includes" />
       <attribute name="javac-encoding" default="ISO-8859-1" />
@@ -56,7 +61,7 @@
       <attribute name="javac-src" default="${src}" />
       <attribute name="javac-sourcepath" default="sourcepath.base" />
       <attribute name="javac-classpathref" default="path.base" />
-      <attribute name="javac-xlint" default="-Xlint -Xlint:-serial -Xlint:-deprecation"/>
+      <attribute name="javac-xlint" default="${xlint}"/>
       <attribute name="target-info" />
       <element name="javac-bootclasspath" optional="true" />
 
