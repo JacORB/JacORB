@@ -54,6 +54,7 @@ post 3.0 beta 1
           incomplete fix. Along with Bug 896, interactions with the IMR
           require general updating, which is an effort that will require
           sponsorship.
+        - Fix for compiling omg/IOP.idl
     - Misc:
         - Improve version identification in output/jar manifests.
         - Fixes for building under Windows platforms.

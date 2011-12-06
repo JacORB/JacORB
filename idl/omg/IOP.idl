@@ -57,11 +57,8 @@ module IOP {
         sequence <octet>            component_data;
     };
 
-#ifdef JACORB
     typedef sequence <TaggedComponent> TaggedComponentSeq;
-#else
     typedef sequence <TaggedComponent> MultipleComponentProfile;
-#endif
 
     const ComponentId           TAG_ORB_TYPE                = 0;
     const ComponentId           TAG_CODE_SETS               = 1;
