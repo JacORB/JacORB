@@ -45,6 +45,9 @@ post 3.0 beta 1
 ===============
     - ORB:
         - Refactor ETF factories to remove static information.
+        - Provide public createObjectIOR functions in ParsedIOR.
+    - IDL Compiler
+        - Avoid create_local_interface_tc generation if using deprecated.
     - Fixes:
         - Fixed empty configuration parameters' values processing for Integer,
           Long, Float and Boolean types.

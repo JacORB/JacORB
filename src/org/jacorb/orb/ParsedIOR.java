@@ -81,12 +81,25 @@ public class ParsedIOR
     private Integer orbTypeId = null;
     private final Logger logger;
 
-    /* static part */
+    /**
+     * Create an IOR passing an ETF Profile.
+     */
+    // This is a public function - do not remove.
+    public static IOR createObjectIOR(org.omg.ETF.Profile profile)
+    {
+        org.omg.CORBA.ORB o = org.omg.CORBA.ORB.init();
+        if (! (o instanceof ORBSingleton))
+        {
+            throw new BAD_PARAM("Incorrect configuration - unable to retrieve a JacORB Singleton ORB");
+        }
+
+        return createObjectIOR((ORBSingleton)o, profile);
+    }
 
     /**
-     * factory method
+     * Create an IOR passing an ORB and ETF Profile
      */
-
+    // This is a public function - do not remove.
     public static IOR createObjectIOR(ORB orb, org.omg.ETF.Profile profile)
     {
         String repId = "IDL:omg.org/CORBA/Object:1.0";
@@ -122,44 +135,63 @@ public class ParsedIOR
         return new IOR(repId, tps);
     }
 
-  public static IOR createObjectIOR(ORB orb, org.omg.ETF.Profile[] profiles)
-  {
-    String repId = "IDL:omg.org/CORBA/Object:1.0";
-    List taggedProfileList = new ArrayList();
-    for (int count = 0; count < profiles.length; count++) {
-      if (profiles[count] == null) {
-	// safety first
-	continue;
-      }
-      TaggedComponentList components = new TaggedComponentList();
-
-      final CDROutputStream out = new CDROutputStream(orb);
-      try
+    /**
+     * Create an IOR passing an ORB and ETF Profiles
+     */
+    // This is a public function - do not remove.
+    public static IOR createObjectIOR(org.omg.ETF.Profile[] profiles)
+    {
+        org.omg.CORBA.ORB o = org.omg.CORBA.ORB.init();
+        if (! (o instanceof ORBSingleton))
         {
-	  out.beginEncapsulatedArray();
-	  out.write_long(ORBConstants.JACORB_ORB_ID);
-	  components.addComponent
-	    (new TaggedComponent (TAG_ORB_TYPE.value,
-				  out.getBufferCopy()));
+            throw new BAD_PARAM("Incorrect configuration - unable to retrieve a JacORB Singleton ORB");
         }
-      finally {
-	out.close();
-      }
 
-      TaggedProfileHolder tp = new TaggedProfileHolder();
-      TaggedComponentSeqHolder tcs = new TaggedComponentSeqHolder();
-      tcs.value = components.asArray();
-
-      profiles[count].marshal(tp, tcs);
-      taggedProfileList.add(tp.value);
+        return createObjectIOR((ORBSingleton)o, profiles);
     }
-    // copy the profiles into the IOR
 
-    TaggedProfile[] tps = new TaggedProfile[taggedProfileList.size()];
-    taggedProfileList.toArray(tps);
+    /**
+     * Create an IOR passing an ORB and ETF Profiles
+     */
+    // This is a public function - do not remove.
+    public static IOR createObjectIOR(ORBSingleton orb, org.omg.ETF.Profile[] profiles)
+    {
+        String repId = "IDL:omg.org/CORBA/Object:1.0";
+        List taggedProfileList = new ArrayList();
+        for (int count = 0; count < profiles.length; count++) {
+            if (profiles[count] == null) {
+                // safety first
+                continue;
+            }
+            TaggedComponentList components = new TaggedComponentList();
 
-    return new IOR(repId, tps);
-  }
+            final CDROutputStream out = new CDROutputStream(orb);
+            try
+            {
+                out.beginEncapsulatedArray();
+                out.write_long(ORBConstants.JACORB_ORB_ID);
+                components.addComponent
+                (new TaggedComponent (TAG_ORB_TYPE.value,
+                                      out.getBufferCopy()));
+            }
+            finally {
+                out.close();
+            }
+
+            TaggedProfileHolder tp = new TaggedProfileHolder();
+            TaggedComponentSeqHolder tcs = new TaggedComponentSeqHolder();
+            tcs.value = components.asArray();
+
+            profiles[count].marshal(tp, tcs);
+            taggedProfileList.add(tp.value);
+        }
+        // copy the profiles into the IOR
+
+        TaggedProfile[] tps = new TaggedProfile[taggedProfileList.size()];
+        taggedProfileList.toArray(tps);
+
+        return new IOR(repId, tps);
+    }
 
     /**
     * This method replaces the unifyTargetAddress method.
