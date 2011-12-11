@@ -100,7 +100,7 @@ public class ParsedIOR
      * Create an IOR passing an ORB and ETF Profile
      */
     // This is a public function - do not remove.
-    public static IOR createObjectIOR(ORB orb, org.omg.ETF.Profile profile)
+    public static IOR createObjectIOR(ORBSingleton orb, org.omg.ETF.Profile profile)
     {
         String repId = "IDL:omg.org/CORBA/Object:1.0";
         TaggedComponentList components = new TaggedComponentList();
