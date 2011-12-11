@@ -173,7 +173,7 @@ public class Interface
 
     public String getTypeCodeExpression()
     {
-        if (parser.generatedHelperPortability != parser.HELPER_DEPRECATED) && (is_local)
+        if ((parser.generatedHelperPortability != parser.HELPER_DEPRECATED) && is_local)
         {
             return
             (
