@@ -52,7 +52,7 @@ public class TypedEventMessage extends AbstractMessage
 
     public static final String EVENT_TYPE = "event_type";
 
-    private static final ORB sORB = ORB.init();
+    private static final ORB sORB = org.omg.CORBA.ORBSingleton.init();
 
     private static final Any sUndefinedAny = sORB.create_any();
 

@@ -24,41 +24,8 @@
 
 package org.omg.CORBA;
 
-abstract public class ORB
+abstract public class ORB extends ORBSingleton
 {
-   private static final String DEFAULT_ORB_KEY= "org.omg.CORBA.ORBClass";
-   private static final String DEFAULT_ORB_VALUE= "org.jacorb.orb.ORB";
-   private static final String DEFAULT_ORB_SINGLETON_VALUE = "org.jacorb.orb.ORBSingleton";
-
-   private static final java.lang.Object SYNCHRONIZER = new java.lang.Object();
-
-   private static ORB _singleton_orb;
-
-   /*
-    * <code>useTCCL</code> controls which class loader policy JacORB should use throughout
-    * the codebase. By default it will attempt to load using the Thread Context Class Loader.
-    * To support integration in some deployment scenarios it is also possible to use Class.forName.
-    * This may be set by setting jacorb.classloaderpolicy system property to either tccl or forname.
-    *
-    * Note that this is duplicated within org.jacorb.config.JacORBConfiguration
-    * (to avoid cross-dependencies)
-    */
-   public static final boolean useTCCL;
-
-   static
-   {
-      String clpolicy = System.getProperty ("jacorb.classloaderpolicy", "tccl");
-      if (clpolicy.equalsIgnoreCase ("forname"))
-      {
-         useTCCL = false;
-      }
-      else
-      {
-         useTCCL = true;
-      }
-   }
-
-
    public String id()
    {
       throw new org.omg.CORBA.NO_IMPLEMENT();
@@ -297,50 +264,6 @@ abstract public class ORB
       orb.set_parameters(applet, props);
 
       return orb;
-   }
-
-   public static ORB init()
-   {
-      synchronized(SYNCHRONIZER)
-      {
-         if(_singleton_orb == null)
-         {
-            _singleton_orb = create(DEFAULT_ORB_SINGLETON_VALUE);
-         }
-      }
-
-      return _singleton_orb;
-   }
-
-   private static ORB create(String className)
-   {
-      final ClassLoader cl;
-
-      if (useTCCL)
-      {
-         if (Thread.currentThread().getContextClassLoader() != null)
-         {
-            cl = Thread.currentThread().getContextClassLoader();
-         }
-         else
-         {
-            cl = ClassLoader.getSystemClassLoader();
-         }
-      }
-      else
-      {
-         cl = ORB.class.getClassLoader ();
-      }
-
-      try
-      {
-         return (ORB) Class.forName(className, true, cl).newInstance();
-      }
-      catch(Exception e)
-      {
-         e.printStackTrace();
-         throw new INITIALIZE("Could not instantiate ORB implementation: " + className);
-      }
    }
 
    abstract protected void set_parameters(String[] args,

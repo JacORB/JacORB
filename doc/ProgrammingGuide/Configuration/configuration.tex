@@ -443,11 +443,11 @@ using the thread context class loader. To support integration in some deployment
 loader schemes it is also possible to configure to use Class.forName where the class loader is the defining class
 loader of the current class.
 
-In order to use this the \emph{system property}
+To configure this the following property \emph{must} be set as a \emph{JVM system property}
 \begin{verbatim}
 jacorb.classloaderpolicy=[tccl|forname]
 \end{verbatim}
-may be used. Note that this property \emph{MUST} be set before any calls to org.omg.* or org.jacorb.* code. Setting this
+Note that this property \emph{MUST} be set before any calls to org.omg.* or org.jacorb.* code. Setting this
 to 'tccl' will mean JacORB will use the thread context class loader to resolve classes and resources. Setting it to
 'forname' means that JacORB will use the defining class loader. Internally JacORB will use this pseudocode:
 
@@ -459,6 +459,7 @@ to 'tccl' will mean JacORB will use the thread context class loader to resolve c
    }
 \end{verbatim}
 
+For more information on JacORB class loading see \ref{classloader}.
 \subsection{Logging}
 
 JacORB writes logging information through SLF4J, which is a logging

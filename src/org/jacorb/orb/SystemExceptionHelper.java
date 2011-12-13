@@ -153,7 +153,7 @@ public class SystemExceptionHelper
     {
         String name = exception.getClass().getName();
         name = name.substring(name.lastIndexOf('.') + 1);
-        org.omg.CORBA.ORB orb = org.omg.CORBA.ORB.init();
+        org.omg.CORBA.ORB orb = org.omg.CORBA.ORBSingleton.init();
 
         org.omg.CORBA.TypeCode _type =
             orb.create_struct_tc(

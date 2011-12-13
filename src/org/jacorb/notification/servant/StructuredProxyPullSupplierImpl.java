@@ -62,7 +62,7 @@ public class StructuredProxyPullSupplierImpl extends AbstractProxySupplier imple
     // initialize undefinedStructuredEvent_
     static
     {
-        ORB _orb = ORB.init();
+        ORB _orb = org.omg.CORBA.ORBSingleton.init();
 
         UNDEFINED_STRUCTURED_EVENT = new StructuredEvent();
         EventType _type = new EventType();

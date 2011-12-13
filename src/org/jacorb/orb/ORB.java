@@ -1586,7 +1586,7 @@ public final class ORB
             throw new org.omg.CORBA.INITIALIZE( e.getMessage() );
         }
 
-        Configuration orbsingletonConfig = ((ORBSingleton)ORB.init ()).configuration;
+        Configuration orbsingletonConfig = ((ORBSingleton)org.omg.CORBA.ORBSingleton.init ()).configuration;
 
         if (props != null)
         {

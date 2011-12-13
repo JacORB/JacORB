@@ -44,7 +44,7 @@ import org.slf4j.Logger;
 
 public abstract class PropertySet
 {
-    protected static final ORB sORB = ORB.init();
+    protected static final ORB sORB = org.omg.CORBA.ORBSingleton.init();
 
     protected static final PropertyError[] PROPERTY_ERROR_ARRAY_TEMPLATE = new PropertyError[0];
 

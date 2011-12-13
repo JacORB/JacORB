@@ -158,72 +158,72 @@ public final class PrimitiveDef
         {
         case org.omg.CORBA.PrimitiveKind._pk_null:
             {
-                type = org.omg.CORBA.ORB.init().get_primitive_tc( org.omg.CORBA.TCKind.tk_null );
+                type = org.omg.CORBA.ORBSingleton.init().get_primitive_tc( org.omg.CORBA.TCKind.tk_null );
                 break;
             }
         case org.omg.CORBA.PrimitiveKind._pk_void:
             {
-                type = org.omg.CORBA.ORB.init().get_primitive_tc( org.omg.CORBA.TCKind.tk_void );
+                type = org.omg.CORBA.ORBSingleton.init().get_primitive_tc( org.omg.CORBA.TCKind.tk_void );
                 break;
             }
         case org.omg.CORBA.PrimitiveKind._pk_short:
             {
-                type = org.omg.CORBA.ORB.init().get_primitive_tc( org.omg.CORBA.TCKind.tk_short );
+                type = org.omg.CORBA.ORBSingleton.init().get_primitive_tc( org.omg.CORBA.TCKind.tk_short );
                 break;
             }
         case org.omg.CORBA.PrimitiveKind._pk_long:
             {
-                type = org.omg.CORBA.ORB.init().get_primitive_tc( org.omg.CORBA.TCKind.tk_long );
+                type = org.omg.CORBA.ORBSingleton.init().get_primitive_tc( org.omg.CORBA.TCKind.tk_long );
                 break;
             }
         case org.omg.CORBA.PrimitiveKind._pk_float:
             {
-                type = org.omg.CORBA.ORB.init().get_primitive_tc( org.omg.CORBA.TCKind.tk_float );
+                type = org.omg.CORBA.ORBSingleton.init().get_primitive_tc( org.omg.CORBA.TCKind.tk_float );
                 break;
             }
         case org.omg.CORBA.PrimitiveKind._pk_double:
             {
-                type = org.omg.CORBA.ORB.init().get_primitive_tc( org.omg.CORBA.TCKind.tk_double );
+                type = org.omg.CORBA.ORBSingleton.init().get_primitive_tc( org.omg.CORBA.TCKind.tk_double );
                 break;
             }
         case org.omg.CORBA.PrimitiveKind._pk_boolean:
             {
-                type = org.omg.CORBA.ORB.init().get_primitive_tc( org.omg.CORBA.TCKind.tk_boolean );
+                type = org.omg.CORBA.ORBSingleton.init().get_primitive_tc( org.omg.CORBA.TCKind.tk_boolean );
                 break;
             }
         case org.omg.CORBA.PrimitiveKind._pk_char:
             {
-                type = org.omg.CORBA.ORB.init().get_primitive_tc( org.omg.CORBA.TCKind.tk_char );
+                type = org.omg.CORBA.ORBSingleton.init().get_primitive_tc( org.omg.CORBA.TCKind.tk_char );
                 break;
             }
         case org.omg.CORBA.PrimitiveKind._pk_octet:
             {
-                type = org.omg.CORBA.ORB.init().get_primitive_tc( org.omg.CORBA.TCKind.tk_octet );
+                type = org.omg.CORBA.ORBSingleton.init().get_primitive_tc( org.omg.CORBA.TCKind.tk_octet );
                 break;
             }
         case org.omg.CORBA.PrimitiveKind._pk_any:
             {
-                type = org.omg.CORBA.ORB.init().get_primitive_tc( org.omg.CORBA.TCKind.tk_any );
+                type = org.omg.CORBA.ORBSingleton.init().get_primitive_tc( org.omg.CORBA.TCKind.tk_any );
                 break;
             }
         case org.omg.CORBA.PrimitiveKind._pk_TypeCode:
             {
-                type = org.omg.CORBA.ORB.init().get_primitive_tc( org.omg.CORBA.TCKind.tk_TypeCode );
+                type = org.omg.CORBA.ORBSingleton.init().get_primitive_tc( org.omg.CORBA.TCKind.tk_TypeCode );
                 break;
             }
         case org.omg.CORBA.PrimitiveKind._pk_Principal:
             {
-                type = org.omg.CORBA.ORB.init().get_primitive_tc( org.omg.CORBA.TCKind.tk_Principal );
+                type = org.omg.CORBA.ORBSingleton.init().get_primitive_tc( org.omg.CORBA.TCKind.tk_Principal );
                 break;
             }
         case org.omg.CORBA.PrimitiveKind._pk_string:
             {
-                type = org.omg.CORBA.ORB.init().get_primitive_tc( org.omg.CORBA.TCKind.tk_string );
+                type = org.omg.CORBA.ORBSingleton.init().get_primitive_tc( org.omg.CORBA.TCKind.tk_string );
                 break;
             }
         case org.omg.CORBA.PrimitiveKind._pk_objref:
             {
-                type = org.omg.CORBA.ORB.init().get_primitive_tc( org.omg.CORBA.TCKind.tk_objref );
+                type = org.omg.CORBA.ORBSingleton.init().get_primitive_tc( org.omg.CORBA.TCKind.tk_objref );
                 break;
             }
         default:

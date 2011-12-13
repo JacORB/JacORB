@@ -75,7 +75,7 @@ public class EnumDef
         {
             members[ i ] = memberFields[2+(2*i)].getName(); 
         }
-        type = org.omg.CORBA.ORB.init().create_enum_tc( id, name, members );
+        type = org.omg.CORBA.ORBSingleton.init().create_enum_tc( id, name, members );
     }
 
     public String[] members()

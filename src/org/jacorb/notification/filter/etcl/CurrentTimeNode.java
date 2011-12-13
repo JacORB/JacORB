@@ -40,7 +40,7 @@ public class CurrentTimeNode extends ETCLComponentName
 
     private static final String COMP_NAME = "$curtime";
 
-    private final static ORB orb_ = ORB.init();
+    private final static ORB orb_ = org.omg.CORBA.ORBSingleton.init();
 
     public EvaluationResult evaluate(EvaluationContext context) throws EvaluationException
     {

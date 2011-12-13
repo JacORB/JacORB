@@ -66,7 +66,7 @@ public class ProxyPullSupplierImpl
         myPoa = poa;
         connected = false;
         _this_object(orb);
-        undefinedAny = org.omg.CORBA.ORB.init().create_any();
+        undefinedAny = org.omg.CORBA.ORBSingleton.init().create_any();
     }
 
     /**

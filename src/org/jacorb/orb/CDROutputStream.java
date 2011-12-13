@@ -259,7 +259,7 @@ public class CDROutputStream
      */
     public CDROutputStream()
     {
-        this(ORB.init());
+        this(org.omg.CORBA.ORBSingleton.init());
     }
 
 

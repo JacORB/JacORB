@@ -141,7 +141,8 @@ public class ORBSingleton
         org.omg.CORBA.ORB single = org.omg.CORBA.ORB.init();
         if ( ! (single instanceof ORBSingleton))
         {
-            throw new INITIALIZE ("Singleton ORB not a JacORB singleton");
+            logger.warn ("Default Singleton ORB is not a JacORB singleton. This is not recommended as it *could* lead to classpath/classloader/stub conflicts.");
+            single = org.omg.CORBA.ORBSingleton.init();
         }
         bufferManager = bufferManagerFactory.newBufferManager
             (((ORBSingleton)single).getBufferManager(), configuration);

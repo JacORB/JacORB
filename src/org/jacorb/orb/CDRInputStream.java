@@ -192,7 +192,7 @@ public class CDRInputStream
 
         if (orb == null)
         {
-            this.orb = ORB.init();
+            this.orb = org.omg.CORBA.ORBSingleton.init();
         }
         else
         {

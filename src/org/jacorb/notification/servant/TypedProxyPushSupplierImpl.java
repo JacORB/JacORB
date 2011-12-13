@@ -80,7 +80,7 @@ public class TypedProxyPushSupplierImpl extends AbstractProxyPushSupplier implem
 
     private org.omg.CORBA.Object typedConsumer_;
 
-    private static final TypeCode TYPE_CODE_VOID = ORB.init().get_primitive_tc(TCKind.tk_void);
+    private static final TypeCode TYPE_CODE_VOID = org.omg.CORBA.ORBSingleton.init().get_primitive_tc(TCKind.tk_void);
 
     private final String supportedInterface_;
 

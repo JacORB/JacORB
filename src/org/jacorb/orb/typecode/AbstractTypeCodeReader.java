@@ -22,9 +22,7 @@ package org.jacorb.orb.typecode;
 
 import java.util.Map;
 import org.jacorb.orb.CDRInputStream;
-import org.jacorb.orb.ORB;
 import org.jacorb.orb.ORBSingleton;
-import org.omg.CORBA.BAD_PARAM;
 import org.omg.CORBA.TypeCode;
 
 /**
@@ -43,16 +41,7 @@ public abstract class AbstractTypeCodeReader implements TypeCodeReader
 
     public AbstractTypeCodeReader ()
     {
-        org.omg.CORBA.ORB tmpORB = ORB.init();
-
-        if ( ! (tmpORB instanceof ORBSingleton))
-        {
-            System.err.println ("Incorrect ORBSingleton class detected. Check ORBSingletonClass property. ORB.init is returning a " + tmpORB);
-
-            throw new BAD_PARAM ("Incorrect ORBSingleton class detected. Check ORBSingletonClass property. ORB.init is returning a " + tmpORB);
-        }
-
-        orb = (ORBSingleton)tmpORB;
+       orb = (ORBSingleton)org.omg.CORBA.ORBSingleton.init();
     }
 
 

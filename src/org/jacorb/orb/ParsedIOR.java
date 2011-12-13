@@ -63,7 +63,7 @@ import org.slf4j.Logger;
 public class ParsedIOR
 {
     private Profile effectiveProfile = null;
-    private final List profiles = new ArrayList();
+    private final List<Profile> profiles = new ArrayList<Profile>();
 
     /** top-level tagged components, i.e. NOT part of IOP components. Other
      *  tagged components may be part of the profile bodies
@@ -87,13 +87,7 @@ public class ParsedIOR
     // This is a public function - do not remove.
     public static IOR createObjectIOR(org.omg.ETF.Profile profile)
     {
-        org.omg.CORBA.ORB o = org.omg.CORBA.ORB.init();
-        if (! (o instanceof ORBSingleton))
-        {
-            throw new BAD_PARAM("Incorrect configuration - unable to retrieve a JacORB Singleton ORB");
-        }
-
-        return createObjectIOR((ORBSingleton)o, profile);
+        return createObjectIOR((ORBSingleton)org.omg.CORBA.ORBSingleton.init(), profile);
     }
 
     /**
@@ -141,13 +135,7 @@ public class ParsedIOR
     // This is a public function - do not remove.
     public static IOR createObjectIOR(org.omg.ETF.Profile[] profiles)
     {
-        org.omg.CORBA.ORB o = org.omg.CORBA.ORB.init();
-        if (! (o instanceof ORBSingleton))
-        {
-            throw new BAD_PARAM("Incorrect configuration - unable to retrieve a JacORB Singleton ORB");
-        }
-
-        return createObjectIOR((ORBSingleton)o, profiles);
+        return createObjectIOR((ORBSingleton)org.omg.CORBA.ORBSingleton.init(), profiles);
     }
 
     /**
@@ -416,7 +404,7 @@ public class ParsedIOR
         return effectiveProfile.get_object_key();
     }
 
-    public List getProfiles()
+    public List<Profile> getProfiles()
     {
         return profiles;
     }
@@ -571,7 +559,7 @@ public class ParsedIOR
 
         if (orb == null)
         {
-            in_ = new CDRInputStream(org.omg.CORBA.ORB.init(), bos.toByteArray());
+            in_ = new CDRInputStream(org.omg.CORBA.ORBSingleton.init(), bos.toByteArray());
         }
         else
         {

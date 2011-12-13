@@ -42,7 +42,7 @@ import org.omg.CORBA.TCKind;
  */
 public class ObjectRepresentantFactory
 {
-    private static ORB orb = ORB.init();
+    private static ORB orb = org.omg.CORBA.ORBSingleton.init();
 
     /**
      * This method was created by a SmartGuide.

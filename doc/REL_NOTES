@@ -46,6 +46,8 @@ post 3.0 beta 1
     - ORB:
         - Refactor ETF factories to remove static information.
         - Provide public createObjectIOR functions in ParsedIOR.
+        - Refactor internal use of Singleton ORB and provide a new
+          org.omg.CORBA.ORBSingleton to avoid clashes with e.g. JDK Singleton.
     - IDL Compiler
         - Avoid create_local_interface_tc generation if using deprecated.
     - Fixes:
