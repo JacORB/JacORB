@@ -4,8 +4,10 @@ import java.util.logging.ConsoleHandler;
 import java.util.logging.FileHandler;
 import java.util.logging.Handler;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.jacorb.util.ObjectUtil;
-import org.omg.CORBA.ORB;
+import org.omg.CORBA.ORBSingleton;
+
 
 /**
  * A LoggingInitializer for the JDK logging system.
@@ -33,14 +35,21 @@ public class JdkLoggingInitializer extends LoggingInitializer
         }
         ISJDKLOGGING = (c != null);
 
-        // This horror is to ensure that the Singleton logging is
-        // always set up first.  Otherwise what happens is either the
-        // Singleton logging goes to console, or the full ORB logging
-        // uses the Singleton log file. This is mainly because JDK
-        // logging does not allow separate Logger('jacorb')
-        // instances. Which means they use each others logfile.
-        ORB.init ();
+         // This horror is to ensure that the Singleton logging is
+         // always set up first.  Otherwise what happens is either the
+         // Singleton logging goes to console, or the full ORB logging
+         // uses the Singleton log file. This is mainly because JDK
+         // logging does not allow separate Logger('jacorb')
+         // instances. Which means they use each others logfile.
+         ORBSingleton.init ();
     }
+
+
+    /**
+     * Cache of the root logger for this system.
+     */
+    private Logger rootLogger;
+
 
     /**
      * For a string that contains a number from 0 to 4, returns the
@@ -88,8 +97,7 @@ public class JdkLoggingInitializer extends LoggingInitializer
         if (   (level != null && level.length() > 0)
             || (file != null && file.length() > 0))
         {
-            java.util.logging.Logger rootLogger =
-                java.util.logging.Logger.getLogger ("jacorb");
+            rootLogger = Logger.getLogger ("jacorb");
             rootLogger.setUseParentHandlers (false);
             rootLogger.setLevel (toJdkLogLevel (level));
 
@@ -137,9 +145,6 @@ public class JdkLoggingInitializer extends LoggingInitializer
         if (ISJDKLOGGING)
         {
             // Clear lock files.
-            java.util.logging.Logger rootLogger =
-               java.util.logging.Logger.getLogger ("jacorb");
-
             Handler handlers[] = rootLogger.getHandlers();
 
             purgeHandlers (rootLogger);

@@ -27,8 +27,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
-import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.StringTokenizer;
 import java.util.logging.Level;
@@ -207,7 +208,7 @@ public class JacORBConfiguration implements Configuration
         this.orb = orb;
         this.logger = getLogger ("jacorb.config");
 
-        ArrayList delayedLogging = new ArrayList ();
+        LinkedHashMap<Level,String> delayedLogging = new LinkedHashMap<Level,String> ();
         if (isApplet)
         {
            initApplet(delayedLogging, name, orbProperties);
@@ -221,35 +222,23 @@ public class JacORBConfiguration implements Configuration
 
         // This delays logging out any information about the loading of the properties
         // or configuration until any logging subsystem has been setup.
-        for (int i=0; i<delayedLogging.size (); i++)
+        for (Entry<Level, String> e : delayedLogging.entrySet())
         {
-           Object obj = delayedLogging.get(i);
-
-           // The arraylist normally contains just a string object. In some cases we wish
-           // to log using e.g. Warning level. It would be possible to create a wrapper
-           // object for every logging message. However this allows a simple quick shortcut.
-           if (obj instanceof String)
+           if (e.getKey () == Level.INFO)
            {
-              logger.info ((String)obj);
+              logger.info (e.getValue ());
            }
-           else if (obj instanceof DelayedConfigOutput)
+           else if (e.getKey () == Level.WARNING)
            {
-              if (((DelayedConfigOutput)obj).level == Level.INFO)
-              {
-                 logger.info (((DelayedConfigOutput)obj).message);
-              }
-              else if (((DelayedConfigOutput)obj).level == Level.WARNING)
-              {
-                 logger.warn (((DelayedConfigOutput)obj).message);
-              }
-              else
-              {
-                 throw new NO_IMPLEMENT("Only info/warn delayed logging implemented.");
-              }
+              logger.warn (e.getValue ());
+           }
+           else if (e.getKey () == Level.FINE)
+           {
+              logger.debug (e.getValue ());
            }
            else
            {
-              logger.error ("Invalid type of object to store in delayed logging cache.");
+              throw new NO_IMPLEMENT("Only info/warn delayed logging implemented.");
            }
         }
     }
@@ -274,7 +263,7 @@ public class JacORBConfiguration implements Configuration
      * @throws ConfigurationException the configuration exception
      */
 
-    private void init(ArrayList delayedLogging, String name, Properties orbProperties)
+    private void init(LinkedHashMap<Level, String> delayedLogging, String name, Properties orbProperties)
         throws ConfigurationException
    {
        if( name == null )
@@ -307,7 +296,7 @@ public class JacORBConfiguration implements Configuration
        {
             setAttributes(commonProps);
             loaded = true;
-            delayedLogging.add ("base configuration loaded from file " + propFile);
+            delayedLogging.put (Level.FINE, "base configuration loaded from file " + propFile);
        }
 
        // look for common properties files in user.home next
@@ -317,7 +306,7 @@ public class JacORBConfiguration implements Configuration
        {
            setAttributes(commonProps);
            loaded = true;
-           delayedLogging.add ("base configuration loaded from file " + propFile);
+           delayedLogging.put (Level.FINE, "base configuration loaded from file " + propFile);
        }
 
        // look for common properties files on the classpath next
@@ -326,8 +315,7 @@ public class JacORBConfiguration implements Configuration
        {
            loaded = true;
            setAttributes(commonProps);
-           delayedLogging.add ("base configuration loaded from classpath "
-                   + COMMON_PROPS);
+           delayedLogging.put (Level.FINE, "base configuration loaded from classpath " + COMMON_PROPS);
        }
 
        // 3) look for specific properties file
@@ -343,7 +331,7 @@ public class JacORBConfiguration implements Configuration
            }
            else
            {
-               delayedLogging.add (new DelayedConfigOutput (Level.WARNING, "jacorb.home unset! Will use '.'"));
+               delayedLogging.put (Level.FINE, "jacorb.home unset! Will use '.'");
                configDir = ".";
            }
        }
@@ -357,7 +345,7 @@ public class JacORBConfiguration implements Configuration
            setAttributes(orbConfig);
            loaded = true;
 
-           delayedLogging.add ("configuration " + name + " loaded from file " + propFile +
+           delayedLogging.put (Level.FINE, "configuration " + name + " loaded from file " + propFile +
                                (orb == null ? " for ORBSingleton" : " for " + orb));
        }
 
@@ -367,28 +355,27 @@ public class JacORBConfiguration implements Configuration
        {
            setAttributes(orbConfig);
            loaded = true;
-           delayedLogging.add ("configuration " + name + " loaded from classpath" +
+           delayedLogging.put (Level.FINE, "configuration " + name + " loaded from classpath" +
                                (orb == null ? " for ORBSingleton" : " for " + orb));
        }
 
        // 4) look for additional custom properties files
-       List customPropFileNames = getAttributeList("custom.props");
+       List<String> customPropFileNames = getAttributeList("custom.props");
 
        if (!customPropFileNames.isEmpty())
        {
-           for (Iterator iter = customPropFileNames.iterator(); iter.hasNext();)
+           for (String fileName : customPropFileNames)
            {
-                String fileName = ((String)iter.next());
                 Properties customProps = loadPropertiesFromFile(fileName);
                 if (customProps!= null)
                 {
                     setAttributes(customProps);
                     loaded = true;
-                    delayedLogging.add ("custom properties loaded from file " + fileName);
+                    delayedLogging.put (Level.FINE, "custom properties loaded from file " + fileName);
                 }
                 else
                 {
-                    delayedLogging.add (new DelayedConfigOutput (Level.WARNING, "custom properties not found in " + fileName));
+                    delayedLogging.put (Level.WARNING, "custom properties not found in " + fileName);
                 }
            }
        }
@@ -430,7 +417,7 @@ public class JacORBConfiguration implements Configuration
 
        if (!loaded)
        {
-           delayedLogging.add (new DelayedConfigOutput (Level.WARNING, "no properties found for configuration " + name));
+           delayedLogging.put (Level.WARNING, "no properties found for configuration " + name);
        }
     }
 
@@ -450,7 +437,7 @@ public class JacORBConfiguration implements Configuration
      * @throws ConfigurationException the configuration exception
      */
 
-    private void initApplet(ArrayList delayedLogging, String name, Properties orbProperties)
+    private void initApplet(LinkedHashMap<Level, String> delayedLogging, String name, Properties orbProperties)
         throws ConfigurationException
    {
        if( name == null )
@@ -474,7 +461,7 @@ public class JacORBConfiguration implements Configuration
        {
            setAttributes(commonProps);
            loaded = true;
-           delayedLogging.add ("base configuration loaded from classpath " + COMMON_PROPS);
+           delayedLogging.put (Level.FINE, "base configuration loaded from classpath " + COMMON_PROPS);
        }
 
        // 3) look for specific properties file
@@ -485,33 +472,32 @@ public class JacORBConfiguration implements Configuration
        {
            setAttributes(orbConfig);
            loaded = true;
-           delayedLogging.add ("configuration " + name + " loaded from classpath " + propFile);
+           delayedLogging.put (Level.FINE, "configuration " + name + " loaded from classpath " + propFile);
        }
        else
        {
-           delayedLogging.add (new DelayedConfigOutput (Level.WARNING, "File " + propFile +
+           delayedLogging.put (Level.WARNING, "File " + propFile +
                    " for configuration " + name +
-                   " not found in classpath"));
+                   " not found in classpath");
        }
 
        // 4) look for additional custom properties files
-       List customPropFileNames = getAttributeList("custom.props");
+       List<String> customPropFileNames = getAttributeList("custom.props");
 
        if (!customPropFileNames.isEmpty())
        {
-           for (Iterator iter = customPropFileNames.iterator(); iter.hasNext();)
+           for (String fileName : customPropFileNames)
            {
-                String fileName = ((String)iter.next());
                 Properties customProps = loadPropertiesFromClassPath(fileName);
                 if (customProps!= null)
                 {
                     setAttributes(customProps);
                     loaded = true;
-                    delayedLogging.add ("custom properties loaded from classpath " + fileName);
+                    delayedLogging.put (Level.FINE, "custom properties loaded from classpath " + fileName);
                 }
                 else
                 {
-                    delayedLogging.add (new DelayedConfigOutput (Level.WARNING, "custom properties " + fileName + " not found in classpath"));
+                    delayedLogging.put (Level.WARNING, "custom properties " + fileName + " not found in classpath");
                 }
            }
        }
@@ -526,7 +512,7 @@ public class JacORBConfiguration implements Configuration
 
        if (!loaded)
        {
-           delayedLogging.add (new DelayedConfigOutput (Level.WARNING, "no properties found for configuration " + name));
+           delayedLogging.put (Level.WARNING, "no properties found for configuration " + name);
        }
     }
 
@@ -1162,41 +1148,6 @@ public class JacORBConfiguration implements Configuration
         }
 
         return Collections.unmodifiableList(attributesWithPrefix);
-    }
-
-
-    /**
-     * DelayedConfigOutput is a hack. Its a simple wrapper to indicate to
-     * getConfiguration that this message should be output at a particular
-     * logging level.
-     *
-     * Even if the level backend is not JDK logging, this still allows us
-     * to switch on the level.
-     */
-    private static class DelayedConfigOutput
-    {
-
-       /**
-        * The level.
-        */
-       java.util.logging.Level level;
-
-       /**
-        * The message.
-        */
-       String message;
-
-       /**
-        * Instantiates a new delayed config output.
-        *
-        * @param warning the warning
-        * @param string the string
-        */
-       public DelayedConfigOutput (Level warning, String string)
-       {
-          level = warning;
-          message = string;
-       }
     }
 
 

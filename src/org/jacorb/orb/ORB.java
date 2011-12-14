@@ -421,7 +421,7 @@ public final class ORB
     private void printVersion(org.jacorb.config.Configuration configuration)
     {
         final boolean printVersion =
-            configuration.getAttributeAsBoolean("jacorb.orb.print_version", true);
+            configuration.getAttributeAsBoolean("jacorb.orb.print_version", false);
 
         if (!printVersion)
         {
@@ -1788,9 +1788,9 @@ public final class ORB
 
     private void initKnownReferencesMap()
     {
-        if (logger.isInfoEnabled())
+        if (logger.isDebugEnabled())
         {
-            logger.info("Property \"jacorb.hashtable_class\" is set to: " + hashTableClassName);
+            logger.debug("Property \"jacorb.hashtable_class\" is set to: " + hashTableClassName);
         }
 
         try

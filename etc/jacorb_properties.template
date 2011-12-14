@@ -54,7 +54,7 @@ ORBInitRef.InterfaceRepository=file:/c:/IR_Ref
 
 # if on, the ORB's version number and a copyright statement is printed
 # any time the ORB is initialized
-jacorb.orb.print_version=on
+jacorb.orb.print_version=off
 
 ###########################
 #                         #
