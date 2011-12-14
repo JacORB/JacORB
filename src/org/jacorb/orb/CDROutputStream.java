@@ -51,6 +51,7 @@ import org.omg.CORBA.WStringValueHelper;
 import org.omg.CORBA.TypeCodePackage.BadKind;
 import org.omg.CORBA.TypeCodePackage.Bounds;
 import org.omg.CORBA.portable.BoxedValueHelper;
+import org.omg.CORBA.portable.ValueOutputStream;
 import org.omg.IOP.IOR;
 import org.omg.IOP.IORHelper;
 import org.omg.IOP.TaggedProfile;
@@ -64,7 +65,7 @@ import org.omg.IOP.TaggedProfile;
  */
 
 public class CDROutputStream
-    extends org.omg.CORBA_2_3.portable.OutputStream implements CodeSet.OutputBuffer
+    extends org.omg.CORBA_2_3.portable.OutputStream implements CodeSet.OutputBuffer, ValueOutputStream
 {
     private final static IOR null_ior = new IOR("", new TaggedProfile[0]);
 
@@ -181,6 +182,8 @@ public class CDROutputStream
     private boolean chunkCustomRmiValuetypes = false;
     private boolean useIndirection = true;
     private boolean nullStringEncoding;
+    // by default stream version is 1 for GIOP v1.2 messages
+    private byte maxStreamFormatVersion = ValueHandler.STREAM_FORMAT_VERSION_1;
 
     private final TypeCodeCompactor typeCodeCompactor;
 
@@ -277,7 +280,7 @@ public class CDROutputStream
 
     private void configure(Configuration configuration) throws ConfigurationException
     {
-       codesetEnabled  = configuration.getAttributeAsBoolean ("jacorb.codeset", false);
+        codesetEnabled  = configuration.getAttributeAsBoolean ("jacorb.codeset", false);
 
         useBOM = configuration.getAttributeAsBoolean("jacorb.use_bom",false);
 
@@ -286,13 +289,15 @@ public class CDROutputStream
         useIndirection = !( configuration.getAttributeAsBoolean("jacorb.interop.indirection_encoding_disable", false));
 
         nullStringEncoding =
-            configuration.getAttributeAsBoolean("jacorb.interop.null_string_encoding", false);
+        configuration.getAttributeAsBoolean("jacorb.interop.null_string_encoding", false);
 
         mutator = (IORMutator) configuration.getAttributeAsObject("jacorb.iormutator");
 
         isMutatorEnabled = (mutator != null);
 
         deferredArrayQueueSize = (configuration.getAttributeAsInteger("jacorb.deferredArrayQueue", 8)) * 1000;
+
+        maxStreamFormatVersion = (byte) configuration.getAttributeAsInteger("jacorb.interop.maximum_stream_format_version", 1);
     }
 
 
@@ -2406,6 +2411,37 @@ public class CDROutputStream
             write_value((java.io.Serializable)object);
         }
     }
+
+
+    /**
+     * <code>start_value</code> implements ValueOutputStream JavaToIDL mapping 02-01-12.
+     * It should end any currently open chunk, write a valuetype header for a nested custom valuetype
+     * (with a null codebase and the specified repository ID), and increment the valuetype nesting depth.
+     *
+     * @param rep_id
+     */
+    public void start_value (String rep_id)
+    {
+       write_value_header (new String[] {rep_id});
+       start_chunk();
+    }
+
+
+    /**
+     * <code>end_value</code> implements ValueOutputStream JavaToIDL mapping 02-01-12.
+     * It should end any currently open chunk, write the end tag for the nested custom valuetype,
+     * and decrement the valuetype nesting depth.
+     */
+    public void end_value ()
+    {
+       end_chunk();
+    }
+
+    public byte getMaximumStreamFormatVersion ()
+    {
+        return maxStreamFormatVersion;
+    }
+
 
     /**
      * <code>updateMutatorConnection</code> is an accessor that updates the

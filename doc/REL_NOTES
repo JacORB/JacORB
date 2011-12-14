@@ -48,6 +48,7 @@ post 3.0 beta 1
         - Provide public createObjectIOR functions in ParsedIOR.
         - Refactor internal use of Singleton ORB and provide a new
           org.omg.CORBA.ORBSingleton to avoid clashes with e.g. JDK Singleton.
+        - Add implementation of ValueInput/OutputStream
     - IDL Compiler
         - Avoid create_local_interface_tc generation if using deprecated.
     - Fixes:

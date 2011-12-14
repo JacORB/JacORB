@@ -1,10 +1,16 @@
 package org.jacorb.util;
 
+import javax.rmi.CORBA.ValueHandlerMultiFormat;
+import org.omg.CORBA.MARSHAL;
+
 /**
  * A static wrapper around classes in javax.rmi.
  */
 public class ValueHandler
 {
+   public static final byte STREAM_FORMAT_VERSION_1 = (byte)1;
+   public static final byte STREAM_FORMAT_VERSION_2 = (byte)2;
+
 
     public static String getRMIRepositoryID(Class clz)
     {
@@ -28,7 +34,21 @@ public class ValueHandler
     public static void writeValue(org.omg.CORBA.portable.OutputStream out,
             java.io.Serializable value)
     {
-        javax.rmi.CORBA.Util.createValueHandler().writeValue(out, value);
+       byte version = ValueHandler.getMaximumStreamFormatVersion (out);
+       javax.rmi.CORBA.ValueHandler vh = javax.rmi.CORBA.Util.createValueHandler();
+
+       if (version == ValueHandler.STREAM_FORMAT_VERSION_1)
+       {
+          vh.writeValue (out, value);
+       }
+       else if (version == ValueHandler.STREAM_FORMAT_VERSION_2)
+       {
+          ((ValueHandlerMultiFormat)vh).writeValue (out, value, ValueHandler.STREAM_FORMAT_VERSION_2);
+       }
+       else
+       {
+          throw new MARSHAL ("Unsupported stream format version.");
+       }
     }
 
     public static boolean isCustomMarshaled(Class clz)
@@ -68,4 +88,29 @@ public class ValueHandler
         return javax.rmi.PortableRemoteObject.narrow(narrowFrom, narrowTo);
     }
 
+
+    public static byte getMaximumStreamFormatVersion (org.omg.CORBA.portable.OutputStream out)
+    {
+       javax.rmi.CORBA.ValueHandler vh = javax.rmi.CORBA.Util.createValueHandler();
+       byte streamFormatVersion = STREAM_FORMAT_VERSION_1;
+       
+       // Maximum stream format version calculation rules:
+       // 1. Assume version 1 by default (GIOP v1.2).
+       // 2. If ValueHandler supports higher version take it as preliminary value.
+       // 3. If CDROutputStream returns version lower that ValueHandler supports 
+       //    then use maximum version that is supported by output stream.
+
+       if (vh instanceof ValueHandlerMultiFormat)
+       {
+          streamFormatVersion = ((ValueHandlerMultiFormat)vh).getMaximumStreamFormatVersion ();
+       }
+       
+       if (out instanceof org.jacorb.orb.CDROutputStream
+           && streamFormatVersion > ((org.jacorb.orb.CDROutputStream)out).getMaximumStreamFormatVersion ())
+       {
+           streamFormatVersion = ((org.jacorb.orb.CDROutputStream)out).getMaximumStreamFormatVersion ();
+       }
+       
+       return streamFormatVersion;
+    }
 }

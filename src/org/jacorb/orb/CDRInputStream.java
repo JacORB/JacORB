@@ -50,6 +50,7 @@ import org.omg.CORBA.TCKind;
 import org.omg.CORBA.TypeCodePackage.BadKind;
 import org.omg.CORBA.TypeCodePackage.Bounds;
 import org.omg.CORBA.portable.IDLEntity;
+import org.omg.CORBA.portable.ValueInputStream;
 import org.omg.GIOP.MsgType_1_1;
 import org.slf4j.Logger;
 
@@ -62,7 +63,7 @@ import org.slf4j.Logger;
 
 public class CDRInputStream
     extends org.omg.CORBA_2_3.portable.InputStream
-    implements CodeSet.InputBuffer
+    implements CodeSet.InputBuffer, ValueInputStream
 {
     /**
      * <code>encaps_stack</code> is used to saving/restoring
@@ -2813,13 +2814,13 @@ public class CDRInputStream
         }
 
         return result[0].typeCode;
-        }
+    }
 
-        /**
+    /**
      * used for debug/informational output
-         */
+     */
     public String getIndentString()
-        {
+    {
         StringBuffer buffer = new StringBuffer();
 
         for (int i = 0; i < typeCodeNestingLevel; i++)
@@ -2828,10 +2829,65 @@ public class CDRInputStream
         }
 
         return buffer.toString();
-        }
+    }
 
     public Logger getLogger()
     {
         return logger;
+    }
+
+
+
+    /**
+     * <code>start_value</code> implements ValueInputStream JavaToIDL mapping 02-01-12.
+     * It should read a valuetype header for a nested custom valuetype and increment
+     * the valuetype nesting depth.
+     */
+    public void start_value ()
+    {
+        int valueTag = read_long ();
+
+        if (valueTag == 0x00000000)
+        {
+            // null tag, just do nothing
+            return;
+        }
+
+        // check that codebase is null
+        String codebase = ((valueTag & 1) != 0) ? read_codebase() : null;
+        if (codebase != null)
+        {
+            throw new MARSHAL ("Custom marshaled value should have null codebase");
+        }
+
+        chunkedValue = ((valueTag & 0x00000008) != 0);
+
+        // single repository ID
+        read_repository_id ();
+
+        if (chunkedValue || valueNestingLevel > 0)
+        {
+            valueNestingLevel++;
+            readChunkSizeTag();
+
+            handle_chunking();
+        }
+    }
+
+    /**
+     * <code>end_value</code> implements ValueInputStream JavaToIDL mapping 02-01-12.
+     * It should read the end tag for the nested custom valuetype (after skipping
+     * any data that precedes the end tag) and decrements the valuetype nesting depth.
+     *
+     */
+    public void end_value ()
+    {
+        // skip rest of chunk to its end
+        if (chunk_end_pos != -1 && pos > chunk_end_pos)
+        {
+            skip (pos - chunk_end_pos);
+        }
+
+        handle_chunking ();
     }
 }
