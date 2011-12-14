@@ -26,7 +26,7 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.jacorb.orb.TypeCode;
 import org.omg.CORBA.TCKind;
-import org.omg.CORBA.ORB;
+import org.omg.CORBA.ORBSingleton;
 
 /**
  * @author Gerald Brose, FU Berlin
@@ -39,21 +39,21 @@ public class TypeCodeUtil
 
     static
     {
-        cache.put( "java.lang.String",  ORB.init ().get_primitive_tc (TCKind.tk_string));
-        cache.put( "org.omg.CORBA.String", ORB.init ().get_primitive_tc (TCKind.tk_string));
-        cache.put( "java.lang.Void", ORB.init ().get_primitive_tc (TCKind.tk_void ));
-        cache.put( "java.lang.Long",ORB.init ().get_primitive_tc (TCKind.tk_longlong ));
-        cache.put( "java.lang.Integer",ORB.init ().get_primitive_tc (TCKind.tk_long ));
-        cache.put( "java.lang.Short",ORB.init ().get_primitive_tc (TCKind.tk_short ));
-        cache.put( "java.lang.Float",ORB.init ().get_primitive_tc (TCKind.tk_float ));
-        cache.put( "java.lang.Double",ORB.init ().get_primitive_tc (TCKind.tk_double ));
-        cache.put( "java.lang.Boolean",ORB.init ().get_primitive_tc (TCKind.tk_boolean ));
-        cache.put( "java.lang.Byte" ,ORB.init ().get_primitive_tc (TCKind.tk_octet ));
-        cache.put( "org.omg.CORBA.Any", ORB.init ().get_primitive_tc (TCKind.tk_any));
-        cache.put( "java.lang.Character",ORB.init ().get_primitive_tc (TCKind.tk_char));
-        cache.put( "org.omg.CORBA.TypeCode",ORB.init ().get_primitive_tc (TCKind.tk_TypeCode));
+        cache.put( "java.lang.String",  ORBSingleton.init ().get_primitive_tc (TCKind.tk_string));
+        cache.put( "org.omg.CORBA.String", ORBSingleton.init ().get_primitive_tc (TCKind.tk_string));
+        cache.put( "java.lang.Void", ORBSingleton.init ().get_primitive_tc (TCKind.tk_void ));
+        cache.put( "java.lang.Long",ORBSingleton.init ().get_primitive_tc (TCKind.tk_longlong ));
+        cache.put( "java.lang.Integer",ORBSingleton.init ().get_primitive_tc (TCKind.tk_long ));
+        cache.put( "java.lang.Short",ORBSingleton.init ().get_primitive_tc (TCKind.tk_short ));
+        cache.put( "java.lang.Float",ORBSingleton.init ().get_primitive_tc (TCKind.tk_float ));
+        cache.put( "java.lang.Double",ORBSingleton.init ().get_primitive_tc (TCKind.tk_double ));
+        cache.put( "java.lang.Boolean",ORBSingleton.init ().get_primitive_tc (TCKind.tk_boolean ));
+        cache.put( "java.lang.Byte" ,ORBSingleton.init ().get_primitive_tc (TCKind.tk_octet ));
+        cache.put( "org.omg.CORBA.Any", ORBSingleton.init ().get_primitive_tc (TCKind.tk_any));
+        cache.put( "java.lang.Character",ORBSingleton.init ().get_primitive_tc (TCKind.tk_char));
+        cache.put( "org.omg.CORBA.TypeCode",ORBSingleton.init ().get_primitive_tc (TCKind.tk_TypeCode));
         // Principal deprecated and removed.
-        cache.put( "org.omg.CORBA.Object", ORB.init ().get_primitive_tc (TCKind.tk_objref));
+        cache.put( "org.omg.CORBA.Object", ORBSingleton.init ().get_primitive_tc (TCKind.tk_objref));
     }
 
 
@@ -120,25 +120,25 @@ public class TypeCodeUtil
         if( c.isPrimitive() )
         {
             if( typeName.equals("void"))
-                return ORB.init ().get_primitive_tc (TCKind.tk_void );
+                return ORBSingleton.init ().get_primitive_tc (TCKind.tk_void );
             if( typeName.equals("int"))
-                return ORB.init ().get_primitive_tc (TCKind.tk_long );
+                return ORBSingleton.init ().get_primitive_tc (TCKind.tk_long );
             if( typeName.equals("long"))
-                return ORB.init ().get_primitive_tc (TCKind.tk_longlong );
+                return ORBSingleton.init ().get_primitive_tc (TCKind.tk_longlong );
             if( typeName.equals("short"))
-                return ORB.init ().get_primitive_tc (TCKind.tk_short );
+                return ORBSingleton.init ().get_primitive_tc (TCKind.tk_short );
             if( typeName.equals("float"))
-                return ORB.init ().get_primitive_tc (TCKind.tk_float );
+                return ORBSingleton.init ().get_primitive_tc (TCKind.tk_float );
             if( typeName.equals("double"))
-                return ORB.init ().get_primitive_tc (TCKind.tk_double );
+                return ORBSingleton.init ().get_primitive_tc (TCKind.tk_double );
             if( typeName.equals("boolean"))
-                return ORB.init ().get_primitive_tc (TCKind.tk_boolean );
+                return ORBSingleton.init ().get_primitive_tc (TCKind.tk_boolean );
             if( typeName.equals("byte") )
-                return ORB.init ().get_primitive_tc (TCKind.tk_octet );
+                return ORBSingleton.init ().get_primitive_tc (TCKind.tk_octet );
             if( typeName.equals("char") )
-                return ORB.init ().get_primitive_tc (TCKind.tk_char );
+                return ORBSingleton.init ().get_primitive_tc (TCKind.tk_char );
             if( typeName.equals("wchar") )
-                return ORB.init ().get_primitive_tc (TCKind.tk_wchar );
+                return ORBSingleton.init ().get_primitive_tc (TCKind.tk_wchar );
             else
             {
                 System.err.println("- TypeCode.getTypeCode, primitive class not found " +
@@ -165,7 +165,7 @@ public class TypeCodeUtil
 
         if ( tcClass.isAssignableFrom(c))
         {
-            return ORB.init ().get_primitive_tc (TCKind.tk_TypeCode );
+            return ORBSingleton.init ().get_primitive_tc (TCKind.tk_TypeCode );
         }
         else
         {
@@ -174,31 +174,31 @@ public class TypeCodeUtil
                 try
                 {
                      if( idlName.equals( "java.lang.String"))
-                        return ORB.init ().get_primitive_tc (TCKind.tk_string);
+                        return ORBSingleton.init ().get_primitive_tc (TCKind.tk_string);
                      else if( idlName.equals( "org.omg.CORBA.Boolean"))
-                        return ORB.init ().get_primitive_tc (TCKind.tk_boolean);
+                        return ORBSingleton.init ().get_primitive_tc (TCKind.tk_boolean);
                      else if( idlName.equals( "org.omg.CORBA.Byte"))
-                        return ORB.init ().get_primitive_tc (TCKind.tk_octet);
+                        return ORBSingleton.init ().get_primitive_tc (TCKind.tk_octet);
                      else if( idlName.equals( "org.omg.CORBA.Short"))
-                        return ORB.init ().get_primitive_tc (TCKind.tk_short);
+                        return ORBSingleton.init ().get_primitive_tc (TCKind.tk_short);
                      else if( idlName.equals( "org.omg.CORBA.Long"))
-                        return ORB.init ().get_primitive_tc (TCKind.tk_longlong);
+                        return ORBSingleton.init ().get_primitive_tc (TCKind.tk_longlong);
                      else if( idlName.equals( "org.omg.CORBA.Int"))
-                        return ORB.init ().get_primitive_tc (TCKind.tk_long);
+                        return ORBSingleton.init ().get_primitive_tc (TCKind.tk_long);
                      else if( idlName.equals( "org.omg.CORBA.String"))
-                        return ORB.init ().get_primitive_tc (TCKind.tk_string);
+                        return ORBSingleton.init ().get_primitive_tc (TCKind.tk_string);
                      else if( idlName.equals( "org.omg.CORBA.Char"))
-                        return ORB.init ().get_primitive_tc (TCKind.tk_char);
+                        return ORBSingleton.init ().get_primitive_tc (TCKind.tk_char);
                      else if( idlName.equals( "org.omg.CORBA.Float"))
-                        return ORB.init ().get_primitive_tc (TCKind.tk_float);
+                        return ORBSingleton.init ().get_primitive_tc (TCKind.tk_float);
                      else if( idlName.equals( "org.omg.CORBA.Double"))
-                        return ORB.init ().get_primitive_tc (TCKind.tk_double);
+                        return ORBSingleton.init ().get_primitive_tc (TCKind.tk_double);
                      else if( idlName.equals( "org.omg.CORBA.Any"))
-                        return ORB.init ().get_primitive_tc (TCKind.tk_any);
+                        return ORBSingleton.init ().get_primitive_tc (TCKind.tk_any);
                      else if( idlName.equals( "org.omg.CORBA.Object"))
-                        return ORB.init ().get_primitive_tc (TCKind.tk_objref);
+                        return ORBSingleton.init ().get_primitive_tc (TCKind.tk_objref);
                      else if( idlName.equals( "org.omg.CORBA.TypeCode"))
-                        return ORB.init ().get_primitive_tc (TCKind.tk_TypeCode);
+                        return ORBSingleton.init ().get_primitive_tc (TCKind.tk_TypeCode);
 
                     Class type = Class.forName( idlName + "Helper", true, loader);
 
