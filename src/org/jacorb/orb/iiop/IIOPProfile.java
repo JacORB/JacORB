@@ -20,6 +20,7 @@
 package org.jacorb.orb.iiop;
 
 import java.net.Inet4Address;
+import java.net.Inet6Address;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
@@ -27,9 +28,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.List;
+
 import org.jacorb.config.Configuration;
 import org.jacorb.config.ConfigurationException;
 import org.jacorb.orb.CDRInputStream;
@@ -345,22 +346,29 @@ public class IIOPProfile
         if (components == null) components = new TaggedComponentList();
         try
         {
-            for (Enumeration e = NetworkInterface.getNetworkInterfaces();
-                 e.hasMoreElements();)
+            for (NetworkInterface ni :
+                 Collections.list (NetworkInterface.getNetworkInterfaces()))
             {
-                NetworkInterface ni = (NetworkInterface)e.nextElement();
-                for (Enumeration ee = ni.getInetAddresses();
-                     ee.hasMoreElements();)
+                for (InetAddress addr :
+                     Collections.list (ni.getInetAddresses()))
                 {
-                    InetAddress addr = (InetAddress)ee.nextElement();
-                    if (addr instanceof Inet4Address &&
-                        !addr.isLoopbackAddress() &&
+                    if (!addr.isLoopbackAddress() &&
                         !addr.getHostAddress().equals (primaryAddress.getIP()))
                     {
                         IIOPAddress iaddr = new IIOPAddress();
                         iaddr.configure (configuration);
-                        iaddr.fromString (addr.toString().substring(1) + ":"
-                                          + primaryAddress.getPort());
+                        if (addr instanceof Inet4Address)
+                        {
+                            iaddr.fromString (addr.toString().substring(1) + ":"
+                                              + primaryAddress.getPort());
+                        }
+                        else if (addr instanceof Inet6Address)
+                        {
+                            iaddr.fromString (
+                               "[" + addr.toString().substring(1) + "]:"
+                               + primaryAddress.getPort()
+                            );
+                        }
                         components.addComponent (TAG_ALTERNATE_IIOP_ADDRESS.value,
                                                  iaddr.toCDR());
                     }
