@@ -1,3 +1,130 @@
+2011-12-15  Andre Spiegel  <spiegel@gnu.org>
+
+	* orb/iiop/IIOPProfile.java: (addNetworkAddresses): Rewritten to
+	  also add IPv6 addresses.  Second part of patch for #881.
+
+2011-12-14  Nick Cross  <jacorb@goots.org>
+
+	* config/JacORBConfiguration.java,
+	  config/JdkLoggingInitializer.java, orb/ORB.java: Move some
+	  logging to be quieter. Default print_version to off. Improve code
+	  in jacorbconfiguration to use generics. Use ORBSingleton.init in
+	  jdklogginginitializer.
+
+2011-12-14  Nick Cross  <jacorb@goots.org>
+
+	* ir/TypeCodeUtil.java: Replace ORB.init by ORBSingleton.init
+
+2011-12-14  Nick Cross  <jacorb@goots.org>
+
+	* orb/CDRInputStream.java, orb/CDROutputStream.java,
+	  util/ValueHandler.java: BZ888 Add implementation of
+	  valueinput/output stream
+
+2011-12-13  Nick Cross  <jacorb@goots.org>
+
+	* events/ProxyPullSupplierImpl.java, ir/EnumDef.java,
+	  ir/PrimitiveDef.java,
+	  ir/gui/remoteobject/ObjectRepresentantFactory.java,
+	  notification/TypedEventMessage.java,
+	  notification/filter/etcl/CurrentTimeNode.java,
+	  notification/servant/StructuredProxyPullSupplierImpl.java,
+	  notification/servant/TypedProxyPushSupplierImpl.java,
+	  notification/util/PropertySet.java, orb/CDRInputStream.java,
+	  orb/CDROutputStream.java, orb/ORB.java, orb/ORBSingleton.java,
+	  orb/ParsedIOR.java, orb/SystemExceptionHelper.java,
+	  orb/typecode/AbstractTypeCodeReader.java: Refactor singleton use
+	  to workaround JDK clash
+
+2011-12-11  Nick Cross  <jacorb@goots.org>
+
+	* orb/ParsedIOR.java: Add createObjectIOR methods
+
+2011-12-11  Nick Cross  <jacorb@goots.org>
+
+	* idl/Interface.java: Fix for generating
+	  create_local_interface_tc/Interface.java
+
+2011-12-09  Nick Cross  <jacorb@goots.org>
+
+	* idl/Interface.java, orb/ParsedIOR.java: Add createObjectIOR
+	  methods and fix for generating
+	  create_local_interface_tc/Interface.java
+
+2011-12-01  Nick Cross  <jacorb@goots.org>
+
+	* orb/giop/CodeSet.java: Bugzilla 739 - Add support for iso8859-15
+
+2011-12-01  Phil Mesnier  <mesnier_p@ociweb.com>
+
+	* orb/Delegate.java: Fix for bug 810. Adapted from the patch
+	  suggested by Richard McAleer
+
+2011-11-28  Phil Mesnier  <mesnier_p@ociweb.com>
+
+	* naming/NamingContextImpl.java: Allow objects implemented by old
+	  CORBA versions to be registered even if they don't implement the
+	  _non_existent operation.
+
+2011-11-28  Phil Mesnier  <mesnier_p@ociweb.com>
+
+	* dds/: PublisherImpl.java, SubscriberImpl.java, Supplier.java,
+	  ThreadSubscriber.java: Fix for loading the required
+	  Topic-specific classes when constructing data readers, writers,
+	  and related objects.
+
+2011-11-28  Andre Spiegel  <spiegel@gnu.org>
+
+	* orb/etf/ConnectionBase.java, orb/iiop/IIOPListener.java,
+	  orb/listener/SSLHandshakeListener.java,
+	  orb/listener/SSLListenerUtil.java,
+	  imr/ImplementationRepositoryImpl.java: Use new methods from
+	  IIOPAddress to get localhost address, as suggested in bug #881.
+
+2011-11-28  Andre Spiegel  <spiegel@gnu.org>
+
+	* orb/iiop/IIOPAddress.java: (getLocalHost, getLocalHostAddress,
+	  getGoodIPv6Address): New methods that implement the algorithm
+	  suggested in bug #881.  (init_host): Use them.
+
+2011-11-26  Nick Cross  <jacorb@goots.org>
+
+	* idl/parser.cup: Bug 912 - Update versioning schemes to add
+	  information to manifest.
+
+2011-11-25  Nick Cross  <jacorb@goots.org>
+
+	* orb/giop/MessageInputStream.java: Bug913 - Change protection from
+	  protected to public
+
+2011-11-25  Nick Cross  <jacorb@goots.org>
+
+	* transport/DefaultCurrentImpl.java: Remove compile warnings
+
+2011-11-25  Nick Cross  <jacorb@goots.org>
+
+	* orb/BasicAdapter.java, orb/Delegate.java, orb/ORB.java,
+	  orb/ORBSingleton.java, orb/etf/ProtocolAddressBase.java,
+	  orb/factory/PortRangeServerSocketFactory.java, poa/POA.java,
+	  poa/RPPoolManager.java: Code refactor to remove compile warnings
+
+2011-11-25  Nick Cross  <jacorb@goots.org>
+
+	* orb/miop/MIOPFactories.java: Bug911 - Refactor ETF Factories to
+	  remove static information.
+
+2011-11-25  Nick Cross  <jacorb@goots.org>
+
+	* orb/: etf/FactoriesBase.java, iiop/IIOPFactories.java,
+	  miop/MIOPFactories.java, miop/MIOPListener.java,
+	  miop/MIOPProfile.java, nio/NIOFactories.java: Bug911 - Refactor
+	  ETF Factories to remove static information.
+
+2011-11-23  Alexander Bykov  <alexander.bykov@prismtech.com>
+
+	* config/JacORBConfiguration.java: Prismtech JAC#738: fixed empty
+	  parameter's values processing
+
 2011-11-23  Andre Spiegel  <spiegel@gnu.org>
 
 	* Version 3.0 beta 1 released.
