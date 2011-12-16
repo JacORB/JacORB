@@ -829,11 +829,8 @@ public final class ORB
                 // use proxy or ImR address if necessary
                 patchAddress((ProfileBase)profile, repId, _transient);
 
-                TaggedComponentList components =
-                    (TaggedComponentList)componentMap.get(Integer.valueOf(TAG_INTERNET_IOP.value));
-
                 // patch primary address port to 0 if SSL is required
-                if (poa.isSSLRequired() || isSSLRequiredInComponentList(components))
+                if (poa.isSSLRequired())
                 {
                     ((ProfileBase)profile).patchPrimaryAddress(new IIOPAddress(null, 0));
                 }
@@ -886,6 +883,17 @@ public final class ORB
             if (giopMinorVersion == 0)
             {
                 profiles.remove(iiopProfile);
+            }
+        }
+        if (iiopProfile != null)
+        {
+            TaggedComponentList components =
+                (TaggedComponentList)componentMap.get(Integer.valueOf(TAG_INTERNET_IOP.value));
+
+            // patch primary address port to 0 if SSL is required
+            if (isSSLRequiredInComponentList(components))
+            {
+                iiopProfile.patchPrimaryAddress(new IIOPAddress(null, 0));
             }
         }
 
