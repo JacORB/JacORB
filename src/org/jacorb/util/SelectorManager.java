@@ -612,7 +612,7 @@ public class SelectorManager extends Thread
                 }
                 catch (Exception ex)
                 {
-                    // disregrad any client exceptions
+                    // disregard any client exceptions
                 }
 
                 if (loggerDebugEnabled)

@@ -766,12 +766,12 @@ public class CDRInputStream
     {
         if (value == null)
         {
-            throw new MARSHAL("Cannot marshall result into null array.");
+            throw new MARSHAL("Cannot marshal result into null array.");
         }
         else if ( offset + length > value.length || length < 0 || offset < 0 )
         {
             throw new MARSHAL
-                ("Cannot marshall as indices for array are out bounds.");
+                ("Cannot marshal as indices for array are out bounds.");
         }
 
         handle_chunking();
