@@ -463,6 +463,7 @@ public abstract class GIOPConnection
                         ex
                     );
                 }
+                this.streamClosed();
                 return null;
             }
 
