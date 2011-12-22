@@ -28,7 +28,7 @@
    <property name="debug" value="true"/>
 
    <!-- This value only used under Ant 1.5 -->
-   <property name="debuglevel" value="lines,source"/>
+   <property name="debuglevel" value="lines,source,vars"/>
 
    <!-- Location of the compiled classes -->
    <pathconvert property="classdir" targetos="${architecture}">
