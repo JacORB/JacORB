@@ -535,10 +535,8 @@ public final class RequestController
      * those invocations.
      */
 
-    synchronized void waitForObjectCompletion( byte[] oid )
+    synchronized void waitForObjectCompletion( ByteArrayKey oidbak )
     {
-        ByteArrayKey oidbak = new ByteArrayKey( oid );
-
         while (activeRequestTable.contains(oidbak))
         {
             try
@@ -551,7 +549,7 @@ public final class RequestController
         }
         if (logger.isDebugEnabled())
         {
-            logger.debug( POAUtil.convert(oid) +
+            logger.debug( POAUtil.convert(oidbak.getBytes ()) +
                           "all active processors for this object have finished");
 
         }

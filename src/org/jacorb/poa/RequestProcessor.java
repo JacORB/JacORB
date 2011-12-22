@@ -278,6 +278,11 @@ public class RequestProcessor
 
     private void invokeOperation()
     {
+        // Set the TCCL to the servant's classloader, but save the current TCCL first.
+        Thread currentThread = Thread.currentThread();
+	ClassLoader prevClassLoader = currentThread.getContextClassLoader();        
+	currentThread.setContextClassLoader(servant.getClass().getClassLoader()); 
+
         try
         {
             if (servant instanceof org.omg.CORBA.portable.InvokeHandler)
@@ -360,6 +365,11 @@ public class RequestProcessor
             }
             request.setSystemException (new org.omg.CORBA.UNKNOWN(e.toString()));
         }
+        finally
+        {
+            // Restore the original TCCL.
+	    currentThread.setContextClassLoader(prevClassLoader); 
+	}
     }
 
 

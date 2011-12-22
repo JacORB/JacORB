@@ -1797,7 +1797,7 @@ public class POA
                             "cannot process request, because object is already in the deactivation process");
             }
 
-            throw new org.omg.CORBA.OBJECT_NOT_EXIST();
+            throw new ObjectNotActive();
         }
 
         Servant servant = null;

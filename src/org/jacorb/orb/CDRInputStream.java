@@ -460,51 +460,52 @@ public class CDRInputStream
 
     private final void handle_chunking()
     {
-        int remainder = 4 - (index % 4);
-        int aligned_pos = (remainder != 4) ? pos + remainder : pos;
+        int remainder = 4 - (this.index % 4);
+        int aligned_pos = (remainder != 4) ? this.pos + remainder : this.pos;
 
-        if (chunk_end_pos >= pos && chunk_end_pos <= aligned_pos)
+        if (this.chunk_end_pos >= pos && this.chunk_end_pos <= aligned_pos)
         {
-            chunk_end_pos = -1;
-            int saved_pos = pos;
-            int saved_index = index;
-            int tag = read_long();
+            this.adjust_positions();
+        }
+    }
 
-            if (tag < 0) {
+    private final void adjust_positions()
+    {
+        this.chunk_end_pos = -1;
+        int saved_pos = this.pos;
+        int saved_index = this.index;
+        int tag = this.read_long();
 
+        if (tag < 0) 
+        {
                 // tag is an end tag
-
-                if (-tag > valueNestingLevel)
+            if (-tag > this.valueNestingLevel)
                 {
                     throw new INTERNAL
                     (
                         "received end tag " + tag +
                         " with value nesting level " +
-                        valueNestingLevel
+                    this.valueNestingLevel
                     );
                 }
-                valueNestingLevel = -tag;
-                valueNestingLevel--;
-
-                if (valueNestingLevel > 0)
+            this.valueNestingLevel = -tag;
+            this.valueNestingLevel--;
+  	    if (this.valueNestingLevel > 0)
                 {
-                    chunk_end_pos = pos;
-                    handle_chunking();
+                this.chunk_end_pos = pos;
+                this.handle_chunking();
                 }
             }
             else if (tag > 0 && tag < 0x7fffff00)
             {
                 // tag is the chunk size tag of another chunk
-
-                chunk_end_pos = pos + tag;
+            this.chunk_end_pos = this.pos + tag;
             }
             else // (tag == 0 || tag >= 0x7fffff00)
             {
                 // tag is the null value tag or the value tag of a nested value
-
-                pos = saved_pos;      // "unread" the tag
-                index = saved_index;
-            }
+            this.pos = saved_pos;      // "unread" the tag
+            this.index = saved_index;
         }
     }
 
@@ -711,7 +712,11 @@ public class CDRInputStream
 
     public final boolean read_boolean()
     {
-        handle_chunking();
+        // handle_chunking();
+        if (this.chunk_end_pos == this.pos)
+        {
+            this.adjust_positions();
+        }
         index++;
         byte value = buffer[pos++];
 
@@ -2843,7 +2848,7 @@ public class CDRInputStream
     {
         java.io.Serializable result = null;
 
-        if (chunkedValue || valueNestingLevel > 0)
+        if (chunkedValue || (valueNestingLevel > 0 && !sunInteropFix))
         {
             valueNestingLevel++;
             readChunkSizeTag();
