@@ -99,7 +99,7 @@ using VERSION_INFO: ${jacorb_version_info}
       <jar jarfile="${lib}/jacorb.jar"
            basedir="${classdir}"
            includes="org/jacorb/**,org/omg/**"
-           excludes="org/jacorb/idl/**,org/jacorb/demo/**,org/jacorb/test/**, org/jacorb/notification/jmx/jboss/**"
+           excludes="org/jacorb/idl/**,org/jacorb/demo/**,org/jacorb/test/**,org/jacorb/notification/jmx/jboss/**,org/omg/CosTransactions/**,org/jacorb/transaction/**"
            manifest="${basedir}/etc/jacorb_jar.manifest"
            index="true"
            />
