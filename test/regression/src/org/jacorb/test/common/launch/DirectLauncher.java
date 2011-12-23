@@ -145,6 +145,6 @@ public class DirectLauncher extends AbstractLauncher
 
     private String getMaxHeapSize(Properties props)
     {
-        return getPropertyWithDefault(props, "jacorb.test.maxheapsize", "64m");
+        return getPropertyWithDefault(props, "jacorb.test.maxheapsize", "256m");
     }
 }

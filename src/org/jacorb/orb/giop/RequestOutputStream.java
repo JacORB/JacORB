@@ -185,17 +185,26 @@ public class RequestOutputStream
                     switch (syncScope)
                     {
                         case SYNC_NONE.value:
+                            // fallthrough
                         case SYNC_WITH_TRANSPORT.value:
-                        write_octet ((byte)0x00);
-                        break;
+                        {
+                            write_octet ((byte)0x00);
+                            break;
+                        }
                         case SYNC_WITH_SERVER.value:
-                        write_octet ((byte)0x01);
-                        break;
+                        {
+                            write_octet ((byte)0x01);
+                            break;
+                        }
                         case SYNC_WITH_TARGET.value:
-                        write_octet ((byte)0x03);
-                        break;
+                        {
+                            write_octet ((byte)0x03);
+                            break;
+                        }
                         default:
-                        throw new MARSHAL ("Invalid SYNC_SCOPE: " + syncScope);
+                        {
+                            throw new MARSHAL ("Invalid SYNC_SCOPE: " + syncScope);
+                        }
                     }
                 }
 

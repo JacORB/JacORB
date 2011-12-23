@@ -1741,8 +1741,6 @@ public final class Delegate
                                          replyEndTime,
                                          ior.get_object_key(), ior.getEffectiveProfile().version().minor );
 
-            out.configure(configuration);
-
             // CodeSets are only negotiated once per connection,
             // not for each individual request
             // (CORBA 3.0, 13.10.2.6, second paragraph).

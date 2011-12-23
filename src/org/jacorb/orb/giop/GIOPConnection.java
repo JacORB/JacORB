@@ -29,6 +29,7 @@ import java.util.Map;
 import org.jacorb.config.*;
 import org.slf4j.Logger;
 import org.jacorb.orb.BufferManager;
+import org.jacorb.orb.ORB;
 import org.jacorb.orb.SystemExceptionHelper;
 import org.jacorb.orb.iiop.IIOPConnection;
 import org.jacorb.util.ObjectUtil;
@@ -123,6 +124,8 @@ public abstract class GIOPConnection
     protected StatisticsProvider statistics_provider = null;
     protected StatisticsProviderAdapter statistics_provider_adapter = null;
 
+    protected ORB orb;
+
     public GIOPConnection( org.omg.ETF.Profile profile,
                            org.omg.ETF.Connection transport,
                            RequestListener request_listener,
@@ -152,6 +155,8 @@ public abstract class GIOPConnection
         throws ConfigurationException
     {
         org.jacorb.config.Configuration jacorbConfiguration = (org.jacorb.config.Configuration) configuration;
+        this.orb = jacorbConfiguration.getORB();
+
         logger = jacorbConfiguration.getLogger("jacorb.giop.conn");
         dump_incoming =
             configuration.getAttribute("jacorb.debug.dump_incoming_messages","off").equals("on");
@@ -523,7 +528,7 @@ public abstract class GIOPConnection
                         }
 
                         final MessageOutputStream out =
-                            new MessageOutputStream();
+                            new MessageOutputStream(orb);
 
                         try
                         {
@@ -663,20 +668,29 @@ public abstract class GIOPConnection
 
                         int giop_minor = Messages.getGIOPMinor( message );
 
-                        ReplyOutputStream out =
-                            new ReplyOutputStream( Messages.getRequestId( message ),
+                        final ReplyOutputStream out =
+                                new ReplyOutputStream( orb,
+                                    Messages.getRequestId( message ),
                                     ReplyStatusType_1_2.SYSTEM_EXCEPTION,
                                     giop_minor,
                                     false,
                                     logger);//no locate reply
 
-                        SystemExceptionHelper.write( out,
-                                new NO_IMPLEMENT( 0, CompletionStatus.COMPLETED_NO ));
+                        try
+                        {
+                            SystemExceptionHelper.write( out,
+                                    new NO_IMPLEMENT( 0, CompletionStatus.COMPLETED_NO ));
 
-                        sendMessage( out );
-                        buf_mg.returnBuffer( message );
+                            sendMessage( out );
+                            buf_mg.returnBuffer( message );
+                            
 
-                        continue;
+                            continue;
+                        }
+                        finally
+                        {
+                            out.close();
+                        }
                     }
 
                     //check, that only the correct message types are fragmented

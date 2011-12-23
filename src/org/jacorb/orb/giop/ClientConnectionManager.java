@@ -78,7 +78,7 @@ public class ClientConnectionManager
         org.jacorb.config.Configuration configuration = (org.jacorb.config.Configuration)myConfiguration;
         logger = configuration.getLogger("jacorb.orb.giop");
 
-        request_listener = new NoBiDirClientRequestListener(logger);
+        request_listener = new NoBiDirClientRequestListener(orb, logger);
     }
 
 

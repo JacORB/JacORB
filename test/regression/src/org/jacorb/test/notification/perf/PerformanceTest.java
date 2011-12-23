@@ -241,7 +241,7 @@ public class PerformanceTest extends NotificationTestCase
                 + " in average: " + (_total / runs));
     }
 
-    public void testLoad() throws Exception
+    public void XXXtestLoad() throws Exception
     {
         final AtomicBoolean active = new AtomicBoolean(true);
         
@@ -301,6 +301,6 @@ public class PerformanceTest extends NotificationTestCase
 
     public static Test suite() throws Exception
     {
-        return NotificationTestCase.suite(PerformanceTest.class, "_testMeasureFilterLatency");
+        return NotificationTestCase.suite(PerformanceTest.class);//, "_testMeasureFilterLatency");
     }
 }

@@ -26,6 +26,7 @@ import java.util.Properties;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 
+import org.jacorb.test.common.CommonSetup;
 import org.jacorb.test.common.ClientServerSetup;
 import org.jacorb.test.common.ClientServerTestCase;
 import org.jacorb.test.common.TestUtils;
@@ -58,8 +59,10 @@ public class Bug619Test extends ClientServerTestCase
                     success = true;
                     notifyAll();
                 }
-            } catch (Exception e)
+            }
+            catch (Exception e)
             {
+                System.err.println ("Caught a " + e);
                 synchronized (this)
                 {
                     exception = e;
@@ -79,7 +82,8 @@ public class Bug619Test extends ClientServerTestCase
                     try
                     {
                         wait(timeout);
-                    } catch (InterruptedException e)
+                    }
+                    catch (InterruptedException e)
                     {
                         // ignore
                     }
@@ -106,20 +110,32 @@ public class Bug619Test extends ClientServerTestCase
     public void testOutOfMemoryShouldFail() throws Exception
     {
         int[] data = new int[10000000];
-        for (int i = 0; i < 10; i++)
-        {
-            Pusher pusher = new Pusher(data);
-            pusher.run();
 
-            try
-            {
-                pusher.verify(2000);
-                fail();
-            } catch (NO_MEMORY e)
-            {
-                // expected
-            }
+        Pusher pusher = new Pusher(data);
+        pusher.run();
+
+        try
+        {
+            pusher.verify(2000);
+            fail();
         }
+        catch (NO_MEMORY e)
+        {
+            // expected
+        }
+        catch (Throwable e)
+        {
+            throw (Exception)e;
+        }
+        finally
+        {
+            pusher.interrupt();
+            pusher.join();
+            Thread.sleep(5000);
+        }
+        // Try a succesful run.
+        pusher = new Pusher(new int [1]);
+        pusher.run();
     }
 
     protected void setUp() throws Exception
@@ -138,7 +154,7 @@ public class Bug619Test extends ClientServerTestCase
 
         Properties clientProps = new Properties();
         Properties serverProps = new Properties();
-        serverProps.put("jacorb.test.maxmemory", "64m");
+        serverProps.put("jacorb.test.maxheapsize", "64m");
         ClientServerSetup setup = new ClientServerSetup(suite, OutOfMemoryImpl.class.getName(),
                 clientProps, serverProps);
 

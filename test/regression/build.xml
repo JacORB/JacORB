@@ -226,10 +226,6 @@
     </target>
 
     <target name="jacunit-checkargs" depends="test-init">
-        <tstamp>
-            <format property="jacorb.test.testid" pattern="yyyy-MM-dd.HH-mm-ss" />
-        </tstamp>
-
         <!-- by default create an unique directory for each testrun -->
         <!-- the name is based on a timestamp                       -->
         <!-- is the property jacorb.test.outputfile.testname is set -->
@@ -238,7 +234,7 @@
             <isset property="jacorb.test.outputfile.testname" />
         </condition>
 
-        <property name="jacorb.test.outdir" value="${testdir}/output/${jacorb.test.testid}" />
+        <property name="jacorb.test.outdir" value="${testdir}/output" />
 
         <mkdir dir="${jacorb.test.outdir}"/>
         <delete failonerror="false" includeemptydirs="true">
@@ -719,7 +715,7 @@ ${jacorb.test.outdir}
         <property name="jacorb.test.fileset-isset" value="true" />
     </target>
 
-    <target name="run-separate" depends="run-separate-init, run" />
+    <target name="run-separate" depends="run-separate-init, run" description="Run a single junit test. Pass e.g. -Djacorb.test.fileset=&quot;org/jacorb/test/bugs/bug619/Bug619Test.java&quot;"/>
 
     <!-- ==================================================== -->
     <!--                  run idl tests                       -->

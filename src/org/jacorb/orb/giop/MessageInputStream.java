@@ -36,8 +36,7 @@ import org.omg.CORBA.MARSHAL;
 public class MessageInputStream
     extends CDRInputStream
 {
-
-    public int msg_size = -1;
+    protected final int msg_size;
 
     public MessageInputStream( org.omg.CORBA.ORB orb, byte[] buffer)
     {

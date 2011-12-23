@@ -25,6 +25,9 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.*;
 
+import javax.naming.Context;
+import javax.naming.InitialContext;
+
 import org.jacorb.orb.util.CorbaLoc;
 
 import org.slf4j.Logger;
@@ -49,10 +52,6 @@ import org.omg.ETF.*;
 
 public class ParsedIOR
 {
-    //for byte -> hexchar
-    private static final char[] lookup =
-    new char[]{ '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F' };
-
     private Profile effectiveProfile = null;
     private final List profiles = new ArrayList();
 
@@ -347,8 +346,8 @@ public class ParsedIOR
 
                 for (int j = 0; j < bytes.length; j++)
                 {
-                    sb.append( lookup[ (bytes[j] >> 4) & 0xF ] );
-                    sb.append( lookup[ (bytes[j]     ) & 0xF ] );
+                    ObjectUtil.appendHex(sb, (bytes[j] >> 4) & 0xF);
+                    ObjectUtil.appendHex(sb, (bytes[j]     ) & 0xF);
                 }
 
                 ior_str = sb.toString();
@@ -402,17 +401,17 @@ public class ParsedIOR
 
     public String getIDString ()
     {
-        StringBuffer buff = new StringBuffer(getTypeId ());
-        buff.append (":");
-        byte[] key = get_object_key ();
+        StringBuffer sb = new StringBuffer(getTypeId ());
+        sb.append (":");
+        byte[] bytes = get_object_key ();
 
-        for (int j = 0; j < key.length; j++)
+        for (int j = 0; j < bytes.length; j++)
         {
-            buff.append(lookup [(key[j] >> 4) & 0xF]);
-            buff.append(lookup [(key[j]     ) & 0xF]);
+            ObjectUtil.appendHex(sb, (bytes[j] >> 4) & 0xF);
+            ObjectUtil.appendHex(sb, (bytes[j]     ) & 0xF);
         }
 
-        return (buff.toString ());
+        return (sb.toString ());
     }
 
     public TaggedComponentList getMultipleComponents()
@@ -688,41 +687,29 @@ public class ParsedIOR
             logger.debug("Trying to resolve JNDI/IOR from name: " + jndiName);
         }
 
-        java.lang.Object obj = null;
         try
         {
-            // javax.naming.Context initialContext =
-            //     new javax.naming.InitialContext ();
-            //                obj = initialContext.lookup (jndiName);
+            final Context context = new InitialContext();
 
-            // Replaced lines above with reflected equivalent so will compile
-            // under JDK < 1.3 which do not include javax.naming classes. For
-            // jndi based name resolution to work obviously javax.naming
-            // classes must be in CLASSPATH.
-            //
-            Class[] types = new Class[1];
-            java.lang.Object[] params = new java.lang.Object[1];
-
-            Class cls = ObjectUtil.classForName("javax.naming.InitialContext");
-            java.lang.Object initialContext = cls.newInstance();
-
-            types[0] = String.class;
-            params[0] = jndiName;
-
-            java.lang.reflect.Method method = cls.getMethod("lookup", types);
-            obj = method.invoke(initialContext, params);
+            try
+            {
+                final java.lang.Object obj = context.lookup(jndiName);
+                if (obj == null)
+                {
+                    throw new IllegalArgumentException("Null JNDI/IOR: " + jndiName);
+                }
+                parse(obj.toString());
+            }
+            finally
+            {
+                context.close();
+            }
         }
         catch (Exception ex)
         {
             throw new IllegalArgumentException(
                 "Failed to lookup JNDI/IOR: " + ex);
         }
-
-        if (obj == null)
-        {
-            throw new IllegalArgumentException("Null JNDI/IOR: " + jndiName);
-        }
-        parse(obj.toString());
     }
 
     /**

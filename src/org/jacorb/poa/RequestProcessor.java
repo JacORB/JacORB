@@ -353,6 +353,18 @@ public class RequestProcessor
             }
             request.setSystemException(e);
         }
+        catch (OutOfMemoryError e)
+        {
+            /* not spec. */
+            if (logger.isErrorEnabled())
+            {
+                logger.error("rid: " + request.requestId() +
+                             " opname: " + request.operation() +
+                             " invocation: Caught OutOfMemory invoking operation.",
+                             e);
+            }
+            request.setSystemException (new org.omg.CORBA.NO_MEMORY(e.toString()));
+        }
         catch (Throwable e)
         {
             /* not spec. */
