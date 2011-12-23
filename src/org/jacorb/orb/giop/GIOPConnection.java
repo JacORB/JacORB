@@ -1019,7 +1019,7 @@ public abstract class GIOPConnection
                 }
                 if (!getWriteLock(timeout))
                 {
-                    throw new TIMEOUT("Failed to aquire transport lock");
+                    throw new TIMEOUT("Failed to aquire transport lock in " + timeout + " ms");
                 }
 
                 // save send deadline for use later in the stack

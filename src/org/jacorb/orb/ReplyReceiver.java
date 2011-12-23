@@ -73,6 +73,8 @@ public class ReplyReceiver
     private final String operation;
     private final Timer timer;
     private final SelectorTimer selectorTimer;
+    private final SelectorRequest timeoutRequest;
+    private final SelectorManager selectorManager;
     private UtcT replyEndTime = null;
 
     private Logger logger;
@@ -94,12 +96,14 @@ public class ReplyReceiver
         this.interceptors     = interceptors;
         this.replyHandler     = replyHandler;
         this.replyEndTime     = replyEndTime;
+        this.selectorManager  = selectorManager;
 
         if (replyEndTime != null)
         {
             if (selectorManager == null)
             {
                 selectorTimer = null;
+                timeoutRequest = null;
                 timer = new Timer(replyEndTime);
                 timer.setName("ReplyReceiver Timer" );
                 timer.start();
@@ -109,13 +113,17 @@ public class ReplyReceiver
                 timer = null;
                 selectorTimer = new SelectorTimer ();
                 long duration = org.jacorb.util.Time.millisTo (replyEndTime);
-                selectorManager.add (new SelectorRequest (selectorTimer, System.nanoTime() + duration*1000000));
+                System.out.println (Thread.currentThread().getName() + " ReplyReceiver, duration = " + duration);
+                timeoutRequest = new SelectorRequest (selectorTimer,
+                                                      System.nanoTime() + duration*1000000);
+                selectorManager.add (timeoutRequest);
             }
         }
         else
         {
             timer = null;
             selectorTimer = null;
+            timeoutRequest = null;
         }
     }
 
@@ -139,7 +147,9 @@ public class ReplyReceiver
         {
             if (selectorTimer != null)
             {
+                selectorManager.remove(timeoutRequest);
                 selectorTimer.wakeup ();
+
             }
             else
             {

@@ -34,6 +34,7 @@ import org.jacorb.orb.iiop.IIOPProfile;
 import org.jacorb.util.SelectorRequest;
 import org.jacorb.util.SelectorRequestCallback;
 import org.omg.CORBA.TIMEOUT;
+import org.omg.CORBA.COMM_FAILURE;
 
 public class ClientNIOConnection
         extends NIOConnection
@@ -238,14 +239,22 @@ public class ClientNIOConnection
 
                 myChannel.connect (new InetSocketAddress (ipAddress, port));
 
-                SelectorRequest request = new SelectorRequest (SelectorRequest.Type.CONNECT, myChannel,
-                        new ConnectCallback (), nanoDeadline);
+                SelectorRequest request =
+                    new SelectorRequest (SelectorRequest.Type.CONNECT,
+                                         myChannel,
+                                         new ConnectCallback (),
+                                         nanoDeadline);
                 selectorManager.add (request);
                 request.waitOnCompletion (nanoDeadline);
 
-                if (request.status == SelectorRequest.Status.EXPIRED || !request.isFinalized())
+                if (request.status == SelectorRequest.Status.EXPIRED ||
+                    !request.isFinalized())
                 {
                     throw new TIMEOUT("connection timeout expired");
+                }
+                else if (request.status == SelectorRequest.Status.IOERROR)
+                {
+                    throw new COMM_FAILURE ("unable to connect");
                 }
                 else if (request.status == SelectorRequest.Status.FAILED ||
                          request.status == SelectorRequest.Status.SHUTDOWN ||
@@ -322,6 +331,7 @@ public class ClientNIOConnection
             }
             catch (Exception ex)
             {
+                request.setStatus(SelectorRequest.Status.IOERROR);
                 logger.error ("Exception while finishing connection {} ", ex.getMessage (), ex);
             }
 

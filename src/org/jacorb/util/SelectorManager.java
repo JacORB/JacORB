@@ -571,26 +571,26 @@ public class SelectorManager extends Thread
 
         switch (request.type)
         {
-            case CONNECT:
-                if (request.channel == null)
-                {
-                    request.setStatus (SelectorRequest.Status.FAILED);
-                    immediateCallback = true;
-                }
-                break;
-            case WRITE:
-            case READ:
-                if (request.channel == null)
-                {
-                    request.setStatus (SelectorRequest.Status.FAILED);
-                    immediateCallback = true;
-                }
-                else if (!request.channel.isConnected())
-                {
-                    request.setStatus (SelectorRequest.Status.CLOSED);
-                    immediateCallback = true;
-                }
-                break;
+        case CONNECT:
+            if (request.channel == null)
+            {
+                request.setStatus (SelectorRequest.Status.FAILED);
+                immediateCallback = true;
+            }
+            break;
+        case WRITE:
+        case READ:
+            if (request.channel == null)
+            {
+                request.setStatus (SelectorRequest.Status.FAILED);
+                immediateCallback = true;
+            }
+            else if (!request.channel.isConnected())
+            {
+                request.setStatus (SelectorRequest.Status.CLOSED);
+                immediateCallback = true;
+            }
+            break;
         }
 
         if (immediateCallback)
@@ -936,7 +936,8 @@ public class SelectorManager extends Thread
                     request.key.interestOps (newOps);
                 }
                 requests.push (request);
-                insertIntoTimedBuffer (request);
+                if (request.nanoDeadline != Long.MAX_VALUE)
+                    insertIntoTimedBuffer (request);
             }
         }
         catch (CancelledKeyException ex)
@@ -1027,6 +1028,7 @@ public class SelectorManager extends Thread
                 }
 
                 long currentNanoTime = System.nanoTime();
+
                 // if still pending and time expired, no action is
                 // being taken, just expire the sucker leave the op
                 // registration alone. We don't know if another
@@ -1163,8 +1165,7 @@ public class SelectorManager extends Thread
             {
                 request.setStatus (SelectorRequest.Status.ASSIGNED);
             }
-
-            if (!reActivate)
+            else
             {
                 // request complete; remove it from buffer and
                 // activate key only if buffer has more elements

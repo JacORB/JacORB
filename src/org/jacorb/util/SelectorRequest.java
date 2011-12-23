@@ -48,7 +48,7 @@ public class SelectorRequest
      */
     public enum Status
     {
-        PENDING, ASSIGNED, READY, EXPIRED, FAILED, FINISHED, SHUTDOWN, CLOSED
+        PENDING, ASSIGNED, READY, EXPIRED, FAILED, IOERROR, FINISHED, SHUTDOWN, CLOSED
     }
 
     public final Type type;
