@@ -151,8 +151,7 @@ using BUILD_NUMBER:   ${BuildNo}
                      org/omg/CosTypedEventNotifyComm/**,
                      org/omg/dds/**,
                      org/omg/TimeBase/**
-                     "
-           index="true">
+                     ">
          <manifest>
            <attribute name="Implementation-Version" value="${JVERSION} ${jacorb_version_info}" />
            <attribute name="Implementation-Title" value="JacORB"/>
@@ -189,8 +188,7 @@ using BUILD_NUMBER:   ${BuildNo}
                      org/omg/CosTypedEventNotifyComm/**,
                      org/omg/TimeBase/**
                      org/omg/dds/**,
-                     "
-           index="true">
+                     ">
          <manifest>
            <attribute name="Implementation-Version" value="${JVERSION} ${jacorb_version_info}" />
            <attribute name="Implementation-Title" value="JacORB"/>
@@ -217,8 +215,7 @@ using BUILD_NUMBER:   ${BuildNo}
                      org/jacorb/events/**,
                      org/jacorb/notification/**,
                      org/jacorb/transaction/**,
-                     "
-           index="true">
+                     ">
          <manifest>
            <attribute name="Implementation-Version" value="${JVERSION} ${jacorb_version_info}" />
            <attribute name="Implementation-Title" value="JacORB"/>
@@ -250,8 +247,7 @@ using BUILD_NUMBER:   ${BuildNo}
                      org/omg/CosTypedEventNotifyComm/**,
                      org/omg/dds/**,
                      org/omg/TimeBase/**
-                     "
-           index="true">
+                     ">
          <manifest>
            <attribute name="Implementation-Version" value="${JVERSION} ${jacorb_version_info}" />
            <attribute name="Implementation-Title" value="JacORB"/>
