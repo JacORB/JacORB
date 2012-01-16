@@ -312,4 +312,30 @@ public final class GSSUPContextSpi
     {
         return false;
     }
+
+    /**
+     * NOTE : This method was added for a jdk1.7.x port
+     * because of a compilation error from this class.
+     */
+    public Object inquireSecContext(java.lang.Enum type) throws GSSException
+    {
+        throw new GSSException(GSSException.FAILURE);
+    }
+
+    /**
+     * NOTE : This method was added for a jdk1.7.x port
+     * because of a compilation error from this class.
+     */
+    public boolean getDelegPolicyState()
+    {
+        return false;
+    }
+
+    /**
+     * NOTE : This method was added for a jdk1.7.x port
+     * because of a compilation error from this class.
+     */
+    public void requestDelegPolicy(boolean state)
+    {
+    }
 }
