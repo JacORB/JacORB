@@ -202,13 +202,13 @@ public class EnumType
         {
             return this.getRecursiveTypeCodeExpression();
         }
-        
+
         StringBuffer sb = new StringBuffer();
         sb.append("org.omg.CORBA.ORB.init().create_enum_tc(" +
         		typeName() + "Helper.id(),\"" + className() + "\",");
-        
+
         sb.append("new String[]{");
-        
+
         for (Enumeration e = enumlist.v.elements(); e.hasMoreElements();)
         {
         	sb.append("\"" + (String) e.nextElement() + "\"");
@@ -216,7 +216,7 @@ public class EnumType
         		sb.append(",");
         }
         sb.append("})");
-        
+
         return sb.toString();
     }
 
@@ -271,15 +271,22 @@ public class EnumType
         ps.println("public" + parser.getFinalString() + " class " + className + "Helper");
         ps.println("{");
 
-        ps.println("\tprivate static class TypeCodeHolder");
-        ps.println("\t{");
-        ps.println("\t\tstatic final org.omg.CORBA.TypeCode _type = " + getTypeCodeExpression() + ";");
-        ps.println("\t}"  + Environment.NL);
+        ps.println("\tprivate volatile static org.omg.CORBA.TypeCode _type;");
 
         /* type() method */
         ps.println("\tpublic static org.omg.CORBA.TypeCode type ()");
         ps.println("\t{");
-        ps.println("\t\treturn TypeCodeHolder._type;");
+        ps.println("\t\tif (_type == null)");
+        ps.println("\t\t{");
+        ps.println("\t\t\tsynchronized(" + className + "Helper.class)");
+        ps.println("\t\t\t{");
+        ps.println("\t\t\t\tif (_type == null)");
+        ps.println("\t\t\t\t{");
+        ps.println("\t\t\t\t\t_type = " + getTypeCodeExpression() + ";");
+        ps.println("\t\t\t\t}");
+        ps.println("\t\t\t}");
+        ps.println("\t\t}");
+        ps.println("\t\treturn _type;");
         ps.println("\t}" + Environment.NL);
 
         String type = typeName();

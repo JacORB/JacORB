@@ -836,16 +836,7 @@ public class ValueDecl
             out.println("public abstract class " + name + "Helper");
             out.println("{");
 
-            out.println("\tprivate static class TypeCodeHolder");
-            out.println("\t{");
-            out.println("\t\tstatic final org.omg.CORBA.TypeCode _type = " + getTypeCodeExpression() + ";");
-            out.println("\t}"  + Environment.NL);
-
-            /* type() method */
-            out.println("\tpublic static org.omg.CORBA.TypeCode type ()");
-            out.println("\t{");
-            out.println("\t\treturn TypeCodeHolder._type;");
-            out.println("\t}" + Environment.NL);
+            out.println("\tprivate volatile static org.omg.CORBA.TypeCode _type = null;");
 
             // insert() / extract()
 
@@ -860,7 +851,21 @@ public class ValueDecl
             out.println("\t\treturn (" + javaName() + ")a.extract_Value();");
             out.println("\t}");
 
-            // id()
+            // type() / id()
+            out.println("\tpublic static org.omg.CORBA.TypeCode type()");
+            out.println("\t{");
+            out.println("\t\tif (_type == null)");
+            out.println("\t\t{");
+            out.println("\t\t\tsynchronized(" + name + "Helper.class)");
+            out.println("\t\t\t{");
+            out.println("\t\t\t\tif (_type == null)");
+            out.println("\t\t\t\t{");
+            out.println("\t\t\t\t\t_type = " + getTypeCodeExpression() + ";");
+            out.println("\t\t\t\t}");
+            out.println("\t\t\t}");
+            out.println("\t\t}");
+            out.println("\t\treturn _type;");
+            out.println("\t}" + Environment.NL);
 
             out.println("\tpublic static String id()");
             out.println("\t{");

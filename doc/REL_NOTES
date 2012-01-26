@@ -189,6 +189,7 @@
         - Fix for reference_to_id error checking.
         - Modify AOMRemoval thread to shutdown on POA shutdown.
         - Add fix for policy operation name clash.
+        - Fix for incorrect opsHash keys for AMI POA (bug894)
 
     - IDL Compiler:
         - Fix for IDL compiler issue where a union with an enum discriminator could send through
@@ -258,7 +259,7 @@
         - Implemented Portability Stubs and Skeletons as per 4.21.6 of IDL to Java Mapping
         - Improve typecode generation to use lazy initialization class holder idiom.
         - Refactor to simplify code (bug715)
-        - Fix for incorrect opsHash keys for AMI POA (bug894)
+        - Refactor previous typecode generation change to use volatile/synchronised and double checked locking instead.
 
     - Naming Service:
         - Fix for BindingIterator leak (Bugzilla 647).

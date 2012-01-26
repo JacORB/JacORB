@@ -876,11 +876,17 @@ public class UnionType
         ps.println("public" + parser.getFinalString() + " class " + className + "Helper");
         ps.println("{");
 
-        ps.println("\tprivate static class TypeCodeHolder");
+        ps.println("\tprivate volatile static org.omg.CORBA.TypeCode _type;");
+
+
+        ps.println("\tpublic static org.omg.CORBA.TypeCode type ()");
         ps.println("\t{");
-        ps.println("\t\tstatic final org.omg.CORBA.TypeCode _type = createUnionType();");
-        ps.println("\t\tstatic org.omg.CORBA.TypeCode createUnionType()");
+        ps.println("\t\tif (_type == null)");
         ps.println("\t\t{");
+        ps.println("\t\t\tsynchronized(" + name + "Helper.class)");
+        ps.println("\t\t\t{");
+        ps.println("\t\t\t\tif (_type == null)");
+        ps.println("\t\t\t\t{");
 
         Enumeration e;
         Case cse;
@@ -988,12 +994,17 @@ public class UnionType
                 ps.println("null);");
             }
         }
-        ps.print("\t\t\torg.omg.CORBA.TypeCode ret = org.omg.CORBA.ORB.init().create_union_tc(id(),\"" + className() + "\",");
+        ps.print("\t\t\t _type = org.omg.CORBA.ORB.init().create_union_tc(id(),\"" + className() + "\",");
         ps.println(switch_type_spec.typeSpec().getTypeCodeExpression() + ", members);");
-        ps.println("\t\t\treturn ret;");
+        ps.println("\t\t\t\t}");
+        ps.println("\t\t\t}");
         ps.println("\t\t}");
-
+        ps.println("\t\t\treturn _type;");
         ps.println("\t}"  + Environment.NL);
+
+
+
+
 
         TypeSpec.printInsertExtractMethods(ps, typeName());
 
@@ -1205,13 +1216,6 @@ public class UnionType
         ui.iterate (ps, indent1, indent2, "", case_str, colon_str, default_str);
 
         ps.println ("\t}");
-
-        /** type() */
-
-        ps.println("\tpublic static org.omg.CORBA.TypeCode type ()");
-        ps.println("\t{");
-        ps.println("\t\treturn TypeCodeHolder._type;");
-        ps.println("\t}" + Environment.NL);
 
         ps.println("}"); // end of helper class
     }
