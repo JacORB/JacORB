@@ -326,6 +326,9 @@ jacorb.cacheTypecodes=off
 # Cache poa names
 jacorb.cachePoaNames=off
 
+# Disable client side ORB policies for speed.
+jacorb.disableClientOrbPolicies=off
+
 # Control if errors caused by an ORBInitializer (thrown exceptions or failure
 # to build class) will make ORB.init() fail or not. On failure, a
 # org.omg.CORBA.INITIALIZE exception will be thrown.
@@ -463,9 +466,6 @@ jacorb.net.tcp_listener=
 
 #org.omg.PortableInterceptor.ORBInitializerClass.bidir_init=org.jacorb.orb.giop.BiDirConnectionInitializer
 
-# Disable client side ORB policies for speed.
-jacorb.disableClientOrbPolicies=off
-
 ###########################################
 #                                         #
 #         Multicast IOP                   #
@@ -595,6 +595,10 @@ jacorb.imr.endpoint_port_number=
 # how many millisecs should the imr wait, until a connection from an
 # application client is terminated. Default is 2000.
 jacorb.imr.connection_timeout=2000
+
+# Amount of time/retries to wait for reactivated object to become ready.
+jacorb.imr.object_activation_retries=5
+jacorb.imr.object_activation_sleep=50
 
 # the implementation name, should be set to a different
 # name in the code of persistent servers
@@ -751,6 +755,10 @@ jacorb.poa.monitoring=off
 # thread pool configuration for request processing
 jacorb.poa.thread_pool_max=20
 jacorb.poa.thread_pool_min=5
+
+# Timeout for thread pool. Default is 0; will wait to aquire
+# a RequestProcessor. Time in ms.
+jacorb.poa.threadtimeout=0
 
 # If set then use shared thread pool amongst all the POAs.  Only used with
 # ORB_CTRL_MODEL.

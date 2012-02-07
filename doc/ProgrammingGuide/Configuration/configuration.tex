@@ -1396,6 +1396,8 @@ after the configuration has been read & class &
 \verb"_shared" & If set use shared thread pool between all POAs. Only with
 ORB\_CTRL\_MODEL. Default is off. & boolean \\
 \hline
+\verb"jacorb.poa.threadtimeout" & Specifies whether to timeout waiting to aquire a RequestProcessor if the thread pool is empty. Defaults to 0 (wait for infinity) & integer \\
+\hline
 \verb"jacorb.poa.thread_prio"
 \verb"rity" & If set, request processing threads in the POA will run at this priority. If not set or invalid, MAX\_PRIORITY will be used. Not set by default. & integer \\
 \hline

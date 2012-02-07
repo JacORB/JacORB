@@ -45,6 +45,8 @@
         - Refactor internal use of Singleton ORB and provide a new
           org.omg.CORBA.ORBSingleton to avoid clashes with e.g. JDK Singleton.
         - Add implementation of ValueInput/OutputStream
+    - POA:
+        - Add timeout for poa threadpool.
     - IDL Compiler
         - Avoid create_local_interface_tc generation if using deprecated.
     - Fixes:

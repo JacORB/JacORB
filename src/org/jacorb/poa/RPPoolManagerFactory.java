@@ -21,6 +21,7 @@ public class RPPoolManagerFactory
     private final Configuration configuration;
     private final int threadPoolMin;
     private final int threadPoolMax;
+    private final int poolThreadTimeout;
     private final FactoryDelegate delegate;
 
     public RPPoolManagerFactory(ORB orb) throws ConfigurationException
@@ -46,6 +47,8 @@ public class RPPoolManagerFactory
         }
 
         boolean poolsShouldBeShared = configuration.getAttributeAsBoolean("jacorb.poa.thread_pool_shared", false);
+
+        poolThreadTimeout = configuration.getAttributeAsInteger ("jacorb.poa.threadtimeout", 0);
 
         if (logger.isDebugEnabled())
         {
@@ -76,7 +79,7 @@ public class RPPoolManagerFactory
     {
         if (isSingleThreaded)
         {
-            return new RPPoolManager(orb.getPOACurrent(), 1, 1, logger, configuration)
+            return new RPPoolManager(orb.getPOACurrent(), 1, 1, poolThreadTimeout, logger, configuration)
             {
                 void destroy()
                 {
@@ -106,7 +109,7 @@ public class RPPoolManagerFactory
 
     private class SharedPoolFactory implements FactoryDelegate
     {
-        private final RPPoolManager sharedInstance = new RPPoolManager(orb.getPOACurrent(), threadPoolMin, threadPoolMax, logger, configuration)
+        private final RPPoolManager sharedInstance = new RPPoolManager(orb.getPOACurrent(), threadPoolMin, threadPoolMax, poolThreadTimeout, logger, configuration)
         {
             void destroy()
             {
@@ -130,7 +133,7 @@ public class RPPoolManagerFactory
     {
         public RPPoolManager newRPPoolManager()
         {
-            return new RPPoolManager(orb.getPOACurrent(), threadPoolMin, threadPoolMax, logger, configuration)
+            return new RPPoolManager(orb.getPOACurrent(), threadPoolMin, threadPoolMax, poolThreadTimeout, logger, configuration)
             {
                 void destroy()
                 {

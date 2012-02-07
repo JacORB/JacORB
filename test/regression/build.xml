@@ -260,7 +260,6 @@
         <property name="_bootclasspath" refid="_test.bootclasspath" />
 
         <mkdir dir="${jacorb.test.piddir}" />
-
         <jacorb-junit fork="true"
                       includeantruntime="true"
                       timeout="${jacorb.test.timeout.global}"
@@ -446,6 +445,7 @@ Tests run: ${result.testCount}, Failures: ${result.testFailures}, Errors: ${resu
                      idl-exception,
                      idl-shutdown,
                      idl-dii,
+                     idl-poa,
                      idl-bugs,
                      idl-ami-bugs,
                      idl-transport-current-server,
@@ -561,6 +561,10 @@ Tests run: ${result.testCount}, Failures: ${result.testFailures}, Errors: ${resu
 
     <target name="idl-dii">
         <process-idl includes="diiserver.idl" />
+    </target>
+
+    <target name="idl-poa">
+        <process-idl includes="poaThread.idl" />
     </target>
 
     <target name="idl-bugs">
