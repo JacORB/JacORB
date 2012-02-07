@@ -148,6 +148,8 @@ using BUILD_NUMBER:   ${BuildNo}
                      org/omg/CosTypedEventChannelAdmin/**,
                      org/omg/CosTypedEventComm/**,
                      org/omg/CosTypedEventNotifyChannelAdmin/**,
+                     org/omg/CosTypedNotifyChannelAdmin/**,
+                     org/omg/CosTypedNotifyComm/**,
                      org/omg/CosTypedEventNotifyComm/**,
                      org/omg/dds/**,
                      org/omg/TimeBase/**
@@ -184,8 +186,10 @@ using BUILD_NUMBER:   ${BuildNo}
                      org/omg/CosTransactions/**,
                      org/omg/CosTypedEventChannelAdmin/**,
                      org/omg/CosTypedEventComm/**,
-                     org/omg/CosTypedEventNotifyChannelAdmin/**,
                      org/omg/CosTypedEventNotifyComm/**,
+                     org/omg/CosTypedEventNotifyChannelAdmin/**,
+                     org/omg/CosTypedNotifyChannelAdmin/**,
+                     org/omg/CosTypedNotifyComm/**,
                      org/omg/TimeBase/**
                      org/omg/dds/**,
                      ">
