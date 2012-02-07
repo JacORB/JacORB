@@ -2318,7 +2318,7 @@ public class CDRInputStream
     {
         java.io.Serializable result = null;
 
-        if (chunkedValue || valueNestingLevel > 0)
+        if (chunkedValue || (valueNestingLevel > 0 && !sunInteropFix))
         {
             valueNestingLevel++;
             readChunkSizeTag();
@@ -2865,7 +2865,7 @@ public class CDRInputStream
         // single repository ID
         read_repository_id ();
 
-        if (chunkedValue || valueNestingLevel > 0)
+        if (chunkedValue || (valueNestingLevel > 0 && !sunInteropFix))
         {
             valueNestingLevel++;
             readChunkSizeTag();
