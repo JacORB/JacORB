@@ -463,6 +463,11 @@ public final class RequestController
                             requestQueue.removeFirst();
                             rejectRequest(request, e);
                         }
+                        catch (org.omg.CORBA.TIMEOUT e)
+                        {
+                            requestQueue.removeFirst();
+                            rejectRequest(request, e);
+                        }
                     }
                     continue;
                 }

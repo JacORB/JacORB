@@ -53,6 +53,7 @@
          Fix shutdown issue (jacorb-2.3.1-CORBA_OBJECT_NOT_EXIST.patch)
          Fix for AOM thread creation (jacorb-2.3.1-thread-per-request.patch)
          Improve OutOfMemory handling.
+         Add timeout for poa threadpool.
     -Misc:
          Update manifest (jacorb-2.3.1-manifest.patch)
          Exclude Transactions from jacorb.jar (jacorb-2.3.1-remove_ots_classes.patch)

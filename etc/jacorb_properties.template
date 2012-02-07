@@ -641,6 +641,10 @@ jacorb.poa.log.verbosity=3
 jacorb.poa.thread_pool_max=20
 jacorb.poa.thread_pool_min=5
 
+# Timeout for thread pool. Default is 0; will wait to aquire
+# a RequestProcessor. Time in ms.
+jacorb.poa.threadtimeout=0
+
 # If set then use shared thread pool amongst all the POAs.  Only used with
 # ORB_CTRL_MODEL.
 # jacorb.poa.thread_pool_shared = off

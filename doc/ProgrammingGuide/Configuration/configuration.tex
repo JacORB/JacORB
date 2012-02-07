@@ -776,7 +776,7 @@ not set, diagnostics are sent to standard error.& filename & unset \\
 existing log file or overwrite (if file logging) & boolean & off \\
 \hline
 \verb"jacorb.log.initializer" & Name of a class to initialize logging
-after the configuration has been read & class & 
+after the configuration has been read & class &
 \verb"JdkLogg"
 \verb"ingInit"
 \verb"ializer" \\
@@ -826,6 +826,8 @@ on or off\\
 \hline
 \verb"jacorb.poa.thread_pool"
 \verb"_min" & Minimum thread pool configuration for request processing & integer \\
+\hline
+\verb"jacorb.poa.threadtimeout" & Specifies whether to timeout waiting to aquire a RequestProcessor if the thread pool is empty. Defaults to 0 (wait for infinity) & integer \\
 \hline
 \verb"jacorb.poa.thread_prio"
 \verb"rity" & If set, request processing threads in the POA will run at this priority. If not set or invalid, MAX\_PRIORITY will be used. Not set by default. & integer \\

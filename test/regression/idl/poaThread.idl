@@ -1,0 +1,17 @@
+module org
+{
+    module jacorb
+    {
+        module test
+        {
+            module poa
+            {
+                interface MyServer
+                {
+                    void block();
+                    boolean testCall();
+                };
+            };
+        };
+    };
+};

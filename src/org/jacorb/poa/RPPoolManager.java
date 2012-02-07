@@ -68,6 +68,11 @@ public abstract class RPPoolManager
     private final Configuration configuration;
     private final Logger logger;
 
+    /**
+     * Used to add a timeout to the time it will wait for a requestprocessor.
+     */
+    private int poolThreadTimeout;
+
     protected RPPoolManager(Current _current, int min, int max,
                             Logger _logger, Configuration _configuration)
     {
@@ -76,6 +81,8 @@ public abstract class RPPoolManager
         min_pool_size = min;
         logger = _logger;
         configuration = _configuration;
+
+        poolThreadTimeout = configuration.getAttributeAsInteger ("jacorb.poa.threadtimeout", 0);
     }
 
     private void addProcessor()
@@ -186,16 +193,32 @@ public abstract class RPPoolManager
             addProcessor();
         }
 
+        int timeout = poolThreadTimeout;
         while (pool.isEmpty())
         {
             warnPoolIsEmpty();
 
+            long start = System.currentTimeMillis();
             try
             {
-                wait();
+                wait(timeout);
             }
             catch (InterruptedException e)
             {
+            }
+            if (timeout > 0)
+            {
+                if (((System.currentTimeMillis() - start) >= timeout) && pool.isEmpty ())
+                {
+                    // A timeout has been configured, we have finished waiting still no processors.
+                    // Throw an exception
+                    throw new org.omg.CORBA.TIMEOUT ("No request processor available to handle request");
+                }
+                else if ((System.currentTimeMillis() - start) >= timeout)
+                {
+                    // Need to reset timeout so we finish waiting. - 1 extra ms to prevent a 0 wait.
+                    timeout -= (System.currentTimeMillis() - start - 1);
+                }
             }
         }
         RequestProcessor requestProcessor = (RequestProcessor) pool.remove( pool.size() - 1 );
