@@ -274,7 +274,6 @@ public class POA
         watermark = generateWatermark();
         aom = isRetain() ? new AOM( isUniqueId(), logger) : null;
 
-        // GB: modified
         requestController = new RequestController(this, orb, aom, orb.newRPPoolManager(isSingleThreadModel()));
         requestController.configure(configuration);
 
@@ -996,13 +995,13 @@ public class POA
             throw new org.omg.CORBA.BAD_INV_ORDER();
         }
 
-        makeShutdownInProgress(etherealize_objects);
-
         /* synchronized with creationLog */
         /* child poa creations are impossible now */
-        // destroy all childs first
+        makeShutdownInProgress(etherealize_objects);
 
-        Enumeration en = childs.elements();
+        // destroy all childs first
+        // Clone the collection to prevent concurrent modification problems.
+        Enumeration en = ((Hashtable)childs.clone()).elements();
         while (en.hasMoreElements())
         {
             POA child = (POA) en.nextElement();

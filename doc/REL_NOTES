@@ -47,6 +47,7 @@
         - Add implementation of ValueInput/OutputStream
     - POA:
         - Add timeout for poa threadpool.
+        - Fix for NullPointer in POA destroy
     - IDL Compiler
         - Avoid create_local_interface_tc generation if using deprecated.
     - Fixes:
