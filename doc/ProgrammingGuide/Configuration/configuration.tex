@@ -1,4 +1,4 @@
-%
+y%
 % $Id$
 %
 
@@ -460,6 +460,7 @@ to 'tccl' will mean JacORB will use the thread context class loader to resolve c
 \end{verbatim}
 
 For more information on JacORB class loading see \ref{classloader}.
+
 \subsection{Logging}
 
 JacORB writes logging information through SLF4J, which is a logging
@@ -571,8 +572,8 @@ configures the logging system itself.
 For any more sophisticated configuration, such as using log file
 rotation or specifying different log levels for some of the loggers,
 you need to configure JDK logging directly.  To do this, make sure
-that the properties {\tt jacorb.log.default.verbosity} and {\tt
-  jacorb.logfile} are \emph{not} set to any value (because otherwise
+that the properties {\tt jacorb.log.default.verbosity} and {\tt jacorb.logfile}
+are \emph{not} set to any value (because otherwise
 JacORB will interfere with your configuration).  Then, prepare a
 configuration file such as the one found in {\tt
   JACORB\_HOME/etc/logging\_properties.template} with your settings.
@@ -622,6 +623,32 @@ change the  state of a POA,  e.g. from {\it active}  to {\it holding}.
 Please see chapter \ref{ch:POA} on the POA for more details.
 
 \subsection{Network and Sockets}
+
+\subsubsection{Threading}
+It has been found that under some conditions of very heavy thread use, A JacORB
+client interacting with the Implementation repository can encounter a several
+Location Forward messages related to the same Delegate. As documented in bug
+915, some of these redundant Location Forward messages can cause requests that
+were already sent to the actual server to be resent. If the request has some
+side effect, this duplication is a problem.
+
+
+The solution is to use the following configuration property:
+\begin{verbatim}
+jacorb.use_reply_groups = on|off
+\end{verbatim}
+A reply group is a collection of reply receivers that are associated with a
+specific profile. A single Delegate may have multiple active reply groups, a
+Location Forward handled by a reply receiver will only impact the members of its
+group. Use of the reply groups can have a slight performance hit as group
+management is synchronized. This will be seen when a new group is created, which
+will be the first time a Delegate is used, or in response to a Location Forward
+message. Groups are removed from the collection when the last member is removed.
+
+The default behavior is to not use profile-discriminated reply groups, rather to
+use a single group for all reply receivers. This is the traditional behavior of
+the Delegate.
+
 
 \subsubsection{IP Addresses}
 On a multihomed machine the IOR will contain only one of the configured
@@ -683,28 +710,25 @@ JacORB provides a number of socket factories to allow control over the way
 sockets are created on both the client and the server side.
 
 On the server side JacORB uses {\tt jacorb.net.server\_socket\_factory} and
-{\tt jacorb.ssl.server\_socket\_factory} to control the creation of sockets.\\
-The default non-ssl implementation is {\tt org.jacorb.orb.factory.DefaultServerSocketFactory}
-which will pick any available port. Alternatively there is:
+{\tt jacorb.ssl.server\_socket\_factory} to control the creation of sockets.
 \begin{itemize}
+\item {\tt org.jacorb.orb.factory.DefaultServerSocketFactory}. Default non-ssl implementation
+which will pick any available port.
 \item {\tt org.jacorb.orb.factory.PortRangeServerSocketFactory} which
 together with the min and max values specifies a port range to use.
+\item {\tt org.jacorb.security.ssl.sun\_jsse.SSLServerSocketFactory} is the default ssl implementation.
 \end{itemize}
-The default ssl implementation is
-{\tt org.jacorb.security.ssl.sun\_jsse.SSLServerSocketFactory}.
 Note that it is also possible to override the port selection using OAPort or OASSLPort.\\
 
 On the client side JacORB uses {\tt jacorb.net.socket\_factory} and {\tt
-jacorb.ssl.socket\_factory} to control the creation of sockets.\\
-The default non-ssl implementation is
-{\tt org.jacorb.orb.factory.DefaultSocketFactory} which will pick any available
-port. Alternatively there is:
+jacorb.ssl.socket\_factory} to control the creation of sockets.
 \begin{itemize}
+\item {\tt org.jacorb.orb.factory.DefaultSocketFactory} Default non-ssl implementation
+which will pick any available port.
 \item {\tt org.jacorb.orb.factory.FixedAddressSocketFactory} which will pick a fixed port.
 \item {\tt org.jacorb.orb.factory.PortRangeSocketFactory} which together with the min and max values specifies a port range to use.
+\item {\tt org.jacorb.security.ssl.sun\_jsse.SSLSocketFactory} is the default ssl implementation.
 \end{itemize}
-The default ssl implementation is {\tt org.jacorb.security.ssl.sun\_jsse.SSLSocketFactory}.
-
 
 \subsubsection{Custom socket factories}
 \label{sec:customSocketFactories}
@@ -718,7 +742,6 @@ of the specified interfaces for the contract your custom factories must adhere t
 For convenience JacORB also offers some abstract base classes that pre-implement some functionality and that you
 may choose to subclass.
 
-\pagebreak
 \textbf{Socket Factory}This factory is used by JacORB to create an outgoing non-SSL connection.
 \begin{small}
 \begin{longtable}{|p{5cm}|p{7.5cm}|}
@@ -761,6 +784,7 @@ This factory is used by JacORB to create an outgoing SSL connection.
 \end{longtable}
 \end{small}
 
+\pagebreak
 \textbf{SSL Server Socket factory}
 This factory is used by JacORB to create a server socket for incoming SSL connections.
 \begin{small}
@@ -1255,6 +1279,11 @@ JVM. & string & off\\
 Enabling this will do codeset translation on marshalling. Disabling it will force
 JacORB to ignore all codeset component info profiles and to disable translation on
 marshalling. & boolean & off\\
+\hline
+\verb"jacorb.use_reply_group"
+\verb"s" &
+Use Profile Descriminated Reply Groups rather than a single group for all ReplyReceivers;
+this is the default Delegate behaviour. & boolean & off\\
 \hline
 \end{longtable}
 \end{small}
