@@ -214,10 +214,12 @@ public abstract class RPPoolManager
                     // Throw an exception
                     throw new org.omg.CORBA.TIMEOUT ("No request processor available to handle request");
                 }
-                else if ((System.currentTimeMillis() - start) >= timeout)
+                // If we have woken up before the timeout and the pool is still empty - have another
+                // go and go back to sleep.
+                else if ((System.currentTimeMillis() - start) < timeout && pool.isEmpty ())
                 {
-                    // Need to reset timeout so we finish waiting. - 1 extra ms to prevent a 0 wait.
-                    timeout -= (System.currentTimeMillis() - start - 1);
+                    // Need to reset timeout so we finish waiting.
+                    timeout -= (System.currentTimeMillis() - start);
                 }
             }
         }
