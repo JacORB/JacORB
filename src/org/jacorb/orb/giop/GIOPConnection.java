@@ -1017,9 +1017,10 @@ public abstract class GIOPConnection
                 {
                     logger.debug ("GIOPConnection.sendMessage timeout (millis): " + timeout);
                 }
+		
                 if (!getWriteLock(timeout))
                 {
-                    throw new TIMEOUT("Failed to aquire transport lock in " + timeout + " ms");
+                    throw new TIMEOUT("Failed to acquire transport lock in " + timeout + " ms");
                 }
 
                 // save send deadline for use later in the stack
