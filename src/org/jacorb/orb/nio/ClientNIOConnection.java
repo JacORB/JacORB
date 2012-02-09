@@ -34,7 +34,7 @@ import org.jacorb.orb.iiop.IIOPProfile;
 import org.jacorb.util.SelectorRequest;
 import org.jacorb.util.SelectorRequestCallback;
 import org.omg.CORBA.TIMEOUT;
-import org.omg.CORBA.COMM_FAILURE;
+import org.omg.CORBA.TRANSIENT;
 
 public class ClientNIOConnection
         extends NIOConnection
@@ -123,7 +123,8 @@ public class ClientNIOConnection
                     {
                         if (logger.isInfoEnabled())
                         {
-                            logger.info("Retrying to connect to " +
+                            logger.info("Retrying attempt " + retryCount + 
+                                        " to connect to " +
                                         connection_info );
                         }
 
@@ -213,6 +214,7 @@ public class ClientNIOConnection
 
         while (addressIterator.hasNext())
         {
+
             SocketChannel myChannel = null;
             try
             {
@@ -247,14 +249,14 @@ public class ClientNIOConnection
                 selectorManager.add (request);
                 request.waitOnCompletion (nanoDeadline);
 
-                if (request.status == SelectorRequest.Status.EXPIRED ||
+                if (request.status == SelectorRequest.Status.IOERROR)
+                {
+                    throw new TRANSIENT ("unable to connect");
+                }
+                else if (request.status == SelectorRequest.Status.EXPIRED ||
                     !request.isFinalized())
                 {
                     throw new TIMEOUT("connection timeout expired");
-                }
-                else if (request.status == SelectorRequest.Status.IOERROR)
-                {
-                    throw new COMM_FAILURE ("unable to connect");
                 }
                 else if (request.status == SelectorRequest.Status.FAILED ||
                          request.status == SelectorRequest.Status.SHUTDOWN ||
@@ -265,12 +267,18 @@ public class ClientNIOConnection
                 }
                 else if (myChannel.isConnected())
                 {
-
+                    // we are connected
                     synchronized (this)
                     {
                         channel = myChannel;
                     }
-                    // we are connected
+
+		    // if there are multiple endpoints, an earlier
+		    // connect attempt may have failed and set the
+		    // exception but now we've succeeded we don't want
+		    // to throw a spurious exception.
+		    exception = null;
+
                     break;
                 }
             }
@@ -292,6 +300,10 @@ public class ClientNIOConnection
             {
                 throw (TIMEOUT) exception;
             }
+	    else if ( exception instanceof TRANSIENT )
+	    {
+		throw (TRANSIENT) exception;
+	    }
             else if ( exception instanceof IOException )
             {
                 throw (IOException) exception;
