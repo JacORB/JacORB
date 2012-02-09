@@ -62,6 +62,7 @@
       <attribute name="javac-sourcepath" default="sourcepath.base" />
       <attribute name="javac-classpathref" default="path.base" />
       <attribute name="javac-xlint" default="${xlint}"/>
+      <attribute name="javac-antruntime" default="false"/>
       <attribute name="target-info" />
       <element name="javac-bootclasspath" optional="true" />
 
@@ -79,7 +80,8 @@
                 includes="@{javac-includes}"
                 excludes="@{javac-excludes}"
                 source="${java-source-version}"
-                target="${java-source-version}" >
+                target="${java-source-version}"
+                includeAntRuntime="@{javac-antruntime}">
             <src path="${src.generated}" />
             <src path="@{javac-src}" />
             <compilerarg line="@{javac-xlint}"/>
@@ -96,7 +98,7 @@
     </path>
 
     <presetdef name="jacorb-javac">
-        <jacorb-javac-common target-info="JDK (1.5+)">
+        <jacorb-javac-common target-info="JDK (${java-source-version}+)">
             <javac-bootclasspath>
                 <bootclasspath>
                    <pathelement path="${basedir}/classes"/>
