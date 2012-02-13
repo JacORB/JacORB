@@ -97,6 +97,7 @@
                            org/jacorb/test/notification/**,
                            org/jacorb/test/jmx/**"
                       javac-classpathref="cp.compile-test"
+                      javac-antruntime="true"
                       javac-xlint="">
         </jacorb-javac>
     </target>
