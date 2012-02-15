@@ -45,14 +45,6 @@ public abstract class ReplyPlaceholder
 
     protected int timeout ;
 
-    /**
-     * self-configuring c'tor
-     */
-
-    public ReplyPlaceholder(ORB orb)
-    {
-    }
-
     public void configure(Configuration configuration) throws ConfigurationException
     {
        timeout = configuration.getAttributeAsInteger("jacorb.connection.client.pending_reply_timeout", 0);

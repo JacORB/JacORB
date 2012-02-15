@@ -25,6 +25,7 @@ import java.lang.reflect.Method;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -153,8 +154,7 @@ public final class Delegate
         this reference is to a local object */
     private boolean resolved_locality = false;
 
-    private final Set     pending_replies;
-    private final Barrier pending_replies_sync = new Barrier();
+    private final ConcurrentHashMap<org.omg.ETF.Profile, ReplyGroup> groups;
 
     private final java.lang.Object bind_sync = new java.lang.Object();
 
@@ -346,11 +346,11 @@ public final class Delegate
             throw new INTERNAL ("Configuration exception retrieving giop minor version" + ex);
         }
 
+	// standard initialization
+	groups = new ConcurrentHashMap<org.omg.ETF.Profile, ReplyGroup>();
         if (parseIORLazy)
         {
             // reference received across the net
-            // create maps with minimal size to save some memory
-            pending_replies = new HashSet(0);
 
             if (disableClientOrbPolicies)
             {
@@ -364,8 +364,6 @@ public final class Delegate
         else
         {
             // reference locally created
-            // standard initialization
-            pending_replies = new HashSet();
 
             if (disableClientOrbPolicies)
             {
@@ -509,7 +507,7 @@ public final class Delegate
                                                        connections[currentConnection.ordinal ()].getId(),
                                                        ior.getEffectiveProfile().version().minor );
 
-                    LocateReplyReceiver receiver = new LocateReplyReceiver(orb);
+                    LocateReplyReceiver receiver = new LocateReplyReceiver();
                     receiver.configure (configuration);
 
                     connections[currentConnection.ordinal ()].sendRequest( lros,
@@ -1276,6 +1274,7 @@ public final class Delegate
 
         ClientConnection connectionToUse = null;
 
+	ReplyGroup group = null;
         try
         {
             synchronized (bind_sync)
@@ -1301,15 +1300,19 @@ public final class Delegate
                 }
             }
 
+	    group = getReplyGroup (connectionToUse);
             if ( !ros.response_expected() )  // oneway op
             {
-                invoke_oneway (ros, connectionToUse, interceptors);
+                invoke_oneway (ros, connectionToUse, interceptors, group);
             }
             else
             {
                 // response expected, synchronous or asynchronous
-                receiver = new ReplyReceiver(this, ros.operation(), ros.getReplyEndTime(),
-                                             interceptors, replyHandler, selectorManager);
+		receiver = new ReplyReceiver(this, group,
+					     ros.operation(), 
+					     ros.getReplyEndTime(),
+                                            interceptors, replyHandler, selectorManager);
+
                 try
                 {
                    receiver.configure(configuration);
@@ -1320,15 +1323,7 @@ public final class Delegate
                    throw new INTERNAL ("Caught configuration exception setting up ReplyReceiver.");
                 }
 
-                // Store the receiver in pending_replies, so in the
-                // case of a LocationForward a RemarshalException can
-                // be thrown to *all* waiting threads.
-
-                synchronized (pending_replies)
-                {
-                    pending_replies.add(receiver);
-                }
-
+		group.addHolder (receiver);
 
                 // Use the local copy of the client connection to avoid trouble
                 // with something else affecting the real connections[currentConnection].
@@ -1344,10 +1339,8 @@ public final class Delegate
                // Remove ReplyReceiver to break up reference cycle
                // Otherwise gc will not detect this Delegate and
                // will never finalize it.
-               synchronized (pending_replies)
-               {
-                   pending_replies.remove (receiver);
-               }
+		if (group != null)
+		    group.removeHolder(receiver);
             }
 
             try
@@ -1406,10 +1399,8 @@ public final class Delegate
 
             // If the attempt to read the reply throws a system exception its possible that
             // the pending_replies will not get cleaned up.
-            synchronized (pending_replies)
-            {
-                pending_replies.remove (receiver);
-            }
+	    if (group != null)
+		group.removeHolder(receiver);
 
             disconnect(connectionToUse);
 
@@ -1481,7 +1472,8 @@ public final class Delegate
 
     private void invoke_oneway (RequestOutputStream ros,
                                 ClientConnection connectionToUse,
-                                ClientInterceptorHandler interceptors)
+                                ClientInterceptorHandler interceptors,
+				ReplyGroup group)
         throws RemarshalException, ApplicationException
     {
         switch (ros.syncScope())
@@ -1513,7 +1505,9 @@ public final class Delegate
 
             case SYNC_WITH_SERVER.value:
             case SYNC_WITH_TARGET.value:
+
                 ReplyReceiver rcv = new ReplyReceiver (this,
+						       group,
                                                        ros.operation(),
                                                        ros.getReplyEndTime(),
                                                        interceptors,
@@ -1554,6 +1548,31 @@ public final class Delegate
                     ("Illegal SYNC_SCOPE: " + ros.syncScope(),
                      0, CompletionStatus.COMPLETED_MAYBE);
         }
+    }
+
+    private ReplyGroup getReplyGroup (ClientConnection connectionToUse)
+    {
+	// The ReplyGroup collects pending replies for a specific target.
+	// This allows separation between requests that may have been sent to an IMR
+	// and those that were sent to the final target, as could be the case with
+	// massively threaded clients.
+	org.omg.ETF.Profile profile = connectionToUse.getRegisteredProfile();
+	ReplyGroup group = groups.get (profile);
+	if (group == null)
+	{
+	    if (logger.isInfoEnabled())
+	    {
+		logger.info ("Adding new retry group for " + profile);
+	    }
+	    ReplyGroup g = new ReplyGroup (this, profile);
+	    group = groups.putIfAbsent (profile, g);
+	    if (group == null)
+	    {
+		group = g;
+		group.postInit();
+	    }
+	}
+	return group;
     }
 
     private void passToTransport (final ClientConnection connectionToUse, final RequestOutputStream ros)
@@ -2810,34 +2829,6 @@ public final class Delegate
         return getParsedIOR().getCodebaseComponent();
     }
 
-    public Set get_pending_replies()
-    {
-        return pending_replies;
-    }
-
-    public void replyDone (ReplyPlaceholder placeholder)
-    {
-        synchronized (pending_replies)
-        {
-            pending_replies.remove (placeholder);
-        }
-    }
-
-    public void lockBarrier()
-    {
-        pending_replies_sync.lockBarrier();
-    }
-
-    public void waitOnBarrier()
-    {
-        pending_replies_sync.waitOnBarrier();
-    }
-
-    public void openBarrier()
-    {
-        pending_replies_sync.openBarrier();
-    }
-
     /**
      * Call work_pending as that does a simple boolean check to establish
      * if the ORB has been shutdown - otherwise it throws BAD_INV_ORDER.
@@ -2847,35 +2838,4 @@ public final class Delegate
         orb.work_pending();
     }
 
-    private static class Barrier
-    {
-        private boolean is_open = true;
-
-        public synchronized void waitOnBarrier()
-        {
-            while (! is_open)
-            {
-                try
-                {
-                    this.wait();
-                }
-                catch ( InterruptedException e )
-                {
-                    //ignore
-                }
-            }
-        }
-
-        public synchronized void lockBarrier()
-        {
-            is_open = false;
-        }
-
-        public synchronized void openBarrier()
-        {
-            is_open = true;
-
-            this.notifyAll();
-        }
-    }
 }

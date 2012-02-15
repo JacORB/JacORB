@@ -78,18 +78,20 @@ public class ReplyReceiver
     private UtcT replyEndTime = null;
 
     private Logger logger;
+    private ReplyGroup group;
 
     /** configuration properties */
     private boolean retry_on_failure = false;
 
     public ReplyReceiver( org.jacorb.orb.Delegate        delegate,
+			  ReplyGroup                     group,
                           String                         operation,
                           org.omg.TimeBase.UtcT          replyEndTime,
                           ClientInterceptorHandler       interceptors,
                           org.omg.Messaging.ReplyHandler replyHandler,
                           SelectorManager                selectorManager)
     {
-        super((org.jacorb.orb.ORB)delegate.orb(null));
+	this.group = group;
 
         this.delegate         = delegate;
         this.operation        = operation;
@@ -113,7 +115,6 @@ public class ReplyReceiver
                 timer = null;
                 selectorTimer = new SelectorTimer ();
                 long duration = org.jacorb.util.Time.millisTo (replyEndTime);
-                System.out.println (Thread.currentThread().getName() + " ReplyReceiver, duration = " + duration);
                 timeoutRequest = new SelectorRequest (selectorTimer,
                                                       System.nanoTime() + duration*1000000);
                 selectorManager.add (timeoutRequest);
@@ -157,39 +158,66 @@ public class ReplyReceiver
             }
         }
 
-        Set pending_replies = delegate.get_pending_replies();
-        // grab pending_replies lock BEFORE my own,
-        // then I will already have it in the replyDone call below.
-        synchronized ( pending_replies )
-        {
-            // This internal synchronization prevents a deadlock
-            // when a timeout and a reply coincide, suggested
-            // by Jimmy Wilson, 2005-01.  It is only a temporary
-            // work-around though, until I can simplify this entire
-            // logic much more thoroughly, AS.
-            synchronized (lock)
+	if (group != null)
+	{
+            Set pending = group.getReplies();
+	    // grab pending_replies lock BEFORE my own,
+	    // then I will already have it in the replyDone call below.
+	    synchronized ( pending )
             {
-                if (timeoutException)
-                {
-                    return; // discard reply
-                }
+		// This internal synchronization prevents a deadlock
+		// when a timeout and a reply coincide, suggested
+		// by Jimmy Wilson, 2005-01.  It is only a temporary
+		// work-around though, until I can simplify this entire
+		// logic much more thoroughly, AS.
+		synchronized (lock)
+		{
+		    if (timeoutException)
+		    {
+			return; // discard reply
+		    }
 
-                this.in = in;
-                delegate.replyDone (this);
+		    this.in = in;
+		    pending.remove (this);
 
-                if (replyHandler != null)
-                {
-                    // asynchronous delivery
-                    performCallback ((ReplyInputStream)in);
-                }
-                else
-                {
-                    // synchronous delivery
-                    ready = true;
-                    lock.notifyAll();
-                }
-            }
-        }
+		    if (replyHandler != null)
+		    {
+			// asynchronous delivery
+			performCallback ((ReplyInputStream)in);
+		    }
+		    else
+		    {
+			// synchronous delivery
+			ready = true;
+			lock.notifyAll();
+		    }
+		}
+	    }
+	}
+	else
+	{
+	    synchronized (lock)
+	    {
+		if (timeoutException)
+	        {
+		    return; // discard reply
+		}
+
+		this.in = in;
+
+		if (replyHandler != null)
+		{
+		    // asynchronous delivery
+		    performCallback ((ReplyInputStream)in);
+		}
+		else
+		{
+		    // synchronous delivery
+		    ready = true;
+		    lock.notifyAll();
+		}
+	    }
+	}	
     }
 
     private void performCallback ( ReplyInputStream reply )
@@ -386,7 +414,7 @@ public class ReplyReceiver
         {
             // Wait until the thread that received the actual
             // forward request rebound the Delegate
-            delegate.waitOnBarrier();
+            group.waitOnBarrier();
             throw new RemarshalException();
         }
 
@@ -488,21 +516,13 @@ public class ReplyReceiver
     private void doRebind ( org.omg.CORBA.Object forward_reference )
     {
         // make other threads that have unreturned replies wait
-        delegate.lockBarrier();
+        group.lockBarrier();
 
         try
         {
             // tell every pending request to remarshal
             // they will be blocked on the barrier
-            Set pending_replies = delegate.get_pending_replies();
-            synchronized ( pending_replies )
-            {
-                for ( Iterator i = pending_replies.iterator(); i.hasNext(); )
-                {
-                    ReplyPlaceholder p = ( ReplyPlaceholder ) i.next();
-                    p.retry();
-                }
-            }
+	    group.retry();
 
             // do the actual rebind
             delegate.rebind ( forward_reference );
@@ -510,7 +530,7 @@ public class ReplyReceiver
         finally
         {
             // now other threads can safely remarshal
-            delegate.openBarrier();
+            group.openBarrier();
         }
     }
 

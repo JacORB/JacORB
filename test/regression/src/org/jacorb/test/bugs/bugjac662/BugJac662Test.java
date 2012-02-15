@@ -21,12 +21,15 @@ package org.jacorb.test.bugs.bugjac662;
  */
 
 import java.lang.reflect.Field;
-import java.util.HashSet;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.Enumeration;
 import java.util.Properties;
+import java.util.Set;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 import org.jacorb.orb.Delegate;
+import org.jacorb.orb.ReplyGroup;
 import org.jacorb.test.common.ClientServerSetup;
 import org.jacorb.test.common.ClientServerTestCase;
 import org.jacorb.test.common.TestUtils;
@@ -87,7 +90,7 @@ public class BugJac662Test extends ClientServerTestCase
 
     /**
      * <code>testReplyReceiverCount</code> uses reflection to test the
-     * value of the private pending_replies field to ensure that it is
+     * value of the private groups field to ensure that it is
      * always cleared after an exception happens.
      *
      * @exception Exception if an error occurs
@@ -100,24 +103,38 @@ public class BugJac662Test extends ClientServerTestCase
         // Now the test...
         Delegate d = (Delegate)((org.omg.CORBA.portable.ObjectImpl)pr)._get_delegate();
         Field fields[] = Delegate.class.getDeclaredFields();
-        HashSet pendingReplies = null;
+	Set pendingReplies = null;
+	ConcurrentHashMap<org.omg.ETF.Profile, ReplyGroup> groups = null;
 
         for (int i = 0; i < fields.length; ++i)
         {
-            if ("pending_replies".equals(fields[i].getName()))
+            if ("groups".equals(fields[i].getName()))
             {
                 Field f = fields[i];
                 f.setAccessible(true);
-                pendingReplies = (HashSet)f.get (d);
+                groups = (ConcurrentHashMap<org.omg.ETF.Profile, ReplyGroup>)f.get (d);
                 break;
             }
         }
-        if (pendingReplies == null)
+        if (groups == null)
         {
             fail ("Unable to find pending_replies in Delegate");
         }
 
+	assertTrue ("Groups does not have only one entry", groups.size() == 1);
+
+	Enumeration<ReplyGroup> elements = groups.elements();
+	if (elements.hasMoreElements())
+	{
+	    pendingReplies = elements.nextElement().getReplies();
+	}
+	if (pendingReplies == null)
+	{
+	    fail ("Unable to get replies from ReplyGroup");
+	}
+
         assertTrue ("Should be no replies pending", pendingReplies.size() == 0);
+
         try
         {
             pr.shutdown ();

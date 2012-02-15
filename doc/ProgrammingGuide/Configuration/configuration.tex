@@ -624,32 +624,6 @@ Please see chapter \ref{ch:POA} on the POA for more details.
 
 \subsection{Network and Sockets}
 
-\subsubsection{Threading}
-It has been found that under some conditions of very heavy thread use, A JacORB
-client interacting with the Implementation repository can encounter a several
-Location Forward messages related to the same Delegate. As documented in bug
-915, some of these redundant Location Forward messages can cause requests that
-were already sent to the actual server to be resent. If the request has some
-side effect, this duplication is a problem.
-
-
-The solution is to use the following configuration property:
-\begin{verbatim}
-jacorb.use_reply_groups = on|off
-\end{verbatim}
-A reply group is a collection of reply receivers that are associated with a
-specific profile. A single Delegate may have multiple active reply groups, a
-Location Forward handled by a reply receiver will only impact the members of its
-group. Use of the reply groups can have a slight performance hit as group
-management is synchronized. This will be seen when a new group is created, which
-will be the first time a Delegate is used, or in response to a Location Forward
-message. Groups are removed from the collection when the last member is removed.
-
-The default behavior is to not use profile-discriminated reply groups, rather to
-use a single group for all reply receivers. This is the traditional behavior of
-the Delegate.
-
-
 \subsubsection{IP Addresses}
 On a multihomed machine the IOR will contain only one of the configured
 IP address (even if OAIAddr or jacorb.ior\_proxy\_host is used). In order to add both IP
@@ -1279,11 +1253,6 @@ JVM. & string & off\\
 Enabling this will do codeset translation on marshalling. Disabling it will force
 JacORB to ignore all codeset component info profiles and to disable translation on
 marshalling. & boolean & off\\
-\hline
-\verb"jacorb.use_reply_group"
-\verb"s" &
-Use Profile Descriminated Reply Groups rather than a single group for all ReplyReceivers;
-this is the default Delegate behaviour. & boolean & off\\
 \hline
 \end{longtable}
 \end{small}

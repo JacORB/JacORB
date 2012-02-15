@@ -65,6 +65,9 @@
           require general updating, which is an effort that will require
           sponsorship.
         - Fix for compiling omg/IOP.idl
+	- Fix for bug 915. This prevents massively threaded clients from
+          processing multiple Location Forward messages from the IMR, 
+ 	  discarding and resending requests to the target server. 
     - Misc:
         - Improve version identification in output/jar manifests.
         - Fixes for building under Windows platforms.

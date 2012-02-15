@@ -1299,7 +1299,7 @@ public class ImplementationRepositoryImpl
         try
         {
             lros = new LocateRequestOutputStream ( orb, object_key, connection.getId(), 2);
-            receiver = new LocateReplyReceiver((org.jacorb.orb.ORB)orb);
+            receiver = new LocateReplyReceiver();
             receiver.configure (configuration);
 
             connection.sendRequest(
