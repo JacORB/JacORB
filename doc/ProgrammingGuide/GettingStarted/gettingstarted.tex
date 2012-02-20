@@ -217,50 +217,34 @@ import org.omg.CosNaming.*;
 
 public class TieServer
 {
-    public static void main( String[] args )
+    public static void main( String[] args ) throws Exception
     {
-        org.omg.CORBA.ORB orb =
-            org.omg.CORBA.ORB.init(args, null);
-        try
+        org.omg.CORBA.ORB orb = org.omg.CORBA.ORB.init(args, null);
+        org.omg.PortableServer.POA poa =
+            org.omg.PortableServer.POAHelper.narrow(orb.resolve_initial_references("RootPOA"));
+
+        org.omg.CORBA.Object o =
+            poa.servant_to_reference( new MyServerPOATie(new GridOperationsImpl()) );
+
+        poa.the_POAManager().activate();
+
+        PrintWriter ps = new PrintWriter(new FileOutputStream(new File( args[0] )));
+        ps.println( orb.object_to_string( o ) );
+        ps.close();
+
+        if (args.length == 2)
         {
-            org.omg.PortableServer.POA poa =
-                org.omg.PortableServer.POAHelper.narrow(
-                     orb.resolve_initial_references("RootPOA"));
-
-            // use the operations implementation and wrap it in
-            // a tie object
-
-            org.omg.CORBA.Object o =
-                poa.servant_to_reference(
-                     new MyServerPOATie( new gridOperationsImpl()) );
-
-            poa.the_POAManager().activate();
-
-            if( args.length == 1 )
+            File killFile = new File(args[1]);
+            while(!killFile.exists())
             {
-                // write the object reference to args[0]
-
-                PrintWriter ps = new PrintWriter(
-                    new FileOutputStream(new File( args[0] )));
-                ps.println( orb.object_to_string( o ) );
-                ps.close();
+                Thread.sleep(1000);
             }
-            else
-            {
-                NamingContextExt nc =
-                     NamingContextExtHelper.narrow(
-                        orb.resolve_initial_references("NameService"));
-                NameComponent [] name = new NameComponent[1];
-                name[0] = new NameComponent("grid", "whatever");
-                nc.bind( name, o );
-            }
-
+            orb.shutdown(true);
         }
-        catch ( Exception e )
+        else
         {
-            e.printStackTrace();
+            orb.run();
         }
-        orb.run();
     }
 }
 \end{verbatim}
@@ -285,44 +269,34 @@ import org.omg.CosNaming.*;
 
 public class Server
 {
-    public static void main( String[] args )
+    public static void main( String[] args ) throws Exception
     {
         org.omg.CORBA.ORB orb = org.omg.CORBA.ORB.init(args, null);
-        try
+        org.omg.PortableServer.POA poa =
+            org.omg.PortableServer.POAHelper.narrow(orb.resolve_initial_references("RootPOA"));
+
+        poa.the_POAManager().activate();
+
+        org.omg.CORBA.Object o =
+            poa.servant_to_reference( new GridImpl() );
+
+        PrintWriter ps = new PrintWriter(new FileOutputStream(new File( args[0] )));
+        ps.println( orb.object_to_string( o ) );
+        ps.close();
+
+        if (args.length == 2)
         {
-            org.omg.PortableServer.POA poa =
-                org.omg.PortableServer.POAHelper.narrow(
-                     orb.resolve_initial_references("RootPOA"));
-
-            poa.the_POAManager().activate();
-
-            org.omg.CORBA.Object o = poa.servant_to_reference(new gridImpl());
-
-            if( args.length == 1 )
+            File killFile = new File(args[1]);
+            while(!killFile.exists())
             {
-                // write the object reference to args[0]
-
-                PrintWriter ps = new PrintWriter(
-                                    new FileOutputStream(
-                                       new File( args[0] )));
-                ps.println( orb.object_to_string( o ) );
-                ps.close();
+                Thread.sleep(1000);
             }
-            else
-            {
-                // register with the naming service
-
-                NamingContextExt nc =
-                     NamingContextExtHelper.narrow(
-                        orb.resolve_initial_references("NameService"));
-                nc.bind( nc.to_name("grid.example"), o);
-            }
+            orb.shutdown(true);
         }
-        catch ( Exception e )
+        else
         {
-            e.printStackTrace();
+            orb.run();
         }
-        orb.run();
     }
 }
 \end{verbatim}
@@ -342,7 +316,9 @@ CORBA  object  reference  from a  Java  object  also  know as  a  {\tt
 Servant}.
 
 In order to make the newly created CORBA object accessible, we have to
-make its  object reference  available. This is  done using  a publicly
+make its  object reference  available. There are a variety of ways of
+doing this. One option, as demonstrated above is to write the IOR
+reference to a file and distribute that. Another is to use a publicly
 accessible directory  service, the naming  server. A reference  to the
 naming      service     is      obtained      by     calling      {\tt
 orb.resolve\_initial\_references("NameService")}   on   the  ORB   and
@@ -351,9 +327,9 @@ narrowing the reference using the {\tt narrow()} method found in class
 should call the  {\tt bind()} operation on the  name server.  The name
 for the object which has to be supplied as an argument to {\tt bind()}
 is not simply a string. Rather, you need to provide a sequence of {\tt
-CosNaming.NameComponent}s that represent the  name. In the example, we
-chose to use an extended Name Server interface that provides us with a
-more convenient conversion operation from strings to Names.
+CosNaming.NameComponent}s that represent the  name. The Extended Name
+Server interface that provides a more convenient conversion operation
+from strings to Names.
 
 
 \section{Writing a client}
@@ -369,98 +345,65 @@ import org.omg.CosNaming.*;
 
 public class Client
 {
-   public static void main(String args[])
+   public static void main(String args[]) throws Exception
    {
-       try
-       {
-           MyServer grid;
-           org.omg.CORBA.ORB orb = org.omg.CORBA.ORB.init(args,null);
+        MyServer grid;
 
-           if(args.length==1 )
-           {
-               // args[0] is an IOR-string
-               grid = MyServerHelper.narrow(orb.string_to_object(args[0]));
-           }
-           else
-           {
-               NamingContextExt nc =
-                   NamingContextExtHelper.narrow(
-                      orb.resolve_initial_references("NameService"));
+        org.omg.CORBA.ORB orb = org.omg.CORBA.ORB.init(args, null);
 
-               grid = MyServerHelper.narrow(
-                         nc.resolve(nc.to_name("grid.example")));
-            }
+        BufferedReader reader = new BufferedReader(new FileReader(args[0]));
 
-            short x = grid.height();
-            System.out.println("Height = " + x);
+        grid = MyServerHelper.narrow(orb.string_to_object(reader.readLine()));
 
-            short y = grid.width();
-            System.out.println("Width = " + y);
+        short x = grid.height();
+        System.out.println("Height = " + x);
 
-            x -= 1;
-            y -= 1;
+        short y = grid.width();
+        System.out.println("Width = " + y);
 
-            System.out.println("Old value at (" + x + "," + y +"): " +
+        x -= 1;
+        y -= 1;
+
+        System.out.println("Old value at (" + x + "," + y +"): " +
                                grid.get( x,y));
 
-            System.out.println("Setting (" + x + "," + y +") to 470.11");
+        System.out.println("Setting (" + x + "," + y +") to 470.11");
 
-            grid.set( x, y, new java.math.BigDecimal("470.11"));
+        grid.set( x, y, new java.math.BigDecimal("470.11"));
 
-            System.out.println("New value at (" + x + "," + y +"): " +
+        System.out.println("New value at (" + x + "," + y +"): " +
                                grid.get( x,y));
 
-           try
-           {
-               grid.opWithException();
-           }
-           catch (jacorb.demo.grid.MyServerPackage.MyException ex)
-           {
-               System.out.println("MyException, reason: " + ex.why);
-           }
-       }
-       catch (Exception e)
-       {
-           e.printStackTrace();
-       }
+        try
+        {
+            grid.opWithException();
+        }
+        catch (demo.grid.MyServerPackage.MyException ex)
+        {
+            System.out.println("MyException, reason: " + ex.why);
+        }
+
+        orb.shutdown(true);
+        System.out.println("done. ");
    }
 }
 \end{verbatim}
 }
 
-After  initializing the  ORB, the  client obtains  a reference  to the
-``grid''  service by locating  the reference  using the  name service.
-Again, resolving the name is done by getting a reference to the naming
-service                 by                 calling                {\tt
-orb.resolve\_initial\_references("NameService")} and querying the name
-server for  the {\tt "grid"}  object by calling {\tt  resolve()}.  The
-argument  to  the  resolve  operation  is, again,  a  string  that  is
-converted to  a Name. The result  is an object reference  of type {\tt
-org.omg.CORBA.Object}  which has  to be  narrowed to  the type  we are
-expecting, i.e. {\tt MyServer}.
+After  initializing the  ORB, the  client needs to obtain  a reference
+to the ``grid''  service. In the example above it reads the IOR argument
+passed to the Client. Another method would be to locate the reference
+using the  name service. Again, resolving the name is done by getting a reference to the naming service by calling {\tt orb.resolve\_initial\_references("NameService")} and querying the name server for the {\tt "grid"} object by calling {\tt resolve()}.  The argument to the resolve operation is, again, a string that is converted to a Name. The result is an object reference of type {\tt org.omg.CORBA.Object} which has to be narrowed to the type we are expecting, i.e. {\tt MyServer}.
 
 \section{Running the Example Application}
 \label{runningExampleApp}
 
-After compiling everything we're now  ready to actually run the server
-and the  client on  different (virtual) machines.  Make sure  the name
-server is running before starting  either the server or the client. If
-it isn't, type something like:
-
-\cmdline{ns /home/me/public\_html/NS\_Ref}
-
-where  {\tt /home/me/public\_html/NS\_Ref}  is the  name of  a locally
-writable file  which can be  read by using  the URL given in  both the
-remote client and  server code. (This is to  avoid using a well--known
-address for  the name server,  so both client  and server look  up the
-location of the  name server via the URL and  later communicate with it
-directly.)
-
-You can now launch the server:
+After compiling everything we're now ready to actually run the server
+and the client on different (virtual) machines. You can now launch the server:
 
 \cmdline{jaco demo.grid.Server}
 
-The client can be invoked on any machine you like:
+The client can be invoked by typing:
 
 \cmdline{jaco demo.grid.Client}
 
