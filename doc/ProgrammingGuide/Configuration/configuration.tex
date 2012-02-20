@@ -624,6 +624,21 @@ Please see chapter \ref{ch:POA} on the POA for more details.
 
 \subsection{Network and Sockets}
 
+\subsubsection{Threading}
+It has been found that under some conditions of very heavy thread use, A JacORB
+client interacting with the Implementation repository can encounter a several
+Location Forward messages related to the same Delegate. As documented in bug
+915, some of these redundant Location Forward messages can cause requests that
+were already sent to the actual server to be resent. If the request has some
+side effect, this duplication is a problem. To solve this issue profile
+discriminated ReplyGroup have been implemented. A reply group is a collection of
+reply receivers that are associated with a specific profile. A single Delegate
+may have multiple active reply groups, a Location Forward handled by a reply
+receiver will only impact the members of its group. This will be seen when a new
+group is created, which will be the first time a Delegate is used, or in
+response to a Location Forward message. Groups are removed from the collection
+when the last member is removed.
+
 \subsubsection{IP Addresses}
 On a multihomed machine the IOR will contain only one of the configured
 IP address (even if OAIAddr or jacorb.ior\_proxy\_host is used). In order to add both IP
@@ -863,6 +878,18 @@ Server side support for receiving requests and sending replies is not yet
 available. Integration of SSL is also not available at this time.
 
 For more details see \ref{connection_management}
+
+\subsection{Using Object.\_release}
+
+Previously {\tt org.jacorb.orb.Delegate} overrode
+{\tt java.lang.Object::finalize} in order to call release when a client-side
+stub was garbage collected. In effect it caused the Delegate to unregister
+ itself from the underlying GIOPConnection and if there were no other
+Delegates using that connection, it was closed and disposed of altogether.
+
+However, as this has performance and scalability issues the finalize was
+removed. This moves the responsiblity to the developer whom is now responsible
+for calling the CORBA.\_release method themselves.
 
 \section{Configuration Properties}
 

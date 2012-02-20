@@ -439,7 +439,7 @@ converted to  a Name. The result  is an object reference  of type {\tt
 org.omg.CORBA.Object}  which has  to be  narrowed to  the type  we are
 expecting, i.e. {\tt MyServer}.
 
-\subsection{Running the Example Application}
+\section{Running the Example Application}
 \label{runningExampleApp}
 
 After compiling everything we're now  ready to actually run the server
@@ -476,18 +476,6 @@ New value at (30,13): 470.11
 MyException, reason: This is only a test exception, no harm done :-)
 done.
 \end{verbatim}
-
-\subsection{Using Object.\_release}
-
-Previously {\tt org.jacorb.orb.Delegate} overrode
-{\tt java.lang.Object::finalize} in order to call release when a client-side
-stub was garbage collected. In effect it caused the Delegate to unregister
- itself from the underlying GIOPConnection and if there were no other
-Delegates using that connection, it was closed and disposed of altogether.
-
-However, as this has performance and scalability issues the finalize was
-removed. This moves the responsiblity to the developer whom is now responsible
-for calling the CORBA.\_release method themselves.
 
 %%% Local Variables:
 %%% mode: latex
