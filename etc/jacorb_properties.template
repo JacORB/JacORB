@@ -783,6 +783,9 @@ jacorb.poa.queue_min=10
 # the clocks of the server and client machine need to be synchronized.
 #jacorb.poa.check_reply_end_time=off
 
+# Run Servant in its own ThreadContext Classloader instead of current
+# classloader.
+jacorb.poa.useServantClassLoader=off
 
 ###################################
 #                                 #

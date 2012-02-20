@@ -78,7 +78,7 @@ public class JacORBConfiguration implements Configuration
     * To support integration in some deployment scenarios it is also possible to use Class.forName.
     * This may be set by setting jacorb.classloaderpolicy system property to either tccl or forname.
     *
-    * Note that this is duplicated within org.omg.CORBA.ORB
+    * Note that this is duplicated within org.omg.CORBA.ORBSingleton
     * (to avoid cross-dependencies)
     */
     public static final boolean useTCCL;

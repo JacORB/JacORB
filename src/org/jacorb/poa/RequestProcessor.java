@@ -25,6 +25,7 @@ import java.util.HashSet;
 import java.util.Set;
 import org.jacorb.config.Configurable;
 import org.jacorb.config.Configuration;
+import org.jacorb.config.JacORBConfiguration;
 import org.jacorb.config.ConfigurationException;
 import org.jacorb.orb.ORB;
 import org.jacorb.orb.SystemExceptionHelper;
@@ -83,6 +84,12 @@ public class RequestProcessor
      */
     private boolean checkReplyEndTime = false;
 
+    /**
+     * By default the servant code will be run in the currently executing class
+     * loader. This allows the servant to be run its thread context class loader
+     */
+    private boolean useServantClassLoader = false;
+
     /** this processor's logger instance, obtained from the request controller */
     private Logger logger;
 
@@ -116,6 +123,10 @@ public class RequestProcessor
         checkReplyEndTime = configuration.getAttributeAsBoolean
         (
           "jacorb.poa.check_reply_end_time", false
+        );
+        useServantClassLoader = configuration.getAttributeAsBoolean
+        (
+            "jacorb.poa.useServantClassLoader", false
         );
     }
 
@@ -287,6 +298,16 @@ public class RequestProcessor
     {
         String operation = request.operation();
         boolean specialOperation = false;
+        ClassLoader prevClassLoader = null;
+        Thread currentThread = null;
+
+        if (useServantClassLoader)
+        {
+            // Set the TCCL to the servant's classloader, but save the current TCCL first.
+            currentThread = Thread.currentThread();
+            prevClassLoader = currentThread.getContextClassLoader();
+            currentThread.setContextClassLoader(servant.getClass().getClassLoader());
+        }
 
         try
         {
@@ -399,6 +420,14 @@ public class RequestProcessor
                              e);
             }
             request.setSystemException (new org.omg.CORBA.UNKNOWN(e.toString()));
+        }
+        finally
+        {
+	    if (useServantClassLoader)
+            {
+                // Restore the original TCCL.
+                currentThread.setContextClassLoader(prevClassLoader);
+            }
         }
     }
 

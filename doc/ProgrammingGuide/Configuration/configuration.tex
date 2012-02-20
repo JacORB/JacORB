@@ -1262,10 +1262,6 @@ By default JacORB will remove the ZoneID so IORs will work off-host. & boolean &
 the cost of a remote call. In most scenarios this is quicker than the remote call.
 With some complicated hierarchies it may be quicker to turn this off. & boolean & on\\
 \hline
-\verb"jacorb.useTCCL" &
-Whether to use the thread context class loader to resolve loading classes and resources.
-If false, falls back to using Class.forName defining classloader. & boolean & on\\
-\hline
 \verb"jacorb.native_char_cod"
 \verb"eset" & Overrides the detection from the local environment for the codeset
 used to transmit characters. Note that this property is only effective once per
@@ -1438,6 +1434,19 @@ jacorb.poa.queue\_wait specifies what to do. Default is 100. & integer \\
 request queue gets full, then the POA blocks until the queue contains
 no more than queue\_min requests. Default is 10. & integer \\
 \hline
+\verb"jacorb.poa.check_rep"
+\verb"ly_end_time" & Set this to on for server-side checking of expired
+ReplyEndTimePolicy. This also applies to RelativeRoundtripTimeoutPolicy.
+When this is on, the clocks of the server and client machine need to be
+synchronized. Default is off. & boolean\\
+\hline
+\verb"jacorb.poa.useServan"
+\verb"tClassLoader" & Run servant code in the thread context class loader of
+the servant class rather than the current class loader (which is
+defined by the value of jacorb.classloaderpolicy which may use either thread
+context or forName). Default is off. & boolean\\
+\hline
+
 \end{longtable}
 \end{small}
 

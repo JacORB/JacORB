@@ -50,7 +50,8 @@
         - Remove static information from ETF Factories.
     - POA:
         - Add timeout for poa threadpool.
-        - Fix for NullPointer in POA destroy
+        - Fix for NullPointer in POA destroy.
+        - Add QoS to run Servant code in its own context classloader.
     - IDL Compiler
         - Avoid create_local_interface_tc generation if using deprecated.
         - In Helpers, for cached typecode, change lazy holder pattern to double checked
