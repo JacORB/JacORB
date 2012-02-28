@@ -39,14 +39,16 @@ public class NIOTest extends ClientServerTestCase
 
         Properties props = new Properties ();
         props.setProperty ("jacorb.connection.nonblocking", "on");
+	props.setProperty ("jacorb.log.default.verbosity", "4");
+
         ClientServerSetup setup = 
-            new ClientServerSetup(suite, NIOTestServer.class.getName(), 
-                                  TestIf.class.getName(), props, props);
+	     new ClientServerSetup(suite, NIOTestServer.class.getName(), 
+                                   TestIf.class.getName(), props, props);
         
         // NIO doesn't yet support SSL 
         if (!setup.isSSLEnabled ())
         {
-            TestUtils.addToSuite(suite, setup, NIOTest.class);
+	       TestUtils.addToSuite(suite, setup, NIOTest.class);
         }
         else
         {
