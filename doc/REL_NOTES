@@ -38,7 +38,7 @@
  -------------------------------------------
 
 3.0 beta 2
-===============
+==========
     - ORB:
         - Refactor ETF factories to remove static information.
         - Provide public createObjectIOR functions in ParsedIOR.
@@ -67,8 +67,8 @@
           sponsorship.
         - Fix for compiling omg/IOP.idl
 	- Fix for bug 915. This prevents massively threaded clients from
-          processing multiple Location Forward messages from the IMR, 
- 	  discarding and resending requests to the target server. 
+          processing multiple Location Forward messages from the IMR,
+ 	  discarding and resending requests to the target server.
     - Misc:
         - Improve version identification in output/jar manifests.
         - Fixes for building under Windows platforms.
