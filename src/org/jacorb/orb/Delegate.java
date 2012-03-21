@@ -320,7 +320,7 @@ public final class Delegate
             config.getAttributeAsBoolean("jacorb.avoidIsARemoteCall", true);
         try
         {
-            maxBuiltinRetries = 
+            maxBuiltinRetries =
                 config.getAttributeAsInteger ("jacorb.maxBuiltinRetries", 0);
             if (maxBuiltinRetries < 0)
             {
@@ -346,8 +346,8 @@ public final class Delegate
             throw new INTERNAL ("Configuration exception retrieving giop minor version" + ex);
         }
 
-	// standard initialization
-	groups = new ConcurrentHashMap<org.omg.ETF.Profile, ReplyGroup>();
+        // standard initialization
+        groups = new ConcurrentHashMap<org.omg.ETF.Profile, ReplyGroup>();
         if (parseIORLazy)
         {
             // reference received across the net
@@ -1274,7 +1274,7 @@ public final class Delegate
 
         ClientConnection connectionToUse = null;
 
-	ReplyGroup group = null;
+        ReplyGroup group = null;
         try
         {
             synchronized (bind_sync)
@@ -1300,7 +1300,7 @@ public final class Delegate
                 }
             }
 
-	    group = getReplyGroup (connectionToUse);
+            group = getReplyGroup (connectionToUse);
             if ( !ros.response_expected() )  // oneway op
             {
                 invoke_oneway (ros, connectionToUse, interceptors, group);
@@ -1308,9 +1308,9 @@ public final class Delegate
             else
             {
                 // response expected, synchronous or asynchronous
-		receiver = new ReplyReceiver(this, group,
-					     ros.operation(), 
-					     ros.getReplyEndTime(),
+                receiver = new ReplyReceiver(this, group,
+                                             ros.operation(),
+                                             ros.getReplyEndTime(),
                                             interceptors, replyHandler, selectorManager);
 
                 try
@@ -1323,7 +1323,7 @@ public final class Delegate
                    throw new INTERNAL ("Caught configuration exception setting up ReplyReceiver.");
                 }
 
-		group.addHolder (receiver);
+                group.addHolder (receiver);
 
                 // Use the local copy of the client connection to avoid trouble
                 // with something else affecting the real connections[currentConnection].
@@ -1336,11 +1336,11 @@ public final class Delegate
 
             if( !async )
             {
-               // Remove ReplyReceiver to break up reference cycle
-               // Otherwise gc will not detect this Delegate and
-               // will never finalize it.
-		if (group != null)
-		    group.removeHolder(receiver);
+                // Remove ReplyReceiver to break up reference cycle
+                // Otherwise gc will not detect this Delegate and
+                // will never finalize it.
+                if (group != null)
+                    group.removeHolder(receiver);
             }
 
             try
@@ -1397,10 +1397,10 @@ public final class Delegate
         {
             logger.debug("invoke[<--]: SystemException", e);
 
-            // If the attempt to read the reply throws a system exception its possible that
-            // the pending_replies will not get cleaned up.
-	    if (group != null)
-		group.removeHolder(receiver);
+            // If the attempt to read the reply throws a system exception its
+            // possible that the pending_replies will not get cleaned up.
+            if (group != null)
+                group.removeHolder(receiver);
 
             disconnect(connectionToUse);
 
@@ -1473,7 +1473,7 @@ public final class Delegate
     private void invoke_oneway (RequestOutputStream ros,
                                 ClientConnection connectionToUse,
                                 ClientInterceptorHandler interceptors,
-				ReplyGroup group)
+                                ReplyGroup group)
         throws RemarshalException, ApplicationException
     {
         switch (ros.syncScope())
@@ -1507,7 +1507,7 @@ public final class Delegate
             case SYNC_WITH_TARGET.value:
 
                 ReplyReceiver rcv = new ReplyReceiver (this,
-						       group,
+                                                       group,
                                                        ros.operation(),
                                                        ros.getReplyEndTime(),
                                                        interceptors,
@@ -1552,27 +1552,27 @@ public final class Delegate
 
     private ReplyGroup getReplyGroup (ClientConnection connectionToUse)
     {
-	// The ReplyGroup collects pending replies for a specific target.
-	// This allows separation between requests that may have been sent to an IMR
-	// and those that were sent to the final target, as could be the case with
-	// massively threaded clients.
-	org.omg.ETF.Profile profile = connectionToUse.getRegisteredProfile();
-	ReplyGroup group = groups.get (profile);
-	if (group == null)
-	{
-	    if (logger.isInfoEnabled())
-	    {
-		logger.info ("Adding new retry group for " + profile);
-	    }
-	    ReplyGroup g = new ReplyGroup (this, profile);
-	    group = groups.putIfAbsent (profile, g);
-	    if (group == null)
-	    {
-		group = g;
-		group.postInit();
-	    }
-	}
-	return group;
+        // The ReplyGroup collects pending replies for a specific target.  This
+        // allows separation between requests that may have been sent to an IMR
+        // and those that were sent to the final target, as could be the case
+        // with massively threaded clients.
+        org.omg.ETF.Profile profile = connectionToUse.getRegisteredProfile();
+        ReplyGroup group = groups.get (profile);
+        if (group == null)
+        {
+            if (logger.isInfoEnabled())
+            {
+                logger.info ("Adding new retry group for " + profile);
+            }
+            ReplyGroup g = new ReplyGroup (this, profile);
+            group = groups.putIfAbsent (profile, g);
+            if (group == null)
+            {
+                group = g;
+                group.postInit();
+            }
+        }
+        return group;
     }
 
     private void passToTransport (final ClientConnection connectionToUse, final RequestOutputStream ros)
