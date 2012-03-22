@@ -19,9 +19,9 @@ public class RTJ634Test extends ClientServerTestCase
    /**
     * <code>server1</code> is the server1 reference.
     */
-   private ComplexTimingServer server1;
+   protected ComplexTimingServer server1;
 
-   static org.omg.CORBA.Object server2;
+   protected static org.omg.CORBA.Object server2;
 
    public RTJ634Test(String name, ClientServerSetup setup)
    {

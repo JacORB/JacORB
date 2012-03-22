@@ -37,6 +37,10 @@
    H I S T O R Y      O F     C H A N G E S
  -------------------------------------------
 
+This Release
+============
+    - ORB:
+        - Fix for interceptors & exception propagation.
 3.0 beta 2
 ==========
     - ORB:

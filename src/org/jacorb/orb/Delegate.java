@@ -25,11 +25,9 @@ import java.lang.reflect.Method;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 import java.util.Stack;
+import java.util.concurrent.ConcurrentHashMap;
 import org.jacorb.config.Configuration;
 import org.jacorb.config.ConfigurationException;
 import org.jacorb.imr.ImRAccessImpl;
@@ -39,7 +37,6 @@ import org.jacorb.orb.giop.ClientConnectionManager;
 import org.jacorb.orb.giop.LocateReplyInputStream;
 import org.jacorb.orb.giop.LocateRequestOutputStream;
 import org.jacorb.orb.giop.ReplyInputStream;
-import org.jacorb.orb.giop.ReplyPlaceholder;
 import org.jacorb.orb.giop.RequestOutputStream;
 import org.jacorb.orb.iiop.IIOPProfile;
 import org.jacorb.orb.miop.MIOPProfile;
@@ -1237,38 +1234,24 @@ public final class Delegate
             {
                 interceptors.handle_send_request();
             }
+            catch (ForwardRequest fwd)
+            {
+                // Should not happen for remote requests
+            }
             catch (RemarshalException re)
             {
                 // RemarshalExceptions explicitely caught, because in
                 // that case, localInterceptors must stay set
                 throw re;
             }
-            catch (Throwable e)
+            catch (RuntimeException e)
             {
                 // If we are throwing a system exception then this will disrupt the call path.
                 // Therefore nullify localInterceptors so it doesn't appear we are still in an
                 // interceptor call.
                 localInterceptors.set(null);
 
-                if (e instanceof TIMEOUT)
-                {
-                    throw (TIMEOUT) e;
-                }
-                else
-                {
-                    throw new RuntimeException ("Problem calling interceptor.send_request", e);
-                }
-            }
-        }
-        else
-        {
-            try
-            {
-                interceptors.handle_send_request();
-            }
-            catch (ForwardRequest fwd)
-            {
-                // Should not happen for remote requests
+                throw e;
             }
         }
 

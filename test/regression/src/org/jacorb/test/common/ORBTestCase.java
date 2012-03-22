@@ -43,7 +43,7 @@ public abstract class ORBTestCase extends TestCase
     {
     }
 
-    protected final void tearDown() throws Exception
+    protected void tearDown() throws Exception
     {
         doTearDown();
 
