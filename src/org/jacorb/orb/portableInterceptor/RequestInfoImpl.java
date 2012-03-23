@@ -33,6 +33,7 @@ import org.omg.Dynamic.Parameter;
 import org.omg.IOP.ServiceContext;
 import org.omg.PortableInterceptor.InvalidSlot;
 import org.omg.PortableInterceptor.RequestInfo;
+import org.omg.PortableInterceptor.UNKNOWN;
 
 /**
  * This is the abstract base class of the two
@@ -56,7 +57,7 @@ public abstract class RequestInfoImpl
     protected Any result = null;
     protected boolean response_expected;
     protected org.omg.CORBA.Object forward_reference = null;
-    protected short reply_status;
+    protected short reply_status = UNKNOWN.value;
     protected org.omg.PortableInterceptor.Current current = null;
 
     protected short sync_scope;

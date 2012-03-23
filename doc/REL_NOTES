@@ -41,6 +41,8 @@ This Release
 ============
     - ORB:
         - Fix for interceptors & exception propagation.
+        - Fix for backwards compatibility with stubs and reply_status.
+
 3.0 beta 2
 ==========
     - ORB:

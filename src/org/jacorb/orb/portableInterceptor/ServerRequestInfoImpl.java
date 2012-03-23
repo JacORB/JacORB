@@ -40,6 +40,7 @@ import org.omg.PortableInterceptor.InvalidSlot;
 import org.omg.PortableInterceptor.LOCATION_FORWARD;
 import org.omg.PortableInterceptor.SYSTEM_EXCEPTION;
 import org.omg.PortableInterceptor.ServerRequestInfo;
+import org.omg.PortableInterceptor.UNKNOWN;
 import org.omg.PortableInterceptor.USER_EXCEPTION;
 import org.omg.PortableServer.Servant;
 
@@ -302,8 +303,9 @@ public class ServerRequestInfoImpl
 
     public short reply_status()
     {
-        if ((caller_op == ServerInterceptorIterator.RECEIVE_REQUEST) ||
-            (caller_op == ServerInterceptorIterator.RECEIVE_REQUEST_SERVICE_CONTEXTS))
+        if ((caller_op == ServerInterceptorIterator.RECEIVE_REQUEST ||
+             caller_op == ServerInterceptorIterator.RECEIVE_REQUEST_SERVICE_CONTEXTS) &&
+            reply_status != UNKNOWN.value)
         {
             throw new BAD_INV_ORDER("The attribute \"reply_status\" is currently invalid!",
                                     10, CompletionStatus.COMPLETED_MAYBE);
