@@ -35,8 +35,7 @@ import java.util.logging.LogRecord;
  */
 public class JacORBLogFormatter extends Formatter
 {
-    private static final DateFormat timeFormat
-        = new SimpleDateFormat ("yyyy-MM-dd HH:mm:ss.SSS");
+    private final DateFormat timeFormat = new SimpleDateFormat ("yyyy-MM-dd HH:mm:ss.SSS");
 
     private boolean showThread = false;
 

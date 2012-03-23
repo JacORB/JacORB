@@ -307,11 +307,11 @@ public class CDROutputStream
      *
      * @return a <code>Stack</code> value
      */
-    private Stack getEncapsStack()
+    private Stack<EncapsInfo> getEncapsStack()
     {
         if (encaps_stack == null)
         {
-            encaps_stack = new Stack();
+            encaps_stack = new Stack<EncapsInfo>();
         }
         return encaps_stack;
     }
@@ -323,11 +323,11 @@ public class CDROutputStream
      *
      * @return a <code>Map</code> value
      */
-    private Map getValueMap()
+    private Map<Serializable, Integer> getValueMap()
     {
         if (valueMap == null)
         {
-            valueMap = new IdentityHashMap();
+            valueMap = new IdentityHashMap<Serializable, Integer>();
         }
         return valueMap;
     }
@@ -338,11 +338,11 @@ public class CDROutputStream
      *
      * @return a <code>Map</code> value
      */
-    private Map getRepIdMap()
+    private Map<String, Integer> getRepIdMap()
     {
         if (repIdMap == null)
         {
-            repIdMap = new HashMap();
+            repIdMap = new HashMap<String, Integer>();
         }
         return repIdMap;
     }
@@ -353,11 +353,11 @@ public class CDROutputStream
      *
      * @return a <code>Map</code> value
      */
-    private Map getCodebaseMap()
+    private Map<String, Integer> getCodebaseMap()
     {
         if (codebaseMap == null)
         {
-            codebaseMap = new HashMap();
+            codebaseMap = new HashMap<String, Integer>();
         }
         return codebaseMap;
     }
@@ -2386,7 +2386,6 @@ public class CDROutputStream
         int remainder = align - (write_index % align);
         if (remainder != align)
         {
-            write_index += remainder;
             write_pos += remainder;
         }
         _write4int(buffer, write_pos, value);

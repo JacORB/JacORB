@@ -480,7 +480,7 @@ public class PrintIOR
         }
 
         // get mech length
-        int mechLen = (nameData[2] << 8) + nameData[3];
+        int mechLen = (nameData[2] << 8) + (nameData[3] & 0xFF);
         if (mechLen > (nameData.length - 8))
         {
             dumpHex(nameData, out);

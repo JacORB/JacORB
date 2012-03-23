@@ -25,7 +25,6 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.net.UnknownHostException;
 import javax.net.ssl.SSLSocket;
 import org.jacorb.config.Configuration;
 import org.jacorb.config.ConfigurationException;

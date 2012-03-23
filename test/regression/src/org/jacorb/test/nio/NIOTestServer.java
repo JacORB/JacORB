@@ -1,12 +1,7 @@
 package org.jacorb.test.nio;
 
 import java.util.Properties;
-import org.jacorb.orb.util.CorbaLoc;
-import org.jacorb.test.common.TestUtils;
-
 import org.jacorb.test.TestIfPOA;
-
-
 import org.omg.CORBA.ORB;
 import org.omg.CORBA.Policy;
 import org.omg.PortableServer.IdAssignmentPolicyValue;
@@ -14,7 +9,6 @@ import org.omg.PortableServer.POA;
 import org.omg.PortableServer.POAHelper;
 import org.omg.PortableServer.POAManager;
 import org.omg.PortableServer.Servant;
-import org.omg.PortableServer.ImplicitActivationPolicyValue;
 
 public class NIOTestServer extends TestIfPOA
 {
@@ -24,8 +18,8 @@ public class NIOTestServer extends TestIfPOA
         System.out.println ("TestIf::op called, waiting 3000ms");
         try
         {
-            Thread.currentThread().sleep (3000);
-        } 
+            Thread.sleep (3000);
+        }
         catch (InterruptedException e)
         {
             // ignore
@@ -56,7 +50,7 @@ public class NIOTestServer extends TestIfPOA
             POA child = rootPOA.create_POA ("thePOA", poa_manager, policies);
 
             poa_manager.activate();
-            
+
             Servant impl = new NIOTestServer();
             child.activate_object_with_id(objID.getBytes(), impl);
 
@@ -68,7 +62,7 @@ public class NIOTestServer extends TestIfPOA
                 + child.the_name() + "/" + objID;
 
             System.out.println ("Server IOR: " + corbalocStr);
-            orb.run(); 
+            orb.run();
         }
         catch (Exception e)
         {

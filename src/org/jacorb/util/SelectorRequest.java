@@ -20,9 +20,8 @@
 
 package org.jacorb.util;
 
-import java.util.Date;
-import java.nio.channels.SocketChannel;
 import java.nio.channels.SelectionKey;
+import java.nio.channels.SocketChannel;
 import java.util.concurrent.locks.ReentrantLock;
 
 /**

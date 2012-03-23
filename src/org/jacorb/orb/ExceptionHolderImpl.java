@@ -219,7 +219,7 @@ public class ExceptionHolderImpl
 
         try
         {
-            final Class helperClazz = ObjectUtil.classForName (helperClassName);
+            final Class<?> helperClazz = ObjectUtil.classForName (helperClassName);
 
             return exceptionFromHelper(input, helperClazz);
         }
@@ -227,7 +227,7 @@ public class ExceptionHolderImpl
         {
             final String repositoryIDWithoutPragmaPrefix = stripPragmaPrefix(repositoryID);
 
-            if (repositoryIDWithoutPragmaPrefix != repositoryID)
+            if ( ! repositoryIDWithoutPragmaPrefix.equals (repositoryID))
             {
                 if (logger.isDebugEnabled())
                 {
@@ -261,7 +261,7 @@ public class ExceptionHolderImpl
     }
 
 
-    private org.omg.CORBA.UserException exceptionFromHelper(org.omg.CORBA.portable.InputStream input, Class helperClazz) throws NoSuchMethodException, ClassNotFoundException, IllegalAccessException, InvocationTargetException
+    private org.omg.CORBA.UserException exceptionFromHelper(org.omg.CORBA.portable.InputStream input, Class<?> helperClazz) throws NoSuchMethodException, ClassNotFoundException, IllegalAccessException, InvocationTargetException
     {
         // helper must not be null from here on
 

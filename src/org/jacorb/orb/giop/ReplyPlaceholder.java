@@ -22,7 +22,6 @@ package org.jacorb.orb.giop;
 
 import org.jacorb.config.Configuration;
 import org.jacorb.config.ConfigurationException;
-import org.jacorb.orb.ORB;
 import org.omg.CORBA.portable.RemarshalException;
 
 /**

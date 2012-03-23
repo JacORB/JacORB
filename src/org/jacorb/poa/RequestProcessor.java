@@ -25,7 +25,6 @@ import java.util.HashSet;
 import java.util.Set;
 import org.jacorb.config.Configurable;
 import org.jacorb.config.Configuration;
-import org.jacorb.config.JacORBConfiguration;
 import org.jacorb.config.ConfigurationException;
 import org.jacorb.orb.ORB;
 import org.jacorb.orb.SystemExceptionHelper;

@@ -31,7 +31,7 @@ import org.jacorb.config.JacORBConfiguration;
  * @version $Id$
  */
 
-public class ObjectUtil
+public final class ObjectUtil
 {
     //for byte -> hexchar
     private static final char[] HEX_LOOKUP =
@@ -46,7 +46,7 @@ public class ObjectUtil
      * @return the contents of the resource as a string, or null
      * if the contents of the resource could not be located using url
      */
-    public static final String readURL( String url )
+    public static String readURL( String url )
         throws java.io.IOException
     {
         final BufferedReader reader = new BufferedReader(newInputStreamReader(url));
@@ -73,7 +73,7 @@ public class ObjectUtil
             }
             catch (Exception e)
             {
-                System.out.println ("Tried and failed to open file: " + // NOPMD
+                System.out.println ("Tried and failed to open file: " +
                                     url.substring(token.length()));
                 // no worries, let the URL handle it
             }
@@ -231,7 +231,7 @@ public class ObjectUtil
      * @return a <code>String</code> value
      */
 
-    public static final String toHex(byte value)
+    public static String toHex(byte value)
     {
         final StringBuffer buffer = new StringBuffer();
 
@@ -247,7 +247,7 @@ public class ObjectUtil
     }
 
 
-    public static final char toAscii(byte value)
+    public static char toAscii(byte value)
     {
         if ( value > (byte) 31 &&  value < (byte) 127)
         {

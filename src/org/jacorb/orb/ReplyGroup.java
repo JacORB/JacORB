@@ -20,81 +20,77 @@ package org.jacorb.orb;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
 import java.util.Iterator;
-import java.util.Collection;
-
+import java.util.Set;
 import org.jacorb.orb.giop.ReplyPlaceholder;
 
 public class ReplyGroup
 {
     private boolean is_open = true;
-    private Set replies = null;
+    private Set<ReplyPlaceholder> replies = null;
     private org.omg.ETF.Profile profile;
     private Delegate owner;
 
     ReplyGroup (Delegate d, org.omg.ETF.Profile p)
     {
-	owner = d;
-	profile = p;
+        owner = d;
+        profile = p;
     }
 
     synchronized void postInit ()
     {
-	replies = new HashSet();
+        replies = new HashSet<ReplyPlaceholder>();
     }
 
     synchronized void lockBarrier()
     {
-	is_open = false;
+        is_open = false;
     }
 
     synchronized void openBarrier()
     {
-	is_open = true;
-	this.notifyAll();
+        is_open = true;
+        this.notifyAll();
     }
 
     synchronized void waitOnBarrier()
     {
-	while (! is_open) 
-	{
-	    try 
-	    {
-		this.wait();
-	    }
-	    catch ( InterruptedException e ) 
-	    {
-		//ignore
-	    }
-	}
+        while (! is_open)
+        {
+            try
+            {
+                this.wait();
+            }
+            catch ( InterruptedException e )
+            {
+                //ignore
+            }
+        }
     }
 
-    public Set getReplies()
+    public Set<ReplyPlaceholder> getReplies()
     {
-	return replies;
+        return replies;
     }
 
     void retry()
     {
-	synchronized ( replies ) 
-	{
-	    for ( Iterator<ReplyPlaceholder> i = replies.iterator(); 
-		  i.hasNext(); ) 
-	    {
-		ReplyPlaceholder p = i.next();
-		p.retry();
-	    }
-	}
+        synchronized ( replies )
+        {
+            for ( Iterator<ReplyPlaceholder> i = replies.iterator();
+                  i.hasNext(); )
+            {
+                ReplyPlaceholder p = i.next();
+                p.retry();
+            }
+        }
     }
 
     void addHolder (ReplyPlaceholder holder)
     {
-        synchronized (replies) 
-	{
+        synchronized (replies)
+        {
             replies.add (holder);
         }
     }
@@ -102,8 +98,8 @@ public class ReplyGroup
     void removeHolder (ReplyPlaceholder holder)
     {
         synchronized (replies)
-	{
-	    replies.remove (holder);
+        {
+            replies.remove (holder);
         }
     }
-};
+}

@@ -20,11 +20,10 @@
 
 package org.jacorb.orb.listener;
 
-import java.net.InetAddress;
-import java.net.UnknownHostException;
 import java.security.cert.Certificate;
-
-import javax.net.ssl.*;
+import javax.net.ssl.HandshakeCompletedEvent;
+import javax.net.ssl.HandshakeCompletedListener;
+import javax.net.ssl.SSLPeerUnverifiedException;
 import org.jacorb.orb.iiop.IIOPAddress;
 import org.slf4j.Logger;
 

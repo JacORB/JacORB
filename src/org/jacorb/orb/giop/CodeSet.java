@@ -101,7 +101,7 @@ public class CodeSet
     private static CodeSet nativeCodeSetWchar = UTF16_CODESET;
 
     /** The definition of locally supported code sets provided to clients. */
-    private static CodeSetComponentInfo localCodeSetComponentInfo;
+    private volatile static CodeSetComponentInfo localCodeSetComponentInfo;
 
     /** The standard CORBA identifier associated with this code set; used during negotiation. */
     private int id;
@@ -310,9 +310,15 @@ public class CodeSet
     {
         if (localCodeSetComponentInfo == null)
         {
-            localCodeSetComponentInfo = new CodeSetComponentInfo();
-            localCodeSetComponentInfo.ForCharData = createCodeSetComponent( /* wide */ false, getTCSDefault() );
-            localCodeSetComponentInfo.ForWcharData = createCodeSetComponent( /* wide */ true, getTCSWDefault() );
+            synchronized (CodeSet.class)
+            {
+               if (localCodeSetComponentInfo == null)
+               {
+                  localCodeSetComponentInfo = new CodeSetComponentInfo();
+                  localCodeSetComponentInfo.ForCharData = createCodeSetComponent( /* wide */ false, getTCSDefault() );
+                  localCodeSetComponentInfo.ForWcharData = createCodeSetComponent( /* wide */ true, getTCSWDefault() );
+               }
+            }
         }
         return localCodeSetComponentInfo;
     }
@@ -320,7 +326,7 @@ public class CodeSet
 
     private static CodeSetComponent createCodeSetComponent( boolean wide, CodeSet nativeCodeSet )
     {
-        ArrayList codeSets = new ArrayList( );
+        ArrayList<CodeSet> codeSets = new ArrayList<CodeSet>();
         codeSets.add( nativeCodeSet );
         for (int i = 0; i < KNOWN_ENCODINGS.length; i++)
         {

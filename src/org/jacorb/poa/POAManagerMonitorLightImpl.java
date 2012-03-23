@@ -22,7 +22,6 @@ package org.jacorb.poa;
 
 import org.jacorb.config.Configurable;
 import org.jacorb.config.Configuration;
-import org.jacorb.config.ConfigurationException;
 import org.jacorb.util.ObjectUtil;
 import org.slf4j.Logger;
 

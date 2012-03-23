@@ -19,7 +19,7 @@ public class AGM
 {
    private static final byte [][]EMPTYBYTE = new byte[0][];
 
-   private HashMap groupTable = new HashMap ();
+   private HashMap<TGTCWrapper, ArrayList<byte[]>> groupTable = new HashMap<TGTCWrapper, ArrayList<byte[]>> ();
 
 
    /**
@@ -192,16 +192,14 @@ public class AGM
          {
             return false;
          }
-         TGTCWrapper tother = (TGTCWrapper)obj;
-         if (tcgtc == null)
-         {
-            if (tother.tcgtc != null)
-            {
-               return false;
-            }
-         }
 
          TagGroupTaggedComponent other = ((TGTCWrapper)obj).tcgtc;
+
+         if (tcgtc == null || other == null)
+         {
+            return false;
+         }
+
          if (tcgtc.group_domain_id == null)
          {
             if (other.group_domain_id != null)

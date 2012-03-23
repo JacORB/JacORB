@@ -32,12 +32,10 @@ import org.omg.TimeBase.UtcTHelper;
  * @author Andre Spiegel <spiegel@gnu.org>
  * @version $Id$
  */
-public class Time
+public final class Time
 {
     private Time()
     {
-        // utility class
-        super();
     }
 
     /**

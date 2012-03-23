@@ -20,6 +20,7 @@ package org.jacorb.orb;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -36,9 +37,9 @@ public class EncapsInfo
     public final int index;
     public final int start;
     public int size;
-    public Map valueMap;
-    public Map repIdMap;
-    public Map codebaseMap;
+    public Map<Serializable, Integer> valueMap;
+    public Map<String, Integer> repIdMap;
+    public Map<String, Integer> codebaseMap;
 
     /** constructor used by CDRInputStream */
 
@@ -61,25 +62,25 @@ public class EncapsInfo
      */
 
     public EncapsInfo(int index, int start,
-                      Map valueMap, Map repIdMap, Map codebaseMap)
+                      Map<Serializable,Integer> vMap, Map<String,Integer> rMap, Map<String,Integer> cMap)
     {
         this.index = index;
         this.start = start;
-        this.valueMap = valueMap;
-        this.repIdMap = repIdMap;
-        this.codebaseMap = codebaseMap;
+        this.valueMap = vMap;
+        this.repIdMap = rMap;
+        this.codebaseMap = cMap;
 
         if (valueMap == null)
         {
-            valueMap = new HashMap ();
+            valueMap = new HashMap<Serializable, Integer> ();
         }
         if (repIdMap == null)
         {
-            repIdMap = new HashMap ();
+            repIdMap = new HashMap<String, Integer> ();
         }
         if (codebaseMap == null)
         {
-            codebaseMap = new HashMap ();
+            codebaseMap = new HashMap<String, Integer> ();
         }
     }
 }

@@ -20,15 +20,16 @@ package org.jacorb.orb;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import java.util.Iterator;
 import java.util.Set;
-
 import org.jacorb.config.Configurable;
 import org.jacorb.config.Configuration;
 import org.jacorb.config.ConfigurationException;
 import org.jacorb.orb.giop.MessageInputStream;
 import org.jacorb.orb.giop.ReplyInputStream;
 import org.jacorb.orb.giop.ReplyPlaceholder;
+import org.jacorb.util.SelectorManager;
+import org.jacorb.util.SelectorRequest;
+import org.jacorb.util.SelectorRequestCallback;
 import org.jacorb.util.Time;
 import org.omg.CORBA.CompletionStatus;
 import org.omg.CORBA.MARSHAL;
@@ -42,9 +43,6 @@ import org.omg.GIOP.ReplyStatusType_1_2;
 import org.omg.Messaging.ExceptionHolder;
 import org.omg.PortableInterceptor.ForwardRequest;
 import org.omg.TimeBase.UtcT;
-import org.jacorb.util.SelectorManager;
-import org.jacorb.util.SelectorRequest;
-import org.jacorb.util.SelectorRequestCallback;
 import org.slf4j.Logger;
 
 /**
@@ -61,7 +59,7 @@ import org.slf4j.Logger;
  * @version $Id$
  */
 
-public class ReplyReceiver
+public final class ReplyReceiver
         extends ReplyPlaceholder
         implements Configurable
 {
@@ -217,7 +215,7 @@ public class ReplyReceiver
 		    lock.notifyAll();
 		}
 	    }
-	}	
+	}
     }
 
     private void performCallback ( ReplyInputStream reply )

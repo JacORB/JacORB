@@ -22,9 +22,6 @@ package org.jacorb.orb.giop;
 
 import org.jacorb.orb.ORB;
 import org.omg.BiDirPolicy.BIDIRECTIONAL_POLICY_TYPE;
-import org.omg.IOP.Codec;
-import org.omg.IOP.ENCODING_CDR_ENCAPS;
-import org.omg.IOP.Encoding;
 import org.omg.PortableInterceptor.ORBInitInfo;
 import org.omg.PortableInterceptor.ORBInitializer;
 import org.slf4j.Logger;
@@ -45,10 +42,6 @@ public class BiDirConnectionInitializer
 
         try
         {
-            Encoding encoding = new Encoding(ENCODING_CDR_ENCAPS.value,
-                                             (byte) 1, (byte) 0);
-            Codec codec = info.codec_factory().create_codec(encoding);
-
             info.add_client_request_interceptor( new BiDirConnectionClientInterceptor( orb ));
             info.add_server_request_interceptor( new BiDirConnectionServerInterceptor( orb ));
 
