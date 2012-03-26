@@ -22,7 +22,7 @@ package org.jacorb.util;
 
 import java.nio.channels.SelectionKey;
 import java.nio.channels.SocketChannel;
-import java.util.concurrent.locks.ReentrantLock;
+//import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * defines a single request to be registered with the selector.
@@ -58,7 +58,8 @@ public class SelectorRequest
     public SelectorRequestCallback callback;
     public final long nanoDeadline;
 
-    private final ReentrantLock lock = new ReentrantLock();
+    //    private final ReentrantLock lock = new ReentrantLock();
+    private final Object lock = new Object();
 
     /**
      * Constructs a new SelectorRequest for an I/O event
