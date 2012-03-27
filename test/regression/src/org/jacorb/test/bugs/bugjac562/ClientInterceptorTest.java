@@ -49,6 +49,19 @@ public class ClientInterceptorTest extends ORBTestCase
         server = BasicServerHelper.narrow(poa.servant_to_reference(new BasicServerImpl()));
     }
 
+    /**
+     * <code>tearDown</code> us used by Junit for cleaning up after the tests.
+     *
+     * @exception Exception if an error occurs
+     */
+    protected void tearDown() throws Exception
+    {
+        super.tearDown();
+
+        server._release ();
+        server = null;
+    }
+
     public void testRuntimeExceptionInClientInterceptorIsPropagated() throws Exception
     {
         try
@@ -59,6 +72,19 @@ public class ClientInterceptorTest extends ORBTestCase
         catch(RuntimeException e)
         {
             // expected exception
+        }
+        try
+        {
+            server.ping();
+            fail();
+        }
+        catch(org.omg.CORBA.TRANSIENT e)
+        {
+            // expected exception
+        }
+        catch(RuntimeException e)
+        {
+            fail();
         }
     }
 }

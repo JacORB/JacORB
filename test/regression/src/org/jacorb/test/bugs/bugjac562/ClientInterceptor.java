@@ -32,6 +32,8 @@ public class ClientInterceptor
     extends org.omg.CORBA.LocalObject
     implements ClientRequestInterceptor
 {
+    private static int testCount = 0;
+
     public void receive_exception(ClientRequestInfo ri) throws ForwardRequest
     {
     }
@@ -50,7 +52,14 @@ public class ClientInterceptor
 
     public void send_request(ClientRequestInfo ri) throws ForwardRequest
     {
-        throw new RuntimeException();
+        if (testCount++ == 0)
+        {
+            throw new RuntimeException();
+        }
+        else
+        {
+            throw new org.omg.CORBA.TRANSIENT();
+        }
     }
 
     public void destroy()
