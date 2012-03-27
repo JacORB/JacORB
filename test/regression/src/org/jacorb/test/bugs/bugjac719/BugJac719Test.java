@@ -11,30 +11,32 @@ public class BugJac719Test extends ORBTestCase
     public void testUnion()
     {
         UnionStartMultiDimArrayStruct sample = new UnionStartMultiDimArrayStruct();
-        
+        @SuppressWarnings("unused")
+        A var = null;
+
         sample.threeDimA(new A[DIM_THREEDIMA_1][DIM_THREEDIMA_2][DIM_ARRAYA_1]);
-        
+
         if (sample.threeDimA() == null)
         {
             fail("threeDimA() == null");
         }
         if (sample.threeDimA().length != DIM_THREEDIMA_1)
         {
-            fail("Expected threeDimA().length == " 
-                    + DIM_THREEDIMA_1 + " ; Received: " 
+            fail("Expected threeDimA().length == "
+                    + DIM_THREEDIMA_1 + " ; Received: "
                     + sample.threeDimA().length);
         }
-        
-        for (int i = 0; i < DIM_THREEDIMA_1; i++) 
+
+        for (int i = 0; i < DIM_THREEDIMA_1; i++)
         {
             if (sample.threeDimA()[i].length != DIM_THREEDIMA_2)
             {
-                fail("Expected usmds.threeDimA()[" + i + "].length == " 
-                    + DIM_THREEDIMA_2 
-                    + "; Received: " 
+                fail("Expected usmds.threeDimA()[" + i + "].length == "
+                    + DIM_THREEDIMA_2
+                    + "; Received: "
                     + sample.threeDimA()[i].length);
             }
-            
+
             for (int j = 0; j < DIM_THREEDIMA_2; j++)
             {
                 if (sample.threeDimA()[i][j].length != DIM_ARRAYA_1)
@@ -44,10 +46,10 @@ public class BugJac719Test extends ORBTestCase
                             + "; Received: "
                             + sample.threeDimA()[i][j].length);
                 }
-                for (int k = 0; k < DIM_ARRAYA_1; k++) 
+                for (int k = 0; k < DIM_ARRAYA_1; k++)
                 {
-                    // just access the each of array members 
-                    A var = sample.threeDimA()[i][j][k];
+                    // just access the each of array members
+                    var = sample.threeDimA()[i][j][k];
                 }
             }
         }
