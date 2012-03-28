@@ -176,7 +176,9 @@ public class CodesetTest extends ClientServerTestCase
 
         Properties client_props = new Properties();
         Properties server_props = new Properties();
-
+    
+	client_props.setProperty ("jacorb.native_char_codeset", "utf8");
+	server_props.setProperty ("jacorb.native_char_codeset", "utf8");
         if (config == 1)
         {
             client_props.setProperty ("jacorb.codeset", "off");
