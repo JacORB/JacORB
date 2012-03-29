@@ -504,6 +504,37 @@ public class ConfigurationTest extends JacORBTestCase
     }
 
 
+
+
+    /**
+     * Verify that properties are cached in both string and optimised
+     * caches.
+     */
+    public void testCacheProperties() throws Exception
+    {
+        Properties props = new Properties();
+        props.put("org.omg.CORBA.ORBClass", "org.jacorb.orb.ORB");
+        props.put("org.omg.CORBA.ORBSingletonClass",
+                  "org.jacorb.orb.ORBSingleton");
+        props.put("jacorb.connection.client.connect_timeout", "33707");
+
+        ORB orb = ORB.init(new String[] {}, props);
+
+        int timeout = ((org.jacorb.orb.ORB) orb).getConfiguration()
+                    .getAttributeAsInteger(
+                            "jacorb.connection.client.connect_timeout", 0);
+        assertEquals(33707, timeout);
+
+        timeout = Integer.valueOf
+        (
+            ((org.jacorb.orb.ORB) orb).getConfiguration().getAttribute(
+                "jacorb.connection.client.connect_timeout", "0")
+        );
+        assertEquals(33707, timeout);
+    }
+
+
+
     /**
      * Convenience method for creating an os-dependent filename relative
      * to the test home directory.

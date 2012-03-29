@@ -849,7 +849,10 @@ public class JacORBConfiguration implements Configuration
 
        if (result == null)
        {
-          String value = stringAttributes.remove (key);
+           // This used to be .remove but removing it from the string
+           // cache can cause inconsistency if another caller uses
+           // getAttribute.
+          String value = stringAttributes.get (key);
 
           if (value == null)
           {
@@ -875,6 +878,7 @@ public class JacORBConfiguration implements Configuration
              }
           }
           numberAttributes.put (key, result);
+
        }
 
        return result.intValue ();
@@ -916,7 +920,10 @@ public class JacORBConfiguration implements Configuration
 
        if (result == null)
        {
-          String value = stringAttributes.remove (key);
+           // This used to be .remove but removing it from the string
+           // cache can cause inconsistency if another caller uses
+           // getAttribute.
+          String value = stringAttributes.get (key);
 
           if (value == null)
           {
@@ -1093,7 +1100,10 @@ public class JacORBConfiguration implements Configuration
 
        if (result == null)
        {
-          String value = stringAttributes.remove(key);
+           // This used to be .remove but removing it from the string
+           // cache can cause inconsistency if another caller uses
+           // getAttribute.
+          String value = stringAttributes.get (key);
 
           if (value == null)
           {
@@ -1160,7 +1170,10 @@ public class JacORBConfiguration implements Configuration
 
        if (result == null)
        {
-          String value = stringAttributes.remove (key);
+           // This used to be .remove but removing it from the string
+           // cache can cause inconsistency if another caller uses
+           // getAttribute.
+          String value = stringAttributes.get (key);
 
           if (value == null)
           {
