@@ -812,7 +812,7 @@ public class PrintIOR
 
     private static void printTagGroupTaggedComponent(TaggedComponent taggedComponent, PrintWriter out)
     {
-        final CDRInputStream is = new CDRInputStream((org.omg.CORBA.ORB)null, taggedComponent.component_data);
+        final CDRInputStream is = new CDRInputStream(org.omg.CORBA.ORBSingleton.init(), taggedComponent.component_data);
 
         is.openEncapsulatedArray();
         TagGroupTaggedComponent tagGroup = TagGroupTaggedComponentHelper.read (is);

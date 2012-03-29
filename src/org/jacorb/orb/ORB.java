@@ -947,8 +947,7 @@ public final class ORB
         {
             byte[] tlsSecTransData =
                 csmList.mechanism_list[0].transport_mech.component_data;
-            CDRInputStream in =
-                new CDRInputStream((org.omg.CORBA.ORB)null, tlsSecTransData);
+            CDRInputStream in = new CDRInputStream(this, tlsSecTransData);
             try
             {
                 in.openEncapsulatedArray();
