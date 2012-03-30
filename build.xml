@@ -151,8 +151,7 @@ using BUILD_NUMBER:   ${BuildNo}
                      org/omg/CosTypedNotifyChannelAdmin/**,
                      org/omg/CosTypedNotifyComm/**,
                      org/omg/CosTypedEventNotifyComm/**,
-                     org/omg/dds/**,
-                     org/omg/TimeBase/**
+                     org/omg/dds/**
                      ">
          <manifest>
            <attribute name="Implementation-Version" value="${JVERSION} ${jacorb_version_info}" />
@@ -190,8 +189,7 @@ using BUILD_NUMBER:   ${BuildNo}
                      org/omg/CosTypedEventNotifyChannelAdmin/**,
                      org/omg/CosTypedNotifyChannelAdmin/**,
                      org/omg/CosTypedNotifyComm/**,
-                     org/omg/TimeBase/**
-                     org/omg/dds/**,
+                     org/omg/dds/**
                      ">
          <manifest>
            <attribute name="Implementation-Version" value="${JVERSION} ${jacorb_version_info}" />
@@ -249,8 +247,7 @@ using BUILD_NUMBER:   ${BuildNo}
                      org/omg/CosTypedEventComm/**,
                      org/omg/CosTypedEventNotifyChannelAdmin/**,
                      org/omg/CosTypedEventNotifyComm/**,
-                     org/omg/dds/**,
-                     org/omg/TimeBase/**
+                     org/omg/dds/**
                      ">
          <manifest>
            <attribute name="Implementation-Version" value="${JVERSION} ${jacorb_version_info}" />
