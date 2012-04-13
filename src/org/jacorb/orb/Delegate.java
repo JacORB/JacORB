@@ -206,6 +206,17 @@ public final class Delegate
     private boolean avoidIsARemoteCall=true;
 
     /**
+     * Preserve JacORB 2.3.x series behaviour with interceptors which restores the
+     * 2.3.x behaviour of returning false from an is_local call when interceptors are
+     * enabled and installed.
+     *
+     * This should NOT be required in general and has only been added for certain scenarios
+     * with legacy applications. Do not remove without checking with Nick Cross (13/April/2012)
+     */
+    private boolean isLocalHistoricalInterceptors = false;
+
+
+    /**
      *  Denote whether to allow orbPolicies or do optimised version
      */
     private boolean disableClientOrbPolicies;
@@ -226,9 +237,9 @@ public final class Delegate
      * next call to is_local will return false
      * so that the stub will choose the non-optimized path
      */
-    private static final ThreadLocal ignoreNextCallToIsLocal = new ThreadLocal()
+    private static final ThreadLocal<Boolean> ignoreNextCallToIsLocal = new ThreadLocal<Boolean>()
     {
-        protected java.lang.Object initialValue()
+        protected Boolean initialValue()
         {
             return Boolean.FALSE;
         }
@@ -315,6 +326,8 @@ public final class Delegate
             config.getAttributeAsBoolean("jacorb.locate_on_bind", false);
         avoidIsARemoteCall =
             config.getAttributeAsBoolean("jacorb.avoidIsARemoteCall", true);
+        isLocalHistoricalInterceptors =
+            config.getAttributeAsBoolean("jacorb.isLocalHistoricalInterceptors", false);
         try
         {
             maxBuiltinRetries =
@@ -1915,6 +1928,11 @@ public final class Delegate
         if (ignoreNextCallToIsLocal.get() == Boolean.TRUE)
         {
             ignoreNextCallToIsLocal.set(Boolean.FALSE);
+            return false;
+        }
+
+        if (isLocalHistoricalInterceptors && localInterceptors.get() == null && orb.hasRequestInterceptors())
+        {
             return false;
         }
 
