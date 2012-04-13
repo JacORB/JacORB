@@ -43,6 +43,7 @@ This Release
         - Fix for interceptors & exception propagation.
         - Fix for backwards compatibility with stubs and reply_status.
         - Fix for configuration caching issue.
+    - Misc:
         - Include org.omg.TimeBase in jacorb.jar
 
 3.0 beta 2
@@ -83,6 +84,7 @@ This Release
         - Add wrapper scripts enabling IMR_SSD, the service startup daemon,
           to be registered as a windows NT service.
         - Changed level of some logging output to be quieter.
+        - Minimum JDK is now 1.6.
 
 3.0 beta 1
 ==========
