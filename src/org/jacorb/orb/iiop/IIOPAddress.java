@@ -101,14 +101,7 @@ public class IIOPAddress
      * The InetAddress class can handle both IPv4 and IPv6 addresses.  If the
      * address is not in a valid format, an exception is thrown.  For this
      * reason, isIP() is no longer needed.
-     *
-     * The problem with Java versions prior to 1.5 is handling a zone ID.
-     * In order to maintain compatiblity with Java 1.4.2, a zone ID
-     * will prompt us to bind to all interfaces and use the host name
-     * in the IOR.  In the future, this can be changed to properly handle
-     * the zone ID using the new methods available in Java 1.5.
      */
-
     private void init_host()
     {
         InetAddress localhost = null;
@@ -134,9 +127,6 @@ public class IIOPAddress
             host = localhost;
         }
         else {
-           //String hostname = source_name;
-           //String ip = null;
-
             int slash = source_name.indexOf('/');
             if (slash > 0)
             {
@@ -146,43 +136,24 @@ public class IIOPAddress
                 source_name = source_name.substring(0,slash);
             }
 
-            int zone = source_name.indexOf('%');
-            if (zone != -1)
+            try
             {
-                hasZoneId = true;
+                host = InetAddress.getByName(source_name);
             }
-
-            if (!hasZoneId)
-            {
-                try
-                {
-                    host = InetAddress.getByName(source_name);
-                }
-                catch (UnknownHostException ex)
-                {
-                    if (logger != null && logger.isWarnEnabled())
-                    {
-                        logger.warn ("init_host, " + source_name + " unresolvable" );
-                    }
-                    unresolvable = true;
-                    try
-                    {
-                        host = InetAddress.getByName(null); //localhost
-                    }
-                    catch (UnknownHostException ex2)
-                    {
-                    }
-                }
-            }
-            else
+            catch (UnknownHostException ex)
             {
                 if (logger != null && logger.isWarnEnabled())
                 {
-                    logger.warn ("init_host, " + source_name +
-                            " is local-link address");
+                    logger.warn ("init_host, " + source_name + " unresolvable" );
                 }
                 unresolvable = true;
-                host = null; //will allow binds on all interfaces
+                try
+                {
+                    host = InetAddress.getByName(null); //localhost
+                }
+                catch (UnknownHostException ex2)
+                {
+                }
             }
         }
     }
