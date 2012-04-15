@@ -75,7 +75,6 @@ public class IIOPAddress
     public IIOPAddress(String hoststr, int port)
     {
         this();
-
         source_name = hoststr;
 
         init_port(port);
@@ -117,19 +116,12 @@ public class IIOPAddress
      * The InetAddress class can handle both IPv4 and IPv6 addresses.  If the
      * address is not in a valid format, an exception is thrown.  For this
      * reason, isIP() is no longer needed.
-     *
-     * The problem with Java versions prior to 1.5 is handling a zone ID.
-     * In order to maintain compatiblity with Java 1.4.2, a zone ID
-     * will prompt us to bind to all interfaces and use the host name
-     * in the IOR.  In the future, this can be changed to properly handle
-     * the zone ID using the new methods available in Java 1.5.
      */
-
     private void init_host()
     {
         InetAddress localhost = getLocalHost();
         boolean hasZoneId = false;
-        
+
         if (source_name == null || source_name.length() == 0 )
         {
             host = localhost;
@@ -145,42 +137,24 @@ public class IIOPAddress
                 source_name = source_name.substring(0,slash);
             }
 
-            int zone = source_name.indexOf('%');
-            if (zone != -1)
+            try
             {
-                hasZoneId = true;
+                host = InetAddress.getByName(source_name);
             }
-
-            if (!hasZoneId)
-            {
-                try
-                {
-                    host = InetAddress.getByName(source_name);
-                }
-                catch (UnknownHostException ex)
-                {
-                    if (logger.isWarnEnabled())
-                    {
-                        logger.warn ("init_host, " + source_name + " unresolvable" );
-                    }
-                    unresolvable = true;
-                    try
-                    {
-                        host = InetAddress.getByName(null); //localhost
-                    }
-                    catch (UnknownHostException ex2)
-                    {
-                    }
-                }
-            }
-            else
+            catch (UnknownHostException ex)
             {
                 if (logger.isWarnEnabled())
                 {
-                    logger.warn ("init_host, " + source_name + " is local-link address");
+                    logger.warn ("init_host, " + source_name + " unresolvable" );
                 }
                 unresolvable = true;
-                host = null; //will allow binds on all interfaces
+                try
+                {
+                    host = InetAddress.getByName(null); //localhost
+                }
+                catch (UnknownHostException ex2)
+                {
+                }
             }
         }
     }
@@ -427,7 +401,7 @@ public class IIOPAddress
             setPort(other.port);
         }
     }
-    
+
     /**
      * Returns a string representation of the localhost address.
      */
@@ -444,7 +418,7 @@ public class IIOPAddress
             return "127.0.0.1";
         }
     }
-    
+
     /**
      * Returns an address for the localhost that is reasonable to use
      * in the IORs we produce.
@@ -455,9 +429,9 @@ public class IIOPAddress
         try
         {
             result = InetAddress.getLocalHost();
-            
+
             // if this is an IPv6 address, make sure it's a reasonable one
-            
+
             if (result instanceof Inet6Address
                 && (result.isLinkLocalAddress()
                     || result.isLoopbackAddress()))
@@ -468,7 +442,7 @@ public class IIOPAddress
                     result = betterAddress;
                 }
             }
-            
+
         }
         catch (UnknownHostException ex)
         {
@@ -481,27 +455,27 @@ public class IIOPAddress
                 // give up
             }
         }
-        
+
         return result;
-        
+
     }
-    
+
     /**
      * Iterate over all network interfaces and addresses to find
      * an IPv6 address that is neither link-local nor loopback.
      * If one is found, return it.  If not, return null.
      */
-    private static Inet6Address getGoodIPv6Address() 
+    private static Inet6Address getGoodIPv6Address()
     {
         Inet6Address result = null;
         try
         {
-            for (NetworkInterface ni : 
+            for (NetworkInterface ni :
                  Collections.list(NetworkInterface.getNetworkInterfaces()))
             {
                 for (InetAddress ia :
                      Collections.list(ni.getInetAddresses()))
-                {     
+                {
                     if (ia instanceof Inet6Address
                         && !(ia.isLinkLocalAddress()
                              || ia.isLoopbackAddress()))
@@ -517,5 +491,5 @@ public class IIOPAddress
         }
         return result;
     }
-    
+
 }
