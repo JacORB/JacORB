@@ -119,6 +119,7 @@ using BUILD_NUMBER:   ${BuildNo}
       <delete file="${lib}/jacorb.jar" failonerror="false"/>
       <delete file="${lib}/jacorb-services.jar" failonerror="false"/>
       <jar jarfile="${lib}/jacorb.jar"
+           index="true"
            basedir="${classdir}"
            includes="org/jacorb/**,org/omg/**"
            excludes="org/jacorb/idl/**,
@@ -161,6 +162,7 @@ using BUILD_NUMBER:   ${BuildNo}
          </manifest>
       </jar>
       <jar jarfile="${lib}/jacorb-services.jar"
+           index="true"
            basedir="${classdir}"
            includes="org/jacorb/concurrency/**,
                      org/jacorb/collection/**,
@@ -197,6 +199,15 @@ using BUILD_NUMBER:   ${BuildNo}
            <attribute name="Implementation-URL" value="www.jacorb.org"/>
            <attribute name="Class-Path" value="antlr-2.7.2.jar picocontainer-1.2.jar jacorb.jar"/>
          </manifest>
+      </jar>
+      <jar jarfile="${lib}/jacorb-sources.jar">
+          <fileset dir="${src}/generated"/>
+          <fileset dir="${src}" excludes="generated/**,java_mapping/**,omg-03-01-02/**"/>
+          <manifest>
+              <attribute name="Implementation-Version" value="${JVERSION} ${jacorb_version_info}" />
+              <attribute name="Implementation-Title" value="JacORB"/>
+              <attribute name="Implementation-URL" value="www.jacorb.org"/>
+          </manifest>
       </jar>
    </target>
 
@@ -359,7 +370,7 @@ using BUILD_NUMBER:   ${BuildNo}
 
     <target name="realclean" depends="clean" description="Clean the checkout including generated jars">
         <delete failonerror="false" >
-            <fileset dir="lib/" includes="jacorb.jar, idl.jar"/>
+            <fileset dir="lib/" includes="jacorb.jar, idl.jar, jacorb-sources.jar, jacorb-services.jar"/>
         </delete >
     </target>
 
