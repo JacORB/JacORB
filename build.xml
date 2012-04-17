@@ -105,6 +105,14 @@ using VERSION_INFO: ${jacorb_version_info}
            />
    </target>
 
+   <target name="sources-jar" depends="init">
+       <delete file="${lib}/jacorb-sources.jar" failonerror="false"/>
+       <jar jarfile="${lib}/jacorb-sources.jar" index="true">
+           <fileset dir="${src}/generated"/>
+           <fileset dir="${src}" excludes="generated/**,java_mapping/**,omg-02-01-02/**"/>
+       </jar>
+   </target>
+
    <target name="scripts" depends="init" description="Generate the scripts">
 
         <loadfile   srcFile="bin/resolve_jacorb_home.tok"
