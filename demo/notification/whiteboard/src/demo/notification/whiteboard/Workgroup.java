@@ -28,8 +28,7 @@ import org.omg.CosNotifyFilter.Filter;
 import org.omg.CosNotifyFilter.FilterFactory;
 import org.omg.PortableServer.*;
 
-import org.apache.log.Hierarchy;
-import org.apache.log.Logger;
+import org.slf4j.Logger;
 
 /**
  * @author Alphonse Bendt
@@ -38,8 +37,6 @@ import org.apache.log.Logger;
 
 public class Workgroup
     extends IWorkgroupPOA implements WorkgroupController, WhiteboardVars {
-
-    Logger logger_ = Hierarchy.getDefaultHierarchy().getLoggerFor(getClass().getName());
 
     protected ORB orb_;
     protected POA poa_;
@@ -116,7 +113,6 @@ public class Workgroup
     }
 
     public void selectWhiteboard(String name) {
-        logger_.info("join " + name);
 
         // Referenz auf WhiteBoard holen
         whiteboard_ = factory_.getCreateWhiteboard(name);
@@ -151,7 +147,6 @@ public class Workgroup
             workgroupFrame_.setCurrentBoardText(name);
             workgroupFrame_.setLeaveMenuItem(true);
 
-            logger_.debug("imagelistener connected successful");
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -271,9 +266,6 @@ class TotalImageHandler extends StructuredPushConsumerPOA implements WhiteboardV
     StructuredPushConsumer thisRef_;
     WorkgroupController control_;
 
-    Logger logger_ =
-        Hierarchy.getDefaultHierarchy().getLoggerFor("fetch_total_image");
-
     Filter filter_;
     int filterId_;
 
@@ -333,9 +325,6 @@ class LineHandler extends StructuredPushConsumerPOA implements WhiteboardVars {
     WorkgroupController control_;
     StructuredPushConsumer ref_;
 
-    Logger logger_ =
-        Hierarchy.getDefaultHierarchy().getLoggerFor("UpdateHandler");
-
     Filter filter_;
 
     LineHandler(WorkgroupController control) {
@@ -394,7 +383,6 @@ class ClearHandler extends StructuredPushConsumerPOA implements WhiteboardVars {
     StructuredProxyPushSupplier mySupplier_;
     WorkgroupController control_;
     StructuredPushConsumer thisRef_;
-    Logger logger_ = Hierarchy.getDefaultHierarchy().getLoggerFor("ClearHandler");
     Filter myFilter_;
 
     ClearHandler(WorkgroupController control) {
@@ -450,7 +438,7 @@ class ImageHandler extends StructuredPushSupplierPOA implements WhiteboardVars, 
     Thread thisThread_;
 
     List queue_ = new ArrayList();
-    Logger logger_ = Hierarchy.getDefaultHierarchy().getLoggerFor("ImageHandler");
+
     WorkgroupController control_;
 
     public void run() {
@@ -545,7 +533,6 @@ class ImageHandler extends StructuredPushSupplierPOA implements WhiteboardVars, 
 
         WhiteboardUpdate _update = new WhiteboardUpdate();
         _update.clear(true);
-        logger_.debug("clear()");
 
         synchronized(queue_) {
             queue_.add(_update);

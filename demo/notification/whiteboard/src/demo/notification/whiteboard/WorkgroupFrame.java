@@ -11,17 +11,12 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import org.apache.log.Hierarchy;
-import org.apache.log.Logger;
-
 /**
  * @author Alphonse Bendt
  * @version $Id$
  */
 
 public class WorkgroupFrame extends Frame implements IWorkgroupFrame {
-
-    Logger logger_ = Hierarchy.getDefaultHierarchy().getLoggerFor("WorkgroupFrame");
 
     BrushSizeDrawCanvas drawCanvas_;
     SelectDialog dialog;
@@ -57,8 +52,6 @@ public class WorkgroupFrame extends Frame implements IWorkgroupFrame {
     /** Initializes the Form */
     public WorkgroupFrame(WorkgroupController wg, String name) {
         super(name);
-
-	logger_.debug("init");
 
         controller_ = wg;
 
@@ -232,4 +225,3 @@ public class WorkgroupFrame extends Frame implements IWorkgroupFrame {
     private java.awt.MenuItem select,exit,activateGhost,leaveMenuItem_;
     private java.awt.TextField currentBoard;
 }
-
