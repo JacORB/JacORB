@@ -408,7 +408,6 @@ public class UnionType
                 if (!(allCaseLabels.contains(qualifiedCaseLabel)))
                 {
                     // Set default value to first unused case label
-
                     if (defaultStr.length () == 0)
                     {
                         defaultStr = qualifiedCaseLabel;
@@ -1331,17 +1330,20 @@ public class UnionType
     {
         super.set_name(n);
 
-        if (switch_type_spec != null)
+        boolean setpkg = (switch_type_spec != null && !(switch_type_spec.typeSpec() instanceof ScopedName));
+
+        // Don't override the package if this is a scopedname.
+        if (setpkg)
         {
             switch_type_spec.setPackage( n );
         }
 
-        if (switch_body != null)
+        // As per above.
+        if (switch_body != null && setpkg)
         {
             switch_body.setPackage( n );
         }
     }
-
 
     private abstract class UnionIterator
     {

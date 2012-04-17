@@ -44,6 +44,8 @@ This Release
         - Fix for backwards compatibility with stubs and reply_status.
         - Fix for configuration caching issue.
         - Fix for IPv6 socket creation.
+    - IDL:
+        - Fix for union IDL compilation.
     - Misc:
         - Include org.omg.TimeBase in jacorb.jar
 

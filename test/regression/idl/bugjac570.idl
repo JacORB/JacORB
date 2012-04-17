@@ -12,10 +12,28 @@ module org
                     {
                         case white: long f1;
                     };
+
+                    enum UpdateType {line, clear, data};
+
+                    typedef sequence<string> SeqOfString;
+                    typedef sequence<long> ImageData;
+                    typedef long WorkgroupIdentifier;
+
+                    struct LineData {
+                        long x0,y0,x1,y1,red,green,blue,brushSize;
+                    };
+
+                    union WhiteboardUpdate switch (UpdateType) {
+                        case line:
+                        LineData line;
+                        case clear:
+                        boolean clear;
+                        case data:
+                        ImageData image;
+                    };
+
                 };
             };
         };
     };
 };
-
-            
