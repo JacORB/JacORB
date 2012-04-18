@@ -28,7 +28,7 @@ import org.omg.CORBA.TypeCode;
  * @author Alphonse Bendt
  * @version $Id$
  */
-public class JDK15TypeCodeCompactor extends AbstractTypeCodeCompactor
+public class TypeCodeCompactorImpl extends AbstractTypeCodeCompactor
 {
     protected Map newCache()
     {

@@ -27,7 +27,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * @author Alphonse Bendt
  * @version $Id$
  */
-public class JDK15TypeCodeCache extends AbstractTypeCodeCache
+public class TypeCodeCacheImpl extends AbstractTypeCodeCache
 {
     protected Map newCache()
     {

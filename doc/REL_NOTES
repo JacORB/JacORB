@@ -48,6 +48,7 @@ This Release
         - Fix for union IDL compilation.
     - Misc:
         - Include org.omg.TimeBase in jacorb.jar
+        - Rename JDK15TypeCode* to TypeCode*Impl
 
 3.0 beta 2
 ==========

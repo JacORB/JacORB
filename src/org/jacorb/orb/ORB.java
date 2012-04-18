@@ -332,8 +332,11 @@ public final class ORB
 
         if (cacheTypeCodes)
         {
-            typeCodeCache = (TypeCodeCache) configuration.getAttributeAsObject("jacorb.cacheTypecodes.class", "org.jacorb.orb.typecode.JDK15TypeCodeCache");
-            logger.info("enabled TypeCodeCache: "  + typeCodeCache.getClass().getName());
+            typeCodeCache = (TypeCodeCache) configuration.getAttributeAsObject("jacorb.cacheTypecodes.class", "org.jacorb.orb.typecode.TypeCodeCacheImpl");
+            if ( logger.isDebugEnabled() )
+            {
+                logger.debug("enabled TypeCodeCache: "  + typeCodeCache.getClass().getName());
+            }
         }
         else
         {
@@ -344,8 +347,11 @@ public final class ORB
 
         if (compactTypeCodes)
         {
-            typeCodeCompactor = (TypeCodeCompactor) configuration.getAttributeAsObject("jacorb.compactTypecodes.class", "org.jacorb.orb.typecode.JDK15TypeCodeCompactor");
-            logger.info("enabled TypeCodeCompactor: " + typeCodeCompactor.getClass().getName());
+            typeCodeCompactor = (TypeCodeCompactor) configuration.getAttributeAsObject("jacorb.compactTypecodes.class", "org.jacorb.orb.typecode.TypeCodeCompactorImpl");
+            if ( logger.isDebugEnabled() )
+            {
+                logger.debug("enabled TypeCodeCompactor: " + typeCodeCompactor.getClass().getName());
+            }
         }
         else
         {
