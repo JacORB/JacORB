@@ -1,3 +1,4 @@
 idl.jar
-jacorb.jar
 jacorb-services.jar
+jacorb-sources.jar
+jacorb.jar
