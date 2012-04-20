@@ -37,8 +37,8 @@
    H I S T O R Y      O F     C H A N G E S
  -------------------------------------------
 
-This Release
-============
+3.0 RC 1
+========
     - ORB:
         - Fix for interceptors & exception propagation.
         - Fix for backwards compatibility with stubs and reply_status.
