@@ -1,14 +1,12 @@
 <?xml version="1.0"?>
 
-<!DOCTYPE project [ <!ENTITY common SYSTEM "../../../../../etc/common.xml"> ]>
-
 <project name="tracing" default="all" basedir="../../../../..">
 
     <!-- ==================================================== -->
     <!--             Tracing build file                       -->
     <!-- ==================================================== -->
 
-   &common;
+   <import file="../../../../../etc/common.xml"/>
 
    <target name="all" depends="init,load-taskdef,idl">
       <jacorb-javac javac-src="${src}/generated" 

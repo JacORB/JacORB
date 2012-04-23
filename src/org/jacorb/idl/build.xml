@@ -1,13 +1,11 @@
 <?xml version="1.0"?>
 
-<!DOCTYPE project [ <!ENTITY common SYSTEM "../../../../etc/common.xml"> ]>
-
 <project name="idl" default="all" basedir="../../../..">
 
     <!-- TODO generate parser to src/generated -->
     <!-- add a target to patch the version number -->
 
-   &common;
+   <import file="../../../../etc/common.xml"/>
 
    <target name="all" depends="init, check, parser" >
       <!-- This replace is safety addition so if parser.cup has been -->

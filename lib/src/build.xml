@@ -1,10 +1,8 @@
 <?xml version="1.0"?>
 
-<!DOCTYPE project [ <!ENTITY common SYSTEM "../../etc/common.xml"> ]>
-
 <project name="libs" default="all" basedir="../..">
 
-	&common;
+    <import file="../../etc/common.xml"/>
 
 	<property name="dir.picocontainer" value="${basedir}/../picocontainer" />
 	<property name="dir.nanocontainer-remoting" value="${basedir}/../nanocontainer-remoting" />

@@ -1,46 +1,51 @@
-<property name="dir.xdoclet" value="${basedir}/lib/build" />
+<?xml version="1.0"?>
 
-<path id="path.xdoclet" >
+<project name="common-xdoclet">
+
+    <property name="dir.xdoclet" value="${basedir}/lib/build" />
+
+    <path id="path.xdoclet" >
   	<fileset dir="${dir.xdoclet}" >
-		<include name="*.jar" />
+            <include name="*.jar" />
 	</fileset>
 
 	<pathelement location="${basedir}/classes"/>
 	<pathelement location="${basedir}/lib/slf4j-api-1.6.4.jar"/>
-</path>
+    </path>
 
-<target name="xdoclet.init-jmx" depends="init" >
+    <target name="xdoclet.init-jmx" depends="init" >
 
 	<taskdef name="jmxdoclet" classname="xdoclet.modules.jmx.JMXDocletTask">
-   		<classpath refid="path.xdoclet"/>
+            <classpath refid="path.xdoclet"/>
 	</taskdef>
 
 	<macrodef name="jacorb-jmxgen" >
-		<attribute name="destdir" default="${src}/generated" />
-		<attribute name="srcdir" default="${src}" />
-		<element name="files" />
-		<element name="tasks" />
+            <attribute name="destdir" default="${src}/generated" />
+            <attribute name="srcdir" default="${src}" />
+            <element name="files" />
+            <element name="tasks" />
 
-		<sequential>
-			<jmxdoclet destdir="@{destdir}" force="false" verbose="false" excludedtags="author, version">
-	    			<fileset dir="@{srcdir}">
-	         		<files />
-	      		</fileset>
+            <sequential>
+                <jmxdoclet destdir="@{destdir}" force="false" verbose="false" excludedtags="author, version">
+                    <fileset dir="@{srcdir}">
+                        <files />
+                    </fileset>
 
-	      		<tasks />
+                    <tasks />
 
-	      		<!-- Generate the mlet file -->
-      	  		<!--
-      	  			<mlet destinationFile="mbeans.mlet" destdir="${basedir}/conf"/>
-	   			-->
-	   		</jmxdoclet>
-		</sequential>
+                    <!-- Generate the mlet file -->
+                    <!--
+                        <mlet destinationFile="mbeans.mlet" destdir="${basedir}/conf"/>
+                    -->
+                </jmxdoclet>
+            </sequential>
 	</macrodef>
-</target>
+    </target>
 
 
-<target name="xdoclet.init-xdoclet" >
+    <target name="xdoclet.init-xdoclet" >
 	<taskdef name="xdoclet" classname="xdoclet.DocletTask">
-		<classpath refid="path.xdoclet" />
+            <classpath refid="path.xdoclet" />
 	</taskdef>
-</target>
+    </target>
+</project>

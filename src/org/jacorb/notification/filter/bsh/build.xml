@@ -1,9 +1,5 @@
 <?xml version="1.0"?>
 
-<!DOCTYPE project [
-  <!ENTITY common SYSTEM "../../../../../../etc/common.xml">
-]>
-
 <project name="JacORB Notify BSH Filter Plugin" default="all" basedir="../../../../../..">
 
 	<!-- ============================================================== -->
@@ -11,11 +7,11 @@
 	<!-- $Id$ -->
 	<!-- ============================================================== -->
 
-  &common;
+  <import file="../../../../../../etc/common.xml"/>
 
   <property name="current.package" value="org/jacorb/notification/filter/bsh" />
 
-	
+
 
 	<target name="local.init" depends="init">
 		<condition property="available.bsh" value="true">

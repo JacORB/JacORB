@@ -1,11 +1,5 @@
 <?xml version="1.0"?>
 
-<!DOCTYPE project [
-  <!ENTITY common  SYSTEM "../../../../etc/common.xml" >
-  <!ENTITY xdoclet SYSTEM "../../../../etc/common-xdoclet.xml" >
-  <!ENTITY jmx     SYSTEM "../../../../etc/common-jmx.xml" >
-]>
-
 <project name="notification" default="all" basedir="../../../..">
 
 	<!-- ============================================================= -->
@@ -13,9 +7,9 @@
 	<!-- $Id$ -->
 	<!-- ============================================================= -->
 
-  	&common;
-  	&xdoclet;
-	&jmx;
+        <import file="../../../../etc/common.xml"/>
+        <import file="../../../../etc/common-jmx.xml"/>
+        <import file="../../../../etc/common-xdoclet.xml"/>
 
   	<property name="dir.notification" value="${basedir}/src/org/jacorb/notification" />
 

@@ -1,7 +1,5 @@
 <?xml version="1.0"?>
 
-<!DOCTYPE project [ <!ENTITY common SYSTEM "../../etc/common.xml"> ]>
-
 <project name="regression-test" default="run-all" basedir="../../">
 
     <property name="jacorb.home" value="${basedir}" />
@@ -17,7 +15,7 @@
     <!--             JacORB Tests build file                  -->
     <!-- ==================================================== -->
 
-   &common;
+   <import file="../../etc/common.xml"/>
 
    <!-- Using test-base-init so we can set different src, class and idl directories -->
     <target name="test-base-init">

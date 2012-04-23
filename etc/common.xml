@@ -1,164 +1,168 @@
+<?xml version="1.0"?>
 
-<!-- This is a common initialization file for JacORB     -->
-<!--                                                     -->
-<!-- This should not be called directly; instead it      -->
-<!-- should be included with '&common;' syntax.          -->
+<project name="common">
 
-<target name="base-init" unless="BASE-INIT">
-   <property name="dirs.base" value="${basedir}"/>
-   <property name="src" value="${dirs.base}/src"/>
-   <property name="src.generated" value="${src}/generated" />
-   <property name="lib" value="${dirs.base}/lib"/>
-   <property name="idl" value="${dirs.base}/idl"/>
-</target>
+    <!-- This is a common initialization file for JacORB     -->
+    <!--                                                     -->
+    <!-- This should not be called directly; instead it      -->
+    <!-- should be included with '&common;' syntax.          -->
+
+    <target name="base-init" unless="BASE-INIT">
+        <property name="dirs.base" value="${basedir}"/>
+        <property name="src" value="${dirs.base}/src"/>
+        <property name="src.generated" value="${src}/generated" />
+        <property name="lib" value="${dirs.base}/lib"/>
+        <property name="idl" value="${dirs.base}/idl"/>
+    </target>
 
 
-<target name="init-properties">
-   <property name="debug" value="true"/>
+    <target name="init-properties">
+        <property name="debug" value="true"/>
 
-   <property name="debuglevel" value="vars,lines,source"/>
+        <property name="debuglevel" value="vars,lines,source"/>
 
-   <!-- Location of the compiled classes -->
-   <property name="classdir" value="${dirs.base}/classes" />
+        <!-- Location of the compiled classes -->
+        <property name="classdir" value="${dirs.base}/classes" />
 
-   <condition property="java-source-version" value="1.6">
-      <available classname="java.util.Deque"/>
-   </condition>
-   <property name="java-source-version" value="1.5"/>
-</target>
+        <condition property="java-source-version" value="1.6">
+            <available classname="java.util.Deque"/>
+        </condition>
+        <property name="java-source-version" value="1.5"/>
+    </target>
 
-<target name="init-path">
-   <path id="path.base" >
-      <pathelement location="${basedir}/classes"/>
+    <target name="init-path">
+        <path id="path.base" >
+            <pathelement location="${basedir}/classes"/>
 
-      <!-- include all jars located in lib except the jacorb.jar -->
-      <fileset dir="${basedir}/lib" >
-         <include name="*.jar" />
-         <exclude name="jacorb.jar" />
-         <exclude name="idl.jar" />
-      </fileset>
-   </path>
+            <!-- include all jars located in lib except the jacorb.jar -->
+            <fileset dir="${basedir}/lib" >
+                <include name="*.jar" />
+                <exclude name="jacorb.jar" />
+                <exclude name="idl.jar" />
+            </fileset>
+        </path>
 
-   <path id="sourcepath.base">
-      <pathelement location="${src.generated}" />
-      <pathelement location="${src}" />
-   </path>
-</target>
+        <path id="sourcepath.base">
+            <pathelement location="${src.generated}" />
+            <pathelement location="${src}" />
+        </path>
+    </target>
 
-<target name="init-javac-common">
-   <!-- = = = = = = = = = = = = = = = = =
-      macrodef: jacorb-javac
-      = = = = = = = = = = = = = = = = = -->
+    <target name="init-javac-common">
+        <!-- = = = = = = = = = = = = = = = = =
+             macrodef: jacorb-javac
+             = = = = = = = = = = = = = = = = = -->
 
-   <!-- Set the property xlint to "-Xlint -Xlint:-serial -Xlint:-deprecation" to see -->
-   <!-- compile warnings -->
-   <property name="xlint" value=""/>
+        <!-- Set the property xlint to "-Xlint -Xlint:-serial -Xlint:-deprecation" to see -->
+        <!-- compile warnings -->
+        <property name="xlint" value=""/>
 
-   <macrodef name="jacorb-javac-common">
-      <attribute name="javac-includes" />
-      <attribute name="javac-encoding" default="ISO-8859-1" />
-      <attribute name="javac-excludes" default="" />
-      <attribute name="javac-src" default="${src}" />
-      <attribute name="javac-sourcepath" default="sourcepath.base" />
-      <attribute name="javac-classpathref" default="path.base" />
-      <attribute name="javac-xlint" default="${xlint}"/>
-      <attribute name="javac-antruntime" default="false"/>
-      <attribute name="target-info" />
-      <element name="javac-bootclasspath" optional="true" />
+        <macrodef name="jacorb-javac-common">
+            <attribute name="javac-includes" />
+            <attribute name="javac-encoding" default="ISO-8859-1" />
+            <attribute name="javac-excludes" default="" />
+            <attribute name="javac-src" default="${src}" />
+            <attribute name="javac-sourcepath" default="sourcepath.base" />
+            <attribute name="javac-classpathref" default="path.base" />
+            <attribute name="javac-xlint" default="${xlint}"/>
+            <attribute name="javac-antruntime" default="false"/>
+            <attribute name="target-info" />
+            <element name="javac-bootclasspath" optional="true" />
 
-      <sequential>
-         <echo message="Compiling project ${ant.project.name}. Target: @{target-info}"/>
+            <sequential>
+                <echo message="Compiling project ${ant.project.name}. Target: @{target-info}"/>
 
-         <mkdir dir="${classdir}"/>
-         <javac srcdir="@{javac-src}"
-                encoding="@{javac-encoding}"
-                destdir="${classdir}"
-                debug="${debug}"
-                classpathref="@{javac-classpathref}"
-                debuglevel="${debuglevel}"
-                sourcepathref="@{javac-sourcepath}"
-                includes="@{javac-includes}"
-                excludes="@{javac-excludes}"
-                source="${java-source-version}"
-                target="${java-source-version}"
-                includeAntRuntime="@{javac-antruntime}">
-            <src path="${src.generated}" />
-            <src path="@{javac-src}" />
-            <compilerarg line="@{javac-xlint}"/>
-            <javac-bootclasspath />
-         </javac>
-      </sequential>
-   </macrodef>
-</target>
+                <mkdir dir="${classdir}"/>
+                <javac srcdir="@{javac-src}"
+                       encoding="@{javac-encoding}"
+                       destdir="${classdir}"
+                       debug="${debug}"
+                       classpathref="@{javac-classpathref}"
+                       debuglevel="${debuglevel}"
+                       sourcepathref="@{javac-sourcepath}"
+                       includes="@{javac-includes}"
+                       excludes="@{javac-excludes}"
+                       source="${java-source-version}"
+                       target="${java-source-version}"
+                       includeAntRuntime="@{javac-antruntime}">
+                    <src path="${src.generated}" />
+                    <src path="@{javac-src}" />
+                    <compilerarg line="@{javac-xlint}"/>
+                    <javac-bootclasspath />
+                </javac>
+            </sequential>
+        </macrodef>
+    </target>
 
-<target name="init-javac-jdk" unless="dir.j2me">
+    <target name="init-javac-jdk" unless="dir.j2me">
 
-    <path id="bootclasspath">
-        <path path="${sun.boot.class.path}" />
-    </path>
+        <path id="bootclasspath">
+            <path path="${sun.boot.class.path}" />
+        </path>
 
-    <presetdef name="jacorb-javac">
-        <jacorb-javac-common target-info="JDK (${java-source-version}+)">
-            <javac-bootclasspath>
-                <bootclasspath>
-                   <pathelement path="${basedir}/classes"/>
-                   <path refid="bootclasspath"/>
-                </bootclasspath>
-            </javac-bootclasspath>
-        </jacorb-javac-common>
-    </presetdef>
-</target>
+        <presetdef name="jacorb-javac">
+            <jacorb-javac-common target-info="JDK (${java-source-version}+)">
+                <javac-bootclasspath>
+                    <bootclasspath>
+                        <pathelement path="${basedir}/classes"/>
+                        <path refid="bootclasspath"/>
+                    </bootclasspath>
+                </javac-bootclasspath>
+            </jacorb-javac-common>
+        </presetdef>
+    </target>
 
-<target name="init-javac-j2me" if="dir.j2me">
-    <echo message="detected J2ME in ${dir.j2me}" />
+    <target name="init-javac-j2me" if="dir.j2me">
+        <echo message="detected J2ME in ${dir.j2me}" />
 
-    <path id="bootclasspath">
-        <pathelement path="${basedir}/classes"/>
-        <fileset dir="${dir.j2me}">
-            <include name="lib/btclasses.zip" />
-            <include name="lib/**/*.jar" />
-        </fileset>
-    </path>
+        <path id="bootclasspath">
+            <pathelement path="${basedir}/classes"/>
+            <fileset dir="${dir.j2me}">
+                <include name="lib/btclasses.zip" />
+                <include name="lib/**/*.jar" />
+            </fileset>
+        </path>
 
-    <presetdef name="jacorb-javac">
-        <jacorb-javac-common target-info="J2ME (FP 1.1.2)" >
-            <javac-bootclasspath>
-                <bootclasspath>
-                    <path refid="bootclasspath" />
-                </bootclasspath>
-            </javac-bootclasspath>
-        </jacorb-javac-common>
-    </presetdef>
-</target>
+        <presetdef name="jacorb-javac">
+            <jacorb-javac-common target-info="J2ME (FP 1.1.2)" >
+                <javac-bootclasspath>
+                    <bootclasspath>
+                        <path refid="bootclasspath" />
+                    </bootclasspath>
+                </javac-bootclasspath>
+            </jacorb-javac-common>
+        </presetdef>
+    </target>
 
-<!-- Call base-init first. The regression tests call this but -->
-<!-- have their own base-init                                 -->
-<target name="init" depends="base-init, init-properties, init-path, init-javac-common, init-javac-jdk, init-javac-j2me" />
-<target name="whats-my-classpath" depends="init"
-        description="Outputs the classpath that will be used for compilation of JacORB">
-   <pathconvert property="_classpath" refid="path.base" pathsep="${line.separator}" />
-   <echo message="Classpath:${line.separator}${_classpath}"/>
-   <echo />
-   <pathconvert property="_sourcepath" refid="sourcepath.base" pathsep="${line.separator}" />
-   <echo message="Sourcepath:${line.separator}${_sourcepath}" />
-   <echo />
-   <pathconvert property="_bootclasspath" refid="bootclasspath" pathsep="${line.separator}" />
-   <echo message="Bootclasspath:${line.separator}${_bootclasspath}" />
-</target>
+    <!-- Call base-init first. The regression tests call this but -->
+    <!-- have their own base-init                                 -->
+    <target name="init" depends="base-init, init-properties, init-path, init-javac-common, init-javac-jdk, init-javac-j2me" />
+    <target name="whats-my-classpath" depends="init"
+            description="Outputs the classpath that will be used for compilation of JacORB">
+        <pathconvert property="_classpath" refid="path.base" pathsep="${line.separator}" />
+        <echo message="Classpath:${line.separator}${_classpath}"/>
+        <echo />
+        <pathconvert property="_sourcepath" refid="sourcepath.base" pathsep="${line.separator}" />
+        <echo message="Sourcepath:${line.separator}${_sourcepath}" />
+        <echo />
+        <pathconvert property="_bootclasspath" refid="bootclasspath" pathsep="${line.separator}" />
+        <echo message="Bootclasspath:${line.separator}${_bootclasspath}" />
+    </target>
 
-<target name="load-taskdef" depends="init">
-   <taskdef name="jacidl" classname="org.jacorb.idl.JacIDL" classpathref="path.base"/>
-</target>
+    <target name="load-taskdef" depends="init">
+        <taskdef name="jacidl" classname="org.jacorb.idl.JacIDL" classpathref="path.base"/>
+    </target>
 
-<target name="visualize-ant-dependencies" description="run Grand to visualize the ant target dependencies" >
-   <available file="${basedir}/lib/build/grand.jar" property="available.grand" />
-   <fail unless="available.grand" message="Download grand.jar from http://www.ggtools.net/grand/ and put it into ${basedir}/lib/build" />
-   <typedef resource="net/ggtools/grand/antlib.xml" classpath="${basedir}/lib/build/grand.jar" />
-   <mkdir dir="${basedir}/build" />
-   <grand output="${basedir}/build/${ant.project.name}-ant.dot" />
-   <echo message="wrote ${basedir}/build/${ant.project.name}-ant.dot" />
-</target>
+    <target name="visualize-ant-dependencies" description="run Grand to visualize the ant target dependencies" >
+        <available file="${basedir}/lib/build/grand.jar" property="available.grand" />
+        <fail unless="available.grand" message="Download grand.jar from http://www.ggtools.net/grand/ and put it into ${basedir}/lib/build" />
+        <typedef resource="net/ggtools/grand/antlib.xml" classpath="${basedir}/lib/build/grand.jar" />
+        <mkdir dir="${basedir}/build" />
+        <grand output="${basedir}/build/${ant.project.name}-ant.dot" />
+        <echo message="wrote ${basedir}/build/${ant.project.name}-ant.dot" />
+    </target>
 
-<target name="j2me:verify">
-    <fail unless="dir.j2me" message="you need to specify the location of your J2ME installation by setting the property dir.j2me (-Ddir.j2me=...)" />
-</target>
+    <target name="j2me:verify">
+        <fail unless="dir.j2me" message="you need to specify the location of your J2ME installation by setting the property dir.j2me (-Ddir.j2me=...)" />
+    </target>
+</project>

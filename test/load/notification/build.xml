@@ -1,12 +1,10 @@
 <?xml version="1.0"?>
 
-<!DOCTYPE project [
-  <!ENTITY common SYSTEM "../../../etc/common.xml">
 ]>
 
 <project name="notification-load" default="all" basedir="../../..">
 
-	&common;
+	<import file="../../../etc/common.xml"/>
 		
 	<property name="dir.base" value="${basedir}/test/load/notification" />
 	<property name="dir.work" value="${dir.base}/work" />

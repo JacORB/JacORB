@@ -1,14 +1,12 @@
 <?xml version="1.0"?>
 
-<!DOCTYPE project [ <!ENTITY common SYSTEM "../../../etc/common.xml"> ]>
-
 <project name="test" default="all" basedir="../../../">
 
   <!-- ==================================================== -->
   <!--             Demo build file                         -->
   <!-- ==================================================== -->
 
-    &common;
+    <import file="../../../etc/common.xml"/>
 
    <target name="sas.init">
 	<property name="name" value="sas"/>

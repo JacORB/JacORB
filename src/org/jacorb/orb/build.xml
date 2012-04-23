@@ -1,7 +1,5 @@
 <?xml version="1.0"?>
 
-<!DOCTYPE project [ <!ENTITY common SYSTEM "../../../../etc/common.xml"> ]>
-
 <project name="orb" default="all" basedir="../../../..">
 
   <!-- ==================================================== -->
@@ -10,7 +8,7 @@
   <!-- $Id$ -->
   <!-- ==================================================== -->
 
-   &common;
+   <import file="../../../../etc/common.xml"/>
 
    <target name="all" depends="init, compile, stdInterceptors" description="Compile the ORB files"/>
 

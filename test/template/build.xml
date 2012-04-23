@@ -1,14 +1,12 @@
 <?xml version="1.0"?>
 
-<!DOCTYPE project [ <!ENTITY common SYSTEM "../../common.xml"> ]>
-
 <project name="demo" default="all" basedir="../..">
 
   <!-- ==================================================== -->
   <!--                  Test build file                     -->
   <!-- ==================================================== -->
 
-  &common;
+  <import file="../../common.xml"/>
 
    <target name="local_init">
        <property name="name" value="XYZ"/>

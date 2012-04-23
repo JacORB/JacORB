@@ -1,15 +1,10 @@
 <?xml version="1.0"?>
 
-<!DOCTYPE project [
-  <!ENTITY common  SYSTEM "../../../../../../etc/common.xml">
-  <!ENTITY jmx     SYSTEM "../../../../../../etc/common-jmx.xml">
-]>
-
 <!-- $Id$ -->
 <project name="jboss-cosnotification" default="sar" basedir="../../../../../..">
 
-	&common;
-	&jmx;
+        <import file="../../../../../../etc/common.xml"/>
+        <import file="../../../../../../etc/common-jmx.xml"/>
 
 	<target name="init.local" depends="init, jmx.init">
 		<property name="pkg.project" value="org/jacorb/notification/jmx" />

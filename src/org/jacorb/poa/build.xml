@@ -1,14 +1,12 @@
 <?xml version="1.0"?>
 
-<!DOCTYPE project [ <!ENTITY common SYSTEM "../../../../etc/common.xml"> ]>
-
 <project name="poa" default="all" basedir="../../../..">
 
   <!-- ==================================================== -->
   <!-- $Id$ -->
   <!-- ==================================================== -->
 
-   &common;
+   <import file="../../../../etc/common.xml"/>
 
 
    <target name="check-swing">
