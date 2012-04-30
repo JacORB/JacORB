@@ -68,7 +68,7 @@ using BUILD_NUMBER:   ${BuildNo}
    <!--                   IDL compiler                       -->
    <!-- ==================================================== -->
 
-   <target name="compiler" depends="init,idlsrc,idllib"/>
+   <target name="compiler" depends="init,version-gen,idlsrc,idllib"/>
 
 
    <!-- package idl.jar -->
