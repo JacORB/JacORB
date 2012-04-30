@@ -117,11 +117,11 @@
     </target>
 
     <target name="compile-interop">
-        <ant antfile="${basedir}/test/interop/build.xml" target="compile" inheritall="false" />
+        <ant antfile="${basedir}/test/interop/build.xml" target="compile" inheritall="false" useNativeBasedir="true"/>
     </target>
 
     <target name="clean-interop">
-        <ant antfile="${basedir}/test/interop/build.xml" target="clean" inheritall="false" />
+        <ant antfile="${basedir}/test/interop/build.xml" target="clean" inheritall="false" useNativeBasedir="true"/>
     </target>
 
     <!-- run the tests -->
