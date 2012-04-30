@@ -217,7 +217,7 @@ public class JacIDL
     /**
      * Setter for 'nofinal' property that indicates whether generated code should have
      * a final class definition.
-     * @param nofinal <code>true</true> for definitions that are not final.
+     * @param flag <code>true</true> for definitions that are not final.
      */
     public void setNofinal(boolean flag)
     {
@@ -316,7 +316,7 @@ public class JacIDL
 
         /**
          * Handle the equivalent of -i2jpackagefile argument to parser.java
-         * @param file the file which contains packagefrom:packageto lines
+         * @param pkgfile the file which contains packagefrom:packageto lines
          */
         public void setFile(File pkgfile)
         {
