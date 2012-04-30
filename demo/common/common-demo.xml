@@ -44,6 +44,7 @@
     </target>
 
     <target name="idl" depends="idl.taskdef">
+        <mkdir dir="${idl.dir}"/>
         <jacidl srcdir="${idl.dir}" destdir="${gen.dir}" includes="*.idl" helpercompat="jacorb"
     	   includepath="${jacorb.dir}/idl/omg" />
     </target>
@@ -51,7 +52,7 @@
     <target name="compile" depends="idl" >
         <mkdir dir="${classes.dir}"/>
 
-        <javac destdir="${classes.dir}" debug="true">
+        <javac destdir="${classes.dir}" debug="true" includeantruntime="false">
             <src path="${src.dir}" />
             <src path="${gen.dir}" />
             <classpath refid="jacorb.classpath" />
