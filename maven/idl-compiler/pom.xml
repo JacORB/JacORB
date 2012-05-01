@@ -1,0 +1,126 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
+                             http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>org.jacorb</groupId>
+        <artifactId>jacorb-parent</artifactId>
+        <version>3.0-SNAPSHOT</version>
+        <relativePath>../..</relativePath>
+    </parent>
+
+    <artifactId>idl-compiler</artifactId>
+    <packaging>jar</packaging>
+
+    <name>JacORB IDL Compiler</name>
+    <description>JacORB IDL Compiler</description>
+    <url>http://www.jacorb.org</url>
+
+
+    <build>
+        <plugins>
+            <plugin>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <executions>
+                    <!-- Normally we would just unzip the idl jar for the jar-plugin to repack. However, as the IDL -->
+                    <!-- compilation is quick we'll ensure we can rebuild it here -->
+                    <execution>
+                        <id>compile</id>
+                        <phase>compile</phase>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                        <configuration>
+                            <target>
+                                <property name="plugin_classpath" refid="maven.plugin.classpath"/>
+                                <ant antfile="${env.JACORB_DIR}/build.xml" inheritAll="true" inheritRefs="true" target="compiler">
+                                    <property name="sun.boot.class.path" value="${sun.boot.class.path}:${plugin_classpath}"/>
+                                    <property name="basedir" value="${env.JACORB_DIR}"/>
+                                </ant>
+                            </target>
+                        </configuration>
+                    </execution>
+                    <!-- Unpack the Ant produced jar file to where the maven build expects the classes -->
+                    <execution>
+                        <phase>compile</phase>
+                        <configuration>
+                            <target>
+                                <unzip src="${env.JACORB_DIR}/lib/idl.jar" dest="${project.build.outputDirectory}"/>
+                            </target>
+                        </configuration>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <!-- Use my manifest -->
+            <plugin>
+                <artifactId>maven-jar-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>default-jar</id>
+                        <configuration>
+                        <archive>
+                            <manifestFile>${project.build.outputDirectory}/META-INF/MANIFEST.MF</manifestFile>
+                        </archive>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <!-- Generate javadoc. Bound into the package phase for deployment purposes -->
+            <plugin>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <configuration>
+                    <skip>${skipJavadoc}</skip>
+                    <verbose>true</verbose>
+                    <sourcepath>${env.JACORB_DIR}/src</sourcepath>
+                    <subpackages>org.jacorb.idl</subpackages>
+                </configuration>
+            </plugin>
+
+
+            <!-- Package up the sources as well -->
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>build-helper-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>attach-sources</id>
+                        <phase>prepare-package</phase>
+                        <goals>
+                            <goal>add-source</goal>
+                        </goals>
+                        <configuration>
+                            <sources>
+                                <source>${env.JACORB_DIR}/src</source>
+                            </sources>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <artifactId>maven-source-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>attach-sources</id>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <includes>
+                        <include>org/jacorb/idl/*</include>
+                    </includes>
+                </configuration>
+            </plugin>
+
+        </plugins>
+    </build>
+</project>

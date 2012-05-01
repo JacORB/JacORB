@@ -1,0 +1,160 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
+                             http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>org.jacorb</groupId>
+        <artifactId>jacorb-parent</artifactId>
+        <version>3.0-SNAPSHOT</version>
+        <relativePath>../..</relativePath>
+    </parent>
+
+    <artifactId>jacorb</artifactId>
+    <packaging>jar</packaging>
+
+    <name>JacORB Core</name>
+    <description>JacORB Core code</description>
+    <url>http://www.jacorb.org</url>
+
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>test</id>
+                        <phase>test</phase>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                        <configuration>
+                            <target unless="skipTests">
+                                <property name="plugin_classpath" refid="maven.plugin.classpath"/>
+                                <ant antfile="${env.JACORB_DIR}/test/regression/build.xml" inheritAll="true" inheritRefs="true" >
+                                    <property name="sun.boot.class.path" value="${sun.boot.class.path}:${plugin_classpath}"/>
+                                    <property name="basedir" value="${env.JACORB_DIR}"/>
+                                    <target name="clean"/>
+                                    <target name="run-all"/>
+                                </ant>
+                            </target>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <phase>compile</phase>
+                        <configuration>
+                            <target>
+                                <unzip src="${env.JACORB_DIR}/lib/jacorb.jar" dest="${project.build.outputDirectory}"/>
+                            </target>
+                        </configuration>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                    </execution>
+
+                </executions>
+            </plugin>
+
+
+            <!-- Use my manifest -->
+            <plugin>
+                <artifactId>maven-jar-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>default-jar</id>
+                        <configuration>
+                        <archive>
+                            <manifestFile>${project.build.outputDirectory}/META-INF/MANIFEST.MF</manifestFile>
+                        </archive>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+
+            <!-- Generate javadoc. Bound into the package phase for deployment purposes -->
+            <plugin>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <configuration>
+                    <skip>${skipJavadoc}</skip>
+                    <verbose>true</verbose>
+                    <sourcepath>${env.JACORB_DIR}/src:${env.JACORB_DIR}/src/generated</sourcepath>
+                    <subpackages>org.omg:org.jacorb</subpackages>
+                    <excludePackageNames>org.jacorb.concurrency:org.jacorb.collection:org.jacorb.dds:org.jacorb.events:org.jacorb.notification:org.jacorb.transaction:org.omg.BridgeTransactionMgmt:org.omg.CosBridgeAdmin:org.omg.CosCollection:org.omg.CosConcurrencyControl:org.omg.CosEventChannelAdmin:org.omg.CosEventComm:org.omg.CosNotification:org.omg.CosNotifyChannelAdmin:org.omg.CosNotifyChannelAdminAck:org.omg.CosNotifyComm:org.omg.CosNotifyCommAck:org.omg.CosNotifyFilter:org.omg.CosTime:org.omg.CosTrading:org.omg.CosTransactions:org.omg.CosTypedEventChannelAdmin:org.omg.CosTypedEventComm:org.omg.CosTypedEventNotifyComm:org.omg.CosTypedEventNotifyChannelAdmin:org.omg.CosTypedNotifyChannelAdmin:org.omg.CosTypedNotifyComm:org.omg.dds</excludePackageNames>
+                </configuration>
+            </plugin>
+
+
+            <!-- Package up the sources as well -->
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>build-helper-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>attach-sources</id>
+                        <phase>prepare-package</phase>
+                        <goals>
+                            <goal>add-source</goal>
+                        </goals>
+                        <configuration>
+                            <sources>
+                                <source>${env.JACORB_DIR}/src</source>
+                                <source>${env.JACORB_DIR}/src/generated</source>
+                            </sources>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <artifactId>maven-source-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>attach-sources</id>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <includes>
+                        <include>org/omg/**</include>
+                        <include>org/jacorb/**</include>
+                    </includes>
+                    <excludes>
+                        <exclude>org/jacorb/concurrency/**</exclude>
+                        <exclude>org/jacorb/collection/**</exclude>
+                        <exclude>org/jacorb/dds/**</exclude>
+                        <exclude>org/jacorb/events/**</exclude>
+                        <exclude>org/jacorb/notification/**</exclude>
+                        <exclude>org/jacorb/transaction/**</exclude>
+                        <exclude>org/omg/BridgeTransactionMgmt/**</exclude>
+                        <exclude>org/omg/CosBridgeAdmin/**</exclude>
+                        <exclude>org/omg/CosCollection/**</exclude>
+                        <exclude>org/omg/CosConcurrencyControl/**</exclude>
+                        <exclude>org/omg/CosEventChannelAdmin/**</exclude>
+                        <exclude>org/omg/CosEventComm/**</exclude>
+                        <exclude>org/omg/CosNotification/**</exclude>
+                        <exclude>org/omg/CosNotifyChannelAdmin/**</exclude>
+                        <exclude>org/omg/CosNotifyChannelAdminAck/**</exclude>
+                        <exclude>org/omg/CosNotifyComm/**</exclude>
+                        <exclude>org/omg/CosNotifyCommAck/**</exclude>
+                        <exclude>org/omg/CosNotifyFilter/**</exclude>
+                        <exclude>org/omg/CosTime/**</exclude>
+                        <exclude>org/omg/CosTrading/**</exclude>
+                        <exclude>org/omg/CosTransactions/**</exclude>
+                        <exclude>org/omg/CosTypedEventChannelAdmin/**</exclude>
+                        <exclude>org/omg/CosTypedEventComm/**</exclude>
+                        <exclude>org/omg/CosTypedEventNotifyComm/**</exclude>
+                        <exclude>org/omg/CosTypedEventNotifyChannelAdmin/**</exclude>
+                        <exclude>org/omg/CosTypedNotifyChannelAdmin/**</exclude>
+                        <exclude>org/omg/CosTypedNotifyComm/**</exclude>
+                        <exclude>org/omg/dds</exclude>
+                   </excludes>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+</project>
