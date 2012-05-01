@@ -36,7 +36,7 @@
    </target>
 
    <target name="all"
-      depends="local-init,orb,portableserver,messaging,giop,iop,rtcorba,ftcorba,interceptor,dynany,miop,etf,iiop,conf,services,notification,security,mapping,patches"
+      depends="local-init,orb,portableserver,messaging,giop,iop,rtcorba,ftcorba,interceptor,dynany,miop,etf,iiop,conf,sendingctx,services,notification,security,mapping,patches"
        description="Compile all the IDL">
 
       <idl-javac javac-includes="**" />
@@ -149,7 +149,7 @@
       <!-- for both GIOP 1.0 / 1.1 and GIOP 1.2 get generated -->
       <idl-jacidl-omg includes="GIOP.idl" >
          <define key="_JACORB_DEFINES_" value=""/>
-         <define key="_PRE_3_0_COMPILER_" value=""/>
+          <define key="_PRE_3_0_COMPILER_" value=""/>
          <define key="JACORB" value=""/>
       </idl-jacidl-omg>
       <idl-jacidl-omg includes="GIOP.idl" >
@@ -202,6 +202,12 @@
    <target name="conf">
       <idl-jacidl-omg includes="CONV_FRAME.idl"/>
    </target>
+
+   <target name="sendingctx">
+      <idl-jacidl-omg includes="SendingContext.idl">
+         <define key="JACORB" value=""/>
+      </idl-jacidl-omg>
+  </target>
 
 
    <!-- ==================================================== -->
