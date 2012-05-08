@@ -50,6 +50,7 @@
          Fix issue with classloaders and servants (jacorb-2.3.1-use-servant-tccl-JBPAPP-6462.patch)
          Fix for configuration of outputstreams.
          Fix for IPv6 socket creation.
+         Add ability to handle LocateRequest and send back OBJECT_FORWARD replies.
     - POA
          Fix shutdown issue (jacorb-2.3.1-CORBA_OBJECT_NOT_EXIST.patch)
          Fix for AOM thread creation (jacorb-2.3.1-thread-per-request.patch)
