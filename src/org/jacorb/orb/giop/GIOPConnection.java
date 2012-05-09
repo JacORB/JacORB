@@ -985,9 +985,7 @@ public abstract class GIOPConnection
         {
             incPendingMessages();
         }
-
-        RequestOutputStream ros      = (RequestOutputStream)out;
-        sendMessage( out, ros.getReplyEndTime() );
+        sendMessage( out, (out instanceof RequestOutputStream ? ((RequestOutputStream)out).getReplyEndTime() : null ));
     }
 
     public final void sendReply( MessageOutputStream out )
@@ -1017,7 +1015,7 @@ public abstract class GIOPConnection
                 {
                     logger.debug ("GIOPConnection.sendMessage timeout (millis): " + timeout);
                 }
-		
+
                 if (!getWriteLock(timeout))
                 {
                     throw new TIMEOUT("Failed to acquire transport lock in " + timeout + " ms");

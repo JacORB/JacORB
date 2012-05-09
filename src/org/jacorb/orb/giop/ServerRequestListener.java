@@ -21,6 +21,7 @@ package org.jacorb.orb.giop;
  */
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 import org.jacorb.config.Configurable;
 import org.jacorb.config.Configuration;
@@ -51,6 +52,7 @@ public class ServerRequestListener
 
     /** the configuration object  */
     private Logger logger = null;
+
     private boolean require_ssl = false;
 
     public ServerRequestListener( ORB orb,
@@ -198,6 +200,46 @@ public class ServerRequestListener
                     logger.warn("unexpected exception during requestReceived", e);
                 }
             }
+
+            return;
+        }
+
+        if (inputStream.isLocateRequest() &&
+            ( ! Arrays.equals (server_request.objectKey(), org.jacorb.orb.ParsedIOR.extractObjectKey(inputStream.req_hdr.target, orb))))
+        {
+            org.omg.CORBA.Object fwd = orb.getReference
+            (
+                orb.getRootPOA(),
+                server_request.objectKey(),
+                null,
+                true
+            );
+
+            if (logger.isDebugEnabled ())
+            {
+                logger.debug ("Sending locate reply with object forward to " + orb.object_to_string(fwd));
+            }
+
+            LocateReplyOutputStream lr_out = new LocateReplyOutputStream
+            (
+                orb,
+                inputStream.req_hdr.request_id,
+                LocateStatusType_1_2._OBJECT_FORWARD,
+                inputStream.getGIOPMinor()
+            );
+
+            lr_out.write_Object(fwd);
+
+            try
+            {
+                connection.sendReply( lr_out );
+            }
+            catch( IOException e )
+            {
+                logger.warn("IOException",e);
+            }
+
+            fwd._release();
 
             return;
         }
