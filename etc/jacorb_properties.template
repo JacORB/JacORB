@@ -281,13 +281,20 @@ jacorb.connection.client.connect_timeout=90000
 # Enable the use of non-blocking I/O (NIO) for IIOP based transport.
 #jacorb.connection.nonblocking=off
 
-#jacorb.reference_caching=off
+# Set an upper bound for multiple write attempts triggered by a timeout.
+# This helps mitigate the loss of pending messages due to momentary network
+# saturation, when a close/reopen of a socket would actually cause even 
+# more network congestion.
+#jacorb.nio.maxConsecutiveTimeouts=0
 
 # Sets a timeout on the (SSL) server socket. This is a workaround for JDK 1.3
 # on linux where a thread blocked on accept() isn't notified when closing that
 # socket. See Java bug #4344135. NOTE: This is only useful in conjunction with
 # the SI&C SSL socket factories.
 #jacorb.listener.server_socket_timeout=0
+
+# Cache known references in the ORB, to make re-acquisition more efficient
+#jacorb.reference_caching=off
 
 #
 # The following property specifies the class which is used for
