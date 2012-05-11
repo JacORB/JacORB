@@ -343,8 +343,9 @@ public final class Delegate
             logger.error ("Configuration exception retrieving max builtin retries", ex);
             throw new INTERNAL ("Configuration exception retrieving max builtin retries" + ex);
         }
-        disconnectAfterNonRecoverableSystemException =
-            config.getAttributeAsBoolean("jacorb.delegate.disconnect_after_systemexception", false);
+        disconnectAfterNonRecoverableSystemException = config.getAttributeAsBoolean
+            ("jacorb.delegate.disconnect_after_systemexception", true);
+
         disableClientOrbPolicies = config.getAttributeAsBoolean("jacorb.disableClientOrbPolicies", false);
         try
         {
@@ -1441,7 +1442,7 @@ public final class Delegate
             return;
         }
 
-        if (!disconnectAfterNonRecoverableSystemException)
+        if (disconnectAfterNonRecoverableSystemException)
         {
             return;
         }

@@ -697,8 +697,8 @@ public final class ORB
     {
         if (cacheReferences)
         {
-        knownReferences.remove( iorString );
-    }
+            knownReferences.remove( iorString );
+        }
     }
 
 
