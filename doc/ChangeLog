@@ -1,4 +1,134 @@
-2012-04-18 13:30  Nick Cross <nick.cross@prismtech.com>/<jacorb@goots.org>
+2012-05-11 13:13  Nick Cross <jacorb@goots.org>
+
+	* doc/REL_NOTES (1.264):
+
+	Update change notes for locate requests, pom changes,
+	documentation, demo compilation, and SendingContext IDL
+
+2012-05-11 12:33  Nick Cross <jacorb@goots.org>
+
+	* pom.xml (1.2), maven/core/pom.xml (1.2),
+	maven/idl-compiler/pom.xml (1.2), maven/services/pom.xml (1.2):
+
+	Inherit from Sonatype OSS Parent POM for deployment purposes. Add
+	GPG signing in profile. Update to use build-migration-maven-plugin.
+	Use JACORB_HOME instead of JACORB_DIR.
+
+2012-05-11 11:43  Nick Cross <jacorb@goots.org>
+
+	* src/org/jacorb/orb/: Delegate.java (1.190), ORB.java (1.213):
+
+	Update disconnectAfterNonRecoverableSystemException code to be more
+	logical. Default remains the same. Update test to work with updated
+	code.
+
+2012-05-11 11:41  Nick Cross <jacorb@goots.org>
+
+	* doc/ProgrammingGuide/ProgrammingGuide.pdf (1.82),
+	doc/ProgrammingGuide/Configuration/configuration.tex (1.84),
+	etc/jacorb_properties.template (1.93):
+
+	Add documentation
+
+2012-05-10 14:55  Phil Mesnier <phil.mesnier@ociweb.com>
+
+	* etc/jacorb_properties.template (1.92):
+
+	added comment about maxConsecutiveTimeouts option
+
+2012-05-09 08:38  Nick Cross <jacorb@goots.org>
+
+	* src/org/jacorb/orb/giop/: GIOPConnection.java (1.95),
+	ServerRequestListener.java (1.41):
+
+	Fix issue with handling Locate Requests and add ability to transmit
+	OBJECT_FORWARD on receiving a Locate Request with short object key.
+
+2012-05-01 16:47  Nick Cross <jacorb@goots.org>
+
+	* pom.xml (1.1), maven/core/pom.xml (1.1),
+	maven/idl-compiler/pom.xml (1.1), maven/release/pom.xml (1.1),
+	maven/release/src/main/assembly/binary.zip.xml (1.1),
+	maven/release/src/main/assembly/common.xml (1.1),
+	maven/release/src/main/assembly/source.zip.xml (1.1),
+	maven/services/pom.xml (1.1):
+
+	Bugzilla 919 - Add Maven POM wrapper
+
+2012-05-01 11:21  Nick Cross <jacorb@goots.org>
+
+	* idl/: build.xml (1.68), omg/SendingContext.idl (1.3):
+
+	Add SendingContext IDL
+
+2012-04-30 22:13  Nick Cross <jacorb@goots.org>
+
+	* demo/common/common-demo.xml (1.3):
+
+	Fix demo compilation issue and build warning
+
+2012-04-30 22:12  Nick Cross <jacorb@goots.org>
+
+	* build.xml (1.102):
+
+	Run version-gen from compiler as well to avoid generation problem
+	from clean build
+
+2012-04-30 10:11  Nick Cross <jacorb@goots.org>
+
+	* src/org/jacorb/idl/JacIDL.java (1.37):
+
+	Minor javadoc corrections
+
+2012-04-23 13:29  Nick Cross <jacorb@goots.org>
+
+	* build.xml (1.101), etc/common-jmx.xml (1.3),
+	etc/common-xdoclet.xml (1.7), etc/common.xml (1.31), idl/build.xml
+	(1.67), lib/src/build.xml (1.6), src/org/jacorb/build.xml (1.41),
+	src/org/jacorb/collection/build.xml (1.10),
+	src/org/jacorb/concurrency/build.xml (1.10),
+	src/org/jacorb/config/build.xml (1.5), src/org/jacorb/dds/build.xml
+	(1.4), src/org/jacorb/events/build.xml (1.14),
+	src/org/jacorb/idl/build.xml (1.23), src/org/jacorb/imr/build.xml
+	(1.15), src/org/jacorb/ir/build.xml (1.11),
+	src/org/jacorb/naming/build.xml (1.9),
+	src/org/jacorb/notification/build.xml (1.46),
+	src/org/jacorb/notification/filter/bsh/build.xml (1.6),
+	src/org/jacorb/notification/jmx/jboss/build.xml (1.13),
+	src/org/jacorb/orb/build.xml (1.35),
+	src/org/jacorb/orb/portableInterceptor/build.xml (1.10),
+	src/org/jacorb/orb/standardInterceptors/build.xml (1.13),
+	src/org/jacorb/poa/build.xml (1.12),
+	src/org/jacorb/security/build.xml (1.22),
+	src/org/jacorb/security/sas/build.xml (1.12),
+	src/org/jacorb/security/ssl/build.xml (1.12),
+	src/org/jacorb/security/ssl/sun_jsse/build.xml (1.13),
+	src/org/jacorb/transaction/build.xml (1.10),
+	src/org/jacorb/transport/build.xml (1.4),
+	src/org/jacorb/util/build.xml (1.11),
+	src/org/jacorb/util/tracing/build.xml (1.13):
+
+	Remove entity includes and use Ant import instead.
+
+2012-04-20 23:02  Nick Cross <jacorb@goots.org>
+
+	* doc/ChangeLog (1.1), src/org/jacorb/ChangeLog (1.147):
+
+	Move changelogs to doc & test/regression and regenerate for 3.0RC1.
+
+2012-04-20 09:41  Nick Cross <jacorb@goots.org>
+
+	* doc/REL_NOTES (1.263):
+
+	Update to 3.0 RC1
+
+2012-04-20 09:35  Nick Cross <jacorb@goots.org>
+
+	* src/org/jacorb/util/Version.java (1.42):
+
+	Update version to RC1
+
+2012-04-18 13:30  Nick Cross <jacorb@goots.org>
 
 	* doc/REL_NOTES (1.262), src/org/jacorb/orb/ORB.java (1.212),
 	src/org/jacorb/orb/typecode/JDK15TypeCodeCache.java (1.2),
@@ -8,25 +138,25 @@
 
 	Rename JDK15TypeCode* to TypeCode*Impl
 
-2012-04-18 13:29  Nick Cross <nick.cross@prismtech.com>/<jacorb@goots.org>
+2012-04-18 13:29  Nick Cross <jacorb@goots.org>
 
 	* lib/.cvsignore (1.3):
 
 	Ignore sources jar
 
-2012-04-17 15:49  Nick Cross <nick.cross@prismtech.com>/<jacorb@goots.org>
+2012-04-17 15:49  Nick Cross <jacorb@goots.org>
 
 	* build.xml (1.100):
 
 	Also create sources.jar and add to clean tasks
 
-2012-04-17 14:14  Nick Cross <nick.cross@prismtech.com>/<jacorb@goots.org>
+2012-04-17 14:14  Nick Cross <jacorb@goots.org>
 
 	* doc/ProgrammingGuide/ProgrammingGuide.pdf (1.81):
 
 	Regenerate guide
 
-2012-04-17 14:14  Nick Cross <nick.cross@prismtech.com>/<jacorb@goots.org>
+2012-04-17 14:14  Nick Cross <jacorb@goots.org>
 
 	* demo/notification/whiteboard/src/demo/notification/:
 	whiteboard/BrushSizeDrawCanvas.java (1.1),
@@ -54,50 +184,50 @@
 
 	Fix packaging misspelling
 
-2012-04-17 14:13  Nick Cross <nick.cross@prismtech.com>/<jacorb@goots.org>
+2012-04-17 14:13  Nick Cross <jacorb@goots.org>
 
 	* doc/REL_NOTES (1.261), src/org/jacorb/idl/UnionType.java (1.86):
 
 	Add union idl compiler fix
 
-2012-04-15 13:46  Nick Cross <nick.cross@prismtech.com>/<jacorb@goots.org>
+2012-04-15 13:46  Nick Cross <jacorb@goots.org>
 
 	* doc/REL_NOTES (1.260), src/org/jacorb/orb/iiop/IIOPAddress.java
 	(1.26):
 
 	Fix IPv6 socket creation with zoneIDs
 
-2012-04-13 22:11  Nick Cross <nick.cross@prismtech.com>/<jacorb@goots.org>
+2012-04-13 22:11  Nick Cross <jacorb@goots.org>
 
 	* doc/REL_NOTES (1.259):
 
 	Add note on minimum JDK
 
-2012-04-13 22:11  Nick Cross <nick.cross@prismtech.com>/<jacorb@goots.org>
+2012-04-13 22:11  Nick Cross <jacorb@goots.org>
 
 	* src/org/jacorb/orb/Delegate.java (1.189):
 
 	Add QoS to preserve historical is_local/interceptor behaviour
 
-2012-03-30 15:55  Nick Cross <nick.cross@prismtech.com>/<jacorb@goots.org>
+2012-03-30 15:55  Nick Cross <jacorb@goots.org>
 
 	* doc/REL_NOTES (1.258):
 
 	Include TimeBase in main jar
 
-2012-03-30 08:44  Nick Cross <nick.cross@prismtech.com>/<jacorb@goots.org>
+2012-03-30 08:44  Nick Cross <jacorb@goots.org>
 
 	* build.xml (1.99):
 
 	Include TimeBase in main jar
 
-2012-03-29 20:05  Nick Cross <nick.cross@prismtech.com>/<jacorb@goots.org>
+2012-03-29 20:05  Nick Cross <jacorb@goots.org>
 
 	* src/org/jacorb/orb/: ORB.java (1.211), util/PrintIOR.java (1.62):
 
 	Don't create cdrstreams with null orbs
 
-2012-03-29 20:04  Nick Cross <nick.cross@prismtech.com>/<jacorb@goots.org>
+2012-03-29 20:04  Nick Cross <jacorb@goots.org>
 
 	* doc/REL_NOTES (1.257),
 	src/org/jacorb/config/JacORBConfiguration.java (1.52):
@@ -110,7 +240,7 @@
 
 	Fix for improper use of a recursive mutex lock.
 
-2012-03-23 16:13  Nick Cross <nick.cross@prismtech.com>/<jacorb@goots.org>
+2012-03-23 16:13  Nick Cross <jacorb@goots.org>
 
 	* src/org/jacorb/: config/JacORBLogFormatter.java (1.8),
 	orb/EncapsInfo.java (1.18), orb/ExceptionHolderImpl.java (1.26),
@@ -127,7 +257,7 @@
 
 	FindBugs & PMD Fixes
 
-2012-03-23 16:02  Nick Cross <nick.cross@prismtech.com>/<jacorb@goots.org>
+2012-03-23 16:02  Nick Cross <jacorb@goots.org>
 
 	* doc/REL_NOTES (1.256),
 	src/org/jacorb/orb/portableInterceptor/RequestInfoImpl.java (1.18),
@@ -136,19 +266,19 @@
 
 	Add fix for backwards compatibility with stubs/reply_status
 
-2012-03-22 13:56  Nick Cross <nick.cross@prismtech.com>/<jacorb@goots.org>
+2012-03-22 13:56  Nick Cross <jacorb@goots.org>
 
 	* doc/REL_NOTES (1.255), src/org/jacorb/orb/Delegate.java (1.188):
 
 	Fix for interceptors & exception propagation
 
-2012-03-21 09:52  Nick Cross <nick.cross@prismtech.com>/<jacorb@goots.org>
+2012-03-21 09:52  Nick Cross <jacorb@goots.org>
 
 	* src/org/jacorb/orb/Delegate.java (1.187):
 
 	Whitespace only change
 
-2012-03-08 21:34  Nick Cross <nick.cross@prismtech.com>/<jacorb@goots.org>
+2012-03-08 21:34  Nick Cross <jacorb@goots.org>
 
 	* doc/REL_NOTES (1.254), src/org/jacorb/util/Version.java (1.41):
 
@@ -161,7 +291,7 @@
 	Refactored SelectorManager to make use of java concurrency API.
 	Modified tests accordingly
 
-2012-02-20 14:32  Nick Cross <nick.cross@prismtech.com>/<jacorb@goots.org>
+2012-02-20 14:32  Nick Cross <jacorb@goots.org>
 
 	* doc/REL_NOTES (1.253), doc/ProgrammingGuide/ProgrammingGuide.pdf
 	(1.80), doc/ProgrammingGuide/Configuration/configuration.tex
@@ -171,20 +301,20 @@
 
 	Add useServantClassLoader QoS
 
-2012-02-20 14:15  Nick Cross <nick.cross@prismtech.com>/<jacorb@goots.org>
+2012-02-20 14:15  Nick Cross <jacorb@goots.org>
 
 	* doc/ProgrammingGuide/: ProgrammingGuide.pdf (1.79),
 	GettingStarted/gettingstarted.tex (1.7):
 
 	Update getting started to match grid demo code
 
-2012-02-20 12:17  Nick Cross <nick.cross@prismtech.com>/<jacorb@goots.org>
+2012-02-20 12:17  Nick Cross <jacorb@goots.org>
 
 	* doc/install.html (1.14):
 
 	Add information on supported platforms and change base JDK to 1.6
 
-2012-02-20 12:17  Nick Cross <nick.cross@prismtech.com>/<jacorb@goots.org>
+2012-02-20 12:17  Nick Cross <jacorb@goots.org>
 
 	* doc/ProgrammingGuide/: ProgrammingGuide.pdf (1.78),
 	Configuration/configuration.tex (1.82),
@@ -222,44 +352,44 @@
 
 	Fix typo in TIMEOUT exception message
 
-2012-02-09 10:12  Nick Cross <nick.cross@prismtech.com>/<jacorb@goots.org>
+2012-02-09 10:12  Nick Cross <jacorb@goots.org>
 
 	* src/org/jacorb/idl/build.xml (1.22):
 
 	Override antruntime jar inclusion
 
-2012-02-09 10:12  Nick Cross <nick.cross@prismtech.com>/<jacorb@goots.org>
+2012-02-09 10:12  Nick Cross <jacorb@goots.org>
 
 	* etc/common.xml (1.30):
 
 	Fix some compile warnings.
 
-2012-02-09 09:54  Nick Cross <nick.cross@prismtech.com>/<jacorb@goots.org>
+2012-02-09 09:54  Nick Cross <jacorb@goots.org>
 
 	* doc/REL_NOTES (1.251):
 
 	Update relnotes
 
-2012-02-08 16:24  Nick Cross <nick.cross@prismtech.com>/<jacorb@goots.org>
+2012-02-08 16:24  Nick Cross <jacorb@goots.org>
 
 	* doc/ProgrammingGuide/: ProgrammingGuide.pdf (1.77),
 	Configuration/configuration.tex (1.80):
 
 	Add reply group documentation and some minor reformatting.
 
-2012-02-08 16:08  Nick Cross <nick.cross@prismtech.com>/<jacorb@goots.org>
+2012-02-08 16:08  Nick Cross <jacorb@goots.org>
 
 	* src/org/jacorb/poa/RPPoolManager.java (1.32):
 
 	Fix poa.threadpool timeout calculation
 
-2012-02-08 16:02  Nick Cross <nick.cross@prismtech.com>/<jacorb@goots.org>
+2012-02-08 16:02  Nick Cross <jacorb@goots.org>
 
 	* doc/REL_NOTES (1.250), src/org/jacorb/poa/POA.java (1.84):
 
 	Fix for possible nullptr in poa destroy
 
-2012-02-07 22:40  Nick Cross <nick.cross@prismtech.com>/<jacorb@goots.org>
+2012-02-07 22:40  Nick Cross <jacorb@goots.org>
 
 	* doc/REL_NOTES (1.249),
 	doc/ProgrammingGuide/Configuration/configuration.tex (1.79),
@@ -270,13 +400,13 @@
 
 	Add poa.poolthread timeout
 
-2012-02-07 21:59  Nick Cross <nick.cross@prismtech.com>/<jacorb@goots.org>
+2012-02-07 21:59  Nick Cross <jacorb@goots.org>
 
 	* build.xml (1.98):
 
 	Fixes for jar packaging
 
-2012-02-07 14:04  Nick Cross <nick.cross@prismtech.com>/<jacorb@goots.org>
+2012-02-07 14:04  Nick Cross <jacorb@goots.org>
 
 	* src/org/jacorb/orb/CDRInputStream.java (1.144):
 
@@ -284,14 +414,14 @@
 	throwing an exception when reading the response from Glassfish.
 	Patch from Red Hat.
 
-2012-02-06 13:28  Nick Cross <nick.cross@prismtech.com>/<jacorb@goots.org>
+2012-02-06 13:28  Nick Cross <jacorb@goots.org>
 
 	* doc/ProgrammingGuide/: ProgrammingGuide.pdf (1.76),
 	ProgrammingGuide.tex (1.27), Introduction/Introduction.tex (1.13):
 
 	Update author contributor list.
 
-2012-01-26 09:15  Nick Cross <nick.cross@prismtech.com>/<jacorb@goots.org>
+2012-01-26 09:15  Nick Cross <jacorb@goots.org>
 
 	* doc/REL_NOTES (1.248), src/org/jacorb/idl/AliasTypeSpec.java
 	(1.63), src/org/jacorb/idl/EnumType.java (1.49),
@@ -302,7 +432,7 @@
 
 	Change lazy holder pattern to double checked locking.
 
-2012-01-16 15:14  Nick Cross <nick.cross@prismtech.com>/<jacorb@goots.org>
+2012-01-16 15:14  Nick Cross <jacorb@goots.org>
 
 	* src/org/jacorb/security/sas/: GSSUPContextSpi.java (1.14),
 	build.xml (1.11):
@@ -317,7 +447,7 @@
 	Removed unused files that were colliding with active files on
 	case-insensive filesystems.
 
-2012-01-06 16:08  Nick Cross <nick.cross@prismtech.com>/<jacorb@goots.org>
+2012-01-06 16:08  Nick Cross <jacorb@goots.org>
 
 	* build.xml (1.97):
 
@@ -347,7 +477,7 @@
 
 	Clean up message or comment typos
 
-2011-12-16 16:23  Nick Cross <nick.cross@prismtech.com>/<jacorb@goots.org>
+2011-12-16 16:23  Nick Cross <jacorb@goots.org>
 
 	* src/org/jacorb/orb/ORB.java (1.210):
 
@@ -366,7 +496,7 @@
 	(addNetworkAddresses): Rewritten to also add IPv6 addresses.
 	Second part of patch for #881.
 
-2011-12-14 22:52  Nick Cross <nick.cross@prismtech.com>/<jacorb@goots.org>
+2011-12-14 22:52  Nick Cross <jacorb@goots.org>
 
 	* doc/REL_NOTES (1.247), doc/ProgrammingGuide/ProgrammingGuide.pdf
 	(1.75), doc/ProgrammingGuide/Configuration/configuration.tex
@@ -379,13 +509,13 @@
 	Improve code in jacorbconfiguration to use generics. Use
 	ORBSingleton.init in jdklogginginitializer.
 
-2011-12-14 22:49  Nick Cross <nick.cross@prismtech.com>/<jacorb@goots.org>
+2011-12-14 22:49  Nick Cross <jacorb@goots.org>
 
 	* src/org/jacorb/ir/TypeCodeUtil.java (1.22):
 
 	Replace ORB.init by ORBSingleton.init
 
-2011-12-14 08:45  Nick Cross <nick.cross@prismtech.com>/<jacorb@goots.org>
+2011-12-14 08:45  Nick Cross <jacorb@goots.org>
 
 	* doc/REL_NOTES (1.246), etc/jacorb_properties.template (1.88),
 	src/org/jacorb/orb/CDRInputStream.java (1.142),
@@ -394,7 +524,7 @@
 
 	BZ888 Add implementation of valueinput/output stream
 
-2011-12-13 09:59  Nick Cross <nick.cross@prismtech.com>/<jacorb@goots.org>
+2011-12-13 09:59  Nick Cross <jacorb@goots.org>
 
 	* doc/REL_NOTES (1.245), doc/ProgrammingGuide/ProgrammingGuide.pdf
 	(1.74), doc/ProgrammingGuide/Classloader/classloader.tex (1.3),
@@ -422,25 +552,25 @@
 
 	Refactor singleton use to workaround JDK clash
 
-2011-12-11 09:35  Nick Cross <nick.cross@prismtech.com>/<jacorb@goots.org>
+2011-12-11 09:35  Nick Cross <jacorb@goots.org>
 
 	* src/org/jacorb/orb/ParsedIOR.java (1.96):
 
 	Add createObjectIOR methods
 
-2011-12-11 09:34  Nick Cross <nick.cross@prismtech.com>/<jacorb@goots.org>
+2011-12-11 09:34  Nick Cross <jacorb@goots.org>
 
 	* src/org/jacorb/idl/Interface.java (1.92):
 
 	Fix for generating create_local_interface_tc/Interface.java
 
-2011-12-09 15:14  Nick Cross <nick.cross@prismtech.com>/<jacorb@goots.org>
+2011-12-09 15:14  Nick Cross <jacorb@goots.org>
 
 	* build.xml (1.96):
 
 	Minor projecthelp description fix
 
-2011-12-09 15:12  Nick Cross <nick.cross@prismtech.com>/<jacorb@goots.org>
+2011-12-09 15:12  Nick Cross <jacorb@goots.org>
 
 	* doc/REL_NOTES (1.244), src/org/jacorb/idl/Interface.java (1.91),
 	src/org/jacorb/orb/ParsedIOR.java (1.95):
@@ -448,20 +578,20 @@
 	Add createObjectIOR methods and fix for generating
 	create_local_interface_tc/Interface.java
 
-2011-12-09 09:28  Nick Cross <nick.cross@prismtech.com>/<jacorb@goots.org>
+2011-12-09 09:28  Nick Cross <jacorb@goots.org>
 
 	* src/java_mapping/CORBA/portable/: ValueInputStream.java (1.1),
 	ValueOutputStream.java (1.1):
 
 	Add Value[Input/Output]Stream implementations.
 
-2011-12-06 09:26  Nick Cross <nick.cross@prismtech.com>/<jacorb@goots.org>
+2011-12-06 09:26  Nick Cross <jacorb@goots.org>
 
 	* doc/REL_NOTES (1.243), idl/omg/IOP.idl (1.11):
 
 	Fix for compiling IOP idl
 
-2011-12-05 21:51  Nick Cross <nick.cross@prismtech.com>/<jacorb@goots.org>
+2011-12-05 21:51  Nick Cross <jacorb@goots.org>
 
 	* etc/common.xml (1.29):
 
@@ -477,7 +607,7 @@
 	Added ImR_SSD as NT service support to help deploying IMR on
 	windows systems.
 
-2011-12-01 21:51  Nick Cross <nick.cross@prismtech.com>/<jacorb@goots.org>
+2011-12-01 21:51  Nick Cross <jacorb@goots.org>
 
 	* doc/: REL_NOTES (1.241), ProgrammingGuide/ProgrammingGuide.pdf
 	(1.73), ProgrammingGuide/Configuration/configuration.tex (1.76),
@@ -487,13 +617,13 @@
 	Add release notes. Mention CORBA version JacORB is coded against.
 	Tidy and reformat configuration guide.
 
-2011-12-01 21:46  Nick Cross <nick.cross@prismtech.com>/<jacorb@goots.org>
+2011-12-01 21:46  Nick Cross <jacorb@goots.org>
 
 	* build.xml (1.95):
 
 	Minor fix for whitespace
 
-2011-12-01 21:44  Nick Cross <nick.cross@prismtech.com>/<jacorb@goots.org>
+2011-12-01 21:44  Nick Cross <jacorb@goots.org>
 
 	* src/org/jacorb/orb/giop/CodeSet.java (1.33):
 
@@ -531,7 +661,7 @@
 	Fix for loading the required Topic-specific classes when
 	constructing data readers, writers, and related objects.
 
-2011-11-28 21:23  Nick Cross <nick.cross@prismtech.com>/<jacorb@goots.org>
+2011-11-28 21:23  Nick Cross <jacorb@goots.org>
 
 	* idl/build.xml (1.66):
 
@@ -585,32 +715,32 @@
 	methods that implement the algorithm suggested in bug #881.
 	(init_host): Use them.
 
-2011-11-26 13:54  Nick Cross <nick.cross@prismtech.com>/<jacorb@goots.org>
+2011-11-26 13:54  Nick Cross <jacorb@goots.org>
 
 	* doc/ProgrammingGuide/: ProgrammingGuide.pdf (1.72),
 	ProgrammingGuide.tex (1.26):
 
 	Add Alexander Bykov to list of authors
 
-2011-11-26 13:53  Nick Cross <nick.cross@prismtech.com>/<jacorb@goots.org>
+2011-11-26 13:53  Nick Cross <jacorb@goots.org>
 
 	* build.xml (1.94), src/org/jacorb/idl/parser.cup (1.123):
 
 	Bug 912 - Update versioning schemes to add information to manifest.
 
-2011-11-25 20:36  Nick Cross <nick.cross@prismtech.com>/<jacorb@goots.org>
+2011-11-25 20:36  Nick Cross <jacorb@goots.org>
 
 	* src/org/jacorb/orb/giop/MessageInputStream.java (1.11):
 
 	Bug913 - Change protection from protected to public
 
-2011-11-25 20:33  Nick Cross <nick.cross@prismtech.com>/<jacorb@goots.org>
+2011-11-25 20:33  Nick Cross <jacorb@goots.org>
 
 	* src/org/jacorb/transport/DefaultCurrentImpl.java (1.7):
 
 	Remove compile warnings
 
-2011-11-25 20:31  Nick Cross <nick.cross@prismtech.com>/<jacorb@goots.org>
+2011-11-25 20:31  Nick Cross <jacorb@goots.org>
 
 	* src/org/jacorb/: orb/BasicAdapter.java (1.67), orb/Delegate.java
 	(1.184), orb/ORB.java (1.207), orb/ORBSingleton.java (1.65),
@@ -620,13 +750,13 @@
 
 	Code refactor to remove compile warnings
 
-2011-11-25 15:28  Nick Cross <nick.cross@prismtech.com>/<jacorb@goots.org>
+2011-11-25 15:28  Nick Cross <jacorb@goots.org>
 
 	* src/org/jacorb/orb/miop/MIOPFactories.java (1.4):
 
 	Bug911 - Refactor ETF Factories to remove static information.
 
-2011-11-25 11:58  Nick Cross <nick.cross@prismtech.com>/<jacorb@goots.org>
+2011-11-25 11:58  Nick Cross <jacorb@goots.org>
 
 	* doc/REL_NOTES (1.239), src/org/jacorb/orb/etf/FactoriesBase.java
 	(1.11), src/org/jacorb/orb/iiop/IIOPFactories.java (1.18),
@@ -644,13 +774,13 @@
 	Added 3.0 beta 1 and post 3.0 beta 1 chapters Prismtech JAC#738:
 	fixed empty parameters' values processing
 
-2011-11-23 15:30  Nick Cross <nick.cross@prismtech.com>/<jacorb@goots.org>
+2011-11-23 15:30  Nick Cross <jacorb@goots.org>
 
 	* doc/REL_NOTES (1.237):
 
 	Update version to 3.0
 
-2011-11-23 15:30  Nick Cross <nick.cross@prismtech.com>/<jacorb@goots.org>
+2011-11-23 15:30  Nick Cross <jacorb@goots.org>
 
 	* build.xml (1.93):
 
@@ -686,28 +816,28 @@
 
 	Bump to 3.0beta1.
 
-2011-11-22 15:34  Nick Cross <nick.cross@prismtech.com>/<jacorb@goots.org>
+2011-11-22 15:34  Nick Cross <jacorb@goots.org>
 
 	* src/org/jacorb/orb/giop/: ClientConnection.java (1.74),
 	CodeSet.java (1.32):
 
 	Add debug to print codeset information
 
-2011-11-22 15:34  Nick Cross <nick.cross@prismtech.com>/<jacorb@goots.org>
+2011-11-22 15:34  Nick Cross <jacorb@goots.org>
 
 	* src/org/jacorb/idl/parser.cup (1.122):
 
 	Bug894 Add fix for incorrect m_opsHash keys for AMI POA. Refactor
 	code.
 
-2011-11-22 14:14  Nick Cross <nick.cross@prismtech.com>/<jacorb@goots.org>
+2011-11-22 14:14  Nick Cross <jacorb@goots.org>
 
 	* doc/REL_NOTES (1.236), src/org/jacorb/idl/InterfaceBody.java
 	(1.36), src/org/jacorb/idl/ReplyHandler.java (1.13):
 
 	Bug894 Add fix for incorrect m_opsHash keys for AMI POA.
 
-2011-11-22 09:49  Nick Cross <nick.cross@prismtech.com>/<jacorb@goots.org>
+2011-11-22 09:49  Nick Cross <jacorb@goots.org>
 
 	* doc/ProgrammingGuide/: ProgrammingGuide.pdf (1.70),
 	Configuration/configuration.tex (1.75):
@@ -726,7 +856,7 @@
 
 	#
 
-2011-11-21 09:55  Nick Cross <nick.cross@prismtech.com>/<jacorb@goots.org>
+2011-11-21 09:55  Nick Cross <jacorb@goots.org>
 
 	* doc/ProgrammingGuide/: ProgrammingGuide.pdf (1.69),
 	Configuration/configuration.tex (1.74):
@@ -740,14 +870,14 @@
 	SelectorManager was using some Java 1.6 only extensions to the
 	LinkedList class. This fix enables building on Java 1.5
 
-2011-11-14 21:59  Nick Cross <nick.cross@prismtech.com>/<jacorb@goots.org>
+2011-11-14 21:59  Nick Cross <jacorb@goots.org>
 
 	* doc/ProgrammingGuide/: ProgrammingGuide.pdf (1.68),
 	Configuration/configuration.tex (1.73), Tools/tools.tex (1.17):
 
 	Minor spelling fixes
 
-2011-11-14 19:57  Nick Cross <nick.cross@prismtech.com>/<jacorb@goots.org>
+2011-11-14 19:57  Nick Cross <jacorb@goots.org>
 
 	* demo/: README.txt (1.1), poa_monitor/.cvsignore (1.2),
 	poa_monitor/build.xml (1.9), poa_monitor/idl/foox.idl (1.2),
@@ -771,7 +901,7 @@
 	Bug893 Add overview document for examples. Remove nonworking
 	poa_monitor example
 
-2011-11-11 21:00  Nick Cross <nick.cross@prismtech.com>/<jacorb@goots.org>
+2011-11-11 21:00  Nick Cross <jacorb@goots.org>
 
 	* doc/REL_NOTES (1.235), src/org/jacorb/idl/AnyType.java (1.18),
 	src/org/jacorb/idl/CharType.java (1.19),
@@ -791,13 +921,13 @@
 
 	Bug715 - Simplify code removing getJavaTypeName and getIDLTypeName
 
-2011-11-10 09:58  Nick Cross <nick.cross@prismtech.com>/<jacorb@goots.org>
+2011-11-10 09:58  Nick Cross <jacorb@goots.org>
 
 	* src/org/jacorb/orb/TypeCode.java (1.54):
 
 	Simplify code removing redundant method.
 
-2011-11-10 09:00  Nick Cross <nick.cross@prismtech.com>/<jacorb@goots.org>
+2011-11-10 09:00  Nick Cross <jacorb@goots.org>
 
 	* src/org/jacorb/: ir/ConstantDef.java (1.21), orb/Any.java (1.68),
 	orb/portableInterceptor/PICurrentImpl.java (1.14):
@@ -805,13 +935,13 @@
 	Refactor renaming internal Any method. Fix compile annotation
 	issue.
 
-2011-11-10 08:41  Nick Cross <nick.cross@prismtech.com>/<jacorb@goots.org>
+2011-11-10 08:41  Nick Cross <jacorb@goots.org>
 
 	* doc/REL_NOTES (1.234), src/org/jacorb/orb/Any.java (1.67):
 
 	Bug852 - add fix for Any.read_value() with type ID of derived type
 
-2011-11-09 11:26  Nick Cross <nick.cross@prismtech.com>/<jacorb@goots.org>
+2011-11-09 11:26  Nick Cross <jacorb@goots.org>
 
 	* build.xml (1.92), bin/NamingService-Wrapper.conf (1.13),
 	bin/NotifyService-Wrapper-MX4J.conf.template (1.5),
@@ -826,14 +956,14 @@
 
 	Upgrade to SLF4j 1.6.4
 
-2011-11-09 10:48  Nick Cross <nick.cross@prismtech.com>/<jacorb@goots.org>
+2011-11-09 10:48  Nick Cross <jacorb@goots.org>
 
 	* lib/: slf4j-api-1.6.2.jar (1.2), slf4j-api-1.6.4.jar (1.1),
 	slf4j-jdk14-1.6.2.jar (1.2), slf4j-jdk14-1.6.4.jar (1.1):
 
 	Upgrade SLF4J
 
-2011-11-02 23:01  Nick Cross <nick.cross@prismtech.com>/<jacorb@goots.org>
+2011-11-02 23:01  Nick Cross <jacorb@goots.org>
 
 	* build.xml (1.91), doc/REL_NOTES (1.233),
 	doc/ProgrammingGuide/ProgrammingGuide.pdf (1.66),
@@ -850,21 +980,21 @@
 	Propagate config to singleton. Add ability to configure
 	classloading method.
 
-2011-11-02 22:03  Nick Cross <nick.cross@prismtech.com>/<jacorb@goots.org>
+2011-11-02 22:03  Nick Cross <jacorb@goots.org>
 
 	* src/org/jacorb/util/: SelectorManager.java (1.4), TimerQueue.java
 	(1.8):
 
 	Clean imports
 
-2011-11-02 22:02  Nick Cross <nick.cross@prismtech.com>/<jacorb@goots.org>
+2011-11-02 22:02  Nick Cross <jacorb@goots.org>
 
 	* src/org/jacorb/idl/: Interface.java (1.90),
 	util/PrettyPrinter.java (1.4):
 
 	Remove old unused code
 
-2011-11-02 22:00  Nick Cross <nick.cross@prismtech.com>/<jacorb@goots.org>
+2011-11-02 22:00  Nick Cross <jacorb@goots.org>
 
 	* idl/build.xml (1.65), src/org/jacorb/events/build.xml (1.13),
 	src/org/jacorb/idl/build.xml (1.21),
@@ -874,7 +1004,7 @@
 
 	Don't run xlint for certain subsets
 
-2011-11-01 16:54  Nick Cross <nick.cross@prismtech.com>/<jacorb@goots.org>
+2011-11-01 16:54  Nick Cross <jacorb@goots.org>
 
 	* etc/common.xml (1.28):
 
@@ -917,7 +1047,7 @@
 
 	added more information when the exception is triggered
 
-2011-10-23 21:45  Nick Cross <nick.cross@prismtech.com>/<jacorb@goots.org>
+2011-10-23 21:45  Nick Cross <jacorb@goots.org>
 
 	* doc/REL_NOTES (1.231), src/org/jacorb/orb/CDRInputStream.java
 	(1.140):
@@ -925,7 +1055,7 @@
 	Fix for chunking, interop and boolean/char/octets. Thanks to Stefan
 	Guilhen/RedHat.
 
-2011-10-22 23:11  Nick Cross <nick.cross@prismtech.com>/<jacorb@goots.org>
+2011-10-22 23:11  Nick Cross <jacorb@goots.org>
 
 	* doc/REL_NOTES (1.230), src/org/jacorb/naming/ContextLister.java
 	(1.13), src/org/jacorb/naming/namemanager/ContextNode.java (1.21),
@@ -933,7 +1063,7 @@
 
 	Summary: BZ300 - Fix for naming manager and cyclic graphs
 
-2011-10-19 22:53  Nick Cross <nick.cross@prismtech.com>/<jacorb@goots.org>
+2011-10-19 22:53  Nick Cross <jacorb@goots.org>
 
 	* src/org/jacorb/poa/: POA.java (1.82), util/IdUtil.java (1.9):
 

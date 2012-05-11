@@ -1,10 +1,41 @@
-2012-04-17 14:13  Nick Cross <nick.cross@prismtech.com>/<jacorb@goots.org>
+2012-05-11 11:43  Nick Cross <jacorb@goots.org>
 
-	* idl/bugjac570.idl (1.2):
+	* regression/src/org/jacorb/test/bugs/bugjac486/BugJac486Test.java
+	(1.5):
+
+	Update disconnectAfterNonRecoverableSystemException code to be more
+	logical. Default remains the same. Update test to work with updated
+	code.
+
+2012-04-30 22:17  Nick Cross <jacorb@goots.org>
+
+	* regression/build.xml (1.115):
+
+	Fix basedir propagation issue with interop xml
+
+2012-04-23 13:29  Nick Cross <jacorb@goots.org>
+
+	* delegateSync/build.xml (1.2), load/notification/build.xml (1.4),
+	memoryusage/build.xml (1.4), regression/build.xml (1.114),
+	sas/src/build.xml (1.3), servantscaling/build.xml (1.3),
+	template/build.xml (1.7), timerqueue/build.xml (1.2):
+
+	Remove entity includes and use Ant import instead.
+
+2012-04-20 23:02  Nick Cross <jacorb@goots.org>
+
+	* regression/: ChangeLog (1.1), src/org/jacorb/test/ChangeLog
+	(1.40):
+
+	Move changelogs to doc & test/regression and regenerate for 3.0RC1.
+
+2012-04-17 14:13  Nick Cross <jacorb@goots.org>
+
+	* regression/idl/bugjac570.idl (1.2):
 
 	Add union idl compiler fix
 
-2012-03-29 20:04  Nick Cross <nick.cross@prismtech.com>/<jacorb@goots.org>
+2012-03-29 20:04  Nick Cross <jacorb@goots.org>
 
 	* src/org/jacorb/test/config/ConfigurationTest.java (1.12):
 
@@ -17,26 +48,26 @@
 	explicitly set the required codeset so the test will pass on hosts
 	such as Mac's.
 
-2012-03-27 12:03  Nick Cross <nick.cross@prismtech.com>/<jacorb@goots.org>
+2012-03-27 12:03  Nick Cross <jacorb@goots.org>
 
 	* src/org/jacorb/test/bugs/bugjac562/: ClientInterceptor.java
 	(1.3), ClientInterceptorTest.java (1.4):
 
 	Add another interceptor runtime exception test
 
-2012-03-27 11:30  Nick Cross <nick.cross@prismtech.com>/<jacorb@goots.org>
+2012-03-27 11:30  Nick Cross <jacorb@goots.org>
 
 	* src/org/jacorb/test/bugs/bugjac719/BugJac719Test.java (1.2):
 
 	FindBugs warning fixes
 
-2012-03-23 16:13  Nick Cross <nick.cross@prismtech.com>/<jacorb@goots.org>
+2012-03-23 16:13  Nick Cross <jacorb@goots.org>
 
 	* src/org/jacorb/test/nio/NIOTestServer.java (1.2):
 
 	FindBugs & PMD Fixes
 
-2012-03-23 16:02  Nick Cross <nick.cross@prismtech.com>/<jacorb@goots.org>
+2012-03-23 16:02  Nick Cross <jacorb@goots.org>
 
 	* src/org/jacorb/test/bugs/bugjac788Compat/: BugJac788Test.java
 	(1.1), ComputInterface.java (1.1), ComputInterfaceHelper.java
@@ -54,7 +85,7 @@
 
 	Add fix for backwards compatibility with stubs/reply_status
 
-2012-03-22 13:56  Nick Cross <nick.cross@prismtech.com>/<jacorb@goots.org>
+2012-03-22 13:56  Nick Cross <jacorb@goots.org>
 
 	* src/org/jacorb/test/: bugs/bugrtj634/RTJ634Test.java (1.2),
 	common/ORBTestCase.java (1.5), orb/CInitializer.java (1.1),
@@ -79,13 +110,13 @@
 	pending results set into groups based on target profile.
 	ReplyPlaceholder ctor removed becuase it was obsolete
 
-2012-02-13 15:07  Nick Cross <nick.cross@prismtech.com>/<jacorb@goots.org>
+2012-02-13 15:07  Nick Cross <jacorb@goots.org>
 
 	* build.xml (1.113):
 
 	Fix build issue including ant runtime
 
-2012-02-07 22:40  Nick Cross <nick.cross@prismtech.com>/<jacorb@goots.org>
+2012-02-07 22:40  Nick Cross <jacorb@goots.org>
 
 	* build.xml (1.112), idl/poaThread.idl (1.2),
 	src/org/jacorb/test/poa/POAThreadingTest.java (1.2),
@@ -93,19 +124,19 @@
 
 	Add poa.poolthread timeout
 
-2011-12-13 09:59  Nick Cross <nick.cross@prismtech.com>/<jacorb@goots.org>
+2011-12-13 09:59  Nick Cross <jacorb@goots.org>
 
 	* src/org/jacorb/test/bugs/bugjac593/BugJac593Test.java (1.5):
 
 	Refactor singleton use to workaround JDK clash
 
-2011-12-01 21:44  Nick Cross <nick.cross@prismtech.com>/<jacorb@goots.org>
+2011-12-01 21:44  Nick Cross <jacorb@goots.org>
 
 	* src/org/jacorb/test/bugs/bug739/Bug739Test.java (1.1):
 
 	Bugzilla 739 - Add support for iso8859-15
 
-2011-11-22 14:14  Nick Cross <nick.cross@prismtech.com>/<jacorb@goots.org>
+2011-11-22 14:14  Nick Cross <jacorb@goots.org>
 
 	* idl/compiler/succeed/amiPoa.idl (1.1):
 
@@ -117,14 +148,14 @@
 
 	#
 
-2011-11-21 20:13  Nick Cross <nick.cross@prismtech.com>/<jacorb@goots.org>
+2011-11-21 20:13  Nick Cross <jacorb@goots.org>
 
 	* src/org/jacorb/test/orb/: NIOBasicTest.java (1.2),
 	connection/NIOBiDirTest.java (1.2):
 
 	Exclude NIO tests when doing an SSL test run
 
-2011-11-10 09:00  Nick Cross <nick.cross@prismtech.com>/<jacorb@goots.org>
+2011-11-10 09:00  Nick Cross <jacorb@goots.org>
 
 	* src/org/jacorb/test/: bugs/bug852/AnyServerImpl.java (1.2),
 	orb/AnyTest.java (1.13):
@@ -132,7 +163,7 @@
 	Refactor renaming internal Any method. Fix compile annotation
 	issue.
 
-2011-11-10 08:41  Nick Cross <nick.cross@prismtech.com>/<jacorb@goots.org>
+2011-11-10 08:41  Nick Cross <jacorb@goots.org>
 
 	* idl/bug852.idl (1.1),
 	src/org/jacorb/test/bugs/bug852/AnyServerImpl.java (1.1),
@@ -140,7 +171,7 @@
 
 	Bug852 - add fix for Any.read_value() with type ID of derived type
 
-2011-11-02 23:01  Nick Cross <nick.cross@prismtech.com>/<jacorb@goots.org>
+2011-11-02 23:01  Nick Cross <jacorb@goots.org>
 
 	* build.xml (1.111),
 	src/org/jacorb/test/config/ConfigurationTest.java (1.11):
