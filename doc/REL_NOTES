@@ -37,6 +37,19 @@
    H I S T O R Y      O F     C H A N G E S
  -------------------------------------------
 
+This Release
+============
+    - ORB
+        - Fix issue with handling Locate Requests
+        - Add ability to transmit OBJECT_FORWARD on receiving a
+          Locate Request with short object key.
+    - Documentation
+        - Add missing properties.
+    - Misc
+        - Fix for demo compilation.
+        - Add Maven pom wrappers.
+        - Add SendingContext IDL
+
 3.0 RC 1
 ========
     - ORB:
