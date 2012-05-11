@@ -18,6 +18,9 @@
     <description>JacORB Core code</description>
     <url>http://www.jacorb.org</url>
 
+    <properties>
+        <mainArtifact>${env.JACORB_HOME}/lib/jacorb.jar</mainArtifact>
+    </properties>
 
     <build>
         <plugins>
@@ -34,46 +37,22 @@
                         <configuration>
                             <target unless="skipTests">
                                 <property name="plugin_classpath" refid="maven.plugin.classpath"/>
-                                <ant antfile="${env.JACORB_DIR}/test/regression/build.xml" inheritAll="true" inheritRefs="true" >
+                                <ant antfile="${env.JACORB_HOME}/test/regression/build.xml" inheritAll="true" inheritRefs="true" >
                                     <property name="sun.boot.class.path" value="${sun.boot.class.path}:${plugin_classpath}"/>
-                                    <property name="basedir" value="${env.JACORB_DIR}"/>
+                                    <property name="basedir" value="${env.JACORB_HOME}"/>
                                     <target name="clean"/>
                                     <target name="run-all"/>
                                 </ant>
                             </target>
                         </configuration>
                     </execution>
-                    <execution>
-                        <phase>compile</phase>
-                        <configuration>
-                            <target>
-                                <unzip src="${env.JACORB_DIR}/lib/jacorb.jar" dest="${project.build.outputDirectory}"/>
-                            </target>
-                        </configuration>
-                        <goals>
-                            <goal>run</goal>
-                        </goals>
-                    </execution>
-
                 </executions>
             </plugin>
 
-
-            <!-- Use my manifest -->
             <plugin>
-                <artifactId>maven-jar-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>default-jar</id>
-                        <configuration>
-                        <archive>
-                            <manifestFile>${project.build.outputDirectory}/META-INF/MANIFEST.MF</manifestFile>
-                        </archive>
-                        </configuration>
-                    </execution>
-                </executions>
+                <groupId>org.commonjava.maven.plugins</groupId>
+                <artifactId>build-migration-maven-plugin</artifactId>
             </plugin>
-
 
             <!-- Generate javadoc. Bound into the package phase for deployment purposes -->
             <plugin>
@@ -81,7 +60,7 @@
                 <configuration>
                     <skip>${skipJavadoc}</skip>
                     <verbose>true</verbose>
-                    <sourcepath>${env.JACORB_DIR}/src:${env.JACORB_DIR}/src/generated</sourcepath>
+                    <sourcepath>${env.JACORB_HOME}/src:${env.JACORB_HOME}/src/generated</sourcepath>
                     <subpackages>org.omg:org.jacorb</subpackages>
                     <excludePackageNames>org.jacorb.concurrency:org.jacorb.collection:org.jacorb.dds:org.jacorb.events:org.jacorb.notification:org.jacorb.transaction:org.omg.BridgeTransactionMgmt:org.omg.CosBridgeAdmin:org.omg.CosCollection:org.omg.CosConcurrencyControl:org.omg.CosEventChannelAdmin:org.omg.CosEventComm:org.omg.CosNotification:org.omg.CosNotifyChannelAdmin:org.omg.CosNotifyChannelAdminAck:org.omg.CosNotifyComm:org.omg.CosNotifyCommAck:org.omg.CosNotifyFilter:org.omg.CosTime:org.omg.CosTrading:org.omg.CosTransactions:org.omg.CosTypedEventChannelAdmin:org.omg.CosTypedEventComm:org.omg.CosTypedEventNotifyComm:org.omg.CosTypedEventNotifyChannelAdmin:org.omg.CosTypedNotifyChannelAdmin:org.omg.CosTypedNotifyComm:org.omg.dds</excludePackageNames>
                 </configuration>
@@ -101,8 +80,8 @@
                         </goals>
                         <configuration>
                             <sources>
-                                <source>${env.JACORB_DIR}/src</source>
-                                <source>${env.JACORB_DIR}/src/generated</source>
+                                <source>${env.JACORB_HOME}/src</source>
+                                <source>${env.JACORB_HOME}/src/generated</source>
                             </sources>
                         </configuration>
                     </execution>

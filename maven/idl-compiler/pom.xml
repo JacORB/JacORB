@@ -18,6 +18,9 @@
     <description>JacORB IDL Compiler</description>
     <url>http://www.jacorb.org</url>
 
+    <properties>
+        <mainArtifact>${env.JACORB_HOME}/lib/idl.jar</mainArtifact>
+    </properties>
 
     <build>
         <plugins>
@@ -35,41 +38,19 @@
                         <configuration>
                             <target>
                                 <property name="plugin_classpath" refid="maven.plugin.classpath"/>
-                                <ant antfile="${env.JACORB_DIR}/build.xml" inheritAll="true" inheritRefs="true" target="compiler">
+                                <ant antfile="${env.JACORB_HOME}/build.xml" inheritAll="true" inheritRefs="true" target="compiler">
                                     <property name="sun.boot.class.path" value="${sun.boot.class.path}:${plugin_classpath}"/>
-                                    <property name="basedir" value="${env.JACORB_DIR}"/>
+                                    <property name="basedir" value="${env.JACORB_HOME}"/>
                                 </ant>
                             </target>
                         </configuration>
                     </execution>
-                    <!-- Unpack the Ant produced jar file to where the maven build expects the classes -->
-                    <execution>
-                        <phase>compile</phase>
-                        <configuration>
-                            <target>
-                                <unzip src="${env.JACORB_DIR}/lib/idl.jar" dest="${project.build.outputDirectory}"/>
-                            </target>
-                        </configuration>
-                        <goals>
-                            <goal>run</goal>
-                        </goals>
-                    </execution>
-                </executions>
+               </executions>
             </plugin>
 
-            <!-- Use my manifest -->
             <plugin>
-                <artifactId>maven-jar-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>default-jar</id>
-                        <configuration>
-                        <archive>
-                            <manifestFile>${project.build.outputDirectory}/META-INF/MANIFEST.MF</manifestFile>
-                        </archive>
-                        </configuration>
-                    </execution>
-                </executions>
+                <groupId>org.commonjava.maven.plugins</groupId>
+                <artifactId>build-migration-maven-plugin</artifactId>
             </plugin>
 
             <!-- Generate javadoc. Bound into the package phase for deployment purposes -->
@@ -78,7 +59,7 @@
                 <configuration>
                     <skip>${skipJavadoc}</skip>
                     <verbose>true</verbose>
-                    <sourcepath>${env.JACORB_DIR}/src</sourcepath>
+                    <sourcepath>${env.JACORB_HOME}/src</sourcepath>
                     <subpackages>org.jacorb.idl</subpackages>
                 </configuration>
             </plugin>
@@ -97,7 +78,7 @@
                         </goals>
                         <configuration>
                             <sources>
-                                <source>${env.JACORB_DIR}/src</source>
+                                <source>${env.JACORB_HOME}/src</source>
                             </sources>
                         </configuration>
                     </execution>
