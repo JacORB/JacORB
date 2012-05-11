@@ -1071,6 +1071,10 @@ connection open if nothing happens & millisec. & unset \\
 \verb"er.keepalive" & Enable SO\_KEEPALIVE on server sockets. If the OS
 keepalive detects a TCP/IP connection to be broken, the effect is the same as
 if the TCP/IP connection has been closed gracefully. & boolean & false \\
+\verb"jacorb.connection.serv"
+\verb"er.reuse\_address" & Whether to enable socket.reuseAddress option. & boolean &
+false \\
+\hline
 
 \hline
 \verb"jacorb.connection.clie"
@@ -1126,6 +1130,13 @@ first. Please see \ref{connection_management}. & boolean & off \\
 based transports. Note that this feature is currently only for client-side
 connections, and only for plain IIOP - not SSL. There is no technical reason
 for these restrictions, simply lack of current need. & boolean & off. \\
+\hline
+
+\verb"jacorb.maxConsecutive"
+\verb"Timeouts" & Set an upper bound for multiple write attempts triggered by a timeout.
+This helps mitigate the loss of pending messages due to momentary network
+saturation, when a close/reopen of a socket would actually cause even
+more network congestion. & boolean & off. \\
 \hline
 
 \verb"jacorb.connection.req"
@@ -1261,6 +1272,13 @@ By default JacORB will remove the ZoneID so IORs will work off-host. & boolean &
 \verb"all" & Always attempt to search for local repository ID information to avoid
 the cost of a remote call. In most scenarios this is quicker than the remote call.
 With some complicated hierarchies it may be quicker to turn this off. & boolean & on\\
+\hline
+\verb"jacorb.disconnect_afte"
+\verb"r_systemexception" & Disconnection client connections after non recoverable system
+exception. & boolean & on\\
+\hline
+\verb"jacorb.locate_on_bind " & Query server for object location using a GIOP locate
+request before first call. & boolean & off\\
 \hline
 \verb"jacorb.native_char_cod"
 \verb"eset" & Overrides the detection from the local environment for the codeset
@@ -1429,6 +1447,9 @@ when the request queue is full (On), or throw TRANSIENT exceptions
 \verb"jacorb.poa.queue_max" & The maximum length of the request
 queue.  If this length has been reached, and further requests arrive,
 jacorb.poa.queue\_wait specifies what to do. Default is 100. & integer \\
+\hline
+\verb"jacorb.poa.queue_lis"
+\verb"teners" & Names of the classes that implement the RequestQueueListener. & string \\
 \hline
 \verb"jacorb.poa.queue_min" & If jacorb.poa.queue\_wait is On, and the
 request queue gets full, then the POA blocks until the queue contains

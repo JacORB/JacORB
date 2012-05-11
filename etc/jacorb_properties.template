@@ -232,6 +232,9 @@ jacorb.connection.client.connect_timeout=90000
 # max time (msecs) a server keeps a connection open if nothing happens
 #jacorb.connection.server.timeout=10000
 
+# Whether to enable socket.reuseAddress option
+# jacorb.connection.server.reuse_address=false
+
 # max time (msecs) a client or server will wait to actually perform a send.
 # This protects against situations where a hung peer, which has not closed
 # the connection, can cause a thread in jacorb to wait indefinitely.
@@ -283,7 +286,7 @@ jacorb.connection.client.connect_timeout=90000
 
 # Set an upper bound for multiple write attempts triggered by a timeout.
 # This helps mitigate the loss of pending messages due to momentary network
-# saturation, when a close/reopen of a socket would actually cause even 
+# saturation, when a close/reopen of a socket would actually cause even
 # more network congestion.
 #jacorb.nio.maxConsecutiveTimeouts=0
 
@@ -294,7 +297,7 @@ jacorb.connection.client.connect_timeout=90000
 #jacorb.listener.server_socket_timeout=0
 
 # Cache known references in the ORB, to make re-acquisition more efficient
-#jacorb.reference_caching=off
+# jacorb.reference_caching=off
 
 #
 # The following property specifies the class which is used for
@@ -319,6 +322,9 @@ jacorb.giop.add_1_0_profiles=off
 
 # Use DNS names in IORs
 jacorb.dns.enable=off
+
+# Whether to immediately resolve hosts.
+jacorb.dns.eager_resolve=true
 
 # Force the FQDN host name lookup. Turn off if exactly the given host
 # names (e.g. "short" names) should be used in IORs
@@ -374,6 +380,12 @@ jacorb.enhanced_thread_name=off
 
 # By default JacORB will remove the ZoneID so IORs will work off-host.
 # jacorb.ipv6.hide_zoneid=on
+
+# Disconnect client connections after non recoverable system exception
+#jacorb.delegate.disconnect_after_systemexception=true
+
+# Query server for object location using a GIOP locate request before first call.
+# jacorb.locate_on_bind=false
 
 ###########################################
 #                                         #
@@ -784,6 +796,10 @@ jacorb.poa.threadtimeout=0
 jacorb.poa.queue_wait=off
 jacorb.poa.queue_max=100
 jacorb.poa.queue_min=10
+
+# Names of the classes that implement the RequestQueueListener
+# interface (comma-separated lsit).
+# jacorb.poa.queue_listeners=
 
 # Set this to on for server-side checking of expired ReplyEndTimePolicy.
 # (This also applies to RelativeRoundtripTimeoutPolicy.)  When this is on,
