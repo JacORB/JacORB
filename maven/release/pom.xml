@@ -137,7 +137,7 @@
                 </executions>
             </plugin>
 
-            <!-- Disable installation as this module is just for assembling the distribution zips -->
+            <!-- Disable installation and deployment as this module is just for assembling the distribution zips -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-install-plugin</artifactId>
@@ -148,6 +148,14 @@
                         <phase>DISABLED</phase>
                     </execution>
                 </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-deploy-plugin</artifactId>
+                <version>2.4</version>
+                <configuration>
+                    <skip>true</skip>
+                </configuration>
             </plugin>
         </plugins>
     </build>
