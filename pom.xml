@@ -31,7 +31,7 @@
 
     <groupId>org.jacorb</groupId>
     <artifactId>jacorb-parent</artifactId>
-    <version>3.0-SNAPSHOT</version>
+    <version>3.0</version>
     <packaging>pom</packaging>
 
     <name>JacORB</name>
@@ -170,7 +170,7 @@
                 <plugin>
                     <groupId>org.commonjava.maven.plugins</groupId>
                     <artifactId>build-migration-maven-plugin</artifactId>
-                    <version>0.3-SNAPSHOT</version>
+                    <version>0.3</version>
                     <executions>
                         <execution>
                             <id>attach-main-artifact</id>

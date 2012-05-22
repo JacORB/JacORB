@@ -37,8 +37,8 @@
    H I S T O R Y      O F     C H A N G E S
  -------------------------------------------
 
-This Release
-============
+3.0
+===
     - ORB
         - Fix issue with handling Locate Requests
         - Add ability to transmit OBJECT_FORWARD on receiving a
