@@ -37,6 +37,10 @@
    H I S T O R Y      O F     C H A N G E S
  -------------------------------------------
 
+This Release
+============
+    - ORB
+        - Output iiop version when printing Corbaloc URLs
 3.0
 ===
     - ORB

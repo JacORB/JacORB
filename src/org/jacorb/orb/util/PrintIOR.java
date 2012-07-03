@@ -64,9 +64,7 @@ import org.slf4j.Logger;
 
 /**
  * @author Gerald Brose
- * @version $Id$
  */
-
 public class PrintIOR
 {
     /**
@@ -204,8 +202,10 @@ public class PrintIOR
        result.append ("corbaloc:iiop:");
 
        ProfileBase profile = (ProfileBase)pior.getEffectiveProfile ();
+
        if (profile instanceof IIOPProfile)
        {
+          result.append ("1." + Byte.valueOf(profile.version().minor) + "@");
           result.append (((IIOPAddress)((IIOPProfile)profile).getAddress()).getOriginalHost());
           result.append (':');
           result.append (((IIOPAddress)((IIOPProfile)profile).getAddress()).getPort());
