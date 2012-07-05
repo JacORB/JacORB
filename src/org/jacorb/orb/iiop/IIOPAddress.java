@@ -35,7 +35,6 @@ import org.slf4j.Logger;
 
 /**
  * @author Andre Spiegel, Phil Mesnier
- * @version $Id$
  */
 public class IIOPAddress
     extends ProtocolAddressBase
@@ -430,19 +429,15 @@ public class IIOPAddress
         {
             result = InetAddress.getLocalHost();
 
-            // if this is an IPv6 address, make sure it's a reasonable one
-
-            if (result instanceof Inet6Address
-                && (result.isLinkLocalAddress()
-                    || result.isLoopbackAddress()))
+            // if this is an IPv4/IPv6 address, make sure it's a reasonable one
+            if (result.isLinkLocalAddress() || result.isLoopbackAddress())
             {
-                InetAddress betterAddress = getGoodIPv6Address();
+                InetAddress betterAddress = getGoodAddress();
                 if (betterAddress != null)
                 {
                     result = betterAddress;
                 }
             }
-
         }
         catch (UnknownHostException ex)
         {
@@ -462,25 +457,26 @@ public class IIOPAddress
 
     /**
      * Iterate over all network interfaces and addresses to find
-     * an IPv6 address that is neither link-local nor loopback.
+     * an IPv4/IPv6 address that is neither link-local nor loopback or
+     * a point to point (e.g. VPN).
      * If one is found, return it.  If not, return null.
      */
-    private static Inet6Address getGoodIPv6Address()
+    private static InetAddress getGoodAddress()
     {
-        Inet6Address result = null;
+        InetAddress result = null;
         try
         {
             for (NetworkInterface ni :
                  Collections.list(NetworkInterface.getNetworkInterfaces()))
             {
-                for (InetAddress ia :
-                     Collections.list(ni.getInetAddresses()))
+                if ( ! ni.isPointToPoint() )
                 {
-                    if (ia instanceof Inet6Address
-                        && !(ia.isLinkLocalAddress()
-                             || ia.isLoopbackAddress()))
+                    for (InetAddress ia : Collections.list(ni.getInetAddresses()))
                     {
-                        return (Inet6Address)ia;
+                        if ( ! (ia.isLinkLocalAddress() || ia.isLoopbackAddress()))
+                        {
+                            return ia;
+                        }
                     }
                 }
             }
