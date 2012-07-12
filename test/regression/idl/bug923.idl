@@ -1,0 +1,35 @@
+
+module org
+{
+   module jacorb
+   {
+      module test
+      {
+          module bugs
+          {
+              module bug923
+              {
+
+                  interface A {};
+
+                  interface Base {
+                      void say();
+                  };
+
+                  interface GoodDay : Base, A {
+
+                      string hello_simple(in string msg );
+
+                      wstring hello_wide( in wstring msg );
+                  };
+
+                  interface DayFactory {
+                      Base getDay();
+                      void deleteDay(in Base b);
+                  };
+
+              };
+          };
+      };
+   };
+};
