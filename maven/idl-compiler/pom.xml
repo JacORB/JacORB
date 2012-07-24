@@ -11,7 +11,7 @@
         <relativePath>../..</relativePath>
     </parent>
 
-    <artifactId>idl-compiler</artifactId>
+    <artifactId>jacorb-idl-compiler</artifactId>
     <packaging>jar</packaging>
 
     <name>JacORB IDL Compiler</name>

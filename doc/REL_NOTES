@@ -50,6 +50,8 @@ This Release
           deprecated.
     - Naming Service
         - Fix for NameManager display/cyclic detection. Fix for refresh counter.
+    - Misc
+        - Fix Maven GAV for IDL compiler.
 
 3.0
 ===
