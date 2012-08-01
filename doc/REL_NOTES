@@ -41,6 +41,8 @@ This Release
 ============
     - ORB
         - Output iiop version when printing Corbaloc URLs
+        - When selecting an address for localhost attempt to find non-loopback first
+          for both IPv4 and IPv6.
     - IDL Compiler:
         - Predefined preprocessor symbols are now built into the compiler
           rather than included from the jacorbdefs.idl file, which has been
