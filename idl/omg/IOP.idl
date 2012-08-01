@@ -3,8 +3,6 @@
 #ifndef _IOP_IDL_
 #define _IOP_IDL_
 
-#include <jacorbdefs.idl>
-
 #ifdef _PRE_3_0_COMPILER_
 #pragma prefix "omg.org"
 

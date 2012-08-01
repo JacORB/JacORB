@@ -4,8 +4,6 @@
 #ifndef _DYNAMIC_ANY_IDL_
 #define _DYNAMIC_ANY_IDL_
 
-#include <jacorbdefs.idl>
-
 #ifdef _PRE_3_0_COMPILER_
 #pragma prefix "omg.org"
 #include <orb.idl>

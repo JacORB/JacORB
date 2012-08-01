@@ -569,6 +569,13 @@ parser code
             lexer.define( key, (String)tmpDefines.get( key ));
         }
 
+        /* Standard compiler defines, can be undefined */
+
+        lexer.define ("JACORB", "1");
+        lexer.define ("_PRE_3_0_COMPILER_", "1");
+        lexer.define ("GIOP_1_1", "1");
+        lexer.define ("GIOP_1_2", "1");
+
         for( Enumeration e = tmpUnDefines.keys(); e.hasMoreElements(); )
         {
             lexer.undefine( (String)e.nextElement() );
