@@ -1,8 +1,6 @@
 #ifndef _MIOP_IDL_
 #define _MIOP_IDL_
 
-#include <jacorbdefs.idl>
-
 #ifdef _PRE_3_0_COMPILER_
 #pragma prefix "omg.org"
 #include <IOP.idl>

@@ -1,8 +1,6 @@
 #ifndef _PortableGroup_IDL_
 #define _PortableGroup_IDL_
 
-#include <jacorbdefs.idl>
-
 #ifdef _PRE_3_0_COMPILER_
 #pragma prefix "omg.org"
 #include <PortableServer.idl>// CORBA 3.0, Chapter 11

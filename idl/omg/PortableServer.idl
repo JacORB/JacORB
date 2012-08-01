@@ -4,8 +4,6 @@
 #ifndef _PORTABLE_SERVER_IDL_
 #define _PORTABLE_SERVER_IDL_
 
-#include <jacorbdefs.idl>
-
 #ifdef _PRE_3_0_COMPILER_
 #pragma prefix "omg.org"
 
