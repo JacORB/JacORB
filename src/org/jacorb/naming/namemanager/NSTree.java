@@ -259,7 +259,7 @@ public class NSTree extends JTree
    public synchronized void update ()
    {
       DefaultTreeModel model = (DefaultTreeModel)getModel ();
-      ((ContextNode)((DefaultMutableTreeNode)model.getRoot ()).getUserObject ()).update ();
+      ((ContextNode)((DefaultMutableTreeNode)model.getRoot ()).getUserObject ()).display();
       nsTable.update ();
    }
 }

@@ -148,10 +148,15 @@ public class Handler
 	    dlg.pack(); 
 	    dlg.show();
 	    if (dlg.isOk)
-		updater.setSeconds(dlg.updateInterval);
-	}
+            {
+                updateInterval = dlg.updateInterval;
+                updater.setSeconds(dlg.updateInterval);
+            }
+        }
 	else 
-	    throw new RuntimeException("Should not happen");
+	{
+            throw new RuntimeException("Should not happen");
+        }
     }
 
     /**
