@@ -5,8 +5,6 @@
 #ifndef _CSI_IDL_
 #define _CSI_IDL_
 
-#include <jacorbdefs.idl>
-
 #ifdef _PRE_3_0_COMPILER_
 #pragma prefix "omg.org"
 #else

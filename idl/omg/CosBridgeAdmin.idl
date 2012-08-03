@@ -25,7 +25,6 @@
 
 #ifndef _COS_BRIDGE_ADMIN_
 #define _COS_BRIDGE_ADMIN_
-// #include <jacorbdefs.idl> TODO does not exist in JacORB
 #include <CosNotifyChannelAdmin.idl>
 #pragma prefix "omg.org"
 
@@ -113,7 +112,6 @@ module CosBridgeAdmin
 
       void start_bridge() raises (BridgeAlreadyStarted, InvalidExternalEndPoints);
       void stop_bridge () raises (BridgeInactive);
-    //  status get_status(); TODO seems to be imported from jacorbdefs.idl
       void destroy ();
    };
 

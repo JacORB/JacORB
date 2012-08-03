@@ -592,9 +592,16 @@ public class JacIDL
                 value = "1";
             lexer.define(prop.getKey(), value);
         }
+
+        /* Standard compiler defines, can be undefined */
+
+        lexer.define("JACORB", "1");
+        lexer.define("_PRE_3_0_COMPILER_", "1");
+        lexer.define("GIOP_1_1", "1");
+        lexer.define("GIOP_1_2", "1");
+        
         for (int i = 0; i < _undefines.size(); i++)
         {
-
             prop = (org.apache.tools.ant.types.Environment.Variable)
                 _undefines.get(i);
             lexer.undefine(prop.getKey());

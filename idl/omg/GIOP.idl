@@ -6,10 +6,6 @@
 #ifndef _GIOP_IDL_
 #define _GIOP_IDL_
 
-//#ifndef GIOP_1_0
-#include <jacorbdefs.idl>
-//#endif
-
 #ifdef _PRE_3_0_COMPILER_
 #include <IOP.idl>
 
