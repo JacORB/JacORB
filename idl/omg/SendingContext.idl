@@ -4,8 +4,6 @@
 #ifndef _SENDING_CONTEXT_IDL_
 #define _SENDING_CONTEXT_IDL_
 
-#include <jacorbdefs.idl>
-
 #ifdef _PRE_3_0_COMPILER_
 #include <orb.idl>
 #pragma prefix "omg.org"

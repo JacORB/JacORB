@@ -20,6 +20,21 @@ interface types in the IDL specification are generated.
 generator.  The  LALR grammar for  the CORBA IDL  is in the  file {\tt
 org/jacorb/idl/parser.cup}.)
 
+\subsection*{Compiler Definitions}
+
+A number of preprocessor symbols are defined intrinsicly by the IDL compiler:
+
+\begin{tabbing}
+XX \= XXXXXXXXXXXXX \= XX \kill
+\> JACORB\\
+\> \_PRE\_3\_0\_COMPILER\_\\
+\> GIOP\_1\_1\\
+\> GIOP\_1\_2\\
+\end{tabbing}
+
+These symbols can be undefined by using the  {\tt -U} IDL compiler flag, although this
+is not recommended as some supplied idl files may no longer compile correctly.
+
 \subsection*{Compiler Options}
 
 \begin{tabbing}
