@@ -92,6 +92,7 @@ public class ContextNode
 
    public void display ()
    {
+      contexts.clear();
       update ();
       if (bindingData != null)
          NSTree.nsTable.setData (bindingData, this);
@@ -149,19 +150,17 @@ public class ContextNode
    /**
     * update the content of this node and all its children
     */
-
    public synchronized void update ()
    {
       try
       {
          if( isMarked(this.context))
          {
-            System.out.println ("Loop detected for " + this.context);
+             System.out.println ("Loop detected for " + this.context);
              return;
          }
 
          mark(this.context);
-
 
          BindingListHolder blsoh = new BindingListHolder ();
          BindingIteratorHolder bioh = new BindingIteratorHolder ();

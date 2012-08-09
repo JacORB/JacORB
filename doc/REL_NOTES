@@ -47,6 +47,8 @@ This Release
         - Predefined preprocessor symbols are now built into the compiler
           rather than included from the jacorbdefs.idl file, which has been
           deprecated.
+    - Naming Service
+        - Fix for NameManager display/cyclic detection. Fix for refresh counter.
 
 3.0
 ===
