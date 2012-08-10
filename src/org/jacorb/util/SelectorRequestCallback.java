@@ -1,7 +1,7 @@
 /*
  *        JacORB - a free Java ORB
  *
- *   Copyright (C) 2011 Gerald Brose.
+ *   Copyright (C) 1997-2012 Gerald Brose / The JacORB Team.
  *
  *   This library is free software; you can redistribute it and/or
  *   modify it under the terms of the GNU Library General Public
@@ -25,7 +25,6 @@ package org.jacorb.util;
  * object. You supply an implementation of the call method.
  *
  * @author Ciju John <johnc@ociweb.com>
- * @version $Id$
  */
 public abstract class SelectorRequestCallback
 {

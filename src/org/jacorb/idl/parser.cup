@@ -3,7 +3,7 @@ package org.jacorb.idl;
 /*
  *        JacORB - a free Java ORB
  *
- *   Copyright (C) 1997-2011 Gerald Brose / The JacORB Team.
+ *   Copyright (C) 1997-2012 Gerald Brose / The JacORB Team.
  *
  *   This library is free software; you can redistribute it and/or
  *   modify it under the terms of the GNU Library General Public
@@ -40,8 +40,6 @@ import org.jacorb.idl.util.IDLLogger;
  * java java_cup.Main < parser.cup
  *
  * @author Gerald Brose <mailto:gerald.brose@acm.org>
- *
- * $Id$
  */
 
 action code
@@ -63,7 +61,7 @@ parser code
     // Compiles out leaving no runtime dependency on Version
     public static final String compiler_version = org.jacorb.util.Version.longVersion;
 
-    private static final String yearString = "1997-2011";
+    private static final String yearString = "1997-2012";
 
     private static final String versionInfo = org.jacorb.util.BuildVersion.versionInfo;
 
