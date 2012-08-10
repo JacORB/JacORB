@@ -1,7 +1,7 @@
 /*
  *        JacORB - a free Java ORB
  *
- *   Copyright (C) 2011 Gerald Brose
+ *   Copyright (C) 2011-2012 Gerald Brose / The JacORB Team.
  *
  *   This library is free software; you can redistribute it and/or
  *   modify it under the terms of the GNU Library General Public
@@ -26,10 +26,9 @@ import org.omg.ETF.Connection;
 
 /**
  * @author Ciju John
- * @version $Id$
  *
  * This class is identical to the iiop.IIOPFactories except for the static
- *  initialization bit.
+ * initialization bit.
  */
 public class NIOFactories
         extends org.jacorb.orb.iiop.IIOPFactories

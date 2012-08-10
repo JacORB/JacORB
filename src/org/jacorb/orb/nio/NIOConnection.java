@@ -1,7 +1,7 @@
 /*
  *        JacORB - a free Java ORB
  *
- *   Copyright (C) 2011 Gerald Brose.
+ *   Copyright (C) 2011-2012 Gerald Brose / The JacORB Team.
  *
  *   This library is free software; you can redistribute it and/or
  *   modify it under the terms of the GNU Library General Public
@@ -34,7 +34,6 @@ import org.omg.CORBA.TIMEOUT;
 
 /**
  * @author Ciju John
- * @version $Id$
  */
 public abstract class NIOConnection
         extends StreamConnectionBase
