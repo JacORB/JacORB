@@ -42,7 +42,6 @@ import org.omg.CosNotification.StructuredEventHelper;
 
 /**
  * @author Alphonse Bendt
- * @version $Id$
  */
 
 public class DefaultMessageFactory implements Disposable, MessageFactory

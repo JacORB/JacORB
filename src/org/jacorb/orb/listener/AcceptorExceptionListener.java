@@ -28,7 +28,6 @@ import java.util.EventListener;
  * e.g. shutdown the ORB.
  *
  * @author Nick Cross
- * @version $Id$
  */
 public interface AcceptorExceptionListener extends EventListener
 {

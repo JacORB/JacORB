@@ -33,7 +33,6 @@ import org.omg.DynamicAny.DynAnyPackage.TypeMismatch;
  * CORBA DynArray
  *
  * @author Gerald Brose
- * @version $Id$
  */
 
 public final class DynArray

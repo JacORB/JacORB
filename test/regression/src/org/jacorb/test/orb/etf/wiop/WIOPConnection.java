@@ -28,7 +28,6 @@ import org.omg.ETF.*;
  * a description of WIOP.
  * 
  * @author Andre Spiegel spiegel@gnu.org
- * @version $Id$
  */
 public class WIOPConnection extends _ConnectionLocalBase
 {

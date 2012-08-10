@@ -26,7 +26,6 @@ import org.omg.CORBA.INTF_REPOS;
 import org.omg.PortableServer.POA;
 
 /**
- * @version $Id$
  */
 
 public abstract class Contained

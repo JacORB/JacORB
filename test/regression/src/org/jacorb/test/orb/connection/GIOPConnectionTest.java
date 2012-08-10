@@ -38,7 +38,6 @@ import org.omg.GIOP.MsgType_1_1;
  *
  * @jacorb-client-since 2.2
  * @author Nicolas Noffke
- * @version $Id$
  */
 
 public class GIOPConnectionTest

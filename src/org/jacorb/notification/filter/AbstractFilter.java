@@ -123,7 +123,6 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
  * 
  * @author Alphonse Bendt
  * @author John Farrell
- * @version $Id$
  */
 
 public abstract class AbstractFilter implements GCDisposable, IServantLifecyle, 

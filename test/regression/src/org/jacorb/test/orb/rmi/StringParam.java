@@ -24,7 +24,6 @@ import java.io.Serializable;
 
 /**
  * @author Alphonse Bendt
- * @version $Id$
  */
 
 public class StringParam implements Serializable

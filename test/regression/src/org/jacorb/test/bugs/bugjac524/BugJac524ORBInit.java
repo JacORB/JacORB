@@ -29,7 +29,6 @@ import org.omg.PortableInterceptor.ORBInitInfo;
 
 /**
  * @author Alphonse Bendt
- * @version $Id$
  */
 public class BugJac524ORBInit extends AbstractORBInitializer
 {

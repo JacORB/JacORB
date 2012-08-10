@@ -4,7 +4,6 @@ import java.awt.Color;
 
 /**
  * @author Alphonse Bendt
- * @version $Id$
  */
 
 public class BrushSizePixelImage extends PixelImage {

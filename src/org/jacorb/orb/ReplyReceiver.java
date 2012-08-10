@@ -56,7 +56,6 @@ import org.slf4j.Logger;
  * ReplyHandler.
  *
  * @author Andre Spiegel <spiegel@gnu.org>
- * @version $Id$
  */
 
 public final class ReplyReceiver

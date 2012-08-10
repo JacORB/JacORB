@@ -30,7 +30,6 @@ import java.util.List;
  * A launcher that uses the jaco script of a given JacORB installation.
  *
  * @author Andre Spiegel spiegel@gnu.org
- * @version $Id$
  */
 public class JacoLauncher extends AbstractLauncher
 {

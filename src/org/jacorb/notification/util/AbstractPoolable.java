@@ -28,7 +28,6 @@ import org.jacorb.notification.interfaces.Disposable;
  * Interface to indicate that a Object can be pooled. Objects can be pooled to spare ressources.
  * 
  * @author Alphonse Bendt
- * @version $Id$
  */
 
 public abstract class AbstractPoolable implements Disposable

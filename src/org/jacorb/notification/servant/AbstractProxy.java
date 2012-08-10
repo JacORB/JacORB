@@ -71,7 +71,6 @@ import java.util.concurrent.atomic.AtomicInteger;
  * @jboss.xmbean 
  * 
  * @author Alphonse Bendt
- * @version $Id$
  */
 
 public abstract class AbstractProxy implements FilterAdminOperations, QoSAdminOperations,

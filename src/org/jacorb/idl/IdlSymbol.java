@@ -32,7 +32,6 @@ import org.jacorb.idl.util.IDLLogger;
  * Base class for all classes of the abstract IDL syntax tree
  *
  * @author Gerald Brose
- * @version $Id$
  */
 
 public class IdlSymbol

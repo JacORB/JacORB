@@ -37,7 +37,6 @@ import org.omg.CORBA.Object;
  * setup class for TypedEventChannel integration tests.
  *
  * @author Alphonse Bendt
- * @version $Id$
  */
 public class TypedServerTestSetup extends TestSetup
 {

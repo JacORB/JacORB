@@ -28,7 +28,6 @@ import org.omg.CORBA.TypeCodePackage.Bounds;
 
 /**
  * @author Alphonse Bendt
- * @version $Id$
  */
 public abstract class ComplexTypeCodeWriter implements TypeCodeWriter
 {

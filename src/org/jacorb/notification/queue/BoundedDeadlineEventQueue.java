@@ -29,7 +29,6 @@ import org.jacorb.notification.interfaces.Message;
  * implements the interface EventQueue and invokes the methods thereby synchronizing access.
  * 
  * @author Alphonse Bendt
- * @version $Id$
  */
 
 public class BoundedDeadlineEventQueue extends AbstractBoundedEventHeap

@@ -31,7 +31,6 @@ import org.jacorb.test.common.TestUtils;
 
 /**
  * @author Nicolas Noffke
- * @version $Id$
  */
 public class ServerConnectionTimeoutTest extends ClientServerTestCase
 {

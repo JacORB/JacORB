@@ -36,7 +36,6 @@ import org.slf4j.Logger;
  *  Unit Test for class LogKitLoggerFactory
  * @jacorb-since 2.2
  * @author Alphonse Bendt
- * @version $Id$
  */
 
 public class JDKLoggerTest

@@ -59,7 +59,6 @@ import org.omg.CosTransactions.Vote;
  *
  * @author Nicolas Noffke
  * @author Vladimir Mencl
- * @version $Id$
  */
 
 public class CoordinatorImpl 

@@ -25,7 +25,6 @@ import org.jacorb.notification.filter.EvaluationResult;
 
 /**
  * @author Alphonse Bendt
- * @version $Id$
  */
 
 public class ImmutableEvaluationResult extends EvaluationResult

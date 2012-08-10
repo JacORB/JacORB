@@ -32,7 +32,6 @@ import org.omg.IOP.TaggedProfileHolder;
 
 /**
  * @author Andre Spiegel
- * @version $Id$
  */
 public class IIOPFactories
     extends org.jacorb.orb.etf.FactoriesBase

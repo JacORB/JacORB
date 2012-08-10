@@ -22,7 +22,6 @@ package org.jacorb.orb.giop;
 
 /**
  * @author Nicolas Noffke
- * @version $Id$
  */
 
 public class NoBiDirServerReplyListener

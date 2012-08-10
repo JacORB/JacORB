@@ -23,7 +23,6 @@ package org.jacorb.config;
 /**
  * Implemented by objects that can be configured at run-time.
  * @author Andre Spiegel <spiegel@gnu.org>
- * @version $Id$
  */
 public interface Configurable
 {

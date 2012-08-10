@@ -31,7 +31,6 @@ import junit.extensions.*;
  * to a given client and server version.
  *
  * @author Andre Spiegel spiegel@gnu.org
- * @version $Id$
  */
 public class JacORBTestSuite extends TestSuite implements JacORBTest
 {

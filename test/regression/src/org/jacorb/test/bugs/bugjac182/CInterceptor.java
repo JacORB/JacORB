@@ -15,7 +15,6 @@ import org.omg.PortableInterceptor.ForwardRequest;
  * via a service context.
  *
  * @author Nick Cross
- * @version $Id$
  */
 public class CInterceptor
     extends org.omg.CORBA.LocalObject

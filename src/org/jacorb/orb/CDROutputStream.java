@@ -58,7 +58,6 @@ import org.omg.IOP.TaggedProfile;
 
 /**
  * @author Gerald Brose,  1999
- * @version $Id$
  *
  * A stream for CDR marshalling.
  *

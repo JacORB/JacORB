@@ -35,7 +35,6 @@ import sun.security.jgss.spi.MechanismFactory;
  * This is the GSS-API Sercurity Provider Interface (SPI) Facotry GSSUP GSSManager
  *
  * @author David Robison
- * @version $Id$
  */
 
 public final class GSSUPMechFactory

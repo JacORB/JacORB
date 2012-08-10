@@ -26,7 +26,6 @@ import org.jacorb.notification.servant.AbstractProxy;
 
 /**
  * @author Alphonse Bendt
- * @version $Id$
  */
 
 public class ProxyEvent extends ApplicationEvent

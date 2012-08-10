@@ -38,7 +38,6 @@ import org.omg.IOP.TaggedComponent;
  * See PI Spec p.7-64f
  *
  * @author Nicolas Noffke
- * @version $Id$
  */
 
 public class IORInfoImpl extends org.omg.CORBA.LocalObject

@@ -33,7 +33,6 @@ import org.omg.CosNotifyChannelAdmin.ChannelNotFound;
 
 /**
  * @author Alphonse Bendt
- * @version $Id$
  */
 public class ChannelManager implements Disposable
 {

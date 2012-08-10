@@ -26,7 +26,6 @@ import org.omg.CORBA_2_3.portable.InputStream;
 
 /**
  * @author <a href="mailto:spiegel@gnu.org">Andre Spiegel</a>
- * @version $Id$
  */
 public class SampleDefaultFactory implements SampleValueFactory
 {

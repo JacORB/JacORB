@@ -40,7 +40,6 @@ import org.slf4j.Logger;
  * requests out from the queue and will see that the necessary steps are taken.
  *
  * @author Reimo Tiedemann
- * @version $Id$
  */
 
 public final class RequestController

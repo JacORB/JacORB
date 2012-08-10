@@ -34,7 +34,6 @@ import org.slf4j.Logger;
  * This initializes the SAS Target Security Service (TSS) Interceptor
  *
  * @author David Robison
- * @version $Id$
  */
 
 public class SASInitializer

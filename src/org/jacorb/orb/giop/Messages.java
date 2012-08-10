@@ -26,7 +26,6 @@ import org.omg.IOP.ServiceContext;
 
 /**
  * @author Gerald Brose, FU Berlin 1999
- * @version $Id$
  *
  */
 public class Messages

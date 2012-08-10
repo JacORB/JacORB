@@ -29,7 +29,6 @@ import org.jacorb.notification.engine.AbstractRetryStrategy;
 
 /**
  * @author Alphonse Bendt
- * @version $Id$
  */
 public class AlwaysDisposeRetryStrategyTest extends AbstractRetryStrategyTestCase
 {

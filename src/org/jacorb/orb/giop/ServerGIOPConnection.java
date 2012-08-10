@@ -26,7 +26,6 @@ import org.jacorb.orb.iiop.IIOPConnection;
 
 /**
  * @author Nicolas Noffke
- * @version $Id$
  */
 
 public class ServerGIOPConnection

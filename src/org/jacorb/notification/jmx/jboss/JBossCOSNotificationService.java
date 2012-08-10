@@ -52,7 +52,6 @@ import org.omg.CORBA.ORB;
  * @jboss.xmbean
  *
  * @author Alphonse Bendt
- * @version $Id$
  */
 public class JBossCOSNotificationService extends ServiceMBeanSupport implements
         JBossCOSNotificationServiceMBean, ObjectFactory

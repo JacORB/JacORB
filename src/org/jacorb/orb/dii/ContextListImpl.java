@@ -26,7 +26,6 @@ import org.omg.CORBA.NO_IMPLEMENT;
 
 /**
  * @author Alphonse Bendt
- * @version $Id$
  */
 public class ContextListImpl extends ContextList
 {

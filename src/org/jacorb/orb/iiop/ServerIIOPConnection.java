@@ -33,7 +33,6 @@ import org.jacorb.orb.listener.TCPConnectionListener;
  *
  * @author Nicolas Noffke
  * @author Andre Spiegel
- * @version $Id$
  */
 
 public class ServerIIOPConnection

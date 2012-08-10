@@ -23,7 +23,6 @@ package org.jacorb.notification.servant;
 
 /**
  * @author Alphonse Bendt
- * @version $Id$
  */
 public interface ITypedEventChannel
 {

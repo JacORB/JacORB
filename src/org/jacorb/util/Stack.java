@@ -28,7 +28,6 @@ import java.util.LinkedList;
  *
  * @see java.util.Stack
  * @author Alphonse Bendt
- * @version $Id$
  */
 public class Stack
 {

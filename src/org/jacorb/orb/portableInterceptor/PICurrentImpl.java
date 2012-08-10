@@ -32,7 +32,6 @@ import org.omg.PortableInterceptor.InvalidSlot;
  * See PI Spec p. 6-55ff
  *
  * @author Nicolas Noffke
- * @version $Id$
  */
 
 public class PICurrentImpl extends org.omg.CORBA.LocalObject

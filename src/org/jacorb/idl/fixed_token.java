@@ -27,7 +27,6 @@ package org.jacorb.idl;
  *  field str_val.
  *
  * @see org.jacorb.idl.runtime.long_token
- * @version $Id$
  * @author  Gerald Brose
  */
 

@@ -28,7 +28,6 @@ import java.util.concurrent.Executor;
 
 /**
  * @author Alphonse Bendt
- * @version $Id$
  */
 public interface TaskExecutor extends Executor, Disposable, NotifyingDisposable
 {

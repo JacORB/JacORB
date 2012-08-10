@@ -52,7 +52,6 @@ import org.omg.SSLIOP.TAG_SSL_SEC_TRANS;
 
 /**
  * @author Andre Spiegel
- * @version $Id$
  */
 public class IIOPListener
     extends org.jacorb.orb.etf.ListenerBase

@@ -31,7 +31,6 @@ import org.omg.GIOP.ReplyStatusType_1_2;
 
 /**
  * @author Alphonse Bendt
- * @version $Id$
  */
 public class BugJac512Giop1_0ClientTest extends ORBTestCase
 {

@@ -54,7 +54,6 @@ package org.jacorb.notification.util;
  * </pre>
  * 
  * @author Alphonse Bendt
- * @version $Id$
  */
 public interface WildcardMap
 {

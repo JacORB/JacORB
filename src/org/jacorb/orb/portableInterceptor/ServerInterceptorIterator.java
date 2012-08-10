@@ -32,7 +32,6 @@ import org.omg.PortableInterceptor.ServerRequestInterceptor;
  * ServerRequestInterceptors.
  *
  * @author Nicolas Noffke
- * @version $Id$
  */
 
 public class ServerInterceptorIterator

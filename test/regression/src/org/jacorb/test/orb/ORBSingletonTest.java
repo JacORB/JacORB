@@ -29,7 +29,6 @@ import org.jacorb.test.common.*;
  * A very simple test that checks whether some methods in the singleton ORB
  * are correctly flagged as forbidden (NO_IMPLEMENT).
  * @author Andre Spiegel spiegel@gnu.org
- * @version $Id$
  */
 public class ORBSingletonTest extends JacORBTestCase
 {

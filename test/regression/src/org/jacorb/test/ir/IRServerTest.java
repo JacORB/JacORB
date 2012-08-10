@@ -32,7 +32,6 @@ import org.omg.CORBA.InterfaceDefHelper;
  * an example how IR tests should look like
  *
  * @author Alphonse Bendt
- * @version $Id$
  */
 public class IRServerTest extends AbstractIRServerTestCase
 {

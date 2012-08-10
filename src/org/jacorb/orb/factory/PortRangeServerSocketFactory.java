@@ -31,7 +31,6 @@ import org.slf4j.Logger;
 
 /**
  * @author Steve Osselton
- * @version $Id$
  */
 public class PortRangeServerSocketFactory
     implements ServerSocketFactory, Configurable

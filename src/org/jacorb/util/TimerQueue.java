@@ -38,7 +38,6 @@ package org.jacorb.util;
  * go away
  *
  * @author Phil Mesnier <mesnier_p@ociweb.com>
- * @version $Id$
  */
 public class TimerQueue
 {

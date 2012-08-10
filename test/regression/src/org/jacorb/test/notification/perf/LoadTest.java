@@ -45,7 +45,6 @@ import org.omg.CosNotifyChannelAdmin.EventChannelFactoryHelper;
 
 /**
  * @author Alphonse Bendt
- * @version $Id$
  */
 public class LoadTest extends NotificationTestCase
 {

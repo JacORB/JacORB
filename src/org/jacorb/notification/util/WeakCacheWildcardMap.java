@@ -26,7 +26,6 @@ import java.util.WeakHashMap;
 
 /**
  * @author Alphonse Bendt
- * @version $Id$
  */
 public class WeakCacheWildcardMap implements WildcardMap
 {

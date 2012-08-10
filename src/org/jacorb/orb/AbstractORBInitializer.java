@@ -29,7 +29,6 @@ import org.slf4j.Logger;
 
 /**
  * @author Alphonse Bendt
- * @version $Id$
  */
 public class AbstractORBInitializer extends org.omg.CORBA.LocalObject implements ORBInitializer
 {

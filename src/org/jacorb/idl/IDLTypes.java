@@ -24,7 +24,6 @@ package org.jacorb.idl;
  * Enum of idl types
  *
  * @author Alexander Birchenko
- * @version $Id$
  */
 
 public enum IDLTypes

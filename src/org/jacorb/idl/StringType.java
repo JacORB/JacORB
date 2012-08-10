@@ -25,7 +25,6 @@ import java.util.Set;
 
 /**
  * @author Gerald Brose
- * @version $Id$
  */
 
 public class StringType

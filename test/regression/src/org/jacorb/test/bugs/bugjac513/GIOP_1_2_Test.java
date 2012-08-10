@@ -24,7 +24,6 @@ import org.jacorb.test.common.PatternWrapper;
 
 /**
  * @author Alphonse Bendt
- * @version $Id$
  */
 public class GIOP_1_2_Test extends AbstractGIOPMinorVersionTestCase
 {

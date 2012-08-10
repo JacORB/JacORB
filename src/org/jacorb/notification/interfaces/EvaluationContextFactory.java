@@ -25,7 +25,6 @@ import org.jacorb.notification.filter.EvaluationContext;
 
 /**
  * @author Alphonse Bendt
- * @version $Id$
  */
 public interface EvaluationContextFactory
 {

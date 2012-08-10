@@ -52,7 +52,6 @@ import org.slf4j.Logger;
  * See PI Spec p.5-46ff
  *
  * @author Nicolas Noffke
- * @version $Id$
  */
 
 public class ClientRequestInfoImpl

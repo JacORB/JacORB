@@ -31,7 +31,6 @@ import org.omg.PortableServer.POAHelper;
 
 /**
  * @author Alphonse Bendt
- * @version $Id$
  */
 public class ClientInterceptorTest extends ORBTestCase
 {

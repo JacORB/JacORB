@@ -34,7 +34,6 @@ import org.omg.PortableServer.POAHelper;
  * Created: Mon Apr  7 15:38:18 2003
  *
  * @author Alphonse Bendt
- * @version $Id$
  */
 
 public class EchoServerImpl extends EchoServerPOA

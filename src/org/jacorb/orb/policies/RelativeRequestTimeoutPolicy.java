@@ -31,7 +31,6 @@ import org.omg.Messaging._RelativeRequestTimeoutPolicyLocalBase;
  * back to the client.
  * 
  * @author Andre Spiegel spiegel@gnu.org
- * @version $Id$
  */
 public class RelativeRequestTimeoutPolicy
     extends _RelativeRequestTimeoutPolicyLocalBase

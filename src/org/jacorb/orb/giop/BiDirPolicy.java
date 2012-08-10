@@ -27,7 +27,6 @@ import org.omg.CORBA.Policy;
 
 /**
  * @author Nicolas Noffke
- * @version $Id$
  */
 
 public class BiDirPolicy

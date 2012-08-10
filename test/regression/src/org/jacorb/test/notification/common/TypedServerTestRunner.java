@@ -30,7 +30,6 @@ import org.jacorb.notification.ConsoleMain;
  * print its IOR to stdout.
  * 
  * @author Alphonse Bendt
- * @version $Id$
  */
 public class TypedServerTestRunner
 {

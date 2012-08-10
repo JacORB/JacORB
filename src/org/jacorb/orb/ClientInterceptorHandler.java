@@ -27,7 +27,6 @@ import org.omg.PortableInterceptor.ForwardRequest;
 
 /**
  * @author Alphonse Bendt
- * @version $Id$
  */
 public interface ClientInterceptorHandler
 {

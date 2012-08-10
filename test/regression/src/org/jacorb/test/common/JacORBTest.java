@@ -23,7 +23,6 @@ package org.jacorb.test.common;
 
 /**
  * @author Andre Spiegel spiegel@gnu.org
- * @version $Id$
  */
 public interface JacORBTest
 {

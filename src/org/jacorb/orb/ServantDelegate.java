@@ -36,7 +36,6 @@ import org.omg.PortableServer.POAPackage.WrongPolicy;
 /**
  * JacORB-specific implementation of PortableServer.Servant
  *
- * $Id$
  */
 public class ServantDelegate
     implements org.omg.PortableServer.portable.Delegate

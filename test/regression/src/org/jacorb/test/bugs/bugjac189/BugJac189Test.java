@@ -11,7 +11,6 @@ import org.jacorb.test.common.TestUtils;
  * <code>TestCaseImpl</code> tests that a single threaded POA shuts down correctly.
  *
  * @author Nick Cross
- * @version $Id$
  */
 public class BugJac189Test extends ClientServerTestCase
 {

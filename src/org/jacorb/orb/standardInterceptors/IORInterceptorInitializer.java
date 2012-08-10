@@ -33,7 +33,6 @@ import org.slf4j.Logger;
  * used by JacORB.
  *
  * @author Nicolas Noffke
- * @version $Id$
  */
 
 public class IORInterceptorInitializer

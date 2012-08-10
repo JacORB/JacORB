@@ -46,7 +46,6 @@ import org.omg.IOP.TaggedProfile;
  *
  * @jacorb-since 2.2
  * @author Marc Heide
- * @version $Id$
  */
 public class AlternateProfileTest extends ClientServerTestCase
 {

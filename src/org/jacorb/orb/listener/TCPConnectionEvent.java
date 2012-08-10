@@ -28,7 +28,6 @@ import org.jacorb.orb.iiop.IIOPConnection;
  * TCP Socket Connection.
  *
  * @author Nick Cross
- * @version $Id$
  */
 public class TCPConnectionEvent extends EventObject
 {

@@ -36,7 +36,6 @@ import org.slf4j.Logger;
  * CORBA DynAny
  *
  * @author Gerald Brose
- * @version $Id$
  */
 public class DynAny
    extends org.omg.CORBA.LocalObject

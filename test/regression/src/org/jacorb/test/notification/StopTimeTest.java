@@ -44,7 +44,6 @@ import org.omg.TimeBase.UtcTHelper;
 
 /**
  * @author Alphonse Bendt
- * @version $Id$
  */
 
 public class StopTimeTest extends NotificationTestCase

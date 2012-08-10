@@ -27,7 +27,6 @@ import org.omg.CosNaming.NamingContextExtHelper;
 
 /**
  * @author Gerald Brose
- * @version $Id$
  */
 public class TracingServiceImpl
     extends TracingServicePOA

@@ -30,7 +30,6 @@ import org.omg.GIOP.TargetAddress;
 
 /**
  * @author Gerald Brose, FU Berlin
- * @version $Id$
  */
 public class LocateRequestInputStream
     extends MessageInputStream

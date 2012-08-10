@@ -29,7 +29,6 @@ import org.jacorb.notification.util.AbstractPoolable;
 
 /**
  * @author Alphonse Bendt
- * @version $Id$
  */
 public class PoolingEvaluationContextFactory implements EvaluationContextFactory
 {

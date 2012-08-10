@@ -15,7 +15,6 @@ import org.jacorb.test.common.TestUtils;
 
 /**
  * @author Alphonse Bendt
- * @version $Id$
  */
 public class BugJac352Test extends ClientServerTestCase
 {

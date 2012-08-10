@@ -28,7 +28,6 @@ import org.omg.CosNotifyFilter.InvalidGrammar;
 
 /**
  * @author Alphonse Bendt
- * @version $Id$
  */
 public interface IFilterFactoryDelegate extends Disposable
 {

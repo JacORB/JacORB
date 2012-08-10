@@ -19,7 +19,6 @@ import org.omg.CORBA.TIMEOUT;
 
 /**
  * @author Alphonse Bendt
- * @version $Id$
  */
 public abstract class AbstractSocketFactoryTestCase extends TestCase
 {

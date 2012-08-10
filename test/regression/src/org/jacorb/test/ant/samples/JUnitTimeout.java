@@ -24,7 +24,6 @@ import junit.framework.TestCase;
 
 /**
  * @author Alphonse Bendt
- * @version $Id$
  */
 public class JUnitTimeout extends TestCase
 {

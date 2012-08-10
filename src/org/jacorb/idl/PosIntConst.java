@@ -25,7 +25,6 @@ package org.jacorb.idl;
  * sequence bounds declarations.
  *
  * @author Gerald Brose
- * @version $Id$
  */
 
 public class PosIntConst

@@ -38,7 +38,6 @@ import org.omg.CosNaming.NamingContextHelper;
  * to a PrintStream
  *
  * @author Gerald Brose
- * @version $Id$
  */
 
 public class ContextLister

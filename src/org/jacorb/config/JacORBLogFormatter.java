@@ -31,7 +31,6 @@ import java.util.logging.LogRecord;
  * than the standard JDK setting.
  *
  * @author Andre Spiegel <spiegel@gnu.org>
- * @version $Id$
  */
 public class JacORBLogFormatter extends Formatter
 {

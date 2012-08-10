@@ -31,7 +31,6 @@ import org.jacorb.notification.util.DisposableManager;
 
 /**
  * @author Alphonse Bendt
- * @version $Id$
  */
 public class DisposableManagerTest extends TestCase
 {

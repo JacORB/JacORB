@@ -41,7 +41,6 @@ import org.omg.CosNotification.UnsupportedAdmin;
 
 /**
  * @author Alphonse Bendt
- * @version $Id$
  */
 
 public class AdminPropertySet

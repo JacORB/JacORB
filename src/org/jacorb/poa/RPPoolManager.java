@@ -33,7 +33,6 @@ import org.slf4j.Logger;
  *
  * @author Gerald Brose
  * @author Reimo Tiedemann
- * @version $Id$
  * @see org.jacorb.poa.RequestProcessor
  */
 

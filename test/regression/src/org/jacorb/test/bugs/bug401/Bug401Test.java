@@ -35,7 +35,6 @@ import org.omg.CORBA.portable.ValueFactory;
  * Test for bug 401, TypeCode problem when putting values into Anys.
  *
  * @author <a href="mailto:spiegel@gnu.org">Andre Spiegel</a>
- * @version $Id$
  */
 public class Bug401Test extends ClientServerTestCase
 {

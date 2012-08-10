@@ -5,7 +5,6 @@ import org.omg.CORBA.BAD_PARAM;
 
 /**
  * @author Alphonse Bendt
- * @version $Id$
  */
 public class BugJac294Test extends ORBTestCase
 {

@@ -13,7 +13,6 @@ import org.omg.PortableInterceptor.ServerRequestInterceptor;
  * Created: Fri Oct 26 11:17:02 2001
  *
  * @author Nicolas Noffke
- * @version $Id$
  */
 
 public class ServerInterceptor extends org.omg.CORBA.LocalObject implements ServerRequestInterceptor

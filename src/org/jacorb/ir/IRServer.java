@@ -30,7 +30,6 @@ import java.util.StringTokenizer;
  * The main server that starts the Interface Repository
  *
  * @author Gerald Brose
- * @version $Id$
  */
 
 public class IRServer

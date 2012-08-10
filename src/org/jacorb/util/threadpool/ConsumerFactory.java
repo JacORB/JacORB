@@ -26,7 +26,6 @@ package org.jacorb.util.threadpool;
  * Created: Thu Dec 21 11:07:04 2000
  *
  * @author Nicolas Noffke
- * $Id$
  */
 
 public interface ConsumerFactory  

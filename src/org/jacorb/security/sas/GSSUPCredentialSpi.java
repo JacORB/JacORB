@@ -33,7 +33,6 @@ import sun.security.jgss.spi.GSSNameSpi;
  * This is the GSS-API Sercurity Provider Interface (SPI) for the GSSUP Credential
  *
  * @author David Robison
- * @version $Id$
  */
 
 public final class GSSUPCredentialSpi implements GSSCredentialSpi

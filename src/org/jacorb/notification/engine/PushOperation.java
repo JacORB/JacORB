@@ -25,7 +25,6 @@ import org.omg.CosEventComm.Disconnected;
 
 /**
  * @author Alphonse Bendt
- * @version $Id$
  */
 public interface PushOperation extends Disposable {
     void invokePush() throws Disconnected;

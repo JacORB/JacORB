@@ -30,7 +30,6 @@ import org.omg.IOP.*;
  * a description of WIOP.
  * 
  * @author <a href="mailto:spiegel@gnu.org">Andre Spiegel</a>
- * @version $Id$
  */
 public class WIOPProfile extends _ProfileLocalBase
 {

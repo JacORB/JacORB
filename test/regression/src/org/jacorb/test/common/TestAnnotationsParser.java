@@ -36,7 +36,6 @@ import java.nio.charset.*;
  * parts of the program.
  * 
  * @author Andre Spiegel spiegel@gnu.org
- * @version $Id$
  */
 public class TestAnnotationsParser
 {

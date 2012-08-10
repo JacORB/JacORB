@@ -50,7 +50,6 @@ import org.omg.CosTransactions.otid_t;
  *
  * @author Nicolas Noffke
  * @author Vladimir Mencl
- * @version $Id$
  */
 
 public class TransactionCurrentImpl 

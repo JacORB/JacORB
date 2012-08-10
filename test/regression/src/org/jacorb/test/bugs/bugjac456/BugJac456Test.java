@@ -28,7 +28,6 @@ import org.omg.CORBA.portable.OutputStream;
 
 /**
  * @author Alphonse Bendt
- * @version $Id$
  */
 public class BugJac456Test extends ORBTestCase
 {

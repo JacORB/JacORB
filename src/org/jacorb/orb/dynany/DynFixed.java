@@ -32,7 +32,6 @@ import org.omg.DynamicAny.DynAnyPackage.TypeMismatch;
  * CORBA DynFixed
  *
  * @author Jason Courage
- * @version $Id$
  */
 
 public final class DynFixed

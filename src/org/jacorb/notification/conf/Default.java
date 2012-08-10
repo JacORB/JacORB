@@ -26,7 +26,6 @@ import org.jacorb.notification.util.WeakCacheWildcardMap;
 
 /**
  * @author Alphonse Bendt
- * @version $Id$
  */
 
 public interface Default

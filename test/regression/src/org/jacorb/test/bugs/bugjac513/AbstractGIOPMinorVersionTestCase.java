@@ -35,7 +35,6 @@ import org.omg.CORBA.portable.ObjectImpl;
 
 /**
  * @author Alphonse Bendt
- * @version $Id$
  */
 public abstract class AbstractGIOPMinorVersionTestCase extends ORBTestCase
 {

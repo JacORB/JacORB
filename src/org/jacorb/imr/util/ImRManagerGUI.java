@@ -59,7 +59,6 @@ import org.jacorb.imr.ServerInfo;
  * The GUI'ed version of the ImRManager.
  *
  * @author Nicolas Noffke
- * @version $Id$
  *
  */
 

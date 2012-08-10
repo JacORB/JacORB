@@ -27,7 +27,6 @@ import org.omg.CosNotifyFilter.FilterOperations;
 
 /**
  * @author Alphonse Bendt
- * @version $Id$
  */
 public class FilterUsageDecorator extends AbstractFilterUsageDecorator
 {

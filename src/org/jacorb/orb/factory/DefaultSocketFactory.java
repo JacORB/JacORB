@@ -29,7 +29,6 @@ import java.net.UnknownHostException;
  * the default SocketFactory implementation.
  *
  * @author Steve Osselton
- * @version $Id$
  */
 public class DefaultSocketFactory extends AbstractSocketFactory
 {

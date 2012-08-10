@@ -30,7 +30,6 @@ import org.omg.CORBA.MARSHAL;
  * Created: Sat Aug 18 21:07:07 2002
  *
  * @author Nicolas Noffke
- * @version $Id$
  */
 
 public class MessageInputStream

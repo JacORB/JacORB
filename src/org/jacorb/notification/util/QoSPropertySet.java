@@ -62,7 +62,6 @@ import org.omg.TimeBase.TimeTHelper;
 
 /**
  * @author Alphonse Bendt
- * @version $Id$
  */
 
 public class QoSPropertySet extends PropertySet

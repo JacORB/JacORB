@@ -16,7 +16,6 @@ import org.omg.Messaging.*;
  * Despite a heavy request storm all requests should come through.
  *
  * @author Andre Spiegel
- * @version $Id$
  */
 public class QueueWaitTest extends CallbackTestCase
 {

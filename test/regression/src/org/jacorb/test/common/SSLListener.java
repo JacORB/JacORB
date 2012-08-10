@@ -7,7 +7,6 @@ import org.jacorb.orb.listener.SSLSessionListener;
  * <code>SSLListener</code> is a simple implementation of a listener.
  *
  * @author Nick Cross
- * @version $Id$
  */
 public class SSLListener implements SSLSessionListener
 {

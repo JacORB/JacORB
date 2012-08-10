@@ -24,7 +24,6 @@ import org.apache.regexp.RESyntaxException;
 
 /**
  * @author Alphonse Bendt
- * @version $Id$
  */
 public class JakartaRegexpPatternWrapper extends PatternWrapper
 {

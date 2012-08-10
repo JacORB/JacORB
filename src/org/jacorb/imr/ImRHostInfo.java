@@ -30,7 +30,6 @@ import org.omg.CORBA.ORB;
  *
  * @author Nicolas Noffke
  *
- * @version $Id$
  */
 public class ImRHostInfo
     implements java.io.Serializable

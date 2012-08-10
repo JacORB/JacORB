@@ -45,7 +45,6 @@ import org.slf4j.Logger;
  * See PI Spec p. 9-70ff
  *
  * @author Nicolas Noffke
- * @version $Id$
  */
 
 public class ORBInitInfoImpl

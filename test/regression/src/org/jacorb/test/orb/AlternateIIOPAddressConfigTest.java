@@ -31,7 +31,6 @@ import org.jacorb.test.*;
 /**
  * Tests the configuration option jacorb.iiop.alternate_addresses.
  * @author Andre Spiegel <spiegel@gnu.org>
- * @version $Id$
  */
 public class AlternateIIOPAddressConfigTest extends ClientServerTestCase
 {

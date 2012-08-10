@@ -26,7 +26,6 @@ package org.jacorb.orb.dii;
  * DII requests.
  *
  * @author Gerald Brose, FU Berlin
- * @version $Id$
  */
 
 public class Environment

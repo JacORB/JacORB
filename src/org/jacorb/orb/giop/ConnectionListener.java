@@ -27,7 +27,6 @@ package org.jacorb.orb.giop;
  * Created: Thu Oct  4 15:56:02 2002
  *
  * @author Nicolas Noffke
- * @version $Id$
  */
 
 public interface ConnectionListener 

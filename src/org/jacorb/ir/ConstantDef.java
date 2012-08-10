@@ -28,7 +28,6 @@ import org.omg.PortableServer.POA;
 /**
  * JacORB implementation of IR ConstantDef objects
  * @author  Gerald Brose
- * @version $Id$
  */
 
 public class ConstantDef

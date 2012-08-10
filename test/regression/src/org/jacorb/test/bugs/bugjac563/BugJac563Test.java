@@ -41,7 +41,6 @@ import org.jacorb.test.orb.connection.BiDirSetup;
 
 /**
  * @author Alphonse Bendt
- * @version $Id$
  */
 public class BugJac563Test extends ClientServerTestCase
 {

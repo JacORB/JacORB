@@ -28,7 +28,6 @@ import java.util.Vector;
 
 /**
  * @author Gerald Brose
- * @version $Id$
  *
  * directly known subclasses: ValueBody
  */

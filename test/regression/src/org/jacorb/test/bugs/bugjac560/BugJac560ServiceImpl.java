@@ -25,7 +25,6 @@ import cerent.cms.idl.Node.xNoSuchDefault;
 
 /**
  * @author Alphonse Bendt
- * @version $Id$
  */
 public class BugJac560ServiceImpl extends BugJac560ServicePOA
 {

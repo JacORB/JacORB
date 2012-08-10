@@ -29,7 +29,6 @@ import java.util.EventListener;
  * events from JacORB.
  *
  * @author Nick Cross
- * @version $Id$
  */
 public interface SSLSessionListener extends EventListener
 {

@@ -24,7 +24,6 @@ import org.jacorb.notification.interfaces.IProxyPushSupplier;
 
 /**
  * @author Alphonse Bendt
- * @version $Id$
  */
 
 public class WaitRetryStrategy extends AbstractRetryStrategy

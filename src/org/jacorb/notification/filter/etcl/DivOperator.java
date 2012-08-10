@@ -30,7 +30,6 @@ import antlr.Token;
 /**
  * A simple node to represent DIV operation
  *
- * @version $Id$
  */
 
 public class DivOperator extends BinaryOperator

@@ -28,7 +28,6 @@ import org.jacorb.notification.interfaces.EvaluationContextFactory;
 
 /**
  * @author Alphonse Bendt
- * @version $Id$
  */
 public class DefaultEvaluationContextFactory implements EvaluationContextFactory
 {

@@ -27,7 +27,6 @@ import org.omg.RTCORBA._ClientProtocolPolicyLocalBase;
 
 /**
  * @author Steve Osselton
- * @version $Id$
  */
 public class ClientProtocolPolicy extends _ClientProtocolPolicyLocalBase
 {

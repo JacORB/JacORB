@@ -7,7 +7,6 @@ import org.omg.PortableInterceptor.ORBInitInfoPackage.DuplicateName;
 
 /**
  * @author Andre Spiegel
- * @version $Id$
  */
 public class IIOPProfileORBInitializer
     extends LocalObject

@@ -45,7 +45,6 @@ import org.jacorb.util.ObjectUtil;
  * invoke the launch() method on the resulting object.
  *
  * @author Andre Spiegel spiegel@gnu.org
- * @version $Id$
  */
 public class JacORBLauncher
 {

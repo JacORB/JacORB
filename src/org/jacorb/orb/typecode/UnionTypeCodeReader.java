@@ -26,7 +26,6 @@ import org.omg.CORBA.UnionMember;
 
 /**
  * @author Alphonse Bendt
- * @version $Id$
  */
 public class UnionTypeCodeReader extends ComplexTypeCodeReader
 {

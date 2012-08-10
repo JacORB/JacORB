@@ -33,7 +33,6 @@ import org.omg.PortableInterceptor.PolicyFactory;
 
 /**
  * @author Nicolas Noffke
- * @version $Id$
  */
 public class BiDirPolicyFactory
     extends org.omg.CORBA.LocalObject

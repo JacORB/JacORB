@@ -40,7 +40,6 @@ import org.jacorb.test.common.TestUtils;
  *
  * @jacorb-since 2.2
  * @author Andre Spiegel
- * @version $Id$
  */
 public class AlternateIIOPAddressTest extends ClientServerTestCase
 {

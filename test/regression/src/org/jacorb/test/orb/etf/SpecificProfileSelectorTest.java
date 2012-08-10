@@ -43,7 +43,6 @@ import org.omg.RTCORBA.RTORBHelper;
 
 /**
  * @author Alphonse Bendt
- * @version $Id$
  */
 public class SpecificProfileSelectorTest extends AbstractWIOPTestCase
 {

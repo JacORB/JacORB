@@ -31,7 +31,6 @@ import org.omg.PortableServer.POA;
 
 /**
  * @author Alphonse Bendt
- * @version $Id$
  */
 public abstract class AbstractSupplierAdmin extends AbstractAdmin {
     public abstract void setSubsequentFilterStageSource(FilterStageSource source);

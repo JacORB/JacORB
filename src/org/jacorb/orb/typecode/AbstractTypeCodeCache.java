@@ -29,7 +29,6 @@ import org.slf4j.Logger;
 
 /**
  * @author Alphonse Bendt
- * @version $Id$
  */
 public abstract class AbstractTypeCodeCache implements TypeCodeCache, Configurable
 {

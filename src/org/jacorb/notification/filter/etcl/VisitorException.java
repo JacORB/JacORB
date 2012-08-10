@@ -23,7 +23,6 @@ package org.jacorb.notification.filter.etcl;
 
 /**
  * @author Alphonse Bendt
- * @version $Id$
  */
 
 public class VisitorException extends Exception

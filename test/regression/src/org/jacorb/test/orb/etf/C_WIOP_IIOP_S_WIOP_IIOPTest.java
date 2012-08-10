@@ -34,7 +34,6 @@ import org.jacorb.test.orb.etf.wiop.WIOPFactories;
  * side, in that order.  Therefore, WIOP should be used for the connection.
  * 
  * @author Andre Spiegel spiegel@gnu.org
- * @version $Id$
  */
 public class C_WIOP_IIOP_S_WIOP_IIOPTest extends AbstractWIOPTestCase
 {

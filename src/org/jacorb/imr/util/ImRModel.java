@@ -52,7 +52,6 @@ import org.jacorb.imr.AdminPackage.IllegalServerName;
  *
  * @author Nicolas Noffke
  *
- * $Id$
  */
 
 public class ImRModel

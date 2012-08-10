@@ -30,7 +30,6 @@ import java.util.Properties;
  * methods shared between JacORB's test setup classes.
  *
  * @author Alphonse Bendt
- * @version $Id$
  */
 public class CommonSetup
 {

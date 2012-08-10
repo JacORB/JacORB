@@ -33,7 +33,6 @@ import org.omg.CORBA.portable.ApplicationException;
  * application exception into an any.
  *
  * @author Nicolas Noffke
- * @version $Id$
  */
 public class ApplicationExceptionHelper
 {

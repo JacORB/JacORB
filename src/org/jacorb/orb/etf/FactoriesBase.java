@@ -32,7 +32,6 @@ import org.omg.RTCORBA.ProtocolProperties;
 
 /**
  * @author Andre Spiegel
- * @version $Id$
  */
 public abstract class FactoriesBase
     extends org.omg.ETF._FactoriesLocalBase

@@ -41,7 +41,6 @@ import org.omg.PortableServer.POAPackage.WrongPolicy;
 
 /**
  * @author Alphonse Bendt
- * @version $Id$
  */
 public class BugJac380Test extends ORBTestCase
 {

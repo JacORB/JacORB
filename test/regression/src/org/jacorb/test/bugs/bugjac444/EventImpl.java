@@ -22,7 +22,6 @@ package org.jacorb.test.bugs.bugjac444;
 
 /**
  * @author Alphonse Bendt
- * @version $Id$
  */
 public class EventImpl extends Event
 {

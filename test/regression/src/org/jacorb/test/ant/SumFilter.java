@@ -24,7 +24,6 @@ import org.apache.tools.ant.filters.TokenFilter.ChainableReaderFilter;
 
 /**
  * @author Alphonse Bendt
- * @version $Id$
  */
 public class SumFilter extends ChainableReaderFilter
 {

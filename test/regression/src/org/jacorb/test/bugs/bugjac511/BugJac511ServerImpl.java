@@ -25,7 +25,6 @@ import bugjac511a.bugjac511b.TestException;
 
 /**
  * @author Alphonse Bendt
- * @version $Id$
  */
 public class BugJac511ServerImpl extends BugJac511ServerPOA
 {

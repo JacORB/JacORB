@@ -24,7 +24,6 @@ import java.util.List;
 
 /**
  * @author Alphonse Bendt
- * @version $Id$
  */
 
 public interface FilterStageSource {

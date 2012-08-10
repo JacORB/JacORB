@@ -32,7 +32,6 @@ import junit.framework.TestCase;
 
 /**
  * @author Alphonse Bendt
- * @version $Id$
  */
 public class ObjectUtilTest extends TestCase
 {

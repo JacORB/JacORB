@@ -14,7 +14,6 @@ import org.omg.PortableServer.POA;
 
 /**
  * @author Andre Spiegel
- * @version $Id$
  */
 public class BiDirServerImpl extends BiDirServerPOA
 {

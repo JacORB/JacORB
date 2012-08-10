@@ -25,7 +25,6 @@ package org.jacorb.util.threadpool;
  * ConsumerTie.java
  *
  * @author Nicolas Noffke
- * $Id$
  */
 
 public  class ConsumerTie

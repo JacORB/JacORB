@@ -31,7 +31,6 @@ import junit.framework.TestCase;
 
 /**
  * @author Alphonse Bendt
- * @version $Id$
  */
 public class BugJac482Test extends TestCase
 {

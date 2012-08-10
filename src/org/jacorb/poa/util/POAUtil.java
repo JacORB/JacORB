@@ -50,7 +50,6 @@ import org.omg.PortableServer.ThreadPolicyValue;
  * This class collects some useful routines for the POA.
  *
  * @author Reimo Tiedemann, FU Berlin
- * @version $Id$
  */
 
 public final class POAUtil

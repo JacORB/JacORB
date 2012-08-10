@@ -26,7 +26,6 @@ import java.util.Hashtable;
  * A table of defined typeprefixes
  * 
  * @author Alexander Birchenko
- * @version $Id$
  */
 
 public class TypePrefixes

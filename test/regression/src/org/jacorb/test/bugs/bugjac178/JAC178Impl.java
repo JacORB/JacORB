@@ -17,7 +17,6 @@ import org.omg.PortableServer.POAHelper;
  * ORB_CTRL threading models within the POA.
  *
  * @author Nick Cross
- * @version $Id$
  */
 public class JAC178Impl extends JAC178POA implements Configurable
 {

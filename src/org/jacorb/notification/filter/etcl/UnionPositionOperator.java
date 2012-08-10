@@ -25,7 +25,6 @@ import antlr.Token;
 
 /**
  * @author Alphonse Bendt
- * @version $Id$
  */
 
 public class UnionPositionOperator extends AbstractTCLNode

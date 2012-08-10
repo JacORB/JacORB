@@ -56,7 +56,6 @@ import java.util.concurrent.atomic.AtomicLong;
  * @jboss.xmbean
  * 
  * @author Alphonse Bendt
- * @version $Id$
  */
 
 public class SequenceProxyPushSupplierImpl extends AbstractProxyPushSupplier implements

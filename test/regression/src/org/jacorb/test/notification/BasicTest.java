@@ -26,7 +26,6 @@ import org.omg.PortableServer.POAHelper;
 
 /**
  * @author Alphonse Bendt
- * @version $Id$
  */
 public class BasicTest extends ORBTestCase
 {

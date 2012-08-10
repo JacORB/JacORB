@@ -11,7 +11,6 @@ import org.omg.PortableServer.POA;
 
 /**
  * @author Andre Spiegel
- * @version $Id$
  */
 public class IIOPAddressServerImpl extends IIOPAddressServerPOA
     implements Configurable

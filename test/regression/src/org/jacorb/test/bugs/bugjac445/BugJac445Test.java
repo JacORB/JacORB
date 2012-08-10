@@ -28,7 +28,6 @@ import org.jacorb.test.common.ORBTestCase;
 
 /**
  * @author Alphonse Bendt
- * @version $Id$
  */
 public class BugJac445Test extends ORBTestCase
 {

@@ -22,7 +22,6 @@ package org.jacorb.orb.typecode;
 
 /**
  * @author Alphonse Bendt
- * @version $Id$
  */
 public interface TypeCodeCache
 {

@@ -37,7 +37,6 @@ package org.jacorb.events;
  * @author Joerg v. Frantzius
  * @author Rainer Lischetzki
  * @author Gerald Brose
- * $Id$
  */
 public class ProxyPullConsumerImpl
     extends org.omg.CosEventChannelAdmin.ProxyPullConsumerPOA

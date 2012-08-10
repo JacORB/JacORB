@@ -34,7 +34,6 @@ import org.omg.CORBA.ORB;
  *              extends = "org.jacorb.notification.jmx.COSNotificationServiceMBean"
  * 
  * @author Alphonse Bendt
- * @version $Id$
  */
 public class MX4JCOSNotificationService 
     extends COSNotificationService 

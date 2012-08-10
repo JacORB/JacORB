@@ -35,7 +35,6 @@ import org.slf4j.Logger;
 
 /**
  * @author Steve Osselton
- * @version $Id$
  */
 public class SocketFactoryManager
     implements Configurable

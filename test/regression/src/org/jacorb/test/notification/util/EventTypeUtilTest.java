@@ -30,7 +30,6 @@ import org.omg.CosNotification.EventType;
 
 /**
  * @author Alphonse Bendt
- * @version $Id$
  */
 public class EventTypeUtilTest extends TestCase
 {

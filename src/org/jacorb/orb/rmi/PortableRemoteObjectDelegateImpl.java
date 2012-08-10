@@ -22,7 +22,6 @@ package org.jacorb.orb.rmi;
 
 /**
  * @author Gerald Brose
- * @version $Id$
  */
 
 import java.rmi.Remote;
