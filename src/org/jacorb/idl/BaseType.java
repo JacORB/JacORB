@@ -24,7 +24,6 @@ package org.jacorb.idl;
  * Represents IDL base types
  *
  * @author Gerald Brose
- * @version $Id$
  */
 
 import java.io.PrintWriter;

@@ -50,7 +50,6 @@ import org.picocontainer.MutablePicoContainer;
  * reference of that event channel. <br>
  *
  * @author Alphonse Bendt
- * @version $Id$
  */
 
 public class EventChannelFactoryImpl extends AbstractChannelFactory implements

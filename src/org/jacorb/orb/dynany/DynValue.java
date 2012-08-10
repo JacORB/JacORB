@@ -29,7 +29,6 @@ import org.omg.DynamicAny.DynAnyPackage.TypeMismatch;
  * CORBA DynValue
  *
  * @author Nick Cross
- * @version $Id$
  */
 
 public final class DynValue

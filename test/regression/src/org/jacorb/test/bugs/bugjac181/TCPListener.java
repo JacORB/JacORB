@@ -9,7 +9,6 @@ import org.jacorb.orb.listener.TCPConnectionListener;
  * <code>TCPListener</code> is a simple implementation of a listener.
  *
  * @author Nick Cross
- * @version $Id$
  */
 public class TCPListener implements TCPConnectionListener
 {

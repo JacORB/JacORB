@@ -38,7 +38,6 @@ import javax.swing.JTextField;
 /**
  * A dialog to enter the name and ior for an object binding
  *
- * @version $Id$
  * @author Gerald Brose, Xtradyne Technologies
  */
 

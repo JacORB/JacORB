@@ -43,7 +43,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * This class needs a two phase initialization: configure MUST be invoked before an instance can be used.
  *
  * @author Alphonse Bendt
- * @version $Id$
  */
 
 public abstract class AbstractObjectPool implements Runnable, Configurable

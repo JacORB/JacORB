@@ -33,7 +33,6 @@ import java.util.Date;
  * that allows you to capture an IOR from the <code>InputStream</code>.
  *
  * @author <a href="mailto:spiegel@gnu.org">Andre Spiegel</a>
- * @version $Id$
  */
 public class StreamListener extends Thread
 {

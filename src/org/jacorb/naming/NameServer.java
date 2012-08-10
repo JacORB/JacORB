@@ -44,7 +44,6 @@ import org.slf4j.Logger;
  *  The name server application
  *
  *  @author Gerald Brose, FU Berlin
- *  @version $Id$
  */
 
 

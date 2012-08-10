@@ -40,7 +40,6 @@ import org.omg.CORBA.UnionMember;
  * Related to bugjac10.
  *
  * @author Carol Jordan
- * @version $Id$
  */
 public class CreateTypeCodesTest extends TestCase
 {

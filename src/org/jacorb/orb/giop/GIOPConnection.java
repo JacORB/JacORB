@@ -58,7 +58,6 @@ import org.slf4j.Logger;
  * jacorb.connection.statistics_providers={classnames}, default=(empty)<br>
  *
  * @author Nicolas Noffke
- * @version $Id$
  */
 
 public abstract class GIOPConnection

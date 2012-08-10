@@ -23,7 +23,6 @@ import org.omg.Messaging.ExceptionHolder;
  * This must lead to TRANSIENT exceptions.
  *
  * @author <a href="mailto:spiegel@gnu.org">Andre Spiegel</a>
- * @version $Id$
  */
 public class QueueNoWaitTest extends CallbackTestCase
 {

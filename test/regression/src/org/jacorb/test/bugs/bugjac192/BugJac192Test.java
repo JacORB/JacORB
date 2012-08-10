@@ -14,7 +14,6 @@ import org.jacorb.test.common.TestUtils;
  * the ORB times out client and/or server side.
  *
  * @author Nick Cross
- * @version $Id$
  */
 public class BugJac192Test extends ClientServerTestCase
 {

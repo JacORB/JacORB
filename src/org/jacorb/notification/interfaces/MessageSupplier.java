@@ -27,7 +27,6 @@ import org.omg.CosEventComm.Disconnected;
  * Abstraction of a ProxyPullConsumer.
  *
  * @author Alphonse Bendt
- * @version $Id$
  */
 
 public interface MessageSupplier {

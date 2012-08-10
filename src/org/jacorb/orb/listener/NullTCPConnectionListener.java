@@ -24,7 +24,6 @@ package org.jacorb.orb.listener;
  * empty implementation of the TCPConnectionListener interface
  *
  * @author Alphonse Bendt
- * @version $Id$
  */
 public class NullTCPConnectionListener implements TCPConnectionListener
 {

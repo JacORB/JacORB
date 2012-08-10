@@ -24,7 +24,6 @@ package org.jacorb.idl;
  * A table of defined names
  *
  * @author Gerald Brose
- * @version $Id$
  */
 
 import java.util.Enumeration;

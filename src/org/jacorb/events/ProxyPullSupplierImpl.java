@@ -42,7 +42,6 @@ import org.omg.CosEventComm.PullConsumer;
  * @author Joerg v. Frantzius
  * @author Rainer Lischetzki
  * @author Gerald Brose
- * @version $Id$
  */
 public class ProxyPullSupplierImpl
     extends org.omg.CosEventChannelAdmin.ProxyPullSupplierPOA

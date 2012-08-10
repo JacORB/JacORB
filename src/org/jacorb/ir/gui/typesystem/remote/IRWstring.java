@@ -25,7 +25,6 @@ import org.omg.CORBA.WstringDefHelper;
 
 /**
  * @author Jerome Julius
- * @version $Id$
  */
 
 public class IRWstring 

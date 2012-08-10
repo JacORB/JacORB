@@ -32,7 +32,6 @@ import org.omg.CosNotifyFilter.InvalidGrammar;
 
 /**
  * @author Alphonse Bendt
- * @version $Id$
  */
 
 public class WhiteBoard

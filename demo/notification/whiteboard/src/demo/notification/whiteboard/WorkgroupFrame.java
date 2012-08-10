@@ -13,7 +13,6 @@ import java.util.List;
 
 /**
  * @author Alphonse Bendt
- * @version $Id$
  */
 
 public class WorkgroupFrame extends Frame implements IWorkgroupFrame {

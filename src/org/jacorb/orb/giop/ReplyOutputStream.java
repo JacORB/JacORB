@@ -31,7 +31,6 @@ import org.slf4j.Logger;
 
 /**
  * @author Gerald Brose
- * @version $Id$
  *
  */
 public class ReplyOutputStream

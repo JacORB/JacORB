@@ -25,7 +25,6 @@ import org.omg.PortableInterceptor.ORBInitInfo;
 
 /**
  * @author Alphonse Bendt
- * @version $Id$
  */
 public class ClientInterceptorInit extends AbstractORBInitializer
 {

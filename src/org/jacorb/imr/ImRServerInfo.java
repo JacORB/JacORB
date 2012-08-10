@@ -32,7 +32,6 @@ import org.jacorb.imr.AdminPackage.IllegalServerName;
  * that blocks until the server is released.
  *
  * @author Nicolas Noffke
- * @version $Id$
  */
 public class ImRServerInfo
     implements java.io.Serializable

@@ -37,7 +37,6 @@ import org.omg.PortableInterceptor.LOCATION_FORWARD;
  * of ClientRequestInterceptors.
  *
  * @author Nicolas Noffke
- * @version  $Id$
  */
 
 public class ClientInterceptorIterator

@@ -22,7 +22,6 @@ package org.jacorb.test.common.launch;
 
 /**
  * @author Alphonse Bendt
- * @version $Id$
  */
 public interface Launcher
 {

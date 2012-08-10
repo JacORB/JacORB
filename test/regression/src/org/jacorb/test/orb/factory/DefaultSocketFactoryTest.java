@@ -5,7 +5,6 @@ import org.jacorb.orb.factory.SocketFactory;
 
 /**
  * @author Alphonse Bendt
- * @version $Id$
  */
 public class DefaultSocketFactoryTest extends AbstractSocketFactoryTestCase
 {

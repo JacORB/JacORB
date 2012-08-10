@@ -44,7 +44,6 @@ import org.omg.PortableServer.POAPackage.InvalidPolicy;
  *
  * @author Nick Cross
  * @author Alphonse Bendt
- * @version $Id$
  */
 public class ImplNameTest extends TestCase
 {

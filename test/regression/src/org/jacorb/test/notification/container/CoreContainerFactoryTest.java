@@ -34,7 +34,6 @@ import org.picocontainer.PicoContainer;
 
 /**
  * @author Alphonse Bendt
- * @version $Id$
  */
 public class CoreContainerFactoryTest extends ORBTestCase
 {

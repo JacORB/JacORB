@@ -29,7 +29,6 @@ package org.jacorb.notification.util;
  * the cache first. As soon as a put or remove Operation occurs the Cache is invalidated.
  * 
  * @author Alphonse Bendt
- * @version $Id$
  */
 
 public class CachingWildcardMap implements WildcardMap

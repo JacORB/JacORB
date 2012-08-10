@@ -25,7 +25,6 @@ import org.omg.CosNotification.EventType;
 
 /**
  * @author Alphonse Bendt
- * @version $Id$
  */
 
 public class EventTypeWrapper implements EventTypeIdentifier, Comparable

@@ -33,7 +33,6 @@ import org.omg.PortableInterceptor.ORBInitializer;
  * and the ServerContextTransferInterceptor with the ORB.
  *
  * @author Vladimir Mencl
- * @version $Id$
  */
 
 public class TransactionInitializer 

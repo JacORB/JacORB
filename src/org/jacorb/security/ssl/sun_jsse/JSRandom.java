@@ -28,7 +28,6 @@ import java.security.SecureRandom;
  * to, in their class, initialise ahead of time, or set their own seed.
  *
  * @author Nick Cross
- * @version $Id$
  */
 public interface JSRandom
 {

@@ -22,7 +22,6 @@ package org.jacorb.idl;
 
 /**
  * @author Gerald Brose
- * @version $Id$
  *
  * Thrown by the IDL compiler when it encounters fatal errors
  */

@@ -40,7 +40,6 @@ import org.apache.tools.ant.util.SourceFileScanner;
  * from the ANT build tool.
  *
  * @author Wei-ju Wu
- * @version $Id$
  */
 
 public class JacIDL

@@ -24,7 +24,6 @@ package org.jacorb.poa.policy;
  * This class implements the request processing policy.
  *
  * @author Reimo Tiedemann, FU Berlin
- * @version $Id$
  */
 
 public class RequestProcessingPolicy

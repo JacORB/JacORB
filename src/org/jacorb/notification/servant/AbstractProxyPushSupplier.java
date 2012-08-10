@@ -59,7 +59,6 @@ import java.util.concurrent.atomic.AtomicReference;
  *                     ProxyPushConsumer failed" notificationType = "java.lang.String"
  *
  * @author Alphonse Bendt
- * @version $Id$
  */
 public abstract class AbstractProxyPushSupplier extends AbstractProxySupplier implements
         IProxyPushSupplier

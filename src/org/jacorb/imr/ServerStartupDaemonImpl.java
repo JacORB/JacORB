@@ -26,7 +26,6 @@ package org.jacorb.imr;
  *
  * @author Nicolas Noffke
  *
- * $Id$
  *
  */
 

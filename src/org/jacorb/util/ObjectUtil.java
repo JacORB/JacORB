@@ -28,7 +28,6 @@ import org.jacorb.config.JacORBConfiguration;
 
 /**
  * @author Gerald Brose, FU Berlin
- * @version $Id$
  */
 
 public final class ObjectUtil

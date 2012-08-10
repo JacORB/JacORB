@@ -32,7 +32,6 @@ import org.jacorb.test.orb.BasicServerImpl;
 
 /**
  * @author Alphonse Bendt
- * @version $Id$
  */
 public class BugJac524Test extends ORBTestCase
 {

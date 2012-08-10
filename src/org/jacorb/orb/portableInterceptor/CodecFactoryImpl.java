@@ -35,7 +35,6 @@ import org.omg.IOP.CodecFactoryPackage.UnknownEncoding;
  * See PI Spec p.10-80
  *
  * @author Nicolas Noffke
- * @version $Id$
  */
 
 public class CodecFactoryImpl

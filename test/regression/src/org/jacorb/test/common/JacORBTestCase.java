@@ -28,7 +28,6 @@ import junit.framework.*;
  * to a certain client and server version.
  *
  * @author Andre Spiegel spiegel@gnu.org
- * @version $Id$
  */
 public abstract class JacORBTestCase extends TestCase implements JacORBTest
 {

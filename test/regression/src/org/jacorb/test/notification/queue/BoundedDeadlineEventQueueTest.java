@@ -32,7 +32,6 @@ import junit.framework.TestSuite;
 
 /**
  * @author Alphonse Bendt
- * @version $Id$
  */
 public class BoundedDeadlineEventQueueTest extends TestCase
 {

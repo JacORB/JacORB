@@ -26,7 +26,6 @@ import org.omg.CosEventComm.Disconnected;
 
 /**
  * @author Alphonse Bendt
- * @version $Id$
  */
 
 public class PullFromSupplierTask extends AbstractTask

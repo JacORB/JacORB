@@ -47,7 +47,6 @@ import org.picocontainer.MutablePicoContainer;
 
 /**
  * @author Alphonse Bendt
- * @version $Id$
  */
 
 public class TypedEventChannelImpl extends AbstractEventChannel implements

@@ -41,7 +41,6 @@ import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * @author Alphonse Bendt
- * @version $Id$
  */
 public class DeadlockBugTest extends TestCase
 {

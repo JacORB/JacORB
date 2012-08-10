@@ -9,7 +9,6 @@ import org.jacorb.test.common.*;
 
 /**
  * @author Andre Spiegel
- * @version $Id$
  */
 public class BiDirTest extends ClientServerTestCase
 {

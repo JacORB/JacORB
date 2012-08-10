@@ -33,7 +33,6 @@ import org.omg.CosNotification.StructuredEvent;
 
 /**
  * @author Alphonse Bendt
- * @version $Id$
  */
 public class AnyMessageTest extends NotificationTestCase
 {

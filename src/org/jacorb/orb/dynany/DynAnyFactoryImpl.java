@@ -29,7 +29,6 @@ import org.slf4j.Logger;
 
 /**
  * @author Gerald Brose, FU Berlin
- * @version $Id$
  */
 
 public class DynAnyFactoryImpl

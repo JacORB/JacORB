@@ -27,7 +27,6 @@ import java.util.EventObject;
  * Baseclass for Framework Events.
  * 
  * @author Alphonse Bendt
- * @version $Id$
  */
 
 public class ApplicationEvent extends EventObject

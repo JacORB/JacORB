@@ -2,7 +2,6 @@ package org.jacorb.test.bugs.bugjac319;
 
 /**
  * @author Nick Cross
- * @version $Id$
  */
 public class JAC319Impl extends JAC319POA
 {

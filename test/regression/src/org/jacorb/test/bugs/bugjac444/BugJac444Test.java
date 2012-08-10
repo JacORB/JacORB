@@ -33,7 +33,6 @@ import org.omg.CORBA.portable.ValueBase;
 
 /**
  * @author Alphonse Bendt
- * @version $Id$
  */
 public class BugJac444Test extends ORBTestCase
 {

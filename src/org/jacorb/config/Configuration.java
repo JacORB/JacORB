@@ -54,7 +54,6 @@ import org.jacorb.orb.ORB;
  * retreive their Logger objects.
  *
  * @author Gerald Brose, XTRADYNE Technologies
- * @version $Id$
  */
 
 public interface Configuration

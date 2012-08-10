@@ -31,7 +31,6 @@ import org.omg.CORBA.SetOverrideType;
 
 /**
  * @author Alphonse Bendt
- * @version $Id$
  */
 public class PolicyManagerTest extends TestCase
 {

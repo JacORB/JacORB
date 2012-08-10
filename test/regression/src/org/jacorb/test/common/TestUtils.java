@@ -58,7 +58,6 @@ import junit.framework.TestSuite;
  * Utility class used to setup JUnit-TestSuite
  *
  * @author Alphonse Bendt
- * @version $Id$
  */
 
 public class TestUtils

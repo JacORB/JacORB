@@ -30,7 +30,6 @@ import org.jacorb.notification.interfaces.FilterStage;
 
 /**
  * @author Alphonse Bendt
- * @version $Id$
  */
 public class FilterProxySupplierTaskTest extends AbstractFilterTaskTestCase
 {

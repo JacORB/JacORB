@@ -51,7 +51,6 @@ import org.omg.TimeBase.UtcTHelper;
  * Adapts a StructuredEvent to the Message Interface.
  *
  * @author Alphonse Bendt
- * @version $Id$
  */
 
 public class StructuredEventMessage extends AbstractMessage

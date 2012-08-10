@@ -67,7 +67,6 @@ import org.picocontainer.defaults.CachingComponentAdapter;
  * @jboss.xmbean
  *
  * @author Alphonse Bendt
- * @version $Id$
  */
 
 public class ConsumerAdminImpl extends AbstractAdmin implements ConsumerAdminOperations,

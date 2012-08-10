@@ -53,7 +53,6 @@ import org.jacorb.config.ConfigurationException;
 
 /**
  * @author Nicolas Noffke
- * $Id$
  */
 
 public class SSLServerSocketFactory

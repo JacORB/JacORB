@@ -25,7 +25,6 @@ import java.io.OutputStream;
 
 /**
  * @author Kevin Conner (Kevin.Conner@arjuna.com)
- * @version $Id$
  */
 class IIOPLoopbackOutputStream extends OutputStream
 {

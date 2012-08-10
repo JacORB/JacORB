@@ -28,7 +28,6 @@ import org.omg.CORBA.TypeCodePackage.BadKind;
 
 /**
  * @author Alphonse Bendt
- * @version $Id$
  */
 public class SequenceTypeCodeWriter implements TypeCodeWriter
 {

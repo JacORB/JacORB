@@ -35,7 +35,6 @@ import org.omg.PortableServer.POA;
 
 /**
  * @author Alphonse Bendt
- * @version $Id$
  */
 public class IFRServerSetup extends TestSetup
 {

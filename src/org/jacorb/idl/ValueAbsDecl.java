@@ -29,7 +29,6 @@ import java.util.Set;
 /**
  * @author Andre Spiegel
  * @author Gerald Brose
- * @version $Id$
  *
  * This class is basically the same as Interface.java, but we can't extend
  * that one because we have to extend Value, and delegating some parts and

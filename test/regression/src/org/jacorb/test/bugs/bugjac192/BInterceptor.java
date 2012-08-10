@@ -13,7 +13,6 @@ import org.omg.PortableInterceptor.ForwardRequest;
  * context.
  *
  * @author Nick Cross
- * @version $Id$
  */
 public class BInterceptor
     extends org.omg.CORBA.LocalObject

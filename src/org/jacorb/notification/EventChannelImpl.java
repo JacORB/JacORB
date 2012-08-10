@@ -52,7 +52,6 @@ import org.picocontainer.MutablePicoContainer;
  * @jboss.xmbean
  *
  * @author Alphonse Bendt
- * @version $Id$
  */
 
 public class EventChannelImpl extends AbstractEventChannel implements EventChannelOperations, EventChannelImplMBean

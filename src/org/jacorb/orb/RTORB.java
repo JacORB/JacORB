@@ -40,7 +40,6 @@ import org.omg.RTCORBA.RTORBPackage.InvalidThreadpool;
  * Currently only used for the creation of ETF related policies.
  *
  * @author Steve Osselton
- * @version $Id$
  */
 public final class RTORB
    extends org.omg.RTCORBA._RTORBLocalBase

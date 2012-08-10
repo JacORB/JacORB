@@ -40,7 +40,6 @@ import org.omg.CosTypedNotifyChannelAdmin.TypedSupplierAdmin;
 
 /**
  * @author Alphonse Bendt
- * @version $Id$
  */
 public class TypedEventChannelTest extends TestCase
 {

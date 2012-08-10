@@ -31,7 +31,6 @@ import org.omg.CORBA.COMM_FAILURE;
 /**
  * @author Nicolas Noffke
  * @author Andre Spiegel
- * @version $Id$
  */
 public abstract class IIOPConnection
     extends StreamConnectionBase

@@ -7,7 +7,6 @@ import org.omg.PortableServer.POAPackage.WrongPolicy;
 
 /**
  * @author Nick Cross
- * @version $Id$
  */
 public class SessionImpl extends SessionPOA
 {

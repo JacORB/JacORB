@@ -17,7 +17,6 @@ import org.omg.PortableInterceptor.IORInterceptor;
  * using the special JacORB mechanism via IORInfoExt.
  *
  * @author Marc Heide
- * @version $Id$
  */
 public class IIOPProfileInterceptor
     extends LocalObject

@@ -32,7 +32,6 @@ import org.jacorb.test.*;
  * of sequences are covered that are not already covered by other tests.
  * 
  * @author Andre Spiegel spiegel@gnu.org
- * @version $Id$
  */
 public class ArrayTest extends ClientServerTestCase
 {

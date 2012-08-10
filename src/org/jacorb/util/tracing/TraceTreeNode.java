@@ -27,7 +27,6 @@ import java.util.Vector;
  * TraceTreeNode.java
  *
  * @author Nicolas Noffke
- * $Id$
  */
 public class TraceTreeNode
 {

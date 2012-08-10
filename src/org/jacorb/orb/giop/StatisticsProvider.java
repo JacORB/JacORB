@@ -29,28 +29,24 @@ package org.jacorb.orb.giop;
  * works together with the SelectionStrategy.
  *
  * @author Nicolas Noffke
- * @version $Id$ */
-
-public interface StatisticsProvider 
+ */
+public interface StatisticsProvider
 {
     /**
      * A message chunk with the given size has been sent over the associated
-     * Transport.  
+     * Transport.
      */
     public void messageChunkSent( int size );
 
     /**
      * The transport has been flushed. This means that sending of a
-     * message is complete.  
+     * message is complete.
      */
     public void flushed();
 
     /**
      * A message with the given size has been received by the
-     * associated Transport.  
+     * associated Transport.
      */
     public void messageReceived( int size );
-}// StatisticsProvider
-
-
-
+}

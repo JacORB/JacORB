@@ -26,7 +26,6 @@ import org.omg.CosNotifyComm.StructuredPullSupplierPOATie;
 
 /**
  * @author Alphonse Bendt
- * @version $Id$
  */
 
 public class StructuredPullSender extends Thread implements StructuredPullSupplierOperations,

@@ -25,7 +25,6 @@ import org.jacorb.orb.CDRInputStream;
 
 /**
  * @author Alphonse Bendt
- * @version $Id$
  */
 public interface TypeCodeReader
 {

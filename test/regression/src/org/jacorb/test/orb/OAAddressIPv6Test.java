@@ -35,7 +35,6 @@ import org.omg.PortableServer.POAManager;
  * Tests the ORB's OAAddress property using an IPv6 address.
  *
  * @author Adam Mitz (mitza@ociweb.com)
- * @version $Id$
  */
 public class OAAddressIPv6Test extends TestCase
 {

@@ -62,7 +62,6 @@ import org.slf4j.Logger;
  * This interceptor creates an sas TaggedComponent
  *
  * @author David Robison
- * @version $Id$
  */
 
 public class SASComponentInterceptor

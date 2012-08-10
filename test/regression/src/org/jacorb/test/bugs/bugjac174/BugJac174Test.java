@@ -29,7 +29,6 @@ import org.omg.CORBA.BAD_PARAM;
  * Invalid IOR (these contain corrupt buffer lengths)
  *
  * @author Nick Cross
- * @version $Id$
  */
 public class BugJac174Test extends ORBTestCase
 {

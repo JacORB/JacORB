@@ -31,7 +31,6 @@ import org.jacorb.test.common.TestUtils;
  * <code>ValueCustomTest</code> tests that JacORB handles custom valuetypes.
  *
  * @author <a href="mailto:rnc@prismtechnologies.com"></a>
- * @version $Id$
  */
 public class ValueCustomTest extends ClientServerTestCase
 {

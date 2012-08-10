@@ -35,7 +35,6 @@ import org.omg.DynamicAny.DynAnyPackage.TypeMismatch;
  * CORBA DynStruct
  *
  * @author Gerald Brose
- * @version $Id$
  */
 
 public final class DynStruct

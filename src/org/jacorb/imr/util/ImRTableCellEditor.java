@@ -30,7 +30,6 @@ import javax.swing.JTable;
  *
  * @author Nicolas Noffke
  * 
- * $Id$
  */
 
 public class ImRTableCellEditor extends DefaultCellEditor {

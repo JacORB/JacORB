@@ -14,7 +14,6 @@ import org.jacorb.test.common.NullLogger;
 
 /**
  * @author Alphonse Bendt
- * @version $Id$
  */
 public class FixedAddressSocketFactoryTest extends AbstractSocketFactoryTestCase
 {

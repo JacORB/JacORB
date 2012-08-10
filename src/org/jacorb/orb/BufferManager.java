@@ -38,7 +38,6 @@ import org.omg.CORBA.NO_MEMORY;
  * Buffers are generally created on demand.
  *
  * @author Gerald Brose
- * @version $Id$
 */
 
 public class BufferManager extends AbstractBufferManager

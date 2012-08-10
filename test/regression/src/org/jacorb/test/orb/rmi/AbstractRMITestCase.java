@@ -41,7 +41,6 @@ import org.jacorb.test.orb.rmi.Outer.StaticInner;
  * @see JacORBJacORBRMITest
  * @see JacORBSunRMITest
  *
- * @version $Id$
  */
 public abstract class AbstractRMITestCase extends ClientServerTestCase
 {

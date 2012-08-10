@@ -36,7 +36,6 @@ import org.omg.DynamicAny.DynAnyPackage.TypeMismatch;
  * CORBA DynSequence
  *
  * @author (c) Gerald Brose, FU Berlin 1999
- * @version $Id$
  */
 
 public final class DynSequence

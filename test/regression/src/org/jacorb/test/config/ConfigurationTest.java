@@ -41,7 +41,6 @@ import org.omg.CORBA.ORB;
  * property precedence in JacORB.
  * @author Alphonse Bendt
  * @author Andre Spiegel
- * @version $Id$
  */
 public class ConfigurationTest extends JacORBTestCase
 {

@@ -42,7 +42,6 @@ import org.picocontainer.MutablePicoContainer;
 
 /**
  * @author Alphonse Bendt
- * @version $Id$
  */
 public class TypedSupplierAdminImpl extends SupplierAdminImpl implements
         TypedSupplierAdminOperations

@@ -26,7 +26,6 @@ import org.omg.PortableInterceptor.ForwardRequest;
 
 /**
  * @author Alphonse Bendt
- * @version $Id$
  */
 public class ClientInterceptor
     extends org.omg.CORBA.LocalObject

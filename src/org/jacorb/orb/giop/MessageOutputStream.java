@@ -31,7 +31,6 @@ import org.omg.CORBA.ORB;
  * Created: Sat Aug 18 12:12:22 2002
  *
  * @author Nicolas Noffke
- * @version $Id$
  */
 
 public class MessageOutputStream

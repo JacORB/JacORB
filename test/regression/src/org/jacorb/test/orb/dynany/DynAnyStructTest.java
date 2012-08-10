@@ -34,7 +34,6 @@ import org.omg.DynamicAny.NameValuePair;
  * DynAny tests for struct types.
  *
  * @author Gerald Brose
- * @version $Id$
  */
 
 public class DynAnyStructTest extends DynAnyXXXTestCase

@@ -85,7 +85,6 @@ import org.slf4j.Logger;
  * <code>org.omg.PortableServer.POA</code>
  *
  * @author Reimo Tiedemann, FU Berlin
- * @version $Id$
  */
 
 public class POA

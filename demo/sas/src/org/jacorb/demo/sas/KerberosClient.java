@@ -18,7 +18,6 @@ import org.omg.CORBA.ORB;
  * transparent.
  *
  * @author Nicolas Noffke
- * @version $Id$
  */
 
 public class KerberosClient {

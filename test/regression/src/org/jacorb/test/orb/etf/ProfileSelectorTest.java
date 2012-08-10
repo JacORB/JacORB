@@ -37,7 +37,6 @@ import org.jacorb.test.orb.etf.wiop.WIOPFactories;
  * primary profile, and WIOP only as the secondary profile.
  * 
  * @author Andre Spiegel spiegel@gnu.org
- * @version $Id$
  */
 public class ProfileSelectorTest extends AbstractWIOPTestCase
 {

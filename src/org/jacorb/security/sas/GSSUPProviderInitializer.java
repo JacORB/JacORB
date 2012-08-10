@@ -28,7 +28,6 @@ import org.omg.PortableInterceptor.ORBInitializer;
  * This initializes the SAS Client Security Service (CSS) Interceptor
  *
  * @author David Robison
- * @version $Id$
  */
 
 public class GSSUPProviderInitializer

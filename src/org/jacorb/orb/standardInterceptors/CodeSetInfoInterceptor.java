@@ -35,7 +35,6 @@ import org.omg.PortableInterceptor.IORInterceptor;
  * This interceptor creates a codeset TaggedComponent.
  *
  * @author Nicolas Noffke
- * @version $Id$
  */
 
 public class CodeSetInfoInterceptor

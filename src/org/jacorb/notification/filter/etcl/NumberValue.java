@@ -29,7 +29,6 @@ import antlr.Token;
 /**
  * A simple node to represent a Number
  * 
- * @version $Id$
  */
 
 public class NumberValue extends AbstractTCLNode

@@ -35,7 +35,6 @@ import org.jacorb.test.orb.etf.wiop.WIOPFactories;
  * is the only transport available.
  * 
  * @author Andre Spiegel spiegel@gnu.org
- * @version $Id$
  */
 public class C_WIOP_S_WIOPTest extends AbstractWIOPTestCase
 {

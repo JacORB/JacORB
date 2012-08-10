@@ -29,7 +29,6 @@ import antlr.Token;
 
 /**
  * A simple node to represent MINUS operation
- * @version $Id$
  */
 
 public class MinusOperator extends UnaryOperator {

@@ -35,7 +35,6 @@ import org.omg.CORBA.ORB;
  * <code>ORBInitTest</code> tests ORBInit parsing
  *
  * @author Nick Cross
- * @version $Id$
  */
 public class ORBInitTest extends TestCase
 {

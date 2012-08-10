@@ -37,7 +37,6 @@ import org.omg.IOP.CodecPackage.TypeMismatch;
  * See PI SPec p.10-77ff
  *
  * @author Nicolas Noffke
- * @version $Id$
  */
 
 public class Codec_CDR_1_0_Impl

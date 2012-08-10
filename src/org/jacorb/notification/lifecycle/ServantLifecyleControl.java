@@ -32,7 +32,6 @@ import org.omg.PortableServer.POAPackage.WrongPolicy;
 
 /**
  * @author Alphonse Bendt
- * @version $Id$
  */
 
 public class ServantLifecyleControl implements ManageableServant

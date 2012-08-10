@@ -20,7 +20,6 @@ import org.omg.PortableServer.ServantLocatorPackage.CookieHolder;
 /**
  * @author Alphonse Bendt
  * @author Alex Shebunyaev
- * @version $Id$
  */
 public class Bug400Test extends ORBTestCase
 {

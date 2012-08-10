@@ -26,7 +26,6 @@ import org.omg.CosNotifyFilter.ConstraintInfo;
 
 /**
  * @author Alphonse Bendt
- * @version $Id$
  */
 
 public class ConstraintEntry

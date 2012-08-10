@@ -25,7 +25,6 @@ package org.jacorb.idl;
  * mimick inheritance.
  *
  * @author Gerald Brose
- * @version $Id$
  */
 
 

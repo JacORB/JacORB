@@ -27,7 +27,6 @@ package org.jacorb.orb;
  * Buffers are generally created on demand.
  *
  * @author Gerald Brose
- * @version $Id$
  */
 public interface IBufferManager
 {

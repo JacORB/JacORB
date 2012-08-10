@@ -37,7 +37,6 @@ import org.jacorb.test.common.TestUtils;
  * connectionClosed events are reported correctly
  *
  * @author Carol Jordon
- * @version $Id$
  */
 public class BugJac195Test extends ClientServerTestCase
 {

@@ -26,7 +26,6 @@ import java.io.PrintWriter;
  * Declaration of typeprefix
  * 
  * @author Alexander Birchenko
- * @version $Id$
  */
 
 public class TypePrefixDecl extends Declaration

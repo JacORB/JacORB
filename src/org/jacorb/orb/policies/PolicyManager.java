@@ -43,7 +43,6 @@ import org.slf4j.Logger;
  * "ORBPolicyManager."
  *
  * @author Gerald Brose
- * @version $Id$
  */
 
 public class PolicyManager

@@ -22,7 +22,6 @@ package org.jacorb.orb;
 
 /**
  * @author Gerald Brose, FU Berlin
- * @version $Id$
  */
 
 public class NamedValue

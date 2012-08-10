@@ -43,7 +43,6 @@ import org.picocontainer.defaults.ConstructorInjectionComponentAdapterFactory;
 
 /**
  * @author Alphonse Bendt
- * @version $Id$
  */
 public class DefaultFilterFactoryDelegate implements IFilterFactoryDelegate, Disposable
 {

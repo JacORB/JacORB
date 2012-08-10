@@ -81,7 +81,6 @@ import org.slf4j.Logger;
  *
  * @author Nicolas Noffke
  *
- * $Id$
  */
 
 public class ImplementationRepositoryImpl

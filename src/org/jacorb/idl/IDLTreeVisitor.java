@@ -30,7 +30,6 @@ package org.jacorb.idl;
  * IDL compiler option "-backend <classname>"
  *
  * @author Gerald Brose, XTRADYNE Technologies.
- * @version $Id$
  */
 
 public interface IDLTreeVisitor

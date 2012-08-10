@@ -25,7 +25,6 @@ import org.omg.CosNotifyComm.SequencePullSupplierPOATie;
 
 /**
  * @author Alphonse Bendt
- * @version $Id$
  */
 
 public class SequencePullSender extends Thread implements SequencePullSupplierOperations,

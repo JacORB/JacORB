@@ -12,7 +12,6 @@ import org.omg.CORBA.ORBSingleton;
 /**
  * A LoggingInitializer for the JDK logging system.
  * @author Andre Spiegel <spiegel@gnu.org>
- * @version $Id$
  */
 public class JdkLoggingInitializer extends LoggingInitializer
 {

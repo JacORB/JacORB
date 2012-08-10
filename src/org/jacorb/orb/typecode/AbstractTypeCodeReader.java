@@ -29,7 +29,6 @@ import org.omg.CORBA.TypeCode;
  * this class captures logic common to all TypeCodeReader implementations
  *
  * @author Alphonse Bendt
- * @version $Id$
  */
 public abstract class AbstractTypeCodeReader implements TypeCodeReader
 {

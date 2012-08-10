@@ -29,7 +29,6 @@ import org.omg.IOP.TAG_INTERNET_IOP;
 
 /**
  * @author Steve Osselton
- * @version $Id$
  */
 public class SpecificProfileSelector implements ProfileSelector
 {

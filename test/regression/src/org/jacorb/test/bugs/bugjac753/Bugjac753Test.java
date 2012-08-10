@@ -32,7 +32,6 @@ import bugjac753.A4.A41.a2Helper;
 
 /**
  * @author Alexander Birchenko
- * @version $Id$
  */
 
 public class Bugjac753Test extends TestCase

@@ -39,7 +39,6 @@ import org.omg.PortableServer.Servant;
  * @jboss.xmbean
  * 
  * @author Alphonse Bendt
- * @version $Id$
  */
 public class ECProxyPushSupplierImpl extends ProxyPushSupplierImpl implements
         ProxyPushSupplierOperations, ECProxyPushSupplierImplMBean

@@ -42,7 +42,6 @@ import bugjac511a.bugjac511b._BugJac511ServerStub;
 
 /**
  * @author Alphonse Bendt
- * @version $Id$
  */
 public class BugJac511Test extends CallbackTestCase
 {

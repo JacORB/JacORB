@@ -22,7 +22,6 @@ package org.jacorb.idl;
 
 /**
  * @author Anders Hessellund Jensen
- * @version $Id$
  */
 
 class AbstractBase

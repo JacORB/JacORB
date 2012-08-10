@@ -46,7 +46,6 @@ import org.omg.PortableServer.*;
  * example).
  * <p>
  * @author Andre Spiegel <spiegel@gnu.org>
- * @version $Id$
  */
 public class TestServer
 {

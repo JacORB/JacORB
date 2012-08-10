@@ -36,7 +36,6 @@ import org.jacorb.imr.UnknownServerName;
  *
  * @author Nicolas Noffke
  *
- * $Id$
  */
 
 public class ImRManager

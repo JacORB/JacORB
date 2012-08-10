@@ -28,7 +28,6 @@ import org.omg.PortableInterceptor.Interceptor;
  * of RequestInterceptors.
  *
  * @author Nicolas Noffke
- * @version  $Id$
  */
 
 public abstract class RequestInterceptorIterator

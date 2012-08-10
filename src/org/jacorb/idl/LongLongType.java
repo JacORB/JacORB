@@ -26,7 +26,6 @@ import java.io.PrintWriter;
  * Represents IDL long long and unsigned long long types
  *
  * @author Gerald Brose
- * @version $Id$
  */
 
 public class LongLongType

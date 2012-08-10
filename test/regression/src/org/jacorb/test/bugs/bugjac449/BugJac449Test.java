@@ -36,7 +36,6 @@ import org.jacorb.test.orb.value.ValueServerImpl;
 
 /**
  * @author Alphonse Bendt
- * @version $Id$
  */
 public class BugJac449Test extends ClientServerTestCase
 {

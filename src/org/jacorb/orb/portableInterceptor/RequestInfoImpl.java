@@ -42,7 +42,6 @@ import org.omg.PortableInterceptor.UNKNOWN;
  * See PI Spec p. 5-41ff
  *
  * @author Nicolas Noffke
- * @version $Id$
  */
 
 public abstract class RequestInfoImpl

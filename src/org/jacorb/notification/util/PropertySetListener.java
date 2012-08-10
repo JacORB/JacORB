@@ -27,7 +27,6 @@ import org.omg.CosNotification.UnsupportedQoS;
 
 /**
  * @author Alphonse Bendt
- * @version $Id$
  */
 
 public interface PropertySetListener {

@@ -46,7 +46,6 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * @author Alphonse Bendt
- * @version $Id$
  */
 public class TypedProxyPullSupplierImplTest extends NotificationTestCase
 {

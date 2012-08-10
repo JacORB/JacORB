@@ -28,7 +28,6 @@ import org.omg.CORBA.INTERNAL;
 
 /**
  * @author Nicolas Noffke
- * @version $Id$
  */
 public class ImRAccessImpl
     implements org.jacorb.orb.ImRAccess

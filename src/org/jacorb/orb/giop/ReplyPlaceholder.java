@@ -30,7 +30,6 @@ import org.omg.CORBA.portable.RemarshalException;
  * implemented in subclasses.
  *
  * @author Nicolas Noffke
- * @version $Id$
  */
 public abstract class ReplyPlaceholder
 {

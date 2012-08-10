@@ -30,7 +30,6 @@ import antlr.Token;
 /**
  * A simple node to represent OR operation
  * 
- * @version $Id$
  */
 
 public class OrOperator extends UnaryOperator

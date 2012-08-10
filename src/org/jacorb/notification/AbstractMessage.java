@@ -43,7 +43,6 @@ import org.omg.CosNotifyFilter.UnsupportedFilterableData;
 
 /**
  * @author Alphonse Bendt
- * @version $Id$
  */
 
 public abstract class AbstractMessage extends AbstractPoolable

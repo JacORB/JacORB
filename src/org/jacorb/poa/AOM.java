@@ -45,7 +45,6 @@ import org.slf4j.Logger;
  * The data can be retrieved using getServant() or getObjectId().
  *
  * @author Reimo Tiedemann, FU Berlin
- * @version $Id$
  */
 
 public class AOM

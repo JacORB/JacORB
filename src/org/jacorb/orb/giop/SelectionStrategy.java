@@ -29,17 +29,12 @@ import java.util.List;
  * additional synchronization is necessary.
  *
  * @author Nicolas Noffke
- * @version $Id$ */
-
+ */
 public interface SelectionStrategy
 {
     /**
      * Select a connection for closing. If none is idle, null should be
-     * returned.  
+     * returned.
      */
     public ServerGIOPConnection selectForClose( List connections );
 }
-
-
-
-

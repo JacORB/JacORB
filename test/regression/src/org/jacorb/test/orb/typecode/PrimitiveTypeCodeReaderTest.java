@@ -34,7 +34,6 @@ import org.omg.CORBA.portable.OutputStream;
 
 /**
  * @author Alphonse Bendt
- * @version $Id$
  */
 public class PrimitiveTypeCodeReaderTest extends ORBTestCase
 {

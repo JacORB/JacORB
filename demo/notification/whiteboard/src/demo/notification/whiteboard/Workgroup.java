@@ -32,7 +32,6 @@ import org.slf4j.Logger;
 
 /**
  * @author Alphonse Bendt
- * @version $Id$ Workgroup.java,v 1.6 2004-04-28 12:37:27 brose Exp $
  */
 
 public class Workgroup

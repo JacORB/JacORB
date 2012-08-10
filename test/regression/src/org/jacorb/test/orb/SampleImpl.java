@@ -4,7 +4,6 @@ import org.jacorb.test.SamplePOA;
 
 /**
  * @author Andre Spiegel
- * @version $Id$
  */
 public class SampleImpl extends SamplePOA
 {

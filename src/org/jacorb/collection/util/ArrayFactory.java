@@ -23,7 +23,6 @@ package org.jacorb.collection.util;
 
 /**
  * @author Gerald Brose
- * @version $Id$
  */
 public class ArrayFactory
 {

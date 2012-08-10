@@ -24,7 +24,6 @@ package org.jacorb.idl;
  * IDL scoped names
  *
  * @author Gerald Brose
- * @version $Id$
  *
  */
 

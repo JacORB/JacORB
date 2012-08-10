@@ -31,7 +31,6 @@ import org.omg.CORBA.ORB;
  * the DefaultFactory.
  *
  * @author <a href="mailto:spiegel@gnu.org">Andre Spiegel</a>
- * @version $Id$
  */
 public class Bug228Test extends TestCase
 {

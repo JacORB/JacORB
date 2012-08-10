@@ -29,7 +29,6 @@ import java.util.WeakHashMap;
 
 /**
  * @author Alphonse Bendt
- * @version $Id$
  */
 public class WeakHashSet implements Set
 {

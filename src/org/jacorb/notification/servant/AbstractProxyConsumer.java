@@ -60,7 +60,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * @jboss.xmbean
  *
  * @author Alphonse Bendt
- * @version $Id$
  */
 
 public abstract class AbstractProxyConsumer extends AbstractProxy implements IProxyConsumer,

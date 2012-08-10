@@ -35,7 +35,6 @@ import org.jacorb.orb.iiop.IIOPAddress;
  * and use the specified value to configure the sockets it creates.
  *
  * @author Nicolas Noffke
- * @version $Id$
  */
 public class FixedAddressSocketFactory extends AbstractSocketFactory
 {

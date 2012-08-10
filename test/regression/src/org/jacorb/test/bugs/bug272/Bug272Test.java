@@ -8,7 +8,6 @@ import org.omg.CORBA.OctetSeqHelper;
  * Test for bug 272, byte array in Any.
  *
  * @author Andre Spiegel
- * @version $Id$
  */
 public class Bug272Test extends ORBTestCase
 {

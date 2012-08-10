@@ -35,7 +35,6 @@ import org.omg.PortableInterceptor.InvalidSlot;
  * Interceptor and return it to the client.
  *
  * @author Nick Cross
- * @version $Id$
  */
 public class ServerImpl extends Jac074ServerPOA implements Configurable
 {

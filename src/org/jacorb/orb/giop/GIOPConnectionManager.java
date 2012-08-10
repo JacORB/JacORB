@@ -31,7 +31,6 @@ import org.slf4j.Logger;
 
 /**
  * @author Nicolas Noffke
- * @version $Id$
  */
 
 public class GIOPConnectionManager

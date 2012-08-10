@@ -23,7 +23,6 @@ package org.jacorb.notification.util;
 
 /**
  * @author Alphonse Bendt
- * @version $Id$
  */
 
 public abstract class AbstractPoolablePool extends AbstractObjectPool

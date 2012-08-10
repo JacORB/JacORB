@@ -29,7 +29,6 @@ package org.jacorb.idl;
  * including file) 
  *
  * @author Gerald Brose
- * @version $Id$
  */
 
 import java.io.File;

@@ -43,7 +43,6 @@ import org.jacorb.test.common.TestUtils;
  * with appropriate arguments.
  *
  * @author Andre Spiegel spiegel@gnu.org
- * @version $Id$
  */
 public class DirectLauncher extends AbstractLauncher
 {

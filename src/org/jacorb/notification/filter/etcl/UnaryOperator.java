@@ -29,7 +29,6 @@ import antlr.Token;
 
 /**
  * @author Alphonse Bendt
- * @version $Id$
  */
 abstract class UnaryOperator extends AbstractTCLNode
 {

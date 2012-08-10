@@ -24,7 +24,6 @@ import org.jacorb.config.Configuration;
 
 /**
  * @author Alphonse Bendt
- * @version $Id$
  */
 public interface BufferManagerFactory
 {

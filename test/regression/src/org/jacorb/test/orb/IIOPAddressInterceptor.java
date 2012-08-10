@@ -16,7 +16,6 @@ import org.omg.PortableInterceptor.IORInterceptor;
  * An IOR Interceptor that adds alternate addresses to IIOP Profiles.
  * 
  * @author Andre Spiegel
- * @version $Id$
  */
 public class IIOPAddressInterceptor
     extends LocalObject

@@ -24,7 +24,6 @@ import java.util.Vector;
 
 /**
  * @author Joerg v. Frantzius, Rainer Lischetzki, Gerald Brose
- * @version $Id$
  */
 
 class EventListElement

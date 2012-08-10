@@ -28,7 +28,6 @@ import org.jacorb.idl.runtime.token;
 
 /**
  * @author Gerald Brose
- * @version $Id$
  */
 
 public class Literal

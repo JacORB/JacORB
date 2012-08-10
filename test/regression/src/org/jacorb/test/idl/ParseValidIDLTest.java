@@ -41,7 +41,6 @@ import org.omg.CORBA.TypeCode;
  * load and inspect the compiled classes.
  *
  * @author Alphonse Bendt
- * @version $Id$
  */
 public class ParseValidIDLTest extends AbstractIDLTestcase
 {

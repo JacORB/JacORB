@@ -28,7 +28,6 @@ import org.omg.CosEventComm.Disconnected;
 
 /**
  * @author Alphonse Bendt
- * @version $Id$
  */
 public abstract class AbstractRetryStrategy implements RetryStrategy
 {

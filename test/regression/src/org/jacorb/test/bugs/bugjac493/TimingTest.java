@@ -25,7 +25,6 @@ import org.omg.TimeBase.UtcTHelper;
 
 /**
  * @author Andre Spiegel spiegel@gnu.org
- * @version $Id$
  */
 public class TimingTest extends CallbackTestCase
 {

@@ -34,7 +34,6 @@ import org.jacorb.notification.util.WeakHashSet;
 
 /**
  * @author Alphonse Bendt
- * @version $Id$
  */
 public class WeakHashSetTest extends TestCase
 {
