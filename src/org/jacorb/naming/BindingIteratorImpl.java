@@ -3,7 +3,7 @@ package org.jacorb.naming;
 /*
  * JacORB - a free Java ORB
  *
- * Copyright (C) 1997-2011 Gerald Brose / The JacORB Team.
+ * Copyright (C) 1997-2012 Gerald Brose / The JacORB Team.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Library General Public License as published by the Free
@@ -20,19 +20,16 @@ package org.jacorb.naming;
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-/**
- * Implementation of the "BindingIterator" interface
- *
- * @author Gerald Brose
- * @version $Id: BindingIteratorImpl.java,v 1.9 2011-05-10 15:40:37 nick.cross
- *          Exp $
- */
-
 import org.omg.CORBA.INTERNAL;
 import org.omg.CORBA.UserException;
 import org.omg.CosNaming.Binding;
 
 
+/**
+ * Implementation of the "BindingIterator" interface
+ *
+ * @author Gerald Brose
+ */
 public class BindingIteratorImpl extends org.omg.CosNaming.BindingIteratorPOA
 {
    Binding[] bindings;

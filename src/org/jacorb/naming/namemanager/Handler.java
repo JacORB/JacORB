@@ -1,7 +1,7 @@
 /*
  *        JacORB - a free Java ORB
  *
- *   Copyright (C) 1997-2011 Gerald Brose / The JacORB Team.
+ *   Copyright (C) 1997-2012 Gerald Brose / The JacORB Team.
  *
  *   This library is free software; you can redistribute it and/or
  *   modify it under the terms of the GNU Library General Public
@@ -148,10 +148,15 @@ public class Handler
 	    dlg.pack(); 
 	    dlg.show();
 	    if (dlg.isOk)
-		updater.setSeconds(dlg.updateInterval);
-	}
+            {
+                updateInterval = dlg.updateInterval;
+                updater.setSeconds(dlg.updateInterval);
+            }
+        }
 	else 
-	    throw new RuntimeException("Should not happen");
+	{
+            throw new RuntimeException("Should not happen");
+        }
     }
 
     /**

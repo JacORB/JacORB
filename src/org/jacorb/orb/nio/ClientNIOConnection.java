@@ -1,7 +1,7 @@
 /*
  *        JacORB - a free Java ORB
  *
- *   Copyright (C) 2011 Gerald Brose.
+ *   Copyright (C) 2011-2012 Gerald Brose / The JacORB Team.
  *
  *   This library is free software; you can redistribute it and/or
  *   modify it under the terms of the GNU Library General Public
@@ -123,7 +123,7 @@ public class ClientNIOConnection
                     {
                         if (logger.isInfoEnabled())
                         {
-                            logger.info("Retrying attempt " + retryCount + 
+                            logger.info("Retrying attempt " + retryCount +
                                         " to connect to " +
                                         connection_info );
                         }

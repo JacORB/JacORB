@@ -3,7 +3,7 @@ package org.jacorb.orb;
 /*
  *        JacORB - a free Java ORB
  *
- *   Copyright (C) 1997-2011 Gerald Brose / The JacORB Team.
+ *   Copyright (C) 1997-2012 Gerald Brose / The JacORB Team.
  *
  *   This library is free software; you can redistribute it and/or
  *   modify it under the terms of the GNU Library General Public
@@ -101,7 +101,6 @@ import org.slf4j.Logger;
  * JacORB implementation of CORBA object reference
  *
  * @author Gerald Brose
- * @version $Id$
  *
  */
 
@@ -2562,8 +2561,7 @@ public final class Delegate
 
                         // store this for postinvoke
 
-                        cookie =
-                        new org.omg.PortableServer.ServantLocatorPackage.CookieHolder();
+                        cookie = new org.omg.PortableServer.ServantLocatorPackage.CookieHolder();
 
                         invokedOperation = operation;
 
@@ -2571,8 +2569,7 @@ public final class Delegate
 
                         try
                         {
-                            servantObject.servant =
-                            sl.preinvoke( oid, poa, operation, cookie );
+                            servantObject.servant = sl.preinvoke( oid, poa, operation, cookie );
                             ok = true;
                         }
                         finally
@@ -2586,6 +2583,7 @@ public final class Delegate
                             }
                         }
                     }
+                    ((Servant)servantObject.servant)._this_object ((org.omg.CORBA.ORB)orb);
                 }
                 else
                 {

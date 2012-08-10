@@ -3,7 +3,7 @@ package org.jacorb.naming.namemanager;
 /*
  * JacORB - a free Java ORB
  *
- * Copyright (C) 1997-2011 Gerald Brose / The JacORB Team.
+ * Copyright (C) 1997-2012 Gerald Brose / The JacORB Team.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Library General Public License as published by the Free
@@ -92,6 +92,7 @@ public class ContextNode
 
    public void display ()
    {
+      contexts.clear();
       update ();
       if (bindingData != null)
          NSTree.nsTable.setData (bindingData, this);
@@ -149,19 +150,17 @@ public class ContextNode
    /**
     * update the content of this node and all its children
     */
-
    public synchronized void update ()
    {
       try
       {
          if( isMarked(this.context))
          {
-            System.out.println ("Loop detected for " + this.context);
+             System.out.println ("Loop detected for " + this.context);
              return;
          }
 
          mark(this.context);
-
 
          BindingListHolder blsoh = new BindingListHolder ();
          BindingIteratorHolder bioh = new BindingIteratorHolder ();
