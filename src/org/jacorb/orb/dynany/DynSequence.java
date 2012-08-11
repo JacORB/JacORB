@@ -22,7 +22,6 @@ package org.jacorb.orb.dynany;
 
 import java.util.ArrayList;
 import java.util.List;
-import org.slf4j.Logger;
 import org.jacorb.orb.Any;
 import org.jacorb.orb.CDRInputStream;
 import org.jacorb.orb.CDROutputStream;
@@ -31,18 +30,18 @@ import org.omg.CORBA.INTERNAL;
 import org.omg.DynamicAny.DynSequenceHelper;
 import org.omg.DynamicAny.DynAnyPackage.InvalidValue;
 import org.omg.DynamicAny.DynAnyPackage.TypeMismatch;
+import org.slf4j.Logger;
 
 /**
  * CORBA DynSequence
  *
  * @author (c) Gerald Brose, FU Berlin 1999
  */
-
 public final class DynSequence
    extends DynAny
    implements org.omg.DynamicAny.DynSequence
 {
-   private final List members = new ArrayList();
+   private final List<org.omg.CORBA.Any> members = new ArrayList<org.omg.CORBA.Any>();
    private int length;
    private org.omg.CORBA.TypeCode elementType;
 
@@ -83,6 +82,12 @@ public final class DynSequence
    public void from_any( org.omg.CORBA.Any value )
       throws InvalidValue, TypeMismatch
    {
+       from_any_internal (false, value);
+   }
+
+    void from_any_internal( boolean useCurrentRepresentation, org.omg.CORBA.Any value )
+      throws InvalidValue, TypeMismatch
+   {
       checkDestroyed ();
       if( ! type().equivalent( value.type() ))
       {
@@ -91,8 +96,7 @@ public final class DynSequence
 
       try
       {
-         typeCode = TypeCode.originalType( value.type() );
-         super.from_any( value );
+         super.from_any_internal( useCurrentRepresentation, value );
 
          limit = type().length();
 
@@ -407,10 +411,23 @@ public final class DynSequence
       }
       try
       {
-         return dynFactory.create_dyn_any( (Any)members.get(pos) );
+          org.omg.DynamicAny.DynAny result = dynFactory.create_dyn_any_from_type_code (members.get(pos).type());
+          ((org.jacorb.orb.dynany.DynAny)result).from_any_internal(true, members.get(pos));
+         return result;
+      }
+      catch( org.omg.DynamicAny.DynAnyPackage.InvalidValue iv )
+      {
+          logger.error("unable to create DynAny", iv);
+          throw unexpectedException(iv);
+      }
+      catch( org.omg.DynamicAny.DynAnyPackage.TypeMismatch itc )
+      {
+          logger.error("unable to create DynAny", itc);
+          throw unexpectedException(itc);
       }
       catch( org.omg.DynamicAny.DynAnyFactoryPackage.InconsistentTypeCode e )
       {
+          logger.error("unable to create DynAny", e);
           throw unexpectedException(e);
       }
    }

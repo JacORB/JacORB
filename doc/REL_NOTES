@@ -40,6 +40,7 @@
 This Release
 ============
     - ORB
+        - Fix current_component with DynArray/DynStruct/DynSequence to conform to spec.
         - Output iiop version when printing Corbaloc URLs
         - Call _this_object on Servants for ServantManager created objects.
         - When selecting an address for localhost attempt to find non-loopback first
