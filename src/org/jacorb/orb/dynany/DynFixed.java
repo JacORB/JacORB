@@ -20,13 +20,13 @@ package org.jacorb.orb.dynany;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import org.omg.CORBA.FixedHolder;
 import java.math.BigDecimal;
-import org.slf4j.Logger;
 import org.jacorb.orb.ORB;
 import org.jacorb.orb.TypeCode;
+import org.omg.CORBA.FixedHolder;
 import org.omg.DynamicAny.DynAnyPackage.InvalidValue;
 import org.omg.DynamicAny.DynAnyPackage.TypeMismatch;
+import org.slf4j.Logger;
 
 /**
  * CORBA DynFixed

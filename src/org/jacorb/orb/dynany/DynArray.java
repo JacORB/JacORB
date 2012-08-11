@@ -20,7 +20,6 @@ package org.jacorb.orb.dynany;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import org.slf4j.Logger;
 import org.jacorb.orb.Any;
 import org.jacorb.orb.CDRInputStream;
 import org.jacorb.orb.CDROutputStream;
@@ -28,6 +27,7 @@ import org.jacorb.orb.TypeCode;
 import org.omg.DynamicAny.DynArrayHelper;
 import org.omg.DynamicAny.DynAnyPackage.InvalidValue;
 import org.omg.DynamicAny.DynAnyPackage.TypeMismatch;
+import org.slf4j.Logger;
 
 /**
  * CORBA DynArray
@@ -86,13 +86,19 @@ public final class DynArray
    public void from_any(org.omg.CORBA.Any value)
       throws InvalidValue, TypeMismatch
    {
+       from_any_internal (false, value);
+   }
+
+    void from_any_internal( boolean useCurrentRepresentation, org.omg.CORBA.Any value )
+      throws InvalidValue, TypeMismatch
+   {
       checkDestroyed ();
       if( ! typeCode.equivalent( value.type() ))
       {
          throw new org.omg.DynamicAny.DynAnyPackage.TypeMismatch();
       }
 
-      typeCode = TypeCode.originalType( value.type() );
+      super.from_any_internal( useCurrentRepresentation, value );
 
       try
       {
@@ -276,10 +282,23 @@ public final class DynArray
 
       try
       {
-         return dynFactory.create_dyn_any( members[pos] );
+          org.omg.DynamicAny.DynAny result = dynFactory.create_dyn_any_from_type_code (members[pos].type());
+         ((org.jacorb.orb.dynany.DynAny)result).from_any_internal(true, members[pos]);
+         return result;
+      }
+      catch( org.omg.DynamicAny.DynAnyPackage.InvalidValue iv )
+      {
+          logger.error("unable to create DynAny", iv);
+          throw unexpectedException(iv);
+      }
+      catch( org.omg.DynamicAny.DynAnyPackage.TypeMismatch itc )
+      {
+          logger.error("unable to create DynAny", itc);
+          throw unexpectedException(itc);
       }
       catch( org.omg.DynamicAny.DynAnyFactoryPackage.InconsistentTypeCode e )
       {
+          logger.error("unable to create DynAny", e);
           throw unexpectedException(e);
       }
    }

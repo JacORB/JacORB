@@ -20,7 +20,6 @@ package org.jacorb.orb.dynany;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import org.slf4j.Logger;
 import org.jacorb.orb.Any;
 import org.jacorb.orb.CDRInputStream;
 import org.jacorb.orb.CDROutputStream;
@@ -30,6 +29,7 @@ import org.omg.DynamicAny.NameDynAnyPair;
 import org.omg.DynamicAny.NameValuePair;
 import org.omg.DynamicAny.DynAnyPackage.InvalidValue;
 import org.omg.DynamicAny.DynAnyPackage.TypeMismatch;
+import org.slf4j.Logger;
 
 /**
  * CORBA DynStruct
@@ -106,14 +106,18 @@ public final class DynStruct
     public void from_any(org.omg.CORBA.Any value)
         throws InvalidValue, TypeMismatch
     {
+       from_any_internal (false, value);
+    }
+
+    void from_any_internal( boolean useCurrentRepresentation, org.omg.CORBA.Any value )
+      throws InvalidValue, TypeMismatch
+    {
         checkDestroyed ();
 
         if( !value.type().equivalent( type() ))
         {
             throw new org.omg.DynamicAny.DynAnyPackage.TypeMismatch();
         }
-
-        typeCode = TypeCode.originalType( value.type() );
 
         try
         {
@@ -148,7 +152,7 @@ public final class DynStruct
             throw unexpectedException(e);
         }
 
-        super.from_any( value );
+        super.from_any_internal( useCurrentRepresentation, value );
     }
 
 
@@ -372,10 +376,27 @@ public final class DynStruct
             {
                 return null;
             }
-            return dynFactory.create_dyn_any( members[pos].value );
+
+            org.omg.DynamicAny.DynAny result = dynFactory.create_dyn_any_from_type_code (members[pos].value.type ());
+            try
+            {
+                ((org.jacorb.orb.dynany.DynAny)result).from_any_internal(true, members[pos].value);
+            }
+            catch( org.omg.DynamicAny.DynAnyPackage.InvalidValue iv )
+            {
+                logger.error("unable to create DynAny", iv);
+                throw unexpectedException(iv);
+            }
+            catch( org.omg.DynamicAny.DynAnyPackage.TypeMismatch itc )
+            {
+                logger.error("unable to create DynAny", itc);
+                throw unexpectedException(itc);
+            }
+            return result;
         }
         catch( org.omg.DynamicAny.DynAnyFactoryPackage.InconsistentTypeCode e )
         {
+            logger.error("unable to create DynAny", e);
             throw unexpectedException(e);
         }
     }
