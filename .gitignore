@@ -7,6 +7,8 @@ bin/version
 bin/ns-wrapper
 bin/ntfy-wrapper
 
+doc/ProgrammingGuide/ProgrammingGuide.pdf
+
 lib/jacorb.jar
 lib/idl.jar
 lib/jacorb-services.jar
@@ -17,9 +19,11 @@ src/org/jacorb/idl/sym.java
 
 classes/org
 test/regression/classes
+
 src/generated/org
-test/regression/output/TEST-*
 test/regression/src/generated/*
+
+test/regression/output/TEST-*
 
 demo/*/build
 test/interop/*/build
