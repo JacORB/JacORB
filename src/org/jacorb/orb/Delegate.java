@@ -173,7 +173,7 @@ public final class Delegate
      * currently in use during an interceptor invocation. It is held within a
      * thread local to prevent thread interaction issues.
      */
-    private static final ThreadLocal localInterceptors = new ThreadLocal();
+    private static final ThreadLocal<ClientInterceptorHandler> localInterceptors = new ThreadLocal<ClientInterceptorHandler>();
 
     /** the configuration object for this delegate */
     private final Configuration configuration;
@@ -220,20 +220,22 @@ public final class Delegate
      */
     private boolean disableClientOrbPolicies;
 
-    private static final String REQUEST_END_TIME = "request_end_time";
 
-    private static final String REPLY_END_TIME = "reply_end_time";
 
-    /**
-     * This is used to indicate that a current context popped from the Delegates
-     * invocationContext stack was pushed there prior to an interceptor call.  We
-     * need this to ensure that the context is not popped if a CORBA call is made
-     * by the interceptor.  The context must be popped on return from the
-     * interceptor.
-     */
-    public static final String INTERCEPTOR_CALL = "interceptor_call";
-
-    public static final String SERVANT_PREINVOKE = "servant_preinvoke";
+    public static enum INVOCATION_KEY
+    {
+       REQUEST_END_TIME,
+       REPLY_END_TIME,
+       /**
+        * This is used to indicate that a current context popped from the Delegates
+        * invocationContext stack was pushed there prior to an interceptor call.  We
+        * need this to ensure that the context is not popped if a CORBA call is made
+        * by the interceptor.  The context must be popped on return from the
+        * interceptor.
+        */
+       INTERCEPTOR_CALL,
+       SERVANT_PREINVOKE
+    };
 
     /**
      * 03-09-04: 1.5.2.2
@@ -262,11 +264,11 @@ public final class Delegate
      * We need to retain the values for the original invocation as well as
      * apply the correct values for any internal invocation.
      */
-    private static final ThreadLocal invocationContext = new ThreadLocal()
+    private static final ThreadLocal<Stack<Map<INVOCATION_KEY, UtcT>>> invocationContext = new ThreadLocal<Stack<Map<INVOCATION_KEY, UtcT>>>()
     {
-        protected Object initialValue()
+        protected Stack<Map<INVOCATION_KEY, UtcT>> initialValue()
         {
-            return new Stack ();
+            return new Stack<Map<INVOCATION_KEY, UtcT>> ();
         };
     };
 
@@ -277,9 +279,9 @@ public final class Delegate
      * can be used to share information between mutiple requests
      * that are done as part of an invocation.
      */
-    public static final Stack getInvocationContext()
+    public static final Stack<Map<INVOCATION_KEY, UtcT>> getInvocationContext()
     {
-        return (Stack) invocationContext.get();
+        return invocationContext.get();
     }
 
     /**
@@ -290,9 +292,9 @@ public final class Delegate
      */
     public static void clearInvocationContext()
     {
-        if ( ! ( (Stack) getInvocationContext()).empty())
+        if ( ! ( getInvocationContext()).empty())
         {
-            ( (Stack) getInvocationContext()).pop();
+            ( getInvocationContext()).pop();
         }
     }
 
@@ -1202,20 +1204,20 @@ public final class Delegate
 
         RequestOutputStream ros      = (RequestOutputStream)os;
 
-        Stack invocationStack = (Stack) invocationContext.get ();
+        Stack<Map<INVOCATION_KEY, UtcT>> invocationStack = invocationContext.get ();
 
         /**
          * We must just peek as we do not want to remove the context from
          * the Stack
          */
-        Map currentCtxt = (Map) invocationStack.peek();
+        Map<INVOCATION_KEY, UtcT> currentCtxt = invocationStack.peek();
         UtcT reqET = null;
         UtcT repET = null;
 
         if (currentCtxt != null)
         {
-            reqET = (UtcT) currentCtxt.get (REQUEST_END_TIME);
-            repET = (UtcT) currentCtxt.get (REPLY_END_TIME);
+            reqET = (UtcT) currentCtxt.get (INVOCATION_KEY.REQUEST_END_TIME);
+            repET = (UtcT) currentCtxt.get (INVOCATION_KEY.REPLY_END_TIME);
 
             checkTimeout (reqET, repET);
         }
@@ -2134,12 +2136,12 @@ public final class Delegate
     {
         orb.perform_work();
 
-        Stack invocationStack = (Stack) invocationContext.get ();
-        Map currentCtxt = null;
+        Stack<Map<INVOCATION_KEY, UtcT>> invocationStack = invocationContext.get ();
+        Map<INVOCATION_KEY, UtcT> currentCtxt = null;
 
         if (! invocationStack.empty())
         {
-            currentCtxt = (Map) invocationStack.peek();
+            currentCtxt = invocationStack.peek();
 
             /**
              * If the context was created as an interceptor call was
@@ -2147,7 +2149,8 @@ public final class Delegate
              * request. It will be cleared on return from the
              * interceptor call. This caters for situations where embedded requests are made
              */
-            if (currentCtxt.containsKey (INTERCEPTOR_CALL) || currentCtxt.containsKey (SERVANT_PREINVOKE))
+            if (currentCtxt.containsKey (INVOCATION_KEY.INTERCEPTOR_CALL) ||
+                currentCtxt.containsKey (INVOCATION_KEY.SERVANT_PREINVOKE))
             {
                 clearCurrentContext = false;
             }
@@ -2155,13 +2158,13 @@ public final class Delegate
 
         if (currentCtxt == null)
         {
-            currentCtxt = new HashMap();
+            currentCtxt = new HashMap<INVOCATION_KEY, UtcT>();
 
             invocationStack.push (currentCtxt);
         }
 
-        UtcT requestEndTime = (UtcT) currentCtxt.get (REQUEST_END_TIME);
-        UtcT replyEndTime = (UtcT) currentCtxt.get (REPLY_END_TIME);
+        UtcT requestEndTime = currentCtxt.get (INVOCATION_KEY.REQUEST_END_TIME);
+        UtcT replyEndTime = currentCtxt.get (INVOCATION_KEY.REPLY_END_TIME);
 
         if (!disableClientOrbPolicies)
         {
@@ -2192,7 +2195,7 @@ public final class Delegate
                     }
                 }
 
-                currentCtxt.put (REQUEST_END_TIME, requestEndTime);
+                currentCtxt.put (INVOCATION_KEY.REQUEST_END_TIME, requestEndTime);
             }
             else
             {
@@ -2232,7 +2235,7 @@ public final class Delegate
                     }
                 }
 
-                currentCtxt.put (REPLY_END_TIME, replyEndTime);
+                currentCtxt.put (INVOCATION_KEY.REPLY_END_TIME, replyEndTime);
             }
             else
             {
@@ -2467,10 +2470,10 @@ public final class Delegate
             return null;
         }
 
-        HashMap currentContext = new HashMap();
-        currentContext.put (SERVANT_PREINVOKE, "true");
+        Map<INVOCATION_KEY, UtcT> currentContext = new HashMap<INVOCATION_KEY, UtcT>();
+        currentContext.put (INVOCATION_KEY.SERVANT_PREINVOKE, null);
 
-        ( (Stack) invocationContext.get()).push (currentContext);
+        invocationContext.get().push (currentContext);
 
         // remember that a local request is outstanding. On
         //  any exit through an exception, this must be cleared again,
