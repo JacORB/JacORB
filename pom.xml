@@ -46,8 +46,8 @@
     </licenses>
 
     <scm>
-        <connection>scm:cvs:pserver:username@www.jacorb.org/cvs</connection>
-        <url>http://www.jacorb.org/cgi-bin/cvsweb/JacORB</url>
+        <connection>scm:git:git@github.com:JacORB/JacORB.git</connection>
+        <url>https://github.com/JacORB/JacORB</url>
     </scm>
 
     <issueManagement>
