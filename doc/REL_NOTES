@@ -37,8 +37,8 @@
    H I S T O R Y      O F     C H A N G E S
  -------------------------------------------
 
-This Release
-============
+3.1
+===
     - ORB
         - Fix current_component with DynArray/DynStruct/DynSequence to conform to spec.
         - Output iiop version when printing Corbaloc URLs
