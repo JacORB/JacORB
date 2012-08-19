@@ -45,6 +45,7 @@ This Release
         - Call _this_object on Servants for ServantManager created objects.
         - When selecting an address for localhost attempt to find non-loopback first
           for both IPv4 and IPv6.
+        - Fix for portable interceptor ordering issue with colocated calls.
     - IDL Compiler:
         - Predefined preprocessor symbols are now built into the compiler
           rather than included from the jacorbdefs.idl file, which has been

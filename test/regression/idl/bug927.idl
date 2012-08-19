@@ -1,0 +1,21 @@
+module org
+{
+    module jacorb
+    {
+        module test
+        {
+            module bugs
+            {
+                module bug927
+                {
+                    exception InterceptorOrderingException {};
+                    interface TestObject
+                    {
+                        void foo() raises (InterceptorOrderingException);
+                        void bar() raises (InterceptorOrderingException);
+                    };
+                };
+            };
+        };
+    };
+};

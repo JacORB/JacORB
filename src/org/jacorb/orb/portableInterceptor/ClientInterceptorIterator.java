@@ -51,15 +51,6 @@ public class ClientInterceptorIterator
     private ClientRequestInfoImpl info = null;
     private final Logger logger;
 
-    /**
-     * This is used to indicate that a current context popped from the Delegates
-     * invocationContext stack was pushed there prior to an interceptor call.  We
-     * need this to ensure that the context is not popped if a CORBA call is made
-     * by the interceptor.  The context must be popped on return from the
-     * interceptor.
-     */
-    private static final String INTERCEPTOR_CALL = "interceptor_call";
-
     public ClientInterceptorIterator(Logger logger, Interceptor[] interceptors)
     {
         super(interceptors);
@@ -128,7 +119,7 @@ public class ClientInterceptorIterator
              * object with different timeout policies
              */
             HashMap currentCtxt = new HashMap();
-            currentCtxt.put (INTERCEPTOR_CALL, "true");
+            currentCtxt.put (Delegate.INTERCEPTOR_CALL, "true");
 
             ( (Stack) Delegate.getInvocationContext()).push (currentCtxt);
 

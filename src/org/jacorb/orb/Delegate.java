@@ -158,7 +158,7 @@ public final class Delegate
 
     private final ClientConnectionManager conn_mg;
 
-    private final Map policy_overrides;
+    private final Map<Integer, Policy> policy_overrides;
 
     private CookieHolder cookie = null;
 
@@ -224,9 +224,16 @@ public final class Delegate
 
     private static final String REPLY_END_TIME = "reply_end_time";
 
-    private static final String INTERCEPTOR_CALL = "interceptor_call";
+    /**
+     * This is used to indicate that a current context popped from the Delegates
+     * invocationContext stack was pushed there prior to an interceptor call.  We
+     * need this to ensure that the context is not popped if a CORBA call is made
+     * by the interceptor.  The context must be popped on return from the
+     * interceptor.
+     */
+    public static final String INTERCEPTOR_CALL = "interceptor_call";
 
-    private static final String SERVANT_PREINVOKE = "servant_preinvoke";
+    public static final String SERVANT_PREINVOKE = "servant_preinvoke";
 
     /**
      * 03-09-04: 1.5.2.2
@@ -364,11 +371,11 @@ public final class Delegate
 
             if (disableClientOrbPolicies)
             {
-                policy_overrides = Collections.EMPTY_MAP;
+                policy_overrides = Collections.emptyMap ();
             }
             else
             {
-                policy_overrides = new HashMap(0);
+                policy_overrides = new HashMap<Integer, Policy>(0);
             }
         }
         else
@@ -377,11 +384,11 @@ public final class Delegate
 
             if (disableClientOrbPolicies)
             {
-                policy_overrides = Collections.EMPTY_MAP;
+                policy_overrides = Collections.emptyMap ();
             }
             else
             {
-                policy_overrides = new HashMap();
+                policy_overrides = new HashMap<Integer, Policy>();
             }
         }
     }
@@ -812,7 +819,7 @@ public final class Delegate
         synchronized(policy_overrides)
         {
             final Integer key = Integer.valueOf(policy_type);
-            result = (Policy)policy_overrides.get(key);
+            result = policy_overrides.get(key);
         }
 
         if ( result == null )
@@ -2136,11 +2143,11 @@ public final class Delegate
 
             /**
              * If the context was created as an interceptor call was
-             * being made then don't clear it as part of this
-             * request.  It will be cleared on return from the
-             * interceptor call
+             * being made in servant_preinvoke then don't clear it as part of this
+             * request. It will be cleared on return from the
+             * interceptor call. This caters for situations where embedded requests are made
              */
-            if (currentCtxt.containsKey (INTERCEPTOR_CALL))
+            if (currentCtxt.containsKey (INTERCEPTOR_CALL) || currentCtxt.containsKey (SERVANT_PREINVOKE))
             {
                 clearCurrentContext = false;
             }
@@ -2305,7 +2312,7 @@ public final class Delegate
             }
 
             //Setting the codesets not until here results in the
-            //header being writtend using the default codesets. On the
+            //header being written using the default codesets. On the
             //other hand, the server side must have already read the
             //header to discover the codeset service context.
             out.setCodeSets( connections[currentConnection.ordinal ()].getTCS(), connections[currentConnection.ordinal ()].getTCSW() );
@@ -2335,8 +2342,8 @@ public final class Delegate
 
                 if (sinfo != null && interceptors != null)
                 {
-                   Collection<ServiceContext> ctx = sinfo.getReplyServiceContexts();
-                   interceptors.getInfo ().setReplyServiceContexts (ctx.toArray (new ServiceContext[ctx.size ()]));
+                    Collection<ServiceContext> ctx = sinfo.getReplyServiceContexts();
+                    interceptors.getInfo ().setReplyServiceContexts (ctx.toArray (new ServiceContext[ctx.size ()]));
 
                     try
                     {
@@ -2463,7 +2470,7 @@ public final class Delegate
         HashMap currentContext = new HashMap();
         currentContext.put (SERVANT_PREINVOKE, "true");
 
-        getInvocationContext ().push (new HashMap());
+        ( (Stack) invocationContext.get()).push (currentContext);
 
         // remember that a local request is outstanding. On
         //  any exit through an exception, this must be cleared again,
@@ -2508,6 +2515,74 @@ public final class Delegate
             {
                 contexts = interceptors.getInfo().getRequestServiceContexts();
             }
+
+            if (orb.hasServerRequestInterceptors())
+            {
+                sinfo = new ServerRequestInfoImpl
+                (
+                    orb,
+                    contexts,
+                    (org.omg.PortableServer.Servant) servantObject.servant,
+                    getObjectId(),
+                    operation,
+                    true,
+                    SYNC_WITH_TARGET.value
+                );
+
+                manager = orb.getInterceptorManager();
+                sinfo.setCurrent (manager.getEmptyCurrent());
+                interceptorIterator = manager.getServerIterator();
+
+                ( (org.jacorb.orb.ServantObjectImpl ) servantObject).setServerRequestInfo (sinfo);
+
+                // Note: this code is very similar to the below hasServerRequestInterceptors try/catch
+                try
+                {
+                   manager.setLocalPICurrent (sinfo.current ());
+
+                   interceptorIterator.iterate
+                   (
+                       sinfo,
+                       ServerInterceptorIterator.RECEIVE_REQUEST_SERVICE_CONTEXTS
+                   );
+                }
+                catch (ForwardRequest fwd)
+                {
+                    if (interceptors != null)
+                    {
+                        interceptors.handle_location_forward (null, fwd.forward);
+                    }
+
+                    ( (ObjectImpl) self)._set_delegate ( ( (ObjectImpl) fwd.forward)._get_delegate());
+                    return null;
+                }
+                catch (Exception ex)
+                {
+                    if (interceptors != null && orb.hasRequestInterceptors())
+                    {
+                        try
+                        {
+                            if (ex instanceof SystemException)
+                            {
+                                interceptors.handle_receive_exception ( (SystemException) ex);
+                            }
+                            else if (ex instanceof ApplicationException)
+                            {
+                                interceptors.handle_receive_exception ( (ApplicationException) ex, null);
+                            }
+                        }
+                        catch (ForwardRequest fwd)
+                        {
+                            ( (ObjectImpl) self)._set_delegate ( ( (ObjectImpl) fwd.forward)._get_delegate());
+                            return null;
+                        }
+                    }
+
+                    throw ex;
+                }
+            }
+
+
             try
             {
                 if ( ( poa.isRetain() && !poa.isUseServantManager() ) ||
@@ -2638,33 +2713,16 @@ public final class Delegate
 
             if (orb.hasServerRequestInterceptors())
             {
+                sinfo =  ( (org.jacorb.orb.ServantObjectImpl ) servantObject).getServerRequestInfo();
+                sinfo.setServant((org.omg.PortableServer.Servant) servantObject.servant);
 
-                sinfo = new ServerRequestInfoImpl
-                (
-                    orb,
-                    contexts,
-                    (org.omg.PortableServer.Servant) servantObject.servant,
-                    getObjectId(),
-                    operation,
-                    true,
-                    SYNC_WITH_TARGET.value
-                );
-
-                manager = orb.getInterceptorManager();
-                sinfo.setCurrent (manager.getEmptyCurrent());
                 interceptorIterator = manager.getServerIterator();
 
                 ( (org.jacorb.orb.ServantObjectImpl ) servantObject).setServerRequestInfo (sinfo);
 
-
+                // Note: this code is very similar to the above hasServerRequestInterceptors try/catch
                 try
                 {
-                   interceptorIterator.iterate
-                   (
-                       sinfo,
-                       ServerInterceptorIterator.RECEIVE_REQUEST_SERVICE_CONTEXTS
-                   );
-
                    manager.setLocalPICurrent (sinfo.current ());
 
                    interceptorIterator.iterate
