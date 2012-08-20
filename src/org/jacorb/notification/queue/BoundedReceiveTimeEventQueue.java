@@ -28,7 +28,6 @@ import org.jacorb.notification.interfaces.Message;
  * added messages by their receivetimestamp attribute.
  * 
  * @author Alphonse Bendt
- * @version $Id$
  */
 public class BoundedReceiveTimeEventQueue extends AbstractBoundedEventHeap
 {

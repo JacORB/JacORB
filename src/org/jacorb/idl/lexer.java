@@ -49,7 +49,6 @@ import org.jacorb.idl.runtime.token;
  *
  *  This class is "static" (i.e., it has only static members and methods).
  *
- * @version $Id$
  * @author Gerald Brose
  *
  */

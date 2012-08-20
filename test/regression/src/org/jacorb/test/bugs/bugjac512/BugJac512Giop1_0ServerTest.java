@@ -36,7 +36,6 @@ import org.omg.CORBA.MARSHAL;
 
 /**
  * @author Alphonse Bendt
- * @version $Id$
  */
 public class BugJac512Giop1_0ServerTest extends ClientServerTestCase
 {

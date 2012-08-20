@@ -25,7 +25,6 @@ import org.picocontainer.MutablePicoContainer;
 
 /**
  * @author Alphonse Bendt
- * @version $Id$
  */
 public interface IContainer
 {

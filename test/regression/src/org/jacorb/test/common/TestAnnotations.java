@@ -27,7 +27,6 @@ import junit.framework.*;
  * Represents JacORB-specific javadoc annotations for JUnit tests.
  * 
  * @author Andre Spiegel spiegel@gnu.org
- * @version $Id$
  */
 public class TestAnnotations
 {

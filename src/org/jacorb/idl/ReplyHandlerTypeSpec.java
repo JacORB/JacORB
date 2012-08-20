@@ -22,7 +22,6 @@ package org.jacorb.idl;
 
 /**
  * @author Andre Spiegel <spiegel@gnu.org>
- * @version $Id$
  */
 import java.io.PrintWriter;
 

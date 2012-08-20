@@ -16,7 +16,6 @@ import java.util.concurrent.CountDownLatch;
 
 /**
  * @author Alphonse Bendt
- * @version $Id$
  */
 
 public class CosEventPullSender extends PullSupplierPOA implements TestClientOperations, Runnable

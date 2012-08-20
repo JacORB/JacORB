@@ -26,7 +26,6 @@ import org.omg.PortableServer.Servant;
 
 /**
  * @author Alphonse Bendt
- * @version $Id$
  */
 public interface IServantLifecyle
 {

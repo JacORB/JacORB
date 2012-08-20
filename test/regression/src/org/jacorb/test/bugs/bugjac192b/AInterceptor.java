@@ -18,7 +18,6 @@ import org.omg.RTCORBA.RTORBHelper;
  * system exception has been thrown.
  *
  * @author Nick Cross
- * @version $Id$
  */
 public class AInterceptor
     extends org.omg.CORBA.LocalObject

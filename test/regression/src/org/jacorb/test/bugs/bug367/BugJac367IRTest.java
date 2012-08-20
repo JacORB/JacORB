@@ -31,7 +31,6 @@ import org.jacorb.test.ir.IFRServerSetup;
 
 /**
  * @author Alphonse Bendt
- * @version $Id$
  */
 public class BugJac367IRTest extends AbstractIRServerTestCase
 {

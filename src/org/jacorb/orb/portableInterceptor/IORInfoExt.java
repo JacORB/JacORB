@@ -29,7 +29,6 @@ import org.omg.PortableInterceptor.IORInfo;
  * It provides convenience methods to modify the newly created IOR.
 
  * @author Marc Heide
- * @version $Id$
  */
 
 public interface IORInfoExt extends IORInfo

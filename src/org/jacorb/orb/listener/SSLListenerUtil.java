@@ -39,7 +39,6 @@ import org.slf4j.Logger;
  * with the listeners.
  *
  * @author Nick Cross
- * @version $Id$
  */
 public class SSLListenerUtil
 {

@@ -16,7 +16,6 @@ import org.jacorb.test.common.TestUtils;
  * implementation.
  *
  * @author Andre Spiegel spiegel@gnu.org
- * @version $Id$
  */
 public class TAOLauncher extends AbstractLauncher
 {

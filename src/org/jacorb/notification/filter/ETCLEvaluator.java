@@ -26,7 +26,6 @@ import org.omg.CosNotification.Property;
 
 /**
  * @author Alphonse Bendt
- * @version $Id$
  */
 public interface ETCLEvaluator
 {

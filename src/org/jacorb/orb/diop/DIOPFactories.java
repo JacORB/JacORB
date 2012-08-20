@@ -37,7 +37,6 @@ import org.omg.RTCORBA.ProtocolProperties;
  * to IIOPProfile.
  *
  * @author Nick Cross
- * @version $Id$
  */
 public class DIOPFactories extends org.omg.ETF._FactoriesLocalBase
 {

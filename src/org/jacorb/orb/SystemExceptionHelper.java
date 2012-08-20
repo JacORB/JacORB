@@ -29,7 +29,6 @@ import org.omg.IOP.ServiceContext;
 
 /**
  * @author Gerald Brose
- * @version $Id$
  */
 
 public class SystemExceptionHelper

@@ -34,7 +34,6 @@ import org.omg.CORBA.BAD_INV_ORDER;
  * an operation on an object.
  *
  * @author Nick Cross
- * @version $Id$
  */
 public class BugJac257Test extends ClientServerTestCase
 {

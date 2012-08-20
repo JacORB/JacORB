@@ -33,7 +33,6 @@ import org.picocontainer.defaults.AssignabilityRegistrationException;
 
 /**
  * @author Alphonse Bendt
- * @version $Id$
  */
 public class CORBAObjectComponentAdapter extends AbstractComponentAdapter
 {

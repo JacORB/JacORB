@@ -28,7 +28,6 @@ import org.omg.CORBA.TypeCode;
 
 /**
  * @author Alphonse Bendt
- * @version $Id$
  */
 public class BugJac462Test extends ORBTestCase
 {

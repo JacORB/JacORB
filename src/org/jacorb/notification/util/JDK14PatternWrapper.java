@@ -26,7 +26,6 @@ import java.util.regex.Pattern;
 
 /**
  * @author Alphonse Bendt
- * @version $Id$
  */
 
 public class JDK14PatternWrapper extends PatternWrapper

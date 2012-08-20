@@ -36,7 +36,6 @@ import java.util.Calendar;
  * adversely affect the performance of the timer queue.
  *
  * @author Phil Mesnier <mesnier_p@ociweb.com>
- * @version $Id$
  */
 public class TimerQueueAction extends SelectorRequest
 {

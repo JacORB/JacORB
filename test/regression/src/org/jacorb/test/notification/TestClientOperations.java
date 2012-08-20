@@ -9,7 +9,6 @@ import org.omg.CosNotifyFilter.FilterNotFound;
 
 /**
  * @author Alphonse Bendt
- * @version $Id$
  */
 
 public interface TestClientOperations 

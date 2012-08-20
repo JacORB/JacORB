@@ -18,7 +18,6 @@ import org.omg.PortableServer.POA;
 
 /**
  * @author Andre Spiegel
- * @version $Id$
  */
 public class BiDirSetup extends ClientServerSetup
 {

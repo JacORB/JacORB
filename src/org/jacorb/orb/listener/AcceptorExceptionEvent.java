@@ -28,7 +28,6 @@ import org.omg.CORBA.ORB;
  * Acceptor Exception events.
  *
  * @author Nick Cross
- * @version $Id$
  */
 public class AcceptorExceptionEvent extends EventObject
 {

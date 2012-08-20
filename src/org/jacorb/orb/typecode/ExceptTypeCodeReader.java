@@ -27,7 +27,6 @@ import org.omg.CORBA.TypeCode;
 
 /**
  * @author Alphonse Bendt
- * @version $Id$
  */
 public class ExceptTypeCodeReader extends ComplexTypeCodeReader
 {

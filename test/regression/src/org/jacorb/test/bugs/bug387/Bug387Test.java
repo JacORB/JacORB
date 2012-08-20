@@ -31,7 +31,6 @@ import org.jacorb.test.common.TestUtils;
  * Tests marshaling of value box instances within structs within anys.
  * 
  * @author <a href="mailto:spiegel@gnu.org">Andre Spiegel</a>
- * @version $Id$
  */
 public class Bug387Test extends ClientServerTestCase
 {

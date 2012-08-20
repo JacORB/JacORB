@@ -46,7 +46,6 @@ import org.slf4j.Logger;
  * @jboss.xmbean
  *
  * @author Alphonse Bendt
- * @version $Id$
  */
 
 public class DefaultTaskProcessor implements TaskProcessor, Disposable, JMXManageable, DefaultTaskProcessorMBean

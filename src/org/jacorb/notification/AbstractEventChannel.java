@@ -71,7 +71,6 @@ import java.util.concurrent.atomic.AtomicInteger;
  * @jboss.xmbean
  *
  * @author Alphonse Bendt
- * @version $Id$
  */
 
 public abstract class AbstractEventChannel implements IServantLifecyle, JMXManageable

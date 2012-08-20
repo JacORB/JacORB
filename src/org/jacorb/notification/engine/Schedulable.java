@@ -23,7 +23,6 @@ package org.jacorb.notification.engine;
 
 /**
  * @author Alphonse Bendt
- * @version $Id$
  */
 public interface Schedulable
 {

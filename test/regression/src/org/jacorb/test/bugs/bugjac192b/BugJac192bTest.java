@@ -27,7 +27,6 @@ import org.omg.CORBA.INTERNAL;
 
 /**
  * @author Nick Cross
- * @version $Id$
  */
 public class BugJac192bTest extends ORBTestCase
 {

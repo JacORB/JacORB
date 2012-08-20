@@ -42,7 +42,6 @@ import org.omg.PortableInterceptor.ForwardRequest;
 
 /**
  * @author Nicolas Noffke
- * @version $Id$
  */
 public class BiDirConnectionClientInterceptor
     extends DefaultClientInterceptor

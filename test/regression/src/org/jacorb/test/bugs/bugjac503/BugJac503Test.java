@@ -38,7 +38,6 @@ import org.omg.RTCORBA.Protocol;
 
 /**
  * @author Alphonse Bendt
- * @version $Id$
  */
 public class BugJac503Test extends AbstractWIOPTestCase
 {

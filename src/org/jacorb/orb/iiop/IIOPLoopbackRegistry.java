@@ -25,7 +25,6 @@ import java.util.Map;
 
 /**
  * @author Kevin Conner (Kevin.Conner@arjuna.com)
- * @version $Id$
  */
 public class IIOPLoopbackRegistry
 {

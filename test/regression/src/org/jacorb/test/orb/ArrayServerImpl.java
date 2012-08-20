@@ -5,7 +5,6 @@ import org.omg.CORBA.Any;
 
 /**
  * @author Andre Spiegel spiegel@gnu.org
- * @version $Id$
  */
 public class ArrayServerImpl extends ArrayServerPOA
 {

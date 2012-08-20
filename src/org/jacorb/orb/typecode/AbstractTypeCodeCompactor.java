@@ -31,7 +31,6 @@ import org.omg.CORBA.TypeCodePackage.BadKind;
  * are answered from the cache instead of compacting the TypeCode over and over again.
  *
  * @author Alphonse Bendt
- * @version $Id$
  */
 public abstract class AbstractTypeCodeCompactor implements TypeCodeCompactor
 {

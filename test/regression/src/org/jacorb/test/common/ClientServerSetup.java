@@ -75,7 +75,6 @@ import org.omg.PortableServer.POA;
  * For details, see {@link ClientServerTestCase}.
  *
  * @author Andre Spiegel <spiegel@gnu.org>
- * @version $Id$
  */
 public class ClientServerSetup extends TestSetup {
 

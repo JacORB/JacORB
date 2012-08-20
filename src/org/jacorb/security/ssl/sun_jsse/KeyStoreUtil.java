@@ -31,7 +31,6 @@ import org.jacorb.util.ObjectUtil;
  * A class with utility methods that help managing a key store.
  *
  * @author Gerald Brose
- * @version $Id$
  */
 public class KeyStoreUtil
 {

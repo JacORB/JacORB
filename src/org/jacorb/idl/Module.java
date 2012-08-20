@@ -24,7 +24,6 @@ package org.jacorb.idl;
  * JacORB  IDL compiler classes
  *
  * @author Gerald Brose
- * @version $Id$
  */
 
 import java.io.File;

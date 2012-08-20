@@ -33,7 +33,6 @@ import java.util.Set;
 
 /**
  * @author Andre Spiegel
- * @version $Id$
  */
 
 public class ValueDecl

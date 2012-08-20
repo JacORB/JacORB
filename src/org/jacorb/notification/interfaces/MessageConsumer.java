@@ -28,7 +28,6 @@ package org.jacorb.notification.interfaces;
  * Sequence of StructuredEvent) required by its Consumer and delivers it. <br>
  * 
  * @author Alphonse Bendt
- * @version $Id$
  */
 
 public interface MessageConsumer extends Comparable

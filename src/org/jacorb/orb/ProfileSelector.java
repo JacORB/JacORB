@@ -29,7 +29,6 @@ import org.omg.ETF.Profile;
  * an object's IOR should be used to communicate with the object.
  *
  * @author <a href="mailto:spiegel@gnu.org">Andre Spiegel</a>
- * @version $Id$
  */
 public interface ProfileSelector
 {

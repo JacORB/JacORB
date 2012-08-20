@@ -35,7 +35,6 @@ import org.jacorb.test.*;
  * in the suite() method how to change that (if your test machine supports it).
  * 
  * @author Andre Spiegel <spiegel@gnu.org>
- * @version $Id$
  */
 public class AlternateIIOPAddressAutoTest extends ClientServerTestCase
 {

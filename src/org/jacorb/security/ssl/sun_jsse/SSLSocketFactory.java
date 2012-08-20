@@ -57,7 +57,6 @@ import org.jacorb.orb.listener.SSLSessionListener;
  * to create sockets that support SSL.
  *
  * @author Nicolas Noffke
- * $Id$
  */
 public class SSLSocketFactory
     extends AbstractSocketFactory

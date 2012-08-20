@@ -30,7 +30,6 @@ import org.omg.CosNaming.NamingContextPackage.InvalidName;
  * between Names and their string representation
  *
  * @author Gerald Brose, FU Berlin
- * @version $Id$
  */
 
 public class Name

@@ -27,7 +27,6 @@ import org.jacorb.config.Configuration;
  * that'll create a new array of byte for every invocation).
  *
  * @author Alphonse Bendt
- * @version $Id$
  */
 
 public class NonCachingBufferManagerFactory implements BufferManagerFactory

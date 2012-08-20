@@ -53,7 +53,6 @@ package org.jacorb.test.common;
  * object with correct type information.
  * 
  * @author Andre Spiegel <spiegel@gnu.org>
- * @version $Id$
  */
 public class ClientServerTestCase extends JacORBTestCase
 {

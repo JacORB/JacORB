@@ -27,7 +27,6 @@ import org.omg.CORBA.portable.InputStream;
 
 /**
  * @author Alphonse Bendt
- * @version $Id$
  */
 public class BugJac443Test extends ORBTestCase
 {

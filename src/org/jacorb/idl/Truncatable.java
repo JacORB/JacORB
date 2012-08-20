@@ -26,7 +26,6 @@ package org.jacorb.idl;
  * A trivial holder for scoped names that appear as truncatable ancestors
  * in a value type's inheritance spec.
  *
- * @version $Id$
  */
 
 public class Truncatable

@@ -22,7 +22,6 @@ package org.jacorb.orb.listener;
 
 /**
  * @author Alphonse Bendt
- * @version $Id$
  */
 public class NullAcceptorExceptionListener implements AcceptorExceptionListener
 {

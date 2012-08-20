@@ -28,7 +28,6 @@ import org.jacorb.notification.EventChannelFactoryImpl;
  *
  *
  * @author Alphonse Bendt
- * @version $Id$
  */
 
 public class WhiteBoardFactory extends IFactoryPOA implements IFactoryOperations {

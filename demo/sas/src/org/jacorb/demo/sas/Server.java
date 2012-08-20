@@ -14,7 +14,6 @@ import org.omg.PortableServer.POA;
  * accessed via the Security Level 2 interfaces.
  *
  * @author Nicolas Noffke
- * @version $Id$
  */
 
 public class Server extends SASDemoPOA

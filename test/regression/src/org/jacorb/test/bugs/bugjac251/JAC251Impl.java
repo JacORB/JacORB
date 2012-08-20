@@ -17,7 +17,6 @@ import org.omg.DynamicAny.DynUnionHelper;
  * <code>PT251Impl</code> is the server class to test dynamic any.
  *
  * @author Nick Cross
- * @version $Id$
  */
 public class JAC251Impl extends JAC251POA implements Configurable
 {

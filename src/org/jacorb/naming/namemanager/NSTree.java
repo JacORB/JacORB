@@ -38,7 +38,6 @@ import org.omg.CosNaming.NamingContextPackage.NotFound;
 
 /**
  * @author Gerald Brose, FU Berlin/XTRADYNE Technologies AG
- * @version $Id$
  */
 
 public class NSTree extends JTree

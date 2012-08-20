@@ -33,7 +33,6 @@ import org.omg.PortableServer.POAHelper;
 
 /**
  * @author Alphonse Bendt
- * @version $Id$
  */
 public class ORBSetup extends TestSetup
 {

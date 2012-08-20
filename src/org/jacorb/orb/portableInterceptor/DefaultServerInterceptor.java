@@ -30,7 +30,6 @@ import org.omg.PortableInterceptor.ServerRequestInterceptor;
  * A simple base class for user-defined server interceptors
  *
  * @author Gerald Brose.
- * @version $Id$
  */
 public abstract class DefaultServerInterceptor
     extends org.omg.CORBA.LocalObject

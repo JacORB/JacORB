@@ -30,7 +30,6 @@ import org.jacorb.test.common.ORBTestCase;
  * are a GIOP UDP protocol.
  *
  * @author Nick Cross
- * @version $Id$
  */
 public class DIOPIORTest extends ORBTestCase
 {

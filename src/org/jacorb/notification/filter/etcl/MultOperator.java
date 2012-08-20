@@ -30,7 +30,6 @@ import antlr.Token;
 /**
  * A simple node to represent MULT operation
  * 
- * @version $Id$
  */
 
 public class MultOperator extends BinaryOperator

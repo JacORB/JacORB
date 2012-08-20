@@ -64,7 +64,6 @@ import org.slf4j.Logger;
  * <p>
  *
  * @author Gerald Brose
- * @version $Id$
  */
 
 public class RepositoryImpl

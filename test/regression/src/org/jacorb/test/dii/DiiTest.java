@@ -17,7 +17,6 @@ import org.omg.CORBA.WrongTransaction;
  * converted from demo.dii
  *
  * @author Alphonse Bendt
- * @version $Id$
  */
 public class DiiTest extends ClientServerTestCase
 {

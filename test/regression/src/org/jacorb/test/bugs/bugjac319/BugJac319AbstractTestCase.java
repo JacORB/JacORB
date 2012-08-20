@@ -36,7 +36,6 @@ import org.jacorb.test.common.TestUtils;
  * it is turned off.
  *
  * @author Nick Cross
- * @version $Id$
  */
 public abstract class BugJac319AbstractTestCase extends ClientServerTestCase
 {

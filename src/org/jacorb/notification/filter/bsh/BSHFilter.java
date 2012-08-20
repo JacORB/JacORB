@@ -49,7 +49,6 @@ import bsh.Interpreter;
  * <code>jacorb.notification.filter.plugin.BSH=org.jacorb.notification.filter.bsh.BSHFilter</code>
  * 
  * @author Alphonse Bendt
- * @version $Id$
  */
 public class BSHFilter extends AbstractFilter
 {

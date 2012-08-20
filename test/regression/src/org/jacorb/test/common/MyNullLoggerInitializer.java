@@ -26,7 +26,6 @@ import org.jacorb.config.LoggingInitializer;
 
 /**
  * @author Alphonse Bendt
- * @version $Id$
  */
 public class MyNullLoggerInitializer extends LoggingInitializer
 {

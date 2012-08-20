@@ -27,7 +27,6 @@ package org.jacorb.orb.giop;
  * Created: Sat Aug 18 21:07:07 2002
  *
  * @author Nicolas Noffke
- * @version $Id$
  */
 
 public class ServiceContextTransportingInputStream 

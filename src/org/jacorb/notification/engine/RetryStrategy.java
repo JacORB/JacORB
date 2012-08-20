@@ -25,7 +25,6 @@ import org.jacorb.notification.interfaces.Disposable;
 
 /**
  * @author Alphonse Bendt
- * @version $Id$
  */
 public interface RetryStrategy extends Disposable
 {

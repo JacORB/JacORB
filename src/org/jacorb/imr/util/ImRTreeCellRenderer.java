@@ -33,7 +33,6 @@ import org.jacorb.imr.ServerInfo;
  *
  * @author Nicolas Noffke
  * 
- * $Id$
  */
 
 public class ImRTreeCellRenderer extends DefaultTreeCellRenderer {

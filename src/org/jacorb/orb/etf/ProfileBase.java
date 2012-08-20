@@ -43,7 +43,6 @@ import org.slf4j.Logger;
 
 /**
  * @author Andre Spiegel
- * @version $Id$
  */
 public abstract class ProfileBase
     extends _ProfileLocalBase

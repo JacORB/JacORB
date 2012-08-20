@@ -51,7 +51,6 @@ import org.slf4j.Logger;
  *      The implementation for the CORBAService Naming
  *
  *      @author Gerald Brose
- *      @version $Id$
  */
 
 public class NamingContextImpl

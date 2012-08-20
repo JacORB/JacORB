@@ -26,7 +26,6 @@ import org.jacorb.config.ConfigurationException;
 
 /**
  * @author Nicolas Noffke
- * @version $Id$
  */
 public class ClientGIOPConnection
     extends GIOPConnection

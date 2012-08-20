@@ -37,7 +37,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * @author Alphonse Bendt
- * @version $Id$
  */
 
 public class FilterManager implements FilterAdminOperations

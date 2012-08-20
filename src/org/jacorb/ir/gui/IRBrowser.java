@@ -57,7 +57,6 @@ import org.jacorb.ir.gui.typesystem.remote.RemoteTypeSystem;
 
 /**
  * @author (c) Joerg von Frantzius, Gerald Brose, FU Berlin
- * @version $Id$
  */
 
 class IRBrowser

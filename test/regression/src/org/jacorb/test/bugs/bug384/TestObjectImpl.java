@@ -26,7 +26,6 @@ import org.omg.CORBA.ORB;
  * Implementation of a test object that can be "ping()-ed"
  *
  * @author Gerald Brose
- * @version $Id$
  */
 
 public class TestObjectImpl

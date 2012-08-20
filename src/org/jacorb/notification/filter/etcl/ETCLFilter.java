@@ -37,7 +37,6 @@ import org.omg.PortableServer.POA;
  * @jboss.xmbean             
  *              
  * @author Alphonse Bendt
- * @version $Id$
  */
 public class ETCLFilter extends AbstractFilter implements ETCLFilterMBean
 {

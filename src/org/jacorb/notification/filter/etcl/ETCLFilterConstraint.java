@@ -34,7 +34,6 @@ import org.omg.CosNotifyFilter.InvalidConstraint;
  * Representation of a ETCL Filter Constraint.
  *
  * @author Alphonse Bendt
- * @version $Id$
  */
 
 public class ETCLFilterConstraint implements FilterConstraint

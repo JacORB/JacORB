@@ -30,7 +30,6 @@ import org.omg.CosNotifyFilter.FilterFactory;
 
 /**
  * @author Alphonse Bendt
- * @version $Id$
  */
 public class FilterFactoryTest extends NotifyServerTestCase
 {

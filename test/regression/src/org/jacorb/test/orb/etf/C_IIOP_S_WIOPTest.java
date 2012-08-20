@@ -33,7 +33,6 @@ import org.jacorb.test.common.ClientServerSetup;
  * Hence, no connection will be possible.
  * 
  * @author Andre Spiegel spiegel@gnu.org
- * @version $Id$
  */
 public class C_IIOP_S_WIOPTest extends AbstractWIOPTestCase
 {

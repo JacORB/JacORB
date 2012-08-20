@@ -26,7 +26,6 @@ import java.net.ServerSocket;
 
 /**
  * @author Steve Osselton
- * @version $Id$
  */
 public class DefaultServerSocketFactory implements ServerSocketFactory
 {

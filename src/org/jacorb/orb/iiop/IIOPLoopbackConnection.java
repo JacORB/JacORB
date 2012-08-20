@@ -28,7 +28,6 @@ import org.omg.ETF.Profile;
 
 /**
  * @author Kevin Conner (Kevin.Conner@arjuna.com)
- * @version $Id$
  */
 public class IIOPLoopbackConnection
     extends StreamConnectionBase

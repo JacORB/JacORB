@@ -30,7 +30,6 @@ import org.jacorb.imr.ServerInfo;
  *
  * @author Nicolas Noffke
  *
- * $Id$
  */
 
 public class ImRServerTableModel extends AbstractTableModel {

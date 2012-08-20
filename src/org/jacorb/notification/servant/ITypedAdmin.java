@@ -25,7 +25,6 @@ package org.jacorb.notification.servant;
  * Internal Interface between TypedProxies and their parent Admin
  * 
  * @author Alphonse Bendt
- * @version $Id$
  */
 public interface ITypedAdmin extends IAdmin
 {

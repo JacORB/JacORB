@@ -24,7 +24,6 @@ package org.jacorb.idl;
  * constant type
  *
  * @author Gerald Brose
- * @version $Id$
  */
 
 public class ConstType

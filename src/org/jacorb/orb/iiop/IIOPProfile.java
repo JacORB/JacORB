@@ -61,7 +61,6 @@ import org.omg.SSLIOP.TAG_SSL_SEC_TRANS;
 
 /**
  * @author Andre Spiegel
- * @version $Id$
  */
 public class IIOPProfile
     extends org.jacorb.orb.etf.ProfileBase implements Cloneable

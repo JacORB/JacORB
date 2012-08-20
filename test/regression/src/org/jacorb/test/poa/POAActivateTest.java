@@ -35,7 +35,6 @@ import org.omg.PortableServer.POAPackage.ServantAlreadyActive;
  * objects in order to ensure the threading is correct.
  *
  * @author Nick Cross
- * @version $Id$
  */
 public class POAActivateTest extends ORBTestCase
 {

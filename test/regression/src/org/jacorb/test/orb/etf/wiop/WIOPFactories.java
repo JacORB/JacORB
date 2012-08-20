@@ -38,7 +38,6 @@ import org.jacorb.orb.iiop.*;
  * delegates everything to the standard IIOP classes.
  *
  * @author Andre Spiegel spiegel@gnu.org
- * @version $Id$
  */
 public class WIOPFactories
     extends _FactoriesLocalBase

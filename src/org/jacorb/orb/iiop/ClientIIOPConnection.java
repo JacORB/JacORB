@@ -39,7 +39,6 @@ import org.omg.CORBA.TIMEOUT;
 /**
  * @author Nicolas Noffke
  * @author Andre Spiegel
- * @version $Id$
  */
 public class ClientIIOPConnection
     extends IIOPConnection

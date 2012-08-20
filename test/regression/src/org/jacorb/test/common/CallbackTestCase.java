@@ -106,7 +106,6 @@ import junit.framework.*;
  * time, the test case fails.
  *  
  * @author Andre Spiegel <spiegel@gnu.org>
- * @version $Id$
  */
 public class CallbackTestCase extends ClientServerTestCase
 {

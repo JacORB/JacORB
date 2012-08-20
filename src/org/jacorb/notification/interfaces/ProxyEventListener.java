@@ -25,7 +25,6 @@ import org.omg.CosNotifyChannelAdmin.AdminLimitExceeded;
 
 /**
  * @author Alphonse Bendt
- * @version $Id$
  */
 
 public interface ProxyEventListener {

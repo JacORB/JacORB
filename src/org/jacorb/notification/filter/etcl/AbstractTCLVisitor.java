@@ -24,7 +24,6 @@ package org.jacorb.notification.filter.etcl;
 /**
  * Adapter Class to help creating a Visitor for TCL Trees. Override the appropiate Methods.
  * 
- * @version $Id$
  */
 
 public abstract class AbstractTCLVisitor

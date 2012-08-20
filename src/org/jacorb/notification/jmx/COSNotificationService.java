@@ -48,7 +48,6 @@ import org.picocontainer.defaults.DefaultPicoContainer;
  *              description="Control the JacORB Notification Service"
  * 
  * @author Alphonse Bendt
- * @version $Id$
  */
 public class COSNotificationService implements COSNotificationServiceMBean
 {

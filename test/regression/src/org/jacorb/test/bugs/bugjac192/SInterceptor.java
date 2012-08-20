@@ -17,7 +17,6 @@ import org.omg.PortableInterceptor.ServerRequestInterceptor;
  * for the server to analyse and return the ServiceContext propagation result.
  *
  * @author Nick Cross
- * @version $Id$
  */
 public class SInterceptor
     extends org.omg.CORBA.LocalObject

@@ -65,7 +65,6 @@ import org.omg.PortableInterceptor.ORBInitInfo;
  * This is the SAS Client Security Service (CSS) Interceptor
  *
  * @author David Robison
- * @version $Id$
  */
 
 public class SASClientInterceptor

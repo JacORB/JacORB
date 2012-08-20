@@ -39,7 +39,6 @@ import org.omg.PortableInterceptor.ServerRequestInterceptor;
  *
  * @author Nicolas Noffke
  * @author Vladimir Mencl
- * @version $Id$
  */
 public class ServerContextTransferInterceptor 
     extends org.omg.CORBA.LocalObject 

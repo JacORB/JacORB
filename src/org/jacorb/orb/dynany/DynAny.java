@@ -36,7 +36,6 @@ import org.slf4j.Logger;
  * CORBA DynAny
  *
  * @author Gerald Brose
- * @version $Id$
  */
 public class DynAny
    extends org.omg.CORBA.LocalObject
@@ -47,12 +46,12 @@ public class DynAny
    protected int limit = 0;
    protected final org.omg.DynamicAny.DynAnyFactory dynFactory;
    protected final org.jacorb.orb.ORB orb;
-   private final Logger logger;
+   protected final Logger logger;
 
    /**
     *  our representation of a primitive type any is the any itself
     */
-   private org.omg.CORBA.Any anyRepresentation;
+   protected org.omg.CORBA.Any anyRepresentation;
 
    protected DynAny(org.omg.DynamicAny.DynAnyFactory factory, org.jacorb.orb.ORB orb, Logger logger)
    {
@@ -115,24 +114,38 @@ public class DynAny
    public void from_any(org.omg.CORBA.Any value)
       throws InvalidValue, TypeMismatch
    {
-      checkDestroyed ();
-      if( ! value.type().equivalent( type()) )
-      {
-         throw new TypeMismatch();
-      }
-
-      typeCode = TypeCode.originalType( value.type() );
-
-      try
-      {
-         anyRepresentation = (org.jacorb.orb.Any)orb.create_any();
-         anyRepresentation.read_value( value.create_input_stream(), type());
-      }
-      catch( Exception e)
-      {
-         throw new InvalidValue(e.toString());
-      }
+       from_any_internal(false, value);
    }
+
+
+    void from_any_internal (boolean useCurrentRepresentation, org.omg.CORBA.Any value)
+        throws InvalidValue, TypeMismatch
+    {
+        checkDestroyed ();
+        if( ! value.type().equivalent( type()) )
+        {
+            throw new TypeMismatch();
+        }
+
+        typeCode = TypeCode.originalType( value.type() );
+
+        if (useCurrentRepresentation)
+        {
+            anyRepresentation = value;
+        }
+        else
+        {
+            try
+            {
+                anyRepresentation = (org.jacorb.orb.Any)orb.create_any();
+                anyRepresentation.read_value( value.create_input_stream(), type());
+            }
+            catch( Exception e)
+            {
+                throw new InvalidValue(e.toString());
+            }
+        }
+    }
 
    public org.omg.CORBA.Any to_any()
    {
@@ -926,8 +939,6 @@ public class DynAny
    public void insert_short_seq (short[] value) throws InvalidValue, TypeMismatch
    {
       throw new NO_IMPLEMENT ("NYI");
-
-
    }
 
    public void insert_ulong_seq (int[] value) throws InvalidValue, TypeMismatch

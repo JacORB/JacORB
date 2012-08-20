@@ -24,7 +24,6 @@ package org.jacorb.orb.listener;
  * empty implementation of the SSLSessionListener interface
  *
  * @author Alphonse Bendt
- * @version $Id$
  */
 public class NullSSLSessionListener implements SSLSessionListener
 {

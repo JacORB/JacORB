@@ -36,7 +36,6 @@ import org.slf4j.Logger;
  * This class manages a queue of ServerRequest objects.
  *
  * @author Reimo Tiedemann, FU Berlin
- * @version $Id$
  */
 public class RequestQueue
     implements Configurable

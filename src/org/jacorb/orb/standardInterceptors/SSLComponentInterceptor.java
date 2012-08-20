@@ -38,7 +38,6 @@ import org.slf4j.Logger;
  * This interceptor creates an ssl TaggedComponent
  *
  * @author Nicolas Noffke
- * @version $Id$
  */
 
 public class SSLComponentInterceptor

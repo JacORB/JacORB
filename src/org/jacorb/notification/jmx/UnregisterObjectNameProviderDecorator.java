@@ -40,7 +40,6 @@ import org.picocontainer.PicoContainer;
  * the disposehook will deregister the mbean from the mbeanserver.
  *  
  * @author Alphonse Bendt
- * @version $Id$
  */
 
 public class UnregisterObjectNameProviderDecorator implements DynamicMBeanProvider

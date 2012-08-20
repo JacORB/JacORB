@@ -27,7 +27,6 @@ import java.util.Set;
 
 /**
  * @author Gerald Brose <mailto:gerald.brose@acm.org>
- * @version $Id$
  *
  */
 

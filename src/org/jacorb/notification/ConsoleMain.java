@@ -27,7 +27,6 @@ import org.jacorb.notification.conf.Attributes;
 
 /**
  * @author Alphonse Bendt
- * @version $Id$
  */
 
 public class ConsoleMain

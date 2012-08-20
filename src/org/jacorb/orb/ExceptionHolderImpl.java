@@ -44,7 +44,6 @@ import org.slf4j.Logger;
  * type is used to pass an exception to a reply handler.
  *
  * @author Andre Spiegel <spiegel@gnu.org>
- * @version $Id$
  */
 public class ExceptionHolderImpl
     extends org.omg.Messaging.ExceptionHolder

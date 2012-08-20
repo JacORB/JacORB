@@ -25,7 +25,6 @@ import java.io.InputStream;
 
 /**
  * @author Kevin Conner (Kevin.Conner@arjuna.com)
- * @version $Id$
  */
 class IIOPLoopbackInputStream extends InputStream
 {

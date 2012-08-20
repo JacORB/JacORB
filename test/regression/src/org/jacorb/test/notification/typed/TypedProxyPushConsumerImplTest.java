@@ -47,7 +47,6 @@ import org.omg.CosTypedNotifyChannelAdmin.TypedProxyPushConsumerHelper;
 
 /**
  * @author Alphonse Bendt
- * @version $Id$
  */
 public class TypedProxyPushConsumerImplTest extends NotificationTestCase
 {

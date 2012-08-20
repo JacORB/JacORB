@@ -59,7 +59,6 @@ import org.jacorb.idl.VectorType;
  * The compiler backend for the IDL/Java mapping
  *
  * @author Copyright (C) 1997-2012 Gerald Brose / The JacORB Team.
- * @version $Id$
  *
  */
 

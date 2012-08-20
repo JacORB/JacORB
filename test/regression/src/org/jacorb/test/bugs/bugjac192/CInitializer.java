@@ -10,7 +10,6 @@ import org.omg.PortableInterceptor.ORBInitInfoPackage.DuplicateName;
  * <code>CInitializer</code> is basic initializer to register the interceptor.
  *
  * @author Nick Cross
- * @version $Id$
  */
 public class CInitializer
     extends org.omg.CORBA.LocalObject

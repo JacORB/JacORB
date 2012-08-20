@@ -30,7 +30,6 @@ import org.jacorb.notification.interfaces.Message;
  * of this Class.
  *
  * @author Alphonse Bendt
- * @version $Id$
  */
 
 public interface FilterConstraint

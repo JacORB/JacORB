@@ -28,7 +28,6 @@ import org.jacorb.idl.TypeDeclaration;
 
 /**
  * @author Alphonse Bendt
- * @version $Id$
  */
 public class BugJac144ObjectCachePlugin implements ObjectCachePlugin
 {

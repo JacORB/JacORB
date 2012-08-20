@@ -27,7 +27,6 @@ package org.jacorb.orb.giop;
  * information.
  *
  * @author Iliyan Jeliazkov
- * @version $Id$
  */
 
 final class StatisticsProviderAdapter implements StatisticsProvider

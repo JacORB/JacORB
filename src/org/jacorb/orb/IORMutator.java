@@ -34,7 +34,6 @@ import org.omg.IOP.IOR;
  * IOR returned is valid.
  *
  * @author Nick Cross
- * @version $Id$
  */
 public abstract class IORMutator
 {

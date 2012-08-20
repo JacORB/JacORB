@@ -32,7 +32,6 @@ import org.picocontainer.defaults.AbstractComponentAdapter;
 
 /**
  * @author Alphonse Bendt
- * @version $Id$
  */
 public class RepositoryComponentAdapter extends AbstractComponentAdapter
 {

@@ -32,7 +32,6 @@ import org.slf4j.Logger;
  * this class is the entry point into the TypeCode reading logic.
  *
  * @author Alphonse Bendt
- * @version $Id$
  */
 public class DelegatingTypeCodeReader
 {

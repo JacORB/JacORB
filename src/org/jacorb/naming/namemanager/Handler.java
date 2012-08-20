@@ -42,7 +42,6 @@ import javax.swing.tree.TreePath;
  * This class handles the events on the tree
  *
  * @author Gerald Brose, FU Berlin
- * @version $Id$ 
  */
 
 public class Handler

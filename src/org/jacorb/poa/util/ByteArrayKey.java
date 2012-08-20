@@ -26,7 +26,6 @@ package org.jacorb.poa.util;
  * in hashtables.
  *
  * @author Steve Osselton
- * @version $Id$
  */
 
 public class ByteArrayKey

@@ -15,7 +15,6 @@ import org.omg.CORBA.NO_RESOURCES;
 
 /**
  * @author Alphonse Bendt
- * @version $Id$
  */
 public class BugJac330Test extends ClientServerTestCase
 {

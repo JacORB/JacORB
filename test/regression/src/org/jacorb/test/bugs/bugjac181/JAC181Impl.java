@@ -7,7 +7,6 @@ import org.omg.CORBA.ORB;
  * <code>JAC181Impl</code> is a basic server implementation.
  *
  * @author Nick Cross
- * @version $Id$
  */
 public class JAC181Impl extends JAC181POA implements Configurable
 {

@@ -9,7 +9,6 @@ import org.omg.CORBA.*;
  * transparent.
  *
  * @author Nicolas Noffke
- * @version $Id$
  */
 
 public class Client

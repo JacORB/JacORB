@@ -35,7 +35,6 @@ import org.omg.CosNotifyComm.NotifyPublishOperations;
  * Utility class that manages subscriptions of NotifyPublishers and broadcasting of offer_change requests.
  * 
  * @author Alphonse Bendt
- * @version $Id$
  */
 
 public class OfferManager extends EventTypeSet implements NotifyPublishOperations

@@ -47,7 +47,6 @@ import org.omg.CORBA.ORBPackage.InvalidName;
 /**
  * @author Joerg v. Frantzius
  * @author Gerald Brose.
- * $Id$
  */
 
 public class RemoteTypeSystem

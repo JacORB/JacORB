@@ -35,7 +35,6 @@ import java.util.HashMap;
  * When the getValue() is called, a Double object is returned.
  * If it returns null, an error occured.<p>
 
- * @version $Id$
  * @author  Gerald Brose,
  *          The-Son LAI <a href="mailto:Lts@writeme.com">Lts@writeme.com</a>
  */

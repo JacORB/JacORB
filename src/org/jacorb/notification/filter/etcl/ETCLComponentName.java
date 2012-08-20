@@ -33,7 +33,6 @@ import antlr.Token;
  * node that represents a COMPONENT Name
  *
  * @author Alphonse Bendt
- * @version $Id$
  */
 
 public class ETCLComponentName extends AbstractTCLNode implements ComponentName

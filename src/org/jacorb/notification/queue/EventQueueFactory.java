@@ -40,7 +40,6 @@ import org.omg.CosNotification.PriorityOrder;
 
 /**
  * @author Alphonse Bendt
- * @version $Id$
  */
 
 public class EventQueueFactory implements Configurable

@@ -31,7 +31,6 @@ import org.omg.CORBA.Any;
  * anys. See the bug #JAC45 for more.
  *
  * @author <a href="mailto:sm@prismtechnologies.com"></a>
- * @version $Id$
  */
 public class BugJac45Test extends ORBTestCase
 {

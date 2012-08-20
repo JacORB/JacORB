@@ -30,7 +30,6 @@ import org.omg.CORBA.ORBSingleton;
 
 /**
  * @author Gerald Brose, FU Berlin
- * @version $Id$
  */
 
 public class TypeCodeUtil

@@ -22,7 +22,6 @@ package org.jacorb.test.bugs.bug228;
 
 /**
  * @author <a href="mailto:spiegel@gnu.org">Andre Spiegel</a>
- * @version $Id$
  */
 public class SampleIm extends Sample
 {

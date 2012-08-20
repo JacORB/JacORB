@@ -25,7 +25,6 @@ import org.jacorb.notification.util.PatternWrapper;
 
 /**
  * @author Alphonse Bendt
- * @version $Id$
  */
 
 public abstract class AbstractPatternWrapperTestCase extends TestCase

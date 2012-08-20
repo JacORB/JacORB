@@ -33,7 +33,6 @@ import org.omg.CORBA.ORB;
  * This class prints IDL from IR-Descriptions to PrintStreams
  *
  * @author (c) Gerald Brose, FU Berlin 2000
- * @version $Id$
  */
 
 public class IdlWriter

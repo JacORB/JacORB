@@ -25,7 +25,6 @@ import org.jacorb.notification.AbstractEventChannel;
 
 /**
  * @author Alphonse Bendt
- * @version $Id$
  */
 
 public class EventChannelEvent extends ApplicationEvent

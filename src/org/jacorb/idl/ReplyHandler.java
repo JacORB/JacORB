@@ -31,7 +31,6 @@ import java.util.List;
  * ReplyHandler).
  *
  * @author Andre Spiegel
- * $Id$
  */
 public class ReplyHandler extends Interface
 {

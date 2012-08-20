@@ -13,7 +13,6 @@ import org.omg.PortableInterceptor.InvalidSlot;
  * the correct value to the client.
  *
  * @author Nick Cross
- * @version $Id$
  */
 public class JAC182Impl extends JAC182POA
 {

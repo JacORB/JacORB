@@ -26,7 +26,6 @@ import org.omg.CORBA.INTF_REPOS;
  * Base class for Interface Repository Objects
  *
  * @author Gerald Brose
- * @version $Id$
  */
 public abstract class IRObject
     implements org.omg.CORBA.IRObjectOperations

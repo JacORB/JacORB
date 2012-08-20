@@ -38,7 +38,6 @@ import org.omg.CORBA.ValueMember;
  * JacORB implementation of CORBA TypeCodes
  *
  * @author Gerald Brose, FU Berlin
- * @version $Id$
  */
 
 public class TypeCode

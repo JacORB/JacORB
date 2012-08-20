@@ -29,7 +29,6 @@ import org.omg.CORBA.TypeCodePackage.Bounds;
 
 /**
  * @author Alphonse Bendt
- * @version $Id$
  */
 public class UnionTypeCodeWriter extends ComplexTypeCodeWriter
 {

@@ -13,7 +13,6 @@ import org.jacorb.util.Time;
 
 /**
  * @author Andre Spiegel spiegel@gnu.org
- * @version $Id$
  */
 public class TimingTest extends CallbackTestCase
 {

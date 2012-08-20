@@ -31,7 +31,6 @@ import org.omg.RTCORBA.RTORB;
 
 /**
  * @author Alphonse Bendt
- * @version $Id$
  */
 public class ForwardInterceptor
     extends org.omg.CORBA.LocalObject

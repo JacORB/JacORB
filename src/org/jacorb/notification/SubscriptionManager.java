@@ -36,7 +36,6 @@ import org.omg.CosNotifyComm.NotifySubscribeOperations;
  * requests.
  * 
  * @author Alphonse Bendt
- * @version $Id$
  */
 
 public class SubscriptionManager extends EventTypeSet implements NotifySubscribeOperations

@@ -29,7 +29,6 @@ import antlr.Token;
 
 /**
  * @author Alphonse Bendt
- * @version $Id$
  */
 public abstract class BinaryOperator extends UnaryOperator
 {

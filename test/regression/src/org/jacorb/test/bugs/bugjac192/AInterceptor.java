@@ -22,7 +22,6 @@ import org.omg.RTCORBA.RTORBHelper;
  * ForwardRequest
  *
  * @author Nick Cross
- * @version $Id$
  */
 public class AInterceptor
     extends org.omg.CORBA.LocalObject

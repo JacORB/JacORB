@@ -31,7 +31,6 @@ import org.omg.GIOP.MsgType_1_1;
 
 /**
  * @author Gerald Brose, FU Berlin
- * @version $Id$
  *
  */
 

@@ -41,7 +41,6 @@ import org.omg.CosNotifyFilter.Filter;
  * process.
  * 
  * @author Alphonse Bendt
- * @version $Id$
  */
 public abstract class NotifyServerTestCase extends ClientServerTestCase
 {

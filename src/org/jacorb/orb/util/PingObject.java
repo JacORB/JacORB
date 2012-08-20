@@ -21,7 +21,6 @@
 package org.jacorb.orb.util;
 
 /**
- * @version $Id$
  */
 
 import java.io.BufferedReader;

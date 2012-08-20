@@ -25,7 +25,6 @@ import java.io.PrintWriter;
 
 /**
  * @author Gerald Brose
- * @version $Id$
  */
 
 public class AndExpr

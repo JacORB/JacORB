@@ -26,7 +26,6 @@ import java.security.Provider;
  * This is the GSS-API Sercurity Provider Interface (SPI) Provider for the GSSUP Name
  *
  * @author David Robison
- * @version $Id$
  */
 
 public class GSSUPProvider 

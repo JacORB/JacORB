@@ -13,7 +13,6 @@ import org.omg.CosEventComm.PullConsumerPOA;
 
 /**
  * @author Alphonse Bendt
- * @version $Id$
  */
 
 public class CosEventPullReceiver extends PullConsumerPOA implements Runnable, TestClientOperations

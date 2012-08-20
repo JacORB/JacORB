@@ -58,7 +58,6 @@ import org.slf4j.Logger;
  * Read CDR encoded data
  *
  * @author Gerald Brose, FU Berlin
- * $Id$
  */
 
 public class CDRInputStream

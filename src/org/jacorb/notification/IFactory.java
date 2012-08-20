@@ -23,7 +23,6 @@ package org.jacorb.notification;
 
 /**
  * @author Alphonse Bendt
- * @version $Id$
  */
 public interface IFactory extends IContainer
 {

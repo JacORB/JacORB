@@ -38,7 +38,6 @@ import org.apache.tools.ant.types.PropertySet;
 
 /**
  * @author Alphonse Bendt
- * @version $Id$
  */
 public class PrintTestBanner extends Task
 {

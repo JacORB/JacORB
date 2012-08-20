@@ -31,7 +31,6 @@ import antlr.Token;
 
 /**
  * @author Alphonse Bendt
- * @version $Id$
  */
 
 public class ImplicitOperatorNode extends AbstractTCLNode

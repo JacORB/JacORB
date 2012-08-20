@@ -49,7 +49,6 @@ import org.slf4j.Logger;
  * sending (or handling) a request.
  *
  * @author Nicolas Noffke
- * @version $Id$
  * */
 
 public class TransportManager

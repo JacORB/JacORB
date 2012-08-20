@@ -35,7 +35,6 @@ import org.slf4j.Logger;
  * abstract base class for JacORB's default SocketFactory implementations.
  *
  * @author Alphonse Bendt
- * @version $Id$
  */
 
 public abstract class AbstractSocketFactory implements SocketFactory, Configurable

@@ -31,7 +31,6 @@ import org.omg.PortableServer.POAManagerPackage.State;
  * The poa manager class, an implementation of org.omg.PortableServer.POAManager
  *
  * @author Reimo Tiedemann, FU Berlin
- * @version $Id$
  */
 
 public class POAManager

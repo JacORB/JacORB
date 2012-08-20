@@ -33,7 +33,6 @@ import org.omg.CosTypedNotifyChannelAdmin.TypedEventChannelFactoryHelper;
  * base class for TypedEventChannel integration tests.
  *
  * @author Alphonse Bendt
- * @version $Id$
  */
 public abstract class TypedServerTestCase extends TestCase
 {

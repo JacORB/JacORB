@@ -27,7 +27,6 @@ package org.jacorb.orb.giop;
  * Created: Sun Aug 12 22:01:01 2002
  *
  * @author Nicolas Noffke
- * @version $Id$
  */
 
 public interface ReplyListener 

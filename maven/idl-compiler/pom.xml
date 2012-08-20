@@ -7,11 +7,11 @@
     <parent>
         <groupId>org.jacorb</groupId>
         <artifactId>jacorb-parent</artifactId>
-        <version>3.0</version>
+        <version>3.1</version>
         <relativePath>../..</relativePath>
     </parent>
 
-    <artifactId>idl-compiler</artifactId>
+    <artifactId>jacorb-idl-compiler</artifactId>
     <packaging>jar</packaging>
 
     <name>JacORB IDL Compiler</name>

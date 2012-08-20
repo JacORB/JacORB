@@ -25,7 +25,6 @@ import org.omg.CORBA.TRANSIENT;
 
 /**
  * @author Alphonse Bendt
- * @version $Id$
  */
 public class Bug735Test extends ORBTestCase
 {

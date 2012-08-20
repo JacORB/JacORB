@@ -33,7 +33,6 @@ import org.slf4j.Logger;
  * on to the external SSLListener.
  *
  * @author Nick Cross
- * @version $Id$
  */
 public class SSLHandshakeListener implements HandshakeCompletedListener
 {

@@ -40,7 +40,6 @@ import org.omg.CosNotifyComm.StructuredPushConsumer;
 
 /**
  * @author Alphonse Bendt
- * @version $Id$
  */
 public class StructuredProxyPushSupplierImplTest extends NotificationTestCase
 {

@@ -27,7 +27,6 @@ import org.omg.CosNotifyFilter.MappingFilterOperations;
 
 /**
  * @author Alphonse Bendt
- * @version $Id$
  */
 public class MappingFilterUsageDecorator extends AbstractFilterUsageDecorator
 {

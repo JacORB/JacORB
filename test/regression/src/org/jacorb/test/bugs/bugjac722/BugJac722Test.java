@@ -33,7 +33,6 @@ import org.omg.CORBA.Any;
 
 /**
  * @author Alphonse Bendt
- * @version $Id$
  */
 public class BugJac722Test extends ClientServerTestCase
 {
