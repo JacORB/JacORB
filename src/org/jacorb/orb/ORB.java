@@ -1582,7 +1582,7 @@ public final class ORB
      * called from ORB.init(), entry point for initialization.
      */
 
-    protected void set_parameters(String[] args, java.util.Properties props)
+  protected void set_parameters(String[] args, java.util.Properties props, String id)
     {
         try
         {

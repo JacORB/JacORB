@@ -236,7 +236,7 @@ abstract public class ORB extends ORBSingleton
 
    // Additional static methods for ORB initialization
 
-   public static ORB init(String[] args, java.util.Properties props)
+  public static ORB init(String[] args, java.util.Properties props, String id)
    {
       String className = null;
       if(props != null)
@@ -248,7 +248,35 @@ abstract public class ORB extends ORBSingleton
          className = System.getProperty(DEFAULT_ORB_KEY,  DEFAULT_ORB_VALUE);
       }
       ORB orb = create(className);
-      orb.set_parameters(args, props);
+      orb.set_parameters(args, props, id);
+
+      return orb;
+   }
+
+   public static ORB init(String[] args, java.util.Properties props)
+   {
+     for (int i = 0; i < args.length; i++)
+       {
+         if (args[i].equals ("-ORBID"))
+           {
+             if (i < args.length - 1)
+               return init (args, props, args[i++]);
+             else
+               return null; // TODO: report error
+           }
+       }
+
+      String className = null;
+      if(props != null)
+      {
+         className = props.getProperty(DEFAULT_ORB_KEY);
+      }
+      if(className == null)
+      {
+         className = System.getProperty(DEFAULT_ORB_KEY,  DEFAULT_ORB_VALUE);
+      }
+      ORB orb = create(className);
+      orb.set_parameters(args, props, "");
 
       return orb;
    }
@@ -271,7 +299,8 @@ abstract public class ORB extends ORBSingleton
    }
 
    abstract protected void set_parameters(String[] args,
-                                          java.util.Properties props);
+                                          java.util.Properties props,
+                                          String id);
 
    abstract protected void set_parameters(java.applet.Applet app,
                                           java.util.Properties props);
