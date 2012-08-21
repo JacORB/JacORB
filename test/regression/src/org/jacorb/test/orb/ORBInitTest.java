@@ -264,4 +264,27 @@ public class ORBInitTest extends TestCase
         }
     }
 
+     /**
+     * <code>testSetORBId_1</code>
+     */
+    public void testSetORBId_1 ()
+    {
+        String args[] = new String[4];
+        args[0] = "-ORBInitRef";
+        args[1] = "NameService=foo.ior";
+        args[2] = "-ORBid";
+        args[3] = "jacorb: someOrbId";
+
+        // String _orb_id = "jacorb: someOrbId";
+        try
+        {
+            initORB(args, null);
+            fail();
+        }
+        catch (INITIALIZE e)
+        {
+                // expected
+        }
+    }
+   
 }
