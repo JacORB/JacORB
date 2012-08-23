@@ -26,7 +26,6 @@ import org.omg.PortableInterceptor.Interceptor;
 
 /**
  * @author Gerald Brose
- * @version $Id$
  */
 
 public abstract class AbstractInterceptorIterator

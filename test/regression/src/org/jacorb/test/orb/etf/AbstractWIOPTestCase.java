@@ -30,7 +30,6 @@ import org.jacorb.test.orb.etf.wiop.WIOPFactories;
 /**
  * Abstract superclass for the WIOP tests.
  * @author Alphonse Bendt
- * @version $Id$
  */
 public class AbstractWIOPTestCase extends ClientServerTestCase
 {

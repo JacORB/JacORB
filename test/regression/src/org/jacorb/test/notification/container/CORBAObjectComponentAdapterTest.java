@@ -35,7 +35,6 @@ import org.picocontainer.defaults.DefaultPicoContainer;
 
 /**
  * @author Alphonse Bendt
- * @version $Id$
  */
 public class CORBAObjectComponentAdapterTest extends TestCase
 {

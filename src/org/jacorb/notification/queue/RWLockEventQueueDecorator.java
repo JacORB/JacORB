@@ -33,7 +33,6 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 /**
  * @author Alphonse Bendt
- * @version $Id$
  */
 public class RWLockEventQueueDecorator implements MessageQueueAdapter
 {

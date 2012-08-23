@@ -32,7 +32,6 @@ import org.omg.ETF.Profile;
  * where it is in the list.
  *
  * @author Andre Spiegel spiegel@gnu.org
- * @version $Id$
  */
 public class WIOPSelector implements ProfileSelector
 {

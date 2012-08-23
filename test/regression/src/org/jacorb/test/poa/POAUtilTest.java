@@ -18,7 +18,6 @@ import org.omg.PortableServer.*;
 /**
  * A unit test of several of the stand-alone methods in org.jacorb.poa.POAUtil.
  * @author Andre Spiegel spiegel@gnu.org
- * @version $Id$
  */
 public class POAUtilTest extends JacORBTestCase
 {

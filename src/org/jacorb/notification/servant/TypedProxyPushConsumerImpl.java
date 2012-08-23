@@ -57,7 +57,6 @@ import org.omg.PortableServer.Servant;
  * @jboss.xmbean
  * 
  * @author Alphonse Bendt
- * @version $Id$
  */
 public class TypedProxyPushConsumerImpl extends AbstractProxyConsumer implements
         TypedProxyPushConsumerOperations, ITypedProxy, TypedProxyPushConsumerImplMBean

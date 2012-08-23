@@ -26,7 +26,6 @@ import org.jacorb.notification.queue.MessageQueue.DiscardListener;
 
 /**
  * @author Alphonse Bendt
- * @version $Id$
  */
 public class DefaultMessageQueueAdapter implements MessageQueueAdapter
 {

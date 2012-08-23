@@ -33,7 +33,6 @@ import org.slf4j.Logger;
  *
  * @author Nicolas Noffke
  * @author Andre Spiegel
- * @version $Id$
  */
 
 public abstract class ConnectionBase

@@ -25,7 +25,6 @@ import org.jacorb.notification.interfaces.Message;
 
 /**
  * @author Alphonse Bendt
- * @version $Id$
  */
 
 public interface EventQueueOverflowStrategy

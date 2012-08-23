@@ -11,7 +11,6 @@ import org.omg.PortableServer.POA;
  * This is the server part of the ssl demo.
  *
  * @author Nicolas Noffke
- * @version $Id$
  */
 
 public class Server

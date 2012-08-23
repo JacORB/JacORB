@@ -38,7 +38,6 @@ import org.omg.CosNaming.NamingContextHelper;
 
 /**
  * @author Gerald Brose, FU Berlin
- * @version $Id$
  */
 
 public class ContextNode

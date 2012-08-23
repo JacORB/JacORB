@@ -35,7 +35,6 @@ import org.omg.CORBA.INITIALIZE;
 
 /**
  * @author Alphonse Bendt
- * @version $Id$
  */
 public class BugJac417Test extends ORBTestCase
 {

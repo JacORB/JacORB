@@ -34,7 +34,6 @@ import org.jacorb.imr.AdminPackage.DuplicateServerName;
  *
  * @author Nicolas Noffke
  * 
- * $Id$
  */
 
 public class ServerTable 

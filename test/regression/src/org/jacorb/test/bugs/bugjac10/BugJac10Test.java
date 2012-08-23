@@ -30,7 +30,6 @@ import org.jacorb.test.common.ClientServerTestCase;
 
 /**
  * @author Carol Jordon
- * @version $Id$
  */
 public class BugJac10Test extends ClientServerTestCase
 {

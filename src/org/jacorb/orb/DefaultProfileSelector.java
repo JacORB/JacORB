@@ -32,7 +32,6 @@ import org.omg.ETF.Profile;
  * the first profile in the list, no matter what.
  * 
  * @author Andre Spiegel spiegel@gnu.org
- * @version $Id$
  */
 public class DefaultProfileSelector implements ProfileSelector
 {

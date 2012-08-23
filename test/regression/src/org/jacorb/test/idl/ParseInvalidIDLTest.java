@@ -34,7 +34,6 @@ import org.jacorb.test.common.TestUtils;
  * will fail if JacIDL does not cause an error during processing.
  *
  * @author Alphonse Bendt
- * @version $Id$
  */
 public class ParseInvalidIDLTest extends AbstractIDLTestcase
 {

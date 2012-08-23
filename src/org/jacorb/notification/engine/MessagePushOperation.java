@@ -24,7 +24,6 @@ import org.jacorb.notification.interfaces.Message;
 
 /**
  * @author Alphonse Bendt
- * @version $Id$
  */
 public abstract class MessagePushOperation implements PushOperation {
     

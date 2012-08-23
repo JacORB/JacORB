@@ -37,7 +37,6 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
  * if its state has changed.
  * 
  * @author Alphonse Bendt
- * @version $Id$
  */
 
 public abstract class EventTypeSet

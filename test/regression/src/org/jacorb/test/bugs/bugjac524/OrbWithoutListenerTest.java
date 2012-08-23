@@ -39,7 +39,6 @@ import org.jacorb.test.orb.BasicServerImpl;
 
 /**
  * @author Alphonse Bendt
- * @version $Id$
  */
 public class OrbWithoutListenerTest extends ClientServerTestCase
 {

@@ -29,7 +29,6 @@ import org.omg.CORBA.BAD_PARAM;
  * are a GIOP UDP protocol.
  *
  * @author Nick Cross
- * @version $Id$
  */
 public class InvalidIORTest extends ORBTestCase
 {

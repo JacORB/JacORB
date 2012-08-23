@@ -31,7 +31,6 @@ import org.omg.CORBA.ORB;
  * Created: Thu Jan 02 20:51:29 2003
  *
  * @author <a href="mailto:bendt@inf.fu-berlin.de">Alphonse Bendt</a>
- * @version $Id$
  */
 
 public interface WorkgroupController {

@@ -37,7 +37,6 @@ import org.omg.CosEventComm.PushSupplier;
  *    section 2.1.5 "Disconnection Behavior" on page 2-4.
  *
  * @author Jeff Carlson, Joerg v. Frantzius, Rainer Lischetzki, Gerald Brose
- * @version $Id$
  */
 public class ProxyPushConsumerImpl
     extends org.omg.CosEventChannelAdmin.ProxyPushConsumerPOA

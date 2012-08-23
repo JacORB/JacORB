@@ -29,7 +29,6 @@ import org.jacorb.notification.interfaces.Disposable;
 
 /**
  * @author Alphonse Bendt
- * @version $Id$
  */
 public class DisposableManager implements Disposable
 {

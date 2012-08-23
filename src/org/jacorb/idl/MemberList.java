@@ -20,7 +20,6 @@
 
 /**
  * @author Gerald Brose
- * @version $Id$
  *
  */
 

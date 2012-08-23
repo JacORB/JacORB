@@ -27,7 +27,6 @@ import java.util.Date;
 
 /**
  * @author Alphonse Bendt
- * @version $Id$
  */
 public abstract class AbstractFilterUsageDecorator
 {

@@ -33,7 +33,6 @@ import org.omg.CORBA.NO_IMPLEMENT;
  * It simply delegates to InputStream all functions.
  *
  * @author Nick Cross
- * @version $Id$
  */
 public class DataInputStream
     implements org.omg.CORBA.DataInputStream

@@ -28,7 +28,6 @@ import org.omg.CORBA.TIMEOUT;
 
 /**
  * @author Alphonse Bendt
- * @version $Id$
  */
 public class SocketFactoryOMG implements SocketFactory
 {

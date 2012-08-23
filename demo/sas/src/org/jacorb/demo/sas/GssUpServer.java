@@ -20,7 +20,6 @@ import org.omg.CSIIOP.EstablishTrustInClient;
  * accessed via the Security Level 2 interfaces.
  *
  * @author Nicolas Noffke
- * @version $Id$
  */
 
 public class GssUpServer extends SASDemoPOA {

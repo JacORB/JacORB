@@ -21,7 +21,6 @@
 /**
  * The classes for the IDL parse tree
  * @author Gerald Brose
- * @version $Id$
  */
 
 package org.jacorb.idl;

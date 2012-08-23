@@ -21,23 +21,22 @@
 package org.jacorb.orb.portableInterceptor;
 
 import java.util.HashMap;
-import java.util.Stack;
-
-import org.slf4j.Logger;
 import org.jacorb.orb.Delegate;
+import org.jacorb.orb.Delegate.INVOCATION_KEY;
 import org.jacorb.orb.SystemExceptionHelper;
 import org.omg.CORBA.UserException;
 import org.omg.PortableInterceptor.ClientRequestInterceptor;
 import org.omg.PortableInterceptor.ForwardRequest;
 import org.omg.PortableInterceptor.Interceptor;
 import org.omg.PortableInterceptor.LOCATION_FORWARD;
+import org.omg.TimeBase.UtcT;
+import org.slf4j.Logger;
 
 /**
  * This class is an iterator over an array
  * of ClientRequestInterceptors.
  *
  * @author Nicolas Noffke
- * @version  $Id$
  */
 
 public class ClientInterceptorIterator
@@ -51,15 +50,6 @@ public class ClientInterceptorIterator
 
     private ClientRequestInfoImpl info = null;
     private final Logger logger;
-
-    /**
-     * This is used to indicate that a current context popped from the Delegates
-     * invocationContext stack was pushed there prior to an interceptor call.  We
-     * need this to ensure that the context is not popped if a CORBA call is made
-     * by the interceptor.  The context must be popped on return from the
-     * interceptor.
-     */
-    private static final String INTERCEPTOR_CALL = "interceptor_call";
 
     public ClientInterceptorIterator(Logger logger, Interceptor[] interceptors)
     {
@@ -128,10 +118,10 @@ public class ClientInterceptorIterator
              * also follows that each interceptor could call a different
              * object with different timeout policies
              */
-            HashMap currentCtxt = new HashMap();
-            currentCtxt.put (INTERCEPTOR_CALL, "true");
+            HashMap<INVOCATION_KEY, UtcT> currentCtxt = new HashMap<INVOCATION_KEY, UtcT>();
+            currentCtxt.put (INVOCATION_KEY.INTERCEPTOR_CALL, null);
 
-            ( (Stack) Delegate.getInvocationContext()).push (currentCtxt);
+            Delegate.getInvocationContext().push (currentCtxt);
 
             switch (op)
             {
@@ -184,7 +174,7 @@ public class ClientInterceptorIterator
              * Pop the invocation context on return from the interceptor call - whatever
              * happens
              */
-            ( (Stack) Delegate.getInvocationContext()).pop ();
+            Delegate.getInvocationContext().pop ();
         }
 
         info.caller_op = op;

@@ -57,7 +57,6 @@ import org.slf4j.Logger;
  * Class to convert IOR strings into IOR structures
  *
  * @author Gerald Brose
- * @version $Id$
  */
 
 public class ParsedIOR

@@ -22,7 +22,6 @@ package org.jacorb.orb.iiop;
 
 /**
  * @author Kevin Conner (Kevin.Conner@arjuna.com)
- * @version $Id$
  */
 public interface IIOPLoopback
 {

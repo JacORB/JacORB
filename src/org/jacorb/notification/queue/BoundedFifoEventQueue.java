@@ -33,7 +33,6 @@ import org.jacorb.notification.interfaces.Message;
  * EventQueue and invokes the methods thereby synchronizing access.
  * 
  * @author Alphonse Bendt
- * @version $Id$
  */
 
 public class BoundedFifoEventQueue extends AbstractBoundedEventQueue

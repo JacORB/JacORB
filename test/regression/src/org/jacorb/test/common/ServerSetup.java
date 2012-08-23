@@ -36,7 +36,6 @@ import org.jacorb.test.common.launch.Launcher;
 
 /**
  * @author Alphonse Bendt
- * @version $Id$
  */
 public class ServerSetup extends TestSetup
 {

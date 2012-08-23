@@ -7,7 +7,6 @@ import org.jacorb.imr.ImplementationRepositoryImpl;
  * in a format understandable to ClientServerSetup.
  *
  * @author Alphonse Bendt
- * @version $Id$
  */
 public class ImplementationRepositoryRunner
 {

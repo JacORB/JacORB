@@ -47,7 +47,6 @@ import org.slf4j.Logger;
  * Class BasicAdapter, used by the POA.
  *
  * @author Gerald Brose
- * @version $Id$
  */
 public class BasicAdapter
     extends org.omg.ETF._HandleLocalBase

@@ -41,7 +41,6 @@ import java.util.concurrent.ScheduledFuture;
 
 /**
  * @author Alphonse Bendt
- * @version $Id$
  */
 public class ProxyPushSupplierImplTest extends NotificationTestCase
 {

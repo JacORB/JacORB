@@ -31,7 +31,6 @@ import org.omg.CORBA.TIMEOUT;
 
 /**
  * @author Alphonse Bendt
- * @version $Id$
  */
 public class ConfigurableFactory implements SocketFactory, Configurable
 {

@@ -22,7 +22,6 @@ package org.jacorb.test.bugs.bugjac417;
 
 /**
  * @author Alphonse Bendt
- * @version $Id$
  */
 public class WrongFactory
 {

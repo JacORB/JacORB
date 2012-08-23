@@ -29,7 +29,6 @@ import org.jacorb.notification.engine.FilterSupplierAdminTask;
 
 /**
  * @author Alphonse Bendt
- * @version $Id$
  */
 public class FilterSupplierAdminTaskTest extends AbstractFilterTaskTestCase
 {

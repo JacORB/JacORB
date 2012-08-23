@@ -8,7 +8,6 @@ import org.jacorb.util.Stack;
 
 /**
  * @author Alphonse Bendt
- * @version $Id$
  */
 public class StackTest extends TestCase
 {

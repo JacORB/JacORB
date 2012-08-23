@@ -31,7 +31,6 @@ import org.omg.CORBA.BAD_PARAM;
 
 /**
  * @author Alphonse Bendt
- * @version $Id$
  */
 public class ObjectKeyMap
 {

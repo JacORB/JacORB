@@ -6,7 +6,6 @@ import org.omg.CORBA.TypeCodeHolder;
 
 /**
  * @author Carol Jordon
- * @version $Id$
  */
 public class TypeCodeTestImpl extends TypeCodeTestServerPOA
 {

@@ -38,7 +38,6 @@ import cerent.cms.idl.Node.xNoSuchDefault;
 
 /**
  * @author Alphonse Bendt
- * @version $Id$
  */
 public class BugJac560Test extends ClientServerTestCase
 {

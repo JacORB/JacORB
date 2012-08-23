@@ -32,7 +32,6 @@ import org.jacorb.test.*;
  * via corbaloc URLs.  Other functions related to corbaloc are also
  * tested here.
  * @author Andre Spiegel spiegel@gnu.org
- * @version $Id$
  */
 public class CorbalocTest extends ClientServerTestCase
 {

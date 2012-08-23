@@ -28,7 +28,6 @@ import org.jacorb.orb.listener.TCPConnectionListener;
 
 /**
  * @author Alphonse Bendt
- * @version $Id$
  */
 public class BugJac524TCPConnectionListener implements TCPConnectionListener
 {

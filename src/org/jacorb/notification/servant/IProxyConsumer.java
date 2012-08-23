@@ -24,7 +24,6 @@ import org.jacorb.notification.interfaces.FilterStage;
 
 /**
  * @author Alphonse Bendt
- * @version $Id$
  */
 
 public interface IProxyConsumer {

@@ -39,7 +39,6 @@ import org.omg.IOP.TaggedProfile;
 
 /**
  * @author Gerald Brose, FU Berlin
- * @version $Id$
  */
 public class RequestInputStream
     extends ServiceContextTransportingInputStream

@@ -44,7 +44,6 @@ import org.omg.PortableServer.Servant;
  * @jboss.xmbean
  * 
  * @author Alphonse Bendt
- * @version $Id$
  */
 
 public class StructuredProxyPushConsumerImpl extends AbstractProxyConsumer implements

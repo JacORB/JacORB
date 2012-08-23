@@ -29,7 +29,6 @@ import org.jacorb.imr.RegistrationPackage.IllegalPOAName;
  *
  * @author Nicolas Noffke
  *
- * @version $Id$
  */
 
 public class ImRPOAInfo

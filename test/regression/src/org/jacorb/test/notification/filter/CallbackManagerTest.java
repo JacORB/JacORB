@@ -32,7 +32,6 @@ import org.omg.CosNotifyComm.NotifySubscribe;
 
 /**
  * @author Alphonse Bendt
- * @version $Id$
  */
 public class CallbackManagerTest extends TestCase
 {

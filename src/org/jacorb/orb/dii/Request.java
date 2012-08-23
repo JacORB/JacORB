@@ -43,7 +43,6 @@ import org.omg.CORBA.portable.RemarshalException;
  * DII requests
  *
  * @author Gerald Brose, FU Berlin
- * @version $Id$
  */
 public class Request
     extends org.omg.CORBA.Request

@@ -28,7 +28,6 @@ import org.omg.PortableInterceptor.ORBInitInfo;
 
 /**
  * @author Alphonse Bendt
- * @version $Id$
  */
 public class ORBInitializer extends AbstractORBInitializer
 {

@@ -28,7 +28,6 @@ import org.omg.PortableInterceptor.ForwardRequest;
 
 /**
  * @author Gerald Brose
- * @version $Id$
  */
 public abstract class RecursionAwareCI
     extends org.omg.CORBA.LocalObject

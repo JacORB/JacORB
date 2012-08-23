@@ -26,7 +26,6 @@ import java.util.Enumeration;
 
 /**
  * @author Gerald Brose
- * @version $Id$
  */
 
 public class TypeDeclarator extends IdlSymbol

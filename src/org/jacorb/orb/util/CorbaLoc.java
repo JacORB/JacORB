@@ -36,7 +36,6 @@ import org.omg.PortableGroup.TagGroupTaggedComponent;
 
 /**
  * @author Gerald Brose
- * @version $Id$
  */
 public class CorbaLoc
 {

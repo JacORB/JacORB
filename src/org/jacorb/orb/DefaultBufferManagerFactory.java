@@ -28,7 +28,6 @@ import org.jacorb.config.Configuration;
  * ORB's will use the singleton ORB's buffermanager.
  *
  * @author Alphonse Bendt
- * @version $Id$
  */
 public class DefaultBufferManagerFactory implements BufferManagerFactory
 {

@@ -27,7 +27,6 @@ import org.omg.CORBA.ValueMember;
 
 /**
  * @author Alphonse Bendt
- * @version $Id$
  */
 public class ValueTypeCodeReader extends ComplexTypeCodeReader
 {

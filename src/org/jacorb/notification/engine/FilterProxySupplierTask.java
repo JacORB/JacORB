@@ -32,7 +32,6 @@ import org.omg.CosNotifyFilter.UnsupportedFilterableData;
 
 /**
  * @author Alphonse Bendt
- * @version $Id$
  */
 
 public class FilterProxySupplierTask extends AbstractFilterTask

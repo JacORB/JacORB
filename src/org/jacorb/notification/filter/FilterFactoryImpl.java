@@ -50,7 +50,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * @author Alphonse Bendt
- * @version $Id$
  */
 
 public class FilterFactoryImpl extends FilterFactoryPOA implements Disposable, IServantLifecyle

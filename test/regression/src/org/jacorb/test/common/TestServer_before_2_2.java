@@ -30,7 +30,6 @@ import org.omg.PortableServer.Servant;
  * to version 2.2.
  * <p>
  * @author Andre Spiegel <spiegel@gnu.org>
- * @version $Id$
  */
 public class TestServer_before_2_2
 {

@@ -42,7 +42,6 @@ import org.jacorb.test.common.ClientServerTestCase;
  * correctly receives a transient and not a nullpointer exception.
  *
  * @author <a href="mailto:Nick.Cross@prismtech.com">Nick Cross</a>
- * @version $Id$
  */
 public class BugJac488Test extends TestCase
 {

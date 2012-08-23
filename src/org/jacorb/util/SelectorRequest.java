@@ -29,7 +29,6 @@ import java.nio.channels.SocketChannel;
  * this can be a timed event, I/O event, or I/O event with an
  * expiration.
  * @author Ciju John <johnc@ociweb.com>
- * @version $Id$
  */
 public class SelectorRequest
 {

@@ -43,7 +43,6 @@ import org.omg.TimeBase.UtcT;
 /**
  * TODO: remove the static dependeny to package filter.etcl.
  * @author Alphonse Bendt
- * @version $Id$
  */
 public class EvaluationContext extends AbstractPoolable
 {

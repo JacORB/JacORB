@@ -22,7 +22,6 @@ import org.omg.PortableServer.POA;
  * Created: Mon Sep 3 19:28:34 2001
  * 
  * @author Nicolas Noffke
- * @version $Id$
  */
 
 public class ServerImpl extends ServerPOA

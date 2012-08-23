@@ -72,7 +72,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * @author Alphonse Bendt
- * @version $Id$
  */
 
 public abstract class AbstractChannelFactory implements ManageableServant, Disposable

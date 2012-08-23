@@ -28,7 +28,6 @@ import org.jacorb.orb.ORB;
  * based on parameters from the JacORB configuration.
  *
  * @author Andre Spiegel <spiegel@gnu.org>
- * @version $Id$
  */
 public abstract class LoggingInitializer
 {

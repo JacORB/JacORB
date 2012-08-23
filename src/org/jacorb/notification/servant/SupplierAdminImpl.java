@@ -59,7 +59,6 @@ import org.picocontainer.defaults.CachingComponentAdapter;
  * @jboss.xmbean
  * 
  * @author Alphonse Bendt
- * @version $Id$
  */
 
 public class SupplierAdminImpl extends AbstractSupplierAdmin implements SupplierAdminOperations,

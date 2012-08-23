@@ -35,7 +35,6 @@ import org.jacorb.test.common.TestUtils;
  * of calls in single and multiple thread child POAs
  *
  * @author Nick Cross
- * @version $Id$
  */
 public class POAThreadingTest extends ClientServerTestCase
 {

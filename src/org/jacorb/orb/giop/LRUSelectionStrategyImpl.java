@@ -25,7 +25,6 @@ import java.util.List;
 
 /**
  * @author Nicolas Noffke
- * @version $Id$
  */
 
 public class LRUSelectionStrategyImpl

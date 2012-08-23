@@ -41,7 +41,6 @@ import org.omg.PortableServer.Servant;
 
 /**
  * @author Alphonse Bendt
- * @version $Id$
  */
 
 public class ProxyPullSupplierImpl

@@ -29,7 +29,6 @@ import org.jacorb.notification.interfaces.FilterStage;
 
 /**
  * @author Alphonse Bendt
- * @version $Id$
  */
 public abstract class AbstractFilterTask extends AbstractMessageTask
 {

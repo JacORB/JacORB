@@ -35,7 +35,6 @@ import org.omg.PortableInterceptor.ForwardRequest;
  * outgoing message.
  *
  * @author Nicolas Noffke
- * @version $Id$
  */
 
 public class ClientContextTransferInterceptor

@@ -28,7 +28,6 @@ import org.slf4j.Logger;
 
 /**
  * @author Nick Cross
- * @version $Id$
  */
 public class SSLRandom implements Configurable
 {

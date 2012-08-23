@@ -9,7 +9,6 @@ import org.omg.PortableInterceptor.ORBInitializer;
  * <code>IPInitializer</code> is basic initializer to register the interceptor.
  *
  * @author Nick Cross
- * @version $Id$
  */
 public class IPInitializer
     extends org.omg.CORBA.LocalObject

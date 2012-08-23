@@ -29,7 +29,6 @@ import InterOpTest.PeterPOA;
  * transparent.
  *
  * @author Nicolas Noffke
- * @version $Id$
  */
 
 public class Basic_Client extends PeterPOA {

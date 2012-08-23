@@ -25,7 +25,6 @@ import org.jacorb.notification.util.AbstractPoolable;
 
 /**
  * @author Alphonse Bendt
- * @version $Id$
  */
 
 public abstract class AbstractTask extends AbstractPoolable implements Runnable, Schedulable

@@ -31,7 +31,6 @@ import org.jacorb.test.common.TestUtils;
  * Test for bug 351, marshaling of a complex valuetype.
  *
  * @author <a href="mailto:spiegel@gnu.org">Andre Spiegel</a>
- * @version $Id$
  */
 public class Bug351Test extends ClientServerTestCase
 {

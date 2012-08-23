@@ -12,7 +12,6 @@ import org.slf4j.Logger;
  * or return a shared instance.
  *
  * @author Alphonse Bendt
- * @version $Id$
  */
 public class RPPoolManagerFactory
 {

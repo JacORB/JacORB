@@ -34,7 +34,6 @@ import org.omg.PortableServer.POA;
  * results for both local and non-local objects.
  *
  * @author Gerald Brose
- * @version $Id$
  */
 
 public class Bug384Test

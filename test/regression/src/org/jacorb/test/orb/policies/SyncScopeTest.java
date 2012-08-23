@@ -21,7 +21,6 @@ import org.omg.Messaging.SYNC_WITH_TRANSPORT;
  * Tests for SyncScopePolicy.
  *
  * @author Andre Spiegel <spiegel@gnu.org>
- * @version $Id$
  */
 public class SyncScopeTest extends TestCase
 {

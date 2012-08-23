@@ -30,7 +30,6 @@ import org.omg.IOP.IOR;
  * <code>MutatorImpl</code> is a sample Mutator implementation for testing.
  *
  * @author Nick Cross
- * @version $Id$
  */
 public class MutatorImpl extends IORMutator
 {

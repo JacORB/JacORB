@@ -30,7 +30,6 @@ import org.omg.TimeBase.UtcTHelper;
  * Contains static methods to handle CORBA time values.
  *
  * @author Andre Spiegel <spiegel@gnu.org>
- * @version $Id$
  */
 public final class Time
 {

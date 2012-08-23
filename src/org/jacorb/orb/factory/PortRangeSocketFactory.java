@@ -41,7 +41,6 @@ import org.omg.CORBA.TIMEOUT;
  * values to configure the created sockets.
  *
  * @author Steve Osselton
- * @version $Id$
  */
 public class PortRangeSocketFactory
     extends AbstractSocketFactory

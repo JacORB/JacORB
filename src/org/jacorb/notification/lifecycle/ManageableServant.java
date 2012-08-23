@@ -23,7 +23,6 @@ package org.jacorb.notification.lifecycle;
 
 /**
  * @author Alphonse Bendt
- * @version $Id$
  */
 
 public interface ManageableServant 

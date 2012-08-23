@@ -37,19 +37,23 @@
    H I S T O R Y      O F     C H A N G E S
  -------------------------------------------
 
-This Release
-============
+3.1
+===
     - ORB
+        - Fix current_component with DynArray/DynStruct/DynSequence to conform to spec.
         - Output iiop version when printing Corbaloc URLs
         - Call _this_object on Servants for ServantManager created objects.
         - When selecting an address for localhost attempt to find non-loopback first
           for both IPv4 and IPv6.
+        - Fix for portable interceptor ordering issue with colocated calls.
     - IDL Compiler:
         - Predefined preprocessor symbols are now built into the compiler
           rather than included from the jacorbdefs.idl file, which has been
           deprecated.
     - Naming Service
         - Fix for NameManager display/cyclic detection. Fix for refresh counter.
+    - Misc
+        - Fix Maven GAV for IDL compiler.
 
 3.0
 ===

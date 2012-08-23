@@ -45,7 +45,6 @@ import org.slf4j.Logger;
  * JacORB implementation of org.omg.CORBA.InterfaceDef
  *
  * @author Gerald Brose
- * @version $Id$
  */
 
 public class InterfaceDef

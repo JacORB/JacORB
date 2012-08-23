@@ -42,7 +42,6 @@ import org.slf4j.Logger;
  * The Class JacORBConfiguration.
  *
  * @author Gerald Brose
- * @version $Id$
  */
 public class JacORBConfiguration implements Configuration
 {

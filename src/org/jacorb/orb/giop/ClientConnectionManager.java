@@ -37,7 +37,6 @@ import org.slf4j.Logger;
  * This class manages connections.
  *
  * @author Gerald Brose, FU Berlin
- * @version $Id$
  */
 
 public class ClientConnectionManager

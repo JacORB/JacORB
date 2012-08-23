@@ -54,7 +54,6 @@ import org.omg.TimeBase.UtcT;
 
 /**
  * @author Gerald Brose, FU Berlin 1999
- * @version $Id$
  */
 public class RequestOutputStream
     extends ServiceContextTransportingOutputStream

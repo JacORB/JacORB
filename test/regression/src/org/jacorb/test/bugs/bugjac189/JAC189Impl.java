@@ -14,7 +14,6 @@ import org.omg.PortableServer.ThreadPolicyValue;
  * POAs with SINGLE_THREAD and shutting them down.
  *
  * @author Nick Cross
- * @version $Id$
  */
 public class JAC189Impl extends JAC189POA implements Configurable
 {

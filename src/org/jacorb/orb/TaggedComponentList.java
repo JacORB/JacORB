@@ -18,7 +18,6 @@ import org.omg.IOP.TaggedComponentSeqHelper;
  * generic methods to find and access individual components.
  * <p>
  * @author Andre Spiegel
- * @version $Id$
  */
 public class TaggedComponentList implements Cloneable
 {

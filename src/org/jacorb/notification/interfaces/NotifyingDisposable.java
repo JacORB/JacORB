@@ -29,7 +29,6 @@ package org.jacorb.notification.interfaces;
  * on all registered Disposables.
  * 
  * @author Alphonse Bendt
- * @version $Id$
  */
 public interface NotifyingDisposable extends Disposable
 {

@@ -25,7 +25,6 @@ package org.jacorb.test.common;
  * This is a Wrapper around a PatternMatcher.
  *
  * @author Alphonse Bendt
- * @version $Id$
  */
 public abstract class PatternWrapper
 {

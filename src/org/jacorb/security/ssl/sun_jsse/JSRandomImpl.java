@@ -27,7 +27,6 @@ import java.security.SecureRandom;
  * SecureRandom.
  *
  * @author Nick Cross
- * @version $Id$
  */
 public class JSRandomImpl implements JSRandom
 {

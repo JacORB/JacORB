@@ -16,7 +16,6 @@ import org.jacorb.test.common.TestUtils;
 /**
  * This class gathers all sorts of exception-related tests.
  * @author Andre Spiegel spiegel@gnu.org
- * @version $Id$
  */
 public class ExceptionTest extends ClientServerTestCase
 {

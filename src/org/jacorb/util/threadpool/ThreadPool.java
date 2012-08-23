@@ -28,7 +28,6 @@ import org.omg.CORBA.NO_RESOURCES;
 
 /**
  * @author Nicolas Noffke
- * @version $Id$
  */
 public class ThreadPool
 {

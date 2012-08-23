@@ -33,7 +33,6 @@ import org.omg.PortableServer.POAHelper;
 
 /**
  * @author Alphonse Bendt
- * @version $Id$
  */
 public class BugJac_384Test extends TestCase
 {

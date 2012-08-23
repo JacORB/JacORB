@@ -23,7 +23,6 @@ package org.jacorb.notification.conf;
 
 /**
  * @author Alphonse Bendt
- * @version $Id$
  */
 
 public interface Attributes

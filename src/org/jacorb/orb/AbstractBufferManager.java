@@ -22,7 +22,6 @@ package org.jacorb.orb;
 
 /**
  * @author Alphonse Bendt
- * @version $Id$
  */
 public abstract class AbstractBufferManager implements IBufferManager
 {

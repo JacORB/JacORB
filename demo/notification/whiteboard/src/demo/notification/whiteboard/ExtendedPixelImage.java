@@ -10,7 +10,6 @@ import org.omg.CosNotifyChannelAdmin.StructuredProxyPushConsumer;
 
 /**
  * @author Alphonse Bendt
- * @version $Id$
  */
 
 public class ExtendedPixelImage extends BrushSizePixelImage implements WhiteboardVars {

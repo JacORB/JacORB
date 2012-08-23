@@ -17,7 +17,6 @@ import org.omg.PortableInterceptor.ServerRequestInterceptor;
  * a ServerRequestInterceptor and storing it in PICurrent for the Servant to use.
  *
  * @author Nick Cross
- * @version $Id$
  */
 public class IPInterceptor
     extends org.omg.CORBA.LocalObject

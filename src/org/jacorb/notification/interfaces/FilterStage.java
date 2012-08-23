@@ -31,7 +31,6 @@ import org.omg.CosNotifyFilter.MappingFilter;
  * which are relevant during processing of a Message.
  *
  * @author Alphonse Bendt
- * @version $Id$
  */
 
 public interface FilterStage extends FilterStageSource

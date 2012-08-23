@@ -29,7 +29,6 @@ import java.util.*;
  * is released. 
  * 
  * @author Andre Spiegel spiegel@gnu.org
- * @version $Id$
  */
 public class JacORBVersionComparator implements Comparator
 {

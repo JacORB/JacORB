@@ -42,7 +42,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 /**
  * @author Gerald Brose
- * @version $Id$
  */
 public class CodeSet
 {

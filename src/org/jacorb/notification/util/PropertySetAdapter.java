@@ -28,7 +28,6 @@ import org.omg.CosNotification.UnsupportedQoS;
 
 /**
  * @author Alphonse Bendt
- * @version $Id$
  */
 public abstract class PropertySetAdapter implements PropertySetListener
 {

@@ -30,7 +30,6 @@ import org.slf4j.Marker;
  * are actually executed.
  *
  * @author Alphonse Bendt
- * @version $Id$
  */
 public class MyNullLogger implements Logger
 {

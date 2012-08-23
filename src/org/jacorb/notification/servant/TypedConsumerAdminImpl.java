@@ -40,7 +40,6 @@ import org.picocontainer.MutablePicoContainer;
 
 /**
  * @author Alphonse Bendt
- * @version $Id$
  */
 public class TypedConsumerAdminImpl extends ConsumerAdminImpl implements
         TypedConsumerAdminOperations

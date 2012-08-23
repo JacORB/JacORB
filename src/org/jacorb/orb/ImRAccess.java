@@ -27,7 +27,6 @@ package org.jacorb.orb;
  * Created: Thu Jan 31 20:55:32 2002
  *
  * @author Nicolas Noffke
- * @version $Id$
  */
 
 public interface ImRAccess

@@ -31,7 +31,6 @@ import org.jacorb.test.orb.etf.wiop.WIOPFactories;
 
 /**
  * @author Andre Spiegel spiegel@gnu.org
- * @version $Id$
  */
 public class ServerListenerTest extends AbstractWIOPTestCase
 {

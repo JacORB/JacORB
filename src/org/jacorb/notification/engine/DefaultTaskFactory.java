@@ -33,7 +33,6 @@ import org.jacorb.notification.util.AbstractPoolablePool;
 
 /**
  * @author Alphonse Bendt
- * @version $Id$
  */
 
 public class DefaultTaskFactory implements Disposable, TaskFactory

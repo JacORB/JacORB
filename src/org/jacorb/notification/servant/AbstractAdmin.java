@@ -72,7 +72,6 @@ import java.util.concurrent.atomic.AtomicInteger;
  * @jboss.xmbean
  *
  * @author Alphonse Bendt
- * @version $Id$
  */
 
 public abstract class AbstractAdmin implements QoSAdminOperations,

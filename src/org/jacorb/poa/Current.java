@@ -30,7 +30,6 @@ import org.omg.PortableServer.CurrentPackage.NoContext;
  * was invoked and the responsible POA for this object.
  *
  * @author Reimo Tiedemann
- * @version $Id$
  */
 
 public class Current

@@ -14,7 +14,6 @@ import org.jacorb.test.common.*;
  * handling of the policy objects, not the actual effect of these policies.
  * 
  * @author Andre Spiegel spiegel@gnu.org
- * @version $Id$
  */
 public class PolicyHandlingTest extends JacORBTestCase
 {

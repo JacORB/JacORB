@@ -33,7 +33,6 @@ import org.slf4j.Logger;
  * Created: Mon Apr 17 09:53:33 2000
  *
  * @author Nicolas Noffke
- * $Id$
  */
 
 public class IORInterceptorIterator

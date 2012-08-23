@@ -30,7 +30,6 @@ package org.jacorb.orb.factory;
  * the code which asks for the sockets.
  *
  * @author Andre Benvenuti
- * $Id$
  */
 
 import java.io.IOException;
@@ -39,7 +38,6 @@ import java.net.ServerSocket;
 
 /**
  * @author Gerald Brose
- * @version $Id$
  */
 public interface ServerSocketFactory
 {

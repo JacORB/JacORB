@@ -29,7 +29,6 @@ import org.tanukisoftware.wrapper.WrapperManager;
 
 /**
  * @author Alphonse Bendt
- * @version $Id$
  */
 
 public class WrapperMain implements WrapperListener

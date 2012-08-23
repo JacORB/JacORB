@@ -35,7 +35,6 @@ import org.omg.CORBA.UNKNOWN;
 
 /**
  * @author Alphonse Bendt
- * @version $Id$
  */
 public class ServerInterceptorTest extends ClientServerTestCase
 {

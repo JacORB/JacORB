@@ -27,7 +27,6 @@ import antlr.collections.AST;
  * Visitor for TCL Trees. Does some Restructuration of a TCL Tree.
  *
  * @author Alphonse Bendt
- * @version $Id$
  */
 
 public class TCLCleanUp extends AbstractTCLVisitor implements TCLParserTokenTypes

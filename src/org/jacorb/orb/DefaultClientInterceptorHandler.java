@@ -44,7 +44,6 @@ import org.slf4j.Logger;
  * client request and any interceptors registered for it.
  *
  * @author Andre Spiegel
- * @version $Id$
  */
 public class DefaultClientInterceptorHandler implements ClientInterceptorHandler
 {

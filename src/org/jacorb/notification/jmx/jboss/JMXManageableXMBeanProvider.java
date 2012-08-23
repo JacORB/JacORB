@@ -49,7 +49,6 @@ import org.picocontainer.PicoContainer;
  * JBoss specific DynamicMBeanProvider.
  * 
  * @author Alphonse Bendt
- * @version $Id$
  */
 public class JMXManageableXMBeanProvider implements DynamicMBeanProvider
 {

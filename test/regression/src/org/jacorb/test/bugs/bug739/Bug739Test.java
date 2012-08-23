@@ -36,7 +36,6 @@ import org.jacorb.test.orb.BasicServerImpl;
 
 /**
  * @author Alphonse Bendt
- * @version $Id$
  */
 public class Bug739Test extends ClientServerTestCase
 {

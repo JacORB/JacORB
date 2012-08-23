@@ -35,7 +35,6 @@ import org.jacorb.test.orb.etf.wiop.WIOPFactories;
  * published by the server, and so WIOP should be used for the connection.
  * 
  * @author Andre Spiegel spiegel@gnu.org
- * @version $Id$
  */
 public class C_IIOP_WIOP_S_WIOP_IIOPTest extends AbstractWIOPTestCase
 {

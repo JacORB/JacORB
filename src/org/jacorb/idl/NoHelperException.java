@@ -26,7 +26,6 @@ package org.jacorb.idl;
  * as it is used only as a kind of marker.
  *
  * @author Thomas Leineweber
- * @version $Id$
  */
 
 

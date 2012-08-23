@@ -32,7 +32,6 @@ import org.slf4j.Logger;
  * Errors and for SSLExceptions that are thrown on the first loop.
  *
  * @author Nick Cross
- * @version $Id$
  */
 public class DefaultAcceptorExceptionListener
     implements AcceptorExceptionListener, Configurable

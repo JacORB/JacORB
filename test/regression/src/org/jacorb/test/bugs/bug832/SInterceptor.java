@@ -13,7 +13,6 @@ import org.omg.PortableInterceptor.ServerRequestInterceptor;
  * PICurrent for the server to analyse.
  *
  * @author Nick Cross
- * @version $Id$
  */
 public class SInterceptor
     extends org.omg.CORBA.LocalObject

@@ -8,7 +8,6 @@ import org.jacorb.test.common.CommonSetup;
 
 /**
  * @author Andre Spiegel
- * @version $Id$
  */
 public class NIOBiDirTest extends BiDirTest
 {

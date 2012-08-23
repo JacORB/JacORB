@@ -26,7 +26,6 @@ package org.jacorb.notification.util;
  * This is a Wrapper around a PatternMatcher.
  *
  * @author Alphonse Bendt
- * @version $Id$
  */
 
 public abstract class PatternWrapper

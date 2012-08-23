@@ -28,7 +28,6 @@ import org.omg.CORBA.TypeCode;
  * common logic to read complex TypeCode's from a CDR stream.
  *
  * @author Alphonse Bendt
- * @version $Id$
  */
 public abstract class ComplexTypeCodeReader extends AbstractTypeCodeReader
 {

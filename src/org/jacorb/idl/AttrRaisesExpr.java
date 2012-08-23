@@ -28,7 +28,6 @@ import java.util.Vector;
  * AttrDecl object during parsing.
  * 
  * @author Andre Spiegel
- * @version $Id$
  */
 
 public class AttrRaisesExpr

@@ -37,7 +37,6 @@ import org.slf4j.Logger;
  * with the ORB, and controls the PICurrent.
  *
  * @author Nicolas Noffke
- * @version $Id$
  */
 
 public class InterceptorManager

@@ -66,7 +66,6 @@ import org.tanukisoftware.wrapper.jmx.WrapperManagerMBean;
  * MX4J specific startup class for JMX-enabled Notification Service
  *
  * @author Alphonse Bendt
- * @version $Id$
  */
 public class JMXMain implements WrapperListener
 {

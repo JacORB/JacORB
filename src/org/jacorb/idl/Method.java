@@ -22,7 +22,6 @@ package org.jacorb.idl;
 
 /**
  * @author Gerald Brose
- * @version $Id$
  *
  * This class is used to represent accessor operations
  */

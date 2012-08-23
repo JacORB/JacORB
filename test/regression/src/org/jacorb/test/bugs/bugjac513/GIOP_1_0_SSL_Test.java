@@ -34,7 +34,6 @@ import org.jacorb.test.orb.BasicServerImpl;
 
 /**
  * @author Alphonse Bendt
- * @version $Id$
  */
 public class GIOP_1_0_SSL_Test extends ClientServerTestCase
 {

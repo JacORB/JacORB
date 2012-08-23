@@ -70,7 +70,6 @@ import org.omg.PortableServer.POA;
  *                      notificationType = "java.lang.String"
  *
  * @author Alphonse Bendt
- * @version $Id$
  */
 
 public abstract class AbstractProxySupplier extends AbstractProxy implements MessageConsumer,

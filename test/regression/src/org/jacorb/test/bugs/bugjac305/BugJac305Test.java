@@ -26,7 +26,6 @@ import org.jacorb.test.bugs.bug401.BHelper;
  * Tests that an derived valuetype has the base type set.
  *
  * @author Nick Cross
- * @version $Id$
  */
 public class BugJac305Test extends junit.framework.TestCase
 {

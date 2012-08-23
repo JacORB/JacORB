@@ -31,7 +31,6 @@ import org.omg.CORBA.NO_IMPLEMENT;
  * It simply delegates to OutputStream all functions.
  *
  * @author Nick Cross
- * @version $Id$
  */
 public class DataOutputStream
     implements org.omg.CORBA.DataOutputStream

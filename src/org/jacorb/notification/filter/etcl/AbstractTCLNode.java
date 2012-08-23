@@ -35,7 +35,6 @@ import antlr.collections.AST;
  * Base Class for TCLTree Nodes.
  * 
  * @author Alphonse Bendt
- * @version $Id$
  */
 
 public abstract class AbstractTCLNode extends BaseAST implements TCLParserTokenTypes

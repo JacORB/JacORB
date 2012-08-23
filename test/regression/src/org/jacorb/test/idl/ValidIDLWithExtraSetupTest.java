@@ -51,7 +51,6 @@ import org.omg.PortableServer.Servant;
  * been overwritten.
  *
  * @author Alphonse Bendt
- * @version $Id$
  */
 public class ValidIDLWithExtraSetupTest extends AbstractIDLTestcase
 {

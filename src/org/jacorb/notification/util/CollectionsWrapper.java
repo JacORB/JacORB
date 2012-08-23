@@ -34,7 +34,6 @@ import java.util.List;
  * @author Alphonse Bendt
  * @author Marc Heide
  * 
- * @version $Id$
  */
 
 public class CollectionsWrapper

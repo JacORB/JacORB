@@ -30,7 +30,6 @@ import org.omg.GIOP.MsgType_1_1;
 
 /**
  * @author Gerald Brose
- * @version $Id$
  */
 public class LocateReplyInputStream
     extends MessageInputStream

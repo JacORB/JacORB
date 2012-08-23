@@ -36,7 +36,6 @@ import org.jacorb.test.orb.etf.wiop.WIOPFactories;
  * is only the second profile published by the server.
  * 
  * @author Andre Spiegel spiegel@gnu.org
- * @version $Id$
  */
 public class C_WIOP_S_IIOP_WIOPTest extends AbstractWIOPTestCase
 {

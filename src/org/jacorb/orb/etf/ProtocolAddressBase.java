@@ -28,7 +28,6 @@ import org.jacorb.orb.CDROutputStream;
 
 /**
  * @author Phil Mesnier
- * @version $Id$
  *
  * provides an abstraction of a protocol specific address.
  * This is necessary to allow the ORB and other components deal with

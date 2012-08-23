@@ -29,7 +29,6 @@ import org.jacorb.test.common.TestUtils;
 
 /**
  * @author Alphonse Bendt
- * @version $Id$
  */
 public abstract class AbstractLauncher implements Launcher
 {

@@ -47,7 +47,6 @@ import org.omg.CORBA.TIMEOUT;
  * for an outgoing connection.
  *
  * @author Gerald Brose
- * @version $Id$
  */
 
 public interface SocketFactory

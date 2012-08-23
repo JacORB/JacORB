@@ -9,7 +9,6 @@ import java.util.EventObject;
  * SSL Session.
  *
  * @author Nick Cross
- * @version $Id$
  */
 public class SSLSessionEvent extends EventObject
 {

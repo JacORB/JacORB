@@ -13,7 +13,6 @@ import org.omg.PortableInterceptor.ORBInitializer;
  * Created: Fri Oct 26 10:58:29 2001
  *
  * @author Nicolas Noffke
- * @version $Id$
  */
 
 public class ClientInitializer extends org.omg.CORBA.LocalObject implements ORBInitializer

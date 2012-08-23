@@ -38,7 +38,6 @@ import org.omg.PortableServer.POA;
  * it will also configure the client ORB properly so that it can contact the IR.
  *
  * @author Alphonse Bendt
- * @version $Id$
  */
 public class AbstractIRServerTestCase extends TestCase
 {

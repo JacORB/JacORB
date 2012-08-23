@@ -34,7 +34,6 @@ import org.omg.PortableServer.POA;
 import org.slf4j.Logger;
 
 /**
- * @version $Id$
  */
 
 public class ExceptionDef

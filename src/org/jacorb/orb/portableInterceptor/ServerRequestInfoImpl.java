@@ -50,7 +50,6 @@ import org.omg.PortableServer.Servant;
  * See PI Spec p.5-50ff
  *
  * @author Nicolas Noffke
- * @version $Id$
  */
 
 public class ServerRequestInfoImpl

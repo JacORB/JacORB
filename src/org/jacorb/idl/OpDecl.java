@@ -29,7 +29,6 @@ import java.util.Vector;
 
 /**
  * @author Gerald Brose
- * @version $Id$
  */
 
 public class OpDecl

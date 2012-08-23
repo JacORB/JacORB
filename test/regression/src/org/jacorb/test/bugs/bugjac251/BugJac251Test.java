@@ -32,7 +32,6 @@ import org.omg.CORBA.Any;
  * <code>TestCase</code> tests extract of a IDL structure using DynamicAny.
  *
  * @author Nick Cross
- * @version $Id$
  */
 public class BugJac251Test extends ClientServerTestCase
 {

@@ -50,7 +50,6 @@ import org.omg.CORBA_2_3.portable.OutputStream;
  * CORBA any
  *
  * @author Gerald Brose
- * $Id$
  */
 
 public final class Any

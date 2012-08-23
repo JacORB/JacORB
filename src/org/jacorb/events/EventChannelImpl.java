@@ -41,7 +41,6 @@ import org.omg.CosNaming.NamingContextExtHelper;
  * references only.
  *
  * @author Joerg v. Frantzius, Rainer Lischetzki, Gerald Brose, Jeff Carlson
- * @version $Id$
  */
 
 public class EventChannelImpl extends JacORBEventChannelPOA
