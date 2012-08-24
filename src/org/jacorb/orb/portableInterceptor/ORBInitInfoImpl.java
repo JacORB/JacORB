@@ -261,7 +261,7 @@ public class ORBInitInfoImpl
     {
         checkIsValid();
 
-        return ORB.orb_id;
+        return orb.id();
     }
 
     public void register_initial_reference( String id, Object obj )
