@@ -246,7 +246,7 @@ abstract public class ORB extends ORBSingleton
       if(className == null)
       {
          className = System.getProperty(DEFAULT_ORB_KEY,  DEFAULT_ORB_VALUE);
-      }
+      }     
       ORB orb = create(className);
       orb.set_parameters(args, props, id);
 
@@ -255,16 +255,26 @@ abstract public class ORB extends ORBSingleton
 
    public static ORB init(String[] args, java.util.Properties props)
    {
-     for (int i = 0; i < args.length; i++)
+       if (args != (String[]) null)
        {
-         if (args[i].equals ("-ORBID"))
+           for (int i = 0; i < args.length; i++)
            {
-             if (i < args.length - 1)
-               return init (args, props, args[i++]);
-             else
-               return null; // TODO: report error
+               if (args[i] == null) {
+                   continue;
+               }
+               if (args[i].equals ("-ORBID"))
+               {
+                   if (i+1 < args.length && args[i+1] != null)
+                   {
+                       String _id = args[i+1];
+                       return init (args, props, _id);
+                   }
+                   else {
+                       throw new BAD_PARAM("Invalid ORBID format: -ORBID argument without value" );
+                   }
+               }
            }
-       }
+       } // end if
 
       String className = null;
       if(props != null)
@@ -274,9 +284,10 @@ abstract public class ORB extends ORBSingleton
       if(className == null)
       {
          className = System.getProperty(DEFAULT_ORB_KEY,  DEFAULT_ORB_VALUE);
-      }
+      }     
       ORB orb = create(className);
-      orb.set_parameters(args, props, "");
+      // set id to null so that default orb id will be used for none is provided.
+      orb.set_parameters(args, props, null);
 
       return orb;
    }
@@ -301,7 +312,7 @@ abstract public class ORB extends ORBSingleton
    abstract protected void set_parameters(String[] args,
                                           java.util.Properties props,
                                           String id);
-
+   
    abstract protected void set_parameters(java.applet.Applet app,
                                           java.util.Properties props);
 
