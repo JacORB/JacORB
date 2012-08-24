@@ -84,6 +84,13 @@ public class ORBInitTest extends TestCase
         return orb;
     }
 
+    private ORB initORB(String[] args, Properties props, String id)
+    {
+        ORB orb = org.omg.CORBA.ORB.init( args, props, id );
+        orbs.add(orb);
+        return orb;
+    }
+
     /**
      * <code>testParse2</code>
      */
@@ -264,7 +271,7 @@ public class ORBInitTest extends TestCase
         }
     }
 
-     /**
+    /**
      * <code>testSetORBId_1</code>
      */
     public void testSetORBId_1 ()
@@ -272,19 +279,97 @@ public class ORBInitTest extends TestCase
         String args[] = new String[4];
         args[0] = "-ORBInitRef";
         args[1] = "NameService=foo.ior";
-        args[2] = "-ORBid";
-        args[3] = "jacorb: someOrbId";
+        args[2] = "-ORBID";
+        args[3] = "jacorb: someOrbId_1";
 
-        // String _orb_id = "jacorb: someOrbId";
+        // set ORBID by using commandline arguments
         try
         {
-            initORB(args, null);
-            fail();
+            ORB orb = initORB(args, null);
+            assertTrue(orb != (ORB)null);
+            assertEquals(args[3],orb.id());
         }
-        catch (INITIALIZE e)
+        catch (Exception e)
         {
-                // expected
+                // not expected
+            e.printStackTrace ();
         }
     }
-   
+
+    /**
+     * <code>testSetORBId_2</code>
+     */
+    public void testSetORBId_2 ()
+    {
+        String args[] = new String[2];
+        args[0] = "-ORBInitRef";
+        args[1] = "NameService=foo.ior";
+
+        // set ORBID explicitly
+        String _orb_id = "jacorb: someOrbId_2";
+        try
+        {
+            ORB orb = initORB(args, null, _orb_id);
+            assertTrue (orb != (ORB)null);
+            assertEquals(_orb_id, orb.id());
+        }
+        catch (Exception e)
+        {
+                // not expected
+            e.printStackTrace ();
+        }
+    }
+    
+     /**
+     * <code>testSetORBId_3</code>
+     */
+    public void testSetORBId_3 ()
+    {
+        String args[] = new String[3];
+        args[0] = "-ORBInitRef";
+        args[1] = "NameService=foo.ior";
+        args[2] = "-ORBID";
+        // args[3] = "jacorb: someOrbId_1";
+
+        // test for -ORBID missing value
+        try
+        {
+            ORB orb = initORB(args, null);
+           assertTrue(orb == (ORB)null);
+        }
+        catch (Exception e)
+        {
+                // expected
+            e.printStackTrace ();
+        }
+    }
+    
+    /**
+     * <code>testSetORBId_4</code>
+     */
+    public void testSetORBId_4 ()
+    {
+        String args[] = new String[2];
+        args[0] = "-ORBInitRef";
+        args[1] = "NameService=foo.ior";
+
+        // set ORBID to default ORBID by setting third argument to null
+        try
+        {
+            // get default ORBID
+            ORB orb = initORB(args, null);
+            assertTrue (orb != (ORB)null);
+            String def_id = new String(orb.id());
+            
+            // run test
+            ORB orb2 = initORB(args, null, null);
+            assertTrue (orb2 != (ORB)null);
+            assertEquals(def_id, orb2.id());
+        }
+        catch (Exception e)
+        {
+                // not expected
+            e.printStackTrace ();
+        }
+    }
 }
