@@ -246,7 +246,7 @@ abstract public class ORB extends ORBSingleton
       if(className == null)
       {
          className = System.getProperty(DEFAULT_ORB_KEY,  DEFAULT_ORB_VALUE);
-      }     
+      }
       ORB orb = create(className);
       orb.set_parameters(args, props, id);
 
@@ -262,7 +262,7 @@ abstract public class ORB extends ORBSingleton
                if (args[i] == null) {
                    continue;
                }
-               if (args[i].equals ("-ORBID"))
+               if (args[i].equalsIgnoreCase ("-ORBID"))
                {
                    if (i+1 < args.length && args[i+1] != null)
                    {
@@ -270,7 +270,7 @@ abstract public class ORB extends ORBSingleton
                        return init (args, props, _id);
                    }
                    else {
-                       throw new BAD_PARAM("Invalid ORBID format: -ORBID argument without value" );
+                       throw new BAD_PARAM("Invalid ORBID format: -ORBID <value> argument without value" );
                    }
                }
            }
@@ -284,7 +284,7 @@ abstract public class ORB extends ORBSingleton
       if(className == null)
       {
          className = System.getProperty(DEFAULT_ORB_KEY,  DEFAULT_ORB_VALUE);
-      }     
+      }
       ORB orb = create(className);
       // set id to null so that default orb id will be used for none is provided.
       orb.set_parameters(args, props, null);
@@ -312,7 +312,7 @@ abstract public class ORB extends ORBSingleton
    abstract protected void set_parameters(String[] args,
                                           java.util.Properties props,
                                           String id);
-   
+
    abstract protected void set_parameters(java.applet.Applet app,
                                           java.util.Properties props);
 
