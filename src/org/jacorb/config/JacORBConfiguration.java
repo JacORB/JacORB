@@ -172,7 +172,7 @@ public class JacORBConfiguration implements Configuration
             }
         }
 
-        if (myOrbID != null )
+        if (myOrbID != null && !myOrbID.equals(""))
         {
             // check for legal values
             if (myOrbID.equals("orb") || myOrbID.equals("jacorb"))
@@ -181,6 +181,23 @@ public class JacORBConfiguration implements Configuration
                                                   myOrbID + "> is reserved");
             }
             orbID = myOrbID;
+        }
+        else
+        {
+            if (orb != (ORB) null)
+            {
+                // Set orbID to ORB.orb_id providing that:
+                // ORB.id is not null, is not an empty string, and is not the
+                // default string.  Otherwise orbID retains its default string
+                // "jacorb".
+                String _orb_id = orb.id();
+                if (_orb_id != (String) null
+                        && !_orb_id.equals("")
+                        && !_orb_id.equals("jacorb:" + org.jacorb.util.Version.version))
+                {
+                    orbID = _orb_id;
+                }
+            }
         }
 
         return new JacORBConfiguration(orbID, props, orb, isApplet);
