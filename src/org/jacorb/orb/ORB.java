@@ -216,7 +216,7 @@ public final class ORB
 
     // public static final String orb_id = "jacorb:" + org.jacorb.util.Version.version;
     private static final String default_orb_id = "jacorb:" + org.jacorb.util.Version.version;
-    
+
     private String orb_id = default_orb_id;
     /**
      * outstanding dii requests awaiting completion
@@ -269,7 +269,7 @@ public final class ORB
     public ORB()
     {
         super(false);
-        
+
         // initialize orb_id with default value
         orb_id = default_orb_id;
     }
@@ -1594,7 +1594,7 @@ public final class ORB
     * */
 
   protected void set_parameters(String[] args, java.util.Properties props, String id)
-    {        
+    {
         // save orb_id before doing anything
         // orb_id should have already been set to default_orb_id by the constructor,
         // so if it will be updated only if an alternative id is provided.
@@ -1602,7 +1602,7 @@ public final class ORB
         {
             orb_id = id;
         }
-        
+
         try
         {
             configure( org.jacorb.config.JacORBConfiguration.getConfiguration(props,
@@ -1633,14 +1633,14 @@ public final class ORB
                 {
                     continue;
                 }
-                
+
                 String arg = args[i].trim();
 
                 if (!arg.startsWith("-ORB"))
                 {
                     continue;
                 }
-                
+
                 // skip over -ORBID argument since it is not applied here
                 if (arg.equals("-ORBID"))
                 {
@@ -1734,7 +1734,7 @@ public final class ORB
             }
         }
 
-        internalInit();      
+        internalInit();
     }
 
     /**
