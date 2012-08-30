@@ -1584,6 +1584,12 @@ public final class ORB
 
     protected void set_parameters(String[] args, java.util.Properties props, String id)
     {
+        throw new org.omg.CORBA.NO_IMPLEMENT();
+    }
+    * */
+
+  protected void set_parameters(String[] args, java.util.Properties props, String id)
+    {
         // save orb_id before doing anything
         // orb_id should have already been set to default_orb_id by the constructor,
         // so if it will be updated only if an alternative id is provided.
@@ -1725,15 +1731,6 @@ public final class ORB
         }
 
         internalInit();
-    }
-
-    /**
-     * called from ORB.init(), entry point for initialization.
-     */
-    protected void set_parameters(String[] args, java.util.Properties props)
-    {
-        // route call to function with orb id of an empty string
-        set_parameters(args, props, "");
     }
 
     /**
