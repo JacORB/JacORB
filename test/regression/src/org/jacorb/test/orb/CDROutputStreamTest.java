@@ -280,7 +280,7 @@ public class CDROutputStreamTest extends ORBTestCase
             return;
         }
 
-        org.omg.CORBA.ORB sunORB = org.omg.CORBA.ORB.init(new String[0], TestUtils.newSunORBProperties());
+        org.omg.CORBA.ORB sunORB = org.omg.CORBA.ORB.init(new String[0], TestUtils.newForeignORBProperties());
 
         try
         {
