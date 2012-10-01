@@ -120,6 +120,7 @@ public class AllTest extends JacORBTestSuite
       suite.addTestSuite(BugJac_384Test.class);
       suite.addTestSuite(BugJac380Test.class);
       suite.addTestSuite(BugJac415Test.class);
+      suite.addTestSuite(org.jacorb.test.bugs.JBPAPP9891.MarshallingTest.class);
 
       return suite;
    }

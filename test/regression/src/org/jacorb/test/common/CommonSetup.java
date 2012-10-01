@@ -36,6 +36,9 @@ public class CommonSetup
 {
     public static final String JACORB_REGRESSION_DISABLE_SECURITY = "jacorb.regression.disable_security";
 
+    public static final boolean isIBM = (System.getProperty ("java.vendor").equals ("IBM Corporation"));
+
+
     /**
      * its assumed that the property file and the keystore file
      * are located in the demo/ssl dir.
@@ -77,6 +80,14 @@ public class CommonSetup
         );
 
         props.put("jacorb.security.ssl.ssl_listener", SSLListener.class.getName());
+
+        if (isIBM)
+        {
+            props.put("jacorb.security.jsse.server.key_manager_algorithm", "IbmX509");
+            props.put("jacorb.security.jsse.server.trust_manager_algorithm", "IbmX509");
+            props.put("jacorb.security.jsse.client.key_manager_algorithm", "IbmX509");
+            props.put("jacorb.security.jsse.client.trust_manager_algorithm", "IbmX509");
+        }
 
         return props;
     }

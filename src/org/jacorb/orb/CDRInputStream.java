@@ -476,7 +476,7 @@ public class CDRInputStream
         int saved_index = this.index;
         int tag = this.read_long();
 
-        if (tag < 0) 
+        if (tag < 0)
         {
                 // tag is an end tag
             if (-tag > this.valueNestingLevel)
@@ -3072,7 +3072,8 @@ public class CDRInputStream
             // reset buffer and remember that we're not within a chunk
             pos = savedPos;
             index = savedIndex;
-            chunk_end_pos = -1;
+
+            adjust_positions();
         }
     }
 
