@@ -45,9 +45,6 @@
             <path path="${java.class.path}" />
         </path>
 
-        <available classname="com.sun.corba.se.internal.iiop.ShutdownUtilDelegate"
-                   property="isAvailable.ShutdownUtilDelegate" />
-
         <macrodef name="jacorb-rmic">
             <attribute name="classname" />
             <attribute name="iiop" default="true" />
@@ -175,12 +172,6 @@
             <fileset dir="${dir.jacorb.client}/lib" includes="*.jar" />
         </path>
 
-        <condition property="rmi.jvmarg" value="-Djavax.rmi.CORBA.UtilClass=org.jacorb.test.orb.rmi.FixSunDelegateBug">
-            <isset property="isAvailable.ShutdownUtilDelegate" />
-        </condition>
-
-        <property name="jacorb.test.rmi.jvmarg" value="-Djacorb.test.ignoredKey=ignoredValue" />
-
         <property name="jacorb.test.piddir" value="${jacorb.test.outdir}/pid" />
 
         <mkdir dir="${jacorb.test.outdir}" />
@@ -274,7 +265,6 @@
             <syspropertyset refid="jacorb.test.properties" />
 
             <jvmarg value="-Xbootclasspath/p:${_bootclasspath}" />
-            <jvmarg value="${jacorb.test.rmi.jvmarg}" />
 
             <classpath>
                 <pathelement location="${classdir}" />

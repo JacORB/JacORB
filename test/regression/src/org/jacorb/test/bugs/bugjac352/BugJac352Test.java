@@ -37,7 +37,7 @@ public class BugJac352Test extends ClientServerTestCase
         Properties clientProps = new Properties();
         clientProps.setProperty(CommonSetup.JACORB_REGRESSION_DISABLE_SECURITY, "true");
         clientProps.setProperty("jacorb.interop.sun", "on");
-        final Properties serverProps = TestUtils.newSunORBProperties();
+        final Properties serverProps = TestUtils.newForeignORBProperties();
         serverProps.setProperty(CommonSetup.JACORB_REGRESSION_DISABLE_SECURITY, "true");
         ClientServerSetup setup = new ClientServerSetup(suite, Jac352Server.class.getName(), clientProps, serverProps);
 
