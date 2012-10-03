@@ -59,7 +59,7 @@ public class BugJac449Test extends ClientServerTestCase
         Test result;
         if (!TestUtils.isJ2ME())
         {
-            Properties clientProps = TestUtils.newSunORBProperties();
+            Properties clientProps = TestUtils.newForeignORBProperties();
             clientProps.setProperty(CommonSetup.JACORB_REGRESSION_DISABLE_SECURITY, "true");
 
             TestSuite suite = new TestSuite(BugJac449Test.class.getName());

@@ -79,7 +79,23 @@ public class BugJac563Test extends ClientServerTestCase
 
         clientProps.setProperty("jacorb.security.ssl.client.cipher_suites", "SSL_RSA_WITH_RC4_128_MD5");
 
+        if (CommonSetup.isIBM)
+        {
+            clientProps.put("jacorb.security.jsse.server.key_manager_algorithm", "IbmX509");
+            clientProps.put("jacorb.security.jsse.server.trust_manager_algorithm", "IbmX509");
+            clientProps.put("jacorb.security.jsse.client.key_manager_algorithm", "IbmX509");
+            clientProps.put("jacorb.security.jsse.client.trust_manager_algorithm", "IbmX509");
+        }
+
         Properties serverProps = new Properties();
+
+        if (CommonSetup.isIBM)
+        {
+            serverProps.put("jacorb.security.jsse.server.key_manager_algorithm", "IbmX509");
+            serverProps.put("jacorb.security.jsse.server.trust_manager_algorithm", "IbmX509");
+            serverProps.put("jacorb.security.jsse.client.key_manager_algorithm", "IbmX509");
+            serverProps.put("jacorb.security.jsse.client.trust_manager_algorithm", "IbmX509");
+        }
 
         serverProps.setProperty(CommonSetup.JACORB_REGRESSION_DISABLE_SECURITY, "true");
 
