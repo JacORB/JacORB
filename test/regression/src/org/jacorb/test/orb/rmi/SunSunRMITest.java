@@ -42,8 +42,8 @@ public class SunSunRMITest extends RMITestCase
     {
         TestSuite suite = new TestSuite( "RMI/IIOP tests Sun vs. Sun" );
 
-        Properties client_props = TestUtils.newSunORBProperties();
-        Properties server_props = TestUtils.newSunORBProperties();
+        Properties client_props = TestUtils.newForeignORBProperties();
+        Properties server_props = TestUtils.newForeignORBProperties();
         client_props.setProperty("jacorb.regression.disable_security", "true");
         server_props.setProperty("jacorb.regression.disable_security", "true");
 

@@ -52,7 +52,7 @@ public class SunJacORBRMITest extends RMITestCase
         server_props.setProperty("jacorb.regression.disable_security", "true");
         server_props.setProperty("org.omg.PortableInterceptor.ORBInitializerClass.standard_init", "org.jacorb.orb.standardInterceptors.IORInterceptorInitializer");
 
-        Properties client_props = TestUtils.newSunORBProperties();
+        Properties client_props = TestUtils.newForeignORBProperties();
 
 
         ClientServerSetup setup =

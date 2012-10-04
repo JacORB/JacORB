@@ -50,7 +50,7 @@ public class JacORBSunRMITest extends RMITestCase
         client_props.setProperty("jacorb.interop.sun", "on");
         client_props.setProperty("jacorb.regression.disable_security", "true");
 
-        Properties server_props = TestUtils.newSunORBProperties();
+        Properties server_props = TestUtils.newForeignORBProperties();
 
         ClientServerSetup setup =
             new ClientServerSetup( suite,
