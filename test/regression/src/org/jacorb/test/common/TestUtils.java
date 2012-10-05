@@ -64,6 +64,8 @@ public class TestUtils
 {
     private static final String[] STRING_ARRAY_TEMPLATE = new String[0];
 
+    public static final boolean isIBM = (System.getProperty ("java.vendor").equals ("IBM Corporation"));
+
     private static String testHome = null;
     private static String systemRoot = null;
     public static boolean verbose = "true".equalsIgnoreCase(System.getProperty("jacorb.test.verbose"));
@@ -353,7 +355,7 @@ public class TestUtils
     {
         final Properties props = new Properties();
 
-        if (CommonSetup.isIBM)
+        if (TestUtils.isIBM)
         {
             props.setProperty ("org.omg.CORBA.ORBClass", "com.ibm.CORBA.iiop.ORB");
             props.setProperty ("org.omg.CORBA.ORBSingletonClass", "com.ibm.rmi.corba.ORBSingleton");
