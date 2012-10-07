@@ -130,6 +130,8 @@ parser code
 
     private static ObjectCachePlugin objectCachePlugin;
 
+    public static boolean printVersionTimestamps = true;
+
     /**
      *  allows reinitialization if compiler is not
      *  run from a command-line
@@ -496,6 +498,11 @@ parser code
                     }
                     continue;
                 }
+                if( argv[i].equals("-notimestamps"))
+                {
+                    printVersionTimestamps = false;
+                    continue;
+                }
                 if( argv[i].endsWith(".idl") )
                 {
                     break;
@@ -597,7 +604,7 @@ parser code
             System.out.print( argv[i] + " " );
         System.out.println(" : " + msg);
 
-        System.out.println("Usage: idl [-h|-help][-v|-version][-Dsymbol[=value]][-Idir][-U<symbol>][-W debug_level ][-all][-forceOverwrite][-ami_callback][-ami_polling][-backend classname][-d <Output Dir>][-unchecked_narrow][-i2jpackage x:y][-i2jpackagefile <filename>][-cldc10][-ir][-nofinal][-noskel][-nostub][-diistub][-sloppy_forward][-sloppy_names][-sloppy_identifiers][-permissive_rmic][-genEnhanced][-syntax][-in inputfile][-generate_helper (portable|jacorb|deprecated)][-cacheplugin classname] <filelist>");
+        System.out.println("Usage: idl [-h|-help][-v|-version][-Dsymbol[=value]][-Idir][-U<symbol>][-W debug_level ][-all][-forceOverwrite][-ami_callback][-ami_polling][-backend classname][-d <Output Dir>][-unchecked_narrow][-i2jpackage x:y][-i2jpackagefile <filename>][-cldc10][-ir][-nofinal][-noskel][-nostub][-notimestamps][-diistub][-sloppy_forward][-sloppy_names][-sloppy_identifiers][-permissive_rmic][-genEnhanced][-syntax][-in inputfile][-generate_helper (portable|jacorb|deprecated)][-cacheplugin classname] <filelist>");
     }
 
 
@@ -651,6 +658,7 @@ parser code
         System.out.println("\t-i2jpackagefile <filename>\t replace IDL package names using list from <filename>. Format as above.");
         System.out.println("\t-ir\t\tgenerate information required by the Interface Repository");
         System.out.println("\t-nofinal\tgenerated Java code will contain no final class definitions");
+        System.out.println("\t-notimestamps\tgenerated Java code will not have a version timestamp");
         System.out.println("\t-unchecked_narrow\t\tuse unchecked_narrow in generated code for IOR parameters in operations");
         System.out.println("\t-noskel\t\tdisables generation of POA skeletons");
         System.out.println("\t-nostub\t\tdisables generation of client stubs");

@@ -41,7 +41,8 @@ This Release
 ============
     - ORB
          - Fix for RMI-IIOP Exception marshalling.
-
+    - IDL Compiler
+         - Add flag to turn off timestamps in generated code.
 
 3.1
 ===
