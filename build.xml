@@ -346,7 +346,7 @@ using BUILD_NUMBER:   ${BuildNo}
    <!--                   clean up                           -->
    <!-- ==================================================== -->
 
-    <target name="clean" depends="init" description="Clean the checkout">
+    <target name="clean" depends="init,src-check" description="Clean the checkout">
         <delete file="${basedir}/bin/idl"/>
         <delete file="${basedir}/bin/idl.bat"/>
         <delete file="${basedir}/bin/jaco"/>
@@ -377,7 +377,7 @@ using BUILD_NUMBER:   ${BuildNo}
    <!--                  API documentation                   -->
    <!-- ==================================================== -->
 
-   <target name="doc" depends="init" description="Create the Javadoc">
+   <target name="doc" depends="init,src-check" description="Create the Javadoc">
         <property name="PKGNAMES" value="org.jacorb.idl.*,org.jacorb.util.*,org.jacorb.orb.*,org.jacorb.imr.*,org.jacorb.ir.*,org.jacorb.poa.*,org.jacorb.events.*,org.jacorb.naming.*,org.jacorb.security.sas.*,org.omg.*,org.jacorb.notification.*" />
         <property name="PKGNAMES_EXCLUDED" value="org.jacorb.notification.filter.bsh" />
         <property name="SRCDIR2" value="" />
