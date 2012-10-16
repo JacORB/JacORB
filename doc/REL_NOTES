@@ -44,6 +44,8 @@ This Release
     - IDL Compiler
          - Add flag to turn off timestamps in generated code.
          - Fix for alias interface operations.
+    - Misc
+        - Move Ant dependency to IDL compiler.
 
 3.1
 ===
