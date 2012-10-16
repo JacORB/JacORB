@@ -271,6 +271,11 @@ public class InterfaceBody
                  i.hasNext(); )
             {
                 TypeSpec ts = ((ScopedName)i.next()).resolvedTypeSpec();
+                if (ts instanceof AliasTypeSpec &&
+                    ((AliasTypeSpec) ts).originalType() instanceof ConstrTypeSpec )
+                {
+                    ts = ((AliasTypeSpec) ts).originalType();
+                }
                 if (ts instanceof ConstrTypeSpec)
                 {
                     Interface base = (Interface)((ConstrTypeSpec)ts).c_type_spec;

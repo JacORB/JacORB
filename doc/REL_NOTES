@@ -37,6 +37,16 @@
    H I S T O R Y      O F     C H A N G E S
  -------------------------------------------
 
+This Release
+============
+    - ORB
+         - Fix for RMI-IIOP Exception marshalling.
+    - IDL Compiler
+         - Add flag to turn off timestamps in generated code.
+         - Fix for alias interface operations.
+    - Misc
+        - Move Ant dependency to IDL compiler.
+
 3.1
 ===
     - ORB
