@@ -43,6 +43,7 @@ This Release
          - Fix for RMI-IIOP Exception marshalling.
     - IDL Compiler
          - Add flag to turn off timestamps in generated code.
+         - Fix for alias interface operations.
 
 3.1
 ===
