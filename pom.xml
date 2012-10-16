@@ -1,0 +1,352 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
+                             http://maven.apache.org/maven-v4_0_0.xsd">
+    <!--
+
+    JacORB POM Usage:
+
+    To skip compilation pass -DskipCompile=true
+    To skip tests pass -DskipTests=true
+    To skip javadoc pass -DskipJavadoc=true
+
+    To deploy and release pass -DperformRelease=true
+
+    Maven phases versus JacORB build rules:
+
+    clean=realclean
+    compile=all
+    test='clean run-all'
+    package= [ Distribution assembly ]
+
+    NOTE: JACORB_HOME must be passed in via -D or set in the environment.
+
+    -->
+
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>org.sonatype.oss</groupId>
+        <artifactId>oss-parent</artifactId>
+        <version>7</version>
+    </parent>
+
+    <groupId>org.jacorb</groupId>
+    <artifactId>jacorb-parent</artifactId>
+    <version>2.3.2-JBoss-SP2</version>
+    <packaging>pom</packaging>
+
+    <name>JacORB</name>
+    <description>JacORB CORBA Object Request Broker (ORB)</description>
+    <url>http://www.jacorb.org</url>
+
+    <licenses>
+        <license>
+            <name>GNU Lesser General Public License</name>
+            <url>https://www.gnu.org/licenses/old-licenses/lgpl-2.1.html</url>
+        </license>
+    </licenses>
+
+    <scm>
+        <connection>scm:git:git@github.com:JacORB/JacORB.git</connection>
+        <url>https://github.com/JacORB/JacORB</url>
+    </scm>
+
+    <issueManagement>
+        <system>Bugzilla</system>
+        <url>http://www.jacorb.org/cgi-bin/bugzilla/index.cgi</url>
+    </issueManagement>
+
+    <organization>
+        <name>JacORB</name>
+        <url>http://www.jacorb.org</url>
+    </organization>
+
+    <developers>
+        <developer>
+            <name>JacORB Core Team</name>
+        </developer>
+    </developers>
+
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <!-- Default public key we sign the builds with. This can be overridden by other developers -->
+        <gpg.keyname>FAF776878639DE5E</gpg.keyname>
+    </properties>
+
+
+    <modules>
+        <module>maven/idl-compiler</module>
+        <module>maven/core</module>
+        <module>maven/services</module>
+        <module>maven/release</module>
+    </modules>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.apache.ant</groupId>
+                <artifactId>ant</artifactId>
+                <version>1.8.2</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
+    <dependencies>
+        <dependency>
+            <groupId>antlr</groupId>
+            <artifactId>antlr</artifactId>
+            <version>2.7.7</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>1.5.6</version>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-jdk14</artifactId>
+            <version>1.5.6</version>
+        </dependency>
+    </dependencies>
+
+
+    <build>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <artifactId>maven-antrun-plugin</artifactId>
+                    <version>1.7</version>
+                    <executions>
+                        <execution>
+                            <id>clean</id>
+                            <phase>clean</phase>
+                            <goals>
+                                <goal>run</goal>
+                            </goals>
+                            <configuration>
+                                <target>
+                                    <ant antfile="${env.JACORB_HOME}/build.xml" target="realclean">
+                                        <property name="basedir" value="${env.JACORB_HOME}"/>
+                                    </ant>
+                                </target>
+                            </configuration>
+                        </execution>
+                        <execution>
+                            <id>compile</id>
+                            <phase>compile</phase>
+                            <goals>
+                                <goal>run</goal>
+                            </goals>
+                            <configuration>
+                                <target unless="skipCompile">
+                                    <property name="plugin_classpath" refid="maven.plugin.classpath"/>
+                                    <ant antfile="${env.JACORB_HOME}/build.xml" inheritAll="true" inheritRefs="true" target="all">
+                                        <property name="sun.boot.class.path" value="${sun.boot.class.path}:${plugin_classpath}"/>
+                                        <property name="basedir" value="${env.JACORB_HOME}"/>
+                                    </ant>
+                                </target>
+                            </configuration>
+                        </execution>
+                    </executions>
+                    <dependencies>
+                        <dependency>
+                            <groupId>org.apache.ant</groupId>
+                            <artifactId>ant</artifactId>
+                            <version>1.8.2</version>
+                        </dependency>
+                        <dependency>
+                            <groupId>org.apache.ant</groupId>
+                            <artifactId>ant-apache-regexp</artifactId>
+                            <version>1.8.2</version>
+                        </dependency>
+                        <dependency>
+                            <groupId>org.apache.ant</groupId>
+                            <artifactId>ant-junit</artifactId>
+                            <version>1.8.2</version>
+                        </dependency>
+                        <!-- To ensure we pick up the javac compiler -->
+                        <dependency>
+                            <groupId>com.sun</groupId>
+                            <artifactId>tools</artifactId>
+                            <version>1.6.0</version>
+                            <scope>system</scope>
+                            <systemPath>${java.home}/../lib/tools.jar</systemPath>
+                        </dependency>
+                    </dependencies>
+                </plugin>
+
+                <!-- Helper plugin to override main artifact -->
+                <plugin>
+                    <groupId>org.commonjava.maven.plugins</groupId>
+                    <artifactId>build-migration-maven-plugin</artifactId>
+                    <version>0.3</version>
+                    <executions>
+                        <execution>
+                            <id>attach-main-artifact</id>
+                            <goals>
+                                <goal>main-artifact</goal>
+                            </goals>
+                            <configuration>
+                                <mainArtifact>${mainArtifact}</mainArtifact>
+                            </configuration>
+                        </execution>
+                    </executions>
+                </plugin>
+
+                <!-- Generate javadoc. Bound into the package phase for deployment purposes -->
+                <plugin>
+                    <artifactId>maven-javadoc-plugin</artifactId>
+                    <version>2.8.1</version>
+                    <configuration>
+                        <skip>${skipJavadoc}</skip>
+                        <verbose>true</verbose>
+                        <sourcepath>${env.JACORB_HOME}/src</sourcepath>
+                    </configuration>
+                    <executions>
+                        <execution>
+                            <phase>package</phase>
+                            <goals>
+                                <goal>jar</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                </plugin>
+
+                <plugin>
+                    <artifactId>maven-jar-plugin</artifactId>
+                    <version>2.4</version>
+                </plugin>
+
+                <plugin>
+                    <groupId>org.codehaus.mojo</groupId>
+                    <artifactId>build-helper-maven-plugin</artifactId>
+                    <version>1.7</version>
+                    <executions>
+                        <execution>
+                            <id>attach-sources</id>
+                            <phase>prepare-package</phase>
+                            <goals>
+                                <goal>add-source</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                </plugin>
+
+                <plugin>
+                    <artifactId>maven-source-plugin</artifactId>
+                    <version>2.1.2</version>
+                    <executions>
+                        <execution>
+                            <id>attach-sources</id>
+                            <goals>
+                                <goal>jar</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                </plugin>
+
+                <plugin>
+                    <artifactId>maven-deploy-plugin</artifactId>
+                    <version>2.7</version>
+                </plugin>
+            </plugins>
+
+        </pluginManagement>
+
+
+        <plugins>
+            <!-- Require env.JACORB_HOME to be set for all Maven poms. -->
+            <plugin>
+                <artifactId>maven-enforcer-plugin</artifactId>
+                <version>1.1.1</version>
+                <configuration>
+                    <rules>
+                        <requireProperty>
+                            <property>env.JACORB_HOME</property>
+                            <message>*** ERROR - JACORB_HOME is not set ***</message>
+                        </requireProperty>
+                    </rules>
+                    <fail>true</fail>
+                </configuration>
+                <executions>
+                    <execution>
+                        <phase>validate</phase>
+                        <id>enforce-property-install</id>
+                        <goals>
+                            <goal>enforce</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <phase>pre-clean</phase>
+                        <id>enforce-property-clean</id>
+                        <goals>
+                            <goal>enforce</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <!-- We could use the maven jar plugin to rebuild the jar files for final packaging -->
+            <!-- For now, lets skip it and use the Ant version. -->
+            <plugin>
+                <artifactId>maven-jar-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>default-jar</id>
+                        <phase>DISABLED</phase>
+                    </execution>
+                </executions>
+            </plugin>
+
+        </plugins>
+    </build>
+
+    <profiles>
+        <profile>
+            <id>release-sign-artifacts</id>
+            <activation>
+                <property>
+                    <name>performRelease</name>
+                    <value>true</value>
+                </property>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <artifactId>maven-gpg-plugin</artifactId>
+                        <version>1.4</version>
+                        <executions>
+                            <execution>
+                                <id>sign-artifacts</id>
+                                <phase>verify</phase>
+                                <goals>
+                                    <goal>sign</goal>
+                                </goals>
+                                <configuration>
+                                    <ascDirectory>${project.build.directory}</ascDirectory>
+                                    <keyname>${gpg.keyname}</keyname>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+
+        <!-- Allow JACORB_HOME to be set on the command line or environment -->
+        <profile>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+                <property>
+                    <name>!env.JACORB_HOME</name>
+                </property>
+            </activation>
+            <properties>
+                <env.JACORB_HOME>${JACORB_HOME}</env.JACORB_HOME>
+            </properties>
+        </profile>
+    </profiles>
+
+</project>
