@@ -84,16 +84,7 @@ public class ServantDelegate
 
         try
         {
-            /**
-             * We need to return a duplicate of the object because when this method is called by
-             * generated POA code _this() method the object returned may subsequently have it's
-             * delegate set to null by the _this method.  As JacORB caches object references the
-             * cached object would then have a null delegate. Any subsequent calls that read
-             * the object from the cache and tried to narrow it would result in a BAD_OPERATION on
-             * any attempt to retrieve the delegate.  This way the cached object always retains it's
-             * delegate and it is the duplicated object that will have the delegate set to null.
-             */
-            return (poa.servant_to_reference(self))._duplicate();
+            return (poa.servant_to_reference(self));
         }
         catch(ServantNotActive e)
         {
