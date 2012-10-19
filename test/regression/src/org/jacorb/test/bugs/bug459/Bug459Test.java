@@ -61,4 +61,15 @@ public class Bug459Test extends TestCase
             orb.shutdown(true);
         }
     }
+
+
+    public void testVerifyMultipleThisCalls() throws Exception
+    {
+        MyAnyServer myServer = new MyAnyServer();
+        org.omg.CORBA.ORB orb = org.omg.CORBA.ORB.init(new String[0], null);
+        org.omg.CORBA.Object o = myServer._this(orb);
+        o = myServer._this(orb);
+        o._release();
+        orb.shutdown(true);
+    }
 }
