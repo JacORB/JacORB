@@ -19,7 +19,6 @@
             srcdir="${idl}/jacorb"
             includepath="${idl}/omg"
             destdir="${src.generated}">
-            <define key="JACORB" value="1"/>
             </jacidl>
       </presetdef>
 
@@ -30,7 +29,6 @@
                  includepath="${idl}/omg"
                  destdir="${src.generated}">
             <i2jpackage names=":org.omg"/>
-         <define key="JACORB" value="1"/>
          </jacidl>
       </presetdef>
    </target>
@@ -74,31 +72,16 @@
    <!-- ==================================================== -->
 
    <target name="patches">
-      <!-- This is the same src file as found in the omg-03-01-02 tree -->
-      <!-- but with ORB::init implemented.                             -->
-      <!-- This also contains ORBPackage/InvalidNamefrom 03-10-10      -->
-      <!-- updated IDL.                                                -->
+      <!-- Fixes for non-conformance in the supplied IDL compared to spec -->
       <copy todir="${src.generated}/org/omg/CORBA"
             overwrite="yes">
          <fileset dir="${src}/java_mapping/CORBA" includes="**/*.java"/>
       </copy>
-      <!-- The mapping (03-01-02) is missing ORB::destroy - patch it   -->
-      <!-- in here.                                                    -->
-      <replace summary="true" file="${src.generated}/org/omg/CORBA/ORB.java">
-        <replacetoken><![CDATA[public void shutdown(boolean wait_for_completion) {]]></replacetoken>
-        <replacevalue><![CDATA[public void destroy() {
-      throw new org.omg.CORBA.NO_IMPLEMENT();
-   }
-
-   public void shutdown(boolean wait_for_completion) {]]></replacevalue>
-      </replace>
-
       <!-- Copy missing mapping code (From RT Specification 05-01-04 -->
       <copy todir="${src.generated}/org/omg/RTCORBA"
             overwrite="yes">
          <fileset dir="${src}/java_mapping/RTCORBA" includes="**/*.java"/>
       </copy>
-
       <copy todir="${src.generated}/org/omg/PortableServer"
             overwrite="yes">
          <fileset dir="${src}/java_mapping/PortableServer" includes="**/*.java"/>
@@ -120,6 +103,12 @@
       <delete file="${src.generated}/org/omg/CORBA/_TypeCodeStub.java"/>
       <delete file="${src.generated}/org/omg/CORBA/UserExceptionHelper.java"/>
       <delete file="${src.generated}/org/omg/CORBA/UserExceptionHolder.java"/>
+
+      <delete file="${src.generated}/org/omg/CORBA/ORBPOA.java"/>
+      <delete file="${src.generated}/org/omg/CORBA/ORBPOATie.java"/>
+      <delete file="${src.generated}/org/omg/CORBA/ORBHelper.java"/>
+      <delete file="${src.generated}/org/omg/CORBA/ORBHolder.java"/>
+      <delete file="${src.generated}/org/omg/CORBA/_ORBStub.java"/>
    </target>
 
    <!-- Compile the PortableServer.idl file provided by the OMG. -->
@@ -202,7 +191,6 @@
 
    <target name="sendingctx">
       <idl-jacidl-omg includes="SendingContext.idl">
-         <define key="JACORB" value=""/>
       </idl-jacidl-omg>
   </target>
 

@@ -267,7 +267,7 @@ public class EnumType
 
         printClassComment("enum", className, ps);
 
-        ps.println("public" + parser.getFinalString() + " class " + className + "Helper");
+        ps.println("public abstract class " + className + "Helper");
         ps.println("{");
 
         ps.println("\tprivate volatile static org.omg.CORBA.TypeCode _type;");

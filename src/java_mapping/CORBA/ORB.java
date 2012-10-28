@@ -203,6 +203,10 @@ abstract public class ORB extends ORBSingleton
       throw new org.omg.CORBA.NO_IMPLEMENT();
    }
 
+   public void destroy() {
+      throw new org.omg.CORBA.NO_IMPLEMENT();
+   }
+
    public void shutdown(boolean wait_for_completion) {
       throw new org.omg.CORBA.NO_IMPLEMENT();
    }

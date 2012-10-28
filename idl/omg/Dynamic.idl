@@ -4,7 +4,7 @@
 #ifndef _DYNAMIC_IDL_
 #define _DYNAMIC_IDL_
 
-#ifdef _PRE_3_0_COMPILER_
+#ifdef _PRE_3_0_COMPILER_ 
 #pragma prefix "omg.org"
 #include <orb.idl>
 #else
@@ -12,7 +12,7 @@ import ::CORBA;
 #endif // _PRE_3_0_COMPILER_
 
 module Dynamic {
-#ifndef _PRE_3_0_COMPILER_
+#ifndef _PRE_3_0_COMPILER_ 
     typeprefix Dynamic "omg.org";
 #endif // _PRE_3_0_COMPILER_
 

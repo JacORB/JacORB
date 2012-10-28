@@ -39,8 +39,6 @@ public class BugCos370Test extends ClientServerTestCase
         TestSuite suite = new TestSuite();
 
         Properties props = new Properties();
-        props.put("jacorb.debug.dump_outgoing_messages", "on");
-        props.put("jacorb.debug.dump_incoming_messages", "on");
         props.put("jacorb.compactTypecodes", "off");
         ClientServerSetup setup = new ClientServerSetup(suite, BugCos370ServerImpl.class.getName(), props, null);
 

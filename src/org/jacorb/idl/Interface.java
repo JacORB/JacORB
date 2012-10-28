@@ -846,7 +846,7 @@ public class Interface
 
         printClassComment("interface", name, ps);
 
-        ps.println("public" + parser.getFinalString() + " class " + name + "Helper");
+        ps.println("public abstract class " + name + "Helper");
         ps.println("{");
 
         ps.println("\tprivate volatile static org.omg.CORBA.TypeCode _type;");

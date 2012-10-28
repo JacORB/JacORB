@@ -138,7 +138,7 @@ public class SequenceType
     {
         return getTypeCodeExpression(new HashSet());
     }
-    
+
     public String getTypeCodeExpression(Set knownTypes)
     {
         if (logger.isDebugEnabled())
@@ -154,7 +154,7 @@ public class SequenceType
         	    elementTypeSpec().id() + "\")";
         }
         knownTypes.add(this);
-        
+
         String originalType = null;
 
         if (recursive)
@@ -215,10 +215,10 @@ public class SequenceType
         buffer.append("\t\t\t int x = " + streamname + ".available();" + Environment.NL );
         buffer.append("\t\t\t if ( x > 0 && " + lgt + " > x )" + Environment.NL );
         buffer.append("\t\t\t\t{" + Environment.NL );
-        buffer.append("\t\t\t\t\tthrow new org.omg.CORBA.MARSHAL(\"Sequence length too large. Only \" + x + \" available and trying to assign \" + " 
+        buffer.append("\t\t\t\t\tthrow new org.omg.CORBA.MARSHAL(\"Sequence length too large. Only \" + x + \" available and trying to assign \" + "
                       + lgt + ");" + Environment.NL);
         buffer.append("\t\t\t\t}" + Environment.NL );
-        buffer.append("\t\t}" + Environment.NL + "\t\tcatch (java.io.IOException e)" + Environment.NL 
+        buffer.append("\t\t}" + Environment.NL + "\t\tcatch (java.io.IOException e)" + Environment.NL
                       + "\t\t{" + Environment.NL + "\t\t}" + Environment.NL);
 
 
@@ -253,8 +253,8 @@ public class SequenceType
                 idx_variable = (char)(var_name.charAt(var_name.length() - 2) + 1);
                 indent = "    ";
             }
-            buffer.append("\t\t" + indent + "for (int " + idx_variable + "=0;" 
-                          + idx_variable + "<" + var_name + ".length;" + idx_variable 
+            buffer.append("\t\t" + indent + "for (int " + idx_variable + "=0;"
+                          + idx_variable + "<" + var_name + ".length;" + idx_variable
                           + "++)" + Environment.NL + "\t\t" + indent + "{" + Environment.NL);
 
             buffer.append("\t\t\t" + indent +
@@ -309,9 +309,9 @@ public class SequenceType
                 idx_variable = (char)(var_name.charAt(var_name.length() - 2) + 1);
                 indent = "    ";
             }
-            buffer.append("\t\t" + indent + "for (int " + idx_variable + "=0; " 
-                          + idx_variable + "<" + var_name + ".length;" 
-                          + idx_variable + "++)"  + Environment.NL 
+            buffer.append("\t\t" + indent + "for (int " + idx_variable + "=0; "
+                          + idx_variable + "<" + var_name + ".length;"
+                          + idx_variable + "++)"  + Environment.NL
                           + "\t\t" + indent + "{" + Environment.NL);
 
             buffer.append("\t\t\t" + indent +
@@ -454,7 +454,7 @@ public class SequenceType
         out.println("\t{");
         out.println("\t}");
 
-        out.println("\tpublic " + className + "Holder (final " + type + " initial)" 
+        out.println("\tpublic " + className + "Holder (final " + type + " initial)"
                     + Environment.NL + "\t{");
         out.println("\t\tvalue = initial;");
         out.println("\t}");
@@ -490,7 +490,7 @@ public class SequenceType
 
         printClassComment("sequence", className, out);
 
-        out.println("public" + parser.getFinalString() + " class " + className + "Helper");
+        out.println("public abstract class " + className + "Helper");
         out.println("{");
         out.println("\tprivate static org.omg.CORBA.TypeCode _type = " +
                    getTypeCodeExpression() + ";");

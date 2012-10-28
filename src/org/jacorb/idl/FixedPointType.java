@@ -102,7 +102,7 @@ public class FixedPointType
         if (!pack_name.equals(""))
             ps.println("package " + pack_name + ";");
 
-        ps.println("public" + parser.getFinalString() + " class " + className + "Helper");
+        ps.println("public abstract class " + className + "Helper");
         ps.println("{");
         ps.println("\tprivate static org.omg.CORBA.TypeCode _type = " + getTypeCodeExpression() + ";");
 
