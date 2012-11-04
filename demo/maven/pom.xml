@@ -46,7 +46,6 @@
                 </executions>
                 <configuration>
                     <compiler>jacorb</compiler>
-                    <debug>true</debug>
                 </configuration>
                 <dependencies>
                     <dependency>
