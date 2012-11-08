@@ -40,6 +40,7 @@
 This Release
 ============
     - ORB
+         - Fix for UCS-2 codeset encoding.
          - Fix for RMI-IIOP Exception marshalling.
          - Fix for unnecessary duplicate in ServantDelegate.
     - IDL Compiler
