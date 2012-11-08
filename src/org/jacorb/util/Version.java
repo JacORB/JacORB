@@ -28,8 +28,8 @@ package org.jacorb.util;
  */
 public final class Version
 {
-    public static final String version = "2.3.2-JBoss-SP2";
-    public static final String date = "04-Oct-2012";
+    public static final String version = "2.3.2-JBoss-SP3";
+    public static final String date = "08-Nov-2012";
     public static final String longVersion = version + ", " + date;
-    public static final String yearString = "1997-2011";
+    public static final String yearString = "1997-2012";
 }
