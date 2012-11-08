@@ -830,19 +830,17 @@ public class CodeSet
     }
     
 
+    /*
+     * According to:
+     * http://www.omg.org/issues/issue4008.txt 
+     * http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=4506930
+     * UCS-2 should not write a BOM.
+     */
     static private class Ucs2CodeSet extends TwoByteCodeSet
     {
-
         private Ucs2CodeSet()
         {
             super( 0x00010100, "UCS2" );
-        }
-
-
-        /** Returns true to force a BOM at the start of every text stream. */
-        public boolean write_bom( boolean configuredForBom )
-        {
-            return true;
         }
     }
 

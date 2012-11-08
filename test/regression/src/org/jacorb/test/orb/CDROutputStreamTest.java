@@ -111,17 +111,15 @@ public class CDROutputStreamTest extends ORBTestCase
      * the byte-order-marker is not optional.
      */
     public void testUCS2EncodingWChar() throws Exception {
-        byte[] bom = { (byte) (0xFE & 0xff), (byte) (0xFF & 0xff) };
-        byte[] codedText = { 2, bom[0], bom[1], 0x5, (byte) (0xD0 & 0xff), // Hebrew letter aleph
-                             2, bom[0], bom[1], 0x30, 0x51,                // Hiragana syllable ha
-                             2, bom[0], bom[1], 0x30, 0x74,                // Hiragana syllable pi
-                             2, bom[0], bom[1], 0x5, (byte) (0xD1 & 0xff), // Hebrew letter beis
-                             2, bom[0], bom[1], 0x5, (byte) (0xD2 & 0xff), // Hebrew letter gimmel
-                             2, bom[0], bom[1], 0x5, (byte) (0xD3 & 0xff), // Hebrew letter dalet
-                             0, 0,                                         // bytes ignored by 'long' alignment
-                             0, 0, 0, 0xa,                                 // string length in bytes, not chars (includes BOM)
-                             bom[0], bom[1],                               // byte-order-marker for string
-                             0x30, (byte) (0xDF & 0xff),                   // Mitsubishi, in Katakana
+        byte[] codedText = { 2, 0x5, (byte) (0xD0 & 0xff),  // Hebrew letter aleph
+                             2, 0x30, 0x51,                 // Hiragana syllable ha
+                             2, 0x30, 0x74,                 // Hiragana syllable pi
+                             2, 0x5, (byte) (0xD1 & 0xff),  // Hebrew letter beis
+                             2, 0x5, (byte) (0xD2 & 0xff),  // Hebrew letter gimmel
+                             2, 0x5, (byte) (0xD3 & 0xff),  // Hebrew letter dalet
+                             0, 0,                          // bytes ignored by 'long' alignment
+                             0, 0, 0, 8,                    // string length in bytes, not chars
+                             0x30, (byte) (0xDF & 0xff),    // Mitsubishi, in Katakana
                              0x30, (byte) (0xC4 & 0xff),
                              0x30, (byte) (0xFA & 0xff),
                              0x30, (byte) (0xB7 & 0xff),
