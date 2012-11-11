@@ -38,6 +38,10 @@
     <build>
         <plugins>
             <plugin>
+                <artifactId>maven-antrun-plugin</artifactId>
+            </plugin>
+
+            <plugin>
                 <groupId>org.commonjava.maven.plugins</groupId>
                 <artifactId>build-migration-maven-plugin</artifactId>
             </plugin>
