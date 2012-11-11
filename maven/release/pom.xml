@@ -22,6 +22,9 @@
 
     <build>
         <plugins>
+            <plugin>
+                <artifactId>maven-antrun-plugin</artifactId>
+            </plugin>
 
             <!-- Generate the ProgrammingGuide via http://akquinet.github.com/maven-latex-plugin -->
             <plugin>
