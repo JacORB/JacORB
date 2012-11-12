@@ -46,6 +46,13 @@
                 <exclude>src</exclude>
             </excludes>
         </fileSet>
+        <fileSet>
+            <directory>target/site</directory>
+            <outputDirectory>doc</outputDirectory>
+            <includes>
+                <include>*.pdf</include>
+            </includes>
+        </fileSet>
     </fileSets>
     <files>
         <file>
@@ -56,12 +63,6 @@
         <file>
             <source>${env.JACORB_HOME}/index.html</source>
             <destName>index.html</destName>
-            <fileMode>0644</fileMode>
-        </file>
-        <file>
-            <source>target/site/ProgrammingGuide.pdf</source>
-            <outputDirectory>doc/</outputDirectory>
-            <destName>ProgrammingGuide.pdf</destName>
             <fileMode>0644</fileMode>
         </file>
     </files>
