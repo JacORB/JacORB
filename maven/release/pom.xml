@@ -19,32 +19,10 @@
     <description>JacORB Release Module for packaging distribution zips</description>
     <url>http://www.jacorb.org</url>
 
-
     <build>
         <plugins>
             <plugin>
                 <artifactId>maven-antrun-plugin</artifactId>
-            </plugin>
-
-            <!-- Generate the ProgrammingGuide via http://akquinet.github.com/maven-latex-plugin -->
-            <plugin>
-                <groupId>de.akquinet.jbosscc.latex</groupId>
-                <artifactId>maven-latex-plugin</artifactId>
-                <version>1.2</version>
-                <configuration>
-                    <settings>
-                        <!-- all tex main documents in this folder (including subfolders) will be processed -->
-                        <texDirectory>${env.JACORB_HOME}/doc/ProgrammingGuide</texDirectory>
-                    </settings>
-                </configuration>
-                <executions>
-                    <execution>
-                        <phase>generate-sources</phase>
-                        <goals>
-                            <goal>latex</goal>
-                        </goals>
-                    </execution>
-                </executions>
             </plugin>
 
             <plugin>
@@ -162,4 +140,39 @@
             </plugin>
         </plugins>
     </build>
+
+    <profiles>
+        <profile>
+            <id>pdf-generation</id>
+            <activation>
+                <property>
+                    <name>!skipPDFGeneration</name>
+                </property>
+            </activation>
+            <build>
+                <plugins>
+                    <!-- Generate the ProgrammingGuide via http://akquinet.github.com/maven-latex-plugin -->
+                    <plugin>
+                        <groupId>de.akquinet.jbosscc.latex</groupId>
+                        <artifactId>maven-latex-plugin</artifactId>
+                        <version>1.2</version>
+                        <configuration>
+                            <settings>
+                                <!-- all tex main documents in this folder (including subfolders) will be processed -->
+                                <texDirectory>${env.JACORB_HOME}/doc/ProgrammingGuide</texDirectory>
+                            </settings>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <phase>generate-sources</phase>
+                                <goals>
+                                    <goal>latex</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 </project>
