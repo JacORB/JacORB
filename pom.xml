@@ -9,6 +9,7 @@
     To skip compilation pass -DskipCompile=true
     To skip tests pass -DskipTests=true
     To skip javadoc pass -DskipJavadoc=true
+    To skip pdf generation (if e.g. pdflatext is not installed) -DskipPDFGeneration
 
     To deploy and release pass -DperformRelease=true
 
