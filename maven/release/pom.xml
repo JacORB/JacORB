@@ -23,6 +23,23 @@
         <plugins>
             <plugin>
                 <artifactId>maven-antrun-plugin</artifactId>
+                <executions>
+                    <!-- Artifact signing. We want to create MD5 sums for the zips we create (src/bin) -->
+                    <!-- and (eventually) GPG sign the jar files -->
+                    <execution>
+                        <id>signing</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                        <configuration>
+                            <target>
+                                <checksum file="target/jacorb-${project.version}-source.zip"/>
+                                <checksum file="target/jacorb-${project.version}-binary.zip"/>
+                            </target>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
 
             <plugin>
@@ -87,32 +104,6 @@
                                 <defaultFileMode>0644</defaultFileMode>
                                 <defaultDirectoryMode>0755</defaultDirectoryMode>
                             </archiverConfig>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-
-            <!-- Artifact signing. We want to create MD5 sums for the zips we create (src/bin) and -->
-            <!-- (eventually) GPG sign the jar files -->
-            <!-- Create an MD5 sum of the zip artifacts via http://nicoulaj.github.com/checksum-maven-plugin -->
-            <plugin>
-                <groupId>net.ju-n.maven.plugins</groupId>
-                <artifactId>checksum-maven-plugin</artifactId>
-                <version>1.0.1</version>
-                <executions>
-                    <execution>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>files</goal>
-                        </goals>
-                        <configuration>
-                            <algorithms>
-                                <algorithm>MD5</algorithm>
-                            </algorithms>
-                            <files>
-                                <file>target/jacorb-${project.version}-source.zip</file>
-                                <file>target/jacorb-${project.version}-binary.zip</file>
-                            </files>
                         </configuration>
                     </execution>
                 </executions>
