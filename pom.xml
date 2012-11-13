@@ -9,6 +9,7 @@
     To skip compilation pass -DskipCompile=true
     To skip tests pass -DskipTests=true
     To skip javadoc pass -DskipJavadoc=true
+    To skip pdf generation (if e.g. pdflatext is not installed) -DskipPDFGeneration
 
     To deploy and release pass -DperformRelease=true
 
@@ -115,6 +116,36 @@
                     <artifactId>maven-antrun-plugin</artifactId>
                     <version>1.7</version>
                     <executions>
+                        <execution>
+                        <id>getJACORB_HOMEValidation</id>
+                        <phase>validate</phase>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                        <configuration>
+                            <exportAntProperties>true</exportAntProperties>
+                            <target>
+                                <!--Adjust the location below to your directory structure -->
+                                <property name="env.JACORB_HOME" location="../.." />
+                                <echo message="[validate] env.JACORB_HOME=${env.JACORB_HOME}"/>
+                            </target>
+                        </configuration>
+                        </execution>
+                    <execution>
+                        <id>getenv.JACORB_HOMEClean</id>
+                        <phase>pre-clean</phase>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                        <configuration>
+                            <exportAntProperties>true</exportAntProperties>
+                            <target>
+                                <!--Adjust the location below to your directory structure -->
+                                <property name="env.JACORB_HOME" location="../.." />
+                                <echo message="[preclean] env.JACORB_HOME=${env.JACORB_HOME}"/>
+                            </target>
+                        </configuration>
+                    </execution>
                         <execution>
                             <id>clean</id>
                             <phase>clean</phase>
@@ -253,33 +284,34 @@
 
 
         <plugins>
-            <!-- Require JACORB_HOME to be set for all Maven poms. -->
             <plugin>
-                <artifactId>maven-enforcer-plugin</artifactId>
-                <version>1.1.1</version>
-                <configuration>
-                    <rules>
-                        <requireProperty>
-                            <property>env.JACORB_HOME</property>
-                            <message>*** ERROR - JACORB_HOME is not set ***</message>
-                        </requireProperty>
-                    </rules>
-                    <fail>true</fail>
-                </configuration>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <version>1.7</version>
+                <inherited>false</inherited>
                 <executions>
                     <execution>
+                        <id>getJACORB_HOMEValidation</id>
                         <phase>validate</phase>
-                        <id>enforce-property-install</id>
-                        <goals>
-                            <goal>enforce</goal>
-                        </goals>
+                        <configuration>
+                            <exportAntProperties>true</exportAntProperties>
+                            <target>
+                                <!--Adjust the location below to your directory structure -->
+                                <property name="env.JACORB_HOME" location="." />
+                                <echo message="[validate] env.JACORB_HOME=${env.JACORB_HOME}"/>
+                            </target>
+                        </configuration>
                     </execution>
                     <execution>
+                        <id>getenv.JACORB_HOMEClean</id>
                         <phase>pre-clean</phase>
-                        <id>enforce-property-clean</id>
-                        <goals>
-                            <goal>enforce</goal>
-                        </goals>
+                        <configuration>
+                            <exportAntProperties>true</exportAntProperties>
+                            <target>
+                                <!--Adjust the location below to your directory structure -->
+                                <property name="env.JACORB_HOME" location="." />
+                                <echo message="[preclean] env.JACORB_HOME=${env.JACORB_HOME}"/>
+                            </target>
+                        </configuration>
                     </execution>
                 </executions>
             </plugin>
@@ -329,19 +361,6 @@
                     </plugin>
                 </plugins>
             </build>
-        </profile>
-
-        <!-- Allow JACORB_HOME to be set on the command line or environment -->
-        <profile>
-            <activation>
-                <activeByDefault>true</activeByDefault>
-                <property>
-                    <name>!env.JACORB_HOME</name>
-                </property>
-            </activation>
-            <properties>
-                <env.JACORB_HOME>${JACORB_HOME}</env.JACORB_HOME>
-            </properties>
         </profile>
     </profiles>
 
