@@ -126,17 +126,17 @@ module DynamicAny {
         boolean         next();
         unsigned long   component_count();
         DynAny          current_component()
-	  raises(TypeMismatch);
+          raises(TypeMismatch);
 
 #ifndef JACORB
         void insert_abstract(in CORBA::AbstractBase value)
-	  raises(TypeMismatch, InvalidValue);
+          raises(TypeMismatch, InvalidValue);
         CORBA::AbstractBase get_abstract()
-	  raises(TypeMismatch, InvalidValue);
+          raises(TypeMismatch, InvalidValue);
 #endif
 
         void insert_boolean_seq(in CORBA::BooleanSeq value)
-	  raises(TypeMismatch, InvalidValue);
+          raises(TypeMismatch, InvalidValue);
         void insert_octet_seq(in CORBA::OctetSeq value)
 	  raises(TypeMismatch, InvalidValue);
         void insert_char_seq(in CORBA::CharSeq value)

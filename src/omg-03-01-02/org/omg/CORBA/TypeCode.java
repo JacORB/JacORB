@@ -46,20 +46,17 @@ abstract public class TypeCode implements org.omg.CORBA.portable.IDLEntity {
      * @return a <code>short</code> value
      * @exception org.omg.CORBA.TypeCodePackage.BadKind if an error occurs
      */
-    public short fixed_digits() throws
-            org.omg.CORBA.TypeCodePackage.BadKind {
-        throw new org.omg.CORBA.NO_IMPLEMENT();
-    }
+    abstract public short fixed_digits() throws
+        org.omg.CORBA.TypeCodePackage.BadKind;
+
     /**
      * <code>fixed_scale</code>.
      *
      * @return a <code>short</code> value
      * @exception org.omg.CORBA.TypeCodePackage.BadKind if an error occurs
      */
-    public short fixed_scale() throws
-            org.omg.CORBA.TypeCodePackage.BadKind {
-        throw new org.omg.CORBA.NO_IMPLEMENT();
-    }
+    abstract public short fixed_scale() throws
+        org.omg.CORBA.TypeCodePackage.BadKind;
 
     /**
      * <code>member_visibility</code>.
@@ -69,30 +66,25 @@ abstract public class TypeCode implements org.omg.CORBA.portable.IDLEntity {
      * @exception org.omg.CORBA.TypeCodePackage.BadKind if an error occurs
      * @exception org.omg.CORBA.TypeCodePackage.Bounds if an error occurs
      */
-   public short member_visibility(int index) throws
-            org.omg.CORBA.TypeCodePackage.BadKind,
-            org.omg.CORBA.TypeCodePackage.Bounds {
-        throw new org.omg.CORBA.NO_IMPLEMENT();
-    }
+    abstract public short member_visibility(int index) throws
+        org.omg.CORBA.TypeCodePackage.BadKind,
+        org.omg.CORBA.TypeCodePackage.Bounds;
+
     /**
      * <code>type_modifier</code>.
      *
      * @return a <code>short</code> value
      * @exception org.omg.CORBA.TypeCodePackage.BadKind if an error occurs
      */
-   public short type_modifier()
-            throws org.omg.CORBA.TypeCodePackage.BadKind {
-        throw new org.omg.CORBA.NO_IMPLEMENT();
-    }
+    abstract public short type_modifier()
+        throws org.omg.CORBA.TypeCodePackage.BadKind;
+
     /**
      * <code>concrete_base_type</code>.
      *
      * @return an <code>org.omg.CORBA.TypeCode</code> value
      * @exception org.omg.CORBA.TypeCodePackage.BadKind if an error occurs
      */
-   public org.omg.CORBA.TypeCode concrete_base_type() throws
-            org.omg.CORBA.TypeCodePackage.BadKind {
-        throw new org.omg.CORBA.NO_IMPLEMENT();
-    }
-
+    abstract public org.omg.CORBA.TypeCode concrete_base_type() throws
+        org.omg.CORBA.TypeCodePackage.BadKind;
 }

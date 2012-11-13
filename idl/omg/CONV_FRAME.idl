@@ -16,9 +16,11 @@ module CONV_FRAME {
 
     typedef unsigned long CodeSetId;
 
+    typedef sequence<CodeSetId> CodeSetIdSeq;
+
     struct CodeSetComponent {
         CodeSetId               native_code_set;
-        sequence<CodeSetId>     conversion_code_sets;
+        CodeSetIdSeq            conversion_code_sets;
     };
     struct CodeSetComponentInfo {
         CodeSetComponent        ForCharData;
@@ -33,3 +35,4 @@ module CONV_FRAME {
     };
 };
 #endif // _CONV_FRAME_IDL
+

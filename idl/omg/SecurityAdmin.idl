@@ -11,83 +11,83 @@ module SecurityAdmin
     interface AccessPolicy : CORBA::Policy 
     {
 
-	Security::RightsList get_effective_rights (
-		     in      Security::AttributeList            attrib_list,
-		     in Security::ExtensibleFamily  rights_family
-		     );
+        Security::RightsList get_effective_rights (
+                     in      Security::AttributeList            attrib_list,
+                     in Security::ExtensibleFamily  rights_family
+                     );
 
-	Security::RightsList get_all_effective_rights( 
-		     in     Security::AttributeList            attrib_list 
-		     ); 
+        Security::RightsList get_all_effective_rights( 
+                     in     Security::AttributeList            attrib_list 
+                     ); 
     };
 
     // interface DomainAccessPolicy
     interface DomainAccessPolicy : AccessPolicy 
     {
 
-	void grant_rights(
-			  in Security::SecAttribute                  priv_attr,
-			  in Security::DelegationState               del_state,
-			  in Security::RightsList                    rights
-			  );
+        void grant_rights(
+                          in Security::SecAttribute                  priv_attr,
+                          in Security::DelegationState               del_state,
+                          in Security::RightsList                    rights
+                          );
 
-	void revoke_rights(
+        void revoke_rights(
                            in Security::SecAttribute                  priv_attr,
                            in Security::DelegationState               del_state,
                            in Security::RightsList                    rights
-			   );
+                           );
 
-	void replace_rights (
-			     in Security::SecAttribute                  priv_attr,
-			     in Security::DelegationState               del_state,
-			     in Security::RightsList                    rights
-			     );
+        void replace_rights (
+                             in Security::SecAttribute                  priv_attr,
+                             in Security::DelegationState               del_state,
+                             in Security::RightsList                    rights
+                             );
 
-	Security::RightsList get_rights (
-			   in Security::SecAttribute                  priv_attr,
-			   in Security::DelegationState               del_state,
-			   in Security::ExtensibleFamily  rights_family
-			   );
+        Security::RightsList get_rights (
+                           in Security::SecAttribute                  priv_attr,
+                           in Security::DelegationState               del_state,
+                           in Security::ExtensibleFamily  rights_family
+                           );
 
-	Security::RightsList get_all_rights( 
-			   in     Security::SecAttribute                                   priv_attr, 
-			   in     Security::DelegationState                                del_state 
-			   ); 
+        Security::RightsList get_all_rights( 
+                           in     Security::SecAttribute                                   priv_attr, 
+                           in     Security::DelegationState                                del_state 
+                           ); 
     };
 
     // interface AuditPolicy
     interface AuditPolicy : CORBA::Policy 
     {
 
-	void set_audit_selectors (
+        void set_audit_selectors (
                     in      CORBA::RepositoryId                                      object_type,
-		    in      Security::AuditEventTypeList                             events,
-		    in      Security::SelectorValueList                              selectors,
-		    in Security::AuditCombinator  audit_combinator 
-		    );
+                    in      Security::AuditEventTypeList                             events,
+                    in      Security::SelectorValueList                              selectors,
+                    in Security::AuditCombinator  audit_combinator 
+                    );
 
-	void clear_audit_selectors (
-		    in      CORBA::RepositoryId                                      object_type,
-		    in      Security::AuditEventTypeList                             events 
-		    );
+        void clear_audit_selectors (
+                    in      CORBA::RepositoryId                                      object_type,
+                    in      Security::AuditEventTypeList                             events 
+                    );
 
-	void replace_audit_selectors (
-		in      CORBA::RepositoryId                                     object_type,
-		in      Security::AuditEventTypeList                             events,
-		in      Security::SelectorValueList                              selectors,
-		in Security::AuditCombinator  audit_combinator 
-		); 
+        void replace_audit_selectors (
+                in      CORBA::RepositoryId                                     object_type,
+                in      Security::AuditEventTypeList                             events,
+                in      Security::SelectorValueList                              selectors,
+                in Security::AuditCombinator  audit_combinator 
+                ); 
 
-	void get_audit_selectors (
-		   in      CORBA::RepositoryId                                      object_type,
-		   in      Security::AuditEventType event_type,
-		   out     Security::SelectorValueList                              selectors,
-		   out Security::AuditCombinator                                    audit_combinator 
-		   ); 
+        void get_audit_selectors (
+                   in      CORBA::RepositoryId                                      object_type,
+                   in      Security::AuditEventType event_type,
+                   out     Security::SelectorValueList                              selectors,
+                   out Security::AuditCombinator                                    audit_combinator 
+                   ); 
 
-	void set_audit_channel (
-		in      Security::AuditChannelId                                 audit_channel_id
-		);
+        void set_audit_channel (
+                in      Security::AuditChannelId                                 audit_channel_id
+                );
     };
 
     // interface SecureInvocationPolicy
@@ -95,32 +95,32 @@ module SecurityAdmin
     interface SecureInvocationPolicy : CORBA::Policy 
     {
 
-	void set_association_options(
-		in CORBA::InterfaceDef                                           object_type,
-		in Security::RequiresSupports                                    requires_supports,
-		in Security::CommunicationDirection  direction,
-		in Security::AssociationOptions                                  options 
-		);
+        void set_association_options(
+                in CORBA::InterfaceDef                                           object_type,
+                in Security::RequiresSupports                                    requires_supports,
+                in Security::CommunicationDirection  direction,
+                in Security::AssociationOptions                                  options 
+                );
 
-	Security::AssociationOptions get_association_options(
-		in CORBA::InterfaceDef                           object_type,
-		in Security::RequiresSupports                    requires_supports,
-		in Security::CommunicationDirection direction
-		); 
+        Security::AssociationOptions get_association_options(
+                in CORBA::InterfaceDef                           object_type,
+                in Security::RequiresSupports                    requires_supports,
+                in Security::CommunicationDirection direction
+                ); 
     };
 
     // interface DelegationPolicy
     interface DelegationPolicy : CORBA::Policy 
     {
 
-	void set_delegation_mode(
-		in CORBA::InterfaceDef                           object_type,
-		in Security::DelegationMode                      mode
-		);
+        void set_delegation_mode(
+                in CORBA::InterfaceDef                           object_type,
+                in Security::DelegationMode                      mode
+                );
 
-	Security::DelegationMode get_delegation_mode(
-		in CORBA::InterfaceDef                           object_type
-		);
+        Security::DelegationMode get_delegation_mode(
+                in CORBA::InterfaceDef                           object_type
+                );
     };
 };
 

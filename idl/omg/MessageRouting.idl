@@ -1,0 +1,175 @@
+// File: MessageRouting.idl
+// CORBA 3.0, Chapter 22
+
+#ifndef _MESSAGE_ROUTING_IDL_
+#define _MESSAGE_ROUTING_IDL_
+
+#ifdef _PRE_3_0_COMPILER_ 
+#pragma prefix "omg.org"
+#include <orb.idl>
+#include <GIOP.idl>
+#include <IOP.idl>
+#include <Messaging.idl>
+#else
+import ::CORBA;
+import ::GIOP;
+import ::IOP;
+import ::Messaging;
+#endif // _PRE_3_0_COMPILER_
+
+module MessageRouting{
+
+#ifndef _PRE_3_0_COMPILER_ 
+    typeprefix MessageRouting "omg.org";
+#endif // _PRE_3_0_COMPILER_
+
+    // Basic routing Interoperability
+
+    interface Router;
+    interface RouterAdmin;
+
+    typedef sequence<Router> RouterList;
+
+    typedef CORBA::OctetSeq BodyData;
+
+    struct MessageBody {
+        BodyData body;
+        boolean byte_order;
+    };
+
+    struct RequestMessage {
+        GIOP::Version giop_version;
+        IOP::ServiceContextList service_contexts;
+        octet response_flags;
+        GIOP::RequestReserved reserved;
+        IOP::ObjectKey object_key;
+        string operation;
+        MessageBody body;
+    };
+
+    enum ReplyDisposition { TYPED, UNTYPED };
+
+    struct ReplyDestination {
+        ReplyDisposition handler_type;
+        Messaging::ReplyHandler handler;
+        sequence<string> typed_excep_holder_repids;
+    };
+
+    struct RequestInfo {
+        RouterList visited;
+        RouterList to_visit;
+        Object target;
+        unsigned short profile_index;
+        ReplyDestination reply_destination;
+        Messaging::PolicyValueSeq selected_qos;
+        RequestMessage payload;
+    };
+
+    typedef sequence<RequestInfo> RequestInfoSeq;
+
+    interface Router {
+        void send_request(in RequestInfo req);
+        void send_multiple_requests(in RequestInfoSeq reqSeq);
+
+        readonly attribute RouterAdmin admin;
+    };
+
+    // Polling-related interfaces
+
+    interface UntypedReplyHandler : Messaging::ReplyHandler {
+        void reply(
+            in string operation_name,
+            in GIOP::ReplyStatusType reply_type,
+            in MessageBody reply_body);
+    };
+
+    exception ReplyNotAvailable { };
+
+    interface PersistentRequest {
+        readonly attribute boolean reply_available;
+        GIOP::ReplyStatusType get_reply(
+            in boolean blocking,
+            in unsigned long timeout,
+            out MessageBody reply_body)
+            raises (ReplyNotAvailable);
+        attribute Messaging::ReplyHandler associated_handler;
+        GIOP::ReplyStatusType get_reply_with_context(
+            in boolean blocking,
+            in unsigned long timeout,
+            out MessageBody reply_body,
+            out IOP::ServiceContextList  service_contexts)
+            raises (ReplyNotAvailable);
+    };
+
+    interface PersistentRequestRouter {
+        PersistentRequest create_persistent_request(
+            in unsigned short profile_index,
+            in RouterList to_visit,
+            in Object target,
+            in CORBA::PolicyList current_qos,
+            in RequestMessage payload);
+    };
+
+    // Router Administration
+
+    typedef short RegistrationState;
+    const RegistrationState NOT_REGISTERED = 0;
+    const RegistrationState ACTIVE = 1;
+    const RegistrationState SUSPENDED = 2;
+
+    exception InvalidState{
+        RegistrationState registration_state;
+    };
+
+    valuetype RetryPolicy supports CORBA::Policy { };
+ 
+    const CORBA::PolicyType IMMEDIATE_SUSPEND_POLICY_TYPE = 36;
+
+    valuetype ImmediateSuspend : RetryPolicy { };
+
+    const CORBA::PolicyType UNLIMITED_PING_POLICY_TYPE = 37;
+
+    valuetype UnlimitedPing : RetryPolicy {
+        public short max_backoffs;
+        public float backoff_factor;
+        public unsigned long base_interval_seconds;
+    };
+
+    const CORBA::PolicyType LIMITED_PING_POLICY_TYPE = 38;
+
+    valuetype LimitedPing : UnlimitedPing {
+        public unsigned long interval_limit;
+    };
+
+    const CORBA::PolicyType DECAY_POLICY_TYPE = 39;
+
+    valuetype DecayPolicy supports CORBA::Policy {
+        public unsigned long decay_seconds;
+    };
+
+    const CORBA::PolicyType RESUME_POLICY_TYPE = 40;
+
+    valuetype ResumePolicy supports CORBA::Policy {
+        public unsigned long resume_seconds;
+    };
+
+    interface RouterAdmin {
+        void register_destination(
+            in Object dest,
+            in boolean is_router,
+            in RetryPolicy retry,
+            in DecayPolicy decay);
+        void suspend_destination(
+            in Object dest,
+            in ResumePolicy resumption)
+            raises (InvalidState);
+        void resume_destination(
+            in Object dest)
+            raises (InvalidState);
+        void unregister_destination(
+            in Object dest)
+            raises (InvalidState);
+    };
+
+}; // module MessageRouting
+#endif // _MESSAGE_ROUTING_IDL_

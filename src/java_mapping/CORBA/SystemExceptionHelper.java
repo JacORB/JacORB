@@ -6,7 +6,7 @@ package org.omg.CORBA;
  * org.omg.CORBA.SystemExceptionHelper provided by OMG -
  * see http://www.omg.org/issues/issue3750.txt
  */
-public final class SystemExceptionHelper
+public abstract class SystemExceptionHelper
 {
    private static org.omg.CORBA.TypeCode _type = org.omg.CORBA.ORB.init().create_exception_tc( org.omg.CORBA.SystemExceptionHelper.id(),"SystemException",new org.omg.CORBA.StructMember[]{new org.omg.CORBA.StructMember("minor",org.omg.CORBA.ORB.init().get_primitive_tc(org.omg.CORBA.TCKind.from_int(5)),null),new org.omg.CORBA.StructMember("completed",org.omg.CORBA.ORB.init().create_enum_tc(org.omg.CORBA.CompletionStatusHelper.id(),"CompletionStatus",new String[]{"COMPLETED_YES","COMPLETED_NO","COMPLETED_MAYBE"}),null)});
 
