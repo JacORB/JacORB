@@ -50,6 +50,7 @@ This Release
          - Updates for IDL to Java Language Mapping 1.3 (formal/2008-01-11)
     - Misc
         - Move Ant dependency to IDL compiler.
+        - Deploy a zip of the IDL files with the IDL compiler.
 
 3.1
 ===
