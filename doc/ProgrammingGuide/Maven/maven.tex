@@ -1,0 +1,66 @@
+
+\section{Maven Central}
+
+JacORB is now available in Maven Central under the following GAVs (Group-Artifact-Version):
+
+\begin{itemize}
+\item Group: \texttt{org.jacorb}
+\item Artifacts:
+  \begin{itemize}
+    \item \texttt{jacorb}
+    \item \texttt{jacorb-idl-compiler}
+    \item \texttt{jacorb-parent}
+    \item \texttt{jacorb-services}
+  \end{itemize}
+\end{itemize}
+
+The current version is \JacORBVersion.
+
+
+\section{Maven Demo}
+
+An example is supplied in \texttt{<install>/demo/maven} in order to demonstrate the use of Maven to download the JacORB artifacts, use the IDL compiler plugin and finally executing the resulting client/server. The following will describe the steps in detail.
+
+\subsubsection{IDL Compiler}
+Before the main source files can be compiled the IDL must be generated. To do this an external plugin is used. The GAV for this plugin is:
+\begin{itemize}
+\item \texttt{org.codehaus.mojo.idlj-maven-plugin:1.2.1}
+\end{itemize}
+
+and is documented here \href{http://mojo.codehaus.org/idlj-maven-plugin}{http://mojo.codehaus.org/idlj-maven-plugin}. Note to correctly configure the plugin the type of IDL compiler must be configured and a dependency upon the correct version of the JacORB IDL compiler added e.g.
+\begin{verbatim}
+           <plugin>
+                ...
+
+                <configuration>
+                    <compiler>jacorb</compiler>
+                </configuration>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.jacorb</groupId>
+                        <artifactId>jacorb-idl-compiler</artifactId>
+                        <version>${version.jacorb}</version>
+                        <scope>compile</scope>
+                    </dependency>
+                </dependencies>
+            </plugin>
+\end{verbatim}
+
+\subsubsection{Compiling}
+Assuming the correct JacORB dependency has been added to the Maven POM the default Maven lifecycle will build both
+the generated sources and the supplied sources during the 'compile' phase.
+\begin{verbatim}
+    <dependencies>
+        <dependency>
+            <groupId>org.jacorb</groupId>
+            <artifactId>jacorb</artifactId>
+            <version>${version.jacorb}</version>
+        </dependency>
+    </dependencies>
+\end{verbatim}
+
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: "../ProgrammingGuide"
+%%% End:
