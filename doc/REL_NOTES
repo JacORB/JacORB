@@ -43,6 +43,7 @@ This Release
          - Fix for UCS-2 codeset encoding.
          - Fix for RMI-IIOP Exception marshalling.
          - Fix for unnecessary duplicate in ServantDelegate.
+         - Fix for logging output (Bugzilla 937).
     - IDL Compiler
          - Add flag to turn off timestamps in generated code.
          - Fix for alias interface operations.
@@ -51,6 +52,7 @@ This Release
     - Misc
         - Move Ant dependency to IDL compiler.
         - Deploy a zip of the IDL files with the IDL compiler.
+        - Add Maven demo and documentation.
 
 3.1
 ===
