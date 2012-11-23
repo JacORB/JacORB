@@ -43,6 +43,7 @@ This Release
          - Fix for UCS-2 codeset encoding.
          - Fix for RMI-IIOP Exception marshalling.
          - Fix for unnecessary duplicate in ServantDelegate.
+         - Fix for logging output (Bugzilla 937).
     - IDL Compiler
          - Add flag to turn off timestamps in generated code.
          - Fix for alias interface operations.
