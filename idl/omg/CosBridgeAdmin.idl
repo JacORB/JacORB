@@ -130,11 +130,11 @@ module CosBridgeAdmin
 
 module BridgeTransactionMgmt
 {
-	   exception UnsupportedTransaction {};
-	   exception TransactionAlreadyActive {};
-	   exception TransactionActive {} ;
+           exception UnsupportedTransaction {};
+           exception TransactionAlreadyActive {};
+           exception TransactionActive {} ;
 
-	   interface TransactionManagement
+           interface TransactionManagement
    {
       void enable_transaction (in unsigned long events, in unsigned long timeout)
    raises (UnsupportedTransaction, TransactionAlreadyActive);
@@ -168,7 +168,7 @@ const string Retries = "Retries";
 // Retries takes on a value of type long as Notification Qos Parameter
 
 interface StructuredPushSupplierAck : CosNotifyComm::StructuredPushSupplier {
-	void acknowledge(in SequenceNumbers sequence_numbers);
+        void acknowledge(in SequenceNumbers sequence_numbers);
 };
 
 interface StructuredPullSupplierAck : CosNotifyComm::StructuredPullSupplier {
@@ -180,7 +180,7 @@ interface SequencePushSupplierAck : CosNotifyComm::SequencePushSupplier {
 };
 
 interface SequencePullSupplierAck : CosNotifyComm::SequencePullSupplier {
-   		void acknowledge(in SequenceNumbers sequence_numbers);
+                void acknowledge(in SequenceNumbers sequence_numbers);
 };
 };
 #endif
@@ -198,22 +198,22 @@ typedef sequence<long> SequenceNumbers;
 
 interface StructuredProxyPushSupplierAck :
        CosNotifyChannelAdmin::StructuredProxyPushSupplier {
-	void acknowledge(in SequenceNumbers sequence_numbers);
+        void acknowledge(in SequenceNumbers sequence_numbers);
 };
 
 interface StructuredProxyPullSupplierAck :
        CosNotifyChannelAdmin::StructuredProxyPullSupplier {
-	void acknowledge(in SequenceNumbers sequence_numbers);
+        void acknowledge(in SequenceNumbers sequence_numbers);
 };
 
 interface SequenceProxyPushSupplierAck :
-		CosNotifyChannelAdmin::SequenceProxyPushSupplier {
-	void acknowledge(in SequenceNumbers sequence_numbers);
+                CosNotifyChannelAdmin::SequenceProxyPushSupplier {
+        void acknowledge(in SequenceNumbers sequence_numbers);
 };
 
 interface SequenceProxyPullSupplierAck :
-		CosNotifyChannelAdmin::SequenceProxyPullSupplier {
-	void acknowledge(in SequenceNumbers sequence_numbers);
+                CosNotifyChannelAdmin::SequenceProxyPullSupplier {
+        void acknowledge(in SequenceNumbers sequence_numbers);
 };
 };
 #endif

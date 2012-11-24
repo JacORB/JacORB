@@ -44,8 +44,8 @@ module Security
     // extensible families for standard data types
 
     struct ExtensibleFamily {
-	unsigned short          family_definer;
-	unsigned short          family;
+        unsigned short          family_definer;
+        unsigned short          family;
     };
 
     // security association mechanism type
@@ -76,10 +76,10 @@ module Security
     const AssociationOptions CompositeDelegation = 512;
 
     struct SecurityMechanismData {
-	MechanismType                mechanism;
-	SecurityName                 security_name;
-	AssociationOptions           options_supported;
-	AssociationOptions           options_required;
+        MechanismType                mechanism;
+        SecurityName                 security_name;
+        AssociationOptions           options_supported;
+        AssociationOptions           options_required;
     };
 
     typedef sequence<SecurityMechanismData> SecurityMechanismDataList;
@@ -106,18 +106,18 @@ module Security
     const SecurityAttributeType              Capability = 8;
 
     struct AttributeType {
-	ExtensibleFamily             attribute_family;
-	SecurityAttributeType        attribute_type;
+        ExtensibleFamily             attribute_family;
+        SecurityAttributeType        attribute_type;
     };
 
     typedef sequence<AttributeType>                   AttributeTypeList;
 
     struct SecAttribute {
-	AttributeType            attribute_type;
-	Opaque defining_authority; 
-	Opaque value;
-	// the value of this attribute can be 
-	// interpreted only with knowledge of type
+        AttributeType            attribute_type;
+        Opaque defining_authority; 
+        Opaque value;
+        // the value of this attribute can be 
+        // interpreted only with knowledge of type
     };
 
     typedef sequence <SecAttribute> AttributeList;
@@ -125,18 +125,18 @@ module Security
     // Authentication return status
 
     enum AuthenticationStatus {
-	SecAuthSuccess,
-	SecAuthFailure,
-	SecAuthContinue,
-	SecAuthExpired
+        SecAuthSuccess,
+        SecAuthFailure,
+        SecAuthContinue,
+        SecAuthExpired
     };
 
     // Association return status
 
     enum AssociationStatus {
-	SecAssocSuccess,
-	SecAssocFailure,
-	SecAssocContinue
+        SecAssocSuccess,
+        SecAssocFailure,
+        SecAssocContinue
     };
 
     // Authentication method
@@ -147,39 +147,39 @@ module Security
     // Credential types which can be set as Current default
 
     enum CredentialType {
-	SecInvocationCredentials,
-	SecNRCredentials
+        SecInvocationCredentials,
+        SecNRCredentials
     };
 
     enum InvocationCredentialsType {
-	SecOwnCredentials,
-	SecReceivedCredentials
+        SecOwnCredentials,
+        SecReceivedCredentials
     };
 
     // Declarations related to Rights 
 
     struct Right {
-	ExtensibleFamily             rights_family;
-	string                       right;
+        ExtensibleFamily             rights_family;
+        string                       right;
     };
 
     typedef sequence <Right> RightsList;
 
     enum RightsCombinator {
-	SecAllRights,
-	SecAnyRight
+        SecAllRights,
+        SecAnyRight
     };
 
     // Delegation related
 
     enum DelegationState {
-	SecInitiator,
-	SecDelegate
+        SecInitiator,
+        SecDelegate
     };
 
     enum DelegationDirective {
-	Delegate,
-	NoDelegate
+        Delegate,
+        NoDelegate
     };
 
     // pick up from TimeBase
@@ -193,57 +193,57 @@ module Security
     // Security features available on credentials.
 
     enum SecurityFeature {
-	SecNoDelegation,
-	SecSimpleDelegation,
-	SecCompositeDelegation,
-	SecNoProtection,
-	SecIntegrity,
-	SecConfidentiality,
-	SecIntegrityAndConfidentiality,
-	SecDetectReplay,
-	SecDetectMisordering,
-	SecEstablishTrustInTarget,
-	SecEstablishTrustInClient
+        SecNoDelegation,
+        SecSimpleDelegation,
+        SecCompositeDelegation,
+        SecNoProtection,
+        SecIntegrity,
+        SecConfidentiality,
+        SecIntegrityAndConfidentiality,
+        SecDetectReplay,
+        SecDetectMisordering,
+        SecEstablishTrustInTarget,
+        SecEstablishTrustInClient
     };
 
     // Quality of protection which can be specified
     // for an object reference and used to protect messages
 
     enum QOP {
-	SecQOPNoProtection,
-	SecQOPIntegrity,
-	SecQOPConfidentiality,
-	SecQOPIntegrityAndConfidentiality
+        SecQOPNoProtection,
+        SecQOPIntegrity,
+        SecQOPConfidentiality,
+        SecQOPIntegrityAndConfidentiality
     };
 
     // Type of SecurityContext
 
     enum SecurityContextType {
-	SecClientSecurityContext,
-	SecServerSecurityContext
+        SecClientSecurityContext,
+        SecServerSecurityContext
     };
 
     // Operational State of a Security Context
 
     enum SecurityContextState {
-	SecContextInitialized,
-	SecContextContinued,
-	SecContextClientEstablished,
-	SecContextEstablished,
-	SecContextEstablishExpired,
-	SecContextExpired,
-	SecContextInvalid
+        SecContextInitialized,
+        SecContextContinued,
+        SecContextClientEstablished,
+        SecContextEstablished,
+        SecContextEstablishExpired,
+        SecContextExpired,
+        SecContextInvalid
     };
 
 
     // For use with SecurityReplaceable
 
     struct OpaqueBuffer {
-	Opaque buffer;
-	unsigned long                startpos; 
-	unsigned long                endpos;
-	// startpos <= endpos
-	// OpaqueBuffer is said to be empty if startpos == endpos
+        Opaque buffer;
+        unsigned long                startpos; 
+        unsigned long                endpos;
+        // startpos <= endpos
+        // OpaqueBuffer is said to be empty if startpos == endpos
     };
 
 
@@ -252,25 +252,25 @@ module Security
     // administered are the "required" or "supported" set
 
     enum RequiresSupports {
-	SecRequires,
-	SecSupports
+        SecRequires,
+        SecSupports
     };
 
     // Direction of communication for which
     // secure invocation policy applies
 
     enum CommunicationDirection { 
-	SecDirectionBoth,
-	SecDirectionRequest,
-	SecDirectionReply
+        SecDirectionBoth,
+        SecDirectionRequest,
+        SecDirectionReply
     };
 
 
     // AssociationOptions-Direction pair
 
     struct OptionsDirectionPair {
-	AssociationOptions       options;
-	CommunicationDirection   direction;
+        AssociationOptions       options;
+        CommunicationDirection   direction;
     };
 
     typedef sequence <OptionsDirectionPair> OptionsDirectionPairList;
@@ -278,16 +278,16 @@ module Security
     // Delegation mode which can be administered
 
     enum DelegationMode {
-	SecDelModeNoDelegation,                    // i.e. use own credentials
-	SecDelModeSimpleDelegation,   // delegate received credentials 
-	SecDelModeCompositeDelegation  // delegate both; 
+        SecDelModeNoDelegation,                    // i.e. use own credentials
+        SecDelModeSimpleDelegation,   // delegate received credentials 
+        SecDelModeCompositeDelegation  // delegate both; 
     };
 
     // Association options supported by a given mech type
 
     struct MechandOptions {
-	MechanismType            mechanism_type;
-	AssociationOptions       options_supported;
+        MechanismType            mechanism_type;
+        AssociationOptions       options_supported;
     };
 
     typedef sequence <MechandOptions>                         MechandOptionsList;
@@ -295,8 +295,8 @@ module Security
     // Attribute of the SecurityLevel2::EstablishTrustPolicy
 
     struct EstablishTrust {
-	boolean trust_in_client;
-	boolean trust_in_target;
+        boolean trust_in_client;
+        boolean trust_in_target;
     };
 
     // Audit 
@@ -318,20 +318,20 @@ module Security
 
 
     enum DayOfTheWeek {
-	Monday, Tuesday, Wednesday, Thursday, Friday, Saturday, Sunday};
+        Monday, Tuesday, Wednesday, Thursday, Friday, Saturday, Sunday};
 
     enum AuditCombinator { 
-	SecAllSelectors, 
-	SecAnySelector 
+        SecAllSelectors, 
+        SecAnySelector 
     }; 
 
     struct AuditEventType {
-	ExtensibleFamily            event_family;
-	EventType                   event_type;
+        ExtensibleFamily            event_family;
+        EventType                   event_type;
     };
     typedef 
-	sequence 
-	<AuditEventType> AuditEventTypeList;
+        sequence 
+        <AuditEventType> AuditEventTypeList;
 
     typedef unsigned long                                   SelectorType;
 
@@ -354,8 +354,8 @@ module Security
     // DayOfWeek: DayOfTheWeek
 
     struct SelectorValue {
-	SelectorType           selector;
-	any                    value;
+        SelectorType           selector;
+        any                    value;
     };
     typedef sequence <SelectorValue>  SelectorValueList;
 

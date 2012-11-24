@@ -4,7 +4,7 @@
 #ifndef _IIOP_IDL_
 #define _IIOP_IDL_
 
-#ifdef _PRE_3_0_COMPILER_
+#ifdef _PRE_3_0_COMPILER_ 
 #pragma prefix "omg.org"
 #include <IOP.idl>
 #else
@@ -13,7 +13,7 @@ import ::IOP;
 
 module IIOP {       // IDL extended for version 1.1 and 1.2
 
-#ifndef _PRE_3_0_COMPILER_
+#ifndef _PRE_3_0_COMPILER_ 
     typeprefix IIOP "omg.org";
 #endif // _PRE_3_0_COMPILER_
 
@@ -25,16 +25,16 @@ module IIOP {       // IDL extended for version 1.1 and 1.2
         Version             iiop_version;
         string              host;
         unsigned short      port;
-        sequence <octet>    object_key;
+        IOP::ObjectKey      object_key;
     };
     struct ProfileBody_1_1 {// also used for 1.2
         Version             iiop_version;
         string              host;
         unsigned short      port;
-        sequence <octet>    object_key;
+        IOP::ObjectKey      object_key;
         // Added in 1.1 unchanged for 1.2
-        sequence <IOP::TaggedComponent> components;
-    };
+        IOP::TaggedComponentSeq components; 
+    };              
 
     // BiDirectional IIOP
 
@@ -48,3 +48,4 @@ module IIOP {       // IDL extended for version 1.1 and 1.2
     };
 };
 #endif // _IIOP_IDL_
+

@@ -158,13 +158,6 @@ public class SelectorManager extends Thread
                 // cleanup expired requests & compute next sleep unit
                 long sleepTime = cleanupExpiredRequests ();
 
-                if (loggerDebugEnabled)
-                {
-                    logger.debug ("Selector will wait for " +
-                                (sleepTime == Long.MAX_VALUE ? 0 : sleepTime) +
-                                  " millis.");
-                }
-
                 try
                 {
                     selector.select (sleepTime);

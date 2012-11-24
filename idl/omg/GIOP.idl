@@ -20,6 +20,11 @@ module GIOP {                   // IDL extended for version 1.1 and 1.2
     typeprefix GIOP "omg.org";
 #endif // _PRE_3_0_COMPILER_
 
+#ifndef MAX_GIOP_MINOR_VERSION
+#define MAX_GIOP_MINOR_VERSION 4
+#endif
+
+
     struct Version {
         octet           major;
         octet           minor;
@@ -29,13 +34,19 @@ module GIOP {                   // IDL extended for version 1.1 and 1.2
     //       be available for V1.0 and V1.1
     typedef sequence<octet> Principal;
 
+// JacORB's lexer does not not support #if x == y
+// #if MAX_GIOP_MINOR_VERSION == 0
 #ifndef GIOP_1_1
+
+
     // GIOP 1.0
     enum MsgType_1_0{                       // rename from MsgType
         Request,            Reply,          CancelRequest,
         LocateRequest,      LocateReply,
         CloseConnection,    MessageError
-        };
+    };
+    typedef MsgType_1_0 MsgType;
+
 #else
     // GIOP 1.1
     enum MsgType_1_1{
@@ -44,14 +55,16 @@ module GIOP {                   // IDL extended for version 1.1 and 1.2
         CloseConnection,    MessageError,
         Fragment            // GIOP 1.1 addition
     };
+
     typedef MsgType_1_1 MsgType_1_2;
     typedef MsgType_1_1 MsgType_1_3;
-#endif // GIOP_1_1
-
+    typedef MsgType_1_1 MsgType;
+#endif
 
     // GIOP 1.0
+    typedef char Magicn[4];
     struct MessageHeader_1_0 {// Renamed from MessageHeader
-        char                        magic [4];
+        Magicn                      magic;
         Version                     GIOP_version;
         boolean                     byte_order;
         octet                       message_type;
@@ -60,7 +73,7 @@ module GIOP {                   // IDL extended for version 1.1 and 1.2
 
     // GIOP 1.1
     struct MessageHeader_1_1 {
-        char                        magic [4];
+        Magicn                        magic;
         Version                     GIOP_version;
         octet                       flags;      // GIOP 1.1 change
         octet                       message_type;
@@ -78,18 +91,19 @@ module GIOP {                   // IDL extended for version 1.1 and 1.2
         IOP::ServiceContextList     service_context;
         unsigned long               request_id;
         boolean                     response_expected;
-        sequence <octet>            object_key;
+        IOP::ObjectKey              object_key;
         string                      operation;
         Principal                   requesting_principal;
     };
 
     // GIOP 1.1
+    typedef octet RequestReserved[3];
     struct RequestHeader_1_1 {
         IOP::ServiceContextList     service_context;
         unsigned long               request_id;
         boolean                     response_expected;
-        octet                       reserved[3]; // Added in GIOP 1.1
-        sequence <octet>            object_key;
+        RequestReserved             reserved; // Added in GIOP 1.1
+        IOP::ObjectKey              object_key;
         string                      operation;
         Principal                   requesting_principal;
     };
@@ -104,14 +118,14 @@ module GIOP {                   // IDL extended for version 1.1 and 1.2
         IOP::IOR                    ior;
     };
     union TargetAddress switch (AddressingDisposition) {
-        case KeyAddr:               sequence <octet>    object_key;
+        case KeyAddr:               IOP::ObjectKey      object_key;
         case ProfileAddr:           IOP::TaggedProfile  profile;
         case ReferenceAddr:         IORAddressingInfo   ior;
     };
     struct RequestHeader_1_2 {
         unsigned long               request_id;
         octet                       response_flags;
-        octet                       reserved[3];
+        RequestReserved             reserved;
         TargetAddress               target;
         string                      operation;
         // Principal not in GIOP 1.2
@@ -121,7 +135,10 @@ module GIOP {                   // IDL extended for version 1.1 and 1.2
     // GIOP 1.3
     typedef RequestHeader_1_2 RequestHeader_1_3;
 
+// JacORB's lexer does not not support #if x == y
+// #if MAX_GIOP_MINOR_VERSION < 2
 #ifndef GIOP_1_2
+
     // GIOP 1.0 and 1.1
     enum ReplyStatusType_1_0 {// Renamed from ReplyStatusType
         NO_EXCEPTION,
@@ -140,7 +157,12 @@ module GIOP {                   // IDL extended for version 1.1 and 1.2
     // GIOP 1.1
     typedef ReplyHeader_1_0 ReplyHeader_1_1;
     // Same Header contents for 1.0 and 1.1
+    typedef ReplyStatusType_1_0 ReplyStatusType;
 #else
+
+// JacORB's lexer does not not support #if x == y
+// #if MAX_GIOP_MINOR_VERSION >= 2
+
     // GIOP 1.2
     enum ReplyStatusType_1_2 {
         NO_EXCEPTION,
@@ -150,6 +172,7 @@ module GIOP {                   // IDL extended for version 1.1 and 1.2
         LOCATION_FORWARD_PERM,              // new value for 1.2
         NEEDS_ADDRESSING_MODE               // new value for 1.2
     };
+    typedef ReplyStatusType_1_2 ReplyStatusType;
 
     struct ReplyHeader_1_2 {
         unsigned long               request_id;
@@ -159,8 +182,7 @@ module GIOP {                   // IDL extended for version 1.1 and 1.2
 
     // GIOP 1.3
     typedef ReplyHeader_1_2 ReplyHeader_1_3;
-#endif // GIOP_1_2
-
+#endif
     struct SystemExceptionReplyBody {
         string                      exception_id;
         unsigned long               minor_code_value;
@@ -174,7 +196,7 @@ module GIOP {                   // IDL extended for version 1.1 and 1.2
     // GIOP 1.0
     struct LocateRequestHeader_1_0 {// Renamed LocationRequestHeader
         unsigned long               request_id;
-        sequence <octet>            object_key;
+        IOP::ObjectKey              object_key;
     };
 
     // GIOP 1.1
@@ -183,13 +205,15 @@ module GIOP {                   // IDL extended for version 1.1 and 1.2
 
     // GIOP 1.2
     struct LocateRequestHeader_1_2 {
-            unsigned long           request_id;
-            TargetAddress           target;
+        unsigned long           request_id;
+        TargetAddress           target;
     };
 
     // GIOP 1.3
     typedef LocateRequestHeader_1_2 LocateRequestHeader_1_3;
 
+// JacORB's lexer does not not support #if x == y
+// #if MAX_GIOP_MINOR_VERSION < 2
 #ifndef GIOP_1_2
     // GIOP 1.0 and 1.1
     enum LocateStatusType_1_0 {// Renamed from LocateStatusType
@@ -225,7 +249,8 @@ module GIOP {                   // IDL extended for version 1.1 and 1.2
 
     // GIOP 1.3
     typedef LocateReplyHeader_1_2 LocateReplyHeader_1_3;
-#endif // GIOP_1_2
+
+#endif // MAX_GIOP_VERSION_NUMBER
 
     // GIOP 1.2
     struct FragmentHeader_1_2 {

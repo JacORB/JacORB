@@ -112,27 +112,19 @@ module CORBA {
 
 
 #ifdef JACORB
-   typedef unsigned short ServiceOption;
-   typedef unsigned short ServiceDetailType;
+   // Include this for various extra missing definitions (e.g. ServiceOption)
+   #include <CORBA_ORB.idl>
 
    exception UserException {};
-   exception WrongTransaction {};
+   exception UnknownUserException {
+       any except;
+   };
 
    // Taken from 04-03-12 CORBA 3.0.3
    valuetype StringValue string;
    valuetype WStringValue wstring;
-
-   // This is the original PIDL from the Java language mapping
-   // but we do not use it! Instead...
-   // pseudo interface Principal
-   //   {
-   //   attribute sequence<octet> name;
-   //   };
-   // ... we use this little hack. It saves us fiddling with
-   //   the generated code that uses Principals.
-   typedef sequence<octet> Principal;
-
 #endif
+
 };
 
 #endif // _ORB_IDL_

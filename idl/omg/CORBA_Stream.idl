@@ -95,7 +95,7 @@
                                      in AnySeq              seq,
                                      in unsigned long       offset,
                                      in unsigned long       length
-                                    ) raises (BadFixedValue);
+                                    ) raises (BadFixedValue);   
     };
 
     abstract valuetype DataInputStream {
@@ -170,7 +170,7 @@
                                     inout FloatSeq      seq,
                                     in unsigned long    offset,
                                     in unsigned long    length);
-        void read_double_array     (
+        void read_double_array     (     
                                     inout DoubleSeq     seq,
                                     in unsigned long    offset,
                                     in unsigned long    length);

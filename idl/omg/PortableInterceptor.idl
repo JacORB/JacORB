@@ -49,6 +49,19 @@ module PortableInterceptor {
 
    exception InvalidSlot {};
 
+    typedef short ProcessingMode;
+      const ProcessingMode LOCAL_AND_REMOTE = 0;
+      const ProcessingMode REMOTE_ONLY      = 1;
+      const ProcessingMode LOCAL_ONLY       = 2;
+
+    // ProcessingMode Policy (default = LOCAL_AND_REMOTE)
+    const CORBA::PolicyType PROCESSING_MODE_POLICY_TYPE = 61; 
+      // assigned by OMG;
+
+    local interface ProcessingModePolicy : CORBA::Policy {
+      readonly attribute ProcessingMode processing_mode;
+    }; 
+
    local interface Current : CORBA::Current {
       any get_slot (in SlotId id) raises (InvalidSlot);
       void set_slot (in SlotId id, in any data) raises (InvalidSlot);
@@ -222,6 +235,21 @@ module PortableInterceptor {
          in CORBA::PolicyType type,
          in PolicyFactory policy_factory);
    };
+
+    local interface ORBInitInfo_3_1 : ORBInitInfo {
+        void add_client_request_interceptor_with_policy(
+            in ClientRequestInterceptor interceptor,
+            in CORBA::PolicyList policies)
+            raises (DuplicateName, CORBA::PolicyError);
+        void add_server_request_interceptor_with_policy(
+            in ServerRequestInterceptor interceptor,
+            in CORBA::PolicyList policies)
+            raises (DuplicateName, CORBA::PolicyError);
+        void add_ior_interceptor_with_policy(
+            in IORInterceptor interceptor,
+            in CORBA::PolicyList policies)
+            raises (DuplicateName, CORBA::PolicyError);
+    }; 
 
    local interface ORBInitializer {
       void pre_init (in ORBInitInfo info);

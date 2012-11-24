@@ -168,9 +168,10 @@ module Messaging {
 
    // Profile components through which policy values are expressed in IORs
 
+    typedef CORBA::OctetSeq PolicyData;
    struct PolicyValue {
       CORBA::PolicyType ptype;
-      sequence<octet> pvalue;
+        PolicyData pvalue;
    };
 
    typedef sequence<PolicyValue> PolicyValueSeq;
@@ -194,7 +195,7 @@ module Messaging {
          raises (UserExceptionBase);
       private boolean is_system_exception;
       private boolean byte_order;
-      private sequence<octet> marshaled_exception;
+      private MarshaledException marshaled_exception;
    };
 #endif
 
@@ -203,13 +204,16 @@ module Messaging {
 
    // Generic Poller Valuetype
 
-   valuetype Poller : CORBA::Pollable {
+    abstract valuetype Poller : CORBA::Pollable {
+#ifndef _PRE_3_0_COMPILER_
+      typeid ::Messaging::Poller "IDL:omg.org/Messaging/Poller:3.1";
+#else
+#pragma version Messaging::Poller 3.1
+#endif _PRE_3_0_COMPILER_
       readonly attribute Object operation_target;
       readonly attribute string operation_name;
       attribute ReplyHandler associated_handler;
       readonly attribute boolean is_from_poller;
-      private Object target;
-      private string op_name;
    };
 
 }; // module Messaging
