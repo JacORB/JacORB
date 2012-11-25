@@ -22,44 +22,25 @@
 #ifndef ECHOI_H_
 #define ECHOI_H_
 
-#include "EchoS.h"
+#include "../../idl/EchoS.h"
 
 #if !defined (ACE_LACKS_PRAGMA_ONCE)
 #pragma once
 #endif /* ACE_LACKS_PRAGMA_ONCE */
 
 //Class GoodDay_i
-class  GoodDay_i : public virtual POA_GoodDay
+class  GoodDay_i : public virtual POA_test::interop::wchar_tao_interop::GoodDay
 {
 public:
-  //Constructor 
+  //Constructor
   GoodDay_i (void);
-  
-  //Destructor 
+
+  //Destructor
   virtual ~GoodDay_i (void);
-  
-virtual char * hello_simple (
-    
-  )
-  ACE_THROW_SPEC ((
-    CORBA::SystemException
-  ));
 
-virtual CORBA::WChar * hello_wide (
-    const CORBA::WChar * msg
-  )
-  ACE_THROW_SPEC ((
-    CORBA::SystemException
-  ));
-
-virtual void test (
-    
-  )
-  ACE_THROW_SPEC ((
-    CORBA::SystemException,
-    GoodDay::WStringException
-  ));
-
+  virtual char * hello_simple (void);
+  virtual CORBA::WChar * hello_wide (const CORBA::WChar * msg );
+  virtual void test (void);
 };
 
 
