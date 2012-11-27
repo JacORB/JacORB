@@ -1,3 +1,8 @@
+#!/bin/sh
+
+# @version $Id$
+# don't edit this file. edit the template instead
+
 resolve()
 {
     CMD="$1"
@@ -26,3 +31,11 @@ _SELF=`resolve "$_SELF"`
 _BIN_DIR_RAW=`dirname "$_SELF"`
 _BIN_DIR_NORM=`cd "$_BIN_DIR_RAW" > /dev/null 2>&1; pwd`
 RESOLVED_JACORB_HOME=`dirname "$_BIN_DIR_NORM"`
+
+
+RESOLVED_JACO_CMD=${RESOLVED_JACORB_HOME}/bin/jaco
+
+
+JACO_CMD=${RESOLVED_JACO_CMD}
+
+$JACO_CMD org.jacorb.util.BuildVersion

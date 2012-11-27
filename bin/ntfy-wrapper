@@ -40,4 +40,4 @@ PIDDIR="."
 
 # source the common wrapper script
 
-.  @JACORB_HOME@/bin/jacorb-wrapper-common
+.  /home/rnc/Work/JacORB/JacORB/bin/jacorb-wrapper-common
