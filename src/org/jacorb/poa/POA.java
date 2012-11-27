@@ -1451,10 +1451,10 @@ public class POA
     }
 
     /**
-     *  returns  true if  the  current thread  is  in  the context  of
-     * executing a request from some  POA belonging to the same ORB as
-     * this POA */
-
+     * returns true if  the  current thread  is  in  the context  of
+     * executing a request from some POA belonging to the same ORB as
+     * this POA
+     */
     private boolean isInInvocationContext()
     {
         try
@@ -1476,7 +1476,6 @@ public class POA
      * if the specified servant is null, it returns true if the current
      * thread is in an invocation context from this POA.
      */
-
     private boolean isInInvocationContext(Servant servant)
     {
         try
