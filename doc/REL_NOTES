@@ -47,6 +47,8 @@ This Release
          - Improve fix for associating Servant with an ORB (Bug 923).
          - Only call removeContext if addContext has been called (Bug 925).
          - Fix for multiple removeLocalRequest calls.
+    - Notification
+         - Fix for ProxyPullSupplier (Bug 804)
     - IDL Compiler
          - Add flag to turn off timestamps in generated code.
          - Fix for alias interface operations.
