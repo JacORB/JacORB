@@ -65,6 +65,7 @@ public class ServantDelegate
     final public org.omg.CORBA.Object this_object (org.omg.PortableServer.Servant self)
     {
         check();
+
         try
         {
             poa = poa(self);
@@ -73,7 +74,6 @@ public class ServantDelegate
         {
             // Use servants default POA. Operation may be re-implemented
             // by servant implementation.
-
             poa = self._default_POA ();
         }
 
