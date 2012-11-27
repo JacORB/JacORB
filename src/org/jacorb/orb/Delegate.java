@@ -2598,20 +2598,14 @@ public final class Delegate
                     }
                     catch( WrongAdapter e )
                     {
-                        //  exit on an error condition, but need to clean up first (added to fix bug #400)
-                        poa.removeLocalRequest();
                         throw new OBJ_ADAPTER( "WrongAdapter caught when converting servant to reference. " + e );
                     }
                     catch( WrongPolicy e )
                     {
-                        //  exit on an error condition, but need to clean up first (added to fix bug #400)
-                        poa.removeLocalRequest();
                         throw new OBJ_ADAPTER("WrongPolicy caught" + e );
                     }
                     catch( ObjectNotActive e )
                     {
-                        //  exit on an error condition, but need to clean up first (added to fix bug #400)
-                        poa.removeLocalRequest();
                         throw new org.omg.CORBA.OBJECT_NOT_EXIST();
                     }
                 }
@@ -2640,23 +2634,7 @@ public final class Delegate
 
                         invokedOperation = operation;
 
-                        boolean ok = false;
-
-                        try
-                        {
-                            servantObject.servant = sl.preinvoke( oid, poa, operation, cookie );
-                            ok = true;
-                        }
-                        finally
-                        {
-                            if (!ok)
-                            {
-                                // error condition: need to clean up before
-                                // propagating the exception (added to fix
-                                // bug #400)
-                                poa.removeLocalRequest();
-                            }
-                        }
+                        servantObject.servant = sl.preinvoke( oid, poa, operation, cookie );
                     }
                     ((org.omg.CORBA_2_3.ORB)orb).set_delegate((org.omg.PortableServer.Servant)servantObject.servant);
                 }
@@ -2667,8 +2645,6 @@ public final class Delegate
             }
             catch( WrongPolicy e )
             {
-                //  exit on an error condition, but need to clean up first (added to fix bug #400)
-                poa.removeLocalRequest();
                 throw new OBJ_ADAPTER( "WrongPolicy caught" + e );
             }
             catch( org.omg.PortableServer.ForwardRequest e )
