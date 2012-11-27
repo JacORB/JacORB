@@ -1,8 +1,7 @@
 #!/bin/sh
-
-# decodes and prints the components of a stringified IOR
-# @version $Id$
-# don't edit this file. edit the template instead
+#
+# Decodes and prints the components of a stringified IOR
+#
 
 resolve()
 {

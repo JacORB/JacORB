@@ -1,11 +1,4 @@
 #!/bin/sh
-#
-# JACO - JacORB cmdline
-# @author Christoph Becker (PrismTech)
-# @author Alexander Fetke (PrismTech)
-# @author Alphonse Bendt (PrismTech)
-# @version $Id$
-# don't edit this file. edit the template instead
 
 resolve()
 {
