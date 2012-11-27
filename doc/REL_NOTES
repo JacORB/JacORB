@@ -49,6 +49,7 @@ This Release
          - Fix for multiple removeLocalRequest calls.
     - Notification
          - Fix for ProxyPullSupplier (Bug 804)
+         - Fix for disorderd events (Bug 716)
     - IDL Compiler
          - Add flag to turn off timestamps in generated code.
          - Fix for alias interface operations.
