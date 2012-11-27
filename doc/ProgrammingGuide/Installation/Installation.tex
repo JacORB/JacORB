@@ -4,14 +4,12 @@ an overview of the package contents.
 
 \section{Downloading JacORB}
 
-
-JacORB can be downloaded as a source or binary distribution in a
-g-zipped tar--archive or zip--archive format from the JacORB home
-page at \href{http://www.jacorb.org}{http://www.jacorb.org}.
-
-To install JacORB, first unzip and untar (or simply unzip) the archive
-somewhere.  This will result  in a new directory {\tt \JacORBDir}.
-After this follow the instructions in {\tt \JacORBDir/doc/INSTALL}.
+JacORB can be downloaded as a source or binary distribution in a g-zipped
+tar--archive or zip--archive format from the JacORB home page at
+\href{http://www.jacorb.org}{http://www.jacorb.org}. It is also available from
+Maven Central (See \ref{ch:mvn}). To install JacORB, first unzip and untar (or
+simply unzip) the archive somewhere.  This will result in a new directory {\tt
+\JacORBDir}.
 
 \section{Installation}
 \label{Sec_installation}
@@ -21,23 +19,22 @@ After this follow the instructions in {\tt \JacORBDir/doc/INSTALL}.
 JacORB requires JDK 1.6 or above properly installed on your machine.  To build
 JacORB (and compile the examples) you need to have the XML--based make tool
 ``Ant'' installed on your machine (version 1.7.1 or greater).  Ant can be downloaded
-from \href{http://jakarta.apache.org/ant}{http://jakarta.apache.org/ant}. All make
+from \href{http://ant.apache.org}{http://ant.apache.org}. All make
 files ({\tt build.xml}) are written for this tool.
 
-To rebuild JacORB completely, just type {\tt ant} in the installation directory. Optionally,
-you might want to do a {\tt ant realclean} first. It might be neccessary to set the following
-environment variable prior to invoking Ant:
-\small{
-\begin{verbatim}
-   export ANT_OPTS="-Xmx256m"
-\end{verbatim}
-}
+\subsection{Procedure}
+\begin{itemize}
+\item No further steps are required if using the binary download of JacORB.
+\item To configure a jacorb.properties file (using the etc/jacorb\_properties.template) see \ref{ch:configuration}.
+\item If using a source download, to rebuild JacORB completely see~\ref{sec:building}.
+\end{itemize}
+
 For SSL, you need an implementation of the SSL protocol. We currently support
 Oracle's JSSE Reference implementation included in the JDK.
 
 \subsection{Libraries}
 Once JacORB is installed, the bin directory should contain the scripts used to assist in
-running JacORB applications (see \ref{runningExampleApp}) and \ref{appRunningEndorsed}).
+running JacORB applications (see \ref{runningExampleApp} and \ref{appRunningEndorsed}).
 The lib directory contains the JacORB libraries and third party libraries required by the ORB
 and services (See below). JacORB libraries have been split as follows:
 
@@ -50,11 +47,55 @@ and services (See below). JacORB libraries have been split as follows:
 \subsection{Dependencies}
 
 JacORB depends upon the following third party software
-\begin{enumerate}
+\begin{itemize}
 \item Simple Logging Facade For Java (SLF4J Version 1.6.4)
-\end{enumerate}
+\end{itemize}
 
 Note that the services may depend upon further third party libraries.
+
+\subsection{Building JacORB}
+\label{sec:building}
+
+Ensure that Ant is installed on your system and that you are starting with a
+clean environment. The easiest way to start is with your CLASSPATH
+unset. Windows users should ensure that JacORB is installed in a path that does
+not contain spaces. Errors will be encountered building the Notification Service
+otherwise.
+
+To build JacORB type
+
+\cmdline{ant all}
+
+in the installation directory. Optionally, you might want to first run
+
+\cmdline {ant realclean}.
+
+By default debugging is turned on when building JacORB and set to {\tt lines,source,vars}
+\paragraph{Notes:}
+The build process may abort, claiming that javac does not have enough
+memory. This can happen when trying to compile a large number of files at one
+time. Try setting the variable
+
+\cmdline{ANT\_OPTS=-Xmx500M}
+
+\subsubsection{Building JacORB Demos (Optional)}
+To build the JacORB demos within the demo directory a build.xml file
+has been supplied. Similar to above, simply call "ant" in the demo directory.
+The default Ant target will build all the demos. The classes will be placed
+in {\tt <installdir>/classes}
+
+\subsubsection{Building JBoss Service for the Notification Service (Optional)}
+In order to build the JBoss service (jboss-cosnotification.sar in the lib
+directory), the paths to JBOSS\_HOME for the
+\href{http://www.jboss.org/jbossas}{JBoss Application Server} and MX4J\_HOME
+for the \href{http://mx4j.sourceforge.net}{MX4J implementation}
+ of the Java Management Extensions (JMX) have to be specified for the ant build
+process. There are two possible alternatives for this task.
+\begin{itemize}
+\item Set the paths in the environment variables named JBOSS\_HOME and MX4J\_HOME respectively.
+\item Call ant with the additional parameters {\tt -Djboss.home=<path-to-jboss-installation> -Dmx4j.home=<path-to-mx4j-installation>}
+\end{itemize}
+
 
 \section{Versioning}
 There are a variety of ways of determining the version of JacORB that is being used.

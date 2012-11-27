@@ -1,12 +1,3 @@
-bin/jaco
-bin/jaco.bat
-bin/idl
-bin/idl.bat
-bin/dior
-bin/version
-bin/ns-wrapper
-bin/ntfy-wrapper
-
 doc/ProgrammingGuide/ProgrammingGuide.pdf
 
 lib/jacorb.jar

@@ -56,6 +56,8 @@ This Release
         - Move Ant dependency to IDL compiler.
         - Deploy a zip of the IDL files with the IDL compiler.
         - Add Maven demo and documentation.
+        - Remove the neccessity to generate the bin scripts.
+        - Improve documentation.
 
 3.1
 ===
