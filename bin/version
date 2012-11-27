@@ -1,8 +1,5 @@
 #!/bin/sh
 
-# @version $Id$
-# don't edit this file. edit the template instead
-
 resolve()
 {
     CMD="$1"
