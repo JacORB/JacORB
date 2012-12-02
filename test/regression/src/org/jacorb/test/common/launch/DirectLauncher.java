@@ -48,7 +48,7 @@ public class DirectLauncher extends AbstractLauncher
 {
     private static boolean assertsEnabled;
 
-    static 
+    static
     {
         assertsEnabled = false;
         assert assertsEnabled = true; // Intentional side effect!!!
@@ -151,7 +151,10 @@ public class DirectLauncher extends AbstractLauncher
 
         if (props != null)
         {
-            cmdList.add ("-Xmx" + getMaxHeapSize(props));
+            if (! "".equals (getMaxHeapSize(props)))
+            {
+                cmdList.add ("-Xmx" + getMaxHeapSize(props));
+            }
             cmdList.addAll (propsToArgList(props));
         }
 
@@ -186,9 +189,9 @@ public class DirectLauncher extends AbstractLauncher
 
     private String getMaxHeapSize(Properties props)
     {
-        return getPropertyWithDefault(props, "jacorb.test.maxheapsize", "64m");
+        return getPropertyWithDefault(props, "jacorb.test.maxheapsize", "");
     }
-    
+
     public String getLauncherDetails(String prefix)
     {
         try
