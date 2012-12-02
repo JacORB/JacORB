@@ -739,6 +739,10 @@ public class CDROutputStream
 
     public final void write_any(final org.omg.CORBA.Any value)
     {
+        if( value == null )
+        {
+            throw new MARSHAL("Cannot marshall null value.");
+        }
         write_TypeCode( value.type() );
         value.write_value( this ) ;
     }
