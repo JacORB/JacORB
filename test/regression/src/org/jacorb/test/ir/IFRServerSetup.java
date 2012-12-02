@@ -79,6 +79,10 @@ public class IFRServerSetup extends TestSetup
         clientServerSetup = new ClientServerSetup(null, IRServerRunner.class.getName(), "ignored", clientProps, serverProps);
 
         clientServerSetup.setUp();
+
+        System.out.println ("Waiting for IFR to start...");
+        Thread.sleep (10000);
+        System.out.println ("Done...");
     }
 
     public void tearDown() throws Exception
