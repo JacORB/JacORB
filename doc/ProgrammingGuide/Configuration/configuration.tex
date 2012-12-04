@@ -342,7 +342,7 @@ JacORB will (if compaction is enabled) always invoke \emph{get\_compacted\_typec
 Note: it's not necessary to compare TypeCode's using \emph{equal}. The method \emph{equivalent} does a less strict comparison
 that omits the optional information.
 
-\subsection{Implname and CORBA Objects}
+\subsection{CORBA Object Keys}
 \label{implname}
 A JacORB object key consists of {\tt <impl name>/<poa name>/<object oid>}. The lifespan of CORBA objects are defined by the POA policy LifespanPolicyValue.
 
@@ -887,7 +887,7 @@ stub was garbage collected. In effect it caused the Delegate to unregister
  itself from the underlying GIOPConnection and if there were no other
 Delegates using that connection, it was closed and disposed of altogether.
 
-However, as this has performance and scalability issues the finalize was
+However, as this had performance and scalability issues the finalize was
 removed. This moves the responsiblity to the developer whom is now responsible
 for calling the CORBA.\_release method themselves.
 
