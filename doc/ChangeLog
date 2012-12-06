@@ -1,3 +1,405 @@
+commit d51a4837661a80f4005e35dfcfab0c55686dd12d
+Author: Nick Cross <jacorb@goots.org>
+Date:   Thu Dec 6 23:18:09 2012 +0000
+
+Update version
+
+M	doc/ProgrammingGuide/ProgrammingGuide.tex
+M	src/org/jacorb/util/Version.java
+
+commit a9dcb323cc44bffcc466aa5414bde37f31bbc221
+Author: Nick Cross <jacorb@goots.org>
+Date:   Thu Dec 6 16:01:10 2012 +0000
+
+Update REL_NOTES
+
+M	doc/REL_NOTES
+
+commit 36334e602d739c0bcc54c22144086b46a6bd47b6
+Author: Nick Cross <jacorb@goots.org>
+Date:   Wed Dec 5 16:00:54 2012 +0000
+
+Move some logging to debug level
+
+M	src/org/jacorb/orb/Delegate.java
+
+commit 5c5d2b6523cf2a38f62f3de9531a6a7a16843cd4
+Author: Nick Cross <jacorb@goots.org>
+Date:   Wed Dec 5 09:01:50 2012 +0000
+
+Update GPG key
+
+M	pom.xml
+
+commit 4ef97839778e12dda29bc62f7a148e62052eb607
+Author: Nick Cross <jacorb@goots.org>
+Date:   Tue Dec 4 22:35:04 2012 +0000
+
+Fixes for policy_override doc
+
+M	doc/ProgrammingGuide/Configuration/configuration.tex
+M	doc/ProgrammingGuide/ETF/etf.tex
+M	doc/ProgrammingGuide/QoS/qos.tex
+
+commit 4ec114e28efceebaf9fbfb246f5bf74c91d14aa2
+Author: Nick Cross <jacorb@goots.org>
+Date:   Sun Dec 2 22:31:43 2012 +0000
+
+Remove unused old scripts
+
+D	bin/ks
+D	bin/ks.bat
+
+commit 9d74a9d9ce832c35620d1bbbb286889b455cadc1
+Author: Nick Cross <jacorb@goots.org>
+Date:   Sun Dec 2 14:54:06 2012 +0000
+
+Check for null param in write_any
+
+M	src/org/jacorb/orb/CDROutputStream.java
+
+commit 3567ac1b22e93c6d77301f596f0a7682091ade2d
+Author: Nick Cross <jacorb@goots.org>
+Date:   Tue Nov 27 22:22:02 2012 +0000
+
+Fix for disorded events
+
+M	doc/REL_NOTES
+M	src/org/jacorb/notification/queue/EventQueueFactory.java
+
+commit 9e6a8b23bdbe19de2010c6fccbd4072dcd92f4d7
+Author: Nick Cross <jacorb@goots.org>
+Date:   Tue Nov 27 22:18:21 2012 +0000
+
+Fix for ProxyPullSupplier
+
+M	doc/REL_NOTES
+M	src/org/jacorb/notification/servant/ECProxyPullSupplierImpl.java
+
+commit 9ec048936ed31b95402e500c7d8d157b62b8bb7d
+Author: Nick Cross <jacorb@goots.org>
+Date:   Tue Nov 27 17:14:29 2012 +0000
+
+Further fixes and tidy to bin scripts
+
+M	bin/dior
+M	bin/idl
+M	bin/jaco
+M	bin/ns-wrapper
+M	bin/ntfy-wrapper
+M	bin/version
+
+commit eb72c42d41c5bd35a0de9c91d941d420be2f8a15
+Author: Nick Cross <jacorb@goots.org>
+Date:   Tue Nov 27 15:08:13 2012 +0000
+
+Remove need to generate bin scripts and improve documentation
+
+M	.gitignore
+A	bin/dior
+D	bin/dior.tpl
+A	bin/idl
+A	bin/idl.bat
+D	bin/idl.bat.tpl
+D	bin/idl.tpl
+A	bin/jaco
+A	bin/jaco.bat
+D	bin/jaco.bat.tpl
+D	bin/jaco.tpl
+A	bin/ns-wrapper
+D	bin/ns-wrapper.tpl
+A	bin/ntfy-wrapper
+D	bin/ntfy-wrapper.tpl
+D	bin/resolve_jaco_cmd.tok
+D	bin/resolve_jacorb_home.tok
+D	bin/resolve_java_cmd.tok
+A	bin/version
+D	bin/version.tpl
+M	build.xml
+M	doc/ProgrammingGuide/Configuration/configuration.tex
+M	doc/ProgrammingGuide/Installation/Installation.tex
+M	doc/ProgrammingGuide/ProgrammingGuide.tex
+M	doc/REL_NOTES
+M	doc/install.html
+
+commit b6121f09a491656c7852be92347cc2d6460d4a09
+Author: Nick Cross <jacorb@goots.org>
+Date:   Tue Nov 27 12:32:34 2012 +0000
+
+Fix for multiple removeLocalRequest calls
+
+M	doc/REL_NOTES
+M	src/org/jacorb/orb/Delegate.java
+
+commit 9ce4158fd3f7a04b6f7bb4e3e4af1efa31688862
+Author: Nick Cross <jacorb@goots.org>
+Date:   Tue Nov 27 12:30:13 2012 +0000
+
+Bug923/925: Improve fix for associating Servant with an ORB. Only call removeContext if addContext has been called
+
+M	doc/REL_NOTES
+M	src/org/jacorb/orb/Delegate.java
+M	src/org/jacorb/orb/ServantDelegate.java
+M	src/org/jacorb/poa/POA.java
+M	src/org/jacorb/poa/RequestProcessor.java
+
+commit 7eec7ab271cb3064a10255804088d631a96805a3
+Author: Nick Cross <jacorb@goots.org>
+Date:   Fri Nov 23 15:08:13 2012 +0000
+
+Add Maven demo doc
+
+A	demo/maven/README
+A	doc/ProgrammingGuide/Maven/maven.tex
+M	doc/ProgrammingGuide/ProgrammingGuide.tex
+M	doc/REL_NOTES
+
+commit f9e4c36ab6706a03f5ed71b547709c13425ba8aa
+Author: Nick Cross <jacorb@goots.org>
+Date:   Fri Nov 23 08:05:49 2012 +0000
+
+BZ937: Fix for logging message
+
+M	doc/REL_NOTES
+M	src/org/jacorb/orb/ORB.java
+
+commit d79c096d2c7b50ba8f0619863a67170b84925ff1
+Author: Nick Cross <ncross@redhat.com>
+Date:   Sun Nov 4 22:40:53 2012 +0000
+
+Update support references
+
+M	doc/ProgrammingGuide/Introduction/Introduction.tex
+
+commit 862a7ad433c8e2141169d2f663c2f50785e50344
+Author: Nick Cross <ncross@redhat.com>
+Date:   Sun Nov 4 22:40:27 2012 +0000
+
+Remove debug flag from idl plugin
+
+M	demo/maven/pom.xml
+
+commit 1f890eaee2d7ab7626236a6a5ea8740e334324e8
+Author: Nick Cross <ncross@redhat.com>
+Date:   Sun Nov 4 22:16:49 2012 +0000
+
+Add Maven Demo
+
+M	demo/README.txt
+A	demo/maven/.classpath
+A	demo/maven/.project
+A	demo/maven/.settings/org.eclipse.core.resources.prefs
+A	demo/maven/.settings/org.eclipse.jdt.core.prefs
+A	demo/maven/.settings/org.eclipse.m2e.core.prefs
+A	demo/maven/pom.xml
+A	demo/maven/src/main/idl/server.idl
+A	demo/maven/src/main/java/org/jacorb/demo/maven/Client.java
+A	demo/maven/src/main/java/org/jacorb/demo/maven/GoodDayImpl.java
+A	demo/maven/src/main/java/org/jacorb/demo/maven/Server.java
+
+commit a5d55c94e57748c6ccd1ce5ccba5bb0b5048299e
+Author: Nick Cross <jacorb@goots.org>
+Date:   Thu Nov 15 10:24:53 2012 +0000
+
+Deploy IDL files as resources with the IDL compiler
+
+M	doc/REL_NOTES
+M	maven/idl-compiler/pom.xml
+A	maven/idl-compiler/src/main/assembly/idl.zip.xml
+M	maven/release/pom.xml
+M	pom.xml
+
+commit d885ce998115bc75da54f9a0e1a317788dfe8738
+Author: Nick Cross <jacorb@goots.org>
+Date:   Sun Oct 28 21:46:22 2012 +0000
+
+Update and fixes for IDL to Java language mappings 1.3
+
+M	doc/REL_NOTES
+M	idl/build.xml
+M	idl/omg/BiDirPolicy.idl
+M	idl/omg/CONV_FRAME.idl
+A	idl/omg/CORBA_Context.idl
+M	idl/omg/CORBA_CustomMarshal.idl
+M	idl/omg/CORBA_IDL_FAQ.html
+M	idl/omg/CORBA_InterfaceRepository.idl
+A	idl/omg/CORBA_NVList.idl
+A	idl/omg/CORBA_ORB.idl
+A	idl/omg/CORBA_ORB_init.idl
+A	idl/omg/CORBA_Object.idl
+M	idl/omg/CORBA_Policy.idl
+A	idl/omg/CORBA_Request.idl
+A	idl/omg/CORBA_ServerRequest.idl
+M	idl/omg/CORBA_Stream.idl
+M	idl/omg/CORBA_TypeCode.idl
+A	idl/omg/CORBA_ValueBase.idl
+M	idl/omg/CSI.idl
+M	idl/omg/CSIIOP.idl
+M	idl/omg/CosBridgeAdmin.idl
+M	idl/omg/CosCollection.idl
+M	idl/omg/CosTime.idl
+M	idl/omg/CosTransactions.idl
+M	idl/omg/CosTypedNotifyComm.idl
+M	idl/omg/Dynamic.idl
+M	idl/omg/DynamicAny.idl
+M	idl/omg/ETF.idl
+A	idl/omg/FT.idl
+M	idl/omg/GIOP.idl
+M	idl/omg/GSSUP.idl
+M	idl/omg/IIOP.idl
+M	idl/omg/IOP.idl
+A	idl/omg/IOP_DCE.idl
+A	idl/omg/MessageRouting.idl
+M	idl/omg/Messaging.idl
+M	idl/omg/PortableInterceptor.idl
+M	idl/omg/PortableServer.idl
+M	idl/omg/RTCORBA.idl
+M	idl/omg/Security.idl
+M	idl/omg/SecurityAdmin.idl
+M	idl/omg/SecurityLevel1.idl
+M	idl/omg/SecurityLevel2.idl
+M	idl/omg/SecurityReplaceable.idl
+M	idl/omg/SendingContext.idl
+M	idl/omg/dds_dcps.idl
+M	idl/omg/orb.idl
+A	idl/omg/pseudo_orb.idl
+M	src/java_mapping/CORBA/ORB.java
+D	src/java_mapping/CORBA/ORBPackage/InvalidName.java
+D	src/java_mapping/CORBA/ORBPackage/InvalidNameHelper.java
+M	src/java_mapping/CORBA/SystemExceptionHelper.java
+A	src/java_mapping/CORBA/portable/Delegate.java
+M	src/omg-03-01-02/org/omg/CORBA/TypeCode.java
+M	src/org/jacorb/idl/AliasTypeSpec.java
+M	src/org/jacorb/idl/ArrayTypeSpec.java
+M	src/org/jacorb/idl/EnumType.java
+M	src/org/jacorb/idl/FixedPointType.java
+M	src/org/jacorb/idl/Interface.java
+M	src/org/jacorb/idl/JacIDL.java
+M	src/org/jacorb/idl/SequenceType.java
+M	src/org/jacorb/idl/StructType.java
+M	src/org/jacorb/idl/UnionType.java
+M	src/org/jacorb/orb/giop/RequestInputStream.java
+M	src/org/jacorb/orb/giop/RequestOutputStream.java
+M	src/org/jacorb/util/SelectorManager.java
+
+commit 027ee8405500487ca82568efe37523de4307214f
+Author: Nick Cross <jacorb@goots.org>
+Date:   Tue Nov 13 10:04:33 2012 +0000
+
+Update install plugin version to utilise skip configuration. Reorder plugins and update deploy plugin version
+
+M	maven/release/pom.xml
+M	pom.xml
+
+commit bce2b74891f6282a4024af876d7ac49cd7d9c816
+Author: Nick Cross <jacorb@goots.org>
+Date:   Mon Nov 12 22:06:03 2012 +0000
+
+Use Ant checksum task instead of nicoulaj.github.com/checksum-maven-plugin
+
+M	maven/release/pom.xml
+
+commit 411e0e4c5ff3f93fbf1bae3a129c5cd763afa893
+Author: Nick Cross <jacorb@goots.org>
+Date:   Mon Nov 12 09:25:32 2012 +0000
+
+Use a fileset in case the ProgrammingGuide has not been generated
+
+M	maven/release/src/main/assembly/common.xml
+
+commit e9b6577168ff13e755b6ab23b4773e43e02baa01
+Author: Nick Cross <jacorb@goots.org>
+Date:   Mon Nov 12 06:57:01 2012 +0000
+
+Allow PDF Generation to be skipped
+
+M	maven/release/pom.xml
+M	pom.xml
+
+commit 1fe596d7373997c901aa062e54ab9040b05dfaa8
+Author: Nick Cross <jacorb@goots.org>
+Date:   Sun Nov 11 17:25:35 2012 +0000
+
+Remove the need to set JACORB_HOME for running the maven build
+
+M	maven/core/pom.xml
+M	maven/release/pom.xml
+M	maven/services/pom.xml
+M	pom.xml
+
+commit 686d2dceb590fc7c42100e9f1417cbaab2809dd7
+Author: Nick Cross <ncross@redhat.com>
+Date:   Thu Nov 8 14:05:48 2012 +0000
+
+BZ936: Fix for UCS2 encoding.
+
+M	doc/REL_NOTES
+M	src/org/jacorb/orb/giop/CodeSet.java
+
+commit 7b50659f5f19cad121d4c171bfc2ecb73666e2bc
+Author: Nick Cross <jacorb@goots.org>
+Date:   Fri Oct 19 14:42:13 2012 +0100
+
+Bug932 Fix for unnecessary duplicate
+
+M	doc/REL_NOTES
+M	src/org/jacorb/idl/Interface.java
+M	src/org/jacorb/orb/ServantDelegate.java
+
+commit 3f34e60518467c3729d0122d6ea460c9dd9fa22f
+Author: Nick Cross <jacorb@goots.org>
+Date:   Tue Oct 16 12:11:40 2012 +0100
+
+Bug 931: Move Ant dependency to idl-compiler. Allow JACORB_HOME to be specified on the cmd line or environment
+
+M	doc/REL_NOTES
+M	maven/idl-compiler/pom.xml
+M	pom.xml
+
+commit 5ed8a1bd311ee96383e8fad9eebeef30085b7782
+Author: Nick Cross <jacorb@goots.org>
+Date:   Tue Oct 16 12:05:35 2012 +0100
+
+Add checks for binary distribution
+
+M	build.xml
+
+commit beac0d68587507d766654536dee8df9827b2c79a
+Author: Nick Cross <jacorb@goots.org>
+Date:   Tue Oct 16 10:20:31 2012 +0100
+
+Bug 930: Fix for interface typdef
+
+M	doc/REL_NOTES
+M	src/org/jacorb/idl/InterfaceBody.java
+
+commit d985a940623b467ee5bf46da4bb78a78188aaf0c
+Author: Nick Cross <jacorb@goots.org>
+Date:   Mon Oct 1 21:48:35 2012 +0100
+
+BZ929 Add ability to turn off timestamps in generated idl
+
+M	doc/REL_NOTES
+M	src/org/jacorb/idl/IdlSymbol.java
+M	src/org/jacorb/idl/parser.cup
+
+commit cfc67b5014f90b0680dfd939eb13fc68568c2812
+Author: Nick Cross <jacorb@goots.org>
+Date:   Fri Oct 5 09:54:10 2012 +0100
+
+JBPAPP-9891 Add test and fix for rmi-iiop marshalling interop bug with IBM JDK 7
+
+M	doc/REL_NOTES
+M	src/org/jacorb/orb/CDRInputStream.java
+
+commit ac5d24f20d2424c8595bbe2d4240a7351a07a35b
+Author: Nick Cross <jacorb@goots.org>
+Date:   Sun Aug 19 12:45:04 2012 +0100
+
+Update changelogs
+
+M	doc/ChangeLog
+
 commit f78c244d3ac8784f4a5fcec7472d2fc5f8f270d1
 Author: Nick Cross <jacorb@goots.org>
 Date:   Sun Aug 19 11:18:21 2012 +0100
