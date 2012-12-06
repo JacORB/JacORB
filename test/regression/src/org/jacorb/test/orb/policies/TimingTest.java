@@ -197,13 +197,13 @@ public class TimingTest extends CallbackTestCase
     {
         server = clearPolicies (server);
         server = setRequestStartTime (server, System.currentTimeMillis());
-        server = setRequestEndTime (server, System.currentTimeMillis() + 400);
-        server = setRelativeRequestTimeout (server, System.currentTimeMillis() + 600);
+        server = setRequestEndTime (server, System.currentTimeMillis() + 2000);
+        server = setRelativeRequestTimeout (server, System.currentTimeMillis() + 3000);
         server = setReplyStartTime (server, System.currentTimeMillis());
-        server = setReplyEndTime (server, System.currentTimeMillis() + 800);
-        server = setRelativeRoundtripTimeout(server, System.currentTimeMillis() + 700);
+        server = setReplyEndTime (server, System.currentTimeMillis() + 5000);
+        server = setRelativeRoundtripTimeout(server, System.currentTimeMillis() + 6000);
 
-        assertEquals(434, server.operation (434, 50));
+        assertEquals(434, server.operation (434, 500));
     }
 
 
@@ -300,10 +300,10 @@ public class TimingTest extends CallbackTestCase
     /**
      * Sets a RequestEndTime which will expire during the invocation.
      */
-    public void _test_request_end_time_sync_expired()
+    public void test_request_end_time_sync_expired() throws Exception
     {
         server = clearPolicies (server);
-        server = setRequestEndTime (server, System.currentTimeMillis() + 2);
+        server = setRequestEndTime (server, System.currentTimeMillis() - 200);
         try
         {
             server.operation (121, 50);
@@ -341,6 +341,7 @@ public class TimingTest extends CallbackTestCase
     {
         server = clearPolicies (server);
         server = setRelativeRequestTimeout (server, 1);
+
         try
         {
             server.operation (121, 50);
@@ -374,7 +375,7 @@ public class TimingTest extends CallbackTestCase
         };
 
         server = clearPolicies (server);
-        server = setRelativeRequestTimeout (server, 1);
+        server = setRelativeRequestTimeout (server, -100);
         ((_TimingServerStub)server).sendc_operation (ref (handler), 767, 200);
         handler.wait_for_reply (400);
     }
@@ -405,17 +406,16 @@ public class TimingTest extends CallbackTestCase
     {
         server = clearPolicies (server);
         long start = System.currentTimeMillis();
-        server = setReplyStartTime (server, start + 200);
-        setReplyStartTime (server, start + 200);
-        int result = server.operation (18, 100);
+        server = setReplyStartTime (server, start + 2000);
+        int result = server.operation (18, 1000);
         assertEquals (18, result);
 
         long delta = System.currentTimeMillis() - start;
-        if (delta < 200)
+        if (delta < 2000)
         {
             fail ("reply too early (" + delta + "ms)");
         }
-        else if (delta > 250)
+        else if (delta > 2500)
         {
             fail ("reply too late (" + delta + "ms)");
         }
@@ -439,11 +439,10 @@ public class TimingTest extends CallbackTestCase
         server = clearPolicies (server);
         long start = System.currentTimeMillis();
         server = setReplyStartTime (server, start);
-        ((_TimingServerStub)server).sendc_operation (ref (handler), 19, 50);
-        handler.wait_for_reply (100);
-
+        ((_TimingServerStub)server).sendc_operation (ref (handler), 19, 500);
+        handler.wait_for_reply (1000);
         long delta = System.currentTimeMillis() - start;
-        if (delta > 150)
+        if (delta > 2000)
         {
             fail ("reply too late (" + delta + "ms)");
         }
@@ -493,9 +492,9 @@ public class TimingTest extends CallbackTestCase
         };
 
         server = clearPolicies (server);
-        server = setReplyEndTime (server, System.currentTimeMillis() + 200);
+        server = setReplyEndTime (server, System.currentTimeMillis() + 500);
         ((_TimingServerStub)server).sendc_operation (ref (handler), 765, 50);
-        handler.wait_for_reply (150);
+        handler.wait_for_reply (450);
     }
 
 
@@ -521,9 +520,9 @@ public class TimingTest extends CallbackTestCase
         };
 
         server = clearPolicies (server);
-        server = setReplyEndTime (server, System.currentTimeMillis() + 100);
-        ((_TimingServerStub)server).sendc_operation (ref (handler), 767, 200);
-        handler.wait_for_reply (400);
+        server = setReplyEndTime (server, System.currentTimeMillis() + 1000);
+        ((_TimingServerStub)server).sendc_operation (ref (handler), 767, 2000);
+        handler.wait_for_reply (4000);
     }
 
     /**
@@ -533,8 +532,8 @@ public class TimingTest extends CallbackTestCase
     public void test_reply_end_time_sync_ok()
     {
         server = clearPolicies (server);
-        server = setReplyEndTime (server, System.currentTimeMillis() + 200);
-        server.operation (434, 50);
+        server = setReplyEndTime (server, System.currentTimeMillis() + 2000);
+        server.operation (434, 500);
     }
 
     /**
@@ -662,21 +661,21 @@ public class TimingTest extends CallbackTestCase
     {
         server = clearPolicies (server);
         long start = System.currentTimeMillis();
-        server = setRequestStartTime(server, start + 200);
-        server = setReplyStartTime(server, start + 600);
-        long serverStart = server.server_time(200);
+        server = setRequestStartTime(server, start + 2000);
+        server = setReplyStartTime(server, start + 6000);
+        long serverStart = server.server_time(2000);
         long rtTime = System.currentTimeMillis() - start;
 
         //System.err.println("Server started after: " + (serverStart-start));
         //System.err.println("Relpy returned after: " + (rtTime));
 
-        // check server starts immedeatelly
-        assertTrue(serverStart >= start + 200);
-        assertTrue(serverStart <= start  + 200 + 50); // 50 ms latency
+        // check server starts immediately
+        assertTrue(serverStart >= start + 2000);
+        assertTrue(serverStart <= start  + 2000 + 500); // 500 ms latency
 
-        // check roundtrip time takes 100 ms
-        assertTrue(rtTime >= 600);
-        assertTrue(rtTime <= 600 + 50); // 50 ms latency
+        // check roundtrip time takes 1000 ms
+        assertTrue(rtTime >= 6000);
+        assertTrue(rtTime <= 6000 + 500); // 500 ms latency
     }
 
 
@@ -690,6 +689,7 @@ public class TimingTest extends CallbackTestCase
     private TimingServer clearPolicies (TimingServer server)
     {
         org.omg.CORBA.Object r = server._set_policy_override (new Policy[]{}, SetOverrideType.SET_OVERRIDE);
+        server._release();
         return TimingServerHelper.narrow (r);
     }
 
@@ -706,6 +706,7 @@ public class TimingTest extends CallbackTestCase
                 orb.create_policy (REQUEST_START_TIME_POLICY_TYPE.value, any);
             org.omg.CORBA.Object r = server._set_policy_override (new Policy[]{ policy },
                                          SetOverrideType.ADD_OVERRIDE);
+            server._release();
             return TimingServerHelper.narrow (r);
         }
         catch (PolicyError e)
@@ -727,6 +728,7 @@ public class TimingTest extends CallbackTestCase
                 orb.create_policy (REQUEST_END_TIME_POLICY_TYPE.value, any);
             org.omg.CORBA.Object r = server._set_policy_override (new Policy[]{ policy },
                                          SetOverrideType.ADD_OVERRIDE);
+            server._release();
             return TimingServerHelper.narrow (r);
         }
         catch (PolicyError e)
@@ -747,6 +749,7 @@ public class TimingTest extends CallbackTestCase
                 orb.create_policy (RELATIVE_REQ_TIMEOUT_POLICY_TYPE.value, any);
             org.omg.CORBA.Object r = server._set_policy_override (new Policy[]{ policy },
                                          SetOverrideType.ADD_OVERRIDE);
+            server._release();
             return TimingServerHelper.narrow (r);
         }
         catch (PolicyError e)
@@ -768,6 +771,7 @@ public class TimingTest extends CallbackTestCase
                 orb.create_policy (REPLY_START_TIME_POLICY_TYPE.value, any);
             org.omg.CORBA.Object r = server._set_policy_override (new Policy[]{ policy },
                                          SetOverrideType.ADD_OVERRIDE);
+            server._release();
             return TimingServerHelper.narrow (r);
         }
         catch (PolicyError e)
@@ -789,6 +793,7 @@ public class TimingTest extends CallbackTestCase
                 orb.create_policy (REPLY_END_TIME_POLICY_TYPE.value, any);
             org.omg.CORBA.Object r = server._set_policy_override (new Policy[]{ policy },
                                          SetOverrideType.ADD_OVERRIDE);
+            server._release();
             return TimingServerHelper.narrow (r);
         }
         catch (PolicyError e)
@@ -809,6 +814,7 @@ public class TimingTest extends CallbackTestCase
                 orb.create_policy (RELATIVE_RT_TIMEOUT_POLICY_TYPE.value, any);
             org.omg.CORBA.Object r = server._set_policy_override (new Policy[]{ policy },
                                          SetOverrideType.ADD_OVERRIDE);
+            server._release();
             return TimingServerHelper.narrow (r);
         }
         catch (PolicyError e)

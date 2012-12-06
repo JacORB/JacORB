@@ -179,7 +179,7 @@ public class Bug619Test extends ClientServerTestCase
         Properties clientProps = new Properties();
         Properties serverProps = new Properties();
 
-        serverProps.put("jacorb.test.maxmemory", "64m");
+        serverProps.put("jacorb.test.maxheapsize", "64m");
         serverProps.setProperty(CommonSetup.JACORB_REGRESSION_DISABLE_IMR, "true");
         clientProps.setProperty(CommonSetup.JACORB_REGRESSION_DISABLE_IMR, "true");
 

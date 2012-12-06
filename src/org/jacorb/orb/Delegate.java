@@ -1565,9 +1565,9 @@ public final class Delegate
         ReplyGroup group = groups.get (profile);
         if (group == null)
         {
-            if (logger.isInfoEnabled())
+            if (logger.isDebugEnabled())
             {
-                logger.info ("Adding new retry group for " + profile);
+                logger.debug ("Adding new retry group for " + profile);
             }
             ReplyGroup g = new ReplyGroup (this, profile);
             group = groups.putIfAbsent (profile, g);

@@ -67,6 +67,7 @@
                     ami_callback="@{ami}"
                     destdir="${src}/generated"
                     includepath="${basedir}/idl/omg"
+                    forceoverwrite="true"
                     helpercompat="jacorb" />
         </presetdef>
     </target>
@@ -141,10 +142,11 @@
             <isset property="TEST_IMR" />
         </condition>
 
-       <!-- By default, we do run naming and notification tests -->
-       <!-- Don't set the property as it looks for the property's existence -->
-       <!-- rather than its value -->
-       <!-- ...property name="jacorb.test.exclude-services" value="false" -->
+        <!-- By default, we do run naming and notification tests -->
+        <!-- Don't set the property as it looks for the property's existence -->
+        <!-- rather than its value -->
+        <!-- ...property name="jacorb.test.exclude-services" value="false" -->
+
         <property name="jacorb.test.verbose" value="false" />
 
         <!-- timeout if we want in tests for something to happen that takes a while -->
@@ -157,7 +159,7 @@
         <property name="jacorb.test.pattern" value="${jacorb.test.pkg}/*Test.class" />
         <property name="jacorb.test.timeout.global" value="480000" />
 
-        <property name="jacorb.test.maxmemory" value="384m" />
+        <property name="jacorb.test.maxmemory" value="1024M" />
 
         <property name="jacorb.test.server.version" value="cvs" />
         <property name="jacorb.test.client.version" value="cvs" />
@@ -578,6 +580,7 @@ Tests run: ${result.testCount}, Failures: ${result.testFailures}, Errors: ${resu
                 destdir="${src}/generated"
                 includepath="${basedir}/idl/omg"
                 helpercompat="jacorb"
+                forceoverwrite="true"
                 sloppyidentifiers="true">
             <i2jpackage names="antBugJac608:org.jacorb.test.antBugJac608" />
         </jacidl>

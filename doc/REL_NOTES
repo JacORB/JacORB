@@ -37,8 +37,8 @@
    H I S T O R Y      O F     C H A N G E S
  -------------------------------------------
 
-This Release
-============
+3.2
+===
     - ORB
          - Fix for UCS-2 codeset encoding.
          - Fix for RMI-IIOP Exception marshalling.
@@ -47,12 +47,16 @@ This Release
          - Improve fix for associating Servant with an ORB (Bug 923).
          - Only call removeContext if addContext has been called (Bug 925).
          - Fix for multiple removeLocalRequest calls.
+    - Notification
+         - Fix for ProxyPullSupplier (Bug 804)
+         - Fix for disorderd events (Bug 716)
     - IDL Compiler
          - Add flag to turn off timestamps in generated code.
          - Fix for alias interface operations.
          - Updated IDL files to http://www.omg.org/spec/CORBA/3.1.1
          - Updates for IDL to Java Language Mapping 1.3 (formal/2008-01-11)
     - Misc
+        - Support for JDK 7
         - Move Ant dependency to IDL compiler.
         - Deploy a zip of the IDL files with the IDL compiler.
         - Add Maven demo and documentation.

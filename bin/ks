@@ -1,4 +1,0 @@
-#!/bin/sh
-
-# Starts the JacORB KeyStoreManager
-jaco org.jacorb.security.util.KeyStoreManager

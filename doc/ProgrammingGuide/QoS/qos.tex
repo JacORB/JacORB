@@ -10,16 +10,16 @@ As of yet, all policies described in this chapter are
 term for any policy that is explicitly set and thus overrides system
 defaults. Policies can be set at different scopes: per object, per
 thread, or per ORB. The current JacORB implementation only supports
-object and ORB scopes. In general, the following steps are necessary: 
+object and ORB scopes. In general, the following steps are necessary:
 
 \begin{description}
 \item[Step 1.] Get an {\tt any} from the ORB and put the value for the
            policy into it.
 \item[Step 2.] Get a Policy object from the ORB which encapsulates the
            desired value (the {\tt any} value from the previous step).
-\item[Step 3.]  Apply the policy to a particular object using the 
+\item[Step 3.]  Apply the policy to a particular object using the
            {\tt \_set\_policy\_override()} operation on the object
-           reference. 
+           reference.
 \item[Step 3.] alternatively: set the policy ORB-wide using the {\tt
            set\_policy\_overrides()} operation on the ORB's
            {\tt PolicyManager} object.
@@ -37,16 +37,17 @@ a.insert_short(SYNC_WITH_SERVER.value); // the value for that policy
 try
 {
     Policy p = orb.create_policy(SYNC_SCOPE_POLICY_TYPE.value, a);
-    server._set_policy_override (new Policy[]{ p },
-                                 SetOverrideType.ADD_OVERRIDE);
-    
+    server-new = ServerHelper.narrow(server._set_policy_override (new Policy[]{ p },
+                                 SetOverrideType.ADD_OVERRIDE));
+    server._release();
+
     // get the ORB's policy manager
-    PolicyManager policyManager = 
-        PolicyManagerHelper.narrow( 
+    PolicyManager policyManager =
+        PolicyManagerHelper.narrow(
             orb.resolve_initial_references("ORBPolicyManager"));
-    
+
     // set an ORB-wide policy
-    policyManager.set_policy_overrides( new Policy[]{ p }, 
+    policyManager.set_policy_overrides( new Policy[]{ p },
                                         SetOverrideType.ADD_OVERRIDE);
 }
 catch (PolicyError e)
@@ -66,8 +67,9 @@ SomeCorbaType server  = ...
 
 Policy p = new org.jacorb.orb.policies.SyncScopePolicy
                                   (SYNC_WITH_TARGET.value);
-server._set_policy_override (new Policy[]{ p },
-                             SetOverrideType.ADD_OVERRIDE);
+server-new = ServerHelper.narrow(server._set_policy_override (new Policy[]{ p },
+                                 SetOverrideType.ADD_OVERRIDE));
+server._release();
 \end{verbatim}
 
 See the package org.jacorb.orb.policies to find out which
@@ -258,8 +260,9 @@ try
 {
     Policy p
         = orb.create_policy (REPLY_END_TIME_POLICY_TYPE.value, a);
-    server._set_policy_override (new Policy[]{ p },
-                                 SetOverrideType.ADD_OVERRIDE);
+    server-new = ServerHelper.narrow(server._set_policy_override (new Policy[]{ p },
+                                 SetOverrideType.ADD_OVERRIDE));
+    server._release();
 }
 catch (PolicyError e)
 {
@@ -278,8 +281,9 @@ SomeCorbaType server  = ...
 Policy p = new org.jacorb.orb.policies.ReplyEndTimePolicy
                    (org.jacorb.util.Time.corbaFuture (1000 * 10000));
 
-server._set_policy_override (new Policy[]{ p },
-                             SetOverrideType.ADD_OVERRIDE);
+server-new = ServerHelper.narrow(server._set_policy_override (new Policy[]{ p },
+                                 SetOverrideType.ADD_OVERRIDE));
+server._release();
 \end{verbatim}
 
 Likewise, to set a \emph{Relative Roundtrip Timeout} of one second,
@@ -289,11 +293,12 @@ write:
 SomeCorbaType server  = ...
 
 Policy p =
-    new org.jacorb.orb.policies.RelativeRoundtripTimeoutPolicy 
+    new org.jacorb.orb.policies.RelativeRoundtripTimeoutPolicy
                                                       (1000 * 10000);
 
-server._set_policy_override (new Policy[]{ p },
-                             SetOverrideType.ADD_OVERRIDE);
+server-new = ServerHelper.narrow(server._set_policy_override (new Policy[]{ p },
+                                 SetOverrideType.ADD_OVERRIDE));
+server._release();
 \end{verbatim}
 
 The difference between this and the example before, where a
@@ -305,7 +310,7 @@ deadline will no longer make sense for any subsequent invocations,
 since only an absolute time was specified to the ORB.
 
 
-%%% Local Variables: 
+%%% Local Variables:
 %%% mode: latex
 %%% TeX-master: "../ProgrammingGuide"
-%%% End: 
+%%% End:
