@@ -16,12 +16,6 @@
                 <include>etc/**</include>
                 <include>idl/**</include>
             </includes>
-            <excludes>
-                <exclude>bin/jaco</exclude>
-                <exclude>bin/idl</exclude>
-                <exclude>bin/jaco.bat</exclude>
-                <exclude>bin/idl.bat</exclude>
-            </excludes>
         </fileSet>
         <fileSet>
             <directory>${env.JACORB_HOME}/doc</directory>

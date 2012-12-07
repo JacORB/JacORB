@@ -145,7 +145,7 @@
                         <configuration>
                             <settings>
                                 <!-- all tex main documents in this folder (including subfolders) will be processed -->
-                                <texDirectory>${env.JACORB_HOME}/doc/ProgrammingGuide</texDirectory>
+                                <texDirectory>${basedir}/../../doc/ProgrammingGuide</texDirectory>
                             </settings>
                         </configuration>
                         <executions>
