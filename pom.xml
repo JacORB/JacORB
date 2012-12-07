@@ -9,7 +9,7 @@
     To skip compilation pass -DskipCompile=true
     To skip tests pass -DskipTests=true
     To skip javadoc pass -DskipJavadoc=true
-    To skip pdf generation (if e.g. pdflatext is not installed) -DskipPDFGeneration
+    To skip pdf generation (if e.g. pdflatex is not installed) -DskipPDFGeneration
 
     To deploy and release pass -DperformRelease=true
 
@@ -34,7 +34,7 @@
 
     <groupId>org.jacorb</groupId>
     <artifactId>jacorb-parent</artifactId>
-    <version>3.1</version>
+    <version>3.2</version>
     <packaging>pom</packaging>
 
     <name>JacORB</name>
