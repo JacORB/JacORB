@@ -376,6 +376,8 @@
                                     <goal>sign</goal>
                                 </goals>
                                 <configuration>
+                                    <executable>gpg2</executable>
+                                    <useAgent>true</useAgent>
                                     <ascDirectory>${project.build.directory}</ascDirectory>
                                     <keyname>${gpg.keyname}</keyname>
                                 </configuration>
