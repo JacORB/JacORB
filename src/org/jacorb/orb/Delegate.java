@@ -1565,9 +1565,9 @@ public final class Delegate
         ReplyGroup group = groups.get (profile);
         if (group == null)
         {
-            if (logger.isInfoEnabled())
+            if (logger.isDebugEnabled())
             {
-                logger.info ("Adding new retry group for " + profile);
+                logger.debug ("Adding new retry group for " + profile);
             }
             ReplyGroup g = new ReplyGroup (this, profile);
             group = groups.putIfAbsent (profile, g);
@@ -2454,6 +2454,7 @@ public final class Delegate
         ServerRequestInfoImpl sinfo = null;
         Collection<ServiceContext> contexts = null;
         DefaultClientInterceptorHandler interceptors = null;
+        boolean addedContext = false;
 
         if (poa == null)
         {
@@ -2476,7 +2477,7 @@ public final class Delegate
         invocationContext.get().push (currentContext);
 
         // remember that a local request is outstanding. On
-        //  any exit through an exception, this must be cleared again,
+        // any exit through an exception, this must be cleared again,
         // otherwise the POA will hangon destruction (bug #400).
         poa.addLocalRequest();
 
@@ -2585,7 +2586,6 @@ public final class Delegate
                 }
             }
 
-
             try
             {
                 if ( ( poa.isRetain() && !poa.isUseServantManager() ) ||
@@ -2598,20 +2598,14 @@ public final class Delegate
                     }
                     catch( WrongAdapter e )
                     {
-                        //  exit on an error condition, but need to clean up first (added to fix bug #400)
-                        poa.removeLocalRequest();
                         throw new OBJ_ADAPTER( "WrongAdapter caught when converting servant to reference. " + e );
                     }
                     catch( WrongPolicy e )
                     {
-                        //  exit on an error condition, but need to clean up first (added to fix bug #400)
-                        poa.removeLocalRequest();
                         throw new OBJ_ADAPTER("WrongPolicy caught" + e );
                     }
                     catch( ObjectNotActive e )
                     {
-                        //  exit on an error condition, but need to clean up first (added to fix bug #400)
-                        poa.removeLocalRequest();
                         throw new org.omg.CORBA.OBJECT_NOT_EXIST();
                     }
                 }
@@ -2619,8 +2613,7 @@ public final class Delegate
                 {
                     byte [] oid =
                     POAUtil.extractOID( getParsedIOR().get_object_key() );
-                    org.omg.PortableServer.ServantManager sm =
-                    poa.get_servant_manager();
+                    org.omg.PortableServer.ServantManager sm = poa.get_servant_manager();
 
                     if ( poa.isRetain() )
                     {
@@ -2631,9 +2624,7 @@ public final class Delegate
                     }
                     else
                     {
-                        // ServantManager is a ServantLocator:
-                        // locate a servant
-
+                        // ServantManager is a ServantLocator: locate a servant
                         org.omg.PortableServer.ServantLocator sl =
                             ( org.omg.PortableServer.ServantLocator ) sm;
 
@@ -2643,25 +2634,9 @@ public final class Delegate
 
                         invokedOperation = operation;
 
-                        boolean ok = false;
-
-                        try
-                        {
-                            servantObject.servant = sl.preinvoke( oid, poa, operation, cookie );
-                            ok = true;
-                        }
-                        finally
-                        {
-                            if (!ok)
-                            {
-                                // error condition: need to clean up before
-                                // propagating the exception (added to fix
-                                // bug #400)
-                                poa.removeLocalRequest();
-                            }
-                        }
+                        servantObject.servant = sl.preinvoke( oid, poa, operation, cookie );
                     }
-                    ((Servant)servantObject.servant)._this_object ((org.omg.CORBA.ORB)orb);
+                    ((org.omg.CORBA_2_3.ORB)orb).set_delegate((org.omg.PortableServer.Servant)servantObject.servant);
                 }
                 else
                 {
@@ -2670,8 +2645,6 @@ public final class Delegate
             }
             catch( WrongPolicy e )
             {
-                //  exit on an error condition, but need to clean up first (added to fix bug #400)
-                poa.removeLocalRequest();
                 throw new OBJ_ADAPTER( "WrongPolicy caught" + e );
             }
             catch( org.omg.PortableServer.ForwardRequest e )
@@ -2711,6 +2684,7 @@ public final class Delegate
                     ( org.omg.PortableServer.Servant ) servantObject.servant
                 )
             );
+            addedContext = true;
 
             ( (org.jacorb.orb.ServantObjectImpl )servantObject).setClientInterceptorHandler (interceptors);
 
@@ -2790,11 +2764,15 @@ public final class Delegate
         }
         catch (Exception e)
         {
+            // Clean up first (added to fix bug #400)
             poa.removeLocalRequest();
 
             logger.error("unexpected exception during servant_preinvoke", e);
 
-            orb.getPOACurrent()._removeContext( Thread.currentThread() );
+            if (addedContext)
+            {
+                orb.getPOACurrent()._removeContext( Thread.currentThread() );
+            }
 
             if (orb.getInterceptorManager() != null)
             {

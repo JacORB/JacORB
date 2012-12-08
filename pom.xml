@@ -9,7 +9,7 @@
     To skip compilation pass -DskipCompile=true
     To skip tests pass -DskipTests=true
     To skip javadoc pass -DskipJavadoc=true
-    To skip pdf generation (if e.g. pdflatext is not installed) -DskipPDFGeneration
+    To skip pdf generation (if e.g. pdflatex is not installed) -DskipPDFGeneration
 
     To deploy and release pass -DperformRelease=true
 
@@ -34,7 +34,7 @@
 
     <groupId>org.jacorb</groupId>
     <artifactId>jacorb-parent</artifactId>
-    <version>3.1</version>
+    <version>3.2</version>
     <packaging>pom</packaging>
 
     <name>JacORB</name>
@@ -71,8 +71,8 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <!-- Default public key we sign the builds with. This can be overridden by other developers -->
-        <gpg.keyname>FAF776878639DE5E</gpg.keyname>
+        <!-- GPG key ID we sign the builds with. This can be overridden by other developers -->
+        <gpg.keyname>6E0309600DC50C2E</gpg.keyname>
     </properties>
 
 
@@ -376,6 +376,8 @@
                                     <goal>sign</goal>
                                 </goals>
                                 <configuration>
+                                    <executable>gpg2</executable>
+                                    <useAgent>true</useAgent>
                                     <ascDirectory>${project.build.directory}</ascDirectory>
                                     <keyname>${gpg.keyname}</keyname>
                                 </configuration>

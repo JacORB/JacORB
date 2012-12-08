@@ -186,7 +186,7 @@ public class EventQueueFactory implements Configurable
         // fallthrough. will default to FifoOrder
 
         case FifoOrder.value:
-            queue = new BoundedReceiveTimeEventQueue(maxEventsPerConsumer, _overflowStrategy);
+            queue = new BoundedFifoEventQueue(maxEventsPerConsumer, _overflowStrategy);
             break;
 
         case PriorityOrder.value:

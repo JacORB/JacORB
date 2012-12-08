@@ -1,0 +1,61 @@
+#!/bin/sh
+
+resolve()
+{
+    CMD="$1"
+    # test if CMD is a symlink or not
+    while [ -h "$CMD" ] ; do
+        link=`find "$CMD" -printf "%l\n"`
+        if expr "$link" : '/.*' > /dev/null; then
+            CMD="$link"
+        else
+            CMD=`dirname "$CMD"`"/$link"
+        fi
+    done
+    echo $CMD;
+}
+
+case $0 in
+    /*)
+        _SELF="$0"
+        ;;
+    *)
+        _SELF="`pwd`/$0"
+        ;;
+esac
+
+_SELF=`resolve "$_SELF"`
+_BIN_DIR_RAW=`dirname "$_SELF"`
+_BIN_DIR_NORM=`cd "$_BIN_DIR_RAW" > /dev/null 2>&1; pwd`
+RESOLVED_JACORB_HOME=`dirname "$_BIN_DIR_NORM"`
+
+JACORB_HOME=${RESOLVED_JACORB_HOME}
+
+# Test if JRE_HOME or JAVA_HOME provide java-binary
+# if not fall back to path
+if [ -n "$JRE_HOME" ] && [ -x "$JRE_HOME/bin/java" ]
+then
+    RESOLVED_JAVA_CMD=$JRE_HOME/bin/java
+else
+    if [ -n "$JAVA_HOME" ] && [ -x "$JAVA_HOME/bin/java" ]
+    then
+        RESOLVED_JAVA_CMD=$JAVA_HOME/bin/java
+    else
+        RESOLVED_JAVA_CMD=java
+    fi
+fi
+
+JAVA_CMD=${RESOLVED_JAVA_CMD}
+
+# verbosity output
+#echo    "using JAVA_CMD   : ${JAVA_CMD}"
+#echo    "Using JacORB from: ${JACORB_HOME}"
+#echo -e "using CLASSPATH  :\n\t`echo $CLASSPATH | sed -e 's/:/\n\t/g'`"
+
+exec "$JAVA_CMD"                                                    \
+    -Djava.endorsed.dirs="${JACORB_HOME}/lib"                                          \
+    -Djacorb.home="${JACORB_HOME}"                                  \
+    -Dorg.omg.CORBA.ORBClass=org.jacorb.orb.ORB                     \
+    -Dorg.omg.CORBA.ORBSingletonClass=org.jacorb.orb.ORBSingleton   \
+    -classpath "${CLASSPATH}"                                       \
+     "$@"

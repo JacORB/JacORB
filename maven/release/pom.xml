@@ -6,7 +6,7 @@
     <parent>
         <groupId>org.jacorb</groupId>
         <artifactId>jacorb-parent</artifactId>
-        <version>3.1</version>
+        <version>3.2</version>
         <relativePath>../..</relativePath>
     </parent>
 
@@ -145,7 +145,7 @@
                         <configuration>
                             <settings>
                                 <!-- all tex main documents in this folder (including subfolders) will be processed -->
-                                <texDirectory>${env.JACORB_HOME}/doc/ProgrammingGuide</texDirectory>
+                                <texDirectory>${basedir}/../../doc/ProgrammingGuide</texDirectory>
                             </settings>
                         </configuration>
                         <executions>

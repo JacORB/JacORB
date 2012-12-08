@@ -76,6 +76,11 @@ public class TestUtils
             "CVM".equals(System.getProperty ("java.vm.name"))
         );
 
+    public static final boolean JDK_17 =
+        (
+            System.getProperty ("java.version").indexOf("1.7") != -1
+        );
+
 
     /**
      * this method returns a List of all public Methods which Names start with the Prefix "test" and

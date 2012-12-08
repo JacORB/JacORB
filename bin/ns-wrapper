@@ -1,7 +1,4 @@
 #! /bin/sh
-
-#
-# $Id$
 #
 # sh script suitable for starting and stopping
 # the JacORB Naming Service controlled by the Java Service Wrapper
@@ -31,5 +28,4 @@ PRIORITY=
 PIDDIR="."
 
 # source the common wrapper script.
-
-. @JACORB_HOME@/bin/jacorb-wrapper-common
+. `dirname "$0"`/jacorb-wrapper-common

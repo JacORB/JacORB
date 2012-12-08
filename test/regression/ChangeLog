@@ -1,4 +1,109 @@
-commit 8ceab90de88e479bc7ed89a97c81db994f5b35c6
+commit d32df279540be374dda6101a30efa836dd874cba
+Author: Nick Cross <jacorb@goots.org>
+Date:   Thu Dec 6 16:00:43 2012 +0000
+
+Adjust timings
+
+M	test/regression/src/org/jacorb/test/orb/policies/TimingTest.java
+
+commit 5030658e88b4ddf1d73fe9dd0579db83f49d9df0
+Author: Nick Cross <jacorb@goots.org>
+Date:   Tue Dec 4 22:32:21 2012 +0000
+
+Don't run AcceptorExceptionListener under 17
+
+M	test/regression/src/org/jacorb/test/bugs/bugjac200/AcceptorExceptionListenerTest.java
+M	test/regression/src/org/jacorb/test/common/TestUtils.java
+
+commit 454372f5920c8c6125790ccd3993b7cbd56c0664
+Author: Nick Cross <jacorb@goots.org>
+Date:   Sun Dec 2 14:53:38 2012 +0000
+
+Add pause to allow time for IFR to start
+
+M	test/regression/src/org/jacorb/test/ir/IFRServerSetup.java
+
+commit 764c51bf7cdc80b6ec426c0cf857f337178b19d1
+Author: Nick Cross <jacorb@goots.org>
+Date:   Sun Dec 2 14:53:21 2012 +0000
+
+Fix for build. Improve memory allocation under modern JVMs
+
+M	test/regression/build.xml
+M	test/regression/src/org/jacorb/test/bugs/bug619/Bug619Test.java
+M	test/regression/src/org/jacorb/test/common/launch/DirectLauncher.java
+
+commit d885ce998115bc75da54f9a0e1a317788dfe8738
+Author: Nick Cross <jacorb@goots.org>
+Date:   Sun Oct 28 21:46:22 2012 +0000
+
+Update and fixes for IDL to Java language mappings 1.3
+
+M	test/regression/src/org/jacorb/test/bugs/bugcos370/BugCos370Test.java
+
+commit 686d2dceb590fc7c42100e9f1417cbaab2809dd7
+Author: Nick Cross <ncross@redhat.com>
+Date:   Thu Nov 8 14:05:48 2012 +0000
+
+BZ936: Fix for UCS2 encoding.
+
+M	test/regression/src/org/jacorb/test/orb/CDROutputStreamTest.java
+
+commit 7b50659f5f19cad121d4c171bfc2ecb73666e2bc
+Author: Nick Cross <jacorb@goots.org>
+Date:   Fri Oct 19 14:42:13 2012 +0100
+
+Bug932 Fix for unnecessary duplicate
+
+M	test/regression/src/org/jacorb/test/bugs/bug459/Bug459Test.java
+
+commit beac0d68587507d766654536dee8df9827b2c79a
+Author: Nick Cross <jacorb@goots.org>
+Date:   Tue Oct 16 10:20:31 2012 +0100
+
+Bug 930: Fix for interface typdef
+
+A	test/regression/idl/compiler/succeed/bug930.idl
+
+commit cfc67b5014f90b0680dfd939eb13fc68568c2812
+Author: Nick Cross <jacorb@goots.org>
+Date:   Fri Oct 5 09:54:10 2012 +0100
+
+JBPAPP-9891 Add test and fix for rmi-iiop marshalling interop bug with IBM JDK 7
+
+A	test/regression/src/org/jacorb/test/bugs/JBPAPP9891/MarshallingTest.java
+A	test/regression/src/org/jacorb/test/bugs/JBPAPP9891/NegativeArgumentException.java
+A	test/regression/src/org/jacorb/test/bugs/JBPAPP9891/Something.java
+M	test/regression/src/org/jacorb/test/bugs/bugjac563/BugJac563Test.java
+M	test/regression/src/org/jacorb/test/common/CommonSetup.java
+M	test/regression/src/org/jacorb/test/common/TestUtils.java
+
+commit fd8b3d60b3593da1a1dca0ddf523b76e83a2c1a7
+Author: Nick Cross <jacorb@goots.org>
+Date:   Tue Oct 2 16:20:59 2012 +0100
+
+Remove redundant unused 1.4 code
+
+M	test/regression/build.xml
+D	test/regression/src/org/jacorb/test/orb/rmi/FixSunDelegateBug.java.14
+
+commit c73e50c2976041f2f146ec36802425f5aa3d53d4
+Author: Nick Cross <jacorb@goots.org>
+Date:   Mon Oct 1 22:13:01 2012 +0100
+
+Add compatibility testing for IBM JDK
+
+M	test/regression/src/org/jacorb/test/bugs/bugjac352/BugJac352Test.java
+M	test/regression/src/org/jacorb/test/bugs/bugjac449/BugJac449Test.java
+M	test/regression/src/org/jacorb/test/bugs/bugjac563/BugJac563Test.java
+M	test/regression/src/org/jacorb/test/common/CommonSetup.java
+M	test/regression/src/org/jacorb/test/common/TestUtils.java
+M	test/regression/src/org/jacorb/test/orb/CDROutputStreamTest.java
+M	test/regression/src/org/jacorb/test/orb/rmi/JacORBSunRMITest.java
+M	test/regression/src/org/jacorb/test/orb/rmi/SunJacORBRMITest.java
+M	test/regression/src/org/jacorb/test/orb/rmi/SunSunRMITest.java
+
+commit ac5d24f20d2424c8595bbe2d4240a7351a07a35b
 Author: Nick Cross <jacorb@goots.org>
 Date:   Sun Aug 19 12:45:04 2012 +0100
 

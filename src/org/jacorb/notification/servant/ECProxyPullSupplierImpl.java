@@ -34,11 +34,14 @@ import org.omg.PortableServer.POA;
 import org.omg.PortableServer.Servant;
 
 /**
+ * @jmx.mbean extends = "AbstractProxySupplierMBean"
+ * @jboss.xmbean
+ *
  * @author Alphonse Bendt
  */
 
 public class ECProxyPullSupplierImpl extends ProxyPullSupplierImpl implements
-        ProxyPullSupplierOperations
+        ProxyPullSupplierOperations, ECProxyPullSupplierImplMBean
 {
     private static final ConsumerAdmin NO_ADMIN = null;
     
