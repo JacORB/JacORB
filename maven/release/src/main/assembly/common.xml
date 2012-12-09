@@ -44,6 +44,9 @@
             <excludes>
                 <exclude>build</exclude>
                 <exclude>src</exclude>
+                <exclude>jacorb.jar</exclude>
+                <exclude>jacorb-services.jar</exclude>
+                <exclude>idl.jar</exclude>
             </excludes>
         </fileSet>
         <fileSet>
