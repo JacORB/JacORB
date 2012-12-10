@@ -33,8 +33,8 @@ public abstract class RecursionAwareCI
     extends org.omg.CORBA.LocalObject
     implements ClientRequestInterceptor
 {
-    private final HashSet thread_stacks;
-    private final HashSet ignore_operations;
+    private final HashSet<Thread> thread_stacks;
+    private final HashSet<String> ignore_operations;
 
     /**
      * @param ignore_special_ops If set to true, calls to
@@ -45,8 +45,8 @@ public abstract class RecursionAwareCI
     {
         super();
 
-        thread_stacks = new HashSet();
-        ignore_operations = new HashSet();
+        thread_stacks = new HashSet<Thread>();
+        ignore_operations = new HashSet<String>();
 
         if ( ignore_special_ops )
         {
