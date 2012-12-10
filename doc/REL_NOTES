@@ -37,6 +37,11 @@
    H I S T O R Y      O F     C H A N G E S
  -------------------------------------------
 
+This Release
+============
+    - ORB
+         - Improve encapsulation of internal code.
+
 3.2
 ===
     - ORB

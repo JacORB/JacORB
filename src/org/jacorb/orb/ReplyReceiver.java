@@ -27,6 +27,7 @@ import org.jacorb.config.ConfigurationException;
 import org.jacorb.orb.giop.MessageInputStream;
 import org.jacorb.orb.giop.ReplyInputStream;
 import org.jacorb.orb.giop.ReplyPlaceholder;
+import org.jacorb.orb.portableInterceptor.ClientInterceptorHandler;
 import org.jacorb.util.SelectorManager;
 import org.jacorb.util.SelectorRequest;
 import org.jacorb.util.SelectorRequestCallback;
@@ -157,7 +158,7 @@ public final class ReplyReceiver
 
 	if (group != null)
 	{
-            Set pending = group.getReplies();
+		Set<ReplyPlaceholder> pending = group.getReplies();
 	    // grab pending_replies lock BEFORE my own,
 	    // then I will already have it in the replyDone call below.
 	    synchronized ( pending )

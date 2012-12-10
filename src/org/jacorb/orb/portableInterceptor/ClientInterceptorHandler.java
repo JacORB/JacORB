@@ -18,7 +18,7 @@
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-package org.jacorb.orb;
+package org.jacorb.orb.portableInterceptor;
 
 import org.jacorb.orb.giop.ReplyInputStream;
 import org.omg.CORBA.portable.ApplicationException;
