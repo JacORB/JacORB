@@ -316,8 +316,7 @@ public final class GSSUPContextSpi
      * NOTE : This method was added for a jdk1.7.x port
      * because of a compilation error from this class.
      */
-    public Object inquireSecContext(java.lang.Enum type) throws GSSException
-    {
+    public Object inquireSecContext(com.sun.security.jgss.InquireType arg0) throws GSSException {
         throw new GSSException(GSSException.FAILURE);
     }
 
