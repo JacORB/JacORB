@@ -111,5 +111,13 @@
             </plugin>
 
         </plugins>
+        <resources>
+            <resource>
+                <directory>${basedir}/../../idl/jacorb</directory>
+            </resource>
+            <resource>
+                <directory>${basedir}/../../idl/omg</directory>
+            </resource>
+        </resources>
     </build>
 </project>
