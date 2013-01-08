@@ -137,13 +137,6 @@
                                 </artifactItem>
                                 <artifactItem>
                                     <groupId>org.jacorb</groupId>
-                                    <artifactId>jacorb-services</artifactId>
-                                    <version>${project.version}</version>
-                                    <outputDirectory>${project.build.directory}/work/common/lib</outputDirectory>
-                                    <destFileName>jacorb-services.jar</destFileName>
-                                </artifactItem>
-                                <artifactItem>
-                                    <groupId>org.jacorb</groupId>
                                     <artifactId>jacorb-idl-compiler</artifactId>
                                     <version>${project.version}</version>
                                     <outputDirectory>${project.build.directory}/work/common/lib</outputDirectory>
