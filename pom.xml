@@ -34,7 +34,7 @@
 
     <groupId>org.jacorb</groupId>
     <artifactId>jacorb-parent</artifactId>
-    <version>2.3.2-JBoss-SP3</version>
+    <version>2.3.2-jboss-3</version>
     <packaging>pom</packaging>
 
     <name>JacORB</name>
@@ -79,7 +79,6 @@
     <modules>
         <module>maven/idl-compiler</module>
         <module>maven/core</module>
-        <module>maven/services</module>
         <module>maven/release</module>
     </modules>
 
