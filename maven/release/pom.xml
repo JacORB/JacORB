@@ -19,6 +19,13 @@
     <description>JacORB Release Module for packaging distribution zips</description>
     <url>http://www.jacorb.org</url>
 
+    <properties>
+        <skipCompile>true</skipCompile>
+        <skipJavadoc>true</skipJavadoc>
+        <skipTests>true</skipTests>
+    </properties>
+
+
     <build>
         <plugins>
             <plugin>
@@ -104,6 +111,45 @@
                                 <defaultFileMode>0644</defaultFileMode>
                                 <defaultDirectoryMode>0755</defaultDirectoryMode>
                             </archiverConfig>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>copy</id>
+                        <phase>prepare-package</phase>
+                        <goals>
+                            <goal>copy</goal>
+                        </goals>
+                        <configuration>
+                            <artifactItems>
+                                <artifactItem>
+                                    <groupId>org.jacorb</groupId>
+                                    <artifactId>jacorb</artifactId>
+                                    <version>${project.version}</version>
+                                    <outputDirectory>${project.build.directory}/work/common/lib</outputDirectory>
+                                    <destFileName>jacorb.jar</destFileName>
+                                </artifactItem>
+                                <artifactItem>
+                                    <groupId>org.jacorb</groupId>
+                                    <artifactId>jacorb-services</artifactId>
+                                    <version>${project.version}</version>
+                                    <outputDirectory>${project.build.directory}/work/common/lib</outputDirectory>
+                                    <destFileName>jacorb-services.jar</destFileName>
+                                </artifactItem>
+                                <artifactItem>
+                                    <groupId>org.jacorb</groupId>
+                                    <artifactId>jacorb-idl-compiler</artifactId>
+                                    <version>${project.version}</version>
+                                    <outputDirectory>${project.build.directory}/work/common/lib</outputDirectory>
+                                    <destFileName>idl.jar</destFileName>
+                                </artifactItem>
+                            </artifactItems>
                         </configuration>
                     </execution>
                 </executions>

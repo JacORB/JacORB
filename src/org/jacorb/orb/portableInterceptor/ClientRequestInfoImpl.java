@@ -23,7 +23,13 @@ package org.jacorb.orb.portableInterceptor;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+
+import org.jacorb.orb.Delegate;
+import org.jacorb.orb.ORB;
 import org.jacorb.orb.etf.ProfileBase;
+import org.jacorb.orb.giop.ClientConnection;
+import org.jacorb.orb.giop.ReplyInputStream;
+import org.jacorb.orb.giop.RequestOutputStream;
 import org.omg.CORBA.ARG_IN;
 import org.omg.CORBA.ARG_INOUT;
 import org.omg.CORBA.ARG_OUT;
@@ -61,21 +67,22 @@ public class ClientRequestInfoImpl
     private final Logger logger;
 
     //from ClientRequestInfo
-    public org.omg.CORBA.Object target = null;
-    public final org.omg.CORBA.Object effective_target;
-    public TaggedProfile effective_profile = null;
-    public final Any received_exception;
-    public String received_exception_id = null;
-    public final TaggedComponent[] effective_components;
-    public final org.jacorb.orb.Delegate delegate;
-    public final org.jacorb.orb.ORB orb;
+    private org.omg.CORBA.Object target = null;
+    private final org.omg.CORBA.Object effective_target;
+    private TaggedProfile effective_profile = null;
 
-    public final org.jacorb.orb.giop.RequestOutputStream request_os;
-    public org.jacorb.orb.giop.ReplyInputStream reply_is = null;
-
-    public final org.jacorb.orb.giop.ClientConnection connection;
-
+    private final TaggedComponent[] effective_components;
     private final Map invocationContext;
+
+    public final ORB orb;
+    public final ClientConnection connection;
+
+    protected final Any received_exception;
+    protected Delegate delegate;
+    protected RequestOutputStream request_os;
+    protected String received_exception_id = null;
+    protected ReplyInputStream reply_is = null;
+
 
     public ClientRequestInfoImpl
                       ( org.jacorb.orb.ORB orb,
@@ -462,7 +469,7 @@ public class ClientRequestInfoImpl
                                     CompletionStatus.COMPLETED_MAYBE);
         }
 
-        List _store = new ArrayList();
+        List<TaggedComponent> _store = new ArrayList<TaggedComponent>();
         for(int _i = 0; _i < effective_components.length; _i++)
         {
             if (effective_components[_i].tag == id)

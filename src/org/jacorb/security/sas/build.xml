@@ -16,18 +16,18 @@
    </target>
 
    <!-- Unfortunately the API changed incompatibly in Java7 so we need to patch the source file -->
-   <target name="prepatch" if="java7">
+   <target name="prepatch" unless="java7">
      <replace summary="true"
               file="${src}/org/jacorb/security/sas/GSSUPContextSpi.java"
-              token="java.lang.Enum"
-              value="com.sun.security.jgss.InquireType"/>
+              value="java.lang.Enum"
+              token="com.sun.security.jgss.InquireType"/>
    </target>
 
-   <target name="postpatch" if="java7">
+   <target name="postpatch" unless="java7">
      <replace summary="true"
               file="${src}/org/jacorb/security/sas/GSSUPContextSpi.java"
-              token="com.sun.security.jgss.InquireType"
-              value="java.lang.Enum"/>
+              value="com.sun.security.jgss.InquireType"
+              token="java.lang.Enum"/>
    </target>
 
    <target name="all" depends="init,check-props,prepatch,compile,postpatch,jaas" />

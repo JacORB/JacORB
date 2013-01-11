@@ -1,4 +1,4 @@
-package org.jacorb.orb;
+package org.jacorb.orb.portableInterceptor;
 
 import org.jacorb.orb.giop.ReplyInputStream;
 import org.omg.CORBA.Object;

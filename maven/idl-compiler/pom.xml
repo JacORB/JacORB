@@ -146,10 +146,10 @@
 
         <resources>
             <resource>
-                <directory>${env.JACORB_HOME}/idl/jacorb</directory>
+                <directory>${basedir}/../../idl/jacorb</directory>
             </resource>
             <resource>
-                <directory>${env.JACORB_HOME}/idl/omg</directory>
+                <directory>${basedir}/../../idl/omg</directory>
             </resource>
         </resources>
 
