@@ -57,6 +57,7 @@ import org.omg.CORBA.COMM_FAILURE;
 import org.omg.CORBA.CompletionStatus;
 import org.omg.CORBA.INTERNAL;
 import org.omg.CORBA.INV_OBJREF;
+import org.omg.CORBA.INV_POLICY;
 import org.omg.CORBA.OBJECT_NOT_EXIST;
 import org.omg.CORBA.OBJ_ADAPTER;
 import org.omg.CORBA.Policy;
@@ -2898,5 +2899,32 @@ public final class Delegate
     {
         orb.work_pending();
     }
+
+    public boolean validate_connection(  org.omg.CORBA.Object self,
+                                        org.omg.CORBA.PolicyListHolder inconsistent_policies )
+    {
+        if (non_existent(self))
+        {
+            inconsistent_policies.value = new Policy[ 0 ];
+            return false;
+        }
+        else {
+            synchronized ( bind_sync )
+            {
+                try
+                {
+                    bind();
+                }
+                catch (final INV_POLICY e)
+                {
+                    // have some invalid policies.
+                    inconsistent_policies.value = new Policy[ 0 ];
+                    return false;
+                }
+            }
+        }
+
+        return true;
+   }
 
 }

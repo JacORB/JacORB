@@ -23,56 +23,31 @@
 
 // Implementation skeleton constructor
 GoodDay_i::GoodDay_i (void)
-  {
-  }
-  
+{
+}
+
 // Implementation skeleton destructor
 GoodDay_i::~GoodDay_i (void)
-  {
-  }
-  
-char * GoodDay_i::hello_simple (
-    
-  )
-  ACE_THROW_SPEC ((
-    CORBA::SystemException
-  ))
+{
+}
 
-  {
-      return CORBA::string_dup("Hello Simple");
-  }
-  
-CORBA::WChar * GoodDay_i::hello_wide (
-    const CORBA::WChar * msg
-  )
-  ACE_THROW_SPEC ((
-    CORBA::SystemException
-  ))
+char * GoodDay_i::hello_simple (void)
+{
+  return CORBA::string_dup("Hello Simple");
+}
 
-  {
-      ACE_WString w1( CORBA::wstring_dup( msg ));
-      cout << w1 << endl;
-      ACE_WString w("aaaa");
-      return CORBA::wstring_dup( w.c_str() );
-  }
-  
-void GoodDay_i::test (
-    
-  )
-  ACE_THROW_SPEC ((
-    CORBA::SystemException,
-    GoodDay::WStringException
-  ))
+CORBA::WChar * GoodDay_i::hello_wide (const CORBA::WChar * msg)
+{
+  ACE_WString w1( CORBA::wstring_dup( msg ));
+  cout << w1 << endl;
+  ACE_WString w(ACE_TEXT_ALWAYS_WCHAR ("aaaa"));
+  return CORBA::wstring_dup( w.c_str() );
+}
 
-  {
-      GoodDay::WStringException e;
-      ACE_WString wwhy("WStringException test");
-      e.why = CORBA::wstring_dup(wwhy.c_str());
-      throw e;
-
-  }
-  
-
-
-
-
+void GoodDay_i::test (void)
+{
+  test::interop::wchar_tao_interop::GoodDay::WStringException e;
+  ACE_WString wwhy(ACE_TEXT_ALWAYS_WCHAR ("WStringException test"));
+  e.why = CORBA::wstring_dup(wwhy.c_str());
+  throw e;
+}
