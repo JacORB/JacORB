@@ -6,7 +6,7 @@
     <parent>
         <groupId>org.jacorb</groupId>
         <artifactId>jacorb-parent</artifactId>
-        <version>3.1</version>
+        <version>3.2</version>
         <relativePath>../..</relativePath>
     </parent>
 
@@ -19,34 +19,39 @@
     <description>JacORB Release Module for packaging distribution zips</description>
     <url>http://www.jacorb.org</url>
 
+    <properties>
+        <skipCompile>true</skipCompile>
+        <skipJavadoc>true</skipJavadoc>
+        <skipTests>true</skipTests>
+    </properties>
+
 
     <build>
         <plugins>
-
-            <!-- Generate the ProgrammingGuide via http://akquinet.github.com/maven-latex-plugin -->
             <plugin>
-                <groupId>de.akquinet.jbosscc.latex</groupId>
-                <artifactId>maven-latex-plugin</artifactId>
-                <version>1.2</version>
-                <configuration>
-                    <settings>
-                        <!-- all tex main documents in this folder (including subfolders) will be processed -->
-                        <texDirectory>${env.JACORB_HOME}/doc/ProgrammingGuide</texDirectory>
-                    </settings>
-                </configuration>
+                <artifactId>maven-antrun-plugin</artifactId>
                 <executions>
+                    <!-- Artifact signing. We want to create MD5 sums for the zips we create (src/bin) -->
+                    <!-- and (eventually) GPG sign the jar files -->
                     <execution>
-                        <phase>generate-sources</phase>
+                        <id>signing</id>
+                        <phase>verify</phase>
                         <goals>
-                            <goal>latex</goal>
+                            <goal>run</goal>
                         </goals>
+                        <configuration>
+                            <target>
+                                <checksum file="target/jacorb-${project.version}-source.zip"/>
+                                <checksum file="target/jacorb-${project.version}-binary.zip"/>
+                            </target>
+                        </configuration>
                     </execution>
                 </executions>
             </plugin>
 
             <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-assembly-plugin</artifactId>
-                <version>2.2</version>
                 <executions>
                     <execution>
                         <id>assemble-result</id>
@@ -111,27 +116,40 @@
                 </executions>
             </plugin>
 
-            <!-- Artifact signing. We want to create MD5 sums for the zips we create (src/bin) and -->
-            <!-- (eventually) GPG sign the jar files -->
-            <!-- Create an MD5 sum of the zip artifacts via http://nicoulaj.github.com/checksum-maven-plugin -->
             <plugin>
-                <groupId>net.ju-n.maven.plugins</groupId>
-                <artifactId>checksum-maven-plugin</artifactId>
-                <version>1.0.1</version>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
                 <executions>
                     <execution>
-                        <phase>package</phase>
+                        <id>copy</id>
+                        <phase>prepare-package</phase>
                         <goals>
-                            <goal>files</goal>
+                            <goal>copy</goal>
                         </goals>
                         <configuration>
-                            <algorithms>
-                                <algorithm>MD5</algorithm>
-                            </algorithms>
-                            <files>
-                                <file>target/jacorb-${project.version}-source.zip</file>
-                                <file>target/jacorb-${project.version}-binary.zip</file>
-                            </files>
+                            <artifactItems>
+                                <artifactItem>
+                                    <groupId>org.jacorb</groupId>
+                                    <artifactId>jacorb</artifactId>
+                                    <version>${project.version}</version>
+                                    <outputDirectory>${project.build.directory}/work/common/lib</outputDirectory>
+                                    <destFileName>jacorb.jar</destFileName>
+                                </artifactItem>
+                                <artifactItem>
+                                    <groupId>org.jacorb</groupId>
+                                    <artifactId>jacorb-services</artifactId>
+                                    <version>${project.version}</version>
+                                    <outputDirectory>${project.build.directory}/work/common/lib</outputDirectory>
+                                    <destFileName>jacorb-services.jar</destFileName>
+                                </artifactItem>
+                                <artifactItem>
+                                    <groupId>org.jacorb</groupId>
+                                    <artifactId>jacorb-idl-compiler</artifactId>
+                                    <version>${project.version}</version>
+                                    <outputDirectory>${project.build.directory}/work/common/lib</outputDirectory>
+                                    <destFileName>idl.jar</destFileName>
+                                </artifactItem>
+                            </artifactItems>
                         </configuration>
                     </execution>
                 </executions>
@@ -141,22 +159,52 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-install-plugin</artifactId>
-                <version>2.3.1</version>
-                <executions>
-                    <execution>
-                        <id>default-install</id>
-                        <phase>DISABLED</phase>
-                    </execution>
-                </executions>
+                <configuration>
+                    <skip>true</skip>
+                </configuration>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-deploy-plugin</artifactId>
-                <version>2.4</version>
                 <configuration>
                     <skip>true</skip>
                 </configuration>
             </plugin>
         </plugins>
     </build>
+
+    <profiles>
+        <profile>
+            <id>pdf-generation</id>
+            <activation>
+                <property>
+                    <name>!skipPDFGeneration</name>
+                </property>
+            </activation>
+            <build>
+                <plugins>
+                    <!-- Generate the ProgrammingGuide via http://akquinet.github.com/maven-latex-plugin -->
+                    <plugin>
+                        <groupId>de.akquinet.jbosscc.latex</groupId>
+                        <artifactId>maven-latex-plugin</artifactId>
+                        <version>1.2</version>
+                        <configuration>
+                            <settings>
+                                <!-- all tex main documents in this folder (including subfolders) will be processed -->
+                                <texDirectory>${basedir}/../../doc/ProgrammingGuide</texDirectory>
+                            </settings>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <phase>generate-sources</phase>
+                                <goals>
+                                    <goal>latex</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 </project>

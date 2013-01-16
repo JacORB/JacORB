@@ -30,7 +30,7 @@ import org.jacorb.util.Time;
 import org.omg.CONV_FRAME.CodeSetContext;
 import org.omg.CONV_FRAME.CodeSetContextHelper;
 import org.omg.CORBA.MARSHAL;
-import org.omg.CORBA.PrincipalHelper;
+import org.omg.GIOP.PrincipalHelper;
 import org.omg.GIOP.MsgType_1_1;
 import org.omg.GIOP.TargetAddress;
 import org.omg.GIOP.TargetAddressHelper;

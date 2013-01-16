@@ -194,9 +194,11 @@ interface Container : IRObject {
       in Identifier                   name,
       in VersionSpec                  version,
       in InterfaceDefSeq              base_interfaces
+#ifndef JACORB
       // Removed: http://www.omg.org/issues/issue3015.txt
-      // in boolean                      is_abstract
-                                 );
+      in boolean                      is_abstract
+#endif
+    );
    ValueDef create_value(
       in RepositoryId                 id,
       in Identifier                   name,
@@ -434,8 +436,10 @@ interface InterfaceDef : Container, Contained, IDLType {
    // read/write interface
    attribute InterfaceDefSeq       base_interfaces;
 
-   // Removed: http://www.omg.org/issues/issue3015.txt
-   // attribute boolean               is_abstract;
+#ifndef JACORB
+      // Removed: http://www.omg.org/issues/issue3015.txt
+      attribute boolean               is_abstract;
+#endif
 
    // read interface
    boolean is_a (in RepositoryId   interface_id
@@ -450,8 +454,10 @@ interface InterfaceDef : Container, Contained, IDLType {
       RepositoryIdSeq             base_interfaces;
       TypeCode                    type;
 
+#ifndef JACORB
       // Removed: http://www.omg.org/issues/issue3015.txt
-      // boolean                     is_abstract;
+      boolean                     is_abstract;
+#endif
    };
    FullInterfaceDescription describe_interface();
    // write interface
@@ -480,8 +486,10 @@ struct InterfaceDescription {
    VersionSpec                     version;
    RepositoryIdSeq                 base_interfaces;
 
-   // Removed: http://www.omg.org/issues/issue3015.txt
-   // boolean                         is_abstract;
+#ifndef JACORB
+      // Removed: http://www.omg.org/issues/issue3015.txt
+      boolean                     is_abstract;
+#endif
 };
 
 interface InterfaceAttrExtension {

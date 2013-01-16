@@ -1,218 +1,70 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
 
-<HTML>
-  <HEAD>
-    <META name="generator" content="HTML Tidy, see www.w3.org">
+<html>
+    <head>
+        <meta name="generator" content="HTML Tidy, see www.w3.org"/>
 
-    <TITLE>Installing JacORB</TITLE>
-    <LINK rel="stylesheet" type="text/css" href="./jacorb.css">
-  </HEAD>
+        <title>Installing JacORB</title>
+        <link rel="stylesheet" type="text/css" href="./jacorb.css"/>
+    </head>
 
-<BODY>
-<h1>Installing and Building JacORB</h1>
+    <body>
+        <h1>Installing and Building JacORB</h1>
 
-<blockquote>
+        <blockquote>
 
-<h2>Content</h2>
+            <h2>Content</h2>
 
-<ul>
-<li><a href="#plat">Supported Platforms</a>
-<li><a href="#pre">Prerequisites</a>
-<li><a href="#inst">Installation</a>
-<li><a href="#build">Building JacORB</a> (optional)
-<li><a href="#build-jboss-notification-service">Building JBoss Service for the Notification Service</a> (optional)
-</ul>
+            <ul>
+                <li><a href="#plat">Supported Platforms</a></li>
+                <li><a href="#pre">Prerequisites</a></li>
+                <li><a href="#inst">Installation</a></li>
+            </ul>
 
-
-<a name="plat"/>
-<h3>Supported Platforms</h3>
-JacORB should work under all supported Java platforms (See <a href="http://www.oracle.com/technetwork/java/javase/system-configurations-135212.html">here</a>). This release has been tested on Linux, Mac, and Windows.
-
-<a name="pre"/>
-<h3>Prerequisites</h3>
-</a>
-
-<ul>
-<li>JDK 1.6 or later
-<li>Version 1.7.1 or later of the Jakarta Ant build tool, available from
-    <a
-    href="http://jakarta.apache.org/ant">http://jakarta.apache.org/ant</a>.
-
- <li>for IIOP over SSL:
- <p>
-    JDK 1.6, or the IAIK cryptography provider
-    and SSL implementation, available from <a
-    href="http://www.iaik.at">http://www.iaik.at</a>
-
-</ul>
-
-<a name="inst"/>
-<h2>Installation</h2>
-</a>
-
-<ol>
-<li>recommended:<br> Download "Ant" and install as described in its
-    documentation (needed to build the demos and if you want to
-    rebuild JacORB.)
-
-<li>Extend your search path to include the <tt>/bin</tt> subdirectory
-   of the installation directory so that the JacORB utilities can be
-   found.
-
-<li>If you can't or don't want to use the <tt>jaco[.bat]</tt> start
-   scripts, copy <tt>orb.properties</tt> to <tt>JAVA_HOME/lib</tt> or
-   edit the existing <tt>orb.properties</tt> file.
-
-<li> Edit <tt>jacorb.properties</tt> and copy them to your "home" directory.
-   Please use jacorb_properties.template as a template.  Most options
-   need no configuration, but make sure you adjust at last the URL
-   strings for the services you plan to use (e.g. NameService and so
-   on) to match your domain's web server or local file system
-   structure.  Please consult the programming guide's section on
-   setting up the name server for details. The trader and the
-   implementation repository are located using the same mechanism. If
-   you don't need these services, just comment out the corresponding
-   line in the properties file.
-<p>
-   Also, you can configure how much diagnostic information JacORB
-   emits by setting the jacorb.log.default.verbosity property. A value of 0
-   means no output,  level 1 emits basic connection information,
-   and levels 2 and above are debug levels.
-<p>
-   NOTE: If you are updating from an existing JacORB installation
-   you MUST change existing jacorb.properties files to reflect the
-   changes in package names (the leading "org.") where property
-   values point to JacORB classes. E.g., the value for property:<br>
-   <p>
-      <tt>org.omg.PortableInterceptor.ORBInitializerClass.standard_init</tt><br>
-   <br>
-   must be changed to:
-  <p>
-      <tt>org.jacorb.orb.standardInterceptors.IORInterceptorInitializer</tt>
-
-<lI> Generate or edit the start scripts jaco and jaco.bat:
-   (This step is carried out automatically by the build process, so
-    it is only required if you are not rebuilding JacORB.)
-   <ol>
-   <li> If you have Ant installed, simply call "ant scripts"
-
-   <li> If you don't have Ant, you need to create and adapt the
-           jaco[.bat] script in bin yourself to update the
-           classpath. You can use the file jacotemplate[.bat] as a
-           template and replace the @@@XYZ_HOME@@@ placeholders by
-           your actual paths.<br>
-       <p>
-           You will also need to replace the @@@CLASSPATH@@@ tokens
-           with appropriate values:<br>
-           <br>
-           <tt>
-           -Djava.endorsed.dirs=${JACORB_HOME}/lib \<br>
-            -classpath ${JACORB_HOME}/lib/jacorb.jar:\<br>
-            ${JACORB_HOME}/lib/slf4j-api-1.6.2.jar:\<br>
-            ${JACORB_HOME}/lib/slf4j-jdk14-1.6.2.jar:\<br>
-            ${JACORB_HOME}/lib/antlr-2.7.2.jar<br>
-          </tt>
-</ol>
-
-<li> Generate or edit the IDL compiler scripts idl and idl.bat if you
-   plan to use the IDL compiler. (This step is carried out
-   automatically by the build process, so it is only required if you
-   are not rebuilding JacORB.)
-   <ol>
-   <li>If you have Ant installed, simply call <tt>ant scripts</tt>
-      (assuming you have not already run this).
-   <li>If you don't have Ant, you need to create and adapt the
-           idl[.bat] script in bin yourself to update the
-           classpath. You can use the file idltemplate[.bat] as a
-           template and replace the @@@XYZ_HOME@@@ placeholders by
-           your actual paths.
-   </ol>
-
-<a name="build"/>
-<h2>Building JacORB (Optional)</h2>
-</a>
-
-<p>   Ensure that Ant (See version requirements above) is installed on your
-   system and that you are starting with a clean environment. The
-   easiest way to start is with your CLASSPATH unset.
-
-<p>   N.B. Windows users should ensure that JacORB is installed in a path
- that does not contain spaces. Errors will be encountered building the
- Notification Service otherwise.
-
-<p>   To build JacORB you need to call "ant" in the installation
-   directory:
-   <p>
-   <tt>$> ant</tt>
-   <p>
-   By default debugging is turned on when building JacORB. By default
-   debuglevel is set to <tt>lines,source,vars</tt>
-
-   <h3>NOTES:</h3>
-
-   The build process may abort, claiming that javac does not have
-   enough memory. This can happen when trying to compile a large
-   number of files at one time. To avoid this on Unix, copy the file
-   "ANTRC" to your home directory renaming it to ".antrc". If you are
-   building on a Windows platform copy the antrc_pre.bat file to your
-   home directory (as denoted by %HOME%).  ant will consult these
-   files and use a larger Java maximum heap size.  If this is not
-   applicable in your setting you need to edit ANT_HOME/bin/ant(.bat)
-   such that the java interpreter is passed the -mx48m (or whatever)
-   switch.
-   <p>
-   For Windows add the following line after calling
-   <tt>antrc_pre.bat</tt>
-   <p>
-   <tt>set ANT_OPTS=-mx48m %ANT_OPTS%</tt><br>
-   <p>
-   For Unix add the following line after sourcing .antrc
-   <p>
-   <tt>ANT_OPTS=-mx48m $ANT_OPTS</tt>
-   <p>
-   Yet another way of achieving the same is by setting the
-   ANT_OPTS environment variable. On Windows:<br>
-   <br>
-   <tt>set ANT_OPTS=-mx48m</tt><br>
-   <br>
-   or on Unix:<br>
-      <tt>export ANT_OPTS=-mx48m</tt>
-
-<h2>Building JacORB Examples (Optional)</h2>
-</a>
-
-<p>   To build the JacORB demos within the demo directory a build.xml file
-has been supplied. Similar to above, simply call "ant" in the demo directory.
-The default Ant target will build all the demos. The classes will be placed
-in
-<p>
-<tt>${installdir}/classes</tt>
-<p>
-By default debugging is turned off. See above for instructions on this.
-
-<a name="build-jboss-notification-service">
-  <h2>Building JBoss Service for the Notification Service (Optional)</h2>
-</a>
-
-<p>In order to build the JBoss service (jboss-cosnotification.sar in the lib
-directory), the paths to JBOSS_HOME for the <a
-  href="http://labs.jboss.com/jbossas/downloads" target="_blank">JBoss
-  Application Server</a> and MX4J_HOME for the <a
-  href="http://mx4j.sourceforge.net/" target="_blank">MX4J implementation</a> of
-the Java Management Extensions (JMX) have to be specified for the ant build
-process.  There are two possible alternatives for this task.</p>
-
-<ol>
-  <li>Set the paths in the environment variables named JBOSS_HOME and MX4J_HOME
-  respectively.</li>
-  <li>Call ant with the additional parameters
-  <tt>-Djboss.home=&lt;path-to-jboss-installation&gt;
-    -Dmx4j.home=&lt;path-to-mx4j-installation&gt;</tt></li>
-</ol>
+            For further information, see the JacORB ProgrammingGuide.
 
 
-</blockquote>
+            <a name="plat">
+                <h3>Supported Platforms</h3>
+            </a>
+            JacORB should work under all supported Java platforms (See <a href="http://www.oracle.com/technetwork/java/javase/system-configurations-135212.html">here</a>). This release has been tested on Linux, Mac, and Windows.
 
-<p class="bottompar">Gerald Brose,  May 2004.</p>
-</BODY>
-</HTML>
+            <a name="pre">
+                <h3>Prerequisites</h3>
+            </a>
+            <ul>
+                <li>JDK 1.6 or later</li>
+            </ul>
+
+            <a name="inst">
+                <h2>Installation</h2>
+            </a>
+            <ol>
+                <li>Recommended:<br/> Download "Ant" (from <a
+                href="http://ant.apache.org">http://ant.apache.org</a>) and
+                install as described in its documentation (needed to build the
+                demos and if you want to rebuild JacORB.)</li>
+
+                <li>Extend your search path to include the <tt>/bin</tt> subdirectory
+                of the installation directory so that the JacORB utilities can be
+                found.</li>
+
+                <li> Edit <tt>jacorb.properties</tt> and copy them to your "home" directory.
+                Please use jacorb_properties.template as a template.  Most options
+                need no configuration, but make sure you adjust at least the URL
+                strings for the services you plan to use (e.g. NameService and so
+                on) to match your domain's web server or local file system
+                structure.  Please consult the ProgrammingGuide's section on
+                setting up the name server for details. The trader and the
+                implementation repository are located using the same mechanism. If
+                you don't need these services, just comment out the corresponding
+                line in the properties file.<br/>
+                Also, you can configure how much diagnostic information JacORB
+                emits by setting the jacorb.log.default.verbosity property. A value of 0
+                means no output,  level 1 emits basic connection information,
+                and levels 2 and above are debug levels.
+                </li>
+            </ol>
+        </blockquote>
+    </body>
+</html>

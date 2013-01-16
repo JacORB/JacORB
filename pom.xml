@@ -9,6 +9,7 @@
     To skip compilation pass -DskipCompile=true
     To skip tests pass -DskipTests=true
     To skip javadoc pass -DskipJavadoc=true
+    To skip pdf generation (if e.g. pdflatex is not installed) -DskipPDFGeneration
 
     To deploy and release pass -DperformRelease=true
 
@@ -18,6 +19,8 @@
     compile=all
     test='clean run-all'
     package= [ Distribution assembly ]
+
+    NOTE: JACORB_HOME must be passed in via -D or set in the environment.
 
     -->
 
@@ -31,7 +34,7 @@
 
     <groupId>org.jacorb</groupId>
     <artifactId>jacorb-parent</artifactId>
-    <version>3.1</version>
+    <version>3.2</version>
     <packaging>pom</packaging>
 
     <name>JacORB</name>
@@ -68,8 +71,8 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <!-- Default public key we sign the builds with. This can be overridden by other developers -->
-        <gpg.keyname>FAF776878639DE5E</gpg.keyname>
+        <!-- GPG key ID we sign the builds with. This can be overridden by other developers -->
+        <gpg.keyname>6E0309600DC50C2E</gpg.keyname>
     </properties>
 
 
@@ -81,13 +84,18 @@
     </modules>
 
 
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.apache.ant</groupId>
+                <artifactId>ant</artifactId>
+                <version>1.8.2</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
+
     <dependencies>
-        <dependency>
-            <groupId>org.apache.ant</groupId>
-            <artifactId>ant</artifactId>
-            <version>1.8.2</version>
-            <scope>compile</scope>
-        </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
@@ -105,9 +113,40 @@
         <pluginManagement>
             <plugins>
                 <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-antrun-plugin</artifactId>
                     <version>1.7</version>
                     <executions>
+                        <execution>
+                        <id>getJACORB_HOMEValidation</id>
+                        <phase>validate</phase>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                        <configuration>
+                            <exportAntProperties>true</exportAntProperties>
+                            <target>
+                                <!--Adjust the location below to your directory structure -->
+                                <property name="env.JACORB_HOME" location="../.." />
+                                <echo message="[validate] env.JACORB_HOME=${env.JACORB_HOME}"/>
+                            </target>
+                        </configuration>
+                        </execution>
+                    <execution>
+                        <id>getenv.JACORB_HOMEClean</id>
+                        <phase>pre-clean</phase>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                        <configuration>
+                            <exportAntProperties>true</exportAntProperties>
+                            <target>
+                                <!--Adjust the location below to your directory structure -->
+                                <property name="env.JACORB_HOME" location="../.." />
+                                <echo message="[preclean] env.JACORB_HOME=${env.JACORB_HOME}"/>
+                            </target>
+                        </configuration>
+                    </execution>
                         <execution>
                             <id>clean</id>
                             <phase>clean</phase>
@@ -166,6 +205,56 @@
                     </dependencies>
                 </plugin>
 
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-assembly-plugin</artifactId>
+                    <version>2.2.2</version>
+                </plugin>
+
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-dependency-plugin</artifactId>
+                    <version>2.6</version>
+                </plugin>
+
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-deploy-plugin</artifactId>
+                    <version>2.7</version>
+                </plugin>
+
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-install-plugin</artifactId>
+                    <version>2.4</version>
+                </plugin>
+
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-jar-plugin</artifactId>
+                    <version>2.4</version>
+                </plugin>
+
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-resources-plugin</artifactId>
+                    <version>2.6</version>
+                </plugin>
+
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-source-plugin</artifactId>
+                    <version>2.1.2</version>
+                    <executions>
+                        <execution>
+                            <id>attach-sources</id>
+                            <goals>
+                                <goal>jar</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                </plugin>
+
                 <!-- Helper plugin to override main artifact -->
                 <plugin>
                     <groupId>org.commonjava.maven.plugins</groupId>
@@ -204,11 +293,6 @@
                 </plugin>
 
                 <plugin>
-                    <artifactId>maven-jar-plugin</artifactId>
-                    <version>2.4</version>
-                </plugin>
-
-                <plugin>
                     <groupId>org.codehaus.mojo</groupId>
                     <artifactId>build-helper-maven-plugin</artifactId>
                     <version>1.7</version>
@@ -223,47 +307,39 @@
                     </executions>
                 </plugin>
 
-                <plugin>
-                    <artifactId>maven-source-plugin</artifactId>
-                    <version>2.1.2</version>
-                    <executions>
-                        <execution>
-                            <id>attach-sources</id>
-                            <goals>
-                                <goal>jar</goal>
-                            </goals>
-                        </execution>
-                    </executions>
-                </plugin>
-
-                <plugin>
-                    <artifactId>maven-deploy-plugin</artifactId>
-                    <version>2.7</version>
-                </plugin>
             </plugins>
 
         </pluginManagement>
 
 
         <plugins>
-            <!-- Require JACORB_HOME to be set for all Maven poms. -->
             <plugin>
-                <artifactId>maven-enforcer-plugin</artifactId>
-                <version>1.0.1</version>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <version>1.7</version>
+                <inherited>false</inherited>
                 <executions>
                     <execution>
-                        <id>enforce-property</id>
-                        <goals>
-                            <goal>enforce</goal>
-                        </goals>
+                        <id>getJACORB_HOMEValidation</id>
+                        <phase>validate</phase>
                         <configuration>
-                            <rules>
-                                <requireProperty>
-                                    <property>env.JACORB_HOME</property>
-                                    <message>*** ERROR - JACORB_HOME is not set ***</message>
-                                </requireProperty>
-                            </rules>
-                            <fail>true</fail>
+                            <exportAntProperties>true</exportAntProperties>
+                            <target>
+                                <!--Adjust the location below to your directory structure -->
+                                <property name="env.JACORB_HOME" location="." />
+                                <echo message="[validate] env.JACORB_HOME=${env.JACORB_HOME}"/>
+                            </target>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>getenv.JACORB_HOMEClean</id>
+                        <phase>pre-clean</phase>
+                        <configuration>
+                            <exportAntProperties>true</exportAntProperties>
+                            <target>
+                                <!--Adjust the location below to your directory structure -->
+                                <property name="env.JACORB_HOME" location="." />
+                                <echo message="[preclean] env.JACORB_HOME=${env.JACORB_HOME}"/>
+                            </target>
                         </configuration>
                     </execution>
                 </executions>
@@ -306,6 +382,8 @@
                                     <goal>sign</goal>
                                 </goals>
                                 <configuration>
+                                    <executable>gpg2</executable>
+                                    <useAgent>true</useAgent>
                                     <ascDirectory>${project.build.directory}</ascDirectory>
                                     <keyname>${gpg.keyname}</keyname>
                                 </configuration>

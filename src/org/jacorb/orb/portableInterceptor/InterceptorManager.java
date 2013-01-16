@@ -64,13 +64,13 @@ public class InterceptorManager
     private final int current_slots;
     private final Logger logger;
 
-    private static final ThreadLocal piCurrent = new ThreadLocal();
+    private static final ThreadLocal<Current> piCurrent = new ThreadLocal<Current>();
 
     /**
      * This is to hold the PICurrent for local invocations that involve interceptors to prevent the
      * client PICurrent being overwritten by a server PICurrent
      */
-    private static final ThreadLocal localPICurrent = new ThreadLocal ();
+    private static final ThreadLocal<Current> localPICurrent = new ThreadLocal<Current> ();
 
     public static final PICurrentImpl EMPTY_CURRENT = new PICurrentImpl(null, 0);
 

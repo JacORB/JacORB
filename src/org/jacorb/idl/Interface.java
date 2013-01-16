@@ -846,7 +846,7 @@ public class Interface
 
         printClassComment("interface", name, ps);
 
-        ps.println("public" + parser.getFinalString() + " class " + name + "Helper");
+        ps.println("public abstract class " + name + "Helper");
         ps.println("{");
 
         ps.println("\tprivate volatile static org.omg.CORBA.TypeCode _type;");
@@ -903,10 +903,6 @@ public class Interface
             ps.println("\t\t{");
             ps.println("\t\torg.omg.CORBA.Object __o = any.extract_Object();" + Environment.NL);
             ps.println("\t\t" + name + " __r = narrow(__o);" + Environment.NL);
-            ps.println("\t\tif (__o != null && __o != __r)");
-            ps.println("\t\t{");
-            ps.println("\t\t\t((org.omg.CORBA.portable.ObjectImpl)__o)._set_delegate(null);" + Environment.NL);
-            ps.println("\t\t}");
             ps.println("\t\treturn __r;");
             ps.println("\t\t}");
             ps.println("\t\tcatch (org.omg.CORBA.BAD_OPERATION ex)");
@@ -1198,10 +1194,6 @@ public class Interface
 
         ps.println("\t\t" + "org.omg.CORBA.Object __o = _this_object() ;" ) ;
         ps.println("\t\t" + javaName() + " __r = " + javaName() + "Helper.narrow(__o);");
-        ps.println("\t\tif (__o != null && __o != __r)");
-        ps.println("\t\t{");
-        ps.println("\t\t\t((org.omg.CORBA.portable.ObjectImpl)__o)._set_delegate(null);\n");
-        ps.println("\t\t}");
         ps.println("\t\treturn __r;");
 
         ps.println("\t}");
@@ -1212,10 +1204,6 @@ public class Interface
 
         ps.println("\t\t" + "org.omg.CORBA.Object __o = _this_object(orb) ;" ) ;
         ps.println("\t\t" + javaName() + " __r = " + javaName() + "Helper.narrow(__o);");
-        ps.println("\t\tif (__o != null && __o != __r)");
-        ps.println("\t\t{");
-        ps.println("\t\t\t((org.omg.CORBA.portable.ObjectImpl)__o)._set_delegate(null);\n");
-        ps.println("\t\t}");
         ps.println("\t\treturn __r;");
 
         ps.println("\t}");
@@ -1290,10 +1278,6 @@ public class Interface
         ps.println("\t{");
         ps.println("\t\t" + "org.omg.CORBA.Object __o = _this_object() ;" ) ;
         ps.println("\t\t" + javaName() + " __r = " + javaName() + "Helper.narrow(__o);");
-        ps.println("\t\tif (__o != null && __o != __r)");
-        ps.println("\t\t{");
-        ps.println("\t\t\t((org.omg.CORBA.portable.ObjectImpl)__o)._set_delegate(null);\n");
-        ps.println("\t\t}");
         ps.println("\t\treturn __r;");
         ps.println("\t}");
 
@@ -1301,10 +1285,6 @@ public class Interface
         ps.println("\t{");
         ps.println("\t\t" + "org.omg.CORBA.Object __o = _this_object(orb) ;" ) ;
         ps.println("\t\t" + javaName() + " __r = " + javaName() + "Helper.narrow(__o);");
-        ps.println("\t\tif (__o != null && __o != __r)");
-        ps.println("\t\t{");
-        ps.println("\t\t\t((org.omg.CORBA.portable.ObjectImpl)__o)._set_delegate(null);\n");
-        ps.println("\t\t}");
         ps.println("\t\treturn __r;");
         ps.println("\t}");
 

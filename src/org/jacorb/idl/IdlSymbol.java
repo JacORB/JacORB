@@ -716,7 +716,10 @@ public class IdlSymbol
         ps.println(" * Generated from IDL " + type.trim() + " \"" + name + "\".");
         ps.println(" *");
         ps.println(" * @author JacORB IDL compiler V " + parser.compiler_version);
-        ps.println(" * @version generated at " + parser.currentDate);
+        if (parser.printVersionTimestamps)
+        {
+            ps.println(" * @version generated at " + parser.currentDate);
+        }
         ps.println(" */" + Environment.NL);
     }
 }

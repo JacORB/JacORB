@@ -80,6 +80,14 @@ public class CommonSetup
 
         props.put("jacorb.security.ssl.ssl_listener", SSLListener.class.getName());
 
+        if (TestUtils.isIBM)
+        {
+            props.put("jacorb.security.jsse.server.key_manager_algorithm", "IbmX509");
+            props.put("jacorb.security.jsse.server.trust_manager_algorithm", "IbmX509");
+            props.put("jacorb.security.jsse.client.key_manager_algorithm", "IbmX509");
+            props.put("jacorb.security.jsse.client.trust_manager_algorithm", "IbmX509");
+        }
+
         return props;
     }
 

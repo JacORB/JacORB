@@ -7,7 +7,7 @@
     <parent>
         <groupId>org.jacorb</groupId>
         <artifactId>jacorb-parent</artifactId>
-        <version>3.1</version>
+        <version>3.2</version>
         <relativePath>../..</relativePath>
     </parent>
 
@@ -37,6 +37,10 @@
 
     <build>
         <plugins>
+            <plugin>
+                <artifactId>maven-antrun-plugin</artifactId>
+            </plugin>
+
             <plugin>
                 <groupId>org.commonjava.maven.plugins</groupId>
                 <artifactId>build-migration-maven-plugin</artifactId>

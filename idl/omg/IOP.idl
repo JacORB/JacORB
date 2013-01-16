@@ -28,9 +28,14 @@ module IOP {
 
     struct TaggedProfile {
         ProfileId                   tag;
+#ifdef JACORB
         sequence <octet>            profile_data;
+#else
+        ProfileData                 profile_data;
+#endif
     };
 
+    typedef sequence <TaggedProfile> TaggedProfileSeq;
 
     // The IOR
 
@@ -38,9 +43,12 @@ module IOP {
     // object-specific protocol profiles, plus a type ID.
     struct IOR {
         string                      type_id;
+#ifdef JACORB
         sequence <TaggedProfile>    profiles;
+#else
+        TaggedProfileSeq            profiles;
+#endif
     };
-
 
     // IOR Components
 
@@ -50,13 +58,17 @@ module IOP {
 
     typedef unsigned long ComponentId;
 
+    typedef CORBA::OctetSeq ComponentData;
+
     struct TaggedComponent {
         ComponentId                 tag;
-        sequence <octet>            component_data;
+        ComponentData               component_data;
     };
 
     typedef sequence <TaggedComponent> TaggedComponentSeq;
     typedef sequence <TaggedComponent> MultipleComponentProfile;
+
+    typedef CORBA::OctetSeq ObjectKey;
 
     const ComponentId           TAG_ORB_TYPE                = 0;
     const ComponentId           TAG_CODE_SETS               = 1;

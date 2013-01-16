@@ -119,7 +119,9 @@ module PortableServer {
          raises(AdapterInactive);
       void deactivate(        in boolean etherealize_objects,
                               in boolean wait_for_completion)
-         raises(AdapterInactive);
+#ifdef JACORB
+        raises(AdapterInactive);
+#endif
       State get_state();
       string get_id();
    };

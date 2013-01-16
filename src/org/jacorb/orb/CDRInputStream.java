@@ -415,64 +415,55 @@ public class CDRInputStream
 
     private final void handle_chunking()
     {
-        handle_chunking (true);
+        int remainder = 4 - (index % 4);
+        int aligned_pos = (remainder != 4) ? pos + remainder : pos;
+
+        if (chunk_end_pos >= pos && chunk_end_pos <= aligned_pos)
+        {
+            adjust_positions ();
+        }
     }
 
-    private final void handle_chunking(boolean align)
+    private final void adjust_positions()
     {
-        if (align)
+        chunk_end_pos = -1;
+        int saved_pos = pos;
+        int saved_index = index;
+        int tag = read_long();
+
+        if (tag < 0)
         {
-            int remainder = 4 - (index % 4);
-            int aligned_pos = (remainder != 4) ? pos + remainder : pos;
-            align = ( chunk_end_pos >= pos && chunk_end_pos <= aligned_pos );
-        }
-        else
-        {
-            align = ( chunk_end_pos == pos );
-        }
-
-        if ( align )
-        {
-            chunk_end_pos = -1;
-            int saved_pos = pos;
-            int saved_index = index;
-            int tag = read_long();
-
-            if (tag < 0) {
-
-                // tag is an end tag
-
-                if (-tag > valueNestingLevel)
-                {
-                    throw new INTERNAL
-                    (
-                        "received end tag " + tag +
-                        " with value nesting level " +
-                        valueNestingLevel
-                    );
-                }
-                valueNestingLevel = -tag;
-                valueNestingLevel--;
-
-                if (valueNestingLevel > 0)
-                {
-                    chunk_end_pos = pos;
-                    handle_chunking();
-                }
-            }
-            else if (tag > 0 && tag < 0x7fffff00)
+            // tag is an end tag
+            if (-tag > valueNestingLevel)
             {
-                // tag is the chunk size tag of another chunk
-
-                chunk_end_pos = pos + tag;
+                throw new INTERNAL
+                (
+                    "received end tag " + tag +
+                    " with value nesting level " +
+                    valueNestingLevel
+                );
             }
-            else // (tag == 0 || tag >= 0x7fffff00)
+            valueNestingLevel = -tag;
+            valueNestingLevel--;
+
+            if (valueNestingLevel > 0)
             {
-                // tag is the null value tag or the value tag of a nested value
-
-                pos = saved_pos;      // "unread" the tag
-                index = saved_index;
+                chunk_end_pos = pos;
+                handle_chunking();
             }
+        }
+        else if (tag > 0 && tag < 0x7fffff00)
+        {
+            // tag is the chunk size tag of another chunk
+
+            chunk_end_pos = pos + tag;
+        }
+        else // (tag == 0 || tag >= 0x7fffff00)
+        {
+            // tag is the null value tag or the value tag of a nested value
+
+            pos = saved_pos;      // "unread" the tag
+            index = saved_index;
         }
     }
 
@@ -679,7 +670,11 @@ public class CDRInputStream
 
     public final boolean read_boolean()
     {
-        handle_chunking(false);
+        if (this.chunk_end_pos == this.pos)
+        {
+            this.adjust_positions();
+        }
+
         index++;
         byte value = buffer[pos++];
 
@@ -746,7 +741,10 @@ public class CDRInputStream
      */
     public final char read_char()
     {
-        handle_chunking(false);
+        if (this.chunk_end_pos == this.pos)
+        {
+            this.adjust_positions();
+        }
 
         index++;
         return (char)(buffer[pos++] & 0xFF);
@@ -1098,7 +1096,11 @@ public class CDRInputStream
 
     public final byte read_octet()
     {
-        handle_chunking(false);
+        if (this.chunk_end_pos == this.pos)
+        {
+            this.adjust_positions();
+        }
+
         index++;
         return buffer[pos++];
     }
@@ -2541,7 +2543,8 @@ public class CDRInputStream
             // reset buffer and remember that we're not within a chunk
             pos = savedPos;
             index = savedIndex;
-            chunk_end_pos = -1;
+
+            adjust_positions();
         }
     }
 

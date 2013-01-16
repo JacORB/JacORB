@@ -77,3 +77,6 @@ This example demonstrates using the Secure Attribute Service (SAS).
 
 Notification & Event
 Examples are supplied to demonstrate using the Notification & Event Service.
+
+Maven
+This example is based on the Hello example but utilises Maven for dependencies and compilation.

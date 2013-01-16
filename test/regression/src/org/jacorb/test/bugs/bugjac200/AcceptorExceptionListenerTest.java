@@ -31,7 +31,14 @@ public class AcceptorExceptionListenerTest extends TestCase
     {
         TestSuite suite = new TestSuite ("AcceptorExceptionListener Test");
 
-        suite.addTestSuite(AcceptorExceptionListenerTest.class);
+        // Due to the changes in Java 7
+        // http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=4673444
+        // http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=4873188
+        // this test only works on JDK 6
+        if ( ! TestUtils.JDK_17 )
+        {
+            suite.addTestSuite(AcceptorExceptionListenerTest.class);
+        }
 
         return suite;
     }

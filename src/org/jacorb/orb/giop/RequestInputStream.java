@@ -113,7 +113,7 @@ public class RequestInputStream
                       addr.object_key (object_key);
                    }
                    req_hdr.operation=read_string();
-                   org.omg.CORBA.PrincipalHelper.read(this);
+                   org.omg.GIOP.PrincipalHelper.read(this);
                    req_hdr.target = addr;
 
                    break;

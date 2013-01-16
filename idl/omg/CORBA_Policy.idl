@@ -22,21 +22,23 @@
     const PolicyErrorCode BAD_POLICY_VALUE = 3;
     const PolicyErrorCode UNSUPPORTED_POLICY_VALUE = 4;
 
-#ifdef JACORB
-// Copied from 03-01-10 Mapping (ptc/2003-01-08 Final Report)
     enum SetOverrideType {SET_OVERRIDE, ADD_OVERRIDE};
 
     exception InvalidPolicies {
-	sequence<unsigned short>        indicies;
+        sequence<unsigned short>        indicies;
     };
 
+#ifdef JACORB
+    // Copied from 03-01-10 Mapping (ptc/2003-01-08 Final Report)
     local interface PolicyManager {
-	PolicyList      get_policy_overrides(in PolicyTypeSeq ts);
+#else
+    interface PolicyManager {
+#endif
+        PolicyList      get_policy_overrides(in PolicyTypeSeq ts);
 
- 	void            set_policy_overrides(in PolicyList policies,
+        void            set_policy_overrides(in PolicyList policies,
 					     in SetOverrideType set_add)
 	raises(InvalidPolicies);
     };
 
     local interface PolicyCurrent : PolicyManager, Current { };
-#endif

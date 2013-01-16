@@ -64,6 +64,8 @@ public class TestUtils
 {
     private static final String[] STRING_ARRAY_TEMPLATE = new String[0];
 
+    public static final boolean isIBM = (System.getProperty ("java.vendor").equals ("IBM Corporation"));
+
     private static String testHome = null;
     private static String systemRoot = null;
     public static boolean verbose = "true".equalsIgnoreCase(System.getProperty("jacorb.test.verbose"));
@@ -72,6 +74,11 @@ public class TestUtils
         (
             System.getProperty ("java.version").indexOf("1.3") != -1 ||
             "CVM".equals(System.getProperty ("java.vm.name"))
+        );
+
+    public static final boolean JDK_17 =
+        (
+            System.getProperty ("java.version").indexOf("1.7") != -1
         );
 
 
@@ -347,35 +354,21 @@ public class TestUtils
 
     /**
      * create properties that contain the correct (JDK specific)
-     * settings to create a Sun ORB.
+     * settings to create a Sun or IBM ORB.
      */
-    public static Properties newSunORBProperties()
+    public static Properties newForeignORBProperties()
     {
         final Properties props = new Properties();
-        boolean isJDK5;
 
-        try
+        if (TestUtils.isIBM)
         {
-            // if JDK1.5 version of ORBImpl is available we'll
-            // assume that this is JDK1.5
-            Class.forName("com.sun.corba.se.impl.orb.ORBImpl");
-            isJDK5 = true;
-        }
-        catch (ClassNotFoundException e)
-        {
-            // JDK1.4
-            isJDK5 = false;
-        }
-
-        if (isJDK5)
-        {
-            props.setProperty("org.omg.CORBA.ORBClass", "com.sun.corba.se.impl.orb.ORBImpl");
-            props.setProperty("org.omg.CORBA.ORBSingletonClass", "com.sun.corba.se.impl.orb.ORBSingleton");
+            props.setProperty ("org.omg.CORBA.ORBClass", "com.ibm.CORBA.iiop.ORB");
+            props.setProperty ("org.omg.CORBA.ORBSingletonClass", "com.ibm.rmi.corba.ORBSingleton");
         }
         else
         {
-            props.setProperty("org.omg.CORBA.ORBClass", "com.sun.corba.se.internal.Interceptors.PIORB");
-            props.setProperty("org.omg.CORBA.ORBSingletonClass", "com.sun.corba.se.internal.corba.ORBSingleton");
+            props.setProperty("org.omg.CORBA.ORBClass", "com.sun.corba.se.impl.orb.ORBImpl");
+            props.setProperty("org.omg.CORBA.ORBSingletonClass", "com.sun.corba.se.impl.orb.ORBSingleton");
         }
         return props;
     }
@@ -615,7 +608,7 @@ public class TestUtils
         }
         return getStringAsBoolean(value);
     }
-    
+
     public static boolean isJ2ME()
     {
         return "true".equalsIgnoreCase(System.getProperty("jacorb.test.j2me"));

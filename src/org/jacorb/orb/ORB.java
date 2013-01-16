@@ -1922,12 +1922,12 @@ public final class ORB
             {
                 if (failOnORBInitializerError)
                 {
-                    logger.error(initializer.getClass().getName() + ": aborting due to error during ORBInitializer::pre_init", e);
+                    logger.error(initializer.getClass().getName() + ": aborting due to error during ORBInitializer::post_init", e);
 
                     throw new INITIALIZE(e.toString());
                 }
 
-                logger.warn(initializer.getClass().getName() + ": ignoring error during ORBInitializer::pre_init. the ORBInitializer will be removed from the current configuration", e);
+                logger.warn(initializer.getClass().getName() + ": ignoring error during ORBInitializer::post_init. the ORBInitializer will be removed from the current configuration", e);
             }
         }
     }

@@ -10,15 +10,15 @@
 
 module CosTypedNotifyComm {
 
-	interface TypedPushConsumer :
-		CosTypedEventComm::TypedPushConsumer,
-		CosNotifyComm::NotifyPublish {
-	}; // TypedPushConsumer
+        interface TypedPushConsumer :
+                CosTypedEventComm::TypedPushConsumer,
+                CosNotifyComm::NotifyPublish {
+        }; // TypedPushConsumer
 
-	interface TypedPullSupplier :
-		CosTypedEventComm::TypedPullSupplier,
-		CosNotifyComm::NotifySubscribe {
-	}; // TypedPullSupplier
+        interface TypedPullSupplier :
+                CosTypedEventComm::TypedPullSupplier,
+                CosNotifyComm::NotifySubscribe {
+        }; // TypedPullSupplier
 
 }; // CosTypedNotifyComm
 

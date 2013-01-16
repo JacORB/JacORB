@@ -184,14 +184,15 @@ policy to the object as shown below.
 
    policies[0] = cpp;
 
-   <mycorbaobject>._set_policy_override
-                (policies, SetOverrideType.SET_OVERRIDE);
+   <mycorbaobject-two> = MyCorbaObjectHelper.narrow (<mycorbaobject>._set_policy_override
+                (policies, SetOverrideType.SET_OVERRIDE)_;
+   <mycorbaobject>._release();
 \end{verbatim}
 \end{small}
 \end{samepage}
 
 
-%%% Local Variables: 
+%%% Local Variables:
 %%% mode: latex
 %%% TeX-master: "../ProgrammingGuide"
-%%% End: 
+%%% End:

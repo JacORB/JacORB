@@ -76,6 +76,7 @@ public class ServerRequestInfoImpl
 
     public Any sending_exception = null;
 
+
     public ServerRequestInfoImpl( org.jacorb.orb.ORB orb,
                                   ServerRequest request,
                                   Servant servant)

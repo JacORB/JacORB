@@ -1,0 +1,12 @@
+module mere {
+        interface iMere {
+                boolean isTrue();
+        };
+};
+
+module fille {
+        typedef mere::iMere aliasMere;
+
+        interface iFille : aliasMere {
+        };
+};

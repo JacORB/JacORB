@@ -1,5 +1,6 @@
 package org.jacorb.orb;
 
+import org.jacorb.orb.portableInterceptor.DefaultClientInterceptorHandler;
 import org.jacorb.orb.portableInterceptor.InterceptorManager;
 import org.jacorb.orb.portableInterceptor.ServerInterceptorIterator;
 import org.jacorb.orb.portableInterceptor.ServerRequestInfoImpl;

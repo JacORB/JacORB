@@ -626,7 +626,7 @@ public class RequestProcessor
             {
                 invokePreInvoke();
             }
-            servant._this_object (orb);
+            ((org.omg.CORBA_2_3.ORB)orb).set_delegate((org.omg.PortableServer.Servant)servant);
         }
 
         if (servant != null)
