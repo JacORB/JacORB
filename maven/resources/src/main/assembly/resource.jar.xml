@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<assembly>
+    <id>resource</id>
+    <formats>
+        <format>jar</format>
+    </formats>
+    <fileSets>
+        <fileSet>
+            <directory>target/resources</directory>
+            <outputDirectory>/</outputDirectory>
+            <includes>
+                <include>**</include>
+            </includes>
+        </fileSet>
+    </fileSets>
+    <files>
+        <file>
+            <source>${env.JACORB_HOME}/idl/omg/CSI.idl</source>
+            <destName>CSI.idl</destName>
+            <fileMode>0644</fileMode>
+        </file>
+        <file>
+            <source>${env.JACORB_HOME}/idl/omg/CosTransactions.idl</source>
+            <destName>CosTransactions.idl</destName>
+            <fileMode>0644</fileMode>
+        </file>
+    </files>
+</assembly>

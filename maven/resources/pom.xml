@@ -1,0 +1,65 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
+                             http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>org.jacorb</groupId>
+        <artifactId>jacorb-parent</artifactId>
+        <version>2.3.2-jboss-4</version>
+        <relativePath>../..</relativePath>
+    </parent>
+
+    <artifactId>resources</artifactId>
+    <packaging>jar</packaging>
+
+    <name>JacORB JBoss Resources</name>
+    <description>JacORB JBoss Resources</description>
+    <url>http://www.jacorb.org</url>
+
+    <properties>
+        <skipCompile>true</skipCompile>
+        <skipJavadoc>true</skipJavadoc>
+        <skipTests>true</skipTests>
+    </properties>
+
+    <build>
+        <plugins>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-resources-plugin</artifactId>
+                <configuration>
+                    <outputDirectory>${project.build.directory}/resources</outputDirectory>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>binary-dist</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                        <configuration>
+                            <finalName>resources</finalName>
+                            <appendAssemblyId>false</appendAssemblyId>
+                            <descriptors>
+                                <descriptor>src/main/assembly/resource.jar.xml</descriptor>
+                            </descriptors>
+                            <archiverConfig>
+                                <defaultFileMode>0644</defaultFileMode>
+                                <defaultDirectoryMode>0755</defaultDirectoryMode>
+                            </archiverConfig>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+        </plugins>
+    </build>
+</project>
