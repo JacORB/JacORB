@@ -591,6 +591,7 @@ public class IIOPListener
         {
              socket.setSoTimeout(serverTimeout);
              socket.setKeepAlive(keepAlive);
+             socket.setTcpNoDelay(true);
 
              SSLListenerUtil.addListener(orb, socket);
 
