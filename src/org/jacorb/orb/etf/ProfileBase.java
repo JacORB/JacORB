@@ -325,4 +325,17 @@ public abstract class ProfileBase
     {
         return Collections.EMPTY_LIST;
     }
+
+    /**
+     * This function will search and remove the components, whose tag matches
+     * the given tag, from the components list.  Removing tags are needed in
+     * the case the the ImR is used.
+     * @param tag
+     */
+    public void removeComponents (int tags)
+    {
+        if (components != null) {
+            components.removeComponents(tags);
+        }
+    }
 }

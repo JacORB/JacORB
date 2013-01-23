@@ -43,6 +43,11 @@ public class WIOPSelector implements ProfileSelector
             if (p instanceof org.jacorb.test.orb.etf.wiop.WIOPProfile)
                 return p;
         }
-        return null; 
+        return null;
+    }
+
+    public Profile selectNextProfile (List profiles, Profile lastProfile)
+    {
+        return null;
     }
 }

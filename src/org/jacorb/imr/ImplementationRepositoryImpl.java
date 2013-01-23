@@ -845,7 +845,7 @@ public class ImplementationRepositoryImpl
     {
         System.out.println("Usage: The following properties are useful in conjunction with the \nImplementationRepository:");
         System.out.println("\t \"jacorb.imr.endpoint_host\" Address to listen on for requests");
-        System.out.println("\t \"jacorb.imr.endpoint_port\" Port to listen on for requests");
+        System.out.println("\t \"jacorb.imr.endpoint_port_number\" Port to listen on for requests");
         System.out.println("\t \"jacorb.imr.table_file\" The file to store the server table into");
         System.out.println("\t \"jacorb.imr.backup_file\" The file to store the server table backup into");
         System.out.println("\t \"jacorb.imr.ior_file\" The file to store the ImRs IOR into");
@@ -865,6 +865,7 @@ public class ImplementationRepositoryImpl
         java.util.Properties argProps = ObjectUtil.argsToProps( args );
         argProps.setProperty("jacorb.implname", "the_ImR");
         argProps.setProperty("jacorb.use_imr", "off");
+        argProps.setProperty("jacorb.use_tao_imr", "off");
 
         boolean printIOR = false;
 

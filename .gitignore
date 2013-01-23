@@ -8,7 +8,7 @@ lib/jacorb-sources.jar
 src/org/jacorb/idl/parser.java
 src/org/jacorb/idl/sym.java
 
-classes/org
+classes
 test/regression/classes
 
 src/generated/org

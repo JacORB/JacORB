@@ -604,4 +604,4 @@ public class BasicTest extends ClientServerTestCase
         assertEquals( Double.POSITIVE_INFINITY, result, 0 );
     }
 
-}
+            }

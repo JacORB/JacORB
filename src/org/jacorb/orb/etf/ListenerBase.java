@@ -91,7 +91,7 @@ public abstract class ListenerBase
         orb = configuration.getORB();
 
         logger = configuration.getLogger(configuration.getLoggerName(this.getClass()));
-    }
+        }
 
     /**
      * This call establishes the link between the ORB (i.e. the Handle
@@ -238,4 +238,4 @@ public abstract class ListenerBase
 
         public abstract void terminate();
     }
-}
+    }

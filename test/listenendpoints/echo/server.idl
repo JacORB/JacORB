@@ -1,0 +1,14 @@
+module test {
+    module listenendpoints {
+        module echo {
+            interface EchoMessage {
+
+                void ping();
+
+                string echo_simple();
+
+                wstring echo_wide( in wstring msg );
+            };
+        };
+    };
+};

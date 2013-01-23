@@ -119,7 +119,7 @@ public class WIOPFactories
             {
                 throw new org.omg.CORBA.INTERNAL("ConfigurationException: " + e.toString());
             }
-            
+
 
             try
             {
@@ -129,10 +129,10 @@ public class WIOPFactories
             {
                 throw new org.omg.CORBA.INTERNAL("ConfigurationException: " + e.toString());
             }
-            
+
             components.value = result.getComponents().asArray();
-            
-            
+
+
             return new WIOPProfile (result, this.tag);
         }
     }

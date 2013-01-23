@@ -97,9 +97,9 @@ public class IIOPListener
         {
             ProtocolAddressBase addr = orb.createAddress(address_str);
             if (addr instanceof IIOPAddress)
-            {
+        {
                 address = (IIOPAddress)addr;
-            }
+        }
         }
         else
         {
@@ -264,7 +264,7 @@ public class IIOPListener
                     logger.debug ("Using port " + address.getPort());
                 }
             }
-        }
+            }
         else if (sslAcceptor == null)
         {
             throw new org.omg.CORBA.INITIALIZE
