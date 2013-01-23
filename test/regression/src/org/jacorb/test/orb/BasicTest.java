@@ -35,8 +35,6 @@ import org.omg.CORBA.FloatHolder;
 import org.omg.CORBA.IntHolder;
 import org.omg.CORBA.LongHolder;
 import org.omg.CORBA.ShortHolder;
-import org.omg.CORBA.PolicyListHolder;
-import org.omg.CORBA.Policy;
 
 public class BasicTest extends ClientServerTestCase
 {
@@ -66,9 +64,6 @@ public class BasicTest extends ClientServerTestCase
                                    "org.jacorb.test.orb.BasicServerImpl" );
 
         suite.addTest( new BasicTest( "test_ping", setup ));
-
-        // test_validate_connection test
-        suite.addTest( new BasicTest( "test_validate_connection", setup ));
 
         // short tests
         suite.addTest( new BasicTest( "test_pass_in_short", setup ) );
@@ -609,24 +604,4 @@ public class BasicTest extends ClientServerTestCase
         assertEquals( Double.POSITIVE_INFINITY, result, 0 );
     }
 
-
-	// test_validate_connection
-
-	public void test_validate_connection()
-	{
-            try
-            {
-		PolicyListHolder h = new PolicyListHolder(new Policy[2]);
-
-		boolean result = server._validate_connection(h);
-                assertTrue(result);
             }
-            catch (Exception e)
-            {
-                // not expected
-                fail(e.getMessage());
-            }
-	}
-
-}
-

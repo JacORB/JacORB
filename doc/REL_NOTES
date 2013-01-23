@@ -31,6 +31,10 @@
                 - Transaction, collection and concurrency services
                     (by Alex Sinishin and Viacheslav Tararin of DekaSoft
                     Ltd., Ukraine,taras@deka.kp.km.ua)
+        - Compatible with the IBM v1.6 JDK on a RH LINUX 6.x
+        - Compatible with TAO Implementation Repository
+        - Support redundancy retrying for Implementation Repository and Naming
+          Service
 
 
 
@@ -40,7 +44,20 @@
 This Release
 ============
     - ORB
-         - Improve encapsulation of internal code.
+        - Improve encapsulation of internal code.
+
+    - TAO ImR/NS Compatibility
+        - Implement the new property "jacorb.use_tao_imr".
+        - Support redundancy for failing over to a secondary ImR or a NS service
+          when the current service is no longer available.  JacORB will iterate
+          the profiles the ImR-ified IOR while attempting to re-establish
+          conversations with the targeted ImR or Naming Service (NS).
+        - JacORB is inter-operable with the TAO ImR by setting the new property
+          "jacorb.use_tao_imr" to "on".
+        - Add demo and integration test suites for TAO ImR, and TAO NS.
+
+    - Misc
+         - Add integration test suite for JacORB ImR.
 
 3.2
 ===

@@ -31,6 +31,16 @@
             <i2jpackage names=":org.omg"/>
          </jacidl>
       </presetdef>
+
+      <presetdef name="idl-jacidl-tao">
+         <jacidl
+            srcdir="${idl}/tao_imr"
+            includepath="${idl}/omg"
+            destdir="${src.generated}">
+            <define key="JACORB" value="1"/>
+            </jacidl>
+      </presetdef>
+
    </target>
 
    <target name="all"
@@ -291,7 +301,7 @@
    <!--                       CORBA                          -->
    <!-- ==================================================== -->
 
-   <target name="jacorb" depends="imr,proxy,sasPolicy,sslPolicy"/>
+   <target name="jacorb" depends="imr,tao_imr,proxy,sasPolicy,sslPolicy"/>
 
 
    <target name="imr">
@@ -303,6 +313,19 @@
          javac-includes="org/jacorb/imr/**" />
    </target>
 
+   <target name="tao_imr">
+       <idl-jacidl-tao
+        includes="ServerObject.idl">
+      </idl-jacidl-tao>
+
+      <idl-jacidl-tao
+        noskel="true"
+        includes="ImplRepo.idl,AsyncStartupWaiter.idl,ImR_Activator.idl,ImR_Locator.idl">
+      </idl-jacidl-tao>
+
+      <idl-javac
+         javac-includes="org/tao_imr/**" />
+   </target>
 
    <target name="proxy">
       <idl-jacidl-jacorb

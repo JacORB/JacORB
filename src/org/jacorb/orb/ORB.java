@@ -83,6 +83,7 @@ import org.omg.CSIIOP.TLS_SEC_TRANSHelper;
 import org.omg.ETF.Profile;
 import org.omg.IOP.IOR;
 import org.omg.IOP.MultipleComponentProfileHelper;
+import org.omg.IOP.TAG_ALTERNATE_IIOP_ADDRESS;
 import org.omg.IOP.TAG_CSI_SEC_MECH_LIST;
 import org.omg.IOP.TAG_INTERNET_IOP;
 import org.omg.IOP.TAG_MULTIPLE_COMPONENTS;
@@ -133,7 +134,8 @@ public final class ORB
     private int giopMinorVersion;
     private boolean giopAdd_1_0_Profiles;
     private String hashTableClassName;
-    private boolean useIMR;
+    private boolean useIMR = false;
+    private boolean useTaoIMR = false;
     private boolean useSelectorManager;
 
     private ProtocolAddressBase imrProxyAddress = null;
@@ -213,10 +215,8 @@ public final class ORB
     private ImRAccess imr = null;
     private int persistentPOACount;
 
-    // public static final String orb_id = "jacorb:" + org.jacorb.util.Version.version;
-    private static final String default_orb_id = "jacorb:" + org.jacorb.util.Version.version;
+    public static final String orb_id = "jacorb:" + org.jacorb.util.Version.version;
 
-    private String orb_id = default_orb_id;
     /**
      * outstanding dii requests awaiting completion
      */
@@ -268,9 +268,6 @@ public final class ORB
     public ORB()
     {
         super(false);
-
-        // initialize orb_id with default value
-        orb_id = default_orb_id;
     }
 
     /**
@@ -297,6 +294,16 @@ public final class ORB
 
         useIMR =
             configuration.getAttributeAsBoolean("jacorb.use_imr", false);
+
+
+        useTaoIMR =
+            configuration.getAttributeAsBoolean("jacorb.use_tao_imr", false);
+
+
+        if (useTaoIMR && useIMR)
+        {
+            throw new ConfigurationException ("Ambiguous ImR property settings: jacorb.use_tao_imr and jacorb.use_imr are both true");
+        }
 
         String host =
             configuration.getAttribute("jacorb.imr.ior_proxy_host", null);
@@ -926,14 +933,120 @@ public final class ORB
         for (int i = 0; i < profiles.size(); i++)
         {
             final Profile p = (Profile)profiles.get(i);
-            final TaggedComponentList c =
+            TaggedComponentList clist =
                 (TaggedComponentList)componentMap.get(Integer.valueOf(p.tag()));
+
+            final TaggedComponentList c;
+            if (p instanceof ProfileBase)
+            {
+                // If ImR is used, then get rid of direct alternate addresses
+                // and patch in the ImR alternate addresses.
+
+                c = patchTagAlternateIIOPAddresses((ProfileBase) p, clist, repId, _transient);
+            }
+            else
+            {
+
+                c = clist;
+            }
             tc.value = c.asArray();
             p.marshal (tp, tc);
             tps[i] = tp.value;
         }
 
         return new IOR(repId, tps);
+    }
+
+    /**
+     * This function will remove all all TAG_ALTERNATE_IIOP_ADDRESS tags for
+     * direct addressing from the profile and the tagged component list;
+     * and if the TAO ImR is used, it will patch in the
+     * TAG_ALTERNATE_IIOP_ADDRESS tags of the TAO ImR.
+     * @param profile
+     * @param taggedCompList
+     * @param repId
+     * @param _transient
+     * @return the ImR'ified TaggedComponentList
+     */
+    private TaggedComponentList patchTagAlternateIIOPAddresses(
+                                            ProfileBase profile,
+                                            TaggedComponentList taggedCompList,
+                                            String repId,
+                                            boolean _transient)
+    {
+
+
+
+        if ("IDL:org/jacorb/imr/ImplementationRepository:1.0".equals(repId))
+        {
+
+            return taggedCompList;
+        }
+        else if (_transient || (! useIMR && ! useTaoIMR))
+        {
+
+            return taggedCompList;
+        }
+
+        // remove all TAG_ALTERNATE_IIOP_ADDRESS tags for direct addressing
+        profile.removeComponents(TAG_ALTERNATE_IIOP_ADDRESS.value);
+        taggedCompList.removeComponents(TAG_ALTERNATE_IIOP_ADDRESS.value);
+
+        // add the
+        TaggedComponentList list = new TaggedComponentList();
+        list.addAll(taggedCompList);
+
+        // When TAO ImR is used, the alternate addresses from its profiles
+        // are added to the list of tags.
+        //
+        if (useTaoIMR)
+        {
+            getImR();
+            if (imr != null)
+            {
+                List<Profile> plist = imr.getImRProfiles();
+                for (Iterator iter = plist.iterator(); iter.hasNext();)
+                {
+                    IIOPProfile p = (IIOPProfile) iter.next();
+                    List<IIOPAddress> addrList = p.getAlternateAddresses();
+                    if (addrList == null)
+                    {
+                        continue;
+                    }
+
+                    for (Iterator iter2 = addrList.iterator(); iter2.hasNext();)
+                    {
+                        IIOPAddress imrAddr = (IIOPAddress) iter2.next();
+                        if (imrAddr == null)
+                        {
+                            continue;
+                        }
+
+
+
+                        try
+                        {
+                        	IIOPAddress address =
+                                	new IIOPAddress(imrAddr.getOriginalHost(),
+                                                	imrAddr.getPort());
+
+                        	address.configure(configuration);
+                        	list.addComponent (TAG_ALTERNATE_IIOP_ADDRESS.value,
+                                                 	address.toCDR());
+                        }
+                        catch (org.jacorb.config.ConfigurationException e)
+                        {
+                            logger.warn(
+                                    "patchTagAlternateIIOPAddresses: got an exception, "
+                                    + e.getMessage());
+                        }
+                    }
+                }
+            }
+        }
+
+
+        return list;
     }
 
     public boolean isSSLRequiredInComponentList(TaggedComponentList components)
@@ -1135,23 +1248,44 @@ public final class ORB
         {
             persistentPOACount++;
 
-            getImR ();
-
-            if ( imr != null )
+            if (useIMR)
             {
-                /* Register the POA */
-                String server_name = implName;
-                ProtocolAddressBase sep = getServerAddress();
-                if (sep instanceof IIOPAddress)
-                {
-                    String sep_host = ((IIOPAddress)sep).getHostname();
-                    int sep_port = ((IIOPAddress)sep).getPort();
+                getImR ();
 
-                    imr.registerPOA (server_name + "/" +
-                                     poa._getQualifiedName(),
-                                     server_name, // logical server name
-                                     sep_host, sep_port);
+                if ( imr != null )
+                {
+                    /* Register the POA */
+                    String server_name = implName;
+                    ProtocolAddressBase sep = getServerAddress();
+                    if (sep instanceof IIOPAddress)
+                    {
+                        String sep_host = ((IIOPAddress)sep).getHostname();
+                        int sep_port = ((IIOPAddress)sep).getPort();
+
+                        imr.registerPOA (server_name + "/" +
+                                        poa._getQualifiedName(),
+                                        server_name, // logical server name
+                                        sep_host, sep_port);
+                    }
                 }
+            }
+            else if (useTaoIMR)
+            {
+                getImR ();
+
+                if ( imr != null )
+                {
+                    /* Register the POA */
+                    ProtocolAddressBase sep = getServerAddress();
+                    if (sep instanceof IIOPAddress)
+                    {
+                        imr.registerPOA (this, poa, sep, implName);
+                    }
+                }
+            }
+            else
+            {
+                // ignore
             }
         }
     }
@@ -1160,11 +1294,18 @@ public final class ORB
     private synchronized void getImR ()
     {
         /* Lookup the implementation repository */
-        if ( imr == null && useIMR )
+        if ( imr == null && (useIMR || useTaoIMR) )
         {
             try
             {
-                imr = ImRAccessImpl.connect(this);
+                if (useIMR)
+                {
+                    imr = org.jacorb.imr.ImRAccessImpl.connect(this);
+            }
+                else if (useTaoIMR)
+                {
+                    imr = org.jacorb.tao_imr.ImRAccessImpl.connect(this);
+                }
             }
             catch ( Exception e )
             {
@@ -1205,15 +1346,22 @@ public final class ORB
         {
             profile.patchPrimaryAddress(imrProxyAddress);
         }
-        else if (!_transient && useIMR )
+        else if (!_transient && (useIMR || useTaoIMR))
         {
             getImR();
-
+            if (useIMR)
+            {
             // The double call to patchPrimaryAddress ensures that either the
             // actual imr address or the environment values are patched into the
             // address, giving precedence to the latter.
             profile.patchPrimaryAddress(imr.getImRAddress());
             profile.patchPrimaryAddress(imrProxyAddress);
+        }
+            else if (useTaoIMR)
+            {
+                profile.patchPrimaryAddress(imr.getImRAddress());
+                profile.patchPrimaryAddress(imrProxyAddress);
+            }
         }
         else
         {
@@ -1297,8 +1445,15 @@ public final class ORB
                the server */
             if ( --persistentPOACount == 0 )
             {
+                if (useIMR)
+                {
                 imr.setServerDown(implName);
             }
+                else if (useTaoIMR)
+                {
+                    imr.setServerDown(this, poa, implName);
+        }
+    }
         }
     }
 
@@ -1582,22 +1737,12 @@ public final class ORB
         requests.remove( req );
     }
 
-    protected void set_parameters(String[] args, java.util.Properties props, String id)
-    {
-        throw new org.omg.CORBA.NO_IMPLEMENT();
-    }
-    * */
+    /**
+     * called from ORB.init(), entry point for initialization.
+     */
 
-  protected void set_parameters(String[] args, java.util.Properties props, String id)
+    protected void set_parameters(String[] args, java.util.Properties props)
     {
-        // save orb_id before doing anything
-        // orb_id should have already been set to default_orb_id by the constructor,
-        // so if it will be updated only if an alternative id is provided.
-        if (id != null)
-        {
-            orb_id = id;
-        }
-
         try
         {
             configure( org.jacorb.config.JacORBConfiguration.getConfiguration(props,
@@ -1624,22 +1769,10 @@ public final class ORB
             arguments = args;
             for ( int i = 0; i < args.length; i++ )
             {
-                if (args[i] == null)
-                {
-                    continue;
-                }
-
                 String arg = args[i].trim();
 
                 if (!arg.startsWith("-ORB"))
                 {
-                    continue;
-                }
-
-                // skip over -ORBID argument since it is not applied here
-                if (arg.equalsIgnoreCase("-ORBID"))
-                {
-                    ++i;
                     continue;
                 }
 

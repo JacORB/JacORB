@@ -22,10 +22,11 @@
    	           poa,
    	           ir,
    	           imr,
+               tao_imr,
    	           naming,
    	           tracing,
    	           security,
-   	           transaction,
+               transaction,
    	           collection,
    	           concurrency,
    	           events,
@@ -68,6 +69,10 @@
 
    <target name="imr"  depends="init">
       <ant antfile="${src}/org/jacorb/imr/build.xml" dir="${basedir}"/>
+   </target>
+
+   <target name="tao_imr"  depends="init">
+      <ant antfile="${src}/org/jacorb/tao_imr/build.xml" dir="${basedir}"/>
    </target>
 
    <target name="naming" depends="init">

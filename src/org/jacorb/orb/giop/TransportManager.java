@@ -187,11 +187,11 @@ public class TransportManager
         for (Iterator<String> i = factoryClassNames.iterator(); i.hasNext();)
         {
             String className = (String)i.next();
-            Factories factories = instantiateFactories(className);
-            factoriesMap.put(factories.profile_tag(), factories); // NOPMD
-            factoriesList.add (factories);
-        }
-    }
+                Factories factories = instantiateFactories(className);
+                factoriesMap.put(factories.profile_tag(), factories); // NOPMD
+                factoriesList.add (factories);
+            }
+                    }
 
     /**
      * Instantiates the given Factories class.
@@ -281,4 +281,4 @@ public class TransportManager
             };
         }
     }
-}
+            }
