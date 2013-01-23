@@ -463,6 +463,65 @@ public class CorbaLoc
         return sb.toString ();
     }
 
+    public static String generateCorbalocForMultiIIOPProfiles (org.omg.CORBA.ORB orb, org.omg.CORBA.Object ref)
+    {
+        ParsedIOR pior = new ParsedIOR((org.jacorb.orb.ORB)orb, orb.object_to_string (ref));
+
+        String result = null;
+        String object_key = null;
+        Iterator iterator;
+        for (iterator = pior.getProfiles().iterator(); iterator.hasNext();)
+        {
+            Profile profile = (Profile) iterator.next();
+
+            if (profile instanceof IIOPProfile)
+            {
+                String s = createCorbalocForIIOPProfileMultiTags ((IIOPProfile)profile);
+                if (result != null)
+                {
+                    result += "," + s;
+                }
+                else
+                {
+                    result = "corbaloc:" + s;
+                    object_key = parseKey (profile.get_object_key ());
+                }
+
+            }
+        }
+        if (result != null)
+        {
+            result +=  "/" + object_key;
+        }
+
+        return result;
+    }
+
+    public static String createCorbalocForIIOPProfileMultiTags (IIOPProfile profile)
+    {
+        StringBuffer sb = new StringBuffer ("iiop:");
+        sb.append (createString (profile.version ()));
+        sb.append ("@");
+        sb.append (((IIOPAddress)profile.getAddress ()).getOriginalHost());
+        sb.append (":");
+        sb.append (((IIOPAddress)profile.getAddress ()).getPort());
+
+        for (Iterator iter = profile.getAlternateAddresses().iterator(); iter.hasNext();)
+        {
+            IIOPAddress address = (IIOPAddress) iter.next();
+            sb.append(",iiop:");
+            sb.append (createString (profile.version ()));
+            sb.append ("@");
+            sb.append (address.getOriginalHost());
+            sb.append (":");
+            sb.append (address.getPort());
+        }
+
+        // sb.append ("/");
+        // sb.append (parseKey (profile.get_object_key ()));
+
+        return sb.toString ();
+    }
 
     public static void main(String[] args)
     {

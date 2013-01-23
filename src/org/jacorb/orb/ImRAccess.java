@@ -28,12 +28,16 @@ package org.jacorb.orb;
  *
  * @author Nicolas Noffke
  */
+import java.util.List;
+import org.omg.ETF.Profile;
 
 public interface ImRAccess
 {
     public String getImRHost();
     public int getImRPort();
     public org.jacorb.orb.etf.ProtocolAddressBase getImRAddress();
+    public String getImRCorbaloc ();
+    public List<Profile> getImRProfiles();
     public void registerPOA( String name,
                              String server,
                              org.jacorb.orb.etf.ProtocolAddressBase address)
@@ -43,5 +47,16 @@ public interface ImRAccess
                              String host,
                              int port)
         throws org.omg.CORBA.INTERNAL;
+
+    public void registerPOA( org.jacorb.orb.ORB orb,
+                             org.jacorb.poa.POA poa,
+                             org.jacorb.orb.etf.ProtocolAddressBase address,
+                             String implname)
+        throws org.omg.CORBA.INTERNAL;
+
     public void setServerDown( String name );
+
+    public void setServerDown( org.jacorb.orb.ORB orb,
+                               org.jacorb.poa.POA poa,
+                               String implname );
 }// ImRAccess

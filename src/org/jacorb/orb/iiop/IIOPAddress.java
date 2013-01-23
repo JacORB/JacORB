@@ -189,11 +189,11 @@ public class IIOPAddress
 
         if (! dnsEnabled)
         {
-           return host.getHostAddress();
-        }
+                return host.getHostAddress();
+            }
 
-        return forceDNSLookup ? host.getCanonicalHostName() : host.getHostName();
-    }
+            return forceDNSLookup ? host.getCanonicalHostName() : host.getHostName();
+        }
 
     /**
      * Returns the host part of this IIOPAddress, as a DNS hostname.
@@ -212,8 +212,8 @@ public class IIOPAddress
             return source_name;
         }
 
-        return dnsEnabled ? host.getCanonicalHostName() : host.getHostAddress();
-    }
+            return dnsEnabled ? host.getCanonicalHostName() : host.getHostAddress();
+        }
 
     /**
      * Used by the ORB to configure just the hostname portion of a
@@ -298,7 +298,7 @@ public class IIOPAddress
         {
             return false;
         }
-        source_name = s.substring(1, end_bracket);
+            source_name = s.substring(1, end_bracket);
 
         int port_colon = s.indexOf(':', end_bracket);
         if (port_colon < 0)

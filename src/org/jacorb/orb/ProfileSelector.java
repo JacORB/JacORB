@@ -34,4 +34,5 @@ public interface ProfileSelector
 {
     Profile selectProfile(List profiles,
                           ClientConnectionManager ccm);
+    Profile selectNextProfile(List profiles, Profile lastProfile);
 }
