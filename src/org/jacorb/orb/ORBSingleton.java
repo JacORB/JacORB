@@ -92,21 +92,20 @@ public class ORBSingleton
                 typeCodeCache = NullTypeCodeCache.getInstance();
                 typeCodeCompactor = NullTypeCodeCompactor.getInstance();
 
+                logger.info("Created ORBSingleton");
+
                 if (logger.isDebugEnabled())
                 {
                     logger.debug("BufferManagerFactory: " + bufferManagerFactory);
                     logger.debug("BufferManager: " + bufferManager);
                     logger.debug("jacorb.interop.strict_check_on_tc_creation set to " + doStrictCheckOnTypecodeCreation);
-                }
+                    ClassLoader omgcl  = org.omg.CORBA.ORB.class.getClassLoader ();
+                    ClassLoader thiscl = this.getClass().getClassLoader();
 
-                logger.info("created ORBSingleton");
-
-                ClassLoader omgcl  = org.omg.CORBA.ORB.class.getClassLoader ();
-                ClassLoader thiscl = this.getClass().getClassLoader();
-
-                if (omgcl != thiscl)
-                {
-                   logger.warn ("OMG.ORB classloader does not match JacORB ORBSingleton classloader. This may cause problems; see the ProgrammingGuide for further details");
+                    if (omgcl != thiscl)
+                    {
+                        logger.debug ("OMG.ORB classloader (" + omgcl + ") does not match JacORB ORBSingleton classloader (" + thiscl + "). This may cause problems; see the ProgrammingGuide for further details");
+                    }
                 }
             }
         }
@@ -137,20 +136,22 @@ public class ORBSingleton
 
         BufferManagerFactory bufferManagerFactory = newBufferManagerFactory(configuration);
 
-        org.omg.CORBA.ORB single = org.omg.CORBA.ORB.init();
-        if ( ! (single instanceof ORBSingleton))
-        {
-            logger.warn ("Default Singleton ORB is not a JacORB singleton. This is not recommended as it *could* lead to classpath/classloader/stub conflicts.");
-            single = org.omg.CORBA.ORBSingleton.init();
-        }
         bufferManager = bufferManagerFactory.newBufferManager
-            (((ORBSingleton)single).getBufferManager(), configuration);
+            (((ORBSingleton)org.omg.CORBA.ORBSingleton.init()).getBufferManager(), configuration);
 
         if (logger.isDebugEnabled())
         {
             logger.debug("BufferManagerFactory: " + bufferManagerFactory);
             logger.debug("BufferManager: " + bufferManager);
             logger.debug("jacorb.interop.strict_check_on_tc_creation set to " + doStrictCheckOnTypecodeCreation);
+
+            // This could lead to dual Singleton initialisation so only do it as part of debug. A singleton
+            // will be initialised in org.omg.CORBA.ORBSingleton [a JacORB class] and in org.omg.CORBA.ORB
+            // as well.
+            if ( ! ( org.omg.CORBA.ORB.init() instanceof ORBSingleton))
+            {
+                logger.debug ("Default Singleton ORB is not a JacORB singleton. This is not recommended as it *could* lead to classpath/classloader/stub conflicts.");
+            }
         }
     }
 
