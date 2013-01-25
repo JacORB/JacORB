@@ -22,11 +22,11 @@
    	           poa,
    	           ir,
    	           imr,
-               tao_imr,
+                   tao_imr,
    	           naming,
    	           tracing,
    	           security,
-               transaction,
+                   transaction,
    	           collection,
    	           concurrency,
    	           events,
@@ -79,8 +79,16 @@
       <ant antfile="${src}/org/jacorb/naming/build.xml" dir="${basedir}"/>
    </target>
 
-   <target name="security" depends="init">
-      <ant antfile="${src}/org/jacorb/security/build.xml" dir="${basedir}"/>
+   <target name="security" depends="init" unless="${vendor-jdk-is-not-sun}">
+            <property name="security-build-file" value="${src}/org/jacorb/security/build.xml"/>
+            <echo message="compiling security using ${security-build-file}"/>
+      <ant antfile="${security-build-file}" dir="${basedir}"/>
+   </target>
+
+    <target name="security-ibm" depends="init" if="${vendor-is-ibm}">
+            <property name="security-build-file" value="${src}/org/jacorb/security/ibm/build.xml"/>
+            <echo message="compiling security using ${security-build-file}"/>
+      <ant antfile="${security-build-file}" dir="${basedir}"/>
    </target>
 
    <target name="events" depends="init">

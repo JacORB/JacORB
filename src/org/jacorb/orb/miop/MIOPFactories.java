@@ -5,6 +5,8 @@ import org.jacorb.config.Configuration;
 import org.jacorb.config.ConfigurationException;
 import org.jacorb.orb.etf.FactoriesBase;
 import org.jacorb.orb.etf.ProtocolAddressBase;
+import org.jacorb.orb.etf.ListenerBase;
+import org.jacorb.orb.etf.ListenEndpoint;
 import org.jacorb.orb.iiop.IIOPAddress;
 import org.omg.CORBA.BAD_PARAM;
 import org.omg.ETF.Connection;
@@ -65,6 +67,7 @@ public class MIOPFactories extends FactoriesBase implements Configurable
       if (listener == null)
       {
          listener = new MIOPListener();
+         listener.setListenEndpoint(listenEndpoint);
          configureResult (listener);
       }
 

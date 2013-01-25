@@ -44,20 +44,7 @@
 This Release
 ============
     - ORB
-        - Improve encapsulation of internal code.
-
-    - TAO ImR/NS Compatibility
-        - Implement the new property "jacorb.use_tao_imr".
-        - Support redundancy for failing over to a secondary ImR or a NS service
-          when the current service is no longer available.  JacORB will iterate
-          the profiles the ImR-ified IOR while attempting to re-establish
-          conversations with the targeted ImR or Naming Service (NS).
-        - JacORB is inter-operable with the TAO ImR by setting the new property
-          "jacorb.use_tao_imr" to "on".
-        - Add demo and integration test suites for TAO ImR, and TAO NS.
-
-    - Misc
-         - Add integration test suite for JacORB ImR.
+         - Improve encapsulation of internal code.
 
 3.2
 ===
@@ -88,7 +75,6 @@ This Release
 3.1
 ===
     - ORB
-        - Fix current_component with DynArray/DynStruct/DynSequence to conform to spec.
         - Output iiop version when printing Corbaloc URLs
         - Call _this_object on Servants for ServantManager created objects.
         - When selecting an address for localhost attempt to find non-loopback first

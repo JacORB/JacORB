@@ -134,9 +134,35 @@
         </presetdef>
     </target>
 
+    <target name="init-java-vendor">
+        <condition property="vendor-is-ibm">
+            <equals arg1="${java.vendor}"
+                arg2="IBM Corporation"
+                casesensitive="false"
+                trim="true"
+           />
+        </condition>
+
+        <condition property="vendor-jdk-type" value="ibm" else="sun">
+           <istrue value="${vendor-is-ibm}" />
+        </condition>
+        <property name="vendor-jdk-class-prefix" value="com.${vendor-jdk-type}" />
+
+        <condition property="vendor-jdk-is-not-sun">
+            <or>
+                <istrue value="${vendor-is-ibm}"/>
+                <istrue value="${vendor-is-ibm}"/>
+            </or>
+        </condition>
+
+        <echo message="java.vendor: ${java.vendor}" />
+        <echo message="vendor-jdk-type: ${vendor-jdk-type}" />
+        <echo message="vendor-jdk-class-prefix: ${vendor-jdk-class-prefix}" />
+    </target>
+
     <!-- Call base-init first. The regression tests call this but -->
     <!-- have their own base-init                                 -->
-    <target name="init" depends="base-init, init-properties, init-path, init-javac-common, init-javac-jdk, init-javac-j2me" />
+    <target name="init" depends="base-init, init-java-vendor, init-properties, init-path, init-javac-common, init-javac-jdk, init-javac-j2me" />
     <target name="whats-my-classpath" depends="init"
             description="Outputs the classpath that will be used for compilation of JacORB">
         <pathconvert property="_classpath" refid="path.base" pathsep="${line.separator}" />

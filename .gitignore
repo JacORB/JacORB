@@ -18,3 +18,8 @@ test/regression/output/TEST-*
 
 demo/*/build
 test/interop/*/build
+/test/listenendpoints/echo_corbaloc/generated/
+/test/listenendpoints/echo/generated/
+/src/generated/
+/test/regression/output/
+/classes/

@@ -1261,7 +1261,6 @@ public final class ORB
                     {
                         String sep_host = ((IIOPAddress)sep).getHostname();
                         int sep_port = ((IIOPAddress)sep).getPort();
-
                         imr.registerPOA (server_name + "/" +
                                         poa._getQualifiedName(),
                                         server_name, // logical server name
@@ -1766,13 +1765,26 @@ public final class ORB
 
         if ( args != null )
         {
-            arguments = args;
             for ( int i = 0; i < args.length; i++ )
             {
                 String arg = args[i].trim();
 
                 if (!arg.startsWith("-ORB"))
                 {
+                    continue;
+                }
+
+                // skip over -ORBID argument since it is not applied here
+                if (arg.equalsIgnoreCase("-ORBID"))
+                {
+                    i++;
+                    continue;
+                }
+
+                // skip over -ORBSetListenEndpoint argument since it is not applied here
+                if (arg.equalsIgnoreCase("-ORBListenEndpoints"))
+                {
+                    i++;
                     continue;
                 }
 

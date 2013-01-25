@@ -229,6 +229,8 @@ public final class Delegate
 
     /** delay in millisecs before retrying */
     private Random randomDelay = null;
+    /** delay in millisecs before retrying */
+    private Random randomDelay = null;
 
     private static final String REQUEST_END_TIME = "request_end_time";
 
@@ -329,6 +331,7 @@ public final class Delegate
     private Delegate(ORB orb, Configuration config, boolean parseIORLazy)
     {
         super();
+
 
         this.orb = orb;
         configuration = config;
@@ -1661,6 +1664,12 @@ public final class Delegate
     {
         synchronized ( bind_sync )
         {
+
+
+
+
+
+
             if( logger.isDebugEnabled())
             {
                 logger.debug("Delegate.try_rebind" );
@@ -1816,7 +1825,6 @@ public final class Delegate
 
                     try
                     {
-
                         if (useIMR)
                         {
                             corbaloc = new StringBuffer( "corbaloc:iiop:" );
@@ -2199,7 +2207,9 @@ public final class Delegate
             {
                 os = request(self, op, true);
                 if (arg != null)
+                {
                     os.write_string(arg);
+                }
                 return invoke(self, os);
             }
             catch (RemarshalException re) // NOPMD

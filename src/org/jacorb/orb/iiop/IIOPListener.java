@@ -25,6 +25,7 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.SocketException;
 import javax.net.ssl.SSLSocket;
 import org.jacorb.config.Configuration;
 import org.jacorb.config.ConfigurationException;
@@ -38,6 +39,7 @@ import org.jacorb.orb.listener.DefaultAcceptorExceptionListener;
 import org.jacorb.orb.listener.SSLListenerUtil;
 import org.jacorb.orb.listener.TCPConnectionEvent;
 import org.jacorb.orb.listener.TCPConnectionListener;
+import org.jacorb.orb.etf.ListenEndpoint;
 import org.omg.CORBA.NO_RESOURCES;
 import org.omg.CSIIOP.Confidentiality;
 import org.omg.CSIIOP.DetectMisordering;
@@ -85,48 +87,39 @@ public class IIOPListener
     private int target_requires = 0;
     private boolean generateSSLComponents = true;
 
+    public IIOPListener()
+    {
+        super();
+    }
+
+    public IIOPListener(ListenEndpoint listenEndpoint)
+    {
+        super(listenEndpoint);
+    }
+
     public void configure(Configuration config)
         throws ConfigurationException
     {
         super.configure(config);
 
         socketFactoryManager = orb.getTransportManager().getSocketFactoryManager();
-
-        String address_str = configuration.getAttribute("OAAddress",null);
-        if (address_str != null)
+        if (listenEndpoint == null)
         {
-            ProtocolAddressBase addr = orb.createAddress(address_str);
-            if (addr instanceof IIOPAddress)
-        {
-                address = (IIOPAddress)addr;
+            throw new org.omg.CORBA.INITIALIZE
+                ("listenEndpoint may not be null");
         }
-        }
-        else
+        if (listenEndpoint.getSSLAddress() != null)
         {
-            int oaPort = configuration.getAttributeAsInteger("OAPort",0);
-            String oaHost = configuration.getAttribute("OAIAddr","");
-            address = new IIOPAddress(oaHost,oaPort);
+            sslAddress = (IIOPAddress) listenEndpoint.getSSLAddress();
+        }
+        if (listenEndpoint.getAddress() != null)
+        {
+            address = (IIOPAddress) listenEndpoint.getAddress();
         }
 
         if (address != null)
         {
             address.configure (configuration);
-        }
-
-        address_str = configuration.getAttribute("OASSLAddress",null);
-        if (address_str != null)
-        {
-            ProtocolAddressBase addr = orb.createAddress(address_str);
-            if (addr instanceof IIOPAddress)
-            {
-                sslAddress = (IIOPAddress)addr;
-            }
-        }
-        else
-        {
-            int sslPort = configuration.getAttributeAsInteger("OASSLPort",0);
-            String sslHost = configuration.getAttribute("OAIAddr","");
-            sslAddress = new IIOPAddress(sslHost,sslPort);
         }
 
         if (sslAddress != null)
@@ -173,6 +166,7 @@ public class IIOPListener
         {
             loopbackAcceptor = new LoopbackAcceptor();
         }
+
     }
 
 
@@ -253,9 +247,11 @@ public class IIOPListener
     {
         if (acceptor != null)
         {
+            IIOPAddress serverAddress = ((Acceptor)acceptor).getLocalAddress();
+
             if (address.getPort() == 0)
             {
-                address.setPort(((Acceptor)acceptor).getLocalAddress().getPort());
+                address.setPort(serverAddress.getPort());
             }
             else
             {
@@ -264,7 +260,21 @@ public class IIOPListener
                     logger.debug ("Using port " + address.getPort());
                 }
             }
+
+            if (address.getHostInetAddress() == null)
+            {
+                address.setHostInetAddress (serverAddress.getHostInetAddress());
             }
+            else
+            {
+                /**
+                 * In case some users set the hostname to all zeroes
+                 * ("0.0.0.0") which could be a wildcard host if it is not
+                 * mapped to a loop-back IP.
+                 */
+                address.setWildcardHost (serverAddress.isWildcard());
+            }
+        }
         else if (sslAcceptor == null)
         {
             throw new org.omg.CORBA.INITIALIZE
@@ -273,6 +283,12 @@ public class IIOPListener
 
         IIOPProfile result = new IIOPProfile(address, null, orb.getGIOPMinorVersion());
         result.configure(configuration);
+
+        // Add all wildcard addresses to the list of alternative addresses
+        if (address.isWildcard())
+        {
+            result.addAllWildcardAddresses(configuration);
+        }
 
         if (sslAcceptor != null && generateSSLComponents)
         {
@@ -362,6 +378,9 @@ public class IIOPListener
         return IIOPAddress.getLocalHostAddress (logger);
     }
 
+    /*
+     * Acceptor class
+     */
     public class Acceptor
         extends org.jacorb.orb.etf.ListenerBase.Acceptor
     {
@@ -616,8 +635,7 @@ public class IIOPListener
         {
             IIOPAddress addr = new IIOPAddress
             (
-                serverSocket.getInetAddress().toString(),
-                serverSocket.getLocalPort()
+                    serverSocket
             );
 
             if (configuration != null)
@@ -649,8 +667,32 @@ public class IIOPListener
         {
             try
             {
-                final ServerSocket result =
-                    getServerSocketFactory().createServerSocket(port, 20, host);
+                final ServerSocket result;
+
+                if (host != null)
+                {
+                    /*
+                     * A server socket is created for a selected host.
+                     * In case the port is 0, a port will be assigned
+                     * to be used as the listen port.
+                     * The backlog is set to -1 so that the system
+                     * default value of 50 will be assigned.
+                     *
+                     */
+                     result = getServerSocketFactory().createServerSocket(port, -1, host);
+                }
+                else
+                {
+                    /*
+                     * A server socket is created for a wildcard host to listen
+                     * for requests on all known network interfaces' host addresses.
+                     * In case the port is 0, a port will be assigned
+                     * as the listen port.  The backlog will be set to
+                     * the system default value of 50.
+                     *
+                     */
+                    result = getServerSocketFactory().createServerSocket(port);
+                }
 
                 if (soTimeout > 0)
                 {
@@ -724,7 +766,7 @@ public class IIOPListener
         {
             return firstPass;
         }
-    }
+    } // end of Acceptor
 
     private class SSLAcceptor
         extends Acceptor
