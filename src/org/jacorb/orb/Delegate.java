@@ -61,7 +61,6 @@ import org.omg.CORBA.COMM_FAILURE;
 import org.omg.CORBA.CompletionStatus;
 import org.omg.CORBA.INTERNAL;
 import org.omg.CORBA.INV_OBJREF;
-import org.omg.CORBA.INV_POLICY;
 import org.omg.CORBA.OBJECT_NOT_EXIST;
 import org.omg.CORBA.OBJ_ADAPTER;
 import org.omg.CORBA.Policy;
