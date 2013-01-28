@@ -436,63 +436,6 @@ streams. Note, altering the information within the transport is undefined. The
 mutateIncoming operation will be called for CDRInputStream operations and the
 mutateOutgoing for CDROuputStream operations.
 
-\subsection{Listen Endpoints}
-\label {Listen Endpoints}
-This command-line option -ORBListenEndpoints can be used to instruct a server ORB to listen for requests on the interface specified by endpoints.  It is implemented specifically for the IIOP protocol (iiop and ssliop).  It will override the network configuration properties in the property file.  An {\tt -ORBListenEndpoints} endpoint specification has the form:
-\begin{verbatim}
-    -ORBListenEndpoints endpoint
-\end{verbatim}
-And, the endpoint has the form:
-An endpoint specification has the form:
-\begin{verbatim}
-     protocol://V.v@addr1,...,W.w@addrN
-\end{verbatim}
-where V.v and W.w are optional protocol versions for each address. An example of an IIOP endpoint is:
-\begin{verbatim}
-     iiop://hostname:port
-\end{verbatim}
-
-Sets of endpoints may be specified using multiple {\tt -ORBListenEndpoints} options or by delimiting endpoints with a semi-colon (;). For example,
-\begin{verbatim}
-    -ORBListenEndpoints iiop://localhost:9999 -ORBListenEndpoints uiop:///tmp/myref
-\end{verbatim}
-is equivalent to:
-\begin{verbatim}
-    -ORBListenEndpoints 'iiop://localhost:9999;uiop:///tmp/mylocalsock'
-\end{verbatim}
-
-Notice the single quotes (') in the latter option specification. Single quotes are needed to prevent the shell from interpreting text after the semi-colon as another command to run.
-
-If an endpoint is specified having the host omitted as the following:
-\begin{verbatim}
-    -ORBListenEndpoints iiop://:32000
-\end{verbatim}
-then a wildcard endpoint will be created for the specified protocol where  the server ORB will listen for requests on all listenable network interfaces.
-
-If an endpoint is specified having the port number omitted as the following:
-\begin{verbatim}
-    -ORBListenEndpoints iiop://maple:
-\end{verbatim}
-then an endpoint will be created on the host “maple” having the port chosen automatically.
-
-\subsubsection{IIOP Endpoints}
-IIOP endpoints have the form:
-\begin{verbatim}
-    -ORBListenEndpoints iiop://V.v@hostname1:port1,...,W.w@hostname2:port2
-\end{verbatim}
-where "V.v" and "W.w" are the IIOP protocol versions associated with the given address (hostname:port pair). Currently supported versions are 1.0, 1.1, and 1.2.  For example,
-\begin{verbatim}
-    -ORBListenEndpoints iiop://maple:12345
-\end{verbatim}
-would instructs the server ORB to listen on the host named “maple” at port 12345.
-
-\subsubsection{SSLIOP Endpoints}
-An SSLIOP endpoint is an extension of the IIOP endpoint. For example,
-\begin{verbatim}
-    -ORBListenEndpoints iiop://maple:12345/ssl_port=44444
-\end{verbatim}
-means that an IIOP endpoint would be opened on port 12345 and anSSLIOP on port 44444.  Please note that the protocol label in the above example is {\tt “iiop”} not {\tt “ssliop”}.
-
 \subsection{Loading Classes and Resources}
 \label{tccl}
 JacORB has two different policies it may use to load classes and resources. By default it will attempt to load
@@ -1395,9 +1338,7 @@ port & unset \\
 address for servers. The general form of the value is
 {\tt <protocol>://<address>}. The protocol name must match the
 protocol(s) used by the server. For example: {\tt
-  iiop://myhost:1234}. This property is superceded by the endpoints
-specified by the -ORBListenEndpoints command-line option. This
-property supercedes OAIAddr and OAPort.
+  iiop://myhost:1234}. This property supercedes OAIAddr and OAPort.
 & string & unset \\
 \hline
 \verb"OAIAddr" & The Object Adapter Internet Address: IP address on
@@ -1411,12 +1352,9 @@ dependant which IP address is selected.
 GIOP)}} on a multihomed host the client
 will also require OAIAddr set as it is acting as a server.
 \end{itemize}
-This property is superceded by the -ORBListenEndpoints endpoint specification.
   & node & unset \\
 \hline
-\verb"OAPort" & See OAIAddr above (ignored if OAAddress is set) This
-property is superceded by the -ORBListenEndpoints endpoint specification.
-& port & unset \\
+\verb"OAPort" & See OAIAddr above (ignored if OAAddress is set) & port & unset \\
 \hline
 \verb"jacorb.net.socket_fact"
 \verb"ory" & Sets or defines the socket factory. See section \ref{sec:customSocketFactories} for details.& class & \\
@@ -1541,9 +1479,7 @@ context or forName). Default is off. & boolean\\
 \hline
 ~ \hfill \textbf {Property} \hfill ~ & ~ \hfill \textbf {Description} \hfill ~ & ~ \hfill \textbf {Type} \hfill ~ \endhead
 \hline
-\verb"jacorb.use_imr" & Switch on to contact the Implementation Repository (IR) on every server start-up. Default is off.  This property must be turned off when the “jacorb.use_tao_imr” is turned on.   If both properties are turned on, an exception will be thrown. & boolean \\
-\hline
-\verb"jacorb.use_tao_imr" & Switch on to contact the ITAO mplementation Repository (TAO ImR) on every server start-up. Default is off.  This property must be turned off when the “jacorb.use_imr” is turned on.   If both properties are turned on, an exception will be thrown. & boolean \\
+\verb"jacorb.use_imr" & Switch on to contact the Implementation Repository (IR) on every server start-up. Default is off. & boolean \\
 \hline
 \verb"jacorb.use_imr_endpoin"
 \verb"t" & Switch off to prevent writing the IMR address into server IORs. This property is ignored if jacorb.use\_imr = off. Default is off. & boolean \\

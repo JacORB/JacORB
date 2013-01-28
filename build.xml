@@ -120,7 +120,7 @@ using BUILD_NUMBER:   ${BuildNo}
       <jar jarfile="${lib}/jacorb.jar"
            index="true"
            basedir="${classdir}"
-           includes="org/jacorb/**,ImplementationRepository/**,org/omg/**"
+           includes="org/jacorb/**,org/omg/**"
            excludes="org/jacorb/idl/**,
                      org/jacorb/demo/**,
                      org/jacorb/test/**,
@@ -217,7 +217,7 @@ using BUILD_NUMBER:   ${BuildNo}
       <delete file="${lib}/omg.jar" failonerror="false"/>
       <jar jarfile="${lib}/jacorb.jar"
            basedir="${classdir}"
-           includes="org/jacorb/**,ImplementationRepository/**"
+           includes="org/jacorb/**"
            excludes="org/jacorb/idl/**,
                      org/jacorb/demo/**,
                      org/jacorb/test/**,
@@ -297,7 +297,7 @@ using BUILD_NUMBER:   ${BuildNo}
    <!-- ==================================================== -->
 
    <target name="doc" depends="init,src-check" description="Create the Javadoc">
-        <property name="PKGNAMES" value="ImplementationRepository/*,org.jacorb.idl.*,org.jacorb.util.*,org.jacorb.orb.*,org.jacorb.imr.*,org.jacorb.tao_imr.*,org.jacorb.ir.*,org.jacorb.poa.*,org.jacorb.events.*,org.jacorb.naming.*,org.jacorb.security.sas.*,org.omg.*,org.jacorb.notification.*" />
+        <property name="PKGNAMES" value="org.jacorb.idl.*,org.jacorb.util.*,org.jacorb.orb.*,org.jacorb.imr.*,org.jacorb.ir.*,org.jacorb.poa.*,org.jacorb.events.*,org.jacorb.naming.*,org.jacorb.security.sas.*,org.omg.*,org.jacorb.notification.*" />
         <property name="PKGNAMES_EXCLUDED" value="org.jacorb.notification.filter.bsh" />
         <property name="SRCDIR2" value="" />
 
@@ -371,7 +371,6 @@ using BUILD_NUMBER:   ${BuildNo}
                 <!-- So much is generated code is there much point? -->
                 <!--             <include name="idl/**/*.java"/>    -->
                 <include name="imr/**/*.java"/>
-                <include name="tao_imr/**/*.java"/>
                 <include name="orb/**/*.java"/>
                 <include name="poa/**/*.java"/>
                 <include name="security/**/*.java"/>
@@ -447,8 +446,6 @@ using BUILD_NUMBER:   ${BuildNo}
             <class location="${basedir}/classes/org/jacorb/poa"/>
             <class location="${basedir}/classes/org/jacorb/security"/>
             <class location="${basedir}/classes/org/jacorb/util"/>
-            <class location="${basedir}/classes/ImplementationRepository"/>
-            <class location="${basedir}/classes/org/jacorb/tao_imr"/>
         </findBugs>
     </target>
 </project>

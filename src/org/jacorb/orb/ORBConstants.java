@@ -53,7 +53,4 @@ public final class ORBConstants
      */
     public static final int JAC_SSL_PROFILE_ID      = VMCID;
     public static final int JAC_NOSSL_PROFILE_ID    = VMCID | 0x01;
-
-    // Added to support iterop with another non-jacorb
-    public static final int TAO_ORB_ID              = 0x54414F00;
 }

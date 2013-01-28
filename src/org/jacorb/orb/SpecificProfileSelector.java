@@ -93,9 +93,4 @@ public class SpecificProfileSelector implements ProfileSelector
 
       return null;
    }
-
-   public Profile selectNextProfile(List profiles, Profile lastProfile)
-   {
-       return null;
-   }
 }

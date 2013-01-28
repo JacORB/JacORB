@@ -83,19 +83,6 @@ public abstract class ListenerBase
 
     private boolean terminated = false;
 
-    protected ListenEndpoint listenEndpoint = null;
-
-    public ListenerBase()
-    {
-        super();
-    }
-
-    public ListenerBase(ListenEndpoint listenEndpoint)
-    {
-        super();
-        this.setListenEndpoint(listenEndpoint);
-    }
-
     public void configure(Configuration config)
         throws ConfigurationException
     {

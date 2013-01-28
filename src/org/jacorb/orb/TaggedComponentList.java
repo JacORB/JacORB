@@ -291,45 +291,4 @@ public class TaggedComponentList implements Cloneable
         }
         return result;
     }
-
-    /**
-     * This function will search and remove the components, whose tag matches
-     * the given tag, from the components list.  Removing tags are needed in
-     * the case the the ImR is used.
-     * @param tag
-     */
-    public void removeComponents (int tag)
-    {
-        // first, count the number of components whose tag matches the given tag.
-        int match_cnt = 0;
-        for (int i=0; i < components.length; i++)
-        {
-            if (components[i].tag == tag)
-            {
-                match_cnt++;
-            }
-        }
-
-        // nothing more to do if there was no match
-        if (match_cnt == 0)
-        {
-            return;
-        }
-
-        // create a new TaggedComponent array and move the components whose tag
-        // does not match the given tag.
-        TaggedComponent[] newComponents =
-            new TaggedComponent [components.length - match_cnt];
-
-        for (int i=0; i < components.length; i++)
-        {
-            if (components[i].tag != tag)
-            {
-                newComponents[i] = components[i];
-            }
-        }
-
-        // replace the list
-        components = newComponents;
-    }
 }

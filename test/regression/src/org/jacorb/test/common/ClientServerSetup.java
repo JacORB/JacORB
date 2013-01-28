@@ -21,7 +21,6 @@ package org.jacorb.test.common;
  *   MA 02110-1301, USA.
  */
 
-import java.lang.String;
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -121,26 +120,13 @@ public class ClientServerSetup extends TestSetup {
                               Properties optionalClientProperties,
                               Properties optionalServerProperties )
     {
-        this(test, new String[] {testServer},
-                new String[] {servantName},
-                optionalClientProperties,
-                optionalServerProperties);
-
-    }
-
-    public ClientServerSetup( Test test,
-                              String[] testServerArgs,
-                              String[] servantArgs,
-                              Properties optionalClientProperties,
-                              Properties optionalServerProperties )
-    {
         super(test);
 
         if (optionalClientProperties == null)
         {
             optionalClientProperties = new Properties();
         }
-
+        
         if (optionalServerProperties == null)
         {
             optionalServerProperties = new Properties();
@@ -187,10 +173,10 @@ public class ClientServerSetup extends TestSetup {
             optionalServerProperties.putAll(imrProps);
         }
 
-        serverSetup = new ServerSetup(this, testServerArgs, servantArgs, optionalServerProperties);
+        serverSetup = new ServerSetup(this, testServer, servantName, optionalServerProperties);
         clientORBSetup = new ORBSetup(this, optionalClientProperties);
 
-        this.servantName = servantArgs[0];
+        this.servantName = servantName;
     }
 
     private static boolean isSSLDisabled(Properties clientProps, Properties serverProps)
@@ -253,7 +239,7 @@ public class ClientServerSetup extends TestSetup {
     protected final void initSecurity()
     {
     }
-
+    
     public void tearDown() throws Exception
     {
         doTearDown();
@@ -341,9 +327,6 @@ public class ClientServerSetup extends TestSetup {
         {
             clientProps.setProperty("jacorb.use_imr", "off");
             serverProps.setProperty("jacorb.use_imr", "off");
-
-            clientProps.setProperty("jacorb.use_tao_imr", "off");
-            serverProps.setProperty("jacorb.use_tao_imr", "off");
         }
 
         return result;

@@ -51,8 +51,6 @@ import org.omg.IOP.TaggedComponent;
 import org.omg.IOP.TaggedComponentSeqHolder;
 import org.omg.IOP.TaggedProfile;
 import org.omg.IOP.TaggedProfileHolder;
-import org.jacorb.orb.Delegate;
-
 import org.slf4j.Logger;
 
 /**
@@ -81,12 +79,6 @@ public class ParsedIOR
     private CodeSetComponentInfo cs_info = null;
     private Integer orbTypeId = null;
     private final Logger logger;
-    private String iorTypeIdName = null;
-    private boolean isImRIor = false;
-    private boolean isNameServiceIor = false;
-    private Delegate corbaNameDelegate = null;
-    private String corbaNameOriginalObjRef = null;
-    private boolean useNameService = false;
 
     /**
      * Create an IOR passing an ETF Profile.
@@ -431,109 +423,7 @@ public class ParsedIOR
             cs_info = (CodeSetComponentInfo) getComponent
                (TAG_CODE_SETS.value, CodeSetComponentInfoHelper.class);
             orbTypeId = getLongComponent (TAG_ORB_TYPE.value);
-
-            setIorTypeIdName();
         }
-    }
-
-    public Profile getNextEffectiveProfile()
-    {
-        Profile lastProfile = effectiveProfile;
-
-        effectiveProfile = getProfileSelector().selectNextProfile
-                (profiles, lastProfile);
-
-
-        if (effectiveProfile != null && effectiveProfile != lastProfile)
-        {
-            cs_info = (CodeSetComponentInfo) getComponent
-               (TAG_CODE_SETS.value, CodeSetComponentInfoHelper.class);
-            orbTypeId = getLongComponent (TAG_ORB_TYPE.value);
-
-            setIorTypeIdName();
-        }
-        return effectiveProfile;
-    }
-
-    private void setIorTypeIdName()
-    {
-
-        isImRIor = false;
-        isNameServiceIor = false;
-        iorTypeIdName = null;
-
-        String iorTypeId = getTypeId();
-        int colon = iorTypeId.lastIndexOf(":");
-        if (colon > 0)
-        {
-            // chop off the version id at the end
-            iorTypeIdName = iorTypeId.substring(0, colon);
-        }
-
-        if (iorTypeIdName != null)
-        {
-            // check for JACORB ImR
-            if (iorTypeIdName.equals("IDL:org/jacorb/imr/ImplementationRepository"))
-            {
-                isImRIor = true;
-            }
-            //check for TAO ImR
-            else if (iorTypeIdName.equals("IDL:ImplementationRepository/Locator"))
-            {
-                isImRIor = true;
-            }
-            //check for the Naming Service
-            else if (iorTypeIdName.equals("IDL:omg.org/CosNaming/NamingContextExt"))
-            {
-                isNameServiceIor = true;
-            }
-        }
-
-        // last attempt to determine IOR type by using the opject key
-        if (!isImRIor && !isNameServiceIor && effectiveProfile != null)
-        {
-            iorTypeIdName = CorbaLoc.parseKey( effectiveProfile.get_object_key());
-            if (iorTypeIdName != null)
-            {
-                if (iorTypeIdName.lastIndexOf("NameService") >= 0)
-                {
-                    isNameServiceIor = true;
-                }
-                else if (iorTypeIdName.lastIndexOf("ImplementationRepository") >= 0 ||
-                      iorTypeIdName.lastIndexOf("ImplRepo_Service") >= 0 ||
-                      iorTypeIdName.lastIndexOf("the_ImR/ImRPOA.ImR") >= 0 )
-                {
-                    isImRIor = true;
-                }
-            }
-
-        }
-    }
-
-
-    public String getTypeIdName()
-    {
-        return iorTypeIdName;
-    }
-
-    public boolean isImRIor()
-    {
-        return isImRIor;
-    }
-
-    public boolean isNameServiceIor()
-    {
-        return isNameServiceIor;
-    }
-
-    public boolean useNameService()
-    {
-        return useNameService;
-    }
-
-    public String getCorbaNameOriginalObjRef()
-    {
-        return corbaNameOriginalObjRef;
     }
 
     public String getTypeId()
@@ -725,18 +615,18 @@ public class ParsedIOR
             }
         }
         else
-	    {
+	  {
 	    if (corbaLoc.profileList.length == 0) {
 	      // no profiles found; no point continuing
 	      return;
 	    }
 	    for (int count = 0; count < corbaLoc.profileList.length; count++) {
-          corbaLoc.profileList[count].set_object_key(corbaLoc.getKey());
+	      corbaLoc.profileList[count].set_object_key(corbaLoc.getKey());
 	    }
         ior = createObjectIOR(orb, corbaLoc.profileList);
 	  }
 
-    decode(ior);
+	decode(ior);
     }
 
     private void parse_corbaname(String object_reference)
@@ -746,8 +636,6 @@ public class ParsedIOR
         int colon = object_reference.indexOf(':');
         int pound = object_reference.indexOf('#');
 
-        //save object_reference string for falling back by try_rebind()
-        corbaNameOriginalObjRef = object_reference;
         if (pound == -1)
         {
             corbaloc += object_reference.substring(colon + 1);
@@ -759,11 +647,9 @@ public class ParsedIOR
         }
 
         /* empty key string in corbaname becomes NameService */
-        useNameService = false;
         if (corbaloc.indexOf('/') == -1)
         {
             corbaloc += "/NameService";
-            useNameService = true;
         }
 
         logger.debug(corbaloc);

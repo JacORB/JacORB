@@ -191,10 +191,6 @@ public class TestServer
                 ior = "SERVER IOR: " + orb.object_to_string(obj);
             }
 
-            /**
-             * NOTE: output SERVER IOR for client to pick it up.
-             * Don't delete or the test will fail.
-             */
             System.out.println(ior);
 
             TestUtils.log("using IOR: " + ior);
