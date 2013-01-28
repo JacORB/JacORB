@@ -45,6 +45,7 @@ This Release
 ============
     - ORB
          - Improve encapsulation of internal code.
+         - Support setting the ORB ID using the -DORBId option.
 
 3.2
 ===
