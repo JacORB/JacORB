@@ -91,16 +91,7 @@ public abstract class ListenerBase
         orb = configuration.getORB();
 
         logger = configuration.getLogger(configuration.getLoggerName(this.getClass()));
-<<<<<<< HEAD
-        }
-=======
-
-        if (listenEndpoint == null) {
-            listenEndpoint = orb.getTransportManager().getDefaultEndpoints();
-        }
     }
->>>>>>> Merge from Quynh, all the changes to date
-
     /**
      * This call establishes the link between the ORB (i.e. the Handle
      * instance) and a server endpoint of the plugged-in transport.
@@ -245,23 +236,5 @@ public abstract class ListenerBase
         public abstract void run();
 
         public abstract void terminate();
-    }
-
-    /**
-     * Assigns a listen end point to this listener
-     * @param listenEndpoint
-     */
-    public void setListenEndpoint (ListenEndpoint listenEndpoint)
-    {
-        this.listenEndpoint = listenEndpoint;
-    }
-
-    /**
-     * Returns the listen endpoint of this listener.
-     * @return
-     */
-    public ListenEndpoint getListenEndpoint ()
-    {
-        return listenEndpoint;
     }
 }

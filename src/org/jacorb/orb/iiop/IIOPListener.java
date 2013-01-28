@@ -95,8 +95,11 @@ public class IIOPListener
         String address_str = configuration.getAttribute("OAAddress",null);
         if (address_str != null)
         {
-            throw new org.omg.CORBA.INITIALIZE
-                ("listenEndpoint may not be null");
+            ProtocolAddressBase addr = orb.createAddress(address_str);
+            if (addr instanceof IIOPAddress)
+            {
+                address = (IIOPAddress)addr;
+            }
         }
         else
         {

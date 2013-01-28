@@ -1647,13 +1647,6 @@ public final class ORB
                     continue;
                 }
 
-                // skip over -ORBSetListenEndpoint argument since it is not applied here
-                if (arg.equalsIgnoreCase("-ORBListenEndpoints"))
-                {
-                    i++;
-                    continue;
-                }
-
                 // skip over -ORBID argument since it is not applied here
                 if (arg.equals("-ORBID"))
                 {

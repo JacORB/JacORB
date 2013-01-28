@@ -192,17 +192,7 @@ public class IIOPAddress
            return host.getHostAddress();
         }
 
-        if ( ! isWildcard())
-        {
-            return forceDNSLookup ? host.getCanonicalHostName() : host.getHostName();
-        }
-        else if (pseudo_host != null)
-        {
-            return forceDNSLookup ? pseudo_host.getCanonicalHostName() : pseudo_host.getHostName();
-        }
-
-        // should not get here
-        return null;
+        return forceDNSLookup ? host.getCanonicalHostName() : host.getHostName();
     }
 
     /**
@@ -222,17 +212,7 @@ public class IIOPAddress
             return source_name;
         }
 
-        if ( ! isWildcard())
-        {
-            return dnsEnabled ? host.getCanonicalHostName() : host.getHostAddress();
-        }
-        else if (pseudo_host != null)
-        {
-            return dnsEnabled ? pseudo_host.getCanonicalHostName() : pseudo_host.getHostAddress();
-        }
-
-        // should not get here
-        return null;
+        return dnsEnabled ? host.getCanonicalHostName() : host.getHostAddress();
     }
 
     /**
@@ -319,19 +299,7 @@ public class IIOPAddress
             return false;
         }
 
-        // In case the IIOPAddress object is created using the host inetAddress
-        // as the source_name which normally contains the routing zone id delimted
-        // by the percent (%). As such, it needs to be removed.
-        int route_delim = s.lastIndexOf('%', end_bracket);
-
-        if (route_delim < 0) {
-            source_name = s.substring(1, end_bracket);
-        }
-        else
-        {
-            source_name = s.substring(1, route_delim);
-
-        }
+        source_name = s.substring(1, end_bracket);
 
         int port_colon = s.indexOf(':', end_bracket);
         if (port_colon < 0)

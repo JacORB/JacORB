@@ -22,7 +22,6 @@
    	           poa,
    	           ir,
    	           imr,
-                   tao_imr,
    	           naming,
    	           tracing,
    	           security,
