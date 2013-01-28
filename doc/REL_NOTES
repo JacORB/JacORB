@@ -31,6 +31,10 @@
                 - Transaction, collection and concurrency services
                     (by Alex Sinishin and Viacheslav Tararin of DekaSoft
                     Ltd., Ukraine,taras@deka.kp.km.ua)
+        - Compatible with the IBM v1.6 JDK on a RH LINUX 6.x
+        - Compatible with TAO Implementation Repository
+        - Support redundancy retrying for Implementation Repository and Naming
+          Service
 
 
 
@@ -41,6 +45,7 @@ This Release
 ============
     - ORB
          - Improve encapsulation of internal code.
+         - Support setting the ORB ID using the -DORBId option.
 
 3.2
 ===
@@ -71,7 +76,6 @@ This Release
 3.1
 ===
     - ORB
-        - Fix current_component with DynArray/DynStruct/DynSequence to conform to spec.
         - Output iiop version when printing Corbaloc URLs
         - Call _this_object on Servants for ServantManager created objects.
         - When selecting an address for localhost attempt to find non-loopback first

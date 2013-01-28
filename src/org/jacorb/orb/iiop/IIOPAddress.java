@@ -298,6 +298,7 @@ public class IIOPAddress
         {
             return false;
         }
+
         source_name = s.substring(1, end_bracket);
 
         int port_colon = s.indexOf(':', end_bracket);

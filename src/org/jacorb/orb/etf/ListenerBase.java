@@ -92,7 +92,6 @@ public abstract class ListenerBase
 
         logger = configuration.getLogger(configuration.getLoggerName(this.getClass()));
     }
-
     /**
      * This call establishes the link between the ORB (i.e. the Handle
      * instance) and a server endpoint of the plugged-in transport.
