@@ -41,6 +41,7 @@ This Release
 ============
     - ORB
          - Improve encapsulation of internal code.
+         - Implement the method validate_connection.
 
 3.2
 ===

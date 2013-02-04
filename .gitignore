@@ -1,4 +1,12 @@
 doc/ProgrammingGuide/ProgrammingGuide.pdf
+bin/jaco
+bin/jaco.bat
+bin/idl
+bin/idl.bat
+bin/dior
+bin/version
+bin/ns-wrapper
+bin/ntfy-wrapper
 
 lib/jacorb.jar
 lib/idl.jar
@@ -8,13 +16,46 @@ lib/jacorb-sources.jar
 src/org/jacorb/idl/parser.java
 src/org/jacorb/idl/sym.java
 
-classes/org
-test/regression/classes
+lib/jacorb.jar
+lib/idl.jar
+lib/jacorb-services.jar
+lib/jacorb-sources.jar
 
+src/org/jacorb/idl/parser.java
+src/org/jacorb/idl/sym.java
+
+classes
+
+src/generated/
 src/generated/org
-test/regression/src/generated/*
 
+test/regression/classes
 test/regression/output/TEST-*
+test/regression/*/output
+test/regression/*/generated
+test/regression/output
+test/regression/src/generated
 
 demo/*/build
+demo/*/generated
+demo/tao_imr/test/output
+
 test/interop/*/build
+test/interop/*/generated
+test/listenendpoints/echo_corbaloc/generated
+test/listenendpoints/echo_corbaloc/output
+test/listenendpoints/echo/generated
+test/listenendpoints/echo/output
+test/orbreinvoke/jacorb_imr/generated
+test/orbreinvoke/jacorb_imr/output
+test/orbreinvoke/tao_imr/generated
+test/orbreinvoke/tao_imr/output
+test/orbreinvoke/tao_ns/generated
+test/orbreinvoke/tao_ns/output
+
+.DS_Store
+_nsdb_root*
+*.log
+*.class
+*.ior
+
