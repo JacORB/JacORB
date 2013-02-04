@@ -861,6 +861,11 @@ public class ORBSingleton
         throw new org.omg.CORBA.NO_IMPLEMENT (FACTORY_METHODS_MESG);
     }
 
+    protected void set_parameters(String[] args, java.util.Properties props, String id)
+    {
+        throw new org.omg.CORBA.NO_IMPLEMENT (FACTORY_METHODS_MESG);
+    }
+
     protected void set_parameters(java.applet.Applet app, java.util.Properties  props)
     {
         throw new org.omg.CORBA.NO_IMPLEMENT (FACTORY_METHODS_MESG);
