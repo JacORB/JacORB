@@ -1592,6 +1592,8 @@ public final class ORB
             orb_id = id;
         }
 
+        // Move here before calling configure for ORBListenEndpoints processing
+        arguments = args;
         try
         {
             configure( org.jacorb.config.JacORBConfiguration.getConfiguration(props,
@@ -1615,7 +1617,6 @@ public final class ORB
 
         if ( args != null )
         {
-            arguments = args;
             for ( int i = 0; i < args.length; i++ )
             {
                 if (args[i] == null)
@@ -1633,7 +1634,14 @@ public final class ORB
                 // skip over -ORBID argument since it is not applied here
                 if (arg.equalsIgnoreCase("-ORBID"))
                 {
-                    ++i;
+                    i++;
+                    continue;
+                }
+
+                // skip over -ORBSetListenEndpoint argument since it is not applied here
+                if (arg.equalsIgnoreCase("-ORBListenEndpoints"))
+                {
+                    i++;
                     continue;
                 }
 

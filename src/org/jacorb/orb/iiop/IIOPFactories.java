@@ -24,6 +24,7 @@ package org.jacorb.orb.iiop;
 import org.jacorb.config.ConfigurationException;
 import org.jacorb.orb.etf.ProfileBase;
 import org.jacorb.orb.etf.ProtocolAddressBase;
+import org.jacorb.orb.etf.FactoriesBase;
 import org.omg.ETF.Connection;
 import org.omg.ETF.Listener;
 import org.omg.ETF.Profile;
@@ -73,7 +74,11 @@ public class IIOPFactories
      */
     protected Listener create_listener_internal ()
     {
-       IIOPListener result = new IIOPListener();
+       if (listenEndpoint == null)
+       {
+           throw new org.omg.CORBA.INTERNAL("listenEndpoint was not defined");
+       }
+       IIOPListener result = new IIOPListener(listenEndpoint);
        configureResult (result);
        return result;
     }

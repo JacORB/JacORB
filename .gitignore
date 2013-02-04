@@ -16,14 +16,6 @@ lib/jacorb-sources.jar
 src/org/jacorb/idl/parser.java
 src/org/jacorb/idl/sym.java
 
-lib/jacorb.jar
-lib/idl.jar
-lib/jacorb-services.jar
-lib/jacorb-sources.jar
-
-src/org/jacorb/idl/parser.java
-src/org/jacorb/idl/sym.java
-
 classes
 
 src/generated/
