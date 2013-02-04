@@ -43,6 +43,7 @@ This Release
          - Improve encapsulation of internal code.
          - Implement the method validate_connection.
          - Support setting the ORB ID using the -DORBId option.
+         - Support multi-network interfaces using -ORBListenEndpoints option.
 3.2
 ===
     - ORB

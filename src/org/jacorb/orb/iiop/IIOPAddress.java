@@ -23,6 +23,7 @@ package org.jacorb.orb.iiop;
 import java.net.Inet6Address;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
+import java.net.ServerSocket;
 import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.util.Collections;
@@ -53,6 +54,9 @@ public class IIOPAddress
     private Logger logger;
     private boolean doEagerResolve;
     private boolean forceDNSLookup = true;
+    private String protocol = null;
+    private boolean isWildcard = false;
+    private boolean isConfigured = false;
 
     /**
      * Creates a new IIOPAddress that will be initialized later by a string
@@ -79,6 +83,39 @@ public class IIOPAddress
         init_port(port);
     }
 
+    /**
+     * Method for use by the IIOPListener.
+     * Create a new IIOPAddress for <code>serverSocket</code> which has already been
+     * instantiated.
+     * @param serverSocket
+     */
+    public IIOPAddress(ServerSocket serverSocket)
+    {
+        this();
+
+
+        /**
+        * Once a Server socket has been instantiated, getInetAddress().toString()
+        * would return a string in the form "hostname/hostaddress".
+        * Note that hostname and hostaddress may be the same.  So, the
+        * following code segment would extract the hostname from the returned
+        * inetAddress.
+        */
+        host = serverSocket.getInetAddress();
+        port = serverSocket.getLocalPort();
+        source_name = serverSocket.getInetAddress().toString();
+        int slash_delim = source_name.indexOf('/');
+        if (slash_delim > 0)
+        {
+            source_name = source_name.substring(0, slash_delim);
+        }
+
+        isWildcard = serverSocket.getInetAddress().isAnyLocalAddress();
+
+        // Set the isConfigured flag to prevent calling init_host() later
+        isConfigured = true;
+    }
+
     private void init_port(int port)
     {
         if (port < 0)
@@ -103,12 +140,22 @@ public class IIOPAddress
         hideZoneID =
             configuration.getAttributeAsBoolean("jacorb.ipv6.hide_zoneid", true);
         doEagerResolve = configuration.getAttributeAsBoolean("jacorb.dns.eager_resolve", true);
+        forceDNSLookup = configuration.getAttributeAsBoolean("jacorb.dns.force_lookup", true);
+
+        /**
+         * Check if this object has already been configured
+         */
+        if (isConfigured == true) {
+           return;
+        }
 
         if (doEagerResolve)
         {
             init_host();
         }
-        forceDNSLookup = configuration.getAttributeAsBoolean("jacorb.dns.force_lookup", true);
+
+        // Set the isConfigured flag
+        isConfigured = true;
    }
 
     /**
@@ -118,12 +165,18 @@ public class IIOPAddress
      */
     private void init_host()
     {
-        InetAddress localhost = getLocalHost();
+        // InetAddress localhost = getLocalHost();
         boolean hasZoneId = false;
 
         if (source_name == null || source_name.length() == 0 )
         {
-            host = localhost;
+            /**
+             * Setting host to null to indicate wildcard host so that when
+             * the ServerSocket function is called, the system will create a
+             * wildcard listener that would listen on all listenable network
+             * interfaces.
+             */
+            host = null;
         }
         else
         {
@@ -149,13 +202,15 @@ public class IIOPAddress
                 unresolvable = true;
                 try
                 {
-                    host = InetAddress.getByName(null); //localhost
+                    // host = InetAddress.getByName(null); //localhost
+                    host = InetAddress.getLocalHost();
                 }
                 catch (UnknownHostException ex2)
                 {
                 }
             }
         }
+
     }
 
 
@@ -168,6 +223,15 @@ public class IIOPAddress
        return new IIOPAddress(host, port);
     }
 
+    public void setProtocol(String protocol)
+    {
+        this.protocol = new String (protocol);
+    }
+
+    public String getProtocol()
+    {
+        return this.protocol;
+    }
 
     /**
      * Returns the host part of this IIOPAddress, as a numeric IP address in
@@ -182,7 +246,7 @@ public class IIOPAddress
             init_host();
         }
 
-        if (unresolvable)
+        if (unresolvable || host == null)
         {
             return source_name;
         }
@@ -207,7 +271,7 @@ public class IIOPAddress
         {
             init_host();
         }
-        if (unresolvable)
+        if (unresolvable || host == null)
         {
             return source_name;
         }
@@ -262,6 +326,55 @@ public class IIOPAddress
         port = p;
     }
 
+    /**
+     * Method for use by the IIOPListener to set host address
+     * for a wildcard listener after the server socket has been instantiated.
+     * The flag isWildcard and the source_name will be updated to reflect
+     * the current state of the wildcard listener.
+     *
+     * @param hostInetAddr
+     */
+    public void setHostInetAddress(InetAddress hostInetAddr)
+    {
+        if (host == null) {
+            host = hostInetAddr;
+            isWildcard = host.isAnyLocalAddress();
+            if (source_name == null || source_name.length() == 0) {
+                source_name = host.toString();
+            }
+        }
+    }
+
+    /**
+     * Method for use by the IIOPListener to retrieve the host address
+     * for a wildcard listener after the server socket has been instantiated.
+     * @param hostInetAddr
+     */
+    public InetAddress getHostInetAddress()
+    {
+        return host;
+    }
+
+    /**
+     *
+     * @return the boolean state of the wildcard listener.
+     * A true state indicates a wildcard listener.
+     */
+    public boolean isWildcard()
+    {
+        return isWildcard;
+    }
+
+    /**
+     * Method for use by the IIOPListener to set the wildcard state of a
+     * wildcard listener after the server socket has been instantiated.
+     * @param state
+     */
+    public void setWildcardHost(boolean state)
+    {
+        isWildcard = state;
+    }
+
     public boolean equals(Object other)
     {
         if (other instanceof IIOPAddress)
@@ -298,7 +411,20 @@ public class IIOPAddress
         {
             return false;
         }
-        source_name = s.substring(1, end_bracket);
+
+        // In case the IIOPAddress object is created using the host inetAddress
+        // as the source_name which normally contains the routing zone id delimted
+        // by the percent (%). As such, it needs to be removed.
+        int route_delim = s.lastIndexOf('%', end_bracket);
+
+        if (route_delim < 0) {
+            source_name = s.substring(1, end_bracket);
+        }
+        else
+        {
+            source_name = s.substring(1, route_delim);
+
+        }
 
         int port_colon = s.indexOf(':', end_bracket);
         if (port_colon < 0)
