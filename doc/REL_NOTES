@@ -42,7 +42,7 @@ This Release
     - ORB
          - Improve encapsulation of internal code.
          - Implement the method validate_connection.
-
+         - Support setting the ORB ID using the -DORBId option.
 3.2
 ===
     - ORB
