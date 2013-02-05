@@ -544,9 +544,9 @@ public class UnionType
          * print a constructor for class member initialization
          */
 
-        pw.println("\n\tpublic " + className + " ()");
+        pw.println(Environment.NL + "\tpublic " + className + " ()");
         pw.println("\t{");
-        pw.println("\t}\n");
+        pw.println("\t}" + Environment.NL);
 
         /*
          * print an accessor method for the discriminator
@@ -555,7 +555,7 @@ public class UnionType
         pw.println("\tpublic " + ts.typeName() + " discriminator ()");
         pw.println("\t{");
         pw.println("\t\treturn discriminator;");
-        pw.println("\t}\n");
+        pw.println("\t}" + Environment.NL);
 
         /*
          * print accessor and modifiers for each case label and branch
@@ -631,9 +631,9 @@ public class UnionType
                 }
             }
 
-            pw.println(")\n\t\t\tthrow new org.omg.CORBA.BAD_OPERATION();");
+            pw.println(")" + Environment.NL + "\t\t\tthrow new org.omg.CORBA.BAD_OPERATION();");
             pw.println("\t\treturn " + c.element_spec.declarator.name() + ";");
-            pw.println("\t}\n");
+            pw.println("\t}" + Environment.NL);
 
             // modifiers
 
@@ -652,7 +652,7 @@ public class UnionType
                 pw.println(label[ 0 ] + ";");
             }
             pw.println("\t\t" + c.element_spec.declarator.name() + " = _x;");
-            pw.println("\t}\n");
+            pw.println("\t}" + Environment.NL);
 
             if (caseLabelNum > 1 || thisCaseIsDefault)
             {
@@ -695,10 +695,10 @@ public class UnionType
                     }
                 }
 
-                pw.println(")\n\t\t\tthrow new org.omg.CORBA.BAD_OPERATION();");
+                pw.println(")" + Environment.NL + "\t\t\tthrow new org.omg.CORBA.BAD_OPERATION();");
                 pw.println("\t\tdiscriminator = _discriminator;");
                 pw.println("\t\t" + c.element_spec.declarator.name() + " = _x;");
-                pw.println("\t}\n");
+                pw.println("\t}" + Environment.NL);
             }
         }
 
@@ -733,8 +733,8 @@ public class UnionType
                     pw.print(" || _discriminator == " + lab);
                 }
             }
-            pw.println(" )\n\t\t\tthrow new org.omg.CORBA.BAD_PARAM( \"Illegal value is used in __default method\","
-                    + " 34, org.omg.CORBA.CompletionStatus.COMPLETED_NO );\n");
+            pw.println(" )" + Environment.NL + "\t\t\tthrow new org.omg.CORBA.BAD_PARAM( \"Illegal value is used in __default method\","
+                    + " 34, org.omg.CORBA.CompletionStatus.COMPLETED_NO );" + Environment.NL);
             pw.println("\t\tdiscriminator = _discriminator;");
             pw.println("\t}");
         }
@@ -831,7 +831,7 @@ public class UnionType
         ps.println("\timplements org.omg.CORBA.portable.Streamable");
         ps.println("{");
 
-        ps.println("\tpublic " + className + " value;\n");
+        ps.println("\tpublic " + className + " value;" + Environment.NL);
 
         ps.println("\tpublic " + className + "Holder ()");
         ps.println("\t{");
