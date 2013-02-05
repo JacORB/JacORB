@@ -62,6 +62,8 @@ This Release
          - Add integration test suite for JacORB ImR.
          - Default logging now supports showing class & method information.
          - Support compiling with IBM JDK 1.6/1.7.
+    - IDL
+         - Fix for line endings in generated code (BZ942)
 
 3.2
 ===
