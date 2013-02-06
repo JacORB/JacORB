@@ -41,6 +41,8 @@ This Release
 ============
     - ORB
          - Improve encapsulation of internal code.
+    - IDL
+         - Fix for line endings in generated code (BZ942)
 
 3.2
 ===
