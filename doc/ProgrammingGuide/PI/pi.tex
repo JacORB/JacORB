@@ -74,6 +74,26 @@ A typical use of this might be
 This allows the developer to conditionally throw a forward request while using
 forward\_reference() to prevent infinite loops.
 
+\section{Public API}
+Some users may find it useful to access internal data on the ClientRequestInfo and ServerRequestInfo. The following API is available. Note that it may be possible to corrupt the call chain so use these at your own risk.
+
+\subsubsection{org.jacorb.orb.portableInterceptor.ServerRequestInfoImpl}
+\begin{verbatim}
+   public GIOPConnection getConnection()
+   public ReplyOutputStream getReplyStream ()
+   public RequestInputStream getRequestStream ()
+   public ORB orb()
+\end{verbatim}
+
+\subsubsection{org.jacorb.orb.portableInterceptor.ClientRequestInfoImpl}
+\begin{verbatim}
+   public ClientConnection getConnection()
+   public ReplyInputStream getReplyStream ()
+   public RequestOutputStream getRequestStream ()
+   public ORB orb()
+\end{verbatim}
+
+
 %%% Local Variables:
 %%% mode: latex
 %%% TeX-master: "../ProgrammingGuide"

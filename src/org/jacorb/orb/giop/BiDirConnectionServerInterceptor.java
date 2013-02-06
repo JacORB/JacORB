@@ -89,7 +89,7 @@ public class BiDirConnectionServerInterceptor
         final BiDirIIOPServiceContext bidir_ctx = readBiDirContext(ctx);
 
         GIOPConnection connection =
-            ((ServerRequestInfoImpl) requestInfo).request.getConnection();
+            ((ServerRequestInfoImpl) requestInfo).getConnection();
 
         for( int i = 0; i < bidir_ctx.listen_points.length; i++ )
         {

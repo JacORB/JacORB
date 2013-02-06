@@ -24,6 +24,8 @@ package org.jacorb.orb.portableInterceptor;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+
+import org.jacorb.orb.ORB;
 import org.omg.CORBA.Any;
 import org.omg.CORBA.BAD_PARAM;
 import org.omg.CORBA.CompletionStatus;
@@ -58,6 +60,7 @@ public abstract class RequestInfoImpl
     protected org.omg.CORBA.Object forward_reference = null;
     protected short reply_status = UNKNOWN.value;
     protected org.omg.PortableInterceptor.Current current = null;
+    protected ORB orb;
 
     protected short sync_scope;
 
@@ -66,10 +69,11 @@ public abstract class RequestInfoImpl
 
     protected short caller_op = -1;
 
-    public RequestInfoImpl()
+    public RequestInfoImpl(ORB o)
     {
         super();
 
+        orb = o;
         request_ctx = new HashMap<Integer, ServiceContext>();
         reply_ctx = new HashMap<Integer, ServiceContext>();
     }
@@ -259,5 +263,14 @@ public abstract class RequestInfoImpl
     public short sync_scope()
     {
         return sync_scope;
+    }
+    
+    /**
+     * Public accessor to retrieve the ORB for this Request.
+     * @return a <code>org.jacorb.orb.ORB</code> value.
+     */
+    public ORB orb()
+    {
+    	return orb;
     }
 }

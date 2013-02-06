@@ -3,7 +3,7 @@ package org.jacorb.orb.portableInterceptor;
 /*
  *        JacORB - a free Java ORB
  *
- *   Copyright (C) 1999-2012 Gerald Brose / The JacORB Team.
+ *   Copyright (C) 1999-2013 Gerald Brose / The JacORB Team.
  *
  *   This library is free software; you can redistribute it and/or
  *   modify it under the terms of the GNU Library General Public
@@ -23,7 +23,11 @@ package org.jacorb.orb.portableInterceptor;
 
 import java.util.ArrayList;
 import java.util.Collection;
+
 import org.jacorb.orb.dsi.ServerRequest;
+import org.jacorb.orb.giop.GIOPConnection;
+import org.jacorb.orb.giop.ReplyOutputStream;
+import org.jacorb.orb.giop.RequestInputStream;
 import org.jacorb.poa.POA;
 import org.omg.CORBA.Any;
 import org.omg.CORBA.BAD_INV_ORDER;
@@ -56,13 +60,14 @@ public class ServerRequestInfoImpl
     extends RequestInfoImpl
     implements ServerRequestInfo
 {
-    //from ServerRequestInfo
+	private static final long serialVersionUID = -9044446354286649195L;
+
+	//from ServerRequestInfo
     private byte[] adapter_id = null;
     private String [] adapter_name = null;
     private String target_most_derived_interface = null;
 
     private Servant servant = null;
-    private final org.jacorb.orb.ORB orb;
 
     private final String operation;
 
@@ -72,7 +77,7 @@ public class ServerRequestInfoImpl
 
     private final byte [] objectId;
 
-    public final ServerRequest request;
+    private final ServerRequest request;
 
     public Any sending_exception = null;
 
@@ -81,9 +86,8 @@ public class ServerRequestInfoImpl
                                   ServerRequest request,
                                   Servant servant)
     {
-        super();
+        super(orb);
 
-        this.orb = orb;
         this.request = request;
         operation = request.operation();
         response_expected = request.responseExpected();
@@ -116,9 +120,8 @@ public class ServerRequestInfoImpl
                                   boolean response_expected,
                                   short sync_scope)
     {
-        super();
+        super(orb);
 
-        this.orb = orb;
         this.operation = operation;
         this.response_expected = response_expected;
         this.sync_scope = sync_scope;
@@ -497,5 +500,38 @@ public class ServerRequestInfoImpl
         }
 
         reply_ctx.put(_id, service_context);
+    }
+    
+    
+    /**
+	 * Public accessor to return the connection being used by this ServerRequestInfoImpl.
+	 * 
+	 * @return the connection
+	 */
+	public GIOPConnection getConnection() 
+	{
+		return (request == null ? null : request.getConnection());
+	}
+
+	// These functions should NOT be used internally and are only provided
+    // to allow users to interrogate the streams.
+    /**
+     * Public accessor to access the internal reply stream. Using this API it
+     * may be possible to corrupt the inputstream and therebye the call
+     * chain. Use at your own risk.
+     */
+    public ReplyOutputStream getReplyStream ()
+    {
+        return request.get_out();
+    }
+
+    /**
+     * Public accessor to access the internal request stream. Using this API it
+     * may be possible to corrupt the outputstream and therebye the call
+     * chain. Use at your own risk.
+     */
+    public RequestInputStream getRequestStream ()
+    {
+        return request.get_in();
     }
 }

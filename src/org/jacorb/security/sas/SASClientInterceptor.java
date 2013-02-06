@@ -154,7 +154,7 @@ public class SASClientInterceptor
     {
         //if (ri.operation().equals("_is_a")) return;
         //if (ri.operation().equals("_non_existent")) return;
-        org.omg.CORBA.ORB orb = ((ClientRequestInfoImpl) ri).orb;
+        org.omg.CORBA.ORB orb = ((ClientRequestInfoImpl) ri).orb();
 
         // see if target requires protected requests by looking into the IOR
         CompoundSecMechList csmList = null;
@@ -187,7 +187,7 @@ public class SASClientInterceptor
         }
 
         // ask connection for client_context_id
-        ClientConnection connection = ((ClientRequestInfoImpl) ri).connection;
+        ClientConnection connection = ((ClientRequestInfoImpl) ri).getConnection();
 
         long client_context_id = 0;
         if (useStateful)
@@ -272,7 +272,7 @@ public class SASClientInterceptor
                                                   MinorCodes.SAS_CSS_FAILURE,
                                                   CompletionStatus.COMPLETED_MAYBE);
         }
-        ClientConnection connection = ((ClientRequestInfoImpl) ri).connection;
+        ClientConnection connection = ((ClientRequestInfoImpl) ri).getConnection();
 
         // process CompleteEstablishContext message
         if (contextBody.discriminator() == MTCompleteEstablishContext.value)
@@ -330,7 +330,7 @@ public class SASClientInterceptor
                                                   MinorCodes.SAS_CSS_FAILURE,
                                                   CompletionStatus.COMPLETED_MAYBE);
         }
-        ClientConnection connection = ((ClientRequestInfoImpl) ri).connection;
+        ClientConnection connection = ((ClientRequestInfoImpl) ri).getConnection();
 
         // process CompleteEstablishContext message
         if (contextBody.discriminator() == MTCompleteEstablishContext.value)

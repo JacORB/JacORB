@@ -26,6 +26,7 @@ import java.util.Map;
 
 import org.jacorb.orb.ApplicationExceptionHelper;
 import org.jacorb.orb.Delegate;
+import org.jacorb.orb.Delegate.INVOCATION_KEY;
 import org.jacorb.orb.SystemExceptionHelper;
 import org.jacorb.orb.giop.ReplyInputStream;
 import org.omg.CORBA.portable.ApplicationException;
@@ -38,6 +39,7 @@ import org.omg.PortableInterceptor.LOCATION_FORWARD;
 import org.omg.PortableInterceptor.SUCCESSFUL;
 import org.omg.PortableInterceptor.SYSTEM_EXCEPTION;
 import org.omg.PortableInterceptor.USER_EXCEPTION;
+import org.omg.TimeBase.UtcT;
 import org.slf4j.Logger;
 
 /**
@@ -87,7 +89,7 @@ public class DefaultClientInterceptorHandler implements ClientInterceptorHandler
                     delegate,
                     piorOriginal,
                     connection,
-                    (Map) Delegate.getInvocationContext().peek());
+                    Delegate.getInvocationContext().peek());
         }
         else
         {

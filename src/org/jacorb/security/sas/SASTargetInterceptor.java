@@ -169,7 +169,7 @@ public class SASTargetInterceptor
             return;
 
         GIOPConnection connection =
-            ((ServerRequestInfoImpl) ri).request.getConnection();
+            ((ServerRequestInfoImpl) ri).getConnection();
 
         // verify SSL requirements
         if (useSsl && !connection.isSSL())
@@ -324,7 +324,7 @@ public class SASTargetInterceptor
         if (sasContext == null)
             return;
         GIOPConnection connection =
-            ((ServerRequestInfoImpl) ri).request.getConnection();
+            ((ServerRequestInfoImpl) ri).getConnection();
 
         // check policy
         SASPolicyValues sasValues = null;
