@@ -1,6 +1,8 @@
 package org.jacorb.test.bugs.bugjac166;
 
 import java.net.Socket;
+
+import org.jacorb.orb.giop.GIOPConnection;
 import org.jacorb.orb.iiop.ServerIIOPConnection;
 import org.jacorb.orb.dsi.ServerRequest;
 import org.jacorb.orb.portableInterceptor.ServerRequestInfoImpl;
@@ -44,10 +46,9 @@ public class IPInterceptor
         // This is proprietary non-public API and specific to JacORB only.
         if (ri instanceof ServerRequestInfoImpl)
         {
-            ServerRequest request = ((ServerRequestInfoImpl)ri).request;
+            GIOPConnection connection = ((ServerRequestInfoImpl)ri).getConnection();
             // Retrieve the transport from the ServerRequest/GIOPConnection
-            ServerIIOPConnection transport =
-                ((ServerIIOPConnection)request.getConnection().getTransport());
+            ServerIIOPConnection transport = (ServerIIOPConnection)connection.getTransport();
             // Get the socket from the IIOP layer
             Socket socket = transport.getSocket();
 

@@ -106,7 +106,7 @@ public class ClientTraceInterceptor
 
                 /* insert the context data into an any and then encode
                    it into the context */
-                Any ctx_any = ((ClientRequestInfoImpl) ri).orb.create_any();
+                Any ctx_any = ((ClientRequestInfoImpl) ri).orb().create_any();
                 RequestHelper.insert( ctx_any, current_request );
                 ServiceContext context =
                     new ServiceContext ( TracingContextID.value,

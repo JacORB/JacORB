@@ -21,10 +21,11 @@ package org.jacorb.security.sas;
  */
 
 import java.security.cert.X509Certificate;
+
 import javax.net.ssl.SSLSocket;
-import org.jacorb.config.*;
-import org.slf4j.Logger;
-import org.jacorb.orb.dsi.ServerRequest;
+
+import org.jacorb.config.Configuration;
+import org.jacorb.config.ConfigurationException;
 import org.jacorb.orb.giop.GIOPConnection;
 import org.jacorb.orb.iiop.ServerIIOPConnection;
 import org.jacorb.orb.portableInterceptor.ServerRequestInfoImpl;
@@ -33,6 +34,7 @@ import org.omg.CSI.IdentityToken;
 import org.omg.CSIIOP.CompoundSecMechList;
 import org.omg.IOP.Codec;
 import org.omg.PortableInterceptor.ServerRequestInfo;
+import org.slf4j.Logger;
 
 public class JsseContext 
     implements ISASContext
@@ -74,9 +76,7 @@ public class JsseContext
      */
     private X509Certificate getClientCert(ServerRequestInfo ri)
     {
-        ServerRequest request = ((ServerRequestInfoImpl) ri).request;
-
-        GIOPConnection connection = request.getConnection();
+        GIOPConnection connection = ((ServerRequestInfoImpl) ri).getConnection();
 
         // lookup for context
         if (connection == null)

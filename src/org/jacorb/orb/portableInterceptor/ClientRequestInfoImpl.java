@@ -1,7 +1,7 @@
 /*
  *        JacORB - a free Java ORB
  *
- *   Copyright (C) 1999-2012 Gerald Brose / The JacORB Team.
+ *   Copyright (C) 1999-2013 Gerald Brose / The JacORB Team.
  *
  *   This library is free software; you can redistribute it and/or
  *   modify it under the terms of the GNU Library General Public
@@ -25,7 +25,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.jacorb.orb.Delegate;
-import org.jacorb.orb.ORB;
+import org.jacorb.orb.Delegate.INVOCATION_KEY;
 import org.jacorb.orb.etf.ProfileBase;
 import org.jacorb.orb.giop.ClientConnection;
 import org.jacorb.orb.giop.ReplyInputStream;
@@ -50,6 +50,7 @@ import org.omg.IOP.TaggedComponent;
 import org.omg.IOP.TaggedProfile;
 import org.omg.PortableInterceptor.ClientRequestInfo;
 import org.omg.PortableInterceptor.LOCATION_FORWARD;
+import org.omg.TimeBase.UtcT;
 import org.slf4j.Logger;
 
 /**
@@ -72,16 +73,15 @@ public class ClientRequestInfoImpl
     private TaggedProfile effective_profile = null;
 
     private final TaggedComponent[] effective_components;
-    private final Map invocationContext;
+    private final Map<INVOCATION_KEY, UtcT> invocationContext;
 
-    public final ORB orb;
-    public final ClientConnection connection;
+    private final ClientConnection connection;
 
     protected final Any received_exception;
     protected Delegate delegate;
     protected RequestOutputStream request_os;
-    protected String received_exception_id = null;
-    protected ReplyInputStream reply_is = null;
+    protected String received_exception_id;
+    protected ReplyInputStream reply_is;
 
 
     public ClientRequestInfoImpl
@@ -92,11 +92,10 @@ public class ClientRequestInfoImpl
                         org.jacorb.orb.Delegate delegate,
                         org.jacorb.orb.ParsedIOR piorOriginal,
                         org.jacorb.orb.giop.ClientConnection connection,
-                        Map invocationContext)
+                        Map<INVOCATION_KEY, UtcT> invocationContext)
     {
-        super();
+        super(orb);
 
-        this.orb = orb;
         logger = orb.getConfiguration().getLogger("jacorb.orb.interceptors");
 
         this.operation = ros.operation();
@@ -183,11 +182,10 @@ public class ClientRequestInfoImpl
                                    org.omg.CORBA.Object self,
                                    org.jacorb.orb.Delegate delegate,
                                    org.jacorb.orb.ParsedIOR piorOriginal,
-                                   Map invocationContext)
+                                   Map<INVOCATION_KEY, UtcT> invocationContext)
     {
-        super();
+        super(orb);
 
-        this.orb = orb;
         logger = orb.getConfiguration().getLogger("jacorb.orb.interceptors");
 
         this.operation = operation;
@@ -241,7 +239,6 @@ public class ClientRequestInfoImpl
         /* The following do not exist with a local call so nullify them for compilation
          * reasons because they are declared as final
          */
-        request_os = null;
         connection = null;
 
     }
@@ -495,7 +492,7 @@ public class ClientRequestInfoImpl
 
     /**
      * WARNING: This method relies on the DomainService to be available.
-     * Make shure that the DS is running, if you want to call this method.
+     * Make sure that the DS is running, if you want to call this method.
      */
 
     public Policy get_request_policy(int type)
@@ -547,4 +544,36 @@ public class ClientRequestInfoImpl
         request_ctx.put(_id, service_context);
     }
 
+
+	/**
+	 * Public accessor to return the connection being used by this ClientRequestInfoImpl.
+	 * 
+	 * @return the connection
+	 */
+	public ClientConnection getConnection() 
+	{
+		return connection;
+	}
+	
+    // These functions should NOT be used internally and are only provided
+    // to allow users to interrogate the streams.
+    /**
+     * Public accessor to access the internal reply stream. Using this API it
+     * may be possible to corrupt the inputstream and therebye the call
+     * chain. Use at your own risk.
+     */
+    public ReplyInputStream getReplyStream ()
+    {
+        return reply_is;
+    }
+
+    /**
+     * Public accessor to access the internal request stream. Using this API it
+     * may be possible to corrupt the outputstream and thereby the call
+     * chain. Use at your own risk.
+     */
+    public RequestOutputStream getRequestStream ()
+    {
+        return request_os;
+    }
 } // ClientRequestInfoImpl

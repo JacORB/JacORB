@@ -100,18 +100,13 @@ public class ServerInvocationInterceptor
     public void receive_request_service_contexts( ServerRequestInfo ri )
         throws ForwardRequest
     {
-        ServerRequest request = ((ServerRequestInfoImpl) ri).request;
-        GIOPConnection connection = null;
 
         /**
          * If this is a loopback request there may be no request. Handling
          * of local server objects with interceptors is now done locally
          * rather than via the remote mechanism.
          */
-        if (request != null)
-        {
-           connection = request.getConnection();
-        }
+        GIOPConnection connection = ((ServerRequestInfoImpl) ri).getConnection();
 
         // lookup for context
         if (connection == null)

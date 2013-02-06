@@ -41,6 +41,7 @@ This Release
 ============
     - ORB
          - Improve encapsulation of internal code.
+         - Add public API for Client/ServerRequestInfo.
 
 3.2
 ===
