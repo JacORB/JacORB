@@ -48,7 +48,7 @@ public class AInterceptor
         {
             try
             {
-                ORB orb =  ((ClientRequestInfoImpl)ri).orb;
+                ORB orb = ((ClientRequestInfoImpl)ri).orb();
 
                 // This will throw an exception
                 RTORBHelper.narrow

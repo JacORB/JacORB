@@ -45,7 +45,7 @@ public class AInterceptor
         {
             try
             {
-                ORB orb =  ((ClientRequestInfoImpl)ri).orb;
+                ORB orb = ((ClientRequestInfoImpl)ri).orb();
                 RTORB rtorb = RTORBHelper.narrow(orb.resolve_initial_references("RTORB"));
 
                 Protocol wiop = new Protocol();

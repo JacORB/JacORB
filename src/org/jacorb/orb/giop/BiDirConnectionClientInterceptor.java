@@ -123,7 +123,7 @@ public class BiDirConnectionClientInterceptor
         //the connection was initiated in this process
 
         if( !orb.useBiDirGIOP() ||
-            !((ClientRequestInfoImpl) ri).connection.isClientInitiated() )
+            !((ClientRequestInfoImpl) ri).getConnection().isClientInitiated() )
             return;
 
         if( bidir_ctx == null )
@@ -131,14 +131,14 @@ public class BiDirConnectionClientInterceptor
             init_bidir_ctx ();
         }
        
-        if ( !((ClientRequestInfoImpl) ri).connection.isListenPointListSent() )
+        if ( !((ClientRequestInfoImpl) ri).getConnection().isListenPointListSent() )
         {
             ri.add_request_service_context( bidir_ctx, true );
         }
 
         //if this connection isn't "bidir'ed" yet, do so now
         GIOPConnection conn =
-            ((ClientRequestInfoImpl) ri).connection.getGIOPConnection();
+            ((ClientRequestInfoImpl) ri).getConnection().getGIOPConnection();
         if(conn.getRequestListener() instanceof
            NoBiDirClientRequestListener)
         {
