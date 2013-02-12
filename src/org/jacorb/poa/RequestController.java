@@ -152,6 +152,10 @@ public final class RequestController
     {
         synchronized (queueLog)
         {
+            if (logger.isDebugEnabled())
+            {
+                logger.debug("RequestController.continueToWork: call queueLog.notifyAll()");
+            }
             queueLog.notifyAll();
         }
     }
@@ -235,7 +239,8 @@ public final class RequestController
 
                 if (logger.isInfoEnabled())
                 {
-                    logger.info("rid: " + request.requestId() +
+                    logger.info("RequestController.processRequest:" +
+                                " rid: " + request.requestId() +
                                 " opname: " + request.operation() +
                                 " cannot process request because waitForCompletion was called");
                 }
@@ -247,7 +252,8 @@ public final class RequestController
                 /* poa goes down */
                 if (logger.isInfoEnabled())
                 {
-                    logger.info("rid: " + request.requestId() +
+                    logger.info("RequestController.processRequest:" +
+                                " rid: " + request.requestId() +
                                 " opname: " + request.operation() +
                                 " cannot process request because POA shutdown in progress");
                 }
@@ -263,7 +269,8 @@ public final class RequestController
                 {
                     if (logger.isInfoEnabled())
                     {
-                        logger.info("rid: " + request.requestId() +
+                        logger.info("RequestController.processRequest:" +
+                                    " rid: " + request.requestId() +
                                     " opname: " + request.operation() +
                                     " objectKey: " + CorbaLoc.parseKey (request.objectKey ()) +
                                     " cannot process request, because object is already in the deactivation process");
@@ -290,7 +297,8 @@ public final class RequestController
                     {
                         if (logger.isWarnEnabled())
                         {
-                            logger.warn("rid: " + request.requestId() +
+                            logger.warn("RequestController.processRequest: " +
+                                        "rid: " + request.requestId() +
                                         " opname: " + request.operation() +
                                         " cannot process request because default servant is not set");
                         }
@@ -304,7 +312,8 @@ public final class RequestController
                     {
                         if (logger.isWarnEnabled())
                         {
-                            logger.warn("rid: " + request.requestId() +
+                            logger.warn("RequestController.processRequest: " +
+                                        "rid: " + request.requestId() +
                                         " opname: " + request.operation() +
                                         " cannot process request because servant manager is not set");
                         }
@@ -316,7 +325,8 @@ public final class RequestController
                 {
                     if (logger.isWarnEnabled())
                     {
-                       logger.warn("rid: " + request.requestId() +
+                       logger.warn("RequestController.processRequest: " +
+                                   "rid: " + request.requestId() +
                                    " opname: " + request.operation() +
                                    " connection: " + request.getConnection ().toString () +
                                    " objectKey: " + CorbaLoc.parseKey (request.objectKey ()) +
@@ -333,7 +343,8 @@ public final class RequestController
         // get and initialize a processor for request processing
         if (logger.isDebugEnabled())
         {
-            logger.debug("rid: " + request.requestId() +
+            logger.debug("RequestController.processRequest: " +
+                         "rid: " + request.requestId() +
                          " opname: " + request.operation() +
                          " trying to get a RequestProcessor");
         }
@@ -347,10 +358,23 @@ public final class RequestController
     void queueRequest(ServerRequest request)
         throws ResourceLimitReachedException
     {
+        if (logger.isDebugEnabled())
+        {
+            logger.debug("RequestController.queueRequest: call requestQueue.add(request)");
+        }
         requestQueue.add(request);
+
+        if (logger.isDebugEnabled())
+        {
+            logger.debug("RequestController.queueRequest: (requestQueue.size() = " + requestQueue.size());
+        }
 
         if (requestQueue.size() == 1)
         {
+            if (logger.isDebugEnabled())
+            {
+                logger.debug("RequestController.queueRequest: call continueToWork()");
+            }
             continueToWork();
         }
     }
@@ -370,7 +394,8 @@ public final class RequestController
 
         if (logger.isWarnEnabled())
         {
-            logger.warn("rid: " + request.requestId() +
+            logger.warn("RequestController.rejectRequest: " +
+                        "rid: " + request.requestId() +
                         " opname: " + request.operation() +
                         " request rejected with exception: " +
                         exception.getMessage());
@@ -384,7 +409,8 @@ public final class RequestController
 
     synchronized void resetPreviousCompletionCall()
     {
-        logger.debug("reset a previous completion call");
+        logger.debug("RequestController.resetPreviousCompletionCall: " +
+                     "reset a previous completion call");
 
         waitForCompletionCalled = false;
         notifyAll(); /* maybe somebody waits for completion */
@@ -524,7 +550,8 @@ public final class RequestController
         {
             try
             {
-                logger.debug("somebody waits for completion and there are active processors");
+                logger.debug("RequestController.waitForCompletion: " +
+                     "somebody waits for completion and there are active processors");
                 wait();
             }
             catch (InterruptedException e)
@@ -558,7 +585,8 @@ public final class RequestController
         }
         if (logger.isDebugEnabled())
         {
-            logger.debug( POAUtil.convert(oid.getBytes ()) +
+            logger.debug( "RequestController.waitForObjectCompletion: " +
+                          POAUtil.convert(oid.getBytes ()) +
                           "all active processors for this object have finished");
 
         }
@@ -577,7 +605,7 @@ public final class RequestController
     {
         if (logger.isDebugEnabled())
         {
-            logger.debug("waiting for queue");
+            logger.debug("RequestController.waitForQueue: waiting for queue");
         }
 
         synchronized (queueLog)
@@ -617,7 +645,8 @@ public final class RequestController
             {
                 if (logger.isDebugEnabled())
                 {
-                    logger.debug("somebody waits for shutdown and there are active processors");
+                    logger.debug("RequestController.waitForShutdown: " +
+                            "somebody waits for shutdown and there are active processors");
                 }
                 wait();
             }

@@ -9,24 +9,24 @@ import java.net.InetAddress;
 
 
 public class CmdArgs {
-    private final static int DEFAULT_DELAY = 1000;
-    private final static int DEFAULT_NTIMES = -1;
-    private final String defaultMsg = new String(InetAddress.getLocalHost() +
+    protected final static int DEFAULT_DELAY = 1000;
+    protected final static int DEFAULT_NTIMES = -1;
+    protected final String defaultMsg = new String(InetAddress.getLocalHost() +
                                         " is hailing server!");
 
-    private String appName = "AppName";
-    private String[] args = null;
-    private String echoMsg = null;
-    private String iorFile = null;
-    private String iorString = null;
-    private String corbalocString = null;
-    private int delayMilliSec = DEFAULT_DELAY;
-    private int ntimes = DEFAULT_NTIMES;
-    private int nthreads = 1;
-    private boolean loop = false;
-    private boolean verbose = false;
-    private boolean testMode = false;
-    private String testType = "A";
+    protected String appName = "AppName";
+    protected String[] args = null;
+    protected String echoMsg = null;
+    protected String iorFile = null;
+    protected String iorString = null;
+    protected String corbalocString = null;
+    protected int delayMilliSec = DEFAULT_DELAY;
+    protected int ntimes = DEFAULT_NTIMES;
+    protected int nthreads = 1;
+    protected boolean loop = false;
+    protected boolean verbose = false;
+    protected boolean testMode = false;
+    protected String testType = "A";
 
     public CmdArgs (String appName, String[] args) throws Exception
     {

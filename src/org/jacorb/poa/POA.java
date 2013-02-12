@@ -481,13 +481,13 @@ public class POA
                 {
                     if (logger.isWarnEnabled())
                     {
-                        logger.warn(logPrefix +
+                        logger.warn("POA._invoke: " + logPrefix +
                                     " rid: " + request.requestId() +
                                     " opname: " + request.operation() +
                                     " _invoke: object id not previously generated!");
                         if (logger.isDebugEnabled())
                         {
-                            logger.debug(logPrefix +
+                            logger.debug("POA._invoke: " + logPrefix +
                                          " ObjectId : " + org.jacorb.orb.util.CorbaLoc.parseKey(request.objectId()) +
                                          " to POA watermark : " + org.jacorb.orb.util.CorbaLoc.parseKey(watermark) + " mismatch.");
                         }
@@ -504,7 +504,7 @@ public class POA
                 // queued
                 if (logger.isDebugEnabled())
                 {
-                    logger.debug(logPrefix +
+                    logger.debug("POA._invoke: " + logPrefix +
                                  " rid: " + request.requestId() +
                                  " opname: " + request.operation() +
                                  " _invoke: queuing request");
@@ -515,9 +515,9 @@ public class POA
             {
                 if (logger.isDebugEnabled())
                 {
-                    logger.debug("Caught " + e + " when queueing " + request.operation());
+                    logger.debug("POA._invoke: Caught " + e + " when queueing " + request.operation());
                 }
-                throw new org.omg.CORBA.TRANSIENT("resource limit reached");
+                throw new org.omg.CORBA.TRANSIENT("POA._invoke: resource limit reached");
             }
         }
     }
@@ -593,7 +593,8 @@ public class POA
         }
         catch (ObjectAlreadyActive e)
         {
-            throw new POAInternalError("error: object already active (activate_object)");
+            throw new POAInternalError("POA.activate_object:" +
+                                        " error: object already active");
         }
 
         return objectId;
@@ -608,7 +609,8 @@ public class POA
 
         if( oid == null )
         {
-            throw new org.omg.CORBA.BAD_PARAM( "Cannot activate_object_with_id with null ID." );
+            throw new org.omg.CORBA.BAD_PARAM( "POA.activate_object_with_id:" +
+                              " Cannot activate_object_with_id with null ID." );
         }
 
         if ( !isRetain() )
@@ -620,8 +622,9 @@ public class POA
         {
             if (logger.isWarnEnabled())
             {
-                logger.warn(logPrefix + "oid: " + POAUtil.convert(oid) +
-                            " - activate_object_with_id: oid not previously generated!");
+                logger.warn("POA.activate_object_with_id: " +
+                        logPrefix + "oid: " + POAUtil.convert(oid) +
+                            ", oid not previously generated!");
             }
             throw new org.omg.CORBA.BAD_PARAM();
         }
@@ -712,14 +715,16 @@ public class POA
         {
             if (logger.isInfoEnabled())
             {
-                logger.info(logPrefix + "etherialize all servants ...");
+                logger.info("POA.changeToInactive: " +
+                        logPrefix + " etherialize all servants ...");
             }
 
             aom.removeAll((ServantActivator) servantManager, this, true);
 
             if (logger.isInfoEnabled())
             {
-                logger.info(logPrefix + "etherialize all servants ...");
+                logger.info("POA.changeToInactive: " +
+                        logPrefix + " etherialize all servants ...");
             }
 
             if (monitor != null)
@@ -783,7 +788,8 @@ public class POA
         if (a_POAManager != null &&
             !(a_POAManager instanceof org.jacorb.poa.POAManager))
         {
-            throw new ApplicationError("error: the POAManager is incompatible with type \"jacorb.poa.POAManager\"!" );
+            throw new ApplicationError("POA.create_POA: " +
+                        "error: the POAManager is incompatible with type \"jacorb.poa.POAManager\"!" );
         }
 
         org.omg.CORBA.Policy[] policyList = null;
@@ -796,7 +802,8 @@ public class POA
             {
                 if (logger.isDebugEnabled())
                 {
-                    logger.debug("Policy list invalid at index " + index);
+                    logger.debug("POA.create_POA: " +
+                            "Policy list invalid at index " + index);
                 }
                 throw new InvalidPolicy(index);
             }
@@ -920,7 +927,8 @@ public class POA
         {
             if (logger.isWarnEnabled())
             {
-                logger.warn(logPrefix + "oid: " + POAUtil.convert(oid) +
+                logger.warn("POA.create_reference_with_id: " +
+                        logPrefix + "oid: " + POAUtil.convert(oid) +
                             "create_reference_with_id : object key not previously generated!");
             }
 
@@ -1115,7 +1123,8 @@ public class POA
                 child = (POA) childs.get(poa_name);
                 if (child == null)
                 {
-                    throw new POAInternalError("error: unknown_adapter returns true, but the child poa does'n extist");
+                    throw new POAInternalError("POA.find_POA: " +
+                            "error: unknown_adapter returns true, but the child poa does'n extist");
                 }
 
             }
@@ -1203,7 +1212,7 @@ public class POA
     {
         if (!configured)
         {
-            throw new IllegalStateException("POA: not configured!");
+            throw new IllegalStateException("POA.checkIsConfigured: not configured!");
         }
     }
 
@@ -1263,13 +1272,16 @@ public class POA
                 if (isPersistent() )
                 {
                     logger.info
-                        ("Impl name not set; using server ID: " + (new String (impl)));
+                        ("POA.getImplName: " +
+                         "Impl name not set; using server ID: " +
+                         (new String (impl)));
                 }
                 else
                 {
                     logger.info
                     (
-                        "Using server ID (" +
+                        "POA.getImplName: " +
+                         "Using server ID (" +
                         (new String (impl)) +
                         ") for transient POA"
                     );
@@ -1587,7 +1599,8 @@ public class POA
 
                 if (logger.isDebugEnabled())
                 {
-                    logger.debug(logPrefix + "destruction is apparent");
+                    logger.debug("POA.makeDestructionApparent: " +
+                            logPrefix + "destruction is apparent");
                 }
 
                 monitor.changeState("destruction is apparent ...");
@@ -1608,14 +1621,16 @@ public class POA
             /* clear up the queue */
             if (logger.isDebugEnabled())
             {
-                logger.debug(logPrefix + "clear up the queue ...");
+                logger.debug("POA.makeDestructionComplete: " +
+                            logPrefix + "clear up the queue ...");
             }
 
             requestController.clearUpQueue(new org.omg.CORBA.OBJECT_NOT_EXIST("adapter destroyed"));
 
             if (logger.isDebugEnabled())
             {
-                logger.debug(logPrefix + "... done");
+                logger.debug("POA.makeDestructionComplete: " +
+                            logPrefix + "... done");
             }
 
             if (aom != null)
@@ -1629,39 +1644,45 @@ public class POA
             {
                 if (logger.isDebugEnabled())
                 {
-                    logger.debug(logPrefix + "etherialize all servants ...");
+                    logger.debug("POA.makeDestructionComplete: " +
+                            logPrefix + "etherialize all servants ...");
                 }
 
                 aom.removeAll((ServantActivator) servantManager, this, true);
 
                 if (logger.isDebugEnabled())
                 {
-                    logger.debug(logPrefix + "... done");
+                    logger.debug("POA.makeDestructionComplete: " +
+                            logPrefix + "... done");
                 }
             }
 
             if (logger.isDebugEnabled())
             {
-                logger.debug(logPrefix + "remove all processors from the pool ...");
+                logger.debug("POA.makeDestructionComplete: " +
+                            logPrefix + "remove all processors from the pool ...");
             }
             requestController.clearUpPool();
 
             if (logger.isDebugEnabled())
             {
-                logger.debug(logPrefix + "... done");
+                logger.debug("POA.makeDestructionComplete: " +
+                            logPrefix + "... done");
             }
 
             /* stop the request controller */
             if (logger.isDebugEnabled())
             {
-                logger.debug(logPrefix + "stop the request controller ...");
+                logger.debug("POA.makeDestructionComplete: " +
+                            logPrefix + "stop the request controller ...");
             }
 
             requestController.end();
 
             if (logger.isDebugEnabled())
             {
-                logger.debug(logPrefix + "... done");
+                logger.debug("POA.makeDestructionComplete: " +
+                            logPrefix + "... done");
             }
 
             /* set */
@@ -1677,7 +1698,8 @@ public class POA
             /* annouce */
             if (logger.isInfoEnabled())
             {
-                logger.info(logPrefix + " destroyed");
+                logger.info("POA.makeDestructionComplete: " +
+                            logPrefix + " destroyed");
             }
 
             monitor.changeState("destroyed");
@@ -1711,7 +1733,8 @@ public class POA
                 /* annouce */
                 if (logger.isDebugEnabled())
                 {
-                    logger.debug(logPrefix + "shutdown is in progress");
+                    logger.debug("POA.makeShutdownInProgress: " +
+                            logPrefix + "shutdown is in progress");
                 }
 
                 monitor.changeState("shutdown is in progress ...");
@@ -1748,6 +1771,7 @@ public class POA
             {
                 logger.warn
                 (
+                    "POA.reference_to_id: " +
                     logPrefix +
                     "Unable to extract OID from objectKey: " +
                     (new String(objectKey))
@@ -1760,8 +1784,9 @@ public class POA
         {
             if (logger.isWarnEnabled())
             {
-                logger.warn(logPrefix + "oid: " + POAUtil.convert(objectId) +
-                            "reference_to_id: oid not previously generated!");
+                logger.warn("POA.reference_to_id: " +
+                        logPrefix + "oid: " + POAUtil.convert(objectId) +
+                            ", oid not previously generated!");
             }
             throw new WrongAdapter();
         }
@@ -1769,7 +1794,8 @@ public class POA
         {
             if (logger.isWarnEnabled())
             {
-                logger.warn(logPrefix + "reference: " + new String (objectKey) +
+                logger.warn("POA.reference_to_id: " +
+                        logPrefix + "reference: " + new String (objectKey) +
                             "reference_to_id: reference not previously generated for this POA!");
             }
             throw new WrongAdapter();
@@ -2209,7 +2235,8 @@ public class POA
                 {
                     if ( implName == null )
                     {
-                        logger.error("Cannot create a persistent poa. The implname property has not been set.");
+                        logger.error("POA.verifyPolicyList: " +
+                                "Cannot create a persistent poa. The implname property has not been set.");
                         return i;
                     }
                 }

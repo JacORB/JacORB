@@ -79,7 +79,8 @@ public class RequestQueue
             }
             catch (Exception ex)
             {
-                throw new ConfigurationException ("could not instantiate queue listener",
+                throw new ConfigurationException ("RequestQueue.config:" +
+                                        " could not instantiate queue listener",
                                                   ex);
             }
         }
@@ -113,7 +114,8 @@ public class RequestQueue
         {
             if (logger.isWarnEnabled())
             {
-                logger.warn("Request queue is full, consider increasing "
+                logger.warn("RequestQueue.add: "
+                          + "request queue is full, consider increasing "
                           + "jacorb.poa.queue_max (currently: "
                           + queueMax + ")");
             }
@@ -141,7 +143,7 @@ public class RequestQueue
 
         if (logger.isDebugEnabled())
         {
-            logger.debug("rid: " + request.requestId() +
+            logger.debug("RequestQueue.add: rid: " + request.requestId() +
                          " opname: " + request.operation() +
                          " is queued (queue size: " + queue.size() + ")");
         }
@@ -149,7 +151,18 @@ public class RequestQueue
         // notify a queue listener
         if (queueListener != null)
         {
+            if (logger.isDebugEnabled())
+            {
+                logger.debug("RequestQueue.add: queueListener.requestAddedToQueue, notify a queue listener");
+            }
             queueListener.requestAddedToQueue(request, queue.size());
+        }
+        else
+        {
+            if (logger.isDebugEnabled())
+            {
+                logger.debug("RequestQueue.add: no queueListener is notifed since queueListener is null");
+            }
         }
     }
 

@@ -1,13 +1,5 @@
 doc/ProgrammingGuide/ProgrammingGuide.pdf
-bin/jaco
-bin/jaco.bat
-bin/idl
-bin/idl.bat
-bin/dior
-bin/version
-bin/ns-wrapper
-bin/ntfy-wrapper
-
+lib/build
 lib/jacorb.jar
 lib/idl.jar
 lib/jacorb-services.jar
@@ -50,4 +42,4 @@ _nsdb_root*
 *.log
 *.class
 *.ior
-
+/nbproject/private/

@@ -1,0 +1,143 @@
+
+  JacORB/TAO ImR Bug #479 Test Procedure
+  ======================================
+
+This directory holds the test procedure for checking the fix for the TAO ImR
+bug #479.
+
+Bug Issue
+---------
+
+The TAO ImR Activator truncated the starting command line string of a registered
+JacORB server if the string is longer than 1024.  So, with the fix to the TAO
+ImR Activator in place, this test would verify that the command line string is
+no longer being truncated.
+
+Test Setup
+----------
+
+This test comprises of the following components:
+   - run_tao_imr_locator.sh, which initiates the TAO ImR Locator,
+   - run_tao_imr_activator.sh, which initiated the TAO ImR Activator.
+   - tao_imr_add_longnameserver.sh, which registers the test server.
+   - tao_imr_update_longnameserver.sh, which performs the "update" operation.
+   - tao_imr.sh, which is a wrapper for the tao_imr utility and is used to
+     start the register server.
+   - ExecJavaService.sh, which is a test script that serves as the test server
+     that will be initiated by the Activator.
+
+This test requires an ACE/TAO ImR release that is enhanced with supporting
+features for JacORB applications.  In addition, this test suite assumes that you
+are familiar with the ACE/TAO ImR usages.  Please consult the ACE/TAO literature
+for information about the ACE/TAO ImR.
+
+Running the Test
+-----------------
+
+Before running the test, you may wish to review the following prerequisite
+steps for setting up the environment:
+
+a) Set up the following TAO environments variables:
+
+   - ACE_ROOT and TAO_ROOT
+   - PATH=$PATH:$ACE_ROOT/bin
+   - LD_LIBRARY_PATH=$ACE_ROOT/lib
+   - DYLD_LIBRARY_PATH=$ACE_ROOT/lib (needed for MAC OS)
+
+b) Set up the following JacORB environment variable:
+
+   - JACORB_HOME
+
+c) Review the following TAO scripts to ensure that they point to the correct
+   TAO executables:
+
+     run_tao_imr_activator.sh
+     run_tao_imr_locator.sh
+     tao_imr_add_longnameserver.sh
+     tao_imr_update_longnameserver.sh
+     tao_imr.sh
+
+Test Procedure
+--------------
+
+  1) Initiate the TAO ImR Locator service by running:
+
+        ./run_tao_imr_locator.sh
+
+    The script will initiate the ImR service, which produces an IOR file
+    "/tmp/tao_imr_locator.ior".  If you initiate the TAO ImR Locator on a remote
+    system other than the one that the server application resides, then you will
+    need to copy the Locator's ior file to the system where the server resides
+    before initiating the server, otherwise, it will fail to find the Locator.
+
+  2) Register the test server (ExecJavaService.sh) by running the script:
+
+        ./tao_imr_add_longnameserver.sh
+
+    Please note that, if the TAO ImR Locator has been started on a remote
+    system, then you must run the script on the same system where the server
+    resides.  The test server will be registered as:
+
+   "JACORB:aaa.bbbbbbb_bbbbb.ccc_c.GGGGGGGGGGG1.mmmmmmmmm-lnx6-dev/GGGGGGGGGGG1"
+
+  3) Verify an entry has been created for the test server in the TAO ImR
+    repository by entering:
+
+    ./tao_imr.sh list \
+      JACORB:aaa.bbbbbbb_bbbbb.ccc_c.GGGGGGGGGGG1.mmmmmmmmm-lnx6-dev/GGGGGGGGGGG1 \
+      -v
+
+    You should see an entry for the test server.
+
+  4) Initiate the TAO ImR Activator service by running:
+
+        ./run_tao_imr_activator.sh
+
+    Again, the TAO ImR Activator must be started on the same system where the
+    test server (ExecJavaService.sh) resides.
+
+  5) Remove the old test log file if needed:
+
+        rm -f output/test*.log
+
+  6) Tell the TAO ImR to start the test server, by running:
+
+     ./tao_imr.sh start \
+       JACORB:aaa.bbbbbbb_bbbbb.ccc_c.GGGGGGGGGGG1.mmmmmmmmm-lnx6-dev/GGGGGGGGGGG1
+
+    As the result, the test script ExecJavaService.sh will be started by the
+    Activator with all command line arguments.  Upon initiated, the test script
+    will produce the output file "./output/test_output.log", then it compares
+    the output file to the expected template file "expect_output.template" for
+    discrepancies; and, if the files matches, it appended the line "PASSED: test
+    has passed" to the end of test output file.
+
+  7) Verify the test result by doing:
+
+        tail -1 ./output/test_output.log
+
+    and you should see: "PASSED: test has passed".  If the test failed, you can
+    consult the file "./output/test_output.dif.log" for the differences.
+
+    Because the test script did not complete the handshaking sequence with the
+    TAO ImR, it will cause the ImR entry to be locked out by the TAO ImR.  So,
+    if you need to repeat the test, then you must unlock the ImR entry by
+    running:
+
+     ./tao_imr.sh update \
+       JACORB:aaa.bbbbbbb_bbbbb.ccc_c.GGGGGGGGGGG1.mmmmmmmmm-lnx6-dev/GGGGGGGGGGG1 \
+       -r 0
+
+  8) When finished, do the following to cleanup:
+
+        - Shutdown the TAO ImR Locator and Activator using:
+
+              ./tao_imr.sh shutdown-repo -a
+
+        - Remove the file /tmp/tao_imr_locator.persistent.xml
+
+At this point, the test is concluded.
+
+Quynh Nguyen
+Object Computing Inc.
+January 22, 2013

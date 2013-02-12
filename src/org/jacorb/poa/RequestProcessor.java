@@ -156,7 +156,8 @@ public class RequestProcessor
     public byte[] getObjectId()
     {
         if (!start)
-            throw new POAInternalError("error: RequestProcessor not started (getObjectId)");
+            throw new POAInternalError("RequestProcessor.getObjectId: " +
+                                        "error: RequestProcessor not started");
         return request.objectId();
     }
 
@@ -167,7 +168,8 @@ public class RequestProcessor
     public org.omg.CORBA.ORB getORB()
     {
         if (!start)
-            throw new POAInternalError("error: RequestProcessor not started (getORB)");
+            throw new POAInternalError("RequestProcessor.getORB: "
+                                + "error: RequestProcessor not started");
         return controller.getORB();
     }
 
@@ -178,7 +180,8 @@ public class RequestProcessor
     public POA getPOA()
     {
         if (!start)
-            throw new POAInternalError("error: RequestProcessor not started (getPOA)");
+            throw new POAInternalError("RequestProcessor.getPOA: "
+                                + "error: RequestProcessor not started");
         return controller.getPOA();
     }
 
@@ -189,7 +192,8 @@ public class RequestProcessor
     public Servant getServant()
     {
         if (!start)
-            throw new POAInternalError("error: RequestProcessor not started (getServant)");
+            throw new POAInternalError("RequestProcessor.getServant: "
+                                + "error: RequestProcessor not started");
         return servant;
     }
 
@@ -228,7 +232,8 @@ public class RequestProcessor
     {
         if (logger.isDebugEnabled())
         {
-            logger.debug("rid: " + request.requestId() +
+            logger.debug("RequestProcessor.invokeIncarnate:" +
+                         " rid: " + request.requestId() +
                          " opname: " + request.operation() +
                          " invoke incarnate on servant activator");
         }
@@ -242,7 +247,8 @@ public class RequestProcessor
             {
                 if (logger.isWarnEnabled())
                 {
-                    logger.warn("rid: " + request.requestId() +
+                    logger.warn("RequestProcessor.invokeIncarnate:" +
+                                " rid: " + request.requestId() +
                                 " opname: " + request.operation() +
                                 " incarnate: returns null");
                 }
@@ -254,7 +260,8 @@ public class RequestProcessor
         {
             if (logger.isWarnEnabled())
             {
-                logger.warn("rid: "+request.requestId() +
+                logger.warn("RequestProcessor.invokeIncarnate:" +
+                            " rid: "+request.requestId() +
                             " opname: " + request.operation() +
                             " incarnate: system exception was thrown.",
                             e);
@@ -265,7 +272,8 @@ public class RequestProcessor
         {
             if (logger.isWarnEnabled())
             {
-                logger.warn("rid: " + request.requestId() +
+                logger.warn("RequestProcessor.invokeIncarnate:" +
+                            " rid: " + request.requestId() +
                             " opname: " + request.operation() +
                             " incarnate: forward exception was thrown.",
                             e);
@@ -278,7 +286,8 @@ public class RequestProcessor
             /* not spec. */
             if (logger.isErrorEnabled())
             {
-                logger.error("rid: " + request.requestId() +
+                logger.error("RequestProcessor.invokeIncarnate:" +
+                             " rid: " + request.requestId() +
                              " opname: " + request.operation() +
                              " incarnate: throwable was thrown.",
                              e);
@@ -313,7 +322,8 @@ public class RequestProcessor
             {
                 if (logger.isDebugEnabled())
                 {
-                    logger.debug("rid: " + request.requestId() +
+                    logger.debug("RequestProcessor.invokeOperation:" +
+                                 " rid: " + request.requestId() +
                                  " opname: " + operation +
                                  " invokeOperation on servant (stream based)");
                 }
@@ -355,7 +365,8 @@ public class RequestProcessor
             {
                 if (logger.isDebugEnabled())
                 {
-                    logger.debug("rid: " + request.requestId() +
+                    logger.debug("RequestProcessor.invokeOperation:" +
+                                 " rid: " + request.requestId() +
                                  " opname: " + operation +
                                  " invoke operation on servant (dsi based)");
                 }
@@ -377,7 +388,8 @@ public class RequestProcessor
             {
                 if (logger.isWarnEnabled())
                 {
-                    logger.warn("rid: " + request.requestId() +
+                    logger.warn("RequestProcessor.invokeOperation:" +
+                                " rid: " + request.requestId() +
                                 " opname: " + operation +
                                 " unknown servant type (neither stream nor dsi based)");
                 }
@@ -388,7 +400,8 @@ public class RequestProcessor
         {
             if (logger.isInfoEnabled())
             {
-                logger.info("rid: " + request.requestId() +
+                logger.info("RequestProcessor.invokeOperation:" +
+                            " rid: " + request.requestId() +
                             " opname: " + operation +
                             " invocation: system exception was thrown.",
                             e);
@@ -400,7 +413,8 @@ public class RequestProcessor
             /* not spec. */
             if (logger.isErrorEnabled())
             {
-                logger.error("rid: " + request.requestId() +
+                logger.error("RequestProcessor.invokeOperation:" +
+                             " rid: " + request.requestId() +
                              " opname: " + operation +
                              " invocation: Caught OutOfMemory invoking operation.",
                              e);
@@ -412,7 +426,8 @@ public class RequestProcessor
             /* not spec. */
             if (logger.isErrorEnabled())
             {
-                logger.error("rid: " + request.requestId() +
+                logger.error("RequestProcessor.invokeOperation:" +
+                             " rid: " + request.requestId() +
                              " opname: " + operation +
                              " invocation: throwable was thrown.",
                              e);
@@ -440,7 +455,8 @@ public class RequestProcessor
         {
             if (logger.isDebugEnabled())
             {
-                logger.debug("rid: " + request.requestId() +
+                logger.debug("RequestProcessor.invokePostInvoke:" +
+                             " rid: " + request.requestId() +
                              " opname: " + request.operation() +
                              " invoke postinvoke on servant locator");
             }
@@ -455,7 +471,8 @@ public class RequestProcessor
         {
             if (logger.isInfoEnabled())
             {
-                logger.info("rid: " + request.requestId() +
+                logger.info("RequestProcessor.invokePostInvoke:" +
+                             " rid: " + request.requestId() +
                             " opname: " + request.operation() +
                             " postinvoke: system exception was thrown.",
                             e);
@@ -468,7 +485,8 @@ public class RequestProcessor
             /* not spec. */
             if (logger.isWarnEnabled())
             {
-                logger.warn("rid: " + request.requestId() +
+                logger.warn("RequestProcessor.invokePostInvoke:" +
+                             " rid: " + request.requestId() +
                             " opname: " + request.operation() +
                             " postinvoke: throwable was thrown.",
                             e);
@@ -487,7 +505,8 @@ public class RequestProcessor
     {
         if (logger.isDebugEnabled())
         {
-            logger.debug("rid: " + request.requestId() +
+            logger.debug("RequestProcessor.invokePreInvoke:" +
+                         " rid: " + request.requestId() +
                          " opname: " + request.operation() +
                          " invoke preinvoke on servant locator");
         }
@@ -502,7 +521,8 @@ public class RequestProcessor
             {
                 if (logger.isWarnEnabled())
                 {
-                    logger.warn("rid: " + request.requestId() +
+                    logger.warn("RequestProcessor.invokePreInvoke:" +
+                                " rid: " + request.requestId() +
                                 " opname: " + request.operation() +
                                 " preinvoke: returns null");
                 }
@@ -514,7 +534,8 @@ public class RequestProcessor
         {
             if (logger.isInfoEnabled())
             {
-                logger.info("rid: " + request.requestId() +
+                logger.info("RequestProcessor.invokePreInvoke:" +
+                            " rid: " + request.requestId() +
                             " opname: " + request.operation() +
                             " preinvoke: system exception was thrown.",
                             e);
@@ -526,7 +547,8 @@ public class RequestProcessor
         {
             if (logger.isInfoEnabled())
             {
-                logger.info("rid: " + request.requestId() +
+                logger.info("RequestProcessor.invokePreInvoke:" +
+                            " rid: " + request.requestId() +
                             " opname: " + request.operation() +
                             " preinvoke: forward exception was thrown.",
                             e);
@@ -538,7 +560,8 @@ public class RequestProcessor
             /* not spec. */
             if (logger.isWarnEnabled())
             {
-                logger.warn("rid: " + request.requestId() +
+                logger.warn("RequestProcessor.invokePreInvoke:" +
+                            " rid: " + request.requestId() +
                             " opname: " + request.operation() +
                             " preinvoke: throwable was thrown.",
                             e);
@@ -764,7 +787,8 @@ public class RequestProcessor
         }
         catch(Exception e)
         {
-            logger.error("unexpected exception during interceptor invocation", e);
+            logger.error("RequestProcessor.invokeInterceptors:" +
+                        " unexpected exception during interceptor invocation", e);
 
             UNKNOWN exception = new UNKNOWN( e.getMessage() );
             request.setSystemException( exception );
@@ -805,7 +829,8 @@ public class RequestProcessor
 
             if (logger.isDebugEnabled())
             {
-                logger.debug("rid: " + request.requestId() +
+                logger.debug("RequestProcessor.run:" +
+                             " rid: " + request.requestId() +
                              " opname: " + request.operation() +
                              " starts with request processing");
             }
@@ -824,7 +849,8 @@ public class RequestProcessor
             // return the request to the request controller
             if (logger.isDebugEnabled())
             {
-                logger.debug("rid: " + request.requestId() +
+                logger.debug("RequestProcessor.run:" +
+                             " rid: " + request.requestId() +
                              " opname: " + request.operation() +
                              " ends with request processing");
             }
