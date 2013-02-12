@@ -12,23 +12,23 @@ import org.jacorb.test.common.*;
 /**
  * Tests the various policy classes defined by JacORB.  This only tests the
  * handling of the policy objects, not the actual effect of these policies.
- * 
+ *
  * @author Andre Spiegel spiegel@gnu.org
  */
 public class PolicyHandlingTest extends JacORBTestCase
 {
     private static org.omg.CORBA.ORB orb = null;
-    
+
     public PolicyHandlingTest (String name)
     {
         super (name);
     }
-    
+
     public static Test suite()
     {
         return new TestSuite (PolicyHandlingTest.class);
     }
-    
+
     public void testClientProtocolPolicy()
     {
         Protocol[] protocols = new Protocol[] { };
@@ -50,7 +50,7 @@ public class PolicyHandlingTest extends JacORBTestCase
         p.destroy();
         p2.destroy();
     }
-    
+
     public void testMaxHopsPolicy()
     {
         Any value = create_any();
@@ -62,13 +62,13 @@ public class PolicyHandlingTest extends JacORBTestCase
         );
         assertEquals (MAX_HOPS_POLICY_TYPE.value, p.policy_type());
         assertEquals (17, p.max_hops());
-        
+
         MaxHopsPolicy p2 = (MaxHopsPolicy)p.copy();
         assertEquals (p.max_hops(), p2.max_hops());
         p.destroy();
         p2.destroy();
     }
-    
+
     public void testQueueOrderPolicy()
     {
         Any value = create_any();
@@ -80,13 +80,13 @@ public class PolicyHandlingTest extends JacORBTestCase
         );
         assertEquals (QUEUE_ORDER_POLICY_TYPE.value, p.policy_type());
         assertEquals ((short)0xffff, p.allowed_orders());
-        
+
         QueueOrderPolicy p2 = (QueueOrderPolicy)p.copy();
         assertEquals (p.allowed_orders(), p2.allowed_orders());
         p.destroy();
         p2.destroy();
     }
-    
+
     public void testRebindPolicy()
     {
         Any value = create_any();
@@ -98,13 +98,13 @@ public class PolicyHandlingTest extends JacORBTestCase
         );
         assertEquals (REBIND_POLICY_TYPE.value, p.policy_type());
         assertEquals ((short)0xffff, p.rebind_mode());
-        
+
         RebindPolicy p2 = (RebindPolicy)p.copy();
         assertEquals (p.rebind_mode(), p2.rebind_mode());
         p.destroy();
         p2.destroy();
     }
-    
+
     public void testRelativeRequestTimeoutPolicy()
     {
         Any value = create_any();
@@ -116,13 +116,13 @@ public class PolicyHandlingTest extends JacORBTestCase
         );
         assertEquals (RELATIVE_REQ_TIMEOUT_POLICY_TYPE.value, p.policy_type());
         assertEquals (123456789, p.relative_expiry());
-        
+
         RelativeRequestTimeoutPolicy p2 = (RelativeRequestTimeoutPolicy)p.copy();
         assertEquals (p.relative_expiry(), p2.relative_expiry());
         p.destroy();
         p2.destroy();
     }
-    
+
     public void testRelativeRoundtripTimeoutPolicy()
     {
         Any value = create_any();
@@ -134,13 +134,13 @@ public class PolicyHandlingTest extends JacORBTestCase
         );
         assertEquals (RELATIVE_RT_TIMEOUT_POLICY_TYPE.value, p.policy_type());
         assertEquals (123456789, p.relative_expiry());
-        
+
         RelativeRoundtripTimeoutPolicy p2 = (RelativeRoundtripTimeoutPolicy)p.copy();
         assertEquals (p.relative_expiry(), p2.relative_expiry());
         p.destroy();
         p2.destroy();
     }
-    
+
     public void testReplyEndTimePolicy()
     {
         UtcT time = new UtcT(12, 34, (short)56, (short)78);
@@ -157,7 +157,7 @@ public class PolicyHandlingTest extends JacORBTestCase
         assertEquals (time.inacchi, outTime.inacchi);
         assertEquals (time.inacclo, outTime.inacclo);
         assertEquals (time.tdf, outTime.tdf);
-        
+
         ReplyEndTimePolicy p2 = (ReplyEndTimePolicy)p.copy();
         UtcT otherTime = p2.end_time();
         assertEquals (otherTime.time, outTime.time);
@@ -168,7 +168,7 @@ public class PolicyHandlingTest extends JacORBTestCase
         p.destroy();
         p2.destroy();
     }
-    
+
     public void testReplyPriorityPolicy()
     {
         PriorityRange pr = new PriorityRange ((short)10, (short)20);
@@ -183,16 +183,16 @@ public class PolicyHandlingTest extends JacORBTestCase
         PriorityRange outPR = p.priority_range();
         assertEquals (pr.min, outPR.min);
         assertEquals (pr.max, outPR.max);
-        
+
         ReplyPriorityPolicy p2 = (ReplyPriorityPolicy)p.copy();
         PriorityRange otherPR = p2.priority_range();
         assertEquals (outPR.min, otherPR.min);
         assertEquals (outPR.max, otherPR.max);
-        
+
         p.destroy();
         p2.destroy();
     }
-    
+
     public void testReplyStartTimePolicy()
     {
         UtcT time = new UtcT(12, 34, (short)56, (short)78);
@@ -209,7 +209,7 @@ public class PolicyHandlingTest extends JacORBTestCase
         assertEquals (time.inacchi, outTime.inacchi);
         assertEquals (time.inacclo, outTime.inacclo);
         assertEquals (time.tdf, outTime.tdf);
-        
+
         ReplyStartTimePolicy p2 = (ReplyStartTimePolicy)p.copy();
         UtcT otherTime = p2.start_time();
         assertEquals (otherTime.time, outTime.time);
@@ -220,7 +220,7 @@ public class PolicyHandlingTest extends JacORBTestCase
         p.destroy();
         p2.destroy();
     }
-    
+
     public void testRequestEndTimePolicy()
     {
         UtcT time = new UtcT(12, 34, (short)56, (short)78);
@@ -237,7 +237,7 @@ public class PolicyHandlingTest extends JacORBTestCase
         assertEquals (time.inacchi, outTime.inacchi);
         assertEquals (time.inacclo, outTime.inacclo);
         assertEquals (time.tdf, outTime.tdf);
-        
+
         RequestEndTimePolicy p2 = (RequestEndTimePolicy)p.copy();
         UtcT otherTime = p2.end_time();
         assertEquals (otherTime.time, outTime.time);
@@ -248,7 +248,7 @@ public class PolicyHandlingTest extends JacORBTestCase
         p.destroy();
         p2.destroy();
     }
-    
+
     public void testRequestPriorityPolicy()
     {
         PriorityRange pr = new PriorityRange ((short)10, (short)20);
@@ -263,16 +263,16 @@ public class PolicyHandlingTest extends JacORBTestCase
         PriorityRange outPR = p.priority_range();
         assertEquals (pr.min, outPR.min);
         assertEquals (pr.max, outPR.max);
-        
+
         RequestPriorityPolicy p2 = (RequestPriorityPolicy)p.copy();
         PriorityRange otherPR = p2.priority_range();
         assertEquals (outPR.min, otherPR.min);
         assertEquals (outPR.max, otherPR.max);
-        
+
         p.destroy();
         p2.destroy();
     }
-    
+
     public void testRequestStartTimePolicy()
     {
         UtcT time = new UtcT(12, 34, (short)56, (short)78);
@@ -289,7 +289,7 @@ public class PolicyHandlingTest extends JacORBTestCase
         assertEquals (time.inacchi, outTime.inacchi);
         assertEquals (time.inacclo, outTime.inacclo);
         assertEquals (time.tdf, outTime.tdf);
-        
+
         RequestStartTimePolicy p2 = (RequestStartTimePolicy)p.copy();
         UtcT otherTime = p2.start_time();
         assertEquals (otherTime.time, outTime.time);
@@ -300,7 +300,7 @@ public class PolicyHandlingTest extends JacORBTestCase
         p.destroy();
         p2.destroy();
     }
-    
+
     public void testRoutingPolicy()
     {
         RoutingTypeRange rtr = new RoutingTypeRange ((short)10, (short)20);
@@ -315,16 +315,16 @@ public class PolicyHandlingTest extends JacORBTestCase
         RoutingTypeRange outRTR = p.routing_range();
         assertEquals (rtr.min, outRTR.min);
         assertEquals (rtr.max, outRTR.max);
-        
+
         RoutingPolicy p2 = (RoutingPolicy)p.copy();
         RoutingTypeRange otherRTR = p2.routing_range();
         assertEquals (outRTR.min, otherRTR.min);
         assertEquals (outRTR.max, otherRTR.max);
-        
+
         p.destroy();
         p2.destroy();
     }
-    
+
     public void testSyncScopePolicy()
     {
         Any value = create_any();
@@ -336,12 +336,12 @@ public class PolicyHandlingTest extends JacORBTestCase
         );
         assertEquals (SYNC_SCOPE_POLICY_TYPE.value, p.policy_type());
         assertEquals ((short)0xffff, p.synchronization());
-        
+
         SyncScopePolicy p2 = (SyncScopePolicy)p.copy();
         assertEquals (p.synchronization(), p2.synchronization());
         p.destroy();
         p2.destroy();
-        
+
     }
 
     private org.omg.CORBA.ORB getORB()
@@ -355,7 +355,7 @@ public class PolicyHandlingTest extends JacORBTestCase
         }
         return orb;
     }
-    
+
     private Policy create_policy (int type, Any value)
     {
         try
@@ -373,7 +373,7 @@ public class PolicyHandlingTest extends JacORBTestCase
     {
         return getORB().create_any();
     }
-    
+
     private class DummyTCPProtocolProperties
         extends _TCPProtocolPropertiesLocalBase
     {
@@ -387,6 +387,6 @@ public class PolicyHandlingTest extends JacORBTestCase
         public void dont_route(boolean arg) {}
         public boolean no_delay() { return false; }
         public void no_delay(boolean arg) {}
-        
+
     }
 }

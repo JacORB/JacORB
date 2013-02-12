@@ -1,0 +1,12 @@
+module demo
+{
+    module tao_imr {
+
+        interface SomeIf {
+
+            void op();
+        };
+
+    };
+
+};

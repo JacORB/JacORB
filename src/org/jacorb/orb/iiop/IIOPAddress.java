@@ -42,6 +42,7 @@ public class IIOPAddress
 {
     private String source_name = null; // initializing string
     private InetAddress host = null;
+    private InetAddress pseudo_host = null;
     private int port = -1;             // 0 .. 65536
 
     // if this address is used as part of an alias, the hostname may be
@@ -103,14 +104,21 @@ public class IIOPAddress
         */
         host = serverSocket.getInetAddress();
         port = serverSocket.getLocalPort();
-        source_name = serverSocket.getInetAddress().toString();
-        int slash_delim = source_name.indexOf('/');
-        if (slash_delim > 0)
-        {
-            source_name = source_name.substring(0, slash_delim);
-        }
-
         isWildcard = serverSocket.getInetAddress().isAnyLocalAddress();
+        if (isWildcard)
+        {
+            pseudo_host = getLocalHost();
+            source_name = pseudo_host.getHostName();
+        }
+        else
+        {
+            source_name = serverSocket.getInetAddress().toString();
+            int slash_delim = source_name.indexOf('/');
+            if (slash_delim > 0)
+            {
+                source_name = source_name.substring(0, slash_delim);
+            }
+        }
 
         // Set the isConfigured flag to prevent calling init_host() later
         isConfigured = true;
@@ -253,10 +261,27 @@ public class IIOPAddress
 
         if (! dnsEnabled)
         {
-           return host.getHostAddress();
+            if (! isWildcard())
+            {
+                return host.getHostAddress();
+            }
+            else if (pseudo_host != null)
+            {
+                return pseudo_host.getHostAddress();
+            }
         }
 
-        return forceDNSLookup ? host.getCanonicalHostName() : host.getHostName();
+        if ( ! isWildcard())
+        {
+            return forceDNSLookup ? host.getCanonicalHostName() : host.getHostName();
+        }
+        else if (pseudo_host != null)
+        {
+            return forceDNSLookup ? pseudo_host.getCanonicalHostName() : pseudo_host.getHostName();
+        }
+
+        // should not get here
+        return null;
     }
 
     /**
@@ -276,7 +301,17 @@ public class IIOPAddress
             return source_name;
         }
 
-        return dnsEnabled ? host.getCanonicalHostName() : host.getHostAddress();
+        if ( ! isWildcard())
+        {
+            return dnsEnabled ? host.getCanonicalHostName() : host.getHostAddress();
+        }
+        else if (pseudo_host != null)
+        {
+            return dnsEnabled ? pseudo_host.getCanonicalHostName() : pseudo_host.getHostAddress();
+        }
+
+        // should not get here
+        return null;
     }
 
     /**
@@ -339,8 +374,19 @@ public class IIOPAddress
         if (host == null) {
             host = hostInetAddr;
             isWildcard = host.isAnyLocalAddress();
-            if (source_name == null || source_name.length() == 0) {
+            if (isWildcard)
+            {
+                pseudo_host = getLocalHost();
+                source_name = pseudo_host.getHostName();
+            }
+            else
+            {
                 source_name = host.toString();
+                int slash_delim = source_name.indexOf('/');
+                if (slash_delim > 0)
+                {
+                    source_name = source_name.substring(0, slash_delim);
+                }
             }
         }
     }
@@ -517,14 +563,18 @@ public class IIOPAddress
      */
     void replaceFrom (IIOPAddress other)
     {
+
         if (other.source_name != null)
         {
+
             setHostname (other.source_name);
         }
         if (other.port != -1)
         {
+
             setPort(other.port);
         }
+
     }
 
     /**

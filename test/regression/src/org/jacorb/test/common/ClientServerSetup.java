@@ -341,6 +341,9 @@ public class ClientServerSetup extends TestSetup {
         {
             clientProps.setProperty("jacorb.use_imr", "off");
             serverProps.setProperty("jacorb.use_imr", "off");
+
+            clientProps.setProperty("jacorb.use_tao_imr", "off");
+            serverProps.setProperty("jacorb.use_tao_imr", "off");
         }
 
         return result;

@@ -61,6 +61,7 @@ import org.omg.SSLIOP.TAG_SSL_SEC_TRANS;
 
 /**
  * @author Andre Spiegel
+ * @version $Id$
  */
 public class IIOPProfile
     extends org.jacorb.orb.etf.ProfileBase implements Cloneable
@@ -347,14 +348,9 @@ public class IIOPProfile
 
         if (primaryAddress.isWildcard())
         {
-            addNetworkAddresses();
+                addNetworkAddresses();
+            }
         }
-    }
-
-    
-
-
-
 
     /**
      * Adds all the network addresses of this machine to the profile
@@ -376,14 +372,12 @@ public class IIOPProfile
                      Collections.list (ni.getInetAddresses()))
                 {
                     if (!addr.isLoopbackAddress() &&
-                            // !addr.isLinkLocalAddress() &&
-                        !addr.getHostAddress().equals (
-                            primaryAddress.getHostInetAddress().getHostAddress()))
+                            !addr.isLinkLocalAddress() &&
+                        !addr.getHostAddress().equals (primaryAddress.getIP()))
                     {
                         IIOPAddress iaddr = new IIOPAddress();
                         iaddr.configure (configuration);
                         String ipaddr = addr.toString().substring(1);
-
                         if (addr instanceof Inet4Address)
                         {
                             iaddr.fromString (ipaddr + ":"
@@ -405,65 +399,6 @@ public class IIOPProfile
 
                         components.addComponent (TAG_ALTERNATE_IIOP_ADDRESS.value,
                                                  iaddr.toCDR());
-
-                        String hostName = addr.getHostName();
-                        if (hostName != null && !hostName.equals(ipaddr))
-                        {
-                            iaddr = new IIOPAddress();
-                            iaddr.configure (configuration);
-
-                            if (addr instanceof Inet4Address)
-                            {
-                                iaddr.fromString (hostName + ":"
-                                              + primaryAddress.getPort());
-                            }
-                            else if (addr instanceof Inet6Address)
-                            {
-                                int zoneid_delim = hostName.indexOf('%');
-                                if (zoneid_delim > 0)
-                                {
-                                    hostName = hostName.substring(0, zoneid_delim);
-                                }
-
-                                iaddr.fromString (
-                                    "[" + hostName + "]:"
-                                    + primaryAddress.getPort());
-                            }
-
-                            components.addComponent (TAG_ALTERNATE_IIOP_ADDRESS.value,
-                                                 iaddr.toCDR());
-                        }
-
-                        String conHostName = addr.getCanonicalHostName();
-                        if (conHostName != null && !conHostName.equals(ipaddr)
-                                && !conHostName.equals(hostName))
-                        {
-
-                            iaddr = new IIOPAddress();
-                            iaddr.configure (configuration);
-
-                            if (addr instanceof Inet4Address)
-                            {
-                                iaddr.fromString (conHostName + ":"
-                                              + primaryAddress.getPort());
-                            }
-                            else if (addr instanceof Inet6Address)
-                            {
-                                int zoneid_delim = conHostName.indexOf('%');
-                                if (zoneid_delim > 0)
-                                {
-                                    conHostName = conHostName.substring(0, zoneid_delim);
-                                }
-
-                                iaddr.fromString (
-                                    "[" + conHostName + "]:"
-                                    + primaryAddress.getPort());
-                            }
-
-                            components.addComponent (TAG_ALTERNATE_IIOP_ADDRESS.value,
-                                                 iaddr.toCDR());
-                        }
-
                     }
                 }
             }

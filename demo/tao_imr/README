@@ -1,0 +1,162 @@
+The purpose of this demo is to demonstrate the operational features
+between JacORB and TAO ImR.  This demo will demonstrated that a JacORB server
+can register its POA with a TAO ImR; and likewise, a JacORB client can request
+services from the said server via the TAO ImR. This demo assumes that you have
+acquired the TAO ImR that has the supporting features for the JacORB, and that
+you are familiar with the the TAO ImR.
+
+This demo includes a default property file jacorb.properties and the following
+Shell scripts to help running the demo on a UNIX/LINUX system:
+
+  - run_tao_imr_locator.sh which will be used to start-up the TAO ImR Locator.
+  - run_tao_imr_activator.sh which will be used to start-up the TAO ImR Activator.
+  - tao_imr.sh which will be used to list the TAO ImR repository, start-up
+    and shutdown the server.
+  - run_tao_imr_add_server.sh which will be used to add/update the server to the TAO
+    ImR repository.
+  - run_server.sh which will be used to run the server manually.
+  - run_client.sh which will be used to run the client.
+
+
+How to run this demo
+********************
+
+Prerequisites
+==============
+
+a) Set up the following TAO environments variables:
+
+   - ACE_ROOT and TAO_ROOT
+   - PATH=$PATH:$ACE_ROOT/bin
+   - LD_LIBRARY_PATH=$ACE_ROOT/lib
+   - DYLD_LIBRARY_PATH=$ACE_ROOT/lib (needed for MACOS)
+
+b) Set up the following JacORB environments variables:
+
+   - JACORB_HOME
+   - PATH=$PATH:$JACORB_HOME/bin
+   - CLASSPATH=${CLASSPATH}:${JACORB_HOME}/classes:${JACORB_HOME}/demo/tao_imr/build/classes
+
+c) You may also wish to review the following TAO scripts to ensure that they
+   point to the correct TAO executables and contains correct information before
+   running this demo:
+     run_tao_imr_activator.sh
+     run_tao_imr_locator.sh
+     tao_imr_add_server.sh
+     tao_imr_update_server.sh
+     tao_imr.sh
+
+
+Steps to build this demo
+========================
+
+ a) Go to the directory $JACORB_HOME/demo/tao_imr
+
+ b) Type: ant compile
+
+
+Steps to run this demo
+======================
+
+1.) Go to the test directory and start the
+    TAO ImR Locator (tao_imr_locator):
+
+        cd $JACORB_HOME/demo/tao_imr/test (if needed)
+        ./tao_imr_locator.sh
+
+    The Locator will log its outputs to a log file ./output/tao_imr_locator.log,
+    and it will listen for client requests at the port 44555.
+
+2.) Check, if the TAO ImR repository can be accessed:
+
+        ./tao_imr.sh list -v
+
+    This uses the ImR Manager command line tool to query the ImR for
+    server table entries.
+
+3.) Start the server:
+
+        ./run_server.sh
+    or
+        ${JACORB_HOME}/bin/jaco demo.tao_imr.Server server.ior &
+
+    The server will write its IOR to a file called "server.ior" in the
+    current directory, and remains running. The server will automatically
+    register with the TAO ImR Locator, which will create a minimal entry for
+    the server in its repository.
+
+4.) While the server is running, run the client from the same directory:
+
+        ./run_client.sh
+    or
+        $JACORB_HOME/bin/jaco demo.tao_imr.Client server.ior
+
+    You should see the string "Client: successfully called server" which is
+    output by the client if everything works properly.
+
+5.) Update the server to the TAO ImR repository:
+
+        ./tao_imr_update_server.sh
+
+    This will update the entry in the TAO ImR repository for the server
+    with information so that the server can be started or shutdown.  You can
+    view the update in the TAO ImR repository using:
+
+        ./tao_imr.sh list -v
+
+    And, you should see an entry as below:
+
+        Server <JACORB:imr_demo/ImRDemoServerPOA>
+        { ... other paramerers ... }
+
+6.) Start the TAO ImR Activator (tao_imr_activator):
+
+        ./run_tao_imr_activator.sh
+
+    The Activator will log its outputs to a log file output/tao_imr_activator.log.
+    Please note that the Activator needs to run on the same host machine as
+    the server.
+
+7.) Tell the TAO ImR to shutdown the server:
+
+        ./tao_imr.sh shutdown JACORB:imr_demo/ImRDemoServerPOA
+
+    The server should be shutdown.
+
+8.) Make sure that the TAO ImR can restart the server:
+
+        ./tao_imr.sh start JACORB:imr_demo/ImRDemoServerPOA
+
+    The server should be running.
+
+10.) Shutdown the server so that it can be restarted when the client runs:
+
+        ./tao_imr.sh shutdown JACORB:imr_demo/ImRDemoServerPOA
+
+    The server should be shutdown.
+
+11.) Now, you can finally start the client:
+
+        ./run_client.sh
+     or
+
+        $JACORB_HOME/bin/jaco demo.tao_imr.Client server.ior
+
+    This should also trigger the startup of the server. You should see the
+    string "Client: successfully called server" which is outputted by the client
+    if everything works properly.
+
+12.) When finished, do the following steps:
+
+        ./tao_imr.sh shutdown JACORB:imr_demo/ImRDemoServerPOA
+
+     This will shutdown the server.
+
+        ./tao_imr.sh shutdown-repo -a
+
+     This will shutdown the Locator and the Activator.
+
+This demo is concluded at this point.
+
+Quynh N.
+Object Computing Inc.

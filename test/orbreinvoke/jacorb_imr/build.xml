@@ -1,0 +1,50 @@
+<?xml version="1.0"?>
+
+<project name="orbreinvoke-jacorb_imr" default="all" basedir="../../..">
+
+    <import file="../../../etc/common.xml"/>
+
+  <!-- ==================================================== -->
+  <!--                   build file                         -->
+  <!-- ==================================================== -->
+
+
+    <target name="init">
+	<property name="dirs.base" value="${basedir}"/>
+	<property name="classdir" value="${dirs.base}/classes"/>
+	<property name="lib" value="${dirs.base}/lib"/>
+	<property name="include" value="${dirs.base}/idl"/>
+    <mkdir dir="${dirs.base}/test/orbreinvoke/jacorb_imr/generated" />
+    <mkdir dir="${classdir}" />
+   </target>
+
+   <target name="all"
+           depends="init,compile-test-listenendpoints-echo_corbaloc,compile">
+   </target>
+
+   <target name="compile">
+        <javac srcdir="${dirs.base}/test/orbreinvoke/jacorb_imr/generated"
+               destdir="${classdir}"
+                includes="test/orbreinvoke/jacorb_imr/*.java"
+	        />
+        <javac srcdir="${dirs.base}"
+               destdir="${classdir}"
+                includes="test/orbreinvoke/jacorb_imr/*.java"
+	        />
+   </target>
+
+   <target name="clean"
+       depends="clean-test-listenendpoints-echo_corbaloc">
+	   <deltree dir="${classdir}/test/orbreinvoke/jacorb_imr"/>
+	   <deltree dir="${dirs.base}/test/orbreinvoke/jacorb_imr/generated"/>
+   </target>
+
+   <target name="compile-test-listenendpoints-echo_corbaloc">
+        <ant antfile="${basedir}/test/listenendpoints/echo_corbaloc/build.xml" target="idl" inheritall="false"/>
+        <ant antfile="${basedir}/test/listenendpoints/echo_corbaloc/build.xml" target="all" inheritall="false"/>
+    </target>
+
+    <target name="clean-test-listenendpoints-echo_corbaloc">
+        <ant antfile="${basedir}/test/listenendpoints/echo_corbaloc/build.xml" target="clean" inheritall="false"/>
+    </target>
+</project>

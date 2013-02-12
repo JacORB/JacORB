@@ -51,4 +51,8 @@ public class MIOPProfileSelector implements ProfileSelector
       return (miop != null) ? miop : iiop;
    }
 
+   public Profile selectNextProfile(List profiles, Profile lastProfile)
+   {
+       return null;
+   }
 }
