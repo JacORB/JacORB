@@ -1265,15 +1265,33 @@ public class CDROutputStream
     {
         if( value != null )
         {
-            if( deferredArrayQueueSize > 0 && length > deferredArrayQueueSize )
+            if( ( deferredArrayQueueSize > 0 && length > deferredArrayQueueSize ) || deferred_writes > 0 )
             {
                 if (deferredArrayQueue == null)
                 {
                     deferredArrayQueue = new ArrayList();
                 }
+                if (deferredArrayQueue.size() > 0)
+                {
+                    // in case of rewrite, we remove deferred write frames
+                    boolean remove = false;
+                    for ( int list_idx = 0 ; list_idx < deferredArrayQueue.size() ; list_idx++ )
+                    {
+                       DeferredWriteFrame next_frame = (DeferredWriteFrame) deferredArrayQueue.get(list_idx);
+                       if ( remove || index < next_frame.write_pos + next_frame.length )
+                       {
+                           remove = true;
+                           deferred_writes -= next_frame.length;
+                           index -= next_frame.length;
+                           deferredArrayQueue.remove(list_idx);
+                       }
+                    }
+                }
+                
                 deferredArrayQueue.add( new DeferredWriteFrame( index, offset, length, value ));
                 index += length;
                 deferred_writes += length;
+                
             }
             else
             {
