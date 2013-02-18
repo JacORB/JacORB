@@ -1157,8 +1157,7 @@ public class ImplementationRepositoryImpl
                 throw new ConfigurationException("Listener: Couldn't init", e);
             }
 
-            this.transport_manager =
-                new TransportManager( (org.jacorb.orb.ORB) orb );
+            this.transport_manager = new TransportManager();
             this.transport_manager.configure(configuration);
         }
 

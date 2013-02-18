@@ -29,10 +29,10 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
 import org.jacorb.config.Configurable;
 import org.jacorb.config.Configuration;
 import org.jacorb.config.ConfigurationException;
-import org.jacorb.imr.ImRAccessImpl;
 import org.jacorb.orb.dii.Request;
 import org.jacorb.orb.dynany.DynAnyFactoryImpl;
 import org.jacorb.orb.etf.FactoriesBase;
@@ -61,6 +61,7 @@ import org.jacorb.util.BuildVersion;
 import org.jacorb.util.ObjectUtil;
 import org.jacorb.util.SelectorManager;
 import org.jacorb.util.TimerQueue;
+import org.jacorb.util.Version;
 import org.omg.CORBA.BAD_INV_ORDER;
 import org.omg.CORBA.BAD_PARAM;
 import org.omg.CORBA.CompletionStatus;
@@ -215,14 +216,11 @@ public final class ORB
     private ImRAccess imr = null;
     private int persistentPOACount;
 
-    // public static final String orb_id = "jacorb:" + org.jacorb.util.Version.version;
-    private static final String default_orb_id = "jacorb:" + org.jacorb.util.Version.version;
-
-    private String orb_id = default_orb_id;
+    private String orb_id = Version.orbId;
     /**
      * outstanding dii requests awaiting completion
      */
-    private final Set requests = Collections.synchronizedSet( new HashSet() );
+    private final Set<org.omg.CORBA.Request> requests = Collections.synchronizedSet( new HashSet<org.omg.CORBA.Request>() );
 
     /**
      * most recently completed dii request found during poll
@@ -270,9 +268,6 @@ public final class ORB
     public ORB()
     {
         super(false);
-
-        // initialize orb_id with default value
-        orb_id = default_orb_id;
     }
 
     /**
@@ -1031,19 +1026,19 @@ public final class ORB
 
                         try
                         {
-                        	IIOPAddress address =
-                                	new IIOPAddress(imrAddr.getOriginalHost(),
-                                                	imrAddr.getPort());
+                            IIOPAddress address =
+                            new IIOPAddress(imrAddr.getOriginalHost(),
+                                            imrAddr.getPort());
 
-                        	address.configure(configuration);
-                        	list.addComponent (TAG_ALTERNATE_IIOP_ADDRESS.value,
-                                                 	address.toCDR());
+                            address.configure(configuration);
+                            list.addComponent (TAG_ALTERNATE_IIOP_ADDRESS.value,
+                                               address.toCDR());
                         }
                         catch (org.jacorb.config.ConfigurationException e)
                         {
                             logger.warn(
-                                    "patchTagAlternateIIOPAddresses: got an exception, "
-                                    + e.getMessage());
+                                "patchTagAlternateIIOPAddresses: got an exception, "
+                                + e.getMessage());
                         }
                     }
                 }
@@ -1681,7 +1676,7 @@ public final class ORB
         synchronized ( requests )
         {
             Request req;
-            Iterator iter = requests.iterator();
+            Iterator<org.omg.CORBA.Request> iter = requests.iterator();
             while ( iter.hasNext() )
             {
                 req = (Request)iter.next();
@@ -1715,7 +1710,7 @@ public final class ORB
                 return req;
             }
 
-            Iterator iter;
+            Iterator<org.omg.CORBA.Request> iter;
             while ( true )
             {
                 iter = requests.iterator();
@@ -1742,23 +1737,33 @@ public final class ORB
         requests.remove( req );
     }
 
-    protected void set_parameters(String[] args, java.util.Properties props, String id)
+    protected void set_parameters(String[] args, java.util.Properties props)
     {
-        // save orb_id before doing anything
-        // orb_id should have already been set to default_orb_id by the constructor,
-        // so if it will be updated only if an alternative id is provided.
-        if (id != null)
+        String id = null;
+
+        if ( args != null )
         {
-            orb_id = id;
+            for ( int i = 0; i < args.length; i++ )
+            {
+                String arg = args[i].trim();
+
+                if (arg.equalsIgnoreCase("-ORBID"))
+                {
+                    // save orb_id before doing anything
+                    // orb_id should have already been set to default_orb_id by the constructor,
+                    // so if it will be updated only if an alternative id is provided.
+                    id = args[++i].trim();
+                    continue;
+                }
+            }
         }
 
-        // Move here before calling configure for ORBListenEndpoints processing
-        arguments = args;
         try
         {
             configure( org.jacorb.config.JacORBConfiguration.getConfiguration(props,
-                        this,
-                        false)); // no applet support
+                                                                              this,
+                                                                              id,
+                                                                              false)); // no applet support
         }
         catch ( ConfigurationException e )
         {
@@ -1768,11 +1773,13 @@ public final class ORB
             throw new org.omg.CORBA.INITIALIZE( e.getMessage() );
         }
 
-        Configuration orbsingletonConfig = ((ORBSingleton)org.omg.CORBA.ORBSingleton.init ()).configuration;
+        orb_id = id;
+        arguments = args;
 
+        Configuration orbsingletonConfig = ((ORBSingleton)org.omg.CORBA.ORBSingleton.init ()).configuration;
         if (props != null)
         {
-           orbsingletonConfig.setAttributes (props);
+            orbsingletonConfig.setAttributes (props);
         }
 
         if ( args != null )
@@ -1896,15 +1903,6 @@ public final class ORB
     }
 
     /**
-     * called from ORB.init(), entry point for initialization.
-     */
-    protected void set_parameters(String[] args, java.util.Properties props)
-    {
-        // route call to function with orb id of an empty string
-        set_parameters(args, props, "");
-    }
-
-    /**
      * Initialization method, called from within the super class
      * org.omg.CORBA.ORB
      */
@@ -1916,6 +1914,7 @@ public final class ORB
         {
             configure( org.jacorb.config.JacORBConfiguration.getConfiguration(props,
                        this,
+                       null,
                        true)); //applet support
         }
         catch ( ConfigurationException e )
@@ -1953,6 +1952,7 @@ public final class ORB
         }
     }
 
+
     private void initManagers()
     {
         try
@@ -1974,7 +1974,7 @@ public final class ORB
                 }
             }
 
-            transport_manager = new TransportManager(this);
+            transport_manager = new TransportManager();
 
             transport_manager.configure(configuration);
 

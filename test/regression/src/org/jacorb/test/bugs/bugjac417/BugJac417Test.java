@@ -49,7 +49,7 @@ public class BugJac417Test extends ORBTestCase
 
     protected void doSetUp() throws Exception
     {
-        objectUnderTest = new SocketFactoryManager((ORB) orb);
+        objectUnderTest = new SocketFactoryManager();
         configControl = MockControl.createControl(Configuration.class);
         configMock = (Configuration) configControl.getMock();
 

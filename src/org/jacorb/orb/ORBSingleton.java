@@ -77,7 +77,7 @@ public class ORBSingleton
         {
             if (isSingleton)
             {
-                configuration = JacORBConfiguration.getConfiguration(null, null, false);
+                configuration = JacORBConfiguration.getConfiguration(null, null, null, false);
 
                 // Don't call configure method as if this has been called from ORB::ctor
                 // class construction order can cause issues.

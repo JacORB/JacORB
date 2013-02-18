@@ -95,6 +95,9 @@ jacorb.orb.print_version=off
 # Set this option to true to include a thread ID value in the log messasge.
 #jacorb.log.showThread=false
 
+# Display class and method informaton in log messages.
+#jacorb.log.showSrcInfo=false
+
 # Where does output go? Terminal is default. If the filename includes
 # "$implname", that is replaced with the value of jacorb.implname, if
 # that is defined, or "jacorb" otherwise.
