@@ -26,20 +26,19 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+
 import org.jacorb.config.Configurable;
 import org.jacorb.config.Configuration;
 import org.jacorb.config.ConfigurationException;
 import org.jacorb.orb.DefaultProfileSelector;
-import org.jacorb.orb.ORB;
 import org.jacorb.orb.ProfileSelector;
-import org.jacorb.orb.etf.ProtocolAddressBase;
-import org.jacorb.orb.etf.FactoriesBase;
-import org.jacorb.orb.iiop.IIOPAddress;
-import org.jacorb.orb.iiop.IIOPFactories;
-import org.jacorb.orb.etf.ListenEndpoint;
 import org.jacorb.orb.diop.DIOPFactories;
+import org.jacorb.orb.etf.FactoriesBase;
+import org.jacorb.orb.etf.ListenEndpoint;
+import org.jacorb.orb.etf.ProtocolAddressBase;
 import org.jacorb.orb.factory.SocketFactoryManager;
 import org.jacorb.orb.giop.TransportListener.Event;
+import org.jacorb.orb.iiop.IIOPAddress;
 import org.jacorb.util.ObjectUtil;
 import org.omg.CORBA.BAD_PARAM;
 import org.omg.ETF.Factories;
@@ -67,7 +66,6 @@ public class TransportManager
     private List<String> factoryClassNames = null;
     private ProfileSelector profileSelector = null;
     private final SocketFactoryManager socketFactoryManager;
-    private org.jacorb.orb.ORB _orb;
 
     /**
      * Denotes whether to use NIO for IIOP transport.
@@ -100,14 +98,13 @@ public class TransportManager
      */
     private TransportListener listener = null;
 
-    public TransportManager( ORB orb )
+    public TransportManager( )
     {
-        _orb = orb;
-        socketFactoryManager = new SocketFactoryManager(orb);
+        socketFactoryManager = new SocketFactoryManager();
     }
 
     public void configure(Configuration myConfiguration)
-    throws ConfigurationException
+    		throws ConfigurationException
     {
         configuration = myConfiguration;
         logger = configuration.getLogger("jacorb.orb.giop");
@@ -124,14 +121,13 @@ public class TransportManager
            factoryClassNames.add("org.jacorb.orb.iiop.IIOPFactories");
         }
 
-
         // pickup listen endpoints specified by arguments -ORBListenEndpoints
         // and populate the array list listenEndpointList
-        getListenEndpointAddresses();
+        updateListenEndpointAddresses();
 
         // pickup the default OAAdress/OASSLAddress from prop file
         // and add them to the end of the array list listenEndpointList as well.
-        getDefaultEndpointAddresses();
+        updateDefaultEndpointAddresses();
 
         // get profile selector info
         profileSelector =
@@ -330,7 +326,6 @@ public class TransportManager
 
     private synchronized void addTransportListenerImpl(final TransportListener tl)
     {
-
         if (listener == null)
         {
             listener = tl;
@@ -380,12 +375,11 @@ public class TransportManager
     }
 
     /**
-     * Pickup default OAAdress/OASSLAddress pair from property file
+     * Pick default OAAdress/OASSLAddress pair from property file
      * and add them to the list of endpoint address list.
      */
-    private void getDefaultEndpointAddresses() throws ConfigurationException
+    private void updateDefaultEndpointAddresses() throws ConfigurationException
     {
-
         IIOPAddress address = null;
         IIOPAddress ssl_address = null;
 
@@ -449,13 +443,12 @@ public class TransportManager
     /**
      * Pickup endpoint addresses from command-line arguments -ORBListenEndPoints
      */
-    private void getListenEndpointAddresses() throws ConfigurationException
+    private void updateListenEndpointAddresses() throws ConfigurationException
     {
-
         listenEndpointList = new ArrayList<ListenEndpoint>();
 
         // get original argument list from ORB
-        String[] args = _orb.getArgs();
+        String[] args = configuration.getORB().getArgs();
 
 
         if (args != (String[]) null)

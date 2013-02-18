@@ -1389,21 +1389,18 @@ public final class Delegate
             }
 
             // The exception is a TRANSIENT, so try rebinding.
-            if ( cfe instanceof org.omg.CORBA.TRANSIENT)
+            if ( cfe instanceof org.omg.CORBA.TRANSIENT && try_rebind())
             {
-
-                boolean tryrebind_result = try_rebind();
-                if (tryrebind_result) {
-
-                    throw new RemarshalException();
-                }
+                throw new RemarshalException();
             }
 
-            if (!(cfe instanceof org.omg.CORBA.TIMEOUT)) {
-              if (logger.isDebugEnabled()) {
-                logger.debug (this.toString() + ":invoke_internal: closing connection due to " + cfe.getMessage());
-              }
-              disconnect(connectionToUse);
+            if (!(cfe instanceof org.omg.CORBA.TIMEOUT))
+            {
+                if (logger.isDebugEnabled())
+                {
+                        logger.debug (this.toString() + ":invoke_internal: closing connection due to " + cfe.getMessage());
+                }
+                disconnect(connectionToUse);
             }
 
             throw cfe;
