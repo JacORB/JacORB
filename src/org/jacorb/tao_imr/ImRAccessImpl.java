@@ -21,7 +21,7 @@
 
 package org.jacorb.tao_imr;
 
-import ImplementationRepository.*;
+import org.jacorb.tao_imr.ImplementationRepository.*;
 import java.util.Iterator;
 import java.util.List;
 import org.jacorb.config.ConfigurationException;
@@ -49,7 +49,7 @@ import org.omg.IOP.TaggedComponent;
 public class ImRAccessImpl
     implements org.jacorb.orb.ImRAccess
 {
-    private ImplementationRepository.Administration imrLocator = null;
+    private org.jacorb.tao_imr.ImplementationRepository.Administration imrLocator = null;
     private org.jacorb.orb.ORB orb_ = null;
     private org.jacorb.poa.POA poa_ = null;
     private org.jacorb.poa.POA root_poa_ = null;
@@ -76,14 +76,14 @@ public class ImRAccessImpl
     */
     public static ImRAccessImpl connect (org.jacorb.orb.ORB orb)
     {
-        final ImRAccessImpl result = new org.jacorb.tao_imr.ImRAccessImpl ();
+        final ImRAccessImpl result = new ImRAccessImpl ();
 
         result.orb_ = orb;
 
         try
         {
             result.imrLocator =
-                    ImplementationRepository.AdministrationHelper.narrow (
+                    org.jacorb.tao_imr.ImplementationRepository.AdministrationHelper.narrow (
                             orb.resolve_initial_references("ImplRepoService"));
         }
         catch (org.omg.CORBA.ORBPackage.InvalidName e)

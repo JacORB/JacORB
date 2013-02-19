@@ -57,6 +57,8 @@ import org.jacorb.poa.RPPoolManager;
 import org.jacorb.poa.RPPoolManagerFactory;
 import org.jacorb.poa.except.POAInternalError;
 import org.jacorb.poa.util.POAUtil;
+import org.jacorb.tao_imr.ImplementationRepository.*;
+import org.jacorb.tao_imr.ImRAccessImpl;
 import org.jacorb.util.BuildVersion;
 import org.jacorb.util.ObjectUtil;
 import org.jacorb.util.SelectorManager;

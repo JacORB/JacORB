@@ -19,7 +19,8 @@
  *
  */
 
-package ImplementationRepository;
+// package ImplementationRepository;
+package org.jacorb.tao_imr.ImplementationRepository;
 
 import org.omg.CORBA.*;
 

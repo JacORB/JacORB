@@ -38,6 +38,7 @@
             includepath="${idl}/omg"
             destdir="${src.generated}">
             <define key="JACORB" value="1"/>
+            <i2jpackage names=":org.jacorb.tao_imr"/>
             </jacidl>
       </presetdef>
 
