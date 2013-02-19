@@ -336,4 +336,12 @@ public final class GSSUPContextSpi
     public void requestDelegPolicy(boolean state)
     {
     }
+
+    /**
+     * NOTE : This method was added for compatibility with IBM GSS (IBM JDK 1.6)
+     * because of a compilation error from this class.
+     */
+    public void setNegMechs(Oid[] oids, GSSCredential gssc) throws GSSException
+    {
+    }
 }
