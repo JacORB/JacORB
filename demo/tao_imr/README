@@ -69,7 +69,7 @@ Steps to run this demo
 
 2.) Check, if the TAO ImR repository can be accessed:
 
-        ./run_tao_imr.sh list -v
+        ./tao_imr.sh list -v
 
     This uses the ImR Manager command line tool to query the ImR for
     server table entries.
