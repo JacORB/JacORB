@@ -1743,6 +1743,10 @@ public final class ORB
     {
         String id = null;
 
+        if( props != null )
+        {
+            id = (String)props.get("ORBid");
+        }
         if ( args != null )
         {
             for ( int i = 0; i < args.length; i++ )
@@ -1912,11 +1916,16 @@ public final class ORB
     protected void set_parameters(java.applet.Applet app,
                                   java.util.Properties props)
     {
+        String id = null;
+        if( props != null )
+        {
+            id = (String)props.get("ORBid");
+        }
         try
         {
             configure( org.jacorb.config.JacORBConfiguration.getConfiguration(props,
                        this,
-                       null,
+                       id,
                        true)); //applet support
         }
         catch ( ConfigurationException e )
@@ -1925,6 +1934,8 @@ public final class ORB
 
             throw new org.omg.CORBA.INITIALIZE( e.toString() );
         }
+
+        orb_id = id;
 
         internalInit();
     }
