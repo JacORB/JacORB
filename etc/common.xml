@@ -18,17 +18,21 @@
 
     <target name="init-properties">
         <property name="debug" value="true"/>
-
         <property name="debuglevel" value="vars,lines,source"/>
 
         <!-- Location of the compiled classes -->
         <property name="classdir" value="${dirs.base}/classes" />
 
-        <condition property="java-source-version" value="1.6">
-            <available classname="java.util.Deque"/>
+        <property name="java-source-version" value="${ant.java.version}"/>
+
+        <condition property="java-ibm-vendor">
+            <equals arg1="${java.vendor}"
+                    arg2="IBM Corporation"
+                    casesensitive="false"
+                    trim="true"
+                    />
         </condition>
-        <property name="java-source-version" value="1.5"/>
-    </target>
+   </target>
 
     <target name="init-path">
         <path id="path.base" >

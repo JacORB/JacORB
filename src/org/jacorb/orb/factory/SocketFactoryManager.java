@@ -68,7 +68,7 @@ public class SocketFactoryManager
      */
     private SSLSessionListener sslListener;
 
-    private final ORB orb;
+    private ORB orb;
 
     private SocketFactory socketFactory;
     private ServerSocketFactory serverFactory;
@@ -82,11 +82,7 @@ public class SocketFactoryManager
     private String sslServerSocketFactoryClazz;
     private String sslSocketFactoryClazz;
 
-    public SocketFactoryManager(ORB orb)
-    {
-        this.orb = orb;
-    }
-
+ 
     public void configure(Configuration config)
         throws ConfigurationException
     {
@@ -94,6 +90,8 @@ public class SocketFactoryManager
         logger = configuration.getLogger("jacorb.orb.factory");
         serverSocketFactoryClassName = configuration.getAttribute(SERVER_SOCKET_FACTORY, DefaultServerSocketFactory.class.getName());
 
+        orb = configuration.getORB();
+        
         socketFactoryClassName = configuration.getAttribute(SOCKET_FACTORY, "");
 
         if ( socketFactoryClassName.length() == 0)

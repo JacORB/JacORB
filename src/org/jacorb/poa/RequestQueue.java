@@ -149,7 +149,18 @@ public class RequestQueue
         // notify a queue listener
         if (queueListener != null)
         {
+            if (logger.isDebugEnabled())
+            {
+                logger.debug("notify a queue listener");
+            }
             queueListener.requestAddedToQueue(request, queue.size());
+        }
+        else
+        {
+            if (logger.isDebugEnabled())
+            {
+                logger.debug("no queueListener is notifed since queueListener is null");
+            }
         }
     }
 

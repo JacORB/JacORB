@@ -1269,7 +1269,7 @@ public class POA
                 {
                     logger.info
                     (
-                        "Using server ID (" +
+                         "Using server ID (" +
                         (new String (impl)) +
                         ") for transient POA"
                     );

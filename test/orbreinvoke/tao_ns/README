@@ -1,0 +1,98 @@
+
+  JacORB/TAO NS Integration Tests
+  ===============================
+
+This directory holds the JacORB/TAO NS integration test suite, which is intended
+ to be run manually for integration purposes.  This test suite comprises of the
+following components:
+   - One or more TAO NS
+   - A JacORB server application named EchoServer1 (or EchoServer2) which
+basically sending back whatever message that it receives.
+   - A JacOBB client application that would request services from the server
+using the server's TAO ImR-ified IOR reference, which may be an IOR file, IOR
+string, or a simplified corbaloc IOR string.
+
+This test suite requires a ACE/TAO NS release that is enhanced with supporting
+features for JacORB applications.  In addition, this test suite assumes that you
+are familiar with the ACE/TAO NS usages.  Please consult the ACE/TAO literature
+for information about the ACE/TAO NS.
+
+Building the Test Suites
+-----------------------
+
+To build the tests, you first need to set the environment variable JACORB_HOME
+then type:
+
+  ant all
+
+This should compile the IDL and Java code that is needed to run the test.
+
+Running the Tests
+-----------------
+
+The Bash scripts (.sh) can be invoked to setup and run the tests on a UNIX or
+a LINUX platform without modification.  When invoked, the scripts will direct
+all outputs to to log files in the directory "./output".  The important scripts
+are:
+
+  - run_tao_ns.sh, which will initiate the TAO NS service.
+  - run_server.sh, which will initiate the server test.orbreinvoke.tao_ns.Server.
+  - run_client.sh, which will initiate the client test.listenendpoints.echo_corba.Client.
+
+Before running the tests, you may wish to review the following prerequisite
+steps for setting up the environment:
+
+a) Set up the following TAO environments variables:
+
+   - ACE_ROOT and TAO_ROOT
+   - PATH=$PATH:$ACE_ROOT/bin
+   - LD_LIBRARY_PATH=$ACE_ROOT/lib
+   - DYLD_LIBRARY_PATH=$ACE_ROOT/lib (needed for MACOS)
+
+b) Set up the following JacORB environments variables:
+
+   - JACORB_HOME
+   - PATH=$PATH:$JACORB_HOME/bin
+   - CLASSPATH=${CLASSPATH}:${JACORB_HOME}/classes:${JACORB_HOME}/demo/tao_imr/build/classes
+
+c) Review the following TAO script to ensure that they point to the correct
+   TAO executable:
+
+     run_tao_ns.sh
+
+A basic test session would comprise of the following steps:
+
+  - Start the TAO NS Locator service by running:
+
+        ./run_tao_ns.sh
+
+    The script will initiate the TAO NS service, which produces an IOR file
+    "/tmp/myTaoNs.ior".  If you initiate the TAO NS on a remote host, then you
+    need to copy the IOR file from the remote host to the host where the server
+    resides before initiating the server.
+
+  - Initiate the server, test.orbreinvoke.tao_ns.Server, by
+    running:
+
+        ./run_server.sh EchoServer1
+
+    The script will initiate a server with an implname of "EchoServer1", which
+    uses the NS's IOR file to contact the NS service, and produces the IOR file
+    "/tmp/test.orbreinvoke.tao_ns.Server.EchoServer1.ior".
+
+  - Initiate the client application, test.listenendpoints.echo_corbaloc.Client,
+    by running:
+
+        ./run_client.sh EchoServer1
+
+    The script will initiate the client, which will request services from the
+    server through the NS using the simplified corbaname (not a corbaloc) IOR
+    string.  Upon successful, it will keep pinging the server in a loop using
+    sequential messages and output the result to a log file in the directory
+    "./output".  You can tail the log file to follow the activities.
+
+Quynh Nguyen
+Object Computing Inc.
+January 7, 2013
+
+

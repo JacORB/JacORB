@@ -20,10 +20,15 @@ package org.jacorb.test.orb;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
+import org.jacorb.test.common.TestUtils;
 
 import junit.framework.TestCase;
 
@@ -77,6 +82,13 @@ public class ORBInitTest extends TestCase
     }
 
     private ORB initORB(String[] args, Properties props)
+    {
+        ORB orb = org.omg.CORBA.ORB.init( args, props );
+        orbs.add(orb);
+        return orb;
+    }
+
+    private ORB initORB(String[] args, Properties props, String id)
     {
         ORB orb = org.omg.CORBA.ORB.init( args, props );
         orbs.add(orb);
@@ -263,4 +275,290 @@ public class ORBInitTest extends TestCase
         }
     }
 
+    /**
+     * <code>testSetORBId_1</code>
+     */
+    public void testSetORBId_1 ()
+    {
+        String args[] = new String[4];
+        args[0] = "-ORBInitRef";
+        args[1] = "NameService=foo.ior";
+        args[2] = "-ORBID";
+        args[3] = "jacorb: someOrbId_1";
+
+        // set ORBID by using commandline arguments
+        try
+        {
+            ORB orb = initORB(args, null);
+            assertTrue(orb != (ORB)null);
+            assertEquals(args[3],orb.id());
+        }
+        catch (Exception e)
+        {
+                // not expected
+            e.printStackTrace ();
+        }
+    }
+
+     /**
+     * <code>testSetORBId_3</code>
+     */
+    public void testSetORBId_3 ()
+    {
+        String args[] = new String[3];
+        args[0] = "-ORBInitRef";
+        args[1] = "NameService=foo.ior";
+        args[2] = "-ORBID";
+        // args[3] = "jacorb: someOrbId_1";
+
+        // test for -ORBID missing value
+        try
+        {
+            ORB orb = initORB(args, null);
+           assertTrue(orb == (ORB)null);
+        }
+        catch (Exception e)
+        {
+                // expected
+            e.printStackTrace ();
+        }
+    }
+
+    /**
+     * <code>testSetORBId_4</code>
+     */
+    public void testSetORBId_4 ()
+    {
+        String args[] = new String[2];
+        args[0] = "-ORBInitRef";
+        args[1] = "NameService=foo.ior";
+
+        // set ORBID to default ORBID by setting third argument to null
+        try
+        {
+            // get default ORBID
+            ORB orb = initORB(args, null);
+            assertTrue (orb != (ORB)null);
+            String def_id = new String(orb.id());
+
+            // run test
+            ORB orb2 = initORB(args, null);
+            assertTrue (orb2 != (ORB)null);
+            assertEquals(def_id, orb2.id());
+        }
+        catch (Exception e)
+        {
+                // not expected
+            e.printStackTrace ();
+        }
+    }
+
+    /**
+     * <code>testSetORBId_5</code>
+     */
+    public void testSetORBId_5 ()
+    {
+        String args[] = new String[2];
+        args[0] = "-ORBInitRef";
+        args[1] = "NameService=foo.ior";
+
+        // set ORBID to an empty string
+        try
+        {
+            ORB orb = initORB(args, null);
+            assertTrue (orb != (ORB)null);
+            String _id = new String(orb.id());
+            assertEquals("", _id);
+        }
+        catch (Exception e)
+        {
+                // not expected
+            e.printStackTrace ();
+        }
+    }
+
+    /**
+     * <code>testSetORBId_6</code>
+     */
+    public void testSetORBId_6 ()
+    {
+        String args[] = new String[4];
+        args[0] = "-ORBInitRef";
+        args[1] = "NameService=foo.ior";
+        args[2] = "-ORBID";
+        args[3] = "";
+
+        // set -ORBID to an empty string in an argument
+        try
+        {
+            ORB orb = initORB(args, null);
+           assertTrue(orb != (ORB)null);
+           assertEquals("", orb.id());
+        }
+        catch (Exception e)
+        {
+                // not expected
+            e.printStackTrace ();
+        }
+    }
+
+    /**
+     * <code>testSetORBId_7</code>
+     */
+    public void testSetORBId_7() throws Exception
+    {
+        // ORBid is not set.  ORB.id is set to an empty string.
+        // So, ORBid should be "jacorb"
+        try
+        {
+            createPropertiesFile("classes/jacorb.properties",
+                                 "jacorb.connection.client.connect_timeout=33099");
+
+            Properties props = new Properties();
+            props.put("org.omg.CORBA.ORBClass", "org.jacorb.orb.ORB");
+            props.put("org.omg.CORBA.ORBSingletonClass",
+                    "org.jacorb.orb.ORBSingleton");
+
+            // System.setProperty("ORBid", "");
+
+            ORB orb = initORB(new String[] {}, props);
+            assertTrue(orb != (ORB)null);
+            assertEquals("", orb.id());
+
+            int timeout = ((org.jacorb.orb.ORB) orb).getConfiguration()
+                    .getAttributeAsInteger(
+                            "jacorb.connection.client.connect_timeout", 0);
+            assertEquals(33099, timeout);
+        }
+        finally
+        {
+            deletePropertiesFile ("classes/jacorb.properties");
+        }
+    }
+
+    /**
+     * <code>testSetORBId_8</code>
+     */
+    public void XXtestSetORBId_8() throws Exception
+    {
+        // ORBid is not set so it will be set to default value of ORB.orb_id.
+        // ORBid should be "testorbid8".
+        try
+        {
+            createPropertiesFile("classes/testorbid8.properties",
+                                 "jacorb.connection.client.connect_timeout=33099");
+
+            Properties props = new Properties();
+            props.put("org.omg.CORBA.ORBClass", "org.jacorb.orb.ORB");
+            props.put("org.omg.CORBA.ORBSingletonClass",
+                    "org.jacorb.orb.ORBSingleton");
+            // System.setProperty("ORBid", "");
+
+            ORB orb = initORB(new String[] {}, props, "testorbid8");
+            assertTrue(orb != (ORB)null);
+            assertEquals("testorbid8", orb.id());
+
+            int timeout = ((org.jacorb.orb.ORB) orb).getConfiguration()
+                    .getAttributeAsInteger(
+                            "jacorb.connection.client.connect_timeout", 0);
+            assertEquals(33099, timeout);
+        }
+        finally
+        {
+            deletePropertiesFile ("classes/testorbid8.properties");
+        }
+    }
+
+    /**
+     * <code>testSetORBId_9</code>
+     */
+    public void XXtestSetORBId_9() throws Exception
+    {
+        // Set ORBid to an empty string and ORB.orb_id to another string
+        try
+        {
+            createPropertiesFile("classes/testorbid9.properties",
+                                 "jacorb.connection.client.connect_timeout=33099");
+
+            Properties props = new Properties();
+            props.put("org.omg.CORBA.ORBClass", "org.jacorb.orb.ORB");
+            props.put("org.omg.CORBA.ORBSingletonClass",
+                    "org.jacorb.orb.ORBSingleton");
+            System.setProperty("ORBid", "");
+
+            ORB orb = initORB(new String[] {}, props, "testorbid9");
+            assertTrue(orb != (ORB)null);
+            assertEquals("testorbid9", orb.id());
+
+            int timeout = ((org.jacorb.orb.ORB) orb).getConfiguration()
+                    .getAttributeAsInteger(
+                            "jacorb.connection.client.connect_timeout", 0);
+            assertEquals(33099, timeout);
+        }
+        finally
+        {
+            deletePropertiesFile ("classes/testorbid9.properties");
+        }
+    }
+
+    /**
+     * <code>testSetORBId_10</code>
+     */
+    public void XXtestSetORBId_10() throws Exception
+    {
+        // Set ORBid to a string and ORB.orb_id to another string
+        try
+        {
+            createPropertiesFile("classes/testorbid10.properties",
+                                 "jacorb.connection.client.connect_timeout=33099");
+
+            Properties props = new Properties();
+            props.put("org.omg.CORBA.ORBClass", "org.jacorb.orb.ORB");
+            props.put("org.omg.CORBA.ORBSingletonClass",
+                    "org.jacorb.orb.ORBSingleton");
+            System.setProperty("ORBid", "testorbid10");
+
+            ORB orb = initORB(new String[] {}, props, "someOrbID");
+            assertTrue(orb != (ORB)null);
+            assertEquals("someOrbID", orb.id());
+
+            int timeout = ((org.jacorb.orb.ORB) orb).getConfiguration()
+                    .getAttributeAsInteger(
+                            "jacorb.connection.client.connect_timeout", 0);
+            assertEquals(33099, timeout);
+        }
+        finally
+        {
+            deletePropertiesFile ("classes/testorbid10.properties");
+        }
+    }
+
+    /**
+     * Convenience method for creating an os-dependent filename relative
+     * to the test home directory.
+     */
+    private String getConfigFilename (String name)
+    {
+        return TestUtils.osDependentPath
+        (
+            TestUtils.testHome() + "/" + name
+        );
+    }
+
+    private void createPropertiesFile (String name, String content) throws IOException
+    {
+        File file = new File(TestUtils.testHome(), name);
+        File parent = file.getParentFile();
+
+        parent.mkdirs();
+        PrintWriter out = new PrintWriter (new FileWriter (file));
+        out.println (content);
+        out.close();
+    }
+
+    private void deletePropertiesFile (String name)
+    {
+        File f = new File(TestUtils.testHome(), name);
+        f.delete();
+    }
 }

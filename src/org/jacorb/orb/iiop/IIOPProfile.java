@@ -61,6 +61,7 @@ import org.omg.SSLIOP.TAG_SSL_SEC_TRANS;
 
 /**
  * @author Andre Spiegel
+ * @version $Id$
  */
 public class IIOPProfile
     extends org.jacorb.orb.etf.ProfileBase implements Cloneable
@@ -333,6 +334,25 @@ public class IIOPProfile
     }
 
     /**
+     * Method for use by IIOPListener to add all possible network addresses
+     * that are listened on by a wildcard listener.
+     * @param config
+     * @throws ConfigurationException
+     */
+    public void addAllWildcardAddresses (org.jacorb.config.Configuration config) throws ConfigurationException
+    {
+        if (primaryAddress == null)
+        {
+            return;
+        }
+
+        if (primaryAddress.isWildcard())
+        {
+                addNetworkAddresses();
+            }
+        }
+
+    /**
      * Adds all the network addresses of this machine to the profile
      * as TAG_ALTERNATE_IIOP_ADDRESS.  This excludes loopback addresses,
      * and the address that is already used as the primary address.
@@ -352,22 +372,31 @@ public class IIOPProfile
                      Collections.list (ni.getInetAddresses()))
                 {
                     if (!addr.isLoopbackAddress() &&
+                            !addr.isLinkLocalAddress() &&
                         !addr.getHostAddress().equals (primaryAddress.getIP()))
                     {
                         IIOPAddress iaddr = new IIOPAddress();
                         iaddr.configure (configuration);
+                        String ipaddr = addr.toString().substring(1);
                         if (addr instanceof Inet4Address)
                         {
-                            iaddr.fromString (addr.toString().substring(1) + ":"
+                            iaddr.fromString (ipaddr + ":"
                                               + primaryAddress.getPort());
                         }
                         else if (addr instanceof Inet6Address)
                         {
+                            String ipv6 = ipaddr;
+                            int zoneid_delim = ipv6.indexOf('%');
+                            if (zoneid_delim > 0)
+                            {
+                                    ipv6 = ipv6.substring(0, zoneid_delim);
+                            }
                             iaddr.fromString (
-                               "[" + addr.toString().substring(1) + "]:"
+                               "[" + ipv6 + "]:"
                                + primaryAddress.getPort()
                             );
                         }
+
                         components.addComponent (TAG_ALTERNATE_IIOP_ADDRESS.value,
                                                  iaddr.toCDR());
                     }

@@ -152,6 +152,10 @@ public final class RequestController
     {
         synchronized (queueLog)
         {
+            if (logger.isDebugEnabled())
+            {
+                logger.debug("call queueLog.notifyAll()");
+            }
             queueLog.notifyAll();
         }
     }
@@ -347,10 +351,18 @@ public final class RequestController
     void queueRequest(ServerRequest request)
         throws ResourceLimitReachedException
     {
+        if (logger.isDebugEnabled())
+        {
+            logger.debug("call requestQueue.add(request)");
+        }
         requestQueue.add(request);
 
         if (requestQueue.size() == 1)
         {
+            if (logger.isDebugEnabled())
+            {
+                logger.debug("call continueToWork()");
+            }
             continueToWork();
         }
     }

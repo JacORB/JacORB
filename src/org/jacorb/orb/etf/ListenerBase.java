@@ -83,6 +83,19 @@ public abstract class ListenerBase
 
     private boolean terminated = false;
 
+    protected ListenEndpoint listenEndpoint = null;
+
+    public ListenerBase()
+    {
+        super();
+    }
+
+    public ListenerBase(ListenEndpoint listenEndpoint)
+    {
+        super();
+        this.setListenEndpoint(listenEndpoint);
+    }
+
     public void configure(Configuration config)
         throws ConfigurationException
     {
@@ -91,6 +104,10 @@ public abstract class ListenerBase
         orb = configuration.getORB();
 
         logger = configuration.getLogger(configuration.getLoggerName(this.getClass()));
+
+        if (listenEndpoint == null) {
+            listenEndpoint = orb.getTransportManager().getDefaultEndpoints();
+        }
     }
 
     /**
@@ -237,5 +254,23 @@ public abstract class ListenerBase
         public abstract void run();
 
         public abstract void terminate();
+    }
+
+    /**
+     * Assigns a listen end point to this listener
+     * @param listenEndpoint
+     */
+    public void setListenEndpoint (ListenEndpoint listenEndpoint)
+    {
+        this.listenEndpoint = listenEndpoint;
+    }
+
+    /**
+     * Returns the listen endpoint of this listener.
+     * @return
+     */
+    public ListenEndpoint getListenEndpoint ()
+    {
+        return listenEndpoint;
     }
 }

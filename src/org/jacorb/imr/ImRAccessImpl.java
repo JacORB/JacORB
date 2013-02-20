@@ -20,10 +20,11 @@
  */
 
 package org.jacorb.imr;
-
+import java.util.List;
 import org.jacorb.imr.RegistrationPackage.DuplicatePOAName;
 import org.jacorb.imr.RegistrationPackage.IllegalPOAName;
 import org.jacorb.orb.iiop.IIOPAddress;
+import org.omg.ETF.Profile;
 import org.omg.CORBA.INTERNAL;
 
 /**
@@ -155,6 +156,14 @@ public class ImRAccessImpl
         }
     }
 
+    public void registerPOA( org.jacorb.orb.ORB orb,
+                             org.jacorb.poa.POA poa,
+                             org.jacorb.orb.etf.ProtocolAddressBase address,
+                             String implname)
+        throws INTERNAL
+    {
+    }
+
     public void setServerDown( String name )
         throws INTERNAL
     {
@@ -167,5 +176,22 @@ public class ImRAccessImpl
             throw new INTERNAL( "The ImR replied that a server with name " +
                                 name + " is unknown: " + e.toString() );
         }
+    }
+
+    public void setServerDown( org.jacorb.orb.ORB orb,
+                               org.jacorb.poa.POA poa,
+                               String implname )
+        throws INTERNAL
+    {
+    }
+
+    public String getImRCorbaloc()
+    {
+        return null;
+    }
+
+    public List<Profile> getImRProfiles()
+    {
+        return null;
     }
 }

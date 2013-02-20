@@ -95,6 +95,9 @@ jacorb.orb.print_version=off
 # Set this option to true to include a thread ID value in the log messasge.
 #jacorb.log.showThread=false
 
+# Display class and method informaton in log messages.
+#jacorb.log.showSrcInfo=false
+
 # Where does output go? Terminal is default. If the filename includes
 # "$implname", that is replaced with the value of jacorb.implname, if
 # that is defined, or "jacorb" otherwise.
@@ -581,8 +584,17 @@ org.omg.PortableInterceptor.ORBInitializerClass.standard_init=org.jacorb.orb.sta
 #   Implementation Repository Configuration   #
 #                                             #
 ###############################################
-# Switch off to avoid contacting the ImR on every server start-up
+# Switch off to avoid contacting the ImR on every server start-up and when the
+# targeted ImR is the TAO ImR.  When use_imr is "on", the "use_tao_imr" must be
+# set to "off" and vise versa.
 jacorb.use_imr=off
+
+# Switch off to avoid contacting the TAO ImR on every server start-up and when the
+# targeted ImR is the JacORB ImR.  When use_tao_imr is "on", the "use_imr" must be
+# set to "off" and vise versa.  When a TAO ImR is used, except for the property
+# "implname" and "ORBInitRef.ImplementationRepository" option, all other subsequence
+#  property settings for the native ImR are not applicable toward the TAO ImR.
+jacorb.use_tao_imr=off
 
 # Switch off if you don't want to write the ImR address into server IORs
 # (ignored if jacorb.use_imr=off)

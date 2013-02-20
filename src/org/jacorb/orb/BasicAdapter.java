@@ -41,6 +41,7 @@ import org.omg.CORBA.INTERNAL;
 import org.omg.ETF.Connection;
 import org.omg.ETF.Factories;
 import org.omg.ETF.Listener;
+import org.omg.ETF.Profile;
 import org.slf4j.Logger;
 
 /**
@@ -52,7 +53,7 @@ public class BasicAdapter
     extends org.omg.ETF._HandleLocalBase
     implements Configurable
 {
-    private final List listeners = new ArrayList();
+    private final List<Listener> listeners = new ArrayList<Listener>();
 
     private MessageReceptorPool receptor_pool = null;
     private final ServerRequestListener request_listener;
@@ -94,18 +95,18 @@ public class BasicAdapter
         reply_listener = new NoBiDirServerReplyListener();
 
         // create all Listeners
-        for (Iterator i = getListenerFactories().iterator(); i.hasNext();)
+        for (Iterator<Factories> i = getListenerFactories().iterator(); i.hasNext();)
         {
-             Factories factories = (Factories)i.next();
+             Factories factories = i.next();
              Listener listener = factories.create_listener (null, (short)0, (short)0);
              listener.set_handle(this);
              listeners.add (listener);
         }
 
         // activate them
-        for (Iterator i = listeners.iterator(); i.hasNext();)
+        for (Iterator<Listener> i = listeners.iterator(); i.hasNext();)
         {
-            ((Listener)i.next()).listen();
+            i.next().listen();
         }
     }
 
@@ -114,11 +115,10 @@ public class BasicAdapter
      * Returns a List of Factories for all transport plugins that
      * should listen for incoming connections.
      */
-    private List getListenerFactories()
+    private List<Factories> getListenerFactories()
     {
-        List result = new ArrayList();
-        List tags =
-            configuration.getAttributeList("jacorb.transport.server.listeners");
+        List<Factories> result = new ArrayList<Factories>();
+        List<String> tags = configuration.getAttributeList("jacorb.transport.server.listeners");
 
         if (tags.isEmpty())
         {
@@ -131,9 +131,9 @@ public class BasicAdapter
                 tags.remove("off");
             }
 
-            for (Iterator i = tags.iterator(); i.hasNext();)
+            for (Iterator<String> i = tags.iterator(); i.hasNext();)
             {
-                String s = ((String)i.next());
+                String s = i.next();
                 int tag = -1;
                 try
                 {
@@ -169,12 +169,12 @@ public class BasicAdapter
      * safely be modified by the caller (e.g. add an object key, patch the
      * address, stuff it into an IOR, etc.).
      */
-    public List getEndpointProfiles()
+    public List<Profile> getEndpointProfiles()
     {
-        List result = new ArrayList();
-        for (Iterator i = listeners.iterator(); i.hasNext();)
+        List<Profile> result = new ArrayList<Profile>();
+        for (Iterator<Listener> i = listeners.iterator(); i.hasNext();)
         {
-            Listener listener = (Listener)i.next();
+            Listener listener = i.next();
             result.add(listener.endpoint());
         }
         return result;
@@ -349,9 +349,9 @@ public class BasicAdapter
 
     public void stopListeners()
     {
-        for (Iterator i = listeners.iterator(); i.hasNext();)
+        for (Iterator<Listener> i = listeners.iterator(); i.hasNext();)
         {
-            ((Listener)i.next()).destroy();
+            i.next().destroy();
         }
         receptor_pool.shutdown();
     }
