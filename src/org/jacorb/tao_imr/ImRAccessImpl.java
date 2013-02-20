@@ -267,7 +267,7 @@ public class ImRAccessImpl
 
         // build the server name for registering with the ImR in the form
         // JACORB:<implName>/<qualified POA name>
-        String theName = new String("JACORB:" + implname + "/" + this.poa_._getQualifiedName());
+        String theName = "JACORB:" + implname + "/" + this.poa_._getQualifiedName();
 
         try
         {
