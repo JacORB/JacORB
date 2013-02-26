@@ -447,7 +447,6 @@ using BUILD_NUMBER:   ${BuildNo}
             <class location="${basedir}/classes/org/jacorb/poa"/>
             <class location="${basedir}/classes/org/jacorb/security"/>
             <class location="${basedir}/classes/org/jacorb/util"/>
-            <class location="${basedir}/classes/ImplementationRepository"/>
             <class location="${basedir}/classes/org/jacorb/tao_imr"/>
         </findBugs>
     </target>
