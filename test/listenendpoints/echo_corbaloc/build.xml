@@ -20,10 +20,12 @@
    <target name="all" depends="init,idl">
 	<javac srcdir="${dirs.base}/test/listenendpoints/echo_corbaloc/generated"
                destdir="${classdir}"
+	    	debug="true" includeantruntime="false"
 	       includes="test/listenendpoints/echo_corbaloc/*.java"
 	        />
 	<javac srcdir="${dirs.base}"
                destdir="${classdir}"
+               debug="true" includeantruntime="false"
 	       includes="test/listenendpoints/echo_corbaloc/*.java"
 	        />
    </target>

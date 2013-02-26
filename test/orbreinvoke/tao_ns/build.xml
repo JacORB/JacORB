@@ -25,10 +25,12 @@
    <target name="compile">
         <javac srcdir="${dirs.base}/test/orbreinvoke/tao_ns/generated"
                destdir="${classdir}"
+            	debug="true" includeantruntime="false"
                 includes="test/orbreinvoke/tao_ns/*.java"
 	        />
         <javac srcdir="${dirs.base}"
                destdir="${classdir}"
+        		debug="true" includeantruntime="false"
                 includes="test/orbreinvoke/tao_ns/*.java"
 	        />
    </target>
