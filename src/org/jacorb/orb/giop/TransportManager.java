@@ -432,12 +432,6 @@ public class TransportManager
         {
             defaultEndpoint.setProtocol(address.getProtocol());
         }
-        else if (ssl_address != null)
-        {
-            defaultEndpoint.setProtocol(ssl_address.getProtocol());
-        }
-
-
     }
 
     /**
@@ -551,7 +545,7 @@ public class TransportManager
 
                                 if(opt_str.equalsIgnoreCase("ssl_port"))
                                 {
-                                    ssl_port = new String(opt_value);
+                                    ssl_port = opt_value;
                                 }
                                 else
                                 {
