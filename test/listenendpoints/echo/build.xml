@@ -24,6 +24,7 @@
 	        />
 	<javac srcdir="${dirs.base}"
                destdir="${classdir}"
+		   debug="true" includeantruntime="false"
 	       includes="test/listenendpoints/echo/*.java"
 	        />
    </target>
