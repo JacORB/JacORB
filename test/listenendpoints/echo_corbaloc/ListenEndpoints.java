@@ -198,7 +198,8 @@ public class ListenEndpoints {
                 throw new Exception("Invalid protocol address string: " + address_str);
             }
         }
-        else {
+        else
+        {
             throw new Exception("Invalid protocol address string (is null)");
         }
 

@@ -233,7 +233,7 @@ public class IIOPAddress
 
     public void setProtocol(String protocol)
     {
-        this.protocol = new String (protocol);
+        this.protocol = protocol;
     }
 
     public String getProtocol()
