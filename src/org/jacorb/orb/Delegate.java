@@ -1639,8 +1639,7 @@ public final class Delegate
     {
         if (randomDelay == null)
         {
-            randomDelay = new Random();
-            randomDelay.setSeed(10000);
+            randomDelay = new Random(10000);
         }
 
         // delay time will be between 1-3 seconds
@@ -1650,7 +1649,8 @@ public final class Delegate
         {
             Thread.sleep(r);
         }
-        catch (Exception e) {
+        catch (Exception e)
+        {
             // ignore
         }
     }
@@ -3047,7 +3047,8 @@ public final class Delegate
             inconsistent_policies.value = new Policy[ 0 ];
             return false;
         }
-        else {
+        else
+        {
             synchronized ( bind_sync )
             {
                 try
