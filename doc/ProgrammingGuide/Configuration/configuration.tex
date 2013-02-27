@@ -436,6 +436,78 @@ streams. Note, altering the information within the transport is undefined. The
 mutateIncoming operation will be called for CDRInputStream operations and the
 mutateOutgoing for CDROuputStream operations.
 
+\subsection{Listen Endpoints}
+\label {Listen Endpoints}
+The command-line option -ORBListenEndpoints can be used to instruct a server
+ORB to listen for requests on network interfaces specified by endpoints.
+It is implemented specifically for the IIOP protocol (iiop and ssliop), and
+it will override the network configuration properties in the property file.
+
+An {\tt -ORBListenEndpoints} endpoint specification has the form:
+\begin{verbatim}
+    -ORBListenEndpoints endpoint
+\end{verbatim}
+And, the endpoint has the form:
+An endpoint specification has the form:
+\begin{verbatim}
+     protocol://V.v@addr1,...,W.w@addrN
+\end{verbatim}
+where V.v and W.w are optional protocol versions for each address. An example
+of an IIOP endpoint is:
+\begin{verbatim}
+     iiop://hostname:port
+\end{verbatim}
+
+Sets of endpoints may be specified using multiple {\tt -ORBListenEndpoints}
+options or by delimiting endpoints with a semi-colon (;). For example,
+\begin{verbatim}
+    -ORBListenEndpoints iiop://localhost:9999 -ORBListenEndpoints uiop:///tmp/myref
+\end{verbatim}
+is equivalent to:
+\begin{verbatim}
+    -ORBListenEndpoints 'iiop://localhost:9999;uiop:///tmp/mylocalsock'
+\end{verbatim}
+
+Notice the single quotes (') in the latter option specification. Single quotes
+are needed to prevent the shell from interpreting text after the semi-colon
+as another command to run.
+
+If an endpoint is specified having the host omitted as the following:
+\begin{verbatim}
+    -ORBListenEndpoints iiop://:32000
+\end{verbatim}
+then a wildcard endpoint will be created for the specified protocol where the
+server ORB will listen for requests on all listenable network interfaces.
+
+If an endpoint is specified having the port number omitted as the following:
+\begin{verbatim}
+    -ORBListenEndpoints iiop://fujisan:
+\end{verbatim}
+then an endpoint will be created on the host named fujisan having the port chosen
+automatically.
+
+\subsubsection{IIOP Endpoints}
+IIOP endpoints have the form:
+\begin{verbatim}
+    -ORBListenEndpoints iiop://V.v@hostname1:port1,...,W.w@hostname2:port2
+\end{verbatim}
+where "V.v" and "W.w" are the IIOP protocol versions associated with the given
+address (hostname:port pair). Currently supported versions are 1.0, 1.1,
+and 1.2.  For example,
+\begin{verbatim}
+    -ORBListenEndpoints iiop://inuyama:12345
+\end{verbatim}
+would instructs the server ORB to listen on the host named inuyama at port 12345.
+
+\subsubsection{SSLIOP Endpoints}
+An SSLIOP endpoint is an extension of the IIOP endpoint. For example,
+\begin{verbatim}
+    -ORBListenEndpoints iiop://inuyama:12345/ssl_port=44444
+\end{verbatim}
+means that an IIOP endpoint would be opened on port 12345 and an SSLIOP on
+port 44444 on the host inuyama.  Please note that the protocol label in the
+above example is \emph{iiop} and not \emph{ssliop}.
+
 \subsection{Loading Classes and Resources}
 \label{tccl}
 JacORB has two different policies it may use to load classes and resources. By default it will attempt to load
