@@ -212,6 +212,10 @@ public class IIOPAddress
                 {
                     // host = InetAddress.getByName(null); //localhost
                     host = InetAddress.getLocalHost();
+                    if (logger.isWarnEnabled())
+                    {
+                        logger.warn ("init_host, " + "default to localhost of " + host.toString() );
+                    }
                 }
                 catch (UnknownHostException ex2)
                 {
