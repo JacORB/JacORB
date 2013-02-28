@@ -1780,6 +1780,10 @@ public final class ORB
         }
 
         orb_id = id;
+        if (id == null)
+        {
+            orb_id = "";
+        }
         arguments = args;
 
         Configuration orbsingletonConfig = ((ORBSingleton)org.omg.CORBA.ORBSingleton.init ()).configuration;
@@ -1936,6 +1940,10 @@ public final class ORB
         }
 
         orb_id = id;
+        if (id == null)
+        {
+            orb_id = "";
+        }
 
         internalInit();
     }
