@@ -52,8 +52,9 @@ public class AlternateProfileTest extends ClientServerTestCase
     protected IIOPAddressServer server = null;
 
     private static final String CORRECT_HOST = "127.0.0.1";
-    private static final String WRONG_HOST   = "10.0.1.223"; //"194.138.122.114"
-    private static final String WRONG_HOST_2 = "10.0.1.123"; //"147.54.135.239"
+    // pick really bogus host addresses
+    private static final String WRONG_HOST   = "255.255.255.253";
+    private static final String WRONG_HOST_2 = "255.255.255.254";
 
     private static final int CORRECT_PORT = 50000;
     private static final int WRONG_PORT   = 50001;
@@ -100,6 +101,7 @@ public class AlternateProfileTest extends ClientServerTestCase
         server_props.setProperty
             ("org.omg.PortableInterceptor.ORBInitializerClass.IIOPProfileORBInitializer",
              "org.jacorb.test.orb.IIOPProfileORBInitializer");
+        server_props.setProperty ("OAIAddr", CORRECT_HOST);
         server_props.setProperty ("OAPort", Integer.toString(CORRECT_PORT));
 
         // If security is not disabled it will not use the above host/port
