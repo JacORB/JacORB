@@ -315,6 +315,11 @@ public final class ORB
             configuration.getAttribute("jacorb.imr.ior_proxy_address", null);
 
         imrProxyAddress = createAddress(host, port, address);
+        if (useTaoIMR && imrProxyAddress  != null)
+        {
+            // ignore IMR proxy setting when TAO ImR is used
+            imrProxyAddress = null;
+        }
 
         host =
             configuration.getAttribute("jacorb.ior_proxy_host", null);
@@ -324,6 +329,11 @@ public final class ORB
             configuration.getAttribute("jacorb.ior_proxy_address", null);
 
         iorProxyAddress = createAddress(host, port, address);
+        if (useTaoIMR && iorProxyAddress  != null)
+        {
+            // ignore IOR proxy setting when TAO ImR is used
+            iorProxyAddress = null;
+        }
 
         failOnORBInitializerError = configuration.getAttributeAsBoolean("jacorb.orb_initializer.fail_on_error", false);
 
@@ -1362,7 +1372,9 @@ public final class ORB
             else if (useTaoIMR)
             {
                 profile.patchPrimaryAddress(imr.getImRAddress());
-                profile.patchPrimaryAddress(imrProxyAddress);
+
+                // Do not allow patching ImR proxy address for TAO ImR
+                // because it might have multiple enpoints.
             }
         }
         else
