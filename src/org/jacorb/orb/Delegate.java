@@ -41,12 +41,9 @@ import org.jacorb.orb.giop.RequestOutputStream;
 import org.jacorb.orb.iiop.IIOPProfile;
 import org.jacorb.orb.miop.MIOPProfile;
 import org.jacorb.orb.policies.PolicyManager;
-import org.jacorb.orb.portableInterceptor.ClientInterceptorHandler;
 import org.jacorb.orb.portableInterceptor.ClientInterceptorIterator;
 import org.jacorb.orb.portableInterceptor.ClientRequestInfoImpl;
-import org.jacorb.orb.portableInterceptor.DefaultClientInterceptorHandler;
 import org.jacorb.orb.portableInterceptor.InterceptorManager;
-import org.jacorb.orb.portableInterceptor.NullClientInterceptorHandler;
 import org.jacorb.orb.portableInterceptor.ServerInterceptorIterator;
 import org.jacorb.orb.portableInterceptor.ServerRequestInfoImpl;
 import org.jacorb.orb.util.CorbaLoc;
@@ -2138,6 +2135,9 @@ public final class Delegate
                                                    boolean responseExpected )
     {
         orb.perform_work();
+        
+        UtcT requestEndTime = null;
+        UtcT replyEndTime = null;
 
         Stack<Map<INVOCATION_KEY, UtcT>> invocationStack = invocationContext.get ();
         Map<INVOCATION_KEY, UtcT> currentCtxt = null;
@@ -2152,11 +2152,12 @@ public final class Delegate
              * request. It will be cleared on return from the
              * interceptor call. This caters for situations where embedded requests are made
              */
-            if (currentCtxt.containsKey (INVOCATION_KEY.INTERCEPTOR_CALL) ||
-                currentCtxt.containsKey (INVOCATION_KEY.SERVANT_PREINVOKE))
-            {
-                clearCurrentContext = false;
-            }
+            clearCurrentContext = !currentCtxt.containsKey (INVOCATION_KEY.INTERCEPTOR_CALL) &&
+                !currentCtxt.containsKey (INVOCATION_KEY.SERVANT_PREINVOKE);
+        }
+        else
+        {
+          clearCurrentContext = true;
         }
 
         if (currentCtxt == null)
@@ -2166,8 +2167,11 @@ public final class Delegate
             invocationStack.push (currentCtxt);
         }
 
-        UtcT requestEndTime = currentCtxt.get (INVOCATION_KEY.REQUEST_END_TIME);
-        UtcT replyEndTime = currentCtxt.get (INVOCATION_KEY.REPLY_END_TIME);
+        if ( !clearCurrentContext )
+        {
+            requestEndTime = currentCtxt.get (INVOCATION_KEY.REQUEST_END_TIME);
+            replyEndTime = currentCtxt.get (INVOCATION_KEY.REPLY_END_TIME);
+        }
 
         if (!disableClientOrbPolicies)
         {
