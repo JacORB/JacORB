@@ -1,47 +1,50 @@
 <?xml version="1.0"?>
 
-<project name="listenendpoints" default="all" basedir="../../..">
-
-    <import file="../../../etc/common.xml"/>
+<project name="listenendpoints" default="all" basedir=".">
 
   <!-- ==================================================== -->
   <!--                   build file                         -->
   <!-- ==================================================== -->
 
 
-    <target name="init">
-	<property name="dirs.base" value="${basedir}"/>
-	<property name="classdir" value="${dirs.base}/classes"/>
-	<property name="lib" value="${dirs.base}/lib"/>
-	<property name="include" value="${dirs.base}/idl"/>
-	<property name="idlflags" value="-I${include}/omg -ir  -d ${dirs.base}/test/listenendpoints/echo/generated"/>
+  <target name="init" >
+        <property name="jacorb.dir" value="../../.." />
+	<property name="build.dir" value="${basedir}/build"/>
+	<property name="classes.dir" value="${build.dir}/classes"/>
+
+        <path id="jacorb.classpath" >
+            <pathelement location="${jacorb.dir}/classes" />
+            <fileset dir="${jacorb.dir}/lib">
+                <include name="*.jar" />
+            </fileset>
+        </path>
+
+        <taskdef name="jacidl" classname="org.jacorb.idl.JacIDL" classpathref="jacorb.classpath"/>
    </target>
 
    <target name="all" depends="init,idl">
-	<javac srcdir="${dirs.base}/test/listenendpoints/echo/generated"
-               destdir="${classdir}"
-	       includes="test/listenendpoints/echo/*.java"
-	        />
-	<javac srcdir="${dirs.base}"
-               destdir="${classdir}"
-		   debug="true" includeantruntime="false"
-	       includes="test/listenendpoints/echo/*.java"
-	        />
+        <mkdir dir="${classes.dir}"/>
+
+	<javac destdir="${classes.dir}"
+	       debug="true"
+               includeantruntime="false">
+            <src path="${basedir}/src"/>
+            <src path="${basedir}/build/generated"/>
+            <classpath refid="jacorb.classpath"/>
+        </javac>
    </target>
 
    <target name="idl" depends="init">
-        <java classname="org.jacorb.idl.parser"
-              fork="yes"
-              classpath="${lib}/idl.jar;${java.class.path}">
-
-	      <arg line="${idlflags}
-	      ${dirs.base}/test/listenendpoints/echo/server.idl"/>
-         </java>
+       <jacidl generateir="true"
+               srcdir="${basedir}/idl"
+               includepath="${jacorb.dir}/idl/omg"
+               destdir="${basedir}/build/generated">
+           <i2jpackage names=":org.jacorb"/>
+       </jacidl>
    </target>
 
-   <target name="clean">
-	   <deltree dir="${classdir}/test/listenendpoints/echo"/>
-	   <deltree dir="${dirs.base}/test/listenendpoints/echo/generated"/>
+   <target name="clean" depends="init">
+         <delete dir="${build.dir}"/>
    </target>
 
 </project>

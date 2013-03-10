@@ -43,7 +43,7 @@ import org.jacorb.test.common.ClientServerTestCase;
 import org.jacorb.test.common.CommonSetup;
 import org.jacorb.test.common.JacORBTestSuite;
 import org.jacorb.test.common.TestUtils;
-import test.listenendpoints.echo_corbaloc.*;
+import org.jacorb.test.listenendpoints.echo_corbaloc.*;
 import org.omg.CORBA.ORB;
 import org.omg.CORBA.Object;
 
@@ -99,7 +99,7 @@ public class ListenEndpointsTest extends ClientServerTestCase
 
         ClientServerSetup setup =
             new ClientServerSetup (suite,
-                                   new String[] {"test.listenendpoints.echo_corbaloc.Server",
+                                   new String[] {"org.jacorb.test.listenendpoints.echo_corbaloc.Server",
                                                     "-testmode", "P", "-ORBListenEndpoints", LISTEN_EP},
                                    new String[] {""},
                                    clientProps,
@@ -111,7 +111,7 @@ public class ListenEndpointsTest extends ClientServerTestCase
 
     public void test_ping()
     {
-        test.listenendpoints.echo_corbaloc.EchoMessage server = null;
+        EchoMessage server = null;
         try
         {
             String ior = setup.getServerIOR();
@@ -123,7 +123,7 @@ public class ListenEndpointsTest extends ClientServerTestCase
             assertTrue("test_ping: corbaloc objID is malformed", corbalocObjId.equals("/EchoServer/EchoPOAP/EchoID") );
 
             server =
-                    test.listenendpoints.echo_corbaloc.EchoMessageHelper.narrow (setup.getServerObject());
+                    EchoMessageHelper.narrow (setup.getServerObject());
 
             server.ping();
 
@@ -140,11 +140,11 @@ public class ListenEndpointsTest extends ClientServerTestCase
 
     public void test_echo_simple()
     {
-        test.listenendpoints.echo_corbaloc.EchoMessage server = null;
+        EchoMessage server = null;
         try
         {
             server =
-                    test.listenendpoints.echo_corbaloc.EchoMessageHelper.narrow (setup.getServerObject());
+                    EchoMessageHelper.narrow (setup.getServerObject());
             String result = server.echo_simple();
             log("test_echo_simple: got resp from server: <" + result + ">");
             assertTrue("test_echo_simple: result is null", result != null);
@@ -163,7 +163,7 @@ public class ListenEndpointsTest extends ClientServerTestCase
 
     public void test_echo_string()
     {
-        test.listenendpoints.echo_corbaloc.EchoMessage server = null;
+        EchoMessage server = null;
         try
         {
             String ior = setup.getServerIOR();
@@ -175,7 +175,7 @@ public class ListenEndpointsTest extends ClientServerTestCase
             assertTrue("test_ping: corbaloc objID is malformed", corbalocObjId.equals("/EchoServer/EchoPOAP/EchoID") );
 
             server =
-                    test.listenendpoints.echo_corbaloc.EchoMessageHelper.narrow (setup.getServerObject());
+                    EchoMessageHelper.narrow (setup.getServerObject());
 
             String outMsg = new String(Integer.toString(1)
                     + "test_echo_string is hailing server with IOR <" + ior + ">");
@@ -206,7 +206,7 @@ public class ListenEndpointsTest extends ClientServerTestCase
 
     public void test_echo_wide()
     {
-        test.listenendpoints.echo_corbaloc.EchoMessage server = null;
+        EchoMessage server = null;
         try
         {
             String ior = setup.getServerIOR();
@@ -218,7 +218,7 @@ public class ListenEndpointsTest extends ClientServerTestCase
             assertTrue("test_ping: corbaloc objID is malformed", corbalocObjId.equals("/EchoServer/EchoPOAP/EchoID") );
 
             server =
-                    test.listenendpoints.echo_corbaloc.EchoMessageHelper.narrow (setup.getServerObject());
+                    EchoMessageHelper.narrow (setup.getServerObject());
 
             String outMsg = new String(Integer.toString(1) + "test_echo_wide is hailing server with IOR <" + ior + ">");
             long tms_out = System.currentTimeMillis();
@@ -271,13 +271,13 @@ public class ListenEndpointsTest extends ClientServerTestCase
                 props.setProperty(CommonSetup.JACORB_REGRESSION_DISABLE_IMR, "true");
 
                 org.omg.CORBA.ORB orb = org.omg.CORBA.ORB.init(new String[0], props);
-                test.listenendpoints.echo_corbaloc.EchoMessage server = null;
+                EchoMessage server = null;
                 try
                 {
                     assertTrue(orb instanceof org.jacorb.orb.ORB);
 
                     server =
-                            test.listenendpoints.echo_corbaloc.EchoMessageHelper.narrow(orb.string_to_object(endpoint));
+                            EchoMessageHelper.narrow(orb.string_to_object(endpoint));
 
                     // log("test_correct_port_1: ping endpoint: " + endpoint);
                     int cnt = send_msg(10, "test_correct_port_1", "hailing endpoint " + endpoint, server);
@@ -327,13 +327,13 @@ public class ListenEndpointsTest extends ClientServerTestCase
                 props.setProperty(CommonSetup.JACORB_REGRESSION_DISABLE_IMR, "true");
 
                 org.omg.CORBA.ORB orb = org.omg.CORBA.ORB.init(new String[0], props);
-                test.listenendpoints.echo_corbaloc.EchoMessage server = null;
+                EchoMessage server = null;
                 try
                 {
                     assertTrue(orb instanceof org.jacorb.orb.ORB);
 
                     server =
-                            test.listenendpoints.echo_corbaloc.EchoMessageHelper.narrow(orb.string_to_object(endpoint));
+                            EchoMessageHelper.narrow(orb.string_to_object(endpoint));
 
                     // log("test_correct_port_1: ping endpoint: " + endpoint);
                     int cnt = send_msg(10, "test_correct_port_2", "hailing endpoint " + endpoint, server);
@@ -358,7 +358,7 @@ public class ListenEndpointsTest extends ClientServerTestCase
     }
 
     private int send_msg(int ntimes, String testName, String msg,
-            test.listenendpoints.echo_corbaloc.EchoMessage s)
+            EchoMessage s)
     {
 
         String echoMsg = new String ((testName != null ? ": " + testName : "")
@@ -414,14 +414,14 @@ public class ListenEndpointsTest extends ClientServerTestCase
                 props.setProperty("org.omg.CORBA.ORBSingletonClass", "org.jacorb.orb.ORBSingleton");
 
                 org.omg.CORBA.ORB orb = org.omg.CORBA.ORB.init(new String[0], props);
-                test.listenendpoints.echo_corbaloc.EchoMessage server = null;
+                EchoMessage server = null;
 
                 try
                 {
                     assertTrue(orb instanceof org.jacorb.orb.ORB);
 
                     server =
-                            test.listenendpoints.echo_corbaloc.EchoMessageHelper.narrow(orb.string_to_object(endpoint));
+                            EchoMessageHelper.narrow(orb.string_to_object(endpoint));
 
                     //log("test_wrong_port: ping endpoint: " + endpoint);
                     int cnt = 0;
@@ -473,14 +473,14 @@ public class ListenEndpointsTest extends ClientServerTestCase
                 props.setProperty("org.omg.CORBA.ORBSingletonClass", "org.jacorb.orb.ORBSingleton");
 
                 org.omg.CORBA.ORB orb = org.omg.CORBA.ORB.init(new String[0], props);
-                test.listenendpoints.echo_corbaloc.EchoMessage server = null;
+                EchoMessage server = null;
 
                 try
                 {
                     assertTrue(orb instanceof org.jacorb.orb.ORB);
 
                     server =
-                            test.listenendpoints.echo_corbaloc.EchoMessageHelper.narrow(orb.string_to_object(endpoint));
+                            EchoMessageHelper.narrow(orb.string_to_object(endpoint));
                     log("test_loopback: ping endpoint: " + endpoint);
                     int cnt = 0;
                     cnt = send_msg(5, "test_loopback", "hailing server endpoint " + endpoint, server);

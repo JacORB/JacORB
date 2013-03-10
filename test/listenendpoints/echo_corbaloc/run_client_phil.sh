@@ -11,12 +11,12 @@ export JACORB_HOME
 PATH=${PATH}
 CLASSPATH=${CLASSPATH}
 export PATH=${PATH}:${JACORB_HOME}/bin
-export CLASSPATH=${CLASSPATH}:${JACORB_HOME}/classes
+export CLASSPATH=${CLASSPATH}:${bn}/build/classes
 echo "$bn: JACORB_HOME=<${JACORB_HOME}>"
 echo "$bn: CLASSPATH=<${CLASSPATH}>"
 echo "$bn: PATH=<${PATH}>"
 
-out_dir="${JACORB_HOME}/test/listenendpoints/echo_corbaloc/output"
+out_dir="${JACORB_HOME}/test/listenendpoints/echo_corbaloc/build/output"
 if [[ ! -d $out_dir ]] ; then
     mkdir -p $out_dir
 fi
@@ -42,7 +42,7 @@ corbaloc_str[9]="corbaloc:iiop:localhost:32999/EchoServer/EchoPOAP/EchoID"
 while (( i <= 9 )) ; do
     corbaloc=${corbaloc_str[i]}
     echo "$bn: starting client #${i} with ${corbaloc}"
-    $JACORB_HOME/bin/jaco test.listenendpoints.echo_corbaloc.Client \
+    $JACORB_HOME/bin/jaco org.jacorb.test.listenendpoints.echo_corbaloc.Client \
 	-ntimes 10 -nthreads 2 -delay 5000 \
 	-corbaloc ${corbaloc} \
 	-msg "Client #${i} on ${host} is hailing server using ${corbaloc}" > ${log_file}_${i}.log 2>&1 &

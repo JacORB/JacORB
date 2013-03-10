@@ -24,12 +24,8 @@ demo/*/build
 demo/*/generated
 demo/tao_imr/test/output
 
-test/interop/*/build
+test/**/*/build
 test/interop/*/generated
-test/listenendpoints/echo_corbaloc/generated
-test/listenendpoints/echo_corbaloc/output
-test/listenendpoints/echo/generated
-test/listenendpoints/echo/output
 test/orbreinvoke/jacorb_imr/generated
 test/orbreinvoke/jacorb_imr/output
 test/orbreinvoke/tao_imr/generated

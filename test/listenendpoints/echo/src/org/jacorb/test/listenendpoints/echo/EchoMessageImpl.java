@@ -1,4 +1,4 @@
-package test.listenendpoints.echo;
+package org.jacorb.test.listenendpoints.echo;
 
 import java.net.InetAddress;
 import org.omg.CORBA.*;

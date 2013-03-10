@@ -1,4 +1,4 @@
-package test.listenendpoints.echo_corbaloc;
+package org.jacorb.test.listenendpoints.echo_corbaloc;
 
 import java.util.List;
 import java.util.ArrayList;
@@ -68,4 +68,3 @@ public class Client
         }
     }
 }
-
