@@ -32,7 +32,7 @@ import org.omg.ETF.Profile;
  */
 public interface ProfileSelector
 {
-    Profile selectProfile(List profiles,
+    Profile selectProfile(List<Profile> profiles,
                           ClientConnectionManager ccm);
-    Profile selectNextProfile(List profiles, Profile lastProfile);
+    Profile selectNextProfile(List<Profile> profiles, Profile lastProfile);
 }

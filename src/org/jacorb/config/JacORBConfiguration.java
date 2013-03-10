@@ -188,17 +188,7 @@ public class JacORBConfiguration implements Configuration
             }
         }
 
-        if( props != null )
-        {
-            // props override system properties
-            String tmp = (String)props.get("ORBid");
-            if( tmp != null )
-            {
-                myOrbID = tmp;
-            }
-        }
-
-        // ORB args override props.
+        // ORB args override system props.
         if ( orbid != null)
         {
             myOrbID = orbid;

@@ -1741,11 +1741,11 @@ public final class ORB
 
     protected void set_parameters(String[] args, java.util.Properties props)
     {
-        String id = null;
+        String id = "";
 
         if( props != null )
         {
-            id = (String)props.get("ORBid");
+            id = (String)props.getProperty ("ORBid", "");
         }
         if ( args != null )
         {
@@ -1755,11 +1755,18 @@ public final class ORB
 
                 if (arg.equalsIgnoreCase("-ORBID"))
                 {
-                    // save orb_id before doing anything
-                    // orb_id should have already been set to default_orb_id by the constructor,
-                    // so if it will be updated only if an alternative id is provided.
-                    id = args[++i].trim();
-                    continue;
+                    if ( i+1 < args.length)
+                    {
+                        // save orb_id before doing anything
+                        // orb_id should have already been set to default_orb_id by the constructor,
+                        // so if it will be updated only if an alternative id is provided.
+                        id = args[++i].trim();
+                        break;
+                    }
+                    else
+                    {
+                        throw new INITIALIZE ("Invalid number of arguments to ORB.init");
+                    }
                 }
             }
         }
@@ -1780,10 +1787,6 @@ public final class ORB
         }
 
         orb_id = id;
-        if (id == null)
-        {
-            orb_id = "";
-        }
         arguments = args;
 
         Configuration orbsingletonConfig = ((ORBSingleton)org.omg.CORBA.ORBSingleton.init ()).configuration;
@@ -1920,10 +1923,11 @@ public final class ORB
     protected void set_parameters(java.applet.Applet app,
                                   java.util.Properties props)
     {
-        String id = null;
+        String id = "";
+        
         if( props != null )
         {
-            id = (String)props.get("ORBid");
+            id = (String)props.getProperty("ORBid", "");
         }
         try
         {
@@ -1940,10 +1944,6 @@ public final class ORB
         }
 
         orb_id = id;
-        if (id == null)
-        {
-            orb_id = "";
-        }
 
         internalInit();
     }

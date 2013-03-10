@@ -44,7 +44,7 @@ public class DefaultProfileSelector implements ProfileSelector
      * @param ccm
      * @return the first profile in the list if present
      */
-    public Profile selectProfile (List profiles, ClientConnectionManager ccm)
+    public Profile selectProfile (List<Profile> profiles, ClientConnectionManager ccm)
     {
         if (profiles == null || profiles.isEmpty())
         {
@@ -61,26 +61,24 @@ public class DefaultProfileSelector implements ProfileSelector
      * @return the next profile on the list that is next to lastProfile.
      * If lastProfile is null, the first profile will be returned regardless.
      */
-    public Profile selectNextProfile(List profileList, Profile lastProfile)
+    public Profile selectNextProfile(List<Profile> profileList, Profile lastProfile)
     {
         //sanity check
         if (profileList == null || profileList.isEmpty())
         {
-
             return null;
         }
 
         // locate the last profile in the list
-        Iterator iterator;
+        Iterator<Profile> iterator;
         for (iterator = profileList.iterator(); iterator.hasNext();)
         {
-            Profile profile_x = (Profile) iterator.next();
+            Profile profile_x = iterator.next();
 
             if (lastProfile != null)
             {
                 if (lastProfile.equals(profile_x))
                 {
-
                     break;
                 }
             }
@@ -95,16 +93,15 @@ public class DefaultProfileSelector implements ProfileSelector
         // return the next profile, which is next to the last profile.
         while (true)
         {
-            if (iterator == null || !iterator.hasNext())
+            if (!iterator.hasNext())
             {
                 iterator = profileList.iterator();
             }
-            Profile profile_y = (Profile) iterator.next();
+            Profile profile_y = iterator.next();
 
+            currentProfile = profile_y;
 
-                currentProfile = profile_y;
-
-                return profile_y;
+            return profile_y;
         }
     }
 
@@ -123,21 +120,19 @@ public class DefaultProfileSelector implements ProfileSelector
         //sanity check
         if (profileList == null || profileList.isEmpty())
         {
-
             return null;
         }
 
         // locate lastProfile in the list
-        Iterator iterator;
+        Iterator<Profile> iterator;
         for (iterator = profileList.iterator(); iterator.hasNext();)
         {
-            Profile profile_x = (Profile) iterator.next();
+            Profile profile_x = iterator.next();
 
             if (lastProfile != null)
             {
                 if (lastProfile.equals(profile_x))
                 {
-
                     break;
                 }
             }
@@ -154,11 +149,11 @@ public class DefaultProfileSelector implements ProfileSelector
         // entire list has been iternated.
         while (true)
         {
-            if (iterator == null || !iterator.hasNext())
+            if (!iterator.hasNext())
             {
                 iterator = profileList.iterator();
             }
-            Profile profile_y = (Profile) iterator.next();
+            Profile profile_y = iterator.next();
 
             if (originalProfile != null) {
                 if (!originalProfile.equals(profile_y) )
