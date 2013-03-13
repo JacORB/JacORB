@@ -54,6 +54,7 @@
          Fix for RMI-IIOP Exception marshalling.
          Fix for UCS-2 codeset encoding.
          setTcpNoDelay on server side as well.
+         Fix for deadlock (JBPAPP-10671).
     - POA
          Fix shutdown issue (jacorb-2.3.1-CORBA_OBJECT_NOT_EXIST.patch)
          Fix for AOM thread creation (jacorb-2.3.1-thread-per-request.patch)

@@ -3,7 +3,7 @@ package org.jacorb.util;
 /*
  *        JacORB - a free Java ORB
  *
- *   Copyright (C) 1997-2007 Gerald Brose.
+ *   Copyright (C) 1997-2013 Gerald Brose.
  *
  *   This library is free software; you can redistribute it and/or
  *   modify it under the terms of the GNU Library General Public
@@ -28,8 +28,8 @@ package org.jacorb.util;
  */
 public final class Version
 {
-    public static final String version = "2.3.2-jbossorg-4";
-    public static final String date = "17-Jan-2013";
+    public static final String version = "2.3.2-jbossorg-5";
+    public static final String date = "13-Mar-2013";
     public static final String longVersion = version + ", " + date;
     public static final String yearString = "1997-2013";
 }
