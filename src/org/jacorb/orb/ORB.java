@@ -1017,9 +1017,33 @@ public final class ORB
             if (imr != null)
             {
                 List<Profile> plist = imr.getImRProfiles();
+                int cnt = 0;
                 for (Iterator iter = plist.iterator(); iter.hasNext();)
                 {
                     IIOPProfile p = (IIOPProfile) iter.next();
+                    // add all IMR endpoints (except the first primary one)
+                    // to the alternate endpoint list as well
+                    if (cnt++ != 0)
+                    {
+                        try
+                        {
+                            IIOPAddress address =
+                                new IIOPAddress(
+                                    ((IIOPAddress) p.getAddress()).getOriginalHost(),
+                                    ((IIOPAddress) p.getAddress()).getPort()
+                                               );
+                            address.configure(configuration);
+                            list.addComponent (TAG_ALTERNATE_IIOP_ADDRESS.value,
+                                               address.toCDR());
+                        }
+                        catch (org.jacorb.config.ConfigurationException e)
+                        {
+                            logger.warn(
+                                "patchTagAlternateIIOPAddresses: got an exception, "
+                                + e.getMessage());
+                        }
+                    }
+
                     List<IIOPAddress> addrList = p.getAlternateAddresses();
                     if (addrList == null)
                     {
@@ -1033,8 +1057,6 @@ public final class ORB
                         {
                             continue;
                         }
-
-
 
                         try
                         {
