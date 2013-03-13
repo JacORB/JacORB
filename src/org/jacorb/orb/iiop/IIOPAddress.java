@@ -210,11 +210,11 @@ public class IIOPAddress
                 unresolvable = true;
                 try
                 {
-                    // host = InetAddress.getByName(null); //localhost
+                    // Attempt to fallback to some valid IP address.
                     host = InetAddress.getLocalHost();
                     if (logger.isWarnEnabled())
                     {
-                        logger.warn ("init_host, " + "default to localhost of " + host.toString() );
+                        logger.warn ("init_host, " + "default to " + host.toString() );
                     }
                 }
                 catch (UnknownHostException ex2)

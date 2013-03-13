@@ -121,15 +121,12 @@ public class ClientServerSetup extends TestSetup {
                               Properties optionalClientProperties,
                               Properties optionalServerProperties )
     {
-        this(test, new String[] {testServer},
-                new String[] {servantName},
-                optionalClientProperties,
-                optionalServerProperties);
+        this(test, testServer, new String[] { servantName}, optionalClientProperties, optionalServerProperties);
 
     }
 
     public ClientServerSetup( Test test,
-                              String[] testServerArgs,
+                              String testServer,
                               String[] servantArgs,
                               Properties optionalClientProperties,
                               Properties optionalServerProperties )
@@ -187,7 +184,7 @@ public class ClientServerSetup extends TestSetup {
             optionalServerProperties.putAll(imrProps);
         }
 
-        serverSetup = new ServerSetup(this, testServerArgs, servantArgs, optionalServerProperties);
+        serverSetup = new ServerSetup(this, testServer, servantArgs, optionalServerProperties);
         clientORBSetup = new ORBSetup(this, optionalClientProperties);
 
         this.servantName = servantArgs[0];

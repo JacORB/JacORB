@@ -34,11 +34,13 @@ import org.slf4j.Logger;
  */
 public class GOA extends org.jacorb.poa.POA implements org.omg.PortableGroup.GOA
 {
+   private static final long serialVersionUID = -806217810084253929L;
+
    // Active Group Map
    private AGM          agm;
 
    // Table for OIDs to port mappings
-   private Map          portTable;
+   private Map<byte[], MIOPProfile>          portTable;
 
    private MIOPListener listener  = null;
 
@@ -59,7 +61,7 @@ public class GOA extends org.jacorb.poa.POA implements org.omg.PortableGroup.GOA
    {
       super (orb, name, parent, manager, policies);
 
-      Factories f =  orb.getTransportManager ().getFactories (TAG_UIPMC.value);
+      Factories f = orb.getTransportManager ().getFactories (TAG_UIPMC.value);
       logger = orb.getConfiguration ().getLogger("jacorb.poa");
 
       if ( f != null)
@@ -67,7 +69,7 @@ public class GOA extends org.jacorb.poa.POA implements org.omg.PortableGroup.GOA
          listener = (MIOPListener)f.create_listener ((ProtocolProperties)null, 0, (short)0);
 
          agm = new AGM();
-         portTable = new HashMap ();
+         portTable = new HashMap<byte[], MIOPProfile> ();
       }
    }
 
@@ -280,15 +282,15 @@ public class GOA extends org.jacorb.poa.POA implements org.omg.PortableGroup.GOA
    {
       if (agm != null)
       {
-         ArrayList groupsKeys = agm.getGroupsWithMember (oid);
+         ArrayList<TGTCWrapper> groupsKeys = agm.getGroupsWithMember (oid);
 
          for (int i = 0; i < groupsKeys.size(); i++)
          {
-            if (agm.removeFromGroup (((TGTCWrapper)groupsKeys.get (i)).tcgtc, oid) == 0)
+            if (agm.removeFromGroup (groupsKeys.get (i).tcgtc, oid) == 0)
             {
                // If this member was last in the group remove the group
                // from the multicast listener
-               listener.removeGroupConnection (((MIOPProfile)portTable.get (oid)).getUIPMCProfile ().the_port);
+               listener.removeGroupConnection (portTable.get (oid).getUIPMCProfile ().the_port);
             }
          }
       }

@@ -99,9 +99,8 @@ public class ListenEndpointsTest extends ClientServerTestCase
 
         ClientServerSetup setup =
             new ClientServerSetup (suite,
-                                   new String[] {"org.jacorb.test.listenendpoints.echo_corbaloc.Server",
-                                                    "-testmode", "P", "-ORBListenEndpoints", LISTEN_EP},
-                                   new String[] {""},
+                                   "org.jacorb.test.listenendpoints.echo_corbaloc.Server",
+                                   new String[] {"-testmode", "P", "-ORBListenEndpoints", LISTEN_EP},
                                    clientProps,
                                    serverProps);
 

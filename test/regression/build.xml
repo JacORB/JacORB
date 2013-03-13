@@ -79,8 +79,8 @@
 
     <target name="build-all"
             depends="test-init,
-                     compile-test-listenendpoints,
                      idl,
+                     compile-test-listenendpoints,
                      compile-src,
                      compile-rmic,
                      compile-src-notification,

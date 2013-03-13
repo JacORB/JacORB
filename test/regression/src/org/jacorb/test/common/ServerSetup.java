@@ -89,22 +89,14 @@ public class ServerSetup extends TestSetup
 
     public ServerSetup(Test test, String testServer, String servantName, Properties optionalProperties)
     {
-        this(test, new String[]{testServer}, new String[]{servantName}, optionalProperties);
+        this(test, testServer, new String [] { servantName } , optionalProperties);
     }
 
-    public ServerSetup(Test test, String[] testServerArgs, String[] testServantArgs, Properties optionalProperties)
+    public ServerSetup(Test test, String testServer, String[] testServantArgs, Properties optionalProperties)
     {
         super(test);
 
-        if (testServerArgs != null && testServerArgs.length != 0)
-        {
-            this.testServer = getTestServer(testServerArgs[0]);
-        }
-        else
-        {
-            this.testServer = getTestServer(null);
-        }
-
+        this.testServer = getTestServer(testServer);
         this.servantName = testServantArgs[0];
 
         if (TestUtils.verbose)
@@ -127,14 +119,6 @@ public class ServerSetup extends TestSetup
         {
             serverArgs.add(testServantArgs[i]);
         }
-
-        if (testServerArgs != null) {
-            for (int i = 1; i < testServerArgs.length; i++)
-            {
-                serverArgs.add(testServerArgs[i]);
-            }
-        }
-
     }
 
     public ServerSetup(Test test, String servantName)
@@ -142,10 +126,6 @@ public class ServerSetup extends TestSetup
         this(test, null, servantName, null);
     }
 
-    public ServerSetup(Test test, String servantName, Properties optionalProps)
-    {
-        this(test, null, servantName, optionalProps);
-    }
 
     /**
      * how long should we wait for a testserver to come up?
