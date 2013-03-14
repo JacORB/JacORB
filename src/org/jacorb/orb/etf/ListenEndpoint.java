@@ -1,5 +1,7 @@
 package org.jacorb.orb.etf;
 
+import org.omg.IOP.TAG_UIPMC;
+
 /*
  *        JacORB - a free Java ORB
  *
@@ -20,12 +22,6 @@ package org.jacorb.orb.etf;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import org.jacorb.config.Configurable;
-import org.jacorb.config.Configuration;
-import org.jacorb.config.ConfigurationException;
-import org.jacorb.orb.etf.ProtocolAddressBase;
-import org.jacorb.util.ObjectUtil;
-import org.slf4j.Logger;
 
 /**
  *
@@ -38,42 +34,38 @@ import org.slf4j.Logger;
  * specified by the network properties OAAddress, OASSLAddress, OASSLPort,
  * OAPort and OAIAddr, and it will create an overriding list of endpoints that
  * are specified by the command-line -ORBListendEndpints argument.  The
- * TransportManager will then assign ListenEndpoint objects in the lists to
- * the listener factory, IIOPFactories, one object per factory type, which will
- * in turn create the listeners, IIOPListener, for the assigned ListenEndpoint
+ * TransportManager will then store the ListenEndpoint objects which will
+ * be used by BasicAdapter to update the listeners for the assigned ListenEndpoint
  * object.
  */
 public class ListenEndpoint
-    implements Configurable
 {
-    /** the configuration object  */
-    private org.jacorb.config.Configuration configuration = null;
+    public static enum Protocol
+    {
+        IIOP, MIOP, UIOP, NIOP, SSLIOP, DIOP;
 
-    /** configuration properties */
-    private Logger logger = null;
+        /**
+         * Maps an ETF Factory integer to a Protocol
+         *
+         * @param tag
+         * @return
+         */
+        public static Protocol mapProfileTag (Integer tag)
+        {
+            if (tag == TAG_UIPMC.value)
+            {
+                return MIOP;
+            }
+            else
+            {
+                return IIOP;
+            }
+        }
+    };
 
     private ProtocolAddressBase address = null;
     private ProtocolAddressBase sslAddress = null;
-    private String protocolId = null;
-    private int optionSSLPort = 0;
-
-    // for debugging purposes
-    // private String endpointArgs = null;
-    // private String sslEndpointArgs = null;
-    // private String[] optionsArgs = null;
-
-
-    /**
-     * Perform the initial configuration for the class
-     * @param myConfiguration
-     * @throws ConfigurationException
-     */
-    public void configure(Configuration myConfiguration)
-    throws ConfigurationException
-    {
-        configuration = myConfiguration;
-        logger = configuration.getLogger(configuration.getLoggerName(this.getClass()));
-    }
+    private Protocol protocolId = null;
 
     /**
      * Set the non-SSL address for the endpoint
@@ -97,22 +89,12 @@ public class ListenEndpoint
 
     /**
      * Set the protocol for the endpoint
-     * @param protocolId is of type String which describes the protocol id
+     * @param protocolId is of type Protocol which describes the protocol id
      * of the endpoint.
      */
-    public void setProtocol(String protocolId)
+    public void setProtocol(Protocol protocolId)
     {
         this.protocolId = protocolId;
-    }
-
-    /**
-     * Set the SSL port for the endpoint
-     * @param optionSSLPort is of type int which describes the SSL service
-     * port of the endpoint.
-     */
-    public void setSSLPort(int optionSSLPort)
-    {
-        this.optionSSLPort = optionSSLPort;
     }
 
     /**
@@ -136,22 +118,12 @@ public class ListenEndpoint
     }
 
     /**
-     * Return the protocol string of the endpoint.
-     * @return protocolId of type String which describes the protocol of the
+     * Return the protocol of the endpoint.
+     * @return protocolId of type Protocol which describes the protocol of the
      * endpoint.
      */
-    public String getProtocol()
+    public Protocol getProtocol()
     {
         return protocolId;
-    }
-
-    /**
-     * Return the SSL port of the endpoint
-     * @return optionSSLPort of type int which describes the SSL port of the
-     * endpoint.
-     */
-    public int getSSLPort()
-    {
-        return optionSSLPort;
     }
 }

@@ -23,18 +23,19 @@ package org.jacorb.orb.giop;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
-
 import org.jacorb.config.Configurable;
 import org.jacorb.config.Configuration;
 import org.jacorb.config.ConfigurationException;
 import org.jacorb.orb.DefaultProfileSelector;
 import org.jacorb.orb.ProfileSelector;
 import org.jacorb.orb.diop.DIOPFactories;
-import org.jacorb.orb.etf.FactoriesBase;
 import org.jacorb.orb.etf.ListenEndpoint;
+import org.jacorb.orb.etf.ListenEndpoint.Protocol;
 import org.jacorb.orb.etf.ProtocolAddressBase;
 import org.jacorb.orb.factory.SocketFactoryManager;
 import org.jacorb.orb.giop.TransportListener.Event;
@@ -87,9 +88,7 @@ public class TransportManager
     /**
      * List of all IIOP/SLIOP endpoint address-pairs
      */
-    private ArrayList<ListenEndpoint> listenEndpointList = null;
-
-    private ListenEndpoint defaultEndpoint = null;
+    private HashMap<Protocol,HashSet<ListenEndpoint>> listenEndpointList = null;
 
 
     /**
@@ -103,6 +102,7 @@ public class TransportManager
         socketFactoryManager = new SocketFactoryManager();
     }
 
+    @Override
     public void configure(Configuration myConfiguration)
     		throws ConfigurationException
     {
@@ -186,6 +186,27 @@ public class TransportManager
         return Collections.unmodifiableList(factoriesList);
     }
 
+
+    public HashSet<ListenEndpoint> getListenEndpoints (Protocol p)
+    {
+        HashSet<ListenEndpoint> endpoints = listenEndpointList.get (p);
+
+        if (endpoints == null)
+        {
+            if (logger.isDebugEnabled())
+            {
+                logger.debug ("Unable to find endpoints for " + p);
+            }
+            ListenEndpoint l = new ListenEndpoint();
+            l.setProtocol(p);
+            endpoints = new HashSet<ListenEndpoint>();
+            endpoints.add(l);
+            listenEndpointList.put(p, endpoints);
+        }
+
+        return endpoints;
+    }
+
     /**
      * Build the factoriesMap and factoriesList.
      */
@@ -206,52 +227,11 @@ public class TransportManager
 
         for (Iterator<String> i = factoryClassNames.iterator(); i.hasNext();)
         {
-            String className = (String)i.next();
+            String className = i.next();
 
-
-            // use default endpoint if the listen endpoint list is empty
-            if (listenEndpointList.isEmpty())
-            {
-
-                Factories factories = instantiateFactories(className);
-                if (factories instanceof FactoriesBase)
-                {
-                    ((FactoriesBase) factories).setListenEndpoint(defaultEndpoint);
-                }
-                factoriesMap.put(factories.profile_tag(), factories); // NOPMD
-                factoriesList.add (factories);
-            }
-            else
-            {
-                for (Iterator<ListenEndpoint> x = listenEndpointList.iterator(); x.hasNext();)
-                {
-                    ListenEndpoint ltep = (ListenEndpoint)x.next();
-                    String proto = ltep.getProtocol();
-
-                    // default to a known protocol
-                    if(proto == null
-                    || proto.equals("ssliop")
-                    || proto.equals("niop"))
-                    {
-                        proto = "iiop";
-                    }
-
-                    // Check if factory's classname is for this protocol
-                    // factoriesIdx is -1 if not
-                    int factoriesIdx = className.lastIndexOf(proto.toUpperCase() + "Factories");
-
-                    if (factoriesIdx >= 0)
-                    {
-                        Factories factories = instantiateFactories(className);
-                        if (factories instanceof FactoriesBase)
-                        {
-                            ((FactoriesBase) factories).setListenEndpoint(ltep);
-                        }
-                        factoriesMap.put(factories.profile_tag(), factories); // NOPMD
-                        factoriesList.add (factories);
-                    }
-                }
-            }
+            Factories factories = instantiateFactories(className);
+            factoriesMap.put(factories.profile_tag(), factories); // NOPMD
+            factoriesList.add (factories);
         }
     }
 
@@ -315,15 +295,6 @@ public class TransportManager
         }
     }
 
-    /**
-     *
-     * @return the default listen endpoints picked up from the properties
-     */
-    public ListenEndpoint getDefaultEndpoints()
-    {
-        return defaultEndpoint;
-    }
-
     private synchronized void addTransportListenerImpl(final TransportListener tl)
     {
         if (listener == null)
@@ -337,6 +308,7 @@ public class TransportManager
 
                 private final TransportListener next_ = listener;
 
+                @Override
                 public void transportSelected(Event event)
                 {
                     try
@@ -355,19 +327,15 @@ public class TransportManager
     private ProtocolAddressBase createProtocolAddress(String address_str)
     {
         final IIOPAddress address = new IIOPAddress();
-        if (address_str != null)
+
+        int proto_delim = address_str.indexOf (':');
+        Protocol proto = Protocol.valueOf(address_str.substring (0,proto_delim).toUpperCase(Locale.ENGLISH));
+        address.setProtocol(proto);
+        final int addresss_start_ofs = proto_delim + 3;
+
+        if (!address.fromString(address_str.substring(addresss_start_ofs)))
         {
-            int proto_delim = address_str.indexOf (':');
-            String proto = address_str.substring (0,proto_delim).toLowerCase();
-            address.setProtocol(proto);
-            final int addresss_start_ofs = proto_delim + 3;
-            if (!address.fromString(address_str.substring(addresss_start_ofs)))
-            {
-                throw new org.omg.CORBA.INTERNAL("Invalid protocol address string: " + address_str);
-            }
-        }
-        else {
-            throw new org.omg.CORBA.INTERNAL("Invalid protocol address string is null");
+            throw new org.omg.CORBA.INTERNAL("Invalid protocol address string: " + address_str);
         }
 
         // set protocol string
@@ -383,9 +351,15 @@ public class TransportManager
         IIOPAddress address = null;
         IIOPAddress ssl_address = null;
 
+        HashSet<ListenEndpoint> s = listenEndpointList.get(Protocol.IIOP);
 
-        defaultEndpoint = new ListenEndpoint();
-        defaultEndpoint.configure(configuration);
+        // If we already have an endpoint list defined there is no point creating a default.
+        if (s != null)
+        {
+            return;
+        }
+
+        ListenEndpoint defaultEndpoint = new ListenEndpoint();
 
         String address_str = configuration.getAttribute("OAAddress",null);
         if (address_str != null)
@@ -396,7 +370,6 @@ public class TransportManager
             ProtocolAddressBase addr = createProtocolAddress(address_trim);
             address = (IIOPAddress)addr;
             address.configure(configuration);
-
         }
         else
         {
@@ -426,12 +399,17 @@ public class TransportManager
             ssl_address.configure(configuration);
         }
 
+        if (address.getProtocol() == null)
+        {
+            address.setProtocol(Protocol.IIOP);
+        }
         defaultEndpoint.setAddress(address);
         defaultEndpoint.setSSLAddress(ssl_address);
-        if (address != null)
-        {
-            defaultEndpoint.setProtocol(address.getProtocol());
-        }
+        defaultEndpoint.setProtocol(address.getProtocol());
+
+        s = new HashSet<ListenEndpoint>();
+        s.add (defaultEndpoint);
+        listenEndpointList.put(address.getProtocol(), s);
     }
 
     /**
@@ -439,13 +417,12 @@ public class TransportManager
      */
     private void updateListenEndpointAddresses() throws ConfigurationException
     {
-        listenEndpointList = new ArrayList<ListenEndpoint>();
+        listenEndpointList = new HashMap <Protocol, HashSet<ListenEndpoint>>();
 
         // get original argument list from ORB
         String[] args = configuration.getORB().getArgs();
 
-
-        if (args != (String[]) null)
+        if (args != null)
         {
             for (int i = 0; i < args.length; i++)
             {
@@ -498,7 +475,15 @@ public class TransportManager
                     // locate the first colon delimiter and
                     // pickup the protocol identifier string
                     int delim = addr_arg.indexOf(":");
-                    String proto = addr_arg.substring (0,delim).toLowerCase();
+                    Protocol protocol;
+                    try
+                    {
+                        protocol = Protocol.valueOf (addr_arg.substring (0,delim).toUpperCase(Locale.ENGLISH));
+                    }
+                    catch (IllegalArgumentException e)
+                    {
+                        throw new BAD_PARAM("Invalid ORBListenEndPoints protocol " + addr_arg);
+                    }
 
                     // locate the double slash delimiter
                     int db_slash = addr_arg.indexOf("//", delim+1);
@@ -510,7 +495,7 @@ public class TransportManager
                     // check if additional option delimiter is present
                     // and pick up the protocol address
                     String dbs = "/";
-                    if (proto.equals("uiop"))
+                    if (protocol == Protocol.UIOP)
                     {
                         dbs = "|";
                     }
@@ -563,7 +548,7 @@ public class TransportManager
                         // create_protocol_address will allow iiop and ssliop only
                         IIOPAddress address = null;
                         IIOPAddress ssl_address = null;
-                        if (proto.equals("iiop"))
+                        if (protocol == Protocol.IIOP)
                         {
                             ProtocolAddressBase addr1 = createProtocolAddress(address_trim);
                             if (addr1 instanceof IIOPAddress)
@@ -590,7 +575,7 @@ public class TransportManager
                             }
 
                         }
-                        else if(proto.equals("ssliop"))
+                        else if(protocol == Protocol.SSLIOP)
                         {
                             ProtocolAddressBase addr2 = createProtocolAddress(address_trim);
                             if (addr2 instanceof IIOPAddress)
@@ -611,16 +596,21 @@ public class TransportManager
                         }
 
                         ListenEndpoint listen_ep = new ListenEndpoint();
-                        listen_ep.configure(configuration);
                         listen_ep.setAddress(address);
                         listen_ep.setSSLAddress(ssl_address);
-                        listen_ep.setProtocol(proto);
-                        listenEndpointList.add(listen_ep);
+                        listen_ep.setProtocol(protocol);
+
+                        HashSet<ListenEndpoint> s = listenEndpointList.get(protocol);
+                        if ( s == null)
+                        {
+                            s = new HashSet<ListenEndpoint>();
+                            listenEndpointList.put(protocol, s);
+                        }
+                        s.add(listen_ep);
                     }
 
                 } //end for
             } //end for
         } // end if
-
     }
 }

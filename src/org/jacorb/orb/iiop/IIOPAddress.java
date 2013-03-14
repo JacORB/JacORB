@@ -20,17 +20,16 @@ package org.jacorb.orb.iiop;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import java.net.Inet6Address;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.ServerSocket;
 import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.util.Collections;
-
 import org.jacorb.config.Configuration;
 import org.jacorb.config.ConfigurationException;
 import org.jacorb.orb.CDROutputStream;
+import org.jacorb.orb.etf.ListenEndpoint.Protocol;
 import org.jacorb.orb.etf.ProtocolAddressBase;
 import org.slf4j.Logger;
 
@@ -55,7 +54,7 @@ public class IIOPAddress
     private Logger logger;
     private boolean doEagerResolve;
     private boolean forceDNSLookup = true;
-    private String protocol = null;
+    private Protocol protocol = null;
     private boolean isWildcard = false;
     private boolean isConfigured = false;
 
@@ -136,6 +135,7 @@ public class IIOPAddress
         }
     }
 
+    @Override
     public void configure(Configuration configuration)
         throws ConfigurationException
     {
@@ -235,12 +235,12 @@ public class IIOPAddress
        return new IIOPAddress(host, port);
     }
 
-    public void setProtocol(String protocol)
+    public void setProtocol(Protocol proto)
     {
-        this.protocol = protocol;
+        this.protocol = proto;
     }
 
-    public String getProtocol()
+    public Protocol getProtocol()
     {
         return this.protocol;
     }
@@ -425,6 +425,7 @@ public class IIOPAddress
         isWildcard = state;
     }
 
+    @Override
     public boolean equals(Object other)
     {
         if (other instanceof IIOPAddress)
@@ -434,16 +435,19 @@ public class IIOPAddress
         return false;
     }
 
+    @Override
     public int hashCode()
     {
        return toString().hashCode();
     }
 
+    @Override
     public String toString()
     {
         return getHostname() + ":" + port;
     }
 
+    @Override
     public boolean fromString(String s)
     {
         if (s.charAt(0) == '[')
@@ -518,6 +522,7 @@ public class IIOPAddress
         return true;
     }
 
+    @Override
     public void write(CDROutputStream cdr)
     {
         //If host name contains a zone ID, we need to remove it.

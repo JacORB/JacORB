@@ -38,8 +38,6 @@ public abstract class FactoriesBase
     implements Configurable
 {
     protected org.jacorb.config.Configuration configuration;
-    protected ListenEndpoint listenEndpoint = null;
-
 
     public void configure(Configuration configuration)
         throws ConfigurationException
@@ -137,13 +135,5 @@ public abstract class FactoriesBase
              throw new org.omg.CORBA.INTERNAL("ConfigurationException: " + e.toString());
           }
        }
-    }
-
-    /**
-     * Assign an IIOPAddress object to this factory
-     */
-    public void setListenEndpoint (ListenEndpoint listenEndPoint)
-    {
-        this.listenEndpoint = listenEndPoint;
     }
 }

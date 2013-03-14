@@ -25,12 +25,10 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.net.SocketException;
 import javax.net.ssl.SSLSocket;
 import org.jacorb.config.Configuration;
 import org.jacorb.config.ConfigurationException;
 import org.jacorb.orb.BasicAdapter;
-import org.jacorb.orb.etf.ProtocolAddressBase;
 import org.jacorb.orb.factory.ServerSocketFactory;
 import org.jacorb.orb.factory.SocketFactoryManager;
 import org.jacorb.orb.listener.AcceptorExceptionEvent;
@@ -39,7 +37,6 @@ import org.jacorb.orb.listener.DefaultAcceptorExceptionListener;
 import org.jacorb.orb.listener.SSLListenerUtil;
 import org.jacorb.orb.listener.TCPConnectionEvent;
 import org.jacorb.orb.listener.TCPConnectionListener;
-import org.jacorb.orb.etf.ListenEndpoint;
 import org.omg.CORBA.NO_RESOURCES;
 import org.omg.CSIIOP.Confidentiality;
 import org.omg.CSIIOP.DetectMisordering;
@@ -90,11 +87,6 @@ public class IIOPListener
     public IIOPListener()
     {
         super();
-    }
-
-    public IIOPListener(ListenEndpoint listenEndpoint)
-    {
-        super(listenEndpoint);
     }
 
     public void configure(Configuration config)

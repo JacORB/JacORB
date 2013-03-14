@@ -79,7 +79,7 @@ public abstract class ListenerBase
      * Connections will only be put into this list
      * if no Handle has been set.
      */
-    protected final List incoming_connections = new ArrayList();
+    protected final List<Connection> incoming_connections = new ArrayList<Connection>();
 
     private boolean terminated = false;
 
@@ -104,10 +104,6 @@ public abstract class ListenerBase
         orb = configuration.getORB();
 
         logger = configuration.getLogger(configuration.getLoggerName(this.getClass()));
-
-        if (listenEndpoint == null) {
-            listenEndpoint = orb.getTransportManager().getDefaultEndpoints();
-        }
     }
 
     /**
@@ -263,14 +259,5 @@ public abstract class ListenerBase
     public void setListenEndpoint (ListenEndpoint listenEndpoint)
     {
         this.listenEndpoint = listenEndpoint;
-    }
-
-    /**
-     * Returns the listen endpoint of this listener.
-     * @return
-     */
-    public ListenEndpoint getListenEndpoint ()
-    {
-        return listenEndpoint;
     }
 }

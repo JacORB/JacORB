@@ -21,16 +21,24 @@ package org.jacorb.test.orb.etf.wiop;
  *   MA 02110-1301, USA.
  */
 
-import java.io.*;
-import java.net.*;
-
-import org.jacorb.config.*;
-
-import org.omg.ETF.*;
-import org.omg.IOP.*;
+import java.io.IOException;
+import java.net.Socket;
+import java.util.Iterator;
+import org.jacorb.config.Configurable;
+import org.jacorb.config.Configuration;
+import org.jacorb.config.ConfigurationException;
+import org.jacorb.orb.etf.ListenEndpoint;
+import org.jacorb.orb.etf.ListenEndpoint.Protocol;
+import org.jacorb.orb.iiop.ClientIIOPConnection;
+import org.jacorb.orb.iiop.IIOPListener;
+import org.jacorb.orb.iiop.IIOPProfile;
+import org.omg.ETF.Connection;
+import org.omg.ETF.Listener;
+import org.omg.ETF.Profile;
+import org.omg.ETF._FactoriesLocalBase;
+import org.omg.IOP.TaggedComponentSeqHolder;
+import org.omg.IOP.TaggedProfileHolder;
 import org.omg.RTCORBA.ProtocolProperties;
-
-import org.jacorb.orb.iiop.*;
 
 /**
  * WIOP is a wrapper around an IIOP transport.  To the ORB, it looks like
@@ -48,13 +56,15 @@ public class WIOPFactories
     org.jacorb.config.Configuration configuration;
     org.jacorb.orb.ORB orb;
 
+    @Override
     public void configure(Configuration configuration)
         throws ConfigurationException
     {
-        this.configuration = (org.jacorb.config.Configuration)configuration;
+        this.configuration = configuration;
         this.orb = this.configuration.getORB();
     }
 
+    @Override
     public Connection create_connection (ProtocolProperties props)
     {
         ClientIIOPConnection delegate = new ClientIIOPConnection();
@@ -71,12 +81,14 @@ public class WIOPFactories
                                    tag);
     }
 
+    @Override
     public Listener create_listener (ProtocolProperties props,
                                      int stacksize,
                                      short base_priority)
     {
         IIOPListener delegate = new IIOPListener()
         {
+            @Override
             protected Connection createServerConnection (Socket socket,
                                                          boolean is_ssl)
                 throws IOException
@@ -87,6 +99,8 @@ public class WIOPFactories
         };
         try
         {
+            Iterator<ListenEndpoint> it = orb.getTransportManager().getListenEndpoints(Protocol.IIOP).iterator();
+            delegate.setListenEndpoint(it.next());
             delegate.configure(configuration);
         }
         catch( ConfigurationException ce )
@@ -97,6 +111,7 @@ public class WIOPFactories
         return new WIOPListener (delegate, tag);
     }
 
+    @Override
     public Profile demarshal_profile (TaggedProfileHolder tagged_profile,
                                       TaggedComponentSeqHolder components)
     {
@@ -137,11 +152,13 @@ public class WIOPFactories
         }
     }
 
+    @Override
     public int profile_tag()
     {
         return tag;
     }
 
+    @Override
     public Profile decode_corbaloc(String corbaloc)
     {
         throw new org.omg.CORBA.NO_IMPLEMENT();

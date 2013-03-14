@@ -148,7 +148,7 @@ public class JacORBConfiguration implements Configuration
     {
         if ( ! (orb instanceof ORB))
         {
-            throw new ConfigurationException("ORB must be JacORB ORB");
+            throw new ConfigurationException("ORB must not be null and must be a JacORB ORB " + (orb == null ? "<null>" : orb.getClass().getName()));
         }
 
         return getConfiguration (props, (org.jacorb.orb.ORB)orb, null, isApplet);
@@ -204,7 +204,6 @@ public class JacORBConfiguration implements Configuration
             }
             orbID = myOrbID;
         }
-
         return new JacORBConfiguration(orbID, props, orb, isApplet);
     }
 
