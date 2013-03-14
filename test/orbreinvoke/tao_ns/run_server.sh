@@ -44,16 +44,18 @@ ${JACORB_HOME}/bin/jaco ${server_name} \
     -Djacorb.implname=${implName} \
     > ${log} 2>&1 &
 pid=$!
+if [[ ! -z $pid ]] ; then
 (( cnt = 2 ))
 while (( cnt > 0 )) ; do
     sleep 10
-    if ps $pid ; then
+    if ps -p $pid ; then
         tail -5 ${log}
         echo "SUCCESS::$bn: ${implName} is running"
         exit 0
     fi
     (( cnt = cnt - 1 ))
 done
+fi
 cat ${log}
 echo "WARNING::$bn: ${implName} may not be running! Please check log file"
 exit 1

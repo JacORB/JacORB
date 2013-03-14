@@ -20,6 +20,7 @@ echo "$bn: starting up ImRManager server ..."
 rm -f $log 2>&1
 ${JACORB_HOME}/bin/imr_mg "$@" > ${log} 2>&1 &
 pid=$!
+if [[ ! -z $pid ]] ; then
 echo $pid
 (( cnt = 2 ))
 while (( cnt > 0 )) ; do
@@ -30,6 +31,7 @@ while (( cnt > 0 )) ; do
     fi
     (( cnt = cnt - 1 ))
 done
+fi
 cat ${log}
 echo "ERROR::$bn: failed to start ImRManager server"
 exit 1

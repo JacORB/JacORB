@@ -5,6 +5,7 @@ if [[ $host == "phil" ]] ; then
     host="10.201.200.173"
 fi
 
+osname=$(uname -s | awk '{print tolower($0)}')
 export JACORB_HOME
 
 PATH=${PATH}
@@ -23,8 +24,8 @@ fi
 imr_name="org.jacorb.imr.ImplementationRepositoryImpl"
 log="${out_dir}/MyImR.log"
 
-pid=$(ps -ef | grep -v grep | \
-    grep "${imr_name}.*.endpoint_port_number[=]44444" | awk '{print $2}')
+pid=$(ps -ax | grep -v grep | \
+    grep "${imr_name}.*.endpoint_port_number[=]44444" | awk '{print $1}')
 [[ ! -z $pid ]] && kill -s 15 $pid && sleep 5
 
 echo "$bn: starting up MyImR server ..."
@@ -36,7 +37,7 @@ pid=$!
 while (( cnt > 0 )) ; do
     echo "."
     sleep 5
-    if ps $pid ; then
+    if ps -p $pid ; then
         tail -5 ${log}
         echo "SUCCESS::$bn: $pid: MyImR server is running"
         exit 0

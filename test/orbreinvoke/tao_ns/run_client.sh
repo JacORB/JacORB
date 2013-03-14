@@ -41,7 +41,7 @@ fi
 log="${out_dir}/${client}_$$.log"
 rm -f ${log} 2>&1
 
-pid=$(ps -ef | grep -v grep | grep "Client.*${serverName}" | awk '{print $2}')
+pid=$(ps -ax | grep -v grep | grep "Client.*${serverName}" | awk '{print $1}')
 [[ ! -z $pid ]] && kill -s 15 $pid
 
 # This will connect to EchoServer[1,2] via NameService
@@ -61,7 +61,7 @@ if [[ ! -z $pid ]] ; then
     (( cnt = 2 ))
     while (( cnt > 0 )) ; do
         sleep 10
-        if ps $pid ; then
+        if ps -p $pid ; then
             tail -5 ${log}
             echo "SUCCESS::$bn: ${client} is running"
             exit 0

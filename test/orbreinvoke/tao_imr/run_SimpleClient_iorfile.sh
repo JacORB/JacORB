@@ -44,7 +44,7 @@ log="${out_dir}/${client}_$$.log"
 rm -f ${log} 2>&1
 
 server_name="test.orbreinvoke.tao_imr.SimpleServer"
-iorfile="/tmp/${server_name}.${serverName}.${poaBaseName}.ior"
+iorfile="/tmp/${server_name}.${serverName}.${poaBaseName}-POA.ior"
 if [[ ! -e $iorfile || ! -r $iorfile ]] ; then
     echo "ERROR::$bn: IOR file $iorfile does not exist or in inaccessible"
     exit 1
@@ -63,7 +63,7 @@ if [[ ! -z $pid ]] ; then
     (( cnt = 10 ))
     while (( cnt > 0 )) ; do
         sleep 6
-        if ps $pid ; then
+        if ps -p $pid ; then
             tail -5 ${log}
             echo "SUCCESS::$bn: ${client} (${server_name}) is running"
             exit 0

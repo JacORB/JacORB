@@ -16,7 +16,7 @@ fi
 
 myNS="NameServer"
 log="${out_dir}/MyNs.log"
-pid=$(ps -ef | grep -v grep | grep -i "${myNS}.*MyNs.ior" | awk '{print $2}')
+pid=$(ps -ax | grep -v grep | grep -i "${myNS}.*MyNs.ior" | awk '{print $1}')
 if [[ ! -z $pid ]] ; then
     echo "$bn: nothing to do!  ${myNS} is already running ..."
     exit 0
@@ -34,7 +34,7 @@ if [[ ! -z $pid ]] ; then
     (( cnt = 2 ))
     while (( cnt > 0 )) ; do
         sleep 15
-        if ps $pid ; then
+        if ps -p $pid ; then
             tail -5 ${log}
             echo "SUCCESS::$bn: $pid: ${myNS} server is running"
             exit 0

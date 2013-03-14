@@ -22,6 +22,7 @@ if [[ ! -n $JACORB_HOME ]] ; then
 fi
 export JACORB_HOME
 
+osname=$(uname -s | awk '{print tolower($0)}')
 PATH=${PATH}
 CLASSPATH=${CLASSPATH}
 export PATH=${PATH}:${JACORB_HOME}/bin
@@ -42,7 +43,7 @@ log="${out_dir}/${client}_$$.log"
 rm -f ${log} 2>&1
 
 client_name="test.listenendpoints.echo_corbaloc.Client"
-pid=$(ps -ef | grep -v grep | grep "^.* ${client_name}.*corbaloc.*3200.*${serverName}" | awk '{print $2}')
+pid=$(ps -ax | grep -v grep | grep "^.* ${client_name}.*corbaloc.*3200.*${serverName}" | awk '{print $1}')
 [[ ! -z $pid ]] && kill -s 15 $pid && wait 5
 
 # This will connect directly to EchoServer[1,2] via the server endpoint
@@ -63,7 +64,7 @@ if [[ ! -z $pid ]] ; then
     (( cnt = 2 ))
     while (( cnt > 0 )) ; do
         sleep 10
-        if ps $pid ; then
+        if ps -p $pid ; then
             tail -5 ${log}
             echo "SUCCESS::$bn: ${client} is running"
             exit 0

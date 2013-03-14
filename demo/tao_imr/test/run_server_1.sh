@@ -6,6 +6,7 @@ if [[ $host == "phil" ]] ; then
 fi
 debug_flag=$1
 
+osname=$(uname -s | awk '{print tolower($0)}')
 PATH=${PATH}
 CLASSPATH=${CLASSPATH}
 export JACORB_HOME
@@ -23,7 +24,7 @@ fi
 server_name="demo.tao_imr.Server_1"
 log="${out_dir}/Server.log"
 
-pid=$(ps -ef | grep -v grep | grep "^.* ${server_name}" | awk '{print $2}')
+pid=$(ps -ax | grep -v grep | grep "^.* ${server_name}" | awk '{print $1}')
 if [[ ! -z $pid ]] ; then
     echo "${bn} nothing to do, ${server_name} is running!"
     exit 0

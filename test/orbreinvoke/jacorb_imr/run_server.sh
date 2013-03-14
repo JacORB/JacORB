@@ -39,7 +39,7 @@ fi
 log="${out_dir}/${implName}_$$.log"
 server_name="test.orbreinvoke.jacorb_imr.Server"
 
-pid=$(ps -ef | grep -v grep | grep "^.*${server_name}.*${implName}.*{endpoint}" | awk '{print $2}')
+pid=$(ps -ax} | grep -v grep | grep "^.*${server_name}.*${implName}.*{endpoint}" | awk '{print $1}')
 if [[ ! -z $pid ]] ; then
     echo "$bn: nothing to do! ${implName} is running"
     exit 0
@@ -58,17 +58,18 @@ ${JACORB_HOME}/bin/jaco ${server_name} \
     > ${log} 2>&1 &
 pid=$!
 echo "$bn: $pid: $log"
-
+if [[ ! -z $pid ]] ; then
 (( cnt = 10 ))
 while (( cnt > 0 )) ; do
     sleep 5
-    if ps $pid ; then
+    if ps -p $pid ; then
         tail -5 ${log}
         echo "SUCCESS::$bn: ${implName} is running"
         exit 0
     fi
     (( cnt = cnt - 1 ))
 done
+fi
 cat ${log}
 echo "ERROR::$bn: ${implName} may not be running!  Please chck the log file"
 exit 1

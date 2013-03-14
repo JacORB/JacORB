@@ -65,7 +65,7 @@ if [[ ! -z $pid ]] ; then
     while (( cnt > 0 )) ; do
 	echo "."
         sleep 6
-        if ps $pid ; then
+        if ps -p $pid ; then
             tail -5 ${log}
             echo "SUCCESS::$bn: ${client_name} (${server_name}) is running."
             exit 0

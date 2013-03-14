@@ -47,7 +47,7 @@ fi
 log="${out_dir}/${client}_$$.log"
 rm -f ${log} 2>&1
 
-pid=$(ps -ef | grep -v grep | grep "^.* ${client_name}.*${serverName}.*${client}" | awk '{print $2}')
+pid=$(ps -ax | grep -v grep | grep "^.* ${client_name}.*${serverName}.*${client}" | awk '{print $1}')
 [[ ! -z $pid ]] && kill -s 15 $pid
 
 # This will connect to EchoServer[1,2] via ImR
@@ -70,7 +70,7 @@ if [[ ! -z $pid ]] ; then
     while (( cnt > 0 )) ; do
 	echo "."
         sleep 6
-        if ps $pid ; then
+        if ps -p $pid ; then
             tail -5 ${log}
             echo "SUCCESS::$bn: ${client} (${server_name}) is running."
             exit 0

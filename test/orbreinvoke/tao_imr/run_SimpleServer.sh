@@ -45,7 +45,7 @@ fi
 
 log="${out_dir}/${implName}_$$.log"
 
-pid=$(ps -ef | grep -v grep | grep -i "^.* ${server_name}.*${implName}" | awk '{print $2}')
+pid=$(ps -ax | grep -v grep | grep -i "^.* ${server_name}.*${implName}" | awk '{print $1}')
 if [[ ! -z $pid ]] ; then
     echo "${bn} nothing to do, ${implName} is running ..."
     exit 0
@@ -62,17 +62,19 @@ ${JACORB_HOME}/bin/jaco ${server_name} \
     -ORBInitRef ImplRepoService=file:///tmp/tao_imr_locator.ior \
     > ${log} 2>&1 &
 pid=$!
+if [[ ! -z $pid ]] ; then
 (( cnt = 5 ))
 while (( cnt > 0 )) ; do
     echo "."
     sleep 10
-    if ps $pid ; then
+    if ps -p $pid ; then
         tail -5 ${log}
         echo "SUCCESS::$bn: ${implName} is running"
         exit 0
     fi
     (( cnt = cnt - 1 ))
 done
+fi
 cat ${log}
 echo "WARNING::$bn: ${implName} may not be running! Please check the log file"
 exit 1

@@ -45,7 +45,7 @@ if [[ ! -z $pid ]] ; then
     (( cnt = 2 ))
     while (( cnt > 0 )) ; do
         sleep 10
-        if ps $pid ; then
+        if ps -p $pid ; then
             tail -5 ${log}
             echo "SUCCESS::$bn: ${client} is running"
             exit 0
