@@ -18,12 +18,12 @@
       </condition>
    </target>
 
-   <target name="prepatch" unless="java7">
+   <target name="prepatch" if="java7">
        <!-- Unfortunately the API changed incompatibly in Java7 so we need to patch the source file -->
      <replace summary="true"
               file="${src}/org/jacorb/security/sas/GSSUPContextSpi.java"
-              value="java.lang.Enum"
-              token="com.sun.security.jgss.InquireType"/>
+              token="java.lang.Enum"
+              value="com.sun.security.jgss.InquireType"/>
    </target>
 
    <target name="prepatch-ibm" if="java-ibm-vendor">
@@ -49,11 +49,11 @@
                 token="sun.security.jgss.spi"/>
    </target>
 
-   <target name="postpatch" unless="java7">
+   <target name="postpatch" if="java7">
      <replace summary="true"
               file="${src}/org/jacorb/security/sas/GSSUPContextSpi.java"
-              value="com.sun.security.jgss.InquireType"
-              token="java.lang.Enum"/>
+              token="com.sun.security.jgss.InquireType"
+              value="java.lang.Enum"/>
    </target>
 
    <target name="postpatch-ibm" if="java-ibm-vendor">
