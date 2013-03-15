@@ -76,16 +76,15 @@
     <!-- ==================================================== -->
     <!--             compile and run tests                    -->
     <!-- ==================================================== -->
-
-    <target name="build-all"
-            depends="test-init,
-                     idl,
-                     compile-test-listenendpoints,
-                     compile-src,
-                     compile-rmic,
-                     compile-src-notification,
-                     instrument,
-                     compile-interop" />
+    <target name="build-all" unless="NO_BUILD">
+        <antcall target="idl"/>
+        <antcall inheritRefs="true" target="compile-test-listenendpoints"/>
+        <antcall inheritRefs="true" target="compile-src"/>
+        <antcall inheritRefs="true" target="compile-rmic"/>
+        <antcall inheritRefs="true" target="compile-src-notification"/>
+        <antcall inheritRefs="true" target="instrument"/>
+        <antcall inheritRefs="true" target="compile-interop"/>
+    </target>
 
     <target name="compile-src">
         <jacorb-javac javac-includes="**"
@@ -107,7 +106,7 @@
         <jacorb-javac javac-includes="**/RMITestServant.java" javac-classpathref="cp.compile-test" javac-xlint=""/>
     </target>
 
-    <target name="compile-src-notification" unless="NO_BUILD">
+    <target name="compile-src-notification">
         <jacorb-javac javac-includes="org/jacorb/test/notification/**/*.java"
                       javac-excludes="org/jacorb/test/notification/plugins/**,
                               org/jacorb/test/notification/jmx/**"
@@ -411,12 +410,7 @@ Tests run: ${result.testCount}, Failures: ${result.testFailures}, Errors: ${resu
     <!--                  compile idl                         -->
     <!-- ==================================================== -->
 
-    <target name="idl" unless="NO_BUILD">
-        <antcall target="idl-wrapped" />
-    </target>
-
-    <target name="idl-wrapped"
-            depends="test-init,
+    <target name="idl" depends="test-init,
                      idl-localpitest,
                      idl-helloserver,
                      idl-tests,
@@ -678,7 +672,7 @@ Tests run: ${result.testCount}, Failures: ${result.testFailures}, Errors: ${resu
                             jacorb.test.ssl=true [default:true] &#13;&#10;
                             jacorb.test.coverage=true [default:false] &#13;&#10;
                             jacorb.test.verbose=true [default:false]"
-            depends="build-all, run">
+            depends="test-init,build-all, run">
     </target>
 
     <!-- ==================================================== -->
