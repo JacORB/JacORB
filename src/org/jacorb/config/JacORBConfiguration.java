@@ -33,7 +33,6 @@ import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.StringTokenizer;
 import java.util.logging.Level;
-
 import org.jacorb.orb.ORB;
 import org.jacorb.util.ObjectUtil;
 import org.jacorb.util.Version;
@@ -189,7 +188,7 @@ public class JacORBConfiguration implements Configuration
         }
 
         // ORB args override system props.
-        if ( orbid != null)
+        if ( orbid != null && orbid.length () > 0)
         {
             myOrbID = orbid;
         }
@@ -1034,7 +1033,7 @@ public class JacORBConfiguration implements Configuration
             return null;
         }
 
-        return (String[]) values.toArray (new String[values.size ()]);
+        return values.toArray (new String[values.size ()]);
     }
 
 
@@ -1154,7 +1153,7 @@ public class JacORBConfiguration implements Configuration
      */
     private String[] getAttributeNames()
     {
-        return (String[])(stringAttributes.keySet().toArray (new String[]{}));
+        return (stringAttributes.keySet().toArray (new String[]{}));
     }
 
     /**
