@@ -1,4 +1,4 @@
-%
+﻿%
 % $Id$
 %
 
@@ -1551,9 +1551,9 @@ context or forName). Default is off. & boolean\\
 \hline
 ~ \hfill \textbf {Property} \hfill ~ & ~ \hfill \textbf {Description} \hfill ~ & ~ \hfill \textbf {Type} \hfill ~ \endhead
 \hline
-\verb"jacorb.use_imr" & Switch on to contact the Implementation Repository (IR) on every server start-up. Default is off.  This property must be turned off when the “jacorb.use_tao_imr” is turned on.   If both properties are turned on, an exception will be thrown. & boolean \\
+\verb"jacorb.use_imr" & Switch on to contact the Implementation Repository (IR) on every server start-up. Default is off.  This property must be turned off when the “jacorb.use\_tao\_imr” is turned on.   If both properties are turned on, an exception will be thrown. & boolean \\
 \hline
-\verb"jacorb.use_tao_imr" & Switch on to contact the TAO Implementation Repository (TAO ImR) on every server start-up. Default is off.  This property must be turned off when the “jacorb.use_imr” is turned on.   If both properties are turned on, an exception will be thrown. & boolean \\
+\verb"jacorb.use_tao_imr" & Switch on to contact the TAO Implementation Repository (TAO ImR) on every server start-up. Default is off.  This property must be turned off when the “jacorb.use\_imr” is turned on.   If both properties are turned on, an exception will be thrown. & boolean \\
 \hline
 \verb"jacorb.use_imr_endpoin"
 \verb"t" & Switch off to prevent writing the IMR address into server IORs. This property is ignored if jacorb.use\_imr = off. Default is off. & boolean \\
@@ -1607,7 +1607,7 @@ context or forName). Default is off. & boolean\\
 \hline
 \verb"org.omg.PortableInterc"
 \verb"eptor.ORBInitializerCl"
-\verb"ass.ForwardInit" & Portable interceptor required to support SSL. This interceptor must be set if programs need access to certificates using the CORBA Security API, SSL works also without this interceptor. Not set by default and may be set to org.jacorb.security.ssl..sun\_jsse.SecurityServiceInitializer. & class \\
+\verb"ass.ForwardInit" & Portable interceptor required to support SSL. This interceptor must be set if programs need access to certificates using the CORBA Security API, SSL works also without this interceptor. Not set by default and may be set to org.jacorb.security.ssl.sun\_jsse.SecurityServiceInitializer. & class \\
 \hline
 \verb"jacorb.ssl.socket_fact"
 \verb"ory" & The qualified classname of the SSL socket factory class. See section \ref{sec:customSocketFactories} for details.& class \\
