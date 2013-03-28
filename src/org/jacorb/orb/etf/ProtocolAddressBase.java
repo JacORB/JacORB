@@ -27,21 +27,18 @@ import org.jacorb.orb.CDROutputStream;
 
 
 /**
- * @author Phil Mesnier
- *
- * provides an abstraction of a protocol specific address.
+ * Provides an abstraction of a protocol specific address.
  * This is necessary to allow the ORB and other components deal with
  * addresses generally rather than using protocol specific address elements
  * such as IIOP-centric host and port values.
+ *
+ * @author Phil Mesnier
  */
 
 public abstract class ProtocolAddressBase
     implements Cloneable, Configurable
 {
     protected org.jacorb.config.Configuration configuration;
-    protected String stringified = null;
-
-    protected ProtocolAddressBase next = null;
 
     public void configure(Configuration configuration)
         throws ConfigurationException
@@ -77,9 +74,6 @@ public abstract class ProtocolAddressBase
         }
     }
 
-    // this must be defined for each subclass.
-// static public <specifictype> read (CDRInputStream s);
-
     /**
      * This function shall return an equivalent, deep-copy of the profile
      * on the free store.
@@ -95,11 +89,4 @@ public abstract class ProtocolAddressBase
             throw new RuntimeException("error cloning profile: " + e);
         }
     }
-
-    public ProtocolAddressBase get_next ()
-    {
-        return this.next;
-    }
-
-
 }

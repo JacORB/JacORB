@@ -29,7 +29,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
 import org.jacorb.config.Configurable;
 import org.jacorb.config.Configuration;
 import org.jacorb.config.ConfigurationException;
@@ -57,8 +56,6 @@ import org.jacorb.poa.RPPoolManager;
 import org.jacorb.poa.RPPoolManagerFactory;
 import org.jacorb.poa.except.POAInternalError;
 import org.jacorb.poa.util.POAUtil;
-import org.jacorb.tao_imr.ImplementationRepository.*;
-import org.jacorb.tao_imr.ImRAccessImpl;
 import org.jacorb.util.BuildVersion;
 import org.jacorb.util.ObjectUtil;
 import org.jacorb.util.SelectorManager;
@@ -1777,10 +1774,12 @@ public final class ORB
     {
         String id = "";
 
+        // Check ORB properties
         if( props != null )
         {
-            id = (String)props.getProperty ("ORBid", "");
+            id = props.getProperty ("ORBid", "");
         }
+        // ORBid from args override system properties
         if ( args != null )
         {
             for ( int i = 0; i < args.length; i++ )
@@ -1958,11 +1957,12 @@ public final class ORB
                                   java.util.Properties props)
     {
         String id = "";
-        
+
         if( props != null )
         {
-            id = (String)props.getProperty("ORBid", "");
+            id = props.getProperty("ORBid", "");
         }
+
         try
         {
             configure( org.jacorb.config.JacORBConfiguration.getConfiguration(props,
@@ -2728,6 +2728,7 @@ public final class ORB
     /**
      * @deprecated use {@link #create_operation_list (org.omg.CORBA.Object)} instead
      */
+    @Deprecated
     public org.omg.CORBA.NVList create_operation_list
     (org.omg.CORBA.OperationDef oper)
     {

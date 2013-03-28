@@ -55,7 +55,7 @@ using BUILD_NUMBER:   ${BuildNo}
         </copy>
 
         <!-- need to delete the classes that depend on the version number -->
-        <delete failonerror="false">
+        <delete quiet="true">
             <fileset dir="${classdir}">
                 <include name="org/jacorb/orb/ORB.class" />
                 <include name="org/jacorb/idl/parser.class" />
@@ -115,8 +115,8 @@ using BUILD_NUMBER:   ${BuildNo}
    <target name="libs" depends="init,jar"/>
 
    <target name="jar" depends="init">
-      <delete file="${lib}/jacorb.jar" failonerror="false"/>
-      <delete file="${lib}/jacorb-services.jar" failonerror="false"/>
+      <delete file="${lib}/jacorb.jar" quiet="true"/>
+      <delete file="${lib}/jacorb-services.jar" quiet="true"/>
       <jar jarfile="${lib}/jacorb.jar"
            index="true"
            basedir="${classdir}"
@@ -213,8 +213,8 @@ using BUILD_NUMBER:   ${BuildNo}
    <!-- This target will split the JacORB jar into jacorb.jar containing JUST the implementation -->
    <!-- code and omg.jar containing the generated stubs -->
    <target name="jar_impl_omg" depends="init">
-      <delete file="${lib}/jacorb.jar" failonerror="false"/>
-      <delete file="${lib}/omg.jar" failonerror="false"/>
+      <delete file="${lib}/jacorb.jar" quiet="true"/>
+      <delete file="${lib}/omg.jar" quiet="true"/>
       <jar jarfile="${lib}/jacorb.jar"
            basedir="${classdir}"
            includes="org/jacorb/**,ImplementationRepository/**"
@@ -272,13 +272,13 @@ using BUILD_NUMBER:   ${BuildNo}
    <!-- ==================================================== -->
 
     <target name="clean" depends="init,src-check" description="Clean the checkout">
-        <delete failonerror="false" includeemptydirs="true">
+        <delete quiet="true" includeemptydirs="true">
             <fileset dir="${classdir}" includes="**/*" />
         </delete>
-        <delete failonerror="false" includeemptydirs="true">
+        <delete quiet="true" includeemptydirs="true">
             <fileset dir="${src.generated}" includes="**/*" />
         </delete>
-         <delete failonerror="false" >
+         <delete quiet="true" >
             <fileset dir="${basedir}/src/org/jacorb/idl" >
                 <include name="**/parser.java"/>
                 <include name="**/sym.java"/>
@@ -287,7 +287,7 @@ using BUILD_NUMBER:   ${BuildNo}
     </target>
 
     <target name="realclean" depends="clean" description="Clean the checkout including generated jars">
-        <delete failonerror="false" >
+        <delete quiet="true" >
             <fileset dir="lib/" includes="jacorb.jar, idl.jar, jacorb-sources.jar, jacorb-services.jar"/>
         </delete >
     </target>

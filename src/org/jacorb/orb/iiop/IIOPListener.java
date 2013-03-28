@@ -245,12 +245,9 @@ public class IIOPListener
             {
                 address.setPort(serverAddress.getPort());
             }
-            else
+            else if (logger.isDebugEnabled())
             {
-                if (logger.isDebugEnabled())
-                {
-                    logger.debug ("Using port " + address.getPort());
-                }
+                logger.debug ("IIOPAddress using port " + address.getPort());
             }
 
             if (address.getHostInetAddress() == null)
@@ -909,7 +906,14 @@ public class IIOPListener
                 listenerAddress.setPort(iiopProfile.getSSLPort());
                 loopbackAddress.setPort(iiopProfile.getSSLPort());
             }
-       }
+
+            if( logger.isDebugEnabled() )
+            {
+                logger.debug("LoopbackAcceptor creates loopbackAddress using: "
+                        + "<" + loopbackAddress.toString() + ">");
+            }
+
+        }
 
         public void start()
         {

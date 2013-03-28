@@ -403,16 +403,8 @@ public class IIOPProfile
                         {
                             addrHostAddress = forceDNSLookup ? addr.getCanonicalHostName() : addr.getHostName();
                         }
-                        if (logger.isDebugEnabled())
-                        {
-                                logger.debug("got a new addrHostAddress <" + addrHostAddress + ">" );
-                        }
                         if (! addrHostAddress.equals(primaryIP))
                         {
-                            if (logger.isDebugEnabled())
-                            {
-                                logger.debug("new addrHostAddress <" + addrHostAddress + "> is to be added" );
-                            }
                             IIOPAddress iaddr = new IIOPAddress();
                             iaddr.configure (configuration);
                             String ipaddr = addr.toString().substring(1);

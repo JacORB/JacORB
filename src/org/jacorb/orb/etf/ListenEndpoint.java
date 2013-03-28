@@ -24,9 +24,6 @@ import org.omg.IOP.TAG_UIPMC;
 
 
 /**
- *
- * @author nguyenq
- *
  * The purpose of the ListenEndpoint class is to hold a set of two endpoint
  * address and sslAddress, and other informations that are
  * relevant to the endpoint.  Upon being initiated, the TransportManager will
@@ -37,6 +34,9 @@ import org.omg.IOP.TAG_UIPMC;
  * TransportManager will then store the ListenEndpoint objects which will
  * be used by BasicAdapter to update the listeners for the assigned ListenEndpoint
  * object.
+ *
+ * @author nguyenq
+ *
  */
 public class ListenEndpoint
 {
@@ -63,9 +63,9 @@ public class ListenEndpoint
         }
     };
 
-    private ProtocolAddressBase address = null;
-    private ProtocolAddressBase sslAddress = null;
-    private Protocol protocolId = null;
+    private ProtocolAddressBase address;
+    private ProtocolAddressBase sslAddress;
+    private Protocol protocolId;
 
     /**
      * Set the non-SSL address for the endpoint
@@ -98,23 +98,23 @@ public class ListenEndpoint
     }
 
     /**
-     * Return the non-SSL address of the endpoint
+     * Return a <b>copy</b> of the non-SSL address of the endpoint
      * @return address of type ProtocolAddressBase which describes the non-SSL
      * network parameters of the endpoint.
      */
     public ProtocolAddressBase getAddress()
     {
-        return address;
+        return (address == null ? null : address.copy());
     }
 
     /**
-     * Return the SSL address of the endpoint
+     * Return a <b>copy</b> of the SSL address of the endpoint
      * @return address of type ProtocolAddressBase which describes the non-SSL
      * network SSL parameters of the endpoint.
      */
     public ProtocolAddressBase getSSLAddress()
     {
-        return sslAddress;
+        return (sslAddress == null ? null : sslAddress.copy());
     }
 
     /**

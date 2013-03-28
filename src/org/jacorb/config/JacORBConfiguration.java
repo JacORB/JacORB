@@ -187,7 +187,7 @@ public class JacORBConfiguration implements Configuration
             }
         }
 
-        // ORB args override system props.
+        // ORB props and args override system props.
         if ( orbid != null && orbid.length () > 0)
         {
             myOrbID = orbid;

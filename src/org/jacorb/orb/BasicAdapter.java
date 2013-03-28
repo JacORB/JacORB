@@ -108,9 +108,11 @@ public class BasicAdapter
              while (it.hasNext())
              {
                  Listener listener = factories.create_listener (null, (short)0, (short)0);
+                 ListenEndpoint le = it.next();
+
                  if (listener instanceof ListenerBase)
                  {
-                     ((ListenerBase)listener).setListenEndpoint(it.next());
+                     ((ListenerBase)listener).setListenEndpoint(le);
                  }
                  if (listener instanceof Configurable)
                  {
@@ -118,7 +120,6 @@ public class BasicAdapter
                  }
                  listener.set_handle(this);
                  listeners.add (listener);
-
              }
          }
 
