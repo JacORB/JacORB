@@ -76,7 +76,7 @@
     <!-- ==================================================== -->
     <!--             compile and run tests                    -->
     <!-- ==================================================== -->
-    <target name="build-all" unless="NO_BUILD">
+    <target name="build-all" depends="test-init" description="Build all regression tests" unless="NO_BUILD">
         <antcall target="idl"/>
         <antcall inheritRefs="true" target="compile-test-listenendpoints"/>
         <antcall inheritRefs="true" target="compile-src"/>
