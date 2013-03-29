@@ -79,7 +79,7 @@
                 token="com.ibm.security.jgss.spi"/>
    </target>
 
-   <target name="all" depends="init,check-props,prepatch,prepatch-ibm,compile,postpatch,postpatch-ibm,jaas" />
+   <target name="all" depends="init,check-props,prepatch,prepatch-ibm,compile,postpatch-ibm,postpatch,jaas" />
 
    <target name="compile" if="jgss.present">
       <jacorb-javac javac-includes="org/jacorb/security/sas/*.java"
