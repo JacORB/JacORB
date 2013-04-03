@@ -60,13 +60,15 @@ public class ListenEndpointsTest extends ClientServerTestCase
     private static final String DEFAULT_LISTEN_EP = "iiop://:45000";
 
     // wildcard listen endpoint
-    private static final String LISTEN_EP = "'iiop://:32999;iiop://:44999'";
+    private static final String LISTEN_EP = "'iiop://:32999,iiop://:44999;iiop://:45999'";
 
     private static final String PROTOCOL = "iiop:";
 
     private static final int CORRECT_PORT_1 = 32999;
     private static final int CORRECT_PORT_2 = 44999;
+    private static final int CORRECT_PORT_3 = 45999;
     private static final int WRONG_PORT   = 55555;
+    private static final int WRONG_PORT_2 = 45000;
 
     public ListenEndpointsTest(String name, ClientServerSetup setup)
     {
@@ -87,6 +89,7 @@ public class ListenEndpointsTest extends ClientServerTestCase
         clientProps.setProperty ("jacorb.retries", "3");
         clientProps.setProperty ("jacorb.retry_interval", "500");
         clientProps.setProperty ("jacorb.connection.client.connect_timeout","1000");
+        // clientProps.setProperty ("jacorb.test.timeout.server", Long.toString(10000));
         // If security is not disabled it will not use the above host/port
         // combinations.
         clientProps.setProperty(CommonSetup.JACORB_REGRESSION_DISABLE_SECURITY, "true");
@@ -96,9 +99,10 @@ public class ListenEndpointsTest extends ClientServerTestCase
         serverProps.setProperty ("OAAddress", DEFAULT_LISTEN_EP);
         serverProps.put ("OAPort","0");
         serverProps.put ("OASSLPort", "0");
+        // serverProps.put ("jacorb.test.timeout.server", Long.toString(10000));
 
         ClientServerSetup setup =
-            new ClientServerSetup (suite,
+                new ClientServerSetup (suite,
                                    "org.jacorb.test.listenendpoints.echo_corbaloc.Server",
                                    new String[] {"-testmode", "P", "-ORBListenEndpoints", LISTEN_EP},
                                    clientProps,
@@ -356,6 +360,62 @@ public class ListenEndpointsTest extends ClientServerTestCase
         }
     }
 
+    /**
+     * This test would ping all listenable endpoints on CORRECT_PORT_3
+     */
+    public void test_correct_port_3()
+    {
+        try
+        {
+            String ior = setup.getServerIOR();
+            assertTrue("test_correct_port_2: couldn't pickup server IOR", ior != null && ior.length() > 0);
+
+            int slash = ior.trim().indexOf("/");
+            String corbalocObjId = ior.trim().substring(slash);
+            assertTrue("test_correct_port_2: corbaloc objectID is null", corbalocObjId != null);
+            assertTrue("test_correct_port_2: corbaloc objID is malformed", corbalocObjId.equals("/EchoServer/EchoPOAP/EchoID") );
+
+            List<String> listen_eps = getListenEndpoints(CORRECT_PORT_3, corbalocObjId);
+            for (Iterator<String> x = listen_eps.iterator(); x.hasNext();)
+            {
+                String endpoint = (String)x.next();
+                Properties props = new Properties();
+                props.setProperty("org.omg.CORBA.ORBClass", "org.jacorb.orb.ORB");
+                props.setProperty("org.omg.CORBA.ORBSingletonClass", "org.jacorb.orb.ORBSingleton");
+                props.setProperty(CommonSetup.JACORB_REGRESSION_DISABLE_SECURITY, "true");
+                props.setProperty(CommonSetup.JACORB_REGRESSION_DISABLE_IMR, "true");
+
+                org.omg.CORBA.ORB orb = org.omg.CORBA.ORB.init(new String[0], props);
+                EchoMessage server = null;
+                try
+                {
+                    assertTrue(orb instanceof org.jacorb.orb.ORB);
+
+                    server =
+                            EchoMessageHelper.narrow(orb.string_to_object(endpoint));
+
+                    // log("test_correct_port_1: ping endpoint: " + endpoint);
+                    int cnt = send_msg(10, "test_correct_port_2", "hailing endpoint " + endpoint, server);
+                    assertTrue("test_correct_port_2: got cnt=" + cnt + " (expected 10)", cnt == 10);
+                }
+                catch (Exception e)
+                {
+                    fail("test_correct_port_2: got an unexpected exception : <" + e.getMessage() + ">");
+                }
+                finally
+                {
+                    orb.shutdown(true);
+                    server = null;
+                }
+            }
+
+        }
+        catch (Exception e)
+        {
+            fail("test_correct_port_2: got an unexpected exception : <" + e.getMessage() + ">");
+        }
+    }
+
     private int send_msg(int ntimes, String testName, String msg,
             EchoMessage s)
     {
@@ -392,7 +452,7 @@ public class ListenEndpointsTest extends ClientServerTestCase
      * This test would ping all listenable addresses using a wrong port.
      * It should fail.
      */
-    public void test_wrong_port()
+    public void test_wrong_port_1()
     {
         try
         {
@@ -405,6 +465,65 @@ public class ListenEndpointsTest extends ClientServerTestCase
             assertTrue("test_wrong_port: corbaloc objID is malformed", corbalocObjId.equals("/EchoServer/EchoPOAP/EchoID") );
 
             List<String> listen_eps = getListenEndpoints(WRONG_PORT, corbalocObjId);
+            for (Iterator<String> x = listen_eps.iterator(); x.hasNext();)
+            {
+                String endpoint = (String)x.next();
+                Properties props = new Properties();
+                props.setProperty("org.omg.CORBA.ORBClass", "org.jacorb.orb.ORB");
+                props.setProperty("org.omg.CORBA.ORBSingletonClass", "org.jacorb.orb.ORBSingleton");
+
+                org.omg.CORBA.ORB orb = org.omg.CORBA.ORB.init(new String[0], props);
+                EchoMessage server = null;
+
+                try
+                {
+                    assertTrue(orb instanceof org.jacorb.orb.ORB);
+
+                    server =
+                            EchoMessageHelper.narrow(orb.string_to_object(endpoint));
+
+                    //log("test_wrong_port: ping endpoint: " + endpoint);
+                    int cnt = 0;
+                    cnt = send_msg(1, "test_wrong_port", "hailing endpoint " + endpoint, server);
+                    assertTrue("test_wrong_port: got cnt=" + cnt + " (expected 0)", cnt != 1);
+                }
+                catch (Exception e)
+                {
+                    // expected
+                    //e.getMessage();
+                }
+                finally
+                {
+                    orb.shutdown(true);
+                    server = null;
+                }
+
+            }
+
+        }
+        catch (Exception e)
+        {
+            fail("test_wrong_port: got an unexpected exception : <" + e.getMessage() + ">");
+        }
+    }
+
+    /**
+     * This test would ping all listenable addresses using the default port.
+     * It should fail.
+     */
+    public void test_wrong_port_2()
+    {
+        try
+        {
+            String ior = setup.getServerIOR();
+            assertTrue("test_wrong_port: couldn't pickup server IOR", ior != null && ior.length() > 0);
+
+            int slash = ior.trim().indexOf("/");
+            String corbalocObjId = ior.trim().substring(slash);
+            assertTrue("test_wrong_port: corbaloc objectID is null", corbalocObjId != null);
+            assertTrue("test_wrong_port: corbaloc objID is malformed", corbalocObjId.equals("/EchoServer/EchoPOAP/EchoID") );
+
+            List<String> listen_eps = getListenEndpoints(WRONG_PORT_2, corbalocObjId);
             for (Iterator<String> x = listen_eps.iterator(); x.hasNext();)
             {
                 String endpoint = (String)x.next();

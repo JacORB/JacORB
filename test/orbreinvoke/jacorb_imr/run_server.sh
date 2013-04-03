@@ -39,7 +39,7 @@ fi
 log="${out_dir}/${implName}_$$.log"
 server_name="org.jacorb.test.orbreinvoke.jacorb_imr.Server"
 
-pid=$(ps -ax} | grep -v grep | grep "^.*${server_name}.*${implName}.*{endpoint}" | awk '{print $1}')
+pid=$(ps -ax | grep -v grep | grep "^.*${server_name}.*${implName}.*{endpoint}" | awk '{print $1}')
 if [[ ! -z $pid ]] ; then
     echo "$bn: nothing to do! ${implName} is running"
     exit 0

@@ -47,136 +47,149 @@ public class ListenEndpoints {
                 }
 
                 // split up argument into segments using the semi-clone as delimiters
-                String[] addr_list = ep_args_trim.split(";");
+                String[] seg_addr_list = ep_args_trim.split(";");
 
-                for (int x = 0; x < addr_list.length; x++)
+                for (int xx = 0; xx < seg_addr_list.length; xx++)
                 {
-                    String address_str = null;
-                    String ssl_port = null;
-                    String host_str = "";
-                    String[] options_args = null;
+                    String seg_args = seg_addr_list[xx].trim();
 
-                    String addr_arg = addr_list[x].trim();
-                    if (addr_arg.equals(""))
+                    if (seg_args.equals(""))
                     {
                         continue;
                     }
 
-                    // locate the first colon delimiter and
-                    // pickup the protocol identifier string
-                    int delim = addr_arg.indexOf(":");
-                    String proto = addr_arg.substring (0,delim).toLowerCase();
+                    // split up group of args into individual arg segments
+                    // using the coma as delimiters
+                    String[] indiv_list = seg_args.trim().split(",");
+                    for (int xxx = 0; xxx < indiv_list.length; xxx++)
+                    {
+                        String address_str = null;
+                        String ssl_port = null;
+                        String host_str = "";
+                        String[] options_args = null;
 
-                    // locate the double slash delimiter
-                    int db_slash = addr_arg.indexOf("//", delim+1);
-                    if (db_slash == -1)
-                    {
-                        throw new Exception ("Invalid ORBListenEndPoints <value;value;...> format: listen endpoint \'" + addr_arg + "\' is malformed!" );
-                    }
-
-                    // check if additional option delimiter is present
-                    // and pick up the protocol address
-                    String dbs = "/";
-                    if (proto.equals("uiop"))
-                    {
-                        dbs = "|";
-                    }
-                    int opt_slash = addr_arg.indexOf(dbs, db_slash + 2);
-                    if (opt_slash == -1)
-                    {
-                        address_str = addr_arg.substring(0);
-                    }
-                    else
-                    {
-                        address_str = addr_arg.substring(0, opt_slash);
-                    }
-
-                    // pick up optional arguments if present
-                    if (opt_slash != -1)
-                    {
-                        options_args = addr_arg.substring(opt_slash+1).split("&");
-                        for (int y = 0; y < options_args.length; y++)
+                        String addr_arg = indiv_list[xxx].trim();
+                        if (addr_arg.equals(""))
                         {
-                            String options_args_trim = options_args[x].trim();
-
-                            int opt_delim = options_args_trim.indexOf('=');
-                            if(opt_delim == -1)
-                            {
-                                throw new Exception ("error: listen endpoint options \'" + options_args[y] + "\' is malformed!");
-                            }
-                            else
-                            {
-                                String opt_str = options_args_trim.substring(0, opt_delim);
-                                String opt_value = options_args_trim.substring(opt_delim+1);
-
-                                if(opt_str.equalsIgnoreCase("ssl_port"))
-                                {
-                                    ssl_port = new String(opt_value);
-
-                                }
-                                else
-                                {
-                                    throw new Exception ("error: listen endpoint options \'" + options_args[y] + "\' is not supported!");
-                                }
-                            }
-
-                        }
-                    }
-
-                    if(address_str != null)
-                    {
-                        String address_trim = address_str.trim();
-                        // build an iiop/ssliop protocol address.
-                        // create_protocol_address will allow iiop and ssliop only
-                        if (proto.equals("iiop"))
-                        {
-                            Endpoint addr = null;
-                            try
-                            {
-                                addr = createProtocolAddress(address_trim);
-                            }
-                            catch (Exception e)
-                            {
-                                throw new Exception(e.getMessage());
-                            }
-                            if (ssl_port != null)
-                            {
-                                int colon_delim = address_trim.indexOf(":");
-                                int port_delim = address_trim.indexOf(":", colon_delim+2);
-                                if (port_delim > 0)
-                                {
-                                    host_str = address_trim.substring(colon_delim+3, port_delim);
-                                }
-                                else
-                                {
-                                    host_str = "";
-                                }
-                                addr.setSSLPort(Integer.parseInt(ssl_port));
-
-                            }
-                            endpointList.add(addr);
-
-
+                            continue;
                         }
 
+                        // locate the first colon delimiter and
+                        // pickup the protocol identifier string
+                        int delim = addr_arg.indexOf(":");
+                        String proto = addr_arg.substring (0,delim).toLowerCase();
+                        
+                        // locate the double slash delimiter
+                        int db_slash = addr_arg.indexOf("//", delim+1);
+                        // System.out.println("xxx=" + xxx + ": delim=<" + db_slash + ">");
+                        if (db_slash == -1)
+                        {
+                            throw new Exception ("Invalid ORBListenEndPoints <value;value;...> format: listen endpoint \'" + addr_arg + "\' is malformed!" );
+                        }
+
+                        // check if additional option delimiter is present
+                        // and pick up the protocol address
+                        String dbs = "/";
+                        if (proto.equals("uiop"))
+                        {
+                            dbs = "|";
+                        }
+                        int opt_slash = addr_arg.indexOf(dbs, db_slash + 2);
+                        if (opt_slash == -1)
+                        {
+                            address_str = addr_arg.substring(0);
+                        }
                         else
                         {
-                            Endpoint addr = null;
-                            try
-                            {
-                                addr = createProtocolAddress(address_trim);
-                            }
-                            catch (Exception e)
-                            {
-                                throw new Exception(e.getMessage());
-                            }
-                            endpointList.add(addr);
-
+                            address_str = addr_arg.substring(0, opt_slash);
                         }
 
+                        // pick up optional arguments if present
+                        if (opt_slash != -1)
+                        {
+                            options_args = addr_arg.substring(opt_slash+1).split("&");
+                            for (int y = 0; y < options_args.length; y++)
+                            {
+                                String options_args_trim = options_args[xxx].trim();
 
-                    }
+                                int opt_delim = options_args_trim.indexOf('=');
+                                if(opt_delim == -1)
+                                {
+                                    throw new Exception ("error: listen endpoint options \'" + options_args[y] + "\' is malformed!");
+                                }
+                                else
+                                {
+                                    String opt_str = options_args_trim.substring(0, opt_delim);
+                                    String opt_value = options_args_trim.substring(opt_delim+1);
 
+                                    if(opt_str.equalsIgnoreCase("ssl_port"))
+                                    {
+                                        ssl_port = new String(opt_value);
+
+                                    }
+                                    else
+                                    {
+                                        throw new Exception ("error: listen endpoint options \'" + options_args[y] + "\' is not supported!");
+                                    }
+                                }
+
+                            }
+                        }
+
+                        if(address_str != null)
+                        {
+                            String address_trim = address_str.trim();
+                            // build an iiop/ssliop protocol address.
+                            // create_protocol_address will allow iiop and ssliop only
+                            if (proto.equals("iiop"))
+                            {
+                                Endpoint addr = null;
+                                try
+                                {
+                                    addr = createProtocolAddress(address_trim);
+                                }
+                                catch (Exception e)
+                                {
+                                    throw new Exception(e.getMessage());
+                                }
+                                if (ssl_port != null)
+                                {
+                                    int colon_delim = address_trim.indexOf(":");
+                                    int port_delim = address_trim.indexOf(":", colon_delim+2);
+                                    if (port_delim > 0)
+                                    {
+                                        host_str = address_trim.substring(colon_delim+3, port_delim);
+                                    }
+                                    else
+                                    {
+                                        host_str = "";
+                                    }
+                                    addr.setSSLPort(Integer.parseInt(ssl_port));
+
+                                }
+                                endpointList.add(addr);
+
+
+                            }
+
+                            else
+                            {
+                                Endpoint addr = null;
+                                try
+                                {
+                                    addr = createProtocolAddress(address_trim);
+                                }
+                                catch (Exception e)
+                                {
+                                    throw new Exception(e.getMessage());
+                                }
+                                endpointList.add(addr);
+
+                            }
+
+
+                        }
+                    } //end for inner
                 } //end for
             } //end for
         } // end if
