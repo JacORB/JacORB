@@ -15,7 +15,7 @@ export JACORB_HOME
 PATH=${PATH}
 CLASSPATH=${CLASSPATH}
 export PATH=${PATH}:${JACORB_HOME}/bin
-export CLASSPATH=${CLASSPATH}:${JACORB_HOME}/classes
+export CLASSPATH=${CLASSPATH}:`pwd`/build/classes
 echo "$bn: JACORB_HOME=<${JACORB_HOME}>"
 echo "$bn: CLASSPATH=<${CLASSPATH}>"
 echo "$bn: PATH=<${PATH}>"
@@ -34,7 +34,7 @@ rm -f ${log} 2>&1
 corbaloc="corbaloc::${imr_host}:44555/${serverName}/${serverName}-Parent-POA/${serverName}-POA2/${serverName}-ID2"
 echo "
 echo "$bn: starting ${client} ..."
-exec $JACORB_HOME/bin/jaco test.listenendpoints.echo_corbaloc.Client \
+exec $JACORB_HOME/bin/jaco org.jacorb.test.listenendpoints.echo_corbaloc.Client \
 	-corbaloc ${corbaloc} \
 	-delay 5000 \
     -loop \

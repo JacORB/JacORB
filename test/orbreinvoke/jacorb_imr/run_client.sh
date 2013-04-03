@@ -26,7 +26,7 @@ osname=$(uname -s | awk '{print tolower($0)}')
 PATH=${PATH}
 CLASSPATH=${CLASSPATH}
 export PATH=${PATH}:${JACORB_HOME}/bin
-export CLASSPATH=${CLASSPATH}:${JACORB_HOME}/classes
+export CLASSPATH=${CLASSPATH}:`pwd`/build/classes
 echo "$bn: JACORB_HOME=<${JACORB_HOME}>"
 echo "$bn: CLASSPATH=<${CLASSPATH}>"
 echo "$bn: PATH=<${PATH}>"
@@ -42,7 +42,7 @@ fi
 log="${out_dir}/${client}_$$.log"
 rm -f ${log} 2>&1
 
-client_name="test.listenendpoints.echo_corbaloc.Client"
+client_name="org.jacorb.test.listenendpoints.echo_corbaloc.Client"
 pid=$(ps -ax | grep -v grep | grep "^.* ${client_name}.*corbaloc.*44444.*${serverName}" | awk '{print $1}')
 [[ ! -z $pid ]] && kill -s 15 $pid && wait 5
 

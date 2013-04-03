@@ -1,4 +1,4 @@
-package test.orbreinvoke.tao_ns;
+package org.jacorb.test.orbreinvoke.tao_ns;
 
 import java.util.List;
 import java.util.ArrayList;
@@ -6,7 +6,7 @@ import java.io.*;
 import org.omg.CORBA.*;
 import org.omg.CosNaming.*;
 import org.omg.CosNaming.NamingContextPackage.*;
-import test.listenendpoints.echo_corbaloc.*;
+import org.jacorb.test.listenendpoints.echo_corbaloc.*;
 
 
 

@@ -11,7 +11,7 @@ export JACORB_HOME
 PATH=${PATH}
 CLASSPATH=${CLASSPATH}
 export PATH=${PATH}:${JACORB_HOME}/bin
-export CLASSPATH=${CLASSPATH}:${JACORB_HOME}/classes
+export CLASSPATH=${CLASSPATH}:`pwd`/build/classes
 echo "$bn: JACORB_HOME=<${JACORB_HOME}>"
 echo "$bn: CLASSPATH=<${CLASSPATH}>"
 echo "$bn: PATH=<${PATH}>"
@@ -47,7 +47,3 @@ done
 cat ${log}
 echo "WARNING::$bn: MyImR server may not be running! Check the log file"
 exit 1
-
-
-
-

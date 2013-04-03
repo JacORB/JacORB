@@ -155,7 +155,7 @@ steps:
 \end{enumerate}
 In the following subsequent sections, we will exam each step in the above
 process.  For illustration, we will use the ImR integration test package
-{\tt test.orbreinvoke.tao\_imr} whose source files and test scripts are kept
+{\tt org.jacorb.test.orbreinvoke.tao\_imr} whose source files and test scripts are kept
 in the directory{\tt \$JACORB\_HOME/test/orbreinvoke/tao\_imr}.
 
 \subsection{Environment Variables}
@@ -278,7 +278,7 @@ the ImR repository as follows:
                  -r 3 \
                  -l myhost.ociweb.com} \
                  -c <command line arguments to initiate the server process named
-                    {\tt test.orbreinvoke.tao_imr.SimpleServer}>
+                    {\tt org.jacorb.test.orbreinvoke.tao_imr.SimpleServer}>
 \end{verbatim}
 
 where the argument are:
@@ -438,7 +438,7 @@ Valid activation modes are:
 
 \subsection{Initiate the JacORB client}
 
-The server process {\tt test.orbreinvoke.tao\_imr.SimpleServer},  that is
+The server process {\tt org.jacorb.test.orbreinvoke.tao\_imr.SimpleServer},  that is
 associated with the registered server name
 {\tt “JACORB:EchoServer1/EchoServer-POA”} is simply an echoing server.
 Upon initiated, it will instantiate an {\tt EchoMessage} servant that is tied to
@@ -470,7 +470,7 @@ For illustration, you can run the script:
 
 \cmdline{./run\_SimpleClient.sh EchoServer1 [ImR hostname]}
 
-which will initiate the client process {\tt test.listenendpoints.echo\_corbaloc.Client}.
+which will initiate the client process {\tt org.jacorb.test.listenendpoints.echo\_corbaloc.Client}.
 The argument {\tt [ImR hostname} is required if you initiates the Locator on a
 remote host.  Upon initiated, the client process will use the described corbaloc
 IOR to locate the server through the ImR.  Sensing requests from the client,
@@ -483,7 +483,7 @@ the server in a loop using sequential messages and output the result to a log fi
 When finished, do the following to cleanup:
 
 \begin{itemize}
-    \item Find and kill {\tt test.listenendpoints.echo\_corbaloc.Client}
+    \item Find and kill {\tt org.jacorb.test.listenendpoints.echo\_corbaloc.Client}
     \item Shutdown the SimpleServer server using:
 
               \cmdline{./tao\_imr.sh shutdown "JACORB:EchoServer1/EchoServer-POA"}

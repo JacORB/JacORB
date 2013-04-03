@@ -1,6 +1,6 @@
 #!/bin/bash
 bn=${0##*/}
-client_name="test.listenendpoints.echo_corbaloc.Client"
+client_name="org.jacorb.test.listenendpoints.echo_corbaloc.Client"
 host=$(hostname)
 serverName=$1
 poaBaseName=
@@ -30,7 +30,7 @@ export JACORB_HOME
 PATH=${PATH}
 CLASSPATH=${CLASSPATH}
 export PATH=${PATH}:${JACORB_HOME}/bin
-export CLASSPATH=${CLASSPATH}:${JACORB_HOME}/classes
+export CLASSPATH=${CLASSPATH}:`pwd`/build/classes
 echo "$bn: JACORB_HOME=<${JACORB_HOME}>"
 echo "$bn: CLASSPATH=<${CLASSPATH}>"
 echo "$bn: PATH=<${PATH}>"

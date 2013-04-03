@@ -81,7 +81,7 @@ b) Set up the following JacORB environments variables:
 
    - JACORB_HOME
    - PATH=$PATH:$JACORB_HOME/bin
-   - CLASSPATH=${CLASSPATH}:${JACORB_HOME}/classes:${JACORB_HOME}/demo/tao_imr/build/classes
+   - CLASSPATH=${CLASSPATH}:<script-dir>/build/classes
 
 c) Review the following TAO scripts to ensure that they point to the correct
    TAO executables:
@@ -109,16 +109,16 @@ A basic test session would comprise of the following steps:
     need to copy the Locator's ior file to the system where the server resides
     before initiating the server, otherwise, it will fail to find the Locator.
 
-  - Initiate the SimpleServer server, test.orbreinvoke.tao_imr.SimpleServer, by
+  - Initiate the SimpleServer server, org.jacorb.test.orbreinvoke.tao_imr.SimpleServer, by
     running:
 
         ./run_SimpleServer.sh EchoServer1
 
     The script will initiate a server with an implname of "EchoServer1" on the
     local host.  The server produces an ImR-ified IOR file
-    "/tmp/test.orbreinvoke.tao_imr.Server.EchoServer1.EchoServer.ior".
+    "/tmp/org.jacorb.test.orbreinvoke.tao_imr.Server.EchoServer1.EchoServer.ior".
 
-  - Initiate the client application, test.listenendpoints.echo_corbaloc.Client,
+  - Initiate the client application, org.jacorb.test.listenendpoints.echo_corbaloc.Client,
     by running:
 
         ./run_SimpleClient.sh EchoServer1
@@ -131,8 +131,8 @@ A basic test session would comprise of the following steps:
 
   - When finished, do the following to cleanup:
 
-        - Find and kill test.listenendpoints.echo_corbaloc.Client
-        - Find and kill test.orbreinvoke.tao_imr.SimpleServer
+        - Find and kill org.jacorb.test.listenendpoints.echo_corbaloc.Client
+        - Find and kill org.jacorb.test.orbreinvoke.tao_imr.SimpleServer
         - Shutdown the TAO ImR Locator using:
 
               ./tao_imr.sh shutdown-repo
@@ -181,7 +181,7 @@ following steps:
     Again, the TAO ImR Activator must be started on the same system where the
     SimpleServer server resides.
 
-  - Initiate the client application, test.listenendpoints.echo_corbaloc.Client,
+  - Initiate the client application, org.jacorb.test.listenendpoints.echo_corbaloc.Client,
     by running:
 
         ./run_SimpleClient.sh EchoServer1
@@ -200,7 +200,7 @@ following steps:
 
   - When finished, do the following to cleanup:
 
-        - Find and kill test.listenendpoints.echo_corbaloc.Client
+        - Find and kill org.jacorb.test.listenendpoints.echo_corbaloc.Client
         - Shutdown the SimpleServer server using:
 
               ./tao_imr.sh shutdown "JACORB:EchoServer1/EchoServer-POA"

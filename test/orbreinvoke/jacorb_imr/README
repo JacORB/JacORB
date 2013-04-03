@@ -44,13 +44,13 @@ A basic test session would comprise of the following steps:
         ./run_imr.sh
     The script will initiate the ImR service, which produces an IOR file
     "/tmp/MyImR.ior".
-  - Initiate the server application, test.orbreinvoke.jacorb_imr.Server, by
-    running:
+  - Initiate the server application, org.jacorb.test.orbreinvoke.jacorb_imr.Server,
+    by running:
         ./run_server.sh EchoServer1
     The script will initiate a server with an implname of "EchoServer1", which
-    produces an ImR-ified IOR file "/tmp/test.orbreinvoke.jacorb_imr.Server.EchoServer1.
+    produces an ImR-ified IOR file "/tmp/org.jacorb.test.orbreinvoke.jacorb_imr.Server.EchoServer1.
     EchoServer.ior".
-  - Initiate the client application, test.listenendpoints.echo_corbaloc.Client,
+  - Initiate the client application, org.jacorb.test.listenendpoints.echo_corbaloc.Client,
     by running:
         ./run_client.sh EchoServer1
     The script will initiate the client, which will attempt to connect to the

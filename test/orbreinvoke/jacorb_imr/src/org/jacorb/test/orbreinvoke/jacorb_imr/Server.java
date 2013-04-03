@@ -1,4 +1,4 @@
-package test.orbreinvoke.tao_imr;
+package org.jacorb.test.orbreinvoke.jacorb_imr;
 
 import java.util.Properties;
 import java.io.*;
@@ -24,39 +24,29 @@ import org.omg.PortableServer.POAHelper;
 import org.omg.PortableServer.Servant;
 
 import org.omg.PortableServer.ImplicitActivationPolicyValue;
-import test.listenendpoints.echo_corbaloc.EchoMessageImpl;
-import test.listenendpoints.echo_corbaloc.ListenEndpoints;
-import test.listenendpoints.echo_corbaloc.Endpoint;
-import test.listenendpoints.echo_corbaloc.CmdArgs;
+import org.jacorb.test.listenendpoints.echo_corbaloc.*;
 
-public class SimpleServer
+public class Server
 {
    public static void main(String[] args)
    {
       try
       {
-         MyCmdArgs cmdArgs = new MyCmdArgs("Server", args);
+         CmdArgs cmdArgs = new CmdArgs("Server", args);
          boolean cmdArgsStatus = cmdArgs.processArgs();
 
          // translate any properties set on the commandline but after the
          // class name to a properties
          java.util.Properties props = ObjectUtil.argsToProps(args);
          String implName = props.getProperty("jacorb.implname", "EchoServerX");
+         System.out.println("Server: jacorb.implname: <" + implName + ">");
          if (implName.equals("EchoServerX"))
          {
              props.setProperty("jacorb.implname", implName);
          }
-         System.out.println("Server: jacorb.implname: <" + implName + ">");
 
-         String poaBaseName = cmdArgs.getPoaBaseName();
-         if (poaBaseName == null)
-         {
-             poaBaseName = "EchoServer";
-         }
-         System.out.println("Server: poaBaseName: <" + poaBaseName + ">");
-
-         String objectId = poaBaseName + "-ID";
-         String poaName = poaBaseName + "-POA";
+         String objectId = implName + "-ID";
+         String poaName = "EchoServer-POA";
 
          //init ORB
          ORB orb = ORB.init(args, props);
@@ -74,14 +64,15 @@ public class SimpleServer
             policies[i].destroy();
          }
 
-         POA parent_poa = rootPOA.create_POA (poaBaseName + "-POA", rootPOA.the_POAManager(), policies);
-         parent_poa.the_POAManager().activate();
+         POA poa = rootPOA.create_POA
+            (poaName, rootPOA.the_POAManager(), policies);
+
+         poa.the_POAManager().activate();
 
          // create servant object
-         EchoMessageImpl echoServant = new EchoMessageImpl(implName + "." + poaBaseName + "." + objectId);
-
-         parent_poa.activate_object_with_id(objectId.getBytes(), echoServant);
-         final org.omg.CORBA.Object ref = parent_poa.servant_to_reference(echoServant);
+         EchoMessageImpl echoServant = new EchoMessageImpl(implName + "." + objectId);
+         poa.activate_object_with_id(objectId.getBytes(), echoServant);
+         final org.omg.CORBA.Object ref = poa.servant_to_reference(echoServant);
          String ior = orb.object_to_string(ref);
          System.out.println("SERVER IOR: " + ior);
          System.out.flush();
@@ -104,6 +95,4 @@ public class SimpleServer
          e.printStackTrace();
       }
    }
-
-
 }

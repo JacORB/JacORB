@@ -1,9 +1,9 @@
-package test.orbreinvoke.tao_ns;
+package org.jacorb.test.orbreinvoke.tao_ns;
 
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
-import test.listenendpoints.echo_corbaloc.*;
+import org.jacorb.test.listenendpoints.echo_corbaloc.*;
 
 
 /**

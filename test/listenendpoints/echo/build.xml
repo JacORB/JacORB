@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 
-<project name="listenendpoints" default="all" basedir=".">
+<project name="listenendpoints-echo" default="all" basedir=".">
 
   <!-- ==================================================== -->
   <!--                   build file                         -->

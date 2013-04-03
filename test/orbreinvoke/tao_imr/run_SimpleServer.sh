@@ -1,6 +1,6 @@
 #!/bin/bash
 bn=${0##*/}
-server_name="test.orbreinvoke.tao_imr.SimpleServer"
+server_name="org.jacorb.test.orbreinvoke.tao_imr.SimpleServer"
 host=$(hostname)
 if [[ $host == "phil" ]] ; then
     host="phil.ociweb.com"
@@ -30,7 +30,7 @@ PATH=${PATH}
 CLASSPATH=${CLASSPATH}
 export JACORB_HOME
 export PATH=${PATH}:${JACORB_HOME}/bin
-export CLASSPATH=${CLASSPATH}:${JACORB_HOME}/classes
+export CLASSPATH=${CLASSPATH}:`pwd`/build/classes
 #echo "$bn: JACORB_HOME=<${JACORB_HOME}>"
 #echo "$bn: CLASSPATH=<${CLASSPATH}>"
 #echo "$bn: PATH=<${PATH}>"

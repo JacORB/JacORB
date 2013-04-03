@@ -1,7 +1,7 @@
 #!/bin/bash
 bn=${0##*/}
 host=$(hostname)
-server_name="test.orbreinvoke.tao_ns.Server"
+server_name="org.jacorb.test.orbreinvoke.tao_ns.Server"
 implName=$1
 if [[ -z $implName ]] ; then
     echo "$bn: Usage: $bn <EchoServer1 or EchoServer2>"
@@ -21,7 +21,7 @@ export JACORB_HOME
 PATH=${PATH}
 CLASSPATH=${CLASSPATH}
 export PATH=${PATH}:${JACORB_HOME}/bin
-export CLASSPATH=${CLASSPATH}:${JACORB_HOME}/classes
+export CLASSPATH=${CLASSPATH}:`pwd`/build/classes
 echo "$bn: JACORB_HOME=<${JACORB_HOME}>"
 echo "$bn: CLASSPATH=<${CLASSPATH}>"
 echo "$bn: PATH=<${PATH}>"

@@ -23,7 +23,7 @@ PATH=${PATH}
 CLASSPATH=${CLASSPATH}
 export JACORB_HOME
 export PATH=${PATH}:${JACORB_HOME}/bin
-export CLASSPATH=${CLASSPATH}:${JACORB_HOME}/classes
+export CLASSPATH=${CLASSPATH}:`pwd`/build/classes
 echo "$bn: JACORB_HOME=<${JACORB_HOME}>"
 echo "$bn: CLASSPATH=<${CLASSPATH}>"
 echo "$bn: PATH=<${PATH}>"
@@ -37,7 +37,7 @@ if [[ ! -d $out_dir ]] ; then
 fi
 
 log="${out_dir}/${implName}_$$.log"
-server_name="test.orbreinvoke.jacorb_imr.Server"
+server_name="org.jacorb.test.orbreinvoke.jacorb_imr.Server"
 
 pid=$(ps -ax} | grep -v grep | grep "^.*${server_name}.*${implName}.*{endpoint}" | awk '{print $1}')
 if [[ ! -z $pid ]] ; then

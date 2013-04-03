@@ -36,8 +36,8 @@ all outputs to to log files in the directory "./output".  The important scripts
 are:
 
   - run_tao_ns.sh, which will initiate the TAO NS service.
-  - run_server.sh, which will initiate the server test.orbreinvoke.tao_ns.Server.
-  - run_client.sh, which will initiate the client test.listenendpoints.echo_corba.Client.
+  - run_server.sh, which will initiate the server org.jacorb.test.orbreinvoke.tao_ns.Server.
+  - run_client.sh, which will initiate the client org.jacorb.test.listenendpoints.echo_corba.Client.
 
 Before running the tests, you may wish to review the following prerequisite
 steps for setting up the environment:
@@ -53,7 +53,7 @@ b) Set up the following JacORB environments variables:
 
    - JACORB_HOME
    - PATH=$PATH:$JACORB_HOME/bin
-   - CLASSPATH=${CLASSPATH}:${JACORB_HOME}/classes:${JACORB_HOME}/demo/tao_imr/build/classes
+   - CLASSPATH=${CLASSPATH}:<script-dir>/build/classes
 
 c) Review the following TAO script to ensure that they point to the correct
    TAO executable:
@@ -71,16 +71,16 @@ A basic test session would comprise of the following steps:
     need to copy the IOR file from the remote host to the host where the server
     resides before initiating the server.
 
-  - Initiate the server, test.orbreinvoke.tao_ns.Server, by
+  - Initiate the server, org.jacorb.test.orbreinvoke.tao_ns.Server, by
     running:
 
         ./run_server.sh EchoServer1
 
     The script will initiate a server with an implname of "EchoServer1", which
     uses the NS's IOR file to contact the NS service, and produces the IOR file
-    "/tmp/test.orbreinvoke.tao_ns.Server.EchoServer1.ior".
+    "/tmp/org.jacorb.test.orbreinvoke.tao_ns.Server.EchoServer1.ior".
 
-  - Initiate the client application, test.listenendpoints.echo_corbaloc.Client,
+  - Initiate the client application, org.jacorb.test.listenendpoints.echo_corbaloc.Client,
     by running:
 
         ./run_client.sh EchoServer1
@@ -94,5 +94,3 @@ A basic test session would comprise of the following steps:
 Quynh Nguyen
 Object Computing Inc.
 January 7, 2013
-
-

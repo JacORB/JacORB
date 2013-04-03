@@ -29,7 +29,7 @@ export JACORB_HOME
 PATH=${PATH}
 CLASSPATH=${CLASSPATH}
 export PATH=${PATH}:${JACORB_HOME}/bin
-export CLASSPATH=${CLASSPATH}:${JACORB_HOME}/classes
+export CLASSPATH=${CLASSPATH}:`pwd`/build/classes
 echo "$bn: JACORB_HOME=<${JACORB_HOME}>"
 echo "$bn: CLASSPATH=<${CLASSPATH}>"
 echo "$bn: PATH=<${PATH}>"
@@ -55,7 +55,7 @@ else
 fi
 echo "$bn: corbaloc IOR is ${corbaloc}"
 echo "$bn: starting ${client} (${server_name}) ..."
-$JACORB_HOME/bin/jaco test.listenendpoints.echo_corbaloc.Client \
+$JACORB_HOME/bin/jaco org.jacorb.test.listenendpoints.echo_corbaloc.Client \
     -corbaloc ${corbaloc} \
     -delay 5000 \
     -loop \

@@ -1,4 +1,4 @@
-package test.orbreinvoke.tao_ns;
+package org.jacorb.test.orbreinvoke.tao_ns;
 
 import java.util.Properties;
 import java.io.*;
@@ -27,10 +27,7 @@ import org.omg.CosNaming.*;
 import org.omg.CosNaming.NamingContextPackage.*;
 
 import org.omg.PortableServer.ImplicitActivationPolicyValue;
-import test.listenendpoints.echo_corbaloc.EchoMessageImpl;
-import test.listenendpoints.echo_corbaloc.ListenEndpoints;
-import test.listenendpoints.echo_corbaloc.Endpoint;
-import test.listenendpoints.echo_corbaloc.CmdArgs;
+import org.jacorb.test.listenendpoints.echo_corbaloc.*;
 
 
 public class Server

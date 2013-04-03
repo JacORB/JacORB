@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 
-<project name="orbreinvoke-tao_ns" default="all" basedir="../../..">
+<project name="orbreinvoke-tao_ns" default="all" basedir=".">
 
     <import file="../../../etc/common.xml"/>
 
@@ -10,43 +10,45 @@
 
 
     <target name="init">
-	<property name="dirs.base" value="${basedir}"/>
-	<property name="classdir" value="${dirs.base}/classes"/>
-	<property name="lib" value="${dirs.base}/lib"/>
-	<property name="include" value="${dirs.base}/idl"/>
-    <mkdir dir="${dirs.base}/test/orbreinvoke/tao_ns/generated" />
-    <mkdir dir="${classdir}" />
-   </target>
+        <property name="jacorb.dir" value="../../../"/>
+        <property name="build.dir" value="${basedir}/build"/>
+	<property name="classes.dir" value="${build.dir}/classes"/>
 
-   <target name="all"
-           depends="init,compile-test-listenendpoints-echo_corbaloc,compile">
-   </target>
+        <path id="jacorb.classpath" >
+            <pathelement location="${jacorb.dir}/classes" />
+            <fileset dir="${jacorb.dir}/lib">
+                <include name="*.jar" />
+            </fileset>
+        </path>
 
-   <target name="compile">
-        <javac srcdir="${dirs.base}/test/orbreinvoke/tao_ns/generated"
-               destdir="${classdir}"
-            	debug="true" includeantruntime="false"
-                includes="test/orbreinvoke/tao_ns/*.java"
-	        />
-        <javac srcdir="${dirs.base}"
-               destdir="${classdir}"
-        		debug="true" includeantruntime="false"
-                includes="test/orbreinvoke/tao_ns/*.java"
-	        />
-   </target>
-
-   <target name="clean"
-       depends="clean-test-listenendpoints-echo_corbaloc">
-	   <deltree dir="${classdir}/test/orbreinvoke/tao_ns"/>
-	   <deltree dir="${dirs.base}/test/orbreinvoke/tao_ns/generated"/>
-   </target>
-
-   <target name="compile-test-listenendpoints-echo_corbaloc">
-        <ant antfile="${basedir}/test/listenendpoints/echo_corbaloc/build.xml" target="idl" inheritall="false"/>
-        <ant antfile="${basedir}/test/listenendpoints/echo_corbaloc/build.xml" target="all" inheritall="false"/>
     </target>
 
-    <target name="clean-test-listenendpoints-echo_corbaloc">
-        <ant antfile="${basedir}/test/listenendpoints/echo_corbaloc/build.xml" target="clean" inheritall="false"/>
+    <target name="all"
+           depends="init,compile-test-listenendpoints-echo_corbaloc,compile">
+    </target>
+
+    <target name="compile">
+        <mkdir dir="${classes.dir}"/>
+
+        <javac destdir="${classes.dir}"
+               debug="true" includeantruntime="false">
+            <src path="${basedir}/src"/>
+            <src path="${build.dir}"/>
+            <classpath refid="jacorb.classpath"/>
+	   </javac>
+
+    </target>
+
+    <target name="clean"
+        depends="init,clean-test-listenendpoints-echo_corbaloc">
+       <delete dir="${build.dir}"/>
+    </target>
+
+    <target name="compile-test-listenendpoints-echo_corbaloc">
+        <ant antfile="${jacorb.dir}/test/listenendpoints/echo_corbaloc/build.xml" target="all" dir="${jacorb.dir}/test/listenendpoints/echo_corbaloc"/>
+    </target>
+
+    <target name="clean-test-listenendpoints-echo_corbaloc" depends="init">
+        <ant antfile="${jacorb.dir}/test/listenendpoints/echo_corbaloc/build.xml" target="clean" inheritall="false"/>
     </target>
 </project>
