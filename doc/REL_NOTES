@@ -55,6 +55,7 @@
          Fix for UCS-2 codeset encoding.
          setTcpNoDelay on server side as well.
          Fix for deadlock (JBPAPP-10671).
+         Change logging to debug level (BZ950294).
     - POA
          Fix shutdown issue (jacorb-2.3.1-CORBA_OBJECT_NOT_EXIST.patch)
          Fix for AOM thread creation (jacorb-2.3.1-thread-per-request.patch)
@@ -65,6 +66,7 @@
          Update manifest (jacorb-2.3.1-manifest.patch)
          Exclude Transactions from jacorb.jar (jacorb-2.3.1-remove_ots_classes.patch)
          Backport maven wrappers
+         Backport jar manifest improvements.
 
 2.3.1
 =====
