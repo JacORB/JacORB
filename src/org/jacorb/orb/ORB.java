@@ -690,9 +690,9 @@ public final class ORB
         }
         catch ( Exception e )
         {
-            if ( logger.isErrorEnabled() )
+            if( logger.isDebugEnabled() )
             {
-                logger.error(e.getMessage());
+                logger.debug(e.getMessage());
             }
         }
 
