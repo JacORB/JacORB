@@ -75,18 +75,7 @@ public abstract class ProtocolAddressBase
     }
 
     /**
-     * This function shall return an equivalent, deep-copy of the profile
-     * on the free store.
+     * This function shall return an equivalent, copy of the profile.
      */
-    public ProtocolAddressBase copy()
-    {
-        try
-        {
-            return (ProtocolAddressBase)this.clone();
-        }
-        catch (CloneNotSupportedException e)
-        {
-            throw new RuntimeException("error cloning profile: " + e);
-        }
-    }
+    public abstract ProtocolAddressBase copy();
 }

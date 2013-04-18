@@ -40,6 +40,7 @@ public class BiDirServerImpl extends BiDirServerPOA
                     // ignore
                 }
                 callback.hello (msg);
+                callback._release();
             }
         }).start();
     }

@@ -29,31 +29,31 @@ import java.util.Map;
 public class IIOPLoopbackRegistry
 {
     private static final IIOPLoopbackRegistry REGISTRY = new IIOPLoopbackRegistry() ;
-    
-    private final Map loopbackMap = new HashMap() ;
-    
+
+    private final Map<IIOPAddress, IIOPLoopback> loopbackMap = new HashMap<IIOPAddress, IIOPLoopback>() ;
+
     private IIOPLoopbackRegistry()
     {
     }
-    
+
     public static IIOPLoopbackRegistry getRegistry()
     {
         return REGISTRY ;
     }
-    
+
     public synchronized void register(final IIOPAddress address,
                                       final IIOPLoopback loopback)
     {
         loopbackMap.put(address, loopback);
     }
-    
+
     public synchronized void unregister(final IIOPAddress address)
     {
         loopbackMap.remove(address);
     }
-    
+
     public synchronized IIOPLoopback getLoopback(final IIOPAddress address)
     {
-        return (IIOPLoopback)loopbackMap.get(address);
+        return loopbackMap.get(address);
     }
 }

@@ -52,7 +52,7 @@ public class IIOPAddress
     private boolean dnsEnabled = false;
     private boolean hideZoneID = true;
     private Logger logger;
-    private boolean doEagerResolve;
+    private boolean doEagerResolve = true;
     private boolean forceDNSLookup = true;
     private Protocol protocol = null;
     private boolean isWildcard = false;
@@ -151,10 +151,11 @@ public class IIOPAddress
         forceDNSLookup = configuration.getAttributeAsBoolean("jacorb.dns.force_lookup", true);
 
         /**
-         * Check if this object has already been configured
+         * Check if this object has already been configured. See IIOPAddress (ServerSocket)
          */
-        if (isConfigured == true) {
-           return;
+        if (isConfigured == true)
+        {
+            return;
         }
 
         if (doEagerResolve)
@@ -203,18 +204,18 @@ public class IIOPAddress
             }
             catch (UnknownHostException ex)
             {
-                if (logger.isWarnEnabled())
+                if (logger.isDebugEnabled())
                 {
-                    logger.warn ("init_host, " + source_name + " unresolvable" );
+                    logger.debug ("init_host, " + source_name + " unresolvable" );
                 }
                 unresolvable = true;
                 try
                 {
                     // Attempt to fallback to some valid IP address.
                     host = InetAddress.getLocalHost();
-                    if (logger.isWarnEnabled())
+                    if (logger.isDebugEnabled())
                     {
-                        logger.warn ("init_host, " + "default to " + host.toString() );
+                        logger.debug ("init_host, " + "default to " + host.toString() );
                     }
                 }
                 catch (UnknownHostException ex2)
@@ -673,4 +674,11 @@ public class IIOPAddress
         return result;
     }
 
+
+    public ProtocolAddressBase copy()
+    {
+        IIOPAddress result = new IIOPAddress (getHostname(), port);
+        result.logger = logger;
+        return result;
+    }
 }
