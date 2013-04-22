@@ -144,7 +144,7 @@ public final class Delegate
     private ParsedIOR piorLastFailed = null;
 
     /* flag to indicate if this is the delegate for the ImR */
-    private boolean isImR = false;
+    private boolean isJacORBImR = false;
     private boolean isTaoImR = false;
 
     private boolean bound = false;
@@ -186,7 +186,7 @@ public final class Delegate
     private final Configuration configuration;
 
     /** configuration properties */
-    private  boolean useIMR;
+    private  boolean useJacORBIMR;
     private  boolean useTaoIMR;
     private boolean locateOnBind;
 
@@ -339,14 +339,14 @@ public final class Delegate
         selectorManager = orb.getSelectorManager ();
 
         logger = ((Configuration)config).getLogger("jacorb.orb.delegate");
-        useIMR =
+        useJacORBIMR =
             config.getAttributeAsBoolean("jacorb.use_imr", false);
 
 
         useTaoIMR =
             config.getAttributeAsBoolean("jacorb.use_tao_imr", false);
 
-        if (useTaoIMR && useIMR)
+        if (useTaoIMR && useJacORBIMR)
         {
             throw new INTERNAL ("Ambiguous ImR property settings: jacorb.use_tao_imr and jacorb.use_imr are both true");
         }
@@ -463,7 +463,7 @@ public final class Delegate
     {
         if ("IDL:org/jacorb/imr/ImplementationRepository:1.0".equals (typeId))
         {
-            isImR = true;
+            isJacORBImR = true;
         }
         else if ("IDL:ImplementationRepository/Locator:1.0".equals (typeId))
         {
@@ -1681,7 +1681,7 @@ public final class Delegate
                 piorLastFailed = getParsedIOR();
                 if (piorOriginal.equals(piorLastFailed) && getParsedIOR().getProfiles().size() > 1)
                 {
-                    if ( (useIMR && ! isImR) || (useTaoIMR) || getParsedIOR().isNameServiceIor() )
+                    if ( (useJacORBIMR && ! isJacORBImR) || (useTaoIMR) || getParsedIOR().isNameServiceIor() )
                     {
                         if( logger.isDebugEnabled())
                         {
@@ -1713,7 +1713,7 @@ public final class Delegate
 
                 return true;
             }
-            else if ( (useIMR && ! isImR)  ||
+            else if ( (useJacORBIMR && ! isJacORBImR)  ||
                     (useTaoIMR) ||
                     getParsedIOR().isNameServiceIor() ||
                     getParsedIOR().useNameService())
@@ -1771,7 +1771,7 @@ public final class Delegate
                 }
 
                 // last effort to connect to the ImR
-                if ( (useIMR && ! isImR)  ||
+                if ( (useJacORBIMR && ! isJacORBImR)  ||
                     (useTaoIMR))
                 {
 
@@ -1814,7 +1814,7 @@ public final class Delegate
                     try
                     {
 
-                        if (useIMR)
+                        if (useJacORBIMR)
                         {
                             corbaloc = new StringBuffer( "corbaloc:iiop:" );
                             imr = org.jacorb.imr.ImRAccessImpl.connect(orb);
