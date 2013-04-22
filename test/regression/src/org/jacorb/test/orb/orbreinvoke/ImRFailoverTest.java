@@ -109,6 +109,7 @@ public class ImRFailoverTest extends TestCase
                 imrSetup_2.tearDown();
                 imrSetup_2 = null;
             }
+            Thread.sleep (3000);
         }
         catch (Exception e)
         {
@@ -216,6 +217,7 @@ public class ImRFailoverTest extends TestCase
                 serverSetup_2.tearDown();
                 serverSetup_2 = null;
             }
+            Thread.sleep (3000);
         }
         catch (Exception e)
         {
@@ -312,6 +314,7 @@ public class ImRFailoverTest extends TestCase
                 clientSetup.tearDown();
                 clientSetup = null;
                 clientORB = null;
+                Thread.sleep (3000);
             }
         }
         catch (Exception e)
@@ -354,6 +357,7 @@ public class ImRFailoverTest extends TestCase
         {
             // initiate ImR's
             setupMyImRs(this, IMR_1_ON, IMR_2_ON);
+            Thread.sleep(3000);
             setupMyServers(this, SVR_1_ON, SVR_2_ON);
             //setupMyClient(this);
         }

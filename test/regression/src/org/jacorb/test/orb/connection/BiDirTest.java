@@ -111,7 +111,7 @@ public class BiDirTest extends ClientServerTestCase
 
         server.register_callback (c);
         server.callback_hello ("This is a test");
-        String result = waitForCallback (1000);
+        String result = waitForCallback (10000);
         int n = server.get_open_client_transports();
 
         assertEquals ("This is a test", result);
