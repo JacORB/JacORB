@@ -24,7 +24,7 @@
 	<classpathentry kind="lib" path="lib/slf4j-jdk14-1.6.4.jar"/>
 	<classpathentry kind="lib" path="/usr/share/java/ant/ant-junit.jar"/>
 	<classpathentry kind="lib" path="/usr/share/java/ant.jar"/>
-	<classpathentry kind="lib" path="test/regression/lib/easymock-2.5.2.jar"/>
+	<classpathentry kind="lib" path="test/regression/lib/easymock-1.1.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/jdk1.6.0_41"/>
 	<classpathentry kind="output" path="classes"/>
 </classpath>
