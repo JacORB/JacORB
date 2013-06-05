@@ -26,12 +26,11 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Stack;
 import java.util.Random;
+import java.util.Stack;
 import java.util.concurrent.ConcurrentHashMap;
 import org.jacorb.config.Configuration;
 import org.jacorb.config.ConfigurationException;
-import org.jacorb.imr.ImRAccessImpl;
 import org.jacorb.ir.RepositoryID;
 import org.jacorb.orb.giop.ClientConnection;
 import org.jacorb.orb.giop.ClientConnectionManager;
@@ -52,7 +51,6 @@ import org.jacorb.orb.portableInterceptor.ServerInterceptorIterator;
 import org.jacorb.orb.portableInterceptor.ServerRequestInfoImpl;
 import org.jacorb.orb.util.CorbaLoc;
 import org.jacorb.poa.util.POAUtil;
-import org.jacorb.tao_imr.*;
 import org.jacorb.util.ObjectUtil;
 import org.jacorb.util.SelectorManager;
 import org.jacorb.util.Time;
@@ -338,7 +336,7 @@ public final class Delegate
 
         selectorManager = orb.getSelectorManager ();
 
-        logger = ((Configuration)config).getLogger("jacorb.orb.delegate");
+        logger = config.getLogger("jacorb.orb.delegate");
         useJacORBIMR =
             config.getAttributeAsBoolean("jacorb.use_imr", false);
 
@@ -1247,8 +1245,8 @@ public final class Delegate
 
         if (currentCtxt != null)
         {
-            reqET = (UtcT) currentCtxt.get (INVOCATION_KEY.REQUEST_END_TIME);
-            repET = (UtcT) currentCtxt.get (INVOCATION_KEY.REPLY_END_TIME);
+            reqET = currentCtxt.get (INVOCATION_KEY.REQUEST_END_TIME);
+            repET = currentCtxt.get (INVOCATION_KEY.REPLY_END_TIME);
 
             checkTimeout (reqET, repET);
         }
@@ -1665,11 +1663,9 @@ public final class Delegate
             }
 
             // piorOriginal was set by rebind() which means
-            // that it is the first ParsedIOR for a repository suvh as an IMR,
+            // that it is the first ParsedIOR for a repository such as an IMR,
             // and _pior is the secondary ParsedIOR for a server.
             // So, if piorOriginal is still null, then bind() must have failed.
-
-
             if ( piorOriginal != null )
             {
                 if( logger.isDebugEnabled())
@@ -1690,14 +1686,10 @@ public final class Delegate
                                     getParsedIOR().getTypeIdName() + ">");
                         }
 
+                        Profile newProfile = getParsedIOR().getNextEffectiveProfile();
 
-
-                        getParsedIOR().getNextEffectiveProfile();
-                        Profile curProfile = getParsedIOR().getEffectiveProfile();
-
-                        if (curProfile != null)
+                        if (newProfile != null)
                         {
-
                             piorLastFailed = null;
                             randomMilliSecDelay();
                         }
@@ -1716,11 +1708,10 @@ public final class Delegate
             else if ( (useJacORBIMR && ! isJacORBImR)  ||
                     (useTaoIMR) ||
                     getParsedIOR().isNameServiceIor() ||
-                    getParsedIOR().useNameService())
+                    getParsedIOR().useCorbaName())
             {
-                if (getParsedIOR().useNameService())
+                if (getParsedIOR().useCorbaName())
                 {
-
                     if( logger.isDebugEnabled())
                     {
                         logger.debug(
@@ -1731,17 +1722,13 @@ public final class Delegate
                     piorOriginal = null;
                     piorLastFailed = null;
 
-
                     _pior = new ParsedIOR(orb, getParsedIOR().getCorbaNameOriginalObjRef());
 
-
                     rebind(_pior);
-
 
                     //clean up and start fresh
                     piorOriginal = null;
                     piorLastFailed = null;
-
 
                     return true;
                 }
@@ -1784,7 +1771,7 @@ public final class Delegate
                     {
                         if( logger.isDebugEnabled())
                         {
-                            logger.debug("Delegate: foreign IOR detected," + " orbTypeId is " 
+                            logger.debug("Delegate: foreign IOR detected," + " orbTypeId is "
 									+ (orbTypeId == null? "is null" : orbTypeId.intValue()));
                         }
                         return false;
@@ -2642,7 +2629,7 @@ public final class Delegate
         // otherwise the POA will hangon destruction (bug #400).
         poa.addLocalRequest();
 
-        final ServantObject servantObject = (ServantObject) new ServantObjectImpl();
+        final ServantObject servantObject = new ServantObjectImpl();
 
         ( (ServantObjectImpl) servantObject).setORB (orb);
 
@@ -2797,7 +2784,7 @@ public final class Delegate
 
                         servantObject.servant = sl.preinvoke( oid, poa, operation, cookie );
                     }
-                    ((org.omg.CORBA_2_3.ORB)orb).set_delegate((org.omg.PortableServer.Servant)servantObject.servant);
+                    ((org.omg.CORBA_2_3.ORB)orb).set_delegate(servantObject.servant);
                 }
                 else
                 {
