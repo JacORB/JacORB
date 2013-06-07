@@ -22,6 +22,7 @@ package org.jacorb.config;
 
 import java.text.SimpleDateFormat;
 import org.jacorb.orb.ORB;
+import org.jacorb.util.Version;
 
 /**
  * Can be subclassed to provide initialization of a backend logging system
@@ -37,6 +38,7 @@ public abstract class LoggingInitializer
     public static final String ATTR_LOG_SIZE      = "jacorb.logfile.maxLogSize";
     public static final String ATTR_LOG_ROTATE    = "jacorb.logfile.rotateCount";
     public static final String ATTR_LOG_THREAD_ID = "jacorb.log.showThread";
+    public static final String ATTR_LOG_SRC_INFO  = "jacorb.log.showSrcInfo";
 
     /**
      * If the given filename contains the string "$implname", replaces
@@ -55,7 +57,7 @@ public abstract class LoggingInitializer
         }
         else
         {
-            String serverId = "jacorb"; // reasonable default
+            String serverId = Version.orbId; // reasonable default
             ORB orb = config.getORB();
             if (orb != null)
             {

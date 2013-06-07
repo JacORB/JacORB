@@ -22,6 +22,7 @@ package org.jacorb.security.sas;
 
 import java.security.Provider;
 
+import org.ietf.jgss.GSSContext;
 import org.ietf.jgss.GSSException;
 import org.ietf.jgss.GSSName;
 import org.ietf.jgss.Oid;
@@ -44,7 +45,7 @@ public final class GSSUPMechFactory
     protected static Provider myProvider;
 
     private Oid myMechOid;
-    private Oid[] nameTypes = 
+    private Oid[] nameTypes =
        new Oid[] {GSSName.NT_EXPORT_NAME};
 
     public GSSUPMechFactory ()
@@ -100,6 +101,15 @@ public final class GSSUPMechFactory
     }
 
     public GSSContextSpi getMechanismContext(byte[] b1) throws GSSException
+    {
+        return null;
+    }
+
+    /**
+     * NOTE : This method was added for compatibility with IBM GSS (IBM JDK 1.6)
+     * because of a compilation error from this class.
+     */
+    public GSSContextSpi getMechanismContext(GSSCredentialSpi gsscs, GSSContext gssc) throws GSSException
     {
         return null;
     }

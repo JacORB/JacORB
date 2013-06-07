@@ -37,30 +37,31 @@ public class JacORBLogFormatter extends Formatter
     private final DateFormat timeFormat = new SimpleDateFormat ("yyyy-MM-dd HH:mm:ss.SSS");
 
     private boolean showThread = false;
+    private boolean showSrcInfo = false;
 
-    public JacORBLogFormatter (boolean show_thread)
+    public JacORBLogFormatter (boolean show_thread, boolean srcinfo)
     {
         showThread = show_thread;
+        showSrcInfo = srcinfo;
     }
 
     public String format (LogRecord record)
     {
         String result;
-        if (showThread) {
-            result = String.format
-                ( "%s %s [%d] %s\n",
-                  timeFormat.format (record.getMillis()),
-                  record.getLevel(),
-                  record.getThreadID(),
-                  record.getMessage() );
-        }
-        else {
-            result = String.format
-                ( "%s %s %s\n",
-                  timeFormat.format (record.getMillis()),
-                  record.getLevel(),
-                  record.getMessage() );
-        }
+
+        result = String.format
+        (
+            "%s %s " +
+            (showSrcInfo ? "%s::%s" : "%s%s") +
+            (showThread ? " [%d] " : "%s" ) +
+            " %s\n",
+            timeFormat.format (record.getMillis()),
+            record.getLevel(),
+            (showSrcInfo ? record.getSourceClassName() : ""),
+            (showSrcInfo ? record.getSourceMethodName() : ""),
+            (showThread ? record.getThreadID() : ""),
+            record.getMessage()
+        );
 
         Throwable t = record.getThrown();
         return t == null ? result : result + getStackTrace (t);

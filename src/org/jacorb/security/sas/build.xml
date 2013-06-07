@@ -12,25 +12,74 @@
    <target name="check-props">
       <available classname="org.ietf.jgss.GSSManager" property="jgss.present" classpathref="bootclasspath" ignoresystemclasses="true" />
       <available classname="com.tagish.auth.Utils" property="jaas.modules.present" classpathref="bootclasspath" ignoresystemclasses="true" />
-      <available classname="com.sun.security.jgss.InquireType" property="java7"  classpathref="bootclasspath" ignoresystemclasses="true" />
+
+      <condition property="java7">
+          <equals arg1="${java-source-version}" arg2="1.7"/>
+      </condition>
    </target>
 
-   <!-- Unfortunately the API changed incompatibly in Java7 so we need to patch the source file -->
-   <target name="prepatch" unless="java7">
+   <target name="prepatch" if="java7">
+       <!-- Unfortunately the API changed incompatibly in Java7 so we need to patch the source file -->
      <replace summary="true"
               file="${src}/org/jacorb/security/sas/GSSUPContextSpi.java"
-              value="java.lang.Enum"
-              token="com.sun.security.jgss.InquireType"/>
+              token="java.lang.Enum"
+              value="com.sun.security.jgss.InquireType"/>
    </target>
 
-   <target name="postpatch" unless="java7">
+   <target name="prepatch-ibm" if="java-ibm-vendor">
+       <replace summary="true"
+                file="${src}/org/jacorb/security/sas/GSSUPMechFactory.java"
+                value="com.ibm.security.jgss.spi"
+                token="sun.security.jgss.spi"/>
+       <replace summary="true"
+                file="${src}/org/jacorb/security/sas/GSSUPCredentialSpi.java"
+                value="com.ibm.security.jgss.spi"
+                token="sun.security.jgss.spi"/>
+       <replace summary="true"
+                file="${src}/org/jacorb/security/sas/GSSUPContextSpi.java"
+                value="com.ibm.security.jgss.InquireType"
+                token="com.sun.security.jgss.InquireType"/>
+       <replace summary="true"
+                file="${src}/org/jacorb/security/sas/GSSUPContextSpi.java"
+                value="com.ibm.security.jgss.spi"
+                token="sun.security.jgss.spi"/>
+       <replace summary="true"
+                file="${src}/org/jacorb/security/sas/GSSUPNameSpi.java"
+                value="com.ibm.security.jgss.spi"
+                token="sun.security.jgss.spi"/>
+   </target>
+
+   <target name="postpatch" if="java7">
      <replace summary="true"
               file="${src}/org/jacorb/security/sas/GSSUPContextSpi.java"
-              value="com.sun.security.jgss.InquireType"
-              token="java.lang.Enum"/>
+              token="com.sun.security.jgss.InquireType"
+              value="java.lang.Enum"/>
    </target>
 
-   <target name="all" depends="init,check-props,prepatch,compile,postpatch,jaas" />
+   <target name="postpatch-ibm" if="java-ibm-vendor">
+       <replace summary="true"
+                file="${src}/org/jacorb/security/sas/GSSUPMechFactory.java"
+                value="sun.security.jgss.spi"
+                token="com.ibm.security.jgss.spi"/>
+       <replace summary="true"
+                file="${src}/org/jacorb/security/sas/GSSUPCredentialSpi.java"
+                value="sun.security.jgss.spi"
+                token="com.ibm.security.jgss.spi"/>
+       <replace summary="true"
+                file="${src}/org/jacorb/security/sas/GSSUPContextSpi.java"
+                value="com.sun.security.jgss.InquireType"
+                token="com.ibm.security.jgss.InquireType"/>
+       <replace summary="true"
+                file="${src}/org/jacorb/security/sas/GSSUPContextSpi.java"
+                value="sun.security.jgss.spi"
+                token="com.ibm.security.jgss.spi"/>
+      <replace summary="true"
+                file="${src}/org/jacorb/security/sas/GSSUPNameSpi.java"
+                value="sun.security.jgss.spi"
+                token="com.ibm.security.jgss.spi"/>
+   </target>
+
+   <target name="all" depends="init,check-props,prepatch,prepatch-ibm,compile,postpatch-ibm,postpatch,jaas" />
 
    <target name="compile" if="jgss.present">
       <jacorb-javac javac-includes="org/jacorb/security/sas/*.java"

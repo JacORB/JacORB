@@ -316,7 +316,7 @@ public final class GSSUPContextSpi
      * NOTE : This method was added for a jdk1.7.x port
      * because of a compilation error from this class.
      */
-    public Object inquireSecContext(com.sun.security.jgss.InquireType arg0) throws GSSException {
+    public Object inquireSecContext(java.lang.Enum arg0) throws GSSException {
         throw new GSSException(GSSException.FAILURE);
     }
 
@@ -334,6 +334,14 @@ public final class GSSUPContextSpi
      * because of a compilation error from this class.
      */
     public void requestDelegPolicy(boolean state)
+    {
+    }
+
+    /**
+     * NOTE : This method was added for compatibility with IBM GSS (IBM JDK 1.6)
+     * because of a compilation error from this class.
+     */
+    public void setNegMechs(Oid[] oids, GSSCredential gssc) throws GSSException
     {
     }
 }

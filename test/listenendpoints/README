@@ -1,0 +1,26 @@
+
+  Endpoint Tests
+  ===============================
+
+This directory holds the integration test suite that is used for checking out
+the endpoints.  There test directories are:
+   - echo, which contains a simple echo server/client test,
+   - echo_corbaloc, which contains an expanded echo test.
+
+Please note that these tests are used by the integration test suites in the
+directory test/orbreinvoke, so they will be built from there.
+
+Building the Test Suites
+-----------------------
+
+Each test directory contains a build.xml file, so to build the tests, you first
+need to set the environment variable JACORB_HOME, then go into the targeted
+test directory and type:
+
+  ant all
+
+This should compile the IDL and Java code that is needed to run the test.
+
+Quynh Nguyen
+Object Computing Inc.
+January 17, 2013

@@ -45,13 +45,15 @@ public class AlternateIIOPAddress2Test extends ClientServerTestCase
 {
     protected IIOPAddressServer server = null;
 
-    private static final String LISTEN_EP = "iiop://:45000";
+    private static final String LISTEN_EP = "iiop://localhost:45000";
 
     private static final String PROTOCOL = "iiop://";
 
     private static final String CORRECT_HOST = "127.0.0.1";
-    private static final String WRONG_HOST   = "10.0.1.222";
-    private static final String WRONG_HOST_2 = "10.0.1.223";
+
+    // pick really bogus host addresses
+    private static final String WRONG_HOST   = "255.255.255.253";
+    private static final String WRONG_HOST_2 = "255.255.255.254";
 
     private static final int CORRECT_PORT = 45000;
     private static final int WRONG_PORT   = 45001;

@@ -59,7 +59,7 @@ public class ConfigurationTest extends JacORBTestCase
     }
 
     @SuppressWarnings("deprecation")
-   protected void setUp() throws Exception
+    protected void setUp() throws Exception
     {
         Thread.currentThread().setContextClassLoader(
                 new URLClassLoader(
@@ -81,8 +81,10 @@ public class ConfigurationTest extends JacORBTestCase
      */
     public void testGetLoggerName() throws Exception
     {
-        Configuration config = JacORBConfiguration.getConfiguration(new Properties(), null, false);
+        ORB orb = ORB.init(new String[] {}, null);
+        Configuration config = JacORBConfiguration.getConfiguration(new Properties(), orb, false);
         assertEquals("jacorb.test.config", config.getLoggerName(getClass()));
+        orb.destroy();
     }
 
     /**
@@ -93,7 +95,7 @@ public class ConfigurationTest extends JacORBTestCase
     {
         try
         {
-            createPropertiesFile("classes/jacorb.properties",
+            createPropertiesFile("classes/orb.properties",
                                  "jacorb.connection.client.connect_timeout=33099");
 
             Properties props = new Properties();
@@ -107,6 +109,8 @@ public class ConfigurationTest extends JacORBTestCase
                     .getAttributeAsInteger(
                             "jacorb.connection.client.connect_timeout", 0);
             assertEquals(33099, timeout);
+
+            orb.destroy();
         }
         finally
         {
@@ -120,7 +124,6 @@ public class ConfigurationTest extends JacORBTestCase
         {
             createPropertiesFile ("mytestorbid.properties",
                                   "jacorb.connection.client.connect_timeout=33098");
-
             Properties props = new Properties();
             props.put("org.omg.CORBA.ORBClass", "org.jacorb.orb.ORB");
             props.put("org.omg.CORBA.ORBSingletonClass",
@@ -136,6 +139,8 @@ public class ConfigurationTest extends JacORBTestCase
                     .getAttributeAsInteger(
                             "jacorb.connection.client.connect_timeout", 0);
             assertEquals(33098, timeout);
+
+            orb.destroy();
         }
         finally
         {
@@ -167,6 +172,8 @@ public class ConfigurationTest extends JacORBTestCase
                     .getAttributeAsInteger(
                             "jacorb.connection.client.connect_timeout", 0);
             assertEquals(33077, timeout);
+
+            orb.destroy();
         }
         finally
         {
@@ -199,6 +206,8 @@ public class ConfigurationTest extends JacORBTestCase
                     .getAttributeAsInteger(
                             "jacorb.connection.client.connect_timeout", 0);
             assertEquals(33100, timeout);
+
+            orb.destroy();
         }
         finally
         {
@@ -242,6 +251,8 @@ public class ConfigurationTest extends JacORBTestCase
                     .getAttributeAsInteger(
                             "jacorb.connection.client.connect_timeout", 0);
         assertEquals(33707, timeout);
+
+        orb.destroy();
     }
 
     /**
@@ -279,6 +290,8 @@ public class ConfigurationTest extends JacORBTestCase
                     .getAttributeAsInteger(
                             "jacorb.connection.client.connect_timeout", 0);
             assertEquals(33705, timeout);
+
+            orb.destroy();
         }
         finally
         {
@@ -322,6 +335,8 @@ public class ConfigurationTest extends JacORBTestCase
                     .getAttributeAsInteger(
                             "jacorb.connection.client.connect_timeout", 0);
             assertEquals(33704, timeout);
+
+            orb.destroy();
         }
         finally
         {
@@ -361,6 +376,8 @@ public class ConfigurationTest extends JacORBTestCase
                     .getAttributeAsInteger(
                             "jacorb.connection.client.connect_timeout", 0);
             assertEquals(33703, timeout);
+
+            orb.destroy();
         }
         finally
         {
@@ -401,6 +418,8 @@ public class ConfigurationTest extends JacORBTestCase
                     .getAttributeAsInteger(
                             "jacorb.connection.client.connect_timeout", 0);
             assertEquals(33702, timeout);
+
+            orb.destroy();
         }
         finally
         {
@@ -438,6 +457,8 @@ public class ConfigurationTest extends JacORBTestCase
                     .getAttributeAsInteger(
                             "jacorb.connection.client.connect_timeout", 0);
             assertEquals(33701, timeout);
+
+            orb.destroy();
         }
         finally
         {
@@ -457,15 +478,17 @@ public class ConfigurationTest extends JacORBTestCase
             createPropertiesFile ("classes/applet-special.properties",
                                   "jacorb.connection.client.connect_timeout=33322");
 
+            ORB orb = ORB.init(new String[] {}, null);
             Properties props = new Properties();
             props.put ("jacorb.config.log.verbosity", "4");
             props.put ("jacorb.connection.client.connect_timeout", "33323");
             props.put ("ORBid", "myapplet");
             props.put ("custom.props", "applet-special.properties");
-            Configuration config = JacORBConfiguration.getConfiguration(props, null, true);
+            Configuration config = JacORBConfiguration.getConfiguration(props, orb, true);
             int timeout = config.getAttributeAsInteger(
                             "jacorb.connection.client.connect_timeout", 0);
             assertEquals(33323, timeout);
+            orb.destroy();
         }
         finally
         {
@@ -500,6 +523,8 @@ public class ConfigurationTest extends JacORBTestCase
                  .getAttributeAsInteger(
                          "jacorb.connection.client.connect_timeout", 0);
         assertEquals(33707, timeout);
+
+        orb.destroy();
     }
 
 
@@ -530,6 +555,8 @@ public class ConfigurationTest extends JacORBTestCase
                 "jacorb.connection.client.connect_timeout", "0")
         );
         assertEquals(33707, timeout);
+
+        orb.destroy();
     }
 
 

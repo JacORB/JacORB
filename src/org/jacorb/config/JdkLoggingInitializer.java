@@ -92,6 +92,7 @@ public class JdkLoggingInitializer extends LoggingInitializer
         String level = config.getAttribute (ATTR_LOG_VERBOSITY, null);
         String file  = config.getAttribute (ATTR_LOG_FILE, null);
         boolean showThread = config.getAttributeAsBoolean (ATTR_LOG_THREAD_ID, false);
+        boolean showSrcInfo = config.getAttributeAsBoolean (ATTR_LOG_SRC_INFO, false);
 
         if (   (level != null && level.length() > 0)
             || (file != null && file.length() > 0))
@@ -133,7 +134,7 @@ public class JdkLoggingInitializer extends LoggingInitializer
                handler = new ConsoleHandler();
             }
             handler.setLevel(toJdkLogLevel(level));
-            handler.setFormatter (new JacORBLogFormatter(showThread));
+            handler.setFormatter (new JacORBLogFormatter(showThread, showSrcInfo));
             rootLogger.addHandler (handler);
         }
     }

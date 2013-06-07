@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry including="org/" kind="src" path="src/generated"/>
+	<classpathentry kind="src" output="test/regression/classes" path="test/listenendpoints/echo_corbaloc/src"/>
+	<classpathentry excluding="org/jacorb/notification/filter/bsh/BSHFilter.java|org/jacorb/notification/jmx/jboss/|org/jacorb/notification/jmx/mx4j/|org/jacorb/notification/filter/bsh/" including="org/jacorb/**/*" kind="src" path="src"/>
+	<classpathentry kind="src" output="test/regression/classes" path="test/regression/src/generated"/>
+	<classpathentry excluding="org/jacorb/test/notification/jmx/COSNotificationServiceTest.java|org/jacorb/test/notification/plugins/" including="org/**/*" kind="src" output="test/regression/classes" path="test/regression/src"/>
+	<classpathentry kind="lib" path="lib/build/commons-collections-2.0.jar"/>
+	<classpathentry kind="lib" path="lib/build/commons-logging.jar"/>
+	<classpathentry kind="lib" path="lib/build/java_cup.jar"/>
+	<classpathentry kind="lib" path="lib/build/xdoclet-1.2.3.jar"/>
+	<classpathentry kind="lib" path="lib/build/xdoclet-ejb-module-1.2.3.jar"/>
+	<classpathentry kind="lib" path="lib/build/xdoclet-jboss-module-1.2.3.jar"/>
+	<classpathentry kind="lib" path="lib/build/xdoclet-jmx-module-1.2.3.jar"/>
+	<classpathentry kind="lib" path="lib/build/xdoclet-mx4j-module-1.2.3.jar"/>
+	<classpathentry kind="lib" path="lib/build/xdoclet-web-module-1.2.3.jar"/>
+	<classpathentry kind="lib" path="lib/antlr-2.7.2.jar"/>
+	<classpathentry kind="lib" path="lib/picocontainer-1.2.jar"/>
+	<classpathentry kind="lib" path="lib/wrapper-3.1.0.jar"/>
+	<classpathentry kind="lib" path="test/regression/lib/ant-testutil.jar"/>
+	<classpathentry kind="lib" path="test/regression/lib/junit.jar"/>
+	<classpathentry kind="lib" path="test/regression/lib/jakarta-regexp-1.4.jar"/>
+	<classpathentry kind="lib" path="lib/slf4j-api-1.6.4.jar"/>
+	<classpathentry kind="lib" path="lib/slf4j-jdk14-1.6.4.jar"/>
+	<classpathentry kind="lib" path="/usr/share/java/ant/ant-junit.jar"/>
+	<classpathentry kind="lib" path="/usr/share/java/ant.jar"/>
+	<classpathentry kind="lib" path="test/regression/lib/easymock-1.1.jar"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/jdk1.6.0_41"/>
+	<classpathentry kind="output" path="classes"/>
+</classpath>

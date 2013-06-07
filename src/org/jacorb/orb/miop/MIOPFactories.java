@@ -65,7 +65,6 @@ public class MIOPFactories extends FactoriesBase implements Configurable
       if (listener == null)
       {
          listener = new MIOPListener();
-         configureResult (listener);
       }
 
       return listener;

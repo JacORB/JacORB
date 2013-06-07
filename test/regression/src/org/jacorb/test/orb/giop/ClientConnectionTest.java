@@ -194,6 +194,8 @@ public class ClientConnectionTest extends ORBTestCase
         Profile profile = (Profile) profileControl.getMock();
         profile.version();
         profileControl.setReturnValue( new Version( (byte) majorVersion, (byte) minorVersion ) );
+        profile.get_object_key();
+        profileControl.setReturnValue( new byte[] {} );
         profileControl.replay();
         return profile;
     }

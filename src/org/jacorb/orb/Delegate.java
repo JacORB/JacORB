@@ -26,11 +26,11 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Random;
 import java.util.Stack;
 import java.util.concurrent.ConcurrentHashMap;
 import org.jacorb.config.Configuration;
 import org.jacorb.config.ConfigurationException;
-import org.jacorb.imr.ImRAccessImpl;
 import org.jacorb.ir.RepositoryID;
 import org.jacorb.orb.giop.ClientConnection;
 import org.jacorb.orb.giop.ClientConnectionManager;
@@ -60,6 +60,7 @@ import org.omg.CORBA.COMM_FAILURE;
 import org.omg.CORBA.CompletionStatus;
 import org.omg.CORBA.INTERNAL;
 import org.omg.CORBA.INV_OBJREF;
+import org.omg.CORBA.INV_POLICY;
 import org.omg.CORBA.OBJECT_NOT_EXIST;
 import org.omg.CORBA.OBJ_ADAPTER;
 import org.omg.CORBA.Policy;
@@ -141,7 +142,8 @@ public final class Delegate
     private ParsedIOR piorLastFailed = null;
 
     /* flag to indicate if this is the delegate for the ImR */
-    private boolean isImR = false;
+    private boolean isJacORBImR = false;
+    private boolean isTaoImR = false;
 
     private boolean bound = false;
     private org.jacorb.poa.POA poa;
@@ -182,7 +184,8 @@ public final class Delegate
     private final Configuration configuration;
 
     /** configuration properties */
-    private final boolean useIMR;
+    private  boolean useJacORBIMR;
+    private  boolean useTaoIMR;
     private boolean locateOnBind;
 
     /** mitigate the symptom of an infinite loop in some imr failure cases, see bug 810 */
@@ -223,7 +226,10 @@ public final class Delegate
      */
     private boolean disableClientOrbPolicies;
 
+    /** delay in millisecs before retrying */
+    private Random randomDelay = null;
 
+    private static final String REQUEST_END_TIME = "request_end_time";
 
     public static enum INVOCATION_KEY
     {
@@ -330,9 +336,19 @@ public final class Delegate
 
         selectorManager = orb.getSelectorManager ();
 
-        logger = ((Configuration)config).getLogger("jacorb.orb.delegate");
-        useIMR =
+        logger = config.getLogger("jacorb.orb.delegate");
+        useJacORBIMR =
             config.getAttributeAsBoolean("jacorb.use_imr", false);
+
+
+        useTaoIMR =
+            config.getAttributeAsBoolean("jacorb.use_tao_imr", false);
+
+        if (useTaoIMR && useJacORBIMR)
+        {
+            throw new INTERNAL ("Ambiguous ImR property settings: jacorb.use_tao_imr and jacorb.use_imr are both true");
+        }
+
         locateOnBind =
             config.getAttributeAsBoolean("jacorb.locate_on_bind", false);
         avoidIsARemoteCall =
@@ -445,10 +461,14 @@ public final class Delegate
     {
         if ("IDL:org/jacorb/imr/ImplementationRepository:1.0".equals (typeId))
         {
-            isImR = true;
+            isJacORBImR = true;
         }
-    }
+        else if ("IDL:ImplementationRepository/Locator:1.0".equals (typeId))
+        {
+            isTaoImR = true;
+        }
 
+    }
 
     public int _get_TCKind()
     {
@@ -655,19 +675,25 @@ public final class Delegate
                 pior.setProfileSelector(new SpecificProfileSelector(protocols));
             }
 
+            // I'm commenting this code block out since it prevents a multi-profile
+            // pior from being processed.  I don't see that it is needed anywhere.  Quynh
+            //
             // While the target override may have altered the effective profile so that
             // the IORs are now equal if the original ones do not match we still have to
             // disconnect so that the connection is made with the correct effective profile.
-            if (originalMatch && pior.equals(originalIOR))
-            {
-                //already bound to target so just return
-                return ;
-            }
+            /***
+            * if (originalMatch && pior.equals(originalIOR))
+            * {
+            *    //already bound to target so just return
+
+            *    return ;
+            * }
+            **/
 
             if (piorLastFailed != null && piorLastFailed.equals(pior))
             {
-                //we've already failed to bind to the ior
-                throw new org.omg.CORBA.TRANSIENT();
+                    //we've already failed to bind to the ior
+                    throw new org.omg.CORBA.TRANSIENT();
             }
 
             if (piorOriginal == null)
@@ -1196,7 +1222,7 @@ public final class Delegate
      * between synchronous and asynchronous calls, because the ReplyHandler
      * can be null even for an asynchronous call.
      */
-    private org.omg.CORBA.portable.InputStream _invoke_internal
+   private org.omg.CORBA.portable.InputStream _invoke_internal
                                ( org.omg.CORBA.Object self,
                                  org.omg.CORBA.portable.OutputStream os,
                                  org.omg.Messaging.ReplyHandler replyHandler,
@@ -1219,8 +1245,8 @@ public final class Delegate
 
         if (currentCtxt != null)
         {
-            reqET = (UtcT) currentCtxt.get (INVOCATION_KEY.REQUEST_END_TIME);
-            repET = (UtcT) currentCtxt.get (INVOCATION_KEY.REPLY_END_TIME);
+            reqET = currentCtxt.get (INVOCATION_KEY.REQUEST_END_TIME);
+            repET = currentCtxt.get (INVOCATION_KEY.REPLY_END_TIME);
 
             checkTimeout (reqET, repET);
         }
@@ -1361,16 +1387,18 @@ public final class Delegate
             }
 
             // The exception is a TRANSIENT, so try rebinding.
-            if ( cfe instanceof org.omg.CORBA.TRANSIENT && try_rebind() )
+            if ( cfe instanceof org.omg.CORBA.TRANSIENT && try_rebind())
             {
                 throw new RemarshalException();
             }
 
-            if (!(cfe instanceof org.omg.CORBA.TIMEOUT)) {
-              if (logger.isDebugEnabled()) {
-                logger.debug (this.toString() + ":invoke_internal: closing connection due to " + cfe.getMessage());
-              }
-              disconnect(connectionToUse);
+            if (!(cfe instanceof org.omg.CORBA.TIMEOUT))
+            {
+                if (logger.isDebugEnabled())
+                {
+                        logger.debug (this.toString() + ":invoke_internal: closing connection due to " + cfe.getMessage());
+                }
+                disconnect(connectionToUse);
             }
 
             throw cfe;
@@ -1605,6 +1633,26 @@ public final class Delegate
         "PassToTransport").start();
     }
 
+    private void randomMilliSecDelay()
+    {
+        if (randomDelay == null)
+        {
+            randomDelay = new Random(10000);
+        }
+
+        // delay time will be between 1-3 seconds
+        int r = randomDelay.nextInt(3100);
+        r = (r < 1000? 1000 : r);
+        try
+        {
+            Thread.sleep(r);
+        }
+        catch (Exception e)
+        {
+            // ignore
+        }
+    }
+
     private boolean try_rebind()
     {
         synchronized ( bind_sync )
@@ -1614,6 +1662,10 @@ public final class Delegate
                 logger.debug("Delegate.try_rebind" );
             }
 
+            // piorOriginal was set by rebind() which means
+            // that it is the first ParsedIOR for a repository such as an IMR,
+            // and _pior is the secondary ParsedIOR for a server.
+            // So, if piorOriginal is still null, then bind() must have failed.
             if ( piorOriginal != null )
             {
                 if( logger.isDebugEnabled())
@@ -1623,6 +1675,26 @@ public final class Delegate
 
                 //keep last failed ior to detect forwarding loops
                 piorLastFailed = getParsedIOR();
+                if (piorOriginal.equals(piorLastFailed) && getParsedIOR().getProfiles().size() > 1)
+                {
+                    if ( (useJacORBIMR && ! isJacORBImR) || (useTaoIMR) || getParsedIOR().isNameServiceIor() )
+                    {
+                        if( logger.isDebugEnabled())
+                        {
+                            logger.debug(
+                                    "Delegate.try_rebind: binding to next profile <" +
+                                    getParsedIOR().getTypeIdName() + ">");
+                        }
+
+                        Profile newProfile = getParsedIOR().getNextEffectiveProfile();
+
+                        if (newProfile != null)
+                        {
+                            piorLastFailed = null;
+                            randomMilliSecDelay();
+                        }
+                    }
+                }
 
                 //rebind to the original ior
                 rebind( piorOriginal );
@@ -1633,69 +1705,142 @@ public final class Delegate
 
                 return true;
             }
-            else if ( useIMR && ! isImR )
+            else if ( (useJacORBIMR && ! isJacORBImR)  ||
+                    (useTaoIMR) ||
+                    getParsedIOR().isNameServiceIor() ||
+                    getParsedIOR().useCorbaName())
             {
-                Integer orbTypeId = getParsedIOR().getORBTypeId();
-
-                // only lookup ImR if IOR is generated by JacORB
-                if ( orbTypeId == null ||
-                     orbTypeId.intValue() != ORBConstants.JACORB_ORB_ID )
+                if (getParsedIOR().useCorbaName())
                 {
                     if( logger.isDebugEnabled())
                     {
-                        logger.debug("Delegate: foreign IOR detected" );
+                        logger.debug(
+                            "Delegate.try_rebind: useNameService, going back to the NameService <" +
+                            getParsedIOR().getCorbaNameOriginalObjRef() + ">");
                     }
-                    return false;
+
+                    piorOriginal = null;
+                    piorLastFailed = null;
+
+                    _pior = new ParsedIOR(orb, getParsedIOR().getCorbaNameOriginalObjRef());
+
+                    rebind(_pior);
+
+                    //clean up and start fresh
+                    piorOriginal = null;
+                    piorLastFailed = null;
+
+                    return true;
                 }
 
-                if( logger.isDebugEnabled())
-                {
-                    logger.debug("Delegate: JacORB IOR detected" );
-                }
-
-                byte[] object_key = getParsedIOR().get_object_key();
-
-                // No backup IOR so it may be that the ImR is down
-                // Attempt to resolve the ImR again to see if it has
-                // come back up at a different address
-
-                if( logger.isDebugEnabled())
-                {
-                    logger.debug("Delegate: attempting to contact ImR" );
-                }
-
-                ImRAccess imr = null;
-
-                try
-                {
-                    imr = ImRAccessImpl.connect(orb);
-                }
-                catch ( Exception e )
+                else if (getParsedIOR().getProfiles().size() > 1)
                 {
                     if( logger.isDebugEnabled())
                     {
-                        logger.debug("Delegate: failed to contact ImR" );
+                        logger.debug(
+                            "Delegate.try_rebind: rebinding to next profile <" +
+                            getParsedIOR().getTypeIdName() + ">");
                     }
-                    return false;
+
+                    getParsedIOR().getNextEffectiveProfile();
+                    Profile curProfile = getParsedIOR().getEffectiveProfile();
+
+                    if (curProfile != null)
+                    {
+
+                        randomMilliSecDelay();
+                        rebind(getParsedIOR());
+
+                        piorOriginal = null;
+                        piorLastFailed = null;
+                        return true;
+                    }
                 }
 
-                //create a corbaloc URL to use to contact the server
-                StringBuffer corbaloc = new StringBuffer( "corbaloc:iiop:" );
+                // last effort to connect to the ImR
+                if ( (useJacORBIMR && ! isJacORBImR)  ||
+                    (useTaoIMR))
+                {
 
-                corbaloc.append( imr.getImRHost() );
-                corbaloc.append( ':' );
-                corbaloc.append( imr.getImRPort() );
-                corbaloc.append( '/' );
-                corbaloc.append( CorbaLoc.parseKey( object_key ) );
+                    Integer orbTypeId = getParsedIOR().getORBTypeId();
 
-                //rebind to the new IOR
-                rebind( new ParsedIOR( orb, corbaloc.toString()));
+                    // only lookup ImR if IOR is generated by JacORB
+                    if ( orbTypeId == null ||
+                        orbTypeId.intValue() != ORBConstants.JACORB_ORB_ID ||
+                        orbTypeId.intValue() != ORBConstants.TAO_ORB_ID )
+                    {
+                        if( logger.isDebugEnabled())
+                        {
+                            logger.debug("Delegate: foreign IOR detected," + " orbTypeId is "
+									+ (orbTypeId == null? "is null" : orbTypeId.intValue()));
+                        }
+                        return false;
+                    }
 
-                //clean up and start fresh
-                piorOriginal = null;
-                piorLastFailed = null; //***
+                    if( logger.isDebugEnabled())
+                    {
+                        logger.debug("Delegate: JacORB or TAO IOR detected, orbTypeId is " + orbTypeId.intValue());
+                    }
 
-                return true;
+                    byte[] object_key = getParsedIOR().get_object_key();
+
+                    // No backup IOR so it may be that the ImR is down
+                    // Attempt to resolve the ImR again to see if it has
+                    // come back up at a different address
+
+                    if( logger.isDebugEnabled())
+                    {
+                        logger.debug("Delegate: attempting to contact ImR" );
+                    }
+
+                    ImRAccess imr = null;
+
+                    //create a corbaloc URL to use to contact the server
+                    StringBuffer corbaloc = null;
+
+                    try
+                    {
+
+                        if (useJacORBIMR)
+                        {
+                            corbaloc = new StringBuffer( "corbaloc:iiop:" );
+                            imr = org.jacorb.imr.ImRAccessImpl.connect(orb);
+                            corbaloc.append( imr.getImRHost() );
+                            corbaloc.append( ':' );
+                            corbaloc.append( imr.getImRPort() );
+                            corbaloc.append( '/' );
+                            corbaloc.append( CorbaLoc.parseKey( object_key ) );
+                        }
+                        else if (useTaoIMR)
+                        {
+                            imr = org.jacorb.tao_imr.ImRAccessImpl.connect(orb);
+                            String s = imr.getImRCorbaloc();
+                            int slash = s.indexOf("/");
+                            s = s.substring(0,slash);
+                            corbaloc = new StringBuffer( s );
+                            corbaloc.append( '/' );
+                            corbaloc.append( CorbaLoc.parseKey( object_key ) );
+                        }
+                    }
+                    catch ( Exception e )
+                    {
+                        if( logger.isDebugEnabled())
+                        {
+                            logger.debug("Delegate: failed to contact ImR" );
+                        }
+                        return false;
+                    }
+
+                    //rebind to the new IOR
+                    rebind( new ParsedIOR( orb, corbaloc.toString()));
+
+                    //clean up and start fresh
+                    piorOriginal = null;
+                    piorLastFailed = null;
+
+                    return true;
+                }
+                return false;
             }
             else
             {
@@ -2484,7 +2629,7 @@ public final class Delegate
         // otherwise the POA will hangon destruction (bug #400).
         poa.addLocalRequest();
 
-        final ServantObject servantObject = (ServantObject) new ServantObjectImpl();
+        final ServantObject servantObject = new ServantObjectImpl();
 
         ( (ServantObjectImpl) servantObject).setORB (orb);
 
@@ -2639,7 +2784,7 @@ public final class Delegate
 
                         servantObject.servant = sl.preinvoke( oid, poa, operation, cookie );
                     }
-                    ((org.omg.CORBA_2_3.ORB)orb).set_delegate((org.omg.PortableServer.Servant)servantObject.servant);
+                    ((org.omg.CORBA_2_3.ORB)orb).set_delegate(servantObject.servant);
                 }
                 else
                 {
@@ -2879,5 +3024,33 @@ public final class Delegate
     {
         orb.work_pending();
     }
+
+    public boolean validate_connection(  org.omg.CORBA.Object self,
+                                        org.omg.CORBA.PolicyListHolder inconsistent_policies )
+    {
+        if (non_existent(self))
+        {
+            inconsistent_policies.value = new Policy[ 0 ];
+            return false;
+        }
+        else
+        {
+            synchronized ( bind_sync )
+            {
+                try
+                {
+                    bind();
+                }
+                catch (final INV_POLICY e)
+                {
+                    // have some invalid policies.
+                    inconsistent_policies.value = new Policy[ 0 ];
+                    return false;
+                }
+            }
+        }
+
+        return true;
+   }
 
 }

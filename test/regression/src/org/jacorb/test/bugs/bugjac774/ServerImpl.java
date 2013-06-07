@@ -12,7 +12,7 @@ public class ServerImpl extends MyServerPOA
     {
         try
         {
-            BufferManager bm = new BufferManager(JacORBConfiguration.getConfiguration(null, null, false));
+            BufferManager bm = new BufferManager(JacORBConfiguration.getConfiguration(null, org.omg.CORBA.ORB.init (new String[]{}, null), false));
             bm.getBuffer(size);
         }
         catch (OutOfMemoryError e)
@@ -38,7 +38,7 @@ public class ServerImpl extends MyServerPOA
         try
         {
             System.out.print ("JAC774: requesting buffer with size: " + size);
-            BufferManager bm = new BufferManager(JacORBConfiguration.getConfiguration(null, null, false));
+            BufferManager bm = new BufferManager(JacORBConfiguration.getConfiguration(null, org.omg.CORBA.ORB.init (new String[]{}, null), false));
             byte buffer[] = bm.getExpandedBuffer (size);
             System.out.println (" done. Returned size is:" + buffer.length);
             return buffer.length;

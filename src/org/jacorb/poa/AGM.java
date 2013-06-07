@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
+import org.jacorb.poa.AGM.TGTCWrapper;
 import org.omg.PortableGroup.TagGroupTaggedComponent;
 
 
@@ -112,11 +113,11 @@ public class AGM
     * @param oid
     * @return the groups that have this object as a member
     */
-   final ArrayList getGroupsWithMember (byte[] oid)
+   final ArrayList<TGTCWrapper> getGroupsWithMember (byte[] oid)
    {
-      ArrayList keyList = new ArrayList ();
+      ArrayList<TGTCWrapper> keyList = new ArrayList<TGTCWrapper> ();
 
-      for (Iterator iterator = groupTable.keySet ().iterator (); iterator.hasNext ();)
+      for (Iterator<TGTCWrapper> iterator = groupTable.keySet ().iterator (); iterator.hasNext ();)
       {
          TGTCWrapper t = (TGTCWrapper)iterator.next ();
          byte [][]oids = getMembersFromGroup (t.tcgtc);

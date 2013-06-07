@@ -39,7 +39,6 @@ public abstract class FactoriesBase
 {
     protected org.jacorb.config.Configuration configuration;
 
-
     public void configure(Configuration configuration)
         throws ConfigurationException
     {

@@ -1,0 +1,66 @@
+
+  JacORB ImR Integration Tests
+  ===============================
+
+This directory holds the JacORB ImR integration test suite, which is intended
+ to be run manually for integration purposes.
+
+Building the Test Suites
+-----------------------
+
+To build the tests, you first need to set the environment variable JACORB_HOME
+then type:
+
+  ant all
+
+This should compile the IDL and Java code that is needed to run the test.
+
+Running the Tests
+-----------------
+
+The Bash scripts (.sh) can be invoked to setup and run the tests on a UNIX or
+a LINUX platform.  When invoked, the scripts will direct all outputs to to log
+files in the directory "./output".  The important scripts are:
+  - run_imr.sh, which will initiate the JacORB ImR server.
+  - run_server.sh, which takes an argument for the server's implname, which may
+    be either "EchoServer1" or "EchoServer2".  The object key will have the
+    following format: "implname/implname-POA/implname-ID".
+  - run_client.sh, which takes an argument for the targeted server's implname,
+    which may be "EchoServer1" or "EchoServer2".  This script will initiate
+    the client application using an ImR-ified corbaloc string to request
+    service from the server.
+  - run_two_imr_client.sh, which will initiate a client application as
+    similar to the script "run_client.sh".  However, unlike the script
+    "run_client.sh", the ImR-ified simplified corbaloc string used in this script
+    specifies endpoints for two ImR servers.  Before running this script, you
+    need to have at least one ImR service along with a server running.
+  - run_direct_client.sh, which will initiate a client application using a
+    server's direct endpoint.
+  - run_imr_ssd.sh, which is a wrapper script to initiate the ImR SSD service.
+  - run_imr_mg.sh, which is a wrapper script to run the ImR Manager service.
+
+A basic test session would comprise of the following steps:
+  - Start the ImR service by running:
+        ./run_imr.sh
+    The script will initiate the ImR service, which produces an IOR file
+    "/tmp/MyImR.ior".
+  - Initiate the server application, org.jacorb.test.orbreinvoke.jacorb_imr.Server,
+    by running:
+        ./run_server.sh EchoServer1
+    The script will initiate a server with an implname of "EchoServer1", which
+    produces an ImR-ified IOR file "/tmp/org.jacorb.test.orbreinvoke.jacorb_imr.Server.EchoServer1.
+    EchoServer.ior".
+  - Initiate the client application, org.jacorb.test.listenendpoints.echo_corbaloc.Client,
+    by running:
+        ./run_client.sh EchoServer1
+    The script will initiate the client, which will attempt to connect to the
+    server using an simplfied corbaloc ImR-ified IOR string.  Upon successful
+    connected to the server, it will keep pinging the server in a permanent loop
+    using sequential messages and output the result to a log file in the
+    "./output" directory.  You can tail the log file to follow the activity.
+
+Quynh Nguyen
+Object Computing Inc.
+January 7, 2013
+
+

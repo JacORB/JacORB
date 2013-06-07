@@ -61,6 +61,7 @@ import org.omg.SSLIOP.TAG_SSL_SEC_TRANS;
 
 /**
  * @author Andre Spiegel
+ * @version $Id$
  */
 public class IIOPProfile
     extends org.jacorb.orb.etf.ProfileBase implements Cloneable
@@ -68,7 +69,8 @@ public class IIOPProfile
     private IIOPAddress  primaryAddress = null;
     private SSL ssl = null;
     private boolean isSSLSet;
-
+    private boolean dnsEnabled = false;
+    private boolean forceDNSLookup = true;
 
     /** the following is used as a bit mask to check if any of these options are set */
     private static final int MINIMUM_OPTIONS = Integrity.value | Confidentiality.value | DetectReplay.value |
@@ -131,6 +133,10 @@ public class IIOPProfile
         super.configure(config);
 
         logger = configuration.getLogger("jacorb.iiop.profile");
+
+        dnsEnabled =
+            configuration.getAttributeAsBoolean("jacorb.dns.enable", false);
+        forceDNSLookup = configuration.getAttributeAsBoolean("jacorb.dns.force_lookup", true);
 
         if (primaryAddress != null)
         {
@@ -333,6 +339,25 @@ public class IIOPProfile
     }
 
     /**
+     * Method for use by IIOPListener to add all possible network addresses
+     * that are listened on by a wildcard listener.
+     * @param config
+     * @throws ConfigurationException
+     */
+    public void addAllWildcardAddresses (org.jacorb.config.Configuration config) throws ConfigurationException
+    {
+        if (primaryAddress == null)
+        {
+            return;
+        }
+
+        if (primaryAddress.isWildcard())
+        {
+                addNetworkAddresses();
+            }
+        }
+
+    /**
      * Adds all the network addresses of this machine to the profile
      * as TAG_ALTERNATE_IIOP_ADDRESS.  This excludes loopback addresses,
      * and the address that is already used as the primary address.
@@ -345,6 +370,11 @@ public class IIOPProfile
         if (components == null) components = new TaggedComponentList();
         try
         {
+            String primaryIP = primaryAddress.getIP();
+            if ( logger.isDebugEnabled() )
+            {
+                logger.debug("primaryIP is <" + primaryIP + ">");
+            }
             for (NetworkInterface ni :
                  Collections.list (NetworkInterface.getNetworkInterfaces()))
             {
@@ -352,24 +382,58 @@ public class IIOPProfile
                      Collections.list (ni.getInetAddresses()))
                 {
                     if (!addr.isLoopbackAddress() &&
-                        !addr.getHostAddress().equals (primaryAddress.getIP()))
+                            !addr.isLinkLocalAddress())
                     {
-                        IIOPAddress iaddr = new IIOPAddress();
-                        iaddr.configure (configuration);
-                        if (addr instanceof Inet4Address)
+                        /*
+                         * The fix inserted here is to make sure the address
+                         * that is used to determine whether a network address
+                         * is the primary address so that it will not be added
+                         * to the IOR as an alternate address.  This fix is
+                         * needed here because the IIOPAddress.getIP() actually
+                         * returns the hostname instead of the actual IP when
+                         * the property jacorb.jacorb.dns.enable is turned on.
+                         * Quynh N.
+                         */
+                        String addrHostAddress;
+                        if (!dnsEnabled)
                         {
-                            iaddr.fromString (addr.toString().substring(1) + ":"
+                            addrHostAddress = addr.getHostAddress();
+                        }
+                        else
+                        {
+                            addrHostAddress = forceDNSLookup ? addr.getCanonicalHostName() : addr.getHostName();
+                        }
+                        if (! addrHostAddress.equals(primaryIP))
+                        {
+                            IIOPAddress iaddr = new IIOPAddress();
+                            iaddr.configure (configuration);
+                            String ipaddr = addr.toString().substring(1);
+                            if (addr instanceof Inet4Address)
+                            {
+                                iaddr.fromString (ipaddr + ":"
                                               + primaryAddress.getPort());
+                            }
+                            else if (addr instanceof Inet6Address)
+                            {
+                                String ipv6 = ipaddr;
+                                int zoneid_delim = ipv6.indexOf('%');
+                                if (zoneid_delim > 0)
+                                {
+                                    ipv6 = ipv6.substring(0, zoneid_delim);
+                                }
+                                iaddr.fromString (
+                                        "[" + ipv6 + "]:"
+                                        + primaryAddress.getPort()
+                                                );
+                            }
+
+                            if (logger.isDebugEnabled())
+                            {
+                                logger.debug("components.addComponent: adding addrHostAddress <" + addrHostAddress + "> as TAG_ALTERNATE_IIOP_ADDRESS" );
+                            }
+                            components.addComponent (TAG_ALTERNATE_IIOP_ADDRESS.value,
+                                                             iaddr.toCDR());
                         }
-                        else if (addr instanceof Inet6Address)
-                        {
-                            iaddr.fromString (
-                               "[" + addr.toString().substring(1) + "]:"
-                               + primaryAddress.getPort()
-                            );
-                        }
-                        components.addComponent (TAG_ALTERNATE_IIOP_ADDRESS.value,
-                                                 iaddr.toCDR());
                     }
                 }
             }

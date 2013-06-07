@@ -1,0 +1,11 @@
+This is the regression test to checkout the -ORBListenEndpoints commandline options.
+It uses the classes under the directory test/listenendpoints/echo_corbaloc.
+
+The test performs the following tasks:
+   - Initiates the test.listenendpoints.echo_corbaloc.Server with two wildcard listen endpoints.
+   - Ensures those endpoints are reachable using all listenable hosts/IPs and correct service ports.
+   - Ensures those endpoints are not reachable on a wrong port.
+
+TBD: Make this test works with a remote server.
+
+Quynh N.

@@ -1030,7 +1030,7 @@ public abstract class GIOPConnection
                     {
                         logger.debug
                         (
-                            this.toString() + ": sendMessage() -- opening transport" + transport
+                            this.toString() + ": sendMessage() - opening transport " + transport
                         );
                     }
 

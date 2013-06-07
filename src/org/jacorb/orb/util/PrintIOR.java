@@ -25,6 +25,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.FileReader;
 import java.io.LineNumberReader;
 import java.io.PrintWriter;
+import java.util.Iterator;
 import java.util.List;
 import org.jacorb.config.ConfigurationException;
 import org.jacorb.orb.CDRInputStream;
@@ -44,6 +45,7 @@ import org.omg.CSIIOP.TAG_SECIOP_SEC_TRANS;
 import org.omg.CSIIOP.TAG_TLS_SEC_TRANS;
 import org.omg.CSIIOP.TLS_SEC_TRANS;
 import org.omg.CSIIOP.TLS_SEC_TRANSHelper;
+import org.omg.ETF.Profile;
 import org.omg.IOP.TAG_ALTERNATE_IIOP_ADDRESS;
 import org.omg.IOP.TAG_CODE_SETS;
 import org.omg.IOP.TAG_CSI_SEC_MECH_LIST;
@@ -158,7 +160,7 @@ public class PrintIOR
               }
               else if (corbalocForm)
               {
-                  out.println (printCorbalocIOR (orb, iorString));
+                  out.println (printFullCorbalocIOR (orb, iorString));
               }
               else
               {
@@ -191,32 +193,66 @@ public class PrintIOR
      */
     public static String printCorbalocIOR (org.omg.CORBA.ORB orb, String iorString)
     {
-       if ( ! (orb instanceof org.jacorb.orb.ORB))
-       {
-          throw new RuntimeException ("ORB must be a JacORB ORB.");
-       }
-       final ParsedIOR pior = new ParsedIOR((org.jacorb.orb.ORB)orb, iorString );
+        try
+        {
+            return printFullCorbalocIOR (orb, iorString);
+        }
+        catch (RuntimeException re)
+        {
+            throw new RuntimeException (re.getMessage());
+        }
+    }
 
-       StringBuffer result = new StringBuffer();
+    /**
+     *
+     * @param orb
+     * @param iorString
+     * @return a corbaloc string to fully describe a given IOR string, which
+     * may have more than one profiles each may have additional
+     * TAG_ALTERNATE_IIOP_ADDRESS tags.
+     */
+    public static String printFullCorbalocIOR (
+                                    org.omg.CORBA.ORB orb, String iorString)
+    {
+        if ( ! (orb instanceof org.jacorb.orb.ORB))
+        {
+            throw new RuntimeException ("ORB must be a JacORB ORB.");
+        }
+        final ParsedIOR pior = new ParsedIOR((org.jacorb.orb.ORB)orb, iorString );
 
-       result.append ("corbaloc:iiop:");
+        String result = null;
+        String object_key = null;
+        Iterator iterator;
+        for (iterator = pior.getProfiles().iterator(); iterator.hasNext();)
+        {
+            Profile profile = (Profile) iterator.next();
 
-       ProfileBase profile = (ProfileBase)pior.getEffectiveProfile ();
+            if (profile instanceof IIOPProfile)
+            {
+                String s = CorbaLoc.createCorbalocForIIOPProfileMultiTags (
+                                                        (IIOPProfile)profile);
+                if (result != null)
+                {
+                    result += "," + s;
+                }
+                else
+                {
+                    result = "corbaloc:" + s;
+                    object_key = CorbaLoc.parseKey (profile.get_object_key ());
+                }
 
-       if (profile instanceof IIOPProfile)
-       {
-          result.append ("1." + Byte.valueOf(profile.version().minor) + "@");
-          result.append (((IIOPAddress)((IIOPProfile)profile).getAddress()).getOriginalHost());
-          result.append (':');
-          result.append (((IIOPAddress)((IIOPProfile)profile).getAddress()).getPort());
-          result.append ('/');
-          result.append (CorbaLoc.parseKey(pior.get_object_key()));
-       }
-       else
-       {
-          throw new RuntimeException ("Sorry, only print corbaloc strings for IIOP profiles.");
-       }
-       return result.toString ();
+            }
+            else
+            {
+                throw new RuntimeException (
+                        "Sorry, only print corbaloc strings for IIOP profiles.");
+            }
+        }
+        if (result != null)
+        {
+            result +=  "/" + object_key;
+        }
+        return result;
     }
 
     private static void usage()
@@ -769,6 +805,10 @@ public class PrintIOR
             if (type == ORBConstants.JACORB_ORB_ID)
             {
                 out.println (" (JacORB)");
+            }
+            else if (type == ORBConstants.TAO_ORB_ID)
+            {
+                out.println (" (TAO)");
             }
             else
             {
