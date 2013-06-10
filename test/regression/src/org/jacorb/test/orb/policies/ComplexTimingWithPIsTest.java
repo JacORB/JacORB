@@ -212,6 +212,8 @@ public class ComplexTimingWithPIsTest extends CallbackTestCase
         server = clearPolicies (server);
         server = setRelativeRoundtripTimeout (server, 200);
 
+        ClientInterceptor.forwardRequestThrown = false;
+
         TestConfig.setConfig (TestConfig.SEND_REQ,
                               fwdServer);
 
