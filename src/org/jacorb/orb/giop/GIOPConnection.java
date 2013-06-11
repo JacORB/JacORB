@@ -137,7 +137,7 @@ public abstract class GIOPConnection
 
     // deadline for current send operation
     private org.omg.TimeBase.UtcT sendDeadline = null;
-    
+
     // request id for GIOP 1.1 fragmented messages
     private Integer lastRequestId = -1;
 
@@ -595,8 +595,8 @@ public abstract class GIOPConnection
                     return;
                 }
 
-                
-                int request_id = 0;                 
+
+                int request_id = 0;
                 if ( Messages.getGIOPMinor( message ) == 1 )
                 {
                   //GIOP 1.1 messages don't have request ids, use request id from previous message instead
@@ -606,7 +606,7 @@ public abstract class GIOPConnection
                 {
                   request_id = Messages.getRequestId( message );
                 }
-                
+
                 //sanity check
                 if ( ! fragments.containsKey( request_id ) || lastRequestId.intValue() == -1)
                 {
@@ -625,18 +625,19 @@ public abstract class GIOPConnection
                 ByteArrayOutputStream b_out =
                     (ByteArrayOutputStream)fragments.get( request_id );
 
-                //add the message contents to stream 
+                //add the message contents to stream
                 if ( Messages.getGIOPMinor( message ) == 1 )
-                {  
-                  //GIOP 1.1 messages don't have request ids
-                  b_out.write( message,
+                {
+                    //GIOP 1.1 messages don't have request ids
+                    b_out.write( message,
                       Messages.MSG_HEADER_SIZE ,
-                      Messages.getMsgSize(message));                  
+                      Messages.getMsgSize(message));
                 }
                 else
                 {
-                  //discarding the GIOP message header and the request id ulong of the Fragment header                  
-                  b_out.write( message,
+                    //discarding the GIOP message header and the request id ulong of the
+                    //Fragment header
+                    b_out.write( message,
                                Messages.MSG_HEADER_SIZE + 4 ,
                                Messages.getMsgSize(message) - 4 );
                 }
@@ -737,9 +738,9 @@ public abstract class GIOPConnection
                 }
 
                 //if we're here, it's the first part of a fragmented message
-                Integer request_id = 
-                      Integer.valueOf(Messages.getRequestId( message )); // NOPMD
-                
+                Integer request_id =
+                      Integer.valueOf(Messages.getRequestId( message ));
+
                 lastRequestId = request_id;
 
                 //sanity check
