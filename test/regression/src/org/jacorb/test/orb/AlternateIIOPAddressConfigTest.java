@@ -35,11 +35,11 @@ import org.jacorb.test.*;
 public class AlternateIIOPAddressConfigTest extends ClientServerTestCase
 {
     private static final String CORRECT_HOST = "127.0.0.1";
-    private static final String WRONG_HOST = "10.0.0.77";
-    
+    private static final String WRONG_HOST = "255.255.255.254";
+
     private static final int CORRECT_PORT = 12435;
     private static final int WRONG_PORT = 12436;
-    
+
     private BasicServer server;
 
     public AlternateIIOPAddressConfigTest(String name, ClientServerSetup setup)
@@ -61,7 +61,7 @@ public class AlternateIIOPAddressConfigTest extends ClientServerTestCase
     {
         TestSuite suite = new JacORBTestSuite ("AlternateIIOPAddress Configuration Test",
                                                AlternateIIOPAddressConfigTest.class);
- 
+
         Properties clientProps = new Properties();
         clientProps.setProperty ("jacorb.retries", "0");
         clientProps.setProperty ("jacorb.retry_interval", "50");
@@ -74,7 +74,7 @@ public class AlternateIIOPAddressConfigTest extends ClientServerTestCase
         serverProps.put ("jacorb.ior_proxy_host", WRONG_HOST);
         // ... so that the alternate addresses get used
         serverProps.put ("jacorb.iiop.alternate_addresses",
-                         CORRECT_HOST + ":" + WRONG_PORT + "," + 
+                         CORRECT_HOST + ":" + WRONG_PORT + "," +
                          CORRECT_HOST + ":" + CORRECT_PORT);
         ClientServerSetup setup =
             new ClientServerSetup( suite,

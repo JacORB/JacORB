@@ -73,9 +73,7 @@ public class IIOPFactories
      */
     protected Listener create_listener_internal ()
     {
-       IIOPListener result = new IIOPListener();
-       configureResult (result);
-       return result;
+       return new IIOPListener();
     }
 
 

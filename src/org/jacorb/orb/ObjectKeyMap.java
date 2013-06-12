@@ -24,7 +24,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-
 import org.jacorb.config.Configuration;
 import org.jacorb.config.ConfigurationException;
 import org.omg.CORBA.BAD_PARAM;
@@ -109,13 +108,13 @@ public class ObjectKeyMap
     public synchronized void configureObjectKeyMap(Configuration config)
     {
         final String prefix = "jacorb.orb.objectKeyMap.";
-        final List names = config.getAttributeNamesWithPrefix(prefix);
+        final List<String> names = config.getAttributeNamesWithPrefix(prefix);
 
         try
         {
-            for (Iterator i = names.iterator(); i.hasNext(); )
+            for (Iterator<String> i = names.iterator(); i.hasNext(); )
             {
-                final String property = (String) i.next();
+                final String property = i.next();
                 final String key_name = property.substring(prefix.length());
                 final String full_path = config.getAttribute(property);
                 addObjectKey(key_name, full_path);

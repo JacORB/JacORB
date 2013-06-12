@@ -33,9 +33,10 @@ import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.StringTokenizer;
 import java.util.logging.Level;
+import org.jacorb.orb.ORB;
 import org.jacorb.util.ObjectUtil;
+import org.jacorb.util.Version;
 import org.omg.CORBA.NO_IMPLEMENT;
-import org.omg.CORBA.ORB;
 import org.slf4j.Logger;
 
 /**
@@ -140,14 +141,39 @@ public class JacORBConfiguration implements Configuration
      * @throws ConfigurationException the configuration exception
      */
     public static Configuration getConfiguration(Properties props,
+                                                 org.omg.CORBA.ORB orb,
+                                                 boolean isApplet)
+        throws ConfigurationException
+    {
+        if ( ! (orb instanceof ORB))
+        {
+            throw new ConfigurationException("ORB must not be null and must be a JacORB ORB " + (orb == null ? "<null>" : orb.getClass().getName()));
+        }
+
+        return getConfiguration (props, (org.jacorb.orb.ORB)orb, null, isApplet);
+    }
+
+    /**
+     * Factory method.
+     *
+     * @param props the props
+     * @param orb the orb
+     * @param id  the orb_id (if set)
+     * @param isApplet the is applet
+     * @return the configuration
+     * @throws ConfigurationException the configuration exception
+     */
+    public static Configuration getConfiguration(Properties props,
                                                  ORB orb,
+                                                 String orbid,
                                                  boolean isApplet)
         throws ConfigurationException
     {
         // determine the ORBId, if set, so we can locate the corresponding
         // configuration
-        String orbID = "jacorb"; // default id
+        String orbID = Version.orbId; // default id
         String myOrbID = null;
+
         if ( !isApplet )
         {
             try
@@ -161,27 +187,22 @@ public class JacORBConfiguration implements Configuration
             }
         }
 
-        if( props != null )
+        // ORB props and args override system props.
+        if ( orbid != null && orbid.length () > 0)
         {
-            // props override system properties
-            String tmp = (String)props.get("ORBid");
-            if( tmp != null )
-            {
-                myOrbID = tmp;
-            }
+            myOrbID = orbid;
         }
 
-        if (myOrbID != null )
+        if (myOrbID != null && !myOrbID.equals(""))
         {
             // check for legal values
-            if (myOrbID.equals("orb") || myOrbID.equals("jacorb"))
+            if (myOrbID.equals("orb") || myOrbID.equals(Version.orbId))
             {
                 throw new ConfigurationException("Illegal orbID, <" +
                                                   myOrbID + "> is reserved");
             }
             orbID = myOrbID;
         }
-
         return new JacORBConfiguration(orbID, props, orb, isApplet);
     }
 
@@ -692,14 +713,14 @@ public class JacORBConfiguration implements Configuration
 
 
     /**
-     * Gets the oRB.
+     * Gets the ORB.
      *
      * @return the ORB for which this configuration was created
      */
 
     public org.jacorb.orb.ORB getORB()
     {
-        return (org.jacorb.orb.ORB)orb;
+        return orb;
     }
 
 
@@ -749,7 +770,7 @@ public class JacORBConfiguration implements Configuration
 
            if (implName != null && implName.length() > 0)
            {
-              if (name.equals ("jacorb"))
+              if (name.equals (Version.orbId))
               {
                  loggerName = "jacorb." + implName;
               }
@@ -1012,7 +1033,7 @@ public class JacORBConfiguration implements Configuration
             return null;
         }
 
-        return (String[]) values.toArray (new String[values.size ()]);
+        return values.toArray (new String[values.size ()]);
     }
 
 
@@ -1132,7 +1153,7 @@ public class JacORBConfiguration implements Configuration
      */
     private String[] getAttributeNames()
     {
-        return (String[])(stringAttributes.keySet().toArray (new String[]{}));
+        return (stringAttributes.keySet().toArray (new String[]{}));
     }
 
     /**

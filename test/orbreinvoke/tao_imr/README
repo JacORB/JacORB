@@ -1,0 +1,216 @@
+
+  JacORB/TAO ImR Integration Tests
+  ===============================
+
+This directory holds the JacORB/TAO ImR integration test suite, which is intended
+ to be run manually for integration purposes.  This test suite comprises of the
+following components:
+   - One or more TAO ImR
+   - A JacORB server application named EchoServer1 (or EchoServer2) which
+basically sending back whatever message that it receives.
+   - A JacOBB client application that would request services from the server
+using the server's TAO ImR-ified IOR reference, which may be an IOR file, IOR
+string, or a simplified corbaloc IOR string.
+
+This test suite requires an ACE/TAO ImR release that is enhanced with supporting
+features for JacORB applications.  In addition, this test suite assumes that you
+are familiar with the ACE/TAO ImR usages.  Please consult the ACE/TAO literature
+for information about the ACE/TAO ImR.
+
+Building the Test Suites
+-----------------------
+
+To build the tests, you first need to set the environment variable JACORB_HOME
+then type:
+
+  ant all
+
+This should compile the IDL and Java code that is needed to run the test.
+
+Running the Tests
+-----------------
+
+The Bash scripts (.sh) can be invoked to setup and run the tests on a UNIX or
+a LINUX platform without modification.  When invoked, the scripts will direct
+all outputs to to log files in the directory "./output".  The important scripts
+are:
+  - run_tao_imr_locator.sh, which will initiate the TAO ImR Locator service.
+  - run_tao_imr_activator.sh, which will initiate the TAO ImR Activator service.
+  - run_SimpleServer.sh, run_SimpleClient.sh run_SimpleClient_ior.sh are used
+    to run integration tests using the SimpleServer server whose object key is
+    "/implname/EchoServer-POA/EchoServer-ID" where implname may be "EchoServer1"
+    or "EchoServer2".
+  - run_OnePoaServer.sh, and run_OnePoaServerClient.sh are used to run
+    integration tests using the OnePoaServer server that has one child POA
+    whose object key is "/implname/EchoServer-Parent-POA/EchoServer-POA/
+    EchoServer-ID" where implname may be "EchoServer1" or "EchoServer2".
+  - run_TwoPoaServer.sh, and run_TwoPoaClient_*.sh are used to run integration
+    tests using the TwoPoaServer that has two child POAs whose object keys are
+    "/implname/EchoServer-Parent-POA/EchoServer-POA1/EchoServer-ID1" and
+    "/implname/EchoServer-Parent-POA/EchoServer-POA2/EchoServer-ID2".
+  - run_UnknownImplName_client.sh is used to check-out the TAO ImR ability to
+    to reject a request from a client using an unknown server's implname.
+  - tao_imr_add_SimpleServer.sh, which will add an entry in the TAO ImR
+    respository for the SimpleServer server.  This script requires two
+    arguments:  implname as the first argument, which may be "EchoServer1" or
+    "EchoServer2", and POA name as the second argument.
+  - tao_imr_update_SimpleServer.sh, which will update the entry in the TAO ImR
+    repository for the SimpleServer server.  This script requires two
+    arguments:  implname as the first argument, which may be "EchoServer1" or
+    "EchoServer2", and POA name as the second argument.
+  - tao_imr_add_TwoPoaServer.sh, which will add an entry in the TAO ImR
+    respository for the TwoPoaServer server.  This script requires two
+    arguments:  implname as the first argument, which may be "EchoServer1" or
+    "EchoServer2", and POA name as the second argument.
+  - tao_imr_update_TwoPoaServer.sh, which will update the entry in the TAO ImR
+    repository for the TwoPoaServer server.  This script requires two
+    arguments:  implname as the first argument, which may be "EchoServer1" or
+    "EchoServer2", and POA name as the second argument.
+
+Before running the tests, you may wish to review the following prerequisite
+steps for setting up the environment:
+
+a) Set up the following TAO environments variables:
+
+   - ACE_ROOT and TAO_ROOT
+   - PATH=$PATH:$ACE_ROOT/bin
+   - LD_LIBRARY_PATH=$ACE_ROOT/lib
+   - DYLD_LIBRARY_PATH=$ACE_ROOT/lib (needed for MACOS)
+
+b) Set up the following JacORB environments variables:
+
+   - JACORB_HOME
+   - PATH=$PATH:$JACORB_HOME/bin
+   - CLASSPATH=${CLASSPATH}:<script-dir>/build/classes
+
+c) Review the following TAO scripts to ensure that they point to the correct
+   TAO executables:
+
+     run_tao_imr_activator.sh
+     run_tao_imr_locator.sh
+     tao_imr_add_SimpleServer.sh
+     tao_imr_update_SimpleServer.sh
+     tao_imr_add_TwoPoaServer.sh
+     tao_imr_update_TwoPoaServer.sh
+     tao_imr.sh
+     tao_cator.sh
+
+Basic Test
+----------
+A basic test session would comprise of the following steps:
+
+  - Initiate the TAO ImR Locator service by running:
+
+        ./run_tao_imr_locator.sh
+
+    The script will initiate the ImR service, which produces an IOR file
+    "/tmp/tao_imr_locator.ior".  If you initiate the TAO ImR Locator on a remote
+    system other than the one that the server application resides, then you will
+    need to copy the Locator's ior file to the system where the server resides
+    before initiating the server, otherwise, it will fail to find the Locator.
+
+  - Initiate the SimpleServer server, org.jacorb.test.orbreinvoke.tao_imr.SimpleServer, by
+    running:
+
+        ./run_SimpleServer.sh EchoServer1
+
+    The script will initiate a server with an implname of "EchoServer1" on the
+    local host.  The server produces an ImR-ified IOR file
+    "/tmp/org.jacorb.test.orbreinvoke.tao_imr.Server.EchoServer1.EchoServer.ior".
+
+  - Initiate the client application, org.jacorb.test.listenendpoints.echo_corbaloc.Client,
+    by running:
+
+        ./run_SimpleClient.sh EchoServer1
+
+    The script will initiate the client, which will attempt to connect to the
+    server through the ImR using the simplified corbaloc IOR string.  Upon
+    successful, it will keep pinging the server in a loop using sequential
+    messages and output the result to a log file in the directory "./output".
+    You can tail the log file to follow the activities.
+
+  - When finished, do the following to cleanup:
+
+        - Find and kill org.jacorb.test.listenendpoints.echo_corbaloc.Client
+        - Find and kill org.jacorb.test.orbreinvoke.tao_imr.SimpleServer
+        - Shutdown the TAO ImR Locator using:
+
+              ./tao_imr.sh shutdown-repo
+
+        - Remove the file /tmp/tao_imr_locator.persistent.xml
+
+Advanced Test
+-------------
+An advanced test session, which involves registering the server with the TAO ImR
+and auto-restarting the server by the TAO ImR Activator, would comprises of the
+following steps:
+
+  - Initiate the TAO ImR Locator service by running:
+
+        ./run_tao_imr_locator.sh
+
+    The script will initiate the ImR service, which produces an IOR file
+    "/tmp/tao_imr_locator.ior".  If you initiate the TAO ImR Locator on a remote
+    system other than the one that the server application resides, then you will
+    need to copy the Locator's ior file to the system where the server resides
+    before initiating the server, otherwise, it will fail to find the Locator.
+
+  - Register the SimpleServer server having the implname of "EchoServer1" and
+    the POA name of "EchoServer-POA" with the TAO ImR by running the script:
+
+        ./run_tao_imr_add_SimpleServer.sh EchoServer1 EchoServer-POA
+
+    Please note that, if the TAO ImR Locator has been started on a remote
+    system, then you must run the script on the same system where the server
+    resides.  The SimpleServer server and its implmane and POA will be
+    registered as:
+
+        JACORB:EchoServer1/EchoServer-POA
+
+  - Verify an entry has been created for the SimpleServer server in the TAO ImR
+    repository by entering:
+
+        ./tao_imr.sh list -v
+
+    You should see an entry with "<Server JACORB:EchoServer1/EchoServer-POA>".
+
+  - Initiate the TAO ImR Activator service by running:
+
+        ./run_tao_imr_activator.sh
+
+    Again, the TAO ImR Activator must be started on the same system where the
+    SimpleServer server resides.
+
+  - Initiate the client application, org.jacorb.test.listenendpoints.echo_corbaloc.Client,
+    by running:
+
+        ./run_SimpleClient.sh EchoServer1
+
+    The script will initiate the client, which will attempt to connect to the
+    server through the ImR using the simplified corbaloc IOR string; and as the
+    result, the SimpleServer server will be started by the TAO ImR Activator.
+    Upon successful connected to the server, the client application will keep
+    pinging the server in a loop using sequential messages and output the
+    result to a log file in the directory "./output".  You can tail the log
+    file to follow the activities.
+
+  - To test the auto-restarting of a down server, you can simulate its crashing
+    by killing the SimpleServer server manually, and you should see that the
+    server will be resurrected by the TAO ImR Activator.
+
+  - When finished, do the following to cleanup:
+
+        - Find and kill org.jacorb.test.listenendpoints.echo_corbaloc.Client
+        - Shutdown the SimpleServer server using:
+
+              ./tao_imr.sh shutdown "JACORB:EchoServer1/EchoServer-POA"
+
+        - Shutdown the TAO ImR Locator and Activator using:
+
+              ./tao_imr.sh shutdown-repo -a
+
+        - Remove the file /tmp/tao_imr_locator.persistent.xml
+
+Quynh Nguyen
+Object Computing Inc.
+January 7, 2013

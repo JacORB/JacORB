@@ -26,6 +26,9 @@ import java.util.List;
 import org.jacorb.config.Configurable;
 import org.jacorb.config.Configuration;
 import org.jacorb.config.ConfigurationException;
+import org.jacorb.orb.etf.ListenEndpoint;
+import org.jacorb.orb.etf.ListenEndpoint.Protocol;
+import org.jacorb.orb.etf.ListenerBase;
 import org.jacorb.orb.giop.GIOPConnection;
 import org.jacorb.orb.giop.GIOPConnectionManager;
 import org.jacorb.orb.giop.MessageReceptorPool;
@@ -41,6 +44,7 @@ import org.omg.CORBA.INTERNAL;
 import org.omg.ETF.Connection;
 import org.omg.ETF.Factories;
 import org.omg.ETF.Listener;
+import org.omg.ETF.Profile;
 import org.slf4j.Logger;
 
 /**
@@ -52,7 +56,7 @@ public class BasicAdapter
     extends org.omg.ETF._HandleLocalBase
     implements Configurable
 {
-    private final List listeners = new ArrayList();
+    private final List<Listener> listeners = new ArrayList<Listener>();
 
     private MessageReceptorPool receptor_pool = null;
     private final ServerRequestListener request_listener;
@@ -82,6 +86,7 @@ public class BasicAdapter
      * configure the BasicAdapter
      */
 
+    @Override
     public void configure(Configuration myConfiguration)
         throws ConfigurationException
     {
@@ -94,18 +99,34 @@ public class BasicAdapter
         reply_listener = new NoBiDirServerReplyListener();
 
         // create all Listeners
-        for (Iterator i = getListenerFactories().iterator(); i.hasNext();)
+        for (Iterator<Factories> i = getListenerFactories().iterator(); i.hasNext();)
         {
-             Factories factories = (Factories)i.next();
-             Listener listener = factories.create_listener (null, (short)0, (short)0);
-             listener.set_handle(this);
-             listeners.add (listener);
-        }
+             Factories factories = i.next();
+             Protocol p = Protocol.mapProfileTag(factories.profile_tag());
+             Iterator<ListenEndpoint> it = transport_manager.getListenEndpoints(p).iterator();
+
+             while (it.hasNext())
+             {
+                 Listener listener = factories.create_listener (null, (short)0, (short)0);
+                 ListenEndpoint le = it.next();
+
+                 if (listener instanceof ListenerBase)
+                 {
+                     ((ListenerBase)listener).setListenEndpoint(le);
+                 }
+                 if (listener instanceof Configurable)
+                 {
+                     ((Configurable)listener).configure(configuration);
+                 }
+                 listener.set_handle(this);
+                 listeners.add (listener);
+             }
+         }
 
         // activate them
-        for (Iterator i = listeners.iterator(); i.hasNext();)
+        for (Iterator<Listener> i = listeners.iterator(); i.hasNext();)
         {
-            ((Listener)i.next()).listen();
+            i.next().listen();
         }
     }
 
@@ -114,11 +135,10 @@ public class BasicAdapter
      * Returns a List of Factories for all transport plugins that
      * should listen for incoming connections.
      */
-    private List getListenerFactories()
+    private List<Factories> getListenerFactories()
     {
-        List result = new ArrayList();
-        List tags =
-            configuration.getAttributeList("jacorb.transport.server.listeners");
+        List<Factories> result = new ArrayList<Factories>();
+        List<String> tags = configuration.getAttributeList("jacorb.transport.server.listeners");
 
         if (tags.isEmpty())
         {
@@ -131,9 +151,9 @@ public class BasicAdapter
                 tags.remove("off");
             }
 
-            for (Iterator i = tags.iterator(); i.hasNext();)
+            for (Iterator<String> i = tags.iterator(); i.hasNext();)
             {
-                String s = ((String)i.next());
+                String s = i.next();
                 int tag = -1;
                 try
                 {
@@ -169,12 +189,12 @@ public class BasicAdapter
      * safely be modified by the caller (e.g. add an object key, patch the
      * address, stuff it into an IOR, etc.).
      */
-    public List getEndpointProfiles()
+    public List<Profile> getEndpointProfiles()
     {
-        List result = new ArrayList();
-        for (Iterator i = listeners.iterator(); i.hasNext();)
+        List<Profile> result = new ArrayList<Profile>();
+        for (Iterator<Listener> i = listeners.iterator(); i.hasNext();)
         {
-            Listener listener = (Listener)i.next();
+            Listener listener = i.next();
             result.add(listener.endpoint());
         }
         return result;
@@ -189,7 +209,7 @@ public class BasicAdapter
     {
         if (listeners.size() == 1)
         {
-            Listener listener = (Listener)listeners.get(0);
+            Listener listener = listeners.get(0);
             if (listener instanceof IIOPListener)
             {
                 return (IIOPListener)listener;
@@ -204,6 +224,7 @@ public class BasicAdapter
      * @deprecated This method cannot return a sensible result in the presence
      * of alternate transports, use {@link #getEndpointProfiles()} instead.
      */
+    @Deprecated
     public int getPort()
     {
         IIOPListener l = getIIOPListener();
@@ -220,6 +241,7 @@ public class BasicAdapter
      * @deprecated This method cannot return a sensible result in the presence
      * of alternate transports, use {@link #getEndpointProfiles()} instead.
      */
+    @Deprecated
     public int getSSLPort()
     {
         IIOPListener listener = getIIOPListener();
@@ -235,6 +257,7 @@ public class BasicAdapter
      * @deprecated This method cannot return a sensible result in the presence
      * of alternate transports, use {@link #getEndpointProfiles()} instead.
      */
+    @Deprecated
     public boolean hasSSLListener()
     {
         return getSSLPort() != -1;
@@ -244,6 +267,7 @@ public class BasicAdapter
      * @deprecated This method cannot return a sensible result in the presence
      * of alternate transports, use {@link #getEndpointProfiles()} instead.
      */
+    @Deprecated
     public String getAddress()
     {
         IIOPListener l = getIIOPListener();
@@ -349,9 +373,9 @@ public class BasicAdapter
 
     public void stopListeners()
     {
-        for (Iterator i = listeners.iterator(); i.hasNext();)
+        for (Iterator<Listener> i = listeners.iterator(); i.hasNext();)
         {
-            ((Listener)i.next()).destroy();
+            i.next().destroy();
         }
         receptor_pool.shutdown();
     }
@@ -363,7 +387,7 @@ public class BasicAdapter
      */
     public void renewSSLServerSockets()
     {
-        for (Iterator i = listeners.iterator(); i.hasNext();)
+        for (Iterator<Listener> i = listeners.iterator(); i.hasNext();)
         {
             Object o = i.next();
             if (o instanceof IIOPListener)
@@ -391,6 +415,7 @@ public class BasicAdapter
      * allowed, it shall ignore the passed instance and
      * return false.
      */
+    @Override
     public boolean add_input (org.omg.ETF.Connection conn)
     {
         GIOPConnection giopConnection =
@@ -418,6 +443,7 @@ public class BasicAdapter
      * connection. The plugin shall signal this event to the server side
      * ORB via its Handle by calling this function.
      */
+    @Override
     public void closed_by_peer (org.omg.ETF.Connection conn)
     {
         // We don't do this in JacORB; Connections are never
@@ -434,6 +460,7 @@ public class BasicAdapter
      * data from this Connection until the Listener's completed_data function
      * is called by the ORB.
      */
+    @Override
     public void signal_data_available (Connection conn)
     {
         // We don't do this in JacORB; Connections are never

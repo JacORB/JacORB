@@ -67,10 +67,10 @@ public class GIOPConnectionTest
 
         suite.addTest (new GIOPConnectionTest ("testGIOP_1_0_CorrectRefusing"));
         suite.addTest (new GIOPConnectionTest ("testGIOP_1_1_IllegalMessageType"));
-        suite.addTest (new GIOPConnectionTest ("testGIOP_1_1_NoImplement"));
         suite.addTest (new GIOPConnectionTest ("testGIOP_1_2_CorrectFragmentedRequest"));
         suite.addTest (new GIOPConnectionTest ("testGIOP_1_2_CorrectCloseOnGarbage"));
         suite.addTest (new GIOPConnectionTest ("testGIOP_1_1_CorrectRequest"));
+        suite.addTest (new GIOPConnectionTest ("testGIOP_1_1_CorrectFragmentedRequest"));
 
         return suite;
     }
@@ -263,6 +263,101 @@ public class GIOPConnectionTest
     public GIOPConnectionTest( String name )
     {
         super( name );
+    }
+
+    public void testGIOP_1_1_CorrectFragmentedRequest()
+    {
+        List<byte[]> messages = new Vector<byte[]>();
+
+        RequestOutputStream r_out =
+            new RequestOutputStream( orb, //ClientConnection
+                                     (ClientConnection) null,           //request id
+                                     0,       //operation
+                                     "foo",        // response expected
+                                     true,   // SYNC_SCOPE (irrelevant)
+                                     (short)-1,        //request start time
+                                     null,        //request end time
+                                     null,        //reply start time
+                                     null, //object key
+                                     new byte[1], 1            // giop minor
+                                   );
+
+        //manually write the first half of the string "barbaz"
+        r_out.write_ulong( 7 ); //string length
+        r_out.write_octet( (byte) 'b' );
+        r_out.write_octet( (byte) 'a' );
+        r_out.write_octet( (byte) 'r' );
+        r_out.insertMsgSize();
+
+        byte[] b = r_out.getBufferCopy();
+
+        b[6] |= 0x02; //set "more fragments follow"
+
+        messages.add( b );
+
+        MessageOutputStream m_out =
+            new MessageOutputStream(orb);
+        m_out.writeGIOPMsgHeader( MsgType_1_1._Fragment,
+                                  1 // giop minor
+                                );
+        m_out.write_octet( (byte) 'b' );
+        m_out.write_octet( (byte) 'a' );
+        m_out.write_octet( (byte) 'z' );
+        m_out.write_octet( (byte) 0);
+        m_out.insertMsgSize();
+
+        messages.add( m_out.getBufferCopy() );
+
+        DummyTransport transport =
+            new DummyTransport( messages );
+
+        DummyRequestListener request_listener =
+            new DummyRequestListener();
+
+        DummyReplyListener reply_listener =
+            new DummyReplyListener();
+
+        GIOPConnectionManager giopconn_mg =
+            new GIOPConnectionManager();
+        try
+        {
+            giopconn_mg.configure (config);
+        }
+        catch (Exception e)
+        {
+        }
+
+        ServerGIOPConnection conn =
+            giopconn_mg.createServerGIOPConnection( null,
+                    transport,
+                    request_listener,
+                    reply_listener );
+
+        try
+        {
+            //will not return until an IOException is thrown (by the
+            //DummyTransport)
+            conn.receiveMessages();
+        }
+        catch( IOException e )
+        {
+            //o.k., thrown by DummyTransport
+        }
+        catch( Exception e )
+        {
+            e.printStackTrace();
+            fail( "Caught exception: " + e );
+        }
+
+        //did the GIOPConnection hand the complete request over to the
+        //listener?
+        assertTrue( request_listener.getRequest() != null );
+
+        RequestInputStream r_in = new RequestInputStream
+        ( orb, null, request_listener.getRequest() );
+
+        //is the body correct?
+        assertEquals( "barbaz", r_in.read_string() );
     }
 
     public void testGIOP_1_2_CorrectFragmentedRequest()
@@ -559,131 +654,6 @@ public class GIOPConnectionTest
         byte[] result = transport.getWrittenMessage();
 
         assertTrue( Messages.getMsgType( result ) == MsgType_1_1._MessageError );
-    }
-
-    public void testGIOP_1_1_NoImplement()
-    {
-        List<byte[]> messages = new Vector<byte[]>();
-
-        RequestOutputStream r_out =
-            new RequestOutputStream( orb, //ClientConnection
-                                     null,           //request id
-                                     0,       //operation
-                                     "foo",        //response expected
-                                     true,   //SYNC_SCOPE (irrelevant)
-                                     (short)-1,        //request start time
-                                     null,        //request end time
-                                     null,        //reply end time
-                                     null, //object key
-                                     new byte[1], 1            // giop minor
-                                     );
-
-        r_out.write_string( "bar" );
-        r_out.insertMsgSize();
-
-        byte[] b = r_out.getBufferCopy();
-
-        b[6] |= 0x02; //set "more fragments follow"
-
-        messages.add( b );
-
-        DummyTransport transport =
-            new DummyTransport( messages );
-
-        DummyRequestListener request_listener =
-            new DummyRequestListener();
-
-        DummyReplyListener reply_listener =
-            new DummyReplyListener();
-
-        GIOPConnectionManager giopconn_mg =
-            new GIOPConnectionManager();
-        try
-        {
-            giopconn_mg.configure (config);
-        }
-        catch (Exception e)
-        {
-        }
-
-        GIOPConnection conn =
-            giopconn_mg.createServerGIOPConnection( null,
-                                                    transport,
-                                                    request_listener,
-                                                    reply_listener );
-
-        try
-        {
-            //will not return until an IOException is thrown (by the
-            //DummyTransport)
-            conn.receiveMessages();
-        }
-        catch( IOException e )
-        {
-            //o.k., thrown by DummyTransport
-        }
-        catch( Exception e )
-        {
-            e.printStackTrace();
-            fail( "Caught exception: " + e );
-        }
-
-        //no request or reply must have been handed over
-        assertTrue( request_listener.getRequest() == null );
-        assertTrue( reply_listener.getReply() == null );
-
-        //instead, an error message have must been sent via the
-        //transport
-        assertTrue( transport.getWrittenMessage() != null );
-
-        byte[] result = transport.getWrittenMessage();
-
-        ReplyInputStream r_in = new ReplyInputStream( orb, result );
-
-        Exception ex = r_in.getException();
-        if ( ex != null && ex.getClass() == org.omg.CORBA.NO_IMPLEMENT.class )
-        {
-            // o.k.
-        }
-        else
-        {
-            fail();
-        }
-
-        MessageOutputStream m_out =
-            new MessageOutputStream(orb);
-        m_out.writeGIOPMsgHeader( MsgType_1_1._Fragment,
-                                  1 // giop minor
-                                  );
-        m_out.write_ulong( 0 ); // Fragment Header (request id)
-        m_out.write_octet( (byte) 'b' );
-        m_out.write_octet( (byte) 'a' );
-        m_out.write_octet( (byte) 'z' );
-        m_out.insertMsgSize();
-
-        messages.add( m_out.getBufferCopy() );
-
-        try
-        {
-            //will not return until an IOException is thrown (by the
-            //DummyTransport)
-            conn.receiveMessages();
-        }
-        catch( IOException e )
-        {
-            //o.k., thrown by DummyTransport
-        }
-        catch( Exception e )
-        {
-            e.printStackTrace();
-            fail( "Caught exception: " + e );
-        }
-
-        //no request or reply must have been handed over
-        assertTrue( request_listener.getRequest() == null );
-        assertTrue( reply_listener.getReply() == null );
-
-        //can't check more, message is discarded
     }
 
     public void testGIOP_1_2_CorrectCloseOnGarbage()

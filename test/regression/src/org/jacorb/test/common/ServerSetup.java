@@ -20,6 +20,7 @@
 
 package org.jacorb.test.common;
 
+import java.lang.String;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.ref.WeakReference;
@@ -82,16 +83,21 @@ public class ServerSetup extends TestSetup
     protected String outName = "OUT";
     protected String errName = "ERR";
 
-    protected final List serverArgs = new ArrayList();
+    protected final List<String> serverArgs = new ArrayList();
 
     private String serverIORFailedMesg;
 
     public ServerSetup(Test test, String testServer, String servantName, Properties optionalProperties)
     {
+        this(test, testServer, new String [] { servantName } , optionalProperties);
+    }
+
+    public ServerSetup(Test test, String testServer, String[] testServantArgs, Properties optionalProperties)
+    {
         super(test);
 
         this.testServer = getTestServer(testServer);
-        this.servantName = servantName;
+        this.servantName = testServantArgs[0];
 
         if (TestUtils.verbose)
         {
@@ -109,7 +115,10 @@ public class ServerSetup extends TestSetup
 
         testTimeout = getTestServerTimeout2();
 
-        serverArgs.add(servantName);
+        for (int i = 0; i < testServantArgs.length; i++)
+        {
+            serverArgs.add(testServantArgs[i]);
+        }
     }
 
     public ServerSetup(Test test, String servantName)
@@ -117,10 +126,6 @@ public class ServerSetup extends TestSetup
         this(test, null, servantName, null);
     }
 
-    public ServerSetup(Test test, String servantName, Properties optionalProps)
-    {
-        this(test, null, servantName, optionalProps);
-    }
 
     /**
      * how long should we wait for a testserver to come up?
@@ -331,7 +336,7 @@ public class ServerSetup extends TestSetup
         details.append(errListener.toString());
         return details.toString();
     }
-    
+
     public void patchServerProperties (Properties serverProperties)
     {
         if (serverProperties != null && serverProperties.size () > 0)

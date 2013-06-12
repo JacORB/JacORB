@@ -1,4 +1,4 @@
-
+﻿
 \begin{quote}
 ``...  it is  very easy to be blinded to  the essential uselessness of
 them by  the sense of achievement you  get from getting it  to work at
@@ -47,6 +47,14 @@ contains a new  object reference to the actual  server process now, is
 handled by its runtime system  transparently.  As a result, the client
 will automatically  reissue its request  using the new  reference, now
 addressing the target directly.
+
+Beside the traditional JacORB ImR, the TAO ImR is also available as an
+alternative strategy for Implementation Repository in an operational
+environment where both TAO and JacORB service implementations co-exist.
+In such an environment, the TAO ImR offers an alternative approach to manage
+both JacORB and TAO service implementations.  Please consult the chapter
+“TAO Implementation Repository” (\ref{ch:Tao_Imr}) for details about the
+TAO Implementation Repository.
 
 \section{Using the JacORB Implementation Repository}
 
@@ -296,7 +304,7 @@ don't consider this list to be complete:
 \end{enumerate}
 
 
-%%% Local Variables: 
+%%% Local Variables:
 %%% mode: latex
 %%% TeX-master: "../ProgrammingGuide"
-%%% End: 
+%%% End:

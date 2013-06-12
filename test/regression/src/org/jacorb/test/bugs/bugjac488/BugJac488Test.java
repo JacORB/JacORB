@@ -60,7 +60,7 @@ public class BugJac488Test extends TestCase
         orbSetup.setUp();
         orb = orbSetup.getORB();
 
-        serverSetup = new ServerSetup(this, PingReceiverImpl.class.getName(), props);
+        serverSetup = new ServerSetup(this, null, PingReceiverImpl.class.getName(), props);
         serverSetup.setUp();
         server = PingReceiverHelper.narrow(orb.string_to_object(serverSetup.getServerIOR()));
     }

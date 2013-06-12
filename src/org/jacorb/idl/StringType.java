@@ -174,7 +174,7 @@ public class StringType
         // as var_name - get the operation result into temporary
         // holder
         String tmpResultName = "tmpResult" + tmpResultsCount++;
-        String writeStat = "java.lang.String " + tmpResultName + " = " + var_name + ";\n";
+        String writeStat = "java.lang.String " + tmpResultName + " = " + var_name + ';' + Environment.NL;
 
 
         String writeExpr;

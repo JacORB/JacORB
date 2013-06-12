@@ -79,9 +79,22 @@ public abstract class ListenerBase
      * Connections will only be put into this list
      * if no Handle has been set.
      */
-    protected final List incoming_connections = new ArrayList();
+    protected final List<Connection> incoming_connections = new ArrayList<Connection>();
 
     private boolean terminated = false;
+
+    protected ListenEndpoint listenEndpoint = null;
+
+    public ListenerBase()
+    {
+        super();
+    }
+
+    public ListenerBase(ListenEndpoint listenEndpoint)
+    {
+        super();
+        this.setListenEndpoint(listenEndpoint);
+    }
 
     public void configure(Configuration config)
         throws ConfigurationException
@@ -237,5 +250,14 @@ public abstract class ListenerBase
         public abstract void run();
 
         public abstract void terminate();
+    }
+
+    /**
+     * Assigns a listen end point to this listener
+     * @param listenEndpoint
+     */
+    public void setListenEndpoint (ListenEndpoint listenEndpoint)
+    {
+        this.listenEndpoint = listenEndpoint;
     }
 }

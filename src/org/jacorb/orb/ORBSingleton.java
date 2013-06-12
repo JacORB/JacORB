@@ -77,7 +77,7 @@ public class ORBSingleton
         {
             if (isSingleton)
             {
-                configuration = JacORBConfiguration.getConfiguration(null, null, false);
+                configuration = JacORBConfiguration.getConfiguration(null, null, null, false);
 
                 // Don't call configure method as if this has been called from ORB::ctor
                 // class construction order can cause issues.
@@ -857,6 +857,11 @@ public class ORBSingleton
     }
 
     protected void set_parameters(String[] args, java.util.Properties props)
+    {
+        throw new org.omg.CORBA.NO_IMPLEMENT (FACTORY_METHODS_MESG);
+    }
+
+    protected void set_parameters(String[] args, java.util.Properties props, String id)
     {
         throw new org.omg.CORBA.NO_IMPLEMENT (FACTORY_METHODS_MESG);
     }

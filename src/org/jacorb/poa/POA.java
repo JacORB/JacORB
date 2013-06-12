@@ -344,7 +344,7 @@ public class POA
     /**
      * called from orb, returns a registered child poa,
      * if no child poa exists a adapter activator will used
-     * to create a new poa unter this name
+     * to create a new poa under this name
      */
 
     public org.jacorb.poa.POA _getChildPOA( String adapter_name )

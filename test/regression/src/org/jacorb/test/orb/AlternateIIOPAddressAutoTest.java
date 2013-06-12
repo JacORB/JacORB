@@ -33,17 +33,17 @@ import org.jacorb.test.*;
  * makes sure that the option does not cause any havoc, but the primary
  * address will still be used to connect to the server.  See comments below
  * in the suite() method how to change that (if your test machine supports it).
- * 
+ *
  * @author Andre Spiegel <spiegel@gnu.org>
  */
 public class AlternateIIOPAddressAutoTest extends ClientServerTestCase
 {
     private static final String CORRECT_HOST = "127.0.0.1";
-    private static final String WRONG_HOST = "10.0.0.77";
-    
+    private static final String WRONG_HOST = "255.255.255.254";
+
     private static final int CORRECT_PORT = 12435;
     private static final int WRONG_PORT = 12436;
-    
+
     private BasicServer server;
 
     public AlternateIIOPAddressAutoTest(String name, ClientServerSetup setup)
@@ -65,7 +65,7 @@ public class AlternateIIOPAddressAutoTest extends ClientServerTestCase
     {
         TestSuite suite = new JacORBTestSuite ("AlternateIIOPAddress Automatic Test",
                                                AlternateIIOPAddressAutoTest.class);
- 
+
         Properties clientProps = new Properties();
         clientProps.setProperty ("jacorb.retries", "0");
         clientProps.setProperty ("jacorb.retry_interval", "50");

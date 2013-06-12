@@ -64,7 +64,7 @@ public class Timer
         Hashtable table = (Hashtable)tableTable.get( target );
         if( table == null )
         {
-            System.err.println("errorin timer: no request table for object");
+            throw new RuntimeException("errorin timer: no request table for object");
         }
 
         Long startTime  =

@@ -1,0 +1,1031 @@
+﻿\begin{quote}
+The information presented in this chapter is borrowed from the
+Object Computing Inc.'s {\tt “TAO Developer's Guide”}.  Please
+ visit  \href{http://www.theaceorb.com/product/index.html}
+{http://www.theaceorb.com/product/index.html} for more details.
+\end{quote}
+
+\section{Introduction}
+In an homogeneous CORBA  environment, the obvious choice for the
+Implementation Repository is by using the native implementation repository
+service, so logically, the JacORB ImR would be selected for managing JacORB
+servers and likewise for others such as TAO; however, this arrangement would
+become cumbersome in an environment where both JacORB and TAO servers
+coexist.  In such an environment, the TAO ImR would offer an alternative choice
+for the Implementation Repository because it is capable of managing both
+JacORB and TAO servers.  As with using a JacORB ImR, the interactions
+with using the TAO ImR is transparently to the client requests for services from
+the servers.
+
+The TAO Implementation Repository (ImR) is written in C++, and like the
+JacORB ImR, is a service which allows indirect invocation of CORBA
+operations. Instead of connecting to a server, clients initially connect to the
+ImR.  The ImR will then optionally start the appropriate server if the server
+is not running, and then provide the address of the server to the client so that
+subsequent requests will go to this server.
+
+Indirectly binding with the server in this manner can be useful in minimizing
+the changes needed to accommodate server or object migration, allow for
+automatic server start-up, and help in load balancing.  When using indirect
+binding, the ImR address is substituted for the actual server address in the
+IOR. When the ImR receives a client request it extracts the POA name
+from the object key, and uses it to find a matching registered server IOR. The
+ImR then responds with a LOCATION\_FORWARD message which instructs
+the client to repeat the request using the new IOR. Subsequent client requests
+using the same object reference continue to use the established server
+connection, and the ImR is not involved.  Please note that it is possible for a
+client to create another connection. For example, upon  receiving a
+COMM\_FAILURE exception, a client may decide to retry by invoking
+the operation again. The ImR will again forward the client to the registered
+server if possible.
+
+Throughout this chapter, a POA that uses a {\tt PERSISTENT} lifespan
+policy and  a {\tt USER\_ID} object id assignment policy is referred to as
+a persistent POA, and an object that is registered with a persistent POA is
+referred to as a persistent object.  Frequently the terms POA and server are
+used interchangeably, because the ImR treats each registered POA as a
+separate server. However, each server is capable of hosting multiple
+persistent POAs, each of which may contain multiple indirect object
+references.
+
+The ImR supports the ability to launch server processes on demand.
+Without the ImR, all servers must be running prior to any client request.
+This can result in performance problems, especially for large systems,
+since servers consume system resources even in their idle states.
+
+\section{The Operation of the TAO ImR}
+
+The TAO ImR requires that an IOR it works with live beyond the server
+that created the IOR. Therefore, the IOR must be created using a POA with
+the {\tt PERSISTENT} life span policy. If a JacORB server’s ORB was
+initialized by setting the property{\tt  jacorb.use\_tao\_imr} to on, then the
+persistent POA registers itself, upon creation, with the ImR.  If a JacORB
+server has more than one persistent POA, each is registered as a separate
+server within the ImR. For each persistent POA, the following information
+is registered:
+
+\begin{itemize}
+     \item Server Name which has the form
+       {\tt JACORB:implname qualified POA name}.
+     \item Address which is in URL format.
+              (e.g., corbaloc:iiop:1.2@127.0.0.1:8888/)
+     \item {\tt ServerObject} which is a simple call-back object, that the
+               ImR would invoke to ping and shutdown the associated server.
+\end{itemize}
+
+Please note that in order for a JacORB server to locate the ImR,
+the configuration property {\tt ORBInitRef.ImplRepoService} must be set to
+the ImR's IOR reference  either in a property file, or as a passed-in
+command-line property.
+
+In addition, the ImR Utility {\tt tao\_imr} can be used to register the
+following parameters for a registered server:
+\begin{itemize}
+     \item Activation mode which defines the condition to start/restart the server.
+     \item Start-up command which is used to start/restart the server.
+     \item Environment variables which defines the operating environment
+              for the server.
+     \item Working directory which specifies the directory where the server
+               is to be started/restarted.
+     \item Start retry limit which specifies the number of attempts in trying
+               to start/restart the server.
+\end{itemize}
+
+These parameters are needed in order for the ImR to start/restart
+a register server when its services are demanded by the clients.  If none
+was registered, the ImR will take no action on a register server
+which could cause the client  to receive a TRANSIENT exception
+while attempting to re-establish conversation with the  targeted server.
+
+\section{Using the TAO Implementation Repository}
+
+The ImR consists of  the following components:
+\begin{itemize}
+    \item The ImR Locator {\tt tao\_imr\_locator} which is generally
+              referred to as the “Implementation Repository”.  It needs only exist
+              once in  a domain.  The full path to the tao\_imr\_locator is
+              {\tt \$TAO\_ROOT/orbsvcs/ImplRepo\_Service/tao\_imr\_locator}.
+    \item The ImR Activator {\tt tao\_imr\_activator} which is a
+              simple process-starting service that accepts start-up information
+              for a registered server from the ImR and attempts to launch
+              the server.  The full path to the tao\_imr\_activator is
+              {\tt \$TAO\_ROOT/orbsvcs/ImplRepo\_Service/tao\_imr\_activator}.
+    \item The ImR Utiltity {\tt tao\_imr} which is an interactive
+              process that is used to perform administrative tasks.  The full path to
+              the tao\_imr is {\tt \$TAO\_ROOT/orbsvcs/ImplRepo\_Service/tao\_imr}.
+\end{itemize}
+
+\subsection{Server Requirements}
+
+In order for persistent POAs to be registered with the ImR upon POA
+creation, the following properties must be set as indicated:
+\begin{itemize}
+    \item {\tt jacorb.use\_tao\_imr} must be set to “on”.
+    \item {\tt jacorb.use\_imr”} must be set to “off”.  An exception will be thrown if
+              both properties above were found to be set to “on”.
+    \item {\tt jacorb.implname} must be set.
+    \item the configuration  property {\tt ORBInitRef.ImplRepoService}
+              must be set to the IOR of the targeted ImR either in a property file,
+              or as a passed-in command-line property.
+\end{itemize}
+
+\subsection{Client Requirements}
+
+In order for a client to request services from a registered server through the
+ImR,the following properties must be set as indicated:
+\begin{itemize}
+    \item {\tt jacorb.use\_tao\_imr} must be set to “on”.
+    \item {\tt jacorb.use\_imr”} must be set to “off”.  An exception will be thrown if
+              both properties are set to “on”.
+    \item The server's ImR-ifed IOR must be used for requesting services.
+\end{itemize}
+
+The typical process to integrate a JacORB server with a ImR so that the
+server will be automatically started and restarted comprises of the following
+steps:
+\begin{enumerate}
+    \item Setup JacORB and TAO environment variables
+    \item Initiate the ImR Locator {\tt tao\_imr\_locator}.
+    \item Initiate the ImR Activator {\tt tao\_imr\_activator}.
+    \item Register the JacORB server with the ImR using the
+             {\tt “add”} command of the ImR Utility {\tt tao\_imr}.
+    \item Initiate JacORB clients using the server's ImR-ified IOR
+              references which will cause the target server to be initiated by
+              the ImR Activator.
+\end{enumerate}
+In the following subsequent sections, we will exam each step in the above
+process.  For illustration, we will use the ImR integration test package
+{\tt org.jacorb.test.orbreinvoke.tao\_imr} whose source files and test scripts are kept
+in the directory{\tt \$JACORB\_HOME/test/orbreinvoke/tao\_imr}.
+
+\subsection{Environment Variables}
+
+Before initiating the ImR processes, the following JacORB and TAO
+environment variables must be setup:
+\begin{itemize}
+   \item JACORB\_HOME and properties file
+   \item ACE\_ROOT and TAO\_ROOT
+   \item PATH=\$PATH:\$ACE\_ROOT/bin
+   \item LD\_LIBRARY\_PATH=\$ACE\_ROOT/lib
+   \item LD\_LIBRARY\_PATH=\$ACE\_ROOT/lib (needed for MACOS)
+\end{itemize}
+
+There are helper scripts in the {\tt \$JACORB\_HOME/test/orbreinvoke/tao\_imr}
+ that you can run as they will be pointed out while following the discussion.
+In order to run the scripts on a UNIX/LINUX system, you would need to
+change directory to the said directory.  In addition, you can consult the
+README file in the said directory for concise instructions of how to
+run the scripts.
+
+\subsection{Initiate The TAO ImR Locator {\tt tao\_imr\_locator}}
+
+Assuming that we have a fictitious ImR to be used in our domain, then
+the first process that must be started is the Tao ImR Locator by running:
+
+\cmdline{\$TAO\_ROOT/orbsvcs/ImplRepo\_Service/tao\_imr\_locator
+                -ORBListenEndpoints iiop://<host>:<port> -d 2  -m 1 -t 120
+                -x /tmp/tao\_imr\_locator .persistent.xml -o /tmp/tao\_imr\_locator.ior}
+
+For illustration, you can  run the script :
+
+\cmdline{./run\_tao\_imr\_locator.sh}.
+
+where the arguments are:
+\begin{itemize}
+    \item {\tt -ORBListenEndpoints iiop://<host>:<port>} specifies the endpoint.
+    \item {\tt -d 2} means setting debug level 2.
+    \item {\tt -m 1} means enabling multicast IOR discovery.
+    \item {\tt -t 120} means setting imeout to120 seconds.
+    \item {\tt -x /tmp/tao\_imr\_locator.persistent.xml} means using XML persistent file.
+    \item {\tt -o /tmp/tao\_imr\_locator.ior} means outputting the IOR to a file.
+\end{itemize}
+
+Normally, the ImR can be located using the configuration  property
+{\tt ORBInitRef.ImplRepoService}.  For example,
+
+\cmdline{ORBInitRef ImplRepoService=file:///tmp/tao\_imr\_locator.ior}
+
+however, for the ImR Activator and ImR Utility,  they can also locate
+the ImR by querying the environment variable {\tt ImplRepoServiceIOR}.
+For example,
+
+\cmdline{export ImplRepoServiceIOR=///tmp/tao\_imr\_locator.ior}
+
+\subsection{Initiate The TAO ImR Activator}
+
+For our fictitious ImR, assuming that we have a JacORB server residing
+on a host named {\tt myhost.ociweb.com} that is to be automatically started/restarted,
+then the ImR Activator is the next process that must started on
+“myhost.ociweb.com” by running:
+
+\begin{verbatim}
+        export ImplRepoServiceIOR=///tmp/tao_imr_locator.ior
+        $TAO\_ROOT/orbsvcs/ImplRepo_Service/tao_imr_activator \
+                -d 2 -n <myhost.ociweb.com> -o /tmp/tao_imr_activator.ior
+\end{verbatim}
+
+For illustration, you can run the script:
+
+\cmdline{./run\_tao\_imr\_activator.sh}.
+
+where the arguments are:
+\begin{itemize}
+    \item {\tt -d 2} means setting debug level 2.
+    \item {\tt -n <myhost.ociweb.com>} means setting the name of the Activator to
+              “myhost.ociweb.com”.
+    \item {\tt -o /tmp/tao\_imr\_activator.ior} means outputting the IOR to a file.
+\end{itemize}
+
+
+Upon initiated, the Activator will locate the ImR using the environment
+variable {\tt ImplRepoServiceIOR} and register itself to the ImR.  Please
+refer to the {\tt tao\_imr\_activator} section for more details.
+
+\subsection{Register the JacORB server}
+
+Once the Locator and the Activator are running, the JacORB server on
+“myhost.ociweb.com” must be registered with the ImR by using the
+{\tt add} command of the ImR Utility {\tt tao\_imr} as following:
+
+\begin{verbatim}
+        export ImplRepoServiceIOR=///tmp/tao_imr_locator.ior
+        $TAO\_ROOT/orbsvcs/ImplRepo\_Service/tao\_imr \
+               {\tt add JACORB:<implname>/<qualified POA name>} \
+                < . . . other arguments . . .>
+\end{verbatim}
+
+\emph{Note:} for illustration, you can run the script
+{\tt ./tao\_imr\_add\_SimpleServer.sh} as following:
+
+\cmdline{./tao\_imr\_add\_SimpleServer.sh EchoServer1}
+
+which essentially invokes the {\tt tao\_imr} utility to add an entry to
+the ImR repository as follows:
+
+\begin{verbatim}
+        export ImplRepoServiceIOR=///tmp/tao_imr_locator.ior
+        $TAO_ROOT/orbsvcs/ImplRepo_Service/tao_imr \
+               add JACORB:EchoServer1/EchoServer-POA \
+                -a NORMAL \
+                -e ImplRepoServiceIOR=file:///tmp/tao_imr_locator.ior \
+                -e JACORB_HOME=${JACORB_HOME} \
+                -e ACE_ROOT=${ACE_ROOT} \
+                -e TAO_ROOT=${TAO_ROOT} \
+                -e LD_LIBRARY_PATH=${ACE_ROOT}/lib \
+                -e LD_LIBRARY_PATH=${ACE_ROOT}/lib \
+                -e PATH=${JACORB_HOME}/bin:${ACE_ROOT}/bin:${TAO_ROOT}/bin:${PATH} \
+                -w ${JACORB_HOME}/test/orbreinvoke/tao_imr \
+                 -r 3 \
+                 -l myhost.ociweb.com} \
+                 -c <command line arguments to initiate the server process named
+                    {\tt org.jacorb.test.orbreinvoke.tao_imr.SimpleServer}>
+\end{verbatim}
+
+where the argument are:
+\begin{itemize}
+    \item {\tt add JACORB:EchoServer1/EchoServer-POA} means
+             adding a JacORB server whose implname is {\tt “EchoServer1”}
+             and whose POA name is {\tt “EchoServer-POA”}.
+    \item -a NORMAL means the server will be initiated using
+             {\tt NORMAL} mode of activation.  Other activation mode
+              is {\tt PER\_CLIENT}.
+    \item -e <environment variable=value> means setting the specified
+              {\tt environment variable} to the desired {\tt value}.
+    \item -w {\tt \${JACORB\_HOME}/test/orbreinvoke/tao\_imr} means setting
+               the directory where the server will be initiated from.
+    \item -l {\tt myhost.ociweb.com} means setting the Activator name.
+    \item -c {\tt command line arguments to initiate the server} means
+               setting the command line arguments that are needed for the server
+               to be started or restarted by the ImR Activator.
+\end{itemize}
+
+If successfully registered, you should see the response
+{\tt Successfully registered <JACORB:EchoServer1/EchoServer-POA>}.
+
+To review the entry in the ImR repository , you can run:
+
+\begin{verbatim}
+        export ImplRepoServiceIOR=///tmp/tao_imr_locator.ior
+        $TAO_ROOT/orbsvcs/ImplRepo_Service/tao_imr list -v
+\end{verbatim}
+
+or, you can run the script {\tt ./tao\_imr.sh list -v}, which essentially
+a wrapper script that invokes the {\tt “list -v”} command of the
+{\tt tao\_imr} utility,
+
+You should see an entry that is similar to that shown below:
+
+\small{
+\begin{verbatim}
+     Server <JACORB:EchoServer1/EchoServer-POA>
+     Activator: - - -
+     Command Line: - - -
+     Working Directory: - - -
+     Activation Mode: - - -
+       ( . . . other parameters . . . }
+     Not currently running
+\end{verbatim}
+}
+
+\subsection{Server Start-up}
+
+The exact conditions under which the ImR decides to start a server are
+determined by the Activation Mode described below, but typically the
+ImR starts a server if it is not registered as running, or if the server cannot
+be pinged successfully. Once the server has been started, the ImR waits
+for the server to register its running information, which includes a
+ServerObject and a partial IOR. Multiple simultaneous client invocations
+are supported, and each blocks, waiting on the server to register this
+information. Each persistent POA in the server is treated as a separate
+server registration within the ImR, and currently this registration happens
+as soon as the POA is created.
+
+In the future this registration may be delayed until the POA Manager
+is activated. This would prevent problems with servers notifying the ImR
+before they are actually ready to handle requests.
+
+Once the server registers its running information, the ImR wakes one of
+the waiting client operations, and uses it to ping the server to ensure that
+it is really running. The result of the ping determines whether the server
+is running, not running, or is in an indeterminate state.
+
+\begin{description}
+      \item [Running]
+                If the server is running, or if the start-up retry count has been exceeded,
+                then all clients are awakened and forwarded to the server. By connecting
+              the clients to the server if the retry count was exceeded the clients can get
+              the appropriate error status directly from the server.
+     \item [Not Running]
+               If the server is not running, then the whole start-up process is repeated
+               if a start-up retry count is configured for the server.
+     \item [Indeterminate]
+               If the status cannot be determined, the ping repeats a fixed number of
+               times with an increasing delay between subsequent attempts.  To more
+               efficiently handle multiple client requests, the ping() operation has a
+               defined interval that is passed to the ImR at start-up. If a ping has
+               successfully completed within the specified interval, then the server is
+               assumed to be running.
+
+               The {\tt ping()} operation has a very short timeout configured, and a timeout
+               is considered proof that the server is running. A well-written server should
+               avoid activating the POA Manager until the server is actually ready to handle
+               requests.
+
+               In some instances, a server may not register its running status with the ImR
+               within the allowed start-up time. (See the –t command line option for the ImR.)
+               This is treated as a start-up failure, and start-up may be retried as described
+               previously.
+
+               If the start-up retry count is exceeded then a server becomes locked, and the
+               ImR will not attempt to start that server again. Instead it immediately returns
+               a TRANSIENT exception to any waiting clients. You can reset the start-up
+               retry count using the {\tt tao\_imr} utility.
+
+               If a server dies unexpectedly while communicating with a client, then the client
+               may get a COMM\_FAILURE exception. If the client simply reattempts the
+               operation, then it is once again directed through the ImR, which may allow the
+               ImR to restart the server. However, if the server was pinged successfully within
+               the configured ping interval, then the client may be redirected to the dead server,
+               and receive a TRANSIENT.
+\end{description}
+
+\subsubsection{Activation Modes}
+
+The ImR supports registering servers with one of four different activation modes.
+These affect how a server is started, and have no meaning if a server is not start-able.
+For a server to be start-able, it must have a registered command line and Activator
+name, and the corresponding Activator must be registered and running.
+
+\emph {Note:} if a server registers itself automatically then no Activator or command
+line will be associated.
+
+You must configure the activation mode using the tao\_imr's “add/update” command.
+Alternatively, you may stop the ImR, edit the XML or Windows registry persistent
+data manually, then start the ImR to initiate the changes. The ImR has the ability to
+start a server on demand, at ImR start-up, or in response to commands from the
+tao\_imr utility.
+
+Valid activation modes are:
+\begin{description}
+    \item [normal]
+             The common usage of the ImR is to have it automatically start any servers
+              as needed for incoming client requests. This mode also allows servers to
+              be manually started using the {\tt tao\_imr start} command.
+   \item [auto\_start]
+             This behaves exactly like normal mode, except that the ImR attempts
+              to start the server as the ImR itself is started. You can also use the
+              {\tt tao\_imr autostart} command to manually start these servers.
+
+   \item [manual]
+             This prevents the server from starting automatically as the result of an
+              incoming client request. You must use the {\tt tao\_imr start} command to start
+              the server, or start the server manually using some other mechanism.
+
+   \item [per\_client]
+            The name of this mode can be misleading, because the ImR does not
+             actually keep track of which clients have attempted to use a server.
+             Instead this simply means that a new server will be spawned for each
+             incoming request to the ImR. Once a client has been forwarded by
+             the ImR to an actual server, the client will continue to use this connection
+             for future communications until a TRANSIENT or COMM\_FAILURE
+             exception occurs. In this case, the client will make a connection back to
+             the ImR, and the process will repeat.
+
+             It is possible for a client to make a second connection using the indirect
+            object reference, and this will cause the ImR to launch another server.
+            For this reason, {\tt per\_client} activation should be used with care.
+\end{description}
+
+\subsection{Initiate the JacORB client}
+
+The server process {\tt org.jacorb.test.orbreinvoke.tao\_imr.SimpleServer},  that is
+associated with the registered server name
+{\tt “JACORB:EchoServer1/EchoServer-POA”} is simply an echoing server.
+Upon initiated, it will instantiate an {\tt EchoMessage} servant that is tied to
+the object key {\tt “/EchoServer1/EchoServer-POA/EchoServer-ID”}.
+
+To produce a partial corbaloc IOR string that can be used by a client process,
+you can run the script:
+
+\cmdline{./tao\_imr.sh ior JACORB:EchoServer1/EchoServer-POA}
+
+You should see an entry that is similar to that shown below:
+
+\small{
+\begin{verbatim}
+    corbaloc:iiop:V.v@<ImR host>:<ImR port>/EchoServer1/EchoServer-POA
+\end{verbatim}
+}
+
+Thus, a client process can requests the service from the {\tt EchoMessage} servant
+of the {\tt SimpleServer} through the ImR by using the following IOR:
+
+\small{
+\begin{verbatim}
+    corbaloc:iiop:V.v@<ImR host>:<ImR port>/EchoServer1/EchoServer-POA/EchoServer-ID
+\end{verbatim}
+}
+
+For illustration, you can run the script:
+
+\cmdline{./run\_SimpleClient.sh EchoServer1 [ImR hostname]}
+
+which will initiate the client process {\tt org.jacorb.test.listenendpoints.echo\_corbaloc.Client}.
+The argument {\tt [ImR hostname} is required if you initiates the Locator on a
+remote host.  Upon initiated, the client process will use the described corbaloc
+IOR to locate the server through the ImR.  Sensing requests from the client,
+the ImR will initiate the SimpleServer since it has not been running.
+
+Upon successful connected to the server, the client application will keep pinging
+the server in a loop using sequential messages and output the result to a log file
+{\tt"./output/Client\_nnn.log"}.  You can tail the log file to follow the activities.
+
+When finished, do the following to cleanup:
+
+\begin{itemize}
+    \item Find and kill {\tt org.jacorb.test.listenendpoints.echo\_corbaloc.Client}
+    \item Shutdown the SimpleServer server using:
+
+              \cmdline{./tao\_imr.sh shutdown "JACORB:EchoServer1/EchoServer-POA"}
+
+    \item Shutdown the ImR Locator and Activator using:
+
+              \cmdline{./tao\_imr.sh shutdown-repo -a}
+
+    \item Remove the file /tmp/tao\_imr\_locator.persistent.xml if no longer needed.
+\end{itemize}
+
+\section{Repository Persistence}
+
+The ImR can load and save its list of registered servers and Activators to
+persistent storage using one of three formats. The easiest to work with is
+an XML format that can be edited by hand. The XML file is rewritten in
+response to any change in registration information, and may therefore be
+inefficient for large, or very busy, repositories. A more efficient binary
+format is supported, but this can be difficult to work with, and is known
+to have problems on some platforms. The ImR can also save its registration
+information to the registry on Windows systems.
+
+\begin{description}
+    \item [XML] Starting the ImR with –x repo.xml creates a file containing
+              an entry for every registered server and Activator. The schema for
+              this XML file can be found at
+              {\tt \$TAO\_ROOT/orbsvcs/ImplRepo\_Service/ImR.xsd}.
+
+    \item [Binary] Starting the ImR with –p repo.bin stores registered
+              Activators  and servers in a binary file.   This option may have
+              problems on some platforms when the memory mapped file
+              used internally needs to be expanded.
+
+    \item [Windows registry] Starting the ImR with {\tt –r} stores registered servers
+               and Activators at:
+               {\tt HKEY\_LOCAL\_MACHINE\\SOFTWARE\\TAO\\ImplementationRepository}.
+ \end{description}
+
+\section{TAO ImR Utility}
+\label{taoimrutil}
+
+TAO provides a command line tool called {\tt tao\_imr} that you can use to:
+
+\begin{itemize}
+    \item add or edit server information in the ImR,
+    \item create IORs suitable for connecting to a server,
+    \item view the status of registered servers,
+    \item start or shutdown registered servers.
+\end{itemize}
+
+\subsection{Command Line Options}
+
+The general syntax for the ImR utility is:
+
+\cmdline{\tt tao\_imr command [options] [args]}
+
+Most of the commands take a server name as an argument. You can get help
+information on each command via the -h option. For example:
+
+\cmdline{tao\_imr start -h}
+
+\begin{verbatim}
+   {\tt Usage: tao_imr [options] start <name> where [options] are ORB options
+where <name> is the name of a registered POA. -h Displays this}
+\end{verbatim}
+
+\subsubsection{add/update}
+
+\begin{description}
+    \item [Synopsis] {\tt tao\_imr add|update <server>
+                 [-a normal|manual|per\_client|auto\_start] [-c cmdline]
+                 [-e var=value] [-w working dir] [-r count] [-l activator]}
+\end{description}
+
+These commands are used to add a new server registration and to update
+an existing server registration respectively. They take exactly the same
+options. The only difference is that add cannot be used to change an
+existing server. This means you can use update to add new servers.
+
+You may specify an activation mode of {\tt auto\_start}, {\tt manual},
+{\tt normal},  or {\tt per\_client}. The default activation mode is normal.
+
+\emph {Note:} It is possible for a client to make a second connection
+using the indirect object reference, and this will cause the ImR to launch
+another server. For this reason, {\tt per\_client} activation should be used
+with care.
+
+The command line, working directory, environment variables, and retry
+count are all optional, but you must specify at least a command line if
+you want the ImR to be able to start the server. The command line can
+be any command, and does not necessarily have to directly start the server.
+For example, it could run a script that causes the creation of a new persistent
+POA in an already running server process.
+
+You can specify the –e option multiple times on a single command line to
+set multiple environment variables. The specified environment variables
+will replace any that currently exist when updating.
+
+The working directory does not affect the command line. If the command
+is not in the path, then specifying the working directory does not allow the
+command to run. Therefore, you must also specify the directory to the
+command line argument.
+
+The retry count is a feature to prevent further attempts to start servers that
+are not functioning correctly. If a server either cannot be started by the
+Activator, or does not register its running information with the ImR in a timely
+manor, then the ImR will attempt to start it again. The start-up timeout is a
+command line option to the ImR that is shared by all servers. An additional
+feature of the update command is that it always resets the start-up count for
+a server.
+
+You can specify an activator for a server, and this defaults to the hostname
+of the machine on which the {\tt tao\_imr} utility is run. If you use the
+{\tt –n name} feature of the Activator then you must use the same name
+here so that the ImR can find the correct Activator to start the server.
+Any auto-added servers will not have an Activator set, so the
+{\tt tao\_imr update} command must be used to set it if you want to make
+the server start-able.
+
+\subsubsection{autostart}
+
+\begin{description}
+    \item [Synopsis] {\tt tao\_imr autostart <server>}
+\end{description}
+
+This command is used to start all servers registered with the auto\_start
+activation mode. In other respects it works exactly the same as the
+start command.
+
+\subsubsection{ior}
+
+\begin{description}
+    \item [Synopsis] {\tt tao\_imr autostart <server>}
+\end{description}
+
+This command can be used to construct a valid simple {\tt corbaloc} URL
+for accessing a server registered with the ImR. This is only useful if the
+address of the ImR is unknown, because, for example, you are using multicast
+to find the ImR.  If the address of the ImR is known, then it is easier to construct
+the URL manually using the form:
+
+\cmdline {\tt corbaloc:protocol:host\_or\_ip:port/ServerName}
+
+The {\tt ior} command does not actually contact the ImR to lookup the address
+of the server. Instead it uses the first available protocol specified for the
+ImR connection.
+
+\subsubsection{list}
+
+\begin{description}
+    \item [Synopsis] {\tt tao\_imr list [-v]}
+\end{description}
+
+Use this command to view the current status of all servers registered
+in the ImR. You will probably want to use the verbose option {\tt–v}
+ most of the time. All information registered using the {\tt add/update}
+commands is displayed as well as the current running status of the
+server and whether the server is locked due to exceeding its retry count.
+If the server is locked, you can unlock it using the {\tt update} command.
+For example:
+
+\cmdline{tao\_imr update myserver}
+
+\subsubsection{remove}
+
+\begin{description}
+    \item [Synopsis] {\tt tao\_imr remove <server>}
+\end{description}
+
+This command simply removes all information about the server from the ImR.
+If the server is running it is not shut down by this command. If the server is
+removed without being shut down first, then a NOT\_FOUND exception will
+be caught by the server when it tries to unregister from the ImR. This exception
+is ignored, but an error message is displayed.
+
+subsubsection{shutdown}
+
+\begin{description}
+    \item [Synopsis] {\tt tao\_imr shutdown <server>}
+\end{description}
+
+This command shuts down a running server by using the {\tt ServerObject}
+that every server internally registers with the ImR at start-up. The
+{\tt orb->shutdown(0)} operation is called in the server, typically causing
+the server to return from {\tt orb->run()} and shut down gracefully. Note
+that this means servers with multiple persistent POAs can be shut down
+using any one of the POA names. If this behavior is not desired, then you
+should use separate ORBs in the server.
+
+\subsubsection{shutdown-repo}
+
+\begin{description}
+    \item [Synopsis] {\tt tao\_imr shutdown-repo [-a]}
+\end{description}
+
+This command shuts down the ImR cleanly. This can also be done by
+using {\tt Ctrl-C}, or sending a SIGINT or SIGTERM to the ImR and/or
+Activator processes.   The {\tt -a} option specifies that you also want to
+ attempt to shut down any registered Activators. If any Activator
+cannot be shut down, it is ignored, and no error is returned.
+
+\subsubsection{start}
+
+\begin{description}
+    \item [Synopsis] {\tt tao\_imr start <server>}
+\end{description}
+
+This command This command is used to ensure that the specified server
+is activated, starting the server process, if necessary, using the Activator
+ registered for the server. If the server is not already running, this requires
+that
+
+\begin{description}
+\item[1.] The server has already been registered using add or update.
+\item[2.] The registration information includes a command line and activator name.
+\item[3.] A matching Activator is registered and running.
+\end{description}
+
+If any of the above conditions are not met, or if there is some problem activating the server,
+then an error message is returned.
+
+\emph {Note 1:}  This command was previously named activate.  That command name still
+works but displays a warning that it is deprecated.  It is possible for the utility to report
+success when the ImR exceeds its ping retry count. In this case the server was not activated,
+and {\tt list –v} will show that the server is locked.
+
+\section{tao\_imr\_locator}
+\label{taoimrlocator}
+
+{\tt tao\_imr\_locator} is the primary application that we generally refer to as the ImR. It is responsible
+for maintaining a repository of server and activator information, and using it to support indirect binding
+of CORBA objects.
+
+If the ImR is not started with multicast service discovery support, then you must provide some
+mechanism for other processes to find the ImR when they use {\tt resolve\_initial\_references()}.
+This requires the servers,  Activators, and {\tt tao\_imr} to be started with an {\tt –ORBInitRef}
+option, such as:
+
+\small{
+\begin{itemize}
+\item -ORBInitRef ImplRepoService=corbaloc::host:port/ImR
+\item -ORBInitRef ImplRepoService=corbaloc::host:port/ImplRepoService
+\item -ORBInitRef ImplRepoService=file://ImR.ior
+\item -ORBDefaultInitRef corbaloc::host:port
+\end{itemize}
+}
+
+Alternatively, you can set the ImplRepoServiceIOR environment variable:
+
+\cmdline{export ImplRepoServiceIOR=corbaloc::host:port/ImR}
+
+For most of the above to work, the ImR must be started at a known endpoint such as:
+
+\cmdline{-ORBListenEndpoints iiop://:8888 -ORBListenEndpoints iiop://host:port}.
+
+The full path to the ImR is: {\tt \$TAO\_ROOT/orbsvcs/ImplRepo\_Service/tao\_imr\_locator}.
+
+\subsection{Command Line Options}
+
+\begin{description}
+\item[Sysnopsis] {\tt tao\_imr\_locator [-h|-?] [-d 0|1|2] [-l] [-m] [-o filename] [-p filename] [-r]  [-x filename]
+[-v interval] [-t timeout] [-c command]}
+\item[Sysnopsis] {\tt tao\_imr\_locator [-c cmd] [-d 0|1|2] [-m] [-o file]}
+\end{description}
+
+\begin{small}
+\begin{longtable}{|p{5.5cm}|p{10cm}|}
+\caption{tao\_imr\_locator Command Line Options}\\
+\hline~ \hfill \textbf {Option} \hfill ~ & ~ \hfill \textbf {Description} \endhead
+\hline
+\verb"-h or -?" & Display help/usage. \\
+\hline
+\verb"-d" & Specify IMR specific debugging level, {\tt 0-2}. Default is {\tt 1}.\\
+\hline
+\verb"-l" & Lock the database to prevent {\tt tao\_imr add, update}, and {\tt remove}.\\
+\hline
+\verb “-m” & Enable support for IOR multicast to find the ImR. \\
+\hline
+\verb “-o filename” & Write the ImR Administration IOR to {\tt filename}. \\
+\hline
+\verb“-p filename” & Use binary persistence. \\
+\hline
+\verb“-r” & Use Window registry persistence. \\
+\hline
+\verb“-x filename” & Use XML persistence. \\
+\hline
+\verb“-v interval” & Ping interval in milliseconds.  Default is 10 seconds. \\
+\hline
+\verb“-t timeout” & Start-up timeout in seconds.  Default is 60 seconds. \\
+\hline
+\verb“-c command” & install or remove the Windows service. \\
+\hline
+\verb“-e” & Erase all persistence information at start-up. \\
+\hline
+\verb “UnregisterIfAddressReused” &  This option causes the ImR to automatically
+remove a server from the implementation repository when another server is registered
+with the same endpoint. This option should not be used if more than one persistent POA
+in the same ORB is being used via the ImR. \\
+\hline
+\end{longtable}
+\end{small}
+
+Currently, there are three valid settings for the debug level:
+\begin{description}
+\item[0] Most output is disabled.
+\item[1] Very basic information is outputted, with usually just one line per
+interesting operation.
+\item [2] More messages and details are outputted for existing messages.
+\end{description}
+
+In practice, debug level {\tt 1} is probably the best choice for day-to-day usage, while level {\tt 2} is most
+useful when trying to resolve problems.
+
+The {\tt -l} option prevents the ImR repository information from being modified by the tao\_imr add or
+update commands. However, server auto-registration, Activator registration, and server running status are
+all still persisted to the repository.
+
+The {\tt -m} option provides a convenient way for all servers and Activators to find the ImR without
+the need to pass IORs, use corbaloc object URLs, or use the –ORBInitRef option. Instead, a multicast
+endpoint is established when the ImR starts, and servers and Activators automatically find the correct
+IOR using multicast. The multicast port may be specified using:
+
+\cmdline{-ORBMulticastDiscoveryEndpoint <port>}
+
+If this option is not specified, then the environment variable {\tt ImplRepoServicePort} is used. The
+default port number is {\tt 10018}.
+
+The output file for the {\tt -o} option is a simple stringified IOR stored in a text file, suitable for use as a
+{\tt file://} object URL.
+
+The {\tt -v} option allows the ImR to more efficiently work with servers. If the ImR has successfully
+pinged a server within the specified number of milliseconds, then it assumes that the server is still
+running.  Setting the ping interval to zero disables the ping feature completely, and servers are assumed
+to be running if they register a running status with the ImR.
+
+\emph {Note:}  in the current implementation for server registration, the server notifies the ImR of its
+running status when the persistent POA is created. As such, the ImR may sometimes forward a client to
+a server that is not yet ready to handle requests, thereby causing the client to receive a TRANSIENT
+exception indicating that the server’s POA is in the holding state. The ImR’s ping feature can be used
+to allow the ImR to ensure the server is ready to handle requests before forwarding the client to the
+server. If the ping feature is disabled, the application should be prepared to handle the TRANSIENT
+exception (e.g., by retrying the request).
+
+The {\tt -t} option allows the user to set a timeout value, in seconds, by which the ImR will wait before
+giving up on starting a server. If the ImR does not receive running information from a server within the
+specified timeout interval, it will abort the server start-up. Depending on the server’s retry count setting,
+the ImR may attempt to launch the server again. Once the retry count has been exceeded, the ImR will
+not attempt to start the server again until an administrator uses {\tt tao\_imr update} to reset the server’s
+ start-up counter. The start-up timeout value can be disabled by specifying {\tt–t 0} when starting the ImR.
+However, disabling the start-up timeout is not recommended as the ImR could become blocked
+permanently waiting for a server to start. The default start-up timeout value is 60 seconds.
+
+The {\tt -UnregisterIfAddressReused} option is intended to solve a specific issue with server restarts
+when a group of servers, each with one persistent POA, are sharing a common set of ports via the
+portspan endpoint option. Because these servers can swap ports on a restart, the ImR needs to be able
+to automatically clear them out when a new server takes the port.
+o
+In addition to the normal start-up options, the {\tt–c install} or {\tt–c remove} options can be used to
+install or remove the ImR as a Windows service. When installing, all other command line options are
+saved in the Windows registry under:
+
+\small{
+\begin{verbatim}
+{\tt HKEY\_LOCAL\_MACHINE\\SYSTEM\\CurrentControlSet\\Services\TAOImR}
+\end{verbatim}
+}
+
+These options are used when the service is started.
+
+\subsection{Examples}
+
+Start the ImR with default options:
+
+\cmdline{./tao\_imr\_locator}
+
+and the outputs are:
+
+\begin{verbatim}
+    Implementation Repository: Running
+                      PingInterval : 10000ms
+                      Startup Timeout : 60s
+                      Persistence : Disabled
+                      Multicast : Disabled
+                      Debug : 1
+                      Locked : False
+\end{verbatim}
+
+Start with alternative options:
+
+\cmdline{./tao\_imr\_locator -v 500 -t 5 -x repo.xml -m –d 2 –l}
+
+and, the output are:
+
+\begin{verbatim}
+Implementation Repository: Running
+                    Ping Interval : 500ms
+                    Startup Timeout : 5s
+                    Persistence : repo.xml
+                    Multicast : Enabled
+                    Debug : 2
+                    Locked : True
+\end{verbatim}
+
+Install as a Windows service with several non-default options
+
+\cmdline{./tao\_imr\_locator –v 1000 –t 30 –p repo.bin –ORBListenEndpoints iiop://:8888 –}
+
+\begin{verbatim}
+     install
+\end{verbatim}
+
+Start a server
+
+\cmdline{myserver –ORBUseIMR 1 –ORBInitRef ImplRepoService=file://imr.ior}
+
+
+\section{tao\_imr\_activator}
+\label{taoimractivator}
+
+The Activator is an extremely simple process-starting service. It accepts start-up information from the ImR,
+and attempts to launch a process.
+
+\emph {Note:} On UNIX and UNIX-like platforms the Activator can detect when spawned processes
+terminate, and can optionally notify the ImR when this happens.
+
+Once started, the server registers itself with the ImR directly. Each persistent POA within the server registers
+itself as a separate server within the ImR.   The start-up information passed to the Activator does not necessarily
+ have to directly start a server. For example, it could run a script that causes the creation of a new persistent
+POA in an already running server process.
+
+At start-up, the ImR Activator tries to register itself with an ImR. If an ImR cannot be found, the Activator
+will not be able to notify the ImR when it is shut down or when spawned processes are terminated.
+
+The full path to the tao\_imr\_activator is {\tt \$TAO\_ROOT/orbsvcs/ImplRepo\_Service/tao\_imr\_activator}.
+
+\subsection{Command Line Options}
+
+\begin{description}
+\item[Sysnopsis] {\tt tao\_imr\_activator [-c cmd] [-d 0|1|2] [-e buflen] [-o filename] [-l] [-n name] [-m maxenv]}
+\end{description}
+
+\begin{small}
+\begin{longtable}{|p{5.5cm}|p{10cm}|}
+\caption{tao\_imr\_activator Command Line Options}\\
+\hline
+~ \hfill \textbf {Option} \hfill ~ & ~ \hfill \textbf {Description} \endhead
+\hline
+\verb"-h or -?" & Display help/usage. \\
+\hline
+\verb “-o filename” & Write the Activator IOR to {\tt filename}. \\
+\hline
+\verb“-n name” & The name of the Activator. Default is the name of the host on which the Activator
+is running. \\
+\hline
+\verb“-l” & Notify the ImR when spawned processes die. (Not supported on all platforms.)  \\
+\hline
+\verb“-c command” & {\tt install}, {\tt remove} or {\tt install\_no\_imr} the Windows service. \\
+\hline
+\verb“-e buflen” & Sets the length in bytes of the environment buffer for activated servers.
+The default is 16 KB. \\
+\hline
+\verb“-m maxenv” & Sets the maximum number of environment variables for activated servers.
+The default is 512. \\
+\hline
+\end{longtable}
+\end{small}
+
+Currently, there are three valid settings for the debug level:
+
+\begin{description}
+\item[0] Most output is disabled.
+\item[1] Very basic information is outputted, with usually just one line per
+interesting operation.
+\item [2] More messages and details are outputted for existing messages.
+\end{description}
+
+In practice, debug level {\tt 1} is probably the best choice for day-to-day usage, while level {\tt 2} is most
+useful when trying to resolve problems.
+
+In practice, debug level 1 is probably the best choice for day-to-day usage, while level 2 is most useful
+when trying to resolve problems.
+The output file for the -o option is a simple stringified IOR stored in a text file, suitable for use as a
+{\tt file://} object URL. This option is not very useful, because typically the ImR is the only client for
+the Activator.
+
+You can change the name of an Activator instance, which allows running more than one Activator on a
+single machine. This probably is not of much practical value unless you were to create your own Activator
+class that behaves differently from the default simple process launching service. For example, you might
+create an activator that spawns servers as threads within its own process.
+
+The {\tt -e} and {\tt -m} options are both configuration parameters that control size limitations of the
+environment passed to spawned processes. The -e option sets a limit for the size of the buffer (in bytes)
+that is used to hold the environment variables. The {\tt -m} option sets a limit for the number of
+environment variables that can be passed. The default limits are 512 variables and 16 KB of buffer space.
+In addition to the normal start-up options, the {\tt –c install}, {\tt -c remove}, and {\tt –c install\_no\_imr}
+options can be used to install or remove the Activator as an Windows service. When installing, all other
+command line options are saved in the Windows registry under:
+
+small{
+\begin{verbatim}
+HKEY\_LOCAL\_MACHINE\\SYSTEM\\CurrentControlSet\\Services\\TAOImR
+\end{verbatim}
+}
+
+These options are used when the service is started. The install\_no\_imr option should be used when
+installing the Activator on a separate machine with no ImR, otherwise the installation will ensure that
+ the ImR is always started before the Activator by setting a dependency between the two services.
+Note Only a single Activator can be installed as a Windows service due to the way the start-up options
+are stored in the registry.
+
+\subsection{Examples}
+
+Start the ImR Activator with default options:
+
+\cmdline{./tao\_imr\_activator}
+
+and, the output are:
+
+\begin{verbatim}
+ ImR Activator: Starting MYHOST
+... Multicast error message ommitted
+ImR Activator: Not registered with ImR.
+ \end{verbatim}
+
+Start the ImR Activator with debug level 2, store the Activator’s stringified IOR in a file, and register
+with an ImR that was started with multicast discovery enabled:
+
+\cmdline{./tao\_imr\_activator –d 2 –o activator.ior}
+
+and, the output are:
+
+\begin{verbatim}
+ImR Activator: Starting MYHOST
+ImR Activator: Registered with ImR.
+\end{verbatim}
+
+Install the ImR Activator as a Windows service on a machine with no ImR:
+
+\cmdline{tao\_imr\_activator.exe –d 2 –o activator.ior –c install\_no\_imr}
+
+
+% %%% Local Variables:
+% %%% mode: latex
+% %%% TeX-master: "../ProgrammingGuide"
+% %%% End:

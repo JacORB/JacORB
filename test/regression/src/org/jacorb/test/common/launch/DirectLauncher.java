@@ -130,7 +130,7 @@ public class DirectLauncher extends AbstractLauncher
 
         final List cmdList = new ArrayList();
 
-        cmdList.add(new File(jacorbHome, "bin/launch.sh").toString());
+        cmdList.add(new File(jacorbHome, "test/regression/launch.sh").toString());
         cmdList.add (javaCommand);
 
         if (assertsEnabled)

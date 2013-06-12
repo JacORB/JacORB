@@ -31,6 +31,9 @@
                 - Transaction, collection and concurrency services
                     (by Alex Sinishin and Viacheslav Tararin of DekaSoft
                     Ltd., Ukraine,taras@deka.kp.km.ua)
+        - Compatible with TAO Implementation Repository
+        - Support redundancy retrying for Implementation Repository and Naming
+          Service
 
 
 
@@ -41,6 +44,28 @@ This Release
 ============
     - ORB
          - Improve encapsulation of internal code.
+         - Implement the method validate_connection.
+         - Support setting the ORB ID using the -DORBId option.
+         - Support multi-network interfaces using -ORBListenEndpoints option.
+         - Change logging to debug level (https://bugzilla.redhat.com/show_bug.cgi?id=950294).
+         - Add support for GIOP 1.1 Fragmented Messages (BZ950).
+
+    - TAO ImR/NS Compatibility
+        - Implement the new property "jacorb.use_tao_imr".
+        - Support redundancy for failing over to a secondary ImR or a NS service
+          when the current service is no longer available.  JacORB will iterate
+          the profiles the ImR-ified IOR while attempting to re-establish
+          conversations with the targeted ImR or Naming Service (NS).
+        - JacORB is inter-operable with the TAO ImR by setting the new property
+          "jacorb.use_tao_imr" to "on".
+        - Add demo and integration test suites for TAO ImR, and TAO NS.
+
+    - Misc
+         - Add integration test suite for JacORB ImR.
+         - Default logging now supports showing class & method information.
+         - Support compiling with IBM JDK 1.6/1.7.
+    - IDL
+         - Fix for line endings in generated code (BZ942)
 
 3.2
 ===

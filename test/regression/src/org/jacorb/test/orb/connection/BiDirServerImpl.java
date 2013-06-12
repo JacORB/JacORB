@@ -40,12 +40,21 @@ public class BiDirServerImpl extends BiDirServerPOA
                     // ignore
                 }
                 callback.hello (msg);
+                callback._release();
             }
         }).start();
     }
 
     public int get_open_client_transports()
     {
+        try
+        {
+            Thread.sleep (5000);
+        }
+        catch (InterruptedException ex)
+        {
+            // ignore
+        }
         return org.jacorb.orb.iiop.ClientIIOPConnection.openTransports;
     }
 
