@@ -554,6 +554,7 @@ public class SelectorManager extends Thread
                 int currentOps = request.key.interestOps ();
                 int newOps = currentOps | request.op;
                 request.key.interestOps (newOps);
+                insertIntoActivePool (request); // continue incomplete request.
             }
             catch (Exception ex)
             {

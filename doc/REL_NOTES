@@ -50,6 +50,7 @@ This Release
          - Change logging to debug level (https://bugzilla.redhat.com/show_bug.cgi?id=950294).
          - Add support for GIOP 1.1 Fragmented Messages (BZ950).
          - Add public API for Client/ServerRequestInfo.
+         - Add fix for NIO with large requests (BZ939).
 
     - TAO ImR/NS Compatibility
         - Implement the new property "jacorb.use_tao_imr".
