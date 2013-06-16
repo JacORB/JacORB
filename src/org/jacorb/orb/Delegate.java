@@ -1481,7 +1481,7 @@ public final class Delegate
             return;
         }
 
-        if (disconnectAfterNonRecoverableSystemException)
+        if (!disconnectAfterNonRecoverableSystemException)
         {
             return;
         }

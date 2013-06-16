@@ -31,6 +31,7 @@ import org.jacorb.orb.ORB;
 import org.jacorb.orb.iiop.IIOPProfile;
 import org.omg.CORBA.BAD_PARAM;
 import org.omg.ETF.Factories;
+import org.omg.ETF.Profile;
 import org.slf4j.Logger;
 
 /**
@@ -45,7 +46,7 @@ public class ClientConnectionManager
     private final org.jacorb.orb.ORB orb;
 
     /** connection mgmt. */
-    private final Map connections = new HashMap();
+    private final Map<Profile, ClientConnection> connections = new HashMap<Profile, ClientConnection>();
 
     private RequestListener request_listener;
 
@@ -76,7 +77,7 @@ public class ClientConnectionManager
         // Moved from the constructor to facilitate logging.
         receptor_pool = new MessageReceptorPool("client", "ClientMessageReceptor", myConfiguration);
 
-        org.jacorb.config.Configuration configuration = (org.jacorb.config.Configuration)myConfiguration;
+        org.jacorb.config.Configuration configuration = myConfiguration;
         logger = configuration.getLogger("jacorb.orb.giop");
 
         request_listener = new NoBiDirClientRequestListener(orb, logger);
@@ -93,7 +94,7 @@ public class ClientConnectionManager
         /* look for an existing connection */
 
         ClientConnection clientConnection =
-            (ClientConnection)connections.get( profile );
+            connections.get( profile );
 
         if (clientConnection == null && profile instanceof IIOPProfile)
         {
@@ -103,7 +104,7 @@ public class ClientConnectionManager
             {
                 final IIOPProfile sslProfile = iiopProfile.toNonSSL();
 
-                clientConnection = (ClientConnection) connections.get(sslProfile);
+                clientConnection = connections.get(sslProfile);
             }
         }
 
@@ -214,9 +215,9 @@ public class ClientConnectionManager
     {
         /* release all open connections */
 
-        for( Iterator i = new HashSet(connections.values()).iterator(); i.hasNext(); )
+        for( Iterator<ClientConnection> i = new HashSet<ClientConnection>(connections.values()).iterator(); i.hasNext(); )
         {
-            ((ClientConnection) i.next()).close();
+            i.next().close();
         }
 
         if( logger.isDebugEnabled())
