@@ -3,7 +3,7 @@ package org.jacorb.config;
 /*
  *        JacORB  - a free Java ORB
  *
- *   Copyright (C) 1997-2012 Gerald Brose / The JacORB Team.
+ *   Copyright (C) 1997-2013 Gerald Brose / The JacORB Team.
  *
  *   This library is free software; you can redistribute it and/or
  *   modify it under the terms of the GNU Library General Public
@@ -21,6 +21,8 @@ package org.jacorb.config;
  *   MA 02110-1301, USA.
  */
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.logging.Formatter;
@@ -69,13 +71,9 @@ public class JacORBLogFormatter extends Formatter
 
     private String getStackTrace (Throwable t)
     {
-        StringBuffer result = new StringBuffer();
-        for (StackTraceElement ste : t.getStackTrace()) {
-            result.append ("    ");
-            result.append (ste.toString());
-            result.append ("\n");
-        }
-        return result.toString();
+        StringWriter sw = new StringWriter();
+        t.printStackTrace(new PrintWriter (sw));
+        return sw.toString();
     }
 
 }
