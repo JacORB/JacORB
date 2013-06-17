@@ -99,7 +99,7 @@ public class BugJac486Test extends ClientServerTestCase
         clientProps.setProperty(CommonSetup.JACORB_REGRESSION_DISABLE_IMR, "true");
         serverProps.setProperty(CommonSetup.JACORB_REGRESSION_DISABLE_IMR, "true");
 
-        clientProps.setProperty("jacorb.delegate.disconnect_after_systemexception", "false");
+        clientProps.setProperty("jacorb.delegate.disconnect_after_systemexception", "true");
 
         TestSuite suite = new TestSuite(BugJac486Test.class.getName());
         ClientServerSetup setup = new ClientServerSetup(suite, BasicServerImpl.class.getName(), clientProps, serverProps);
