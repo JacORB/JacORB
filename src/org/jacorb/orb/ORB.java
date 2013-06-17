@@ -1217,22 +1217,22 @@ public final class ORB
         return d.getReference( poa );
     }
 
-    public synchronized org.jacorb.poa.POA getRootPOA()
-    throws org.omg.CORBA.INITIALIZE
+    public synchronized org.jacorb.poa.POA getRootPOA() throws org.omg.CORBA.INITIALIZE
     {
         if ( rootpoa == null )
         {
-            rootpoa = org.jacorb.poa.POA._POA_init(this);
+            org.jacorb.poa.POA tmppoa = org.jacorb.poa.POA._POA_init(this);
+            tmppoa = org.jacorb.poa.POA._POA_init(this);
 
             basicAdapter = new BasicAdapter( this,
-                                             rootpoa,
+                                             tmppoa,
                                              getTransportManager(),
                                              giop_connection_manager
                                            );
 
             try
             {
-                rootpoa.configure(configuration);
+                tmppoa.configure(configuration);
                 basicAdapter.configure(configuration);
             }
             catch ( ConfigurationException ce )
@@ -1240,6 +1240,8 @@ public final class ORB
                 throw new org.omg.CORBA.INITIALIZE("ConfigurationException: " +
                                                    ce.toString() );
             }
+
+            rootpoa = tmppoa;
             rootpoa._addPOAEventListener( this );
 
         }
