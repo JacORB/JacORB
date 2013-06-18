@@ -53,6 +53,8 @@ This Release
          - Add fix for NIO with large requests (BZ939).
          - Add fix for disconnect logic on bad connection (BZ947).
          - Add fix for rootpoa creation with bad socket (BZ943).
+    - POA
+         - Add fix for exception in interceptors breaking requestprocesor thread.
 
     - TAO ImR/NS Compatibility
         - Implement the new property "jacorb.use_tao_imr".

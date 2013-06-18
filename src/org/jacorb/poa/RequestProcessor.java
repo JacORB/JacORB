@@ -626,7 +626,7 @@ public class RequestProcessor
             {
                 invokePreInvoke();
             }
-            ((org.omg.CORBA_2_3.ORB)orb).set_delegate((org.omg.PortableServer.Servant)servant);
+            ((org.omg.CORBA_2_3.ORB)orb).set_delegate(servant);
         }
 
         if (servant != null)
@@ -762,7 +762,7 @@ public class RequestProcessor
             request.setSystemException(_sys_ex);
             return false;
         }
-        catch(Exception e)
+        catch(Throwable e)
         {
             logger.error("unexpected exception during interceptor invocation", e);
 
