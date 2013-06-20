@@ -61,15 +61,16 @@ until a  thread is returned to  the pool. Upon  returning threads that
 have  finished processing a  request to  the pool,  it must  be decided
 whether  the  thread  should  actually   remain  in  the  pool  or  be
 destroyed. If the current pool  size is above the minimum, a processor
-thread will not be out into the pool again. Thus, the pool size always
+thread will not be returned into the pool again. Thus, the pool size always
 oscillates between max and min.
 
-Setting {\tt min} to a value  greater than one means keeping a certain
-number  of   threads  ready  to  service   incoming  requests  without
-delay. This is  especially useful if you now  that requests are likely
-to come  in in a bursty fashion.  Limiting the pool size  to a certain
-maximum  is  done to  prevent  servers  from  occupying all  available
-resources.
+Setting {\tt min} to a value greater than one means keeping a certain number of
+threads ready to service incoming requests without delay. As the threadpool can
+expand up to the max this is especially useful if you know that requests are
+likely to come in in a bursty fashion.  Limiting the pool size to a certain
+maximum is done to prevent servers from occupying all available
+resources. Setting min to equals max prevents the oscillation in the size of the
+pool and the destruction/creation of threads.
 
 Request  processor   threads  usually   run  at  the   highest  thread
 priority. It is possible to influence thread priorities by setting the
@@ -80,7 +81,7 @@ processing threads.
 
 
 
-%%% Local Variables: 
+%%% Local Variables:
 %%% mode: latex
 %%% TeX-master: "../ProgrammingGuide"
-%%% End: 
+%%% End:
