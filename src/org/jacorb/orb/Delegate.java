@@ -229,8 +229,6 @@ public final class Delegate
     /** delay in millisecs before retrying */
     private Random randomDelay = null;
 
-    private static final String REQUEST_END_TIME = "request_end_time";
-
     public static enum INVOCATION_KEY
     {
        REQUEST_END_TIME,
@@ -2121,13 +2119,19 @@ public final class Delegate
     public boolean non_existent (org.omg.CORBA.Object self)
     {
         // If local object call _non_existent directly
-
         if (is_really_local(self))
         {
             org.omg.PortableServer.Servant servant;
             org.omg.CORBA.portable.ServantObject so;
 
-            so = servant_preinvoke(self, "_non_existent", java.lang.Object.class);
+            try
+            {
+                so = servant_preinvoke(self, "_non_existent", java.lang.Object.class);
+            }
+            catch (OBJECT_NOT_EXIST e)
+            {
+                return true;
+            }
 
             try
             {
@@ -2141,7 +2145,15 @@ public final class Delegate
             }
         }
 
-        org.omg.CORBA.portable.InputStream is = invokeBuiltin (self, "_non_existent", null);
+        org.omg.CORBA.portable.InputStream is = null;
+        try
+        {
+            is = invokeBuiltin (self, "_non_existent", null);
+        }
+        catch (OBJECT_NOT_EXIST e)
+        {
+            return true;
+        }
         return (is == null) ? false : is.read_boolean();
     }
 
