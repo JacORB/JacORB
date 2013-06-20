@@ -6,7 +6,6 @@ import org.jacorb.test.common.ORBTestCase;
 import org.jacorb.test.orb.BasicServerImpl;
 import org.omg.CORBA.LocalObject;
 import org.omg.CORBA.OBJECT_NOT_EXIST;
-import org.omg.CORBA.ObjectHelper;
 import org.omg.CORBA.Policy;
 import org.omg.PortableServer.IdAssignmentPolicyValue;
 import org.omg.PortableServer.POA;
@@ -86,9 +85,11 @@ public class Bug400Test extends ORBTestCase
                 "some_oid".getBytes(),
                 BasicServerHelper.id());
 
+        BasicServer bs = BasicServerHelper.narrow(ref);
+
         try
         {
-            ref._non_existent();
+            bs.bounce_string("test-string");
             fail();
         }
         catch (OBJECT_NOT_EXIST ex)
