@@ -51,16 +51,18 @@ public abstract class RPPoolManager
      */
     private final HashSet<RequestProcessor> activeProcessors;
     /**
-     * <code>unused_size</code> represents the current number of unused request processors
-     * in the pool.
+     * <code>numberOfProcessors</code> represents the current number of used <b>AND</b> unused request
+     * processors in the pools (active/inactive)
      */
     private int numberOfProcessors;
     /**
-     * <code>max_pool_size</code> is the maximum size of the pool.
+     * <code>max_pool_size</code> is the maximum size of the pool. This is effectively its
+     * burst size
      */
     private final int max_pool_size;
     /**
-     * <code>min_pool_size</code> is the minimum number of request processors.
+     * <code>min_pool_size</code> is the minimum number of request processors. This is the
+     * permanent number of processors held in the pool.
      */
     private final int min_pool_size;
     // a flag for delay the pool initialization
@@ -240,10 +242,31 @@ public abstract class RPPoolManager
                     timeout -= (System.currentTimeMillis() - start);
                 }
 
+                // BZ946: There are some corner cases with request processor sizing.
+                //
+                // If min==max then the corner cases do not occur.
+                //
+                // In the default situation of e.g. min=5, max=20 then its
+                // possible that when we reach the maximum number of processors,
+                // use 1, and then go to release it, it will not get placed back
+                // in the pool (as 19 > 5). In fact all 15 of the 'burst'
+                // processors will be ended.
+                //
+                // If we are oscillating between min and max size then its possible that this thread
+                // may be looping on isEmpty. A RequestProcessor finishes and frees itself by calling
+                // releaseProcessor. As per above this this processor may just be released and not added
+                // to the pool. Therefore the pool is still isEmpty. However if another thread now tries
+                // to get a processor it will find the pool isEmpty and there is room to create a processor
+                // Therefore the pool size increases and this thread keeps looping. While it might eventually
+                // break out of the loop adding the below test breaks this pathological condition.
+                if (numberOfProcessors < max_pool_size)
+                {
+                    addProcessor();
+                }
             }
         }
 
-        RequestProcessor requestProcessor = (RequestProcessor) pool.removeFirst();
+        RequestProcessor requestProcessor = pool.removeFirst();
         activeProcessors.add (requestProcessor);
 
         // notify a pool manager listener
