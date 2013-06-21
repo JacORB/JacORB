@@ -50,6 +50,20 @@
             </plugin>
 
             <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>build-helper-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <phase>initialize</phase>
+                        <id>parse-version</id>
+                        <goals>
+                            <goal>parse-version</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-assembly-plugin</artifactId>
                 <executions>
@@ -192,7 +206,12 @@
                             <settings>
                                 <!-- all tex main documents in this folder (including subfolders) will be processed -->
                                 <texDirectory>${basedir}/../../doc/ProgrammingGuide</texDirectory>
-                            </settings>
+                                <texCommandArgs>
+                                    <texCommandArg>"\newcommand{\JacORBVersion}{${project.version}}\newcommand{\JacORBDir}{jacorb-${parsedVersion.majorVersion}\_${parsedVersion.minorVersion}}\input{ProgrammingGuide}"</texCommandArg>
+                                    <texCommandArg>-interaction=nonstopmode</texCommandArg>
+                                    <texCommandArg>--src-specials</texCommandArg>
+                                </texCommandArgs>
+                           </settings>
                         </configuration>
                         <executions>
                             <execution>
