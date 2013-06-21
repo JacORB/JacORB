@@ -21,7 +21,6 @@ package org.jacorb.orb;
  */
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -52,6 +51,7 @@ import org.jacorb.orb.typecode.NullTypeCodeCache;
 import org.jacorb.orb.typecode.NullTypeCodeCompactor;
 import org.jacorb.orb.typecode.TypeCodeCache;
 import org.jacorb.orb.typecode.TypeCodeCompactor;
+import org.jacorb.poa.POA;
 import org.jacorb.poa.RPPoolManager;
 import org.jacorb.poa.RPPoolManagerFactory;
 import org.jacorb.poa.except.POAInternalError;
@@ -122,11 +122,12 @@ public final class ORB
     extends ORBSingleton
     implements org.jacorb.poa.POAListener, Configurable
 {
-    private static final String NL = System.getProperty("line.separator");
     private static final String versionString = org.jacorb.util.Version.version;
     private static final String dateString = org.jacorb.util.Version.date;
     private static final String nullIORString =
         "IOR:00000000000000010000000000000000";
+
+    private final static String[] services = new String[] {"RootPOA", "POACurrent", "DynAnyFactory", "PICurrent", "CodecFactory", "RTORB",};
 
     // configuration properties
     private boolean cacheReferences;
@@ -144,9 +145,9 @@ public final class ORB
     /**
      *  "initial" references
      */
-    private final Map initial_references = new HashMap();
+    private final Map<String, org.omg.CORBA.Object> initial_references = new HashMap<String, org.omg.CORBA.Object>();
 
-    private org.jacorb.poa.POA rootpoa;
+    private POA rootpoa;
     private org.jacorb.poa.Current poaCurrent;
     private BasicAdapter basicAdapter;
 
@@ -233,8 +234,6 @@ public final class ORB
 
     /* policy factories, from portable interceptor spec */
     private final Map policy_factories = Collections.synchronizedMap(new HashMap());
-
-    private final static HashSet services = new HashSet(Arrays.asList(new String[] {"RootPOA", "POACurrent", "DynAnyFactory", "PICurrent", "CodecFactory", "RTORB",}));
 
     private boolean bidir_giop = false;
 
@@ -456,11 +455,11 @@ public final class ORB
 
         Logger versionLogger = configuration.getLogger("jacorb.orb.print_version");
 
-        versionLogger.info(NL + "\t~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~" + NL +
-                           "\tJacORB V " + versionString + ", www.jacorb.org" + NL +
-                           "\t(C) The JacORB project " +
-                           dateString + BuildVersion.versionInfo + NL +
-                           "\t~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+        versionLogger.info(System.getProperty("line.separator") +
+           "\t~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~" + System.getProperty("line.separator") +
+           "\tJacORB V " + versionString + ", www.jacorb.org" + System.getProperty("line.separator") +
+           "\t(C) The JacORB project " + dateString + BuildVersion.versionInfo + System.getProperty("line.separator") +
+           "\t~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
     }
 
 
@@ -577,7 +576,7 @@ public final class ORB
      * returns null for POAs in the holding state
      */
 
-    org.jacorb.poa.POA findPOA( org.jacorb.orb.Delegate delegate,
+    POA findPOA( org.jacorb.orb.Delegate delegate,
                                 org.omg.CORBA.Object reference )
     {
         if ( rootpoa == null || basicAdapter == null )
@@ -629,7 +628,7 @@ public final class ORB
 
         try
         {
-            org.jacorb.poa.POA tmp_poa = rootpoa;
+            POA tmp_poa = rootpoa;
             String poa_name =
                 POAUtil.extractPOAName( delegateObjectKey );
 
@@ -822,7 +821,7 @@ public final class ORB
     org.omg.IOP.IOR createIOR(String repId,
                               byte[] objectKey,
                               boolean _transient,
-                              org.jacorb.poa.POA poa,
+                              POA poa,
                               Map policy_overrides)
     {
         List profiles     = new ArrayList();
@@ -1190,7 +1189,7 @@ public final class ORB
      * @param _transient is the new reference transient or persistent
      * @return a new CORBA Object reference
      */
-    public org.omg.CORBA.Object getReference( org.jacorb.poa.POA poa,
+    public org.omg.CORBA.Object getReference( POA poa,
             byte[] object_key,
             String rep_id,
             boolean _transient )
@@ -1217,11 +1216,11 @@ public final class ORB
         return d.getReference( poa );
     }
 
-    public synchronized org.jacorb.poa.POA getRootPOA() throws org.omg.CORBA.INITIALIZE
+    public synchronized POA getRootPOA() throws org.omg.CORBA.INITIALIZE
     {
         if ( rootpoa == null )
         {
-            org.jacorb.poa.POA tmppoa = org.jacorb.poa.POA._POA_init(this);
+            POA tmppoa = POA._POA_init(this);
             tmppoa = org.jacorb.poa.POA._POA_init(this);
 
             basicAdapter = new BasicAdapter( this,
@@ -1252,19 +1251,22 @@ public final class ORB
     {
         work_pending();
 
-        final List list = new ArrayList(initial_references.size() + services.size());
+        final List<String> list = new ArrayList<String>(initial_references.size() + services.length);
 
-        list.addAll(services);
+        for (String i : services)
+        {
+            list.add(i);
+        }
         list.addAll(initial_references.keySet());
 
-        return (String[]) list.toArray( new String[list.size()] );
+        return list.toArray( new String[list.size()] );
     }
 
     /**
      * An operation from the POAListener interface. Whenever a new POA is
      * created, the ORB is notified.
      */
-    public void poaCreated( org.jacorb.poa.POA poa )
+    public void poaCreated( POA poa )
     {
         /*
          * Add this orb as the child poa's event listener. This means that the
@@ -1469,7 +1471,7 @@ public final class ORB
     }
 
 
-    public void poaStateChanged(org.jacorb.poa.POA poa, int new_state)
+    public void poaStateChanged(POA poa, int new_state)
     {
         if ( ( new_state == org.jacorb.poa.POAConstants.DESTROYED ||
                 new_state == org.jacorb.poa.POAConstants.INACTIVE )  &&
@@ -1514,7 +1516,7 @@ public final class ORB
 
         if ( initial_references.containsKey(identifier) )
         {
-            return (org.omg.CORBA.Object)initial_references.get(identifier);
+            return initial_references.get(identifier);
         }
 
         org.omg.CORBA.Object obj = resolveConfigInitRef(identifier);
@@ -1593,7 +1595,7 @@ public final class ORB
           if (logger.isErrorEnabled())
           {
              logger.error( "Could not create initial reference for \"" +
-                           identifier + "\"" + NL +
+                           identifier + "\"" + System.getProperty("line.separator") +
                            "Please check property \"ORBInitRef." +
                            identifier + '\"', e);
           }

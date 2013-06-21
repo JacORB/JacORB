@@ -21,15 +21,12 @@
 
 package org.jacorb.test.orb;
 
-import junit.framework.Test;
-import junit.framework.TestSuite;
+import java.util.Arrays;
 import org.jacorb.orb.CDROutputStream;
 import org.jacorb.orb.giop.CodeSet;
 import org.jacorb.test.common.ORBTestCase;
 import org.jacorb.test.common.TestUtils;
 import org.omg.CORBA.BAD_PARAM;
-
-import java.util.Arrays;
 
 public class CDROutputStreamTest extends ORBTestCase
 {
@@ -265,7 +262,7 @@ public class CDROutputStreamTest extends ORBTestCase
 
 
     private static void formatOneByte(StringBuffer sb,  byte aByte ) {
-        int value = (int) aByte & 0x0ff;
+        int value = aByte & 0x0ff;
         if (value < 0x10) sb.append( '0' );
         sb.append( Integer.toHexString( value ) );
     }

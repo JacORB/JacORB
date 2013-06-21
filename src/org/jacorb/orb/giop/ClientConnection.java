@@ -37,12 +37,12 @@ public class ClientConnection
     private final GIOPConnection connection;
     private final org.omg.CORBA.ORB orb;
 
-    private final Map replies;
+    private final Map<Integer, ReplyPlaceholder> replies;
 
     /**
      * <code>sasContexts</code> is used to support for SAS Stateful contexts.
      */
-    private final Map sasContexts;
+    private final Map<String, Long> sasContexts;
     private static long last_client_context_id = 0;
 
     /**
@@ -120,8 +120,8 @@ public class ClientConnection
         connection.setReplyListener( this );
         connection.setConnectionListener( this );
 
-        replies = new HashMap();
-        sasContexts = new HashMap();
+        replies = new HashMap<Integer, ReplyPlaceholder>();
+        sasContexts = new HashMap<String, Long>();
     }
 
     public final GIOPConnection getGIOPConnection()
@@ -344,7 +344,7 @@ public class ClientConnection
         synchronized( replies )
         {
             placeholder =
-                (ReplyPlaceholder) replies.remove( key );
+                replies.remove( key );
         }
 
         if( placeholder != null )
@@ -377,7 +377,7 @@ public class ClientConnection
         synchronized( replies )
         {
             placeholder =
-                (ReplyPlaceholder) replies.remove( key );
+                replies.remove( key );
         }
 
         if( placeholder != null )
@@ -473,12 +473,12 @@ public class ClientConnection
                     }
                 }
 
-                Iterator entries = replies.values().iterator();
+                Iterator<ReplyPlaceholder> entries = replies.values().iterator();
                 ReplyPlaceholder placeholder;
 
                 while( entries.hasNext() )
                 {
-                    placeholder = (ReplyPlaceholder)entries.next();
+                    placeholder = entries.next();
 
                     if( gracefulStreamClose )
                     {
@@ -511,13 +511,13 @@ public class ClientConnection
             {
                 // new context
                 client_context_id = ++last_client_context_id;
-                sasContexts.put(key, new Long(client_context_id));
+                sasContexts.put(key, Long.valueOf(client_context_id));
                 client_context_id = -client_context_id;
             }
             else
             {
                 // reuse cached context
-                client_context_id = ((Long)sasContexts.get(key)).longValue();
+                client_context_id = sasContexts.get(key).longValue();
             }
         }
         return client_context_id;
@@ -527,11 +527,11 @@ public class ClientConnection
     {
         synchronized ( sasContexts )
         {
-            Iterator entries = sasContexts.keySet().iterator();
+            Iterator<String> entries = sasContexts.keySet().iterator();
             while( entries.hasNext() )
             {
                 Object key = entries.next();
-                if (((Long)sasContexts.get(key)).longValue() != client_context_id)
+                if (sasContexts.get(key).longValue() != client_context_id)
                 {
                     continue;
                 }

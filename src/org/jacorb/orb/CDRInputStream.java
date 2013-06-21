@@ -811,6 +811,7 @@ public class CDRInputStream
     /**
      * @deprecated use {@link #read_fixed(short, short)} instead
      */
+    @Deprecated
     public BigDecimal read_fixed()
     {
         handle_chunking();
@@ -2832,12 +2833,6 @@ public class CDRInputStream
 
         return buffer.toString();
     }
-
-    public Logger getLogger()
-    {
-        return logger;
-    }
-
 
 
     /**
