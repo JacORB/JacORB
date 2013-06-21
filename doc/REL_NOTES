@@ -54,6 +54,7 @@ This Release
          - Add fix for disconnect logic on bad connection (BZ947).
          - Add fix for rootpoa creation with bad socket (BZ943).
          - Add fix for non_existent (BZ953).
+         - Add fix for rewrite on OutputStream with large sizes (BZ941).
     - POA
          - Add fix for exception in interceptors breaking requestprocesor thread. (BZ946)
          - Add fix for requestprocessor pooling. (BZ946)

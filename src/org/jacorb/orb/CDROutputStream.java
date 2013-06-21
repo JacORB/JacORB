@@ -152,7 +152,7 @@ public class CDROutputStream
 
     /** deferredArrayQueue is initialized on demand in write_octet_array */
     /* deferredArrayQueue is initialized on demand in write_octet_array */
-    private List deferredArrayQueue;
+    private List<DeferredWriteFrame> deferredArrayQueue;
 
     private int deferredArrayQueueSize;
 
@@ -387,14 +387,14 @@ public class CDROutputStream
         {
             // find the first frame that falls within the current window,
             // i.e. that need s to be written
-            next_frame = (DeferredWriteFrame)deferredArrayQueue.get( list_idx++ );
+            next_frame = deferredArrayQueue.get( list_idx++ );
 
             // skip all frames beginning before the current start pos, but
             // record their length
             while( next_frame.write_pos < start && list_idx < deferredArrayQueue.size() )
             {
                 skip_count += next_frame.length;
-                next_frame = (DeferredWriteFrame)deferredArrayQueue.get( list_idx++ );
+                next_frame = deferredArrayQueue.get( list_idx++ );
             }
 
             // skip
@@ -427,7 +427,7 @@ public class CDROutputStream
                 if( deferredArrayQueue != null &&
                     list_idx < deferredArrayQueue.size() )
                 {
-                    next_frame = (DeferredWriteFrame)deferredArrayQueue.get( list_idx++ );
+                    next_frame = deferredArrayQueue.get( list_idx++ );
                     if( next_frame.write_pos > start + length )
                     {
                         // unset, frame is beyond our current reach
@@ -640,7 +640,7 @@ public class CDROutputStream
 
         /* restore index and encaps_start information and indirection maps */
 
-        EncapsInfo ei = (EncapsInfo)getEncapsStack().pop();
+        EncapsInfo ei = getEncapsStack().pop();
         encaps_start = ei.start;
         index = ei.index + encaps_size;
         valueMap = ei.valueMap;
@@ -695,7 +695,7 @@ public class CDROutputStream
     }
 
     /**
-     * Replace existing buffer by and new one and reset indices.
+     * Replace existing buffer by a new one and reset indices.
      *
      * @param b the new buffer
      */
@@ -1088,6 +1088,7 @@ public class CDROutputStream
     /**
      * @deprecated
      */
+    @Deprecated
     public void write_fixed(final java.math.BigDecimal value)
     {
         write_fixed(value, (short)-1, (short)-1);
@@ -1265,15 +1266,33 @@ public class CDROutputStream
     {
         if( value != null )
         {
-            if( deferredArrayQueueSize > 0 && length > deferredArrayQueueSize )
+            if( ( deferredArrayQueueSize > 0 && length > deferredArrayQueueSize ) || deferred_writes > 0 )
             {
                 if (deferredArrayQueue == null)
                 {
-                    deferredArrayQueue = new ArrayList();
+                    deferredArrayQueue = new ArrayList<DeferredWriteFrame>();
                 }
+                if (deferredArrayQueue.size() > 0)
+                {
+                    // in case of rewrite, we remove deferred write frames
+                    boolean remove = false;
+                    for ( int list_idx = 0 ; list_idx < deferredArrayQueue.size() ; list_idx++ )
+                    {
+                       DeferredWriteFrame next_frame = deferredArrayQueue.get(list_idx);
+                       if ( remove || index < next_frame.write_pos + next_frame.length )
+                       {
+                           remove = true;
+                           deferred_writes -= next_frame.length;
+                           index -= next_frame.length;
+                           deferredArrayQueue.remove(list_idx);
+                       }
+                    }
+                }
+
                 deferredArrayQueue.add( new DeferredWriteFrame( index, offset, length, value ));
                 index += length;
                 deferred_writes += length;
+
             }
             else
             {
@@ -1964,7 +1983,7 @@ public class CDROutputStream
             return true;
         }
 
-        Integer index = (Integer)getValueMap().get (value);
+        Integer index = getValueMap().get (value);
         if (index != null)
         {
             // value has already been written -- make an indirection
@@ -1980,7 +1999,7 @@ public class CDROutputStream
      */
     private void write_repository_id(final String repository_id)
     {
-        Integer _index = (Integer)getRepIdMap().get (repository_id);
+        Integer _index = getRepIdMap().get (repository_id);
         if ( _index == null)
         {
             // a new repository id -- write it
@@ -2017,7 +2036,7 @@ public class CDROutputStream
         }
         else
         {
-            _index = (Integer)getCodebaseMap().get (codebase);
+            _index = getCodebaseMap().get (codebase);
         }
         if ( _index == null)
         {
@@ -2269,7 +2288,7 @@ public class CDROutputStream
                     if (newValue != value)
                     {
                         // look at the new value
-                        Integer index = (Integer)getValueMap().get(newValue);
+                        Integer index = getValueMap().get(newValue);
                         if (index != null)
                         {
                             // previously marshaled value -- make an indirection
