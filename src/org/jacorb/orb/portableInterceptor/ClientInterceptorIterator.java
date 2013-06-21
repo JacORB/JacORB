@@ -21,6 +21,7 @@
 package org.jacorb.orb.portableInterceptor;
 
 import java.util.HashMap;
+
 import org.jacorb.orb.Delegate;
 import org.jacorb.orb.Delegate.INVOCATION_KEY;
 import org.jacorb.orb.SystemExceptionHelper;
@@ -174,7 +175,10 @@ public class ClientInterceptorIterator
              * Pop the invocation context on return from the interceptor call - whatever
              * happens
              */
-            Delegate.getInvocationContext().pop ();
+             while ( !Delegate.getInvocationContext().empty() )
+             {
+                 Delegate.getInvocationContext().pop ();
+             }
         }
 
         info.caller_op = op;
