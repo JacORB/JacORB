@@ -34,7 +34,7 @@ public class IndirectionTypeCodeReader extends AbstractTypeCodeReader
     protected TypeCode doReadTypeCode(CDRInputStream in, Map recursiveTCMap,
             Map repeatedTCMap, Integer startPosition, int kind)
     {
-        final Logger logger = in.getLogger();
+        final Logger logger = ((org.jacorb.orb.ORB)in.orb()).getLogger();
 
         // recursive or repeated TC
         final int negative_offset = in.read_long();

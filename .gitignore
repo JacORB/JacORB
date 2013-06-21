@@ -39,3 +39,9 @@ _nsdb_root*
 *.class
 *.ior
 /nbproject/private/
+
+target
+maven/core/target/
+maven/idl-compiler/target/
+maven/release/target/
+maven/services/target/

@@ -1,32 +1,26 @@
 
 package org.jacorb.test.orb.localinterceptors;
 
+import java.io.IOException;
+import java.util.Properties;
 import junit.framework.Test;
-import junit.framework.TestSuite;
 import junit.framework.TestCase;
-
-import org.omg.CORBA.ORB;
-import org.omg.CORBA.Policy;
-import org.omg.PortableServer.ImplicitActivationPolicyValue;
-import org.omg.PortableServer.POA;
-
+import junit.framework.TestSuite;
+import org.jacorb.test.common.StreamListener;
+import org.jacorb.test.common.TestUtils;
 import org.omg.CORBA.BAD_INV_ORDER;
 import org.omg.CORBA.BAD_PARAM;
 import org.omg.CORBA.CompletionStatus;
 import org.omg.CORBA.NO_RESOURCES;
+import org.omg.CORBA.ORB;
+import org.omg.CORBA.Policy;
 import org.omg.CORBA.UNKNOWN;
 import org.omg.CORBA.ORBPackage.InvalidName;
-
 import org.omg.PortableInterceptor.Current;
-import org.omg.PortableInterceptor.InvalidSlot;
 import org.omg.PortableInterceptor.ForwardRequest;
-
-
-import org.jacorb.test.common.StreamListener;
-import org.jacorb.test.common.TestUtils;
-
-import java.io.IOException;
-import java.util.Properties;
+import org.omg.PortableInterceptor.InvalidSlot;
+import org.omg.PortableServer.ImplicitActivationPolicyValue;
+import org.omg.PortableServer.POA;
 
 /**
  * This class tests the use of PortableInterceptors during a local
@@ -49,7 +43,6 @@ public class LocalPITest extends TestCase
     private static final int TEST_SCID = 0x444f7F01;
 
     private static final int SERVER_MINOR = 0x999;
-    private static final int REMOTE_SERVER_MINOR = 0x666;
 
     private static final int CLIENTA_SEND_REQ = 0x1;
     private static final int CLIENTB_SEND_REQ = 0x2;
@@ -267,6 +260,7 @@ public class LocalPITest extends TestCase
                       COMPLETE_PATH,
                       callsMade);
     }
+
 
     /**
      * Test complete request call with service contexts.
@@ -1256,7 +1250,7 @@ public class LocalPITest extends TestCase
 
         try
         {
-            String response = clientRef.returnMessage (outMsg);
+            clientRef.returnMessage (outMsg);
             fail ("Expected ForwardRequest");
         }
         catch (Exception ex)
@@ -1265,8 +1259,7 @@ public class LocalPITest extends TestCase
 
             if (t instanceof org.omg.PortableInterceptor.ForwardRequest)
             {
-                org.omg.CORBA.Object fwdObj = (org.omg.CORBA.Object)
-                    ( (org.omg.PortableInterceptor.ForwardRequest ) t).forward;
+                org.omg.CORBA.Object fwdObj = ( (org.omg.PortableInterceptor.ForwardRequest ) t).forward;
 
                 assertEquals ("ForwardRequest and remoteServer do not match ", remoteServerObj, fwdObj);
             }
@@ -1300,7 +1293,7 @@ public class LocalPITest extends TestCase
 
         try
         {
-            String response = clientRef.returnMessage (outMsg);
+            clientRef.returnMessage (outMsg);
             fail ("Expected ForwardRequest");
         }
         catch (Exception ex)
@@ -1309,8 +1302,7 @@ public class LocalPITest extends TestCase
 
             if (t instanceof org.omg.PortableInterceptor.ForwardRequest)
             {
-                org.omg.CORBA.Object fwdObj = (org.omg.CORBA.Object)
-                    ( (org.omg.PortableInterceptor.ForwardRequest ) t).forward;
+                org.omg.CORBA.Object fwdObj = ( (org.omg.PortableInterceptor.ForwardRequest ) t).forward;
 
                 assertEquals ("ForwardRequest and remoteServer do not match ", remoteServerObj, fwdObj);
             }
@@ -1345,7 +1337,7 @@ public class LocalPITest extends TestCase
 
         try
         {
-            String response = clientRef.returnMessage (outMsg);
+            clientRef.returnMessage (outMsg);
             fail ("Expected ForwardRequest");
         }
         catch (Exception ex)
@@ -1354,8 +1346,7 @@ public class LocalPITest extends TestCase
 
             if (t instanceof org.omg.PortableInterceptor.ForwardRequest)
             {
-                org.omg.CORBA.Object fwdObj = (org.omg.CORBA.Object)
-                    ( (org.omg.PortableInterceptor.ForwardRequest ) t).forward;
+                org.omg.CORBA.Object fwdObj = ( (org.omg.PortableInterceptor.ForwardRequest ) t).forward;
 
                 assertEquals ("ForwardRequest and remoteServer do not match ", remoteServerObj, fwdObj);
             }
@@ -1389,7 +1380,7 @@ public class LocalPITest extends TestCase
 
         try
         {
-            String response = clientRef.returnMessage (outMsg);
+            clientRef.returnMessage (outMsg);
             fail ("Expected ForwardRequest");
         }
         catch (Exception ex)
@@ -1397,8 +1388,7 @@ public class LocalPITest extends TestCase
             Throwable t = ex.getCause();
             if (t instanceof org.omg.PortableInterceptor.ForwardRequest)
             {
-                org.omg.CORBA.Object fwdObj = (org.omg.CORBA.Object)
-                    ( (org.omg.PortableInterceptor.ForwardRequest ) t).forward;
+                org.omg.CORBA.Object fwdObj = ( (org.omg.PortableInterceptor.ForwardRequest ) t).forward;
 
                 assertEquals ("ForwardRequest and remoteServer do not match ", remoteServerObj, fwdObj);
             }
@@ -1432,7 +1422,7 @@ public class LocalPITest extends TestCase
 
         try
         {
-            String response = clientRef.returnMessage (outMsg);
+            clientRef.returnMessage (outMsg);
             fail ("Expected ForwardRequest");
         }
         catch (Exception ex)
@@ -1441,8 +1431,7 @@ public class LocalPITest extends TestCase
 
             if (t instanceof org.omg.PortableInterceptor.ForwardRequest)
             {
-                org.omg.CORBA.Object fwdObj = (org.omg.CORBA.Object)
-                    ( (org.omg.PortableInterceptor.ForwardRequest ) t).forward;
+                org.omg.CORBA.Object fwdObj = ( (org.omg.PortableInterceptor.ForwardRequest ) t).forward;
 
                 assertEquals ("ForwardRequest and remoteServer do not match ", remoteServerObj, fwdObj);
             }
@@ -1476,7 +1465,7 @@ public class LocalPITest extends TestCase
 
         try
         {
-            String response = clientRef.returnMessage (outMsg);
+            clientRef.returnMessage (outMsg);
             fail ("Expected ForwardRequest");
         }
         catch (Exception ex)
@@ -1485,11 +1474,10 @@ public class LocalPITest extends TestCase
 
             if (t instanceof org.omg.PortableInterceptor.ForwardRequest)
             {
-                org.omg.CORBA.Object fwdObj = (org.omg.CORBA.Object)
-                    ( (org.omg.PortableInterceptor.ForwardRequest ) t).forward;
+                org.omg.CORBA.Object fwdObj = ( (org.omg.PortableInterceptor.ForwardRequest ) t).forward;
 
                 assertEquals ("ForwardRequest and remoteServer do not match ",
-                              (org.omg.CORBA.Object) serverRef,
+                              serverRef,
                               fwdObj);
             }
             else
@@ -1522,7 +1510,7 @@ public class LocalPITest extends TestCase
 
         try
         {
-            String response = clientRef.returnMessage (outMsg);
+            clientRef.returnMessage (outMsg);
             fail ("Expected ForwardRequest");
         }
         catch (Exception ex)
@@ -1531,11 +1519,10 @@ public class LocalPITest extends TestCase
 
             if (t instanceof org.omg.PortableInterceptor.ForwardRequest)
             {
-                org.omg.CORBA.Object fwdObj = (org.omg.CORBA.Object)
-                    ( (org.omg.PortableInterceptor.ForwardRequest ) t).forward;
+                org.omg.CORBA.Object fwdObj = ( (org.omg.PortableInterceptor.ForwardRequest ) t).forward;
 
                 assertEquals ("ForwardRequest and remoteServer do not match ",
-                              (org.omg.CORBA.Object) serverRef,
+                              serverRef,
                               fwdObj);
             }
             else
@@ -1559,12 +1546,12 @@ public class LocalPITest extends TestCase
     }
 
 
-    static class PIServerImpl
+    public static class PIServerImpl
         extends PIServerPOA
     {
         private POA poa;
 
-        PIServerImpl( POA poa )
+        public PIServerImpl( POA poa )
         {
             this.poa = poa;
         }
