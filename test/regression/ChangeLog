@@ -1,3 +1,287 @@
+commit b7926eac3d11172091da02fee2c319aa6d9b9f49
+Author: Nick Cross <jacorb@goots.org>
+Date:   Fri Jun 21 15:46:17 2013 +0100
+
+Code tidy to remove warnings and use generics
+
+M	test/regression/src/org/jacorb/test/orb/CDROutputStreamTest.java
+M	test/regression/src/org/jacorb/test/orb/localinterceptors/LocalPITest.java
+
+commit 8430901dd10e37ca8e33e05d3a5e8ee8e3fd104c
+Author: Nick Cross <jacorb@goots.org>
+Date:   Fri Jun 21 14:19:58 2013 +0100
+
+BZ941 Fix for rewrite on outputstream with large sizes/fragments
+
+A	test/regression/idl/bug941.idl
+A	test/regression/src/org/jacorb/test/bugs/bug941/Bug941Test.java
+A	test/regression/src/org/jacorb/test/bugs/bug941/ClientInterceptor.java
+A	test/regression/src/org/jacorb/test/bugs/bug941/MyInitializer.java
+A	test/regression/src/org/jacorb/test/bugs/bug941/TestObjectImpl.java
+
+commit 2d273f07fc9e3db6be134ea80905c7413f6b0951
+Author: Nick Cross <jacorb@goots.org>
+Date:   Thu Jun 20 11:36:03 2013 +0100
+
+BZ953 Add fix for non_existent
+
+M	test/regression/src/org/jacorb/test/bugs/bug400/Bug400Test.java
+A	test/regression/src/org/jacorb/test/orb/NonExistentLocalTest.java
+A	test/regression/src/org/jacorb/test/orb/NonExistentRemoteTest.java
+
+commit dbd43f8c2aa75391b0564886e1db25136189a7c6
+Author: Nick Cross <jacorb@goots.org>
+Date:   Tue Jun 18 21:52:22 2013 +0100
+
+BZ946 Add fix for exceptions in interceptor breaking requestprocessor threads
+
+A	test/regression/src/org/jacorb/test/poa/POAInterceptorExceptionTest.java
+
+commit 76033b04d62e682756344a60a75fd9b4380eb20e
+Author: Nick Cross <jacorb@goots.org>
+Date:   Mon Jun 17 16:20:57 2013 +0100
+
+BZ947 Fix test
+
+M	test/regression/src/org/jacorb/test/bugs/bugjac486/BugJac486Test.java
+
+commit c0ddff3416110f90e7c337a20c6225c90ead3f57
+Author: Nick Cross <jacorb@goots.org>
+Date:   Mon Jun 17 09:39:00 2013 +0100
+
+BZ943 Fix rootpoa creation with bad socket
+
+A	test/regression/src/org/jacorb/test/bugs/bug943/Bug943Test.java
+
+commit 8647cbcf0d9c3fc8f433b82050aa95a764d188e6
+Author: Nick Cross <jacorb@goots.org>
+Date:   Sun Jun 16 22:53:47 2013 +0100
+
+Add test for is_local with local interceptors
+
+A	test/regression/src/org/jacorb/test/orb/localinterceptors/LocalPIIsLocalTest.java
+
+commit fba3a1170f62ef467346871f9053892beea51eb4
+Author: Nick Cross <jacorb@goots.org>
+Date:   Sun Jun 16 18:46:14 2013 +0100
+
+BZ947 Add fix for invalid disconnection logic
+
+A	test/regression/src/org/jacorb/test/orb/DisconnectTest.java
+
+commit 3362a0d71a38be698309c4d2db49d7691ae5912c
+Author: Nick Cross <jacorb@goots.org>
+Date:   Wed Feb 6 22:28:10 2013 +0000
+
+Refactor code and provide API for Server/ClientRequestInfo. Add doc
+
+M	test/regression/src/org/jacorb/test/bugs/bugjac166/IPInterceptor.java
+M	test/regression/src/org/jacorb/test/bugs/bugjac192/AInterceptor.java
+M	test/regression/src/org/jacorb/test/bugs/bugjac192b/AInterceptor.java
+
+commit 4d2cb9335fb3f5735b5bbc75133a4ccf10cfdffa
+Author: Nick Cross <jacorb@goots.org>
+Date:   Tue Jun 11 22:44:59 2013 +0100
+
+BZ950: Add release note. Remove old test. Code reformat
+
+M	test/regression/src/org/jacorb/test/orb/connection/GIOPConnectionTest.java
+
+commit d608b9cd11a87856cfab07872bc23356ea20234d
+Author: chris07011985 <chaesselbarth@dimetis.de>
+Date:   Fri May 24 15:17:43 2013 +0200
+
+BZ-950
+
+M	test/regression/src/org/jacorb/test/orb/connection/GIOPConnectionTest.java
+
+commit a00a87175a0df7181bd330c4360cb7ed6b2b85fb
+Author: Nick Cross <jacorb@goots.org>
+Date:   Mon Jun 10 14:36:06 2013 +0100
+
+Fix test setup
+
+M	test/regression/src/org/jacorb/test/orb/policies/ComplexTimingWithPIsTest.java
+
+commit 6cd8c2d03f49137832140c49b21845b1f858be56
+Author: Nick Cross <jacorb@goots.org>
+Date:   Mon Apr 22 16:35:24 2013 +0100
+
+Add some thread.sleep to avoid test failures
+
+M	test/regression/src/org/jacorb/test/orb/connection/BiDirServerImpl.java
+M	test/regression/src/org/jacorb/test/orb/connection/BiDirTest.java
+M	test/regression/src/org/jacorb/test/orb/orbreinvoke/ImRFailoverTest.java
+
+commit 6d3eb3f7cff01c886cfc74975477122467fb5960
+Author: Nick Cross <jacorb@goots.org>
+Date:   Thu Apr 18 08:51:47 2013 +0100
+
+Fix for loopback regression test. Tidy code. Move some logging to debug level. Fix BiDir reg test.
+
+M	test/regression/src/org/jacorb/test/orb/connection/BiDirServerImpl.java
+M	test/regression/src/org/jacorb/test/orb/orbreinvoke/NSServiceRunner.java
+
+commit 254b1151952d56bf04f04a947825dd13a5903726
+Author: Quynh Nguyen <nguyenq@stladvantage.com>
+Date:   Wed Apr 3 15:42:55 2013 -0500
+
+Bugfix for -ORBListenEndpoints to allow coma delimiters.
+
+M	test/regression/src/org/jacorb/test/orb/listenendpoints/ListenEndpointsTest.java
+
+commit 8de1be639d27b186e605082f62d9f4c4ef98d657
+Author: Quynh Nguyen <nguyenq@stladvantage.com>
+Date:   Tue Apr 2 16:47:38 2013 -0500
+
+Add Regression test suit for ImR and NS fail-over logic.
+
+A	test/regression/src/org/jacorb/test/orb/orbreinvoke/ConnectNameService.java
+A	test/regression/src/org/jacorb/test/orb/orbreinvoke/ImRFailoverTest.java
+A	test/regression/src/org/jacorb/test/orb/orbreinvoke/ImRFailoverTestServer.java
+A	test/regression/src/org/jacorb/test/orb/orbreinvoke/ImRServiceRunner.java
+A	test/regression/src/org/jacorb/test/orb/orbreinvoke/ImRServiceSetup.java
+A	test/regression/src/org/jacorb/test/orb/orbreinvoke/MyCmdArgs.java
+A	test/regression/src/org/jacorb/test/orb/orbreinvoke/NSFailoverTest.java
+A	test/regression/src/org/jacorb/test/orb/orbreinvoke/NSFailoverTestServer.java
+A	test/regression/src/org/jacorb/test/orb/orbreinvoke/NSServiceRunner.java
+A	test/regression/src/org/jacorb/test/orb/orbreinvoke/NSServiceSetup.java
+
+commit f954f7bda5613c6fade35e9f97a251e1b842319b
+Author: Nick Cross <jacorb@goots.org>
+Date:   Thu Mar 28 18:42:51 2013 +0000
+
+Make build-all public
+
+M	test/regression/build.xml
+
+commit b41eb56749252898f8bc2a003f3eeead6a16ce0c
+Author: Nick Cross <jacorb@goots.org>
+Date:   Wed Mar 20 14:07:33 2013 +0000
+
+Move launch.sh to regression as its only used there.
+
+A	test/regression/launch.sh
+M	test/regression/src/org/jacorb/test/common/launch/DirectLauncher.java
+
+commit c44c656ccc7bf00954130499f95348584795a6cd
+Author: Nick Cross <jacorb@goots.org>
+Date:   Fri Mar 15 14:26:18 2013 +0000
+
+Fix NO_BUILD
+
+M	test/regression/build.xml
+
+commit 750465f4e9fca47c3dcab645ed2f6e0aa6aa4256
+Author: Nick Cross <jacorb@goots.org>
+Date:   Thu Mar 14 22:31:05 2013 +0000
+
+Refactor and simplify Endpoint implementation to use single factory
+
+M	test/regression/src/org/jacorb/test/orb/etf/wiop/WIOPFactories.java
+
+commit a88570aa6bc2b7beaf8677ddf213bf8991656b39
+Author: Nick Cross <jacorb@goots.org>
+Date:   Wed Mar 13 22:03:35 2013 +0000
+
+Code cleanup and test fixes
+
+M	test/regression/build.xml
+M	test/regression/src/org/jacorb/test/bugs/bugjac417/BugJac417Test.java
+M	test/regression/src/org/jacorb/test/bugs/bugjac488/BugJac488Test.java
+M	test/regression/src/org/jacorb/test/bugs/bugjac774/ServerImpl.java
+M	test/regression/src/org/jacorb/test/common/ClientServerSetup.java
+M	test/regression/src/org/jacorb/test/common/ServerSetup.java
+M	test/regression/src/org/jacorb/test/config/ConfigurationTest.java
+M	test/regression/src/org/jacorb/test/orb/giop/ClientConnectionTest.java
+M	test/regression/src/org/jacorb/test/orb/listenendpoints/ListenEndpointsTest.java
+
+commit fde190ecf2217155ce1fbaf97b5508f7a81eadb5
+Author: Quynh Nguyen <nguyenq@stladvantage.com>
+Date:   Fri Mar 1 16:00:23 2013 -0600
+
+Fix LISTEN_EP so tests will run properly, also change "wrong host" IPs to a really bogus IPs.
+
+M	test/regression/src/org/jacorb/test/orb/AlternateIIOPAddress2Test.java
+M	test/regression/src/org/jacorb/test/orb/AlternateIIOPAddressAutoTest.java
+M	test/regression/src/org/jacorb/test/orb/AlternateIIOPAddressConfigTest.java
+M	test/regression/src/org/jacorb/test/orb/AlternateIIOPAddressTest.java
+M	test/regression/src/org/jacorb/test/orb/AlternateProfileTest.java
+
+commit 210c27889018eec812a81c834f9ac59c3c98ae25
+Author: Nick Cross <jacorb@goots.org>
+Date:   Sun Mar 10 22:51:50 2013 +0000
+
+Refactor test code to isolate idl and class compilation
+
+M	test/regression/build.xml
+M	test/regression/src/org/jacorb/test/orb/listenendpoints/ListenEndpointsTest.java
+
+commit f1524bad4bf1a010af9f3bacb62080fc231b31d4
+Author: Quynh Nguyen <nguyenq@stladvantage.com>
+Date:   Tue Feb 26 17:31:53 2013 -0600
+
+Remove tests that are no longer needed.
+
+M	test/regression/src/org/jacorb/test/orb/ORBInitTest.java
+
+commit bf17c4f0eeae48f4fe724947a2f0d251e1e40cb7
+Author: Nick Cross <jacorb@goots.org>
+Date:   Mon Feb 18 13:23:41 2013 +0000
+
+Add jacorb.log.showSrcInfo. Revert mapping changes. Improve orbId processing.
+
+M	test/regression/src/org/jacorb/test/bugs/bugjac417/BugJac417Test.java
+M	test/regression/src/org/jacorb/test/orb/ORBInitTest.java
+
+commit 245e204a975c22e3e113e348683b5d4a9e02dab0
+Author: Quynh Nguyen <nguyenq@stladvantage.com>
+Date:   Tue Feb 12 15:08:01 2013 -0600
+
+Merged in tao-imr-only-branch
+
+M	test/regression/src/org/jacorb/test/common/ClientServerSetup.java
+M	test/regression/src/org/jacorb/test/orb/etf/WIOPSelector.java
+M	test/regression/src/org/jacorb/test/orb/etf/wiop/WIOPFactories.java
+M	test/regression/src/org/jacorb/test/orb/policies/PolicyHandlingTest.java
+
+commit 264fdca8df86338adb5ec59b9e617b7ccb8a0ea1
+Author: Quynh Nguyen <nguyenq@stladvantage.com>
+Date:   Mon Feb 4 16:01:56 2013 -0600
+
+Support multi-network interfaces using -ORBListenEndpoints option
+
+M	test/regression/build.xml
+M	test/regression/src/org/jacorb/test/common/ClientServerSetup.java
+M	test/regression/src/org/jacorb/test/common/ServerSetup.java
+M	test/regression/src/org/jacorb/test/common/TestServer.java
+A	test/regression/src/org/jacorb/test/orb/listenendpoints/ListenEndpointsTest.java
+A	test/regression/src/org/jacorb/test/orb/listenendpoints/README
+
+commit 26d58a77e35045adca794d908015e52695affa6e
+Author: Quynh Nguyen <nguyenq@stladvantage.com>
+Date:   Mon Feb 4 14:05:26 2013 -0600
+
+Support setting the ORB ID using the -DORBId option
+
+M	test/regression/src/org/jacorb/test/orb/ORBInitTest.java
+
+commit 25e78c5057cbdd24aa83df6ae1520d0b223a1473
+Author: Quynh Nguyen <nguyenq@stladvantage.com>
+Date:   Mon Feb 4 12:29:57 2013 -0600
+
+- Implement the method validate_connection
+
+M	test/regression/src/org/jacorb/test/orb/BasicTest.java
+
+commit 57a9a9dee110f05e9e6b13c81bc68c87efe552f6
+Author: Nick Cross <jacorb@goots.org>
+Date:   Thu Dec 6 23:19:58 2012 +0000
+
+Update changelog
+
+M	test/regression/ChangeLog
+
 commit d32df279540be374dda6101a30efa836dd874cba
 Author: Nick Cross <jacorb@goots.org>
 Date:   Thu Dec 6 16:00:43 2012 +0000

@@ -40,8 +40,8 @@
    H I S T O R Y      O F     C H A N G E S
  -------------------------------------------
 
-This Release
-============
+3.3beta
+=======
     - ORB
          - Improve encapsulation of internal code.
          - Implement the method validate_connection.
