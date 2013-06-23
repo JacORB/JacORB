@@ -29,8 +29,8 @@ public final class Version
 {
     public static final String orbId = "jacorb";
 
-    public static final String version = "3.2";
-    public static final String date = "07-Dec-2012";
+    public static final String version = "3.3beta";
+    public static final String date = "22-Jun-2013";
     public static final String longVersion = version + ", " + date;
-    public static final String yearString = "1997-2012";
+    public static final String yearString = "1997-2013";
 }
