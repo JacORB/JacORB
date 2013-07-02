@@ -109,13 +109,3 @@ public class ObjectRepresentant extends ModelParticipant
     }
 }
 
-
-
-
-
-
-
-
-
-
-
