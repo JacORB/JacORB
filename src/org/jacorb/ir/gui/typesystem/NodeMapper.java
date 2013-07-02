@@ -23,10 +23,10 @@ package org.jacorb.ir.gui.typesystem;
 
 
 /**
- * Existiert nur, um als cell-value in ein TableModel gesteckt zu werden.
- * Nur so kann GUI-Client von der selektierten Row auf die dazugehörige TypeSystemNode schließen.
- * (DefaultTableModel sieht es leider nicht vor, mit jeder Row ein Objekt zu assoziieren)
- *
+ * Exists only for being inserted into a TableModel as a cell value.
+ * This is the only way for the GUI client to find out the corresponding
+ * TypeSystemNode for a selected row. (Unfortunately the DefaultTableModel
+ * is not prepared to associate an object with each row.)
  */
 public class NodeMapper {
     TypeSystemNode node;
@@ -57,10 +57,4 @@ public String toString() {
     return string;
 }
 }
-
-
-
-
-
-
 
