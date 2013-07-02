@@ -27,19 +27,12 @@ package org.jacorb.ir.gui.typesystem;
 public interface AbstractContainer {
 
     /**
-     * Erzeugt TypeSystemNodes für alle contained Objekte.
-     * Default-Implementierung, die für "echte" CORBA-Container funktionert.
-     * Für andere Klassen (z.B. IRStruct), die keine echten CORBA-Container sind,
-     * wird diese Methode überschrieben mit individuellem Code zum Auslesen der members.
-     * @return org.omg.CORBA.Object
+     * Creates TypeSystemNodes for all contained objects.
+     * Default implementation that works for "real" CORBA containers.
+     * For other classes (e.g. IRStruct), which are not real CORBA containers,
+     * this Method is overridden with individual code for retrieving the members.
+     * @return org.omg.CORBA.Object 
      */
     org.jacorb.ir.gui.typesystem.ModelParticipant[] contents();
 }
-
-
-
-
-
-
-
 
