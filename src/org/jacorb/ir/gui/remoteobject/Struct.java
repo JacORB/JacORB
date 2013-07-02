@@ -71,12 +71,3 @@ public ModelParticipant[] contents() {
 }
 }
 
-
-
-
-
-
-
-
-
-
