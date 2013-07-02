@@ -33,11 +33,9 @@ import org.jacorb.ir.gui.typesystem.TypeSystemNode;
 public class ObjectRepresentant extends ModelParticipant
 {
     protected Object counterPart;
-    // da können echte entfernte Objekte und lokale Objekte drinstecken
+    // there could be real remote objects and local objects in it
     protected String name;
     protected TypeSystemNode typeSystemNode;
-
-
 
     /**
      * This method was created by a SmartGuide.
@@ -88,7 +86,7 @@ public class ObjectRepresentant extends ModelParticipant
      * @return java.lang.String
      */
     public String toString() {
-    if (typeSystemNode!=null) {	// kann null sein z.B. bei PIDLs
+	if (typeSystemNode!=null) { // could be null, e.g. with PIDLs
             return typeSystemNode.getAbsoluteName() + " " + name;
     }
     else {
@@ -108,4 +106,3 @@ public class ObjectRepresentant extends ModelParticipant
     }
     }
 }
-
