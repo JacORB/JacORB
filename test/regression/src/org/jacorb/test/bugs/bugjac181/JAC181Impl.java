@@ -1,6 +1,8 @@
 package org.jacorb.test.bugs.bugjac181;
 
-import org.jacorb.config.*;
+import org.jacorb.config.Configurable;
+import org.jacorb.config.Configuration;
+import org.jacorb.config.ConfigurationException;
 import org.omg.CORBA.ORB;
 
 /**

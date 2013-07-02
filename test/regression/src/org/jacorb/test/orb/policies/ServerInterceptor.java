@@ -1,10 +1,6 @@
 package org.jacorb.test.orb.policies;
 
-import org.omg.CORBA.INTERNAL;
-import org.omg.CORBA.UNKNOWN;
 import org.omg.PortableInterceptor.ForwardRequest;
-import org.omg.CORBA.CompletionStatus;
-import org.omg.CORBA.NO_RESOURCES;
 
 public class ServerInterceptor
    extends org.omg.CORBA.LocalObject

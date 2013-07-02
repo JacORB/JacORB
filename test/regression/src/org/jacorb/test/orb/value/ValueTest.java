@@ -20,10 +20,14 @@ package org.jacorb.test.orb.value;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import junit.framework.*;
-
-import org.jacorb.test.common.*;
-import org.omg.CORBA.*;
+import junit.framework.Test;
+import junit.framework.TestSuite;
+import org.jacorb.test.common.ClientServerSetup;
+import org.jacorb.test.common.ClientServerTestCase;
+import org.jacorb.test.common.TestUtils;
+import org.omg.CORBA.Any;
+import org.omg.CORBA.ORB;
+import org.omg.CORBA.TypeCode;
 
 /**
  * Tests IDL valuetypes, especially sharing and null values.

@@ -23,11 +23,8 @@ package org.jacorb.test.jmx;
 
 import java.net.MalformedURLException;
 import java.util.Properties;
-
 import javax.management.remote.JMXServiceURL;
-
 import junit.framework.Test;
-
 import org.jacorb.test.common.ClientServerSetup;
 
 public class JMXClientServerSetup extends ClientServerSetup

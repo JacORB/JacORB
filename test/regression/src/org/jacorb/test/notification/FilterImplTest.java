@@ -1,9 +1,7 @@
 package org.jacorb.test.notification;
 
 import java.util.Iterator;
-
 import junit.framework.Test;
-
 import org.jacorb.notification.AbstractMessage;
 import org.jacorb.notification.filter.AbstractFilter;
 import org.jacorb.notification.filter.ConstraintEntry;

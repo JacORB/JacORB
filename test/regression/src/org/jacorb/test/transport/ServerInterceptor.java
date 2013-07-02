@@ -1,10 +1,10 @@
 package org.jacorb.test.transport;
 
-import org.slf4j.Logger;
 import org.omg.CORBA.ORB;
 import org.omg.PortableInterceptor.ForwardRequest;
 import org.omg.PortableInterceptor.ServerRequestInfo;
 import org.omg.PortableInterceptor.ServerRequestInterceptor;
+import org.slf4j.Logger;
 
 public class ServerInterceptor extends org.omg.CORBA.LocalObject implements
                                                                 ServerRequestInterceptor {

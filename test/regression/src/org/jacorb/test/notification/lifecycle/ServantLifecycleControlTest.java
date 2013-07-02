@@ -22,7 +22,6 @@
 package org.jacorb.test.notification.lifecycle;
 
 import junit.framework.TestCase;
-
 import org.easymock.MockControl;
 import org.jacorb.notification.lifecycle.IServantLifecyle;
 import org.jacorb.notification.lifecycle.ServantLifecyleControl;

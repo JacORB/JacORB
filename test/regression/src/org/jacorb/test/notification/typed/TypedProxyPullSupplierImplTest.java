@@ -20,8 +20,9 @@ package org.jacorb.test.notification.typed;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 import junit.framework.Test;
-
 import org.easymock.MockControl;
 import org.jacorb.notification.OfferManager;
 import org.jacorb.notification.SubscriptionManager;
@@ -40,9 +41,6 @@ import org.omg.CosNotifyComm.InvalidEventType;
 import org.omg.CosNotifyComm.PullConsumerPOA;
 import org.omg.CosTypedNotifyChannelAdmin.TypedProxyPullSupplier;
 import org.omg.CosTypedNotifyChannelAdmin.TypedProxyPullSupplierHelper;
-
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
 
 /**
  * @author Alphonse Bendt

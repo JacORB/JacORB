@@ -2,21 +2,20 @@ package org.jacorb.test.bugs.bugjac685;
 
 import org.omg.CORBA.ORB;
 import org.omg.CORBA.Policy;
-import org.omg.PortableServer.POA;
-import org.omg.PortableServer.POAHelper;
-import org.omg.PortableServer._ServantLocatorLocalBase;
-import org.omg.PortableServer._ServantActivatorLocalBase;
-import org.omg.PortableServer.IdAssignmentPolicyValue;
-import org.omg.PortableServer.IdUniquenessPolicyValue;
-import org.omg.PortableServer.ServantRetentionPolicyValue;
-import org.omg.PortableServer.RequestProcessingPolicyValue;
-import org.omg.PortableServer.ServantManager;
-import org.omg.PortableServer.Servant;
-import org.omg.PortableServer.ForwardRequest;
-import org.omg.PortableServer.ServantLocatorPackage.CookieHolder;
-
 import org.omg.CosNaming.NamingContextExt;
 import org.omg.CosNaming.NamingContextExtHelper;
+import org.omg.PortableServer.ForwardRequest;
+import org.omg.PortableServer.IdAssignmentPolicyValue;
+import org.omg.PortableServer.IdUniquenessPolicyValue;
+import org.omg.PortableServer.POA;
+import org.omg.PortableServer.POAHelper;
+import org.omg.PortableServer.RequestProcessingPolicyValue;
+import org.omg.PortableServer.Servant;
+import org.omg.PortableServer.ServantManager;
+import org.omg.PortableServer.ServantRetentionPolicyValue;
+import org.omg.PortableServer._ServantActivatorLocalBase;
+import org.omg.PortableServer._ServantLocatorLocalBase;
+import org.omg.PortableServer.ServantLocatorPackage.CookieHolder;
 
 
 public class SessionFactoryServant

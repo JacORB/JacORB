@@ -22,8 +22,8 @@ package org.jacorb.test.orb.dynany;
 
 import junit.framework.Test;
 import junit.framework.TestSuite;
-
-import org.omg.CORBA.*;
+import org.omg.CORBA.Any;
+import org.omg.CORBA.TypeCode;
 import org.omg.DynamicAny.DynAny;
 import org.omg.DynamicAny.DynAnyPackage.TypeMismatch;
 

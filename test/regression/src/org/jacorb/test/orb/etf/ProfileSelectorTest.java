@@ -21,13 +21,10 @@ package org.jacorb.test.orb.etf;
  *   MA 02110-1301, USA.
  */
 
-import java.util.*;
-
-import junit.framework.*;
-import junit.extensions.*;
-
-import org.jacorb.test.common.*;
-import org.jacorb.test.*;
+import java.util.Properties;
+import junit.framework.Test;
+import junit.framework.TestSuite;
+import org.jacorb.test.common.ClientServerSetup;
 import org.jacorb.test.orb.etf.wiop.WIOPFactories;
 
 /**

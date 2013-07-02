@@ -3,7 +3,7 @@ package org.jacorb.test.orb.orbreinvoke;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
-import org.jacorb.test.listenendpoints.echo_corbaloc.*;
+import org.jacorb.test.listenendpoints.echo_corbaloc.CmdArgs;
 
 
 /**

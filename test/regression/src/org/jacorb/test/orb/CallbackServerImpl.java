@@ -5,9 +5,6 @@ import org.jacorb.test.EmptyException;
 import org.jacorb.test.NonEmptyException;
 import org.omg.CORBA.CharHolder;
 import org.omg.CORBA.IntHolder;
-import org.omg.CORBA.portable.InputStream;
-import org.omg.CORBA.portable.OutputStream;
-import org.omg.CORBA.portable.ResponseHandler;
 
 public class CallbackServerImpl extends CallbackServerPOA
 {

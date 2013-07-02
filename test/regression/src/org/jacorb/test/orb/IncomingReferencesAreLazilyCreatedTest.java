@@ -21,10 +21,8 @@
 package org.jacorb.test.orb;
 
 import java.lang.reflect.Field;
-
 import junit.framework.Test;
 import junit.framework.TestSuite;
-
 import org.jacorb.orb.Delegate;
 import org.jacorb.test.common.ClientServerSetup;
 import org.jacorb.test.common.ClientServerTestCase;

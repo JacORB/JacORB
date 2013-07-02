@@ -23,9 +23,8 @@ package org.jacorb.test.notification.engine;
 
 import junit.framework.Test;
 import junit.framework.TestSuite;
-
-import org.jacorb.notification.engine.AlwaysDisposeRetryStrategy;
 import org.jacorb.notification.engine.AbstractRetryStrategy;
+import org.jacorb.notification.engine.AlwaysDisposeRetryStrategy;
 
 /**
  * @author Alphonse Bendt

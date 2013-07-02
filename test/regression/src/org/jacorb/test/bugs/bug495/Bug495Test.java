@@ -22,15 +22,11 @@ package org.jacorb.test.bugs.bug495;
 
 import junit.framework.Test;
 import junit.framework.TestSuite;
-
-import org.omg.DynamicAny.DynStruct;
-import org.jacorb.test.orb.dynany.DynAnyXXXTestCase;
-import org.jacorb.test.EnumType;
-import org.jacorb.test.EnumTypeHelper;
 import org.jacorb.test.ArrayTypeHelper;
 import org.jacorb.test.Bound;
 import org.jacorb.test.StructType;
 import org.jacorb.test.StructTypeHelper;
+import org.jacorb.test.orb.dynany.DynAnyXXXTestCase;
 import org.omg.CORBA.StringSeqHelper;
 import org.omg.CORBA.TypeCode;
 

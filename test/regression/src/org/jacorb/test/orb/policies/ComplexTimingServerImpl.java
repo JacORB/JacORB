@@ -1,7 +1,7 @@
 package org.jacorb.test.orb.policies;
 
-import org.jacorb.test.EmptyException;
 import org.jacorb.test.ComplexTimingServerPOA;
+import org.jacorb.test.EmptyException;
 
 public class ComplexTimingServerImpl extends ComplexTimingServerPOA
 {

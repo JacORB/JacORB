@@ -21,7 +21,8 @@ package org.jacorb.test.common;
  *   MA 02110-1301, USA.
  */
 
-import junit.framework.*;
+import junit.framework.TestCase;
+import junit.framework.TestSuite;
 
 /**
  * Represents JacORB-specific javadoc annotations for JUnit tests.

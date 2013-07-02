@@ -1,7 +1,6 @@
 package org.jacorb.test.bugs.bugjac319;
 
 import junit.framework.Test;
-
 import org.jacorb.test.common.ClientServerSetup;
 
 /**

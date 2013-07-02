@@ -22,9 +22,7 @@
 package org.jacorb.test.notification.perf;
 
 import junit.framework.TestCase;
-
 import org.jacorb.notification.AnyMessage;
-import org.jacorb.notification.StructuredEventMessage;
 import org.jacorb.notification.util.AbstractPoolablePool;
 
 public class PoolTest extends TestCase

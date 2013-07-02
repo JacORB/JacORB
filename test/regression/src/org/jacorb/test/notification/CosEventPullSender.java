@@ -1,5 +1,6 @@
 package org.jacorb.test.notification;
 
+import java.util.concurrent.CountDownLatch;
 import org.omg.CORBA.Any;
 import org.omg.CORBA.BooleanHolder;
 import org.omg.CORBA.ORB;
@@ -11,8 +12,6 @@ import org.omg.CosEventChannelAdmin.SupplierAdmin;
 import org.omg.CosEventChannelAdmin.TypeError;
 import org.omg.CosEventComm.Disconnected;
 import org.omg.CosEventComm.PullSupplierPOA;
-
-import java.util.concurrent.CountDownLatch;
 
 /**
  * @author Alphonse Bendt

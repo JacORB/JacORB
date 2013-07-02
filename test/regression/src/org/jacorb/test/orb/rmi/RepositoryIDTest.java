@@ -24,7 +24,6 @@ package org.jacorb.test.orb.rmi;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
-
 import org.jacorb.ir.RepositoryID;
 import org.jacorb.util.ValueHandler;
 

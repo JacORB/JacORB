@@ -5,10 +5,6 @@ import java.rmi.RemoteException;
 import java.util.Collection;
 import java.util.Properties;
 
-import org.jacorb.test.orb.rmi.Boo;
-import org.jacorb.test.orb.rmi.Foo;
-import org.jacorb.test.orb.rmi.NegativeArgumentException;
-
 /*
  *        JacORB  - a free Java ORB
  *

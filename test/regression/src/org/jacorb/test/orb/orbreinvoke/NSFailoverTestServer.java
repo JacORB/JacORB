@@ -1,33 +1,21 @@
 package org.jacorb.test.orb.orbreinvoke;
 
-import java.util.Properties;
-import java.io.*;
-import java.net.Inet4Address;
-import java.net.Inet6Address;
-import java.net.InetAddress;
-import java.net.NetworkInterface;
-import java.net.SocketException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Enumeration;
-import java.util.Iterator;
-import java.util.List;
-import org.jacorb.naming.NameServer;
-import org.jacorb.orb.util.*;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.PrintWriter;
+import org.jacorb.test.listenendpoints.echo_corbaloc.CmdArgs;
+import org.jacorb.test.listenendpoints.echo_corbaloc.EchoMessageImpl;
 import org.jacorb.util.ObjectUtil;
-import org.omg.CORBA.BAD_PARAM;
 import org.omg.CORBA.ORB;
 import org.omg.CORBA.Policy;
+import org.omg.CosNaming.NameComponent;
+import org.omg.CosNaming.NamingContextExt;
+import org.omg.CosNaming.NamingContextExtHelper;
+import org.omg.CosNaming.NamingContextPackage.NotFound;
 import org.omg.PortableServer.IdAssignmentPolicyValue;
 import org.omg.PortableServer.LifespanPolicyValue;
 import org.omg.PortableServer.POA;
 import org.omg.PortableServer.POAHelper;
-import org.omg.PortableServer.Servant;
-import org.omg.CosNaming.*;
-import org.omg.CosNaming.NamingContextPackage.*;
-
-import org.omg.PortableServer.ImplicitActivationPolicyValue;
-import org.jacorb.test.listenendpoints.echo_corbaloc.*;
 
 
 public class NSFailoverTestServer

@@ -22,10 +22,8 @@
 package org.jacorb.test.notification.common;
 
 import java.util.Properties;
-
 import junit.extensions.TestSetup;
 import junit.framework.Test;
-
 import org.jacorb.test.common.ClientServerSetup;
 import org.jacorb.test.common.CommonSetup;
 import org.jacorb.test.common.TestUtils;

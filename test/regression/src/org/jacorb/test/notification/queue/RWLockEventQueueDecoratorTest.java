@@ -24,7 +24,6 @@ package org.jacorb.test.notification.queue;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
-
 import org.easymock.MockControl;
 import org.jacorb.notification.interfaces.Message;
 import org.jacorb.notification.queue.MessageQueueAdapter;

@@ -22,9 +22,7 @@
 package org.jacorb.test.notification.typed;
 
 import java.util.Arrays;
-
 import junit.framework.Test;
-
 import org.jacorb.test.notification.common.TypedServerTestCase;
 import org.jacorb.test.notification.common.TypedServerTestSetup;
 import org.omg.CORBA.IntHolder;

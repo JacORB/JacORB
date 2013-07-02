@@ -21,8 +21,8 @@
 
 package org.jacorb.test.notification.servant;
 
+import java.util.concurrent.ScheduledFuture;
 import junit.framework.Test;
-
 import org.easymock.AbstractMatcher;
 import org.easymock.MockControl;
 import org.jacorb.notification.OfferManager;
@@ -44,8 +44,6 @@ import org.omg.CosNotifyChannelAdmin.ConsumerAdmin;
 import org.omg.CosNotifyChannelAdmin.ProxyType;
 import org.omg.CosNotifyComm.SequencePushConsumer;
 import org.omg.TimeBase.TimeTHelper;
-
-import java.util.concurrent.ScheduledFuture;
 
 public class SequenceProxyPushSupplierImplTest extends NotificationTestCase
 {

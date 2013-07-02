@@ -21,7 +21,6 @@ package org.jacorb.test.notification.bugs;
  */
 
 import junit.framework.Test;
-
 import org.jacorb.test.notification.StructuredPushReceiver;
 import org.jacorb.test.notification.StructuredPushSender;
 import org.jacorb.test.notification.common.NotifyServerTestCase;

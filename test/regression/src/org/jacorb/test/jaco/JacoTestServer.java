@@ -1,7 +1,6 @@
 package org.jacorb.test.jaco;
 
 import java.util.Properties;
-
 import org.omg.CORBA.ORB;
 
 /*

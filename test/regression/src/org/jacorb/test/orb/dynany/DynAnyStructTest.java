@@ -20,13 +20,10 @@ package org.jacorb.test.orb.dynany;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import junit.framework.TestCase;
-
 import org.jacorb.test.StructType;
 import org.jacorb.test.StructTypeHelper;
 import org.omg.CORBA.BAD_PARAM;
 import org.omg.CORBA.TCKind;
-import org.omg.DynamicAny.DynAnyFactoryHelper;
 import org.omg.DynamicAny.NameDynAnyPair;
 import org.omg.DynamicAny.NameValuePair;
 

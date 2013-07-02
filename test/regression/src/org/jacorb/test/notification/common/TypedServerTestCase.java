@@ -23,7 +23,6 @@ package org.jacorb.test.notification.common;
 
 import junit.framework.Test;
 import junit.framework.TestCase;
-
 import org.jacorb.test.common.TestUtils;
 import org.omg.CORBA.ORB;
 import org.omg.CosTypedNotifyChannelAdmin.TypedEventChannelFactory;

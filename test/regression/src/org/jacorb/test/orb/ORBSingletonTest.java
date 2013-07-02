@@ -20,10 +20,10 @@ package org.jacorb.test.orb;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import junit.framework.*;
-
-import org.jacorb.orb.*;
-import org.jacorb.test.common.*;
+import junit.framework.Test;
+import junit.framework.TestSuite;
+import org.jacorb.orb.ORBSingleton;
+import org.jacorb.test.common.JacORBTestCase;
 
 /**
  * A very simple test that checks whether some methods in the singleton ORB

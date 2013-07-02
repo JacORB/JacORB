@@ -1,7 +1,6 @@
 package org.jacorb.test.bugs.bugjac801;
 
 import junit.framework.Assert;
-
 import org.jacorb.test.common.ORBTestCase;
 
 public class BugJac801Test extends ORBTestCase

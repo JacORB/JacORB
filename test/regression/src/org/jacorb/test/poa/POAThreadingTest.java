@@ -1,19 +1,16 @@
 package org.jacorb.test.poa;
 
 import java.util.Properties;
-
-import org.jacorb.test.common.ClientServerSetup;
-import org.jacorb.test.common.ClientServerTestCase;
-import org.jacorb.test.common.TestUtils;
-
-import junit.framework.Test;
-import junit.framework.TestSuite;
-
 import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.FutureTask;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
-import java.util.concurrent.ExecutionException;
+import junit.framework.Test;
+import junit.framework.TestSuite;
+import org.jacorb.test.common.ClientServerSetup;
+import org.jacorb.test.common.ClientServerTestCase;
+import org.jacorb.test.common.TestUtils;
 
 
 

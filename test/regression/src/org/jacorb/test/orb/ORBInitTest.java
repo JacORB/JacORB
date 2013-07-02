@@ -28,10 +28,8 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
-import org.jacorb.test.common.TestUtils;
-
 import junit.framework.TestCase;
-
+import org.jacorb.test.common.TestUtils;
 import org.omg.CORBA.INITIALIZE;
 import org.omg.CORBA.ORB;
 

@@ -23,11 +23,9 @@ package org.jacorb.test.ir;
 import java.io.File;
 import java.util.List;
 import java.util.Properties;
-
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
-
 import org.jacorb.test.common.TestUtils;
 import org.omg.CORBA.Repository;
 import org.omg.PortableServer.POA;

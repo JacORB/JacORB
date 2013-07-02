@@ -1,7 +1,8 @@
 
 package org.jacorb.test.bugs.bugjac788;
 
-import org.omg.CORBA.*;
+import org.omg.CORBA.ORB;
+import org.omg.CORBA.SystemException;
 
 public class ComputInterfaceImpl extends ComputInterfacePOA
 {

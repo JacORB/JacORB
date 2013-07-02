@@ -1,9 +1,6 @@
 package org.jacorb.test.notification.node;
 
-import org.omg.CosNotification.EventHeader;
-import org.omg.CosNotification.FixedEventHeader;
 import junit.framework.Test;
-
 import org.jacorb.notification.MessageFactory;
 import org.jacorb.notification.filter.EvaluationContext;
 import org.jacorb.notification.filter.EvaluationException;
@@ -31,7 +28,9 @@ import org.jacorb.test.notification.common.NotificationTestCase;
 import org.jacorb.test.notification.common.NotificationTestCaseSetup;
 import org.jacorb.test.notification.common.NotificationTestUtils;
 import org.omg.CORBA.Any;
+import org.omg.CosNotification.EventHeader;
 import org.omg.CosNotification.EventType;
+import org.omg.CosNotification.FixedEventHeader;
 import org.omg.CosNotification.Property;
 import org.omg.CosNotification.PropertySeqHelper;
 import org.omg.CosNotification.StructuredEvent;

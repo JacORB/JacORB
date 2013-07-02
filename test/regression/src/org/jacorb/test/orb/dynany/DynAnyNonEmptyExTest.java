@@ -23,7 +23,6 @@ package org.jacorb.test.orb.dynany;
 import junit.framework.AssertionFailedError;
 import junit.framework.Test;
 import junit.framework.TestSuite;
-
 import org.jacorb.test.NonEmptyException;
 import org.jacorb.test.NonEmptyExceptionHelper;
 import org.omg.CORBA.TCKind;

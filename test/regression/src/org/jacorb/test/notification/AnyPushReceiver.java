@@ -1,7 +1,8 @@
 package org.jacorb.test.notification;
 
+import java.util.concurrent.CyclicBarrier;
+import java.util.concurrent.atomic.AtomicInteger;
 import junit.framework.Assert;
-
 import org.omg.CORBA.Any;
 import org.omg.CORBA.IntHolder;
 import org.omg.CORBA.ORB;
@@ -21,9 +22,6 @@ import org.omg.CosNotifyChannelAdmin.ProxyType;
 import org.omg.CosNotifyComm.PushConsumerPOA;
 import org.omg.CosNotifyFilter.Filter;
 import org.omg.CosNotifyFilter.FilterNotFound;
-
-import java.util.concurrent.CyclicBarrier;
-import java.util.concurrent.atomic.AtomicInteger;
 
 public class AnyPushReceiver extends PushConsumerPOA implements Runnable, TestClientOperations
 {

@@ -24,7 +24,6 @@ package org.jacorb.test.notification.util;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
-
 import org.jacorb.notification.EventTypeWrapper;
 import org.omg.CosNotification.EventType;
 

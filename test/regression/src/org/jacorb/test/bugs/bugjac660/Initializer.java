@@ -1,12 +1,11 @@
 package org.jacorb.test.bugs.bugjac660;
 
 import org.omg.CORBA.INTERNAL;
-
+import org.omg.IOP.Codec;
+import org.omg.IOP.ENCODING_CDR_ENCAPS;
+import org.omg.IOP.Encoding;
 import org.omg.PortableInterceptor.ORBInitInfo;
 import org.omg.PortableInterceptor.ORBInitializer;
-import org.omg.IOP.Codec;
-import org.omg.IOP.Encoding;
-import org.omg.IOP.ENCODING_CDR_ENCAPS;
 
 
 public class Initializer

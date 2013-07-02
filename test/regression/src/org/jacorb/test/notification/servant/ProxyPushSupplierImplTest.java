@@ -21,8 +21,8 @@
 
 package org.jacorb.test.notification.servant;
 
+import java.util.concurrent.ScheduledFuture;
 import junit.framework.Test;
-
 import org.easymock.MockControl;
 import org.jacorb.notification.OfferManager;
 import org.jacorb.notification.SubscriptionManager;
@@ -36,8 +36,6 @@ import org.jacorb.test.notification.common.NotificationTestCaseSetup;
 import org.omg.CORBA.Any;
 import org.omg.CosNotifyChannelAdmin.ConsumerAdmin;
 import org.omg.CosNotifyComm.PushConsumer;
-
-import java.util.concurrent.ScheduledFuture;
 
 /**
  * @author Alphonse Bendt

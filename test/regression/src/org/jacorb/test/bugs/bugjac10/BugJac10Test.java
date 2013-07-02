@@ -21,7 +21,6 @@ package org.jacorb.test.bugs.bugjac10;
  */
 
 import java.util.Properties;
-
 import junit.framework.Assert;
 import junit.framework.Test;
 import junit.framework.TestSuite;

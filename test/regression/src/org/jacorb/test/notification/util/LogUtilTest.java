@@ -21,12 +21,11 @@
 
 package org.jacorb.test.notification.util;
 
-import org.slf4j.Logger;
-import org.jacorb.notification.util.LogUtil;
-
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
+import org.jacorb.notification.util.LogUtil;
+import org.slf4j.Logger;
 
 /**
  * @author Alphonse Bendt

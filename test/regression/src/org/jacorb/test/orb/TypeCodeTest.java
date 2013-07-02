@@ -20,9 +20,10 @@ package org.jacorb.test.orb;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import junit.framework.*;
 import org.jacorb.test.common.ORBTestCase;
-import org.omg.CORBA.*;
+import org.omg.CORBA.Any;
+import org.omg.CORBA.StructMember;
+import org.omg.CORBA.TypeCode;
 
 public class TypeCodeTest extends ORBTestCase
 {

@@ -21,10 +21,8 @@ package org.jacorb.test.bugs.bug401;
  */
 
 import java.io.Serializable;
-
 import junit.framework.Test;
 import junit.framework.TestSuite;
-
 import org.jacorb.test.common.ClientServerSetup;
 import org.jacorb.test.common.ClientServerTestCase;
 import org.jacorb.test.common.TestUtils;

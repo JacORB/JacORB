@@ -1,7 +1,6 @@
 package org.jacorb.test.notification.util;
 
 import junit.framework.TestCase;
-
 import org.jacorb.notification.util.WildcardMap;
 
 /**

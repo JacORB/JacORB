@@ -22,9 +22,9 @@ package org.jacorb.test.notification;
  */
 
 import java.util.Date;
-
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.atomic.AtomicBoolean;
 import junit.framework.Test;
-
 import org.jacorb.notification.engine.DefaultTaskFactory;
 import org.jacorb.notification.engine.DefaultTaskProcessor;
 import org.jacorb.notification.impl.DefaultMessageFactory;
@@ -43,9 +43,6 @@ import org.omg.CosNotification.StartTime;
 import org.omg.CosNotification.StructuredEvent;
 import org.omg.TimeBase.UtcT;
 import org.omg.TimeBase.UtcTHelper;
-
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 
 /**

@@ -2,9 +2,7 @@ package org.jacorb.test.notification;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import junit.framework.Assert;
-
 import org.jacorb.test.notification.common.NotificationTestCase;
 import org.omg.CORBA.IntHolder;
 import org.omg.CORBA.ORB;

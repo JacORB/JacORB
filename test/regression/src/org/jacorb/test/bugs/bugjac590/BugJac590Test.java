@@ -24,7 +24,6 @@ package org.jacorb.test.bugs.bugjac590;
 
 import junit.framework.Test;
 import junit.framework.TestSuite;
-
 import org.jacorb.orb.dynany.DynUnion;
 import org.jacorb.test.common.ClientServerSetup;
 import org.jacorb.test.common.ClientServerTestCase;

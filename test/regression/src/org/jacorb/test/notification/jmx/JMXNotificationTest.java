@@ -27,9 +27,7 @@ import javax.management.NotificationFilter;
 import javax.management.NotificationListener;
 import javax.management.ObjectName;
 import javax.management.RuntimeOperationsException;
-
 import junit.framework.TestCase;
-
 import org.easymock.MockControl;
 import org.jacorb.notification.jmx.BroadcastSupportMBeanDecorator;
 

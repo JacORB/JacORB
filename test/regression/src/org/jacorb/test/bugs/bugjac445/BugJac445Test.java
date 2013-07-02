@@ -21,7 +21,6 @@
 package org.jacorb.test.bugs.bugjac445;
 
 import java.util.Properties;
-
 import org.jacorb.orb.CDRInputStream;
 import org.jacorb.orb.CDROutputStream;
 import org.jacorb.test.common.ORBTestCase;

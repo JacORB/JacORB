@@ -1,10 +1,9 @@
 package org.jacorb.test.bugs.bugjac755;
 
-import org.omg.CORBA.BAD_PARAM;
-import org.omg.CORBA.portable.InputStream;
-
 import junit.framework.Assert;
 import junit.framework.TestCase;
+import org.omg.CORBA.BAD_PARAM;
+import org.omg.CORBA.portable.InputStream;
 
 public class Bugjac755Test extends TestCase
 {

@@ -4,22 +4,10 @@
  */
 package org.jacorb.test.orb.orbreinvoke;
 
-import java.io.File;
-import java.lang.String;
-import java.io.IOException;
-import java.io.InputStream;
-import java.lang.ref.WeakReference;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.Iterator;
-import java.util.List;
 import java.util.Properties;
-import junit.extensions.TestSetup;
 import junit.framework.Test;
 import org.jacorb.imr.ImplementationRepositoryImpl;
 import org.jacorb.test.common.ServerSetup;
-import org.jacorb.test.common.TestUtils;
 
 /**
  *

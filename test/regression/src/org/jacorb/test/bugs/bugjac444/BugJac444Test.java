@@ -22,7 +22,6 @@ package org.jacorb.test.bugs.bugjac444;
 
 import junit.framework.Test;
 import junit.framework.TestSuite;
-
 import org.jacorb.test.common.ORBTestCase;
 import org.jacorb.test.common.TestUtils;
 import org.omg.CORBA.Any;

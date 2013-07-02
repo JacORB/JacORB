@@ -22,7 +22,6 @@ package org.jacorb.test.orb.dynany;
 
 import junit.framework.Test;
 import junit.framework.TestSuite;
-
 import org.jacorb.test.EnumType;
 import org.jacorb.test.EnumTypeHelper;
 

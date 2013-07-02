@@ -24,7 +24,6 @@ import java.lang.reflect.Method;
 import java.math.BigDecimal;
 import org.omg.CORBA.FixedHolder;
 import org.omg.CORBA.TypeCode;
-import junit.framework.Test;
 
 /**
  * DynAnyFixedTest.java

@@ -1,11 +1,8 @@
 package org.jacorb.test.nio;
 
-import java.util.Properties;
-
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
-
 import org.jacorb.util.SelectorManager;
 import org.jacorb.util.SelectorRequest;
 import org.jacorb.util.SelectorRequestCallback;

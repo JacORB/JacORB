@@ -1,8 +1,8 @@
 package org.jacorb.test.orb.localinterceptors;
 
-import org.omg.PortableServer.POA;
 import org.omg.CORBA.CompletionStatus;
 import org.omg.CORBA.UNKNOWN;
+import org.omg.PortableServer.POA;
 
 public class RemotePIServerImpl
         extends PIServerPOA

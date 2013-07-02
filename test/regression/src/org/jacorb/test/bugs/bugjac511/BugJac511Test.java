@@ -21,17 +21,14 @@
 package org.jacorb.test.bugs.bugjac511;
 
 import java.util.Properties;
-
 import junit.framework.AssertionFailedError;
 import junit.framework.Test;
 import junit.framework.TestSuite;
-
 import org.jacorb.test.common.CallbackTestCase;
 import org.jacorb.test.common.ClientServerSetup;
 import org.jacorb.test.common.TestUtils;
 import org.omg.CORBA.UserException;
 import org.omg.Messaging.ExceptionHolder;
-
 import bugjac511a.bugjac511b.AMI_BugJac511ServerHandler;
 import bugjac511a.bugjac511b.AMI_BugJac511ServerHandlerOperations;
 import bugjac511a.bugjac511b.AMI_BugJac511ServerHandlerPOATie;

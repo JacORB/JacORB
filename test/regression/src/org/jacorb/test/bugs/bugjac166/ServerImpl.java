@@ -20,7 +20,9 @@ package org.jacorb.test.bugs.bugjac166;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import org.jacorb.config.*;
+import org.jacorb.config.Configurable;
+import org.jacorb.config.Configuration;
+import org.jacorb.config.ConfigurationException;
 import org.jacorb.test.bugs.bugjac74.Jac074ServerPOA;
 import org.omg.CORBA.Any;
 import org.omg.CORBA.INTERNAL;

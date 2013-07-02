@@ -3,20 +3,12 @@ package org.jacorb.test.bugs.bugjac788;
 import java.util.Properties;
 import junit.framework.Test;
 import junit.framework.TestSuite;
+import org.jacorb.test.common.ClientServerSetup;
+import org.jacorb.test.common.ClientServerTestCase;
 import org.omg.CORBA.ORB;
-import org.omg.CORBA.Policy;
-import org.omg.PortableServer.ImplicitActivationPolicyValue;
-import org.jacorb.test.common.*;
 import org.omg.PortableServer.POA;
 import org.omg.PortableServer.POAHelper;
-import org.omg.CORBA.ORB;
-import org.omg.CORBA.SystemException;
-import org.omg.CORBA.UserException;
 //import org.omg.FT.PullMonitorable;
-import org.omg.PortableServer.POA;
-import org.omg.PortableServer.POAHelper;
-import org.omg.PortableServer.POAManager;
-import java.io.*;
 
 
 public class BugJac788Test extends ClientServerTestCase

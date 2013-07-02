@@ -1,8 +1,6 @@
 package org.jacorb.test.poa;
 
-import org.omg.CORBA.*;
-import org.omg.PortableServer.*;
-import org.omg.PortableServer.POAPackage.*;
+import org.omg.PortableServer.Servant;
 
 
 public class Test_impl extends Servant

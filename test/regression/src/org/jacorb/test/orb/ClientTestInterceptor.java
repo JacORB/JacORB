@@ -1,10 +1,8 @@
 package org.jacorb.test.orb;
 
-import org.omg.CORBA.LocalObject;
-import org.omg.PortableInterceptor.ClientRequestInfo;
-import org.omg.PortableInterceptor.ClientRequestInterceptor;
-import org.omg.PortableInterceptor.ForwardRequest;
 import org.jacorb.test.bugs.bugrtj634.CInterceptor;
+import org.omg.PortableInterceptor.ClientRequestInfo;
+import org.omg.PortableInterceptor.ForwardRequest;
 
 
 public class ClientTestInterceptor extends CInterceptor

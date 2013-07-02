@@ -25,16 +25,13 @@ package org.jacorb.test.jmx;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
-
 import javax.management.Attribute;
 import javax.management.MBeanServerConnection;
 import javax.management.ObjectName;
 import javax.management.remote.JMXConnector;
 import javax.management.remote.JMXConnectorFactory;
 import javax.management.remote.JMXServiceURL;
-
 import org.jacorb.test.common.ClientServerTestCase;
-import org.jacorb.test.jmx.JMXClientServerSetup;
 
 public abstract class AbstractJMXTestCase extends ClientServerTestCase
 {

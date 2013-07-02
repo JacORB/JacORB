@@ -6,12 +6,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
-
 import junit.framework.TestCase;
-
 import org.jacorb.test.BasicServer;
 import org.jacorb.test.BasicServerHelper;
-import org.jacorb.test.common.ClientServerSetup;
 import org.jacorb.test.common.CommonSetup;
 import org.jacorb.test.common.ORBSetup;
 import org.jacorb.test.common.ServerSetup;

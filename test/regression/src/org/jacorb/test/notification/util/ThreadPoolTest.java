@@ -24,7 +24,6 @@ package org.jacorb.test.notification.util;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
-
 import org.easymock.MockControl;
 import org.jacorb.notification.engine.DefaultTaskExecutor;
 

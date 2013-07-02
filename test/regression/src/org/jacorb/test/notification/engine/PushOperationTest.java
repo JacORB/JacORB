@@ -22,7 +22,6 @@ package org.jacorb.test.notification.engine;
 
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
-
 import org.easymock.MockControl;
 import org.jacorb.notification.engine.MessagePushOperation;
 import org.jacorb.notification.interfaces.Message;

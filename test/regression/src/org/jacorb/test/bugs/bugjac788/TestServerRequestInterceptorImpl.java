@@ -3,7 +3,8 @@ package org.jacorb.test.bugs.bugjac788;
 import org.omg.CORBA.SystemException;
 import org.omg.CORBA.TCKind;
 import org.omg.CORBA.TypeCode;
-import org.omg.PortableInterceptor.*;
+import org.omg.PortableInterceptor.ForwardRequest;
+import org.omg.PortableInterceptor.ServerRequestInfo;
 
 
 /**

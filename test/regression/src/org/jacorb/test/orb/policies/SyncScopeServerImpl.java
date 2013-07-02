@@ -1,7 +1,7 @@
 
 package org.jacorb.test.orb.policies;
 
-import org.jacorb.test.*;
+import org.jacorb.test.SyncScopeServerPOA;
 
 public class SyncScopeServerImpl extends SyncScopeServerPOA
 {

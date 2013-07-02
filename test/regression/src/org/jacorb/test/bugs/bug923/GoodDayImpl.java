@@ -1,6 +1,5 @@
 package org.jacorb.test.bugs.bug923;
 
-import org.omg.CORBA.*;
 
 public class GoodDayImpl
     extends GoodDayPOA

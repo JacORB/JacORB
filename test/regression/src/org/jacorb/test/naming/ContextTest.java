@@ -9,17 +9,17 @@ package org.jacorb.test.naming;
 
 import java.io.File;
 import java.util.Properties;
-
-import org.omg.CosNaming.*;
-import org.omg.CosNaming.NamingContextPackage.AlreadyBound;
-
-import junit.framework.*;
-
+import junit.framework.Test;
+import junit.framework.TestSuite;
 import org.jacorb.naming.NameServer;
 import org.jacorb.test.common.ClientServerSetup;
 import org.jacorb.test.common.ClientServerTestCase;
 import org.jacorb.test.common.CommonSetup;
 import org.jacorb.test.common.TestUtils;
+import org.omg.CosNaming.NameComponent;
+import org.omg.CosNaming.NamingContextExt;
+import org.omg.CosNaming.NamingContextExtHelper;
+import org.omg.CosNaming.NamingContextPackage.AlreadyBound;
 
 public class ContextTest extends ClientServerTestCase
 {

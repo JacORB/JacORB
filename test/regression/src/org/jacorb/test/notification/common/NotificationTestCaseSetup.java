@@ -22,11 +22,9 @@ package org.jacorb.test.notification.common;
  */
 
 import java.util.Properties;
-
 import junit.extensions.TestSetup;
 import junit.framework.Test;
-
-import org.jacorb.config.*;
+import org.jacorb.config.Configuration;
 import org.jacorb.notification.container.PicoContainerFactory;
 import org.jacorb.test.common.TestUtils;
 import org.jacorb.test.ir.IFRServerSetup;

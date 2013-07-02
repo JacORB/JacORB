@@ -1,15 +1,12 @@
 package org.jacorb.test.bugs.bugjac685;
 
-import org.jacorb.test.common.ServerSetup;
-import org.jacorb.test.common.TestUtils;
-
-import junit.framework.Test;
-
 import java.io.File;
 import java.io.IOException;
 import java.util.Properties;
-
+import junit.framework.Test;
 import org.jacorb.naming.NameServer;
+import org.jacorb.test.common.ServerSetup;
+import org.jacorb.test.common.TestUtils;
 
 
 public class NameServiceSetup extends ServerSetup

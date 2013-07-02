@@ -1,9 +1,7 @@
 package org.jacorb.test.common;
 
 import java.util.Properties;
-
 import junit.framework.TestCase;
-
 import org.omg.CORBA.ORB;
 import org.omg.PortableServer.POA;
 import org.omg.PortableServer.POAHelper;

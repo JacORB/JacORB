@@ -1,18 +1,11 @@
 package org.jacorb.test.bugs.bugjac685;
 
-import org.omg.CosNaming.NamingContextExt;
-import org.omg.CosNaming.NamingContextExtHelper;
-
-import org.jacorb.test.common.ClientServerSetup;
+import java.util.Properties;
+import junit.framework.TestCase;
 import org.jacorb.test.common.ORBSetup;
 import org.jacorb.test.common.ServerSetup;
-import org.jacorb.test.common.TestUtils;
-
-import java.util.Properties;
-
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
+import org.omg.CosNaming.NamingContextExt;
+import org.omg.CosNaming.NamingContextExtHelper;
 
 public class BugJac685Test extends TestCase
 {

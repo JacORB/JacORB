@@ -22,11 +22,9 @@
 package org.jacorb.test.jmx;
 
 import java.util.Properties;
-
-import org.jacorb.test.common.TestUtils;
-
 import junit.framework.Test;
 import junit.framework.TestSuite;
+import org.jacorb.test.common.TestUtils;
 
 public class JmxSunJacorbTest extends AbstractJMXTestCase
 {

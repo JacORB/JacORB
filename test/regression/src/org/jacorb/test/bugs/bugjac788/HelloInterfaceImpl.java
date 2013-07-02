@@ -1,6 +1,9 @@
 package org.jacorb.test.bugs.bugjac788;
 
-import org.omg.CORBA.*;
+import org.omg.CORBA.CompletionStatus;
+import org.omg.CORBA.ORB;
+import org.omg.CORBA.SystemException;
+import org.omg.CORBA.TRANSIENT;
 
 
 public class HelloInterfaceImpl extends HelloInterfacePOA {

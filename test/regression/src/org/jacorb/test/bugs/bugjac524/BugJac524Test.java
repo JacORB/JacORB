@@ -21,7 +21,6 @@
 package org.jacorb.test.bugs.bugjac524;
 
 import java.util.Properties;
-
 import org.jacorb.orb.factory.SocketFactoryManager;
 import org.jacorb.orb.iiop.ClientIIOPConnection;
 import org.jacorb.test.BasicServer;

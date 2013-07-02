@@ -23,7 +23,6 @@ package org.jacorb.test.orb.dynany;
 import junit.framework.AssertionFailedError;
 import junit.framework.Test;
 import junit.framework.TestSuite;
-
 import org.jacorb.test.EmptyException;
 import org.jacorb.test.EmptyExceptionHelper;
 import org.omg.CORBA.StructMember;

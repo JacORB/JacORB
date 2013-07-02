@@ -22,7 +22,6 @@ package org.jacorb.test.notification;
  */
 
 import junit.framework.Test;
-
 import org.jacorb.notification.filter.AbstractFilter;
 import org.jacorb.notification.filter.MappingFilterImpl;
 import org.jacorb.notification.filter.etcl.ETCLFilter;

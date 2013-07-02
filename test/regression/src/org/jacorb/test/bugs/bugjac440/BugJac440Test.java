@@ -21,9 +21,7 @@
 package org.jacorb.test.bugs.bugjac440;
 
 import java.util.Properties;
-
 import junit.framework.TestCase;
-
 import org.omg.CORBA.INITIALIZE;
 import org.omg.CORBA.ORB;
 

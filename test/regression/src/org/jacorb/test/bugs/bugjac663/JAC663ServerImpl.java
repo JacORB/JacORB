@@ -2,9 +2,9 @@ package org.jacorb.test.bugs.bugjac663;
 
 import org.omg.CORBA.INTERNAL;
 import org.omg.CORBA.ORB;
-import org.omg.PortableServer.POA;
 import org.omg.PortableServer.Current;
 import org.omg.PortableServer.CurrentHelper;
+import org.omg.PortableServer.POA;
 
 public class JAC663ServerImpl extends JAC663ServerPOA
 {

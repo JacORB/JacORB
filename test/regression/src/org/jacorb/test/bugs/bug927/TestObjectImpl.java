@@ -1,6 +1,5 @@
 package org.jacorb.test.bugs.bug927;
 
-import org.jacorb.config.Configurable;
 import org.jacorb.config.Configuration;
 import org.jacorb.config.ConfigurationException;
 import org.omg.CORBA.Any;

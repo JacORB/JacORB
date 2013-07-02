@@ -2,9 +2,7 @@ package org.jacorb.test.orb.factory;
 
 import java.net.InetAddress;
 import java.net.Socket;
-
 import javax.net.ssl.SSLSocket;
-
 import org.easymock.MockControl;
 import org.jacorb.config.Configurable;
 import org.jacorb.config.Configuration;

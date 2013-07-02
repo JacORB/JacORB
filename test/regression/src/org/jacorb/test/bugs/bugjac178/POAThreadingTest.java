@@ -21,10 +21,8 @@ package org.jacorb.test.bugs.bugjac178;
  */
 
 import java.util.HashSet;
-
 import junit.framework.Test;
 import junit.framework.TestSuite;
-
 import org.apache.regexp.RE;
 import org.jacorb.test.common.ClientServerSetup;
 import org.jacorb.test.common.ClientServerTestCase;

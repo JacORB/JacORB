@@ -1,13 +1,19 @@
 package org.jacorb.test.poa;
 
+import junit.framework.Test;
+import junit.framework.TestSuite;
 import org.jacorb.test.BasicServer;
 import org.jacorb.test.BasicServerHelper;
 import org.jacorb.test.common.ORBTestCase;
 import org.jacorb.test.orb.BasicServerImpl;
-import org.omg.CORBA.*;
-import org.omg.PortableServer.*;
-import org.omg.PortableServer.POAPackage.*;
-import junit.framework.*;
+import org.omg.CORBA.LocalObject;
+import org.omg.CORBA.Policy;
+import org.omg.PortableServer.ForwardRequest;
+import org.omg.PortableServer.POA;
+import org.omg.PortableServer.RequestProcessingPolicyValue;
+import org.omg.PortableServer.Servant;
+import org.omg.PortableServer.ServantActivator;
+import org.omg.PortableServer.POAPackage.ObjectNotActive;
 
 public class Deactivate extends ORBTestCase
 {

@@ -2,7 +2,6 @@ package org.jacorb.test.bugs.bugjac417;
 
 import java.io.IOException;
 import java.net.Socket;
-
 import org.jacorb.orb.factory.SocketFactory;
 import org.omg.CORBA.TIMEOUT;
 

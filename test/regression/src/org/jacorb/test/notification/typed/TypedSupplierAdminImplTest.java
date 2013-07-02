@@ -21,7 +21,6 @@ package org.jacorb.test.notification.typed;
  */
 
 import junit.framework.Test;
-
 import org.easymock.MockControl;
 import org.jacorb.notification.OfferManager;
 import org.jacorb.notification.SubscriptionManager;

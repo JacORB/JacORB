@@ -22,7 +22,6 @@ package org.jacorb.test.orb;
 
 import junit.framework.Test;
 import junit.framework.TestSuite;
-
 import org.jacorb.test.CharServer;
 import org.jacorb.test.CharServerHelper;
 import org.jacorb.test.CharServerPackage.DataFlavour;

@@ -21,17 +21,15 @@
 
 package org.jacorb.test.notification.servant;
 
+import java.util.concurrent.ScheduledFuture;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
-
 import org.easymock.AbstractMatcher;
 import org.easymock.MockControl;
 import org.jacorb.notification.engine.TaskProcessor;
 import org.jacorb.notification.interfaces.MessageSupplier;
 import org.jacorb.notification.servant.PullMessagesUtility;
-
-import java.util.concurrent.ScheduledFuture;
 
 public class PullMessagesUtilityTest extends TestCase
 {

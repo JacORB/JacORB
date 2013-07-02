@@ -1,8 +1,9 @@
 package org.jacorb.test.bugs.bug923;
 
-import java.io.*;
-import java.util.*;
-import org.omg.CORBA.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import org.omg.CORBA.ORB;
 
 public class Client
 {

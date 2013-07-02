@@ -3,20 +3,18 @@ package org.jacorb.test.nio;
 import java.util.Properties;
 import junit.framework.Test;
 import junit.framework.TestSuite;
-
+import org.jacorb.test.TestIf;
+import org.jacorb.test.TestIfHelper;
 import org.jacorb.test.common.ClientServerSetup;
 import org.jacorb.test.common.ClientServerTestCase;
 import org.jacorb.test.common.TestUtils;
-import org.omg.CORBA.INV_OBJREF;
-import org.omg.CORBA.TIMEOUT;
-import org.omg.CORBA.ORB;
 import org.omg.CORBA.Any;
+import org.omg.CORBA.INV_OBJREF;
+import org.omg.CORBA.ORB;
 import org.omg.CORBA.Policy;
 import org.omg.CORBA.SetOverrideType;
+import org.omg.CORBA.TIMEOUT;
 import org.omg.Messaging.RELATIVE_RT_TIMEOUT_POLICY_TYPE;
-
-import org.jacorb.test.TestIf;
-import org.jacorb.test.TestIfHelper;
 
 /**
  * FrameworkClientTest.java

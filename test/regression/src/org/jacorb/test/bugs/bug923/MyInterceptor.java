@@ -2,9 +2,9 @@ package org.jacorb.test.bugs.bug923;
 
 import org.omg.PortableInterceptor.ClientRequestInfo;
 import org.omg.PortableInterceptor.ClientRequestInterceptor;
+import org.omg.PortableInterceptor.ForwardRequest;
 import org.omg.PortableInterceptor.ServerRequestInfo;
 import org.omg.PortableInterceptor.ServerRequestInterceptor;
-import org.omg.PortableInterceptor.ForwardRequest;
 
 public class MyInterceptor
     extends org.omg.CORBA.LocalObject

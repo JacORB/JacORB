@@ -22,7 +22,6 @@ package org.jacorb.test.bugs.bugjac417;
 
 import java.io.IOException;
 import java.net.Socket;
-
 import org.jacorb.config.Configurable;
 import org.jacorb.config.Configuration;
 import org.jacorb.config.ConfigurationException;

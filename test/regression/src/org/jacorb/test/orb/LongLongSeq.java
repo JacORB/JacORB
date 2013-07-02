@@ -23,7 +23,6 @@ package org.jacorb.test.orb;
 
 import junit.framework.Test;
 import junit.framework.TestSuite;
-
 import org.jacorb.test.LongLongSeqServer;
 import org.jacorb.test.LongLongSeqServerHelper;
 import org.jacorb.test.LongLongSeqServerPackage.SeqLongLongHolder;

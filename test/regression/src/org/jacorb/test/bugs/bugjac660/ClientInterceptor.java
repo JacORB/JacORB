@@ -1,11 +1,11 @@
 package org.jacorb.test.bugs.bugjac660;
 
 import org.omg.CORBA.INTERNAL;
-import org.omg.PortableInterceptor.ClientRequestInterceptor;
-import org.omg.PortableInterceptor.ClientRequestInfo;
-import org.omg.PortableInterceptor.ForwardRequest;
 import org.omg.IOP.Codec;
 import org.omg.IOP.ServiceContext;
+import org.omg.PortableInterceptor.ClientRequestInfo;
+import org.omg.PortableInterceptor.ClientRequestInterceptor;
+import org.omg.PortableInterceptor.ForwardRequest;
 
 
 public class ClientInterceptor

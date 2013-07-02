@@ -1,7 +1,6 @@
 package org.jacorb.test.orb.value;
 
 import java.io.Serializable;
-
 import org.omg.CORBA.portable.ValueFactory;
 import org.omg.CORBA_2_3.portable.InputStream;
 

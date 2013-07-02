@@ -20,12 +20,19 @@ package org.jacorb.test.orb;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import junit.framework.*;
-
+import junit.framework.Test;
+import junit.framework.TestSuite;
+import org.jacorb.test.ArrayServer;
+import org.jacorb.test.ArrayServerHelper;
+import org.jacorb.test.any_sequenceHolder;
+import org.jacorb.test.boolean_sequenceHolder;
+import org.jacorb.test.char_sequenceHolder;
+import org.jacorb.test.color_enum;
+import org.jacorb.test.long_sequenceHolder;
+import org.jacorb.test.common.ClientServerSetup;
+import org.jacorb.test.common.ClientServerTestCase;
+import org.jacorb.test.common.TestUtils;
 import org.omg.CORBA.Any;
-
-import org.jacorb.test.common.*;
-import org.jacorb.test.*;
 
 /**
  * Tests array/sequence parameters.  For the time being, only those types

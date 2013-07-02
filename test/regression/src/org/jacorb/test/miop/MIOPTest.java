@@ -3,8 +3,6 @@ package org.jacorb.test.miop;
 import java.util.Properties;
 import junit.framework.Test;
 import junit.framework.TestSuite;
-
-import org.jacorb.test.bugs.bugjac802.BugJac802Test;
 import org.jacorb.test.common.ClientServerSetup;
 import org.jacorb.test.common.ClientServerTestCase;
 import org.jacorb.test.common.TestUtils;

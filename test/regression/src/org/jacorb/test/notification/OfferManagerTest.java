@@ -22,11 +22,9 @@ package org.jacorb.test.notification;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
-
 import org.jacorb.notification.OfferManager;
 import org.omg.CosNotification.EventType;
 import org.omg.CosNotifyComm.NotifyPublishOperations;

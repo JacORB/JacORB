@@ -21,7 +21,6 @@
 package org.jacorb.test.ir;
 
 import junit.framework.Test;
-
 import org.jacorb.test.BasicServer;
 import org.jacorb.test.BasicServerHelper;
 import org.jacorb.test.orb.BasicServerImpl;

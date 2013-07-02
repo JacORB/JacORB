@@ -1,10 +1,9 @@
 package  org.jacorb.test.bugs.bug927;
 
-import java.io.*;
-import java.util.*;
-
-import org.omg.CORBA.*;
-import org.omg.PortableServer.*;
+import org.omg.CORBA.ORB;
+import org.omg.PortableServer.POA;
+import org.omg.PortableServer.POAHelper;
+import org.omg.PortableServer.POAManager;
 
 public class Server
 {

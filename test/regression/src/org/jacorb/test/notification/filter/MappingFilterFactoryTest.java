@@ -22,7 +22,6 @@
 package org.jacorb.test.notification.filter;
 
 import junit.framework.Test;
-
 import org.jacorb.test.notification.common.NotificationTestCase;
 import org.jacorb.test.notification.common.NotificationTestCaseSetup;
 import org.omg.CORBA.Any;

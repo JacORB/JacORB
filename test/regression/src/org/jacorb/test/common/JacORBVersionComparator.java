@@ -21,7 +21,7 @@ package org.jacorb.test.common;
  *   MA 02110-1301, USA.
  */
 
-import java.util.*;
+import java.util.Comparator;
 
 /**
  * A Comparator that compares JacORB versions.  Note that the static array

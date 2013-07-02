@@ -1,9 +1,7 @@
 package org.jacorb.test.notification;
 
 import java.util.Properties;
-
 import junit.framework.Test;
-
 import org.jacorb.notification.AbstractChannelFactory;
 import org.jacorb.notification.EventChannelFactoryImpl;
 import org.jacorb.test.notification.common.NotificationTestCase;

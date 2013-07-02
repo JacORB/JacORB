@@ -1,9 +1,7 @@
 package org.jacorb.test.bugs.bugjac181;
 
 import java.util.Properties;
-
 import junit.framework.TestCase;
-
 import org.jacorb.orb.factory.SocketFactoryManager;
 import org.omg.CORBA.ORB;
 import org.omg.PortableServer.POA;

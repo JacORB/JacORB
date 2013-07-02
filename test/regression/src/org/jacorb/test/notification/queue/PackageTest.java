@@ -21,8 +21,8 @@ package org.jacorb.test.notification.queue;
  *
  */
 
-import junit.framework.TestCase;
 import junit.framework.Test;
+import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
 /**

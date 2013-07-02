@@ -1,9 +1,8 @@
 package org.jacorb.test.bugs.bugjac565;
 
+import junit.framework.TestCase;
 import org.jacorb.test.bugs.bugjac565.ModulatorPackage.Mode;
 import org.jacorb.test.bugs.bugjac565.ModulatorPackage.States;
-
-import junit.framework.TestCase;
 
 public class BugJac565Test extends TestCase 
 {

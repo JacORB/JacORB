@@ -23,10 +23,8 @@ package org.jacorb.test.notification.perf;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import junit.framework.Test;
 import junit.textui.TestRunner;
-
 import org.jacorb.test.notification.StructuredPushReceiver;
 import org.jacorb.test.notification.StructuredPushSender;
 import org.jacorb.test.notification.common.NotificationTestCase;

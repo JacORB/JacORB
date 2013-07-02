@@ -1,10 +1,8 @@
 package org.jacorb.test.bugs.bugjac685;
 
 import java.io.File;
-
-import org.jacorb.test.common.TestUtils;
-
 import org.jacorb.naming.NameServer;
+import org.jacorb.test.common.TestUtils;
 
 
 public class NameServiceRunner

@@ -1,19 +1,31 @@
 package org.jacorb.test.poa;
 
-import java.util.*;
-import junit.framework.*;
-
-import org.jacorb.poa.except.*;
-import org.jacorb.poa.util.POAUtil;
-import org.jacorb.poa.policy.ThreadPolicy;
-import org.jacorb.poa.policy.LifespanPolicy;
-import org.jacorb.poa.policy.IdUniquenessPolicy;
+import java.util.Arrays;
+import junit.framework.AssertionFailedError;
+import org.jacorb.poa.except.POAInternalError;
 import org.jacorb.poa.policy.IdAssignmentPolicy;
-import org.jacorb.poa.policy.ServantRetentionPolicy;
-import org.jacorb.poa.policy.RequestProcessingPolicy;
+import org.jacorb.poa.policy.IdUniquenessPolicy;
 import org.jacorb.poa.policy.ImplicitActivationPolicy;
-import org.jacorb.test.common.*;
-import org.omg.PortableServer.*;
+import org.jacorb.poa.policy.LifespanPolicy;
+import org.jacorb.poa.policy.RequestProcessingPolicy;
+import org.jacorb.poa.policy.ServantRetentionPolicy;
+import org.jacorb.poa.policy.ThreadPolicy;
+import org.jacorb.poa.util.POAUtil;
+import org.jacorb.test.common.JacORBTestCase;
+import org.omg.PortableServer.ID_ASSIGNMENT_POLICY_ID;
+import org.omg.PortableServer.ID_UNIQUENESS_POLICY_ID;
+import org.omg.PortableServer.IMPLICIT_ACTIVATION_POLICY_ID;
+import org.omg.PortableServer.IdAssignmentPolicyValue;
+import org.omg.PortableServer.IdUniquenessPolicyValue;
+import org.omg.PortableServer.ImplicitActivationPolicyValue;
+import org.omg.PortableServer.LIFESPAN_POLICY_ID;
+import org.omg.PortableServer.LifespanPolicyValue;
+import org.omg.PortableServer.REQUEST_PROCESSING_POLICY_ID;
+import org.omg.PortableServer.RequestProcessingPolicyValue;
+import org.omg.PortableServer.SERVANT_RETENTION_POLICY_ID;
+import org.omg.PortableServer.ServantRetentionPolicyValue;
+import org.omg.PortableServer.THREAD_POLICY_ID;
+import org.omg.PortableServer.ThreadPolicyValue;
 
 /**
  * A unit test of several of the stand-alone methods in org.jacorb.poa.POAUtil.

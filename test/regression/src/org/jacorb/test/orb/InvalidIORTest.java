@@ -21,7 +21,6 @@ package org.jacorb.test.orb;
  */
 
 import org.jacorb.test.common.ORBTestCase;
-
 import org.omg.CORBA.BAD_PARAM;
 
 /**

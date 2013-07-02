@@ -1,17 +1,12 @@
 package org.jacorb.test.bugs.bug923;
 
 import java.util.HashMap;
-
-import org.omg.CORBA.*;
-import org.omg.CORBA.ORBPackage.*;
-import org.omg.PortableInterceptor.*;
-import org.omg.PortableServer.*;
-import org.omg.PortableServer.POAPackage.*;
-import org.omg.PortableServer.POAManagerPackage.*;
-
-import java.io.*;
-import java.util.Properties;
+import org.omg.CORBA.LocalObject;
+import org.omg.CORBA.OBJECT_NOT_EXIST;
 import org.omg.CORBA.ORB;
+import org.omg.PortableServer.POA;
+import org.omg.PortableServer.Servant;
+import org.omg.PortableServer.ServantLocator;
 
 class ServantLocatorImpl extends LocalObject implements ServantLocator {
 

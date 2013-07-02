@@ -21,10 +21,9 @@
 
 package org.jacorb.test.notification.queue;
 
+import junit.framework.TestCase;
 import org.jacorb.notification.queue.BoundedReceiveTimeEventQueue;
 import org.jacorb.notification.queue.EventQueueOverflowStrategy;
-
-import junit.framework.TestCase;
 
 public class BoundedLifetimeEventQueueTest extends TestCase
 {

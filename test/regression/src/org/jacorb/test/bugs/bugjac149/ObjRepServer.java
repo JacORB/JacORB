@@ -1,10 +1,8 @@
 package org.jacorb.test.bugs.bugjac149;
 
 import java.rmi.Remote;
-
 import javax.rmi.CORBA.Stub;
 import javax.rmi.CORBA.Util;
-
 import org.jacorb.test.common.TestUtils;
 import org.omg.CORBA.ORB;
 import org.omg.CORBA.Object;

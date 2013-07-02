@@ -23,9 +23,7 @@ package org.jacorb.test.orb.rmi;
 
 import javax.rmi.PortableRemoteObject;
 import javax.rmi.CORBA.Util;
-
 import junit.framework.TestCase;
-
 import org.jacorb.orb.rmi.PortableRemoteObjectDelegateImpl;
 import org.omg.CORBA.ORB;
 import org.omg.CORBA.ORBPackage.InvalidName;

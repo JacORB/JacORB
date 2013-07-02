@@ -8,24 +8,20 @@
 
 package org.openorb.orb.test.pi;
 
-import junit.framework.Test;
-import junit.framework.TestSuite;
+import java.util.Properties;
 import junit.framework.TestCase;
-
+import junit.framework.TestSuite;
 import org.jacorb.test.common.ORBSetup;
-import org.omg.CORBA.Policy;
-import org.omg.PortableServer.ImplicitActivationPolicyValue;
-import org.omg.PortableServer.POA;
 import org.omg.CORBA.CompletionStatus;
 import org.omg.CORBA.NO_RESOURCES;
+import org.omg.CORBA.Policy;
 import org.omg.CORBA.UNKNOWN;
 import org.omg.PortableInterceptor.Current;
-
+import org.omg.PortableServer.ImplicitActivationPolicyValue;
+import org.omg.PortableServer.POA;
 import org.openorb.orb.test.adapter.poa.Hello;
 import org.openorb.orb.test.adapter.poa.HelloHelper;
 import org.openorb.orb.test.adapter.poa.HelloPOA;
-
-import java.util.Properties;
 
 /**
  * Tests marshaling and unmarshaling of various iiop types.

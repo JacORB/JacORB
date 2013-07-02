@@ -21,10 +21,8 @@ package org.jacorb.test.orb;
  */
 
 import java.io.IOException;
-
 import junit.framework.Test;
 import junit.framework.TestSuite;
-
 import org.jacorb.test.common.JacORBTestCase;
 import org.jacorb.test.common.JacORBTestSuite;
 import org.omg.CORBA.ORB;

@@ -20,11 +20,10 @@ package org.jacorb.test.bugs.bugjac646;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
+import org.jacorb.test.BasicServerHelper;
 import org.jacorb.test.common.ORBTestCase;
 import org.jacorb.test.orb.BasicServerImpl;
-import org.jacorb.test.BasicServerHelper;
 import org.omg.PortableServer.IdAssignmentPolicyValue;
-import org.omg.PortableServer.LifespanPolicyValue;
 import org.omg.PortableServer.POA;
 import org.omg.PortableServer.POAPackage.WrongAdapter;
 

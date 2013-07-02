@@ -1,9 +1,7 @@
 package org.jacorb.test.notification;
 
 import java.util.Date;
-
 import junit.framework.Test;
-
 import org.easymock.MockControl;
 import org.jacorb.notification.impl.DefaultMessageFactory;
 import org.jacorb.notification.interfaces.FilterStage;

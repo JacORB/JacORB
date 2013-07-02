@@ -24,7 +24,6 @@ package org.jacorb.test.bugs.JBPAPP9891;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Properties;
-
 import org.jacorb.orb.CDRInputStream;
 import org.jacorb.test.common.ORBTestCase;
 import org.jacorb.test.common.TestUtils;

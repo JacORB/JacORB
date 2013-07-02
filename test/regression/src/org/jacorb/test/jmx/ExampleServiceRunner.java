@@ -24,14 +24,12 @@ package org.jacorb.test.jmx;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
-
 import javax.management.MBeanServer;
 import javax.management.MBeanServerFactory;
 import javax.management.ObjectName;
 import javax.management.remote.JMXConnectorServer;
 import javax.management.remote.JMXConnectorServerFactory;
 import javax.management.remote.JMXServiceURL;
-
 import org.jacorb.orb.rmi.PortableRemoteObjectDelegateImpl;
 import org.omg.CORBA.ORB;
 

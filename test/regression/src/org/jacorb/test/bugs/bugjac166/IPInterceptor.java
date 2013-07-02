@@ -1,10 +1,8 @@
 package org.jacorb.test.bugs.bugjac166;
 
 import java.net.Socket;
-
 import org.jacorb.orb.giop.GIOPConnection;
 import org.jacorb.orb.iiop.ServerIIOPConnection;
-import org.jacorb.orb.dsi.ServerRequest;
 import org.jacorb.orb.portableInterceptor.ServerRequestInfoImpl;
 import org.omg.CORBA.Any;
 import org.omg.CORBA.INTERNAL;
