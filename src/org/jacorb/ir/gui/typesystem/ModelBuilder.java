@@ -41,32 +41,32 @@ public class ModelBuilder
     implements Runnable, TreeExpansionListener, TreeModelListener
 {
     private Hashtable threadArguments = new Hashtable();
-    // (mit der Hashtable und dem Threadnamen als Key sind
-    // mehrere buildTreeModelAsync()-Threads möglich)
+    // (using the Hashtable and the thread name as a key, several
+    // buildTreeModelAsync() threads are possible)
 
     protected Hashtable expandedModParts = new Hashtable();
     // key: DefaultMutableTreeNode
-    // hier stehen die TreeNodes drin, auf deren ModelParticipant
-    // bereits expand() aufgerufen und komplett abgearbeitet wurde
+    // contains the TreeNodes on whose ModelParticipant expand()
+    // has already been called and fully processed    
 
     protected Hashtable treeViewsToUpdate = new Hashtable();
     // key: DefaultMutableTreeNode; value: JTree
 
     protected Hashtable treeNodesAndTableModels = new Hashtable();
     // key: TreeNode; value: Vector[TableModel]
-    // welche TableModels gehören zu einer TreeNode
+    // which TableModels belong to a TreeNode
 
     private Hashtable treeModelsListenedTo = new Hashtable();
     // key: TreeModel
-    // zu welchen TreeModels sind wir als Listener eingetragen
-    // (mehrfaches addTreeModelListener() auf dem selben
-    // TreeModel würde mehrfache Events geben!)
+    // on which TreeModels are we registered as a Listener
+    // (multiple addTreeModelListener() on the same TreeModel
+    // would result in duplicate Events!)
 
     private static ModelBuilder singleton = new ModelBuilder();
 
-    // wir brauchen eine ModelBuilder-Instanz, um einen Thread starten zu können
-    // (es wäre eine eigene Klasse nötig, wenn die Methoden static wären;
-    // inner classes gibts bei VisualAge leider noch nicht)
+    // we need a ModelBuilder instance to be able to start a Thread
+    // (we would need a class of its own if the methods were static;
+    // unfortunately VisualAge doesn't support inner classes yet)
 
     /**
      * @return javax.swing.tree.TreeModel
@@ -94,9 +94,9 @@ public class ModelBuilder
     return treeModel;
     }
     /**
-     * Erzeugt TreeModel, das nur root enthält. Um Nodes zu
-     * expandieren, muß der von getTreeExpansionListener(treeModel)
-     * zurückgegebene TreeExpansionListener bei JTree angemeldet werden.
+     * Creates a TreeModel that only contains root. In order to expand Nodes,
+     * the TreeExpansionListener returned by getTreeExpansionListener(treeModel)
+     * needs to be registered with JTree.
      * @return javax.swing.tree.DefaultTreeModel
      */
     public DefaultTreeModel createTreeModelRoot(ModelParticipant rootModPart) {
@@ -107,7 +107,7 @@ public class ModelBuilder
     return treeModel;
     }
     /**
-     * Dummy nur aus Synchronisierungsgründen
+     * Dummy only for synchronization purposes
      * @param modPart org.jacorb.ir.gui.typesystem.ModelParticipant
      */
     private synchronized void expandModPart(ModelParticipant modPart,
@@ -131,7 +131,7 @@ public class ModelBuilder
     DefaultTableModel tableModel = new DefaultTableModel();
     java.lang.Object[] colIdentifiers = {"Item","Type","Name"};
     tableModel.setColumnIdentifiers(colIdentifiers);
-        //	tableModel.setSortColumn("Name"); // gibt's nicht mehr in Swing 0.7
+        //	tableModel.setSortColumn("Name"); // doesn't exist anymore in Swing 0.7
 
     if (treeNode!=null &&
             (treeNode.getUserObject() instanceof AbstractContainer))
@@ -150,12 +150,12 @@ public class ModelBuilder
                 treeNodesAndTableModels.put(treeNode,tableModels);
             }
             if (!expandedModParts.containsKey(treeNode)) {
-                // Unterbaum muß erst geladen werden
+		// need to load subtree first
                 startExpandNode(treeModel,treeNode);
-                // wir sind synchronized, desgleichen expandModPart(),
-                // das vom Thread aufgerufen wird
-                // => wir kriegen alle Events mit, die generiert werden,
-                // wenn treeModel sich ändert
+                // we are synchronized, expandModPart() also,
+                // which is called by the Thread
+                // => we get all Events that are generated
+                // when treeModel changes
             }
             else
             {
@@ -175,7 +175,7 @@ public class ModelBuilder
 
     public TreeExpansionListener getTreeExpansionListener(TreeModel treeModel)
     {
-    return this;	// treeModel kann ignoriert werden
+    return this;	// treeModel can be ignored
     }
 
     /**
@@ -219,7 +219,7 @@ public class ModelBuilder
     }
 
     /**
-     * Startet Thread, der expand() auf ModelParticipant der TreeNode aufruft
+     * Starts Thread that calls expand() on ModelParticipant of the TreeNode
      * @param treeModel javax.swing.tree.DefaultTreeModel
      * @param treeNode javax.swing.tree.DefaultMutableTreeNode
      */
@@ -235,8 +235,8 @@ public class ModelBuilder
             args[0] = treeModel;
             args[1] = modPart;
             threadArguments.put(thread.getName(),args);
-            // run() entnimmt das Model der Hashtable
-            thread.start();	// asynchrones expand starten
+            // run() takes the model out of the Hashtable
+            thread.start();	// start asynchronous expand
             //		modPart.expand(treeModel);
     }
     }
@@ -260,7 +260,7 @@ public class ModelBuilder
     TreePath path = e.getPath();
     DefaultMutableTreeNode treeNode =
             (DefaultMutableTreeNode)path.getPathComponent(path.getPathCount()-1);
-    treeViewsToUpdate.put(treeNode,jTree);	// TreeView hinterlegen, der sofort hinzugefügte Nodes anzeigen soll
+    treeViewsToUpdate.put(treeNode,jTree);  // deposit TreeView which should display added nodes immediately
     startExpandNode(treeModel,treeNode);
     }
 
@@ -277,7 +277,7 @@ public class ModelBuilder
 
     if (tableModels!=null)
         {
-            // else: zu der TreeNode gibt es keine TableModels
+            // else: there are no TableModels for the TreeNode
             for (int i=0; i<indices.length; i++) {
                 for (Enumeration e = tableModels.elements(); e.hasMoreElements(); ) {
                     tableModel = (DefaultTableModel)e.nextElement();
@@ -291,11 +291,3 @@ public class ModelBuilder
 
     public void treeStructureChanged(TreeModelEvent te) {}
 }
-
-
-
-
-
-
-
-
