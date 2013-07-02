@@ -21,15 +21,12 @@ package org.jacorb.test.common;
  *   MA 02110-1301, USA.
  */
 
-import java.lang.String;
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.util.Properties;
-
 import junit.extensions.TestSetup;
 import junit.framework.Test;
-
 import org.omg.PortableServer.POA;
 
 /**

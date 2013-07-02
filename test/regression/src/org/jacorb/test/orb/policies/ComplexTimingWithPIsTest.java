@@ -1,34 +1,29 @@
 package org.jacorb.test.orb.policies;
 
+import java.util.Properties;
 import junit.framework.AssertionFailedError;
 import junit.framework.Test;
 import junit.framework.TestSuite;
-
 import org.jacorb.test.AMI_ComplexTimingServerHandler;
 import org.jacorb.test.AMI_ComplexTimingServerHandlerOperations;
 import org.jacorb.test.AMI_ComplexTimingServerHandlerPOATie;
 import org.jacorb.test.ComplexTimingServer;
 import org.jacorb.test.ComplexTimingServerHelper;
-import org.jacorb.test._ComplexTimingServerStub;
 import org.jacorb.test.EmptyException;
+import org.jacorb.test._ComplexTimingServerStub;
 import org.jacorb.test.common.CallbackTestCase;
 import org.jacorb.test.common.ClientServerSetup;
 import org.jacorb.test.common.ServerSetup;
 import org.jacorb.test.common.TestUtils;
-
 import org.jacorb.util.Time;
-
 import org.omg.CORBA.Policy;
 import org.omg.CORBA.PolicyError;
 import org.omg.CORBA.SetOverrideType;
 import org.omg.Messaging.ExceptionHolder;
 import org.omg.Messaging.RELATIVE_RT_TIMEOUT_POLICY_TYPE;
 import org.omg.Messaging.REQUEST_END_TIME_POLICY_TYPE;
-import org.omg.PortableServer.POA;
 import org.omg.TimeBase.UtcT;
 import org.omg.TimeBase.UtcTHelper;
-
-import java.util.Properties;
 
 /**
  *

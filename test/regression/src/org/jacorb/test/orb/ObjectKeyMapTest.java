@@ -22,7 +22,6 @@ package org.jacorb.test.orb;
 
 import java.util.Arrays;
 import java.util.Collections;
-
 import org.easymock.MockControl;
 import org.jacorb.config.Configuration;
 import org.jacorb.orb.ObjectKeyMap;

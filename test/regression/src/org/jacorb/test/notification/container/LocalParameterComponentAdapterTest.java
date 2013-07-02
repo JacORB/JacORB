@@ -24,7 +24,6 @@ package org.jacorb.test.notification.container;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
-
 import org.jacorb.notification.container.LocalParameterComponentAdapter;
 import org.picocontainer.ComponentAdapter;
 import org.picocontainer.defaults.ConstructorInjectionComponentAdapter;

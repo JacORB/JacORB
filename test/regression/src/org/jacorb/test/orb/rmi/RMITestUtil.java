@@ -1,7 +1,5 @@
 package org.jacorb.test.orb.rmi;
 
-import org.jacorb.test.orb.rmi.Boo;
-import org.jacorb.test.orb.rmi.Foo;
 
 /*
  *        JacORB  - a free Java ORB

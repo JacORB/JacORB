@@ -22,10 +22,8 @@ package org.jacorb.test.bugs.bugjac166;
 
 import java.net.InetAddress;
 import java.util.Properties;
-
 import junit.framework.Test;
 import junit.framework.TestSuite;
-
 import org.jacorb.test.bugs.bugjac74.Jac074Server;
 import org.jacorb.test.bugs.bugjac74.Jac074ServerHelper;
 import org.jacorb.test.common.ClientServerSetup;

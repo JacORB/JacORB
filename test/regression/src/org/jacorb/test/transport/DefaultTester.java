@@ -1,12 +1,11 @@
 package org.jacorb.test.transport;
 
 import junit.framework.Assert;
-
-import org.slf4j.Logger;
 import org.jacorb.transport.Current;
 import org.jacorb.transport.CurrentHelper;
 import org.omg.CORBA.ORB;
 import org.omg.CORBA.Object;
+import org.slf4j.Logger;
 
 
 public class DefaultTester implements AbstractTester {

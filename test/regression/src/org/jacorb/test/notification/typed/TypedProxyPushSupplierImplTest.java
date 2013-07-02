@@ -22,10 +22,10 @@ package org.jacorb.test.notification.typed;
 
 import java.util.HashMap;
 import java.util.Map;
-
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 import junit.framework.Assert;
 import junit.framework.Test;
-
 import org.easymock.MockControl;
 import org.jacorb.notification.AnyMessage;
 import org.jacorb.notification.OfferManager;
@@ -50,9 +50,6 @@ import org.omg.CosTypedNotifyChannelAdmin.TypedProxyPushSupplier;
 import org.omg.CosTypedNotifyChannelAdmin.TypedProxyPushSupplierHelper;
 import org.omg.CosTypedNotifyComm.TypedPushConsumer;
 import org.omg.CosTypedNotifyComm.TypedPushConsumerPOA;
-
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
 
 /**
  * @author Alphonse Bendt

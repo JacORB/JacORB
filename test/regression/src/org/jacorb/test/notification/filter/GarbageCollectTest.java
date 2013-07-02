@@ -22,10 +22,7 @@
 package org.jacorb.test.notification.filter;
 
 import java.util.Collections;
-
 import junit.framework.Test;
-
-import org.slf4j.Logger;
 import org.easymock.MockControl;
 import org.jacorb.config.Configuration;
 import org.jacorb.notification.IContainer;
@@ -42,6 +39,7 @@ import org.omg.CosNotifyFilter.Filter;
 import org.omg.CosNotifyFilter.FilterFactory;
 import org.omg.CosNotifyFilter.FilterFactoryHelper;
 import org.picocontainer.MutablePicoContainer;
+import org.slf4j.Logger;
 
 /**
  * @author Alphonse Bendt

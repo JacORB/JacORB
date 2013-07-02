@@ -3,7 +3,6 @@ package org.jacorb.test.orb;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-
 import org.jacorb.orb.iiop.IIOPAddress;
 import org.omg.CORBA.LocalObject;
 import org.omg.IOP.TAG_ALTERNATE_IIOP_ADDRESS;

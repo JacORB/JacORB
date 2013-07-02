@@ -25,15 +25,13 @@ import java.io.IOException;
 import java.net.BindException;
 import java.net.InetAddress;
 import java.net.ServerSocket;
-
 import junit.framework.TestCase;
-
-import org.jacorb.config.*;
-import org.slf4j.Logger;
 import org.easymock.MockControl;
+import org.jacorb.config.Configurable;
 import org.jacorb.config.Configuration;
 import org.jacorb.orb.factory.PortRangeServerSocketFactory;
 import org.jacorb.orb.factory.ServerSocketFactory;
+import org.slf4j.Logger;
 
 public class PortRangeServerSocketFactoryTest extends TestCase
 {

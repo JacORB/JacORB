@@ -20,10 +20,9 @@ package org.jacorb.test.notification.util.regexp;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
+import junit.framework.TestSuite;
 import org.jacorb.notification.util.JDK14PatternWrapper;
 import org.jacorb.notification.util.PatternWrapper;
-
-import junit.framework.TestSuite;
 
 /**
  * @author Alphonse Bendt

@@ -1,9 +1,6 @@
 package org.jacorb.test.bugs.bug923;
 
-import java.util.*;
-
-import org.omg.CORBA.*;
-import org.omg.PortableServer.*;
+import org.omg.PortableServer.POA;
 
 public class DayFactoryImpl
     extends DayFactoryPOA

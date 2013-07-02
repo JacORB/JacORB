@@ -1,7 +1,6 @@
 package org.jacorb.test.notification;
 
 import junit.framework.Test;
-
 import org.jacorb.notification.filter.EvaluationContext;
 import org.jacorb.notification.filter.EvaluationResult;
 import org.jacorb.notification.filter.etcl.AbstractTCLNode;

@@ -1,15 +1,11 @@
 package org.jacorb.test.bugs.bugjac663;
 
+import junit.framework.Test;
+import junit.framework.TestCase;
+import junit.framework.TestSuite;
 import org.omg.CORBA.ORB;
-import org.omg.CORBA.Any;
-import org.omg.CORBA.INTERNAL;
-
 import org.omg.PortableServer.POA;
 import org.omg.PortableServer.POAHelper;
-
-import junit.framework.Test;
-import junit.framework.TestSuite;
-import junit.framework.TestCase;
 
 
 public class BugJac663Test extends TestCase

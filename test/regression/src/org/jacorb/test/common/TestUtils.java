@@ -44,10 +44,8 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
-
 import javax.rmi.PortableRemoteObject;
 import javax.rmi.CORBA.Stub;
-
 import junit.extensions.TestSetup;
 import junit.framework.Assert;
 import junit.framework.AssertionFailedError;

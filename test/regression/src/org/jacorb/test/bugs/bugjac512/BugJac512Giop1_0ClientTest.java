@@ -21,7 +21,6 @@
 package org.jacorb.test.bugs.bugjac512;
 
 import java.util.Properties;
-
 import org.jacorb.orb.giop.ReplyInputStream;
 import org.jacorb.orb.giop.ReplyOutputStream;
 import org.jacorb.test.common.MyNullLogger;

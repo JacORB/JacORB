@@ -7,14 +7,10 @@ import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Arrays;
-
 import javax.net.ssl.SSLSocket;
-
 import junit.framework.TestCase;
-
-import org.jacorb.config.*;
+import org.jacorb.config.Configurable;
 import org.jacorb.orb.factory.SocketFactory;
-
 import org.omg.CORBA.TIMEOUT;
 
 /**

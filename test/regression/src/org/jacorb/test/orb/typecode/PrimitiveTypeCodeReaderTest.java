@@ -22,7 +22,6 @@ package org.jacorb.test.orb.typecode;
 
 import java.util.HashMap;
 import java.util.Map;
-
 import org.jacorb.orb.CDRInputStream;
 import org.jacorb.orb.typecode.PrimitiveTypeCodeReader;
 import org.jacorb.orb.typecode.TypeCodeReader;

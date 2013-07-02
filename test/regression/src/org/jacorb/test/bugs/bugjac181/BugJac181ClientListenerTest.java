@@ -1,10 +1,8 @@
 package org.jacorb.test.bugs.bugjac181;
 
 import java.util.Properties;
-
 import junit.framework.Test;
 import junit.framework.TestSuite;
-
 import org.jacorb.orb.factory.SocketFactoryManager;
 import org.jacorb.test.common.ClientServerSetup;
 import org.jacorb.test.common.ClientServerTestCase;

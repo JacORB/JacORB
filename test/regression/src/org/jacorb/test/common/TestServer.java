@@ -20,12 +20,17 @@ package org.jacorb.test.common;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import java.util.*;
-
-import org.jacorb.config.*;
+import java.util.Properties;
+import org.jacorb.config.Configurable;
+import org.jacorb.config.Configuration;
+import org.omg.CORBA.ORB;
+import org.omg.CORBA.Policy;
+import org.omg.PortableServer.IdAssignmentPolicyValue;
+import org.omg.PortableServer.LifespanPolicyValue;
+import org.omg.PortableServer.POA;
+import org.omg.PortableServer.POAHelper;
+import org.omg.PortableServer.Servant;
 import org.slf4j.Logger;
-import org.omg.CORBA.*;
-import org.omg.PortableServer.*;
 
 /**
  * A server program that can set up an arbitrary CORBA servant.

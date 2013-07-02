@@ -1,10 +1,10 @@
 package org.jacorb.test.transport;
 
-import org.slf4j.Logger;
 import org.jacorb.transport.iiop.Current;
 import org.jacorb.transport.iiop.CurrentHelper;
 import org.omg.CORBA.ORB;
 import org.omg.CORBA.Object;
+import org.slf4j.Logger;
 
 
 public class IIOPTester implements AbstractTester

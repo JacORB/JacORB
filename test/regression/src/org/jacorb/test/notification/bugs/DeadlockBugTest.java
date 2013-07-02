@@ -21,23 +21,21 @@
 
 package org.jacorb.test.notification.bugs;
 
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
-
-import org.jacorb.notification.AnyMessage;
-import org.jacorb.notification.queue.DefaultMessageQueueAdapter;
-import org.jacorb.notification.queue.BoundedFifoEventQueue;
-import org.jacorb.notification.queue.EventQueueOverflowStrategy;
-import org.jacorb.notification.queue.MessageQueue;
-import org.jacorb.notification.queue.RWLockEventQueueDecorator;
-
 import java.util.concurrent.BrokenBarrierException;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.CyclicBarrier;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
+import junit.framework.Test;
+import junit.framework.TestCase;
+import junit.framework.TestSuite;
+import org.jacorb.notification.AnyMessage;
+import org.jacorb.notification.queue.BoundedFifoEventQueue;
+import org.jacorb.notification.queue.DefaultMessageQueueAdapter;
+import org.jacorb.notification.queue.EventQueueOverflowStrategy;
+import org.jacorb.notification.queue.MessageQueue;
+import org.jacorb.notification.queue.RWLockEventQueueDecorator;
 
 /**
  * @author Alphonse Bendt

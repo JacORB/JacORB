@@ -1,8 +1,7 @@
 package org.jacorb.test.common;
 
-import org.omg.Messaging.*;
-
-import junit.framework.*;
+import junit.framework.AssertionFailedError;
+import org.omg.Messaging.ExceptionHolder;
 
 /**
  * A special <code>ClientServerTestCase</code> for testing asynchronous

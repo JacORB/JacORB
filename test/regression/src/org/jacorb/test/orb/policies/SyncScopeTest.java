@@ -2,7 +2,6 @@
 package org.jacorb.test.orb.policies;
 
 import junit.framework.TestCase;
-
 import org.jacorb.test.SyncScopeServer;
 import org.jacorb.test.SyncScopeServerHelper;
 import org.jacorb.test.common.ORBSetup;

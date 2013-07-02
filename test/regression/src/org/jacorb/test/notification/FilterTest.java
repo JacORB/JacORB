@@ -4,15 +4,13 @@ import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Random;
-
 import junit.framework.Assert;
 import junit.framework.Test;
 import junit.framework.TestCase;
-
 import org.jacorb.notification.IContainer;
 import org.jacorb.notification.TypedEventMessage;
-import org.jacorb.notification.filter.FilterFactoryImpl;
 import org.jacorb.notification.filter.DefaultFilterFactoryDelegate;
+import org.jacorb.notification.filter.FilterFactoryImpl;
 import org.jacorb.test.notification.common.NotificationTestCase;
 import org.jacorb.test.notification.common.NotificationTestCaseSetup;
 import org.jacorb.test.notification.common.NotificationTestUtils;

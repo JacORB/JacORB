@@ -20,12 +20,15 @@ package org.jacorb.test.orb;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import java.util.*;
-
-import junit.framework.*;
-
-import org.jacorb.test.common.*;
-import org.jacorb.test.*;
+import java.util.Properties;
+import junit.framework.Test;
+import junit.framework.TestSuite;
+import org.jacorb.test.BasicServer;
+import org.jacorb.test.BasicServerHelper;
+import org.jacorb.test.common.ClientServerSetup;
+import org.jacorb.test.common.ClientServerTestCase;
+import org.jacorb.test.common.CommonSetup;
+import org.jacorb.test.common.JacORBTestSuite;
 
 /**
  * This is a client/server test case that accesses a server object

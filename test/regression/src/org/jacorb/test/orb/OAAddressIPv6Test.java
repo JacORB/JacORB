@@ -22,9 +22,7 @@ package org.jacorb.test.orb;
  */
 
 import java.util.Properties;
-
 import junit.framework.TestCase;
-
 import org.omg.CORBA.INITIALIZE;
 import org.omg.CORBA.ORB;
 import org.omg.PortableServer.POA;

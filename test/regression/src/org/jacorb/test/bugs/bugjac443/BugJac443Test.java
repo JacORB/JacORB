@@ -21,7 +21,6 @@
 package org.jacorb.test.bugs.bugjac443;
 
 import java.math.BigDecimal;
-
 import org.jacorb.test.common.ORBTestCase;
 import org.omg.CORBA.portable.InputStream;
 

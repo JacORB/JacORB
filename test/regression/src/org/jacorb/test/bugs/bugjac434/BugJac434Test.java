@@ -22,7 +22,6 @@ package org.jacorb.test.bugs.bugjac434;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
-
 import org.jacorb.orb.ParsedIOR;
 import org.jacorb.orb.util.PrintIOR;
 import org.jacorb.test.common.ORBTestCase;

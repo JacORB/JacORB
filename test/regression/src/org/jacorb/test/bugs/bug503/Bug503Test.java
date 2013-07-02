@@ -21,7 +21,6 @@
 package org.jacorb.test.bugs.bug503;
 
 import java.util.Properties;
-
 import org.jacorb.test.BasicServer;
 import org.jacorb.test.BasicServerHelper;
 import org.jacorb.test.BasicServerPOATie;

@@ -4,7 +4,6 @@ package org.jacorb.test.common.launch;
 import java.io.IOException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
 import org.jacorb.test.common.TestUtils;
 
 /**

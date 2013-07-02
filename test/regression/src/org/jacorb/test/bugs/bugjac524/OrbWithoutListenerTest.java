@@ -26,10 +26,8 @@ import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.util.Properties;
 import javax.net.ssl.SSLSocket;
-
 import junit.framework.Test;
 import junit.framework.TestSuite;
-
 import org.jacorb.test.BasicServer;
 import org.jacorb.test.BasicServerHelper;
 import org.jacorb.test.common.ClientServerSetup;

@@ -21,16 +21,14 @@
 
 package org.jacorb.test.notification.engine;
 
+import java.util.concurrent.ScheduledFuture;
 import junit.framework.Test;
 import junit.framework.TestSuite;
-
 import org.easymock.MockControl;
 import org.jacorb.notification.engine.AbstractRetryStrategy;
 import org.jacorb.notification.engine.TaskProcessor;
 import org.jacorb.notification.engine.TaskProcessorRetryStrategy;
 import org.omg.CORBA.TRANSIENT;
-
-import java.util.concurrent.ScheduledFuture;
 
 /**
  * @author Alphonse Bendt

@@ -20,12 +20,11 @@
 
 package org.jacorb.test.bugs.bugjac542;
 
+import junit.framework.TestCase;
 import org.easymock.MockControl;
 import org.jacorb.config.Configuration;
 import org.jacorb.orb.iiop.IIOPAddress;
 import org.jacorb.test.common.MyNullLogger;
-
-import junit.framework.TestCase;
 
 /**
  * @author Alphonse Bendt

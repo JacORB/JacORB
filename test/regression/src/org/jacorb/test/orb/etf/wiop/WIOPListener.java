@@ -21,7 +21,11 @@ package org.jacorb.test.orb.etf.wiop;
  *   MA 02110-1301, USA.
  */
 
-import org.omg.ETF.*;
+import org.omg.ETF.Connection;
+import org.omg.ETF.Handle;
+import org.omg.ETF.Listener;
+import org.omg.ETF.Profile;
+import org.omg.ETF._ListenerLocalBase;
 
 /**
  * See {@link org.jacorb.test.orb.etf.wiop.WIOPFactories WIOPFactories} for

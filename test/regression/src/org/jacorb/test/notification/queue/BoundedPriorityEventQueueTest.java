@@ -22,21 +22,17 @@ package org.jacorb.test.notification.queue;
  */
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
-
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
-
 import org.easymock.MockControl;
 import org.jacorb.notification.interfaces.Message;
 import org.jacorb.notification.queue.AbstractBoundedEventQueue;
 import org.jacorb.notification.queue.BoundedPriorityEventQueue;
-import org.jacorb.notification.queue.MessageQueue;
 import org.jacorb.notification.queue.EventQueueOverflowStrategy;
-import org.jacorb.notification.queue.QueueUtil;
+import org.jacorb.notification.queue.MessageQueue;
 
 /**
  * @author Alphonse Bendt

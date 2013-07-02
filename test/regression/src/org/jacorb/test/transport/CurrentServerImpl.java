@@ -1,8 +1,6 @@
 package org.jacorb.test.transport;
 
 import junit.framework.Assert;
-
-import org.slf4j.Logger;
 import org.jacorb.test.orb.transport.CurrentServer;
 import org.jacorb.test.orb.transport.CurrentServerHelper;
 import org.jacorb.test.orb.transport.CurrentServerPOA;
@@ -12,6 +10,7 @@ import org.omg.PortableServer.POA;
 import org.omg.PortableServer.POAHelper;
 import org.omg.PortableServer.POAPackage.ServantNotActive;
 import org.omg.PortableServer.POAPackage.WrongPolicy;
+import org.slf4j.Logger;
 
 public class CurrentServerImpl extends CurrentServerPOA {
 

@@ -21,31 +21,28 @@ package org.jacorb.test.orb.dynany;
  */
 
 import java.lang.reflect.Method;
-
 import junit.framework.Test;
 import junit.framework.TestSuite;
-
 import org.jacorb.test.UnionDefaultBooleanType;
 import org.jacorb.test.UnionDefaultBooleanTypeHelper;
-import org.jacorb.test.UnionNoDefaultBooleanType;
-import org.jacorb.test.UnionNoDefaultBooleanTypeHelper;
 import org.jacorb.test.UnionDefaultCharType;
 import org.jacorb.test.UnionDefaultCharTypeHelper;
-import org.jacorb.test.UnionNoDefaultCharType;
-import org.jacorb.test.UnionNoDefaultCharTypeHelper;
-import org.jacorb.test.UnionDefaultShortType;
-import org.jacorb.test.UnionDefaultShortTypeHelper;
-import org.jacorb.test.UnionNoDefaultShortType;
-import org.jacorb.test.UnionNoDefaultShortTypeHelper;
-import org.jacorb.test.UnionDefaultLongType;
-import org.jacorb.test.UnionDefaultLongTypeHelper;
-import org.jacorb.test.UnionNoDefaultLongType;
-import org.jacorb.test.UnionNoDefaultLongTypeHelper;
 import org.jacorb.test.UnionDefaultLongLongType;
 import org.jacorb.test.UnionDefaultLongLongTypeHelper;
+import org.jacorb.test.UnionDefaultLongType;
+import org.jacorb.test.UnionDefaultLongTypeHelper;
+import org.jacorb.test.UnionDefaultShortType;
+import org.jacorb.test.UnionDefaultShortTypeHelper;
+import org.jacorb.test.UnionNoDefaultBooleanType;
+import org.jacorb.test.UnionNoDefaultBooleanTypeHelper;
+import org.jacorb.test.UnionNoDefaultCharType;
+import org.jacorb.test.UnionNoDefaultCharTypeHelper;
 import org.jacorb.test.UnionNoDefaultLongLongType;
 import org.jacorb.test.UnionNoDefaultLongLongTypeHelper;
-
+import org.jacorb.test.UnionNoDefaultLongType;
+import org.jacorb.test.UnionNoDefaultLongTypeHelper;
+import org.jacorb.test.UnionNoDefaultShortType;
+import org.jacorb.test.UnionNoDefaultShortTypeHelper;
 import org.omg.CORBA.TCKind;
 
 /**

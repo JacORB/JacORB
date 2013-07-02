@@ -1,9 +1,7 @@
 package org.jacorb.test.util;
 
 import java.util.EmptyStackException;
-
 import junit.framework.TestCase;
-
 import org.jacorb.util.Stack;
 
 /**

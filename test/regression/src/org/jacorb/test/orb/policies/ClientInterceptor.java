@@ -1,13 +1,9 @@
 package org.jacorb.test.orb.policies;
 
 
-import org.omg.CORBA.UNKNOWN;
-import org.omg.PortableInterceptor.ForwardRequest;
-import org.omg.CORBA.CompletionStatus;
-import org.omg.CORBA.NO_RESOURCES;
-
 import org.jacorb.test.ComplexTimingServer;
 import org.jacorb.test.ComplexTimingServerHelper;
+import org.omg.PortableInterceptor.ForwardRequest;
 
 public class ClientInterceptor
    extends org.omg.CORBA.LocalObject

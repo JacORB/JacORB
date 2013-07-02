@@ -23,9 +23,7 @@ package org.jacorb.test.notification;
 
 import java.util.Date;
 import java.util.HashSet;
-
 import junit.framework.Test;
-
 import org.jacorb.notification.StructuredEventMessage;
 import org.jacorb.notification.engine.DefaultTaskFactory;
 import org.jacorb.notification.engine.DefaultTaskProcessor;

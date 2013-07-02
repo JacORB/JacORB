@@ -21,20 +21,17 @@ package org.jacorb.test.bugs.bugjac662;
  */
 
 import java.lang.reflect.Field;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.Enumeration;
 import java.util.Properties;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import junit.framework.Test;
-import junit.framework.TestCase;
 import junit.framework.TestSuite;
 import org.jacorb.orb.Delegate;
 import org.jacorb.orb.ReplyGroup;
 import org.jacorb.test.common.ClientServerSetup;
 import org.jacorb.test.common.ClientServerTestCase;
-import org.jacorb.test.common.TestUtils;
 import org.omg.CORBA.COMM_FAILURE;
-import org.omg.CORBA.ORB;
 
 
 /**

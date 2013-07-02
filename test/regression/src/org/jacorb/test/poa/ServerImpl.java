@@ -1,6 +1,5 @@
 package org.jacorb.test.poa;
 
-import org.jacorb.config.JacORBConfiguration;
 
 public class ServerImpl extends MyServerPOA
 {

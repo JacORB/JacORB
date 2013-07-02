@@ -20,16 +20,12 @@
 
 package org.jacorb.test.bugs.bugjac560;
 
-import java.util.Properties;
-
 import junit.framework.Test;
 import junit.framework.TestSuite;
-
 import org.jacorb.test.common.ClientServerSetup;
 import org.jacorb.test.common.ClientServerTestCase;
 import org.jacorb.test.common.TestUtils;
 import org.omg.Messaging.ExceptionHolder;
-
 import cerent.cms.idl.Node.AMI_BugJac560ServiceHandlerPOA;
 import cerent.cms.idl.Node.BugJac560Service;
 import cerent.cms.idl.Node.BugJac560ServiceHelper;

@@ -23,10 +23,8 @@ package org.jacorb.test.bugs.bugjac563;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
-
 import junit.framework.Test;
 import junit.framework.TestSuite;
-
 import org.jacorb.test.BiDirServer;
 import org.jacorb.test.BiDirServerHelper;
 import org.jacorb.test.ClientCallback;

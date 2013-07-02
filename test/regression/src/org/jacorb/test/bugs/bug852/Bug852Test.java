@@ -1,12 +1,7 @@
 package org.jacorb.test.bugs.bug852;
 
-import java.util.Properties;
-
 import junit.framework.Test;
 import junit.framework.TestSuite;
-
-import org.jacorb.test.BasicServer;
-import org.jacorb.test.BasicServerHelper;
 import org.jacorb.test.common.ClientServerSetup;
 import org.jacorb.test.common.ClientServerTestCase;
 import org.jacorb.test.common.JacORBTestSuite;

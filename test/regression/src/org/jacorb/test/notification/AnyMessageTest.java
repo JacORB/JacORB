@@ -21,7 +21,6 @@ package org.jacorb.test.notification;
  */
 
 import junit.framework.Test;
-
 import org.jacorb.notification.AnyMessage;
 import org.jacorb.notification.NoTranslationException;
 import org.jacorb.notification.interfaces.Message;

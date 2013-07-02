@@ -3,13 +3,11 @@ package org.jacorb.test.notification.perf;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.Map;
-
-import org.omg.CORBA.Any;
-import org.omg.CosNotification.StructuredEvent;
-
+import org.jacorb.test.notification.PerformanceListener;
 import org.jacorb.test.notification.Timing;
 import org.jacorb.test.notification.TimingHelper;
-import org.jacorb.test.notification.PerformanceListener;
+import org.omg.CORBA.Any;
+import org.omg.CosNotification.StructuredEvent;
 
 class PerformanceLogger implements PerformanceListener
 {

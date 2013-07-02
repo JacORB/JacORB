@@ -22,10 +22,8 @@ package org.jacorb.test.ir;
 
 import java.io.File;
 import java.util.Properties;
-
 import junit.extensions.TestSetup;
 import junit.framework.Test;
-
 import org.jacorb.test.common.ClientServerSetup;
 import org.jacorb.test.common.CommonSetup;
 import org.jacorb.test.common.IDLTestSetup;

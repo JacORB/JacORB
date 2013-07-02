@@ -24,7 +24,6 @@ package org.jacorb.test.notification;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
-
 import org.jacorb.notification.ConsoleMain;
 
 public class ConsoleMainTest extends TestCase

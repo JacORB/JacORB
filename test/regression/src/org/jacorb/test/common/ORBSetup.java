@@ -22,10 +22,8 @@ package org.jacorb.test.common;
 
 import java.io.IOException;
 import java.util.Properties;
-
 import junit.extensions.TestSetup;
 import junit.framework.Test;
-
 import org.omg.CORBA.ORB;
 import org.omg.PortableServer.POA;
 import org.omg.PortableServer.POAHelper;

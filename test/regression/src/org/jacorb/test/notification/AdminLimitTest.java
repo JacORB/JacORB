@@ -23,9 +23,8 @@ package org.jacorb.test.notification;
 
 import java.util.ArrayList;
 import java.util.List;
-
+import java.util.concurrent.atomic.AtomicInteger;
 import junit.framework.Test;
-
 import org.jacorb.notification.OfferManager;
 import org.jacorb.notification.SubscriptionManager;
 import org.jacorb.notification.interfaces.ApplicationEvent;
@@ -44,8 +43,6 @@ import org.omg.CosNotifyChannelAdmin.EventChannel;
 import org.omg.CosNotifyChannelAdmin.InterFilterGroupOperator;
 import org.omg.CosNotifyChannelAdmin.ProxySupplier;
 import org.picocontainer.MutablePicoContainer;
-
-import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * @author Alphonse Bendt

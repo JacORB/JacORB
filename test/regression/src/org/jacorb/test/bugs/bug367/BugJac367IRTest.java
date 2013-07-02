@@ -21,10 +21,8 @@
 package org.jacorb.test.bugs.bug367;
 
 import java.util.Properties;
-
 import junit.framework.Test;
 import junit.framework.TestSuite;
-
 import org.jacorb.test.common.TestUtils;
 import org.jacorb.test.ir.AbstractIRServerTestCase;
 import org.jacorb.test.ir.IFRServerSetup;

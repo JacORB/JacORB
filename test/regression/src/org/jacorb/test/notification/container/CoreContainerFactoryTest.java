@@ -23,8 +23,7 @@ package org.jacorb.test.notification.container;
 
 import junit.framework.Test;
 import junit.framework.TestSuite;
-
-import org.jacorb.config.*;
+import org.jacorb.config.Configuration;
 import org.jacorb.notification.container.PicoContainerFactory;
 import org.jacorb.test.common.ORBTestCase;
 import org.omg.CORBA.ORB;

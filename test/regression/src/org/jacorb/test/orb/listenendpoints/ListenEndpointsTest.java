@@ -27,25 +27,20 @@ import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.util.ArrayList;
-import java.util.List;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Properties;
-
 import junit.framework.Test;
-import junit.framework.TestCase;
 import junit.framework.TestSuite;
-
 import org.jacorb.test.common.ClientServerSetup;
 import org.jacorb.test.common.ClientServerTestCase;
 import org.jacorb.test.common.CommonSetup;
 import org.jacorb.test.common.JacORBTestSuite;
 import org.jacorb.test.common.TestUtils;
-import org.jacorb.test.listenendpoints.echo_corbaloc.*;
-import org.omg.CORBA.ORB;
-import org.omg.CORBA.Object;
+import org.jacorb.test.listenendpoints.echo_corbaloc.EchoMessage;
+import org.jacorb.test.listenendpoints.echo_corbaloc.EchoMessageHelper;
 
  /**
  * Tests -ORBListenEndpoints feature

@@ -23,10 +23,8 @@ package org.jacorb.test.notification.engine;
 
 import java.util.Arrays;
 import java.util.List;
-
 import junit.framework.Test;
 import junit.framework.TestSuite;
-
 import org.jacorb.notification.engine.AbstractFilterTask;
 import org.jacorb.notification.engine.FilterProxyConsumerTask;
 import org.jacorb.notification.interfaces.FilterStage;

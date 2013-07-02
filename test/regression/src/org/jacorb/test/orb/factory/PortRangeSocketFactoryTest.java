@@ -1,15 +1,12 @@
 package org.jacorb.test.orb.factory;
 
 import java.net.Socket;
-
 import javax.net.ssl.SSLSocket;
-
-import org.jacorb.config.*;
 import org.easymock.MockControl;
 import org.jacorb.config.Configuration;
+import org.jacorb.config.ConfigurationException;
 import org.jacorb.orb.factory.PortRangeSocketFactory;
 import org.jacorb.orb.factory.SocketFactory;
-
 import org.jacorb.test.common.NullLogger;
 
 public class PortRangeSocketFactoryTest extends AbstractSocketFactoryTestCase

@@ -21,9 +21,9 @@ package org.jacorb.test.notification.perf;
  *
  */
 
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.atomic.AtomicBoolean;
 import junit.framework.Test;
-
-import org.slf4j.Logger;
 import org.jacorb.notification.util.LogUtil;
 import org.jacorb.test.notification.StructuredPushReceiver;
 import org.jacorb.test.notification.StructuredPushSender;
@@ -46,9 +46,7 @@ import org.omg.CosNotifyFilter.Filter;
 import org.omg.CosNotifyFilter.FilterFactory;
 import org.omg.CosNotifyFilter.InvalidConstraint;
 import org.omg.CosNotifyFilter.InvalidGrammar;
-
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.atomic.AtomicBoolean;
+import org.slf4j.Logger;
 
 
 /**

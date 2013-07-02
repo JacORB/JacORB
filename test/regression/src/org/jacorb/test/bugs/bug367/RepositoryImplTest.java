@@ -20,9 +20,8 @@
 
 package org.jacorb.test.bugs.bug367;
 
-import org.jacorb.ir.RepositoryImpl;
-
 import junit.framework.TestCase;
+import org.jacorb.ir.RepositoryImpl;
 
 /**
  * @author Alphonse Bendt

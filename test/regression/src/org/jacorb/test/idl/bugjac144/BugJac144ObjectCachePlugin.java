@@ -22,7 +22,6 @@ package org.jacorb.test.idl.bugjac144;
 
 import java.io.PrintWriter;
 import java.util.List;
-
 import org.jacorb.idl.ObjectCachePlugin;
 import org.jacorb.idl.TypeDeclaration;
 

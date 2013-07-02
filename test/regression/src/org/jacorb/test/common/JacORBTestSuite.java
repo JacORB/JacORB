@@ -21,10 +21,10 @@ package org.jacorb.test.common;
  *   MA 02110-1301, USA.
  */
 
-import java.lang.reflect.*;
-
-import junit.framework.*;
-import junit.extensions.*;
+import java.lang.reflect.Method;
+import junit.extensions.TestDecorator;
+import junit.framework.Test;
+import junit.framework.TestSuite;
 
 /**
  * A special TestSuite that accepts only Tests that are applicable

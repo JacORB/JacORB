@@ -23,7 +23,6 @@ package org.jacorb.test.notification.engine;
 
 import junit.framework.Test;
 import junit.framework.TestSuite;
-
 import org.jacorb.notification.engine.AbstractFilterTask;
 import org.jacorb.notification.engine.FilterProxySupplierTask;
 import org.jacorb.notification.interfaces.FilterStage;

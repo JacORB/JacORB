@@ -24,13 +24,8 @@ import java.io.Serializable;
 import java.rmi.RemoteException;
 import java.util.Collection;
 import java.util.Properties;
-
-import org.jacorb.test.orb.rmi.Boo;
-import org.jacorb.test.orb.rmi.Foo;
-import org.jacorb.test.orb.rmi.NegativeArgumentException;
-import org.jacorb.test.orb.rmi.Outer.StaticInner;
-
 import javax.rmi.PortableRemoteObject;
+import org.jacorb.test.orb.rmi.Outer.StaticInner;
 
 public class RMITestImpl
         extends PortableRemoteObject

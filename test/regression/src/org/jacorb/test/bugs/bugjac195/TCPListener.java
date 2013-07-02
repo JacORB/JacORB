@@ -1,7 +1,7 @@
 package org.jacorb.test.bugs.bugjac195;
 
-import org.jacorb.orb.listener.TCPConnectionListener;
 import org.jacorb.orb.listener.TCPConnectionEvent;
+import org.jacorb.orb.listener.TCPConnectionListener;
 
 /**
  * <code>TCPListener</code> is a simple implementation of a listener.

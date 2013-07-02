@@ -2,8 +2,9 @@ package org.jacorb.test.bugs.bugjac178;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import org.jacorb.config.*;
+import org.jacorb.config.Configurable;
+import org.jacorb.config.Configuration;
+import org.jacorb.config.ConfigurationException;
 import org.omg.CORBA.INTERNAL;
 import org.omg.CORBA.ORB;
 import org.omg.CORBA.Policy;

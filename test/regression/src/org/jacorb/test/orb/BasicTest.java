@@ -22,7 +22,6 @@ package org.jacorb.test.orb;
 
 import junit.framework.Test;
 import junit.framework.TestSuite;
-
 import org.jacorb.test.BasicServer;
 import org.jacorb.test.BasicServerHelper;
 import org.jacorb.test.common.ClientServerSetup;
@@ -34,9 +33,9 @@ import org.omg.CORBA.DoubleHolder;
 import org.omg.CORBA.FloatHolder;
 import org.omg.CORBA.IntHolder;
 import org.omg.CORBA.LongHolder;
-import org.omg.CORBA.ShortHolder;
-import org.omg.CORBA.PolicyListHolder;
 import org.omg.CORBA.Policy;
+import org.omg.CORBA.PolicyListHolder;
+import org.omg.CORBA.ShortHolder;
 
 public class BasicTest extends ClientServerTestCase
 {

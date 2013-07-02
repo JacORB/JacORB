@@ -1,11 +1,16 @@
 package org.jacorb.test.orb.connection;
 
 import java.util.Properties;
-
-import junit.framework.*;
-
-import org.jacorb.test.*;
-import org.jacorb.test.common.*;
+import junit.framework.Test;
+import junit.framework.TestSuite;
+import org.jacorb.test.BiDirServer;
+import org.jacorb.test.BiDirServerHelper;
+import org.jacorb.test.ClientCallback;
+import org.jacorb.test.ClientCallbackHelper;
+import org.jacorb.test.ClientCallbackPOA;
+import org.jacorb.test.common.ClientServerSetup;
+import org.jacorb.test.common.ClientServerTestCase;
+import org.jacorb.test.common.CommonSetup;
 
 /**
  * @author Andre Spiegel

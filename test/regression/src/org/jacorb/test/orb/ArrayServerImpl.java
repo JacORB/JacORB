@@ -1,6 +1,11 @@
 package org.jacorb.test.orb;
 
-import org.jacorb.test.*;
+import org.jacorb.test.ArrayServerPOA;
+import org.jacorb.test.any_sequenceHolder;
+import org.jacorb.test.boolean_sequenceHolder;
+import org.jacorb.test.char_sequenceHolder;
+import org.jacorb.test.color_enum;
+import org.jacorb.test.long_sequenceHolder;
 import org.omg.CORBA.Any;
 
 /**

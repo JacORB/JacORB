@@ -21,8 +21,8 @@ package org.jacorb.test.orb.etf;
  *   MA 02110-1301, USA.
  */
 
-import java.util.*;
-
+import java.util.Iterator;
+import java.util.List;
 import org.jacorb.orb.ProfileSelector;
 import org.jacorb.orb.giop.ClientConnectionManager;
 import org.omg.ETF.Profile;

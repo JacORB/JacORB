@@ -21,7 +21,6 @@
 package org.jacorb.test.bugs.bugjac562;
 
 import java.util.Properties;
-
 import org.jacorb.test.BasicServer;
 import org.jacorb.test.BasicServerHelper;
 import org.jacorb.test.common.ORBTestCase;

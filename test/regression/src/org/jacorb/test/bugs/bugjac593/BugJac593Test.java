@@ -25,9 +25,8 @@ package org.jacorb.test.bugs.bugjac593;
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.Properties;
 import java.util.Arrays;
-
+import java.util.Properties;
 import org.jacorb.test.common.ORBTestCase;
 import org.omg.CORBA.ORB;
 

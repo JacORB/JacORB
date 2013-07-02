@@ -22,7 +22,6 @@ package org.jacorb.test.bugs.bugjac524;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import org.jacorb.orb.listener.TCPConnectionEvent;
 import org.jacorb.orb.listener.TCPConnectionListener;
 

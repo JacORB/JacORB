@@ -3,7 +3,6 @@ package org.jacorb.test.bugs.bugjac493;
 import junit.framework.AssertionFailedError;
 import junit.framework.Test;
 import junit.framework.TestSuite;
-
 import org.jacorb.test.AMI_TimingServerHandler;
 import org.jacorb.test.AMI_TimingServerHandlerOperations;
 import org.jacorb.test.AMI_TimingServerHandlerPOATie;

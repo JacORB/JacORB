@@ -22,7 +22,6 @@ package org.jacorb.test.notification;
  */
 
 import junit.framework.Test;
-
 import org.jacorb.notification.impl.DefaultMessageFactory;
 import org.jacorb.notification.interfaces.FilterStage;
 import org.jacorb.notification.interfaces.Message;

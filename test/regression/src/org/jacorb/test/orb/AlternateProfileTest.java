@@ -22,10 +22,8 @@ package org.jacorb.test.orb;
  */
 
 import java.util.Properties;
-
 import junit.framework.Test;
 import junit.framework.TestSuite;
-
 import org.jacorb.orb.iiop.IIOPAddress;
 import org.jacorb.orb.iiop.IIOPProfile;
 import org.jacorb.test.IIOPAddressServer;

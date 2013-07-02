@@ -21,11 +21,10 @@ package org.jacorb.test.bugs.bugpt319;
  */
 
 
-import org.omg.ETF.Connection;
-import org.omg.IOP.IOR;
-import org.omg.CORBA.ORB;
 import org.jacorb.orb.IORMutator;
 import org.jacorb.orb.ParsedIOR;
+import org.omg.CORBA.ORB;
+import org.omg.IOP.IOR;
 
 
 /**

@@ -1,8 +1,8 @@
 package org.jacorb.test.orb.orbreinvoke;
 
-import org.jacorb.test.listenendpoints.echo_corbaloc.*;
-import java.io.*;
-import java.net.*;
+import org.jacorb.test.listenendpoints.echo_corbaloc.EchoMessage;
+import org.jacorb.test.listenendpoints.echo_corbaloc.EchoMessageHelper;
+import org.jacorb.test.listenendpoints.echo_corbaloc.EchoMessageTask;
 import org.omg.CORBA.ORB;
 
 /**

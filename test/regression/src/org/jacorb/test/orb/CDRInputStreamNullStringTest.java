@@ -19,11 +19,10 @@ package org.jacorb.test.orb;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
  */
+import junit.framework.TestSuite;
 import org.jacorb.orb.CDRInputStream;
 import org.jacorb.orb.CDROutputStream;
-import org.jacorb.orb.giop.CodeSet;
 import org.jacorb.test.common.ORBTestCase;
-import junit.framework.TestSuite;
 
 public class CDRInputStreamNullStringTest extends ORBTestCase
 {

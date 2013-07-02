@@ -23,7 +23,6 @@ package org.jacorb.test.bugs.bugjac513;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.Properties;
-
 import org.jacorb.orb.Delegate;
 import org.jacorb.orb.ParsedIOR;
 import org.jacorb.orb.util.PrintIOR;

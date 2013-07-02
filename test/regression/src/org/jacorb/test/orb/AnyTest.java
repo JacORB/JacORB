@@ -22,10 +22,8 @@ package org.jacorb.test.orb;
 
 import java.math.BigDecimal;
 import java.util.Properties;
-
 import junit.framework.Test;
 import junit.framework.TestSuite;
-
 import org.jacorb.orb.CDROutputStream;
 import org.jacorb.test.common.ClientServerSetup;
 import org.jacorb.test.common.ClientServerTestCase;

@@ -1,9 +1,8 @@
 package org.jacorb.test.bugs.bug703;
 
-import org.omg.CORBA.TCKind;
-
 import junit.framework.Assert;
 import junit.framework.TestCase;
+import org.omg.CORBA.TCKind;
 
 public class Bug703Test extends TestCase
 {

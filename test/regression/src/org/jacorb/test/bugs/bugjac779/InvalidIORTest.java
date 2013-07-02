@@ -23,7 +23,6 @@ package org.jacorb.test.bugs.bugjac779;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 import org.jacorb.test.common.ORBTestCase;
-import org.omg.CORBA.BAD_PARAM;
 
 
 /**

@@ -1,12 +1,49 @@
 package org.jacorb.test.orb.policies;
 
-import java.util.*;
-import org.omg.CORBA.*;
-import org.omg.Messaging.*;
-import org.omg.RTCORBA.*;
-import org.omg.TimeBase.*;
-import junit.framework.*;
-import org.jacorb.test.common.*;
+import java.util.Properties;
+import junit.framework.Test;
+import junit.framework.TestSuite;
+import org.jacorb.test.common.JacORBTestCase;
+import org.omg.CORBA.Any;
+import org.omg.CORBA.ORB;
+import org.omg.CORBA.Policy;
+import org.omg.CORBA.PolicyError;
+import org.omg.Messaging.MAX_HOPS_POLICY_TYPE;
+import org.omg.Messaging.MaxHopsPolicy;
+import org.omg.Messaging.PriorityRange;
+import org.omg.Messaging.PriorityRangeHelper;
+import org.omg.Messaging.QUEUE_ORDER_POLICY_TYPE;
+import org.omg.Messaging.QueueOrderPolicy;
+import org.omg.Messaging.REBIND_POLICY_TYPE;
+import org.omg.Messaging.RELATIVE_REQ_TIMEOUT_POLICY_TYPE;
+import org.omg.Messaging.RELATIVE_RT_TIMEOUT_POLICY_TYPE;
+import org.omg.Messaging.REPLY_END_TIME_POLICY_TYPE;
+import org.omg.Messaging.REPLY_PRIORITY_POLICY_TYPE;
+import org.omg.Messaging.REPLY_START_TIME_POLICY_TYPE;
+import org.omg.Messaging.REQUEST_END_TIME_POLICY_TYPE;
+import org.omg.Messaging.REQUEST_PRIORITY_POLICY_TYPE;
+import org.omg.Messaging.REQUEST_START_TIME_POLICY_TYPE;
+import org.omg.Messaging.ROUTING_POLICY_TYPE;
+import org.omg.Messaging.RebindPolicy;
+import org.omg.Messaging.RelativeRequestTimeoutPolicy;
+import org.omg.Messaging.RelativeRoundtripTimeoutPolicy;
+import org.omg.Messaging.ReplyEndTimePolicy;
+import org.omg.Messaging.ReplyPriorityPolicy;
+import org.omg.Messaging.ReplyStartTimePolicy;
+import org.omg.Messaging.RequestEndTimePolicy;
+import org.omg.Messaging.RequestPriorityPolicy;
+import org.omg.Messaging.RequestStartTimePolicy;
+import org.omg.Messaging.RoutingPolicy;
+import org.omg.Messaging.RoutingTypeRange;
+import org.omg.Messaging.RoutingTypeRangeHelper;
+import org.omg.Messaging.SYNC_SCOPE_POLICY_TYPE;
+import org.omg.Messaging.SyncScopePolicy;
+import org.omg.RTCORBA.CLIENT_PROTOCOL_POLICY_TYPE;
+import org.omg.RTCORBA.ClientProtocolPolicy;
+import org.omg.RTCORBA.Protocol;
+import org.omg.RTCORBA.ProtocolListHelper;
+import org.omg.TimeBase.UtcT;
+import org.omg.TimeBase.UtcTHelper;
 
 
 /**
@@ -372,21 +409,5 @@ public class PolicyHandlingTest extends JacORBTestCase
     private Any create_any()
     {
         return getORB().create_any();
-    }
-
-    private class DummyTCPProtocolProperties
-        extends _TCPProtocolPropertiesLocalBase
-    {
-        public int send_buffer_size() { return 0; }
-        public void send_buffer_size(int arg) {}
-        public int recv_buffer_size() { return 0; };
-        public void recv_buffer_size(int arg) {}
-        public boolean keep_alive() { return false; }
-        public void keep_alive(boolean arg) {};
-        public boolean dont_route() { return false; }
-        public void dont_route(boolean arg) {}
-        public boolean no_delay() { return false; }
-        public void no_delay(boolean arg) {}
-
     }
 }

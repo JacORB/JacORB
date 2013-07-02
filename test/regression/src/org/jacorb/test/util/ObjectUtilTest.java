@@ -24,11 +24,9 @@ import java.io.File;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.Properties;
-
+import junit.framework.TestCase;
 import org.jacorb.test.common.TestUtils;
 import org.jacorb.util.ObjectUtil;
-
-import junit.framework.TestCase;
 
 /**
  * @author Alphonse Bendt

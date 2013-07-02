@@ -21,9 +21,7 @@ package org.jacorb.test.orb;
  */
 
 import java.lang.reflect.Field;
-
 import junit.framework.TestCase;
-
 import org.jacorb.test.common.NullLogger;
 import org.omg.CORBA.Any;
 import org.omg.CORBA.BAD_PARAM;

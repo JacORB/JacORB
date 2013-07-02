@@ -21,12 +21,15 @@ package org.jacorb.test.common;
  *   MA 02110-1301, USA.
  */
 
-import java.util.*;
-import java.util.regex.*;
-import java.io.*;
-import java.nio.*;
-import java.nio.channels.*;
-import java.nio.charset.*;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.nio.channels.FileChannel;
+import java.nio.charset.Charset;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Parses test annotations from javadoc comments in JUnit tests.  A single

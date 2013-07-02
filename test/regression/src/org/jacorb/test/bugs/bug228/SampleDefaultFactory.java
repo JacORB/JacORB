@@ -1,7 +1,6 @@
 package org.jacorb.test.bugs.bug228;
 
 import java.io.Serializable;
-
 import org.omg.CORBA_2_3.portable.InputStream;
 
 /*

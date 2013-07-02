@@ -1,10 +1,10 @@
 package org.jacorb.test.orb;
 
 import org.jacorb.test.CharServerPOA;
-import org.omg.CORBA.CharHolder;
-import org.jacorb.test.CharServerPackage.wcharSeqHolder;
 import org.jacorb.test.CharServerPackage.DataFlavour;
 import org.jacorb.test.CharServerPackage.DataFlavourHelper;
+import org.jacorb.test.CharServerPackage.wcharSeqHolder;
+import org.omg.CORBA.CharHolder;
 
 public class CharServerImpl extends CharServerPOA
 {

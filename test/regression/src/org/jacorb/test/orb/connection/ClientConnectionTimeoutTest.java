@@ -21,10 +21,8 @@ package org.jacorb.test.orb.connection;
  */
 
 import java.util.Properties;
-
 import junit.framework.Test;
 import junit.framework.TestSuite;
-
 import org.jacorb.orb.iiop.ClientIIOPConnection;
 import org.jacorb.test.TestIf;
 import org.jacorb.test.TestIfHelper;

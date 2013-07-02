@@ -1,8 +1,11 @@
 package org.jacorb.test.bugs.bugjac788;
 
+import org.omg.CORBA.Any;
+import org.omg.CORBA.SystemException;
+import org.omg.CORBA.TCKind;
+import org.omg.CORBA.TypeCode;
 import org.omg.PortableInterceptor.ClientRequestInfo;
 import org.omg.PortableInterceptor.ForwardRequest;
-import org.omg.CORBA.*;
 
 
 /**

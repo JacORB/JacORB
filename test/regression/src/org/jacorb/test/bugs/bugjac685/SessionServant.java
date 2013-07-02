@@ -1,8 +1,5 @@
 package org.jacorb.test.bugs.bugjac685;
 
-import org.omg.CORBA.ORB;
-import org.omg.CORBA.ORBPackage.*;
-import org.omg.PortableServer.Current;
 
 public class SessionServant extends SessionPOA
 {

@@ -23,7 +23,6 @@ package org.jacorb.test.notification.util;
 
 import junit.framework.Test;
 import junit.framework.TestSuite;
-
 import org.jacorb.notification.util.CachingWildcardMap;
 import org.jacorb.notification.util.WildcardMap;
 

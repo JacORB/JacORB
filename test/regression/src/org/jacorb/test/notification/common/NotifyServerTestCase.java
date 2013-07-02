@@ -22,7 +22,6 @@
 package org.jacorb.test.notification.common;
 
 import junit.framework.Test;
-
 import org.jacorb.test.common.ClientServerTestCase;
 import org.jacorb.test.common.TestUtils;
 import org.omg.CORBA.IntHolder;

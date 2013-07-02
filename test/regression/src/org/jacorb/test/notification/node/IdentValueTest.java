@@ -21,12 +21,11 @@
 
 package org.jacorb.test.notification.node;
 
-import org.jacorb.notification.filter.etcl.AbstractTCLNode;
-import org.jacorb.notification.filter.etcl.TCLParser;
-
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
+import org.jacorb.notification.filter.etcl.AbstractTCLNode;
+import org.jacorb.notification.filter.etcl.TCLParser;
 
 /**
  * @author Alphonse Bendt

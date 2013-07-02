@@ -23,9 +23,7 @@ package org.jacorb.test.bugs.bugjac384;
 import java.io.File;
 import java.util.Arrays;
 import java.util.Properties;
-
 import junit.framework.TestCase;
-
 import org.jacorb.test.common.TestUtils;
 import org.omg.CORBA.ORB;
 import org.omg.PortableServer.POA;

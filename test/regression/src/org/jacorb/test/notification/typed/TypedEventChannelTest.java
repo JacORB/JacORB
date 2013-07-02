@@ -22,11 +22,9 @@
 package org.jacorb.test.notification.typed;
 
 import java.util.Properties;
-
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
-
 import org.jacorb.notification.AbstractChannelFactory;
 import org.jacorb.notification.conf.Attributes;
 import org.omg.CORBA.IntHolder;

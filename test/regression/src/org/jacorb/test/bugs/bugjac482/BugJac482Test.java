@@ -22,12 +22,10 @@ package org.jacorb.test.bugs.bugjac482;
 
 import java.io.File;
 import java.util.Properties;
-
+import junit.framework.TestCase;
 import org.jacorb.orb.factory.SocketFactoryManager;
 import org.omg.CORBA.INITIALIZE;
 import org.omg.CORBA.ORB;
-
-import junit.framework.TestCase;
 
 /**
  * @author Alphonse Bendt

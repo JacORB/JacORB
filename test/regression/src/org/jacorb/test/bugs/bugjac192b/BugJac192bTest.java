@@ -21,7 +21,6 @@ package org.jacorb.test.bugs.bugjac192b;
  */
 
 import java.util.Properties;
-
 import org.jacorb.test.common.ORBTestCase;
 import org.omg.CORBA.INTERNAL;
 

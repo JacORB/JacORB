@@ -24,7 +24,6 @@ package org.jacorb.test.notification.queue;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-
 import org.jacorb.notification.interfaces.Message;
 import org.jacorb.notification.queue.AbstractBoundedEventQueue;
 import org.jacorb.notification.queue.EventQueueOverflowStrategy;

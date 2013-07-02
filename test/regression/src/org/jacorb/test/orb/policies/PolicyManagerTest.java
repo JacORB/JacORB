@@ -1,11 +1,10 @@
 package org.jacorb.test.orb.policies;
 
 import junit.framework.TestCase;
-
 import org.easymock.MockControl;
 import org.jacorb.config.Configuration;
-import org.jacorb.test.common.NullLogger;
 import org.jacorb.orb.policies.PolicyManager;
+import org.jacorb.test.common.NullLogger;
 import org.omg.CORBA.Policy;
 import org.omg.CORBA.SetOverrideType;
 

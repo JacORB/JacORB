@@ -2,7 +2,6 @@ package org.jacorb.test.bugs.bugjac683;
 
 import junit.framework.Test;
 import junit.framework.TestSuite;
-
 import org.jacorb.test.common.ClientServerSetup;
 import org.jacorb.test.common.ClientServerTestCase;
 import org.jacorb.test.common.TestUtils;
@@ -11,7 +10,6 @@ import org.jacorb.test.orb.AnyServerHelper;
 import org.jacorb.test.orb.AnyServerImpl;
 import org.omg.CORBA.ORBPackage.InvalidName;
 import org.omg.DynamicAny.DynAnyFactoryPackage.InconsistentTypeCode;
-import org.omg.DynamicAny.DynAnyPackage.InvalidValue;
 
 public class BugJac683Test extends ClientServerTestCase
 {

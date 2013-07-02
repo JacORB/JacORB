@@ -22,7 +22,6 @@
 package org.jacorb.test.notification.engine;
 
 import junit.framework.TestCase;
-
 import org.easymock.MockControl;
 import org.jacorb.notification.engine.AbstractRetryStrategy;
 import org.jacorb.notification.engine.PushOperation;

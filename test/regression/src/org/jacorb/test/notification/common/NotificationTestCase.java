@@ -24,9 +24,7 @@ package org.jacorb.test.notification.common;
 
 import junit.framework.Test;
 import junit.framework.TestCase;
-
-import org.jacorb.config.*;
-import org.slf4j.Logger;
+import org.jacorb.config.Configuration;
 import org.jacorb.notification.MessageFactory;
 import org.jacorb.notification.container.PicoContainerFactory;
 import org.jacorb.notification.engine.TaskProcessor;
@@ -43,6 +41,7 @@ import org.omg.CosNotification.PropertySeqHelper;
 import org.omg.DynamicAny.DynAnyFactory;
 import org.omg.PortableServer.POA;
 import org.picocontainer.MutablePicoContainer;
+import org.slf4j.Logger;
 
 /**
  * helper class for notification service unit tests.

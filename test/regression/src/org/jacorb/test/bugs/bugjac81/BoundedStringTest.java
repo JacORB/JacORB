@@ -20,9 +20,8 @@ package org.jacorb.test.bugs.bugjac81;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import org.omg.CORBA.TCKind;
-
 import junit.framework.TestCase;
+import org.omg.CORBA.TCKind;
 
 public class BoundedStringTest extends TestCase
 {

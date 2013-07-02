@@ -20,10 +20,11 @@ package org.jacorb.test.orb.value;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import junit.framework.*;
-
-import org.jacorb.test.common.*;
-import org.omg.CORBA.*;
+import junit.framework.Test;
+import junit.framework.TestSuite;
+import org.jacorb.test.common.ClientServerSetup;
+import org.jacorb.test.common.ClientServerTestCase;
+import org.omg.CORBA.ORB;
 
 /**
  * Tests abstract interface with value types and concrete interface.

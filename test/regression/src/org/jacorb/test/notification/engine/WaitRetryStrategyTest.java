@@ -22,9 +22,8 @@ package org.jacorb.test.notification.engine;
 
 import junit.framework.Test;
 import junit.framework.TestSuite;
-
-import org.jacorb.notification.engine.RetryException;
 import org.jacorb.notification.engine.AbstractRetryStrategy;
+import org.jacorb.notification.engine.RetryException;
 import org.jacorb.notification.engine.WaitRetryStrategy;
 import org.omg.CORBA.TRANSIENT;
 

@@ -2,10 +2,8 @@ package org.jacorb.test.bugs.bugjac352;
 
 import java.util.Arrays;
 import java.util.Properties;
-
 import junit.framework.Test;
 import junit.framework.TestSuite;
-
 import org.jacorb.test.bugs.bug352.JAC352;
 import org.jacorb.test.bugs.bug352.JAC352Helper;
 import org.jacorb.test.common.ClientServerSetup;

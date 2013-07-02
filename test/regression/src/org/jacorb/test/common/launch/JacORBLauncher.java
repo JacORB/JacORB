@@ -33,9 +33,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
-
 import org.jacorb.test.common.TestUtils;
-import org.jacorb.util.ObjectUtil;
 
 /**
  * A JacORBLauncher runs a given main class against a specified

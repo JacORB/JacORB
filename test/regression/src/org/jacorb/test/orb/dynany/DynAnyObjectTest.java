@@ -1,8 +1,5 @@
 package org.jacorb.test.orb.dynany;
 
-import junit.framework.TestCase;
-
-import org.omg.CORBA.ORB;
 import org.omg.CORBA.TypeCode;
 import org.omg.DynamicAny.DynAny;
 

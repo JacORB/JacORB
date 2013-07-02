@@ -22,10 +22,8 @@
 package org.jacorb.test.notification.engine;
 
 import java.util.Collections;
-
 import junit.framework.Test;
 import junit.framework.TestSuite;
-
 import org.jacorb.notification.engine.AbstractFilterTask;
 import org.jacorb.notification.engine.FilterConsumerAdminTask;
 import org.jacorb.notification.interfaces.FilterStage;

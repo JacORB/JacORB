@@ -21,9 +21,8 @@ package org.jacorb.test.notification.typed;
  */
 
 import java.util.Properties;
-
+import java.util.concurrent.ScheduledFuture;
 import junit.framework.Test;
-
 import org.easymock.AbstractMatcher;
 import org.easymock.MockControl;
 import org.jacorb.notification.OfferManager;
@@ -51,8 +50,6 @@ import org.omg.CosTypedNotifyChannelAdmin.TypedProxyPullConsumerHelper;
 import org.omg.CosTypedNotifyComm.TypedPullSupplier;
 import org.omg.CosTypedNotifyComm.TypedPullSupplierHelper;
 import org.omg.CosTypedNotifyComm.TypedPullSupplierPOATie;
-
-import java.util.concurrent.ScheduledFuture;
 
 /**
  * @author Alphonse Bendt

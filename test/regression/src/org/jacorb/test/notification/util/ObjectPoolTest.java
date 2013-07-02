@@ -21,14 +21,11 @@
 package org.jacorb.test.notification.util;
 
 import java.util.HashSet;
-
+import java.util.concurrent.atomic.AtomicInteger;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
-
 import org.jacorb.notification.util.AbstractObjectPool;
-
-import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * @author Alphonse Bendt

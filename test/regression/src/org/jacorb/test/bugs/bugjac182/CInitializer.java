@@ -2,8 +2,8 @@ package org.jacorb.test.bugs.bugjac182;
 
 import org.jacorb.orb.portableInterceptor.ORBInitInfoImpl;
 import org.omg.PortableInterceptor.ORBInitInfo;
-import org.omg.PortableInterceptor.ORBInitInfoPackage.DuplicateName;
 import org.omg.PortableInterceptor.ORBInitializer;
+import org.omg.PortableInterceptor.ORBInitInfoPackage.DuplicateName;
 
 /**
  * <code>CInitializer</code> is basic initializer to register the interceptor.

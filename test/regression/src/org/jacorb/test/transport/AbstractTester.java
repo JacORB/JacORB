@@ -1,7 +1,7 @@
 package org.jacorb.test.transport;
 
-import org.slf4j.Logger;
 import org.omg.CORBA.ORB;
+import org.slf4j.Logger;
 
 
 public interface AbstractTester 

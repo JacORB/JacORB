@@ -22,9 +22,7 @@
 package org.jacorb.test.idl;
 
 import java.io.File;
-
 import junit.framework.Test;
-
 import org.jacorb.test.common.TestUtils;
 
 /**

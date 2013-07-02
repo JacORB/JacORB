@@ -2,9 +2,9 @@ package org.jacorb.test.notification;
 
 import java.util.ArrayList;
 import java.util.List;
-
+import java.util.concurrent.BrokenBarrierException;
+import java.util.concurrent.CyclicBarrier;
 import junit.framework.Assert;
-
 import org.jacorb.test.common.TestUtils;
 import org.omg.CORBA.IntHolder;
 import org.omg.CORBA.ORB;
@@ -26,9 +26,6 @@ import org.omg.CosNotifyComm.StructuredPushConsumerOperations;
 import org.omg.CosNotifyComm.StructuredPushConsumerPOATie;
 import org.omg.CosNotifyFilter.Filter;
 import org.omg.CosNotifyFilter.FilterNotFound;
-
-import java.util.concurrent.BrokenBarrierException;
-import java.util.concurrent.CyclicBarrier;
 
 public class StructuredPushReceiver extends Thread implements StructuredPushConsumerOperations,
         TestClientOperations

@@ -22,20 +22,10 @@ package org.jacorb.test.bugs.bugjac488;
 
 import java.util.Properties;
 import junit.framework.TestCase;
-
-import org.jacorb.test.common.ORBTestCase;
-import org.omg.CORBA.TIMEOUT;
-import junit.framework.Test;
-import junit.framework.TestSuite;
-import org.omg.CORBA.ORB;
-import org.jacorb.test.common.TestUtils;
-import org.jacorb.test.SyncScopeServer;
-import org.jacorb.test.SyncScopeServerHelper;
 import org.jacorb.test.common.ORBSetup;
 import org.jacorb.test.common.ServerSetup;
-
-import org.jacorb.test.common.ClientServerSetup;
-import org.jacorb.test.common.ClientServerTestCase;
+import org.omg.CORBA.ORB;
+import org.omg.CORBA.TIMEOUT;
 
 /**
  * <code>TestCase</code> verifies that calling a non-existent server

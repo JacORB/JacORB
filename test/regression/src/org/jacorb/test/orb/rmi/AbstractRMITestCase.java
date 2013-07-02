@@ -24,9 +24,7 @@ import java.rmi.Remote;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
-
 import javax.rmi.PortableRemoteObject;
-
 import org.jacorb.orb.Reference;
 import org.jacorb.test.common.ClientServerSetup;
 import org.jacorb.test.common.ClientServerTestCase;

@@ -22,9 +22,7 @@
 package org.jacorb.test.bugs.bug459;
 
 import java.util.Properties;
-
 import junit.framework.TestCase;
-
 import org.jacorb.test.orb.AnyServerPOA;
 import org.omg.CORBA.Any;
 import org.omg.PortableServer.POA;

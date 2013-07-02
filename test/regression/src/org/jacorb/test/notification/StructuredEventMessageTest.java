@@ -21,9 +21,7 @@ package org.jacorb.test.notification;
  */
 
 import java.util.Date;
-
 import junit.framework.Test;
-
 import org.jacorb.notification.NoTranslationException;
 import org.jacorb.notification.StructuredEventMessage;
 import org.jacorb.test.notification.common.NotificationTestCase;
