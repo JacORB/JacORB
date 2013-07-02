@@ -173,15 +173,15 @@ class IRBrowser
     }
     if ( treeNode != null )
         {
-            // wenn Node ein AbstractContainer ist oder eine assoziierte
-            // TypeSystemNode besitzt, jeweils im treeView dorthin springen
+	    // If Node is an AbstractContainer or has an associated
+	    // TypeSystemNode, jump to the corresponding location in treeView
             DefaultTreeModel treeModel =
                 (DefaultTreeModel)treeView.getModel();
             TreePath fullTreePath =
                 new TreePath(treeModel.getPathToRoot(treeNode));
 
             treeView.scrollPathToVisible(fullTreePath);
-            // Selection auf node setzen
+            // set selection to node
             treeView.setSelectionPath(fullTreePath);
             treeView.validate();
     }
@@ -270,7 +270,7 @@ class IRBrowser
         //	splitPane.setRightComponent(new JScrollPane(contentTable));
     splitPane.setDividerLocation(300);
 
-    // Hinzufügen der Komponenten
+    // Add components
     Container contentPane = getContentPane();
         //	contentPane.setBackground(java.awt.Color.lightGray);
         /*	getContentPane().setLayout(new java.awt.BorderLayout());
@@ -384,13 +384,15 @@ class IRBrowser
     public void mouseClicked(MouseEvent event)
     {
     javax.swing.tree.DefaultMutableTreeNode treeNode = null;
-    // bei Doppelklick auf contentTable den treeView auf entsprechende TypeSystemNode setzen
+    // on double-click on contentTable, set treeView to the corresponding
+    // TypeSystemNode
     if ( event.getComponent() == contentTable &&
              event.getClickCount() > 1 &&
              contentTable.getSelectedRow() != -1)
         {
             System.out.println("contentTable doubleClick");
-            // im TableModel steckt in jeder Zelle ein NodeMapper, von dem die dazugehörige treeNode zu erfahren ist
+	    // In the TableModel there's a NodeMapper in each cell which
+	    // can tell us the corresponding treeNode
 
             NodeMapper nodeMapper =
                 (NodeMapper)contentTable.getModel().getValueAt(contentTable.getSelectedRow(),0);
@@ -414,7 +416,8 @@ class IRBrowser
             }
             if ( treeNode!=null )
             {
-                // wenn Node ein AbstractContainer ist oder eine assoziierte TypeSystemNode besitzt, jeweils im treeView dorthin springen
+                // if Node is an AbstractContainer or has an associated
+                // TypeSystemNode, jump to it in the treeView
 
                 System.out.println("expanding Tree: "+treeNode);
                 DefaultTreeModel treeModel =
@@ -436,15 +439,15 @@ class IRBrowser
     public void mouseReleased(MouseEvent event){}
 
     /**
-     *  Setze  Titel  des  Frames  und enable/disable  Menüs  je  nach
-     *  selektierter Node  (Node kann  in TableView  oder  in TreeView
-     * selektiert worden sein)
+     * Set the title of the Frame and enable/disable menus according
+     * to the selected Node (could have been selected in TableView
+     * or in TreeView).
      * @param node typesystem.TypeSystemNode
      */
 
     public void setSelectedNode (TypeSystemNode node )
     {
-    // Node kann TableView oder TreeView selektiert worden sein
+    // Node could have been selected in TableView or TreeView
     setTitle(title + " - " + node.getAbsoluteName());
     textArea.setText(node.description());
     if (node instanceof TypeAssociator)
@@ -463,7 +466,7 @@ class IRBrowser
 
     public void valueChanged (ListSelectionEvent e )
     {
-    // contentTable nur bei einfacher Selection ändern
+	// change contentTable only when it's a simple selection
         //	System.out.println("valueChanged (Table...)");
     TypeSystemNode node;
     if (contentTable.getSelectedRow() != -1)
@@ -483,7 +486,7 @@ class IRBrowser
 
     public void valueChanged (TreeSelectionEvent e )
     {
-        // contentTable nur bei einfacher Selection ändern
+	// change contentTable only when it's a simple selection
         DefaultMutableTreeNode treeNode =
             (DefaultMutableTreeNode)e.getPath().getLastPathComponent();
 
