@@ -39,7 +39,7 @@ public abstract class ModelParticipant
         DefaultMutableTreeNode treeNode;
 
         if (parentTreeNode!=null)
-        {  // bei root ist es null
+        {  // for root it is null
             treeNode =  new DefaultMutableTreeNode(this);
             int i = 0;
             while ((i<parentTreeNode.getChildCount()) &&
@@ -52,8 +52,8 @@ public abstract class ModelParticipant
         }
         else
         {
-            // wir sind root; unsere TreeNode wurde (bzw. müßte!) dem Konstruktor
-            // von DefaultTreeModel mitgegeben werden, wir müssen uns also nicht mehr inserten
+            // we are root; our TreeNode was (or should have been) passed to the
+            // constructor of DefaultTreeModel, so we no longer need to insert ourselves 
             treeNode = (DefaultMutableTreeNode)treeModel.getRoot();
         }
 
@@ -69,12 +69,11 @@ public abstract class ModelParticipant
     }
 
     /**
-     * Baut Tree für diese Node auf.
-     * Kann leider nicht protected sein, weil Methode sonst selbst für Unterklassen in einem Unter-Package
-     * nicht sichtbar ist.
+     * Constructs Tree for this Node.
+     * Cannot be protected unfortunately, otherwise this method would not be visible even for
+     * sub-classes in a sub-package.
      * @param treeModel TreeModel
      */
-
     public void buildTree ( DefaultTreeModel treeModel, DefaultMutableTreeNode parentTreeNode )
     {
         addToParent(treeModel,parentTreeNode);
@@ -90,7 +89,7 @@ public abstract class ModelParticipant
             for (int i=0; i<contents.length; i++)
             {
                 if (contents[i]!=null)
-                {        // solange nicht alles implementiert ist gibt's null-Einträge
+		{   // as long as not everything is implemented, there are null entries
                     contents[i].buildTree(treeModel,treeNode);
                 }
             }
@@ -106,7 +105,7 @@ public abstract class ModelParticipant
     public synchronized void expand(DefaultTreeModel treeModel)
     {
         boolean jTreeExpanded = false;
-        // Hack, damit man gleich sieht, wie die Nodes eintrudeln
+	// hack so you can see the nodes coming in right away
         if (this instanceof AbstractContainer)
         {
             DefaultMutableTreeNode treeNode =
@@ -116,7 +115,7 @@ public abstract class ModelParticipant
             {
                 if (contents[i]!=null)
                 {
-                    // solange nicht alles implementiert ist gibt's null-Einträge
+		    // as long as not everything is implemented, there are null entries
                     contents[i].addToParent(treeModel,treeNode);
                 }
                 if (!jTreeExpanded)
@@ -152,5 +151,3 @@ public abstract class ModelParticipant
         modelRepresentants.put(model,representant);
     }
 }
-
-
