@@ -29,26 +29,19 @@ package org.jacorb.ir.gui.typesystem;
 public interface Interface
 {
     /**
-     * Gibt alle Fields inkl. der Fields der Super-Interfaces zurück
+     * Returns all fields, including fields of any super interfaces
      * @return org.jacorb.ir.gui.typesystem.TypeSystemNode[]
      */
     public TypeSystemNode[] getAllFields();
     /**
-     * Gibt alle Fields inkl. der Fields der Super-Interfaces zurück
+     * Returns all operations, including operations of any super interfaces
      * @return org.jacorb.ir.gui.typesystem.TypeSystemNode[]
      */
     public TypeSystemNode[] getAllOperations();
     /**
-     * This method was created by a SmartGuide.
+     * Returns all super interfaces
      * @return org.jacorb.ir.gui.typesystem.Interface[]
      */
     public Interface[] getSuperInterfaces();
 }
-
-
-
-
-
-
-
 

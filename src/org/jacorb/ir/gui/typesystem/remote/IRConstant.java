@@ -30,7 +30,7 @@ public class IRConstant extends IRNodeWithType
     protected java.lang.Object value;
 
     /**
-     * Default-Konstruktor: wird von TypeSystem.createNode(...) benutzt
+     * Default constructor: used by TypeSystem.createNode(...) 
      */
     public IRConstant ( ) {
 	super();
@@ -69,14 +69,3 @@ public class IRConstant extends IRNodeWithType
 	return "const";
     }
 }
-
-
-
-
-
-
-
-
-
-
-

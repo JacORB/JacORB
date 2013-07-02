@@ -51,7 +51,7 @@ public class RemoteObject
 
 }
     /**
-     * Für alle Attributes erzeuge ObjectRepresentants und gebe sie zurück
+     * Create ObjectRepresentants for all Attributes and return them
      * @return ModelParticipant[]
      */
     public ModelParticipant[] contents() {
@@ -61,7 +61,7 @@ public class RemoteObject
             for (int i=0; i<allFields.length; i++) {
                 Request request = ((org.omg.CORBA.Object)counterPart)._request("_get_"+allFields[i].getName());
                 IRNode associatedNode = (IRNode)allFields[i].getAssociatedTypeSystemNode();
-                request.set_return_type(associatedNode.getTypeCode());	// was ist mit Alias-Typen?
+                request.set_return_type(associatedNode.getTypeCode());	// what about alias types?
                 try {
                     request.invoke();
                 }
@@ -118,14 +118,4 @@ public class RemoteObject
     return null;
     }
 }
-
-
-
-
-
-
-
-
-
-
 

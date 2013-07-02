@@ -48,14 +48,14 @@ protected Struct(java.lang.Object counterPart, IRStruct typeSystemNode, String n
  */
 public ModelParticipant[] contents() {
 	if (counterPart!=null) {
-		// wir holen uns den Inhalt des Struct per Reflection
+	        // we get the contents of the Struct via reflection
 		IRStructMember[] members = (IRStructMember[])((AbstractContainer)typeSystemNode).contents();
 		ModelParticipant[] result = new ModelParticipant[members.length];
 		for (int i=0; i<members.length; i++) {
 			try {
 				Field field = counterPart.getClass().getDeclaredField(members[i].getName());
 				result[i] = ObjectRepresentantFactory.create(
-					field.get(counterPart),			// per Reflection auslesen
+					field.get(counterPart),			// retrieve via reflection
 					members[i].getAssociatedTypeSystemNode(),
 					members[i]);
 			}
@@ -70,13 +70,4 @@ public ModelParticipant[] contents() {
 	}	
 }
 }
-
-
-
-
-
-
-
-
-
 
