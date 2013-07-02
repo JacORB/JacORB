@@ -49,14 +49,14 @@ public class ObjectRepresentantFactory
      * @return org.jacorb.ir;.gui.remoteobject.ObjectRepresentant
      * @param counterPart java.lang.Object
      * @param type TypeSystemNode
-     * @param referencedBy TypeAssociator: das Attribut, das das Objekt enthält (darf null sein)
+     * @param referencedBy TypeAssociator: the attribute containing the object (may be null)
      */
     public static ObjectRepresentant create(java.lang.Object counterPart,
                                             TypeSystemNode type,
                                             TypeAssociator referencedBy)
     {
-        // referencedBy wird benötigt, falls wir den Inhalt eines Attributes darstellen sollen.
-        // Wenn wir this sind, dann gibt es kein referencedBy, aber immer noch einen type (den wir auch brauchen)
+	// referencedBy is needed in case we should display the contents of the Attribute.
+	// If we are this, then there is no referencedBy, but still a type (which we also need)
         String name = null;
         if (referencedBy!=null) {
             name = ((TypeSystemNode)referencedBy).getName();
@@ -137,25 +137,25 @@ public class ObjectRepresentantFactory
             result.insert_Object(orb.string_to_object(value));
             break;
             /*  case TCKind._tk_struct:
-                return any.insert_struct();  // gibt's nicht im Standard-Mapping
+                return any.insert_struct();  // doesn't exist in standard mapping
             */
             /*  case TCKind._tk_union:
-                return any.insert_union();  // gibt's nicht im Standard-Mapping
+                return any.insert_union();  // doesn't exist in standard mapping
             */
             case TCKind._tk_enum:
-            result.insert_long(Integer.parseInt(value));  // ob das wohl konform ist?
+            result.insert_long(Integer.parseInt(value));  // wonder if that's compliant?
             break;
             case TCKind._tk_string:
             result.insert_string(value);
             break;
             /*  case TCKind._tk_sequence:
-                return any.insert_sequence();  // gibt's nicht im Standard-Mapping
+                return any.insert_sequence();  // doesn't exist in standard mapping
             */
             /*  case TCKind._tk_array:
-                return any.insert_array();  // gibt's nicht im Standard-Mapping
+                return any.insert_array();  // doesn't exist in standard mapping
             */
             /*  case TCKind._tk_except:
-                return any.insert_except();  // gibt's nicht im Standard-Mapping
+                return any.insert_except();  // doesn't exist in standard mapping
             */
             case TCKind._tk_longlong:
             result.insert_longlong(Long.parseLong(value));
@@ -229,21 +229,22 @@ public class ObjectRepresentantFactory
             case TCKind._tk_objref:
             return any.extract_Object();
             /*  case TCKind._tk_struct:
-                return any.extract_struct();  // gibt's nicht im Standard-Mapping
+                return any.extract_struct();  // doesn't exist in standard mapping
             */
             /*  case TCKind._tk_union:
-                return any.extract_union();  // gibt's nicht im Standard-Mapping
+                return any.extract_union();  // doesn't exist in standard mapping
             */
             /*  case TCKind._tk_enum:
-                return any.extract_enum();  // gibt's nicht im Standard-Mapping
+                return any.extract_enum();  // doesn't exist in standard mapping
             */
             case TCKind._tk_string:
             return any.extract_string();
             /*  case TCKind._tk_sequence:
-                return any.extract_sequence();  // gibt's nicht im Standard-Mapping
+                return any.extract_sequence();  // doesn't exist in standard mapping
                 case TCKind._tk_array:
-                return any.extract_array();  // gibt's nicht im Standard-Mapping                 case TCKind._tk_except:
-                return any.extract_except();  // gibt's nicht im Standard-Mapping
+                return any.extract_array();  // doesn't exist in standard mapping
+                case TCKind._tk_except:
+                return any.extract_except();  // doesn't exist in standard mapping
             */
             case TCKind._tk_longlong:
             return new Long(any.extract_longlong());
@@ -257,14 +258,3 @@ public class ObjectRepresentantFactory
         return null;
     }
 }
-
-
-
-
-
-
-
-
-
-
-
