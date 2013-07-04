@@ -14,7 +14,7 @@
    <import file="etc/common.xml"/>
 
    <!-- top-level target -->
-   <target name="all" depends="init,src-check,version-gen,compiler,omg_idl,jacorb,libs"
+   <target name="all" depends="init,src-check,copy-version-template,parse-version,compiler,omg_idl,jacorb,libs"
            description="Build JacORB."/>
 
    <target name="src-check">
@@ -27,11 +27,15 @@
       </fail>
    </target>
 
-   <target name="version-gen" >
-        <tstamp>
-          <format property="TIME" pattern="k:m:s"/>
-        </tstamp>
-        <loadfile srcFile="${src}/org/jacorb/util/Version.java" property="JVERSION">
+   <!-- Note: only copy the template file if this is a standalone Ant build. The standalone build -->
+   <!--       is NOT suitable for release. Only the Maven build fills in the template Version     -->
+   <!--       information correctly.                                                              -->
+   <target name="copy-version-template" unless="maven.home">
+       <copy file="${src}/main/resources/org/jacorb/util/Version.java" tofile="${src.generated}/org/jacorb/util/Version.java" overwrite="true"/>
+   </target>
+
+   <target name="parse-version" >
+        <loadfile srcFile="${src}/generated/org/jacorb/util/Version.java" property="JVERSION">
           <filterchain>
             <containsregex pattern=".*version = &quot;(.*)&quot;;"
                            replace="\1"/>
@@ -39,35 +43,16 @@
           </filterchain>
         </loadfile>
 
-        <property name="BuildNo" value="${TODAY} ${TIME}" />
-        <property name="jacorb_version_info" value=" (Build ${BuildNo})" />
-
         <echo>
 using JacORB Version: ${JVERSION}
-using BUILD_NUMBER:   ${BuildNo}
         </echo>
-
-        <copy file="${src}/org/jacorb/util/BuildVersion.template" tofile="${src.generated}/org/jacorb/util/BuildVersion.java" overwrite="true">
-            <filterset>
-                <filter token="VERSION_INFO" value="${jacorb_version_info}" />
-            </filterset>
-        </copy>
-
-        <!-- need to delete the classes that depend on the version number -->
-        <delete quiet="true">
-            <fileset dir="${classdir}">
-                <include name="org/jacorb/orb/ORB.class" />
-                <include name="org/jacorb/idl/parser.class" />
-                <include name="org/jacorb/orb/giop/CodeSet.class" />
-            </fileset>
-        </delete>
-    </target>
+   </target>
 
    <!-- ==================================================== -->
    <!--                   IDL compiler                       -->
    <!-- ==================================================== -->
 
-   <target name="compiler" depends="init,version-gen,idlsrc,idllib"/>
+   <target name="compiler" depends="init,copy-version-template,parse-version,idlsrc,idllib"/>
 
 
    <!-- package idl.jar -->

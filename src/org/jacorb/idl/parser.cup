@@ -59,11 +59,9 @@ parser code
     public final static String currentVersion = "";
 
     // Compiles out leaving no runtime dependency on Version
-    public static final String compiler_version = org.jacorb.util.Version.longVersion;
-
-    private static final String yearString = "1997-2012";
-
-    private static final String versionInfo = org.jacorb.util.BuildVersion.versionInfo;
+    static final String compiler_version = org.jacorb.util.Version.version;
+    static final String compiler_date = org.jacorb.util.Version.date;
+    static final String compiler_year = org.jacorb.util.Version.yearString;
 
     private static org.jacorb.idl.IDLTreeVisitor generator = null;
 
@@ -678,9 +676,12 @@ parser code
 
     private static void version()
     {
-        System.out.println("JacORB IDL compiler V" +  compiler_version +
-                           ",\n   (C) The JacORB Project contributors, " +
-                           yearString + "." + versionInfo);
+        System.out.println
+        (
+            "JacORB IDL compiler V" + compiler_version + " (" + 
+            compiler_date + ')' + System.getProperty("line.separator") +
+            "\t(C) The JacORB Project " + compiler_year
+        );
     }
 
     /* override error routines */

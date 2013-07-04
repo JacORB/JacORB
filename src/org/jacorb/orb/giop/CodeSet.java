@@ -950,12 +950,12 @@ public class CodeSet
 
         String osName = (String)props.get ("os.name");
 
+        System.out.println ("JacORB: " + org.jacorb.util.Version.versionInfo);
         System.out.println ("Operating system name: " + osName);
         System.out.println ("Operating system version: " + props.get ("os.version"));
         System.out.println ("Operating system architecture: " + props.get ("os.arch"));
         System.out.println ("User region: " + System.getProperty( "user.region"));
         System.out.println ("JVM: " + props.get ("java.vm.version"));
-        System.out.println ("JacORB: " + org.jacorb.util.Version.longVersion);
 
         System.out.println("System file encoding property: " + System.getProperty( "file.encoding" ));
 

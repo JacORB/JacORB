@@ -50,6 +50,7 @@
 
     <scm>
         <connection>scm:git:git@github.com:JacORB/JacORB.git</connection>
+        <developerConnection>scm:git:git@github.com@JacORB/JacORB.git</developerConnection>
         <url>https://github.com/JacORB/JacORB</url>
     </scm>
 
@@ -118,62 +119,32 @@
                     <version>1.7</version>
                     <executions>
                         <execution>
-                        <id>getJACORB_HOMEValidation</id>
-                        <phase>validate</phase>
-                        <goals>
-                            <goal>run</goal>
-                        </goals>
-                        <configuration>
-                            <exportAntProperties>true</exportAntProperties>
-                            <target>
-                                <!--Adjust the location below to your directory structure -->
-                                <property name="env.JACORB_HOME" location="../.." />
-                                <echo message="[validate] env.JACORB_HOME=${env.JACORB_HOME}"/>
-                            </target>
-                        </configuration>
-                        </execution>
-                    <execution>
-                        <id>getenv.JACORB_HOMEClean</id>
-                        <phase>pre-clean</phase>
-                        <goals>
-                            <goal>run</goal>
-                        </goals>
-                        <configuration>
-                            <exportAntProperties>true</exportAntProperties>
-                            <target>
-                                <!--Adjust the location below to your directory structure -->
-                                <property name="env.JACORB_HOME" location="../.." />
-                                <echo message="[preclean] env.JACORB_HOME=${env.JACORB_HOME}"/>
-                            </target>
-                        </configuration>
-                    </execution>
-                        <execution>
-                            <id>clean</id>
-                            <phase>clean</phase>
+                            <id>getJACORB_HOMEValidation</id>
+                            <phase>validate</phase>
                             <goals>
                                 <goal>run</goal>
                             </goals>
                             <configuration>
+                                <exportAntProperties>true</exportAntProperties>
                                 <target>
-                                    <ant antfile="${env.JACORB_HOME}/build.xml" target="realclean">
-                                        <property name="basedir" value="${env.JACORB_HOME}"/>
-                                    </ant>
+                                    <!--Adjust the location below to your directory structure -->
+                                    <property name="env.JACORB_HOME" location="../.." />
+                                    <echo message="[validate] env.JACORB_HOME=${env.JACORB_HOME}"/>
                                 </target>
                             </configuration>
                         </execution>
                         <execution>
-                            <id>compile</id>
-                            <phase>compile</phase>
+                            <id>getenv.JACORB_HOMEClean</id>
+                            <phase>pre-clean</phase>
                             <goals>
                                 <goal>run</goal>
                             </goals>
                             <configuration>
-                                <target unless="skipCompile">
-                                    <property name="plugin_classpath" refid="maven.plugin.classpath"/>
-                                    <ant antfile="${env.JACORB_HOME}/build.xml" inheritAll="true" inheritRefs="true" target="all">
-                                        <property name="sun.boot.class.path" value="${sun.boot.class.path}:${plugin_classpath}"/>
-                                        <property name="basedir" value="${env.JACORB_HOME}"/>
-                                    </ant>
+                                <exportAntProperties>true</exportAntProperties>
+                                <target>
+                                    <!--Adjust the location below to your directory structure -->
+                                    <property name="env.JACORB_HOME" location="../.." />
+                                    <echo message="[preclean] env.JACORB_HOME=${env.JACORB_HOME}"/>
                                 </target>
                             </configuration>
                         </execution>
@@ -255,6 +226,12 @@
                     </executions>
                 </plugin>
 
+                <plugin>
+                    <groupId>org.codehaus.mojo</groupId>
+                    <artifactId>buildnumber-maven-plugin</artifactId>
+                    <version>1.2</version>
+                </plugin>
+
                 <!-- Helper plugin to override main artifact -->
                 <plugin>
                     <groupId>org.commonjava.maven.plugins</groupId>
@@ -281,6 +258,7 @@
                         <skip>${skipJavadoc}</skip>
                         <verbose>true</verbose>
                         <sourcepath>${env.JACORB_HOME}/src</sourcepath>
+                        <bootclasspath>${sun.boot.class.path}:${env.JACORB_HOME}/classes</bootclasspath>
                     </configuration>
                     <executions>
                         <execution>
@@ -333,6 +311,20 @@
                             </target>
                         </configuration>
                     </execution>
+                    <execution>
+                            <id>clean</id>
+                            <phase>clean</phase>
+                            <goals>
+                                <goal>run</goal>
+                            </goals>
+                            <configuration>
+                                <target>
+                                    <ant antfile="${env.JACORB_HOME}/build.xml" target="realclean">
+                                        <property name="basedir" value="${env.JACORB_HOME}"/>
+                                    </ant>
+                                </target>
+                            </configuration>
+                        </execution>
                 </executions>
             </plugin>
 
@@ -348,6 +340,59 @@
                 </executions>
             </plugin>
 
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-resources-plugin</artifactId>
+                <inherited>false</inherited>
+                <executions>
+                    <execution>
+                        <id>resources</id>
+                        <phase>process-sources</phase>
+                        <goals>
+                            <goal>copy-resources</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${basedir}/src/generated</outputDirectory>
+                            <resources>
+                                <resource>
+                                    <directory>src/main/resources</directory>
+                                    <filtering>true</filtering>
+                                </resource>
+                            </resources>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>buildnumber-maven-plugin</artifactId>
+                <inherited>false</inherited>
+                <executions>
+                    <execution>
+                        <phase>validate</phase>
+                        <id>buildnumbers</id>
+                        <goals>
+                            <goal>create</goal>
+                        </goals>
+                        <configuration>
+                            <shortRevisionLength>8</shortRevisionLength>
+                            <timestampFormat>{0,date,dd MMMM yyyy HH:mm:ss}</timestampFormat>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <phase>validate</phase>
+                        <id>year</id>
+                        <goals>
+                            <goal>create-timestamp</goal>
+                        </goals>
+                        <configuration>
+                            <timestampFormat>yyyy</timestampFormat>
+                            <timestampPropertyName>releaseYear</timestampPropertyName>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
     </build>
 
