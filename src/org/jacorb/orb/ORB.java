@@ -56,7 +56,6 @@ import org.jacorb.poa.RPPoolManager;
 import org.jacorb.poa.RPPoolManagerFactory;
 import org.jacorb.poa.except.POAInternalError;
 import org.jacorb.poa.util.POAUtil;
-import org.jacorb.util.BuildVersion;
 import org.jacorb.util.ObjectUtil;
 import org.jacorb.util.SelectorManager;
 import org.jacorb.util.TimerQueue;
@@ -122,8 +121,6 @@ public final class ORB
     extends ORBSingleton
     implements org.jacorb.poa.POAListener, Configurable
 {
-    private static final String versionString = org.jacorb.util.Version.version;
-    private static final String dateString = org.jacorb.util.Version.date;
     private static final String nullIORString =
         "IOR:00000000000000010000000000000000";
 
@@ -455,11 +452,15 @@ public final class ORB
 
         Logger versionLogger = configuration.getLogger("jacorb.orb.print_version");
 
-        versionLogger.info(System.getProperty("line.separator") +
-           "\t~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~" + System.getProperty("line.separator") +
-           "\tJacORB V " + versionString + ", www.jacorb.org" + System.getProperty("line.separator") +
-           "\t(C) The JacORB project " + dateString + BuildVersion.versionInfo + System.getProperty("line.separator") +
-           "\t~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+        versionLogger.info
+        (
+            System.getProperty("line.separator") +
+            "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~" +
+            System.getProperty("line.separator") +
+            Version.versionInfo +
+            System.getProperty("line.separator") +
+            "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+        );
     }
 
 

@@ -3,7 +3,7 @@ package org.jacorb.util;
 /*
  *        JacORB - a free Java ORB
  *
- *   Copyright (C) 1997-2012 Gerald Brose / The JacORB Team.
+ *   Copyright (C) 1997-2013 Gerald Brose / The JacORB Team.
  *
  *   This library is free software; you can redistribute it and/or
  *   modify it under the terms of the GNU Library General Public
@@ -21,17 +21,31 @@ package org.jacorb.util;
  */
 
 /**
- * @author Alphonse Bendt
- * @author Andre Spiegel
+ * Version identification file.
  */
-public final class BuildVersion
+public final class Version
 {
-    public static final String versionInfo = "@VERSION_INFO@";
+    public static final String orbId = "jacorb";
 
+    public static final String version = "@project.version@";
+    public static final String yearString = "1997-" + "@releaseYear@";
+    public static final String date = "@timestamp@";
+
+    public static final String gitInfo = "@buildNumber@";
+
+
+    public static final String versionInfo =
+    (
+        "JacORB V" + version +
+        " (www.jacorb.org)" + System.getProperty("line.separator") +
+        "\t(C) The JacORB project " + yearString + System.getProperty("line.separator") +
+        "\t" + Version.date + " with SHA " + gitInfo
+    );
+
+
+    // Used by the version command.
     public static void main(String[] args)
     {
-        System.out.println ("JacORB V" + Version.longVersion +
-                            ",\n   (C) The JacORB Project contributors, " +
-                            Version.yearString + "." + versionInfo);
+        System.out.println (versionInfo);
     }
 }

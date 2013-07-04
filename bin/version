@@ -35,4 +35,4 @@ RESOLVED_JACO_CMD=${RESOLVED_JACORB_HOME}/bin/jaco
 
 JACO_CMD=${RESOLVED_JACO_CMD}
 
-$JACO_CMD org.jacorb.util.BuildVersion
+$JACO_CMD org.jacorb.util.Version

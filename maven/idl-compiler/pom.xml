@@ -35,8 +35,8 @@
             <plugin>
                 <artifactId>maven-antrun-plugin</artifactId>
                 <executions>
-                    <!-- Normally we would just unzip the idl jar for the jar-plugin to repack. However, as the IDL -->
-                    <!-- compilation is quick we'll ensure we can rebuild it here -->
+                    <!-- Normally we would just unzip the idl jar for the jar-plugin to repack. However, -->
+                    <!-- as the IDL compilation is quick we'll ensure we can rebuild it here -->
                     <execution>
                         <id>compile</id>
                         <phase>compile</phase>

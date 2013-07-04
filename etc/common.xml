@@ -140,7 +140,8 @@
 
     <!-- Call base-init first. The regression tests call this but -->
     <!-- have their own base-init                                 -->
-    <target name="init" depends="base-init, init-properties, init-path, init-javac-common, init-javac-jdk, init-javac-j2me" />
+    <target name="init" depends="base-init, init-properties, init-path, init-javac-common, init-javac-jdk, init-javac-j2me"/>
+
     <target name="whats-my-classpath" depends="init"
             description="Outputs the classpath that will be used for compilation of JacORB">
         <pathconvert property="_classpath" refid="path.base" pathsep="${line.separator}" />
