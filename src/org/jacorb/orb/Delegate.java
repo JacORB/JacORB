@@ -143,7 +143,6 @@ public final class Delegate
 
     /* flag to indicate if this is the delegate for the ImR */
     private boolean isJacORBImR = false;
-    private boolean isTaoImR = false;
 
     private boolean bound = false;
     private org.jacorb.poa.POA poa;
@@ -457,6 +456,8 @@ public final class Delegate
      */
     private void checkIfImR( String typeId )
     {
+        boolean isTaoImR = false;
+
         if ("IDL:org/jacorb/imr/ImplementationRepository:1.0".equals (typeId))
         {
             isJacORBImR = true;
@@ -466,6 +467,10 @@ public final class Delegate
             isTaoImR = true;
         }
 
+        if ( (isTaoImR || isJacORBImR) && logger.isDebugEnabled())
+        {
+            logger.debug("Detected IMR of type " + (isJacORBImR ? "JacORB" : "TAO"));
+        }
     }
 
     public int _get_TCKind()
@@ -660,10 +665,6 @@ public final class Delegate
     {
         synchronized ( bind_sync )
         {
-            // Do the ParsedIORs currently match.
-            final ParsedIOR originalIOR = getParsedIOR();
-            boolean originalMatch = originalIOR.equals(pior);
-
             // Check if ClientProtocolPolicy set, if so, set profile
             // selector for IOR that selects effective profile for protocol
             org.omg.RTCORBA.Protocol[] protocols = getClientProtocols();
@@ -1988,7 +1989,7 @@ public final class Delegate
                 // First, search with stub name
                 // if not found, try with the 'org.omg.stub' prefix to support package
                 // with javax prefix
-                Class stub=null;
+                Class<?> stub=null;
                 try
                 {
                     stub = ObjectUtil.classForName( buffer.toString());
@@ -2607,7 +2608,7 @@ public final class Delegate
 
     public ServantObject servant_preinvoke( org.omg.CORBA.Object self,
                                             String operation,
-                                            Class expectedType )
+                                            @SuppressWarnings("rawtypes") Class expectedType )
     {
         InterceptorManager manager = null;
         ServerInterceptorIterator interceptorIterator = null;
