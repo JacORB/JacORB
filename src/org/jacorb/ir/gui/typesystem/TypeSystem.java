@@ -32,17 +32,19 @@ import javax.swing.tree.TreeModel;
  */
 public abstract class TypeSystem
 {
-    // Abbildung von Benutzer-lesbaren nodeTypeNames auf Klassennamen
-    // Unterklassen von TypeSystemNode tragen sich hier entsprechend selbst ein.
-    // (da sich konkret nur Klassen entsprechend den CORBA-IR Klassen eintragen,
-    // kann es nicht zu Namenskonflikten kommen, da IDL-Bezeichner eindeutig sind)
+    // Mapping from user-readable nodeTypeNames to class names.
+    // Subclasses of TypeSystemNode register themselves here
+    // (since actually only classes that correspond to the CORBA-IR classes
+    // register themselves, there cannot be any name conflicts, since
+    // IDL identifiers are unique) 
+
     private static Hashtable nodeTypes = new Hashtable();
 
     protected DefaultTreeModel treeModel = null;
 
     /**
-     * Erzeugt node entsprechend dem übergebenen nodeTypeName
-     * (z.B. "module" erzeugt ein IRModule-Objekt)
+     * Creates node corresponding to the given nodeTypeName
+     * (e.g. "module" creates an IRModule object)
      * @return org.jacorb.ir.gui.typesystem.TypeSystemNode
      * @param nodeTypeName java.lang.String
      */
@@ -61,7 +63,9 @@ public abstract class TypeSystem
     }
 
     /**
-     * Erzeugt TreeModel, das nur root enthält. Um Nodes zu expandieren, muß der von getTreeExpansionListener(treeModel)
+     * Creates a TreeModel that only contains root. To expand Nodes, the
+     * TreeExpansionListener returned by getTreeExpansionListener(treeModel)
+     * needs to be registered with JTree.
      * zurückgegebene TreeExpansionListener bei JTree angemeldet werden.
      * @return javax.swing.tree.DefaultTreeModel
      */
@@ -87,8 +91,8 @@ public abstract class TypeSystem
     public abstract TreeModel getTreeModel ( );
 
     /**
-     * Wird von static initializern von Unterklassen von TypeSystemNode aufgerufen, um sich für
-     * createNode() zu registrieren.
+     * Called by static initializers of subclasses of TypeSystemNode,
+     * in order to register themselves for createNode()
      * @param nodeTypeName java.lang.String
      * @param className java.lang.String
      */
@@ -96,11 +100,4 @@ public abstract class TypeSystem
         nodeTypes.put(nodeTypeName,className);
     }
 }
-
-
-
-
-
-
-
 
