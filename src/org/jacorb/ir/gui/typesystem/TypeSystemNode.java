@@ -56,12 +56,11 @@ public abstract class TypeSystemNode
     }
 
     /**
-     * Gibt Array mit Strings zurück: die Node-Typen, die zu dieser Node
-     * hinzugefügt werden können.
-     * IRModule z.B. gibt "module", "interface" usw. zurück.
+     * Returns an array of strings: the node types that can be
+     * added to this node. (IRModule, for example, returns
+     * "module", "interface", etc.)
      * @return java.util.Enumeration
      */
-
     public String[] allowedToAdd ( )
     {
         return null;
@@ -96,9 +95,10 @@ public abstract class TypeSystemNode
 
     public String getInstanceNodeTypeName ( )
     {
-    // Für die Textrepräsentation einer Node kann nodeTypeName abhängig vom Zustand sein,
-    // z.B. bei IRAttribute: gegebenenfalls muß es dort "readonly attribute" heißen und nicht "attribute"
-    // Dynamischen Lookup einer static Methode simulieren:
+	// For the textual representation of a node, nodeTypeName can depend
+        // on the state, e.g. for IRAttribute, where it may need to be
+        // "readonly attribute" instead of "attribute".  Simulate dynamic
+        // lookup of a static method:
     Method nodeTypeNameMethod;
     String nodeTypeName = "";
     try {
@@ -121,13 +121,12 @@ public abstract class TypeSystemNode
     }
 
     /**
-     * Füge neues Child zu Node hinzu. Wird nur von TypeSystem.insertChild(..) aufgerufen.
-     * Macht hier nichts als Exception zu werfen, wenn newChild nicht zugelassen ist, muß also
-     * von Unterklassen überschrieben werden, um z.B. entsprechende Methode auf IR aufzurufen.
-     * Bei illegalem Child-Typ wird IllegalChildException geworfen.
+     * Adds a new child to a node. Only called by TypeSystem.insertChild(...). Here 
+     * it doesn't do anything except throw an exception, if newChild is not permitted,
+     * hence it must be overridden by subclasses, e.g. to call the corresponding method
+     * on IR. Throws IllegalChildException for illegal child type. 
      * @param newChild TypeSystemNode
      */
-
     protected void insertChild ( TypeSystemNode newChild)
         throws IllegalChildException
     {
@@ -140,19 +139,19 @@ public abstract class TypeSystemNode
     if (!allowedTypes[i].equals(TypeSystemNode.nodeTypeName())) {
             throw new IllegalChildException();
     }
-    // Das eigentliche Einfügen der DefaultMutableTreeNode wird von TypeSystem vorgenommen,
-    // um entsprechende Events des TreeModels wird sich dort gekümmert.
-    // Unterklassen müssen Methode überschreiben (inkl. Aufruf von super.addChild(..)) und z.B.
-    // entsprechende Methode auf dem InterfaceRepository aufrufen
+    // The actual insertion of DefaultMutableTreeNode is done by TypeSystem, which
+    // also deals with corresponding events from the TreeModel. Subclasses
+    // need to override this method (including a call to super.addChild(), and
+    // call, for example, the corresponding method on the InterfaceRepository.
     }
 
     /**
-     * Gib den Namen des Typen der Node zurück, z.B. den IDL-Bezeichner "Module"
+     * Returns the name of the type of the Node, e.g. the IDL identifier "Module"
      * @return java.lang.String
      */
 
     public static String nodeTypeName ( ) {
-    // static Methoden können nicht abstract sein
+    // static methods cannot be abstract
     return null;
     }
 
@@ -163,7 +162,7 @@ public abstract class TypeSystemNode
     }
 
     /**
-     * wird von Unterklassen von TypeSystemNode aufgerufen, deswegen protected
+     * called by subclasses of TypeSystemNode, therefore protected
      * @param name java.lang.String
      */
 
@@ -172,18 +171,11 @@ public abstract class TypeSystemNode
     }
 
     /**
-     * Soll möglichst IDL-ähnliche komplette Textrepräsentation zurückgeben
-     * aber nur der Node selbst.
+     * Supposed to return an IDL-similar, complete textual representation,
+     * but only of the node itself.
      * @return java.lang.String
      */
     public String toString ( ) {
     return getInstanceNodeTypeName() + " " + getName();
     }
 }
-
-
-
-
-
-
-
