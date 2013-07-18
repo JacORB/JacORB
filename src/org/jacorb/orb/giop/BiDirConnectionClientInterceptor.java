@@ -73,15 +73,15 @@ public class BiDirConnectionClientInterceptor
             return;
 
         BasicAdapter ba = orb.getBasicAdapter();
-                       
-        List endpoints = ba.getEndpointProfiles();
-                       
-        Iterator i = endpoints.iterator();
+
+        List<Profile> endpoints = ba.getEndpointProfiles();
+
+        Iterator<Profile> i = endpoints.iterator();
         final List listenPoints = new ArrayList();
         while(i.hasNext())
         {
-            Profile profile = (Profile) i.next();
-                       
+            Profile profile = i.next();
+
             if (profile instanceof ProfileBase)
             {
                 listenPoints.addAll(((ProfileBase)profile).asListenPoints());
@@ -92,9 +92,9 @@ public class BiDirConnectionClientInterceptor
             }
         }
 
-        ListenPoint[] listenPointsArray = 
+        ListenPoint[] listenPointsArray =
             (ListenPoint[]) listenPoints.toArray(new ListenPoint[listenPoints.size()]);
-                       
+
         BiDirIIOPServiceContext context =
             new BiDirIIOPServiceContext( listenPointsArray );
         org.omg.CORBA.Any any = orb.create_any();
@@ -106,7 +106,7 @@ public class BiDirConnectionClientInterceptor
         {
             cdr_out.beginEncapsulatedArray();
             BiDirIIOPServiceContextHelper.write( cdr_out, context );
-            
+
             bidir_ctx = new ServiceContext( BI_DIR_IIOP.value,
                                             cdr_out.getBufferCopy() );
         }
@@ -120,17 +120,20 @@ public class BiDirConnectionClientInterceptor
         throws ForwardRequest
     {
         //only send a BiDir service context if our orb allows it, and
-        //the connection was initiated in this process
-
+        //the connection was initiated in this process and if this is not
+        // a local call.
         if( !orb.useBiDirGIOP() ||
+            ((ClientRequestInfoImpl) ri).isLocalInterceptor() ||
             !((ClientRequestInfoImpl) ri).getConnection().isClientInitiated() )
+        {
             return;
+        }
 
         if( bidir_ctx == null )
         {
             init_bidir_ctx ();
         }
-       
+
         if ( !((ClientRequestInfoImpl) ri).getConnection().isListenPointListSent() )
         {
             ri.add_request_service_context( bidir_ctx, true );

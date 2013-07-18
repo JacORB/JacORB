@@ -118,7 +118,7 @@ public class DefaultClientInterceptorHandler implements ClientInterceptorHandler
                                          self,
                                          delegate,
                                          piorOriginal,
-                                         (Map) Delegate.getInvocationContext().peek());
+                                         (Map<INVOCATION_KEY, UtcT>) Delegate.getInvocationContext().peek());
 
         isLocal = true;
 

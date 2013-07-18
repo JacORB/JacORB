@@ -545,16 +545,26 @@ public class ClientRequestInfoImpl
     }
 
 
-	/**
-	 * Public accessor to return the connection being used by this ClientRequestInfoImpl.
-	 * 
-	 * @return the connection
-	 */
-	public ClientConnection getConnection() 
-	{
-		return connection;
-	}
-	
+    /**
+     * Public accessor to return the connection being used by this ClientRequestInfoImpl.
+     *
+     * @return the connection (maybe null if local call and no connection has been used).
+     */
+    public ClientConnection getConnection()
+    {
+        return connection;
+    }
+
+    /**
+     * Public accessor to determine if this interceptor is being used in a local call.
+     *
+     * @return true if this is a local interceptor.
+     */
+    public boolean isLocalInterceptor()
+    {
+        return (getConnection() == null);
+    }
+
     // These functions should NOT be used internally and are only provided
     // to allow users to interrogate the streams.
     /**

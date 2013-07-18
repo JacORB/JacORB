@@ -24,7 +24,6 @@ package org.jacorb.orb.portableInterceptor;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
-
 import org.jacorb.orb.ORB;
 import org.omg.CORBA.Any;
 import org.omg.CORBA.BAD_PARAM;
@@ -188,7 +187,7 @@ public abstract class RequestInfoImpl
 
         synchronized(reply_ctx)
         {
-            result = (ServiceContext) reply_ctx.get(id);
+            result = reply_ctx.get(id);
         }
 
         if (result == null)
@@ -205,7 +204,7 @@ public abstract class RequestInfoImpl
 
         synchronized(request_ctx)
         {
-            result = (ServiceContext) request_ctx.get(Integer.valueOf(id));
+            result = request_ctx.get(Integer.valueOf(id));
         }
 
         if (result == null)
@@ -264,7 +263,7 @@ public abstract class RequestInfoImpl
     {
         return sync_scope;
     }
-    
+
     /**
      * Public accessor to retrieve the ORB for this Request.
      * @return a <code>org.jacorb.orb.ORB</code> value.

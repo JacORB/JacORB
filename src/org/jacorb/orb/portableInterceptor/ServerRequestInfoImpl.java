@@ -23,7 +23,6 @@ package org.jacorb.orb.portableInterceptor;
 
 import java.util.ArrayList;
 import java.util.Collection;
-
 import org.jacorb.orb.dsi.ServerRequest;
 import org.jacorb.orb.giop.GIOPConnection;
 import org.jacorb.orb.giop.ReplyOutputStream;
@@ -173,7 +172,7 @@ public class ServerRequestInfoImpl
          // reverse order.
          for (int j = 0, i = (size-1); i >= 0; i--, j++)
          {
-            adapter_name [j] = (String)al.get (i);
+            adapter_name [j] = al.get (i);
          }
     }
 
@@ -501,19 +500,29 @@ public class ServerRequestInfoImpl
 
         reply_ctx.put(_id, service_context);
     }
-    
-    
-    /**
-	 * Public accessor to return the connection being used by this ServerRequestInfoImpl.
-	 * 
-	 * @return the connection
-	 */
-	public GIOPConnection getConnection() 
-	{
-		return (request == null ? null : request.getConnection());
-	}
 
-	// These functions should NOT be used internally and are only provided
+
+    /**
+     * Public accessor to return the connection being used by this ServerRequestInfoImpl.
+     *
+     * @return the connection (maybe null if local call and no connection has been used).
+     */
+    public GIOPConnection getConnection()
+    {
+        return (request == null ? null : request.getConnection());
+    }
+
+    /**
+     * Public accessor to determine if this interceptor is being used in a local call.
+     *
+     * @return true if this is a local interceptor.
+     */
+    public boolean isLocalInterceptor()
+    {
+        return (getConnection() == null);
+    }
+
+    // These functions should NOT be used internally and are only provided
     // to allow users to interrogate the streams.
     /**
      * Public accessor to access the internal reply stream. Using this API it

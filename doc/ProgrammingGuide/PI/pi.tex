@@ -77,8 +77,12 @@ forward\_reference() to prevent infinite loops.
 \section{Public API}
 Some users may find it useful to access internal data on the ClientRequestInfo and ServerRequestInfo. The following API is available. Note that it may be possible to corrupt the call chain so use these at your own risk.
 
+{\tt isLocalInterceptors} returns true if the interceptors are running locally (i.e. no TCP
+connection is being used and therefore {\tt getConnection} will return null).
+
 \subsubsection{org.jacorb.orb.portableInterceptor.ServerRequestInfoImpl}
 \begin{verbatim}
+   public boolean isLocalInterceptors()
    public GIOPConnection getConnection()
    public ReplyOutputStream getReplyStream ()
    public RequestInputStream getRequestStream ()
@@ -87,6 +91,7 @@ Some users may find it useful to access internal data on the ClientRequestInfo a
 
 \subsubsection{org.jacorb.orb.portableInterceptor.ClientRequestInfoImpl}
 \begin{verbatim}
+   public boolean isLocalInterceptors()
    public ClientConnection getConnection()
    public ReplyInputStream getReplyStream ()
    public RequestOutputStream getRequestStream ()

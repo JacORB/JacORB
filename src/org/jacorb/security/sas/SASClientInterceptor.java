@@ -22,9 +22,9 @@ package org.jacorb.security.sas;
 
 import java.net.URLDecoder;
 import java.util.Hashtable;
-
-import org.jacorb.config.*;
-import org.slf4j.Logger;
+import org.jacorb.config.Configurable;
+import org.jacorb.config.Configuration;
+import org.jacorb.config.ConfigurationException;
 import org.jacorb.orb.CDRInputStream;
 import org.jacorb.orb.MinorCodes;
 import org.jacorb.orb.giop.ClientConnection;
@@ -51,15 +51,16 @@ import org.omg.CSI.SASContextBodyHelper;
 import org.omg.CSIIOP.CompoundSecMechList;
 import org.omg.CSIIOP.CompoundSecMechListHelper;
 import org.omg.CSIIOP.ServiceConfiguration;
-import org.omg.IOP.TAG_CSI_SEC_MECH_LIST;
 import org.omg.IOP.Codec;
 import org.omg.IOP.ENCODING_CDR_ENCAPS;
 import org.omg.IOP.Encoding;
 import org.omg.IOP.ServiceContext;
+import org.omg.IOP.TAG_CSI_SEC_MECH_LIST;
 import org.omg.IOP.TaggedComponent;
 import org.omg.IOP.CodecFactoryPackage.UnknownEncoding;
 import org.omg.PortableInterceptor.ClientRequestInterceptor;
 import org.omg.PortableInterceptor.ORBInitInfo;
+import org.slf4j.Logger;
 
 /**
  * This is the SAS Client Security Service (CSS) Interceptor
@@ -80,7 +81,7 @@ public class SASClientInterceptor
 
     protected byte[] contextToken = new byte[0];
     protected boolean useStateful = true;
-    protected Hashtable atlasCache = new Hashtable();
+    protected Hashtable<String, AuthTokenData> atlasCache = new Hashtable<String, AuthTokenData>();
 
     protected ISASContext sasContext = null;
 
@@ -100,7 +101,7 @@ public class SASClientInterceptor
         throws ConfigurationException
     {
         logger =
-            ((org.jacorb.config.Configuration)configuration).getLogger("jacorb.security.sas.CSS.log.verbosity");
+            configuration.getLogger("jacorb.security.sas.CSS.log.verbosity");
 
         useStateful =
             configuration.getAttribute("jacorb.security.sas.stateful","true").equals("true");
@@ -149,12 +150,19 @@ public class SASClientInterceptor
     {
     }
 
-    public void send_request(org.omg.PortableInterceptor.ClientRequestInfo ri)
+    public void send_request(org.omg.PortableInterceptor.ClientRequestInfo cri)
         throws org.omg.PortableInterceptor.ForwardRequest
     {
+        ClientRequestInfoImpl ri = (ClientRequestInfoImpl)cri;
+
+        if (ri.isLocalInterceptor())
+        {
+            return;
+        }
+
         //if (ri.operation().equals("_is_a")) return;
         //if (ri.operation().equals("_non_existent")) return;
-        org.omg.CORBA.ORB orb = ((ClientRequestInfoImpl) ri).orb();
+        org.omg.CORBA.ORB orb = ri.orb();
 
         // see if target requires protected requests by looking into the IOR
         CompoundSecMechList csmList = null;
@@ -187,7 +195,7 @@ public class SASClientInterceptor
         }
 
         // ask connection for client_context_id
-        ClientConnection connection = ((ClientRequestInfoImpl) ri).getConnection();
+        ClientConnection connection = ri.getConnection();
 
         long client_context_id = 0;
         if (useStateful)
@@ -238,8 +246,15 @@ public class SASClientInterceptor
     {
     }
 
-    public void receive_reply(org.omg.PortableInterceptor.ClientRequestInfo ri)
+    public void receive_reply(org.omg.PortableInterceptor.ClientRequestInfo cri)
     {
+        ClientRequestInfoImpl ri = (ClientRequestInfoImpl)cri;
+
+        if (ri.isLocalInterceptor())
+        {
+            return;
+        }
+
         // get SAS message
         SASContextBody contextBody = null;
         ServiceContext ctx = null;
@@ -272,7 +287,7 @@ public class SASClientInterceptor
                                                   MinorCodes.SAS_CSS_FAILURE,
                                                   CompletionStatus.COMPLETED_MAYBE);
         }
-        ClientConnection connection = ((ClientRequestInfoImpl) ri).getConnection();
+        ClientConnection connection = ri.getConnection();
 
         // process CompleteEstablishContext message
         if (contextBody.discriminator() == MTCompleteEstablishContext.value)
@@ -295,9 +310,15 @@ public class SASClientInterceptor
         }
     }
 
-    public void receive_exception(org.omg.PortableInterceptor.ClientRequestInfo ri)
+    public void receive_exception(org.omg.PortableInterceptor.ClientRequestInfo cri)
         throws org.omg.PortableInterceptor.ForwardRequest
     {
+        ClientRequestInfoImpl ri = (ClientRequestInfoImpl)cri;
+
+        if (ri.isLocalInterceptor())
+        {
+            return;
+        }
         // get SAS message
         SASContextBody contextBody = null;
         ServiceContext ctx = null;
@@ -330,7 +351,7 @@ public class SASClientInterceptor
                                                   MinorCodes.SAS_CSS_FAILURE,
                                                   CompletionStatus.COMPLETED_MAYBE);
         }
-        ClientConnection connection = ((ClientRequestInfoImpl) ri).getConnection();
+        ClientConnection connection = ri.getConnection();
 
         // process CompleteEstablishContext message
         if (contextBody.discriminator() == MTCompleteEstablishContext.value)
