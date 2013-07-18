@@ -195,7 +195,7 @@ public class POA
         {
             for (int i=0; i<policies.length; i++)
             {
-                all_policies.put(ObjectUtil.newInteger( policies[i].policy_type() ),
+                all_policies.put(ObjectUtil.newInteger(policies[i].policy_type()),
                                   policies[i]);
 
                 switch (policies[i].policy_type())
@@ -337,7 +337,7 @@ public class POA
     public Servant _incarnateServant(byte[] oid, ServantActivator sa)
         throws org.omg.PortableServer.ForwardRequest
     {
-        return aom.incarnate(oid, sa, this);
+        return aom.incarnate(new ByteArrayKey(oid), sa, this);
     }
 
     /**
@@ -985,7 +985,7 @@ public class POA
         }
 
         aom.remove(
-            oid,
+            new ByteArrayKey(oid),
             requestController,
             useServantManager() ? (ServantActivator)servantManager : null,
             this,
@@ -1628,6 +1628,12 @@ public class POA
             if (logger.isDebugEnabled())
             {
                 logger.debug(logPrefix + "... done");
+            }
+
+            if (aom != null)
+            {
+            // Stop the AOM removal queue.
+                aom.aomRemoval.end ();
             }
 
             /* etherialize all active objects */

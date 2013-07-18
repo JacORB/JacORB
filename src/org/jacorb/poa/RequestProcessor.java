@@ -24,6 +24,7 @@ import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.Set;
 import org.jacorb.config.*;
+import org.jacorb.poa.util.ByteArrayKey;
 import org.slf4j.Logger;
 import org.jacorb.orb.SystemExceptionHelper;
 import org.jacorb.orb.dsi.ServerRequest;
@@ -219,7 +220,7 @@ public class RequestProcessor
         try
         {
 
-            servant = controller.getAOM().incarnate( request.objectId(),
+            servant = controller.getAOM().incarnate( new ByteArrayKey(request.objectId()),
                                                      (ServantActivator) servantManager,
                                                      controller.getPOA());
             if (servant == null)
