@@ -100,7 +100,7 @@ public class SASTargetInterceptor
         throws ConfigurationException
     {
         logger =
-            ((org.jacorb.config.Configuration)configuration).getLogger("jacorb.security.sas.TSS.log.verbosity");
+            configuration.getLogger("jacorb.security.sas.TSS.log.verbosity");
 
         useSsl =
             configuration.getAttribute("jacorb.security.sas.tss.requires_sas","false").equals("true");
@@ -145,9 +145,11 @@ public class SASTargetInterceptor
     {
     }
 
-    public void receive_request_service_contexts( ServerRequestInfo ri )
+    public void receive_request_service_contexts( ServerRequestInfo sri )
         throws ForwardRequest
     {
+        ServerRequestInfoImpl ri = ((ServerRequestInfoImpl)sri);
+
         if (logger.isDebugEnabled())
             logger.debug("receive_request_service_contexts for " + ri.operation());
 
@@ -165,11 +167,12 @@ public class SASTargetInterceptor
             return;
           }
 
-        if (sasContext == null)
+        if (sasContext == null || ri.isLocalInterceptor())
+        {
             return;
+        }
 
-        GIOPConnection connection =
-            ((ServerRequestInfoImpl) ri).getConnection();
+        GIOPConnection connection = ri.getConnection();
 
         // verify SSL requirements
         if (useSsl && !connection.isSSL())
@@ -187,6 +190,7 @@ public class SASTargetInterceptor
         byte[] contextToken = null;
         try
         {
+            System.out.println ("### ri " + ri);
             ServiceContext ctx =
                 ri.get_request_service_context(SASInitializer.SecurityAttributeService);
             Any ctx_any =
@@ -315,23 +319,27 @@ public class SASTargetInterceptor
         }
     }
 
-    public void receive_request( ServerRequestInfo ri )
+    public void receive_request( ServerRequestInfo sri )
         throws ForwardRequest
     {
+        ServerRequestInfoImpl ri = ((ServerRequestInfoImpl)sri);
+
         if (logger.isDebugEnabled())
             logger.debug("receive_request for "+ri.operation());
 
-        if (sasContext == null)
+        if (sasContext == null || ri.isLocalInterceptor())
+        {
             return;
-        GIOPConnection connection =
-            ((ServerRequestInfoImpl) ri).getConnection();
+        }
+
+        GIOPConnection connection = ri.getConnection();
 
         // check policy
         SASPolicyValues sasValues = null;
         try
         {
             ObjectImpl oi =
-                (ObjectImpl)((ServerRequestInfoImpl) ri).target();
+                (ObjectImpl)ri.target();
             org.jacorb.orb.Delegate d =
                 (org.jacorb.orb.Delegate)oi._get_delegate();
             SASPolicy policy =
@@ -361,7 +369,7 @@ public class SASTargetInterceptor
         ATLASPolicyValues atlasValues = null;
         try
         {
-            ObjectImpl oi = (ObjectImpl)((ServerRequestInfoImpl) ri).target();
+            ObjectImpl oi = (ObjectImpl)ri.target();
             org.jacorb.orb.Delegate d = (org.jacorb.orb.Delegate)oi._get_delegate();
             ATLASPolicy policy = (ATLASPolicy)d.getPOA().getPolicy(ATLAS_POLICY_TYPE.value);
             if (policy != null)
