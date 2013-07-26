@@ -58,6 +58,8 @@
          - Add fix for rootpoa creation with bad socket (BZ943).
          - Add fix for non_existent (BZ953).
          - Add fix for rewrite on OutputStream with large sizes (BZ941).
+         - Add fix to prevent non-compilant buffers from being returned to the buffer manager (BZ958).
+
     - POA
          - Add fix for exception in interceptors breaking requestprocesor thread. (BZ946)
          - Add fix for requestprocessor pooling. (BZ946)
