@@ -58,6 +58,10 @@
          - Add fix for rootpoa creation with bad socket (BZ943).
          - Add fix for non_existent (BZ953).
          - Add fix for rewrite on OutputStream with large sizes (BZ941).
+         - Add public ctor to CDROutputStream to allow specifying a predetermined buffer size,
+           as well as a releaseBuffer method to let the application take ownership of the buffer
+           from the stream for use after the stream goes out of scope. (BZ958)
+
     - POA
          - Add fix for exception in interceptors breaking requestprocesor thread. (BZ946)
          - Add fix for requestprocessor pooling. (BZ946)
