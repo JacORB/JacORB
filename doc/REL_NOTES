@@ -43,6 +43,8 @@
     - ORB
          - Fix for built-in interceptors and local calls (BZ956/957).
            Add new isLocalInterceptors to *RequestInfoImpl Public API
+    - Misc
+         - Improve Version output to incorporate the SHA (and autogenerate).
 3.3beta
 =======
     - ORB
