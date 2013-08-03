@@ -32,15 +32,18 @@ import org.jacorb.config.Configuration;
 import org.jacorb.config.ConfigurationException;
 import org.jacorb.orb.IBufferManager;
 import org.jacorb.orb.ORB;
+import org.jacorb.orb.SystemExceptionHelper;
 import org.jacorb.orb.etf.StreamConnectionBase;
 import org.jacorb.util.ObjectUtil;
 import org.jacorb.util.Time;
 import org.jacorb.util.TimerQueue;
 import org.jacorb.util.TimerQueueAction;
+import org.omg.CORBA.CompletionStatus;
+import org.omg.CORBA.NO_IMPLEMENT;
 import org.omg.CORBA.TIMEOUT;
 import org.omg.ETF.BufferHolder;
 import org.omg.GIOP.MsgType_1_1;
-
+import org.omg.GIOP.ReplyStatusType_1_2;
 import org.slf4j.Logger;
 
 /**
@@ -137,9 +140,6 @@ public abstract class GIOPConnection
 
     // deadline for current send operation
     private org.omg.TimeBase.UtcT sendDeadline = null;
-
-    // request id for GIOP 1.1 fragmented messages
-    private Integer lastRequestId = -1;
 
     public class ConnectionReset extends TimerQueueAction
     {
@@ -595,20 +595,29 @@ public abstract class GIOPConnection
                     return;
                 }
 
-
-                int request_id = 0;
+                //GIOP 1.1 Fragmented messages currently not supported
                 if ( Messages.getGIOPMinor( message ) == 1 )
                 {
-                  //GIOP 1.1 messages don't have request ids, use request id from previous message instead
-                  request_id = lastRequestId;
-                }
-                else
-                {
-                  request_id = Messages.getRequestId( message );
+                    if (logger.isWarnEnabled())
+                    {
+                        logger.warn( "Received a GIOP 1.1 Fragment message"
+                                     + " in " + this.toString());
+                    }
+
+                    //Can't return a message in this case, because
+                    //GIOP 1.1 fragments don't have request
+                    //ids. Therefore, just discard.
+                    buf_mg.returnBuffer( message );
+
+                    return;
                 }
 
+                //for now, only GIOP 1.2 from here on
+
+                int request_id = Messages.getRequestId( message );
+
                 //sanity check
-                if ( ! fragments.containsKey( request_id ) || lastRequestId.intValue() == -1)
+                if ( ! fragments.containsKey( request_id ))
                 {
                     if (logger.isErrorEnabled())
                     {
@@ -625,22 +634,12 @@ public abstract class GIOPConnection
                 ByteArrayOutputStream b_out =
                     (ByteArrayOutputStream)fragments.get( request_id );
 
-                //add the message contents to stream
-                if ( Messages.getGIOPMinor( message ) == 1 )
-                {
-                    //GIOP 1.1 messages don't have request ids
-                    b_out.write( message,
-                      Messages.MSG_HEADER_SIZE ,
-                      Messages.getMsgSize(message));
-                }
-                else
-                {
-                    //discarding the GIOP message header and the request id ulong of the
-                    //Fragment header
-                    b_out.write( message,
-                               Messages.MSG_HEADER_SIZE + 4 ,
-                               Messages.getMsgSize(message) - 4 );
-                }
+                //add the message contents to stream (discarding the
+                //GIOP message header and the request id ulong of the
+                //Fragment header)
+                b_out.write( message,
+                             Messages.MSG_HEADER_SIZE + 4 ,
+                             Messages.getMsgSize(message) - 4 );
 
                 if ( Messages.moreFragmentsFollow( message ))
                 {
@@ -656,7 +655,6 @@ public abstract class GIOPConnection
                 msg_type = Messages.getMsgType( message );
 
                 fragments.remove( request_id );
-                lastRequestId = -1;
             }
             else if ( Messages.moreFragmentsFollow( message ) )
             {
@@ -709,6 +707,38 @@ public abstract class GIOPConnection
 
                         return;
                     }
+
+                    //GIOP 1.1 Fragmented messages currently not supported
+                    if (logger.isWarnEnabled())
+                    {
+                        logger.warn( "Received a fragmented GIOP 1.1 message"
+                                     + " in " + this.toString() );
+                    }
+
+                    int giop_minor = Messages.getGIOPMinor( message );
+
+                    final ReplyOutputStream out =
+                        new ReplyOutputStream( orb,
+                                               Messages.getRequestId( message ),
+                                               ReplyStatusType_1_2.SYSTEM_EXCEPTION,
+                                               giop_minor,
+                                               false,
+                                               logger);//no locate reply
+
+                    try
+                    {
+                        SystemExceptionHelper.write( out,
+                                                     new NO_IMPLEMENT( 0, CompletionStatus.COMPLETED_NO ));
+
+                        sendMessage( out );
+                        buf_mg.returnBuffer( message );
+
+                        return;
+                    }
+                    finally
+                    {
+                        out.close();
+                    }
                 }
 
                 //check, that only the correct message types are fragmented
@@ -739,9 +769,7 @@ public abstract class GIOPConnection
 
                 //if we're here, it's the first part of a fragmented message
                 Integer request_id =
-                      Integer.valueOf(Messages.getRequestId( message ));
-
-                lastRequestId = request_id;
+                    new Integer( Messages.getRequestId( message )); // NOPMD
 
                 //sanity check
                 if ( fragments.containsKey( request_id ))

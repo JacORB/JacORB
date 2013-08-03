@@ -51,7 +51,6 @@
          - Support setting the ORB ID using the -DORBId option.
          - Support multi-network interfaces using -ORBListenEndpoints option.
          - Change logging to debug level (https://bugzilla.redhat.com/show_bug.cgi?id=950294).
-         - Add support for GIOP 1.1 Fragmented Messages (BZ950).
          - Add public API for Client/ServerRequestInfo.
          - Add fix for NIO with large requests (BZ939).
          - Add fix for disconnect logic on bad connection (BZ947).
