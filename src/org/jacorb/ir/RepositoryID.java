@@ -21,6 +21,7 @@ package org.jacorb.ir;
  */
 
 import java.util.StringTokenizer;
+import java.util.concurrent.ConcurrentHashMap;
 import org.omg.CORBA.INTF_REPOS;
 import org.omg.CORBA.portable.BoxedValueHelper;
 import org.omg.CORBA.StringValueHelper;
@@ -33,6 +34,9 @@ import org.omg.CORBA.WStringValueHelper;
  */
 public class RepositoryID
 {
+
+  private static ConcurrentHashMap<String, String> scopeCache = null;
+
     /**
      * Returns the fully qualified name of the Java class to which
      * the given Repository ID is mapped.
@@ -129,12 +133,12 @@ public class RepositoryID
             char theChar = (char)(Integer.parseInt(id.substring(index+2, index+6), 16));
             dest.append(theChar);
         }
-        
-        if (pos < id.length()) 
+
+        if (pos < id.length())
         {
            dest.append(id.substring(pos));
         }
-        
+
         return dest.toString();
     }
 
@@ -151,8 +155,9 @@ public class RepositoryID
     }
 
     /**
-     * FIXME: This method needs documentation.
-     * What does this algorithm do, and why is it necessary?  AS.
+     * Convert a repoID path string to a fully qualified class name.
+     * Check to see if the final name in the class is actually nested within
+     * a "intfPackage" package, and modify the FQ class name appropriately.
      */
     private static String ir2scopes (String prefix,
                                      String s,
@@ -162,50 +167,46 @@ public class RepositoryID
         {
             return s;
         }
-        java.util.StringTokenizer strtok =
-            new java.util.StringTokenizer( s, "/" );
 
-        int count = strtok.countTokens();
+        if (scopeCache == null)
+          {
+            scopeCache = new ConcurrentHashMap<String, String> ();
+          }
+        else
+          {
+            String scope = scopeCache.get (s);
+            if (scope != null)
+              {
+                return scope;
+              }
+          }
+
         StringBuffer sb = new StringBuffer();
-        sb.append(prefix);
+        if (prefix != null && prefix.length() > 0)
+          {
+            sb.append(prefix + ".");
+          }
+        sb.append (s);
+        int lastdot = -1;
+        for (int dotpos = sb.indexOf ("/"); dotpos >= 0;  dotpos = sb.indexOf ("/", dotpos))
+          {
+            sb.setCharAt (dotpos, '.');
+            lastdot = dotpos;
+          }
 
-        for( int i = 0; strtok.hasMoreTokens(); i++ )
-        {
-            String sc = strtok.nextToken();
-            Class c = null;
-            if( sb.toString().length() > 0 )
-            {
-                c = loadClass (sb.toString() + "." + sc, loader);
-            }
-            else
-            {
-                c = loadClass (sc, loader);
-            }
-            if (c == null)
-            {
-                if( sb.toString().length() > 0 )
-                {
-                    sb.append( "." + sc );
-                }
-                else
-                {
-                    sb.append( sc );
-                }
-            }
-            else
-            {
-                if( i < count-1)
-                {
-                    sb.append( "." + sc + "Package");
-                }
-                else
-                {
-                    sb.append( "." + sc );
-                }
-            }
-        }
+        String scope = sb.toString ();
+        if (loadClass (scope, loader) == null)
+          {
+            sb.insert (lastdot,"Package");
+            String pkgscope = sb.toString ();
+            if (loadClass (pkgscope, loader) != null)
+              {
+                scope = pkgscope;
+              }
+          }
 
-        return sb.toString();
+        scopeCache.put (s, scope);
+        return scope;
     }
 
     public static String repId (Class c)
