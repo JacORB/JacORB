@@ -234,40 +234,32 @@ public class RepositoryID
     }
 
 
+    /**
+     * Convert a fully qualified class name to a repoID by first eliminating any
+     * "Package" extensions then replacing all dots with slashes. Note that this
+     * function is an imperfect compliment of ir2scopes in that it does not have
+     * a way to distinguish any prefix that was explicitly added to a repository
+     * ID to make a class name.
+     */
     private static String scopesToIR( String s )
     {
         if( s.indexOf(".") < 0)
         {
             return s;
         }
-        java.util.StringTokenizer strtok =
-            new java.util.StringTokenizer( s, "." );
 
-        String scopes[] = new String[strtok.countTokens()];
+        StringBuffer sb = new StringBuffer (s);
+        String pkgstr = "Package";
+        for (int i = sb.indexOf (pkgstr); i != -1; i = sb.indexOf (pkgstr, i))
+          {
+            sb.delete (i, i+pkgstr.length());
+          }
 
-        for( int i = 0; strtok.hasMoreTokens(); i++ )
-        {
-            String sc = strtok.nextToken();
-            if( sc.endsWith("Package"))
-            {
-                scopes[i] = sc.substring(0,sc.indexOf("Package"));
-            }
-            else
-            {
-                scopes[i] = sc;
-            }
-        }
+        for (int i = sb.indexOf ("."); i != -1; i = sb.indexOf (".", i))
+          {
+            sb.setCharAt (i,'/');
+          }
 
-        StringBuffer sb = new StringBuffer();
-        if( scopes.length > 1 )
-        {
-            for( int i = 0; i < scopes.length-1; i++)
-            {
-                sb.append( scopes[i] + "/" );
-            }
-        }
-
-        sb.append( scopes[scopes.length-1] );
         return sb.toString();
     }
 
