@@ -28,29 +28,20 @@ import org.omg.CORBA.DefinitionKind;
 import org.omg.CORBA.IRObject;
 
 /**
- * Abstrakte Oberklasse für alle Klassen, die in unserem Baum Children
- * haben sollen.  Neben  den "echten" CORBA-Container-Klassen soll das
- * z.B.  auch StructDef  sein.  Letztere Klassen  sollen also  bei uns
- * konzeptionell  Container sein, weil sie member  besitzen (auch wenn
- * sie nicht von CORBA::Container erben)
- *
+ * Abstract superclass for all classes that should have children in our tree.
+ * In addition to the "real" CORBA container classes, that should also include,
+ * e.g. StructDef.  The latter classes should therefore be containers here,
+ * conceptually, since they have members (although they don't inherit from
+ * CORBA::Container).
  */
-
 public abstract class IRContainer
     extends IRNode
     implements AbstractContainer
 {
 
-    /**
-     * AbstractContainer constructor comment.
-     */
     protected IRContainer() {
     super();
     }
-
-   /**
-    * @param irObject org.omg.CORBA.IRObject
-    */
 
     protected IRContainer ( IRObject irObject)
     {
@@ -58,14 +49,12 @@ public abstract class IRContainer
     }
 
     /**
-     * Erzeugt   TypeSystemNodes   für   alle   contained   Objekte.
-     * Default-Implementierung,  die  für   "echte"  CORBA-Container
-     * funktionert.  Für  andere Klassen  (z.B. IRStruct),  die keine
-     * echten  CORBA-Container sind, wird  diese Methode überschrieben
-     * mit individuellem Code zum Auslesen der members.
-     * @return org.omg.CORBA.Object
+     * Creates TypeSystemNodes for all contained objects.
+     * Default implementation, which works for "real" CORBA containers.
+     * For other classes, such as IRStruct, which are not real CORBA
+     * containers, this method is overridden by specific code to
+     * read the members.
      */
-
     public org.jacorb.ir.gui.typesystem.ModelParticipant[] contents ()
     {
     Container container =
@@ -83,14 +72,3 @@ public abstract class IRContainer
     return result;
     }
 }
-
-
-
-
-
-
-
-
-
-
-

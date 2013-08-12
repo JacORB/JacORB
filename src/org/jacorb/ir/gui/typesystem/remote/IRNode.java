@@ -37,9 +37,8 @@ public abstract class IRNode
     protected String repositoryID = "";
 
     /**
-     * Dient nur dem Durchreichen des Konstruktor-Aufrufs an Oberklasse
+     * Only for passing the constructor call through to the superclass.
      */
-
     protected IRNode ( ) {
     super();
     }
@@ -101,18 +100,17 @@ public abstract class IRNode
     }
 
     /**
-     * Referenz auf dazugehöriges IRObject setzen.(kann null sein, z.B. bei StructMember)
-     * Holt außerdem den name() des IRObject, wenn es ein Contained Objekt ist
-     * @param irobj org.omg.CORBA.IRObject
+     * Set reference to corresponding IROBject (could be null, e.g. with StructMember).
+     * Also fetches the name() of the IRObject, if it is a Contained object.
+     * @param irobj
      */
-
     protected void setIRObject(org.omg.CORBA.IRObject irobj)
     {
     this.irObject = irobj;
     Contained contained;
         try
         {
-            contained = ContainedHelper.narrow((org.omg.CORBA.Object)irobj);
+            contained = ContainedHelper.narrow(irobj);
             setName(contained.name());
             setAbsoluteName(contained.absolute_name());
             versionString = contained.version();
@@ -125,15 +123,15 @@ public abstract class IRNode
 
         try
         {
-            IDLType idlType = IDLTypeHelper.narrow((org.omg.CORBA.Object)irobj);
+            IDLType idlType = IDLTypeHelper.narrow(irobj);
             typeCode = idlType.type();
 
-            // mithilfe des TypeCodes könnten wir uns bei IDLTypes eigentlich ein
-            // paar Remote Method Invocations sparen (es steckt einiges schon im TypeCode);
-            // außerdem ließe sich vielleicht der Code zum Auslesen
-            // der members bei struct etc. vereinfachen.
-            // Alle anderen Klassen haben übrigens auch eine TypeCode
-            // type() oder result() Operation!
+            /*
+             * Using the TypeCode we could get rid of a few remote method invocations
+             * (a lot is already contained in the TypeCode); also perhaps the code for
+             * reading the members of struct etc. could be simplified. BTW, all other
+             * classes also have a TypeCode type() or result() operation!
+             */
         }
         catch( org.omg.CORBA.BAD_PARAM bp )
         {
@@ -141,14 +139,3 @@ public abstract class IRNode
     }
     }
 }
-
-
-
-
-
-
-
-
-
-
-

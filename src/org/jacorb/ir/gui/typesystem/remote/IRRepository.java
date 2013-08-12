@@ -20,22 +20,18 @@
  */
 package org.jacorb.ir.gui.typesystem.remote;
 
-
-/**
- * IRRepository wird gebraucht, um GUI erlaubte Child-Klassen mitzuteilen
- * 
- */
- 
 import org.omg.CORBA.IRObject;
 
-public class IRRepository 
-    extends IRContainer 
-{       
-    
-    /**
-     * Default-Konstruktor: wird von TypeSystem.createNode(...) benutzt
-     */
+/**
+ * Needed to let GUI know about allowed child classes
+ */
+public class IRRepository
+    extends IRContainer
+{
 
+    /**
+     * Default constructor: used by TypeSystem.createNode()
+     */
     public IRRepository ( ) {
 	super();
     }
@@ -44,7 +40,7 @@ public class IRRepository
      * @param irObject org.omg.CORBA.IRObject
      */
 
-    public IRRepository ( IRObject irObject) 
+    public IRRepository ( IRObject irObject)
     {
 	super(irObject);
     }
@@ -66,19 +62,8 @@ public class IRRepository
      * @return java.lang.String
      */
 
-    public static String nodeTypeName() 
+    public static String nodeTypeName()
     {
 	return "Repository";
     }
 }
-
-
-
-
-
-
-
-
-
-
-
