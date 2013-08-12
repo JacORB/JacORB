@@ -52,7 +52,7 @@ public class IRValue
     private IRValueMember[] allMembers = null;
 
     /**
-     * Default-Konstruktor: wird von TypeSystem.createNode(...) benutzt
+     * Default constructor: used by TypeSystem.createNode()
      */
     public IRValue ( ) {
     super();
@@ -168,7 +168,7 @@ public class IRValue
     if (this.allOperations==null)
         {
             Vector operations = new Vector();
-            // erstmal die Operationen der interfaces sammeln
+            // first, collect the operations of the interfaces
             Interface[] interfaces = this.getInterfaces();
             for (int i=0; i<interfaces.length; i++)
             {
@@ -179,7 +179,7 @@ public class IRValue
                 }
             }
 
-            // dann unsere eigenen Operationen
+            // now our own operations
 
             ModelParticipant[] contents = this.contents();
             for (int i=0; i<contents.length; i++)
@@ -208,7 +208,7 @@ public class IRValue
     public Value getBaseValue()
     {
     if (!lookedUpBaseValue) {
-            ValueDef valueDef = ValueDefHelper.narrow((org.omg.CORBA.Object)irObject);
+            ValueDef valueDef = ValueDefHelper.narrow(irObject);
             ValueDef base = valueDef.base_value();
             if (base != null)
                 baseValue = (Value)RemoteTypeSystem.createTypeSystemNode(base);
@@ -223,7 +223,7 @@ public class IRValue
     public Value[] getAbstractBaseValues()
     {
     if (abstractBaseValues == null) {
-            ValueDef valueDef = ValueDefHelper.narrow((org.omg.CORBA.Object)irObject);
+            ValueDef valueDef = ValueDefHelper.narrow(irObject);
             ValueDef[] abstractBases = valueDef.abstract_base_values();
             abstractBaseValues = new Value[abstractBases.length];
             for (int i = 0; i < abstractBases.length; ++i)
@@ -288,12 +288,12 @@ public class IRValue
     public Interface[] getInterfaces()
     {
     if (interfaces==null) {
-            // interfaces in unserem dazugehörigen Field speichern
-            ValueDef valueDef = ValueDefHelper.narrow((org.omg.CORBA.Object)irObject);
+            // store interfaces in our corresponding field
+            ValueDef valueDef = ValueDefHelper.narrow(irObject);
             InterfaceDef[] supportedInterfaces = valueDef.supported_interfaces();
             interfaces = new IRInterface[supportedInterfaces.length];
             for (int i=0; i<supportedInterfaces.length; i++) {
-                // für alle base interfaces die zugehörige TypeSystemNode holen
+                // for each base interface get the corresponding TypeSystemNode
                 IRInterface intf = (IRInterface)RemoteTypeSystem.createTypeSystemNode(supportedInterfaces[i]);
                 interfaces[i] = intf;
             }

@@ -49,7 +49,7 @@ protected IRUnionMember ( org.omg.CORBA.UnionMember unionMember) {
  * @return java.lang.String
  */
 public static String nodeTypeName() {
-    return "";	// soll ja so ähnlich aussehen wie IDL, und da steht nur der Name
+    return ""; // supposed to look similar to IDL, and that has only the name
 }
 }
 

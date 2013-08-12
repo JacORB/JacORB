@@ -42,7 +42,7 @@ public class IRInterface
     private IROperation[] allOperations = null;
 
     /**
-     * Default-Konstruktor: wird von TypeSystem.createNode(...) benutzt
+     * Default constructor: used by TypeSystem.createNode()
      */
     public IRInterface ( ) {
     super();
@@ -190,7 +190,7 @@ public class IRInterface
     if (superInterfaces==null)
         {
             // superInterfaces in unserem dazugehörigen Field speichern
-            InterfaceDef interfaceDef = InterfaceDefHelper.narrow((org.omg.CORBA.Object)irObject);
+            InterfaceDef interfaceDef = InterfaceDefHelper.narrow(irObject);
             InterfaceDef[] baseInterfaces = interfaceDef.base_interfaces(); // base interfaces aus IR holen
             this.superInterfaces = new IRInterface[baseInterfaces.length];
             for (int i=0; i<baseInterfaces.length; i++)

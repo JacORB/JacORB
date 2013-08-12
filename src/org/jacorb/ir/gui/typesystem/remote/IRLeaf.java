@@ -21,14 +21,12 @@
 
 package org.jacorb.ir.gui.typesystem.remote;
 
-
-
 /**
- * Abstrakte Oberklasse für Elemente des IR, zu denen kein entsprechendes IRObject existiert
- * oder dieses nicht von Contained erbt,
- * die aber dennoch in unserem Tree auftauchen sollen (z.B. StructMember).
- * Wird instantiiert von den Klassen, die entsprechende members() Operation besitzen (z.B. StructDef)
- * (Weitere Methoden kämen hinzu, wenn das Editieren des IR unterstützt würde)
+ * Abstract superclass for elements of the IR for which there is no corresponding IRObject,
+ * or one which does not inherit from Contained, but which should nonetheless show up in
+ * our tree (e.g. StructMember).  Is instantiated by classes which have corresponding
+ * members() operations (e.g. StructDef).
+ * (Other methods would be added if editing the IR would be supported.)
  */
 public abstract class IRLeaf extends org.jacorb.ir.gui.typesystem.TypeSystemNode {
 
