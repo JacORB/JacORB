@@ -340,21 +340,21 @@ public class BufferManager extends AbstractBufferManager
 
                 int expected = (1 << log_curr + 1) - 1;
                 if (current.length != expected)
-                  {
+                {
                     if (logger.isWarnEnabled())
-                      {
+                    {
                         logger.warn ("BufferManager.returnBuffer, log  = " + log_curr +
-                                      " got length " +
-                                      Integer.toHexString (current.length) +
-                                      " expected length " +
-                                      Integer.toHexString (expected));
-                      }
-                  }
+                                     " got length " +
+                                     current.length +
+                                     " expected length " +
+                                     expected);
+                    }
+                }
                 else
-                  {
+                {
                     final Collection s = bufferPool[ log_curr-MIN_CACHE ];
                     doReturnBuffer(s, current, threshold);
-                  }
+                }
             }
         }
     }
