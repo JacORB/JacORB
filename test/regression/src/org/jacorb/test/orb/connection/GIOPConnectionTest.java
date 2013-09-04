@@ -16,6 +16,7 @@ import org.jacorb.orb.giop.GIOPConnectionManager;
 import org.jacorb.orb.giop.LocateRequestOutputStream;
 import org.jacorb.orb.giop.MessageOutputStream;
 import org.jacorb.orb.giop.Messages;
+import org.jacorb.orb.giop.ReplyInputStream;
 import org.jacorb.orb.giop.ReplyListener;
 import org.jacorb.orb.giop.RequestInputStream;
 import org.jacorb.orb.giop.RequestListener;
