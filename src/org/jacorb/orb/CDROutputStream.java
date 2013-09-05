@@ -208,12 +208,14 @@ public class CDROutputStream
     }
 
     /**
-     * internal c'tor
+     * size selecting c'tor
      * @param orb must be a JacORB ORB
      * @param bufferSize -1 to fetch the default buffer size,
      *        value > 0 to specify a specific size
+     * @param no_deferred true overrides the configured deferred writes behavior
+     *        and forces all data into the single buffer while marshaling
      */
-    private CDROutputStream(org.omg.CORBA.ORB orb, int bufferSize)
+    public CDROutputStream(org.omg.CORBA.ORB orb, int bufferSize, boolean no_deferred)
     {
         super();
 
@@ -226,24 +228,6 @@ public class CDROutputStream
         bufMgr = this.orb.getBufferManager();
         typeCodeCompactor = this.orb.getTypeCodeCompactor();
 
-        if (bufferSize == -1)
-        {
-            buffer = bufMgr.getPreferredMemoryBuffer();
-        }
-        else
-        {
-            buffer = bufMgr.getBuffer(bufferSize);
-        }
-    }
-    /**
-     * OutputStreams created using this constructor
-     * are used also for in memory marshaling, but do use the
-     * ORB's output buffer manager
-     */
-    public CDROutputStream(final org.omg.CORBA.ORB orb)
-    {
-        this(orb, -1);
-
         try
         {
             configure(((ORBSingleton)orb).getConfiguration());
@@ -252,6 +236,31 @@ public class CDROutputStream
         {
             throw new INTERNAL(e.getMessage());
         }
+
+        if (no_deferred)
+        {
+            deferredArrayQueueSize = 0;
+        }
+
+        if (bufferSize == -1)
+        {
+            buffer = bufMgr.getPreferredMemoryBuffer();
+        }
+        else
+        {
+            buffer = bufMgr.getBuffer(bufferSize);
+        }
+
+    }
+
+    /**
+     * OutputStreams created using this constructor
+     * are used also for in memory marshaling, but do use the
+     * ORB's output buffer manager
+     */
+    public CDROutputStream(final org.omg.CORBA.ORB orb)
+    {
+      this(orb, -1, false);
     }
 
     /**
@@ -269,8 +278,6 @@ public class CDROutputStream
     {
         return orb;
     }
-
-
 
     /**
      * This stream is self-configuring, i.e. configure() is private
@@ -711,6 +718,18 @@ public class CDROutputStream
         index = 0;
     }
 
+    /**
+     * Give up the buffer to the caller and mark the stream closed. It is
+     * up to the caller to eventually return the buffer to the manager.
+     */
+
+    public byte[] releaseBuffer ()
+    {
+        byte [] retn = buffer;
+        buffer = null;
+        close ();
+        return retn;
+    }
 
     /**************************************************
      * The following operations are from OutputStream *
