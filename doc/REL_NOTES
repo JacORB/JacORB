@@ -40,6 +40,8 @@
    H I S T O R Y      O F     C H A N G E S
  -------------------------------------------
 
+3.3
+===
     - ORB
          - Fix for built-in interceptors and local calls (BZ956/957).
            Add new isLocalInterceptors to *RequestInfoImpl Public API
