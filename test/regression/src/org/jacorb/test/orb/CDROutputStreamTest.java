@@ -55,6 +55,20 @@ public class CDROutputStreamTest extends ORBTestCase
 
 
     /**
+     * Verifies that the public ctor is available and that the releaseBuffer works as expected
+     */
+    public void testCDRStreamSizeCtor()
+    {
+        CDROutputStream co = new CDROutputStream (orb, 1000, false);
+
+        co.increaseSize(8);
+
+        byte[] result = co.releaseBuffer();
+
+        assertTrue (result.length == 1023);
+    }
+
+    /**
      * Verifies that the default encoding (ISO8859_1) works for char, char arrays, and strings. Reading the string
      * forces alignment of the 4-byte length, and ignores any null terminator.
      */
