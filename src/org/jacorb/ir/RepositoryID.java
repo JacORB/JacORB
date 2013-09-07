@@ -34,9 +34,6 @@ import org.omg.CORBA.WStringValueHelper;
  */
 public class RepositoryID
 {
-
-  private static ConcurrentHashMap<String, String> scopeCache = null;
-
     /**
      * Returns the fully qualified name of the Java class to which
      * the given Repository ID is mapped.
@@ -168,19 +165,6 @@ public class RepositoryID
             return s;
         }
 
-        if (scopeCache == null)
-          {
-            scopeCache = new ConcurrentHashMap<String, String> ();
-          }
-        else
-          {
-            String scope = scopeCache.get (s);
-            if (scope != null)
-              {
-                return scope;
-              }
-          }
-
         StringBuffer sb = new StringBuffer();
         if (prefix != null && prefix.length() > 0)
           {
@@ -205,7 +189,6 @@ public class RepositoryID
               }
           }
 
-        scopeCache.put (s, scope);
         return scope;
     }
 
