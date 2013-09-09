@@ -1,3 +1,195 @@
+commit 119d13ea34e85794f8a69ca2a32caae396a97596
+Author: Nick Cross <jacorb@goots.org>
+Date:   Mon Sep 9 14:23:12 2013 +0100
+
+Update version to 3.3
+
+M	maven/core/pom.xml
+M	maven/idl-compiler/pom.xml
+M	maven/release/pom.xml
+M	maven/services/pom.xml
+M	pom.xml
+
+commit 450736d6c46688125cb0c4f18f9c88cee731979e
+Author: Nick Cross <jacorb@goots.org>
+Date:   Sat Sep 7 22:43:12 2013 +0100
+
+BZ962 Remove cache to simplify optimization
+
+M	src/org/jacorb/ir/RepositoryID.java
+
+commit 9a4e3ba144aa136162f495c1ff0505b9338e3d46
+Author: Phil Mesnier <mesnier_p@ociweb.com>
+Date:   Fri Aug 9 09:12:30 2013 -0500
+
+BZ962: Complimantary fix to scope2IR
+
+M	doc/REL_NOTES
+M	src/org/jacorb/ir/RepositoryID.java
+
+commit b79ade08ead8afe4543de85c91aabf501ccc5d9d
+Author: Phil Mesnier <mesnier_p@ociweb.com>
+Date:   Thu Aug 8 17:38:15 2013 -0500
+
+BZ962: Refactored ir2scope for efficency improvements
+
+M	src/org/jacorb/ir/RepositoryID.java
+
+commit 98f34cec641434f5b4c96a2eaae77a62ac875ced
+Author: Nick Cross <jacorb@goots.org>
+Date:   Thu Sep 5 10:27:38 2013 +0100
+
+Update REL_NOTE version
+
+M	doc/REL_NOTES
+
+commit 3505b97a36eac32fbd878c5ab6fc41cbf4c2be4d
+Author: Nick Cross <jacorb@goots.org>
+Date:   Thu Sep 5 10:22:35 2013 +0100
+
+BZ958: Improve application interaction with CDROutputStream. Added size-specifying constructor and a releaseBuffer method to allow application to use the buffer after the stream goes out of scope. Patch from Phil Mesnier
+
+M	doc/REL_NOTES
+M	src/org/jacorb/orb/CDROutputStream.java
+
+commit b15bd90c392001c0c8b45ac9efac64ade5ceb4da
+Author: Nick Cross <jacorb@goots.org>
+Date:   Tue Sep 3 21:53:29 2013 +0100
+
+BZ958: Add test for off-sized buffers in the buffermanager
+
+M	src/org/jacorb/orb/BufferManager.java
+
+commit af904be8ed2739e7ab6730a82c7d842f6124f38f
+Author: Phil Mesnier <mesnier_p@ociweb.com>
+Date:   Fri Jul 26 10:34:21 2013 -0500
+
+BZ958: Fix for returning off-sized buffers to the manager
+
+M	doc/REL_NOTES
+M	src/org/jacorb/orb/BufferManager.java
+
+commit 3382a590f8b8260c32334acfc2d590f660b95a67
+Author: Nick Cross <jacorb@goots.org>
+Date:   Sat Aug 3 18:07:21 2013 +0100
+
+Document Version generation improvement. Reference JacORB URLs in LICENSE. Doc improvement.
+
+M	doc/LICENSE
+M	doc/ProgrammingGuide/Classloader/classloader.tex
+M	doc/REL_NOTES
+
+commit e01c2a9ddbb370c57f5ab4b82c49423f7823e653
+Author: drmirror <spiegel@drmirror.net>
+Date:   Mon Aug 12 08:02:39 2013 -0400
+
+Translate comments to English.
+
+M	src/org/jacorb/ir/gui/typesystem/remote/IRContainer.java
+M	src/org/jacorb/ir/gui/typesystem/remote/IRInterface.java
+M	src/org/jacorb/ir/gui/typesystem/remote/IRLeaf.java
+M	src/org/jacorb/ir/gui/typesystem/remote/IRModule.java
+M	src/org/jacorb/ir/gui/typesystem/remote/IRNode.java
+M	src/org/jacorb/ir/gui/typesystem/remote/IROperation.java
+M	src/org/jacorb/ir/gui/typesystem/remote/IRPrimitive.java
+M	src/org/jacorb/ir/gui/typesystem/remote/IRRepository.java
+M	src/org/jacorb/ir/gui/typesystem/remote/IRStructMember.java
+M	src/org/jacorb/ir/gui/typesystem/remote/IRTypedef.java
+M	src/org/jacorb/ir/gui/typesystem/remote/IRUnionMember.java
+M	src/org/jacorb/ir/gui/typesystem/remote/IRValue.java
+M	src/org/jacorb/ir/gui/typesystem/remote/RemoteTypeSystem.java
+
+commit 840282dc2df1702f37bd0a970bdce3f69cec7db2
+Author: Nick Cross <jacorb@goots.org>
+Date:   Sat Aug 3 18:03:29 2013 +0100
+
+BZ950 : Revert 4d2cb9335fb3f5735b5bbc75133a4ccf10cfdffa / d608b9cd11a87856cfab07872bc23356ea20234d for JacORB 3.3
+
+M	doc/REL_NOTES
+M	src/org/jacorb/orb/giop/GIOPConnection.java
+
+commit 3bbdaa4df9b3c97e7a86b83844cc7d0fdc3ca788
+Author: Nick Cross <jacorb@goots.org>
+Date:   Thu Jul 18 13:41:16 2013 +0100
+
+BZ956/BZ957 Add fix for built-in interceptors and local calls
+
+M	doc/ProgrammingGuide/PI/pi.tex
+M	doc/REL_NOTES
+M	src/org/jacorb/orb/giop/BiDirConnectionClientInterceptor.java
+M	src/org/jacorb/orb/portableInterceptor/ClientRequestInfoImpl.java
+M	src/org/jacorb/orb/portableInterceptor/DefaultClientInterceptorHandler.java
+M	src/org/jacorb/orb/portableInterceptor/RequestInfoImpl.java
+M	src/org/jacorb/orb/portableInterceptor/ServerRequestInfoImpl.java
+M	src/org/jacorb/security/sas/SASClientInterceptor.java
+M	src/org/jacorb/security/sas/SASTargetInterceptor.java
+
+commit e4a5d26df316bf2b3ebe836766728bb1f67c2cf7
+Author: Nick Cross <jacorb@goots.org>
+Date:   Thu Jul 4 20:16:57 2013 +0100
+
+Remove BuildVersion/Version and replace by maven generated Version template. Simplify maven build process
+
+M	bin/version
+M	build.xml
+M	doc/ProgrammingGuide/Installation/Installation.tex
+M	etc/common.xml
+M	maven/core/pom.xml
+M	maven/idl-compiler/pom.xml
+M	pom.xml
+A	src/main/resources/org/jacorb/util/Version.java
+M	src/org/jacorb/idl/parser.cup
+M	src/org/jacorb/orb/ORB.java
+M	src/org/jacorb/orb/giop/CodeSet.java
+D	src/org/jacorb/util/BuildVersion.template
+D	src/org/jacorb/util/Version.java
+
+commit 1c23ae7662693ec9b20150794ec4789cabf92d81
+Author: Nick Cross <jacorb@goots.org>
+Date:   Thu Jul 4 07:20:07 2013 +0100
+
+Remove warnings and unused code
+
+M	src/org/jacorb/orb/Delegate.java
+
+commit 5ffac8c1da02af83cd1d3038ce8eea624bd539fa
+Author: Andre Spiegel <drmirror@clavius>
+Date:   Tue Jul 2 17:39:33 2013 -0400
+
+Translate comments to English.
+
+M	build.xml
+M	src/org/jacorb/ir/gui/IRBrowser.java
+M	src/org/jacorb/ir/gui/remoteobject/ObjectRepresentant.java
+M	src/org/jacorb/ir/gui/remoteobject/ObjectRepresentantFactory.java
+M	src/org/jacorb/ir/gui/remoteobject/RemoteObject.java
+M	src/org/jacorb/ir/gui/remoteobject/Struct.java
+M	src/org/jacorb/ir/gui/typesystem/AbstractContainer.java
+M	src/org/jacorb/ir/gui/typesystem/IllegalChildException.java
+M	src/org/jacorb/ir/gui/typesystem/Interface.java
+M	src/org/jacorb/ir/gui/typesystem/ModelBuilder.java
+M	src/org/jacorb/ir/gui/typesystem/ModelParticipant.java
+M	src/org/jacorb/ir/gui/typesystem/NodeMapper.java
+M	src/org/jacorb/ir/gui/typesystem/TypeAssociator.java
+M	src/org/jacorb/ir/gui/typesystem/TypeSystem.java
+M	src/org/jacorb/ir/gui/typesystem/TypeSystemNode.java
+M	src/org/jacorb/ir/gui/typesystem/remote/IRConstant.java
+
+commit 013454382ae32fcbb419e0e76fecb6ae0af70bac
+Author: Nick Cross <jacorb@goots.org>
+Date:   Sun Jun 23 22:57:55 2013 +0100
+
+Update changelog, version, pom, and release notes for 3.3beta
+
+M	doc/ChangeLog
+M	doc/REL_NOTES
+M	maven/core/pom.xml
+M	maven/idl-compiler/pom.xml
+M	maven/release/pom.xml
+M	maven/services/pom.xml
+M	pom.xml
+M	src/org/jacorb/util/Version.java
+
 commit b7926eac3d11172091da02fee2c319aa6d9b9f49
 Author: Nick Cross <jacorb@goots.org>
 Date:   Fri Jun 21 15:46:17 2013 +0100
