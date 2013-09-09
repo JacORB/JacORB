@@ -87,6 +87,8 @@
          - Fix logging for nested exception traces.
     - IDL
          - Fix for line endings in generated code (BZ942)
+    - IR
+         - Improved the performance of RepositoryID to class name conversion (BZ962)
 
 3.2
 ===
