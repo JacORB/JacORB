@@ -17,9 +17,7 @@
 	<classpathentry kind="lib" path="lib/antlr-2.7.2.jar"/>
 	<classpathentry kind="lib" path="lib/picocontainer-1.2.jar"/>
 	<classpathentry kind="lib" path="lib/wrapper-3.1.0.jar"/>
-	<classpathentry kind="lib" path="test/regression/lib/ant-testutil.jar"/>
 	<classpathentry kind="lib" path="test/regression/lib/junit.jar"/>
-	<classpathentry kind="lib" path="test/regression/lib/jakarta-regexp-1.4.jar"/>
 	<classpathentry kind="lib" path="lib/slf4j-api-1.6.4.jar"/>
 	<classpathentry kind="lib" path="lib/slf4j-jdk14-1.6.4.jar"/>
 	<classpathentry kind="lib" path="/usr/share/java/ant/ant-junit.jar"/>

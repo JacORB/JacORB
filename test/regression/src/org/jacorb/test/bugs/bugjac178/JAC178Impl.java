@@ -35,7 +35,7 @@ public class JAC178Impl extends JAC178POA implements Configurable
      * <code>result</code> holds an ordered list the of operation calls to return
      * for checking.
      */
-    private static List result = new ArrayList();
+    private static List<String> result = new ArrayList<String>();
 
     public JAC178Impl()
     {
@@ -165,7 +165,7 @@ public class JAC178Impl extends JAC178POA implements Configurable
 
     public void configure(Configuration arg0) throws ConfigurationException
     {
-        org.jacorb.config.Configuration config = (org.jacorb.config.Configuration)arg0;
+        org.jacorb.config.Configuration config = arg0;
         orb = config.getORB();
         try
         {
