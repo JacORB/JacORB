@@ -651,7 +651,6 @@ configuration file such as the one found in {\tt
   JACORB\_HOME/etc/logging\_properties.template} with your settings.
 The name of this file needs to be passed to the JVM at startup, for
 example by providing the following command line option:
-
 \begin{verbatim}
 -Djava.util.logging.config.file=/path/to/config-file
 \end{verbatim}
@@ -684,6 +683,26 @@ JacORB to allow configuration of a logging system based on the JacORB
 configuration.  The class needs to extend the class {\tt
   org.jacorb.config.LoggingInitializer} and the name of the class
 needs to be specified in the property {\tt jacorb.log.initializer}.
+
+\textbf{Note:} If using Maven as described in \ref{ch:mvn} then the slf4j-jdk14
+is a default compile \textit{and} runtime dependency. To replace the slf4j-jdk14
+with another implementation in this situation it should be excluded from the
+jacorb dependency e.g.
+\begin{verbatim}
+    <dependencies>
+        <dependency>
+            <groupId>org.jacorb</groupId>
+            <artifactId>jacorb</artifactId>
+            <version>${version.jacorb}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>slf4j-jdk14</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+    </dependencies>
+\end{verbatim}
 
 \subsubsection{POA Monitor}
 

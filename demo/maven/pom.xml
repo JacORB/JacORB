@@ -18,7 +18,7 @@
     </licenses>
 
     <properties>
-        <version.jacorb>3.1</version.jacorb>
+        <version.jacorb>3.4-SNAPSHOT</version.jacorb>
 
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
