@@ -1720,7 +1720,7 @@ public class LocalPITest extends TestCase
             {
                 ri.get_request_service_context (TEST_SCID);
             }
-            catch (BAD_PARAM bp)
+            catch (BAD_PARAM ex)
             {
                 /**
                  * If a reply_service_context is not found for the request then
@@ -1732,6 +1732,8 @@ public class LocalPITest extends TestCase
                 {
                     fail ("Got a BAD_PARAM getting reply service contexts");
                 }
+
+                assertTrue ("Minor code incorrect " + ex.minor, ex.minor == 26);
             }
 
 
@@ -1881,6 +1883,8 @@ public class LocalPITest extends TestCase
                 {
                     fail ("Got a BAD_PARAM getting reply service contexts");
                 }
+
+                assertTrue ("Minor code incorrect " + ex.minor, ex.minor == 26);
             }
 
             try
@@ -2079,6 +2083,8 @@ public class LocalPITest extends TestCase
                 {
                     fail ("Got a BAD_PARAM getting reply service contexts");
                 }
+
+                assertTrue ("Minor code incorrect " + ex.minor, ex.minor == 26);
             }
 
             try
@@ -2279,6 +2285,8 @@ public class LocalPITest extends TestCase
                 {
                     fail ("Got a BAD_PARAM getting reply service contexts");
                 }
+
+                assertTrue ("Minor code incorrect " + ex.minor, ex.minor == 26);
             }
 
 
@@ -2402,6 +2410,8 @@ public class LocalPITest extends TestCase
                 {
                     fail ("Got a BAD_PARAM getting request service contexts");
                 }
+
+                assertTrue ("Minor code incorrect " + ex.minor, ex.minor == 26);
             }
             catch (org.omg.PortableInterceptor.InvalidSlot ex)
             {
@@ -2628,6 +2638,8 @@ public class LocalPITest extends TestCase
                 {
                     fail ("Got a BAD_PARAM getting request service contexts");
                 }
+
+                assertTrue ("Minor code incorrect " + ex.minor, ex.minor == 26);
             }
             catch (org.omg.PortableInterceptor.InvalidSlot ex)
             {
@@ -2846,6 +2858,8 @@ public class LocalPITest extends TestCase
                 {
                     fail ("Got a BAD_PARAM getting request service contexts");
                 }
+
+                assertTrue ("Minor code incorrect " + ex.minor, ex.minor == 26);
             }
             catch (org.omg.PortableInterceptor.InvalidSlot ex)
             {
