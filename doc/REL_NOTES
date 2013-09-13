@@ -44,6 +44,7 @@
 ============
     - ORB
          - Improve ORBSingleton logging.
+         - Fix interceptor BAD_PARAM minor codes (BZ961)
     - Misc
          - Improve documentation for SLF4J logging and maven.
 

@@ -192,7 +192,7 @@ public abstract class RequestInfoImpl
 
         if (result == null)
         {
-            throw new BAD_PARAM("No ServiceContext with id " + id, 23, CompletionStatus.COMPLETED_MAYBE);
+            throw new BAD_PARAM("No ServiceContext with id " + id, 26, CompletionStatus.COMPLETED_MAYBE);
         }
 
         return result;
@@ -209,7 +209,7 @@ public abstract class RequestInfoImpl
 
         if (result == null)
         {
-            throw new BAD_PARAM("No ServiceContext with id " + id, 23, CompletionStatus.COMPLETED_MAYBE);
+            throw new BAD_PARAM("No ServiceContext with id " + id, 26, CompletionStatus.COMPLETED_MAYBE);
         }
 
         return result;
