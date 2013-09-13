@@ -21,9 +21,10 @@ package org.jacorb.test.bugs.bugjac178;
  */
 
 import java.util.HashSet;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import junit.framework.Test;
 import junit.framework.TestSuite;
-import org.apache.regexp.RE;
 import org.jacorb.test.common.ClientServerSetup;
 import org.jacorb.test.common.ClientServerTestCase;
 import org.jacorb.test.common.TestUtils;
@@ -94,7 +95,7 @@ public class POAThreadingTest extends ClientServerTestCase
         assertEquals(0, strings.length % 2);
 
         boolean beginLongOpSeen = false;
-        HashSet beginShortOpSeen = new HashSet();
+        HashSet<String> beginShortOpSeen = new HashSet<String>();
 
         for (int x=0; x < strings.length; ++x)
         {
@@ -217,14 +218,12 @@ public class POAThreadingTest extends ClientServerTestCase
         thread2.join();
         thread3.join();
 
-        // can't use JDK 1.4 methods here
-        // as they aren't supported under J2ME
-
         // Get the result...
-        RE subst = new RE("\\[|\\]");
-        String resultStr = subst.subst(server.getResult(), "");
+        Pattern subst = Pattern.compile("\\[|\\]");
+        Matcher matcher = subst.matcher(server.getResult());
+        String resultStr = matcher.replaceAll("");
 
-        RE split = new RE("\\s*,\\s*");
+        Pattern split = Pattern.compile("\\s*,\\s*");
         return split.split(resultStr);
     }
 }

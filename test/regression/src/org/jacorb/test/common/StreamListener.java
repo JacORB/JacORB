@@ -25,6 +25,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.Date;
+import java.util.regex.Pattern;
 
 /**
  * A <code>StreamListener</code> listens to a given <code>InputStream</code>
@@ -133,7 +134,7 @@ public class StreamListener extends Thread
         buffer.append("Starttime: " + new Date());
         buffer.append('\n');
 
-        PatternWrapper pattern = PatternWrapper.init("^(\\w+\\.)+\\w+: .*");
+        Pattern pattern = Pattern.compile("^(\\w+\\.)+\\w+: .*");
 
         while (active)
         {
@@ -153,7 +154,7 @@ public class StreamListener extends Thread
                     buffer.append('\n');
                     setIOR(line.substring(12));
                 }
-                else if (pattern.match(line) > 0)
+                else if (TestUtils.patternMatcher(pattern, line) > 0)
                 {
                     buffer.append("Detected Exception: " + new Date());
                     buffer.append('\n');

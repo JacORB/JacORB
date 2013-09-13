@@ -23,6 +23,8 @@ package org.jacorb.notification.util;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * @author Alphonse Bendt
@@ -49,7 +51,7 @@ public class DefaultWildcardMap implements WildcardMap
     }
 
     ////////////////////////////////////////
-    
+
     public void clear()
     {
         topLevel_.clear();
@@ -62,7 +64,7 @@ public class DefaultWildcardMap implements WildcardMap
         return topLevel_.remove(_key, 0, _key.length);
     }
 
-    
+
     public Object put(Object key, Object value)
     {
         char[] _key = key.toString().toCharArray();
@@ -70,7 +72,7 @@ public class DefaultWildcardMap implements WildcardMap
         return topLevel_.put(_key, 0, _key.length, value);
     }
 
-    
+
     public Object getNoExpansion(Object key)
     {
         char[] _key = key.toString().toCharArray();
@@ -78,7 +80,7 @@ public class DefaultWildcardMap implements WildcardMap
         return topLevel_.getSingle(_key, 0, _key.length);
     }
 
-   
+
     public Object[] getWithExpansion(Object key)
     {
         char[] _key = key.toString().toCharArray();
@@ -86,7 +88,7 @@ public class DefaultWildcardMap implements WildcardMap
         return topLevel_.getMultiple(_key, 0, _key.length);
     }
 
-    
+
     public String toString()
     {
         return topLevel_.toString();
@@ -106,7 +108,7 @@ class EntryList
     private static final char WILDCARD_CHAR = '*';
     private static final int DEFAULT_INITIAL_SIZE = 2;
 
-    private PatternWrapper myPattern_;
+    private Pattern myPattern_;
 
     final char[] key_;
 
@@ -529,7 +531,7 @@ class EntryList
             }
 
             String _patternString = new String(_pattern, 0, stop - start + _starCount + 1);
-            myPattern_ = PatternWrapper.init(_patternString);
+            myPattern_ = java.util.regex.Pattern.compile (_patternString);
         }
     }
 
@@ -722,11 +724,16 @@ class EntryList
         return _ret;
     }
 
-    private static int compareKeyToPattern(char[] string1, int start1, int stop1, PatternWrapper p)
+    private static int compareKeyToPattern(char[] string1, int start1, int stop1, Pattern p)
     {
         String _other = new String(string1, start1, stop1 - start1);
 
-        return p.match(_other);
+        Matcher m = p.matcher(_other);
+        if (m.find())
+        {
+            return m.end();
+        }
+        return 0;
     }
 
     private static int findCommonPrefix(char[] key1, int start1, int stop1, char[] key2,
@@ -796,7 +803,7 @@ class EntryList
 
         /**
          * Creates a new <code>WCEntry</code> instance.
-         * 
+         *
          * @param key
          *            a <code>char[]</code> value
          * @param start

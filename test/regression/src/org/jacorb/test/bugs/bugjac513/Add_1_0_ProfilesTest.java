@@ -21,7 +21,8 @@
 package org.jacorb.test.bugs.bugjac513;
 
 import java.util.Properties;
-import org.jacorb.test.common.PatternWrapper;
+import java.util.regex.Pattern;
+import org.jacorb.test.common.TestUtils;
 
 
 /**
@@ -41,12 +42,10 @@ public class Add_1_0_ProfilesTest extends AbstractGIOPMinorVersionTestCase
 
     protected void verifyPrintIOROutput(String printIOROutput)
     {
-       PatternWrapper re = PatternWrapper.init("IIOP Version:\\s+1\\.2");
+       Pattern re = Pattern.compile("IIOP Version:\\s+1\\.2");
+       assertTrue(TestUtils.patternMatcher(re, printIOROutput) != 0);
 
-       assertTrue(re.match(printIOROutput) != 0);
-
-        re = PatternWrapper.init("IIOP Version:\\s+1\\.0");
-
-        assertTrue(re.match(printIOROutput) != 0);
+       re = Pattern.compile("IIOP Version:\\s+1\\.0");
+       assertTrue(TestUtils.patternMatcher(re, printIOROutput) != 0);
     }
 }

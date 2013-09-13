@@ -44,6 +44,8 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import javax.rmi.PortableRemoteObject;
 import javax.rmi.CORBA.Stub;
 import junit.extensions.TestSetup;
@@ -470,7 +472,7 @@ public class TestUtils
         });
     }
 
-    private static List getFilesInDirectory(File src, final String suffix)
+    private static List<File> getFilesInDirectory(File src, final String suffix)
     {
         final File[] fileList = src.listFiles(new FilenameFilter()
         {
@@ -642,6 +644,7 @@ public class TestUtils
 
         BufferedReader in = new BufferedReader(new FileReader(iorFile));
         String ior = in.readLine();
+        in.close();
 
         if (ior == null)
         {
@@ -679,4 +682,17 @@ public class TestUtils
             return Class.forName(name);
         }
     }
+
+    public static int patternMatcher(Pattern pattern, String text)
+    {
+        Matcher matcher = pattern.matcher(text);
+
+        if (matcher.find())
+        {
+            return matcher.end();
+        }
+
+        return 0;
+    }
+
 }
