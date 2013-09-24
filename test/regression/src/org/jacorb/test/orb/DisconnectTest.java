@@ -33,7 +33,6 @@ import org.jacorb.test.BasicServer;
 import org.jacorb.test.BasicServerHelper;
 import org.jacorb.test.common.ClientServerSetup;
 import org.jacorb.test.common.ClientServerTestCase;
-import org.jacorb.test.common.JacORBTestSuite;
 import org.omg.CORBA.TIMEOUT;
 import org.omg.ETF.Profile;
 
@@ -64,7 +63,7 @@ public class DisconnectTest extends ClientServerTestCase
 
     public static Test suite()
     {
-        TestSuite suite = new JacORBTestSuite("Disconnect client test", DisconnectTest.class);
+        TestSuite suite = new TestSuite("Disconnect client test");
 
         Properties client_props = new Properties();
         client_props.setProperty ("jacorb.retries", "0");

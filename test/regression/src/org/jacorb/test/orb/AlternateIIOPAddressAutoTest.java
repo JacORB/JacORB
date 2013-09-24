@@ -27,7 +27,6 @@ import org.jacorb.test.BasicServer;
 import org.jacorb.test.BasicServerHelper;
 import org.jacorb.test.common.ClientServerSetup;
 import org.jacorb.test.common.ClientServerTestCase;
-import org.jacorb.test.common.JacORBTestSuite;
 
 /**
  * Tests the "auto" value in the configuration option
@@ -65,8 +64,7 @@ public class AlternateIIOPAddressAutoTest extends ClientServerTestCase
 
     public static Test suite()
     {
-        TestSuite suite = new JacORBTestSuite ("AlternateIIOPAddress Automatic Test",
-                                               AlternateIIOPAddressAutoTest.class);
+        TestSuite suite = new TestSuite ("AlternateIIOPAddress Automatic Test");
 
         Properties clientProps = new Properties();
         clientProps.setProperty ("jacorb.retries", "0");

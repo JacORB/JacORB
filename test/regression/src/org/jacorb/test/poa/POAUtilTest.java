@@ -2,6 +2,7 @@ package org.jacorb.test.poa;
 
 import java.util.Arrays;
 import junit.framework.AssertionFailedError;
+import junit.framework.TestCase;
 import org.jacorb.poa.except.POAInternalError;
 import org.jacorb.poa.policy.IdAssignmentPolicy;
 import org.jacorb.poa.policy.IdUniquenessPolicy;
@@ -11,7 +12,6 @@ import org.jacorb.poa.policy.RequestProcessingPolicy;
 import org.jacorb.poa.policy.ServantRetentionPolicy;
 import org.jacorb.poa.policy.ThreadPolicy;
 import org.jacorb.poa.util.POAUtil;
-import org.jacorb.test.common.JacORBTestCase;
 import org.omg.PortableServer.ID_ASSIGNMENT_POLICY_ID;
 import org.omg.PortableServer.ID_UNIQUENESS_POLICY_ID;
 import org.omg.PortableServer.IMPLICIT_ACTIVATION_POLICY_ID;
@@ -31,7 +31,7 @@ import org.omg.PortableServer.ThreadPolicyValue;
  * A unit test of several of the stand-alone methods in org.jacorb.poa.POAUtil.
  * @author Andre Spiegel spiegel@gnu.org
  */
-public class POAUtilTest extends JacORBTestCase
+public class POAUtilTest extends TestCase
 {
 
     public POAUtilTest (String name)

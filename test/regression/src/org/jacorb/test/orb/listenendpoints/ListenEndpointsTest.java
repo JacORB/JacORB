@@ -37,7 +37,6 @@ import junit.framework.TestSuite;
 import org.jacorb.test.common.ClientServerSetup;
 import org.jacorb.test.common.ClientServerTestCase;
 import org.jacorb.test.common.CommonSetup;
-import org.jacorb.test.common.JacORBTestSuite;
 import org.jacorb.test.common.TestUtils;
 import org.jacorb.test.listenendpoints.echo_corbaloc.EchoMessage;
 import org.jacorb.test.listenendpoints.echo_corbaloc.EchoMessageHelper;
@@ -77,8 +76,7 @@ public class ListenEndpointsTest extends ClientServerTestCase
 
     public static Test suite()
     {
-        TestSuite suite = new JacORBTestSuite(ListenEndpointsTest.class.getName(),
-                                              ListenEndpointsTest.class);
+        TestSuite suite = new TestSuite(ListenEndpointsTest.class.getName());
 
         Properties clientProps = new Properties();
         clientProps.setProperty ("jacorb.retries", "3");

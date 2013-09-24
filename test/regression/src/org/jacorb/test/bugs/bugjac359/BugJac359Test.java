@@ -27,7 +27,6 @@ import org.jacorb.test.BasicServer;
 import org.jacorb.test.BasicServerHelper;
 import org.jacorb.test.common.ClientServerSetup;
 import org.jacorb.test.common.ClientServerTestCase;
-import org.jacorb.test.common.JacORBTestSuite;
 import org.jacorb.test.common.TestUtils;
 import org.jacorb.test.orb.BasicServerImpl;
 
@@ -52,8 +51,7 @@ public class BugJac359Test extends ClientServerTestCase
 
     public static Test suite()
     {
-        TestSuite suite = new JacORBTestSuite("Basic client/server tests",
-                BugJac359Test.class);
+        TestSuite suite = new TestSuite("Basic client/server tests");
 
         Properties clientProps = new Properties();
 

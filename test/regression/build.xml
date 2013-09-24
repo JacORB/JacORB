@@ -3,7 +3,6 @@
 <project name="regression-test" default="run-all" basedir="../../">
 
     <property name="jacorb.home" value="${basedir}" />
-    <property file="${jacorb.home}/test/regression/build.properties" />
 
     <property name="dir.test" value="${jacorb.home}/test/regression" />
 
@@ -169,8 +168,6 @@
         <property name="jacorb.test.server.version" value="cvs" />
         <property name="jacorb.test.client.version" value="cvs" />
 
-        <property name="jacorb.test.launcherconfigfile" value="${dir.test}/resources/test.properties" />
-
         <property name="jacorb.test.home" value="${dir.test}" />
 
         <property name="dir.jacorb.client" value="${basedir}" />
@@ -178,8 +175,6 @@
             <pathelement location="${dir.jacorb.client}/classes" />
             <fileset dir="${dir.jacorb.client}/lib" includes="*.jar" />
         </path>
-
-        <property name="jacorb.test.piddir" value="${jacorb.test.outdir}/pid" />
 
         <mkdir dir="${jacorb.test.outdir}" />
     </target>
@@ -256,7 +251,6 @@
 
         <property name="_bootclasspath" refid="_test.bootclasspath" />
 
-        <mkdir dir="${jacorb.test.piddir}" />
         <jacorb-junit fork="true"
                       includeantruntime="true"
                       timeout="${jacorb.test.timeout.global}"
@@ -300,15 +294,6 @@
                 </fileset>
             </batchtest>
         </jacorb-junit>
-
-        <exec executable="/bin/bash">
-            <arg value="-c" />
-            <arg value="kill -9 $(ls ${jacorb.test.piddir}) 2>/dev/null" />
-        </exec>
-
-        <delete failonerror="false">
-            <fileset dir="${jacorb.test.piddir}" includes="**/*" />
-        </delete >
 
     </target>
 

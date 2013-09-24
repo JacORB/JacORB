@@ -6,6 +6,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Vector;
 import junit.framework.Test;
+import junit.framework.TestCase;
 import junit.framework.TestSuite;
 import org.jacorb.config.Configuration;
 import org.jacorb.config.JacORBConfiguration;
@@ -24,8 +25,6 @@ import org.jacorb.orb.giop.RequestOutputStream;
 import org.jacorb.orb.giop.ServerGIOPConnection;
 import org.jacorb.orb.iiop.IIOPAddress;
 import org.jacorb.orb.iiop.IIOPProfile;
-import org.jacorb.test.common.JacORBTestCase;
-import org.jacorb.test.common.JacORBTestSuite;
 import org.omg.ETF.BufferHolder;
 import org.omg.ETF.Profile;
 import org.omg.GIOP.MsgType_1_1;
@@ -33,15 +32,10 @@ import org.omg.GIOP.MsgType_1_1;
 /**
  * GIOPConnectionTest.java
  *
- *
- * Created: Sat Jun 22 14:26:15 2002
- *
- * @jacorb-client-since 2.2
  * @author Nicolas Noffke
  */
-
 public class GIOPConnectionTest
-    extends JacORBTestCase
+    extends TestCase
 {
     private Configuration config;
     private ORB orb;
@@ -62,8 +56,7 @@ public class GIOPConnectionTest
 
     public static Test suite()
     {
-        TestSuite suite = new JacORBTestSuite ("GIOPConnection Test",
-                                               GIOPConnectionTest.class);
+        TestSuite suite = new TestSuite ("GIOPConnection Test");
 
         suite.addTest (new GIOPConnectionTest ("testGIOP_1_0_CorrectRefusing"));
         suite.addTest (new GIOPConnectionTest ("testGIOP_1_1_IllegalMessageType"));

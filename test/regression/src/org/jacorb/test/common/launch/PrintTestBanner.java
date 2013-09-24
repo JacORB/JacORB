@@ -20,10 +20,7 @@
 
 package org.jacorb.test.common.launch;
 
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.text.DateFormat;
@@ -42,23 +39,18 @@ public class PrintTestBanner extends Task
 {
     private static final DateFormat dateStringFormatter = new SimpleDateFormat ("yyyy-MM-dd HH:mm:ss Z");
     private final Properties props = new Properties();
-    private JacORBLauncher launcherFactory;
     protected Redirector redirector = new Redirector(this);
 
-    private void printTestHeader (PrintWriter out, String clientDetails, String serverVersion, String serverDetails)
+    private void printTestHeader (PrintWriter out, String clientDetails)
     {
         out.println("-------------------------------------------------------------------------------");
         out.println();
         out.println("JacORB Regression Test Report");
         out.println();
         out.println("Date:     " + getTestDateString());
-        out.println("User:     " + getTestUser());
-        out.println("");
-        out.println("Client Version:   " + props.getProperty("jacorb.test.client.version"));
-        out.println(props.getProperty("jacorb.test.client.jvminfo"));
         out.println();
-        out.println("Server Version:   " + serverVersion);
-        out.println(serverDetails);
+        out.println(clientDetails);
+        out.println();
         out.println("Coverage:         " + formatBooleanProperty("jacorb.test.coverage"));
         out.println("SSL:              " + formatBooleanProperty("jacorb.test.ssl"));
         out.println("IMR:              " + formatBooleanProperty("jacorb.test.imr"));
@@ -69,11 +61,6 @@ public class PrintTestBanner extends Task
 
     public void setOutputproperty(String outputProp) {
         redirector.setOutputProperty(outputProp);
-    }
-
-    private String getTestUser()
-    {
-        return System.getProperty ("user.name", "<unknown>");
     }
 
     private String getTestDateString()
@@ -94,17 +81,11 @@ public class PrintTestBanner extends Task
 
         try
         {
-            initLauncherFactory();
-
-            String serverVersion = props.getProperty("jacorb.test.server.version");
-
-            final Launcher serverLauncher = launcherFactory.getLauncher(serverVersion, false, null, props, null, null);
-
             PrintWriter writer = new PrintWriter(out);
 
             try
             {
-                printTestHeader(writer, "", serverVersion, serverLauncher.getLauncherDetails(""));
+                printTestHeader(writer, "");
             }
             finally
             {
@@ -131,20 +112,5 @@ public class PrintTestBanner extends Task
     private String formatBooleanProperty(String name)
     {
         return props.containsKey(name) ? "yes" : "no";
-    }
-
-    private void initLauncherFactory() throws FileNotFoundException, IOException
-    {
-        InputStream in = new FileInputStream(props.getProperty("jacorb.test.launcherconfigfile", "/test.properties"));
-
-        try
-        {
-            launcherFactory = new JacORBLauncher(in, props);
-            launcherFactory.setClassLoader(getClass().getClassLoader());
-        }
-        finally
-        {
-            in.close();
-        }
     }
 }

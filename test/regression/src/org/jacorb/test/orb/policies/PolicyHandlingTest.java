@@ -2,8 +2,8 @@ package org.jacorb.test.orb.policies;
 
 import java.util.Properties;
 import junit.framework.Test;
+import junit.framework.TestCase;
 import junit.framework.TestSuite;
-import org.jacorb.test.common.JacORBTestCase;
 import org.omg.CORBA.Any;
 import org.omg.CORBA.ORB;
 import org.omg.CORBA.Policy;
@@ -52,7 +52,7 @@ import org.omg.TimeBase.UtcTHelper;
  *
  * @author Andre Spiegel spiegel@gnu.org
  */
-public class PolicyHandlingTest extends JacORBTestCase
+public class PolicyHandlingTest extends TestCase
 {
     private static org.omg.CORBA.ORB orb = null;
 

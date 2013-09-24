@@ -27,7 +27,6 @@ import org.jacorb.test.BasicServer;
 import org.jacorb.test.BasicServerHelper;
 import org.jacorb.test.common.ClientServerSetup;
 import org.jacorb.test.common.ClientServerTestCase;
-import org.jacorb.test.common.JacORBTestSuite;
 
 /**
  * Tests the configuration option jacorb.iiop.alternate_addresses.
@@ -60,8 +59,7 @@ public class AlternateIIOPAddressConfigTest extends ClientServerTestCase
 
     public static Test suite()
     {
-        TestSuite suite = new JacORBTestSuite ("AlternateIIOPAddress Configuration Test",
-                                               AlternateIIOPAddressConfigTest.class);
+        TestSuite suite = new TestSuite ("AlternateIIOPAddress Configuration Test");
 
         Properties clientProps = new Properties();
         clientProps.setProperty ("jacorb.retries", "0");

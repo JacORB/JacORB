@@ -7,12 +7,11 @@ import org.jacorb.test.BasicServer;
 import org.jacorb.test.BasicServerHelper;
 import org.jacorb.test.common.ClientServerSetup;
 import org.jacorb.test.common.ClientServerTestCase;
-import org.jacorb.test.common.JacORBTestSuite;
 
 public class BugJac802Test extends ClientServerTestCase
 {
     private BasicServer server;
-    
+
     private String serverOptions;
     private String clientOptions;
 
@@ -22,11 +21,10 @@ public class BugJac802Test extends ClientServerTestCase
         this.serverOptions = serverOptions;
         this.clientOptions = clientOptions;
     }
-    
+
     public static Test suite()
     {
-        TestSuite suite = new JacORBTestSuite("SSL client/server tests",
-                                              BugJac802Test.class);
+        TestSuite suite = new TestSuite("SSL client/server tests");
         ClientServerSetup setup =
             new ClientServerSetup( suite,
                                    "org.jacorb.test.orb.BasicServerImpl");
@@ -45,10 +43,10 @@ public class BugJac802Test extends ClientServerTestCase
         {
             System.err.println("Test ignored as SSL is not enabled (" + BugJac802Test.class.getName() + ")");
         }
-        
+
         return setup;
     }
-    
+
     public void setUp() throws Exception
     {
         Properties clientProperties = new Properties ();
@@ -60,12 +58,12 @@ public class BugJac802Test extends ClientServerTestCase
         clientProperties.put ("jacorb.security.keystore_password", "jsse_client_ks_pass");
         clientProperties.put ("jacorb.security.keystore", "org/jacorb/test/bugs/bugjac802/jsse_client_ks");
         clientProperties.put ("jacorb.security.jsse.trustees_from_ks", "on");
-        
+
         setup.patchClientPropertires (clientProperties);
 
         Properties serverProperties = new Properties ();
         serverProperties.put ("jacorb.security.support_ssl", "on");
-        serverProperties.put ("org.omg.PortableInterceptor.ORBInitializerClass.ForwardInit", 
+        serverProperties.put ("org.omg.PortableInterceptor.ORBInitializerClass.ForwardInit",
                               "org.jacorb.security.ssl.sun_jsse.SecurityServiceInitializer");
         serverProperties.put ("jacorb.security.ssl.server.supported_options", serverOptions);
         serverProperties.put ("jacorb.security.ssl.server.required_options", serverOptions);
@@ -75,12 +73,12 @@ public class BugJac802Test extends ClientServerTestCase
         serverProperties.put ("jacorb.security.keystore", "org/jacorb/test/bugs/bugjac802/jsse_server_ks");
         serverProperties.put ("jacorb.security.jsse.trustees_from_ks", "on");
         setup.patchServerPropertires (serverProperties);
-        
+
         // TODO: here is the hack that allow changing and applying new server and client properties
         // form test to test. Need to be reviewed to find proper way to set the parameters.
         setup.tearDown ();
         setup.setUp ();
-        
+
         server = BasicServerHelper.narrow( setup.getServerObject() );
     }
 
@@ -108,5 +106,5 @@ public class BugJac802Test extends ClientServerTestCase
         }
     }
 }
-    
- 
+
+

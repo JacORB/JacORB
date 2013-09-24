@@ -170,7 +170,7 @@ public class ClientServerSetup extends TestSetup {
             imrProps.put("jacorb.use_imr", "on");
             try
             {
-                imrProps.put("ORBInitRef.ImplementationRepository", imrIOR.toURL().toString());
+                imrProps.put("ORBInitRef.ImplementationRepository", imrIOR.toURI().toURL().toString());
             }
             catch (MalformedURLException e)
             {

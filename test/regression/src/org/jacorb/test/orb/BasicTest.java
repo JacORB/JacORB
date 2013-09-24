@@ -26,7 +26,6 @@ import org.jacorb.test.BasicServer;
 import org.jacorb.test.BasicServerHelper;
 import org.jacorb.test.common.ClientServerSetup;
 import org.jacorb.test.common.ClientServerTestCase;
-import org.jacorb.test.common.JacORBTestSuite;
 import org.omg.CORBA.BooleanHolder;
 import org.omg.CORBA.ByteHolder;
 import org.omg.CORBA.DoubleHolder;
@@ -58,8 +57,7 @@ public class BasicTest extends ClientServerTestCase
 
     public static Test suite()
     {
-        TestSuite suite = new JacORBTestSuite("Basic client/server tests",
-                                              BasicTest.class);
+        TestSuite suite = new TestSuite("Basic client/server tests");
         ClientServerSetup setup =
             new ClientServerSetup( suite,
                                    "org.jacorb.test.orb.BasicServerImpl" );
@@ -628,4 +626,3 @@ public class BasicTest extends ClientServerTestCase
 	}
 
 }
-

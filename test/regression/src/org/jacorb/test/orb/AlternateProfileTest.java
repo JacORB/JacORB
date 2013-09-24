@@ -32,7 +32,6 @@ import org.jacorb.test.Sample;
 import org.jacorb.test.common.ClientServerSetup;
 import org.jacorb.test.common.ClientServerTestCase;
 import org.jacorb.test.common.CommonSetup;
-import org.jacorb.test.common.JacORBTestSuite;
 import org.jacorb.test.common.TestUtils;
 import org.omg.CORBA.portable.Delegate;
 import org.omg.IOP.TAG_INTERNET_IOP;
@@ -42,7 +41,6 @@ import org.omg.IOP.TaggedProfile;
  * This test is similar to AlternateIIOPAddressTest, but it uses the
  * special IORInfoExt functions to set up the IORs.
  *
- * @jacorb-since 2.2
  * @author Marc Heide
  */
 public class AlternateProfileTest extends ClientServerTestCase
@@ -77,10 +75,9 @@ public class AlternateProfileTest extends ClientServerTestCase
 
     public static Test suite()
     {
-        TestSuite suite = new JacORBTestSuite
+        TestSuite suite = new TestSuite
         (
-            "Test TAG_ALTERNATE_IIOP_ADDRESS/IORInfoExt",
-            AlternateProfileTest.class
+            "Test TAG_ALTERNATE_IIOP_ADDRESS/IORInfoExt"
         );
 
         Properties client_props = new Properties();

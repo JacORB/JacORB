@@ -9,7 +9,6 @@ import org.jacorb.test.MyUserExceptionHelper;
 import org.jacorb.test.NonEmptyException;
 import org.jacorb.test.common.ClientServerSetup;
 import org.jacorb.test.common.ClientServerTestCase;
-import org.jacorb.test.common.JacORBTestSuite;
 import org.jacorb.test.common.TestUtils;
 
 /**
@@ -38,7 +37,7 @@ public class ExceptionTest extends ClientServerTestCase
 
     public static Test suite()
     {
-        TestSuite suite = new JacORBTestSuite("Client/server exception tests", ExceptionTest.class);
+        TestSuite suite = new TestSuite("Client/server exception tests");
         ClientServerSetup setup = new ClientServerSetup(suite, ExceptionServerImpl.class.getName());
 
         TestUtils.addToSuite(suite, setup, ExceptionTest.class);
@@ -50,7 +49,6 @@ public class ExceptionTest extends ClientServerTestCase
      * Checks whether a RuntimeException in the Servant is
      * properly reported back to the client, including the
      * error message.
-     * @jacorb-since cvs
      */
     public void _testRuntimeException()
     {

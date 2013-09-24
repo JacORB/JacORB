@@ -30,13 +30,11 @@ import org.jacorb.test.Sample;
 import org.jacorb.test.common.ClientServerSetup;
 import org.jacorb.test.common.ClientServerTestCase;
 import org.jacorb.test.common.CommonSetup;
-import org.jacorb.test.common.JacORBTestSuite;
 import org.jacorb.test.common.TestUtils;
 
 /**
  * Tests components of type TAG_ALTERNATE_IIOP_ADDRESS within IORs.
  *
- * @jacorb-since 2.2
  * @author Andre Spiegel
  */
 public class AlternateIIOPAddress2Test extends ClientServerTestCase
@@ -76,8 +74,7 @@ public class AlternateIIOPAddress2Test extends ClientServerTestCase
 
     public static Test suite()
     {
-        TestSuite suite = new JacORBTestSuite("Test TAG_ALTERNATE_IIOP_ADDRESS(2) ",
-                                              AlternateIIOPAddress2Test.class);
+        TestSuite suite = new TestSuite("Test TAG_ALTERNATE_IIOP_ADDRESS(2) ");
 
         Properties client_props = new Properties();
         client_props.setProperty ("jacorb.retries", "0");

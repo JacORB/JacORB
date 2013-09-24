@@ -29,10 +29,10 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.Properties;
 import junit.framework.Test;
+import junit.framework.TestCase;
 import junit.framework.TestSuite;
 import org.jacorb.config.Configuration;
 import org.jacorb.config.JacORBConfiguration;
-import org.jacorb.test.common.JacORBTestCase;
 import org.jacorb.test.common.TestUtils;
 import org.omg.CORBA.ORB;
 
@@ -42,7 +42,7 @@ import org.omg.CORBA.ORB;
  * @author Alphonse Bendt
  * @author Andre Spiegel
  */
-public class ConfigurationTest extends JacORBTestCase
+public class ConfigurationTest extends TestCase
 {
     private final Properties oldProps = new Properties();
 

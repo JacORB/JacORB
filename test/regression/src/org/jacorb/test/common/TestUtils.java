@@ -41,7 +41,6 @@ import java.rmi.NoSuchObjectException;
 import java.rmi.Remote;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
 import java.util.regex.Matcher;
@@ -373,22 +372,6 @@ public class TestUtils
         return props;
     }
 
-    public static List propsToArgList (Properties props)
-    {
-        List result = new ArrayList();
-
-        if (props == null) return result;
-
-        for (Iterator i = props.keySet().iterator(); i.hasNext();)
-        {
-            String key = (String)i.next();
-            String value = props.getProperty(key);
-            result.add ("-D" + key + "=" + value);
-        }
-
-        return result;
-    }
-
     public static Stub toStub(Remote remote, org.omg.CORBA.Object reference, Class clazz) throws NoSuchObjectException
     {
          if (JDK_13)
@@ -485,15 +468,15 @@ public class TestUtils
         return Arrays.asList(fileList);
     }
 
-    public static List getJavaFilesRecursively(File src)
+    public static List<File> getJavaFilesRecursively(File src)
     {
         final String suffix = ".java";
         return getFilesRecursively(src, suffix);
     }
 
-    public static List getFilesRecursively(File src, final String suffix)
+    public static List<File> getFilesRecursively(File src, final String suffix)
     {
-        List result = new ArrayList();
+        List<File> result = new ArrayList<File>();
         result.addAll(getFilesInDirectory(src, suffix));
 
         File[] dirs = getSubDirectories(src);
@@ -571,7 +554,7 @@ public class TestUtils
                 Assert.fail(cmd + "\n" + b.toString());
             }
 
-            return new URLClassLoader(new URL[] {dirCompilation.toURL()});
+            return new URLClassLoader(new URL[] {dirCompilation.toURI().toURL()});
         }
         catch (Exception e)
         {

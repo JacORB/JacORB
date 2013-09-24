@@ -22,18 +22,16 @@ package org.jacorb.test.orb;
 
 import java.io.IOException;
 import junit.framework.Test;
+import junit.framework.TestCase;
 import junit.framework.TestSuite;
-import org.jacorb.test.common.JacORBTestCase;
-import org.jacorb.test.common.JacORBTestSuite;
 import org.omg.CORBA.ORB;
 import org.omg.CORBA.portable.InputStream;
 
 /**
  * Test CDRInputStream and CDROutputStream.
  *
- * @jacorb-client-since 2.2
  */
-public class CDRIOTest extends JacORBTestCase
+public class CDRIOTest extends TestCase
 {
     private ORB orb;
     private org.omg.CORBA.portable.OutputStream os;
@@ -71,8 +69,7 @@ public class CDRIOTest extends JacORBTestCase
      */
     public static Test suite ()
     {
-        TestSuite suite = new JacORBTestSuite("CDRIO Test",
-                                              CDRIOTest.class);
+        TestSuite suite = new TestSuite("CDRIO Test");
 
         suite.addTest(new CDRIOTest("testLong"));
         suite.addTest(new CDRIOTest("testString"));

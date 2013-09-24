@@ -24,7 +24,6 @@ import java.util.Properties;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 import org.jacorb.test.common.ClientServerSetup;
-import org.jacorb.test.common.JacORBTestSuite;
 
 public class NIOBasicTest extends BasicTest
 {
@@ -35,8 +34,7 @@ public class NIOBasicTest extends BasicTest
 
     public static Test suite()
     {
-        TestSuite suite = new JacORBTestSuite("Basic client/server tests",
-                                              NIOBasicTest.class);
+        TestSuite suite = new TestSuite("Basic client/server tests");
 
         Properties client_props = new Properties();
         client_props.setProperty ("jacorb.connection.nonblocking", "true");

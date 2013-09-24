@@ -20,18 +20,17 @@
 
 package org.jacorb.test.common;
 
+import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.lang.ref.WeakReference;
-import java.net.URL;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
 import junit.extensions.TestSetup;
 import junit.framework.Test;
-import org.jacorb.test.common.launch.JacORBLauncher;
 import org.jacorb.test.common.launch.Launcher;
 
 /**
@@ -39,22 +38,20 @@ import org.jacorb.test.common.launch.Launcher;
  */
 public class ServerSetup extends TestSetup
 {
-    private static final Comparator comparator = new JacORBVersionComparator();
-
     private static class ProcessShutdown extends Thread
     {
         // only hold a weak reference to the process to
         // allow it to be gc'ed
-        private final WeakReference processRef;
+        private final WeakReference<Process> processRef;
 
         public ProcessShutdown(Process process)
         {
-            processRef = new WeakReference(process);
+            processRef = new WeakReference<Process>(process);
         }
 
         public void run()
         {
-            Process process = (Process) processRef.get();
+            Process process = processRef.get();
             if (process != null)
             {
                 try
@@ -82,7 +79,7 @@ public class ServerSetup extends TestSetup
     protected String outName = "OUT";
     protected String errName = "ERR";
 
-    protected final List<String> serverArgs = new ArrayList();
+    protected final List<String> serverArgs = new ArrayList<String>();
 
     private String serverIORFailedMesg;
 
@@ -143,12 +140,7 @@ public class ServerSetup extends TestSetup
     {
         if (optionalTestServer == null)
         {
-            String serverVersion = System.getProperty("jacorb.test.server.version", "cvs");
-            if (comparator.compare (serverVersion, "2.2") >= 0)
-            {
-                return "org.jacorb.test.common.TestServer";
-            }
-            return "org.jacorb.test.common.TestServer_before_2_2";
+            return "org.jacorb.test.common.TestServer";
         }
         return optionalTestServer;
     }
@@ -158,7 +150,6 @@ public class ServerSetup extends TestSetup
     {
         initSecurity();
 
-        final String serverVersion = System.getProperty ("jacorb.test.server.version", "cvs");
         final boolean coverage = TestUtils.getSystemPropertyAsBoolean("jacorb.test.coverage", false);
 
         Properties serverProperties = new Properties();
@@ -175,11 +166,11 @@ public class ServerSetup extends TestSetup
 
 
         final String prefix = "jacorb.test.serverproperty.";
-        final Iterator i = System.getProperties().keySet().iterator();
+        final Iterator<String> i = System.getProperties().stringPropertyNames().iterator();
 
         while(i.hasNext())
         {
-            String key = (String) i.next();
+            String key = i.next();
 
             if (!key.startsWith(prefix))
             {
@@ -193,29 +184,11 @@ public class ServerSetup extends TestSetup
             serverProperties.setProperty(propName, value);
         }
 
-        URL launcherConfiguration = getClass().getResource(System.getProperty("jacorb.test.launcher.configuration", "/test.properties"));
-        TestUtils.log("using launcherConfiguration: " + launcherConfiguration);
-
-        assertNotNull("unable to access launcher configuration", launcherConfiguration);
-        final InputStream in = launcherConfiguration.openStream();
-        JacORBLauncher launcherFactory;
-
         Properties launcherProps = System.getProperties();
 
         patchLauncherProps(launcherProps);
 
-        try
-        {
-            launcherFactory = new JacORBLauncher(in, launcherProps);
-        }
-        finally
-        {
-            in.close();
-        }
-
-        final Launcher launcher =
-            launcherFactory.getLauncher(serverVersion,
-                                        coverage,
+        final Launcher launcher = getLauncher(coverage,
                                         System.getProperty("java.class.path"),
                                         serverProperties,
                                         getTestServerMain(),
@@ -240,7 +213,7 @@ public class ServerSetup extends TestSetup
 
     protected String[] getServerArgs()
     {
-        return (String[])serverArgs.toArray(new String[serverArgs.size()]);
+        return serverArgs.toArray(new String[serverArgs.size()]);
     }
 
     public void tearDown() throws Exception
@@ -342,5 +315,102 @@ public class ServerSetup extends TestSetup
         {
             serverOrbProperties.putAll (serverProperties);
         }
+    }
+
+
+
+
+    /**
+     * Returns a launcher for the specified JacORB version.
+     * If coverage is true, sets up the launcher to that
+     * coverage information will be gathered.
+     * @param classpath
+     * @param properties
+     * @param mainClass
+     * @param processArgs
+     */
+    private Launcher getLauncher (boolean useCoverage,
+                                 String classpath,
+                                 Properties properties,
+                                 String mainClass,
+                                 String[] processArgs)
+    {
+        String home = null;
+
+        try
+        {
+            home = locateHome(properties);
+        }
+        catch(Exception e)
+        {
+            TestUtils.log("unable to locate JacORB home. classpath will be only be set using the System property java.class.path: " + e.getMessage());
+        }
+
+        final Properties props = new Properties();
+
+        if (properties != null)
+        {
+            props.putAll(properties);
+        }
+
+        try
+        {
+            Launcher launcher = new Launcher();
+
+            launcher.setClasspath(classpath);
+            launcher.setMainClass(mainClass);
+            launcher.setArgs(processArgs);
+            launcher.setUseCoverage(useCoverage);
+
+            if (home != null)
+            {
+                launcher.setJacorbHome(new File(home));
+            }
+            launcher.setProperties(props);
+
+            launcher.init();
+
+            return launcher;
+        }
+        catch (Exception e)
+        {
+            StringWriter out = new StringWriter();
+            e.printStackTrace(new PrintWriter(out));
+            throw new IllegalArgumentException(out.toString());
+        }
+    }
+
+    private String locateHome(Properties props)
+    {
+        String jacorbHome = props.getProperty("jacorb.home");
+
+        if (jacorbHome == null)
+        {
+            jacorbHome = System.getProperty("jacorb.home");
+        }
+
+        if (jacorbHome != null)
+        {
+            return jacorbHome;
+        }
+
+        String testHome = props.getProperty("jacorb.test.home");
+
+        if (testHome == null)
+        {
+            testHome = System.getProperty("jacorb.test.home");
+        }
+
+        if (testHome == null)
+        {
+            testHome = TestUtils.testHome();
+        }
+
+        if (testHome == null)
+        {
+            throw new RuntimeException("cannot determine jacorb.test.home");
+        }
+
+        return new File(testHome).getParentFile().getParentFile().toString();
     }
 }

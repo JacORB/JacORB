@@ -32,11 +32,6 @@ public class BootClasspathBuilder
 {
     private final String bootClasspath;
 
-    public BootClasspathBuilder(String jacorbHome, boolean useCoverage)
-    {
-        this(new File(jacorbHome), useCoverage);
-    }
-
     public BootClasspathBuilder(File jacorbHome, boolean useCoverage)
     {
         if (jacorbHome == null)
@@ -44,7 +39,7 @@ public class BootClasspathBuilder
             throw new IllegalArgumentException("JacORB Home may not be null");
         }
 
-        List entries = new ArrayList();
+        List<String> entries = new ArrayList<String>();
 
         if (useCoverage)
         {

@@ -28,7 +28,6 @@ import org.jacorb.test.BasicServerHelper;
 import org.jacorb.test.common.ClientServerSetup;
 import org.jacorb.test.common.ClientServerTestCase;
 import org.jacorb.test.common.CommonSetup;
-import org.jacorb.test.common.JacORBTestSuite;
 
 /**
  * This is a client/server test case that accesses a server object
@@ -52,8 +51,7 @@ public class CorbalocTest extends ClientServerTestCase
 
     public static Test suite()
     {
-        TestSuite suite = new JacORBTestSuite ("Corbaloc Test",
-                                               CorbalocTest.class);
+        TestSuite suite = new TestSuite ("Corbaloc Test");
 
         Properties serverProps = new Properties();
         serverProps.put (CommonSetup.JACORB_REGRESSION_DISABLE_SECURITY, "true");

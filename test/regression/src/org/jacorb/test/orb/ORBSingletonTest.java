@@ -21,16 +21,16 @@ package org.jacorb.test.orb;
  */
 
 import junit.framework.Test;
+import junit.framework.TestCase;
 import junit.framework.TestSuite;
 import org.jacorb.orb.ORBSingleton;
-import org.jacorb.test.common.JacORBTestCase;
 
 /**
  * A very simple test that checks whether some methods in the singleton ORB
  * are correctly flagged as forbidden (NO_IMPLEMENT).
  * @author Andre Spiegel spiegel@gnu.org
  */
-public class ORBSingletonTest extends JacORBTestCase
+public class ORBSingletonTest extends TestCase
 {
     
     public ORBSingletonTest (String name)

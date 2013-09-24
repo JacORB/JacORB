@@ -71,19 +71,19 @@ public class IDLTestSetup extends TestSetup
         return dirGeneration;
     }
 
-    public static String[] createJacIDLArgs(File dir, File idlFile, List additionalIDLArgs)
+    public static String[] createJacIDLArgs(File dir, File idlFile, List<String> additionalIDLArgs)
     {
-        List args = new ArrayList();
+        List<String> args = new ArrayList<String>();
         args.addAll(Arrays.asList(new String[] {"-ir", "-forceOverwrite", "-d", dir.getAbsolutePath()}));
 
         args.addAll(additionalIDLArgs);
 
         if (idlFile.isDirectory())
         {
-            final List idlFiles = TestUtils.getFilesRecursively(idlFile, ".idl");
-            for (Iterator iter = idlFiles.iterator(); iter.hasNext();)
+            final List<File> idlFiles = TestUtils.getFilesRecursively(idlFile, ".idl");
+            for (Iterator<File> iter = idlFiles.iterator(); iter.hasNext();)
             {
-                String fileName = ((File) iter.next()).toString();
+                String fileName = iter.next().toString();
                 args.add(fileName);
             }
         }
@@ -92,7 +92,7 @@ public class IDLTestSetup extends TestSetup
             args.add(idlFile.getAbsolutePath());
         }
 
-        return (String[]) args.toArray(new String[args.size()]);
+        return args.toArray(new String[args.size()]);
     }
 
     public static String runJacIDLInProcess(String file, String[] args, boolean failureExpected) throws AssertionFailedError
@@ -120,13 +120,13 @@ public class IDLTestSetup extends TestSetup
 
     public static String runJacIDLExtraProcess(String file, String[] arg, boolean failureExpected) throws Exception
     {
-        List args = new ArrayList();
+        List<String> args = new ArrayList<String>();
         args.add(TestUtils.testHome() + "/../../bin/idl");
         args.addAll(Arrays.asList(arg));
 
         TestUtils.log("Running: " + args);
 
-        Process process = Runtime.getRuntime().exec((String[])args.toArray(new String[args.size()]));
+        Process process = Runtime.getRuntime().exec(args.toArray(new String[args.size()]));
 
         StreamListener outListener = new StreamListener (process.getInputStream(), "OUT");
         StreamListener errListener = new StreamListener (process.getErrorStream(), "ERR");
@@ -170,7 +170,7 @@ public class IDLTestSetup extends TestSetup
 
     private static File[] getJavaFiles(File dir)
     {
-        return (File[]) TestUtils.getJavaFilesRecursively(dir).toArray(new File[0]);
+        return TestUtils.getJavaFilesRecursively(dir).toArray(new File[0]);
     }
 
     private static File getIDLFile(Object idlFile)

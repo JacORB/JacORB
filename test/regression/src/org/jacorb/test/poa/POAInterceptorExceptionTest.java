@@ -29,7 +29,6 @@ import org.jacorb.test.BasicServer;
 import org.jacorb.test.BasicServerHelper;
 import org.jacorb.test.common.ClientServerSetup;
 import org.jacorb.test.common.ClientServerTestCase;
-import org.jacorb.test.common.JacORBTestSuite;
 import org.omg.CORBA.UNKNOWN;
 
 /**
@@ -59,7 +58,7 @@ public class POAInterceptorExceptionTest extends ClientServerTestCase
 
     public static Test suite()
     {
-        TestSuite suite = new JacORBTestSuite("POAInterceptorException client test", POAInterceptorExceptionTest.class);
+        TestSuite suite = new TestSuite("POAInterceptorException client test");
 
         Properties client_props = new Properties();
         client_props.setProperty

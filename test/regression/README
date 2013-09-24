@@ -5,7 +5,7 @@
 This directory tree holds the JacORB regression test suite.  It is not
 included in most releases of JacORB, because the test suite is not
 necessary for using the ORB.  The suite is always available from
-JacORB's public CVS repository, for everybody who wishes to run the
+JacORB's public GIT repository, for everybody who wishes to run the
 tests or to improve them.  Many of the test cases are also good
 examples that illustrate how to use certain features of JacORB.
 
@@ -22,21 +22,6 @@ framework.  These include:
     as the client, and it automatically spawns a separate server
     process with which the client side communicates.
 
-  * the ability to use different ORB versions on the client side and
-    the server side.  This is achieved through a launching framework
-    that can start client and server processes against arbitrary
-    versions of JacORB, installed anywhere in the file system.  It is
-    also possible to run some of the tests against a TAO ORB on the
-    server side, provided that the corresponding test server code has
-    been re-implemented in C++ using TAO.
-
-  * the ability to enable or disable certain test cases, based on the
-    ORB versions used in the tests.  This way, some test cases can be
-    skipped automatically when using an older ORB that does not
-    support the features tested by those test cases.  To achieve this,
-    test cases can be marked with special Javadoc comments that
-    indicate which ORB versions they apply to.
-
 The test suite can also be executed under the EMMA coverage tool,
 which measures and reports the amount of coverage within the JacORB
 code that was achieved during the test.
@@ -46,7 +31,7 @@ Building the Test Suite
 -----------------------
 
 We assume that you obtain the regression suite code by checking all of
-JacORB out of the public CVS repository.  This means that you have a
+JacORB out of the public GIT repository.  This means that you have a
 functioning, current JacORB version within which the test suite itself
 is located.  By default, the test suite uses this JacORB version to
 run the tests, and it refers to this version as the "cvs" version of
@@ -62,12 +47,6 @@ called REGRESSION_HOME).  Type:
 
 This will compile all the IDL and Java code in the regression suite,
 and make it ready to run (see below for instructions on that).
-
-You can also use other versions of JacORB for running the tests.  To
-do this, download those versions separately, install and build them
-anywhere in the file system.  Define those versions in the file
-test.properties in REGRESSION_HOME/resources.  There are comments in this file
-that explain how to define other JacORB versions.
 
 
 Running the Tests
@@ -149,12 +128,6 @@ run-all-no-build).  The most important of these properties are:
   jacorb.test.coverage=true/false   
                                 collect coverage data while running
                                 (see below for explanations)
-
-  jacorb.test.server.version=ID use JacORB version ID for the server side
-                                (ID must be defined in test.properties)
-         
-  jacorb.test.client.version=ID use JacORB version ID for the client side
-                                (ID must be defined in test.properties)
 
   jacorb.test.verbose=true/false 
                                 additional informational output by the regression
@@ -266,22 +239,6 @@ the JacORB test suite.
    'org.jacorb.test.orb.dynany'.  Many tests in the orb package and elsewhere
    use a special client/server setup; this can be found under
    org.jacorb.test.common.
-
-2. Create a Java source file named 'AllTest.java' that will run all JUnit
-   tests within the package and each of its subpackages.  An example of this
-   file can be found in each package in the test hierarchy.  The AllTest
-   file at the root of the test hierarchy (in the package 'org.jacorb.test')
-   will run all the tests in the repository.  It does this by calling on to
-   the AllTest test suite in each of its subpackages, which in turn call on to
-   the AllTest test suites in each of their subpackages, until all tests are
-   executed.  If adding tests to a package that already contains this file then
-   no modifications to the existing file are required.
-
-3. Modify the AllTest file in the package immediately above the package where
-   the tests are being added.  This file needs to include the test suite of
-   the AllTest file in the newly added package of tests.  If adding tests to
-   a package that already contains an AllTest file then this modification is
-   not required.
 
    IDL
    ---

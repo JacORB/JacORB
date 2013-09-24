@@ -148,7 +148,7 @@ public class TestServer
             try
             {
                 Configuration config = ((org.jacorb.orb.ORB)orb).getConfiguration();
-                logger = ((org.jacorb.config.Configuration)config).getLogger("TestServer");
+                logger = config.getLogger("TestServer");
             }
             catch (ClassCastException e)
             {
@@ -164,7 +164,7 @@ public class TestServer
 
             log("use ServantClass: " + servantName);
 
-            Class servantClass = TestUtils.classForName(servantName);
+            Class<?> servantClass = TestUtils.classForName(servantName);
             Servant servant = ( Servant ) servantClass.newInstance();
 
             log("using Servant: " + servant);

@@ -1,5 +1,7 @@
 package org.jacorb.test.common;
 
+import junit.framework.TestCase;
+
 /*
  *        JacORB  - a free Java ORB
  *
@@ -22,9 +24,9 @@ package org.jacorb.test.common;
  */
 
 /**
- * A special <code>TestCase</code> that provides access to a 
+ * A special <code>TestCase</code> that provides access to a
  * <code>ClientServerSetup</code>.  For information how to wrap
- * a <code>ClientServerSetup</code> around a suite of 
+ * a <code>ClientServerSetup</code> around a suite of
  * <code>ClientServerTestCase</code>s, see the class comment of
  * {@link ClientServerSetup}.
  * <p>
@@ -33,28 +35,28 @@ package org.jacorb.test.common;
  * a generic CORBA Object.  It is usually more convenient to narrow
  * it to the desired type automatically, which can be done by overriding
  * the <code>setUp</code> method:
- * 
+ *
  * <p><blockquote><pre>
  * public class MyTest extends ClientServerTestCase
  * {
  *     protected MyServer server;
- * 
+ *
  *     public void setUp() throws Exception
  *     {
  *         server = MyServerHelper.narrow ( setup.getServerObject() );
  *     }
- * 
+ *
  *     ...
  * }
  * </pre></blockquote><p>
- * 
- * This way, each individual test case can simply use the 
+ *
+ * This way, each individual test case can simply use the
  * <code>server</code> instance variable to access the server
  * object with correct type information.
- * 
+ *
  * @author Andre Spiegel <spiegel@gnu.org>
  */
-public class ClientServerTestCase extends JacORBTestCase
+public class ClientServerTestCase extends TestCase
 {
     protected ClientServerSetup setup;
 

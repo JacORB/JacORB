@@ -25,8 +25,8 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.Properties;
+import junit.framework.TestCase;
 import junit.framework.TestSuite;
-import org.jacorb.test.common.JacORBTestCase;
 import org.jacorb.test.common.TestUtils;
 import org.omg.CORBA.ORB;
 import org.slf4j.Logger;
@@ -34,12 +34,10 @@ import org.slf4j.Logger;
 
 /**
  *  Unit Test for class LogKitLoggerFactory
- * @jacorb-since 2.2
  * @author Alphonse Bendt
  */
-
 public class JDKLoggerTest
-    extends JacORBTestCase
+    extends TestCase
 {
     private String logDirectory = null;
 

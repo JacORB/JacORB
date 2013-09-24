@@ -56,6 +56,7 @@ public class JacoTest extends TestCase
                 printErr(process);
 
             }
+
             assertTrue("couldn't start process. buffer: " + out, seen);
 
             in.close();
@@ -68,7 +69,7 @@ public class JacoTest extends TestCase
 
     private void printErr(Process process) throws Exception
     {
-        InputStream in = process.getInputStream();
+        InputStream in = process.getErrorStream();
         BufferedInputStream bin = new BufferedInputStream(in);
         InputStreamReader reader = new InputStreamReader(bin);
         LineNumberReader lnr = new LineNumberReader(reader);

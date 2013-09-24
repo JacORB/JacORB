@@ -20,30 +20,8 @@ package org.jacorb.test.bugs.bug956;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import org.jacorb.test.BasicServer;
-import org.jacorb.test.BasicServerHelper;
+import java.util.Properties;
 import org.jacorb.test.common.ORBTestCase;
-import org.omg.CORBA.OBJECT_NOT_EXIST;
-import org.omg.PortableServer.POAManager;
-
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.PrintWriter;
-import java.util.Properties;
-
-import org.omg.BiDirPolicy.BIDIRECTIONAL_POLICY_TYPE;
-import org.omg.BiDirPolicy.BOTH;
-import org.omg.BiDirPolicy.BidirectionalPolicyValueHelper;
-import org.omg.CORBA.Any;
-import org.omg.CORBA.Policy;
-import org.omg.PortableServer.IdAssignmentPolicyValue;
-import org.omg.PortableServer.ImplicitActivationPolicyValue;
-import org.omg.PortableServer.LifespanPolicyValue;
-import org.omg.PortableServer.POA;
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.util.Properties;
-
 import org.omg.BiDirPolicy.BIDIRECTIONAL_POLICY_TYPE;
 import org.omg.BiDirPolicy.BOTH;
 import org.omg.BiDirPolicy.BidirectionalPolicyValueHelper;

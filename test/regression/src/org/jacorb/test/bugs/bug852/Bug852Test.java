@@ -4,7 +4,6 @@ import junit.framework.Test;
 import junit.framework.TestSuite;
 import org.jacorb.test.common.ClientServerSetup;
 import org.jacorb.test.common.ClientServerTestCase;
-import org.jacorb.test.common.JacORBTestSuite;
 
 public class Bug852Test extends ClientServerTestCase
 {
@@ -42,8 +41,7 @@ public class Bug852Test extends ClientServerTestCase
 
     public static Test suite()
     {
-        TestSuite suite = new JacORBTestSuite("Any client/server tests",
-                                              Bug852Test.class);
+        TestSuite suite = new TestSuite("Any client/server tests");
         ClientServerSetup setup =
             new ClientServerSetup( suite,
                                    "org.jacorb.test.bugs.bug852.AnyServerImpl");
