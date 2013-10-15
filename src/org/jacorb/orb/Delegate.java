@@ -368,7 +368,7 @@ public final class Delegate
             throw new INTERNAL ("Configuration exception retrieving max builtin retries" + ex);
         }
         disconnectAfterNonRecoverableSystemException = config.getAttributeAsBoolean
-            ("jacorb.delegate.disconnect_after_systemexception", true);
+            ("jacorb.connection.client.disconnect_after_systemexception", true);
 
         disableClientOrbPolicies = config.getAttributeAsBoolean("jacorb.disableClientOrbPolicies", false);
         try

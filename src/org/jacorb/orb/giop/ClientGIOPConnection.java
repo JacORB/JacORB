@@ -32,6 +32,7 @@ public class ClientGIOPConnection
     implements Configurable
 {
     private boolean ignore_pending_messages_on_timeout = false;
+    private boolean disconnectAfterSystemException = false;
 
     public ClientGIOPConnection( org.omg.ETF.Profile profile,
                                  org.omg.ETF.Connection transport,
@@ -51,11 +52,12 @@ public class ClientGIOPConnection
         ignore_pending_messages_on_timeout =
             configuration.getAttributeAsBoolean("jacorb.connection.client.timeout_ignores_pending_messages", false);
 
+        disconnectAfterSystemException = configuration.getAttributeAsBoolean("jacorb.connection.client.disconnect_after_systemexception", true);
+
         int max_request_write_time =
             configuration.getAttributeAsInteger("jacorb.connection.request.write_timeout", 0);
 
         init_write_monitor (max_request_write_time);
-
     }
 
     /**
@@ -110,7 +112,14 @@ public class ClientGIOPConnection
             logger.debug (this.toString() + ": streamClosed()");
         }
 
-        closeAllowReopen();
+        if (disconnectAfterSystemException)
+        {
+            close();
+        }
+        else
+        {
+            closeAllowReopen();
+        }
 
         if( connection_listener != null )
         {
@@ -130,24 +139,24 @@ public class ClientGIOPConnection
             logger.debug (this.toString() + ": closeAllowReopen()");
         }
 
-        try
-        {
-            //Solve potential deadlock caused by COMM_FAILURE.
-            //The strategy is getting write_lock before sync
-            //connect_sync when you need both of them.
-            getWriteLock(0);
-            synchronized (connect_sync)
+            try
             {
-                transport.close();
-                // We expect that the same transport can be reconnected
-                // after a close, something that the ETF draft isn't
-                // particularly clear about.
+                //Solve potential deadlock caused by COMM_FAILURE.
+                //The strategy is getting write_lock before sync
+                //connect_sync when you need both of them.
+                getWriteLock(0);
+                synchronized (connect_sync)
+                {
+                    transport.close();
+                    // We expect that the same transport can be reconnected
+                    // after a close, something that the ETF draft isn't
+                    // particularly clear about.
+                }
             }
-        }
-        finally
-        {
-            releaseWriteLock();
-        }
+            finally
+            {
+                releaseWriteLock();
+            }
     }
 
     public String toString()

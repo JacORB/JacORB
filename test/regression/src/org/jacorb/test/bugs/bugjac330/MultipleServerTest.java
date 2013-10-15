@@ -1,20 +1,26 @@
 package org.jacorb.test.bugs.bugjac330;
 
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import junit.framework.TestCase;
+import org.jacorb.orb.Delegate;
+import org.jacorb.orb.giop.ClientConnection;
+import org.jacorb.orb.giop.ClientConnectionManager;
 import org.jacorb.test.BasicServer;
 import org.jacorb.test.BasicServerHelper;
 import org.jacorb.test.common.CommonSetup;
 import org.jacorb.test.common.ORBSetup;
 import org.jacorb.test.common.ServerSetup;
-import org.jacorb.test.orb.BasicServerImpl;
 import org.omg.CORBA.NO_RESOURCES;
 import org.omg.CORBA.ORB;
+import org.omg.ETF.Profile;
+
 
 /**
  * @author Alphonse Bendt
@@ -33,11 +39,11 @@ public class MultipleServerTest extends TestCase
         props.put(CommonSetup.JACORB_REGRESSION_DISABLE_IMR, "true");
         props.put(CommonSetup.JACORB_REGRESSION_DISABLE_SECURITY, "true");
 
-        setup1 = new ServerSetup(this, BasicServerImpl.class.getName());
+        setup1 = new ServerSetup(this, CustomBasicServerImpl.class.getName());
         setup1.setUp();
         server1IOR = setup1.getServerIOR();
 
-        setup2 = new ServerSetup(this, BasicServerImpl.class.getName());
+        setup2 = new ServerSetup(this, CustomBasicServerImpl.class.getName());
         setup2.setUp();
         server2IOR = setup2.getServerIOR();
     }
@@ -175,6 +181,89 @@ public class MultipleServerTest extends TestCase
 
         assertFalse("there should be no idle thread", isThereAThreadNamed(threadName));
     }
+
+
+    public void testDisableCloseAllowReopen() throws Exception
+    {
+        Properties props = new Properties();
+
+        props.put("jacorb.connection.client.max_receptor_threads", "1");
+        props.put("jacorb.connection.client.max_idle_receptor_threads", "0");
+        props.put("jacorb.connection.client.disconnect_after_systemexception", "true");
+
+        ORB orb = newORB(props);
+
+        BasicServer server1 = BasicServerHelper.narrow(orb.string_to_object(server1IOR));
+        server1.ping();
+        System.err.println ("### Waiting for server shutdown");
+        Thread.sleep(10000);
+
+        final String threadName = "ClientMessageReceptor";
+
+        dumpThread(threadName);
+
+        assertFalse(isThereAThreadNamed(threadName));
+
+        server1._release();
+    }
+
+
+    public void testDisableCloseAllowReopenNoTimeout() throws Exception
+    {
+        Properties props = new Properties();
+
+        props.put("jacorb.connection.client.max_receptor_threads", "1");
+        props.put("jacorb.connection.client.max_idle_receptor_threads", "1");
+        props.put("jacorb.connection.client.disconnect_after_systemexception", "true");
+
+        ORB orb = newORB(props);
+
+        BasicServer server1 = BasicServerHelper.narrow(orb.string_to_object(server1IOR));
+        try
+        {
+            server1.pass_in_long(0);
+        }
+        catch (Throwable e)
+        {
+            Field fconnmgr;
+            Field connections;
+            try
+            {
+                fconnmgr = Delegate.class.getDeclaredField("conn_mg");
+                fconnmgr.setAccessible(true);
+                Delegate d = (Delegate) ((org.omg.CORBA.portable.ObjectImpl)server1)._get_delegate();
+                ClientConnectionManager ccm = (ClientConnectionManager) fconnmgr.get(d);
+                connections = ClientConnectionManager.class.getDeclaredField("connections");
+                connections.setAccessible(true);
+                @SuppressWarnings("unchecked")
+                HashMap<Profile, ClientConnection> c = (HashMap<Profile, ClientConnection>) connections.get(ccm);
+
+                assertTrue (c.size() == 0);
+            }
+            catch (SecurityException e1)
+            {
+                // TODO Auto-generated catch block
+                e1.printStackTrace();
+            }
+            catch (NoSuchFieldException e1)
+            {
+                // TODO Auto-generated catch block
+                e1.printStackTrace();
+            }
+            catch (IllegalArgumentException e1)
+            {
+                // TODO Auto-generated catch block
+                e1.printStackTrace();
+            }
+            catch (IllegalAccessException e1)
+            {
+                // TODO Auto-generated catch block
+                e1.printStackTrace();
+            }
+        }
+
+    }
+
 
     private void dumpThread(final String threadName) throws Exception
     {
