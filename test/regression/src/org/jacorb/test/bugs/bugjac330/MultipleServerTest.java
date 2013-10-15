@@ -15,7 +15,6 @@ import org.jacorb.test.common.ClientServerSetup;
 import org.jacorb.test.common.CommonSetup;
 import org.jacorb.test.common.ORBSetup;
 import org.jacorb.test.common.ServerSetup;
-import org.jacorb.test.orb.BasicServerImpl;
 import org.omg.CORBA.NO_RESOURCES;
 import org.omg.CORBA.ORB;
 
@@ -37,11 +36,11 @@ public class MultipleServerTest extends TestCase
         props.put(ClientServerSetup.JACORB_REGRESSION_DISABLE_IMR, "true");
         props.put(CommonSetup.JACORB_REGRESSION_DISABLE_SECURITY, "true");
 
-        setup1 = new ServerSetup(this, BasicServerImpl.class.getName());
+        setup1 = new ServerSetup(this, CustomBasicServerImpl.class.getName());
         setup1.setUp();
         server1IOR = setup1.getServerIOR();
 
-        setup2 = new ServerSetup(this, BasicServerImpl.class.getName());
+        setup2 = new ServerSetup(this, CustomBasicServerImpl.class.getName());
         setup2.setUp();
         server2IOR = setup2.getServerIOR();
     }
@@ -178,6 +177,31 @@ public class MultipleServerTest extends TestCase
         dumpThread(threadName);
 
         assertFalse("there should be no idle thread", isThereAThreadNamed(threadName));
+    }
+
+
+    public void testDisableCloseAllowReopen() throws Exception
+    {
+        Properties props = new Properties();
+
+        props.put("jacorb.connection.client.max_receptor_threads", "1");
+        props.put("jacorb.connection.client.max_idle_receptor_threads", "0");
+        props.put("jacorb.connection.client.eager_close", "true");
+
+        ORB orb = newORB(props);
+
+        BasicServer server1 = BasicServerHelper.narrow(orb.string_to_object(server1IOR));
+        server1.ping();
+        System.err.println ("### Waiting for server shutdown");
+        Thread.sleep(10000);
+
+        final String threadName = "ClientMessageReceptor";
+
+        dumpThread(threadName);
+
+        assertFalse(isThereAThreadNamed(threadName));
+
+        server1._release();
     }
 
     private void dumpThread(final String threadName) throws Exception

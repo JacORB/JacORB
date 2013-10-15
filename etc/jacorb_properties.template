@@ -162,6 +162,11 @@ jacorb.connection.client.connect_timeout=90000
 # exceeded, a org.omg.CORBA.TIMEOUT exception will be thrown
 #jacorb.connection.client.pending_reply_timeout=0
 
+# Completely close client connections rather than allowing them to be
+# reopened. Normally the transport is closed but the GIOP connection is
+# held open so it may be reused.
+#jacorb.connection.client.eager_close=false
+
 # client-side connection idle timeout, set to a non-zero value to close the
 # connection after so many msecs. Only connections that don't have pending
 # messages are closed, unless

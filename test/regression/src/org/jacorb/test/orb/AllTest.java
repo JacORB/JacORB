@@ -36,6 +36,7 @@ public class AllTest extends JacORBTestSuite
     {
         TestSuite suite = new AllTest ("All ORB Tests");
 
+        suite.addTest(org.jacorb.test.orb.factory.AllTest.suite());
         suite.addTestSuite(org.jacorb.test.orb.ORBInitTest.class);
         suite.addTest (org.jacorb.test.orb.CDRIOTest.suite());
         suite.addTest (org.jacorb.test.orb.BasicTest.suite());
@@ -71,7 +72,6 @@ public class AllTest extends JacORBTestSuite
         suite.addTestSuite(TypeCodeTest.class);
         suite.addTest(AnyTest.suite());
         suite.addTestSuite(InvalidIORTest.class);
-        suite.addTest(org.jacorb.test.orb.factory.AllTest.suite());
         suite.addTest (org.jacorb.test.orb.CodesetTest.suite());
         suite.addTestSuite(OAAddressIPv6Test.class);
         suite.addTest (org.jacorb.test.orb.ORBSingletonTest.suite());

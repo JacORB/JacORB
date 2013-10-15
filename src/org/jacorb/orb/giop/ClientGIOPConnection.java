@@ -31,6 +31,7 @@ public class ClientGIOPConnection
     implements Configurable
 {
     private boolean ignore_pending_messages_on_timeout = false;
+    private boolean eager_close = false;
 
     public ClientGIOPConnection( org.omg.ETF.Profile profile,
                                  org.omg.ETF.Connection transport,
@@ -49,6 +50,7 @@ public class ClientGIOPConnection
 
         ignore_pending_messages_on_timeout =
             configuration.getAttribute("jacorb.connection.client.timeout_ignores_pending_messages","off").equals("on");
+        eager_close = configuration.getAttributeAsBoolean("jacorb.connection.client.eager_close", false);
     }
 
     /**
@@ -123,23 +125,30 @@ public class ClientGIOPConnection
             logger.debug (this.toString() + ": closeAllowReopen()");
         }
 
-        try
+        if (eager_close)
         {
-            //Solve potential deadlock caused by COMM_FAILURE.
-            //The strategy is getting write_lock before sync
-            //connect_sync when you need both of them.
-            getWriteLock();
-            synchronized (connect_sync)
-            {
-                transport.close();
-                // We expect that the same transport can be reconnected
-                // after a close, something that the ETF draft isn't
-                // particularly clear about.
-            }
+            close();
         }
-        finally
+        else
         {
-            releaseWriteLock();
+            try
+            {
+                //Solve potential deadlock caused by COMM_FAILURE.
+                //The strategy is getting write_lock before sync
+                //connect_sync when you need both of them.
+                getWriteLock();
+                synchronized (connect_sync)
+                {
+                    transport.close();
+                    // We expect that the same transport can be reconnected
+                    // after a close, something that the ETF draft isn't
+                    // particularly clear about.
+                }
+            }
+            finally
+            {
+                releaseWriteLock();
+            }
         }
     }
 

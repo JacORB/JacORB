@@ -56,7 +56,9 @@
          setTcpNoDelay on server side as well.
          Fix for deadlock (JBPAPP-10671).
          Change logging to debug level (BZ950294).
-    - POA
+         Add jacorb.connection.client.eager_close to completely close client connections on error (Case00953099)
+
+    - Poa
          Fix shutdown issue (jacorb-2.3.1-CORBA_OBJECT_NOT_EXIST.patch)
          Fix for AOM thread creation (jacorb-2.3.1-thread-per-request.patch)
          Improve OutOfMemory handling.
