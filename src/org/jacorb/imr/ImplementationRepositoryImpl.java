@@ -138,7 +138,7 @@ public class ImplementationRepositoryImpl
     public void configure(Configuration myConfiguration)
         throws ConfigurationException
     {
-        configuration = (org.jacorb.config.Configuration)myConfiguration;
+        configuration = myConfiguration;
 
         logger = configuration.getLogger("jacorb.imr");
 
@@ -216,7 +216,7 @@ public class ImplementationRepositoryImpl
                 }
                 catch (Exception ex)
                 {
-                    this.logger.warn("Failed to read ServerTable -- creating an empty one", ex);
+                    logger.warn("Failed to read ServerTable -- creating an empty one");
 
                     server_table = new ServerTable();
                     save_server_table(table_file);
@@ -1525,7 +1525,7 @@ public class ImplementationRepositoryImpl
             }
 
             ReplyOutputStream out =
-                new ReplyOutputStream( (org.jacorb.orb.ORB) orb,
+                new ReplyOutputStream( orb,
                                        request_id,
                                        org.omg.GIOP.ReplyStatusType_1_2.LOCATION_FORWARD,
                                        giop_minor,
@@ -1616,7 +1616,7 @@ public class ImplementationRepositoryImpl
                                        int giop_minor )
         {
             ReplyOutputStream out =
-                new ReplyOutputStream( (org.jacorb.orb.ORB) orb,
+                new ReplyOutputStream( orb,
                                        request_id,
                                        org.omg.GIOP.ReplyStatusType_1_2.SYSTEM_EXCEPTION,
                                        giop_minor,
