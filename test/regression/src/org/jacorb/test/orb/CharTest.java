@@ -20,8 +20,8 @@ package org.jacorb.test.orb;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import junit.framework.Test;
-import junit.framework.TestSuite;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 import org.jacorb.test.CharServer;
 import org.jacorb.test.CharServerHelper;
 import org.jacorb.test.CharServerPackage.DataFlavour;
@@ -30,7 +30,9 @@ import org.jacorb.test.CharServerPackage.NameValuePair;
 import org.jacorb.test.CharServerPackage.wcharSeqHolder;
 import org.jacorb.test.common.ClientServerSetup;
 import org.jacorb.test.common.ClientServerTestCase;
-import org.jacorb.test.common.TestUtils;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
 import org.omg.CORBA.CharHolder;
 
 public class CharTest extends ClientServerTestCase
@@ -41,34 +43,21 @@ public class CharTest extends ClientServerTestCase
     public static final char E_ACUTE   = '\u00e9'; // in Latin-1
     public static final char EURO_SIGN = '\u20AC'; // not in Latin-1
 
-    public CharTest(String name, ClientServerSetup setup)
-    {
-        super(name, setup);
-    }
-
+    @Before
     public void setUp() throws Exception
     {
         server = CharServerHelper.narrow( setup.getServerObject() );
     }
 
-    protected void tearDown() throws Exception
+    @BeforeClass
+    public static void beforeClassSetUp() throws Exception
     {
-        server = null;
-    }
-
-    public static Test suite()
-    {
-        TestSuite suite = new TestSuite( "Client/server char tests" );
-        ClientServerSetup setup =
-            new ClientServerSetup( suite,
-                                   "org.jacorb.test.orb.CharServerImpl" );
-        TestUtils.addToSuite(suite, setup, CharTest.class);
-
-        return setup;
+        setup = new ClientServerSetup("org.jacorb.test.orb.CharServerImpl" );
     }
 
     // char tests
 
+    @Test
     public void test_pass_in_char()
     {
         for (short c=0; c<255; c++)
@@ -78,6 +67,7 @@ public class CharTest extends ClientServerTestCase
         }
     }
 
+    @Test
     public void test_pass_in_char_illegal()
     {
         try
@@ -114,6 +104,7 @@ public class CharTest extends ClientServerTestCase
         }
     }
 
+    @Test
     public void test_pass_out_char()
     {
         CharHolder x = new CharHolder ( 'a' );
@@ -124,6 +115,7 @@ public class CharTest extends ClientServerTestCase
         assertEquals( E_ACUTE, x.value );
     }
 
+    @Test
     public void test_pass_out_char_illegal()
     {
         CharHolder x = new CharHolder ( 'a' );
@@ -150,6 +142,7 @@ public class CharTest extends ClientServerTestCase
         }
     }
 
+    @Test
     public void test_pass_inout_char()
     {
         CharHolder x = new CharHolder( 'a' );
@@ -162,6 +155,7 @@ public class CharTest extends ClientServerTestCase
         assertEquals( '\u00c9', x.value );
     }
 
+    @Test
     public void test_pass_inout_char_illegal()
     {
         CharHolder x = new CharHolder( EURO_SIGN );
@@ -177,6 +171,7 @@ public class CharTest extends ClientServerTestCase
         }
     }
 
+    @Test
     public void test_return_char()
     {
         for (short c = 0; c < 255; c++)
@@ -186,6 +181,7 @@ public class CharTest extends ClientServerTestCase
         }
     }
 
+    @Test
     public void test_return_char_illegal()
     {
         try
@@ -201,6 +197,7 @@ public class CharTest extends ClientServerTestCase
 
     }
 
+    @Test
     public void test_bounce_char()
     {
         char result = server.bounce_char( 'a' );
@@ -209,6 +206,7 @@ public class CharTest extends ClientServerTestCase
 
     // wchar tests
 
+    @Test
     public void test_pass_in_wchar()
     {
         short result = server.pass_in_wchar( 'a' );
@@ -224,6 +222,7 @@ public class CharTest extends ClientServerTestCase
         assertEquals( (short)0xA000, result );
     }
 
+    @Test
     public void test_pass_out_wchar()
     {
         CharHolder x = new CharHolder( 'a' );
@@ -240,6 +239,7 @@ public class CharTest extends ClientServerTestCase
         assertEquals( '\uA000', x.value );
     }
 
+    @Test
     public void test_pass_inout_wchar()
     {
         CharHolder x = new CharHolder( E_ACUTE );
@@ -247,6 +247,7 @@ public class CharTest extends ClientServerTestCase
         assertEquals ( '\u00c9', x.value );  // capital e acute
     }
 
+    @Test
     public void test_return_wchar()
     {
         char result = server.return_wchar( (short)'a' );
@@ -262,12 +263,14 @@ public class CharTest extends ClientServerTestCase
         assertEquals( '\uA000', result );
     }
 
+    @Test
     public void test_bounce_wchar()
     {
         char result = server.bounce_wchar( EURO_SIGN );
         assertEquals( EURO_SIGN, result );
     }
 
+    @Test
     public void test_wchar_seq()
     {
         try
@@ -292,6 +295,7 @@ public class CharTest extends ClientServerTestCase
     }
 
 
+    @Test
     public void test_return_dataflavour_inany()
     {
         try

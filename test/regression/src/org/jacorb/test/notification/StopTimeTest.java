@@ -21,16 +21,17 @@ package org.jacorb.test.notification;
  *
  */
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import java.util.Date;
 import java.util.HashSet;
-import junit.framework.Test;
 import org.jacorb.notification.StructuredEventMessage;
 import org.jacorb.notification.engine.DefaultTaskFactory;
 import org.jacorb.notification.engine.DefaultTaskProcessor;
 import org.jacorb.notification.interfaces.Message;
 import org.jacorb.test.notification.common.NotificationTestCase;
-import org.jacorb.test.notification.common.NotificationTestCaseSetup;
 import org.jacorb.util.Time;
+import org.junit.Test;
 import org.omg.CORBA.Any;
 import org.omg.CosNotification.EventHeader;
 import org.omg.CosNotification.EventType;
@@ -47,11 +48,6 @@ import org.omg.TimeBase.UtcTHelper;
 public class StopTimeTest extends NotificationTestCase
 {
     private StructuredEvent structuredEvent_;
-
-    public StopTimeTest(String name, NotificationTestCaseSetup setup)
-    {
-        super(name, setup);
-    }
 
     public void setUpTest()
     {
@@ -70,6 +66,7 @@ public class StopTimeTest extends NotificationTestCase
         structuredEvent_.remainder_of_body = getClientORB().create_any();
     }
 
+    @Test
     public void testProcessEventWithStopTime() throws Exception
     {
         processEventWithStopTime(-1000, 5000, false);
@@ -141,10 +138,5 @@ public class StopTimeTest extends NotificationTestCase
         }
 
         _taskProcessor.dispose();
-    }
-
-    public static Test suite() throws Exception
-    {
-        return NotificationTestCase.suite(StopTimeTest.class);
     }
 }

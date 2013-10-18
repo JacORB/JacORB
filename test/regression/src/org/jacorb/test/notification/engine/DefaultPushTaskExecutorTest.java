@@ -21,20 +21,30 @@
 
 package org.jacorb.test.notification.engine;
 
-import junit.framework.TestCase;
 import org.easymock.MockControl;
 import org.jacorb.notification.engine.DefaultPushTaskExecutor;
 import org.jacorb.notification.engine.PushTaskExecutor;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 
-public class DefaultPushTaskExecutorTest extends TestCase
+public class DefaultPushTaskExecutorTest
 {
     private DefaultPushTaskExecutor objectUnderTest_;
 
-    protected void setUp() throws Exception
+    @Before
+    public void setUp() throws Exception
     {
         objectUnderTest_ = new DefaultPushTaskExecutor(2);
     }
 
+    @After
+    public void tearDown() throws Exception
+    {
+        objectUnderTest_.dispose();
+    }
+
+    @Test
     public void testExecutePush()
     {
         MockControl controlPushTask = MockControl.createControl(PushTaskExecutor.PushTask.class);

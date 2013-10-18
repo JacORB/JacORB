@@ -21,7 +21,9 @@ package org.jacorb.test.bugs.bugjac69;
  */
 
 
+import static org.junit.Assert.fail;
 import org.jacorb.test.common.ORBTestCase;
+import org.junit.Test;
 import org.omg.CORBA.BAD_PARAM;
 
 
@@ -42,6 +44,7 @@ public class InvalidIORTest extends ORBTestCase
     /**
      * <code>testDecode1</code> tests that JacORB can decode a valid IOR.
      */
+    @Test
     public void testDecode1 ()
     {
         try

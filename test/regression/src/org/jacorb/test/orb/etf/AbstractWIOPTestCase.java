@@ -23,9 +23,10 @@ package org.jacorb.test.orb.etf;
 
 import org.jacorb.test.BasicServer;
 import org.jacorb.test.BasicServerHelper;
-import org.jacorb.test.common.ClientServerSetup;
 import org.jacorb.test.common.ClientServerTestCase;
 import org.jacorb.test.orb.etf.wiop.WIOPFactories;
+import org.junit.After;
+import org.junit.Before;
 
 /**
  * Abstract superclass for the WIOP tests.
@@ -35,32 +36,18 @@ public class AbstractWIOPTestCase extends ClientServerTestCase
 {
     protected BasicServer server;
 
-    public AbstractWIOPTestCase(String name, ClientServerSetup setup)
-    {
-        super(name, setup);
-    }
-
-    public final void setUp() throws Exception
+    @Before
+    public void setUp() throws Exception
     {
         WIOPFactories.setTransportInUse(false);
         server = BasicServerHelper.narrow( setup.getServerObject() );
-
-        doSetUp();
     }
 
-    protected void doSetUp() throws Exception
+    @After
+    public void tearDown() throws Exception
     {
-    }
-
-    public final void tearDown() throws Exception
-    {
-        doTearDown();
-
         WIOPFactories.setTransportInUse(false);
+        server._release();
         server = null;
-    }
-
-    protected void doTearDown() throws Exception
-    {
     }
 }

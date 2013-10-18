@@ -93,7 +93,6 @@ public class SessionFactoryServant
             org.omg.PortableServer.CurrentHelper.narrow(orb.resolve_initial_references("POACurrent"));
 
             defServant = new SessionServant(current);
-            ServantManager locator = new SessionLocator();
             ServantManager activator = new SessionActivator();
 
             POA rootPOA =

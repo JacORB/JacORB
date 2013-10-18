@@ -26,6 +26,7 @@ import org.easymock.MockControl;
 import org.jacorb.notification.engine.AbstractRetryStrategy;
 import org.jacorb.notification.engine.PushOperation;
 import org.jacorb.notification.interfaces.IProxyPushSupplier;
+import org.junit.Before;
 
 /**
  * @author Alphonse Bendt
@@ -39,7 +40,8 @@ public abstract class AbstractRetryStrategyTestCase extends TestCase
 
     protected AbstractRetryStrategy objectUnderTest_;
 
-    protected final void setUp() throws Exception
+    @Before
+    public void setUp() throws Exception
     {
         super.setUp();
         

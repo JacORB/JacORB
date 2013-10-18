@@ -24,17 +24,13 @@ package org.jacorb.test.notification.perf;
 import org.jacorb.test.common.ORBTestCase;
 import org.jacorb.test.notification.Address;
 import org.jacorb.test.notification.AddressHelper;
+import org.junit.Test;
 import org.omg.CORBA.Any;
 
 public class AnyTest extends ORBTestCase
 {
+    @Test
     public void testAny()
-    {
-        // Should be at least one 'test*' method.
-        // Remove this method when test's implementation be done  
-    }
-    
-    public void _testAny()
     {
         Any theAny = null;
         long startTime = 0;

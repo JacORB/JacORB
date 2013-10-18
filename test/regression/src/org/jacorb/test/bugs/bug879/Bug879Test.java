@@ -20,22 +20,26 @@
 
 package org.jacorb.test.bugs.bug879;
 
+import static org.junit.Assert.assertEquals;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Properties;
 import org.jacorb.orb.iiop.ServerIIOPConnection;
 import org.jacorb.test.common.ORBTestCase;
+import org.junit.Test;
 
 /**
  * @author Alexander Birchenko
  */
 public class Bug879Test extends ORBTestCase
 {
-    protected void patchORBProperties(String testName, Properties props) throws Exception
+    @Override
+    protected void patchORBProperties(Properties props) throws Exception
     {
         props.setProperty("jacorb.giop_minor_version", "1");
     }
 
+    @Test
     public void testInitGiop1_1() throws Exception
     {
         ServerSocket sSocket = new ServerSocket(4321);

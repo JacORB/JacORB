@@ -22,6 +22,7 @@ package org.jacorb.test.bugs.bug344;
 
 import org.jacorb.test.common.ORBTestCase;
 import org.jacorb.test.orb.BasicServerImpl;
+import org.junit.Test;
 import org.omg.CORBA.Policy;
 import org.omg.PortableServer.POA;
 import org.omg.PortableServer.POAHelper;
@@ -40,6 +41,7 @@ public class Bug344Test extends ORBTestCase
      * ID (i.e. using a new one each time) and using servant_to_id to obtain
      * the ID to deactivate_the_object.
      */
+    @Test
     public void testActivateDeactivate1 () throws Exception
     {
         POA poa = POAHelper.narrow(orb.resolve_initial_references("RootPOA"));
@@ -60,7 +62,8 @@ public class Bug344Test extends ORBTestCase
      * <code>testActivateDeactivate2</code> tests activating and deactivating
      * the object using the same ID.
      */
-	public void testActivateDeactivate2 () throws Exception
+    @Test
+    public void testActivateDeactivate2 () throws Exception
 	{
         POA poa = POAHelper.narrow(orb.resolve_initial_references("RootPOA"));
 
@@ -83,7 +86,8 @@ public class Bug344Test extends ORBTestCase
      * <code>testActivateDeactivate3</code> tests activating an object using a POA policy
      * of MULTIPLE_ID.
      */
-	public void testActivateDeactivate3 () throws Exception
+    @Test
+    public void testActivateDeactivate3 () throws Exception
 	{
         POA rootPoa = POAHelper.narrow(orb.resolve_initial_references("RootPOA"));
 

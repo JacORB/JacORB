@@ -1,6 +1,7 @@
 package org.jacorb.test.notification;
 
-import junit.framework.Test;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import org.jacorb.notification.filter.EvaluationContext;
 import org.jacorb.notification.filter.EvaluationResult;
 import org.jacorb.notification.filter.etcl.AbstractTCLNode;
@@ -10,8 +11,9 @@ import org.jacorb.notification.filter.etcl.TCLParser;
 import org.jacorb.notification.impl.DefaultMessageFactory;
 import org.jacorb.notification.interfaces.Message;
 import org.jacorb.test.notification.common.NotificationTestCase;
-import org.jacorb.test.notification.common.NotificationTestCaseSetup;
 import org.jacorb.test.notification.common.NotificationTestUtils;
+import org.junit.Before;
+import org.junit.Test;
 import org.omg.CORBA.Any;
 import org.omg.CosNotification.StructuredEvent;
 
@@ -28,7 +30,9 @@ public class NotificationEventTest extends NotificationTestCase {
     EvaluationContext evaluationContext_;
     NotificationTestUtils testUtils_;
 
-    public void setUpTest() throws Exception {
+    @Before
+    public void setUp() throws Exception
+    {
         testUtils_ = new NotificationTestUtils(getORB());
 
         evaluationContext_ = new EvaluationContext(getEvaluator());
@@ -46,12 +50,14 @@ public class NotificationEventTest extends NotificationTestCase {
     }
 
 
+    @Test
     public void testGetType() throws Exception {
         Message _event = factory_.newMessage(testPerson_);
 
         assertTrue(_event.getType() == Message.TYPE_ANY);
     }
 
+    @Test
     public void testEvaluate_Any() throws Exception {
         String _expr = "$.first_name";
         AbstractTCLNode _root = TCLParser.parse(_expr);
@@ -67,6 +73,7 @@ public class NotificationEventTest extends NotificationTestCase {
         assertEquals("firstname", _result.getString());
     }
 
+    @Test
     public void testEvaluate_Structured() throws Exception {
         String _expr = "$.header.fixed_header.event_type.domain_name";
         Message _event = factory_.newMessage(testStructured_);
@@ -81,6 +88,7 @@ public class NotificationEventTest extends NotificationTestCase {
         assertEquals("TESTING", _result.getString());
     }
 
+    @Test
     public void testToStructuredEvent() throws Exception {
         Message _event = factory_.newMessage(testPerson_);
         StructuredEvent _structuredEvent = _event.toStructuredEvent();
@@ -91,15 +99,5 @@ public class NotificationEventTest extends NotificationTestCase {
         Person _p = PersonHelper.extract(_structuredEvent.remainder_of_body);
         assertEquals("firstname", _p.first_name);
         assertEquals("lastname", _p.last_name);
-    }
-
-
-    public NotificationEventTest(String name, NotificationTestCaseSetup setup){
-        super(name, setup);
-    }
-
-
-    public static Test suite() throws Exception {
-        return NotificationTestCase.suite(NotificationEventTest.class);
     }
 }

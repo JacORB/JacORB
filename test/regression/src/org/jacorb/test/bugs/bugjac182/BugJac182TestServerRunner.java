@@ -38,8 +38,8 @@ public class BugJac182TestServerRunner
         poa.the_POAManager().activate();
 
         String className = args[0];
-        Class servantClass = Class.forName (className);
-        Constructor ctor = servantClass.getConstructor(new Class[] {ORB.class});
+        Class<?> servantClass = Class.forName (className);
+        Constructor<?> ctor = servantClass.getConstructor(new Class[] {ORB.class});
         Servant servant = ( Servant ) ctor.newInstance(new Object[] {serverOrb});
 
         // Get the id

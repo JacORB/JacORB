@@ -1,18 +1,18 @@
 package org.jacorb.test.bugs.bugjac319;
 
-import junit.framework.Test;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import java.util.Properties;
 import org.jacorb.test.common.ClientServerSetup;
+import org.junit.BeforeClass;
+import org.junit.Test;
 
 /**
  * @see org.jacorb.test.bugs.bugjac319.BugJac319AbstractTestCase
  */
 public class BugJac319MutatorTest extends BugJac319AbstractTestCase
 {
-    public BugJac319MutatorTest(String name, ClientServerSetup setup)
-    {
-        super(name, setup);
-    }
-
+    @Test
     public void test_mutate()
     {
         org.omg.CORBA.Object obj = server.getObject
@@ -30,8 +30,18 @@ public class BugJac319MutatorTest extends BugJac319AbstractTestCase
         assertTrue(MutatorImpl.isConnectionUpdated);
     }
 
-    public static Test suite()
+    @BeforeClass
+    public static void beforeClassSetUp() throws Exception
     {
-        return BugJac319AbstractTestCase.suite(true, BugJac319MutatorTest.class);
+        Properties props = new Properties();
+        props.put("jacorb.iormutator",
+                      MutatorImpl.class.getName());
+
+        setup = new ClientServerSetup
+        (
+            JAC319Impl.class.getName(),
+            props,
+            props
+        );
     }
-}
+ }

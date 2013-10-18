@@ -21,6 +21,7 @@ package org.jacorb.test.bugs.bug532;
  */
 
 import org.jacorb.test.common.ORBTestCase;
+import org.junit.Test;
 import org.omg.CORBA.Any;
 import org.omg.CORBA.ORB;
 
@@ -34,6 +35,7 @@ import org.omg.CORBA.ORB;
  */
 public class Bug532Test extends ORBTestCase
 {
+    @Test
     public void testLargeByteArrayToAnyInsertion()
     {
         ORB orb = org.omg.CORBA.ORB.init(new String[]{}, null);

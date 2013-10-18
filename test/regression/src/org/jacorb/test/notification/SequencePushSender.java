@@ -1,6 +1,6 @@
 package org.jacorb.test.notification;
 
-import junit.framework.Assert;
+import org.junit.Assert;
 import org.omg.CORBA.IntHolder;
 import org.omg.CORBA.ORB;
 import org.omg.CosEventChannelAdmin.AlreadyConnected;

@@ -21,27 +21,29 @@
 
 package org.jacorb.test.notification.jmx;
 
+import static org.junit.Assert.fail;
 import javax.management.MBeanServer;
 import javax.management.MBeanServerFactory;
 import javax.management.NotificationFilter;
 import javax.management.NotificationListener;
 import javax.management.ObjectName;
 import javax.management.RuntimeOperationsException;
-import junit.framework.TestCase;
 import org.easymock.MockControl;
 import org.jacorb.notification.jmx.BroadcastSupportMBeanDecorator;
+import org.junit.Before;
+import org.junit.Test;
 
-public class JMXNotificationTest extends TestCase
+public class JMXNotificationTest
 {
     private MBeanServer mbeanServer_;
 
-    protected void setUp() throws Exception
+    @Before
+    public void setUp() throws Exception
     {
-        super.setUp();
-
         mbeanServer_ = MBeanServerFactory.createMBeanServer();
     }
 
+    @Test
     public void testRegisteredJMXManageableDoesNotSupportNotification() throws Exception
     {
         TestService testService = new TestService();
@@ -66,11 +68,12 @@ public class JMXNotificationTest extends TestCase
         {
             // expected
         }
-        
+
         controlNotificationFilter.verify();
         controlNotificationListener.verify();
     }
 
+    @Test
     public void testRegisterWithDecorator() throws Exception
     {
         TestService testService = new TestService();
@@ -87,19 +90,19 @@ public class JMXNotificationTest extends TestCase
         mockNotificationFilter.isNotificationEnabled(null);
         controlNotificationFilter.setMatcher(MockControl.ALWAYS_MATCHER);
         controlNotificationFilter.setReturnValue(true);
-        
+
         mockNotificationListener.handleNotification(null, null);
         controlNotificationListener.setMatcher(MockControl.ALWAYS_MATCHER);
         controlNotificationFilter.setVoidCallable();
-        
+
         controlNotificationFilter.replay();
         controlNotificationListener.replay();
 
         mbeanServer_.addNotificationListener(name, mockNotificationListener,
                 mockNotificationFilter, name);
-        
+
         testService.invokeMethod();
-        
+
         controlNotificationFilter.verify();
         controlNotificationListener.verify();
     }

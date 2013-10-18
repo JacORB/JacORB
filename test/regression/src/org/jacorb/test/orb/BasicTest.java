@@ -20,12 +20,16 @@ package org.jacorb.test.orb;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import junit.framework.Test;
-import junit.framework.TestSuite;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 import org.jacorb.test.BasicServer;
 import org.jacorb.test.BasicServerHelper;
 import org.jacorb.test.common.ClientServerSetup;
 import org.jacorb.test.common.ClientServerTestCase;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
 import org.omg.CORBA.BooleanHolder;
 import org.omg.CORBA.ByteHolder;
 import org.omg.CORBA.DoubleHolder;
@@ -40,121 +44,20 @@ public class BasicTest extends ClientServerTestCase
 {
     private BasicServer server;
 
-    public BasicTest(String name, ClientServerSetup setup)
-    {
-        super(name, setup);
-    }
-
+    @Before
     public void setUp() throws Exception
     {
         server = BasicServerHelper.narrow( setup.getServerObject() );
     }
 
-    protected void tearDown() throws Exception
+    @BeforeClass
+    public static void setUpBeforeClass() throws Exception
     {
-        server = null;
+        System.out.println ("### setupBeforeClass::beforeClass ");
+        setup = new ClientServerSetup ("org.jacorb.test.orb.BasicServerImpl" );
     }
 
-    public static Test suite()
-    {
-        TestSuite suite = new TestSuite("Basic client/server tests");
-        ClientServerSetup setup =
-            new ClientServerSetup( suite,
-                                   "org.jacorb.test.orb.BasicServerImpl" );
-
-        suite.addTest( new BasicTest( "test_ping", setup ));
-
-        // test_validate_connection test
-        suite.addTest( new BasicTest( "test_validate_connection", setup ));
-
-        // short tests
-        suite.addTest( new BasicTest( "test_pass_in_short", setup ) );
-        suite.addTest( new BasicTest( "test_pass_out_short", setup ) );
-        suite.addTest( new BasicTest( "test_pass_inout_short", setup ) );
-        suite.addTest( new BasicTest( "test_return_short", setup ) );
-        suite.addTest( new BasicTest( "test_bounce_short", setup ) );
-        suite.addTest( new BasicTest( "test_min_short", setup ) );
-        suite.addTest( new BasicTest( "test_max_short", setup ) );
-        suite.addTest( new BasicTest( "test_zero_short", setup ) );
-
-        // unsigned short tests
-        suite.addTest( new BasicTest( "test_pass_in_unsigned_short", setup ) );
-        suite.addTest( new BasicTest( "test_pass_out_unsigned_short", setup ) );
-        suite.addTest( new BasicTest( "test_pass_inout_unsigned_short", setup ) );
-        suite.addTest( new BasicTest( "test_return_unsigned_short", setup ) );
-        suite.addTest( new BasicTest( "test_bounce_unsigned_short", setup ) );
-        suite.addTest( new BasicTest( "test_max_unsigned_short", setup ) );
-        suite.addTest( new BasicTest( "test_zero_unsigned_short", setup ) );
-
-        // long tests
-        suite.addTest( new BasicTest( "test_pass_in_long", setup ) );
-        suite.addTest( new BasicTest( "test_pass_out_long", setup ) );
-        suite.addTest( new BasicTest( "test_pass_inout_long", setup ) );
-        suite.addTest( new BasicTest( "test_return_long", setup ) );
-        suite.addTest( new BasicTest( "test_bounce_long", setup ) );
-        suite.addTest( new BasicTest( "test_min_long", setup ) );
-        suite.addTest( new BasicTest( "test_max_long", setup ) );
-        suite.addTest( new BasicTest( "test_zero_long", setup ) );
-
-        // unsigned long tests
-        suite.addTest( new BasicTest( "test_pass_in_unsigned_long", setup ) );
-        suite.addTest( new BasicTest( "test_pass_out_unsigned_long", setup ) );
-        suite.addTest( new BasicTest( "test_pass_inout_unsigned_long", setup ) );
-        suite.addTest( new BasicTest( "test_return_unsigned_long", setup ) );
-        suite.addTest( new BasicTest( "test_bounce_unsigned_long", setup ) );
-        suite.addTest( new BasicTest( "test_max_unsigned_long", setup ) );
-        suite.addTest( new BasicTest( "test_zero_unsigned_long", setup ) );
-
-        // long long tests
-        suite.addTest( new BasicTest( "test_pass_in_long_long", setup ) );
-        suite.addTest( new BasicTest( "test_pass_out_long_long", setup ) );
-        suite.addTest( new BasicTest( "test_pass_inout_long_long", setup ) );
-        suite.addTest( new BasicTest( "test_return_long_long", setup ) );
-        suite.addTest( new BasicTest( "test_bounce_long_long", setup ) );
-        suite.addTest( new BasicTest( "test_min_long_long", setup ) );
-        suite.addTest( new BasicTest( "test_max_long_long", setup ) );
-        suite.addTest( new BasicTest( "test_zero_long_long", setup ) );
-
-        // unsigned long long tests
-        suite.addTest( new BasicTest( "test_pass_in_unsigned_long_long", setup ) );
-        suite.addTest( new BasicTest( "test_pass_out_unsigned_long_long", setup ) );
-        suite.addTest( new BasicTest( "test_pass_inout_unsigned_long_long", setup ) );
-        suite.addTest( new BasicTest( "test_return_unsigned_long_long", setup ) );
-        suite.addTest( new BasicTest( "test_bounce_unsigned_long_long", setup ) );
-        suite.addTest( new BasicTest( "test_max_unsigned_long_long", setup ) );
-        suite.addTest( new BasicTest( "test_zero_unsigned_long_long", setup ) );
-
-        // boolean tests
-        suite.addTest( new BasicTest( "test_pass_in_boolean", setup ) );
-        suite.addTest( new BasicTest( "test_pass_out_boolean", setup ) );
-        suite.addTest( new BasicTest( "test_pass_inout_boolean", setup ) );
-        suite.addTest( new BasicTest( "test_return_boolean", setup ) );
-        suite.addTest( new BasicTest( "test_bounce_boolean", setup ) );
-
-        // octet tests
-        suite.addTest( new BasicTest( "test_pass_in_octet", setup ) );
-        suite.addTest( new BasicTest( "test_pass_out_octet", setup ) );
-        suite.addTest( new BasicTest( "test_pass_inout_octet", setup ) );
-        suite.addTest( new BasicTest( "test_return_octet", setup ) );
-        suite.addTest( new BasicTest( "test_bounce_octet", setup ) );
-
-        // float tests
-        suite.addTest( new BasicTest( "test_pass_in_float", setup ) );
-        suite.addTest( new BasicTest( "test_pass_out_float", setup ) );
-        suite.addTest( new BasicTest( "test_pass_inout_float", setup ) );
-        suite.addTest( new BasicTest( "test_return_float", setup ) );
-        suite.addTest( new BasicTest( "test_bounce_float", setup ) );
-
-        // double tests
-        suite.addTest( new BasicTest( "test_pass_in_double", setup ) );
-        suite.addTest( new BasicTest( "test_pass_out_double", setup ) );
-        suite.addTest( new BasicTest( "test_pass_inout_double", setup ) );
-        suite.addTest( new BasicTest( "test_return_double", setup ) );
-        suite.addTest( new BasicTest( "test_bounce_double", setup ) );
-
-        return setup;
-    }
-
+    @Test
     public void test_ping()
     {
         server.ping();
@@ -162,11 +65,13 @@ public class BasicTest extends ClientServerTestCase
 
     // short parameters
 
+    @Test
     public void test_pass_in_short()
     {
         server.pass_in_short( ( short ) 14 );
     }
 
+    @Test
     public void test_pass_out_short()
     {
         ShortHolder x = new ShortHolder();
@@ -174,6 +79,7 @@ public class BasicTest extends ClientServerTestCase
         assertEquals( 82, x.value );
     }
 
+    @Test
     public void test_pass_inout_short()
     {
         ShortHolder x = new ShortHolder( ( short ) -4 );
@@ -181,30 +87,35 @@ public class BasicTest extends ClientServerTestCase
         assertEquals( ( short ) -3, x.value );
     }
 
+    @Test
     public void test_return_short()
     {
         short result = server.return_short();
         assertEquals( ( short ) -4, result );
     }
 
+    @Test
     public void test_bounce_short()
     {
         short result = server.bounce_short( ( short ) 14 );
         assertEquals( ( short ) 14, result );
     }
 
+    @Test
     public void test_min_short()
     {
         short result = server.bounce_short( ( short ) 0x8000 );
         assertEquals( ( short ) 0x8000, result );
     }
 
+    @Test
     public void test_max_short()
     {
         short result = server.bounce_short( ( short ) 0xffff );
         assertEquals( ( short ) 0xffff, result );
     }
 
+    @Test
     public void test_zero_short()
     {
         short result = server.bounce_short( ( short ) 0 );
@@ -213,11 +124,13 @@ public class BasicTest extends ClientServerTestCase
 
     // unsigned short parameters
 
+    @Test
     public void test_pass_in_unsigned_short()
     {
         server.pass_in_unsigned_short( ( short ) 14 );
     }
 
+    @Test
     public void test_pass_out_unsigned_short()
     {
         ShortHolder x = new ShortHolder();
@@ -225,6 +138,7 @@ public class BasicTest extends ClientServerTestCase
         assertEquals( 79, x.value );
     }
 
+    @Test
     public void test_pass_inout_unsigned_short()
     {
         ShortHolder x = new ShortHolder( ( short ) 88 );
@@ -232,24 +146,28 @@ public class BasicTest extends ClientServerTestCase
         assertEquals( 89, x.value );
     }
 
+    @Test
     public void test_return_unsigned_short()
     {
         short result = server.return_unsigned_short();
         assertEquals( 87, result );
     }
 
+    @Test
     public void test_bounce_unsigned_short()
     {
         short result = server.bounce_unsigned_short( ( short ) 14 );
         assertEquals( 14, result );
     }
 
+    @Test
     public void test_max_unsigned_short()
     {
         short result = server.bounce_unsigned_short( ( short ) 0xffff );
         assertEquals( ( short ) 0xffff, result );
     }
 
+    @Test
     public void test_zero_unsigned_short()
     {
         short result = server.bounce_unsigned_short( ( short ) 0 );
@@ -258,11 +176,13 @@ public class BasicTest extends ClientServerTestCase
 
     // long parameters
 
+    @Test
     public void test_pass_in_long()
     {
         server.pass_in_long( 14 );
     }
 
+    @Test
     public void test_pass_out_long()
     {
         IntHolder x = new IntHolder();
@@ -270,6 +190,7 @@ public class BasicTest extends ClientServerTestCase
         assertEquals( 83, x.value );
     }
 
+    @Test
     public void test_pass_inout_long()
     {
         IntHolder x = new IntHolder( -4 );
@@ -277,30 +198,35 @@ public class BasicTest extends ClientServerTestCase
         assertEquals( -3, x.value );
     }
 
+    @Test
     public void test_return_long()
     {
         int result = server.return_long();
         assertEquals( -17, result );
     }
 
+    @Test
     public void test_bounce_long()
     {
         int result = server.bounce_long( 14 );
         assertEquals( 14, result );
     }
 
+    @Test
     public void test_min_long()
     {
         int result = server.bounce_long( 0x8000000 );
         assertEquals( 0x8000000, result );
     }
 
+    @Test
     public void test_max_long()
     {
         int result = server.bounce_long( 0xffffffff );
         assertEquals( 0xffffffff, result );
     }
 
+    @Test
     public void test_zero_long()
     {
         int result = server.bounce_long( 0 );
@@ -309,11 +235,13 @@ public class BasicTest extends ClientServerTestCase
 
     // unsigned long parameters
 
+    @Test
     public void test_pass_in_unsigned_long()
     {
         server.pass_in_unsigned_long( 76542 );
     }
 
+    @Test
     public void test_pass_out_unsigned_long()
     {
         IntHolder x = new IntHolder();
@@ -321,6 +249,7 @@ public class BasicTest extends ClientServerTestCase
         assertEquals( 80, x.value );
     }
 
+    @Test
     public void test_pass_inout_unsigned_long()
     {
         IntHolder x = new IntHolder( 5 );
@@ -328,24 +257,28 @@ public class BasicTest extends ClientServerTestCase
         assertEquals( 6, x.value );
     }
 
+    @Test
     public void test_return_unsigned_long()
     {
         int result = server.return_unsigned_long();
         assertEquals( 43, result );
     }
 
+    @Test
     public void test_bounce_unsigned_long()
     {
         int result = server.bounce_unsigned_long( 123456 );
         assertEquals( 123456, result );
     }
 
+    @Test
     public void test_max_unsigned_long()
     {
         int result = server.bounce_unsigned_long( 0xffffffff );
         assertEquals( 0xffffffff, result );
     }
 
+    @Test
     public void test_zero_unsigned_long()
     {
         int result = server.bounce_unsigned_long( 0 );
@@ -354,11 +287,13 @@ public class BasicTest extends ClientServerTestCase
 
     // long long parameters
 
+    @Test
     public void test_pass_in_long_long()
     {
         server.pass_in_long_long( 14L );
     }
 
+    @Test
     public void test_pass_out_long_long()
     {
         LongHolder x = new LongHolder();
@@ -366,6 +301,7 @@ public class BasicTest extends ClientServerTestCase
         assertEquals( 84L, x.value );
     }
 
+    @Test
     public void test_pass_inout_long_long()
     {
         LongHolder x = new LongHolder( -12345678889L );
@@ -373,30 +309,35 @@ public class BasicTest extends ClientServerTestCase
         assertEquals( -12345678888L, x.value );
     }
 
+    @Test
     public void test_return_long_long()
     {
         long result = server.return_long_long();
         assertEquals( 0xffeeddccbbaa0099L, result );
     }
 
+    @Test
     public void test_bounce_long_long()
     {
         long result = server.bounce_long_long( 14 );
         assertEquals( 14L, result );
     }
 
+    @Test
     public void test_min_long_long()
     {
         long result = server.bounce_long_long( 0x8000000000000000L );
         assertEquals( 0x8000000000000000L, result );
     }
 
+    @Test
     public void test_max_long_long()
     {
         long result = server.bounce_long_long( 0xffffffffffffffffL );
         assertEquals( 0xffffffffffffffffL, result );
     }
 
+    @Test
     public void test_zero_long_long()
     {
         long result = server.bounce_long_long( 0L );
@@ -405,11 +346,13 @@ public class BasicTest extends ClientServerTestCase
 
     // unsigned long long parameters
 
+    @Test
     public void test_pass_in_unsigned_long_long()
     {
         server.pass_in_unsigned_long_long( 14L );
     }
 
+    @Test
     public void test_pass_out_unsigned_long_long()
     {
         LongHolder x = new LongHolder();
@@ -417,6 +360,7 @@ public class BasicTest extends ClientServerTestCase
         assertEquals( 81L, x.value );
     }
 
+    @Test
     public void test_pass_inout_unsigned_long_long()
     {
         LongHolder x = new LongHolder( 9876543210L );
@@ -424,24 +368,28 @@ public class BasicTest extends ClientServerTestCase
         assertEquals( 9876543211L, x.value );
     }
 
+    @Test
     public void test_return_unsigned_long_long()
     {
         long result = server.return_unsigned_long_long();
         assertEquals( 0xffeeddccbbaa0088L, result );
     }
 
+    @Test
     public void test_bounce_unsigned_long_long()
     {
         long result = server.bounce_unsigned_long_long( 14L );
         assertEquals( 14L, result );
     }
 
+    @Test
     public void test_max_unsigned_long_long()
     {
         long result = server.bounce_unsigned_long_long( 0xffffffffffffffffL );
         assertEquals( 0xffffffffffffffffL, result );
     }
 
+    @Test
     public void test_zero_unsigned_long_long()
     {
         long result = server.bounce_unsigned_long_long( 0L );
@@ -450,11 +398,13 @@ public class BasicTest extends ClientServerTestCase
 
     // boolean parameters
 
+    @Test
     public void test_pass_in_boolean()
     {
         server.pass_in_boolean ( false );
     }
 
+    @Test
     public void test_pass_out_boolean()
     {
         BooleanHolder x = new BooleanHolder( false );
@@ -462,6 +412,7 @@ public class BasicTest extends ClientServerTestCase
         assertEquals( true, x.value );
     }
 
+    @Test
     public void test_pass_inout_boolean()
     {
         BooleanHolder x = new BooleanHolder( true );
@@ -469,12 +420,14 @@ public class BasicTest extends ClientServerTestCase
         assertEquals( false, x.value );
     }
 
+    @Test
     public void test_return_boolean()
     {
         boolean result = server.return_boolean();
         assertEquals( true, result );
     }
 
+    @Test
     public void test_bounce_boolean()
     {
         boolean result = server.bounce_boolean( false );
@@ -485,11 +438,13 @@ public class BasicTest extends ClientServerTestCase
 
     // octet parameters
 
+    @Test
     public void test_pass_in_octet()
     {
         server.pass_in_octet ( (byte)127 );
     }
 
+    @Test
     public void test_pass_out_octet()
     {
         ByteHolder x = new ByteHolder( (byte) -1 );
@@ -497,6 +452,7 @@ public class BasicTest extends ClientServerTestCase
         assertEquals( (byte)23, x.value );
     }
 
+    @Test
     public void test_pass_inout_octet()
     {
         ByteHolder x = new ByteHolder( (byte) -1 );
@@ -504,12 +460,14 @@ public class BasicTest extends ClientServerTestCase
         assertEquals( (byte)0, x.value );
     }
 
+    @Test
     public void test_return_octet()
     {
         byte result = server.return_octet();
         assertEquals( (byte)0xf0, result );
     }
 
+    @Test
     public void test_bounce_octet()
     {
         byte result = server.bounce_octet( (byte)0xff );
@@ -518,11 +476,13 @@ public class BasicTest extends ClientServerTestCase
 
     // float parameters
 
+    @Test
     public void test_pass_in_float()
     {
         server.pass_in_float ( 1.234F );
     }
 
+    @Test
     public void test_pass_out_float()
     {
         FloatHolder x = new FloatHolder( 1.0F );
@@ -530,6 +490,7 @@ public class BasicTest extends ClientServerTestCase
         assertEquals( 0.005F, x.value, 0 );
     }
 
+    @Test
     public void test_pass_inout_float()
     {
         FloatHolder x = new FloatHolder( -23.4F );
@@ -537,12 +498,14 @@ public class BasicTest extends ClientServerTestCase
         assertEquals( -22.4F, x.value, 0 );
     }
 
+    @Test
     public void test_return_float()
     {
         float result = server.return_float();
         assertEquals( 1.5E-1F, result, 0 );
     }
 
+    @Test
     public void test_bounce_float()
     {
         float result = server.bounce_float( 0.0F );
@@ -563,11 +526,13 @@ public class BasicTest extends ClientServerTestCase
 
     // double parameters
 
+    @Test
     public void test_pass_in_double()
     {
         server.pass_in_double ( 1.234 );
     }
 
+    @Test
     public void test_pass_out_double()
     {
         DoubleHolder x = new DoubleHolder( 1.0 );
@@ -575,6 +540,7 @@ public class BasicTest extends ClientServerTestCase
         assertEquals( 1234E12, x.value, 0 );
     }
 
+    @Test
     public void test_pass_inout_double()
     {
         DoubleHolder x = new DoubleHolder( -23.4 );
@@ -582,12 +548,14 @@ public class BasicTest extends ClientServerTestCase
         assertEquals( -22.4, x.value, 0 );
     }
 
+    @Test
     public void test_return_double()
     {
         double result = server.return_double();
         assertEquals( 1E-100, result, 0 );
     }
 
+    @Test
     public void test_bounce_double()
     {
         double result = server.bounce_double( 0.0 );
@@ -609,7 +577,8 @@ public class BasicTest extends ClientServerTestCase
 
 	// test_validate_connection
 
-	public void test_validate_connection()
+    @Test
+    public void test_validate_connection()
 	{
             try
             {
@@ -621,6 +590,7 @@ public class BasicTest extends ClientServerTestCase
             catch (Exception e)
             {
                 // not expected
+                e.printStackTrace();
                 fail(e.getMessage());
             }
 	}

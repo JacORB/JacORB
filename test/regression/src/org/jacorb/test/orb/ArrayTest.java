@@ -20,8 +20,9 @@ package org.jacorb.test.orb;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import junit.framework.Test;
-import junit.framework.TestSuite;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 import org.jacorb.test.ArrayServer;
 import org.jacorb.test.ArrayServerHelper;
 import org.jacorb.test.any_sequenceHolder;
@@ -31,53 +32,50 @@ import org.jacorb.test.color_enum;
 import org.jacorb.test.long_sequenceHolder;
 import org.jacorb.test.common.ClientServerSetup;
 import org.jacorb.test.common.ClientServerTestCase;
-import org.jacorb.test.common.TestUtils;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
 import org.omg.CORBA.Any;
 
 /**
  * Tests array/sequence parameters.  For the time being, only those types
  * of sequences are covered that are not already covered by other tests.
- * 
+ *
  * @author Andre Spiegel spiegel@gnu.org
  */
 public class ArrayTest extends ClientServerTestCase
 {
     private ArrayServer server;
 
-    public ArrayTest(String name, ClientServerSetup setup)
-    {
-        super(name, setup);
-    }
-
+    @Before
     public void setUp() throws Exception
     {
         server = ArrayServerHelper.narrow (setup.getServerObject());
     }
 
-    public static Test suite()
+    @BeforeClass
+    public static void beforeClassSetUp() throws Exception
     {
-        TestSuite suite = new TestSuite( "Client/server array tests" );
-        ClientServerSetup setup =
-            new ClientServerSetup( suite,
-                                   "org.jacorb.test.orb.ArrayServerImpl" );
-        TestUtils.addToSuite(suite, setup, ArrayTest.class);
-        return setup;
+        setup = new ClientServerSetup("org.jacorb.test.orb.ArrayServerImpl" );
     }
 
+    @Test
     public void test_reduce_boolean_sequence()
     {
         boolean[] a = new boolean[] { true, false, true, true };
         boolean result = server.reduce_boolean_sequence(a);
         assertEquals (true, result);
     }
-    
+
+    @Test
     public void test_reduce_empty_boolean_sequence()
     {
         boolean[] a = new boolean[] { };
         boolean result = server.reduce_boolean_sequence(a);
         assertEquals (false, result);
     }
-    
+
+    @Test
     public void test_sum_octet_sequence()
     {
         byte[] a = new byte[] { 1, 2, 3, 4, 5 };
@@ -85,13 +83,15 @@ public class ArrayTest extends ClientServerTestCase
         assertEquals (15, result);
     }
 
+    @Test
     public void test_sum_empty_octet_sequence()
     {
         byte[] a = new byte[] { };
         int result = server.sum_octet_sequence (a);
         assertEquals (0, result);
     }
-    
+
+    @Test
     public void test_sum_short_sequence()
     {
         short[] a = new short[] { 1, 2, 3, 4, 5 };
@@ -99,6 +99,7 @@ public class ArrayTest extends ClientServerTestCase
         assertEquals (15, result);
     }
 
+    @Test
     public void test_sum_empty_short_sequence()
     {
         short[] a = new short[] { };
@@ -107,6 +108,7 @@ public class ArrayTest extends ClientServerTestCase
     }
 
 
+    @Test
     public void test_sum_ushort_sequence()
     {
         short[] a = new short[] { 1, 2, 3, 4, 5 };
@@ -114,6 +116,7 @@ public class ArrayTest extends ClientServerTestCase
         assertEquals (15, result);
     }
 
+    @Test
     public void test_sum_empty_ushort_sequence()
     {
         short[] a = new short[] { };
@@ -121,6 +124,7 @@ public class ArrayTest extends ClientServerTestCase
         assertEquals (0, result);
     }
 
+    @Test
     public void test_sum_long_sequence()
     {
         int[] a = new int[] { 1, 2, 3, 4, 5 };
@@ -128,6 +132,7 @@ public class ArrayTest extends ClientServerTestCase
         assertEquals (15, result);
     }
 
+    @Test
     public void test_sum_empty_long_sequence()
     {
         int[] a = new int[] { };
@@ -135,6 +140,7 @@ public class ArrayTest extends ClientServerTestCase
         assertEquals (0, result);
     }
 
+    @Test
     public void test_sum_ulong_sequence()
     {
         int[] a = new int[] { 1, 2, 3, 4, 5 };
@@ -142,6 +148,7 @@ public class ArrayTest extends ClientServerTestCase
         assertEquals (15, result);
     }
 
+    @Test
     public void test_sum_empty_ulong_sequence()
     {
         int[] a = new int[] { };
@@ -150,6 +157,7 @@ public class ArrayTest extends ClientServerTestCase
     }
 
 
+    @Test
     public void test_sum_ulonglong_sequence()
     {
         long[] a = new long[] { 1, 2, 3, 4, 5 };
@@ -157,6 +165,7 @@ public class ArrayTest extends ClientServerTestCase
         assertEquals (15, result);
     }
 
+    @Test
     public void test_sum_empty_ulonglong_sequence()
     {
         long[] a = new long[] { };
@@ -164,6 +173,7 @@ public class ArrayTest extends ClientServerTestCase
         assertEquals (0, result);
     }
 
+    @Test
     public void test_sum_float_sequence()
     {
         float[] a = new float[] { 1.0F, 2.0F, 3.0F, 4.0F, 5.0F };
@@ -171,6 +181,7 @@ public class ArrayTest extends ClientServerTestCase
         assertEquals (15.0F, result, 0.0001F);
     }
 
+    @Test
     public void test_sum_empty_float_sequence()
     {
         float[] a = new float[] { };
@@ -178,6 +189,7 @@ public class ArrayTest extends ClientServerTestCase
         assertEquals (0.0F, result, 0.0001F);
     }
 
+    @Test
     public void test_sum_double_sequence()
     {
         double[] a = new double[] { 1.0F, 2.0F, 3.0F, 4.0F, 5.0F };
@@ -185,6 +197,7 @@ public class ArrayTest extends ClientServerTestCase
         assertEquals (15.0, result, 0.0001);
     }
 
+    @Test
     public void test_sum_empty_double_sequence()
     {
         double[] a = new double[] { };
@@ -192,18 +205,20 @@ public class ArrayTest extends ClientServerTestCase
         assertEquals (0.0, result, 0.0001);
     }
 
+    @Test
     public void test_reduce_enum_sequence()
     {
-        color_enum[] a = new color_enum[] 
+        color_enum[] a = new color_enum[]
         {
              color_enum.color_red,
-             color_enum.color_green, 
+             color_enum.color_green,
              color_enum.color_blue
         };
         int result = server.reduce_enum_sequence (a);
         assertEquals (3, result);
     }
 
+    @Test
     public void test_reduce_empty_enum_sequence()
     {
         color_enum[] a = new color_enum[] { };
@@ -211,6 +226,7 @@ public class ArrayTest extends ClientServerTestCase
         assertEquals (0, result);
     }
 
+    @Test
     public void test_reduce_char_sequence()
     {
         char[] a = new char[] { 'a', 'b', 'c' };
@@ -218,6 +234,7 @@ public class ArrayTest extends ClientServerTestCase
         assertEquals (3, result);
     }
 
+    @Test
     public void test_illegal_char_sequence()
     {
         char[] a = new char[] { 'a', CharTest.EURO_SIGN, 'c' };
@@ -232,6 +249,7 @@ public class ArrayTest extends ClientServerTestCase
         }
     }
 
+    @Test
     public void test_reduce_empty_char_sequence()
     {
         char[] a = new char[] { };
@@ -239,6 +257,7 @@ public class ArrayTest extends ClientServerTestCase
         assertEquals (0, result);
     }
 
+    @Test
     public void test_return_illegal_char_sequence()
     {
         char_sequenceHolder c = new char_sequenceHolder();
@@ -252,7 +271,8 @@ public class ArrayTest extends ClientServerTestCase
             // ok
         }
     }
-    
+
+    @Test
     public void test_reduce_wchar_sequence()
     {
         char[] a = new char[] { 'a', CharTest.EURO_SIGN, 'c' };
@@ -260,13 +280,15 @@ public class ArrayTest extends ClientServerTestCase
         assertEquals (3, result);
     }
 
+    @Test
     public void test_reduce_empty_wchar_sequence()
     {
         char[] a = new char[] { };
         int result = server.reduce_wchar_sequence (a);
-        assertEquals (0, result);        
+        assertEquals (0, result);
     }
 
+    @Test
     public void test_reduce_any_sequence()
     {
         Any a1 = setup.getClientOrb().create_any();
@@ -280,13 +302,15 @@ public class ArrayTest extends ClientServerTestCase
         assertEquals (3, result);
     }
 
+    @Test
     public void test_reduce_empty_any_sequence()
     {
         Any[] a = new Any[] { };
         int result = server.reduce_any_sequence(a);
         assertEquals (0, result);
     }
-    
+
+    @Test
     public void test_bounce_boolean_sequence()
     {
         boolean[] a = new boolean[] { true, false, true, true };
@@ -295,6 +319,7 @@ public class ArrayTest extends ClientServerTestCase
         assertTrue (java.util.Arrays.equals(a, b.value));
     }
 
+    @Test
     public void test_bounce_long_sequence()
     {
         int[] a = new int[] { 1, 2, 3, 4, 5 };
@@ -303,6 +328,7 @@ public class ArrayTest extends ClientServerTestCase
         assertTrue (java.util.Arrays.equals(a, b.value));
     }
 
+    @Test
     public void test_bounce_any_sequence()
     {
         Any a1 = setup.getClientOrb().create_any();
@@ -320,5 +346,5 @@ public class ArrayTest extends ClientServerTestCase
             assertTrue (a[i].equal(b.value[i]));
         }
     }
-    
+
 }

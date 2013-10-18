@@ -1,12 +1,15 @@
 package org.jacorb.test.bugs.bugcos370;
 
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 import java.util.Properties;
-import junit.framework.Test;
-import junit.framework.TestSuite;
 import org.jacorb.test.common.ClientServerSetup;
 import org.jacorb.test.common.ClientServerTestCase;
 import org.jacorb.test.orb.AnyServer;
 import org.jacorb.test.orb.AnyServerHelper;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
 import org.omg.CORBA.Any;
 import org.omg.CORBA.TypeCode;
 
@@ -17,34 +20,21 @@ public class BugCos370Test extends ClientServerTestCase
 {
     private AnyServer server;
 
-    public BugCos370Test(String name, ClientServerSetup setup)
-    {
-        super(name, setup);
-    }
-
-    protected void setUp() throws Exception
+    @Before
+    public void setUp() throws Exception
     {
         server = AnyServerHelper.narrow(setup.getServerObject());
     }
 
-    protected void tearDown() throws Exception
+    @BeforeClass
+    public static void beforeClassSetUp() throws Exception
     {
-        server = null;
-    }
-
-    public static Test suite()
-    {
-        TestSuite suite = new TestSuite();
-
         Properties props = new Properties();
         props.put("jacorb.compactTypecodes", "off");
-        ClientServerSetup setup = new ClientServerSetup(suite, BugCos370ServerImpl.class.getName(), props, null);
-
-        suite.addTest(new BugCos370Test("testTypeCode", setup));
-
-        return setup;
+        setup = new ClientServerSetup(BugCos370ServerImpl.class.getName(), props, null);
     }
 
+    @Test
     public void testTypeCode()
     {
         assertTrue(NamingAttributes_THelper.type().equivalent(NVSList_THelper.type()));

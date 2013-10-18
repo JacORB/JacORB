@@ -20,12 +20,16 @@
 
 package org.jacorb.test.bugs.bug503;
 
-import java.util.Properties;
+import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertTrue;
 import org.jacorb.test.BasicServer;
 import org.jacorb.test.BasicServerHelper;
 import org.jacorb.test.BasicServerPOATie;
 import org.jacorb.test.common.ORBTestCase;
 import org.jacorb.test.orb.BasicServerImpl;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 
 /**
  * @author Alphonse Bendt
@@ -35,16 +39,8 @@ public class Bug503Test extends ORBTestCase
     private BasicServer innerServer;
     private BasicServer outerServer;
 
-    protected void patchORBProperties(Properties props)
-    {
-        // this is to prevent that this test picks up
-        // jacorb.properties. the properties might configure some
-        // orb initializers. we don't want this here
-        // as otherwise this test will fail!
-        props.setProperty("ORBid", "bogus");
-    }
-
-    protected void doSetUp() throws Exception
+    @Before
+    public void setUp() throws Exception
     {
         // need to remember the main thread here as we want
         // to verify that innerServer isn't called from another thread.
@@ -70,14 +66,16 @@ public class Bug503Test extends ORBTestCase
         outerServer = BasicServerHelper.narrow(rootPOA.servant_to_reference(new BasicServerPOATie(newDelegate)));
     }
 
-    protected void doTearDown() throws Exception
+    @After
+    public void tearDown() throws Exception
     {
         outerServer._release();
         outerServer = null;
         innerServer._release();
         innerServer = null;
     }
-    
+
+    @Test
     public void testIsLocalWorks() throws Exception
     {
         assertTrue(outerServer.bounce_boolean(true));

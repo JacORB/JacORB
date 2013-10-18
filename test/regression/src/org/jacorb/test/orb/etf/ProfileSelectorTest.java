@@ -21,11 +21,12 @@ package org.jacorb.test.orb.etf;
  *   MA 02110-1301, USA.
  */
 
+import static org.junit.Assert.assertTrue;
 import java.util.Properties;
-import junit.framework.Test;
-import junit.framework.TestSuite;
 import org.jacorb.test.common.ClientServerSetup;
 import org.jacorb.test.orb.etf.wiop.WIOPFactories;
+import org.junit.BeforeClass;
+import org.junit.Test;
 
 /**
  * A test that uses the {@link org.jacorb.test.orb.etf.wiop.WIOPProfileSelector
@@ -37,15 +38,9 @@ import org.jacorb.test.orb.etf.wiop.WIOPFactories;
  */
 public class ProfileSelectorTest extends AbstractWIOPTestCase
 {
-    public ProfileSelectorTest (String name, ClientServerSetup setup)
+    @BeforeClass
+    public static void beforeClassSetUp() throws Exception
     {
-        super (name, setup);
-    }
-
-    public static Test suite()
-    {
-        TestSuite suite = new TestSuite ("Profile Selector");
-
         Properties clientProps = new Properties();
         clientProps.setProperty("jacorb.transport.factories",
                                 "org.jacorb.orb.iiop.IIOPFactories," +
@@ -63,16 +58,12 @@ public class ProfileSelectorTest extends AbstractWIOPTestCase
                                 "true");
 
 
-        ClientServerSetup setup =
-          new ClientServerSetup (suite,
+        setup = new ClientServerSetup(
                                  "org.jacorb.test.orb.BasicServerImpl",
                                  clientProps, serverProps);
-
-        suite.addTest (new ProfileSelectorTest ("testConnection", setup));
-
-        return setup;
     }
 
+    @Test
     public void testConnection()
     {
         server.ping();

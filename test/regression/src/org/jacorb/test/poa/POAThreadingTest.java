@@ -1,16 +1,17 @@
 package org.jacorb.test.poa;
 
+import static org.junit.Assert.fail;
 import java.util.Properties;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.FutureTask;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
-import junit.framework.Test;
-import junit.framework.TestSuite;
 import org.jacorb.test.common.ClientServerSetup;
 import org.jacorb.test.common.ClientServerTestCase;
-import org.jacorb.test.common.TestUtils;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
 
 
 
@@ -18,24 +19,15 @@ public class POAThreadingTest extends ClientServerTestCase
 {
     private MyServer server;
 
-    public POAThreadingTest (String name, ClientServerSetup setup)
-    {
-        super(name, setup);
-    }
-
-    protected void setUp() throws Exception
+    @Before
+    public void setUp() throws Exception
     {
         server = MyServerHelper.narrow(setup.getServerObject());
     }
 
-    protected void tearDown() throws Exception
-    {
-        server = null;
-    }
-
+    @Test
     public void testRequestThreading() throws Exception
     {
-        Boolean result = null;
         Thread thread1 = new Thread("Block1")
         {
             public void run()
@@ -76,7 +68,7 @@ public class POAThreadingTest extends ClientServerTestCase
 
         try
         {
-            boolean r = task.get(10000, TimeUnit.MILLISECONDS);
+            task.get(10000, TimeUnit.MILLISECONDS);
             // System.out.println ("### Result is " + r);
             fail ("Expected a timeout");
         }
@@ -102,21 +94,17 @@ public class POAThreadingTest extends ClientServerTestCase
     }
 
 
-    public static Test suite()
+    @BeforeClass
+    public static void beforeClassSetUp() throws Exception
     {
-        TestSuite suite = new TestSuite();
 
         Properties serverProps = new Properties();
         serverProps.setProperty("jacorb.poa.thread_pool_min", "1");
         serverProps.setProperty("jacorb.poa.thread_pool_max", "2");
         serverProps.setProperty("jacorb.poa.threadtimeout", "5000");
 
-        ClientServerSetup setup = new ClientServerSetup
-            ( suite, ServerImpl.class.getName(), null, serverProps);
+        setup = new ClientServerSetup( ServerImpl.class.getName(), null, serverProps);
 
-        TestUtils.addToSuite(suite, setup, POAThreadingTest.class);
-
-        return setup;
     }
 
 

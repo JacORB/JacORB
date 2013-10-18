@@ -1,35 +1,21 @@
 package org.jacorb.test.bugs.bugjac660;
 
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
+import static org.junit.Assert.fail;
+import java.util.Properties;
+import org.jacorb.test.common.ORBTestCase;
+import org.junit.Test;
 import org.omg.CORBA.Any;
 import org.omg.CORBA.INTERNAL;
 import org.omg.CORBA.ORB;
 import org.omg.PortableServer.POA;
 import org.omg.PortableServer.POAHelper;
 
-public class BugJac660Test extends TestCase
+public class BugJac660Test extends ORBTestCase
 {
-
-    public static Test suite ()
-    {
-        TestSuite suite = new TestSuite (BugJac660Test.class);
-
-        return suite;
-    }
-
-    protected void setUp () throws Exception
-    {
-    }
-
-    protected void tearDown () throws Exception
-    {
-    }
-
+    @Test
     public void testSlotsAndCurrent()
     {
-        Thread th = new ServerThread ();
+        ServerThread th = new ServerThread (orbProps);
         th.start();
 
         try
@@ -37,7 +23,7 @@ public class BugJac660Test extends TestCase
             Thread.sleep(1000);
 
             // initialize the ORB.
-            ORB orb = ORB.init (new String [0], null );
+            ORB orb = ORB.init (new String [0], orbProps );
 
             //init POA
             POA poa =
@@ -45,7 +31,7 @@ public class BugJac660Test extends TestCase
 
             // create the object reference
             org.omg.CORBA.Object obj =
-               poa.servant_to_reference (new TestObjectImpl());
+               poa.servant_to_reference (new TestObjectImpl(th.orb));
 
             TestObject to = TestObjectHelper.narrow (obj);
 
@@ -69,13 +55,23 @@ public class BugJac660Test extends TestCase
         {
             fail ("Unexpected exception " + ex);
         }
+        finally
+        {
+            th.orb.destroy();
+        }
     }
 }
 
 
 class ServerThread extends Thread
 {
-    public static ORB orb = null;
+    public ORB orb = null;
+    public Properties props;
+
+    public ServerThread(Properties orbProps)
+    {
+        props = orbProps;
+    }
 
     public void run ()
     {
@@ -86,7 +82,7 @@ class ServerThread extends Thread
 
             //init ORB
             String [] args = null;
-            orb = ORB.init( args, null );
+            orb = ORB.init( args, props );
 
             //init POA
             POA poa =
@@ -107,6 +103,12 @@ class ServerThread extends Thread
 class TestObjectImpl
     extends TestObjectPOA
 {
+    public ORB orb;
+
+    public TestObjectImpl(ORB orb)
+    {
+        this.orb = orb;
+    }
 
     public void foo()
     {
@@ -114,7 +116,7 @@ class TestObjectImpl
         {
             org.omg.PortableInterceptor.Current current =
                 (org.omg.PortableInterceptor.Current)
-            ServerThread.orb.resolve_initial_references( "PICurrent" );
+            orb.resolve_initial_references( "PICurrent" );
 
             Any any = current.get_slot (Initializer.slot_id);
 

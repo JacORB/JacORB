@@ -1,17 +1,13 @@
 package org.jacorb.test.bugs.bugjac235;
 
-import junit.framework.Test;
-import junit.framework.TestSuite;
+import static org.junit.Assert.fail;
 import org.jacorb.test.common.ClientServerSetup;
-import org.jacorb.test.common.TestUtils;
+import org.junit.BeforeClass;
+import org.junit.Test;
 
 public class OnlyPolicyTest extends AbstractTestCase
 {
-    public OnlyPolicyTest(String name, ClientServerSetup setup)
-    {
-        super(name, setup);
-    }
-
+    @Test
     public void testTimeout0() throws Exception
     {
         setTimeout(2000);
@@ -34,14 +30,10 @@ public class OnlyPolicyTest extends AbstractTestCase
         server.hello(1000);
     }
 
-    public static Test suite()
+    @BeforeClass
+    public static void beforeClassSetUp() throws Exception
     {
-        TestSuite suite = new TestSuite ("JAC235 Reply Timeout test");
+        setup = new ClientServerSetup(JAC235Impl.class.getName());
 
-        ClientServerSetup setup = new ClientServerSetup(suite, JAC235Impl.class.getName());
-
-        TestUtils.addToSuite(suite, setup, OnlyPolicyTest.class);
-
-        return setup;
     }
 }

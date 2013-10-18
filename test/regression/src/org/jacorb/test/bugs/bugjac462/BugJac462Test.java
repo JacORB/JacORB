@@ -20,10 +20,13 @@
 
 package org.jacorb.test.bugs.bugjac462;
 
+import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertTrue;
 import java.util.Properties;
 import org.jacorb.orb.CDRInputStream;
 import org.jacorb.orb.CDROutputStream;
 import org.jacorb.test.common.ORBTestCase;
+import org.junit.Test;
 import org.omg.CORBA.TypeCode;
 
 /**
@@ -31,12 +34,14 @@ import org.omg.CORBA.TypeCode;
  */
 public class BugJac462Test extends ORBTestCase
 {
-    protected void patchORBProperties(String testName, Properties props) throws Exception
+    @Override
+    protected void patchORBProperties(Properties props) throws Exception
     {
         props.setProperty("jacorb.cacheTypecodes", "on");
         props.setProperty("jacorb.compactTypecodes", "off");
     }
 
+    @Test
     public void testBug462() throws Exception
     {
         CDROutputStream out1 = (CDROutputStream) orb.create_output_stream();
@@ -68,6 +73,7 @@ public class BugJac462Test extends ORBTestCase
         return tc;
     }
 
+    @Test
     public void testMultipleReadsAreAnsweredFromCache()
     {
         CDROutputStream out = (CDROutputStream) orb.create_output_stream();

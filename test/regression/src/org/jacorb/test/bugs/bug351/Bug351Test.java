@@ -20,11 +20,13 @@ package org.jacorb.test.bugs.bug351;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import junit.framework.Test;
-import junit.framework.TestSuite;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import org.jacorb.test.common.ClientServerSetup;
 import org.jacorb.test.common.ClientServerTestCase;
-import org.jacorb.test.common.TestUtils;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
 
 /**
  * Test for bug 351, marshaling of a complex valuetype.
@@ -35,33 +37,19 @@ public class Bug351Test extends ClientServerTestCase
 {
     private ValueServer server;
 
-    public Bug351Test (String name, ClientServerSetup setup)
+    @BeforeClass
+    public static void beforeClassSetUp () throws Exception
     {
-        super (name, setup);
+        setup = new ClientServerSetup (ValueServerImpl.class.getName());
     }
 
+    @Before
     public void setUp()
     {
-        server = (ValueServer)ValueServerHelper.narrow(setup.getServerObject());
+        server = ValueServerHelper.narrow(setup.getServerObject());
     }
 
-    protected void tearDown() throws Exception
-    {
-        server = null;
-    }
-
-    public static Test suite()
-    {
-        TestSuite suite = new TestSuite( "bug 351 complex valuetype" );
-        ClientServerSetup setup =
-            new ClientServerSetup( suite,
-                                   "org.jacorb.test.bugs.bug351.ValueServerImpl" );
-
-        TestUtils.addToSuite(suite, setup, Bug351Test.class);
-
-        return setup;
-    }
-
+    @Test
     public void testBug()
     {
         RetrievalResult result = server.search();

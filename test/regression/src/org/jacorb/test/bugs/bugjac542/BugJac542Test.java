@@ -20,17 +20,19 @@
 
 package org.jacorb.test.bugs.bugjac542;
 
-import junit.framework.TestCase;
+import static org.junit.Assert.assertEquals;
 import org.easymock.MockControl;
 import org.jacorb.config.Configuration;
 import org.jacorb.orb.iiop.IIOPAddress;
 import org.jacorb.test.common.MyNullLogger;
+import org.junit.Test;
 
 /**
  * @author Alphonse Bendt
  */
-public class BugJac542Test extends TestCase
+public class BugJac542Test
 {
+    @Test
     public void testUnresolvableHostname() throws Exception
     {
         final String hostname = "does.not.exist";

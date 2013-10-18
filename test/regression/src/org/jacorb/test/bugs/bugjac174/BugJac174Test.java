@@ -20,7 +20,9 @@ package org.jacorb.test.bugs.bugjac174;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
+import static org.junit.Assert.fail;
 import org.jacorb.test.common.ORBTestCase;
+import org.junit.Test;
 import org.omg.CORBA.BAD_PARAM;
 
 
@@ -46,6 +48,7 @@ public class BugJac174Test extends ORBTestCase
      * <code>testDecode2</code> tests that JacORB can decode an invalid
      * IOR without throwing OutOfMemory but rather BAD_PARAM.
      */
+    @Test
     public void testDecode1 ()
     {
         try
@@ -64,6 +67,7 @@ public class BugJac174Test extends ORBTestCase
      * <code>testDecode2</code> tests that JacORB can decode an invalid
      * IOR without throwing OutOfMemory but rather BAD_PARAM.
      */
+    @Test
     public void testDecode2 ()
     {
         try

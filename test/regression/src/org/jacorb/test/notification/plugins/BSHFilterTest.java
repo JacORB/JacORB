@@ -1,6 +1,7 @@
 package org.jacorb.test.notification.plugins;
 
-import junit.framework.Test;
+import org.junit.*;
+import static org.junit.Assert.*;
 
 import org.jacorb.notification.filter.bsh.BSHFilter;
 import org.jacorb.notification.impl.DefaultEvaluationContextFactory;
@@ -24,14 +25,10 @@ public class BSHFilterTest extends NotificationTestCase
 
     ////////////////////////////////////////
 
-    public BSHFilterTest(String test, NotificationTestCaseSetup setup)
-    {
-        super(test, setup);
-    }
-
     ////////////////////////////////////////
 
-    public void setUpTest() throws Exception
+    @Before
+    public void setUp() throws Exception
     {
         objectUnderTest_ = new BSHFilter(getConfiguration(), new DefaultEvaluationContextFactory(
                 getEvaluator()), new DefaultMessageFactory(getORB(), getConfiguration()), getPOA());
@@ -54,6 +51,7 @@ public class BSHFilterTest extends NotificationTestCase
     /**
      * create remote filter object and invoke match operation on it
      */
+    @Test
     public void testReturnTrue() throws Exception
     {
         attachFilter("return true");
@@ -61,6 +59,7 @@ public class BSHFilterTest extends NotificationTestCase
         assertTrue(objectUnderTest_.match(testData_));
     }
 
+    @Test
     public void testSimpleMatch() throws Exception
     {
         attachFilter("event.extract_long() == 10");
@@ -68,15 +67,11 @@ public class BSHFilterTest extends NotificationTestCase
         assertTrue(objectUnderTest_.match(testData_));
     }
 
+    @Test
     public void testReturnFalse() throws Exception
     {
         attachFilter("return false");
 
         assertFalse(objectUnderTest_.match(testData_));
-    }
-
-    public static Test suite() throws Exception
-    {
-        return NotificationTestCase.suite(BSHFilterTest.class);
     }
 }

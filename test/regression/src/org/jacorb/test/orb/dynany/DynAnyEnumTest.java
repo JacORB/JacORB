@@ -20,10 +20,12 @@ package org.jacorb.test.orb.dynany;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import junit.framework.Test;
-import junit.framework.TestSuite;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 import org.jacorb.test.EnumType;
 import org.jacorb.test.EnumTypeHelper;
+import org.junit.Test;
 
 /**
  * DynAnyEnumTest.java
@@ -39,17 +41,14 @@ public class DynAnyEnumTest extends DynAnyXXXTestCase
    private static final String [] ENUM = {"one", "two", "three"};
 
 
-   public static Test suite ()
-   {
-      return new TestSuite (DynAnyEnumTest.class, "DynEnum Tests");
-   }
 
 
    /**
     * Tests creating a DynAny object from an Any object using the
     * DynAnyFactory object.
     */
-   public void testFactoryCreateFromAny ()
+    @Test
+    public void testFactoryCreateFromAny ()
    {
       org.omg.CORBA.Any any = null;
 
@@ -64,7 +63,8 @@ public class DynAnyEnumTest extends DynAnyXXXTestCase
     * Tests creating a DynAny object from a TypeCode object using the
     * DynAnyFactory object.
     */
-   public void testFactoryCreateFromTypeCode ()
+    @Test
+    public void testFactoryCreateFromTypeCode ()
    {
       org.omg.CORBA.TypeCode tc = null;
 
@@ -77,7 +77,8 @@ public class DynAnyEnumTest extends DynAnyXXXTestCase
     * Tests creating a DynAny object from a TypeCode object generated from
     * IDL using the DynAnyFactory object.
     */
-   public void testFactoryCreateFromIDLTypeCode ()
+    @Test
+    public void testFactoryCreateFromIDLTypeCode ()
    {
       org.omg.CORBA.TypeCode tc = null;
 
@@ -89,7 +90,8 @@ public class DynAnyEnumTest extends DynAnyXXXTestCase
    /**
     * Test comparing DynAny values.
     */
-   public void testCompareDynAny ()
+    @Test
+    public void testCompareDynAny ()
    {
       String msg;
       org.omg.CORBA.Any any = null;
@@ -109,7 +111,8 @@ public class DynAnyEnumTest extends DynAnyXXXTestCase
    /**
     * Test accessing a value in a DynEnum object.
     */
-   public void testAccessEnumValue ()
+    @Test
+    public void testAccessEnumValue ()
    {
       String msg;
       String type1;
@@ -164,7 +167,8 @@ public class DynAnyEnumTest extends DynAnyXXXTestCase
     * Test that an InvalidValue exception is raised if values inserted into
     * DynEnum objects are out of range.
     */
-   public void testAccessInvalidValueEx ()
+    @Test
+    public void testAccessInvalidValueEx ()
    {
       String msg;
       org.omg.CORBA.TypeCode tc = null;
@@ -204,7 +208,8 @@ public class DynAnyEnumTest extends DynAnyXXXTestCase
    /**
     * Test obtaining the TypeCode associated with a DynAny object.
     */
-   public void testDynAnyTypeCode ()
+    @Test
+    public void testDynAnyTypeCode ()
    {
       String msg;
       org.omg.CORBA.TypeCode tc = null;
@@ -221,7 +226,8 @@ public class DynAnyEnumTest extends DynAnyXXXTestCase
    /**
     * Test initializing a DynAny object from another DynAny object.
     */
-   public void testInitDynAnyFromDynAny ()
+    @Test
+    public void testInitDynAnyFromDynAny ()
    {
       String msg;
       org.omg.CORBA.Any any = null;
@@ -253,7 +259,8 @@ public class DynAnyEnumTest extends DynAnyXXXTestCase
    /**
     * Test initializing a DynAny object from an Any value.
     */
-   public void testInitDynAnyFromAny ()
+    @Test
+    public void testInitDynAnyFromAny ()
    {
       String msg;
       org.omg.CORBA.Any any = null;
@@ -286,7 +293,8 @@ public class DynAnyEnumTest extends DynAnyXXXTestCase
     * Test that a TypeMismatch exception is raised if there is a type
     * mismatch between the DynAny and Any types in an assignment.
     */
-   public void testInitFromAnyTypeMismatchEx ()
+    @Test
+    public void testInitFromAnyTypeMismatchEx ()
    {
       String msg;
       org.omg.CORBA.Any any = null;
@@ -321,7 +329,8 @@ public class DynAnyEnumTest extends DynAnyXXXTestCase
    /**
     * Test generating an Any value from a DynAny object.
     */
-   public void testGenerateAnyFromDynAny ()
+    @Test
+    public void testGenerateAnyFromDynAny ()
    {
       String msg;
       org.omg.CORBA.Any any = null;
@@ -345,7 +354,8 @@ public class DynAnyEnumTest extends DynAnyXXXTestCase
    /**
     * Test destroying a DynAny object.
     */
-   public void testDestroyDynAny ()
+    @Test
+    public void testDestroyDynAny ()
    {
       String msg;
       org.omg.CORBA.Any any = null;
@@ -393,7 +403,8 @@ public class DynAnyEnumTest extends DynAnyXXXTestCase
    /**
     * Test creating a copy of a DynAny object.
     */
-   public void testCopyDynAny ()
+    @Test
+    public void testCopyDynAny ()
    {
       String msg;
       org.omg.CORBA.TypeCode tc = null;
@@ -413,7 +424,8 @@ public class DynAnyEnumTest extends DynAnyXXXTestCase
    /**
     * Test iterating through components of a DynAny.
     */
-   public void testIterateDynAny ()
+    @Test
+    public void testIterateDynAny ()
    {
       String msg;
       int compCount = -1;

@@ -80,7 +80,6 @@ public class TestServerRequestInterceptorImpl extends
             slotData = reqInfo.get_slot(this.requestIdSlotId);
             slotData.insert_ulong(requestCounter);
 
-            System.out.println ("TestServerRequestInterceptorImpl::receive_request_service_contexts set_slot m_request_id_slot_id=" + this.requestIdSlotId + " and request counter " + this.requestCounter + " thread " + Thread.currentThread ().toString());
             // CDMW_INTERNAL_1(FTLogger.GetLogger(),
             //     "receive_request_service_contexts set_slot m_request_id_slot_id="
             //         + this.requestIdSlotId, new Throwable());
@@ -161,7 +160,6 @@ System.out.println  ("TestServerRequestInterceptorImpl::send_reply for operation
 
             TypeCode tc = any.type();
             System.out.println ("TestServerRequestInterceptorImpl::tc . kind " +tc.kind ().value ());
-            int requestId = 0;
             if ((tc.kind().value() != TCKind._tk_ulong)) {
            throw new org.omg.CORBA.INTERNAL ("ERROR: unexpected data returned by get_slot " );
 
@@ -174,7 +172,7 @@ System.out.println  ("TestServerRequestInterceptorImpl::send_reply for operation
                //  throw ex;
             }
 
-            requestId = any.extract_ulong(); /* ### What is the point of this line ?? */
+            any.extract_ulong(); /* ### What is the point of this line ?? */
         }
         catch (org.omg.PortableInterceptor.InvalidSlot e) {
                 throw new org.omg.CORBA.INTERNAL ("InvalidSlot " + e);

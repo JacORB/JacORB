@@ -1,12 +1,15 @@
 package org.jacorb.test.notification;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
-import junit.framework.Assert;
-import junit.framework.Test;
 import org.jacorb.test.notification.common.NotificationTestUtils;
 import org.jacorb.test.notification.common.NotifyServerTestCase;
-import org.jacorb.test.notification.common.NotifyServerTestSetup;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 import org.omg.CORBA.Any;
 import org.omg.CORBA.IntHolder;
 import org.omg.CORBA.OBJECT_NOT_EXIST;
@@ -41,9 +44,10 @@ public class EventChannelTest extends NotifyServerTestCase
     /**
      * setup EventChannelFactory, FilterFactory and Any with Testdata
      */
-    public void setUpTest() throws Exception
+    @Before
+    public void setUp() throws Exception
     {
-        testPerson_ = new NotificationTestUtils(getClientORB()).getTestPersonAny();
+        testPerson_ = new NotificationTestUtils(setup.getClientOrb()).getTestPersonAny();
 
         channel_ = getDefaultChannel();
 
@@ -51,6 +55,7 @@ public class EventChannelTest extends NotifyServerTestCase
         consumerAdmin_ = channel_.default_consumer_admin();
     }
 
+    @Test
     public void testDefaultAdmins() throws Exception
     {
         assertEquals(0, supplierAdmin_.MyID());
@@ -72,6 +77,7 @@ public class EventChannelTest extends NotifyServerTestCase
         assertTrue(containsValue(channel_.get_all_supplieradmins(), supplierAdmin_.MyID()));
     }
 
+    @Test
     public void testCreateConsumerAdmin() throws Exception
     {
         IntHolder id = new IntHolder();
@@ -86,6 +92,7 @@ public class EventChannelTest extends NotifyServerTestCase
         assertEquals(admin, channel_.get_consumeradmin(id.value));
     }
 
+    @Test
     public void testCreateSupplierAdmin() throws Exception
     {
         IntHolder id = new IntHolder();
@@ -100,6 +107,7 @@ public class EventChannelTest extends NotifyServerTestCase
         assertEquals(admin, channel_.get_supplieradmin(id.value));
     }
 
+    @Test
     public void testDestroyAdmin() throws Exception
     {
         IntHolder id = new IntHolder();
@@ -138,11 +146,7 @@ public class EventChannelTest extends NotifyServerTestCase
         return seen;
     }
 
-    public EventChannelTest(String name, NotifyServerTestSetup setup)
-    {
-        super(name, setup);
-    }
-
+    @Test
     public void testSetQos() throws Exception
     {
         IntHolder ih = new IntHolder();
@@ -152,8 +156,8 @@ public class EventChannelTest extends NotifyServerTestCase
 
         Property[] props = new Property[2];
 
-        Any discardPolicy = getClientORB().create_any();
-        Any orderPolicy = getClientORB().create_any();
+        Any discardPolicy = setup.getClientOrb().create_any();
+        Any orderPolicy = setup.getClientOrb().create_any();
 
         discardPolicy.insert_short(LifoOrder.value);
         orderPolicy.insert_short(AnyOrder.value);
@@ -179,6 +183,7 @@ public class EventChannelTest extends NotifyServerTestCase
         }
     }
 
+    @Test
     public void testGetConsumerAdmin() throws Exception
     {
         channel_.default_consumer_admin();
@@ -208,6 +213,7 @@ public class EventChannelTest extends NotifyServerTestCase
         assertEquals(ih.value, c3.MyID());
     }
 
+    @Test
     public void testGetSupplierAdmin() throws Exception
     {
         channel_.default_supplier_admin();
@@ -236,6 +242,7 @@ public class EventChannelTest extends NotifyServerTestCase
         assertEquals(ih.value, c3.MyID());
     }
 
+    @Test
     public void testDestroyAdmins() throws Exception
     {
         ConsumerAdmin _consumerAdmin = channel_.new_for_consumers(InterFilterGroupOperator.AND_OP,
@@ -274,17 +281,18 @@ public class EventChannelTest extends NotifyServerTestCase
             // expected
         }
     }
-    
+
     private void assertContains(int[] is, int i)
     {
         Assert.assertTrue(containsValue(is, i));
     }
 
+    @Test
     public void testSendEventPushPull() throws Exception
     {
-        AnyPullReceiver _receiver = new AnyPullReceiver(getClientORB());
+        AnyPullReceiver _receiver = new AnyPullReceiver(setup.getClientOrb());
         _receiver.connect(channel_, false);
-        AnyPushSender _sender = new AnyPushSender(getClientORB(), testPerson_);
+        AnyPushSender _sender = new AnyPushSender(setup.getClientOrb(), testPerson_);
         _sender.connect(channel_, false);
 
         Thread _receiverThread = new Thread(_receiver);
@@ -300,16 +308,17 @@ public class EventChannelTest extends NotifyServerTestCase
         _sender.shutdown();
     }
 
+    @Test
     public void testSendEventPushPush() throws Exception
     {
         // start a receiver thread
-        AnyPushReceiver _receiver = new AnyPushReceiver(getClientORB());
+        AnyPushReceiver _receiver = new AnyPushReceiver(setup.getClientOrb());
         _receiver.connect(channel_, false);
 
         Thread _receiverThread = new Thread(_receiver);
 
         // start a sender
-        AnyPushSender _sender = new AnyPushSender(getClientORB(), testPerson_);
+        AnyPushSender _sender = new AnyPushSender(setup.getClientOrb(), testPerson_);
 
         _sender.connect(channel_, false);
 
@@ -325,12 +334,13 @@ public class EventChannelTest extends NotifyServerTestCase
         _sender.shutdown();
     }
 
+    @Test
     public void testSendEventPushPush_MisbehavingConsumer() throws Exception
     {
         final CountDownLatch disconnectedLatch = new CountDownLatch(1);
 
         // start a receiver thread
-        AnyPushReceiver _receiver = new AnyPushReceiver(getClientORB())
+        AnyPushReceiver _receiver = new AnyPushReceiver(setup.getClientOrb())
         {
             public void push(Any any)
             {
@@ -349,7 +359,7 @@ public class EventChannelTest extends NotifyServerTestCase
         Thread _receiverThread = new Thread(_receiver);
 
         // start a sender
-        AnyPushSender _sender = new AnyPushSender(getClientORB(), testPerson_);
+        AnyPushSender _sender = new AnyPushSender(setup.getClientOrb(), testPerson_);
 
         _sender.connect(channel_, false);
 
@@ -364,12 +374,13 @@ public class EventChannelTest extends NotifyServerTestCase
         _sender.shutdown();
     }
 
+    @Test
     public void testSendEventPullPush() throws Exception
     {
-        AnyPullSender _sender = new AnyPullSender(getClientORB(), testPerson_);
+        AnyPullSender _sender = new AnyPullSender(setup.getClientOrb(), testPerson_);
         _sender.connect(channel_, false);
 
-        AnyPushReceiver _receiver = new AnyPushReceiver(getClientORB());
+        AnyPushReceiver _receiver = new AnyPushReceiver(setup.getClientOrb());
         _receiver.connect(channel_, false);
 
         Thread _receiverThread = new Thread(_receiver);
@@ -386,12 +397,13 @@ public class EventChannelTest extends NotifyServerTestCase
         _sender.shutdown();
     }
 
+    @Test
     public void testSendEventPullPull() throws Exception
     {
-        AnyPullSender _sender = new AnyPullSender(getClientORB(), testPerson_);
+        AnyPullSender _sender = new AnyPullSender(setup.getClientOrb(), testPerson_);
         _sender.connect(channel_, false);
 
-        AnyPullReceiver _receiver = new AnyPullReceiver(getClientORB());
+        AnyPullReceiver _receiver = new AnyPullReceiver(setup.getClientOrb());
         _receiver.connect(channel_, false);
 
         Thread _receiverThread = new Thread(_receiver);
@@ -411,6 +423,7 @@ public class EventChannelTest extends NotifyServerTestCase
     /**
      * Test if all EventChannel Clients are disconnected when the Channel is Destroyed
      */
+    @Test
     public void testDestroyChannelDisconnectsClients() throws Exception
     {
         IntHolder _id = new IntHolder();
@@ -418,16 +431,16 @@ public class EventChannelTest extends NotifyServerTestCase
         EventChannel _channel = getEventChannelFactory().create_channel(new Property[0],
                 new Property[0], _id);
 
-        AnyPullReceiver _anyPullReceiver = new AnyPullReceiver(getClientORB());
+        AnyPullReceiver _anyPullReceiver = new AnyPullReceiver(setup.getClientOrb());
         _anyPullReceiver.connect(_channel, false);
 
-        AnyPushReceiver _anyPushReceiver = new AnyPushReceiver(getClientORB());
+        AnyPushReceiver _anyPushReceiver = new AnyPushReceiver(setup.getClientOrb());
         _anyPushReceiver.connect(_channel, false);
 
-        AnyPullSender _anyPullSender = new AnyPullSender(getClientORB(), testPerson_);
+        AnyPullSender _anyPullSender = new AnyPullSender(setup.getClientOrb(), testPerson_);
         _anyPullSender.connect(_channel, false);
 
-        AnyPushSender _anyPushSender = new AnyPushSender(getClientORB(), testPerson_);
+        AnyPushSender _anyPushSender = new AnyPushSender(setup.getClientOrb(), testPerson_);
         _anyPushSender.connect(_channel, false);
 
         assertTrue(_anyPullReceiver.isConnected());
@@ -446,6 +459,7 @@ public class EventChannelTest extends NotifyServerTestCase
     /**
      * Test if all EventChannel Clients are disconnected when the Channel is Destroyed
      */
+    @Test
     public void testDestroyAdminDisconnectsClients() throws Exception
     {
         IntHolder _id = new IntHolder();
@@ -453,16 +467,16 @@ public class EventChannelTest extends NotifyServerTestCase
         EventChannel _channel = getEventChannelFactory().create_channel(new Property[0],
                 new Property[0], _id);
 
-        AnyPullReceiver _anyPullReceiver = new AnyPullReceiver(getClientORB());
+        AnyPullReceiver _anyPullReceiver = new AnyPullReceiver(setup.getClientOrb());
         _anyPullReceiver.connect(_channel, false);
 
-        AnyPushReceiver _anyPushReceiver = new AnyPushReceiver(getClientORB());
+        AnyPushReceiver _anyPushReceiver = new AnyPushReceiver(setup.getClientOrb());
         _anyPushReceiver.connect(_channel, false);
 
-        AnyPullSender _anyPullSender = new AnyPullSender(getClientORB(), testPerson_);
+        AnyPullSender _anyPullSender = new AnyPullSender(setup.getClientOrb(), testPerson_);
         _anyPullSender.connect(_channel, false);
 
-        AnyPushSender _anyPushSender = new AnyPushSender(getClientORB(), testPerson_);
+        AnyPushSender _anyPushSender = new AnyPushSender(setup.getClientOrb(), testPerson_);
         _anyPushSender.connect(_channel, false);
 
         assertTrue(_anyPullReceiver.isConnected());
@@ -483,6 +497,7 @@ public class EventChannelTest extends NotifyServerTestCase
         _channel.destroy();
     }
 
+    @Test
     public void testCreateChannel() throws Exception
     {
         IntHolder _id = new IntHolder();
@@ -492,18 +507,12 @@ public class EventChannelTest extends NotifyServerTestCase
 
         // test if channel id appears within channel list
         int[] _allFactories = getEventChannelFactory().get_all_channels();
-        
+
         assertTrue(containsValue(_allFactories, _id.value));
 
         EventChannel _sameChannel = getEventChannelFactory().get_event_channel(_id.value);
         assertTrue(_channel._is_equivalent(_sameChannel));
 
         _channel.destroy();
-    }
-
-    public static Test suite() throws Exception
-    {
-        return NotifyServerTestCase.suite("Basic CosNotification EventChannel Tests",
-                EventChannelTest.class);
     }
 }

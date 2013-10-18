@@ -21,8 +21,6 @@
 
 package org.jacorb.test.notification.engine;
 
-import junit.framework.Test;
-import junit.framework.TestSuite;
 import org.jacorb.notification.engine.AbstractFilterTask;
 import org.jacorb.notification.engine.FilterSupplierAdminTask;
 
@@ -34,10 +32,5 @@ public class FilterSupplierAdminTaskTest extends AbstractFilterTaskTestCase
     protected AbstractFilterTask newObjectUnderTest()
     {
         return new FilterSupplierAdminTask(mockTaskFactory_, mockTaskExecutor_);
-    }
-
-    public static Test suite()
-    {
-        return new TestSuite(FilterSupplierAdminTaskTest.class);
     }
 }

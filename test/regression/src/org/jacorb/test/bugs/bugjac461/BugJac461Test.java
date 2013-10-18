@@ -20,17 +20,19 @@
 
 package org.jacorb.test.bugs.bugjac461;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.util.Properties;
-import junit.framework.Test;
-import junit.framework.TestSuite;
 import org.jacorb.test.BasicServer;
 import org.jacorb.test.BasicServerHelper;
 import org.jacorb.test.common.ClientServerSetup;
 import org.jacorb.test.common.ClientServerTestCase;
-import org.jacorb.test.common.TestUtils;
 import org.jacorb.test.orb.BasicServerImpl;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
 
 /**
  * @author Alphonse Bendt
@@ -40,17 +42,9 @@ public class BugJac461Test extends ClientServerTestCase
     private BasicServer server;
     private String line;
 
-    public BugJac461Test(String name, ClientServerSetup setup)
+    @BeforeClass
+    public static void beforeClassSetUp() throws Exception
     {
-        super(name, setup);
-    }
-
-    public static Test suite()
-    {
-        if (TestUtils.isJ2ME())
-        {
-            return new TestSuite();
-        }
 
         Properties props = new Properties();
 
@@ -58,15 +52,11 @@ public class BugJac461Test extends ClientServerTestCase
         props.setProperty("jacorb.codeset", "on");
         props.setProperty("jacorb.native_char_codeset", "UTF8");
 
-        TestSuite suite = new TestSuite(BugJac461Test.class.getName());
-        ClientServerSetup setup = new ClientServerSetup(suite, BasicServerImpl.class.getName(), props, props);
-
-        TestUtils.addToSuite(suite, setup, BugJac461Test.class);
-
-        return setup;
+        setup = new ClientServerSetup(BasicServerImpl.class.getName(), props, props);
     }
 
-    protected void setUp() throws Exception
+    @Before
+    public void setUp() throws Exception
     {
         server = BasicServerHelper.narrow(setup.getServerObject());
 
@@ -78,16 +68,13 @@ public class BugJac461Test extends ClientServerTestCase
         assertNotNull(line);
     }
 
-    protected void tearDown() throws Exception
-    {
-        server = null;
-    }
-
+    @Test
     public void testBounceString() throws Exception
     {
         assertEquals(line, server.bounce_string(line));
     }
 
+    @Test
     public void testBounceWString() throws Exception
     {
         assertEquals(line, server.bounce_wstring(line));

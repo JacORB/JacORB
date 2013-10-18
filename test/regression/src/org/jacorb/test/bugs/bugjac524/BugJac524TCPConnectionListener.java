@@ -30,8 +30,8 @@ import org.jacorb.orb.listener.TCPConnectionListener;
  */
 public class BugJac524TCPConnectionListener implements TCPConnectionListener
 {
-    static List open = new ArrayList();
-    static List close = new ArrayList();
+    static List<TCPConnectionEvent> open = new ArrayList<TCPConnectionEvent>();
+    static List<TCPConnectionEvent> close = new ArrayList<TCPConnectionEvent>();
 
     static void reset()
     {

@@ -20,15 +20,16 @@
 
 package org.jacorb.test.bugs.bug739;
 
+import static org.junit.Assert.assertEquals;
 import java.util.Properties;
-import junit.framework.Test;
-import junit.framework.TestSuite;
 import org.jacorb.test.BasicServer;
 import org.jacorb.test.BasicServerHelper;
 import org.jacorb.test.common.ClientServerSetup;
 import org.jacorb.test.common.ClientServerTestCase;
-import org.jacorb.test.common.TestUtils;
 import org.jacorb.test.orb.BasicServerImpl;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
 
 /**
  * @author Alphonse Bendt
@@ -39,42 +40,25 @@ public class Bug739Test extends ClientServerTestCase
 
     private BasicServer server;
 
-    public Bug739Test(String name, ClientServerSetup setup)
+    @BeforeClass
+    public static void beforeClassSetUp() throws Exception
     {
-        super(name, setup);
-    }
-
-    public static Test suite()
-    {
-        if (TestUtils.isJ2ME())
-        {
-            return new TestSuite();
-        }
-
         Properties props = new Properties();
 
         props.setProperty("org.omg.PortableInterceptor.ORBInitializerClass.standard_init", "org.jacorb.orb.standardInterceptors.IORInterceptorInitializer");
         props.setProperty("jacorb.codeset", "on");
         props.setProperty("jacorb.native_char_codeset", "ISO8859_15");
 
-        TestSuite suite = new TestSuite(Bug739Test.class.getName());
-        ClientServerSetup setup = new ClientServerSetup(suite, BasicServerImpl.class.getName(), props, props);
-
-        TestUtils.addToSuite(suite, setup, Bug739Test.class);
-
-        return setup;
+        setup = new ClientServerSetup(BasicServerImpl.class.getName(), props, props);
     }
 
-    protected void setUp() throws Exception
+    @Before
+    public void setUp() throws Exception
     {
         server = BasicServerHelper.narrow(setup.getServerObject());
     }
 
-    protected void tearDown() throws Exception
-    {
-        server = null;
-    }
-
+    @Test
     public void testBounceString() throws Exception
     {
         String received = server.bounce_string(line);

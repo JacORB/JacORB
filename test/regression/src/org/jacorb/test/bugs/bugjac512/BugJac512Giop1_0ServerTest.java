@@ -20,16 +20,18 @@
 
 package org.jacorb.test.bugs.bugjac512;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 import java.util.Properties;
-import junit.framework.Test;
-import junit.framework.TestSuite;
 import org.jacorb.test.BasicServer;
 import org.jacorb.test.BasicServerHelper;
 import org.jacorb.test.common.ClientServerSetup;
 import org.jacorb.test.common.ClientServerTestCase;
 import org.jacorb.test.common.CommonSetup;
-import org.jacorb.test.common.TestUtils;
 import org.jacorb.test.orb.BasicServerImpl;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
 import org.omg.CORBA.MARSHAL;
 
 /**
@@ -39,12 +41,8 @@ public class BugJac512Giop1_0ServerTest extends ClientServerTestCase
 {
     private BasicServer server;
 
-    public BugJac512Giop1_0ServerTest(String name, ClientServerSetup setup)
-    {
-        super(name, setup);
-    }
-
-    public static Test suite()
+    @BeforeClass
+    public static void beforeClassSetUp() throws Exception
     {
         Properties serverProps = new Properties();
 
@@ -52,17 +50,16 @@ public class BugJac512Giop1_0ServerTest extends ClientServerTestCase
         serverProps.setProperty(CommonSetup.JACORB_REGRESSION_DISABLE_IMR, "true");
         serverProps.setProperty(CommonSetup.JACORB_REGRESSION_DISABLE_SECURITY, "true");
 
-        TestSuite suite = new TestSuite(BugJac512Giop1_0ServerTest.class.getName());
-        ClientServerSetup setup = new ClientServerSetup(suite, BasicServerImpl.class.getName(), null, serverProps);
-        TestUtils.addToSuite(suite, setup, BugJac512Giop1_0ServerTest.class);
-        return setup;
+        setup = new ClientServerSetup(BasicServerImpl.class.getName(), null, serverProps);
     }
 
-    protected void setUp() throws Exception
+    @Before
+    public void setUp() throws Exception
     {
         server = BasicServerHelper.narrow(setup.getServerObject());
     }
 
+    @Test
     public void testServerDoesNotLikeWChar()
     {
         try
@@ -76,6 +73,7 @@ public class BugJac512Giop1_0ServerTest extends ClientServerTestCase
         }
     }
 
+    @Test
     public void testServerDoesNotLikeWString()
     {
         try

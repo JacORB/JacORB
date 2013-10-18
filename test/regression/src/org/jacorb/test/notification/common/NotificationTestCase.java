@@ -22,8 +22,6 @@ package org.jacorb.test.notification.common;
  */
 
 
-import junit.framework.Test;
-import junit.framework.TestCase;
 import org.jacorb.config.Configuration;
 import org.jacorb.notification.MessageFactory;
 import org.jacorb.notification.container.PicoContainerFactory;
@@ -32,7 +30,12 @@ import org.jacorb.notification.filter.ETCLEvaluator;
 import org.jacorb.notification.interfaces.Disposable;
 import org.jacorb.notification.queue.EventQueueFactory;
 import org.jacorb.notification.util.DisposableManager;
-import org.jacorb.test.common.TestUtils;
+import org.junit.After;
+import org.junit.AfterClass;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Rule;
+import org.junit.rules.TestName;
 import org.omg.CORBA.Any;
 import org.omg.CORBA.ORB;
 import org.omg.CORBA.Repository;
@@ -49,9 +52,12 @@ import org.slf4j.Logger;
  * @author Alphonse Bendt
  */
 
-public abstract class NotificationTestCase extends TestCase
+public abstract class NotificationTestCase
 {
-    private NotificationTestCaseSetup setup_;
+    @Rule
+    public TestName name = new TestName();
+
+    protected static NotificationTestCaseSetup setup;
 
     protected Logger logger_;
 
@@ -59,26 +65,28 @@ public abstract class NotificationTestCase extends TestCase
 
     private DisposableManager disposables_;
 
-    ///////////////////////////////
-
-    public NotificationTestCase(String name, NotificationTestCaseSetup setup)
+    @BeforeClass
+    public static void beforeClassSetup() throws Exception
     {
-        super(name);
-
-        setup_ = setup;
+        setup = new NotificationTestCaseSetup();
     }
 
-    ////////////////////////////////////////
+    @AfterClass
+    public static void afterClassSetup() throws Exception
+    {
+        setup.tearDown();
+    }
 
-    public final void setUp() throws Exception
+    @Before
+    public void NTCsetUp() throws Exception
     {
         disposables_ = new DisposableManager();
 
-        container_ = PicoContainerFactory.createChildContainer(setup_.getPicoContainer());
+        container_ = PicoContainerFactory.createChildContainer(setup.getPicoContainer());
 
-        logger_ = ((org.jacorb.config.Configuration) getConfiguration()).getLogger(getClass()
+        logger_ = getConfiguration().getLogger(getClass()
                 .getName()
-                + "." + getName());
+                + "." + name.getMethodName());
 
         setUpTest();
     }
@@ -88,15 +96,14 @@ public abstract class NotificationTestCase extends TestCase
         // empty to be overridden.
     }
 
-    public final void tearDown() throws Exception
+    @After
+    public void NTCtearDown() throws Exception
     {
-        setup_.getPicoContainer().removeChildContainer(container_);
+        setup.getPicoContainer().removeChildContainer(container_);
 
         tearDownTest();
 
         disposables_.dispose();
-
-        super.tearDown();
     }
 
     protected void tearDownTest() throws Exception
@@ -111,17 +118,17 @@ public abstract class NotificationTestCase extends TestCase
 
     public ORB getClientORB()
     {
-        return getSetup().getClientORB();
+        return setup.getClientORB();
     }
 
     public ORB getORB()
     {
-        return setup_.getORB();
+        return setup.getServerORB();
     }
 
     public POA getPOA()
     {
-        return setup_.getPOA();
+        return setup.getPOA();
     }
 
     public DynAnyFactory getDynAnyFactory() throws Exception
@@ -156,35 +163,8 @@ public abstract class NotificationTestCase extends TestCase
 
     public NotificationTestUtils getTestUtils()
     {
-        return setup_.getTestUtils();
+        return setup.getTestUtils();
     }
-
-    private NotificationTestCaseSetup getSetup()
-    {
-        return setup_;
-    }
-
-    public static Test suite(Class clazz) throws Exception
-    {
-        return suite(clazz, "test");
-    }
-
-    public static Test suite(Class clazz, String testPrefix) throws Exception
-    {
-        return suite("TestSuite defined in Class: " + clazz.getName(), clazz, testPrefix);
-    }
-
-    public static Test suite(String suiteName, Class clazz) throws Exception
-    {
-        return suite(suiteName, clazz, "test");
-    }
-
-    public static Test suite(String suiteName, Class clazz, String testMethodPrefix)
-            throws Exception
-    {
-        return TestUtils.suite(clazz, NotificationTestCaseSetup.class, suiteName, testMethodPrefix);
-    }
-
 
     protected void addDisposable(Disposable d)
     {
@@ -220,6 +200,6 @@ public abstract class NotificationTestCase extends TestCase
 
     public Repository getRepository() throws Exception
     {
-    	return setup_.getRepository();
+    	return setup.getRepository();
     }
 }

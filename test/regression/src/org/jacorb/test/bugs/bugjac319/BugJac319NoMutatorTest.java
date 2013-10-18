@@ -1,18 +1,17 @@
 package org.jacorb.test.bugs.bugjac319;
 
-import junit.framework.Test;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import org.jacorb.test.common.ClientServerSetup;
+import org.junit.BeforeClass;
+import org.junit.Test;
 
 /**
  * @see org.jacorb.test.bugs.bugjac319.BugJac319AbstractTestCase
  */
 public class BugJac319NoMutatorTest extends BugJac319AbstractTestCase
 {
-    public BugJac319NoMutatorTest(String name, ClientServerSetup setup)
-    {
-        super(name, setup);
-    }
-
+    @Test
     public void test_nomutate()
     {
         org.omg.CORBA.Object obj = server.getObject
@@ -27,8 +26,12 @@ public class BugJac319NoMutatorTest extends BugJac319AbstractTestCase
         );
     }
 
-    public static Test suite()
+    @BeforeClass
+    public static void beforeClassSetUp() throws Exception
     {
-        return BugJac319AbstractTestCase.suite(false, BugJac319NoMutatorTest.class);
-    }
+        setup = new ClientServerSetup
+        (
+            JAC319Impl.class.getName()
+        );
+   }
 }

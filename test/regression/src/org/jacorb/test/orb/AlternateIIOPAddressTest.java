@@ -21,16 +21,19 @@ package org.jacorb.test.orb;
  *   MA 02110-1301, USA.
  */
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 import java.util.Properties;
-import junit.framework.Test;
-import junit.framework.TestSuite;
 import org.jacorb.test.IIOPAddressServer;
 import org.jacorb.test.IIOPAddressServerHelper;
 import org.jacorb.test.Sample;
 import org.jacorb.test.common.ClientServerSetup;
 import org.jacorb.test.common.ClientServerTestCase;
 import org.jacorb.test.common.CommonSetup;
-import org.jacorb.test.common.TestUtils;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
 
 /**
  * Tests components of type TAG_ALTERNATE_IIOP_ADDRESS within IORs.
@@ -49,17 +52,14 @@ public class AlternateIIOPAddressTest extends ClientServerTestCase
     private static final int CORRECT_PORT = 46000;
     private static final int WRONG_PORT   = 46001;
 
-    public AlternateIIOPAddressTest(String name, ClientServerSetup setup)
-    {
-        super(name, setup);
-    }
-
-    protected void setUp() throws Exception
+    @Before
+    public void setUp() throws Exception
     {
         server = IIOPAddressServerHelper.narrow(setup.getServerObject());
     }
 
-    protected void tearDown() throws Exception
+    @After
+    public void tearDown() throws Exception
     {
         // server.clearSocketAddress();
         server.setIORAddress (CORRECT_HOST, CORRECT_PORT);
@@ -67,9 +67,9 @@ public class AlternateIIOPAddressTest extends ClientServerTestCase
         server = null;
     }
 
-    public static Test suite()
+    @BeforeClass
+    public static void beforeClassSetUp() throws Exception
     {
-        TestSuite suite = new TestSuite("Test TAG_ALTERNATE_IIOP_ADDRESS ");
 
         Properties client_props = new Properties();
         client_props.setProperty ("jacorb.retries", "0");
@@ -91,17 +91,14 @@ public class AlternateIIOPAddressTest extends ClientServerTestCase
         client_props.setProperty(CommonSetup.JACORB_REGRESSION_DISABLE_IMR, "true");
         server_props.setProperty(CommonSetup.JACORB_REGRESSION_DISABLE_IMR, "true");
 
-        ClientServerSetup setup =
-            new ClientServerSetup (suite,
+        setup = new ClientServerSetup(
                                    IIOPAddressServerImpl.class.getName(),
                                    client_props,
                                    server_props);
 
-        TestUtils.addToSuite(suite, setup, AlternateIIOPAddressTest.class);
-
-        return setup;
     }
 
+    @Test
     public void test_ping()
     {
         Sample sample = server.getObject();
@@ -109,6 +106,7 @@ public class AlternateIIOPAddressTest extends ClientServerTestCase
         assertEquals (18, result);
     }
 
+    @Test
     public void test_primary_ok()
     {
         server.setIORAddress( CORRECT_HOST, CORRECT_PORT );
@@ -117,6 +115,7 @@ public class AlternateIIOPAddressTest extends ClientServerTestCase
         assertEquals (78, result);
     }
 
+    @Test
     public void test_primary_wrong_host()
     {
         server.setIORAddress( WRONG_HOST, CORRECT_PORT );
@@ -136,6 +135,7 @@ public class AlternateIIOPAddressTest extends ClientServerTestCase
         }
     }
 
+    @Test
     public void test_primary_wrong_port()
     {
         server.setIORAddress( CORRECT_HOST, WRONG_PORT );
@@ -156,6 +156,7 @@ public class AlternateIIOPAddressTest extends ClientServerTestCase
         }
     }
 
+    @Test
     public void test_alternate_ok()
     {
         server.setIORAddress( WRONG_HOST, CORRECT_PORT );
@@ -165,6 +166,7 @@ public class AlternateIIOPAddressTest extends ClientServerTestCase
         assertEquals (100, result);
     }
 
+    @Test
     public void test_alternate_ok_2()
     {
         server.setIORAddress( WRONG_HOST, CORRECT_PORT );
@@ -175,6 +177,7 @@ public class AlternateIIOPAddressTest extends ClientServerTestCase
         assertEquals (188, result);
     }
 
+    @Test
     public void test_alternate_wrong()
     {
         server.setIORAddress( CORRECT_HOST, WRONG_PORT );

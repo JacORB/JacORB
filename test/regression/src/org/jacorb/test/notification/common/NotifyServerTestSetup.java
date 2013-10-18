@@ -22,21 +22,20 @@
 package org.jacorb.test.notification.common;
 
 import java.util.Properties;
-import junit.framework.Test;
 import org.jacorb.test.common.ClientServerSetup;
 
 public class NotifyServerTestSetup extends ClientServerSetup
 {
     private final static String IGNORED = "ignored";
 
-    public NotifyServerTestSetup(Test test)
+    public NotifyServerTestSetup() throws Exception
     {
-        super(test, NotifyServerTestRunner.class.getName(), IGNORED, null, null);
+        super(NotifyServerTestRunner.class.getName(), IGNORED, null, null);
     }
 
-    public NotifyServerTestSetup(Test test, Properties clientOrbProperties,
-            Properties serverOrbProperties)
+    public NotifyServerTestSetup(Properties clientOrbProperties,
+            Properties serverOrbProperties) throws Exception
     {
-    	super(test, NotifyServerTestRunner.class.getName(), IGNORED, clientOrbProperties, serverOrbProperties);
+    	super(NotifyServerTestRunner.class.getName(), IGNORED, clientOrbProperties, serverOrbProperties);
     }
 }

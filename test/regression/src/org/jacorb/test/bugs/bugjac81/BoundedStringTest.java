@@ -20,31 +20,37 @@ package org.jacorb.test.bugs.bugjac81;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import junit.framework.TestCase;
+import static org.junit.Assert.assertEquals;
+import org.junit.Test;
 import org.omg.CORBA.TCKind;
 
-public class BoundedStringTest extends TestCase
+public class BoundedStringTest
 {
+    @Test
     public void test1() throws Exception
     {
         assertEquals(80, org.jacorb.test.bugs.bugjac81.BoundErrorHelper.type().content_type().length());
     }
 
+    @Test
     public void test2() throws Exception
     {
         assertEquals(2, org.jacorb.test.bugs.bugjac81.StructOneHelper.type().member_count());
     }
 
+    @Test
     public void test3() throws Exception
     {
         assertEquals(TCKind.tk_string, org.jacorb.test.bugs.bugjac81.StructOneHelper.type().member_type(0).kind());
     }
 
+    @Test
     public void test4() throws Exception
     {
         assertEquals(49, org.jacorb.test.bugs.bugjac81.StructOneHelper.type().member_type(0).length());
     }
 
+    @Test
     public void test5() throws Exception
     {
         assertEquals(0, org.jacorb.test.bugs.bugjac81.StructOneHelper.type().member_type(1).length());

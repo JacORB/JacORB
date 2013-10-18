@@ -20,31 +20,21 @@
 
 package org.jacorb.test.notification.util;
 
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.fail;
 import java.util.HashSet;
 import java.util.concurrent.atomic.AtomicInteger;
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
 import org.jacorb.notification.util.AbstractObjectPool;
+import org.junit.Test;
 
 /**
  * @author Alphonse Bendt
  */
 
-public class ObjectPoolTest extends TestCase
+public class ObjectPoolTest
 {
-    public ObjectPoolTest(String name)
-    {
-        super(name);
-    }
 
-    public static Test suite()
-    {
-        TestSuite suite = new TestSuite(ObjectPoolTest.class);
-
-        return suite;
-    }
-
+    @Test
     public void testGetReturnsUniqueObject() throws Exception
     {
         final AtomicInteger counter = new AtomicInteger(0);
@@ -71,6 +61,7 @@ public class ObjectPoolTest extends TestCase
         }
     }
 
+    @Test
     public void testMaximumElements() throws Exception
     {
         final AtomicInteger counter = new AtomicInteger(0);

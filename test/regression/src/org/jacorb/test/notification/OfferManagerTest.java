@@ -20,12 +20,13 @@ package org.jacorb.test.notification;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
+import static org.junit.Assert.assertEquals;
 import java.util.ArrayList;
 import java.util.List;
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
 import org.jacorb.notification.OfferManager;
+import org.junit.Before;
+import org.junit.Ignore;
+import org.junit.Test;
 import org.omg.CosNotification.EventType;
 import org.omg.CosNotifyComm.NotifyPublishOperations;
 
@@ -33,7 +34,7 @@ import org.omg.CosNotifyComm.NotifyPublishOperations;
  * @author Alphonse Bendt
  */
 
-public class OfferManagerTest extends TestCase {
+public class OfferManagerTest {
 
     public static final EventType[] EMPTY_EVENT_TYPE_ARRAY = new EventType[0];
 
@@ -44,7 +45,9 @@ public class OfferManagerTest extends TestCase {
 
     ////////////////////////////////////////
 
-    public void setUp() throws Exception {
+    @Before
+    public void setUp() throws Exception
+    {
         offerManager_ = new OfferManager();
 
         added_ = new ArrayList();
@@ -62,10 +65,9 @@ public class OfferManagerTest extends TestCase {
             };
     }
 
-    /**
-     * @todo should this fail?
-     */
-    public void _testRemoveNonExistent() throws Exception {
+    @Ignore
+    @Test
+    public void testRemoveNonExistent() throws Exception {
         offerManager_.addListener(listener_);
 
         offerManager_.offer_change(EMPTY_EVENT_TYPE_ARRAY,
@@ -78,6 +80,7 @@ public class OfferManagerTest extends TestCase {
     }
 
 
+    @Test
     public void testRemoveNotifies() throws Exception {
         EventType[] _toBeAdded = new EventType[] {new EventType("domain1", "type1")};
 
@@ -99,6 +102,7 @@ public class OfferManagerTest extends TestCase {
     }
 
 
+    @Test
     public void testAddNotifies() throws Exception {
         EventType[] _toBeAdded = new EventType[] {new EventType("domain1", "type1")};
 
@@ -121,10 +125,5 @@ public class OfferManagerTest extends TestCase {
         offerManager_.offer_change(_toBeAdded, EMPTY_EVENT_TYPE_ARRAY);
 
         assertEquals(1, added_.size());
-    }
-
-
-    public static Test suite() throws Exception {
-        return new TestSuite(OfferManagerTest.class);
     }
 }

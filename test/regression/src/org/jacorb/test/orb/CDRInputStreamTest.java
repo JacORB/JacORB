@@ -19,10 +19,14 @@ package org.jacorb.test.orb;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
  */
-import junit.framework.TestSuite;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 import org.jacorb.orb.CDRInputStream;
 import org.jacorb.orb.giop.CodeSet;
 import org.jacorb.test.common.ORBTestCase;
+import org.junit.Test;
 import org.omg.CORBA.MARSHAL;
 
 /**
@@ -31,16 +35,12 @@ import org.omg.CORBA.MARSHAL;
 public class CDRInputStreamTest extends ORBTestCase
 {
 
-    public static TestSuite suite()
-    {
-        return new TestSuite( CDRInputStreamTest.class );
-    }
-
 
     /**
      * Verifies that the default encoding (ISO8859_1) works for char, char arrays, and strings. Reading the string
      * forces alignment of the 4-byte length, and ignores any null terminator.
      */
+    @Test
     public void testDefaultEncodingChar() throws Exception
     {
         byte[] codedText = {'a', 's', 'd', 'f', 'x', 'y', 'z', '*',
@@ -55,8 +55,8 @@ public class CDRInputStreamTest extends ORBTestCase
         buffer[0] = 'w';
         stream.read_char_array( buffer, 1, 3 );
         assertEquals( "char array", "wxyz", new String( buffer ) );
-
         assertEquals( "string value", "CAFE", stream.read_string() );
+        stream.close();
     }
 
 
@@ -65,6 +65,7 @@ public class CDRInputStreamTest extends ORBTestCase
      * with no byte-order-marker. Reading the wstring
      * forces alignment of the 4-byte length.
      */
+    @Test
     public void testDefaultEncodingWChar() throws Exception
     {
         byte[] codedText = {2, 0x5, (byte) (0xD0 & 0xff),  // Hebrew letter aleph
@@ -95,8 +96,8 @@ public class CDRInputStreamTest extends ORBTestCase
         buffer[0] = '\u05D0';
         stream.read_wchar_array( buffer, 1, 3 );
         assertEquals( "wchar array", "\u05D0\u05D1\u05D2\u05D3", new String( buffer ) );
-
         assertEquals( "wstring value", "\u30DF\u30C4\u30FA\u30B7", stream.read_wstring() );
+        stream.close();
     }
 
 
@@ -105,6 +106,7 @@ public class CDRInputStreamTest extends ORBTestCase
      * indicator to specify the number of characters rather than bytes and require a two-byte null terminator.
      * Wide characters in 1.1 do not take width bytes
      */
+    @Test
     public void testDefaultEncodingWCharGiop1_1() throws Exception
     {
         byte[] codedText = {0, 0, 0, 5,                    // string length in bytes, not chars
@@ -118,14 +120,15 @@ public class CDRInputStreamTest extends ORBTestCase
         CDRInputStream stream = new CDRInputStream( orb, codedText );
         stream.setGIOPMinor( 1 );
         assertEquals( "wstring value", "\u30DF\u30C4\u30FA\u30B7", stream.read_wstring() );
-
         assertEquals( "wchar 1", '\u05D1', stream.read_wchar() );
+        stream.close();
     }
 
 
     /**
      * Verifies that the UTF-8 encoding works for strings in giop 1.1.
      */
+    @Test
     public void testUTF8EncodingCharGiop1_1() throws Exception
     {
         byte[] codedText = {0, 0, 0, 5,                    // string length in bytes, including null pointer
@@ -136,8 +139,8 @@ public class CDRInputStreamTest extends ORBTestCase
         selectCodeSets( stream, "UTF8", "UTF8" );
         stream.setGIOPMinor( 1 );
         assertEquals( "sstring value", "asdf", stream.read_string() );
-
         assertEquals( "char 1", 'x', stream.read_char() );
+        stream.close();
     }
 
 
@@ -145,6 +148,7 @@ public class CDRInputStreamTest extends ORBTestCase
      * Verifies that the UTF-8 works for wchar, wchar arrays, and wstrings. Reading the wstring
      * forces alignment of the 4-byte length. Note that byte-ordering is fixed by the encoding.
      */
+    @Test
     public void testUTF8EncodingWChar() throws Exception
     {
         byte[] codedText = {1, 'x',                                                              // Latin-l lowercase x
@@ -172,8 +176,8 @@ public class CDRInputStreamTest extends ORBTestCase
         buffer[0] = '\u05D0';
         stream.read_wchar_array( buffer, 1, 3 );
         assertEquals( "wchar array", "\u05D0\u05D1\u05D2\u05D3", new String( buffer ) );
-
         assertEquals( "wstring value", "\u30DF\u30C4\u30FA\u30B7", stream.read_wstring() );
+        stream.close();
     }
 
 
@@ -182,6 +186,7 @@ public class CDRInputStreamTest extends ORBTestCase
         stream.setCodeSet( CodeSet.getCodeSet( charCodeSet ), CodeSet.getCodeSet( wideCharCodeSet ) );
     }
 
+    @Test
     public void testFailOnNullEncodedString() throws Exception
     {
         byte[] codedText = {0,0,0,0};
@@ -195,6 +200,10 @@ public class CDRInputStreamTest extends ORBTestCase
         {
             assertNotNull(e.getMessage());
             assertTrue("Not a MARSHALL exception: " + e.getMessage(), e.getMessage().matches("^.*invalid string size: 0.*$"));
+        }
+        finally
+        {
+            stream.close();
         }
     }
 }

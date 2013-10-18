@@ -21,21 +21,25 @@
 
 package org.jacorb.test.notification.queue;
 
-import junit.framework.TestCase;
+import static org.junit.Assert.assertEquals;
 import org.jacorb.notification.queue.BoundedReceiveTimeEventQueue;
 import org.jacorb.notification.queue.EventQueueOverflowStrategy;
+import org.junit.Before;
+import org.junit.Test;
 
-public class BoundedLifetimeEventQueueTest extends TestCase
+public class BoundedLifetimeEventQueueTest
 {
     private BoundedReceiveTimeEventQueue objectUnderTest_;
     private DelegatingOverflowStrategy overflowStrategy_;
     
-    protected void setUp() throws Exception
+    @Before
+    public void setUp() throws Exception
     {
         overflowStrategy_ = new DelegatingOverflowStrategy(EventQueueOverflowStrategy.FIFO);
         objectUnderTest_ = new BoundedReceiveTimeEventQueue(10, overflowStrategy_);
     }
     
+    @Test
     public void testGetMessagesFromEmptyQueue() throws Exception
     {
         assertEquals(0, objectUnderTest_.getMessages(10, false).length);

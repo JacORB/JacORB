@@ -25,7 +25,11 @@ import javax.management.MBeanServer;
 import javax.management.MBeanServerFactory;
 import javax.management.ObjectName;
 
-import junit.framework.TestCase;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.*;
+import static org.junit.Assert.*;
+import static org.junit.Assert.*;
 
 import org.jacorb.notification.jmx.COSNotificationService;
 import org.jacorb.notification.jmx.JMXManageableMBeanProvider;
@@ -35,7 +39,7 @@ import org.omg.CORBA.ORB;
 import org.omg.CosNotifyChannelAdmin.EventChannelFactory;
 import org.omg.CosNotifyChannelAdmin.EventChannelFactoryHelper;
 
-public class COSNotificationServiceTest extends TestCase
+public class COSNotificationServiceTest
 {
     private MBeanServer mBeanServer_;
 
@@ -43,7 +47,8 @@ public class COSNotificationServiceTest extends TestCase
 
     private ObjectName objectName_;
 
-    protected void setUp() throws Exception
+    @Before
+    public void setUp() throws Exception
     {
         super.setUp();
 
@@ -57,6 +62,7 @@ public class COSNotificationServiceTest extends TestCase
         mBeanServer_.registerMBean(notifyMBean, objectName_);
     }
 
+    @Test
     public void testStart() throws Exception
     {
         mBeanServer_.invoke(objectName_, "start", new Object[0], new String[0]);
@@ -70,6 +76,7 @@ public class COSNotificationServiceTest extends TestCase
         assertFalse(factory._non_existent());
     }
 
+    @Test
     public void testStop() throws Exception
     {
         mBeanServer_.invoke(objectName_, "start", new Object[0], new String[0]);

@@ -22,11 +22,10 @@
 package org.jacorb.test.notification.engine;
 
 import java.util.Collections;
-import junit.framework.Test;
-import junit.framework.TestSuite;
 import org.jacorb.notification.engine.AbstractFilterTask;
 import org.jacorb.notification.engine.FilterConsumerAdminTask;
 import org.jacorb.notification.interfaces.FilterStage;
+import org.junit.Test;
 
 /**
  * @author Alphonse Bendt
@@ -42,6 +41,7 @@ public class FilterConsumerAdminTaskTest extends AbstractFilterTaskTestCase
         return objectUnderTest_;
     }
 
+    @Test
     public void testNoConsumerAdminConnected() throws Exception
     {
         mockMessage_.isInvalid();
@@ -57,6 +57,7 @@ public class FilterConsumerAdminTaskTest extends AbstractFilterTaskTestCase
         controlMessage_.verify();
     }
 
+    @Test
     public void testFilter() throws Exception
     {
         mockMessage_.isInvalid();
@@ -98,10 +99,5 @@ public class FilterConsumerAdminTaskTest extends AbstractFilterTaskTestCase
         controlMessage_.verify();
         controlTaskFactory_.verify();
         controlSchedulable_.verify();    
-    }
-
-    public static Test suite()
-    {
-        return new TestSuite(FilterConsumerAdminTaskTest.class);
     }
 }

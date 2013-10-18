@@ -1,16 +1,19 @@
 package org.jacorb.test.notification;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 import java.util.Date;
-import junit.framework.Test;
 import org.easymock.MockControl;
 import org.jacorb.notification.impl.DefaultMessageFactory;
 import org.jacorb.notification.interfaces.FilterStage;
 import org.jacorb.notification.interfaces.Message;
 import org.jacorb.notification.servant.IProxyConsumer;
 import org.jacorb.test.notification.common.NotificationTestCase;
-import org.jacorb.test.notification.common.NotificationTestCaseSetup;
 import org.jacorb.test.notification.common.NotificationTestUtils;
 import org.jacorb.util.Time;
+import org.junit.Before;
+import org.junit.Test;
 import org.omg.CORBA.Any;
 import org.omg.CosNotification.EventHeader;
 import org.omg.CosNotification.EventType;
@@ -38,6 +41,7 @@ public class MessageFactoryTest extends NotificationTestCase
 
     // //////////////////////////////////////
 
+    @Test
     public void testStructuredEventWithStopTimeProperty() throws Exception
     {
         testStructured_.header.variable_header = new Property[1];
@@ -65,23 +69,27 @@ public class MessageFactoryTest extends NotificationTestCase
     }
 
 
+    @Test
     public void testStructuredEventWithoutStopTimeProperty() throws Exception
     {
         Message _event = messageFactory_.newMessage(testStructured_);
         assertTrue(!_event.hasStopTime());
     }
 
+    @Test
     public void testAnyEventHasNoStopTime() throws Exception
     {
         Message _event = messageFactory_.newMessage(getORB().create_any());
         assertTrue(!_event.hasStopTime());
     }
 
+    @Test
     public void testNewEventStructured() throws Exception
     {
         assertNotNull(messageFactory_.newMessage(testStructured_));
     }
 
+    @Test
     public void testStructuredToAny() throws Exception
     {
         Message _notifyEvent = messageFactory_.newMessage(testStructured_);
@@ -93,6 +101,7 @@ public class MessageFactoryTest extends NotificationTestCase
         assertEquals("type", _event.header.fixed_header.event_type.type_name);
     }
 
+    @Test
     public void testStructuredToStructured() throws Exception
     {
         Message _notifyEvent = messageFactory_.newMessage(testStructured_);
@@ -103,6 +112,7 @@ public class MessageFactoryTest extends NotificationTestCase
         assertEquals("type", _event.header.fixed_header.event_type.type_name);
     }
 
+    @Test
     public void testNewEventAny() throws Exception
     {
         Message _notifyEvent = messageFactory_.newMessage(testPerson_);
@@ -110,6 +120,7 @@ public class MessageFactoryTest extends NotificationTestCase
         assertNotNull(_notifyEvent);
     }
 
+    @Test
     public void testAnyToStructured() throws Exception
     {
         Message _notifyEvent = messageFactory_.newMessage(testPerson_);
@@ -125,6 +136,7 @@ public class MessageFactoryTest extends NotificationTestCase
         assertEquals("lastname", _p.last_name);
     }
 
+    @Test
     public void testAnyToAny() throws Exception
     {
         Message _notifyEvent = messageFactory_.newMessage(testPerson_);
@@ -137,6 +149,7 @@ public class MessageFactoryTest extends NotificationTestCase
         assertEquals("lastname", _p.last_name);
     }
 
+    @Test
     public void testWrappedStructuredEventToStructuredEvent() throws Exception
     {
         Any _wrappedStructuredEvent = getORB().create_any();
@@ -171,6 +184,7 @@ public class MessageFactoryTest extends NotificationTestCase
         assertEquals(testStructured_.remainder_of_body, _recvd.remainder_of_body);
     }
 
+    @Test
     public void testWrappedAnyToAny() throws Exception
     {
         StructuredEvent _wrappedAny = new StructuredEvent();
@@ -209,7 +223,8 @@ public class MessageFactoryTest extends NotificationTestCase
         assertEquals(testPerson_, _mesg.toAny());
     }
 
-    public void setUpTest() throws Exception
+    @Before
+    public void setUp() throws Exception
     {
         testUtils_ = new NotificationTestUtils(getORB());
 
@@ -230,15 +245,5 @@ public class MessageFactoryTest extends NotificationTestCase
         testStructured_.filterable_data = new Property[0];
 
         testStructured_.remainder_of_body = getORB().create_any();
-    }
-
-    public MessageFactoryTest(String test, NotificationTestCaseSetup setup)
-    {
-        super(test, setup);
-    }
-
-    public static Test suite() throws Exception
-    {
-        return NotificationTestCase.suite(MessageFactoryTest.class);
     }
 }

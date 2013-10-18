@@ -1,11 +1,9 @@
 package org.jacorb.test.common;
 
-import junit.framework.TestCase;
-
 /*
  *        JacORB  - a free Java ORB
  *
- *   Copyright (C) 1997-2012 Gerald Brose / The JacORB Team.
+ *   Copyright (C) 1997-2013 Gerald Brose / The JacORB Team.
  *
  *   This library is free software; you can redistribute it and/or
  *   modify it under the terms of the GNU Library General Public
@@ -23,47 +21,56 @@ import junit.framework.TestCase;
  *   MA 02110-1301, USA.
  */
 
+import static org.junit.Assert.assertTrue;
+import org.junit.AfterClass;
+import org.junit.Rule;
+import org.junit.rules.TestName;
+
 /**
- * A special <code>TestCase</code> that provides access to a
- * <code>ClientServerSetup</code>.  For information how to wrap
- * a <code>ClientServerSetup</code> around a suite of
- * <code>ClientServerTestCase</code>s, see the class comment of
- * {@link ClientServerSetup}.
- * <p>
+ * An abstract class for those tests that need a client/server test.
+ * It provides access to a <b>static</b> ClientServerSetup that may
+ * be initialised via a {@literal @}BeforeClass annotation. It is automatically
+ * shutdown via an {@literal @}AfterClass annotation.
+ * <p/>
  * Each individual test case can access the server object by calling
  * <code>setup.getServerObject()</code>.  However, this returns
  * a generic CORBA Object.  It is usually more convenient to narrow
- * it to the desired type automatically, which can be done by overriding
- * the <code>setUp</code> method:
+ * it to the desired type automatically, which can be done in a method
+ * annotated with {@literal @}Before e.g.
  *
- * <p><blockquote><pre>
+ * <pre>
+ * <code>
  * public class MyTest extends ClientServerTestCase
  * {
- *     protected MyServer server;
+ *    protected MyServer server;
  *
- *     public void setUp() throws Exception
- *     {
- *         server = MyServerHelper.narrow ( setup.getServerObject() );
- *     }
- *
+ *    {@literal @}Before
+ *    public void setUp() throws Exception
+ *    {
+ *        server = BasicServerHelper.narrow( setup.getServerObject() );
+ *    }
  *     ...
  * }
- * </pre></blockquote><p>
+ * </code></pre>
  *
  * This way, each individual test case can simply use the
  * <code>server</code> instance variable to access the server
  * object with correct type information.
  *
  * @author Andre Spiegel <spiegel@gnu.org>
+ * @author Nick Cross
  */
-public class ClientServerTestCase extends TestCase
+public abstract class ClientServerTestCase
 {
-    protected ClientServerSetup setup;
+    protected static ClientServerSetup setup;
 
-    public ClientServerTestCase( String name, ClientServerSetup setup )
+    @Rule
+    public TestName name = new TestName();
+
+    @AfterClass
+    public static void tearDownAfterClass() throws Exception
     {
-        super( name );
-        this.setup = setup;
+        assertTrue ("Server setup has not been configured", setup != null);
+        setup.tearDown();
     }
-
 }

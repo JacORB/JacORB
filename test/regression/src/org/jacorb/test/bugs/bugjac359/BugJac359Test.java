@@ -20,64 +20,55 @@ package org.jacorb.test.bugs.bugjac359;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
 import java.util.Properties;
-import junit.framework.Test;
-import junit.framework.TestSuite;
 import org.jacorb.test.BasicServer;
 import org.jacorb.test.BasicServerHelper;
 import org.jacorb.test.common.ClientServerSetup;
 import org.jacorb.test.common.ClientServerTestCase;
 import org.jacorb.test.common.TestUtils;
 import org.jacorb.test.orb.BasicServerImpl;
+import org.junit.After;
+import org.junit.Assume;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
 
 public class BugJac359Test extends ClientServerTestCase
 {
     private BasicServer server;
 
-    public BugJac359Test(String name, ClientServerSetup setup)
-    {
-        super(name, setup);
-    }
-
+    @Before
     public void setUp() throws Exception
     {
         server = BasicServerHelper.narrow( setup.getServerObject() );
     }
 
-    protected void tearDown() throws Exception
+    @After
+    public void tearDown() throws Exception
     {
-        server = null;
+        server._release();;
     }
 
-    public static Test suite()
+    @BeforeClass
+    public static void beforeClassSetup() throws Exception
     {
-        TestSuite suite = new TestSuite("Basic client/server tests");
-
         Properties clientProps = new Properties();
 
         // this property will cause the handshake between client and server to fail!
         clientProps.setProperty("jacorb.security.ssl.client.cipher_suites", "SSL_RSA_WITH_RC4_128_MD5");
 
-        ClientServerSetup setup =
-            new ClientServerSetup( suite,
-                    BasicServerImpl.class.getName(),
-                    clientProps,
-                    null);
-
-        if (setup.isSSLEnabled())
-        {
-            TestUtils.addToSuite(suite, setup, BugJac359Test.class);
-        }
-        else
-        {
-            System.err.println("Test ignored as SSL is not enabled (" + BugJac359Test.class.getName() + ")");
-        }
-
-        return setup;
+        setup = new ClientServerSetup( BasicServerImpl.class.getName(),
+                clientProps,
+                null);
     }
 
+    @Test
     public void testHandshakeExceptionDoesNotCauseHang() throws Exception
     {
+        Assume.assumeTrue(setup.isSSLEnabled());
+
         final boolean[] result = new boolean[1];
         final Exception[] exception = new Exception[1];
 

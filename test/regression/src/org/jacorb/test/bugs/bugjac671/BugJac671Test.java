@@ -21,8 +21,8 @@ package org.jacorb.test.bugs.bugjac671;
  */
 
 import java.util.Properties;
-import junit.framework.TestCase;
 import org.jacorb.test.common.CommonSetup;
+import org.junit.Test;
 import org.omg.CORBA.ORB;
 import org.omg.PortableServer.POA;
 import org.omg.PortableServer.POAHelper;
@@ -34,8 +34,9 @@ import org.omg.PortableServer.POAHelper;
  * @author <a href="mailto:Nick.Cross@prismtech.com">Nick Cross</a>
  * @version 1.0
  */
-public class BugJac671Test extends TestCase
+public class BugJac671Test
 {
+    @Test
     public void test_orb_port() throws Exception
     {
         Properties props1 = new Properties();

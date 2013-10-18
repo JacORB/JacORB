@@ -36,7 +36,7 @@ public class RecursiveParamServerImpl extends RecursiveParamServerPOA
             blubT union = blubTHelper.extract( a );
             if( union.discriminator() )
             {
-                blubT[] blubs = union.b();
+                union.b();
             }
         }
         catch (Exception e )

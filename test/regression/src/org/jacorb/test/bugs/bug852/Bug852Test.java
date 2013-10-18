@@ -1,57 +1,37 @@
 package org.jacorb.test.bugs.bug852;
 
-import junit.framework.Test;
-import junit.framework.TestSuite;
+import static org.junit.Assert.assertEquals;
 import org.jacorb.test.common.ClientServerSetup;
 import org.jacorb.test.common.ClientServerTestCase;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
 
 public class Bug852Test extends ClientServerTestCase
 {
     private AnyServer server;
 
 
-    public Bug852Test(String name, ClientServerSetup setup)
-    {
-        super(name, setup);
-    }
-
     /**
      * <code>setUp</code> for junit.
      *
      * @exception Exception if an error occurs
      */
+    @Before
     public void setUp() throws Exception
     {
         server = AnyServerHelper.narrow( setup.getServerObject() );
     }
 
-    /**
-     * <code>tearDown</code> us used by Junit for cleaning up after the tests.
-     *
-     * @exception Exception if an error occurs
-     */
-    protected void tearDown() throws Exception
-    {
-        super.tearDown();
 
-        server._release ();
-        server = null;
+    @BeforeClass
+    public static void beforeClassSetUp() throws Exception
+    {
+        setup = new ClientServerSetup("org.jacorb.test.bugs.bug852.AnyServerImpl");
     }
 
 
-    public static Test suite()
-    {
-        TestSuite suite = new TestSuite("Any client/server tests");
-        ClientServerSetup setup =
-            new ClientServerSetup( suite,
-                                   "org.jacorb.test.bugs.bug852.AnyServerImpl");
-
-        suite.addTest( new Bug852Test( "test852", setup ));
-
-        return setup;
-    }
-
-
+    @Test
     public void test852() throws Exception
     {
         AnyServerBase asb = AnyServerBaseHelper.narrow(server);

@@ -21,8 +21,6 @@
 
 package org.jacorb.test.notification.util;
 
-import junit.framework.Test;
-import junit.framework.TestSuite;
 import org.jacorb.notification.util.DefaultWildcardMap;
 import org.jacorb.notification.util.WildcardMap;
 
@@ -34,10 +32,5 @@ public class DefaultWildcardMapTest extends AbstractWildcardMapTestCase
     WildcardMap newWildcardMap()
     {
         return new DefaultWildcardMap();
-    }
-
-    public static Test suite()
-    {
-        return new TestSuite(DefaultWildcardMapTest.class);
     }
 }

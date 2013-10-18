@@ -1,13 +1,10 @@
 package org.jacorb.test.bugs.bugjac788Compat;
 
 import org.omg.CORBA.CompletionStatus;
-import org.omg.CORBA.ORB;
 import org.omg.CORBA.TRANSIENT;
 
 
 public class HelloInterfaceImpl extends HelloInterfacePOA {
-
-    private ORB orb;
 
     /**
      * A parent POA used for the container activation
@@ -19,9 +16,7 @@ public class HelloInterfaceImpl extends HelloInterfacePOA {
    private ComputInterface comput;
 
 
-    public HelloInterfaceImpl(
-        ORB orb, org.omg.PortableServer.POA poa, ComputInterface comput) {
-        this.orb = orb;
+    public HelloInterfaceImpl(org.omg.PortableServer.POA poa, ComputInterface comput) {
         this.poa = poa;
         this.comput = comput;
         this.hello = 0;

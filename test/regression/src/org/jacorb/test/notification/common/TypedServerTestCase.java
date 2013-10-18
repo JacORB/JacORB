@@ -21,10 +21,12 @@
 
 package org.jacorb.test.notification.common;
 
-import junit.framework.Test;
-import junit.framework.TestCase;
+import java.util.Properties;
+import org.jacorb.test.common.ClientServerTestCase;
 import org.jacorb.test.common.TestUtils;
-import org.omg.CORBA.ORB;
+import org.jacorb.test.ir.IFRServerSetup;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
 import org.omg.CosTypedNotifyChannelAdmin.TypedEventChannelFactory;
 import org.omg.CosTypedNotifyChannelAdmin.TypedEventChannelFactoryHelper;
 
@@ -33,14 +35,23 @@ import org.omg.CosTypedNotifyChannelAdmin.TypedEventChannelFactoryHelper;
  *
  * @author Alphonse Bendt
  */
-public abstract class TypedServerTestCase extends TestCase
+public abstract class TypedServerTestCase extends ClientServerTestCase
 {
-    private TypedServerTestSetup setup;
+    protected static IFRServerSetup ifrSetup;
 
-	public TypedServerTestCase(String name, TypedServerTestSetup setup)
+    @BeforeClass
+    public static void beforeClassSetup() throws Exception
     {
-        super(name);
-        this.setup = setup;
+        ifrSetup = new IFRServerSetup(TestUtils.testHome() + "/idl/TypedNotification.idl", null, null);
+        Properties props = new Properties();
+        props.setProperty("ORBInitRef.InterfaceRepository", ifrSetup.getRepository().toString());
+        setup = new TypedServerTestSetup(props);
+    }
+
+    @AfterClass
+    public static void afterClassSetup() throws Exception
+    {
+        ifrSetup.tearDown();
     }
 
     /**
@@ -51,26 +62,5 @@ public abstract class TypedServerTestCase extends TestCase
         TypedEventChannelFactory channelFactory = TypedEventChannelFactoryHelper.narrow(setup.getServerObject());
 
         return channelFactory;
-    }
-
-    protected ORB getClientORB()
-    {
-        return setup.getClientOrb();
-    }
-
-    public static Test suite(Class clazz) throws Exception
-    {
-        return suite(clazz, "TestSuite defined in Class " + clazz.getName());
-    }
-
-    public static Test suite(Class clazz, String suiteName) throws Exception
-    {
-        return suite(clazz, suiteName, "test");
-    }
-
-    public static Test suite(Class clazz, String suiteName, String testMethodPrefix)
-            throws Exception
-    {
-        return TestUtils.suite(clazz, TypedServerTestSetup.class, suiteName, testMethodPrefix);
     }
 }

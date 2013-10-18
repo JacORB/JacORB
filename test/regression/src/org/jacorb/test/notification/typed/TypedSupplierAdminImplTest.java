@@ -20,7 +20,7 @@ package org.jacorb.test.notification.typed;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import junit.framework.Test;
+import static org.junit.Assert.assertEquals;
 import org.easymock.MockControl;
 import org.jacorb.notification.OfferManager;
 import org.jacorb.notification.SubscriptionManager;
@@ -28,7 +28,8 @@ import org.jacorb.notification.container.RepositoryComponentAdapter;
 import org.jacorb.notification.servant.IEventChannel;
 import org.jacorb.notification.servant.TypedSupplierAdminImpl;
 import org.jacorb.test.notification.common.NotificationTestCase;
-import org.jacorb.test.notification.common.NotificationTestCaseSetup;
+import org.junit.Before;
+import org.junit.Test;
 import org.omg.CORBA.IntHolder;
 import org.omg.CosNotifyChannelAdmin.InterFilterGroupOperator;
 import org.omg.CosTypedNotifyChannelAdmin.TypedProxyPullConsumer;
@@ -48,12 +49,8 @@ public class TypedSupplierAdminImplTest extends NotificationTestCase
 
     private MutablePicoContainer container_;
 
-    public TypedSupplierAdminImplTest(String name, NotificationTestCaseSetup setup)
-    {
-        super(name, setup);
-    }
-
-    public void setUpTest() throws Exception
+    @Before
+    public void setUp() throws Exception
     {
         container_ = getPicoContainer();
 
@@ -62,7 +59,7 @@ public class TypedSupplierAdminImplTest extends NotificationTestCase
         container_.registerComponentInstance(new SubscriptionManager());
 
         container_.registerComponent(new RepositoryComponentAdapter());
-        
+
         MockControl controlChannel = MockControl.createControl(IEventChannel.class);
         IEventChannel mockChannel = (IEventChannel) controlChannel.getMock();
 
@@ -80,7 +77,7 @@ public class TypedSupplierAdminImplTest extends NotificationTestCase
 
         mockChannel.getChannelMBean();
         controlChannel.setReturnValue("channel");
-        
+
         controlChannel.replay();
 
         objectUnderTest_ = new TypedSupplierAdminImpl(mockChannel, getORB(), getPOA(),
@@ -91,6 +88,7 @@ public class TypedSupplierAdminImplTest extends NotificationTestCase
         supplierAdmin_ = TypedSupplierAdminHelper.narrow(objectUnderTest_.activate());
     }
 
+    @Test
     public void testCreatePushConsumer() throws Exception
     {
         IntHolder id = new IntHolder();
@@ -101,6 +99,7 @@ public class TypedSupplierAdminImplTest extends NotificationTestCase
         assertEquals(consumer, supplierAdmin_.get_proxy_consumer(id.value));
     }
 
+    @Test
     public void testCreatePullConsumer() throws Exception
     {
         IntHolder id = new IntHolder();
@@ -109,11 +108,5 @@ public class TypedSupplierAdminImplTest extends NotificationTestCase
                 PullCoffeeHelper.id(), id);
 
         assertEquals(consumer, supplierAdmin_.get_proxy_consumer(id.value));
-    }
-
-    public static Test suite() throws Exception
-    {
-        return NotificationTestCase.suite("TypedSupplierAdminImpl Tests",
-                TypedSupplierAdminImplTest.class);
     }
 }

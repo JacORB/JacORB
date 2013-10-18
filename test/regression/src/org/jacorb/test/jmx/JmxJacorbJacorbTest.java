@@ -22,18 +22,12 @@
 package org.jacorb.test.jmx;
 
 import java.util.Properties;
-import junit.framework.Test;
-import junit.framework.TestSuite;
-import org.jacorb.test.common.TestUtils;
+import org.junit.BeforeClass;
 
 public class JmxJacorbJacorbTest extends AbstractJMXTestCase
 {
-    public JmxJacorbJacorbTest(String name, JMXClientServerSetup setup)
-    {
-        super(name, setup);
-    }
-
-    public static Test suite()
+    @BeforeClass
+    public static void beforeClassSetUp() throws Exception
     {
         Properties props = new Properties();
         props.put ("org.omg.CORBA.ORBClass",
@@ -41,11 +35,7 @@ public class JmxJacorbJacorbTest extends AbstractJMXTestCase
         props.put ("org.omg.CORBA.ORBSingletonClass",
                    "org.jacorb.orb.ORBSingleton");
         props.put("jacorb.interop.strict_check_on_tc_creation", "off");
-        TestSuite suite = new TestSuite();
-        JMXClientServerSetup setup = new JMXClientServerSetup(suite, props, props);
+        jmxSetup = new JMXClientServerSetup(props, props);
 
-        TestUtils.addToSuite(suite, setup, JmxJacorbJacorbTest.class);
-
-        return setup;
     }
 }

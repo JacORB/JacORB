@@ -21,8 +21,8 @@
 
 package org.jacorb.test.notification.servant;
 
+import static org.junit.Assert.assertEquals;
 import java.util.concurrent.ScheduledFuture;
-import junit.framework.Test;
 import org.easymock.AbstractMatcher;
 import org.easymock.MockControl;
 import org.jacorb.notification.OfferManager;
@@ -34,7 +34,7 @@ import org.jacorb.notification.interfaces.Message;
 import org.jacorb.notification.servant.IAdmin;
 import org.jacorb.notification.servant.SequenceProxyPushSupplierImpl;
 import org.jacorb.test.notification.common.NotificationTestCase;
-import org.jacorb.test.notification.common.NotificationTestCaseSetup;
+import org.junit.Test;
 import org.omg.CORBA.Any;
 import org.omg.CosNotification.MaximumBatchSize;
 import org.omg.CosNotification.PacingInterval;
@@ -77,14 +77,9 @@ public class SequenceProxyPushSupplierImplTest extends NotificationTestCase
 
     private PushTaskExecutorFactory mockPushTaskExecutorFactory_;
 
-    private ScheduledFuture mockScheduledFuture_;
+    private ScheduledFuture<?> mockScheduledFuture_;
 
     private MockControl controlScheduledFuture_;
-
-    public SequenceProxyPushSupplierImplTest(String name, NotificationTestCaseSetup setup)
-    {
-        super(name, setup);
-    }
 
     protected void setUpTest() throws Exception
     {
@@ -155,6 +150,7 @@ public class SequenceProxyPushSupplierImplTest extends NotificationTestCase
         controlPushConsumer_.replay();
     }
 
+    @Test
     public void testCreation()
     {
         replayAll();
@@ -166,6 +162,7 @@ public class SequenceProxyPushSupplierImplTest extends NotificationTestCase
         verifyAll();
     }
 
+    @Test
     public void testDefaultConfigurationDoesNotStartFlushThread() throws Exception
     {
         replayAll();
@@ -175,6 +172,7 @@ public class SequenceProxyPushSupplierImplTest extends NotificationTestCase
         verifyAll();
     }
 
+    @Test
     public void testSetQoSDoesNotStartThread() throws Exception
     {
         replayAll();
@@ -188,6 +186,7 @@ public class SequenceProxyPushSupplierImplTest extends NotificationTestCase
         verifyAll();
     }
 
+    @Test
     public void testSetQoSBeforeConnect() throws Exception
     {
         final int interval = 10000000;
@@ -206,6 +205,7 @@ public class SequenceProxyPushSupplierImplTest extends NotificationTestCase
         verifyAll();
     }
 
+    @Test
     public void testSetQoSAfterConnect() throws Exception
     {
         final int interval = 10000000;
@@ -224,6 +224,7 @@ public class SequenceProxyPushSupplierImplTest extends NotificationTestCase
         verifyAll();
     }
 
+    @Test
     public void testSetQoSTwoTimes() throws Exception
     {
         final int interval1 = 10000000;
@@ -251,6 +252,7 @@ public class SequenceProxyPushSupplierImplTest extends NotificationTestCase
         verifyAll();
     }
 
+    @Test
     public void testMaximumBatchSize() throws Exception
     {
         StructuredEvent event = new StructuredEvent();
@@ -301,10 +303,5 @@ public class SequenceProxyPushSupplierImplTest extends NotificationTestCase
 
         Property prop = new Property(PacingInterval.value, any);
         return prop;
-    }
-
-    public static Test suite() throws Exception
-    {
-        return NotificationTestCase.suite(SequenceProxyPushSupplierImplTest.class);
     }
 }

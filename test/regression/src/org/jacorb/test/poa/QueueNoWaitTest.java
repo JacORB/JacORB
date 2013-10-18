@@ -1,9 +1,8 @@
 package org.jacorb.test.poa;
 
+import static org.junit.Assert.assertTrue;
 import java.util.Properties;
 import junit.framework.AssertionFailedError;
-import junit.framework.Test;
-import junit.framework.TestSuite;
 import org.jacorb.test.AMI_CallbackServerHandler;
 import org.jacorb.test.AMI_CallbackServerHandlerOperations;
 import org.jacorb.test.AMI_CallbackServerHandlerPOATie;
@@ -12,8 +11,10 @@ import org.jacorb.test.CallbackServerHelper;
 import org.jacorb.test._CallbackServerStub;
 import org.jacorb.test.common.CallbackTestCase;
 import org.jacorb.test.common.ClientServerSetup;
-import org.jacorb.test.common.TestUtils;
 import org.jacorb.test.orb.CallbackServerImpl;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
 import org.omg.Messaging.ExceptionHolder;
 
 /**
@@ -26,39 +27,25 @@ public class QueueNoWaitTest extends CallbackTestCase
 {
     private CallbackServer server;
 
-    public QueueNoWaitTest(String name, ClientServerSetup setup)
-    {
-        super(name, setup);
-    }
-
+    @Before
     public void setUp() throws Exception
     {
         server = CallbackServerHelper.narrow( setup.getServerObject() );
     }
 
-    protected void tearDown() throws Exception
+    @BeforeClass
+    public static void beforeClassSetUp() throws Exception
     {
-        server = null;
-    }
-
-    public static Test suite()
-    {
-        TestSuite suite = new TestSuite( "Request Queue Overrun - non-waiting" );
 
         Properties props = new Properties();
         props.setProperty ("jacorb.poa.queue_max", "10");
         props.setProperty ("jacorb.poa.queue_min", "1");
         props.setProperty ("jacorb.poa.queue_wait", "off");
 
-        ClientServerSetup setup =
-            new ClientServerSetup( suite,
-                                    CallbackServerImpl.class.getName(),
+        setup = new ClientServerSetup( CallbackServerImpl.class.getName(),
                                    null,
                                    props );
 
-        TestUtils.addToSuite(suite, setup, QueueNoWaitTest.class);
-
-        return setup;
     }
 
     private class ReplyHandler
@@ -173,6 +160,7 @@ public class QueueNoWaitTest extends CallbackTestCase
     /**
      * Overrun the request queue, expect TRANSIENT exception.
      */
+    @Test
     public void test_overrun() throws Exception
     {
        server.ping();

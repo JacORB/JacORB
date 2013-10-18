@@ -2,10 +2,10 @@ package org.jacorb.test.common;
 
 import java.io.OutputStream;
 import junit.framework.AssertionFailedError;
-import junit.framework.Test;
 import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.taskdefs.optional.junit.JUnitResultFormatter;
 import org.apache.tools.ant.taskdefs.optional.junit.JUnitTest;
+import org.junit.Test;
 
 public class JUnitTestFormatter implements JUnitResultFormatter
 {
@@ -55,6 +55,34 @@ public class JUnitTestFormatter implements JUnitResultFormatter
         {
             System.err.println(arg0);
         }
+    }
+
+    @Override
+    public void addError(junit.framework.Test arg0, Throwable arg1)
+    {
+        // TODO Auto-generated method stub
+
+    }
+
+    @Override
+    public void addFailure(junit.framework.Test arg0, AssertionFailedError arg1)
+    {
+        // TODO Auto-generated method stub
+
+    }
+
+    @Override
+    public void endTest(junit.framework.Test arg0)
+    {
+        // TODO Auto-generated method stub
+
+    }
+
+    @Override
+    public void startTest(junit.framework.Test arg0)
+    {
+        // TODO Auto-generated method stub
+
     }
 
 }

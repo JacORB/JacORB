@@ -1,9 +1,11 @@
 package org.jacorb.test.bugs.bug700;
 
-import junit.framework.TestCase;
+import static org.junit.Assert.fail;
+import org.junit.Test;
 
-public class Bug700Test extends TestCase
+public class Bug700Test
 {
+    @Test
     public void testNestedTypePackagePlace()
     {
         try

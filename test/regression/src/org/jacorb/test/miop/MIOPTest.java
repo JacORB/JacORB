@@ -1,11 +1,12 @@
 package org.jacorb.test.miop;
 
+import static org.junit.Assert.fail;
 import java.util.Properties;
-import junit.framework.Test;
-import junit.framework.TestSuite;
 import org.jacorb.test.common.ClientServerSetup;
 import org.jacorb.test.common.ClientServerTestCase;
-import org.jacorb.test.common.TestUtils;
+import org.junit.Assume;
+import org.junit.BeforeClass;
+import org.junit.Test;
 import org.omg.CORBA.INV_OBJREF;
 import org.omg.CORBA.ORB;
 
@@ -15,41 +16,21 @@ public class MIOPTest extends ClientServerTestCase
 
     private GreetingService server;
 
-    public MIOPTest(String name, ClientServerSetup setup)
+    @BeforeClass
+    public static void beforeClassSetUp() throws Exception
     {
-        super(name, setup);
-    }
-
-    public static Test suite()
-    {
-        TestSuite suite = new TestSuite(MIOPTest.class.getName());
-        
         Properties props = new Properties ();
         props.setProperty
             ("jacorb.transport.factories", "org.jacorb.orb.iiop.IIOPFactories,org.jacorb.orb.miop.MIOPFactories");
         props.setProperty
             ("jacorb.transport.client.selector", "org.jacorb.orb.miop.MIOPProfileSelector");
 
-        ClientServerSetup setup = new ClientServerSetup(suite, MIOPTestServer.class.getName(), GreetingImpl.class.getName(), props, props);
-        
-        // MIOP doesn't support SSL 
-        if (!setup.isSSLEnabled ())
-        {
-            TestUtils.addToSuite(suite, setup, MIOPTest.class);
-        }
-        else
-        {
-            System.err.println("Test ignored as SSL doesn't supported (" + MIOPTest.class.getName() + ")");
-        }
+        setup = new ClientServerSetup(MIOPTestServer.class.getName(), GreetingImpl.class.getName(), props, props);
 
-        return setup;
+        Assume.assumeFalse(setup.isSSLEnabled());
     }
 
-    protected void tearDown() throws Exception
-    {
-        server = null;
-    }
-
+    @Test
     public void testMIOP() throws InterruptedException
     {
         ORB orb = setup.getClientOrb();

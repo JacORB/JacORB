@@ -21,18 +21,21 @@
 
 package org.jacorb.test.notification;
 
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 import org.easymock.MockControl;
 import org.jacorb.notification.FilterManager;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 import org.omg.CosNotifyFilter.Filter;
 import org.omg.CosNotifyFilter.FilterNotFound;
 
 /**
  * @author Alphonse Bendt
  */
-public class FilterManagerTest extends TestCase
+public class FilterManagerTest
 {
     private FilterManager objectUnderTest_;
 
@@ -40,10 +43,9 @@ public class FilterManagerTest extends TestCase
 
     private MockControl controlFilter_;
 
-    protected void setUp() throws Exception
+    @Before
+    public void setUp() throws Exception
     {
-        super.setUp();
-
         objectUnderTest_ = new FilterManager();
 
         controlFilter_ = MockControl.createControl(Filter.class);
@@ -52,12 +54,13 @@ public class FilterManagerTest extends TestCase
         controlFilter_.replay();
     }
 
-    protected void tearDown() throws Exception
+    @After
+    public void tearDown() throws Exception
     {
         controlFilter_.verify();
-        super.tearDown();
     }
 
+    @Test
     public void testAdd_filter() throws Exception
     {
         assertEquals(0, objectUnderTest_.get_all_filters().length);
@@ -67,6 +70,7 @@ public class FilterManagerTest extends TestCase
         assertEquals(1, objectUnderTest_.get_all_filters().length);
     }
 
+    @Test
     public void testRemove_filter() throws Exception
     {
         int id = objectUnderTest_.add_filter(mockFilter_);
@@ -89,6 +93,7 @@ public class FilterManagerTest extends TestCase
         assertEquals(0, objectUnderTest_.get_all_filters().length);
     }
 
+    @Test
     public void testGet_filter() throws Exception
     {
         int id = objectUnderTest_.add_filter(mockFilter_);
@@ -107,6 +112,7 @@ public class FilterManagerTest extends TestCase
         }
     }
 
+    @Test
     public void testGet_all_filters()
     {
         assertEquals(0, objectUnderTest_.get_all_filters().length);
@@ -120,6 +126,7 @@ public class FilterManagerTest extends TestCase
         assertEquals(id, all[0]);
     }
 
+    @Test
     public void testRemove_all_filters()
     {
         objectUnderTest_.add_filter(mockFilter_);
@@ -131,30 +138,26 @@ public class FilterManagerTest extends TestCase
         assertEquals(0, objectUnderTest_.get_all_filters().length);
     }
 
+    @Test
     public void testGetFilters()
     {
         assertTrue(objectUnderTest_.getFilters().isEmpty());
-        
+
         objectUnderTest_.add_filter(mockFilter_);
         assertEquals(1, objectUnderTest_.getFilters().size());
         assertEquals(mockFilter_, objectUnderTest_.getFilters().get(0));
-        
+
         try {
             objectUnderTest_.getFilters().clear();
             fail();
         } catch (Exception e)
-        {  
+        {
             // expected
         }
-        
+
         objectUnderTest_.remove_all_filters();
-        
+
         assertTrue(objectUnderTest_.getFilters().isEmpty());
     }
 
-    
-    public static Test suite()
-    {
-        return new TestSuite(FilterManagerTest.class);
     }
-}

@@ -20,69 +20,38 @@ package org.jacorb.test.orb;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import java.io.IOException;
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
-import org.omg.CORBA.ORB;
+import org.jacorb.test.common.ORBTestCase;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 import org.omg.CORBA.portable.InputStream;
+import org.omg.CORBA.portable.OutputStream;
 
 /**
  * Test CDRInputStream and CDROutputStream.
  *
  */
-public class CDRIOTest extends TestCase
+public class CDRIOTest extends ORBTestCase
 {
-    private ORB orb;
-    private org.omg.CORBA.portable.OutputStream os;
+    private OutputStream os;
 
-    /**
-     * <code>ORBInitTest</code> constructor - for JUnit.
-     *
-     * @param name a <code>String</code> value
-     */
-    public CDRIOTest (String name)
+    @Before
+    public void setUp() throws Exception
     {
-        super (name);
-    }
-
-    protected void setUp() throws Exception
-    {
-        super.setUp();
-        orb = org.omg.CORBA.ORB.init( (String[])null, null );
         os = orb.create_output_stream();
     }
 
-    protected void tearDown() throws Exception
+    @After
+    public void tearDown() throws Exception
     {
         os.close();
         os = null;
-        orb.shutdown(true);
-        orb = null;
-        super.tearDown();
     }
 
-    /**
-     * <code>suite</code> lists the tests for Junit to run.
-     *
-     * @return a <code>Test</code> value
-     */
-    public static Test suite ()
-    {
-        TestSuite suite = new TestSuite("CDRIO Test");
-
-        suite.addTest(new CDRIOTest("testLong"));
-        suite.addTest(new CDRIOTest("testString"));
-        suite.addTest(new CDRIOTest("testWString"));
-        suite.addTest(new CDRIOTest("testBoolean"));
-        suite.addTest(new CDRIOTest("testShort"));
-        suite.addTest(new CDRIOTest("testReadString"));
-        suite.addTest(new CDRIOTest("testRead"));
-        suite.addTest(new CDRIOTest("testMultiple"));
-
-        return suite;
-    }
-
+    @Test
     public void testLong () throws IOException
     {
         int pre = 123;
@@ -93,6 +62,7 @@ public class CDRIOTest extends TestCase
         assertEquals(pre, post);
     }
 
+    @Test
     public void testString() throws IOException
     {
         String pre = "abc";
@@ -103,6 +73,7 @@ public class CDRIOTest extends TestCase
         assertEquals(pre, post);
     }
 
+    @Test
     public void testWString() throws IOException
     {
         String pre = "abc";
@@ -113,6 +84,7 @@ public class CDRIOTest extends TestCase
         assertEquals(pre, post);
     }
 
+    @Test
     public void testBoolean() throws IOException
     {
         boolean pre = true;
@@ -123,6 +95,7 @@ public class CDRIOTest extends TestCase
         assertEquals(pre, post);
     }
 
+    @Test
     public void testShort() throws IOException
     {
         short pre = 234;
@@ -133,6 +106,7 @@ public class CDRIOTest extends TestCase
         assertEquals(pre, post);
     }
 
+    @Test
     public void testReadString() throws IOException
     {
         os.write_string("abcde");
@@ -149,6 +123,7 @@ public class CDRIOTest extends TestCase
         assertEquals("abcde", is2.read_string());
     }
 
+    @Test
     public void testRead() throws IOException
     {
         os.write_string("thing-one");
@@ -171,6 +146,7 @@ public class CDRIOTest extends TestCase
         assertEquals("thing-two", is2.read_string());
     }
 
+    @Test
     public void testMultiple() throws IOException
     {
         os.write_boolean(true);

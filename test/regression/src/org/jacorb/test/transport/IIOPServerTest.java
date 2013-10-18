@@ -1,21 +1,25 @@
 package org.jacorb.test.transport;
 
+import static org.junit.Assert.assertEquals;
 import java.util.Properties;
-import junit.framework.TestCase;
 import org.jacorb.test.orb.transport.CurrentServer;
 import org.jacorb.test.orb.transport.CurrentServerHelper;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 import org.omg.CORBA.ORB;
 import org.omg.PortableServer.POA;
 import org.omg.PortableServer.POAHelper;
 import org.omg.PortableServer.Servant;
 
-public class IIOPServerTest extends TestCase
+public class IIOPServerTest
 {
     private ORB clientORB;
     private ORB serverORB;
     private CurrentServer server_;
 
-    protected void setUp() throws Exception
+    @Before
+    public void setUp() throws Exception
     {
         ServerInterceptor.reset ();
 
@@ -47,13 +51,15 @@ public class IIOPServerTest extends TestCase
         server_ = CurrentServerHelper.narrow(clientORB.string_to_object(objString));
     }
 
-    protected void tearDown() throws Exception
+    @After
+    public void tearDown() throws Exception
     {
         serverORB.shutdown(true);
         Thread.sleep(1000);
         clientORB.shutdown(true);
     }
 
+    @Test
     public void testServerSideInterceptions() throws Exception
     {
         server_.invoked_by_client();

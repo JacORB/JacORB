@@ -20,9 +20,8 @@ package org.jacorb.test.bugs.bugjac779;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import junit.framework.Test;
-import junit.framework.TestSuite;
 import org.jacorb.test.common.ORBTestCase;
+import org.junit.Test;
 
 
 /**
@@ -39,20 +38,10 @@ public class InvalidIORTest extends ORBTestCase
 
 
     /**
-     * <code>suite</code> lists the tests for Junit to run.
-     *
-     * @return a <code>Test</code> value
-     */
-    public static Test suite ()
-    {
-        return new TestSuite(InvalidIORTest.class);
-    }
-
-
-    /**
      * <code>testDecode</code> tests that JacORB can decode a valid
      * IOR.
      */
+    @Test
     public void testDecodeValidIOR ()
     {
         orb.string_to_object(ior);

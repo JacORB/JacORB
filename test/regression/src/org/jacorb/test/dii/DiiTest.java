@@ -1,13 +1,18 @@
 package org.jacorb.test.dii;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 import java.util.Properties;
-import junit.framework.Test;
-import junit.framework.TestSuite;
 import org.jacorb.test.common.ClientServerSetup;
 import org.jacorb.test.common.ClientServerTestCase;
-import org.jacorb.test.common.TestUtils;
 import org.jacorb.test.dii.DIIServerPackage.DIIException;
 import org.jacorb.test.dii.DIIServerPackage.DIIExceptionHelper;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
 import org.omg.CORBA.Any;
 import org.omg.CORBA.WrongTransaction;
 
@@ -21,38 +26,33 @@ public class DiiTest extends ClientServerTestCase
     private org.omg.CORBA.Object server;
     private org.omg.CORBA.ORB orb;
 
-    public DiiTest(String name, ClientServerSetup setup)
+    @BeforeClass
+    public static void beforeClassSetUp() throws Exception
     {
-        super(name, setup);
-    }
-
-    public static Test suite()
-    {
-        TestSuite suite = new TestSuite("DII tests (" + DiiTest.class.getName() + ")");
 
         Properties props = new Properties();
 
-        ClientServerSetup setup = new ClientServerSetup(suite, DynamicServer.class.getName(), props, props);
+        setup = new ClientServerSetup(DynamicServer.class.getName(), props, props);
 
-        TestUtils.addToSuite(suite, setup, DiiTest.class);
-
-        return setup;
     }
 
-    protected void setUp() throws Exception
+    @Before
+    public void setUp() throws Exception
     {
         server = setup.getServerObject();
         orb = setup.getClientOrb();
     }
 
 
-    protected void tearDown() throws Exception
+    @After
+    public void tearDown() throws Exception
     {
         server = null;
         orb = null;
     }
 
 
+    @Test
     public void testSimpleRequest()
     {
         org.omg.CORBA.Request request = server._request("_get_long_number");
@@ -66,6 +66,7 @@ public class DiiTest extends ClientServerTestCase
         assertEquals(47, request.return_value().extract_long());
     }
 
+    @Test
     public void testRequestWithOutArgs()
     {
         org.omg.CORBA.Request request = server._request("add");
@@ -86,6 +87,7 @@ public class DiiTest extends ClientServerTestCase
         assertEquals(7, out_arg.extract_long());
     }
 
+    @Test
     public void testSimpleRequestWithStringArgumentOneway()
     {
         org.omg.CORBA.Request request =  server._request("notify");
@@ -93,6 +95,7 @@ public class DiiTest extends ClientServerTestCase
         request.send_oneway();
     }
 
+    @Test
     public void testRequestWithReturnValue()
     {
         org.omg.CORBA.Request request =  server._request("writeNumber");
@@ -104,6 +107,7 @@ public class DiiTest extends ClientServerTestCase
         assertEquals("Number written", request.return_value().extract_string());
     }
 
+    @Test
     public void testDeferredAsyncOperationSyncWithResult() throws Exception
     {
         final boolean[] success = new boolean[1];
@@ -141,6 +145,7 @@ public class DiiTest extends ClientServerTestCase
         assertEquals("Number written", request.return_value().extract_string());
     }
 
+    @Test
     public void testPollingUntilResponse()
     {
         long timeout = System.currentTimeMillis() + 5000;
@@ -167,6 +172,7 @@ public class DiiTest extends ClientServerTestCase
         assertEquals("Number written", request.return_value().extract_string());
     }
 
+    @Test
     public void testReMarshalException()
     {
         Any any = orb.create_any();
@@ -180,6 +186,7 @@ public class DiiTest extends ClientServerTestCase
         assertEquals(string, ex2.why);
     }
 
+    @Test
     public void testSendRequestWhichCausesAnException() throws Exception
     {
         org.omg.CORBA.Request request = server._request("raiseException");

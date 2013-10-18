@@ -1,11 +1,12 @@
 package org.jacorb.test.bugs.bugjac774;
 
+import static org.junit.Assert.fail;
 import java.util.Properties;
-import junit.framework.Test;
-import junit.framework.TestSuite;
 import org.jacorb.test.common.ClientServerSetup;
 import org.jacorb.test.common.ClientServerTestCase;
-import org.jacorb.test.common.TestUtils;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
 
 /**
  * This test checks base BufferManager functionality.
@@ -25,21 +26,14 @@ public class BugJac774Test extends ClientServerTestCase
 
     private MyServer server;
 
-    public BugJac774Test (String name, ClientServerSetup setup)
-    {
-        super(name, setup);
-    }
 
-    protected void setUp() throws Exception
+    @Before
+    public void setUp() throws Exception
     {
         server = MyServerHelper.narrow(setup.getServerObject());
     }
 
-    protected void tearDown() throws Exception
-    {
-        server = null;
-    }
-
+    @Test
     public void testSimpleBuffer()
     {
         for(int i = 1; i <= 10; i++)
@@ -66,6 +60,7 @@ public class BugJac774Test extends ClientServerTestCase
         }
     }
 
+    @Test
     public void testExpandedBuffer()
     {
         // check small buffers
@@ -74,7 +69,7 @@ public class BugJac774Test extends ClientServerTestCase
             int size = 1024 * i;
 
             int returnedSize = server.testExpandedBuffer(size);
-            
+
             if (returnedSize < 0)
             {
                 fail("Unexpected exception during buffer allocation. See the server output for the details.");
@@ -87,9 +82,9 @@ public class BugJac774Test extends ClientServerTestCase
         for(int i = 1; i <= 100; i++)
         {
             int size = 1024 * 1024 * i;
-            
+
             int returnedSize = server.testExpandedBuffer(size);
-            
+
             if (returnedSize < 0)
             {
                 fail("Unexpected exception during buffer allocation. See the server output for the details.");
@@ -103,7 +98,7 @@ public class BugJac774Test extends ClientServerTestCase
             int size = 50 * 1024 * 1024 * i;
 
             int returnedSize = server.testExpandedBuffer(size);
-            
+
             if (returnedSize < 0)
             {
                 fail("Unexpected exception during buffer allocation. See the server output for the details.");
@@ -113,18 +108,13 @@ public class BugJac774Test extends ClientServerTestCase
         }
     }
 
-    public static Test suite()
+    @BeforeClass
+    public static void beforeClassSetUp() throws Exception
     {
-        TestSuite suite = new TestSuite();
 
         Properties serverProps = new Properties();
         serverProps.setProperty("jacorb.test.maxheapsize", XMX+"m");
 
-        ClientServerSetup setup =
-        new ClientServerSetup( suite, ServerImpl.class.getName(), serverProps, serverProps);
-
-        TestUtils.addToSuite(suite, setup, BugJac774Test.class);
-
-        return setup;
+    setup = new ClientServerSetup( ServerImpl.class.getName(), serverProps, serverProps);
     }
 }

@@ -35,18 +35,18 @@ import org.omg.ETF.Profile;
  */
 public class WIOPSelector implements ProfileSelector
 {
-    public Profile selectProfile (List profiles, ClientConnectionManager ccm)
+    public Profile selectProfile (List<Profile> profiles, ClientConnectionManager ccm)
     {
-        for (Iterator i=profiles.iterator(); i.hasNext();)
+        for (Iterator<Profile> i=profiles.iterator(); i.hasNext();)
         {
-            Profile p = (Profile)i.next();
+            Profile p = i.next();
             if (p instanceof org.jacorb.test.orb.etf.wiop.WIOPProfile)
                 return p;
         }
         return null;
     }
 
-    public Profile selectNextProfile (List profiles, Profile lastProfile)
+    public Profile selectNextProfile (List<Profile> profiles, Profile lastProfile)
     {
         return null;
     }

@@ -20,58 +20,44 @@ package org.jacorb.test.bugs.bugjac166;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
+import static org.junit.Assert.assertTrue;
 import java.net.InetAddress;
 import java.util.Properties;
-import junit.framework.Test;
-import junit.framework.TestSuite;
 import org.jacorb.test.bugs.bugjac74.Jac074Server;
 import org.jacorb.test.bugs.bugjac74.Jac074ServerHelper;
 import org.jacorb.test.common.ClientServerSetup;
 import org.jacorb.test.common.ClientServerTestCase;
-import org.jacorb.test.common.TestUtils;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
 
 public class IPTest extends ClientServerTestCase
 {
     private Jac074Server server;
 
-    public IPTest(String name, ClientServerSetup setup)
-    {
-        super(name, setup);
-    }
-
+    @Before
     public void setUp() throws Exception
     {
         server = Jac074ServerHelper.narrow( setup.getServerObject() );
     }
 
-    protected void tearDown() throws Exception
+    @BeforeClass
+    public static void beforeClassSetUp() throws Exception
     {
-        server = null;
-    }
-
-    public static Test suite()
-    {
-        TestSuite suite = new TestSuite( "IP Address test" );
-
         Properties props = new Properties();
 
         props.put("org.omg.PortableInterceptor.ORBInitializerClass.IPInitializer",
                   "org.jacorb.test.bugs.bugjac166.IPInitializer");
 
-         ClientServerSetup setup = new ClientServerSetup
-         (
-             suite,
+        setup = new ClientServerSetup(
              "org.jacorb.test.bugs.bugjac166.ServerImpl",
              null,
              props
          );
-
-         TestUtils.addToSuite(suite, setup, IPTest.class);
-
-        return setup;
-    }
+     }
 
 
+    @Test
     public void test_ip() throws Exception
     {
         String result = server.ping();

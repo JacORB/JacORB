@@ -19,37 +19,38 @@ package org.jacorb.test.orb;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
  */
-import junit.framework.TestSuite;
+import static org.junit.Assert.assertEquals;
 import org.jacorb.orb.CDRInputStream;
 import org.jacorb.orb.CDROutputStream;
 import org.jacorb.test.common.ORBTestCase;
+import org.junit.Test;
 
 public class CDRInputStreamNullStringTest extends ORBTestCase
 {
-
-    public static TestSuite suite()
-    {
-        return new TestSuite( CDRInputStreamNullStringTest.class );
-    }
-
-    protected void patchORBProperties(String testName, java.util.Properties properties) throws Exception
+    @Override
+    protected void patchORBProperties(java.util.Properties properties) throws Exception
     {
     	properties.put("jacorb.interop.null_string_encoding", "on");
     }
 
+    @Test
     public void testZeroSizedNullEncodedString() throws Exception
     {
         byte[] codedText = {0,0,0,0};
         CDRInputStream stream = new CDRInputStream( orb, codedText );
         assertEquals( "read_string ", null, stream.read_string() );
+        stream.close();
     }
 
+    @Test
     public void testCorrectlyEncodedEmptyString() {
         byte[] codedText = {0,0,0,1,0};
         CDRInputStream stream = new CDRInputStream( orb, codedText );
         assertEquals( "read_string of size 1", "", stream.read_string() );
+        stream.close();
     }
 
+    @Test
     public void testWriteNullString() throws Exception
     {
         CDROutputStream cdr = new CDROutputStream (orb);
@@ -64,5 +65,8 @@ public class CDRInputStreamNullStringTest extends ORBTestCase
         read.read_boolean();
         assertEquals (null, read.read_string());
         assertEquals ("TEST", read.read_string());
+
+        cdr.close();
+        read.close();
     }
 }

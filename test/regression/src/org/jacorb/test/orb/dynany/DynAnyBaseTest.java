@@ -20,8 +20,10 @@ package org.jacorb.test.orb.dynany;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import junit.framework.Test;
-import junit.framework.TestSuite;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+import org.junit.Test;
 import org.omg.CORBA.Any;
 import org.omg.CORBA.TypeCode;
 import org.omg.DynamicAny.DynAny;
@@ -38,17 +40,12 @@ public class DynAnyBaseTest extends DynAnyXXXTestCase
 {
    private static final char EURO_SIGN = '\u20AC';
 
-   public static Test suite ()
-   {
-       return new TestSuite (DynAnyBaseTest.class, "DynAny Base Tests");
-   }
-
-
    /**
     * Tests creating a DynAny object from an Any object using the
     * DynAnyFactory object.
     */
-   public void testFactoryCreateFromAny ()
+    @Test
+    public void testFactoryCreateFromAny ()
    {
       org.omg.CORBA.Any any = null;
 
@@ -64,7 +61,8 @@ public class DynAnyBaseTest extends DynAnyXXXTestCase
     * Tests creating a DynAny object from a TypeCode object using the
     * DynAnyFactory object.
     */
-   public void testFactoryCreateFromTypeCode ()
+    @Test
+    public void testFactoryCreateFromTypeCode ()
    {
       org.omg.CORBA.TypeCode tc = null;
 
@@ -79,12 +77,11 @@ public class DynAnyBaseTest extends DynAnyXXXTestCase
     * Test that an InconsistentTypeCode exception is raised if an invalid
     * TypeCode is used to create a DynAny object.
     */
-   public void testFactoryInconsistentTypeCodeEx ()
+    @Test
+    public void testFactoryInconsistentTypeCodeEx ()
    {
       String msg;
       org.omg.CORBA.Any any = null;
-      org.omg.CORBA.TypeCode tc = null;
-      org.omg.DynamicAny.DynAny dynAny = null;
 
       any = orb.create_any ();
       any.type (orb.get_primitive_tc (org.omg.CORBA.TCKind.tk_Principal));
@@ -94,7 +91,7 @@ public class DynAnyBaseTest extends DynAnyXXXTestCase
       msg += "creating DynAny from Any with TypeCode tk_Principal";
       try
       {
-         dynAny = factory.create_dyn_any (any);
+         factory.create_dyn_any (any);
 
          fail (msg);
       }
@@ -108,7 +105,8 @@ public class DynAnyBaseTest extends DynAnyXXXTestCase
    /**
     * Tests locality constraints on DynAny objects.
     */
-   public void testDynAnyLocalityConstraint ()
+    @Test
+    public void testDynAnyLocalityConstraint ()
    {
       String msg;
       org.omg.CORBA.TypeCode tc = null;
@@ -135,7 +133,8 @@ public class DynAnyBaseTest extends DynAnyXXXTestCase
    /**
     * Test comparing DynAny values.
     */
-   public void testCompareDynAny ()
+    @Test
+    public void testCompareDynAny ()
    {
       String msg;
       org.omg.CORBA.Any any = null;
@@ -155,7 +154,8 @@ public class DynAnyBaseTest extends DynAnyXXXTestCase
    /**
     * Test accessing a value of some basic type in a DynAny object.
     */
-   public void testAccessBasicValue_boolean () throws Exception
+    @Test
+    public void testAccessBasicValue_boolean () throws Exception
    {
       TypeCode tc     = orb.get_primitive_tc (org.omg.CORBA.TCKind.tk_boolean);
       DynAny   dynAny = createDynAnyFromTypeCode (tc);
@@ -170,7 +170,8 @@ public class DynAnyBaseTest extends DynAnyXXXTestCase
    /**
     * Test inserting a basic value into a DynAny that has a different typecode.
     */
-   public void testInsertMismatch_boolean () throws Exception
+    @Test
+    public void testInsertMismatch_boolean () throws Exception
    {
       TypeCode tc     = orb.get_primitive_tc (org.omg.CORBA.TCKind.tk_long);
       DynAny   dynAny = createDynAnyFromTypeCode (tc);
@@ -193,7 +194,8 @@ public class DynAnyBaseTest extends DynAnyXXXTestCase
    /**
     * Test retrieving a basic value from a DynAny that has a different typecode.
     */
-   public void testRetrieveMismatch_boolean () throws Exception
+    @Test
+    public void testRetrieveMismatch_boolean () throws Exception
    {
       TypeCode tc     = orb.get_primitive_tc (org.omg.CORBA.TCKind.tk_long);
       DynAny   dynAny = createDynAnyFromTypeCode (tc);
@@ -217,7 +219,8 @@ public class DynAnyBaseTest extends DynAnyXXXTestCase
    /**
     * Test accessing a value of some basic type in a DynAny object.
     */
-   public void testAccessBasicValue_short () throws Exception
+    @Test
+    public void testAccessBasicValue_short () throws Exception
    {
       TypeCode tc     = orb.get_primitive_tc (org.omg.CORBA.TCKind.tk_short);
       DynAny   dynAny = createDynAnyFromTypeCode (tc);
@@ -232,7 +235,8 @@ public class DynAnyBaseTest extends DynAnyXXXTestCase
    /**
     * Test inserting a basic value into a DynAny that has a different typecode.
     */
-   public void testInsertMismatch_short () throws Exception
+    @Test
+    public void testInsertMismatch_short () throws Exception
    {
       TypeCode tc     = orb.get_primitive_tc (org.omg.CORBA.TCKind.tk_long);
       DynAny   dynAny = createDynAnyFromTypeCode (tc);
@@ -255,7 +259,8 @@ public class DynAnyBaseTest extends DynAnyXXXTestCase
    /**
     * Test retrieving a basic value from a DynAny that has a different typecode.
     */
-   public void testRetrieveMismatch_short () throws Exception
+    @Test
+    public void testRetrieveMismatch_short () throws Exception
    {
       TypeCode tc     = orb.get_primitive_tc (org.omg.CORBA.TCKind.tk_long);
       DynAny   dynAny = createDynAnyFromTypeCode (tc);
@@ -279,7 +284,8 @@ public class DynAnyBaseTest extends DynAnyXXXTestCase
    /**
     * Test accessing a value of some basic type in a DynAny object.
     */
-   public void testAccessBasicValue_ushort () throws Exception
+    @Test
+    public void testAccessBasicValue_ushort () throws Exception
    {
       TypeCode tc     = orb.get_primitive_tc (org.omg.CORBA.TCKind.tk_ushort);
       DynAny   dynAny = createDynAnyFromTypeCode (tc);
@@ -294,7 +300,8 @@ public class DynAnyBaseTest extends DynAnyXXXTestCase
       /**
     * Test inserting a basic value into a DynAny that has a different typecode.
     */
-   public void testInsertMismatch_ushort () throws Exception
+    @Test
+    public void testInsertMismatch_ushort () throws Exception
    {
       TypeCode tc     = orb.get_primitive_tc (org.omg.CORBA.TCKind.tk_long);
       DynAny   dynAny = createDynAnyFromTypeCode (tc);
@@ -317,7 +324,8 @@ public class DynAnyBaseTest extends DynAnyXXXTestCase
    /**
     * Test retrieving a basic value from a DynAny that has a different typecode.
     */
-   public void testRetrieveMismatch_ushort () throws Exception
+    @Test
+    public void testRetrieveMismatch_ushort () throws Exception
    {
       TypeCode tc     = orb.get_primitive_tc (org.omg.CORBA.TCKind.tk_long);
       DynAny   dynAny = createDynAnyFromTypeCode (tc);
@@ -341,7 +349,8 @@ public class DynAnyBaseTest extends DynAnyXXXTestCase
    /**
     * Test accessing a value of some basic type in a DynAny object.
     */
-   public void testAccessBasicValue_long () throws Exception
+    @Test
+    public void testAccessBasicValue_long () throws Exception
    {
       TypeCode tc     = orb.get_primitive_tc (org.omg.CORBA.TCKind.tk_long);
       DynAny   dynAny = createDynAnyFromTypeCode (tc);
@@ -356,7 +365,8 @@ public class DynAnyBaseTest extends DynAnyXXXTestCase
    /**
     * Test inserting a basic value into a DynAny that has a different typecode.
     */
-   public void testInsertMismatch_long () throws Exception
+    @Test
+    public void testInsertMismatch_long () throws Exception
    {
       TypeCode tc     = orb.get_primitive_tc (org.omg.CORBA.TCKind.tk_boolean);
       DynAny   dynAny = createDynAnyFromTypeCode (tc);
@@ -379,7 +389,8 @@ public class DynAnyBaseTest extends DynAnyXXXTestCase
    /**
     * Test retrieving a basic value from a DynAny that has a different typecode.
     */
-   public void testRetrieveMismatch_long () throws Exception
+    @Test
+    public void testRetrieveMismatch_long () throws Exception
    {
       TypeCode tc     = orb.get_primitive_tc (org.omg.CORBA.TCKind.tk_boolean);
       DynAny   dynAny = createDynAnyFromTypeCode (tc);
@@ -403,7 +414,8 @@ public class DynAnyBaseTest extends DynAnyXXXTestCase
    /**
     * Test accessing a value of some basic type in a DynAny object.
     */
-   public void testAccessBasicValue_ulong () throws Exception
+    @Test
+    public void testAccessBasicValue_ulong () throws Exception
    {
       TypeCode tc     = orb.get_primitive_tc (org.omg.CORBA.TCKind.tk_ulong);
       DynAny   dynAny = createDynAnyFromTypeCode (tc);
@@ -418,7 +430,8 @@ public class DynAnyBaseTest extends DynAnyXXXTestCase
       /**
     * Test inserting a basic value into a DynAny that has a different typecode.
     */
-   public void testInsertMismatch_ulong () throws Exception
+    @Test
+    public void testInsertMismatch_ulong () throws Exception
    {
       TypeCode tc     = orb.get_primitive_tc (org.omg.CORBA.TCKind.tk_boolean);
       DynAny   dynAny = createDynAnyFromTypeCode (tc);
@@ -441,7 +454,8 @@ public class DynAnyBaseTest extends DynAnyXXXTestCase
    /**
     * Test retrieving a basic value from a DynAny that has a different typecode.
     */
-   public void testRetrieveMismatch_ulong () throws Exception
+    @Test
+    public void testRetrieveMismatch_ulong () throws Exception
    {
       TypeCode tc     = orb.get_primitive_tc (org.omg.CORBA.TCKind.tk_boolean);
       DynAny   dynAny = createDynAnyFromTypeCode (tc);
@@ -465,7 +479,8 @@ public class DynAnyBaseTest extends DynAnyXXXTestCase
    /**
     * Test accessing a value of some basic type in a DynAny object.
     */
-   public void testAccessBasicValue_longlong () throws Exception
+    @Test
+    public void testAccessBasicValue_longlong () throws Exception
    {
       TypeCode tc     = orb.get_primitive_tc (org.omg.CORBA.TCKind.tk_longlong);
       DynAny   dynAny = createDynAnyFromTypeCode (tc);
@@ -480,7 +495,8 @@ public class DynAnyBaseTest extends DynAnyXXXTestCase
       /**
     * Test inserting a basic value into a DynAny that has a different typecode.
     */
-   public void testInsertMismatch_longlong () throws Exception
+    @Test
+    public void testInsertMismatch_longlong () throws Exception
    {
       TypeCode tc     = orb.get_primitive_tc (org.omg.CORBA.TCKind.tk_boolean);
       DynAny   dynAny = createDynAnyFromTypeCode (tc);
@@ -503,7 +519,8 @@ public class DynAnyBaseTest extends DynAnyXXXTestCase
    /**
     * Test retrieving a basic value from a DynAny that has a different typecode.
     */
-   public void testRetrieveMismatch_longlong () throws Exception
+    @Test
+    public void testRetrieveMismatch_longlong () throws Exception
    {
       TypeCode tc     = orb.get_primitive_tc (org.omg.CORBA.TCKind.tk_long);
       DynAny   dynAny = createDynAnyFromTypeCode (tc);
@@ -527,7 +544,8 @@ public class DynAnyBaseTest extends DynAnyXXXTestCase
    /**
     * Test accessing a value of some basic type in a DynAny object.
     */
-   public void testAccessBasicValue_ulonglong () throws Exception
+    @Test
+    public void testAccessBasicValue_ulonglong () throws Exception
    {
       TypeCode tc     = orb.get_primitive_tc (org.omg.CORBA.TCKind.tk_ulonglong);
       DynAny   dynAny = createDynAnyFromTypeCode (tc);
@@ -542,7 +560,8 @@ public class DynAnyBaseTest extends DynAnyXXXTestCase
       /**
     * Test inserting a basic value into a DynAny that has a different typecode.
     */
-   public void testInsertMismatch_ulonglong () throws Exception
+    @Test
+    public void testInsertMismatch_ulonglong () throws Exception
    {
       TypeCode tc     = orb.get_primitive_tc (org.omg.CORBA.TCKind.tk_boolean);
       DynAny   dynAny = createDynAnyFromTypeCode (tc);
@@ -565,7 +584,8 @@ public class DynAnyBaseTest extends DynAnyXXXTestCase
    /**
     * Test retrieving a basic value from a DynAny that has a different typecode.
     */
-   public void testRetrieveMismatch_ulonglong () throws Exception
+    @Test
+    public void testRetrieveMismatch_ulonglong () throws Exception
    {
       TypeCode tc     = orb.get_primitive_tc (org.omg.CORBA.TCKind.tk_long);
       DynAny   dynAny = createDynAnyFromTypeCode (tc);
@@ -589,7 +609,8 @@ public class DynAnyBaseTest extends DynAnyXXXTestCase
    /**
     * Test accessing a value of some basic type in a DynAny object.
     */
-   public void testAccessBasicValue_octet () throws Exception
+    @Test
+    public void testAccessBasicValue_octet () throws Exception
    {
       TypeCode tc     = orb.get_primitive_tc (org.omg.CORBA.TCKind.tk_octet);
       DynAny   dynAny = createDynAnyFromTypeCode (tc);
@@ -604,7 +625,8 @@ public class DynAnyBaseTest extends DynAnyXXXTestCase
       /**
     * Test inserting a basic value into a DynAny that has a different typecode.
     */
-   public void testInsertMismatch_octet () throws Exception
+    @Test
+    public void testInsertMismatch_octet () throws Exception
    {
       TypeCode tc     = orb.get_primitive_tc (org.omg.CORBA.TCKind.tk_boolean);
       DynAny   dynAny = createDynAnyFromTypeCode (tc);
@@ -627,7 +649,8 @@ public class DynAnyBaseTest extends DynAnyXXXTestCase
    /**
     * Test retrieving a basic value from a DynAny that has a different typecode.
     */
-   public void testRetrieveMismatch_octet () throws Exception
+    @Test
+    public void testRetrieveMismatch_octet () throws Exception
    {
       TypeCode tc     = orb.get_primitive_tc (org.omg.CORBA.TCKind.tk_long);
       DynAny   dynAny = createDynAnyFromTypeCode (tc);
@@ -651,7 +674,8 @@ public class DynAnyBaseTest extends DynAnyXXXTestCase
    /**
     * Test accessing a value of some basic type in a DynAny object.
     */
-   public void testAccessBasicValue_float () throws Exception
+    @Test
+    public void testAccessBasicValue_float () throws Exception
    {
       TypeCode tc     = orb.get_primitive_tc (org.omg.CORBA.TCKind.tk_float);
       DynAny   dynAny = createDynAnyFromTypeCode (tc);
@@ -666,7 +690,8 @@ public class DynAnyBaseTest extends DynAnyXXXTestCase
       /**
     * Test inserting a basic value into a DynAny that has a different typecode.
     */
-   public void testInsertMismatch_float () throws Exception
+    @Test
+    public void testInsertMismatch_float () throws Exception
    {
       TypeCode tc     = orb.get_primitive_tc (org.omg.CORBA.TCKind.tk_boolean);
       DynAny   dynAny = createDynAnyFromTypeCode (tc);
@@ -689,7 +714,8 @@ public class DynAnyBaseTest extends DynAnyXXXTestCase
    /**
     * Test retrieving a basic value from a DynAny that has a different typecode.
     */
-   public void testRetrieveMismatch_float () throws Exception
+    @Test
+    public void testRetrieveMismatch_float () throws Exception
    {
       TypeCode tc     = orb.get_primitive_tc (org.omg.CORBA.TCKind.tk_long);
       DynAny   dynAny = createDynAnyFromTypeCode (tc);
@@ -713,7 +739,8 @@ public class DynAnyBaseTest extends DynAnyXXXTestCase
    /**
     * Test accessing a value of some basic type in a DynAny object.
     */
-   public void testAccessBasicValue_double () throws Exception
+    @Test
+    public void testAccessBasicValue_double () throws Exception
    {
       TypeCode tc     = orb.get_primitive_tc (org.omg.CORBA.TCKind.tk_double);
       DynAny   dynAny = createDynAnyFromTypeCode (tc);
@@ -728,7 +755,8 @@ public class DynAnyBaseTest extends DynAnyXXXTestCase
       /**
     * Test inserting a basic value into a DynAny that has a different typecode.
     */
-   public void testInsertMismatch_double () throws Exception
+    @Test
+    public void testInsertMismatch_double () throws Exception
    {
       TypeCode tc     = orb.get_primitive_tc (org.omg.CORBA.TCKind.tk_boolean);
       DynAny   dynAny = createDynAnyFromTypeCode (tc);
@@ -751,7 +779,8 @@ public class DynAnyBaseTest extends DynAnyXXXTestCase
    /**
     * Test retrieving a basic value from a DynAny that has a different typecode.
     */
-   public void testRetrieveMismatch_double () throws Exception
+    @Test
+    public void testRetrieveMismatch_double () throws Exception
    {
       TypeCode tc     = orb.get_primitive_tc (org.omg.CORBA.TCKind.tk_long);
       DynAny   dynAny = createDynAnyFromTypeCode (tc);
@@ -775,7 +804,8 @@ public class DynAnyBaseTest extends DynAnyXXXTestCase
    /**
     * Test accessing a value of some basic type in a DynAny object.
     */
-   public void testAccessBasicValue_char () throws Exception
+    @Test
+    public void testAccessBasicValue_char () throws Exception
    {
       TypeCode tc     = orb.get_primitive_tc (org.omg.CORBA.TCKind.tk_char);
       DynAny   dynAny = createDynAnyFromTypeCode (tc);
@@ -790,7 +820,8 @@ public class DynAnyBaseTest extends DynAnyXXXTestCase
       /**
     * Test inserting a basic value into a DynAny that has a different typecode.
     */
-   public void testInsertMismatch_char () throws Exception
+    @Test
+    public void testInsertMismatch_char () throws Exception
    {
       TypeCode tc     = orb.get_primitive_tc (org.omg.CORBA.TCKind.tk_boolean);
       DynAny   dynAny = createDynAnyFromTypeCode (tc);
@@ -813,7 +844,8 @@ public class DynAnyBaseTest extends DynAnyXXXTestCase
    /**
     * Test retrieving a basic value from a DynAny that has a different typecode.
     */
-   public void testRetrieveMismatch_char () throws Exception
+    @Test
+    public void testRetrieveMismatch_char () throws Exception
    {
       TypeCode tc     = orb.get_primitive_tc (org.omg.CORBA.TCKind.tk_long);
       DynAny   dynAny = createDynAnyFromTypeCode (tc);
@@ -837,7 +869,8 @@ public class DynAnyBaseTest extends DynAnyXXXTestCase
    /**
     * Test accessing a value of some basic type in a DynAny object.
     */
-   public void testAccessBasicValue_wchar () throws Exception
+    @Test
+    public void testAccessBasicValue_wchar () throws Exception
    {
       TypeCode tc     = orb.get_primitive_tc (org.omg.CORBA.TCKind.tk_wchar);
       DynAny   dynAny = createDynAnyFromTypeCode (tc);
@@ -852,7 +885,8 @@ public class DynAnyBaseTest extends DynAnyXXXTestCase
       /**
     * Test inserting a basic value into a DynAny that has a different typecode.
     */
-   public void testInsertMismatch_wchar () throws Exception
+    @Test
+    public void testInsertMismatch_wchar () throws Exception
    {
       TypeCode tc     = orb.get_primitive_tc (org.omg.CORBA.TCKind.tk_boolean);
       DynAny   dynAny = createDynAnyFromTypeCode (tc);
@@ -875,7 +909,8 @@ public class DynAnyBaseTest extends DynAnyXXXTestCase
    /**
     * Test retrieving a basic value from a DynAny that has a different typecode.
     */
-   public void testRetrieveMismatch_wchar () throws Exception
+    @Test
+    public void testRetrieveMismatch_wchar () throws Exception
    {
       TypeCode tc     = orb.get_primitive_tc (org.omg.CORBA.TCKind.tk_long);
       DynAny   dynAny = createDynAnyFromTypeCode (tc);
@@ -899,7 +934,8 @@ public class DynAnyBaseTest extends DynAnyXXXTestCase
    /**
     * Test accessing a value of some basic type in a DynAny object.
     */
-   public void testAccessBasicValue_string () throws Exception
+    @Test
+    public void testAccessBasicValue_string () throws Exception
    {
       TypeCode tc     = orb.get_primitive_tc (org.omg.CORBA.TCKind.tk_string);
       DynAny   dynAny = createDynAnyFromTypeCode (tc);
@@ -914,7 +950,8 @@ public class DynAnyBaseTest extends DynAnyXXXTestCase
       /**
     * Test inserting a basic value into a DynAny that has a different typecode.
     */
-   public void testInsertMismatch_string () throws Exception
+    @Test
+    public void testInsertMismatch_string () throws Exception
    {
       TypeCode tc     = orb.get_primitive_tc (org.omg.CORBA.TCKind.tk_boolean);
       DynAny   dynAny = createDynAnyFromTypeCode (tc);
@@ -937,7 +974,8 @@ public class DynAnyBaseTest extends DynAnyXXXTestCase
    /**
     * Test retrieving a basic value from a DynAny that has a different typecode.
     */
-   public void testRetrieveMismatch_string () throws Exception
+    @Test
+    public void testRetrieveMismatch_string () throws Exception
    {
       TypeCode tc     = orb.get_primitive_tc (org.omg.CORBA.TCKind.tk_long);
       DynAny   dynAny = createDynAnyFromTypeCode (tc);
@@ -961,7 +999,8 @@ public class DynAnyBaseTest extends DynAnyXXXTestCase
    /**
     * Test accessing a value of some basic type in a DynAny object.
     */
-   public void testAccessBasicValue_wstring () throws Exception
+    @Test
+    public void testAccessBasicValue_wstring () throws Exception
    {
       TypeCode tc     = orb.get_primitive_tc (org.omg.CORBA.TCKind.tk_wstring);
       DynAny   dynAny = createDynAnyFromTypeCode (tc);
@@ -976,7 +1015,8 @@ public class DynAnyBaseTest extends DynAnyXXXTestCase
       /**
     * Test inserting a basic value into a DynAny that has a different typecode.
     */
-   public void testInsertMismatch_wstring () throws Exception
+    @Test
+    public void testInsertMismatch_wstring () throws Exception
    {
       TypeCode tc     = orb.get_primitive_tc (org.omg.CORBA.TCKind.tk_boolean);
       DynAny   dynAny = createDynAnyFromTypeCode (tc);
@@ -999,7 +1039,8 @@ public class DynAnyBaseTest extends DynAnyXXXTestCase
    /**
     * Test retrieving a basic value from a DynAny that has a different typecode.
     */
-   public void testRetrieveMismatch_wstring () throws Exception
+    @Test
+    public void testRetrieveMismatch_wstring () throws Exception
    {
       TypeCode tc     = orb.get_primitive_tc (org.omg.CORBA.TCKind.tk_long);
       DynAny   dynAny = createDynAnyFromTypeCode (tc);
@@ -1023,7 +1064,8 @@ public class DynAnyBaseTest extends DynAnyXXXTestCase
    /**
     * Test accessing a value of some basic type in a DynAny object.
     */
-   public void testAccessBasicValue_any () throws Exception
+    @Test
+    public void testAccessBasicValue_any () throws Exception
    {
       TypeCode tc     = orb.get_primitive_tc (org.omg.CORBA.TCKind.tk_any);
       DynAny   dynAny = createDynAnyFromTypeCode (tc);
@@ -1044,7 +1086,8 @@ public class DynAnyBaseTest extends DynAnyXXXTestCase
       /**
     * Test inserting a basic value into a DynAny that has a different typecode.
     */
-   public void testInsertMismatch_any () throws Exception
+    @Test
+    public void testInsertMismatch_any () throws Exception
    {
       TypeCode tc     = orb.get_primitive_tc (org.omg.CORBA.TCKind.tk_boolean);
       DynAny   dynAny = createDynAnyFromTypeCode (tc);
@@ -1069,7 +1112,8 @@ public class DynAnyBaseTest extends DynAnyXXXTestCase
    /**
     * Test retrieving a basic value from a DynAny that has a different typecode.
     */
-   public void testRetrieveMismatch_any () throws Exception
+    @Test
+    public void testRetrieveMismatch_any () throws Exception
    {
       TypeCode tc     = orb.get_primitive_tc (org.omg.CORBA.TCKind.tk_long);
       DynAny   dynAny = createDynAnyFromTypeCode (tc);
@@ -1093,7 +1137,8 @@ public class DynAnyBaseTest extends DynAnyXXXTestCase
    /**
     * Test accessing a value of some basic type in a DynAny object.
     */
-   public void testAccessBasicValue_typecode () throws Exception
+    @Test
+    public void testAccessBasicValue_typecode () throws Exception
    {
       TypeCode tc     = orb.get_primitive_tc (org.omg.CORBA.TCKind.tk_TypeCode);
       DynAny   dynAny = createDynAnyFromTypeCode (tc);
@@ -1111,7 +1156,8 @@ public class DynAnyBaseTest extends DynAnyXXXTestCase
       /**
     * Test inserting a basic value into a DynAny that has a different typecode.
     */
-   public void testInsertMismatch_typecode () throws Exception
+    @Test
+    public void testInsertMismatch_typecode () throws Exception
    {
       TypeCode tc     = orb.get_primitive_tc (org.omg.CORBA.TCKind.tk_boolean);
       DynAny   dynAny = createDynAnyFromTypeCode (tc);
@@ -1135,7 +1181,8 @@ public class DynAnyBaseTest extends DynAnyXXXTestCase
    /**
     * Test retrieving a basic value from a DynAny that has a different typecode.
     */
-   public void testRetrieveMismatch_typecode () throws Exception
+    @Test
+    public void testRetrieveMismatch_typecode () throws Exception
    {
       TypeCode tc     = orb.get_primitive_tc (org.omg.CORBA.TCKind.tk_long);
       DynAny   dynAny = createDynAnyFromTypeCode (tc);
@@ -1159,7 +1206,8 @@ public class DynAnyBaseTest extends DynAnyXXXTestCase
    /**
     * Test accessing a value of some basic type in a DynAny object.
     */
-   public void testAccessBasicValue_dynany () throws Exception
+    @Test
+    public void testAccessBasicValue_dynany () throws Exception
    {
       TypeCode tc     = orb.get_primitive_tc (org.omg.CORBA.TCKind.tk_any);
       DynAny   dynAny = createDynAnyFromTypeCode (tc);
@@ -1180,7 +1228,8 @@ public class DynAnyBaseTest extends DynAnyXXXTestCase
       /**
     * Test inserting a basic value into a DynAny that has a different typecode.
     */
-   public void testInsertMismatch_dynany () throws Exception
+    @Test
+    public void testInsertMismatch_dynany () throws Exception
    {
       TypeCode tc     = orb.get_primitive_tc (org.omg.CORBA.TCKind.tk_boolean);
       DynAny   dynAny = createDynAnyFromTypeCode (tc);
@@ -1205,7 +1254,8 @@ public class DynAnyBaseTest extends DynAnyXXXTestCase
    /**
     * Test retrieving a basic value from a DynAny that has a different typecode.
     */
-   public void testRetrieveMismatch_dynany () throws Exception
+    @Test
+    public void testRetrieveMismatch_dynany () throws Exception
    {
       TypeCode tc     = orb.get_primitive_tc (org.omg.CORBA.TCKind.tk_long);
       DynAny   dynAny = createDynAnyFromTypeCode (tc);
@@ -1229,7 +1279,8 @@ public class DynAnyBaseTest extends DynAnyXXXTestCase
    /**
     * Test obtaining the TypeCode associated with a DynAny object.
     */
-   public void testDynAnyTypeCode ()
+    @Test
+    public void testDynAnyTypeCode ()
    {
       String msg;
       org.omg.CORBA.TypeCode tc = null;
@@ -1246,7 +1297,8 @@ public class DynAnyBaseTest extends DynAnyXXXTestCase
    /**
     * Test initializing a DynAny object from another DynAny object.
     */
-   public void testInitDynAnyFromDynAny ()
+    @Test
+    public void testInitDynAnyFromDynAny ()
    {
       String msg;
       org.omg.CORBA.Any any = null;
@@ -1279,7 +1331,8 @@ public class DynAnyBaseTest extends DynAnyXXXTestCase
     * Test that a TypeMismatch exception is raised if there is a type
     * mismatch between the two DynAny types in an assignment operation.
     */
-   public void testInitFromDynAnyTypeMismatchEx ()
+    @Test
+    public void testInitFromDynAnyTypeMismatchEx ()
    {
       String msg;
       org.omg.CORBA.Any any = null;
@@ -1312,7 +1365,8 @@ public class DynAnyBaseTest extends DynAnyXXXTestCase
    /**
     * Test initializing a DynAny object from an Any value.
     */
-   public void testInitDynAnyFromAny ()
+    @Test
+    public void testInitDynAnyFromAny ()
    {
       String msg;
       org.omg.CORBA.Any any = null;
@@ -1345,7 +1399,8 @@ public class DynAnyBaseTest extends DynAnyXXXTestCase
     * Test that a TypeMismatch exception is raised if there is a type
     * mismatch between the DynAny and Any types in an assignment.
     */
-   public void testInitFromAnyTypeMismatchEx ()
+    @Test
+    public void testInitFromAnyTypeMismatchEx ()
    {
       String msg;
       org.omg.CORBA.Any any = null;
@@ -1380,7 +1435,8 @@ public class DynAnyBaseTest extends DynAnyXXXTestCase
    /**
     * Test generating an Any value from a DynAny object.
     */
-   public void testGenerateAnyFromDynAny ()
+    @Test
+    public void testGenerateAnyFromDynAny ()
    {
       String msg;
       org.omg.CORBA.Any any = null;
@@ -1404,7 +1460,8 @@ public class DynAnyBaseTest extends DynAnyXXXTestCase
    /**
     * Test destroying a DynAny object.
     */
-   public void testDestroyDynAny ()
+    @Test
+    public void testDestroyDynAny ()
    {
       String msg;
       org.omg.CORBA.Any any = null;
@@ -1452,7 +1509,8 @@ public class DynAnyBaseTest extends DynAnyXXXTestCase
    /**
     * Test creating a copy of a DynAny object.
     */
-   public void testCopyDynAny ()
+    @Test
+    public void testCopyDynAny ()
    {
       String msg;
       org.omg.CORBA.TypeCode tc = null;
@@ -1481,7 +1539,8 @@ public class DynAnyBaseTest extends DynAnyXXXTestCase
    /**
     * Test iterating through components of a DynAny.
     */
-   public void testIterateDynAny ()
+    @Test
+    public void testIterateDynAny ()
    {
       String msg;
       int compCount = -1;

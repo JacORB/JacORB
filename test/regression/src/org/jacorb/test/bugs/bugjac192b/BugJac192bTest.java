@@ -20,8 +20,11 @@ package org.jacorb.test.bugs.bugjac192b;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
+import static org.junit.Assert.assertTrue;
 import java.util.Properties;
 import org.jacorb.test.common.ORBTestCase;
+import org.junit.Before;
+import org.junit.Test;
 import org.omg.CORBA.INTERNAL;
 
 /**
@@ -41,7 +44,8 @@ public class BugJac192bTest extends ORBTestCase
      *
      * @exception Exception if an error occurs
      */
-    public void doSetUp() throws Exception
+    @Before
+    public void setUp() throws Exception
     {
         JAC192bImpl servant = new JAC192bImpl();
         byte[] oid = rootPOA.servant_to_id (servant);
@@ -50,7 +54,8 @@ public class BugJac192bTest extends ORBTestCase
         server = JAC192bHelper.narrow( serverObject );
     }
 
-    protected void patchORBProperties(String testName, Properties client_props) throws Exception
+    @Override
+    protected void patchORBProperties(Properties client_props) throws Exception
     {
         client_props.put("org.omg.PortableInterceptor.ORBInitializerClass.CInitializer",
                          "org.jacorb.test.bugs.bugjac192b.CInitializer");
@@ -61,6 +66,7 @@ public class BugJac192bTest extends ORBTestCase
      * system exception following local calls still call interceptors.
      *
      */
+    @Test
     public void test_interceptorerror()
     {
         try

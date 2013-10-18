@@ -29,20 +29,20 @@ import org.omg.ETF._ConnectionLocalBase;
 /**
  * See {@link org.jacorb.test.orb.etf.wiop.WIOPFactories WIOPFactories} for
  * a description of WIOP.
- * 
+ *
  * @author Andre Spiegel spiegel@gnu.org
  */
 public class WIOPConnection extends _ConnectionLocalBase
 {
     private int tag = 0;
     private Connection delegate = null;
-    
+
     public WIOPConnection (Connection delegate, int tag)
     {
         this.delegate = delegate;
         this.tag = tag;
     }
-    
+
     public void write (boolean is_first,
                        boolean is_last,
                        byte[] data,
@@ -50,6 +50,7 @@ public class WIOPConnection extends _ConnectionLocalBase
                        int length,
                        long time_out)
     {
+        System.err.println ("### wiopwrite");
         WIOPFactories.setTransportInUse(true);
         delegate.write (is_first, is_last, data, offset, length, time_out);
     }
@@ -60,6 +61,7 @@ public class WIOPConnection extends _ConnectionLocalBase
                      int max_length,
                      long time_out)
     {
+        System.err.println ("### wiopread");
         WIOPFactories.setTransportInUse(true);
         return delegate.read (data, offset, min_length, max_length, time_out);
     }
@@ -73,7 +75,7 @@ public class WIOPConnection extends _ConnectionLocalBase
     {
         if (server_profile instanceof WIOPProfile)
         {
-            delegate.connect (((WIOPProfile)server_profile).getDelegate(), 
+            delegate.connect (((WIOPProfile)server_profile).getDelegate(),
                               time_out);
         }
         else

@@ -1,39 +1,35 @@
 package org.jacorb.test.orb.connection.timeout;
 
-import junit.framework.Test;
-import junit.framework.TestSuite;
 import org.jacorb.test.common.ClientServerSetup;
 import org.jacorb.test.common.ClientServerTestCase;
-import org.jacorb.test.common.TestUtils;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
 
 public class TimeoutTest extends ClientServerTestCase
 {
     private MyServer grid;
-    
-    public TimeoutTest (String name, ClientServerSetup setup)
-    {
-        super(name, setup);
-    }
-    
-    public static Test suite()
-    {
-        TestSuite suite = new TestSuite(TimeoutTest.class.getName());
-        ClientServerSetup setup = new ClientServerSetup(suite, GridImpl.class.getName());
-        TestUtils.addToSuite(suite, setup, TimeoutTest.class);
 
-        return setup;
+    @BeforeClass
+    public static void beforeClassSetUp() throws Exception
+    {
+        setup = new ClientServerSetup(GridImpl.class.getName());
     }
-    
-    protected void setUp() throws Exception
+
+    @Before
+    public void setUp() throws Exception
     {
         grid = MyServerHelper.narrow(setup.getServerObject());
     }
-    
-    protected void tearDown() throws Exception
+
+    @After
+    public void tearDown() throws Exception
     {
         grid = null;
     }
-    
+
+    @Test
     public void testTimeout()
     {
         short x = -1;

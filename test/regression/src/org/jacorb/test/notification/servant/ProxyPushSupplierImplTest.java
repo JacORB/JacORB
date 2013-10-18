@@ -21,8 +21,8 @@
 
 package org.jacorb.test.notification.servant;
 
+import static org.junit.Assert.assertEquals;
 import java.util.concurrent.ScheduledFuture;
-import junit.framework.Test;
 import org.easymock.MockControl;
 import org.jacorb.notification.OfferManager;
 import org.jacorb.notification.SubscriptionManager;
@@ -32,7 +32,8 @@ import org.jacorb.notification.interfaces.Message;
 import org.jacorb.notification.servant.IAdmin;
 import org.jacorb.notification.servant.ProxyPushSupplierImpl;
 import org.jacorb.test.notification.common.NotificationTestCase;
-import org.jacorb.test.notification.common.NotificationTestCaseSetup;
+import org.junit.Before;
+import org.junit.Test;
 import org.omg.CORBA.Any;
 import org.omg.CosNotifyChannelAdmin.ConsumerAdmin;
 import org.omg.CosNotifyComm.PushConsumer;
@@ -52,12 +53,8 @@ public class ProxyPushSupplierImplTest extends NotificationTestCase
 
     private ScheduledFuture mockScheduledFuture_;
 
-    public ProxyPushSupplierImplTest(String name, NotificationTestCaseSetup setup)
-    {
-        super(name, setup);
-    }
-
-    public void setUpTest() throws Exception
+    @Before
+    public void setUp() throws Exception
     {
         MockControl controlAdmin = MockControl.createControl(IAdmin.class);
         IAdmin mockAdmin = (IAdmin) controlAdmin.getMock();
@@ -94,6 +91,7 @@ public class ProxyPushSupplierImplTest extends NotificationTestCase
         mockScheduledFuture_ = (ScheduledFuture) controlScheduledFuture_.getMock();
     }
 
+    @Test
     public void testDeliverMessage_Error() throws Exception
     {
         Any any = getORB().create_any();
@@ -141,10 +139,5 @@ public class ProxyPushSupplierImplTest extends NotificationTestCase
     {
         controlScheduledFuture_.verify();
         controlTaskProcessor_.verify();
-    }
-
-    public static Test suite() throws Exception
-    {
-        return NotificationTestCase.suite(ProxyPushSupplierImplTest.class);
     }
 }

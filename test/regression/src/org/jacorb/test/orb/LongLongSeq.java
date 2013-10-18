@@ -21,13 +21,16 @@ package org.jacorb.test.orb;
  */
 
 
-import junit.framework.Test;
-import junit.framework.TestSuite;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 import org.jacorb.test.LongLongSeqServer;
 import org.jacorb.test.LongLongSeqServerHelper;
 import org.jacorb.test.LongLongSeqServerPackage.SeqLongLongHolder;
 import org.jacorb.test.common.ClientServerSetup;
 import org.jacorb.test.common.ClientServerTestCase;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
 
 public class LongLongSeq extends ClientServerTestCase
 {
@@ -39,33 +42,19 @@ public class LongLongSeq extends ClientServerTestCase
         assertEquals( arg[1], Long.MIN_VALUE );
     }
 
-    public LongLongSeq(String name, ClientServerSetup setup)
-    {
-        super(name, setup);
-    }
-
+    @Before
     public void setUp() throws Exception
     {
         server = LongLongSeqServerHelper.narrow( setup.getServerObject() );
     }
 
-    protected void tearDown() throws Exception
+    @BeforeClass
+    public static void beforeClassSetUp() throws Exception
     {
-        server = null;
+        setup = new ClientServerSetup ("org.jacorb.test.orb.LongLongSeqServerImpl" );
     }
 
-    public static Test suite()
-    {
-        TestSuite suite = new TestSuite
-            ( "Client/server longlongseq tests" );
-        ClientServerSetup setup = new ClientServerSetup
-            ( suite, "org.jacorb.test.orb.LongLongSeqServerImpl" );
-
-        suite.addTest( new LongLongSeq( "test_longlong", setup ) );
-
-        return setup;
-    }
-
+    @Test
     public void test_longlong()
     {
         long[] l = new long[]{ Long.MIN_VALUE, Long.MIN_VALUE };

@@ -20,8 +20,12 @@ package org.jacorb.test.orb.dynany;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 import java.lang.reflect.Method;
 import java.math.BigDecimal;
+import org.junit.Test;
 import org.omg.CORBA.FixedHolder;
 import org.omg.CORBA.TypeCode;
 
@@ -34,6 +38,7 @@ import org.omg.CORBA.TypeCode;
 
 public class DynAnyFixedTest extends DynAnyXXXTestCase
 {
+    @Test
     public void testHolder0() throws Exception
     {
         TypeCode typeCode = new FixedHolder(new BigDecimal("0"))._type();
@@ -41,6 +46,7 @@ public class DynAnyFixedTest extends DynAnyXXXTestCase
         assertEquals(0, typeCode.fixed_scale());
     }
 
+    @Test
     public void testHolder1() throws Exception
     {
         TypeCode typeCode = new FixedHolder(new BigDecimal("1.0"))._type();
@@ -48,6 +54,7 @@ public class DynAnyFixedTest extends DynAnyXXXTestCase
         assertEquals(1, typeCode.fixed_scale());
     }
 
+    @Test
     public void testHolder2() throws Exception
     {
         TypeCode typeCode = new FixedHolder(new BigDecimal("1.01"))._type();
@@ -59,6 +66,7 @@ public class DynAnyFixedTest extends DynAnyXXXTestCase
      * Tests creating a DynAny object from an Any object using the
      * DynAnyFactory object.
      */
+    @Test
     public void testFactoryCreateFromAny () throws Exception
     {
         BigDecimal fixedVal;
@@ -77,6 +85,7 @@ public class DynAnyFixedTest extends DynAnyXXXTestCase
      * Tests creating a DynAny object from a TypeCode object using the
      * DynAnyFactory object.
      */
+    @Test
     public void testFactoryCreateFromTypeCode () throws Exception
     {
         org.omg.CORBA.TypeCode tc = null;
@@ -89,6 +98,7 @@ public class DynAnyFixedTest extends DynAnyXXXTestCase
     /**
      * Test comparing DynAny values.
      */
+    @Test
     public void testCompareDynAny () throws Exception
     {
         String msg;
@@ -112,6 +122,8 @@ public class DynAnyFixedTest extends DynAnyXXXTestCase
     /**
      * Test accessing a value in a DynFixed object.
      */
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+    @Test
     public void testAccessFixedValue () throws Exception
     {
         String msg;
@@ -176,6 +188,7 @@ public class DynAnyFixedTest extends DynAnyXXXTestCase
      * Test that a TypeMismatch exception is raised if the fixed value is
      * invalid.
      */
+    @Test
     public void testAccessTypeMismatchEx () throws Exception
     {
         String msg;
@@ -210,6 +223,7 @@ public class DynAnyFixedTest extends DynAnyXXXTestCase
      * Test that an InvalidValue exception is raised if there are too many
      * digits in the fixed value.
      */
+    @Test
     public void testAccessInvalidValueEx () throws Exception
     {
         String msg;
@@ -239,6 +253,7 @@ public class DynAnyFixedTest extends DynAnyXXXTestCase
     /**
      * Test obtaining the TypeCode associated with a DynAny object.
      */
+    @Test
     public void testDynAnyTypeCode () throws Exception
     {
         String msg;
@@ -256,6 +271,7 @@ public class DynAnyFixedTest extends DynAnyXXXTestCase
     /**
      * Test initializing a DynAny object from another DynAny object.
      */
+    @Test
     public void testInitDynAnyFromDynAny () throws Exception
     {
         String msg;
@@ -283,6 +299,7 @@ public class DynAnyFixedTest extends DynAnyXXXTestCase
     /**
      * Test initializing a DynAny object from an Any value.
      */
+    @Test
     public void testInitDynAnyFromAny () throws Exception
     {
         String msg;
@@ -312,6 +329,7 @@ public class DynAnyFixedTest extends DynAnyXXXTestCase
      * Test that a TypeMismatch exception is raised if there is a type
      * mismatch between the DynAny and Any types in an assignment.
      */
+    @Test
     public void testInitFromAnyTypeMismatchEx () throws Exception
     {
         String msg;
@@ -342,6 +360,7 @@ public class DynAnyFixedTest extends DynAnyXXXTestCase
     /**
      * Test generating an Any value from a DynAny object.
      */
+    @Test
     public void testGenerateAnyFromDynAny () throws Exception
     {
         final org.omg.CORBA.TypeCode tc = orb.create_fixed_tc ((short) 2, (short) 1);
@@ -372,6 +391,7 @@ public class DynAnyFixedTest extends DynAnyXXXTestCase
     /**
      * Test destroying a DynAny object.
      */
+    @Test
     public void testDestroyDynAny () throws Exception
     {
         String msg;
@@ -420,6 +440,7 @@ public class DynAnyFixedTest extends DynAnyXXXTestCase
     /**
      * Test creating a copy of a DynAny object.
      */
+    @Test
     public void testCopyDynAny () throws Exception
     {
         String msg;
@@ -443,6 +464,7 @@ public class DynAnyFixedTest extends DynAnyXXXTestCase
     /**
      * Test iterating through components of a DynAny.
      */
+    @Test
     public void testIterateDynAny () throws Exception
     {
         String msg;

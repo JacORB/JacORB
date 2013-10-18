@@ -1,8 +1,9 @@
 package org.jacorb.test.orb.policies;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 import junit.framework.AssertionFailedError;
-import junit.framework.Test;
-import junit.framework.TestSuite;
 import org.jacorb.test.AMI_TimingServerHandler;
 import org.jacorb.test.AMI_TimingServerHandlerOperations;
 import org.jacorb.test.AMI_TimingServerHandlerPOATie;
@@ -12,8 +13,10 @@ import org.jacorb.test.TimingServerHelper;
 import org.jacorb.test._TimingServerStub;
 import org.jacorb.test.common.CallbackTestCase;
 import org.jacorb.test.common.ClientServerSetup;
-import org.jacorb.test.common.TestUtils;
 import org.jacorb.util.Time;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
 import org.omg.CORBA.Policy;
 import org.omg.CORBA.PolicyError;
 import org.omg.CORBA.SetOverrideType;
@@ -34,19 +37,10 @@ public class TimingTest extends CallbackTestCase
 {
     private TimingServer server = null;
 
-    public TimingTest(String name, ClientServerSetup setup)
-    {
-        super(name, setup);
-    }
-
-    protected void setUp() throws Exception
+    @Before
+    public void setUp() throws Exception
     {
         server = TimingServerHelper.narrow (setup.getServerObject());
-    }
-
-    protected void tearDown() throws Exception
-    {
-        server = null;
     }
 
     private class ReplyHandler
@@ -110,12 +104,13 @@ public class TimingTest extends CallbackTestCase
         return tie._this( setup.getClientOrb() );
     }
 
-    public static Test suite()
+    @BeforeClass
+    public static void beforeClassSetUp() throws Exception
     {
-        TestSuite suite = new TestSuite ("Timing Policies");
-        ClientServerSetup setup =
-            new ClientServerSetup
-                (suite,
+
+        setup = new ClientServerSetup
+        (
+
                  "org.jacorb.test.orb.policies.TimingServerImpl");
 
         // some tests are disabled below (no test prefix)
@@ -123,15 +118,13 @@ public class TimingTest extends CallbackTestCase
         // to make them succeed on a fast machine where the Java
         // clock has only millisecond resolution
 
-        TestUtils.addToSuite(suite, setup, TimingTest.class);
-
-        return setup;
     }
 
     /**
      * Do a few synchronous invocations as a sanity check
      * and to get all the necessary classes loaded.
      */
+    @Test
     public void test_sync_no_timing() throws Exception
     {
         int result = server.operation (1, 0);
@@ -168,6 +161,7 @@ public class TimingTest extends CallbackTestCase
      * Do a few asynchronous invocations as a sanity check
      * and to get all the necessary classes loaded.
      */
+    @Test
     public void test_async_no_timing()
     {
         ReplyHandler handler = new ReplyHandler()
@@ -209,6 +203,7 @@ public class TimingTest extends CallbackTestCase
     /**
      * Set all timing policies to values that will be met by the invocation.
      */
+    @Test
     public void test_all_policies_sync_ok() throws Exception
     {
         server = clearPolicies (server);
@@ -227,6 +222,7 @@ public class TimingTest extends CallbackTestCase
      * Sets a RequestStartTime which will already have expired
      * when the request arrives.
      */
+    @Test
     public void test_request_start_time_sync_expired()
     {
         server = clearPolicies (server);
@@ -245,6 +241,7 @@ public class TimingTest extends CallbackTestCase
      * Sets a RequestStartTime which will not have been reached
      * when the request arrives.
      */
+    @Test
     public void test_request_start_time_sync_wait()
     {
         server = clearPolicies (server);
@@ -267,6 +264,7 @@ public class TimingTest extends CallbackTestCase
      * Sets a RequestEndTime which will
      * be met by the invocation.
      */
+    @Test
     public void test_request_end_time_sync_ok() throws Exception
     {
         server = clearPolicies (server);
@@ -278,6 +276,7 @@ public class TimingTest extends CallbackTestCase
      * Sets a RequestEndTime which will have expired prior
      * to the invocation.
      */
+    @Test
     public void test_request_end_time_sync_pre_expired()
     {
         server = clearPolicies (server);
@@ -296,6 +295,7 @@ public class TimingTest extends CallbackTestCase
     /**
      * Sets a RequestEndTime which will have expired prior to the invocation.
      */
+    @Test
     public void test_request_end_time_async_pre_expired()
     {
         ReplyHandler handler = new ReplyHandler();
@@ -316,6 +316,7 @@ public class TimingTest extends CallbackTestCase
     /**
      * Sets a RequestEndTime which will expire during the invocation.
      */
+    @Test
     public void test_request_end_time_sync_expired() throws Exception
     {
         server = clearPolicies (server);
@@ -336,6 +337,7 @@ public class TimingTest extends CallbackTestCase
      * Sets a RelativeRequestTimeout which will
      * be met by the invocation.
      */
+    @Test
     public void test_request_timeout_sync_ok()
     {
         server = clearPolicies (server);
@@ -400,6 +402,7 @@ public class TimingTest extends CallbackTestCase
      * Sets a ReplyStartTime which will already have expired
      * when the reply arrives.
      */
+    @Test
     public void test_reply_start_time_sync_expired()
     {
         server = clearPolicies (server);
@@ -418,6 +421,7 @@ public class TimingTest extends CallbackTestCase
      * Sets a ReplyStartTime which will not have been reached
      * when the reply arrives.
      */
+    @Test
     public void test_reply_start_time_sync_wait()
     {
         server = clearPolicies (server);
@@ -441,6 +445,7 @@ public class TimingTest extends CallbackTestCase
      * Sets a ReplyStartTime which will already have expired
      * when the reply arrives.
      */
+    @Test
     public void test_reply_start_time_async_expired()
     {
         ReplyHandler handler = new ReplyHandler()
@@ -468,6 +473,7 @@ public class TimingTest extends CallbackTestCase
      * Sets a ReplyStartTime which will not have been reached
      * when the reply arrives.
      */
+    @Test
     public void test_reply_start_time_async_wait()
     {
         ReplyHandler handler = new ReplyHandler()
@@ -496,6 +502,7 @@ public class TimingTest extends CallbackTestCase
      * Sets a ReplyEndTime which will
      * be met by the invocation.
      */
+    @Test
     public void test_reply_end_time_async_ok()
     {
         ReplyHandler handler = new ReplyHandler()
@@ -518,6 +525,7 @@ public class TimingTest extends CallbackTestCase
      * Sets a ReplyEndTime which will
      * expire during the invocation.
      */
+    @Test
     public void test_reply_end_time_async_expired()
     {
         ReplyHandler handler = new ReplyHandler()
@@ -545,6 +553,7 @@ public class TimingTest extends CallbackTestCase
      * Sets a ReplyEndTime which will
      * be met by the invocation.
      */
+    @Test
     public void test_reply_end_time_sync_ok()
     {
         server = clearPolicies (server);
@@ -555,6 +564,7 @@ public class TimingTest extends CallbackTestCase
     /**
      * Sets a ReplyEndTime which has expired prior to invocation.
      */
+    @Test
     public void test_reply_end_time_sync_pre_expired()
     {
         server = clearPolicies (server);
@@ -574,6 +584,7 @@ public class TimingTest extends CallbackTestCase
      * Sets a ReplyEndTime which will
      * expire during invocation.
      */
+    @Test
     public void test_reply_end_time_sync_expired()
     {
         server = clearPolicies (server);
@@ -594,6 +605,7 @@ public class TimingTest extends CallbackTestCase
      * Sets a RelativeRoundtripTimeout which will
      * be met by the invocation.
      */
+    @Test
     public void test_relative_roundtrip_sync_ok()
     {
         server = clearPolicies (server);
@@ -605,6 +617,7 @@ public class TimingTest extends CallbackTestCase
      * Sets a RelativeRoundtripTimeout which will
      * expire during invocation.
      */
+    @Test
     public void test_relative_roundtrip_sync_expired()
     {
         server = clearPolicies (server);
@@ -624,6 +637,7 @@ public class TimingTest extends CallbackTestCase
      * Sets a RelativeRoundtripTimeout which will
      * be met by the invocation.
      */
+    @Test
     public void test_relative_roundtrip_async_ok()
     {
         ReplyHandler handler = new ReplyHandler()
@@ -645,6 +659,7 @@ public class TimingTest extends CallbackTestCase
      * Sets a RelativeRoundtripTimeout which will
      * expire during the invocation.
      */
+    @Test
     public void test_relative_roundtrip_async_expired()
     {
         ReplyHandler handler = new ReplyHandler()
@@ -673,6 +688,7 @@ public class TimingTest extends CallbackTestCase
      * Sets a Request- and ReplyStartTime which will not have been
      * reached. Server needs to wait for both policies.
      */
+    @Test
     public void test_request_reply_start_time_sync_wait()
     {
         server = clearPolicies (server);

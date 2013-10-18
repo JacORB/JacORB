@@ -20,10 +20,9 @@
 
 package org.jacorb.test.bugs.bugjac444;
 
-import junit.framework.Test;
-import junit.framework.TestSuite;
+import static org.junit.Assert.assertEquals;
 import org.jacorb.test.common.ORBTestCase;
-import org.jacorb.test.common.TestUtils;
+import org.junit.Test;
 import org.omg.CORBA.Any;
 import org.omg.CORBA.ValueBaseHelper;
 import org.omg.CORBA.portable.InputStream;
@@ -37,6 +36,7 @@ public class BugJac444Test extends ORBTestCase
 {
     Event evt = new EventImpl();
 
+    @Test
     public void testEventAsAny()
     {
         Any any = orb.create_any();
@@ -45,6 +45,7 @@ public class BugJac444Test extends ORBTestCase
         assertEquals(evt, EventHelper.extract(any));
     }
 
+    @Test
     public void testEventAsStream()
     {
         final OutputStream out = orb.create_output_stream();
@@ -53,6 +54,7 @@ public class BugJac444Test extends ORBTestCase
         assertEquals(evt, EventHelper.read(in));
     }
 
+    @Test
     public void testEventBaseAsAny()
     {
         Any any = orb.create_any();
@@ -63,6 +65,7 @@ public class BugJac444Test extends ORBTestCase
         assertEquals(evt, base);
     }
 
+    @Test
     public void testEventBaseAsStream()
     {
         OutputStream out = orb.create_output_stream();
@@ -71,15 +74,5 @@ public class BugJac444Test extends ORBTestCase
         ValueBase base = (ValueBase) ValueBaseHelper.read(in);
 
         assertEquals(evt, base);
-    }
-
-    public static Test suite()
-    {
-        if (TestUtils.isJ2ME())
-        {
-            return new TestSuite();
-        }
-
-        return new TestSuite(BugJac444Test.class );
     }
 }

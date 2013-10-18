@@ -21,11 +21,12 @@
 
 package org.jacorb.test.notification;
 
+import static org.junit.Assert.assertTrue;
 import java.util.Date;
-import junit.framework.Test;
 import org.jacorb.test.notification.common.NotifyServerTestCase;
-import org.jacorb.test.notification.common.NotifyServerTestSetup;
 import org.jacorb.util.Time;
+import org.junit.Before;
+import org.junit.Test;
 import org.omg.CORBA.Any;
 import org.omg.CORBA.IntHolder;
 import org.omg.CosNotification.EventHeader;
@@ -45,12 +46,8 @@ public class StopTimeIntegrationTest extends NotifyServerTestCase
 
     StructuredEvent structuredEvent_;
 
-    public StopTimeIntegrationTest(String name, NotifyServerTestSetup setup)
-    {
-        super(name, setup);
-    }
-
-    public void setUpTest() throws Exception
+    @Before
+    public void setUp() throws Exception
     {
        eventChannel_ = getDefaultChannel();
 
@@ -66,30 +63,34 @@ public class StopTimeIntegrationTest extends NotifyServerTestCase
 
         structuredEvent_.filterable_data = new Property[0];
 
-        structuredEvent_.remainder_of_body = getClientORB().create_any();
+        structuredEvent_.remainder_of_body = setup.getClientOrb().create_any();
     }
 
+    @Test
     public void testEventWithStartTimeAfterStopTimeIsNotDelivered() throws Exception
     {
         // StartTime +1000ms, StopTime +500ms
         sendEvent(eventChannel_, 1000, 500, false);
     }
 
+    @Test
     public void testEventWithStopTimeAfterStartTimeIsDelivered() throws Exception
     {
         // StartTime +1000ms, StopTime +2000ms
         sendEvent(eventChannel_, 1000, 2000, true);
     }
 
+    @Test
     public void testEventWithStopTimeInThePastIsNotDelivered() throws Exception
     {
         // StartTime now, StopTime in the Past
         sendEvent(eventChannel_, 0, -1000, false);
     }
 
+    @Test
     public void testDisable_StopTimeSupported() throws Exception
     {
-        Any falseAny = getClientORB().create_any();
+        Any falseAny = setup.getClientOrb().create_any();
         falseAny.insert_boolean(false);
 
         Property[] props = new Property[] { new Property(StopTimeSupported.value, falseAny) };
@@ -104,22 +105,22 @@ public class StopTimeIntegrationTest extends NotifyServerTestCase
 
         Date _time = new Date(System.currentTimeMillis() + startDelay);
 
-        Any _any = getClientORB().create_any();
+        Any _any = setup.getClientOrb().create_any();
         UtcTHelper.insert(_any, Time.corbaTime(_time));
 
         structuredEvent_.header.variable_header[0] = new Property(StartTime.value, _any);
 
         _time = new Date(System.currentTimeMillis() + stopOffset);
 
-        _any = getClientORB().create_any();
+        _any = setup.getClientOrb().create_any();
         UtcTHelper.insert(_any, Time.corbaTime(_time));
 
         structuredEvent_.header.variable_header[1] = new Property(StopTime.value, _any);
 
-        StructuredPushSender _sender = new StructuredPushSender(getClientORB());
+        StructuredPushSender _sender = new StructuredPushSender(setup.getClientOrb());
         _sender.setStructuredEvent(new StructuredEvent[] {structuredEvent_});
 
-        StructuredPushReceiver _receiver = new StructuredPushReceiver(getClientORB());
+        StructuredPushReceiver _receiver = new StructuredPushReceiver(setup.getClientOrb());
 
         _sender.connect(channel, false);
 
@@ -141,10 +142,5 @@ public class StopTimeIntegrationTest extends NotifyServerTestCase
 
         _receiver.shutdown();
         _sender.shutdown();
-    }
-
-    public static Test suite() throws Exception
-    {
-        return NotifyServerTestCase.suite("StopTimeIntegrationTests", StopTimeIntegrationTest.class);
     }
 }

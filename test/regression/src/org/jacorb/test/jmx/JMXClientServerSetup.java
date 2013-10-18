@@ -24,30 +24,32 @@ package org.jacorb.test.jmx;
 import java.net.MalformedURLException;
 import java.util.Properties;
 import javax.management.remote.JMXServiceURL;
-import junit.framework.Test;
 import org.jacorb.test.common.ClientServerSetup;
 
 public class JMXClientServerSetup extends ClientServerSetup
 {
     private JMXServiceURL serviceURL;
 
-    public JMXClientServerSetup(Test test,
+    public JMXClientServerSetup(
             Properties clientOrbProperties,
             Properties serverOrbProperties)
+        throws Exception
     {
-        super(test, "ignored", clientOrbProperties, serverOrbProperties);
-    }
+        super(ExampleServiceRunner.class.getName(), "ignored", clientOrbProperties, serverOrbProperties);
 
-    protected void resolveServerObject(String ior)
-    {
         try
         {
-            serviceURL = new JMXServiceURL(ior);
+            serviceURL = new JMXServiceURL(this.getServerIOR());
         }
         catch (MalformedURLException e)
         {
             throw new IllegalArgumentException();
         }
+    }
+
+    protected void resolveServerObject(String ior)
+    {
+        this.ior = ior;
     }
 
     public JMXServiceURL getServiceURL()

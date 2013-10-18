@@ -21,15 +21,18 @@ package org.jacorb.test.notification.perf;
  *
  */
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicBoolean;
-import junit.framework.Test;
 import org.jacorb.notification.util.LogUtil;
 import org.jacorb.test.notification.StructuredPushReceiver;
 import org.jacorb.test.notification.StructuredPushSender;
 import org.jacorb.test.notification.TestUtils;
 import org.jacorb.test.notification.common.NotificationTestCase;
-import org.jacorb.test.notification.common.NotificationTestCaseSetup;
+import org.junit.Before;
+import org.junit.Ignore;
+import org.junit.Test;
 import org.omg.CORBA.Any;
 import org.omg.CORBA.IntHolder;
 import org.omg.CosEventComm.Disconnected;
@@ -85,15 +88,11 @@ public class PerformanceTest extends NotificationTestCase
      * @param name
      *            test name
      */
-    public PerformanceTest(String name, NotificationTestCaseSetup setup)
-    {
-        super(name, setup);
-    }
-
     /**
      * setup EventChannelFactory, FilterFactory and Any with Testdata
      */
-    public void setUpTest() throws Exception
+    @Before
+    public void setUp() throws Exception
     {
         testUtils_ = new TestUtils();
 
@@ -239,7 +238,9 @@ public class PerformanceTest extends NotificationTestCase
                 + " in average: " + (_total / runs));
     }
 
-    public void XXXtestLoad() throws Exception
+    @Ignore
+    @Test
+    public void testLoad() throws Exception
     {
         final AtomicBoolean active = new AtomicBoolean(true);
 
@@ -295,10 +296,5 @@ public class PerformanceTest extends NotificationTestCase
         sender.shutdown();
 
         receiver.shutdown();
-    }
-
-    public static Test suite() throws Exception
-    {
-        return NotificationTestCase.suite(PerformanceTest.class);//, "_testMeasureFilterLatency");
     }
 }

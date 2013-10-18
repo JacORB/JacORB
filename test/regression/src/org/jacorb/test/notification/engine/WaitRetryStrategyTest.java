@@ -20,11 +20,10 @@ package org.jacorb.test.notification.engine;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import junit.framework.Test;
-import junit.framework.TestSuite;
 import org.jacorb.notification.engine.AbstractRetryStrategy;
 import org.jacorb.notification.engine.RetryException;
 import org.jacorb.notification.engine.WaitRetryStrategy;
+import org.junit.Test;
 import org.omg.CORBA.TRANSIENT;
 
 /**
@@ -33,6 +32,7 @@ import org.omg.CORBA.TRANSIENT;
     
 public class WaitRetryStrategyTest extends AbstractRetryStrategyTestCase
 {
+    @Test
     public void testRetryTerminatesAndThrowsException() throws Exception
     {
         mockConsumer_.isRetryAllowed();
@@ -72,6 +72,7 @@ public class WaitRetryStrategyTest extends AbstractRetryStrategyTestCase
         controlConsumer_.verify();
     }
 
+    @Test
     public void testRetrySucceeds() throws Exception
     {
         mockConsumer_.isRetryAllowed();
@@ -89,6 +90,7 @@ public class WaitRetryStrategyTest extends AbstractRetryStrategyTestCase
         controlPushOperation_.verify();
     }
 
+    @Test
     public void testSuccessfulRetryDisposesPushOperation() throws Exception
     {
         mockPushOperation_.invokePush();
@@ -106,6 +108,7 @@ public class WaitRetryStrategyTest extends AbstractRetryStrategyTestCase
         controlPushOperation_.verify();
     }
     
+    @Test
     public void testNotSuccessfulRetryDisposes() throws Exception
     {
         mockPushOperation_.dispose();
@@ -123,6 +126,7 @@ public class WaitRetryStrategyTest extends AbstractRetryStrategyTestCase
     }
 
     
+    @Test
     public void testRetryAllowedDisposesPushOperation() throws Exception
     {
         mockPushOperation_.dispose();
@@ -139,12 +143,6 @@ public class WaitRetryStrategyTest extends AbstractRetryStrategyTestCase
         controlPushOperation_.verify();
     }
     
-    public static Test suite()
-    {
-        TestSuite suite = new TestSuite(WaitRetryStrategyTest.class);
-
-        return suite;
-    }
 
     
     protected void setUpTest()

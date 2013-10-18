@@ -1,16 +1,15 @@
 package org.jacorb.test.orb.connection;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Vector;
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
 import org.jacorb.config.Configuration;
 import org.jacorb.config.JacORBConfiguration;
-import org.jacorb.orb.ORB;
 import org.jacorb.orb.giop.ClientConnection;
 import org.jacorb.orb.giop.GIOPConnection;
 import org.jacorb.orb.giop.GIOPConnectionManager;
@@ -25,6 +24,9 @@ import org.jacorb.orb.giop.RequestOutputStream;
 import org.jacorb.orb.giop.ServerGIOPConnection;
 import org.jacorb.orb.iiop.IIOPAddress;
 import org.jacorb.orb.iiop.IIOPProfile;
+import org.jacorb.test.common.ORBTestCase;
+import org.junit.Before;
+import org.junit.Test;
 import org.omg.ETF.BufferHolder;
 import org.omg.ETF.Profile;
 import org.omg.GIOP.MsgType_1_1;
@@ -34,40 +36,16 @@ import org.omg.GIOP.MsgType_1_1;
  *
  * @author Nicolas Noffke
  */
-public class GIOPConnectionTest
-    extends TestCase
+public class GIOPConnectionTest extends ORBTestCase
 {
     private Configuration config;
-    private ORB orb;
 
+    @Before
     public void setUp()
         throws Exception
     {
-        orb = (ORB) ORB.init(new String[0], null);
         config = JacORBConfiguration.getConfiguration(null, orb, false);
     }
-
-    protected void tearDown() throws Exception
-    {
-        config = null;
-        orb.shutdown(true);
-        orb = null;
-    }
-
-    public static Test suite()
-    {
-        TestSuite suite = new TestSuite ("GIOPConnection Test");
-
-        suite.addTest (new GIOPConnectionTest ("testGIOP_1_0_CorrectRefusing"));
-        suite.addTest (new GIOPConnectionTest ("testGIOP_1_1_IllegalMessageType"));
-        suite.addTest (new GIOPConnectionTest ("testGIOP_1_1_NoImplement"));
-        suite.addTest (new GIOPConnectionTest ("testGIOP_1_2_CorrectFragmentedRequest"));
-        suite.addTest (new GIOPConnectionTest ("testGIOP_1_2_CorrectCloseOnGarbage"));
-        suite.addTest (new GIOPConnectionTest ("testGIOP_1_1_CorrectRequest"));
-
-        return suite;
-    }
-
 
     class DummyTransport extends org.omg.ETF._ConnectionLocalBase
     {
@@ -79,7 +57,7 @@ public class GIOPConnectionTest
         (
             new IIOPAddress ("127.0.0.1", 4711),
             null,
-            orb.getGIOPMinorVersion()
+            getORB().getGIOPMinorVersion()
         );
 
         public DummyTransport( List<byte[]> messages )
@@ -253,17 +231,13 @@ public class GIOPConnectionTest
 
     }
 
-    public GIOPConnectionTest( String name )
-    {
-        super( name );
-    }
-
+    @Test
     public void testGIOP_1_2_CorrectFragmentedRequest()
     {
         List<byte[]> messages = new Vector<byte[]>();
 
         RequestOutputStream r_out =
-            new RequestOutputStream( orb, //ClientConnection
+            new RequestOutputStream( getORB(), //ClientConnection
                                      (ClientConnection) null,           //request id
                                      0,       //operation
                                      "foo",        // response expected
@@ -348,18 +322,23 @@ public class GIOPConnectionTest
         assertTrue( request_listener.getRequest() != null );
 
         RequestInputStream r_in = new RequestInputStream
-            ( orb, null, request_listener.getRequest() );
+            ( getORB(), null, request_listener.getRequest() );
 
         //is the body correct?
         assertEquals( "barbaz", r_in.read_string() );
+
+        r_out.close();
+        r_in.close();
+        m_out.close();
     }
 
+    @Test
     public void testGIOP_1_0_CorrectRefusing()
     {
         List<byte[]> messages = new Vector<byte[]>();
 
         RequestOutputStream r_out =
-            new RequestOutputStream( orb, //ClientConnection
+            new RequestOutputStream( getORB(), //ClientConnection
                                      null,           //request id
                                      0,       //operation
                                      "foo",        //response expected
@@ -475,15 +454,18 @@ public class GIOPConnectionTest
 
         assertTrue( Messages.getMsgType( result ) == MsgType_1_1._MessageError );
 
+        r_out.close();
+        m_out.close();
     }
 
+    @Test
     public void testGIOP_1_1_IllegalMessageType()
     {
         List<byte[]> messages = new Vector<byte[]>();
 
         LocateRequestOutputStream r_out =
             new LocateRequestOutputStream(
-                orb,
+                getORB(),
                 new byte[1], //object key
                 0,           //request id
                 1            // giop minor
@@ -552,14 +534,17 @@ public class GIOPConnectionTest
         byte[] result = transport.getWrittenMessage();
 
         assertTrue( Messages.getMsgType( result ) == MsgType_1_1._MessageError );
+
+        r_out.close();
     }
 
+    @Test
     public void testGIOP_1_1_NoImplement()
     {
         List<byte[]> messages = new Vector<byte[]>();
 
         RequestOutputStream r_out =
-            new RequestOutputStream( orb, //ClientConnection
+            new RequestOutputStream( getORB(), //ClientConnection
                                      null,           //request id
                                      0,       //operation
                                      "foo",        //response expected
@@ -631,7 +616,7 @@ public class GIOPConnectionTest
 
         byte[] result = transport.getWrittenMessage();
 
-        ReplyInputStream r_in = new ReplyInputStream( orb, result );
+        ReplyInputStream r_in = new ReplyInputStream( getORB(), result );
 
         Exception ex = r_in.getException();
         if ( ex != null && ex.getClass() == org.omg.CORBA.NO_IMPLEMENT.class )
@@ -677,8 +662,12 @@ public class GIOPConnectionTest
         assertTrue( reply_listener.getReply() == null );
 
         //can't check more, message is discarded
+        m_out.close();
+        r_out.close();
+        r_in.close();
     }
 
+    @Test
     public void testGIOP_1_2_CorrectCloseOnGarbage()
     {
         List<byte[]> messages = new Vector<byte[]>();
@@ -741,12 +730,13 @@ public class GIOPConnectionTest
         assertTrue( transport.getWrittenMessage().length == 0 );
     }
 
+    @Test
     public void testGIOP_1_1_CorrectRequest()
     {
         List<byte[]> messages = new Vector<byte[]>();
 
         RequestOutputStream r_out =
-            new RequestOutputStream( orb, //ClientConnection
+            new RequestOutputStream( getORB(), //ClientConnection
                                      (ClientConnection) null,           //request id
                                      0,       //operation
                                      "foo",        // response expected
@@ -810,10 +800,13 @@ public class GIOPConnectionTest
         assertTrue( request_listener.getRequest() != null );
 
         RequestInputStream r_in =
-        new RequestInputStream( orb, null, request_listener.getRequest() );
+        new RequestInputStream( getORB(), null, request_listener.getRequest() );
 
         //is the body correct?
         assertEquals( message, r_in.read_string() );
+
+        r_out.close();
+        r_in.close();
     }
 
 }// GIOPConnectionTest

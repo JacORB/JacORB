@@ -21,7 +21,8 @@
 
 package org.jacorb.test.notification.servant;
 
-import junit.framework.Test;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertSame;
 import org.easymock.MockControl;
 import org.jacorb.notification.OfferManager;
 import org.jacorb.notification.SubscriptionManager;
@@ -29,7 +30,7 @@ import org.jacorb.notification.interfaces.Message;
 import org.jacorb.notification.servant.AbstractProxySupplier;
 import org.jacorb.notification.servant.IAdmin;
 import org.jacorb.test.notification.common.NotificationTestCase;
-import org.jacorb.test.notification.common.NotificationTestCaseSetup;
+import org.junit.Test;
 import org.omg.CosNotifyChannelAdmin.ConsumerAdmin;
 import org.omg.CosNotifyChannelAdmin.ProxyType;
 import org.omg.PortableServer.POA;
@@ -110,11 +111,7 @@ public class AbstractProxySupplierTest extends NotificationTestCase
         mockClient_ = (org.omg.CORBA.Object) controlClient_.getMock();
     }
 
-    public AbstractProxySupplierTest(String name, NotificationTestCaseSetup setup)
-    {
-        super(name, setup);
-    }
-
+    @Test
     public void testNotConnectedSupplierDoesNotAccessMessage()
     {
         replayAll();
@@ -124,6 +121,7 @@ public class AbstractProxySupplierTest extends NotificationTestCase
         verifyAll();
     }
 
+    @Test
     public void testConnectedSupplierDoesCloneMessage()
     {
         mockMessage_.clone();
@@ -141,6 +139,7 @@ public class AbstractProxySupplierTest extends NotificationTestCase
         verifyAll();
     }
 
+    @Test
     public void testDisposeDisposesPendingMessages() throws Exception
     {
         mockMessage_.clone();
@@ -157,6 +156,7 @@ public class AbstractProxySupplierTest extends NotificationTestCase
         verifyAll();
     }
     
+    @Test
     public void testConnectedSupplierDoesQueueClonedMessage() throws Exception
     {
         MockControl controlClonedMessage = MockControl.createControl(Message.class);
@@ -206,10 +206,5 @@ public class AbstractProxySupplierTest extends NotificationTestCase
         controlClient_.replay();
         controlPOA_.replay();
         controlMessage_.replay();
-    }
-
-    public static Test suite() throws Exception
-    {
-        return NotificationTestCase.suite(AbstractProxySupplierTest.class);
     }
 }

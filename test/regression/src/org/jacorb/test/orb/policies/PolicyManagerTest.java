@@ -1,10 +1,12 @@
 package org.jacorb.test.orb.policies;
 
-import junit.framework.TestCase;
+import static org.junit.Assert.assertEquals;
 import org.easymock.MockControl;
 import org.jacorb.config.Configuration;
 import org.jacorb.orb.policies.PolicyManager;
 import org.jacorb.test.common.NullLogger;
+import org.junit.Before;
+import org.junit.Test;
 import org.omg.CORBA.Policy;
 import org.omg.CORBA.SetOverrideType;
 
@@ -31,13 +33,14 @@ import org.omg.CORBA.SetOverrideType;
 /**
  * @author Alphonse Bendt
  */
-public class PolicyManagerTest extends TestCase
+public class PolicyManagerTest
 {
     private PolicyManager objectUnderTest;
     private Policy policy1Mock;
     private Policy policy2Mock;
 
-    protected void setUp() throws Exception
+    @Before
+    public void setUp() throws Exception
     {
         final MockControl configControl = MockControl.createControl(Configuration.class);
         final Configuration configMock = (Configuration) configControl.getMock();
@@ -64,6 +67,7 @@ public class PolicyManagerTest extends TestCase
         policy2Control.replay();
     }
 
+    @Test
     public void testAddOverride() throws Exception
     {
         objectUnderTest.set_policy_overrides(new Policy[] {policy1Mock}, SetOverrideType.SET_OVERRIDE);
@@ -75,6 +79,7 @@ public class PolicyManagerTest extends TestCase
         assertEquals("first policy should still be there!", 1, result[0].policy_type());
     }
 
+    @Test
     public void testSetOverride() throws Exception
     {
         objectUnderTest.set_policy_overrides(new Policy[] {policy1Mock}, SetOverrideType.SET_OVERRIDE);

@@ -1,12 +1,12 @@
 package org.jacorb.test.nio;
 
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
+import java.util.Properties;
+import org.jacorb.test.common.ORBTestCase;
 import org.jacorb.util.SelectorManager;
 import org.jacorb.util.SelectorRequest;
 import org.jacorb.util.SelectorRequestCallback;
-import org.omg.CORBA.ORB;
+import org.junit.Before;
+import org.junit.Test;
 
 /**
  * FrameworkClientTest.java
@@ -14,7 +14,7 @@ import org.omg.CORBA.ORB;
  * Tests for corect operation of the Transport Current framework
  */
 
-public class NIOTimerTest extends TestCase
+public class NIOTimerTest extends ORBTestCase
 {
 
     private int expected_[] = new int[5];
@@ -23,9 +23,7 @@ public class NIOTimerTest extends TestCase
     private long requestInitTime_ = 0;
     private final int acceptableDelta_ = 10; // millis
 
-    private org.omg.CORBA.ORB orb_;
     private SelectorManager selectorManager_;
-    private SelectorRequest selectorRequest_;
     private long requestDuration_[] = new long[5]; // millis
     private long actualDuration_[] = new long[5];
     private long delta_[] = new long[5];
@@ -58,17 +56,8 @@ public class NIOTimerTest extends TestCase
     }
 
 
-    public static Test suite()
-    {
-        return new TestSuite(NIOTimerTest.class);
-    }
-
-    public NIOTimerTest(String name)
-    {
-        super (name);
-    }
-
-    protected void setUp() throws Exception
+    @Before
+    public void setUp() throws Exception
     {
         requestDuration_[0] = 500;
         requestDuration_[1] = 2000;
@@ -80,22 +69,21 @@ public class NIOTimerTest extends TestCase
 	expected_[2] = 4;
 	expected_[3] = 3;
 	expected_[4] = 1;
-  
-        java.util.Properties props = new java.util.Properties();
-        props.setProperty ("jacorb.connection.nonblocking", "on");
-        orb_ = ORB.init(new String[0], props);
-        selectorManager_ = ((org.jacorb.orb.ORB)orb_).getSelectorManager ();
+
+        selectorManager_ = ((org.jacorb.orb.ORB)orb).getSelectorManager ();
         for (int i = 0; i < 5; i++)
 	{
 	    lockObj_[i] = new Object();
 	}
     }
 
-    protected void tearDown() throws Exception
+    @Override
+    protected void patchORBProperties(Properties props) throws Exception
     {
-        orb_.shutdown(true);
+        props.setProperty ("jacorb.connection.nonblocking", "on");
     }
 
+    @Test
     public void testTimer() throws Exception
     {
         try
@@ -104,7 +92,7 @@ public class NIOTimerTest extends TestCase
             SelectorRequest selectorRequest[] = new SelectorRequest[5];
             for (int i = 0; i < 5; i++)
             {
-		selectorRequest[i] = 
+		selectorRequest[i] =
 		    new SelectorRequest (new TimerCallback(i),
 					 requestInitTime_ +
 					 requestDuration_[i] * 1000000);
@@ -122,7 +110,7 @@ public class NIOTimerTest extends TestCase
                 lockObj_[1].wait(2*requestDuration_[1]);
             }
 	    long maxDelta = 0;
-	    boolean inorder = true; 
+	    boolean inorder = true;
 	    for (int i = 0; i < 5; i++)
 	    {
 		maxDelta = delta_[i] > maxDelta ? delta_[i] : maxDelta;

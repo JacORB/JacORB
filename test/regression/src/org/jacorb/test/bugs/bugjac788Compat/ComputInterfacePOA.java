@@ -7,7 +7,7 @@ package org.jacorb.test.bugs.bugjac788Compat;
  * @author JacORB IDL compiler V 2.3.1, 27-May-2009
  * @version generated at 23-Mar-2012 12:48:37
  */
-
+@SuppressWarnings({"unchecked","rawtypes"})
 public abstract class ComputInterfacePOA
 	extends org.omg.PortableServer.Servant
 	implements org.omg.CORBA.portable.InvokeHandler, org.jacorb.test.bugs.bugjac788Compat.ComputInterfaceOperations

@@ -20,9 +20,9 @@
 
 package org.jacorb.test.bugs.bugjac449;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import java.util.Properties;
-import junit.framework.Test;
-import junit.framework.TestSuite;
 import org.jacorb.test.common.ClientServerSetup;
 import org.jacorb.test.common.ClientServerTestCase;
 import org.jacorb.test.common.CommonSetup;
@@ -31,6 +31,9 @@ import org.jacorb.test.orb.value.NodeImpl;
 import org.jacorb.test.orb.value.ValueServer;
 import org.jacorb.test.orb.value.ValueServerHelper;
 import org.jacorb.test.orb.value.ValueServerImpl;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
 
 /**
  * @author Alphonse Bendt
@@ -39,12 +42,8 @@ public class BugJac449Test extends ClientServerTestCase
 {
     private ValueServer server;
 
-    public BugJac449Test(String name, ClientServerSetup setup)
-    {
-        super(name, setup);
-    }
-
-    protected void setUp() throws Exception
+    @Before
+    public void setUp() throws Exception
     {
         server = ValueServerHelper.narrow(setup.getServerObject());
 
@@ -52,28 +51,16 @@ public class BugJac449Test extends ClientServerTestCase
         server.receive_string("a", "b");
     }
 
-    public static Test suite()
+    @BeforeClass
+    public static void beforeClassSetUp() throws Exception
     {
-        Test result;
-        if (!TestUtils.isJ2ME())
-        {
-            Properties clientProps = TestUtils.newForeignORBProperties();
-            clientProps.setProperty(CommonSetup.JACORB_REGRESSION_DISABLE_SECURITY, "true");
+        Properties clientProps = TestUtils.newForeignORBProperties();
+        clientProps.setProperty(CommonSetup.JACORB_REGRESSION_DISABLE_SECURITY, "true");
 
-            TestSuite suite = new TestSuite(BugJac449Test.class.getName());
-            ClientServerSetup setup =
-                new ClientServerSetup(suite, ValueServerImpl.class.getName(), clientProps, null);
-            result = setup;
-            TestUtils.addToSuite(suite, setup, BugJac449Test.class);
-        }
-        else
-        {
-            result = new TestSuite(BugJac449Test.class.getName() + " ignored because of J2ME");
-        }
-
-        return result;
+        setup = new ClientServerSetup(ValueServerImpl.class.getName(), clientProps, null);
     }
 
+    @Test
     public void testWithJacORBORB()
     {
         Properties props = new Properties();
@@ -98,6 +85,7 @@ public class BugJac449Test extends ClientServerTestCase
         }
     }
 
+    @Test
     public void testModifiedStubsAlsoWorkWithTheSunORB()
     {
         String result = server.receive_list(new NodeImpl(1234));

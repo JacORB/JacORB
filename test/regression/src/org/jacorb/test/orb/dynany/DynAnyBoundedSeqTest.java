@@ -20,10 +20,12 @@ package org.jacorb.test.orb.dynany;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import junit.framework.Test;
-import junit.framework.TestSuite;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 import org.jacorb.test.Bound;
 import org.jacorb.test.BoundedDataHelper;
+import org.junit.Test;
 import org.omg.CORBA.TCKind;
 import org.omg.DynamicAny.DynSequence;
 
@@ -36,16 +38,13 @@ import org.omg.DynamicAny.DynSequence;
 
 public class DynAnyBoundedSeqTest extends DynAnyXXXTestCase
 {
-   public static Test suite ()
-   {
-      return new TestSuite (DynAnyBoundedSeqTest.class, "Bounded DynSequence Tests");
-   }
 
    /**
     * Tests creating a DynAny object from an Any object using the
     * DynAnyFactory object.
     */
-   public void testFactoryCreateFromAny ()
+    @Test
+    public void testFactoryCreateFromAny ()
    {
       int [] type = null;
       org.omg.CORBA.Any any = null;
@@ -61,7 +60,8 @@ public class DynAnyBoundedSeqTest extends DynAnyXXXTestCase
     * Tests creating a DynAny object from an Any object using the
     * DynAnyFactory object.
     */
-   public void testSetLength() throws Exception
+    @Test
+    public void testSetLength() throws Exception
    {
       int [] type = null;
       org.omg.CORBA.Any any = null;
@@ -87,7 +87,8 @@ public class DynAnyBoundedSeqTest extends DynAnyXXXTestCase
     * Tests creating a DynAny object from a TypeCode object using the
     * DynAnyFactory object.
     */
-   public void testFactoryCreateFromTypeCode ()
+    @Test
+    public void testFactoryCreateFromTypeCode ()
    {
       org.omg.CORBA.TypeCode tc = null;
 
@@ -101,7 +102,8 @@ public class DynAnyBoundedSeqTest extends DynAnyXXXTestCase
     * Tests creating a DynAny object from a TypeCode object generated from
     * IDL using the DynAnyFactory object.
     */
-   public void testFactoryCreateFromIDLTypeCode ()
+    @Test
+    public void testFactoryCreateFromIDLTypeCode ()
    {
       org.omg.CORBA.TypeCode tc = null;
 
@@ -113,7 +115,8 @@ public class DynAnyBoundedSeqTest extends DynAnyXXXTestCase
    /**
     * Test comparing DynAny values.
     */
-   public void testCompareDynAny ()
+    @Test
+    public void testCompareDynAny ()
    {
       String msg;
       int [] type;
@@ -135,14 +138,14 @@ public class DynAnyBoundedSeqTest extends DynAnyXXXTestCase
    /**
     * Test iterating through components of a DynAny.
     */
-   public void testIterateDynAny ()
+    @Test
+    public void testIterateDynAny ()
    {
       String msg;
       int [] type;
       int compCount = -1;
       boolean seek;
       org.omg.CORBA.Any any = null;
-      org.omg.CORBA.TypeCode tc = null;
       org.omg.DynamicAny.DynSequence dynAny = null;
       org.omg.DynamicAny.DynAny compSeek = null;
       org.omg.DynamicAny.DynAny compRewind = null;
@@ -221,13 +224,13 @@ public class DynAnyBoundedSeqTest extends DynAnyXXXTestCase
    /**
     * Test accessing the elements in a DynSequence object.
     */
-   public void testAccessSeqElements ()
+    @Test
+    public void testAccessSeqElements ()
    {
       String msg;
       int len;
       int newLen;
       int curVal;
-      boolean next;
       org.omg.CORBA.TypeCode tc = null;
       org.omg.DynamicAny.DynSequence dynAny = null;
       org.omg.CORBA.Any [] anys = null;
@@ -325,13 +328,13 @@ public class DynAnyBoundedSeqTest extends DynAnyXXXTestCase
    /**
     * Test accessing the elements in a DynSequence object as DynAnys.
     */
-   public void testAccessSeqDynAnyElements ()
+    @Test
+    public void testAccessSeqDynAnyElements ()
    {
       String msg;
       int len;
       int newLen;
       int curVal;
-      boolean next;
       org.omg.CORBA.TypeCode tc = null;
       org.omg.DynamicAny.DynSequence dynAny = null;
       org.omg.DynamicAny.DynAny [] dynAnys = null;
@@ -457,7 +460,8 @@ public class DynAnyBoundedSeqTest extends DynAnyXXXTestCase
     * Test that the correct exceptions are raised when accessing the elements
     * in a DynSequence object incorrectly.
     */
-   public void testAccessSeqElementsEx ()
+    @Test
+    public void testAccessSeqElementsEx ()
    {
       String msg;
       int len;
@@ -537,7 +541,8 @@ public class DynAnyBoundedSeqTest extends DynAnyXXXTestCase
    /**
     * Test obtaining the TypeCode associated with a DynAny object.
     */
-   public void testDynAnyTypeCode ()
+    @Test
+    public void testDynAnyTypeCode ()
    {
       String msg;
       org.omg.CORBA.TypeCode tc = null;
@@ -555,7 +560,8 @@ public class DynAnyBoundedSeqTest extends DynAnyXXXTestCase
    /**
     * Test initializing a DynAny object from another DynAny object.
     */
-   public void testInitDynAnyFromDynAny ()
+    @Test
+    public void testInitDynAnyFromDynAny ()
    {
       String msg;
       int [] type;
@@ -589,7 +595,8 @@ public class DynAnyBoundedSeqTest extends DynAnyXXXTestCase
    /**
     * Test initializing a DynAny object from an Any value.
     */
-   public void testInitDynAnyFromAny ()
+    @Test
+    public void testInitDynAnyFromAny ()
    {
       String msg;
       int [] type;
@@ -624,7 +631,8 @@ public class DynAnyBoundedSeqTest extends DynAnyXXXTestCase
     * Test that a TypeMismatch exception is raised if there is a type
     * mismatch between the DynAny and Any types in an assignment.
     */
-   public void testInitFromAnyTypeMismatchEx ()
+    @Test
+    public void testInitFromAnyTypeMismatchEx ()
    {
       String msg;
       org.omg.CORBA.Any any = null;
@@ -660,7 +668,8 @@ public class DynAnyBoundedSeqTest extends DynAnyXXXTestCase
    /**
     * Test generating an Any value from a DynAny object.
     */
-   public void testGenerateAnyFromDynAny ()
+    @Test
+    public void testGenerateAnyFromDynAny ()
    {
       String msg;
       org.omg.CORBA.Any any = null;
@@ -684,7 +693,8 @@ public class DynAnyBoundedSeqTest extends DynAnyXXXTestCase
    /**
     * Test destroying a DynAny object.
     */
-   public void testDestroyDynAny ()
+    @Test
+    public void testDestroyDynAny ()
    {
       String msg;
       int [] type;
@@ -734,7 +744,8 @@ public class DynAnyBoundedSeqTest extends DynAnyXXXTestCase
    /**
     * Test destroying a component of a DynAny object.
     */
-   public void testDestroyComponent ()
+    @Test
+    public void testDestroyComponent ()
    {
       String msg;
       int [] type;
@@ -788,7 +799,8 @@ public class DynAnyBoundedSeqTest extends DynAnyXXXTestCase
    /**
     * Test creating a copy of a DynAny object.
     */
-   public void testCopyDynAny ()
+    @Test
+    public void testCopyDynAny ()
    {
       String msg;
       org.omg.CORBA.TypeCode tc = null;

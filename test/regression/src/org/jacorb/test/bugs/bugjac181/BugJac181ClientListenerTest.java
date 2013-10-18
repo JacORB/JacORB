@@ -1,12 +1,13 @@
 package org.jacorb.test.bugs.bugjac181;
 
+import static org.junit.Assert.assertTrue;
 import java.util.Properties;
-import junit.framework.Test;
-import junit.framework.TestSuite;
 import org.jacorb.orb.factory.SocketFactoryManager;
 import org.jacorb.test.common.ClientServerSetup;
 import org.jacorb.test.common.ClientServerTestCase;
-import org.jacorb.test.common.TestUtils;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
 
 public class BugJac181ClientListenerTest extends ClientServerTestCase
 {
@@ -15,16 +16,12 @@ public class BugJac181ClientListenerTest extends ClientServerTestCase
      */
     protected JAC181 server;
 
-    public BugJac181ClientListenerTest(String name, ClientServerSetup setup)
-    {
-        super(name, setup);
-    }
-
     /**
      * <code>setUp</code> sets up this test.
      *
      * @exception Exception if an error occurs
      */
+    @Before
     public void setUp() throws Exception
     {
         TCPListener.reset();
@@ -32,14 +29,9 @@ public class BugJac181ClientListenerTest extends ClientServerTestCase
         server = JAC181Helper.narrow( setup.getServerObject() );
     }
 
-    protected void tearDown() throws Exception
+    @BeforeClass
+    public static void beforeClassSetUp() throws Exception
     {
-        server = null;
-    }
-
-    public static Test suite()
-    {
-        TestSuite suite = new TestSuite();
 
         Properties client_props = new Properties();
         Properties server_props = new Properties();
@@ -49,23 +41,19 @@ public class BugJac181ClientListenerTest extends ClientServerTestCase
 
         client_props.setProperty (SocketFactoryManager.TCP_LISTENER, TCPListener.class.getName());
 
-        ClientServerSetup setup = new ClientServerSetup
+        setup = new ClientServerSetup
         (
-                suite,
                 "org.jacorb.test.bugs.bugjac181.JAC181Impl",
                 client_props,
                 server_props
         );
-
-        TestUtils.addToSuite(suite, setup, BugJac181ClientListenerTest.class);
-
-        return setup;
     }
 
     /**
      * <code>test_client_listener</code> tests for Client listener actions.
      *
      */
+    @Test
     public void test_client_listener() throws Exception
     {
         server.ping1();

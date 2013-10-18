@@ -20,18 +20,21 @@ package org.jacorb.test.idl;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import junit.framework.TestCase;
+import static org.junit.Assert.assertEquals;
+import org.jacorb.test.common.ORBTestCase;
+import org.junit.Test;
 
 /**
  * Union.java
  *
  * IDL parse tests.
  */
-public class UnionTest extends TestCase
+public class UnionTest extends ORBTestCase
 {
-   public void testUnionCheckTypeCode() throws Exception
-   {
+    @Test
+    public void testUnionCheckTypeCode() throws Exception
+    {
        org.omg.CORBA.TypeCode type = org.jacorb.test.bugs.BasicConfig.MOidpairHelper.type();
        assertEquals("value0",(((org.jacorb.orb.TypeCode)type).member_name(0)));
-   }
+    }
 }

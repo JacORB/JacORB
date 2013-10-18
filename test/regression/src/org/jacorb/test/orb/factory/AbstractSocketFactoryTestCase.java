@@ -11,6 +11,8 @@ import javax.net.ssl.SSLSocket;
 import junit.framework.TestCase;
 import org.jacorb.config.Configurable;
 import org.jacorb.orb.factory.SocketFactory;
+import org.junit.Before;
+import org.junit.Test;
 import org.omg.CORBA.TIMEOUT;
 
 /**
@@ -29,7 +31,8 @@ public abstract class AbstractSocketFactoryTestCase extends TestCase
     private boolean socketClosed;
     private Exception socketException;
 
-    protected final void setUp() throws Exception
+    @Before
+    public void setUp() throws Exception
     {
         objectUnderTest = newObjectUnderTest();
 
@@ -80,15 +83,9 @@ public abstract class AbstractSocketFactoryTestCase extends TestCase
 
         hostname = address.getHostName();
         serverPort = serverSocket.getLocalPort();
-
-        doSetup();
     }
 
     protected void configureObjectUnderTest(String name, Configurable configurable) throws Exception
-    {
-    }
-
-    protected void doSetup()
     {
     }
 
@@ -123,19 +120,22 @@ public abstract class AbstractSocketFactoryTestCase extends TestCase
         assertTrue(new String(sent) + " != " + new String(received), Arrays.equals(sent, received));
     }
 
-    public final void testConnect() throws Exception
+    @Test
+    public void testConnect() throws Exception
     {
         Socket socket = objectUnderTest.createSocket(hostname, serverPort);
         checkSocketIsConnected(socket);
     }
 
-    public final void testConnectWithTimeout() throws Exception
+    @Test
+    public void testConnectWithTimeout() throws Exception
     {
         Socket socket = objectUnderTest.createSocket(hostname, serverPort, 100);
         checkSocketIsConnected(socket);
     }
 
-    public final void testConnectToNonExistentPortWithTimeout() throws Exception
+    @Test
+    public void testConnectToNonExistentPortWithTimeout() throws Exception
     {
         try
         {

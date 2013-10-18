@@ -20,13 +20,15 @@ package org.jacorb.test.orb;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import junit.framework.Test;
-import junit.framework.TestSuite;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 import org.jacorb.test.BasicServer;
 import org.jacorb.test.BasicServerHelper;
 import org.jacorb.test.common.ClientServerSetup;
 import org.jacorb.test.common.ClientServerTestCase;
-import org.jacorb.test.common.TestUtils;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
 import org.omg.CORBA.OBJECT_NOT_EXIST;
 import org.omg.CORBA.ORB;
 import org.omg.PortableServer.POA;
@@ -42,37 +44,24 @@ public class NonExistentRemoteTest extends ClientServerTestCase
 {
     private BasicServer server;
 
-    public NonExistentRemoteTest(String name, ClientServerSetup setup)
-    {
-        super(name, setup);
-    }
-
+    @Before
     public void setUp() throws Exception
     {
         server = BasicServerHelper.narrow( setup.getServerObject() );
     }
 
-    protected void tearDown() throws Exception
+    @BeforeClass
+    public static void beforeClassSetUp() throws Exception
     {
-        server = null;
-    }
-
-    public static Test suite()
-    {
-        TestSuite suite = new TestSuite( "NonExistentRemoteTest" );
-
-        ClientServerSetup setup = new ClientServerSetup (
-            suite,
+        setup = new ClientServerSetup (
             NonExistentRemoteTest.class.getName(),
             "org.jacorb.test.orb.BasicServerImpl",
             null,
             null);
 
-        TestUtils.addToSuite(suite, setup, NonExistentRemoteTest.class);
-
-        return setup;
     }
 
+    @Test
     public void testNonExist() throws Exception
     {
         try

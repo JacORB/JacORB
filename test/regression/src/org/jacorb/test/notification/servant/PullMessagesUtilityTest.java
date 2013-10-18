@@ -22,16 +22,15 @@
 package org.jacorb.test.notification.servant;
 
 import java.util.concurrent.ScheduledFuture;
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
 import org.easymock.AbstractMatcher;
 import org.easymock.MockControl;
 import org.jacorb.notification.engine.TaskProcessor;
 import org.jacorb.notification.interfaces.MessageSupplier;
 import org.jacorb.notification.servant.PullMessagesUtility;
+import org.junit.Before;
+import org.junit.Test;
 
-public class PullMessagesUtilityTest extends TestCase
+public class PullMessagesUtilityTest
 {
     private PullMessagesUtility objectUnderTest_;
 
@@ -47,10 +46,9 @@ public class PullMessagesUtilityTest extends TestCase
 
     private MockControl controlScheduledFuture_;
 
-    protected void setUp() throws Exception
+    @Before
+    public void setUp() throws Exception
     {
-        super.setUp();
-
         controlScheduledFuture_ = MockControl.createControl(ScheduledFuture.class);
         mockScheduledFuture_ = (ScheduledFuture) controlScheduledFuture_.getMock();
         controlTaskProcessor_ = MockControl.createControl(TaskProcessor.class);
@@ -74,6 +72,7 @@ public class PullMessagesUtilityTest extends TestCase
         controlMessageSupplier_.verify();
     }
 
+    @Test
     public void testIllegalArgument()
     {
         replayAll();
@@ -95,6 +94,7 @@ public class PullMessagesUtilityTest extends TestCase
         verifyAll();
     }
 
+    @Test
     public void testStartTaskRegistersTask()
     {
         mockTaskProcessor_.executeTaskPeriodically(1000, null, true);
@@ -111,6 +111,7 @@ public class PullMessagesUtilityTest extends TestCase
         verifyAll();
     }
 
+    @Test
     public void testMultipleStartsAreIgnored()
     {
         mockTaskProcessor_.executeTaskPeriodically(0, null, false);
@@ -124,6 +125,7 @@ public class PullMessagesUtilityTest extends TestCase
         verifyAll();
     }
 
+    @Test
     public void testStopNotStartedTask()
     {
         replayAll();
@@ -131,6 +133,7 @@ public class PullMessagesUtilityTest extends TestCase
         verifyAll();
     }
 
+    @Test
     public void testStopTask()
     {
         mockTaskProcessor_.executeTaskPeriodically(0, null, false);
@@ -145,6 +148,7 @@ public class PullMessagesUtilityTest extends TestCase
         verifyAll();
     }
 
+    @Test
     public void testRestartNotStarted()
     {
         replayAll();
@@ -158,6 +162,7 @@ public class PullMessagesUtilityTest extends TestCase
         verifyAll();
     }
 
+    @Test
     public void testRestartStarted()
     {
         mockTaskProcessor_.executeTaskPeriodically(1000, null, true);
@@ -171,7 +176,7 @@ public class PullMessagesUtilityTest extends TestCase
         controlTaskProcessor_.setReturnValue(mockScheduledFuture_);
         mockScheduledFuture_.cancel(true);
         controlScheduledFuture_.setReturnValue(true);
-        
+
         mockTaskProcessor_.executeTaskPeriodically(2000, null, true);
         controlTaskProcessor_.setReturnValue(mockScheduledFuture_);
 
@@ -179,10 +184,5 @@ public class PullMessagesUtilityTest extends TestCase
         objectUnderTest_.startTask(1000);
         objectUnderTest_.restartTask(2000);
         verifyAll();
-    }
-
-    public static Test suite() throws Exception
-    {
-        return new TestSuite(PullMessagesUtilityTest.class);
     }
 }

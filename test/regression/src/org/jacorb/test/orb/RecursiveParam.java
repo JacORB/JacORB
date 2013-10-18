@@ -20,8 +20,6 @@ package org.jacorb.test.orb;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import junit.framework.Test;
-import junit.framework.TestSuite;
 import org.jacorb.test.RecursiveParamServer;
 import org.jacorb.test.RecursiveParamServerHelper;
 import org.jacorb.test.RecursiveParamServerPackage.Parm;
@@ -30,38 +28,27 @@ import org.jacorb.test.RecursiveParamServerPackage.blubTHelper;
 import org.jacorb.test.RecursiveParamServerPackage.ParmPackage.ParmValue;
 import org.jacorb.test.common.ClientServerSetup;
 import org.jacorb.test.common.ClientServerTestCase;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
 
 public class RecursiveParam extends ClientServerTestCase
 {
     private RecursiveParamServer server;
 
-    public RecursiveParam(String name, ClientServerSetup setup)
-    {
-        super(name, setup);
-    }
-
+    @Before
     public void setUp() throws Exception
     {
         server = RecursiveParamServerHelper.narrow( setup.getServerObject() );
     }
 
-    protected void tearDown() throws Exception
+    @BeforeClass
+    public static void beforeClassSetUp() throws Exception
     {
-        server = null;
+        setup = new ClientServerSetup(RecursiveParamServerImpl.class.getName() );
     }
 
-    public static Test suite()
-    {
-        TestSuite suite = new TestSuite
-            ( "Client/server recursiveparam tests" );
-        ClientServerSetup setup = new ClientServerSetup
-            ( suite, RecursiveParamServerImpl.class.getName() );
-
-        suite.addTest( new RecursiveParam( "test_param1", setup ) );
-
-        return setup;
-    }
-
+    @Test
     public void test_param1()
     {
         ParmValue pv = new ParmValue();

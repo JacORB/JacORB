@@ -21,11 +21,15 @@
 
 package org.jacorb.test.orb;
 
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 import java.lang.reflect.Field;
 import java.util.List;
 import org.jacorb.orb.BufferManager;
 import org.jacorb.orb.CDROutputStream;
 import org.jacorb.test.common.ORBTestCase;
+import org.junit.Before;
+import org.junit.Test;
 
 /**
  * Verify that a CDROutputStream with a custom size buffer does not get returned
@@ -35,12 +39,14 @@ public class BufferTest extends ORBTestCase
 {
     private CDROutputStream objectUnderTest;
 
-    protected void doSetUp() throws Exception
+    @Before
+    public void setUp() throws Exception
     {
         objectUnderTest = new CDROutputStream(orb);
     }
 
     @SuppressWarnings("rawtypes")
+    @Test
     public void testBufferReturn()
     {
         byte[] buffer = new byte[1100];

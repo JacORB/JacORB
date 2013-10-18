@@ -18,8 +18,11 @@ package org.jacorb.test.orb.iiop;
  *   License along with this library; if not, write to the Free
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 import java.util.Properties;
-import junit.framework.TestSuite;
 import org.jacorb.config.ConfigurationException;
 import org.jacorb.config.JacORBConfiguration;
 import org.jacorb.orb.CDROutputStream;
@@ -28,6 +31,8 @@ import org.jacorb.orb.iiop.ClientIIOPConnection;
 import org.jacorb.orb.iiop.IIOPAddress;
 import org.jacorb.orb.iiop.IIOPProfile;
 import org.jacorb.test.common.ORBTestCase;
+import org.junit.Before;
+import org.junit.Test;
 import org.omg.CORBA.NO_PERMISSION;
 import org.omg.CSIIOP.AS_ContextSec;
 import org.omg.CSIIOP.CompoundSecMech;
@@ -60,16 +65,12 @@ public class ClientIIOPConnectionTest extends ORBTestCase
     private static final short NOT_SUPPORTED = (short) 0;
 
 
-    protected void doSetUp() throws Exception
+    @Before
+    public void setUp() throws Exception
     {
         iiopProfile = new IIOPProfile( new IIOPAddress( "localhost", 4000 ),
                                        null,
                                        ((org.jacorb.orb.ORB)orb).getGIOPMinorVersion());
-    }
-
-    public static TestSuite suite()
-    {
-        return new TestSuite( ClientIIOPConnectionTest.class );
     }
 
 
@@ -111,6 +112,7 @@ public class ClientIIOPConnectionTest extends ORBTestCase
     /**
      * Verifies that if no profiles are available, the connection does not use ssl.
      */
+    @Test
     public void testNoProfiles() throws Exception
     {
         assertFalse( "Should not report ssl enabled", testConnection.isSSL() );
@@ -122,6 +124,7 @@ public class ClientIIOPConnectionTest extends ORBTestCase
      * Verifies that if a TAG_SSL_SEC_TRANS profile (now obsolete) is present,
      * the connection will use it as a specification of SSL.
      */
+    @Test
     public void testSslSecTransProfile() throws Exception
     {
         int port = 5000;
@@ -139,6 +142,7 @@ public class ClientIIOPConnectionTest extends ORBTestCase
      * Verifies that if a TAG_SSL_SEC_TRANS profile is present,
      * but the client is not supporting ssl, the connection does not use it.
      */
+    @Test
     public void testSslSecTransWithSslNotSupported() throws Exception
     {
         configureConnection( false, NOT_SUPPORTED, NOT_REQUIRED );
@@ -153,6 +157,7 @@ public class ClientIIOPConnectionTest extends ORBTestCase
     /**
      * Verifies that if a TAG_SSL_SEC_TRANS profile does not enable ssl if neither client nor server requires it.
      */
+    @Test
     public void testSslSecTransProfileNotRequired() throws Exception
     {
         configureConnection( true, SSL_FEATURE, NOT_REQUIRED );
@@ -168,6 +173,7 @@ public class ClientIIOPConnectionTest extends ORBTestCase
      * Verifies that if a TAG_COMPOUND_SEC_MECH profile with a TLS transport mechanism is present,
      * the connection will use it as a specification of SSL.
      */
+    @Test
     public void testTlsTransProfile() throws Exception
     {
         int port = 5000;
@@ -184,6 +190,7 @@ public class ClientIIOPConnectionTest extends ORBTestCase
     /**
      * Verifies that port numbers > 32767 are supported.
      */
+    @Test
     public void testTlsHighPortNum() throws Exception
     {
         int port = 40000;
@@ -201,6 +208,7 @@ public class ClientIIOPConnectionTest extends ORBTestCase
      * Verifies that if a TAG_COMPOUND_SEC_MECH is present with no transport mechanism,
      * and the client requires SSL, an exception will be thrown.
      */
+    @Test
     public void testCompoundSecMechNoTls() throws Exception
     {
         try
@@ -221,6 +229,7 @@ public class ClientIIOPConnectionTest extends ORBTestCase
      * Verifies that if a TAG_COMPOUND_SEC_MECH profile with a TLS transport mechanism is present,
      * but the client is not supporting ssl, the connection does not use it.
      */
+    @Test
     public void testTlsTransProfileWithSslNotSupported() throws Exception
     {
         configureConnection( false, SSL_FEATURE, SSL_FEATURE );
@@ -236,6 +245,7 @@ public class ClientIIOPConnectionTest extends ORBTestCase
      * Verifies that if a TAG_COMPOUND_SEC_MECH profile with a TLS transport mechanism is present,
      * ssl is not enabled if neither client nor server requires it.
      */
+    @Test
     public void testTlsTransProfileNotRequired() throws Exception
     {
         int port = 5000;
@@ -253,6 +263,7 @@ public class ClientIIOPConnectionTest extends ORBTestCase
      * Verifies that if both a TAG_SSL_SEC_TRANS and a TAG_COMPOUND_SEC_MECH profile without a TLS transport mechanism are present,
      * the SSL_SEC_TRANS will be used.
      */
+    @Test
     public void testSslTransProfileFavoredOverNonTlsSecMech() throws Exception
     {
         int port = 5000;

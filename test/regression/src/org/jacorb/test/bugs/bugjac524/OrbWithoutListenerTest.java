@@ -21,19 +21,22 @@ package org.jacorb.test.bugs.bugjac524;
  */
 
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 import java.net.ConnectException;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.util.Properties;
 import javax.net.ssl.SSLSocket;
-import junit.framework.Test;
-import junit.framework.TestSuite;
 import org.jacorb.test.BasicServer;
 import org.jacorb.test.BasicServerHelper;
 import org.jacorb.test.common.ClientServerSetup;
 import org.jacorb.test.common.ClientServerTestCase;
 import org.jacorb.test.common.TestUtils;
 import org.jacorb.test.orb.BasicServerImpl;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
 
 /**
  * @author Alphonse Bendt
@@ -42,34 +45,30 @@ public class OrbWithoutListenerTest extends ClientServerTestCase
 {
     private BasicServer server;
 
-    public OrbWithoutListenerTest(String name, ClientServerSetup setup)
-    {
-        super(name, setup);
-    }
-
-    public static Test suite()
+    @BeforeClass
+    public static void beforeClassSetUp() throws Exception
     {
         Properties clientProps = new Properties();
 
         clientProps.setProperty("OAPort", "4711");
         clientProps.setProperty("jacorb.transport.server.listeners", "off");
-        TestSuite suite = new TestSuite(OrbWithoutListenerTest.class.getName());
-        ClientServerSetup setup = new ClientServerSetup(suite, BasicServerImpl.class.getName(), clientProps, null);
-        TestUtils.addToSuite(suite, setup, OrbWithoutListenerTest.class);
-        return setup;
+        setup = new ClientServerSetup(BasicServerImpl.class.getName(), clientProps, null);
     }
 
-    protected void setUp() throws Exception
+    @Before
+    public void setUp() throws Exception
     {
         server = BasicServerHelper.narrow(setup.getServerObject());
     }
 
+    @Test
     public void testCanConnectToOtherServer()
     {
         long now = System.currentTimeMillis();
         assertEquals(now, server.bounce_long_long(now));
     }
 
+    @Test
     public void testORBDoesNotOpenListenSocket() throws Exception
     {
         server.ping();

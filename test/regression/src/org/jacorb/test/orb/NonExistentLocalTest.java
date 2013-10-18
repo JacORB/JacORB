@@ -20,9 +20,15 @@ package org.jacorb.test.orb;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 import org.jacorb.test.BasicServer;
 import org.jacorb.test.BasicServerHelper;
 import org.jacorb.test.common.ORBTestCase;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 import org.omg.CORBA.OBJECT_NOT_EXIST;
 import org.omg.PortableServer.POAManager;
 
@@ -36,16 +42,19 @@ public class NonExistentLocalTest extends ORBTestCase
 {
     private POAManager poaManager;
 
-    protected void doSetUp() throws Exception
+    @Before
+    public void setUp() throws Exception
     {
         poaManager = rootPOA.the_POAManager();
     }
 
-    protected void doTearDown() throws Exception
+    @After
+    public void tearDown() throws Exception
     {
         poaManager = null;
     }
 
+    @Test
     public void testNonExist() throws Exception
     {
         poaManager.activate();

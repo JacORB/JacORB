@@ -22,16 +22,18 @@ package org.jacorb.test.bugs.bugjac589;
  */
 
 
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 import java.util.Properties;
-import junit.framework.Test;
-import junit.framework.TestSuite;
 import org.jacorb.test.BasicServer;
 import org.jacorb.test.BasicServerHelper;
 import org.jacorb.test.common.ClientServerSetup;
 import org.jacorb.test.common.ClientServerTestCase;
 import org.jacorb.test.common.CommonSetup;
-import org.jacorb.test.common.TestUtils;
 import org.jacorb.test.orb.BasicServerImpl;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
 import org.omg.CORBA.TRANSIENT;
 
 
@@ -49,40 +51,21 @@ public class BugJac589Test extends ClientServerTestCase
     /** The server. */
     private BasicServer server;
 
-    public BugJac589Test(String name, ClientServerSetup setup)
+    @BeforeClass
+    public static void beforeClassSetUp() throws Exception
     {
-        super(name, setup);
-    }
-
-    public static Test suite()
-    {
-        if (TestUtils.isJ2ME())
-        {
-            return new TestSuite();
-        }
-
-        TestSuite suite = new TestSuite(BugJac589Test.class.getName());
-
         Properties clientProperties = new Properties();
         // FIXME: bugzilla #820 - disabled security for some regression tests
         clientProperties.put(CommonSetup.JACORB_REGRESSION_DISABLE_SECURITY, "true");
         clientProperties.put("jacorb.connection.client.connect_timeout", "20000");
 
-        ClientServerSetup setup = new ClientServerSetup(suite, BasicServerImpl.class.getName(), clientProperties, clientProperties);
-
-        TestUtils.addToSuite(suite, setup, BugJac589Test.class);
-
-        return setup;
+        setup = new ClientServerSetup(BasicServerImpl.class.getName(), clientProperties, clientProperties);
     }
 
-    protected void setUp() throws Exception
+    @Before
+    public void setUp() throws Exception
     {
         server = BasicServerHelper.narrow(setup.getServerObject());
-    }
-
-    protected void tearDown() throws Exception
-    {
-        server = null;
     }
 
     /**
@@ -90,13 +73,14 @@ public class BugJac589Test extends ClientServerTestCase
      *
      * @exception Exception if an error occurs
      */
+    @Test
     public void testGetComponent() throws Exception
     {
         org.omg.CORBA.Object o = setup.getClientOrb().string_to_object (ior);
 
         try
         {
-            Object result = o._get_component();
+            o._get_component();
 
             // Fail. Would expect the above IOR to give transient
             fail ("testGetComponent should throw transient");
@@ -114,6 +98,7 @@ public class BugJac589Test extends ClientServerTestCase
      *
      * @exception Exception if an error occurs
      */
+    @Test
     public void testGetComponentWithServer() throws Exception
     {
         Object result = server._get_component();

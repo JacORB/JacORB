@@ -21,11 +21,10 @@
 
 package org.jacorb.test.notification.engine;
 
-import junit.framework.Test;
-import junit.framework.TestSuite;
 import org.jacorb.notification.engine.AbstractFilterTask;
 import org.jacorb.notification.engine.FilterProxySupplierTask;
 import org.jacorb.notification.interfaces.FilterStage;
+import org.junit.Test;
 
 /**
  * @author Alphonse Bendt
@@ -42,6 +41,7 @@ public class FilterProxySupplierTaskTest extends AbstractFilterTaskTestCase
     }
     
     
+    @Test
     public void testFilter() throws Exception
     {
         mockMessage_.isInvalid();
@@ -80,10 +80,5 @@ public class FilterProxySupplierTaskTest extends AbstractFilterTaskTestCase
         
         controlFilterStage_.verify();
         controlTaskFactory_.verify();
-    }
-
-    public static Test suite()
-    {
-        return new TestSuite(FilterProxySupplierTaskTest.class);
     }
 }

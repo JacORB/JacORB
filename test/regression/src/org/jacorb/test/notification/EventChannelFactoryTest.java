@@ -1,11 +1,15 @@
 package org.jacorb.test.notification;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.fail;
 import java.util.Properties;
-import junit.framework.Test;
 import org.jacorb.notification.AbstractChannelFactory;
 import org.jacorb.notification.EventChannelFactoryImpl;
 import org.jacorb.test.notification.common.NotificationTestCase;
-import org.jacorb.test.notification.common.NotificationTestCaseSetup;
+import org.junit.Before;
+import org.junit.Test;
 import org.omg.CORBA.IntHolder;
 import org.omg.CORBA.OBJECT_NOT_EXIST;
 import org.omg.CosNotification.Property;
@@ -25,15 +29,8 @@ public class EventChannelFactoryTest
 
     AbstractChannelFactory factory_;
 
-    ////////////////////////////////////////
-
-    public EventChannelFactoryTest (String name, NotificationTestCaseSetup setup){
-        super(name, setup);
-    }
-
-    ////////////////////////////////////////
-
-    public void setUpTest() throws Exception
+    @Before
+    public void setUp() throws Exception
     {
         factory_ = AbstractChannelFactory.newFactory(new Properties());
 
@@ -46,6 +43,7 @@ public class EventChannelFactoryTest
     }
 
 
+    @Test
     public void testGetCorbaLoc() throws Exception {
         String _corbaLoc = factory_.getCorbaLoc();
 
@@ -63,6 +61,7 @@ public class EventChannelFactoryTest
     }
 
 
+    @Test
     public void testGetIOR() throws Exception {
         String ior = factory_.getIOR();
 
@@ -79,6 +78,7 @@ public class EventChannelFactoryTest
         assertFalse(factory._non_existent());
     }
 
+    @Test
     public void testDestroy() throws Exception
     {
         EventChannel channel_ = ((EventChannelFactoryImpl)factory_).create_channel(new Property[0], new Property[0], new IntHolder());
@@ -100,10 +100,5 @@ public class EventChannelFactoryTest
         {
             // expected
         }
-    }
-
-
-    public static Test suite() throws Exception {
-        return NotificationTestCase.suite(EventChannelFactoryTest.class);
     }
 }

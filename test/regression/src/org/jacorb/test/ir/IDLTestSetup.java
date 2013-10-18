@@ -18,43 +18,35 @@
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-package org.jacorb.test.common;
+package org.jacorb.test.ir;
 
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 import java.io.File;
 import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
-import junit.extensions.TestSetup;
 import junit.framework.AssertionFailedError;
-import junit.framework.Test;
+import org.jacorb.test.common.StreamListener;
+import org.jacorb.test.common.TestUtils;
 
 /**
  * @author Alphonse Bendt
  */
-public class IDLTestSetup extends TestSetup
+class IDLTestSetup
 {
-    private final Object idlFile;
-    private final Object idlArgs;
     private File dirGeneration;
 
-    public IDLTestSetup(Test test, Object idlFile, Object idlArgs)
-    {
-        super(test);
-
-        this.idlFile = idlFile;
-        this.idlArgs = idlArgs;
-    }
-
-    public final void setUp() throws Exception
+    public IDLTestSetup(String idlFile, String[] idlArgs) throws Exception
     {
         dirGeneration = TestUtils.createTempDir("IDL_CLASSES");
 
         TestUtils.log("[IDLTestSetup] using temporary directory " + dirGeneration + " for IDL generation");
 
-        String[] args = createJacIDLArgs(dirGeneration, getIDLFile(idlFile), getIDLArgs(idlArgs));
+        String[] args = createJacIDLArgs(dirGeneration, getIDLFile(idlFile), idlArgs);
 
         runJacIDLInProcess(idlFile.toString(), args, false);
 
@@ -71,13 +63,14 @@ public class IDLTestSetup extends TestSetup
         return dirGeneration;
     }
 
-    public static String[] createJacIDLArgs(File dir, File idlFile, List<String> additionalIDLArgs)
+    public static String[] createJacIDLArgs(File dir, File idlFile, String []additionalIDLArgs)
     {
         List<String> args = new ArrayList<String>();
         args.addAll(Arrays.asList(new String[] {"-ir", "-forceOverwrite", "-d", dir.getAbsolutePath()}));
-
-        args.addAll(additionalIDLArgs);
-
+        if (additionalIDLArgs != null)
+        {
+            args.addAll(Arrays.asList(additionalIDLArgs));
+        }
         if (idlFile.isDirectory())
         {
             final List<File> idlFiles = TestUtils.getFilesRecursively(idlFile, ".idl");
@@ -173,62 +166,17 @@ public class IDLTestSetup extends TestSetup
         return TestUtils.getJavaFilesRecursively(dir).toArray(new File[0]);
     }
 
-    private static File getIDLFile(Object idlFile)
+    private static File getIDLFile(String fileName)
     {
-        final File _idlFile;
-        if (idlFile == null)
-        {
-            throw new IllegalArgumentException("file might not be null");
-        }
-        else if (idlFile instanceof File)
-        {
-            _idlFile = (File) idlFile;
-        }
-        else if (idlFile instanceof String)
-        {
-            final String fileName = (String) idlFile;
-            File file = new File(fileName);
-            if (file.isAbsolute())
-            {
-                _idlFile = file;
-            }
-            else
-            {
-                _idlFile = new File(TestUtils.testHome() + "/idl/" + fileName);
-            }
-        }
-        else
-        {
-            throw new IllegalArgumentException("don't know how to convert " + idlFile);
-        }
-        TestUtils.log("using IDL " + (_idlFile.isDirectory() ? "dir" : "file") + " " + _idlFile);
+        File result = new File(fileName);
 
-        return _idlFile;
-    }
+        if ( ! result.isAbsolute())
+        {
+            result = new File(TestUtils.testHome() + "/idl/" + fileName);
+        }
 
-    private static List getIDLArgs(Object idlArgs)
-    {
-        final List _idlArgs;
-        if (idlArgs == null)
-        {
-            return Collections.EMPTY_LIST;
-        }
-        else if (idlArgs instanceof List)
-        {
-            _idlArgs = (List) idlArgs;
-        }
-        else if (idlArgs instanceof String[])
-        {
-            _idlArgs = Arrays.asList((String[])idlArgs);
-        }
-        else if (idlArgs instanceof String)
-        {
-            _idlArgs = Collections.singletonList(idlArgs);
-        }
-        else
-        {
-            throw new IllegalArgumentException("don't know how to convert " + idlArgs);
-        }
-        return _idlArgs;
+        TestUtils.log("using IDL " + (result.isDirectory() ? "dir" : "file") + " " + result);
+
+        return result;
     }
 }

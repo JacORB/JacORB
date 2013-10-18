@@ -21,18 +21,19 @@
 
 package org.jacorb.test.notification.filter;
 
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import org.easymock.MockControl;
 import org.jacorb.notification.filter.CallbackManager;
+import org.junit.Before;
+import org.junit.Test;
 import org.omg.CosNotification.EventType;
 import org.omg.CosNotifyComm.NotifySubscribe;
 
 /**
  * @author Alphonse Bendt
  */
-public class CallbackManagerTest extends TestCase
+public class CallbackManagerTest
 {
     private CallbackManager objectUnderTest_;
 
@@ -42,15 +43,15 @@ public class CallbackManagerTest extends TestCase
 
     private final static EventType[] EMPTY = new EventType[0];
 
-    protected void setUp() throws Exception
+    @Before
+    public void setUp() throws Exception
     {
-        super.setUp();
-
         objectUnderTest_ = new CallbackManager();
         controlSubscription_ = MockControl.createControl(NotifySubscribe.class);
         mockSubscription_ = (NotifySubscribe) controlSubscription_.getMock();
     }
 
+    @Test
     public void testAttach_callback()
     {
         int id = objectUnderTest_.attach_callback(mockSubscription_);
@@ -60,6 +61,7 @@ public class CallbackManagerTest extends TestCase
         assertEquals(id, ids[0]);
     }
 
+    @Test
     public void testDetach_callback()
     {
         assertEquals(0, objectUnderTest_.get_callbacks().length);
@@ -73,6 +75,7 @@ public class CallbackManagerTest extends TestCase
         assertEquals(0, objectUnderTest_.get_callbacks().length);
     }
 
+    @Test
     public void testGet_callbacks()
     {
         int[] ids = objectUnderTest_.get_callbacks();
@@ -81,6 +84,7 @@ public class CallbackManagerTest extends TestCase
         assertEquals(0, ids.length);
     }
 
+    @Test
     public void testNoChangeDoesNotNotify() throws Exception
     {
         objectUnderTest_.attach_callback(mockSubscription_);
@@ -92,6 +96,7 @@ public class CallbackManagerTest extends TestCase
         controlSubscription_.verify();
     }
 
+    @Test
     public void testAddNonExistingDoesNotify() throws Exception
     {
         EventType[] added = new EventType[] { new EventType("domain", "type") };
@@ -108,6 +113,7 @@ public class CallbackManagerTest extends TestCase
         controlSubscription_.verify();
     }
 
+    @Test
     public void testDeleteNonExistingDoesNotNotify() throws Exception
     {
         EventType[] removed = new EventType[] { new EventType("domain", "type") };
@@ -121,6 +127,7 @@ public class CallbackManagerTest extends TestCase
         controlSubscription_.verify();
     }
 
+    @Test
     public void testAddMultipleDoesNotifyOnce() throws Exception
     {
         final EventType eventType = new EventType("domain", "type");
@@ -139,6 +146,7 @@ public class CallbackManagerTest extends TestCase
         controlSubscription_.verify();
     }
 
+    @Test
     public void testAddExistingDoesNotNotify() throws Exception
     {
         EventType[] added = new EventType[] { new EventType("domain", "type") };
@@ -156,6 +164,7 @@ public class CallbackManagerTest extends TestCase
         controlSubscription_.verify();
     }
 
+    @Test
     public void testReplaceWithEqualSetDoesNotNotify() throws Exception
     {
         EventType[] content = new EventType[] { new EventType("domain", "type") };
@@ -171,6 +180,7 @@ public class CallbackManagerTest extends TestCase
         controlSubscription_.verify();
     }
 
+    @Test
     public void testReplaceNotifiesAboutAdded() throws Exception
     {
         EventType[] content = new EventType[] { new EventType("domain", "type") };
@@ -192,6 +202,7 @@ public class CallbackManagerTest extends TestCase
         controlSubscription_.verify();
     }
 
+    @Test
     public void testReplaceNotifiesAboutRemoved() throws Exception
     {
         EventType[] content = new EventType[] { new EventType("domain", "type") };
@@ -210,6 +221,7 @@ public class CallbackManagerTest extends TestCase
         controlSubscription_.verify();
     }
 
+    @Test
     public void testDispose()
     {
         objectUnderTest_.attach_callback(mockSubscription_);
@@ -219,10 +231,5 @@ public class CallbackManagerTest extends TestCase
         objectUnderTest_.dispose();
 
         assertEquals(0, objectUnderTest_.get_callbacks().length);
-    }
-
-    public static Test suite()
-    {
-        return new TestSuite(CallbackManagerTest.class);
     }
 }

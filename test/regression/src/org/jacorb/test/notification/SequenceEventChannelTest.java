@@ -1,9 +1,11 @@
 package org.jacorb.test.notification;
 
-import junit.framework.Test;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import org.jacorb.test.notification.common.NotificationTestUtils;
 import org.jacorb.test.notification.common.NotifyServerTestCase;
-import org.jacorb.test.notification.common.NotifyServerTestSetup;
+import org.junit.Before;
+import org.junit.Test;
 import org.omg.CORBA.Any;
 import org.omg.CORBA.IntHolder;
 import org.omg.CosNotification.MaximumBatchSize;
@@ -25,33 +27,30 @@ public class SequenceEventChannelTest extends NotifyServerTestCase
 
     private NotificationTestUtils testUtils_;
 
-    public SequenceEventChannelTest(String name, NotifyServerTestSetup setup)
-    {
-        super(name, setup);
-    }
-
-    public void setUpTest() throws Exception
+    @Before
+    public void setUp() throws Exception
     {
         channel_ = getDefaultChannel();
 
-        testUtils_ = new NotificationTestUtils(getClientORB());
+        testUtils_ = new NotificationTestUtils(setup.getClientOrb());
         testEvent_ = new StructuredEvent[] { testUtils_.getStructuredEvent() };
     }
 
+    @Test
     public void testSetMaximumBatchSize() throws Exception
     {
         StructuredEvent[] _events = new StructuredEvent[] { testUtils_.getStructuredEvent(),
                 testUtils_.getStructuredEvent() };
 
-        Any _value = getClientORB().create_any();
+        Any _value = setup.getClientOrb().create_any();
 
         _value.insert_long(2);
 
         channel_.set_qos(new Property[] { new Property(MaximumBatchSize.value, _value) });
 
-        SequencePushSender _pushSender = new SequencePushSender(getClientORB(), _events);
+        SequencePushSender _pushSender = new SequencePushSender(setup.getClientOrb(), _events);
 
-        SequencePushReceiver _pushReceiver = new SequencePushReceiver(getClientORB());
+        SequencePushReceiver _pushReceiver = new SequencePushReceiver(setup.getClientOrb());
 
         _pushSender.connect(channel_, false);
         _pushReceiver.connect(channel_, false);
@@ -63,21 +62,22 @@ public class SequenceEventChannelTest extends NotifyServerTestCase
         _pushReceiver.join();
     }
 
+    @Test
     public void testPacingInterval() throws Exception
     {
         StructuredEvent[] _events = new StructuredEvent[] { testUtils_.getStructuredEvent(),
                 testUtils_.getStructuredEvent(),
                 testUtils_.getStructuredEvent() };
 
-        Any maxBatchSize = getClientORB().create_any();
+        Any maxBatchSize = setup.getClientOrb().create_any();
         maxBatchSize.insert_long(2);
         
-        Any pacingInterval = getClientORB().create_any();
+        Any pacingInterval = setup.getClientOrb().create_any();
         TimeTHelper.insert(pacingInterval, 200000);
        
-        SequencePushSender _pushSender = new SequencePushSender(getClientORB(), _events);
+        SequencePushSender _pushSender = new SequencePushSender(setup.getClientOrb(), _events);
 
-        SequencePushReceiver _pushReceiver = new SequencePushReceiver(getClientORB());
+        SequencePushReceiver _pushReceiver = new SequencePushReceiver(setup.getClientOrb());
         _pushReceiver.setExpected(4);
 
         _pushSender.connect(channel_, false);
@@ -94,6 +94,7 @@ public class SequenceEventChannelTest extends NotifyServerTestCase
         assertEquals(3, _pushReceiver.getResult().size());
     }
 
+    @Test
     public void testDestroyChannelDisconnectsClients() throws Exception
     {
         Property[] _p = new Property[0];
@@ -101,10 +102,10 @@ public class SequenceEventChannelTest extends NotifyServerTestCase
 
         EventChannel _channel = getEventChannelFactory().create_channel(_p, _p, _channelId);
 
-        SequencePushSender _pushSender = new SequencePushSender(getClientORB(), testEvent_);
-        SequencePullSender _pullSender = new SequencePullSender(getClientORB(), testEvent_);
-        SequencePushReceiver _pushReceiver = new SequencePushReceiver(getClientORB());
-        SequencePullReceiver _pullReceiver = new SequencePullReceiver(getClientORB());
+        SequencePushSender _pushSender = new SequencePushSender(setup.getClientOrb(), testEvent_);
+        SequencePullSender _pullSender = new SequencePullSender(setup.getClientOrb(), testEvent_);
+        SequencePushReceiver _pushReceiver = new SequencePushReceiver(setup.getClientOrb());
+        SequencePullReceiver _pullReceiver = new SequencePullReceiver(setup.getClientOrb());
 
         _pushSender.connect(_channel, false);
         _pullSender.connect(_channel, false);
@@ -132,10 +133,11 @@ public class SequenceEventChannelTest extends NotifyServerTestCase
         assertTrue(!_pullReceiver.isConnected());
     }
 
+    @Test
     public void testSendPushPush() throws Exception
     {
-        SequencePushSender _sender = new SequencePushSender(getClientORB(), testEvent_);
-        SequencePushReceiver _receiver = new SequencePushReceiver(getClientORB());
+        SequencePushSender _sender = new SequencePushSender(setup.getClientOrb(), testEvent_);
+        SequencePushReceiver _receiver = new SequencePushReceiver(setup.getClientOrb());
 
         _sender.connect(channel_, false);
         _receiver.connect(channel_, false);
@@ -150,10 +152,11 @@ public class SequenceEventChannelTest extends NotifyServerTestCase
         assertTrue("Should have received something", _receiver.isEventHandled());
     }
 
+    @Test
     public void testSendPushPull() throws Exception
     {
-        SequencePushSender _sender = new SequencePushSender(getClientORB(), testEvent_);
-        SequencePullReceiver _receiver = new SequencePullReceiver(getClientORB());
+        SequencePushSender _sender = new SequencePushSender(setup.getClientOrb(), testEvent_);
+        SequencePullReceiver _receiver = new SequencePullReceiver(setup.getClientOrb());
 
         _sender.connect(channel_, false);
         _receiver.connect(channel_, false);
@@ -168,10 +171,11 @@ public class SequenceEventChannelTest extends NotifyServerTestCase
         assertTrue("Should have received something", _receiver.isEventHandled());
     }
 
+    @Test
     public void testSendPullPush() throws Exception
     {
-        SequencePullSender _sender = new SequencePullSender(getClientORB(), testEvent_);
-        SequencePushReceiver _receiver = new SequencePushReceiver(getClientORB());
+        SequencePullSender _sender = new SequencePullSender(setup.getClientOrb(), testEvent_);
+        SequencePushReceiver _receiver = new SequencePushReceiver(setup.getClientOrb());
 
         _receiver.connect(channel_, false);
         _sender.connect(channel_, false);
@@ -186,10 +190,11 @@ public class SequenceEventChannelTest extends NotifyServerTestCase
         assertTrue("Should have received something", _receiver.isEventHandled());
     }
 
+    @Test
     public void testSendPullPull() throws Exception
     {
-        SequencePullSender _sender = new SequencePullSender(getClientORB(), testEvent_);
-        SequencePullReceiver _receiver = new SequencePullReceiver(getClientORB());
+        SequencePullSender _sender = new SequencePullSender(setup.getClientOrb(), testEvent_);
+        SequencePullReceiver _receiver = new SequencePullReceiver(setup.getClientOrb());
         _sender.connect(channel_, false);
 
         _receiver.connect(channel_, false);
@@ -205,9 +210,4 @@ public class SequenceEventChannelTest extends NotifyServerTestCase
         assertTrue("Should have received something", _receiver.isEventHandled());
     }
 
-    public static Test suite() throws Exception
-    {
-        return NotifyServerTestCase.suite("Tests for Sequenced Event Channel",
-                SequenceEventChannelTest.class);
-    }
 }

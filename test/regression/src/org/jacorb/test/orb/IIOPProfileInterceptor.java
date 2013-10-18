@@ -21,7 +21,7 @@ public class IIOPProfileInterceptor
     extends LocalObject
     implements IORInterceptor
 {
-   public List alternateAddresses = IIOPAddressInterceptor.alternateAddresses;
+   public List<IIOPAddress> alternateAddresses = IIOPAddressInterceptor.alternateAddresses;
 
     public void establish_components(IORInfo info)
     {
@@ -37,20 +37,18 @@ public class IIOPProfileInterceptor
            (IIOPProfile) infoExt.get_profile(TAG_INTERNET_IOP.value, 0);
        try
        {
-          IIOPProfile cloneOfPrimary = (IIOPProfile) primaryProf.clone();
-
           // now add alternate addresses to primary profile
-           for (Iterator i = alternateAddresses.iterator(); i.hasNext();) {
+           for (Iterator<IIOPAddress> i = alternateAddresses.iterator(); i.hasNext();) {
 
-             IIOPAddress addr = (IIOPAddress)i.next();
+             IIOPAddress addr = i.next();
              primaryProf.addComponent( TAG_ALTERNATE_IIOP_ADDRESS.value, addr.toCDR() );
           }
 
            // now add a secondary and third profile like used e.g. by
            // Visibroker 4.5
-          for (Iterator i = alternateAddresses.iterator(); i.hasNext();)
+          for (Iterator<IIOPAddress> i = alternateAddresses.iterator(); i.hasNext();)
           {
-              IIOPAddress addr = (IIOPAddress)i.next();
+              IIOPAddress addr = i.next();
 
               IIOPProfile additionalProfile =
                   (IIOPProfile) primaryProf.clone();

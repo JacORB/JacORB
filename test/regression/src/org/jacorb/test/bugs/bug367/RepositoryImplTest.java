@@ -20,14 +20,16 @@
 
 package org.jacorb.test.bugs.bug367;
 
-import junit.framework.TestCase;
+import static org.junit.Assert.assertEquals;
 import org.jacorb.ir.RepositoryImpl;
+import org.junit.Test;
 
 /**
  * @author Alphonse Bendt
  */
-public class RepositoryImplTest extends TestCase
+public class RepositoryImplTest
 {
+    @Test
     public void testId2ScopedName()
     {
         String result = RepositoryImpl.idToScopedName("IDL:org.jacorb.test/ir/StringAliasList:1.0", true);

@@ -27,10 +27,8 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.Properties;
 import org.jacorb.test.common.TestUtils;
 
@@ -105,28 +103,9 @@ public class Launcher
         this.jacorbHome = jacorbHome;
     }
 
-    protected String[] toStringArray (List list)
-    {
-        return ((String[])list.toArray (new String[list.size()]));
-    }
-
     protected String getPropertyWithDefault(Properties props, String name, String defaultValue)
     {
         return props.getProperty(name, System.getProperty(name, defaultValue));
-    }
-
-    private String formatList(final List list)
-    {
-        StringBuffer buffer = new StringBuffer();
-
-        Iterator i = list.iterator();
-        while(i.hasNext())
-        {
-            buffer.append(i.next().toString());
-            buffer.append(' ');
-        }
-
-        return buffer.toString().trim();
     }
 
     private List<String> propsToArgList(Properties props)
@@ -135,7 +114,7 @@ public class Launcher
 
         if (props == null) return result;
 
-        for (Iterator i = props.keySet().iterator(); i.hasNext();)
+        for (Iterator<Object> i = props.keySet().iterator(); i.hasNext();)
         {
             String key = (String)i.next();
             String value = props.getProperty(key);
@@ -150,20 +129,13 @@ public class Launcher
         command = buildCMDLine(jacorbHome, useCoverage, classpath, properties, mainClass, args);
     }
 
-    public String getCommand()
-    {
-        final List list = command;
-
-        return formatList(list);
-    }
-
     public Process launch()
     {
         final Runtime rt = Runtime.getRuntime();
 
         try
         {
-            String[] cmd = toStringArray(command);
+            String[] cmd = (command.toArray (new String[command.size()]));
 
             StringBuffer buff = new StringBuffer();
             for (int i = 0; i < cmd.length; i++)
@@ -172,36 +144,15 @@ public class Launcher
                 buff.append(' ');
             }
 
-            Map env = new HashMap();
-            String pidDir = getPropertyWithDefault(properties, "jacorb.test.piddir", System.getProperty("java.io.tmpdir"));
-
-            env.put("JACUNIT_PID_DIR", pidDir);
-
             TestUtils.log("[DirectLauncher] launch: " + buff);
-            TestUtils.log("[DirectLauncher] environment " + env);
 
-            Process proc = rt.exec(cmd, formatEnv(env));
+            Process proc = rt.exec(cmd);
             return proc;
         }
         catch (IOException ex)
         {
             throw new RuntimeException(ex);
         }
-    }
-
-    private String[] formatEnv(Map env)
-    {
-        String[] result = new String[env.size()];
-
-        int idx = 0;
-        Iterator i = env.keySet().iterator();
-        while(i.hasNext())
-        {
-            Object key = i.next();
-            result[idx++] = key + "=" + env.get(key);
-        }
-
-        return result;
     }
 
     private List<String> buildCMDLine(File jacorbHome, boolean coverage, String classpath,

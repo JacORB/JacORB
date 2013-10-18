@@ -61,7 +61,7 @@ public class TestServer
             bidir_poa.the_POAManager().activate();
 
             final String servantName = args[0];
-            Class servantClass = TestUtils.classForName(servantName);
+            Class<?> servantClass = TestUtils.classForName(servantName);
             Servant servant = ( Servant ) servantClass.newInstance();
 
             // create the object reference

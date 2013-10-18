@@ -20,9 +20,9 @@ package org.jacorb.test.bugs.bug228;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import org.junit.Test;
 import org.omg.CORBA.ORB;
 
 /**
@@ -32,20 +32,9 @@ import org.omg.CORBA.ORB;
  *
  * @author <a href="mailto:spiegel@gnu.org">Andre Spiegel</a>
  */
-public class Bug228Test extends TestCase
+public class Bug228Test
 {
-    public Bug228Test(String name)
-    {
-        super(name);
-    }
-
-    public static Test suite()
-    {
-        TestSuite suite = new TestSuite ("bug 228 valuetype factories in helper");
-        suite.addTest (new Bug228Test ("testFactories"));
-        return suite;
-    }
-
+    @Test
     public void testFactories()
     {
         ORB orb = org.omg.CORBA.ORB.init (new String[]{}, null);

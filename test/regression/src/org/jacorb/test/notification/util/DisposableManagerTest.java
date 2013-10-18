@@ -21,17 +21,16 @@
 
 package org.jacorb.test.notification.util;
 
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
 import org.easymock.MockControl;
 import org.jacorb.notification.interfaces.Disposable;
 import org.jacorb.notification.util.DisposableManager;
+import org.junit.Before;
+import org.junit.Test;
 
 /**
  * @author Alphonse Bendt
  */
-public class DisposableManagerTest extends TestCase
+public class DisposableManagerTest
 {
     private DisposableManager objectUnderTest_;
 
@@ -39,22 +38,16 @@ public class DisposableManagerTest extends TestCase
 
     private Disposable mockDisposable_;
 
-    
-    protected void setUp() throws Exception
-    {
-        super.setUp();
 
+    @Before
+    public void setUp() throws Exception
+    {
         objectUnderTest_ = new DisposableManager();
         controlDisposable_ = MockControl.createControl(Disposable.class);
         mockDisposable_ = (Disposable) controlDisposable_.getMock();
     }
 
-    
-    public DisposableManagerTest(String name)
-    {
-        super(name);
-    }
-
+    @Test
     public void testAddDisposable()
     {
         controlDisposable_.replay();
@@ -62,31 +55,28 @@ public class DisposableManagerTest extends TestCase
         controlDisposable_.verify();
     }
 
+    @Test
     public void testDispose()
     {
         mockDisposable_.dispose();
         controlDisposable_.replay();
-        
+
         objectUnderTest_.addDisposable(mockDisposable_);
         objectUnderTest_.dispose();
-        
+
         controlDisposable_.verify();
     }
 
+    @Test
     public void testDisposeIsDelegatedOnceOnly()
     {
         mockDisposable_.dispose();
         controlDisposable_.replay();
-        
+
         objectUnderTest_.addDisposable(mockDisposable_);
         objectUnderTest_.dispose();
         objectUnderTest_.dispose();
-        
-        controlDisposable_.verify();
-    }
 
-    public static Test suite()
-    {
-        return new TestSuite(DisposableManagerTest.class);
+        controlDisposable_.verify();
     }
 }

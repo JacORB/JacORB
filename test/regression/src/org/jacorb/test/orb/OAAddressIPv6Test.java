@@ -21,8 +21,9 @@ package org.jacorb.test.orb;
  *   MA 02110-1301, USA.
  */
 
+import static org.junit.Assert.assertTrue;
 import java.util.Properties;
-import junit.framework.TestCase;
+import org.junit.Test;
 import org.omg.CORBA.INITIALIZE;
 import org.omg.CORBA.ORB;
 import org.omg.PortableServer.POA;
@@ -34,10 +35,11 @@ import org.omg.PortableServer.POAManager;
  *
  * @author Adam Mitz (mitza@ociweb.com)
  */
-public class OAAddressIPv6Test extends TestCase
+public class OAAddressIPv6Test
 {
     private static final String LISTEN_EP_V6 = "iiop://[::1]:45000";
 
+    @Test
     public void testOAAddress() throws org.omg.CORBA.UserException
     {
         Properties server_props = new Properties();

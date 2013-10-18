@@ -20,15 +20,15 @@ package org.jacorb.test.poa;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 import java.util.Properties;
-import junit.framework.TestCase;
 import org.jacorb.orb.ORB;
 import org.jacorb.orb.ParsedIOR;
 import org.jacorb.orb.util.CorbaLoc;
+import org.jacorb.test.common.ORBTestCase;
 import org.jacorb.test.orb.BasicServerImpl;
+import org.junit.Test;
 import org.omg.CORBA.Policy;
 import org.omg.PortableServer.IdAssignmentPolicyValue;
 import org.omg.PortableServer.LifespanPolicyValue;
@@ -43,49 +43,59 @@ import org.omg.PortableServer.POAPackage.InvalidPolicy;
  * @author Nick Cross
  * @author Alphonse Bendt
  */
-public class ImplNameTest extends TestCase
+public class ImplNameTest extends ORBTestCase
 {
-    private final List orbs = new ArrayList();
-
-    private ORB newORB(Properties props)
+    /**
+     * We utilise testName so each local ORB can get a different set of properties for each test
+     * @see org.jacorb.test.common.ORBTestCase#patchORBProperties(java.util.Properties)
+     */
+    @Override
+    protected void patchORBProperties(Properties props) throws Exception
     {
-        org.omg.CORBA.ORB orb = org.omg.CORBA.ORB.init(new String[0], props);
-        orbs.add(orb);
-        return (ORB) orb;
-    }
-
-    protected void tearDown() throws Exception
-    {
-        for (Iterator i = orbs.iterator(); i.hasNext();)
+        if (name.getMethodName().equals("testNoImpl1"))
         {
-            ORB orb = (ORB) i.next();
-            orb.shutdown(true);
+            props.setProperty("jacorb.implname", "TEST_RANDOM_COMPONENT");
         }
-        orbs.clear();
+        else if (name.getMethodName().equals("testNoImpl2"))
+        {
+            props.setProperty("jacorb.implname", "TEST_PERSISTENT_COMPONENT");
+            props.setProperty("jacorb.use_imr", "off");
+        }
+        else if (name.getMethodName().equals("testNoImpl3"))
+        {
+            props.setProperty("jacorb.implname", "TEST_RANDOM_COMPONENT_TWO");
+            props.setProperty("jacorb.logfile.append", "on");
+        }
+        else if (name.getMethodName().equals("testNoImpl4"))
+        {
+            props.setProperty("jacorb.implname", "");
+        }
+        else if (name.getMethodName().equals("testNoImpl5"))
+        {
+            props.setProperty("jacorb.implname", "");
+        }
+        else
+        {
+            fail ("Unknown name");
+        }
     }
+
 
     /**
      * <code>testNoImpl1</code> tests that we can create a transient POA
      * specifying an implname but the IOR still contains a random component
      */
+    @Test
     public void testNoImpl1 () throws Exception
     {
-        Properties props = new Properties();
-        props.setProperty("jacorb.implname", "TEST_RANDOM_COMPONENT");
-
-        final ORB orb = newORB(props);
-
-        POA rootPoa =
-            (POAHelper.narrow( orb.resolve_initial_references( "RootPOA" )));
-
         // Create a child POA
-        POA poa = rootPoa.create_POA
+        POA poa = rootPOA.create_POA
         (
                 "TestServerPOA",
-                rootPoa.the_POAManager(),
+                rootPOA.the_POAManager(),
                 new Policy[]
                            {
-                    rootPoa.create_id_assignment_policy( IdAssignmentPolicyValue.USER_ID)
+                    rootPOA.create_id_assignment_policy( IdAssignmentPolicyValue.USER_ID)
                            }
         );
 
@@ -95,12 +105,12 @@ public class ImplNameTest extends TestCase
         poa.activate_object_with_id("Object".getBytes(), new BasicServerImpl());
         org.omg.CORBA.Object obj = poa.id_to_reference( "Object".getBytes() );
 
-        ParsedIOR pior = new ParsedIOR(orb, orb.object_to_string(obj));
+        ParsedIOR pior = new ParsedIOR(getORB(), orb.object_to_string(obj));
 
         assertTrue
         (
                 CorbaLoc.parseKey( pior.get_object_key()).indexOf
-                (props.getProperty("jacorb.implname")) == -1
+                (orbProps.getProperty("jacorb.implname")) == -1
         );
     }
 
@@ -109,26 +119,18 @@ public class ImplNameTest extends TestCase
      * <code>testNoImpl2</code> tests that we can create a persistent POA
      * specifying an implname and the IOR contains that component
      */
+    @Test
     public void testNoImpl2 () throws Exception
     {
-        Properties props = new Properties();
-        props.setProperty("jacorb.implname", "TEST_PERSISTENT_COMPONENT");
-        props.setProperty("jacorb.use_imr", "off");
-
-        ORB orb = newORB(props);
-
-        POA rootPoa =
-            (POAHelper.narrow( orb.resolve_initial_references( "RootPOA" )));
-
         // Create a child POA
-        POA poa = rootPoa.create_POA
+        POA poa = rootPOA.create_POA
         (
                 "TestServerPOA",
-                rootPoa.the_POAManager(),
+                rootPOA.the_POAManager(),
                 new Policy[]
                            {
-                    rootPoa.create_lifespan_policy( LifespanPolicyValue.PERSISTENT),
-                    rootPoa.create_id_assignment_policy( IdAssignmentPolicyValue.USER_ID)
+                    rootPOA.create_lifespan_policy( LifespanPolicyValue.PERSISTENT),
+                    rootPOA.create_id_assignment_policy( IdAssignmentPolicyValue.USER_ID)
                            }
         );
 
@@ -138,12 +140,12 @@ public class ImplNameTest extends TestCase
         poa.activate_object_with_id("Object".getBytes(), new BasicServerImpl());
         org.omg.CORBA.Object obj = poa.id_to_reference( "Object".getBytes() );
 
-        ParsedIOR pior = new ParsedIOR( orb, orb.object_to_string(obj));
+        ParsedIOR pior = new ParsedIOR(getORB(), orb.object_to_string(obj));
 
         assertTrue
         (
                 CorbaLoc.parseKey( pior.get_object_key()).indexOf
-                (props.getProperty("jacorb.implname")) != -1
+                (orbProps.getProperty("jacorb.implname")) != -1
         );
     }
 
@@ -153,26 +155,18 @@ public class ImplNameTest extends TestCase
      * specifying the same impl and object id information name but the IOR will
      * still be different.
      */
+    @Test
     public void testNoImpl3 () throws Exception
     {
-        Properties props = new Properties();
-        props.setProperty("jacorb.implname", "TEST_RANDOM_COMPONENT_TWO");
-        props.setProperty("jacorb.logfile.append", "on");
-
-        final ORB orb1 = newORB(props);
-
-        POA rootPoa =
-            (POAHelper.narrow( orb1.resolve_initial_references( "RootPOA" )));
-
         // Create a child POA
-        POA poa = rootPoa.create_POA
+        POA poa = rootPOA.create_POA
         (
                 "TestServerPOA",
-                rootPoa.the_POAManager(),
+                rootPOA.the_POAManager(),
                 new Policy[]
                            {
-                    rootPoa.create_lifespan_policy( LifespanPolicyValue.TRANSIENT),
-                    rootPoa.create_id_assignment_policy( IdAssignmentPolicyValue.USER_ID)
+                    rootPOA.create_lifespan_policy( LifespanPolicyValue.TRANSIENT),
+                    rootPOA.create_id_assignment_policy( IdAssignmentPolicyValue.USER_ID)
                            }
         );
 
@@ -182,24 +176,26 @@ public class ImplNameTest extends TestCase
         poa.activate_object_with_id("Object".getBytes(), new BasicServerImpl());
         org.omg.CORBA.Object obj = poa.id_to_reference( "Object".getBytes() );
 
-        ParsedIOR pior = new ParsedIOR( orb1, orb1.object_to_string(obj));
+        ParsedIOR pior = new ParsedIOR( getORB(), orb.object_to_string(obj));
 
 
         // Now create number two.
+        LocalORBTestCase orbtc = new LocalORBTestCase ();
+        orbtc.updateProps(this);
+        orbtc.ORBSetUp();
+        final ORB orb2 = orbtc.getORB();
 
-        final ORB orb2 = newORB(props);
-
-        rootPoa = (POAHelper.narrow( orb2.resolve_initial_references( "RootPOA" )));
+        rootPOA = (POAHelper.narrow( orb2.resolve_initial_references( "RootPOA" )));
 
         // Create a child POA
-        poa = rootPoa.create_POA
+        poa = rootPOA.create_POA
         (
                 "TestServerPOA",
-                rootPoa.the_POAManager(),
+                rootPOA.the_POAManager(),
                 new Policy[]
                            {
-                    rootPoa.create_lifespan_policy( LifespanPolicyValue.TRANSIENT),
-                    rootPoa.create_id_assignment_policy( IdAssignmentPolicyValue.USER_ID)
+                    rootPOA.create_lifespan_policy( LifespanPolicyValue.TRANSIENT),
+                    rootPOA.create_id_assignment_policy( IdAssignmentPolicyValue.USER_ID)
                            }
         );
 
@@ -216,6 +212,8 @@ public class ImplNameTest extends TestCase
                 ! (CorbaLoc.parseKey( pior.get_object_key()).equals
                         (CorbaLoc.parseKey( pior2.get_object_key())))
         );
+
+        orbtc.ORBTearDown();
     }
 
 
@@ -224,27 +222,20 @@ public class ImplNameTest extends TestCase
      * <code>testNoImpl4</code> tests that we cannot create a persistent POA without
      * specifying an implname.
      */
+    @Test
     public void testNoImpl4 () throws Exception
     {
-        Properties props = new Properties();
-        props.setProperty("jacorb.implname", "");
-
-        final org.omg.CORBA.ORB orb = newORB(props);
-
         try
         {
-            POA rootPoa =
-                (POAHelper.narrow( orb.resolve_initial_references( "RootPOA" )));
-
             // Create a child POA
-            rootPoa.create_POA
+            rootPOA.create_POA
             (
                 "TestServerPOA",
-                rootPoa.the_POAManager(),
+                rootPOA.the_POAManager(),
                 new Policy[]
                 {
-                    rootPoa.create_lifespan_policy( LifespanPolicyValue.PERSISTENT),
-                    rootPoa.create_id_assignment_policy( IdAssignmentPolicyValue.USER_ID)
+                    rootPOA.create_lifespan_policy( LifespanPolicyValue.PERSISTENT),
+                    rootPOA.create_id_assignment_policy( IdAssignmentPolicyValue.USER_ID)
                 }
             );
             fail();
@@ -260,24 +251,25 @@ public class ImplNameTest extends TestCase
      * <code>testNoImpl5</code> tests that we can create a transient POA without
      * specifying an implname.
      */
+    @Test
     public void testNoImpl5 () throws Exception
     {
-        Properties props = new Properties();
-        props.setProperty("jacorb.implname", "");
-
-        final org.omg.CORBA.ORB orb = newORB(props);
-
-        POA rootPoa =
-            (POAHelper.narrow( orb.resolve_initial_references( "RootPOA" )));
-
         // Create a child POA
-        rootPoa.create_POA
+        rootPOA.create_POA
         (
                 "TestServerPOA",
-                rootPoa.the_POAManager(),
+                rootPOA.the_POAManager(),
                 new Policy[] {
-                    rootPoa.create_id_assignment_policy( IdAssignmentPolicyValue.USER_ID)
-                           }
+                    rootPOA.create_id_assignment_policy( IdAssignmentPolicyValue.USER_ID)
+                }
         );
+    }
+
+    class LocalORBTestCase extends ORBTestCase
+    {
+        public void updateProps (ImplNameTest implNameTest) throws Exception
+        {
+            implNameTest.patchORBProperties(orbProps);
+        }
     }
 }

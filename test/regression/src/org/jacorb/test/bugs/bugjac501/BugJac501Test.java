@@ -20,18 +20,19 @@
 
 package org.jacorb.test.bugs.bugjac501;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Properties;
-import junit.framework.Test;
-import junit.framework.TestSuite;
 import org.jacorb.test.BasicServer;
 import org.jacorb.test.BasicServerHelper;
 import org.jacorb.test.common.ClientServerSetup;
 import org.jacorb.test.common.ClientServerTestCase;
 import org.jacorb.test.common.CommonSetup;
-import org.jacorb.test.common.TestUtils;
 import org.jacorb.test.orb.BasicServerImpl;
+import org.junit.BeforeClass;
+import org.junit.Test;
 import org.omg.CORBA.ORB;
 
 /**
@@ -39,22 +40,16 @@ import org.omg.CORBA.ORB;
  */
 public class BugJac501Test extends ClientServerTestCase
 {
-    public BugJac501Test(String name, ClientServerSetup setup)
-    {
-        super(name, setup);
-    }
-
-    public static Test suite()
+    @BeforeClass
+    public static void beforeClassSetUp() throws Exception
     {
         Properties props = new Properties();
         props.setProperty(CommonSetup.JACORB_REGRESSION_DISABLE_SECURITY, "true");
 
-        TestSuite suite = new TestSuite(BugJac501Test.class.getName());
-        ClientServerSetup setup = new ClientServerSetup(suite, BasicServerImpl.class.getName(), props, props);
-        TestUtils.addToSuite(suite, setup, BugJac501Test.class);
-        return setup;
+        setup = new ClientServerSetup(BasicServerImpl.class.getName(), props, props);
     }
 
+    @Test
     public void testCorbalocRIR() throws Exception
     {
         String ior = setup.getServerIOR();
@@ -65,7 +60,7 @@ public class BugJac501Test extends ClientServerTestCase
         ORB orb = ORB.init(new String[0], props);
 
         BasicServer server = BasicServerHelper.narrow(orb.string_to_object("corbaloc:rir:/MyServer"));
-        assertTrue(new HashSet(Arrays.asList(orb.list_initial_services())).contains("MyServer"));
+        assertTrue(new HashSet<String>(Arrays.asList(orb.list_initial_services())).contains("MyServer"));
 
         long now = System.currentTimeMillis();
         assertEquals(now, server.bounce_long_long(now));

@@ -1,41 +1,36 @@
 package org.jacorb.test.bugs.bug698;
 
-import junit.framework.Test;
-import junit.framework.TestSuite;
+import static org.junit.Assert.assertTrue;
 import org.jacorb.test.common.ClientServerSetup;
 import org.jacorb.test.common.ClientServerTestCase;
-import org.jacorb.test.common.TestUtils;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
 
 public class Bug698Test extends ClientServerTestCase
 {
     private Server server;
 
-    public Bug698Test (String name, ClientServerSetup setup)
+    @BeforeClass
+    public static void beforeClassSetUp() throws Exception
     {
-        super(name, setup);
+        setup = new ClientServerSetup("org.jacorb.test.bugs.bug698.ServerImpl");
     }
 
-    public static Test suite ()
+    @Before
+    public void setUp() throws Exception
     {
-        TestSuite suite = new TestSuite("bug698");
-        ClientServerSetup setup = new ClientServerSetup(suite,
-                                                        "org.jacorb.test.bugs.bug698.ServerImpl");
-
-        TestUtils.addToSuite(suite, setup, Bug698Test.class);
-
-        return setup;
+        this.server = ServerHelper.narrow(setup.getServerObject());
     }
 
-    protected void setUp () throws Exception
-    {
-        this.server = ServerHelper.narrow(this.setup.getServerObject());
-    }
-
-    protected void tearDown () throws Exception
+    @After
+    public void tearDown() throws Exception
     {
         this.server = null;
     }
 
+    @Test
     public void testMarshaling ()
     {
         Top test1 = new TopImpl();

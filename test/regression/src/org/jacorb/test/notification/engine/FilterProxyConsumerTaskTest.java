@@ -23,11 +23,10 @@ package org.jacorb.test.notification.engine;
 
 import java.util.Arrays;
 import java.util.List;
-import junit.framework.Test;
-import junit.framework.TestSuite;
 import org.jacorb.notification.engine.AbstractFilterTask;
 import org.jacorb.notification.engine.FilterProxyConsumerTask;
 import org.jacorb.notification.interfaces.FilterStage;
+import org.junit.Test;
 
 /**
  * @author Alphonse Bendt
@@ -39,13 +38,14 @@ public class FilterProxyConsumerTaskTest extends AbstractFilterTaskTestCase
     protected AbstractFilterTask newObjectUnderTest()
     {
         objectUnderTest_ = new FilterProxyConsumerTask(mockTaskFactory_, mockTaskExecutor_);
-        
+
         return objectUnderTest_;
     }
 
+    @Test
     public void testMatch() throws Exception
     {
-        List list = Arrays.asList(new Object[] { mockNextFilterStage_ });
+        List<Object> list = Arrays.asList(new Object[] { mockNextFilterStage_ });
 
         mockFilterStage_.hasLifetimeFilter();
         controlFilterStage_.setReturnValue(false);
@@ -55,18 +55,18 @@ public class FilterProxyConsumerTaskTest extends AbstractFilterTaskTestCase
         controlFilterStage_.setDefaultReturnValue(false);
         mockFilterStage_.getSubsequentFilterStages();
         controlFilterStage_.setReturnValue(list);
-        
+
         mockFilterStage_.hasPriorityFilter();
         controlFilterStage_.setDefaultReturnValue(false);
 
         mockFilterStage_.hasLifetimeFilter();
         controlFilterStage_.setDefaultReturnValue(false);
-        
+
         controlFilterStage_.replay();
-        
+
         mockMessage_.isInvalid();
         controlMessage_.setDefaultReturnValue(false);
-        
+
         mockMessage_.match(mockFilterStage_);
         controlMessage_.setReturnValue(true);
 
@@ -85,7 +85,7 @@ public class FilterProxyConsumerTaskTest extends AbstractFilterTaskTestCase
 
         objectUnderTest_.setMessage(mockMessage_);
         objectUnderTest_.setCurrentFilterStage(new FilterStage[] { mockFilterStage_ });
-        
+
         objectUnderTest_.run();
 
         controlFilterStage_.verify();
@@ -97,6 +97,7 @@ public class FilterProxyConsumerTaskTest extends AbstractFilterTaskTestCase
         controlSchedulable_.verify();
     }
 
+    @Test
     public void testNoMatch() throws Exception
     {
         mockFilterStage_.hasLifetimeFilter();
@@ -109,7 +110,7 @@ public class FilterProxyConsumerTaskTest extends AbstractFilterTaskTestCase
 
         mockMessage_.isInvalid();
         controlMessage_.setDefaultReturnValue(false);
-        
+
         mockMessage_.match(mockFilterStage_);
         controlMessage_.setReturnValue(false);
 
@@ -119,16 +120,11 @@ public class FilterProxyConsumerTaskTest extends AbstractFilterTaskTestCase
 
         objectUnderTest_.setMessage(mockMessage_);
         objectUnderTest_.setCurrentFilterStage(new FilterStage[] { mockFilterStage_ });
-        
+
         objectUnderTest_.run();
 
         controlFilterStage_.verify();
 
         controlMessage_.verify();
-    }
-
-    public static Test suite()
-    {
-        return new TestSuite(FilterProxyConsumerTaskTest.class);
     }
 }

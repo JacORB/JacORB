@@ -20,18 +20,18 @@
 
 package org.jacorb.test.bugs.bugjac503;
 
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 import java.util.Properties;
-import junit.framework.Test;
-import junit.framework.TestSuite;
-import org.jacorb.test.BasicServer;
 import org.jacorb.test.BasicServerHelper;
 import org.jacorb.test.common.ClientServerSetup;
 import org.jacorb.test.common.CommonSetup;
-import org.jacorb.test.common.TestUtils;
 import org.jacorb.test.orb.BasicServerImpl;
 import org.jacorb.test.orb.etf.AbstractWIOPTestCase;
 import org.jacorb.test.orb.etf.wiop.WIOPFactories;
-import org.omg.CORBA.ORB;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
 import org.omg.RTCORBA.Protocol;
 
 /**
@@ -39,24 +39,9 @@ import org.omg.RTCORBA.Protocol;
  */
 public class BugJac503Test extends AbstractWIOPTestCase
 {
-    private BasicServer basicServer;
-    private ORB clientOrb;
-
-    public BugJac503Test(String name, ClientServerSetup setup)
+    @BeforeClass
+    public static void beforeClassSetUp() throws Exception
     {
-        super(name, setup);
-    }
-
-    public static Test suite()
-    {
-        return new TestSuite();
-    }
-    
-    // temporary disabled
-    public static Test _suite()
-    {
-        TestSuite suite = new TestSuite ("Profile Selector");
-
         // client ORB from setup is not used.
         Properties clientProps = new Properties();
 
@@ -74,38 +59,34 @@ public class BugJac503Test extends AbstractWIOPTestCase
                                 "org.jacorb.orb.iiop.IIOPFactories," +
                                 "org.jacorb.test.orb.etf.wiop.WIOPFactories");
 
-        ClientServerSetup setup =
-          new ClientServerSetup (suite,
+        setup = new ClientServerSetup(
                                  BasicServerImpl.class.getName(),
                                  clientProps,
                                  serverProps);
-
-        TestUtils.addToSuite(suite, setup, BugJac503Test.class);
-
-        return setup;
     }
 
-    protected void doSetUp() throws Exception
+    @Before
+    public void setUp() throws Exception
     {
+        super.setUp();
+        server._release();
         // need a unbound delegate for every testrun.
-        clientOrb = setup.getClientOrb();
-        basicServer = BasicServerHelper.narrow(clientOrb.string_to_object(clientOrb.object_to_string(server)));
+        server = BasicServerHelper.narrow(setup.getClientOrb().string_to_object(setup.getClientOrb().object_to_string(server)));
     }
 
+    @Test
     public void testShouldUseIIOPByDefault() throws Exception
     {
-        basicServer.ping();
+        server.ping();
 
         assertFalse(WIOPFactories.isTransportInUse());
     }
 
+    @Test
     public void testForwardRequestInClientInterceptor() throws Exception
     {
-        WIOPFactories factories = new WIOPFactories();
-        factories.configure (((org.jacorb.orb.ORB)clientOrb).getConfiguration ());
-        ForwardInterceptor.protocols = new Protocol[] {new Protocol(factories.profile_tag(), null, null)};
-
-        basicServer.ping();
+        ForwardInterceptor.protocols = new Protocol[] {new Protocol(new WIOPFactories().profile_tag(), null, null)};
+        server.ping();
 
         assertTrue(WIOPFactories.isTransportInUse());
     }

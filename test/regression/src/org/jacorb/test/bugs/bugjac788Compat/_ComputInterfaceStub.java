@@ -18,7 +18,8 @@ public class _ComputInterfaceStub
 		return ids;
 	}
 
-	public final static java.lang.Class _opsClass = org.jacorb.test.bugs.bugjac788Compat.ComputInterfaceOperations.class;
+	@SuppressWarnings("rawtypes")
+    public final static java.lang.Class _opsClass = org.jacorb.test.bugs.bugjac788Compat.ComputInterfaceOperations.class;
 	public int get_result(int time_ms)
 	{
 		while(true)

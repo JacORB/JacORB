@@ -21,26 +21,21 @@
 
 package org.jacorb.test.notification.node;
 
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
+import static org.junit.Assert.assertTrue;
 import org.jacorb.notification.filter.etcl.AbstractTCLNode;
 import org.jacorb.notification.filter.etcl.TCLParser;
+import org.junit.Test;
 
 /**
  * @author Alphonse Bendt
  */
-public class IdentValueTest extends TestCase
+public class IdentValueTest
 {
+    @Test
     public void testIsStatic() throws Exception
     {
         AbstractTCLNode node = TCLParser.parse("'identifier'");
 
         assertTrue(node.isStatic());
-    }
-
-    public static Test suite()
-    {
-        return new TestSuite(IdentValueTest.class);
     }
 }

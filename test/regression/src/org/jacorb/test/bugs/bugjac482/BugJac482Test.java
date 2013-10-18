@@ -20,21 +20,24 @@
 
 package org.jacorb.test.bugs.bugjac482;
 
+import static org.junit.Assert.fail;
 import java.io.File;
 import java.util.Properties;
-import junit.framework.TestCase;
 import org.jacorb.orb.factory.SocketFactoryManager;
+import org.junit.Before;
+import org.junit.Test;
 import org.omg.CORBA.INITIALIZE;
 import org.omg.CORBA.ORB;
 
 /**
  * @author Alphonse Bendt
  */
-public class BugJac482Test extends TestCase
+public class BugJac482Test
 {
     private Properties props;
 
-    protected void setUp() throws Exception
+    @Before
+    public void setUp() throws Exception
     {
         props = new Properties();
         props.setProperty("jacorb.security.support_ssl", "on");
@@ -42,6 +45,7 @@ public class BugJac482Test extends TestCase
         props.setProperty(SocketFactoryManager.SSL_SERVER_SOCKET_FACTORY, "org.jacorb.security.ssl.sun_jsse.SSLServerSocketFactory");
     }
 
+    @Test
     public void testMissingKeyStoreShouldCauseException() throws Exception
     {
 
@@ -57,6 +61,7 @@ public class BugJac482Test extends TestCase
         }
     }
 
+    @Test
     public void testEmptyKeyStoreShouldCauseException() throws Exception
     {
         File emptyFile = File.createTempFile("non_existing_keystore", ".kst");
@@ -78,6 +83,7 @@ public class BugJac482Test extends TestCase
         }
     }
 
+    @Test
     public void testNonExistingKeyStoreShouldCauseException() throws Exception
     {
         props.setProperty("jacorb.security.keystore", "/not/existing/path");

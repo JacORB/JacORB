@@ -1,12 +1,15 @@
 package org.jacorb.test.bugs.bugjac670;
 
+import static org.junit.Assert.fail;
 import java.util.Properties;
-import junit.framework.Test;
-import junit.framework.TestSuite;
 import org.jacorb.test.common.ClientServerSetup;
 import org.jacorb.test.common.ClientServerTestCase;
 import org.jacorb.test.common.ServerSetup;
 import org.jacorb.test.common.TestUtils;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
 import org.omg.CORBA.Policy;
 import org.omg.CORBA.PolicyError;
 import org.omg.CORBA.SetOverrideType;
@@ -26,14 +29,10 @@ public class BugJac670Test extends ClientServerTestCase
 
     private ServerSetup serverSetUp;
 
-    public BugJac670Test (String name, ClientServerSetup setup)
+    @Before
+    public void setUp() throws Exception
     {
-        super (name, setup);
-    }
-
-    protected void setUp() throws Exception
-    {
-         server = (GreetingService) GreetingServiceHelper.narrow
+         server = GreetingServiceHelper.narrow
              (setup.getClientOrb().resolve_initial_references ("greeting"));
 
          Properties serverprops = new java.util.Properties();
@@ -43,24 +42,23 @@ public class BugJac670Test extends ClientServerTestCase
          serverprops.setProperty ("jacorb.test.timeout.server", Long.toString(15000));
          serverprops.setProperty("jacorb.test.ssl", "false");
 
-         serverSetUp = new ServerSetup (setup,
-                                        "org.jacorb.test.bugs.bugjac670.GreetingServiceServer",
+         serverSetUp = new ServerSetup ("org.jacorb.test.bugs.bugjac670.GreetingServiceServer",
                                         "GreetingServiceImpl",
                                         serverprops);
 
          serverSetUp.setUp();
     }
 
-    protected void tearDown() throws Exception
+    @After
+    public void tearDown() throws Exception
     {
-        server = null;
+        server._release();
         serverSetUp.tearDown();
     }
 
-    public static Test suite()
+    @BeforeClass
+    public static void beforeClassSetUp() throws Exception
     {
-        TestSuite suite = new TestSuite ("RelativeRTTimeoutPolicy with loadbalancer");
-
         Properties clientprops = new java.util.Properties();
         clientprops.setProperty( "ORBInitRef.greeting",
                                  "corbaloc::localhost:19000/GSLBService");
@@ -76,24 +74,21 @@ public class BugJac670Test extends ClientServerTestCase
                                  "19000" );
         serverprops.setProperty("jacorb.test.ssl", "false");
 
-        ClientServerSetup setup =
-        new ClientServerSetup
-        (suite,
+        setup = new ClientServerSetup
+        (
+
          "org.jacorb.test.bugs.bugjac670.GSLoadBalancerServer",
          "GSLoadBalancerImpl",
          clientprops,
          serverprops
         );
-
-        TestUtils.addToSuite (suite, setup, BugJac670Test.class);
-
-        return setup;
     }
 
     /**
      * Sets a RelativeRoundtripTimeout which will
      * be met by the invocation.
      */
+    @Test
     public void test_relative_roundtrip_sync_ok()
        throws Exception
     {
@@ -132,6 +127,7 @@ public class BugJac670Test extends ClientServerTestCase
         }
     }
 
+    @Test
     public void test_relative_roundtrip_sync_expired()
        throws Exception
     {

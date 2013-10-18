@@ -21,18 +21,21 @@
 
 package org.jacorb.test.notification.container;
 
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.fail;
 import org.jacorb.notification.container.LocalParameterComponentAdapter;
+import org.junit.Before;
+import org.junit.Test;
 import org.picocontainer.ComponentAdapter;
 import org.picocontainer.defaults.ConstructorInjectionComponentAdapter;
 import org.picocontainer.defaults.DefaultPicoContainer;
 
-public class LocalParameterComponentAdapterTest extends TestCase
+public class LocalParameterComponentAdapterTest
 {
     private DefaultPicoContainer picoContainer_;
     
+    @Test
     public void testCreateWithoutDeps() throws Exception
     {
         ConstructorInjectionComponentAdapter ca = new ConstructorInjectionComponentAdapter(Service.class, DefaultService.class);
@@ -42,6 +45,7 @@ public class LocalParameterComponentAdapterTest extends TestCase
         assertNotNull(picoContainer_.getComponentInstanceOfType(Service.class));
     }
     
+    @Test
     public void testCreateFailsWhenDepsNotResolvable() throws Exception
     {
         ConstructorInjectionComponentAdapter ca = new ConstructorInjectionComponentAdapter(Service.class, DecoratedService.class);
@@ -58,6 +62,7 @@ public class LocalParameterComponentAdapterTest extends TestCase
         }
     }
     
+    @Test
     public void testCreateWithDeps() throws Exception
     {
         ConstructorInjectionComponentAdapter ca = new ConstructorInjectionComponentAdapter(Service.class, DecoratedService.class);
@@ -68,6 +73,7 @@ public class LocalParameterComponentAdapterTest extends TestCase
         assertNotNull(picoContainer_.getComponentInstanceOfType(Service.class));
     }
 
+    @Test
     public void testLocalCAsAreNotAccessible() throws Exception
     {
         ConstructorInjectionComponentAdapter ca = new ConstructorInjectionComponentAdapter(Service.class, DecoratedService.class);
@@ -79,6 +85,7 @@ public class LocalParameterComponentAdapterTest extends TestCase
         assertNull(picoContainer_.getComponentAdapterOfType(DefaultService.class));
     }
     
+    @Test
     public void testInContainer() throws Exception
     {
         ConstructorInjectionComponentAdapter ca = new ConstructorInjectionComponentAdapter(Service.class, DecoratedService.class);
@@ -90,13 +97,9 @@ public class LocalParameterComponentAdapterTest extends TestCase
         assertNotNull(picoContainer_.getComponentInstance(DependsOnService.class));
     }
     
+    @Before
     public void setUp() throws Exception
     {
         picoContainer_ = new DefaultPicoContainer();
-    }
-
-    public static Test suite()
-    {
-        return new TestSuite(LocalParameterComponentAdapterTest.class);
     }
 }

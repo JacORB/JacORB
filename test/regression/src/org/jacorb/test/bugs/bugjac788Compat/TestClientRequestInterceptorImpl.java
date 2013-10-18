@@ -50,7 +50,6 @@ public class TestClientRequestInterceptorImpl extends
        System.out.println ("### TestClientRequestInterceptorImpl::receive_exception");
         try {
             // Get request_id
-            int requestId = 0;
             Any any = ri.get_slot(requestIdSlotId);
 
             TypeCode tc = any.type();
@@ -78,7 +77,7 @@ public class TestClientRequestInterceptorImpl extends
                 }
             }
             else {
-                requestId = any.extract_ulong();
+                any.extract_ulong();
             }
 
         }
@@ -128,7 +127,6 @@ public class TestClientRequestInterceptorImpl extends
 
         try {
             // Get request_id
-            int requestId;
             Any any = ri.get_slot(requestIdSlotId);
 
             TypeCode tc = any.type();
@@ -155,7 +153,7 @@ public class TestClientRequestInterceptorImpl extends
                 }
             }
             else {
-                requestId = any.extract_ulong();
+                any.extract_ulong();
             }
 
         }

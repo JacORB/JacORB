@@ -20,15 +20,22 @@ package org.jacorb.test.orb.rmi;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 import java.rmi.Remote;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
+import java.util.Hashtable;
 import java.util.Properties;
+import java.util.Vector;
 import javax.rmi.PortableRemoteObject;
-import org.jacorb.test.common.ClientServerSetup;
 import org.jacorb.test.common.ClientServerTestCase;
 import org.jacorb.test.orb.rmi.Outer.StaticInner;
+import org.junit.Before;
 
 /**
  * Abstract testclass for RMITests. subclasses are responsible for
@@ -40,25 +47,17 @@ import org.jacorb.test.orb.rmi.Outer.StaticInner;
  * @see JacORBSunRMITest
  *
  */
+@SuppressWarnings("rawtypes")
 public abstract class RMITestCase extends ClientServerTestCase
 {
     private RMITestInterface server;
 
-    public RMITestCase(String name, ClientServerSetup setup)
-    {
-        super(name, setup);
-    }
-
-    public final void setUp() throws Exception
+    @Before
+    public void setUp() throws Exception
     {
         server = (RMITestInterface)javax.rmi.PortableRemoteObject.narrow(
                                                     setup.getServerObject(),
                                                     RMITestInterface.class);
-    }
-
-    protected void tearDown() throws Exception
-    {
-        server = null;
     }
 
     public void test_getString() throws Exception
@@ -221,7 +220,7 @@ public abstract class RMITestCase extends ClientServerTestCase
         {
             original[i] = new Foo(100 + i, "foo vector test");
         }
-        java.util.Vector v = server.valueArrayToVector(original);
+        Vector v = server.valueArrayToVector(original);
         java.lang.Object[] echoedBack = v.toArray();
         assertEquals(original.length, echoedBack.length);
         for (int i = 0; i < echoedBack.length; i++)
@@ -238,7 +237,7 @@ public abstract class RMITestCase extends ClientServerTestCase
             original[i] = new Foo(100 + i, "foo vector test");
         }
 
-        java.util.Vector v = server.valueArrayToVector(original);
+        Vector v = server.valueArrayToVector(original);
         Foo[] echoedBack = server.vectorToValueArray(v);
         assertEquals(original.length, echoedBack.length);
         for (int i = 0; i < echoedBack.length; i++)
@@ -287,18 +286,18 @@ public abstract class RMITestCase extends ClientServerTestCase
 
     public void test_referenceSharingWithinCollection() throws Exception
     {
-        java.util.Collection original = new java.util.ArrayList();
+        Collection<Foo> original = new ArrayList<Foo>();
         int n = 10;
         for (int i = 0; i < n; i++)
         {
             original.add(new Foo(100 + i, "foo collection test"));
         }
-        java.util.Collection echoedBack =
+        Collection echoedBack =
             server.testReferenceSharingWithinCollection(original);
         assertEquals(2 * n, echoedBack.size());
 
-        java.util.ArrayList originalList = (java.util.ArrayList)original;
-        java.util.ArrayList echoedList = (java.util.ArrayList)echoedBack;
+        ArrayList originalList = (ArrayList)original;
+        ArrayList echoedList = (ArrayList)echoedBack;
 
 
         for (int i = 0; i < n; i++)
@@ -311,7 +310,7 @@ public abstract class RMITestCase extends ClientServerTestCase
 
     public void test_getVectorWithObjectArrayAsElement() throws Exception
     {
-        java.util.Vector vector =
+        Vector vector =
             server.getVectorWithObjectArrayAsElement();
         assertTrue(vector.size() == 1);
         Object[] inner = (Object[]) vector.get(0);
@@ -322,10 +321,10 @@ public abstract class RMITestCase extends ClientServerTestCase
 
     public void test_getVectorWithVectorAsElement() throws Exception
     {
-        java.util.Vector vector =
+        Vector vector =
             server.getVectorWithVectorAsElement();
         assertTrue(vector.size() == 1);
-        java.util.Vector inner = (java.util.Vector) vector.get(0);
+        Vector inner = (Vector) vector.get(0);
         assertEquals(new Integer(1), inner.get(0));
         assertEquals(new Integer(2), inner.get(1));
         assertEquals("Third Element", inner.get(2));
@@ -333,10 +332,10 @@ public abstract class RMITestCase extends ClientServerTestCase
 
     public void test_getVectorWithHashtableAsElement() throws Exception
     {
-        java.util.Vector vector =
+        Vector vector =
             server.getVectorWithHashtableAsElement();
         assertTrue(vector.size() == 1);
-        java.util.Hashtable inner = (java.util.Hashtable) vector.get(0);
+        Hashtable inner = (Hashtable) vector.get(0);
         assertEquals(new Integer(1), inner.get(new Integer(0)));
         assertEquals(new Integer(2), inner.get(new Integer(1)));
         assertEquals("Third Element", inner.get(new Integer(2)));
@@ -364,7 +363,7 @@ public abstract class RMITestCase extends ClientServerTestCase
     public void testPassSerializable0() throws Exception
     {
         Date date = new Date();
-        ArrayList list = new ArrayList();
+        ArrayList<ObjectParam> list = new ArrayList<ObjectParam>();
         ObjectParam param = new ObjectParam(date.toString());
         list.add(param);
 
@@ -375,7 +374,7 @@ public abstract class RMITestCase extends ClientServerTestCase
     public void testPassSerializable1() throws Exception
     {
         Date date = new Date();
-        ArrayList list = new ArrayList();
+        ArrayList<StringParam> list = new ArrayList<StringParam>();
         StringParam param = new StringParam(date.toString());
         list.add(param);
 
@@ -389,7 +388,7 @@ public abstract class RMITestCase extends ClientServerTestCase
     	param.put("key1", "value1");
     	param.put("key2", "value2");
     	param.put("key3", "value3");
-    	
+
     	Properties result = server.transmitProperties(param);
     	assertEquals(param, result);
     }

@@ -1,14 +1,16 @@
 package org.jacorb.test.bugs.bugjac330;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 import java.util.Properties;
-import junit.framework.Test;
-import junit.framework.TestSuite;
 import org.jacorb.test.BasicServer;
 import org.jacorb.test.BasicServerHelper;
 import org.jacorb.test.common.ClientServerSetup;
 import org.jacorb.test.common.ClientServerTestCase;
-import org.jacorb.test.common.TestUtils;
 import org.jacorb.test.orb.BasicServerImpl;
+import org.junit.BeforeClass;
+import org.junit.Test;
 import org.omg.CORBA.NO_RESOURCES;
 
 /**
@@ -16,26 +18,18 @@ import org.omg.CORBA.NO_RESOURCES;
  */
 public class BugJac330Test extends ClientServerTestCase
 {
-    public BugJac330Test(String name, ClientServerSetup setup)
+    @BeforeClass
+    public static void beforeClassSetUp() throws Exception
     {
-        super(name, setup);
-    }
-
-    public static Test suite()
-    {
-        TestSuite suite = new TestSuite();
         final Properties clientProps = new Properties();
         final Properties serverProps = new Properties();
 
         clientProps.put("jacorb.connection.client.max_receptor_threads", "0");
 
-        ClientServerSetup setup = new ClientServerSetup(suite, BasicServerImpl.class.getName(), clientProps, serverProps);
-
-        TestUtils.addToSuite(suite, setup, BugJac330Test.class);
-
-        return setup;
+        setup = new ClientServerSetup(BasicServerImpl.class.getName(), clientProps, serverProps);
     }
 
+    @Test
     public void testConnectClient() throws Exception
     {
         final BasicServer server = BasicServerHelper.narrow(setup.getServerObject());

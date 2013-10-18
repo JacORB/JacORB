@@ -20,11 +20,12 @@ package org.jacorb.test.orb.value;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import junit.framework.Test;
-import junit.framework.TestSuite;
+import static org.junit.Assert.fail;
 import org.jacorb.test.common.ClientServerSetup;
 import org.jacorb.test.common.ClientServerTestCase;
-import org.jacorb.test.common.TestUtils;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
 
 /**
  * <code>ValueCustomTest</code> tests that JacORB handles custom valuetypes.
@@ -41,24 +42,15 @@ public class ValueCustomTest extends ClientServerTestCase
      * @param name a <code>String</code> value
      * @param setup a <code>ClientServerSetup</code> value
      */
-    public ValueCustomTest(String name, ClientServerSetup setup)
-    {
-        super(name, setup);
-    }
-
     /**
      * <code>setUp</code> initilizes for the Junit tests.
      *
      * @exception Exception if an error occurs
      */
+    @Before
     public void setUp() throws Exception
     {
         server = CustomValueExchangeHelper.narrow( setup.getServerObject());
-    }
-
-    protected void tearDown() throws Exception
-    {
-        server = null;
     }
 
     /**
@@ -66,22 +58,18 @@ public class ValueCustomTest extends ClientServerTestCase
      *
      * @return a <code>Test</code> value
      */
-    public static Test suite()
+    @BeforeClass
+    public static void beforeClassSetUp() throws Exception
     {
-        TestSuite suite = new TestSuite("Valuetype Custom client/server tests");
-        ClientServerSetup setup =
-            new ClientServerSetup(suite,
-                                  "org.jacorb.test.orb.value.CustomValueExchangeImpl");
+        setup = new ClientServerSetup("org.jacorb.test.orb.value.CustomValueExchangeImpl");
 
-        TestUtils.addToSuite(suite, setup, ValueCustomTest.class);
-
-        return setup;
     }
 
     /**
      * <code>test_value_custom_good1</code> tests that I can send a custom
      * marshalled value.
      */
+    @Test
     public void test_value_custom_good1()
     {
         CustomValueExampleImpl valueType = new CustomValueExampleImpl();
@@ -100,6 +88,7 @@ public class ValueCustomTest extends ClientServerTestCase
      * <code>test_value_custom_fail1</code> tests that the custom marshalling code
      * can catch and throw an exception.
      */
+    @Test
     public void test_value_custom_fail1()
     {
         try

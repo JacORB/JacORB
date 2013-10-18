@@ -21,35 +21,20 @@
 
 package org.jacorb.test.notification.util;
 
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
+import static org.junit.Assert.assertNotNull;
 import org.jacorb.notification.util.LogUtil;
+import org.junit.Test;
 import org.slf4j.Logger;
 
 /**
  * @author Alphonse Bendt
  */
-public class LogUtilTest extends TestCase
+public class LogUtilTest
 {
-    /**
-     * Constructor for LogUtilTest.
-     * 
-     * @param name
-     */
-    public LogUtilTest(String name)
-    {
-        super(name);
-    }
-
+    @Test
     public void testGetLogger()
     {
         Logger _logger = LogUtil.getLogger("name");
         assertNotNull(_logger);
-    }
-
-    public static Test suite()
-    {
-        return new TestSuite(LogUtilTest.class);
     }
 }

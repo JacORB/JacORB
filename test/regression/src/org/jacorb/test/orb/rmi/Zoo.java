@@ -4,7 +4,7 @@ public class Zoo implements java.io.Serializable {
     public String id;
     public String name;
     public Zoo inner;
-    private transient Object hidden = "hidden";
+
     public Zoo(String id, String name) {
         this.id = id;
         this.name = name;

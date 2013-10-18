@@ -20,14 +20,13 @@ package org.jacorb.test.bugs.bugjac149;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
+import static org.junit.Assert.assertNotNull;
 import java.io.Serializable;
-import java.util.Properties;
 import javax.rmi.PortableRemoteObject;
-import junit.framework.Test;
-import junit.framework.TestSuite;
 import org.jacorb.test.common.ClientServerSetup;
 import org.jacorb.test.common.ClientServerTestCase;
-import org.jacorb.test.common.TestUtils;
+import org.junit.BeforeClass;
+import org.junit.Test;
 
 /**
  * <code>ObjectReplacementTest</code> tests toString and equals generation on the stub.
@@ -40,33 +39,21 @@ public class ObjectReplacementTest extends ClientServerTestCase
      *
      * @param name a <code>String</code> value
      */
-    public ObjectReplacementTest (String name, ClientServerSetup setup)
-    {
-        super (name, setup);
-    }
-
 
     /**
      * <code>suite</code> is the suite of tests.
      *
      * @return a <code>Test</code> value
      */
-    public static Test suite ()
+    @BeforeClass
+    public static void beforeClassSetUp() throws Exception
     {
-        if (TestUtils.isJ2ME())
-        {
-            return new TestSuite();
-        }
-
-        TestSuite suite = new TestSuite ("ObjectReplacement Test");
-        Properties props = new Properties();
-
-        ObjectReplacementSetup setup =
-            new ObjectReplacementSetup (suite, props, props);
-
-        TestUtils.addToSuite(suite, setup, ObjectReplacementTest.class);
-
-        return setup;
+        setup = new ClientServerSetup (
+                "org.jacorb.test.bugs.bugjac149.ObjRepServer",
+                "org.jacorb.test.bugs.bugjac149.ObjRepServer",
+                null,
+                null
+                );
     }
 
 
@@ -74,6 +61,7 @@ public class ObjectReplacementTest extends ClientServerTestCase
      * <code>testObjectReplacement</code>
      *
      */
+    @Test
     public void testObjectReplacement ()
     {
         org.omg.CORBA.Object remObj = setup.getServerObject();

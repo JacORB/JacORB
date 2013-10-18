@@ -21,30 +21,26 @@ package org.jacorb.test.notification.queue;
  *
  */
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
 import org.easymock.MockControl;
 import org.jacorb.notification.interfaces.Message;
 import org.jacorb.notification.queue.AbstractBoundedEventQueue;
 import org.jacorb.notification.queue.BoundedPriorityEventQueue;
 import org.jacorb.notification.queue.EventQueueOverflowStrategy;
 import org.jacorb.notification.queue.MessageQueue;
+import org.junit.Test;
 
 /**
  * @author Alphonse Bendt
  */
 
-public class BoundedPriorityEventQueueTest extends TestCase
+public class BoundedPriorityEventQueueTest
 {
-    public static Test suite() throws Exception
-    {
-        return new TestSuite(BoundedPriorityEventQueueTest.class);
-    }
-
+    @Test
     public void testPriorityOrder_ascendingInsert() throws Exception
     {
         BoundedPriorityEventQueue _queue = new BoundedPriorityEventQueue(20,
@@ -63,10 +59,11 @@ public class BoundedPriorityEventQueueTest extends TestCase
         }
     }
 
+    @Test
     public void testPriorityOrder_descendingInsert() throws Exception
     {
         MessageQueue _queue = new BoundedPriorityEventQueue(20, EventQueueOverflowStrategy.FIFO);
-        
+
         for (int x = 0; x < 10; ++x)
         {
             int prio = 10 - x;
@@ -82,6 +79,7 @@ public class BoundedPriorityEventQueueTest extends TestCase
         }
     }
 
+    @Test
     public void testFIFOOverflow() throws Exception
     {
         DelegatingOverflowStrategy strategy = new DelegatingOverflowStrategy(EventQueueOverflowStrategy.FIFO);
@@ -111,10 +109,11 @@ public class BoundedPriorityEventQueueTest extends TestCase
         assertTrue(strategy.getRemovedElements().contains(e1));
     }
 
+    @Test
     public void testLIFOOverflow() throws Exception
     {
         DelegatingOverflowStrategy strategy = new DelegatingOverflowStrategy(EventQueueOverflowStrategy.LIFO);
-        
+
         List _events = new ArrayList();
 
         _events.add(newMessage());
@@ -141,24 +140,25 @@ public class BoundedPriorityEventQueueTest extends TestCase
 
         assertTrue(strategy.getRemovedElements().contains(e2));
     }
-    
+
+    @Test
     public void testGetAllClearsQueue() throws Exception
     {
         BoundedPriorityEventQueue queue = new BoundedPriorityEventQueue(10, EventQueueOverflowStrategy.LEAST_PRIORITY);
-        
+
         Message m = newMessage();
-        
+
         assertEquals(0, queue.getAllMessages(false).length);
-        
+
         queue.put(m);
-        
+
         Message[] mesgs = queue.getAllMessages(false);
-        
+
         assertEquals(1, mesgs.length);
         assertEquals(m, mesgs[0]);
-        
+
         queue.getAllMessages(false);
-        
+
         assertEquals(0, queue.getAllMessages(false).length);
     }
 
@@ -178,14 +178,14 @@ public class BoundedPriorityEventQueueTest extends TestCase
     {
         return newMessage(0);
     }
-    
+
     private Message newMessage(int priority)
     {
         MockControl controlMessage = MockControl.createControl(Message.class);
         Message mockMessage = (Message) controlMessage.getMock();
         mockMessage.getPriority();
         controlMessage.setDefaultReturnValue(priority);
-        
+
         mockMessage.getReceiveTimestamp();
         try
         {
@@ -196,9 +196,9 @@ public class BoundedPriorityEventQueueTest extends TestCase
             // ignored
         }
         controlMessage.setDefaultReturnValue(System.currentTimeMillis());
-        
+
         controlMessage.replay();
-        
+
         return mockMessage;
     }
 }

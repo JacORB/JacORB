@@ -1,34 +1,25 @@
 package org.jacorb.test.bugs.bugjac676;
 
-import junit.framework.Test;
-import junit.framework.TestSuite;
+import static org.junit.Assert.fail;
 import org.jacorb.test.common.ClientServerSetup;
 import org.jacorb.test.common.ClientServerTestCase;
-import org.jacorb.test.common.TestUtils;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
 import org.omg.CORBA.ORB;
 
 public class BugJac676Test extends ClientServerTestCase
 {
     private TestBoundedString testObj = null;
 
-    public BugJac676Test(String name, ClientServerSetup setup)
+    @BeforeClass
+    public static void beforeClassSetUp() throws Exception
     {
-        super( name, setup );
+        setup = new ClientServerSetup("org.jacorb.test.bugs.bugjac676.TestBoundedStringImpl" );
     }
 
-    public static Test suite ()
-    {
-        TestSuite suite = new TestSuite( "bugjac676" );
-        ClientServerSetup setup =
-            new ClientServerSetup( suite,
-                                   "org.jacorb.test.bugs.bugjac676.TestBoundedStringImpl" );
-
-        TestUtils.addToSuite( suite, setup, BugJac676Test.class );
-
-        return setup;
-    }
-
-    protected void setUp () throws Exception
+    @Before
+    public void setUp() throws Exception
     {
         ORB orb = setup.getClientOrb();
         String ior = setup.getServerIOR();
@@ -36,11 +27,7 @@ public class BugJac676Test extends ClientServerTestCase
         testObj = TestBoundedStringHelper.narrow( ref );
     }
 
-    protected void tearDown () throws Exception
-    {
-        testObj = null;
-    }
-
+    @Test
     public void testBoundedString ()
     {
         try

@@ -20,11 +20,12 @@ package org.jacorb.test.notification;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import junit.framework.Test;
+import static org.junit.Assert.assertEquals;
 import org.jacorb.notification.TypedEventMessage;
 import org.jacorb.test.notification.common.NotificationTestCase;
-import org.jacorb.test.notification.common.NotificationTestCaseSetup;
 import org.jacorb.test.notification.typed.CoffeeHelper;
+import org.junit.Before;
+import org.junit.Test;
 import org.omg.CORBA.Any;
 import org.omg.CosNotification.EventType;
 import org.omg.CosNotification.EventTypeHelper;
@@ -43,16 +44,13 @@ public class TypedEventMessageTest extends NotificationTestCase
 
     private static String DRINKING_COFFEE_ID = "::org::jacorb::test::notification::typed::Coffee::drinking_coffee";
 
-    public void setUpTest() throws Exception
+    @Before
+    public void setUp() throws Exception
     {
         objectUnderTest_ = new TypedEventMessage();
     }
 
-    public TypedEventMessageTest(String name, NotificationTestCaseSetup setup)
-    {
-        super(name, setup);
-    }
-
+    @Test
     public void testToProperty()
     {
         objectUnderTest_.setTypedEvent(CoffeeHelper.id(), "drinking_coffee", EMPTY_PROPS);
@@ -67,6 +65,7 @@ public class TypedEventMessageTest extends NotificationTestCase
         assertEquals("drinking_coffee", et.type_name);
     }
 
+    @Test
     public void testToAny()
     {
         objectUnderTest_.setTypedEvent(CoffeeHelper.id(), DRINKING_COFFEE_ID, EMPTY_PROPS);
@@ -84,6 +83,7 @@ public class TypedEventMessageTest extends NotificationTestCase
         assertEquals(DRINKING_COFFEE_ID, _props[0].value.extract_string());
     }
 
+    @Test
     public void testToStructured()
     {
         objectUnderTest_.setTypedEvent(CoffeeHelper.id(), DRINKING_COFFEE_ID, EMPTY_PROPS);
@@ -97,10 +97,5 @@ public class TypedEventMessageTest extends NotificationTestCase
         assertEquals(DRINKING_COFFEE_ID, _structEvent.filterable_data[0].value.extract_string());
 
         assertEquals("%TYPED", _structEvent.header.fixed_header.event_type.type_name);
-    }
-
-    public static Test suite() throws Exception
-    {
-        return NotificationTestCase.suite(TypedEventMessageTest.class);
     }
 }

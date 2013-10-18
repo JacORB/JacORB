@@ -1,10 +1,8 @@
 package org.jacorb.test.orb.rmi;
 
 import java.util.Properties;
-import junit.framework.Test;
-import junit.framework.TestSuite;
 import org.jacorb.test.common.ClientServerSetup;
-import org.jacorb.test.common.TestUtils;
+import org.junit.BeforeClass;
 
 /*
  *        JacORB - a free Java ORB
@@ -31,14 +29,9 @@ import org.jacorb.test.common.TestUtils;
  */
 public class JacORBJacORBRMITest extends AbstractRMITestCase
 {
-    public JacORBJacORBRMITest(String name, ClientServerSetup setup)
+    @BeforeClass
+    public static void beforeClassSetUp() throws Exception
     {
-        super(name, setup);
-    }
-
-    public static Test suite()
-    {
-        TestSuite suite = new TestSuite( "RMI/IIOP tests JacORB vs. JacORB" );
 
         Properties client_props = new Properties();
         client_props.setProperty("jacorb.interop.strict_check_on_tc_creation", "off");
@@ -57,14 +50,9 @@ public class JacORBJacORBRMITest extends AbstractRMITestCase
         server_props.setProperty("jacorb.interop.chunk_custom_rmi_valuetypes", "on");
         server_props.setProperty("jacorb.interop.sun", "on");
 
-        ClientServerSetup setup =
-            new ClientServerSetup( suite,
-                                   "org.jacorb.test.orb.rmi.RMITestServant",
+        setup = new ClientServerSetup("org.jacorb.test.orb.rmi.RMITestServant",
                                    client_props,
                                    server_props);
 
-        TestUtils.addToSuite(suite, setup, JacORBJacORBRMITest.class);
-
-        return setup;
     }
 }

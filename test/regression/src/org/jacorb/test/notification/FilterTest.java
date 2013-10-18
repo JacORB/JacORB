@@ -1,19 +1,21 @@
 package org.jacorb.test.notification;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Random;
-import junit.framework.Assert;
-import junit.framework.Test;
-import junit.framework.TestCase;
 import org.jacorb.notification.IContainer;
 import org.jacorb.notification.TypedEventMessage;
 import org.jacorb.notification.filter.DefaultFilterFactoryDelegate;
 import org.jacorb.notification.filter.FilterFactoryImpl;
 import org.jacorb.test.notification.common.NotificationTestCase;
-import org.jacorb.test.notification.common.NotificationTestCaseSetup;
 import org.jacorb.test.notification.common.NotificationTestUtils;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 import org.omg.CORBA.Any;
 import org.omg.CosNotification.EventType;
 import org.omg.CosNotification.Property;
@@ -47,14 +49,10 @@ public class FilterTest extends NotificationTestCase
 
     ////////////////////////////////////////
 
-    public FilterTest(String name, NotificationTestCaseSetup setup)
-    {
-        super(name, setup);
-    }
-
     ////////////////////////////////////////
 
-    public void setUpTest() throws Exception
+    @Before
+    public void setUp() throws Exception
     {
         IContainer container = new IContainer()
         {
@@ -62,7 +60,7 @@ public class FilterTest extends NotificationTestCase
             {
                 return getPicoContainer();
             }
-            
+
             public void destroy()
             {
                 // no operation
@@ -87,6 +85,7 @@ public class FilterTest extends NotificationTestCase
         factoryServant_.dispose();
     }
 
+    @Test
     public void testFalseMatch() throws Exception
     {
         ConstraintExp[] _constraintExp = new ConstraintExp[1];
@@ -102,6 +101,7 @@ public class FilterTest extends NotificationTestCase
     /**
      * create remote filter object and invoke match operation on it
      */
+    @Test
     public void testMatch() throws Exception
     {
         ConstraintExp[] _constraintExp = new ConstraintExp[1];
@@ -115,6 +115,7 @@ public class FilterTest extends NotificationTestCase
         assertTrue(filter_.match(testPerson_));
     }
 
+    @Test
     public void testAccessNonExistingMember() throws Exception
     {
         EventType[] _eventType = new EventType[] { new EventType("*", "*") };
@@ -128,11 +129,13 @@ public class FilterTest extends NotificationTestCase
         assertTrue(filter_.match(testPerson_));
     }
 
+    @Test
     public void testMatchEmptyFilter() throws Exception
     {
         assertTrue(!filter_.match(testPerson_));
     }
 
+    @Test
     public void testMatch_EventTypes_IsEmpty() throws Exception
     {
         ConstraintExp[] _constraintExp = new ConstraintExp[1];
@@ -145,6 +148,7 @@ public class FilterTest extends NotificationTestCase
         assertTrue(filter_.match(testPerson_));
     }
 
+    @Test
     public void testMatch_EventType_IsEmptyString() throws Exception
     {
         ConstraintExp[] _constraintExp = new ConstraintExp[1];
@@ -157,6 +161,7 @@ public class FilterTest extends NotificationTestCase
         assertTrue(filter_.match(testPerson_));
     }
 
+    @Test
     public void testMatch_FilterString_IsEmpty() throws Exception
     {
         ConstraintExp[] _constraintExp = new ConstraintExp[1];
@@ -169,6 +174,7 @@ public class FilterTest extends NotificationTestCase
         assertTrue(filter_.match(testPerson_));
     }
 
+    @Test
     public void testMatchModify() throws Exception
     {
         ConstraintExp[] _constraintExp = new ConstraintExp[1];
@@ -188,11 +194,13 @@ public class FilterTest extends NotificationTestCase
         assertTrue(filter_.match(testPerson_));
     }
 
+    @Test
     public void testConstraintGrammar() throws Exception
     {
         assertEquals("EXTENDED_TCL", filter_.constraint_grammar());
     }
 
+    @Test
     public void testAddConstraints() throws Exception
     {
         ConstraintExp[] _constraintExp = new ConstraintExp[1];
@@ -213,6 +221,7 @@ public class FilterTest extends NotificationTestCase
                 _info[0].constraint_expression.event_types[0].type_name);
     }
 
+    @Test
     public void testDeleteConstraints() throws Exception
     {
         ConstraintExp[] _constraintExp = new ConstraintExp[2];
@@ -247,17 +256,18 @@ public class FilterTest extends NotificationTestCase
 
     /**
      * multithreaded test. Some Writers modify the Constraints of a Filter. Some Readers constantly
-     * access the Filter. They should always get consistent data.  
+     * access the Filter. They should always get consistent data.
      */
+    @Test
     public void testModifyConcurrent() throws Exception
     {
-        FilterRead _fr1 = new FilterRead(this, filter_, 100);
-        FilterRead _fr2 = new FilterRead(this, filter_, 100);
-        FilterRead _fr3 = new FilterRead(this, filter_, 100);
-        FilterRead _fr4 = new FilterRead(this, filter_, 100);
+        FilterRead _fr1 = new FilterRead(filter_, 100);
+        FilterRead _fr2 = new FilterRead(filter_, 100);
+        FilterRead _fr3 = new FilterRead(filter_, 100);
+        FilterRead _fr4 = new FilterRead(filter_, 100);
 
-        FilterModify _mod1 = new FilterModify(this, filter_, "true", 50);
-        FilterModify _mod2 = new FilterModify(this, filter_, "false", 50);
+        FilterModify _mod1 = new FilterModify(filter_, "true", 50);
+        FilterModify _mod2 = new FilterModify(filter_, "false", 50);
 
         _fr1.start();
         _fr2.start();
@@ -276,6 +286,7 @@ public class FilterTest extends NotificationTestCase
         _mod2.join();
     }
 
+    @Test
     public void testMatchTyped() throws Exception
     {
         Property[] _props = new Property[] { new Property("operation", toAny("operationName")),
@@ -295,6 +306,7 @@ public class FilterTest extends NotificationTestCase
         assertTrue(filter_.match_typed(_props));
     }
 
+    @Test
     public void testFilterTypedMessageEvent() throws Exception
     {
         TypedEventMessage _mesg = new TypedEventMessage();
@@ -321,11 +333,6 @@ public class FilterTest extends NotificationTestCase
 
         assertTrue(_mesg.match(filter_));
     }
-
-    public static Test suite() throws Exception
-    {
-        return NotificationTestCase.suite(FilterTest.class);
-    }
 }
 
 //////////////////////////////////////////////////
@@ -340,8 +347,6 @@ class FilterRead extends Thread
 
     boolean countOk_ = true;
 
-    TestCase testCase_;
-
     static int sCounter = 0;
 
     FilterRead()
@@ -350,10 +355,9 @@ class FilterRead extends Thread
         setDaemon(true);
     }
 
-    FilterRead(TestCase testCase, Filter filter, int iterations)
+    FilterRead(Filter filter, int iterations)
     {
         super();
-        testCase_ = testCase;
         filter_ = filter;
         iterations_ = iterations;
     }
@@ -426,9 +430,9 @@ class CounterMap
         {
             return 0;
         }
-        
+
             return _c.value();
-        
+
     }
 
     public void reset()
@@ -461,21 +465,18 @@ class Counter
 
 class FilterModify extends Thread
 {
-    TestCase testCase_;
-
     Filter filter_;
 
     int iterations_ = 100;
 
     ConstraintExp[] constraintExp_;
 
-    FilterModify(TestCase testCase, Filter filter, String expression, int iterations)
+    FilterModify(Filter filter, String expression, int iterations)
     {
         super();
 
         setDaemon(true);
 
-        testCase_ = testCase;
         filter_ = filter;
         iterations_ = iterations;
 

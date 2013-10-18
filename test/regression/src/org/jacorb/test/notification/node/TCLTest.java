@@ -1,6 +1,8 @@
 package org.jacorb.test.notification.node;
 
-import junit.framework.Test;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.fail;
 import org.jacorb.notification.MessageFactory;
 import org.jacorb.notification.filter.EvaluationContext;
 import org.jacorb.notification.filter.EvaluationException;
@@ -25,8 +27,9 @@ import org.jacorb.test.notification.Profession;
 import org.jacorb.test.notification.TestUnion;
 import org.jacorb.test.notification.TestUnionHelper;
 import org.jacorb.test.notification.common.NotificationTestCase;
-import org.jacorb.test.notification.common.NotificationTestCaseSetup;
 import org.jacorb.test.notification.common.NotificationTestUtils;
+import org.junit.Before;
+import org.junit.Test;
 import org.omg.CORBA.Any;
 import org.omg.CosNotification.EventHeader;
 import org.omg.CosNotification.EventType;
@@ -147,18 +150,14 @@ public class TCLTest extends NotificationTestCase
         return _person;
     }
 
-    public void setUpTest() throws Exception
+    @Before
+    public void setUp() throws Exception
     {
         testUtils_ = new NotificationTestUtils(getORB());
 
         Person _person = setUpPerson();
 
         setUpTestUnion(_person);
-    }
-
-    public TCLTest(String name, NotificationTestCaseSetup setup)
-    {
-        super(name, setup);
     }
 
     ////////////////////
@@ -217,6 +216,7 @@ public class TCLTest extends NotificationTestCase
     //////////////////////////////////////////////////
     // and now some testing
 
+    @Test
     public void testPLUS() throws Exception
     {
         runEvaluation("2", "1 + 1");
@@ -226,6 +226,7 @@ public class TCLTest extends NotificationTestCase
         runEvaluation("2.0", "1 + 1");
     }
 
+    @Test
     public void testMINUS() throws Exception
     {
         runEvaluation("0", "1 - 1");
@@ -235,6 +236,7 @@ public class TCLTest extends NotificationTestCase
         runEvaluation("0.0", "1 - 1");
     }
 
+    @Test
     public void testDIV() throws Exception
     {
         runEvaluation("5", "10/2");
@@ -242,6 +244,7 @@ public class TCLTest extends NotificationTestCase
         runEvaluation("0.25", "1.0/4");
     }
 
+    @Test
     public void testMULT() throws Exception
     {
         runEvaluation("100", "10*10");
@@ -250,6 +253,7 @@ public class TCLTest extends NotificationTestCase
         runEvaluation("-1", "1 * -1");
     }
 
+    @Test
     public void testSimpleNumbers() throws Exception
     {
         runEvaluation("5", "5");
@@ -262,6 +266,7 @@ public class TCLTest extends NotificationTestCase
         runEvaluation("-0.1", "-.1");
     }
 
+    @Test
     public void testFloatNumbers() throws Exception
     {
         runEvaluation("1000", "10e+2");
@@ -273,6 +278,7 @@ public class TCLTest extends NotificationTestCase
         runEvaluation("-.01", "-10e-3");
     }
 
+    @Test
     public void testSimpleOperations() throws Exception
     {
         runEvaluation("0", "1-1");
@@ -281,6 +287,7 @@ public class TCLTest extends NotificationTestCase
         runEvaluation("1", "1/1");
     }
 
+    @Test
     public void testParentheses() throws Exception
     {
         runEvaluation("7", "1+2*3");
@@ -291,6 +298,7 @@ public class TCLTest extends NotificationTestCase
         runEvaluation("1*(2*(3*(4*5)))", "(((1*2)*3)*4)*5");
     }
 
+    @Test
     public void testGT() throws Exception
     {
         runEvaluation("TRUE", "1>0");
@@ -305,6 +313,7 @@ public class TCLTest extends NotificationTestCase
         runEvaluation("FALSE", "'bbb' > 'ccc'");
     }
 
+    @Test
     public void testLT() throws Exception
     {
         runEvaluation("FALSE", "1<0");
@@ -319,6 +328,7 @@ public class TCLTest extends NotificationTestCase
         runEvaluation("TRUE", "'bbb' < 'ccc'");
     }
 
+    @Test
     public void testLTE() throws Exception
     {
         runEvaluation("TRUE", "0<=1");
@@ -329,6 +339,7 @@ public class TCLTest extends NotificationTestCase
         runEvaluation("FALSE", "'bbc'<='abc'");
     }
 
+    @Test
     public void testGTE() throws Exception
     {
         runEvaluation("FALSE", "0>=1");
@@ -339,6 +350,7 @@ public class TCLTest extends NotificationTestCase
         runEvaluation("TRUE", "'bbc'>='abc'");
     }
 
+    @Test
     public void testEQ() throws Exception
     {
         runEvaluation("TRUE", "TRUE == TRUE");
@@ -347,6 +359,7 @@ public class TCLTest extends NotificationTestCase
         runEvaluation("FALSE", "TRUE == FALSE");
     }
 
+    @Test
     public void testNEQ() throws Exception
     {
         runEvaluation("TRUE", "0!=1");
@@ -361,6 +374,7 @@ public class TCLTest extends NotificationTestCase
         runEvaluation("FALSE", "FALSE!=FALSE");
     }
 
+    @Test
     public void testAND() throws Exception
     {
         runEvaluation("TRUE", "TRUE and TRUE");
@@ -369,6 +383,7 @@ public class TCLTest extends NotificationTestCase
         runEvaluation("FALSE", "FALSE and FALSE");
     }
 
+    @Test
     public void testOR() throws Exception
     {
         runEvaluation("TRUE", "TRUE or TRUE");
@@ -377,12 +392,14 @@ public class TCLTest extends NotificationTestCase
         runEvaluation("FALSE", "FALSE or FALSE");
     }
 
+    @Test
     public void testNOT() throws Exception
     {
         runEvaluation("TRUE", "not FALSE");
         runEvaluation("FALSE", "not TRUE");
     }
 
+    @Test
     public void testLazyEval() throws Exception
     {
         try
@@ -398,23 +415,27 @@ public class TCLTest extends NotificationTestCase
         runEvaluation("FALSE", "FALSE and (1/0)");
     }
 
+    @Test
     public void testTwiddle() throws Exception
     {
         runEvaluation("TRUE", "'substr' ~ 'substring'");
         runEvaluation("FALSE", "'not' ~ 'substring'");
     }
 
+    @Test
     public void testCast() throws Exception
     {
         runEvaluation("FALSE", "2/3 > 0");
         runEvaluation("TRUE", "(1.0 * 2/3) > 0");
     }
 
+    @Test
     public void testTypeConversion() throws Exception
     {
         runEvaluation("TRUE", "'H' + 1 > 32");
     }
 
+    @Test
     public void testStaticTypeCheck() throws Exception
     {
         runStaticTypeCheck("5 + 'al'");
@@ -425,11 +446,13 @@ public class TCLTest extends NotificationTestCase
         runStaticTypeCheck("1 * (TRUE and TRUE)", false);
     }
 
+    @Test
     public void testEnum() throws Exception
     {
         runEvaluation(testPerson_, "$.person_profession == STUDENT");
     }
 
+    @Test
     public void testImplicit() throws Exception
     {
         runEvaluation(testPerson_, "$._type_id == 'Person'");
@@ -457,11 +480,13 @@ public class TCLTest extends NotificationTestCase
         runEvaluation(testUnion5_, "$.(5)._length == 1");
     }
 
+    @Test
     public void testDefault() throws Exception
     {
         runEvaluation(testUnion_, "default $._d and $.().first_name == 'Firstname'");
     }
 
+    @Test
     public void testExist() throws Exception
     {
         runEvaluation(testPerson_, "exist $._type_id");
@@ -502,6 +527,7 @@ public class TCLTest extends NotificationTestCase
         runEvaluation(testUnion_, "exist $.default_person");
     }
 
+    @Test
     public void testUnion() throws Exception
     {
         runEvaluation(testUnion1_, "$.long_ > 54");
@@ -545,6 +571,7 @@ public class TCLTest extends NotificationTestCase
         runEvaluation(testUnion_, "$.default_person.first_name", "'Firstname'");
     }
 
+    @Test
     public void testComponent() throws Exception
     {
         runEvaluation(testPerson_, "$.first_name", "'Firstname'");
@@ -587,6 +614,7 @@ public class TCLTest extends NotificationTestCase
         runEvaluation(testPerson_, "$.nv(stuff) > 'aaa'");
     }
 
+    @Test
     public void testDynamicTypeExceptions() throws Exception
     {
         // provoke some Dynamic Type Errors
@@ -620,6 +648,7 @@ public class TCLTest extends NotificationTestCase
 
     }
 
+    @Test
     public void testParse() throws Exception
     {
         try
@@ -641,6 +670,7 @@ public class TCLTest extends NotificationTestCase
         }
     }
 
+    @Test
     public void testShorthandNotation() throws Exception
     {
         Any _testData = testUtils_.getStructuredEventAny();
@@ -656,6 +686,7 @@ public class TCLTest extends NotificationTestCase
         runEvaluation(_structuredEvent, "$event_name == 'ALARM'");
     }
 
+    @Test
     public void testShorthandVariableHeader() throws Exception
     {
         StructuredEvent _structuredEvent = testUtils_.getStructuredEvent();
@@ -678,6 +709,7 @@ public class TCLTest extends NotificationTestCase
         runEvaluation(_structuredEvent, "$string == $.header.variable_header(string)");
     }
 
+    @Test
     public void testShorthandFilterableData() throws Exception
     {
         StructuredEvent _structuredEvent = testUtils_.getStructuredEvent();
@@ -701,11 +733,13 @@ public class TCLTest extends NotificationTestCase
         runEvaluation(_structuredEvent, "$string == $.filterable_data(string)");
     }
 
+    @Test
     public void testShorthandDefault() throws Exception
     {
         runEvaluation(testPerson_, "$first_name == $.first_name");
     }
 
+    @Test
     public void testShorthandDefaultAny() throws Exception
     {
         NamedValue[] _nv = new NamedValue[2];
@@ -718,6 +752,7 @@ public class TCLTest extends NotificationTestCase
         runEvaluation(_a, "$name2 == $(name2)");
     }
 
+    @Test
     public void testInsertComponentName() throws Exception
     {
         ETCLComponentName _comp = (ETCLComponentName) TCLParser.parse("$.first_name.last_name");
@@ -748,6 +783,7 @@ public class TCLTest extends NotificationTestCase
         assertEquals("$.(default)", _comp.getComponentName());
     }
 
+    @Test
     public void testInOperator() throws Exception
     {
         runEvaluation(testPerson_, "'Alias0' in $.aliases");
@@ -758,6 +794,7 @@ public class TCLTest extends NotificationTestCase
         runEvaluation(testPerson_, "not (25 in $.numbers)");
     }
 
+    @Test
     public void testPassOverUnnamedLayers() throws Exception
     {
         Any _any = getORB().create_any();
@@ -787,6 +824,7 @@ public class TCLTest extends NotificationTestCase
         }
     }
 
+    @Test
     public void testVariableCurtime() throws Exception
     {
         runEvaluation(testPerson_, "$curtime._repos_id == 'IDL:omg.org/TimeBase/UtcT:1.0'");
@@ -801,6 +839,7 @@ public class TCLTest extends NotificationTestCase
         runEvaluation(_timeAny, "$.time - 1 <= $.time");
     }
 
+    @Test
     public void testBug671() throws Exception
     {
         Any _any = getORB().create_any();
@@ -808,6 +847,7 @@ public class TCLTest extends NotificationTestCase
         runEvaluation(_any, "$ >= 139192928000000000");
     }
 
+    @Test
     public void testAccessNonExistingStructMember() throws Exception
     {
         try
@@ -820,6 +860,7 @@ public class TCLTest extends NotificationTestCase
         }
     }
 
+    @Test
     public void testAccessNonExistingRuntimeVariable() throws Exception
     {
         try
@@ -832,6 +873,7 @@ public class TCLTest extends NotificationTestCase
         }
     }
 
+    @Test
     public void testAccessNonExistingProperty() throws Exception
     {
         StructuredEvent event = testUtils_.getStructuredEvent();
@@ -857,6 +899,7 @@ public class TCLTest extends NotificationTestCase
         }
     }
 
+    @Test
     public void testLTEforwardsVisitorBug() throws Exception
     {
         String _expr = "$.time <= 1";
@@ -868,6 +911,7 @@ public class TCLTest extends NotificationTestCase
         assertEquals("$.time", _n.getComponentName());
     }
 
+    @Test
     public void testAcceptPostOrder() throws Exception
     {
         for (int x = 0; x < visitorTestExpressions_.length; ++x)
@@ -880,6 +924,7 @@ public class TCLTest extends NotificationTestCase
         }
     }
 
+    @Test
     public void testAcceptInOrder() throws Exception
     {
         for (int x = 0; x < visitorTestExpressions_.length; ++x)
@@ -892,6 +937,7 @@ public class TCLTest extends NotificationTestCase
         }
     }
 
+    @Test
     public void testAcceptPreOrder() throws Exception
     {
         for (int x = 0; x < visitorTestExpressions_.length; ++x)
@@ -904,6 +950,7 @@ public class TCLTest extends NotificationTestCase
         }
     }
 
+    @Test
     public void testWhiteboardExpr() throws Exception
     {
         Any _any = getORB().create_any();
@@ -920,6 +967,7 @@ public class TCLTest extends NotificationTestCase
         runEvaluation(_any, "$.header.variable_header(workgroup_id) != 20");
     }
 
+    @Test
     public void testNewLexer() throws Exception
     {
         assertNotNull(TCLParser.parse(".1"));
@@ -927,6 +975,7 @@ public class TCLTest extends NotificationTestCase
         assertNotNull(TCLParser.parse("$.1"));
     }
 
+    @Test
     public void testTypedEvent() throws Exception
     {
         Property[] _props = new Property[] { new Property("operation", toAny("operationName")),
@@ -940,6 +989,7 @@ public class TCLTest extends NotificationTestCase
         runEvaluation(_any, "$value1 > 50 and $value2 > 50");
     }
 
+    @Test
     public void testStringMayContainSpecialChars() throws Exception
     {
         TCLParser.parse("'noti*server'");
@@ -956,6 +1006,7 @@ public class TCLTest extends NotificationTestCase
         TCLParser.parse("'noti%server'");
     }
 
+    @Test
     public void testParserIgnoresWhitespace() throws Exception
     {
         TCLParser.parse("\t\n\r ");
@@ -964,6 +1015,7 @@ public class TCLTest extends NotificationTestCase
         runEvaluation("2", "\t1\r+\n\r1\t");
     }
 
+    @Test
     public void testBug748() throws Exception {
         EventType type = new EventType("Finance", "StockQuote");
         FixedEventHeader fixed = new FixedEventHeader(type, "10");
@@ -986,13 +1038,6 @@ public class TCLTest extends NotificationTestCase
         runEvaluation(quoteEvent, "$stock_price >= 200.00", "TRUE");
         runEvaluation(quoteEvent, "$stock_price <= 200.00", "TRUE");
         runEvaluation(quoteEvent, "$stock_price == 200.00", "TRUE");
-    }
-
-    public static Test suite() throws Exception
-    {
-        return NotificationTestCase.suite("TCL Parsing and Evaluation Tests", TCLTest.class
-        //, "testBug748"
-                );
     }
 
     private void runEvaluation(Any any, String expr) throws Exception

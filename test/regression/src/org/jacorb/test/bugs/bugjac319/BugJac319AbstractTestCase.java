@@ -20,12 +20,8 @@ package org.jacorb.test.bugs.bugjac319;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import java.util.Properties;
-import junit.framework.Test;
-import junit.framework.TestSuite;
-import org.jacorb.test.common.ClientServerSetup;
 import org.jacorb.test.common.ClientServerTestCase;
-import org.jacorb.test.common.TestUtils;
+import org.junit.Before;
 
 /**
  * BugJac319*Test are tests for the IORMutator plugin. They verifies that
@@ -49,44 +45,11 @@ public abstract class BugJac319AbstractTestCase extends ClientServerTestCase
 
     protected JAC319 server;
 
-    public BugJac319AbstractTestCase(String name, ClientServerSetup setup)
-    {
-        super(name, setup);
-    }
 
-    public final void setUp() throws Exception
+    @Before
+    public void setUp() throws Exception
     {
         server = JAC319Helper.narrow( setup.getServerObject() );
         MutatorImpl.reset();
-    }
-
-    protected final void tearDown() throws Exception
-    {
-        server = null;
-    }
-
-    public static Test suite(boolean doMutate, Class clazz)
-    {
-        Properties props = new Properties();
-
-        if (doMutate)
-        {
-            props.put("jacorb.iormutator",
-                      MutatorImpl.class.getName());
-        }
-
-        TestSuite suite = new TestSuite( "IORMutator tests (" + clazz.getName() + ")");
-
-        ClientServerSetup setup = new ClientServerSetup
-        (
-            suite,
-            JAC319Impl.class.getName(),
-            props,
-            props
-        );
-
-        TestUtils.addToSuite(suite, setup, clazz);
-
-        return setup;
     }
 }

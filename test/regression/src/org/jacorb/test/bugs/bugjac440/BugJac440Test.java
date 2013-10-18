@@ -20,16 +20,18 @@
 
 package org.jacorb.test.bugs.bugjac440;
 
+import static org.junit.Assert.fail;
 import java.util.Properties;
-import junit.framework.TestCase;
+import org.junit.Test;
 import org.omg.CORBA.INITIALIZE;
 import org.omg.CORBA.ORB;
 
 /**
  * @author Alphonse Bendt
  */
-public class BugJac440Test extends TestCase
+public class BugJac440Test
 {
+    @Test
     public void testInvokeSetSlotDuringORBInitFails() throws Exception
     {
         Properties props = new Properties();

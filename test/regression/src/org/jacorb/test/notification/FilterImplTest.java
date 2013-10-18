@@ -1,7 +1,9 @@
 package org.jacorb.test.notification;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 import java.util.Iterator;
-import junit.framework.Test;
 import org.jacorb.notification.AbstractMessage;
 import org.jacorb.notification.filter.AbstractFilter;
 import org.jacorb.notification.filter.ConstraintEntry;
@@ -9,7 +11,8 @@ import org.jacorb.notification.filter.etcl.ETCLFilter;
 import org.jacorb.notification.impl.DefaultEvaluationContextFactory;
 import org.jacorb.notification.impl.DefaultMessageFactory;
 import org.jacorb.test.notification.common.NotificationTestCase;
-import org.jacorb.test.notification.common.NotificationTestCaseSetup;
+import org.junit.Before;
+import org.junit.Test;
 import org.omg.CosNotification.EventType;
 import org.omg.CosNotifyFilter.ConstraintExp;
 import org.omg.CosNotifyFilter.ConstraintInfo;
@@ -22,19 +25,13 @@ public class FilterImplTest extends NotificationTestCase {
 
     private AbstractFilter objectUnderTest_;
 
-    ////////////////////////////////////////
-
-    public FilterImplTest(String test, NotificationTestCaseSetup setup) {
-        super(test, setup);
-    }
-
-    ////////////////////////////////////////
-
+    @Before
     public void setUpTest() throws Exception {
         objectUnderTest_ = new ETCLFilter(getConfiguration(), new DefaultEvaluationContextFactory(getEvaluator()), new DefaultMessageFactory(getORB(), getConfiguration()), getORB(), getPOA());
     }
 
 
+    @Test
     public void testIterator() throws Exception {
         ConstraintExp[] _exp = new ConstraintExp[1];
 
@@ -68,6 +65,7 @@ public class FilterImplTest extends NotificationTestCase {
      * in the filter, the ConstraintIterator may be required to
      * iterate over nothing at all.
      */
+    @Test
     public void testIteratorBug() throws Exception {
         ConstraintExp[] _exp = new ConstraintExp[1];
 
@@ -90,6 +88,7 @@ public class FilterImplTest extends NotificationTestCase {
     }
 
 
+    @Test
     public void testEmptyIteratorThrowsException() throws Exception {
         ConstraintExp[] _exp = new ConstraintExp[1];
 
@@ -115,6 +114,7 @@ public class FilterImplTest extends NotificationTestCase {
     }
 
 
+    @Test
     public void testIterator2() throws Exception {
         ConstraintExp[] _exp = new ConstraintExp[1];
         for (int x=0; x<_exp.length; ++x) {
@@ -160,6 +160,7 @@ public class FilterImplTest extends NotificationTestCase {
     }
 
 
+    @Test
     public void testAddRemove() throws Exception {
         ConstraintExp[] _exp = new ConstraintExp[1];
         for (int x=0; x<_exp.length; ++x) {
@@ -207,10 +208,5 @@ public class FilterImplTest extends NotificationTestCase {
             assertTrue(_e.getConstraintExpression().equals("1"));
         }
         assertEquals(2, _count);
-    }
-
-
-    public static Test suite() throws Exception {
-        return NotificationTestCase.suite(FilterImplTest.class);
     }
 }

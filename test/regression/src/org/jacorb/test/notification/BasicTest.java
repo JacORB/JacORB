@@ -21,7 +21,9 @@
 
 package org.jacorb.test.notification;
 
+import static org.junit.Assert.assertTrue;
 import org.jacorb.test.common.ORBTestCase;
+import org.junit.Test;
 import org.omg.PortableServer.POAHelper;
 
 /**
@@ -29,7 +31,8 @@ import org.omg.PortableServer.POAHelper;
  */
 public class BasicTest extends ORBTestCase
 {
-	public void test_Is_JacORB_POA_a_POA() throws Exception
+    @Test
+    public void test_Is_JacORB_POA_a_POA() throws Exception
 	{
 		assertTrue(rootPOA._is_a(POAHelper.id()));
 	}

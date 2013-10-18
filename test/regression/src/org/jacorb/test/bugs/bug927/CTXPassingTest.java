@@ -1,12 +1,13 @@
 package org.jacorb.test.bugs.bug927;
 
+import static org.junit.Assert.fail;
 import java.util.Properties;
-import junit.framework.Test;
-import junit.framework.TestSuite;
 import org.jacorb.test.common.ClientServerSetup;
 import org.jacorb.test.common.ClientServerTestCase;
 import org.jacorb.test.common.CommonSetup;
-import org.jacorb.test.common.TestUtils;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
 import org.omg.CORBA.Any;
 import org.omg.CORBA.ORBPackage.InvalidName;
 import org.omg.PortableInterceptor.Current;
@@ -16,12 +17,8 @@ public class CTXPassingTest extends ClientServerTestCase
 {
     private org.omg.CORBA.Object server;
 
-    public CTXPassingTest(String name, ClientServerSetup setup)
-    {
-        super(name, setup);
-    }
-
-    public static Test suite()
+    @BeforeClass
+    public static void beforeClassSetUp() throws Exception
     {
         Properties severProp = new Properties();
         severProp.setProperty("org.omg.PortableInterceptor.ORBInitializerClass.a",
@@ -34,26 +31,19 @@ public class CTXPassingTest extends ClientServerTestCase
         clientProp.setProperty(CommonSetup.JACORB_REGRESSION_DISABLE_SECURITY, "true");
         clientProp.setProperty(CommonSetup.JACORB_REGRESSION_DISABLE_SECURITY, "true");
 
-        TestSuite suite = new TestSuite(CTXPassingTest.class.getName());
 
-        ClientServerSetup setup = new ClientServerSetup(suite, Server.class.getName()
+        setup = new ClientServerSetup(Server.class.getName()
                                       , "org.jacorb.test.bugs.bug927.TestObjectImpl"
                                       , clientProp, severProp);
-        TestUtils.addToSuite(suite, setup, CTXPassingTest.class);
-
-        return setup;
     }
 
-    protected void setUp() throws Exception
+    @Before
+    public void setUp() throws Exception
     {
         server = setup.getServerObject();
     }
 
-    protected void tearDown() throws Exception
-    {
-        server = null;
-    }
-
+    @Test
     public void testCTXPassingTest()
     {
         TestObject testObject = null;

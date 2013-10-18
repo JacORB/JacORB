@@ -1,11 +1,13 @@
 package org.jacorb.test.bugs.bugjac565;
 
-import junit.framework.TestCase;
+import static org.junit.Assert.fail;
 import org.jacorb.test.bugs.bugjac565.ModulatorPackage.Mode;
 import org.jacorb.test.bugs.bugjac565.ModulatorPackage.States;
+import org.junit.Test;
 
-public class BugJac565Test extends TestCase 
+public class BugJac565Test 
 {
+    @Test
     public void testDefaultMethod ()
     {
         Mode mode = new Mode( );

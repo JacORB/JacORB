@@ -21,17 +21,21 @@
 
 package org.jacorb.test.orb.rmi;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import javax.rmi.PortableRemoteObject;
 import javax.rmi.CORBA.Util;
-import junit.framework.TestCase;
 import org.jacorb.orb.rmi.PortableRemoteObjectDelegateImpl;
+import org.junit.Before;
+import org.junit.Test;
 import org.omg.CORBA.ORB;
 import org.omg.CORBA.ORBPackage.InvalidName;
 import org.omg.PortableServer.POA;
 import org.omg.PortableServer.POAHelper;
 import org.omg.PortableServer.POAManagerPackage.AdapterInactive;
 
-public class PortableRemoteObjectDelegateImplTest extends TestCase
+public class PortableRemoteObjectDelegateImplTest
 {
     private static ORB orb;
     private static Exception initException;
@@ -57,11 +61,13 @@ public class PortableRemoteObjectDelegateImplTest extends TestCase
         }
     }
 
-    protected void setUp() throws Exception
+    @Before
+    public void setUp() throws Exception
     {
         assertNull(initException);
     }
 
+    @Test
     public void testExport() throws Exception
     {
         RMITestImpl servant = new RMITestImpl();
@@ -69,6 +75,7 @@ public class PortableRemoteObjectDelegateImplTest extends TestCase
         assertNotNull(Util.getTie(servant));
     }
 
+    @Test
     public void testUnExport() throws Exception
     {
         RMITestImpl servant = new RMITestImpl();
@@ -80,6 +87,7 @@ public class PortableRemoteObjectDelegateImplTest extends TestCase
         assertNull(Util.getTie(servant));
     }
 
+    @Test
     public void testToStub() throws Exception
     {
         RMITestImpl servant = new RMITestImpl();

@@ -20,11 +20,12 @@
 
 package org.jacorb.test.bugs.bugjac384;
 
+import static org.junit.Assert.assertEquals;
 import java.io.File;
 import java.util.Arrays;
 import java.util.Properties;
-import junit.framework.TestCase;
 import org.jacorb.test.common.TestUtils;
+import org.junit.Test;
 import org.omg.CORBA.ORB;
 import org.omg.PortableServer.POA;
 import org.omg.PortableServer.POAHelper;
@@ -32,8 +33,9 @@ import org.omg.PortableServer.POAHelper;
 /**
  * @author Alphonse Bendt
  */
-public class BugJac_384Test extends TestCase
+public class BugJac_384Test
 {
+    @Test
     public void testThereShouldBeOnlyOneLogfile() throws Exception
     {
         File dir = TestUtils.createTempDir("bugjac384");

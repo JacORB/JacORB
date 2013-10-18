@@ -1,9 +1,9 @@
 package org.jacorb.test.transport;
 
-import junit.framework.Assert;
 import org.jacorb.test.orb.transport.CurrentServer;
 import org.jacorb.test.orb.transport.CurrentServerHelper;
 import org.jacorb.test.orb.transport.CurrentServerPOA;
+import org.junit.Assert;
 import org.omg.CORBA.ORB;
 import org.omg.CORBA.ORBPackage.InvalidName;
 import org.omg.PortableServer.POA;

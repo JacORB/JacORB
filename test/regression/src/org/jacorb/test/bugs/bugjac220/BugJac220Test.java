@@ -21,11 +21,11 @@ package org.jacorb.test.bugs.bugjac220;
  */
 
 import java.util.Properties;
-import junit.framework.Test;
-import junit.framework.TestSuite;
 import org.jacorb.test.common.ClientServerSetup;
 import org.jacorb.test.common.ClientServerTestCase;
-import org.jacorb.test.common.TestUtils;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
 
 /**
  * @author Nick Cross
@@ -40,24 +40,16 @@ public class BugJac220Test extends ClientServerTestCase
      * @param name a <code>String</code> value
      * @param setup a <code>ClientServerSetup</code> value
      */
-    public BugJac220Test (String name, ClientServerSetup setup)
-    {
-        super(name, setup);
-    }
 
     /**
      * <code>setUp</code> is used by Junit for initialising the tests.
      *
      * @exception Exception if an error occurs
      */
+    @Before
     public void setUp() throws Exception
     {
         server = TestEnumHelper.narrow( setup.getServerObject() );
-    }
-
-    protected void tearDown() throws Exception
-    {
-        server = null;
     }
 
     /**
@@ -65,9 +57,9 @@ public class BugJac220Test extends ClientServerTestCase
      *
      * @return a <code>Test</code> value
      */
-    public static Test suite()
+    @BeforeClass
+    public static void beforeClassSetUp() throws Exception
     {
-        TestSuite suite = new TestSuite( "Enum TypeCode tests" );
 
         Properties client_props = new Properties();
         Properties server_props = new Properties();
@@ -76,22 +68,19 @@ public class BugJac220Test extends ClientServerTestCase
         client_props.setProperty ("jacorb.compactTypecodes", "on");
         server_props.setProperty ("jacorb.compactTypecodes", "on");
 
-        ClientServerSetup setup =
-            new ClientServerSetup
-               ( suite,
+        setup = new ClientServerSetup
+        (
+
                  TestEnumImpl.class.getName(),
                  client_props,
                  server_props);
-
-        TestUtils.addToSuite(suite, setup, BugJac220Test.class);
-
-        return setup;
     }
 
 
     /**
      * <code>test_enum_tc</code>
      */
+    @Test
     public void test_enum_tc()
     {
         org.omg.CORBA.ORB orb = setup.getClientOrb();

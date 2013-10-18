@@ -22,11 +22,12 @@ package org.jacorb.test.bugs.bugjac511;
 
 import java.util.Properties;
 import junit.framework.AssertionFailedError;
-import junit.framework.Test;
-import junit.framework.TestSuite;
 import org.jacorb.test.common.CallbackTestCase;
 import org.jacorb.test.common.ClientServerSetup;
 import org.jacorb.test.common.TestUtils;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
 import org.omg.CORBA.UserException;
 import org.omg.Messaging.ExceptionHolder;
 import bugjac511a.bugjac511b.AMI_BugJac511ServerHandler;
@@ -59,26 +60,21 @@ public class BugJac511Test extends CallbackTestCase
 
     private BugJac511Server server;
 
-    public BugJac511Test(String name, ClientServerSetup setup)
-    {
-        super(name, setup);
-    }
-
-    protected void setUp() throws Exception
+    @Before
+    public void setUp() throws Exception
     {
         server = BugJac511ServerHelper.narrow(setup.getServerObject());
     }
 
-    public static Test suite()
+    @BeforeClass
+    public static void beforeClassSetUp() throws Exception
     {
         Properties props = new Properties();
 
-        TestSuite suite = new TestSuite(BugJac511Test.class.getName());
-        ClientServerSetup setup = new ClientServerSetup(suite, BugJac511ServerImpl.class.getName(), props, props);
-        TestUtils.addToSuite(suite, setup, BugJac511Test.class);
-        return setup;
+        setup = new ClientServerSetup(BugJac511ServerImpl.class.getName(), props, props);
     }
 
+    @Test
     public void testExceptionDuringAMIInvocation() throws Exception
     {
         ReplyHandler handler = new ReplyHandler()

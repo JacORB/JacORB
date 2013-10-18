@@ -21,8 +21,10 @@ package org.jacorb.test.orb.etf.wiop;
  *   MA 02110-1301, USA.
  */
 
+import org.jacorb.orb.CDRInputStream;
+import org.jacorb.orb.CDROutputStream;
+import org.jacorb.orb.etf.ProfileBase;
 import org.omg.ETF.Profile;
-import org.omg.ETF._ProfileLocalBase;
 import org.omg.GIOP.Version;
 import org.omg.IOP.TaggedComponentSeqHolder;
 import org.omg.IOP.TaggedProfileHolder;
@@ -30,14 +32,14 @@ import org.omg.IOP.TaggedProfileHolder;
 /**
  * See {@link org.jacorb.test.orb.etf.wiop.WIOPFactories WIOPFactories} for
  * a description of WIOP.
- * 
+ *
  * @author <a href="mailto:spiegel@gnu.org">Andre Spiegel</a>
  */
-public class WIOPProfile extends _ProfileLocalBase
+public class WIOPProfile extends ProfileBase
 {
     private int tag = 0;
     private Profile delegate = null;
-    
+
     public WIOPProfile (Profile delegate, int tag)
     {
         this.delegate = delegate;
@@ -91,4 +93,13 @@ public class WIOPProfile extends _ProfileLocalBase
         return this.tag;
     }
 
+    @Override
+    public void writeAddressProfile(CDROutputStream stream)
+    {
+    }
+
+    @Override
+    public void readAddressProfile(CDRInputStream stream)
+    {
+    }
 }

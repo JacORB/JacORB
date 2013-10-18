@@ -18,7 +18,8 @@ public class _HelloInterfaceStub
 		return ids;
 	}
 
-	public final static java.lang.Class _opsClass = org.jacorb.test.bugs.bugjac788Compat.HelloInterfaceOperations.class;
+	@SuppressWarnings("rawtypes")
+    public final static java.lang.Class _opsClass = org.jacorb.test.bugs.bugjac788Compat.HelloInterfaceOperations.class;
 	public void hello()
 	{
 		while(true)

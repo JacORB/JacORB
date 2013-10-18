@@ -20,11 +20,14 @@
 
 package org.jacorb.test.bugs.bugjac512;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 import java.util.Properties;
 import org.jacorb.orb.giop.ReplyInputStream;
 import org.jacorb.orb.giop.ReplyOutputStream;
 import org.jacorb.test.common.MyNullLogger;
 import org.jacorb.test.common.ORBTestCase;
+import org.junit.Test;
 import org.omg.CORBA.MARSHAL;
 import org.omg.GIOP.ReplyStatusType_1_2;
 
@@ -33,11 +36,13 @@ import org.omg.GIOP.ReplyStatusType_1_2;
  */
 public class BugJac512Giop1_0ClientTest extends ORBTestCase
 {
-    protected void patchORBProperties(String testName, Properties props) throws Exception
+    @Override
+    protected void patchORBProperties(Properties props) throws Exception
     {
         props.setProperty("jacorb.giop_minor_version", "0");
     }
 
+    @Test
     public void testDoesNotLikeWCharWithinReply()
     {
         ReplyOutputStream out = new ReplyOutputStream(orb, 1, ReplyStatusType_1_2.NO_EXCEPTION, 0, false, new MyNullLogger());
@@ -57,8 +62,14 @@ public class BugJac512Giop1_0ClientTest extends ORBTestCase
         {
             assertEquals(6, e.minor);
         }
+        finally
+        {
+            out.close();
+            in.close();
+        }
     }
 
+    @Test
     public void testServerDoesNotLikeWString()
     {
         ReplyOutputStream out = new ReplyOutputStream(orb, 1, ReplyStatusType_1_2.NO_EXCEPTION, 0, false, new MyNullLogger());
@@ -77,6 +88,11 @@ public class BugJac512Giop1_0ClientTest extends ORBTestCase
         catch(MARSHAL e)
         {
             assertEquals(6, e.minor);
+        }
+        finally
+        {
+            out.close();
+            in.close();
         }
     }
 }

@@ -39,7 +39,7 @@ public class BiDirDelegateTestServerRunner
             poa.the_POAManager().activate();
 
             String className = args[0];
-            Class servantClass = Class.forName (className);
+            Class<?> servantClass = Class.forName (className);
             Servant servant = ( Servant ) servantClass.newInstance();
 
             // Get the id

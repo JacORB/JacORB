@@ -1,13 +1,14 @@
 package org.jacorb.test.nio;
 
+import static org.junit.Assert.fail;
 import java.util.Properties;
-import junit.framework.Test;
-import junit.framework.TestSuite;
 import org.jacorb.test.TestIf;
 import org.jacorb.test.TestIfHelper;
 import org.jacorb.test.common.ClientServerSetup;
 import org.jacorb.test.common.ClientServerTestCase;
-import org.jacorb.test.common.TestUtils;
+import org.junit.Assume;
+import org.junit.BeforeClass;
+import org.junit.Test;
 import org.omg.CORBA.Any;
 import org.omg.CORBA.INV_OBJREF;
 import org.omg.CORBA.ORB;
@@ -28,45 +29,24 @@ public class NIOTest extends ClientServerTestCase
     public static final int ONE_SECOND = 1000 * MSEC_FACTOR;
 
     private String nioTestURL = "corbaloc::localhost:6969/NIOTestServer/thePOA/ObjectID";
-                                
+
     protected TestIf server = null;
 
-    public static Test suite()
+    @BeforeClass
+    public static void beforeClassSetUp() throws Exception
     {
-        TestSuite suite = new TestSuite(NIOTest.class.getName());
-
         Properties props = new Properties ();
         props.setProperty ("jacorb.connection.nonblocking", "on");
-	props.setProperty ("jacorb.log.default.verbosity", "4");
+        props.setProperty ("jacorb.log.default.verbosity", "4");
 
-        ClientServerSetup setup = 
-	     new ClientServerSetup(suite, NIOTestServer.class.getName(), 
+        setup = new ClientServerSetup(NIOTestServer.class.getName(),
                                    TestIf.class.getName(), props, props);
-        
-        // NIO doesn't yet support SSL 
-        if (!setup.isSSLEnabled ())
-        {
-	       TestUtils.addToSuite(suite, setup, NIOTest.class);
-        }
-        else
-        {
-            System.err.println("Test ignored as SSL doesn't supported (" + NIOTest.class.getName() + ")");
-        }
-        return setup;
+
+        // NIO doesn't yet support SSL
+        Assume.assumeFalse(setup.isSSLEnabled());
     }
 
-    public NIOTest(String name, ClientServerSetup setup) 
-    {
-        super (name, setup);
-    }
-
-    private Properties getClientProperties()
-    {
-        Properties cp = new Properties ();
-        cp.put ("org.jacorb.connection.nonblocking","on");
-        return cp;
-    }
-
+    @Test
     public void testNIO() throws Exception
     {
         ORB orb = setup.getClientOrb();
@@ -74,12 +54,12 @@ public class NIOTest extends ClientServerTestCase
 
         Any rrtPolicyAny = orb.create_any();
         rrtPolicyAny.insert_ulonglong (ONE_SECOND*2);
- 
+
         Policy policies[] = new Policy[1];
         policies[0] =
             orb.create_policy (RELATIVE_RT_TIMEOUT_POLICY_TYPE.value,
                                rrtPolicyAny);
-      
+
         server = TestIfHelper.narrow(ref._set_policy_override (policies, SetOverrideType.ADD_OVERRIDE));
 
         try

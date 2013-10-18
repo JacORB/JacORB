@@ -20,11 +20,12 @@ package org.jacorb.test.notification.bugs;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import junit.framework.Test;
+import static org.junit.Assert.assertTrue;
 import org.jacorb.test.notification.StructuredPushReceiver;
 import org.jacorb.test.notification.StructuredPushSender;
 import org.jacorb.test.notification.common.NotifyServerTestCase;
-import org.jacorb.test.notification.common.NotifyServerTestSetup;
+import org.junit.Before;
+import org.junit.Test;
 import org.omg.CORBA.Any;
 import org.omg.CosNotification.EventHeader;
 import org.omg.CosNotification.EventType;
@@ -44,16 +45,13 @@ public class MultipleDeliveryBugTest extends NotifyServerTestCase
 {
     private EventChannel objectUnderTest_;
 
-    public MultipleDeliveryBugTest(String name, NotifyServerTestSetup setup)
-    {
-        super(name, setup);
-    }
-
-    public void setUpTest() throws Exception
+    @Before
+    public void setUp() throws Exception
     {
         objectUnderTest_ = getDefaultChannel();
     }
 
+    @Test
     public void testMultipleSendUnderHighLoad() throws Exception
     {
         int testSize = 100;
@@ -65,8 +63,8 @@ public class MultipleDeliveryBugTest extends NotifyServerTestCase
         fixedHeader.event_type = new EventType("TESTING", "TESTING");
         EventHeader header = new EventHeader(fixedHeader, new Property[0]);
 
-        StructuredPushReceiver _receiver = new StructuredPushReceiver(getClientORB(), testSize);
-        StructuredPushSender _sender = new StructuredPushSender(getClientORB());
+        StructuredPushReceiver _receiver = new StructuredPushReceiver(setup.getClientOrb(), testSize);
+        StructuredPushSender _sender = new StructuredPushSender(setup.getClientOrb());
 
         _receiver.setTimeOut(testSize * 100);
 
@@ -77,7 +75,7 @@ public class MultipleDeliveryBugTest extends NotifyServerTestCase
 
         for (int x = 0; x < events.length; ++x)
         {
-            Any any = getClientORB().create_any();
+            Any any = setup.getClientOrb().create_any();
             any.insert_long(x);
             events[x] = new StructuredEvent(header, new Property[0], any);
         }
@@ -87,10 +85,5 @@ public class MultipleDeliveryBugTest extends NotifyServerTestCase
         _receiver.join();
 
         assertTrue(_receiver.toString(), _receiver.isEventHandled());
-    }
-
-    public static Test suite() throws Exception
-    {
-        return NotifyServerTestCase.suite(MultipleDeliveryBugTest.class);
     }
 }

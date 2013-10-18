@@ -22,6 +22,7 @@
 
 package org.jacorb.test.jmx;
 
+import static org.junit.Assert.assertEquals;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -31,25 +32,20 @@ import javax.management.ObjectName;
 import javax.management.remote.JMXConnector;
 import javax.management.remote.JMXConnectorFactory;
 import javax.management.remote.JMXServiceURL;
-import org.jacorb.test.common.ClientServerTestCase;
+import org.junit.Test;
+import org.omg.CORBA.ORB;
 
-public abstract class AbstractJMXTestCase extends ClientServerTestCase
+public abstract class AbstractJMXTestCase
 {
-    private JMXClientServerSetup setup;
+    protected static JMXClientServerSetup jmxSetup;
 
-    public AbstractJMXTestCase(String name, JMXClientServerSetup setup)
-    {
-        super(name, setup);
-
-        this.setup = setup;
-    }
-
+    @Test
     public void testAccessRemoteMBean() throws Exception
     {
-        JMXServiceURL serviceURL = setup.getServiceURL();
+        JMXServiceURL serviceURL = jmxSetup.getServiceURL();
 
-        Map map = new HashMap();
-        map.put("java.naming.corba.orb", setup.getClientOrb());
+        Map<String, ORB> map = new HashMap<String, ORB>();
+        map.put("java.naming.corba.orb", jmxSetup.getClientOrb());
         JMXConnector connector = JMXConnectorFactory.connect(serviceURL, map);
 
         MBeanServerConnection serverConnection = connector.getMBeanServerConnection();

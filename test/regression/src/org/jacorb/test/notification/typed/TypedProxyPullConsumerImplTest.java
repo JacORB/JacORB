@@ -20,9 +20,10 @@ package org.jacorb.test.notification.typed;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import java.util.Properties;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 import java.util.concurrent.ScheduledFuture;
-import junit.framework.Test;
 import org.easymock.AbstractMatcher;
 import org.easymock.MockControl;
 import org.jacorb.notification.OfferManager;
@@ -31,10 +32,9 @@ import org.jacorb.notification.engine.TaskProcessor;
 import org.jacorb.notification.interfaces.Message;
 import org.jacorb.notification.servant.ITypedAdmin;
 import org.jacorb.notification.servant.TypedProxyPullConsumerImpl;
-import org.jacorb.test.common.CommonSetup;
-import org.jacorb.test.common.ORBSetup;
 import org.jacorb.test.notification.common.NotificationTestCase;
-import org.jacorb.test.notification.common.NotificationTestCaseSetup;
+import org.junit.Before;
+import org.junit.Test;
 import org.omg.CORBA.IntHolder;
 import org.omg.CORBA.ORB;
 import org.omg.CORBA.StringHolder;
@@ -86,17 +86,9 @@ public class TypedProxyPullConsumerImplTest extends NotificationTestCase
 
     private ScheduledFuture mockScheduledFuture_;
 
-    private ORBSetup myORB;
-
-    public void setUpTest() throws Exception
+    @Before
+    public void setUp() throws Exception
     {
-    	Properties props = new Properties();
-    	props.setProperty("ORBInitRef.InterfaceRepository", getRepository().toString());
-    	// FIXME: bugzilla #820 - disabled security for some regression tests
-    	props.setProperty (CommonSetup.JACORB_REGRESSION_DISABLE_SECURITY, "true");
-    	myORB = new ORBSetup(this, props);
-    	myORB.setUp();
-
         controlScheduledFuture_ = MockControl.createControl(ScheduledFuture.class);
         mockScheduledFuture_ = (ScheduledFuture) controlScheduledFuture_.getMock();
         controlAdmin_ = MockControl.createNiceControl(ITypedAdmin.class);
@@ -142,33 +134,26 @@ public class TypedProxyPullConsumerImplTest extends NotificationTestCase
         pullCoffee_ = new PullCoffeePOATie(mockPullCoffee_)._this(getClientORB());
     }
 
-    protected void tearDownTest() throws Exception
-    {
-    	myORB.tearDown();
-    }
-
-    public TypedProxyPullConsumerImplTest(String name, NotificationTestCaseSetup setup)
-    {
-        super(name, setup);
-    }
-
     public ORB getClientORB()
     {
-    	return myORB.getORB();
+    	return setup.getClientORB();
     }
 
 
+    @Test
     public void testId()
     {
         assertTrue(objectUnderTest_.isIDPublic());
         assertEquals(new Integer(10), objectUnderTest_.getID());
     }
 
+    @Test
     public void testMyType()
     {
         assertEquals(ProxyType.PULL_TYPED, proxyPullConsumer_.MyType());
     }
 
+    @Test
     public void testConnect() throws Exception
     {
         mockTypedPullSupplier_.get_typed_supplier();
@@ -186,6 +171,7 @@ public class TypedProxyPullConsumerImplTest extends NotificationTestCase
         verifyAll();
     }
 
+    @Test
     public void testConnectInvalidType() throws Exception
     {
         TypedPullSupplier _typedPullSupplier = TypedPullSupplierHelper
@@ -207,6 +193,7 @@ public class TypedProxyPullConsumerImplTest extends NotificationTestCase
         verifyAll();
     }
 
+    @Test
     public void testTryOperationsAreInvoked() throws Exception
     {
         controlPullCoffeeOperations_.setDefaultMatcher(new AbstractMatcher()
@@ -250,6 +237,7 @@ public class TypedProxyPullConsumerImplTest extends NotificationTestCase
         verifyAll();
     }
 
+    @Test
     public void testTryOperationsThrowsException() throws Exception
     {
         mockPullCoffee_.try_drinking_coffee(null, null);
@@ -294,6 +282,7 @@ public class TypedProxyPullConsumerImplTest extends NotificationTestCase
         verifyAll();
     }
 
+    @Test
     public void testFormat() throws Exception
     {
         mockTaskProcessor_.processMessage(null);
@@ -406,10 +395,5 @@ public class TypedProxyPullConsumerImplTest extends NotificationTestCase
         controlPullCoffeeOperations_.replay();
         controlTypedPullSupplier_.replay();
         controlTaskProcessor_.replay();
-    }
-
-    public static Test suite() throws Exception
-    {
-        return NotificationTestCase.suite(TypedProxyPullConsumerImplTest.class);
     }
 }

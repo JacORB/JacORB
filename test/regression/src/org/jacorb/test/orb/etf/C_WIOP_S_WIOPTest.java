@@ -21,49 +21,39 @@ package org.jacorb.test.orb.etf;
  *   MA 02110-1301, USA.
  */
 
+import static org.junit.Assert.assertTrue;
 import java.util.Properties;
-import junit.framework.Test;
-import junit.framework.TestSuite;
 import org.jacorb.test.common.ClientServerSetup;
+import org.jacorb.test.common.CommonSetup;
 import org.jacorb.test.orb.etf.wiop.WIOPFactories;
+import org.junit.BeforeClass;
+import org.junit.Test;
 
 /**
  * A test that uses only WIOP as a transport both on the client side and
  * the server side.  Thus, WIOP should be used for the connection, since it
  * is the only transport available.
- * 
+ *
  * @author Andre Spiegel spiegel@gnu.org
  */
 public class C_WIOP_S_WIOPTest extends AbstractWIOPTestCase
 {
-    public C_WIOP_S_WIOPTest (String name, ClientServerSetup setup)
+    @BeforeClass
+    public static void beforeClassSetUp() throws Exception
     {
-        super (name, setup);
-    }
-
-    public static Test suite()
-    {
-        TestSuite suite = new TestSuite ("Client WIOP Server WIOP");
-
         Properties props = new Properties();
         props.setProperty("jacorb.transport.factories",
                           "org.jacorb.test.orb.etf.wiop.WIOPFactories");
 
         // WIOP does not support SSL.
-        props.setProperty("jacorb.regression.disable_security",
-                          "true");
+        props.setProperty(CommonSetup.JACORB_REGRESSION_DISABLE_SECURITY, "true");
 
-
-        ClientServerSetup setup =
-          new ClientServerSetup (suite,
+        setup = new ClientServerSetup(
                                  "org.jacorb.test.orb.BasicServerImpl",
                                  props, props);
-
-        suite.addTest (new C_WIOP_S_WIOPTest ("testConnection", setup));
-
-        return setup;
     }
 
+    @Test
     public void testConnection()
     {
         server.ping();

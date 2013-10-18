@@ -21,12 +21,12 @@
 
 package org.jacorb.test.notification.filter;
 
+import static org.junit.Assert.assertTrue;
 import java.util.Date;
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
 import org.easymock.MockControl;
 import org.jacorb.notification.filter.FilterUsageDecorator;
+import org.junit.Before;
+import org.junit.Test;
 import org.omg.CORBA.Any;
 import org.omg.CORBA.ORB;
 import org.omg.CosNotifyFilter.FilterOperations;
@@ -34,7 +34,7 @@ import org.omg.CosNotifyFilter.FilterOperations;
 /**
  * @author Alphonse Bendt
  */
-public class FilterUsageDecoratorTest extends TestCase
+public class FilterUsageDecoratorTest
 {
     private FilterUsageDecorator objectUnderTest_;
 
@@ -44,10 +44,9 @@ public class FilterUsageDecoratorTest extends TestCase
 
     private Any any_;
 
-    protected void setUp() throws Exception
+    @Before
+    public void setUp() throws Exception
     {
-        super.setUp();
-
         any_ = ORB.init().create_any();
 
         controlFilterOperations_ = MockControl.createControl(FilterOperations.class);
@@ -56,6 +55,7 @@ public class FilterUsageDecoratorTest extends TestCase
         objectUnderTest_ = new FilterUsageDecorator(mockFilterOperations_);
     }
 
+    @Test
     public void testFilterOperationsAreDelegated() throws Exception
     {
         mockFilterOperations_.match(any_);
@@ -70,6 +70,7 @@ public class FilterUsageDecoratorTest extends TestCase
         controlFilterOperations_.verify();
     }
 
+    @Test
     public void testGetLastUsage() throws Exception
     {
         mockFilterOperations_.match(any_);
@@ -96,10 +97,5 @@ public class FilterUsageDecoratorTest extends TestCase
         assertTrue(usage1.getTime() < usage2.getTime());
 
         controlFilterOperations_.verify();
-    }
-
-    public static Test suite()
-    {
-        return new TestSuite(FilterUsageDecoratorTest.class);
     }
 }

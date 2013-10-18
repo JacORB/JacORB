@@ -22,7 +22,9 @@ package org.jacorb.test.bugs.bugjac581;
  */
 
 
+import static org.junit.Assert.assertTrue;
 import org.jacorb.test.common.ORBTestCase;
+import org.junit.Test;
 import org.omg.CORBA.portable.OutputStream;
 
 
@@ -40,6 +42,7 @@ public class BugJac581Test extends ORBTestCase
      *
      * @exception Exception if an error occurs
      */
+    @Test
     public void testUnionHelper() throws Exception
     {
         BooleanUnion b = new BooleanUnion();

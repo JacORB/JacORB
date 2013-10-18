@@ -21,26 +21,21 @@
 
 package org.jacorb.test.orb.rmi;
 
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
+import static org.junit.Assert.assertEquals;
 import org.jacorb.ir.RepositoryID;
 import org.jacorb.util.ValueHandler;
+import org.junit.Test;
 
-public class RepositoryIDTest extends TestCase
+public class RepositoryIDTest
 {
     /**
      * test for bug #528
-     */ 
+     */
+    @Test
     public void testClassName()
     {
         String id = ValueHandler.getRMIRepositoryID(Outer.StaticInner.class);
         String clazzName = RepositoryID.className(id, getClass().getClassLoader());
         assertEquals(Outer.StaticInner.class.getName(), clazzName);
-    }
-    
-    public static Test suite()
-    {
-        return new TestSuite(RepositoryIDTest.class);
     }
 }

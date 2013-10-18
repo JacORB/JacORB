@@ -20,29 +20,18 @@ package org.jacorb.test.orb;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
+import static org.junit.Assert.fail;
 import org.jacorb.orb.ORBSingleton;
+import org.junit.Test;
 
 /**
  * A very simple test that checks whether some methods in the singleton ORB
  * are correctly flagged as forbidden (NO_IMPLEMENT).
  * @author Andre Spiegel spiegel@gnu.org
  */
-public class ORBSingletonTest extends TestCase
+public class ORBSingletonTest
 {
-    
-    public ORBSingletonTest (String name)
-    {
-        super (name);
-    }
-    
-    public static Test suite()
-    {
-        return new TestSuite (ORBSingletonTest.class, "ORBSingleton tests");
-    }
-    
+    @Test
     public void test_disallowed_methods()
     {
         ORBSingleton orbs = new org.jacorb.orb.ORBSingleton();
@@ -209,7 +198,7 @@ public class ORBSingletonTest extends TestCase
         {
             fail ("should have raised NO_IMPLEMENT");
         }
-            
+
         try
         {
             orbs.send_multiple_requests_deferred(null);
@@ -268,7 +257,7 @@ public class ORBSingletonTest extends TestCase
         catch (org.omg.CORBA.NO_IMPLEMENT ex)
         {
             // ok
-        }        
+        }
 
     }
 }

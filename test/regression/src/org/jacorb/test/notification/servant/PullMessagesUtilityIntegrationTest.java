@@ -21,14 +21,13 @@
 
 package org.jacorb.test.notification.servant;
 
-import junit.framework.Test;
 import org.easymock.MockControl;
 import org.jacorb.notification.engine.DefaultTaskFactory;
 import org.jacorb.notification.engine.DefaultTaskProcessor;
 import org.jacorb.notification.interfaces.MessageSupplier;
 import org.jacorb.notification.servant.PullMessagesUtility;
 import org.jacorb.test.notification.common.NotificationTestCase;
-import org.jacorb.test.notification.common.NotificationTestCaseSetup;
+import org.junit.Test;
 
 public class PullMessagesUtilityIntegrationTest extends NotificationTestCase
 {
@@ -36,11 +35,6 @@ public class PullMessagesUtilityIntegrationTest extends NotificationTestCase
     private MessageSupplier mockMessageSupplier_;
     private PullMessagesUtility objectUnderTest_;
     private DefaultTaskProcessor taskProcessor_;
-
-    public PullMessagesUtilityIntegrationTest(String name, NotificationTestCaseSetup setup)
-    {
-        super(name, setup);
-    }
 
     protected void setUpTest() throws Exception
     {
@@ -53,6 +47,7 @@ public class PullMessagesUtilityIntegrationTest extends NotificationTestCase
         objectUnderTest_ = new PullMessagesUtility(taskProcessor_ , mockMessageSupplier_);    
     }
     
+    @Test
     public void testStartTask() throws Exception
     {
         mockMessageSupplier_.runPullMessage();
@@ -65,10 +60,5 @@ public class PullMessagesUtilityIntegrationTest extends NotificationTestCase
         objectUnderTest_.stopTask();
         
         controlMessageSupplier_.verify();
-    }
-    
-    public static Test suite() throws Exception
-    {
-        return NotificationTestCase.suite(PullMessagesUtilityIntegrationTest.class);
     }
 }

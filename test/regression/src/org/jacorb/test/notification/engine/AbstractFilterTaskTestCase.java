@@ -30,6 +30,8 @@ import org.jacorb.notification.engine.TaskFactory;
 import org.jacorb.notification.engine.TaskProcessor;
 import org.jacorb.notification.interfaces.FilterStage;
 import org.jacorb.notification.interfaces.Message;
+import org.junit.Before;
+import org.junit.Test;
 
 /**
  * @author Alphonse Bendt
@@ -52,7 +54,8 @@ public abstract class AbstractFilterTaskTestCase extends TestCase
     
     private AbstractFilterTask objectUnderTest_;
     
-    protected final void setUp() throws Exception
+    @Before
+    public void setUp() throws Exception
     {
         super.setUp();
     
@@ -76,12 +79,14 @@ public abstract class AbstractFilterTaskTestCase extends TestCase
         objectUnderTest_ = newObjectUnderTest();       
     }
     
-    public final void testCreate() throws Exception
+    @Test
+    public void testCreate() throws Exception
     {
         objectUnderTest_.doWork();
     }
     
-    public final void testFilterInvalidMessage() throws Exception
+    @Test
+    public void testFilterInvalidMessage() throws Exception
     {
         mockMessage_.isInvalid();
         controlMessage_.setReturnValue(true);

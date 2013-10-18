@@ -20,15 +20,16 @@ package org.jacorb.test.bugs.bugjac195;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
+import static org.junit.Assert.assertEquals;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.Properties;
-import junit.framework.Test;
-import junit.framework.TestSuite;
 import org.jacorb.test.common.ClientServerSetup;
 import org.jacorb.test.common.ClientServerTestCase;
-import org.jacorb.test.common.TestUtils;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
 
 /**
  * <code>TestCaseImpl</code> is a test to check that connectionOpened and
@@ -42,24 +43,15 @@ public class BugJac195Test extends ClientServerTestCase
 
     final static String port = "50124";
 
-    public BugJac195Test(String name, ClientServerSetup setup)
-    {
-        super(name, setup);
-    }
-
+    @Before
     public void setUp() throws Exception
     {
         server = JAC195ServerHelper.narrow( setup.getServerObject() );
     }
 
-    protected void tearDown() throws Exception
+    @BeforeClass
+    public static void beforeClassSetUp() throws Exception
     {
-        server = null;
-    }
-
-    public static Test suite()
-    {
-        TestSuite suite = new TestSuite( "Jac 195 - TCPListener connections test" );
 
         Properties client_props = new Properties();
         Properties server_props = new Properties();
@@ -71,16 +63,10 @@ public class BugJac195Test extends ClientServerTestCase
 
         server_props.setProperty ("jacorb.net.tcp_listener",
                                   "org.jacorb.test.bugs.bugjac195.TCPListener");
-        ClientServerSetup setup =
-            new ClientServerSetup
-                ( suite,
+        setup = new ClientServerSetup(
                   JAC195ServerImpl.class.getName(),
                   client_props,
                   server_props);
-
-        TestUtils.addToSuite(suite, setup, BugJac195Test.class);
-
-        return setup;
     }
 
     /**
@@ -88,6 +74,7 @@ public class BugJac195Test extends ClientServerTestCase
      *
      * Tests that the correct number of connectionOpen and connectionClosed calls are made
      */
+    @Test
     public void test_connections() throws Exception
     {
         int serverPort = Integer.parseInt(port);

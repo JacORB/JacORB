@@ -1,9 +1,8 @@
 package org.jacorb.test.orb.policies;
 
+import static org.junit.Assert.fail;
 import java.util.Properties;
 import junit.framework.AssertionFailedError;
-import junit.framework.Test;
-import junit.framework.TestSuite;
 import org.jacorb.test.AMI_ComplexTimingServerHandler;
 import org.jacorb.test.AMI_ComplexTimingServerHandlerOperations;
 import org.jacorb.test.AMI_ComplexTimingServerHandlerPOATie;
@@ -14,8 +13,11 @@ import org.jacorb.test._ComplexTimingServerStub;
 import org.jacorb.test.common.CallbackTestCase;
 import org.jacorb.test.common.ClientServerSetup;
 import org.jacorb.test.common.ServerSetup;
-import org.jacorb.test.common.TestUtils;
 import org.jacorb.util.Time;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
 import org.omg.CORBA.Policy;
 import org.omg.CORBA.PolicyError;
 import org.omg.CORBA.SetOverrideType;
@@ -36,14 +38,10 @@ public class ComplexTimingWithPIsTest extends CallbackTestCase
 
     private ServerSetup serverSetUp;
 
-    public ComplexTimingWithPIsTest (String name, ClientServerSetup setup)
+    @Before
+    public void setUp() throws Exception
     {
-        super (name, setup);
-    }
-
-    protected void setUp() throws Exception
-    {
-        server = (ComplexTimingServer) ComplexTimingServerHelper.narrow (setup.getServerObject());
+        server = ComplexTimingServerHelper.narrow (setup.getServerObject());
 
         org.omg.CORBA.ORB orb = setup.getClientOrb();
 
@@ -52,15 +50,13 @@ public class ComplexTimingWithPIsTest extends CallbackTestCase
                                  + ServerPIInitializer.class.getName(), "" );
 
 
-        serverSetUp = new ServerSetup (setup,
-                                       null,
+        serverSetUp = new ServerSetup (null,
                                        "org.jacorb.test.orb.policies.ComplexTimingServerImpl",
                                        serverprops);
 
         serverSetUp.setUp();
 
-        fwdServer = (ComplexTimingServer)
-           ComplexTimingServerHelper.narrow (orb.string_to_object (serverSetUp.getServerIOR()));
+        fwdServer = ComplexTimingServerHelper.narrow (orb.string_to_object (serverSetUp.getServerIOR()));
 
         /**
          * Perform an initial call to both servers as the initial connection
@@ -73,7 +69,8 @@ public class ComplexTimingWithPIsTest extends CallbackTestCase
 
     }
 
-    protected void tearDown() throws Exception
+    @After
+    public void tearDown() throws Exception
     {
         server = null;
         fwdServer = null;
@@ -160,10 +157,9 @@ public class ComplexTimingWithPIsTest extends CallbackTestCase
         return tie._this( setup.getClientOrb() );
     }
 
-    public static Test suite()
+    @BeforeClass
+    public static void beforeClassSetUp() throws Exception
     {
-        TestSuite suite = new TestSuite ("Complex Timing Test with Portable Interceptors");
-
         Properties clientprops = new java.util.Properties();
         clientprops.setProperty( "org.omg.PortableInterceptor.ORBInitializerClass."
                                  + ClientPIInitializer.class.getName(), "" );
@@ -171,23 +167,20 @@ public class ComplexTimingWithPIsTest extends CallbackTestCase
         Properties serverprops = new java.util.Properties();
         serverprops.setProperty( "org.omg.PortableInterceptor.ORBInitializerClass."
                                  + ServerPIInitializer.class.getName(), "" );
-        ClientServerSetup setup =
-            new ClientServerSetup
-                (suite,
+        setup = new ClientServerSetup
+        (
+
                  "org.jacorb.test.orb.policies.ComplexTimingServerImpl",
                  clientprops,
                  serverprops
                 );
-
-        TestUtils.addToSuite (suite, setup, ComplexTimingWithPIsTest.class);
-
-        return setup;
     }
 
     /**
      * Sets a RelativeRoundtripTimeout which will
      * be met by the invocation.
      */
+    @Test
     public void test_relative_roundtrip_sync_ok()
     {
         server.operation (999, 0);
@@ -202,6 +195,7 @@ public class ComplexTimingWithPIsTest extends CallbackTestCase
         }
     }
 
+    @Test
     public void test_relative_roundtrip_fwdreq_at_send_request()
     {
         server = clearPolicies (server);
@@ -241,6 +235,7 @@ public class ComplexTimingWithPIsTest extends CallbackTestCase
 
     }
 
+    @Test
     public void test_relative_roundtrip_fwdreq_at_rrsc()
     {
         server = clearPolicies (server);
@@ -265,6 +260,7 @@ public class ComplexTimingWithPIsTest extends CallbackTestCase
         }
     }
 
+    @Test
     public void test_relative_roundtrip_fwdreq_at_receive_req()
     {
         server = clearPolicies (server);
@@ -290,6 +286,7 @@ public class ComplexTimingWithPIsTest extends CallbackTestCase
 
     }
 
+    @Test
     public void test_relative_roundtrip_fwdreq_at_send_ex()
     {
         server = clearPolicies (server);
@@ -318,6 +315,7 @@ public class ComplexTimingWithPIsTest extends CallbackTestCase
         }
     }
 
+    @Test
     public void test_relative_roundtrip_fwdreq_at_receive_other()
     {
         server = clearPolicies (server);
@@ -349,6 +347,7 @@ public class ComplexTimingWithPIsTest extends CallbackTestCase
         }
     }
 
+    @Test
     public void test_relative_roundtrip_fwdreq_at_receive_ex()
     {
         server = clearPolicies (server);
@@ -381,6 +380,7 @@ public class ComplexTimingWithPIsTest extends CallbackTestCase
      * Sets a RelativeRoundtripTimeout which will
      * expire during invocation.
      */
+    @Test
     public void test_relative_roundtrip_sync_expired()
     {
         server = clearPolicies (server);
@@ -404,6 +404,7 @@ public class ComplexTimingWithPIsTest extends CallbackTestCase
      * Sets a RelativeRoundtripTimeout which will
      * be met by the invocation.
      */
+    @Test
     public void test_relative_roundtrip_async_ok()
     {
         ReplyHandler handler = new ReplyHandler()
@@ -425,6 +426,7 @@ public class ComplexTimingWithPIsTest extends CallbackTestCase
      * Sets a RelativeRoundtripTimeout which will
      * expire during the invocation.
      */
+    @Test
     public void test_relative_roundtrip_async_expired()
     {
         ReplyHandler handler = new ReplyHandler()
@@ -457,6 +459,7 @@ public class ComplexTimingWithPIsTest extends CallbackTestCase
      * be met by the invocation.when a ForwardRequest is thrown by the
      * client interceptor at SEND_REQUEST point.
      */
+    @Test
     public void test_request_end_time_fwdreq_at_send_request () throws Exception
     {
         server = clearPolicies (server);
@@ -480,6 +483,7 @@ public class ComplexTimingWithPIsTest extends CallbackTestCase
      * to the invocation.after a ForwardRequest is thrown by the client
      * interceptor at the SEND_REQUEST point
      */
+    @Test
     public void test_request_end_time_fwdreq_at_send_request_expired()
     {
         server = clearPolicies (server);
@@ -533,6 +537,7 @@ public class ComplexTimingWithPIsTest extends CallbackTestCase
      * after a ForwardRequest is thrown by the client
      * interceptor at the SEND_REQUEST point
      */
+    @Test
     public void test_request_end_time_async_pre_expired()
     {
         ReplyHandler handler = new ReplyHandler();
@@ -556,6 +561,7 @@ public class ComplexTimingWithPIsTest extends CallbackTestCase
         }
     }
 
+    @Test
     public void test_relative_roundtrip_fwdcall_at_send_request_OK()
     {
         server = clearPolicies (server);
@@ -576,6 +582,7 @@ public class ComplexTimingWithPIsTest extends CallbackTestCase
         }
     }
 
+    @Test
     public void test_relative_roundtrip_fwdcall_at_send_request_exp()
     {
         server = clearPolicies (server);
@@ -597,6 +604,7 @@ public class ComplexTimingWithPIsTest extends CallbackTestCase
         }
     }
 
+    @Test
     public void test_relative_roundtrip_fwdcall_at_send_request_exp2()
     {
         server = clearPolicies (server);
@@ -621,6 +629,7 @@ public class ComplexTimingWithPIsTest extends CallbackTestCase
         }
     }
 
+    @Test
     public void test_relative_roundtrip_fwdcall_at_rec_exc_OK()
     {
         server = clearPolicies (server);
@@ -645,6 +654,7 @@ public class ComplexTimingWithPIsTest extends CallbackTestCase
         }
     }
 
+    @Test
     public void test_relative_roundtrip_fwdcall_at_rec_exc_exp()
     {
         server = clearPolicies (server);
@@ -670,6 +680,7 @@ public class ComplexTimingWithPIsTest extends CallbackTestCase
         }
     }
 
+    @Test
     public void test_relative_roundtrip_fwdcall_at_receive_exc_exp2()
     {
         server = clearPolicies (server);

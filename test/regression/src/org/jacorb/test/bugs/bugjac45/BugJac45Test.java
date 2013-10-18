@@ -22,6 +22,7 @@ package org.jacorb.test.bugs.bugjac45;
 
 import java.util.Properties;
 import org.jacorb.test.common.ORBTestCase;
+import org.junit.Test;
 import org.omg.CORBA.Any;
 
 
@@ -33,7 +34,8 @@ import org.omg.CORBA.Any;
  */
 public class BugJac45Test extends ORBTestCase
 {
-    protected void patchORBProperties(String testName, Properties props) throws Exception
+    @Override
+    protected void patchORBProperties(Properties props) throws Exception
     {
     	props.setProperty("jacorb.bufferManagerMaxFlush", "0");
     }
@@ -42,6 +44,7 @@ public class BugJac45Test extends ORBTestCase
      * <code>testJAC45Regression</code> tests that buffer management is not
      * interfering with creation and marshalling of nested anys.
      */
+    @Test
     public void testJAC45Regression ()
     {
         // two anys

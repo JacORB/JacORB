@@ -21,20 +21,21 @@ package org.jacorb.test.notification;
  *
  */
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 import java.lang.reflect.Method;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
 import org.jacorb.notification.util.CollectionsWrapper;
+import org.junit.Test;
 
 /**
  * @author Alphonse Bendt
  */
 
-public class CollectionsWrapperTest extends TestCase
+public class CollectionsWrapperTest
 {
     public void _testTime() throws Exception
     {
@@ -53,6 +54,7 @@ public class CollectionsWrapperTest extends TestCase
         }
     }
 
+    @Test
     public void testCollectionsWrapper() throws Exception
     {
         String o = "testling";
@@ -71,6 +73,7 @@ public class CollectionsWrapperTest extends TestCase
         }
     }
 
+    @Test
     public void testModificationsFail() throws Exception
     {
         String data = "testling";
@@ -98,15 +101,4 @@ public class CollectionsWrapperTest extends TestCase
         assertEquals(data, list.get(0));
     }
 
-    public CollectionsWrapperTest(String name)
-    {
-        super(name);
-    }
-
-    public static Test suite()
-    {
-        TestSuite suite = new TestSuite(CollectionsWrapperTest.class);
-
-        return suite;
-    }
 }

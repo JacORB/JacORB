@@ -19,9 +19,12 @@ package org.jacorb.test.orb.giop;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
  */
-import junit.framework.TestSuite;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.fail;
 import org.jacorb.orb.giop.CodeSet;
 import org.jacorb.test.common.ORBTestCase;
+import org.junit.Test;
 import org.omg.CONV_FRAME.CodeSetComponent;
 import org.omg.CONV_FRAME.CodeSetComponentInfo;
 import org.omg.CORBA.CODESET_INCOMPATIBLE;
@@ -39,15 +42,11 @@ public class CodeSetTest extends ORBTestCase
     private static final int UNKNOWN_ID = -1;
 
 
-    public static TestSuite suite()
-    {
-        return new TestSuite( CodeSetTest.class );
-    }
-
 
     /**
      * Verifies the ability to recognize the supported codeset names.
      */
+    @Test
     public void testNameRecognition() throws Exception
     {
         assertEquals( "Latin-1 set id", ISO8859_1_ID, CodeSet.getCodeSet( "iso8859_1" ).getId() );
@@ -62,6 +61,7 @@ public class CodeSetTest extends ORBTestCase
     /**
      * Verifies the ability to convert an id to a name.
      */
+    @Test
     public void testNameSelection() throws Exception
     {
         assertEquals( "Latin-1 set name", "ISO8859_1",               CodeSet.csName( ISO8859_1_ID ) );
@@ -74,6 +74,7 @@ public class CodeSetTest extends ORBTestCase
     /**
      * Verifies detection of the platform standard encoding for char and string.
      */
+    @Test
     public void testDefaultCharEncoding() throws Exception
     {
         int encoding = CodeSet.getTCSDefault().getId();
@@ -84,6 +85,7 @@ public class CodeSetTest extends ORBTestCase
     /**
      * Verifies failure to match native code sets.
      */
+    @Test
     public void testCodeSetNativeSetsDoNotMatch() throws Exception
     {
         CodeSetComponent local = new CodeSetComponent( 1, new int[0] );
@@ -102,6 +104,7 @@ public class CodeSetTest extends ORBTestCase
     /**
      * Verifies success in matching native code sets.
      */
+    @Test
     public void testCodeSetNativeSetsMatch() throws Exception
     {
         CodeSetComponent local = new CodeSetComponent( UTF8_ID, new int[0] );
@@ -113,6 +116,7 @@ public class CodeSetTest extends ORBTestCase
     /**
      * Verifies success in matching local native code set to remote conversion set.
      */
+    @Test
     public void testCodeSetNativeSetMatchesRemoteConversion() throws Exception
     {
         CodeSetComponent local = new CodeSetComponent( UTF8_ID, new int[]{UTF16_ID} );
@@ -124,6 +128,7 @@ public class CodeSetTest extends ORBTestCase
     /**
      * Verifies success in matching local conversion code set to remote native set.
      */
+    @Test
     public void testConversionCodeSetMatchesRemoteNative() throws Exception
     {
         CodeSetComponent local = new CodeSetComponent( ISO8859_1_ID, new int[]{UTF16_ID} );
@@ -135,6 +140,7 @@ public class CodeSetTest extends ORBTestCase
     /**
      * Verifies success in matching conversion code sets.
      */
+    @Test
     public void testConversionCodeSetsMatch() throws Exception
     {
         CodeSetComponent local = new CodeSetComponent( 12, new int[]{UTF16_ID} );
@@ -146,6 +152,7 @@ public class CodeSetTest extends ORBTestCase
     /**
      * Verifies failure to match any code sets.
      */
+    @Test
     public void testCodeSetsDoNotMatch() throws Exception
     {
         CodeSetComponent local = new CodeSetComponent( 1, new int[]{0x123, 0x345} );
@@ -164,6 +171,7 @@ public class CodeSetTest extends ORBTestCase
     /**
      * Verify that the local code set components offer the appropriate code sets.
      */
+    @Test
     public void testLocalCodeSets() throws Exception
     {
         CodeSetComponentInfo info = CodeSet.getLocalCodeSetComponentInfo();

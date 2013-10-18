@@ -20,9 +20,11 @@ package org.jacorb.test.notification.typed;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
-import junit.framework.Test;
 import org.easymock.MockControl;
 import org.jacorb.notification.OfferManager;
 import org.jacorb.notification.SubscriptionManager;
@@ -30,7 +32,8 @@ import org.jacorb.notification.TypedEventMessage;
 import org.jacorb.notification.servant.ITypedAdmin;
 import org.jacorb.notification.servant.TypedProxyPullSupplierImpl;
 import org.jacorb.test.notification.common.NotificationTestCase;
-import org.jacorb.test.notification.common.NotificationTestCaseSetup;
+import org.junit.Before;
+import org.junit.Test;
 import org.omg.CORBA.IntHolder;
 import org.omg.CORBA.StringHolder;
 import org.omg.CosNotification.EventType;
@@ -61,7 +64,8 @@ public class TypedProxyPullSupplierImplTest extends NotificationTestCase
 
     private MockControl controlConsumerAdmin_;
 
-    public void setUpTest() throws Exception
+    @Before
+    public void setUp() throws Exception
     {
         controlAdmin_ = MockControl.createNiceControl(ITypedAdmin.class);
         mockAdmin_ = (ITypedAdmin) controlAdmin_.getMock();
@@ -90,17 +94,14 @@ public class TypedProxyPullSupplierImplTest extends NotificationTestCase
         proxyPullSupplier_ = TypedProxyPullSupplierHelper.narrow(objectUnderTest_.activate());
     }
 
-    public TypedProxyPullSupplierImplTest(String name, NotificationTestCaseSetup setup)
-    {
-        super(name, setup);
-    }
-
+    @Test
     public void testID()
     {
         assertEquals(new Integer(10), objectUnderTest_.getID());
         assertTrue(objectUnderTest_.isIDPublic());
     }
 
+    @Test
     public void testMyAdmin()
     {
         mockConsumerAdmin_.remove_all_filters();
@@ -111,6 +112,7 @@ public class TypedProxyPullSupplierImplTest extends NotificationTestCase
         controlConsumerAdmin_.verify();
     }
 
+    @Test
     public void testConnect() throws Exception
     {
         NullPullConsumer _pullConsumer = new NullPullConsumer();
@@ -118,6 +120,7 @@ public class TypedProxyPullSupplierImplTest extends NotificationTestCase
         proxyPullSupplier_.connect_typed_pull_consumer(_pullConsumer._this(getClientORB()));
     }
 
+    @Test
     public void testEmptyPull() throws Exception
     {
         NullPullConsumer _pullConsumer = new NullPullConsumer();
@@ -137,6 +140,7 @@ public class TypedProxyPullSupplierImplTest extends NotificationTestCase
         assertFalse(_pullCoffee.try_drinking_coffee(_name, _minutes));
     }
 
+    @Test
     public void testTryPullDrinkingCoffee() throws Exception
     {
         TypedEventMessage _mesg = new TypedEventMessage();
@@ -204,11 +208,6 @@ public class TypedProxyPullSupplierImplTest extends NotificationTestCase
 
         assertEquals("jacorb", _name.value);
         assertEquals(10, _minutes.value);
-    }
-
-    public static Test suite() throws Exception
-    {
-        return NotificationTestCase.suite(TypedProxyPullSupplierImplTest.class);
     }
 }
 

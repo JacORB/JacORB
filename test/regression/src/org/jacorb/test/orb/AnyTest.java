@@ -20,15 +20,20 @@ package org.jacorb.test.orb;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 import java.math.BigDecimal;
 import java.util.Properties;
-import junit.framework.Test;
-import junit.framework.TestSuite;
 import org.jacorb.orb.CDROutputStream;
 import org.jacorb.test.common.ClientServerSetup;
 import org.jacorb.test.common.ClientServerTestCase;
-import org.jacorb.test.common.TestUtils;
 import org.jacorb.test.orb.RecursiveUnionStructPackage.RecursiveUnionStructUnion;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
 import org.omg.CORBA.Any;
 import org.omg.CORBA.AnyHolder;
 import org.omg.CORBA.BooleanHolder;
@@ -39,6 +44,7 @@ import org.omg.CORBA.FixedHolder;
 import org.omg.CORBA.FloatHolder;
 import org.omg.CORBA.IntHolder;
 import org.omg.CORBA.LongHolder;
+import org.omg.CORBA.NO_IMPLEMENT;
 import org.omg.CORBA.ShortHolder;
 import org.omg.CORBA.StringHolder;
 import org.omg.CORBA.TCKind;
@@ -50,51 +56,23 @@ public class AnyTest extends ClientServerTestCase
 {
     private AnyServer server;
 
-    public AnyTest(String name, ClientServerSetup setup)
-    {
-        super(name, setup);
-    }
-
+    @Before
     public void setUp() throws Exception
     {
         server = AnyServerHelper.narrow( setup.getServerObject() );
     }
 
-    protected void tearDown() throws Exception
+    @BeforeClass
+    public static void beforeClassSetUp() throws Exception
     {
-        server = null;
-    }
-
-    public static Test suite()
-    {
-        if (TestUtils.isJ2ME())
-        {
-            return new TestSuite();
-        }
 
         Properties props = new Properties();
         props.put("jacorb.compactTypecodes", "off");
 
-        TestSuite suite = new TestSuite("Client/server any tests");
-        ClientServerSetup setup = new ClientServerSetup
-            ( suite, AnyServerImpl.class.getName(), props, props);
-
-        TestUtils.addToSuite(suite, setup, AnyTest.class);
-
-        // in the PrismTech version of this test there are
-        // some environments where we don't want
-        // to run all tests.
-        // for now all tests are run. please
-        // leave in the commented out section so that
-        // the information is not lost which tests
-        // should be excluded eventually.
-
-        // TestUtils.addToSuite(suite, setup, AnyTest.class, "test_");
-        // TestUtils.addToSuite(suite, setup, AnyTest.class, "testRMI");
-
-        return setup;
+        setup = new ClientServerSetup( AnyServerImpl.class.getName(), props, props);
     }
 
+    @Test
     public void test_empty()
         throws Exception
     {
@@ -103,6 +81,7 @@ public class AnyTest extends ClientServerTestCase
         assertTrue(outAny.equal(inAny));
     }
 
+    @Test
     public void test_short()
         throws Exception
     {
@@ -117,6 +96,7 @@ public class AnyTest extends ClientServerTestCase
         assertTrue(outAny.equal(inAny));
     }
 
+    @Test
     public void test_short_streamable()
         throws Exception
     {
@@ -131,6 +111,7 @@ public class AnyTest extends ClientServerTestCase
         assertTrue(outAny.equal(inAny));
     }
 
+    @Test
     public void test_short_stream()
     {
         short testValue = (short) 4711;
@@ -143,6 +124,7 @@ public class AnyTest extends ClientServerTestCase
         assertEquals (testValue, outValue);
     }
 
+    @Test
     public void test_ushort()
         throws Exception
     {
@@ -157,6 +139,7 @@ public class AnyTest extends ClientServerTestCase
         assertTrue(outAny.equal(inAny));
     }
 
+    @Test
     public void test_ushort_stream()
     {
         short testValue = (short) 4711;
@@ -169,6 +152,7 @@ public class AnyTest extends ClientServerTestCase
         assertEquals (testValue, outValue);
     }
 
+    @Test
     public void test_long()
         throws Exception
     {
@@ -183,6 +167,7 @@ public class AnyTest extends ClientServerTestCase
         assertTrue(outAny.equal(inAny));
     }
 
+    @Test
     public void test_long_streamable()
         throws Exception
     {
@@ -197,6 +182,7 @@ public class AnyTest extends ClientServerTestCase
         assertTrue(outAny.equal(inAny));
     }
 
+    @Test
     public void test_long_stream()
     {
         int testValue = 4711;
@@ -209,6 +195,7 @@ public class AnyTest extends ClientServerTestCase
         assertEquals (testValue, outValue);
     }
 
+    @Test
     public void test_ulong()
         throws Exception
     {
@@ -223,6 +210,7 @@ public class AnyTest extends ClientServerTestCase
         assertTrue(outAny.equal(inAny));
     }
 
+    @Test
     public void test_ulong_stream()
     {
         int testValue = 4711;
@@ -235,6 +223,7 @@ public class AnyTest extends ClientServerTestCase
         assertEquals (testValue, outValue);
     }
 
+    @Test
     public void test_longlong()
         throws Exception
     {
@@ -249,6 +238,7 @@ public class AnyTest extends ClientServerTestCase
         assertTrue(outAny.equal(inAny));
     }
 
+    @Test
     public void test_longlong_streamable()
         throws Exception
     {
@@ -263,6 +253,7 @@ public class AnyTest extends ClientServerTestCase
         assertTrue(outAny.equal(inAny));
     }
 
+    @Test
     public void test_longlong_stream()
     {
         long testValue = 4711L;
@@ -275,6 +266,7 @@ public class AnyTest extends ClientServerTestCase
         assertEquals (testValue, outValue);
     }
 
+    @Test
     public void test_ulonglong()
         throws Exception
     {
@@ -289,6 +281,7 @@ public class AnyTest extends ClientServerTestCase
         assertTrue(outAny.equal(inAny));
     }
 
+    @Test
     public void test_ulonglong_stream()
     {
         long testValue = 4711L;
@@ -301,6 +294,7 @@ public class AnyTest extends ClientServerTestCase
         assertEquals (testValue, outValue);
     }
 
+    @Test
     public void test_float()
         throws Exception
     {
@@ -315,6 +309,7 @@ public class AnyTest extends ClientServerTestCase
         assertTrue(outAny.equal(inAny));
     }
 
+    @Test
     public void test_float_streamable()
         throws Exception
     {
@@ -329,6 +324,7 @@ public class AnyTest extends ClientServerTestCase
         assertTrue(outAny.equal(inAny));
     }
 
+    @Test
     public void test_float_stream()
     {
         float testValue = 47.11F;
@@ -341,6 +337,7 @@ public class AnyTest extends ClientServerTestCase
         assertEquals (testValue, outValue, 0.0);
     }
 
+    @Test
     public void test_double()
         throws Exception
     {
@@ -355,6 +352,7 @@ public class AnyTest extends ClientServerTestCase
         assertTrue(outAny.equal(inAny));
     }
 
+    @Test
     public void test_double_streamable()
         throws Exception
     {
@@ -369,6 +367,7 @@ public class AnyTest extends ClientServerTestCase
         assertTrue(outAny.equal(inAny));
     }
 
+    @Test
     public void test_double_stream()
     {
         double testValue = 47.11;
@@ -381,6 +380,7 @@ public class AnyTest extends ClientServerTestCase
         assertEquals (testValue, outValue, 0.0);
     }
 
+    @Test
     public void test_boolean()
         throws Exception
     {
@@ -395,6 +395,7 @@ public class AnyTest extends ClientServerTestCase
         assertTrue(outAny.equal(inAny));
     }
 
+    @Test
     public void test_boolean_streamable()
         throws Exception
     {
@@ -409,6 +410,7 @@ public class AnyTest extends ClientServerTestCase
         assertTrue(outAny.equal(inAny));
     }
 
+    @Test
     public void test_boolean_stream()
     {
         boolean testValue = false;
@@ -421,6 +423,7 @@ public class AnyTest extends ClientServerTestCase
         assertEquals (testValue, outValue);
     }
 
+    @Test
     public void test_char()
         throws Exception
     {
@@ -435,6 +438,7 @@ public class AnyTest extends ClientServerTestCase
         assertTrue(outAny.equal(inAny));
     }
 
+    @Test
     public void test_char_streamable()
         throws Exception
     {
@@ -449,6 +453,7 @@ public class AnyTest extends ClientServerTestCase
         assertTrue(outAny.equal(inAny));
     }
 
+    @Test
     public void test_char_stream()
     {
         char testValue = 'x';
@@ -461,6 +466,7 @@ public class AnyTest extends ClientServerTestCase
         assertEquals (testValue, outValue);
     }
 
+    @Test
     public void test_wchar()
         throws Exception
     {
@@ -475,6 +481,7 @@ public class AnyTest extends ClientServerTestCase
         assertTrue(outAny.equal(inAny));
     }
 
+    @Test
     public void test_wchar_stream()
     {
         char testValue = 'x';
@@ -487,6 +494,7 @@ public class AnyTest extends ClientServerTestCase
         assertEquals (testValue, outValue);
     }
 
+    @Test
     public void test_octet()
         throws Exception
     {
@@ -502,6 +510,7 @@ public class AnyTest extends ClientServerTestCase
         assertTrue(outAny.equal(inAny));
     }
 
+    @Test
     public void test_octet_streamable()
         throws Exception
     {
@@ -517,6 +526,7 @@ public class AnyTest extends ClientServerTestCase
         assertTrue(outAny.equal(inAny));
     }
 
+    @Test
     public void test_octet_stream()
     {
         byte testValue = (byte)47;
@@ -529,6 +539,7 @@ public class AnyTest extends ClientServerTestCase
         assertEquals (testValue, outValue);
     }
 
+    @Test
     public void test_any()
         throws Exception
     {
@@ -545,6 +556,7 @@ public class AnyTest extends ClientServerTestCase
         assertTrue(outAny.equal(inAny));
     }
 
+    @Test
     public void test_any_streamable()
         throws Exception
     {
@@ -561,6 +573,7 @@ public class AnyTest extends ClientServerTestCase
         assertTrue(outAny.equal(inAny));
     }
 
+    @Test
     public void test_any_stream()
     {
         Any testValue = setup.getClientOrb().create_any();
@@ -575,6 +588,7 @@ public class AnyTest extends ClientServerTestCase
         assertTrue (outValue.equal(testValue));
     }
 
+    @Test
     public void test_any_stream_singleton()
     {
         Any testValue = setup.getClientOrb().create_any();
@@ -589,6 +603,7 @@ public class AnyTest extends ClientServerTestCase
         assertTrue (outValue.equal(testValue));
     }
 
+    @Test
     public void test_string()
         throws Exception
     {
@@ -603,6 +618,7 @@ public class AnyTest extends ClientServerTestCase
         assertTrue(outAny.equal(inAny));
     }
 
+    @Test
     public void test_string_streamable()
         throws Exception
     {
@@ -618,6 +634,7 @@ public class AnyTest extends ClientServerTestCase
         assertTrue(outAny.equal(inAny));
     }
 
+    @Test
     public void test_string_stream()
     {
         String testValue = "hello world";
@@ -630,6 +647,7 @@ public class AnyTest extends ClientServerTestCase
         assertEquals (testValue, outValue);
     }
 
+    @Test
     public void test_wstring()
         throws Exception
     {
@@ -645,6 +663,7 @@ public class AnyTest extends ClientServerTestCase
         assertTrue(outAny.equal(inAny));
     }
 
+    @Test
     public void test_wstring_stream()
     {
         String testValue = "hello world";
@@ -660,6 +679,7 @@ public class AnyTest extends ClientServerTestCase
     /**
      * if this test fails others might fail too.
      */
+    @Test
     public void testCorrectClassOnBootclasspath() throws Exception
     {
         TypeCode typeCode = new FixedHolder(new BigDecimal("471.1"))._type();
@@ -673,6 +693,7 @@ public class AnyTest extends ClientServerTestCase
     /**
      * @see #testCorrectClassOnBootclasspath()
      */
+    @Test
     public void test_fixed1()
         throws Exception
     {
@@ -693,6 +714,7 @@ public class AnyTest extends ClientServerTestCase
     /**
      * @see #testCorrectClassOnBootclasspath()
      */
+    @Test
     public void test_fixed_streamable()
         throws Exception
     {
@@ -708,6 +730,8 @@ public class AnyTest extends ClientServerTestCase
         assertTrue(outAny.equal(inAny));
     }
 
+    @SuppressWarnings("deprecation")
+    @Test
     public void test_fixed_stream1()
     {
         BigDecimal testValue = new BigDecimal("471.1");
@@ -719,6 +743,7 @@ public class AnyTest extends ClientServerTestCase
         assertEquals (testValue, any.extract_fixed());
     }
 
+    @Test
     public void test_fixed_stream2()
     {
         BigDecimal testValue = new BigDecimal("471.1");
@@ -730,6 +755,7 @@ public class AnyTest extends ClientServerTestCase
         assertEquals (testValue, any.extract_fixed());
     }
 
+    @Test
     public void test_object()
         throws Exception
     {
@@ -743,6 +769,7 @@ public class AnyTest extends ClientServerTestCase
         assertTrue(outAny.equal(inAny));
     }
 
+    @Test
     public void test_object_streamable()
         throws Exception
     {
@@ -756,6 +783,7 @@ public class AnyTest extends ClientServerTestCase
         assertTrue(outAny.equal(inAny));
     }
 
+    @Test
     public void test_object2()
         throws Exception
     {
@@ -769,6 +797,7 @@ public class AnyTest extends ClientServerTestCase
         assertTrue(outAny.equal(inAny));
     }
 
+    @Test
     public void test_extract_objref()
     {
         Any outAny = setup.getClientOrb().create_any();
@@ -781,6 +810,7 @@ public class AnyTest extends ClientServerTestCase
         assertTrue(outAny.equal(inAny));
     }
 
+    @Test
     public void test_object_null()
         throws Exception
     {
@@ -794,6 +824,7 @@ public class AnyTest extends ClientServerTestCase
         assertNull(inAny.extract_Object());
     }
 
+    @Test
     public void test_object_stream()
     {
         Any any = setup.getClientOrb().create_any();
@@ -809,6 +840,7 @@ public class AnyTest extends ClientServerTestCase
         assertTrue (outValue._is_a("IDL:org/jacorb/test/orb/AnyServer:1.0"));
     }
 
+    @Test
     public void test_TypeCode()
         throws Exception
     {
@@ -824,6 +856,7 @@ public class AnyTest extends ClientServerTestCase
         assertTrue(outAny.equal(inAny));
     }
 
+    @Test
     public void test_TypeCode_streamable()
         throws Exception
     {
@@ -839,6 +872,7 @@ public class AnyTest extends ClientServerTestCase
         assertTrue(outAny.equal(inAny));
     }
 
+    @Test
     public void test_principal()
     {
         Any any = setup.getClientOrb().create_any();
@@ -863,6 +897,7 @@ public class AnyTest extends ClientServerTestCase
         }
     }
 
+    @Test
     public void testRMI_value_box_string()
         throws Exception
     {
@@ -878,6 +913,7 @@ public class AnyTest extends ClientServerTestCase
     }
 
     // use any.insert_value with explicit typecode
+    @Test
     public void testRMI_value_box_string2()
         throws Exception
     {
@@ -894,7 +930,8 @@ public class AnyTest extends ClientServerTestCase
         assertTrue(outAny.equal(inAny));
     }
 
-    public void _test_value_box_string_streamable()
+    @Test(expected = NO_IMPLEMENT.class)
+    public void test_value_box_string_streamable()
         throws Exception
     {
         String testValue = "foo";
@@ -908,6 +945,7 @@ public class AnyTest extends ClientServerTestCase
         assertTrue(outAny.equal(inAny));
     }
 
+    @Test
     public void test_value_null()
         throws Exception
     {
@@ -924,6 +962,7 @@ public class AnyTest extends ClientServerTestCase
     }
 
     //insert with helper, extract manually
+    @Test
     public void testRMI_value_box_string_helper()
         throws Exception
     {
@@ -939,6 +978,7 @@ public class AnyTest extends ClientServerTestCase
     }
 
     //insert manually, extract with helper
+    @Test
     public void testRMI_value_box_string_helper2()
         throws Exception
     {
@@ -955,6 +995,7 @@ public class AnyTest extends ClientServerTestCase
     }
 
     //insert and extract with helper
+    @Test
     public void testRMI_value_box_string_helper3()
         throws Exception
     {
@@ -968,6 +1009,7 @@ public class AnyTest extends ClientServerTestCase
         assertTrue(outAny.equal(inAny));
     }
 
+    @Test
     public void testRMI_value_box_long()
         throws Exception
     {
@@ -985,6 +1027,7 @@ public class AnyTest extends ClientServerTestCase
     }
 
     // use any.insert_value with explicit typecode
+    @Test
     public void testRMI_value_box_long2()
         throws Exception
     {
@@ -1003,7 +1046,8 @@ public class AnyTest extends ClientServerTestCase
         assertTrue(outAny.equal(inAny));
     }
 
-    public void _test_value_box_long_streamable()
+    @Test(expected = NO_IMPLEMENT.class)
+    public void test_value_box_long_streamable()
         throws Exception
     {
         MyBoxedLong testValue = new MyBoxedLong(4711);
@@ -1020,6 +1064,7 @@ public class AnyTest extends ClientServerTestCase
     }
 
     //insert with helper, extract manually
+    @Test
     public void testRMI_value_box_long_helper()
         throws Exception
     {
@@ -1037,6 +1082,7 @@ public class AnyTest extends ClientServerTestCase
     }
 
     //insert manually, extract with helper
+    @Test
     public void testRMI_value_box_long_helper2()
         throws Exception
     {
@@ -1052,6 +1098,7 @@ public class AnyTest extends ClientServerTestCase
     }
 
     //insert and extract with helper
+    @Test
     public void testRMI_value_box_long_helper3()
         throws Exception
     {
@@ -1080,6 +1127,7 @@ public class AnyTest extends ClientServerTestCase
     }
 
     // use any.insert_value with explicit typecode
+    @Test
     public void testRMI_valuetype2()
         throws Exception
     {
@@ -1095,7 +1143,8 @@ public class AnyTest extends ClientServerTestCase
         assertTrue(outAny.equal(inAny));
     }
 
-    public void _test_valuetype_streamable()
+    @Test(expected = NO_IMPLEMENT.class)
+    public void test_valuetype_streamable()
         throws Exception
     {
         MyValueType testValue = new MyValueTypeImpl(4711);
@@ -1110,6 +1159,7 @@ public class AnyTest extends ClientServerTestCase
     }
 
     //insert with helper, extract manually
+    @Test
     public void testRMI_valuetype_helper()
         throws Exception
     {
@@ -1125,6 +1175,7 @@ public class AnyTest extends ClientServerTestCase
     }
 
     //insert manually, extract with helper
+    @Test
     public void testRMI_valuetype_helper2()
         throws Exception
     {
@@ -1141,6 +1192,7 @@ public class AnyTest extends ClientServerTestCase
     }
 
     //insert and extract with helper
+    @Test
     public void testRMI_valuetype_helper3()
         throws Exception
     {
@@ -1170,6 +1222,7 @@ public class AnyTest extends ClientServerTestCase
         assertEquals (testValue, outValue);
     }
 
+    @Test
     public void test_recursive_struct()
         throws Exception
     {
@@ -1186,6 +1239,7 @@ public class AnyTest extends ClientServerTestCase
         assertTrue(outAny.equal(inAny));
     }
 
+    @Test
     public void test_recursive_struct_streamable()
         throws Exception
     {
@@ -1202,6 +1256,7 @@ public class AnyTest extends ClientServerTestCase
         assertTrue(outAny.equal(inAny));
     }
 
+    @Test
     public void test_repeated_struct()
         throws Exception
     {
@@ -1220,6 +1275,7 @@ public class AnyTest extends ClientServerTestCase
         assertTrue(outAny.equal(inAny));
     }
 
+    @Test
     public void test_repeated_struct_streamable()
         throws Exception
     {
@@ -1237,6 +1293,7 @@ public class AnyTest extends ClientServerTestCase
         assertTrue(outAny.equal(inAny));
     }
 
+    @Test
     public void test_recursive_union()
         throws Exception
     {
@@ -1252,6 +1309,7 @@ public class AnyTest extends ClientServerTestCase
         assertTrue(outAny.equal(inAny));
     }
 
+    @Test
     public void test_recursive_union_streamable()
         throws Exception
     {
@@ -1267,6 +1325,7 @@ public class AnyTest extends ClientServerTestCase
         assertTrue(outAny.equal(inAny));
     }
 
+    @Test
     public void test_recursive_struct_union()
         throws Exception
     {
@@ -1285,6 +1344,7 @@ public class AnyTest extends ClientServerTestCase
         assertTrue(outAny.equal(inAny));
     }
 
+    @Test
     public void test_recursive_struct_union_streamable()
         throws Exception
     {
@@ -1304,6 +1364,7 @@ public class AnyTest extends ClientServerTestCase
     }
 
     //insert via helper, extract manually
+    @Test
     public void test_alias()
         throws Exception
     {
@@ -1318,6 +1379,7 @@ public class AnyTest extends ClientServerTestCase
     }
 
     //compare two anys, one inserted manually, one inserted using helper
+    @Test
     public void test_alias2()
         throws Exception
     {
@@ -1333,6 +1395,7 @@ public class AnyTest extends ClientServerTestCase
     }
 
     //insert manually, extract using helper
+    @Test
     public void test_alias3()
         throws Exception
     {
@@ -1347,6 +1410,7 @@ public class AnyTest extends ClientServerTestCase
     }
 
     //insert using helper, extract using helper
+    @Test
     public void test_alias4()
         throws Exception
     {
@@ -1360,6 +1424,7 @@ public class AnyTest extends ClientServerTestCase
         assertTrue(outAny.equal(inAny));
     }
 
+    @Test
     public void test_short_sequence() throws Exception
     {
         short[] testValue = new short[] { 44 };
@@ -1372,6 +1437,7 @@ public class AnyTest extends ClientServerTestCase
         assertTrue(outAny.equal(inAny));
     }
 
+    @Test
     public void test_ushort_sequence() throws Exception
     {
         short[] testValue = new short[] { 44 };
@@ -1384,6 +1450,7 @@ public class AnyTest extends ClientServerTestCase
         assertTrue(outAny.equal(inAny));
     }
 
+    @Test
     public void test_long_sequence() throws Exception
     {
         int[] testValue = new int[] { 44 };
@@ -1396,6 +1463,7 @@ public class AnyTest extends ClientServerTestCase
         assertTrue(outAny.equal(inAny));
     }
 
+    @Test
     public void test_ulong_sequence() throws Exception
     {
         int[] testValue = new int[] { 44 };
@@ -1408,6 +1476,7 @@ public class AnyTest extends ClientServerTestCase
         assertTrue(outAny.equal(inAny));
     }
 
+    @Test
     public void test_float_sequence() throws Exception
     {
         float[] testValue = new float[] { 44.0F };
@@ -1420,6 +1489,7 @@ public class AnyTest extends ClientServerTestCase
         assertTrue(outAny.equal(inAny));
     }
 
+    @Test
     public void test_double_sequence() throws Exception
     {
         double[] testValue = new double[] { 44 };
@@ -1432,6 +1502,7 @@ public class AnyTest extends ClientServerTestCase
         assertTrue(outAny.equal(inAny));
     }
 
+    @Test
     public void test_char_sequence() throws Exception
     {
         char[] testValue = new char[] { 'a' };
@@ -1444,6 +1515,7 @@ public class AnyTest extends ClientServerTestCase
         assertTrue(outAny.equal(inAny));
     }
 
+    @Test
     public void test_octet_sequence() throws Exception
     {
         byte[] testValue = new byte[] { 44 };
@@ -1456,6 +1528,7 @@ public class AnyTest extends ClientServerTestCase
         assertTrue(outAny.equal(inAny));
     }
 
+    @Test
     public void test_longlong_sequence() throws Exception
     {
         long[] testValue = new long[] { 44 };
@@ -1468,6 +1541,7 @@ public class AnyTest extends ClientServerTestCase
         assertTrue(outAny.equal(inAny));
     }
 
+    @Test
     public void test_ulonglong_sequence() throws Exception
     {
         long[] testValue = new long[] { 44 };
@@ -1480,6 +1554,7 @@ public class AnyTest extends ClientServerTestCase
         assertTrue(outAny.equal(inAny));
     }
 
+    @Test
     public void test_wchar_sequence() throws Exception
     {
         char[] testValue = new char[] { 'a' };
@@ -1492,6 +1567,7 @@ public class AnyTest extends ClientServerTestCase
         assertTrue(outAny.equal(inAny));
     }
 
+    @Test
     public void test_wstring_sequence() throws Exception
     {
         String[] testValue = new String[] { "442" };
@@ -1504,6 +1580,7 @@ public class AnyTest extends ClientServerTestCase
         assertTrue(outAny.equal(inAny));
     }
 
+    @Test
     public void test_any_sequence() throws Exception
     {
         Any contentAny = setup.getClientOrb().create_any();
@@ -1519,6 +1596,7 @@ public class AnyTest extends ClientServerTestCase
     }
 
     //same typecode, divverent value
+    @Test
     public void test_equal()
         throws Exception
     {
@@ -1532,6 +1610,7 @@ public class AnyTest extends ClientServerTestCase
     }
 
     //different typecode
+    @Test
     public void test_equal2()
         throws Exception
     {
@@ -1544,6 +1623,7 @@ public class AnyTest extends ClientServerTestCase
         assertFalse(outAny.equal(inAny));
     }
 
+    @Test
     public void test_short_disc_union()
         throws Exception
     {
@@ -1557,6 +1637,7 @@ public class AnyTest extends ClientServerTestCase
         assertTrue(outAny.equal(inAny));
     }
 
+    @Test
     public void test_short_disc_union_streamable()
         throws Exception
     {
@@ -1571,6 +1652,7 @@ public class AnyTest extends ClientServerTestCase
     }
 
     //test manual stream insert, for when helpers use streamables
+    @Test
     public void test_short_disc_union_manual()
         throws Exception
     {
@@ -1585,6 +1667,7 @@ public class AnyTest extends ClientServerTestCase
         assertTrue(outAny.equal(inAny));
     }
 
+    @Test
     public void test_long_disc_union()
         throws Exception
     {
@@ -1598,6 +1681,7 @@ public class AnyTest extends ClientServerTestCase
         assertTrue(outAny.equal(inAny));
     }
 
+    @Test
     public void test_long_disc_union_streamable()
         throws Exception
     {
@@ -1612,6 +1696,7 @@ public class AnyTest extends ClientServerTestCase
     }
 
     //test manual stream insert, for when helpers use streamables
+    @Test
     public void test_long_disc_union_manual()
         throws Exception
     {
@@ -1626,6 +1711,7 @@ public class AnyTest extends ClientServerTestCase
         assertTrue(outAny.equal(inAny));
     }
 
+    @Test
     public void test_longlong_disc_union() throws Exception
     {
         LongLongDiscUnion testValue = new LongLongDiscUnion();
@@ -1638,6 +1724,7 @@ public class AnyTest extends ClientServerTestCase
         assertTrue(outAny.equal(inAny));
     }
 
+    @Test
     public void test_longlong_disc_union_streamable() throws Exception
     {
         LongLongDiscUnion testValue = new LongLongDiscUnion();
@@ -1651,6 +1738,7 @@ public class AnyTest extends ClientServerTestCase
     }
 
     //test manual stream insert, for when helpers use streamables
+    @Test
     public void test_longlong_disc_union_manual() throws Exception
     {
         LongDiscUnion testValue = new LongDiscUnion();
@@ -1664,6 +1752,7 @@ public class AnyTest extends ClientServerTestCase
         assertTrue(outAny.equal(inAny));
     }
 
+    @Test
     public void test_ushort_disc_union()
         throws Exception
     {
@@ -1677,6 +1766,7 @@ public class AnyTest extends ClientServerTestCase
         assertTrue(outAny.equal(inAny));
     }
 
+    @Test
     public void test_ushort_disc_union_streamable()
         throws Exception
     {
@@ -1691,6 +1781,7 @@ public class AnyTest extends ClientServerTestCase
     }
 
     //test manual stream insert, for when helpers use streamables
+    @Test
     public void test_ushort_disc_union_manual()
         throws Exception
     {
@@ -1705,6 +1796,7 @@ public class AnyTest extends ClientServerTestCase
         assertTrue(outAny.equal(inAny));
     }
 
+    @Test
     public void test_ulong_disc_union()
         throws Exception
     {
@@ -1718,6 +1810,7 @@ public class AnyTest extends ClientServerTestCase
         assertTrue(outAny.equal(inAny));
     }
 
+    @Test
     public void test_ulong_disc_union_streamable()
         throws Exception
     {
@@ -1732,6 +1825,7 @@ public class AnyTest extends ClientServerTestCase
     }
 
     //test manual stream insert, for when helpers use streamables
+    @Test
     public void test_ulong_disc_union_manual()
         throws Exception
     {
@@ -1746,6 +1840,7 @@ public class AnyTest extends ClientServerTestCase
         assertTrue(outAny.equal(inAny));
     }
 
+    @Test
     public void test_ulonglong_disc_union() throws Exception
     {
         ULongLongDiscUnion testValue = new ULongLongDiscUnion();
@@ -1758,6 +1853,7 @@ public class AnyTest extends ClientServerTestCase
         assertTrue(outAny.equal(inAny));
     }
 
+    @Test
     public void test_ulonglong_disc_union_streamable() throws Exception
     {
         ULongLongDiscUnion testValue = new ULongLongDiscUnion();
@@ -1771,6 +1867,7 @@ public class AnyTest extends ClientServerTestCase
     }
 
     //test manual stream insert, for when helpers use streamables
+    @Test
     public void test_ulonglong_disc_union_manual() throws Exception
     {
         ULongLongDiscUnion testValue = new ULongLongDiscUnion();
@@ -1784,6 +1881,7 @@ public class AnyTest extends ClientServerTestCase
         assertTrue(outAny.equal(inAny));
     }
 
+    @Test
     public void test_boolean_disc_union()
         throws Exception
     {
@@ -1797,6 +1895,7 @@ public class AnyTest extends ClientServerTestCase
         assertTrue(outAny.equal(inAny));
     }
 
+    @Test
     public void test_boolean_disc_union_streamable()
         throws Exception
     {
@@ -1811,6 +1910,7 @@ public class AnyTest extends ClientServerTestCase
     }
 
     //test manual stream insert, for when helpers use streamables
+    @Test
     public void test_boolean_disc_union_manual()
         throws Exception
     {
@@ -1825,6 +1925,7 @@ public class AnyTest extends ClientServerTestCase
         assertTrue(outAny.equal(inAny));
     }
 
+    @Test
     public void test_char_disc_union()
         throws Exception
     {
@@ -1838,6 +1939,7 @@ public class AnyTest extends ClientServerTestCase
         assertTrue(outAny.equal(inAny));
     }
 
+    @Test
     public void test_char_disc_union_streamable()
         throws Exception
     {
@@ -1852,6 +1954,7 @@ public class AnyTest extends ClientServerTestCase
     }
 
     //test manual stream insert, for when helpers use streamables
+    @Test
     public void test_char_disc_union_manual()
         throws Exception
     {
@@ -1866,6 +1969,7 @@ public class AnyTest extends ClientServerTestCase
         assertTrue(outAny.equal(inAny));
     }
 
+    @Test
     public void test_enum_disc_union()
         throws Exception
     {
@@ -1879,6 +1983,7 @@ public class AnyTest extends ClientServerTestCase
         assertTrue(outAny.equal(inAny));
     }
 
+    @Test
     public void test_enum_disc_union_streamable()
         throws Exception
     {
@@ -1893,6 +1998,7 @@ public class AnyTest extends ClientServerTestCase
     }
 
     //test manual stream insert, for when helpers use streamables
+    @Test
     public void test_enum_disc_union_manual()
         throws Exception
     {
@@ -1907,6 +2013,7 @@ public class AnyTest extends ClientServerTestCase
         assertTrue(outAny.equal(inAny));
     }
 
+    @Test
     public void test_extract_streamable()
     {
         String testValue = "hello world";
@@ -1920,6 +2027,7 @@ public class AnyTest extends ClientServerTestCase
         assertTrue (outAny.equal(inAny));
     }
 
+    @Test
     public void test_extract_streamable_null()
     {
         Any any = setup.getClientOrb().create_any();
@@ -1934,6 +2042,7 @@ public class AnyTest extends ClientServerTestCase
         }
     }
 
+    @Test
     public void test_to_string()
     {
         Any any = setup.getClientOrb().create_any();
@@ -1943,6 +2052,7 @@ public class AnyTest extends ClientServerTestCase
         assertEquals ("hello world", any.toString());
     }
 
+    @Test
     public void test_not_equal()
     {
         Any any = setup.getClientOrb().create_any();
@@ -1950,6 +2060,7 @@ public class AnyTest extends ClientServerTestCase
         assertFalse (any.equals ("hello world"));
     }
 
+    @Test
     public void test_not_equal_to_null()
     {
         Any any = setup.getClientOrb().create_any();
@@ -1964,6 +2075,7 @@ public class AnyTest extends ClientServerTestCase
         }
     }
 
+    @Test
     public void test_shallow_copy()
     {
         Any any1 = setup.getClientOrb().create_any();
@@ -1974,6 +2086,7 @@ public class AnyTest extends ClientServerTestCase
         assertTrue (any1.extract_string() == any2.extract_string());
     }
 
+    @Test
     public void testEquals() throws Exception
     {
         Any any1 = setup.getClientOrb().create_any();
@@ -1996,6 +2109,7 @@ public class AnyTest extends ClientServerTestCase
         assertFalse(any2.equals(any1));
     }
 
+    @Test
     public void testUnionWithDefault()
     {
         UnionWithDefault union = new UnionWithDefault();
@@ -2008,6 +2122,7 @@ public class AnyTest extends ClientServerTestCase
         assertEquals(union.s3(), bouncedUnion.s3());
     }
 
+    @Test
     public void testIndirectionToNestedObject()
     {
         Any any = setup.getClientOrb().create_any();

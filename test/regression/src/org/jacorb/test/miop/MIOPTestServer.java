@@ -34,7 +34,7 @@ public class MIOPTestServer
 
 
             final String servantName = args[0];
-            Class servantClass = TestUtils.classForName(servantName);
+            Class<?> servantClass = TestUtils.classForName(servantName);
             Servant helloServant = ( Servant ) servantClass.newInstance();
 
             byte[] oid = poa.activate_object(helloServant);

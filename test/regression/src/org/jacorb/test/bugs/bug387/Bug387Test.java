@@ -20,63 +20,53 @@ package org.jacorb.test.bugs.bug387;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import junit.framework.Test;
-import junit.framework.TestSuite;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 import org.jacorb.test.common.ClientServerSetup;
 import org.jacorb.test.common.ClientServerTestCase;
-import org.jacorb.test.common.TestUtils;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
 
 /**
  * Tests marshaling of value box instances within structs within anys.
- * 
+ *
  * @author <a href="mailto:spiegel@gnu.org">Andre Spiegel</a>
  */
 public class Bug387Test extends ClientServerTestCase
 {
     private TestInterface server = null;
-    
-    public Bug387Test (String name, ClientServerSetup setup)
-    {
-        super (name, setup);
-    }
-    
+
+    @Before
     public void setUp()
     {
-        server = (TestInterface)TestInterfaceHelper.narrow(setup.getServerObject());            
+        server = TestInterfaceHelper.narrow(setup.getServerObject());
     }
-    
-    protected void tearDown() throws Exception
+
+    @BeforeClass
+    public static void beforeClassSetUp() throws Exception
     {
-        server = null;
+        setup = new ClientServerSetup("org.jacorb.test.bugs.bug387.TestInterfaceImpl");
     }
 
-    public static Test suite()
-    {
-        TestSuite suite = new TestSuite("bug 387 value box in struct in any");
-
-        ClientServerSetup setup =
-            new ClientServerSetup(suite,
-                                  "org.jacorb.test.bugs.bug387.TestInterfaceImpl");
-
-        TestUtils.addToSuite(suite, setup, Bug387Test.class);
-
-        return setup;
-    }
-    
+    @Test
     public void test_return_value()
     {
         org.omg.CORBA.Any a = server.test_return_value();
         TestStruct t = TestStructHelper.extract(a);
         assertEquals("STRINGTEST", t.name);
     }
-    
+
+    @Test
     public void test_return_null()
     {
         org.omg.CORBA.Any a = server.test_return_null();
         TestStruct t = TestStructHelper.extract(a);
         assertEquals(null, t.name);
     }
-    
+
+    @Test
     public void test_pass_value()
     {
         org.omg.CORBA.Any a = setup.getClientOrb().create_any();
@@ -86,6 +76,7 @@ public class Bug387Test extends ClientServerTestCase
         assertTrue(result);
     }
 
+    @Test
     public void test_pass_null()
     {
         org.omg.CORBA.Any a = setup.getClientOrb().create_any();
@@ -94,7 +85,8 @@ public class Bug387Test extends ClientServerTestCase
         boolean result = server.test_pass_null(a);
         assertTrue(result);
     }
-    
+
+    @Test
     public void test_pass_unshared()
     {
         org.omg.CORBA.Any a = setup.getClientOrb().create_any();
@@ -106,6 +98,7 @@ public class Bug387Test extends ClientServerTestCase
         assertFalse(result);
     }
 
+    @Test
     public void test_pass_shared()
     {
         org.omg.CORBA.Any a = setup.getClientOrb().create_any();

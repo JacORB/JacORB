@@ -1,11 +1,12 @@
 package org.jacorb.test.bugs.bugjac192;
 
+import static org.junit.Assert.assertTrue;
 import java.util.Properties;
-import junit.framework.Test;
-import junit.framework.TestSuite;
 import org.jacorb.test.common.ClientServerSetup;
 import org.jacorb.test.common.ClientServerTestCase;
-import org.jacorb.test.common.TestUtils;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
 
 /**
  * <code>TestCaseImpl</code> tests that the context key system works even if
@@ -33,25 +34,16 @@ public class BugJac192Test extends ClientServerTestCase
      * @param name a <code>String</code> value
      * @param setup a <code>ClientServerSetup</code> value
      */
-    public BugJac192Test(String name, ClientServerSetup setup)
-    {
-        super(name, setup);
-    }
-
 
     /**
      * <code>setUp</code> for junit.
      *
      * @exception Exception if an error occurs
      */
+    @Before
     public void setUp() throws Exception
     {
         server = JAC192Helper.narrow( setup.getServerObject() );
-    }
-
-    protected void tearDown() throws Exception
-    {
-        server = null;
     }
 
     /**
@@ -59,9 +51,9 @@ public class BugJac192Test extends ClientServerTestCase
      *
      * @return a <code>Test</code> value
      */
-    public static Test suite()
+    @BeforeClass
+    public static void beforeClassSetUp() throws Exception
     {
-        TestSuite suite = new TestSuite( "Jac192 - Context Key test" );
 
         Properties client_props = new Properties();
         Properties server_props = new Properties();
@@ -83,23 +75,19 @@ public class BugJac192Test extends ClientServerTestCase
         );
         server_props.setProperty("jacorb.regression.disable_security", "true");
 
-        ClientServerSetup setup = new ClientServerSetup
+        setup = new ClientServerSetup
         (
-            suite,
             "org.jacorb.test.bugs.bugjac192.JAC192Impl",
             client_props,
             server_props
         );
-
-        TestUtils.addToSuite(suite, setup, BugJac192Test.class);
-
-        return setup;
     }
 
 
     /**
      * <code>test_contexts</code> tests that .
      */
+    @Test
     public void test_contexts()
     {
         assertTrue("Failure when propagating service context.", server.test192Op());

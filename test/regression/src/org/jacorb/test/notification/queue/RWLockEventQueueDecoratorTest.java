@@ -21,15 +21,14 @@
 
 package org.jacorb.test.notification.queue;
 
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
 import org.easymock.MockControl;
 import org.jacorb.notification.interfaces.Message;
 import org.jacorb.notification.queue.MessageQueueAdapter;
 import org.jacorb.notification.queue.RWLockEventQueueDecorator;
+import org.junit.Before;
+import org.junit.Test;
 
-public class RWLockEventQueueDecoratorTest extends TestCase
+public class RWLockEventQueueDecoratorTest
 {
     private RWLockEventQueueDecorator objectUnderTest_;
 
@@ -41,10 +40,9 @@ public class RWLockEventQueueDecoratorTest extends TestCase
 
     private MessageQueueAdapter mockReplacementQueue_;
 
-    protected void setUp() throws Exception
+    @Before
+    public void setUp() throws Exception
     {
-        super.setUp();
-
         controlInitialQueue_ = MockControl.createControl(MessageQueueAdapter.class);
         mockInitialQueue_ = (MessageQueueAdapter) controlInitialQueue_.getMock();
         objectUnderTest_ = new RWLockEventQueueDecorator(mockInitialQueue_);
@@ -53,6 +51,7 @@ public class RWLockEventQueueDecoratorTest extends TestCase
         mockReplacementQueue_ = (MessageQueueAdapter) controlReplacementQueue_.getMock();
     }
 
+    @Test
     public void testReplaceEmpty() throws Exception
     {
         mockInitialQueue_.hasPendingMessages();
@@ -63,6 +62,7 @@ public class RWLockEventQueueDecoratorTest extends TestCase
         objectUnderTest_.replaceDelegate(mockReplacementQueue_);
     }
 
+    @Test
     public void testReplaceNonEmpty() throws Exception
     {
         final MockControl controlMessage = MockControl.createControl(Message.class);
@@ -74,18 +74,13 @@ public class RWLockEventQueueDecoratorTest extends TestCase
 
         mockInitialQueue_.getAllMessages();
         controlInitialQueue_.setReturnValue(mesgs);
-        
+
         controlInitialQueue_.replay();
-        
+
         mockReplacementQueue_.enqeue(mockMessage);
-        
+
         controlReplacementQueue_.replay();
-        
+
         objectUnderTest_.replaceDelegate(mockReplacementQueue_);
-    }
-    
-    public static Test suite() throws Exception
-    {
-        return new TestSuite(RWLockEventQueueDecoratorTest.class);
     }
 }

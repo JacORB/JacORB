@@ -9,6 +9,7 @@ import org.jacorb.config.Configuration;
 import org.jacorb.orb.factory.FixedAddressSocketFactory;
 import org.jacorb.orb.factory.SocketFactory;
 import org.jacorb.test.common.NullLogger;
+import org.junit.Test;
 
 /**
  * @author Alphonse Bendt
@@ -20,6 +21,7 @@ public class FixedAddressSocketFactoryTest extends AbstractSocketFactoryTestCase
         return new FixedAddressSocketFactory();
     }
 
+    @Test
     public void testSetLocalhost() throws Exception
     {
         Socket socket = objectUnderTest.createSocket(hostname, serverPort);
@@ -31,6 +33,7 @@ public class FixedAddressSocketFactoryTest extends AbstractSocketFactoryTestCase
         socket.close ();
     }
 
+    @Test
     public void testSetLocalhost2() throws Exception
     {
         Socket socket = objectUnderTest.createSocket(hostname, serverPort, 1000);
@@ -42,6 +45,7 @@ public class FixedAddressSocketFactoryTest extends AbstractSocketFactoryTestCase
         socket.close ();
     }
 
+    @Test
     public void testSetHostname() throws Exception
     {
         Socket socket = objectUnderTest.createSocket(hostname, serverPort);
@@ -53,6 +57,7 @@ public class FixedAddressSocketFactoryTest extends AbstractSocketFactoryTestCase
         socket.close ();
     }
 
+    @Test
     public void testSetHostname2() throws Exception
     {
         Socket socket = objectUnderTest.createSocket(hostname, serverPort, 1000);

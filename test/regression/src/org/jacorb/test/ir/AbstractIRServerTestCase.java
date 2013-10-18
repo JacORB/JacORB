@@ -20,15 +20,10 @@
 
 package org.jacorb.test.ir;
 
-import java.io.File;
-import java.util.List;
-import java.util.Properties;
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
-import org.jacorb.test.common.TestUtils;
+import org.junit.After;
+import org.junit.AfterClass;
+import org.junit.Before;
 import org.omg.CORBA.Repository;
-import org.omg.PortableServer.POA;
 
 /**
  * base class for tests against the IR. this class will start a IR and feed the
@@ -37,107 +32,30 @@ import org.omg.PortableServer.POA;
  *
  * @author Alphonse Bendt
  */
-public class AbstractIRServerTestCase extends TestCase
+public class AbstractIRServerTestCase
 {
-    private IFRServerSetup setup;
+    protected static IFRServerSetup setup;
     protected Repository repository;
 
-    public AbstractIRServerTestCase(String name, IFRServerSetup setup)
-    {
-        super(name);
-
-        this.setup = setup;
-    }
-
-    protected final void setUp() throws Exception
+    @Before
+    public void setUp() throws Exception
     {
         repository = setup.getRepository();
 
         // need to wait a bit as the server first starts up and issues its IOR and
         // later fails during load of the idl classes
         Thread.sleep(1000);
-
-        doSetUp();
     }
 
-    protected void doSetUp() throws Exception
+    @After
+    public void tearDown() throws Exception
     {
-        // empty to be overridden
+        repository._release();
     }
 
-    protected final void tearDown() throws Exception
+    @AfterClass
+    public static void tearDownAfterClass() throws Exception
     {
-        doTearDown();
-
-        repository = null;
-    }
-
-    protected void doTearDown() throws Exception
-    {
-        // empty to be overridden
-    }
-
-    /**
-     * this is the main suite method.
-     *
-     * @param idlFile file or directory containing the idl the ir server should work on. (String or File)
-     * @param testClazz class containing the tests.
-     * @param idlArgs additional arguments that should be passed to the idl compiler. (List or String[])
-     * @param optionalIRServerProps additional properties that should be passed to the IFR Server (maybe null)
-     * @return a TestSuite
-     */
-    private static Test _suite(Object idlFile, Class testClazz, Object idlArgs, Properties optionalIRServerProps)
-    {
-        TestSuite suite = new TestSuite();
-
-        IFRServerSetup setup = new IFRServerSetup(suite, idlFile, idlArgs, optionalIRServerProps);
-
-        TestUtils.addToSuite(suite, setup, testClazz);
-
-        return setup;
-    }
-
-    protected POA getClientRootPOA()
-    {
-        return setup.getClientRootPOA();
-    }
-
-    /**
-     * this is the main suite method.
-     *
-     * @param idlFile file or directory containing the idl the ir server should work on.
-     * @param testClazz class containing the tests.
-     * @param idlArgs additional arguments that should be passed to the idl compiler.
-     * @param optionalIRServerProps additional properties that should be passed to the IFR Server
-     * @return a TestSuite
-     */
-    protected static Test suite(File idlFile, Class testClazz, List idlArgs, Properties optionalIRServerProps)
-    {
-        return _suite(idlFile, testClazz, idlArgs, optionalIRServerProps);
-    }
-
-    /**
-     * convenience method. will not use additional idl args.
-     */
-    protected static Test suite(File idlFile, Class testClazz)
-    {
-        return _suite(idlFile, testClazz, null, null);
-    }
-
-    /**
-     * convenience method
-     * @string it is assumed that the idl file is located in the dir test/regression/idl.
-     */
-    public static Test suite(String idlFile, Class testClazz)
-    {
-        return _suite(TestUtils.testHome() + "/idl/" + idlFile, testClazz, null, null);
-    }
-
-    /**
-     * convenience method
-     */
-    public static Test suite(String idlFile, Class testClazz, String[] idlArgs, Properties props)
-    {
-        return _suite(idlFile, testClazz, idlArgs, props);
+        setup.tearDown();
     }
 }

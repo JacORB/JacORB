@@ -21,8 +21,8 @@
 
 package org.jacorb.test.notification.filter;
 
+import static org.junit.Assert.assertFalse;
 import java.util.Collections;
-import junit.framework.Test;
 import org.easymock.MockControl;
 import org.jacorb.config.Configuration;
 import org.jacorb.notification.IContainer;
@@ -32,7 +32,7 @@ import org.jacorb.notification.filter.DefaultFilterFactoryDelegate;
 import org.jacorb.notification.filter.FilterFactoryImpl;
 import org.jacorb.notification.util.WeakCacheWildcardMap;
 import org.jacorb.test.notification.common.NotificationTestCase;
-import org.jacorb.test.notification.common.NotificationTestCaseSetup;
+import org.junit.Test;
 import org.omg.CORBA.Any;
 import org.omg.CORBA.OBJECT_NOT_EXIST;
 import org.omg.CosNotifyFilter.Filter;
@@ -51,11 +51,6 @@ public class GarbageCollectTest extends NotificationTestCase
     private Configuration mockConfiguration_;
 
     private IContainer iContainerForTest_;
-
-    public GarbageCollectTest(String name, NotificationTestCaseSetup setup)
-    {
-        super(name, setup);
-    }
 
     protected void setUpTest() throws Exception
     {
@@ -86,6 +81,7 @@ public class GarbageCollectTest extends NotificationTestCase
         controlConfiguration_.setReturnValue(WeakCacheWildcardMap.class.getName());
     }
 
+    @Test
     public void testGCFilter() throws Exception
     {
         MockControl loggerControl = MockControl.createNiceControl(Logger.class);
@@ -137,9 +133,4 @@ public class GarbageCollectTest extends NotificationTestCase
         }
     }
 
-
-    public static Test suite() throws Exception
-    {
-        return NotificationTestCase.suite(GarbageCollectTest.class);
-    }
 }

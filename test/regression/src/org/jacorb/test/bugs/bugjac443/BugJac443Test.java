@@ -20,8 +20,10 @@
 
 package org.jacorb.test.bugs.bugjac443;
 
+import static org.junit.Assert.assertEquals;
 import java.math.BigDecimal;
 import org.jacorb.test.common.ORBTestCase;
+import org.junit.Test;
 import org.omg.CORBA.portable.InputStream;
 
 /**
@@ -29,6 +31,7 @@ import org.omg.CORBA.portable.InputStream;
  */
 public class BugJac443Test extends ORBTestCase
 {
+    @Test
     public void testFixed() throws Exception
     {
         final org.omg.CORBA.portable.OutputStream out = orb.create_output_stream();

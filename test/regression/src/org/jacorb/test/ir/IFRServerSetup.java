@@ -22,42 +22,32 @@ package org.jacorb.test.ir;
 
 import java.io.File;
 import java.util.Properties;
-import junit.extensions.TestSetup;
-import junit.framework.Test;
 import org.jacorb.test.common.ClientServerSetup;
 import org.jacorb.test.common.CommonSetup;
-import org.jacorb.test.common.IDLTestSetup;
 import org.omg.CORBA.Repository;
 import org.omg.CORBA.RepositoryHelper;
-import org.omg.PortableServer.POA;
 
 /**
  * @author Alphonse Bendt
  */
-public class IFRServerSetup extends TestSetup
+public class IFRServerSetup
 {
-    private final IDLTestSetup idlSetup;
-    private final Properties additionalProps = new Properties();
-    private ClientServerSetup clientServerSetup;
+    protected static IDLTestSetup idlSetup;
+    protected ClientServerSetup clientServerSetup;
 
-    public IFRServerSetup(Test test, Object idlFile, Object idlArgs, Properties optionalIRServerProps)
+
+    public IFRServerSetup(String idlFile, String[] idlArgs, Properties optionalIRServerProps)
+        throws Exception
     {
-        super(test);
-
-        idlSetup = new IDLTestSetup(test, idlFile, idlArgs);
-
+        Properties additionalProps = new Properties();
         if (optionalIRServerProps != null)
         {
             additionalProps.putAll(optionalIRServerProps);
         }
-    }
 
-    public void setUp() throws Exception
-    {
-        idlSetup.setUp();
+        idlSetup = new IDLTestSetup(idlFile, idlArgs);
 
         File dirGeneration = idlSetup.getDirectory();
-
         final File iorFile = File.createTempFile("IFR_IOR", ".ior");
         iorFile.deleteOnExit();
 
@@ -68,16 +58,14 @@ public class IFRServerSetup extends TestSetup
         serverProps.setProperty("jacorb.test.ir.iorfile", iorFile.toString());
         serverProps.setProperty("jacorb.ir.log.verbosity", "2");
 
-        serverProps.putAll(this.additionalProps);
+        serverProps.putAll(additionalProps);
 
         Properties clientProps = new Properties();
         clientProps.setProperty("ORBInitRef.InterfaceRepository", "file://" + iorFile.toString());
         clientProps.setProperty(CommonSetup.JACORB_REGRESSION_DISABLE_SECURITY, "true");
         clientProps.setProperty(CommonSetup.JACORB_REGRESSION_DISABLE_IMR, "true");
 
-        clientServerSetup = new ClientServerSetup(null, IRServerRunner.class.getName(), "ignored", clientProps, serverProps);
-
-        clientServerSetup.setUp();
+        clientServerSetup = new ClientServerSetup(IRServerRunner.class.getName(), "ignored", clientProps, serverProps);
 
         System.out.println ("Waiting for IFR to start...");
         Thread.sleep (10000);
@@ -87,19 +75,11 @@ public class IFRServerSetup extends TestSetup
     public void tearDown() throws Exception
     {
         clientServerSetup.tearDown();
-        additionalProps.clear();
-        clientServerSetup = null;
-
         idlSetup.tearDown();
     }
 
     public Repository getRepository()
     {
         return RepositoryHelper.narrow(clientServerSetup.getServerObject());
-    }
-
-    public POA getClientRootPOA()
-    {
-        return clientServerSetup.getClientRootPOA();
     }
 }

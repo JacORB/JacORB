@@ -20,10 +20,12 @@ package org.jacorb.test.bugs.bugjac696;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
+import static org.junit.Assert.assertTrue;
 import java.lang.reflect.Field;
 import org.jacorb.poa.AOM;
 import org.jacorb.test.common.ORBTestCase;
 import org.jacorb.test.orb.BasicServerImpl;
+import org.junit.Test;
 import org.omg.PortableServer.IdAssignmentPolicyValue;
 import org.omg.PortableServer.POA;
 
@@ -36,6 +38,7 @@ import org.omg.PortableServer.POA;
  */
 public class BugJac696Test extends ORBTestCase
 {
+    @Test
     public void testBugJac696 () throws Exception
     {
         org.omg.CORBA.Policy [] policies = new org.omg.CORBA.Policy[1];

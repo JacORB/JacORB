@@ -21,12 +21,13 @@ package org.jacorb.test.orb;
  */
 
 import java.util.Properties;
-import junit.framework.Test;
-import junit.framework.TestSuite;
 import org.jacorb.test.BasicServer;
 import org.jacorb.test.BasicServerHelper;
 import org.jacorb.test.common.ClientServerSetup;
 import org.jacorb.test.common.ClientServerTestCase;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
 
 /**
  * Tests the configuration option jacorb.iiop.alternate_addresses.
@@ -42,25 +43,15 @@ public class AlternateIIOPAddressConfigTest extends ClientServerTestCase
 
     private BasicServer server;
 
-    public AlternateIIOPAddressConfigTest(String name, ClientServerSetup setup)
-    {
-        super(name, setup);
-    }
-
+    @Before
     public void setUp() throws Exception
     {
         server = BasicServerHelper.narrow( setup.getServerObject() );
     }
 
-    protected void tearDown() throws Exception
+    @BeforeClass
+    public static void beforeClassSetUp() throws Exception
     {
-        server = null;
-    }
-
-    public static Test suite()
-    {
-        TestSuite suite = new TestSuite ("AlternateIIOPAddress Configuration Test");
-
         Properties clientProps = new Properties();
         clientProps.setProperty ("jacorb.retries", "0");
         clientProps.setProperty ("jacorb.retry_interval", "50");
@@ -75,16 +66,11 @@ public class AlternateIIOPAddressConfigTest extends ClientServerTestCase
         serverProps.put ("jacorb.iiop.alternate_addresses",
                          CORRECT_HOST + ":" + WRONG_PORT + "," +
                          CORRECT_HOST + ":" + CORRECT_PORT);
-        ClientServerSetup setup =
-            new ClientServerSetup( suite,
-                                   "org.jacorb.test.orb.BasicServerImpl",
+        setup = new ClientServerSetup("org.jacorb.test.orb.BasicServerImpl",
                                    clientProps, serverProps);
-
-        suite.addTest( new AlternateIIOPAddressConfigTest( "test_ping", setup ));
-
-        return setup;
     }
 
+    @Test
     public void test_ping()
     {
         server.ping();

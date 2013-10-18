@@ -1,19 +1,22 @@
 package org.jacorb.test.jaco;
 
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.LineNumberReader;
-import junit.framework.TestCase;
 import org.jacorb.test.common.TestUtils;
+import org.junit.Test;
 
 /**
  * @author Alphonse Bendt
  */
 
-public class JacoTest extends TestCase
+public class JacoTest
 {
+    @Test
     public void testStartJaco() throws Exception
     {
         File jaco = new File(TestUtils.jacorbHome(), "bin/jaco");

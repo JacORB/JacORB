@@ -20,43 +20,29 @@ package org.jacorb.test.bugs.bug490;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import junit.framework.Test;
-import junit.framework.TestSuite;
 import org.jacorb.test.common.ClientServerSetup;
 import org.jacorb.test.common.ClientServerTestCase;
-import org.jacorb.test.common.TestUtils;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
 
 public class Bug490Test extends ClientServerTestCase
 {
     private GoodDay server;
 
-    public Bug490Test (String name, ClientServerSetup setup)
-    {
-        super (name, setup);
-    }
-
+    @Before
     public void setUp()
     {
-        server = (GoodDay)GoodDayHelper.narrow(setup.getServerObject());
+        server = GoodDayHelper.narrow(setup.getServerObject());
     }
 
-    protected void tearDown() throws Exception
+    @BeforeClass
+    public static void beforeClassSetUp() throws Exception
     {
-        server = null;
+        setup = new ClientServerSetup("org.jacorb.test.bugs.bug490.GoodDayImpl" );
     }
 
-    public static Test suite()
-    {
-        TestSuite suite = new TestSuite( "bug 490 policy op" );
-        ClientServerSetup setup =
-            new ClientServerSetup( suite,
-                                   "org.jacorb.test.bugs.bug490.GoodDayImpl" );
-
-        TestUtils.addToSuite(suite, setup, Bug490Test.class);
-
-        return setup;
-    }
-
+    @Test
     public void testPolicyOp()
     {
         server.policy();

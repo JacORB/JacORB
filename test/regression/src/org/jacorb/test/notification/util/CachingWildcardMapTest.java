@@ -21,10 +21,9 @@ package org.jacorb.test.notification.util;
  *
  */
 
-import junit.framework.Test;
-import junit.framework.TestSuite;
 import org.jacorb.notification.util.CachingWildcardMap;
 import org.jacorb.notification.util.WildcardMap;
+import org.junit.Test;
 
 /**
  * @author Alphonse Bendt
@@ -36,12 +35,8 @@ public class CachingWildcardMapTest extends AbstractWildcardMapTestCase
     {
         return new CachingWildcardMap();
     }
-
-    public static Test suite()
-    {
-        return new TestSuite(CachingWildcardMapTest.class);
-    }
     
+    @Test
     public void testCache()
     {
         objectUnderTest_.put("key1", "value1");

@@ -22,12 +22,13 @@ package org.jacorb.test.bugs.bugjac590;
  */
 
 
-import junit.framework.Test;
-import junit.framework.TestSuite;
+import static org.junit.Assert.assertTrue;
 import org.jacorb.orb.dynany.DynUnion;
 import org.jacorb.test.common.ClientServerSetup;
 import org.jacorb.test.common.ClientServerTestCase;
-import org.jacorb.test.common.TestUtils;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
 import org.omg.DynamicAny.DynAnyFactory;
 import org.omg.DynamicAny.DynAnyFactoryHelper;
 
@@ -42,31 +43,16 @@ public class BugJac590Test extends ClientServerTestCase
 {
     private BooleanUnionInt server = null;
 
-    public BugJac590Test(String name, ClientServerSetup setup)
-    {
-        super(name, setup);
-    }
-
-    protected void setUp() throws Exception
+    @Before
+    public void setUp() throws Exception
     {
         server = BooleanUnionIntHelper.narrow (setup.getServerObject());
     }
 
-    protected void tearDown() throws Exception
+    @BeforeClass
+    public static void beforeClassSetUp() throws Exception
     {
-        server = null;
-    }
-
-    public static Test suite()
-    {
-        TestSuite suite = new TestSuite( "bugjac590" );
-        ClientServerSetup setup =
-        new ClientServerSetup( suite,
-                               "org.jacorb.test.bugs.bugjac590.BooleanUnionIntServerImpl" );
-
-        TestUtils.addToSuite(suite, setup, BugJac590Test.class);
-
-        return setup;
+        setup = new ClientServerSetup("org.jacorb.test.bugs.bugjac590.BooleanUnionIntServerImpl" );
     }
 
     /**
@@ -75,6 +61,7 @@ public class BugJac590Test extends ClientServerTestCase
      *
      * @exception Exception if an error occurs
      */
+    @Test
     public void testUnionNullPtr () throws Exception
     {
         // obtain a reference to the DynAnyFactory

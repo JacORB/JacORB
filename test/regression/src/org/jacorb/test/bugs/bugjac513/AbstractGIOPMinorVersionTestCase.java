@@ -20,6 +20,7 @@
 
 package org.jacorb.test.bugs.bugjac513;
 
+import static org.junit.Assert.assertEquals;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.Properties;
@@ -30,6 +31,7 @@ import org.jacorb.test.BasicServer;
 import org.jacorb.test.BasicServerHelper;
 import org.jacorb.test.common.ORBTestCase;
 import org.jacorb.test.orb.BasicServerImpl;
+import org.junit.Test;
 import org.omg.CORBA.portable.ObjectImpl;
 
 /**
@@ -37,7 +39,8 @@ import org.omg.CORBA.portable.ObjectImpl;
  */
 public abstract class AbstractGIOPMinorVersionTestCase extends ORBTestCase
 {
-    protected void patchORBProperties(String testName, Properties props) throws Exception
+    @Override
+    protected void patchORBProperties(Properties props) throws Exception
     {
         String giopVersionString = getGIOPMinorVersionString();
         props.setProperty("jacorb.giop_minor_version", giopVersionString);
@@ -51,6 +54,7 @@ public abstract class AbstractGIOPMinorVersionTestCase extends ORBTestCase
 
     protected abstract String getGIOPMinorVersionString();
 
+    @Test
     public void testServerWorks() throws Exception
     {
         BasicServer server = BasicServerHelper.narrow(rootPOA.servant_to_reference(new BasicServerImpl()));
@@ -60,6 +64,7 @@ public abstract class AbstractGIOPMinorVersionTestCase extends ORBTestCase
         assertEquals(now, server.bounce_long_long(now));
     }
 
+    @Test
     public void testServerUsesProperGIOPVersion() throws Exception
     {
         BasicServer server = BasicServerHelper.narrow(rootPOA.servant_to_reference(new BasicServerImpl()));

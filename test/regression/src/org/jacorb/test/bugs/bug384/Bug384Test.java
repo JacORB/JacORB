@@ -20,11 +20,15 @@ package org.jacorb.test.bugs.bug384;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import junit.framework.Test;
-import junit.framework.TestSuite;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 import org.jacorb.test.common.ClientServerSetup;
 import org.jacorb.test.common.ClientServerTestCase;
-import org.jacorb.test.common.TestUtils;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
 import org.omg.PortableServer.POA;
 
 
@@ -41,11 +45,7 @@ public class Bug384Test
     private org.omg.CORBA.Object testObject;
     private org.omg.CORBA.Object localTestObject;
 
-    public Bug384Test( String name, ClientServerSetup setup )
-    {
-        super( name, setup );
-    }
-
+    @Before
     public void setUp() throws Exception
     {
         testObject = setup.getServerObject();
@@ -58,6 +58,7 @@ public class Bug384Test
             poa.servant_to_reference( new TestObjectImpl());
     }
 
+    @After
     public void tearDown() throws Exception
     {
         testObject = null;
@@ -65,19 +66,13 @@ public class Bug384Test
         localTestObject = null;
     }
 
-    public static Test suite()
+    @BeforeClass
+    public static void beforeClassSetup () throws Exception
     {
-        TestSuite suite = new TestSuite( "bug 384 wrong is_a results" );
-
-        ClientServerSetup setup =
-            new ClientServerSetup( suite,
-            "org.jacorb.test.bugs.bug384.TestObjectImpl" );
-
-        TestUtils.addToSuite(suite, setup, Bug384Test.class);
-
-        return setup;
+        setup = new ClientServerSetup( "org.jacorb.test.bugs.bug384.TestObjectImpl" );
     }
 
+    @Test
     public void testNonLocalIsA()
     {
         assertTrue( "Is_a incorrectly returns false for non-local object",
@@ -87,6 +82,7 @@ public class Bug384Test
                     testObject._is_a( "IDL:omg.org/CosNaming/NamingContext:1.0" ));
     }
 
+    @Test
     public void testLocalIsA()
     {
         assertTrue( "Is_a incorrectly returns false for non-local object",
@@ -96,6 +92,7 @@ public class Bug384Test
                     localTestObject._is_a( "IDL:omg.org/CosNaming/NamingContext:1.0" ));
     }
 
+    @Test
     public void testMarshall()
     {
         TestObject serverObj = TestObjectHelper.narrow( testObject );

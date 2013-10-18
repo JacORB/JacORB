@@ -20,6 +20,7 @@
 
 package org.jacorb.test.common;
 
+import static org.junit.Assert.fail;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -29,14 +30,12 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
-import junit.extensions.TestSetup;
-import junit.framework.Test;
 import org.jacorb.test.common.launch.Launcher;
 
 /**
  * @author Alphonse Bendt
  */
-public class ServerSetup extends TestSetup
+public class ServerSetup
 {
     private static class ProcessShutdown extends Thread
     {
@@ -83,15 +82,13 @@ public class ServerSetup extends TestSetup
 
     private String serverIORFailedMesg;
 
-    public ServerSetup(Test test, String testServer, String servantName, Properties optionalProperties)
+    public ServerSetup(String testServer, String servantName, Properties optionalProperties)
     {
-        this(test, testServer, new String [] { servantName } , optionalProperties);
+        this(testServer, new String [] { servantName } , optionalProperties);
     }
 
-    public ServerSetup(Test test, String testServer, String[] testServantArgs, Properties optionalProperties)
+    public ServerSetup(String testServer, String[] testServantArgs, Properties optionalProperties)
     {
-        super(test);
-
         this.testServer = getTestServer(testServer);
         this.servantName = testServantArgs[0];
 
@@ -117,9 +114,9 @@ public class ServerSetup extends TestSetup
         }
     }
 
-    public ServerSetup(Test test, String servantName)
+    public ServerSetup(String servantName)
     {
-        this(test, null, servantName, null);
+        this(null, servantName, null);
     }
 
 

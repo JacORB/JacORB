@@ -20,9 +20,12 @@
 
 package org.jacorb.test.bugs.bugjac288;
 
+import static org.junit.Assert.assertSame;
+import static org.junit.Assert.fail;
 import org.jacorb.orb.CDRInputStream;
 import org.jacorb.orb.CDROutputStream;
 import org.jacorb.test.common.ORBTestCase;
+import org.junit.Test;
 import org.omg.CORBA.MARSHAL;
 import org.omg.CORBA.portable.InputStream;
 
@@ -31,6 +34,7 @@ import org.omg.CORBA.portable.InputStream;
  */
 public class BugJac288Test extends ORBTestCase
 {
+    @Test
     public void testDeMarshalEmptyStringReusesSameString()
     {
         assertSame(marshal(""), marshal(""));
@@ -45,9 +49,11 @@ public class BugJac288Test extends ORBTestCase
 
         CDRInputStream in = new CDRInputStream(buffer);
         String result = in.read_string();
+        in.close();
         return result;
     }
 
+    @Test
     public void testStringMayNotBeSizeZero()
     {
         CDROutputStream out = (CDROutputStream) orb.create_output_stream();
@@ -65,6 +71,7 @@ public class BugJac288Test extends ORBTestCase
         }
     }
 
+    @Test
     public void testEmptyStringMustBeTerminated()
     {
         CDROutputStream out = (CDROutputStream) orb.create_output_stream();
@@ -82,6 +89,7 @@ public class BugJac288Test extends ORBTestCase
         }
     }
 
+    @Test
     public void testEmptyStringMustBeTerminatedWithZeroOctet()
     {
         CDROutputStream out = (CDROutputStream) orb.create_output_stream();

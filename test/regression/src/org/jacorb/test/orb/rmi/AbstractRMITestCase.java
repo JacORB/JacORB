@@ -20,15 +20,23 @@ package org.jacorb.test.orb.rmi;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 import java.rmi.Remote;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
+import java.util.Hashtable;
+import java.util.Vector;
 import javax.rmi.PortableRemoteObject;
 import org.jacorb.orb.Reference;
-import org.jacorb.test.common.ClientServerSetup;
 import org.jacorb.test.common.ClientServerTestCase;
 import org.jacorb.test.orb.rmi.Outer.StaticInner;
+import org.junit.Before;
+import org.junit.Test;
 
 /**
  * Abstract testclass for RMITests. subclasses are responsible for
@@ -40,27 +48,20 @@ import org.jacorb.test.orb.rmi.Outer.StaticInner;
  * @see JacORBSunRMITest
  *
  */
+@SuppressWarnings("rawtypes")
 public abstract class AbstractRMITestCase extends ClientServerTestCase
 {
     private RMITestInterface server;
 
-    public AbstractRMITestCase(String name, ClientServerSetup setup)
-    {
-        super(name, setup);
-    }
-
-    public final void setUp() throws Exception
+    @Before
+    public void setUp() throws Exception
     {
         server = (RMITestInterface)javax.rmi.PortableRemoteObject.narrow(
                                                     setup.getServerObject(),
                                                     RMITestInterface.class);
     }
 
-    protected void tearDown() throws Exception
-    {
-        server = null;
-    }
-
+    @Test
     public void testJacorbReferenceClass()
     {
         assertTrue("please check if the class org.jacorb.orb.Reference."
@@ -69,12 +70,14 @@ public abstract class AbstractRMITestCase extends ClientServerTestCase
                     Remote.class.isAssignableFrom(Reference.class));
     }
 
+    @Test
     public void test_getString() throws Exception
     {
         String s = server.getString();
         assertEquals(RMITestUtil.STRING, s);
     }
 
+    @Test
     public void test_primitiveTypes() throws Exception
     {
         String s;
@@ -118,6 +121,7 @@ public abstract class AbstractRMITestCase extends ClientServerTestCase
                 s);
     }
 
+    @Test
     public void test_String() throws Exception
     {
         String original = "0123456789";
@@ -125,6 +129,7 @@ public abstract class AbstractRMITestCase extends ClientServerTestCase
         assertEquals(RMITestUtil.echo(original), echoedBack);
     }
 
+    @Test
     public void test_RMITestInterface() throws Exception
     {
         RMITestInterface t = server.testRMITestInterface("the quick brown fox", server);
@@ -132,6 +137,7 @@ public abstract class AbstractRMITestCase extends ClientServerTestCase
         assertEquals(RMITestUtil.STRING, s);
     }
 
+    @Test
     public void test_Remote() throws Exception
     {
         Remote r = server.testRemote("jumps over the lazy dog", server);
@@ -142,6 +148,7 @@ public abstract class AbstractRMITestCase extends ClientServerTestCase
         assertEquals(RMITestUtil.STRING, s);
     }
 
+    @Test
     public void test_Serializable() throws Exception
     {
         Foo original = new Foo(7, "foo test");
@@ -149,6 +156,7 @@ public abstract class AbstractRMITestCase extends ClientServerTestCase
         assertEquals(RMITestUtil.echoFoo(original), echoedBack);
     }
 
+    @Test
     public void test_intArray() throws Exception
     {
         int[] original= new int[10];
@@ -164,6 +172,7 @@ public abstract class AbstractRMITestCase extends ClientServerTestCase
         }
     }
 
+    @Test
     public void test_valueArray() throws Exception
     {
         Foo[] original = new Foo[4];
@@ -179,6 +188,7 @@ public abstract class AbstractRMITestCase extends ClientServerTestCase
         }
     }
 
+    @Test
     public void test_exception() throws Exception
     {
         assertEquals("#0", server.testException(0));
@@ -208,6 +218,7 @@ public abstract class AbstractRMITestCase extends ClientServerTestCase
         assertEquals("#0", server.testException(0));
     }
 
+    @Test
     public void test_FooValueToObject() throws Exception
     {
         Foo original = new Foo(9999, "foo test");
@@ -215,6 +226,7 @@ public abstract class AbstractRMITestCase extends ClientServerTestCase
         assertEquals(RMITestUtil.echoFoo(original), echoedBack);
     }
 
+    @Test
     public void test_BooValueToObject() throws Exception
     {
         Boo original = new Boo("t1", "boo test");
@@ -222,6 +234,7 @@ public abstract class AbstractRMITestCase extends ClientServerTestCase
         assertEquals(RMITestUtil.echoBoo(original), echoedBack);
     }
 
+    @Test
     public void test_valueArrayToVector() throws Exception
     {
         Foo[] original = new Foo[4];
@@ -229,7 +242,7 @@ public abstract class AbstractRMITestCase extends ClientServerTestCase
         {
             original[i] = new Foo(100 + i, "foo vector test");
         }
-        java.util.Vector v = server.valueArrayToVector(original);
+        Vector v = server.valueArrayToVector(original);
         java.lang.Object[] echoedBack = v.toArray();
         assertEquals(original.length, echoedBack.length);
         for (int i = 0; i < echoedBack.length; i++)
@@ -238,6 +251,7 @@ public abstract class AbstractRMITestCase extends ClientServerTestCase
         }
     }
 
+    @Test
     public void test_vectorToValueArray() throws Exception
     {
         Foo[] original = new Foo[4];
@@ -246,7 +260,7 @@ public abstract class AbstractRMITestCase extends ClientServerTestCase
             original[i] = new Foo(100 + i, "foo vector test");
         }
 
-        java.util.Vector v = server.valueArrayToVector(original);
+        Vector v = server.valueArrayToVector(original);
         Foo[] echoedBack = server.vectorToValueArray(v);
         assertEquals(original.length, echoedBack.length);
         for (int i = 0; i < echoedBack.length; i++)
@@ -257,6 +271,7 @@ public abstract class AbstractRMITestCase extends ClientServerTestCase
         }
     }
 
+    @Test
     public void test_getException() throws Exception
     {
         java.lang.Object obj = server.getException();
@@ -264,6 +279,7 @@ public abstract class AbstractRMITestCase extends ClientServerTestCase
         assertEquals(-7777, na.getNegativeArgument());
     }
 
+    @Test
     public void test_getZooValue() throws Exception
     {
         java.lang.Object obj = server.getZooValue();
@@ -273,6 +289,7 @@ public abstract class AbstractRMITestCase extends ClientServerTestCase
                 obj);
     }
 
+    @Test
     public void test_referenceSharingWithinArray() throws Exception
     {
         int n = 100;
@@ -293,20 +310,21 @@ public abstract class AbstractRMITestCase extends ClientServerTestCase
         }
     }
 
+    @Test
     public void test_referenceSharingWithinCollection() throws Exception
     {
-        java.util.Collection original = new java.util.ArrayList();
+        Collection<Foo> original = new ArrayList<Foo>();
         int n = 10;
         for (int i = 0; i < n; i++)
         {
             original.add(new Foo(100 + i, "foo collection test"));
         }
-        java.util.Collection echoedBack =
+        Collection echoedBack =
             server.testReferenceSharingWithinCollection(original);
         assertEquals(2 * n, echoedBack.size());
 
-        java.util.ArrayList originalList = (java.util.ArrayList)original;
-        java.util.ArrayList echoedList = (java.util.ArrayList)echoedBack;
+        ArrayList originalList = (ArrayList)original;
+        ArrayList echoedList = (ArrayList)echoedBack;
 
 
         for (int i = 0; i < n; i++)
@@ -317,9 +335,10 @@ public abstract class AbstractRMITestCase extends ClientServerTestCase
         }
     }
 
+    @Test
     public void test_getVectorWithObjectArrayAsElement() throws Exception
     {
-        java.util.Vector vector =
+        Vector vector =
             server.getVectorWithObjectArrayAsElement();
         assertTrue(vector.size() == 1);
         Object[] inner = (Object[]) vector.get(0);
@@ -328,28 +347,31 @@ public abstract class AbstractRMITestCase extends ClientServerTestCase
         assertEquals("Third Element", inner[2]);
     }
 
+    @Test
     public void test_getVectorWithVectorAsElement() throws Exception
     {
-        java.util.Vector vector =
+        Vector vector =
             server.getVectorWithVectorAsElement();
         assertTrue(vector.size() == 1);
-        java.util.Vector inner = (java.util.Vector) vector.get(0);
+        Vector inner = (Vector) vector.get(0);
         assertEquals(new Integer(1), inner.get(0));
         assertEquals(new Integer(2), inner.get(1));
         assertEquals("Third Element", inner.get(2));
     }
 
+    @Test
     public void test_getVectorWithHashtableAsElement() throws Exception
     {
-        java.util.Vector vector =
+        Vector vector =
             server.getVectorWithHashtableAsElement();
         assertTrue(vector.size() == 1);
-        java.util.Hashtable inner = (java.util.Hashtable) vector.get(0);
+        Hashtable inner = (Hashtable) vector.get(0);
         assertEquals(new Integer(1), inner.get(new Integer(0)));
         assertEquals(new Integer(2), inner.get(new Integer(1)));
         assertEquals("Third Element", inner.get(new Integer(2)));
     }
 
+    @Test
     public void testPassStaticInnerClass() throws Exception
     {
         StaticInner expect = new StaticInner("staticInner");
@@ -357,6 +379,7 @@ public abstract class AbstractRMITestCase extends ClientServerTestCase
         assertEquals(expect, result);
     }
 
+    @Test
     public void testPassInnerClass() throws Exception
     {
         Outer expect = new Outer("outer");
@@ -364,15 +387,17 @@ public abstract class AbstractRMITestCase extends ClientServerTestCase
         assertEquals(expect, result);
     }
 
+    @Test
     public void testPassCollection() throws Exception
     {
         assertEquals(0, server.sizeOfCollection(Collections.EMPTY_LIST));
     }
 
+    @Test
     public void testPassSerializable0() throws Exception
     {
         Date date = new Date();
-        ArrayList list = new ArrayList();
+        ArrayList<ObjectParam> list = new ArrayList<ObjectParam>();
         ObjectParam param = new ObjectParam(date.toString());
         list.add(param);
 
@@ -380,10 +405,11 @@ public abstract class AbstractRMITestCase extends ClientServerTestCase
         assertEquals(param.payload, ((ObjectParam)result.get(0)).payload);
     }
 
+    @Test
     public void testPassSerializable1() throws Exception
     {
         Date date = new Date();
-        ArrayList list = new ArrayList();
+        ArrayList<StringParam> list = new ArrayList<StringParam>();
         StringParam param = new StringParam(date.toString());
         list.add(param);
 

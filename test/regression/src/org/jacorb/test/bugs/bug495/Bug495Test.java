@@ -20,28 +20,24 @@ package org.jacorb.test.bugs.bug495;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import junit.framework.Test;
-import junit.framework.TestSuite;
+import static org.junit.Assert.fail;
 import org.jacorb.test.ArrayTypeHelper;
 import org.jacorb.test.Bound;
 import org.jacorb.test.StructType;
 import org.jacorb.test.StructTypeHelper;
 import org.jacorb.test.orb.dynany.DynAnyXXXTestCase;
+import org.junit.Test;
 import org.omg.CORBA.StringSeqHelper;
 import org.omg.CORBA.TypeCode;
 
 
 public class Bug495Test extends DynAnyXXXTestCase
 {
-   public static Test suite ()
-   {
-      return new TestSuite (Bug495Test.class, "Bug495 Tests");
-   }
-
    /**
     * Test current_component returns the same object.
     */
-   public void testCurrentComponentSequenceDynAny () throws Exception
+    @Test
+    public void testCurrentComponentSequenceDynAny () throws Exception
    {
       TypeCode tc = null;
       org.omg.DynamicAny.DynSequence dynAny = null;
@@ -61,7 +57,8 @@ public class Bug495Test extends DynAnyXXXTestCase
    /**
     * Test current_component returns the same object.
     */
-   public void testCurrentComponentArrayDynAny () throws Exception
+    @Test
+    public void testCurrentComponentArrayDynAny () throws Exception
    {
       org.omg.DynamicAny.DynArray dynAny = null;
 
@@ -80,7 +77,8 @@ public class Bug495Test extends DynAnyXXXTestCase
    /**
     * Test current_component returns the same object.
     */
-   public void testCurrentComponentStructDynAny () throws Exception
+    @Test
+    public void testCurrentComponentStructDynAny () throws Exception
    {
       StructType type = null;
       org.omg.CORBA.Any any = null;

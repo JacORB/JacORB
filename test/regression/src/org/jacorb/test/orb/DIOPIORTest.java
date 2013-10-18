@@ -20,9 +20,13 @@ package org.jacorb.test.orb;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 import java.util.List;
 import org.jacorb.orb.ParsedIOR;
 import org.jacorb.test.common.ORBTestCase;
+import org.junit.Test;
+import org.omg.ETF.Profile;
 
 /**
  * <code>DIOPIORTest</code> tests that JacORB can decode a DIOP IOR - this
@@ -42,11 +46,12 @@ public class DIOPIORTest extends ORBTestCase
      * this we create a ParsedIOR with the known IOR and test that the number
      * of profile bodies is greater than zero.
      */
+    @Test
     public void testDecode1 ()
     {
         final ParsedIOR pior = new ParsedIOR((org.jacorb.orb.ORB) orb, ior);
 
-        List bodies = pior.getProfiles();
+        List<Profile> bodies = pior.getProfiles();
 
         assertNotNull("did not get bodies", bodies);
         assertTrue("did not get bodies", bodies.size() > 0);

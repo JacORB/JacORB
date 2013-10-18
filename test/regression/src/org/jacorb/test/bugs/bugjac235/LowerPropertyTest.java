@@ -1,18 +1,14 @@
 package org.jacorb.test.bugs.bugjac235;
 
+import static org.junit.Assert.fail;
 import java.util.Properties;
-import junit.framework.Test;
-import junit.framework.TestSuite;
 import org.jacorb.test.common.ClientServerSetup;
-import org.jacorb.test.common.TestUtils;
+import org.junit.BeforeClass;
+import org.junit.Test;
 
 public class LowerPropertyTest extends AbstractTestCase
 {
-    public LowerPropertyTest(String name, ClientServerSetup setup)
-    {
-        super(name, setup);
-    }
-
+    @Test
     public void testTimeout() throws Exception
     {
         setTimeout(2000);
@@ -43,16 +39,11 @@ public class LowerPropertyTest extends AbstractTestCase
         server.hello (1500);
     }
 
-    public static Test suite()
+    @BeforeClass
+    public static void beforeClassSetUp() throws Exception
     {
-        TestSuite suite = new TestSuite ("JAC235 Reply Timeout test");
-
         final Properties serverProps = new Properties();
         serverProps.setProperty(PROP_PENDING_REPLY_TIMEOUT, "1000");
-        ClientServerSetup setup = new ClientServerSetup(suite, JAC235Impl.class.getName(), serverProps, serverProps);
-
-        TestUtils.addToSuite(suite, setup, LowerPropertyTest.class);
-
-        return setup;
+        setup = new ClientServerSetup(JAC235Impl.class.getName(), serverProps, serverProps);
     }
 }

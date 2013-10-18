@@ -21,19 +21,22 @@
 
 package org.jacorb.test.orb.factory;
 
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 import java.io.IOException;
 import java.net.BindException;
 import java.net.InetAddress;
 import java.net.ServerSocket;
-import junit.framework.TestCase;
 import org.easymock.MockControl;
 import org.jacorb.config.Configurable;
 import org.jacorb.config.Configuration;
 import org.jacorb.orb.factory.PortRangeServerSocketFactory;
 import org.jacorb.orb.factory.ServerSocketFactory;
+import org.junit.Before;
+import org.junit.Test;
 import org.slf4j.Logger;
 
-public class PortRangeServerSocketFactoryTest extends TestCase
+public class PortRangeServerSocketFactoryTest
 {
     private PortRangeServerSocketFactory objectUnderTest;
 
@@ -44,10 +47,9 @@ public class PortRangeServerSocketFactoryTest extends TestCase
     private MockControl loggerControl;
     private Logger loggerMock;
 
-    protected void setUp() throws Exception
+    @Before
+    public void setUp() throws Exception
     {
-        super.setUp();
-
         configurationControl = MockControl.createControl(Configuration.class);
         configurationMock = (Configuration) configurationControl.getMock();
 
@@ -64,6 +66,7 @@ public class PortRangeServerSocketFactoryTest extends TestCase
         objectUnderTest = new PortRangeServerSocketFactory(factoryDelegateMock);
     }
 
+    @Test
     public void testFactoryIsConfigurable()
     {
         assertTrue(objectUnderTest instanceof Configurable);
@@ -73,6 +76,7 @@ public class PortRangeServerSocketFactoryTest extends TestCase
      * Test method for 'org.jacorb.orb.factory.PortRangeServerSocketFactory.createServerSocket(int,
      * int)'
      */
+    @Test
     public void testCreateServerSocketIntInt() throws Exception
     {
 
@@ -94,6 +98,7 @@ public class PortRangeServerSocketFactoryTest extends TestCase
      * Test method for 'org.jacorb.orb.factory.PortRangeServerSocketFactory.createServerSocket(int,
      * int, InetAddress)'
      */
+    @Test
     public void testCreateServerSocketIntIntInetAddress() throws Exception
     {
         final InetAddress localhost = InetAddress.getByName("localhost");
@@ -111,6 +116,7 @@ public class PortRangeServerSocketFactoryTest extends TestCase
         verifyAll();
     }
 
+    @Test
     public void testCreateServerSocketIntPortWithinBounds() throws Exception
     {
         factoryDelegateMock.createServerSocket(5);
@@ -127,6 +133,7 @@ public class PortRangeServerSocketFactoryTest extends TestCase
         verifyAll();
     }
 
+    @Test
     public void testCreateServerSocketIntPortOutsideBounds() throws Exception
     {
         factoryDelegateMock.createServerSocket(1);
@@ -143,6 +150,7 @@ public class PortRangeServerSocketFactoryTest extends TestCase
         verifyAll();
     }
 
+    @Test
     public void testCreateFailsIfCannotFindFreePort() throws Exception
     {
         factoryDelegateMock.createServerSocket(1);

@@ -22,11 +22,16 @@ package org.jacorb.test.orb.rmi;
 
 import java.io.Serializable;
 import java.rmi.RemoteException;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Hashtable;
+import java.util.Iterator;
 import java.util.Properties;
+import java.util.Vector;
 import javax.rmi.PortableRemoteObject;
 import org.jacorb.test.orb.rmi.Outer.StaticInner;
 
+@SuppressWarnings({"rawtypes", "unchecked"})
 public class RMITestImpl
         extends PortableRemoteObject
         implements RMITestInterface
@@ -116,10 +121,10 @@ public class RMITestImpl
         return RMITestUtil.echoBoo(boo);
     }
 
-    public java.util.Vector valueArrayToVector(Foo[] a)
+    public Vector valueArrayToVector(Foo[] a)
         throws java.rmi.RemoteException
     {
-        java.util.Vector v = new java.util.Vector();
+        Vector<Foo> v = new Vector<Foo>();
 
         for (int i = 0; i < a.length; i++)
         {
@@ -128,7 +133,7 @@ public class RMITestImpl
         return v;
     }
 
-    public Foo[] vectorToValueArray(java.util.Vector v)
+    public Foo[] vectorToValueArray(Vector v)
         throws java.rmi.RemoteException
     {
         Foo a[] = new Foo[v.size()];
@@ -174,11 +179,11 @@ public class RMITestImpl
         return b;
     }
 
-    public java.util.Collection testReferenceSharingWithinCollection(
-            java.util.Collection cin) throws java.rmi.RemoteException
+    public Collection testReferenceSharingWithinCollection(
+            Collection cin) throws java.rmi.RemoteException
     {
-        java.util.Collection cout = new java.util.ArrayList(cin);
-        java.util.Iterator i = cin.iterator();
+        Collection cout = new ArrayList(cin);
+        Iterator i = cin.iterator();
         while (i.hasNext())
         {
             cout.add(i.next());
@@ -186,10 +191,10 @@ public class RMITestImpl
         return cout;
     }
 
-    public java.util.Vector getVectorWithObjectArrayAsElement()
+    public Vector getVectorWithObjectArrayAsElement()
             throws java.rmi.RemoteException
     {
-        java.util.Vector vector = new java.util.Vector();
+        Vector vector = new Vector();
         Object[] innerArray = new Object[3];
         innerArray[0] = new Integer(1);
         innerArray[1] = new Integer(2);
@@ -198,11 +203,11 @@ public class RMITestImpl
         return vector;
     }
 
-    public java.util.Vector getVectorWithVectorAsElement()
+    public Vector getVectorWithVectorAsElement()
             throws java.rmi.RemoteException
     {
-        java.util.Vector vector = new java.util.Vector();
-        java.util.Vector innerVector = new java.util.Vector();
+        Vector vector = new Vector();
+        Vector innerVector = new Vector();
         innerVector.add(new Integer(1));
         innerVector.add(new Integer(2));
         innerVector.add("Third Element");
@@ -210,11 +215,11 @@ public class RMITestImpl
         return vector;
     }
 
-    public java.util.Vector getVectorWithHashtableAsElement()
+    public Vector getVectorWithHashtableAsElement()
             throws java.rmi.RemoteException
     {
-        java.util.Vector vector = new java.util.Vector();
-        java.util.Hashtable innerHash = new java.util.Hashtable();
+        Vector vector = new Vector();
+        Hashtable innerHash = new Hashtable();
         innerHash.put(new Integer(0), new Integer(1));
         innerHash.put(new Integer(1), new Integer(2));
         innerHash.put(new Integer(2), "Third Element");

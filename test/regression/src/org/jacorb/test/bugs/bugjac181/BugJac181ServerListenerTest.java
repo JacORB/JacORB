@@ -1,19 +1,23 @@
 package org.jacorb.test.bugs.bugjac181;
 
+import static org.junit.Assert.assertTrue;
 import java.util.Properties;
-import junit.framework.TestCase;
 import org.jacorb.orb.factory.SocketFactoryManager;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 import org.omg.CORBA.ORB;
 import org.omg.PortableServer.POA;
 import org.omg.PortableServer.POAHelper;
 
-public class BugJac181ServerListenerTest extends TestCase
+public class BugJac181ServerListenerTest
 {
     private ORB clientORB;
     private ORB serverORB;
     private JAC181 server;
 
-    protected void setUp() throws Exception
+    @Before
+    public void setUp() throws Exception
     {
         TCPListener.reset();
 
@@ -35,7 +39,8 @@ public class BugJac181ServerListenerTest extends TestCase
         server = JAC181Helper.narrow(clientORB.string_to_object(objString));
     }
 
-    protected void tearDown() throws Exception
+    @After
+    public void tearDown() throws Exception
     {
         server._release();
         server = null;
@@ -45,6 +50,7 @@ public class BugJac181ServerListenerTest extends TestCase
         serverORB = null;
     }
 
+    @Test
     public void testListener() throws Exception
     {
         server.ping2();

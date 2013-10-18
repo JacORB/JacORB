@@ -21,18 +21,20 @@
 
 package org.jacorb.test.notification.queue;
 
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 import org.easymock.MockControl;
 import org.jacorb.notification.interfaces.Message;
 import org.jacorb.notification.queue.BoundedDeadlineEventQueue;
 import org.jacorb.notification.queue.EventQueueOverflowStrategy;
+import org.junit.Before;
+import org.junit.Test;
 
 /**
  * @author Alphonse Bendt
  */
-public class BoundedDeadlineEventQueueTest extends TestCase
+public class BoundedDeadlineEventQueueTest
 {
     private BoundedDeadlineEventQueue objectUnderTest_;
 
@@ -48,7 +50,8 @@ public class BoundedDeadlineEventQueueTest extends TestCase
 
     private Message mockMessage3_;
 
-    protected void setUp()
+    @Before
+    public void setUp()
     {
         objectUnderTest_ = new BoundedDeadlineEventQueue(2,
                 EventQueueOverflowStrategy.EARLIEST_TIMEOUT);
@@ -62,6 +65,7 @@ public class BoundedDeadlineEventQueueTest extends TestCase
         mockMessage3_ = (Message) controlMessage3_.getMock();
     }
 
+    @Test
     public void testGetSingleNonBlocking() throws Exception
     {
         mockMessage1_.hasTimeout();
@@ -78,6 +82,7 @@ public class BoundedDeadlineEventQueueTest extends TestCase
         verifyAll();
     }
 
+    @Test
     public void testGetAllNonBlocking() throws Exception
     {
         mockMessage1_.hasTimeout();
@@ -94,6 +99,7 @@ public class BoundedDeadlineEventQueueTest extends TestCase
         verifyAll();
     }
 
+    @Test
     public void testGetAllClearsQueue() throws Exception
     {
         mockMessage1_.hasTimeout();
@@ -108,6 +114,7 @@ public class BoundedDeadlineEventQueueTest extends TestCase
         verifyAll();
     }
 
+    @Test
     public void testInsert() throws Exception
     {
         mockMessage1_.hasTimeout();
@@ -130,6 +137,7 @@ public class BoundedDeadlineEventQueueTest extends TestCase
         verifyAll();
     }
 
+    @Test
     public void testOverflow() throws Exception
     {
         mockMessage1_.hasTimeout();
@@ -167,6 +175,7 @@ public class BoundedDeadlineEventQueueTest extends TestCase
      * size of array returned by
      * getEvents was size +1. also entries in queue could get lost.
      */
+    @Test
     public void testGetEvents() throws Exception
     {
         mockMessage1_.hasTimeout();
@@ -198,10 +207,5 @@ public class BoundedDeadlineEventQueueTest extends TestCase
         controlMessage1_.verify();
         controlMessage2_.verify();
         controlMessage3_.verify();
-    }
-
-    public static Test suite()
-    {
-        return new TestSuite(BoundedDeadlineEventQueueTest.class);
     }
 }

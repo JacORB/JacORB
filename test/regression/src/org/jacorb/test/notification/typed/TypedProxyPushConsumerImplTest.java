@@ -20,7 +20,10 @@ package org.jacorb.test.notification.typed;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import junit.framework.Test;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 import org.easymock.AbstractMatcher;
 import org.easymock.MockControl;
 import org.jacorb.notification.OfferManager;
@@ -31,7 +34,8 @@ import org.jacorb.notification.interfaces.Message;
 import org.jacorb.notification.servant.ITypedAdmin;
 import org.jacorb.notification.servant.TypedProxyPushConsumerImpl;
 import org.jacorb.test.notification.common.NotificationTestCase;
-import org.jacorb.test.notification.common.NotificationTestCaseSetup;
+import org.junit.Before;
+import org.junit.Test;
 import org.omg.CORBA.Any;
 import org.omg.CORBA.NO_IMPLEMENT;
 import org.omg.CosNotification.EventType;
@@ -63,7 +67,8 @@ public class TypedProxyPushConsumerImplTest extends NotificationTestCase
 
     private SupplierAdmin mockSupplierAdmin_;
 
-    public void setUpTest() throws Exception
+    @Before
+    public void setUp() throws Exception
     {
         controlAdmin_ = MockControl.createNiceControl(ITypedAdmin.class);
         mockAdmin_ = (ITypedAdmin) controlAdmin_.getMock();
@@ -91,17 +96,14 @@ public class TypedProxyPushConsumerImplTest extends NotificationTestCase
         proxyPushConsumer_ = TypedProxyPushConsumerHelper.narrow(objectUnderTest_.activate());
     }
 
-    public TypedProxyPushConsumerImplTest(String name, NotificationTestCaseSetup setup)
-    {
-        super(name, setup);
-    }
-
+    @Test
     public void testID()
     {
         assertEquals(new Integer(10), objectUnderTest_.getID());
         assertTrue(objectUnderTest_.isIDPublic());
     }
 
+    @Test
     public void testGetTypedConsumer() throws Exception
     {
         Coffee coffee = CoffeeHelper.narrow(proxyPushConsumer_.get_typed_consumer());
@@ -111,6 +113,7 @@ public class TypedProxyPushConsumerImplTest extends NotificationTestCase
         assertTrue(coffee._is_a(CoffeeHelper.id()));
     }
 
+    @Test
     public void testInvokeDrinkingCoffee() throws Exception
     {
         MockControl controlTaskProcessor = MockControl.createControl(TaskProcessor.class);
@@ -173,11 +176,13 @@ public class TypedProxyPushConsumerImplTest extends NotificationTestCase
         controlTaskProcessor.verify();
     }
 
+    @Test
     public void testMyType() throws Exception
     {
         assertEquals(ProxyType.PUSH_TYPED, proxyPushConsumer_.MyType());
     }
 
+    @Test
     public void testPushAny() throws Exception
     {
         MockControl controlPushSupplier = MockControl.createControl(PushSupplierOperations.class);
@@ -205,11 +210,5 @@ public class TypedProxyPushConsumerImplTest extends NotificationTestCase
         }
 
         controlPushSupplier.verify();
-    }
-
-    public static Test suite() throws Exception
-    {
-        return NotificationTestCase.suite("TypedProxyPushConsumer Tests",
-                TypedProxyPushConsumerImplTest.class);
     }
 }

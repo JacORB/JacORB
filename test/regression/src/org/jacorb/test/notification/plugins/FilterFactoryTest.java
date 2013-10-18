@@ -20,7 +20,8 @@ package org.jacorb.test.notification.plugins;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import junit.framework.Test;
+import org.junit.*;
+import static org.junit.Assert.*;
 
 import org.jacorb.notification.filter.bsh.BSHFilter;
 import org.jacorb.test.notification.common.NotifyServerTestCase;
@@ -35,16 +36,13 @@ public class FilterFactoryTest extends NotifyServerTestCase
 {
     private FilterFactory objectUnderTest_;
 
-    public void setUpTest() throws Exception
+    @Before
+    public void setUp() throws Exception
     {
         objectUnderTest_ = getDefaultChannel().default_filter_factory();
     }
 
-    public FilterFactoryTest(String name, NotifyServerTestSetup setup)
-    {
-        super(name, setup);
-    }
-
+    @Test
     public void testCreateBSHFilter() throws Exception
     {
         Filter _filter = objectUnderTest_.create_filter(BSHFilter.CONSTRAINT_GRAMMAR);
@@ -52,6 +50,7 @@ public class FilterFactoryTest extends NotifyServerTestCase
         assertEquals(BSHFilter.CONSTRAINT_GRAMMAR, _filter.constraint_grammar());
     }
 
+    @Test
     public void testCreateNonExisting() throws Exception
     {
         try
@@ -64,7 +63,8 @@ public class FilterFactoryTest extends NotifyServerTestCase
         }
     }
 
-    public static Test suite() throws Exception
+    @BeforeClass
+    public static void beforeClassSetUp() throws Exception throws Exception
     {
         return NotifyServerTestCase.suite(FilterFactoryTest.class);
     }

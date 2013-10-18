@@ -21,17 +21,18 @@
 
 package org.jacorb.test.notification.util;
 
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import org.jacorb.notification.EventTypeWrapper;
+import org.junit.Test;
 import org.omg.CosNotification.EventType;
 
 /**
  * @author Alphonse Bendt
  */
-public class EventTypeUtilTest extends TestCase
+public class EventTypeUtilTest
 {
+    @Test
     public void testToString()
     {
         EventType et = new EventType();
@@ -44,6 +45,7 @@ public class EventTypeUtilTest extends TestCase
         assertEquals("domain/type", str);
     }
     
+    @Test
     public void testArrayToString()
     {
         EventType et = new EventType();
@@ -58,9 +60,4 @@ public class EventTypeUtilTest extends TestCase
         
         assertNotNull(str);
     }
-    
-    public static Test suite()
-    {
-        return new TestSuite(EventTypeUtilTest.class);
     }
-}

@@ -20,12 +20,16 @@
 
 package org.jacorb.test.orb;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 import java.util.Arrays;
 import java.util.Collections;
 import org.easymock.MockControl;
 import org.jacorb.config.Configuration;
 import org.jacorb.orb.ObjectKeyMap;
 import org.jacorb.test.common.ORBTestCase;
+import org.junit.Before;
+import org.junit.Test;
 import org.omg.CORBA.BAD_PARAM;
 
 /**
@@ -43,16 +47,19 @@ public class ObjectKeyMapTest extends ORBTestCase
 
     private ObjectKeyMap objectUnderTest;
 
-    protected void doSetUp() throws Exception
+    @Before
+    public void setUp() throws Exception
     {
         objectUnderTest = new ObjectKeyMap((org.jacorb.orb.ORB)orb);
     }
 
+    @Test
     public void testWithoutMappingUnmodifiedKeyIsUsed()
     {
         assertEqualString(shortKeyBytes, objectUnderTest.mapObjectKey(shortKeyBytes));
     }
 
+    @Test
     public void testAddObjectKey()
     {
         objectUnderTest.addObjectKey(shortKey, longKey);
@@ -60,6 +67,7 @@ public class ObjectKeyMapTest extends ORBTestCase
         assertEqualString(longKeyBytes, objectUnderTest.mapObjectKey(shortKeyBytes));
     }
 
+    @Test
     public void testAddObjectKeyAsBogusIORFails()
     {
         objectUnderTest.addObjectKey(shortKey, "corbaloc:localhost:1234/RootPOA/" + longKey);
@@ -74,6 +82,7 @@ public class ObjectKeyMapTest extends ORBTestCase
         }
     }
 
+    @Test
     public void testAddObjectKeyAsIOR()
     {
         objectUnderTest.addObjectKey(shortKey, "corbaloc::localhost:1234/" + longKey);
@@ -81,6 +90,7 @@ public class ObjectKeyMapTest extends ORBTestCase
         assertEqualString(longKeyBytes, objectUnderTest.mapObjectKey(shortKeyBytes));
     }
 
+    @Test
     public void testAddObjectAsObject()
     {
         String corbaloc = "corbaloc::localhost:1234/" + longKey;
@@ -91,6 +101,7 @@ public class ObjectKeyMapTest extends ORBTestCase
     }
 
 
+    @Test
     public void testConfigureWithEmptyMap()
     {
         configControl.expectAndReturn(configMock.getAttributeNamesWithPrefix("jacorb.orb.objectKeyMap."), Collections.EMPTY_LIST);
@@ -104,6 +115,7 @@ public class ObjectKeyMapTest extends ORBTestCase
         configControl.verify();
     }
 
+    @Test
     public void testConfigureWithOneEntry() throws Exception
     {
         String configKey = "jacorb.orb.objectKeyMap." + shortKey;

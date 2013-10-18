@@ -1,9 +1,8 @@
 package org.jacorb.test.orb;
 
+import static org.junit.Assert.fail;
 import java.lang.reflect.Field;
 import junit.framework.AssertionFailedError;
-import junit.framework.Test;
-import junit.framework.TestSuite;
 import org.jacorb.orb.CDROutputStream;
 import org.jacorb.orb.ExceptionHolderImpl;
 import org.jacorb.test.AMI_CallbackServerHandler;
@@ -16,7 +15,9 @@ import org.jacorb.test.NonEmptyException;
 import org.jacorb.test._CallbackServerStub;
 import org.jacorb.test.common.CallbackTestCase;
 import org.jacorb.test.common.ClientServerSetup;
-import org.jacorb.test.common.TestUtils;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
 import org.omg.CORBA.UserException;
 import org.omg.Messaging.ExceptionHolder;
 
@@ -26,30 +27,17 @@ public class CallbackTest extends CallbackTestCase
 
     private static final char EURO_SIGN = '\u20AC'; // not a CORBA char
 
-    public CallbackTest(String name, ClientServerSetup setup)
-    {
-        super(name, setup);
-    }
-
+    @Before
     public void setUp() throws Exception
     {
         server = CallbackServerHelper.narrow( setup.getServerObject() );
     }
 
-    protected void tearDown() throws Exception
+    @BeforeClass
+    public static void beforeClassSetUp() throws Exception
     {
-        server = null;
-    }
+        setup = new ClientServerSetup( "org.jacorb.test.orb.CallbackServerImpl" );
 
-    public static Test suite()
-    {
-        TestSuite suite = new TestSuite( "Callback Test" );
-        ClientServerSetup setup = new ClientServerSetup
-            ( suite, "org.jacorb.test.orb.CallbackServerImpl" );
-
-        TestUtils.addToSuite(suite, setup, CallbackTest.class);
-
-        return setup;
     }
 
     private class ReplyHandler
@@ -162,11 +150,13 @@ public class CallbackTest extends CallbackTestCase
         return tie._this( setup.getClientOrb() );
     }
 
+    @Test
     public void test_sync_ping()
     {
         server.ping();
     }
 
+    @Test
     public void test_ping()
     {
         ReplyHandler handler = new ReplyHandler()
@@ -181,6 +171,7 @@ public class CallbackTest extends CallbackTestCase
         handler.wait_for_reply( 1000 );
     }
 
+    @Test
     public void test_delayed_ping()
     {
         ReplyHandler handler = new ReplyHandler()
@@ -196,6 +187,7 @@ public class CallbackTest extends CallbackTestCase
         handler.wait_for_reply( 700 );
     }
 
+    @Test
     public void test_pass_in_char()
     {
         ReplyHandler handler = new ReplyHandler()
@@ -211,6 +203,7 @@ public class CallbackTest extends CallbackTestCase
         handler.wait_for_reply( 200 );
     }
 
+    @Test
     public void test_pass_in_illegal_char()
     {
         ReplyHandler handler = new ReplyHandler();
@@ -227,6 +220,7 @@ public class CallbackTest extends CallbackTestCase
         }
     }
 
+    @Test
     public void test_return_char()
     {
         ReplyHandler handler = new ReplyHandler()
@@ -242,6 +236,7 @@ public class CallbackTest extends CallbackTestCase
         handler.wait_for_reply( 200 );
     }
 
+    @Test
     public void test_return_illegal_char()
     {
         ReplyHandler handler = new ReplyHandler()
@@ -258,6 +253,7 @@ public class CallbackTest extends CallbackTestCase
         handler.wait_for_reply( 500 );
     }
 
+    @Test
     public void test_complex_operation()
     {
         ReplyHandler handler = new ReplyHandler()
@@ -275,6 +271,7 @@ public class CallbackTest extends CallbackTestCase
         handler.wait_for_reply( 200 );
     }
 
+    @Test
     public void test_empty_exception()
     {
         ReplyHandler handler = new ReplyHandler()
@@ -291,6 +288,7 @@ public class CallbackTest extends CallbackTestCase
         handler.wait_for_reply( 500 );
     }
 
+    @Test
     public void test_empty_exception_not_raised()
     {
         ReplyHandler handler = new ReplyHandler()
@@ -305,6 +303,7 @@ public class CallbackTest extends CallbackTestCase
         handler.wait_for_reply( 500 );
     }
 
+    @Test
     public void test_non_empty_exception()
     {
         ReplyHandler handler = new ReplyHandler()
@@ -339,6 +338,7 @@ public class CallbackTest extends CallbackTestCase
         handler.wait_for_reply( 500 );
     }
 
+    @Test
     public void test_either_exception_1()
     {
         ReplyHandler handler = new ReplyHandler()
@@ -355,6 +355,7 @@ public class CallbackTest extends CallbackTestCase
         handler.wait_for_reply( 500 );
     }
 
+    @Test
     public void test_either_exception_2()
     {
         ReplyHandler handler = new ReplyHandler()
@@ -372,6 +373,7 @@ public class CallbackTest extends CallbackTestCase
     }
 
 
+    @Test
     public void test_jac492_exceptionholderlogging()
     {
         // This decidely hacky set of code is to provoke a rather unlikely error
@@ -394,6 +396,7 @@ public class CallbackTest extends CallbackTestCase
                     break;
                 }
             }
+            cdr.close();
             eh.raise_exception ();
 
             fail ("No exception raised");

@@ -3,7 +3,6 @@ package org.jacorb.test.bugs.bug923;
 import java.util.HashMap;
 import org.omg.CORBA.LocalObject;
 import org.omg.CORBA.OBJECT_NOT_EXIST;
-import org.omg.CORBA.ORB;
 import org.omg.PortableServer.POA;
 import org.omg.PortableServer.Servant;
 import org.omg.PortableServer.ServantLocator;
@@ -11,12 +10,10 @@ import org.omg.PortableServer.ServantLocator;
 class ServantLocatorImpl extends LocalObject implements ServantLocator {
 
    private POA poa;
-   private ORB orb;
    private HashMap<String,Servant> m_activateObjectMap = new HashMap<String,Servant>();
 
     ServantLocatorImpl(org.omg.CORBA.ORB orb, POA poa) {
       this.poa = poa;
-      this.orb = orb;
    }
 
    public Servant preinvoke(byte[] oid, POA adapter, String operation

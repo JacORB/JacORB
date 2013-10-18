@@ -21,10 +21,12 @@ package org.jacorb.test.notification;
  *
  */
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 import java.util.Date;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicBoolean;
-import junit.framework.Test;
 import org.jacorb.notification.engine.DefaultTaskFactory;
 import org.jacorb.notification.engine.DefaultTaskProcessor;
 import org.jacorb.notification.impl.DefaultMessageFactory;
@@ -32,8 +34,9 @@ import org.jacorb.notification.interfaces.FilterStage;
 import org.jacorb.notification.interfaces.Message;
 import org.jacorb.notification.servant.IProxyConsumer;
 import org.jacorb.test.notification.common.NotificationTestCase;
-import org.jacorb.test.notification.common.NotificationTestCaseSetup;
 import org.jacorb.util.Time;
+import org.junit.Before;
+import org.junit.Test;
 import org.omg.CORBA.Any;
 import org.omg.CosNotification.EventHeader;
 import org.omg.CosNotification.EventType;
@@ -75,12 +78,8 @@ public class StartTimeTest extends NotificationTestCase
 
     ////////////////////////////////////////
 
-    public StartTimeTest(String name, NotificationTestCaseSetup setup)
-    {
-        super(name, setup);
-    }
-
-    public void setUpTest() throws Exception
+    @Before
+    public void setUp() throws Exception
     {
         messageFactory_ = new DefaultMessageFactory(getORB(), getConfiguration());
         addDisposable(messageFactory_);
@@ -100,6 +99,7 @@ public class StartTimeTest extends NotificationTestCase
         structuredEvent_.remainder_of_body = getORB().create_any();
     }
 
+    @Test
     public void testStructuredEventWithoutStartTimeProperty() throws Exception
     {
         Message _event = messageFactory_.newMessage(structuredEvent_);
@@ -107,6 +107,7 @@ public class StartTimeTest extends NotificationTestCase
         assertTrue(!_event.hasStartTime());
     }
 
+    @Test
     public void testAnyEventHasNoStartTime() throws Exception
     {
         Message _event = messageFactory_.newMessage(getORB().create_any());
@@ -114,6 +115,7 @@ public class StartTimeTest extends NotificationTestCase
         assertTrue(!_event.hasStartTime());
     }
 
+    @Test
     public void testStructuredEventWithStartTimeProperty() throws Exception
     {
         structuredEvent_.header.variable_header = new Property[1];
@@ -132,6 +134,7 @@ public class StartTimeTest extends NotificationTestCase
         assertEquals(_now.getTime(), _event.getStartTime());
     }
 
+    @Test
     public void testProcessEventWithStartTime() throws Exception
     {
         processEventWithStartTime(0);
@@ -186,10 +189,5 @@ public class StartTimeTest extends NotificationTestCase
         assertFalse(failed.get());
 
         _taskProcessor.dispose();
-    }
-
-    public static Test suite() throws Exception
-    {
-        return NotificationTestCase.suite(StartTimeTest.class);
     }
 }

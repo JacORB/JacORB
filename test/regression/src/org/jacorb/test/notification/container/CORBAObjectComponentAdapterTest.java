@@ -21,11 +21,12 @@
 
 package org.jacorb.test.notification.container;
 
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 import org.easymock.MockControl;
 import org.jacorb.notification.container.CORBAObjectComponentAdapter;
+import org.junit.Before;
+import org.junit.Test;
 import org.omg.CosNotifyChannelAdmin.EventChannel;
 import org.omg.CosNotifyChannelAdmin.EventChannelHelper;
 import org.picocontainer.MutablePicoContainer;
@@ -35,7 +36,7 @@ import org.picocontainer.defaults.DefaultPicoContainer;
 /**
  * @author Alphonse Bendt
  */
-public class CORBAObjectComponentAdapterTest extends TestCase
+public class CORBAObjectComponentAdapterTest
 {
     private MutablePicoContainer container;
 
@@ -43,10 +44,9 @@ public class CORBAObjectComponentAdapterTest extends TestCase
 
     private org.omg.CORBA.Object mockObject;
 
-    protected void setUp() throws Exception
+    @Before
+    public void setUp() throws Exception
     {
-        super.setUp();
-
         container = new DefaultPicoContainer();
 
         controlObject = MockControl.createControl(org.omg.CORBA.Object.class);
@@ -54,6 +54,7 @@ public class CORBAObjectComponentAdapterTest extends TestCase
         mockObject = (org.omg.CORBA.Object) controlObject.getMock();
     }
 
+    @Test
     public void testAddReference()
     {
         mockObject._is_a("");
@@ -69,6 +70,7 @@ public class CORBAObjectComponentAdapterTest extends TestCase
         controlObject.verify();
     }
 
+    @Test
     public void testAddWrongReference()
     {
         mockObject._is_a(EventChannelHelper.id());
@@ -84,10 +86,5 @@ public class CORBAObjectComponentAdapterTest extends TestCase
             // expected
         }
         controlObject.verify();
-    }
-
-    public static Test suite()
-    {
-        return new TestSuite(CORBAObjectComponentAdapterTest.class);
     }
 }

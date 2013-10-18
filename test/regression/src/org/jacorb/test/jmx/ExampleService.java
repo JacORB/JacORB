@@ -25,7 +25,7 @@ public class ExampleService implements ExampleServiceMBean
 {
     private String string;
     private int counter;
-    
+
     public String getString()
     {
         return string;

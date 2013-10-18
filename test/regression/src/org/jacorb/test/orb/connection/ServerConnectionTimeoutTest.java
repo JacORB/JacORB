@@ -21,13 +21,13 @@ package org.jacorb.test.orb.connection;
  */
 
 import java.util.Properties;
-import junit.framework.Test;
-import junit.framework.TestSuite;
 import org.jacorb.test.TestIf;
 import org.jacorb.test.TestIfHelper;
 import org.jacorb.test.common.ClientServerSetup;
 import org.jacorb.test.common.ClientServerTestCase;
-import org.jacorb.test.common.TestUtils;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
 
 /**
  * @author Nicolas Noffke
@@ -36,39 +36,26 @@ public class ServerConnectionTimeoutTest extends ClientServerTestCase
 {
     private TestIf server;
 
-    public ServerConnectionTimeoutTest(String name, ClientServerSetup setup)
-    {
-        super(name, setup);
-    }
-
+    @Before
     public void setUp() throws Exception
     {
         server = TestIfHelper.narrow( setup.getServerObject() );
     }
 
-    protected void tearDown() throws Exception
+    @BeforeClass
+    public static void beforeClassSetUp() throws Exception
     {
-        server = null;
-    }
-
-    public static Test suite()
-    {
-        TestSuite suite = new TestSuite( "Server connection idle-timeout tests" );
 
         Properties server_props = new Properties();
         server_props.setProperty( "jacorb.connection.server.timeout", "1000" );
 
-        ClientServerSetup setup =
-            new ClientServerSetup( suite,
-                                   ConnectionTimeoutServerImpl.class.getName(),
+        setup = new ClientServerSetup(ConnectionTimeoutServerImpl.class.getName(),
                                    null,
                                    server_props );
 
-        TestUtils.addToSuite(suite, setup, ServerConnectionTimeoutTest.class);
-
-        return setup;
     }
 
+    @Test
     public void testTimeout() throws Exception
     {
         //call remote op with reply

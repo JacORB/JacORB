@@ -20,12 +20,15 @@
 
 package org.jacorb.test.orb.typecode;
 
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 import java.util.HashMap;
 import java.util.Map;
 import org.jacorb.orb.CDRInputStream;
 import org.jacorb.orb.typecode.PrimitiveTypeCodeReader;
 import org.jacorb.orb.typecode.TypeCodeReader;
 import org.jacorb.test.common.ORBTestCase;
+import org.junit.Test;
 import org.omg.CORBA.BAD_PARAM;
 import org.omg.CORBA.TCKind;
 import org.omg.CORBA.TypeCode;
@@ -37,9 +40,12 @@ import org.omg.CORBA.portable.OutputStream;
 public class PrimitiveTypeCodeReaderTest extends ORBTestCase
 {
     private TypeCodeReader objectUnderTest = new PrimitiveTypeCodeReader();
+    @SuppressWarnings("rawtypes")
     private Map repeatedTypeCodeMap = new HashMap();
+    @SuppressWarnings("rawtypes")
     private Map recursiveTypeCodeMap = new HashMap();
 
+    @Test
     public void testPrimitiveTypeCodes()
     {
         int[] kinds = new int[] {
@@ -68,6 +74,7 @@ public class PrimitiveTypeCodeReaderTest extends ORBTestCase
         }
     }
 
+    @Test
     public void testWithNonPrimitiveTCKind()
     {
         CDRInputStream in = getInputStreamFromWithLong(-1);

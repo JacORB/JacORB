@@ -20,18 +20,22 @@ package org.jacorb.test.bugs.bugjac305;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
+import static org.junit.Assert.assertNotNull;
 import org.jacorb.test.bugs.bug401.BHelper;
+import org.jacorb.test.common.ORBTestCase;
+import org.junit.Test;
 
 /**
  * Tests that an derived valuetype has the base type set.
  *
  * @author Nick Cross
  */
-public class BugJac305Test extends junit.framework.TestCase
+public class BugJac305Test extends ORBTestCase
 {
     /**
      * <code>test_typecode</code> tests the basetype is set.
      */
+    @Test
     public void test_typecode() throws Exception
     {
         assertNotNull(BHelper.type().concrete_base_type());

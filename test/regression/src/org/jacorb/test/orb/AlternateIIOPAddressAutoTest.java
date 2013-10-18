@@ -21,12 +21,13 @@ package org.jacorb.test.orb;
  */
 
 import java.util.Properties;
-import junit.framework.Test;
-import junit.framework.TestSuite;
 import org.jacorb.test.BasicServer;
 import org.jacorb.test.BasicServerHelper;
 import org.jacorb.test.common.ClientServerSetup;
 import org.jacorb.test.common.ClientServerTestCase;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
 
 /**
  * Tests the "auto" value in the configuration option
@@ -39,33 +40,17 @@ import org.jacorb.test.common.ClientServerTestCase;
  */
 public class AlternateIIOPAddressAutoTest extends ClientServerTestCase
 {
-    private static final String CORRECT_HOST = "127.0.0.1";
-    private static final String WRONG_HOST = "255.255.255.254";
-
-    private static final int CORRECT_PORT = 12435;
-    private static final int WRONG_PORT = 12436;
-
     private BasicServer server;
 
-    public AlternateIIOPAddressAutoTest(String name, ClientServerSetup setup)
-    {
-        super(name, setup);
-    }
-
+    @Before
     public void setUp() throws Exception
     {
         server = BasicServerHelper.narrow( setup.getServerObject() );
     }
 
-    protected void tearDown() throws Exception
+    @BeforeClass
+    public static void beforeClassSetUp() throws Exception
     {
-        server = null;
-    }
-
-    public static Test suite()
-    {
-        TestSuite suite = new TestSuite ("AlternateIIOPAddress Automatic Test");
-
         Properties clientProps = new Properties();
         clientProps.setProperty ("jacorb.retries", "0");
         clientProps.setProperty ("jacorb.retry_interval", "50");
@@ -78,16 +63,11 @@ public class AlternateIIOPAddressAutoTest extends ClientServerTestCase
         // test machine has such a setup.
         // serverProps.put ("jacorb.ior_proxy_host", WRONG_HOST);
         serverProps.put ("jacorb.iiop.alternate_addresses", "auto");
-        ClientServerSetup setup =
-            new ClientServerSetup( suite,
-                                   "org.jacorb.test.orb.BasicServerImpl",
+        setup = new ClientServerSetup("org.jacorb.test.orb.BasicServerImpl",
                                    clientProps, serverProps);
-
-        suite.addTest( new AlternateIIOPAddressAutoTest( "test_ping", setup ));
-
-        return setup;
     }
 
+    @Test
     public void test_ping()
     {
         server.ping();

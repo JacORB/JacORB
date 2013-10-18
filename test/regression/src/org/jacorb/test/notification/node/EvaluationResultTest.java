@@ -21,24 +21,27 @@ package org.jacorb.test.notification.node;
  *
  */
 
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import org.jacorb.notification.filter.EvaluationResult;
+import org.junit.Before;
+import org.junit.Test;
 
 /**
  * @author Alphonse Bendt
  */
 
-public class EvaluationResultTest extends TestCase
+public class EvaluationResultTest
 {
     private EvaluationResult objectUnderTest_;
 
+    @Before
     public void setUp() throws Exception
     {
         objectUnderTest_ = new EvaluationResult();
     }
 
+    @Test
     public void testPlus() throws Exception
     {
         EvaluationResult a, b;
@@ -62,24 +65,28 @@ public class EvaluationResultTest extends TestCase
         assertTrue(c.isFloat());
     }
 
+    @Test
     public void testSetString() throws Exception
     {
         objectUnderTest_.setString("hallo");
         assertEquals("hallo", objectUnderTest_.getString());
     }
 
+    @Test
     public void testSetInt() throws Exception
     {
         objectUnderTest_.setLong(1);
         assertTrue(objectUnderTest_.getLong() == 1);
     }
 
+    @Test
     public void testSetFloat() throws Exception
     {
         objectUnderTest_.setFloat(2f);
         assertTrue(objectUnderTest_.getFloat() == 2f);
     }
 
+    @Test
     public void testSetBoolean() throws Exception
     {
         objectUnderTest_ = EvaluationResult.BOOL_TRUE;
@@ -93,6 +100,7 @@ public class EvaluationResultTest extends TestCase
         assertTrue(!objectUnderTest_.getBool());
     }
 
+    @Test
     public void testBug790() throws Exception
     {
         EvaluationResult other1 = new EvaluationResult();
@@ -107,9 +115,4 @@ public class EvaluationResultTest extends TestCase
         assertEquals(0, other2.compareTo(objectUnderTest_));
     }
 
-
-    public static Test suite()
-    {
-        return new TestSuite(EvaluationResultTest.class);
-    }
 }

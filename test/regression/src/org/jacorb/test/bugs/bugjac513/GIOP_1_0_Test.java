@@ -1,5 +1,7 @@
 package org.jacorb.test.bugs.bugjac513;
 
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 import java.util.regex.Pattern;
 import org.jacorb.test.common.TestUtils;
 

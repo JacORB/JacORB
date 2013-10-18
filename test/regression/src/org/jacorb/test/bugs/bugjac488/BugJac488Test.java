@@ -20,10 +20,13 @@ package org.jacorb.test.bugs.bugjac488;
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
+import static org.junit.Assert.fail;
 import java.util.Properties;
-import junit.framework.TestCase;
-import org.jacorb.test.common.ORBSetup;
-import org.jacorb.test.common.ServerSetup;
+import org.jacorb.test.common.ClientServerSetup;
+import org.jacorb.test.common.ClientServerTestCase;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 import org.omg.CORBA.ORB;
 import org.omg.CORBA.TIMEOUT;
 
@@ -33,54 +36,48 @@ import org.omg.CORBA.TIMEOUT;
  *
  * @author <a href="mailto:Nick.Cross@prismtech.com">Nick Cross</a>
  */
-public class BugJac488Test extends TestCase
+public class BugJac488Test extends ClientServerTestCase
 {
     private PingReceiver server;
-    private ServerSetup serverSetup;
-    private ORBSetup orbSetup;
     private ORB orb;
 
-
-    protected void setUp() throws Exception
+    // setup is done in @before as we need a fresh server for each test.
+    @Before
+    public void setUp() throws Exception
     {
         Properties props = new Properties();
         props.put("jacorb.use_imr", "off");
-
-        orbSetup = new ORBSetup(this, props);
-        orbSetup.setUp();
-        orb = orbSetup.getORB();
-
-        serverSetup = new ServerSetup(this, null, PingReceiverImpl.class.getName(), props);
-        serverSetup.setUp();
-        server = PingReceiverHelper.narrow(orb.string_to_object(serverSetup.getServerIOR()));
+        setup = new ClientServerSetup (PingReceiverImpl.class.getName(), props, props);
+        server = PingReceiverHelper.narrow(setup.getServerObject());
+        orb = setup.getClientOrb();
     }
 
-
-    protected void tearDown() throws Exception
+    @After
+    public void tearDown() throws Exception
     {
-        orbSetup.tearDown();
-        orbSetup = null;
+        setup.tearDown();
         server._release();
-        server = null;
-        serverSetup.tearDown();
-        serverSetup = null;
     }
 
+    @Test
     public void testOnewayPingNone () throws Exception
     {
         testPingInternal ("SYNC_NONE");
     }
 
+    @Test
     public void testOnewayPingTransport () throws Exception
     {
         testPingInternal ("SYNC_WITH_TRANSPORT");
     }
 
+    @Test
     public void testOnewayPingServer () throws Exception
     {
         testPingInternal ("SYNC_WITH_SERVER");
     }
 
+    @Test
     public void testOnewayPingTarget () throws Exception
     {
         testPingInternal ("SYNC_WITH_TARGET");

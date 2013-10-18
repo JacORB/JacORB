@@ -21,7 +21,7 @@
 
 package org.jacorb.test.notification.servant;
 
-import junit.framework.Test;
+import static org.junit.Assert.assertEquals;
 import org.easymock.MockControl;
 import org.jacorb.notification.OfferManager;
 import org.jacorb.notification.SubscriptionManager;
@@ -32,7 +32,7 @@ import org.jacorb.notification.interfaces.Message;
 import org.jacorb.notification.servant.IAdmin;
 import org.jacorb.notification.servant.StructuredProxyPushSupplierImpl;
 import org.jacorb.test.notification.common.NotificationTestCase;
-import org.jacorb.test.notification.common.NotificationTestCaseSetup;
+import org.junit.Test;
 import org.omg.CORBA.TRANSIENT;
 import org.omg.CosNotification.StructuredEvent;
 import org.omg.CosNotifyComm.StructuredPushConsumer;
@@ -84,11 +84,7 @@ public class StructuredProxyPushSupplierImplTest extends NotificationTestCase
      * 
      * @param name
      */
-    public StructuredProxyPushSupplierImplTest(String name, NotificationTestCaseSetup setup)
-    {
-        super(name, setup);
-    }
-
+    @Test
     public void testDeliveryToNotConnectedDoesNotAccessMessage()
     {
         MockControl controlMessage = MockControl.createStrictControl(Message.class);
@@ -109,6 +105,7 @@ public class StructuredProxyPushSupplierImplTest extends NotificationTestCase
         controlTaskProcessor_.verify();
     }
 
+    @Test
     public void testDeliveryToDisabledConsumerEnqueues() throws Exception
     {
         MockControl controlMessage = MockControl.createStrictControl(Message.class);
@@ -141,6 +138,7 @@ public class StructuredProxyPushSupplierImplTest extends NotificationTestCase
         controlTaskProcessor_.verify();
     }
 
+    @Test
     public void testDeliveryToConsumerDoesEnqueueAndDisposeMessage() throws Exception
     {
         StructuredEvent event = new StructuredEvent();
@@ -180,6 +178,7 @@ public class StructuredProxyPushSupplierImplTest extends NotificationTestCase
         controlTaskExecutor_.verify();
     }
 
+    @Test
     public void testFailedDeliveryToConsumerDoesNotDisposeMessage() throws Exception
     {
         StructuredEvent event = new StructuredEvent();
@@ -226,10 +225,5 @@ public class StructuredProxyPushSupplierImplTest extends NotificationTestCase
         controlTaskExecutor_.verify();
 
         controlTaskProcessor_.verify();
-    }
-
-    public static Test suite() throws Exception
-    {
-        return NotificationTestCase.suite(StructuredProxyPushSupplierImplTest.class);
     }
 }

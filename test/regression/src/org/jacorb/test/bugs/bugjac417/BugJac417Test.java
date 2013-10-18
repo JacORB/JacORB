@@ -20,6 +20,9 @@
 
 package org.jacorb.test.bugs.bugjac417;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.fail;
 import java.util.Properties;
 import org.easymock.MockControl;
 import org.jacorb.config.Configuration;
@@ -28,6 +31,8 @@ import org.jacorb.orb.factory.SocketFactoryManager;
 import org.jacorb.orb.listener.NullTCPConnectionListener;
 import org.jacorb.test.common.MyNullLogger;
 import org.jacorb.test.common.ORBTestCase;
+import org.junit.Before;
+import org.junit.Test;
 import org.omg.CORBA.INITIALIZE;
 
 /**
@@ -39,12 +44,14 @@ public class BugJac417Test extends ORBTestCase
     private MockControl configControl;
     private Configuration configMock;
 
+    @Override
     protected void patchORBProperties(Properties properties)
     {
         properties.setProperty(SocketFactoryManager.SUPPORT_SSL, "false");
     }
 
-    protected void doSetUp() throws Exception
+    @Before
+    public void setUp() throws Exception
     {
         objectUnderTest = new SocketFactoryManager();
         configControl = MockControl.createNiceControl(Configuration.class);
@@ -56,6 +63,7 @@ public class BugJac417Test extends ORBTestCase
         configControl.expectAndReturn(configMock.getAttributeAsBoolean(SocketFactoryManager.SUPPORT_SSL, false), false);
     }
 
+    @Test
     public void testNoArg() throws Exception
     {
         configControl.expectAndReturn(configMock.getAttribute(SocketFactoryManager.SOCKET_FACTORY, ""), SocketFactoryNoArgsCtor.class.getName());
@@ -70,6 +78,7 @@ public class BugJac417Test extends ORBTestCase
         configControl.verify();
     }
 
+    @Test
     public void testOMGArg() throws Exception
     {
         configControl.expectAndReturn(configMock.getAttribute(SocketFactoryManager.SOCKET_FACTORY, ""), SocketFactoryOMG.class.getName());
@@ -85,6 +94,7 @@ public class BugJac417Test extends ORBTestCase
         configControl.verify();
     }
 
+    @Test
     public void testJacORBArg() throws Exception
     {
         configControl.expectAndReturn(configMock.getAttribute(SocketFactoryManager.SOCKET_FACTORY, ""), SocketFactoryJacORB.class.getName());
@@ -100,6 +110,7 @@ public class BugJac417Test extends ORBTestCase
         configControl.verify();
     }
 
+    @Test
     public void testConfigurable() throws Exception
     {
         configControl.expectAndReturn(configMock.getAttribute(SocketFactoryManager.SOCKET_FACTORY, ""), ConfigurableFactory.class.getName());
@@ -115,6 +126,7 @@ public class BugJac417Test extends ORBTestCase
         configControl.verify();
     }
 
+    @Test
     public void testWrongType() throws Exception
     {
         configControl.expectAndReturn(configMock.getAttribute(SocketFactoryManager.SOCKET_FACTORY, ""), WrongFactory.class.getName());
@@ -137,6 +149,7 @@ public class BugJac417Test extends ORBTestCase
         configControl.verify();
     }
 
+    @Test
     public void testNoPublicCtor() throws Exception
     {
         configControl.expectAndReturn(configMock.getAttribute(SocketFactoryManager.SOCKET_FACTORY, ""), NoPublicCtor.class.getName());
@@ -159,6 +172,7 @@ public class BugJac417Test extends ORBTestCase
         configControl.verify();
     }
 
+    @Test
     public void testFailingFactory() throws Exception
     {
         configControl.expectAndReturn(configMock.getAttribute(SocketFactoryManager.SOCKET_FACTORY, ""), FailingFactory.class.getName());

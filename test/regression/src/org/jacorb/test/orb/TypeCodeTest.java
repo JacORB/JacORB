@@ -20,7 +20,10 @@ package org.jacorb.test.orb;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import org.jacorb.test.common.ORBTestCase;
+import org.junit.Test;
 import org.omg.CORBA.Any;
 import org.omg.CORBA.StructMember;
 import org.omg.CORBA.TypeCode;
@@ -38,6 +41,7 @@ public class TypeCodeTest extends ORBTestCase
      * well. The constructed typecode is in principal recursive, but not
      * flagged as such.
      */
+    @Test
     public void testBrokenRecursiveTypecode()
     {
         Any innerAny = orb.create_any();
@@ -62,19 +66,24 @@ public class TypeCodeTest extends ORBTestCase
         out.write_TypeCode(outerTc);
         org.jacorb.orb.CDRInputStream in =
             new org.jacorb.orb.CDRInputStream(orb, out.getBufferCopy());
+        out.close();
 
         out = new org.jacorb.orb.CDROutputStream(orb);
-
         //need to write out typecode, to check it's consistency completely
         out.write_TypeCode(in.read_TypeCode());
+
+        out.close();
+        in.close();
     }
 
+    @Test
     public void testEquals()
     {
         TypeCode tc = orb.create_string_tc(10);
         assertFalse(tc.equals("bla"));
     }
 
+    @Test
     public void testCreateDynamicTypeCode() throws Exception
     {
         TypeCode typeCode = org.jacorb.orb.TypeCode.create_tc(MyClass.class);

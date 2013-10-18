@@ -1,13 +1,14 @@
 package org.jacorb.test.transport;
 
+import static org.junit.Assert.assertEquals;
 import java.util.Properties;
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
+import org.jacorb.test.common.ORBTestCase;
 import org.jacorb.test.orb.transport.CurrentServer;
 import org.jacorb.test.orb.transport.CurrentServerHelper;
 import org.jacorb.transport.Current;
 import org.jacorb.transport.CurrentHelper;
+import org.junit.Before;
+import org.junit.Test;
 import org.omg.CORBA.ORB;
 import org.omg.CORBA.Object;
 import org.omg.PortableServer.POA;
@@ -15,28 +16,20 @@ import org.omg.PortableServer.POAHelper;
 
 /**
  * FrameworkClientTest.java
- * 
+ *
  * Tests for corect operation of the Transport Current framework
  */
 
-public class IIOPClientTest extends TestCase {
-
-    private ORB client_orb_;
+public class IIOPClientTest extends ORBTestCase
+{
     private ORB server_orb_;
     protected CurrentServer server = null;
 
     protected Current transport_current_ = null;
 
-    public static Test suite() {
-        return new TestSuite(IIOPClientTest.class);
-    }
-    
-     public IIOPClientTest(String name) {
 
-        super (name);
-    }
-
-    protected void setUp() throws Exception {
+    @Before
+    public void setUp() throws Exception {
 
         ServerInterceptor.reset ();
 
@@ -53,14 +46,11 @@ public class IIOPClientTest extends TestCase {
                 server_orb_.run();
             };
         }.start();
-        
-        Thread.sleep(1000);
-        client_orb_ = ORB.init(new String[0], getClientProperties());
 
 
-        server = CurrentServerHelper.narrow(client_orb_.string_to_object(objString));
+        server = CurrentServerHelper.narrow(orb.string_to_object(objString));
 
-        Object tcobject = client_orb_.resolve_initial_references ("JacOrbIIOPTransportCurrent");
+        Object tcobject = orb.resolve_initial_references ("JacOrbIIOPTransportCurrent");
         transport_current_ = CurrentHelper.narrow (tcobject);
 
         ClientInterceptor.interceptions (0);
@@ -68,29 +58,24 @@ public class IIOPClientTest extends TestCase {
     }
 
 
-    private Properties getClientProperties() {
-
-        Properties cp = new Properties ();
-        cp.put ("org.omg.PortableInterceptor.ORBInitializerClass.client_transport_current_interceptor",
+    @Override
+    protected void patchORBProperties(Properties props) throws Exception
+    {
+        props.put ("org.omg.PortableInterceptor.ORBInitializerClass.client_transport_current_interceptor",
                 "org.jacorb.transport.TransportCurrentInitializer");
 
-        cp.put ("org.omg.PortableInterceptor.ORBInitializerClass.client_transport_current_iiop_interceptor",
+        props.put ("org.omg.PortableInterceptor.ORBInitializerClass.client_transport_current_iiop_interceptor",
                 "org.jacorb.transport.IIOPTransportCurrentInitializer");
 
-        cp.put ("org.omg.PortableInterceptor.ORBInitializerClass.client_test_interceptor",
+        props.put ("org.omg.PortableInterceptor.ORBInitializerClass.client_test_interceptor",
                 "org.jacorb.test.transport.IIOPClientOrbInitializer");
-        
-        return cp;
+    }
 
-   }
-
+    @Test
     public void testInContext() throws Exception {
 
         // verify in-context access
         server.invoked_by_client ();
         assertEquals ("Two interceptions per invocation expected", 2, ClientInterceptor.interceptions ());
- 
     }
-
-    
 }

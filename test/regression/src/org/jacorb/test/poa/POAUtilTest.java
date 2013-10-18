@@ -1,8 +1,9 @@
 package org.jacorb.test.poa;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 import java.util.Arrays;
 import junit.framework.AssertionFailedError;
-import junit.framework.TestCase;
 import org.jacorb.poa.except.POAInternalError;
 import org.jacorb.poa.policy.IdAssignmentPolicy;
 import org.jacorb.poa.policy.IdUniquenessPolicy;
@@ -12,6 +13,7 @@ import org.jacorb.poa.policy.RequestProcessingPolicy;
 import org.jacorb.poa.policy.ServantRetentionPolicy;
 import org.jacorb.poa.policy.ThreadPolicy;
 import org.jacorb.poa.util.POAUtil;
+import org.junit.Test;
 import org.omg.PortableServer.ID_ASSIGNMENT_POLICY_ID;
 import org.omg.PortableServer.ID_UNIQUENESS_POLICY_ID;
 import org.omg.PortableServer.IMPLICIT_ACTIVATION_POLICY_ID;
@@ -31,109 +33,123 @@ import org.omg.PortableServer.ThreadPolicyValue;
  * A unit test of several of the stand-alone methods in org.jacorb.poa.POAUtil.
  * @author Andre Spiegel spiegel@gnu.org
  */
-public class POAUtilTest extends TestCase
+public class POAUtilTest
 {
-
-    public POAUtilTest (String name)
-    {
-        super (name);
-    }
-    
+    @Test
     public void test_mask_id_1()
     {
         do_mask_id ("abc", "abc");
     }
-  
+
+    @Test
     public void test_mask_id_2()
     {
         do_mask_id ("a", "a");
     }
 
+    @Test
     public void test_mask_id_3()
     {
         do_mask_id ("", "");
     }
 
+    @Test
     public void test_mask_id_4()
     {
         do_mask_id ("a/b", "a&%b");
     }
-    
+
+    @Test
     public void test_mask_id_5()
     {
         do_mask_id ("a//b", "a&%&%b");
     }
-    
+
+    @Test
     public void test_mask_id_6()
     {
         do_mask_id ("a&b", "a&&b");
     }
-    
+
+    @Test
     public void test_mask_id_7()
     {
         do_mask_id ("a&&b", "a&&&&b");
     }
-    
+
+    @Test
     public void test_mask_id_8()
     {
         do_mask_id ("/", "&%");
     }
-    
+
+    @Test
     public void test_mask_id_9()
     {
         do_mask_id ("&", "&&");
     }
-    
+
+    @Test
     public void test_mask_id_10()
     {
         do_mask_id ("&%", "&&%");
     }
-    
+
+    @Test
     public void test_unmask_id_1()
     {
         do_unmask_id ("abc", "abc");
     }
-    
+
+    @Test
     public void test_unmask_id_2()
     {
         do_unmask_id ("a", "a");
     }
-    
+
+    @Test
     public void test_unmask_id_3()
     {
         do_unmask_id ("", "");
     }
-    
+
+    @Test
     public void test_unmask_id_4()
     {
         do_unmask_id ("a&%c", "a/c");
     }
-    
+
+    @Test
     public void test_unmask_id_5()
     {
         do_unmask_id ("a&&c", "a&c");
     }
-    
+
+    @Test
     public void test_unmask_id_6()
     {
         do_unmask_id ("a&%%c", "a/%c");
     }
-    
+
+    @Test
     public void test_unmask_id_7()
     {
         do_unmask_id ("&&", "&");
     }
-    
+
+    @Test
     public void test_unmask_id_8()
     {
         do_unmask_id ("&%", "/");
     }
-    
+
+    @Test
     public void test_unmask_id_9()
     {
         do_unmask_id ("%&&%", "%&%");
     }
-    
+
+    @Test
     public void test_unmask_id_10()
     {
         try
@@ -146,7 +162,8 @@ public class POAUtilTest extends TestCase
             // ok
         }
     }
-    
+
+    @Test
     public void test_unmask_id_11()
     {
         try
@@ -159,7 +176,8 @@ public class POAUtilTest extends TestCase
             // ok
         }
     }
-    
+
+    @Test
     public void test_convert_policy()
     {
         // ThreadPolicy
@@ -184,7 +202,7 @@ public class POAUtilTest extends TestCase
                 new ThreadPolicy (ThreadPolicyValue.SINGLE_THREAD_MODEL),
                 THREAD_POLICY_ID.value)
         );
-        
+
         // LifespanPolicy
         assertEquals
         (
@@ -207,7 +225,7 @@ public class POAUtilTest extends TestCase
                 new LifespanPolicy (LifespanPolicyValue.PERSISTENT),
                 LIFESPAN_POLICY_ID.value)
         );
-        
+
         // IdUniquenessPolicy
         assertEquals
         (
@@ -230,7 +248,7 @@ public class POAUtilTest extends TestCase
                 new IdUniquenessPolicy (IdUniquenessPolicyValue.MULTIPLE_ID),
                 ID_UNIQUENESS_POLICY_ID.value)
         );
-        
+
         // IdAssignmentPolicy
         assertEquals
         (
@@ -253,7 +271,7 @@ public class POAUtilTest extends TestCase
                 new IdAssignmentPolicy (IdAssignmentPolicyValue.USER_ID),
                 ID_ASSIGNMENT_POLICY_ID.value)
         );
-        
+
         // ServantRetentionPolicy
         assertEquals
         (
@@ -276,7 +294,7 @@ public class POAUtilTest extends TestCase
                 new ServantRetentionPolicy (ServantRetentionPolicyValue.NON_RETAIN),
                 SERVANT_RETENTION_POLICY_ID.value)
         );
-        
+
         // RequestProcessingPolicy
         assertEquals
         (
@@ -307,7 +325,7 @@ public class POAUtilTest extends TestCase
                 new RequestProcessingPolicy (RequestProcessingPolicyValue.USE_DEFAULT_SERVANT),
                 REQUEST_PROCESSING_POLICY_ID.value)
         );
-        
+
         // ImplicitActicationPolicy
         assertEquals
         (
@@ -330,35 +348,35 @@ public class POAUtilTest extends TestCase
                 new ImplicitActivationPolicy (ImplicitActivationPolicyValue.IMPLICIT_ACTIVATION),
                 IMPLICIT_ACTIVATION_POLICY_ID.value)
         );
-                        
+
     }
-    
+
     private void do_mask_id (byte[] input, byte[] expected)
     {
         byte[] result = POAUtil.maskId (input);
         assertArraysEqual (expected, result);
     }
-    
+
     private void do_mask_id (String input, String expected)
     {
         do_mask_id (input.getBytes(), expected.getBytes());
     }
-    
+
     private void do_unmask_id (byte[] input, byte[] expected)
     {
         byte[] result = POAUtil.unmaskId (input);
         assertArraysEqual (expected, result);
     }
-    
+
     private void do_unmask_id (String input, String expected)
     {
         do_unmask_id (input.getBytes(), expected.getBytes());
     }
-    
+
     private void assertArraysEqual (byte[] expected, byte[] result)
     {
         if (!Arrays.equals (expected, result))
-        {    
+        {
             throw new AssertionFailedError
             (
                 "expected: <" + byteArrayToString (expected) + ">, but was: <"
@@ -366,7 +384,7 @@ public class POAUtilTest extends TestCase
             );
         }
     }
-    
+
     private String byteArrayToString (byte[] data)
     {
         StringBuffer result = new StringBuffer();

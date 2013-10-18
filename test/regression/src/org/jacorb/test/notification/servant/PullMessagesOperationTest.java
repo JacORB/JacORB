@@ -21,15 +21,14 @@
 
 package org.jacorb.test.notification.servant;
 
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
 import org.easymock.MockControl;
 import org.jacorb.notification.servant.MessageSupplierDelegate;
 import org.jacorb.notification.servant.PullMessagesOperation;
+import org.junit.Before;
+import org.junit.Test;
 import org.omg.CosEventComm.Disconnected;
 
-public class PullMessagesOperationTest extends TestCase
+public class PullMessagesOperationTest
 {
     private PullMessagesOperation objectUnderTest_;
 
@@ -37,15 +36,15 @@ public class PullMessagesOperationTest extends TestCase
 
     private MessageSupplierDelegate mockMessageSupplier_;
 
-    protected void setUp() throws Exception
+    @Before
+    public void setUp() throws Exception
     {
-        super.setUp();
-
         controlMessageSupplier_ = MockControl.createControl(MessageSupplierDelegate.class);
         mockMessageSupplier_ = (MessageSupplierDelegate) controlMessageSupplier_.getMock();
         objectUnderTest_ = new PullMessagesOperation(mockMessageSupplier_);
     }
 
+    @Test
     public void testNotConnectedDoesNothing() throws Exception
     {
         mockMessageSupplier_.getConnected();
@@ -61,6 +60,7 @@ public class PullMessagesOperationTest extends TestCase
         controlMessageSupplier_.verify();
     }
 
+    @Test
     public void testSuspendedDoesNothing() throws Exception
     {
         mockMessageSupplier_.getConnected();
@@ -71,62 +71,60 @@ public class PullMessagesOperationTest extends TestCase
         objectUnderTest_.runPull();
         controlMessageSupplier_.verify();
     }
-    
+
+    @Test
     public void testSuccessfulPullCausesQueue() throws Exception
     {
         MessageSupplierDelegate.PullResult _result =
             new MessageSupplierDelegate.PullResult(new Object(), true);
-        
+
         mockMessageSupplier_.getConnected();
         controlMessageSupplier_.setReturnValue(true);
         mockMessageSupplier_.isSuspended();
         controlMessageSupplier_.setReturnValue(false);
-        
+
         mockMessageSupplier_.pullMessages();
         controlMessageSupplier_.setReturnValue(_result);
-        
+
         mockMessageSupplier_.queueMessages(_result);
-        
+
         controlMessageSupplier_.replay();
         objectUnderTest_.runPull();
         controlMessageSupplier_.verify();
     }
 
+    @Test
     public void testNonSuccessfulPullIsNotQueued() throws Exception
     {
         MessageSupplierDelegate.PullResult _result =
             new MessageSupplierDelegate.PullResult(new Object(), false);
-        
+
         mockMessageSupplier_.getConnected();
         controlMessageSupplier_.setReturnValue(true);
         mockMessageSupplier_.isSuspended();
         controlMessageSupplier_.setReturnValue(false);
-        
+
         mockMessageSupplier_.pullMessages();
         controlMessageSupplier_.setReturnValue(_result);
-        
+
         controlMessageSupplier_.replay();
         objectUnderTest_.runPull();
         controlMessageSupplier_.verify();
     }
-    
+
+    @Test
     public void testInterruptedThreadDoesNothing() throws Exception
     {
         mockMessageSupplier_.getConnected();
         controlMessageSupplier_.setReturnValue(true);
         mockMessageSupplier_.isSuspended();
         controlMessageSupplier_.setReturnValue(false);
-        
+
         controlMessageSupplier_.replay();
-        
+
         Thread.currentThread().interrupt();
         objectUnderTest_.runPull();
-        
+
         controlMessageSupplier_.verify();
     }
-    
-    public static Test suite()
-    {
-        return new TestSuite(PullMessagesOperationTest.class);
     }
-}

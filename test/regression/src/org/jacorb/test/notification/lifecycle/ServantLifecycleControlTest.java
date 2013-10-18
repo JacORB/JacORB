@@ -21,14 +21,16 @@
 
 package org.jacorb.test.notification.lifecycle;
 
-import junit.framework.TestCase;
+import static org.junit.Assert.assertEquals;
 import org.easymock.MockControl;
 import org.jacorb.notification.lifecycle.IServantLifecyle;
 import org.jacorb.notification.lifecycle.ServantLifecyleControl;
+import org.junit.Before;
+import org.junit.Test;
 import org.omg.PortableServer.POA;
 import org.omg.PortableServer.Servant;
 
-public class ServantLifecycleControlTest extends TestCase
+public class ServantLifecycleControlTest
 {
     private MockControl lifecycleDelegateControl_;
 
@@ -54,7 +56,8 @@ public class ServantLifecycleControlTest extends TestCase
     
     private byte[] oidDummy_ = new byte[] {0};
 
-    protected void setUp() throws Exception
+    @Before
+    public void setUp() throws Exception
     {
         referenceControl_ = MockControl.createControl(org.omg.CORBA.Object.class);
         referenceMock_ = (org.omg.CORBA.Object) referenceControl_.getMock();
@@ -68,6 +71,7 @@ public class ServantLifecycleControlTest extends TestCase
         lifecycleDelegateControl_.setReturnValue(poaMock_, MockControl.ZERO_OR_MORE);
     }
 
+    @Test
     public void testActivate() throws Exception
     {
         lifecycleDelegateMock_.newServant();
@@ -84,6 +88,7 @@ public class ServantLifecycleControlTest extends TestCase
         verifyAll();
     }
 
+    @Test
     public void testDeactivate() throws Exception
     {
         lifecycleDelegateMock_.newServant();

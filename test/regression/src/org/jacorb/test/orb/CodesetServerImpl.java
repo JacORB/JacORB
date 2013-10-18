@@ -9,8 +9,8 @@ import org.jacorb.test.CodesetServerPOA;
  * codesets.
  * Chars, wchars, strings and wstrings will be passed in here with codesets
  * turned on and off. The first parameter denotes the static field within
- * the CodesetTest class - this may be used to retrieve the value to match
- * against. Check CodesetTest::codesetEnabled for whether we expect the
+ * the AbstractCodesetTestCase class - this may be used to retrieve the value to match
+ * against. Check AbstractCodesetTestCase::codesetEnabled for whether we expect the
  * values to match or not - will NOT match if
  * codeSet is disabled AND value if not in Latin-1
  *
@@ -24,7 +24,7 @@ public class CodesetServerImpl extends CodesetServerPOA
      * <code>pass_in_char</code> is the implementation for CodesetServer.
      *
      * @param name a <code>String</code> representing the variable name of the
-     * character as defined in CodesetTest.
+     * character as defined in AbstractCodesetTestCase.
      * @param x a <code>char</code>, the transmitted value.
      * @return a <code>boolean</code>, denoting whether the transmitted value is
      * equal to the original.
@@ -34,7 +34,7 @@ public class CodesetServerImpl extends CodesetServerPOA
         boolean result = false;
         try
         {
-            char value = CodesetTest.class.getField( name ).getChar(null);
+            char value = AbstractCodesetTestCase.class.getField( name ).getChar(null);
 
             if( x == value )
             {
@@ -64,7 +64,7 @@ public class CodesetServerImpl extends CodesetServerPOA
         boolean result = false;
         try
         {
-            String value = (String)CodesetTest.class.getField( name ).get( null );
+            String value = (String)AbstractCodesetTestCase.class.getField( name ).get( null );
 
             if( value != null && value.equals( x ) )
             {
@@ -121,7 +121,7 @@ public class CodesetServerImpl extends CodesetServerPOA
         {
             if ( ! name.equals("multibyte"))
             {
-                char[] value = (char[])CodesetTest.class.getField( name ).get(null);
+                char[] value = (char[])AbstractCodesetTestCase.class.getField( name ).get(null);
 
                 if( Arrays.equals( x, value ) )
                 {
@@ -133,7 +133,7 @@ public class CodesetServerImpl extends CodesetServerPOA
                 // Special handling for multibyte char array where bytes
                 // are in char[0...n]
                 byte []temp =
-                    (new String(new char []{CodesetTest.E_ACUTE})).getBytes("UTF-8");
+                    (new String(new char []{AbstractCodesetTestCase.E_ACUTE})).getBytes("UTF-8");
                 char []topass = new char[2];
                 topass[0]=(char)(temp[0] & 0xFF);
                 topass[1]=(char)(temp[1] & 0xFF);

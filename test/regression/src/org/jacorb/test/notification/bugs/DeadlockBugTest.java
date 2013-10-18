@@ -21,32 +21,34 @@
 
 package org.jacorb.test.notification.bugs;
 
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 import java.util.concurrent.BrokenBarrierException;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.CyclicBarrier;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
 import org.jacorb.notification.AnyMessage;
 import org.jacorb.notification.queue.BoundedFifoEventQueue;
 import org.jacorb.notification.queue.DefaultMessageQueueAdapter;
 import org.jacorb.notification.queue.EventQueueOverflowStrategy;
 import org.jacorb.notification.queue.MessageQueue;
 import org.jacorb.notification.queue.RWLockEventQueueDecorator;
+import org.junit.Before;
+import org.junit.Test;
 
 /**
  * @author Alphonse Bendt
  */
-public class DeadlockBugTest extends TestCase
+public class DeadlockBugTest
 {
     private RWLockEventQueueDecorator objectUnderTest_;
 
     private Object lock_;
 
-    protected void setUp() throws Exception
+    @Before
+    public void setUp() throws Exception
     {
         lock_ = new Object();
 
@@ -61,6 +63,7 @@ public class DeadlockBugTest extends TestCase
      * enqueue a message into the queue which then should be returned to the first thread.
      * wrong synchronization led to a deadlock.
      */
+    @Test
     public void testDeadlock() throws Exception
     {
         final AnyMessage mesg = new AnyMessage();
@@ -168,8 +171,4 @@ public class DeadlockBugTest extends TestCase
         putter.interrupt();
     }
 
-    public static Test suite()
-    {
-        return new TestSuite(DeadlockBugTest.class);
-    }
 }

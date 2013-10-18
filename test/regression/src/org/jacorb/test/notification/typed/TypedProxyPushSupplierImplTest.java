@@ -20,12 +20,13 @@ package org.jacorb.test.notification.typed;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
-import junit.framework.Assert;
-import junit.framework.Test;
 import org.easymock.MockControl;
 import org.jacorb.notification.AnyMessage;
 import org.jacorb.notification.OfferManager;
@@ -36,7 +37,9 @@ import org.jacorb.notification.engine.DirectExecutorPushTaskExecutorFactory;
 import org.jacorb.notification.servant.ITypedAdmin;
 import org.jacorb.notification.servant.TypedProxyPushSupplierImpl;
 import org.jacorb.test.notification.common.NotificationTestCase;
-import org.jacorb.test.notification.common.NotificationTestCaseSetup;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 import org.omg.CORBA.Any;
 import org.omg.CosEventChannelAdmin.TypeError;
 import org.omg.CosEventComm.Disconnected;
@@ -70,12 +73,8 @@ public class TypedProxyPushSupplierImplTest extends NotificationTestCase
 
     private ConsumerAdmin mockConsumerAdmin_;
 
-    public TypedProxyPushSupplierImplTest(String name, NotificationTestCaseSetup setup)
-    {
-        super(name, setup);
-    }
-
-    public void setUpTest() throws Exception
+    @Before
+    public void setUp() throws Exception
     {
         controlAdmin_ = MockControl.createNiceControl(ITypedAdmin.class);
         mockAdmin_ = (ITypedAdmin) controlAdmin_.getMock();
@@ -102,6 +101,7 @@ public class TypedProxyPushSupplierImplTest extends NotificationTestCase
         proxyPushSupplier_ = TypedProxyPushSupplierHelper.narrow(objectUnderTest_.activate());
     }
 
+    @Test
     public void testID()
     {
         assertEquals(new Integer(10), objectUnderTest_.getID());
@@ -109,6 +109,7 @@ public class TypedProxyPushSupplierImplTest extends NotificationTestCase
     }
 
 
+    @Test
     public void testConnect() throws Exception
     {
         MockCoffee _mockCoffee = new MockCoffee();
@@ -128,15 +129,16 @@ public class TypedProxyPushSupplierImplTest extends NotificationTestCase
         proxyPushSupplier_.connect_typed_push_consumer(_consumer);
     }
 
+    @Test
     public void testConnectWrongTypeThrowsException() throws Exception
     {
-        final Map _map = new HashMap();
+        final Map<String, TypedPushConsumer> _map = new HashMap<String, TypedPushConsumer>();
 
         MockTypedPushConsumer _mockConsumer = new MockTypedPushConsumer()
         {
             public org.omg.CORBA.Object get_typed_consumer()
             {
-                return (org.omg.CORBA.Object) _map.get("object");
+                return _map.get("object");
             }
         };
 
@@ -154,6 +156,7 @@ public class TypedProxyPushSupplierImplTest extends NotificationTestCase
         }
     }
 
+    @Test
     public void testPushPulledEvent() throws Exception
     {
         // setup test data
@@ -198,6 +201,7 @@ public class TypedProxyPushSupplierImplTest extends NotificationTestCase
         _mockCoffee.verify();
     }
 
+    @Test
     public void testPushTyped() throws Exception
     {
         // setup test data
@@ -242,6 +246,7 @@ public class TypedProxyPushSupplierImplTest extends NotificationTestCase
         _mockCoffee.verify();
     }
 
+    @Test
     public void testPushStructured() throws Exception
     {
         // setup test data
@@ -291,6 +296,7 @@ public class TypedProxyPushSupplierImplTest extends NotificationTestCase
         _mockCoffee.verify();
     }
 
+    @Test
     public void testPushAny() throws Exception
     {
         // setup test data
@@ -344,11 +350,6 @@ public class TypedProxyPushSupplierImplTest extends NotificationTestCase
 
         // verify results
         _mockCoffee.verify();
-    }
-
-    public static Test suite() throws Exception
-    {
-        return NotificationTestCase.suite(TypedProxyPushSupplierImplTest.class);
     }
 }
 

@@ -1,8 +1,8 @@
 package org.jacorb.test.transport;
 
-import junit.framework.Assert;
 import org.jacorb.transport.Current;
 import org.jacorb.transport.CurrentHelper;
+import org.junit.Assert;
 import org.omg.CORBA.ORB;
 import org.omg.CORBA.Object;
 import org.slf4j.Logger;

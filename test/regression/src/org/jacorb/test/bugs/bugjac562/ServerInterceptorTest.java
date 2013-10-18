@@ -20,15 +20,17 @@
 
 package org.jacorb.test.bugs.bugjac562;
 
+import static org.junit.Assert.fail;
 import java.util.Properties;
-import junit.framework.Test;
-import junit.framework.TestSuite;
 import org.jacorb.test.BasicServer;
 import org.jacorb.test.BasicServerHelper;
 import org.jacorb.test.common.ClientServerSetup;
 import org.jacorb.test.common.ClientServerTestCase;
 import org.jacorb.test.common.TestUtils;
 import org.jacorb.test.orb.BasicServerImpl;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
 import org.omg.CORBA.UNKNOWN;
 
 /**
@@ -38,12 +40,8 @@ public class ServerInterceptorTest extends ClientServerTestCase
 {
     BasicServer server;
 
-    public ServerInterceptorTest(String name, ClientServerSetup setup)
-    {
-        super(name, setup);
-    }
-
-    public static Test suite()
+    @BeforeClass
+    public static void beforeClassSetUp() throws Exception
     {
         Properties clientProps = new Properties();
         Properties serverProps = new Properties();
@@ -53,18 +51,16 @@ public class ServerInterceptorTest extends ClientServerTestCase
         serverProps.setProperty("jacorb.orb_initializer.fail_on_error", "true");
         serverProps.setProperty("org.omg.PortableInterceptor.ORBInitializerClass." + ServerInterceptorInit.class.getName(), "");
 
-        TestSuite suite = new TestSuite(ServerInterceptorTest.class.getName());
-        ClientServerSetup setup = new ClientServerSetup(suite, BasicServerImpl.class.getName(), clientProps, serverProps);
-        TestUtils.addToSuite(suite, setup, ServerInterceptorTest.class);
-
-        return setup;
+        setup = new ClientServerSetup(BasicServerImpl.class.getName(), clientProps, serverProps);
     }
 
-    protected void setUp() throws Exception
+    @Before
+    public void setUp() throws Exception
     {
         server = BasicServerHelper.narrow(setup.getServerObject());
     }
 
+    @Test
     public void testServerSideInterceptorThrowsRuntimeException() throws Exception
     {
         try

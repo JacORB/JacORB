@@ -20,9 +20,11 @@ package org.jacorb.test.orb;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
+import static org.junit.Assert.fail;
 import java.lang.reflect.Field;
-import junit.framework.TestCase;
 import org.jacorb.test.common.NullLogger;
+import org.junit.Before;
+import org.junit.Test;
 import org.omg.CORBA.Any;
 import org.omg.CORBA.BAD_PARAM;
 import org.omg.CORBA.ORB;
@@ -39,20 +41,22 @@ import org.omg.CORBA.UnionMember;
  *
  * @author Carol Jordan
  */
-public class CreateTypeCodesTest extends TestCase
+public class CreateTypeCodesTest
 {
     /**
      * for these tests we need an ORBSingleton not a full ORB
      */
     private final ORB orb = ORB.init();
 
-    protected void setUp() throws Exception
+    @Before
+    public void setUp() throws Exception
     {
         Field logger = orb.getClass().getDeclaredField("logger");
         logger.setAccessible(true);
         logger.set(orb, new NullLogger());
     }
 
+    @Test
     public void testCreateStructTC () throws Exception
     {
         String id = null;
@@ -106,6 +110,7 @@ public class CreateTypeCodesTest extends TestCase
     /**
      * <code>testCreateEnumTC</code>
      */
+    @Test
     public void testCreateEnumTC () throws Exception
     {
         String id = null;
@@ -157,6 +162,7 @@ public class CreateTypeCodesTest extends TestCase
     /**
      * <code>testCreateExceptTC</code>
      */
+    @Test
     public void testCreateExceptTC ()
     {
         String id = null;
@@ -210,6 +216,7 @@ public class CreateTypeCodesTest extends TestCase
     /**
      * <code>testCreateExceptTC</code>
      */
+    @Test
     public void testCreateUnionTC ()
     {
         String id = null;

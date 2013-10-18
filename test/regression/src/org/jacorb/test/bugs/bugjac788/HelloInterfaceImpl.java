@@ -8,8 +8,6 @@ import org.omg.CORBA.TRANSIENT;
 
 public class HelloInterfaceImpl extends HelloInterfacePOA {
 
-    private ORB orb;
-
     /**
      * A parent POA used for the container activation
      */
@@ -22,7 +20,6 @@ public class HelloInterfaceImpl extends HelloInterfacePOA {
 
     public HelloInterfaceImpl(
         ORB orb, org.omg.PortableServer.POA poa, ComputInterface comput) {
-        this.orb = orb;
         this.poa = poa;
         this.comput = comput;
         this.hello = 0;

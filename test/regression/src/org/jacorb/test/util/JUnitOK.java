@@ -18,17 +18,21 @@
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-package org.jacorb.test.ant.samples;
+package org.jacorb.test.util;
 
-import junit.framework.TestCase;
+import static org.junit.Assert.assertTrue;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.TestName;
 
-/**
- * @author Alphonse Bendt
- */
-public class JUnitSystemErr extends TestCase
+public class JUnitOK
 {
-    public void testSystemErr()
+    @Rule
+    public TestName name = new TestName();
+
+    @Test
+    public void testOK()
     {
-        System.err.println("SYSTEM ERR");
+    	assertTrue("testOK".equals(name.getMethodName()));
     }
 }

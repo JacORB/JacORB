@@ -1,28 +1,20 @@
 package org.jacorb.test.bugs.bugjac235;
 
-import junit.framework.Test;
-import junit.framework.TestSuite;
+import static org.junit.Assert.assertNotNull;
 import org.jacorb.test.common.ClientServerSetup;
-import org.jacorb.test.common.TestUtils;
+import org.junit.BeforeClass;
+import org.junit.Test;
 
 public class NoTimeoutTest extends AbstractTestCase
 {
-    public NoTimeoutTest(String name, ClientServerSetup setup)
+    @BeforeClass
+    public static void beforeClassSetUp() throws Exception
     {
-        super(name, setup);
+        setup = new ClientServerSetup(JAC235Impl.class.getName());
+
     }
 
-    public static Test suite()
-    {
-        TestSuite suite = new TestSuite ("JAC235 Reply Timeout test");
-
-        ClientServerSetup setup = new ClientServerSetup(suite, JAC235Impl.class.getName());
-
-        TestUtils.addToSuite(suite, setup, NoTimeoutTest.class);
-
-        return setup;
-    }
-
+    @Test
     public void testNormalInvocation()
     {
         assertNotNull(server.hello(500));

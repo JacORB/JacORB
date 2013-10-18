@@ -20,6 +20,7 @@
 
 package org.jacorb.test.bugs.bug380;
 
+import static org.junit.Assert.assertTrue;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.Properties;
@@ -27,9 +28,9 @@ import org.jacorb.orb.Delegate;
 import org.jacorb.orb.ParsedIOR;
 import org.jacorb.orb.util.PrintIOR;
 import org.jacorb.test.BasicServerHelper;
-import org.jacorb.test.common.ORBSetup;
 import org.jacorb.test.common.ORBTestCase;
 import org.jacorb.test.common.TestUtils;
+import org.junit.Test;
 import org.omg.CORBA.Policy;
 import org.omg.CORBA.portable.ObjectImpl;
 import org.omg.PortableServer.IdAssignmentPolicyValue;
@@ -43,6 +44,7 @@ import org.omg.PortableServer.POAPackage.WrongPolicy;
  */
 public class BugJac380Test extends ORBTestCase
 {
+    @Test
     public void testSetIORProxyHostToIP() throws Exception
     {
         Properties props = new Properties();
@@ -51,19 +53,21 @@ public class BugJac380Test extends ORBTestCase
         assertTrue(profileDetails, profileDetails.indexOf("192.168.1.1") >= 0);
     }
 
+    @Test
     public void testSetIORProxy_DNSEnabled() throws Exception
     {
         Properties props = new Properties();
         props.setProperty("jacorb.ior_proxy_host", "localhost");
         props.setProperty("jacorb.dns.enable", "on");
         final String profileDetails = getProfileDetails(props);
-        
+
         // Really this should be returning "localhost" in the IOR but Windows appears
         // not to do that and always returns "127.0.0.1".
-        assertTrue(profileDetails, 
+        assertTrue(profileDetails,
             (TestUtils.isWindows() ? profileDetails.indexOf("127.0.0.1") >= 0 : profileDetails.indexOf("localhost") >= 0));
     }
 
+    @Test
     public void testSetIORProxy_DNSDisabled() throws Exception
     {
         Properties props = new Properties();
@@ -73,36 +77,36 @@ public class BugJac380Test extends ORBTestCase
         assertTrue(profileDetails, profileDetails.indexOf("127.0.0.1") >= 0);
     }
 
+    @Override
+    protected void patchORBProperties(Properties props) throws Exception
+    {
+
+    }
+
     /**
      * create a reference and return its details as string printed using dior.
      */
     private String getProfileDetails(Properties props) throws Exception, InvalidPolicy, AdapterAlreadyExists, WrongPolicy
     {
-        ORBSetup setup = new ORBSetup(this, props);
-        try
-        {
-            setup.setUp();
+        // Clear the original ORB so we can create a new one with different properties.
+        ORBTearDown();
+        orbProps.putAll(props);
+        ORBSetUp();
 
-            POA rootPOA = setup.getRootPOA();
-            POA testPOA = rootPOA.create_POA("MyPOA", rootPOA.the_POAManager(), new Policy[] {rootPOA.create_id_assignment_policy(IdAssignmentPolicyValue.USER_ID)});
-            byte[] key = new byte[] {1, 2, 3, 4};
-            org.omg.CORBA.Object object = testPOA.create_reference_with_id(key, BasicServerHelper.id());
+        POA testPOA = rootPOA.create_POA("MyPOA", rootPOA.the_POAManager(), new Policy[] {rootPOA.create_id_assignment_policy(IdAssignmentPolicyValue.USER_ID)});
+        byte[] key = new byte[] {1, 2, 3, 4};
+        org.omg.CORBA.Object object = testPOA.create_reference_with_id(key, BasicServerHelper.id());
 
-            ObjectImpl objectImpl = (ObjectImpl) object;
-            Delegate delegate = (Delegate) objectImpl._get_delegate();
+        ObjectImpl objectImpl = (ObjectImpl) object;
+        Delegate delegate = (Delegate) objectImpl._get_delegate();
 
-            ParsedIOR parsedIOR = delegate.getParsedIOR();
+        ParsedIOR parsedIOR = delegate.getParsedIOR();
 
-            StringWriter out = new StringWriter();
-            final PrintWriter printWriter = new PrintWriter(out);
-            PrintIOR.printIOR(orb, parsedIOR, printWriter);
-            printWriter.close();
+        StringWriter out = new StringWriter();
+        final PrintWriter printWriter = new PrintWriter(out);
+        PrintIOR.printIOR(orb, parsedIOR, printWriter);
+        printWriter.close();
 
-            return out.toString();
-        }
-        finally
-        {
-            setup.tearDown();
-        }
+        return out.toString();
     }
 }

@@ -21,13 +21,15 @@ package org.jacorb.test.notification;
  *
  */
 
-import junit.framework.Test;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import org.jacorb.notification.impl.DefaultMessageFactory;
 import org.jacorb.notification.interfaces.FilterStage;
 import org.jacorb.notification.interfaces.Message;
 import org.jacorb.notification.servant.IProxyConsumer;
 import org.jacorb.test.notification.common.NotificationTestCase;
-import org.jacorb.test.notification.common.NotificationTestCaseSetup;
+import org.junit.Before;
+import org.junit.Test;
 import org.omg.CORBA.Any;
 import org.omg.CosNotification.EventHeader;
 import org.omg.CosNotification.EventType;
@@ -46,12 +48,8 @@ public class TimeoutTest extends NotificationTestCase
     DefaultMessageFactory messageFactory_;
     StructuredEvent structuredEvent_;
 
-    public TimeoutTest (String name, NotificationTestCaseSetup setup)
-    {
-        super(name, setup);
-    }
-
-    public void setUpTest() throws Exception
+    @Before
+    public void setUp() throws Exception
     {
         messageFactory_ = new DefaultMessageFactory(getORB(), getConfiguration());
 
@@ -75,6 +73,7 @@ public class TimeoutTest extends NotificationTestCase
         messageFactory_.dispose();
     }
 
+    @Test
     public void testStructuredEventWithoutTimeoutProperty() throws Exception
     {
         Message _event = messageFactory_.newMessage(structuredEvent_);
@@ -82,6 +81,7 @@ public class TimeoutTest extends NotificationTestCase
     }
 
 
+    @Test
     public void testAnyEventHasNoStopTime() throws Exception
     {
         Message _event = messageFactory_.newMessage(getORB().create_any());
@@ -90,6 +90,7 @@ public class TimeoutTest extends NotificationTestCase
     }
 
 
+    @Test
     public void testStructuredEventWithTimeoutProperty() throws Exception
     {
         structuredEvent_.header.variable_header = new Property[1];
@@ -118,10 +119,5 @@ public class TimeoutTest extends NotificationTestCase
                                                         });
         assertTrue(_event.hasTimeout());
         assertEquals(100, _event.getTimeout());
-    }
-
-    public static Test suite() throws Exception
-    {
-        return NotificationTestCase.suite(TimeoutTest.class);
     }
 }

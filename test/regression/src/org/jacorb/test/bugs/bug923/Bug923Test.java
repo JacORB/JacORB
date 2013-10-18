@@ -1,12 +1,12 @@
 package org.jacorb.test.bugs.bug923;
 
 import java.util.Properties;
-import junit.framework.Test;
-import junit.framework.TestSuite;
 import org.jacorb.test.common.ClientServerSetup;
 import org.jacorb.test.common.ClientServerTestCase;
 import org.jacorb.test.common.CommonSetup;
-import org.jacorb.test.common.TestUtils;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
 
 
 public class Bug923Test extends ClientServerTestCase
@@ -16,39 +16,18 @@ public class Bug923Test extends ClientServerTestCase
      */
     private org.omg.CORBA.Object server;
 
-    /**
-     * <code>TestCaseImpl</code> constructor for the suite.
-     *
-     * @param name a <code>String</code> value
-     * @param setup a <code>ClientServerSetup</code> value
-     */
-    public Bug923Test(String name, ClientServerSetup setup)
-    {
-        super(name, setup);
-    }
-
-    /**
-     * <code>setUp</code> for junit.
-     *
-     * @exception Exception if an error occurs
-     */
+    @Before
     public void setUp() throws Exception
     {
         server = setup.getServerObject();
     }
 
-    protected void tearDown() throws Exception
-    {
-        server = null;
-    }
-
     /**
      * <code>suite</code> initialise the tests with the correct environment.
      */
-    public static Test suite()
+    @BeforeClass
+    public static void beforeClassSetUp() throws Exception
     {
-        TestSuite suite = new TestSuite( "923 - nonretain test" );
-
         Properties client_props = new Properties();
         Properties server_props = new Properties();
 
@@ -58,18 +37,14 @@ public class Bug923Test extends ClientServerTestCase
         server_props.put("org.omg.PortableInterceptor.ORBInitializerClass.MyInitializer",
                          "org.jacorb.test.bugs.bug923.MyInitializer");
 
-        ClientServerSetup setup =
-        new ClientServerSetup(suite,
+        setup = new ClientServerSetup(
                               Server.class.getName(),
                               "org.jacorb.test.bugs.bug923.GoodDayImpl",
                               client_props,
                               server_props);
-
-        TestUtils.addToSuite(suite, setup, Bug923Test.class);
-
-        return setup;
     }
 
+    @Test
     public void test_locatorinterceptors()
     {
         // and narrow it to HelloWorld.GoodDay

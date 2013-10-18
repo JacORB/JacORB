@@ -20,12 +20,14 @@ package org.jacorb.test.bugs.bug401;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import java.io.Serializable;
-import junit.framework.Test;
-import junit.framework.TestSuite;
 import org.jacorb.test.common.ClientServerSetup;
 import org.jacorb.test.common.ClientServerTestCase;
-import org.jacorb.test.common.TestUtils;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
 import org.omg.CORBA.Any;
 import org.omg.CORBA.portable.ValueFactory;
 
@@ -38,36 +40,22 @@ public class Bug401Test extends ClientServerTestCase
 {
     private AnyServer server;
 
-    public Bug401Test (String name, ClientServerSetup setup)
-    {
-        super (name, setup);
-    }
-
+    @Before
     public void setUp()
     {
-        server = (AnyServer)AnyServerHelper.narrow(setup.getServerObject());
+        server = AnyServerHelper.narrow(setup.getServerObject());
         org.omg.CORBA_2_3.ORB orb = (org.omg.CORBA_2_3.ORB)setup.getClientOrb();
         orb.register_value_factory(AHelper.id(), new AFactory());
         orb.register_value_factory(BHelper.id(), new BFactory());
     }
 
-    protected void tearDown() throws Exception
+    @BeforeClass
+    public static void beforeClassSetUp() throws Exception
     {
-        server = null;
+        setup = new ClientServerSetup("org.jacorb.test.bugs.bug401.AnyServant");
     }
 
-    public static Test suite()
-    {
-        TestSuite suite = new TestSuite("bug 401 values in anys");
-        ClientServerSetup setup =
-            new ClientServerSetup(suite,
-                                  "org.jacorb.test.bugs.bug401.AnyServant");
-
-        TestUtils.addToSuite(suite, setup, Bug401Test.class);
-
-        return setup;
-    }
-
+    @Test
     public void test_getA()
     {
         Any aa = server.getAnyA();
@@ -77,6 +65,7 @@ public class Bug401Test extends ClientServerTestCase
         assertEquals (0xAA, a.aa);
     }
 
+    @Test
     public void test_getB()
     {
         Any bb = server.getAnyB();
@@ -87,6 +76,7 @@ public class Bug401Test extends ClientServerTestCase
         assertEquals (0xBB, b.bb);
     }
 
+    @Test
     public void test_getAB()
     {
         Any[] ab = server.getAnyAB();

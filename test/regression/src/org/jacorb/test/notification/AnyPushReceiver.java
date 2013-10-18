@@ -2,7 +2,7 @@ package org.jacorb.test.notification;
 
 import java.util.concurrent.CyclicBarrier;
 import java.util.concurrent.atomic.AtomicInteger;
-import junit.framework.Assert;
+import org.junit.Assert;
 import org.omg.CORBA.Any;
 import org.omg.CORBA.IntHolder;
 import org.omg.CORBA.ORB;

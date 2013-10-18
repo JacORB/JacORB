@@ -1,9 +1,11 @@
 package org.jacorb.test.bugs.bug272;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import org.jacorb.test.common.ORBTestCase;
+import org.junit.Test;
 import org.omg.CORBA.Any;
 import org.omg.CORBA.OctetSeqHelper;
-
 /**
  * Test for bug 272, byte array in Any.
  *
@@ -15,7 +17,8 @@ public class Bug272Test extends ORBTestCase
 	 * Puts a byte array of length 1 into an Any.
 	 * (Regression test for bug #272)
 	 */
-	public void test_Any_byte_array_1()
+    @Test
+    public void test_Any_byte_array_1()
 	{
 		do_Any_byte_array (1);
 	}
@@ -25,7 +28,8 @@ public class Bug272Test extends ORBTestCase
 	 * which is one less than the deferred write limit.
 	 * (Regression test for bug #272)
 	 */
-	public void test_Any_byte_array_3999()
+    @Test
+    public void test_Any_byte_array_3999()
 	{
 		do_Any_byte_array (3999);
 	}
@@ -35,7 +39,8 @@ public class Bug272Test extends ORBTestCase
 	 * which is the deferred write limit.
 	 * (Regression test for bug #272)
 	 */
-	public void test_Any_byte_array_4000()
+    @Test
+    public void test_Any_byte_array_4000()
 	{
 		do_Any_byte_array (4000);
 	}
@@ -45,7 +50,8 @@ public class Bug272Test extends ORBTestCase
 	 * which is one beyond the deferred write limit.
 	 * (Regression test for bug #272)
 	 */
-	public void test_Any_byte_array_4001()
+    @Test
+    public void test_Any_byte_array_4001()
 	{
 		do_Any_byte_array (4001);
 	}
@@ -55,7 +61,8 @@ public class Bug272Test extends ORBTestCase
 	 * which is way beyond the deferred write limit.
 	 * (Regression test for bug #272)
 	 */
-	public void test_Any_byte_array_40123()
+    @Test
+    public void test_Any_byte_array_40123()
 	{
 		do_Any_byte_array (40123);
 	}

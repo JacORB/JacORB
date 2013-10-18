@@ -21,11 +21,12 @@
 
 package org.jacorb.test.notification.container;
 
-import junit.framework.Test;
-import junit.framework.TestSuite;
+import static org.junit.Assert.assertNotNull;
 import org.jacorb.config.Configuration;
 import org.jacorb.notification.container.PicoContainerFactory;
 import org.jacorb.test.common.ORBTestCase;
+import org.junit.Before;
+import org.junit.Test;
 import org.omg.CORBA.ORB;
 import org.omg.CosNotifyFilter.FilterFactory;
 import org.omg.PortableServer.POA;
@@ -38,11 +39,13 @@ public class CoreContainerFactoryTest extends ORBTestCase
 {
     PicoContainer picoContainer_;
 
-    public void doSetUp() throws Exception
+    @Before
+    public void setUp() throws Exception
     {
         picoContainer_ = PicoContainerFactory.createRootContainer((org.jacorb.orb.ORB)orb);
     }
 
+    @Test
     public void testGetORB()
     {
         ORB _orb = (ORB) picoContainer_.getComponentInstance(ORB.class);
@@ -50,6 +53,7 @@ public class CoreContainerFactoryTest extends ORBTestCase
         assertNotNull(_orb);
     }
 
+    @Test
     public void testGetPOA()
     {
         POA _poa = (POA) picoContainer_.getComponentInstance(POA.class);
@@ -57,6 +61,7 @@ public class CoreContainerFactoryTest extends ORBTestCase
         assertNotNull(_poa);
     }
 
+    @Test
     public void testGetConfiguration()
     {
         Configuration config = (Configuration) picoContainer_.getComponentInstance(Configuration.class);
@@ -64,15 +69,11 @@ public class CoreContainerFactoryTest extends ORBTestCase
         assertNotNull(config);
     }
 
+    @Test
     public void testGetFilterFactory()
     {
         FilterFactory filterFactory = (FilterFactory)picoContainer_.getComponentInstance(FilterFactory.class);
 
         assertNotNull(filterFactory);
-    }
-
-    public static Test suite()
-    {
-        return new TestSuite(CoreContainerFactoryTest.class);
     }
 }

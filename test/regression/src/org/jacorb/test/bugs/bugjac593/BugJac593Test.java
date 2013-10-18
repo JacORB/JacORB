@@ -22,12 +22,14 @@ package org.jacorb.test.bugs.bugjac593;
  */
 
 
+import static org.junit.Assert.fail;
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.Arrays;
 import java.util.Properties;
 import org.jacorb.test.common.ORBTestCase;
+import org.junit.Test;
 import org.omg.CORBA.ORB;
 
 
@@ -45,6 +47,7 @@ public class BugJac593Test extends ORBTestCase
      *
      * @exception Exception if an error occurs
      */
+    @Test
     public void testInitORBSingleton() throws Exception
     {
         String classpath = System.getProperty("java.class.path");

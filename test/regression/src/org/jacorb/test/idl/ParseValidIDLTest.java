@@ -21,11 +21,18 @@
 
 package org.jacorb.test.idl;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import java.io.File;
+import java.io.FilenameFilter;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import junit.framework.Test;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 import org.jacorb.test.common.TestUtils;
+import org.junit.Test;
+import org.junit.runners.Parameterized.Parameters;
 import org.omg.CORBA.TypeCode;
 
 /**
@@ -44,20 +51,41 @@ import org.omg.CORBA.TypeCode;
  */
 public class ParseValidIDLTest extends AbstractIDLTestcase
 {
+    final static String IDL = TestUtils.testHome() + "/idl/compiler/succeed";
+
+    @Parameters(name="{index} + {0}")
+    public static Collection<Object[]> data()
+    {
+        List<Object[]> params = new ArrayList<Object[]>();
+        File fileNames[] = new File(IDL).listFiles(new FilenameFilter()
+        {
+            public boolean accept(File dir, String name)
+            {
+                return name.endsWith(".idl");
+            }
+        });
+
+        for (File file : fileNames) {
+            params.add(new Object[] { file });
+        }
+        return params;
+    }
+
     public ParseValidIDLTest(File file)
     {
-        super("testCanParseValidIDL", file);
+        super(file);
     }
 
     /**
      * this is the main test method. it will be invoked
      * for every .idl file that is found in the source directory
      */
+    @Test
     public void testCanParseValidIDL() throws Exception
     {
         // decide wether to spawn an extra process for JacIDL.
         // defaults to false.
-        runJacIDL(false, shouldSpawnJacIDLProcess(idlFile));
+        runJacIDL(false);
 
         ClassLoader cl = compileGeneratedSources(false);
 
@@ -71,29 +99,12 @@ public class ParseValidIDLTest extends AbstractIDLTestcase
     }
 
     /**
-     *  should the IDL file idlFile be parsed in its own Process?
-     *
-     *  Bit horrible here - compiling some standalone IDL's always seemed to work. Maybe its an interaction
-     *  with the threading in the parser/interfacebody. However if I execute this as a separate process it works
-     *  fine - so for a test its still ok.
-     */
-    private boolean shouldSpawnJacIDLProcess(File idlFile)
-    {
-//        if (idlFile.getName().endsWith("basetypes.idl"))
-//        {
-//            return true;
-//        }
-
-        return false;
-    }
-
-    /**
      * related to RT#1445. forward declarations in idl led
      * to incorrectly generated classes.
      */
     public void verify_rt1445_idl(ClassLoader cl) throws Exception
     {
-        Class nodeClazz = cl.loadClass("tree.Node");
+        Class<?> nodeClazz = cl.loadClass("tree.Node");
 
         nodeClazz.getDeclaredField("name");
         nodeClazz.getDeclaredField("description");
@@ -112,7 +123,7 @@ public class ParseValidIDLTest extends AbstractIDLTestcase
      */
     public void verify_bugrtj999_idl(ClassLoader cl) throws Exception
     {
-        Class clazz = cl.loadClass("bugrtj999.THIS_DOESNT_WORK");
+        Class<?> clazz = cl.loadClass("bugrtj999.THIS_DOESNT_WORK");
         Field f = clazz.getDeclaredField ("value");
         assertTrue (16384L == f.getLong (null));
 
@@ -146,25 +157,19 @@ public class ParseValidIDLTest extends AbstractIDLTestcase
 
     public void verify_bugjac569_idl(ClassLoader cl) throws Exception
     {
-        Class clazz = cl.loadClass("PragmaBug.TestHelper");
+        Class<?> clazz = cl.loadClass("PragmaBug.TestHelper");
         Method method = clazz.getMethod("id", (Class[])null);
         assertEquals("IDL:acme.com/PragmaBug/Test:1.0", method.invoke(null, (Object[])null));
     }
 
     public void verify_valueTest_idl(ClassLoader cl) throws Exception
     {
-        Class clazz = cl.loadClass("test.ValueTestHelper");
+        Class<?> clazz = cl.loadClass("test.ValueTestHelper");
         Method method = clazz.getMethod("type", new Class[0]);
         TypeCode result = (TypeCode) method.invoke(null, new Object[0]);
 
         assertEquals(2, result.member_count());
         assertEquals("member1", result.member_name(0));
         assertEquals("member2", result.member_name(1));
-    }
-
-    public static Test suite()
-    {
-        final String dir = TestUtils.testHome() + "/idl/compiler/succeed";
-        return suite(dir, ParseValidIDLTest.class);
     }
 }

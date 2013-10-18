@@ -21,6 +21,7 @@ package org.jacorb.test.config;
  *
  */
 
+import static org.junit.Assert.assertEquals;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -28,12 +29,12 @@ import java.io.PrintWriter;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.Properties;
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
 import org.jacorb.config.Configuration;
 import org.jacorb.config.JacORBConfiguration;
 import org.jacorb.test.common.TestUtils;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 import org.omg.CORBA.ORB;
 
 /**
@@ -42,24 +43,13 @@ import org.omg.CORBA.ORB;
  * @author Alphonse Bendt
  * @author Andre Spiegel
  */
-public class ConfigurationTest extends TestCase
+public class ConfigurationTest
 {
     private final Properties oldProps = new Properties();
 
-    public ConfigurationTest (String name)
-    {
-        super (name);
-    }
-
-    public static Test suite()
-    {
-        TestSuite result = new TestSuite("Configuration Tests");
-        result.addTestSuite(ConfigurationTest.class);
-        return result;
-    }
-
     @SuppressWarnings("deprecation")
-    protected void setUp() throws Exception
+    @Before
+    public void setUp() throws Exception
     {
         Thread.currentThread().setContextClassLoader(
                 new URLClassLoader(
@@ -71,7 +61,8 @@ public class ConfigurationTest extends TestCase
         oldProps.putAll(System.getProperties());
     }
 
-    protected void tearDown() throws Exception
+    @After
+    public void tearDown() throws Exception
     {
         System.setProperties(oldProps);
     }
@@ -79,6 +70,7 @@ public class ConfigurationTest extends TestCase
     /**
      * Simply a unit test of method JacORBConfiguration.getLoggerName()
      */
+    @Test
     public void testGetLoggerName() throws Exception
     {
         ORB orb = ORB.init(new String[] {}, null);
@@ -91,6 +83,7 @@ public class ConfigurationTest extends TestCase
      * Place an orb.properties file on the classpath and verify that it gets
      * loaded by the ORB.
      */
+    @Test
     public void testOrbPropertiesClasspath() throws Exception
     {
         try
@@ -118,6 +111,7 @@ public class ConfigurationTest extends TestCase
         }
     }
 
+    @Test
     public void testOrbidPropertiesConfigDir() throws Exception
     {
         try
@@ -152,6 +146,7 @@ public class ConfigurationTest extends TestCase
      * Place an orbid.properties file on the classpath and verify
      * that it gets loaded.
      */
+    @Test
     public void testOrbidPropertiesClasspath() throws Exception
     {
         try
@@ -185,6 +180,7 @@ public class ConfigurationTest extends TestCase
      * Get properties from a custom.props file and verify that they
      * have been loaded.
      */
+    @Test
     public void testCustomProps() throws Exception
     {
         try
@@ -218,6 +214,7 @@ public class ConfigurationTest extends TestCase
     /**
      * Verify that system properties end up in the JacORB configuration.
      */
+    @Test
     public void testSystemProperties() throws Exception
     {
         Properties props = new Properties();
@@ -237,6 +234,7 @@ public class ConfigurationTest extends TestCase
     /**
      * Verify that ORB.init() properties end up in the JacORB configuration.
      */
+    @Test
     public void testOrbInitProperties() throws Exception
     {
         Properties props = new Properties();
@@ -259,6 +257,7 @@ public class ConfigurationTest extends TestCase
      * A property is set in every conceivable way, and we verify that
      * the value from ORB.init() takes precedence over all the others.
      */
+    @Test
     public void testOrbInitPrecedence() throws Exception
     {
         try
@@ -296,6 +295,7 @@ public class ConfigurationTest extends TestCase
         finally
         {
             deletePropertiesFile ("classes/orb.properties");
+            deletePropertiesFile ("classes/myorbid.properties");
             deletePropertiesFile ("myorbid.properties");
             deletePropertiesFile ("special.properties");
         }
@@ -305,6 +305,7 @@ public class ConfigurationTest extends TestCase
      * Check that a property specified in the System properties overrides
      * most other ways of specifying that property.
      */
+    @Test
     public void testSystemPrecedence() throws Exception
     {
         try
@@ -350,6 +351,7 @@ public class ConfigurationTest extends TestCase
      * Check that a property specified in orbid.properties overrides
      * most other ways of specifying that property.
      */
+    @Test
     public void testOrbIdClasspathPrecedence() throws Exception
     {
         try
@@ -391,6 +393,7 @@ public class ConfigurationTest extends TestCase
      * Check that a property specified in custom.props overrides
      * most other ways of specifying that property.
      */
+    @Test
     public void testCustomPropsPrecedence() throws Exception
     {
         try
@@ -433,6 +436,7 @@ public class ConfigurationTest extends TestCase
      * Check that a property specified in orbid.properties overrides
      * the same property as defined in orb.properties.
      */
+    @Test
     public void testOrbIdConfigDirPrecedence() throws Exception
     {
         try
@@ -467,6 +471,7 @@ public class ConfigurationTest extends TestCase
         }
     }
 
+    @Test
     public void testAppletConfiguration() throws Exception
     {
         try
@@ -502,6 +507,7 @@ public class ConfigurationTest extends TestCase
     /**
      * Verify that ORB.init() properties end up in the JacORB configuration.
      */
+    @Test
     public void testOrbInitSingletonProperties() throws Exception
     {
         Properties props = new Properties();
@@ -534,6 +540,7 @@ public class ConfigurationTest extends TestCase
      * Verify that properties are cached in both string and optimised
      * caches.
      */
+    @Test
     public void testCacheProperties() throws Exception
     {
         Properties props = new Properties();

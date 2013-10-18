@@ -1,9 +1,8 @@
 package org.jacorb.test.poa;
 
+import static org.junit.Assert.assertFalse;
 import java.util.Properties;
 import junit.framework.AssertionFailedError;
-import junit.framework.Test;
-import junit.framework.TestSuite;
 import org.jacorb.test.AMI_CallbackServerHandler;
 import org.jacorb.test.AMI_CallbackServerHandlerOperations;
 import org.jacorb.test.AMI_CallbackServerHandlerPOATie;
@@ -12,8 +11,10 @@ import org.jacorb.test.CallbackServerHelper;
 import org.jacorb.test._CallbackServerStub;
 import org.jacorb.test.common.CallbackTestCase;
 import org.jacorb.test.common.ClientServerSetup;
-import org.jacorb.test.common.TestUtils;
 import org.jacorb.test.orb.CallbackServerImpl;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
 import org.omg.Messaging.ExceptionHolder;
 
 
@@ -27,35 +28,23 @@ public class QueueWaitTest extends CallbackTestCase
 {
     private CallbackServer server;
 
-    public QueueWaitTest(String name, ClientServerSetup setup)
-    {
-        super(name, setup);
-    }
-
+    @Before
     public void setUp() throws Exception
     {
         server = CallbackServerHelper.narrow( setup.getServerObject() );
     }
 
-    protected void tearDown() throws Exception
+    @BeforeClass
+    public static void beforeClassSetUp() throws Exception
     {
-        server = null;
-    }
-
-    public static Test suite()
-    {
-        TestSuite suite = new TestSuite( "Request Queue Overrun - waiting (" + QueueWaitTest.class.getName() + ")");
 
         Properties props = new Properties();
         props.setProperty ("jacorb.poa.queue_max", "10");
         props.setProperty ("jacorb.poa.queue_min", "5");
         props.setProperty ("jacorb.poa.queue_wait", "on");
 
-        ClientServerSetup setup = new ClientServerSetup(suite, CallbackServerImpl.class.getName(), null, props);
+        setup = new ClientServerSetup(CallbackServerImpl.class.getName(), null, props);
 
-        TestUtils.addToSuite(suite, setup, QueueWaitTest.class);
-
-        return setup;
     }
 
     private class ReplyHandler
@@ -172,6 +161,7 @@ public class QueueWaitTest extends CallbackTestCase
      * Try to overrun the request queue, expect that all
      * requests come through without exceptions.
      */
+    @Test
     public void test_overrun() throws Exception
     {
         // for warm up

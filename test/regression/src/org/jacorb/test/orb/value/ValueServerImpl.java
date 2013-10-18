@@ -37,7 +37,7 @@ public class ValueServerImpl extends ValueServerPOA
 
     public String receive_list (Node n)
     {
-        List l = new ArrayList();
+        List<Node> l = new ArrayList<Node>();
         Node x = n;
         boolean shared = false;
 
@@ -54,9 +54,9 @@ public class ValueServerImpl extends ValueServerPOA
 
         StringBuffer result = new StringBuffer ("list of length: "
                                                 + l.size() + " -- ");
-        for (Iterator i = l.iterator(); i.hasNext();)
+        for (Iterator<Node> i = l.iterator(); i.hasNext();)
         {
-            Node q = (Node)i.next();
+            Node q = i.next();
             result.append (q.id);
             if (i.hasNext()) result.append (" ");
         }

@@ -4,13 +4,12 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Properties;
 import java.util.Random;
-import junit.framework.Assert;
-import junit.framework.Test;
-import junit.framework.TestSuite;
 import org.jacorb.orb.giop.BiDirConnectionInitializer;
 import org.jacorb.test.common.ClientServerSetup;
 import org.jacorb.test.common.ClientServerTestCase;
-import org.jacorb.test.common.TestUtils;
+import org.junit.Assert;
+import org.junit.BeforeClass;
+import org.junit.Test;
 import org.omg.BiDirPolicy.BIDIRECTIONAL_POLICY_TYPE;
 import org.omg.BiDirPolicy.BOTH;
 import org.omg.BiDirPolicy.BidirectionalPolicyValueHelper;
@@ -27,26 +26,19 @@ public class MaxConnetcionEnforcementTest extends ClientServerTestCase
 {
     static Random rnd = new Random();
 
-    public MaxConnetcionEnforcementTest (String name, ClientServerSetup setup)
+    @BeforeClass
+    public static void beforeClassSetUp() throws Exception
     {
-        super(name, setup);
-    }
-
-    public static Test suite()
-    {
-        TestSuite suite = new TestSuite(MaxConnetcionEnforcementTest.class.getName());
 
         Properties props = new Properties();
         props.put( "org.omg.PortableInterceptor.ORBInitializerClass.bidir_init",
                    BiDirConnectionInitializer.class.getName() );
 
-        ClientServerSetup setup = new ClientServerSetup(suite, TestServer.class.getName(), TestIfImpl.class.getName(), props, null);
+        setup = new ClientServerSetup(TestServer.class.getName(), TestIfImpl.class.getName(), props, null);
 
-        TestUtils.addToSuite(suite, setup, MaxConnetcionEnforcementTest.class);
-
-        return setup;
     }
 
+    @Test
     public void testMaxConnetcionEnforcement()
     {
         try
@@ -87,7 +79,7 @@ public class MaxConnetcionEnforcementTest extends ClientServerTestCase
             final int callInterval = 1;
             int threads = 10;
 
-            List threadPool = new LinkedList();
+            List<Thread> threadPool = new LinkedList<Thread>();
             Thread thread;
             for( int i = 0; i < threads; i++ )
             {

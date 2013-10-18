@@ -1,12 +1,14 @@
 package org.jacorb.test.bugs.bugrtj634;
 
+import static org.junit.Assert.assertEquals;
 import java.util.Properties;
-import junit.framework.Test;
-import junit.framework.TestSuite;
 import org.jacorb.test.ComplexTimingServer;
 import org.jacorb.test.ComplexTimingServerHelper;
 import org.jacorb.test.common.ClientServerSetup;
 import org.jacorb.test.common.ClientServerTestCase;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
 import org.omg.CORBA.ORB;
 import org.omg.CORBA.Policy;
 import org.omg.PortableServer.ImplicitActivationPolicyValue;
@@ -23,16 +25,7 @@ public class RTJ634Test extends ClientServerTestCase
 
    protected static org.omg.CORBA.Object server2;
 
-   public RTJ634Test(String name, ClientServerSetup setup)
-   {
-      super(name, setup);
-   }
-
-   /**
-    * <code>setUp</code> for junit.
-    *
-    * @exception Exception if an error occurs
-    */
+   @Before
    public void setUp() throws Exception
    {
       server1 = ComplexTimingServerHelper.narrow( setup.getServerObject() );
@@ -41,28 +34,10 @@ public class RTJ634Test extends ClientServerTestCase
       server2 = ComplexTimingServerHelper.narrow (o);
    }
 
-   /**
-    * <code>tearDown</code> us used by Junit for cleaning up after the tests.
-    *
-    * @exception Exception if an error occurs
-    */
-   protected void tearDown() throws Exception
+
+   @BeforeClass
+   public static void beforeClassSetUp() throws Exception
    {
-      super.tearDown();
-
-      server1._release ();
-      server1 = null;
-   }
-
-   /**
-    * <code>suite</code> initialise the tests with the correct environment.
-    *
-    * @return a <code>Test</code> value
-    */
-   public static Test suite( )
-   {
-      TestSuite suite = new TestSuite( "RTJ634Test" );
-
       Properties client_props = new Properties();
       Properties server_props = new Properties();
 
@@ -71,17 +46,13 @@ public class RTJ634Test extends ClientServerTestCase
       server_props.put("org.omg.PortableInterceptor.ORBInitializerClass.org.jacorb.test.bugs.bugrtj634.SInitializer",
                        "");
 
-      TestCaseClientServerSetup setup = new TestCaseClientServerSetup (suite,
-                                                      "org.jacorb.test.bugs.bugrtj634.TimingServerImpl",
-                                                      client_props,
-                                                      server_props);
-
-      suite.addTest( new RTJ634Test( "test634_1", setup ));
-
-      return setup;
+      setup = new ClientServerSetup (RTJ634Test.class.getName(), "org.jacorb.test.bugs.bugrtj634.TimingServerImpl",
+              client_props,
+              server_props);
    }
 
-   public void test634_1() throws Exception
+    @Test
+    public void test634_1() throws Exception
    {
       try
       {
@@ -175,27 +146,4 @@ public class RTJ634Test extends ClientServerTestCase
        }
    }
 
-
-   /**
-    * <code>TestCaseClientServerSetup</code> overrides ClientServerSetup
-    * so that we can provide a different main.
-    */
-   public static class TestCaseClientServerSetup extends ClientServerSetup
-   {
-       /**
-        * Creates a new <code>TestCaseClientServerSetup</code> instance.
-        *
-        * @param test a <code>Test</code> value
-        * @param servantName a <code>String</code> value
-        * @param clientOrbProperties a <code>Properties</code> value
-        * @param serverOrbProperties a <code>Properties</code> value
-        */
-       public TestCaseClientServerSetup( Test test,
-                                       String servantName,
-                                       Properties clientOrbProperties,
-                                       Properties serverOrbProperties )
-       {
-           super(test, RTJ634Test.class.getName(), servantName, clientOrbProperties, serverOrbProperties);
-       }
-   }
 }

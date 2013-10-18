@@ -1,6 +1,7 @@
 package org.jacorb.test.notification;
 
-import junit.framework.Test;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import org.jacorb.notification.filter.EvaluationContext;
 import org.jacorb.notification.filter.etcl.AbstractTCLNode;
 import org.jacorb.notification.filter.etcl.ETCLComponentName;
@@ -9,8 +10,9 @@ import org.jacorb.notification.filter.etcl.TCLParser;
 import org.jacorb.notification.impl.DefaultMessageFactory;
 import org.jacorb.notification.interfaces.Message;
 import org.jacorb.test.notification.common.NotificationTestCase;
-import org.jacorb.test.notification.common.NotificationTestCaseSetup;
 import org.jacorb.test.notification.common.NotificationTestUtils;
+import org.junit.Before;
+import org.junit.Test;
 
 /**
  * @author Alphonse Bendt
@@ -24,12 +26,9 @@ public class MessageUtilsTest extends NotificationTestCase
 
     DefaultMessageFactory messageFactory_;
 
-    public MessageUtilsTest( String name, NotificationTestCaseSetup setup )
-    {
-        super( name, setup );
-    }
 
-    public void setUpTest() throws Exception
+    @Before
+    public void setUp() throws Exception
     {
         testUtils_ = new NotificationTestUtils(getORB());
 
@@ -39,6 +38,7 @@ public class MessageUtilsTest extends NotificationTestCase
     }
 
 
+    @Test
     public void testEvaluateCachesResult() throws Exception
     {
         AbstractTCLNode _root = TCLParser.parse( "$.first_name" );
@@ -55,6 +55,7 @@ public class MessageUtilsTest extends NotificationTestCase
     }
 
 
+    @Test
     public void testEvaluateCachesAny() throws Exception
     {
         AbstractTCLNode _root = TCLParser.parse( "$.home_address.street" );
@@ -74,9 +75,4 @@ public class MessageUtilsTest extends NotificationTestCase
         _event.extractValue( context_, ( ETCLComponentName ) _root );
     }
 
-
-    public static Test suite() throws Exception
-    {
-        return NotificationTestCase.suite(MessageUtilsTest.class);
-    }
 }

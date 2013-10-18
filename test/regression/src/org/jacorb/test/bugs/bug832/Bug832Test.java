@@ -1,14 +1,14 @@
 package org.jacorb.test.bugs.bug832;
 
 import java.util.Properties;
-import junit.framework.Test;
-import junit.framework.TestSuite;
 import org.jacorb.test.bugs.bugjac182.JAC182;
 import org.jacorb.test.bugs.bugjac182.JAC182Helper;
 import org.jacorb.test.common.ClientServerSetup;
 import org.jacorb.test.common.ClientServerTestCase;
 import org.jacorb.test.common.CommonSetup;
-import org.jacorb.test.common.TestUtils;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
 
 
 public class Bug832Test extends ClientServerTestCase
@@ -25,33 +25,23 @@ public class Bug832Test extends ClientServerTestCase
      * @param name a <code>String</code> value
      * @param setup a <code>ClientServerSetup</code> value
      */
-    public Bug832Test(String name, ClientServerSetup setup)
-    {
-        super(name, setup);
-    }
-
     /**
      * <code>setUp</code> for junit.
      *
      * @exception Exception if an error occurs
      */
+    @Before
     public void setUp() throws Exception
     {
         server = JAC182Helper.narrow( setup.getServerObject() );
     }
 
-    protected void tearDown() throws Exception
-    {
-        server = null;
-    }
-
     /**
      * <code>suite</code> initialise the tests with the correct environment.
      */
-    public static Test suite()
+    @BeforeClass
+    public static void beforeClassSetUp() throws Exception
     {
-        TestSuite suite = new TestSuite( "832 - nonretain test" );
-
         Properties client_props = new Properties();
         Properties server_props = new Properties();
 
@@ -65,24 +55,21 @@ public class Bug832Test extends ClientServerTestCase
                          "org.jacorb.orb.giop.BiDirConnectionInitializer" );
 
 
-        ClientServerSetup setup =
-        new ClientServerSetup(suite,
+        setup = new ClientServerSetup(
                               Bug832TestServerRunner.class.getName(),
                               "org.jacorb.test.bugs.bug832.Bug832Impl",
                               client_props,
                               server_props);
-
-        TestUtils.addToSuite(suite, setup, Bug832Test.class);
-
-        return setup;
     }
 
+    @Test
     public void test_interceptornonretaindefaultservant()
     {
         server.test182Op();
     }
 
 
+    @Test
     public void test_interceptornonretaindservantmanager()
     {
         server.test182Op();

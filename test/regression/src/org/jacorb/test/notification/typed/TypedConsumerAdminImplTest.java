@@ -20,14 +20,16 @@ package org.jacorb.test.notification.typed;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import junit.framework.Test;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import org.easymock.MockControl;
 import org.jacorb.notification.OfferManager;
 import org.jacorb.notification.SubscriptionManager;
 import org.jacorb.notification.servant.IEventChannel;
 import org.jacorb.notification.servant.TypedConsumerAdminImpl;
 import org.jacorb.test.notification.common.NotificationTestCase;
-import org.jacorb.test.notification.common.NotificationTestCaseSetup;
+import org.junit.Before;
+import org.junit.Test;
 import org.omg.CORBA.IntHolder;
 import org.omg.CosNotifyChannelAdmin.ConsumerAdmin;
 import org.omg.CosNotifyChannelAdmin.InterFilterGroupOperator;
@@ -48,19 +50,15 @@ public class TypedConsumerAdminImplTest extends NotificationTestCase
     private TypedConsumerAdmin consumerAdmin_;
 
     private MutablePicoContainer container_;
-    
-    public TypedConsumerAdminImplTest(String name, NotificationTestCaseSetup setup)
-    {
-        super(name, setup);
-    }
 
-    public void setUpTest() throws Exception
+    @Before
+    public void setUp() throws Exception
     {
         container_ = getPicoContainer();
 
         container_.registerComponentInstance(new OfferManager());
         container_.registerComponentInstance(new SubscriptionManager());
-        
+
         MockControl controlChannel = MockControl.createControl(IEventChannel.class);
         IEventChannel mockChannel = (IEventChannel) controlChannel.getMock();
 
@@ -78,7 +76,7 @@ public class TypedConsumerAdminImplTest extends NotificationTestCase
 
         mockChannel.getChannelMBean();
         controlChannel.setReturnValue("channel");
-        
+
         controlChannel.replay();
 
         objectUnderTest_ = new TypedConsumerAdminImpl(getORB(), getPOA(), getConfiguration(),
@@ -89,16 +87,19 @@ public class TypedConsumerAdminImplTest extends NotificationTestCase
         consumerAdmin_ = TypedConsumerAdminHelper.narrow(objectUnderTest_.activate());
     }
 
+    @Test
     public void testContainer()
     {
         assertNotNull(container_.getComponentInstance(ConsumerAdmin.class));
     }
-    
+
+    @Test
     public void testIDs()
     {
         assertEquals(10, consumerAdmin_.MyID());
     }
 
+    @Test
     public void testCreateTypedPullSupplier() throws Exception
     {
         IntHolder id = new IntHolder();
@@ -107,10 +108,11 @@ public class TypedConsumerAdminImplTest extends NotificationTestCase
                 PullCoffeeHelper.id(), id);
 
         assertEquals(supplier, consumerAdmin_.get_proxy_supplier(id.value));
-        
+
         assertEquals(supplier, supplier.MyAdmin().get_proxy_supplier(id.value));
     }
 
+    @Test
     public void testCreateTypedPushSupplier() throws Exception
     {
         IntHolder id = new IntHolder();
@@ -119,13 +121,7 @@ public class TypedConsumerAdminImplTest extends NotificationTestCase
                 CoffeeHelper.id(), id);
 
         assertEquals(supplier, consumerAdmin_.get_proxy_supplier(id.value));
-        
-        assertEquals(supplier, supplier.MyAdmin().get_proxy_supplier(id.value));
-    }
 
-    public static Test suite() throws Exception
-    {
-        return NotificationTestCase.suite("TypedConsumerAdminImpl Tests",
-                TypedConsumerAdminImplTest.class);
+        assertEquals(supplier, supplier.MyAdmin().get_proxy_supplier(id.value));
     }
 }

@@ -22,10 +22,9 @@ package org.jacorb.test.notification.common;
  */
 
 import java.util.Properties;
-import junit.extensions.TestSetup;
-import junit.framework.Test;
 import org.jacorb.config.Configuration;
 import org.jacorb.notification.container.PicoContainerFactory;
+import org.jacorb.test.common.ORBTestCase;
 import org.jacorb.test.common.TestUtils;
 import org.jacorb.test.ir.IFRServerSetup;
 import org.omg.CORBA.ORB;
@@ -46,43 +45,38 @@ import org.picocontainer.defaults.AbstractComponentAdapter;
  * @author Alphonse Bendt
  */
 
-public class NotificationTestCaseSetup extends TestSetup
+public class NotificationTestCaseSetup extends ORBTestCase
 {
     private MutablePicoContainer container_;
 
     private NotificationTestUtils testUtils_;
 
-    private ORB clientORB_;
-
-    private ORB orb_;
-
-    private final Properties orbProps = new Properties();
+    private ORB serverORB;
 
 	private IFRServerSetup ifrServerSetup;
-
-    // //////////////////////////////////////
-
-    public NotificationTestCaseSetup(Test suite) throws Exception
-    {
-       super(suite);
-    }
-
-    // //////////////////////////////////////
 
     public NotificationTestUtils getTestUtils()
     {
         return testUtils_;
     }
 
-    public final void setUp() throws Exception
+    @Override
+    protected void patchORBProperties(Properties props) throws Exception
     {
-        super.setUp();
+        props.setProperty("ORBInitRef.InterfaceRepository", getRepository().toString());
+    }
 
-        orb_ = ORB.init(new String[0], orbProps);
+    public NotificationTestCaseSetup() throws Exception
+    {
+        ifrServerSetup = new IFRServerSetup(TestUtils.testHome() + "/idl/TypedNotification.idl", null, null);
 
-        POAHelper.narrow(orb_.resolve_initial_references("RootPOA")).the_POAManager().activate();
+        ORBSetUp();
 
-        container_ = PicoContainerFactory.createRootContainer((org.jacorb.orb.ORB) orb_);
+        serverORB = ORB.init(new String[0], orbProps);
+
+        POAHelper.narrow(serverORB.resolve_initial_references("RootPOA")).the_POAManager().activate();
+
+        container_ = PicoContainerFactory.createRootContainer((org.jacorb.orb.ORB) serverORB);
         container_.unregisterComponent(Repository.class);
         container_.registerComponent(new AbstractComponentAdapter(Repository.class, Repository.class) {
 
@@ -102,10 +96,9 @@ public class NotificationTestCaseSetup extends TestSetup
 			}
 			});
 
-        testUtils_ = new NotificationTestUtils(getORB());
+        testUtils_ = new NotificationTestUtils(getServerORB());
 
-        clientORB_ = ORB.init(new String[] {}, null);
-        POAHelper.narrow(clientORB_.resolve_initial_references("RootPOA")).the_POAManager()
+        POAHelper.narrow(orb.resolve_initial_references("RootPOA")).the_POAManager()
                 .activate();
     }
 
@@ -113,25 +106,21 @@ public class NotificationTestCaseSetup extends TestSetup
     {
         container_.dispose();
 
-        orb_.shutdown(true);
-
-        clientORB_.shutdown(true);
+        serverORB.shutdown(true);
 
         if (ifrServerSetup != null)
         {
         	ifrServerSetup.tearDown();
         	ifrServerSetup = null;
         }
-
-        super.tearDown();
     }
 
     public ORB getClientORB()
     {
-        return clientORB_;
+        return orb;
     }
 
-    public ORB getORB()
+    public ORB getServerORB()
     {
         return (ORB) container_.getComponentInstanceOfType(ORB.class);
     }
@@ -153,12 +142,6 @@ public class NotificationTestCaseSetup extends TestSetup
 
     public Repository getRepository() throws Exception
     {
-    	if (ifrServerSetup == null)
-    	{
-    		ifrServerSetup = new IFRServerSetup(this, TestUtils.testHome() + "/idl/TypedNotification.idl", null, null);
-    		ifrServerSetup.setUp();
-    	}
-
-        return ifrServerSetup.getRepository();
+       return ifrServerSetup.getRepository();
     }
 }

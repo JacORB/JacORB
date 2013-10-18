@@ -1,11 +1,11 @@
 package org.jacorb.test.poa;
 
-import junit.framework.Test;
-import junit.framework.TestSuite;
+import static org.junit.Assert.fail;
 import org.jacorb.test.BasicServer;
 import org.jacorb.test.BasicServerHelper;
 import org.jacorb.test.common.ORBTestCase;
 import org.jacorb.test.orb.BasicServerImpl;
+import org.junit.Test;
 import org.omg.CORBA.LocalObject;
 import org.omg.CORBA.Policy;
 import org.omg.PortableServer.ForwardRequest;
@@ -17,11 +17,7 @@ import org.omg.PortableServer.POAPackage.ObjectNotActive;
 
 public class Deactivate extends ORBTestCase
 {
-    public static Test suite()
-    {
-        return new TestSuite (Deactivate.class);
-    }
-
+    @Test
     public void test_deactivate () throws Exception
     {
         byte[] id1, id2;
@@ -68,6 +64,7 @@ public class Deactivate extends ORBTestCase
      * ServantActivators with a RETAIN policy are used local object
      * invocations do not activate the object so a deactivate fails.
      */
+    @Test
     public void test_deactivate_activator () throws Exception
     {
         rootPOA.the_POAManager().activate();

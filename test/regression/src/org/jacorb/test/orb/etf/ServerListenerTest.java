@@ -21,26 +21,21 @@ package org.jacorb.test.orb.etf;
  *   MA 02110-1301, USA.
  */
 
+import static org.junit.Assert.assertFalse;
 import java.util.Properties;
-import junit.framework.Test;
-import junit.framework.TestSuite;
 import org.jacorb.test.common.ClientServerSetup;
 import org.jacorb.test.orb.etf.wiop.WIOPFactories;
+import org.junit.BeforeClass;
+import org.junit.Test;
 
 /**
  * @author Andre Spiegel spiegel@gnu.org
  */
 public class ServerListenerTest extends AbstractWIOPTestCase
 {
-    public ServerListenerTest (String name, ClientServerSetup setup)
+    @BeforeClass
+    public static void beforeClassSetUp() throws Exception
     {
-        super (name, setup);
-    }
-
-    public static Test suite()
-    {
-        TestSuite suite = new TestSuite ("Server Listener Property");
-
         Properties clientProps = new Properties();
         clientProps.setProperty("jacorb.transport.factories",
                                 "org.jacorb.test.orb.etf.wiop.WIOPFactories,"
@@ -54,16 +49,12 @@ public class ServerListenerTest extends AbstractWIOPTestCase
         // only listen on IIOP
         serverProps.setProperty("jacorb.transport.server.listeners", "0");
 
-        ClientServerSetup setup =
-          new ClientServerSetup (suite,
+        setup = new ClientServerSetup(
                                  "org.jacorb.test.orb.BasicServerImpl",
                                  clientProps, serverProps);
-
-        suite.addTest (new ServerListenerTest ("testConnection", setup));
-
-        return setup;
     }
 
+    @Test
     public void testConnection()
     {
         server.ping();

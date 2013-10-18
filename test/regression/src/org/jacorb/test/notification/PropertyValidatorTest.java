@@ -1,9 +1,11 @@
 package org.jacorb.test.notification;
 
-import junit.framework.Test;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 import org.jacorb.notification.util.QoSPropertySet;
 import org.jacorb.test.notification.common.NotificationTestCase;
-import org.jacorb.test.notification.common.NotificationTestCaseSetup;
+import org.junit.Before;
+import org.junit.Test;
 import org.omg.CORBA.Any;
 import org.omg.CosNotification.BestEffort;
 import org.omg.CosNotification.ConnectionReliability;
@@ -19,11 +21,6 @@ public class PropertyValidatorTest extends NotificationTestCase
 {
     private QoSPropertySet objectUnderTest_;
 
-    public PropertyValidatorTest(String name, NotificationTestCaseSetup setup)
-    {
-        super(name, setup);
-    }
-
     public QoSPropertySet createInstance() throws Exception
     {
         QoSPropertySet _props = new QoSPropertySet(getConfiguration(), QoSPropertySet.CHANNEL_QOS);
@@ -31,11 +28,13 @@ public class PropertyValidatorTest extends NotificationTestCase
         return _props;
     }
 
-    public void setUpTest() throws Exception
+    @Before
+    public void setUp() throws Exception
     {
         objectUnderTest_ = createInstance();
     }
 
+    @Test
     public void testValidateQoS() throws Exception
     {
         Property[] _props = new Property[3];
@@ -88,10 +87,5 @@ public class PropertyValidatorTest extends NotificationTestCase
                 }
             }
         }
-    }
-
-    public static Test suite() throws Exception
-    {
-        return NotificationTestCase.suite(PropertyValidatorTest.class);
     }
 }

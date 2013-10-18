@@ -20,13 +20,14 @@
 
 package org.jacorb.test.orb;
 
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import java.lang.reflect.Field;
-import junit.framework.Test;
-import junit.framework.TestSuite;
 import org.jacorb.orb.Delegate;
 import org.jacorb.test.common.ClientServerSetup;
 import org.jacorb.test.common.ClientServerTestCase;
-import org.jacorb.test.common.TestUtils;
+import org.junit.BeforeClass;
+import org.junit.Test;
 import org.omg.CORBA.Any;
 
 /**
@@ -34,19 +35,13 @@ import org.omg.CORBA.Any;
  */
 public class IncomingReferencesAreLazilyCreatedTest extends ClientServerTestCase
 {
-    public IncomingReferencesAreLazilyCreatedTest(String name, ClientServerSetup setup)
+    @BeforeClass
+    public static void beforeClassSetUp() throws Exception
     {
-        super(name, setup);
+        setup = new ClientServerSetup(AnyServerImpl.class.getName());
     }
 
-    public static Test suite()
-    {
-        TestSuite suite = new TestSuite(IncomingReferencesAreLazilyCreatedTest.class.getName());
-        ClientServerSetup setup = new ClientServerSetup(suite, AnyServerImpl.class.getName());
-        TestUtils.addToSuite(suite, setup, IncomingReferencesAreLazilyCreatedTest.class);
-        return setup;
-    }
-
+    @Test
     public void testIncomingReferenceIsCreatedLazily() throws Exception
     {
         AnyServer server = AnyServerHelper.narrow(setup.getServerObject());

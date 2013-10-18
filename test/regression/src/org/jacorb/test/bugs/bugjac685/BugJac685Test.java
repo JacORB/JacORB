@@ -1,50 +1,55 @@
 package org.jacorb.test.bugs.bugjac685;
 
+import static org.junit.Assert.fail;
 import java.util.Properties;
-import junit.framework.TestCase;
-import org.jacorb.test.common.ORBSetup;
+import org.jacorb.test.common.ORBTestCase;
 import org.jacorb.test.common.ServerSetup;
+import org.junit.After;
+import org.junit.AfterClass;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
 import org.omg.CosNaming.NamingContextExt;
 import org.omg.CosNaming.NamingContextExtHelper;
 
-public class BugJac685Test extends TestCase
+public class BugJac685Test extends ORBTestCase
 {
     private SessionFactory sf;
-    private org.omg.CORBA.ORB orb;
     private NamingContextExt nc;
-
-    private NameServiceSetup nsSetup;
-    private String NS_IOR;
     private ServerSetup serverSetup;
-    private ORBSetup clientSetup;
 
-    protected void setUp() throws Exception
+    private static NameServiceSetup nsSetup;
+
+    @BeforeClass
+    public static void beforeClassSetUp() throws Exception
+    {
+        nsSetup = new NameServiceSetup ();
+        nsSetup.setUp();
+    }
+
+    protected void patchORBProperties(Properties props) throws Exception
+    {
+        props.setProperty ("ORBInitRef.NameService", nsSetup.getServerIOR());
+        props.setProperty("jacorb.test.ssl", "false");
+    }
+
+    @Before
+    public void setUp() throws Exception
     {
         try
         {
-            nsSetup = new NameServiceSetup (this);
-            nsSetup.setUp();
 
             Properties serverprops = new Properties();
             serverprops.setProperty ("ORBInitRef.NameService", nsSetup.getServerIOR());
             serverprops.setProperty ("jacorb.test.timeout.server", Long.toString(15000));
-            serverprops.setProperty("jacorb.test.ssl", "false");
+            serverprops.setProperty ("jacorb.test.ssl", "false");
 
-            serverSetup = new ServerSetup (this,
+            serverSetup = new ServerSetup (
                                            "org.jacorb.test.bugs.bugjac685.BugJac685TestServer",
                                            "",
                                            serverprops);
 
             serverSetup.setUp();
-
-            Properties clientprops = new Properties();
-            clientprops.setProperty ("ORBInitRef.NameService", nsSetup.getServerIOR());
-            clientprops.setProperty("jacorb.test.ssl", "false");
-
-            clientSetup = new ORBSetup (this, clientprops);
-            clientSetup.setUp();
-
-            orb = clientSetup.getORB();
 
             nc = NamingContextExtHelper.narrow
                 (orb.resolve_initial_references ("NameService"));
@@ -54,18 +59,24 @@ public class BugJac685Test extends TestCase
         }
         catch (Exception e)
         {
+            e.printStackTrace();
             fail ("Unexpected exception setting up " + e);
         }
     }
 
-    protected void tearDown() throws Exception
+    @AfterClass
+    public static void afterClassTearDown() throws Exception
     {
         nsSetup.tearDown();
-        serverSetup.tearDown();
-        clientSetup.tearDown();
     }
 
-    public void setPoa (POA_Kind pk)
+    @After
+    public void tearDown() throws Exception
+    {
+        serverSetup.tearDown();
+    }
+
+    private void setPoa (POA_Kind pk)
     {
         sf.set_poa (pk);
     }
@@ -85,6 +96,7 @@ public class BugJac685Test extends TestCase
                 for (int j = 0; j < counts[i]; j += counts[i]/sample)
                 {
                     Session s = sf.get_session (j);
+                    s._release();
                 }
             }
         }
@@ -94,6 +106,7 @@ public class BugJac685Test extends TestCase
         }
     }
 
+    @Test
     public void testDifferentPOAConfigs()
     {
         setPoa (POA_Kind.PK_SYSTEMID);

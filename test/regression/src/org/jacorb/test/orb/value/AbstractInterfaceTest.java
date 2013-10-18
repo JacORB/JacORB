@@ -20,10 +20,17 @@ package org.jacorb.test.orb.value;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import junit.framework.Test;
-import junit.framework.TestSuite;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 import org.jacorb.test.common.ClientServerSetup;
 import org.jacorb.test.common.ClientServerTestCase;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
 import org.omg.CORBA.ORB;
 
 /**
@@ -35,98 +42,89 @@ public class AbstractInterfaceTest extends ClientServerTestCase
     private ORB orb;
 
 
-    public AbstractInterfaceTest(String name, ClientServerSetup setup)
-    {
-        super(name, setup);
-    }
-
+    @Before
     public void setUp() throws Exception
     {
         passer = PasserHelper.narrow( setup.getServerObject() );
         orb = setup.getClientOrb();
-        
+
         ((org.omg.CORBA_2_3.ORB)orb).register_value_factory(StringNodeHelper.id(), new StringNodeDefaultFactory());
     }
 
-    protected void tearDown() throws Exception
+    @After
+    public void tearDown() throws Exception
     {
         passer = null;
         orb = null;
     }
 
-    public static Test suite()
+    @BeforeClass
+    public static void beforeClassSetUp() throws Exception
     {
-        TestSuite suite = new TestSuite( "AbstractInterface tests" );
-        ClientServerSetup setup =
-            new ClientServerSetup( suite,
-                                   "org.jacorb.test.orb.value.PasserImpl" );
-
-        suite.addTest(new AbstractInterfaceTest ("test_all", setup));
-
-        return setup;
+        setup = new ClientServerSetup("org.jacorb.test.orb.value.PasserImpl" );
     }
 
+    @Test
     public void test_all ()
     {
         BaseHolder pkg = new BaseHolder ();
         passer.pass_state(pkg);
         assertNotNull("passer returned null for state value", pkg.value);
-        
+
         this.test_state(pkg.value);
-        
+
         pkg.value = null;
         passer.pass_ops(pkg);
         assertNotNull("passer returned null for interface value", pkg.value);
-        
+
         this.test_ops(pkg.value);
-        
+
         this.test_exception(pkg.value);
-        
+
         passer.pass_nil(pkg);
-        
+
         assertNull ("passer returned not null for null value", pkg.value);
     }
-    
+
     private void test_ops (Base base)
     {
-        String retval;
         try
         {
-            retval = base.base_op ("base_op");
+            base.base_op ("base_op");
         }
         catch (BadInput e)
         {
             fail (e.toString());
         }
-        
+
         Foo foo = FooHelper.narrow(base);
-        
+
         assertNotNull (foo);
-        
+
         try
         {
-            retval = foo.foo_op("foo_op");
+            foo.foo_op("foo_op");
         }
         catch (BadInput e)
         {
             fail (e.toString());
         }
-        
+
         try
         {
-            retval = foo.base_op ("base_op");
+            foo.base_op ("base_op");
         }
         catch (BadInput e)
         {
             fail (e.toString());
         }
     }
-    
+
     private void test_exception (Base base)
     {
         try
         {
-            String retval = base.base_op ("bad_name");
+            base.base_op ("bad_name");
             fail ("base_op returned without exception on bad call");
         }
         catch (BadInput e)
@@ -134,13 +132,13 @@ public class AbstractInterfaceTest extends ClientServerTestCase
             // expected exception
         }
     }
-    
+
     private void test_state (Base base)
     {
         assertTrue (base instanceof TreeController);
-        
+
         TreeController tc = (TreeController)base;
-        
+
         assertNotNull(tc.root);
         assertTrue(tc.root instanceof StringNode);
         assertEquals("RootNode", ((StringNode)tc.root).name);
@@ -149,5 +147,5 @@ public class AbstractInterfaceTest extends ClientServerTestCase
         assertNotNull(tc.root.right);
         assertTrue(tc.root.right instanceof StringNode);
     }
-    
+
 }

@@ -19,9 +19,10 @@ package org.jacorb.test.orb.giop;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
  */
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 import java.util.ArrayList;
 import java.util.Properties;
-import junit.framework.TestSuite;
 import org.easymock.MockControl;
 import org.jacorb.orb.ORB;
 import org.jacorb.orb.ParsedIOR;
@@ -30,6 +31,7 @@ import org.jacorb.orb.giop.ClientConnection;
 import org.jacorb.orb.giop.ClientGIOPConnection;
 import org.jacorb.orb.giop.CodeSet;
 import org.jacorb.test.common.ORBTestCase;
+import org.junit.Test;
 import org.omg.CONV_FRAME.CodeSetComponent;
 import org.omg.CONV_FRAME.CodeSetComponentInfo;
 import org.omg.CORBA.CODESET_INCOMPATIBLE;
@@ -47,12 +49,8 @@ public class ClientConnectionTest extends ORBTestCase
     private static final int UTF8_ID      = 0x05010001;
     private static final int UTF16_ID     = 0x00010109;
 
-    public static TestSuite suite()
-    {
-        return new TestSuite( ClientConnectionTest.class );
-    }
-
-    protected void patchORBProperties(String testName, Properties props) throws Exception
+    @Override
+    protected void patchORBProperties(Properties props) throws Exception
     {
         props.setProperty("jacorb.codeset", "true");
     }
@@ -62,6 +60,7 @@ public class ClientConnectionTest extends ORBTestCase
      * Verifies that the connection defaults to the appropriate codesets if speaking giop 1.0, which does not
      * support negotiation.
      */
+    @Test
     public void testDefaultCodeSets() throws Exception
     {
         ParsedIOR ior = new ParsedIOR( (ORB) orb, new IOR( "", new TaggedProfile[0] ) );
@@ -76,6 +75,7 @@ public class ClientConnectionTest extends ORBTestCase
      * Verifies that the connection defaults to the appropriate codesets if speaking giop 1.1, when the server
      * fails to offer any code sets.
      */
+    @Test
     public void testNoCodeSetSpecified() throws Exception
     {
         ParsedIOR ior = new ParsedIOR( (ORB) orb, new IOR( "", new TaggedProfile[0] ) );
@@ -90,6 +90,7 @@ public class ClientConnectionTest extends ORBTestCase
     /**
      * Verifies that the connection can select the supported codesets in GIOP 1.1.
      */
+    @Test
     public void testSelectingStandardCodeSetsFor1_1() throws Exception
     {
         ParsedIOR ior = createParsedIOR( ISO8859_1_ID, UTF16_ID );
@@ -103,6 +104,7 @@ public class ClientConnectionTest extends ORBTestCase
     /**
      * Verifies that the connection can select UTF8 for wchar in GIOP 1.2.
      */
+    @Test
     public void testSelectingUTF8For1_2() throws Exception
     {
         ParsedIOR ior = createParsedIOR( ISO8859_1_ID, UTF8_ID );
@@ -116,6 +118,7 @@ public class ClientConnectionTest extends ORBTestCase
     /**
      * Verifies that the connection can select matching conversion codesets.
      */
+    @Test
     public void testSelectingConversionCodeSets() throws Exception
     {
         ParsedIOR ior = createParsedIOR( 0x11111, new int[]{ISO8859_1_ID}, 0x12345, new int[]{UTF16_ID} );
@@ -129,6 +132,7 @@ public class ClientConnectionTest extends ORBTestCase
     /**
      * Verify that the connection will be rejected if it requires an unknown codeset.
      */
+    @Test
     public void testRejectingUnknownCodeSet() throws Exception
     {
         ParsedIOR ior = createParsedIOR( ISO8859_1_ID, 0x111111 );
@@ -161,7 +165,7 @@ public class ClientConnectionTest extends ORBTestCase
     {
         MockControl selectorControl = MockControl.createControl( ProfileSelector.class );
         ProfileSelector selector = (ProfileSelector) selectorControl.getMock();
-        selector.selectProfile( new ArrayList(), ((ORB) orb).getClientConnectionManager() );
+        selector.selectProfile( new ArrayList<Profile>(), ((ORB) orb).getClientConnectionManager() );
         selectorControl.setReturnValue( profile );
         selectorControl.replay();
         return selector;

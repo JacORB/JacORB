@@ -20,11 +20,16 @@
 
 package org.jacorb.test.bugs.bugjac560;
 
-import junit.framework.Test;
-import junit.framework.TestSuite;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 import org.jacorb.test.common.ClientServerSetup;
 import org.jacorb.test.common.ClientServerTestCase;
 import org.jacorb.test.common.TestUtils;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
 import org.omg.Messaging.ExceptionHolder;
 import cerent.cms.idl.Node.AMI_BugJac560ServiceHandlerPOA;
 import cerent.cms.idl.Node.BugJac560Service;
@@ -39,31 +44,25 @@ public class BugJac560Test extends ClientServerTestCase
 {
     private BugJac560Service server;
 
-    public BugJac560Test(String name, ClientServerSetup setup)
+    @BeforeClass
+    public static void beforeClassSetUp() throws Exception
     {
-        super(name, setup);
+        setup = new ClientServerSetup(BugJac560ServiceImpl.class.getName(), null, null);
     }
 
-    public static Test suite()
-    {
-        TestSuite suite = new TestSuite(BugJac560Test.class.getName());
-        ClientServerSetup setup = new ClientServerSetup
-            (suite, BugJac560ServiceImpl.class.getName(), null, null);
-        TestUtils.addToSuite(suite, setup, BugJac560Test.class);
-
-        return setup;
-    }
-
-    protected void setUp() throws Exception
+    @Before
+    public void setUp() throws Exception
     {
         server = BugJac560ServiceHelper.narrow(setup.getServerObject());
     }
 
+    @Test
     public void testNoException() throws Exception
     {
         server.exc(false);
     }
 
+    @Test
     public void testException()
     {
         try
@@ -131,6 +130,7 @@ public class BugJac560Test extends ClientServerTestCase
         }
     }
 
+    @Test
     public void testAMINoException()
     {
         MyHandler handler = new MyHandler();
@@ -141,6 +141,7 @@ public class BugJac560Test extends ClientServerTestCase
         assertNull(handler.getException(0));
     }
 
+    @Test
     public void testAMIWithException()
     {
         MyHandler handler = new MyHandler();

@@ -20,15 +20,16 @@ package org.jacorb.test.orb.connection;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
+import static org.junit.Assert.assertEquals;
 import java.util.Properties;
-import junit.framework.Test;
-import junit.framework.TestSuite;
 import org.jacorb.orb.iiop.ClientIIOPConnection;
 import org.jacorb.test.TestIf;
 import org.jacorb.test.TestIfHelper;
 import org.jacorb.test.common.ClientServerSetup;
 import org.jacorb.test.common.ClientServerTestCase;
-import org.jacorb.test.common.TestUtils;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
 
 /**
  * @author Nicolas Noffke
@@ -37,39 +38,26 @@ public class ClientConnectionTimeoutTest extends ClientServerTestCase
 {
     private TestIf server;
 
-    public ClientConnectionTimeoutTest(String name, ClientServerSetup setup)
-    {
-        super(name, setup);
-    }
-
+    @Before
     public void setUp() throws Exception
     {
         server = TestIfHelper.narrow( setup.getServerObject() );
     }
 
-    protected void tearDown() throws Exception
+    @BeforeClass
+    public static void beforeClassSetUp() throws Exception
     {
-        server = null;
-    }
-
-    public static Test suite()
-    {
-        TestSuite suite = new TestSuite( "Client connection idle-timeout tests" );
 
         Properties client_props = new Properties();
         client_props.setProperty( "jacorb.connection.client.idle_timeout", "2000" );
 
-        ClientServerSetup setup =
-            new ClientServerSetup( suite,
-                                   ConnectionTimeoutServerImpl.class.getName(),
+        setup = new ClientServerSetup(ConnectionTimeoutServerImpl.class.getName(),
                                    client_props,
                                    null );
 
-        TestUtils.addToSuite(suite, setup, ClientConnectionTimeoutTest.class);
-
-        return setup;
     }
 
+    @Test
     public void testTimeout() throws Exception
     {
         //call remote op with reply

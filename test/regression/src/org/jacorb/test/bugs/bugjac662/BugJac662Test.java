@@ -20,17 +20,22 @@ package org.jacorb.test.bugs.bugjac662;
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 import java.lang.reflect.Field;
 import java.util.Enumeration;
 import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import junit.framework.Test;
-import junit.framework.TestSuite;
 import org.jacorb.orb.Delegate;
 import org.jacorb.orb.ReplyGroup;
+import org.jacorb.orb.giop.ReplyPlaceholder;
 import org.jacorb.test.common.ClientServerSetup;
 import org.jacorb.test.common.ClientServerTestCase;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
 import org.omg.CORBA.COMM_FAILURE;
 
 
@@ -46,40 +51,25 @@ public class BugJac662Test extends ClientServerTestCase
     private PingReceiver server;
 
 
-    public BugJac662Test (String name, ClientServerSetup setup)
+    @BeforeClass
+    public static void beforeClassSetUp() throws Exception
     {
-        super (name, setup);
-    }
 
-
-    /**
-     * Junit <code>suite</code>.
-     *
-     * @return a <code>Test</code> value
-     */
-    public static Test suite()
-    {
-        TestSuite suite = new TestSuite ("ReplyReceiver Memory Leak");
         Properties props = new Properties();
         props.put("jacorb.use_imr", "off");
 
-        ClientServerSetup setup =
-            new ClientServerSetup
-                (suite,
-                 "org.jacorb.test.bugs.bugjac662.PingReceiverImpl", props, props);
-
-        suite.addTest (new BugJac662Test ("testReplyReceiverCount", setup));
-
-        return setup;
+        setup = new ClientServerSetup("org.jacorb.test.bugs.bugjac662.PingReceiverImpl", props, props);
     }
 
 
-    protected void setUp() throws Exception
+    @Before
+    public void setUp() throws Exception
     {
         server = PingReceiverHelper.narrow(setup.getServerObject());
     }
 
-    protected void tearDown() throws Exception
+    @After
+    public void tearDown() throws Exception
     {
         server._release();
         server = null;
@@ -92,6 +82,8 @@ public class BugJac662Test extends ClientServerTestCase
      *
      * @exception Exception if an error occurs
      */
+    @SuppressWarnings("unchecked")
+    @Test
     public void testReplyReceiverCount () throws Exception
     {
         PingReceiver pr = PingReceiverHelper.narrow(server);
@@ -100,8 +92,8 @@ public class BugJac662Test extends ClientServerTestCase
         // Now the test...
         Delegate d = (Delegate)((org.omg.CORBA.portable.ObjectImpl)pr)._get_delegate();
         Field fields[] = Delegate.class.getDeclaredFields();
-	Set pendingReplies = null;
-	ConcurrentHashMap<org.omg.ETF.Profile, ReplyGroup> groups = null;
+        Set<ReplyPlaceholder> pendingReplies = null;
+        ConcurrentHashMap<org.omg.ETF.Profile, ReplyGroup> groups = null;
 
         for (int i = 0; i < fields.length; ++i)
         {
@@ -118,17 +110,17 @@ public class BugJac662Test extends ClientServerTestCase
             fail ("Unable to find pending_replies in Delegate");
         }
 
-	assertTrue ("Groups does not have only one entry", groups.size() == 1);
+        assertTrue ("Groups does not have only one entry", groups.size() == 1);
 
-	Enumeration<ReplyGroup> elements = groups.elements();
-	if (elements.hasMoreElements())
-	{
-	    pendingReplies = elements.nextElement().getReplies();
-	}
-	if (pendingReplies == null)
-	{
-	    fail ("Unable to get replies from ReplyGroup");
-	}
+        Enumeration<ReplyGroup> elements = groups.elements();
+        if (elements.hasMoreElements())
+        {
+            pendingReplies = elements.nextElement().getReplies();
+        }
+        if (pendingReplies == null)
+        {
+            fail ("Unable to get replies from ReplyGroup");
+        }
 
         assertTrue ("Should be no replies pending", pendingReplies.size() == 0);
 

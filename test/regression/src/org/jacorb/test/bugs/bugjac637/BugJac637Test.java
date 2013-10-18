@@ -21,8 +21,9 @@
 
 package org.jacorb.test.bugs.bugjac637;
 
+import static org.junit.Assert.fail;
 import java.util.Properties;
-import junit.framework.TestCase;
+import org.junit.Test;
 import org.omg.CORBA.BAD_INV_ORDER;
 import org.omg.CORBA.ORB;
 import org.omg.CORBA.OperationDef;
@@ -34,8 +35,10 @@ import org.omg.CORBA.OperationDef;
  * @author <a href="mailto:Nick.Cross@prismtech.com">Nick Cross</a>
  * @version 1.0
  */
-public class BugJac637Test extends TestCase
+public class BugJac637Test
 {
+    @SuppressWarnings("deprecation")
+    @Test
     public void testShutdown() throws Exception
     {
         Properties props = new Properties();

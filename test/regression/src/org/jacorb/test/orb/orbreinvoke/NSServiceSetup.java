@@ -5,7 +5,6 @@
 package org.jacorb.test.orb.orbreinvoke;
 
 import java.util.Properties;
-import junit.framework.Test;
 import org.jacorb.naming.NameServer;
 import org.jacorb.test.common.ServerSetup;
 
@@ -15,10 +14,9 @@ import org.jacorb.test.common.ServerSetup;
  */
 public class NSServiceSetup extends ServerSetup
 {
-    public NSServiceSetup (Test test, Properties props, int id)
+    public NSServiceSetup (Properties props, int id)
     {
         super (
-                test,
                 NSServiceRunner.class.getName(),
                 NameServer.class.getName(),
                 props

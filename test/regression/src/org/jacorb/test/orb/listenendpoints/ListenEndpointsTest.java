@@ -21,6 +21,8 @@ package org.jacorb.test.orb.listenendpoints;
  *   MA 02110-1301, USA.
  */
 
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 import java.net.Inet4Address;
 import java.net.Inet6Address;
 import java.net.InetAddress;
@@ -32,14 +34,14 @@ import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
-import junit.framework.Test;
-import junit.framework.TestSuite;
 import org.jacorb.test.common.ClientServerSetup;
 import org.jacorb.test.common.ClientServerTestCase;
 import org.jacorb.test.common.CommonSetup;
-import org.jacorb.test.common.TestUtils;
 import org.jacorb.test.listenendpoints.echo_corbaloc.EchoMessage;
 import org.jacorb.test.listenendpoints.echo_corbaloc.EchoMessageHelper;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
 
  /**
  * Tests -ORBListenEndpoints feature
@@ -64,19 +66,15 @@ public class ListenEndpointsTest extends ClientServerTestCase
     private static final int WRONG_PORT   = 55555;
     private static final int WRONG_PORT_2 = 45000;
 
-    public ListenEndpointsTest(String name, ClientServerSetup setup)
-    {
-        super(name, setup);
-    }
-
+    @Before
     public void setUp() throws Exception
     {
         // server = test.listenendpoints.echo_corbaloc.EchoMessageHelper.narrow (setup.getServerObject());
     }
 
-    public static Test suite()
+    @BeforeClass
+    public static void beforeClassSetUp() throws Exception
     {
-        TestSuite suite = new TestSuite(ListenEndpointsTest.class.getName());
 
         Properties clientProps = new Properties();
         clientProps.setProperty ("jacorb.retries", "3");
@@ -94,17 +92,15 @@ public class ListenEndpointsTest extends ClientServerTestCase
         serverProps.put ("OASSLPort", "0");
         // serverProps.put ("jacorb.test.timeout.server", Long.toString(10000));
 
-        ClientServerSetup setup =
-                new ClientServerSetup (suite,
+        setup = new ClientServerSetup (
                                    "org.jacorb.test.listenendpoints.echo_corbaloc.Server",
                                    new String[] {"-testmode", "P", "-ORBListenEndpoints", LISTEN_EP},
                                    clientProps,
                                    serverProps);
 
-        TestUtils.addToSuite(suite, setup, ListenEndpointsTest.class);
-        return setup;
     }
 
+    @Test
     public void test_ping()
     {
         EchoMessage server = null;
@@ -134,6 +130,7 @@ public class ListenEndpointsTest extends ClientServerTestCase
         }
     }
 
+    @Test
     public void test_echo_simple()
     {
         EchoMessage server = null;
@@ -157,6 +154,7 @@ public class ListenEndpointsTest extends ClientServerTestCase
         }
     }
 
+    @Test
     public void test_echo_string()
     {
         EchoMessage server = null;
@@ -200,6 +198,7 @@ public class ListenEndpointsTest extends ClientServerTestCase
         }
     }
 
+    @Test
     public void test_echo_wide()
     {
         EchoMessage server = null;
@@ -244,6 +243,7 @@ public class ListenEndpointsTest extends ClientServerTestCase
     /**
      * This test would ping all listenable endpoints on CORRECT_PORT_1
      */
+    @Test
     public void test_correct_port_1()
     {
         try
@@ -259,7 +259,7 @@ public class ListenEndpointsTest extends ClientServerTestCase
             List<String> listen_eps = getListenEndpoints(CORRECT_PORT_1, corbalocObjId);
             for (Iterator<String> x = listen_eps.iterator(); x.hasNext();)
             {
-                String endpoint = (String)x.next();
+                String endpoint = x.next();
                 Properties props = new Properties();
                 props.setProperty("org.omg.CORBA.ORBClass", "org.jacorb.orb.ORB");
                 props.setProperty("org.omg.CORBA.ORBSingletonClass", "org.jacorb.orb.ORBSingleton");
@@ -300,6 +300,7 @@ public class ListenEndpointsTest extends ClientServerTestCase
     /**
      * This test would ping all listenable endpoints on CORRECT_PORT_2
      */
+    @Test
     public void test_correct_port_2()
     {
         try
@@ -315,7 +316,7 @@ public class ListenEndpointsTest extends ClientServerTestCase
             List<String> listen_eps = getListenEndpoints(CORRECT_PORT_2, corbalocObjId);
             for (Iterator<String> x = listen_eps.iterator(); x.hasNext();)
             {
-                String endpoint = (String)x.next();
+                String endpoint = x.next();
                 Properties props = new Properties();
                 props.setProperty("org.omg.CORBA.ORBClass", "org.jacorb.orb.ORB");
                 props.setProperty("org.omg.CORBA.ORBSingletonClass", "org.jacorb.orb.ORBSingleton");
@@ -356,6 +357,7 @@ public class ListenEndpointsTest extends ClientServerTestCase
     /**
      * This test would ping all listenable endpoints on CORRECT_PORT_3
      */
+    @Test
     public void test_correct_port_3()
     {
         try
@@ -371,7 +373,7 @@ public class ListenEndpointsTest extends ClientServerTestCase
             List<String> listen_eps = getListenEndpoints(CORRECT_PORT_3, corbalocObjId);
             for (Iterator<String> x = listen_eps.iterator(); x.hasNext();)
             {
-                String endpoint = (String)x.next();
+                String endpoint = x.next();
                 Properties props = new Properties();
                 props.setProperty("org.omg.CORBA.ORBClass", "org.jacorb.orb.ORB");
                 props.setProperty("org.omg.CORBA.ORBSingletonClass", "org.jacorb.orb.ORBSingleton");
@@ -445,6 +447,7 @@ public class ListenEndpointsTest extends ClientServerTestCase
      * This test would ping all listenable addresses using a wrong port.
      * It should fail.
      */
+    @Test
     public void test_wrong_port_1()
     {
         try
@@ -460,7 +463,7 @@ public class ListenEndpointsTest extends ClientServerTestCase
             List<String> listen_eps = getListenEndpoints(WRONG_PORT, corbalocObjId);
             for (Iterator<String> x = listen_eps.iterator(); x.hasNext();)
             {
-                String endpoint = (String)x.next();
+                String endpoint = x.next();
                 Properties props = new Properties();
                 props.setProperty("org.omg.CORBA.ORBClass", "org.jacorb.orb.ORB");
                 props.setProperty("org.omg.CORBA.ORBSingletonClass", "org.jacorb.orb.ORBSingleton");
@@ -504,6 +507,7 @@ public class ListenEndpointsTest extends ClientServerTestCase
      * This test would ping all listenable addresses using the default port.
      * It should fail.
      */
+    @Test
     public void test_wrong_port_2()
     {
         try
@@ -519,7 +523,7 @@ public class ListenEndpointsTest extends ClientServerTestCase
             List<String> listen_eps = getListenEndpoints(WRONG_PORT_2, corbalocObjId);
             for (Iterator<String> x = listen_eps.iterator(); x.hasNext();)
             {
-                String endpoint = (String)x.next();
+                String endpoint = x.next();
                 Properties props = new Properties();
                 props.setProperty("org.omg.CORBA.ORBClass", "org.jacorb.orb.ORB");
                 props.setProperty("org.omg.CORBA.ORBSingletonClass", "org.jacorb.orb.ORBSingleton");
@@ -563,6 +567,7 @@ public class ListenEndpointsTest extends ClientServerTestCase
      * This test would ping the loopback endpoint which should pass.
      *
      */
+    @Test
     public void test_loopback()
     {
         try
@@ -578,7 +583,7 @@ public class ListenEndpointsTest extends ClientServerTestCase
             List<String> eps = getIsLoopbackEndpoints(corbalocObjId);
             for (Iterator<String> x = eps.iterator(); x.hasNext();)
             {
-                String endpoint = (String)x.next();
+                String endpoint = x.next();
                 Properties props = new Properties();
                 props.setProperty("org.omg.CORBA.ORBClass", "org.jacorb.orb.ORB");
                 props.setProperty("org.omg.CORBA.ORBSingletonClass", "org.jacorb.orb.ORBSingleton");
@@ -651,7 +656,7 @@ public class ListenEndpointsTest extends ClientServerTestCase
             List<String> listen_eps = new ArrayList<String>();
             for (Iterator<InetAddress> x = inets.iterator(); x.hasNext();)
             {
-                InetAddress inetAddr = (InetAddress)x.next();
+                InetAddress inetAddr = x.next();
                 String ipaddr = inetAddr.toString().substring(1);
                 String conHostName = inetAddr.getCanonicalHostName();
                 String hostName = inetAddr.getHostName();

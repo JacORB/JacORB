@@ -1,16 +1,18 @@
 package org.jacorb.test.orb.connection;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 import java.util.Properties;
-import junit.framework.Test;
-import junit.framework.TestSuite;
 import org.jacorb.test.BiDirServer;
 import org.jacorb.test.BiDirServerHelper;
 import org.jacorb.test.ClientCallback;
 import org.jacorb.test.ClientCallbackHelper;
 import org.jacorb.test.ClientCallbackPOA;
-import org.jacorb.test.common.ClientServerSetup;
 import org.jacorb.test.common.ClientServerTestCase;
 import org.jacorb.test.common.CommonSetup;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
 
 /**
  * @author Andre Spiegel
@@ -18,27 +20,15 @@ import org.jacorb.test.common.CommonSetup;
 public class BiDirTest extends ClientServerTestCase
 {
     private BiDirServer server = null;
-    private org.omg.PortableServer.POA biDirPOA = null;
 
     private final Object callbackLock = new Object();
     private boolean callbackReceived = false;
     private String  callbackMessage  = null;
 
-    public BiDirTest (String name, ClientServerSetup setup)
-    {
-        super (name, setup);
-    }
-
+    @Before
     public void setUp() throws Exception
     {
         server = BiDirServerHelper.narrow (setup.getServerObject());
-        biDirPOA = ((BiDirSetup)setup).getBiDirPOA();
-    }
-
-    protected void tearDown() throws Exception
-    {
-        biDirPOA = null;
-        server = null;
     }
 
     private class ClientCallbackImpl extends ClientCallbackPOA
@@ -79,10 +69,9 @@ public class BiDirTest extends ClientServerTestCase
         }
     }
 
-    public static Test suite()
+    @BeforeClass
+    public static void beforeClassSetUp() throws Exception
     {
-        TestSuite suite = new TestSuite ("Bidirectional GIOP Test");
-
         Properties properties = new Properties();
         properties.setProperty
             ("org.omg.PortableInterceptor.ORBInitializerClass.bidir_init",
@@ -92,25 +81,24 @@ public class BiDirTest extends ClientServerTestCase
         // security initialisation.
         properties.setProperty(CommonSetup.JACORB_REGRESSION_DISABLE_SECURITY, "true");
 
-        BiDirSetup setup = new BiDirSetup (suite, properties, properties);
-
-        suite.addTest (new BiDirTest ("test_callback", setup));
-
-        return setup;
+        setup = new BiDirSetup (properties, properties);
     }
 
 
+    @Test
     public void test_callback()
     {
         ClientCallback c = null;
         try
         {
-            c = ClientCallbackHelper.narrow (
-                  biDirPOA.servant_to_reference
-                                          (new ClientCallbackImpl()));
+            System.out.println ("### bidir " + ((BiDirSetup)setup).
+                        getBiDirPOA());
+            c = ClientCallbackHelper.narrow (((BiDirSetup)setup).
+                        getBiDirPOA().servant_to_reference(new ClientCallbackImpl()));
         }
         catch (Exception e)
         {
+            e.printStackTrace();
             fail ("exception creating callback object: " + e);
         }
 

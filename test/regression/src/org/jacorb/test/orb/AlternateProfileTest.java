@@ -21,9 +21,10 @@ package org.jacorb.test.orb;
  *   MA 02110-1301, USA.
  */
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 import java.util.Properties;
-import junit.framework.Test;
-import junit.framework.TestSuite;
 import org.jacorb.orb.iiop.IIOPAddress;
 import org.jacorb.orb.iiop.IIOPProfile;
 import org.jacorb.test.IIOPAddressServer;
@@ -32,7 +33,10 @@ import org.jacorb.test.Sample;
 import org.jacorb.test.common.ClientServerSetup;
 import org.jacorb.test.common.ClientServerTestCase;
 import org.jacorb.test.common.CommonSetup;
-import org.jacorb.test.common.TestUtils;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
 import org.omg.CORBA.portable.Delegate;
 import org.omg.IOP.TAG_INTERNET_IOP;
 import org.omg.IOP.TaggedProfile;
@@ -55,17 +59,14 @@ public class AlternateProfileTest extends ClientServerTestCase
     private static final int CORRECT_PORT = 50000;
     private static final int WRONG_PORT   = 50001;
 
-    public AlternateProfileTest(String name, ClientServerSetup setup)
-    {
-        super(name, setup);
-    }
-
-    protected void setUp() throws Exception
+    @Before
+    public void setUp() throws Exception
     {
         server = IIOPAddressServerHelper.narrow(setup.getServerObject());
     }
 
-    protected void tearDown() throws Exception
+    @After
+    public void tearDown() throws Exception
     {
         // server.clearSocketAddress();
         server.setIORAddress (CORRECT_HOST, CORRECT_PORT);
@@ -73,13 +74,9 @@ public class AlternateProfileTest extends ClientServerTestCase
         server = null;
     }
 
-    public static Test suite()
+    @BeforeClass
+    public static void beforeClassSetUp() throws Exception
     {
-        TestSuite suite = new TestSuite
-        (
-            "Test TAG_ALTERNATE_IIOP_ADDRESS/IORInfoExt"
-        );
-
         Properties client_props = new Properties();
         client_props.setProperty ("jacorb.retries", "0");
         client_props.setProperty ("jacorb.retry_interval", "50");
@@ -107,17 +104,14 @@ public class AlternateProfileTest extends ClientServerTestCase
         client_props.setProperty(CommonSetup.JACORB_REGRESSION_DISABLE_IMR, "true");
         server_props.setProperty(CommonSetup.JACORB_REGRESSION_DISABLE_IMR, "true");
 
-        ClientServerSetup setup =
-         new ClientServerSetup (suite,
+        setup = new ClientServerSetup(
                                 IIOPAddressServerImpl.class.getName(),
                                 client_props,
                                 server_props);
 
-        TestUtils.addToSuite(suite, setup, AlternateProfileTest.class);
-
-        return setup;
     }
 
+    @Test
     public void test_ping()
     {
         Sample s = server.getObject();
@@ -126,6 +120,7 @@ public class AlternateProfileTest extends ClientServerTestCase
         assertEquals (18, result);
     }
 
+    @Test
     public void test_primary_ok()
     {
         server.setIORAddress( CORRECT_HOST, CORRECT_PORT );
@@ -135,6 +130,7 @@ public class AlternateProfileTest extends ClientServerTestCase
         assertEquals (78, result);
     }
 
+    @Test
     public void test_primary_wrong_host()
     {
         server.setIORAddress( WRONG_HOST, CORRECT_PORT );
@@ -155,6 +151,7 @@ public class AlternateProfileTest extends ClientServerTestCase
         }
     }
 
+    @Test
     public void test_primary_wrong_port()
     {
         server.setIORAddress( CORRECT_HOST, WRONG_PORT );
@@ -176,6 +173,7 @@ public class AlternateProfileTest extends ClientServerTestCase
         }
     }
 
+    @Test
     public void test_alternate_ok()
     {
         server.setIORAddress( WRONG_HOST, CORRECT_PORT );
@@ -193,6 +191,7 @@ public class AlternateProfileTest extends ClientServerTestCase
         assertEquals (100, result);
     }
 
+    @Test
     public void test_alternate_ok_2()
     {
         server.setIORAddress( WRONG_HOST, CORRECT_PORT );
@@ -207,6 +206,7 @@ public class AlternateProfileTest extends ClientServerTestCase
         assertEquals (188, result);
     }
 
+    @Test
     public void test_alternate_wrong()
     {
         server.setIORAddress( CORRECT_HOST, WRONG_PORT );
@@ -239,7 +239,7 @@ public class AlternateProfileTest extends ClientServerTestCase
      * @param numberExpected
      * @param obj
      */
-    public void testNumberOfIIOPProfiles( int numberExpected, org.omg.CORBA.Object obj )
+    private void testNumberOfIIOPProfiles( int numberExpected, org.omg.CORBA.Object obj )
     {
        // try to get ORB delegate to object
        org.jacorb.orb.Delegate jacOrbDelegate = null;
@@ -269,7 +269,7 @@ public class AlternateProfileTest extends ClientServerTestCase
      * @param host
      * @param port
      */
-    public void testHostAndPortInIIOPProfile(org.omg.CORBA.Object obj, int pos, String host, int port)
+    private void testHostAndPortInIIOPProfile(org.omg.CORBA.Object obj, int pos, String host, int port)
     {
        // try to get ORB delegate to object
        org.jacorb.orb.Delegate jacOrbDelegate = null;
@@ -299,10 +299,5 @@ public class AlternateProfileTest extends ClientServerTestCase
            }
        }
        assertTrue(found);
-    }
-
-    public static void main(String args[])
-    {
-      junit.textui.TestRunner.run(suite());
     }
 }

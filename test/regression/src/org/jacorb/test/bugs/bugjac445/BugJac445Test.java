@@ -20,10 +20,13 @@
 
 package org.jacorb.test.bugs.bugjac445;
 
+import static org.junit.Assert.assertTrue;
 import java.util.Properties;
 import org.jacorb.orb.CDRInputStream;
 import org.jacorb.orb.CDROutputStream;
 import org.jacorb.test.common.ORBTestCase;
+import org.junit.Before;
+import org.junit.Test;
 
 /**
  * @author Alphonse Bendt
@@ -36,7 +39,8 @@ public class BugJac445Test extends ORBTestCase
     private Second second;
     private Both both;
 
-    protected void doSetUp()
+    @Before
+    public void setUp() throws Exception
     {
         a = new A();
         a.value = 10;
@@ -62,12 +66,14 @@ public class BugJac445Test extends ORBTestCase
         SecondHelper.insert(both.second_any, second);
     }
 
-    protected void patchORBProperties(String testName, Properties props)
+    @Override
+    protected void patchORBProperties(Properties props)
     {
         props.setProperty("jacorb.interop.indirection_encoding_disable", "off");
         props.setProperty("jacorb.cacheTypecodes", "on");
     }
 
+    @Test
     public void testCacheOverMemberBoundaries() throws Exception
     {
         CDROutputStream out = (CDROutputStream) orb.create_output_stream();
@@ -84,6 +90,7 @@ public class BugJac445Test extends ORBTestCase
         assertTrue(SecondHelper.type().equivalent(copy.second_any.type()));
     }
 
+    @Test
     public void testCacheRecursiveOverMemberBoundaries() throws Exception
     {
         CDROutputStream out = (CDROutputStream) orb.create_output_stream();
@@ -110,5 +117,13 @@ public class BugJac445Test extends ORBTestCase
 
         assertTrue(RecursiveBHelper.type().equivalent(copy.first_any.type()));
         assertTrue(RecursiveCHelper.type().equivalent(copy.second_any.type()));
+    }
+
+    public static void main (String [] args) throws Exception
+    {
+        BugJac445Test x = new BugJac445Test();
+        x.ORBSetUp();
+        x.setUp();
+        x.testCacheRecursiveOverMemberBoundaries();
     }
 }

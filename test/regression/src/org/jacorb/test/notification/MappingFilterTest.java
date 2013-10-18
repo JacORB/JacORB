@@ -21,14 +21,16 @@ package org.jacorb.test.notification;
  *
  */
 
-import junit.framework.Test;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import org.jacorb.notification.filter.AbstractFilter;
 import org.jacorb.notification.filter.MappingFilterImpl;
 import org.jacorb.notification.filter.etcl.ETCLFilter;
 import org.jacorb.notification.impl.DefaultEvaluationContextFactory;
 import org.jacorb.notification.impl.DefaultMessageFactory;
 import org.jacorb.test.notification.common.NotificationTestCase;
-import org.jacorb.test.notification.common.NotificationTestCaseSetup;
+import org.junit.Before;
+import org.junit.Test;
 import org.omg.CORBA.Any;
 import org.omg.CORBA.AnyHolder;
 import org.omg.CosNotification.EventType;
@@ -47,16 +49,8 @@ public class MappingFilterTest extends NotificationTestCase
 
     AbstractFilter filter_;
 
-    // //////////////////////////////////////
-
-    public MappingFilterTest(String name, NotificationTestCaseSetup setup)
-    {
-        super(name, setup);
-    }
-
-    // //////////////////////////////////////
-
-    public void setUpTest() throws Exception
+    @Before
+    public void setUp() throws Exception
     {
         filter_ = new ETCLFilter(getConfiguration(), new DefaultEvaluationContextFactory(
                 getEvaluator()), new DefaultMessageFactory(getORB(), getConfiguration()), getORB(), getPOA());
@@ -64,6 +58,7 @@ public class MappingFilterTest extends NotificationTestCase
         testPerson_ = getTestUtils().getTestPersonAny();
     }
 
+    @Test
     public void testMatch() throws Exception
     {
         Any defaultValue = getORB().create_any();
@@ -101,6 +96,7 @@ public class MappingFilterTest extends NotificationTestCase
         assertEquals(resultToSet, anyHolder.value);
     }
 
+    @Test
     public void testMatch2() throws Exception
     {
         Any defaultValue = getORB().create_any();
@@ -147,10 +143,5 @@ public class MappingFilterTest extends NotificationTestCase
 
         assertTrue(_mappingFilter.match(testMessage, anyHolder));
         assertEquals("this is 20", anyHolder.value.extract_string());
-    }
-
-    public static Test suite() throws Exception
-    {
-        return NotificationTestCase.suite(MappingFilterTest.class);
     }
 }

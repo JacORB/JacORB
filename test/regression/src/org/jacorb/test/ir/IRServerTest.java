@@ -20,10 +20,13 @@
 
 package org.jacorb.test.ir;
 
-import junit.framework.Test;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
 import org.jacorb.test.BasicServer;
 import org.jacorb.test.BasicServerHelper;
 import org.jacorb.test.orb.BasicServerImpl;
+import org.junit.BeforeClass;
+import org.junit.Test;
 import org.omg.CORBA.InterfaceDef;
 import org.omg.CORBA.InterfaceDefHelper;
 
@@ -34,34 +37,33 @@ import org.omg.CORBA.InterfaceDefHelper;
  */
 public class IRServerTest extends AbstractIRServerTestCase
 {
-    public IRServerTest(String name, IFRServerSetup setup)
-    {
-        super(name, setup);
-    }
-
-    public static Test suite()
+    @BeforeClass
+    public static void beforeClassSetUp() throws Exception
     {
         // the IR will be started and get the contents of the specified IDL file fed.
         // NOTE: there are various suite methods available in AbstractIRServerTestCase
         // that should help setup a test quickly.
-        return suite("BasicServer.idl", IRServerTest.class);
+        setup = new IFRServerSetup("BasicServer.idl", null, null);
     }
 
+    @Test
     public void testStart() throws Exception
     {
         assertFalse(repository._non_existent());
     }
 
+    @Test
     public void testQueryIFR() throws Exception
     {
         assertNotNull(repository.lookup_id(BasicServerHelper.id()));
     }
 
+    @Test
     public void testAccessIFR() throws Exception
     {
         // we're registering a BasicServer in the client ORB/POA here. the client ORB is properly configured
         // so that it knows how to contact the running IR.
-        BasicServer server = BasicServerHelper.narrow(getClientRootPOA().servant_to_reference(new BasicServerImpl()));
+        BasicServer server = BasicServerHelper.narrow(setup.clientServerSetup.getClientRootPOA().servant_to_reference(new BasicServerImpl()));
 
         InterfaceDef interfaceDef = InterfaceDefHelper.narrow(server._get_interface_def());
 

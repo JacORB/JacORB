@@ -21,13 +21,13 @@ package org.jacorb.test.orb.localinterceptors;
  *   MA 02110-1301, USA.
  */
 
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 import java.util.Properties;
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
 import org.jacorb.orb.portableInterceptor.ClientRequestInfoImpl;
+import org.jacorb.test.common.ORBTestCase;
 import org.jacorb.test.orb.localinterceptors.LocalPITest.PIServerImpl;
-import org.omg.CORBA.ORB;
+import org.junit.Test;
 import org.omg.CORBA.Policy;
 import org.omg.PortableServer.ImplicitActivationPolicyValue;
 import org.omg.PortableServer.POA;
@@ -35,36 +35,22 @@ import org.omg.PortableServer.POA;
 /**
  * Verifies that calling is_local works in portable interceptors.
  */
-public class LocalPIIsLocalTest extends TestCase
+public class LocalPIIsLocalTest extends ORBTestCase
 {
     private static PIServer serverRef = null;
     private static PIServer clientRef = null;
 
-    private ORB orb;
-    private POA rootPOA;
-
-    private static String [] args = new String [0];
-
-    public static Test suite ()
+    @Override
+    protected void patchORBProperties(Properties props) throws Exception
     {
-        TestSuite suite = new TestSuite (LocalPIIsLocalTest.class);
-
-        return suite;
+        props.setProperty( "org.omg.PortableInterceptor.ORBInitializerClass."
+                           + LocalPIInitializer.class.getName(), "" );
     }
 
     private void init (String op)
     {
         try
         {
-            Properties props = new java.util.Properties();
-            props.setProperty( "org.omg.PortableInterceptor.ORBInitializerClass."
-                               + LocalPIInitializer.class.getName(), "" );
-
-            // find the root poa
-            orb = ORB.init (args, props);
-
-            rootPOA = (POA) orb.resolve_initial_references ("RootPOA");
-
             Policy [] policies = new Policy [1];
 
             policies[0] = rootPOA.create_implicit_activation_policy
@@ -86,6 +72,7 @@ public class LocalPIIsLocalTest extends TestCase
     }
 
 
+    @Test
     public void testCompleteCall()
     {
         init ("sendMessage");

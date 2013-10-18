@@ -20,43 +20,29 @@ package org.jacorb.test.bugs.bugjac262;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import junit.framework.Test;
-import junit.framework.TestSuite;
 import org.jacorb.test.common.ClientServerSetup;
 import org.jacorb.test.common.ClientServerTestCase;
-import org.jacorb.test.common.TestUtils;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
 
 public class BugJac262Test extends ClientServerTestCase
 {
     private ComplexTypeCodesServer server;
 
-    public BugJac262Test(String name, ClientServerSetup setup)
-    {
-        super(name, setup);
-    }
-
+    @Before
     public void setUp() throws Exception
     {
         server = ComplexTypeCodesServerHelper.narrow( setup.getServerObject() );
     }
 
-    protected void tearDown() throws Exception
+    @BeforeClass
+    public static void beforeClassSetUp() throws Exception
     {
-        server = null;
+        setup = new ClientServerSetup( ComplexTypeCodesServerImpl.class.getName() );
     }
 
-    public static Test suite()
-    {
-        TestSuite suite = new TestSuite
-            ( "Client/server recursive type codes tests" );
-        ClientServerSetup setup = new ClientServerSetup
-            ( suite, ComplexTypeCodesServerImpl.class.getName() );
-
-        TestUtils.addToSuite(suite, setup, BugJac262Test.class);
-
-        return setup;
-    }
-
+    @Test
     public void test_mixed_typecodes()
     {
         org.omg.CORBA.Any any = setup.getClientOrb().create_any();
@@ -65,6 +51,7 @@ public class BugJac262Test extends ClientServerTestCase
         server.passAny( any );
     }
 
+    @Test
     public void test_repeated_sequence_typecodes()
     {
         org.omg.CORBA.Any any = setup.getClientOrb().create_any();
@@ -73,6 +60,7 @@ public class BugJac262Test extends ClientServerTestCase
         server.passAny(any);
     }
 
+    @Test
     public void test_repeated_typecodes()
     {
         org.omg.CORBA.Any any = setup.getClientOrb().create_any();
@@ -82,6 +70,7 @@ public class BugJac262Test extends ClientServerTestCase
         server.passAny(any);
     }
 
+    @Test
     public void test_array_typecodes()
     {
         org.omg.CORBA.Any any = setup.getClientOrb().create_any();
@@ -90,6 +79,7 @@ public class BugJac262Test extends ClientServerTestCase
         server.passAny(any);
     }
 
+    @Test
     public void test_object_typecodes()
     {
         org.omg.CORBA.Any any = setup.getClientOrb().create_any();

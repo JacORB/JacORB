@@ -1,24 +1,29 @@
 package org.jacorb.test.util;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 import java.util.EmptyStackException;
-import junit.framework.TestCase;
 import org.jacorb.util.Stack;
+import org.junit.Test;
 
 /**
  * @author Alphonse Bendt
  */
-public class StackTest extends TestCase
+public class StackTest
 {
     private final Stack objectUnderTest = new Stack();
 
     private final Integer value1 = new Integer(1);
     private final Integer value2 = new Integer(2);
 
+    @Test
     public void testIsEmpty()
     {
         assertTrue(objectUnderTest.empty());
     }
 
+    @Test
     public void testPush()
     {
         assertEquals(value1, objectUnderTest.push(value1));
@@ -26,6 +31,7 @@ public class StackTest extends TestCase
         assertFalse(objectUnderTest.empty());
     }
 
+    @Test
     public void testPop()
     {
         objectUnderTest.push(value1);
@@ -37,6 +43,7 @@ public class StackTest extends TestCase
         assertTrue(objectUnderTest.empty());
     }
 
+    @Test
     public void testPopEmpty()
     {
         try
@@ -49,6 +56,7 @@ public class StackTest extends TestCase
         }
     }
 
+    @Test
     public void testPeek()
     {
         objectUnderTest.push(value1);
@@ -58,9 +66,10 @@ public class StackTest extends TestCase
         assertFalse(objectUnderTest.empty());
     }
 
+    @Test
     public void testSearch()
     {
-        java.util.Stack jdkStack = new java.util.Stack();
+        java.util.Stack<Integer> jdkStack = new java.util.Stack<Integer>();
 
         assertEquals(jdkStack.search(value1), objectUnderTest.search(value1));
 

@@ -1,14 +1,17 @@
 package org.jacorb.test.nestedproperties;
 
+import static org.junit.Assert.fail;
 import java.util.Properties;
-import junit.framework.Assert;
-import junit.framework.TestCase;
 import org.jacorb.config.ConfigurationException;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 import org.omg.CORBA.ORB;
 import org.omg.PortableServer.POA;
 import org.omg.PortableServer.POAHelper;
 
-public class NestedPropertiesTest extends TestCase
+public class NestedPropertiesTest
 {
     private static final String prop1 = "do wah diddy";
     private static final String prop2 = "tp2";
@@ -49,7 +52,8 @@ public class NestedPropertiesTest extends TestCase
         }
     }
 
-    protected final void setUp() throws Exception
+    @Before
+    public void setUp() throws Exception
     {
         Config myConfig = new Config();
         try
@@ -66,7 +70,7 @@ public class NestedPropertiesTest extends TestCase
         properties.setProperty("org.omg.CORBA.ORBClass", "org.jacorb.orb.ORB");
         properties.setProperty("org.omg.CORBA.ORBSingletonClass", "org.jacorb.orb.ORBSingleton");
 
-        patchORBProperties(properties);
+        configureORBProperties(properties);
 
         orb = ORB.init(new String[0], properties);
         rootPOA = POAHelper.narrow(orb.resolve_initial_references( "RootPOA" ));
@@ -74,7 +78,8 @@ public class NestedPropertiesTest extends TestCase
         rootPOA.the_POAManager().activate();
     }
 
-    protected final void tearDown() throws Exception
+    @After
+    public void tearDown() throws Exception
     {
         rootPOA = null;
 
@@ -82,7 +87,7 @@ public class NestedPropertiesTest extends TestCase
         orb = null;
     }
 
-    protected void patchORBProperties(Properties properties)
+    private void configureORBProperties(Properties properties)
     {
         Config myConfig = new Config();
         try
@@ -98,6 +103,7 @@ public class NestedPropertiesTest extends TestCase
         properties.putAll(myConfig.getProperties());
     }
 
+    @Test
     public void testNestedProperties ()
     {
         org.jacorb.orb.ORB jorb = (org.jacorb.orb.ORB)orb;

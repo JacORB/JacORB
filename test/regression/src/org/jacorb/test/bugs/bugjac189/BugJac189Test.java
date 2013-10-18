@@ -1,10 +1,10 @@
 package org.jacorb.test.bugs.bugjac189;
 
-import junit.framework.Test;
-import junit.framework.TestSuite;
 import org.jacorb.test.common.ClientServerSetup;
 import org.jacorb.test.common.ClientServerTestCase;
-import org.jacorb.test.common.TestUtils;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
 
 /**
  * <code>TestCaseImpl</code> tests that a single threaded POA shuts down correctly.
@@ -25,24 +25,15 @@ public class BugJac189Test extends ClientServerTestCase
      * @param name a <code>String</code> value
      * @param setup a <code>ClientServerSetup</code> value
      */
-    public BugJac189Test(String name, ClientServerSetup setup)
-    {
-        super(name, setup);
-    }
-
     /**
      * <code>setUp</code> for junit.
      *
      * @exception Exception if an error occurs
      */
+    @Before
     public void setUp() throws Exception
     {
         server = JAC189Helper.narrow( setup.getServerObject() );
-    }
-
-    protected void tearDown() throws Exception
-    {
-        server = null;
     }
 
     /**
@@ -50,16 +41,10 @@ public class BugJac189Test extends ClientServerTestCase
      *
      * @return a <code>Test</code> value
      */
-    public static Test suite()
+    @BeforeClass
+    public static void beforeClassSetUp() throws Exception
     {
-        TestSuite suite = new TestSuite( "Jac189 - Context Key test" );
-
-        ClientServerSetup setup = new ClientServerSetup
-            (suite, JAC189Impl.class.getName());
-
-        TestUtils.addToSuite(suite, setup, BugJac189Test.class);
-
-        return setup;
+        setup = new ClientServerSetup (JAC189Impl.class.getName());
     }
 
 
@@ -67,6 +52,7 @@ public class BugJac189Test extends ClientServerTestCase
      * <code>test_singlethread</code> rapidly creates, calls an operation and
      * destroys single threaded poas.
      */
+    @Test
     public void test_singlethread() throws Exception
     {
         for(int i=0; i<1000; i++)

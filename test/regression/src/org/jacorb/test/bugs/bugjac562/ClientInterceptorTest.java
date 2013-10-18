@@ -20,11 +20,14 @@
 
 package org.jacorb.test.bugs.bugjac562;
 
+import static org.junit.Assert.fail;
 import java.util.Properties;
 import org.jacorb.test.BasicServer;
 import org.jacorb.test.BasicServerHelper;
 import org.jacorb.test.common.ORBTestCase;
 import org.jacorb.test.orb.BasicServerImpl;
+import org.junit.Before;
+import org.junit.Test;
 import org.omg.PortableServer.POA;
 import org.omg.PortableServer.POAHelper;
 
@@ -35,31 +38,21 @@ public class ClientInterceptorTest extends ORBTestCase
 {
     BasicServer server;
 
-    protected void patchORBProperties(String testName, Properties props) throws Exception
+    @Override
+    protected void patchORBProperties(Properties props) throws Exception
     {
         props.setProperty("jacorb.orb_initializer.fail_on_error", "true");
         props.setProperty("org.omg.PortableInterceptor.ORBInitializerClass." + ClientInterceptorInit.class.getName(), "");
     }
 
-    protected void doSetUp() throws Exception
+    @Before
+    public void setUp() throws Exception
     {
         POA poa = POAHelper.narrow(orb.resolve_initial_references("RootPOA"));
         server = BasicServerHelper.narrow(poa.servant_to_reference(new BasicServerImpl()));
     }
 
-    /**
-     * <code>tearDown</code> us used by Junit for cleaning up after the tests.
-     *
-     * @exception Exception if an error occurs
-     */
-    protected void tearDown() throws Exception
-    {
-        super.tearDown();
-
-        server._release ();
-        server = null;
-    }
-
+    @Test
     public void testRuntimeExceptionInClientInterceptorIsPropagated() throws Exception
     {
         try

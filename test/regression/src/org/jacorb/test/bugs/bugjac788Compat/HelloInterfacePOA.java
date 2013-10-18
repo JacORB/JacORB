@@ -8,11 +8,12 @@ package org.jacorb.test.bugs.bugjac788Compat;
  * @version generated at 23-Mar-2012 12:48:37
  */
 
+@SuppressWarnings({"unchecked","rawtypes"})
 public abstract class HelloInterfacePOA
 	extends org.omg.PortableServer.Servant
 	implements org.omg.CORBA.portable.InvokeHandler, org.jacorb.test.bugs.bugjac788Compat.HelloInterfaceOperations
 {
-	static private final java.util.Hashtable m_opsHash = new java.util.Hashtable();
+    static private final java.util.Hashtable m_opsHash = new java.util.Hashtable();
 	static
 	{
 		m_opsHash.put ( "hello", new java.lang.Integer(0));

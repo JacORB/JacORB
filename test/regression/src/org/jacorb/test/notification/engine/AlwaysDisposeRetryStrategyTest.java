@@ -21,16 +21,16 @@
 
 package org.jacorb.test.notification.engine;
 
-import junit.framework.Test;
-import junit.framework.TestSuite;
 import org.jacorb.notification.engine.AbstractRetryStrategy;
 import org.jacorb.notification.engine.AlwaysDisposeRetryStrategy;
+import org.junit.Test;
 
 /**
  * @author Alphonse Bendt
  */
 public class AlwaysDisposeRetryStrategyTest extends AbstractRetryStrategyTestCase
 {
+    @Test
     public void testRetryDisposesOperationAndConsumer() throws Exception
     {
         mockConsumer_.isRetryAllowed();
@@ -48,6 +48,7 @@ public class AlwaysDisposeRetryStrategyTest extends AbstractRetryStrategyTestCas
         controlPushOperation_.verify();
     }
     
+    @Test
     public void testRetryAllowedDisposesPushOperation() throws Exception
     {
         mockPushOperation_.dispose();
@@ -72,10 +73,5 @@ public class AlwaysDisposeRetryStrategyTest extends AbstractRetryStrategyTestCas
     protected AbstractRetryStrategy newRetryStrategy()
     {
         return new AlwaysDisposeRetryStrategy(mockConsumer_, mockPushOperation_);
-    }
-
-    public static Test suite()
-    {
-        return new TestSuite(AlwaysDisposeRetryStrategyTest.class);
     }
 }

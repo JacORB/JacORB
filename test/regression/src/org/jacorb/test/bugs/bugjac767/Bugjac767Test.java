@@ -1,10 +1,11 @@
 package org.jacorb.test.bugs.bugjac767;
 
-import junit.framework.Assert;
-import junit.framework.TestCase;
+import org.junit.Assert;
+import org.junit.Test;
 
-public class Bugjac767Test extends TestCase
+public class Bugjac767Test
 {
+    @Test
     public void testBugjac767()
     {
         Assert.assertFalse(DataWriterListenerOperations.class.getName()+" is subinterface of "+Listener.class.getName(), Listener.class.isAssignableFrom(DataWriterListenerOperations.class));

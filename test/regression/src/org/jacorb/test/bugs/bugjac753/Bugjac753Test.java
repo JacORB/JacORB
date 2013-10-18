@@ -20,8 +20,8 @@
 
 package org.jacorb.test.bugs.bugjac753;
 
-import junit.framework.Assert;
-import junit.framework.TestCase;
+import org.junit.Assert;
+import org.junit.Test;
 import bugjac753.A1.a11Helper;
 import bugjac753.A2.a21Helper;
 import bugjac753.A2.a22Helper;
@@ -34,15 +34,17 @@ import bugjac753.A4.A41.a2Helper;
  * @author Alexander Birchenko
  */
 
-public class Bugjac753Test extends TestCase
+public class Bugjac753Test
 {
     //bugjac753_1.idl
+    @Test
     public void testPragmaPrefixOverride()
     {
         Assert.assertEquals("IDL:typeprefix.test/bugjac753/A1/a11:1.0", a11Helper.id());
     }
 
     //bugjac753_2.idl
+    @Test
     public void testTypePrefixPlaceIndependent()
     {
         Assert.assertEquals("IDL:typeprefix.test/bugjac753/A2/a21:1.0", a21Helper.id());
@@ -50,6 +52,7 @@ public class Bugjac753Test extends TestCase
     }
 
     //bugjac753_3.idl
+    @Test
     public void testMultipleTypePrefix()
     {
         Assert.assertEquals("IDL:typeprefix.test2/bugjac753/A3/a31:1.0", a31Helper.id());
@@ -57,6 +60,7 @@ public class Bugjac753Test extends TestCase
     }
 
     //bugjac753_4.idl
+    @Test
     public void testTypePrefixInheritence()
     {
         Assert.assertEquals("IDL:typeprefix.test/bugjac753/A4/a1:1.0", a1Helper.id());
@@ -64,6 +68,7 @@ public class Bugjac753Test extends TestCase
     }
 
     //bugjac753_5.idl
+    @Test
     public void testTypePrefixModuleScopeCheck()
     {
         Assert.assertEquals("IDL:bugjac753/A5/a1:1.0", bugjac753.A5.a1Helper.id());
@@ -72,6 +77,7 @@ public class Bugjac753Test extends TestCase
     }
 
     //bugjac753_6.idl
+    @Test
     public void testTypePrefixReopenedModuleScope1()
     {
         Assert.assertEquals("IDL:typeprefix.test/bugjac753/A6/a1:1.0", bugjac753.A6.a1Helper.id());
@@ -79,6 +85,7 @@ public class Bugjac753Test extends TestCase
     }
 
     //bugjac753_7.idl
+    @Test
     public void testTypePrefixReopenedModuleScope2()
     {
         Assert.assertEquals("IDL:typeprefix.test/bugjac753/A7/a1:1.0", bugjac753.A7.a1Helper.id());
@@ -86,6 +93,7 @@ public class Bugjac753Test extends TestCase
     }
 
     //bugjac753_8.idl
+    @Test
     public void testTypePrefixDuplicatedModulesName()
     {
         Assert.assertEquals("IDL:typeprefix.test/bugjac753/A8/A81/A8/a1:1.0", bugjac753.A8.A81.A8.a1Helper.id());
@@ -94,6 +102,7 @@ public class Bugjac753Test extends TestCase
     }
 
     //bugjac753_9.idl
+    @Test
     public void testTypePrefixFullModuleName()
     {
         Assert.assertEquals("IDL:typeprefix.test/bugjac753/A9/a1:1.0", bugjac753.A9.a1Helper.id());

@@ -20,7 +20,9 @@
 
 package org.jacorb.test.bugs.bug735;
 
+import static org.junit.Assert.fail;
 import org.jacorb.test.common.ORBTestCase;
+import org.junit.Test;
 import org.omg.CORBA.TRANSIENT;
 
 /**
@@ -28,6 +30,7 @@ import org.omg.CORBA.TRANSIENT;
  */
 public class Bug735Test extends ORBTestCase
 {
+    @Test
     public void testIsAFailsWithTaoIOR()
     {
         final String ior = "IOR:010000000100000000000000010000000000000060000000000102600000000f656c6f6e736"

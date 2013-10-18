@@ -21,26 +21,21 @@
 
 package org.jacorb.test.notification;
 
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
+import static org.junit.Assert.assertEquals;
 import org.jacorb.notification.ConsoleMain;
+import org.junit.Test;
 
-public class ConsoleMainTest extends TestCase
+public class ConsoleMainTest
 {
+    @Test
     public void testSplitArgs()
     {
         assertEquals(0, ConsoleMain.splitArgs(null).length);
         assertEquals(0, ConsoleMain.splitArgs("").length);
-        
+
         final String[] splitted = ConsoleMain.splitArgs("-startChannels 2");
         assertEquals(2, splitted.length);
         assertEquals("-startChannels", splitted[0]);
         assertEquals("2", splitted[1]);
-    }
-    
-    public static Test suite() throws Exception
-    {
-        return new TestSuite(ConsoleMainTest.class);
     }
 }

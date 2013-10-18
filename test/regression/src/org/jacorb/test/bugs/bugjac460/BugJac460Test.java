@@ -20,16 +20,19 @@
 
 package org.jacorb.test.bugs.bugjac460;
 
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
 import java.util.Properties;
-import junit.framework.Test;
-import junit.framework.TestSuite;
 import org.jacorb.test.BasicServer;
 import org.jacorb.test.BasicServerHelper;
 import org.jacorb.test.common.ClientServerSetup;
 import org.jacorb.test.common.ClientServerTestCase;
-import org.jacorb.test.common.ORBSetup;
-import org.jacorb.test.common.TestUtils;
+import org.jacorb.test.common.ORBTestCase;
 import org.jacorb.test.orb.BasicServerImpl;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
 
 /**
  * @author Alphonse Bendt
@@ -37,26 +40,22 @@ import org.jacorb.test.orb.BasicServerImpl;
 public class BugJac460Test extends ClientServerTestCase
 {
     private BasicServer server;
-    private ORBSetup orb2;
+    private ORBTestCase orb2 = new ORBTestCase () {};
 
-    public BugJac460Test(String name, ClientServerSetup setup)
-    {
-        super(name, setup);
-    }
-
-    protected void setUp() throws Exception
+    @Before
+    public void setUp() throws Exception
     {
         server = BasicServerHelper.narrow(setup.getServerObject());
-        orb2 = new ORBSetup(this);
-        orb2.setUp();
+        orb2.ORBSetUp();
     }
 
-    protected void tearDown() throws Exception
+    @After
+    public void tearDown() throws Exception
     {
-        server = null;
-        orb2.tearDown();
+        orb2.ORBTearDown();
     }
 
+    @Test
     public void testPingWithTwoConnections() throws Exception
     {
         server.ping();
@@ -88,15 +87,13 @@ public class BugJac460Test extends ClientServerTestCase
         assertNotNull(exception[0]);
     }
 
-    public static Test suite()
+    @BeforeClass
+    public static void beforeClassSetUp() throws Exception
     {
         Properties serverProps = new Properties();
 
         serverProps.setProperty("jacorb.connection.server.max_receptor_threads", "1");
 
-        TestSuite suite = new TestSuite(BugJac460Test.class.getName());
-        ClientServerSetup setup = new ClientServerSetup(suite, BasicServerImpl.class.getName(), null, serverProps);
-        TestUtils.addToSuite(suite, setup, BugJac460Test.class);
-        return setup;
+        setup = new ClientServerSetup(BasicServerImpl.class.getName(), null, serverProps);
     }
 }

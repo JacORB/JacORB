@@ -1,9 +1,15 @@
 package org.jacorb.test.bugs.bugjac303;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.fail;
 import org.jacorb.test.BasicServer;
 import org.jacorb.test.BasicServerHelper;
 import org.jacorb.test.common.ORBTestCase;
 import org.jacorb.test.orb.BasicServerImpl;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 import org.omg.CORBA.BAD_INV_ORDER;
 import org.omg.CORBA.ORB;
 import org.omg.CORBA.portable.ObjectImpl;
@@ -13,7 +19,8 @@ public class BugJac303Test extends ORBTestCase
     private BasicServer server;
     private ORB clientORB;
 
-    public void doSetUp() throws Exception
+    @Before
+    public void setUp() throws Exception
     {
         BasicServerImpl servant = new BasicServerImpl();
         BasicServer tmpServer = BasicServerHelper.narrow(rootPOA.servant_to_reference(servant));
@@ -23,7 +30,8 @@ public class BugJac303Test extends ORBTestCase
         server = BasicServerHelper.narrow(clientORB.string_to_object(orb.object_to_string(tmpServer)));
     }
 
-    protected void doTearDown() throws Exception
+    @After
+    public void tearDown() throws Exception
     {
         server._release();
         server = null;
@@ -31,6 +39,7 @@ public class BugJac303Test extends ORBTestCase
         clientORB = null;
     }
 
+    @Test
     public void testInvokeSafeOperationAfterShutdown() throws Exception
     {
         clientORB.shutdown(true);
@@ -38,6 +47,7 @@ public class BugJac303Test extends ORBTestCase
         server2._release();
     }
 
+    @Test
     public void testInvokeIsNilAfterShutdown() throws Exception
     {
         clientORB.shutdown(true);
@@ -45,6 +55,7 @@ public class BugJac303Test extends ORBTestCase
         assertFalse(delegate.is_nil());
     }
 
+    @Test
     public void testInvokeServerOperationAfterShutdown() throws Exception
     {
         clientORB.shutdown(true);
@@ -60,6 +71,7 @@ public class BugJac303Test extends ORBTestCase
         }
     }
 
+    @Test
     public void testInvokeObjectReferenceOperations1() throws Exception
     {
         clientORB.shutdown(true);
@@ -75,6 +87,7 @@ public class BugJac303Test extends ORBTestCase
         }
     }
 
+    @Test
     public void testInvokeObjectReferenceOperations2() throws Exception
     {
         clientORB.shutdown(true);
@@ -90,6 +103,7 @@ public class BugJac303Test extends ORBTestCase
         }
     }
 
+    @Test
     public void testInvokeObjectReferenceOperations3() throws Exception
     {
         clientORB.shutdown(true);
@@ -105,6 +119,7 @@ public class BugJac303Test extends ORBTestCase
         }
     }
 
+    @Test
     public void testInvokeObjectReferenceOperations4() throws Exception
     {
         clientORB.shutdown(true);
@@ -120,6 +135,7 @@ public class BugJac303Test extends ORBTestCase
         }
     }
 
+    @Test
     public void testInvokeObjectReferenceOperations5() throws Exception
     {
         clientORB.shutdown(true);
@@ -135,6 +151,7 @@ public class BugJac303Test extends ORBTestCase
         }
     }
 
+    @Test
     public void testInvokeObjectReferenceOperations6() throws Exception
     {
         clientORB.shutdown(true);
@@ -150,6 +167,7 @@ public class BugJac303Test extends ORBTestCase
         }
     }
 
+    @Test
     public void testInvokeCreateRequest() throws Exception
     {
         clientORB.shutdown(true);
@@ -165,6 +183,7 @@ public class BugJac303Test extends ORBTestCase
         }
     }
 
+    @Test
     public void testInvokeRequest() throws Exception
     {
         clientORB.shutdown(true);
@@ -180,6 +199,7 @@ public class BugJac303Test extends ORBTestCase
         }
     }
 
+    @Test
     public void testORBOperations1() throws Exception
     {
         String ref = clientORB.object_to_string(server);

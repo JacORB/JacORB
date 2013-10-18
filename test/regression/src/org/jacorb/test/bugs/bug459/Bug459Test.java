@@ -22,13 +22,13 @@
 package org.jacorb.test.bugs.bug459;
 
 import java.util.Properties;
-import junit.framework.TestCase;
 import org.jacorb.test.orb.AnyServerPOA;
+import org.junit.Test;
 import org.omg.CORBA.Any;
 import org.omg.PortableServer.POA;
 import org.omg.PortableServer.POAHelper;
 
-public class Bug459Test extends TestCase
+public class Bug459Test
 {
     class MyAnyServer extends AnyServerPOA
     {
@@ -38,6 +38,7 @@ public class Bug459Test extends TestCase
         }
     }
 
+    @Test
     public void testIt() throws Exception
     {
         MyAnyServer myServer = new MyAnyServer();
@@ -61,6 +62,7 @@ public class Bug459Test extends TestCase
     }
 
 
+    @Test
     public void testVerifyMultipleThisCalls() throws Exception
     {
         MyAnyServer myServer = new MyAnyServer();

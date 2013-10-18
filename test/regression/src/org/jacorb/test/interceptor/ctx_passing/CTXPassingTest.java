@@ -1,11 +1,11 @@
 package org.jacorb.test.interceptor.ctx_passing;
 
 import java.util.Properties;
-import junit.framework.Test;
-import junit.framework.TestSuite;
 import org.jacorb.test.common.ClientServerSetup;
 import org.jacorb.test.common.ClientServerTestCase;
-import org.jacorb.test.common.TestUtils;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
 import org.omg.CORBA.Any;
 import org.omg.CORBA.ORBPackage.InvalidName;
 import org.omg.PortableInterceptor.Current;
@@ -15,12 +15,8 @@ public class CTXPassingTest extends ClientServerTestCase
 {
     private TestObject server;
 
-    public CTXPassingTest(String name, ClientServerSetup setup)
-    {
-        super(name, setup);
-    }
-
-    public static Test suite()
+    @BeforeClass
+    public static void beforeClassSetUp() throws Exception
     {
         Properties severProp = new Properties();
         severProp.setProperty("org.omg.PortableInterceptor.ORBInitializerClass.a",
@@ -29,23 +25,16 @@ public class CTXPassingTest extends ClientServerTestCase
         clientProp.setProperty("org.omg.PortableInterceptor.ORBInitializerClass.a",
                                ClientInitializer.class.getName());
 
-        TestSuite suite = new TestSuite(CTXPassingTest.class.getName());
-        ClientServerSetup setup = new ClientServerSetup(suite, TestObjectImpl.class.getName(), clientProp, severProp);
-        TestUtils.addToSuite(suite, setup, CTXPassingTest.class);
-
-        return setup;
+        setup = new ClientServerSetup(TestObjectImpl.class.getName(), clientProp, severProp);
     }
 
-    protected void setUp() throws Exception
+    @Before
+    public void setUp() throws Exception
     {
         server = TestObjectHelper.narrow(setup.getServerObject());
     }
 
-    protected void tearDown() throws Exception
-    {
-        server = null;
-    }
-
+    @Test
     public void testCTXPassingTest()
     {
         try

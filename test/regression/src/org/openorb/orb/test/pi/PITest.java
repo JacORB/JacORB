@@ -8,10 +8,14 @@
 
 package org.openorb.orb.test.pi;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 import java.util.Properties;
-import junit.framework.TestCase;
 import junit.framework.TestSuite;
-import org.jacorb.test.common.ORBSetup;
+import org.jacorb.test.common.ORBTestCase;
+import org.junit.After;
+import org.junit.Test;
 import org.omg.CORBA.CompletionStatus;
 import org.omg.CORBA.NO_RESOURCES;
 import org.omg.CORBA.Policy;
@@ -28,7 +32,7 @@ import org.openorb.orb.test.adapter.poa.HelloPOA;
  *
  * @author Chris Wood
  */
-public class PITest extends TestCase
+public class PITest extends ORBTestCase
 {
    private Hello svrRef = null;
    private Hello m_cltRef = null;
@@ -55,37 +59,13 @@ public class PITest extends TestCase
 
    private static int s_throwExcept;
    private static int s_visitMask;
-   private static int s_retryCount;
-
    private static int s_slotID;
    private static org.omg.CORBA.Any s_any;
-
-   private org.omg.CORBA.ORB orb;
-   private POA rootPOA;
-   private ORBSetup clientSetup;
-
-   /**
-    * The constructor is responsible for constructing a test category and
-    * adding the suite of test cases. It throws CWClassConstructorException
-    * if it cannot construct the category.
-    *
-    * @param name The name of the test case.
-    */
-   public PITest( String name )
-   {
-      super( name );
-      s_visitMask = 0;
-      s_throwExcept = 0;
-      s_retryCount = 0;
-   }
 
    private void init ()
    {
       try
       {
-         orb = clientSetup.getORB();
-         rootPOA = clientSetup.getRootPOA ();
-
          Policy [] pols = new Policy [1];
          pols[0] = rootPOA.create_implicit_activation_policy
             (ImplicitActivationPolicyValue.IMPLICIT_ACTIVATION);
@@ -102,7 +82,6 @@ public class PITest extends TestCase
          s_slotID = 0;
          s_visitMask = 0;
          s_throwExcept = 0;
-         s_retryCount = 0;
       }
       catch ( org.omg.CORBA.UserException ex )
       {
@@ -110,34 +89,30 @@ public class PITest extends TestCase
       }
    }
 
-   protected void setUp () throws Exception
+   protected void patchORBProperties (Properties props) throws Exception
    {
-       Properties props = new java.util.Properties();
        props.setProperty( "org.omg.PortableInterceptor.ORBInitializerClass."
                           + EmptyInitializer.class.getName(), "" );
 
        props.setProperty ("jacorb.codeSet", "on");
        props.setProperty ("org.omg.PortableInterceptor.ORBInitializerClass.standard_init",
                           "org.jacorb.orb.standardInterceptors.IORInterceptorInitializer");
-
-       clientSetup = new ORBSetup (this, props);
-       clientSetup.setUp ();
    }
 
-   protected void tearDown () throws Exception
+   @After
+    public void tearDown() throws Exception
    {
       svrRef._release ();
       m_cltRef._release ();
       svrRef = null;
       m_cltRef = null;
-
-      clientSetup.tearDown ();
    }
 
    /**
     * Test complete request call.
     */
-   public void testCompleteCall()
+    @Test
+    public void testCompleteCall()
    {
        init ();
 
@@ -162,7 +137,8 @@ public class PITest extends TestCase
     *
     * @exception org.omg.CORBA.UserException if any of the test cases fails
     */
-   public void testCompleteCallWithSCs()
+    @Test
+    public void testCompleteCallWithSCs()
       throws org.omg.CORBA.UserException
    {
        init ();
@@ -189,7 +165,8 @@ public class PITest extends TestCase
    /**
     * Abort at send_request.
     */
-   public void testToSendRequest()
+    @Test
+    public void testToSendRequest()
    {
        init ();
 
@@ -215,7 +192,8 @@ public class PITest extends TestCase
    /**
     * Abort at receive_request_service_contexts.
     */
-   public void testToRecvRequestSC()
+    @Test
+    public void testToRecvRequestSC()
    {
       init ();
 
@@ -240,7 +218,8 @@ public class PITest extends TestCase
    /**
     * Abort at receive_request_service_contexts and recieve_exception.
     */
-   public void testToRecvRequestSCReceiveException()
+    @Test
+    public void testToRecvRequestSCReceiveException()
    {
        init ();
 
@@ -265,7 +244,8 @@ public class PITest extends TestCase
    /**
     * Abort at receive_request.
     */
-   public void testToRecvRequest()
+    @Test
+    public void testToRecvRequest()
    {
        init ();
 
@@ -290,7 +270,8 @@ public class PITest extends TestCase
    /**
     * Abort at receive_request and recieve_exception.
     */
-   public void testToRecvRequestRecvExcept()
+    @Test
+    public void testToRecvRequestRecvExcept()
    {
        init ();
 
@@ -315,7 +296,8 @@ public class PITest extends TestCase
    /**
     * Abort at send_reply.
     */
-   public void testToSendReply()
+    @Test
+    public void testToSendReply()
    {
        init ();
 
@@ -340,7 +322,8 @@ public class PITest extends TestCase
    /**
     * Abort at send_reply.
     */
-   public void testToRecvReply()
+    @Test
+    public void testToRecvReply()
    {
        init();
 
@@ -457,10 +440,6 @@ public class PITest extends TestCase
       public void send_request( org.omg.PortableInterceptor.ClientRequestInfo ri )
          throws org.omg.PortableInterceptor.ForwardRequest
       {
-         if ( ( s_visitMask & SEND_REQ ) != 0 )
-         {
-            s_retryCount++;
-         }
          s_visitMask = SEND_REQ;
 
          if ( s_throwExcept == SEND_REQ )

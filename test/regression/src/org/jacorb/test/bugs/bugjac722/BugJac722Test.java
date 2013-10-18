@@ -20,14 +20,17 @@
 
 package org.jacorb.test.bugs.bugjac722;
 
-import junit.framework.Test;
-import junit.framework.TestSuite;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import org.jacorb.test.common.ClientServerSetup;
 import org.jacorb.test.common.ClientServerTestCase;
-import org.jacorb.test.common.TestUtils;
 import org.jacorb.test.orb.AnyServer;
 import org.jacorb.test.orb.AnyServerHelper;
 import org.jacorb.test.orb.AnyServerImpl;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
 import org.omg.CORBA.Any;
 
 /**
@@ -37,37 +40,19 @@ public class BugJac722Test extends ClientServerTestCase
 {
     private AnyServer server;
 
-    public BugJac722Test(String name, ClientServerSetup setup)
+    @BeforeClass
+    public static void beforeClassSetUp() throws Exception
     {
-        super(name, setup);
+        setup = new ClientServerSetup(AnyServerImpl.class.getName());
     }
 
-    public static Test suite()
-    {
-        if (TestUtils.isJ2ME())
-        {
-            return new TestSuite();
-        }
-
-        TestSuite suite = new TestSuite(BugJac722Test.class.getName());
-
-        ClientServerSetup setup = new ClientServerSetup(suite, AnyServerImpl.class.getName());
-
-        TestUtils.addToSuite(suite, setup, BugJac722Test.class);
-
-        return setup;
-    }
-
-    protected void setUp() throws Exception
+    @Before
+    public void setUp() throws Exception
     {
         server = AnyServerHelper.narrow(setup.getServerObject());
     }
 
-    protected void tearDown() throws Exception
-    {
-        server = null;
-    }
-
+    @Test
     public void testPart()
     {
         Part part = new PartImpl();
@@ -82,6 +67,7 @@ public class BugJac722Test extends ClientServerTestCase
         assertEquals(part.m_value, bounced.m_value);
     }
 
+    @Test
     public void testEmptyWhole()
     {
         Whole whole = new WholeImpl();
@@ -95,6 +81,7 @@ public class BugJac722Test extends ClientServerTestCase
         assertNull(bounced.m_tailPart);
     }
 
+    @Test
     public void testWholeEmptyParts()
     {
         Whole whole = new WholeImpl();
@@ -109,7 +96,8 @@ public class BugJac722Test extends ClientServerTestCase
         assertNotNull(bounced.m_tailPart);
     }
 
-   public void testWhole()
+    @Test
+    public void testWhole()
    {
        Part headPart = new PartImpl();
        headPart.m_value = "head";
@@ -130,7 +118,8 @@ public class BugJac722Test extends ClientServerTestCase
        assertEquals(tailPart.m_value, bounced.m_tailPart.m_value);
    }
 
-   public void testPartStructInAny()
+    @Test
+    public void testPartStructInAny()
    {
        Part part = new PartImpl();
        part.m_value = "head";

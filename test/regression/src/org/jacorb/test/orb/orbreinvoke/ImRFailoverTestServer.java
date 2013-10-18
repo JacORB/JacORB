@@ -20,7 +20,7 @@ public class ImRFailoverTestServer
       try
       {
          CmdArgs cmdArgs = new CmdArgs("Server", args);
-         boolean cmdArgsStatus = cmdArgs.processArgs();
+         cmdArgs.processArgs();
 
          // translate any properties set on the commandline but after the
          // class name to a properties

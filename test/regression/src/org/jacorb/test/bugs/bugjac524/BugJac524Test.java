@@ -20,6 +20,8 @@
 
 package org.jacorb.test.bugs.bugjac524;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import java.util.Properties;
 import org.jacorb.orb.factory.SocketFactoryManager;
 import org.jacorb.orb.iiop.ClientIIOPConnection;
@@ -28,6 +30,8 @@ import org.jacorb.test.BasicServerHelper;
 import org.jacorb.test.common.CommonSetup;
 import org.jacorb.test.common.ORBTestCase;
 import org.jacorb.test.orb.BasicServerImpl;
+import org.junit.Before;
+import org.junit.Test;
 
 /**
  * @author Alphonse Bendt
@@ -40,9 +44,10 @@ public class BugJac524Test extends ORBTestCase
 
     private Properties props;
 
-    protected void patchORBProperties(String testName, Properties props) throws Exception
+    @Override
+    protected void patchORBProperties(Properties props) throws Exception
     {
-        if (testName.indexOf("SSL") >= 0)
+        if (name.getMethodName().indexOf("SSL") >= 0)
         {
             Properties serverProps = CommonSetup.loadSSLProps("jsse_client_props", "jsse_client_ks");
 
@@ -64,7 +69,7 @@ public class BugJac524Test extends ORBTestCase
         BugJac524TCPConnectionListener.reset();
         props.setProperty(SocketFactoryManager.TCP_LISTENER, BugJac524TCPConnectionListener.class.getName());
 
-        if (testName.indexOf("ConnectToLoopbackShouldNotOpenConnection") >= 0)
+        if (name.getMethodName().indexOf("ConnectToLoopbackShouldNotOpenConnection") >= 0)
         {
             props.setProperty("jacorb.ior_proxy_host", "127.0.0.1");
             props.setProperty("jacorb.ior_proxy_port", Integer.toString(port));
@@ -73,7 +78,8 @@ public class BugJac524Test extends ORBTestCase
         this.props = props;
     }
 
-    protected final void doSetUp() throws Exception
+    @Before
+    public void setUp() throws Exception
     {
         org.omg.CORBA.Object server = rootPOA.servant_to_reference(new BasicServerImpl());
 
@@ -98,21 +104,25 @@ public class BugJac524Test extends ORBTestCase
         orb.shutdown(true);
     }
 
+    @Test
     public void testConnectToLoopbackShouldNotOpenConnection() throws Exception
     {
         doTest();
     }
 
+    @Test
     public void testConnectToLoopbackShouldNotOpenConnectionSSL() throws Exception
     {
         doTest();
     }
 
+    @Test
     public void testConnectShouldNotOpenConnection() throws Exception
     {
         doTest();
     }
 
+    @Test
     public void testConnectShouldNotOpenConnectionSSL() throws Exception
     {
         doTest();

@@ -1,25 +1,26 @@
 package org.jacorb.test.orb.connection;
 
 import java.util.Properties;
-import junit.framework.Test;
-import junit.framework.TestSuite;
-import org.jacorb.test.common.ClientServerSetup;
 import org.jacorb.test.common.CommonSetup;
+import org.junit.Assume;
+import org.junit.Before;
+import org.junit.BeforeClass;
 
 /**
  * @author Andre Spiegel
  */
 public class NIOBiDirTest extends BiDirTest
 {
-    public NIOBiDirTest (String name, ClientServerSetup setup)
+    @Before
+    public void setUp() throws Exception
     {
-        super (name, setup);
+        super.setUp();
+        Assume.assumeTrue( !setup.isSSLEnabled());
     }
 
-    public static Test suite()
+    @BeforeClass
+    public static void beforeClassSetUp() throws Exception
     {
-        TestSuite suite = new TestSuite ("Bidirectional GIOP Test");
-
         Properties properties = new Properties();
         properties.setProperty
             ("org.omg.PortableInterceptor.ORBInitializerClass.bidir_init",
@@ -30,13 +31,6 @@ public class NIOBiDirTest extends BiDirTest
         // security initialisation.
         properties.setProperty(CommonSetup.JACORB_REGRESSION_DISABLE_SECURITY, "true");
 
-        BiDirSetup setup = new BiDirSetup (suite, properties, properties);
-
-        if ( ! setup.isSSLEnabled ())
-        {
-            suite.addTest (new NIOBiDirTest ("test_callback", setup));
-        }
-
-        return setup;
+        setup = new BiDirSetup (properties, properties);
     }
 }

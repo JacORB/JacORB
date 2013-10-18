@@ -23,12 +23,13 @@ package org.jacorb.test.notification.perf;
 
 import java.util.ArrayList;
 import java.util.List;
-import junit.framework.Test;
-import junit.textui.TestRunner;
 import org.jacorb.test.notification.StructuredPushReceiver;
 import org.jacorb.test.notification.StructuredPushSender;
 import org.jacorb.test.notification.common.NotificationTestCase;
-import org.jacorb.test.notification.common.NotificationTestCaseSetup;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Ignore;
+import org.junit.Test;
 import org.omg.CORBA.Any;
 import org.omg.CORBA.IntHolder;
 import org.omg.CORBA.ORB;
@@ -56,12 +57,8 @@ public class LoadTest extends NotificationTestCase
 
     boolean active = true;
 
-    public LoadTest(String name, NotificationTestCaseSetup setup)
-    {
-        super(name, setup);
-    }
-
-    public void setUpTest() throws Exception
+    @Before
+    public void setUp() throws Exception
     {
         ORB orb = getORB();
 
@@ -73,17 +70,15 @@ public class LoadTest extends NotificationTestCase
         channel = factory.create_channel(new Property[0], new Property[0], intHolder);
     }
 
-    public void tearDownTest()
+    @After
+    public void tearDown()
     {
         channel.destroy();
     }
 
-    public static Test suite() throws Exception
-    {
-        return NotificationTestCase.suite(LoadTest.class);
-    }
-
-    public void XXXtestLoad() throws Exception
+    @Ignore
+    @Test
+    public void testLoad() throws Exception
     {
         final List received = new ArrayList();
 
@@ -151,10 +146,5 @@ public class LoadTest extends NotificationTestCase
         }
 
         Thread.sleep(60000);
-    }
-
-    public static void main(String[] args) throws Exception
-    {
-        TestRunner.run(suite());
     }
 }

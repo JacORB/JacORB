@@ -1,6 +1,8 @@
 package org.jacorb.test.bugs.bugjac719;
 
+import static org.junit.Assert.fail;
 import org.jacorb.test.common.ORBTestCase;
+import org.junit.Test;
 
 public class BugJac719Test extends ORBTestCase
 {
@@ -8,6 +10,7 @@ public class BugJac719Test extends ORBTestCase
     private static int DIM_THREEDIMA_1 = 2;
     private static int DIM_THREEDIMA_2 = 3;
 
+    @Test
     public void testUnion()
     {
         UnionStartMultiDimArrayStruct sample = new UnionStartMultiDimArrayStruct();

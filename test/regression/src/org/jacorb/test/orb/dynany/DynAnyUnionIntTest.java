@@ -20,9 +20,11 @@ package org.jacorb.test.orb.dynany;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 import java.lang.reflect.Method;
-import junit.framework.Test;
-import junit.framework.TestSuite;
 import org.jacorb.test.UnionDefaultBooleanType;
 import org.jacorb.test.UnionDefaultBooleanTypeHelper;
 import org.jacorb.test.UnionDefaultCharType;
@@ -43,6 +45,7 @@ import org.jacorb.test.UnionNoDefaultLongType;
 import org.jacorb.test.UnionNoDefaultLongTypeHelper;
 import org.jacorb.test.UnionNoDefaultShortType;
 import org.jacorb.test.UnionNoDefaultShortTypeHelper;
+import org.junit.Test;
 import org.omg.CORBA.TCKind;
 
 /**
@@ -57,18 +60,12 @@ public class DynAnyUnionIntTest extends DynAnyXXXTestCase
    private static final String ID = "IDL:test:1.0";
    private static final String NAME = "MyUnion";
 
-   public static Test suite ()
-   {
-      return new TestSuite
-          (DynAnyUnionIntTest.class, "DynUnion Tests using Integer Discriminator");
-   }
-
-
    /**
     * Tests creating a DynAny object from an Any object using the
     * DynAnyFactory object.
     */
-   public void testFactoryCreateFromAny ()
+    @Test
+    public void testFactoryCreateFromAny ()
    {
       UnionDefaultShortType type = null;
       org.omg.CORBA.Any any = null;
@@ -86,7 +83,8 @@ public class DynAnyUnionIntTest extends DynAnyXXXTestCase
     * Tests creating a DynAny object from a TypeCode object using the
     * DynAnyFactory object.
     */
-   public void testFactoryCreateFromTypeCode ()
+    @Test
+    public void testFactoryCreateFromTypeCode ()
    {
       org.omg.CORBA.TypeCode tc = null;
 
@@ -105,7 +103,8 @@ public class DynAnyUnionIntTest extends DynAnyXXXTestCase
     * Tests creating a DynAny object from a TypeCode object generated from
     * IDL using the DynAnyFactory object.
     */
-   public void testFactoryCreateFromIDLTypeCode ()
+    @Test
+    public void testFactoryCreateFromIDLTypeCode ()
    {
       org.omg.CORBA.TypeCode tc = null;
 
@@ -117,7 +116,8 @@ public class DynAnyUnionIntTest extends DynAnyXXXTestCase
    /**
     * Test comparing DynAny values.  The DynUnion does not have a named member.
     */
-   public void testCompareDynAnyUnamedMember ()
+    @Test
+    public void testCompareDynAnyUnamedMember ()
    {
       String msg;
       UnionNoDefaultShortType type;
@@ -128,7 +128,7 @@ public class DynAnyUnionIntTest extends DynAnyXXXTestCase
       type = new UnionNoDefaultShortType ();
 
       // use reflection to avoid ORB portability issues
-      Class unionClass = type.getClass ();
+      Class<? extends UnionNoDefaultShortType> unionClass = type.getClass ();
       Method method = null;
 
       // determine method to invoke
@@ -172,7 +172,8 @@ public class DynAnyUnionIntTest extends DynAnyXXXTestCase
    /**
     * Test comparing DynAny values.  The DynUnion has a named member.
     */
-   public void testCompareDynAnyNamedMember ()
+    @Test
+    public void testCompareDynAnyNamedMember ()
    {
       String msg;
       UnionDefaultShortType type;
@@ -196,7 +197,8 @@ public class DynAnyUnionIntTest extends DynAnyXXXTestCase
     * Test iterating through components of a DynAny.  The DynUnion has an
     * active member.
     */
-   public void testIterateDynAnyNamedMember ()
+    @Test
+    public void testIterateDynAnyNamedMember ()
    {
       String msg;
       int compCount = -1;
@@ -285,21 +287,21 @@ public class DynAnyUnionIntTest extends DynAnyXXXTestCase
     * Test iterating through components of a DynAny.  The DynUnion does not
     * have an active member.
     */
-   public void testIterateDynAnyUnamedMember ()
+    @Test
+    public void testIterateDynAnyUnamedMember ()
    {
       String msg;
       int compCount = -1;
       boolean seek;
       UnionNoDefaultShortType type;
       org.omg.CORBA.Any any = null;
-      org.omg.CORBA.TypeCode tc = null;
       org.omg.DynamicAny.DynUnion dynAny = null;
       org.omg.DynamicAny.DynAny disc = null;
 
       type = new UnionNoDefaultShortType ();
 
       // use reflection to avoid ORB portability issues
-      Class unionClass = type.getClass ();
+      Class<? extends UnionNoDefaultShortType> unionClass = type.getClass ();
       Method method = null;
 
       // determine method to invoke
@@ -389,7 +391,8 @@ public class DynAnyUnionIntTest extends DynAnyXXXTestCase
    /**
     * Test accessing the discriminator of a DynUnion object.
     */
-   public void testAccessUnionDisc ()
+    @Test
+    public void testAccessUnionDisc ()
    {
       String msg;
       TCKind discKind = null;
@@ -478,7 +481,8 @@ public class DynAnyUnionIntTest extends DynAnyXXXTestCase
     * Test setting the discriminator to the default member for a union with
     * an explicit default case.
     */
-   public void testUnionDefaultBoolean()
+    @Test
+    public void testUnionDefaultBoolean()
    {
       String msg;
       int compCount = -1;
@@ -562,7 +566,8 @@ public class DynAnyUnionIntTest extends DynAnyXXXTestCase
     * Test setting the discriminator to no active member for a union without
     * an explicit default case.
     */
-   public void testUnionNoDefaultBoolean()
+    @Test
+    public void testUnionNoDefaultBoolean()
    {
       String msg;
       int compCount = -1;
@@ -643,7 +648,8 @@ public class DynAnyUnionIntTest extends DynAnyXXXTestCase
     * Test setting the discriminator to the default member for a union with
     * an explicit default case.
     */
-   public void testUnionDefaultChar()
+    @Test
+    public void testUnionDefaultChar()
    {
       String msg;
       int compCount = -1;
@@ -728,7 +734,8 @@ public class DynAnyUnionIntTest extends DynAnyXXXTestCase
     * Test setting the discriminator to no active member for a union without
     * an explicit default case.
     */
-   public void testUnionNoDefaultChar()
+    @Test
+    public void testUnionNoDefaultChar()
    {
       String msg;
       int compCount = -1;
@@ -808,7 +815,8 @@ public class DynAnyUnionIntTest extends DynAnyXXXTestCase
     * Test setting the discriminator to the default member for a union with
     * an explicit default case.
     */
-   public void testUnionDefaultShort ()
+    @Test
+    public void testUnionDefaultShort ()
    {
       String msg;
       int compCount = -1;
@@ -893,7 +901,8 @@ public class DynAnyUnionIntTest extends DynAnyXXXTestCase
     * Test setting the discriminator to no active member for a union without
     * an explicit default case.
     */
-   public void testUnionNoDefaultShort ()
+    @Test
+    public void testUnionNoDefaultShort ()
    {
       String msg;
       int compCount = -1;
@@ -973,7 +982,8 @@ public class DynAnyUnionIntTest extends DynAnyXXXTestCase
     * Test setting the discriminator to the default member for a union with
     * an explicit default case.
     */
-   public void testUnionDefaultLong ()
+    @Test
+    public void testUnionDefaultLong ()
    {
       String msg;
       int compCount = -1;
@@ -1058,7 +1068,8 @@ public class DynAnyUnionIntTest extends DynAnyXXXTestCase
     * Test setting the discriminator to no active member for a union without
     * an explicit default case.
     */
-   public void testUnionNoDefaultLong ()
+    @Test
+    public void testUnionNoDefaultLong ()
    {
       String msg;
       int compCount = -1;
@@ -1138,7 +1149,8 @@ public class DynAnyUnionIntTest extends DynAnyXXXTestCase
     * Test setting the discriminator to the default member for a union with
     * an explicit default case.
     */
-   public void testUnionDefaultLongLong ()
+    @Test
+    public void testUnionDefaultLongLong ()
    {
       String msg;
       int compCount = -1;
@@ -1223,7 +1235,8 @@ public class DynAnyUnionIntTest extends DynAnyXXXTestCase
     * Test setting the discriminator to no active member for a union without
     * an explicit default case.
     */
-   public void testUnionNoDefaultLongLong ()
+    @Test
+    public void testUnionNoDefaultLongLong ()
    {
       String msg;
       int compCount = -1;
@@ -1304,7 +1317,8 @@ public class DynAnyUnionIntTest extends DynAnyXXXTestCase
    /**
     * Test accessing the active member of a DynUnion object.
     */
-   public void testAccessNamedUnionMember ()
+    @Test
+    public void testAccessNamedUnionMember ()
    {
       String msg;
       int testVal = 10;
@@ -1376,7 +1390,8 @@ public class DynAnyUnionIntTest extends DynAnyXXXTestCase
     * Test attempting to access the active member of a DynUnion object when
     * there is no active member.
     */
-   public void testAccessUnamedUnionMember ()
+    @Test
+    public void testAccessUnamedUnionMember ()
    {
       String msg;
       org.omg.CORBA.TypeCode tc = null;
@@ -1443,7 +1458,8 @@ public class DynAnyUnionIntTest extends DynAnyXXXTestCase
    /**
     * Test obtaining the TypeCode associated with a DynAny object.
     */
-   public void testDynAnyTypeCode ()
+    @Test
+    public void testDynAnyTypeCode ()
    {
       String msg;
       org.omg.CORBA.TypeCode tc = null;
@@ -1466,7 +1482,8 @@ public class DynAnyUnionIntTest extends DynAnyXXXTestCase
    /**
     * Test initializing a DynAny object from another DynAny object.
     */
-   public void testInitDynAnyFromDynAny ()
+    @Test
+    public void testInitDynAnyFromDynAny ()
    {
       String msg;
       UnionDefaultShortType type;
@@ -1501,7 +1518,8 @@ public class DynAnyUnionIntTest extends DynAnyXXXTestCase
    /**
     * Test initializing a DynAny object from an Any value.
     */
-   public void testInitDynAnyFromAny ()
+    @Test
+    public void testInitDynAnyFromAny ()
    {
       String msg;
       UnionDefaultShortType type;
@@ -1537,7 +1555,8 @@ public class DynAnyUnionIntTest extends DynAnyXXXTestCase
     * Test that a TypeMismatch exception is raised if there is a type
     * mismatch between the DynAny and Any types in an assignment.
     */
-   public void testInitFromAnyTypeMismatchEx ()
+    @Test
+    public void testInitFromAnyTypeMismatchEx ()
    {
       String msg;
       org.omg.CORBA.Any any = null;
@@ -1578,7 +1597,8 @@ public class DynAnyUnionIntTest extends DynAnyXXXTestCase
    /**
     * Test generating an Any value from a DynAny object.
     */
-   public void testGenerateAnyFromDynAny ()
+    @Test
+    public void testGenerateAnyFromDynAny ()
    {
       String msg;
       org.omg.CORBA.Any any = null;
@@ -1602,7 +1622,8 @@ public class DynAnyUnionIntTest extends DynAnyXXXTestCase
    /**
     * Test destroying a DynAny object.
     */
-   public void testDestroyDynAny ()
+    @Test
+    public void testDestroyDynAny ()
    {
       String msg;
       UnionDefaultShortType type;
@@ -1653,7 +1674,8 @@ public class DynAnyUnionIntTest extends DynAnyXXXTestCase
    /**
     * Test destroying a component of a DynAny object.
     */
-   public void testDestroyComponent ()
+    @Test
+    public void testDestroyComponent ()
    {
       String msg;
       UnionDefaultShortType type;
@@ -1708,7 +1730,8 @@ public class DynAnyUnionIntTest extends DynAnyXXXTestCase
    /**
     * Test creating a copy of a DynAny object.
     */
-   public void testCopyDynAny ()
+    @Test
+    public void testCopyDynAny ()
    {
       String msg;
       org.omg.CORBA.TypeCode tc = null;

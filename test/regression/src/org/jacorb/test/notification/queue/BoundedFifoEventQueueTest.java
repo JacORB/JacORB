@@ -21,22 +21,22 @@ package org.jacorb.test.notification.queue;
  *
  */
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
 import org.easymock.MockControl;
 import org.jacorb.notification.interfaces.Message;
 import org.jacorb.notification.queue.BoundedFifoEventQueue;
 import org.jacorb.notification.queue.EventQueueOverflowStrategy;
+import org.junit.Test;
 
 /**
  * @author Alphonse Bendt
  */
 
-public class BoundedFifoEventQueueTest extends TestCase
+public class BoundedFifoEventQueueTest
 {
     private void addEventsToEventQueue(EventQueueOverflowStrategy strategy, List events)
     {
@@ -50,6 +50,7 @@ public class BoundedFifoEventQueueTest extends TestCase
         }
     }
 
+    @Test
     public void testFIFOOverflow() throws Exception
     {
         DelegatingOverflowStrategy strategy = new DelegatingOverflowStrategy(EventQueueOverflowStrategy.FIFO);
@@ -81,6 +82,7 @@ public class BoundedFifoEventQueueTest extends TestCase
         assertTrue(strategy.getRemovedElements().contains(mockMessage2));
     }
 
+    @Test
     public void testLIFOOverflow() throws Exception
     {
         DelegatingOverflowStrategy strategy = new DelegatingOverflowStrategy(EventQueueOverflowStrategy.LIFO);
@@ -112,6 +114,7 @@ public class BoundedFifoEventQueueTest extends TestCase
         assertTrue(strategy.getRemovedElements().contains(e2));
     }
 
+    @Test
     public void testGetAllClearsQueue() throws Exception
     {
         BoundedFifoEventQueue queue = new BoundedFifoEventQueue(10, EventQueueOverflowStrategy.LIFO);
@@ -135,11 +138,6 @@ public class BoundedFifoEventQueueTest extends TestCase
         Message mockMessage = (Message) controlMessage.getMock();
         controlMessage.replay();
         return mockMessage;
-    }
-
-    public static Test suite()
-    {
-        return new TestSuite(BoundedFifoEventQueueTest.class);
     }
 }
 

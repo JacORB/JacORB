@@ -1,14 +1,10 @@
 
 package org.jacorb.test.bugs.bugjac788Compat;
 
-import org.omg.CORBA.ORB;
 import org.omg.CORBA.SystemException;
 
 public class ComputInterfaceImpl extends ComputInterfacePOA
 {
-
-    private ORB orb;
-
     /**
      * A parent POA used for the container activation
      */
@@ -21,8 +17,7 @@ public class ComputInterfaceImpl extends ComputInterfacePOA
      *
      *@param
      **/
-    public ComputInterfaceImpl(ORB orb, org.omg.PortableServer.POA poa) {
-        this.orb = orb;
+    public ComputInterfaceImpl(org.omg.PortableServer.POA poa) {
         this.poa = poa;
     }
 

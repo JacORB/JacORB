@@ -20,13 +20,15 @@ package org.jacorb.test.poa;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
+import static org.junit.Assert.assertTrue;
 import java.util.Properties;
-import junit.framework.Test;
-import junit.framework.TestSuite;
 import org.jacorb.test.BasicServer;
 import org.jacorb.test.BasicServerHelper;
 import org.jacorb.test.common.ClientServerSetup;
 import org.jacorb.test.common.ClientServerTestCase;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
 
 
 /**
@@ -47,24 +49,15 @@ public class BiDirDelegateTest extends ClientServerTestCase
     private boolean ping = false;
 
 
-    public BiDirDelegateTest(String name, ClientServerSetup setup)
-    {
-        super(name, setup);
-    }
-
+    @Before
     public void setUp() throws Exception
     {
         server = BasicServerHelper.narrow( setup.getServerObject() );
     }
 
-    protected void tearDown() throws Exception
+    @BeforeClass
+    public static void beforeClassSetUp() throws Exception
     {
-        server = null;
-    }
-
-    public static Test suite()
-    {
-        TestSuite suite = new TestSuite( "Basic client/server tests" );
 
         Properties client_props = new Properties();
         Properties server_props = new Properties();
@@ -74,16 +67,10 @@ public class BiDirDelegateTest extends ClientServerTestCase
 
         // Note that I have activated BiDir connections through the above
         // property and am using my own ClientServerSetup class.
-        ClientServerSetup setup =
-            new ClientServerSetup( suite,
-                                   "org.jacorb.test.poa.BiDirDelegateTestServerRunner",
+        setup = new ClientServerSetup("org.jacorb.test.poa.BiDirDelegateTestServerRunner",
                                    "org.jacorb.test.orb.BasicServerImpl",
                                    client_props,
                                    server_props);
-
-        suite.addTest( new BiDirDelegateTest( "test_ping", setup ));
-
-        return setup;
     }
 
     /**
@@ -92,6 +79,7 @@ public class BiDirDelegateTest extends ClientServerTestCase
      * We have to use a thread as otherwise if the test fails the harness will
      * hang. This allows the test to detect a broken server.
      */
+    @Test
     public void test_ping()
     {
         Thread thread = new Thread("BiDirDelegateTest Ping Thread")

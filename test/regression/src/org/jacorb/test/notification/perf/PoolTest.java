@@ -21,11 +21,11 @@
 
 package org.jacorb.test.notification.perf;
 
-import junit.framework.TestCase;
 import org.jacorb.notification.AnyMessage;
 import org.jacorb.notification.util.AbstractPoolablePool;
+import org.junit.Test;
 
-public class PoolTest extends TestCase
+public class PoolTest
 {
     private class Work implements Runnable
     {
@@ -80,6 +80,7 @@ public class PoolTest extends TestCase
         }
     }
 
+    @Test
     public void testWithPool()
     {
         final AbstractPoolablePool pool =
@@ -116,6 +117,7 @@ public class PoolTest extends TestCase
         System.out.println("pool: " + sum);
     }
 
+    @Test
     public void testNoPool()
     {
         Work[] worker = new Work[4];

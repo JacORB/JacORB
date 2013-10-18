@@ -1,9 +1,9 @@
 package org.jacorb.test.bugs.bugjac149;
 
 import java.rmi.Remote;
+import javax.rmi.PortableRemoteObject;
 import javax.rmi.CORBA.Stub;
 import javax.rmi.CORBA.Util;
-import org.jacorb.test.common.TestUtils;
 import org.omg.CORBA.ORB;
 import org.omg.CORBA.Object;
 import org.omg.PortableServer.POA;
@@ -39,11 +39,11 @@ public class ObjRepServer
 
         Servant servant = (Servant) Util.getTie(remObj);
 
-        byte[] objID = rootPOA.activate_object (servant );
+        rootPOA.activate_object (servant );
 
         rootPOA.the_POAManager().activate();
 
-        stub = TestUtils.toStub(remObj, rootPOA.id_to_reference(objID), RemoteIPing.class);
+        stub = (Stub) PortableRemoteObject.toStub(remObj);
 
         objref = stub._duplicate();
 

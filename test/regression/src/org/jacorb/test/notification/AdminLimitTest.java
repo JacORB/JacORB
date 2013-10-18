@@ -21,10 +21,12 @@ package org.jacorb.test.notification;
  *
  */
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.fail;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
-import junit.framework.Test;
 import org.jacorb.notification.OfferManager;
 import org.jacorb.notification.SubscriptionManager;
 import org.jacorb.notification.interfaces.ApplicationEvent;
@@ -34,7 +36,8 @@ import org.jacorb.notification.servant.ConsumerAdminImpl;
 import org.jacorb.notification.servant.IEventChannel;
 import org.jacorb.notification.util.QoSPropertySet;
 import org.jacorb.test.notification.common.NotificationTestCase;
-import org.jacorb.test.notification.common.NotificationTestCaseSetup;
+import org.junit.Before;
+import org.junit.Test;
 import org.omg.CORBA.IntHolder;
 import org.omg.CosNotifyChannelAdmin.AdminLimitExceeded;
 import org.omg.CosNotifyChannelAdmin.ClientType;
@@ -54,7 +57,8 @@ public class AdminLimitTest extends NotificationTestCase
 
     private ConsumerAdminOperations consumerAdmin_;
 
-    public void setUpTest() throws Exception
+    @Before
+    public void setUp() throws Exception
     {
         QoSPropertySet _qosSettings = new QoSPropertySet(getConfiguration(),
                 QoSPropertySet.ADMIN_QOS);
@@ -106,11 +110,13 @@ public class AdminLimitTest extends NotificationTestCase
         consumerAdmin_ = objectUnderTest_;
     }
 
+    @Test
     public void testBasics() throws Exception
     {
         assertEquals(20, consumerAdmin_.MyID());
     }
 
+    @Test
     public void testObtainNotificationPullSupplierFiresEvent() throws Exception
     {
         IntHolder _proxyId = new IntHolder();
@@ -147,6 +153,7 @@ public class AdminLimitTest extends NotificationTestCase
         assertEquals(objectUnderTest_, ((ApplicationEvent) _events.get(0)).getSource());
     }
 
+    @Test
     public void testDenyCreateNotificationPullSupplier() throws Exception
     {
         IntHolder _proxyId = new IntHolder();
@@ -183,6 +190,7 @@ public class AdminLimitTest extends NotificationTestCase
         }
     }
 
+    @Test
     public void testEvents() throws Exception
     {
         IntHolder _proxyId = new IntHolder();
@@ -225,15 +233,5 @@ public class AdminLimitTest extends NotificationTestCase
         objectUnderTest_.obtain_pull_supplier();
 
         assertEquals(3, _counter.get());
-    }
-
-    public AdminLimitTest(String name, NotificationTestCaseSetup setup)
-    {
-        super(name, setup);
-    }
-
-    public static Test suite() throws Exception
-    {
-        return NotificationTestCase.suite(AdminLimitTest.class);
     }
 }

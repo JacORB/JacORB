@@ -1,10 +1,13 @@
 package org.jacorb.test.bugs.bugjac415;
 
+import static org.junit.Assert.fail;
 import org.jacorb.test.common.ORBTestCase;
+import org.junit.Test;
 import org.omg.CORBA.BAD_PARAM;
 
 public class BugJac415Test extends ORBTestCase
 {
+    @Test
     public void testExceptionInPOAUtil() throws Exception
     {
         try

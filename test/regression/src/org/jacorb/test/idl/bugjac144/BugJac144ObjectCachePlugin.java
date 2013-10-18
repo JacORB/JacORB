@@ -28,6 +28,7 @@ import org.jacorb.idl.TypeDeclaration;
 /**
  * @author Alphonse Bendt
  */
+@SuppressWarnings("rawtypes")
 public class BugJac144ObjectCachePlugin implements ObjectCachePlugin
 {
     public void printCheckinHelper(PrintWriter ps, TypeDeclaration decl)

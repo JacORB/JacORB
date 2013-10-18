@@ -21,10 +21,12 @@ package org.jacorb.test.notification;
  *
  */
 
-import junit.framework.Test;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 import org.jacorb.test.notification.common.NotificationTestUtils;
 import org.jacorb.test.notification.common.NotifyServerTestCase;
-import org.jacorb.test.notification.common.NotifyServerTestSetup;
+import org.junit.Before;
+import org.junit.Test;
 import org.omg.CORBA.Any;
 import org.omg.CosNotification.EventType;
 import org.omg.CosNotifyChannelAdmin.ConsumerAdmin;
@@ -65,9 +67,10 @@ public class InterFilterGroupOperatorTest extends NotifyServerTestCase
     Filter trueFilter_;
     Filter falseFilter_;
 
-    public void setUpTest() throws Exception
+    @Before
+    public void setUp() throws Exception
     {
-        testPerson_ = new NotificationTestUtils(getClientORB()).getTestPersonAny();
+        testPerson_ = new NotificationTestUtils(setup.getClientOrb()).getTestPersonAny();
 
         channel_ = getDefaultChannel();
 
@@ -84,19 +87,20 @@ public class InterFilterGroupOperatorTest extends NotifyServerTestCase
         _constraintExp = new ConstraintExp[1];
         _eventType = new EventType[1];
         _eventType[0] = new EventType("*", "*");
-        
+
         _constraintExp[0] = new ConstraintExp(_eventType, "FALSE");
        falseFilter_.add_constraints(_constraintExp);
-        
+
         assertTrue(trueFilter_.match(testPerson_));
         assertFalse(falseFilter_.match(testPerson_));
     }
 
 
+    @Test
     public void testTrueORFalse_NoneOrNone() throws Exception
     {
-        AnyPushSender _sender = new AnyPushSender(getClientORB(), testPerson_);
-        AnyPushReceiver _receiver = new AnyPushReceiver(getClientORB());
+        AnyPushSender _sender = new AnyPushSender(setup.getClientOrb(), testPerson_);
+        AnyPushReceiver _receiver = new AnyPushReceiver(setup.getClientOrb());
 
         _sender.connect(channel_, true);
         _receiver.connect(channel_, true);
@@ -117,10 +121,11 @@ public class InterFilterGroupOperatorTest extends NotifyServerTestCase
     }
 
 
+    @Test
     public void testFalseORTrue_NoneOrNone() throws Exception
     {
-        AnyPushSender _sender = new AnyPushSender(getClientORB(), testPerson_);
-        AnyPushReceiver _receiver = new AnyPushReceiver(getClientORB());
+        AnyPushSender _sender = new AnyPushSender(setup.getClientOrb(), testPerson_);
+        AnyPushReceiver _receiver = new AnyPushReceiver(setup.getClientOrb());
         _sender.connect(channel_, true);
         _receiver.connect(channel_, true);
 
@@ -140,11 +145,12 @@ public class InterFilterGroupOperatorTest extends NotifyServerTestCase
         assertTrue("Should have received something", _receiver.isEventHandled());
     }
 
-    
+
+    @Test
     public void testTrueANDFalse_NoneOrNone() throws Exception
     {
-        AnyPushSender _sender = new AnyPushSender(getClientORB(), testPerson_);
-        AnyPushReceiver _receiver = new AnyPushReceiver(getClientORB());
+        AnyPushSender _sender = new AnyPushSender(setup.getClientOrb(), testPerson_);
+        AnyPushReceiver _receiver = new AnyPushReceiver(setup.getClientOrb());
         _sender.connect(channel_, false);
         _receiver.connect(channel_, true);
 
@@ -165,10 +171,11 @@ public class InterFilterGroupOperatorTest extends NotifyServerTestCase
     }
 
 
+    @Test
     public void testFalseANDTrue_NoneOrNone() throws Exception
     {
-        AnyPushSender _sender = new AnyPushSender(getClientORB(), testPerson_);
-        AnyPushReceiver _receiver = new AnyPushReceiver(getClientORB());
+        AnyPushSender _sender = new AnyPushSender(setup.getClientOrb(), testPerson_);
+        AnyPushReceiver _receiver = new AnyPushReceiver(setup.getClientOrb());
         _sender.connect(channel_, false);
         _receiver.connect(channel_, true);
 
@@ -189,10 +196,11 @@ public class InterFilterGroupOperatorTest extends NotifyServerTestCase
     }
 
 
+    @Test
     public void testNoneOrNone_TrueORFalse() throws Exception
     {
-        AnyPushSender _sender = new AnyPushSender(getClientORB(), testPerson_);
-        AnyPushReceiver _receiver = new AnyPushReceiver(getClientORB());
+        AnyPushSender _sender = new AnyPushSender(setup.getClientOrb(), testPerson_);
+        AnyPushReceiver _receiver = new AnyPushReceiver(setup.getClientOrb());
         _sender.connect(channel_, true);
         _receiver.connect(channel_, true);
 
@@ -211,12 +219,13 @@ public class InterFilterGroupOperatorTest extends NotifyServerTestCase
         assertTrue("Error while sending", !_sender.error_);
         assertTrue("Should have received something", _receiver.isEventHandled());
     }
-    
 
+
+    @Test
     public void testNoneOrNone_FalseORTrue() throws Exception
     {
-        AnyPushSender _sender = new AnyPushSender(getClientORB(), testPerson_);
-        AnyPushReceiver _receiver = new AnyPushReceiver(getClientORB());
+        AnyPushSender _sender = new AnyPushSender(setup.getClientOrb(), testPerson_);
+        AnyPushReceiver _receiver = new AnyPushReceiver(setup.getClientOrb());
         _sender.connect(channel_, true);
         _receiver.connect(channel_, true);
 
@@ -237,10 +246,11 @@ public class InterFilterGroupOperatorTest extends NotifyServerTestCase
     }
 
 
+    @Test
     public void testNoneOrNone_TrueANDFalse() throws Exception
     {
-        AnyPushSender _sender = new AnyPushSender(getClientORB(), testPerson_);
-        AnyPushReceiver _receiver = new AnyPushReceiver(getClientORB());
+        AnyPushSender _sender = new AnyPushSender(setup.getClientOrb(), testPerson_);
+        AnyPushReceiver _receiver = new AnyPushReceiver(setup.getClientOrb());
 
         _sender.connect(channel_, true);
 
@@ -263,10 +273,11 @@ public class InterFilterGroupOperatorTest extends NotifyServerTestCase
     }
 
 
+    @Test
     public void testNoneOrNone_FalseANDTrue() throws Exception
     {
-        AnyPushSender _sender = new AnyPushSender(getClientORB(), testPerson_);
-        AnyPushReceiver _receiver = new AnyPushReceiver(getClientORB());
+        AnyPushSender _sender = new AnyPushSender(setup.getClientOrb(), testPerson_);
+        AnyPushReceiver _receiver = new AnyPushReceiver(setup.getClientOrb());
 
         _sender.connect(channel_, true);
 
@@ -286,18 +297,5 @@ public class InterFilterGroupOperatorTest extends NotifyServerTestCase
 
         assertTrue("Error while sending", !_sender.error_);
         assertTrue(_receiver + " should have received something", !_receiver.isEventHandled());
-    }
-
-    
-    public InterFilterGroupOperatorTest (String name, NotifyServerTestSetup setup)
-    {
-        super(name, setup);
-    }
-
-    
-    public static Test suite() throws Exception
-    {
-        return NotifyServerTestCase.suite("Test of InterFilterGroupOperator Functionality",
-                                          InterFilterGroupOperatorTest.class);
     }
 }

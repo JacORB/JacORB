@@ -36,7 +36,7 @@ public class DayFactoryImpl
     public void deleteDay(Base b) {
        System.out.println("deleteDay");
        System.out.println("narrowing to a GoodDay");
-       GoodDay g = GoodDayHelper.narrow(b);
+       GoodDayHelper.narrow(b);
        System.out.println("fine narrowing to a GoodDay");
     }
 

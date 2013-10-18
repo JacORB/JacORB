@@ -21,32 +21,37 @@
 
 package org.jacorb.test.notification.util;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 import java.lang.ref.ReferenceQueue;
 import java.lang.ref.WeakReference;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
-import junit.framework.TestCase;
 import org.jacorb.notification.util.WeakHashSet;
+import org.junit.Before;
+import org.junit.Test;
 
 /**
  * @author Alphonse Bendt
  */
-public class WeakHashSetTest extends TestCase
+public class WeakHashSetTest
 {
     private Set objectUnderTest_;
 
     /*
      * @see TestCase#setUp()
      */
-    protected void setUp() throws Exception
+    @Before
+    public void setUp() throws Exception
     {
-        super.setUp();
-
         objectUnderTest_ = new WeakHashSet();
     }
 
+    @Test
     public void testSize()
     {
         assertEquals(0, objectUnderTest_.size());
@@ -55,6 +60,7 @@ public class WeakHashSetTest extends TestCase
         assertEquals(1, objectUnderTest_.size());
     }
 
+    @Test
     public void testIsEmpty()
     {
         assertTrue(objectUnderTest_.isEmpty());
@@ -63,6 +69,7 @@ public class WeakHashSetTest extends TestCase
         assertFalse(objectUnderTest_.isEmpty());
     }
 
+    @Test
     public void testContains()
     {
         Object o1 = new Object();
@@ -71,6 +78,7 @@ public class WeakHashSetTest extends TestCase
         assertTrue(objectUnderTest_.contains(o1));
     }
 
+    @Test
     public void testIterator()
     {
         Iterator i = objectUnderTest_.iterator();
@@ -89,6 +97,7 @@ public class WeakHashSetTest extends TestCase
     }
 
 
+    @Test
     public void testToArray()
     {
         Object[] array = objectUnderTest_.toArray();
@@ -105,6 +114,7 @@ public class WeakHashSetTest extends TestCase
     }
 
 
+    @Test
     public void testToArrayObjectArray()
     {
         String s1 = "text";
@@ -116,6 +126,7 @@ public class WeakHashSetTest extends TestCase
         assertEquals("text", array[0]);
     }
 
+    @Test
     public void testAdd()
     {
         Object o1 = new Object();
@@ -124,6 +135,7 @@ public class WeakHashSetTest extends TestCase
         assertFalse(objectUnderTest_.add(o1));
     }
 
+    @Test
     public void testRemove()
     {
         Object o1 = new Object();
@@ -135,6 +147,7 @@ public class WeakHashSetTest extends TestCase
         assertFalse(objectUnderTest_.contains(o1));
     }
 
+    @Test
     public void testContainsAll()
     {
         Object o1 = new Object();
@@ -153,6 +166,7 @@ public class WeakHashSetTest extends TestCase
         assertTrue(objectUnderTest_.containsAll(all));
     }
 
+    @Test
     public void testAddAll()
     {
         Object o1 = new Object();
@@ -170,6 +184,7 @@ public class WeakHashSetTest extends TestCase
         assertTrue(objectUnderTest_.contains(o2));
     }
 
+    @Test
     public void testRetainAll()
     {
         Object o1 = new Object();
@@ -190,6 +205,7 @@ public class WeakHashSetTest extends TestCase
         assertFalse(objectUnderTest_.contains(o2));
     }
 
+    @Test
     public void testRemoveAll()
     {
         Object o1 = new Object();
@@ -210,6 +226,7 @@ public class WeakHashSetTest extends TestCase
         assertTrue(objectUnderTest_.contains(o2));
     }
 
+    @Test
     public void testClear()
     {
         Object o1 = new Object();

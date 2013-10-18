@@ -21,10 +21,12 @@ package org.jacorb.test.notification.evaluate;
  *
  */
 
-import junit.framework.Test;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import org.jacorb.notification.filter.impl.DefaultETCLEvaluator;
 import org.jacorb.test.notification.common.NotificationTestCase;
-import org.jacorb.test.notification.common.NotificationTestCaseSetup;
+import org.junit.Before;
+import org.junit.Test;
 import org.omg.CORBA.Any;
 import org.omg.CosNotification.Property;
 import org.omg.CosNotification.PropertyHelper;
@@ -38,20 +40,14 @@ public class DynamicEvaluatorTest extends NotificationTestCase
 {
     private DefaultETCLEvaluator objectUnderTest_;
 
-    public DynamicEvaluatorTest (String name, NotificationTestCaseSetup setup){
-        super(name, setup);
-    }
-
-    public static Test suite() throws Exception {
-        return NotificationTestCase.suite(DynamicEvaluatorTest.class);
-    }
-
-
-    public void setUpTest() throws Exception {
+    @Before
+    public void setUp() throws Exception
+    {
         objectUnderTest_ = new DefaultETCLEvaluator(getORB(), getConfiguration(), getDynAnyFactory());
     }
 
 
+    @Test
     public void testExtractAny() throws Exception {
         Any _any = getORB().create_any();
         _any.insert_long(10);
@@ -63,6 +59,7 @@ public class DynamicEvaluatorTest extends NotificationTestCase
     }
 
 
+    @Test
     public void testEvaluateNamedValueList() throws Exception {
         Any _any = getORB().create_any();
         _any.insert_long(10);

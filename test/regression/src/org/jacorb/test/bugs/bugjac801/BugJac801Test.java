@@ -1,33 +1,32 @@
 package org.jacorb.test.bugs.bugjac801;
 
-import junit.framework.Assert;
 import org.jacorb.test.common.ORBTestCase;
+import org.junit.Assert;
+import org.junit.Test;
 
 public class BugJac801Test extends ORBTestCase
 {
+    @Test
     public void testUnionToString()
     {
         A testUnion = new A();
         testUnion.toto (B.case1, true);
 
-//        System.err.println ("### testUnion toString gives " + testUnion);
-        
-        Assert.assertTrue ("A.toString() doesn't contain case for B.case3 discriminator value", 
+        Assert.assertTrue ("A.toString() doesn't contain case for B.case3 discriminator value",
                            testUnion.toString ().contains ("true"));
 
         testUnion.titi (B.case3, (short) 20);
-        
-        Assert.assertTrue ("A.toString() doesn't contain case for B.case3 discriminator value", 
+
+        Assert.assertTrue ("A.toString() doesn't contain case for B.case3 discriminator value",
                            testUnion.toString ().contains ("20"));
     }
 
 
+    @Test
     public void testSunokeSwitch()
     {
         SimpleSwitch testUnion = new SimpleSwitch();
         testUnion.value ("FooBar");
-
-        //       System.err.println ("### testUnion toString gives " + testUnion);
 
         Assert.assertTrue
         (
@@ -44,12 +43,11 @@ public class BugJac801Test extends ORBTestCase
         );
     }
 
+    @Test
     public void testLongSwitchUnionToString()
     {
         LongSwitch testUnion = new LongSwitch();
         testUnion.value ("FooBar");
-
-//        System.err.println ("### testUnion toString gives " + testUnion);
 
         Assert.assertTrue
         (
@@ -66,6 +64,7 @@ public class BugJac801Test extends ORBTestCase
         );
     }
 
+    @Test
     public void testOptElapsedTimeOnItemsUnionToString()
     {
         OptElapsedTimeOnItems testUnion = new OptElapsedTimeOnItems();
@@ -77,8 +76,6 @@ public class BugJac801Test extends ORBTestCase
 
         ElapsedTimeOnItems etoi = new ElapsedTimeOnItems (p, f);
         testUnion.value (etoi);
-
-//        System.err.println ("### testUnion toString gives " + testUnion);
 
         Assert.assertTrue
         (

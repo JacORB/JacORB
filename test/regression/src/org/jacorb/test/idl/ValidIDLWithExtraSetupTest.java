@@ -21,19 +21,26 @@
 
 package org.jacorb.test.idl;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 import java.io.File;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
-import junit.framework.Test;
-import junit.framework.TestSuite;
 import org.jacorb.orb.CDRInputStream;
 import org.jacorb.orb.CDROutputStream;
 import org.jacorb.test.common.TestUtils;
 import org.jacorb.test.idl.bugjac144.BugJac144ObjectCachePlugin;
+import org.junit.Test;
+import org.junit.runners.Parameterized.Parameters;
 import org.omg.CORBA.Any;
 import org.omg.PortableServer.POA;
 import org.omg.PortableServer.Servant;
@@ -57,25 +64,62 @@ public class ValidIDLWithExtraSetupTest extends AbstractIDLTestcase
     private static final String[] TWO_ONE_STRINGS = new String[] {"TWO", "ONE"};
     private static final String[] ONE_TWO_STRINGS = new String[] {"ONE", "TWO"};
 
-    private final List arguments = new ArrayList();
+    private final List<String> arguments = new ArrayList<String>();
+
+    private static boolean jacorb = true;
+    static
+    {
+        try
+        {
+            org.omg.CORBA.portable.InputStream.class.getMethod("read_fixed", new Class[] {short.class, short.class});
+        }
+        catch(Exception e)
+        {
+            jacorb = false;
+        }
+    }
+
+    @Parameters(name="{index}: {1}")
+    public static Collection<Object[]> data()
+    {
+        return Arrays.asList(new Object[][] {
+                    { new String[] { "-DBLUB" }, "defined.idl" },
+                    { new String[] { "-I" + TEST_HOME + "/../../idl/omg" }, "Interoperability.idl" },
+                    { new String[] { "-I" + TEST_HOME + "/../../idl/omg" }, "rt1051.idl" },
+                    { new String[] { "-DDefB" }, "Ping1.idl" },
+                    { new String[] { "-ami_callback" }, "ami.idl" },
+                    { new String[] { "-ami_callback" }, "rt1180.idl" },
+                    { new String[] { "-I" + TEST_HOME + "/../../idl/omg" }, "bugJac307.idl" },
+                    { new String[] {"-ir", "-i2jpackage", "AlarmIRPSystem:org._3gpp.AlarmIRPSystem"}, "bugJac101.idl" },
+                    { new String[] { "-genEnhanced" }, "bugJac149.idl" },
+                    { new String[] {"-ami_callback", "-diistub"}, "ami.idl" },
+                    { new String[] { "-sloppy_names" }, TEST_HOME + "/idl/compiler/fail/sloppy.idl" },
+                    { new String[] {"-ir", "-i2jpackage", "test:de.siemens.hyades.test"}, "bug514.idl" },
+                    { new String[] {"-i2jpackage", ":myTestPackage"}, TEST_HOME + "/idl/compiler/succeed/scoping10.idl" },
+                    { new String[] {"-i2jpackage", ":apmInterface"}, "bugJac44.idl" },
+                    { new String[] {"-generate_helper", "deprecated"} , "bugJac516.idl" },
+                    // If the wrong org.omg.CORBA (not the ones provided by JacORB) classes are on the bootclasspath
+                    // we ignore the test by using the previous.
+                    { new String[] {"-generate_helper", (jacorb ? "portable" : "deprecated" )}, "bugJac516.idl" },
+                    { new String[] {"-generate_helper", "jacorb"}, "bugJac516.idl" },
+                    { new String[] {"-cacheplugin", BugJac144ObjectCachePlugin.class.getName()}, "bugJac144.idl" },
+                    { new String[] {}, "bugJac144.idl" },
+                    { new String[] { "-sloppy_identifiers" }, TEST_HOME + "/idl/compiler/fail/collision.idl" },
+                    { new String[] {"-all", "-I" + TEST_HOME + IDL_DIR} , "895_1.idl" },
+                    { new String[] {"-I" + TEST_HOME + "/../../idl/omg"}, "bugRTJ519.idl" },
+        });
+    }
+
 
     public ValidIDLWithExtraSetupTest(String[] argList, String file)
     {
-        super
-        (
-            "testMiscParseGood",
-            (new File(file)).isAbsolute() ? new File(file) : new File(TEST_HOME + IDL_DIR + file)
-        );
+        super ((new File(file)).isAbsolute() ? new File(file) : new File(TEST_HOME + IDL_DIR + file));
+
         arguments.addAll(Arrays.asList(argList));
 
         arguments.add("-d");
         arguments.add(dirGeneration.getAbsolutePath());
         arguments.add(idlFile.getAbsolutePath());
-    }
-
-    public ValidIDLWithExtraSetupTest(String arg, String file)
-    {
-        this(new String[] {arg}, file);
     }
 
     protected String[] createJacIDLArgs()
@@ -84,7 +128,7 @@ public class ValidIDLWithExtraSetupTest extends AbstractIDLTestcase
 
         for(int x=0; x<arguments.size(); ++x)
         {
-            args[x] = (String) arguments.get(x);
+            args[x] = arguments.get(x);
         }
 
         return args;
@@ -93,6 +137,7 @@ public class ValidIDLWithExtraSetupTest extends AbstractIDLTestcase
     /**
      * this is the main testmethod
      */
+    @Test
     public void testMiscParseGood() throws Exception
     {
         ClassLoader clOld = Thread.currentThread().getContextClassLoader();
@@ -101,7 +146,7 @@ public class ValidIDLWithExtraSetupTest extends AbstractIDLTestcase
 
         try
         {
-            runJacIDL(false, false);
+            runJacIDL(false);
             ClassLoader cl = compileGeneratedSources(false);
 
             invokeVerifyMethod(cl);
@@ -164,19 +209,19 @@ public class ValidIDLWithExtraSetupTest extends AbstractIDLTestcase
         Any any = org.omg.CORBA.ORB.init().create_any();
         any.insert_short ((short)10);
 
-        Class nameValueClazz = cl.loadClass("org.jacorb.test.bugs.bugjac149.NameAndStringValue_T");
-        Constructor nameValueCTOR = nameValueClazz.getConstructor(new Class[] {String.class, String.class});
+        Class<?> nameValueClazz = cl.loadClass("org.jacorb.test.bugs.bugjac149.NameAndStringValue_T");
+        Constructor<?> nameValueCTOR = nameValueClazz.getConstructor(new Class[] {String.class, String.class});
         Object nameValue = nameValueCTOR.newInstance(new Object[] {name, value});
 
-        Class structClazz = cl.loadClass("org.jacorb.test.bugs.bugjac149.VarLengthStruct");
-        Constructor structCTOR = structClazz.getConstructor(new Class[] {String.class, Boolean.TYPE, Any.class, nameValueClazz, String[].class});
+        Class<?> structClazz = cl.loadClass("org.jacorb.test.bugs.bugjac149.VarLengthStruct");
+        Constructor<?> structCTOR = structClazz.getConstructor(new Class[] {String.class, Boolean.TYPE, Any.class, nameValueClazz, String[].class});
 
         return structCTOR.newInstance(new Object[] {m1, Boolean.valueOf(alarmMonitoringIndicator), any, nameValue, m1Seq});
     }
 
     public void verify_bugJac44_idl(ClassLoader cl) throws Exception
     {
-        Class clazz = cl.loadClass("apmInterface.SA_Connection");
+        Class<?> clazz = cl.loadClass("apmInterface.SA_Connection");
         assertNotNull(clazz);
     }
 
@@ -187,7 +232,7 @@ public class ValidIDLWithExtraSetupTest extends AbstractIDLTestcase
 
    public void verify_bugJac516_idl(ClassLoader cl) throws Exception
    {
-       Class helperClazz = cl.loadClass("bugJac516.MyFixedHelper");
+       Class<?> helperClazz = cl.loadClass("bugJac516.MyFixedHelper");
 
        verifyWriteMethod(helperClazz);
 
@@ -203,7 +248,7 @@ public class ValidIDLWithExtraSetupTest extends AbstractIDLTestcase
        }
    }
 
-   private void verifyReadMethod(Class helperClazz) throws Exception
+   private void verifyReadMethod(Class<?> helperClazz) throws Exception
    {
        final org.omg.CORBA.portable.InputStream in;
        final BigDecimal result = new BigDecimal("432.1");
@@ -247,7 +292,7 @@ public class ValidIDLWithExtraSetupTest extends AbstractIDLTestcase
        }
    }
 
-   private void verifyWriteMethod(Class helperClazz) throws Exception
+   private void verifyWriteMethod(Class<?> helperClazz) throws Exception
    {
        final org.omg.CORBA.portable.OutputStream out;
        final boolean[] success = new boolean[1];
@@ -291,47 +336,9 @@ public class ValidIDLWithExtraSetupTest extends AbstractIDLTestcase
 
     public void verify_bugRTJ519_idl(ClassLoader cl) throws Exception
     {
-        Class clazz = cl.loadClass("test.TestInterface");
+        Class<?> clazz = cl.loadClass("test.TestInterface");
         Method method = clazz.getMethod("test_method", new Class[] {Servant.class, POA.class});
         assertNotNull(method);
     }
 
-    public static Test suite()
-    {
-        TestSuite suite = new TestSuite();
-
-        suite.addTest(new ValidIDLWithExtraSetupTest("-DBLUB", "defined.idl"));
-        suite.addTest(new ValidIDLWithExtraSetupTest("-I" + TEST_HOME + "/../../idl/omg", "Interoperability.idl"));
-        suite.addTest(new ValidIDLWithExtraSetupTest("-I" + TEST_HOME + "/../../idl/omg", "rt1051.idl"));
-        suite.addTest(new ValidIDLWithExtraSetupTest("-DDefB", "Ping1.idl"));
-        suite.addTest(new ValidIDLWithExtraSetupTest("-ami_callback", "ami.idl"));
-        suite.addTest(new ValidIDLWithExtraSetupTest("-ami_callback", "rt1180.idl"));
-        suite.addTest(new ValidIDLWithExtraSetupTest("-I" + TEST_HOME + "/../../idl/omg", "bugJac307.idl"));
-        suite.addTest(new ValidIDLWithExtraSetupTest(new String[] {"-ir", "-i2jpackage", "AlarmIRPSystem:org._3gpp.AlarmIRPSystem"}, "bugJac101.idl"));
-        suite.addTest(new ValidIDLWithExtraSetupTest("-genEnhanced", "bugJac149.idl"));
-        suite.addTest(new ValidIDLWithExtraSetupTest(new String[] {"-ami_callback", "-diistub"}, "ami.idl"));
-        suite.addTest(new ValidIDLWithExtraSetupTest("-sloppy_names", TEST_HOME + "/idl/compiler/fail/sloppy.idl"));
-        suite.addTest(new ValidIDLWithExtraSetupTest(new String[] {"-ir", "-i2jpackage", "test:de.siemens.hyades.test"}, "bug514.idl"));
-        suite.addTest(new ValidIDLWithExtraSetupTest(new String[] {"-i2jpackage", ":myTestPackage"}, TEST_HOME + "/idl/compiler/succeed/scoping10.idl"));
-        suite.addTest(new ValidIDLWithExtraSetupTest(new String[] {"-i2jpackage", ":apmInterface"}, "bugJac44.idl"));
-        suite.addTest(new ValidIDLWithExtraSetupTest(new String[] {"-generate_helper", "deprecated"} , "bugJac516.idl"));
-
-        try
-        {
-            org.omg.CORBA.portable.InputStream.class.getMethod("read_fixed", new Class[] {short.class, short.class});
-            suite.addTest(new ValidIDLWithExtraSetupTest(new String[] {"-generate_helper", "portable"}, "bugJac516.idl"));
-        }
-        catch(Exception e)
-        {
-            System.out.println("1 test ignored because wrong org.omg.CORBA (not the ones provided by JacORB) classes are on the bootclasspath");
-        }
-        suite.addTest(new ValidIDLWithExtraSetupTest(new String[] {"-generate_helper", "jacorb"}, "bugJac516.idl"));
-
-        suite.addTest(new ValidIDLWithExtraSetupTest(new String[] {"-cacheplugin", BugJac144ObjectCachePlugin.class.getName()}, "bugJac144.idl"));
-        suite.addTest(new ValidIDLWithExtraSetupTest(new String[] {}, "bugJac144.idl"));
-        suite.addTest(new ValidIDLWithExtraSetupTest("-sloppy_identifiers", TEST_HOME + "/idl/compiler/fail/collision.idl"));
-        suite.addTest(new ValidIDLWithExtraSetupTest(new String[] {"-all", "-I" + TEST_HOME + IDL_DIR} , "895_1.idl"));
-        suite.addTest(new ValidIDLWithExtraSetupTest(new String[] {"-I" + TEST_HOME + "/../../idl/omg"}, "bugRTJ519.idl"));
-        return suite;
-    }
 }

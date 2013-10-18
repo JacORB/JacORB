@@ -20,13 +20,16 @@ package org.jacorb.test.notification;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.fail;
 import java.util.Date;
-import junit.framework.Test;
 import org.jacorb.notification.NoTranslationException;
 import org.jacorb.notification.StructuredEventMessage;
 import org.jacorb.test.notification.common.NotificationTestCase;
-import org.jacorb.test.notification.common.NotificationTestCaseSetup;
 import org.jacorb.util.Time;
+import org.junit.Before;
+import org.junit.Test;
 import org.omg.CORBA.Any;
 import org.omg.CosNotification.Property;
 import org.omg.CosNotification.StopTime;
@@ -42,17 +45,14 @@ public class StructuredEventMessageTest extends NotificationTestCase
 
     private StructuredEvent structuredEvent_;
 
-    public StructuredEventMessageTest(String name, NotificationTestCaseSetup setup)
-    {
-        super(name, setup);
-    }
-
-    public void setUpTest() throws Exception
+    @Before
+    public void setUp() throws Exception
     {
         objectUnderTest_ = new StructuredEventMessage(getORB());
         structuredEvent_ = getTestUtils().getEmptyStructuredEvent();
     }
 
+    @Test
     public void testToTypedEvent() throws Exception
     {
         Property[] _props1 = new Property[] { new Property("operation", toAny("operationName")),
@@ -68,6 +68,7 @@ public class StructuredEventMessageTest extends NotificationTestCase
         assertEquals("operationName", _props2[0].value.extract_string());
     }
 
+    @Test
     public void testToTypedEvent_FailedConversion()
     {
         Property[] _props = new Property[] { new Property("p1", toAny("param1")),
@@ -87,6 +88,7 @@ public class StructuredEventMessageTest extends NotificationTestCase
         }
     }
 
+    @Test
     public void testTimeoutIsIgnoredIfConsumerDoesNotSupportTimeout()
     {
         Date _time = new Date(System.currentTimeMillis());
@@ -100,10 +102,5 @@ public class StructuredEventMessageTest extends NotificationTestCase
         objectUnderTest_.setStructuredEvent(structuredEvent_, true, false);
 
         assertFalse(objectUnderTest_.hasStopTime());
-    }
-
-    public static Test suite() throws Exception
-    {
-        return NotificationTestCase.suite(StructuredEventMessageTest.class);
     }
 }

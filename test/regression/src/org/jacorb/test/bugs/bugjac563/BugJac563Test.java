@@ -20,22 +20,23 @@
 
 package org.jacorb.test.bugs.bugjac563;
 
+import static org.junit.Assert.assertEquals;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
-import junit.framework.Test;
-import junit.framework.TestSuite;
 import org.jacorb.test.BiDirServer;
 import org.jacorb.test.BiDirServerHelper;
 import org.jacorb.test.ClientCallback;
 import org.jacorb.test.ClientCallbackHelper;
 import org.jacorb.test.ClientCallbackOperations;
 import org.jacorb.test.ClientCallbackPOATie;
-import org.jacorb.test.common.ClientServerSetup;
 import org.jacorb.test.common.ClientServerTestCase;
 import org.jacorb.test.common.CommonSetup;
 import org.jacorb.test.common.TestUtils;
 import org.jacorb.test.orb.connection.BiDirSetup;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
 
 /**
  * @author Alphonse Bendt
@@ -44,12 +45,8 @@ public class BugJac563Test extends ClientServerTestCase
 {
     private BiDirServer server;
 
-    public BugJac563Test(String name, ClientServerSetup setup)
-    {
-        super(name, setup);
-    }
-
-    public static Test suite()
+    @BeforeClass
+    public static void beforeClassSetUp() throws Exception
     {
         Properties clientProps = new Properties();
 
@@ -115,22 +112,19 @@ public class BugJac563Test extends ClientServerTestCase
         serverProps.setProperty("jacorb.ssl.socket_factory", "org.jacorb.security.ssl.sun_jsse.SSLSocketFactory");
         serverProps.setProperty("jacorb.ssl.server_socket_factory", "org.jacorb.security.ssl.sun_jsse.SSLServerSocketFactory");
 
-        TestSuite suite = new TestSuite(BugJac563Test.class.getName());
-        ClientServerSetup setup = new BiDirSetup(suite, clientProps, serverProps);
-
-        TestUtils.addToSuite(suite, setup, BugJac563Test.class);
-
-        return setup;
+        setup = new BiDirSetup(clientProps, serverProps);
     }
 
-    protected void setUp() throws Exception
+    @Before
+    public void setUp() throws Exception
     {
         server = BiDirServerHelper.narrow(setup.getServerObject());
     }
 
+    @Test
     public void testCallbackWorks() throws Exception
     {
-        final Map result = new HashMap();
+        final Map<String, String> result = new HashMap<String, String>();
         ClientCallbackOperations callbackServant = new ClientCallbackOperations()
         {
             public void hello(String message)

@@ -21,29 +21,33 @@ package org.jacorb.test.notification.util;
  *
  */
 
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
+import static org.junit.Assert.fail;
 import org.easymock.MockControl;
 import org.jacorb.notification.engine.DefaultTaskExecutor;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 
 /**
  * @author Alphonse Bendt
  */
-public class ThreadPoolTest extends TestCase
+public class ThreadPoolTest
 {
     private DefaultTaskExecutor objectUnderTest_;
 
+    @Before
     public void setUp() throws Exception
     {
         objectUnderTest_ = new DefaultTaskExecutor("Testing", 2);
     }
 
+    @After
     public void tearDown() throws Exception
     {
         objectUnderTest_.dispose();
     }
 
+    @Test
     public void testExceute() throws Exception
     {
         MockControl controlTask = MockControl.createControl(Runnable.class);
@@ -59,6 +63,7 @@ public class ThreadPoolTest extends TestCase
         controlTask.verify();
     }
 
+    @Test
     public void testDirectExceute() throws Exception
     {
         objectUnderTest_.dispose();
@@ -75,6 +80,7 @@ public class ThreadPoolTest extends TestCase
         controlTask.verify();
     }
 
+    @Test
     public void testNegativeNumberOfThreadsIsInvalid() throws Exception
     {
         try
@@ -87,15 +93,4 @@ public class ThreadPoolTest extends TestCase
         }
     }
 
-    public ThreadPoolTest(String name)
-    {
-        super(name);
-    }
-
-    public static Test suite()
-    {
-        TestSuite suite = new TestSuite(ThreadPoolTest.class, "Tests for Class ThreadPool");
-
-        return suite;
-    }
 }

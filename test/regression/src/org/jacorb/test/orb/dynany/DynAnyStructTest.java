@@ -20,8 +20,12 @@ package org.jacorb.test.orb.dynany;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 import org.jacorb.test.StructType;
 import org.jacorb.test.StructTypeHelper;
+import org.junit.Test;
 import org.omg.CORBA.BAD_PARAM;
 import org.omg.CORBA.TCKind;
 import org.omg.DynamicAny.NameDynAnyPair;
@@ -42,7 +46,8 @@ public class DynAnyStructTest extends DynAnyXXXTestCase
     * Tests creating a DynAny object from an Any object using the
     * DynAnyFactory object.
     */
-   public void testFactoryCreateFromAny ()
+    @Test
+    public void testFactoryCreateFromAny ()
    {
       StructType type = null;
       org.omg.CORBA.Any any = null;
@@ -59,7 +64,8 @@ public class DynAnyStructTest extends DynAnyXXXTestCase
     * Tests creating a DynAny object from a TypeCode object using the
     * DynAnyFactory object.
     */
-   public void testFactoryCreateFromTypeCode ()
+    @Test
+    public void testFactoryCreateFromTypeCode ()
    {
       org.omg.CORBA.TypeCode tc = null;
 
@@ -72,7 +78,8 @@ public class DynAnyStructTest extends DynAnyXXXTestCase
     * Tests creating a DynAny object from a TypeCode object generated from
     * IDL using the DynAnyFactory object.
     */
-   public void testFactoryCreateFromIDLTypeCode ()
+    @Test
+    public void testFactoryCreateFromIDLTypeCode ()
    {
       org.omg.CORBA.TypeCode tc = null;
 
@@ -84,7 +91,8 @@ public class DynAnyStructTest extends DynAnyXXXTestCase
    /**
     * Test comparing DynAny values.
     */
-   public void testCompareDynAny ()
+    @Test
+    public void testCompareDynAny ()
    {
       String msg;
       StructType type;
@@ -106,7 +114,8 @@ public class DynAnyStructTest extends DynAnyXXXTestCase
    /**
     * Test iterating through components of a DynAny.
     */
-   public void testIterateDynAny () throws Exception
+    @Test
+    public void testIterateDynAny () throws Exception
    {
       String msg;
       int compCount = -1;
@@ -161,7 +170,8 @@ public class DynAnyStructTest extends DynAnyXXXTestCase
    /**
     * Test accessing the names and types of members in a DynStruct object.
     */
-   public void testAccessStructMembers () throws Exception
+    @Test
+    public void testAccessStructMembers () throws Exception
    {
       String msg;
       String memberName = null;
@@ -242,7 +252,8 @@ public class DynAnyStructTest extends DynAnyXXXTestCase
    /**
     * Test accessing the member Name/Value pairs in a DynStruct object.
     */
-   public void testAccessStructNameValuePairs () throws Exception
+    @Test
+    public void testAccessStructNameValuePairs () throws Exception
    {
       final String name1 = "field1"; // specific to IDL
       final String name2 = "field2"; // specific to IDL
@@ -300,7 +311,8 @@ public class DynAnyStructTest extends DynAnyXXXTestCase
    /**
     * Test accessing the member Name/Value DynAny pairs in a DynStruct object.
     */
-   public void testAccessStructDynAnyPairs ()
+    @Test
+    public void testAccessStructDynAnyPairs ()
    {
       final String name1 = "field1"; // specific to IDL
       final String name2 = "field2"; // specific to IDL
@@ -390,7 +402,8 @@ public class DynAnyStructTest extends DynAnyXXXTestCase
     * Test the exceptions raised while accessing the member Name/Value
     * DynAny pairs in a DynStruct object.
     */
-   public void testAccessStructPairsEx ()
+    @Test
+    public void testAccessStructPairsEx ()
    {
       final String name1 = "field1";
       final String name2 = "field2";
@@ -489,7 +502,8 @@ public class DynAnyStructTest extends DynAnyXXXTestCase
    /**
     * Test obtaining the TypeCode associated with a DynAny object.
     */
-   public void testDynAnyTypeCode ()
+    @Test
+    public void testDynAnyTypeCode ()
    {
       String msg;
       org.omg.CORBA.TypeCode tc = null;
@@ -506,7 +520,8 @@ public class DynAnyStructTest extends DynAnyXXXTestCase
    /**
     * Test initializing a DynAny object from another DynAny object.
     */
-   public void testInitDynAnyFromDynAny ()
+    @Test
+    public void testInitDynAnyFromDynAny ()
    {
       String msg;
       StructType type;
@@ -540,7 +555,8 @@ public class DynAnyStructTest extends DynAnyXXXTestCase
    /**
     * Test initializing a DynAny object from an Any value.
     */
-   public void testInitDynAnyFromAny ()
+    @Test
+    public void testInitDynAnyFromAny ()
    {
       String msg;
       StructType type;
@@ -575,7 +591,8 @@ public class DynAnyStructTest extends DynAnyXXXTestCase
     * Test that a TypeMismatch exception is raised if there is a type
     * mismatch between the DynAny and Any types in an assignment.
     */
-   public void testInitFromAnyTypeMismatchEx ()
+    @Test
+    public void testInitFromAnyTypeMismatchEx ()
    {
       String msg;
       org.omg.CORBA.Any any = null;
@@ -610,7 +627,8 @@ public class DynAnyStructTest extends DynAnyXXXTestCase
    /**
     * Test generating an Any value from a DynAny object.
     */
-   public void testGenerateAnyFromDynAny ()
+    @Test
+    public void testGenerateAnyFromDynAny ()
    {
       String msg;
       org.omg.CORBA.Any any = null;
@@ -634,7 +652,8 @@ public class DynAnyStructTest extends DynAnyXXXTestCase
    /**
     * Test destroying a DynAny object.
     */
-   public void testDestroyDynAny ()
+    @Test
+    public void testDestroyDynAny ()
    {
       String msg;
       StructType type;
@@ -684,7 +703,8 @@ public class DynAnyStructTest extends DynAnyXXXTestCase
    /**
     * Test destroying a component of a DynAny object.
     */
-   public void testDestroyComponent ()
+    @Test
+    public void testDestroyComponent ()
    {
       String msg;
       StructType type;
@@ -738,7 +758,8 @@ public class DynAnyStructTest extends DynAnyXXXTestCase
    /**
     * Test creating a copy of a DynAny object.
     */
-   public void testCopyDynAny ()
+    @Test
+    public void testCopyDynAny ()
    {
       String msg;
       org.omg.CORBA.TypeCode tc = null;
@@ -755,7 +776,8 @@ public class DynAnyStructTest extends DynAnyXXXTestCase
    }
 
 
-   public void testCreateStructTypecodeFail ()
+    @Test
+    public void testCreateStructTypecodeFail ()
    {
       try
       {

@@ -21,11 +21,14 @@
 
 package org.jacorb.test.notification.typed;
 
-import junit.framework.Test;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import org.easymock.MockControl;
 import org.jacorb.notification.filter.etcl.ETCLFilter;
 import org.jacorb.test.notification.common.TypedServerTestCase;
-import org.jacorb.test.notification.common.TypedServerTestSetup;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 import org.omg.CORBA.IntHolder;
 import org.omg.CosNotification.Property;
 import org.omg.CosNotifyChannelAdmin.InterFilterGroupOperator;
@@ -45,28 +48,25 @@ public class TypedEventChannelIntegrationTest extends TypedServerTestCase
 {
     private TypedEventChannel objectUnderTest_;
 
-    public TypedEventChannelIntegrationTest(String name, TypedServerTestSetup setup)
+    @Before
+    public void setUp() throws Exception
     {
-        super(name, setup);
-    }
-
-    protected void setUp() throws Exception
-    {
-        super.setUp();
-
         objectUnderTest_ = getChannelFactory().create_typed_channel(new Property[0], new Property[0], new IntHolder());
     }
 
-    protected void tearDown() throws Exception
+    @After
+    public void tearDown() throws Exception
     {
         objectUnderTest_.destroy();
     }
 
+    @Test
     public void testMyFactory()
     {
         assertTrue(getChannelFactory()._is_equivalent(objectUnderTest_.MyFactory()));
     }
 
+    @Test
     public void testCreateFilter() throws Exception
     {
         FilterFactory filterFactory = objectUnderTest_.default_filter_factory();
@@ -74,6 +74,7 @@ public class TypedEventChannelIntegrationTest extends TypedServerTestCase
         assertEquals(ETCLFilter.CONSTRAINT_GRAMMAR, filter.constraint_grammar());
     }
 
+    @Test
     public void testSendPushPush() throws Exception
     {
         MockControl coffeeOperationsControl = MockControl.createControl(CoffeeOperations.class);
@@ -83,10 +84,10 @@ public class TypedEventChannelIntegrationTest extends TypedServerTestCase
         TypedPushConsumerOperations typedPushConsumerMock = (TypedPushConsumerOperations) typedPushConsumerControl.getMock();
 
         CoffeePOATie consumerTie = new CoffeePOATie(coffeeOperationsMock);
-        Coffee consumer = CoffeeHelper.narrow(consumerTie._this(getClientORB()));
+        Coffee consumer = CoffeeHelper.narrow(consumerTie._this(setup.getClientOrb()));
 
         TypedPushConsumerPOATie typedPushConsumerTie = new TypedPushConsumerPOATie(typedPushConsumerMock);
-        TypedPushConsumer typedPushConsumer = TypedPushConsumerHelper.narrow(typedPushConsumerTie._this(getClientORB()));
+        TypedPushConsumer typedPushConsumer = TypedPushConsumerHelper.narrow(typedPushConsumerTie._this(setup.getClientOrb()));
 
         typedPushConsumerControl.expectAndReturn(typedPushConsumerMock.get_typed_consumer(), consumer);
 
@@ -111,8 +112,4 @@ public class TypedEventChannelIntegrationTest extends TypedServerTestCase
         typedPushConsumerControl.verify();
     }
 
-    public static Test suite() throws Exception
-    {
-        return TypedServerTestCase.suite(TypedEventChannelIntegrationTest.class);
-    }
 }

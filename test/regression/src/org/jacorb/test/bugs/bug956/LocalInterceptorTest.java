@@ -22,6 +22,7 @@ package org.jacorb.test.bugs.bug956;
 
 import java.util.Properties;
 import org.jacorb.test.common.ORBTestCase;
+import org.junit.Test;
 import org.omg.BiDirPolicy.BIDIRECTIONAL_POLICY_TYPE;
 import org.omg.BiDirPolicy.BOTH;
 import org.omg.BiDirPolicy.BidirectionalPolicyValueHelper;
@@ -40,12 +41,14 @@ import org.omg.PortableServer.POA;
  */
 public class LocalInterceptorTest extends ORBTestCase
 {
-    protected  void patchORBProperties(String testName, Properties props) throws Exception
+    @Override
+    protected  void patchORBProperties(Properties props) throws Exception
     {
         props.put ("org.omg.PortableInterceptor.ORBInitializerClass.bidir_init",
                    "org.jacorb.orb.giop.BiDirConnectionInitializer");
     }
 
+    @Test
     public void testLocalCall() throws Exception
     {
         POA bidir_poa;

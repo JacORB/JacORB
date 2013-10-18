@@ -56,7 +56,7 @@ public class ExampleServiceRunner
     {
         JMXServiceURL serviceURL = new JMXServiceURL("service:jmx:iiop://localhost");
 
-        Map environment = new HashMap();
+        Map<String, ORB> environment = new HashMap<String, ORB>();
 
         environment.put("java.naming.corba.orb", orb);
 

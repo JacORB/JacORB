@@ -22,22 +22,18 @@ package org.jacorb.test.bugs.bug941;
 
 import java.util.Arrays;
 import java.util.Properties;
-import junit.framework.Test;
-import junit.framework.TestSuite;
 import org.jacorb.test.common.ClientServerSetup;
 import org.jacorb.test.common.ClientServerTestCase;
-import org.jacorb.test.common.TestUtils;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
 
 public class Bug941Test extends ClientServerTestCase
 {
     private org.omg.CORBA.Object server;
 
-    public Bug941Test(String name, ClientServerSetup setup)
-    {
-        super(name, setup);
-    }
-
-    public static Test suite()
+    @BeforeClass
+    public static void beforeClassSetUp() throws Exception
     {
         Properties severProp = new Properties();
 
@@ -45,26 +41,18 @@ public class Bug941Test extends ClientServerTestCase
         clientProp.setProperty("org.omg.PortableInterceptor.ORBInitializerClass.a",
                                MyInitializer.class.getName());
 
-        TestSuite suite = new TestSuite(Bug941Test.class.getName());
 
-        ClientServerSetup setup = new ClientServerSetup(suite,
-                                                        "org.jacorb.test.bugs.bug941.TestObjectImpl",
-                                                        clientProp, severProp);
-        TestUtils.addToSuite(suite, setup, Bug941Test.class);
-
-        return setup;
+        setup = new ClientServerSetup("org.jacorb.test.bugs.bug941.TestObjectImpl",
+                clientProp, severProp);
     }
 
-    protected void setUp() throws Exception
+    @Before
+    public void setUp() throws Exception
     {
         server = setup.getServerObject();
     }
 
-    protected void tearDown() throws Exception
-    {
-        server = null;
-    }
-
+    @Test
     public void testBug941Test()
     {
         MyServer grid;

@@ -1,11 +1,16 @@
 package org.jacorb.test.bugs.bugjac200;
 
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 import java.util.Properties;
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
 import org.jacorb.test.common.CommonSetup;
 import org.jacorb.test.common.TestUtils;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.TestName;
 import org.omg.CORBA.ORB;
 import org.omg.PortableServer.POAHelper;
 
@@ -22,43 +27,39 @@ import org.omg.PortableServer.POAHelper;
  *    SSL jars from the listener. This, as above, also results in an infinite
  *    loop.
  */
-public class AcceptorExceptionListenerTest extends TestCase
+public class AcceptorExceptionListenerTest
 {
+    @Rule
+    public TestName name = new TestName();
+
     private ORB orb;
     private volatile boolean orbIsDown = false;
 
-    public static Test suite()
+
+    protected Properties initORBProperties() throws Exception
     {
-        TestSuite suite = new TestSuite ("AcceptorExceptionListener Test");
+        Properties props = new Properties ();
+        props.putAll(CommonSetup.loadSSLProps("jsse_client_props", "jsse_client_ks"));
 
-        // Due to the changes in Java 7
-        // http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=4673444
-        // http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=4873188
-        // this test only works on JDK 6
-        if ( ! TestUtils.JDK_17 )
-        {
-            suite.addTestSuite(AcceptorExceptionListenerTest.class);
-        }
-
-        return suite;
-    }
-
-    public void setUp() throws Exception
-    {
-        Properties props = CommonSetup.loadSSLProps("jsse_client_props", "jsse_client_ks");
+        props.setProperty("org.omg.CORBA.ORBClass", "org.jacorb.orb.ORB");
+        props.setProperty("org.omg.CORBA.ORBSingletonClass", "org.jacorb.orb.ORBSingleton");
 
         props.put("jacorb.implname",
-                  "org.jacorb.test.bugs.bugjac200.AcceptorExceptionListenerTest");
+                "org.jacorb.test.bugs.bugjac200.AcceptorExceptionListenerTest");
         props.put("jacorb.security.ssl.server.cipher_suites",
-                  "SSL_RSA_WITH_RC4_128_MD5");
+                "SSL_RSA_WITH_RC4_128_MD5");
         props.put("jacorb.security.ssl.client.cipher_suites",
-                  "SSL_RSA_WITH_RC4_128_MD5");
-
+                "SSL_RSA_WITH_RC4_128_MD5");
         props.put("jacorb.acceptor_exception_listener",
-                  TestAcceptorExceptionListener.class.getName());
+                TestAcceptorExceptionListener.class.getName());
 
-        //init ORB
-        orb = ORB.init( (String[]) null, props );
+        return props;
+    }
+
+    @Before
+    public void setUp() throws Exception
+    {
+        orb = ORB.init(new String[] { "-ORBID" , name.getMethodName() }, initORBProperties());
 
         TestAcceptorExceptionListener.reset();
 
@@ -71,12 +72,13 @@ public class AcceptorExceptionListenerTest extends TestCase
         }.start();
     }
 
+    @After
     public void tearDown() throws Exception
     {
-        orb.shutdown(true);
-        orb = null;
+        orb.shutdown(false);
     }
 
+    @Test
     public void testListener() throws Exception
     {
         TestAcceptorExceptionListener.doShutdown = false;
@@ -94,6 +96,7 @@ public class AcceptorExceptionListenerTest extends TestCase
         assertFalse(orbIsDown);
     }
 
+    @Test
     public void testShutdown() throws Exception
     {
         TestAcceptorExceptionListener.doShutdown = true;

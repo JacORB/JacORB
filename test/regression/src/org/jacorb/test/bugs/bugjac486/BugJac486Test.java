@@ -20,17 +20,18 @@
 
 package org.jacorb.test.bugs.bugjac486;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 import java.util.Properties;
-import junit.framework.Test;
-import junit.framework.TestSuite;
 import org.jacorb.orb.iiop.IIOPProfile;
 import org.jacorb.test.BasicServer;
 import org.jacorb.test.BasicServerHelper;
 import org.jacorb.test.common.ClientServerSetup;
 import org.jacorb.test.common.ClientServerTestCase;
 import org.jacorb.test.common.CommonSetup;
-import org.jacorb.test.common.TestUtils;
 import org.jacorb.test.orb.BasicServerImpl;
+import org.junit.BeforeClass;
+import org.junit.Test;
 
 /**
  * @author Alphonse Bendt
@@ -40,11 +41,7 @@ public class BugJac486Test extends ClientServerTestCase
     private static final String objectKey = "/BugJac486Test/BugJac486POA/BugJac486ID";
     private static final String sslPort = "48120";
 
-    public BugJac486Test(String name, ClientServerSetup setup)
-    {
-        super(name, setup);
-    }
-
+    @Test
     public void testSSLIOPCorbalocRequiresGIOP12_1() throws Exception
     {
         try
@@ -58,6 +55,7 @@ public class BugJac486Test extends ClientServerTestCase
         }
     }
 
+    @Test
     public void testAccessSecureAcceptorWithoutSSLShouldFail() throws Exception
     {
         try
@@ -70,6 +68,7 @@ public class BugJac486Test extends ClientServerTestCase
         }
     }
 
+    @Test
     public void testAccessSSLWithJacorbSpecificExtension() throws Exception
     {
         runTest("corbaloc:ssliop:1.2@localhost:" + sslPort + objectKey);
@@ -82,7 +81,8 @@ public class BugJac486Test extends ClientServerTestCase
         assertEquals("BugJac486Test", server.bounce_string("BugJac486Test"));
     }
 
-    public static Test suite()
+    @BeforeClass
+    public static void beforeClassSetUp() throws Exception
     {
         Properties clientProps = new Properties();
         Properties serverProps = new Properties();
@@ -101,11 +101,6 @@ public class BugJac486Test extends ClientServerTestCase
 
         clientProps.setProperty("jacorb.connection.client.disconnect_after_systemexception", "true");
 
-        TestSuite suite = new TestSuite(BugJac486Test.class.getName());
-        ClientServerSetup setup = new ClientServerSetup(suite, BasicServerImpl.class.getName(), clientProps, serverProps);
-
-        TestUtils.addToSuite(suite, setup, BugJac486Test.class);
-
-        return setup;
+        setup = new ClientServerSetup(BasicServerImpl.class.getName(), clientProps, serverProps);
     }
 }

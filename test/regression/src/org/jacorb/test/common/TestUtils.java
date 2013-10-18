@@ -33,25 +33,16 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.LineNumberReader;
 import java.io.PrintWriter;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.rmi.NoSuchObjectException;
-import java.rmi.Remote;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import javax.rmi.PortableRemoteObject;
-import javax.rmi.CORBA.Stub;
-import junit.extensions.TestSetup;
-import junit.framework.Assert;
 import junit.framework.AssertionFailedError;
-import junit.framework.Test;
-import junit.framework.TestSuite;
+import org.junit.Assert;
 
 /**
  * Utility class used to setup JUnit-TestSuite
@@ -61,60 +52,13 @@ import junit.framework.TestSuite;
 
 public class TestUtils
 {
-    private static final String[] STRING_ARRAY_TEMPLATE = new String[0];
-
     public static final boolean isIBM = (System.getProperty ("java.vendor").equals ("IBM Corporation"));
 
     private static String testHome = null;
     private static String systemRoot = null;
-    public static boolean verbose = "true".equalsIgnoreCase(System.getProperty("jacorb.test.verbose"));
 
-    private static final boolean JDK_13 =
-        (
-            System.getProperty ("java.version").indexOf("1.3") != -1 ||
-            "CVM".equals(System.getProperty ("java.vm.name"))
-        );
+    static boolean verbose = "true".equalsIgnoreCase(System.getProperty("jacorb.test.verbose"));
 
-    public static final boolean JDK_17 =
-        (
-            System.getProperty ("java.version").indexOf("1.7") != -1
-        );
-
-
-    /**
-     * this method returns a List of all public Methods which Names start with the Prefix "test" and
-     * accept no Parameters e.g:
-     *
-     * <ul>
-     * <li>testOperation
-     * <li>testSomething
-     * </ul>
-     *
-     */
-    public static String[] getTestMethods(Class clazz)
-    {
-        return getTestMethods(clazz, "test");
-    }
-
-    public static String[] getTestMethods(Class clazz, String prefix)
-    {
-        Method[] methods = clazz.getMethods();
-
-        List result = new ArrayList();
-
-        for (int x = 0; x < methods.length; ++x)
-        {
-            if (methods[x].getName().startsWith(prefix))
-            {
-                if (methods[x].getParameterTypes().length == 0)
-                {
-                    result.add(methods[x].getName());
-                }
-            }
-        }
-
-        return (String[]) result.toArray(STRING_ARRAY_TEMPLATE);
-    }
 
     public static String jacorbHome()
     {
@@ -158,78 +102,6 @@ public class TestUtils
         return testHome;
     }
 
-    public static Test suite(Class testClazz, Class testSetupClazz, String suiteName, String testMethodPrefix)
-        throws Exception
-    {
-        TestSuite suite = new TestSuite(suiteName);
-
-        TestSetup setup = newSetup(suite, testSetupClazz);
-
-        String[] testMethods = getTestMethods(testClazz, testMethodPrefix);
-
-        addToSuite(suite, setup, testClazz, testMethods);
-
-        return setup;
-    }
-
-    private static TestSetup newSetup(Test suite, Class testSetupClazz) throws Exception
-    {
-        Constructor ctor = testSetupClazz.getConstructor(new Class[] { Test.class });
-        return (TestSetup) ctor.newInstance(new Object[] { suite });
-    }
-
-    public static void addToSuite(TestSuite suite, TestSetup setup, Class clazz)
-    {
-        addToSuite(suite, setup, clazz, getTestMethods(clazz));
-    }
-
-    public static void addToSuite(TestSuite suite, TestSetup setup, Class clazz, String methodPrefix)
-    {
-        addToSuite(suite, setup, clazz, getTestMethods(clazz, methodPrefix));
-    }
-
-    public static void addToSuite(TestSuite suite, TestSetup setup, Class clazz,
-            String[] testMethods)
-    {
-        try
-        {
-            Constructor ctor = getConstructor(clazz, setup);
-
-            for (int x = 0; x < testMethods.length; ++x)
-            {
-                suite.addTest((Test) ctor.newInstance(new Object[] { testMethods[x], setup }));
-            }
-        } catch (Exception e)
-        {
-            e.printStackTrace();
-            throw new RuntimeException(e.toString());
-        }
-    }
-
-    /**
-     * try to locate a constructor that accepts (String, TestSetup (or subclasses));
-     */
-    private static Constructor getConstructor(Class clazz, TestSetup setup)
-    {
-        Class setupClazz = setup.getClass();
-
-        while(setupClazz != null)
-        {
-            try
-            {
-                return clazz.getConstructor(new Class[] { String.class, setupClazz});
-            }
-            catch(NoSuchMethodException e)
-            {
-                // ignored
-            }
-
-            setupClazz = setupClazz.getSuperclass();
-        }
-
-        throw new RuntimeException("Could not locate constructor for (" + String.class.getName() + ", " + setup.getClass().getName() + ") in class " + clazz.getName());
-    }
-
     public static String osDependentPath(String path)
     {
         path=(new File(path)).toString();
@@ -242,13 +114,6 @@ public class TestUtils
         return filePath.exists();
     }
 
-    public static String pathAppend(String path1, String path2)
-    {
-        String osDepPath1 = (new File(path1)).toString();
-        String osDepPath2 = (new File(path2)).toString();
-        String pathSeperator = System.getProperty("path.separator");
-        return osDepPath1 + pathSeperator + osDepPath2;
-    }
     /**
      * In addition to file and path separators being different,
      * Windows requires an additional environment variable for
@@ -370,16 +235,6 @@ public class TestUtils
             props.setProperty("org.omg.CORBA.ORBSingletonClass", "com.sun.corba.se.impl.orb.ORBSingleton");
         }
         return props;
-    }
-
-    public static Stub toStub(Remote remote, org.omg.CORBA.Object reference, Class clazz) throws NoSuchObjectException
-    {
-         if (JDK_13)
-         {
-             return (Stub) PortableRemoteObject.narrow(reference, clazz);
-         }
-
-         return (Stub) PortableRemoteObject.toStub(remote);
     }
 
     public static boolean getStringAsBoolean(String value)
@@ -592,11 +447,6 @@ public class TestUtils
         return getStringAsBoolean(value);
     }
 
-    public static boolean isJ2ME()
-    {
-        return "true".equalsIgnoreCase(System.getProperty("jacorb.test.j2me"));
-    }
-
     public static long getShortTimeout()
     {
         return Long.getLong("jacorb.test.timeout.short", 2000).longValue();
@@ -640,7 +490,7 @@ public class TestUtils
     /**
      * copied here from ObjectUtil to make the package org.jacorb.test.common independent from the orb core
      */
-    public static Class classForName(String name)
+    public static Class<?> classForName(String name)
         throws ClassNotFoundException, IllegalArgumentException
     {
         if (name == null)

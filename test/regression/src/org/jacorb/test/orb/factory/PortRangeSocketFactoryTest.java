@@ -8,6 +8,7 @@ import org.jacorb.config.ConfigurationException;
 import org.jacorb.orb.factory.PortRangeSocketFactory;
 import org.jacorb.orb.factory.SocketFactory;
 import org.jacorb.test.common.NullLogger;
+import org.junit.Test;
 
 public class PortRangeSocketFactoryTest extends AbstractSocketFactoryTestCase
 {
@@ -32,9 +33,9 @@ public class PortRangeSocketFactoryTest extends AbstractSocketFactoryTestCase
         return factory;
     }
 
+    @Test
     public void testPortsAreCreatedInCorrectRange() throws Exception
     {
-
         Socket socket = objectUnderTest.createSocket(hostname, serverPort);
 
         assertTrue(socket.getLocalPort() >= MIN);

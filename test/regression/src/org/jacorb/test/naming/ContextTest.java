@@ -7,15 +7,18 @@ package org.jacorb.test.naming;
  *
  */
 
+import static org.junit.Assert.fail;
 import java.io.File;
 import java.util.Properties;
-import junit.framework.Test;
-import junit.framework.TestSuite;
 import org.jacorb.naming.NameServer;
 import org.jacorb.test.common.ClientServerSetup;
 import org.jacorb.test.common.ClientServerTestCase;
 import org.jacorb.test.common.CommonSetup;
 import org.jacorb.test.common.TestUtils;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
 import org.omg.CosNaming.NameComponent;
 import org.omg.CosNaming.NamingContextExt;
 import org.omg.CosNaming.NamingContextExtHelper;
@@ -26,7 +29,8 @@ public class ContextTest extends ClientServerTestCase
     private NamingContextExt rootContext;
     private NameComponent[] firstName, secondName, thirdName , failureName;
 
-    protected void setUp()
+    @Before
+    public void setUp()
     {
         rootContext = NamingContextExtHelper.narrow(setup.getServerObject());
         firstName = new NameComponent[1];
@@ -43,20 +47,16 @@ public class ContextTest extends ClientServerTestCase
         failureName[1] = thirdName[0];
     }
 
-    protected void tearDown() throws Exception
+    @After
+    public void tearDown() throws Exception
     {
         rootContext = null;
         firstName = secondName = thirdName = failureName = null;
     }
 
-    public ContextTest (String name, ClientServerSetup setup)
+    @BeforeClass
+    public static void beforeClassSetUp() throws Exception
     {
-        super (name,setup);
-    }
-
-    public static Test suite()
-    {
-        TestSuite suite = new TestSuite("Naming Context Tests");
 
         final String name = "contextTest";
         File tmpDir = TestUtils.createTempDir(name);
@@ -70,11 +70,7 @@ public class ContextTest extends ClientServerTestCase
         serverProps.put(CommonSetup.JACORB_REGRESSION_DISABLE_SECURITY, "true");
         serverProps.put(CommonSetup.JACORB_REGRESSION_DISABLE_IMR, "true");
 
-        ClientServerSetup setup = new ClientServerSetup( suite , NameServer.class.getName(),  "ignored", clientProps, serverProps);
-
-        suite.addTest (new  ContextTest("testNameService", setup));
-
-        return setup;
+        setup = new ClientServerSetup( NameServer.class.getName(),  "ignored", clientProps, serverProps);
     }
 
     /**
@@ -82,6 +78,7 @@ public class ContextTest extends ClientServerTestCase
      * to succeed. to make this explicit i've renamed the testmethods to step1-step3 and
      * have introduced a test method that invokes them in the proper order.
      */
+    @Test
     public void testNameService() throws Exception
     {
         step1_CreateContextSuccess();

@@ -22,12 +22,11 @@
 package org.jacorb.test.notification.engine;
 
 import java.util.concurrent.ScheduledFuture;
-import junit.framework.Test;
-import junit.framework.TestSuite;
 import org.easymock.MockControl;
 import org.jacorb.notification.engine.AbstractRetryStrategy;
 import org.jacorb.notification.engine.TaskProcessor;
 import org.jacorb.notification.engine.TaskProcessorRetryStrategy;
+import org.junit.Test;
 import org.omg.CORBA.TRANSIENT;
 
 /**
@@ -57,6 +56,7 @@ public class TaskProcessorRetryStrategyTest extends AbstractRetryStrategyTestCas
                 mockTaskProcessor_, 10);
     }
 
+    @Test
     public void testSuccessfulRetryDisposes() throws Exception
     {
         mockConsumer_.isRetryAllowed();
@@ -72,6 +72,7 @@ public class TaskProcessorRetryStrategyTest extends AbstractRetryStrategyTestCas
         verifyAll();
     }
 
+    @Test
     public void testNotSuccessfulRetryDisposes() throws Exception
     {
         mockConsumer_.isRetryAllowed();
@@ -96,6 +97,7 @@ public class TaskProcessorRetryStrategyTest extends AbstractRetryStrategyTestCas
         verifyAll();
     }
 
+    @Test
     public void testFailedRetryRequeues() throws Exception
     {
         mockConsumer_.incErrorCounter();
@@ -132,10 +134,5 @@ public class TaskProcessorRetryStrategyTest extends AbstractRetryStrategyTestCas
         controlPushOperation_.verify();
         controlScheduledResult_.verify();
         controlTaskProcessor_.verify();
-    }
-
-    public static Test suite()
-    {
-        return new TestSuite(TaskProcessorRetryStrategyTest.class);
     }
 }

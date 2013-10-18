@@ -1,8 +1,7 @@
 package org.jacorb.test.bugs.bugjac493;
 
+import static org.junit.Assert.assertNotSame;
 import junit.framework.AssertionFailedError;
-import junit.framework.Test;
-import junit.framework.TestSuite;
 import org.jacorb.test.AMI_TimingServerHandler;
 import org.jacorb.test.AMI_TimingServerHandlerOperations;
 import org.jacorb.test.AMI_TimingServerHandlerPOATie;
@@ -11,8 +10,10 @@ import org.jacorb.test.TimingServerHelper;
 import org.jacorb.test._TimingServerStub;
 import org.jacorb.test.common.CallbackTestCase;
 import org.jacorb.test.common.ClientServerSetup;
-import org.jacorb.test.common.TestUtils;
 import org.jacorb.util.Time;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
 import org.omg.CORBA.Policy;
 import org.omg.CORBA.PolicyError;
 import org.omg.CORBA.SetOverrideType;
@@ -29,19 +30,10 @@ public class TimingTest extends CallbackTestCase
 {
     private TimingServer server = null;
 
-    public TimingTest(String name, ClientServerSetup setup)
-    {
-        super(name, setup);
-    }
-
-    protected void setUp() throws Exception
+    @Before
+    public void setUp() throws Exception
     {
         server = TimingServerHelper.narrow (setup.getServerObject());
-    }
-
-    protected void tearDown() throws Exception
-    {
-        server = null;
     }
 
 
@@ -107,20 +99,15 @@ public class TimingTest extends CallbackTestCase
 
 
 
-    public static Test suite()
+    @BeforeClass
+    public static void beforeClassSetUp() throws Exception
     {
-        TestSuite suite = new TestSuite ("Timing Policies");
-        ClientServerSetup setup =
-            new ClientServerSetup
-                (suite,
-                 TimingServerImpl.class.getName());
 
-        TestUtils.addToSuite(suite, setup, TimingTest.class);
-
-        return setup;
+        setup = new ClientServerSetup(TimingServerImpl.class.getName());
     }
 
 
+    @Test
     public void testDuplicateObject1 ()
     {
        String ior1 = setup.getClientOrb().object_to_string (server);
@@ -131,6 +118,7 @@ public class TimingTest extends CallbackTestCase
     }
 
 
+    @Test
     public void testDuplicateObject2 ()
     {
         TimingServer server2 = TimingServerHelper.narrow (server._duplicate());
@@ -144,6 +132,7 @@ public class TimingTest extends CallbackTestCase
      * Sets a ReplyEndTime which will
      * expire during the invocation.
      */
+    @Test
     public void test_reply_end_time_async_expired()
     {
         ReplyHandler handler1 = new ReplyHandler()

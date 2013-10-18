@@ -20,13 +20,16 @@
 
 package org.jacorb.test.bugs.bugjac491;
 
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 import org.jacorb.test.common.ORBTestCase;
+import org.junit.Test;
 import org.omg.CORBA.AttrDescriptionSeqHelper;
-import org.omg.CORBA.AttributeDescription;
 import org.omg.CORBA.OctetSeqHelper;
 
 public class BugJac491Test extends ORBTestCase
 {
+    @Test
     public void testBugJac491() throws Exception
     {
         org.omg.CORBA.Any testAny = orb.create_any();
@@ -37,7 +40,7 @@ public class BugJac491Test extends ORBTestCase
         try
         {
             testAny = orb.create_any();
-            AttributeDescription[] result2 = AttrDescriptionSeqHelper.extract (testAny);
+            AttrDescriptionSeqHelper.extract (testAny);
 
             fail ("No exception thrown");
         }

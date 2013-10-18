@@ -20,11 +20,14 @@ package org.jacorb.test.orb.value;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import junit.framework.Test;
-import junit.framework.TestSuite;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import org.jacorb.test.common.ClientServerSetup;
 import org.jacorb.test.common.ClientServerTestCase;
-import org.jacorb.test.common.TestUtils;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
 import org.omg.CORBA.Any;
 import org.omg.CORBA.ORB;
 import org.omg.CORBA.TypeCode;
@@ -37,35 +40,28 @@ public class ValueTest extends ClientServerTestCase
     private ValueServer server;
     private ORB orb;
 
-    public ValueTest(String name, ClientServerSetup setup)
-    {
-        super(name, setup);
-    }
-
+    @Before
     public void setUp() throws Exception
     {
         server = ValueServerHelper.narrow( setup.getServerObject() );
         orb = setup.getClientOrb();
     }
 
-    protected void tearDown() throws Exception
+    @After
+    public void tearDown() throws Exception
     {
         server = null;
         orb = null;
     }
 
-    public static Test suite()
+    @BeforeClass
+    public static void beforeClassSetUp() throws Exception
     {
-        TestSuite suite = new TestSuite( "valuetype tests" );
-        ClientServerSetup setup =
-            new ClientServerSetup( suite,
-                                   "org.jacorb.test.orb.value.ValueServerImpl" );
+        setup = new ClientServerSetup("org.jacorb.test.orb.value.ValueServerImpl" );
 
-        TestUtils.addToSuite(suite, setup, ValueTest.class);
-
-        return setup;
     }
 
+    @Test
     public void testCompactTypeCode() throws Exception
     {
         TypeCode typeCode = AccountHelper.type();
@@ -85,6 +81,7 @@ public class ValueTest extends ClientServerTestCase
         assertEquals("", compacted.member_name(2));
     }
 
+    @Test
     public void testRecursiveCompactedTypeCode() throws Exception
     {
         TypeCode typeCode = RecursiveValueTypeHelper.type();
@@ -110,6 +107,7 @@ public class ValueTest extends ClientServerTestCase
 
     }
 
+    @Test
     public void test_pass_boxed_long()
     {
         boxedLong p1 = new boxedLong(774);
@@ -118,12 +116,14 @@ public class ValueTest extends ClientServerTestCase
         assertEquals("two longs: 774, 774", result);
     }
 
+    @Test
     public void test_pass_null_boxed_long()
     {
         String result = server.receive_long(null, null);
         assertEquals("one or two null values", result);
     }
 
+    @Test
     public void test_pass_shared_boxed_long()
     {
         boxedLong p1 = new boxedLong(441);
@@ -136,6 +136,7 @@ public class ValueTest extends ClientServerTestCase
      * sure that reference sharing is indeed determined based on identity,
      * not equality.  (See comments in bug 387 for discussion.)
      */
+    @Test
     public void test_pass_equal_boxed_long()
     {
         boxedLong p1 = new boxedLong(443);
@@ -144,6 +145,7 @@ public class ValueTest extends ClientServerTestCase
         assertEquals("two longs: 443, 443", result);
     }
 
+    @Test
     public void test_pass_boxed_string()
     {
         String s1 = "hello";
@@ -152,12 +154,14 @@ public class ValueTest extends ClientServerTestCase
         assertEquals("two strings: `hello', `g'day'", result);
     }
 
+    @Test
     public void test_pass_null_boxed_string()
     {
         String result = server.receive_string(null, null);
         assertEquals("one or two null values", result);
     }
 
+    @Test
     public void test_pass_shared_boxed_string()
     {
         String s1 = "hello, world";
@@ -170,6 +174,7 @@ public class ValueTest extends ClientServerTestCase
      * sure that reference sharing is indeed determined based on identity,
      * not equality.  (See comments in bug 387 for discussion.)
      */
+    @Test
     public void test_pass_equal_boxed_string()
     {
         String s1 = "hello, world";
@@ -178,6 +183,7 @@ public class ValueTest extends ClientServerTestCase
         assertEquals("two strings: `hello, world', `hello, world'", result);
     }
 
+    @Test
     public void test_pass_value_sequence_1()
     {
         Record[] seq = new Record[7];
@@ -193,6 +199,7 @@ public class ValueTest extends ClientServerTestCase
         assertEquals("list of length 7, null values: , no palindrome", result);
     }
 
+    @Test
     public void test_pass_value_sequence_2()
     {
         Record[] seq = new Record[7];
@@ -209,6 +216,7 @@ public class ValueTest extends ClientServerTestCase
                      result);
     }
 
+    @Test
     public void test_pass_value_sequence_3()
     {
         Record[] seq = new Record[7];
@@ -225,6 +233,7 @@ public class ValueTest extends ClientServerTestCase
                      result);
     }
 
+    @Test
     public void test_return_value_sequence()
     {
         Record[] result = server.return_record_sequence(10);
@@ -236,6 +245,7 @@ public class ValueTest extends ClientServerTestCase
         }
     }
 
+    @Test
     public void test_pass_list()
     {
         Node n1 = new NodeImpl(1);
@@ -252,13 +262,9 @@ public class ValueTest extends ClientServerTestCase
         assertEquals("list of length: 4 -- 1 2 3 4", result);
     }
 
+    @Test
     public void test_pass_list_in_any()
     {
-        if (TestUtils.isJ2ME())
-        {
-            return;
-        }
-
         Node n1 = new NodeImpl(1);
         Node n2 = new NodeImpl(2);
         Node n3 = new NodeImpl(3);
@@ -279,6 +285,7 @@ public class ValueTest extends ClientServerTestCase
         assertEquals("list of length: 4 -- 1 2 3 4", result);
     }
 
+    @Test
     public void test_pass_circular_list()
     {
         Node n1 = new NodeImpl(1);
@@ -299,6 +306,7 @@ public class ValueTest extends ClientServerTestCase
      * <code>test_embedded_valuetype</code> ensures that JacORB can marshal
      * and unmarshal embedded valuetypes.
      */
+    @Test
     public void test_embedded_valuetype()
     {
         ((org.omg.CORBA_2_3.ORB)orb).register_value_factory("IDL:org/jacorb/test/orb/value/NodeData:1.0", new NodeDataDefaultFactory());
@@ -309,6 +317,7 @@ public class ValueTest extends ClientServerTestCase
         assertEquals("Nodes length should be two.", n.length, 2);
     }
 
+    @Test
     public void test_get_rowlistdata() throws Exception
     {
         assertNotNull(server.getData());

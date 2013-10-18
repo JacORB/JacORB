@@ -1,18 +1,19 @@
 
 package org.jacorb.test.orb.localinterceptors;
 
-import java.io.IOException;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 import java.util.Properties;
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
-import org.jacorb.test.common.StreamListener;
-import org.jacorb.test.common.TestUtils;
+import org.jacorb.test.common.ClientServerSetup;
+import org.jacorb.test.common.ClientServerTestCase;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 import org.omg.CORBA.BAD_INV_ORDER;
 import org.omg.CORBA.BAD_PARAM;
 import org.omg.CORBA.CompletionStatus;
 import org.omg.CORBA.NO_RESOURCES;
-import org.omg.CORBA.ORB;
 import org.omg.CORBA.Policy;
 import org.omg.CORBA.UNKNOWN;
 import org.omg.CORBA.ORBPackage.InvalidName;
@@ -30,14 +31,13 @@ import org.omg.PortableServer.POA;
  * server object in the first instance and then replaced with the
  * original local object.
  */
-public class LocalPITest extends TestCase
+public class LocalPITest extends ClientServerTestCase
 {
-    private static boolean localDebugOn = false;
+    private static boolean localDebugOn = true;
 
     private static PIServer serverRef = null;
     private static PIServer clientRef = null;
 
-    private static PIServer remoteServer = null;
     private static org.omg.CORBA.Object remoteServerObj = null;
 
     private static final int TEST_SCID = 0x444f7F01;
@@ -107,18 +107,6 @@ public class LocalPITest extends TestCase
 
     private static org.omg.CORBA.Any any;
 
-    private ORB orb;
-    private POA rootPOA;
-
-    private static String [] args = new String [0];
-
-    public static Test suite ()
-    {
-        TestSuite suite = new TestSuite (LocalPITest.class);
-
-        return suite;
-    }
-
     private void init (String op)
     {
         callsMade = 0;
@@ -129,102 +117,47 @@ public class LocalPITest extends TestCase
         hasServiceContexts = false;
         forwardRequestThrown = false;
 
-        try
-        {
-            Properties props = new java.util.Properties();
-            props.setProperty( "org.omg.PortableInterceptor.ORBInitializerClass."
-                               + LocalPIInitializer.class.getName(), "" );
+        any = setup.getClientOrb().create_any();
+        any.insert_boolean (true);
+    }
 
-            props.setProperty ("jacorb.codeSet", "on");
-            props.setProperty ("org.omg.PortableInterceptor.ORBInitializerClass.standard_init",
-                               "org.jacorb.orb.standardInterceptors.IORInterceptorInitializer");
+    @Before
+    public void setUp() throws Exception
+    {
+        Properties props = new Properties();
+        props.setProperty( "org.omg.PortableInterceptor.ORBInitializerClass."
+                + LocalPIInitializer.class.getName(), "" );
 
-            // find the root poa
-            orb = ORB.init (args, props);
+        props.setProperty ("jacorb.codeSet", "on");
+        props.setProperty ("org.omg.PortableInterceptor.ORBInitializerClass.standard_init",
+                "org.jacorb.orb.standardInterceptors.IORInterceptorInitializer");
 
-            rootPOA = (POA) orb.resolve_initial_references ("RootPOA");
+        setup = new ClientServerSetup(
+                RemoteServer.class.getName(),
+                RemotePIServerImpl.class.getName(), props, null);
 
-            Policy [] policies = new Policy [1];
+        remoteServerObj = setup.getServerObject();
 
-            policies[0] = rootPOA.create_implicit_activation_policy
+        Policy [] policies = new Policy [1];
+
+        policies[0] = setup.getClientRootPOA().create_implicit_activation_policy
                 (ImplicitActivationPolicyValue.IMPLICIT_ACTIVATION);
 
-            POA childPOA = rootPOA.create_POA ("childPOA",
-                                               rootPOA.the_POAManager (),
-                                               policies);
+        POA childPOA = setup.getClientRootPOA().create_POA ("childPOA",
+                setup.getClientRootPOA().the_POAManager (),
+                policies);
 
-            serverRef = ( new PIServerImpl (childPOA))._this (orb);
-
-            rootPOA.the_POAManager().activate();
-            clientRef = PIServerHelper.narrow (serverRef);
-
-            any = orb.create_any();
-            any.insert_boolean (true);
-
-            if (remoteServerObj == null)
-            {
-                startRemoteServer (orb);
-            }
-        }
-        catch ( org.omg.CORBA.UserException ex )
-        {
-            fail( "exception during setup:" + ex.toString() );
-        }
+        serverRef = ( new PIServerImpl (childPOA))._this (setup.getClientOrb());
+        setup.getClientRootPOA().the_POAManager().activate();
+        clientRef = PIServerHelper.narrow (serverRef);
     }
 
-    protected void setUp () throws Exception
+    @After
+    public void tearDown() throws Exception
     {
+        //FIXME : To get these tests to pass need to create separate clientserversetups
+        // Tearing them down seems to cause hangs
     }
-
-    protected void tearDown () throws Exception
-    {
-    }
-
-    private void startRemoteServer (ORB orb)
-    {
-        Process serverProcess = null;
-        String serverIOR;
-        StreamListener outListener;
-        StreamListener errListener;
-
-        StringBuffer sb = new StringBuffer ();
-
-        if (TestUtils.isWindows())
-        {
-            sb.append ("javaw ");
-        }
-        else
-        {
-            sb.append ("java ");
-        }
-
-        sb.append (" -Dorg.omg.CORBA.ORBClass=org.jacorb.orb.ORB");
-        sb.append (" -Dorg.omg.CORBA.ORBSingletonClass=org.jacorb.orb.ORBSingleton");
-        sb.append (" -Xbootclasspath/p:");
-        sb.append (System.getProperty ("java.class.path"));
-
-        sb.append (" org.jacorb.test.orb.localinterceptors.RemoteServer");
-
-        try
-        {
-           serverProcess = Runtime.getRuntime().exec (sb.toString());
-        }
-        catch (IOException ioe)
-        {
-            fail ("Failed to start remote server " + ioe);
-        }
-
-        outListener = new StreamListener (serverProcess.getInputStream(), "");
-        errListener = new StreamListener (serverProcess.getErrorStream(), "");
-        outListener.start();
-        errListener.start();
-        serverIOR = outListener.getIOR (30000);
-
-        remoteServerObj = orb.string_to_object (serverIOR);
-
-        remoteServer = PIServerHelper.narrow (remoteServerObj);
-    }
-
 
     /**
      * Test complete request call. This should call
@@ -248,6 +181,7 @@ public class LocalPITest extends TestCase
      * Client B RECEIVE_REPLY
      * Client A RECEIVE_REPLY
      */
+    @Test
     public void testCompleteCall()
     {
         System.out.println ("\ntestCompleteCall");
@@ -267,6 +201,7 @@ public class LocalPITest extends TestCase
      *
      * @exception org.omg.CORBA.UserException if any of the test cases fails
      */
+    @Test
     public void testCompleteCallWithSCs()
     {
         System.out.println ("\ntestCompleteCallWithScs");
@@ -274,7 +209,7 @@ public class LocalPITest extends TestCase
         init ("sendMessage");
         try
         {
-            Current curr = (Current) orb.resolve_initial_references ("PICurrent");
+            Current curr = (Current) setup.getClientOrb().resolve_initial_references ("PICurrent");
             curr.set_slot (slotID, any );
         }
         catch (InvalidName in)
@@ -335,6 +270,7 @@ public class LocalPITest extends TestCase
      * Client B RECEIVE_EXCEPTION
      * Client A RECEIVE_EXCEPTION
      */
+    @Test
     public void testExceptionFromServer()
     {
         System.out.println ("\ntestExceptionFromServer");
@@ -373,6 +309,7 @@ public class LocalPITest extends TestCase
      * Tests an exception being raised by each client interceptor at
      * the SEND_REQUEST point.  Note that each call is separate
      */
+    @Test
     public void testClientInterceptorsRaiseExceptionAtSendRequest()
     {
 
@@ -456,6 +393,7 @@ public class LocalPITest extends TestCase
      * Tests an exception being raised by each client interceptor at
      * the RECEIVE_REPLY point.  Note that each call is separate
      */
+    @Test
     public void testClientInterceptorsRaiseExceptionAtReceiveReply()
     {
         System.out.println ("\ntestClientInterceptorsRaiseExceptionAtReceiveReply");
@@ -545,6 +483,7 @@ public class LocalPITest extends TestCase
      * Tests an exception being raised by each client interceptor at
      * the RECEIVE_EXCEPTION point.  Note that each call is separate
      */
+    @Test
     public void testClientInterceptorsRaiseExceptionAtReceiveException()
     {
         System.out.println ("\ntestClientInterceptorsRaiseExceptionAtReceiveException");
@@ -636,6 +575,7 @@ public class LocalPITest extends TestCase
      * Tests an exception being raised by each server interceptor at
      * the RECEIVE_REQUEST_SERVICE_CONTEXTS  point.  Note that each call is separate
      */
+    @Test
     public void testServerInterceptorsRaiseExceptionAtReceiveRequestSC()
     {
 
@@ -726,6 +666,7 @@ public class LocalPITest extends TestCase
      * Tests an exception being raised by each server interceptor at
      * the RECEIVE_REQUEST  point.  Note that each call is separate
      */
+    @Test
     public void testServerInterceptorsRaiseExceptionAtReceiveRequest()
     {
 
@@ -820,6 +761,7 @@ public class LocalPITest extends TestCase
      * Tests an exception being raised by each server interceptor at
      * the SEND_REPLY  point.  Note that each call is separate
      */
+    @Test
     public void testServerInterceptorsRaiseExceptionAtSendReply()
     {
         System.out.println ("\ntestServerInterceptorsRaiseExceptionAtSendReply");
@@ -912,6 +854,7 @@ public class LocalPITest extends TestCase
      * Tests an exception being raised by each server interceptor at
      * the SEND_EXCEPTION  point.  Note that each call is separate
      */
+    @Test
     public void testServerInterceptorsRaiseExceptionAtSendException()
     {
         System.out.println ("\ntestServerInterceptorsRaiseExceptionAtSendException");
@@ -1009,6 +952,7 @@ public class LocalPITest extends TestCase
      * There are no interceptors registered with the remote object so
      * only the local client interceptors are called.
      */
+    @Test
     public void testClientInterceptorARaisesForwardRequestAtSendRequest()
     {
 
@@ -1035,6 +979,7 @@ public class LocalPITest extends TestCase
                       callsMade);
     }
 
+    @Test
     public void testClientInterceptorBRaisesForwardRequestAtSendRequest()
     {
         System.out.println ("\ntestClientInterceptorBRaisesForwardRequestAtSendRequest");
@@ -1061,6 +1006,7 @@ public class LocalPITest extends TestCase
                       callsMade);
     }
 
+    @Test
     public void testClientInterceptorCRaisesForwardRequestAtSendRequest()
     {
         System.out.println ("\ntestClientInterceptorCRaisesForwardRequestAtSendRequest");
@@ -1087,6 +1033,7 @@ public class LocalPITest extends TestCase
                       callsMade);
     }
 
+    @Test
     public void testServerInterceptorARaisesForwardRequestAtRRSC()
     {
         System.out.println ("\ntestServerInterceptorARaisesForwardRequestAtRRSC");
@@ -1110,6 +1057,7 @@ public class LocalPITest extends TestCase
                       callsMade);
     }
 
+    @Test
     public void testServerInterceptorBRaisesForwardRequestAtRRSC()
     {
         System.out.println ("\ntestServerInterceptorBRaisesForwardRequestAtRRSC");
@@ -1134,6 +1082,7 @@ public class LocalPITest extends TestCase
                       callsMade);
     }
 
+    @Test
     public void testServerInterceptorCRaisesForwardRequestAtRRSC()
     {
         System.out.println ("\ntestServerInterceptorCRaisesForwardRequestAtRRSC");
@@ -1158,6 +1107,7 @@ public class LocalPITest extends TestCase
                       callsMade);
     }
 
+    @Test
     public void testServerInterceptorARaisesForwardRequestAtRR()
     {
         System.out.println ("\ntestServerInterceptorARaisesForwardRequestAtRR");
@@ -1183,6 +1133,7 @@ public class LocalPITest extends TestCase
                       callsMade);
     }
 
+    @Test
     public void testServerInterceptorBRaisesForwardRequestAtRR()
     {
         System.out.println ("\ntestServerInterceptorBRaisesForwardRequestAtRR");
@@ -1207,6 +1158,7 @@ public class LocalPITest extends TestCase
                       callsMade);
     }
 
+    @Test
     public void testServerInterceptorCRaisesForwardRequestAtRR()
     {
         System.out.println ("\ntestServerInterceptorCRaisesForwardRequestAtRR");
@@ -1232,6 +1184,7 @@ public class LocalPITest extends TestCase
                       callsMade);
     }
 
+    @Test
     public void testServerInterceptorARaisesForwardRequestAtSE()
     {
         System.out.println ("\ntestServerInterceptorARaisesForwardRequestAtSE");
@@ -1274,6 +1227,7 @@ public class LocalPITest extends TestCase
                       callsMade);
     }
 
+    @Test
     public void testServerInterceptorBRaisesForwardRequestAtSE()
     {
         System.out.println ("\ntestServerInterceptorBRaisesForwardRequestAtSE");
@@ -1318,6 +1272,7 @@ public class LocalPITest extends TestCase
     }
 
 
+    @Test
     public void testClientInterceptorARaisesForwardRequestAtRE()
     {
         System.out.println ("\ntestClientInterceptorARaisesForwardRequestAtRE");
@@ -1361,6 +1316,7 @@ public class LocalPITest extends TestCase
                       callsMade);
     }
 
+    @Test
     public void testClientInterceptorBRaisesForwardRequestAtRE()
     {
         System.out.println ("\ntestClientInterceptorBRaisesForwardRequestAtRE");
@@ -1403,6 +1359,7 @@ public class LocalPITest extends TestCase
                       callsMade);
     }
 
+    @Test
     public void testClientInterceptorCRaisesForwardRequestAtRE()
     {
         System.out.println ("\ntestClientInterceptorCRaisesForwardRequestAtRE");
@@ -1446,6 +1403,7 @@ public class LocalPITest extends TestCase
                       callsMade);
     }
 
+    @Test
     public void testServerInterceptorARaisesForwardRequestAtSO()
     {
         System.out.println ("\ntestServerInterceptorARaisesForwardRequestAtSO");
@@ -1491,6 +1449,7 @@ public class LocalPITest extends TestCase
                       callsMade);
     }
 
+    @Test
     public void testClientInterceptorBRaisesForwardRequestAtRO()
     {
         System.out.println ("\ntestClientInterceptorBRaisesForwardRequestAtRO");
@@ -1534,15 +1493,6 @@ public class LocalPITest extends TestCase
         assertEquals ("Calls to interceptors not as expected",
                       expectedCalls,
                       callsMade);
-    }
-
-    public void testRemoteServerShutdown()
-    {
-        System.out.println ("\ntestRemoteServerShutdown");
-
-        init ("shutdown");
-
-        remoteServer.shutdown();
     }
 
 
@@ -2387,7 +2337,6 @@ public class LocalPITest extends TestCase
 
             // request information.
             ri.request_id();
-
             assertEquals ("Operation name not correct",
                           operation,
                           ri.operation());
@@ -3027,26 +2976,5 @@ public class LocalPITest extends TestCase
                                    CompletionStatus.COMPLETED_NO);
             }
         }
-    }
-
-    /**
-     * The entry point of the test case.
-     *
-     * @param args The command line arguments.
-     */
-    public static void main( String args[] )
-    {
-        if (args.length > 0)
-        {
-            for (int i = 0; i < args.length; i++)
-            {
-                if (args[i].equals ("-local"))
-                {
-                    localDebugOn = true;
-                }
-            }
-        }
-
-        junit.textui.TestRunner.run( new TestSuite( LocalPITest.class ) );
     }
 }

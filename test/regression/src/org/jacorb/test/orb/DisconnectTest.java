@@ -21,11 +21,11 @@ package org.jacorb.test.orb;
  *   MA 02110-1301, USA.
  */
 
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.Properties;
-import junit.framework.Test;
-import junit.framework.TestSuite;
 import org.jacorb.orb.Delegate;
 import org.jacorb.orb.giop.ClientConnection;
 import org.jacorb.orb.giop.ClientConnectionManager;
@@ -33,6 +33,9 @@ import org.jacorb.test.BasicServer;
 import org.jacorb.test.BasicServerHelper;
 import org.jacorb.test.common.ClientServerSetup;
 import org.jacorb.test.common.ClientServerTestCase;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
 import org.omg.CORBA.TIMEOUT;
 import org.omg.ETF.Profile;
 
@@ -46,24 +49,15 @@ public class DisconnectTest extends ClientServerTestCase
     protected BasicServer server = null;
 
 
-    public DisconnectTest(String name, ClientServerSetup setup)
-    {
-        super(name, setup);
-    }
-
-    protected void setUp() throws Exception
+    @Before
+    public void setUp() throws Exception
     {
         server = BasicServerHelper.narrow( setup.getServerObject() );
     }
 
-    protected void tearDown() throws Exception
+    @BeforeClass
+    public static void beforeClassSetUp() throws Exception
     {
-        server = null;
-    }
-
-    public static Test suite()
-    {
-        TestSuite suite = new TestSuite("Disconnect client test");
 
         Properties client_props = new Properties();
         client_props.setProperty ("jacorb.retries", "0");
@@ -78,16 +72,13 @@ public class DisconnectTest extends ClientServerTestCase
 
 
 
-        ClientServerSetup setup = new ClientServerSetup( suite,
+        setup = new ClientServerSetup(
                                                          "org.jacorb.test.orb.BasicServerImpl",
                                                          client_props,
                                                          server_props);
-
-        suite.addTest( new DisconnectTest( "test_disconnect", setup ));
-
-        return setup;
     }
 
+    @Test
     public void test_disconnect()
     {
         boolean timeout = false;
@@ -240,10 +231,5 @@ public class DisconnectTest extends ClientServerTestCase
                 System.out.println ("LocalServerInterceptorA - send_other");
             }
         }
-    }
-
-    public static void main(String args[])
-    {
-      junit.textui.TestRunner.run(suite());
     }
 }

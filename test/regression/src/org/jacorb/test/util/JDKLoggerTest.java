@@ -20,14 +20,15 @@ package org.jacorb.test.util;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.fail;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.Properties;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
 import org.jacorb.test.common.TestUtils;
+import org.junit.Test;
 import org.omg.CORBA.ORB;
 import org.slf4j.Logger;
 
@@ -37,24 +38,12 @@ import org.slf4j.Logger;
  * @author Alphonse Bendt
  */
 public class JDKLoggerTest
-    extends TestCase
-{
-    private String logDirectory = null;
-
-    public JDKLoggerTest(String name)
-    {
-        super(name);
-    }
-
-    public static TestSuite suite()
-    {
-        TestSuite suite = new TestSuite(JDKLoggerTest.class);
-        return suite;
-    }
+{    private String logDirectory = null;
 
     /**
      * Tests logging to a file, rather than the terminal.
      */
+    @Test
     public void testLogFile() throws Exception
     {
         purgeLogDirectory();
@@ -80,6 +69,7 @@ public class JDKLoggerTest
     /**
      * Tests a log target that ends in $implname.
      */
+    @Test
     public void testLogFileImplName() throws Exception
     {
         purgeLogDirectory();
@@ -170,6 +160,7 @@ public class JDKLoggerTest
      * Write to the same log file twice (from two different ORBs),
      * using append mode.
      */
+    @Test
     public void testLogFileAppend() throws Exception
     {
         purgeLogDirectory();
@@ -208,6 +199,7 @@ public class JDKLoggerTest
      * Write to the same log file twice (from two different ORBs),
      * without using append mode.
      */
+    @Test
     public void testLogFileNotAppend() throws Exception
     {
         purgeLogDirectory();
@@ -245,6 +237,7 @@ public class JDKLoggerTest
      * Use a rotating file target, write several messages, and observe how
      * several logs are created.
      */
+    @Test
     public void testLogFileRotation() throws Exception
     {
         purgeLogDirectory();

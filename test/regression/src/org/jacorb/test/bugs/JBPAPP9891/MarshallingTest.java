@@ -21,12 +21,14 @@
  */
 package org.jacorb.test.bugs.JBPAPP9891;
 
+import static org.junit.Assert.assertTrue;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Properties;
 import org.jacorb.orb.CDRInputStream;
 import org.jacorb.test.common.ORBTestCase;
 import org.jacorb.test.common.TestUtils;
+import org.junit.Test;
 import org.omg.CORBA.ORB;
 import org.omg.CORBA_2_3.portable.OutputStream;
 
@@ -67,7 +69,8 @@ public class MarshallingTest extends ORBTestCase
    }
 
 
-   public void testSomething() throws Exception
+    @Test
+    public void testSomething() throws Exception
    {
       Something value = new Something();
       value.value = "Hello world";
@@ -95,15 +98,15 @@ public class MarshallingTest extends ORBTestCase
 
       Something s = (Something)in.read_value();
 
-      System.out.println("### testSomething::value is : " + s.value + " and the number is " + s.number);
-
+      in.close();
       foreignorb.shutdown(true);
       jacorborb.shutdown(true);
       assertTrue (s.number == -10);
    }
 
 
-   public void testException() throws Exception
+    @Test
+    public void testException() throws Exception
    {
       NegativeArgumentException value = new NegativeArgumentException(-10);
 
@@ -127,10 +130,8 @@ public class MarshallingTest extends ORBTestCase
       ORB jacorborb = org.omg.CORBA.ORB.init (new String[]{}, properties);
       CDRInputStream in = new CDRInputStream(jacorborb, result);
 
-
       NegativeArgumentException n = (NegativeArgumentException)in.read_value();
-
-      System.out.println("### testException::value i is : " + n.i + " and the static value j is : " + n.j+" and message " + n.getMessage());
+      in.close();
 
       foreignorb.shutdown(true);
       jacorborb.shutdown(true);

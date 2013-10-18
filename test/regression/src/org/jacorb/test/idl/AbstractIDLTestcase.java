@@ -21,25 +21,21 @@
 
 package org.jacorb.test.idl;
 
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 import java.io.File;
-import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.StringWriter;
-import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 import junit.framework.AssertionFailedError;
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
-import org.jacorb.test.common.StreamListener;
+import org.jacorb.test.common.ORBTestCase;
 import org.jacorb.test.common.TestUtils;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
 
-public class AbstractIDLTestcase extends TestCase
+@RunWith(value = Parameterized.class)
+public class AbstractIDLTestcase extends ORBTestCase
 {
     protected final File idlFile;
 
@@ -54,22 +50,11 @@ public class AbstractIDLTestcase extends TestCase
      */
     protected final File dirCompilation;
 
-    private final String testName;
-
-    public AbstractIDLTestcase(String name, File file)
+    public AbstractIDLTestcase(File file)
     {
-        // sets testname to a more informative value.
-        // this would break JUnit as the testname
-        // is used to look up the testmethod to run.
-        // for this reason the runTest() method
-        // is overriden locally to get back
-        // the standard behaviour.
-        super(name + ": " + file.getName());
-
         assertTrue(file + " should exist", file.exists());
         assertTrue(file.isFile());
 
-        testName = name;
         idlFile = file;
 
         dirGeneration = new File(TestUtils.testHome() + "/src-testidl/" + idlFile.getName());
@@ -87,18 +72,11 @@ public class AbstractIDLTestcase extends TestCase
     /**
      * run JacORBs IDL compiler on the current idlFile
      */
-    protected void runJacIDL(boolean failureExpected, boolean spawnProcess) throws Exception
+    protected void runJacIDL(boolean failureExpected) throws Exception
     {
         final String details;
 
-        if (spawnProcess)
-        {
-            details = runJacIDLExtraProcess(failureExpected);
-        }
-        else
-        {
-            details = runJacIDLInProcess(failureExpected);
-        }
+        details = runJacIDLInProcess(failureExpected);
 
         TestUtils.log("[" + idlFile.getName() + " output]:\n" + details);
     }
@@ -120,45 +98,6 @@ public class AbstractIDLTestcase extends TestCase
             if (failureExpected)
             {
                 fail("parsing of " + idlFile.getName() + " should fail.");
-            }
-        }
-        catch (Exception e)
-        {
-            handleJacIDLFailed(failureExpected, details, e);
-        }
-
-        return details;
-    }
-
-    private String runJacIDLExtraProcess(boolean failureExpected) throws Exception
-    {
-        List args = new ArrayList();
-        args.add(TestUtils.testHome() + "/../../bin/idl");
-        args.addAll(Arrays.asList(createJacIDLArgs()));
-
-        TestUtils.log("Running: " + args);
-
-        Process process = Runtime.getRuntime().exec((String[])args.toArray(new String[args.size()]));
-
-        StreamListener outListener = new StreamListener (process.getInputStream(), "OUT");
-        StreamListener errListener = new StreamListener (process.getErrorStream(), "ERR");
-        String details = "STDOUT\n" + outListener.getBuffer() + "\nSTDERR:\n" + errListener.getBuffer() + "\n";
-
-        try
-        {
-            outListener.start();
-            errListener.start();
-            process.waitFor();
-
-            boolean success = process.exitValue() == 0;
-
-            if (failureExpected)
-            {
-                assertFalse(success);
-            }
-            else
-            {
-                assertTrue(success);
             }
         }
         catch (Exception e)
@@ -199,7 +138,7 @@ public class AbstractIDLTestcase extends TestCase
      */
     protected File[] getJavaFiles()
     {
-        return (File[]) TestUtils.getJavaFilesRecursively(dirGeneration).toArray(new File[0]);
+        return TestUtils.getJavaFilesRecursively(dirGeneration).toArray(new File[0]);
     }
 
     /**
@@ -211,91 +150,6 @@ public class AbstractIDLTestcase extends TestCase
         String file[] = new String[] { "-forceOverwrite", "-d", dirGeneration.getAbsolutePath(),
                 idlFile.getAbsolutePath() };
         return file;
-    }
-
-    protected void runTest() throws Throwable
-    {
-        assertNotNull(testName);
-        Method runMethod = null;
-        try
-        {
-            runMethod = getClass().getMethod(testName, new Class[0]);
-        }
-        catch (NoSuchMethodException e)
-        {
-            fail("Method \"" + testName + "\" not found");
-        }
-        if (!Modifier.isPublic(runMethod.getModifiers()))
-        {
-            fail("Method \"" + testName + "\" should be public");
-        }
-
-        try
-        {
-            runMethod.invoke(this, new Object[0]);
-        }
-        catch (InvocationTargetException e)
-        {
-            e.fillInStackTrace();
-            throw e.getTargetException();
-        }
-        catch (IllegalAccessException e)
-        {
-            e.fillInStackTrace();
-            throw e;
-        }
-    }
-
-    /**
-     * create a test suite for all idl files located in
-     * the supplied directory.
-     *
-     * @param srcDir directory that contains the .idl files
-     * @param testClazz must supply a constructor
-     * that accepts a file argument.
-     */
-    protected static Test suite(String srcDir, Class testClazz)
-    {
-        return suite(srcDir, testClazz, ".idl");
-    }
-
-    /**
-     * create a test suite for all idl files which names are
-     * ending with the specified suffix and which are located in
-     * the supplied directory.
-     *
-     * @param srcDir directory that contains the .idl files.
-     * @param testClazz must supply a constructor that accepts a file argument.
-     * @param suffix should match all IDL files that should be tested.
-     */
-    protected static Test suite(final String srcDir, final Class testClazz, final String suffix)
-    {
-        TestSuite suite = new TestSuite();
-
-        File file = new File(srcDir);
-        File[] files = file.listFiles(new FilenameFilter()
-        {
-            public boolean accept(File dir, String name)
-            {
-                return name.endsWith(suffix);
-            }
-        });
-
-        try
-        {
-            Constructor ctor = testClazz.getConstructor(new Class[] { File.class });
-
-            for (int i = 0; i < files.length; ++i)
-            {
-                suite.addTest((Test) ctor.newInstance(new Object[] { files[i] }));
-            }
-
-            return suite;
-        }
-        catch (Exception e)
-        {
-            throw new RuntimeException(e);
-        }
     }
 
     /**
@@ -311,7 +165,7 @@ public class AbstractIDLTestcase extends TestCase
             // test if a verify_ method is available and invoke it
             String file = idlFile.getName().replaceAll("\\.", "_");
 
-             TestUtils.log("look for verify_" +  file);
+            TestUtils.log("look for verify_" +  file);
 
             Method method = getClass().getMethod("verify_" + file, new Class[] {ClassLoader.class});
             method.invoke(this, new Object[] {cl});

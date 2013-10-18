@@ -1,6 +1,9 @@
 package org.jacorb.test.bugs.bugjac294;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 import org.jacorb.test.common.ORBTestCase;
+import org.junit.Test;
 import org.omg.CORBA.BAD_PARAM;
 
 /**
@@ -8,7 +11,8 @@ import org.omg.CORBA.BAD_PARAM;
  */
 public class BugJac294Test extends ORBTestCase
 {
-	public void testStringToObject() throws Exception
+    @Test
+    public void testStringToObject() throws Exception
 	{
 		try
 		{

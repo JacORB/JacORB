@@ -1,14 +1,17 @@
 package org.jacorb.test.transport;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 import java.util.Properties;
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
+import org.jacorb.test.common.ORBTestCase;
 import org.jacorb.test.orb.transport.CurrentServer;
 import org.jacorb.test.orb.transport.CurrentServerHelper;
 import org.jacorb.transport.Current;
 import org.jacorb.transport.CurrentHelper;
 import org.jacorb.transport.NoContext;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 import org.omg.CORBA.ORB;
 import org.omg.CORBA.Object;
 import org.omg.PortableServer.POA;
@@ -16,37 +19,29 @@ import org.omg.PortableServer.POAHelper;
 
 /**
  * FrameworkClientTest.java
- * 
+ *
  * Tests for corect operation of the Transport Current framework
  */
 
-public class FrameworkClientTest extends TestCase {
-
-    private ORB client_orb_;
+public class FrameworkClientTest extends ORBTestCase
+{
     private ORB server_orb_;
     private CurrentServer server_ = null;
     private Current transport_current_ = null;
 
-    // Client-side ORB configuration
-    public static Properties getClientProperties() {
-
-        Properties cp = new Properties ();
-        cp.put ("org.omg.PortableInterceptor.ORBInitializerClass.client_transport_current_interceptor",
+    @Override
+    protected void patchORBProperties (Properties props)
+    {
+        props.put ("org.omg.PortableInterceptor.ORBInitializerClass.client_transport_current_interceptor",
                 "org.jacorb.transport.TransportCurrentInitializer");
 
-        cp.put ("org.omg.PortableInterceptor.ORBInitializerClass.client_test_interceptor",
+        props.put ("org.omg.PortableInterceptor.ORBInitializerClass.client_test_interceptor",
                 "org.jacorb.test.transport.DefaultClientOrbInitializer");
-        return cp;
     }
 
-   
-    public FrameworkClientTest(String name) {
 
-        super (name);
- 
-    }
-
-    protected void setUp() throws Exception
+    @Before
+    public void setUp() throws Exception
     {
         ServerInterceptor.reset ();
 
@@ -63,31 +58,21 @@ public class FrameworkClientTest extends TestCase {
                 server_orb_.run();
             };
         }.start();
-        
-        Thread.sleep(1000);
-        client_orb_ = ORB.init(new String[0], getClientProperties());
 
-        server_ = CurrentServerHelper.narrow(client_orb_.string_to_object(objString));
-        Object tcobject = client_orb_.resolve_initial_references ("JacOrbTransportCurrent");
+        Thread.sleep(1000);
+        server_ = CurrentServerHelper.narrow(orb.string_to_object(objString));
+        Object tcobject = orb.resolve_initial_references ("JacOrbTransportCurrent");
         transport_current_ = CurrentHelper.narrow (tcobject);
 
     }
 
-    protected void tearDown() throws Exception
+    @After
+    public void tearDown() throws Exception
     {
         server_orb_.shutdown(true);
-        Thread.sleep(1000);
-        client_orb_.shutdown(true);
     }
 
-    public static Test suite() {
-        return new TestSuite(FrameworkClientTest.class);
-    }
-
-    
-    // tests
-
-    
+    @Test
     public void testOutOfContext() throws Exception {
 
         // verify out of context access
@@ -101,6 +86,7 @@ public class FrameworkClientTest extends TestCase {
         }
     }
 
+    @Test
     public void testInContext() throws Exception {
 
         // verify in-context access

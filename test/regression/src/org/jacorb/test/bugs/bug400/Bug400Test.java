@@ -1,9 +1,15 @@
 package org.jacorb.test.bugs.bug400;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 import org.jacorb.test.BasicServer;
 import org.jacorb.test.BasicServerHelper;
 import org.jacorb.test.common.ORBTestCase;
 import org.jacorb.test.orb.BasicServerImpl;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 import org.omg.CORBA.LocalObject;
 import org.omg.CORBA.OBJECT_NOT_EXIST;
 import org.omg.CORBA.Policy;
@@ -24,16 +30,19 @@ public class Bug400Test extends ORBTestCase
 {
     private POAManager poaManager;
 
-    protected void doSetUp() throws Exception
+    @Before
+    public void setUp() throws Exception
     {
         poaManager = rootPOA.the_POAManager();
     }
 
-    protected void doTearDown() throws Exception
+    @After
+    public void tearDown() throws Exception
     {
         poaManager = null;
     }
 
+    @Test
     public void testSimpleShutdown() throws Exception
     {
         poaManager.activate();
@@ -63,6 +72,7 @@ public class Bug400Test extends ORBTestCase
         assertTrue(destroyPOA(rootPOA));
     }
 
+    @Test
     public void testShutdownWithServantLocator() throws Exception
     {
         Policy[] policies = new Policy[]

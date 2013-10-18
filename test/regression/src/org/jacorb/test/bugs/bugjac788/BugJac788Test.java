@@ -1,10 +1,11 @@
 package org.jacorb.test.bugs.bugjac788;
 
 import java.util.Properties;
-import junit.framework.Test;
-import junit.framework.TestSuite;
 import org.jacorb.test.common.ClientServerSetup;
 import org.jacorb.test.common.ClientServerTestCase;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
 import org.omg.CORBA.ORB;
 import org.omg.PortableServer.POA;
 import org.omg.PortableServer.POAHelper;
@@ -13,48 +14,23 @@ import org.omg.PortableServer.POAHelper;
 
 public class BugJac788Test extends ClientServerTestCase
 {
-    private static ComputInterface comput;
-
     private HelloInterface server;
-
-
-   public BugJac788Test(String name, ClientServerSetup setup)
-   {
-      super(name, setup);
-   }
 
    /**
     * <code>setUp</code> for junit.
     *
     * @exception Exception if an error occurs
     */
+   @Before
    public void setUp() throws Exception
    {
       server = HelloInterfaceHelper.narrow( setup.getServerObject() );
    }
 
-   /**
-    * <code>tearDown</code> us used by Junit for cleaning up after the tests.
-    *
-    * @exception Exception if an error occurs
-    */
-   protected void tearDown() throws Exception
+
+   @BeforeClass
+   public static void beforeClassSetUp() throws Exception
    {
-      super.tearDown();
-
-      server._release ();
-      server = null;
-   }
-
-   /**
-    * <code>suite</code> initialise the tests with the correct environment.
-    *
-    * @return a <code>Test</code> value
-    */
-   public static Test suite( )
-   {
-      TestSuite suite = new TestSuite( "BugJac788Test" );
-
       Properties client_props = new Properties();
       Properties server_props = new Properties();
 
@@ -64,17 +40,15 @@ public class BugJac788Test extends ClientServerTestCase
                        TestORBInitializer.class.getName());
 
 
-      TestCaseClientServerSetup setup = new TestCaseClientServerSetup (suite,
-                                                      "org.jacorb.test.bugs.bugjac788.HelloInterfaceImpl",
-                                                      client_props,
-                                                      server_props);
-
-      suite.addTest( new BugJac788Test( "test788_1", setup ));
-
-      return setup;
+      setup = new ClientServerSetup (
+              "org.jacorb.test.bugs.bugjac788.BugJac788Test",
+              "org.jacorb.test.bugs.bugjac788.HelloInterfaceImpl",
+              client_props,
+              server_props);
    }
 
-   public void test788_1() throws Exception
+    @Test
+    public void test788_1() throws Exception
    {
        System.out.println("Calling hello on HelloInterface on A...");
        server.hello();
@@ -113,30 +87,6 @@ public class BugJac788Test extends ClientServerTestCase
        {
            e.printStackTrace();
            System.out.println ("Caught error " + e);
-       }
-   }
-
-
-   /**
-    * <code>TestCaseClientServerSetup</code> overrides ClientServerSetup
-    * so that we can provide a different main.
-    */
-   public static class TestCaseClientServerSetup extends ClientServerSetup
-   {
-       /**
-        * Creates a new <code>TestCaseClientServerSetup</code> instance.
-        *
-        * @param test a <code>Test</code> value
-        * @param servantName a <code>String</code> value
-        * @param clientOrbProperties a <code>Properties</code> value
-        * @param serverOrbProperties a <code>Properties</code> value
-        */
-       public TestCaseClientServerSetup( Test test,
-                                       String servantName,
-                                       Properties clientOrbProperties,
-                                       Properties serverOrbProperties )
-       {
-           super(test, BugJac788Test.class.getName(), servantName, clientOrbProperties, serverOrbProperties);
        }
    }
 }

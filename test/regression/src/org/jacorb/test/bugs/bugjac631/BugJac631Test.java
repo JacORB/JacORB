@@ -22,11 +22,12 @@ package org.jacorb.test.bugs.bugjac631;
  */
 
 
-import junit.framework.Test;
-import junit.framework.TestSuite;
+import static org.junit.Assert.assertTrue;
 import org.jacorb.test.common.ClientServerSetup;
 import org.jacorb.test.common.ClientServerTestCase;
-import org.jacorb.test.common.TestUtils;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
 import org.omg.CORBA.Any;
 import org.omg.CORBA.Context;
 import org.omg.CORBA.ExceptionList;
@@ -48,31 +49,17 @@ public class BugJac631Test extends ClientServerTestCase
 {
     private org.omg.CORBA.Object server = null;
 
-    public BugJac631Test(String name, ClientServerSetup setup)
-    {
-        super(name, setup);
-    }
-
-    protected void setUp() throws Exception
+    @Before
+    public void setUp() throws Exception
     {
         server = setup.getServerObject();
     }
 
-    protected void tearDown() throws Exception
+    @BeforeClass
+    public static void beforeClassSetUp() throws Exception
     {
-        server = null;
-    }
-
-    public static Test suite()
-    {
-        TestSuite suite = new TestSuite( "bugjac631" );
-        ClientServerSetup setup =
-        new ClientServerSetup( suite,
+    setup = new ClientServerSetup(
                                "org.jacorb.test.bugs.bugjac631.ServerImpl" );
-
-        TestUtils.addToSuite(suite, setup, BugJac631Test.class);
-
-        return setup;
     }
 
     /**
@@ -81,6 +68,7 @@ public class BugJac631Test extends ClientServerTestCase
      *
      * @exception Exception if an error occurs
      */
+    @Test
     public void testDIIcreaterequest () throws Exception
     {
         // Thanks to a rather good tutorial on
@@ -138,6 +126,7 @@ public class BugJac631Test extends ClientServerTestCase
      *
      * @exception Exception if an error occurs
      */
+    @Test
     public void testDIIcreaterequestsystemexception () throws Exception
     {
         // Thanks to a rather good tutorial on
@@ -199,6 +188,7 @@ public class BugJac631Test extends ClientServerTestCase
      *
      * @exception Exception if an error occurs
      */
+    @Test
     public void testDIIcreaterequestuserexception () throws Exception
     {
         // Thanks to a rather good tutorial on
@@ -263,6 +253,7 @@ public class BugJac631Test extends ClientServerTestCase
      *
      * @exception Exception if an error occurs
      */
+    @Test
     public void testDIIcreaterequestunexpectedexception () throws Exception
     {
         // Thanks to a rather good tutorial on
@@ -326,6 +317,7 @@ public class BugJac631Test extends ClientServerTestCase
      *
      * @exception Exception if an error occurs
      */
+    @Test
     public void testDIIcreaterequestnullpointerexception () throws Exception
     {
         // Thanks to a rather good tutorial on

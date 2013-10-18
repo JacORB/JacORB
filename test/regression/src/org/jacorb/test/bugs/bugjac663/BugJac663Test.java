@@ -1,40 +1,15 @@
 package org.jacorb.test.bugs.bugjac663;
 
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
+import org.jacorb.test.common.ORBTestCase;
+import org.junit.Test;
 import org.omg.CORBA.ORB;
-import org.omg.PortableServer.POA;
-import org.omg.PortableServer.POAHelper;
 
 
-public class BugJac663Test extends TestCase
+public class BugJac663Test extends ORBTestCase
 {
-    public static Test suite ()
-    {
-        TestSuite suite = new TestSuite (BugJac663Test.class);
-
-        return suite;
-    }
-
-    protected void setUp () throws Exception
-    {
-    }
-
-    protected void tearDown () throws Exception
-    {
-    }
-
-   public void testJac663 () throws Exception
+    @Test
+    public void testJac663 () throws Exception
    {
-      ORB orb = ORB.init(new String [0], null);
-
-      org.omg.CORBA.Object obj = orb.resolve_initial_references("RootPOA");
-
-      POA rootPOA = POAHelper.narrow(obj);
-
-      rootPOA.the_POAManager().activate();
-
       TestThread thr = new TestThread (orb);
 
       thr.start();

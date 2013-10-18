@@ -21,8 +21,6 @@ package org.jacorb.test.bugs.bug957;
  */
 
 import java.util.Properties;
-import junit.framework.Test;
-import junit.framework.TestSuite;
 import org.jacorb.sasPolicy.SASPolicyValues;
 import org.jacorb.sasPolicy.SASPolicyValuesHelper;
 import org.jacorb.sasPolicy.SAS_POLICY_TYPE;
@@ -31,6 +29,9 @@ import org.jacorb.test.BasicServer;
 import org.jacorb.test.BasicServerHelper;
 import org.jacorb.test.common.ClientServerSetup;
 import org.jacorb.test.common.ClientServerTestCase;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
 import org.omg.CORBA.Any;
 import org.omg.CORBA.ORB;
 import org.omg.CSIIOP.EstablishTrustInClient;
@@ -48,26 +49,17 @@ public class Bug957Test extends ClientServerTestCase
 {
     private BasicServer server;
 
-    public Bug957Test(String name, ClientServerSetup setup)
-    {
-        super(name, setup);
-    }
-
+    @Before
     public void setUp() throws Exception
     {
         server = BasicServerHelper.narrow( setup.getServerObject() );
     }
 
-    protected void tearDown() throws Exception
-    {
-        server = null;
-    }
-
-    public static Test suite()
+    @BeforeClass
+    public static void beforeClassSetUp() throws Exception
     {
         GssUpContext.setUsernamePassword("testUser", "testPass");
 
-        TestSuite suite = new TestSuite( "BugJac788Test" );
         Properties props = new Properties();
 
         props.setProperty
@@ -76,15 +68,10 @@ public class Bug957Test extends ClientServerTestCase
             ("org.omg.PortableInterceptor.ORBInitializerClass.SAS", "org.jacorb.security.sas.SASInitializer");
         props.setProperty ("org.omg.PortableInterceptor.ORBInitializerClass.GSSUPProvider", "org.jacorb.security.sas.GSSUPProviderInitializer");
 
-        TestCaseClientServerSetup setup =
-            new TestCaseClientServerSetup( suite,
-                                   "org.jacorb.test.orb.BasicServerImpl", props, props );
-
-        suite.addTest( new Bug957Test( "test_ping", setup ));
-
-        return setup;
+        setup = new ClientServerSetup( Bug957Test.class.getName(), "org.jacorb.test.orb.BasicServerImpl", props, props );
     }
 
+    @Test
     public void test_ping()
     {
         server.ping();
@@ -130,29 +117,6 @@ public class Bug957Test extends ClientServerTestCase
        {
            e.printStackTrace();
            System.out.println ("Caught error " + e);
-       }
-   }
-
-   /**
-    * <code>TestCaseClientServerSetup</code> overrides ClientServerSetup
-    * so that we can provide a different main.
-    */
-   public static class TestCaseClientServerSetup extends ClientServerSetup
-   {
-       /**
-        * Creates a new <code>TestCaseClientServerSetup</code> instance.
-        *
-        * @param test a <code>Test</code> value
-        * @param servantName a <code>String</code> value
-        * @param clientOrbProperties a <code>Properties</code> value
-        * @param serverOrbProperties a <code>Properties</code> value
-        */
-       public TestCaseClientServerSetup( Test test,
-                                       String servantName,
-                                       Properties clientOrbProperties,
-                                       Properties serverOrbProperties )
-       {
-           super(test, Bug957Test.class.getName(), servantName, clientOrbProperties, serverOrbProperties);
        }
    }
 }

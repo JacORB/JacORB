@@ -1,5 +1,6 @@
 package org.jacorb.test.orb.dynany;
 
+import org.junit.Test;
 import org.omg.CORBA.Any;
 import org.omg.CORBA.TypeCode;
 import org.omg.DynamicAny.DynAny;
@@ -24,7 +25,8 @@ public class DynAnyArrayObjectTest extends DynAnyXXXTestCase
       + "01C00000000000100010000000105010001000101090000000105010001";
 
 
-   public void testInsertAnyObject() throws Exception
+    @Test
+    public void testInsertAnyObject() throws Exception
    {
        DynArray dyn_array = null;
 
@@ -54,7 +56,8 @@ public class DynAnyArrayObjectTest extends DynAnyXXXTestCase
        dyn_array.destroy();
    }
 
-   public void testInsertDynAnyObject() throws Exception
+    @Test
+    public void testInsertDynAnyObject() throws Exception
    {
        DynArray dyn_array;
 

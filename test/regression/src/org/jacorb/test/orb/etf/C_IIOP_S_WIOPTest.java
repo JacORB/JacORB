@@ -21,28 +21,23 @@ package org.jacorb.test.orb.etf;
  *   MA 02110-1301, USA.
  */
 
+import static org.junit.Assert.fail;
 import java.util.Properties;
-import junit.framework.Test;
-import junit.framework.TestSuite;
 import org.jacorb.test.common.ClientServerSetup;
+import org.junit.BeforeClass;
+import org.junit.Test;
 
 /**
  * A test that uses IIOP on the client side and WIOP on the server side.
  * Hence, no connection will be possible.
- * 
+ *
  * @author Andre Spiegel spiegel@gnu.org
  */
 public class C_IIOP_S_WIOPTest extends AbstractWIOPTestCase
 {
-    public C_IIOP_S_WIOPTest (String name, ClientServerSetup setup)
+    @BeforeClass
+    public static void beforeClassSetUp() throws Exception
     {
-        super (name, setup);
-    }
-
-    public static Test suite()
-    {
-        TestSuite suite = new TestSuite ("Client IIOP Server WIOP");
-
         Properties clientProps = new Properties();
         clientProps.setProperty ("jacorb.transport.factories",
                                  "org.jacorb.orb.iiop.IIOPFactories");
@@ -55,17 +50,12 @@ public class C_IIOP_S_WIOPTest extends AbstractWIOPTestCase
         clientProps.setProperty("jacorb.regression.disable_security",
                                 "true");
 
-
-        ClientServerSetup setup =
-          new ClientServerSetup (suite,
+        setup = new ClientServerSetup(
                                  "org.jacorb.test.orb.BasicServerImpl",
                                  clientProps, serverProps);
-
-        suite.addTest (new C_IIOP_S_WIOPTest ("testConnection", setup));
-
-        return setup;
     }
 
+    @Test
     public void testConnection()
     {
         try

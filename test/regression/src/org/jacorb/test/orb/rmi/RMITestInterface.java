@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.rmi.RemoteException;
 import java.util.Collection;
 import java.util.Properties;
+import java.util.Vector;
 
 /*
  *        JacORB  - a free Java ORB
@@ -25,6 +26,7 @@ import java.util.Properties;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
+@SuppressWarnings("rawtypes")
 public interface RMITestInterface
         extends java.rmi.Remote
 {
@@ -63,10 +65,10 @@ public interface RMITestInterface
     public Object booValueToObject(Boo boo)
             throws java.rmi.RemoteException;
 
-    public java.util.Vector valueArrayToVector(Foo[] a)
+    public Vector valueArrayToVector(Foo[] a)
             throws java.rmi.RemoteException;
 
-    public Foo[] vectorToValueArray(java.util.Vector v)
+    public Foo[] vectorToValueArray(Vector v)
             throws java.rmi.RemoteException;
 
     public Object getException()
@@ -78,16 +80,16 @@ public interface RMITestInterface
     public Object[] testReferenceSharingWithinArray(Object[] a)
             throws java.rmi.RemoteException;
 
-    public java.util.Collection testReferenceSharingWithinCollection(
-            java.util.Collection c) throws java.rmi.RemoteException;
+    public Collection testReferenceSharingWithinCollection(
+            Collection c) throws java.rmi.RemoteException;
 
-    public java.util.Vector getVectorWithObjectArrayAsElement()
+    public Vector getVectorWithObjectArrayAsElement()
             throws java.rmi.RemoteException;
 
-    public java.util.Vector getVectorWithVectorAsElement()
+    public Vector getVectorWithVectorAsElement()
             throws java.rmi.RemoteException;
 
-    public java.util.Vector getVectorWithHashtableAsElement()
+    public Vector getVectorWithHashtableAsElement()
             throws java.rmi.RemoteException;
 
     public Outer outerToOuter(Outer outer) throws java.rmi.RemoteException;
@@ -98,6 +100,6 @@ public interface RMITestInterface
     public int sizeOfCollection(Collection c) throws java.rmi.RemoteException;
 
     Serializable transmitSerializable(Serializable s) throws RemoteException;
-    
+
     Properties transmitProperties(Properties p) throws RemoteException;
 }

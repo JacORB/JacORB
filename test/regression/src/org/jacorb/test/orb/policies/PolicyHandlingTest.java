@@ -1,11 +1,11 @@
 package org.jacorb.test.orb.policies;
 
-import java.util.Properties;
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+import org.jacorb.test.common.ORBTestCase;
+import org.junit.Test;
 import org.omg.CORBA.Any;
-import org.omg.CORBA.ORB;
 import org.omg.CORBA.Policy;
 import org.omg.CORBA.PolicyError;
 import org.omg.Messaging.MAX_HOPS_POLICY_TYPE;
@@ -52,20 +52,9 @@ import org.omg.TimeBase.UtcTHelper;
  *
  * @author Andre Spiegel spiegel@gnu.org
  */
-public class PolicyHandlingTest extends TestCase
+public class PolicyHandlingTest extends ORBTestCase
 {
-    private static org.omg.CORBA.ORB orb = null;
-
-    public PolicyHandlingTest (String name)
-    {
-        super (name);
-    }
-
-    public static Test suite()
-    {
-        return new TestSuite (PolicyHandlingTest.class);
-    }
-
+    @Test
     public void testClientProtocolPolicy()
     {
         Protocol[] protocols = new Protocol[] { };
@@ -83,11 +72,12 @@ public class PolicyHandlingTest extends TestCase
         // accessing the tag does not work when the protocols list is empty
         // assertEquals (((org.jacorb.orb.policies.ClientProtocolPolicy)p).tag(),
         //              ((org.jacorb.orb.policies.ClientProtocolPolicy)p2).tag());
-        assertEquals (p.protocols(), p2.protocols());
+        assertTrue ("Protocols do not match", p.protocols().equals(p2.protocols()));
         p.destroy();
         p2.destroy();
     }
 
+    @Test
     public void testMaxHopsPolicy()
     {
         Any value = create_any();
@@ -106,6 +96,7 @@ public class PolicyHandlingTest extends TestCase
         p2.destroy();
     }
 
+    @Test
     public void testQueueOrderPolicy()
     {
         Any value = create_any();
@@ -124,6 +115,7 @@ public class PolicyHandlingTest extends TestCase
         p2.destroy();
     }
 
+    @Test
     public void testRebindPolicy()
     {
         Any value = create_any();
@@ -142,6 +134,7 @@ public class PolicyHandlingTest extends TestCase
         p2.destroy();
     }
 
+    @Test
     public void testRelativeRequestTimeoutPolicy()
     {
         Any value = create_any();
@@ -160,6 +153,7 @@ public class PolicyHandlingTest extends TestCase
         p2.destroy();
     }
 
+    @Test
     public void testRelativeRoundtripTimeoutPolicy()
     {
         Any value = create_any();
@@ -178,6 +172,7 @@ public class PolicyHandlingTest extends TestCase
         p2.destroy();
     }
 
+    @Test
     public void testReplyEndTimePolicy()
     {
         UtcT time = new UtcT(12, 34, (short)56, (short)78);
@@ -206,6 +201,7 @@ public class PolicyHandlingTest extends TestCase
         p2.destroy();
     }
 
+    @Test
     public void testReplyPriorityPolicy()
     {
         PriorityRange pr = new PriorityRange ((short)10, (short)20);
@@ -230,6 +226,7 @@ public class PolicyHandlingTest extends TestCase
         p2.destroy();
     }
 
+    @Test
     public void testReplyStartTimePolicy()
     {
         UtcT time = new UtcT(12, 34, (short)56, (short)78);
@@ -258,6 +255,7 @@ public class PolicyHandlingTest extends TestCase
         p2.destroy();
     }
 
+    @Test
     public void testRequestEndTimePolicy()
     {
         UtcT time = new UtcT(12, 34, (short)56, (short)78);
@@ -286,6 +284,7 @@ public class PolicyHandlingTest extends TestCase
         p2.destroy();
     }
 
+    @Test
     public void testRequestPriorityPolicy()
     {
         PriorityRange pr = new PriorityRange ((short)10, (short)20);
@@ -310,6 +309,7 @@ public class PolicyHandlingTest extends TestCase
         p2.destroy();
     }
 
+    @Test
     public void testRequestStartTimePolicy()
     {
         UtcT time = new UtcT(12, 34, (short)56, (short)78);
@@ -338,6 +338,7 @@ public class PolicyHandlingTest extends TestCase
         p2.destroy();
     }
 
+    @Test
     public void testRoutingPolicy()
     {
         RoutingTypeRange rtr = new RoutingTypeRange ((short)10, (short)20);
@@ -362,6 +363,7 @@ public class PolicyHandlingTest extends TestCase
         p2.destroy();
     }
 
+    @Test
     public void testSyncScopePolicy()
     {
         Any value = create_any();
@@ -381,23 +383,11 @@ public class PolicyHandlingTest extends TestCase
 
     }
 
-    private org.omg.CORBA.ORB getORB()
-    {
-        if (orb == null)
-        {
-            Properties props = new Properties();
-            props.put ("org.omg.CORBA.ORBClass", "org.jacorb.orb.ORB");
-            props.put ("org.omg.CORBA.ORBSingletonClass", "org.jacorb.orb.ORBSingleton");
-            orb = ORB.init (new String[]{}, props);
-        }
-        return orb;
-    }
-
     private Policy create_policy (int type, Any value)
     {
         try
         {
-            return getORB().create_policy (type, value);
+            return orb.create_policy (type, value);
         }
         catch (PolicyError ex)
         {
@@ -408,6 +398,6 @@ public class PolicyHandlingTest extends TestCase
 
     private Any create_any()
     {
-        return getORB().create_any();
+        return orb.create_any();
     }
 }

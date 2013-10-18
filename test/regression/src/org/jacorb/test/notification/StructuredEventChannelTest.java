@@ -1,12 +1,15 @@
 package org.jacorb.test.notification;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
-import junit.framework.Test;
 import org.jacorb.test.notification.common.NotificationTestUtils;
 import org.jacorb.test.notification.common.NotifyServerTestCase;
-import org.jacorb.test.notification.common.NotifyServerTestSetup;
+import org.junit.Before;
+import org.junit.Test;
 import org.omg.CORBA.Any;
 import org.omg.CORBA.IntHolder;
 import org.omg.CORBA.NO_IMPLEMENT;
@@ -41,14 +44,10 @@ public class StructuredEventChannelTest extends NotifyServerTestCase
 
     // //////////////////////////////////////
 
-    public StructuredEventChannelTest(String name, NotifyServerTestSetup setup)
-    {
-        super(name, setup);
-    }
-
     // //////////////////////////////////////
 
-    public void setUpTest() throws Exception
+    @Before
+    public void setUp() throws Exception
     {
         channel_ = getDefaultChannel();
 
@@ -64,10 +63,10 @@ public class StructuredEventChannelTest extends NotifyServerTestCase
         // set filterable event body data
         testEvent_.filterable_data = new Property[1];
 
-        Any _personAny = getClientORB().create_any();
+        Any _personAny = setup.getClientOrb().create_any();
 
         // prepare filterable body data
-        Person _p = new NotificationTestUtils(getClientORB()).getTestPerson();
+        Person _p = new NotificationTestUtils(setup.getClientOrb()).getTestPerson();
         Address _a = new Address();
 
         _p.first_name = "firstname";
@@ -88,7 +87,7 @@ public class StructuredEventChannelTest extends NotifyServerTestCase
         PersonHelper.insert(_personAny, _p);
         testEvent_.filterable_data[0] = new Property("person", _personAny);
 
-        testEvent_.remainder_of_body = getClientORB().create_any();
+        testEvent_.remainder_of_body = setup.getClientOrb().create_any();
 
         trueFilter_ = createFilter();
 
@@ -111,12 +110,13 @@ public class StructuredEventChannelTest extends NotifyServerTestCase
 
     private StructuredPushSender getPushSender()
     {
-        StructuredPushSender sender = new StructuredPushSender(getClientORB());
+        StructuredPushSender sender = new StructuredPushSender(setup.getClientOrb());
         sender.setStructuredEvent(testEvent_);
         
         return sender;
     }
 
+    @Test
     public void testDestroyChannelDisconnectsClients() throws Exception
     {
         Property[] _p = new Property[0];
@@ -125,9 +125,9 @@ public class StructuredEventChannelTest extends NotifyServerTestCase
 
         StructuredPushSender _pushSender = getPushSender();
 
-        StructuredPullSender _pullSender = new StructuredPullSender(getClientORB(), testEvent_);
-        StructuredPushReceiver _pushReceiver = new StructuredPushReceiver(getClientORB());
-        StructuredPullReceiver _pullReceiver = new StructuredPullReceiver(getClientORB());
+        StructuredPullSender _pullSender = new StructuredPullSender(setup.getClientOrb(), testEvent_);
+        StructuredPushReceiver _pushReceiver = new StructuredPushReceiver(setup.getClientOrb());
+        StructuredPullReceiver _pullReceiver = new StructuredPullReceiver(setup.getClientOrb());
 
         _pushSender.connect(_channel, false);
         _pullSender.connect(_channel, false);
@@ -147,11 +147,12 @@ public class StructuredEventChannelTest extends NotifyServerTestCase
         assertTrue(!_pullReceiver.isConnected());
     }
 
+    @Test
     public void testObtainSubscriptionTypes_sender_throws_NO_IMPLEMENT() throws Exception
     {
         final AtomicInteger subscriptionChangeCounter = new AtomicInteger(0);
 
-        StructuredPushSender _sender = new StructuredPushSender(getClientORB())
+        StructuredPushSender _sender = new StructuredPushSender(setup.getClientOrb())
         {
             public void subscription_change(EventType[] added, EventType[] removed)
             {
@@ -163,7 +164,7 @@ public class StructuredEventChannelTest extends NotifyServerTestCase
         
         _sender.setStructuredEvent(testEvent_);
 
-        StructuredPushReceiver _receiver = new StructuredPushReceiver(getClientORB());
+        StructuredPushReceiver _receiver = new StructuredPushReceiver(setup.getClientOrb());
 
         _sender.connect(channel_, false);
 
@@ -184,11 +185,12 @@ public class StructuredEventChannelTest extends NotifyServerTestCase
         assertEquals(1, subscriptionChangeCounter.get());
     }
 
+    @Test
     public void testObtainSubscriptionTypes_NONE_NOW_UPDATE_ON() throws Exception
     {
         StructuredPushSender _sender = getPushSender();
         
-        StructuredPushReceiver _receiver = new StructuredPushReceiver(getClientORB());
+        StructuredPushReceiver _receiver = new StructuredPushReceiver(setup.getClientOrb());
 
         _sender.connect(channel_, false);
         _receiver.connect(channel_, false);
@@ -206,10 +208,11 @@ public class StructuredEventChannelTest extends NotifyServerTestCase
         assertEquals("type1", ((EventType) _sender.addedSubscriptions_.get(0)).type_name);
     }
 
+    @Test
     public void testObtainSubscriptionTypes_ALL_NOW_UPDATE_OFF() throws Exception
     {
         StructuredPushSender _sender = getPushSender();
-        StructuredPushReceiver _receiver = new StructuredPushReceiver(getClientORB());
+        StructuredPushReceiver _receiver = new StructuredPushReceiver(setup.getClientOrb());
 
         _sender.connect(channel_, false);
         _receiver.connect(channel_, false);
@@ -228,10 +231,11 @@ public class StructuredEventChannelTest extends NotifyServerTestCase
         assertEquals("type1", _subscriptionTypes[0].type_name);
     }
 
+    @Test
     public void testObtainOfferedTypes_NONE_NOW_UPDATES_ON() throws Exception
     {
         StructuredPushSender _sender = getPushSender();
-        StructuredPushReceiver _receiver = new StructuredPushReceiver(getClientORB());
+        StructuredPushReceiver _receiver = new StructuredPushReceiver(setup.getClientOrb());
 
         _sender.connect(channel_, false);
         _receiver.connect(channel_, false);
@@ -249,10 +253,11 @@ public class StructuredEventChannelTest extends NotifyServerTestCase
         assertEquals("type1", ((EventType) _receiver.addedOffers.get(0)).type_name);
     }
 
+    @Test
     public void testObtainOfferedTypes_ALL_NOW_UPDATES_ON() throws Exception
     {
         StructuredPushSender _sender = getPushSender();
-        StructuredPushReceiver _receiver = new StructuredPushReceiver(getClientORB());
+        StructuredPushReceiver _receiver = new StructuredPushReceiver(setup.getClientOrb());
 
         _sender.connect(channel_, false);
         _receiver.connect(channel_, false);
@@ -268,13 +273,14 @@ public class StructuredEventChannelTest extends NotifyServerTestCase
         assertEquals(2, _offeredTypes.length);
     }
 
+    @Test
     public void testObtainOfferedTypes_receiver_throws_NO_IMPLEMENT() throws Exception
     {
         final AtomicInteger offerChangeCalled = new AtomicInteger(0);
 
         StructuredPushSender _sender = getPushSender();
 
-        StructuredPushReceiver _receiver = new StructuredPushReceiver(getClientORB())
+        StructuredPushReceiver _receiver = new StructuredPushReceiver(setup.getClientOrb())
         {
             public void offer_change(org.omg.CosNotification.EventType[] added,org.omg.CosNotification.EventType[] removed) 
             {
@@ -302,10 +308,11 @@ public class StructuredEventChannelTest extends NotifyServerTestCase
         assertEquals(1, offerChangeCalled.get());
     }
 
+    @Test
     public void testSendPushPush() throws Exception
     {
         StructuredPushSender _sender = getPushSender();
-        StructuredPushReceiver _receiver = new StructuredPushReceiver(getClientORB());
+        StructuredPushReceiver _receiver = new StructuredPushReceiver(setup.getClientOrb());
 
         _sender.connect(channel_, false);
         _receiver.connect(channel_, false);
@@ -320,13 +327,14 @@ public class StructuredEventChannelTest extends NotifyServerTestCase
         assertTrue("Should have received something", _receiver.isEventHandled());
     }
 
+    @Test
     public void testSendPushPush_MisbehavingConsumer() throws Exception
     {
         StructuredPushSender _sender = getPushSender();
 
         final CountDownLatch disconnectedLatch = new CountDownLatch(1);
         
-        StructuredPushReceiver _receiver = new StructuredPushReceiver(getClientORB())
+        StructuredPushReceiver _receiver = new StructuredPushReceiver(setup.getClientOrb())
         {
             public void push_structured_event(StructuredEvent event) 
             {
@@ -355,10 +363,11 @@ public class StructuredEventChannelTest extends NotifyServerTestCase
         assertFalse(_receiver.isConnected());
     }
 
+    @Test
     public void testSendPushPull() throws Exception
     {
         StructuredPushSender _sender = getPushSender();
-        StructuredPullReceiver _receiver = new StructuredPullReceiver(getClientORB());
+        StructuredPullReceiver _receiver = new StructuredPullReceiver(setup.getClientOrb());
 
         _sender.connect(channel_, false);
         _receiver.connect(channel_, false);
@@ -373,10 +382,11 @@ public class StructuredEventChannelTest extends NotifyServerTestCase
         assertTrue("Should have received something", _receiver.isEventHandled());
     }
 
+    @Test
     public void testSendPullPush() throws Exception
     {
-        StructuredPullSender _sender = new StructuredPullSender(getClientORB(), testEvent_);
-        StructuredPushReceiver _receiver = new StructuredPushReceiver(getClientORB());
+        StructuredPullSender _sender = new StructuredPullSender(setup.getClientOrb(), testEvent_);
+        StructuredPushReceiver _receiver = new StructuredPushReceiver(setup.getClientOrb());
         _receiver.setTimeOut(2000);
 
         _sender.connect(channel_, false);
@@ -392,10 +402,11 @@ public class StructuredEventChannelTest extends NotifyServerTestCase
         assertTrue("Should have received something", _receiver.isEventHandled());
     }
 
+    @Test
     public void testSendPullPull() throws Exception
     {
-        StructuredPullSender _sender = new StructuredPullSender(getClientORB(), testEvent_);
-        StructuredPullReceiver _receiver = new StructuredPullReceiver(getClientORB());
+        StructuredPullSender _sender = new StructuredPullSender(setup.getClientOrb(), testEvent_);
+        StructuredPullReceiver _receiver = new StructuredPullReceiver(setup.getClientOrb());
         _sender.connect(channel_, false);
 
         _receiver.connect(channel_, false);
@@ -411,9 +422,4 @@ public class StructuredEventChannelTest extends NotifyServerTestCase
         assertTrue("Should have received something", _receiver.isEventHandled());
     }
 
-    public static Test suite() throws Exception
-    {
-        return NotifyServerTestCase.suite("Test of Structured EventChannel",
-                StructuredEventChannelTest.class);
-    }
 }

@@ -20,16 +20,15 @@ package org.jacorb.test.notification.engine;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
 import org.easymock.MockControl;
 import org.jacorb.notification.engine.MessagePushOperation;
 import org.jacorb.notification.interfaces.Message;
+import org.junit.Test;
 
 /**
  * @author Alphonse Bendt
  */
-public class PushOperationTest extends TestCase
+public class PushOperationTest
 {
     static class MockPushOperation extends MessagePushOperation
     {
@@ -46,11 +45,7 @@ public class PushOperationTest extends TestCase
         }
     }
 
-    public PushOperationTest(String name)
-    {
-        super(name);
-    }
-
+    @Test
     public void testCreateDispose()
     {
         MockControl controlMessage = MockControl.createControl(Message.class);
@@ -64,7 +59,7 @@ public class PushOperationTest extends TestCase
 
         mockMessage2.dispose();
         controlMessage2.setVoidCallable();
-        
+
         controlMessage2.replay();
         controlMessage.replay();
 
@@ -73,12 +68,5 @@ public class PushOperationTest extends TestCase
 
         controlMessage2.verify();
         controlMessage.verify();
-    }
-
-    public static TestSuite suite()
-    {
-        TestSuite suite = new TestSuite(PushOperationTest.class);
-
-        return suite;
     }
 }

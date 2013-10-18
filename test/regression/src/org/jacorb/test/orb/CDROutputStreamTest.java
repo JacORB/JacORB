@@ -21,28 +21,36 @@
 
 package org.jacorb.test.orb;
 
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 import java.util.Arrays;
 import org.jacorb.orb.CDROutputStream;
 import org.jacorb.orb.giop.CodeSet;
 import org.jacorb.test.common.ORBTestCase;
 import org.jacorb.test.common.TestUtils;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 import org.omg.CORBA.BAD_PARAM;
 
 public class CDROutputStreamTest extends ORBTestCase
 {
     private CDROutputStream objectUnderTest;
 
-    protected void doSetUp() throws Exception
+    @Before
+    public void setUp() throws Exception
     {
         objectUnderTest = new CDROutputStream(orb);
     }
 
-    protected void doTearDown() throws Exception
+    @After
+    public void tearDown() throws Exception
     {
         objectUnderTest.close();
         objectUnderTest = null;
     }
 
+    @Test
     public void testIncreaseSize()
     {
         byte[] buffer = new byte[4];
@@ -57,6 +65,7 @@ public class CDROutputStreamTest extends ORBTestCase
     /**
      * Verifies that the public ctor is available and that the releaseBuffer works as expected
      */
+    @Test
     public void testCDRStreamSizeCtor()
     {
         CDROutputStream co = new CDROutputStream (orb, 1000, false);
@@ -65,6 +74,8 @@ public class CDROutputStreamTest extends ORBTestCase
 
         byte[] result = co.releaseBuffer();
 
+        co.close();
+
         assertTrue (result.length == 1023);
     }
 
@@ -72,6 +83,7 @@ public class CDROutputStreamTest extends ORBTestCase
      * Verifies that the default encoding (ISO8859_1) works for char, char arrays, and strings. Reading the string
      * forces alignment of the 4-byte length, and ignores any null terminator.
      */
+    @Test
     public void testDefaultEncodingChar() throws Exception {
         objectUnderTest.write_char( 'a' );
         objectUnderTest.write_char( 's' );
@@ -92,6 +104,7 @@ public class CDROutputStreamTest extends ORBTestCase
      * with no byte-order-marker. Reading the wstring
      * forces alignment of the 4-byte length.
      */
+    @Test
     public void testDefaultEncodingWChar() throws Exception {
         byte[] codedText = { 2, 0x5, (byte) (0xD0 & 0xff),  // Hebrew letter aleph
                              2, 0x30, 0x51,                 // Hiragana syllable ha
@@ -123,6 +136,7 @@ public class CDROutputStreamTest extends ORBTestCase
      * Verifies that the UCS-2 encoding works for wchar, wchar arrays, and wstrings. Unlike UTF-16,
      * the byte-order-marker is not optional.
      */
+    @Test
     public void testUCS2EncodingWChar() throws Exception {
         byte[] codedText = { 2, 0x5, (byte) (0xD0 & 0xff),  // Hebrew letter aleph
                              2, 0x30, 0x51,                 // Hiragana syllable ha
@@ -154,6 +168,7 @@ public class CDROutputStreamTest extends ORBTestCase
      * indicator to specify the number of characters rather than bytes and require a two-byte null terminator.
      * Wide characters in 1.1 do not take width bytes
      */
+    @Test
     public void testDefaultEncodingWCharGiop1_1() throws Exception {
         byte[] codedText = { 0, 0, 0, 5,                    // string length in bytes, not chars
                              0x30, (byte) (0xDF & 0xff),    // Mitsubishi, in Katakana
@@ -174,6 +189,7 @@ public class CDROutputStreamTest extends ORBTestCase
     /**
      * Verifies that the UTF-8 encoding works for strings in giop 1.1.
      */
+    @Test
     public void testUTF8EncodingCharGiop1_1() throws Exception {
         byte[] codedText = { 0, 0, 0, 5,                    // string length in bytes, including null pointer
                              'a', 's', 'd', 'f', 0,         // one-byte null terminator
@@ -191,6 +207,7 @@ public class CDROutputStreamTest extends ORBTestCase
     /**
      * Verifies that the UTF-8 encoding works for strings in giop 1.1. Have to check - this may not be required.
      */
+    @Test
     public void testUTF8EncodingWCharGiop1_1() throws Exception {
         byte[] codedText = { 0, 0, 0, 13,                    // string length in bytes, including null terminator
                              (byte) (0xE3 & 0xff), (byte) (0x83 & 0xff), (byte) (0x9F & 0xff),    // Mitsubishi, in Katakana
@@ -213,6 +230,7 @@ public class CDROutputStreamTest extends ORBTestCase
      * Verifies that the UTF-8 works for wchar, wchar arrays, and wstrings. Reading the wstring
      * forces alignment of the 4-byte length. Note that byte-ordering is fixed by the encoding.
      */
+    @Test
     public void testUTF8EncodingWChar() throws Exception {
         byte[] codedText = { 1, 'x',                                                              // Latin-l lowercase x
                              2, (byte) (0xD7 & 0xff), (byte) (0x90 & 0xff),                       // Hebrew letter aleph
@@ -282,13 +300,9 @@ public class CDROutputStreamTest extends ORBTestCase
     }
 
 
+    @Test
     public void testDoesNotLikeNonJacORB()
     {
-        if (TestUtils.isJ2ME())
-        {
-            return;
-        }
-
         org.omg.CORBA.ORB sunORB = org.omg.CORBA.ORB.init(new String[0], TestUtils.newForeignORBProperties());
 
         try

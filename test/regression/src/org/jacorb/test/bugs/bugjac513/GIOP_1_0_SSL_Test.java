@@ -20,27 +20,23 @@
 
 package org.jacorb.test.bugs.bugjac513;
 
+import static org.junit.Assert.assertTrue;
 import java.util.Properties;
-import junit.framework.Test;
-import junit.framework.TestSuite;
 import org.jacorb.test.BasicServer;
 import org.jacorb.test.BasicServerHelper;
 import org.jacorb.test.common.ClientServerSetup;
 import org.jacorb.test.common.ClientServerTestCase;
-import org.jacorb.test.common.TestUtils;
 import org.jacorb.test.orb.BasicServerImpl;
+import org.junit.BeforeClass;
+import org.junit.Test;
 
 /**
  * @author Alphonse Bendt
  */
 public class GIOP_1_0_SSL_Test extends ClientServerTestCase
 {
-    public GIOP_1_0_SSL_Test(String name, ClientServerSetup setup)
-    {
-        super(name, setup);
-    }
-
-    public static Test suite()
+    @BeforeClass
+    public static void beforeClassSetUp() throws Exception
     {
         Properties clientProps = new Properties();
         Properties serverProps = new Properties();
@@ -50,16 +46,13 @@ public class GIOP_1_0_SSL_Test extends ClientServerTestCase
         serverProps.setProperty("jacorb.giop_minor_version", "0");
         serverProps.setProperty("jacorb.test.ssl", "true");
 
-        TestSuite suite = new TestSuite(GIOP_1_0_SSL_Test.class.getName());
-        ClientServerSetup setup = new ClientServerSetup(suite, BasicServerImpl.class.getName(), clientProps, serverProps);
-        TestUtils.addToSuite(suite, setup, GIOP_1_0_SSL_Test.class);
-        return setup;
+        setup = new ClientServerSetup(BasicServerImpl.class.getName(), clientProps, serverProps);
     }
 
+    @Test
     public void testCanConnectToGIOP_10_IOR() throws Exception
     {
         BasicServer server = BasicServerHelper.narrow(setup.getServerObject());
-
-        assertEquals(getName(), server.bounce_string(getName()));
+        assertTrue("Names should match ", name.getMethodName().equals (server.bounce_string(name.getMethodName())));
     }
 }

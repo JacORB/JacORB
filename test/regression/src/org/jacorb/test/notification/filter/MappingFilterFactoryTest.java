@@ -21,9 +21,11 @@
 
 package org.jacorb.test.notification.filter;
 
-import junit.framework.Test;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 import org.jacorb.test.notification.common.NotificationTestCase;
-import org.jacorb.test.notification.common.NotificationTestCaseSetup;
+import org.junit.Before;
+import org.junit.Test;
 import org.omg.CORBA.Any;
 import org.omg.CosNotifyFilter.FilterFactory;
 import org.omg.CosNotifyFilter.InvalidGrammar;
@@ -32,18 +34,15 @@ import org.omg.CosNotifyFilter.MappingFilter;
 public class MappingFilterFactoryTest extends NotificationTestCase
 {
     private FilterFactory filterFactory_;
-    
-    public MappingFilterFactoryTest(String name, NotificationTestCaseSetup setup)
-    {
-        super(name, setup);
-    }
 
-    public void setUpTest() throws Exception
+    @Before
+    public void setUp() throws Exception
     {
         filterFactory_ = (FilterFactory) getPicoContainer().getComponentInstanceOfType(
                 FilterFactory.class);
     }
 
+    @Test
     public void testFilterFactory() throws Exception
     {
         Any _defaultValue = getORB().create_any();
@@ -61,10 +60,5 @@ public class MappingFilterFactoryTest extends NotificationTestCase
         {
             // expected
         }
-    }
-    
-    public static Test suite() throws Exception
-    {
-        return NotificationTestCase.suite(MappingFilterFactoryTest.class);
     }
 }

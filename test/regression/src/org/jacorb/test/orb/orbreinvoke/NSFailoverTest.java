@@ -21,17 +21,22 @@ package org.jacorb.test.orb.orbreinvoke;
  *   MA 02110-1301, USA.
  */
 
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 import java.io.File;
 import java.util.Properties;
-import junit.framework.Test;
-import junit.framework.TestCase;
 import org.jacorb.orb.util.PrintIOR;
 import org.jacorb.test.common.CommonSetup;
-import org.jacorb.test.common.ORBSetup;
+import org.jacorb.test.common.ORBTestCase;
 import org.jacorb.test.common.ServerSetup;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.FixMethodOrder;
+import org.junit.Test;
+import org.junit.runners.MethodSorters;
 
-
-public class NSFailoverTest extends TestCase
+@FixMethodOrder(MethodSorters.NAME_ASCENDING)
+public class NSFailoverTest extends ORBTestCase
 {
     private static final boolean NS_1_ON = true;
     private static final boolean NS_2_ON = true;
@@ -55,57 +60,47 @@ public class NSFailoverTest extends TestCase
     private Properties nsProp_2 = null;
     private File nsIOR_1 = null;
     private File nsIOR_2 = null;
-    private Properties serverProp_1 = null;
-    private Properties serverProp_2 = null;
-    private Properties clientProps = null;
     private NSServiceSetup nsSetup_1 = null;
     private NSServiceSetup nsSetup_2 = null;
     private ServerSetup serverSetup_1 = null;
     private ServerSetup serverSetup_2 = null;
-    private ORBSetup clientSetup = null;
-    private org.omg.CORBA.ORB clientORB;
     private final java.lang.Object syncTest = new java.lang.Object();
     private boolean testComplete;
 
-
-    protected void tearDown() throws Exception
+    protected void patchORBProperties(Properties props) throws Exception
     {
-        try
-        {
-            teardownMyClient();
-            teardownMyServers(SVR_1_OFF, SVR_2_OFF);
-            teardownMyNS(NS_1_OFF, NS_2_OFF);
+        props.setProperty ("jacorb.retries", "3");
+        props.setProperty ("jacorb.retry_interval", "1000");
+        props.setProperty ("jacorb.connection.client.connect_timeout","5000");
+        props.setProperty ("jacorb.test.timeout.server", Long.toString(10000));
+        props.setProperty(CommonSetup.JACORB_REGRESSION_DISABLE_SECURITY, "true");
+        props.setProperty(CommonSetup.JACORB_REGRESSION_DISABLE_IMR, "true");
+    }
 
-        }
-        catch (Exception e)
+
+    @After
+    public void tearDown() throws Exception
+    {
+        teardownMyServers(SVR_1_OFF, SVR_2_OFF);
+        teardownMyNS(NS_1_OFF, NS_2_OFF);
+    }
+
+    public void teardownMyNS(boolean nsOff_1, boolean nsOff_2) throws Exception
+    {
+        if (nsOff_1 == NS_1_OFF && nsSetup_1 != null)
         {
-            // ignored
+            nsSetup_1.tearDown();
+            nsSetup_1 = null;
+        }
+
+        if (nsOff_2 == NS_2_OFF && nsSetup_2 != null)
+        {
+            nsSetup_2.tearDown();
+            nsSetup_2 = null;
         }
     }
 
-    public void teardownMyNS(boolean nsOff_1, boolean nsOff_2)
-    {
-        try
-        {
-            if (nsOff_1 == NS_1_OFF && nsSetup_1 != null)
-            {
-                nsSetup_1.tearDown();
-                nsSetup_1 = null;
-            }
-
-            if (nsOff_2 == NS_2_OFF && nsSetup_2 != null)
-            {
-                nsSetup_2.tearDown();
-                nsSetup_2 = null;
-            }
-        }
-        catch (Exception e)
-        {
-            // ignored
-        }
-    }
-
-    public void setupMyNS (Test test, boolean nsOn_1, boolean nsON_2)
+    public void setupMyNS (boolean nsOn_1, boolean nsON_2)
     {
         if (nsOn_1 == NS_1_ON && nsSetup_1 == null)
         {
@@ -136,7 +131,7 @@ public class NSFailoverTest extends TestCase
                 }
 
                 // initiate the NameServer service
-                nsSetup_1 = new NSServiceSetup (test, nsProp_1, 1);
+                nsSetup_1 = new NSServiceSetup (nsProp_1, 1);
                 nsSetup_1.setUp();
                 log("++++ setting NameServer #1 - complete");
             }
@@ -175,7 +170,7 @@ public class NSFailoverTest extends TestCase
                 }
 
                 // initiate the NameServer service
-                nsSetup_2 = new NSServiceSetup (test, nsProp_2, 2);
+                nsSetup_2 = new NSServiceSetup (nsProp_2, 2);
                 nsSetup_2.setUp();
                 log("++++ setting NameServer #2 - complete");
             }
@@ -186,36 +181,29 @@ public class NSFailoverTest extends TestCase
         }
     }
 
-    public void teardownMyServers(boolean svrOff_1, boolean svrOff_2)
+    public void teardownMyServers(boolean svrOff_1, boolean svrOff_2) throws Exception
     {
-        try
+        if (svrOff_1 == SVR_1_OFF && serverSetup_1 != null)
         {
-            if (svrOff_1 == SVR_1_OFF && serverSetup_1 != null)
-            {
-                serverSetup_1.tearDown();
-                serverSetup_1 = null;
-            }
-
-            if (svrOff_2 == SVR_1_OFF && serverSetup_2 != null)
-            {
-                serverSetup_2.tearDown();
-                serverSetup_2 = null;
-            }
+            serverSetup_1.tearDown();
+            serverSetup_1 = null;
         }
-        catch (Exception e)
+
+        if (svrOff_2 == SVR_1_OFF && serverSetup_2 != null)
         {
-            // ignore
+            serverSetup_2.tearDown();
+            serverSetup_2 = null;
         }
     }
 
-    public void setupMyServers(Test test, boolean serverOn_1, boolean serverOn_2)
+    public void setupMyServers(boolean serverOn_1, boolean serverOn_2)
     {
         if (serverOn_1 == SVR_1_ON && serverSetup_1 == null)
         {
             try
             {
                    log("++++ setting up NSFailoverTestServer 1");
-                    serverSetup_1 = new ServerSetup (test,
+                    serverSetup_1 = new ServerSetup (
                                         "org.jacorb.test.orb.orbreinvoke.NSFailoverTestServer",
                                         new String []
                                             {
@@ -250,7 +238,7 @@ public class NSFailoverTest extends TestCase
             try
             {
                 log("++++ setting up NSFailoverTestServer 2");
-                serverSetup_2 = new ServerSetup (test,
+                serverSetup_2 = new ServerSetup (
                                         "org.jacorb.test.orb.orbreinvoke.NSFailoverTestServer",
                                         new String []
                                             {
@@ -284,58 +272,14 @@ public class NSFailoverTest extends TestCase
         }
     }
 
-    public void teardownMyClient()
-    {
-        try
-        {
-            if (clientSetup != null)
-            {
-                clientSetup.tearDown();
-                clientSetup = null;
-                clientORB = null;
-            }
-        }
-        catch (Exception e)
-        {
-            //
-        }
-    }
-
-    public void setupMyClient(Test test)
-    {
-        try
-        {
-            if (clientProps == null)
-            {
-                // initialize client properties
-                clientProps = new Properties();
-                clientProps.setProperty ("jacorb.retries", "3");
-                clientProps.setProperty ("jacorb.retry_interval", "1000");
-                clientProps.setProperty ("jacorb.connection.client.connect_timeout","5000");
-                clientProps.setProperty ("jacorb.test.timeout.server", Long.toString(10000));
-                clientProps.setProperty(CommonSetup.JACORB_REGRESSION_DISABLE_SECURITY, "true");
-                clientProps.setProperty(CommonSetup.JACORB_REGRESSION_DISABLE_IMR, "true");
-            }
-            log("++++ setting client");
-            clientSetup = new ORBSetup (test, clientProps);
-            clientSetup.setUp();
-            clientORB = clientSetup.getORB();
-            assertTrue("clientORB is null", clientORB != null);
-            log("++++ setting client - complete");
-        }
-        catch (Exception e)
-        {
-            //
-        }
-    }
-
+    @Before
     public void setUp() throws Exception
     {
         try
         {
             // initiate NameServer's
-            setupMyNS(this, NS_1_ON, NS_2_ON);
-            setupMyServers(this, SVR_1_ON, SVR_2_ON);
+            setupMyNS(NS_1_ON, NS_2_ON);
+            setupMyServers(SVR_1_ON, SVR_2_ON);
         }
         catch (Exception e)
         {
@@ -348,7 +292,8 @@ public class NSFailoverTest extends TestCase
      * This test will ping the server #1 though the NameServer #1 and
      * ping the server #2 through the NameServer #2.
      */
-    public void test_ping()
+    @Test
+    public void test_1_ping()
     {
         org.jacorb.test.listenendpoints.echo_corbaloc.EchoMessage server_1 = null;
         org.jacorb.test.listenendpoints.echo_corbaloc.EchoMessage server_2 = null;
@@ -356,21 +301,18 @@ public class NSFailoverTest extends TestCase
         try
         {
             org.omg.CORBA.Object obj;
-            org.jacorb.orb.ORB orb = null;
             String result;
-            int cnt;
 
             log("++++ test_ping: ping server #1");
             String ior_1 = nsSetup_1.getServerIOR();
             assertTrue("test_ping: couldn't pickup server #1's IOR", ior_1 != null && ior_1.length() > 0);
-            setupMyClient(this);
 
-            String corbaloc1 = PrintIOR.printFullCorbalocIOR((org.jacorb.orb.ORB) clientORB, ior_1);
+            String corbaloc1 = PrintIOR.printFullCorbalocIOR(orb, ior_1);
             assertTrue("test_ping: couldn't generate corbaloc IOR using server #1's IOR", corbaloc1 != null && corbaloc1.length() > 0);
             int slash = corbaloc1.indexOf("/");
             int colon = corbaloc1.indexOf(":");
             String corbaname = "corbaname:" + corbaloc1.substring(colon+1, slash) + "#" + IMPLNAME + ".context";
-            obj = clientORB.string_to_object(corbaname);
+            obj = orb.string_to_object(corbaname);
             assertTrue("test_ping: couldn't generate server #1's obj using IOR: < " + corbaname + " >", obj != null);
             server_1 = org.jacorb.test.listenendpoints.echo_corbaloc.EchoMessageHelper.narrow(obj);
             result = server_1.echo_simple();
@@ -379,18 +321,16 @@ public class NSFailoverTest extends TestCase
             assertTrue("test_ping: got unexpected response from server #1: <" + result + ">",
                     result.startsWith("Simple greeting from"));
             log("++++ test_ping: ping server #1 - complete");
-            teardownMyClient();
 
             log("++++ test_ping: ping server #2");
             String ior_2 = nsSetup_2.getServerIOR();
             assertTrue("test_ping: couldn't pickup server #2's IOR", ior_2 != null && ior_2.length() > 0);
-            setupMyClient(this);
-            String corbaloc2 = PrintIOR.printFullCorbalocIOR((org.jacorb.orb.ORB) clientORB, ior_2);
+            String corbaloc2 = PrintIOR.printFullCorbalocIOR(orb, ior_2);
             assertTrue("test_ping: couldn't generate corbaloc IOR using server #1's IOR", corbaloc2 != null && corbaloc2.length() > 0);
             slash = corbaloc2.indexOf("/");
             colon = corbaloc2.indexOf(":");
             corbaname = "corbaname:" + corbaloc2.substring(colon+1, slash) + "#" + IMPLNAME + ".context";
-            obj = clientORB.string_to_object(corbaname);
+            obj = orb.string_to_object(corbaname);
             assertTrue("test_ping: couldn't generate server #2's obj using IOR: < " + ior_2 + " >", obj != null);
             server_2 = org.jacorb.test.listenendpoints.echo_corbaloc.EchoMessageHelper.narrow(obj);
             result = server_2.echo_simple();
@@ -414,7 +354,6 @@ public class NSFailoverTest extends TestCase
         {
             server_1 = null;
             server_2 = null;
-            teardownMyClient();
         }
     }
 
@@ -422,8 +361,10 @@ public class NSFailoverTest extends TestCase
      * This test checks out the fail-over logic which enables a client ORB to
      * reach an alternate NameService and server when the currently being used NameService is
      * no longer reachable.
+     * @throws Exception
      */
-    public void test_failover1()
+    @Test
+    public void test_2_failover() throws Exception
     {
         org.jacorb.test.listenendpoints.echo_corbaloc.EchoMessage server = null;
 
@@ -435,15 +376,13 @@ public class NSFailoverTest extends TestCase
             String ior_1 = nsSetup_1.getServerIOR();
             assertTrue("test_failover1: couldn't pickup server #1's IOR", ior_1 != null && ior_1.length() > 0);
             String ior_2 = nsSetup_2.getServerIOR();
-            setupMyClient(this);
             assertTrue("test_failover1: couldn't pickup server #2's IOR", ior_2 != null && ior_2.length() > 0);
-            String corbaloc1 = PrintIOR.printFullCorbalocIOR(clientORB, ior_1);
+            String corbaloc1 = PrintIOR.printFullCorbalocIOR(orb, ior_1);
             assertTrue("test_failover1: couldn't generate corbaloc IOR using server #1's IOR: < " +
                     ior_1 +" >", corbaloc1 != null && corbaloc1.length() > 0);
-            String corbaloc2 = PrintIOR.printFullCorbalocIOR(clientORB, ior_2);
+            String corbaloc2 = PrintIOR.printFullCorbalocIOR(orb, ior_2);
             assertTrue("test_failover1: couldn't generate corbaloc IOR using server #2's IOR: < " +
                     ior_2 +" >", corbaloc2 != null && corbaloc2.length() > 0);
-            teardownMyClient();
 
             int slash = corbaloc1.indexOf("/");
             int colon = corbaloc1.indexOf(":");
@@ -459,24 +398,21 @@ public class NSFailoverTest extends TestCase
 
             // Drop NameService #1 to force the client to go to NameService #2
             teardownMyNS(NS_1_OFF, NS_2_ON);
-            setupMyClient(this);
             log("++++ test_failover1: hailing a server using IOR: < " + combined_corbaname + " >");
-            obj = clientORB.string_to_object(combined_corbaname);
+            obj = orb.string_to_object(combined_corbaname);
             assertTrue("test_failover1: couldn't generate obj using combined corbaloc IOR: < " +
                     combined_corbaname + " >", obj != null);
             server = org.jacorb.test.listenendpoints.echo_corbaloc.EchoMessageHelper.narrow(obj);
             cnt = send_msg(5, "test_failover1", "hailing server at " + combined_corbaname, server);
                     assertTrue("test_failover1: got cnt=" + cnt + " (expected 5)", cnt == 5);
             log("++++ test_failover1: hailing a server using IOR - complete");
-            teardownMyClient();
 
             // Restore NameService #1 and drop NameService #2
             // This will force the client to go to NameService #1
             teardownMyNS(NS_1_OFF, NS_2_OFF);
-            setupMyNS(this, NS_1_ON, NS_2_OFF);
-            setupMyClient(this);
+            setupMyNS(NS_1_ON, NS_2_OFF);
             log("++++ test_failover1: hailing a server using IOR < " + combined_corbaname + " >");
-            obj = clientORB.string_to_object(combined_corbaname);
+            obj = orb.string_to_object(combined_corbaname);
             assertTrue("test_failover1: couldn't generate obj using IOR < " + combined_corbaname + " >", obj != null);
             server = org.jacorb.test.listenendpoints.echo_corbaloc.EchoMessageHelper.narrow(obj);
             cnt = send_msg(5, "test_failover1", "hailing server at " + combined_corbaname, server);
@@ -496,7 +432,6 @@ public class NSFailoverTest extends TestCase
         finally
         {
             server = null;
-            teardownMyClient();
         }
     }
 
@@ -505,7 +440,8 @@ public class NSFailoverTest extends TestCase
      * endpoints hoping to reach one of them.  Once an NameServer is reachable, the
      * data exchange will begin.
      */
-    public void test_failover2()
+    @Test
+    public void test_3_failover() throws Exception
     {
         org.jacorb.test.listenendpoints.echo_corbaloc.EchoMessage server = null;
         try
@@ -514,14 +450,12 @@ public class NSFailoverTest extends TestCase
             assertTrue("test_failover2: couldn't pickup server #1's IOR", ior_1 != null && ior_1.length() > 0);
             String ior_2 = nsSetup_2.getServerIOR();
             assertTrue("test_failover2: couldn't pickup server #2's IOR", ior_2 != null && ior_2.length() > 0);
-            setupMyClient(this);
-            String corbaloc1 = PrintIOR.printFullCorbalocIOR(clientORB, ior_1);
+            String corbaloc1 = PrintIOR.printFullCorbalocIOR(orb, ior_1);
             assertTrue("test_failover2: couldn't generate corbaloc IOR using server #1's IOR: < " +
                                 ior_1 +" >", corbaloc1 != null && corbaloc1.length() > 0);
-            String corbaloc2 = PrintIOR.printFullCorbalocIOR(clientORB, ior_2);
+            String corbaloc2 = PrintIOR.printFullCorbalocIOR(orb, ior_2);
             assertTrue("test_failover2: couldn't generate corbaloc IOR using server #2's IOR: < " +
                                 ior_2 +" >", corbaloc2 != null && corbaloc2.length() > 0);
-            teardownMyClient();
 
             int slash = corbaloc1.indexOf("/");
             int colon = corbaloc1.indexOf(":");
@@ -551,7 +485,7 @@ public class NSFailoverTest extends TestCase
                     NSFailoverTest.this.testComplete = false;
 
                     log("test_failover2: delayStart is starting NS");
-                    NSFailoverTest.this.setupMyNS(NSFailoverTest.this, NS_1_ON, NS_2_ON);
+                    NSFailoverTest.this.setupMyNS(NS_1_ON, NS_2_ON);
 
                     // then wait for a while for the test to complete.
                     // If it is not completed, then fail the test.
@@ -571,7 +505,7 @@ public class NSFailoverTest extends TestCase
                         }
 
                         if (! NSFailoverTest.this.testComplete) {
-                            NSFailoverTest.fail("test_failover2: should have been completed by now");
+                            fail("test_failover2: should have been completed by now");
                         }
                     }
                 }
@@ -584,9 +518,8 @@ public class NSFailoverTest extends TestCase
 
             // Drop both NameServices
             teardownMyNS(NS_1_OFF, NS_2_OFF);
-            setupMyClient(this);
 
-            org.omg.CORBA.Object obj = clientORB.string_to_object(combined_corbaname);
+            org.omg.CORBA.Object obj = orb.string_to_object(combined_corbaname);
             assertTrue("test_failover2: couldn't generate object reference for IOR < " +
                                         combined_corbaname + " >", obj != null);
             server = org.jacorb.test.listenendpoints.echo_corbaloc.EchoMessageHelper.narrow(obj);
@@ -600,23 +533,19 @@ public class NSFailoverTest extends TestCase
                 syncTest.notifyAll();
             }
         }
-
         catch (org.omg.CORBA.TRANSIENT e)
         {
             e.printStackTrace();
             fail("test_failover2: got a TRANSIENT exception: <" + e.getMessage() + ">");
         }
-
         catch (org.omg.CORBA.COMM_FAILURE e)
         {
             e.printStackTrace();
             fail("test_failover2: got a COMM_FAILURE exception: <" + e.getMessage() + ">");
         }
-
         finally
         {
             server = null;
-            teardownMyClient();
         }
     }
 
@@ -624,7 +553,8 @@ public class NSFailoverTest extends TestCase
      * This test uses an unknown object reference,
      * so it will be rejected with an exception.
      */
-    public void test_wrong_objref()
+    @Test
+    public void test_4_wrong_objref()
     {
         org.jacorb.test.listenendpoints.echo_corbaloc.EchoMessage server = null;
         try
@@ -632,15 +562,13 @@ public class NSFailoverTest extends TestCase
             String ior_1 = nsSetup_1.getServerIOR();
             assertTrue("test_wrong_objref: couldn't pickup server #1's IOR", ior_1 != null && ior_1.length() > 0);
             String ior_2 = nsSetup_2.getServerIOR();
-            setupMyClient(this);
             assertTrue("test_wrong_objref: couldn't pickup server #2's IOR", ior_2 != null && ior_2.length() > 0);
-            String corbaloc1 = PrintIOR.printFullCorbalocIOR(clientORB, ior_1);
+            String corbaloc1 = PrintIOR.printFullCorbalocIOR(orb, ior_1);
             assertTrue("test_wrong_objref: couldn't generate corbaloc IOR using server #1's IOR: < " +
                     ior_1 +" >", corbaloc1 != null && corbaloc1.length() > 0);
-            String corbaloc2 = PrintIOR.printFullCorbalocIOR(clientORB, ior_2);
+            String corbaloc2 = PrintIOR.printFullCorbalocIOR(orb, ior_2);
             assertTrue("test_wrong_objref: couldn't generate corbaloc IOR using server #2's IOR: < " +
                     ior_2 +" >", corbaloc2 != null && corbaloc2.length() > 0);
-            teardownMyClient();
 
             int slash = corbaloc1.indexOf("/");
             int colon = corbaloc1.indexOf(":");
@@ -652,8 +580,7 @@ public class NSFailoverTest extends TestCase
                                         corbaloc1.substring(colon+1, slash) + "," +
                                         corbaloc2.substring(colon2+1, slash2) + objref;
 
-            setupMyClient(this);
-            org.omg.CORBA.Object obj = clientORB.string_to_object(combined_corbaname);
+            org.omg.CORBA.Object obj = orb.string_to_object(combined_corbaname);
             assertTrue("test_wrong_objref: couldn't generate obj using IOR < " + combined_corbaname + " >", obj != null);
             server = org.jacorb.test.listenendpoints.echo_corbaloc.EchoMessageHelper.narrow(obj);
             assertTrue("test_wrong_objref: should have been rejected by the servers", server == null);
@@ -674,7 +601,6 @@ public class NSFailoverTest extends TestCase
         finally
         {
             server = null;
-            teardownMyClient();
         }
     }
 
@@ -682,15 +608,15 @@ public class NSFailoverTest extends TestCase
      * This test uses an invalid endpoint,
      * so it will be rejected with an exception.
      */
-    public void test_wrong_endpoint()
+    @Test
+    public void test_5_wrong_endpoint()
     {
         org.jacorb.test.listenendpoints.echo_corbaloc.EchoMessage server = null;
         try
         {
-            setupMyClient(this);
             String objref = "#" + IMPLNAME + ".context";
             String corbaname = "corbaname:iiop:255.255.254.253:12345" + objref;
-            org.omg.CORBA.Object obj = clientORB.string_to_object(corbaname);
+            org.omg.CORBA.Object obj = orb.string_to_object(corbaname);
             assertTrue("test_wrong_endpoint: couldn't generate obj < " + corbaname + " >", obj != null);
             server = org.jacorb.test.listenendpoints.echo_corbaloc.EchoMessageHelper.narrow(obj);
             assertTrue("test_wrong_endpoint: should have been rejected by the servers", server == null);
@@ -711,7 +637,6 @@ public class NSFailoverTest extends TestCase
         finally
         {
             server = null;
-            teardownMyClient();
         }
     }
 

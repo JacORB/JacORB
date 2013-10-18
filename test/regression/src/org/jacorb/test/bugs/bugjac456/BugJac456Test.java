@@ -20,9 +20,12 @@
 
 package org.jacorb.test.bugs.bugjac456;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import org.jacorb.orb.CDRInputStream;
 import org.jacorb.orb.CDROutputStream;
 import org.jacorb.test.common.ORBTestCase;
+import org.junit.Test;
 import org.omg.CORBA.portable.InputStream;
 import org.omg.CORBA.portable.OutputStream;
 
@@ -31,6 +34,7 @@ import org.omg.CORBA.portable.OutputStream;
  */
 public class BugJac456Test extends ORBTestCase
 {
+    @Test
     public void testAvailable() throws Exception
     {
         OutputStream out = orb.create_output_stream();
@@ -45,6 +49,7 @@ public class BugJac456Test extends ORBTestCase
         in.read_octet();
     }
 
+    @Test
     public void testMarshalUsingJacorbApi1()
     {
         CDROutputStream out = new CDROutputStream();
@@ -54,8 +59,11 @@ public class BugJac456Test extends ORBTestCase
         byte[] data = out.getBufferCopy();
         verifyDataUsingJacorbApi(data);
         verifyDataUsingPortableApi(data);
+
+        out.close();
     }
 
+    @Test
     public void testMarshalUsingJacorbApi2()
     {
         CDROutputStream out = new CDROutputStream(orb);
@@ -65,8 +73,11 @@ public class BugJac456Test extends ORBTestCase
         byte[] data = out.getBufferCopy();
         verifyDataUsingJacorbApi(data);
         verifyDataUsingPortableApi(data);
+
+        out.close();
     }
 
+    @Test
     public void testMarshalUsingPortableApi() throws Exception
     {
         OutputStream out = orb.create_output_stream();
@@ -88,6 +99,9 @@ public class BugJac456Test extends ORBTestCase
 
         CDRInputStream in2 = new CDRInputStream(data);
         assertEquals(1234, in2.read_long());
+
+        in.close();
+        in2.close();
     }
 
     private void verifyDataUsingPortableApi(byte[] data)

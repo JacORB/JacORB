@@ -20,36 +20,29 @@
 
 package org.jacorb.test.bugs.bug367;
 
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
 import java.util.Properties;
-import junit.framework.Test;
-import junit.framework.TestSuite;
-import org.jacorb.test.common.TestUtils;
 import org.jacorb.test.ir.AbstractIRServerTestCase;
 import org.jacorb.test.ir.IFRServerSetup;
+import org.junit.BeforeClass;
+import org.junit.Test;
 
 /**
  * @author Alphonse Bendt
  */
 public class BugJac367IRTest extends AbstractIRServerTestCase
 {
-    public BugJac367IRTest(String name, IFRServerSetup setup)
+    @BeforeClass
+    public static void beforeClassSetUp() throws Exception
     {
-        super(name, setup);
-    }
-
-    public static Test suite()
-    {
-        if (TestUtils.isJ2ME())
-        {
-            return new TestSuite();
-        }
-
         Properties props = new Properties();
         props.setProperty("jacorb.ir.patch_pragma_prefix", "on");
 
-        return AbstractIRServerTestCase.suite("irjac367.idl", BugJac367IRTest.class, new String[] {"-i2jpackage", "ir:org.jacorb.test.ir"}, props);
+        setup = new IFRServerSetup("irjac367.idl", new String[] {"-i2jpackage", "ir:org.jacorb.test.ir"}, props);
     }
 
+    @Test
     public void testServerStart() throws Exception
     {
         assertFalse(repository._non_existent());

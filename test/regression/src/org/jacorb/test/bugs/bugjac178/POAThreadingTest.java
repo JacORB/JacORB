@@ -20,14 +20,19 @@ package org.jacorb.test.bugs.bugjac178;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 import java.util.HashSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import junit.framework.Test;
-import junit.framework.TestSuite;
 import org.jacorb.test.common.ClientServerSetup;
 import org.jacorb.test.common.ClientServerTestCase;
-import org.jacorb.test.common.TestUtils;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
 
 /**
  * <code>POAThreadingTest</code> is a test for JAC178; test interleaving
@@ -48,41 +53,28 @@ public class POAThreadingTest extends ClientServerTestCase
      * @param name a <code>String</code> value
      * @param setup a <code>ClientServerSetup</code> value
      */
-    public POAThreadingTest(String name, ClientServerSetup setup)
-    {
-        super(name, setup);
-    }
-
     /**
      * <code>setUp</code> is the JUnit setup code.
      *
      * @exception Exception if an error occurs
      */
+    @Before
     public void setUp() throws Exception
     {
         server = JAC178Helper.narrow( setup.getServerObject() );
     }
 
-    protected void tearDown() throws Exception
+    @BeforeClass
+    public static void beforeClassSetUp() throws Exception
     {
-        server = null;
-    }
-
-    public static Test suite()
-    {
-        TestSuite suite = new TestSuite( "JAC178 client/server tests" );
-
-        ClientServerSetup setup = new ClientServerSetup( suite, "org.jacorb.test.bugs.bugjac178.JAC178Impl");
-
-        TestUtils.addToSuite(suite, setup, POAThreadingTest.class);
-
-        return setup;
+        setup = new ClientServerSetup("org.jacorb.test.bugs.bugjac178.JAC178Impl");
     }
 
 
     /**
      * <code>test_single</code> tests the single thread child poa.
      */
+    @Test
     public void test_single() throws Exception
     {
         String[] strings = runThreadTest("Single");
@@ -133,6 +125,7 @@ public class POAThreadingTest extends ClientServerTestCase
     /**
      * <code>test_multiple</code> tests the multiple thread child poa.
      */
+    @Test
     public void test_multiple() throws Exception
     {
         String[] result = runThreadTest("Multiple");

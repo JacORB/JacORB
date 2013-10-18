@@ -22,29 +22,27 @@
 package org.jacorb.test.jmx;
 
 import java.util.Properties;
-import junit.framework.Test;
-import junit.framework.TestSuite;
-import org.jacorb.test.common.TestUtils;
+import org.junit.BeforeClass;
+import org.junit.Ignore;
+import org.junit.Test;
 
 public class JmxSunJacorbTest extends AbstractJMXTestCase
 {
-    public JmxSunJacorbTest(String name, JMXClientServerSetup setup)
-    {
-        super(name, setup);
-    }
-
-    public static Test suite()
+    @BeforeClass
+    public static void beforeClassSetUp() throws Exception
     {
         Properties props = new Properties();
         props.put ("org.omg.CORBA.ORBClass",
                    "com.sun.corba.se.impl.orb.ORBImpl");
         props.put ("org.omg.CORBA.ORBSingletonClass",
                    "com.sun.corba.se.impl.orb.ORBSingleton");
-        TestSuite suite = new TestSuite();
-        JMXClientServerSetup setup = new JMXClientServerSetup(suite, props, new Properties());
+        jmxSetup = new JMXClientServerSetup( props, null);
+    }
 
-        TestUtils.addToSuite(suite, setup, JmxSunJacorbTest.class);
-
-        return setup;
+    @Ignore
+    @Test
+    public void testAccessRemoteMBean() throws Exception
+    {
+        super.testAccessRemoteMBean();;
     }
 }

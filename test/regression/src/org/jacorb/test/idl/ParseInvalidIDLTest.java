@@ -22,8 +22,13 @@
 package org.jacorb.test.idl;
 
 import java.io.File;
-import junit.framework.Test;
+import java.io.FilenameFilter;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 import org.jacorb.test.common.TestUtils;
+import org.junit.Test;
+import org.junit.runners.Parameterized.Parameters;
 
 /**
  * this test will try to process all idl files included
@@ -33,25 +38,41 @@ import org.jacorb.test.common.TestUtils;
  *
  * @author Alphonse Bendt
  */
+
 public class ParseInvalidIDLTest extends AbstractIDLTestcase
 {
-    public ParseInvalidIDLTest(File file)
+    final static String IDL = TestUtils.testHome() + "/idl/compiler/fail";
+
+    @Parameters(name="{index} : {0}")
+    public static Collection<Object[]> data()
     {
-        super("testParseInvalidIDLFails", file);
+        List<Object[]> params = new ArrayList<Object[]>();
+        File fileNames[] = new File(IDL).listFiles(new FilenameFilter()
+        {
+            public boolean accept(File dir, String name)
+            {
+                return name.endsWith(".idl");
+            }
+        });
+
+        for (File file : fileNames) {
+            params.add(new Object[] { file });
+        }
+        return params;
     }
 
+    public ParseInvalidIDLTest(File file)
+    {
+        super(file);
+    }
+
+    @Test
     public void testParseInvalidIDLFails() throws Exception
     {
-        runJacIDL(true, false);
+        runJacIDL(true);
         // if a test fails the directory
         // will not be deleted. this way
         // the contents can be inspected.
         TestUtils.deleteRecursively(dirGeneration);
-    }
-
-    public static Test suite()
-    {
-        final String dir = TestUtils.testHome() + "/idl/compiler/fail";
-        return suite(dir, ParseInvalidIDLTest.class);
     }
 }

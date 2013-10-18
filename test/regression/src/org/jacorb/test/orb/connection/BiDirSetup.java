@@ -1,7 +1,6 @@
 package org.jacorb.test.orb.connection;
 
 import java.util.Properties;
-import junit.framework.Test;
 import org.jacorb.test.common.ClientServerSetup;
 import org.omg.BiDirPolicy.BIDIRECTIONAL_POLICY_TYPE;
 import org.omg.BiDirPolicy.BOTH;
@@ -19,20 +18,15 @@ import org.omg.PortableServer.POA;
  */
 public class BiDirSetup extends ClientServerSetup
 {
-    private POA biDirPOA;
+    protected POA biDirPOA;
 
-    public BiDirSetup (Test test,
-                       Properties clientProperties,
-                       Properties serverProperties)
+    public BiDirSetup (Properties clientProperties,
+                       Properties serverProperties) throws Exception
     {
-        super(test,
-              "org.jacorb.test.orb.connection.BiDirServerImpl",
+        super("org.jacorb.test.orb.connection.BiDirServerImpl",
               "org.jacorb.test.orb.connection.BiDirServerImpl",
               clientProperties, serverProperties);
-    }
 
-    protected void doSetUp() throws Exception
-    {
         ORB clientOrb = getClientOrb();
         POA clientRootPOA = getClientRootPOA();
 
@@ -55,12 +49,6 @@ public class BiDirSetup extends ClientServerSetup
                                              clientRootPOA.the_POAManager(),
                                              policies );
         biDirPOA.the_POAManager().activate();
-    }
-
-    protected void doTearDown() throws Exception
-    {
-        biDirPOA.destroy(false, true);
-        biDirPOA = null;
     }
 
     public POA getBiDirPOA()

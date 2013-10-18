@@ -21,11 +21,12 @@ package org.jacorb.test.orb.etf;
  *   MA 02110-1301, USA.
  */
 
+import static org.junit.Assert.assertTrue;
 import java.util.Properties;
-import junit.framework.Test;
-import junit.framework.TestSuite;
 import org.jacorb.test.common.ClientServerSetup;
 import org.jacorb.test.orb.etf.wiop.WIOPFactories;
+import org.junit.BeforeClass;
+import org.junit.Test;
 
 /**
  * A test that uses IIOP/WIOP on the client side and WIOP/IIOP on the
@@ -36,15 +37,9 @@ import org.jacorb.test.orb.etf.wiop.WIOPFactories;
  */
 public class C_IIOP_WIOP_S_WIOP_IIOPTest extends AbstractWIOPTestCase
 {
-    public C_IIOP_WIOP_S_WIOP_IIOPTest (String name, ClientServerSetup setup)
+    @BeforeClass
+    public static void beforeClassSetUp() throws Exception
     {
-        super (name, setup);
-    }
-
-    public static Test suite()
-    {
-        TestSuite suite = new TestSuite ("Client IIOP WIOP Server WIOP IIOP");
-
         Properties clientProps = new Properties();
         clientProps.setProperty("jacorb.transport.factories",
                                 "org.jacorb.orb.iiop.IIOPFactories," +
@@ -59,16 +54,12 @@ public class C_IIOP_WIOP_S_WIOP_IIOPTest extends AbstractWIOPTestCase
                                 "org.jacorb.test.orb.etf.wiop.WIOPFactories,"
                               + "org.jacorb.orb.iiop.IIOPFactories");
 
-        ClientServerSetup setup =
-          new ClientServerSetup (suite,
+        setup = new ClientServerSetup(
                                  "org.jacorb.test.orb.BasicServerImpl",
                                  clientProps, serverProps);
-
-        suite.addTest (new C_IIOP_WIOP_S_WIOP_IIOPTest ("testConnection", setup));
-
-        return setup;
     }
 
+    @Test
     public void testConnection()
     {
         server.ping();

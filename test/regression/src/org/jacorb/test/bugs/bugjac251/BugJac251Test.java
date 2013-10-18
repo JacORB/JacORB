@@ -20,11 +20,11 @@ package org.jacorb.test.bugs.bugjac251;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import junit.framework.Test;
-import junit.framework.TestSuite;
 import org.jacorb.test.common.ClientServerSetup;
 import org.jacorb.test.common.ClientServerTestCase;
-import org.jacorb.test.common.TestUtils;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
 import org.omg.CORBA.Any;
 
 /**
@@ -45,24 +45,16 @@ public class BugJac251Test extends ClientServerTestCase
      * @param name a <code>String</code> value
      * @param setup a <code>ClientServerSetup</code> value
      */
-    public BugJac251Test (String name, ClientServerSetup setup)
-    {
-        super(name, setup);
-    }
 
     /**
      * <code>setUp</code> is used by Junit for initialising the tests.
      *
      * @exception Exception if an error occurs
      */
+    @Before
     public void setUp() throws Exception
     {
         server = JAC251Helper.narrow( setup.getServerObject() );
-    }
-
-    protected void tearDown() throws Exception
-    {
-        server = null;
     }
 
     /**
@@ -70,16 +62,10 @@ public class BugJac251Test extends ClientServerTestCase
      *
      * @return a <code>Test</code> value
      */
-    public static Test suite()
+    @BeforeClass
+    public static void beforeClassSetUp() throws Exception
     {
-        TestSuite suite = new TestSuite( "DynAny Tests" );
-
-        ClientServerSetup setup = new ClientServerSetup
-            (suite, JAC251Impl.class.getName());
-
-        TestUtils.addToSuite(suite, setup, BugJac251Test.class);
-
-        return setup;
+        setup = new ClientServerSetup(JAC251Impl.class.getName());
     }
 
 
@@ -87,6 +73,7 @@ public class BugJac251Test extends ClientServerTestCase
      * <code>test_dynstruct</code> ensures we do not get a MARSHAL exception
      * when using DynamicAnys on the server side.
      */
+    @Test
     public void test_dynstruct()
     {
         org.omg.CORBA.ORB orb = setup.getClientOrb();
@@ -117,6 +104,7 @@ public class BugJac251Test extends ClientServerTestCase
      * <code>test_dynarray</code> ensures we do not get a MARSHAL exception
      * when using DynamicAnys on the server side.
      */
+    @Test
     public void test_dynarray()
     {
         org.omg.CORBA.ORB orb = setup.getClientOrb();
@@ -142,6 +130,7 @@ public class BugJac251Test extends ClientServerTestCase
      * <code>test_dynunion</code> ensures we do not get a MARSHAL exception
      * when using DynamicAnys on the server side.
      */
+    @Test
     public void test_dynunion()
     {
         org.omg.CORBA.ORB orb = setup.getClientOrb();

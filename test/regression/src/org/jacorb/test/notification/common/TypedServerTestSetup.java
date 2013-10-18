@@ -22,59 +22,17 @@
 package org.jacorb.test.notification.common;
 
 import java.util.Properties;
-import junit.extensions.TestSetup;
-import junit.framework.Test;
 import org.jacorb.test.common.ClientServerSetup;
-import org.jacorb.test.common.CommonSetup;
-import org.jacorb.test.common.TestUtils;
-import org.jacorb.test.ir.IFRServerSetup;
-import org.omg.CORBA.ORB;
-import org.omg.CORBA.Object;
 
 /**
  * setup class for TypedEventChannel integration tests.
  *
  * @author Alphonse Bendt
  */
-public class TypedServerTestSetup extends TestSetup
+public class TypedServerTestSetup extends ClientServerSetup
 {
-    private final static String IGNORED = "ignored";
-
-    private ClientServerSetup clientServerSetup;
-    private IFRServerSetup ifrSetup;
-
-    public TypedServerTestSetup(Test test)
+    public TypedServerTestSetup(Properties props) throws Exception
     {
-    	super(test);
+        super(TypedServerTestRunner.class.getName(), "IGNORED", props, props);
     }
-
-    public void setUp() throws Exception
-    {
-    	ifrSetup = new IFRServerSetup(fTest, TestUtils.testHome() + "/idl/TypedNotification.idl", null, null);
-
-    	ifrSetup.setUp();
-
-    	Properties props = new Properties();
-    	props.setProperty("ORBInitRef.InterfaceRepository", ifrSetup.getRepository().toString());
-        // FIXME: bugzilla #820 - disabled security for some regression tests
-    	props.setProperty (CommonSetup.JACORB_REGRESSION_DISABLE_SECURITY, "true");
-    	clientServerSetup = new ClientServerSetup(fTest, TypedServerTestRunner.class.getName(), IGNORED, props, props);
-    	clientServerSetup.setUp();
-    }
-
-    public void tearDown() throws Exception
-    {
-    	clientServerSetup.tearDown();
-    	ifrSetup.tearDown();
-    }
-
-	public Object getServerObject()
-	{
-		return clientServerSetup.getServerObject();
-	}
-
-	public ORB getClientOrb()
-	{
-		return clientServerSetup.getClientOrb();
-	}
 }

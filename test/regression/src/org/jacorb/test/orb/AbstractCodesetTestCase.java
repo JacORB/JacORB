@@ -20,37 +20,27 @@ package org.jacorb.test.orb;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import java.util.Properties;
-import junit.framework.Test;
-import junit.framework.TestSuite;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 import org.jacorb.orb.CDRInputStream;
 import org.jacorb.orb.CDROutputStream;
-import org.jacorb.orb.giop.CodeSet;
 import org.jacorb.test.CodesetServer;
 import org.jacorb.test.CodesetServerHelper;
-import org.jacorb.test.common.ClientServerSetup;
 import org.jacorb.test.common.ClientServerTestCase;
+import org.junit.Before;
+import org.junit.Test;
 
 /**
- * <code>CodesetTest</code> is the Junit client implementation to test
+ * <code>AbstractCodesetTestCase</code> is the Junit client implementation to test
  * codeset translations.
  *
  * @author <a href="mailto:rnc@prismtechnologies.com"></a>
  * @version 1.0
  */
-public class CodesetTest extends ClientServerTestCase
+public abstract class AbstractCodesetTestCase extends ClientServerTestCase
 {
-    /**
-     * The <code>server</code> reference.
-     */
-    private CodesetServer server;
-    /**
-     * <code>configuration</code> denotes whether if
-     * equal to one then codeset is disabled
-     * equal to two then codeset is enabled
-     */
-    private int configuration;
-
+    protected static enum Mode { CODESET_ON, CODESET_OFF };
 
     // These constants are used during testing.
     /**
@@ -118,118 +108,37 @@ public class CodesetTest extends ClientServerTestCase
      */
     public static final char[] HANGUL_ARRAY = new char[]{'\u1122','A','\u1123'};
 
+    /**
+     * The <code>server</code> reference.
+     */
+    protected CodesetServer server;
 
     /**
-     * Creates a new <code>CodesetTest</code> instance.
-     *
-     * @param name a <code>String</code> value
-     * @param setup a <code>ClientServerSetup</code> value
-     * @param codeset a <code>boolean</code> value
+     * <code>configuration</code> denotes whether if
+     * equal to one then codeset is disabled
+     * equal to two then codeset is enabled
      */
-    public CodesetTest(String name, ClientServerSetup setup, int config)
-    {
-        super(name, setup);
+    protected Mode configuration;;
 
-        configuration = config;
-    }
+
+
 
     /**
      * <code>setUp</code> is used by Junit for initialising the tests.
      *
      * @exception Exception if an error occurs
      */
+    @Before
     public void setUp() throws Exception
     {
         server = CodesetServerHelper.narrow( setup.getServerObject() );
     }
 
-    protected void tearDown() throws Exception
-    {
-        server = null;
-    }
-
-    public static Test suite()
-    {
-        TestSuite suite = new TestSuite("Codeset tests");
-
-        suite.addTest(suite(1));
-        suite.addTest(suite(2));
-
-        return suite;
-    }
-
-    /**
-     * <code>suite</code> sets up the server/client tests.
-     *
-     * @param config a <code>int</code> value
-     * @return a <code>Test</code> value
-     */
-    private static Test suite(int config)
-    {
-        TestSuite suite = new TestSuite( "Client/server codeset tests" );
-
-        if (!CodeSet.getTCSDefault().getName().equals( "UTF8" ))
-        {
-            System.err.println
-                ("WARNING - TESTS ARE NOT RUNNING WITH UTF8 - THEY MAY NOT PASS.");
-        }
-
-        Properties client_props = new Properties();
-        Properties server_props = new Properties();
-    
-	client_props.setProperty ("jacorb.native_char_codeset", "utf8");
-	server_props.setProperty ("jacorb.native_char_codeset", "utf8");
-        if (config == 1)
-        {
-            client_props.setProperty ("jacorb.codeset", "off");
-            server_props.setProperty ("jacorb.codeset", "off");
-        }
-        else if (config == 2)
-        {
-            client_props.setProperty ("jacorb.codeset", "on");
-            server_props.setProperty ("jacorb.codeset", "on");
-        }
-        else
-        {
-            throw new IllegalArgumentException();
-        }
-
-        server_props.setProperty ("jacorb.logfile.append", "on");
-
-
-        ClientServerSetup setup =
-        new ClientServerSetup( suite,
-                               "org.jacorb.test.orb.CodesetServerImpl",
-                               client_props,
-                               server_props);
-
-
-        suite.addTest( new CodesetTest( "test_pass_in_char1", setup, config) );
-        suite.addTest( new CodesetTest( "test_pass_in_char2", setup, config ) );
-        suite.addTest( new CodesetTest( "test_pass_in_char3", setup, config ) );
-        suite.addTest( new CodesetTest( "test_pass_in_char4", setup, config ) );
-
-        suite.addTest( new CodesetTest( "test_pass_in_string1", setup, config ) );
-        suite.addTest( new CodesetTest( "test_pass_in_string2", setup, config ) );
-        suite.addTest( new CodesetTest( "test_pass_in_string3", setup, config ) );
-        suite.addTest( new CodesetTest( "test_pass_in_string4", setup, config ) );
-        suite.addTest( new CodesetTest( "test_pass_in_string5", setup, config ) );
-        suite.addTest( new CodesetTest( "test_pass_in_string6", setup, config ) );
-
-        suite.addTest( new CodesetTest( "test_pass_in_char_array1", setup, config) );
-        suite.addTest( new CodesetTest( "test_pass_in_char_array2", setup, config) );
-        suite.addTest( new CodesetTest( "test_pass_in_char_array3", setup, config) );
-        suite.addTest( new CodesetTest( "test_pass_in_char_array4", setup, config) );
-        suite.addTest( new CodesetTest( "test_pass_in_char_array5", setup, config) );
-
-        return setup;
-    }
-
-
     /**
      * <code>test_pass_in_char1</code> tests characters regardless of codeset
      * translation settings.
      */
+    @Test
     public void test_pass_in_char1()
     {
         // This should always pass whether or not codeset translation is on.
@@ -242,6 +151,7 @@ public class CodesetTest extends ClientServerTestCase
      * <code>test_pass_in_char2</code> tests characters regardless of codeset
      * translation settings.
      */
+    @Test
     public void test_pass_in_char2()
     {
         // This should always pass whether or not codeset translation is on.
@@ -253,6 +163,7 @@ public class CodesetTest extends ClientServerTestCase
      * <code>test_pass_in_char3</code> tests characters regardless of codeset
      * translation settings.
      */
+    @Test
     public void test_pass_in_char3()
     {
         // This should always pass whether or not codeset translation is on.
@@ -264,6 +175,7 @@ public class CodesetTest extends ClientServerTestCase
      * <code>test_pass_in_char4</code> tests characters regardless of codeset
      * translation settings.
      */
+    @Test
     public void test_pass_in_char4()
     {
         // This should always fail as it is out of range for char.
@@ -288,9 +200,10 @@ public class CodesetTest extends ClientServerTestCase
      * <code>test_pass_in_string1</code> tests strings with and without codeset
      * translation.
      */
+    @Test
     public void test_pass_in_string1()
     {
-        if( configuration == 2)
+        if( configuration == Mode.CODESET_ON)
         {
             assertTrue (server.pass_in_string( "UNI1", UNI1 ));
         }
@@ -305,9 +218,10 @@ public class CodesetTest extends ClientServerTestCase
      * <code>test_pass_in_string2</code> tests strings with and without codeset
      * translation.
      */
+    @Test
     public void test_pass_in_string2()
     {
-        if( configuration == 2)
+        if( configuration == Mode.CODESET_ON)
         {
             assertTrue (server.pass_in_string( "UNI2", UNI2 ));
         }
@@ -322,6 +236,7 @@ public class CodesetTest extends ClientServerTestCase
      * <code>test_pass_in_string3</code> tests strings regardless of codeset
      * translation settings.
      */
+    @Test
     public void test_pass_in_string3()
     {
         // This should always pass whether or not codeset translation is on.
@@ -333,6 +248,7 @@ public class CodesetTest extends ClientServerTestCase
      * <code>test_pass_in_string4</code> tests strings regardless of codeset
      * translation settings.
      */
+    @Test
     public void test_pass_in_string4()
     {
         // This should always pass whether or not codeset translation is on.
@@ -344,9 +260,10 @@ public class CodesetTest extends ClientServerTestCase
      * <code>test_pass_in_string5</code> tests strings with and without codeset
      * translation.
      */
+    @Test
     public void test_pass_in_string5()
     {
-        if( configuration == 2)
+        if( configuration == Mode.CODESET_ON)
         {
             assertTrue (server.pass_in_string( "HANGUL", HANGUL ));
         }
@@ -361,6 +278,7 @@ public class CodesetTest extends ClientServerTestCase
      * <code>test_pass_in_string6</code> tests strings with and without codeset
      * translation invoking the CDRStream layer directly.
      */
+    @Test
     public void test_pass_in_string6()
     {
         org.omg.CORBA.ORB myorb = setup.getClientOrb();
@@ -373,7 +291,7 @@ public class CodesetTest extends ClientServerTestCase
 
         String result = t2.read_string();
 
-        if( configuration == 2)
+        if( configuration == Mode.CODESET_ON)
         {
             assertTrue (UNI1.equals (result));
         }
@@ -381,6 +299,9 @@ public class CodesetTest extends ClientServerTestCase
         {
             assertFalse (UNI1.equals (result));
         }
+
+        t1.close();
+        t2.close();
     }
 
 
@@ -389,6 +310,7 @@ public class CodesetTest extends ClientServerTestCase
      * <code>test_pass_in_char_array1</code> tests character arrays regardless
      * of codeset translation settings.
      */
+    @Test
     public void test_pass_in_char_array1()
     {
         // This should always pass whether or not codeset translation is on.
@@ -401,6 +323,7 @@ public class CodesetTest extends ClientServerTestCase
      * <code>test_pass_in_char_array2</code> tests character arrays regardless
      * of codeset translation settings.
      */
+    @Test
     public void test_pass_in_char_array2()
     {
         assertTrue (server.pass_in_char_array( "LATIN_ARRAY", LATIN_ARRAY ));
@@ -411,6 +334,7 @@ public class CodesetTest extends ClientServerTestCase
      * <code>test_pass_in_char_array3</code> tests character arrays with and without
      * codeset translation.
      */
+    @Test
     public void test_pass_in_char_array3()
     {
         try
@@ -435,6 +359,7 @@ public class CodesetTest extends ClientServerTestCase
      * <code>test_pass_in_char_array4</code> tests character arrays with and without
      * codeset translation.
      */
+    @Test
     public void test_pass_in_char_array4()
     {
         try
@@ -459,6 +384,7 @@ public class CodesetTest extends ClientServerTestCase
      * <code>test_pass_in_char_array5</code> tests character arrays with and without
      * codeset translation.
      */
+    @Test
     public void test_pass_in_char_array5()
     {
         try

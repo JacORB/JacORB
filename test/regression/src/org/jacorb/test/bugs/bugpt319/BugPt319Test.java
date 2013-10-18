@@ -20,11 +20,13 @@ package org.jacorb.test.bugs.bugpt319;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
+import static org.junit.Assert.assertTrue;
 import java.util.Properties;
-import junit.framework.Test;
-import junit.framework.TestSuite;
 import org.jacorb.test.common.ClientServerSetup;
 import org.jacorb.test.common.ClientServerTestCase;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 
 
 /**
@@ -55,29 +57,26 @@ public class BugPt319Test extends ClientServerTestCase
     private PT319 server;
 
 
-    /**
-     * <code>TestCase</code> is used by Junit.
-     *
-     * @param name a <code>String</code> value
-     * @param setup a <code>ClientServerSetup</code> value
-     */
-    public BugPt319Test(String name, ClientServerSetup setup)
-    {
-        super(name, setup);
-    }
-
-
-    /**
-     * <code>setUp</code> is called by Junit. It resets private fields within
-     * the CDRStreams.
-     *
-     * @exception Exception if an error occurs
-     */
+    @Before
     public void setUp() throws Exception
     {
         MutatorImpl.totalIncomingObjects = 0;
         MutatorImpl.totalOutgoingObjects = 0;
 
+        Properties props = new Properties();
+
+        if (name.getMethodName().equals("test_mutate"))
+        {
+            props.put("jacorb.iormutator",
+                      "org.jacorb.test.bugs.bugpt319.MutatorImpl");
+        }
+
+        setup = new ClientServerSetup
+        (
+            "org.jacorb.test.bugs.bugpt319.PT319Impl",
+            props,
+            props
+        );
         server = PT319Helper.narrow( setup.getServerObject() );
     }
 
@@ -87,51 +86,14 @@ public class BugPt319Test extends ClientServerTestCase
      *
      * @exception Exception if an error occurs
      */
+    @After
     public void tearDown() throws Exception
     {
         MutatorImpl.totalIncomingObjects = 0;
         MutatorImpl.totalOutgoingObjects = 0;
 
-        server = null;
-    }
-
-
-    /**
-     * <code>suite</code> is called by JUnit.
-     *
-     * @param doMutate a <code>boolean</code> value
-     * @return a <code>Test</code> value
-     */
-    private static Test suite(boolean doMutate)
-    {
-        Properties props = new Properties();
-
-        if (doMutate)
-        {
-            props.put("jacorb.iormutator",
-                      "org.jacorb.test.bugs.bugpt319.MutatorImpl");
-        }
-
-        TestSuite suite = new TestSuite( "IORMutator tests" );
-
-        ClientServerSetup setup = new ClientServerSetup
-        (
-            suite,
-            "org.jacorb.test.bugs.bugpt319.PT319Impl",
-            props,
-            props
-        );
-
-        if (doMutate)
-        {
-            suite.addTest( new BugPt319Test( "test_mutate", setup));
-        }
-        else
-        {
-            suite.addTest( new BugPt319Test( "test_nomutate", setup));
-        }
-
-        return setup;
+        setup.tearDown();
+        server._release();;
     }
 
 
@@ -139,6 +101,7 @@ public class BugPt319Test extends ClientServerTestCase
      * <code>test_mutate</code> tests the mutator.
      *
      */
+    @Test
     public void test_mutate()
     {
         org.omg.CORBA.Object obj = server.getObject
@@ -160,6 +123,7 @@ public class BugPt319Test extends ClientServerTestCase
      * it is disabled.
      *
      */
+    @Test
     public void test_nomutate()
     {
         org.omg.CORBA.Object obj = server.getObject
@@ -172,16 +136,5 @@ public class BugPt319Test extends ClientServerTestCase
             "Should return demo ior with no mutate",
             DEMOIOR.equals (setup.getClientOrb().object_to_string(obj))
         );
-    }
-
-
-    public static Test suite()
-    {
-        TestSuite suite = new TestSuite();
-
-        suite.addTest(suite(true));
-        suite.addTest(suite(false));
-
-        return suite;
     }
 }

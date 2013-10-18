@@ -23,13 +23,8 @@ package org.jacorb.test.bugs.bugjac488;
 
 public class PingReceiverImpl extends PingReceiverPOA
 {
-
-   private static int counter = 0;
-
-
    public void ping ()
    {
-      counter++;
       System.out.println ("ping() invoked");
    }
 

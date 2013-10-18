@@ -1,8 +1,8 @@
 package org.jacorb.test.bugs.bugjac235;
 
 //import java.io.*;
-import org.jacorb.test.common.ClientServerSetup;
 import org.jacorb.test.common.ClientServerTestCase;
+import org.junit.Before;
 import org.omg.CORBA.Any;
 import org.omg.CORBA.ORB;
 import org.omg.CORBA.Policy;
@@ -32,22 +32,12 @@ public class AbstractTestCase extends ClientServerTestCase
     protected JAC235 server;
     protected ORB orb;
 
-    public AbstractTestCase (String name, ClientServerSetup setup)
-    {
-        super (name, setup);
-    }
-
-    protected final void setUp() throws Exception
+    @Before
+    public void setUp() throws Exception
     {
         server = JAC235Helper.narrow(setup.getServerObject());
 
         orb = setup.getClientOrb();
-    }
-
-    protected final void tearDown() throws Exception
-    {
-        server = null;
-        orb = null;
     }
 
     protected void setServerPolicy() throws PolicyError
@@ -62,7 +52,7 @@ public class AbstractTestCase extends ClientServerTestCase
 
 
         // set the sync scope policy on an object reference
-        server = JAC235Helper.narrow( 
+        server = JAC235Helper.narrow(
         server._set_policy_override( new Policy[] {syncPolicy},
                 SetOverrideType.ADD_OVERRIDE ) );
     }

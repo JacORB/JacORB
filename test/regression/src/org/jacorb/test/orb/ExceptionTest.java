@@ -1,7 +1,7 @@
 package org.jacorb.test.orb;
 
-import junit.framework.Test;
-import junit.framework.TestSuite;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 import org.jacorb.test.ExceptionServer;
 import org.jacorb.test.ExceptionServerHelper;
 import org.jacorb.test.MyUserException;
@@ -9,7 +9,10 @@ import org.jacorb.test.MyUserExceptionHelper;
 import org.jacorb.test.NonEmptyException;
 import org.jacorb.test.common.ClientServerSetup;
 import org.jacorb.test.common.ClientServerTestCase;
-import org.jacorb.test.common.TestUtils;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
 
 /**
  * This class gathers all sorts of exception-related tests.
@@ -19,30 +22,24 @@ public class ExceptionTest extends ClientServerTestCase
 {
     private ExceptionServer server;
 
-    public ExceptionTest(String name, ClientServerSetup setup)
-    {
-        super(name, setup);
-    }
-
+    @Before
     public void setUp() throws Exception
     {
         server = ExceptionServerHelper.narrow( setup.getServerObject() );
     }
 
-    protected void tearDown() throws Exception
+    @After
+    public void tearDown() throws Exception
     {
         Thread.sleep(1000);
         server = null;
     }
 
-    public static Test suite()
+    @BeforeClass
+    public static void beforeClassSetUp() throws Exception
     {
-        TestSuite suite = new TestSuite("Client/server exception tests");
-        ClientServerSetup setup = new ClientServerSetup(suite, ExceptionServerImpl.class.getName());
+        setup = new ClientServerSetup(ExceptionServerImpl.class.getName());
 
-        TestUtils.addToSuite(suite, setup, ExceptionTest.class);
-
-        return setup;
     }
 
     /**
@@ -95,6 +92,7 @@ public class ExceptionTest extends ClientServerTestCase
         }
     }
 
+    @Test
     public void testUserExceptionWithData()
     {
         try

@@ -21,13 +21,16 @@ package org.jacorb.test.notification;
  *
  */
 
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import junit.framework.Test;
 import org.jacorb.test.notification.common.NotificationTestUtils;
 import org.jacorb.test.notification.common.NotifyServerTestCase;
-import org.jacorb.test.notification.common.NotifyServerTestSetup;
+import org.junit.Before;
+import org.junit.Test;
 import org.omg.CORBA.Any;
 import org.omg.CORBA.IntHolder;
 import org.omg.CosEventComm.Disconnected;
@@ -72,36 +75,38 @@ public class QoSTest extends NotifyServerTestCase
 
     Any falseAny;
 
-    public void setUpTest() throws Exception
+    @Before
+    public void setUp() throws Exception
     {
-        trueAny = getClientORB().create_any();
+        trueAny = setup.getClientOrb().create_any();
         trueAny.insert_boolean(true);
 
-        falseAny = getClientORB().create_any();
+        falseAny = setup.getClientOrb().create_any();
         falseAny.insert_boolean(false);
 
-        fifoOrder = getClientORB().create_any();
+        fifoOrder = setup.getClientOrb().create_any();
         fifoOrder.insert_short(FifoOrder.value);
 
-        lifoOrder = getClientORB().create_any();
+        lifoOrder = setup.getClientOrb().create_any();
         lifoOrder.insert_short(LifoOrder.value);
 
-        deadlineOrder = getClientORB().create_any();
+        deadlineOrder = setup.getClientOrb().create_any();
         deadlineOrder.insert_short(DeadlineOrder.value);
 
-        priorityOrder = getClientORB().create_any();
+        priorityOrder = setup.getClientOrb().create_any();
         priorityOrder.insert_short(PriorityOrder.value);
 
-        anyOrder = getClientORB().create_any();
+        anyOrder = setup.getClientOrb().create_any();
         anyOrder.insert_short(AnyOrder.value);
 
-        bestEffort = getClientORB().create_any();
+        bestEffort = setup.getClientOrb().create_any();
         bestEffort.insert_short(BestEffort.value);
 
-        persistent = getClientORB().create_any();
+        persistent = setup.getClientOrb().create_any();
         persistent.insert_short(Persistent.value);
     }
 
+    @Test
     public void testCreate_QueueSettings() throws Exception
     {
         IntHolder channelId = new IntHolder();
@@ -114,6 +119,7 @@ public class QoSTest extends NotifyServerTestCase
         getEventChannelFactory().create_channel(qosProps, new Property[0], channelId);
     }
 
+    @Test
     public void testCreate_Reliability() throws Exception
     {
         IntHolder channelId = new IntHolder();
@@ -143,6 +149,7 @@ public class QoSTest extends NotifyServerTestCase
      * ascending priority into a channel that was setup with OrderPolicy=PriorityOrder. A Consumer
      * receives and checks if the Events are delivered in descending Priority order.
      */
+    @Test
     public void testPriorityOrder() throws Exception
     {
 
@@ -159,9 +166,9 @@ public class QoSTest extends NotifyServerTestCase
         StructuredEvent[] events = new StructuredEvent[10];
         for (int x = 0; x < events.length; ++x)
         {
-            events[x] = new NotificationTestUtils(getClientORB()).getStructuredEvent();
+            events[x] = new NotificationTestUtils(setup.getClientOrb()).getStructuredEvent();
 
-            Any priority = getClientORB().create_any();
+            Any priority = setup.getClientOrb().create_any();
             priority.insert_short((short) x);
 
             events[x].header.variable_header = new Property[] { new Property(Priority.value,
@@ -172,7 +179,7 @@ public class QoSTest extends NotifyServerTestCase
         final List received = new ArrayList();
 
         // setup clients
-        StructuredPushReceiver receiver = new StructuredPushReceiver(this.getClientORB(), events.length)
+        StructuredPushReceiver receiver = new StructuredPushReceiver(NotifyServerTestCase.setup.getClientOrb(), events.length)
         {
             public void push_structured_event(StructuredEvent event) throws Disconnected
             {
@@ -186,7 +193,7 @@ public class QoSTest extends NotifyServerTestCase
 
         receiver.pushSupplier_.suspend_connection();
 
-        StructuredPushSender sender = new StructuredPushSender(this.getClientORB());
+        StructuredPushSender sender = new StructuredPushSender(NotifyServerTestCase.setup.getClientOrb());
 
         sender.setStructuredEvent(events);
         sender.setInterval(100);
@@ -225,15 +232,5 @@ public class QoSTest extends NotifyServerTestCase
                 assertTrue(p1 + " > " + p2, p1 > p2);
             }
         }
-    }
-
-    public QoSTest(String name, NotifyServerTestSetup setup)
-    {
-        super(name, setup);
-    }
-
-    public static Test suite() throws Exception
-    {
-        return NotifyServerTestCase.suite("Basic QoS Tests", QoSTest.class);
     }
 }

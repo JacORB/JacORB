@@ -21,13 +21,14 @@
 
 package org.jacorb.test.bugs.bug619;
 
+import static org.junit.Assert.fail;
 import java.util.Properties;
-import junit.framework.Test;
-import junit.framework.TestSuite;
 import org.jacorb.test.common.ClientServerSetup;
 import org.jacorb.test.common.ClientServerTestCase;
 import org.jacorb.test.common.CommonSetup;
-import org.jacorb.test.common.TestUtils;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
 import org.omg.CORBA.NO_MEMORY;
 
 public class Bug619Test extends ClientServerTestCase
@@ -100,11 +101,7 @@ public class Bug619Test extends ClientServerTestCase
         }
     }
 
-    public Bug619Test(String name, ClientServerSetup setup)
-    {
-        super(name, setup);
-    }
-
+    @Test
     public void testOutOfMemoryShouldFail() throws Exception
     {
         int[] data = new int[10000000];
@@ -159,20 +156,15 @@ public class Bug619Test extends ClientServerTestCase
         }
     }
 
-    protected void setUp() throws Exception
+    @Before
+    public void setUp() throws Exception
     {
         server = OutOfMemoryHelper.narrow(setup.getServerObject());
     }
 
-    protected void tearDown() throws Exception
+    @BeforeClass
+    public static void beforeClassSetUp() throws Exception
     {
-        server = null;
-    }
-
-    public static Test suite()
-    {
-        TestSuite suite = new TestSuite();
-
         Properties clientProps = new Properties();
         Properties serverProps = new Properties();
 
@@ -180,11 +172,7 @@ public class Bug619Test extends ClientServerTestCase
         serverProps.setProperty(CommonSetup.JACORB_REGRESSION_DISABLE_IMR, "true");
         clientProps.setProperty(CommonSetup.JACORB_REGRESSION_DISABLE_IMR, "true");
 
-        ClientServerSetup setup = new ClientServerSetup(suite, OutOfMemoryImpl.class.getName(),
+        setup = new ClientServerSetup(OutOfMemoryImpl.class.getName(),
                 clientProps, serverProps);
-
-        TestUtils.addToSuite(suite, setup, Bug619Test.class);
-
-        return setup;
     }
 }
