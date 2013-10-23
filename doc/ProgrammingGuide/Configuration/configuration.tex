@@ -1140,6 +1140,16 @@ jacorb.connection.client.timeout\_ignores\_pending\_messages is turned on. &
 millisec. & unset \\
 \hline
 \verb"jacorb.connection.clie"
+\verb"nt.disconnect_afte"
+\verb"r_systemexception" & Disconnect client connections after non recoverable system
+exception. Note that if this is {\tt on} client-side connections will be
+completely closed i.e. both ETF and GIOP layers closed rather than just the ETF
+transport layer (with the expectation that the object will be called again and
+the GIOP layer reused). This gives better threading performance at the cost of
+higher GC. & boolean & on \\
+
+\hline
+\verb"jacorb.connection.clie"
 \verb"nt.timeout_ignores_pen"
 \verb"ding_messages" & Controls if client-side idle timeouts take care of
 pending messages or not. If "on", the connection is closed regardless of any
@@ -1363,10 +1373,6 @@ By default JacORB will remove the ZoneID so IORs will work off-host. & boolean &
 \verb"all" & Always attempt to search for local repository ID information to avoid
 the cost of a remote call. In most scenarios this is quicker than the remote call.
 With some complicated hierarchies it may be quicker to turn this off. & boolean & on\\
-\hline
-\verb"jacorb.disconnect_afte"
-\verb"r_systemexception" & Disconnection client connections after non recoverable system
-exception. & boolean & on\\
 \hline
 \verb"jacorb.locate_on_bind " & Query server for object location using a GIOP locate
 request before first call. & boolean & off\\

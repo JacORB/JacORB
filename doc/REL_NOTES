@@ -45,6 +45,9 @@
     - ORB
          - Improve ORBSingleton logging.
          - Fix interceptor BAD_PARAM minor codes (BZ961)
+         - Default to closing client connections completely on error.
+           Rename QoS jacorb.delegate.disconnect_after_systemexception to
+           jacorb.connection.client.disconnect_after_systemexception. (BZ967)
     - Misc
          - Improve documentation for SLF4J logging and maven.
 
