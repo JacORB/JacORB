@@ -48,6 +48,7 @@
          - Default to closing client connections completely on error.
            Rename QoS jacorb.delegate.disconnect_after_systemexception to
            jacorb.connection.client.disconnect_after_systemexception. (BZ967)
+         - Clear fragments on connection close. (BZ949)
     - Misc
          - Improve documentation for SLF4J logging and maven.
 

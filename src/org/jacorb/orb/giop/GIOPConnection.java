@@ -94,8 +94,10 @@ public abstract class GIOPConnection
 
     private boolean tcs_negotiated = false;
 
-    //map request id (Integer) to ByteArrayInputStream
-    private final Map<Integer, ByteArrayOutputStream> fragments = new HashMap<Integer, ByteArrayOutputStream>();
+    /**
+     * Fragmented message support.
+     */
+    protected final Map<Integer, ByteArrayOutputStream> fragments = new HashMap<Integer, ByteArrayOutputStream>();
     private IBufferManager buf_mg;
 
     private boolean dump_incoming = false;
@@ -203,7 +205,7 @@ public abstract class GIOPConnection
 
         for (Iterator<String> iter = statsProviderClassNames.iterator (); iter.hasNext ();)
         {
-            String className = (String) iter.next ();
+            String className = iter.next ();
             try
             {
                 Class<?> iclass = ObjectUtil.classForName (className);
@@ -613,7 +615,6 @@ public abstract class GIOPConnection
                 }
 
                 //for now, only GIOP 1.2 from here on
-
                 int request_id = Messages.getRequestId( message );
 
                 //sanity check
@@ -632,7 +633,7 @@ public abstract class GIOPConnection
                 }
 
                 ByteArrayOutputStream b_out =
-                    (ByteArrayOutputStream)fragments.get( request_id );
+                    fragments.get( request_id );
 
                 //add the message contents to stream (discarding the
                 //GIOP message header and the request id ulong of the
