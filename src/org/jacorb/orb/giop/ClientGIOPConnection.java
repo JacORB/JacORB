@@ -115,16 +115,23 @@ public class ClientGIOPConnection
         if (disconnectAfterSystemException)
         {
             close();
+
+            // Not calling listener::streamClosed as super.close calls
+            // listener::connectioClosed which calls listener::streamClosed
         }
         else
         {
             closeAllowReopen();
+
+            if( connection_listener != null )
+            {
+                connection_listener.streamClosed();
+            }
         }
 
-        if( connection_listener != null )
-        {
-            connection_listener.streamClosed();
-        }
+        // If the transport and/or connection has been closed there is no point
+        // in keeping the fragments around.
+        fragments.clear();
     }
 
     /**
@@ -139,24 +146,24 @@ public class ClientGIOPConnection
             logger.debug (this.toString() + ": closeAllowReopen()");
         }
 
-            try
+        try
+        {
+            //Solve potential deadlock caused by COMM_FAILURE.
+            //The strategy is getting write_lock before sync
+            //connect_sync when you need both of them.
+            getWriteLock(0);
+            synchronized (connect_sync)
             {
-                //Solve potential deadlock caused by COMM_FAILURE.
-                //The strategy is getting write_lock before sync
-                //connect_sync when you need both of them.
-                getWriteLock(0);
-                synchronized (connect_sync)
-                {
-                    transport.close();
-                    // We expect that the same transport can be reconnected
-                    // after a close, something that the ETF draft isn't
-                    // particularly clear about.
-                }
+                transport.close();
+                // We expect that the same transport can be reconnected
+                // after a close, something that the ETF draft isn't
+                // particularly clear about.
             }
-            finally
-            {
-                releaseWriteLock();
-            }
+        }
+        finally
+        {
+            releaseWriteLock();
+        }
     }
 
     public String toString()
