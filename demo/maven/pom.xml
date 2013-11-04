@@ -4,7 +4,7 @@
 
     <groupId>org.jacorb.demo</groupId>
     <artifactId>maven</artifactId>
-    <version>1.0</version>
+    <version>1.1</version>
     <packaging>jar</packaging>
 
     <name>Maven-Demo</name>
@@ -56,6 +56,23 @@
                     </dependency>
                 </dependencies>
             </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.1</version>
+                <configuration>
+                    <source>1.6</source>
+                    <target>1.6</target>
+                    <debug>true</debug>
+                    <showWarnings>true</showWarnings>
+                    <showDeprecation>true</showDeprecation>
+                    <compilerArgs>
+                        <arg>-Xbootclasspath/p:${settings.localRepository}/org/jacorb/jacorb-omgapi/${version.jacorb}/jacorb-omgapi-${version.jacorb}.jar</arg>
+                    </compilerArgs>
+                </configuration>
+            </plugin>
+
 
             <!-- Utilising the antrun plugin to test as Ant allows for parallel execution of multiple processes -->
             <plugin>
