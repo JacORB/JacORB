@@ -79,6 +79,7 @@
 
     <modules>
         <module>maven/idl-compiler</module>
+        <module>maven/omgapi</module>
         <module>maven/core</module>
         <module>maven/services</module>
         <module>maven/release</module>
@@ -92,22 +93,28 @@
                 <artifactId>ant</artifactId>
                 <version>1.8.2</version>
             </dependency>
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>slf4j-api</artifactId>
+                <version>1.6.4</version>
+            </dependency>
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>slf4j-jdk14</artifactId>
+                <version>1.6.4</version>
+            </dependency>
+            <dependency>
+                <groupId>junit</groupId>
+	        <artifactId>junit</artifactId>
+	        <version>4.11</version>
+            </dependency>
+            <dependency>
+                <groupId>easymock</groupId>
+	        <artifactId>easymock</artifactId>
+	        <version>1.1</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
-
-
-    <dependencies>
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-api</artifactId>
-            <version>1.6.4</version>
-        </dependency>
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-jdk14</artifactId>
-            <version>1.6.4</version>
-        </dependency>
-    </dependencies>
 
 
     <build>

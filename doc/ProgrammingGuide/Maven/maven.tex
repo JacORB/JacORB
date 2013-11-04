@@ -8,6 +8,7 @@ JacORB is now available in Maven Central under the following GAVs (Group-Artifac
 \item Artifacts:
   \begin{itemize}
     \item \texttt{jacorb}
+    \item \texttt{jacorb-omgapi}
     \item \texttt{jacorb-idl-compiler}
     \item \texttt{jacorb-parent}
     \item \texttt{jacorb-services}
@@ -59,6 +60,21 @@ the generated sources and the supplied sources during the 'compile' phase.
     </dependencies>
 \end{verbatim}
 
+\paragraph{Note:}
+The JacORB core and services have a transient dependency on the OMG API stubs:
+
+\begin{verbatim}
+    <dependencies>
+        <dependency>
+            <groupId>org.jacorb</groupId>
+            <artifactId>jacorb-omgapi</artifactId>
+            <version>${version.jacorb}</version>
+        </dependency>
+    </dependencies>
+\end{verbatim}
+
+This may need to be explicitly added to the compile / exec Xbootclasspath's if
+you wish to use JacORB's OMG stubs.
 
 %%% Local Variables:
 %%% mode: latex

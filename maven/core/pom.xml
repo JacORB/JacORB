@@ -22,6 +22,22 @@
         <mainArtifact>${env.JACORB_HOME}/lib/jacorb.jar</mainArtifact>
     </properties>
 
+    <dependencies>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-jdk14</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.jacorb</groupId>
+            <artifactId>jacorb-omgapi</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+    </dependencies>
+
     <build>
         <plugins>
             <plugin>
@@ -96,7 +112,6 @@
                         <configuration>
                             <sources>
                                 <source>${env.JACORB_HOME}/src</source>
-                                <source>${env.JACORB_HOME}/src/generated</source>
                             </sources>
                         </configuration>
                     </execution>
@@ -114,7 +129,6 @@
                 </executions>
                 <configuration>
                     <includes>
-                        <include>org/omg/**</include>
                         <include>org/jacorb/**</include>
                     </includes>
                     <excludes>
@@ -124,31 +138,10 @@
                         <exclude>org/jacorb/events/**</exclude>
                         <exclude>org/jacorb/notification/**</exclude>
                         <exclude>org/jacorb/transaction/**</exclude>
-                        <exclude>org/omg/BridgeTransactionMgmt/**</exclude>
-                        <exclude>org/omg/CosBridgeAdmin/**</exclude>
-                        <exclude>org/omg/CosCollection/**</exclude>
-                        <exclude>org/omg/CosConcurrencyControl/**</exclude>
-                        <exclude>org/omg/CosEventChannelAdmin/**</exclude>
-                        <exclude>org/omg/CosEventComm/**</exclude>
-                        <exclude>org/omg/CosNotification/**</exclude>
-                        <exclude>org/omg/CosNotifyChannelAdmin/**</exclude>
-                        <exclude>org/omg/CosNotifyChannelAdminAck/**</exclude>
-                        <exclude>org/omg/CosNotifyComm/**</exclude>
-                        <exclude>org/omg/CosNotifyCommAck/**</exclude>
-                        <exclude>org/omg/CosNotifyFilter/**</exclude>
-                        <exclude>org/omg/CosTime/**</exclude>
-                        <exclude>org/omg/CosTrading/**</exclude>
-                        <exclude>org/omg/CosTransactions/**</exclude>
-                        <exclude>org/omg/CosTypedEventChannelAdmin/**</exclude>
-                        <exclude>org/omg/CosTypedEventComm/**</exclude>
-                        <exclude>org/omg/CosTypedEventNotifyComm/**</exclude>
-                        <exclude>org/omg/CosTypedEventNotifyChannelAdmin/**</exclude>
-                        <exclude>org/omg/CosTypedNotifyChannelAdmin/**</exclude>
-                        <exclude>org/omg/CosTypedNotifyComm/**</exclude>
-                        <exclude>org/omg/dds</exclude>
                    </excludes>
                 </configuration>
             </plugin>
+
         </plugins>
     </build>
 </project>
