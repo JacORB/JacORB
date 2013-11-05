@@ -1,18 +1,15 @@
 package org.jacorb.test.bugs.bugjac330;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.HashMap;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Properties;
-import junit.framework.TestCase;
 import org.jacorb.orb.Delegate;
 import org.jacorb.orb.giop.ClientConnection;
 import org.jacorb.orb.giop.ClientConnectionManager;
@@ -21,14 +18,11 @@ import org.jacorb.test.BasicServerHelper;
 import org.jacorb.test.common.CommonSetup;
 import org.jacorb.test.common.ORBTestCase;
 import org.jacorb.test.common.ServerSetup;
-import org.omg.CORBA.NO_RESOURCES;
-import org.omg.CORBA.ORB;
-import org.omg.ETF.Profile;
-import org.jacorb.test.orb.BasicServerImpl;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.omg.CORBA.NO_RESOURCES;
+import org.omg.ETF.Profile;
 
 /**
  * @author Alphonse Bendt
@@ -71,6 +65,18 @@ public class MultipleServerTest extends ORBTestCase
         if (name.getMethodName().equals("testNoIdleThreads"))
         {
             props.put("jacorb.connection.client.max_idle_receptor_threads", "0");
+        }
+        else if (name.getMethodName().equals("testDisconnectAfterSystemException"))
+        {
+            props.put("jacorb.connection.client.max_receptor_threads", "1");
+            props.put("jacorb.connection.client.max_idle_receptor_threads", "0");
+            props.put("jacorb.connection.client.disconnect_after_systemexception", "true");
+        }
+        else if (name.getMethodName().equals("testDisconnectAfterSystemExceptionNoTimeout"))
+        {
+            props.put("jacorb.connection.client.max_receptor_threads", "1");
+            props.put("jacorb.connection.client.max_idle_receptor_threads", "1");
+            props.put("jacorb.connection.client.disconnect_after_systemexception", "true");
         }
     }
 
@@ -162,16 +168,9 @@ public class MultipleServerTest extends ORBTestCase
     }
 
 
-    public void testDisableCloseAllowReopen() throws Exception
+    @Test
+    public void testDisconnectAfterSystemException() throws Exception
     {
-        Properties props = new Properties();
-
-        props.put("jacorb.connection.client.max_receptor_threads", "1");
-        props.put("jacorb.connection.client.max_idle_receptor_threads", "0");
-        props.put("jacorb.connection.client.disconnect_after_systemexception", "true");
-
-        ORB orb = newORB(props);
-
         BasicServer server1 = BasicServerHelper.narrow(orb.string_to_object(server1IOR));
         server1.ping();
         System.err.println ("### Waiting for server shutdown");
@@ -187,16 +186,8 @@ public class MultipleServerTest extends ORBTestCase
     }
 
 
-    public void testDisableCloseAllowReopenNoTimeout() throws Exception
+    public void testDisconnectAfterSystemExceptionNoTimeout() throws Exception
     {
-        Properties props = new Properties();
-
-        props.put("jacorb.connection.client.max_receptor_threads", "1");
-        props.put("jacorb.connection.client.max_idle_receptor_threads", "1");
-        props.put("jacorb.connection.client.disconnect_after_systemexception", "true");
-
-        ORB orb = newORB(props);
-
         BasicServer server1 = BasicServerHelper.narrow(orb.string_to_object(server1IOR));
         try
         {

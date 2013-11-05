@@ -20,50 +20,35 @@ package org.jacorb.test.orb;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import junit.framework.Test;
-import junit.framework.TestSuite;
+import static org.junit.Assert.assertEquals;
 import org.jacorb.test.BasicServer;
 import org.jacorb.test.BasicServerHelper;
 import org.jacorb.test.common.ClientServerSetup;
 import org.jacorb.test.common.ClientServerTestCase;
-import org.jacorb.test.common.JacORBTestSuite;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
 
 public class ReleaseTest extends ClientServerTestCase
 {
     private BasicServer server;
 
-    public ReleaseTest(String name, ClientServerSetup setup)
-    {
-        super(name, setup);
-    }
-
+    @Before
     public void setUp() throws Exception
     {
         server = BasicServerHelper.narrow( setup.getServerObject() );
     }
 
-    protected void tearDown() throws Exception
+    @BeforeClass
+    public static void beforeClassSetUp() throws Exception
     {
-        server = null;
-    }
-
-    public static Test suite()
-    {
-        TestSuite suite = new JacORBTestSuite("Basic client/server tests",
-                                              ReleaseTest.class);
-        ClientServerSetup setup =
-            new ClientServerSetup( suite,
-                                   "org.jacorb.test.orb.BasicServerImpl" );
-
-        // long tests
-        suite.addTest( new ReleaseTest( "test_release", setup ) );
-
-        return setup;
+        setup = new ClientServerSetup( "org.jacorb.test.orb.BasicServerImpl" );
     }
 
     /**
      * Verify that after releasing an object the system will transparently reconnect.
      */
+    @Test
     public void test_release()
     {
         server.bounce_long( 14 );
@@ -73,6 +58,6 @@ public class ReleaseTest extends ClientServerTestCase
 
         int x = server.bounce_long( 100 );
 
-        assertTrue (x==100);
+        assertEquals (x, 100);
     }
 }
