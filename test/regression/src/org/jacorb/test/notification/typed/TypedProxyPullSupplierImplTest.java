@@ -33,6 +33,7 @@ import org.jacorb.notification.servant.ITypedAdmin;
 import org.jacorb.notification.servant.TypedProxyPullSupplierImpl;
 import org.jacorb.test.notification.common.NotificationTestCase;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.omg.CORBA.IntHolder;
 import org.omg.CORBA.StringHolder;
@@ -170,7 +171,9 @@ public class TypedProxyPullSupplierImplTest extends NotificationTestCase
         assertEquals(10, _minutes.value);
     }
 
-    public void XXXtestPullDrinkingCoffee() throws Exception
+    @Ignore
+    @Test
+    public void testPullDrinkingCoffee() throws Exception
     {
         TypedEventMessage _mesg = new TypedEventMessage();
 

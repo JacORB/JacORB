@@ -21,25 +21,25 @@
 
 package org.jacorb.test.notification.jmx;
 
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import java.lang.reflect.Constructor;
 import javax.management.MBeanServer;
 import javax.management.MBeanServerFactory;
 import javax.management.ObjectName;
-
-import org.junit.After;
-import org.junit.Before;
-import org.junit.*;
-import static org.junit.Assert.*;
-import static org.junit.Assert.*;
-
 import org.jacorb.notification.jmx.COSNotificationService;
 import org.jacorb.notification.jmx.JMXManageableMBeanProvider;
-import org.jacorb.notification.jmx.mx4j.MX4JCOSNotificationService;
+import org.jacorb.test.common.ORBTestCase;
+import org.jacorb.test.common.TestUtils;
+import org.junit.Assume;
+import org.junit.Before;
+import org.junit.Test;
 import org.omg.CORBA.OBJECT_NOT_EXIST;
 import org.omg.CORBA.ORB;
 import org.omg.CosNotifyChannelAdmin.EventChannelFactory;
 import org.omg.CosNotifyChannelAdmin.EventChannelFactoryHelper;
 
-public class COSNotificationServiceTest
+public class COSNotificationServiceTest extends ORBTestCase
 {
     private MBeanServer mBeanServer_;
 
@@ -50,16 +50,23 @@ public class COSNotificationServiceTest
     @Before
     public void setUp() throws Exception
     {
-        super.setUp();
-
         mBeanServer_ = MBeanServerFactory.createMBeanServer();
-        orb_ = ORB.init(new String[0], null);
 
-        COSNotificationService notifyMBean = new MX4JCOSNotificationService(orb_, mBeanServer_, new JMXManageableMBeanProvider("TestDomain"),
-                new String[0]);
+        try
+        {
+            Class<?> mcns = TestUtils.classForName ("org.jacorb.notification.jmx.mx4j.MX4JCOSNotificationService");
 
-        objectName_ = ObjectName.getInstance("test:type=EventChannelFactory");
-        mBeanServer_.registerMBean(notifyMBean, objectName_);
+            Constructor<?> constructor = mcns.getConstructors()[0];
+            COSNotificationService notifyMBean = (COSNotificationService) constructor.newInstance(new Object[] { orb_, mBeanServer_, new JMXManageableMBeanProvider("TestDomain"),
+                    new String[0] } );
+
+            objectName_ = ObjectName.getInstance("test:type=EventChannelFactory");
+            mBeanServer_.registerMBean(notifyMBean, objectName_);
+        }
+        catch (ClassNotFoundException e)
+        {
+            Assume.assumeTrue("Caught class not found " + e, true);
+        }
     }
 
     @Test
