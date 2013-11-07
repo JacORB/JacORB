@@ -47,11 +47,6 @@ public class JMXClientServerSetup extends ClientServerSetup
         }
     }
 
-    protected void resolveServerObject(String ior)
-    {
-        this.ior = ior;
-    }
-
     public JMXServiceURL getServiceURL()
     {
         return serviceURL;

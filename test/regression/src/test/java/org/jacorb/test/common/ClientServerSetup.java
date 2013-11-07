@@ -182,15 +182,6 @@ public class ClientServerSetup extends ORBTestCase
         return result;
     }
 
-    private void resolveServerObject()
-    {
-        if (serverObject == null)
-        {
-            ior = serverSetup.getServerIOR();
-            serverObject = orb.string_to_object(ior);
-        }
-    }
-
     public void tearDown() throws Exception
     {
         if (serverObject != null)
@@ -215,7 +206,10 @@ public class ClientServerSetup extends ORBTestCase
 
     public String getServerIOR()
     {
-        resolveServerObject();
+        if ( ior == null)
+        {
+            ior = serverSetup.getServerIOR();
+        }
 
         return ior;
     }
@@ -226,7 +220,10 @@ public class ClientServerSetup extends ORBTestCase
      */
     public org.omg.CORBA.Object getServerObject()
     {
-        resolveServerObject();
+        if (serverObject == null)
+        {
+            serverObject = orb.string_to_object(getServerIOR());
+        }
 
         return serverObject;
     }
