@@ -41,7 +41,7 @@ import org.junit.runners.Parameterized.Parameters;
 
 public class ParseInvalidIDLTest extends AbstractIDLTestcase
 {
-    final static String IDL = TestUtils.testHome() + "/idl/compiler/fail";
+    final static String IDL = TestUtils.testHome() + "/src/test/idl/compiler/fail";
 
     @Parameters(name="{index} : {0}")
     public static Collection<Object[]> data()

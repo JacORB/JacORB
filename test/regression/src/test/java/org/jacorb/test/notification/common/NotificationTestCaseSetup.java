@@ -68,7 +68,7 @@ public class NotificationTestCaseSetup extends ORBTestCase
 
     public NotificationTestCaseSetup() throws Exception
     {
-        ifrServerSetup = new IFRServerSetup(TestUtils.testHome() + "/idl/TypedNotification.idl", null, null);
+        ifrServerSetup = new IFRServerSetup(TestUtils.testHome() + "/src/test/idl/TypedNotification.idl", null, null);
 
         ORBSetUp();
 

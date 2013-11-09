@@ -42,7 +42,7 @@ public abstract class TypedServerTestCase extends ClientServerTestCase
     @BeforeClass
     public static void beforeClassSetup() throws Exception
     {
-        ifrSetup = new IFRServerSetup(TestUtils.testHome() + "/idl/TypedNotification.idl", null, null);
+        ifrSetup = new IFRServerSetup(TestUtils.testHome() + "/src/test/idl/TypedNotification.idl", null, null);
         Properties props = new Properties();
         props.setProperty("ORBInitRef.InterfaceRepository", ifrSetup.getRepository().toString());
         setup = new TypedServerTestSetup(props);

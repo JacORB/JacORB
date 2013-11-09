@@ -172,7 +172,7 @@ class IDLTestSetup
 
         if ( ! result.isAbsolute())
         {
-            result = new File(TestUtils.testHome() + "/idl/" + fileName);
+            result = new File(TestUtils.testHome() + "/src/test/idl/" + fileName);
         }
 
         TestUtils.log("using IDL " + (result.isDirectory() ? "dir" : "file") + " " + result);

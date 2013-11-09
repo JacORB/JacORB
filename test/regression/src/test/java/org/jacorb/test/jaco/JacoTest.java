@@ -24,7 +24,7 @@ public class JacoTest
 
         Process process = Runtime.getRuntime().exec(command,
                 new String[] {
-                    "CLASSPATH=" + TestUtils.testHome() + "/classes",
+                    "CLASSPATH=" + TestUtils.testHome() + "/target/test-classes",
                     "JRE_HOME=" + System.getProperty("java.home")
         });
 

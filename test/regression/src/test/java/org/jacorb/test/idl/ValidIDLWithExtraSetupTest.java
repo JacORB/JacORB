@@ -59,7 +59,7 @@ import org.omg.PortableServer.Servant;
 public class ValidIDLWithExtraSetupTest extends AbstractIDLTestcase
 {
     private static final String TEST_HOME = TestUtils.testHome();
-    private static final String IDL_DIR = "/idl/compiler/misc/";
+    private static final String IDL_DIR = "/src/test/idl/compiler/misc/";
 
     private static final String[] TWO_ONE_STRINGS = new String[] {"TWO", "ONE"};
     private static final String[] ONE_TWO_STRINGS = new String[] {"ONE", "TWO"};
@@ -93,9 +93,9 @@ public class ValidIDLWithExtraSetupTest extends AbstractIDLTestcase
                     { new String[] {"-ir", "-i2jpackage", "AlarmIRPSystem:org._3gpp.AlarmIRPSystem"}, "bugJac101.idl" },
                     { new String[] { "-genEnhanced" }, "bugJac149.idl" },
                     { new String[] {"-ami_callback", "-diistub"}, "ami.idl" },
-                    { new String[] { "-sloppy_names" }, TEST_HOME + "/idl/compiler/fail/sloppy.idl" },
+                    { new String[] { "-sloppy_names" }, TEST_HOME + "/src/test/idl/compiler/fail/sloppy.idl" },
                     { new String[] {"-ir", "-i2jpackage", "test:de.siemens.hyades.test"}, "bug514.idl" },
-                    { new String[] {"-i2jpackage", ":myTestPackage"}, TEST_HOME + "/idl/compiler/succeed/scoping10.idl" },
+                    { new String[] {"-i2jpackage", ":myTestPackage"}, TEST_HOME + "/src/test/idl/compiler/succeed/scoping10.idl" },
                     { new String[] {"-i2jpackage", ":apmInterface"}, "bugJac44.idl" },
                     { new String[] {"-generate_helper", "deprecated"} , "bugJac516.idl" },
                     // If the wrong org.omg.CORBA (not the ones provided by JacORB) classes are on the bootclasspath
@@ -104,7 +104,7 @@ public class ValidIDLWithExtraSetupTest extends AbstractIDLTestcase
                     { new String[] {"-generate_helper", "jacorb"}, "bugJac516.idl" },
                     { new String[] {"-cacheplugin", BugJac144ObjectCachePlugin.class.getName()}, "bugJac144.idl" },
                     { new String[] {}, "bugJac144.idl" },
-                    { new String[] { "-sloppy_identifiers" }, TEST_HOME + "/idl/compiler/fail/collision.idl" },
+                    { new String[] { "-sloppy_identifiers" }, TEST_HOME + "/src/test/idl/compiler/fail/collision.idl" },
                     { new String[] {"-all", "-I" + TEST_HOME + IDL_DIR} , "895_1.idl" },
                     { new String[] {"-I" + TEST_HOME + "/../../idl/omg"}, "bugRTJ519.idl" },
         });

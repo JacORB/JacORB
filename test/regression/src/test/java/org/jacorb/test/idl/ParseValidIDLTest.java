@@ -51,7 +51,7 @@ import org.omg.CORBA.TypeCode;
  */
 public class ParseValidIDLTest extends AbstractIDLTestcase
 {
-    final static String IDL = TestUtils.testHome() + "/idl/compiler/succeed";
+    final static String IDL = TestUtils.testHome() + "/src/test/idl/compiler/succeed";
 
     @Parameters(name="{index} + {0}")
     public static Collection<Object[]> data()

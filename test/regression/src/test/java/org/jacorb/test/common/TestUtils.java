@@ -41,7 +41,9 @@ import java.util.List;
 import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
 import junit.framework.AssertionFailedError;
+
 import org.junit.Assert;
 
 /**
@@ -55,6 +57,7 @@ public class TestUtils
     public static final boolean isIBM = (System.getProperty ("java.vendor").equals ("IBM Corporation"));
 
     private static String testHome = null;
+    private static String jacorbHome = null;
     private static String systemRoot = null;
 
     static boolean verbose = "true".equalsIgnoreCase(System.getProperty("jacorb.test.verbose"));
@@ -62,7 +65,11 @@ public class TestUtils
 
     public static String jacorbHome()
     {
-        return System.getProperty("jacorb.home");
+        if (jacorbHome == null)
+        {
+            jacorbHome = osDependentPath((testHome() + "/../../"));
+        }
+        return jacorbHome;
     }
 
     /**
@@ -72,10 +79,10 @@ public class TestUtils
     {
         if (testHome == null)
         {
-            //See if we set it as a property using TestLauncher
+            // See if we set it as a property using TestLauncher
             testHome = System.getProperty ("jacorb.test.home");
 
-            //Try to find it from the run directory
+            // Try to find it from the run directory
             if (testHome == null)
             {
                 URL url = TestUtils.class.getResource("/.");
@@ -83,12 +90,7 @@ public class TestUtils
                 String result = url.toString();
                 if (result.matches("file:/.*?"))
                 {
-                    result = result.substring (5, result.length() - 9);
-                }
-                String relativePath="/classes/";
-                if (!pathExists(result, relativePath))
-                {
-                    throw new RuntimeException ("cannot find test home");
+                    result = result.substring (5, result.indexOf("/target/test-classes/"));
                 }
                 testHome = osDependentPath(result);
             }
@@ -106,12 +108,6 @@ public class TestUtils
     {
         path=(new File(path)).toString();
         return path.trim();
-    }
-
-    private static boolean pathExists(String basePath, String suffix)
-    {
-        File filePath = new File(basePath + suffix);
-        return filePath.exists();
     }
 
     /**

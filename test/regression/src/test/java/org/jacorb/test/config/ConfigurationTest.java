@@ -22,13 +22,13 @@ package org.jacorb.test.config;
  */
 
 import static org.junit.Assert.assertEquals;
+
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.net.URL;
-import java.net.URLClassLoader;
 import java.util.Properties;
+
 import org.jacorb.config.Configuration;
 import org.jacorb.config.JacORBConfiguration;
 import org.jacorb.test.common.TestUtils;
@@ -47,17 +47,9 @@ public class ConfigurationTest
 {
     private final Properties oldProps = new Properties();
 
-    @SuppressWarnings("deprecation")
     @Before
     public void setUp() throws Exception
     {
-        Thread.currentThread().setContextClassLoader(
-                new URLClassLoader(
-                        new URL[]
-                        {
-                            new File(TestUtils.jacorbHome(), "/classes").toURL(),
-                            new File(TestUtils.testHome(), "/classes").toURL()
-                        }, null));
         oldProps.putAll(System.getProperties());
     }
 
@@ -88,7 +80,7 @@ public class ConfigurationTest
     {
         try
         {
-            createPropertiesFile("classes/orb.properties",
+            createPropertiesFile("target/test-classes/orb.properties",
                                  "jacorb.connection.client.connect_timeout=33099");
 
             Properties props = new Properties();
@@ -107,7 +99,7 @@ public class ConfigurationTest
         }
         finally
         {
-            deletePropertiesFile ("classes/orb.properties");
+            deletePropertiesFile ("target/test-classes/orb.properties");
         }
     }
 
@@ -151,7 +143,7 @@ public class ConfigurationTest
     {
         try
         {
-            createPropertiesFile("classes/myownorbid.properties",
+            createPropertiesFile("target/test-classes/myownorbid.properties",
                                  "jacorb.connection.client.connect_timeout=33077");
 
             Properties props = new Properties();
@@ -172,7 +164,7 @@ public class ConfigurationTest
         }
         finally
         {
-            deletePropertiesFile ("classes/myownorbid.properties");
+            deletePropertiesFile ("target/test-classes/myownorbid.properties");
         }
     }
 
@@ -262,13 +254,13 @@ public class ConfigurationTest
     {
         try
         {
-            createPropertiesFile ("classes/orb.properties",
+            createPropertiesFile ("target/test-classes/orb.properties",
                                   "jacorb.connection.client.connect_timeout=33700");
             createPropertiesFile ("myorbid.properties",
                                   "jacorb.connection.client.connect_timeout=33701");
             createPropertiesFile ("special.properties",
                                   "jacorb.connection.client.connect_timeout=33702");
-            createPropertiesFile ("classes/myorbid.properties",
+            createPropertiesFile ("target/test-classes/myorbid.properties",
                                   "jacorb.connection.client.connect_timeout=33703");
 
             Properties props = new Properties();
@@ -294,8 +286,8 @@ public class ConfigurationTest
         }
         finally
         {
-            deletePropertiesFile ("classes/orb.properties");
-            deletePropertiesFile ("classes/myorbid.properties");
+            deletePropertiesFile ("target/test-classes/orb.properties");
+            deletePropertiesFile ("target/test-classes/myorbid.properties");
             deletePropertiesFile ("myorbid.properties");
             deletePropertiesFile ("special.properties");
         }
@@ -310,13 +302,13 @@ public class ConfigurationTest
     {
         try
         {
-            createPropertiesFile ("classes/orb.properties",
+            createPropertiesFile ("target/test-classes/orb.properties",
                                   "jacorb.connection.client.connect_timeout=33700");
             createPropertiesFile ("myorbid.properties",
                                   "jacorb.connection.client.connect_timeout=33701");
             createPropertiesFile ("special.properties",
                                   "jacorb.connection.client.connect_timeout=33702");
-            createPropertiesFile ("classes/myorbid.properties",
+            createPropertiesFile ("target/test-classes/myorbid.properties",
                                   "jacorb.connection.client.connect_timeout=33703");
 
             Properties props = new Properties();
@@ -341,7 +333,7 @@ public class ConfigurationTest
         }
         finally
         {
-            deletePropertiesFile ("classes/orb.properties");
+            deletePropertiesFile ("target/test-classes/orb.properties");
             deletePropertiesFile ("myorbid.properties");
             deletePropertiesFile ("special.properties");
         }
@@ -356,11 +348,11 @@ public class ConfigurationTest
     {
         try
         {
-            createPropertiesFile ("classes/orb.properties",
+            createPropertiesFile ("target/test-classes/orb.properties",
                                   "jacorb.connection.client.connect_timeout=33700");
             createPropertiesFile ("myorbid.properties",
                                   "jacorb.connection.client.connect_timeout=33701");
-            createPropertiesFile ("classes/myorbid.properties",
+            createPropertiesFile ("target/test-classes/myorbid.properties",
                                   "jacorb.connection.client.connect_timeout=33703");
 
             Properties props = new Properties();
@@ -383,9 +375,9 @@ public class ConfigurationTest
         }
         finally
         {
-            deletePropertiesFile ("classes/orb.properties");
+            deletePropertiesFile ("target/test-classes/orb.properties");
             deletePropertiesFile ("myorbid.properties");
-            deletePropertiesFile ("classes/myorbid.properties");
+            deletePropertiesFile ("target/test-classes/myorbid.properties");
         }
     }
 
@@ -398,7 +390,7 @@ public class ConfigurationTest
     {
         try
         {
-            createPropertiesFile ("classes/orb.properties",
+            createPropertiesFile ("target/test-classes/orb.properties",
                                   "jacorb.connection.client.connect_timeout=33700");
             createPropertiesFile ("myorbid.properties",
                                   "jacorb.connection.client.connect_timeout=33701");
@@ -426,7 +418,7 @@ public class ConfigurationTest
         }
         finally
         {
-            deletePropertiesFile ("classes/orb.properties");
+            deletePropertiesFile ("target/test-classes/orb.properties");
             deletePropertiesFile ("myorbid.properties");
             deletePropertiesFile ("special.properties");
         }
@@ -441,7 +433,7 @@ public class ConfigurationTest
     {
         try
         {
-            createPropertiesFile ("classes/orb.properties",
+            createPropertiesFile ("target/test-classes/orb.properties",
                                   "jacorb.connection.client.connect_timeout=33700");
             createPropertiesFile ("myorbid.properties",
                                   "jacorb.connection.client.connect_timeout=33701");
@@ -466,7 +458,7 @@ public class ConfigurationTest
         }
         finally
         {
-            deletePropertiesFile ("classes/orb.properties");
+            deletePropertiesFile ("target/test-classes/orb.properties");
             deletePropertiesFile ("myorbid.properties");
         }
     }
@@ -476,11 +468,11 @@ public class ConfigurationTest
     {
         try
         {
-            createPropertiesFile ("classes/orb.properties",
+            createPropertiesFile ("target/test-classes/orb.properties",
                                   "jacorb.connection.client.connect_timeout=33320");
-            createPropertiesFile ("classes/myapplet.properties",
+            createPropertiesFile ("target/test-classes/myapplet.properties",
                                   "jacorb.connection.client.connect_timeout=33321");
-            createPropertiesFile ("classes/applet-special.properties",
+            createPropertiesFile ("target/test-classes/applet-special.properties",
                                   "jacorb.connection.client.connect_timeout=33322");
 
             ORB orb = ORB.init(new String[] {}, null);
@@ -497,9 +489,9 @@ public class ConfigurationTest
         }
         finally
         {
-            deletePropertiesFile ("classes/orb.properties");
-            deletePropertiesFile ("classes/myapplet.properties");
-            deletePropertiesFile ("classes/applet-special.properties");
+            deletePropertiesFile ("target/test-classes/orb.properties");
+            deletePropertiesFile ("target/test-classes/myapplet.properties");
+            deletePropertiesFile ("target/test-classes/applet-special.properties");
         }
     }
 

@@ -52,14 +52,12 @@ public class BugJac563Test extends ClientServerTestCase
 
         clientProps.setProperty(CommonSetup.JACORB_REGRESSION_DISABLE_SECURITY, "true");
 
-        clientProps.setProperty("jacorb.log.default.verbosity", "4");
-
         clientProps.setProperty("org.omg.PortableInterceptor.ORBInitializerClass.bidir_init",
                                  "org.jacorb.orb.giop.BiDirConnectionInitializer" );
 
         clientProps.setProperty("jacorb.security.support_ssl", "on");
 
-        clientProps.setProperty("jacorb.security.keystore", TestUtils.testHome() + "/src/org/jacorb/test/bugs/bugjac563/OCTrustStore");
+        clientProps.setProperty("jacorb.security.keystore", TestUtils.testHome() + "/src/test/java/org/jacorb/test/bugs/bugjac563/OCTrustStore");
         clientProps.setProperty("jacorb.security.keystore_password", "OCKeyStorePass");
 
         clientProps.setProperty("jacorb.security.ssl.client.supported_options", "20");
@@ -99,7 +97,7 @@ public class BugJac563Test extends ClientServerTestCase
 
         serverProps.setProperty("jacorb.security.support_ssl", "on");
 
-        serverProps.setProperty("jacorb.security.keystore", TestUtils.testHome() + "/src/org/jacorb/test/bugs/bugjac563/OCKeyStore");
+        serverProps.setProperty("jacorb.security.keystore", TestUtils.testHome() + "/src/test/java/org/jacorb/test/bugs/bugjac563/OCKeyStore");
         serverProps.setProperty("jacorb.security.keystore_password", "OCKeyStorePass");
 
         serverProps.setProperty("jacorb.security.ssl.client.supported_options", "20");

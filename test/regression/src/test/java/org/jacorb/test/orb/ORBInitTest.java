@@ -405,7 +405,7 @@ public class ORBInitTest
         // So, ORBid should be "jacorb"
         try
         {
-            createPropertiesFile("classes/jacorb.properties",
+            createPropertiesFile("target/test-classes/jacorb.properties",
                                  "jacorb.connection.client.connect_timeout=33099");
 
             Properties props = new Properties();
@@ -426,7 +426,7 @@ public class ORBInitTest
         }
         finally
         {
-            deletePropertiesFile ("classes/jacorb.properties");
+            deletePropertiesFile ("target/test-classes/jacorb.properties");
         }
     }
 

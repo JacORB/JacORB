@@ -57,9 +57,9 @@ public class AbstractIDLTestcase extends ORBTestCase
 
         idlFile = file;
 
-        dirGeneration = new File(TestUtils.testHome() + "/src-testidl/" + idlFile.getName());
+        dirGeneration = new File(TestUtils.testHome() + "/target/src-testidl/" + idlFile.getName());
         TestUtils.deleteRecursively(dirGeneration);
-        File dirClasses = new File(TestUtils.testHome() + "/classes-testidl");
+        File dirClasses = new File(TestUtils.testHome() + "/target/classes-testidl");
 
         dirClasses.mkdir();
         assertTrue(dirClasses.canWrite());

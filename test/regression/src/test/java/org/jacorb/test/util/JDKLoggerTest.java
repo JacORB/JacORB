@@ -38,7 +38,8 @@ import org.slf4j.Logger;
  * @author Alphonse Bendt
  */
 public class JDKLoggerTest
-{    private String logDirectory = null;
+{    
+	private String logDirectory = null;
 
     /**
      * Tests logging to a file, rather than the terminal.
@@ -353,7 +354,7 @@ public class JDKLoggerTest
     {
         if (logDirectory == null)
         {
-            File result = new File (TestUtils.testHome(), "logtest");
+            File result = new File (TestUtils.testHome(), "target/logtest");
             result.mkdirs();
             logDirectory = result.toString();
         }
