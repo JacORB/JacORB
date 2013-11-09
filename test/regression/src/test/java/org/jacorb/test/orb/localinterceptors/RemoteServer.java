@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.PrintWriter;
 import java.util.Properties;
+
 import org.jacorb.test.common.TestUtils;
 import org.omg.CORBA.ORB;
 import org.omg.PortableServer.POA;
@@ -44,8 +45,11 @@ public class RemoteServer
             pw.flush();
             pw.close();
 
-            TestUtils.printServerIOR (new File ("remoteserver.ior"));
+            File file = new File ("remoteserver.ior");
+            file.deleteOnExit();
 
+            TestUtils.printServerIOR (file);
+            
             orb.run ();
         }
         catch (Exception e)

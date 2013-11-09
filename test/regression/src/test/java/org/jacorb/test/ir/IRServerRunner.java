@@ -29,7 +29,8 @@ public class IRServerRunner
         thread.start();
 
         File iorFile = new File(iorFileName);
-
+        iorFile.deleteOnExit();
+        
         TestUtils.printServerIOR(iorFile);
     }
 

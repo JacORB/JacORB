@@ -32,6 +32,7 @@ public class NameServiceRunner
 
 
         File file = new File (System.getProperty ("jacorb.naming.ior_filename"));
+        file.deleteOnExit();
 
         TestUtils.printServerIOR (file);
     }

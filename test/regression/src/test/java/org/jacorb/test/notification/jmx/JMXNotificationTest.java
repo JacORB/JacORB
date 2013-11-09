@@ -93,7 +93,6 @@ public class JMXNotificationTest
 
         mockNotificationListener.handleNotification(null, null);
         controlNotificationListener.setMatcher(MockControl.ALWAYS_MATCHER);
-        controlNotificationFilter.setVoidCallable();
 
         controlNotificationFilter.replay();
         controlNotificationListener.replay();

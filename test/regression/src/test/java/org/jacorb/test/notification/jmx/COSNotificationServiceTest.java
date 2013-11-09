@@ -65,7 +65,7 @@ public class COSNotificationServiceTest extends ORBTestCase
         }
         catch (ClassNotFoundException e)
         {
-            Assume.assumeTrue("Caught class not found " + e, true);
+            Assume.assumeFalse("Caught class not found " + e, true);
         }
     }
 

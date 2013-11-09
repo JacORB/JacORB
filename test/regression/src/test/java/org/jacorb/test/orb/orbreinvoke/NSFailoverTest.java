@@ -118,14 +118,9 @@ public class NSFailoverTest extends ORBTestCase
                     nsIOR_1.deleteOnExit();
 
                     nsProp_1.setProperty ("jacorb.naming.ior_filename", nsIOR_1.toString());
-                    nsProp_1.setProperty("jacorb.naming.log.verbosity", "4");
                     nsProp_1.setProperty ("jacorb.naming.time out", "5000");
                     nsProp_1.setProperty ("jacorb.test.timeout.server", Long.toString(10000));
 
-                    // uncomment what you need for debugging purposes
-                    // nsProp_1.setProperty ("jacorb.log.default.verbosity", "4");
-                    // nsProp_1.setProperty("jacorb.debug.dump_outgoing_messages", "on");
-                    // nsProp_1.setProperty("jacorb.debug.dump_incoming_messages", "on");
                     nsProp_1.setProperty("jacorb.log.showThread", "on");
                     nsProp_1.setProperty("jacorb.log.showSrcInfo", "on");
                 }
@@ -157,14 +152,9 @@ public class NSFailoverTest extends ORBTestCase
                     nsIOR_2.deleteOnExit();
 
                     nsProp_2.setProperty ("jacorb.naming.ior_filename", nsIOR_2.toString());
-                    nsProp_2.setProperty("jacorb.naming.log.verbosity", "4");
                     nsProp_2.setProperty ("jacorb.naming.time out", "5000");
                     nsProp_2.setProperty ("jacorb.test.timeout.server", Long.toString(10000));
 
-                    // uncomment what you need for debugging purposes
-                    // nsProp_2.setProperty ("jacorb.log.default.verbosity", "4");
-                    //nsProp_2.setProperty("jacorb.debug.dump_outgoing_messages", "on");
-                    //nsProp_2.setProperty("jacorb.debug.dump_incoming_messages", "on");
                     nsProp_2.setProperty("jacorb.log.showThread", "on");
                     nsProp_2.setProperty("jacorb.log.showSrcInfo", "on");
                 }

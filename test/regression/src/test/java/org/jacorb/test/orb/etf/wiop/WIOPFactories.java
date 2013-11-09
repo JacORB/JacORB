@@ -24,6 +24,7 @@ package org.jacorb.test.orb.etf.wiop;
 import java.io.IOException;
 import java.net.Socket;
 import java.util.Iterator;
+
 import org.jacorb.config.Configurable;
 import org.jacorb.config.Configuration;
 import org.jacorb.config.ConfigurationException;
@@ -47,6 +48,7 @@ import org.omg.RTCORBA.ProtocolProperties;
  *
  * @author Andre Spiegel spiegel@gnu.org
  */
+@SuppressWarnings("serial")
 public class WIOPFactories
     extends _FactoriesLocalBase
     implements Configurable
@@ -56,7 +58,6 @@ public class WIOPFactories
     org.jacorb.config.Configuration configuration;
     org.jacorb.orb.ORB orb;
 
-    @Override
     public void configure(Configuration configuration)
         throws ConfigurationException
     {
@@ -64,7 +65,6 @@ public class WIOPFactories
         this.orb = this.configuration.getORB();
     }
 
-    @Override
     public Connection create_connection (ProtocolProperties props)
     {
         ClientIIOPConnection delegate = new ClientIIOPConnection();
@@ -81,7 +81,6 @@ public class WIOPFactories
                                    tag);
     }
 
-    @Override
     public Listener create_listener (ProtocolProperties props,
                                      int stacksize,
                                      short base_priority)
@@ -111,7 +110,6 @@ public class WIOPFactories
         return new WIOPListener (delegate, tag);
     }
 
-    @Override
     public Profile demarshal_profile (TaggedProfileHolder tagged_profile,
                                       TaggedComponentSeqHolder components)
     {
@@ -152,13 +150,11 @@ public class WIOPFactories
         }
     }
 
-    @Override
     public int profile_tag()
     {
         return tag;
     }
 
-    @Override
     public Profile decode_corbaloc(String corbaloc)
     {
         throw new org.omg.CORBA.NO_IMPLEMENT();
