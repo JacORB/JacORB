@@ -47,7 +47,8 @@ public class ExceptionTest extends ClientServerTestCase
      * properly reported back to the client, including the
      * error message.
      */
-    public void _testRuntimeException()
+    @Test
+    public void testRuntimeException()
     {
         try
         {
@@ -63,7 +64,8 @@ public class ExceptionTest extends ClientServerTestCase
     /**
      * Checks if a user exception is properly reported back to the client.
      */
-    public void _testUserException1()
+    @Test
+    public void testUserException1()
     {
         try
         {
@@ -77,8 +79,8 @@ public class ExceptionTest extends ClientServerTestCase
         }
     }
 
-
-    public void _testUserException2()
+    @Test
+    public void testUserException2()
     {
         try
         {
