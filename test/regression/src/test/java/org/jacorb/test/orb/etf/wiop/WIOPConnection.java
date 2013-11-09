@@ -32,6 +32,7 @@ import org.omg.ETF._ConnectionLocalBase;
  *
  * @author Andre Spiegel spiegel@gnu.org
  */
+@SuppressWarnings("serial")
 public class WIOPConnection extends _ConnectionLocalBase
 {
     private int tag = 0;
@@ -50,7 +51,6 @@ public class WIOPConnection extends _ConnectionLocalBase
                        int length,
                        long time_out)
     {
-        System.err.println ("### wiopwrite");
         WIOPFactories.setTransportInUse(true);
         delegate.write (is_first, is_last, data, offset, length, time_out);
     }
@@ -61,7 +61,6 @@ public class WIOPConnection extends _ConnectionLocalBase
                      int max_length,
                      long time_out)
     {
-        System.err.println ("### wiopread");
         WIOPFactories.setTransportInUse(true);
         return delegate.read (data, offset, min_length, max_length, time_out);
     }
