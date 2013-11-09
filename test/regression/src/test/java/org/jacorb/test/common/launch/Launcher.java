@@ -171,10 +171,7 @@ public class Launcher
             cmdList.add("-ea");
         }
 
-        if (jacorbHome != null)
-        {
-            cmdList.add(new BootClasspathBuilder(jacorbHome, coverage).getBootClasspath());
-        }
+        cmdList.add("-Xbootclasspath:" + System.getProperty("sun.boot.class.path"));
 
         if (classpath != null && classpath.length() > 0)
         {
