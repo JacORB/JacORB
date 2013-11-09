@@ -50,12 +50,12 @@ public class ImRFailoverTest extends ORBTestCase
     private static final boolean SVR_2_OFF = false;
 
     private static final String IMPLNAME = "EchoServer";
-    private static final String SERVER_1_LEP = "iiop://:45111";
-    private static final String SERVER_2_LEP = "iiop://:45222";
+    private static final String SERVER_1_LEP = "iiop://:55111";
+    private static final String SERVER_2_LEP = "iiop://:55222";
 
     // ImR endpoints
-    private static final String IMR_1_LEP = "44111";
-    private static final String IMR_2_LEP = "44222";
+    private static final String IMR_1_LEP = "54111";
+    private static final String IMR_2_LEP = "54222";
 
     private Properties imrProp_1 = null;
     private Properties imrProp_2 = null;
@@ -121,10 +121,6 @@ public class ImRFailoverTest extends ORBTestCase
                     imrProp_1.setProperty ("jacorb.test.timeout.server", Long.toString(10000));
                     imrProp_1.setProperty ("jacorb.connection.server.reuse_address", "true");
 
-                    // uncomment what you need for debugging purposes
-                    // imrProp_1.setProperty ("jacorb.log.default.verbosity", "4");
-                    // imrProp_1.setProperty("jacorb.debug.dump_outgoing_messages", "on");
-                    // imrProp_1.setProperty("jacorb.debug.dump_incoming_messages", "on");
                     imrProp_1.setProperty("jacorb.log.showThread", "on");
                     imrProp_1.setProperty("jacorb.log.showSrcInfo", "on");
                 }
@@ -163,10 +159,6 @@ public class ImRFailoverTest extends ORBTestCase
                     imrProp_2.setProperty ("jacorb.test.timeout.server", Long.toString(10000));
                     imrProp_2.setProperty ("jacorb.connection.server.reuse_address", "true");
 
-                    // uncomment what you need for debugging purposes
-                    // imrProp_2.setProperty ("jacorb.log.default.verbosity", "4");
-                    //imrProp_2.setProperty("jacorb.debug.dump_outgoing_messages", "on");
-                    //imrProp_2.setProperty("jacorb.debug.dump_incoming_messages", "on");
                     imrProp_2.setProperty("jacorb.log.showThread", "on");
                     imrProp_2.setProperty("jacorb.log.showSrcInfo", "on");
                 }
