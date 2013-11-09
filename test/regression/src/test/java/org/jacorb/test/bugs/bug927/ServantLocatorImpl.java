@@ -34,8 +34,9 @@ class ServantLocatorImpl extends LocalObject implements ServantLocator {
             }
 
             slotDataAsStr += ":" + methodName;
-            Thread.dumpStack();
-System.out.println("*** addStringToSlotId slotDataAsStr=" + slotDataAsStr);
+            
+            System.out.println("*** addStringToSlotId slotDataAsStr=" + slotDataAsStr);
+            
             slotDataAsAny.insert_string(slotDataAsStr);
 
             piCurrent.set_slot( MyInitializer.slot_id, slotDataAsAny);
@@ -64,7 +65,6 @@ System.out.println("*** addStringToSlotId slotDataAsStr=" + slotDataAsStr);
         throw new OBJECT_NOT_EXIST();
      }
 
-     //System.out.println("** returning servant **");
      return servant;
   }
 

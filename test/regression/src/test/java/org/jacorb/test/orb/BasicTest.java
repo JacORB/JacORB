@@ -53,7 +53,6 @@ public class BasicTest extends ClientServerTestCase
     @BeforeClass
     public static void setUpBeforeClass() throws Exception
     {
-        System.out.println ("### setupBeforeClass::beforeClass ");
         setup = new ClientServerSetup ("org.jacorb.test.orb.BasicServerImpl" );
     }
 

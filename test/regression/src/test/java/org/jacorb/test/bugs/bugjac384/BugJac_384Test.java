@@ -44,6 +44,7 @@ public class BugJac_384Test
 
         props.setProperty("org.omg.CORBA.ORBClass", "org.jacorb.orb.ORB");
         props.setProperty("org.omg.CORBA.ORBSingletonClass", "org.jacorb.orb.ORBSingleton");
+        // Need verbosity of 4 for this test to pass.
         props.setProperty("jacorb.log.default.verbosity", "4");
         props.setProperty("jacorb.logfile", dir.getAbsolutePath() + "/logfile.txt");
         props.setProperty("jacorb.logfile.append", "on");

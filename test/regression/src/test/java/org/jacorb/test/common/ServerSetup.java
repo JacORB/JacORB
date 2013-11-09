@@ -98,7 +98,7 @@ public class ServerSetup
         }
         else
         {
-            serverOrbProperties.setProperty("jacorb.log.initializer", MyNullLoggerInitializer.class.getName());
+            serverOrbProperties.setProperty("jacorb.log.default.verbosity", "0");
         }
 
         if (optionalProperties != null)

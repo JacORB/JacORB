@@ -37,7 +37,6 @@ public class NIOTest extends ClientServerTestCase
     {
         Properties props = new Properties ();
         props.setProperty ("jacorb.connection.nonblocking", "on");
-        props.setProperty ("jacorb.log.default.verbosity", "4");
 
         setup = new ClientServerSetup(NIOTestServer.class.getName(),
                                    TestIf.class.getName(), props, props);

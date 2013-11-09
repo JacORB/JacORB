@@ -62,8 +62,6 @@ public class BugJac524Test extends ORBTestCase
             props.setProperty("OAPort", Integer.toString(port));
         }
 
-        props.setProperty("jacorb.log.default.verbosity", "4");
-
         props.setProperty("jacorb.iiop.enable_loopback", "on");
 
         BugJac524TCPConnectionListener.reset();

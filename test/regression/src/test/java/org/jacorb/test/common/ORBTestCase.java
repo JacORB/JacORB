@@ -57,6 +57,15 @@ public abstract class ORBTestCase
     {
         orbProps.setProperty("org.omg.CORBA.ORBClass", "org.jacorb.orb.ORB");
         orbProps.setProperty("org.omg.CORBA.ORBSingletonClass", "org.jacorb.orb.ORBSingleton");
+
+        if (TestUtils.verbose)
+        {
+            orbProps.setProperty("jacorb.log.default.verbosity", "4");
+        }
+        else
+        {
+            orbProps.setProperty("jacorb.log.default.verbosity", "0");
+        }
     }
 
     @Before
