@@ -59,24 +59,6 @@
                             </target>
                         </configuration>
                     </execution>
-                    <execution>
-                        <id>test</id>
-                        <phase>test</phase>
-                        <goals>
-                            <goal>run</goal>
-                        </goals>
-                        <configuration>
-                            <target unless="skipTests">
-                                <property name="plugin_classpath" refid="maven.plugin.classpath"/>
-                                <ant antfile="${env.JACORB_HOME}/test/regression/build.xml" inheritAll="true" inheritRefs="true" >
-                                    <property name="sun.boot.class.path" value="${sun.boot.class.path}:${plugin_classpath}"/>
-                                    <property name="basedir" value="${env.JACORB_HOME}"/>
-                                    <target name="clean"/>
-                                    <target name="run-all"/>
-                                </ant>
-                            </target>
-                        </configuration>
-                    </execution>
                 </executions>
             </plugin>
 
