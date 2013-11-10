@@ -26,17 +26,11 @@ public class HelloInterfaceImpl extends HelloInterfacePOA {
         return this.poa;
     }
 
-    public void hello() {
+    public void hello()
+    {
         this.hello++ ;
-        System.out.println(" <####### HELLO " + this.hello + "  ######>");
 
-        // try {
-            long result = comput.get_result(this.hello * 100);
-            System.out.println("result = " + result);
-        // }
-        // catch (SystemException e) {
-        //     System.err.println("CORBA::SystemException raised : " + e.getMessage());
-        // }
+        long result = comput.get_result(this.hello * 100);
     }
 
     public void send_TRANSIENT_exception() {

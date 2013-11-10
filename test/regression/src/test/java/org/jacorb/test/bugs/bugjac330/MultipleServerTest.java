@@ -173,7 +173,6 @@ public class MultipleServerTest extends ORBTestCase
     {
         BasicServer server1 = BasicServerHelper.narrow(orb.string_to_object(server1IOR));
         server1.ping();
-        System.err.println ("### Waiting for server shutdown");
         Thread.sleep(10000);
 
         final String threadName = "ClientMessageReceptor";

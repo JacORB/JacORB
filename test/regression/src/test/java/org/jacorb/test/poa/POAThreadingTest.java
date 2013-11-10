@@ -69,7 +69,6 @@ public class POAThreadingTest extends ClientServerTestCase
         try
         {
             task.get(10000, TimeUnit.MILLISECONDS);
-            // System.out.println ("### Result is " + r);
             fail ("Expected a timeout");
         }
         catch (TimeoutException e)

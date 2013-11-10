@@ -91,8 +91,6 @@ public class BiDirTest extends ClientServerTestCase
         ClientCallback c = null;
         try
         {
-            System.out.println ("### bidir " + ((BiDirSetup)setup).
-                        getBiDirPOA());
             c = ClientCallbackHelper.narrow (((BiDirSetup)setup).
                         getBiDirPOA().servant_to_reference(new ClientCallbackImpl()));
         }

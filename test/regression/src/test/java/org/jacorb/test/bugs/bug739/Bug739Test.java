@@ -62,7 +62,6 @@ public class Bug739Test extends ClientServerTestCase
     public void testBounceString() throws Exception
     {
         String received = server.bounce_string(line);
-        System.out.println ("### Bounced string " + received);
         assertEquals(line, received);
     }
 }

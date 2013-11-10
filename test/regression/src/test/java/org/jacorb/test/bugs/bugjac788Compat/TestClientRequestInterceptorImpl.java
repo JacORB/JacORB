@@ -47,7 +47,6 @@ public class TestClientRequestInterceptorImpl extends
     public void receive_exception(ClientRequestInfo ri) throws ForwardRequest,
         SystemException {
 
-       System.out.println ("### TestClientRequestInterceptorImpl::receive_exception");
         try {
             // Get request_id
             Any any = ri.get_slot(requestIdSlotId);
@@ -123,7 +122,6 @@ public class TestClientRequestInterceptorImpl extends
      */
     public void receive_other(ClientRequestInfo ri) throws ForwardRequest,
         SystemException {
-       System.out.println ("### TestClientRequestInterceptorImpl::receive_other");
 
         try {
             // Get request_id
@@ -195,7 +193,6 @@ public class TestClientRequestInterceptorImpl extends
      */
     public void receive_reply(ClientRequestInfo ri)
         throws org.omg.CORBA.SystemException {
-       System.out.println ("### TestClientRequestInterceptorImpl::receive_reply ");
 
         try {
             // Get request_id
@@ -203,7 +200,6 @@ public class TestClientRequestInterceptorImpl extends
             Any slotData = ri.get_slot(this.requestIdSlotId);
 
             TypeCode tc = slotData.type();
-            System.out.println ("### TestClientRequestInterceptorImpl::receive_reply " + ri + " and slot id " + requestIdSlotId + " and type " + tc.kind().value() + " thread " + Thread.currentThread ());
 
             if (tc.kind().value() != TCKind._tk_ulong) {
 
@@ -293,7 +289,6 @@ public class TestClientRequestInterceptorImpl extends
      */
     public void send_request(ClientRequestInfo ri) throws ForwardRequest,
         org.omg.CORBA.SystemException {
-       System.out.println ("### TestClientRequestInterceptorImpl::send_request");
 
         try {
             // Get requestId
@@ -301,7 +296,6 @@ public class TestClientRequestInterceptorImpl extends
             Any slotData = ri.get_slot(this.requestIdSlotId);
 
             TypeCode tc = slotData.type();
-            System.out.println ("### TestClientRequestInterceptorImpl::send_request tc.kind " + tc.kind ().value () + " and slot id " + this.requestIdSlotId);
             if (tc.kind().value() != TCKind._tk_ulong) {
 
                 if (tc.kind().value() == TCKind._tk_null) {
@@ -324,7 +318,6 @@ public class TestClientRequestInterceptorImpl extends
             }
             else {
                 requestId = slotData.extract_ulong();
-                System.out.println ("### TestClientRequestInterceptorImpl::send_request requestid " + requestId)   ;
             }
 
         }

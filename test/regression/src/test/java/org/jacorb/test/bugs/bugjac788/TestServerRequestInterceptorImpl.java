@@ -53,7 +53,6 @@ public class TestServerRequestInterceptorImpl extends
      */
     public void receive_request(ServerRequestInfo arg0) throws ForwardRequest,
         SystemException {
-       System.out.println ("### TestServerInterceptor::receive_request");
     }
 
     /**
@@ -114,7 +113,6 @@ public class TestServerRequestInterceptorImpl extends
      */
     public void send_exception(ServerRequestInfo arg0) throws ForwardRequest,
         SystemException {
-           System.out.println ("### TestServerInterceptor::send_exception");
            this.removeCurrentTimeoutRequestLog(arg0);
     }
 
@@ -129,7 +127,6 @@ public class TestServerRequestInterceptorImpl extends
      */
     public void send_other(ServerRequestInfo reqInfo) throws ForwardRequest,
         SystemException {
-           System.out.println ("### TestServerInterceptor::send_other");
         this.removeCurrentTimeoutRequestLog(reqInfo);
     }
 

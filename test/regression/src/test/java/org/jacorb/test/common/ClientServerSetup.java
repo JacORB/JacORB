@@ -273,6 +273,8 @@ public class ClientServerSetup extends ORBTestCase
         boolean clientUseSSL = TestUtils.getStringAsBoolean(sslProperty);
         boolean useSSL = clientUseSSL && !TestUtils.getStringAsBoolean(orbProps.getProperty(CommonSetup.JACORB_REGRESSION_DISABLE_SECURITY, "false"));
 
+        TestUtils.log ("SSL enabled : " + (useSSL && serverSetup.isSSLEnabled()));
+
         return useSSL && serverSetup.isSSLEnabled();
     }
 }

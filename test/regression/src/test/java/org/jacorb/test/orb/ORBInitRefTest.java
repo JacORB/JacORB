@@ -185,7 +185,7 @@ public class ORBInitRefTest extends ClientServerTestCase
         ORB orb = newORB(args);
 
         HashSet<String> set = new HashSet<String>(Arrays.asList(orb.list_initial_services()));
-System.out.println ("### set" + set + " and args " + args);
+
         assertTrue(set.contains("BasicServer"));
     }
 

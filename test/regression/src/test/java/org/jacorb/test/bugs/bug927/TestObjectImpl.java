@@ -29,8 +29,7 @@ public class TestObjectImpl extends TestObjectPOA
             String expectedPiFlow = "JacOrbRocks:receive_request_service_contexts:preinvoke:receive_request:foo";
             if (! expectedPiFlow.equals(s))
             {
-                System.out.println ("### THROWING EX " + expectedPiFlow + " and " + s);
-               throw new InterceptorOrderingException();
+                throw new InterceptorOrderingException();
             }
 
             System.out.println("TestObjectImpl.foo calling bar()");
@@ -63,7 +62,6 @@ public class TestObjectImpl extends TestObjectPOA
             String expectedPiFlow = "JacOrbRocks:receive_request_service_contexts:preinvoke:receive_request:foo:receive_request_service_contexts:preinvoke:receive_request:bar";
             if (! expectedPiFlow.equals(s))
             {
-                // System.out.println ("### THROWING EX2 " + expectedPiFlow + " and " + s);
                 throw new InterceptorOrderingException();
             }
         }

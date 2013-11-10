@@ -29,15 +29,14 @@ public class ComputInterfaceImpl extends ComputInterfacePOA
     }
 
     public int get_result(int timeMs) throws SystemException {
-        System.out.println(" <####### Comput " + timeMs + "  ######>");
-        try {
+        try
+        {
            Thread.sleep (timeMs);
-//            OS.sleep((int)timeMs);
         }
-        catch (InterruptedException e) {
+        catch (InterruptedException e)
+        {
              e.printStackTrace();
         }
-        System.out.println(" <####### End of Comput " + timeMs + "  ######>");
 
         return timeMs;
     }

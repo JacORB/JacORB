@@ -59,7 +59,6 @@ public class Bug941Test extends ClientServerTestCase
 
         grid = MyServerHelper.narrow(server);
 
-        System.out.println ("### In main" );
         byte [] petite_bite = new byte [1];
         petite_bite[0] = 1;
         Data tiny = new Data(petite_bite);

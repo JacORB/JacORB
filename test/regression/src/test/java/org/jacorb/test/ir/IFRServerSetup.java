@@ -56,7 +56,6 @@ public class IFRServerSetup
         serverProps.setProperty(CommonSetup.JACORB_REGRESSION_DISABLE_IMR, "true");
         serverProps.setProperty("jacorb.test.ir.classpath", dirGeneration.toString());
         serverProps.setProperty("jacorb.test.ir.iorfile", iorFile.toString());
-        serverProps.setProperty("jacorb.ir.log.verbosity", "2");
 
         serverProps.putAll(additionalProps);
 

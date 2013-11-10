@@ -7,7 +7,6 @@ public class ServerImpl extends MyServerPOA
 
     public void block()
     {
-        System.out.println ("### Block - entering");
         synchronized (lock)
         {
             try
@@ -18,12 +17,10 @@ public class ServerImpl extends MyServerPOA
             {
             }
         }
-        System.out.println ("### Block - exiting");
     }
 
     public boolean testCall()
     {
-        System.out.println ("### testCall");
         return true;
     }
 }

@@ -201,12 +201,6 @@ public class ImRFailoverTest extends ORBTestCase
                                         new String []
                                             {
                                                  "",
-
-                                                 // uncomment these for debug purposes
-                                                 //"-Djacorb.log.default.verbosity=" + "4",
-                                                 //"-Djacorb.debug.dump_outgoing_messages=" + "on",
-                                                 //"-Djacorb.debug.dump_incoming_messages=" + "on",
-
                                                  "-Djacorb.log.showThread=" + "on",
                                                  "-Djacorb.log.showSrcInfo=" + "on",
 
@@ -233,12 +227,6 @@ public class ImRFailoverTest extends ORBTestCase
                                         new String []
                                             {
                                                  "",
-
-                                                 // uncomment these for debug purposes
-                                                 //"-Djacorb.log.default.verbosity=" + "4",
-                                                 //"-Djacorb.debug.dump_outgoing_messages=" + "on",
-                                                 //"-Djacorb.debug.dump_incoming_messages=" + "on",
-
                                                  "-Djacorb.log.showThread=" + "on",
                                                  "-Djacorb.log.showSrcInfo=" + "on",
 

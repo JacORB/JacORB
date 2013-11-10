@@ -54,7 +54,6 @@ public class ReleaseTest extends ClientServerTestCase
         server.bounce_long( 14 );
 
         server._release();
-        System.err.println ("### Released!");
 
         int x = server.bounce_long( 100 );
 

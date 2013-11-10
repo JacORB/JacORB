@@ -198,12 +198,6 @@ public class NSFailoverTest extends ORBTestCase
                                         new String []
                                             {
                                                  "",
-                                                 // uncomment these for debug purposes
-                                                 // "-iorfile", "/tmp/NSFailoverTestServer1." + IMPLNAME + ".ior",
-                                                 //"-Djacorb.log.default.verbosity=" + "4",
-                                                 //"-Djacorb.debug.dump_outgoing_messages=" + "on",
-                                                 //"-Djacorb.debug.dump_incoming_messages=" + "on",
-
                                                  "-Djacorb.log.showThread=" + "on",
                                                  "-Djacorb.log.showSrcInfo=" + "on",
 
@@ -233,13 +227,6 @@ public class NSFailoverTest extends ORBTestCase
                                         new String []
                                             {
                                                  "",
-
-                                                 // uncomment these for debug purposes
-                                                 // "-iorfile", "/tmp/NSFailoverTestServer2." + IMPLNAME + ".ior",
-                                                 // "-Djacorb.log.default.verbosity=" + "4",
-                                                 //"-Djacorb.debug.dump_outgoing_messages=" + "on",
-                                                 //"-Djacorb.debug.dump_incoming_messages=" + "on",
-
                                                  "-Djacorb.log.showThread=" + "on",
                                                  "-Djacorb.log.showSrcInfo=" + "on",
 

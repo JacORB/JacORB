@@ -31,14 +31,12 @@ public class HelloInterfaceImpl extends HelloInterfacePOA {
 
     public void hello() {
         this.hello++ ;
-        System.out.println(" <####### HELLO " + this.hello + "  ######>");
 
-        try {
+        try
+        {
             long result = comput.get_result(this.hello * 100);
-            System.out.println("result = " + result);
         }
         catch (SystemException e) {
-            System.err.println("CORBA::SystemException raised : " + e.getMessage());
         }
 
     }
