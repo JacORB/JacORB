@@ -22,11 +22,15 @@ package org.jacorb.test.common;
  */
 
 import static org.junit.Assert.assertTrue;
+
 import java.util.Properties;
+
 import org.junit.After;
 import org.junit.Before;
+import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.rules.TestName;
+import org.junit.rules.Timeout;
 import org.omg.CORBA.ORB;
 import org.omg.PortableServer.POA;
 import org.omg.PortableServer.POAHelper;
@@ -49,6 +53,12 @@ public abstract class ORBTestCase
     @Rule
     public TestName name = new TestName();
 
+    @ClassRule
+    public static Timeout globalTimeout = new Timeout(480000); // 8 minutes max per class tested
+
+    @Rule
+    public Timeout testTimeout = new Timeout(150000); // 2.5 minutes max per method tested
+    
     protected ORB orb;
     protected POA rootPOA;
     protected Properties orbProps = new Properties();
