@@ -22,13 +22,11 @@ package org.jacorb.test.config;
  */
 
 import static org.junit.Assert.assertEquals;
-
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Properties;
-
 import org.jacorb.config.Configuration;
 import org.jacorb.config.JacORBConfiguration;
 import org.jacorb.test.common.TestUtils;

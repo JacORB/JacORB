@@ -4,6 +4,7 @@
  */
 package org.jacorb.test.orb.orbreinvoke;
 
+import java.io.IOException;
 import java.util.Properties;
 import org.jacorb.naming.NameServer;
 import org.jacorb.test.common.ServerSetup;
@@ -14,7 +15,7 @@ import org.jacorb.test.common.ServerSetup;
  */
 public class NSServiceSetup extends ServerSetup
 {
-    public NSServiceSetup (Properties props, int id)
+    public NSServiceSetup (Properties props, int id) throws IOException
     {
         super (
                 NSServiceRunner.class.getName(),

@@ -22,6 +22,7 @@ package org.jacorb.test.orb;
 
 import java.util.Properties;
 import org.jacorb.test.common.ClientServerSetup;
+import org.jacorb.test.common.TestUtils;
 import org.junit.Assume;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -32,12 +33,13 @@ public class NIOBasicTest extends BasicTest
     public void setUp() throws Exception
     {
         super.setUp();
-        Assume.assumeTrue(!setup.isSSLEnabled());
     }
 
     @BeforeClass
     public static void beforeClassSetUp() throws Exception
     {
+        Assume.assumeFalse(TestUtils.isSSLEnabled);
+        
         Properties client_props = new Properties();
         client_props.setProperty ("jacorb.connection.nonblocking", "true");
 

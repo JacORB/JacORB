@@ -21,10 +21,10 @@ package org.jacorb.test.common;
  *   MA 02110-1301, USA.
  */
 
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
-
+import java.io.IOException;
 import java.util.Properties;
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
@@ -58,7 +58,7 @@ public abstract class ORBTestCase
 
     @Rule
     public Timeout testTimeout = new Timeout(150000); // 2.5 minutes max per method tested
-    
+
     protected ORB orb;
     protected POA rootPOA;
     protected Properties orbProps = new Properties();
@@ -75,6 +75,24 @@ public abstract class ORBTestCase
         else
         {
             orbProps.setProperty("jacorb.log.default.verbosity", "0");
+        }
+        if (TestUtils.isSSLEnabled)
+        {
+            TestUtils.log ("ORBTestCase SSL enabled");
+
+            // In this case we have been configured to run all the tests
+            // in SSL mode. For simplicity, we will use the demo/ssl keystore
+            // and properties (partly to ensure that they always work)
+            Properties cp;
+            try
+            {
+                cp = CommonSetup.loadSSLProps("jsse_client_props", "jsse_client_ks");
+                orbProps.putAll(cp);
+            }
+            catch (IOException e)
+            {
+                assertFalse("Exception was thrown " + e, true);
+            }
         }
     }
 

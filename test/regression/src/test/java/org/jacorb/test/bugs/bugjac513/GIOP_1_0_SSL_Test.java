@@ -41,10 +41,7 @@ public class GIOP_1_0_SSL_Test extends ClientServerTestCase
         Properties clientProps = new Properties();
         Properties serverProps = new Properties();
 
-        clientProps.setProperty("jacorb.test.ssl", "true");
-
         serverProps.setProperty("jacorb.giop_minor_version", "0");
-        serverProps.setProperty("jacorb.test.ssl", "true");
 
         setup = new ClientServerSetup(BasicServerImpl.class.getName(), clientProps, serverProps);
     }

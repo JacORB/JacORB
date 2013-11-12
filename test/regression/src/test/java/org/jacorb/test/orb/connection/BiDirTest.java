@@ -9,7 +9,8 @@ import org.jacorb.test.ClientCallback;
 import org.jacorb.test.ClientCallbackHelper;
 import org.jacorb.test.ClientCallbackPOA;
 import org.jacorb.test.common.ClientServerTestCase;
-import org.jacorb.test.common.CommonSetup;
+import org.jacorb.test.common.TestUtils;
+import org.junit.Assume;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -72,14 +73,14 @@ public class BiDirTest extends ClientServerTestCase
     @BeforeClass
     public static void beforeClassSetUp() throws Exception
     {
+        // this tests counts transports which are disrupted by
+        // security initialisation.
+        Assume.assumeFalse(TestUtils.isSSLEnabled);
+        
         Properties properties = new Properties();
         properties.setProperty
             ("org.omg.PortableInterceptor.ORBInitializerClass.bidir_init",
              "org.jacorb.orb.giop.BiDirConnectionInitializer" );
-
-        // this tests counts transports which are disrupted by
-        // security initialisation.
-        properties.setProperty(CommonSetup.JACORB_REGRESSION_DISABLE_SECURITY, "true");
 
         setup = new BiDirSetup (properties, properties);
     }

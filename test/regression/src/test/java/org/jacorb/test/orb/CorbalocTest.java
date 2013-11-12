@@ -26,7 +26,8 @@ import org.jacorb.test.BasicServer;
 import org.jacorb.test.BasicServerHelper;
 import org.jacorb.test.common.ClientServerSetup;
 import org.jacorb.test.common.ClientServerTestCase;
-import org.jacorb.test.common.CommonSetup;
+import org.jacorb.test.common.TestUtils;
+import org.junit.Assume;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
@@ -51,8 +52,9 @@ public class CorbalocTest extends ClientServerTestCase
     @BeforeClass
     public static void beforeClassSetUp() throws Exception
     {
+        Assume.assumeFalse(TestUtils.isSSLEnabled);
+
         Properties serverProps = new Properties();
-        serverProps.put (CommonSetup.JACORB_REGRESSION_DISABLE_SECURITY, "true");
         serverProps.put ("jacorb.test.corbaloc.enable",   "true");
         serverProps.put ("jacorb.test.corbaloc.port",     "54321");
         serverProps.put ("jacorb.test.corbaloc.implname", "MyImpl");
@@ -61,12 +63,9 @@ public class CorbalocTest extends ClientServerTestCase
         serverProps.put ("jacorb.test.corbaloc.shortcut", "Shortcut1");
         serverProps.put ("jacorb.orb.objectKeyMap.Shortcut2", "MyImpl/MyPOA/MyObject");
 
-        Properties clientProps = new Properties();
-        clientProps.put (CommonSetup.JACORB_REGRESSION_DISABLE_SECURITY, "true");
-
         setup = new ClientServerSetup(
                                    "org.jacorb.test.orb.BasicServerImpl",
-                                   clientProps, serverProps);
+                                   null, serverProps);
     }
 
     @Test

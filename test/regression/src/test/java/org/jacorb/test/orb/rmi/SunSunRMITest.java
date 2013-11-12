@@ -3,6 +3,7 @@ package org.jacorb.test.orb.rmi;
 import java.util.Properties;
 import org.jacorb.test.common.ClientServerSetup;
 import org.jacorb.test.common.TestUtils;
+import org.junit.Assume;
 import org.junit.BeforeClass;
 
 /*
@@ -33,11 +34,10 @@ public class SunSunRMITest extends AbstractRMITestCase
     @BeforeClass
     public static void beforeClassSetUp() throws Exception
     {
+        Assume.assumeFalse(TestUtils.isSSLEnabled);
 
         Properties client_props = TestUtils.newForeignORBProperties();
         Properties server_props = TestUtils.newForeignORBProperties();
-        client_props.setProperty("jacorb.regression.disable_security", "true");
-        server_props.setProperty("jacorb.regression.disable_security", "true");
 
         setup = new ClientServerSetup("org.jacorb.test.orb.rmi.RMITestServant",
                                    client_props,

@@ -41,9 +41,7 @@ import java.util.List;
 import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
 import junit.framework.AssertionFailedError;
-
 import org.junit.Assert;
 
 /**
@@ -62,6 +60,9 @@ public class TestUtils
 
     static boolean verbose = "true".equalsIgnoreCase(System.getProperty("jacorb.test.verbose"));
 
+    static int timeout = Integer.valueOf(System.getProperty("jacorb.test.timeout.server", "60000"));
+
+    public static boolean isSSLEnabled = Boolean.valueOf(System.getProperty("jacorb.test.ssl", "false"));
 
     public static String jacorbHome()
     {
@@ -286,6 +287,7 @@ public class TestUtils
         tmpDir.deleteOnExit();
         Runtime.getRuntime().addShutdownHook(new Thread()
         {
+            @Override
             public void run()
             {
                 TestUtils.deleteRecursively(tmpDir);
@@ -443,11 +445,6 @@ public class TestUtils
         return getStringAsBoolean(value);
     }
 
-    public static long getShortTimeout()
-    {
-        return Long.getLong("jacorb.test.timeout.short", 2000).longValue();
-    }
-
     public static long getMediumTimeout()
     {
         return Long.getLong("jacorb.test.timeout.medium", 20000).longValue();
@@ -462,7 +459,7 @@ public class TestUtils
                                                     FileNotFoundException,
                                                     IOException
     {
-        long maxWait = System.currentTimeMillis() + ServerSetup.getTestServerTimeout();
+        long maxWait = System.currentTimeMillis() + timeout;
 
         while(iorFile.length() == 0 && System.currentTimeMillis() < maxWait)
         {
@@ -477,7 +474,7 @@ public class TestUtils
 
         if (ior == null)
         {
-            throw new IllegalArgumentException("cannot read IOR from file " + iorFile + " within " + ServerSetup.getTestServerTimeout());
+            throw new IllegalArgumentException("cannot read IOR from file " + iorFile + " within " + TestUtils.timeout);
         }
 
         System.out.println("SERVER IOR: " + ior);

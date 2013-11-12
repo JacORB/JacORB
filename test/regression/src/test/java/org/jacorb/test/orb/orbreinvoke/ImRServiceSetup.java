@@ -4,6 +4,7 @@
  */
 package org.jacorb.test.orb.orbreinvoke;
 
+import java.io.IOException;
 import java.util.Properties;
 import org.jacorb.imr.ImplementationRepositoryImpl;
 import org.jacorb.test.common.ImplementationRepositoryRunner;
@@ -15,7 +16,7 @@ import org.jacorb.test.common.ServerSetup;
  */
 public class ImRServiceSetup extends ServerSetup
 {
-    public ImRServiceSetup (Properties imrProps, int imrNum)
+    public ImRServiceSetup (Properties imrProps, int imrNum) throws IOException
     {
         super (
                 ImplementationRepositoryRunner.class.getName(),

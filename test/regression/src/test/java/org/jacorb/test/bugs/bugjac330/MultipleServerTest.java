@@ -18,6 +18,7 @@ import org.jacorb.test.BasicServerHelper;
 import org.jacorb.test.common.CommonSetup;
 import org.jacorb.test.common.ORBTestCase;
 import org.jacorb.test.common.ServerSetup;
+import org.jacorb.test.common.TestUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -37,15 +38,25 @@ public class MultipleServerTest extends ORBTestCase
     @Before
     public void setUp() throws Exception
     {
-        Properties props = new Properties();
-        props.put(CommonSetup.JACORB_REGRESSION_DISABLE_IMR, "true");
-        props.put(CommonSetup.JACORB_REGRESSION_DISABLE_SECURITY, "true");
+        Properties orbProps = new Properties();
+
+        if (TestUtils.isSSLEnabled)
+        {
+            // In this case we have been configured to run all the tests
+            // in SSL mode. For simplicity, we will use the demo/ssl keystore
+            // and properties (partly to ensure that they always work)
+            Properties cp = CommonSetup.loadSSLProps("jsse_client_props", "jsse_client_ks");
+
+            orbProps.putAll(cp);
+        }
 
         setup1 = new ServerSetup(CustomBasicServerImpl.class.getName());
+        setup1.patchServerProperties(orbProps);
         setup1.setUp();
         server1IOR = setup1.getServerIOR();
 
         setup2 = new ServerSetup(CustomBasicServerImpl.class.getName());
+        setup2.patchServerProperties(orbProps);
         setup2.setUp();
         server2IOR = setup2.getServerIOR();
     }

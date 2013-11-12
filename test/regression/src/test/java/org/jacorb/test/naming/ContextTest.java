@@ -67,7 +67,6 @@ public class ContextTest extends ClientServerTestCase
         serverProps.put("jacorb.naming.ior_filename", "");
         serverProps.put("jacorb.naming.print_ior", "true");
         serverProps.put("jacorb.naming.db_dir", tmpDir.toString());
-        serverProps.put(CommonSetup.JACORB_REGRESSION_DISABLE_SECURITY, "true");
         serverProps.put(CommonSetup.JACORB_REGRESSION_DISABLE_IMR, "true");
 
         setup = new ClientServerSetup( NameServer.class.getName(),  "ignored", clientProps, serverProps);

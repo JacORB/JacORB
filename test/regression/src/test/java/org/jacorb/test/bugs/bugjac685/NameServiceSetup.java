@@ -9,7 +9,6 @@ import org.jacorb.test.common.ServerSetup;
 
 public class NameServiceSetup extends ServerSetup
 {
-
     public NameServiceSetup () throws Exception
     {
         super (NameServiceRunner.class.getName(), NameServer.class.getName(), newProps());
@@ -18,7 +17,8 @@ public class NameServiceSetup extends ServerSetup
         outName = "NS-OUT";
     }
 
-    protected String [] getServerArgs()
+    @Override
+    public String [] getServerArgs()
     {
         return null;
     }
@@ -32,7 +32,6 @@ public class NameServiceSetup extends ServerSetup
         nsIOR.deleteOnExit();
         props.setProperty ("jacorb.naming.ior_filename", nsIOR.toString());
         props.setProperty ("jacorb.test.timeout.server", Long.toString(15000));
-        props.setProperty("jacorb.test.ssl", "false");
 
         return props;
     }

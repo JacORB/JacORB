@@ -4,6 +4,8 @@ import static org.junit.Assert.assertTrue;
 import java.util.Properties;
 import org.jacorb.test.common.ClientServerSetup;
 import org.jacorb.test.common.ClientServerTestCase;
+import org.jacorb.test.common.TestUtils;
+import org.junit.Assume;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -54,6 +56,7 @@ public class BugJac192Test extends ClientServerTestCase
     @BeforeClass
     public static void beforeClassSetUp() throws Exception
     {
+        Assume.assumeFalse(TestUtils.isSSLEnabled);
 
         Properties client_props = new Properties();
         Properties server_props = new Properties();
@@ -73,7 +76,6 @@ public class BugJac192Test extends ClientServerTestCase
             "jacorb.transport.factories",
             "org.jacorb.orb.iiop.IIOPFactories,org.jacorb.test.orb.etf.wiop.WIOPFactories"
         );
-        server_props.setProperty("jacorb.regression.disable_security", "true");
 
         setup = new ClientServerSetup
         (

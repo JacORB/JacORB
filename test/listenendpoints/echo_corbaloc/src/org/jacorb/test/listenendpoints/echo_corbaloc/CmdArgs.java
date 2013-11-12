@@ -3,8 +3,6 @@ package org.jacorb.test.listenendpoints.echo_corbaloc;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
-import java.io.PrintWriter;
-import java.io.*;
 import java.net.InetAddress;
 
 

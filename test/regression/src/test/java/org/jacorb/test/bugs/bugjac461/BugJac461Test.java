@@ -45,7 +45,6 @@ public class BugJac461Test extends ClientServerTestCase
     @BeforeClass
     public static void beforeClassSetUp() throws Exception
     {
-
         Properties props = new Properties();
 
         props.setProperty("org.omg.PortableInterceptor.ORBInitializerClass.standard_init", "org.jacorb.orb.standardInterceptors.IORInterceptorInitializer");

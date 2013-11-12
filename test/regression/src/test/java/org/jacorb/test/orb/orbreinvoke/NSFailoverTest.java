@@ -29,7 +29,9 @@ import org.jacorb.orb.util.PrintIOR;
 import org.jacorb.test.common.CommonSetup;
 import org.jacorb.test.common.ORBTestCase;
 import org.jacorb.test.common.ServerSetup;
+import org.jacorb.test.common.TestUtils;
 import org.junit.After;
+import org.junit.Assume;
 import org.junit.Before;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
@@ -73,7 +75,6 @@ public class NSFailoverTest extends ORBTestCase
         props.setProperty ("jacorb.retry_interval", "1000");
         props.setProperty ("jacorb.connection.client.connect_timeout","5000");
         props.setProperty ("jacorb.test.timeout.server", Long.toString(10000));
-        props.setProperty(CommonSetup.JACORB_REGRESSION_DISABLE_SECURITY, "true");
         props.setProperty(CommonSetup.JACORB_REGRESSION_DISABLE_IMR, "true");
     }
 
@@ -204,7 +205,6 @@ public class NSFailoverTest extends ORBTestCase
                                                  "-ORBListenEndpoints", SERVER_1_LEP,
                                                  "-DORBInitRef.NameService=" + "file://" + nsIOR_1.toString(),
                                                  "-Djacorb.test.timeout.server=" + Long.toString(10000),
-                                                 "-D" + CommonSetup.JACORB_REGRESSION_DISABLE_SECURITY + "=" + "true",
                                                  "-D" + CommonSetup.JACORB_REGRESSION_DISABLE_IMR + "=" + "true"
                                             },
                                         null);
@@ -234,7 +234,6 @@ public class NSFailoverTest extends ORBTestCase
                                                  "-DORBInitRef.NameService=" + "file://" + nsIOR_2.toString(),
                                                  "-Djacorb.implname=" + IMPLNAME,
                                                  "-Djacorb.test.timeout.server=" + Long.toString(10000),
-                                                 "-D" + CommonSetup.JACORB_REGRESSION_DISABLE_SECURITY + "=" + "true",
                                                  "-D" + CommonSetup.JACORB_REGRESSION_DISABLE_IMR + "=" + "true"
                                             },
                                         null);
@@ -252,6 +251,8 @@ public class NSFailoverTest extends ORBTestCase
     @Before
     public void setUp() throws Exception
     {
+        Assume.assumeFalse(TestUtils.isSSLEnabled);
+
         try
         {
             // initiate NameServer's

@@ -48,6 +48,7 @@ public class ServerSetup
             processRef = new WeakReference<Process>(process);
         }
 
+        @Override
         public void run()
         {
             Process process = processRef.get();
@@ -68,7 +69,6 @@ public class ServerSetup
     private final Properties serverOrbProperties = new Properties();
 
     private final String servantName;
-    private final long testTimeout;
     private final String testServer;
 
     private Process serverProcess;
@@ -78,16 +78,16 @@ public class ServerSetup
     protected String outName = "OUT";
     protected String errName = "ERR";
 
-    protected final List<String> serverArgs = new ArrayList<String>();
+    private final List<String> serverArgs = new ArrayList<String>();
 
     private String serverIORFailedMesg;
 
-    public ServerSetup(String testServer, String servantName, Properties optionalProperties)
+    public ServerSetup(String testServer, String servantName, Properties optionalProperties) throws IOException
     {
         this(testServer, new String [] { servantName } , optionalProperties);
     }
 
-    public ServerSetup(String testServer, String[] testServantArgs, Properties optionalProperties)
+    public ServerSetup(String testServer, String[] testServantArgs, Properties optionalProperties) throws IOException
     {
         this.testServer = getTestServer(testServer);
         this.servantName = testServantArgs[0];
@@ -100,13 +100,20 @@ public class ServerSetup
         {
             serverOrbProperties.setProperty("jacorb.log.default.verbosity", "0");
         }
+        if (TestUtils.isSSLEnabled)
+        {
+            // In this case we have been configured to run all the tests
+            // in SSL mode. For simplicity, we will use the demo/ssl keystore
+            // and properties (partly to ensure that they always work)
+            Properties serverProps = CommonSetup.loadSSLProps("jsse_server_props", "jsse_server_ks");
+
+            serverOrbProperties.putAll(serverProps);
+        }
 
         if (optionalProperties != null)
         {
             serverOrbProperties.putAll(optionalProperties);
         }
-
-        testTimeout = getTestServerTimeout2();
 
         for (int i = 0; i < testServantArgs.length; i++)
         {
@@ -114,7 +121,7 @@ public class ServerSetup
         }
     }
 
-    public ServerSetup(String servantName)
+    public ServerSetup(String servantName) throws IOException
     {
         this(null, servantName, null);
     }
@@ -128,11 +135,6 @@ public class ServerSetup
         return Long.getLong("jacorb.test.timeout.server", new Long(120000)).longValue();
     }
 
-    private long getTestServerTimeout2()
-    {
-        return Long.parseLong(serverOrbProperties.getProperty("jacorb.test.timeout.server", Long.toString(getTestServerTimeout())));
-    }
-
     private String getTestServer(String optionalTestServer)
     {
         if (optionalTestServer == null)
@@ -142,25 +144,15 @@ public class ServerSetup
         return optionalTestServer;
     }
 
-
-    public void setUp() throws Exception
+    public void setUp()
     {
-        initSecurity();
-
         final boolean coverage = TestUtils.getSystemPropertyAsBoolean("jacorb.test.coverage", false);
 
         Properties serverProperties = new Properties();
-        serverProperties.setProperty
-        (
-            "jacorb.log.default.verbosity",
-            (TestUtils.verbose ? "4" : "0")
-        );
         serverProperties.setProperty("org.omg.CORBA.ORBClass", "org.jacorb.orb.ORB");
         serverProperties.setProperty("org.omg.CORBA.ORBSingletonClass", "org.jacorb.orb.ORBSingleton");
         serverProperties.put ("jacorb.implname", servantName);
-
         serverProperties.putAll (serverOrbProperties);
-
 
         final String prefix = "jacorb.test.serverproperty.";
         final Iterator<String> i = System.getProperties().stringPropertyNames().iterator();
@@ -181,10 +173,6 @@ public class ServerSetup
             serverProperties.setProperty(propName, value);
         }
 
-        Properties launcherProps = System.getProperties();
-
-        patchLauncherProps(launcherProps);
-
         final Launcher launcher = getLauncher(coverage,
                                         System.getProperty("java.class.path"),
                                         serverProperties,
@@ -201,14 +189,10 @@ public class ServerSetup
         errListener = new StreamListener (serverProcess.getErrorStream(), servantName + '-' + errName);
         outListener.start();
         errListener.start();
-        serverIOR = outListener.getIOR(testTimeout);
+        serverIOR = outListener.getIOR(TestUtils.timeout);
     }
 
-    protected void patchLauncherProps(Properties launcherProps)
-    {
-    }
-
-    protected String[] getServerArgs()
+    public String[] getServerArgs()
     {
         return serverArgs.toArray(new String[serverArgs.size()]);
     }
@@ -242,7 +226,7 @@ public class ServerSetup
 
                 String details = dumpStreamListener();
 
-                serverIORFailedMesg = "could not access IOR for Server.\nServant: " + servantName + "\nTimeout: " + testTimeout + " millis.\nThis maybe caused by: " + exc + '\n' + details;
+                serverIORFailedMesg = "could not access IOR for Server.\nServant: " + servantName + "\nTimeout: " + TestUtils.timeout + " millis.\nThis maybe caused by: " + exc + '\n' + details;
             }
             fail(serverIORFailedMesg);
         }
@@ -250,52 +234,9 @@ public class ServerSetup
         return serverIOR;
     }
 
-    public String getServerIorOrNull()
-    {
-        return serverIOR;
-    }
-
-    protected String getTestServerMain()
+    public String getTestServerMain()
     {
         return testServer;
-    }
-
-    /**
-     * <code>initSecurity</code> adds security properties if so configured
-     * by the environment. It is possible to turn this off for selected tests
-     * either by overriding this method or by setting properties for checkProperties
-     * to handle.
-     *
-     * @exception IOException if an error occurs
-     */
-    protected void initSecurity() throws IOException
-    {
-        if (isSSLEnabled())
-        {
-            // In this case we have been configured to run all the tests
-            // in SSL mode. For simplicity, we will use the demo/ssl keystore
-            // and properties (partly to ensure that they always work)
-
-            Properties serverProps = CommonSetup.loadSSLProps("jsse_server_props", "jsse_server_ks");
-
-            serverOrbProperties.putAll(serverProps);
-        }
-    }
-
-    /**
-     * check if SSL testing is disabled for this setup
-     */
-    public boolean isSSLEnabled()
-    {
-        final String sslProperty = serverOrbProperties.getProperty("jacorb.test.ssl", System.getProperty("jacorb.test.ssl"));
-        final boolean useSSL = TestUtils.getStringAsBoolean(sslProperty);
-
-        return useSSL && !isPropertySet(CommonSetup.JACORB_REGRESSION_DISABLE_SECURITY);
-    }
-
-    private boolean isPropertySet(String property)
-    {
-        return TestUtils.getStringAsBoolean(serverOrbProperties.getProperty(property, "false"));
     }
 
     private String dumpStreamListener()
@@ -348,6 +289,16 @@ public class ServerSetup
         if (properties != null)
         {
             props.putAll(properties);
+        }
+
+        Iterator<Object> it = System.getProperties().keySet().iterator();
+        while (it.hasNext())
+        {
+            String key = (String)it.next();
+            if (key.startsWith("jacorb.test"))
+            {
+                props.put(key, System.getProperty(key));
+            }
         }
 
         try

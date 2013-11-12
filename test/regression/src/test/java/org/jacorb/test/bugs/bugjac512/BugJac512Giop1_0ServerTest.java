@@ -27,7 +27,6 @@ import org.jacorb.test.BasicServer;
 import org.jacorb.test.BasicServerHelper;
 import org.jacorb.test.common.ClientServerSetup;
 import org.jacorb.test.common.ClientServerTestCase;
-import org.jacorb.test.common.CommonSetup;
 import org.jacorb.test.orb.BasicServerImpl;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -47,8 +46,6 @@ public class BugJac512Giop1_0ServerTest extends ClientServerTestCase
         Properties serverProps = new Properties();
 
         serverProps.setProperty("jacorb.giop_minor_version", "0");
-        serverProps.setProperty(CommonSetup.JACORB_REGRESSION_DISABLE_IMR, "true");
-        serverProps.setProperty(CommonSetup.JACORB_REGRESSION_DISABLE_SECURITY, "true");
 
         setup = new ClientServerSetup(BasicServerImpl.class.getName(), null, serverProps);
     }

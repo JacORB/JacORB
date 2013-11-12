@@ -26,6 +26,7 @@ import org.jacorb.test.common.ClientServerTestCase;
 import org.jacorb.test.common.TestUtils;
 import org.jacorb.test.ir.IFRServerSetup;
 import org.junit.AfterClass;
+import org.junit.Assume;
 import org.junit.BeforeClass;
 import org.omg.CosTypedNotifyChannelAdmin.TypedEventChannelFactory;
 import org.omg.CosTypedNotifyChannelAdmin.TypedEventChannelFactoryHelper;
@@ -42,6 +43,8 @@ public abstract class TypedServerTestCase extends ClientServerTestCase
     @BeforeClass
     public static void beforeClassSetup() throws Exception
     {
+        Assume.assumeFalse(TestUtils.isSSLEnabled);
+
         ifrSetup = new IFRServerSetup(TestUtils.testHome() + "/src/test/idl/TypedNotification.idl", null, null);
         Properties props = new Properties();
         props.setProperty("ORBInitRef.InterfaceRepository", ifrSetup.getRepository().toString());
@@ -51,7 +54,10 @@ public abstract class TypedServerTestCase extends ClientServerTestCase
     @AfterClass
     public static void afterClassSetup() throws Exception
     {
-        ifrSetup.tearDown();
+        if (ifrSetup != null)
+        {
+            ifrSetup.tearDown();
+        }
     }
 
     /**

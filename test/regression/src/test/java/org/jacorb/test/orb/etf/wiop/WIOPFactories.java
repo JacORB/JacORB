@@ -24,7 +24,6 @@ package org.jacorb.test.orb.etf.wiop;
 import java.io.IOException;
 import java.net.Socket;
 import java.util.Iterator;
-
 import org.jacorb.config.Configurable;
 import org.jacorb.config.Configuration;
 import org.jacorb.config.ConfigurationException;

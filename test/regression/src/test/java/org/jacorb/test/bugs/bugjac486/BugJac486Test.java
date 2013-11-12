@@ -29,7 +29,9 @@ import org.jacorb.test.BasicServerHelper;
 import org.jacorb.test.common.ClientServerSetup;
 import org.jacorb.test.common.ClientServerTestCase;
 import org.jacorb.test.common.CommonSetup;
+import org.jacorb.test.common.TestUtils;
 import org.jacorb.test.orb.BasicServerImpl;
+import org.junit.Assume;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -84,11 +86,10 @@ public class BugJac486Test extends ClientServerTestCase
     @BeforeClass
     public static void beforeClassSetUp() throws Exception
     {
+        Assume.assumeTrue(TestUtils.isSSLEnabled);
+
         Properties clientProps = new Properties();
         Properties serverProps = new Properties();
-
-        clientProps.setProperty("jacorb.test.ssl", "true");
-        serverProps.setProperty("jacorb.test.ssl", "true");
 
         serverProps.setProperty("jacorb.test.corbaloc.enable", "true");
         serverProps.setProperty("jacorb.test.corbaloc.sslport", sslPort);

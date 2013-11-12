@@ -4,6 +4,7 @@ import static org.junit.Assert.fail;
 import java.util.Properties;
 import org.jacorb.test.common.ClientServerSetup;
 import org.jacorb.test.common.ClientServerTestCase;
+import org.jacorb.test.common.TestUtils;
 import org.junit.Assume;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -19,6 +20,8 @@ public class MIOPTest extends ClientServerTestCase
     @BeforeClass
     public static void beforeClassSetUp() throws Exception
     {
+        Assume.assumeFalse(TestUtils.isSSLEnabled);
+        
         Properties props = new Properties ();
         props.setProperty
             ("jacorb.transport.factories", "org.jacorb.orb.iiop.IIOPFactories,org.jacorb.orb.miop.MIOPFactories");
@@ -26,8 +29,6 @@ public class MIOPTest extends ClientServerTestCase
             ("jacorb.transport.client.selector", "org.jacorb.orb.miop.MIOPProfileSelector");
 
         setup = new ClientServerSetup(MIOPTestServer.class.getName(), GreetingImpl.class.getName(), props, props);
-
-        Assume.assumeFalse(setup.isSSLEnabled());
     }
 
     @Test

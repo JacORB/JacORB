@@ -54,6 +54,8 @@ public class BugJac359Test extends ClientServerTestCase
     @BeforeClass
     public static void beforeClassSetup() throws Exception
     {
+        Assume.assumeTrue(TestUtils.isSSLEnabled);
+
         Properties clientProps = new Properties();
 
         // this property will cause the handshake between client and server to fail!
@@ -67,8 +69,6 @@ public class BugJac359Test extends ClientServerTestCase
     @Test
     public void testHandshakeExceptionDoesNotCauseHang() throws Exception
     {
-        Assume.assumeTrue(setup.isSSLEnabled());
-
         final boolean[] result = new boolean[1];
         final Exception[] exception = new Exception[1];
 

@@ -29,7 +29,7 @@ import org.omg.PortableServer.POAHelper;
 /**
  * @author Alphonse Bendt
  */
-public class BasicTest extends ORBTestCase
+public class NotificationBasicTest extends ORBTestCase
 {
     @Test
     public void test_Is_JacORB_POA_a_POA() throws Exception

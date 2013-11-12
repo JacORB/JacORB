@@ -1,7 +1,7 @@
 package org.jacorb.test.orb.connection;
 
 import java.util.Properties;
-import org.jacorb.test.common.CommonSetup;
+import org.jacorb.test.common.TestUtils;
 import org.junit.Assume;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -15,21 +15,18 @@ public class NIOBiDirTest extends BiDirTest
     public void setUp() throws Exception
     {
         super.setUp();
-        Assume.assumeTrue( !setup.isSSLEnabled());
     }
 
     @BeforeClass
     public static void beforeClassSetUp() throws Exception
     {
+        Assume.assumeFalse(TestUtils.isSSLEnabled);
+        
         Properties properties = new Properties();
         properties.setProperty
             ("org.omg.PortableInterceptor.ORBInitializerClass.bidir_init",
              "org.jacorb.orb.giop.BiDirConnectionInitializer" );
         properties.setProperty ("jacorb.connection.nonblocking", "true");
-
-        // this tests counts transports which are disrupted by
-        // security initialisation.
-        properties.setProperty(CommonSetup.JACORB_REGRESSION_DISABLE_SECURITY, "true");
 
         setup = new BiDirSetup (properties, properties);
     }

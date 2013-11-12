@@ -5,7 +5,6 @@ import org.jacorb.test.bugs.bugjac182.JAC182;
 import org.jacorb.test.bugs.bugjac182.JAC182Helper;
 import org.jacorb.test.common.ClientServerSetup;
 import org.jacorb.test.common.ClientServerTestCase;
-import org.jacorb.test.common.CommonSetup;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -44,9 +43,6 @@ public class Bug832Test extends ClientServerTestCase
     {
         Properties client_props = new Properties();
         Properties server_props = new Properties();
-
-        client_props.setProperty(CommonSetup.JACORB_REGRESSION_DISABLE_SECURITY, "true");
-        server_props.setProperty(CommonSetup.JACORB_REGRESSION_DISABLE_SECURITY, "true");
 
         server_props.put("org.omg.PortableInterceptor.ORBInitializerClass.SInitializer",
                          "org.jacorb.test.bugs.bug832.SInitializer");

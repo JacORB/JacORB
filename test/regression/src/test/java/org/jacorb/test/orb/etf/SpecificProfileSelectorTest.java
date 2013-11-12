@@ -28,9 +28,10 @@ import org.jacorb.orb.ORBConstants;
 import org.jacorb.test.BasicServer;
 import org.jacorb.test.BasicServerHelper;
 import org.jacorb.test.common.ClientServerSetup;
-import org.jacorb.test.common.CommonSetup;
+import org.jacorb.test.common.TestUtils;
 import org.jacorb.test.orb.etf.wiop.WIOPFactories;
 import org.junit.After;
+import org.junit.Assume;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -72,11 +73,11 @@ public class SpecificProfileSelectorTest extends AbstractWIOPTestCase
     @BeforeClass
     public static void beforeClassSetUp() throws Exception
     {
+        // WIOP does not support SSL.
+        Assume.assumeFalse(TestUtils.isSSLEnabled);
+
         // client ORB from setup is not used.
         Properties clientProps = new Properties();
-
-        // WIOP does not support SSL.
-        clientProps.setProperty(CommonSetup.JACORB_REGRESSION_DISABLE_SECURITY, "true");
 
         clientProps.setProperty("jacorb.transport.factories",
                 "org.jacorb.orb.iiop.IIOPFactories," +

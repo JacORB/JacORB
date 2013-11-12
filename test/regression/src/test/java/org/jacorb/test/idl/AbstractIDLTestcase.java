@@ -31,6 +31,8 @@ import java.lang.reflect.Method;
 import junit.framework.AssertionFailedError;
 import org.jacorb.test.common.ORBTestCase;
 import org.jacorb.test.common.TestUtils;
+import org.junit.Assume;
+import org.junit.BeforeClass;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
@@ -49,6 +51,12 @@ public class AbstractIDLTestcase extends ORBTestCase
      * dir where .class are compiled to.
      */
     protected final File dirCompilation;
+
+    @BeforeClass
+    public static void beforeClassSetUp() throws Exception
+    {
+        Assume.assumeFalse(TestUtils.isSSLEnabled);
+    }
 
     public AbstractIDLTestcase(File file)
     {

@@ -322,6 +322,12 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>2.16</version>
+                <configuration>
+                    <systemPropertyVariables>
+                        <!-- Default timeout for a server to start -->
+                        <jacorb.test.timeout.server>60000</jacorb.test.timeout.server>
+                    </systemPropertyVariables>
+                </configuration>
                 <executions>
                     <execution>
                         <id>default-test</id>
@@ -351,6 +357,12 @@
                 </executions>
             </plugin>
 
+            <!--
+                 This generates a nice aggregate report. To make the HTML nicer run
+                 mvn site
+                 If the tests fail this plugin might not run. To generate the report then run
+                 mvn -Dmaven.test.skip=true test site
+            -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-report-plugin</artifactId>

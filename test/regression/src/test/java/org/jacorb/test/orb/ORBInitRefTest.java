@@ -13,7 +13,9 @@ import org.jacorb.test.BasicServerHelper;
 import org.jacorb.test.common.ClientServerSetup;
 import org.jacorb.test.common.ClientServerTestCase;
 import org.jacorb.test.common.CommonSetup;
+import org.jacorb.test.common.TestUtils;
 import org.junit.After;
+import org.junit.Assume;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -32,9 +34,9 @@ public class ORBInitRefTest extends ClientServerTestCase
     @BeforeClass
     public static void beforeClassSetUp() throws Exception
     {
-        Properties props = new Properties();
+        Assume.assumeFalse(TestUtils.isSSLEnabled);
 
-        props.setProperty(CommonSetup.JACORB_REGRESSION_DISABLE_SECURITY, "true");
+        Properties props = new Properties();
         props.setProperty(CommonSetup.JACORB_REGRESSION_DISABLE_IMR, "true");
 
         Properties serverProps = new Properties();

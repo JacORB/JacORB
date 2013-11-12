@@ -22,6 +22,8 @@ package org.jacorb.test.bugs.bug735;
 
 import static org.junit.Assert.fail;
 import org.jacorb.test.common.ORBTestCase;
+import org.jacorb.test.common.TestUtils;
+import org.junit.Assume;
 import org.junit.Test;
 import org.omg.CORBA.TRANSIENT;
 
@@ -33,6 +35,8 @@ public class Bug735Test extends ORBTestCase
     @Test
     public void testIsAFailsWithTaoIOR()
     {
+        Assume.assumeFalse(TestUtils.isSSLEnabled);
+
         final String ior = "IOR:010000000100000000000000010000000000000060000000000102600000000f656c6f6e736"
             + "1706f647270353035000010d600000000003a14010f004e55500000001a0000000000000001526f"
             + "6f74504f4100747365727665725252000000000000000001547261646553727641646d696e00000"

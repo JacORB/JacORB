@@ -3,6 +3,7 @@ package org.jacorb.test.orb.rmi;
 import java.util.Properties;
 import org.jacorb.test.common.ClientServerSetup;
 import org.jacorb.test.common.TestUtils;
+import org.junit.Assume;
 import org.junit.BeforeClass;
 
 /*
@@ -33,6 +34,7 @@ public class JacORBSunRMITest extends AbstractRMITestCase
     @BeforeClass
     public static void beforeClassSetUp() throws Exception
     {
+        Assume.assumeFalse(TestUtils.isSSLEnabled);
 
         Properties client_props = new Properties();
         client_props.setProperty("jacorb.interop.strict_check_on_tc_creation", "off");
@@ -40,7 +42,6 @@ public class JacORBSunRMITest extends AbstractRMITestCase
         client_props.setProperty("org.omg.CORBA.ORBClass", "org.jacorb.orb.ORB");
         client_props.setProperty("org.omg.CORBA.ORBSingletonClass", "org.jacorb.orb.ORBSingleton");
         client_props.setProperty("jacorb.interop.sun", "on");
-        client_props.setProperty("jacorb.regression.disable_security", "true");
 
         Properties server_props = TestUtils.newForeignORBProperties();
 

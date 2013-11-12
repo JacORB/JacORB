@@ -29,7 +29,9 @@ import org.jacorb.orb.util.PrintIOR;
 import org.jacorb.test.common.CommonSetup;
 import org.jacorb.test.common.ORBTestCase;
 import org.jacorb.test.common.ServerSetup;
+import org.jacorb.test.common.TestUtils;
 import org.junit.After;
+import org.junit.Assume;
 import org.junit.Before;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
@@ -211,7 +213,6 @@ public class ImRFailoverTest extends ORBTestCase
                                                  "-Djacorb.connection.server.reuse_address=true",
                                                  "-Djacorb.use_tao_imr=" + "false",
                                                  "-Djacorb.test.timeout.server=" + Long.toString(10000),
-                                                 "-D" + CommonSetup.JACORB_REGRESSION_DISABLE_SECURITY + "=" + "true",
                                                  "-D" + CommonSetup.JACORB_REGRESSION_DISABLE_IMR + "=" + "true"
                                             },
                                         null);
@@ -237,7 +238,6 @@ public class ImRFailoverTest extends ORBTestCase
                                                  "-Djacorb.use_imr=" + "true",
                                                  "-Djacorb.use_tao_imr=" + "false",
                                                  "-Djacorb.test.timeout.server=" + Long.toString(10000),
-                                                 "-D" + CommonSetup.JACORB_REGRESSION_DISABLE_SECURITY + "=" + "true",
                                                  "-D" + CommonSetup.JACORB_REGRESSION_DISABLE_IMR + "=" + "true"
                                             },
                                         null);
@@ -255,13 +255,14 @@ public class ImRFailoverTest extends ORBTestCase
         props.setProperty ("jacorb.retry_interval", "500");
         props.setProperty ("jacorb.connection.client.connect_timeout","3000");
         props.setProperty ("jacorb.test.timeout.server", Long.toString(10000));
-        props.setProperty(CommonSetup.JACORB_REGRESSION_DISABLE_SECURITY, "true");
         props.setProperty(CommonSetup.JACORB_REGRESSION_DISABLE_IMR, "true");
     }
 
     @Before
     public void setUp() throws Exception
     {
+        Assume.assumeFalse(TestUtils.isSSLEnabled);
+
         // initiate ImR's
         setupMyImRs(IMR_1_ON, IMR_2_ON);
         Thread.sleep(5000);

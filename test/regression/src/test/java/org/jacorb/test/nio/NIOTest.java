@@ -6,6 +6,7 @@ import org.jacorb.test.TestIf;
 import org.jacorb.test.TestIfHelper;
 import org.jacorb.test.common.ClientServerSetup;
 import org.jacorb.test.common.ClientServerTestCase;
+import org.jacorb.test.common.TestUtils;
 import org.junit.Assume;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -35,14 +36,13 @@ public class NIOTest extends ClientServerTestCase
     @BeforeClass
     public static void beforeClassSetUp() throws Exception
     {
+        Assume.assumeFalse(TestUtils.isSSLEnabled);
+
         Properties props = new Properties ();
         props.setProperty ("jacorb.connection.nonblocking", "on");
 
         setup = new ClientServerSetup(NIOTestServer.class.getName(),
                                    TestIf.class.getName(), props, props);
-
-        // NIO doesn't yet support SSL
-        Assume.assumeFalse(setup.isSSLEnabled());
     }
 
     @Test

@@ -24,6 +24,8 @@ package org.jacorb.test.orb.etf;
 import static org.junit.Assert.fail;
 import java.util.Properties;
 import org.jacorb.test.common.ClientServerSetup;
+import org.jacorb.test.common.TestUtils;
+import org.junit.Assume;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -38,6 +40,9 @@ public class C_IIOP_S_WIOPTest extends AbstractWIOPTestCase
     @BeforeClass
     public static void beforeClassSetUp() throws Exception
     {
+        // WIOP does not support SSL.
+        Assume.assumeFalse(TestUtils.isSSLEnabled);
+
         Properties clientProps = new Properties();
         clientProps.setProperty ("jacorb.transport.factories",
                                  "org.jacorb.orb.iiop.IIOPFactories");
@@ -45,10 +50,6 @@ public class C_IIOP_S_WIOPTest extends AbstractWIOPTestCase
         Properties serverProps = new Properties();
         serverProps.setProperty("jacorb.transport.factories",
                           "org.jacorb.test.orb.etf.wiop.WIOPFactories");
-
-        // WIOP does not support SSL.
-        clientProps.setProperty("jacorb.regression.disable_security",
-                                "true");
 
         setup = new ClientServerSetup(
                                  "org.jacorb.test.orb.BasicServerImpl",

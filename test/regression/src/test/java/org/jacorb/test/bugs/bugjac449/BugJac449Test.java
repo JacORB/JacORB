@@ -25,12 +25,12 @@ import static org.junit.Assert.assertTrue;
 import java.util.Properties;
 import org.jacorb.test.common.ClientServerSetup;
 import org.jacorb.test.common.ClientServerTestCase;
-import org.jacorb.test.common.CommonSetup;
 import org.jacorb.test.common.TestUtils;
 import org.jacorb.test.orb.value.NodeImpl;
 import org.jacorb.test.orb.value.ValueServer;
 import org.jacorb.test.orb.value.ValueServerHelper;
 import org.jacorb.test.orb.value.ValueServerImpl;
+import org.junit.Assume;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -54,8 +54,9 @@ public class BugJac449Test extends ClientServerTestCase
     @BeforeClass
     public static void beforeClassSetUp() throws Exception
     {
+    	Assume.assumeFalse(TestUtils.isSSLEnabled);
+    	
         Properties clientProps = TestUtils.newForeignORBProperties();
-        clientProps.setProperty(CommonSetup.JACORB_REGRESSION_DISABLE_SECURITY, "true");
 
         setup = new ClientServerSetup(ValueServerImpl.class.getName(), clientProps, null);
     }

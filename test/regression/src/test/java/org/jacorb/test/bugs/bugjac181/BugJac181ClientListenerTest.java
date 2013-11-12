@@ -5,6 +5,8 @@ import java.util.Properties;
 import org.jacorb.orb.factory.SocketFactoryManager;
 import org.jacorb.test.common.ClientServerSetup;
 import org.jacorb.test.common.ClientServerTestCase;
+import org.jacorb.test.common.TestUtils;
+import org.junit.Assume;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -32,12 +34,10 @@ public class BugJac181ClientListenerTest extends ClientServerTestCase
     @BeforeClass
     public static void beforeClassSetUp() throws Exception
     {
+        Assume.assumeFalse(TestUtils.isSSLEnabled);
 
         Properties client_props = new Properties();
         Properties server_props = new Properties();
-
-        client_props.put("jacorb.regression.disable_security", "true");
-        server_props.put("jacorb.regression.disable_security", "true");
 
         client_props.setProperty (SocketFactoryManager.TCP_LISTENER, TCPListener.class.getName());
 

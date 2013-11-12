@@ -4,7 +4,6 @@ import static org.junit.Assert.fail;
 import java.util.Properties;
 import org.jacorb.test.common.ClientServerSetup;
 import org.jacorb.test.common.ClientServerTestCase;
-import org.jacorb.test.common.CommonSetup;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -27,10 +26,6 @@ public class CTXPassingTest extends ClientServerTestCase
         Properties clientProp = new Properties();
         clientProp.setProperty("org.omg.PortableInterceptor.ORBInitializerClass.a",
                                MyInitializer.class.getName());
-
-        clientProp.setProperty(CommonSetup.JACORB_REGRESSION_DISABLE_SECURITY, "true");
-        clientProp.setProperty(CommonSetup.JACORB_REGRESSION_DISABLE_SECURITY, "true");
-
 
         setup = new ClientServerSetup(Server.class.getName()
                                       , "org.jacorb.test.bugs.bug927.TestObjectImpl"

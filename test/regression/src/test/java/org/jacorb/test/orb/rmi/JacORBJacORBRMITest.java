@@ -32,7 +32,6 @@ public class JacORBJacORBRMITest extends AbstractRMITestCase
     @BeforeClass
     public static void beforeClassSetUp() throws Exception
     {
-
         Properties client_props = new Properties();
         client_props.setProperty("jacorb.interop.strict_check_on_tc_creation", "off");
         client_props.setProperty("jacorb.interop.chunk_custom_rmi_valuetypes", "on");

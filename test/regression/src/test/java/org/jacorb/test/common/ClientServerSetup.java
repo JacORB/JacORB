@@ -95,15 +95,6 @@ public class ClientServerSetup extends ORBTestCase
             optionalServerProperties = new Properties();
         }
 
-        if (isSSLDisabled(optionalClientProperties, optionalServerProperties))
-        {
-            // if ssl is disabled in one of the properties make sure to copy
-            // this information to both property sets.
-            optionalClientProperties.setProperty(CommonSetup.JACORB_REGRESSION_DISABLE_SECURITY, "true");
-
-            optionalServerProperties.setProperty(CommonSetup.JACORB_REGRESSION_DISABLE_SECURITY, "true");
-        }
-
         if (isIMREnabled(optionalClientProperties, optionalServerProperties))
         {
             final Properties imrServerProps = new Properties();
@@ -143,16 +134,6 @@ public class ClientServerSetup extends ORBTestCase
 
         serverSetup = new ServerSetup(testServer, servantArgs, optionalServerProperties);
 
-        if (isSSLEnabled())
-        {
-            // In this case we have been configured to run all the tests
-            // in SSL mode. For simplicity, we will use the demo/ssl keystore
-            // and properties (partly to ensure that they always work)
-            Properties cp = CommonSetup.loadSSLProps("jsse_client_props", "jsse_client_ks");
-
-            orbProps.putAll(cp);
-        }
-
         if (imrSetup != null)
         {
             TestUtils.log("starting ImR");
@@ -163,23 +144,6 @@ public class ClientServerSetup extends ORBTestCase
 
         ORBSetUp();
         serverSetup.setUp();
-    }
-
-    private static boolean isSSLDisabled(Properties clientProps, Properties serverProps)
-    {
-        boolean result = false;
-
-        if (clientProps != null)
-        {
-            result = TestUtils.getStringAsBoolean(clientProps.getProperty(CommonSetup.JACORB_REGRESSION_DISABLE_SECURITY, "false"));
-        }
-
-        if (!result && serverProps != null)
-        {
-            result = TestUtils.getStringAsBoolean(serverProps.getProperty(CommonSetup.JACORB_REGRESSION_DISABLE_SECURITY, "false"));
-        }
-
-        return result;
     }
 
     public void tearDown() throws Exception
@@ -265,16 +229,5 @@ public class ClientServerSetup extends ORBTestCase
         }
 
         return result;
-    }
-
-    public boolean isSSLEnabled()
-    {
-        String sslProperty = orbProps.getProperty("jacorb.test.ssl", System.getProperty("jacorb.test.ssl"));
-        boolean clientUseSSL = TestUtils.getStringAsBoolean(sslProperty);
-        boolean useSSL = clientUseSSL && !TestUtils.getStringAsBoolean(orbProps.getProperty(CommonSetup.JACORB_REGRESSION_DISABLE_SECURITY, "false"));
-
-        TestUtils.log ("SSL enabled : " + (useSSL && serverSetup.isSSLEnabled()));
-
-        return useSSL && serverSetup.isSSLEnabled();
     }
 }

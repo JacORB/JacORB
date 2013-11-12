@@ -21,7 +21,6 @@ package org.jacorb.test.common;
  *   MA 02110-1301, USA.
  */
 
-import static org.junit.Assert.assertTrue;
 import org.junit.AfterClass;
 import org.junit.Rule;
 import org.junit.rules.TestName;
@@ -67,10 +66,18 @@ public abstract class ClientServerTestCase
     @Rule
     public TestName name = new TestName();
 
+    /**
+     * <code>tearDownAfterClass</code> will automatically tear down the server
+     * if it has been created.
+     * 
+     * @throws Exception
+     */
     @AfterClass
     public static void tearDownAfterClass() throws Exception
     {
-        assertTrue ("Server setup has not been configured", setup != null);
-        setup.tearDown();
+        if ( setup != null)
+        {
+            setup.tearDown();
+        }
     }
 }

@@ -37,8 +37,10 @@ import java.util.Properties;
 import org.jacorb.test.common.ClientServerSetup;
 import org.jacorb.test.common.ClientServerTestCase;
 import org.jacorb.test.common.CommonSetup;
+import org.jacorb.test.common.TestUtils;
 import org.jacorb.test.listenendpoints.echo_corbaloc.EchoMessage;
 import org.jacorb.test.listenendpoints.echo_corbaloc.EchoMessageHelper;
+import org.junit.Assume;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -75,15 +77,14 @@ public class ListenEndpointsTest extends ClientServerTestCase
     @BeforeClass
     public static void beforeClassSetUp() throws Exception
     {
+        // If security is not disabled it will not use the above host/port
+        // combinations.
+        Assume.assumeFalse(TestUtils.isSSLEnabled);
 
         Properties clientProps = new Properties();
         clientProps.setProperty ("jacorb.retries", "3");
         clientProps.setProperty ("jacorb.retry_interval", "500");
         clientProps.setProperty ("jacorb.connection.client.connect_timeout","1000");
-        // clientProps.setProperty ("jacorb.test.timeout.server", Long.toString(10000));
-        // If security is not disabled it will not use the above host/port
-        // combinations.
-        clientProps.setProperty(CommonSetup.JACORB_REGRESSION_DISABLE_SECURITY, "true");
         clientProps.setProperty(CommonSetup.JACORB_REGRESSION_DISABLE_IMR, "true");
 
         Properties serverProps = new Properties();
@@ -263,7 +264,6 @@ public class ListenEndpointsTest extends ClientServerTestCase
                 Properties props = new Properties();
                 props.setProperty("org.omg.CORBA.ORBClass", "org.jacorb.orb.ORB");
                 props.setProperty("org.omg.CORBA.ORBSingletonClass", "org.jacorb.orb.ORBSingleton");
-                props.setProperty(CommonSetup.JACORB_REGRESSION_DISABLE_SECURITY, "true");
                 props.setProperty(CommonSetup.JACORB_REGRESSION_DISABLE_IMR, "true");
 
                 org.omg.CORBA.ORB orb = org.omg.CORBA.ORB.init(new String[0], props);
@@ -320,7 +320,6 @@ public class ListenEndpointsTest extends ClientServerTestCase
                 Properties props = new Properties();
                 props.setProperty("org.omg.CORBA.ORBClass", "org.jacorb.orb.ORB");
                 props.setProperty("org.omg.CORBA.ORBSingletonClass", "org.jacorb.orb.ORBSingleton");
-                props.setProperty(CommonSetup.JACORB_REGRESSION_DISABLE_SECURITY, "true");
                 props.setProperty(CommonSetup.JACORB_REGRESSION_DISABLE_IMR, "true");
 
                 org.omg.CORBA.ORB orb = org.omg.CORBA.ORB.init(new String[0], props);
@@ -377,7 +376,6 @@ public class ListenEndpointsTest extends ClientServerTestCase
                 Properties props = new Properties();
                 props.setProperty("org.omg.CORBA.ORBClass", "org.jacorb.orb.ORB");
                 props.setProperty("org.omg.CORBA.ORBSingletonClass", "org.jacorb.orb.ORBSingleton");
-                props.setProperty(CommonSetup.JACORB_REGRESSION_DISABLE_SECURITY, "true");
                 props.setProperty(CommonSetup.JACORB_REGRESSION_DISABLE_IMR, "true");
 
                 org.omg.CORBA.ORB orb = org.omg.CORBA.ORB.init(new String[0], props);

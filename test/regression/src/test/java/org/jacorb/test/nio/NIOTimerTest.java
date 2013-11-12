@@ -2,9 +2,11 @@ package org.jacorb.test.nio;
 
 import java.util.Properties;
 import org.jacorb.test.common.ORBTestCase;
+import org.jacorb.test.common.TestUtils;
 import org.jacorb.util.SelectorManager;
 import org.jacorb.util.SelectorRequest;
 import org.jacorb.util.SelectorRequestCallback;
+import org.junit.Assume;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -59,6 +61,8 @@ public class NIOTimerTest extends ORBTestCase
     @Before
     public void setUp() throws Exception
     {
+        Assume.assumeFalse(TestUtils.isSSLEnabled);
+
         requestDuration_[0] = 500;
         requestDuration_[1] = 2000;
         requestDuration_[2] = 700;

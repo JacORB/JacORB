@@ -29,8 +29,9 @@ import org.jacorb.test.BasicServer;
 import org.jacorb.test.BasicServerHelper;
 import org.jacorb.test.common.ClientServerSetup;
 import org.jacorb.test.common.ClientServerTestCase;
-import org.jacorb.test.common.CommonSetup;
+import org.jacorb.test.common.TestUtils;
 import org.jacorb.test.orb.BasicServerImpl;
+import org.junit.Assume;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.omg.CORBA.ORB;
@@ -43,10 +44,9 @@ public class BugJac501Test extends ClientServerTestCase
     @BeforeClass
     public static void beforeClassSetUp() throws Exception
     {
-        Properties props = new Properties();
-        props.setProperty(CommonSetup.JACORB_REGRESSION_DISABLE_SECURITY, "true");
+        Assume.assumeFalse(TestUtils.isSSLEnabled);
 
-        setup = new ClientServerSetup(BasicServerImpl.class.getName(), props, props);
+        setup = new ClientServerSetup(BasicServerImpl.class.getName());
     }
 
     @Test

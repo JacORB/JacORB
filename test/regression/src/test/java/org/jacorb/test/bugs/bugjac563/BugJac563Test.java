@@ -31,9 +31,9 @@ import org.jacorb.test.ClientCallbackHelper;
 import org.jacorb.test.ClientCallbackOperations;
 import org.jacorb.test.ClientCallbackPOATie;
 import org.jacorb.test.common.ClientServerTestCase;
-import org.jacorb.test.common.CommonSetup;
 import org.jacorb.test.common.TestUtils;
 import org.jacorb.test.orb.connection.BiDirSetup;
+import org.junit.Assume;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -48,9 +48,10 @@ public class BugJac563Test extends ClientServerTestCase
     @BeforeClass
     public static void beforeClassSetUp() throws Exception
     {
-        Properties clientProps = new Properties();
+        // We want to test with a custom set of keystores so disable normal SSL testing.
+        Assume.assumeFalse(TestUtils.isSSLEnabled);
 
-        clientProps.setProperty(CommonSetup.JACORB_REGRESSION_DISABLE_SECURITY, "true");
+        Properties clientProps = new Properties();
 
         clientProps.setProperty("org.omg.PortableInterceptor.ORBInitializerClass.bidir_init",
                                  "org.jacorb.orb.giop.BiDirConnectionInitializer" );
@@ -89,8 +90,6 @@ public class BugJac563Test extends ClientServerTestCase
             serverProps.put("jacorb.security.jsse.client.key_manager_algorithm", "IbmX509");
             serverProps.put("jacorb.security.jsse.client.trust_manager_algorithm", "IbmX509");
         }
-
-        serverProps.setProperty(CommonSetup.JACORB_REGRESSION_DISABLE_SECURITY, "true");
 
         serverProps.setProperty("org.omg.PortableInterceptor.ORBInitializerClass.bidir_init",
                                 "org.jacorb.orb.giop.BiDirConnectionInitializer" );

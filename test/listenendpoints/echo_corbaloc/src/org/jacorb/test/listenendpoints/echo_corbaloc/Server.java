@@ -1,8 +1,9 @@
 
 package org.jacorb.test.listenendpoints.echo_corbaloc;
 
-import java.util.Properties;
-import java.io.*;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.PrintWriter;
 import java.net.Inet4Address;
 import java.net.Inet6Address;
 import java.net.InetAddress;
@@ -13,17 +14,15 @@ import java.util.Collections;
 import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.List;
-import org.jacorb.orb.util.*;
-import org.omg.CORBA.BAD_PARAM;
+import java.util.Properties;
+import org.jacorb.orb.util.PrintIOR;
 import org.omg.CORBA.ORB;
 import org.omg.CORBA.Policy;
 import org.omg.PortableServer.IdAssignmentPolicyValue;
+import org.omg.PortableServer.ImplicitActivationPolicyValue;
 import org.omg.PortableServer.LifespanPolicyValue;
 import org.omg.PortableServer.POA;
 import org.omg.PortableServer.POAHelper;
-import org.omg.PortableServer.Servant;
-
-import org.omg.PortableServer.ImplicitActivationPolicyValue;
 
 public class Server
 {

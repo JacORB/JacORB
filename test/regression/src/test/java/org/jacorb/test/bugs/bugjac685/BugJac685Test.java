@@ -4,8 +4,10 @@ import static org.junit.Assert.fail;
 import java.util.Properties;
 import org.jacorb.test.common.ORBTestCase;
 import org.jacorb.test.common.ServerSetup;
+import org.jacorb.test.common.TestUtils;
 import org.junit.After;
 import org.junit.AfterClass;
+import org.junit.Assume;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -23,6 +25,8 @@ public class BugJac685Test extends ORBTestCase
     @BeforeClass
     public static void beforeClassSetUp() throws Exception
     {
+        Assume.assumeFalse(TestUtils.isSSLEnabled);
+
         nsSetup = new NameServiceSetup ();
         nsSetup.setUp();
     }
@@ -30,7 +34,6 @@ public class BugJac685Test extends ORBTestCase
     protected void patchORBProperties(Properties props) throws Exception
     {
         props.setProperty ("ORBInitRef.NameService", nsSetup.getServerIOR());
-        props.setProperty("jacorb.test.ssl", "false");
     }
 
     @Before
@@ -42,7 +45,6 @@ public class BugJac685Test extends ORBTestCase
             Properties serverprops = new Properties();
             serverprops.setProperty ("ORBInitRef.NameService", nsSetup.getServerIOR());
             serverprops.setProperty ("jacorb.test.timeout.server", Long.toString(15000));
-            serverprops.setProperty ("jacorb.test.ssl", "false");
 
             serverSetup = new ServerSetup (
                                            "org.jacorb.test.bugs.bugjac685.BugJac685TestServer",
@@ -67,7 +69,10 @@ public class BugJac685Test extends ORBTestCase
     @AfterClass
     public static void afterClassTearDown() throws Exception
     {
-        nsSetup.tearDown();
+        if (nsSetup != null)
+        {
+            nsSetup.tearDown();
+        }
     }
 
     @After
