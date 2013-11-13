@@ -16,6 +16,7 @@ import org.jacorb.test.common.ClientServerSetup;
 import org.jacorb.util.Time;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.omg.CORBA.Policy;
 import org.omg.CORBA.PolicyError;
@@ -85,6 +86,7 @@ public class TimingTest extends CallbackTestCase
         AMI_TimingServerHandlerPOATie tie =
             new AMI_TimingServerHandlerPOATie( handler )
             {
+                @Override
                 public org.omg.CORBA.portable.OutputStream
                     _invoke( String method,
                              org.omg.CORBA.portable.InputStream _input,
@@ -166,6 +168,7 @@ public class TimingTest extends CallbackTestCase
     {
         ReplyHandler handler = new ReplyHandler()
         {
+            @Override
             public void operation (int ami_return_val)
             {
                 this.assertEquals (7, ami_return_val);
@@ -177,6 +180,7 @@ public class TimingTest extends CallbackTestCase
 
         handler = new ReplyHandler()
         {
+            @Override
             public void ex_op_excep (ExceptionHolder excep_holder)
             {
                 this.assertEquals (EmptyException.class,
@@ -189,6 +193,7 @@ public class TimingTest extends CallbackTestCase
 
         handler = new ReplyHandler()
         {
+            @Override
             public void ex_op_excep (ExceptionHolder excep_holder)
             {
                 this.assertEquals (org.omg.CORBA.DATA_CONVERSION.class,
@@ -355,7 +360,9 @@ public class TimingTest extends CallbackTestCase
     /**
      * Sets a RelativeRequestTimeout which will expire during the invocation.
      */
-    public void _test_request_timeout_sync_expired()
+    @Ignore ("### Ignore pre-junit4 disabled test")
+    @Test
+    public void test_request_timeout_sync_expired()
     {
         server = clearPolicies (server);
         server = setRelativeRequestTimeout (server, 1);
@@ -375,15 +382,19 @@ public class TimingTest extends CallbackTestCase
      * Sets a RelativeRequestTimeout which will
      * expire during the invocation.
      */
-    public void _test_request_timeout_async_expired()
+    @Ignore ("### Ignore pre-junit4 disabled test")
+    @Test
+    public void test_request_timeout_async_expired()
     {
         ReplyHandler handler = new ReplyHandler()
         {
+            @Override
             public void operation (int ami_return_val)
             {
                 this.fail ("should have raised TIMEOUT");
             }
 
+            @Override
             public void operation_excep (ExceptionHolder excep_holder)
             {
                 this.assertEquals (org.omg.CORBA.TIMEOUT.class,
@@ -450,6 +461,7 @@ public class TimingTest extends CallbackTestCase
     {
         ReplyHandler handler = new ReplyHandler()
         {
+            @Override
             public void operation (int ami_return_val)
             {
                 this.assertEquals (19, ami_return_val);
@@ -478,6 +490,7 @@ public class TimingTest extends CallbackTestCase
     {
         ReplyHandler handler = new ReplyHandler()
         {
+            @Override
             public void operation (int ami_return_val)
             {
                 this.assertEquals (19, ami_return_val);
@@ -507,6 +520,7 @@ public class TimingTest extends CallbackTestCase
     {
         ReplyHandler handler = new ReplyHandler()
         {
+            @Override
             public void operation (int ami_return_val)
             {
                 this.assertEquals (765, ami_return_val);
@@ -530,11 +544,13 @@ public class TimingTest extends CallbackTestCase
     {
         ReplyHandler handler = new ReplyHandler()
         {
+            @Override
             public void operation (int ami_return_val)
             {
                 this.fail ("should have raised TIMEOUT");
             }
 
+            @Override
             public void operation_excep (ExceptionHolder excep_holder)
             {
                 this.assertEquals (org.omg.CORBA.TIMEOUT.class,
@@ -642,6 +658,7 @@ public class TimingTest extends CallbackTestCase
     {
         ReplyHandler handler = new ReplyHandler()
         {
+            @Override
             public void operation (int ami_return_val)
             {
                 this.assertEquals (765, ami_return_val);
@@ -664,11 +681,13 @@ public class TimingTest extends CallbackTestCase
     {
         ReplyHandler handler = new ReplyHandler()
         {
+            @Override
             public void operation (int ami_return_val)
             {
                 this.fail ("should have raised TIMEOUT");
             }
 
+            @Override
             public void operation_excep (ExceptionHolder excep_holder)
             {
                 this.assertEquals (org.omg.CORBA.TIMEOUT.class,

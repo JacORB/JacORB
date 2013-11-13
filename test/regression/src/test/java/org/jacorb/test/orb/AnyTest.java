@@ -33,6 +33,7 @@ import org.jacorb.test.common.ClientServerTestCase;
 import org.jacorb.test.orb.RecursiveUnionStructPackage.RecursiveUnionStructUnion;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.omg.CORBA.Any;
 import org.omg.CORBA.AnyHolder;
@@ -1112,8 +1113,9 @@ public class AnyTest extends ClientServerTestCase
         assertTrue(outAny.equal(inAny));
     }
 
-    //probably invalid
-    public void _test_valuetype()
+    @Ignore ("### Ignore pre-junit4 disabled test")
+    @Test
+    public void test_valuetype()
         throws Exception
     {
         MyValueType testValue = new MyValueTypeImpl(4711);
@@ -1206,7 +1208,9 @@ public class AnyTest extends ClientServerTestCase
         assertTrue(outAny.equal(inAny));
     }
 
-    public void _test_valuetype_stream()
+    @Ignore ("### Ignore pre-junit4 disabled test")
+    @Test
+    public void test_valuetype_stream()
     {
         MyValueType testValue = new MyValueTypeImpl(4711);
 

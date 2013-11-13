@@ -30,8 +30,9 @@ import org.jacorb.test.notification.StructuredPushReceiver;
 import org.jacorb.test.notification.StructuredPushSender;
 import org.jacorb.test.notification.TestUtils;
 import org.jacorb.test.notification.common.NotificationTestCase;
+import org.junit.Assume;
 import org.junit.Before;
-import org.junit.Ignore;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.omg.CORBA.Any;
 import org.omg.CORBA.IntHolder;
@@ -58,6 +59,12 @@ import org.slf4j.Logger;
 
 public class PerformanceTest extends NotificationTestCase
 {
+    @BeforeClass
+    public static void beforeClassSetUp() throws Exception
+    {
+        Assume.assumeTrue(System.getProperty("jacorb.test.notificationperf", "false").equals("true"));
+    }
+
     EventChannelFactory factory_;
 
     FilterFactory filterFactory_;
@@ -122,6 +129,7 @@ public class PerformanceTest extends NotificationTestCase
         trueFilter_.add_constraints(_constraintExp);
     }
 
+    @Override
     public void tearDownTest() throws Exception
     {
         trueFilter_.destroy();
@@ -135,7 +143,8 @@ public class PerformanceTest extends NotificationTestCase
         }
     }
 
-    public void _testCompareAny() throws Exception
+    @Test
+    public void testCompareAny() throws Exception
     {
         Any _a1 = getORB().create_any(), _a2 = getORB().create_any();
 
@@ -145,7 +154,8 @@ public class PerformanceTest extends NotificationTestCase
         assertEquals(_a1, _a2);
     }
 
-    public void _testMeasureFilterLatency() throws Exception
+    @Test
+    public void testMeasureFilterLatency() throws Exception
     {
         Any _any = getORB().create_any();
         _any.insert_long(10);
@@ -238,7 +248,6 @@ public class PerformanceTest extends NotificationTestCase
                 + " in average: " + (_total / runs));
     }
 
-    @Ignore
     @Test
     public void testLoad() throws Exception
     {
@@ -264,6 +273,7 @@ public class PerformanceTest extends NotificationTestCase
             final CountDownLatch latch = new CountDownLatch(1);
             new Thread()
             {
+                @Override
                 public void run()
                 {
                     System.out.println("Begin to send");

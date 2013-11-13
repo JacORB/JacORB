@@ -37,7 +37,8 @@ import org.junit.Test;
 
 public class CollectionsWrapperTest
 {
-    public void _testTime() throws Exception
+    @Test
+    public void testTime() throws Exception
     {
         List[] list = new List[1000];
 

@@ -21,14 +21,13 @@
 
 package org.jacorb.test.notification.perf;
 
-import java.util.ArrayList;
-import java.util.List;
 import org.jacorb.test.notification.StructuredPushReceiver;
 import org.jacorb.test.notification.StructuredPushSender;
 import org.jacorb.test.notification.common.NotificationTestCase;
 import org.junit.After;
+import org.junit.Assume;
 import org.junit.Before;
-import org.junit.Ignore;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.omg.CORBA.Any;
 import org.omg.CORBA.IntHolder;
@@ -47,6 +46,12 @@ import org.omg.CosNotifyChannelAdmin.EventChannelFactoryHelper;
  */
 public class LoadTest extends NotificationTestCase
 {
+    @BeforeClass
+    public static void beforeClassSetUp() throws Exception
+    {
+        Assume.assumeTrue(System.getProperty("jacorb.test.notificationperf", "false").equals("true"));
+    }
+
     int count = 0;
 
     EventChannelFactory factory;
@@ -76,16 +81,14 @@ public class LoadTest extends NotificationTestCase
         channel.destroy();
     }
 
-    @Ignore
     @Test
     public void testLoad() throws Exception
     {
-        final List received = new ArrayList();
-
         StructuredPushSender sender = new StructuredPushSender(getClientORB());
 
         StructuredPushReceiver receiver = new StructuredPushReceiver(getClientORB())
         {
+            @Override
             public void push_structured_event(StructuredEvent event)
                     throws org.omg.CosEventComm.Disconnected
             {

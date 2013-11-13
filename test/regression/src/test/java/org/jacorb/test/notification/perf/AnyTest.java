@@ -24,11 +24,19 @@ package org.jacorb.test.notification.perf;
 import org.jacorb.test.common.ORBTestCase;
 import org.jacorb.test.notification.Address;
 import org.jacorb.test.notification.AddressHelper;
+import org.junit.Assume;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.omg.CORBA.Any;
 
 public class AnyTest extends ORBTestCase
 {
+    @BeforeClass
+    public static void beforeClassSetUp() throws Exception
+    {
+        Assume.assumeTrue(System.getProperty("jacorb.test.notificationperf", "false").equals("true"));
+    }
+
     @Test
     public void testAny()
     {

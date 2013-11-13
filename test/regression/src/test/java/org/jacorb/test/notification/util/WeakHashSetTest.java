@@ -242,7 +242,8 @@ public class WeakHashSetTest
         assertTrue(objectUnderTest_.isEmpty());
     }
 
-    public void _testIsReallyWeak()
+    @Test
+    public void testIsReallyWeak()
     {
         long timeout = System.currentTimeMillis() + 10000;
 

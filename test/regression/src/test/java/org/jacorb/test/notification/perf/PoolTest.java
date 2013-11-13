@@ -23,10 +23,18 @@ package org.jacorb.test.notification.perf;
 
 import org.jacorb.notification.AnyMessage;
 import org.jacorb.notification.util.AbstractPoolablePool;
+import org.junit.Assume;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 public class PoolTest
 {
+    @BeforeClass
+    public static void beforeClassSetUp() throws Exception
+    {
+        Assume.assumeTrue(System.getProperty("jacorb.test.notificationperf", "false").equals("true"));
+    }
+
     private class Work implements Runnable
     {
         long time = -1;
@@ -86,6 +94,7 @@ public class PoolTest
         final AbstractPoolablePool pool =
             new AbstractPoolablePool("test")
             {
+                @Override
                 public Object newInstance()
                 {
                     return new AnyMessage();
@@ -100,6 +109,7 @@ public class PoolTest
         {
             worker[i] = new Work()
             {
+                @Override
                 public AnyMessage createMessage()
                 {
                     return (AnyMessage) pool.lendObject();
