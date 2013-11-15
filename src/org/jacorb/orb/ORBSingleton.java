@@ -92,8 +92,6 @@ public class ORBSingleton
                 typeCodeCache = NullTypeCodeCache.getInstance();
                 typeCodeCompactor = NullTypeCodeCompactor.getInstance();
 
-                logger.info("Created ORBSingleton");
-
                 if (logger.isDebugEnabled())
                 {
                     logger.debug("BufferManagerFactory: " + bufferManagerFactory);

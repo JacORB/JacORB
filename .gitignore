@@ -4,6 +4,7 @@ lib/jacorb.jar
 lib/idl.jar
 lib/jacorb-services.jar
 lib/jacorb-sources.jar
+lib/jacorb-omgapi.jar
 
 src/org/jacorb/idl/parser.java
 src/org/jacorb/idl/sym.java

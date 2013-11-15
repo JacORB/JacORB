@@ -51,7 +51,9 @@
          - Clear fragments on connection close. (BZ949)
     - Misc
          - Improve documentation for SLF4J logging and maven.
-
+         - Split jacorb.jar into jacorb.jar and jacorb-omgapi.jar.
+           The OMG stubs are now held soley within jacorb-omgapi.
+         - Correct Maven dependencies.
 
 3.3
 ===

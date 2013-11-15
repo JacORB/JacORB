@@ -201,7 +201,7 @@ public abstract class GIOPConnection
         connectTimeout =
             configuration.getAttributeAsInteger("jacorb.connection.client.connect_timeout", 90000);
 
-        List statsProviderClassNames = configuration.getAttributeList( "jacorb.connection.statistics_providers");
+        List<String> statsProviderClassNames = configuration.getAttributeList( "jacorb.connection.statistics_providers");
 
         for (Iterator<String> iter = statsProviderClassNames.iterator (); iter.hasNext ();)
         {

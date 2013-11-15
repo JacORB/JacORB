@@ -23,39 +23,36 @@ package org.jacorb.notification.engine;
 
 import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.List;
-
-import org.jacorb.notification.interfaces.Disposable;
-
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
+import org.jacorb.notification.interfaces.Disposable;
 
 public class DefaultPushTaskExecutor implements PushTaskExecutor, Disposable
 {
-    private static int noOfExecutors_ = 0;
+    private int noOfExecutors_ = 0;
     private final int executorNr_ = noOfExecutors_++;
-    
-    final LinkedBlockingQueue scheduledPushTasks_ = new LinkedBlockingQueue();
+
+    final LinkedBlockingQueue<PushTask> scheduledPushTasks_ = new LinkedBlockingQueue<PushTask>();
 
     final AtomicBoolean isActive_ = new AtomicBoolean(true);
 
-    final List workers_ = new ArrayList();
+    final ArrayList<Worker> workers_ = new ArrayList<Worker>();
 
     private class Worker extends Thread
     {
         public Worker(String name)
         {
-           super(name); 
+           super(name);
         }
-        
+
         public void run()
         {
             while (isActive_.get())
             {
                 try
                 {
-                    PushTaskExecutor.PushTask pushTask = 
-                        (PushTaskExecutor.PushTask) scheduledPushTasks_.take();
+                    PushTaskExecutor.PushTask pushTask =
+                        scheduledPushTasks_.take();
 
                     if (isActive_.get())
                     {
@@ -103,15 +100,15 @@ public class DefaultPushTaskExecutor implements PushTaskExecutor, Disposable
         {
             while (!scheduledPushTasks_.isEmpty())
             {
-                PushTaskExecutor.PushTask pushTask = (PushTask) scheduledPushTasks_.take();
+                PushTaskExecutor.PushTask pushTask = scheduledPushTasks_.take();
                 pushTask.cancel();
             }
-            
+
         } catch (InterruptedException e)
         {
             // ignore
         }
-        
+
         disposeWorkers();
     }
 
@@ -126,7 +123,7 @@ public class DefaultPushTaskExecutor implements PushTaskExecutor, Disposable
 
     private void startWorkers()
     {
-        Iterator i = workers_.iterator();
+        Iterator<Worker> i = workers_.iterator();
 
         while (i.hasNext())
         {
@@ -136,11 +133,11 @@ public class DefaultPushTaskExecutor implements PushTaskExecutor, Disposable
 
     private void disposeWorkers()
     {
-        Iterator i = workers_.iterator();
+        Iterator<Worker> i = workers_.iterator();
 
         while (i.hasNext())
         {
-            Thread thread = (Thread) i.next();
+            Thread thread = i.next();
 
             thread.interrupt();
         }

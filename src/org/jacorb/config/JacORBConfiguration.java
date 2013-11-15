@@ -437,7 +437,7 @@ public class JacORBConfiguration implements Configuration
 
        if (!loaded)
        {
-           delayedLogging.put (Level.WARNING, "no properties found for configuration " + name);
+           delayedLogging.put (Level.FINE, "no properties found for configuration " + name);
        }
     }
 

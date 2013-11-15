@@ -104,7 +104,7 @@ using JacORB Version: ${JVERSION}
       <jar jarfile="${lib}/jacorb.jar"
            index="true"
            basedir="${classdir}"
-           includes="org/jacorb/**,ImplementationRepository/**,org/omg/**"
+           includes="org/jacorb/**,ImplementationRepository/**"
            excludes="org/jacorb/idl/**,
                      org/jacorb/demo/**,
                      org/jacorb/test/**,
@@ -114,7 +114,20 @@ using JacORB Version: ${JVERSION}
                      org/jacorb/events/**,
                      org/jacorb/notification/**,
                      org/jacorb/transaction/**,
-                     org/omg/BridgeTransactionMgmt/**,
+                     ">
+         <manifest>
+           <attribute name="Implementation-Version" value="${JVERSION} ${jacorb_version_info}" />
+           <attribute name="Implementation-Title" value="JacORB"/>
+           <attribute name="Implementation-URL" value="www.jacorb.org"/>
+           <attribute name="Class-Path" value="slf4j-api-1.6.4.jar slf4j-jdk14-1.6.4.jar jacorb-omgapi.jar"/>
+         </manifest>
+      </jar>
+
+      <jar jarfile="${lib}/jacorb-omgapi.jar"
+           index="true"
+           basedir="${classdir}"
+           includes="org/omg/**"
+           excludes="org/omg/BridgeTransactionMgmt/**,
                      org/omg/CosBridgeAdmin/**,
                      org/omg/CosCollection/**,
                      org/omg/CosConcurrencyControl/**,
@@ -141,9 +154,9 @@ using JacORB Version: ${JVERSION}
            <attribute name="Implementation-Version" value="${JVERSION} ${jacorb_version_info}" />
            <attribute name="Implementation-Title" value="JacORB"/>
            <attribute name="Implementation-URL" value="www.jacorb.org"/>
-           <attribute name="Class-Path" value="slf4j-api-1.6.4.jar slf4j-jdk14-1.6.4.jar"/>
          </manifest>
       </jar>
+
       <jar jarfile="${lib}/jacorb-services.jar"
            index="true"
            basedir="${classdir}"
@@ -194,62 +207,6 @@ using JacORB Version: ${JVERSION}
       </jar>
    </target>
 
-   <!-- This target will split the JacORB jar into jacorb.jar containing JUST the implementation -->
-   <!-- code and omg.jar containing the generated stubs -->
-   <target name="jar_impl_omg" depends="init">
-      <delete file="${lib}/jacorb.jar" quiet="true"/>
-      <delete file="${lib}/omg.jar" quiet="true"/>
-      <jar jarfile="${lib}/jacorb.jar"
-           basedir="${classdir}"
-           includes="org/jacorb/**,ImplementationRepository/**"
-           excludes="org/jacorb/idl/**,
-                     org/jacorb/demo/**,
-                     org/jacorb/test/**,
-                     org/jacorb/concurrency/**,
-                     org/jacorb/collection/**,
-                     org/jacorb/dds/**,
-                     org/jacorb/events/**,
-                     org/jacorb/notification/**,
-                     org/jacorb/transaction/**,
-                     ">
-         <manifest>
-           <attribute name="Implementation-Version" value="${JVERSION} ${jacorb_version_info}" />
-           <attribute name="Implementation-Title" value="JacORB"/>
-           <attribute name="Implementation-URL" value="www.jacorb.org"/>
-           <attribute name="Class-Path" value="slf4j-api-1.6.4.jar slf4j-jdk14-1.6.4.jar"/>
-         </manifest>
-      </jar>
-      <jar jarfile="${lib}/omg.jar"
-           basedir="${classdir}"
-           includes="org/omg/**"
-           excludes="org/omg/BridgeTransactionMgmt/**,
-                     org/omg/CosBridgeAdmin/**,
-                     org/omg/CosCollection/**,
-                     org/omg/CosConcurrencyControl/**,
-                     org/omg/CosEventChannelAdmin/**,
-                     org/omg/CosEventComm/**,
-                     org/omg/CosNotification/**,
-                     org/omg/CosNotifyChannelAdmin/**,
-                     org/omg/CosNotifyChannelAdminAck/**,
-                     org/omg/CosNotifyComm/**,
-                     org/omg/CosNotifyCommAck/**,
-                     org/omg/CosNotifyFilter/**,
-                     org/omg/CosTime/**,
-                     org/omg/CosTrading/**,
-                     org/omg/CosTransactions/**,
-                     org/omg/CosTypedEventChannelAdmin/**,
-                     org/omg/CosTypedEventComm/**,
-                     org/omg/CosTypedEventNotifyChannelAdmin/**,
-                     org/omg/CosTypedEventNotifyComm/**,
-                     org/omg/dds/**
-                     ">
-         <manifest>
-           <attribute name="Implementation-Version" value="${JVERSION} ${jacorb_version_info}" />
-           <attribute name="Implementation-Title" value="JacORB"/>
-           <attribute name="Implementation-URL" value="www.jacorb.org"/>
-         </manifest>
-      </jar>
-   </target>
 
    <!-- ==================================================== -->
    <!--                   clean up                           -->

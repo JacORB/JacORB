@@ -1,7 +1,6 @@
 package org.jacorb.test.listenendpoints.echo_corbaloc;
 
 import java.net.InetAddress;
-import org.omg.CORBA.*;
 
 public class EchoMessageImpl
     extends EchoMessagePOA
