@@ -49,6 +49,7 @@
            Rename QoS jacorb.delegate.disconnect_after_systemexception to
            jacorb.connection.client.disconnect_after_systemexception. (BZ967)
          - Clear fragments on connection close. (BZ949)
+         - Implement ContextList (BZ968)
     - Misc
          - Improve documentation for SLF4J logging and maven.
          - Split jacorb.jar into jacorb.jar and jacorb-omgapi.jar.

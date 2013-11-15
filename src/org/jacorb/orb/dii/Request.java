@@ -21,7 +21,6 @@ package org.jacorb.orb.dii;
  */
 
 import java.util.Iterator;
-import org.slf4j.Logger;
 import org.jacorb.orb.ORB;
 import org.jacorb.orb.giop.ClientConnection;
 import org.jacorb.orb.giop.RequestOutputStream;
@@ -35,9 +34,9 @@ import org.omg.CORBA.NVList;
 import org.omg.CORBA.NamedValue;
 import org.omg.CORBA.TCKind;
 import org.omg.CORBA.UNKNOWN;
-import org.omg.CORBA.NO_IMPLEMENT;
 import org.omg.CORBA.portable.ApplicationException;
 import org.omg.CORBA.portable.RemarshalException;
+import org.slf4j.Logger;
 
 /**
  * DII requests
@@ -144,11 +143,6 @@ public class Request
         this.arguments = args;
         this.context = context;
         result_value = (org.jacorb.orb.NamedValue)result;
-
-        if (contexts != null)
-        {
-            throw new NO_IMPLEMENT ("The contexts parameters has not yet been implemented - pass null for this");
-        }
 
         logger = orb.getConfiguration().getLogger("jacorb.dii.request");
     }

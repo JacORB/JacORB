@@ -31,6 +31,7 @@ import java.util.Set;
 import org.jacorb.config.Configurable;
 import org.jacorb.config.Configuration;
 import org.jacorb.config.ConfigurationException;
+import org.jacorb.orb.dii.ContextListImpl;
 import org.jacorb.orb.dii.Request;
 import org.jacorb.orb.dynany.DynAnyFactoryImpl;
 import org.jacorb.orb.etf.FactoriesBase;
@@ -804,7 +805,7 @@ public final class ORB
     public org.omg.CORBA.ContextList create_context_list()
     {
         work_pending();
-        throw new org.omg.CORBA.NO_IMPLEMENT ();
+        return new ContextListImpl();
     }
 
     public org.omg.CORBA.Environment create_environment()
