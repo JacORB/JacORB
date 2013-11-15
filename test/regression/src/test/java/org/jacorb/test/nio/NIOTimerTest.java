@@ -23,7 +23,7 @@ public class NIOTimerTest extends ORBTestCase
     private int order_[] = new int[5];
 
     private long requestInitTime_ = 0;
-    private final int acceptableDelta_ = 10; // millis
+    private final int acceptableDelta_ = 30; // millis
 
     private SelectorManager selectorManager_;
     private long requestDuration_[] = new long[5]; // millis

@@ -336,7 +336,7 @@
                             <goal>test</goal>
                         </goals>
                         <configuration>
-                            <forkCount>1C</forkCount>
+                            <forkCount>0.75C</forkCount>
                             <reuseForks>false</reuseForks>
                             <argLine>-Xbootclasspath/p:${settings.localRepository}/org/jacorb/jacorb-omgapi/${project.version}/jacorb-omgapi-${project.version}.jar -Djacorb.test.verbose=${jacorb.test.verbose}</argLine>
                         </configuration>
@@ -348,7 +348,7 @@
                             <goal>test</goal>
                         </goals>
                         <configuration>
-                            <forkCount>1C</forkCount>
+                            <forkCount>0.75C</forkCount>
                             <reuseForks>false</reuseForks>
                             <argLine>-Xbootclasspath/p:${settings.localRepository}/org/jacorb/jacorb-omgapi/${project.version}/jacorb-omgapi-${project.version}.jar -Djacorb.test.verbose=${jacorb.test.verbose} -Djacorb.test.ssl=true</argLine>
                             <reportsDirectory>${project.build.directory}/surefire-reports-ssl</reportsDirectory>
