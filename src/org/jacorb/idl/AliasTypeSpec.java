@@ -24,6 +24,7 @@ import java.io.File;
 import java.io.PrintWriter;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.logging.Level;
 
 /**
  * @author Gerald Brose
@@ -164,10 +165,10 @@ public class AliasTypeSpec
 
         if (originalType instanceof ScopedName)
         {
-            if (logger.isDebugEnabled())
-                logger.debug(" Alias " + name +
-                             " has scoped name orig Type : " +
-                             ((ScopedName)originalType).toString());
+            if (parser.logger.isLoggable(Level.ALL))
+                parser.logger.log(Level.ALL, " Alias " + name +
+                 " has scoped name orig Type : " +
+                 ((ScopedName)originalType).toString());
 
             originalType = ((ScopedName)originalType).resolvedTypeSpec();
             originalTypeWasScopedName = true;

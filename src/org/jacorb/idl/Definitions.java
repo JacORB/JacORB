@@ -23,6 +23,7 @@ package org.jacorb.idl;
 import java.io.PrintWriter;
 import java.util.Enumeration;
 import java.util.Vector;
+import java.util.logging.Level;
 
 /**
  * @author Gerald Brose
@@ -53,8 +54,8 @@ public class Definitions
     {
         if( enclosing_symbol != null && enclosing_symbol != s )
         {
-            logger.error("was " + enclosing_symbol.getClass().getName() +
-                                " now: " + s.getClass().getName() );
+            parser.logger.log(Level.SEVERE, "was " + enclosing_symbol.getClass().getName() +
+            " now: " + s.getClass().getName());
             throw new RuntimeException( "Compiler Error: trying to reassign container for " +
                                         name );
         }

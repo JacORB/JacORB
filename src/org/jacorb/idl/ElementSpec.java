@@ -1,5 +1,7 @@
 package org.jacorb.idl;
 
+import java.util.logging.Level;
+
 /*
  *        JacORB - a free Java ORB
  *
@@ -60,9 +62,9 @@ public class ElementSpec
 
     public void parse()
     {
-        if( logger.isDebugEnabled() )
+        if( parser.logger.isLoggable(Level.ALL) )
         {
-            logger.debug("EelementSpec.parse(): element_spec is " +  typeSpec.typeSpec().getClass().getName());
+            parser.logger.log(Level.ALL, "EelementSpec.parse(): element_spec is " +  typeSpec.typeSpec().getClass().getName());
         }
 
         boolean addName = true;
@@ -129,9 +131,9 @@ public class ElementSpec
                     " already defined in union " + containingUnion.full_name(), token );
         }
 
-        if( logger.isDebugEnabled() )
+        if( parser.logger.isLoggable(Level.ALL) )
         {
-            logger.debug("ElementSpec.parse-end(): element_spec is " +  typeSpec.typeSpec().getClass().getName());
+            parser.logger.log(Level.ALL, "ElementSpec.parse-end(): element_spec is " +  typeSpec.typeSpec().getClass().getName());
         }
     }
 

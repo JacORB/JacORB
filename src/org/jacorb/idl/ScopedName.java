@@ -31,6 +31,7 @@ import java.io.PrintWriter;
 import java.util.Hashtable;
 import java.util.Set;
 import java.util.Stack;
+import java.util.logging.Level;
 
 public class ScopedName
     extends SimpleTypeSpec
@@ -196,8 +197,8 @@ public class ScopedName
 
     public void setId( String _id )
     {
-        if( logger.isInfoEnabled() )
-            logger.info( "ScopedName.setId " + _id );
+        if( parser.logger.isLoggable(Level.FINEST) )
+            parser.logger.log(Level.FINEST, "ScopedName.setId " + _id);
 
         typeName = _id;
         escapeName();
@@ -228,8 +229,8 @@ public class ScopedName
             }
         }
 
-        if( logger.isInfoEnabled() )
-            logger.info( "ScopedName.escapeName " + typeName );
+        if( parser.logger.isLoggable(Level.FINEST) )
+            parser.logger.log(Level.FINEST, "ScopedName.escapeName " + typeName);
     }
 
     public void setEnclosingSymbol( IdlSymbol s )
@@ -311,8 +312,8 @@ public class ScopedName
 
     private String resolvedName( String scopeOfOrigin, String name )
     {
-        if( logger.isInfoEnabled() )
-            logger.info( "Resolve " + scopeOfOrigin + ":" + name );
+        if( parser.logger.isLoggable(Level.FINEST) )
+            parser.logger.log(Level.FINEST, "Resolve " + scopeOfOrigin + ":" + name);
 
         if( name == null )
             throw new RuntimeException( "Parser Error: null string in ScopedName (pack_name: " + scopeOfOrigin + ") !" );
@@ -346,10 +347,10 @@ public class ScopedName
             String unmappedResult =
                 unMap( scopeOfOrigin + "."  + result );
 
-            if( logger.isInfoEnabled() )
-                logger.info( "resolve, " + scopeOfOrigin + "."  + result +
-                             " was in name table, returning " + unmappedResult +
-                             " suffix: " + bracketSuffix );
+            if( parser.logger.isLoggable(Level.FINEST) )
+                parser.logger.log(Level.FINEST, "resolve, " + scopeOfOrigin + "."  + result +
+                 " was in name table, returning " + unmappedResult +
+                 " suffix: " + bracketSuffix);
 
             return unmappedResult + bracketSuffix;
         }
@@ -361,10 +362,10 @@ public class ScopedName
         {
             String unmappedResult = unMap( result );
 
-            if( logger.isInfoEnabled() )
-                logger.info( "resolve, found " + result +
-                             " in name table, returning " + unmappedResult +
-                             " suffix: " + bracketSuffix );
+            if( parser.logger.isLoggable(Level.FINEST) )
+                parser.logger.log(Level.FINEST, "resolve, found " + result +
+                 " in name table, returning " + unmappedResult +
+                 " suffix: " + bracketSuffix);
 
             return unmappedResult + bracketSuffix;
         }
@@ -401,8 +402,8 @@ public class ScopedName
                 {
                     String unmappedResult = unMap( result );
 
-                    if( logger.isInfoEnabled() )
-                        logger.info( "resolve b, " + result + " was in name table, returning " +  unmappedResult + " suffix: " + bracketSuffix );
+                    if( parser.logger.isLoggable(Level.FINEST) )
+                        parser.logger.log(Level.FINEST, "resolve b, " + result + " was in name table, returning " +  unmappedResult + " suffix: " + bracketSuffix);
                     return unmappedResult + bracketSuffix;
                 }
             }
@@ -512,8 +513,8 @@ public class ScopedName
             buf.append( name );
         }
         String res = unMap( prefix + buf.toString() ) + bracketSuffix;
-        if( logger.isDebugEnabled() )
-            logger.debug( "ScopedName.resolve (at end) returns: " + res );
+        if( parser.logger.isLoggable(Level.ALL) )
+            parser.logger.log(Level.ALL, "ScopedName.resolve (at end) returns: " + res);
         return res;
     }
 
@@ -541,13 +542,13 @@ public class ScopedName
 
     private String unMap( String _name )
     {
-        if( logger.isDebugEnabled() )
-            logger.debug( "ScopedName.unmap: " + _name );
+        if( parser.logger.isLoggable(Level.ALL) )
+            parser.logger.log(Level.ALL, "ScopedName.unmap: " + _name);
 
         TypeSpec y = TypeMap.map( _name );
 
-        if( logger.isDebugEnabled() )
-            logger.debug( "ScopedName.unmap: " + _name + ", Type.map( " + _name + " ) is : " + y);
+        if( parser.logger.isLoggable(Level.ALL) )
+            parser.logger.log(Level.ALL, "ScopedName.unmap: " + _name + ", Type.map( " + _name + " ) is : " + y);
 
         TypeSpec x = null;
 

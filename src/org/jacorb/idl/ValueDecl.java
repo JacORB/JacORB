@@ -30,6 +30,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+import java.util.logging.Level;
 
 /**
  * @author Andre Spiegel
@@ -199,7 +200,7 @@ public class ValueDecl
 
         if (hasBody)
         {
-            logger.warn("valueDecl.parse(): exports (but not attributes)");
+            parser.logger.log(Level.WARNING, "valueDecl.parse(): exports (but not attributes)");
 
             // parse exports
             Iterator iter = exports.iterator();
@@ -213,14 +214,14 @@ public class ValueDecl
                 }
             }
 
-            logger.warn("valueDecl.parse(): members");
+            parser.logger.log(Level.WARNING, "valueDecl.parse(): members");
 
             ScopedName.addRecursionScope(typeName());
             stateMembers.parse();
             ScopedName.removeRecursionScope(typeName());
 
 
-            logger.warn("valueDecl.parse(): operations");
+            parser.logger.log(Level.WARNING, "valueDecl.parse(): operations");
 
             // parse operations
             iter = operations.iterator();
@@ -231,7 +232,7 @@ public class ValueDecl
             }
 
 
-            logger.warn("valueDecl.parse(): exports(attributes)");
+            parser.logger.log(Level.WARNING, "valueDecl.parse(): exports(attributes)");
 
             // parser exports
             iter = exports.iterator();
@@ -250,7 +251,7 @@ public class ValueDecl
                 }
             }
 
-            logger.warn("valueDecl.parse(): factories");
+            parser.logger.log(Level.WARNING, "valueDecl.parse(): factories");
 
             // parse factories
             iter = factories.iterator();
@@ -261,7 +262,7 @@ public class ValueDecl
             }
 
             // check inheritance rules
-            logger.warn("valueDecl.parse(): check inheritance");
+            parser.logger.log(Level.WARNING, "valueDecl.parse(): check inheritance");
 
             if (inheritanceSpec != null)
             {
@@ -286,7 +287,7 @@ public class ValueDecl
                         h.add(ts.full_name());
                         continue;
                     }
-                    logger.error(" Declaration is " + ts.declaration().getClass());
+                    parser.logger.log(Level.SEVERE, " Declaration is " + ts.declaration().getClass());
                     parser.fatal_error("Non-value type in inheritance spec: " + Environment.NL
                                        + "\t" + inheritanceSpec, token);
                 }
@@ -328,10 +329,10 @@ public class ValueDecl
 
         if (! (resolvedTSpec instanceof ConstrTypeSpec))
         {
-            if (logger.isDebugEnabled())
+            if (parser.logger.isLoggable(Level.ALL))
             {
-                logger.debug("Illegal inheritance spec, not a constr. type but " +
-                             resolvedTSpec.getClass() + ", name " + scopedName );
+                parser.logger.log(Level.ALL, "Illegal inheritance spec, not a constr. type but " +
+                 resolvedTSpec.getClass() + ", name " + scopedName);
             }
             parser.fatal_error("Illegal inheritance spec (not a constr. type): " +
                                inheritanceSpec, token);
@@ -344,8 +345,8 @@ public class ValueDecl
     {
         if (enclosing_symbol != null && enclosing_symbol != s)
         {
-            logger.error("was " + enclosing_symbol.getClass().getName() +
-                               " now: " + s.getClass().getName());
+            parser.logger.log(Level.SEVERE, "was " + enclosing_symbol.getClass().getName() +
+               " now: " + s.getClass().getName());
             throw new RuntimeException("Compiler Error: trying to reassign container for " +
                                        name);
         }

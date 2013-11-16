@@ -27,6 +27,7 @@ package org.jacorb.idl;
 
 import java.util.Enumeration;
 import java.util.Vector;
+import java.util.logging.Level;
 
 public class MemberList
     extends SymbolList
@@ -76,8 +77,8 @@ public class MemberList
 
         if( enclosing_symbol != null && enclosing_symbol != s )
         {
-            logger.error("was " + enclosing_symbol.getClass().getName() +
-                                " now: " + s.getClass().getName() );
+            parser.logger.log(Level.SEVERE, "was " + enclosing_symbol.getClass().getName() +
+            " now: " + s.getClass().getName());
 
             throw new RuntimeException( "Compiler Error: trying to reassign container" );
         }

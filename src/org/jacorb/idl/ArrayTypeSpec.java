@@ -24,6 +24,7 @@ import java.io.File;
 import java.io.PrintWriter;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.logging.Level;
 
 /**
  * @author Gerald Brose <mailto:gerald.brose@acm.org>
@@ -51,8 +52,8 @@ public class ArrayTypeSpec
         this.pack_name = pack_name;
         type_spec = elem;
 
-        if (logger.isDebugEnabled())
-            logger.debug("ArrayTypeSpec with declarator " + ad.name());
+        if (parser.logger.isLoggable(Level.ALL))
+            parser.logger.log(Level.ALL, "ArrayTypeSpec with declarator " + ad.name());
 
     }
 
@@ -145,8 +146,8 @@ public class ArrayTypeSpec
     public void parse()
         throws ParseException
     {
-        if (logger.isDebugEnabled())
-            logger.debug("ArrayTypeSpec.parse " + declarator.name());
+        if (parser.logger.isLoggable(Level.ALL))
+            parser.logger.log(Level.ALL, "ArrayTypeSpec.parse " + declarator.name());
 
         dims = declarator.dimensions();
         if (dims.length > 1)
@@ -271,8 +272,8 @@ public class ArrayTypeSpec
 
     public String printReadStatement(String var_name, String streamname)
     {
-        if (logger.isWarnEnabled())
-            logger.warn("Array printReadStatement");
+        if (parser.logger.isLoggable(Level.WARNING))
+            parser.logger.log(Level.WARNING, "Array printReadStatement");
 
         StringBuffer sb = new StringBuffer();
         String type = typeName();

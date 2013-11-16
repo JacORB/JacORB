@@ -29,6 +29,7 @@ package org.jacorb.idl;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.logging.Level;
 
 /**
  * Note: a module's name is its package name!
@@ -148,7 +149,7 @@ public class Module
             }
             catch (IOException io)
             {
-                logger.warn("Exception: ", io);
+                parser.logger.log(Level.WARNING, "Exception: ", io);
             }
         }
         spec.print(ps);
