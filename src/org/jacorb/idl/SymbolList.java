@@ -97,11 +97,11 @@ public class SymbolList
         Enumeration e = v.elements();
 
         if( e.hasMoreElements() )
-            sb.append( (IdlSymbol)e.nextElement() );
+            sb.append( e.nextElement() );
 
         for( ; e.hasMoreElements(); )
         {
-            sb.append( "," + (IdlSymbol)e.nextElement() );
+            sb.append( "," + e.nextElement() );
         }
         return sb.toString();
     }

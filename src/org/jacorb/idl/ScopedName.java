@@ -37,11 +37,11 @@ public class ScopedName
     extends SimpleTypeSpec
     implements SwitchTypeSpec
 {
-    private static Hashtable pseudoScopes = new Hashtable();
+    private static Hashtable<String, String> pseudoScopes = new Hashtable<String, String>();
 
-    private static Hashtable enumMap = new Hashtable();
+    private static Hashtable<String, String> enumMap = new Hashtable<String, String>();
 
-    private static Stack recursionStack = new Stack();
+    private static Stack<String> recursionStack = new Stack<String>();
 
     /**
      * Interfaces define a new scope, but since we can't do that
@@ -154,7 +154,7 @@ public class ScopedName
 
     private static String unEnum( String _name )
     {
-        String n = (String)enumMap.get( _name );
+        String n = enumMap.get( _name );
         if( n != null )
             return n;
         else
@@ -695,7 +695,7 @@ public class ScopedName
 
     public static void removeRecursionScope( String typeName )
     {
-        String check = (String)recursionStack.pop();
+        String check = recursionStack.pop();
         if( typeName != null && ( check == null || !check.equals( typeName ) ) )
         {
             throw new RuntimeException( "RecursionScope Error, expected " +

@@ -125,12 +125,10 @@ parser code
     public static Logger logger;
     public static Handler handler;
 
-    private static Writer logStreamWriter = null;
-
     /*  a la CORBA 2.4, allow forward declarations that remain undefined */
     public static boolean sloppy = false;
 
-    public static String currentDate;
+    public static String currentDate = java.text.DateFormat.getDateTimeInstance().format(new java.util.Date());
 
     private static ObjectCachePlugin objectCachePlugin;
 
@@ -192,21 +190,6 @@ parser code
 
     protected static final void initLogging()
     {
-        currentDate = java.text.DateFormat.getDateTimeInstance().format(new java.util.Date());
-
-        // check if the environment's logStream has been set
-        Writer logWriter;
-        if( logStreamWriter != null )
-        {
-            logWriter = logStreamWriter;
-        }
-        else
-        {
-            OutputStream outStream = System.err;
-            logWriter = new OutputStreamWriter( outStream );
-        }
-
-
         logger = Logger.getLogger("jacorb.idl");
         logger.setLevel(Level.SEVERE);
 
@@ -239,6 +222,8 @@ parser code
 
     public static void main( String argv[] )
     {
+        initLogging();
+
         if( compileAndHandle( argv ) == true )
             System.exit( 0 );
         else
@@ -273,18 +258,12 @@ parser code
     public static boolean compile( String argv[] )
         throws Exception
     {
-        return compile( argv, null );
-    }
-
-    public static boolean compile( String argv[], StringWriter logWriter )
-        throws Exception
-    {
         BufferedReader in = null;
 
-        if (logWriter!= null)
-              logStreamWriter = logWriter;
-
-        initLogging();
+        if ( logger == null )
+        {
+            initLogging();
+        }
 
         parser.openScope();
 

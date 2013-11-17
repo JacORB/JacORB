@@ -24,7 +24,6 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import java.io.File;
-import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
@@ -88,15 +87,13 @@ class IDLTestSetup
         return args.toArray(new String[args.size()]);
     }
 
-    public static String runJacIDLInProcess(String file, String[] args, boolean failureExpected) throws AssertionFailedError
+    private static void runJacIDLInProcess(String file, String[] args, boolean failureExpected) throws AssertionFailedError
     {
-        StringWriter writer = new StringWriter();
-        final String details = writer.toString();
         try
         {
             TestUtils.log("[IDLTestSetup] run JacIDL on file " + file + " with args " + Arrays.asList(args));
 
-            org.jacorb.idl.parser.compile(args, writer);
+            org.jacorb.idl.parser.compile(args);
 
             if (failureExpected)
             {
@@ -105,10 +102,8 @@ class IDLTestSetup
         }
         catch (Exception e)
         {
-            handleJacIDLFailed(file, failureExpected, details, e);
+            handleJacIDLFailed(file, failureExpected, null, e);
         }
-
-        return details;
     }
 
     public static String runJacIDLExtraProcess(String file, String[] arg, boolean failureExpected) throws Exception
