@@ -52,6 +52,7 @@
          - Implement ContextList (BZ968)
     - IDL
          - Fix for logging.
+         - Fix for Struct with String typedef type to be output as initialised type.
     - Misc
          - Improve documentation for SLF4J logging and maven.
          - Split jacorb.jar into jacorb.jar and jacorb-omgapi.jar.
