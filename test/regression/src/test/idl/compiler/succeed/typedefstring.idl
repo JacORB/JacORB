@@ -1,0 +1,11 @@
+
+module test
+{
+	typedef string PartId;
+
+	struct MyStruct
+	{
+	   string name;
+	   PartId id;
+	};
+};

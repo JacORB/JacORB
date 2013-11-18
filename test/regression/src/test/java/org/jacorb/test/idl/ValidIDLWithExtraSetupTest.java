@@ -83,7 +83,7 @@ public class ValidIDLWithExtraSetupTest extends AbstractIDLTestcase
     public static Collection<Object[]> data()
     {
         return Arrays.asList(new Object[][] {
-                    { new String[] { "-DBLUB" }, "defined.idl" },
+                    { new String[] { "-DBLUB" }, "definedsuccessful.idl" },
                     { new String[] { "-I" + TEST_HOME + "/../../idl/omg" }, "Interoperability.idl" },
                     { new String[] { "-I" + TEST_HOME + "/../../idl/omg" }, "rt1051.idl" },
                     { new String[] { "-DDefB" }, "Ping1.idl" },
@@ -122,6 +122,7 @@ public class ValidIDLWithExtraSetupTest extends AbstractIDLTestcase
         arguments.add(idlFile.getAbsolutePath());
     }
 
+    @Override
     protected String[] createJacIDLArgs()
     {
         String args[] = new String[arguments.size()];
@@ -257,7 +258,8 @@ public class ValidIDLWithExtraSetupTest extends AbstractIDLTestcase
        {
            in = new CDRInputStream(new byte[0])
            {
-               public BigDecimal read_fixed()
+               @Override
+            public BigDecimal read_fixed()
                {
                    return result;
                }
@@ -267,7 +269,8 @@ public class ValidIDLWithExtraSetupTest extends AbstractIDLTestcase
        {
            in = new CDRInputStream(new byte[0])
            {
-               public BigDecimal read_fixed(short digits, short scale)
+               @Override
+            public BigDecimal read_fixed(short digits, short scale)
                {
                    assertEquals(4, digits);
                    assertEquals(1, scale);
@@ -301,12 +304,14 @@ public class ValidIDLWithExtraSetupTest extends AbstractIDLTestcase
        {
            out = new CDROutputStream()
            {
-               public void write_fixed(BigDecimal value, short digits, short scale)
+               @Override
+            public void write_fixed(BigDecimal value, short digits, short scale)
                {
                    fail("generated code should invoke deprecated write_fixed method");
                }
 
-               public void write_fixed(BigDecimal b)
+               @Override
+            public void write_fixed(BigDecimal b)
                {
                    success[0] = true;
                }
@@ -316,12 +321,14 @@ public class ValidIDLWithExtraSetupTest extends AbstractIDLTestcase
        {
            out = new CDROutputStream()
            {
-               public void write_fixed(BigDecimal value, short digits, short scale)
+               @Override
+            public void write_fixed(BigDecimal value, short digits, short scale)
                {
                    success[0] = true;
                }
 
-               public void write_fixed(BigDecimal b)
+               @Override
+            public void write_fixed(BigDecimal b)
                {
                    fail("generated code should invoke non deprecated write_fixed method");
                }

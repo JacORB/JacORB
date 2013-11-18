@@ -20,9 +20,11 @@
 
 package org.jacorb.idl;
 
+import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Stack;
+import java.util.logging.Level;
 import org.jacorb.idl.runtime.char_token;
 import org.jacorb.idl.runtime.float_token;
 import org.jacorb.idl.runtime.int_token;
@@ -55,8 +57,6 @@ import org.jacorb.idl.runtime.token;
 
 public class lexer
 {
-    private static org.jacorb.idl.util.IDLLogger logger = parser.getLogger();
-
     /** First and second character of lookahead. */
     protected static int next_char;
     protected static int next_char2;
@@ -71,7 +71,6 @@ public class lexer
      * string of  the name  is the  key here,  which  indexes Integer
      * objects holding the symbol number.
      */
-
     protected static Hashtable keywords = new Hashtable();
 
     /** Table of keywords, stored in lower case.  Keys are the
@@ -80,13 +79,13 @@ public class lexer
      *  the keywords.  This table is used for detecting collisions of
      *  identifiers with keywords.
      */
-    protected static Hashtable keywords_lower_case = new Hashtable();
+    protected static Hashtable<String, String> keywords_lower_case = new Hashtable<String, String>();
 
 
     /** Table of Java reserved names.
      */
 
-    protected static HashSet java_keywords = new HashSet();
+    protected static HashSet<String> java_keywords = new HashSet<String>();
 
     /** Table of single character symbols.  For ease of implementation, we
      *  store all unambiguous single character tokens in this table of Integer
@@ -94,18 +93,18 @@ public class lexer
      *  appropriate char (currently Character objects have a bug which precludes
      *  their use in tables).
      */
-    protected static Hashtable char_symbols = new Hashtable( 25 );
+    protected static Hashtable<Integer, Integer> char_symbols = new Hashtable<Integer, Integer>( 25 );
 
 
     /** Defined symbols  (preprocessor) */
 
-    protected static Hashtable defines = new Hashtable();
+    protected static Hashtable<String, String> defines = new Hashtable<String, String>();
     protected static boolean conditionalCompilation = true;
 
     /** nested #ifdefs are pushed on this stack by the "preprocessor" */
-    private static java.util.Stack ifStack = new Stack();
+    private static Stack<Boolean> ifStack = new Stack<Boolean>();
 
-    private static java.util.Stack tokenStack = new Stack();
+    private static Stack<token> tokenStack = new Stack<token>();
 
     /** Current line number for use in error messages. */
     protected static int current_line = 1;
@@ -226,9 +225,9 @@ public class lexer
         // setup the mapping of lower case keywords to case sensitive
         // keywords
 
-        for( java.util.Enumeration e = keywords.keys(); e.hasMoreElements(); )
+        for( Enumeration<String> e = keywords.keys(); e.hasMoreElements(); )
         {
-            String keyword = (String)e.nextElement();
+            String keyword = e.nextElement();
             String keyword_lower_case = keyword.toLowerCase();
             keywords_lower_case.put( keyword_lower_case, keyword );
         }
@@ -354,21 +353,21 @@ public class lexer
 
     public static void define( String symbol, String value )
     {
-        if( logger.isDebugEnabled() )
-            logger.debug( "Defining: " + symbol + " as " + value );
+        if( parser.logger.isLoggable(Level.ALL) )
+            org.jacorb.idl.parser.logger.log( Level.ALL, "Defining: " + symbol + " as " + value );
         defines.put( symbol, value );
     }
 
     public static void undefine( String symbol )
     {
-        if( logger.isDebugEnabled() )
-            logger.debug( "Un-defining: " + symbol );
+        if( parser.logger.isLoggable(Level.ALL) )
+            parser.logger.log(Level.ALL, "Un-defining: " + symbol);
         defines.remove( symbol );
     }
 
     public static String defined( String symbol )
     {
-        return (String)defines.get( symbol );
+        return defines.get( symbol );
     }
 
     /**
@@ -437,20 +436,20 @@ public class lexer
      */
     public static void emit_error( String message )
     {
-        if (parser.getLogger().isErrorEnabled())
+        if (parser.logger.isLoggable(Level.SEVERE))
         {
             if (GlobalInputStream.currentFile() != null)
             {
-                parser.getLogger().error(  GlobalInputStream.currentFile().getAbsolutePath() +
-                               ", line: " + current_line +
-                               "(" + current_position + "): " +
-                               message + "\n\t" +
-                               line.toString() );
+                parser.logger.log(Level.SEVERE, GlobalInputStream.currentFile().getAbsolutePath() +
+                   ", line: " + current_line +
+                   "(" + current_position + "): " +
+                   message + "\n\t" +
+                   line.toString());
             }
             else
             {
                 //error probably ocurred before parsing
-                parser.getLogger().error(message);
+                parser.logger.log(Level.SEVERE, message);
             }
         }
         error_count++;
@@ -464,11 +463,11 @@ public class lexer
         }
         else
         {
-            if (parser.getLogger().isErrorEnabled())
+            if (parser.logger.isLoggable(Level.SEVERE))
             {
-                logger.error( t.fileName + ", line:" + t.line_no +
-                              "(" + t.char_pos + "): " + message +
-                              "\n\t" + t.line_val );
+                parser.logger.log(Level.SEVERE, t.fileName + ", line:" + t.line_no +
+                  "(" + t.char_pos + "): " + message +
+                  "\n\t" + t.line_val);
             }
             error_count++;
         }
@@ -485,10 +484,10 @@ public class lexer
 
     public static void emit_warn( String message )
     {
-        if (parser.getLogger().isWarnEnabled())
+        if (parser.logger.isLoggable(Level.WARNING))
         {
-            logger.warn( message + " at " + current_line + "(" + current_position +
-                         "): \"" + line.toString() + "\"" );
+            parser.logger.log(Level.WARNING, message + " at " + current_line + "(" + current_position +
+             "): \"" + line.toString() + "\"");
         }
         warning_count++;
     }
@@ -502,10 +501,10 @@ public class lexer
         }
         else
         {
-            if (parser.getLogger().isWarnEnabled())
+            if (parser.logger.isLoggable(Level.WARNING))
             {
-                logger.warn( " at " + t.fileName + ", line:" + t.line_no + "(" +
-                             t.char_pos + "): " + message  + "\n\t" + t.line_val );
+                parser.logger.log(Level.WARNING, " at " + t.fileName + ", line:" + t.line_no + "(" +
+                 t.char_pos + "): " + message  + "\n\t" + t.line_val);
             }
 
             warning_count++;
@@ -545,7 +544,7 @@ public class lexer
     {
         Integer result;
 
-        result = (Integer)char_symbols.get( new Integer( (char)ch ) );
+        result = char_symbols.get( new Integer( (char)ch ) );
         if( result == null )
             return -1;
         else
@@ -747,8 +746,8 @@ public class lexer
                     if( brackets )
                     {
                         swallow_whitespace();
-                        if( logger.isDebugEnabled() )
-                            logger.debug( "next char: " + next_char );
+                        if( parser.logger.isLoggable(Level.ALL) )
+                            parser.logger.log(Level.ALL, "next char: " + next_char);
 
                         if( ')' != next_char )
                         {
@@ -798,12 +797,12 @@ public class lexer
             }
             else if( dir.equals( "else" ) )
             {
-                if( ( (Boolean)ifStack.peek() ).booleanValue() )
+                if( ifStack.peek().booleanValue() )
                     conditionalCompilation = !conditionalCompilation;
             }
             else if( dir.equals( "endif" ) )
             {
-                boolean b = ( (Boolean)ifStack.pop() ).booleanValue();
+                boolean b = ifStack.pop().booleanValue();
                 conditionalCompilation = b;
             }
             else if( dir.equals( "pragma" ) )
@@ -1060,8 +1059,8 @@ public class lexer
     public static String checkIdentifier( String str )
     {
 
-        if( logger.isInfoEnabled() )
-            logger.info( "checking identifier " + str );
+        if( parser.logger.isLoggable(Level.FINEST) )
+            parser.logger.log(Level.FINEST, "checking identifier " + str);
 
         /* if it is an escaped identifier, look it up as a keyword,
            otherwise remove the underscore. */
@@ -1078,7 +1077,7 @@ public class lexer
             {
                 // check for name clashes strictly (i.e. case insensitive)
                 colliding_keyword =
-                    (String)keywords_lower_case.get(str.toLowerCase());
+                    keywords_lower_case.get(str.toLowerCase());
             }
             else
             {
@@ -1135,8 +1134,8 @@ public class lexer
     public static boolean needsJavaEscape( Module m )
     {
         String s = m.pack_name;
-        if( logger.isDebugEnabled() )
-            logger.debug( "checking module name " + s );
+        if( parser.logger.isLoggable(Level.ALL) )
+            parser.logger.log(Level.ALL, "checking module name " + s);
         return ( strictJavaEscapeCheck( s ) );
     }
 
@@ -1184,7 +1183,7 @@ public class lexer
            one here */
 
         if( !tokenStack.empty() )
-            return (token)tokenStack.pop();
+            return tokenStack.pop();
 
         /* else */
 

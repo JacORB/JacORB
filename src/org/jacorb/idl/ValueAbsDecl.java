@@ -25,6 +25,7 @@ import java.io.PrintWriter;
 import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.logging.Level;
 
 /**
  * @author Andre Spiegel
@@ -98,8 +99,8 @@ public class ValueAbsDecl
     {
         if (enclosing_symbol != null && enclosing_symbol != s)
         {
-            logger.error("was " + enclosing_symbol.getClass().getName() +
-                               " now: " + s.getClass().getName());
+            parser.logger.log(Level.SEVERE, "was " + enclosing_symbol.getClass().getName() +
+               " now: " + s.getClass().getName());
             throw new RuntimeException("Compiler Error: trying to reassign container for " + name);
         }
         enclosing_symbol = s;
@@ -171,8 +172,8 @@ public class ValueAbsDecl
         {
             if (inheritanceSpec != null && inheritanceSpec.v.size() > 0)
             {
-                if (logger.isDebugEnabled())
-                    logger.debug("Checking inheritanceSpec of " + full_name());
+                if (parser.logger.isLoggable(Level.ALL))
+                    parser.logger.log(Level.ALL, "Checking inheritanceSpec of " + full_name());
                 for (Enumeration e = inheritanceSpec.v.elements(); e.hasMoreElements();)
                 {
                     ScopedName name = (ScopedName)e.nextElement();
@@ -192,10 +193,10 @@ public class ValueAbsDecl
 
                         if (! (resolvedTSpec instanceof ConstrTypeSpec))
                         {
-                            if (logger.isDebugEnabled())
+                            if (parser.logger.isLoggable(Level.ALL))
                             {
-                                logger.debug("Illegal inheritance spec, not a constr. type but " +
-                                             resolvedTSpec.getClass() + ", name " + name );
+                                parser.logger.log(Level.ALL, "Illegal inheritance spec, not a constr. type but " +
+                                 resolvedTSpec.getClass() + ", name " + name);
                             }
                             parser.fatal_error("Illegal inheritance spec (not a constr. type): " +
                                            inheritanceSpec, token);

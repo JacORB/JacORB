@@ -31,8 +31,12 @@ import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Stack;
 import java.util.Vector;
-
-import org.jacorb.idl.util.IDLLogger;
+import java.util.logging.ConsoleHandler;
+import java.util.logging.Level;
+import java.util.logging.Formatter;
+import java.util.logging.Handler;
+import java.util.logging.LogRecord;
+import java.util.logging.Logger;
 
 /**
  *
@@ -118,13 +122,13 @@ parser code
 
     private static int activeParseThreads;
 
-    private static IDLLogger logger;
-    private static Writer logStreamWriter = null;
+    public static Logger logger;
+    public static Handler handler;
 
     /*  a la CORBA 2.4, allow forward declarations that remain undefined */
     public static boolean sloppy = false;
 
-    public static String currentDate;
+    public static String currentDate = java.text.DateFormat.getDateTimeInstance().format(new java.util.Date());
 
     private static ObjectCachePlugin objectCachePlugin;
 
@@ -186,26 +190,40 @@ parser code
 
     protected static final void initLogging()
     {
-        currentDate = java.text.DateFormat.getDateTimeInstance().format(new java.util.Date());
+        logger = Logger.getLogger("jacorb.idl");
+        logger.setLevel(Level.SEVERE);
 
-        // check if the environment's logStream has been set
-        Writer logWriter;
-        if( logStreamWriter != null )
-        {
-            logWriter = logStreamWriter;
-        }
-        else
-        {
-            OutputStream outStream = System.err;
-            logWriter = new OutputStreamWriter( outStream );
-        }
+        Formatter formatter = new Formatter() {
 
-        logger = IDLLogger.getLogger("jacorb.idl", IDLLogger.ERROR, logWriter);
+            @Override
+            public String format(LogRecord arg0) {
+                StringBuilder b = new StringBuilder();
+                b.append(" ");
+                b.append(arg0.getSourceClassName());
+                b.append(" ");
+                b.append(arg0.getSourceMethodName());
+                b.append(" ");
+                b.append(arg0.getLevel());
+                b.append(" ");
+                b.append(arg0.getMessage());
+                b.append(System.getProperty("line.separator"));
+                return b.toString();
+            }
+
+        };
+
+        handler = new ConsoleHandler();
+        handler.setFormatter (formatter);
+        handler.setLevel (Level.SEVERE);
+
+        logger.addHandler(parser.handler);
     }
 
 
     public static void main( String argv[] )
     {
+        initLogging();
+
         if( compileAndHandle( argv ) == true )
             System.exit( 0 );
         else
@@ -221,7 +239,7 @@ parser code
         }
         catch( org.jacorb.idl.ParseException e )
         {
-            logger.debug ( "Exception caught", e);
+            parser.logger.log(Level.ALL, "Exception caught", e);
             lexer.emit_error( e.getMessage() );
             return false;
         }
@@ -240,18 +258,12 @@ parser code
     public static boolean compile( String argv[] )
         throws Exception
     {
-        return compile( argv, null );
-    }
-
-    public static boolean compile( String argv[], StringWriter logWriter )
-        throws Exception
-    {
         BufferedReader in = null;
 
-        if (logWriter!= null)
-              logStreamWriter = logWriter;
-
-        initLogging();
+        if ( logger == null )
+        {
+            initLogging();
+        }
 
         parser.openScope();
 
@@ -376,6 +388,7 @@ parser code
                     int level = Integer.parseInt( argv[++i] );
 
                     logger.setLevel(Environment.intToLevel(level));
+                    handler.setLevel(Environment.intToLevel(level));
 
                     continue;
                 }
@@ -620,18 +633,12 @@ parser code
        if( idlp.length() == 0 )
        {
            package_prefix = jp;
-           if( logger.isDebugEnabled() )
-           {
-               logger.debug( "Replace unnamed global package with " + jp );
-           }
+           parser.logger.log(Level.ALL, "Replace unnamed global package with " + jp );
        }
        else
        {
            pack_replace.put( idlp, jp );
-           if( logger.isDebugEnabled() )
-           {
-               logger.debug( "Replace pack " + idlp + " with " + jp );
-           }
+           parser.logger.log(Level.ALL, "Replace pack " + idlp + " with " + jp );
        }
     }
 
@@ -678,7 +685,7 @@ parser code
     {
         System.out.println
         (
-            "JacORB IDL compiler V" + compiler_version + " (" + 
+            "JacORB IDL compiler V" + compiler_version + " (" +
             compiler_date + ')' + System.getProperty("line.separator") +
             "\t(C) The JacORB Project " + compiler_year
         );
@@ -922,7 +929,7 @@ parser code
      * IDL compiler
      */
 
-    public static final IDLLogger getLogger()
+    public static final Logger getLogger()
     {
         return logger;
     }

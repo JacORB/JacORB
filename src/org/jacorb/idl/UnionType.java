@@ -25,6 +25,7 @@ import java.io.File;
 import java.io.PrintWriter;
 import java.util.Enumeration;
 import java.util.Set;
+import java.util.logging.Level;
 
 /**
  * @author Gerald Brose
@@ -524,9 +525,9 @@ public class UnionType
             }
             else
             {
-                logger.error("Something went wrong in UnionType, "
-                             + "could not identify switch type "
-                             + switch_type_spec.type_spec);
+                parser.logger.log(Level.SEVERE, "Something went wrong in UnionType, "
+                 + "could not identify switch type "
+                 + switch_type_spec.type_spec);
             }
         }
 

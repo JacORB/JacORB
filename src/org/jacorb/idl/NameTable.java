@@ -30,6 +30,7 @@ import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Map;
 import java.util.StringTokenizer;
+import java.util.logging.Level;
 
 public class NameTable
 {
@@ -48,8 +49,6 @@ public class NameTable
     private static final Map operationSources = new Hashtable();
 
     public static final Map parsed_interfaces = new Hashtable();
-
-    static org.jacorb.idl.util.IDLLogger logger;
 
     public static void init()
     {
@@ -73,8 +72,6 @@ public class NameTable
         names.put( "void", IDLTypes.TYPE );
         names.put( "org.omg.CORBA.Any", IDLTypes.TYPE );
         names.put( "org.omg.CORBA.Object", IDLTypes.INTERFACE );
-
-        logger = parser.getLogger();
     }
 
     /**
@@ -84,10 +81,10 @@ public class NameTable
     private static void checkScopingRules( String name, IDLTypes kind )
         throws NameAlreadyDefined
     {
-        if( logger.isDebugEnabled() )
+        if( parser.logger.isLoggable(Level.ALL) )
         {
-            logger.debug("NameTable.checkScopingRules:  " +
-                         name + " kind: " + kind.name() );
+            parser.logger.log(Level.ALL, "NameTable.checkScopingRules:  " +
+             name + " kind: " + kind.name());
         }
 
         if( kind == IDLTypes.ARGUMENT )
@@ -105,10 +102,10 @@ public class NameTable
             scopes[ i ] = strtok.nextToken();
         }
 
-        if( logger.isDebugEnabled() )
+        if( parser.logger.isLoggable(Level.ALL) )
         {
-            logger.debug("NameTable.checkScopingRules2:  " +
-                         name + " kind: " + kind.name() );
+            parser.logger.log(Level.ALL, "NameTable.checkScopingRules2:  " +
+             name + " kind: " + kind.name());
         }
 
         if( scopes.length > 1 &&
@@ -131,11 +128,11 @@ public class NameTable
     public static void define( String name, IDLTypes kind )
         throws NameAlreadyDefined
     {
-        if( logger.isInfoEnabled() )
+        if( parser.logger.isLoggable(Level.FINEST) )
         {
-            logger.info( "NameTable.define2: putting " +
-                        name + " kind " + kind.name() + " hash: " +
-                        name.hashCode() );
+            parser.logger.log(Level.FINEST, "NameTable.define2: putting " +
+            name + " kind " + kind.name() + " hash: " +
+            name.hashCode());
         }
 
         /* check also for the all uppercase version of this name,
@@ -175,9 +172,9 @@ public class NameTable
             else
             {
                 // redefine
-                if( logger.isInfoEnabled() )
+                if( parser.logger.isLoggable(Level.FINEST) )
                 {
-                    logger.info( "NameTable.define2: redefining  " + name  );
+                    parser.logger.log(Level.FINEST, "NameTable.define2: redefining  " + name);
                 }
 
                 shadows.remove( name );
@@ -198,11 +195,11 @@ public class NameTable
             checkScopingRules( name, kind );
         }
 
-        /* block identifiers that only differ in case 
-         * 
-         *  JAC#584: when the name already in uppercase 
-         *  at first add dummy name then override it 
-         *  if necessary   
+        /* block identifiers that only differ in case
+         *
+         *  JAC#584: when the name already in uppercase
+         *  at first add dummy name then override it
+         *  if necessary
         */
         if( org.jacorb.idl.parser.strict_names )
         {
@@ -238,10 +235,10 @@ public class NameTable
                 presentOpName = source + "." + opName;
 
             }
-            if( logger.isInfoEnabled() )
+            if( parser.logger.isLoggable(Level.FINEST) )
             {
-                logger.info("NameTable source of " + name
-                            + " is " + presentOpName );
+                parser.logger.log(Level.FINEST, "NameTable source of " + name
+                + " is " + presentOpName);
             }
 
             String otherOpName = inheritedFrom + "." + opName;
@@ -254,10 +251,10 @@ public class NameTable
                 }
                 otherOpName = source + "." + opName;
             }
-            if( logger.isInfoEnabled() )
+            if( parser.logger.isLoggable(Level.FINEST) )
             {
-                logger.info("NameTable other source of " + name
-                            + " is " + otherOpName );
+                parser.logger.log(Level.FINEST, "NameTable other source of " + name
+                + " is " + otherOpName);
             }
 
             if( otherOpName.equals( presentOpName ) )
@@ -295,9 +292,9 @@ public class NameTable
             else
             {
                 names.put( name, kind );
-                if( logger.isDebugEnabled() )
+                if( parser.logger.isLoggable(Level.ALL) )
                 {
-                    logger.debug( "Put shadow " + name );
+                    parser.logger.log(Level.ALL, "Put shadow " + name);
                 }
                 shadows.put( name, "" );
                 if( kind == IDLTypes.OPERATION )
@@ -341,10 +338,10 @@ public class NameTable
                 if( s.equals( anc ) )
                 {
                     IDLTypes kind = (IDLTypes)names.get( key );
-                    if( logger.isDebugEnabled() )
+                    if( parser.logger.isLoggable(Level.ALL) )
                     {
-                        logger.debug( "NameTable.inheritFrom ancestor " + anc +
-                                       " : key " + key + " kind " + kind );
+                        parser.logger.log(Level.ALL, "NameTable.inheritFrom ancestor " + anc +
+                           " : key " + key + " kind " + kind);
                     }
 
                     String shadowKey = name + key.substring( key.lastIndexOf( '.' ) );
@@ -355,8 +352,8 @@ public class NameTable
 
                     if( IDLTypes.isTypeKind(kind) )
                     {
-                        if( logger.isDebugEnabled() )
-                            logger.debug( "- NameTable.inherit type from:  " + key );
+                        if( parser.logger.isLoggable(Level.ALL) )
+                            parser.logger.log(Level.ALL, "- NameTable.inherit type from:  " + key);
 
                         TypeSpec t =
                             TypeMap.map( anc + key.substring( key.lastIndexOf( '.' ) ) );
@@ -374,9 +371,9 @@ public class NameTable
                     }
                     else if( kind == IDLTypes.OPERATION )
                     {
-                        if( logger.isDebugEnabled() )
-                            logger.debug( "- NameTable.inherit operation from:  " +
-                                                           key );
+                        if( parser.logger.isLoggable(Level.ALL) )
+                            parser.logger.log(Level.ALL, "- NameTable.inherit operation from:  " +
+                               key);
 
                         NameTable.defineInheritedOperation( name +
                                                             key.substring( key.lastIndexOf( '.' ) ),
@@ -384,8 +381,8 @@ public class NameTable
                     }
                     else
                     {
-                        if( logger.isDebugEnabled() ) {
-                            logger.debug("- NameTable.inherit " + kind.name() + " from:  " + key);
+                        if( parser.logger.isLoggable(Level.ALL) ) {
+                            parser.logger.log(Level.ALL, "- NameTable.inherit " + kind.name() + " from:  " + key);
                         }
                     }
 
@@ -406,8 +403,8 @@ public class NameTable
         }
         catch( NameAlreadyDefined nad )
         {
-            if( logger.isDebugEnabled() )
-                logger.debug( "Exception ", nad );
+            if( parser.logger.isLoggable(Level.ALL) )
+                parser.logger.log(Level.ALL, "Exception ", nad);
         }
     }
 

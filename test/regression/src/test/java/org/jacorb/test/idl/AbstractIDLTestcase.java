@@ -23,12 +23,19 @@ package org.jacorb.test.idl;
 
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
-import java.io.StringWriter;
+import java.io.PrintStream;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.logging.Formatter;
+import java.util.logging.Level;
+import java.util.logging.LogRecord;
+import java.util.logging.Logger;
+import java.util.logging.StreamHandler;
 import junit.framework.AssertionFailedError;
+import org.jacorb.idl.parser;
 import org.jacorb.test.common.ORBTestCase;
 import org.jacorb.test.common.TestUtils;
 import org.junit.Assume;
@@ -52,10 +59,45 @@ public class AbstractIDLTestcase extends ORBTestCase
      */
     protected final File dirCompilation;
 
+    /**
+     * Logger content of running the IDL compiler.
+     */
+    protected static ByteArrayOutputStream loggerContent;
+
     @BeforeClass
     public static void beforeClassSetUp() throws Exception
     {
         Assume.assumeFalse(TestUtils.isSSLEnabled);
+
+        parser.logger = Logger.getLogger("jacorb.idl");
+        parser.logger.setLevel(Level.SEVERE);
+
+        Formatter formatter = new Formatter() {
+            @Override
+            public String format(LogRecord arg0) {
+                StringBuilder b = new StringBuilder();
+                b.append(" ");
+                b.append(arg0.getSourceClassName());
+                b.append(" ");
+                b.append(arg0.getSourceMethodName());
+                b.append(" ");
+                b.append(arg0.getLevel());
+                b.append(" ");
+                b.append(arg0.getMessage());
+                b.append(System.getProperty("line.separator"));
+                return b.toString();
+            }
+
+        };
+
+        loggerContent = new ByteArrayOutputStream();
+        PrintStream prStr = new PrintStream(loggerContent);
+
+        parser.handler = new StreamHandler(prStr, formatter);
+        parser.handler.setFormatter (formatter);
+        parser.handler.setLevel (Level.SEVERE);
+
+        parser.logger.addHandler(parser.handler);
     }
 
     public AbstractIDLTestcase(File file)
@@ -95,12 +137,21 @@ public class AbstractIDLTestcase extends ORBTestCase
 
         dirGeneration.mkdir();
 
-        StringWriter writer = new StringWriter();
-        final String details = writer.toString();
+        String details = "";
         try
         {
-            boolean success = org.jacorb.idl.parser.compile(file, writer);
+            boolean success;
 
+            try
+            {
+                success = org.jacorb.idl.parser.compile(file);
+            }
+            finally
+            {
+                loggerContent.flush();
+                details = loggerContent.toString();
+                loggerContent.reset();
+            }
             assertTrue("parser didn't succeed", success);
 
             if (failureExpected)

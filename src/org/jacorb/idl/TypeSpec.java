@@ -23,6 +23,7 @@ package org.jacorb.idl;
 import java.io.PrintWriter;
 import java.util.HashMap;
 import java.util.Set;
+import java.util.logging.Level;
 
 /**
  * @author Gerald Brose
@@ -146,7 +147,7 @@ public class TypeSpec
     public boolean basic()
     {
         if( type_spec == null )
-            logger.warn("Typespec null " + getClass().getName() );
+            parser.logger.log(Level.WARNING, "Typespec null " + getClass().getName());
         return type_spec.basic();
     }
 

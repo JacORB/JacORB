@@ -1,5 +1,7 @@
 package org.jacorb.idl;
 
+import java.util.logging.Level;
+
 /*
  *        JacORB - a free Java ORB
  *
@@ -35,16 +37,16 @@ public final class Environment
         switch (level)
         {
             case 4 :
-                return org.jacorb.idl.util.IDLLogger.DEBUG;
+                return Level.ALL;
             case 3 :
-                return org.jacorb.idl.util.IDLLogger.INFO;
+                return Level.FINEST;
             case 2 :
-                return org.jacorb.idl.util.IDLLogger.WARN;
+                return Level.WARNING;
             case 1 :
-                return org.jacorb.idl.util.IDLLogger.ERROR;
+                return Level.SEVERE;
             case 0 :
             default :
-                return org.jacorb.idl.util.IDLLogger.FATAL_ERROR;
+                return Level.SEVERE;
         }
     }
 }

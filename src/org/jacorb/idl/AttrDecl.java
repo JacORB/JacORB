@@ -24,6 +24,7 @@ import java.io.PrintWriter;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
+import java.util.logging.Level;
 
 /**
  * @author Gerald Brose
@@ -61,8 +62,8 @@ public class AttrDecl
     
     public void setEnclosingSymbol( IdlSymbol s )
     {
-        if( logger.isDebugEnabled() )
-            logger.debug( "opDecl.setEnclosingSymbol " + s  );
+        if( parser.logger.isLoggable(Level.ALL) )
+            parser.logger.log(Level.ALL, "opDecl.setEnclosingSymbol " + s);
 
         if( enclosing_symbol != null && enclosing_symbol != s )
             throw new RuntimeException( "Compiler Error: trying to reassign container for "

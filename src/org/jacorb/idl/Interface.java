@@ -33,6 +33,7 @@ import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.Set;
+import java.util.logging.Level;
 
 public class Interface
     extends TypeDeclaration
@@ -76,8 +77,8 @@ public class Interface
 
     public void setPackage(String s)
     {
-        if (logger.isDebugEnabled())
-            logger.debug("Interface setPackage " + s);
+        if (parser.logger.isLoggable(Level.ALL))
+            parser.logger.log(Level.ALL, "Interface setPackage " + s);
 
         s = parser.pack_replace(s);
 
@@ -129,10 +130,10 @@ public class Interface
 
         if (! (resolvedTSpec instanceof ConstrTypeSpec))
         {
-            if (logger.isDebugEnabled())
+            if (parser.logger.isLoggable(Level.ALL))
             {
-                logger.debug("Illegal inheritance spec in Interface.unwindTypeDefs, not a constr. type but " +
-                             resolvedTSpec.getClass() + ", name " + scopedName );
+                parser.logger.log(Level.ALL, "Illegal inheritance spec in Interface.unwindTypeDefs, not a constr. type but " +
+                 resolvedTSpec.getClass() + ", name " + scopedName);
             }
             parser.fatal_error("Illegal inheritance spec in Interface.unwindTypeDefs (not a constr. type): " +
                                inheritanceSpec, token);
@@ -271,10 +272,9 @@ public class Interface
 
         if (is_abstract)
         {
-            if (logger.isDebugEnabled())
+            if (parser.logger.isLoggable(Level.ALL))
             {
-                logger.debug
-                    ("Adding " + full_name() + " to abstract interface list");
+                parser.logger.log(Level.ALL, "Adding " + full_name() + " to abstract interface list");
             }
 
             if (abstractInterfaces == null)
@@ -344,8 +344,8 @@ public class Interface
         {
             if (inheritanceSpec != null && inheritanceSpec.v.size() > 0)
             {
-                if (logger.isDebugEnabled())
-                    logger.debug("Checking inheritanceSpec of " + full_name());
+                if (parser.logger.isLoggable(Level.ALL))
+                    parser.logger.log(Level.ALL, "Checking inheritanceSpec of " + full_name());
 
                 HashSet h = new HashSet();
 

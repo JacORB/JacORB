@@ -172,4 +172,14 @@ public class ParseValidIDLTest extends AbstractIDLTestcase
         assertEquals("member1", result.member_name(0));
         assertEquals("member2", result.member_name(1));
     }
+
+    public void verify_typedefstring_idl(ClassLoader cl) throws Exception
+    {
+        Class<?> clazz = cl.loadClass("test.MyStruct");
+        Object obj = clazz.newInstance();
+        Field f1 = clazz.getDeclaredField ("name");
+        Field f2 = clazz.getDeclaredField ("id");
+        assertTrue ("".equals(f1.get(obj)));
+        assertTrue ("".equals(f2.get(obj)));
+    }
 }

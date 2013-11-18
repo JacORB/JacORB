@@ -25,6 +25,7 @@ import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.Vector;
+import java.util.logging.Level;
 
 /**
  * @author Gerald Brose
@@ -100,8 +101,8 @@ public class InterfaceBody
     {
         escapeName();
 
-        if( logger.isDebugEnabled() )
-            logger.debug( "Interface Body parse " + full_name() );
+        if( parser.logger.isLoggable(Level.ALL) )
+            parser.logger.log(Level.ALL, "Interface Body parse " + full_name());
 
         if( inheritance_spec != null )
         {
@@ -112,8 +113,8 @@ public class InterfaceBody
             {
                 ScopedName scoped_name = (ScopedName)e.nextElement();
 
-                if( logger.isDebugEnabled() )
-                    logger.debug( "Trying to resolve " + scoped_name );
+                if( parser.logger.isLoggable(Level.ALL) )
+                    parser.logger.log(Level.ALL, "Trying to resolve " + scoped_name);
 
 
                 o = parser.get_pending( scoped_name.resolvedName() );
@@ -134,15 +135,15 @@ public class InterfaceBody
         {
             internal_parse();
             parser.remove_pending( full_name() );
-            if( logger.isDebugEnabled() )
-                logger.debug( "Interface Body done parsing " + full_name() );
+            if( parser.logger.isLoggable(Level.ALL) )
+                parser.logger.log(Level.ALL, "Interface Body done parsing " + full_name());
         }
     }
 
     public void internal_parse()
     {
-        if( logger.isDebugEnabled() )
-            logger.debug( "Interface Body internal_parse " + full_name() );
+        if( parser.logger.isLoggable(Level.ALL) )
+            parser.logger.log(Level.ALL, "Interface Body internal_parse " + full_name());
 
         if( inheritance_spec != null )
         {
@@ -483,7 +484,7 @@ public class InterfaceBody
                 }
                 catch( InterruptedException ie )
                 {
-                   logger.info( "ParseThread " + this + " interrupted!" );
+                   parser.logger.log(Level.FINEST, "ParseThread " + this + " interrupted!");
                 }
              }
           }
@@ -501,8 +502,8 @@ public class InterfaceBody
        public synchronized boolean isRunnable()
        {
           boolean result = running || checkWaitCondition();
-          if( logger.isWarnEnabled() )
-             logger.warn( "Thread is runnable: " + result );
+          if( parser.logger.isLoggable(Level.WARNING) )
+            parser.logger.log(Level.WARNING, "Thread is runnable: " + result);
           return result;
        }
 

@@ -25,6 +25,8 @@ package org.jacorb.idl;
  */
 
 import java.util.Hashtable;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class TypeMap
 {
@@ -52,18 +54,26 @@ public class TypeMap
 
     public static void typedef( String name, TypeSpec type )
     {
-        if( parser.getLogger().isInfoEnabled() )
-            parser.getLogger().info( "Typedef'ing " + name +
-                                          " , hash: " + type.hashCode() );
+        Logger r2 = parser.getLogger();
+        if( parser.logger.isLoggable(Level.FINEST) )
+        {
+            Logger r = parser.getLogger();
+            parser.logger.log(Level.FINEST, "Typedef'ing " + name +
+              " , hash: " + type.hashCode());
+        }
 
         if( typemap.containsKey( name ) )
         {
             // actually throw new NameAlreadyDefined()
             // but we get better error messages if we leave
             // this to later stages
-            if( parser.getLogger().isDebugEnabled() )
-                parser.getLogger().info( "Typedef'ing " + name +
-                                         " already in type map!" );
+            Logger r = parser.getLogger();
+            if( parser.logger.isLoggable(Level.ALL) )
+            {
+                Logger r1 = parser.getLogger();
+                parser.logger.log(Level.FINEST, "Typedef'ing " + name +
+                 " already in type map!");
+            }
         }
         else
         {
@@ -73,18 +83,26 @@ public class TypeMap
                     typemap.put( name, ( (ScopedName)type.typeSpec() ).resolvedTypeSpec() );
                 else
                     typemap.put( name, type.typeSpec() );
+                Logger r = parser.getLogger();
 
-                if( parser.getLogger().isInfoEnabled() )
-                    parser.getLogger().info(" resolved " +
-                                                 ((ScopedName)type.typeSpec()).resolvedTypeSpec());
+                if( parser.logger.isLoggable(Level.FINEST) )
+                {
+                    Logger r1 = parser.getLogger();
+                    parser.logger.log(Level.FINEST, " resolved " +
+                     ((ScopedName)type.typeSpec()).resolvedTypeSpec());
+                }
             }
             else
             {
                 typemap.put( name, type.typeSpec() );
+                Logger r = parser.getLogger();
 
-                if( parser.getLogger().isInfoEnabled() )
-                    parser.getLogger().info( " (not a resolved scoped name) "
-                                                  + type.typeSpec().full_name() );
+                if( parser.logger.isLoggable(Level.FINEST) )
+                {
+                    Logger r1 = parser.getLogger();
+                    parser.logger.log(Level.FINEST, " (not a resolved scoped name) "
+                      + type.typeSpec().full_name());
+                }
             }
         }
     }

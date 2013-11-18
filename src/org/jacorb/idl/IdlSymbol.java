@@ -26,7 +26,8 @@ import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.Map.Entry;
-import org.jacorb.idl.util.IDLLogger;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Base class for all classes of the abstract IDL syntax tree
@@ -60,7 +61,7 @@ public class IdlSymbol
     protected static final char fileSeparator =
         System.getProperty( "file.separator" ).charAt( 0 );
 
-    IDLLogger logger;
+    Logger logger;
 
     /** the posizion in the IDL file where this symbol was found by the lexer,
         needed for better error messages */
@@ -162,7 +163,7 @@ public class IdlSymbol
             lexer.strictJavaEscapeCheck( name ) )
         {
             if(name.indexOf('.') > 0)
-                logger.warn("Dots within a simple name!");
+                parser.logger.log(Level.WARNING, "Dots within a simple name!");
             name = "_" + name;
         }
     }
@@ -304,8 +305,8 @@ public class IdlSymbol
 
     public void addImportedAlias( String alias )
     {
-        if( logger.isDebugEnabled() )
-            logger.debug( "addImportedAlias " + alias );
+        if( parser.logger.isLoggable(Level.ALL) )
+            parser.logger.log(Level.ALL, "addImportedAlias " + alias);
         if( alias.indexOf( '.' ) < 0 && !BaseType.isBasicName( alias ) )
         {
             imports.add( alias + "Helper");
@@ -348,8 +349,8 @@ public class IdlSymbol
     {
         if( name != null && name.indexOf( '.' ) < 0 && !BaseType.isBasicName( name ) )
         {
-            if( logger.isDebugEnabled() )
-                logger.debug( "addImportedName " + name );
+            if( parser.logger.isLoggable(Level.ALL) )
+                parser.logger.log(Level.ALL, "addImportedName " + name);
 
             // If we have a typedef for a basic type we only want
             // to import the helper class.
@@ -375,8 +376,8 @@ public class IdlSymbol
     {
         if( name.indexOf( '.' ) < 0 && !BaseType.isBasicName( name ) )
         {
-            if( logger.isDebugEnabled() )
-                logger.debug( "addImportedNameHolder " + name );
+            if( parser.logger.isLoggable(Level.ALL) )
+                parser.logger.log(Level.ALL, "addImportedNameHolder " + name);
 
             imports.add( name );
         }
@@ -398,11 +399,11 @@ public class IdlSymbol
             typeName = ScopedName.unPseudoName( name );
         }
 
-        if( logger.isDebugEnabled() )
+        if( parser.logger.isLoggable(Level.ALL) )
         {
-            logger.debug( "setPrintPhaseNames: pack_name " +
-                          pack_name + ", name " + name +
-                          " typename " + typeName );
+            parser.logger.log(Level.ALL, "setPrintPhaseNames: pack_name " +
+              pack_name + ", name " + name +
+              " typename " + typeName);
         }
     }
 
@@ -425,8 +426,8 @@ public class IdlSymbol
         ScopeData sd = null;
         str_token enctoken = null;
 
-        if( logger.isDebugEnabled() )
-            logger.debug( "Id for name " + name );
+        if( parser.logger.isLoggable(Level.ALL) )
+            parser.logger.log(Level.ALL, "Id for name " + name);
 
         if( _id == null )
         {
@@ -546,9 +547,9 @@ public class IdlSymbol
                 }
             }
         }
-        if( logger.isDebugEnabled() )
+        if( parser.logger.isLoggable(Level.ALL) )
         {
-            logger.debug( "Id for name " + name + " is " + _id );
+            parser.logger.log(Level.ALL, "Id for name " + name + " is " + _id);
         }
         return _id;
     }

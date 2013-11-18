@@ -22,6 +22,7 @@ package org.jacorb.idl;
 
 import java.io.PrintWriter;
 import java.util.Set;
+import java.util.logging.Level;
 
 /**
  * Common super class for arrays and sequences
@@ -131,22 +132,22 @@ public abstract class VectorType
         TypeSpec ts = type_spec;
         if( ts instanceof ScopedName )
         {
-            if( logger.isFatalErrorEnabled() )
-                logger.fatalError( "elementTypeName is outer ScopedName" );
+            if( parser.logger.isLoggable(Level.SEVERE) )
+                parser.logger.log(Level.SEVERE, "elementTypeName is outer ScopedName");
             ts = ( (ScopedName)type_spec.type_spec ).resolvedTypeSpec();
 
             while( ts instanceof ScopedName || ts instanceof AliasTypeSpec )
             {
                 if( ts instanceof ScopedName )
                 {
-                    if( logger.isFatalErrorEnabled() )
-                        logger.fatalError( "elementTypeName is inner Alias" );
+                    if( parser.logger.isLoggable(Level.SEVERE) )
+                        parser.logger.log(Level.SEVERE, "elementTypeName is inner Alias");
                     ts = ( (ScopedName)ts ).resolvedTypeSpec();
                 }
                 if( ts instanceof AliasTypeSpec )
                 {
-                    if( logger.isFatalErrorEnabled() )
-                        logger.fatalError( "elementTypeName is inner Alias" );
+                    if( parser.logger.isLoggable(Level.SEVERE) )
+                        parser.logger.log(Level.SEVERE, "elementTypeName is inner Alias");
                     ts = ( (AliasTypeSpec)ts ).originalType();
                 }
             }

@@ -26,6 +26,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Stack;
+import java.util.logging.Level;
 
 /**
  * This class deals with IDL input files and their inclusion relationships.
@@ -36,28 +37,26 @@ import java.util.Stack;
 public class GlobalInputStream
 {
     private static InputStream stream;
-    private static Stack lookahead_stack;
+    private static Stack<Integer> lookahead_stack;
     private static boolean included;
     private static StringBuffer expandedText;
     private static int pos;
     private static boolean eof;
     private static File currentFile;
     private static String[] path_names;
-    private static org.jacorb.idl.util.IDLLogger logger;
 
     /** stack of information for lexical scopes */
-    static java.util.Stack positions;
+    static Stack<PositionInfo> positions;
 
     public static void init()
     {
-        lookahead_stack = new Stack();
+        lookahead_stack = new Stack<Integer>();
         included = false;
         expandedText = new StringBuffer();
         pos = 0;
         eof = false;
         currentFile = null;
-        positions = new java.util.Stack();
-        logger = parser.getLogger();
+        positions = new Stack<PositionInfo>();
     }
 
     public static void cleanUp()
@@ -70,7 +69,6 @@ public class GlobalInputStream
         eof = false;
         currentFile = null;
         path_names = null;
-        logger = null;
     }
 
     public static void setInput(String fname)
@@ -119,8 +117,8 @@ public class GlobalInputStream
         positions.push(position);
         lookahead_stack.push(new Integer(lookahead));
 
-        if (logger.isInfoEnabled())
-            logger.info("Including " + fname);
+        if (parser.logger.isLoggable(Level.FINEST))
+            parser.logger.log(Level.FINEST, "Including " + fname);
         /* files form their own scopes, so we have to open a new one here */
     }
 
@@ -174,11 +172,11 @@ public class GlobalInputStream
                 }
                 catch(java.io.IOException ioe)
                 {
-                    logger.error("Caught error finding file ", ioe);
+                    parser.logger.log(Level.SEVERE, "Caught error finding file ", ioe);
                 }
 
-                if (logger.isInfoEnabled())
-                    logger.info("opening " + dir + File.separator + fname);
+                if (parser.logger.isLoggable(Level.FINEST))
+                    parser.logger.log(Level.FINEST, "opening " + dir + File.separator + fname);
                 currentFile = new File(dir + File.separator + fname);
             }
             else
@@ -206,8 +204,8 @@ public class GlobalInputStream
                 {
                     try
                     {
-                        if (logger.isInfoEnabled())
-                            logger.info("opening " + path_names[ i ] + File.separator + fname);
+                        if (parser.logger.isLoggable(Level.FINEST))
+                            parser.logger.log(Level.FINEST, "opening " + path_names[ i ] + File.separator + fname);
 
                         currentFile = new File(path_names[ i ] + File.separator + fname);
                         return new FileInputStream(currentFile);
@@ -249,7 +247,7 @@ public class GlobalInputStream
         if (expandedText.length() > 0)
         {
             if (pos < expandedText.length())
-                ch = (int)expandedText.charAt(pos++);
+                ch = expandedText.charAt(pos++);
             if (pos == expandedText.length())
             {
                 expandedText = new StringBuffer();
@@ -277,15 +275,15 @@ public class GlobalInputStream
                     parser.setInhibitionState(false);
 
                     // return to last position in previous file
-                    PositionInfo positionInfo = (PositionInfo)positions.pop();
+                    PositionInfo positionInfo = positions.pop();
                     stream = positionInfo.stream;
                     currentFile = positionInfo.file;
-                    ch = ((Integer)lookahead_stack.pop()).intValue();
+                    ch = lookahead_stack.pop().intValue();
 
                     included = !(positions.empty());
 
-                    if (logger.isInfoEnabled())
-                        logger.info("returning to " + currentFile + " included: " + included);
+                    if (parser.logger.isLoggable(Level.FINEST))
+                        parser.logger.log(Level.FINEST, "returning to " + currentFile + " included: " + included);
 
                     lexer.restorePosition(positionInfo);
                 }
