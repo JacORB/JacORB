@@ -50,6 +50,7 @@
            jacorb.connection.client.disconnect_after_systemexception. (BZ967)
          - Clear fragments on connection close. (BZ949)
          - Implement ContextList (BZ968)
+         - Fix for servicecontext propagation (BZ960)
     - IDL
          - Fix for logging.
          - Fix for Struct with String typedef type to be output as initialised type.
