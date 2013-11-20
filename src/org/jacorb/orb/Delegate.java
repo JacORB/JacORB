@@ -2897,6 +2897,9 @@ public final class Delegate
                 }
                 catch (Exception ex)
                 {
+                    Collection<ServiceContext> ctx = sinfo.getReplyServiceContexts();
+                    interceptors.getInfo ().setReplyServiceContexts (ctx.toArray (new ServiceContext[ctx.size ()]));
+
                     if (interceptors != null && orb.hasRequestInterceptors())
                     {
                         try
