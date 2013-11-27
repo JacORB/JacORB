@@ -35,6 +35,10 @@ import org.jacorb.test.common.launch.Launcher;
 /**
  * @author Alphonse Bendt
  */
+/**
+ * @author rnc
+ *
+ */
 public class ServerSetup
 {
     private static class ProcessShutdown extends Thread
@@ -82,6 +86,14 @@ public class ServerSetup
 
     private String serverIORFailedMesg;
 
+
+    /**
+     * Server setup with explicit server class/servant name and optional properties.
+     * @param testServer
+     * @param servantName
+     * @param optionalProperties
+     * @throws IOException
+     */
     public ServerSetup(String testServer, String servantName, Properties optionalProperties) throws IOException
     {
         this(testServer, new String [] { servantName } , optionalProperties);
@@ -121,6 +133,11 @@ public class ServerSetup
         }
     }
 
+    /**
+     * Default server setup
+     * @param servantName
+     * @throws IOException
+     */
     public ServerSetup(String servantName) throws IOException
     {
         this(null, servantName, null);

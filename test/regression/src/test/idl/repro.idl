@@ -1,0 +1,18 @@
+module repro {
+
+    struct Data {
+        boolean		aBool;
+        long		aLong;
+        string		aString;
+    };
+    typedef sequence<Data> Datas;
+
+    interface Service {
+
+        long works( in Data data );					// call succeeds
+
+        Datas fails_empty( in Data data );			// call succeeds, but result data is missing
+
+        Data fails_crash( in Data data );			// call fails (null pointer exception during result unmarshal)
+    };
+};

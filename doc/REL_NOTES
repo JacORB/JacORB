@@ -51,6 +51,7 @@
          - Clear fragments on connection close. (BZ949)
          - Implement ContextList (BZ968)
          - Fix for servicecontext propagation (BZ960)
+         - Fix for streamable any (BZ968)
     - IDL
          - Fix for logging.
          - Fix for Struct with String typedef type to be output as initialised type.
