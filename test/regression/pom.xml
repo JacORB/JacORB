@@ -438,32 +438,78 @@
             </plugin>
 
             <!--
-                 This generates a nice aggregate report. To make the HTML nicer run
+                 This generates a nice aggregate report. It must be run locally from the regression directory.
+                 Unfortunately it seems invoking from $JACORB_HOME the maven-surefire-report-plugin does not work.
+                 Therefore to create an aggegrate test report invoke the tests from the regression directory or, if they
+                 have been invoked already (as part of a full build), then this could be invoked as:
+                 mvn -DskipJavadoc=true -DskipPDFGeneration=true -DskipTests=true -DskipCompile=true test
+                 OR
                  mvn site
-                 If the tests fail this plugin might not run. To generate the report then run
-                 mvn -Dmaven.test.skip=true test site
+                 Finally, it can be viewed by invoking
+                 firefox target/site/index.html
             -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-surefire-report-plugin</artifactId>
-                <version>2.16</version>
+                <artifactId>maven-site-plugin</artifactId>
+                <version>3.3</version>
                 <executions>
+                    <!-- Run in both default-site phase and after all the tests -->
                     <execution>
-                        <id>test-report</id>
+                        <id>default-site</id>
+                        <phase>site</phase>
+                        <goals>
+                            <goal>site</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>post-test</id>
                         <phase>test</phase>
                         <goals>
-                            <goal>report-only</goal>
+                            <goal>site</goal>
                         </goals>
-                        <configuration>
-                            <linkXRef>false</linkXRef>
-                            <aggregate>true</aggregate>
-                            <reportsDirectories>
-                                <reportDirectory>${project.build.directory}/surefire-reports</reportDirectory>
-                                <reportDirectory>${project.build.directory}/surefire-reports-ssl</reportDirectory>
-                            </reportsDirectories>
-                        </configuration>
                     </execution>
                 </executions>
+                <configuration>
+                    <reportPlugins>
+                        <plugin>
+                            <!-- Generates some interesting reports and the root index.html -->
+                            <groupId>org.apache.maven.plugins</groupId>
+                            <artifactId>maven-project-info-reports-plugin</artifactId>
+                            <version>2.7</version>
+                            <reportSets>
+                                <reportSet>
+                                    <reports>
+                                        <report>index</report>
+                                        <report>dependencies</report>
+                                        <report>dependency-management</report>
+                                        <report>plugins</report>
+                                        <report>plugin-management</report>
+                                    </reports>
+                                </reportSet>
+                            </reportSets>
+                        </plugin>
+                        <plugin>
+                            <groupId>org.apache.maven.plugins</groupId>
+                            <artifactId>maven-surefire-report-plugin</artifactId>
+                            <version>2.16</version>
+                            <configuration>
+                                <linkXRef>false</linkXRef>
+                                <aggregate>true</aggregate>
+                                <reportsDirectories>
+                                    <reportDirectory>${project.build.directory}/surefire-reports</reportDirectory>
+                                    <reportDirectory>${project.build.directory}/surefire-reports-ssl</reportDirectory>
+                                </reportsDirectories>
+                            </configuration>
+                            <reportSets>
+                                <reportSet>
+                                    <reports>
+                                        <report>report-only</report>
+                                    </reports>
+                                </reportSet>
+                            </reportSets>
+                        </plugin>
+                    </reportPlugins>
+                </configuration>
             </plugin>
 
         </plugins>
