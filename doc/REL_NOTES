@@ -60,6 +60,7 @@
          - Split jacorb.jar into jacorb.jar and jacorb-omgapi.jar.
            The OMG stubs are now held soley within jacorb-omgapi.
          - Correct Maven dependencies.
+         - Correct default logging configuration (at INFO level).
 
 3.3
 ===
