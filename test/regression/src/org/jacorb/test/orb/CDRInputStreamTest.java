@@ -23,6 +23,7 @@ import org.jacorb.orb.CDRInputStream;
 import org.jacorb.orb.giop.CodeSet;
 import org.jacorb.test.common.ORBTestCase;
 import junit.framework.TestSuite;
+import org.omg.CORBA.MARSHAL;
 
 /**
  * @author <a href="mailto:russell.gold@oracle.com">Russell Gold</a>
@@ -179,5 +180,21 @@ public class CDRInputStreamTest extends ORBTestCase
     private void selectCodeSets( CDRInputStream stream, String charCodeSet, String wideCharCodeSet )
     {
         stream.setCodeSet( CodeSet.getCodeSet( charCodeSet ), CodeSet.getCodeSet( wideCharCodeSet ) );
+    }
+
+    public void testFailOnNullEncodedString() throws Exception
+    {
+        byte[] codedText = {0,0,0,0};
+        CDRInputStream stream = new CDRInputStream( orb, codedText );
+        try
+        {
+            stream.read_string();
+            fail("Null encoded string should have failed with an exception");
+        }
+        catch (MARSHAL e)
+        {
+            assertNotNull(e.getMessage());
+            assertTrue("Not a MARSHALL exception: " + e.getMessage(), e.getMessage().matches("^.*invalid string size: 0.*$"));
+        }
     }
 }

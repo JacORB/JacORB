@@ -97,6 +97,7 @@ public class CDRInputStream
     private boolean cometInteropFix;
     private boolean laxBooleanEncoding;
     private boolean cacheTypecodes;
+    private boolean nullStringEncoding;
 
     /* character encoding code sets for char and wchar, default ISO8859_1 */
     private CodeSet codeSet =  CodeSet.getTCSDefault();
@@ -257,6 +258,8 @@ public class CDRInputStream
             configuration.getAttribute("jacorb.cacheTypecodes","off").equals("on");
         sunInteropFix =
             configuration.getAttribute("jacorb.interop.sun", "off").equalsIgnoreCase("on");
+        nullStringEncoding =
+            configuration.getAttribute("jacorb.interop.null_string_encoding", "off").equalsIgnoreCase("on");
         isMutatorEnabled = configuration.getAttribute("jacorb.iormutator", "").length() > 0;
 
         if (isMutatorEnabled)
@@ -1229,7 +1232,7 @@ public class CDRInputStream
         // read size (#bytes)
         int size = _read4int( littleEndian, buffer, pos);
 
-        if (size < 1)
+        if (size < 1 && ! nullStringEncoding)
         {
             throw new MARSHAL("invalid string size: " + size);
         }
@@ -1241,7 +1244,12 @@ public class CDRInputStream
 
         final int stringTerminatorPosition = start + size -1;
 
-        if (buffer.length < stringTerminatorPosition + 1)
+        if (nullStringEncoding && size == 0)
+        {
+            // Some ORBs wrongly encode empty string with a size 0
+            return null;
+        }
+        else if (buffer.length < stringTerminatorPosition + 1)
         {
             throw new MARSHAL("buffer too small");
         }

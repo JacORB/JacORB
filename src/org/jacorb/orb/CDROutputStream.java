@@ -180,6 +180,7 @@ public class CDROutputStream
     private boolean chunkCustomRmiValuetypes = false;
     private boolean compactTypeCodes = false;
     private boolean useIndirection = true;
+    private boolean nullStringEncoding;
 
     /**
      * This stream is self-configuring, i.e. configure() is private
@@ -202,8 +203,11 @@ public class CDROutputStream
         useIndirection =
            !( configuration.getAttribute("jacorb.interop.indirection_encoding_disable","off").equals("on"));
 
-        isMutatorEnabled = configuration.getAttribute("jacorb.iormutator", "").length() > 0;
+        nullStringEncoding =
+            configuration.getAttribute("jacorb.interop.null_string_encoding", "off").equalsIgnoreCase("on");
 
+        isMutatorEnabled = configuration.getAttribute("jacorb.iormutator", "").length() > 0;
+ 
         if (isMutatorEnabled)
         {
             try
@@ -897,7 +901,15 @@ public class CDROutputStream
 
         if( s == null )
         {
-            throw new MARSHAL("Cannot marshall null string.");
+            if (nullStringEncoding)
+            {
+                write_long(0);
+                return;
+            }
+            else
+            {
+                throw new MARSHAL("Cannot marshall null string.");
+            }
         }
 
         if (codesetEnabled)
