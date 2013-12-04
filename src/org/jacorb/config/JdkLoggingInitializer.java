@@ -89,7 +89,7 @@ public class JdkLoggingInitializer extends LoggingInitializer
            return;
         }
 
-        String level = config.getAttribute (ATTR_LOG_VERBOSITY, null);
+        String level = config.getAttribute (ATTR_LOG_VERBOSITY, "3");
         String file  = config.getAttribute (ATTR_LOG_FILE, null);
         boolean showThread = config.getAttributeAsBoolean (ATTR_LOG_THREAD_ID, false);
         boolean showSrcInfo = config.getAttributeAsBoolean (ATTR_LOG_SRC_INFO, false);

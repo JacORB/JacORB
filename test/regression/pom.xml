@@ -18,6 +18,11 @@
     <description>JacORB Regression Tests</description>
     <url>http://www.jacorb.org</url>
 
+    <properties>
+        <spring.version>3.1.1.RELEASE</spring.version>
+        <cxf.version>2.7.5</cxf.version>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>org.jacorb</groupId>
@@ -41,11 +46,28 @@
         </dependency>
         <dependency>
             <groupId>junit</groupId>
-	    <artifactId>junit</artifactId>
+            <artifactId>junit</artifactId>
         </dependency>
         <dependency>
             <groupId>easymock</groupId>
-	    <artifactId>easymock</artifactId>
+            <artifactId>easymock</artifactId>
+        </dependency>
+
+        <!-- CXF/Spring is for Bug968 (CXF+Corba) -->
+        <dependency>
+            <groupId>org.apache.cxf</groupId>
+            <artifactId>cxf-rt-frontend-jaxws</artifactId>
+            <version>${cxf.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.cxf</groupId>
+            <artifactId>cxf-rt-bindings-corba</artifactId>
+            <version>${cxf.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-context</artifactId>
+            <version>${spring.version}</version>
         </dependency>
     </dependencies>
 
@@ -227,25 +249,82 @@
                 </dependencies>
             </plugin>
 
-	    <plugin>
-		<groupId>org.codehaus.mojo</groupId>
-		<artifactId>build-helper-maven-plugin</artifactId>
-		<executions>
-		    <execution>
-			<id>add-test-source</id>
-			<phase>process-test-sources</phase>
-			<goals>
-			    <goal>add-test-source</goal>
-			</goals>
-			<configuration>
-			    <sources>
-				<source>${project.build.directory}/generated-test-sources/idl</source>
-				<source>${basedir}/../listenendpoints/echo_corbaloc/src</source>
-			    </sources>
-			</configuration>
-		    </execution>
-		</executions>
-	    </plugin>
+            <plugin>
+                <groupId>org.apache.cxf</groupId>
+                <artifactId>cxf-corbatools-maven-plugin</artifactId>
+                <version>${cxf.version}</version>
+                <executions>
+                    <execution>
+                        <id>cfgService</id>
+                        <phase>generate-test-sources</phase>
+                        <goals>
+                            <goal>idl2wsdl</goal>
+                        </goals>
+                        <configuration>
+                            <outputDir>${project.build.directory}/test-classes</outputDir>
+                            <idltowsdlOptions>
+                                <idltowsdlOption>
+                                    <idl>${basedir}/src/test/idl/repro.idl</idl>
+                                    <extraargs>
+                                        <extraarg>-I</extraarg>
+                                        <extraarg>${basedir}/src/test/idl</extraarg>
+                                        <extraarg>-verbose</extraarg>
+                                    </extraargs>
+                                </idltowsdlOption>
+                            </idltowsdlOptions>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.cxf</groupId>
+                <artifactId>cxf-codegen-plugin</artifactId>
+                <version>${cxf.version}</version>
+                <executions>
+                    <execution>
+                        <id>generate-cxf-sources</id>
+                        <phase>generate-test-sources</phase>
+                        <configuration>
+                            <defaultOptions>
+                                <frontEnd>jaxws21</frontEnd>
+                                <packagenames>
+                                    <package>cxf.repro</package>
+                                </packagenames>
+                                <extraargs>
+                                    <extraarg>-client</extraarg>
+                                    <extraarg>-verbose</extraarg>
+                                </extraargs>
+                            </defaultOptions>
+                            <wsdlRoot>${project.build.directory}/test-classes</wsdlRoot>
+                            <sourceRoot>${project.build.directory}/generated-test-sources/cxf</sourceRoot>
+                        </configuration>
+                        <goals>
+                            <goal>wsdl2java</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>build-helper-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>add-test-source</id>
+                        <phase>process-test-sources</phase>
+                        <goals>
+                            <goal>add-test-source</goal>
+                        </goals>
+                        <configuration>
+                            <sources>
+                                <source>${project.build.directory}/generated-test-sources/cxf</source>
+                                <source>${project.build.directory}/generated-test-sources/idl</source>
+                                <source>${basedir}/../listenendpoints/echo_corbaloc/src</source>
+                            </sources>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
 
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
@@ -276,9 +355,10 @@
                 </executions>
             </plugin>
 
-	    <plugin>
+
+            <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
-		<artifactId>maven-compiler-plugin</artifactId>
+                <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.1</version>
                 <configuration>
                     <testSource>1.6</testSource>
@@ -290,25 +370,25 @@
                         <arg>-Xbootclasspath/p:${settings.localRepository}/org/jacorb/jacorb-omgapi/${project.version}/jacorb-omgapi-${project.version}.jar</arg>
                     </compilerArgs>
                 </configuration>
-		<executions>
-		    <execution>
+                <executions>
+                    <execution>
                         <id>default-testCompile</id>
-		        <phase>test-compile</phase>
-		        <goals>
-		            <goal>testCompile</goal>
-		        </goals>
+                        <phase>test-compile</phase>
+                        <goals>
+                            <goal>testCompile</goal>
+                        </goals>
                         <configuration>
                             <testExcludes>
                                 <testExclude>**/RMITestServant.java</testExclude>
                             </testExcludes>
                         </configuration>
                     </execution>
-		    <execution>
+                    <execution>
                         <id>rmi-compile</id>
-			<phase>process-test-classes</phase>
-			<goals>
-			    <goal>testCompile</goal>
-			</goals>
+                        <phase>process-test-classes</phase>
+                        <goals>
+                            <goal>testCompile</goal>
+                        </goals>
                         <configuration>
                             <testIncludes>
                                 <testInclude>**/RMITestServant.java</testInclude>
@@ -358,34 +438,81 @@
             </plugin>
 
             <!--
-                 This generates a nice aggregate report. To make the HTML nicer run
+                 This generates a nice aggregate report. It must be run locally from the regression directory.
+                 Unfortunately it seems invoking from $JACORB_HOME the maven-surefire-report-plugin does not work.
+                 Therefore to create an aggegrate test report invoke the tests from the regression directory or, if they
+                 have been invoked already (as part of a full build), then this could be invoked as:
+                 mvn -DskipJavadoc=true -DskipPDFGeneration=true -DskipTests=true -DskipCompile=true test
+                 OR
                  mvn site
-                 If the tests fail this plugin might not run. To generate the report then run
-                 mvn -Dmaven.test.skip=true test site
+                 Finally, it can be viewed by invoking
+                 firefox target/site/index.html
             -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-surefire-report-plugin</artifactId>
-                <version>2.16</version>
+                <artifactId>maven-site-plugin</artifactId>
+                <version>3.3</version>
                 <executions>
+                    <!-- Run in both default-site phase and after all the tests -->
                     <execution>
-                        <id>test-report</id>
+                        <id>default-site</id>
+                        <phase>site</phase>
+                        <goals>
+                            <goal>site</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>post-test</id>
                         <phase>test</phase>
                         <goals>
-                            <goal>report-only</goal>
+                            <goal>site</goal>
                         </goals>
-                        <configuration>
-                            <linkXRef>false</linkXRef>
-                            <aggregate>true</aggregate>
-                            <reportsDirectories>
-                                <reportDirectory>${project.build.directory}/surefire-reports</reportDirectory>
-                                <reportDirectory>${project.build.directory}/surefire-reports-ssl</reportDirectory>
-                            </reportsDirectories>
-                        </configuration>
                     </execution>
                 </executions>
+                <configuration>
+                    <reportPlugins>
+                        <plugin>
+                            <!-- Generates some interesting reports and the root index.html -->
+                            <groupId>org.apache.maven.plugins</groupId>
+                            <artifactId>maven-project-info-reports-plugin</artifactId>
+                            <version>2.7</version>
+                            <reportSets>
+                                <reportSet>
+                                    <reports>
+                                        <report>index</report>
+                                        <report>dependencies</report>
+                                        <report>dependency-management</report>
+                                        <report>plugins</report>
+                                        <report>plugin-management</report>
+                                    </reports>
+                                </reportSet>
+                            </reportSets>
+                        </plugin>
+                        <plugin>
+                            <groupId>org.apache.maven.plugins</groupId>
+                            <artifactId>maven-surefire-report-plugin</artifactId>
+                            <version>2.16</version>
+                            <configuration>
+                                <linkXRef>false</linkXRef>
+                                <aggregate>true</aggregate>
+                                <reportsDirectories>
+                                    <reportDirectory>${project.build.directory}/surefire-reports</reportDirectory>
+                                    <reportDirectory>${project.build.directory}/surefire-reports-ssl</reportDirectory>
+                                </reportsDirectories>
+                            </configuration>
+                            <reportSets>
+                                <reportSet>
+                                    <reports>
+                                        <report>report-only</report>
+                                    </reports>
+                                </reportSet>
+                            </reportSets>
+                        </plugin>
+                    </reportPlugins>
+                </configuration>
             </plugin>
 
         </plugins>
     </build>
+
 </project>

@@ -51,6 +51,8 @@
          - Clear fragments on connection close. (BZ949)
          - Implement ContextList (BZ968)
          - Fix for servicecontext propagation (BZ960)
+         - Fix for streamable any (BZ968)
+         - Release target object after DII invocation.
     - IDL
          - Fix for logging.
          - Fix for Struct with String typedef type to be output as initialised type.
@@ -59,6 +61,7 @@
          - Split jacorb.jar into jacorb.jar and jacorb-omgapi.jar.
            The OMG stubs are now held soley within jacorb-omgapi.
          - Correct Maven dependencies.
+         - Correct default logging configuration (at INFO level).
 
 3.3
 ===

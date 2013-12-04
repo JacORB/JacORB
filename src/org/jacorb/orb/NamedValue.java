@@ -70,16 +70,4 @@ public class NamedValue
     {
         this.value = value;
     }
-
-    /** JacORB-specific */
-
-    public void send(org.omg.CORBA.portable.OutputStream out )
-    {
-        value().write_value(out);
-    }
-
-    public void receive(org.omg.CORBA.portable.InputStream inputStream )
-    {
-        value().read_value(inputStream, value().type());
-    }
 }
