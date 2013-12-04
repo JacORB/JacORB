@@ -113,11 +113,6 @@ on a java.util.concurrent.LinkedBlockingQueue which this thread processes to fin
 deactivation of the objects. This thread is a daemon thread and will finish when the POA
 is destroyed.
 
-\subsection*{AOMRemoval}
-This thread is used to ensure that calls to deactivate\_object return
-immediately. When an object is removed it is placed on a java.util.concurrent.LinkedBlockingQueue
-which this thread processes to finish deactivation of the objects.
-
 \section*{Short--lived threads}
 
 \subsection*{POAChangeToActive}
