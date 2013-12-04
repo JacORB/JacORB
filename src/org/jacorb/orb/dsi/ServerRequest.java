@@ -418,7 +418,7 @@ public class ServerRequest
                                     // in parameters are not returnd
                                     try
                                     {
-                                        namedValue.send( out );
+                                        namedValue.value().write_value(out);
                                     }
                                     catch (Exception e1)
                                     {

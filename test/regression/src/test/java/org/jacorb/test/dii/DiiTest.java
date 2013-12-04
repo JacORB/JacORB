@@ -4,7 +4,12 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+import java.lang.reflect.Field;
+import java.util.HashMap;
 import java.util.Properties;
+import org.jacorb.orb.Delegate;
+import org.jacorb.orb.giop.ClientConnection;
+import org.jacorb.orb.giop.ClientConnectionManager;
 import org.jacorb.test.common.ClientServerSetup;
 import org.jacorb.test.common.ClientServerTestCase;
 import org.jacorb.test.dii.DIIServerPackage.DIIException;
@@ -14,7 +19,9 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.omg.CORBA.Any;
+import org.omg.CORBA.BAD_INV_ORDER;
 import org.omg.CORBA.WrongTransaction;
+import org.omg.ETF.Profile;
 
 /**
  * converted from demo.dii
@@ -64,6 +71,65 @@ public class DiiTest extends ClientServerTestCase
 
         assertNull(request.env().exception());
         assertEquals(47, request.return_value().extract_long());
+    }
+
+    @Test
+    public void testRequestConnectionClosed()
+    {
+        org.omg.CORBA.Request request = server._request("_get_long_number");
+
+        request.set_return_type(
+                orb.get_primitive_tc(org.omg.CORBA.TCKind.tk_long));
+
+        request.invoke();
+
+        Field fconnmgr;
+        Field connections;
+        try
+        {
+            fconnmgr = Delegate.class.getDeclaredField("conn_mg");
+            fconnmgr.setAccessible(true);
+            Delegate d = (Delegate) ((org.omg.CORBA.portable.ObjectImpl)server)._get_delegate();
+            ClientConnectionManager ccm = (ClientConnectionManager) fconnmgr.get(d);
+            connections = ClientConnectionManager.class.getDeclaredField("connections");
+            connections.setAccessible(true);
+            @SuppressWarnings("unchecked")
+            HashMap<Profile, ClientConnection> c = (HashMap<Profile, ClientConnection>) connections.get(ccm);
+
+            assertTrue (c.size() == 0);
+        }
+        catch (SecurityException e1)
+        {
+            // TODO Auto-generated catch block
+            e1.printStackTrace();
+        }
+        catch (NoSuchFieldException e1)
+        {
+            // TODO Auto-generated catch block
+            e1.printStackTrace();
+        }
+        catch (IllegalArgumentException e1)
+        {
+            // TODO Auto-generated catch block
+            e1.printStackTrace();
+        }
+        catch (IllegalAccessException e1)
+        {
+            // TODO Auto-generated catch block
+            e1.printStackTrace();
+        }
+    }
+
+    @Test (expected = BAD_INV_ORDER.class)
+    public void testDoubleInvoke()
+    {
+        org.omg.CORBA.Request request = server._request("_get_long_number");
+
+        request.set_return_type(
+                orb.get_primitive_tc(org.omg.CORBA.TCKind.tk_long));
+
+        request.invoke();
+        request.invoke();
     }
 
     @Test
@@ -122,6 +188,7 @@ public class DiiTest extends ClientServerTestCase
 
         Thread syncWithResult = new Thread()
         {
+            @Override
             public void run()
             {
                 try
