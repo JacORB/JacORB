@@ -42,8 +42,8 @@
 
 ( Note: For commit history see https://github.com/JacORB/JacORB )
 
-3.4-SNAPSHOT
-============
+3.4-Beta
+========
     - ORB
          - Improve ORBSingleton logging.
          - Fix interceptor BAD_PARAM minor codes (BZ961)
