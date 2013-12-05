@@ -7,7 +7,9 @@ import java.util.Properties;
 import org.jacorb.test.common.CommonSetup;
 import org.jacorb.test.common.TestUtils;
 import org.junit.After;
+import org.junit.Assume;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestName;
@@ -35,6 +37,12 @@ public class AcceptorExceptionListenerTest
     private ORB orb;
     private volatile boolean orbIsDown = false;
 
+
+    @BeforeClass
+    public static void beforeClassSetUp() throws Exception
+    {
+        Assume.assumeFalse(TestUtils.is17);
+    }
 
     protected Properties initORBProperties() throws Exception
     {
@@ -65,6 +73,7 @@ public class AcceptorExceptionListenerTest
 
         new Thread()
         {
+            @Override
             public void run() {
                 orb.run();
                 orbIsDown = true;
@@ -120,6 +129,7 @@ public class AcceptorExceptionListenerTest
     {
         new Thread()
         {
+            @Override
             public void run()
             {
                 try

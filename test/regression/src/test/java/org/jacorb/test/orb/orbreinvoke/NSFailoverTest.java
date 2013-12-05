@@ -33,6 +33,7 @@ import org.jacorb.test.common.TestUtils;
 import org.junit.After;
 import org.junit.Assume;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
@@ -69,6 +70,7 @@ public class NSFailoverTest extends ORBTestCase
     private final java.lang.Object syncTest = new java.lang.Object();
     private boolean testComplete;
 
+    @Override
     protected void patchORBProperties(Properties props) throws Exception
     {
         props.setProperty ("jacorb.retries", "3");
@@ -248,11 +250,15 @@ public class NSFailoverTest extends ORBTestCase
         }
     }
 
+    @BeforeClass
+    public static void beforeClassSetUp() throws Exception
+    {
+        Assume.assumeFalse(TestUtils.isSSLEnabled);
+    }
+
     @Before
     public void setUp() throws Exception
     {
-        Assume.assumeFalse(TestUtils.isSSLEnabled);
-
         try
         {
             // initiate NameServer's

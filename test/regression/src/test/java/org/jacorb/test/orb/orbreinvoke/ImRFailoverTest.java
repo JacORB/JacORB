@@ -33,6 +33,7 @@ import org.jacorb.test.common.TestUtils;
 import org.junit.After;
 import org.junit.Assume;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
@@ -247,6 +248,7 @@ public class ImRFailoverTest extends ORBTestCase
         }
     }
 
+    @Override
     protected void patchORBProperties(Properties props) throws Exception
     {
         props.setProperty ("jacorb.use_imr", "true");
@@ -258,11 +260,15 @@ public class ImRFailoverTest extends ORBTestCase
         props.setProperty(CommonSetup.JACORB_REGRESSION_DISABLE_IMR, "true");
     }
 
+    @BeforeClass
+    public static void beforeClassSetUp() throws Exception
+    {
+        Assume.assumeFalse(TestUtils.isSSLEnabled);
+    }
+
     @Before
     public void setUp() throws Exception
     {
-        Assume.assumeFalse(TestUtils.isSSLEnabled);
-
         // initiate ImR's
         setupMyImRs(IMR_1_ON, IMR_2_ON);
         Thread.sleep(5000);
