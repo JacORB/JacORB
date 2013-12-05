@@ -23,12 +23,12 @@ package org.jacorb.orb.util;
 import java.util.Iterator;
 import java.util.List;
 import java.util.StringTokenizer;
-
 import org.jacorb.orb.ORB;
 import org.jacorb.orb.ParsedIOR;
 import org.jacorb.orb.iiop.IIOPAddress;
 import org.jacorb.orb.iiop.IIOPProfile;
 import org.jacorb.orb.miop.MIOPProfile;
+import org.omg.ETF.Factories;
 import org.omg.ETF.Profile;
 import org.omg.GIOP.Version;
 import org.omg.MIOP.UIPMC_ProfileBody;
@@ -219,11 +219,11 @@ public class CorbaLoc
         }
         else if (orb != null)
         {
-            List factories = orb.getTransportManager().getFactoriesList();
-            for (Iterator i = factories.iterator();
+            List<Factories> factories = orb.getTransportManager().getFactoriesList();
+            for (Iterator<Factories> i = factories.iterator();
                  result == null && i.hasNext();)
             {
-                org.omg.ETF.Factories f = (org.omg.ETF.Factories)i.next();
+                org.omg.ETF.Factories f = i.next();
                 result = f.decode_corbaloc(addr);
             }
         }
@@ -469,10 +469,10 @@ public class CorbaLoc
 
         String result = null;
         String object_key = null;
-        Iterator iterator;
+        Iterator<Profile> iterator;
         for (iterator = pior.getProfiles().iterator(); iterator.hasNext();)
         {
-            Profile profile = (Profile) iterator.next();
+            Profile profile = iterator.next();
 
             if (profile instanceof IIOPProfile)
             {

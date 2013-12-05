@@ -55,6 +55,7 @@ import org.omg.IOP.TAG_MULTIPLE_COMPONENTS;
 import org.omg.IOP.TAG_NULL_TAG;
 import org.omg.IOP.TAG_ORB_TYPE;
 import org.omg.IOP.TAG_POLICIES;
+import org.omg.IOP.TAG_RMI_CUSTOM_MAX_STREAM_FORMAT;
 import org.omg.IOP.TaggedComponent;
 import org.omg.PortableGroup.TagGroupTaggedComponent;
 import org.omg.PortableGroup.TagGroupTaggedComponentHelper;
@@ -222,10 +223,10 @@ public class PrintIOR
 
         String result = null;
         String object_key = null;
-        Iterator iterator;
+        Iterator<Profile> iterator;
         for (iterator = pior.getProfiles().iterator(); iterator.hasNext();)
         {
-            Profile profile = (Profile) iterator.next();
+            Profile profile = iterator.next();
 
             if (profile instanceof IIOPProfile)
             {
@@ -278,7 +279,7 @@ public class PrintIOR
         out.println("------IOR components-----");
         out.println("TypeId\t:\t" + ior.type_id );
 
-        List profiles = pior.getProfiles();
+        List<Profile> profiles = pior.getProfiles();
 
         out.println("TAG_INTERNET_IOP Profiles:");
         for( int i = 0; i < profiles.size(); i++ )
@@ -431,6 +432,12 @@ public class PrintIOR
                 {
                     out.println ("\t#" + i + ": TAG_GROUP");
                     printTagGroupTaggedComponent (taggedComponents[i], out);
+                    break;
+                }
+                case TAG_RMI_CUSTOM_MAX_STREAM_FORMAT.value:
+                {
+                    out.println ("\t#" + i + ": TAG_GROUP");
+                    printTagRMIComponent (taggedComponents[i], out);
                     break;
                 }
                 default:
@@ -785,6 +792,23 @@ public class PrintIOR
             String codebase = in.read_string();
 
             out.println( "\t\tCodebase: " + codebase );
+        }
+        finally
+        {
+            in.close();
+        }
+    }
+
+    private static void printTagRMIComponent(TaggedComponent taggedComponent, PrintWriter out)
+    {
+        final CDRInputStream in = new CDRInputStream( taggedComponent.component_data );
+
+        try
+        {
+            in.openEncapsulatedArray();
+            byte b= in.read_octet();
+
+            out.println( "\t\tTAG_RMI_CUSTOM_MAX_STREAM_FORMAT: " + Byte.toString(b));
         }
         finally
         {

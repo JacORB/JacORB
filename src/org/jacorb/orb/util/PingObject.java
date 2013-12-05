@@ -46,6 +46,7 @@ public class PingObject
             {
                 BufferedReader br = new BufferedReader( new FileReader( args[1] ));
                 iorString = br.readLine();
+                br.close();
             }
             catch ( IOException ioe )
             {

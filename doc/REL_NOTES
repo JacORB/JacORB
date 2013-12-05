@@ -62,6 +62,7 @@
            The OMG stubs are now held soley within jacorb-omgapi.
          - Correct Maven dependencies.
          - Correct default logging configuration (at INFO level).
+         - PrintIOR can now interpret TAG_RMI_CUSTOM_MAX_STREAM_FORMAT.
 
 3.3
 ===
