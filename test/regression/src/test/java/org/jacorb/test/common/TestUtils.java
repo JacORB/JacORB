@@ -54,6 +54,8 @@ public class TestUtils
 {
     public static final boolean isIBM = (System.getProperty ("java.vendor").equals ("IBM Corporation"));
 
+    public static final boolean is17 = (System.getProperty ("java.version").startsWith ("1.7"));
+
     private static String testHome = null;
     private static String jacorbHome = null;
     private static String systemRoot = null;
@@ -62,7 +64,7 @@ public class TestUtils
 
     static int timeout = Integer.valueOf(System.getProperty("jacorb.test.timeout.server", "60000"));
 
-    public static boolean isSSLEnabled = Boolean.valueOf(System.getProperty("jacorb.test.ssl", "false"));
+    public static final boolean isSSLEnabled = Boolean.valueOf(System.getProperty("jacorb.test.ssl", "false"));
 
     public static String jacorbHome()
     {

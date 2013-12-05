@@ -8,6 +8,7 @@ import org.jacorb.util.SelectorRequest;
 import org.jacorb.util.SelectorRequestCallback;
 import org.junit.Assume;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 /**
@@ -40,6 +41,7 @@ public class NIOTimerTest extends ORBTestCase
 	    this.id = id;
 	}
 
+        @Override
         public boolean call (SelectorRequest request)
         {
 	    order_[index_] = id;
@@ -57,12 +59,15 @@ public class NIOTimerTest extends ORBTestCase
         }
     }
 
+    @BeforeClass
+    public static void beforeClassSetUp() throws Exception
+    {
+        Assume.assumeFalse(TestUtils.isSSLEnabled);
+    }
 
     @Before
     public void setUp() throws Exception
     {
-        Assume.assumeFalse(TestUtils.isSSLEnabled);
-
         requestDuration_[0] = 500;
         requestDuration_[1] = 2000;
         requestDuration_[2] = 700;
