@@ -1,4 +1,4 @@
-package org.jacorb.test.bugs.bugjac670;
+package org.jacorb.test.bugs.bug964;
 
 import org.omg.PortableServer.POA;
 import org.omg.PortableServer.POAHelper;
@@ -8,6 +8,7 @@ public class GSLoadBalancerServer
    public static void main( String[] args )
    {
       org.omg.CORBA.ORB orb =  org.omg.CORBA.ORB.init(args, null);
+      String ior = "";
 
       try
       {
@@ -18,18 +19,18 @@ public class GSLoadBalancerServer
          byte[] id = poa.activate_object(servant);
          org.omg.CORBA.Object obj = poa.id_to_reference( id ) ;
 
-         String IOR = orb.object_to_string(obj);
+         ior = orb.object_to_string(obj);
 
-         ((org.jacorb.orb.ORB)orb).addObjectKey("GSLBService", IOR);
+         ((org.jacorb.orb.ORB)orb).addObjectKey("GSLBService", ior);
 
          poa.the_POAManager().activate();
-
-         System.out.println ("SERVER IOR: " + IOR);
       }
       catch ( Exception e )
       {
          e.printStackTrace();
       }
+
+      System.out.println ("SERVER IOR: " + ior);
 
       orb.run();
    }

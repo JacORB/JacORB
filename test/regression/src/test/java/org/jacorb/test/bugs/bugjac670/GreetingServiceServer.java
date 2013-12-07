@@ -23,13 +23,14 @@ public class GreetingServiceServer
          GSLoadBalancer balancer = GSLoadBalancerHelper.narrow(balancerobj);
 
          balancer.addGreetingService(greeting);
+
+         System.out.println ("SERVER IOR: " + orb.object_to_string(obj));
       }
       catch ( Exception e )
       {
          e.printStackTrace();
       }
 
-      System.out.println("GreetingServiceServer Ready ...");
 
       orb.run();
    }
