@@ -68,6 +68,8 @@ public class BugJac670Test extends ClientServerTestCase
         Properties serverprops = new java.util.Properties();
         serverprops.setProperty( "org.omg.PortableInterceptor.ORBInitializerClass."
                                  + org.jacorb.test.bugs.bugjac670.GSLoadBalancerInitializer.class.getName(), "" );
+        serverprops.setProperty("org.omg.CORBA.ORBClass", "org.jacorb.orb.ORB");
+        serverprops.setProperty("org.omg.CORBA.ORBSingletonClass", "org.jacorb.orb.ORBSingleton");
 
         serverprops.setProperty ("jacorb.test.timeout.server", Long.toString(15000));
 
