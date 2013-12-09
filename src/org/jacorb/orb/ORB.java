@@ -113,6 +113,8 @@ import org.omg.PortableInterceptor.PolicyFactory;
 import org.omg.PortableServer.POAManagerPackage.AdapterInactive;
 import org.omg.PortableServer.POAManagerPackage.State;
 import org.slf4j.Logger;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Method;
 
 /**
  * @author Gerald Brose, FU Berlin
@@ -148,6 +150,7 @@ public final class ORB
     private POA rootpoa;
     private org.jacorb.poa.Current poaCurrent;
     private BasicAdapter basicAdapter;
+    private org.omg.SecurityLevel2.Current securityCurrent = null;
 
     /** interceptor handling */
     private InterceptorManager interceptor_manager = null;
@@ -1535,7 +1538,41 @@ public final class ORB
             }
             else if ("SecurityCurrent".equals(identifier))
             {
-                throw new InvalidName("Level2 SecurityImplementation has been removed");
+
+                if( securityCurrent == null )
+                {
+                    try
+                    {
+                        Class currentClass =
+                            ObjectUtil.classForName( "org.jacorb.security.level2.CurrentImpl" );
+
+                        Constructor constr =
+                            currentClass.getConstructor( new Class[]{ org.omg.CORBA.ORB.class });
+
+                        securityCurrent =
+                            (org.omg.SecurityLevel2.Current)constr.newInstance( new Object[]{ this });
+
+                        Method configureMethod =
+                            currentClass.getDeclaredMethod( "configure",
+                                                            new Class[]{ Configuration.class } );
+
+                        configureMethod.invoke( securityCurrent, new Object[]{ configuration });
+
+                        Method init =
+                            currentClass.getDeclaredMethod( "init", new Class[0] );
+
+                        init.invoke( securityCurrent, new Object[0] );
+		    }
+                    catch (Exception e)
+                    {
+                        if (logger.isWarnEnabled())
+                        {
+                            logger.warn("Exception",e);
+                        }
+                    }
+                }
+
+                obj = securityCurrent;
             }
             else if ("DynAnyFactory".equals(identifier))
             {

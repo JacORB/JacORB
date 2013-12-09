@@ -9,7 +9,7 @@
 
    <import file="../../../../etc/common.xml"/>
 
-   <target name="all" depends="init,ssl,sas"/>
+   <target name="all" depends="init,leveltwo,ssl,sas"/>
 
    <target name="ssl">
            <ant antfile="${src}/org/jacorb/security/ssl/build.xml" dir="${basedir}"/>
@@ -18,4 +18,9 @@
    <target name="sas">
            <ant antfile="${src}/org/jacorb/security/sas/build.xml" dir="${basedir}"/>
    </target>
+
+   <target name="leveltwo" depends="init">
+      <jacorb-javac javac-includes="org/jacorb/security/level2/*.java"/> 
+   </target>
+
 </project>
