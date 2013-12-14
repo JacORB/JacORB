@@ -24,6 +24,7 @@ import java.io.File;
 import java.io.PrintWriter;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.logging.Level;
 
 /**
  * IDL sequences.
@@ -122,10 +123,10 @@ public class SequenceType
 
     void setRecursive()
     {
-        if (logger.isWarnEnabled())
+        if (parser.logger.isLoggable(Level.WARNING))
         {
-            logger.warn("Sequence " + typeName +
-                        " set recursive ------- this: " + this);
+            parser.logger.log(Level.WARNING, "Sequence " + typeName +
+            " set recursive ------- this: " + this);
         }
         recursive = true;
     }
@@ -141,9 +142,9 @@ public class SequenceType
 
     public String getTypeCodeExpression(Set knownTypes)
     {
-        if (logger.isDebugEnabled())
+        if (parser.logger.isLoggable(Level.ALL))
         {
-            logger.debug("Sequence getTypeCodeExpression " + name);
+            parser.logger.log(Level.ALL, "Sequence getTypeCodeExpression " + name);
         }
 
         //If type is already known, create recursive typeCode
@@ -186,9 +187,9 @@ public class SequenceType
 
     public String printReadStatement(String var_name, String streamname)
     {
-        if (logger.isDebugEnabled())
+        if (parser.logger.isLoggable(Level.ALL))
         {
-            logger.debug("Sequence printReadStatement for " + typeName());
+            parser.logger.log(Level.ALL, "Sequence printReadStatement for " + typeName());
         }
 
         StringBuffer buffer = new StringBuffer();

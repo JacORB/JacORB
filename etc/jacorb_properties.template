@@ -217,6 +217,11 @@ jacorb.connection.client.connect_timeout=90000
 # jacorb.connection.client.timeout_ignores_pending_messages is turned on.
 #jacorb.connection.client.idle_timeout=0
 
+# Disconnect client connections after non recoverable system exception.
+# This will also completely close client connections rather than just closing
+# the transport and keeping the GIOP connection open so it may be reused.
+#jacorb.connection.client.disconnect_after_systemexception=true
+
 # shall the orb ignore pending messages when a connection idle timeout is
 # detected? If "on", the connection is closed regardless of any pending
 # messages, and all pending messages are cancelled (resulting in a
@@ -383,9 +388,6 @@ jacorb.enhanced_thread_name=off
 
 # By default JacORB will remove the ZoneID so IORs will work off-host.
 # jacorb.ipv6.hide_zoneid=on
-
-# Disconnect client connections after non recoverable system exception
-#jacorb.delegate.disconnect_after_systemexception=true
 
 # Query server for object location using a GIOP locate request before first call.
 # jacorb.locate_on_bind=false

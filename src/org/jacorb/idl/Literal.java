@@ -22,6 +22,7 @@ package org.jacorb.idl;
 
 import java.io.PrintWriter;
 import java.math.BigInteger;
+import java.util.logging.Level;
 import org.jacorb.idl.runtime.int_token;
 import org.jacorb.idl.runtime.long_token;
 import org.jacorb.idl.runtime.token;
@@ -76,9 +77,9 @@ public class Literal
                 ts = ((AliasTypeSpec)ts).originalType ();
             }
 
-            if( logger.isWarnEnabled() )
-                logger.warn( "Literal " + ts.getClass().getName() + " " +
-                             ( primitiveToken != null? primitiveToken.getClass().getName() :"<no token>" ) );
+            if( parser.logger.isLoggable(Level.WARNING) )
+                parser.logger.log(Level.WARNING, "Literal " + ts.getClass().getName() + " " +
+                 ( primitiveToken != null? primitiveToken.getClass().getName() :"<no token>" ));
 
             // At first check the float types and strings
             if( ts instanceof FloatPtType &&

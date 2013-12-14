@@ -26,6 +26,7 @@ package org.jacorb.idl;
 
 import java.io.PrintWriter;
 import java.util.Set;
+import java.util.logging.Level;
 
 public class TypeDeclaration
     extends Declaration
@@ -148,7 +149,7 @@ public class TypeDeclaration
     {
         if( enclosing_symbol != null && enclosing_symbol != s )
         {
-            logger.error("was " + enclosing_symbol.getClass().getName() + " now: " + s.getClass().getName() );
+            parser.logger.log(Level.SEVERE, "was " + enclosing_symbol.getClass().getName() + " now: " + s.getClass().getName());
             throw new RuntimeException( "Compiler Error: trying to reassign container for " + name );
         }
         enclosing_symbol = s;

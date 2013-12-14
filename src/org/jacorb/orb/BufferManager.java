@@ -30,6 +30,7 @@ import org.jacorb.orb.buffermanager.BufferManagerExpansionPolicy;
 import org.jacorb.orb.buffermanager.DefaultExpansionPolicy;
 import org.omg.CORBA.INTERNAL;
 import org.omg.CORBA.NO_MEMORY;
+import org.slf4j.Logger;
 
 /**
  * A BufferManager is used to share a pool of buffers and to implement
@@ -97,12 +98,16 @@ public class BufferManager extends AbstractBufferManager
      */
     private BufferManagerExpansionPolicy expansionPolicy;
 
+    private final Logger logger;
+
     /**
      * used to create the singleton ORB buffermanager
      * @param configuration
      */
     public BufferManager(Configuration configuration)
     {
+        logger = configuration.getLogger ("jacorb.orb.buffermanager");
+
         try
         {
            this.time = configuration.getAttributeAsInteger("jacorb.bufferManagerMaxFlush", 0);
@@ -111,7 +116,7 @@ public class BufferManager extends AbstractBufferManager
         }
         catch (ConfigurationException ex)
         {
-           configuration.getLogger ("buffer").error ("Error configuring the BufferManager", ex);
+           logger.error ("Error configuring the BufferManager", ex);
            throw new INTERNAL ("Unable to configure the BufferManager");
         }
 
@@ -333,9 +338,23 @@ public class BufferManager extends AbstractBufferManager
                     }
                 }
 
-                final Collection s = bufferPool[ log_curr-MIN_CACHE ];
-
-                doReturnBuffer(s, current, threshold);
+                int expected = (1 << log_curr + 1) - 1;
+                if (current.length != expected)
+                {
+                    if (logger.isWarnEnabled())
+                    {
+                        logger.warn ("BufferManager.returnBuffer, log  = " + log_curr +
+                                     " got length " +
+                                     current.length +
+                                     " expected length " +
+                                     expected);
+                    }
+                }
+                else
+                {
+                    final Collection s = bufferPool[ log_curr-MIN_CACHE ];
+                    doReturnBuffer(s, current, threshold);
+                }
             }
         }
     }

@@ -40,9 +40,43 @@
    H I S T O R Y      O F     C H A N G E S
  -------------------------------------------
 
+( Note: For commit history see https://github.com/JacORB/JacORB )
+
+3.4-Beta
+========
+    - ORB
+         - Improve ORBSingleton logging.
+         - Fix interceptor BAD_PARAM minor codes (BZ961)
+         - Default to closing client connections completely on error.
+           Rename QoS jacorb.delegate.disconnect_after_systemexception to
+           jacorb.connection.client.disconnect_after_systemexception. (BZ967)
+         - Clear fragments on connection close. (BZ949)
+         - Implement ContextList (BZ968)
+         - Fix for servicecontext propagation (BZ960)
+         - Fix for streamable any (BZ968)
+         - Release target object after DII invocation.
+    - IDL
+         - Fix for logging.
+         - Fix for Struct with String typedef type to be output as initialised type.
+    - Misc
+         - Improve documentation for SLF4J logging and maven.
+         - Split jacorb.jar into jacorb.jar and jacorb-omgapi.jar.
+           The OMG stubs are now held soley within jacorb-omgapi.
+         - Correct Maven dependencies.
+         - Correct default logging configuration (at INFO level).
+         - PrintIOR can now interpret TAG_RMI_CUSTOM_MAX_STREAM_FORMAT.
+
+3.3
+===
     - ORB
          - Fix for built-in interceptors and local calls (BZ956/957).
            Add new isLocalInterceptors to *RequestInfoImpl Public API
+         - Add fix to prevent non-compilant buffers from being returned to the buffer manager (BZ958).
+         - Add public ctor to CDROutputStream to allow specifying a predetermined buffer size,
+           as well as a releaseBuffer method to let the application take ownership of the buffer
+           from the stream for use after the stream goes out of scope. (BZ958)
+    - Misc
+         - Improve Version output to incorporate the SHA (and autogenerate).
 3.3beta
 =======
     - ORB
@@ -51,13 +85,13 @@
          - Support setting the ORB ID using the -DORBId option.
          - Support multi-network interfaces using -ORBListenEndpoints option.
          - Change logging to debug level (https://bugzilla.redhat.com/show_bug.cgi?id=950294).
-         - Add support for GIOP 1.1 Fragmented Messages (BZ950).
          - Add public API for Client/ServerRequestInfo.
          - Add fix for NIO with large requests (BZ939).
          - Add fix for disconnect logic on bad connection (BZ947).
          - Add fix for rootpoa creation with bad socket (BZ943).
          - Add fix for non_existent (BZ953).
          - Add fix for rewrite on OutputStream with large sizes (BZ941).
+
     - POA
          - Add fix for exception in interceptors breaking requestprocesor thread. (BZ946)
          - Add fix for requestprocessor pooling. (BZ946)
@@ -79,6 +113,8 @@
          - Fix logging for nested exception traces.
     - IDL
          - Fix for line endings in generated code (BZ942)
+    - IR
+         - Improved the performance of RepositoryID to class name conversion (BZ962)
 
 3.2
 ===

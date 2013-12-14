@@ -18,7 +18,14 @@
             <outputDirectory>/</outputDirectory>
             <includes>
                 <include>src/**</include>
+                <include>maven/**</include>
+                <include>test/**</include>
             </includes>
+            <excludes>
+                <exclude>**/target/**</exclude>
+                <exclude>**/generated/**</exclude>
+                <exclude>**/build/**</exclude>
+            </excludes>
         </fileSet>
         <fileSet>
             <directory>${env.JACORB_HOME}/lib</directory>

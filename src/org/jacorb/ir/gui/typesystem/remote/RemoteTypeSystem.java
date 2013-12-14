@@ -71,9 +71,9 @@ public class RemoteTypeSystem
     }
 
     /**
-     *  Creates a TreeModel that contains only root enthält. To expand
-     *  nodes,     the    TreeExpansionListener    returned    from
-     *  getTreeExpansionListener(treeModel)  needs  to be  registered
+     *  Creates a TreeModel that contains only root. To expand
+     *  nodes, the TreeExpansionListener returned from
+     *  getTreeExpansionListener(treeModel) needs to be registered
      *  with JTree.
      * @return javax.swing.tree.DefaultTreeModel
      */
@@ -108,22 +108,25 @@ public class RemoteTypeSystem
 
         System.out.flush();
 
-        // Typ-Unterscheidung für obj vornehmen und korrespondierendes
-        // org.jacorb.ir.gui.typesystem-Objekt erzeugen.
-        // knownIRObjects: zu jedem Objekt des IR wird das
-        // korrespondierende org.jacorb.ir.gui.typesystem-Objekt
-        // festgehalten, damit letzteres nicht mehrfach für
-        /// das selbe IR-Objekt erzeugt wird
-        // (die Abbildung von IR-Objekten auf
-        // org.jacorb.ir.gui.typesystem-Objekte wird sozusagen injektiv gehalten)
+        /*
+         * Distinguish the type of obj and create the corresponding
+         * org.jacorb.ir.gui.typesystem object.
+         * knownIRObjects: for each object of the IR the corresponding
+         * org.jacorb.ir.gui.typesystem object is stored, so that
+         * the latter is not created multiple times for the same
+         * IR object (the mapping from IR objects to
+         * org.jacorb.ir.gui.typesystem objects is kept injective,
+         * so to speak)
+         */
 
-        // Je nach Typ wird ein anderer Hashcode verwendet,
-        // um das obj in knownIRObjects abzulegen:
-        // die von Object geerbte hashcode() Methode reicht
-        // hier nicht, weil sie equals() verwendet und
-        // diese Methode nicht für alle möglichen Typen von
-        ///  obj korrekt redefiniert wurde (testet nur auf
-        // Objekt-Identität)
+        /*
+         * For each type a different hash code is used to store
+         * the object in knownIRObjects: the hashCode() method
+         * inherited from Object is not enough here, since it
+         * uses equals() and that method has not been redefined
+         * correctly for all possible types of obj (it only tests
+         * for object identity)
+         */
 
         if ( obj instanceof IRObject )
         {
@@ -137,9 +140,10 @@ public class RemoteTypeSystem
         }
         if( irObject != null )
         {
-            // insbesondere "echte" IRObjects können beim Aufbau
-            // des Trees mehrmals referenziert
-            // und dieser Methode als Argument übergeben werden
+            // "real" IRObjects in particular can be referenced
+            // multiple times while the tree is built and
+            // passed as arguments to this method
+
             // if (knownIRObjects.get(ORB.init().object_to_string((org.omg.CORBA.Object)irObject))!=null) {
             //			return (TypeSystemNode)knownIRObjects.get(ORB.init().object_to_string((org.omg.CORBA.Object)irObject));
             //		}
@@ -157,7 +161,7 @@ public class RemoteTypeSystem
             try
             {
                 Contained contained =
-                    ContainedHelper.narrow((org.omg.CORBA.Object)irObject);
+                    ContainedHelper.narrow(irObject);
 
                 result = (TypeSystemNode)knownIRObjects.get(contained.id());
                 if (result != null)
@@ -191,11 +195,14 @@ public class RemoteTypeSystem
                     case DefinitionKind._dk_Operation:
                         result = new IROperation(irObject);
                         break;
-                        /*   Typedef   ist   eine  abstrakte   Oberklasse,
-                             theoretisch   dürfte   es   kein  Objekt   mit
-                             DefinitionKind._dk_Typedef      geben     case
-                             DefinitionKind._dk_Typedef:   result   =   new
-                             IRTypedef(irObject); break; */
+                    /*
+                     * Typedef is an abstract superclass;
+                     * theoretically there should be no
+                     * object with DefinitionKind._dk_Typedef:
+                     */
+                    // case DefinitionKind._dk_Typedef:
+                    //    result = new IRTypedef(irObject);
+                    //    break;
                     case DefinitionKind._dk_Exception:
                         result = new IRException(irObject);
                         break;
@@ -277,18 +284,20 @@ public class RemoteTypeSystem
         }	// if (irObjectHelper.narrow...)
         else
         {
-            // kein IRObject sondern lokales Objekt
-            // members von Structs, Unions und Enums können nicht
-            // von anderen IRObjects referenziert werden,
-            // wir wollen trotzdem für mögliche mehrfache Aufrufe
-            // das selbe org.jacorb.ir.gui.typesystem-Objekt zurückgeben
+            /*
+             * not an IRObject but a local object
+             * members of structs, unions, and enums cannot be
+             * referenced from other IRObjects; we still want
+             * to return the same org.jacorb.ir.gui.typesystem object
+             * for possible multiple calls
+             */
             if (knownIRObjects.get(obj)!=null) {
                 return (TypeSystemNode)knownIRObjects.get(obj);
             }
 
             if (obj instanceof StructMember)
             {
-                // als Hash-Key nehmen wir einen IR-weit eindeutigen String
+                // as a hash key we take an IR-wide unique string
                 StructMember structMember = (StructMember)obj;
                 if (knownIRObjects.get("structmember" + structMember.name +
                                        structMember.type.kind().toString())!=null)
@@ -340,7 +349,7 @@ public class RemoteTypeSystem
                     result = new IREnumMember((String)obj);
                     knownIRObjects.put(obj,result);
                 }
-        }	// else (obj war kein IRObject)
+        }	// else (obj was not an IRObject)
 
         if( result != null )
         {

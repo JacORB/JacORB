@@ -101,6 +101,8 @@ module IOP {
 
     const ComponentId           TAG_ACTIVITY_POLICY         = 37;
 
+    const ComponentId           TAG_RMI_CUSTOM_MAX_STREAM_FORMAT = 38;
+
     const ComponentId           TAG_GROUP                   = 39;
     const ComponentId           TAG_GROUP_IIOP              = 40;
 
@@ -114,6 +116,7 @@ module IOP {
     const ComponentId           TAG_DCE_SEC_MECH            = 103;
 
     const ComponentId           TAG_INET_SEC_TRANS          = 123;
+
 
     // Service Contexts
 

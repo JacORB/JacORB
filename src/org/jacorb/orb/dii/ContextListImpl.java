@@ -1,13 +1,9 @@
 package org.jacorb.orb.dii;
 
-import org.omg.CORBA.Bounds;
-import org.omg.CORBA.ContextList;
-import org.omg.CORBA.NO_IMPLEMENT;
-
 /*
- *        JacORB - a free Java ORB
+ *        JacORB  - a free Java ORB
  *
- *   Copyright (C) Copyright (C) 2000-2012 Gerald Brose / The JacORB Team.
+ *   Copyright (C) 1997-2012 Gerald Brose / The JacORB Team.
  *
  *   This library is free software; you can redistribute it and/or
  *   modify it under the terms of the GNU Library General Public
@@ -24,28 +20,51 @@ import org.omg.CORBA.NO_IMPLEMENT;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-/**
- * @author Alphonse Bendt
- */
+import java.util.ArrayList;
+import org.omg.CORBA.Bounds;
+import org.omg.CORBA.ContextList;
+
+
 public class ContextListImpl extends ContextList
 {
+    private ArrayList<String> contexts;
+
+    public ContextListImpl()
+    {
+        contexts = new ArrayList<String>();
+    }
+
     public int count()
     {
-        return 0;
+        return contexts.size();
     }
 
     public void add(String ctx)
     {
-        throw new NO_IMPLEMENT();
+        contexts.add(ctx);
     }
 
     public String item(int index) throws Bounds
     {
-        throw new NO_IMPLEMENT();
+        try
+        {
+            return contexts.get(index);
+        }
+        catch (ArrayIndexOutOfBoundsException e)
+        {
+            throw new Bounds();
+        }
     }
 
     public void remove(int index) throws Bounds
     {
-        throw new NO_IMPLEMENT();
+        try
+        {
+            contexts.remove(index);
+        }
+        catch (ArrayIndexOutOfBoundsException e)
+        {
+            throw new Bounds();
+        }
     }
 }

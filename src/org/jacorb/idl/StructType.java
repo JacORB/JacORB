@@ -26,6 +26,7 @@ import java.io.PrintWriter;
 import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.logging.Level;
 
 /**
  * @author Gerald Brose
@@ -181,8 +182,8 @@ public class StructType
     {
         if (enclosing_symbol != null && enclosing_symbol != s)
         {
-            logger.error("was " + enclosing_symbol.getClass().getName() +
-                                " now: " + s.getClass().getName());
+            parser.logger.log(Level.SEVERE, "was " + enclosing_symbol.getClass().getName() +
+            " now: " + s.getClass().getName());
             throw new RuntimeException("Compiler Error: trying to reassign container for " + name);
         }
         enclosing_symbol = s;
@@ -209,8 +210,8 @@ public class StructType
             return;
         }
 
-        if (logger.isDebugEnabled())
-            logger.debug("Parsing Struct " + name);
+        if (parser.logger.isLoggable(Level.ALL))
+            parser.logger.log(Level.ALL, "Parsing Struct " + name);
 
         escapeName();
 

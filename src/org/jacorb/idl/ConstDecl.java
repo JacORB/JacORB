@@ -27,6 +27,7 @@ package org.jacorb.idl;
 import java.io.File;
 import java.io.PrintWriter;
 import java.util.Hashtable;
+import java.util.logging.Level;
 
 public class ConstDecl extends Declaration
 {
@@ -90,11 +91,11 @@ public class ConstDecl extends Declaration
                    (contained() ? "" : ".value"),
                    const_expr.toString());
 
-        if (logger.isDebugEnabled())
+        if (parser.logger.isLoggable(Level.ALL))
         {
-            logger.debug("ConstDecl.parse, put value: " + t.resolvedName() +
-                         (contained() ? "" : ".value") + " , " +
-                         const_expr);
+            parser.logger.log(Level.ALL, "ConstDecl.parse, put value: " + t.resolvedName() +
+             (contained() ? "" : ".value") + " , " +
+             const_expr);
         }
 
         declarations.put(t.resolvedName(), this);
@@ -142,9 +143,9 @@ public class ConstDecl extends Declaration
             }
             enc = enc.getEnclosingSymbol();
         }
-        if (logger.isDebugEnabled())
-            logger.debug("ConstDecl.contained()? " + full_name()
-                         + " returns " + result);
+        if (parser.logger.isLoggable(Level.ALL))
+            parser.logger.log(Level.ALL, "ConstDecl.contained()? " + full_name()
+             + " returns " + result);
         return result;
     }
 
@@ -190,8 +191,8 @@ public class ConstDecl extends Declaration
             {
                 PrintWriter pw = new PrintWriter(new java.io.FileWriter(f));
 
-                if (logger.isDebugEnabled())
-                    logger.debug("ConstDecl.print " + fname);
+                if (parser.logger.isLoggable(Level.ALL))
+                    parser.logger.log(Level.ALL, "ConstDecl.print " + fname);
 
                 if (!pack_name.equals(""))
                     pw.println("package " + pack_name + ";");
@@ -224,18 +225,18 @@ public class ConstDecl extends Declaration
             ts = ((AliasTypeSpec)ts).originalType();
         }
 
-        if (logger.isDebugEnabled())
+        if (parser.logger.isLoggable(Level.ALL))
         {
-            logger.debug("ConstDecl(" + name + ": " +
-                         ts.getClass() + ") = " + const_type.toString());
+            parser.logger.log(Level.ALL, "ConstDecl(" + name + ": " +
+             ts.getClass() + ") = " + const_type.toString());
         }
 
         // Bugzilla #851 - Infinity values wrapping
         String exprStr = const_expr.toString();
         if (exprStr != null && exprStr.contains("Infinity"))
         {
-            logger.warn("[" + token.line_no + ":" + token.char_pos + "]" 
-                        + "Infinity value used in const declaration");
+            parser.logger.log(Level.WARNING, "[" + token.line_no + ":" + token.char_pos + "]" 
+            + "Infinity value used in const declaration");
             if (exprStr.startsWith("-"))
             {
                 exprStr = "Double.NEGATIVE_INFINITY";

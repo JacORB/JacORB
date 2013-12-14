@@ -298,8 +298,7 @@ public class Member
             type_spec.print( ps );
         }
 
-
-        if( type_spec.typeSpec() instanceof StringType )
+        if( type_spec.typeSpec().toString().equals("java.lang.String"))
         {
             ps.print( prefix + type_spec.toString() + " " + declarator.toString() + " = \"\";" );
         }

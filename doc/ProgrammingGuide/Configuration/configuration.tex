@@ -604,19 +604,14 @@ SLF4J log levels are used according to the following conventions:
 
 \subsubsection{Configuration of JDK Logging}
 
-Since JDK logging is the default in the JacORB distribution, we
-provide some shortcuts to achieve a reasonable logging configuration
-with it easily.  If any of the two properties {\tt
-  jacorb.log.default.verbosity} or {\tt jacorb.logfile} is set, then
-JacORB configures JDK logging at startup to match these values.
-(These properties were retained from previous JacORB versions where
-JacORB configured all logging itself.)
+JDK logging is the default in the JacORB distribution and is automatically
+configured to log to console at $info$ level.
 
 The property {\tt jacorb.log.default.verbosity} specifies the level at
 which messages are logged.  The value is a number from 0 to 4, where 0
 means no logging (off), 1 means only $error$ messages, 2 means $warn$
 messages, 3 means $info$ messages, and 4 means $debug$ messages (higher
-levels also include lower levels).
+levels also include lower levels). The default is $info$ level.
 
 The property {\tt jacorb.logfile} specifies the name of a file to
 write the log to.  If the {\tt jacorb.logfile} property is not set, output
@@ -651,7 +646,6 @@ configuration file such as the one found in {\tt
   JACORB\_HOME/etc/logging\_properties.template} with your settings.
 The name of this file needs to be passed to the JVM at startup, for
 example by providing the following command line option:
-
 \begin{verbatim}
 -Djava.util.logging.config.file=/path/to/config-file
 \end{verbatim}
@@ -684,6 +678,26 @@ JacORB to allow configuration of a logging system based on the JacORB
 configuration.  The class needs to extend the class {\tt
   org.jacorb.config.LoggingInitializer} and the name of the class
 needs to be specified in the property {\tt jacorb.log.initializer}.
+
+\textbf{Note:} If using Maven as described in \ref{ch:mvn} then the slf4j-jdk14
+is a default compile \textit{and} runtime dependency. To replace the slf4j-jdk14
+with another implementation in this situation it should be excluded from the
+jacorb dependency e.g.
+\begin{verbatim}
+    <dependencies>
+        <dependency>
+            <groupId>org.jacorb</groupId>
+            <artifactId>jacorb</artifactId>
+            <version>${version.jacorb}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>slf4j-jdk14</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+    </dependencies>
+\end{verbatim}
 
 \subsubsection{POA Monitor}
 
@@ -1121,6 +1135,16 @@ jacorb.connection.client.timeout\_ignores\_pending\_messages is turned on. &
 millisec. & unset \\
 \hline
 \verb"jacorb.connection.clie"
+\verb"nt.disconnect_afte"
+\verb"r_systemexception" & Disconnect client connections after non recoverable system
+exception. Note that if this is {\tt on} client-side connections will be
+completely closed i.e. both ETF and GIOP layers closed rather than just the ETF
+transport layer (with the expectation that the object will be called again and
+the GIOP layer reused). This gives better threading performance at the cost of
+higher GC. & boolean & on \\
+
+\hline
+\verb"jacorb.connection.clie"
 \verb"nt.timeout_ignores_pen"
 \verb"ding_messages" & Controls if client-side idle timeouts take care of
 pending messages or not. If "on", the connection is closed regardless of any
@@ -1345,10 +1369,6 @@ By default JacORB will remove the ZoneID so IORs will work off-host. & boolean &
 the cost of a remote call. In most scenarios this is quicker than the remote call.
 With some complicated hierarchies it may be quicker to turn this off. & boolean & on\\
 \hline
-\verb"jacorb.disconnect_afte"
-\verb"r_systemexception" & Disconnection client connections after non recoverable system
-exception. & boolean & on\\
-\hline
 \verb"jacorb.locate_on_bind " & Query server for object location using a GIOP locate
 request before first call. & boolean & off\\
 \hline
@@ -1464,7 +1484,7 @@ the ORB is initialized. & boolean & off \\
 \hline
 \verb"jacorb.log.default."
 \verb"verbosity" & Log levels: 0 = off, 1 =
-error, 2 = warning, 3 = info, 4 = debug & integer & unset \\
+error, 2 = warning, 3 = info, 4 = debug & integer & info \\
 \hline
 \verb"jacorb.logfile" & Output destination for diagnostic log file. If
 not set, diagnostics are sent to standard error.& filename & unset \\

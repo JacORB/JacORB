@@ -25,6 +25,7 @@ import java.io.File;
 import java.io.PrintWriter;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.logging.Level;
 
 /**
  * @author Gerald Brose
@@ -103,8 +104,8 @@ public class ValueBoxDecl
     {
         if (enclosing_symbol != null && enclosing_symbol != s)
         {
-            logger.error("was " + enclosing_symbol.getClass().getName() +
-                                " now: " + s.getClass().getName());
+            parser.logger.log(Level.SEVERE, "was " + enclosing_symbol.getClass().getName() +
+            " now: " + s.getClass().getName());
             throw new RuntimeException("Compiler Error: trying to reassign container for " + name);
         }
         enclosing_symbol = s;

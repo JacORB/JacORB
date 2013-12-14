@@ -1,9 +1,5 @@
 package org.jacorb.test.listenendpoints.echo_corbaloc;
 
-import java.util.List;
-import java.util.ArrayList;
-import java.io.*;
-import org.omg.CORBA.*;
 
 public class Client
 {

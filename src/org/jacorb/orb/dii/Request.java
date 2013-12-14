@@ -21,7 +21,6 @@ package org.jacorb.orb.dii;
  */
 
 import java.util.Iterator;
-import org.slf4j.Logger;
 import org.jacorb.orb.ORB;
 import org.jacorb.orb.giop.ClientConnection;
 import org.jacorb.orb.giop.RequestOutputStream;
@@ -35,9 +34,9 @@ import org.omg.CORBA.NVList;
 import org.omg.CORBA.NamedValue;
 import org.omg.CORBA.TCKind;
 import org.omg.CORBA.UNKNOWN;
-import org.omg.CORBA.NO_IMPLEMENT;
 import org.omg.CORBA.portable.ApplicationException;
 import org.omg.CORBA.portable.RemarshalException;
+import org.slf4j.Logger;
 
 /**
  * DII requests
@@ -144,11 +143,6 @@ public class Request
         this.arguments = args;
         this.context = context;
         result_value = (org.jacorb.orb.NamedValue)result;
-
-        if (contexts != null)
-        {
-            throw new NO_IMPLEMENT ("The contexts parameters has not yet been implemented - pass null for this");
-        }
 
         logger = orb.getConfiguration().getLogger("jacorb.dii.request");
     }
@@ -278,13 +272,13 @@ public class Request
         }
 
         /** get out/inout parameters if any */
-        for( Iterator e = ((org.jacorb.orb.NVList)arguments).iterator(); e.hasNext();)
+        for( Iterator<NamedValue> e = ((org.jacorb.orb.NVList)arguments).iterator(); e.hasNext();)
         {
-            org.jacorb.orb.NamedValue nv =
-                (org.jacorb.orb.NamedValue)e.next();
+            NamedValue nv = e.next();
+
             if( nv.flags() != org.omg.CORBA.ARG_IN.value )
             {
-                nv.receive(reply);
+                nv.value().read_value(reply, nv.value().type());
             }
         }
     }
@@ -307,12 +301,13 @@ public class Request
             {
                 out.setRequest(this);
 
-                for( Iterator it = ((org.jacorb.orb.NVList)arguments).iterator(); it.hasNext();)
+                for( Iterator<NamedValue> it = ((org.jacorb.orb.NVList)arguments).iterator(); it.hasNext();)
                 {
-                    org.jacorb.orb.NamedValue namedValue = (org.jacorb.orb.NamedValue)it.next();
+                    NamedValue namedValue = it.next();
+
                     if( namedValue.flags() != org.omg.CORBA.ARG_OUT.value )
                     {
-                        namedValue.send(out);
+                        namedValue.value().write_value(out);
                     }
                 }
 
@@ -424,6 +419,7 @@ public class Request
             finally
             {
                 out.close();
+                target._release();
             }
         }
     }

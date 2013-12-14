@@ -7,7 +7,7 @@
     <parent>
         <groupId>org.jacorb</groupId>
         <artifactId>jacorb-parent</artifactId>
-        <version>3.3beta</version>
+        <version>3.4-SNAPSHOT</version>
         <relativePath>../..</relativePath>
     </parent>
 
@@ -44,7 +44,7 @@
                             <goal>run</goal>
                         </goals>
                         <configuration>
-                            <target>
+                            <target unless="skipCompile">
                                 <property name="plugin_classpath" refid="maven.plugin.classpath"/>
                                 <ant antfile="${env.JACORB_HOME}/build.xml" inheritAll="true" inheritRefs="true" target="compiler">
                                     <property name="sun.boot.class.path" value="${sun.boot.class.path}:${plugin_classpath}"/>

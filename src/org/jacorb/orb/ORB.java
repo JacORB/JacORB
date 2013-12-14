@@ -31,6 +31,7 @@ import java.util.Set;
 import org.jacorb.config.Configurable;
 import org.jacorb.config.Configuration;
 import org.jacorb.config.ConfigurationException;
+import org.jacorb.orb.dii.ContextListImpl;
 import org.jacorb.orb.dii.Request;
 import org.jacorb.orb.dynany.DynAnyFactoryImpl;
 import org.jacorb.orb.etf.FactoriesBase;
@@ -804,7 +805,7 @@ public final class ORB
     public org.omg.CORBA.ContextList create_context_list()
     {
         work_pending();
-        throw new org.omg.CORBA.NO_IMPLEMENT ();
+        return new ContextListImpl();
     }
 
     public org.omg.CORBA.Environment create_environment()
@@ -1798,7 +1799,12 @@ public final class ORB
                         // save orb_id before doing anything
                         // orb_id should have already been set to default_orb_id by the constructor,
                         // so if it will be updated only if an alternative id is provided.
-                        id = args[++i].trim();
+                        id = args[++i];
+                        if (id == null)
+                        {
+                            throw new INITIALIZE ("ORBID cannot be null");
+                        }
+                        id = id.trim();
                         break;
                     }
                     else
@@ -1826,6 +1832,11 @@ public final class ORB
 
         orb_id = id;
         arguments = args;
+
+        if (logger.isInfoEnabled())
+        {
+            logger.info("Initialising ORB with ID: " + orb_id);
+        }
 
         Configuration orbsingletonConfig = ((ORBSingleton)org.omg.CORBA.ORBSingleton.init ()).configuration;
         if (props != null)

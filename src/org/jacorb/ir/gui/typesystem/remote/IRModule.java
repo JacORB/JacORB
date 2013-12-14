@@ -21,17 +21,17 @@
 package org.jacorb.ir.gui.typesystem.remote;
 
 /**
- * 
+ *
  */
 
 
 import org.omg.CORBA.IRObject;
 
-public class IRModule extends IRContainer 
+public class IRModule extends IRContainer
 {
-  
+
     /**
-     * Default-Konstruktor: wird von TypeSystem.createNode(...) benutzt
+     * Default constructor: used by TypeSystem.createNode()
      */
     public IRModule ( ) {
 	super();

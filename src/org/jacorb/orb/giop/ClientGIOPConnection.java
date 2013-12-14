@@ -32,6 +32,7 @@ public class ClientGIOPConnection
     implements Configurable
 {
     private boolean ignore_pending_messages_on_timeout = false;
+    private boolean disconnectAfterSystemException = false;
 
     public ClientGIOPConnection( org.omg.ETF.Profile profile,
                                  org.omg.ETF.Connection transport,
@@ -51,11 +52,12 @@ public class ClientGIOPConnection
         ignore_pending_messages_on_timeout =
             configuration.getAttributeAsBoolean("jacorb.connection.client.timeout_ignores_pending_messages", false);
 
+        disconnectAfterSystemException = configuration.getAttributeAsBoolean("jacorb.connection.client.disconnect_after_systemexception", true);
+
         int max_request_write_time =
             configuration.getAttributeAsInteger("jacorb.connection.request.write_timeout", 0);
 
         init_write_monitor (max_request_write_time);
-
     }
 
     /**
@@ -110,12 +112,26 @@ public class ClientGIOPConnection
             logger.debug (this.toString() + ": streamClosed()");
         }
 
-        closeAllowReopen();
-
-        if( connection_listener != null )
+        if (disconnectAfterSystemException)
         {
-            connection_listener.streamClosed();
+            close();
+
+            // Not calling listener::streamClosed as super.close calls
+            // listener::connectioClosed which calls listener::streamClosed
         }
+        else
+        {
+            closeAllowReopen();
+
+            if( connection_listener != null )
+            {
+                connection_listener.streamClosed();
+            }
+        }
+
+        // If the transport and/or connection has been closed there is no point
+        // in keeping the fragments around.
+        fragments.clear();
     }
 
     /**

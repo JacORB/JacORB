@@ -28,18 +28,19 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import org.omg.CORBA.NamedValue;
 
 public class NVList
     extends org.omg.CORBA.NVList
 {
-    private final List list;
+    private final List<NamedValue> list;
     private final org.omg.CORBA.ORB orb;
 
     NVList(org.omg.CORBA.ORB orb, int count)
     {
         super();
         this.orb = orb;
-        this.list = Collections.synchronizedList(new ArrayList(count));
+        this.list = Collections.synchronizedList(new ArrayList<NamedValue>(count));
     }
 
     public int count()
@@ -74,7 +75,7 @@ public class NVList
     {
         try
         {
-            return (NamedValue) list.get(index);
+            return list.get(index);
         }
         catch (ArrayIndexOutOfBoundsException e)
         {
@@ -94,7 +95,7 @@ public class NVList
         }
     }
 
-    public Iterator iterator()
+    public Iterator<NamedValue> iterator()
     {
         return list.iterator();
     }

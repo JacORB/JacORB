@@ -26,6 +26,7 @@ import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Vector;
+import java.util.logging.Level;
 
 /**
  * @author Gerald Brose
@@ -107,8 +108,8 @@ public class OpDecl
 
     public void setEnclosingSymbol( IdlSymbol s )
     {
-        if( logger.isDebugEnabled() )
-            logger.debug( "opDecl.setEnclosingSymbol " + s  );
+        if( parser.logger.isLoggable(Level.ALL) )
+            parser.logger.log(Level.ALL, "opDecl.setEnclosingSymbol " + s);
 
         if( enclosing_symbol != null && enclosing_symbol != s )
             throw new RuntimeException( "Compiler Error: trying to reassign container for "
@@ -188,9 +189,9 @@ public class OpDecl
             if( !(param.paramTypeSpec.typeSpec() instanceof BaseType ))
             {
 
-                if( logger.isInfoEnabled() )
-                    logger.info( "classname: " +
-                                 param.paramTypeSpec.typeSpec().getClass().getName() );
+                if( parser.logger.isLoggable(Level.FINEST) )
+                    parser.logger.log(Level.FINEST, "classname: " +
+                     param.paramTypeSpec.typeSpec().getClass().getName());
 
                 myInterface.addImportedName( param.paramTypeSpec.typeSpec().full_name(),
                                              param.paramTypeSpec.typeSpec() );
@@ -1038,8 +1039,8 @@ public class OpDecl
         //       if( enter )
         irInfoTable.put( name, sb.toString() );
 
-        if( logger.isDebugEnabled() )
-            logger.debug( "OpInfo for " + name + " : " + sb.toString() );
+        if( parser.logger.isLoggable(Level.ALL) )
+            parser.logger.log(Level.ALL, "OpInfo for " + name + " : " + sb.toString());
     }
 
     public void accept( IDLTreeVisitor visitor )

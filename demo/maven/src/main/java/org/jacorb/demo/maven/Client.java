@@ -7,6 +7,7 @@ import java.io.FileReader;
 import org.jacorb.demo.maven.GoodDay;
 import org.jacorb.demo.maven.GoodDayHelper;
 import org.omg.CORBA.ORB;
+import org.omg.CORBA.PolicyListHolder;
 
 public class Client
 {
@@ -50,12 +51,13 @@ public class Client
             org.omg.CORBA.Object obj =
                 orb.string_to_object( br.readLine() );
 
+            obj._validate_connection (new PolicyListHolder ());
+
             br.close();
 
             // and narrow it to HelloWorld.GoodDay
             // if this fails, a BAD_PARAM will be thrown
             GoodDay goodDay = GoodDayHelper.narrow( obj );
-
 
             // invoke the operation and print the result
             System.out.println( goodDay.hello_simple() );

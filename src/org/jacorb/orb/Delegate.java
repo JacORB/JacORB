@@ -96,6 +96,7 @@ import org.omg.PortableServer.POAPackage.ObjectNotActive;
 import org.omg.PortableServer.POAPackage.WrongAdapter;
 import org.omg.PortableServer.POAPackage.WrongPolicy;
 import org.omg.PortableServer.ServantLocatorPackage.CookieHolder;
+import org.omg.RTCORBA.Protocol;
 import org.omg.SSLIOP.SSL;
 import org.omg.SSLIOP.SSLHelper;
 import org.omg.TimeBase.UtcT;
@@ -368,7 +369,7 @@ public final class Delegate
             throw new INTERNAL ("Configuration exception retrieving max builtin retries" + ex);
         }
         disconnectAfterNonRecoverableSystemException = config.getAttributeAsBoolean
-            ("jacorb.delegate.disconnect_after_systemexception", true);
+            ("jacorb.connection.client.disconnect_after_systemexception", true);
 
         disableClientOrbPolicies = config.getAttributeAsBoolean("jacorb.disableClientOrbPolicies", false);
         try
@@ -653,7 +654,9 @@ public final class Delegate
 
         if (object_reference != null && object_reference.indexOf( "IOR:" ) == 0)
         {
-            rebind(new ParsedIOR( orb, object_reference));
+            Delegate delegate = (Delegate) ((ObjectImpl)obj)._get_delegate();
+            rebind(new ParsedIOR( orb, object_reference),
+                    ( delegate == null ? null : delegate.getClientProtocols()));
         }
         else
         {
@@ -661,17 +664,31 @@ public final class Delegate
         }
     }
 
-    public void rebind(ParsedIOR pior)
+    private void rebind(ParsedIOR pior)
+    {
+        rebind (pior, null);
+    }
+
+    private void rebind(ParsedIOR pior, Protocol[] protocols)
     {
         synchronized ( bind_sync )
         {
             // Check if ClientProtocolPolicy set, if so, set profile
-            // selector for IOR that selects effective profile for protocol
-            org.omg.RTCORBA.Protocol[] protocols = getClientProtocols();
-
+            // selector for IOR that selects effective profile for protocol.
+            //
+            // If rebind has been passed in a new set of protocols use that.
             if (protocols != null)
             {
                 pior.setProfileSelector(new SpecificProfileSelector(protocols));
+            }
+            else
+            {
+                org.omg.RTCORBA.Protocol[] thisProtocols = getClientProtocols();
+
+                if (thisProtocols != null)
+                {
+                    pior.setProfileSelector(new SpecificProfileSelector(thisProtocols));
+                }
             }
 
             // I'm commenting this code block out since it prevents a multi-profile
@@ -2232,7 +2249,6 @@ public final class Delegate
                 return;
             }
 
-
             if ( connections[currentConnection.ordinal ()] != null )
             {
                 conn_mg.releaseConnection( connections[currentConnection.ordinal ()] );
@@ -2881,6 +2897,9 @@ public final class Delegate
                 }
                 catch (Exception ex)
                 {
+                    Collection<ServiceContext> ctx = sinfo.getReplyServiceContexts();
+                    interceptors.getInfo ().setReplyServiceContexts (ctx.toArray (new ServiceContext[ctx.size ()]));
+
                     if (interceptors != null && orb.hasRequestInterceptors())
                     {
                         try

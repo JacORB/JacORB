@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ -->
+<!-- Standalone context configuration. -->
+<!-- +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ -->
+
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:jaxws="http://cxf.apache.org/jaxws"
+	xmlns:ctx="http://www.springframework.org/schema/context" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+        http://cxf.apache.org/jaxws
+        http://cxf.apache.org/schemas/jaxws.xsd
+        http://www.springframework.org/schema/context
+        http://www.springframework.org/schema/context/spring-context-3.0.xsd">
+
+	<!-- +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ -->
+	<!-- cxf Imports -->
+	<!-- +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ -->
+
+	<import resource="classpath:META-INF/cxf/cxf.xml" />
+	<import resource="classpath:META-INF/cxf/cxf-extension-soap.xml" />
+
+	<!-- +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ -->
+	<!-- Service Endpoint configuration -->
+	<!-- +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ -->
+
+	<bean
+		id="serviceImpl"
+		class="org.jacorb.test.bugs.bug968.ReproServiceImpl"
+		>
+	</bean>
+
+	<jaxws:endpoint xmlns:tns="http://cxf.apache.org/bindings/corba/idl/repro"
+		id="ServerCorba"
+		implementor="#serviceImpl"
+		wsdlLocation="classpath:/repro.wsdl"
+		endpointName="tns:repro.ServiceCORBAPort"
+		serviceName="tns:repro.ServiceCORBAService"
+		address="file:///tmp/cxf-2B5EC0BB-B331-4F7D-AF69-BAE409982399.ior">
+	</jaxws:endpoint>
+</beans>

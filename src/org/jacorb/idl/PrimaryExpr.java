@@ -21,6 +21,7 @@ package org.jacorb.idl;
  */
 
 import java.io.PrintWriter;
+import java.util.logging.Level;
 
 /**
  * @author Gerald Brose
@@ -93,9 +94,9 @@ public class PrimaryExpr
         {
             ConstExprEvaluator eval =
                 new ConstExprEvaluator( ConstDecl.namedValue( (ScopedName)symbol ));
-            if( logger.isDebugEnabled() )
+            if( parser.logger.isLoggable(Level.ALL) )
             {
-                logger.debug( "PrimaryExpr: returning value " + eval.getValue().intValue());
+                parser.logger.log(Level.ALL, "PrimaryExpr: returning value " + eval.getValue().intValue());
             }
 
             return eval.getValue().intValue();

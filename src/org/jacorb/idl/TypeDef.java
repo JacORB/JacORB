@@ -27,6 +27,7 @@ package org.jacorb.idl;
 import java.io.PrintWriter;
 import java.util.Enumeration;
 import java.util.Vector;
+import java.util.logging.Level;
 
 public class TypeDef
     extends TypeDeclaration
@@ -69,11 +70,11 @@ public class TypeDef
     {
         if( enclosing_symbol != null && enclosing_symbol != s )
         {
-            if( logger.isErrorEnabled())
+            if( parser.logger.isLoggable(Level.SEVERE))
             {
-                logger.error( "Typedef.setEnclosingSymbol: was " +
-                              enclosing_symbol.getClass().getName() +
-                              " now: " + s.getClass().getName() );
+                parser.logger.log(Level.SEVERE, "Typedef.setEnclosingSymbol: was " +
+                  enclosing_symbol.getClass().getName() +
+                  " now: " + s.getClass().getName());
             }
 
             throw new RuntimeException( "Compiler Error: trying to reassign container for " +
