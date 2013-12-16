@@ -21,7 +21,6 @@ package org.jacorb.orb;
  */
 
 import org.omg.CORBA.BAD_PARAM;
-import org.omg.CORBA.NO_IMPLEMENT;
 import org.omg.CORBA.ORB;
 import org.omg.CORBA.Repository;
 import org.omg.CORBA.RepositoryHelper;
@@ -283,6 +282,11 @@ public class ServantDelegate
             _out = handler.createReply();
             _out.write_Object(self._get_component() );
         }
+        else if ("_repository_id".equals (method))
+        {
+            _out = handler.createReply();
+            _out.write_string(self._repository_id() );
+        }
         else
         {
             throw new BAD_PARAM("Unknown operation: " + method );
@@ -293,6 +297,6 @@ public class ServantDelegate
 
    public String repository_id (Servant self)
    {
-      throw new NO_IMPLEMENT ("NYI");
+       return this_object(self)._repository_id();
    }
 }

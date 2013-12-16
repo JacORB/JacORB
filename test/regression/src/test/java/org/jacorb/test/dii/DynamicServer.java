@@ -16,18 +16,26 @@ public class DynamicServer extends DynamicImplementation implements Configurable
     private final String[] ids = {DIIServerHelper.id()};
 
     // singleton ORB as any factory
-    org.omg.CORBA.ORB orb = null;
+    org.omg.CORBA.ORB orb = ORB.init();
 
     ServerDelegate delegate = new ServerDelegate();
 
     /** from Servant */
 
+    @Override
     public String[] _all_interfaces(org.omg.PortableServer.POA poa,
                                     byte[] objectId)
     {
         return ids;
     }
 
+    @Override
+    public String _repository_id ()
+    {
+        return ids[0];
+    }
+
+    @Override
     public void invoke(org.omg.CORBA.ServerRequest request)
     {
         String op = request.operation();
@@ -174,6 +182,13 @@ public class DynamicServer extends DynamicImplementation implements Configurable
         {
             throw new org.omg.CORBA.BAD_OPERATION("Object reference operations not implemented in example");
         }
+        else if( op.equals("_repository_id") )
+        {
+            Any s = orb.create_any();
+            s.type( orb.get_primitive_tc(org.omg.CORBA.TCKind.tk_string ));
+            s.insert_string(_repository_id());
+            request.set_result( s );
+        }
         else
         {
             throw new org.omg.CORBA.BAD_OPERATION(op + " not found.");
@@ -182,6 +197,6 @@ public class DynamicServer extends DynamicImplementation implements Configurable
 
     public void configure(Configuration arg0) throws ConfigurationException
     {
-        orb = ((org.jacorb.config.Configuration)arg0).getORB();
+        orb = arg0.getORB();
     }
 }
