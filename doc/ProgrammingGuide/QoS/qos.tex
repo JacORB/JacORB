@@ -105,6 +105,14 @@ additional overhead, it is unlikely that \emph{SYNC\_NONE} yields a
 significant performance gain for the client, not even on a
 multiprocessor machine.
 
+The default mechanism can be configured by setting the property
+\emph{jacorb.default\_sync\_scope} to a value corresponding to one of the
+policy values shown above. \emph{None} for SYNC\_NONE, \emph{Transport}
+for SYNC\_WITH\_TRANSPORT, \emph{Server} for SYNC\_WITH\_SERVER, or \emph{Target}
+for SYNC\_WITH\_TARGET. The preferred mechanism is to set the scope via an
+application policy, however this property may be useful if a global scope change
+is required in a deployed application where a coding change is not an option.
+
 \section{Timing Policies}
 
 For each CORBA request four different points in time can be specified:

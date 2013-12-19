@@ -986,7 +986,8 @@ public final class Delegate
         {
             return ((org.omg.Messaging.SyncScopePolicy)policy).synchronization();
         }
-        return org.omg.Messaging.SYNC_WITH_TRANSPORT.value;
+        return orb.getDefaultSyncScope ();
+        //        return org.omg.Messaging.SYNC_WITH_TRANSPORT.value;
     }
 
     public org.omg.RTCORBA.Protocol[] getClientProtocols ()

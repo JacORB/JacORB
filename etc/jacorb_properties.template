@@ -347,6 +347,11 @@ jacorb.cacheTypecodes=off
 # Cache poa names
 jacorb.cachePoaNames=off
 
+# Supply an alternative default sync scope to avoid the use of the SyncScope policy
+# valid values are None, Transport, Server, and Target. If unspecified, Transport
+# is used.
+#jacorb.default_sync_scope=Transport
+
 # Disable client side ORB policies for speed.
 jacorb.disableClientOrbPolicies=off
 
