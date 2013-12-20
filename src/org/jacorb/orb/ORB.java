@@ -104,11 +104,7 @@ import org.omg.Messaging.REQUEST_END_TIME_POLICY_TYPE;
 import org.omg.Messaging.REQUEST_PRIORITY_POLICY_TYPE;
 import org.omg.Messaging.REQUEST_START_TIME_POLICY_TYPE;
 import org.omg.Messaging.ROUTING_POLICY_TYPE;
-import org.omg.Messaging.SYNC_NONE;
 import org.omg.Messaging.SYNC_SCOPE_POLICY_TYPE;
-import org.omg.Messaging.SYNC_WITH_SERVER;
-import org.omg.Messaging.SYNC_WITH_TARGET;
-import org.omg.Messaging.SYNC_WITH_TRANSPORT;
 import org.omg.PortableInterceptor.Current;
 import org.omg.PortableInterceptor.InvalidSlot;
 import org.omg.PortableInterceptor.ORBInitInfo;
@@ -255,8 +251,6 @@ public final class ORB
 
     private boolean inORBInitializer;
 
-    private short defaultSyncScope;
-
     /**
      * 4.5.3.3
      *
@@ -400,21 +394,6 @@ public final class ORB
 
         poolManagerFactory = new RPPoolManagerFactory(this);
 
-        String defss = configuration.getAttribute("jacorb.default_sync_scope","Transport");
-        defaultSyncScope = org.omg.Messaging.SYNC_WITH_TRANSPORT.value;
-        if (defss != null)
-          {
-            if (defss.equals("None"))
-              defaultSyncScope = org.omg.Messaging.SYNC_NONE.value;
-            else if (defss.equals("Server"))
-              defaultSyncScope = org.omg.Messaging.SYNC_WITH_SERVER.value;
-            else if (defss.equals("Target"))
-              defaultSyncScope = org.omg.Messaging.SYNC_WITH_TARGET.value;
-            else if (!defss.equals("Transport"))
-              {
-                logger.debug ("Unrecognized sync scope, " + defss + " using SYNC_WITH_TRANSPORT");
-              }
-          }
     }
 
     /**
@@ -3087,10 +3066,5 @@ public final class ORB
     public int getGIOPMinorVersion()
     {
         return giopMinorVersion;
-    }
-
-    public short getDefaultSyncScope()
-    {
-        return defaultSyncScope;
     }
 }
