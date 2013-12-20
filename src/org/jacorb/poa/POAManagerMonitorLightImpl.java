@@ -58,7 +58,7 @@ public class POAManagerMonitorLightImpl
     {
         this.configuration = (org.jacorb.config.Configuration)myConfiguration;
 
-        logger = configuration.getLogger("jacorb.poa.manager_monitor");
+        logger = configuration.getLogger("org.jacorb.poa.manager_monitor");
         doMonitor = configuration.getAttributeAsBoolean("jacorb.poa.monitoring",false);
     }
 
@@ -95,10 +95,3 @@ public class POAManagerMonitorLightImpl
     public void setToInactive(boolean wait, boolean etherialize) {
     }
 }
-
-
-
-
-
-
-

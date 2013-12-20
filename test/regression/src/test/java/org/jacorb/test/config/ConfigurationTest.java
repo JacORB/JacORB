@@ -58,18 +58,6 @@ public class ConfigurationTest
     }
 
     /**
-     * Simply a unit test of method JacORBConfiguration.getLoggerName()
-     */
-    @Test
-    public void testGetLoggerName() throws Exception
-    {
-        ORB orb = ORB.init(new String[] {}, null);
-        Configuration config = JacORBConfiguration.getConfiguration(new Properties(), orb, false);
-        assertEquals("jacorb.test.config", config.getLoggerName(getClass()));
-        orb.destroy();
-    }
-
-    /**
      * Place an orb.properties file on the classpath and verify that it gets
      * loaded by the ORB.
      */

@@ -194,7 +194,7 @@ public abstract class GIOPConnection
 
         buf_mg = orb.getBufferManager();
 
-        logger = configuration.getLogger("jacorb.giop.conn");
+        logger = configuration.getLogger("org.jacorb.giop.conn");
 
         dump_incoming =
             configuration.getAttributeAsBoolean("jacorb.debug.dump_incoming_messages", false);

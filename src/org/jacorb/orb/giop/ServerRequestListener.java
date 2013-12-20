@@ -65,7 +65,7 @@ public class ServerRequestListener
         throws ConfigurationException
     {
         logger =
-            configuration.getLogger("jacorb.giop.server.listener");
+            configuration.getLogger("org.jacorb.giop.server.listener");
 
         boolean supportSSL = configuration.getAttributeAsBoolean("jacorb.security.support_ssl",false);
 

@@ -40,7 +40,7 @@ public class CurrentServerImpl extends CurrentServerPOA {
 
         if (orb != null)
             logger_ = ((org.jacorb.orb.ORB) orb).getConfiguration ()
-                                                .getLogger ("jacorb.test.transport");
+                                                .getLogger("org.jacorb.test.transport");
         else
             logger_ = null;
 

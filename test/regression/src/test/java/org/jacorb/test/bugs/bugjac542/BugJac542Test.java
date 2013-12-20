@@ -41,7 +41,7 @@ public class BugJac542Test
         MockControl configControl = MockControl.createControl(Configuration.class);
         Configuration configMock = (Configuration) configControl.getMock();
         
-        configControl.expectAndReturn(configMock.getLogger("jacorb.iiop.address"), new MyNullLogger());
+        configControl.expectAndReturn(configMock.getLogger("org.jacorb.iiop.address"), new MyNullLogger());
         configControl.expectAndReturn(configMock.getAttributeAsBoolean("jacorb.dns.enable", false), true);
         configControl.expectAndReturn(configMock.getAttributeAsBoolean("jacorb.dns.force_lookup", true), true);
         configControl.expectAndReturn(configMock.getAttributeAsBoolean("jacorb.ipv6.hide_zoneid", true), true);

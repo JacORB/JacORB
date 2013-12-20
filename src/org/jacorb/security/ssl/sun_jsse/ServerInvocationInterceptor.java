@@ -74,7 +74,7 @@ public class ServerInvocationInterceptor
     public void configure(Configuration configuration)
         throws ConfigurationException
     {
-        logger = configuration.getLogger("jacorb.security.ssl.interceptor");
+        logger = configuration.getLogger("org.jacorb.security.ssl.interceptor");
 
         serverSupportedOptions = configuration.getAttributeAsInteger("jacorb.security.ssl.server.supported_options", 0x20, 16); // 16 is the base as we take the string value as hex!
 

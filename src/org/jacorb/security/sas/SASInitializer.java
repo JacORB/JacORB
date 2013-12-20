@@ -52,7 +52,7 @@ public class SASInitializer
         org.jacorb.orb.ORB orb =
             ((org.jacorb.orb.portableInterceptor.ORBInitInfoImpl)info).getORB ();
         logger =
-            orb.getConfiguration().getLogger("jacorb.security.sas.log.verbosity");
+            orb.getConfiguration().getLogger("org.jacorb.security.sas.log.verbosity");
 
         // install the TSS interceptor
         try

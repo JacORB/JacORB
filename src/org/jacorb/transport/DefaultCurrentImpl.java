@@ -53,7 +53,7 @@ public class DefaultCurrentImpl extends LocalObject implements Current, Transpor
 
     public void configure(Configuration configuration) throws ConfigurationException {
 
-       logger_ = configuration.getLogger ("jacorb.transport.current");
+       logger_ = configuration.getLogger("org.jacorb.transport.current");
 
         // Plug-in a statistics provider, we know how to use
         List statsProviderClassNames =

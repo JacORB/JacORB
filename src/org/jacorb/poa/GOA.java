@@ -62,7 +62,7 @@ public class GOA extends org.jacorb.poa.POA implements org.omg.PortableGroup.GOA
       super (orb, name, parent, manager, policies);
 
       Factories f = orb.getTransportManager ().getFactories (TAG_UIPMC.value);
-      logger = orb.getConfiguration ().getLogger("jacorb.poa");
+      logger = orb.getConfiguration ().getLogger("org.jacorb.poa");
 
       if ( f != null)
       {

@@ -106,7 +106,7 @@ public class BufferManager extends AbstractBufferManager
      */
     public BufferManager(Configuration configuration)
     {
-        logger = configuration.getLogger ("jacorb.orb.buffermanager");
+        logger = configuration.getLogger("org.jacorb.orb.buffermanager");
 
         try
         {

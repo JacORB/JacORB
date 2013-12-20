@@ -175,7 +175,7 @@ public class RepositoryImpl
         throws ConfigurationException
     {
         this.configuration = (org.jacorb.config.Configuration)myConfiguration;
-        this.logger = configuration.getLogger("jacorb.ir");
+        this.logger = configuration.getLogger("org.jacorb.ir");
         patchPragmaPrefix = configuration.getAttributeAsBoolean("jacorb.ir.patch_pragma_prefix", false);
     }
 

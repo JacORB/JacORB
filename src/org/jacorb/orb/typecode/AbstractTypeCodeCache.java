@@ -87,6 +87,6 @@ public abstract class AbstractTypeCodeCache implements TypeCodeCache, Configurab
 
     public void configure(Configuration configuration) throws ConfigurationException
     {
-        logger = ((org.jacorb.config.Configuration)configuration).getLogger("jacorb.orb.cdr");
+        logger = ((org.jacorb.config.Configuration)configuration).getLogger("org.jacorb.orb.cdr");
     }
 }

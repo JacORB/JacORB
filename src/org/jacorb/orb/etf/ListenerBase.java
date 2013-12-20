@@ -99,11 +99,10 @@ public abstract class ListenerBase
     public void configure(Configuration config)
         throws ConfigurationException
     {
-        configuration = (org.jacorb.config.Configuration)config;
+        configuration = config;
 
         orb = configuration.getORB();
-
-        logger = configuration.getLogger(configuration.getLoggerName(this.getClass()));
+        logger = configuration.getLogger(getClass().getName());
     }
 
     /**
@@ -193,7 +192,7 @@ public abstract class ListenerBase
             }
             if (!terminated)
             {
-                return (Connection)incoming_connections.remove (0);
+                return incoming_connections.remove (0);
             }
 
             return null;

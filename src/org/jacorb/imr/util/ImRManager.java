@@ -63,7 +63,7 @@ public class ImRManager
                 AdminHelper.narrow( orb.resolve_initial_references("ImplementationRepository"));
 
             Configuration config = ((org.jacorb.orb.ORB)orb).getConfiguration();
-            Logger logger = config.getLogger("jacorb.imr.manager");
+            Logger logger = config.getLogger("org.jacorb.imr.manager");
 
             ServerInfo info = null;
 
@@ -644,7 +644,7 @@ public class ImRManager
         }
 
         m_orb = (org.jacorb.orb.ORB) org.omg.CORBA.ORB.init(args, null);
-        logger = m_orb.getConfiguration().getLogger("jacorb.imr.manager");
+        logger = m_orb.getConfiguration().getLogger("org.jacorb.imr.manager");
 
         try
         {
@@ -684,11 +684,3 @@ public class ImRManager
     }
 
 } // ImRManager
-
-
-
-
-
-
-
-

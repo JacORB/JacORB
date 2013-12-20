@@ -74,7 +74,7 @@ public class NameServer
     {
         configuration = (org.jacorb.config.Configuration)myConfiguration;
         logger =
-            configuration.getLogger("jacorb.naming");
+            configuration.getLogger("org.jacorb.naming");
 
         printIOR = configuration.getAttributeAsBoolean("jacorb.naming.print_ior", false);
 
@@ -128,7 +128,7 @@ public class NameServer
         public void configure(Configuration myConfiguration)
         {
             this.configuration = (org.jacorb.config.Configuration)myConfiguration;
-            this.logger = configuration.getLogger("jacorb.naming.activator");
+            this.logger = configuration.getLogger("org.jacorb.naming.activator");
         }
 
 

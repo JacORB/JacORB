@@ -451,7 +451,7 @@ public final class ORB
             return;
         }
 
-        Logger versionLogger = configuration.getLogger("jacorb.orb.print_version");
+        Logger versionLogger = configuration.getLogger("org.jacorb.orb.print_version");
 
         versionLogger.info
         (

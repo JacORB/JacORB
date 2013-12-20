@@ -72,7 +72,7 @@ public class POAMonitorLightImpl
         throws ConfigurationException
     {
         this.configuration = (org.jacorb.config.Configuration)myConfiguration;
-        logger = configuration.getLogger("jacorb.poa.monitor");
+        logger = configuration.getLogger("org.jacorb.poa.monitor");
         doMonitor =
             configuration.getAttributeAsBoolean("jacorb.poa.monitoring",false);
     }

@@ -45,7 +45,7 @@ public class PolicyManagerTest
         final MockControl configControl = MockControl.createControl(Configuration.class);
         final Configuration configMock = (Configuration) configControl.getMock();
 
-        configControl.expectAndReturn(configMock.getLogger("jacorb.orb.policies"), new NullLogger());
+        configControl.expectAndReturn(configMock.getLogger("org.jacorb.orb.policies"), new NullLogger());
 
         configControl.replay();
 

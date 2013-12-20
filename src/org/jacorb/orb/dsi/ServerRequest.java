@@ -114,7 +114,7 @@ public class ServerRequest
 
         this.orb = orb;
         Configuration config = orb.getConfiguration();
-        this.logger = config.getLogger("jacorb.org.giop");
+        this.logger = config.getLogger("org.jacorb.org.giop");
         this.cachePoaNames = config.getAttributeAsBoolean("jacorb.cachePoaNames", false);
 
         this.inputStream = inStream;

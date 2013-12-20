@@ -60,7 +60,7 @@ public class ServerContextTransferInterceptor
         this.ts_current = ts_current;
         this.orb = orb;
         this.logger =
-            ((org.jacorb.orb.ORB)orb).getConfiguration().getLogger("jacorb.tx_service.interceptor");
+            ((org.jacorb.orb.ORB)orb).getConfiguration().getLogger("org.jacorb.tx_service.interceptor");
     }
 
     // implementation of org.omg.PortableInterceptor.InterceptorOperations interface
@@ -131,5 +131,3 @@ public class ServerContextTransferInterceptor
         ts_current.suspend();
     }
 } // ServerContextTransferInterceptor
-
-

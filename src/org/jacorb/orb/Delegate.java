@@ -368,10 +368,9 @@ public final class Delegate
 
         selectorManager = orb.getSelectorManager ();
 
-        logger = config.getLogger("jacorb.orb.delegate");
+        logger = config.getLogger("org.jacorb.orb.delegate");
         useJacORBIMR =
             config.getAttributeAsBoolean("jacorb.use_imr", false);
-
 
         useTaoIMR =
             config.getAttributeAsBoolean("jacorb.use_tao_imr", false);

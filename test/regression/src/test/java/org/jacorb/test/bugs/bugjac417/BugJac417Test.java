@@ -58,7 +58,7 @@ public class BugJac417Test extends ORBTestCase
         configMock = (Configuration) configControl.getMock();
 
         configControl.expectAndReturn(configMock.getORB(), orb );
-        configControl.expectAndReturn(configMock.getLogger("jacorb.orb.factory"), new MyNullLogger() );
+        configControl.expectAndReturn(configMock.getLogger("org.jacorb.orb.factory"), new MyNullLogger() );
         configControl.expectAndReturn(configMock.getAttributeAsObject(SocketFactoryManager.TCP_LISTENER, NullTCPConnectionListener.class.getName()), new NullTCPConnectionListener());
         configControl.expectAndReturn(configMock.getAttributeAsBoolean(SocketFactoryManager.SUPPORT_SSL, false), false);
     }

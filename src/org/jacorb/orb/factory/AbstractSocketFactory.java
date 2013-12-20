@@ -45,7 +45,7 @@ public abstract class AbstractSocketFactory implements SocketFactory, Configurab
     {
         org.jacorb.config.Configuration config = (org.jacorb.config.Configuration) configuration;
 
-        logger = config.getLogger("jacorb.orb.socketfactory");
+        logger = config.getLogger("org.jacorb.orb.socketfactory");
     }
 
     /**

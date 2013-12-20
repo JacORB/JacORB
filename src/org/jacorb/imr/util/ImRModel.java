@@ -95,7 +95,7 @@ public class ImRModel
     {
     m_orb = (org.jacorb.orb.ORB)org.omg.CORBA.ORB.init(new String[0], null);
         configuration = m_orb.getConfiguration();
-        logger = configuration.getLogger("jacorb.imr.model");
+        logger = configuration.getLogger("org.jacorb.imr.model");
 
         try
         {

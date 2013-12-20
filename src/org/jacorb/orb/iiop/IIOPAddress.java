@@ -142,7 +142,7 @@ public class IIOPAddress
         super.configure(configuration);
 
 
-        logger = this.configuration.getLogger("jacorb.iiop.address");
+        logger = this.configuration.getLogger("org.jacorb.iiop.address");
         dnsEnabled =
             configuration.getAttributeAsBoolean("jacorb.dns.enable", false);
         hideZoneID =

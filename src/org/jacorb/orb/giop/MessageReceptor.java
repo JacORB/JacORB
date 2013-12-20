@@ -38,7 +38,7 @@ public class MessageReceptor
 
     public MessageReceptor(Configuration configuration)
     {
-        logger = configuration.getLogger("jacorb.orb.giop");
+        logger = configuration.getLogger("org.jacorb.orb.giop");
         enhanceThreadName = configuration.getAttributeAsBoolean("jacorb.enhanced_thread_name", false);
     }
 

@@ -46,6 +46,11 @@
 ============
     - ORB
          - Default Sync scope for oneways is now configurable via jacorb.default_sync_scope property.
+    - Misc
+         - Fix logging to be consistent throughout the ORB and Services.
+         - Add ability to configure the 'clock' format in the logging to be
+           NONE, TIME or DATE_TIME. Default is NONE.
+         - Improved Logging documentation.
 
 3.4-Beta
 ========
