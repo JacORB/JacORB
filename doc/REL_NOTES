@@ -60,6 +60,7 @@
          - Fix for servicecontext propagation (BZ960)
          - Fix for streamable any (BZ968)
          - Release target object after DII invocation.
+         - Default Sync scope for oneways is now configurable via jacorb.default_sync_scope property.
     - IDL
          - Fix for logging.
          - Fix for Struct with String typedef type to be output as initialised type.
