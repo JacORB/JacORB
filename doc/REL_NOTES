@@ -42,6 +42,11 @@
 
 ( Note: For commit history see https://github.com/JacORB/JacORB )
 
+3.4-SNAPSHOT
+============
+    - ORB
+         - Default Sync scope for oneways is now configurable via jacorb.default_sync_scope property.
+
 3.4-Beta
 ========
     - ORB

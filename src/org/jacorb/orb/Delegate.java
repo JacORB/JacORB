@@ -244,6 +244,40 @@ public final class Delegate
        SERVANT_PREINVOKE
     };
 
+    private static enum SyncScope
+    {
+        NONE (org.omg.Messaging.SYNC_NONE.value),
+        TRANSPORT (org.omg.Messaging.SYNC_WITH_TRANSPORT.value),
+        SERVER (org.omg.Messaging.SYNC_WITH_SERVER.value),
+        TARGET (org.omg.Messaging.SYNC_WITH_TARGET.value);
+
+        public static SyncScope getSyncScope (String ss) throws ConfigurationException
+        {
+            try
+            {
+                return valueOf (ss.toUpperCase ());
+            }
+            catch (IllegalArgumentException e)
+            {
+                throw new ConfigurationException ("Invalid type for SyncScope", e);
+            }
+        }
+
+        public short getType ()
+        {
+            return value;
+        }
+
+        private short value;
+
+        private SyncScope(short value)
+        {
+            this.value = value;
+        }
+    };
+
+    private SyncScope defaultSyncScope = SyncScope.TRANSPORT;
+
     /**
      * 03-09-04: 1.5.2.2
      *
@@ -380,6 +414,16 @@ public final class Delegate
         {
             logger.error ("Configuration exception retrieving giop minor version", ex);
             throw new INTERNAL ("Configuration exception retrieving giop minor version" + ex);
+        }
+
+        try
+        {
+            defaultSyncScope = SyncScope.getSyncScope (configuration.getAttribute("jacorb.default_sync_scope","TRANSPORT"));
+        }
+        catch (ConfigurationException ex)
+        {
+            logger.error ("Configuration exception retrieving default sync scope ", ex);
+            throw new INTERNAL ("Configuration exception retrieving default sync scope " + ex);
         }
 
         // standard initialization
@@ -986,7 +1030,7 @@ public final class Delegate
         {
             return ((org.omg.Messaging.SyncScopePolicy)policy).synchronization();
         }
-        return org.omg.Messaging.SYNC_WITH_TRANSPORT.value;
+        return defaultSyncScope.getType();
     }
 
     public org.omg.RTCORBA.Protocol[] getClientProtocols ()
