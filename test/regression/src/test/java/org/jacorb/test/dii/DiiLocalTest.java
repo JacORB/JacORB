@@ -6,17 +6,15 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import java.lang.reflect.Field;
 import java.util.HashMap;
-import java.util.Properties;
+import org.jacorb.config.Configurable;
 import org.jacorb.orb.Delegate;
 import org.jacorb.orb.giop.ClientConnection;
 import org.jacorb.orb.giop.ClientConnectionManager;
-import org.jacorb.test.common.ClientServerSetup;
-import org.jacorb.test.common.ClientServerTestCase;
+import org.jacorb.test.common.ORBTestCase;
 import org.jacorb.test.dii.DIIServerPackage.DIIException;
 import org.jacorb.test.dii.DIIServerPackage.DIIExceptionHelper;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.omg.CORBA.Any;
 import org.omg.CORBA.BAD_INV_ORDER;
@@ -30,33 +28,23 @@ import org.omg.ETF.Profile;
  *
  * @author Alphonse Bendt
  */
-public class DiiTest extends ClientServerTestCase
+public class DiiLocalTest extends ORBTestCase
 {
     private org.omg.CORBA.Object server;
-    private org.omg.CORBA.ORB orb;
-
-    @BeforeClass
-    public static void beforeClassSetUp() throws Exception
-    {
-        Properties props = new Properties();
-
-        setup = new ClientServerSetup(DynamicServer.class.getName(), props, props);
-
-    }
 
     @Before
     public void setUp() throws Exception
     {
-        server = setup.getServerObject();
-        orb = setup.getClientOrb();
+        DynamicServer ds = new DynamicServer();
+        ((Configurable)ds).configure (((org.jacorb.orb.ORB)orb).getConfiguration());
+        server = rootPOA.servant_to_reference(ds);
     }
 
 
     @After
     public void tearDown() throws Exception
     {
-        server = null;
-        orb = null;
+        server._release();
     }
 
 
