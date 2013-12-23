@@ -87,7 +87,7 @@ public class SocketFactoryManager
         throws ConfigurationException
     {
         configuration = (org.jacorb.config.Configuration)config;
-        logger = configuration.getLogger("jacorb.orb.factory");
+        logger = configuration.getLogger("org.jacorb.orb.factory");
         serverSocketFactoryClassName = configuration.getAttribute(SERVER_SOCKET_FACTORY, DefaultServerSocketFactory.class.getName());
 
         orb = configuration.getORB();

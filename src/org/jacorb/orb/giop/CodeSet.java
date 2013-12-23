@@ -88,7 +88,7 @@ public class CodeSet
     /**
      * <code>logger</code> is the static logger for Codeset.
      */
-    private static Logger logger = LoggerFactory.getLogger("jacorb.codeset");
+    private static Logger logger = LoggerFactory.getLogger("org.jacorb.codeset");
 
     /** static flag that keeps track of the configuration status. */
     private static boolean isConfigured = false;
@@ -167,7 +167,7 @@ public class CodeSet
                 logger.info ("Set default native wchar codeset to " + codeset);
           }
 
-            logger = config.getLogger("jacorb.codeset");
+            logger = config.getLogger("org.jacorb.codeset");
             isConfigured = true;
         }
         else

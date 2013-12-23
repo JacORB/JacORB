@@ -27,7 +27,7 @@ public class RPPoolManagerFactory
     {
         this.orb = orb;
         configuration = orb.getConfiguration();
-        logger = configuration.getLogger("jacorb.poa.controller");
+        logger = configuration.getLogger("org.jacorb.poa.controller");
 
         threadPoolMin =
             configuration.getAttributeAsInteger("jacorb.poa.thread_pool_min", 5);

@@ -57,7 +57,7 @@ public class TransactionInitializer
             ORB orb = ((org.jacorb.orb.portableInterceptor.ORBInitInfoImpl)info).getORB();
             Logger logger = 
               ((org.jacorb.orb.ORB)orb).getConfiguration()
-                                       .getLogger("jacorb.tx_service");
+                                       .getLogger("org.jacorb.tx_service");
             slot_id = info.allocate_slot_id();
             
             Encoding encoding = new Encoding(ENCODING_CDR_ENCAPS.value, 
@@ -87,4 +87,3 @@ public class TransactionInitializer
     }
     
 } // TransactionInitializer
-

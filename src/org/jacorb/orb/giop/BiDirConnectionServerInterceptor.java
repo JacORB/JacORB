@@ -53,7 +53,7 @@ public class BiDirConnectionServerInterceptor
         super();
 
         this.orb = orb;
-        this.logger = orb.getConfiguration().getLogger("jacorb.giop.bidir.interceptor");
+        this.logger = orb.getConfiguration().getLogger("org.jacorb.giop.bidir.interceptor");
         conn_mg = orb.getClientConnectionManager();
     }
 

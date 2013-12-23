@@ -130,7 +130,7 @@ public final class ReplyReceiver
     {
        super.configure (configuration);
 
-        logger = configuration.getLogger("jacorb.orb.rep_recv");
+        logger = configuration.getLogger("org.jacorb.orb.rep_recv");
         retry_on_failure = configuration.getAttributeAsBoolean("jacorb.connection.client.retry_on_failure", false);
     }
 

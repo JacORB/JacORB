@@ -38,7 +38,7 @@ import org.slf4j.Logger;
  * @author Alphonse Bendt
  */
 public class JDKLoggerTest
-{    
+{
 	private String logDirectory = null;
 
     /**
@@ -56,8 +56,7 @@ public class JDKLoggerTest
         props.put ("jacorb.log.default.verbosity", "1");
 
         ORB orb = ORB.init (new String[]{}, props);
-        Logger orbLogger = ((org.jacorb.orb.ORB)orb).getConfiguration()
-                                                    .getLogger("jacorb");
+        Logger orbLogger = ((org.jacorb.orb.ORB)orb).getConfiguration().getLogger("org.jacorb");
         orbLogger.error("this is a test message");
 
         assertFileExists (getLogFilename("jacorb.log"));
@@ -83,8 +82,7 @@ public class JDKLoggerTest
         props.put ("jacorb.log.default.verbosity", "1");
 
         ORB orb = ORB.init (new String[]{}, props);
-        Logger orbLogger = ((org.jacorb.orb.ORB)orb).getConfiguration()
-                                                    .getLogger("jacorb");
+        Logger orbLogger = ((org.jacorb.orb.ORB)orb).getConfiguration().getLogger("org.jacorb");
         orbLogger.error("this is a test message");
 
         assertFileExists (getLogFilename("jacorb-myimpl.log"));
@@ -100,17 +98,17 @@ public class JDKLoggerTest
      * Disabling this test for now and JDK logger behaves strangely with multiple loggers/ORB
      * - the most recent ORB(full or singleton) takes over the logging.
      */
-    public void XXXtestLogFileSingleton() throws Exception
+    @Test
+    public void testLogFileSingleton() throws Exception
     {
         purgeLogDirectory();
 
         Properties oldProps = System.getProperties();
 
-        Properties props = new Properties();
+        Properties props = new Properties(oldProps);
         props.put ("org.omg.CORBA.ORBClass", "org.jacorb.orb.ORB");
         props.put ("org.omg.CORBA.ORBSingletonClass", "org.jacorb.orb.ORBSingleton");
-        props.put ("jacorb.logfile", getLogDirectory() + File.separatorChar);
-        props.put ("jacorb.logfile.singleton", "jacorb-singleton");
+        props.put ("jacorb.logfile", getLogDirectory());
         props.put ("jacorb.log.default.verbosity", "1");
         props.put ("jacorb.orb.singleton.log.verbosity", "1");
         System.setProperties(props);
@@ -131,14 +129,17 @@ public class JDKLoggerTest
             fail ("no log file");
         }
 
-        for (int i = 0; i < files.length; ++i) {
-            if (files[i].startsWith("jacorb-singleton"))
+        for (int i = 0; i < files.length; ++i)
+        {
+            if (files[i].startsWith("orbsingleton") &&
+                !files[i].endsWith(".lck") )
             {
                 file = files[i];
                 break;
             }
         }
-        if (file == null) {
+        if (file == null)
+        {
             fail ("no singleton log file found");
         }
 
@@ -149,8 +150,8 @@ public class JDKLoggerTest
         );
         String line = in.readLine();
         in.close();
-        assertNotNull(line);
-        if (!line.matches(".*?jacorb\\.orb\\.singleton.*?this is a test message"))
+        assertNotNull("Line from " + logFile + " was null", line);
+        if (!line.matches(".*this is a test message"))
         {
             fail ("log file does not have correct content");
         }
@@ -175,16 +176,14 @@ public class JDKLoggerTest
 
         ORB orb = ORB.init (new String[]{}, props);
 
-        Logger orbLogger = ((org.jacorb.orb.ORB)orb).getConfiguration()
-                                                    .getLogger("jacorb");
+        Logger orbLogger = ((org.jacorb.orb.ORB)orb).getConfiguration().getLogger("org.jacorb");
         orbLogger.error("testLogFileAppend this is the first test message");
 
         orb.shutdown(true);
         ((org.jacorb.config.JacORBConfiguration)((org.jacorb.orb.ORB)orb).getConfiguration()).shutdownLogging();
 
         orb = ORB.init (new String[]{}, props);
-        orbLogger = ((org.jacorb.orb.ORB)orb).getConfiguration()
-                                             .getLogger("jacorb");
+        orbLogger = ((org.jacorb.orb.ORB)orb).getConfiguration().getLogger("org.jacorb");
         orbLogger.error("testLogFileAppend this is the second test message");
 
         assertFileExists (getLogFilename("jacorb.log"));
@@ -214,15 +213,13 @@ public class JDKLoggerTest
 
         ORB orb = ORB.init (new String[]{}, props);
 
-        Logger orbLogger = ((org.jacorb.orb.ORB)orb).getConfiguration()
-                                                    .getLogger("jacorb");
+        Logger orbLogger = ((org.jacorb.orb.ORB)orb).getConfiguration().getLogger("org.jacorb");
         orbLogger.error("testLogFileNotAppend this is the first test message");
         orb.shutdown(true);
         ((org.jacorb.config.JacORBConfiguration)((org.jacorb.orb.ORB)orb).getConfiguration()).shutdownLogging();
 
         orb = ORB.init (new String[]{}, props);
-        orbLogger = ((org.jacorb.orb.ORB)orb).getConfiguration()
-                                             .getLogger("jacorb");
+        orbLogger = ((org.jacorb.orb.ORB)orb).getConfiguration().getLogger("org.jacorb");
         orbLogger.error("testLogFileNotAppend this is the second test message");
 
         assertFileExists (getLogFilename("jacorb.log"));
@@ -252,8 +249,7 @@ public class JDKLoggerTest
         props.put ("jacorb.logfile.rotateCount", "4");
 
         ORB orb = ORB.init (new String[]{}, props);
-        Logger orbLogger = ((org.jacorb.orb.ORB)orb).getConfiguration()
-                                                    .getLogger("jacorb");
+        Logger orbLogger = ((org.jacorb.orb.ORB)orb).getConfiguration().getLogger("org.jacorb");
         for (int i=0; i<82; i++)
             orbLogger.error("this is a test message");
 
@@ -265,6 +261,86 @@ public class JDKLoggerTest
         assertFileExists (getLogFilename("jacorb.log.1"));
         assertFileExists (getLogFilename("jacorb.log.2"));
         assertFileExists (getLogFilename("jacorb.log.3"));
+
+        purgeLogDirectory();
+    }
+
+    /**
+     * Verify time is printed
+     */
+    @Test
+    public void testLogFileTime() throws Exception
+    {
+        purgeLogDirectory();
+
+        Properties props = new Properties();
+        props.put ("org.omg.CORBA.ORBClass", "org.jacorb.orb.ORB");
+        props.put ("org.omg.CORBA.ORBSingletonClass", "org.jacorb.orb.ORBSingleton");
+        props.put ("jacorb.logfile", getLogFilename("jacorb.log"));
+        props.put ("jacorb.log.default.verbosity", "1");
+        props.put ("jacorb.log.clockFormat", "TIME");
+
+        ORB orb = ORB.init (new String[]{}, props);
+        Logger orbLogger = ((org.jacorb.orb.ORB)orb).getConfiguration().getLogger("org.jacorb");
+        orbLogger.error("this is a test message");
+
+        assertFileExists (getLogFilename("jacorb.log"));
+        assertFileContains (getLogFilename("jacorb.log"),
+                            "[0-9][0-9]:[0-9][0-9]:[0-9][0-9] SEVERE.*?this is a test message");
+
+        purgeLogDirectory();
+    }
+
+
+    /**
+     * Verify we can configure clock format with a lower case
+     */
+    @Test
+    public void testLogFileTimeLowerCase() throws Exception
+    {
+        purgeLogDirectory();
+
+        Properties props = new Properties();
+        props.put ("org.omg.CORBA.ORBClass", "org.jacorb.orb.ORB");
+        props.put ("org.omg.CORBA.ORBSingletonClass", "org.jacorb.orb.ORBSingleton");
+        props.put ("jacorb.logfile", getLogFilename("jacorb.log"));
+        props.put ("jacorb.log.default.verbosity", "1");
+        props.put ("jacorb.log.clockFormat", "time");
+
+        ORB orb = ORB.init (new String[]{}, props);
+        Logger orbLogger = ((org.jacorb.orb.ORB)orb).getConfiguration().getLogger("org.jacorb");
+        orbLogger.error("this is a test message");
+
+        assertFileExists (getLogFilename("jacorb.log"));
+        assertFileContains (getLogFilename("jacorb.log"),
+                            "[0-9][0-9]:[0-9][0-9]:[0-9][0-9] SEVERE.*?this is a test message");
+
+        purgeLogDirectory();
+    }
+
+
+    /**
+     * Verify time and date is printed
+     */
+    @Test
+    public void testLogFileDateTime() throws Exception
+    {
+        purgeLogDirectory();
+
+        Properties props = new Properties();
+        props.put ("org.omg.CORBA.ORBClass", "org.jacorb.orb.ORB");
+        props.put ("org.omg.CORBA.ORBSingletonClass", "org.jacorb.orb.ORBSingleton");
+        props.put ("jacorb.logfile", getLogFilename("jacorb.log"));
+        props.put ("jacorb.log.default.verbosity", "1");
+        props.put ("jacorb.log.clockFormat", "DATE_TIME");
+
+        ORB orb = ORB.init (new String[]{}, props);
+        Logger orbLogger = ((org.jacorb.orb.ORB)orb).getConfiguration().getLogger("org.jacorb");
+        orbLogger.error("this is a test message");
+
+        assertFileExists (getLogFilename("jacorb.log"));
+        assertFileContains (getLogFilename("jacorb.log"),
+                            "[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9] [0-9][0-9]:[0-9][0-9]:[0-9][0-9].*SEVERE.*?this is a test message");
 
         purgeLogDirectory();
     }

@@ -118,7 +118,7 @@ public class Request
         this.context = context;
         result_value = (org.jacorb.orb.NamedValue)result;
 
-        logger = orb.getConfiguration().getLogger("jacorb.dii.request");
+        logger = orb.getConfiguration().getLogger("org.jacorb.dii.request");
     }
 
     public Request( org.omg.CORBA.Object target,
@@ -144,7 +144,7 @@ public class Request
         this.context = context;
         result_value = (org.jacorb.orb.NamedValue)result;
 
-        logger = orb.getConfiguration().getLogger("jacorb.dii.request");
+        logger = orb.getConfiguration().getLogger("org.jacorb.dii.request");
     }
 
     public org.omg.CORBA.Object target()

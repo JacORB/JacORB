@@ -68,7 +68,7 @@ public class DefaultAcceptorExceptionListener
                 // ignore
             }
         }
-        logger = ((org.jacorb.config.Configuration)configuration).getLogger("jacorb.orb.iiop");
+        logger = ((org.jacorb.config.Configuration)configuration).getLogger("org.jacorb.orb.iiop");
     }
 
     /**

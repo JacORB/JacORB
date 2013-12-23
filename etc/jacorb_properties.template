@@ -80,8 +80,14 @@ jacorb.orb.print_version=off
 # 4 = debug-level output (FINE)
 #jacorb.log.default.verbosity=3
 
-# If logging to file whether to append to existing file or overwrite
-#jacorb.logfile.append=off
+# Where does output go? Terminal is default. If the filename includes
+# "$implname", that is replaced with the value of jacorb.implname, if
+# that is defined, or "jacorb" otherwise.
+#jacorb.logfile=LOGFILEPATH
+
+# Append to existing logfile or overwrite. This property is only used if
+# jacorb.logfile is defined.
+#jacorb.logfile.append=false
 
 # Denotes the maximum size that may be written to the logfile in bytes.
 # A value of 0 implies no limit
@@ -98,14 +104,9 @@ jacorb.orb.print_version=off
 # Display class and method informaton in log messages.
 #jacorb.log.showSrcInfo=false
 
-# Where does output go? Terminal is default. If the filename includes
-# "$implname", that is replaced with the value of jacorb.implname, if
-# that is defined, or "jacorb" otherwise.
-#jacorb.logfile=LOGFILEPATH
+# In log messages print time, date/time or neither (TIME, DATE_TIME, NONE).
+#jacorb.log.clockFormat=NONE
 
-# append to existing logfile?  This property is only used if
-# jacorb.logfile is defined.
-#jacorb.logfile.append=false
 
 # Name of a class that is called to initialize the logging system
 # based on the JacORB configuration.  Needs to extend

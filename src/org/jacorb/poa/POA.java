@@ -260,7 +260,7 @@ public class POA
         throws ConfigurationException
     {
         this.configuration = myConfiguration;
-        logger = configuration.getLogger("jacorb.poa");
+        logger = configuration.getLogger("org.jacorb.poa");
 
         String tmp =
             configuration.getAttribute("jacorb.implname", "");

@@ -50,7 +50,7 @@ public class POAManagerMonitorImpl
         throws ConfigurationException
     {
         this.configuration = (org.jacorb.config.Configuration)myConfiguration;
-        logger = configuration.getLogger("jacorb.poa.manager_monitor");
+        logger = configuration.getLogger("org.jacorb.poa.manager_monitor");
     }
 
 

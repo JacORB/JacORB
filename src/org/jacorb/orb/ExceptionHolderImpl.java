@@ -123,7 +123,7 @@ public class ExceptionHolderImpl
         throws ConfigurationException
     {
         logger =
-            ((org.jacorb.config.Configuration)configuration).getLogger("jacorb.orb.exc_holder");
+            ((org.jacorb.config.Configuration)configuration).getLogger("org.jacorb.orb.exc_holder");
     }
 
 

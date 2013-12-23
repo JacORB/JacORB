@@ -69,7 +69,7 @@ public class AbstractIDLTestcase extends ORBTestCase
     {
         Assume.assumeFalse(TestUtils.isSSLEnabled);
 
-        parser.logger = Logger.getLogger("jacorb.idl");
+        parser.logger = Logger.getLogger("org.jacorb.idl");
         parser.logger.setLevel(Level.SEVERE);
 
         Formatter formatter = new Formatter() {

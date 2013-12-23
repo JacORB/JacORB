@@ -248,7 +248,7 @@ public class ParsedIOR
         super();
 
         this.orb = orb;
-        this.logger = this.orb.getConfiguration().getLogger("jacorb.orb.parsedior");
+        this.logger = this.orb.getConfiguration().getLogger("org.jacorb.orb.parsedior");
     }
 
     /**

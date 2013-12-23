@@ -140,7 +140,7 @@ public class ImplementationRepositoryImpl
     {
         configuration = myConfiguration;
 
-        logger = configuration.getLogger("jacorb.imr");
+        logger = configuration.getLogger("org.jacorb.imr");
 
         String defaultTableFile = "table.dat";
         String tableFileStr = configuration.getAttribute("jacorb.imr.table_file",

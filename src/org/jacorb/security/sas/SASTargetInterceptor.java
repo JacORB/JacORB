@@ -100,7 +100,7 @@ public class SASTargetInterceptor
         throws ConfigurationException
     {
         logger =
-            configuration.getLogger("jacorb.security.sas.TSS.log.verbosity");
+            configuration.getLogger("org.jacorb.security.sas.TSS.log.verbosity");
 
         useSsl =
             configuration.getAttribute("jacorb.security.sas.tss.requires_sas","false").equals("true");

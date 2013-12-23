@@ -80,7 +80,7 @@ public class POAMonitorImpl
         throws ConfigurationException
     {
         this.configuration = (org.jacorb.config.Configuration)myConfiguration;
-        logger = configuration.getLogger("jacorb.poa.monitor");
+        logger = configuration.getLogger("org.jacorb.poa.monitor");
 
         threadPoolMin =
             configuration.getAttributeAsInteger("jacorb.poa.thread_pool_min", 5);

@@ -53,7 +53,7 @@ public abstract class AbstractTransportCurrentInitializer extends LocalObject im
     { 
 
         ORB orb = ((org.jacorb.orb.portableInterceptor.ORBInitInfoImpl) info).getORB ();
-        logger_ = orb.getConfiguration().getLogger("jacorb.transport");
+        logger_ = orb.getConfiguration().getLogger("org.jacorb.transport");
         DefaultCurrentImpl impl = getCurrentImpl();
         try {
             impl.configure(orb.getConfiguration ());

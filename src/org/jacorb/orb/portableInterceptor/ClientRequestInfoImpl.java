@@ -96,7 +96,7 @@ public class ClientRequestInfoImpl
     {
         super(orb);
 
-        logger = orb.getConfiguration().getLogger("jacorb.orb.interceptors");
+        logger = orb.getConfiguration().getLogger("org.jacorb.orb.interceptors");
 
         this.operation = ros.operation();
         this.response_expected = ros.response_expected();
@@ -186,7 +186,7 @@ public class ClientRequestInfoImpl
     {
         super(orb);
 
-        logger = orb.getConfiguration().getLogger("jacorb.orb.interceptors");
+        logger = orb.getConfiguration().getLogger("org.jacorb.orb.interceptors");
 
         this.operation = operation;
         this.response_expected = response_expected;

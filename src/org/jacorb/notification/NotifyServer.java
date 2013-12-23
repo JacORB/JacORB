@@ -46,7 +46,7 @@ public class NotifyServer
     {
         configuration = (org.jacorb.config.Configuration)myConfiguration;
         logger = 
-            configuration.getLogger("jacorb.notify");
+            configuration.getLogger("org.jacorb.notify");
 
         fileName = 
             configuration.getAttribute("jacorb.notify.ior_filename", "./notify.ior");

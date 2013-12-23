@@ -53,7 +53,7 @@ public class SSLListenerUtil
          if (socket instanceof SSLSocket)
         {
              SSLSessionListener listener = orb.getTransportManager().getSocketFactoryManager().getSSLListener();
-             Logger logger = orb.getConfiguration().getLogger("jacorb.ssl.sessionlistener"); // TODO kategorie
+             Logger logger = orb.getConfiguration().getLogger("org.jacorb.ssl.sessionlistener"); // TODO kategorie
                 ((SSLSocket)socket).addHandshakeCompletedListener(new SSLHandshakeListener(logger, listener));
         }
     }
@@ -68,7 +68,7 @@ public class SSLListenerUtil
     public static void processException(ORB orb, IIOPConnection iiop, Socket socket, IOException ex)
     {
         final SSLSessionListener listener = orb.getTransportManager().getSocketFactoryManager().getSSLListener();
-        final Logger logger = orb.getConfiguration().getLogger("jacorb.ssl.sessionlistener"); // TODO kategorie
+        final Logger logger = orb.getConfiguration().getLogger("org.jacorb.ssl.sessionlistener"); // TODO kategorie
 
         String localhost = IIOPAddress.getLocalHostAddress(logger);
 

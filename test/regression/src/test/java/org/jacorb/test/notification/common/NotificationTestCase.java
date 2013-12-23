@@ -84,8 +84,7 @@ public abstract class NotificationTestCase
 
         container_ = PicoContainerFactory.createChildContainer(setup.getPicoContainer());
 
-        logger_ = getConfiguration().getLogger(getClass()
-                .getName()
+        logger_ = getConfiguration().getLogger(getClass().getName()
                 + "." + name.getMethodName());
 
         setUpTest();

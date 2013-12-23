@@ -74,7 +74,7 @@ public class FixedAddressSocketFactoryTest extends AbstractSocketFactoryTestCase
         MockControl configControl = MockControl
             .createControl(Configuration.class);
         Configuration configMock = (Configuration) configControl.getMock();
-        configControl.expectAndReturn(configMock.getLogger("jacorb.orb.socketfactory"), new NullLogger());
+        configControl.expectAndReturn(configMock.getLogger("org.jacorb.orb.socketfactory"), new NullLogger());
 
         if (name.startsWith("testSetLocalhost"))
         {

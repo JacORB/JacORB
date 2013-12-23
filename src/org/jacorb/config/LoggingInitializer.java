@@ -22,7 +22,6 @@ package org.jacorb.config;
 
 import java.text.SimpleDateFormat;
 import org.jacorb.orb.ORB;
-import org.jacorb.util.Version;
 
 /**
  * Can be subclassed to provide initialization of a backend logging system
@@ -39,6 +38,12 @@ public abstract class LoggingInitializer
     public static final String ATTR_LOG_ROTATE    = "jacorb.logfile.rotateCount";
     public static final String ATTR_LOG_THREAD_ID = "jacorb.log.showThread";
     public static final String ATTR_LOG_SRC_INFO  = "jacorb.log.showSrcInfo";
+    public static final String ATTR_LOG_CLOCK     = "jacorb.log.clockFormat";
+
+    /**
+     * Standard Logger name prefix
+     */
+    public static final String ATTR_LOG_NAME      = "org.jacorb";
 
     /**
      * If the given filename contains the string "$implname", replaces
@@ -57,8 +62,9 @@ public abstract class LoggingInitializer
         }
         else
         {
-            String serverId = Version.orbId; // reasonable default
+            String serverId;
             ORB orb = config.getORB();
+
             if (orb != null)
             {
                serverId = orb.getServerIdString();
@@ -66,7 +72,7 @@ public abstract class LoggingInitializer
             else
             {
                // If the ORB is null it must be a singleton ORB. So create a unique file name for it.
-               serverId = "orbsingleton" + (new SimpleDateFormat ("yyyyMdHms")).format (System.currentTimeMillis ());
+               serverId = "orbsingleton-" + (new SimpleDateFormat ("yyyyMdHms")).format (System.currentTimeMillis ());
             }
             String implName = config.getAttribute ("jacorb.implname", serverId);
             if (filename.endsWith ("$implname"))
@@ -87,7 +93,7 @@ public abstract class LoggingInitializer
      * backend is active (by verifying that the corresponding SLF4J adapter
      * class is on the classpath).
      */
-    public abstract void init (Configuration config);
+    public abstract void init (Configuration config) throws ConfigurationException;
 
 
     /**

@@ -132,7 +132,7 @@ public class IIOPProfile
     {
         super.configure(config);
 
-        logger = configuration.getLogger("jacorb.iiop.profile");
+        logger = configuration.getLogger("org.jacorb.iiop.profile");
 
         dnsEnabled =
             configuration.getAttributeAsBoolean("jacorb.dns.enable", false);

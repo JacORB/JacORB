@@ -65,7 +65,7 @@ public class ServerStartupDaemonImpl
     public void configure(Configuration myConfiguration)
         throws ConfigurationException
     {
-        this.logger = ((org.jacorb.config.Configuration) myConfiguration).getLogger("jacorb.imr");
+        this.logger = ((org.jacorb.config.Configuration) myConfiguration).getLogger("org.jacorb.imr");
 
         try
         {

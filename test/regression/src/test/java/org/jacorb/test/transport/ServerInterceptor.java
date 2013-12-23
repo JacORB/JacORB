@@ -26,7 +26,7 @@ public class ServerInterceptor extends org.omg.CORBA.LocalObject implements
         this.ninterceptions_ = 0;
         this.nfailures_ = 0;
         logger_ = ((org.jacorb.orb.ORB) orb).getConfiguration ()
-                                            .getLogger ("jacorb.test.transport.si");
+                                            .getLogger("org.jacorb.test.transport.si");
 
         logger_.info ("ServerInterceptor::created");
 

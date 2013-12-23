@@ -127,7 +127,7 @@ public class MIOPProfile extends ProfileBase
    {
       super.configure(config);
 
-      logger = configuration.getLogger ("jacorb.miop");
+      logger = configuration.getLogger("org.jacorb.miop");
 
       ORB orb = ((org.jacorb.config.Configuration)config).getORB ();
 

@@ -101,7 +101,7 @@ public class SASClientInterceptor
         throws ConfigurationException
     {
         logger =
-            configuration.getLogger("jacorb.security.sas.CSS.log.verbosity");
+            configuration.getLogger("org.jacorb.security.sas.CSS.log.verbosity");
 
         useStateful =
             configuration.getAttribute("jacorb.security.sas.stateful","true").equals("true");

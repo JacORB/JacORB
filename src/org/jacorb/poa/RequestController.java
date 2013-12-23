@@ -95,7 +95,7 @@ public final class RequestController
         this.configuration =
             (org.jacorb.config.Configuration)myConfiguration;
 
-        logger = configuration.getLogger("jacorb.poa.controller");
+        logger = configuration.getLogger("org.jacorb.poa.controller");
 
         int threadPoolMax =
             orb.getConfiguration().getAttributeAsInteger("jacorb.poa.thread_pool_max", 20);

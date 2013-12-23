@@ -42,7 +42,7 @@ public class DynAnyFactoryImpl
     {
         super();
         this.orb = orb;
-        logger = orb.getConfiguration().getLogger("jacorb.orb");
+        logger = orb.getConfiguration().getLogger("org.jacorb.orb");
     }
 
     public org.omg.DynamicAny.DynAny create_dyn_any( org.omg.CORBA.Any value )

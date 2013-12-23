@@ -65,7 +65,7 @@ public class ThreadPool
         this.max_threads = max_threads;
         this.max_idle_threads = max_idle_threads;
 
-        logger = configuration.getLogger("jacorb.util.tpool");
+        logger = configuration.getLogger("org.jacorb.util.tpool");
     }
 
     protected synchronized Object getJob()

@@ -190,7 +190,7 @@ parser code
 
     protected static final void initLogging()
     {
-        logger = Logger.getLogger("jacorb.idl");
+        logger = Logger.getLogger("org.jacorb.idl");
         logger.setLevel(Level.SEVERE);
 
         Formatter formatter = new Formatter() {

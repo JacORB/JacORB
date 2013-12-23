@@ -79,7 +79,7 @@ public class PrintIOR
         final org.omg.CORBA.ORB orb = org.omg.CORBA.ORB.init(args,null);
         final org.jacorb.orb.ORB jorb = (org.jacorb.orb.ORB)orb;
         final Logger logger =
-            jorb.getConfiguration().getLogger("jacorb.print_ior");
+            jorb.getConfiguration().getLogger("org.jacorb.print_ior");
 
         boolean urlForm = false;
         boolean corbalocForm = false;

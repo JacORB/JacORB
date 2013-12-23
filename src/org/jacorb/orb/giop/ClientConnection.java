@@ -103,7 +103,7 @@ public class ClientConnection
 
         final Configuration configuration = ((org.jacorb.orb.ORB)orb).getConfiguration();
         logger =
-            configuration.getLogger("jacorb.giop.conn");
+            configuration.getLogger("org.jacorb.giop.conn");
 
         ignoreComponentInfo = ! (configuration.getAttributeAsBoolean("jacorb.codeset", false));
 
