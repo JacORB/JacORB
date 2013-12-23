@@ -171,7 +171,6 @@ public class TypedProxyPullSupplierImplTest extends NotificationTestCase
         assertEquals(10, _minutes.value);
     }
 
-    @Ignore
     @Test
     public void testPullDrinkingCoffee() throws Exception
     {
@@ -207,7 +206,8 @@ public class TypedProxyPullSupplierImplTest extends NotificationTestCase
 
         objectUnderTest_.getMessageConsumer().queueMessage(_mesg.getHandle());
 
-        assertTrue(_latch.await(1000, TimeUnit.MICROSECONDS));
+        assertTrue("Countdown (" + _latch.getCount () + " countdown expired",
+                   _latch.await(3000, TimeUnit.SECONDS));
 
         assertEquals("jacorb", _name.value);
         assertEquals(10, _minutes.value);

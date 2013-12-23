@@ -23,7 +23,7 @@ package org.jacorb.test.notification.perf;
 
 import org.jacorb.test.notification.StructuredPushReceiver;
 import org.jacorb.test.notification.StructuredPushSender;
-import org.jacorb.test.notification.common.NotificationTestCase;
+import org.jacorb.test.notification.common.NotifyServerTestCase;
 import org.junit.After;
 import org.junit.Assume;
 import org.junit.Before;
@@ -31,7 +31,6 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.omg.CORBA.Any;
 import org.omg.CORBA.IntHolder;
-import org.omg.CORBA.ORB;
 import org.omg.CosNotification.EventHeader;
 import org.omg.CosNotification.EventType;
 import org.omg.CosNotification.FixedEventHeader;
@@ -39,12 +38,11 @@ import org.omg.CosNotification.Property;
 import org.omg.CosNotification.StructuredEvent;
 import org.omg.CosNotifyChannelAdmin.EventChannel;
 import org.omg.CosNotifyChannelAdmin.EventChannelFactory;
-import org.omg.CosNotifyChannelAdmin.EventChannelFactoryHelper;
 
 /**
  * @author Alphonse Bendt
  */
-public class LoadTest extends NotificationTestCase
+public class LoadTest extends NotifyServerTestCase
 {
     @BeforeClass
     public static void beforeClassSetUp() throws Exception
@@ -65,11 +63,7 @@ public class LoadTest extends NotificationTestCase
     @Before
     public void setUp() throws Exception
     {
-        ORB orb = getORB();
-
-        factory = EventChannelFactoryHelper.narrow(orb
-                .resolve_initial_references("JACORB-NotificationService"));
-
+        factory = getEventChannelFactory();
         intHolder = new IntHolder();
 
         channel = factory.create_channel(new Property[0], new Property[0], intHolder);
@@ -84,9 +78,9 @@ public class LoadTest extends NotificationTestCase
     @Test
     public void testLoad() throws Exception
     {
-        StructuredPushSender sender = new StructuredPushSender(getClientORB());
+        StructuredPushSender sender = new StructuredPushSender(setup.getClientOrb());
 
-        StructuredPushReceiver receiver = new StructuredPushReceiver(getClientORB())
+        StructuredPushReceiver receiver = new StructuredPushReceiver(setup.getClientOrb())
         {
             @Override
             public void push_structured_event(StructuredEvent event)
@@ -119,7 +113,7 @@ public class LoadTest extends NotificationTestCase
         {
             for (int x = 0; x < batchSize; ++x)
             {
-                Any any = getORB().create_any();
+                Any any = setup.getClientOrb().create_any();
                 any.insert_long(x);
 
                 StructuredEvent event = new StructuredEvent();
@@ -129,7 +123,7 @@ public class LoadTest extends NotificationTestCase
                 event.header.variable_header = new Property[0];
                 event.header.fixed_header.event_name = "event_name";
                 event.header.fixed_header.event_type = new EventType("domain_name", "type_name");
-                event.remainder_of_body = getClientORB().create_any();
+                event.remainder_of_body = setup.getClientOrb().create_any();
 
                 event.remainder_of_body.insert_longlong(System.currentTimeMillis());
                 sender.pushConsumer_.push_structured_event(event);
