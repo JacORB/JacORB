@@ -29,7 +29,8 @@ import org.jacorb.notification.util.LogUtil;
 import org.jacorb.test.notification.StructuredPushReceiver;
 import org.jacorb.test.notification.StructuredPushSender;
 import org.jacorb.test.notification.TestUtils;
-import org.jacorb.test.notification.common.NotificationTestCase;
+import org.jacorb.test.notification.common.NotifyServerTestCase;
+import org.junit.After;
 import org.junit.Assume;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -43,7 +44,6 @@ import org.omg.CosNotification.StructuredEvent;
 import org.omg.CosNotifyChannelAdmin.ConsumerAdmin;
 import org.omg.CosNotifyChannelAdmin.EventChannel;
 import org.omg.CosNotifyChannelAdmin.EventChannelFactory;
-import org.omg.CosNotifyChannelAdmin.EventChannelFactoryHelper;
 import org.omg.CosNotifyChannelAdmin.SupplierAdmin;
 import org.omg.CosNotifyFilter.ConstraintExp;
 import org.omg.CosNotifyFilter.Filter;
@@ -57,7 +57,7 @@ import org.slf4j.Logger;
  * @author Alphonse Bendt
  */
 
-public class PerformanceTest extends NotificationTestCase
+public class PerformanceTest extends NotifyServerTestCase
 {
     @BeforeClass
     public static void beforeClassSetUp() throws Exception
@@ -103,8 +103,7 @@ public class PerformanceTest extends NotificationTestCase
     {
         testUtils_ = new TestUtils();
 
-        factory_ = EventChannelFactoryHelper.narrow(getORB().resolve_initial_references(
-                "NotificationService"));
+        factory_ = getEventChannelFactory();
 
         // prepare test data
         testPerson_ = testUtils_.getTestPersonAny();
@@ -129,7 +128,7 @@ public class PerformanceTest extends NotificationTestCase
         trueFilter_.add_constraints(_constraintExp);
     }
 
-    @Override
+    @After
     public void tearDownTest() throws Exception
     {
         trueFilter_.destroy();
@@ -146,7 +145,7 @@ public class PerformanceTest extends NotificationTestCase
     @Test
     public void testCompareAny() throws Exception
     {
-        Any _a1 = getORB().create_any(), _a2 = getORB().create_any();
+        Any _a1 = setup.getClientOrb().create_any(), _a2 = setup.getClientOrb().create_any();
 
         _a1.insert_long(10);
         _a2.insert_long(10);
@@ -157,7 +156,7 @@ public class PerformanceTest extends NotificationTestCase
     @Test
     public void testMeasureFilterLatency() throws Exception
     {
-        Any _any = getORB().create_any();
+        Any _any = setup.getClientOrb().create_any();
         _any.insert_long(10);
 
         int _runs = 100;
@@ -253,11 +252,11 @@ public class PerformanceTest extends NotificationTestCase
     {
         final AtomicBoolean active = new AtomicBoolean(true);
 
-        final StructuredPushReceiver receiver = new StructuredPushReceiver(getClientORB());
+        final StructuredPushReceiver receiver = new StructuredPushReceiver(setup.getClientOrb());
 
         receiver.connect(channel_, false);
 
-        final StructuredPushSender sender = new StructuredPushSender(getClientORB());
+        final StructuredPushSender sender = new StructuredPushSender(setup.getClientOrb());
 
         sender.connect(channel_, false);
 
