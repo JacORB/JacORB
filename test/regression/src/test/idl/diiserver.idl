@@ -20,10 +20,11 @@ module org
 
                     void raiseException() raises (DIIException);
 
+                    void raiseSystemException(in boolean embedExceptionInAny);
+
                     oneway void notify( in string msg );
                 };
             };
         };
     };
 };
-

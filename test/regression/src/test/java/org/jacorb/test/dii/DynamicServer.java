@@ -6,6 +6,9 @@ import org.jacorb.config.ConfigurationException;
 import org.jacorb.test.dii.DIIServerPackage.DIIException;
 import org.jacorb.test.dii.DIIServerPackage.DIIExceptionHelper;
 import org.omg.CORBA.Any;
+import org.omg.CORBA.BAD_PARAM;
+import org.omg.CORBA.BAD_PARAMHelper;
+import org.omg.CORBA.ORB;
 import org.omg.PortableServer.DynamicImplementation;
 
 public class DynamicServer extends DynamicImplementation implements Configurable
@@ -104,6 +107,35 @@ public class DynamicServer extends DynamicImplementation implements Configurable
                 Any any = orb.create_any();
                 DIIExceptionHelper.insert(any, e);
                 request.set_exception(any);
+            }
+        }
+        else if( op.equals("raiseSystemException") )
+        {
+            org.omg.CORBA.NVList params = orb.create_list(0);
+            Any boolAny = orb.create_any();
+            boolAny.type( orb.get_primitive_tc(org.omg.CORBA.TCKind.tk_boolean));
+            params.add_value( "", boolAny, org.omg.CORBA.ARG_IN.value );
+            request.arguments( params );
+
+            boolean embedExceptionInAny = boolAny.extract_boolean();
+
+            if (embedExceptionInAny)
+            {
+                try
+                {
+                    delegate.raiseSystemException(embedExceptionInAny);
+                }
+                catch (BAD_PARAM e)
+                {
+                    Any any = orb.create_any();
+                    BAD_PARAMHelper.insert(any, e);
+                    request.set_exception(any);
+                }
+            }
+            // else we'll let the BAD_PARAM propagate.
+            else
+            {
+                delegate.raiseSystemException(embedExceptionInAny);
             }
         }
         else if( op.equals("notify") )
