@@ -36,6 +36,7 @@ import org.jacorb.poa.util.POAUtil;
 import org.jacorb.util.Time;
 import org.omg.CORBA.BAD_INV_ORDER;
 import org.omg.CORBA.BAD_PARAM;
+import org.omg.CORBA.NamedValue;
 import org.omg.GIOP.ReplyStatusType_1_2;
 import org.omg.IOP.INVOCATION_POLICIES;
 import org.omg.IOP.ServiceContext;
@@ -80,7 +81,7 @@ public class ServerRequest
     private int replyStatus = ReplyStatusType_1_2._NO_EXCEPTION;
     private byte[] oid;
     private byte[] object_key;
-    private org.omg.CORBA.Object reference = null;
+
     /**
      * <code>rest_of_name</code> is target poa's name in relation to parent.
      */
@@ -257,11 +258,10 @@ public class ServerRequest
         if( argList != null )
         {
             inputStream.mark(0);
-            for( Iterator e = argList.iterator();
+            for( Iterator<NamedValue> e = argList.iterator();
                  e.hasNext(); )
             {
-                org.omg.CORBA.NamedValue namedValue =
-                    (org.omg.CORBA.NamedValue)e.next();
+                NamedValue namedValue = e.next();
 
                 if( namedValue.flags() != org.omg.CORBA.ARG_OUT.value )
                 {
@@ -407,15 +407,14 @@ public class ServerRequest
 
                         if( argList != null )
                         {
-                            for( Iterator e = argList.iterator();
+                            for( Iterator<NamedValue> e = argList.iterator();
                                  e.hasNext(); )
                             {
-                                org.jacorb.orb.NamedValue namedValue =
-                                    (org.jacorb.orb.NamedValue)e.next();
+                                NamedValue namedValue = e.next();
 
                                 if( namedValue.flags() != org.omg.CORBA.ARG_IN.value )
                                 {
-                                    // in parameters are not returnd
+                                    // in parameters are not returned
                                     try
                                     {
                                         namedValue.value().write_value(out);
@@ -638,7 +637,7 @@ public class ServerRequest
 
     public byte[] objectKey()
     {
-        return object_key; // NOPMD
+        return object_key;
     }
 
     /**
@@ -665,7 +664,7 @@ public class ServerRequest
 
     public byte[] objectId()
     {
-        return oid; // NOPMD
+        return oid;
     }
 
     public synchronized ByteArrayKey objectIdAsByteArrayKey()
@@ -683,16 +682,6 @@ public class ServerRequest
         return isStreamBased;
     }
 
-
-    public void setReference(org.omg.CORBA.Object obj)
-    {
-        reference = obj;
-    }
-
-    public org.omg.CORBA.Object getReference()
-    {
-        return reference;
-    }
 
     public RequestInputStream get_in()
     {
