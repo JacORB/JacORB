@@ -46,6 +46,7 @@
 ============
     - ORB
          - Default Sync scope for oneways is now configurable via jacorb.default_sync_scope property.
+           Add new getDelegate to ClientRequestInfoImpl Public API
     - Misc
          - Fix logging to be consistent throughout the ORB and Services.
          - Add ability to configure the 'clock' format in the logging to be
