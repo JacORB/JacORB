@@ -145,7 +145,6 @@ public class DiiTest extends ClientServerTestCase
 
     }
 
-
     @Test
     public void testRequestWithOutArgs()
     {
