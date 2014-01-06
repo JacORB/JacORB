@@ -122,6 +122,18 @@ public class DiiLocalTest extends ORBTestCase
     }
 
     @Test
+    public void testRepositoryId()
+    {
+        org.omg.CORBA.Request request = server._request("_repository_id");
+
+        request.set_return_type( orb.get_primitive_tc( org.omg.CORBA.TCKind.tk_string ));
+        request.invoke();
+        assertNull(request.env().exception());
+        assertEquals("IDL:org/jacorb/test/dii/DIIServer:1.0", request.return_value().extract_string());
+
+    }
+
+    @Test
     public void testRequestWithOutArgs()
     {
         org.omg.CORBA.Request request = server._request("add");

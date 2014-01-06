@@ -1,0 +1,28 @@
+#ifndef moduleAlias_idl
+#define moduleAlias_idl
+
+module moduleAlias
+{
+
+   exception YikesError {
+          string info;
+   };
+
+   struct ModuleAlias_T
+   {
+     string fooString;
+   };
+
+  interface ModuleAliasMgr_I
+  {
+
+   void getFoo(
+         in boolean  fooParam,
+         out ModuleAlias_T  moduleAlias )
+      raises(YikesError);
+
+  };
+
+};
+
+#endif // moduleAlias_idl
