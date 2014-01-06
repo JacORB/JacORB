@@ -130,7 +130,7 @@ public class NameTable
     {
         if( parser.logger.isLoggable(Level.FINEST) )
         {
-            parser.logger.log(Level.FINEST, "NameTable.define2: putting " +
+            parser.logger.log(Level.FINEST, "putting " +
             name + " kind " + kind.name() + " hash: " +
             name.hashCode());
         }

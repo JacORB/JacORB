@@ -96,6 +96,16 @@ public class ParamDecl
 
     public void parse()
     {
+        // BZ974 : If the parameter clashes with the package scope then escape it.
+        String []packParts = pack_name.split("\\.");
+        for (String part : packParts)
+        {
+            if (simple_declarator.name.equals(part))
+            {
+                simple_declarator.name = "_" + simple_declarator.name;
+            }
+        }
+
         while( paramTypeSpec.typeSpec() instanceof ScopedName )
         {
             TypeSpec ts = ( (ScopedName)paramTypeSpec.typeSpec() ).resolvedTypeSpec();

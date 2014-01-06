@@ -168,7 +168,7 @@ public class IdlSymbol
         }
     }
 
-    public boolean isEscaped()
+    private boolean isEscaped()
     {
         return name().startsWith( "_" );
     }
