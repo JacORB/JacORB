@@ -46,7 +46,7 @@
 ============
     - ORB
          - Default Sync scope for oneways is now configurable via jacorb.default_sync_scope property.
-           Add new getDelegate to ClientRequestInfoImpl Public API
+         - Add new getDelegate to ClientRequestInfoImpl Public API
          - Fix for repository_id on remote method invocation. (BZ972)
          - Improve encapsulation of internal code.
     - IDL
@@ -57,6 +57,7 @@
          - Add ability to configure the 'clock' format in the logging to be
            NONE, TIME or DATE_TIME. Default is NONE.
          - Improved Logging documentation.
+         - Added org.jacorb.util.Diagnostic class to print out useful environmental information.
 
 3.4-Beta
 ========
