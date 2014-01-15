@@ -42,8 +42,8 @@
 
 ( Note: For commit history see https://github.com/JacORB/JacORB )
 
-3.4-SNAPSHOT
-============
+3.4
+===
     - ORB
          - Default Sync scope for oneways is now configurable via jacorb.default_sync_scope property.
          - Add new getDelegate to ClientRequestInfoImpl Public API
