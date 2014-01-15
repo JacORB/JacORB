@@ -34,7 +34,7 @@
 
     <groupId>org.jacorb</groupId>
     <artifactId>jacorb-parent</artifactId>
-    <version>3.4</version>
+    <version>3.5-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>JacORB</name>
