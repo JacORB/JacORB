@@ -30,6 +30,7 @@ import javax.net.ssl.SSLSocket;
 import org.jacorb.config.Configurable;
 import org.jacorb.config.Configuration;
 import org.jacorb.config.ConfigurationException;
+import org.jacorb.orb.etf.ProtocolAddressBase;
 import org.jacorb.orb.factory.SocketFactory;
 import org.jacorb.orb.giop.TransportManager;
 import org.jacorb.orb.listener.TCPConnectionEvent;
@@ -230,11 +231,11 @@ public class ClientIIOPConnection
     private IIOPLoopback getLocalLoopback()
     {
         final IIOPProfile iiopProfile = (IIOPProfile)profile ;
-        final List addressList = new ArrayList() ;
+        final List<ProtocolAddressBase> addressList = new ArrayList<ProtocolAddressBase>() ;
         addressList.add(iiopProfile.getAddress());
         addressList.addAll(iiopProfile.getAlternateAddresses());
 
-        final Iterator addressIterator = addressList.iterator() ;
+        final Iterator<ProtocolAddressBase> addressIterator = addressList.iterator() ;
         final IIOPLoopbackRegistry registry =
             IIOPLoopbackRegistry.getRegistry() ;
 

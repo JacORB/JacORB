@@ -93,11 +93,10 @@ public class ListenEndpointsTest extends ClientServerTestCase
         serverProps.put ("OASSLPort", "0");
         // serverProps.put ("jacorb.test.timeout.server", Long.toString(10000));
 
-        setup = new ClientServerSetup (
-                                   "org.jacorb.test.listenendpoints.echo_corbaloc.Server",
+        setup = new ClientServerSetup ("org.jacorb.test.listenendpoints.echo_corbaloc.Server",
+                                   null,
                                    new String[] {"-testmode", "P", "-ORBListenEndpoints", LISTEN_EP},
-                                   clientProps,
-                                   serverProps);
+                                   clientProps, serverProps);
 
     }
 

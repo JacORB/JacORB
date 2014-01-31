@@ -77,11 +77,12 @@ public class ClientServerSetup extends ORBTestCase
                               Properties optionalClientProperties,
                               Properties optionalServerProperties ) throws Exception
     {
-        this(testServer, new String[] { servantName}, optionalClientProperties, optionalServerProperties);
+        this(testServer, servantName, null, optionalClientProperties, optionalServerProperties);
 
     }
 
     public ClientServerSetup( String testServer,
+                              String sName,
                               String[] servantArgs,
                               Properties optionalClientProperties,
                               Properties optionalServerProperties ) throws Exception
@@ -127,12 +128,12 @@ public class ClientServerSetup extends ORBTestCase
             optionalServerProperties.putAll(imrProps);
         }
 
-        servantName = servantArgs[0];
+        this.servantName = (sName == null ? "" : sName);
 
         orbProps.putAll(optionalClientProperties);
         orbProps.put (SERVANT_NAME, servantName);
 
-        serverSetup = new ServerSetup(testServer, servantArgs, optionalServerProperties);
+        serverSetup = new ServerSetup(testServer, servantName, servantArgs, optionalServerProperties);
 
         if (imrSetup != null)
         {
