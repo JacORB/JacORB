@@ -45,7 +45,9 @@ public class Diagnostic
         System.out.println("Operating system architecture: " + props.get("os.arch"));
         System.out.println("Java Vendor: " + props.get("java.vm.vendor"));
         System.out.println("Java Version: " + props.get("java.version"));
+        System.out.println("Runtime max memory: " + (Runtime.getRuntime().maxMemory() / 1024 / 1024) + "M");
         System.out.println();
+
 
         System.out.println("Found the following network addresses: ");
 
