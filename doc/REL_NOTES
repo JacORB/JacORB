@@ -47,6 +47,7 @@
 ============
     - ORB
          - Simplify network address retrieval code.
+         - Protect against OutOfMemory in GIOPConnection::receiveMessages to prevent client hanging.
 
 3.4
 ===
