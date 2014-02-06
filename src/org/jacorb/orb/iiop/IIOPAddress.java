@@ -26,11 +26,14 @@ import java.net.ServerSocket;
 import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.util.Collections;
+import java.util.LinkedList;
 import org.jacorb.config.Configuration;
 import org.jacorb.config.ConfigurationException;
 import org.jacorb.orb.CDROutputStream;
 import org.jacorb.orb.etf.ListenEndpoint.Protocol;
 import org.jacorb.orb.etf.ProtocolAddressBase;
+import org.omg.CORBA.INTERNAL;
+import org.omg.CORBA.ORBSingleton;
 import org.slf4j.Logger;
 
 /**
@@ -93,7 +96,6 @@ public class IIOPAddress
     {
         this();
 
-
         /**
         * Once a Server socket has been instantiated, getInetAddress().toString()
         * would return a string in the form "hostname/hostaddress".
@@ -141,7 +143,6 @@ public class IIOPAddress
     {
         super.configure(configuration);
 
-
         logger = this.configuration.getLogger("org.jacorb.iiop.address");
         dnsEnabled =
             configuration.getAttributeAsBoolean("jacorb.dns.enable", false);
@@ -174,9 +175,6 @@ public class IIOPAddress
      */
     private void init_host()
     {
-        // InetAddress localhost = getLocalHost();
-        boolean hasZoneId = false;
-
         if (source_name == null || source_name.length() == 0 )
         {
             /**
@@ -197,7 +195,6 @@ public class IIOPAddress
                 // 2) if the user used the name/ip format
                 source_name = source_name.substring(0,slash);
             }
-
             try
             {
                 host = InetAddress.getByName(source_name);
@@ -610,67 +607,58 @@ public class IIOPAddress
      */
     public static InetAddress getLocalHost()
     {
-        InetAddress result = null;
-        try
-        {
-            result = InetAddress.getLocalHost();
-
-            // if this is an IPv4/IPv6 address, make sure it's a reasonable one
-            if (result.isLinkLocalAddress() || result.isLoopbackAddress())
-            {
-                InetAddress betterAddress = getGoodAddress();
-                if (betterAddress != null)
-                {
-                    result = betterAddress;
-                }
-            }
-        }
-        catch (UnknownHostException ex)
-        {
-            try
-            {
-                result = InetAddress.getByName(null);
-            }
-            catch (UnknownHostException ex2)
-            {
-                // give up
-            }
-        }
-
-        return result;
-
+        return getNetworkInetAddresses().getFirst();
     }
 
+
     /**
-     * Iterate over all network interfaces and addresses to find
-     * an IPv4/IPv6 address that is neither link-local nor loopback or
-     * a point to point (e.g. VPN).
-     * If one is found, return it.  If not, return null.
+     * Returns an ordered list of InetAddresses. Order is:
+     *
+     * IPv4/IPv6 routable address
+     * Point-to-point address
+     * Fallback to link-local/loopback.
+     *
      */
-    private static InetAddress getGoodAddress()
+    public static LinkedList<InetAddress> getNetworkInetAddresses ()
     {
-        InetAddress result = null;
+        LinkedList<InetAddress> result = new LinkedList<InetAddress>();
+        LinkedList<InetAddress> p2ploopback = new LinkedList<InetAddress>();
+
         try
         {
-            for (NetworkInterface ni :
-                 Collections.list(NetworkInterface.getNetworkInterfaces()))
+            for (NetworkInterface ni : Collections.list (NetworkInterface.getNetworkInterfaces()))
             {
-                if ( ! ni.isPointToPoint() )
+                if ( ni.isPointToPoint() )
                 {
-                    for (InetAddress ia : Collections.list(ni.getInetAddresses()))
+                    for (InetAddress addr : Collections.list (ni.getInetAddresses()))
                     {
-                        if ( ! (ia.isLinkLocalAddress() || ia.isLoopbackAddress()))
+                        p2ploopback.addFirst (addr);
+                    }
+                }
+                else
+                {
+                    for (InetAddress addr : Collections.list (ni.getInetAddresses()))
+                    {
+                        if (!addr.isLoopbackAddress() && !addr.isLinkLocalAddress())
                         {
-                            return ia;
+                            result.add (addr);
+                        }
+                        else
+                        {
+                            p2ploopback.addLast (addr);
                         }
                     }
                 }
             }
         }
-        catch (SocketException ex)
+        catch (SocketException se)
         {
-            // something went wrong, fall through, null is okay in this case
+            ((org.jacorb.orb.ORBSingleton)ORBSingleton.init()).getLogger().error ("Unable to determine network interfaces", se);
+            throw new INTERNAL ("Unable to determine network interfaces: " + se);
         }
+
+        result.addAll (p2ploopback);
+
         return result;
     }
 

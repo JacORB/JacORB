@@ -96,13 +96,15 @@ public class ServerSetup
      */
     public ServerSetup(String testServer, String servantName, Properties optionalProperties) throws IOException
     {
-        this(testServer, new String [] { servantName } , optionalProperties);
+        this(testServer, servantName, null , optionalProperties);
     }
 
-    public ServerSetup(String testServer, String[] testServantArgs, Properties optionalProperties) throws IOException
+    public ServerSetup(String testServer, String servantName, String[] testServantArgs, Properties optionalProperties) throws IOException
     {
         this.testServer = getTestServer(testServer);
-        this.servantName = testServantArgs[0];
+        this.servantName = servantName;
+
+        serverArgs.add(servantName);
 
         if (TestUtils.verbose)
         {
@@ -127,7 +129,7 @@ public class ServerSetup
             serverOrbProperties.putAll(optionalProperties);
         }
 
-        for (int i = 0; i < testServantArgs.length; i++)
+        for (int i = 0; testServantArgs != null && i < testServantArgs.length; i++)
         {
             serverArgs.add(testServantArgs[i]);
         }

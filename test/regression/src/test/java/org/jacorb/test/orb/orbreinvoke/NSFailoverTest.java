@@ -198,9 +198,9 @@ public class NSFailoverTest extends ORBTestCase
                    log("++++ setting up NSFailoverTestServer 1");
                     serverSetup_1 = new ServerSetup (
                                         "org.jacorb.test.orb.orbreinvoke.NSFailoverTestServer",
+                                        "",
                                         new String []
                                             {
-                                                 "",
                                                  "-Djacorb.log.showThread=" + "on",
                                                  "-Djacorb.log.showSrcInfo=" + "on",
 
@@ -226,9 +226,9 @@ public class NSFailoverTest extends ORBTestCase
                 log("++++ setting up NSFailoverTestServer 2");
                 serverSetup_2 = new ServerSetup (
                                         "org.jacorb.test.orb.orbreinvoke.NSFailoverTestServer",
+                                        "",
                                         new String []
                                             {
-                                                 "",
                                                  "-Djacorb.log.showThread=" + "on",
                                                  "-Djacorb.log.showSrcInfo=" + "on",
 
@@ -455,6 +455,7 @@ public class NSFailoverTest extends ORBTestCase
             // goes and restart NameServers.
             Thread delayStart = new Thread (new Runnable()
             {
+                @Override
                 public void run()
                 {
                     try

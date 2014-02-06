@@ -201,9 +201,9 @@ public class ImRFailoverTest extends ORBTestCase
                     log("++++ setting up server 1");
                     serverSetup_1 = new ServerSetup (
                                         "org.jacorb.test.orb.orbreinvoke.ImRFailoverTestServer",
+                                        "",
                                         new String []
                                             {
-                                                 "",
                                                  "-Djacorb.log.showThread=" + "on",
                                                  "-Djacorb.log.showSrcInfo=" + "on",
 
@@ -226,9 +226,9 @@ public class ImRFailoverTest extends ORBTestCase
                 log("++++ setting up server 2");
                 serverSetup_2 = new ServerSetup (
                                         "org.jacorb.test.orb.orbreinvoke.ImRFailoverTestServer",
+                                        "",
                                         new String []
                                             {
-                                                 "",
                                                  "-Djacorb.log.showThread=" + "on",
                                                  "-Djacorb.log.showSrcInfo=" + "on",
 
@@ -494,6 +494,7 @@ public class ImRFailoverTest extends ORBTestCase
             // goes and restart both ImRs.
             Thread delayStart = new Thread (new Runnable()
             {
+                @Override
                 public void run()
                 {
                     try

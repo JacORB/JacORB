@@ -3,7 +3,6 @@ package org.jacorb.util;
 import java.io.ByteArrayOutputStream;
 import java.io.OutputStreamWriter;
 import java.net.InetAddress;
-import java.net.UnknownHostException;
 import java.util.Locale;
 import java.util.Properties;
 import org.jacorb.orb.giop.CodeSet;
@@ -46,15 +45,15 @@ public class Diagnostic
         System.out.println("Operating system architecture: " + props.get("os.arch"));
         System.out.println("Java Vendor: " + props.get("java.vm.vendor"));
         System.out.println("Java Version: " + props.get("java.version"));
+        System.out.println("Runtime max memory: " + (Runtime.getRuntime().maxMemory() / 1024 / 1024) + "M");
         System.out.println();
 
-        try
+
+        System.out.println("Found the following network addresses: ");
+
+        for (InetAddress addr : IIOPAddress.getNetworkInetAddresses())
         {
-            System.out.println("Default local host address " + InetAddress.getLocalHost());
-        }
-        catch (UnknownHostException e)
-        {
-            e.printStackTrace();
+            System.out.println("    " + addr.toString() + " / " + addr.getHostName());
         }
         System.out.println("Preferred non-loopback address " + IIOPAddress.getLocalHost());
         System.out.println();
