@@ -41,6 +41,11 @@
    H I S T O R Y      O F     C H A N G E S
  -------------------------------------------
 
+This Release
+============
+    - ORB:
+         - Handle reconnecting via a closed connection to a persistent server (BZ975).
+
 2.3.2 JBoss
 ===========
     - ORB:

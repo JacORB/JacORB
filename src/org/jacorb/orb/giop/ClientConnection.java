@@ -310,6 +310,14 @@ public class ClientConnection
     }
 
     /**
+     * Return the state of the underlying GIOP connection.
+     */
+    public boolean isClosed()
+    {
+        return connection.do_close;
+    }
+
+    /**
      * Operations from ReplyListener
      */
 

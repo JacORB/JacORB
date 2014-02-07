@@ -1725,6 +1725,11 @@ public final class Delegate
 
         synchronized ( bind_sync )
         {
+            if ( connection != null && connection.isClosed())
+            {
+                release(self);
+            }
+
             bind();
 
             ParsedIOR ior = getParsedIOR();
