@@ -48,6 +48,7 @@
     - ORB
          - Simplify network address retrieval code.
          - Protect against OutOfMemory in GIOPConnection::receiveMessages to prevent client hanging.
+         - Handle reconnecting via a closed connection to a persistent server (BZ975).
 
 3.4
 ===

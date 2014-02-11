@@ -2475,6 +2475,12 @@ public final class Delegate
 
         synchronized ( bind_sync )
         {
+            if ( connections[currentConnection.ordinal ()] != null &&
+                 connections[currentConnection.ordinal ()].isClosed())
+            {
+                release(self);
+            }
+
             bind();
 
             ParsedIOR ior = getParsedIOR();
