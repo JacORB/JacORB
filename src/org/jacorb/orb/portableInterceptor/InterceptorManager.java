@@ -58,7 +58,6 @@ public class InterceptorManager
     private final Interceptor[] client_req_interceptors;
     private final Interceptor[] server_req_interceptors;
     private final Interceptor[] ior_interceptors;
-    private int[] profile_tags = null;
 
     private final org.omg.CORBA.ORB orb;
     private final int current_slots;
@@ -74,9 +73,9 @@ public class InterceptorManager
 
     public static final PICurrentImpl EMPTY_CURRENT = new PICurrentImpl(null, 0);
 
-    public InterceptorManager(List client_interceptors,
-                              List server_interceptors,
-                              List ior_intercept,
+    public InterceptorManager(List<Interceptor> client_interceptors,
+                              List<Interceptor> server_interceptors,
+                              List<Interceptor> ior_intercept,
                               int slot_count,
                               ORB orb)
     {
@@ -92,13 +91,13 @@ public class InterceptorManager
         }
 
         //build sorted arrays of the different interceptors
-        client_req_interceptors = (Interceptor[]) client_interceptors.toArray(new ClientRequestInterceptor[client_interceptors.size()]);
+        client_req_interceptors = client_interceptors.toArray(new ClientRequestInterceptor[client_interceptors.size()]);
         Arrays.sort(client_req_interceptors, INTERCEPTOR_COMPARATOR);
 
-        server_req_interceptors = (Interceptor[]) server_interceptors.toArray(new ServerRequestInterceptor[server_interceptors.size()]);
+        server_req_interceptors = server_interceptors.toArray(new ServerRequestInterceptor[server_interceptors.size()]);
         Arrays.sort(server_req_interceptors, INTERCEPTOR_COMPARATOR);
 
-        ior_interceptors = (Interceptor[]) ior_intercept.toArray(new IORInterceptor[ior_intercept.size()]);
+        ior_interceptors = ior_intercept.toArray(new IORInterceptor[ior_intercept.size()]);
         Arrays.sort(ior_interceptors, INTERCEPTOR_COMPARATOR);
 
         this.orb = orb;
@@ -114,12 +113,12 @@ public class InterceptorManager
 
         if (localPICurrent.get () != null)
         {
-           value = (Current)localPICurrent.get ();
+           value = localPICurrent.get ();
         }
 
         if (value == null)
         {
-           value = (Current)piCurrent.get();
+           value = piCurrent.get();
 
            if (value == null)
            {
@@ -201,17 +200,9 @@ public class InterceptorManager
      */
     public IORInterceptorIterator getIORIterator()
     {
-        return new IORInterceptorIterator(logger, ior_interceptors, profile_tags);
+        return new IORInterceptorIterator(logger, ior_interceptors);
     }
 
-
-    /**
-     * Assign the array of profile tags to be passed to the IORInterceptors
-     */
-    public void setProfileTags (int[] ptags)
-    {
-        profile_tags = ptags;
-    }
 
     /**
      * Test, if the manager has ClientRequestInterceptors

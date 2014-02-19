@@ -51,6 +51,9 @@
          - Handle reconnecting via a closed connection to a persistent server (BZ975).
          - Fix for local interceptors and slots (BZ976)
          - Simplify logging.
+         - Fix for CodeSet tag appearing twice in multi-profile IORs
+         - Deprecate defining org.jacorb.orb.standardInterceptors.IORInterceptorInitializer as a
+           standard interceptor; it is now implicitly defined by jacorb.codeset QoS.
     - Documentation
         - Minor fixes.
     - Misc

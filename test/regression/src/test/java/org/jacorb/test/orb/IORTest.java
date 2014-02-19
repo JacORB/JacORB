@@ -24,7 +24,9 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameter;
 import org.junit.runners.Parameterized.Parameters;
+import org.omg.ETF.Profile;
 import org.omg.IOP.TAG_ALTERNATE_IIOP_ADDRESS;
+import org.omg.IOP.TAG_CODE_SETS;
 import org.omg.IOP.TaggedComponent;
 
 /**
@@ -102,6 +104,8 @@ public class IORTest extends ClientServerTestCase
             properties.put(key, value);
             interfaceCount++;
         }
+        properties.put("jacorb.codeset", "true");
+        properties.put("org.omg.PortableInterceptor.ORBInitializerClass.standard_init","org.jacorb.orb.standardInterceptors.IORInterceptorInitializer");
 
         matchCount = interfaceCount;
 
@@ -143,5 +147,28 @@ public class IORTest extends ClientServerTestCase
 
         assertTrue ("Network interface count does not match TAG_ALTERNATE_IIOP_ADDRESS: "+
         setup.getServerIOR() + " and " + tagCount + " and " + matchCount , tagCount == matchCount);
+    }
+
+
+    @Test
+    public void codesetCount()
+    {
+        ParsedIOR pior = new ParsedIOR (setup.getORB(), setup.getServerIOR());
+
+        int codesetTagCount = 0;
+
+        for (Profile p : pior.getProfiles())
+        {
+            for (TaggedComponent t : ((ProfileBase)p).getComponents().asArray())
+            {
+                if ( t.tag == TAG_CODE_SETS.value)
+                {
+                    codesetTagCount++;
+                }
+            }
+        }
+
+        assertTrue ("Profile count does not having matching TAG_CODE_SETS: " +
+        setup.getServerIOR() + " and " + codesetTagCount , codesetTagCount == pior.getProfiles().size());
     }
 }

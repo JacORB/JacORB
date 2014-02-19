@@ -48,6 +48,7 @@ import org.jacorb.orb.portableInterceptor.CodecFactoryImpl;
 import org.jacorb.orb.portableInterceptor.IORInfoImpl;
 import org.jacorb.orb.portableInterceptor.InterceptorManager;
 import org.jacorb.orb.portableInterceptor.ORBInitInfoImpl;
+import org.jacorb.orb.standardInterceptors.IORInterceptorInitializer;
 import org.jacorb.orb.typecode.NullTypeCodeCache;
 import org.jacorb.orb.typecode.NullTypeCodeCompactor;
 import org.jacorb.orb.typecode.TypeCodeCache;
@@ -106,6 +107,7 @@ import org.omg.Messaging.REQUEST_START_TIME_POLICY_TYPE;
 import org.omg.Messaging.ROUTING_POLICY_TYPE;
 import org.omg.Messaging.SYNC_SCOPE_POLICY_TYPE;
 import org.omg.PortableInterceptor.Current;
+import org.omg.PortableInterceptor.Interceptor;
 import org.omg.PortableInterceptor.InvalidSlot;
 import org.omg.PortableInterceptor.ORBInitInfo;
 import org.omg.PortableInterceptor.ORBInitializer;
@@ -231,7 +233,7 @@ public final class ORB
     private org.jacorb.orb.policies.PolicyManager policyManager;
 
     /* policy factories, from portable interceptor spec */
-    private final Map policy_factories = Collections.synchronizedMap(new HashMap());
+    private final Map<Integer, PolicyFactory> policy_factories = Collections.synchronizedMap(new HashMap<Integer, PolicyFactory>());
 
     private boolean bidir_giop = false;
 
@@ -782,7 +784,7 @@ public final class ORB
                 return new
                        org.jacorb.orb.policies.ClientProtocolPolicy (value);
             default:
-                final PolicyFactory factory = (PolicyFactory)policy_factories.get(Integer.valueOf(type));
+                final PolicyFactory factory = policy_factories.get(Integer.valueOf(type));
 
                 if (factory == null)
                 {
@@ -827,7 +829,7 @@ public final class ORB
                               Map policy_overrides)
     {
         List<Profile> profiles = new ArrayList<Profile>();
-        Map  componentMap = new HashMap();
+        Map<Integer, TaggedComponentList>  componentMap = new HashMap();
         int[] profileTags = new int[basicAdapter.getEndpointProfiles().size()];
         int n = 0;
         for (Iterator<Profile> i = basicAdapter.getEndpointProfiles().iterator();
@@ -872,11 +874,11 @@ public final class ORB
         if ((interceptor_manager != null) &&
                 interceptor_manager.hasIORInterceptors())
         {
-            IORInfoImpl info = new IORInfoImpl(this, poa,
+            IORInfoImpl info = new IORInfoImpl(this,
+                                               poa,
                                                componentMap,
                                                policy_overrides,
                                                profiles);
-            interceptor_manager.setProfileTags(profileTags);
             try
             {
                 interceptor_manager.getIORIterator().iterate( info );
@@ -901,7 +903,7 @@ public final class ORB
 
             // shuffle all components over into the multiple components profile
             TaggedComponentList iiopComponents =
-                (TaggedComponentList)componentMap.get(Integer.valueOf(TAG_INTERNET_IOP.value));
+                componentMap.get(Integer.valueOf(TAG_INTERNET_IOP.value));
 
             multipleComponents.addAll(iiopProfile.getComponents());
             multipleComponents.addAll(iiopComponents);
@@ -915,7 +917,7 @@ public final class ORB
         if (iiopProfile != null)
         {
             TaggedComponentList components =
-                (TaggedComponentList)componentMap.get(Integer.valueOf(TAG_INTERNET_IOP.value));
+                componentMap.get(Integer.valueOf(TAG_INTERNET_IOP.value));
 
             // patch primary address port to 0 if SSL is required
             if (isSSLRequiredInComponentList(components))
@@ -944,7 +946,7 @@ public final class ORB
         {
             final Profile p = profiles.get(i);
             TaggedComponentList clist =
-                (TaggedComponentList)componentMap.get(Integer.valueOf(p.tag()));
+                componentMap.get(Integer.valueOf(p.tag()));
 
             final TaggedComponentList c;
             if (p instanceof ProfileBase)
@@ -1998,7 +2000,28 @@ public final class ORB
 
         try
         {
-            final List orb_initializers = getORBInitializers();
+            final List<ORBInitializer> orb_initializers = getORBInitializers();
+
+            // If the configuration property codeset has been enabled then automatically
+            // add the IORInterceptorInitializer so that TAG_CODE_SETS are added to the
+            // IOR. Previously this was done manually but that is deprecated now.
+            if (configuration.getAttributeAsBoolean("jacorb.codeset", false))
+            {
+                boolean found = false;
+                for (ORBInitializer oi : orb_initializers)
+                {
+                    if ( oi instanceof IORInterceptorInitializer)
+                    {
+                        found = true;
+                        logger.debug ("Adding IORInterceptorInitializer manually is deprecated.");
+                    }
+                }
+                if ( ! found)
+                {
+                    orb_initializers.add(new IORInterceptorInitializer());
+                }
+            }
+
             final ORBInitInfoImpl initInfo = new ORBInitInfoImpl(this);
 
             initManagers();
@@ -2089,9 +2112,9 @@ public final class ORB
         // allow no more access to ORBInitInfo from ORBInitializers
         info.setInvalid ();
 
-        List client_interceptors = info.getClientInterceptors();
-        List server_interceptors = info.getServerInterceptors();
-        List ior_intercept = info.getIORInterceptors();
+        List<Interceptor> client_interceptors = info.getClientInterceptors();
+        List<Interceptor> server_interceptors = info.getServerInterceptors();
+        List<Interceptor> ior_intercept = info.getIORInterceptors();
 
         hasClientInterceptors = !client_interceptors.isEmpty();
         hasServerInterceptors = !server_interceptors.isEmpty();
@@ -2115,11 +2138,11 @@ public final class ORB
     /**
      * call pre_init on ORBInitializers
      */
-    private void interceptorPreInit(List orb_initializers, final ORBInitInfo info)
+    private void interceptorPreInit(List<ORBInitializer> orb_initializers, final ORBInitInfo info)
     {
-        for (Iterator i = orb_initializers.iterator(); i.hasNext();)
+        for (Iterator<ORBInitializer> i = orb_initializers.iterator(); i.hasNext();)
         {
-            final ORBInitializer initializer = (ORBInitializer) i.next();
+            final ORBInitializer initializer = i.next();
             try
             {
                 initializer.pre_init (info);
@@ -2142,11 +2165,11 @@ public final class ORB
     /**
      * call post_init on ORBInitializers
      */
-    private void interceptorPostInit(List orb_initializers, ORBInitInfo info)
+    private void interceptorPostInit(List<ORBInitializer> orb_initializers, ORBInitInfo info)
     {
-        for (Iterator i = orb_initializers.iterator(); i.hasNext();)
+        for (Iterator<ORBInitializer> i = orb_initializers.iterator(); i.hasNext();)
         {
-            ORBInitializer initializer = (ORBInitializer) i.next();
+            ORBInitializer initializer = i.next();
             try
             {
                 initializer.post_init (info);
@@ -2172,15 +2195,15 @@ public final class ORB
      *
      * @return a List containing ORBInitializer instances
      */
-    private List getORBInitializers()
+    private List<ORBInitializer> getORBInitializers()
     {
-        final List orb_initializers = new ArrayList();
+        final List<ORBInitializer> orb_initializers = new ArrayList<ORBInitializer>();
         final String initializer_prefix = "org.omg.PortableInterceptor.ORBInitializerClass.";
-        final List prop_names = configuration.getAttributeNamesWithPrefix(initializer_prefix);
+        final List<String> prop_names = configuration.getAttributeNamesWithPrefix(initializer_prefix);
 
-        for (Iterator i = prop_names.iterator(); i.hasNext();)
+        for (Iterator<String> i = prop_names.iterator(); i.hasNext();)
         {
-            final String prop_name = (String) i.next();
+            final String prop_name = i.next();
             String name = configuration.getAttribute( prop_name, "" );
 
             if (name.length() == 0 && prop_name.length() > initializer_prefix.length())
@@ -2199,7 +2222,7 @@ public final class ORB
 
                 if (newInstance instanceof ORBInitializer)
                 {
-                    orb_initializers.add(newInstance);
+                    orb_initializers.add((ORBInitializer) newInstance);
                     if ( logger.isDebugEnabled())
                     {
                         logger.debug("added ORBInitializer: " + name);

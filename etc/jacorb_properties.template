@@ -493,7 +493,6 @@ jacorb.net.tcp_listener=
 ###########################################
 
 # uncomment this initializer if you want to use BiDirectional GIOP
-
 #org.omg.PortableInterceptor.ORBInitializerClass.bidir_init=org.jacorb.orb.giop.BiDirConnectionInitializer
 
 ###########################################
@@ -583,9 +582,9 @@ jacorb.net.tcp_listener=
 #   Please leave them in!  #
 #                          #
 ############################
-org.omg.PortableInterceptor.ORBInitializerClass.standard_init=org.jacorb.orb.standardInterceptors.IORInterceptorInitializer
 
-
+# Deprecated : there is now no need to define org.jacorb.orb.standardInterceptors.IORInterceptorInitializer
+# as a standard interceptor as that is implied by jacorb.codeset property.
 
 ###############################################
 #                                             #

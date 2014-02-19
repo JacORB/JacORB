@@ -46,17 +46,17 @@ public class IORInfoImpl extends org.omg.CORBA.LocalObject
     /**
      * Maps profile tags to component lists (Integer -> TaggedComponentList).
      */
-    private final Map components;
+    private final Map<Integer, TaggedComponentList> components;
     private final Map policy_overrides;
     private final ORB orb;
     private final POA poa;
-    private final List _profiles;
+    private final List<Profile> _profiles;
 
     public IORInfoImpl(ORB orb,
                        POA poa,
-                       Map components,
+                       Map<Integer, TaggedComponentList> components,
                        Map policy_overrides,
-                       List profiles)
+                       List<Profile> profiles)
     {
         this.orb = orb;
         this.poa = poa;
@@ -70,9 +70,9 @@ public class IORInfoImpl extends org.omg.CORBA.LocalObject
      */
     public void add_ior_component (TaggedComponent component)
     {
-        for (Iterator i = components.values().iterator(); i.hasNext();)
+        for (Iterator<TaggedComponentList> i = components.values().iterator(); i.hasNext();)
         {
-            TaggedComponentList list = (TaggedComponentList)i.next();
+            TaggedComponentList list = i.next();
             list.addComponent (component);
         }
     }
@@ -82,8 +82,8 @@ public class IORInfoImpl extends org.omg.CORBA.LocalObject
      */
     public void add_ior_component_to_profile(TaggedComponent component, int id)
     {
-        TaggedComponentList list =
-            (TaggedComponentList)components.get(Integer.valueOf (id));
+        TaggedComponentList list = components.get(Integer.valueOf (id));
+
         if (list == null)
         {
             throw new org.omg.CORBA.BAD_PARAM
@@ -149,7 +149,7 @@ public class IORInfoImpl extends org.omg.CORBA.LocalObject
        int retVal = 0;
        for (int i=0; i < _profiles.size(); i++)
        {
-           Profile p = (Profile) _profiles.get(i);
+           Profile p = _profiles.get(i);
            if ( p.tag() == tag )
            {
               retVal++;
@@ -174,7 +174,7 @@ public class IORInfoImpl extends org.omg.CORBA.LocalObject
        Profile result = null;
        for (int i=0; i < _profiles.size(); i++)
        {
-           Profile profile = (Profile) _profiles.get(i);
+           Profile profile = _profiles.get(i);
            if ( profile.tag() == tag && cnt == 0)
            {
               result = profile;
@@ -203,7 +203,7 @@ public class IORInfoImpl extends org.omg.CORBA.LocalObject
        Profile result = null;
        for (int i=0; i < _profiles.size(); i++)
        {
-           Profile profile = (Profile) _profiles.get(i);
+           Profile profile = _profiles.get(i);
            if ( profile.tag() == tag )
            {
               result = profile;
