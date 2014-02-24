@@ -2573,6 +2573,7 @@ public final class Delegate
                 {
                     Collection<ServiceContext> ctx = sinfo.getReplyServiceContexts();
                     interceptors.getInfo ().setReplyServiceContexts (ctx.toArray (new ServiceContext[ctx.size ()]));
+                    orb.getInterceptorManager().removeLocalPICurrent();
 
                     try
                     {
@@ -2790,6 +2791,8 @@ public final class Delegate
                 {
                     if (interceptors != null && orb.hasRequestInterceptors())
                     {
+                        manager.removeLocalPICurrent ();
+
                         try
                         {
                             if (ex instanceof SystemException)
@@ -2948,6 +2951,7 @@ public final class Delegate
                 {
                     Collection<ServiceContext> ctx = sinfo.getReplyServiceContexts();
                     interceptors.getInfo ().setReplyServiceContexts (ctx.toArray (new ServiceContext[ctx.size ()]));
+                    manager.removeLocalPICurrent ();
 
                     if (interceptors != null && orb.hasRequestInterceptors())
                     {
@@ -3017,6 +3021,7 @@ public final class Delegate
             {
                 throw new OBJECT_NOT_EXIST();
             }
+
 
             if (e instanceof RuntimeException)
             {

@@ -455,7 +455,6 @@ public class NSFailoverTest extends ORBTestCase
             // goes and restart NameServers.
             Thread delayStart = new Thread (new Runnable()
             {
-                @Override
                 public void run()
                 {
                     try

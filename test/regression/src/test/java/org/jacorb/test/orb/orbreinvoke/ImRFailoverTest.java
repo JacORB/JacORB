@@ -494,7 +494,6 @@ public class ImRFailoverTest extends ORBTestCase
             // goes and restart both ImRs.
             Thread delayStart = new Thread (new Runnable()
             {
-                @Override
                 public void run()
                 {
                     try
