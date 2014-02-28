@@ -1,4 +1,4 @@
-package org.jacorb.test.orb;
+package org.jacorb.test.bugs.bug975;
 
 /*
  *        JacORB  - a free Java ORB
@@ -32,13 +32,13 @@ import org.junit.Assume;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.omg.CORBA.TRANSIENT;
 
 public class Bug975Test extends ClientServerTestCase
 {
     private Properties serverProps = new Properties();
     private ORBTestCase clientORBTestCase = new ORBTestCase ()
     {
+        @Override
         protected void patchORBProperties(Properties props) throws Exception
         {
             props.put ("jacorb.connection.client.pending_reply_timeout", "2000");

@@ -1,0 +1,18 @@
+module org
+{
+    module jacorb
+    {
+        module test
+        {
+            module bugs
+            {
+                module bug976
+                {
+                    interface Hello {
+                        void sayHello();
+                    };
+                };
+            };
+        };
+    };
+};
