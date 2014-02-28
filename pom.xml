@@ -75,6 +75,11 @@
         <!-- GPG key ID we sign the builds with. This can be overridden by other developers -->
         <gpg.keyname>6E0309600DC50C2E</gpg.keyname>
         <failIfNoTests>false</failIfNoTests>
+
+        <!-- Enforce 1.6 compaatibility -->
+        <maven.compiler.target>1.6</maven.compiler.target>
+        <maven.compiler.source>1.6</maven.compiler.source>
+
     </properties>
 
 
@@ -189,6 +194,20 @@
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-assembly-plugin</artifactId>
                     <version>2.2.2</version>
+                </plugin>
+
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-compiler-plugin</artifactId>
+                    <version>3.1</version>
+                    <configuration>
+                        <showDeprecation>true</showDeprecation>
+                        <showWarnings>true</showWarnings>
+                        <compilerArguments>
+                            <source>${maven.compiler.source}</source>
+                            <target>${maven.compiler.target}</target>
+                        </compilerArguments>
+                    </configuration>
                 </plugin>
 
                 <plugin>
@@ -379,6 +398,8 @@
 
 
         <plugins>
+            <!-- We can't remove the enforcer rule and rely on the maven-compiler-plugin
+                 source/target until the Ant compilation is removed. -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-enforcer-plugin</artifactId>
