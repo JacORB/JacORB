@@ -22,6 +22,7 @@
         <spring.version>3.1.1.RELEASE</spring.version>
         <cxf.version>2.7.5</cxf.version>
         <byteman.version>2.1.4.1</byteman.version>
+        <jacoco.version>0.6.4.201312101107</jacoco.version>
     </properties>
 
     <dependencies>
@@ -29,6 +30,12 @@
             <groupId>org.jacorb</groupId>
             <artifactId>jacorb</artifactId>
             <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.jacorb</groupId>
+            <artifactId>jacorb</artifactId>
+            <version>${project.version}</version>
+            <classifier>sources</classifier>
         </dependency>
         <dependency>
             <groupId>org.jacorb</groupId>
@@ -125,6 +132,97 @@
                     </execution>
                 </executions>
            </plugin>
+
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>build-helper-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>add-test-source</id>
+                        <phase>process-test-sources</phase>
+                        <goals>
+                            <goal>add-test-source</goal>
+                        </goals>
+                        <configuration>
+                            <sources>
+                                <source>${project.build.directory}/generated-test-sources/cxf</source>
+                                <source>${project.build.directory}/generated-test-sources/idl</source>
+                                <source>${basedir}/../listenendpoints/echo_corbaloc/src</source>
+                            </sources>
+                        </configuration>
+                    </execution>
+
+
+                    <execution>
+                        <id>add-report-sources</id>
+                        <phase>pre-site</phase>
+                        <goals>
+                            <goal>add-source</goal>
+                        </goals>
+                        <configuration>
+                            <sources>
+                                <source>${project.build.directory}/covered-sources</source>
+                            </sources>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.cxf</groupId>
+                <artifactId>cxf-corbatools-maven-plugin</artifactId>
+                <version>${cxf.version}</version>
+                <executions>
+                    <execution>
+                        <id>cfgService</id>
+                        <phase>generate-test-sources</phase>
+                        <goals>
+                            <goal>idl2wsdl</goal>
+                        </goals>
+                        <configuration>
+                            <outputDir>${project.build.directory}/test-classes</outputDir>
+                            <idltowsdlOptions>
+                                <idltowsdlOption>
+                                    <idl>${basedir}/src/test/idl/repro.idl</idl>
+                                    <extraargs>
+                                        <extraarg>-I</extraarg>
+                                        <extraarg>${basedir}/src/test/idl</extraarg>
+                                        <extraarg>-verbose</extraarg>
+                                    </extraargs>
+                                </idltowsdlOption>
+                            </idltowsdlOptions>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.cxf</groupId>
+                <artifactId>cxf-codegen-plugin</artifactId>
+                <version>${cxf.version}</version>
+                <executions>
+                    <execution>
+                        <id>generate-cxf-sources</id>
+                        <phase>generate-test-sources</phase>
+                        <configuration>
+                            <defaultOptions>
+                                <frontEnd>jaxws21</frontEnd>
+                                <packagenames>
+                                    <package>cxf.repro</package>
+                                </packagenames>
+                                <extraargs>
+                                    <extraarg>-client</extraarg>
+                                    <extraarg>-verbose</extraarg>
+                                </extraargs>
+                            </defaultOptions>
+                            <wsdlRoot>${project.build.directory}/test-classes</wsdlRoot>
+                            <sourceRoot>${project.build.directory}/generated-test-sources/cxf</sourceRoot>
+                        </configuration>
+                        <goals>
+                            <goal>wsdl2java</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
 
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
@@ -289,83 +387,6 @@
             </plugin>
 
             <plugin>
-                <groupId>org.apache.cxf</groupId>
-                <artifactId>cxf-corbatools-maven-plugin</artifactId>
-                <version>${cxf.version}</version>
-                <executions>
-                    <execution>
-                        <id>cfgService</id>
-                        <phase>generate-test-sources</phase>
-                        <goals>
-                            <goal>idl2wsdl</goal>
-                        </goals>
-                        <configuration>
-                            <outputDir>${project.build.directory}/test-classes</outputDir>
-                            <idltowsdlOptions>
-                                <idltowsdlOption>
-                                    <idl>${basedir}/src/test/idl/repro.idl</idl>
-                                    <extraargs>
-                                        <extraarg>-I</extraarg>
-                                        <extraarg>${basedir}/src/test/idl</extraarg>
-                                        <extraarg>-verbose</extraarg>
-                                    </extraargs>
-                                </idltowsdlOption>
-                            </idltowsdlOptions>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.cxf</groupId>
-                <artifactId>cxf-codegen-plugin</artifactId>
-                <version>${cxf.version}</version>
-                <executions>
-                    <execution>
-                        <id>generate-cxf-sources</id>
-                        <phase>generate-test-sources</phase>
-                        <configuration>
-                            <defaultOptions>
-                                <frontEnd>jaxws21</frontEnd>
-                                <packagenames>
-                                    <package>cxf.repro</package>
-                                </packagenames>
-                                <extraargs>
-                                    <extraarg>-client</extraarg>
-                                    <extraarg>-verbose</extraarg>
-                                </extraargs>
-                            </defaultOptions>
-                            <wsdlRoot>${project.build.directory}/test-classes</wsdlRoot>
-                            <sourceRoot>${project.build.directory}/generated-test-sources/cxf</sourceRoot>
-                        </configuration>
-                        <goals>
-                            <goal>wsdl2java</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>build-helper-maven-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>add-test-source</id>
-                        <phase>process-test-sources</phase>
-                        <goals>
-                            <goal>add-test-source</goal>
-                        </goals>
-                        <configuration>
-                            <sources>
-                                <source>${project.build.directory}/generated-test-sources/cxf</source>
-                                <source>${project.build.directory}/generated-test-sources/idl</source>
-                                <source>${basedir}/../listenendpoints/echo_corbaloc/src</source>
-                            </sources>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-
-            <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>rmic-maven-plugin</artifactId>
                 <version>1.2.1</version>
@@ -393,7 +414,6 @@
                     </execution>
                 </executions>
             </plugin>
-
 
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -458,7 +478,7 @@
                             <useManifestOnlyJar>false</useManifestOnlyJar>
                             <forkCount>0.75C</forkCount>
                             <reuseForks>false</reuseForks>
-                            <argLine>-Xbootclasspath/p:${settings.localRepository}/org/jacorb/jacorb-omgapi/${project.version}/jacorb-omgapi-${project.version}.jar -Djacorb.test.verbose=${jacorb.test.verbose}</argLine>
+                            <argLine>${jacoco.agent.argLine} -Xbootclasspath/p:${settings.localRepository}/org/jacorb/jacorb-omgapi/${project.version}/jacorb-omgapi-${project.version}.jar -Djacorb.test.verbose=${jacorb.test.verbose}</argLine>
                             <environmentVariables>
                                 <BYTEMAN_HOME></BYTEMAN_HOME>
                             </environmentVariables>
@@ -474,7 +494,7 @@
                             <useManifestOnlyJar>false</useManifestOnlyJar>
                             <forkCount>0.75C</forkCount>
                             <reuseForks>false</reuseForks>
-                            <argLine>-Xbootclasspath/p:${settings.localRepository}/org/jacorb/jacorb-omgapi/${project.version}/jacorb-omgapi-${project.version}.jar -Djacorb.test.verbose=${jacorb.test.verbose} -Djacorb.test.ssl=true</argLine>
+                            <argLine>${jacoco.agent.argLine} -Xbootclasspath/p:${settings.localRepository}/org/jacorb/jacorb-omgapi/${project.version}/jacorb-omgapi-${project.version}.jar -Djacorb.test.verbose=${jacorb.test.verbose} -Djacorb.test.ssl=true</argLine>
                             <reportsDirectory>${project.build.directory}/surefire-reports-ssl</reportsDirectory>
                             <environmentVariables>
                                 <BYTEMAN_HOME></BYTEMAN_HOME>
@@ -484,13 +504,44 @@
                 </executions>
             </plugin>
 
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>prepare-covered-classes</id>
+                        <goals>
+                            <goal>unpack-dependencies</goal>
+                        </goals>
+                        <phase>pre-site</phase>
+                        <configuration>
+                            <excludeClassifiers>sources</excludeClassifiers>
+                            <outputDirectory>${project.build.outputDirectory}</outputDirectory>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>prepare-covered-sources</id>
+                        <goals>
+                            <goal>unpack-dependencies</goal>
+                        </goals>
+                        <phase>pre-site</phase>
+                        <configuration>
+                            <includeClassifiers>sources</includeClassifiers>
+                            <outputDirectory>${project.build.directory}/covered-sources</outputDirectory>
+                        </configuration>
+                    </execution>
+                </executions>
+                <configuration>
+                    <includeGroupIds>org.jacorb</includeGroupIds>
+                </configuration>
+            </plugin>
             <!--
                  This generates a nice aggregate report. It must be run locally from the regression directory.
                  Unfortunately it seems invoking from $JACORB_HOME the maven-surefire-report-plugin does not work.
-                 Therefore to create an aggegrate test report invoke the tests from the regression directory or, if they
-                 have been invoked already (as part of a full build), then this could be invoked as:
-                 mvn -DskipJavadoc=true -DskipPDFGeneration=true -DskipTests=true -DskipCompile=true test
-                 OR
+                 Therefore to create an aggegrate test report invoke the tests and site plugin from the regression
+                 directory e.g.
+                 mvn -Dtest="BasicTest" clean test site
+                 Or if they have been invoked already (as part of a full build), then this could be invoked as:
                  mvn site
                  Finally, it can be viewed by invoking
                  firefox target/site/index.html
@@ -504,13 +555,6 @@
                     <execution>
                         <id>default-site</id>
                         <phase>site</phase>
-                        <goals>
-                            <goal>site</goal>
-                        </goals>
-                    </execution>
-                    <execution>
-                        <id>post-test</id>
-                        <phase>test</phase>
                         <goals>
                             <goal>site</goal>
                         </goals>
@@ -555,8 +599,58 @@
                                 </reportSet>
                             </reportSets>
                         </plugin>
+
+                        <plugin>
+                            <groupId>org.jacoco</groupId>
+                            <artifactId>jacoco-maven-plugin</artifactId>
+                            <version>${jacoco.version}</version>
+                            <configuration>
+                                <dataFile>${project.build.directory}/coverage-reports/jacoco-ut.exec</dataFile>
+                                <includes>
+                                    <include>org/jacorb/**/*</include>
+                                </includes>
+                            </configuration>
+                            <reportSets>
+                                <reportSet>
+                                    <reports>
+                                        <report>report</report>
+                                    </reports>
+                                </reportSet>
+                            </reportSets>
+                        </plugin>
+
                     </reportPlugins>
                 </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <version>${jacoco.version}</version>
+                <executions>
+                    <!--
+                        Prepares the property pointing to the JaCoCo runtime agent which
+                        is passed as VM argument when Maven the Surefire plugin is executed.
+                    -->
+                    <execution>
+                        <id>pre-unit-test</id>
+                        <goals>
+                            <goal>prepare-agent</goal>
+                        </goals>
+                        <configuration>
+                            <!-- Sets the path to the file which contains the execution data. -->
+                            <destFile>${project.build.directory}/coverage-reports/jacoco-ut.exec</destFile>
+                            <append>true</append>
+                            <dumpOnExit>true</dumpOnExit>
+                            <output>file</output>
+                            <!--
+                                Sets the name of the property containing the settings
+                                for JaCoCo runtime agent.
+                            -->
+                            <propertyName>jacoco.agent.argLine</propertyName>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
 
         </plugins>

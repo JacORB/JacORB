@@ -25,6 +25,8 @@ import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.lang.management.ManagementFactory;
+import java.lang.management.RuntimeMXBean;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -320,6 +322,21 @@ public class ServerSetup
             }
         }
 
+        // Extract any VM arguments e.g. java agent (used by coverage) etc and pass
+        // them to the server laucher so it uses the same parameters.
+        RuntimeMXBean runtimeMxBean = ManagementFactory.getRuntimeMXBean();
+        List<String> jvmArgs = new ArrayList<String>();
+        Iterator<String> s = runtimeMxBean.getInputArguments().iterator();
+        while (s.hasNext())
+        {
+            String jvmArg = s.next();
+            // Don't pass Xboot or -D - they are handled separately.
+            if ( ! jvmArg.startsWith("-Xbootclasspath") && ! jvmArg.startsWith("-D"))
+            {
+                jvmArgs.add(jvmArg);
+            }
+        }
+
         try
         {
             Launcher launcher = new Launcher();
@@ -327,6 +344,7 @@ public class ServerSetup
             launcher.setClasspath(classpath);
             launcher.setMainClass(mainClass);
             launcher.setArgs(processArgs);
+            launcher.setVmArgs(jvmArgs);
             launcher.setUseCoverage(useCoverage);
 
             if (home != null)

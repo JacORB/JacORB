@@ -39,14 +39,6 @@ import org.jacorb.test.common.TestUtils;
  */
 public class Launcher
 {
-    protected static boolean assertsEnabled;
-
-    static
-    {
-        assertsEnabled = false;
-        assert assertsEnabled = true; // Intentional side effect!!!
-    }
-
     protected File jacorbHome;
 
     protected String classpath;
@@ -55,7 +47,7 @@ public class Launcher
 
     protected boolean useCoverage;
 
-    protected String[] vmArgs;
+    protected List<String> vmArgs;
 
     protected String mainClass;
 
@@ -92,9 +84,9 @@ public class Launcher
         this.useCoverage = useCoverage;
     }
 
-    public void setVmArgs(String[] vmArgs)
+    public void setVmArgs(List<String> jvmArgs)
     {
-        this.vmArgs = vmArgs;
+        this.vmArgs = jvmArgs;
     }
 
     public void setJacorbHome(File jacorbHome)
@@ -165,11 +157,7 @@ public class Launcher
         final List<String> cmdList = new ArrayList<String>();
 
         cmdList.add (javaCommand);
-
-        if (assertsEnabled)
-        {
-            cmdList.add("-ea");
-        }
+        cmdList.addAll (vmArgs);
 
         cmdList.add("-Xbootclasspath:" + System.getProperty("sun.boot.class.path"));
 

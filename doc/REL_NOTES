@@ -52,6 +52,8 @@
          - Fix for local interceptors and slots (BZ976)
     - Documentation
         - Minor fixes.
+    - Misc
+        - Add Jacoco Coverage to regression suite.
 
 3.4
 ===
