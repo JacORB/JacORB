@@ -226,8 +226,6 @@ public class JacORBConfiguration implements Configuration
     {
         super();
         this.orb = orb;
-        this.logger = getLogger ("jacorb.config");
-
         LinkedHashMap<Level,String> delayedLogging = new LinkedHashMap<Level,String> ();
         if (isApplet)
         {
@@ -239,6 +237,8 @@ public class JacORBConfiguration implements Configuration
         }
 
         initLogging();
+
+        logger = getLogger ("org.jacorb.config");
 
         // This delays logging out any information about the loading of the properties
         // or configuration until any logging subsystem has been setup.
@@ -772,33 +772,17 @@ public class JacORBConfiguration implements Configuration
            {
               if (name.equals (Version.orbId))
               {
-                 loggerName = "jacorb." + implName;
+                 loggerName = LoggingInitializer.ATTR_LOG_NAME + '.' + implName;
               }
-              else if (name.startsWith ("jacorb."))
+              else if (name.startsWith (LoggingInitializer.ATTR_LOG_NAME + '.'))
               {
-                 loggerName = "jacorb." + implName + "." + name.substring (7);
+                 loggerName = LoggingInitializer.ATTR_LOG_NAME + '.' + implName + "." + name.substring (11);
               }
            }
         }
         return org.slf4j.LoggerFactory.getLogger (loggerName);
     }
 
-
-
-    /* (non-Javadoc)
-     * @see org.jacorb.config.Configuration#getLoggerName(java.lang.Class)
-     */
-    public String getLoggerName(Class<?> clz)
-    {
-        final String clazzName = clz.getName();
-        final String packageName = clazzName.substring(0, clazzName.lastIndexOf('.'));
-
-        if (packageName != null && packageName.startsWith("org.jacorb"))
-        {
-            return packageName.substring(4);
-        }
-        return packageName;
-    }
 
     /**
      * Gets the attribute

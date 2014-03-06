@@ -61,7 +61,7 @@ public class PolicyManager
         super();
 
         policy_overrides = new HashMap();
-        this.logger = config.getLogger("jacorb.orb.policies");
+        this.logger = config.getLogger("org.jacorb.orb.policies");
     }
 
     /**

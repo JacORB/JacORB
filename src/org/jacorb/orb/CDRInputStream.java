@@ -260,7 +260,7 @@ public class CDRInputStream
     private void configure(Configuration configuration)
         throws ConfigurationException
     {
-        logger = configuration.getLogger("jacorb.orb.cdr");
+        logger = configuration.getLogger("org.jacorb.orb.cdr");
 
         codesetEnabled  = configuration.getAttributeAsBoolean ("jacorb.codeset", false);
         cometInteropFix = configuration.getAttributeAsBoolean ("jacorb.interop.comet",false);

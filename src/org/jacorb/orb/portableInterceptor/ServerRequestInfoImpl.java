@@ -78,7 +78,7 @@ public class ServerRequestInfoImpl
 
     private final ServerRequest request;
 
-    public Any sending_exception = null;
+    protected Any sending_exception = null;
 
 
     public ServerRequestInfoImpl( org.jacorb.orb.ORB orb,
@@ -542,5 +542,12 @@ public class ServerRequestInfoImpl
     public RequestInputStream getRequestStream ()
     {
         return request.get_in();
+    }
+
+
+    /** Set the sending_exception Any. Used by RequestProcessor. */
+    public void sending_exception(Any any)
+    {
+        sending_exception = any;
     }
 }

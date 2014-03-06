@@ -73,7 +73,7 @@ public class TransactionCurrentImpl
         this.orb = orb;
         this.slot_id = slot_id;
         logger =    
-            orb.getConfiguration().getLogger("jacorb.tx_service.current");
+            orb.getConfiguration().getLogger("org.jacorb.tx_service.current");
 
         contexts = new Hashtable();
         timeouts = new Hashtable();
@@ -388,9 +388,3 @@ public class TransactionCurrentImpl
         }
     } 
 } // TransactionCurrentImpl
-
-
-
-
-
-

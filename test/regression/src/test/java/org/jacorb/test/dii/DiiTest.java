@@ -20,6 +20,8 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.omg.CORBA.Any;
 import org.omg.CORBA.BAD_INV_ORDER;
+import org.omg.CORBA.BAD_PARAM;
+import org.omg.CORBA.BAD_PARAMHelper;
 import org.omg.CORBA.WrongTransaction;
 import org.omg.ETF.Profile;
 
@@ -36,7 +38,6 @@ public class DiiTest extends ClientServerTestCase
     @BeforeClass
     public static void beforeClassSetUp() throws Exception
     {
-
         Properties props = new Properties();
 
         setup = new ClientServerSetup(DynamicServer.class.getName(), props, props);
@@ -130,6 +131,18 @@ public class DiiTest extends ClientServerTestCase
 
         request.invoke();
         request.invoke();
+    }
+
+    @Test
+    public void testRepositoryId()
+    {
+        org.omg.CORBA.Request request = server._request("_repository_id");
+
+        request.set_return_type( orb.get_primitive_tc( org.omg.CORBA.TCKind.tk_string ));
+        request.invoke();
+        assertNull(request.env().exception());
+        assertEquals("IDL:org/jacorb/test/dii/DIIServer:1.0", request.return_value().extract_string());
+
     }
 
     @Test
@@ -284,5 +297,44 @@ public class DiiTest extends ClientServerTestCase
         DIIException ex = DIIExceptionHelper.extract(any);
 
         assertEquals("TestException", ex.why);
+    }
+
+    @Test
+    public void testSendRequestWhichCausesASystemException() throws Exception
+    {
+        org.omg.CORBA.Request request = server._request("raiseSystemException");
+        request.add_in_arg().insert_boolean(false);
+
+        request.invoke();
+
+        Exception exception = request.env().exception();
+
+        assertNotNull(exception);
+
+        assertTrue (exception instanceof BAD_PARAM);
+    }
+
+
+    @Test
+    public void testSendRequestWhichCausesAWrappedSystemException() throws Exception
+    {
+        org.omg.CORBA.Request request = server._request("raiseSystemException");
+        request.add_in_arg().insert_boolean(true);
+
+        org.omg.CORBA.ExceptionList exceptions = request.exceptions();
+
+        org.omg.CORBA.TypeCode typeCode = BAD_PARAMHelper.type();
+
+        exceptions.add( typeCode );
+
+        request.invoke();
+
+        Exception exception = request.env().exception();
+
+        assertNotNull(exception);
+
+        org.omg.CORBA.Any any = ((org.omg.CORBA.UnknownUserException) exception).except;
+        BAD_PARAM ex = BAD_PARAMHelper.extract(any);
+        System.out.println ("Extracted exception: " + ex);
     }
 }

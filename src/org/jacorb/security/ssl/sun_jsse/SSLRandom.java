@@ -62,7 +62,7 @@ public class SSLRandom implements Configurable
 
     public void configure(Configuration config) throws ConfigurationException
     {
-        logger = config.getLogger("jacorb.security.jsse");
+        logger = config.getLogger("org.jacorb.security.jsse");
 
         try
         {

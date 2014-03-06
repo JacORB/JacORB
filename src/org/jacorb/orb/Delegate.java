@@ -368,10 +368,9 @@ public final class Delegate
 
         selectorManager = orb.getSelectorManager ();
 
-        logger = config.getLogger("jacorb.orb.delegate");
+        logger = config.getLogger("org.jacorb.orb.delegate");
         useJacORBIMR =
             config.getAttributeAsBoolean("jacorb.use_imr", false);
-
 
         useTaoIMR =
             config.getAttributeAsBoolean("jacorb.use_tao_imr", false);
@@ -2476,6 +2475,12 @@ public final class Delegate
 
         synchronized ( bind_sync )
         {
+            if ( connections[currentConnection.ordinal ()] != null &&
+                 connections[currentConnection.ordinal ()].isClosed())
+            {
+                release(self);
+            }
+
             bind();
 
             ParsedIOR ior = getParsedIOR();
@@ -2568,6 +2573,7 @@ public final class Delegate
                 {
                     Collection<ServiceContext> ctx = sinfo.getReplyServiceContexts();
                     interceptors.getInfo ().setReplyServiceContexts (ctx.toArray (new ServiceContext[ctx.size ()]));
+                    orb.getInterceptorManager().removeLocalPICurrent();
 
                     try
                     {
@@ -2785,6 +2791,8 @@ public final class Delegate
                 {
                     if (interceptors != null && orb.hasRequestInterceptors())
                     {
+                        manager.removeLocalPICurrent ();
+
                         try
                         {
                             if (ex instanceof SystemException)
@@ -2943,6 +2951,7 @@ public final class Delegate
                 {
                     Collection<ServiceContext> ctx = sinfo.getReplyServiceContexts();
                     interceptors.getInfo ().setReplyServiceContexts (ctx.toArray (new ServiceContext[ctx.size ()]));
+                    manager.removeLocalPICurrent ();
 
                     if (interceptors != null && orb.hasRequestInterceptors())
                     {
@@ -3012,6 +3021,7 @@ public final class Delegate
             {
                 throw new OBJECT_NOT_EXIST();
             }
+
 
             if (e instanceof RuntimeException)
             {

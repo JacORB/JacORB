@@ -20,13 +20,10 @@
 
 package org.jacorb.orb.giop;
 
-import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.util.ArrayList;
-import java.util.Properties;
 import org.jacorb.config.Configuration;
 import org.jacorb.config.ConfigurationException;
 import org.jacorb.orb.CDRInputStream;
@@ -88,7 +85,7 @@ public class CodeSet
     /**
      * <code>logger</code> is the static logger for Codeset.
      */
-    private static Logger logger = LoggerFactory.getLogger("jacorb.codeset");
+    private static Logger logger = LoggerFactory.getLogger("org.jacorb.codeset");
 
     /** static flag that keeps track of the configuration status. */
     private static boolean isConfigured = false;
@@ -167,7 +164,7 @@ public class CodeSet
                 logger.info ("Set default native wchar codeset to " + codeset);
           }
 
-            logger = config.getLogger("jacorb.codeset");
+            logger = config.getLogger("org.jacorb.codeset");
             isConfigured = true;
         }
         else
@@ -334,11 +331,11 @@ public class CodeSet
                 codeSets.add( KNOWN_ENCODINGS[i] );
             }
         }
-        int nativeSet = ((CodeSet) codeSets.remove( 0 )).getId();
+        int nativeSet = codeSets.remove( 0 ).getId();
         int[] conversionSets = new int[codeSets.size()];
         for (int i = 0; i < conversionSets.length; i++)
         {
-            conversionSets[i] = ((CodeSet) codeSets.get(i)).getId();
+            conversionSets[i] = codeSets.get(i).getId();
         }
         return new CodeSetComponent( nativeSet, conversionSets );
     }
@@ -901,7 +898,7 @@ public class CodeSet
 
     /*
      * According to:
-     * http://www.omg.org/issues/issue4008.txt 
+     * http://www.omg.org/issues/issue4008.txt
      * http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=4506930
      * UCS-2 should not write a BOM.
      */
@@ -910,122 +907,6 @@ public class CodeSet
         private Ucs2CodeSet()
         {
             super( 0x00010100, "UCS2" );
-        }
-    }
-
-
-    /*
-     * This is useful for debugging to print out Operating System details and
-     * the encoding of that system.
-     *
-     * Currently this prints the following information:
-     *    Operating System
-     *    OS Version
-     *    OS Architecture
-     *    User Region
-     *    Java Version
-     *    JacORB Version
-     *    System File Encoding
-     *    Cannonical Encoding
-     * If we are running on a Unix system and have used the command line argument
-     * '-a' then it also runs the commands:
-     *    locale
-     *    locale -a
-     *
-     * Remember the precendence levels of LC_ALL, LANG, LC_CTYPE etc. Preferred
-     * way to override for *all* categories is to set LC_ALL. If you just set LANG
-     * then if any other LC_* categories are set then these will take precedence.
-     * See http://publib16.boulder.ibm.com/pseries/en_US/aixprggd/nlsgdrf/locale_env.htm
-     */
-    public static void main (String args[])
-    {
-        if (args != null && args.length > 0 &&
-            ! (args[0].equals("-h") || args[0].equals("-a") || args[0].equals("-l")))
-        {
-            System.out.println("Usage: org.jacorb.orb.connection.CodeSet [-a | -l <codeset>] ");
-            System.exit(1);
-        }
-
-        Properties props = System.getProperties ();
-
-        String osName = (String)props.get ("os.name");
-
-        System.out.println ("JacORB: " + org.jacorb.util.Version.versionInfo);
-        System.out.println ("Operating system name: " + osName);
-        System.out.println ("Operating system version: " + props.get ("os.version"));
-        System.out.println ("Operating system architecture: " + props.get ("os.arch"));
-        System.out.println ("User region: " + System.getProperty( "user.region"));
-        System.out.println ("JVM: " + props.get ("java.vm.version"));
-
-        System.out.println("System file encoding property: " + System.getProperty( "file.encoding" ));
-
-        String defaultIOEncoding = (new OutputStreamWriter(new ByteArrayOutputStream ())).getEncoding();
-        System.out.println("Cannonical encoding: " + defaultIOEncoding);
-        System.out.println("Default WChar encoding: " + nativeCodeSetWchar.getName() );
-
-        // If we're not using Windows do some extra debug, printing out the locale information.
-        if ((osName.toLowerCase ()).indexOf ("windows") == -1)
-        {
-            System.out.println("Locale is:");
-            try
-            {
-                Process locale = Runtime.getRuntime().exec ("locale");
-
-                BufferedReader buffer = new BufferedReader
-                    (new InputStreamReader (locale.getInputStream()));
-
-                while (true)
-                {
-                    String line = buffer.readLine();
-                    if (line == null)
-                    {
-                        break;
-                    }
-                    System.out.println("    " + line);
-                }
-                buffer.close();
-            }
-            catch (IOException e)
-            {
-                System.err.println("Caught exception " + e);
-            }
-
-
-            if (args != null &&
-                args.length == 1 &&
-                args[0].equals ("-a"))
-            {
-                System.out.println("All available locales are:");
-                try
-                {
-                    Process locale = Runtime.getRuntime().exec ("locale -a");
-
-                    BufferedReader buffer = new BufferedReader
-                        (new InputStreamReader (locale.getInputStream()));
-
-                    while (true)
-                    {
-                        String line = buffer.readLine();
-                        if (line == null)
-                        {
-                            break;
-                        }
-                        System.out.println("        " + line);
-                    }
-                    buffer.close();
-                }
-                catch (IOException e)
-                {
-                    System.err.println("Caught exception " + e);
-                }
-            }
-            else if (args != null &&
-                     args.length == 2 &&
-                     args[0].equals ("-l"))
-            {
-                CodeSet c = getCodeSet(args[1]);
-                System.out.println ("Codeset " + args[1] + " is " + c.getName());
-            }
         }
     }
 }

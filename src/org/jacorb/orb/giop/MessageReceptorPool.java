@@ -59,7 +59,7 @@ public class MessageReceptorPool
 
         final int maxIdleThreads = configuration.getAttributeAsInteger("jacorb.connection." + config + ".max_idle_receptor_threads", MAX_IDLE_DEFAULT);
 
-        Logger logger = configuration.getLogger("jacorb.orb.giop");
+        Logger logger = configuration.getLogger("org.jacorb.orb.giop");
 
         if (logger.isDebugEnabled())
         {

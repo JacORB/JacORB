@@ -1,10 +1,12 @@
 package org.jacorb.config;
 
+import java.io.File;
 import java.util.logging.ConsoleHandler;
 import java.util.logging.FileHandler;
 import java.util.logging.Handler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.jacorb.config.JacORBLogFormatter.ClockFormat;
 import org.jacorb.util.ObjectUtil;
 import org.omg.CORBA.ORBSingleton;
 
@@ -22,8 +24,16 @@ public class JdkLoggingInitializer extends LoggingInitializer
      */
     private static final boolean ISJDKLOGGING;
 
+    /**
+     * Use to determine whether a Java Logging configuration file has been
+     * supplied to override the JacORB configuration.
+     */
+    private static final boolean USEJACORBCONFIG;
+
     static
     {
+        USEJACORBCONFIG = ( System.getProperty("java.util.logging.config.file") == null );
+
         Class<?> c = null;
         try
         {
@@ -82,61 +92,67 @@ public class JdkLoggingInitializer extends LoggingInitializer
         }
     }
 
-    public void init (Configuration config)
+    public void init (Configuration config) throws ConfigurationException
     {
-        if (!ISJDKLOGGING)
+        if (!ISJDKLOGGING || !USEJACORBCONFIG)
         {
-           return;
+            return;
         }
 
         String level = config.getAttribute (ATTR_LOG_VERBOSITY, "3");
         String file  = config.getAttribute (ATTR_LOG_FILE, null);
         boolean showThread = config.getAttributeAsBoolean (ATTR_LOG_THREAD_ID, false);
         boolean showSrcInfo = config.getAttributeAsBoolean (ATTR_LOG_SRC_INFO, false);
+        String clockFormat = config.getAttribute(ATTR_LOG_CLOCK, ClockFormat.NONE.toString());
 
-        if (   (level != null && level.length() > 0)
-            || (file != null && file.length() > 0))
+        rootLogger = Logger.getLogger(LoggingInitializer.ATTR_LOG_NAME);
+        rootLogger.setUseParentHandlers (false);
+        rootLogger.setLevel (toJdkLogLevel (level));
+
+        // Ensure there is only one handler
+        purgeHandlers (rootLogger);
+
+        Handler handler;
+
+        if (file != null && file.length() > 0)
         {
-            rootLogger = Logger.getLogger ("jacorb");
-            rootLogger.setUseParentHandlers (false);
-            rootLogger.setLevel (toJdkLogLevel (level));
-
-            // Ensure there is only one handler
-            purgeHandlers (rootLogger);
-
-            Handler handler;
-
-            if (file != null && file.length() > 0)
+            if (new File (file).isDirectory())
             {
-                try
-                {
-                    handler = new FileHandler
-                    (
+                // Logging to a directory. Append $implname.
+                file = file.concat(File.separatorChar + "$implname");
+            }
+
+            try
+            {
+                handler = new FileHandler
+                (
                         substituteImplname (file, config),
                         config.getAttributeAsInteger (ATTR_LOG_SIZE, 0),
                         config.getAttributeAsInteger (ATTR_LOG_ROTATE, 1),
                         config.getAttributeAsBoolean (ATTR_LOG_APPEND, false)
-                    );
-                }
-                catch (java.io.IOException ex)
-                {
-                    System.err.println ("could not write log file");
-                    handler = new ConsoleHandler();
-                }
-               catch (ConfigurationException ex)
-               {
-                  System.err.println ("could not write log file due to configuration exception " + ex);
-                  handler = new ConsoleHandler();
-               }
+                );
             }
-            else
+            catch (java.io.IOException ex)
             {
-               handler = new ConsoleHandler();
+                System.err.println ("could not write log file");
+                ex.printStackTrace();
+                handler = new ConsoleHandler();
             }
-            handler.setLevel(toJdkLogLevel(level));
-            handler.setFormatter (new JacORBLogFormatter(showThread, showSrcInfo));
-            rootLogger.addHandler (handler);
+            catch (ConfigurationException ex)
+            {
+                System.err.println ("could not write log file due to configuration exception");
+                ex.printStackTrace();
+                handler = new ConsoleHandler();
+            }
         }
+        else
+        {
+            handler = new ConsoleHandler();
+        }
+
+        handler.setLevel(toJdkLogLevel(level));
+        handler.setFormatter (new JacORBLogFormatter(showThread, showSrcInfo, ClockFormat.getClockFormat(clockFormat)));
+        rootLogger.addHandler (handler);
     }
 
 

@@ -49,7 +49,7 @@ public class KerberosContext
         throws ConfigurationException
     {
         logger =
-            ((org.jacorb.config.Configuration)configuration).getLogger("jacorb.security.sas.Kerberos.log.verbosity");
+            ((org.jacorb.config.Configuration)configuration).getLogger("org.jacorb.security.sas.Kerberos.log.verbosity");
     }
 
     public void initClient()

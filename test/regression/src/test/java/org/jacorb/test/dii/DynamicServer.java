@@ -6,6 +6,9 @@ import org.jacorb.config.ConfigurationException;
 import org.jacorb.test.dii.DIIServerPackage.DIIException;
 import org.jacorb.test.dii.DIIServerPackage.DIIExceptionHelper;
 import org.omg.CORBA.Any;
+import org.omg.CORBA.BAD_PARAM;
+import org.omg.CORBA.BAD_PARAMHelper;
+import org.omg.CORBA.ORB;
 import org.omg.PortableServer.DynamicImplementation;
 
 public class DynamicServer extends DynamicImplementation implements Configurable
@@ -13,18 +16,26 @@ public class DynamicServer extends DynamicImplementation implements Configurable
     private final String[] ids = {DIIServerHelper.id()};
 
     // singleton ORB as any factory
-    org.omg.CORBA.ORB orb = null;
+    org.omg.CORBA.ORB orb = ORB.init();
 
     ServerDelegate delegate = new ServerDelegate();
 
     /** from Servant */
 
+    @Override
     public String[] _all_interfaces(org.omg.PortableServer.POA poa,
                                     byte[] objectId)
     {
         return ids;
     }
 
+    @Override
+    public String _repository_id ()
+    {
+        return ids[0];
+    }
+
+    @Override
     public void invoke(org.omg.CORBA.ServerRequest request)
     {
         String op = request.operation();
@@ -106,6 +117,35 @@ public class DynamicServer extends DynamicImplementation implements Configurable
                 request.set_exception(any);
             }
         }
+        else if( op.equals("raiseSystemException") )
+        {
+            org.omg.CORBA.NVList params = orb.create_list(0);
+            Any boolAny = orb.create_any();
+            boolAny.type( orb.get_primitive_tc(org.omg.CORBA.TCKind.tk_boolean));
+            params.add_value( "", boolAny, org.omg.CORBA.ARG_IN.value );
+            request.arguments( params );
+
+            boolean embedExceptionInAny = boolAny.extract_boolean();
+
+            if (embedExceptionInAny)
+            {
+                try
+                {
+                    delegate.raiseSystemException(embedExceptionInAny);
+                }
+                catch (BAD_PARAM e)
+                {
+                    Any any = orb.create_any();
+                    BAD_PARAMHelper.insert(any, e);
+                    request.set_exception(any);
+                }
+            }
+            // else we'll let the BAD_PARAM propagate.
+            else
+            {
+                delegate.raiseSystemException(embedExceptionInAny);
+            }
+        }
         else if( op.equals("notify") )
         {
             org.omg.CORBA.NVList params = orb.create_list(0);
@@ -142,6 +182,13 @@ public class DynamicServer extends DynamicImplementation implements Configurable
         {
             throw new org.omg.CORBA.BAD_OPERATION("Object reference operations not implemented in example");
         }
+        else if( op.equals("_repository_id") )
+        {
+            Any s = orb.create_any();
+            s.type( orb.get_primitive_tc(org.omg.CORBA.TCKind.tk_string ));
+            s.insert_string(_repository_id());
+            request.set_result( s );
+        }
         else
         {
             throw new org.omg.CORBA.BAD_OPERATION(op + " not found.");
@@ -150,6 +197,6 @@ public class DynamicServer extends DynamicImplementation implements Configurable
 
     public void configure(Configuration arg0) throws ConfigurationException
     {
-        orb = ((org.jacorb.config.Configuration)arg0).getORB();
+        orb = arg0.getORB();
     }
 }

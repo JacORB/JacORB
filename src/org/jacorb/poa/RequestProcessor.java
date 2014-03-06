@@ -35,6 +35,7 @@ import org.jacorb.orb.portableInterceptor.ServerInterceptorIterator;
 import org.jacorb.orb.portableInterceptor.ServerRequestInfoImpl;
 import org.jacorb.poa.except.POAInternalError;
 import org.jacorb.util.Time;
+import org.omg.CORBA.Any;
 import org.omg.CORBA.CompletionStatus;
 import org.omg.CORBA.UNKNOWN;
 import org.omg.CORBA.portable.InvokeHandler;
@@ -107,6 +108,7 @@ public class RequestProcessor
         specialOperations.add("_get_policy");
         specialOperations.add("_set_policy_overrides");
         specialOperations.add("_get_component");
+        specialOperations.add("_repository_id");
     }
 
     RequestProcessor (RPPoolManager _poolManager)
@@ -694,29 +696,37 @@ public class RequestProcessor
             short op = 0;
             switch(request.status().value())
             {
-                case ReplyStatusType_1_2._NO_EXCEPTION :
+                case ReplyStatusType_1_2._NO_EXCEPTION:
+                {
                     op = ServerInterceptorIterator.SEND_REPLY;
                     info.setReplyStatus (SUCCESSFUL.value);
                     break;
-
-                case ReplyStatusType_1_2._USER_EXCEPTION :
+                }
+                case ReplyStatusType_1_2._USER_EXCEPTION:
+                {
                     info.setReplyStatus (USER_EXCEPTION.value);
-                    SystemExceptionHelper.insert(info.sending_exception,
-                                                 new org.omg.CORBA.UNKNOWN("Stream-based UserExceptions are not available!"));
+                    Any sendingException = orb.create_any();
+                    SystemExceptionHelper.insert(sendingException, new org.omg.CORBA.UNKNOWN("Stream-based UserExceptions are not available!"));
+                    info.sending_exception(sendingException);
                     op = ServerInterceptorIterator.SEND_EXCEPTION;
                     break;
-
-                case ReplyStatusType_1_2._SYSTEM_EXCEPTION :
+                }
+                case ReplyStatusType_1_2._SYSTEM_EXCEPTION:
+                {
                     info.setReplyStatus (SYSTEM_EXCEPTION.value);
-                    SystemExceptionHelper.insert(info.sending_exception,
-                                                 request.getSystemException());
+                    Any sendingException = orb.create_any();
+                    SystemExceptionHelper.insert(sendingException, request.getSystemException());
+                    info.sending_exception(sendingException);
                     op = ServerInterceptorIterator.SEND_EXCEPTION;
                     break;
 
-                case ReplyStatusType_1_2._LOCATION_FORWARD :
+                }
+                case ReplyStatusType_1_2._LOCATION_FORWARD:
+                {
                     info.setReplyStatus (LOCATION_FORWARD.value);
                     op = ServerInterceptorIterator.SEND_OTHER;
                     break;
+                }
             }
 
             invokeInterceptors(info, op);

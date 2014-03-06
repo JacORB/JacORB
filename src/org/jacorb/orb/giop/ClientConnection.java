@@ -103,7 +103,7 @@ public class ClientConnection
 
         final Configuration configuration = ((org.jacorb.orb.ORB)orb).getConfiguration();
         logger =
-            configuration.getLogger("jacorb.giop.conn");
+            configuration.getLogger("org.jacorb.giop.conn");
 
         ignoreComponentInfo = ! (configuration.getAttributeAsBoolean("jacorb.codeset", false));
 
@@ -326,6 +326,14 @@ public class ClientConnection
     public void close()
     {
         connection.close();
+    }
+
+    /**
+     * Return the state of the underlying GIOP connection.
+     */
+    public boolean isClosed()
+    {
+        return connection.do_close;
     }
 
     /**

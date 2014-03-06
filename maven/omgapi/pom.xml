@@ -7,7 +7,7 @@
     <parent>
         <groupId>org.jacorb</groupId>
         <artifactId>jacorb-parent</artifactId>
-        <version>3.4-SNAPSHOT</version>
+        <version>3.5-SNAPSHOT</version>
         <relativePath>../..</relativePath>
     </parent>
 
@@ -30,6 +30,24 @@
             </plugin>
             <plugin>
                 <artifactId>maven-antrun-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>compile</id>
+                        <phase>compile</phase>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                        <configuration>
+                            <target unless="skipCompile">
+                                <property name="plugin_classpath" refid="maven.plugin.classpath"/>
+                                <ant antfile="${env.JACORB_HOME}/build.xml" inheritAll="true" inheritRefs="true" target="all">
+                                    <property name="sun.boot.class.path" value="${sun.boot.class.path}:${plugin_classpath}"/>
+                                    <property name="basedir" value="${env.JACORB_HOME}"/>
+                                </ant>
+                            </target>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
 
             <!-- Package up the sources as well -->

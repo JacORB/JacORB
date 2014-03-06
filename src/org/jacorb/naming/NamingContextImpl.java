@@ -88,7 +88,7 @@ public class NamingContextImpl
         throws ConfigurationException
     {
         this.configuration = (org.jacorb.config.Configuration)myConfiguration;
-        logger = configuration.getLogger("jacorb.naming");
+        logger = configuration.getLogger("org.jacorb.naming");
         doPurge = configuration.getAttributeAsBoolean("jacorb.naming.purge",false);
         ping = configuration.getAttributeAsBoolean("jacorb.naming.ping",false);
     }

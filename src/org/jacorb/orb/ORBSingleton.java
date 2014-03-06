@@ -81,7 +81,7 @@ public class ORBSingleton
 
                 // Don't call configure method as if this has been called from ORB::ctor
                 // class construction order can cause issues.
-                logger = configuration.getLogger ("jacorb.orb.singleton");
+                logger = configuration.getLogger("org.jacorb.orb.singleton");
 
                 doStrictCheckOnTypecodeCreation = configuration.getAttributeAsBoolean
                     ("jacorb.interop.strict_check_on_tc_creation", true);
@@ -127,7 +127,7 @@ public class ORBSingleton
     {
         configuration = config;
 
-        logger = configuration.getLogger("jacorb.orb");
+        logger = configuration.getLogger("org.jacorb.orb");
 
         doStrictCheckOnTypecodeCreation = configuration.getAttributeAsBoolean
             ("jacorb.interop.strict_check_on_tc_creation", true);

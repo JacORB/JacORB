@@ -23,7 +23,6 @@ package org.jacorb.orb.portableInterceptor;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-
 import org.jacorb.orb.Delegate;
 import org.jacorb.orb.Delegate.INVOCATION_KEY;
 import org.jacorb.orb.etf.ProfileBase;
@@ -96,7 +95,7 @@ public class ClientRequestInfoImpl
     {
         super(orb);
 
-        logger = orb.getConfiguration().getLogger("jacorb.orb.interceptors");
+        logger = orb.getConfiguration().getLogger("org.jacorb.orb.interceptors");
 
         this.operation = ros.operation();
         this.response_expected = ros.response_expected();
@@ -145,9 +144,8 @@ public class ClientRequestInfoImpl
         this.delegate = delegate;
 
         this.request_id = ros.requestId();
-        InterceptorManager manager = orb.getInterceptorManager();
 
-        this.current = manager.getCurrent();
+        this.current = orb.getInterceptorManager().getCurrent();
 
         //allow interceptors access to request output stream
         this.request_os = ros;
@@ -186,7 +184,7 @@ public class ClientRequestInfoImpl
     {
         super(orb);
 
-        logger = orb.getConfiguration().getLogger("jacorb.orb.interceptors");
+        logger = orb.getConfiguration().getLogger("org.jacorb.orb.interceptors");
 
         this.operation = operation;
         this.response_expected = response_expected;
@@ -484,7 +482,7 @@ public class ClientRequestInfoImpl
         TaggedComponent[] _result = new TaggedComponent[_store.size()];
         for (int _i = 0; _i < _result.length; _i++)
         {
-                _result[_i] = (TaggedComponent) _store.get(_i);
+                _result[_i] = _store.get(_i);
         }
 
         return _result;
@@ -585,5 +583,14 @@ public class ClientRequestInfoImpl
     public RequestOutputStream getRequestStream ()
     {
         return request_os;
+    }
+
+    /**
+     * Public accessor to access the Delegate for this client request. Use at your
+     * own risk
+     */
+    public Delegate getDelegate ()
+    {
+        return delegate;
     }
 } // ClientRequestInfoImpl

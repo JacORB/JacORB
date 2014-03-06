@@ -21,8 +21,9 @@ package org.jacorb.orb.etf;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-
-import org.jacorb.config.*;
+import org.jacorb.config.Configurable;
+import org.jacorb.config.Configuration;
+import org.jacorb.config.ConfigurationException;
 import org.jacorb.orb.ORB;
 import org.jacorb.orb.iiop.IIOPAddress;
 import org.slf4j.Logger;
@@ -86,10 +87,10 @@ public abstract class ConnectionBase
     public void configure(Configuration config)
         throws ConfigurationException
     {
-        configuration = (org.jacorb.config.Configuration)config;
+        configuration = config;
         orb = configuration.getORB();
 
-        logger = configuration.getLogger(configuration.getLoggerName(getClass()));
+        logger = configuration.getLogger(getClass().getName());
 
         if(configuration.getAttributeAsBoolean("jacorb.debug.dump_outgoing_messages",false))
         {

@@ -137,7 +137,7 @@ public class SelectorManager extends Thread
                                               "passed a null Configuration object");
         }
 
-        logger = configuration.getLogger("jacorb.util");
+        logger = configuration.getLogger("org.jacorb.util");
         loggerDebugEnabled = logger.isDebugEnabled();
     }
 

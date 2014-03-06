@@ -33,18 +33,49 @@ import java.util.logging.LogRecord;
  * than the standard JDK setting.
  *
  * @author Andre Spiegel <spiegel@gnu.org>
+ * @author Nick Cross
  */
 public class JacORBLogFormatter extends Formatter
 {
-    private final DateFormat timeFormat = new SimpleDateFormat ("yyyy-MM-dd HH:mm:ss.SSS");
+    public static enum ClockFormat
+    {
+        TIME,
+        DATE_TIME,
+        NONE;
 
-    private boolean showThread = false;
-    private boolean showSrcInfo = false;
+        public static ClockFormat getClockFormat (String cf) throws ConfigurationException
+        {
+            try
+            {
+                return valueOf (cf.toUpperCase());
+            }
+            catch (IllegalArgumentException e)
+            {
+                throw new ConfigurationException ("Invalid type for ClockFormat", e);
+            }
+        }
+    };
 
-    public JacORBLogFormatter (boolean show_thread, boolean srcinfo)
+    private final DateFormat timeFormat;
+
+    private boolean showThread;
+    private boolean showSrcInfo;
+    private ClockFormat clockFormat;
+
+    public JacORBLogFormatter (boolean show_thread, boolean srcinfo, ClockFormat cf)
     {
         showThread = show_thread;
         showSrcInfo = srcinfo;
+        clockFormat = cf;
+
+        if (clockFormat == ClockFormat.DATE_TIME)
+        {
+            timeFormat = new SimpleDateFormat ("yyyy-MM-dd HH:mm:ss.SSS");
+        }
+        else
+        {
+            timeFormat = null;
+        }
     }
 
     public String format (LogRecord record)
@@ -53,11 +84,11 @@ public class JacORBLogFormatter extends Formatter
 
         result = String.format
         (
-            "%s %s " +
+            (clockFormat != ClockFormat.NONE ? "%s %s " : "%s%s ") +
             (showSrcInfo ? "%s::%s" : "%s%s") +
             (showThread ? " [%d] " : "%s" ) +
-            " %s\n",
-            timeFormat.format (record.getMillis()),
+            "%s\n",
+            (clockFormat != ClockFormat.NONE ? getClockFormat(record.getMillis()) : ""),
             record.getLevel(),
             (showSrcInfo ? record.getSourceClassName() : ""),
             (showSrcInfo ? record.getSourceMethodName() : ""),
@@ -76,4 +107,27 @@ public class JacORBLogFormatter extends Formatter
         return sw.toString();
     }
 
+    private String getClockFormat (long millis)
+    {
+        switch (clockFormat)
+        {
+            case NONE:
+            {
+                return "";
+            }
+            case TIME:
+            {
+                return String.format("%02d:%02d:%02d",
+                        (millis / (1000 * 60 * 60)) % 24,
+                        (millis / (1000 * 60)) % 60,
+                        (millis / 1000) % 60 );
+            }
+            case DATE_TIME:
+            {
+                return timeFormat.format (millis);
+            }
+            default:
+                throw new RuntimeException ("Invalid clock format type");
+        }
+    }
 }

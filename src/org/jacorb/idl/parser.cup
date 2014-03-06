@@ -25,6 +25,7 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.util.Enumeration;
@@ -190,7 +191,7 @@ parser code
 
     protected static final void initLogging()
     {
-        logger = Logger.getLogger("jacorb.idl");
+        logger = Logger.getLogger("org.jacorb.idl");
         logger.setLevel(Level.SEVERE);
 
         Formatter formatter = new Formatter() {
@@ -198,18 +199,25 @@ parser code
             @Override
             public String format(LogRecord arg0) {
                 StringBuilder b = new StringBuilder();
+                b.append(arg0.getLevel());
                 b.append(" ");
                 b.append(arg0.getSourceClassName());
                 b.append(" ");
                 b.append(arg0.getSourceMethodName());
                 b.append(" ");
-                b.append(arg0.getLevel());
-                b.append(" ");
                 b.append(arg0.getMessage());
                 b.append(System.getProperty("line.separator"));
-                return b.toString();
+
+                Throwable t = arg0.getThrown();
+                return t == null ? b.toString() : b.toString () + getStackTrace (t);
             }
 
+            private String getStackTrace (Throwable t)
+            {
+                StringWriter sw = new StringWriter();
+                t.printStackTrace(new PrintWriter (sw));
+                return sw.toString();
+            }
         };
 
         handler = new ConsoleHandler();

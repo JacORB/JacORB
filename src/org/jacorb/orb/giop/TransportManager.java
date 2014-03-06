@@ -107,7 +107,7 @@ public class TransportManager
     		throws ConfigurationException
     {
         configuration = myConfiguration;
-        logger = configuration.getLogger("jacorb.orb.giop");
+        logger = configuration.getLogger("org.jacorb.orb.giop");
         useNonBlockingIIOPTransport = configuration.getAttributeAsBoolean
             ("jacorb.connection.nonblocking", false);
 

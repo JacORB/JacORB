@@ -26,6 +26,11 @@
 			<type>2</type>
 			<locationURI>JacORBRoot/test/listenendpoints/echo_corbaloc/src</locationURI>
 		</link>
+		<link>
+			<name>echo_corbaloc/src</name>
+			<type>2</type>
+			<locationURI>JacORBRoot/test/listenendpoints</locationURI>
+		</link>
 	</linkedResources>
 	<variableList>
 		<variable>

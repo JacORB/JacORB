@@ -27,6 +27,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.logging.Formatter;
@@ -69,25 +71,32 @@ public class AbstractIDLTestcase extends ORBTestCase
     {
         Assume.assumeFalse(TestUtils.isSSLEnabled);
 
-        parser.logger = Logger.getLogger("jacorb.idl");
+        parser.logger = Logger.getLogger("org.jacorb.idl");
         parser.logger.setLevel(Level.SEVERE);
 
         Formatter formatter = new Formatter() {
             @Override
             public String format(LogRecord arg0) {
                 StringBuilder b = new StringBuilder();
+                b.append(arg0.getLevel());
                 b.append(" ");
                 b.append(arg0.getSourceClassName());
                 b.append(" ");
                 b.append(arg0.getSourceMethodName());
                 b.append(" ");
-                b.append(arg0.getLevel());
-                b.append(" ");
                 b.append(arg0.getMessage());
                 b.append(System.getProperty("line.separator"));
-                return b.toString();
+
+                Throwable t = arg0.getThrown();
+                return t == null ? b.toString() : b.toString () + getStackTrace (t);
             }
 
+            private String getStackTrace (Throwable t)
+            {
+                StringWriter sw = new StringWriter();
+                t.printStackTrace(new PrintWriter (sw));
+                return sw.toString();
+            }
         };
 
         loggerContent = new ByteArrayOutputStream();
@@ -148,8 +157,8 @@ public class AbstractIDLTestcase extends ORBTestCase
             }
             finally
             {
-                loggerContent.flush();
-                details = loggerContent.toString();
+                parser.handler.flush ();
+                details = loggerContent.toString ();
                 loggerContent.reset();
             }
             assertTrue("parser didn't succeed", success);

@@ -63,7 +63,7 @@ public class GIOPConnectionManager
     {
         this.configuration = (org.jacorb.config.Configuration)myConfiguration;
         logger =
-            configuration.getLogger("jacorb.orb.giop.conn");
+            configuration.getLogger("org.jacorb.orb.giop.conn");
 
         max_server_giop_connections =
             configuration.getAttributeAsInteger("jacorb.connection.max_server_connections",
@@ -253,6 +253,3 @@ public class GIOPConnectionManager
     }
 
 }// GIOPConnectionManager
-
-
-

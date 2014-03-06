@@ -81,7 +81,7 @@ public class InterceptorManager
                               ORB orb)
     {
         logger =
-            orb.getConfiguration().getLogger("jacorb.orb.interceptors");
+            orb.getConfiguration().getLogger("org.jacorb.orb.interceptors");
 
         if (logger.isInfoEnabled())
         {

@@ -62,7 +62,7 @@ public class RequestQueue
         }
 
         this.configuration = (org.jacorb.config.Configuration)myConfiguration;
-        logger = configuration.getLogger("jacorb.poa.queue");
+        logger = configuration.getLogger("org.jacorb.poa.queue");
         queueMax = configuration.getAttributeAsInteger("jacorb.poa.queue_max", 100);
         queueMin = configuration.getAttributeAsInteger("jacorb.poa.queue_min", 10);
         queueWait = configuration.getAttributeAsBoolean("jacorb.poa.queue_wait",false);

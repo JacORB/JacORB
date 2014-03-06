@@ -40,7 +40,7 @@ public class AbstractORBInitializer extends org.omg.CORBA.LocalObject implements
         orb = ((ORBInitInfoImpl)info).getORB();
         config = orb.getConfiguration();
 
-        final Logger logger = config.getLogger("jacorb.orb.interceptor.pre_init");
+        final Logger logger = config.getLogger("org.jacorb.orb.interceptor.pre_init");
 
         try
         {
@@ -66,7 +66,7 @@ public class AbstractORBInitializer extends org.omg.CORBA.LocalObject implements
         orb = ((ORBInitInfoImpl)info).getORB();
         config = orb.getConfiguration();
 
-        final Logger logger = config.getLogger("jacorb.orb.interceptor.post_init");
+        final Logger logger = config.getLogger("org.jacorb.orb.interceptor.post_init");
 
         try
         {

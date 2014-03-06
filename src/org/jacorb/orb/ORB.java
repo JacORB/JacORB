@@ -451,7 +451,7 @@ public final class ORB
             return;
         }
 
-        Logger versionLogger = configuration.getLogger("jacorb.orb.print_version");
+        Logger versionLogger = configuration.getLogger("org.jacorb.orb.print_version");
 
         versionLogger.info
         (
@@ -826,14 +826,14 @@ public final class ORB
                               POA poa,
                               Map policy_overrides)
     {
-        List profiles     = new ArrayList();
+        List<Profile> profiles = new ArrayList<Profile>();
         Map  componentMap = new HashMap();
         int[] profileTags = new int[basicAdapter.getEndpointProfiles().size()];
         int n = 0;
-        for (Iterator i = basicAdapter.getEndpointProfiles().iterator();
+        for (Iterator<Profile> i = basicAdapter.getEndpointProfiles().iterator();
                 i.hasNext();)
         {
-            Profile profile = (Profile)i.next();
+            Profile profile = i.next();
 
             //MIOP
             //if it is a group profile, it can't be added to the object ior
@@ -942,7 +942,7 @@ public final class ORB
 
         for (int i = 0; i < profiles.size(); i++)
         {
-            final Profile p = (Profile)profiles.get(i);
+            final Profile p = profiles.get(i);
             TaggedComponentList clist =
                 (TaggedComponentList)componentMap.get(Integer.valueOf(p.tag()));
 

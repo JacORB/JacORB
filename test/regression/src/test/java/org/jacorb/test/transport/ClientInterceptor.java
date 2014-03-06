@@ -24,7 +24,7 @@ public class ClientInterceptor
         tester_ = tester;
         orb_ = orb;
         logger_ = ((org.jacorb.orb.ORB) orb).getConfiguration ()
-                                            .getLogger ("jacorb.test.transport");
+                                            .getLogger("org.jacorb.test.transport");
 
         synchronized (this.getClass ()) {
             instance_ = this;

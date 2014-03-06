@@ -72,7 +72,7 @@ public class ORBInitInfoImpl
     {
         this.orb = orb;
 
-        logger = orb.getConfiguration().getLogger("jacorb.orb");
+        logger = orb.getConfiguration().getLogger("org.jacorb.orb");
 
         /**
          * If an interceptor is named it may be used to sort the

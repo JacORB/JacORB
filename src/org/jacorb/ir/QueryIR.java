@@ -41,7 +41,7 @@ public class QueryIR
             org.omg.CORBA.Repository ir =
                 org.omg.CORBA.RepositoryHelper.narrow( orb.resolve_initial_references( "InterfaceRepository"));
 
-            Logger logger = JacORBConfiguration.getConfiguration(null,orb,false).getLogger("jacorb.ir");
+            Logger logger = JacORBConfiguration.getConfiguration(null,orb,false).getLogger("org.jacorb.ir");
 
             if( ir == null )
             {
@@ -67,13 +67,3 @@ public class QueryIR
         }
     }
 }
-
-
-
-
-
-
-
-
-
-

@@ -34,6 +34,7 @@ import org.omg.CORBA.INTERNAL;
 import org.omg.CORBA.MARSHAL;
 import org.omg.ETF.Profile;
 import org.omg.ETF._ProfileLocalBase;
+import org.omg.IIOP.ListenPoint;
 import org.omg.IOP.TaggedComponent;
 import org.omg.IOP.TaggedComponentHelper;
 import org.omg.IOP.TaggedComponentSeqHolder;
@@ -63,7 +64,7 @@ public abstract class ProfileBase
           throw new ConfigurationException("ProfileBase: given configuration was null");
        }
 
-       this.configuration = (org.jacorb.config.Configuration)configuration;
+       this.configuration = configuration;
     }
 
 
@@ -321,9 +322,9 @@ public abstract class ProfileBase
     /**
      * @return a Collection of ListenPoints that represent the endpoints contained in this IIOPProfile.
      */
-    public Collection asListenPoints()
+    public Collection<ListenPoint> asListenPoints()
     {
-        return Collections.EMPTY_LIST;
+        return Collections.emptyList();
     }
 
     /**

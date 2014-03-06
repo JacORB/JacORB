@@ -124,7 +124,7 @@ public class TransactionService
         org.omg.CORBA.ORB orb = 
             org.omg.CORBA.ORB.init(args, null);
         logger = 
-            ((org.jacorb.orb.ORB)orb).getConfiguration().getLogger("jacorb.tx_service");
+            ((org.jacorb.orb.ORB)orb).getConfiguration().getLogger("org.jacorb.tx_service");
         try
         {
             org.omg.PortableServer.POA poa = 
@@ -163,5 +163,3 @@ public class TransactionService
     }
 
 }
-
-

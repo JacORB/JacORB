@@ -152,11 +152,6 @@ public interface Configuration
     org.slf4j.Logger getLogger(String name);
 
     /**
-     * Uses the class name to return a name suitable for naming the logger.
-     */
-    String getLoggerName(Class<?> clazz);
-
-    /**
      * @return the ORB for which this configuration was created
      */
     ORB getORB();

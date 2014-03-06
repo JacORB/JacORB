@@ -85,7 +85,7 @@ public class SASComponentInterceptor
 
         orb = ((org.jacorb.orb.portableInterceptor.ORBInitInfoImpl)info).getORB();
         config = orb.getConfiguration();
-        logger = config.getLogger("jacorb.SAS.IOR");
+        logger = config.getLogger("org.jacorb.SAS.IOR");
 
         try
         {

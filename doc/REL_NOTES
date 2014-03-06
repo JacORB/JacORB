@@ -42,10 +42,31 @@
 
 ( Note: For commit history see https://github.com/JacORB/JacORB )
 
-3.4-SNAPSHOT
+
+3.5-SNAPSHOT
 ============
     - ORB
+         - Simplify network address retrieval code.
+         - Protect against OutOfMemory in GIOPConnection::receiveMessages to prevent client hanging.
+         - Handle reconnecting via a closed connection to a persistent server (BZ975).
+         - Fix for local interceptors and slots (BZ976)
+
+3.4
+===
+    - ORB
          - Default Sync scope for oneways is now configurable via jacorb.default_sync_scope property.
+         - Add new getDelegate to ClientRequestInfoImpl Public API
+         - Fix for repository_id on remote method invocation. (BZ972)
+         - Improve encapsulation of internal code.
+    - IDL
+         - Improve logging formatting.
+         - Escape parameter argument if it clashes with an enclosing module. (BZ974)
+    - Misc
+         - Fix logging to be consistent throughout the ORB and Services.
+         - Add ability to configure the 'clock' format in the logging to be
+           NONE, TIME or DATE_TIME. Default is NONE.
+         - Improved Logging documentation.
+         - Added org.jacorb.util.Diagnostic class to print out useful environmental information.
 
 3.4-Beta
 ========

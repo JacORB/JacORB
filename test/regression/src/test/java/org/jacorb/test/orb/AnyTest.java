@@ -28,6 +28,8 @@ import static org.junit.Assert.fail;
 import java.math.BigDecimal;
 import java.util.Properties;
 import org.jacorb.orb.CDROutputStream;
+import org.jacorb.test.MyUserException;
+import org.jacorb.test.MyUserExceptionHelper;
 import org.jacorb.test.common.ClientServerSetup;
 import org.jacorb.test.common.ClientServerTestCase;
 import org.jacorb.test.orb.RecursiveUnionStructPackage.RecursiveUnionStructUnion;
@@ -37,6 +39,8 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.omg.CORBA.Any;
 import org.omg.CORBA.AnyHolder;
+import org.omg.CORBA.BAD_PARAM;
+import org.omg.CORBA.BAD_PARAMHelper;
 import org.omg.CORBA.BooleanHolder;
 import org.omg.CORBA.ByteHolder;
 import org.omg.CORBA.CharHolder;
@@ -2134,5 +2138,66 @@ public class AnyTest extends ClientServerTestCase
         IndirectionToNestedObject bounced = IndirectionToNestedObjectHelper.extract(server.bounce_any(any));
         assertEquals(server, bounced.member1.member1);
         assertEquals(server, bounced.member2);
+    }
+
+
+    @Test
+    public void test_userexception()
+        throws Exception
+    {
+        MyUserException original = new MyUserException ("test");
+        Any outAny = setup.getClientOrb().create_any();
+        MyUserExceptionHelper.insert(outAny, original);
+
+        Any inAny = server.bounce_any(outAny);
+        assertTrue(outAny.equal(inAny));
+
+        MyUserException result = MyUserExceptionHelper.extract (inAny);
+
+        assertTrue (original.message.equals (result.message));
+    }
+
+    @Test
+    public void test_systemexception()
+        throws Exception
+    {
+        BAD_PARAM original = new BAD_PARAM ("test");
+        Any outAny = setup.getClientOrb().create_any();
+        BAD_PARAMHelper.insert(outAny, original);
+        BAD_PARAM originalAfterInsert = BAD_PARAMHelper.extract (outAny);
+
+        Any inAny = server.bounce_any(outAny);
+        assertTrue(outAny.equal(inAny));
+
+        BAD_PARAM result = BAD_PARAMHelper.extract (inAny);
+
+        // Note: We can't compare the original BAD_PARAM because the message is never
+        // demarshalled - it always becomes the typecode 'id'.
+        assertTrue (originalAfterInsert.getMessage().equals (result.getMessage()));
+        assertTrue (originalAfterInsert.minor == result.minor);
+        assertTrue (originalAfterInsert.completed.value() == result.completed.value());
+    }
+
+
+    @Test
+    public void test_systemexception_writevalue()
+        throws Exception
+    {
+        BAD_PARAM original = new BAD_PARAM ("test");
+        Any outAny = setup.getClientOrb().create_any();
+
+        BAD_PARAMHelper.insert(outAny, original);
+        BAD_PARAM originalAfterInsert = BAD_PARAMHelper.extract (outAny);
+
+        Any inAny = server.bounce_any(outAny);
+        assertTrue(outAny.equal(inAny));
+
+        BAD_PARAM result = BAD_PARAMHelper.extract (inAny);
+
+        // Note: We can't compare the original BAD_PARAM because the message is never
+        // demarshalled - it always becomes the typecode 'id'.
+        assertTrue (originalAfterInsert.getMessage().equals (result.getMessage()));
+        assertTrue (originalAfterInsert.minor == result.minor);
+        assertTrue (originalAfterInsert.completed.value() == result.completed.value());
     }
 }

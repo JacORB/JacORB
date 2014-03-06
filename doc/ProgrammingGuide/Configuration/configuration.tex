@@ -310,10 +310,8 @@ that are currently supported are
 \item UCS2
 \end{itemize}
 
-\textbf{Note:} The class {\tt org.jacorb.orb.giop.CodeSet} provides a main method to
+\textbf{Note:} The class {\tt org.jacorb.util.Diagnostic} provides a main method to
 aid debugging of codeset issues. It will print out the current system encoding values.
-If the developer is running under a Unix based system and passes the argument -a it will
-also print out the current locale and all known locales.
 
 \subsection{Compacting Typecodes}
 \label{compact-typecode}
@@ -554,14 +552,14 @@ based on the implementation name of the server.
 The default logging system selected in the JacORB distribution is JDK
 logging.  This is because it is already present in the JDK, and JacORB
 therefore does not need to ship any other library.  A sample
-configuration file for JDK logging is provided, which makes it easy to
+configuration for JDK logging is provided, which makes it easy to
 specify log file names, log rotation parameters, and the like.
 
 \subsubsection{Logging Conventions}
 
 JacORB logs to a hierarchy of loggers with a root logger named {\tt
-  jacorb}.  All sub-loggers have names that start with this prefix,
-e.g. {\tt jacorb.orb}, {\tt jacorb.config}, and so on.  Settings that
+ org.jacorb}.  All sub-loggers have names that start with this prefix,
+e.g. {\tt org.jacorb.orb}, {\tt org.jacorb.config}, and so on.  Settings that
 apply to the root logger usually also apply to all loggers below in
 the hierarchy (depending on the actual logging system used).
 
@@ -630,18 +628,27 @@ jacorb.logfile=c:/tmp/$implname
 and the {\tt jacorb.implname} property has been set, output will be logged
 to a file with the same name as the {\tt jacorb.implname} property value. See
 section \ref{implname} for more information on the {\tt jacorb.implname} property.
+If {\tt jacorb.logfile.append} is set it will append to the file rather than overwriting
+it. It is also possible to specify the maximum size of the logfile (through
+{\tt jacorb.logfile.maxLogSize}) and the number of logfiles to use (through
+{\tt jacorb.logfile.rotateCount}).
+
 The default formatting of JDK logs is quite verbose, using two lines
 of output for every log entry.  We have provided a {\tt LogFormatter}
 class that gives a more succinct output.  This class is named {\tt
   org.jacorb.config.JacORBLogFormatter} and is used whenever JacORB
 configures the logging system itself.
 
-For any more sophisticated configuration, such as using log file
-rotation or specifying different log levels for some of the loggers,
-you need to configure JDK logging directly.  To do this, make sure
-that the properties {\tt jacorb.log.default.verbosity} and {\tt jacorb.logfile}
-are \emph{not} set to any value (because otherwise
-JacORB will interfere with your configuration).  Then, prepare a
+It is possible to modify the output of the Formatter through {\tt jacorb.logfile.showThread}
+(whether to output thread ID), {\tt jacorb.logfile.showSrcInfo} (whether to
+display class and method information) and finally {\tt jacorb.logfile.clockFormat}. This
+last option defaults to {\tt NONE} and may be {\tt NONE}, {\tt TIME}
+(display time in log messages) or {\tt DATE\_TIME} (display date and time in
+log messages).
+
+
+For any more sophisticated configuration you need to configure JDK logging
+directly.  To do this prepare a
 configuration file such as the one found in {\tt
   JACORB\_HOME/etc/logging\_properties.template} with your settings.
 The name of this file needs to be passed to the JVM at startup, for
@@ -1491,6 +1498,21 @@ not set, diagnostics are sent to standard error.& filename & unset \\
 \hline
 \verb"jacorb.logfile.append" & Whether to append to
 existing log file or overwrite (if file logging) & boolean & off \\
+\hline
+\verb"jacorb.logfile.maxLog"
+\verb"Size" & Maximum size of logfile. Zero implies no limit. & int & 0 \\
+\hline
+\verb"jacorb.logfile.rotate"
+\verb"Count" & Number of logfiles to use. & int & 1 \\
+\hline
+\verb"jacorb.logfile.showTh"
+\verb"read" & Display thread ID in log messages. & boolean & off \\
+\hline
+\verb"jacorb.logfile.showSr"
+\verb"cInfo" & Display class and method information in log messages. & boolean & off \\
+\hline
+\verb"jacorb.logfile.clock"
+\verb"Format" & Display clock information in log messages. May be NONE, TIME or DATE\_TIME. & string & NONE \\
 \hline
 \verb"jacorb.log.initializer" & Name of a class to initialize logging
 after the configuration has been read & class &

@@ -22,15 +22,12 @@ package org.jacorb.orb.iiop;
 import java.net.Inet4Address;
 import java.net.Inet6Address;
 import java.net.InetAddress;
-import java.net.NetworkInterface;
-import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
-
 import org.jacorb.config.Configuration;
 import org.jacorb.config.ConfigurationException;
 import org.jacorb.orb.CDRInputStream;
@@ -132,7 +129,7 @@ public class IIOPProfile
     {
         super.configure(config);
 
-        logger = configuration.getLogger("jacorb.iiop.profile");
+        logger = configuration.getLogger("org.jacorb.iiop.profile");
 
         dnsEnabled =
             configuration.getAttributeAsBoolean("jacorb.dns.enable", false);
@@ -313,14 +310,14 @@ public class IIOPProfile
         }
         else
         {
-            List addresses = Arrays.asList (value.split(","));
+            List<String> addresses = Arrays.asList (value.split(","));
             if (!addresses.isEmpty() && components == null)
             {
                 components = new TaggedComponentList();
             }
-            for (Iterator i = addresses.iterator(); i.hasNext();)
+            for (Iterator<String> i = addresses.iterator(); i.hasNext();)
             {
-                String addr = (String)i.next();
+                String addr = i.next();
                 IIOPAddress iaddr = new IIOPAddress();
                 iaddr.configure (config);
                 if (!iaddr.fromString (addr))
@@ -368,79 +365,68 @@ public class IIOPProfile
     {
         if (primaryAddress == null) return;
         if (components == null) components = new TaggedComponentList();
-        try
-        {
-            String primaryIP = primaryAddress.getIP();
-            if ( logger.isDebugEnabled() )
-            {
-                logger.debug("primaryIP is <" + primaryIP + ">");
-            }
-            for (NetworkInterface ni :
-                 Collections.list (NetworkInterface.getNetworkInterfaces()))
-            {
-                for (InetAddress addr :
-                     Collections.list (ni.getInetAddresses()))
-                {
-                    if (!addr.isLoopbackAddress() &&
-                            !addr.isLinkLocalAddress())
-                    {
-                        /*
-                         * The fix inserted here is to make sure the address
-                         * that is used to determine whether a network address
-                         * is the primary address so that it will not be added
-                         * to the IOR as an alternate address.  This fix is
-                         * needed here because the IIOPAddress.getIP() actually
-                         * returns the hostname instead of the actual IP when
-                         * the property jacorb.jacorb.dns.enable is turned on.
-                         * Quynh N.
-                         */
-                        String addrHostAddress;
-                        if (!dnsEnabled)
-                        {
-                            addrHostAddress = addr.getHostAddress();
-                        }
-                        else
-                        {
-                            addrHostAddress = forceDNSLookup ? addr.getCanonicalHostName() : addr.getHostName();
-                        }
-                        if (! addrHostAddress.equals(primaryIP))
-                        {
-                            IIOPAddress iaddr = new IIOPAddress();
-                            iaddr.configure (configuration);
-                            String ipaddr = addr.toString().substring(1);
-                            if (addr instanceof Inet4Address)
-                            {
-                                iaddr.fromString (ipaddr + ":"
-                                              + primaryAddress.getPort());
-                            }
-                            else if (addr instanceof Inet6Address)
-                            {
-                                String ipv6 = ipaddr;
-                                int zoneid_delim = ipv6.indexOf('%');
-                                if (zoneid_delim > 0)
-                                {
-                                    ipv6 = ipv6.substring(0, zoneid_delim);
-                                }
-                                iaddr.fromString (
-                                        "[" + ipv6 + "]:"
-                                        + primaryAddress.getPort()
-                                                );
-                            }
 
-                            if (logger.isDebugEnabled())
-                            {
-                                logger.debug("components.addComponent: adding addrHostAddress <" + addrHostAddress + "> as TAG_ALTERNATE_IIOP_ADDRESS" );
-                            }
-                            components.addComponent (TAG_ALTERNATE_IIOP_ADDRESS.value,
-                                                             iaddr.toCDR());
-                        }
+        String primaryIP = primaryAddress.getIP();
+        if ( logger.isDebugEnabled() )
+        {
+            logger.debug("primaryIP is <" + primaryIP + ">");
+        }
+
+        for (InetAddress addr : IIOPAddress.getNetworkInetAddresses())
+        {
+            if (!addr.isLoopbackAddress() && !addr.isLinkLocalAddress())
+            {
+                /*
+                 * The fix inserted here is to make sure the address
+                 * that is used to determine whether a network address
+                 * is the primary address so that it will not be added
+                 * to the IOR as an alternate address.  This fix is
+                 * needed here because the IIOPAddress.getIP() actually
+                 * returns the hostname instead of the actual IP when
+                 * the property jacorb.jacorb.dns.enable is turned on.
+                 * Quynh N.
+                 */
+                String addrHostAddress;
+                if (!dnsEnabled)
+                {
+                    addrHostAddress = addr.getHostAddress();
+                }
+                else
+                {
+                    addrHostAddress = forceDNSLookup ? addr.getCanonicalHostName() : addr.getHostName();
+                }
+                if (! addrHostAddress.equals(primaryIP))
+                {
+                    IIOPAddress iaddr = new IIOPAddress();
+                    iaddr.configure (configuration);
+                    String ipaddr = addr.toString().substring(1);
+                    if (addr instanceof Inet4Address)
+                    {
+                        iaddr.fromString (ipaddr + ":"
+                                          + primaryAddress.getPort());
                     }
+                    else if (addr instanceof Inet6Address)
+                    {
+                        String ipv6 = ipaddr;
+                        int zoneid_delim = ipv6.indexOf('%');
+                        if (zoneid_delim > 0)
+                        {
+                            ipv6 = ipv6.substring(0, zoneid_delim);
+                        }
+                        iaddr.fromString (
+                            "[" + ipv6 + "]:"
+                            + primaryAddress.getPort()
+                                         );
+                    }
+
+                    if (logger.isDebugEnabled())
+                    {
+                        logger.debug("components.addComponent: adding addrHostAddress <" + addrHostAddress + "> as TAG_ALTERNATE_IIOP_ADDRESS" );
+                    }
+                    components.addComponent (TAG_ALTERNATE_IIOP_ADDRESS.value,
+                                             iaddr.toCDR());
                 }
             }
-        }
-        catch (SocketException ex)
-        {
-            logger.warn ("could not get network interfaces, will not add addresses");
         }
     }
 
@@ -759,9 +745,9 @@ public class IIOPProfile
         return tls;
     }
 
-    public Collection asListenPoints()
+    public Collection<ListenPoint> asListenPoints()
     {
-        List result = new ArrayList();
+        List<ListenPoint> result = new ArrayList<ListenPoint>();
 
         if (getSSL() == null)
         {

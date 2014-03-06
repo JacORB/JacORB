@@ -96,7 +96,7 @@ public class DefaultClientInterceptorHandler implements ClientInterceptorHandler
             info = null;
         }
         logger =
-            orb.getConfiguration().getLogger("jacorb.orb.client_interceptors");
+            orb.getConfiguration().getLogger("org.jacorb.orb.client_interceptors");
     }
 
     /**
@@ -123,7 +123,7 @@ public class DefaultClientInterceptorHandler implements ClientInterceptorHandler
         isLocal = true;
 
         logger =
-            orb.getConfiguration().getLogger("jacorb.orb.client_interceptors");
+            orb.getConfiguration().getLogger("org.jacorb.orb.client_interceptors");
     }
 
 

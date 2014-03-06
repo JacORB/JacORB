@@ -7,7 +7,7 @@
     <parent>
         <groupId>org.jacorb</groupId>
         <artifactId>jacorb-parent</artifactId>
-        <version>3.4-SNAPSHOT</version>
+        <version>3.5-SNAPSHOT</version>
         <relativePath>../..</relativePath>
     </parent>
 
@@ -21,6 +21,7 @@
     <properties>
         <spring.version>3.1.1.RELEASE</spring.version>
         <cxf.version>2.7.5</cxf.version>
+        <byteman.version>2.1.4.1</byteman.version>
     </properties>
 
     <dependencies>
@@ -47,10 +48,12 @@
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>easymock</groupId>
             <artifactId>easymock</artifactId>
+            <scope>test</scope>
         </dependency>
 
         <!-- CXF/Spring is for Bug968 (CXF+Corba) -->
@@ -58,16 +61,52 @@
             <groupId>org.apache.cxf</groupId>
             <artifactId>cxf-rt-frontend-jaxws</artifactId>
             <version>${cxf.version}</version>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.cxf</groupId>
             <artifactId>cxf-rt-bindings-corba</artifactId>
             <version>${cxf.version}</version>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-context</artifactId>
             <version>${spring.version}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.jboss.byteman</groupId>
+            <artifactId>byteman</artifactId>
+            <version>${byteman.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.jboss.byteman</groupId>
+            <artifactId>byteman-submit</artifactId>
+            <version>${byteman.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.jboss.byteman</groupId>
+            <artifactId>byteman-install</artifactId>
+            <version>${byteman.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.jboss.byteman</groupId>
+            <artifactId>byteman-bmunit</artifactId>
+            <version>${byteman.version}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>com.sun</groupId>
+            <artifactId>tools</artifactId>
+            <version>1.6.0</version>
+            <scope>system</scope>
+            <systemPath>${toolsjar}</systemPath>
         </dependency>
     </dependencies>
 
@@ -416,9 +455,13 @@
                             <goal>test</goal>
                         </goals>
                         <configuration>
+                            <useManifestOnlyJar>false</useManifestOnlyJar>
                             <forkCount>0.75C</forkCount>
                             <reuseForks>false</reuseForks>
                             <argLine>-Xbootclasspath/p:${settings.localRepository}/org/jacorb/jacorb-omgapi/${project.version}/jacorb-omgapi-${project.version}.jar -Djacorb.test.verbose=${jacorb.test.verbose}</argLine>
+                            <environmentVariables>
+                                <BYTEMAN_HOME></BYTEMAN_HOME>
+                            </environmentVariables>
                         </configuration>
                     </execution>
                     <execution>
@@ -428,10 +471,14 @@
                             <goal>test</goal>
                         </goals>
                         <configuration>
+                            <useManifestOnlyJar>false</useManifestOnlyJar>
                             <forkCount>0.75C</forkCount>
                             <reuseForks>false</reuseForks>
                             <argLine>-Xbootclasspath/p:${settings.localRepository}/org/jacorb/jacorb-omgapi/${project.version}/jacorb-omgapi-${project.version}.jar -Djacorb.test.verbose=${jacorb.test.verbose} -Djacorb.test.ssl=true</argLine>
                             <reportsDirectory>${project.build.directory}/surefire-reports-ssl</reportsDirectory>
+                            <environmentVariables>
+                                <BYTEMAN_HOME></BYTEMAN_HOME>
+                            </environmentVariables>
                         </configuration>
                     </execution>
                 </executions>

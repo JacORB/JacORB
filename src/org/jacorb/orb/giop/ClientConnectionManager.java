@@ -78,7 +78,7 @@ public class ClientConnectionManager
         receptor_pool = new MessageReceptorPool("client", "ClientMessageReceptor", myConfiguration);
 
         org.jacorb.config.Configuration configuration = myConfiguration;
-        logger = configuration.getLogger("jacorb.orb.giop");
+        logger = configuration.getLogger("org.jacorb.orb.giop");
 
         request_listener = new NoBiDirClientRequestListener(orb, logger);
     }

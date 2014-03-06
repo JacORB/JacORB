@@ -1,6 +1,7 @@
 package org.jacorb.test.dii;
 
 import org.jacorb.test.dii.DIIServerPackage.DIIException;
+import org.omg.CORBA.BAD_PARAM;
 
 public class ServerDelegate implements DIIServerOperations
 {
@@ -34,5 +35,10 @@ public class ServerDelegate implements DIIServerOperations
         throws DIIException
     {
         throw new DIIException("TestException");
+    }
+
+    public void raiseSystemException(boolean embedExceptionInAny)
+    {
+        throw new BAD_PARAM (Boolean.toString(embedExceptionInAny));
     }
 }
