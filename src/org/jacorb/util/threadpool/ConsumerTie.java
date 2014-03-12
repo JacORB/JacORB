@@ -64,6 +64,6 @@ public  class ConsumerTie
                 pool.getLogger().debug("ConsumerTie caught", e);
             }
         }
-        pool.getLogger().info ("ConsumerTie exited");
+        pool.getLogger().debug ("ConsumerTie exited");
     }
 } // ConsumerTie

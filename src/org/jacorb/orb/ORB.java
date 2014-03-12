@@ -1660,10 +1660,7 @@ public final class ORB
 
     public void run()
     {
-        if (logger.isInfoEnabled())
-        {
-            logger.info("ORB run");
-        }
+        logger.debug("ORB run");
 
         synchronized ( runSync )
         {
@@ -1679,10 +1676,7 @@ public final class ORB
             }
         }
 
-        if (logger.isInfoEnabled())
-        {
-            logger.info("ORB run, exit");
-        }
+        logger.debug("ORB run, exit");
     }
 
     public void send_multiple_requests_oneway( org.omg.CORBA.Request[] req )
@@ -2282,8 +2276,6 @@ public final class ORB
             return;
         }
 
-        logger.info("ORB going down...");
-
         if ( rootpoa != null )
         {
             rootpoa.destroy(true, wait_for_completion);
@@ -2846,7 +2838,10 @@ public final class ORB
         return objectKeyMap.mapObjectKey(originalKey);
     }
 
-    boolean isRunning()
+    /**
+     * @return true if the ORB is still running.
+     */
+    private boolean isRunning()
     {
         synchronized (runSync)
         {

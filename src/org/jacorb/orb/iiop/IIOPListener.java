@@ -467,7 +467,7 @@ public class IIOPListener
                 }
                 else
                 {
-                    logger.info(info + "Listener exiting");
+                    logger.debug(info + "Listener exiting");
                 }
             }
         }
