@@ -5,6 +5,7 @@ import org.omg.IOP.ENCODING_CDR_ENCAPS;
 import org.omg.IOP.Encoding;
 import org.omg.PortableInterceptor.ORBInitInfo;
 import org.omg.PortableInterceptor.ORBInitializer;
+import org.omg.CORBA.INTERNAL;
 
 /**
  * ClientInitializer.java
@@ -51,7 +52,7 @@ public class ClientInitializer extends org.omg.CORBA.LocalObject implements ORBI
         }
         catch( Exception e )
         {
-            e.printStackTrace();
+            throw new INTERNAL ("Caught " + e);
         }
     }
 }// ClientInitializer

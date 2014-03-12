@@ -61,7 +61,6 @@ public class Bug619Test extends ClientServerTestCase
             }
             catch (Exception e)
             {
-                System.err.println ("Caught a " + e);
                 synchronized (this)
                 {
                     exception = e;
@@ -118,10 +117,6 @@ public class Bug619Test extends ClientServerTestCase
         {
             // expected
         }
-        catch (Throwable e)
-        {
-            throw (Exception)e;
-        }
         finally
         {
             pusher.interrupt();
@@ -144,11 +139,6 @@ public class Bug619Test extends ClientServerTestCase
         catch (NO_MEMORY e)
         {
             // expected
-        }
-        catch (Throwable e)
-        {
-            e.printStackTrace();
-            throw (Exception)e;
         }
         finally
         {

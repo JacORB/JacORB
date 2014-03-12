@@ -20,14 +20,11 @@
 
 package org.jacorb.test.bugs.bug943;
 
-import static org.junit.Assert.fail;
 import java.util.Properties;
 import org.jacorb.test.common.CommonSetup;
 import org.jacorb.test.common.ORBTestCase;
 import org.junit.Test;
 import org.omg.CORBA.INITIALIZE;
-import org.omg.CORBA.ORB;
-import org.omg.PortableServer.POA;
 import org.omg.PortableServer.POAHelper;
 
 /**
@@ -35,41 +32,17 @@ import org.omg.PortableServer.POAHelper;
  */
 public class Bug943Test extends ORBTestCase
 {
-    @Test
+    @Test(expected=INITIALIZE.class)
     public void test_poa_ssl_port() throws Exception
     {
         Properties props = new Properties();
         props.putAll(CommonSetup.loadSSLProps("jsse_server_props", "jsse_server_ks"));
         props.setProperty ("OASSLPort", "7777");
 
-        org.omg.CORBA.ORB orb = ORB.init(new String[0], props);
-        POA poa = POAHelper.narrow(orb.resolve_initial_references("RootPOA"));
+        org.omg.CORBA.ORB orb1 = getAnotherORB(props);
+        POAHelper.narrow(orb1.resolve_initial_references("RootPOA"));
 
-        org.omg.CORBA.ORB orb2 = ORB.init(new String[0], props);
-        try
-        {
-            POAHelper.narrow(orb2.resolve_initial_references("RootPOA"));
-        }
-        catch (INITIALIZE e)
-        {
-        }
-
-        try
-        {
-            POAHelper.narrow(orb2.resolve_initial_references("RootPOA"));
-            fail ("Should have raised an exception");
-        }
-        catch (INITIALIZE e)
-        {
-        }
-
-        poa.destroy(true, true);
-
-        orb2.shutdown(true);
-        orb2 = null;
-
-        orb.shutdown(true);
-        orb = null;
+        org.omg.CORBA.ORB orb2 = getAnotherORB(props);
+        POAHelper.narrow(orb2.resolve_initial_references("RootPOA"));
     }
-
 }

@@ -9,10 +9,10 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import org.jacorb.test.common.ClientServerSetup;
 import org.jacorb.test.common.ClientServerTestCase;
+import org.jacorb.test.common.TestUtils;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-
 
 
 public class POAThreadingTest extends ClientServerTestCase
@@ -38,7 +38,6 @@ public class POAThreadingTest extends ClientServerTestCase
                 }
                 catch (Exception e)
                 {
-                    e.printStackTrace();
                 }
             }
         };
@@ -52,7 +51,6 @@ public class POAThreadingTest extends ClientServerTestCase
                 }
                 catch (Exception e)
                 {
-                    e.printStackTrace();
                 }
             }
         };
@@ -73,14 +71,13 @@ public class POAThreadingTest extends ClientServerTestCase
         }
         catch (TimeoutException e)
         {
-            e.printStackTrace();
             fail ("Did not get a result from the testcall in the expected time.");
         }
         catch (ExecutionException e)
         {
             if (e.getCause() instanceof org.omg.CORBA.TIMEOUT)
             {
-                System.out.println ("Got a timeout (" + e.getCause() + ")"); // pass
+                TestUtils.getLogger().debug ("Got a timeout (" + e.getCause() + ")"); // pass
             }
             else
             {

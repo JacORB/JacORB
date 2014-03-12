@@ -5,6 +5,7 @@ import org.omg.IOP.ServiceContext;
 import org.omg.PortableInterceptor.ForwardRequest;
 import org.omg.PortableInterceptor.ServerRequestInfo;
 import org.omg.PortableInterceptor.ServerRequestInterceptor;
+import org.omg.CORBA.INTERNAL;
 
 /**
  * ServerInterceptor.java
@@ -26,7 +27,6 @@ public class ServerInterceptor extends org.omg.CORBA.LocalObject implements Serv
         this.codec = codec;
     }
 
-    // implementation of org.omg.PortableInterceptor.InterceptorOperations interface
     public String name()
     {
         return "ServerInterceptor";
@@ -39,8 +39,6 @@ public class ServerInterceptor extends org.omg.CORBA.LocalObject implements Serv
     public void receive_request_service_contexts(ServerRequestInfo ri)
     throws ForwardRequest
     {
-        System.out.println("ServerInterceptor: receive_request_service_contexts()");
-
         try
         {
             ServiceContext ctx =
@@ -50,7 +48,7 @@ public class ServerInterceptor extends org.omg.CORBA.LocalObject implements Serv
         }
         catch (Exception e)
         {
-            e.printStackTrace();
+            throw new INTERNAL (e.getMessage());
         }
     }
 

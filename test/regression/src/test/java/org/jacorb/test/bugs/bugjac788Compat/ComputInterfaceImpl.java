@@ -32,7 +32,6 @@ public class ComputInterfaceImpl extends ComputInterfacePOA
         }
         catch (InterruptedException e)
         {
-            e.printStackTrace();
         }
 
         return timeMs;

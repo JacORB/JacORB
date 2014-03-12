@@ -22,7 +22,6 @@ package org.jacorb.test.orb;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -35,6 +34,7 @@ import org.jacorb.test.common.TestUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.omg.CORBA.BAD_PARAM;
 import org.omg.CORBA.INITIALIZE;
 import org.omg.CORBA.ORB;
 
@@ -69,22 +69,14 @@ public class ORBInitTest
     /**
      * <code>testParse1</code>
      */
-    @Test
+    @Test (expected=BAD_PARAM.class)
     public void testParse1()
     {
         String args[] = new String[2];
         args[0] = "-ORBInitRef.NameService";
         args[1] = "NameService";
 
-        try
-        {
-            initORB(args, null);
-            fail();
-        }
-        catch (org.omg.CORBA.BAD_PARAM e )
-        {
-            // expected
-        }
+        initORB(args, null);
     }
 
     private ORB initORB(String[] args, Properties props)
@@ -95,7 +87,14 @@ public class ORBInitTest
         }
         props.setProperty("org.omg.CORBA.ORBClass", "org.jacorb.orb.ORB");
         props.setProperty("org.omg.CORBA.ORBSingletonClass", "org.jacorb.orb.ORBSingleton");
-
+        if (TestUtils.verbose)
+        {
+            props.setProperty("jacorb.log.default.verbosity", "4");
+        }
+        else
+        {
+            props.setProperty("jacorb.log.default.verbosity", "0");
+        }
         ORB orb = org.omg.CORBA.ORB.init( args, props );
         orbs.add(orb);
         return orb;
@@ -114,39 +113,23 @@ public class ORBInitTest
         initORB( args, null );
     }
 
-    @Test
+    @Test (expected=BAD_PARAM.class)
     public void testParse3 ()
     {
         String args[] = new String[1];
         args[0] = "-ORBInitRef";
 
-        try
-        {
-            initORB( args, null );
-            fail();
-        }
-        catch (org.omg.CORBA.BAD_PARAM e )
-        {
-            // expected
-        }
+        initORB( args, null );
     }
 
-    @Test
+    @Test (expected=INITIALIZE.class)
     public void testORBInitializerFailClassException()
     {
         Properties props = new Properties();
         props.put("org.omg.PortableInterceptor.ORBInitializerClass.non.existent.class", "");
         props.put("jacorb.orb_initializer.fail_on_error", "on");
 
-        try
-        {
-            initORB((String[]) null, props);
-            fail( "No exception");
-        }
-        catch(org.omg.CORBA.INITIALIZE e)
-        {
-            // Correct exception
-        }
+        initORB((String[]) null, props);
     }
 
     @Test
@@ -159,7 +142,7 @@ public class ORBInitTest
         initORB((String[]) null, props);
     }
 
-    @Test
+    @Test (expected=INITIALIZE.class)
     public void testORBInitializerFailConstructorException()
     {
         Properties props = new Properties();
@@ -167,15 +150,7 @@ public class ORBInitTest
                   "org.jacorb.test.orb.ConstructorFail");
         props.put("jacorb.orb_initializer.fail_on_error", "on");
 
-        try
-        {
-            initORB((String[]) null, props);
-            fail( "No exception");
-        }
-        catch(org.omg.CORBA.INITIALIZE e)
-        {
-            // Correct exception
-        }
+        initORB((String[]) null, props);
     }
 
     @Test
@@ -189,7 +164,7 @@ public class ORBInitTest
         initORB((String[]) null, props);
     }
 
-    @Test
+    @Test (expected=INITIALIZE.class)
     public void testORBInitializerFailPreInitException()
     {
         Properties props = new Properties();
@@ -197,16 +172,8 @@ public class ORBInitTest
                   "org.jacorb.test.orb.PreInitFail");
         props.put("jacorb.orb_initializer.fail_on_error", "on");
 
-        try
-        {
-            initORB((String[]) null, props);
-            fail( "No exception");
-        }
-        catch(org.omg.CORBA.INITIALIZE e)
-        {
-            // Correct exception
-        }
-     }
+        initORB((String[]) null, props);
+    }
 
     @Test
     public void testORBInitializerFailPreInitNoException()
@@ -219,7 +186,7 @@ public class ORBInitTest
         initORB((String[]) null, props);
      }
 
-    @Test
+    @Test (expected=INITIALIZE.class)
     public void testORBInitializerFailPostInitException()
     {
         Properties props = new Properties();
@@ -227,15 +194,7 @@ public class ORBInitTest
                   "org.jacorb.test.orb.PostInitFail");
         props.put("jacorb.orb_initializer.fail_on_error", "on");
 
-        try
-        {
-            initORB((String[]) null, props);
-            fail("No exception");
-        }
-        catch(org.omg.CORBA.INITIALIZE e)
-        {
-            // Correct exception
-        }
+        initORB((String[]) null, props);
     }
 
     @Test
@@ -257,12 +216,10 @@ public class ORBInitTest
                   "org.jacorb.test.orb.PreInitFail");
         props.put("jacorb.orb_initializer.fail_on_error", "off");
 
-        org.omg.CORBA.ORB orb = initORB((String[]) null, props);
+        initORB((String[]) null, props);
 
         assertEquals(1, PreInitFail.getPreCount());
         assertEquals(0, PreInitFail.getPstCount());
-
-        orb.shutdown(true);
     }
 
     @Test
@@ -276,7 +233,7 @@ public class ORBInitTest
         initORB((String[]) null, props);
     }
 
-    @Test
+    @Test (expected=INITIALIZE.class)
     public void testORBInitializerWrongClass2()
     {
         Properties props = new Properties();
@@ -284,15 +241,7 @@ public class ORBInitTest
                   "java.lang.String");
         props.put("jacorb.orb_initializer.fail_on_error", "on");
 
-        try
-        {
-            initORB((String[]) null, props);
-            fail();
-        }
-        catch (INITIALIZE e)
-        {
-            // expected
-        }
+        initORB((String[]) null, props);
     }
 
     /**
@@ -316,7 +265,7 @@ public class ORBInitTest
      /**
      * <code>testSetORBId_3</code>
      */
-    @Test
+    @Test (expected=INITIALIZE.class)
     public void testSetORBId_3 ()
     {
         String args[] = new String[3];
@@ -326,16 +275,8 @@ public class ORBInitTest
         // args[3] = "jacorb: someOrbId_1";
 
         // test for -ORBID missing value
-        try
-        {
-            ORB orb = initORB(args, null);
-           assertTrue(orb == null);
-        }
-        catch (Exception e)
-        {
-            // expected
-            e.printStackTrace ();
-        }
+        ORB orb = initORB(args, null);
+        assertTrue(orb == null);
     }
 
     /**

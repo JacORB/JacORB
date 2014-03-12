@@ -13,7 +13,7 @@ import org.omg.CosNotification.StructuredEvent;
  * @author Alphonse Bendt
  */
 
-public class TestUtils
+public class NotificationTestUtils
 {
     private final static ORB sOrb_ = ORB.init();
 

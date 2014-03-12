@@ -93,14 +93,14 @@ public class MarshallingTest extends ORBTestCase
 
       Properties properties = new Properties();
       properties.put("jacorb.interop.sun", "on");
-      ORB jacorborb = org.omg.CORBA.ORB.init (new String[]{}, properties);
+      ORB jacorborb = getAnotherORB(properties);
       CDRInputStream in = new CDRInputStream(jacorborb, result);
 
       Something s = (Something)in.read_value();
 
       in.close();
+
       foreignorb.shutdown(true);
-      jacorborb.shutdown(true);
       assertTrue (s.number == -10);
    }
 
@@ -127,14 +127,13 @@ public class MarshallingTest extends ORBTestCase
 
       Properties properties = new Properties();
       properties.put("jacorb.interop.sun", "on");
-      ORB jacorborb = org.omg.CORBA.ORB.init (new String[]{}, properties);
+      ORB jacorborb = this.getAnotherORB(properties);
       CDRInputStream in = new CDRInputStream(jacorborb, result);
 
       NegativeArgumentException n = (NegativeArgumentException)in.read_value();
       in.close();
 
       foreignorb.shutdown(true);
-      jacorborb.shutdown(true);
 
       assertTrue (n.i == -10);
    }

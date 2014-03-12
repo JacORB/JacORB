@@ -99,7 +99,7 @@ public class BugJac590Test extends ClientServerTestCase
         }
         else
         {
-            System.out.println("0: " + r.return_value());
+            assertTrue (r.return_value () != null);
         }
     }
 }

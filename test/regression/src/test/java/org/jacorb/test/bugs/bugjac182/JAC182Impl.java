@@ -43,12 +43,10 @@ public class JAC182Impl extends JAC182POA
         }
         catch (InvalidSlot e)
         {
-            e.printStackTrace();
             throw new INTERNAL(e.toString());
         }
         catch (InvalidName e)
         {
-            e.printStackTrace();
             throw new INTERNAL(e.toString());
         }
         return result;

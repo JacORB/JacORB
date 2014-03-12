@@ -38,6 +38,6 @@ public class SSLListener implements SSLSessionListener
 
     private static void debug(String mesg)
     {
-        TestUtils.log(mesg);
+        TestUtils.getLogger().debug(mesg);
     }
 }

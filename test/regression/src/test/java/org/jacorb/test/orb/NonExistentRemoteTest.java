@@ -72,7 +72,6 @@ public class NonExistentRemoteTest extends ClientServerTestCase
         }
         catch (OBJECT_NOT_EXIST e)
         {
-            e.printStackTrace();
             fail ("Should not have thrown an exception");
         }
     }

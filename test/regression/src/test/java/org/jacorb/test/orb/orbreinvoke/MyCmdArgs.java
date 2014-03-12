@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import org.jacorb.test.listenendpoints.echo_corbaloc.CmdArgs;
+import org.jacorb.test.common.TestUtils;
 
 
 /**
@@ -41,12 +42,11 @@ public class MyCmdArgs extends CmdArgs {
                     if ((i+1) < args.length && args[i+1] != null)
                     {
                         String nsIorFile = args[++i].trim();
-                        // System.out.println("Got " + cmd + ": " + iorFile);
                         File f = new File( nsIorFile);
                         if ("Client".equals(appName) &&
                                 (! f.exists() || f.isDirectory()))
                         {
-                            System.err.println("File " + nsIorFile +
+                            TestUtils.getLogger().debug("File " + nsIorFile +
                                                " does not exist or is a directory.");
                             return false;
                         }
@@ -61,7 +61,7 @@ public class MyCmdArgs extends CmdArgs {
                     }
                     else
                     {
-                        System.err.println("Commandline argument " + cmd + " <value> is missing the value");
+                        TestUtils.getLogger().debug("Commandline argument " + cmd + " <value> is missing the value");
                         help();
                         return false;
                     }
@@ -70,12 +70,11 @@ public class MyCmdArgs extends CmdArgs {
                     if ((i+1) < args.length && args[i+1] != null)
                     {
                         nsIorString = args[++i].trim();
-                        // System.out.println("Got " + cmd + ": " + iorString);
                         continue;
                     }
                     else
                     {
-                        System.err.println("Commandline argument " + cmd + " <value> is missing the value");
+                        TestUtils.getLogger().debug("Commandline argument " + cmd + " <value> is missing the value");
                         help();
                         return false;
                     }
@@ -84,12 +83,11 @@ public class MyCmdArgs extends CmdArgs {
                     if ((i+1) < args.length && args[i+1] != null)
                     {
                         nsCorbaName = args[++i].trim();
-                        // System.out.println("Got " + cmd + ": " + corbalocString);
                         continue;
                     }
                     else
                     {
-                        System.err.println("Commandline argument " + cmd + " <value> is missing the value");
+                        TestUtils.getLogger().debug("Commandline argument " + cmd + " <value> is missing the value");
                         help();
                         return false;
                     }

@@ -180,9 +180,6 @@ public class AlternateProfileTest extends ClientServerTestCase
         server.setIORAddress( WRONG_HOST, CORRECT_PORT );
         server.addAlternateAddress( CORRECT_HOST, CORRECT_PORT );
         Sample s = server.getObject();
-//         ORB _myOrb = _setup.getClientOrb();
-//         String iorStr = _myOrb.object_to_string(s);
-//         System.out.println(iorStr);
 
         testNumberOfIIOPProfiles(2, s);
         testHostAndPortInIIOPProfile(s, 0, WRONG_HOST, CORRECT_PORT);

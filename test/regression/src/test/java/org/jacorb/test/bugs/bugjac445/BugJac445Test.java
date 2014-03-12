@@ -118,12 +118,4 @@ public class BugJac445Test extends ORBTestCase
         assertTrue(RecursiveBHelper.type().equivalent(copy.first_any.type()));
         assertTrue(RecursiveCHelper.type().equivalent(copy.second_any.type()));
     }
-
-    public static void main (String [] args) throws Exception
-    {
-        BugJac445Test x = new BugJac445Test();
-        x.ORBSetUp();
-        x.setUp();
-        x.testCacheRecursiveOverMemberBoundaries();
-    }
 }

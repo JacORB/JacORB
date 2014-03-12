@@ -38,12 +38,8 @@ public class Bug532Test extends ORBTestCase
     @Test
     public void testLargeByteArrayToAnyInsertion()
     {
-        ORB orb = org.omg.CORBA.ORB.init(new String[]{}, null);
-
         byte[] bytes = new byte[4001];
         Any any = orb.create_any();
         ByteSequenceHelper.insert(any, bytes);
-
-        orb.shutdown(true);
     }
 }

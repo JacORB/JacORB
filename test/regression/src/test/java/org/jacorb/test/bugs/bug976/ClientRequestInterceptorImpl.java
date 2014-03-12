@@ -12,6 +12,8 @@ import org.omg.PortableInterceptor.Current;
 import org.omg.PortableInterceptor.CurrentHelper;
 import org.omg.PortableInterceptor.ForwardRequest;
 import org.omg.PortableInterceptor.InvalidSlot;
+import org.omg.CORBA.INTERNAL;
+import org.jacorb.test.common.TestUtils;
 
 final public class ClientRequestInterceptorImpl extends LocalObject implements
         ClientRequestInterceptor
@@ -58,13 +60,12 @@ final public class ClientRequestInterceptorImpl extends LocalObject implements
         }
         if (any.type().kind().value() == TCKind._tk_null)
         {
-            System.err.println("Information is not there! Why?");
             throw new INTERNAL("Information from send_request is not there!");
         }
         else
         {
-            System.out.println("receive_exception working as expected!");
-            System.out.println("Info: " + any.extract_string());
+            TestUtils.getLogger().debug("receive_exception working as expected!");
+            TestUtils.getLogger().debug("Info: " + any.extract_string());
         }
     }
 
@@ -87,13 +88,12 @@ final public class ClientRequestInterceptorImpl extends LocalObject implements
         }
         if (any.type().kind().value() == TCKind._tk_null)
         {
-            System.err.println("Information is not there! Why?");
             throw new INTERNAL("Information from send_request is not there!");
         }
         else
         {
-            System.out.println("receive_reply working as expected!");
-            System.out.println("Info: " + any.extract_string());
+            TestUtils.getLogger().debug("receive_reply working as expected!");
+            TestUtils.getLogger().debug("Info: " + any.extract_string());
         }
     }
 
@@ -128,8 +128,7 @@ final public class ClientRequestInterceptorImpl extends LocalObject implements
         }
         catch (InvalidName e)
         {
-            String message = "Falha inesperada ao obter o PICurrent";
-            throw new INTERNAL(message);
+            throw new INTERNAL(e.toString ());
         }
         return CurrentHelper.narrow(obj);
     }

@@ -26,7 +26,6 @@ public class CInitializer
         }
         catch (DuplicateName e)
         {
-            e.printStackTrace();
         }
     }
 

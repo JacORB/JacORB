@@ -84,11 +84,11 @@ public class BugJac524Test extends ORBTestCase
         ior = orb.object_to_string(server);
     }
 
-    protected final void doTest()
+    protected final void doTest() throws Exception
     {
         int before = ClientIIOPConnection.openTransports;
 
-        org.omg.CORBA.ORB orb = org.omg.CORBA.ORB.init(new String[0], props);
+        org.omg.CORBA.ORB orb = this.getAnotherORB(props);
 
         BasicServer server = BasicServerHelper.narrow(orb.string_to_object (ior));
 

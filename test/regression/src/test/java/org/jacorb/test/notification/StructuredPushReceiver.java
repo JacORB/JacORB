@@ -117,7 +117,7 @@ public class StructuredPushReceiver extends Thread implements StructuredPushCons
 
         if (received_ % 100 == 0)
         {
-            TestUtils.log("push: " + received_);
+            TestUtils.getLogger().debug("push: " + received_);
         }
 
         if (received_ == expected_)

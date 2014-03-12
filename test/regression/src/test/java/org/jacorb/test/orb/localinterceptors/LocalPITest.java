@@ -7,6 +7,7 @@ import static org.junit.Assert.fail;
 import java.util.Properties;
 import org.jacorb.test.common.ClientServerSetup;
 import org.jacorb.test.common.ClientServerTestCase;
+import org.jacorb.test.common.TestUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -33,8 +34,6 @@ import org.omg.PortableServer.POA;
  */
 public class LocalPITest extends ClientServerTestCase
 {
-    private static boolean localDebugOn = true;
-
     private static PIServer serverRef = null;
     private static PIServer clientRef = null;
 
@@ -184,7 +183,7 @@ public class LocalPITest extends ClientServerTestCase
     @Test
     public void testCompleteCall()
     {
-        System.out.println ("\ntestCompleteCall");
+        TestUtils.getLogger().debug ("\ntestCompleteCall");
 
         init ("sendMessage");
 
@@ -204,7 +203,7 @@ public class LocalPITest extends ClientServerTestCase
     @Test
     public void testCompleteCallWithSCs()
     {
-        System.out.println ("\ntestCompleteCallWithScs");
+        TestUtils.getLogger().debug ("\ntestCompleteCallWithScs");
 
         init ("sendMessage");
         try
@@ -273,7 +272,7 @@ public class LocalPITest extends ClientServerTestCase
     @Test
     public void testExceptionFromServer()
     {
-        System.out.println ("\ntestExceptionFromServer");
+        TestUtils.getLogger().debug ("\ntestExceptionFromServer");
 
         init ("throwException");
 
@@ -313,7 +312,7 @@ public class LocalPITest extends ClientServerTestCase
     public void testClientInterceptorsRaiseExceptionAtSendRequest()
     {
 
-        System.out.println ("\ntestClientInterceptorsRaiseExceptionAtSendRequest");
+        TestUtils.getLogger().debug ("\ntestClientInterceptorsRaiseExceptionAtSendRequest");
 
         init ("sendMessage");
 
@@ -396,7 +395,7 @@ public class LocalPITest extends ClientServerTestCase
     @Test
     public void testClientInterceptorsRaiseExceptionAtReceiveReply()
     {
-        System.out.println ("\ntestClientInterceptorsRaiseExceptionAtReceiveReply");
+        TestUtils.getLogger().debug ("\ntestClientInterceptorsRaiseExceptionAtReceiveReply");
 
         init ("sendMessage");
 
@@ -486,7 +485,7 @@ public class LocalPITest extends ClientServerTestCase
     @Test
     public void testClientInterceptorsRaiseExceptionAtReceiveException()
     {
-        System.out.println ("\ntestClientInterceptorsRaiseExceptionAtReceiveException");
+        TestUtils.getLogger().debug ("\ntestClientInterceptorsRaiseExceptionAtReceiveException");
 
         init ("throwException");
 
@@ -579,7 +578,7 @@ public class LocalPITest extends ClientServerTestCase
     public void testServerInterceptorsRaiseExceptionAtReceiveRequestSC()
     {
 
-        System.out.println ("\ntestServerInterceptorsRaiseExceptionAtReceiveRequestSC");
+        TestUtils.getLogger().debug ("\ntestServerInterceptorsRaiseExceptionAtReceiveRequestSC");
 
         init ("sendMessage");
 
@@ -670,7 +669,7 @@ public class LocalPITest extends ClientServerTestCase
     public void testServerInterceptorsRaiseExceptionAtReceiveRequest()
     {
 
-        System.out.println ("\ntestServerInterceptorsRaiseExceptionAtReceiveRequest");
+        TestUtils.getLogger().debug ("\ntestServerInterceptorsRaiseExceptionAtReceiveRequest");
 
         init ("sendMessage");
 
@@ -764,7 +763,7 @@ public class LocalPITest extends ClientServerTestCase
     @Test
     public void testServerInterceptorsRaiseExceptionAtSendReply()
     {
-        System.out.println ("\ntestServerInterceptorsRaiseExceptionAtSendReply");
+        TestUtils.getLogger().debug ("\ntestServerInterceptorsRaiseExceptionAtSendReply");
 
         init ("sendMessage");
 
@@ -857,7 +856,7 @@ public class LocalPITest extends ClientServerTestCase
     @Test
     public void testServerInterceptorsRaiseExceptionAtSendException()
     {
-        System.out.println ("\ntestServerInterceptorsRaiseExceptionAtSendException");
+        TestUtils.getLogger().debug ("\ntestServerInterceptorsRaiseExceptionAtSendException");
 
         init ("sendMessage");
 
@@ -956,7 +955,7 @@ public class LocalPITest extends ClientServerTestCase
     public void testClientInterceptorARaisesForwardRequestAtSendRequest()
     {
 
-        System.out.println ("\ntestClientInterceptorARaisesForwardRequestAtSendRequest");
+        TestUtils.getLogger().debug ("\ntestClientInterceptorARaisesForwardRequestAtSendRequest");
 
         init ("returnMessage");
 
@@ -982,7 +981,7 @@ public class LocalPITest extends ClientServerTestCase
     @Test
     public void testClientInterceptorBRaisesForwardRequestAtSendRequest()
     {
-        System.out.println ("\ntestClientInterceptorBRaisesForwardRequestAtSendRequest");
+        TestUtils.getLogger().debug ("\ntestClientInterceptorBRaisesForwardRequestAtSendRequest");
 
         init ("returnMessage");
 
@@ -1009,7 +1008,7 @@ public class LocalPITest extends ClientServerTestCase
     @Test
     public void testClientInterceptorCRaisesForwardRequestAtSendRequest()
     {
-        System.out.println ("\ntestClientInterceptorCRaisesForwardRequestAtSendRequest");
+        TestUtils.getLogger().debug ("\ntestClientInterceptorCRaisesForwardRequestAtSendRequest");
 
         init ("returnMessage");
 
@@ -1036,7 +1035,7 @@ public class LocalPITest extends ClientServerTestCase
     @Test
     public void testServerInterceptorARaisesForwardRequestAtRRSC()
     {
-        System.out.println ("\ntestServerInterceptorARaisesForwardRequestAtRRSC");
+        TestUtils.getLogger().debug ("\ntestServerInterceptorARaisesForwardRequestAtRRSC");
 
         init ("returnMessage");
 
@@ -1060,7 +1059,7 @@ public class LocalPITest extends ClientServerTestCase
     @Test
     public void testServerInterceptorBRaisesForwardRequestAtRRSC()
     {
-        System.out.println ("\ntestServerInterceptorBRaisesForwardRequestAtRRSC");
+        TestUtils.getLogger().debug ("\ntestServerInterceptorBRaisesForwardRequestAtRRSC");
 
         init ("returnMessage");
 
@@ -1085,7 +1084,7 @@ public class LocalPITest extends ClientServerTestCase
     @Test
     public void testServerInterceptorCRaisesForwardRequestAtRRSC()
     {
-        System.out.println ("\ntestServerInterceptorCRaisesForwardRequestAtRRSC");
+        TestUtils.getLogger().debug ("\ntestServerInterceptorCRaisesForwardRequestAtRRSC");
 
         init ("returnMessage");
 
@@ -1110,7 +1109,7 @@ public class LocalPITest extends ClientServerTestCase
     @Test
     public void testServerInterceptorARaisesForwardRequestAtRR()
     {
-        System.out.println ("\ntestServerInterceptorARaisesForwardRequestAtRR");
+        TestUtils.getLogger().debug ("\ntestServerInterceptorARaisesForwardRequestAtRR");
 
         init ("returnMessage");
 
@@ -1136,7 +1135,7 @@ public class LocalPITest extends ClientServerTestCase
     @Test
     public void testServerInterceptorBRaisesForwardRequestAtRR()
     {
-        System.out.println ("\ntestServerInterceptorBRaisesForwardRequestAtRR");
+        TestUtils.getLogger().debug ("\ntestServerInterceptorBRaisesForwardRequestAtRR");
         init ("returnMessage");
 
         String outMsg = "testServerInterceptorBRaisesFRAtRR";
@@ -1161,7 +1160,7 @@ public class LocalPITest extends ClientServerTestCase
     @Test
     public void testServerInterceptorCRaisesForwardRequestAtRR()
     {
-        System.out.println ("\ntestServerInterceptorCRaisesForwardRequestAtRR");
+        TestUtils.getLogger().debug ("\ntestServerInterceptorCRaisesForwardRequestAtRR");
         init ("returnMessage");
 
         String outMsg = "testServerInterceptorCRaisesFRAtRR";
@@ -1187,7 +1186,7 @@ public class LocalPITest extends ClientServerTestCase
     @Test
     public void testServerInterceptorARaisesForwardRequestAtSE()
     {
-        System.out.println ("\ntestServerInterceptorARaisesForwardRequestAtSE");
+        TestUtils.getLogger().debug ("\ntestServerInterceptorARaisesForwardRequestAtSE");
         init ("returnMessage");
 
         String outMsg = "testServerInterceptorARaisesFRAtSE";
@@ -1230,7 +1229,7 @@ public class LocalPITest extends ClientServerTestCase
     @Test
     public void testServerInterceptorBRaisesForwardRequestAtSE()
     {
-        System.out.println ("\ntestServerInterceptorBRaisesForwardRequestAtSE");
+        TestUtils.getLogger().debug ("\ntestServerInterceptorBRaisesForwardRequestAtSE");
         init ("returnMessage");
 
         String outMsg = "testServerInterceptorBRaisesFRAtSE";
@@ -1275,7 +1274,7 @@ public class LocalPITest extends ClientServerTestCase
     @Test
     public void testClientInterceptorARaisesForwardRequestAtRE()
     {
-        System.out.println ("\ntestClientInterceptorARaisesForwardRequestAtRE");
+        TestUtils.getLogger().debug ("\ntestClientInterceptorARaisesForwardRequestAtRE");
 
         init ("returnMessage");
 
@@ -1319,7 +1318,7 @@ public class LocalPITest extends ClientServerTestCase
     @Test
     public void testClientInterceptorBRaisesForwardRequestAtRE()
     {
-        System.out.println ("\ntestClientInterceptorBRaisesForwardRequestAtRE");
+        TestUtils.getLogger().debug ("\ntestClientInterceptorBRaisesForwardRequestAtRE");
 
         init ("returnMessage");
 
@@ -1362,7 +1361,7 @@ public class LocalPITest extends ClientServerTestCase
     @Test
     public void testClientInterceptorCRaisesForwardRequestAtRE()
     {
-        System.out.println ("\ntestClientInterceptorCRaisesForwardRequestAtRE");
+        TestUtils.getLogger().debug ("\ntestClientInterceptorCRaisesForwardRequestAtRE");
 
         init ("returnMessage");
 
@@ -1406,7 +1405,7 @@ public class LocalPITest extends ClientServerTestCase
     @Test
     public void testServerInterceptorARaisesForwardRequestAtSO()
     {
-        System.out.println ("\ntestServerInterceptorARaisesForwardRequestAtSO");
+        TestUtils.getLogger().debug ("\ntestServerInterceptorARaisesForwardRequestAtSO");
 
         init ("returnMessage");
 
@@ -1452,7 +1451,7 @@ public class LocalPITest extends ClientServerTestCase
     @Test
     public void testClientInterceptorBRaisesForwardRequestAtRO()
     {
-        System.out.println ("\ntestClientInterceptorBRaisesForwardRequestAtRO");
+        TestUtils.getLogger().debug ("\ntestClientInterceptorBRaisesForwardRequestAtRO");
 
         init ("returnMessage");
 
@@ -1508,7 +1507,7 @@ public class LocalPITest extends ClientServerTestCase
 
         public void sendMessage (String msg)
         {
-            System.out.println ("Server got " + msg);
+            TestUtils.getLogger().debug ("Server got " + msg);
         }
 
         public String returnMessage (String msg)
@@ -1610,11 +1609,7 @@ public class LocalPITest extends ClientServerTestCase
         public void send_request( org.omg.PortableInterceptor.ClientRequestInfo ri )
             throws org.omg.PortableInterceptor.ForwardRequest
         {
-            if (localDebugOn)
-            {
-                System.out.println ("LocalClientInterceptorA :: send_request");
-            }
-
+            TestUtils.getLogger().debug ("LocalClientInterceptorA :: send_request");
 
             callsMade = callsMade | CLIENTA_SEND_REQ;
 
@@ -1793,21 +1788,14 @@ public class LocalPITest extends ClientServerTestCase
 
         public void send_poll( org.omg.PortableInterceptor.ClientRequestInfo ri )
         {
-            if (localDebugOn)
-            {
-                System.out.println ("LocalClientInterceptorA :: send_poll");
-            }
-
+            TestUtils.getLogger().debug ("LocalClientInterceptorA :: send_poll");
 
             callsMade = callsMade | CLIENTA_SEND_POLL;
         }
 
         public void receive_reply (org.omg.PortableInterceptor.ClientRequestInfo ri )
         {
-            if (localDebugOn)
-            {
-                System.out.println ("LocalClientInterceptorA :: receive_reply");
-            }
+            TestUtils.getLogger().debug ("LocalClientInterceptorA :: receive_reply");
 
             callsMade = callsMade | CLIENTA_RECEIVE_REPLY;
 
@@ -1852,10 +1840,7 @@ public class LocalPITest extends ClientServerTestCase
         public void receive_other( org.omg.PortableInterceptor.ClientRequestInfo ri )
             throws org.omg.PortableInterceptor.ForwardRequest
         {
-            if (localDebugOn)
-            {
-                System.out.println ("LocalClientInterceptorA :: receive_other");
-            }
+            TestUtils.getLogger().debug ("LocalClientInterceptorA :: receive_other");
 
             callsMade = callsMade | CLIENTA_RECEIVE_OTHER;
 
@@ -1869,10 +1854,7 @@ public class LocalPITest extends ClientServerTestCase
         public void receive_exception( org.omg.PortableInterceptor.ClientRequestInfo ri )
             throws org.omg.PortableInterceptor.ForwardRequest
         {
-            if (localDebugOn)
-            {
-                System.out.println ("LocalClientInterceptorA :: receive_exception");
-            }
+            TestUtils.getLogger().debug ("LocalClientInterceptorA :: receive_exception");
 
             callsMade = callsMade | CLIENTA_RECEIVE_EXCEPTION;
 
@@ -1914,10 +1896,7 @@ public class LocalPITest extends ClientServerTestCase
         public void send_request( org.omg.PortableInterceptor.ClientRequestInfo ri )
             throws org.omg.PortableInterceptor.ForwardRequest
         {
-            if (localDebugOn)
-            {
-                System.out.println ("LocalClientInterceptorB :: send_request");
-            }
+            TestUtils.getLogger().debug ("LocalClientInterceptorB :: send_request");
 
             callsMade = callsMade | CLIENTB_SEND_REQ;
 
@@ -1993,20 +1972,14 @@ public class LocalPITest extends ClientServerTestCase
 
         public void send_poll( org.omg.PortableInterceptor.ClientRequestInfo ri )
         {
-            if (localDebugOn)
-            {
-                System.out.println ("LocalClientInterceptorB :: send_poll");
-            }
+            TestUtils.getLogger().debug ("LocalClientInterceptorB :: send_poll");
 
             callsMade = callsMade | CLIENTB_SEND_POLL;
         }
 
         public void receive_reply (org.omg.PortableInterceptor.ClientRequestInfo ri )
         {
-            if (localDebugOn)
-            {
-                System.out.println ("LocalClientInterceptorB :: receive_reply");
-            }
+            TestUtils.getLogger().debug ("LocalClientInterceptorB :: receive_reply");
 
             callsMade = callsMade | CLIENTB_RECEIVE_REPLY;
 
@@ -2051,10 +2024,7 @@ public class LocalPITest extends ClientServerTestCase
         public void receive_other( org.omg.PortableInterceptor.ClientRequestInfo ri )
             throws org.omg.PortableInterceptor.ForwardRequest
         {
-            if (localDebugOn)
-            {
-                System.out.println ("LocalClientInterceptorB :: receive_other");
-            }
+            TestUtils.getLogger().debug ("LocalClientInterceptorB :: receive_other");
 
             callsMade = callsMade | CLIENTB_RECEIVE_OTHER;
 
@@ -2074,10 +2044,7 @@ public class LocalPITest extends ClientServerTestCase
         public void receive_exception( org.omg.PortableInterceptor.ClientRequestInfo ri )
             throws org.omg.PortableInterceptor.ForwardRequest
         {
-            if (localDebugOn)
-            {
-                System.out.println ("LocalClientInterceptorB :: receive_exception");
-            }
+            TestUtils.getLogger().debug ("LocalClientInterceptorB :: receive_exception");
 
             callsMade = callsMade | CLIENTB_RECEIVE_EXCEPTION;
 
@@ -2116,10 +2083,7 @@ public class LocalPITest extends ClientServerTestCase
         public void send_request( org.omg.PortableInterceptor.ClientRequestInfo ri )
             throws org.omg.PortableInterceptor.ForwardRequest
         {
-            if (localDebugOn)
-            {
-                System.out.println ("LocalClientInterceptorC :: send_request");
-            }
+            TestUtils.getLogger().debug ("LocalClientInterceptorC :: send_request");
 
             callsMade = callsMade | CLIENTC_SEND_REQ;
 
@@ -2196,20 +2160,14 @@ public class LocalPITest extends ClientServerTestCase
 
         public void send_poll( org.omg.PortableInterceptor.ClientRequestInfo ri )
         {
-            if (localDebugOn)
-            {
-                System.out.println ("LocalClientInterceptorC :: send_poll");
-            }
+            TestUtils.getLogger().debug ("LocalClientInterceptorC :: send_poll");
 
             callsMade = callsMade | CLIENTC_SEND_POLL;
         }
 
         public void receive_reply (org.omg.PortableInterceptor.ClientRequestInfo ri )
         {
-            if (localDebugOn)
-            {
-                System.out.println ("LocalClientInterceptorC :: receive_reply");
-            }
+            TestUtils.getLogger().debug ("LocalClientInterceptorC :: receive_reply");
 
             callsMade = callsMade | CLIENTC_RECEIVE_REPLY;
 
@@ -2253,10 +2211,7 @@ public class LocalPITest extends ClientServerTestCase
         public void receive_other( org.omg.PortableInterceptor.ClientRequestInfo ri )
             throws org.omg.PortableInterceptor.ForwardRequest
         {
-            if (localDebugOn)
-            {
-                System.out.println ("LocalClientInterceptorC :: receive_other");
-            }
+            TestUtils.getLogger().debug ("LocalClientInterceptorC :: receive_other");
 
             callsMade = callsMade | CLIENTC_RECEIVE_OTHER;
 
@@ -2270,10 +2225,7 @@ public class LocalPITest extends ClientServerTestCase
         public void receive_exception( org.omg.PortableInterceptor.ClientRequestInfo ri )
             throws org.omg.PortableInterceptor.ForwardRequest
         {
-            if (localDebugOn)
-            {
-                 System.out.println ("LocalClientInterceptorC :: receive_exception");
-            }
+            TestUtils.getLogger().debug ("LocalClientInterceptorC :: receive_exception");
 
             callsMade = callsMade | CLIENTC_RECEIVE_EXCEPTION;
 
@@ -2316,10 +2268,7 @@ public class LocalPITest extends ClientServerTestCase
             org.omg.PortableInterceptor.ServerRequestInfo ri )
             throws org.omg.PortableInterceptor.ForwardRequest
         {
-            if (localDebugOn)
-            {
-                System.out.println ("LocalServerInterceptorA - receive_request_service_contexts");
-            }
+            TestUtils.getLogger().debug ("LocalServerInterceptorA - receive_request_service_contexts");
 
             callsMade = callsMade | SERVERA_RECEIVE_REQUEST_SC;
 
@@ -2371,10 +2320,7 @@ public class LocalPITest extends ClientServerTestCase
         public void receive_request( org.omg.PortableInterceptor.ServerRequestInfo ri )
             throws org.omg.PortableInterceptor.ForwardRequest
         {
-            if (localDebugOn)
-            {
-                System.out.println ("LocalServerInterceptorA - receive_request");
-            }
+            TestUtils.getLogger().debug ("LocalServerInterceptorA - receive_request");
 
             callsMade = callsMade | SERVERA_RECEIVE_REQUEST;
 
@@ -2445,10 +2391,7 @@ public class LocalPITest extends ClientServerTestCase
 
         public void send_reply( org.omg.PortableInterceptor.ServerRequestInfo ri )
         {
-            if (localDebugOn)
-            {
-                System.out.println ("LocalServerInterceptorA - send_reply");
-            }
+            TestUtils.getLogger().debug ("LocalServerInterceptorA - send_reply");
 
             callsMade = callsMade | SERVERA_SEND_REPLY;
 
@@ -2462,10 +2405,7 @@ public class LocalPITest extends ClientServerTestCase
         public void send_exception( org.omg.PortableInterceptor.ServerRequestInfo ri )
             throws org.omg.PortableInterceptor.ForwardRequest
         {
-            if (localDebugOn)
-            {
-                System.out.println ("LocalServerInterceptorA - send_exception");
-            }
+            TestUtils.getLogger().debug ("LocalServerInterceptorA - send_exception");
 
             callsMade = callsMade | SERVERA_SEND_EXCEPTION;
 
@@ -2503,10 +2443,7 @@ public class LocalPITest extends ClientServerTestCase
         public void send_other( org.omg.PortableInterceptor.ServerRequestInfo ri )
             throws org.omg.PortableInterceptor.ForwardRequest
         {
-            if (localDebugOn)
-            {
-                System.out.println ("LocalServerInterceptorA - send_other");
-            }
+            TestUtils.getLogger().debug ("LocalServerInterceptorA - send_other");
 
             callsMade = callsMade | SERVERA_SEND_OTHER;
 
@@ -2543,10 +2480,7 @@ public class LocalPITest extends ClientServerTestCase
             org.omg.PortableInterceptor.ServerRequestInfo ri )
             throws org.omg.PortableInterceptor.ForwardRequest
         {
-            if (localDebugOn)
-            {
-                System.out.println ("LocalServerInterceptorB - receive_request_service_contexts");
-            }
+            TestUtils.getLogger().debug ("LocalServerInterceptorB - receive_request_service_contexts");
 
             callsMade = callsMade | SERVERB_RECEIVE_REQUEST_SC;
 
@@ -2599,10 +2533,7 @@ public class LocalPITest extends ClientServerTestCase
         public void receive_request( org.omg.PortableInterceptor.ServerRequestInfo ri )
             throws org.omg.PortableInterceptor.ForwardRequest
         {
-            if (localDebugOn)
-            {
-                System.out.println ("LocalServerInterceptorB - receive_request");
-            }
+            TestUtils.getLogger().debug ("LocalServerInterceptorB - receive_request");
 
             callsMade = callsMade | SERVERB_RECEIVE_REQUEST;
 
@@ -2672,10 +2603,7 @@ public class LocalPITest extends ClientServerTestCase
 
         public void send_reply( org.omg.PortableInterceptor.ServerRequestInfo ri )
         {
-            if (localDebugOn)
-            {
-                System.out.println ("LocalServerInterceptorB - send_reply");
-            }
+            TestUtils.getLogger().debug ("LocalServerInterceptorB - send_reply");
 
             callsMade = callsMade | SERVERB_SEND_REPLY;
 
@@ -2689,10 +2617,7 @@ public class LocalPITest extends ClientServerTestCase
         public void send_exception( org.omg.PortableInterceptor.ServerRequestInfo ri )
             throws org.omg.PortableInterceptor.ForwardRequest
         {
-            if (localDebugOn)
-            {
-                System.out.println ("LocalServerInterceptorB - send_exception");
-            }
+            TestUtils.getLogger().debug ("LocalServerInterceptorB - send_exception");
 
             callsMade = callsMade | SERVERB_SEND_EXCEPTION;
 
@@ -2731,10 +2656,7 @@ public class LocalPITest extends ClientServerTestCase
         public void send_other( org.omg.PortableInterceptor.ServerRequestInfo ri )
             throws org.omg.PortableInterceptor.ForwardRequest
         {
-            if (localDebugOn)
-            {
-                System.out.println ("LocalServerInterceptorB - send_other");
-            }
+            TestUtils.getLogger().debug ("LocalServerInterceptorB - send_other");
 
             callsMade = callsMade | SERVERB_SEND_OTHER;
 
@@ -2763,10 +2685,7 @@ public class LocalPITest extends ClientServerTestCase
             org.omg.PortableInterceptor.ServerRequestInfo ri )
             throws org.omg.PortableInterceptor.ForwardRequest
         {
-            if (localDebugOn)
-            {
-                System.out.println ("LocalServerInterceptorC - receive_request_service_contexts");
-            }
+            TestUtils.getLogger().debug ("LocalServerInterceptorC - receive_request_service_contexts");
 
             callsMade = callsMade | SERVERC_RECEIVE_REQUEST_SC;
 
@@ -2819,10 +2738,7 @@ public class LocalPITest extends ClientServerTestCase
         public void receive_request( org.omg.PortableInterceptor.ServerRequestInfo ri )
             throws org.omg.PortableInterceptor.ForwardRequest
         {
-            if (localDebugOn)
-            {
-               System.out.println ("LocalServerInterceptorC - receive_request");
-            }
+            TestUtils.getLogger().debug ("LocalServerInterceptorC - receive_request");
 
             callsMade = callsMade | SERVERC_RECEIVE_REQUEST;
 
@@ -2893,10 +2809,7 @@ public class LocalPITest extends ClientServerTestCase
 
         public void send_reply( org.omg.PortableInterceptor.ServerRequestInfo ri )
         {
-            if (localDebugOn)
-            {
-                System.out.println ("LocalServerInterceptorC - send_reply");
-            }
+            TestUtils.getLogger().debug ("LocalServerInterceptorC - send_reply");
 
             callsMade = callsMade | SERVERC_SEND_REPLY;
 
@@ -2924,10 +2837,7 @@ public class LocalPITest extends ClientServerTestCase
         public void send_exception( org.omg.PortableInterceptor.ServerRequestInfo ri )
             throws org.omg.PortableInterceptor.ForwardRequest
         {
-            if (localDebugOn)
-            {
-                System.out.println ("LocalServerInterceptorC - send_exception");
-            }
+            TestUtils.getLogger().debug ("LocalServerInterceptorC - send_exception");
 
             callsMade = callsMade | SERVERC_SEND_EXCEPTION;
 
@@ -2962,11 +2872,7 @@ public class LocalPITest extends ClientServerTestCase
         public void send_other( org.omg.PortableInterceptor.ServerRequestInfo ri )
             throws org.omg.PortableInterceptor.ForwardRequest
         {
-
-            if (localDebugOn)
-            {
-                System.out.println ("LocalServerInterceptorC - send_other");
-            }
+            TestUtils.getLogger().debug ("LocalServerInterceptorC - send_other");
 
             callsMade = callsMade | SERVERC_SEND_OTHER;
 

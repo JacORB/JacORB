@@ -83,13 +83,13 @@ public class ReproClientTest
         assertFalse ("Value should not be empty", outs.getItem().isEmpty());
 
         for( ReproData d : outs.getItem()) {
-        	System.out.println( "===> [" + d.isABool() + ":" + d.getALong() + ":" + d.getAString() + "]");
+        	TestUtils.getLogger().debug( "===> [" + d.isABool() + ":" + d.getALong() + ":" + d.getAString() + "]");
         }
 
         // this call fails with a null pointer exception during unmarshal
         // (the service gets called correctly, but the client chokes on result data)
         ReproData d = port.failsCrash( in );
         assertTrue (d.isABool() == true);
-       	System.out.println( "===> [" + d.isABool() + ":" + d.getALong() + ":" + d.getAString() + "]");
+       	TestUtils.getLogger().debug( "===> [" + d.isABool() + ":" + d.getALong() + ":" + d.getAString() + "]");
     }
 }

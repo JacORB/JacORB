@@ -167,8 +167,6 @@ public class ServerSetup
 
     public void setUp()
     {
-        final boolean coverage = TestUtils.getSystemPropertyAsBoolean("jacorb.test.coverage", false);
-
         Properties serverProperties = new Properties();
         serverProperties.setProperty("org.omg.CORBA.ORBClass", "org.jacorb.orb.ORB");
         serverProperties.setProperty("org.omg.CORBA.ORBSingletonClass", "org.jacorb.orb.ORBSingleton");
@@ -194,8 +192,7 @@ public class ServerSetup
             serverProperties.setProperty(propName, value);
         }
 
-        final Launcher launcher = getLauncher(coverage,
-                                        System.getProperty("java.class.path"),
+        final Launcher launcher = getLauncher(System.getProperty("java.class.path"),
                                         serverProperties,
                                         getTestServerMain(),
                                         getServerArgs());
@@ -288,8 +285,7 @@ public class ServerSetup
      * @param mainClass
      * @param processArgs
      */
-    private Launcher getLauncher (boolean useCoverage,
-                                 String classpath,
+    private Launcher getLauncher (String classpath,
                                  Properties properties,
                                  String mainClass,
                                  String[] processArgs)
@@ -302,7 +298,7 @@ public class ServerSetup
         }
         catch(Exception e)
         {
-            TestUtils.log("unable to locate JacORB home. classpath will be only be set using the System property java.class.path: " + e.getMessage());
+            TestUtils.getLogger().debug("unable to locate JacORB home. classpath will be only be set using the System property java.class.path: " + e.getMessage());
         }
 
         final Properties props = new Properties();
@@ -345,7 +341,6 @@ public class ServerSetup
             launcher.setMainClass(mainClass);
             launcher.setArgs(processArgs);
             launcher.setVmArgs(jvmArgs);
-            launcher.setUseCoverage(useCoverage);
 
             if (home != null)
             {

@@ -109,7 +109,7 @@ public class NSFailoverTest extends ORBTestCase
         {
             try
             {
-                log("++++ setting NameServer #1");
+                TestUtils.getLogger().debug("++++ setting NameServer #1"==null? "null" : "++++ setting NameServer #1");
                 if (nsProp_1 == null)
                 {
                     // initialize NameServer #1 properties
@@ -131,7 +131,7 @@ public class NSFailoverTest extends ORBTestCase
                 // initiate the NameServer service
                 nsSetup_1 = new NSServiceSetup (nsProp_1, 1);
                 nsSetup_1.setUp();
-                log("++++ setting NameServer #1 - complete");
+                TestUtils.getLogger().debug("++++ setting NameServer #1 - complete"==null? "null" : "++++ setting NameServer #1 - complete");
             }
             catch (Exception e)
             {
@@ -143,7 +143,7 @@ public class NSFailoverTest extends ORBTestCase
         {
             try
             {
-                log("++++ setting NameServer #2");
+                TestUtils.getLogger().debug("++++ setting NameServer #2"==null? "null" : "++++ setting NameServer #2");
                 if (nsProp_2 == null)
                 {
                     // initialize NameServer #1 properties
@@ -165,7 +165,7 @@ public class NSFailoverTest extends ORBTestCase
                 // initiate the NameServer service
                 nsSetup_2 = new NSServiceSetup (nsProp_2, 2);
                 nsSetup_2.setUp();
-                log("++++ setting NameServer #2 - complete");
+                TestUtils.getLogger().debug("++++ setting NameServer #2 - complete"==null? "null" : "++++ setting NameServer #2 - complete");
             }
             catch (Exception e)
             {
@@ -195,7 +195,7 @@ public class NSFailoverTest extends ORBTestCase
         {
             try
             {
-                   log("++++ setting up NSFailoverTestServer 1");
+                   TestUtils.getLogger().debug("++++ setting up NSFailoverTestServer 1"==null? "null" : "++++ setting up NSFailoverTestServer 1");
                     serverSetup_1 = new ServerSetup (
                                         "org.jacorb.test.orb.orbreinvoke.NSFailoverTestServer",
                                         "",
@@ -212,7 +212,7 @@ public class NSFailoverTest extends ORBTestCase
                                         null);
 
                     serverSetup_1.setUp();
-                    log("++++ setting up server 1 - complete");
+                    TestUtils.getLogger().debug("++++ setting up server 1 - complete"==null? "null" : "++++ setting up server 1 - complete");
                 }
                 catch (Exception e)
                 {
@@ -223,7 +223,7 @@ public class NSFailoverTest extends ORBTestCase
         {
             try
             {
-                log("++++ setting up NSFailoverTestServer 2");
+                TestUtils.getLogger().debug("++++ setting up NSFailoverTestServer 2"==null? "null" : "++++ setting up NSFailoverTestServer 2");
                 serverSetup_2 = new ServerSetup (
                                         "org.jacorb.test.orb.orbreinvoke.NSFailoverTestServer",
                                         "",
@@ -241,7 +241,7 @@ public class NSFailoverTest extends ORBTestCase
                                         null);
 
                 serverSetup_2.setUp();
-                log("++++ setting up server 2 - complete");
+                TestUtils.getLogger().debug("++++ setting up server 2 - complete"==null? "null" : "++++ setting up server 2 - complete");
             }
             catch (Exception e)
             {
@@ -267,7 +267,6 @@ public class NSFailoverTest extends ORBTestCase
         }
         catch (Exception e)
         {
-            e.printStackTrace();
             fail("setUp got an exception, " + e.getMessage());
         }
     }
@@ -287,7 +286,7 @@ public class NSFailoverTest extends ORBTestCase
             org.omg.CORBA.Object obj;
             String result;
 
-            log("++++ test_ping: ping server #1");
+            TestUtils.getLogger().debug("++++ test_ping: ping server #1"==null? "null" : "++++ test_ping: ping server #1");
             String ior_1 = nsSetup_1.getServerIOR();
             assertTrue("test_ping: couldn't pickup server #1's IOR", ior_1 != null && ior_1.length() > 0);
 
@@ -300,13 +299,14 @@ public class NSFailoverTest extends ORBTestCase
             assertTrue("test_ping: couldn't generate server #1's obj using IOR: < " + corbaname + " >", obj != null);
             server_1 = org.jacorb.test.listenendpoints.echo_corbaloc.EchoMessageHelper.narrow(obj);
             result = server_1.echo_simple();
-            log("test_ping: got resp from server #1: <" + result + ">");
+            String msg = "test_ping: got resp from server #1: <" + result + ">";
+            TestUtils.getLogger().debug(msg==null? "null" : msg);
             assertTrue("test_ping: couldn't ping server #1 using IOR: < " + corbaname + " >", result != null);
             assertTrue("test_ping: got unexpected response from server #1: <" + result + ">",
                     result.startsWith("Simple greeting from"));
-            log("++++ test_ping: ping server #1 - complete");
+            TestUtils.getLogger().debug("++++ test_ping: ping server #1 - complete"==null? "null" : "++++ test_ping: ping server #1 - complete");
 
-            log("++++ test_ping: ping server #2");
+            TestUtils.getLogger().debug("++++ test_ping: ping server #2"==null? "null" : "++++ test_ping: ping server #2");
             String ior_2 = nsSetup_2.getServerIOR();
             assertTrue("test_ping: couldn't pickup server #2's IOR", ior_2 != null && ior_2.length() > 0);
             String corbaloc2 = PrintIOR.printFullCorbalocIOR(orb, ior_2);
@@ -318,20 +318,19 @@ public class NSFailoverTest extends ORBTestCase
             assertTrue("test_ping: couldn't generate server #2's obj using IOR: < " + ior_2 + " >", obj != null);
             server_2 = org.jacorb.test.listenendpoints.echo_corbaloc.EchoMessageHelper.narrow(obj);
             result = server_2.echo_simple();
-            log("test_ping: got resp from server: <" + result + ">");
+            String msg1 = "test_ping: got resp from server: <" + result + ">";
+            TestUtils.getLogger().debug(msg1==null? "null" : msg1);
             assertTrue("test_ping: couldn't ping server #2 using IOR: < " + ior_2 + " >", result != null);
             assertTrue("test_ping: got unexpected response from server #2: <" + result + ">",
                     result.startsWith("Simple greeting from"));
-            log("++++ test_ping: ping server #2 using IOR - complete");
+            TestUtils.getLogger().debug("++++ test_ping: ping server #2 using IOR - complete"==null? "null" : "++++ test_ping: ping server #2 using IOR - complete");
         }
         catch (org.omg.CORBA.TRANSIENT e)
         {
-            e.printStackTrace();
             fail("test_ping: got a TRANSIENT exception: <" + e.getMessage() + ">");
         }
         catch (org.omg.CORBA.COMM_FAILURE e)
         {
-            e.printStackTrace();
             fail("test_ping: got a COMM_FAILURE exception: <" + e.getMessage() + ">");
         }
         finally
@@ -382,35 +381,35 @@ public class NSFailoverTest extends ORBTestCase
 
             // Drop NameService #1 to force the client to go to NameService #2
             teardownMyNS(NS_1_OFF, NS_2_ON);
-            log("++++ test_failover1: hailing a server using IOR: < " + combined_corbaname + " >");
+            String msg = "++++ test_failover1: hailing a server using IOR: < " + combined_corbaname + " >";
+            TestUtils.getLogger().debug(msg==null? "null" : msg);
             obj = orb.string_to_object(combined_corbaname);
             assertTrue("test_failover1: couldn't generate obj using combined corbaloc IOR: < " +
                     combined_corbaname + " >", obj != null);
             server = org.jacorb.test.listenendpoints.echo_corbaloc.EchoMessageHelper.narrow(obj);
             cnt = send_msg(5, "test_failover1", "hailing server at " + combined_corbaname, server);
                     assertTrue("test_failover1: got cnt=" + cnt + " (expected 5)", cnt == 5);
-            log("++++ test_failover1: hailing a server using IOR - complete");
+            TestUtils.getLogger().debug("++++ test_failover1: hailing a server using IOR - complete"==null? "null" : "++++ test_failover1: hailing a server using IOR - complete");
 
             // Restore NameService #1 and drop NameService #2
             // This will force the client to go to NameService #1
             teardownMyNS(NS_1_OFF, NS_2_OFF);
             setupMyNS(NS_1_ON, NS_2_OFF);
-            log("++++ test_failover1: hailing a server using IOR < " + combined_corbaname + " >");
+            String msg1 = "++++ test_failover1: hailing a server using IOR < " + combined_corbaname + " >";
+            TestUtils.getLogger().debug(msg1==null? "null" : msg1);
             obj = orb.string_to_object(combined_corbaname);
             assertTrue("test_failover1: couldn't generate obj using IOR < " + combined_corbaname + " >", obj != null);
             server = org.jacorb.test.listenendpoints.echo_corbaloc.EchoMessageHelper.narrow(obj);
             cnt = send_msg(5, "test_failover1", "hailing server at " + combined_corbaname, server);
                     assertTrue("test_failover1: got cnt=" + cnt + " (expected 5)", cnt == 5);
-            log("++++ test_failover1: hailing a server using IOR - complete");
+            TestUtils.getLogger().debug("++++ test_failover1: hailing a server using IOR - complete"==null? "null" : "++++ test_failover1: hailing a server using IOR - complete");
         }
         catch (org.omg.CORBA.TRANSIENT e)
         {
-            e.printStackTrace();
             fail("test_failover1: got a TRANSIENT exception: <" + e.getMessage() + ">");
         }
         catch (org.omg.CORBA.COMM_FAILURE e)
         {
-            e.printStackTrace();
             fail("test_failover1: got a COMM_FAILURE exception: <" + e.getMessage() + ">");
         }
         finally
@@ -449,7 +448,8 @@ public class NSFailoverTest extends ORBTestCase
             String combined_corbaname = "corbaname:" +
                     corbaloc1.substring(colon+1, slash) + "," +
                     corbaloc2.substring(colon2+1, slash2) + objref;
-            log("++++ test_failover2: combined_corbaname = < " + combined_corbaname + " >");
+            String msg = "++++ test_failover2: combined_corbaname = < " + combined_corbaname + " >";
+            TestUtils.getLogger().debug(msg==null? "null" : msg);
 
             // start up a delay thread which waits for a while then
             // goes and restart NameServers.
@@ -468,7 +468,7 @@ public class NSFailoverTest extends ORBTestCase
 
                     NSFailoverTest.this.testComplete = false;
 
-                    log("test_failover2: delayStart is starting NS");
+                    TestUtils.getLogger().debug("test_failover2: delayStart is starting NS"==null? "null" : "test_failover2: delayStart is starting NS");
                     NSFailoverTest.this.setupMyNS(NS_1_ON, NS_2_ON);
 
                     // then wait for a while for the test to complete.
@@ -509,7 +509,7 @@ public class NSFailoverTest extends ORBTestCase
             server = org.jacorb.test.listenendpoints.echo_corbaloc.EchoMessageHelper.narrow(obj);
             int cnt = send_msg(5, "test_failover2", "hailing server using " + combined_corbaname, server);
             assertTrue("test_failover2: got cnt=" + cnt + " (expected 5)", cnt == 5);
-            log("++++ test_failover2: hailing a server using IOR - complete");
+            TestUtils.getLogger().debug("++++ test_failover2: hailing a server using IOR - complete"==null? "null" : "++++ test_failover2: hailing a server using IOR - complete");
             synchronized (syncTest)
             {
                 // indicate the test is completed
@@ -519,12 +519,10 @@ public class NSFailoverTest extends ORBTestCase
         }
         catch (org.omg.CORBA.TRANSIENT e)
         {
-            e.printStackTrace();
             fail("test_failover2: got a TRANSIENT exception: <" + e.getMessage() + ">");
         }
         catch (org.omg.CORBA.COMM_FAILURE e)
         {
-            e.printStackTrace();
             fail("test_failover2: got a COMM_FAILURE exception: <" + e.getMessage() + ">");
         }
         finally
@@ -568,7 +566,7 @@ public class NSFailoverTest extends ORBTestCase
             assertTrue("test_wrong_objref: couldn't generate obj using IOR < " + combined_corbaname + " >", obj != null);
             server = org.jacorb.test.listenendpoints.echo_corbaloc.EchoMessageHelper.narrow(obj);
             assertTrue("test_wrong_objref: should have been rejected by the servers", server == null);
-            log("++++ test_wrong_objref: hailing a server using IOR - complete");
+            TestUtils.getLogger().debug("++++ test_wrong_objref: hailing a server using IOR - complete"==null? "null" : "++++ test_wrong_objref: hailing a server using IOR - complete");
         }
         catch (org.omg.CORBA.TRANSIENT e)
         {
@@ -604,7 +602,7 @@ public class NSFailoverTest extends ORBTestCase
             assertTrue("test_wrong_endpoint: couldn't generate obj < " + corbaname + " >", obj != null);
             server = org.jacorb.test.listenendpoints.echo_corbaloc.EchoMessageHelper.narrow(obj);
             assertTrue("test_wrong_endpoint: should have been rejected by the servers", server == null);
-            log("++++ test_wrong_endpoint: hailing a server using a malformed IOR - complete");
+            TestUtils.getLogger().debug("++++ test_wrong_endpoint: hailing a server using a malformed IOR - complete"==null? "null" : "++++ test_wrong_endpoint: hailing a server using a malformed IOR - complete");
         }
         catch (org.omg.CORBA.TRANSIENT e)
         {
@@ -643,21 +641,17 @@ public class NSFailoverTest extends ORBTestCase
             if (inMsg != null && inMsg.equals(outMsg))
             {
                 successCnt++;
-                log("++++ OK: " + tms_dif + "mSec <" + inMsg + ">" );
+                String msg1 = "++++ OK: " + tms_dif + "mSec <" + inMsg + ">";
+                TestUtils.getLogger().debug(msg1==null? "null" : msg1);
             }
             else
             {
-                log("++++ ERR: out: <" + outMsg + "> in: <"
-                    + (inMsg == null? "null" : inMsg) + ">");
+                String msg1 = "++++ ERR: out: <" + outMsg + "> in: <"
+                    + (inMsg == null? "null" : inMsg) + ">";
+                TestUtils.getLogger().debug(msg1==null? "null" : msg1);
             }
 
         }
         return successCnt;
-    }
-
-    private static void log(String msg)
-    {
-        System.out.println(msg==null? "null" : msg);
-        System.out.flush();
     }
 }

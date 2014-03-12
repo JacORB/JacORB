@@ -49,7 +49,7 @@ public class JacoTest
                 {
                     seen = true;
                 }
-                TestUtils.log(line);
+                TestUtils.getLogger().debug(line);
                 out.append(line);
                 out.append('\n');
             }

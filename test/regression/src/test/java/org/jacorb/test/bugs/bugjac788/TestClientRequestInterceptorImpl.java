@@ -6,6 +6,7 @@ import org.omg.CORBA.TCKind;
 import org.omg.CORBA.TypeCode;
 import org.omg.PortableInterceptor.ClientRequestInfo;
 import org.omg.PortableInterceptor.ForwardRequest;
+import org.jacorb.test.common.TestUtils;
 
 
 /**
@@ -59,7 +60,7 @@ public class TestClientRequestInterceptorImpl extends
                     // the request invocation is done in the context of an
                     // incoming
                     // request processing.
-                   System.out.println ("request_id_slot is not set");
+                   TestUtils.getLogger().debug ("request_id_slot is not set");
                     // CDMW_INTERNAL_1(FTLogger.GetLogger(),
                     //     "request_id_slot is not set", new Throwable());
                 }
@@ -81,7 +82,6 @@ public class TestClientRequestInterceptorImpl extends
 
         }
         catch (org.omg.PortableInterceptor.InvalidSlot e) {
-           e.printStackTrace ();
                    throw new org.omg.CORBA.INTERNAL ("Invalid Slot " + e);
            // // This slot that has not been allocated
            //  CDMW_ERROR(FTLogger.GetLogger(),
@@ -134,7 +134,7 @@ public class TestClientRequestInterceptorImpl extends
                 if (tc.kind().value() == TCKind._tk_null) {
                     // the request invocation is done in the context of an
                     // incoming request processing.
-                   System.out.println ("request_id_slot is not set");
+                   TestUtils.getLogger().debug ("request_id_slot is not set");
                     // CDMW_INTERNAL_1(FTLogger.GetLogger(),
                     //     "request_id_slot is not set", new Throwable());
                 }
@@ -156,7 +156,6 @@ public class TestClientRequestInterceptorImpl extends
 
         }
         catch (org.omg.PortableInterceptor.InvalidSlot e) {
-       e.printStackTrace ();
            throw new org.omg.CORBA.INTERNAL ("Invalid Slot " + e);
                 // // This slot that has not been allocated
             // CDMW_ERROR(FTLogger.GetLogger(),
@@ -207,7 +206,7 @@ public class TestClientRequestInterceptorImpl extends
                     // the request invocation is not the result of an incoming
                     // request
                     // processing.
-                   System.out.println ("request_id_slot is not set");
+                   TestUtils.getLogger().debug ("request_id_slot is not set");
                     // CDMW_INTERNAL_1(FTLogger.GetLogger(),
                     //     "request_id_slot is not set", new Throwable());
                 }
@@ -225,7 +224,7 @@ public class TestClientRequestInterceptorImpl extends
             }
             else {
                 requestId = slotData.extract_ulong();
-               System.out.println ("Calling remove_waiting_response for request_id= " + requestId);
+               TestUtils.getLogger().debug ("Calling remove_waiting_response for request_id= " + requestId);
 
                 // CDMW_INTERNAL_1(FTLogger.GetLogger(),
                 //     "Calling remove_waiting_response for request_id="
@@ -234,10 +233,9 @@ public class TestClientRequestInterceptorImpl extends
 
         }
         catch (org.omg.PortableInterceptor.InvalidSlot e) {
-            e.printStackTrace ();
            throw new org.omg.CORBA.INTERNAL ("Invalid Slot " + e);
            // This slot that has not been allocated
-           //        System.out.println ("ERROR: InvalidSlot exception raised!");
+           //        TestUtils.getLogger().debug ("ERROR: InvalidSlot exception raised!");
             // CDMW_ERROR(FTLogger.GetLogger(),
             //     "ERROR: InvalidSlot exception raised!", new Throwable());
             // org.omg.CORBA.INTERNAL ex = new org.omg.CORBA.INTERNAL(
@@ -302,7 +300,7 @@ public class TestClientRequestInterceptorImpl extends
                     // the request invocation is done in the context of an
                     // incoming
                     // request processing.
-                   System.out.println ("request_id_slot is not set");
+                   TestUtils.getLogger().debug ("request_id_slot is not set");
                     // CDMW_INTERNAL_1(FTLogger.GetLogger(),
                     //     "request_id_slot is not set", new Throwable());
                 }
@@ -322,7 +320,6 @@ public class TestClientRequestInterceptorImpl extends
 
         }
         catch (org.omg.PortableInterceptor.InvalidSlot e) {
-           e.printStackTrace ();
            throw new org.omg.CORBA.INTERNAL ("Invalid Slot " + e);
             // // This slot that has not been allocated
             // CDMW_ERROR(FTLogger.GetLogger(),

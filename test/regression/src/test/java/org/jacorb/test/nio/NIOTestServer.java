@@ -15,7 +15,6 @@ public class NIOTestServer extends TestIfPOA
 
     public void op()
     {
-        System.out.println ("TestIf::op called, waiting 3000ms");
         try
         {
             Thread.sleep (3000);
@@ -32,41 +31,34 @@ public class NIOTestServer extends TestIfPOA
         // ignore
     }
 
-    public static void main (String[] args)
+    public static void main (String[] args) throws Exception
     {
-        try
-        {
-            Properties props = new Properties();
-            props.setProperty ("jacorb.implname","NIOTestServer");
-            props.setProperty ("OAPort", "6969");
-            String objID = "ObjectID";
+        Properties props = new Properties();
+        props.setProperty ("jacorb.implname","NIOTestServer");
+        props.setProperty ("OAPort", "6969");
+        String objID = "ObjectID";
 
-            ORB orb = ORB.init(args, props);
-            POA rootPOA = POAHelper.narrow(orb.resolve_initial_references("RootPOA"));
+        ORB orb = ORB.init(args, props);
+        POA rootPOA = POAHelper.narrow(orb.resolve_initial_references("RootPOA"));
 
-            Policy[] policies = new Policy[1];
-            policies[0] = rootPOA.create_id_assignment_policy(IdAssignmentPolicyValue.USER_ID);
-            POAManager poa_manager = rootPOA.the_POAManager();
-            POA child = rootPOA.create_POA ("thePOA", poa_manager, policies);
+        Policy[] policies = new Policy[1];
+        policies[0] = rootPOA.create_id_assignment_policy(IdAssignmentPolicyValue.USER_ID);
+        POAManager poa_manager = rootPOA.the_POAManager();
+        POA child = rootPOA.create_POA ("thePOA", poa_manager, policies);
 
-            poa_manager.activate();
+        poa_manager.activate();
 
-            Servant impl = new NIOTestServer();
-            child.activate_object_with_id(objID.getBytes(), impl);
+        Servant impl = new NIOTestServer();
+        child.activate_object_with_id(objID.getBytes(), impl);
 
-            // Manually create a persistent based corbaloc.
-            String corbalocStr =
-                "corbaloc::localhost:"
-                + props.getProperty("OAPort") + "/"
-                + props.getProperty("jacorb.implname") + "/"
-                + child.the_name() + "/" + objID;
+        // Manually create a persistent based corbaloc.
+        String corbalocStr =
+        "corbaloc::localhost:"
+        + props.getProperty("OAPort") + "/"
+        + props.getProperty("jacorb.implname") + "/"
+        + child.the_name() + "/" + objID;
 
-            System.out.println ("Server IOR: " + corbalocStr);
-            orb.run();
-        }
-        catch (Exception e)
-        {
-            e.printStackTrace();
-        }
+        System.out.println ("SERVER IOR: " + corbalocStr);
+        orb.run();
     }
 }

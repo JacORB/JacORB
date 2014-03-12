@@ -21,11 +21,14 @@ package org.jacorb.test.orb.value;
  */
 
 import static org.junit.Assert.fail;
+import org.jacorb.test.common.TestUtils;
 import org.jacorb.test.common.ClientServerSetup;
 import org.jacorb.test.common.ClientServerTestCase;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.omg.CORBA.MARSHAL;
+
 
 /**
  * <code>ValueCustomTest</code> tests that JacORB handles custom valuetypes.
@@ -80,7 +83,7 @@ public class ValueCustomTest extends ClientServerTestCase
 
         server.sendValueExample( valueType );
 
-        System.out.println("test_value_custom number: " + valueType.number());
+        TestUtils.getLogger().debug("test_value_custom number: " + valueType.number());
     }
 
 
@@ -88,25 +91,15 @@ public class ValueCustomTest extends ClientServerTestCase
      * <code>test_value_custom_fail1</code> tests that the custom marshalling code
      * can catch and throw an exception.
      */
-    @Test
+    @Test (expected=MARSHAL.class)
     public void test_value_custom_fail1()
     {
-        try
-        {
-            CustomValueExampleImpl valueType = new CustomValueExampleImpl();
+        CustomValueExampleImpl valueType = new CustomValueExampleImpl();
 
-            valueType.name_state = "Example : hello";
+        valueType.name_state = "Example : hello";
 
-            valueType.number_state = -1000;
+        valueType.number_state = -1000;
 
-            server.sendValueExample( valueType );
-
-            System.out.println("test_value_custom number: " + valueType.number());
-            fail();
-        }
-        catch (org.omg.CORBA.MARSHAL ex)
-        {
-            // expected
-        }
+        server.sendValueExample( valueType );
     }
 }

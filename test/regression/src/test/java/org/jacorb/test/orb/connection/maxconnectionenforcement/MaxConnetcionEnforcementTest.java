@@ -107,7 +107,6 @@ public class MaxConnetcionEnforcementTest extends ClientServerTestCase
                             }
                             catch( Exception e )
                             {
-                                e.printStackTrace();
                             }
                         }
                     });
@@ -122,7 +121,6 @@ public class MaxConnetcionEnforcementTest extends ClientServerTestCase
         }
         catch (Exception e)
         {
-            e.printStackTrace();
         }
     }
 }

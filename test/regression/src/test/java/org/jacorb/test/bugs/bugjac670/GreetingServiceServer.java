@@ -28,7 +28,6 @@ public class GreetingServiceServer
       }
       catch ( Exception e )
       {
-         e.printStackTrace();
       }
 
 

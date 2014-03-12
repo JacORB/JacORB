@@ -78,7 +78,7 @@ public class GIOPConnectionOutOfMemoryTest extends ClientServerTestCase
 
     }
 
-    @Test
+    @Test(expected=COMM_FAILURE.class)
     @BMRule(name="outofmemory-injection",
         targetClass="GIOPConnection",
         targetMethod="getMessage()",
@@ -86,20 +86,11 @@ public class GIOPConnectionOutOfMemoryTest extends ClientServerTestCase
         action="throw new java.lang.OutOfMemoryError(\"OutOfMemory\")")
     public void testOutOfMemory() throws Exception
     {
-        try
-        {
-            server.bounce_short( ( short ) 14 );
-
-            fail ("should have thrown COMM_FAILURE");
-        }
-        catch (COMM_FAILURE e)
-        {
-            // Good - correct exception.
-        }
+        server.bounce_short( ( short ) 14 );
     }
 
 
-    @Test
+    @Test(expected=COMM_FAILURE.class)
     @BMRule(name="outofmemory-injection",
         targetClass="GIOPConnection",
         targetMethod="getMessage()",
@@ -107,15 +98,6 @@ public class GIOPConnectionOutOfMemoryTest extends ClientServerTestCase
         action="throw new org.omg.CORBA.NO_MEMORY(\"OutOfMemory\")")
     public void testNoMemory() throws Exception
     {
-        try
-        {
-            server.bounce_short( ( short ) 14 );
-
-            fail ("should have thrown COMM_FAILURE");
-        }
-        catch (COMM_FAILURE e)
-        {
-            // Good - correct exception.
-        }
+        server.bounce_short( ( short ) 14 );
     }
 }

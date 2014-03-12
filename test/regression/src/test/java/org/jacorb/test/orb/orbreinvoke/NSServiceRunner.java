@@ -2,6 +2,8 @@
 package org.jacorb.test.orb.orbreinvoke;
 
 import org.jacorb.naming.NameServer;
+import org.jacorb.test.common.TestUtils;
+
 
 /**
  * Starts the NameService and prints out its IOR
@@ -16,7 +18,7 @@ public class NSServiceRunner
         {
             public void run()
             {
-                System.out.println ("Starting the JacORB NameServer");
+                TestUtils.getLogger().debug ("Starting the JacORB NameServer");
                 NameServer.main (new String [] {});
             }
         };

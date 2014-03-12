@@ -7,7 +7,7 @@ import org.omg.CORBA.ORB;
 
 public class Client
 {
-    public static void main( String args[] )
+    public static void main( String args[] ) throws Exception
     {
         if( args.length != 1 )
         {
@@ -15,59 +15,49 @@ public class Client
             System.exit( 1 );
         }
 
-        try
+        File f = new File( args[ 0 ] );
+
+        //check if file exists
+        if( ! f.exists() )
         {
-            File f = new File( args[ 0 ] );
+            System.out.println("File " + args[0] +
+                               " does not exist.");
 
-            //check if file exists
-            if( ! f.exists() )
-            {
-                System.out.println("File " + args[0] +
-                " does not exist.");
-
-                System.exit( -1 );
-            }
-
-            //check if args[0] points to a directory
-            if( f.isDirectory() )
-            {
-                System.out.println("File " + args[0] +
-                " is a directory.");
-
-                System.exit( -1 );
-            }
-
-            // initialize the ORB.
-            ORB orb = ORB.init( args, null );
-
-            BufferedReader br =
-                new BufferedReader( new FileReader( f ));
-
-            String iorString = br.readLine();
-
-            // get object reference from command-line argument file
-            org.omg.CORBA.Object obj = orb.string_to_object( iorString );
-
-            br.close();
-
-            // and narrow it to HelloWorld.GoodDay
-            // if this fails, a BAD_PARAM will be thrown
-            DayFactory gdayFactory = DayFactoryHelper.narrow( obj );
-
-            Base base = gdayFactory.getDay();
-
-            GoodDay goodDay = GoodDayHelper.narrow( base );
-
-            System.out.println( goodDay.hello_simple("Hey Mike") );
-
-            System.out.println("Calling deleteDay");
-            gdayFactory.deleteDay(goodDay);
-            System.out.println("deleteDay complete");
-
+            System.exit( -1 );
         }
-        catch( Exception ex )
+
+        //check if args[0] points to a directory
+        if( f.isDirectory() )
         {
-            ex.printStackTrace();
+            System.out.println("File " + args[0] +
+                               " is a directory.");
+
+            System.exit( -1 );
         }
+
+        // initialize the ORB.
+        ORB orb = ORB.init( args, null );
+
+        BufferedReader br =
+        new BufferedReader( new FileReader( f ));
+
+        String iorString = br.readLine();
+
+        // get object reference from command-line argument file
+        org.omg.CORBA.Object obj = orb.string_to_object( iorString );
+
+        br.close();
+
+        // and narrow it to HelloWorld.GoodDay
+        // if this fails, a BAD_PARAM will be thrown
+        DayFactory gdayFactory = DayFactoryHelper.narrow( obj );
+
+        Base base = gdayFactory.getDay();
+
+        GoodDay goodDay = GoodDayHelper.narrow( base );
+
+        System.out.println( goodDay.hello_simple("Hey Mike") );
+
+        gdayFactory.deleteDay(goodDay);
     }
 }

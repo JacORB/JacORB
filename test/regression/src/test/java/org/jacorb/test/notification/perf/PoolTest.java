@@ -26,6 +26,7 @@ import org.jacorb.notification.util.AbstractPoolablePool;
 import org.junit.Assume;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.jacorb.test.common.TestUtils;
 
 public class PoolTest
 {
@@ -124,7 +125,7 @@ public class PoolTest
             sum += worker[i].getResult();
         }
 
-        System.out.println("pool: " + sum);
+        TestUtils.getLogger().debug("pool: " + sum);
     }
 
     @Test
@@ -144,6 +145,6 @@ public class PoolTest
             sum += worker[i].getResult();
         }
 
-        System.out.println("raw: " + sum);
+        TestUtils.getLogger().debug("raw: " + sum);
     }
 }

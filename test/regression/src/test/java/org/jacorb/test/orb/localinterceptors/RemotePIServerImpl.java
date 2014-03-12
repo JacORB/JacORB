@@ -3,6 +3,7 @@ package org.jacorb.test.orb.localinterceptors;
 import org.omg.CORBA.CompletionStatus;
 import org.omg.CORBA.UNKNOWN;
 import org.omg.PortableServer.POA;
+import org.jacorb.test.common.TestUtils;
 
 public class RemotePIServerImpl
         extends PIServerPOA
@@ -18,7 +19,7 @@ public class RemotePIServerImpl
 
     public void sendMessage (String msg)
     {
-        System.out.println ("Remote Server got " + msg);
+        TestUtils.getLogger().debug ("Remote Server got " + msg);
     }
 
     public String returnMessage (String msg)

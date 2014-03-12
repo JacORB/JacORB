@@ -39,33 +39,16 @@ public class CTXPassingTest extends ClientServerTestCase
     }
 
     @Test
-    public void testCTXPassingTest()
+    public void testCTXPassingTest() throws Exception
     {
-        TestObject testObject = null;
-        try
-        {
-            testObject = TestObjectHelper.narrow( server );
-            Current current = (Current) setup.getClientOrb().resolve_initial_references( "PICurrent" );
+        TestObject testObject = TestObjectHelper.narrow( server );
+        Current current = (Current) setup.getClientOrb().resolve_initial_references( "PICurrent" );
 
-            Any any = setup.getClientOrb().create_any();
-            any.insert_string( "JacOrbRocks" );
+        Any any = setup.getClientOrb().create_any();
+        any.insert_string( "JacOrbRocks" );
 
-            current.set_slot( MyInitializer.slot_id, any );
-        }
-        catch (InvalidName e)
-        {
-            e.printStackTrace();
-        }
-        catch (InvalidSlot e)
-        {
-            e.printStackTrace();
-        }
+        current.set_slot( MyInitializer.slot_id, any );
 
-        try {
-           testObject.foo();
-        } catch (InterceptorOrderingException e) {
-            e.printStackTrace();
-           fail( "Unexpected exception: " + e);
-        }
+        testObject.foo();
     }
 }

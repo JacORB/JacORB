@@ -24,7 +24,6 @@ public class TestIfImpl extends TestIfPOA
         }
         catch( Exception e )
         {
-            e.printStackTrace();
         }
 
         return callback.opOnCallback();

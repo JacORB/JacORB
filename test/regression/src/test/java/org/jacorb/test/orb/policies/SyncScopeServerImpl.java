@@ -18,7 +18,6 @@ public class SyncScopeServerImpl extends SyncScopeServerPOA
             }
             catch (InterruptedException ex)
             {
-                System.out.println ("wait interrupted");
             }
         }
     }
@@ -33,7 +32,6 @@ public class SyncScopeServerImpl extends SyncScopeServerPOA
             }
             catch (InterruptedException ex)
             {
-                System.out.println ("wait interrupted");
             }
         }
     }

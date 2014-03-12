@@ -39,31 +39,22 @@ public class BugJac685Test extends ORBTestCase
     @Before
     public void setUp() throws Exception
     {
-        try
-        {
+        Properties serverprops = new Properties();
+        serverprops.setProperty ("ORBInitRef.NameService", nsSetup.getServerIOR());
+        serverprops.setProperty ("jacorb.test.timeout.server", Long.toString(15000));
 
-            Properties serverprops = new Properties();
-            serverprops.setProperty ("ORBInitRef.NameService", nsSetup.getServerIOR());
-            serverprops.setProperty ("jacorb.test.timeout.server", Long.toString(15000));
+        serverSetup = new ServerSetup (
+            "org.jacorb.test.bugs.bugjac685.BugJac685TestServer",
+            "",
+            serverprops);
 
-            serverSetup = new ServerSetup (
-                                           "org.jacorb.test.bugs.bugjac685.BugJac685TestServer",
-                                           "",
-                                           serverprops);
+        serverSetup.setUp();
 
-            serverSetup.setUp();
+        nc = NamingContextExtHelper.narrow
+            (orb.resolve_initial_references ("NameService"));
 
-            nc = NamingContextExtHelper.narrow
-                (orb.resolve_initial_references ("NameService"));
-
-            sf = SessionFactoryHelper.narrow
-                (nc.resolve(nc.to_name ("ServantScaling/SessionFactory")));
-        }
-        catch (Exception e)
-        {
-            e.printStackTrace();
-            fail ("Unexpected exception setting up " + e);
-        }
+        sf = SessionFactoryHelper.narrow
+            (nc.resolve(nc.to_name ("ServantScaling/SessionFactory")));
     }
 
     @AfterClass
@@ -88,26 +79,19 @@ public class BugJac685Test extends ORBTestCase
 
     private void doTest()
     {
-        try
-        {
-            int counts[] = {100};
+        int counts[] = {100};
 
-            for (int i = 0; i < counts.length; i++)
+        for (int i = 0; i < counts.length; i++)
+        {
+            sf.create_sessions (counts[i]);
+
+            int sample = 100;
+
+            for (int j = 0; j < counts[i]; j += counts[i]/sample)
             {
-                sf.create_sessions (counts[i]);
-
-                int sample = 100;
-
-                for (int j = 0; j < counts[i]; j += counts[i]/sample)
-                {
-                    Session s = sf.get_session (j);
-                    s._release();
-                }
+                Session s = sf.get_session (j);
+                s._release();
             }
-        }
-        catch (Exception e)
-        {
-            fail ("Unexpected exception doing test " + e);
         }
     }
 

@@ -39,7 +39,7 @@ import org.slf4j.Logger;
  */
 public class JDKLoggerTest
 {
-	private String logDirectory = null;
+    private String logDirectory = null;
 
     /**
      * Tests logging to a file, rather than the terminal.
@@ -63,7 +63,8 @@ public class JDKLoggerTest
         assertFileContains (getLogFilename("jacorb.log"),
                             ".*?this is a test message");
 
-         purgeLogDirectory();
+        purgeLogDirectory();
+        orb.shutdown(true);
     }
 
     /**
@@ -90,6 +91,7 @@ public class JDKLoggerTest
                             ".*?this is a test message");
 
          purgeLogDirectory();
+         orb.shutdown(true);
     }
 
     /**
@@ -193,6 +195,7 @@ public class JDKLoggerTest
                             ".*?this is the second test message");
 
         purgeLogDirectory();
+        orb.shutdown(true);
     }
 
     /**
@@ -229,6 +232,7 @@ public class JDKLoggerTest
                             ".*?this is the second test message");
 
         purgeLogDirectory();
+        orb.shutdown(true);
     }
 
     /**
@@ -263,6 +267,7 @@ public class JDKLoggerTest
         assertFileExists (getLogFilename("jacorb.log.3"));
 
         purgeLogDirectory();
+        orb.shutdown(true);
     }
 
     /**
@@ -289,6 +294,7 @@ public class JDKLoggerTest
                             "[0-9][0-9]:[0-9][0-9]:[0-9][0-9] SEVERE.*?this is a test message");
 
         purgeLogDirectory();
+        orb.shutdown(true);
     }
 
 
@@ -316,6 +322,7 @@ public class JDKLoggerTest
                             "[0-9][0-9]:[0-9][0-9]:[0-9][0-9] SEVERE.*?this is a test message");
 
         purgeLogDirectory();
+        orb.shutdown(true);
     }
 
 
@@ -343,6 +350,7 @@ public class JDKLoggerTest
                             "[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9] [0-9][0-9]:[0-9][0-9]:[0-9][0-9].*SEVERE.*?this is a test message");
 
         purgeLogDirectory();
+        orb.shutdown(true);
     }
 
 

@@ -33,7 +33,7 @@ public class IIOPClientTest extends ORBTestCase
 
         ServerInterceptor.reset ();
 
-        server_orb_ = ORB.init(new String[0], new Properties());
+        server_orb_ = this.getAnotherORB(null);
 
         POA rootPOA = POAHelper.narrow(server_orb_.resolve_initial_references("RootPOA"));
         rootPOA.the_POAManager().activate();
@@ -42,6 +42,7 @@ public class IIOPClientTest extends ORBTestCase
 
         new Thread()
         {
+            @Override
             public void run() {
                 server_orb_.run();
             };

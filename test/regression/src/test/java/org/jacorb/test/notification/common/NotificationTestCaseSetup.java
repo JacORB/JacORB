@@ -72,7 +72,7 @@ public class NotificationTestCaseSetup extends ORBTestCase
 
         ORBSetUp();
 
-        serverORB = ORB.init(new String[0], orbProps);
+        serverORB = this.getAnotherORB(orbProps);
 
         POAHelper.narrow(serverORB.resolve_initial_references("RootPOA")).the_POAManager().activate();
 
@@ -80,7 +80,8 @@ public class NotificationTestCaseSetup extends ORBTestCase
         container_.unregisterComponent(Repository.class);
         container_.registerComponent(new AbstractComponentAdapter(Repository.class, Repository.class) {
 
-			public Object getComponentInstance(PicoContainer picocontainer) throws PicoInitializationException, PicoIntrospectionException
+			@Override
+            public Object getComponentInstance(PicoContainer picocontainer) throws PicoInitializationException, PicoIntrospectionException
 			{
 				try
 				{
@@ -91,7 +92,8 @@ public class NotificationTestCaseSetup extends ORBTestCase
 				}
 			}
 
-			public void verify(PicoContainer picocontainer) throws PicoIntrospectionException
+			@Override
+            public void verify(PicoContainer picocontainer) throws PicoIntrospectionException
 			{
 			}
 			});

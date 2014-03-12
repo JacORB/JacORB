@@ -21,15 +21,15 @@
 package org.jacorb.test.bugs.bugjac491;
 
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 import org.jacorb.test.common.ORBTestCase;
 import org.junit.Test;
 import org.omg.CORBA.AttrDescriptionSeqHelper;
+import org.omg.CORBA.BAD_OPERATION;
 import org.omg.CORBA.OctetSeqHelper;
 
 public class BugJac491Test extends ORBTestCase
 {
-    @Test
+    @Test (expected=BAD_OPERATION.class)
     public void testBugJac491() throws Exception
     {
         org.omg.CORBA.Any testAny = orb.create_any();
@@ -37,21 +37,7 @@ public class BugJac491Test extends ORBTestCase
         byte []result1 = OctetSeqHelper.extract (testAny);
         assertTrue (result1.length == 1);
 
-        try
-        {
-            testAny = orb.create_any();
-            AttrDescriptionSeqHelper.extract (testAny);
-
-            fail ("No exception thrown");
-        }
-        catch (org.omg.CORBA.BAD_OPERATION e)
-        {
-            // Pass
-        }
-        catch (Throwable e)
-        {
-           e.printStackTrace();
-           fail ("Exception thrown " + e);
-        }
+        testAny = orb.create_any();
+        AttrDescriptionSeqHelper.extract (testAny);
     }
 }

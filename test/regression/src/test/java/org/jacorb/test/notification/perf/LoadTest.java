@@ -38,6 +38,7 @@ import org.omg.CosNotification.Property;
 import org.omg.CosNotification.StructuredEvent;
 import org.omg.CosNotifyChannelAdmin.EventChannel;
 import org.omg.CosNotifyChannelAdmin.EventChannelFactory;
+import org.jacorb.test.common.TestUtils;
 
 /**
  * @author Alphonse Bendt
@@ -94,15 +95,15 @@ public class LoadTest extends NotifyServerTestCase
                     e.printStackTrace();
                 }
 
-                System.out.println("Received ...");
+                TestUtils.getLogger().debug("Received ...");
 
                 super.push_structured_event(event);
             }
         };
 
-        System.out.println("connect sender");
+        TestUtils.getLogger().debug("connect sender");
         sender.connect(channel, true);
-        System.out.println("connect receiver");
+        TestUtils.getLogger().debug("connect receiver");
         receiver.connect(channel, true);
 
         boolean _active = active;

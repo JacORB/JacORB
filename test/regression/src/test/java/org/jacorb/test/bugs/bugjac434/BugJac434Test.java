@@ -46,8 +46,6 @@ public class BugJac434Test extends ORBTestCase
 
        String result = sw.toString ();
 
-//        System.err.println ("Got result" + result);
-
        assertTrue (result.indexOf ("Unknown profile found with tag") > 0);
     }
 }

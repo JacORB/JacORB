@@ -137,7 +137,7 @@ public class ClientServerSetup extends ORBTestCase
 
         if (imrSetup != null)
         {
-            TestUtils.log("starting ImR");
+            TestUtils.getLogger().debug("starting ImR");
             imrSetup.setUp();
 
             imrSetup.getServerIOR();

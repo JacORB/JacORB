@@ -31,7 +31,6 @@ public class JAC181Impl extends JAC181POA implements Configurable
                 }
                 catch (Exception e)
                 {
-                    e.printStackTrace();
                 }
             }
         };

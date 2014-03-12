@@ -22,6 +22,7 @@ package org.jacorb.test.bugs.bug957;
 
 import org.omg.CORBA.INTERNAL;
 import org.omg.CORBA.ORB;
+import org.jacorb.test.common.TestUtils;
 
 
 public class BasicServerImpl extends org.jacorb.test.orb.BasicServerImpl
@@ -43,12 +44,12 @@ public class BasicServerImpl extends org.jacorb.test.orb.BasicServerImpl
 
             if( anyName.type().kind().value() == org.omg.CORBA.TCKind._tk_null )
             {
-                System.out.println("Null Name");
+                TestUtils.getLogger().debug("bug757::null Name");
             }
             else
             {
                 String name = anyName.extract_string();
-                System.out.println("printSAS for user " + name);
+                TestUtils.getLogger().debug("bug757::printSAS for user " + name);
             }
         }
         catch (Exception e)

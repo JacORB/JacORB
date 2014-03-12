@@ -27,7 +27,6 @@ public class GSLoadBalancerServer
       }
       catch ( Exception e )
       {
-         e.printStackTrace();
       }
 
       System.out.println ("SERVER IOR: " + ior);

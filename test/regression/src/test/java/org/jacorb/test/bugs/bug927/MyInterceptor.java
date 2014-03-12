@@ -1,5 +1,6 @@
 package org.jacorb.test.bugs.bug927;
 
+import org.jacorb.orb.ORB;
 import org.omg.CORBA.Any;
 import org.omg.IOP.Codec;
 import org.omg.IOP.ServiceContext;
@@ -8,6 +9,8 @@ import org.omg.PortableInterceptor.ClientRequestInterceptor;
 import org.omg.PortableInterceptor.ForwardRequest;
 import org.omg.PortableInterceptor.ServerRequestInfo;
 import org.omg.PortableInterceptor.ServerRequestInterceptor;
+import org.omg.CORBA.INTERNAL;
+import org.slf4j.Logger;
 
 public class MyInterceptor
     extends org.omg.CORBA.LocalObject
@@ -16,11 +19,14 @@ public class MyInterceptor
     public static final int SERVICE_ID = 100003;
     private int slot_id;
     private Codec codec;
+    private Logger logger;
 
-    public MyInterceptor(int slot_id, Codec codec)
+    public MyInterceptor(ORB orb, int slot_id, Codec codec)
     {
         this.slot_id = slot_id;
         this.codec = codec;
+
+        logger = orb.getConfiguration ().getLogger("org.jacorb.test");
     }
 
     public String name()
@@ -35,15 +41,14 @@ public class MyInterceptor
     public void send_request(ClientRequestInfo ri)
         throws ForwardRequest
     {
-       System.out.println("tid="+Thread.currentThread().getName()+","+"send_request " + ri.operation());
         try
         {
             org.omg.CORBA.Any any = ri.get_slot( slot_id );
 
             if( any.type().kind().value() == org.omg.CORBA.TCKind._tk_null ) {
-                System.out.println("tid="+Thread.currentThread().getName()+","+"ClientInterceptor.send_request, slot is empty");
+                logger.debug("tid="+Thread.currentThread().getName()+","+"ClientInterceptor.send_request, slot is empty");
             } else {
-                System.out.println("tid="+Thread.currentThread().getName()+","+"ClientInterceptor.send_request, adding ServiceContext");
+                logger.debug("tid="+Thread.currentThread().getName()+","+"ClientInterceptor.send_request, adding ServiceContext");
 
                 ServiceContext ctx =
                     new ServiceContext(SERVICE_ID, codec.encode( any ));
@@ -53,47 +58,38 @@ public class MyInterceptor
         }
         catch (Exception e)
         {
-            e.printStackTrace();
+            throw new INTERNAL ("Caught " + e);
         }
     }
 
     public void send_poll(ClientRequestInfo ri)
     {
-System.out.println("tid="+Thread.currentThread().getName()+","+"send_poll " + ri.operation());
     }
 
     public void receive_reply(ClientRequestInfo ri)
     {
-System.out.println("tid="+Thread.currentThread().getName()+","+"receive_reply " + ri.operation());
     }
 
     public void receive_exception(ClientRequestInfo ri) throws ForwardRequest
     {
-System.out.println("tid="+Thread.currentThread().getName()+","+"receive_exception " + ri.operation());
     }
 
     public void receive_other(ClientRequestInfo ri) throws ForwardRequest
     {
-System.out.println("tid="+Thread.currentThread().getName()+","+"receive_other " + ri.operation());
     }
-
-// ////////////////////////
-// ServerRequestInterceptor
-// ////////////////////////
 
     public void receive_request_service_contexts(ServerRequestInfo ri)
     {
-System.out.println("tid="+Thread.currentThread().getName()+","+"receive_request_service_contexts " + ri.operation());
         ServiceContext ctx;
         try {
            ctx = ri.get_request_service_context(SERVICE_ID);
         } catch (org.omg.CORBA.BAD_PARAM e) {
-           System.out.println("tid="+Thread.currentThread().getName()+","+"**Service context was not specified");
+           logger.debug("tid="+Thread.currentThread().getName()+","+"**Service context was not specified");
            return;
         }
 
         if (null == ctx) {
-           System.out.println("tid="+Thread.currentThread().getName()+","+"**Service context is null");
+           logger.debug("tid="+Thread.currentThread().getName()+","+"**Service context is null");
            return;
         }
 
@@ -104,9 +100,9 @@ System.out.println("tid="+Thread.currentThread().getName()+","+"receive_request_
             // Get the slot data as a string
             String slotDataAsStr;
             if (null == (slotDataAsStr = slotDataAsAny.extract_string())) {
-               System.out.println("slotDataAsStr=<null>");
+               logger.debug("slotDataAsStr=<null>");
             } else {
-               System.out.println("slotDataAsStr=" + slotDataAsStr);
+               logger.debug("slotDataAsStr=" + slotDataAsStr);
             }
 
             slotDataAsStr += ":receive_request_service_contexts";
@@ -117,37 +113,37 @@ System.out.println("tid="+Thread.currentThread().getName()+","+"receive_request_
         }
         catch (Exception e)
         {
-            e.printStackTrace();
+            throw new INTERNAL ("Caught " + e);
         }
     }
 
     public void receive_request(ServerRequestInfo ri)
     {
-System.out.println("tid="+Thread.currentThread().getName()+","+"receive_request " + ri.operation());
-       addStringToSlotId("receive_request:"+ri.operation(), ri);
+        logger.debug("tid="+Thread.currentThread().getName()+","+"receive_request " + ri.operation());
+        addStringToSlotId("receive_request:"+ri.operation(), ri);
     }
 
     public void send_reply(ServerRequestInfo ri)
     {
-System.out.println("tid="+Thread.currentThread().getName()+","+"send_reply " + ri.operation());
-       addStringToSlotId("send_reply", ri);
+        logger.debug("tid="+Thread.currentThread().getName()+","+"send_reply " + ri.operation());
+        addStringToSlotId("send_reply", ri);
     }
 
     public void send_exception(ServerRequestInfo ri)
     {
-System.out.println("tid="+Thread.currentThread().getName()+","+"send_exception " + ri.operation());
-       addStringToSlotId("send_exception", ri);
+        logger.debug("tid="+Thread.currentThread().getName()+","+"send_exception " + ri.operation());
+        addStringToSlotId("send_exception", ri);
     }
 
 
     public void send_other(ServerRequestInfo ri)
     {
-System.out.println("tid="+Thread.currentThread().getName()+","+"send_other " + ri.operation());
-       addStringToSlotId("send_other", ri);
+        logger.debug("tid="+Thread.currentThread().getName()+","+"send_other " + ri.operation());
+        addStringToSlotId("send_other", ri);
     }
 
-   private void addStringToSlotId(String methodName, ServerRequestInfo ri)
-   {
+    private void addStringToSlotId(String methodName, ServerRequestInfo ri)
+    {
         try
         {
             Any slotDataAsAny = ri.get_slot(slot_id);
@@ -168,7 +164,7 @@ System.out.println("tid="+Thread.currentThread().getName()+","+"send_other " + r
         }
         catch (Exception e)
         {
-            e.printStackTrace();
+            throw new INTERNAL ("Caught " + e);
         }
    }
 

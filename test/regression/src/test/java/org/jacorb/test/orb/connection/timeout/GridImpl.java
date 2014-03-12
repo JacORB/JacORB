@@ -1,5 +1,7 @@
 package org.jacorb.test.orb.connection.timeout;
 
+import org.jacorb.test.common.TestUtils;
+
 /**
  * A very simple implementation of a 2-D grid
  */
@@ -15,14 +17,13 @@ public class GridImpl
     {
         try
         {
-            System.out.println( "Going to sleep...");
+            TestUtils.getLogger().debug( "Going to sleep...");
             Thread.sleep( how_long );
         }
         catch( InterruptedException ie )
         {
-            ie.printStackTrace();
         }
-        System.out.println( "Awake again");
+        TestUtils.getLogger().debug( "Awake again");
     }
 
     public void gridImpl()
