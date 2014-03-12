@@ -41,7 +41,6 @@ public class RecursiveParamServerImpl extends RecursiveParamServerPOA
         }
         catch (Exception e )
         {
-            e.printStackTrace();
         }
     }
 }

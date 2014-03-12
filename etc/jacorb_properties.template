@@ -167,7 +167,7 @@ jacorb.maxManagedBufSize=22
 # buffers will take place. This will reduce memory footprint at the
 # cost of decreased performance handling large data structures.
 # This value defaults to 0 if not set.
-#jacorb.bufferManagerMaxFlush=-1
+#jacorb.bufferManagerMaxFlush=0
 
 # This parameter allow to define buffer manager expansion policy.
 # Default value is org.jacorb.orb.buffermanager.DefaultExpansionPolicy.

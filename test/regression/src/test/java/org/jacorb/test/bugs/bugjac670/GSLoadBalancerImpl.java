@@ -1,5 +1,6 @@
 package org.jacorb.test.bugs.bugjac670;
 
+import org.jacorb.test.common.TestUtils;
 
 public class GSLoadBalancerImpl extends GSLoadBalancerPOA
 {
@@ -7,13 +8,13 @@ public class GSLoadBalancerImpl extends GSLoadBalancerPOA
 
    public void addGreetingService(GreetingService greetObj)
    {
-      System.out.println("A new GreetingServer is registered.");
+      TestUtils.getLogger().debug("A new GreetingServer is registered.");
       service = greetObj;
    }
 
    public java.lang.String greeting(java.lang.String greetstr)
    {
-      System.out.println("LoadBalancer greeting : " + greetstr);
+      TestUtils.getLogger().debug("LoadBalancer greeting : " + greetstr);
       return "LoadBalancer greeting : " + greetstr;
    }
 }

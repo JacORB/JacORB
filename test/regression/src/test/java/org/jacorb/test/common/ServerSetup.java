@@ -25,6 +25,8 @@ import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.lang.management.ManagementFactory;
+import java.lang.management.RuntimeMXBean;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -165,8 +167,6 @@ public class ServerSetup
 
     public void setUp()
     {
-        final boolean coverage = TestUtils.getSystemPropertyAsBoolean("jacorb.test.coverage", false);
-
         Properties serverProperties = new Properties();
         serverProperties.setProperty("org.omg.CORBA.ORBClass", "org.jacorb.orb.ORB");
         serverProperties.setProperty("org.omg.CORBA.ORBSingletonClass", "org.jacorb.orb.ORBSingleton");
@@ -192,8 +192,7 @@ public class ServerSetup
             serverProperties.setProperty(propName, value);
         }
 
-        final Launcher launcher = getLauncher(coverage,
-                                        System.getProperty("java.class.path"),
+        final Launcher launcher = getLauncher(System.getProperty("java.class.path"),
                                         serverProperties,
                                         getTestServerMain(),
                                         getServerArgs());
@@ -286,8 +285,7 @@ public class ServerSetup
      * @param mainClass
      * @param processArgs
      */
-    private Launcher getLauncher (boolean useCoverage,
-                                 String classpath,
+    private Launcher getLauncher (String classpath,
                                  Properties properties,
                                  String mainClass,
                                  String[] processArgs)
@@ -300,7 +298,7 @@ public class ServerSetup
         }
         catch(Exception e)
         {
-            TestUtils.log("unable to locate JacORB home. classpath will be only be set using the System property java.class.path: " + e.getMessage());
+            TestUtils.getLogger().debug("unable to locate JacORB home. classpath will be only be set using the System property java.class.path: " + e.getMessage());
         }
 
         final Properties props = new Properties();
@@ -320,6 +318,21 @@ public class ServerSetup
             }
         }
 
+        // Extract any VM arguments e.g. java agent (used by coverage) etc and pass
+        // them to the server laucher so it uses the same parameters.
+        RuntimeMXBean runtimeMxBean = ManagementFactory.getRuntimeMXBean();
+        List<String> jvmArgs = new ArrayList<String>();
+        Iterator<String> s = runtimeMxBean.getInputArguments().iterator();
+        while (s.hasNext())
+        {
+            String jvmArg = s.next();
+            // Don't pass Xboot or -D - they are handled separately.
+            if ( ! jvmArg.startsWith("-Xbootclasspath") && ! jvmArg.startsWith("-D"))
+            {
+                jvmArgs.add(jvmArg);
+            }
+        }
+
         try
         {
             Launcher launcher = new Launcher();
@@ -327,7 +340,7 @@ public class ServerSetup
             launcher.setClasspath(classpath);
             launcher.setMainClass(mainClass);
             launcher.setArgs(processArgs);
-            launcher.setUseCoverage(useCoverage);
+            launcher.setVmArgs(jvmArgs);
 
             if (home != null)
             {

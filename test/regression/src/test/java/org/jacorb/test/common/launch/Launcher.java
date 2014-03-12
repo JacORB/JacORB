@@ -39,23 +39,13 @@ import org.jacorb.test.common.TestUtils;
  */
 public class Launcher
 {
-    protected static boolean assertsEnabled;
-
-    static
-    {
-        assertsEnabled = false;
-        assert assertsEnabled = true; // Intentional side effect!!!
-    }
-
     protected File jacorbHome;
 
     protected String classpath;
 
     protected Properties properties;
 
-    protected boolean useCoverage;
-
-    protected String[] vmArgs;
+    protected List<String> vmArgs;
 
     protected String mainClass;
 
@@ -87,19 +77,14 @@ public class Launcher
         this.properties = properties;
     }
 
-    public void setUseCoverage(boolean useCoverage)
+    public void setVmArgs(List<String> jvmArgs)
     {
-        this.useCoverage = useCoverage;
-    }
-
-    public void setVmArgs(String[] vmArgs)
-    {
-        this.vmArgs = vmArgs;
+        this.vmArgs = jvmArgs;
     }
 
     public void setJacorbHome(File jacorbHome)
     {
-        TestUtils.log("using JacORB home: " + jacorbHome);
+        TestUtils.getLogger().debug("using JacORB home: " + jacorbHome);
         this.jacorbHome = jacorbHome;
     }
 
@@ -126,7 +111,7 @@ public class Launcher
 
     public void init()
     {
-        command = buildCMDLine(jacorbHome, useCoverage, classpath, properties, mainClass, args);
+        command = buildCMDLine(jacorbHome, classpath, properties, mainClass, args);
     }
 
     public Process launch()
@@ -144,7 +129,7 @@ public class Launcher
                 buff.append(' ');
             }
 
-            TestUtils.log("[DirectLauncher] launch: " + buff);
+            TestUtils.getLogger().debug("[DirectLauncher] launch: " + buff);
 
             Process proc = rt.exec(cmd);
             return proc;
@@ -155,8 +140,8 @@ public class Launcher
         }
     }
 
-    private List<String> buildCMDLine(File jacorbHome, boolean coverage, String classpath,
-            Properties props, String mainClass, String[] args)
+    private List<String> buildCMDLine(File jacorbHome, String classpath, Properties props,
+            String mainClass, String[] args)
     {
         javaHome = getPropertyWithDefault(props, "jacorb.java.home", System.getProperty("java.home"));
         final String jvm = getPropertyWithDefault(props, "jacorb.jvm", "/bin/java");
@@ -165,11 +150,7 @@ public class Launcher
         final List<String> cmdList = new ArrayList<String>();
 
         cmdList.add (javaCommand);
-
-        if (assertsEnabled)
-        {
-            cmdList.add("-ea");
-        }
+        cmdList.addAll (vmArgs);
 
         cmdList.add("-Xbootclasspath:" + System.getProperty("sun.boot.class.path"));
 

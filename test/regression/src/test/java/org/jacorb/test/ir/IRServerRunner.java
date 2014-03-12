@@ -21,7 +21,6 @@ public class IRServerRunner
                 }
                 catch(Exception e)
                 {
-                    e.printStackTrace();
                 }
             };
         };

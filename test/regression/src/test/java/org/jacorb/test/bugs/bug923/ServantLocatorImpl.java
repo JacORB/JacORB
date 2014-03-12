@@ -21,31 +21,24 @@ class ServantLocatorImpl extends LocalObject implements ServantLocator {
   {
      String strOid = new String(oid);
 
-     System.out.println("tid="+Thread.currentThread().getName()+","+"ServantLocator.preinvoke, operation=" + operation + "; strOid=" + strOid);
-
      // Search for the servant that handles this strOid
      Servant servant = m_activateObjectMap.get(strOid);
      if (null == servant)
      {
-        System.out.println("** OBJECT_NOT_EXIST **");
         throw new OBJECT_NOT_EXIST();
      }
 
-     System.out.println("** returning servant **");
      return servant;
   }
 
   public void postinvoke(byte[] oid, POA adapter, String operation
          , java.lang.Object the_cookie, Servant the_servant)
   {
-     System.out.println("ServantLocator.postinvoke, operation=" + operation);
   }
 
    public org.omg.CORBA.Object registerObject(String strOid, String typeId, Servant servant)
      throws org.omg.PortableServer.POAPackage.WrongPolicy
    {
-      System.out.println("Registering strOid: " + strOid);
-
       byte[] oidAsBytes = strOid.getBytes();
 
       org.omg.CORBA.Object obj = poa.create_reference_with_id(oidAsBytes, typeId);

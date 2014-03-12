@@ -16,6 +16,7 @@ import org.omg.PortableServer.IdAssignmentPolicyValue;
 import org.omg.PortableServer.LifespanPolicyValue;
 import org.omg.PortableServer.POA;
 import org.omg.PortableServer.POAHelper;
+import org.jacorb.test.common.TestUtils;
 
 
 public class NSFailoverTestServer
@@ -30,7 +31,7 @@ public class NSFailoverTestServer
             // class name to a properties
             java.util.Properties props = ObjectUtil.argsToProps(args);
             String implName = props.getProperty("jacorb.implname", "EchoServer");
-            System.out.println("SERVER: jacorb.implname: <" + implName + ">");
+            TestUtils.getLogger().debug("SERVER: jacorb.implname: <" + implName + ">");
             if (implName.equals("EchoServer"))
             {
                 props.setProperty("jacorb.implname", implName);
@@ -66,7 +67,7 @@ public class NSFailoverTestServer
                 NamingContextExtHelper.narrow( nsObj );
 
             if (nsRootContext == null) {
-                System.err.println("SERVER: NameService's context is null" );
+                TestUtils.getLogger().debug("SERVER: NameService's context is null" );
                 System.exit(1);
             }
 
@@ -89,7 +90,7 @@ public class NSFailoverTestServer
             }
             catch (NotFound e)
             {
-                System.out.println("SERVER: got NotFound exception, " + e.getMessage());
+                TestUtils.getLogger().debug("SERVER: got NotFound exception, " + e.getMessage());
             }
 
             // create servant object
@@ -102,7 +103,7 @@ public class NSFailoverTestServer
             }
             catch (NotFound e)
             {
-                System.out.println("SERVER: got NotFound exception, " + e.getMessage());
+                TestUtils.getLogger().debug("SERVER: got NotFound exception, " + e.getMessage());
             }
 
             String ior = orb.object_to_string(ref);
@@ -123,7 +124,6 @@ public class NSFailoverTestServer
         }
         catch (Exception e)
         {
-            e.printStackTrace();
         }
    }
 }

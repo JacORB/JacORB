@@ -30,44 +30,37 @@ public class AImpl extends APOA
    {
    }
 
-   public static void main(String[] args)
+   public static void main(String[] args) throws Exception
    {
-      System.setProperty ("jacorb.implname", "AImpl");
+        System.setProperty ("jacorb.implname", "AImpl");
 
-      if( args.length != 0 )
-      {
-         System.out.println(
-            "Usage: jaco org.jacorb.test.bugs.bug384.AImpl");
-         System.exit( 1 );
-      }
+        if( args.length != 0 )
+        {
+            System.out.println(
+                "Usage: jaco org.jacorb.test.bugs.bug384.AImpl");
+            System.exit( 1 );
+        }
 
-      try
-      {
-         //init ORB
-         ORB orb = ORB.init( args, null );
+        //init ORB
+        ORB orb = ORB.init( args, null );
 
-         //init POA
-         POA poa =
-         POAHelper.narrow( orb.resolve_initial_references( "RootPOA" ));
+        //init POA
+        POA poa =
+        POAHelper.narrow( orb.resolve_initial_references( "RootPOA" ));
 
-         poa.the_POAManager().activate();
+        poa.the_POAManager().activate();
 
-         AImpl s = new AImpl();
+        AImpl s = new AImpl();
 
-         // create the object reference
-         org.omg.CORBA.Object obj =
-         poa.servant_to_reference( s );
+        // create the object reference
+        org.omg.CORBA.Object obj =
+        poa.servant_to_reference( s );
 
-         String ior = orb.object_to_string( obj );
+        String ior = orb.object_to_string( obj );
 
-         System.out.println( "IOR is " + ior );
+        System.out.println( "IOR is " + ior );
 
-         // wait for requests
-         //orb.run();
-      }
-      catch( Exception e )
-      {
-         System.out.println( e );
-      }
-   }
+        // wait for requests
+        //orb.run();
+    }
 }

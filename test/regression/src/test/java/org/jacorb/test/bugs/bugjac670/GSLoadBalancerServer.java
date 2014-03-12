@@ -28,7 +28,6 @@ public class GSLoadBalancerServer
       }
       catch ( Exception e )
       {
-         e.printStackTrace();
       }
 
       orb.run();

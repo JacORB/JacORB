@@ -2,9 +2,9 @@ package org.jacorb.test.transport;
 
 import static org.junit.Assert.assertEquals;
 import java.util.Properties;
+import org.jacorb.test.common.ORBTestCase;
 import org.jacorb.test.orb.transport.CurrentServer;
 import org.jacorb.test.orb.transport.CurrentServerHelper;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.omg.CORBA.ORB;
@@ -12,7 +12,7 @@ import org.omg.PortableServer.POA;
 import org.omg.PortableServer.POAHelper;
 import org.omg.PortableServer.Servant;
 
-public class IIOPServerTest
+public class IIOPServerTest extends ORBTestCase
 {
     private ORB clientORB;
     private ORB serverORB;
@@ -38,25 +38,17 @@ public class IIOPServerTest
         serverProps.put ("org.omg.PortableInterceptor.ORBInitializerClass.server_test_interceptor",
                         "org.jacorb.test.transport.IIOPServerOrbInitializer");
 
-        serverORB = ORB.init(new String[0], serverProps);
+        serverORB = this.getAnotherORB(serverProps);
 
         POA rootPOA = POAHelper.narrow(serverORB.resolve_initial_references("RootPOA"));
         rootPOA.the_POAManager().activate();
-        
+
         Servant si = new CurrentServerImpl(serverORB, new IIOPTester());
         org.omg.CORBA.Object obj = rootPOA.servant_to_reference(si);
         String objString = serverORB.object_to_string(obj);
 
-        clientORB = ORB.init(new String[0], clientProps);
+        clientORB = this.getAnotherORB(clientProps);
         server_ = CurrentServerHelper.narrow(clientORB.string_to_object(objString));
-    }
-
-    @After
-    public void tearDown() throws Exception
-    {
-        serverORB.shutdown(true);
-        Thread.sleep(1000);
-        clientORB.shutdown(true);
     }
 
     @Test

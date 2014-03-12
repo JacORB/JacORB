@@ -58,7 +58,6 @@ public class ComplexTimingServerImpl extends ComplexTimingServerPOA
         }
         catch (InterruptedException ex)
         {
-            System.out.println ("wait interrupted");
         }
     }
 }

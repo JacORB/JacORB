@@ -57,7 +57,7 @@ public class BugJac501Test extends ClientServerTestCase
         Properties props = new Properties();
         props.setProperty("ORBInitRef.MyServer", ior);
 
-        ORB orb = ORB.init(new String[0], props);
+        ORB orb = setup.getAnotherORB(props);
 
         BasicServer server = BasicServerHelper.narrow(orb.string_to_object("corbaloc:rir:/MyServer"));
         assertTrue(new HashSet<String>(Arrays.asList(orb.list_initial_services())).contains("MyServer"));

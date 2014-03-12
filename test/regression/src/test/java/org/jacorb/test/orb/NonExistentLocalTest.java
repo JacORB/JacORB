@@ -77,7 +77,6 @@ public class NonExistentLocalTest extends ORBTestCase
         }
         catch (OBJECT_NOT_EXIST e)
         {
-            e.printStackTrace();
             fail ("Should not have thrown an exception");
         }
     }

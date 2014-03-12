@@ -55,18 +55,9 @@ public class Bug878MaxServerConnectionsFailTest extends ClientServerTestCase
         server = BasicServerHelper.narrow(setup.getServerObject());
     }
 
-    @Test
+    @Test (expected = COMM_FAILURE.class)
     public void testServerDoesNotLikeWString()
     {
-        try
-        {
-            server.ping();
-            fail();
-        }
-        catch(COMM_FAILURE e)
-        {
-           e.printStackTrace ();
-            //expected
-        }
+        server.ping();
     }
 }

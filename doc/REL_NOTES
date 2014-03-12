@@ -50,6 +50,11 @@
          - Protect against OutOfMemory in GIOPConnection::receiveMessages to prevent client hanging.
          - Handle reconnecting via a closed connection to a persistent server (BZ975).
          - Fix for local interceptors and slots (BZ976)
+         - Simplify logging.
+    - Documentation
+        - Minor fixes.
+    - Misc
+        - Add Jacoco Coverage to regression suite.
 
 3.4
 ===

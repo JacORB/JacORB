@@ -20,6 +20,7 @@ package org.jacorb.test.bugs.bug941;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
+import static org.junit.Assert.assertTrue;
 import org.jacorb.orb.Delegate;
 import org.jacorb.orb.giop.RequestOutputStream;
 import org.jacorb.orb.portableInterceptor.ClientRequestInfoImpl;
@@ -68,11 +69,11 @@ public class ClientInterceptor extends org.omg.CORBA.LocalObject implements Clie
                 output.write_octet_array(buf, debut, resteALire);
             }
         }
-        
+
         // This will fail to compile if public accessor API has been accidentally
         // removed (!)
         Delegate d = ((ClientRequestInfoImpl) ri).getDelegate();
-        System.out.println ("Obtained delegate " + d);
+        assertTrue (d != null);
     }
 
     public void send_poll(ClientRequestInfo ri)

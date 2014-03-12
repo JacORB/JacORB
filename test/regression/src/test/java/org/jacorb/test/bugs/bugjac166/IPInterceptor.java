@@ -63,7 +63,6 @@ public class IPInterceptor
         }
         catch (Exception e)
         {
-            e.printStackTrace();
             throw new INTERNAL (e.toString());
         }
     }

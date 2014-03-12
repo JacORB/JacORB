@@ -35,25 +35,14 @@ public class CTXPassingTest extends ClientServerTestCase
     }
 
     @Test
-    public void testCTXPassingTest()
+    public void testCTXPassingTest() throws Exception
     {
-        try
-        {
-            Current current = (Current) setup.getClientOrb().resolve_initial_references( "PICurrent" );
+        Current current = (Current) setup.getClientOrb().resolve_initial_references( "PICurrent" );
 
-            Any any = setup.getClientOrb().create_any();
-            any.insert_string( "This is a test!" );
+        Any any = setup.getClientOrb().create_any();
+        any.insert_string( "This is a test!" );
 
-            current.set_slot( ClientInitializer.slot_id, any );
-        }
-        catch (InvalidName e)
-        {
-            e.printStackTrace();
-        }
-        catch (InvalidSlot e)
-        {
-            e.printStackTrace();
-        }
+        current.set_slot( ClientInitializer.slot_id, any );
 
         server.foo();
     }

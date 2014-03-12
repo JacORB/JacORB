@@ -1,17 +1,19 @@
 package org.jacorb.test.bugs.bugjac330;
 
+import org.jacorb.test.common.TestUtils;
 import org.jacorb.test.orb.BasicServerImpl;
 
 
 public class CustomBasicServerImpl extends BasicServerImpl
 {
+    @Override
     public void ping()
     {
         new Thread (new Runnable()
         {
             public void run()
             {
-                System.err.println ("Shutting down server");
+                TestUtils.getLogger().debug ("Shutting down server");
                 try
                 {
                     Thread.sleep (5000);
@@ -25,6 +27,7 @@ public class CustomBasicServerImpl extends BasicServerImpl
             "Exiting").start();
     }
 
+    @Override
     public void pass_in_long(int x)
     {
         System.exit(1);

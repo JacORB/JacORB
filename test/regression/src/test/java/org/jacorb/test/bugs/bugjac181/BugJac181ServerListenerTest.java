@@ -3,6 +3,7 @@ package org.jacorb.test.bugs.bugjac181;
 import static org.junit.Assert.assertTrue;
 import java.util.Properties;
 import org.jacorb.orb.factory.SocketFactoryManager;
+import org.jacorb.test.common.ORBTestCase;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -10,7 +11,7 @@ import org.omg.CORBA.ORB;
 import org.omg.PortableServer.POA;
 import org.omg.PortableServer.POAHelper;
 
-public class BugJac181ServerListenerTest
+public class BugJac181ServerListenerTest extends ORBTestCase
 {
     private ORB clientORB;
     private ORB serverORB;
@@ -28,8 +29,8 @@ public class BugJac181ServerListenerTest
         serverProps.put(SocketFactoryManager.TCP_LISTENER, TCPListener.class.getName());
         serverProps.put("jacorb.iiop.enable_loopback", "off");
 
-        clientORB = ORB.init(new String[0], clientProps);
-        serverORB = ORB.init(new String[0], serverProps);
+        clientORB = this.getAnotherORB(clientProps);
+        serverORB = this.getAnotherORB(serverProps);
 
         POA rootPOA = POAHelper.narrow(serverORB.resolve_initial_references("RootPOA"));
         rootPOA.the_POAManager().activate();

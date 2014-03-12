@@ -48,7 +48,6 @@ public class SessionImpl extends SessionPOA
         }
         catch(Exception e)
         {
-            System.err.println("Error destroying child POA " + e);
             throw new org.omg.CORBA.INTERNAL ("Failed to destroy POA " + e);
         }
     }

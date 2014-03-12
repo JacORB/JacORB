@@ -202,7 +202,7 @@ public class TestServer
              */
             System.out.println(ior);
 
-            TestUtils.log("using IOR: " + ior);
+            TestUtils.getLogger().debug("using IOR: " + ior);
             System.out.flush();
 
             if (logger != null)
@@ -221,13 +221,13 @@ public class TestServer
             else
             {
                 System.err.println ("TestServer error " + e);
-                e.printStackTrace();
+                e.printStackTrace ();
             }
         }
     }
 
     private static void log(String msg)
     {
-        TestUtils.log("TestServer: " + msg);
+        TestUtils.getLogger().debug("TestServer: " + msg);
     }
 }

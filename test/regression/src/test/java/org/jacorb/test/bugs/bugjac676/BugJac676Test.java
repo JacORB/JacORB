@@ -78,7 +78,6 @@ public class BugJac676Test extends ClientServerTestCase
         }
         catch (Exception e)
         {
-            e.printStackTrace();
             fail( "Unexpected exception: " + e);
         }
     }

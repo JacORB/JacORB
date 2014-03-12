@@ -27,9 +27,7 @@ import org.jacorb.test.BasicServer;
 import org.jacorb.test.BasicServerHelper;
 import org.jacorb.test.common.ClientServerSetup;
 import org.jacorb.test.common.ClientServerTestCase;
-import org.jacorb.test.common.ORBTestCase;
 import org.jacorb.test.orb.BasicServerImpl;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -40,19 +38,11 @@ import org.junit.Test;
 public class BugJac460Test extends ClientServerTestCase
 {
     private BasicServer server;
-    private ORBTestCase orb2 = new ORBTestCase () {};
 
     @Before
     public void setUp() throws Exception
     {
         server = BasicServerHelper.narrow(setup.getServerObject());
-        orb2.ORBSetUp();
-    }
-
-    @After
-    public void tearDown() throws Exception
-    {
-        orb2.ORBTearDown();
     }
 
     @Test
@@ -60,12 +50,13 @@ public class BugJac460Test extends ClientServerTestCase
     {
         server.ping();
 
-        final BasicServer server2 = BasicServerHelper.narrow(orb2.getORB().string_to_object(setup.getServerIOR()));
+        final BasicServer server2 = BasicServerHelper.narrow(setup.getAnotherORB(null).string_to_object(setup.getServerIOR()));
         final boolean[] sucess = new boolean[1];
         final Exception[] exception = new Exception[1];
 
         Thread thread = new Thread()
         {
+            @Override
             public void run()
             {
                 try

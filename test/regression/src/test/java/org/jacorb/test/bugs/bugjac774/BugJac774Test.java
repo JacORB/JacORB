@@ -4,6 +4,7 @@ import static org.junit.Assert.fail;
 import java.util.Properties;
 import org.jacorb.test.common.ClientServerSetup;
 import org.jacorb.test.common.ClientServerTestCase;
+import org.jacorb.test.common.TestUtils;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -44,12 +45,12 @@ public class BugJac774Test extends ClientServerTestCase
             {
                 case 0: // Pass
                 {
-                    System.out.println("Buffer allocated: " + size/1048576 + "Mb");
+                    TestUtils.getLogger().debug("Buffer allocated: " + size/1048576 + "Mb");
                     break;
                 }
                 case 1: // OutOfMemory
                 {
-                    System.out.println("Buffer unallocated: " + size/1048576 + "Mb");
+                    TestUtils.getLogger().debug("Buffer unallocated: " + size/1048576 + "Mb");
                     return;
                 }
                 case -1: // Unexpected exception
@@ -75,7 +76,7 @@ public class BugJac774Test extends ClientServerTestCase
                 fail("Unexpected exception during buffer allocation. See the server output for the details.");
             }
 
-            System.out.println("Buffer requested: " + size + " allocated: " + returnedSize + "B");
+            TestUtils.getLogger().debug("Buffer requested: " + size + " allocated: " + returnedSize + "B");
         }
 
         // check medium buffers
@@ -90,7 +91,7 @@ public class BugJac774Test extends ClientServerTestCase
                 fail("Unexpected exception during buffer allocation. See the server output for the details.");
             }
 
-            System.out.println("Buffer requested: " + size / 1024 + " allocated: " + returnedSize / 1024 + "kB");
+            TestUtils.getLogger().debug("Buffer requested: " + size / 1024 + " allocated: " + returnedSize / 1024 + "kB");
         }
 
         for(int i = 1; i <= 10; i++)
@@ -104,7 +105,7 @@ public class BugJac774Test extends ClientServerTestCase
                 fail("Unexpected exception during buffer allocation. See the server output for the details.");
             }
 
-            System.out.println("Buffer requested: " + size / 1024 / 1024  + " allocated: " + returnedSize / 1024 / 1024 + "MB");
+            TestUtils.getLogger().debug("Buffer requested: " + size / 1024 / 1024  + " allocated: " + returnedSize / 1024 / 1024 + "MB");
         }
     }
 

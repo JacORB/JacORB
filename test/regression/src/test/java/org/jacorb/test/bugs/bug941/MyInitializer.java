@@ -39,7 +39,6 @@ public class MyInitializer extends org.omg.CORBA.LocalObject implements ORBIniti
         }
         catch( Exception e )
         {
-            e.printStackTrace();
         }
     }
 }

@@ -63,7 +63,7 @@ public class DiiLocalTest extends ORBTestCase
     }
 
     @Test
-    public void testRequestConnectionClosed()
+    public void testRequestConnectionClosed() throws Exception
     {
         org.omg.CORBA.Request request = server._request("_get_long_number");
 
@@ -72,41 +72,16 @@ public class DiiLocalTest extends ORBTestCase
 
         request.invoke();
 
-        Field fconnmgr;
-        Field connections;
-        try
-        {
-            fconnmgr = Delegate.class.getDeclaredField("conn_mg");
-            fconnmgr.setAccessible(true);
-            Delegate d = (Delegate) ((org.omg.CORBA.portable.ObjectImpl)server)._get_delegate();
-            ClientConnectionManager ccm = (ClientConnectionManager) fconnmgr.get(d);
-            connections = ClientConnectionManager.class.getDeclaredField("connections");
-            connections.setAccessible(true);
-            @SuppressWarnings("unchecked")
-            HashMap<Profile, ClientConnection> c = (HashMap<Profile, ClientConnection>) connections.get(ccm);
+        Field fconnmgr = Delegate.class.getDeclaredField("conn_mg");
+        fconnmgr.setAccessible(true);
+        Delegate d = (Delegate) ((org.omg.CORBA.portable.ObjectImpl)server)._get_delegate();
+        ClientConnectionManager ccm = (ClientConnectionManager) fconnmgr.get(d);
+        Field connections = ClientConnectionManager.class.getDeclaredField("connections");
+        connections.setAccessible(true);
+        @SuppressWarnings("unchecked")
+        HashMap<Profile, ClientConnection> c = (HashMap<Profile, ClientConnection>) connections.get(ccm);
 
-            assertTrue (c.size() == 0);
-        }
-        catch (SecurityException e1)
-        {
-            // TODO Auto-generated catch block
-            e1.printStackTrace();
-        }
-        catch (NoSuchFieldException e1)
-        {
-            // TODO Auto-generated catch block
-            e1.printStackTrace();
-        }
-        catch (IllegalArgumentException e1)
-        {
-            // TODO Auto-generated catch block
-            e1.printStackTrace();
-        }
-        catch (IllegalAccessException e1)
-        {
-            // TODO Auto-generated catch block
-            e1.printStackTrace();
-        }
+        assertTrue (c.size() == 0);
     }
 
     @Test (expected = BAD_INV_ORDER.class)
@@ -323,6 +298,6 @@ public class DiiLocalTest extends ORBTestCase
 
         org.omg.CORBA.Any any = ((org.omg.CORBA.UnknownUserException) exception).except;
         BAD_PARAM ex = BAD_PARAMHelper.extract(any);
-        System.out.println ("Extracted exception: " + ex);
+        assertTrue (ex != null);
     }
 }

@@ -105,7 +105,7 @@ public class ImRFailoverTest extends ORBTestCase
         {
             try
             {
-                log("++++ setting ImR #1");
+                TestUtils.getLogger().debug("++++ setting ImR #1"==null? "null" : "++++ setting ImR #1");
                 if (imrProp_1 == null)
                 {
                     // initialize ImR #1 properties
@@ -131,7 +131,7 @@ public class ImRFailoverTest extends ORBTestCase
                 // initiate the ImR service
                 imrSetup_1 = new ImRServiceSetup (imrProp_1, 1);
                 imrSetup_1.setUp();
-                log("++++ setting ImR #1 - complete");
+                TestUtils.getLogger().debug("++++ setting ImR #1 - complete"==null? "null" : "++++ setting ImR #1 - complete");
             }
             catch (Exception e)
             {
@@ -143,7 +143,7 @@ public class ImRFailoverTest extends ORBTestCase
         {
             try
             {
-                log("++++ setting ImR #2");
+                TestUtils.getLogger().debug("++++ setting ImR #2"==null? "null" : "++++ setting ImR #2");
                 if (imrProp_2 == null)
                 {
                     // initialize ImR #1 properties
@@ -169,7 +169,7 @@ public class ImRFailoverTest extends ORBTestCase
                 // initiate the ImR service
                 imrSetup_2 = new ImRServiceSetup (imrProp_2, 2);
                 imrSetup_2.setUp();
-                log("++++ setting ImR #2 - complete");
+                TestUtils.getLogger().debug("++++ setting ImR #2 - complete"==null? "null" : "++++ setting ImR #2 - complete");
             }
             catch (Exception e)
             {
@@ -198,7 +198,7 @@ public class ImRFailoverTest extends ORBTestCase
     {
         if (serverOn_1 == SVR_1_ON && serverSetup_1 == null)
         {
-                    log("++++ setting up server 1");
+                    TestUtils.getLogger().debug("++++ setting up server 1"==null? "null" : "++++ setting up server 1");
                     serverSetup_1 = new ServerSetup (
                                         "org.jacorb.test.orb.orbreinvoke.ImRFailoverTestServer",
                                         "",
@@ -219,11 +219,11 @@ public class ImRFailoverTest extends ORBTestCase
                                         null);
 
                     serverSetup_1.setUp();
-                    log("++++ setting up server 1 - complete");
+                    TestUtils.getLogger().debug("++++ setting up server 1 - complete"==null? "null" : "++++ setting up server 1 - complete");
         }
         if (serverOn_2 == SVR_2_ON && serverSetup_2 == null)
         {
-                log("++++ setting up server 2");
+                TestUtils.getLogger().debug("++++ setting up server 2"==null? "null" : "++++ setting up server 2");
                 serverSetup_2 = new ServerSetup (
                                         "org.jacorb.test.orb.orbreinvoke.ImRFailoverTestServer",
                                         "",
@@ -244,7 +244,7 @@ public class ImRFailoverTest extends ORBTestCase
                                         null);
 
                 serverSetup_2.setUp();
-                log("++++ setting up server 2 - complete");
+                TestUtils.getLogger().debug("++++ setting up server 2 - complete"==null? "null" : "++++ setting up server 2 - complete");
         }
     }
 
@@ -292,40 +292,40 @@ public class ImRFailoverTest extends ORBTestCase
             String ior_1;
             String ior_2;
 
-            log("++++ test_basic_ior: ping server 1");
+            TestUtils.getLogger().debug("++++ test_basic_ior: ping server 1"==null? "null" : "++++ test_basic_ior: ping server 1");
             ior_1 = serverSetup_1.getServerIOR();
             assertTrue("test_basic_ior: couldn't pickup server #1's IOR", ior_1 != null && ior_1.length() > 0);
             obj = orb.string_to_object(ior_1);
             assertTrue("test_basic_ior: couldn't generate server #1's obj using IOR: < " + ior_1 + " >", obj != null);
             server_1 = org.jacorb.test.listenendpoints.echo_corbaloc.EchoMessageHelper.narrow(obj);
             result = server_1.echo_simple();
-            log("test_basic_ior: got resp from server #1: <" + result + ">");
+            String msg = "test_basic_ior: got resp from server #1: <" + result + ">";
+            TestUtils.getLogger().debug(msg==null? "null" : msg);
             assertTrue("test_basic_ior: couldn't ping server #1 using IOR: < " + ior_1 + " >", result != null);
             assertTrue("test_basic_ior: got unexpected response from server #1: <" + result + ">",
                     result.startsWith("Simple greeting from"));
-            log("++++ test_basic_ior: ping server 1 - complete");
+            TestUtils.getLogger().debug("++++ test_basic_ior: ping server 1 - complete"==null? "null" : "++++ test_basic_ior: ping server 1 - complete");
 
-            log("++++ test_basic_ior: ping server 2");
+            TestUtils.getLogger().debug("++++ test_basic_ior: ping server 2"==null? "null" : "++++ test_basic_ior: ping server 2");
             ior_2 = serverSetup_2.getServerIOR();
             assertTrue("test_basic_ior: couldn't pickup server #2's IOR", ior_2 != null && ior_2.length() > 0);
             obj = orb.string_to_object(ior_2);
             assertTrue("test_basic_ior: couldn't generate server #2's obj using IOR: < " + ior_2 + " >", obj != null);
             server_2 = org.jacorb.test.listenendpoints.echo_corbaloc.EchoMessageHelper.narrow(obj);
             result = server_2.echo_simple();
-            log("test_basic_ior: got resp from server: <" + result + ">");
+            String msg1 = "test_basic_ior: got resp from server: <" + result + ">";
+            TestUtils.getLogger().debug(msg1==null? "null" : msg1);
             assertTrue("test_basic_ior: couldn't ping server #2 using IOR: < " + ior_2 + " >", result != null);
             assertTrue("test_basic_ior: got unexpected response from server #2: <" + result + ">",
                     result.startsWith("Simple greeting from"));
-            log("++++ test_basic_ior: ping server 2 using IOR - complete");
+            TestUtils.getLogger().debug("++++ test_basic_ior: ping server 2 using IOR - complete"==null? "null" : "++++ test_basic_ior: ping server 2 using IOR - complete");
         }
         catch (org.omg.CORBA.TRANSIENT e)
         {
-            e.printStackTrace();
             fail("test_basic_ior: got a TRANSIENT exception: <" + e.getMessage() + ">");
         }
         catch (org.omg.CORBA.COMM_FAILURE e)
         {
-            e.printStackTrace();
             fail("test_basic_ior: got a COMM_FAILURE exception: <" + e.getMessage() + ">");
         }
         finally
@@ -360,31 +360,31 @@ public class ImRFailoverTest extends ORBTestCase
             assertTrue("test_basic_corbaloc: couldn't generate corbaloc IOR using server #1's IOR", corbaloc1 != null && corbaloc1.length() > 0);
             String corbaloc2 = PrintIOR.printFullCorbalocIOR(orb, ior_2);
             assertTrue("test_basic_corbaloc: couldn't generate corbaloc IOR using server #2's IOR", corbaloc2 != null && corbaloc2.length() > 0);
+            String msg = "++++ test_basic_corbaloc: hailing server #1 using corbaloc IOR < " + corbaloc1 + " >";
 
-            log("++++ test_basic_corbaloc: hailing server #1 using corbaloc IOR < " + corbaloc1 + " >");
+            TestUtils.getLogger().debug(msg==null? "null" : msg);
             obj = orb.string_to_object(corbaloc1);
             assertTrue("test_basic_corbaloc: couldn't generate obj using server #1's IOR < " + corbaloc1 + " >", obj != null);
             server_1 = org.jacorb.test.listenendpoints.echo_corbaloc.EchoMessageHelper.narrow(obj);
             cnt = send_msg(5, "test_basic_corbaloc", "hailing server at " + corbaloc1, server_1);
                     assertTrue("test_basic_corbaloc: got cnt=" + cnt + " (expected 5)", cnt == 5);
-            log("++++ test_basic_corbaloc: hailing server 1 using corbaloc IOR - complete");
+            TestUtils.getLogger().debug("++++ test_basic_corbaloc: hailing server 1 using corbaloc IOR - complete"==null? "null" : "++++ test_basic_corbaloc: hailing server 1 using corbaloc IOR - complete");
+            String msg1 = "++++ test_basic_corbaloc: haiing server #2 using corbaloc IOR < " + corbaloc2 + " >";
 
-            log("++++ test_basic_corbaloc: haiing server #2 using corbaloc IOR < " + corbaloc2 + " >");
+            TestUtils.getLogger().debug(msg1==null? "null" : msg1);
             obj = orb.string_to_object(corbaloc1);
             assertTrue("test_basic_corbaloc: couldn't generate obj using server #2's IOR < " + corbaloc2 + " >", obj != null);
             server_2 = org.jacorb.test.listenendpoints.echo_corbaloc.EchoMessageHelper.narrow(obj);
             cnt = send_msg(5, "test_basic_corbaloc", "hailing server at " + corbaloc2, server_2);
                     assertTrue("test_basic_corbaloc: got cnt=" + cnt + " (expected 5)", cnt == 5);
-            log("++++ test_basic_corbaloc: hailing server #2 using corbaloc IOR - complete");
+            TestUtils.getLogger().debug("++++ test_basic_corbaloc: hailing server #2 using corbaloc IOR - complete"==null? "null" : "++++ test_basic_corbaloc: hailing server #2 using corbaloc IOR - complete");
         }
         catch (org.omg.CORBA.TRANSIENT e)
         {
-            e.printStackTrace();
             fail("test_basic_corbaloc: got a TRANSIENT exception: <" + e.getMessage() + ">");
         }
         catch (org.omg.CORBA.COMM_FAILURE e)
         {
-            e.printStackTrace();
             fail("test_basic_corbaloc: got a COMM_FAILURE exception: <" + e.getMessage() + ">");
         }
         finally
@@ -429,34 +429,34 @@ public class ImRFailoverTest extends ORBTestCase
 
             // Drop IMR #1 to force the client to go to IMR #2
             teardownMyImRs(IMR_1_OFF, IMR_2_ON);
-            log("++++ test_failover1: hailing a server with IMR #1 down using combined corbaloc IOR: < " + combined_corbaloc1 + " >");
+            String msg = "++++ test_failover1: hailing a server with IMR #1 down using combined corbaloc IOR: < " + combined_corbaloc1 + " >";
+            TestUtils.getLogger().debug(msg==null? "null" : msg);
             obj = orb.string_to_object(combined_corbaloc1);
             assertTrue("test_failover1: couldn't generate obj using combined corbaloc IOR: < " + combined_corbaloc1 + " >", obj != null);
             server = org.jacorb.test.listenendpoints.echo_corbaloc.EchoMessageHelper.narrow(obj);
             cnt = send_msg(5, "test_failover1", "hailing server at " + combined_corbaloc1, server);
                     assertTrue("test_failover1: got cnt=" + cnt + " (expected 5)", cnt == 5);
-            log("++++ test_failover1: hailing a server with IMR #1 down using combined corbaloc IOR - complete");
+            TestUtils.getLogger().debug("++++ test_failover1: hailing a server with IMR #1 down using combined corbaloc IOR - complete"==null? "null" : "++++ test_failover1: hailing a server with IMR #1 down using combined corbaloc IOR - complete");
 
             // Restore #IMR #1 and drop IMR #2
             // This will force the client to go to IMR #1
             teardownMyImRs(IMR_1_OFF, IMR_2_OFF);
             setupMyImRs(IMR_1_ON, IMR_2_OFF);
-            log("++++ test_failover1: hailing a server with IMR #2 down using combined corbaloc IOR < " + combined_corbaloc2 + " >");
+            String msg1 = "++++ test_failover1: hailing a server with IMR #2 down using combined corbaloc IOR < " + combined_corbaloc2 + " >";
+            TestUtils.getLogger().debug(msg1==null? "null" : msg1);
             obj = orb.string_to_object(combined_corbaloc2);
             assertTrue("test_failover1: couldn't generate obj using combined corbaloc IOR < " + combined_corbaloc2 + " >", obj != null);
             server = org.jacorb.test.listenendpoints.echo_corbaloc.EchoMessageHelper.narrow(obj);
             cnt = send_msg(5, "test_failover1", "hailing server at " + combined_corbaloc1, server);
                     assertTrue("test_failover1: got cnt=" + cnt + " (expected 5)", cnt == 5);
-            log("++++ test_failover1: hailing a server with IMR #2 down using corbaloc IOR - complete");
+            TestUtils.getLogger().debug("++++ test_failover1: hailing a server with IMR #2 down using corbaloc IOR - complete"==null? "null" : "++++ test_failover1: hailing a server with IMR #2 down using corbaloc IOR - complete");
         }
         catch (org.omg.CORBA.TRANSIENT e)
         {
-            e.printStackTrace();
             fail("test_failover1: got a TRANSIENT exception: <" + e.getMessage() + ">");
         }
         catch (org.omg.CORBA.COMM_FAILURE e)
         {
-            e.printStackTrace();
             fail("test_failover1: got a COMM_FAILURE exception: <" + e.getMessage() + ">");
         }
         finally
@@ -549,16 +549,14 @@ public class ImRFailoverTest extends ORBTestCase
                 syncTest.notifyAll();
             }
 
-            log("++++ test_failover2: hailing a server using corbaloc IOR - complete");
+            TestUtils.getLogger().debug("++++ test_failover2: hailing a server using corbaloc IOR - complete"==null? "null" : "++++ test_failover2: hailing a server using corbaloc IOR - complete");
         }
         catch (org.omg.CORBA.TRANSIENT e)
         {
-            e.printStackTrace();
             fail("test_failover2: got a TRANSIENT exception: <" + e.getMessage() + ">");
         }
         catch (org.omg.CORBA.COMM_FAILURE e)
         {
-            e.printStackTrace();
             fail("test_failover2: got a COMM_FAILURE exception: <" + e.getMessage() + ">");
         }
         finally
@@ -595,7 +593,7 @@ public class ImRFailoverTest extends ORBTestCase
             assertTrue("test_wrong_objref: couldn't generate obj using combined corbaloc IOR < " + combined_corbaloc1 + " >", obj != null);
             server = org.jacorb.test.listenendpoints.echo_corbaloc.EchoMessageHelper.narrow(obj);
             assertTrue("test_wrong_objref: should have been rejected by the servers", server == null);
-            log("++++ test_wrong_objref: hailing a server using corbaloc IOR - complete");
+            TestUtils.getLogger().debug("++++ test_wrong_objref: hailing a server using corbaloc IOR - complete"==null? "null" : "++++ test_wrong_objref: hailing a server using corbaloc IOR - complete");
         }
         catch (org.omg.CORBA.TRANSIENT e)
         {
@@ -645,7 +643,7 @@ public class ImRFailoverTest extends ORBTestCase
             assertTrue("test_wrong_endpoint: couldn't generate obj < " + corbaloc + " >", obj != null);
             server = org.jacorb.test.listenendpoints.echo_corbaloc.EchoMessageHelper.narrow(obj);
             assertTrue("test_wrong_endpoint: should have been rejected by the servers", server == null);
-            log("++++ test_wrong_endpoint: hailing a server using a malformed corbaloc IOR - complete");
+            TestUtils.getLogger().debug("++++ test_wrong_endpoint: hailing a server using a malformed corbaloc IOR - complete"==null? "null" : "++++ test_wrong_endpoint: hailing a server using a malformed corbaloc IOR - complete");
         }
         catch (org.omg.CORBA.TRANSIENT e)
         {
@@ -688,22 +686,18 @@ public class ImRFailoverTest extends ORBTestCase
             if (inMsg != null && inMsg.equals(outMsg))
             {
                 successCnt++;
-                log("++++ OK: " + tms_dif + "mSec <" + inMsg + ">" );
+                String msg1 = "++++ OK: " + tms_dif + "mSec <" + inMsg + ">";
+                TestUtils.getLogger().debug(msg1==null? "null" : msg1);
             }
             else
             {
-                log("++++ ERR: out: <" + outMsg + "> in: <"
-                    + (inMsg == null? "null" : inMsg) + ">");
+                String msg1 = "++++ ERR: out: <" + outMsg + "> in: <"
+                    + (inMsg == null? "null" : inMsg) + ">";
+                TestUtils.getLogger().debug(msg1==null? "null" : msg1);
 
             }
 
         }
         return successCnt;
-    }
-
-    private static void log(String msg)
-    {
-        System.out.println(msg==null? "null" : msg);
-        System.out.flush();
     }
 }

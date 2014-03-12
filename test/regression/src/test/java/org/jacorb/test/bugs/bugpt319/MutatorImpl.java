@@ -23,6 +23,7 @@ package org.jacorb.test.bugs.bugpt319;
 
 import org.jacorb.orb.IORMutator;
 import org.jacorb.orb.ParsedIOR;
+import org.jacorb.test.common.TestUtils;
 import org.omg.CORBA.ORB;
 import org.omg.IOP.IOR;
 
@@ -55,9 +56,10 @@ public class MutatorImpl extends IORMutator
      * @param object an <code>IOR</code> value
      * @return an <code>IOR</code> value
      */
+    @Override
     public IOR mutateIncoming (IOR object)
     {
-        System.err.println
+        TestUtils.getLogger().debug
             ("MutatorImpl::mutateIncoming " + connection.get_server_profile());
 
         ORB orb = ORB.init(new String[0], null);
@@ -77,9 +79,10 @@ public class MutatorImpl extends IORMutator
      * @param object an <code>IOR</code> value
      * @return an <code>IOR</code> value
      */
+    @Override
     public IOR mutateOutgoing (IOR object)
     {
-        System.err.println
+        TestUtils.getLogger().debug
             ("MutatorImpl::mutateOutgoing " + connection.get_server_profile());
 
         totalOutgoingObjects++;

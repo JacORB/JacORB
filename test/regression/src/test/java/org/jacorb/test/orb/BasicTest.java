@@ -589,7 +589,6 @@ public class BasicTest extends ClientServerTestCase
             catch (Exception e)
             {
                 // not expected
-                e.printStackTrace();
                 fail(e.getMessage());
             }
 	}

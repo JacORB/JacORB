@@ -67,7 +67,6 @@ public class SessionFactoryServant
             }
             catch (Exception e)
             {
-                e.printStackTrace();
             }
             ///
 
@@ -130,7 +129,6 @@ public class SessionFactoryServant
         }
         catch (Exception e)
         {
-            e.printStackTrace();
         }
 
         currentPoa = poaList[0];
@@ -200,7 +198,6 @@ public class SessionFactoryServant
         }
         catch (Throwable e)
         {
-            e.printStackTrace();
             throw new org.omg.CORBA.UNKNOWN();
         }
     }
@@ -219,7 +216,6 @@ public class SessionFactoryServant
         }
         catch (Exception e)
         {
-            e.printStackTrace();
             throw new org.omg.CORBA.UNKNOWN();
         }
     }

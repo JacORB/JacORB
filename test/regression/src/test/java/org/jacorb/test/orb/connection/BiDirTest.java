@@ -76,7 +76,7 @@ public class BiDirTest extends ClientServerTestCase
         // this tests counts transports which are disrupted by
         // security initialisation.
         Assume.assumeFalse(TestUtils.isSSLEnabled);
-        
+
         Properties properties = new Properties();
         properties.setProperty
             ("org.omg.PortableInterceptor.ORBInitializerClass.bidir_init",
@@ -87,19 +87,10 @@ public class BiDirTest extends ClientServerTestCase
 
 
     @Test
-    public void test_callback()
+    public void test_callback() throws Exception
     {
-        ClientCallback c = null;
-        try
-        {
-            c = ClientCallbackHelper.narrow (((BiDirSetup)setup).
+        ClientCallback c = ClientCallbackHelper.narrow (((BiDirSetup)setup).
                         getBiDirPOA().servant_to_reference(new ClientCallbackImpl()));
-        }
-        catch (Exception e)
-        {
-            e.printStackTrace();
-            fail ("exception creating callback object: " + e);
-        }
 
         server.register_callback (c);
         server.callback_hello ("This is a test");

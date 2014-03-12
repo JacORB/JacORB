@@ -26,7 +26,6 @@ public class GSLoadBalancerInitializer
       }
       catch (DuplicateName e)
       {
-         e.printStackTrace();
       }
    }
 

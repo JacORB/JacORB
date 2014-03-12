@@ -1,10 +1,12 @@
 package org.jacorb.test.bugs.bugjac670;
 
+import org.jacorb.test.common.TestUtils;
+
 public class GreetingServiceImpl extends GreetingServicePOA
 {
    public String greeting(String greetstr)
    {
-      System.out.println("GreetingService greeting : " + greetstr);
+      TestUtils.getLogger().debug("GreetingService greeting : " + greetstr);
       return "GreetingService greeting : " + greetstr;
    }
 }

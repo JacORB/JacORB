@@ -34,7 +34,6 @@ public class PingProxy
         }
         catch (RemoteException e)
         {
-            e.printStackTrace();
         }
         return null;
     }

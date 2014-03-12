@@ -4,6 +4,7 @@ import org.jacorb.orb.portableInterceptor.ORBInitInfoImpl;
 import org.omg.PortableInterceptor.ORBInitInfo;
 import org.omg.PortableInterceptor.ORBInitializer;
 import org.omg.PortableInterceptor.ORBInitInfoPackage.DuplicateName;
+import org.omg.CORBA.INTERNAL;
 
 /**
  * <code>SInitializer</code> is basic initializer to register the interceptor.
@@ -26,7 +27,7 @@ public class SInitializer
         }
         catch (DuplicateName e)
         {
-            e.printStackTrace();
+            throw new INTERNAL ("Caught " + e);
         }
     }
 

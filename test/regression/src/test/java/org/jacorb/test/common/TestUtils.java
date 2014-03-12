@@ -33,16 +33,23 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.LineNumberReader;
 import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
+import java.util.logging.ConsoleHandler;
+import java.util.logging.Formatter;
+import java.util.logging.Handler;
+import java.util.logging.Level;
+import java.util.logging.LogRecord;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import junit.framework.AssertionFailedError;
 import org.junit.Assert;
+import org.slf4j.Logger;
 
 /**
  * Utility class used to setup JUnit-TestSuite
@@ -59,12 +66,60 @@ public class TestUtils
     private static String testHome = null;
     private static String jacorbHome = null;
     private static String systemRoot = null;
+    private static Logger logger;
+    private static java.util.logging.Logger jdkLogger;
 
-    static boolean verbose = "true".equalsIgnoreCase(System.getProperty("jacorb.test.verbose"));
+    public static final boolean verbose = "true".equalsIgnoreCase(System.getProperty("jacorb.test.verbose"));
 
-    static int timeout = Integer.valueOf(System.getProperty("jacorb.test.timeout.server", "60000"));
+    public static final int timeout = Integer.valueOf(System.getProperty("jacorb.test.timeout.server", "60000"));
 
     public static final boolean isSSLEnabled = Boolean.valueOf(System.getProperty("jacorb.test.ssl", "false"));
+
+    /**
+     * Return a preconfigured logger for the test framework.
+     * @return a SLF4J Logger
+     */
+    public static Logger getLogger ()
+    {
+        if (logger == null)
+        {
+            Formatter formatter = new Formatter()
+            {
+                @Override
+                public String format(LogRecord arg0)
+                {
+                    StringBuilder b = new StringBuilder();
+                    b.append ("[TEST] ");
+                    b.append(arg0.getLevel());
+                    b.append(" ");
+                    b.append(arg0.getMessage());
+                    b.append(System.getProperty("line.separator"));
+
+                    Throwable t = arg0.getThrown();
+                    return t == null ? b.toString() : b.toString () + getStackTrace (t);
+                }
+
+                private String getStackTrace (Throwable t)
+                {
+                    StringWriter sw = new StringWriter();
+                    t.printStackTrace(new PrintWriter (sw));
+                    return sw.toString();
+                }
+            };
+
+            Handler handler = new ConsoleHandler();
+            handler.setFormatter(formatter);
+            handler.setLevel(TestUtils.verbose ? Level.FINEST : Level.OFF);
+
+            jdkLogger = java.util.logging.Logger.getLogger("org.jacorb.test");
+            jdkLogger.setUseParentHandlers (false);
+            jdkLogger.setLevel (TestUtils.verbose ? Level.FINEST : Level.OFF);
+            jdkLogger.addHandler(handler);
+
+            logger = org.slf4j.LoggerFactory.getLogger ("org.jacorb.test");
+        }
+        return logger;
+    }
 
     public static String jacorbHome()
     {
@@ -207,14 +262,6 @@ public class TestUtils
         return setCmd;
     }
 
-    public static void log(String string)
-    {
-        if (verbose)
-        {
-            System.err.println (string);
-        }
-    }
-
     /**
      * create properties that contain the correct (JDK specific)
      * settings to create a Sun or IBM ORB.
@@ -247,6 +294,7 @@ public class TestUtils
         {
             File[] subdirs = name.listFiles(new FileFilter()
             {
+                @Override
                 public boolean accept(File pathname)
                 {
                     return pathname.isDirectory();
@@ -260,6 +308,7 @@ public class TestUtils
 
             File[] files = name.listFiles(new FileFilter()
             {
+                @Override
                 public boolean accept(File pathname)
                 {
                     return pathname.isFile();
@@ -303,6 +352,7 @@ public class TestUtils
     {
         return src.listFiles(new FileFilter()
         {
+            @Override
             public boolean accept(File pathname)
             {
                 return pathname.isDirectory();
@@ -314,6 +364,7 @@ public class TestUtils
     {
         final File[] fileList = src.listFiles(new FilenameFilter()
         {
+            @Override
             public boolean accept(File dir, String name)
             {
                 return name.endsWith(suffix);
@@ -381,8 +432,8 @@ public class TestUtils
         }
         String cmd = javaHome + "/bin/javac -d " + dirCompilation + " -bootclasspath " + classpath + ":" + System.getProperty("sun.boot.class.path") + " @" + file.getAbsolutePath();
 
-        TestUtils.log("[COMPILE] " + cmd);
-        TestUtils.log("[COMPILE] " + files.length + " java files");
+        TestUtils.getLogger().debug("[COMPILE] " + cmd);
+        TestUtils.getLogger().debug("[COMPILE] " + files.length + " java files");
         try
         {
             Process proc = Runtime.getRuntime().exec(cmd);

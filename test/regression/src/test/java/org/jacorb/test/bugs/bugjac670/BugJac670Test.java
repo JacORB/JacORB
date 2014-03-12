@@ -124,7 +124,6 @@ public class BugJac670Test extends ClientServerTestCase
         }
         catch (org.omg.CORBA.TIMEOUT t)
         {
-           t.printStackTrace ();
            fail ("Unexpected TIMEOUT");
         }
     }

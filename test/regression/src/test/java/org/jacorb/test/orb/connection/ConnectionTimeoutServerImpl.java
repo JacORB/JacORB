@@ -33,7 +33,6 @@ public class ConnectionTimeoutServerImpl
         }
         catch( Exception e )
         {
-            e.printStackTrace();
         }
     }
 
@@ -45,7 +44,6 @@ public class ConnectionTimeoutServerImpl
         }
         catch( Exception e )
         {
-            e.printStackTrace();
         }
     }
 }

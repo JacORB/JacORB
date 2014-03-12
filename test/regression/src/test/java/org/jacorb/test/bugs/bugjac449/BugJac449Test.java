@@ -55,35 +55,27 @@ public class BugJac449Test extends ClientServerTestCase
     public static void beforeClassSetUp() throws Exception
     {
     	Assume.assumeFalse(TestUtils.isSSLEnabled);
-    	
+
         Properties clientProps = TestUtils.newForeignORBProperties();
 
         setup = new ClientServerSetup(ValueServerImpl.class.getName(), clientProps, null);
     }
 
     @Test
-    public void testWithJacORBORB()
+    public void testWithJacORBORB() throws Exception
     {
         Properties props = new Properties();
-
         props.setProperty("org.omg.CORBA.ORBClass", "org.jacorb.orb.ORB");
         props.setProperty("org.omg.CORBA.ORBSingletonClass", "org.jacorb.orb.ORBSingleton");
 
-        org.omg.CORBA.ORB orb = org.omg.CORBA.ORB.init(new String[0], props);
+        org.omg.CORBA.ORB orb = setup.getAnotherORB(props);
 
-        try
-        {
-            assertTrue(orb instanceof org.jacorb.orb.ORB);
+        assertTrue(orb instanceof org.jacorb.orb.ORB);
 
-            ValueServer server = ValueServerHelper.narrow(orb.string_to_object(setup.getServerIOR()));
+        ValueServer server = ValueServerHelper.narrow(orb.string_to_object(setup.getServerIOR()));
 
-            String result = server.receive_list(new NodeImpl(1234));
-            assertEquals("list of length: 1 -- 1234", result);
-        }
-        finally
-        {
-            orb.shutdown(true);
-        }
+        String result = server.receive_list(new NodeImpl(1234));
+        assertEquals("list of length: 1 -- 1234", result);
     }
 
     @Test

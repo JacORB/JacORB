@@ -51,10 +51,8 @@ public class Bug923Test extends ClientServerTestCase
 
         GoodDay goodDay = GoodDayHelper.narrow( base );
 
-        System.out.println( goodDay.hello_simple("Hey Mike") );
+        goodDay.hello_simple("Hey Mike");
 
-        System.out.println("Calling deleteDay");
         gdayFactory.deleteDay(goodDay);
-        System.out.println("deleteDay complete");
     }
 }

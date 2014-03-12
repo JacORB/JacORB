@@ -89,7 +89,8 @@ public class PITest extends ORBTestCase
       }
    }
 
-   protected void patchORBProperties (Properties props) throws Exception
+   @Override
+protected void patchORBProperties (Properties props) throws Exception
    {
        props.setProperty( "org.omg.PortableInterceptor.ORBInitializerClass."
                           + EmptyInitializer.class.getName(), "" );
@@ -356,11 +357,12 @@ public class PITest extends ORBTestCase
          m_poa = poa;
       }
 
+      @Override
       public void hello_op( String msg )
       {
-         System.out.println( msg );
       }
 
+      @Override
       public POA _default_POA()
       {
          return m_poa;
@@ -380,7 +382,8 @@ public class PITest extends ORBTestCase
        *
        * @param info The ORB init info.
        */
-      public void pre_init( org.omg.PortableInterceptor.ORBInitInfo info )
+      @Override
+    public void pre_init( org.omg.PortableInterceptor.ORBInitInfo info )
       {
          try
          {
@@ -400,7 +403,8 @@ public class PITest extends ORBTestCase
        *
        * @param info The ORB init info.
        */
-      public void post_init( org.omg.PortableInterceptor.ORBInitInfo info )
+      @Override
+    public void post_init( org.omg.PortableInterceptor.ORBInitInfo info )
       {
       }
    }
@@ -409,16 +413,19 @@ public class PITest extends ORBTestCase
       extends org.omg.CORBA.LocalObject
       implements org.omg.PortableInterceptor.IORInterceptor
    {
-      public String name()
+      @Override
+    public String name()
       {
          return "";
       }
 
-      public void destroy()
+      @Override
+    public void destroy()
       {
       }
 
-      public void establish_components (org.omg.PortableInterceptor.IORInfo info)
+      @Override
+    public void establish_components (org.omg.PortableInterceptor.IORInfo info)
       {
          info.add_ior_component (new org.omg.IOP.TaggedComponent (TEST_SCID, new byte[ 0 ]));
       }
@@ -428,16 +435,19 @@ public class PITest extends ORBTestCase
       extends org.omg.CORBA.LocalObject
       implements org.omg.PortableInterceptor.ClientRequestInterceptor
    {
-      public String name()
+      @Override
+    public String name()
       {
          return "";
       }
 
-      public void destroy()
+      @Override
+    public void destroy()
       {
       }
 
-      public void send_request( org.omg.PortableInterceptor.ClientRequestInfo ri )
+      @Override
+    public void send_request( org.omg.PortableInterceptor.ClientRequestInfo ri )
          throws org.omg.PortableInterceptor.ForwardRequest
       {
          s_visitMask = SEND_REQ;
@@ -522,7 +532,8 @@ public class PITest extends ORBTestCase
          }
       }
 
-      public void send_poll( org.omg.PortableInterceptor.ClientRequestInfo ri )
+      @Override
+    public void send_poll( org.omg.PortableInterceptor.ClientRequestInfo ri )
       {
          s_visitMask = s_visitMask | SEND_POLL;
 
@@ -533,7 +544,8 @@ public class PITest extends ORBTestCase
          }
       }
 
-      public void receive_reply (org.omg.PortableInterceptor.ClientRequestInfo ri )
+      @Override
+    public void receive_reply (org.omg.PortableInterceptor.ClientRequestInfo ri )
       {
          s_visitMask = s_visitMask | RECV_REPL;
 
@@ -568,7 +580,8 @@ public class PITest extends ORBTestCase
          }
       }
 
-      public void receive_other( org.omg.PortableInterceptor.ClientRequestInfo ri )
+      @Override
+    public void receive_other( org.omg.PortableInterceptor.ClientRequestInfo ri )
          throws org.omg.PortableInterceptor.ForwardRequest
       {
          s_visitMask = s_visitMask | RECV_OTHR;
@@ -580,7 +593,8 @@ public class PITest extends ORBTestCase
          }
       }
 
-      public void receive_exception( org.omg.PortableInterceptor.ClientRequestInfo ri )
+      @Override
+    public void receive_exception( org.omg.PortableInterceptor.ClientRequestInfo ri )
          throws org.omg.PortableInterceptor.ForwardRequest
       {
          s_visitMask = s_visitMask | RECV_EXPT;
@@ -602,16 +616,19 @@ public class PITest extends ORBTestCase
       extends org.omg.CORBA.LocalObject
       implements org.omg.PortableInterceptor.ServerRequestInterceptor
    {
-      public java.lang.String name()
+      @Override
+    public java.lang.String name()
       {
          return "";
       }
 
-      public void destroy()
+      @Override
+    public void destroy()
       {
       }
 
-      public void receive_request_service_contexts(
+      @Override
+    public void receive_request_service_contexts(
          org.omg.PortableInterceptor.ServerRequestInfo ri )
          throws org.omg.PortableInterceptor.ForwardRequest
       {
@@ -648,7 +665,8 @@ public class PITest extends ORBTestCase
          }
       }
 
-      public void receive_request( org.omg.PortableInterceptor.ServerRequestInfo ri )
+      @Override
+    public void receive_request( org.omg.PortableInterceptor.ServerRequestInfo ri )
          throws org.omg.PortableInterceptor.ForwardRequest
       {
          s_visitMask = s_visitMask | RECV_REQ;
@@ -710,7 +728,8 @@ public class PITest extends ORBTestCase
          }
       }
 
-      public void send_reply( org.omg.PortableInterceptor.ServerRequestInfo ri )
+      @Override
+    public void send_reply( org.omg.PortableInterceptor.ServerRequestInfo ri )
       {
          s_visitMask = s_visitMask | SEND_REPL;
 
@@ -737,7 +756,8 @@ public class PITest extends ORBTestCase
          }
       }
 
-      public void send_exception( org.omg.PortableInterceptor.ServerRequestInfo ri )
+      @Override
+    public void send_exception( org.omg.PortableInterceptor.ServerRequestInfo ri )
          throws org.omg.PortableInterceptor.ForwardRequest
       {
          s_visitMask = s_visitMask | SEND_EXPT;
@@ -771,7 +791,8 @@ public class PITest extends ORBTestCase
          }
       }
 
-      public void send_other( org.omg.PortableInterceptor.ServerRequestInfo ri )
+      @Override
+    public void send_other( org.omg.PortableInterceptor.ServerRequestInfo ri )
          throws org.omg.PortableInterceptor.ForwardRequest
       {
          s_visitMask = s_visitMask | SEND_OTHR;

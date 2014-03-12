@@ -5,6 +5,7 @@ import org.omg.IOP.ServiceContext;
 import org.omg.PortableInterceptor.ClientRequestInfo;
 import org.omg.PortableInterceptor.ClientRequestInterceptor;
 import org.omg.PortableInterceptor.ForwardRequest;
+import org.omg.CORBA.INTERNAL;
 
 /**
  * ClientInterceptor.java
@@ -38,8 +39,6 @@ public class ClientInterceptor extends org.omg.CORBA.LocalObject implements Clie
     public void send_request( ClientRequestInfo ri )
     throws ForwardRequest
     {
-        System.out.println("ClientInterceptor: send_request()");
-
         try
         {
             org.omg.CORBA.Any any = ri.get_slot( slot_id );
@@ -54,7 +53,7 @@ public class ClientInterceptor extends org.omg.CORBA.LocalObject implements Clie
         }
         catch (Exception e)
         {
-            e.printStackTrace();
+            throw new INTERNAL ("Caught " + e);
         }
     }
 

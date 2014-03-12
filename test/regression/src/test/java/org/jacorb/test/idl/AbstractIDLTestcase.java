@@ -137,7 +137,7 @@ public class AbstractIDLTestcase extends ORBTestCase
 
         details = runJacIDLInProcess(failureExpected);
 
-        TestUtils.log("[" + idlFile.getName() + " output]:\n" + details);
+        TestUtils.getLogger().debug("[" + idlFile.getName() + " output]:\n" + details);
     }
 
     private String runJacIDLInProcess(boolean failureExpected) throws AssertionFailedError
@@ -233,7 +233,7 @@ public class AbstractIDLTestcase extends ORBTestCase
             // test if a verify_ method is available and invoke it
             String file = idlFile.getName().replaceAll("\\.", "_");
 
-            TestUtils.log("look for verify_" +  file);
+            TestUtils.getLogger().debug("look for verify_" +  file);
 
             Method method = getClass().getMethod("verify_" + file, new Class[] {ClassLoader.class});
             method.invoke(this, new Object[] {cl});

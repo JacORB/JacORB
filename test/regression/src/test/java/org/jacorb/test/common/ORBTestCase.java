@@ -24,6 +24,8 @@ package org.jacorb.test.common;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.Properties;
 import org.junit.After;
 import org.junit.Before;
@@ -63,6 +65,8 @@ public abstract class ORBTestCase
     protected POA rootPOA;
     protected Properties orbProps = new Properties();
 
+    private ArrayList<ORBTestCase> otherORBs = new ArrayList<ORBTestCase>();
+
     public ORBTestCase()
     {
         orbProps.setProperty("org.omg.CORBA.ORBClass", "org.jacorb.orb.ORB");
@@ -78,7 +82,7 @@ public abstract class ORBTestCase
         }
         if (TestUtils.isSSLEnabled)
         {
-            TestUtils.log ("ORBTestCase SSL enabled");
+            TestUtils.getLogger().debug("ORBTestCase SSL enabled");
 
             // In this case we have been configured to run all the tests
             // in SSL mode. For simplicity, we will use the demo/ssl keystore
@@ -104,9 +108,16 @@ public abstract class ORBTestCase
         String mn = (name.getMethodName() == null ?
                 orbProps.getProperty(ClientServerSetup.SERVANT_NAME, "") : name.getMethodName());
 
-        TestUtils.log ("ORBTestCase::setUp for " + mn);
+        TestUtils.getLogger().debug("ORBTestCase::setUp for " + mn);
 
         orb = ORB.init(new String[] { "-ORBID" , mn }, orbProps);
+
+        initialisePOA();
+    }
+
+    // Split out POA initialisation so getAnotherORB does not automatically initialise it.
+    void initialisePOA () throws Exception
+    {
         rootPOA = POAHelper.narrow(orb.resolve_initial_references( "RootPOA" ));
         rootPOA.the_POAManager().activate();
     }
@@ -120,21 +131,35 @@ public abstract class ORBTestCase
      */
     protected void patchORBProperties(Properties props) throws Exception
     {
-        TestUtils.log("ORBTestCase::patchORBProperties " + props);
+        TestUtils.getLogger().debug("ORBTestCase::patchORBProperties " + props);
     }
 
     @After
     public void ORBTearDown() throws Exception
     {
-        TestUtils.log("ORBTestCase::tearDown");
+        TestUtils.getLogger().debug("ORBTestCase::tearDown");
 
-        assertTrue ("POA should not have been destroyed", rootPOA != null);
-        rootPOA.destroy(true, true);
-        rootPOA = null;
+        // Null check because its possible a POA initialise could have failed.
+        if (rootPOA != null)
+        {
+            rootPOA.destroy(true, true);
+            rootPOA = null;
+        }
 
-        assertTrue ("ORB should not have been destroyed", orb != null);
-        orb.shutdown(true);
-        orb = null;
+        // Null check because its possible an ORB initialise could have failed.
+        if (orb != null)
+        {
+            orb.shutdown(true);
+            orb = null;
+        }
+
+        Iterator<ORBTestCase> i = otherORBs.iterator();
+        while (i.hasNext())
+        {
+            ORBTestCase otc = i.next();
+            otc.ORBTearDown();
+            i.remove();
+        }
 
         orbProps.clear();
 
@@ -151,5 +176,41 @@ public abstract class ORBTestCase
     {
         assertTrue ("ORB should be a JacORB ORB", orb instanceof org.jacorb.orb.ORB);
         return (org.jacorb.orb.ORB)orb;
+    }
+
+
+    /**
+     * Returns another client ORB. The test case will automatically shut it down at
+     * the end of the test.
+     *
+     * @param Properties to supplement the ORB configuration.
+     * @return a pre-configured ORB to use.
+     * @throws Exception
+     */
+    public ORB getAnotherORB(final Properties override) throws Exception
+    {
+        ORBTestCase otc = new ORBTestCase ()
+        {
+            @Override
+            protected void patchORBProperties (Properties p)
+            {
+                if (override != null)
+                {
+                    p.putAll(override);
+                }
+            }
+
+            @Override
+            void initialisePOA () throws Exception
+            {
+                // Don't resolve the RootPOA
+            }
+        };
+
+        otherORBs.add(otc);
+
+        otc.ORBSetUp();
+
+        return otc.orb;
     }
 }

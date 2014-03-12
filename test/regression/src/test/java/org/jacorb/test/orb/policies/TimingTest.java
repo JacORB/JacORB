@@ -717,9 +717,6 @@ public class TimingTest extends CallbackTestCase
         long serverStart = server.server_time(2000);
         long rtTime = System.currentTimeMillis() - start;
 
-        //System.err.println("Server started after: " + (serverStart-start));
-        //System.err.println("Relpy returned after: " + (rtTime));
-
         // check server starts immediately
         assertTrue(serverStart >= start + 2000);
         assertTrue(serverStart <= start  + 2000 + 500); // 500 ms latency

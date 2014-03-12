@@ -139,7 +139,6 @@ public class AcceptorExceptionListenerTest
                 }
                 catch (Exception e)
                 {
-                    e.printStackTrace();
                     exception[0] = e;
                 }
             }

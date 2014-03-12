@@ -48,7 +48,6 @@ public abstract class AbstractOrbInitializer extends org.omg.CORBA.LocalObject i
                                                                           servertester_));
         }
         catch (Exception e) {
-            e.printStackTrace ();
         }
     }
 }// AbstractOrbInitializer

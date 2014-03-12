@@ -22,6 +22,7 @@
 package org.jacorb.test.notification.perf;
 
 import org.jacorb.test.common.ORBTestCase;
+import org.jacorb.test.common.TestUtils;
 import org.jacorb.test.notification.Address;
 import org.jacorb.test.notification.AddressHelper;
 import org.junit.Assume;
@@ -60,7 +61,7 @@ public class AnyTest extends ORBTestCase
 
         endTime = System.currentTimeMillis();
 
-        System.out.println("\"MyType To Any\" test: " + (endTime - startTime)
+        TestUtils.getLogger().debug("\"MyType To Any\" test: " + (endTime - startTime)
 
         + " ms for 100,000 trials");
 
@@ -77,7 +78,7 @@ public class AnyTest extends ORBTestCase
 
         endTime = System.currentTimeMillis();
 
-        System.out.println("\"MyType From Any\" test: " + (endTime - startTime)
+        TestUtils.getLogger().debug("\"MyType From Any\" test: " + (endTime - startTime)
 
         + " ms for 100,000 trials");
     }

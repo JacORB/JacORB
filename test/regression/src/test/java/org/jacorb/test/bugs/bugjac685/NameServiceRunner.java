@@ -13,7 +13,7 @@ public class NameServiceRunner
         {
             public void run()
             {
-                System.out.println ("Starting the JacORB NameService");
+                TestUtils.getLogger().debug ("Starting the JacORB NameService");
                 NameServer.main (args);
             }
         };

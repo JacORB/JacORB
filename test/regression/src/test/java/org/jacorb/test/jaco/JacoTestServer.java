@@ -34,6 +34,7 @@ public class JacoTestServer
         props.setProperty("jacorb.log.default.verbosity", "0");
         ORB orb = ORB.init(args, props);
 
+        // Leave this printout in else test will fail.
         System.out.println("ORB: " + orb.getClass().getName());
 
         orb.shutdown(true);

@@ -122,7 +122,7 @@ public class BugJac662Test extends ClientServerTestCase
             fail ("Unable to get replies from ReplyGroup");
         }
 
-        assertTrue ("Should be no replies pending", pendingReplies.size() == 0);
+        assertTrue ("Should be no replies pending: " + pendingReplies.toString(), pendingReplies.size() == 0);
 
         try
         {
@@ -132,7 +132,6 @@ public class BugJac662Test extends ClientServerTestCase
         {
         }
         pr._release();
-        System.err.println ("replies pending: " + pendingReplies.toString());
-        assertTrue ("Should be no replies pending", pendingReplies.size() == 0);
+        assertTrue ("Should be no replies pending: " + pendingReplies.toString(), pendingReplies.size() == 0);
     }
 }

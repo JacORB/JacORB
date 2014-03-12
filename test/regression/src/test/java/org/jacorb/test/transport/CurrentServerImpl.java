@@ -1,5 +1,6 @@
 package org.jacorb.test.transport;
 
+import org.jacorb.test.common.TestUtils;
 import org.jacorb.test.orb.transport.CurrentServer;
 import org.jacorb.test.orb.transport.CurrentServerHelper;
 import org.jacorb.test.orb.transport.CurrentServerPOA;
@@ -10,19 +11,17 @@ import org.omg.PortableServer.POA;
 import org.omg.PortableServer.POAHelper;
 import org.omg.PortableServer.POAPackage.ServantNotActive;
 import org.omg.PortableServer.POAPackage.WrongPolicy;
-import org.slf4j.Logger;
 
 public class CurrentServerImpl extends CurrentServerPOA {
 
     private int invoked_by_client_called_ = 0;
     private int self_test_called_ = 0;
-    private final Logger logger_;
     private final AbstractTester tester_;
 
 
     /**
      * DefaultClientOrbInitializer ctor, used in cases where no server-side testing is required.
-     * 
+     *
      */
     public CurrentServerImpl() {
 
@@ -32,30 +31,24 @@ public class CurrentServerImpl extends CurrentServerPOA {
 
     /**
      * The explicit ctor
-     * 
+     *
      * @param orb
      * @param tester
      */
     public CurrentServerImpl(ORB orb, AbstractTester tester) {
-
-        if (orb != null)
-            logger_ = ((org.jacorb.orb.ORB) orb).getConfiguration ()
-                                                .getLogger("org.jacorb.test.transport");
-        else
-            logger_ = null;
-
         tester_ = tester;
     }
 
 
+    @Override
     public void invoked_by_client() {
 
         invoked_by_client_called_++;
-        if (logger_ != null)
-            logger_.debug ("CurrentServer::invoked_by_client() called");
+
+        TestUtils.getLogger().debug ("CurrentServer::invoked_by_client() called");
 
         if (tester_ != null)
-            tester_.test_transport_current (this._orb (), logger_);
+            tester_.test_transport_current (this._orb ());
 
         try {
             POA rootPOA = POAHelper.narrow (_orb ().resolve_initial_references ("RootPOA"));
@@ -65,29 +58,27 @@ public class CurrentServerImpl extends CurrentServerPOA {
         }
         catch (InvalidName e) {
             // TODO Auto-generated catch block
-            e.printStackTrace ();
         }
         catch (ServantNotActive e) {
             // TODO Auto-generated catch block
-            e.printStackTrace ();
         }
         catch (WrongPolicy e) {
             // TODO Auto-generated catch block
-            e.printStackTrace ();
         }
     }
 
 
+    @Override
     public void invoked_during_upcall() {
 
-        if (logger_ != null)
-            logger_.debug ("CurrentServer::invoked_during_upcall() called");
+        TestUtils.getLogger().debug ("CurrentServer::invoked_during_upcall() called");
 
         if (tester_ != null)
-            tester_.test_transport_current (this._orb (), logger_);
+            tester_.test_transport_current (this._orb ());
     }
 
 
+    @Override
     public int self_test() {
 
         self_test_called_++;
@@ -99,6 +90,7 @@ public class CurrentServerImpl extends CurrentServerPOA {
     }
 
 
+    @Override
     public void shutdown() {
 
         this._orb ().shutdown (true);

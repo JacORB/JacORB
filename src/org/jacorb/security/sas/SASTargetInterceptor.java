@@ -190,7 +190,6 @@ public class SASTargetInterceptor
         byte[] contextToken = null;
         try
         {
-            System.out.println ("### ri " + ri);
             ServiceContext ctx =
                 ri.get_request_service_context(SASInitializer.SecurityAttributeService);
             Any ctx_any =

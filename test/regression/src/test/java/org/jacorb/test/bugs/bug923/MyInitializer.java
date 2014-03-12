@@ -2,6 +2,8 @@ package org.jacorb.test.bugs.bug923;
 
 import org.omg.PortableInterceptor.ORBInitInfo;
 import org.omg.PortableInterceptor.ORBInitializer;
+import org.omg.PortableInterceptor.ORBInitInfoPackage.DuplicateName;
+import org.omg.CORBA.INTERNAL;
 
 /**
  * This class registers the MyInterceptor
@@ -21,20 +23,19 @@ public class MyInitializer
 
     public void post_init(ORBInitInfo info)
     {
-        System.out.println("-- post_init, orb_id=" + info.orb_id() + "--");
         try
         {
             MyInterceptor interceptor = new MyInterceptor();
             info.add_client_request_interceptor(interceptor);
             info.add_server_request_interceptor(interceptor);
         }
-        catch (Exception e)
+        catch (DuplicateName e)
         {
-            e.printStackTrace();
+            throw new INTERNAL ("Caught " + e);
         }
     }
 
-    public void pre_init(ORBInitInfo info) {
-        System.out.println("-- pre_init, orb_id=" + info.orb_id() + "--");
+    public void pre_init(ORBInitInfo info)
+    {
     }
 } // MyInitializer

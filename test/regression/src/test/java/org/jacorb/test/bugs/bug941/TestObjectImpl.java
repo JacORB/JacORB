@@ -30,11 +30,12 @@ public class TestObjectImpl extends MyServerPOA
     protected short width = 14;
     protected java.math.BigDecimal[][] mygrid;
 
-    public void setData(Data data) {
-      System.out.println("in setData");
+    public void setData(Data data)
+    {
     }
-    public void setBigData(Data data){
-      System.out.println("in setBigData");
+
+    public void setBigData(Data data)
+    {
     }
 
     public TestObjectImpl()
@@ -63,7 +64,6 @@ public class TestObjectImpl extends MyServerPOA
 
     public short height()
     {
-        // System.out.println("height: " + height );
         return height;
     }
 
