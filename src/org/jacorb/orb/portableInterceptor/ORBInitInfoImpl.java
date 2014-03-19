@@ -55,16 +55,16 @@ public class ORBInitInfoImpl
     private final ORB orb;
     private final Logger logger;
 
-    private final Map named_server_interceptors;
-    private final List anonymous_server_interceptors;
+    private final Map<String, Interceptor> named_server_interceptors;
+    private final List<Interceptor> anonymous_server_interceptors;
 
-    private final Map named_client_interceptors;
-    private final List anonymous_client_interceptors;
+    private final Map<String, Interceptor> named_client_interceptors;
+    private final List<Interceptor> anonymous_client_interceptors;
 
-    private final Map named_ior_interceptors;
-    private final List anonymous_ior_interceptors;
+    private final Map<String, Interceptor> named_ior_interceptors;
+    private final List<Interceptor> anonymous_ior_interceptors;
 
-    private final Map policy_factories;
+    private final Map<Integer, PolicyFactory> policy_factories;
 
     private boolean valid = true;
 
@@ -79,16 +79,16 @@ public class ORBInitInfoImpl
          * interceptors - see CORBA spec 16.3.  A HashMap does not
          * guarantee order so use a TreeMap instead
          */
-        named_server_interceptors = new TreeMap();
-        named_client_interceptors = new TreeMap();
+        named_server_interceptors = new TreeMap<String, Interceptor>();
+        named_client_interceptors = new TreeMap<String, Interceptor>();
 
-        anonymous_server_interceptors = new ArrayList();
-        anonymous_client_interceptors = new ArrayList();
+        anonymous_server_interceptors = new ArrayList<Interceptor>();
+        anonymous_client_interceptors = new ArrayList<Interceptor>();
 
-        named_ior_interceptors = new TreeMap();
-        anonymous_ior_interceptors = new ArrayList();
+        named_ior_interceptors = new TreeMap<String, Interceptor>();
+        anonymous_ior_interceptors = new ArrayList<Interceptor>();
 
-        policy_factories = new HashMap();
+        policy_factories = new HashMap<Integer, PolicyFactory>();
     }
 
     /**
@@ -111,32 +111,32 @@ public class ORBInitInfoImpl
      * a List.
      */
 
-    private List merge(List target, Map source)
+    private List<Interceptor> merge(List<Interceptor> target, Map<String, Interceptor> source)
     {
-        List result = new ArrayList(target);
+        List<Interceptor> result = new ArrayList<Interceptor>(target);
         result.addAll(source.values());
         return result;
     }
 
-    public List getClientInterceptors()
+    public List<Interceptor> getClientInterceptors()
     {
         return merge(anonymous_client_interceptors,
                 named_client_interceptors);
     }
 
-    public List getServerInterceptors()
+    public List<Interceptor> getServerInterceptors()
     {
         return merge(anonymous_server_interceptors,
                 named_server_interceptors);
     }
 
-    public List getIORInterceptors()
+    public List<Interceptor> getIORInterceptors()
     {
         return merge(anonymous_ior_interceptors,
                 named_ior_interceptors);
     }
 
-    public Map getPolicyFactories()
+    public Map<Integer, PolicyFactory> getPolicyFactories()
     {
         return policy_factories;
     }

@@ -3,7 +3,7 @@ package org.jacorb.orb.standardInterceptors;
 /*
  *        JacORB - a free Java ORB
  *
- *   Copyright (C) 1999-2012 Gerald Brose / The JacORB Team.
+ *   Copyright (C) 1999-2014 Gerald Brose / The JacORB Team.
  *
  *   This library is free software; you can redistribute it and/or
  *   modify it under the terms of the GNU Library General Public
@@ -28,36 +28,37 @@ import org.jacorb.config.ConfigurationException;
 import org.jacorb.orb.CDROutputStream;
 import org.jacorb.orb.ORB;
 import org.jacorb.orb.giop.CodeSet;
+import org.omg.CONV_FRAME.CodeSetComponentInfoHelper;
+import org.omg.CORBA.LocalObject;
+import org.omg.IOP.TAG_CODE_SETS;
+import org.omg.IOP.TAG_INTERNET_IOP;
+import org.omg.IOP.TaggedComponent;
 import org.omg.PortableInterceptor.IORInfo;
 import org.omg.PortableInterceptor.IORInterceptor;
 
 /**
  * This interceptor creates a codeset TaggedComponent.
  *
- * @author Nicolas Noffke
  */
-
-public class CodeSetInfoInterceptor
-    extends org.omg.CORBA.LocalObject
+public class CodeSetInfoInterceptor extends LocalObject
     implements IORInterceptor, Configurable
 {
-    private final org.omg.IOP.TaggedComponent tagc;
+    private final TaggedComponent tagc;
 
     public CodeSetInfoInterceptor(ORB orb) throws ConfigurationException
     {
         super();
 
-            configure(orb.getConfiguration());
+        configure(orb.getConfiguration());
 
         // encapsulate it into TaggedComponent
         final CDROutputStream out = new CDROutputStream( orb );
         try
         {
             out.beginEncapsulatedArray();
-            org.omg.CONV_FRAME.CodeSetComponentInfoHelper.write( out, CodeSet.getLocalCodeSetComponentInfo() );
+            CodeSetComponentInfoHelper.write( out, CodeSet.getLocalCodeSetComponentInfo() );
 
-            tagc = new org.omg.IOP.TaggedComponent( org.omg.IOP.TAG_CODE_SETS.value,
-                    out.getBufferCopy());
+            tagc = new TaggedComponent(TAG_CODE_SETS.value, out.getBufferCopy());
         }
         finally
         {
@@ -69,7 +70,7 @@ public class CodeSetInfoInterceptor
     public void configure(Configuration config)
         throws ConfigurationException
     {
-        CodeSet.configure((org.jacorb.config.Configuration)config);
+        CodeSet.configure(config);
     }
 
     public String name()
@@ -85,30 +86,8 @@ public class CodeSetInfoInterceptor
     /**
      * Creates default IOR codeset  component.
      */
-
-    public void establish_components( IORInfo info, int [] tags )
-    {
-        if (tags == null)
-        {
-            info.add_ior_component_to_profile( tagc,
-                    org.omg.IOP.TAG_MULTIPLE_COMPONENTS.value );
-            info.add_ior_component_to_profile( tagc,
-                    org.omg.IOP.TAG_INTERNET_IOP.value );
-        }
-        else
-        {
-            for (int i = 0; i < tags.length; i++)
-            {
-                info.add_ior_component_to_profile(tagc, tags[i]);
-            }
-        }
-    }
-
     public void establish_components( IORInfo info )
     {
-        info.add_ior_component_to_profile( tagc,
-                                           org.omg.IOP.TAG_MULTIPLE_COMPONENTS.value );
-        info.add_ior_component_to_profile( tagc,
-                                           org.omg.IOP.TAG_INTERNET_IOP.value );
+        info.add_ior_component_to_profile( tagc, TAG_INTERNET_IOP.value );
     }
 }

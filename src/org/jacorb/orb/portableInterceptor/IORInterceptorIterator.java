@@ -3,7 +3,7 @@ package org.jacorb.orb.portableInterceptor;
 /*
  *        JacORB - a free Java ORB
  *
- *   Copyright (C) 1999-2012 Gerald Brose / The JacORB Team.
+ *   Copyright (C) 1999-2014 Gerald Brose / The JacORB Team.
  *
  *   This library is free software; you can redistribute it and/or
  *   modify it under the terms of the GNU Library General Public
@@ -21,38 +21,20 @@ package org.jacorb.orb.portableInterceptor;
  *
  */
 
-import org.jacorb.orb.standardInterceptors.CodeSetInfoInterceptor;
 import org.omg.CORBA.UserException;
 import org.omg.PortableInterceptor.IORInterceptor;
 import org.omg.PortableInterceptor.Interceptor;
 import org.slf4j.Logger;
 
-/**
- * IORInterceptorIterator.java
- *
- * Created: Mon Apr 17 09:53:33 2000
- *
- * @author Nicolas Noffke
- */
-
 public class IORInterceptorIterator
     extends AbstractInterceptorIterator
 {
     private IORInfoImpl info = null;
-    private int[] profile_tags = null;
     private final Logger logger;
 
     public IORInterceptorIterator(Logger logger, Interceptor[] interceptors)
     {
         super(interceptors);
-        this.logger = logger;
-    }
-
-    public IORInterceptorIterator(Logger logger, Interceptor[] interceptors,
-                                  int[] ptags )
-    {
-        super(interceptors);
-        profile_tags = ptags;
         this.logger = logger;
     }
 
@@ -69,19 +51,12 @@ public class IORInterceptorIterator
     {
         try
         {
-            if (interceptor instanceof CodeSetInfoInterceptor)
-            {
-                ((CodeSetInfoInterceptor) interceptor).
-                    establish_components(info, profile_tags);
-            }
-            else
-            {
-                ((IORInterceptor) interceptor).establish_components(info);
-            }
+            ((IORInterceptor) interceptor).establish_components(info);
         }
         catch(Exception e)
         {
             logger.error("unexpected exception during invoke", e);
         }
     }
-} // IORInterceptorIterator
+}
+

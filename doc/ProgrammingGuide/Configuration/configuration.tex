@@ -300,6 +300,7 @@ root POA is resolved which means that the ORB will be shutdown. Therefore future
 calls on that POA will fail with a 'POA destroyed' message.
 
 \subsection{Codesets}
+\label{jacorb-codeset}
 JacORB implements codeset negotiation through {\tt org.jacorb.orb.giop.CodeSet}. Codesets
 that are currently supported are
 \begin{itemize}
@@ -309,6 +310,9 @@ that are currently supported are
 \item UTF16
 \item UCS2
 \end{itemize}
+
+By default codesets are enabled via the property {\tt jacorb.codeset} but it is possible to disable
+them. This will give some performance improvements for String marshalling but only for ASCII text.
 
 \textbf{Note:} The class {\tt org.jacorb.util.Diagnostic} provides a main method to
 aid debugging of codeset issues. It will print out the current system encoding values.
@@ -1009,11 +1013,6 @@ instantiated at ORB creation. & class & unset \\
 \hline
 \verb"org.omg.PortableInterc"
 \verb"eptor.ORBInitializerCl"
-\verb"ass.standard_init" & Standard portable interceptor. DO NOT
-REMOVE. & class &  \\
-\hline
-\verb"org.omg.PortableInterc"
-\verb"eptor.ORBInitializerCl"
 \verb"ass.bidir_init" & This portable interceptor must be configured
 to support bi-directional GIOP & class & unset \\
 \hline
@@ -1390,9 +1389,9 @@ used to transmit wide characters. ote that this property is only effective once 
 JVM. & string & off\\
 \hline
 \verb"jacorb.codeset" &
-Enabling this will do codeset translation on marshalling. Disabling it will force
-JacORB to ignore all codeset component info profiles and to disable translation on
-marshalling. & boolean & off\\
+Enabling this will do codeset translation on marshalling and add the TAG\_CODE\_SETS tagged
+component. Disabling it will force JacORB to ignore all codeset component info profiles and
+to disable translation on marshalling. See \ref{jacorb-codeset} & boolean & on\\
 \hline
 \end{longtable}
 \end{small}

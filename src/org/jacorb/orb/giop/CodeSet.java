@@ -23,6 +23,7 @@ package org.jacorb.orb.giop;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import org.jacorb.config.Configuration;
 import org.jacorb.config.ConfigurationException;
@@ -459,6 +460,14 @@ public class CodeSet
          * @param value the value to write.
          */
         void write_short( short value );
+
+        /**
+         * Write an array of bytes to the buffer
+         * @param b
+         * @param offset
+         * @param length
+         */
+        void write_octet_array(byte []b, int offset, int length);
     }
 
 
@@ -562,6 +571,21 @@ public class CodeSet
         throw new CODESET_INCOMPATIBLE("Bad codeset: " + getName() );
     }
 
+    /**
+     * Writes a sting to the buffer with the appropriate encoding.
+     * @param buffer       the buffer to which the string is written
+     * @param s            the string to write
+     * @param write_bom    true if a byte-order-marker (indicating big-endian) should be written
+     * @param write_length true if the length of the character should be written
+     * @param giop_minor   the low-order byte of the giop version (1.x is assumed)
+     */
+    public void write_string(OutputBuffer buffer, String s, boolean write_bom, boolean write_length, int giop_minor)
+    {
+        for (int i = 0; i < s.length(); i++)
+        {
+            this.write_char(buffer, s.charAt(i), write_bom, write_length, giop_minor);
+        }
+    }
 
     /**
      * Returns the length of the string just written to the buffer.
@@ -778,6 +802,19 @@ public class CodeSet
             }
         }
 
+        @Override
+        public void write_string( OutputBuffer buffer, String s, boolean write_bom, boolean write_length, int giop_minor )
+        {
+            try
+            {
+                byte[] bytes = s.getBytes(this.getName());
+                buffer.write_octet_array(bytes, 0, bytes.length);
+            }
+            catch (UnsupportedEncodingException e)
+            {
+                throw new CODESET_INCOMPATIBLE("Bad codeset: " + getName());
+            }
+        }
 
         public int get_wstring_size( String s, int startPos, int currentPos )
         {
@@ -871,7 +908,6 @@ public class CodeSet
                 buffer.write_byte( (byte) (c       & 0xFF) );
             }
         }
-
 
         public int get_wstring_size( String s, int startPos, int currentPos )
         {
