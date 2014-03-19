@@ -2005,7 +2005,7 @@ public final class ORB
             // If the configuration property codeset has been enabled then automatically
             // add the IORInterceptorInitializer so that TAG_CODE_SETS are added to the
             // IOR. Previously this was done manually but that is deprecated now.
-            if (configuration.getAttributeAsBoolean("jacorb.codeset", false))
+            if (configuration.getAttributeAsBoolean("jacorb.codeset", true))
             {
                 boolean found = false;
                 for (ORBInitializer oi : orb_initializers)

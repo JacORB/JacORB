@@ -105,7 +105,7 @@ public class ClientConnection
         logger =
             configuration.getLogger("org.jacorb.giop.conn");
 
-        ignoreComponentInfo = ! (configuration.getAttributeAsBoolean("jacorb.codeset", false));
+        ignoreComponentInfo = ! (configuration.getAttributeAsBoolean("jacorb.codeset", true));
 
         //For BiDirGIOP, the connection initiator may only generate
         //even valued request ids, and the other side odd valued

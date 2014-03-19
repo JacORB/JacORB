@@ -286,7 +286,7 @@ public class CDROutputStream
 
     private void configure(Configuration configuration) throws ConfigurationException
     {
-        codesetEnabled  = configuration.getAttributeAsBoolean ("jacorb.codeset", false);
+        codesetEnabled  = configuration.getAttributeAsBoolean ("jacorb.codeset", true);
 
         useBOM = configuration.getAttributeAsBoolean("jacorb.use_bom",false);
 

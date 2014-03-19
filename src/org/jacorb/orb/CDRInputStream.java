@@ -262,7 +262,7 @@ public class CDRInputStream
     {
         logger = configuration.getLogger("org.jacorb.orb.cdr");
 
-        codesetEnabled  = configuration.getAttributeAsBoolean ("jacorb.codeset", false);
+        codesetEnabled  = configuration.getAttributeAsBoolean ("jacorb.codeset", true);
         cometInteropFix = configuration.getAttributeAsBoolean ("jacorb.interop.comet",false);
         laxBooleanEncoding = configuration.getAttributeAsBoolean("jacorb.interop.lax_boolean_encoding", false);
         sunInteropFix = configuration.getAttributeAsBoolean("jacorb.interop.sun", false);
