@@ -54,6 +54,7 @@
          - Fix for CodeSet tag appearing twice in multi-profile IORs
          - Deprecate defining org.jacorb.orb.standardInterceptors.IORInterceptorInitializer as a
            standard interceptor; it is now implicitly defined by jacorb.codeset QoS.
+         - Fix for 4 byte UTF-8 conversion (BZ969)
     - Documentation
         - Minor fixes.
     - Misc

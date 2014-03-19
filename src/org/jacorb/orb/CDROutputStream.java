@@ -898,8 +898,8 @@ public class CDROutputStream
         {
             if (codesetEnabled)
             {
-                // in the worst case (UTF-8) a string char might take up to 3 bytes
-                size = 4 + 3 * valueLength + 1;
+                // in the worst case (UTF-8) a string char might take up to 4 bytes
+                size = 4 + ( 4 * valueLength ) + 1;
             }
             else
             {
@@ -914,10 +914,7 @@ public class CDROutputStream
 
             if (codesetEnabled)
             {
-                for (int i = 0; i < valueLength; i++)
-                {
-                    codeSet.write_char( this, value.charAt(i), false, false, giop_minor );
-                }
+                codeSet.write_string(this, value, false, false, giop_minor);
             }
             else
             {
