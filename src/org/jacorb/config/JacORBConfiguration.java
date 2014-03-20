@@ -25,8 +25,8 @@ import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map.Entry;
@@ -565,25 +565,13 @@ public class JacORBConfiguration implements Configuration
 
     public void setAttributes(Properties properties)
     {
-        Enumeration<?> e = properties.propertyNames ();
-        while (e.hasMoreElements ())
+        // Some lunatics illegally put non String objects into System props
+        // as keys / values - we ignore them.
+        Iterator<String> keyIt = properties.stringPropertyNames().iterator();
+        while (keyIt.hasNext())
         {
-            Object obj = e.nextElement ();
-            // Some lunatics illegally put non String objects into System props
-            // as keys / values - we check for both and ignore them.
-            if (!(obj instanceof String))
-            {
-                continue;
-            }
-
-            String key = (String)obj;
-            Object value = properties.getProperty(key);
-
-            if (!(value instanceof String))
-            {
-                continue;
-            }
-            setAttribute(key, (String)value);
+            String key = keyIt.next();
+            setAttribute(key, properties.getProperty(key));
         }
     }
 

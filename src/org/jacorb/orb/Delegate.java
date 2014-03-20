@@ -3000,7 +3000,7 @@ public final class Delegate
             // Clean up first (added to fix bug #400)
             poa.removeLocalRequest();
 
-            logger.error("unexpected exception during servant_preinvoke", e);
+            logger.debug("unexpected exception during servant_preinvoke", e);
 
             if (addedContext)
             {
@@ -3021,7 +3021,6 @@ public final class Delegate
             {
                 throw new OBJECT_NOT_EXIST();
             }
-
 
             if (e instanceof RuntimeException)
             {
