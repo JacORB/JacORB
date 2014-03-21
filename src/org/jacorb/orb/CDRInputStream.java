@@ -24,7 +24,9 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Deque;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -39,7 +41,6 @@ import org.jacorb.orb.giop.Messages;
 import org.jacorb.orb.typecode.DelegatingTypeCodeReader;
 import org.jacorb.orb.typecode.TypeCodeCache;
 import org.jacorb.util.ObjectUtil;
-import org.jacorb.util.Stack;
 import org.jacorb.util.ValueHandler;
 import org.omg.CORBA.BAD_PARAM;
 import org.omg.CORBA.CompletionStatus;
@@ -68,7 +69,7 @@ public class CDRInputStream
      * <code>encaps_stack</code> is used to saving/restoring
      * encapsulation information.
      */
-    private Stack encaps_stack;
+    private Deque<EncapsInfo> encaps_stack;
 
     /**
      * This Map is basically a one-entry map pool to be used in
@@ -485,7 +486,7 @@ public class CDRInputStream
             throw new MARSHAL( "Internal Error - closeEncapsulation failed" );
         }
 
-        EncapsInfo ei = (EncapsInfo)encaps_stack.pop();
+        EncapsInfo ei = encaps_stack.removeFirst();
         littleEndian = ei.littleEndian;
         int size = ei.size;
         int start = ei.start;
@@ -536,9 +537,9 @@ public class CDRInputStream
 
         if (encaps_stack == null)
         {
-            encaps_stack = new Stack();
+            encaps_stack = new ArrayDeque<EncapsInfo>();
         }
-        encaps_stack.push(new EncapsInfo(old_endian, index, pos, size ));
+        encaps_stack.addFirst(new EncapsInfo(old_endian, index, pos, size ));
 
         openEncapsulatedArray();
 

@@ -22,12 +22,12 @@ package org.jacorb.orb;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.ArrayDeque;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
-import java.util.Stack;
 import java.util.concurrent.ConcurrentHashMap;
 import org.jacorb.config.Configuration;
 import org.jacorb.config.ConfigurationException;
@@ -298,29 +298,29 @@ public final class Delegate
     /**
      * @see #getInvocationContext()
      * @see #clearInvocationContext()
-     * This is a <code>Stack</code> containing HashMaps.  The HashMap will
-     * contain values that apply to the current invocation.  A Stack of
+     * This is a <code>ArrayDeque</code> containing HashMaps.  The HashMap will
+     * contain values that apply to the current invocation.  A ArrayDeque of
      * HashMaps is needed to cater for the fact that invocations can be
      * made within invocations and the values may differ for each invocation.
      * We need to retain the values for the original invocation as well as
      * apply the correct values for any internal invocation.
      */
-    private static final ThreadLocal<Stack<Map<INVOCATION_KEY, UtcT>>> invocationContext = new ThreadLocal<Stack<Map<INVOCATION_KEY, UtcT>>>()
+    private static final ThreadLocal<ArrayDeque<Map<INVOCATION_KEY, UtcT>>> invocationContext = new ThreadLocal<ArrayDeque<Map<INVOCATION_KEY, UtcT>>>()
     {
-        protected Stack<Map<INVOCATION_KEY, UtcT>> initialValue()
+        protected ArrayDeque<Map<INVOCATION_KEY, UtcT>> initialValue()
         {
-            return new Stack<Map<INVOCATION_KEY, UtcT>> ();
+            return new ArrayDeque<Map<INVOCATION_KEY, UtcT>> ();
         };
     };
 
     /**
-     * access the current invocation context (its a Stack of Maps).
+     * access the current invocation context (its a ArrayDeque of Maps).
      * this context lives as long as the invocation is active.
      * especially it outlives RemarshalExceptions and thus
      * can be used to share information between mutiple requests
      * that are done as part of an invocation.
      */
-    public static final Stack<Map<INVOCATION_KEY, UtcT>> getInvocationContext()
+    public static final ArrayDeque<Map<INVOCATION_KEY, UtcT>> getInvocationContext()
     {
         return invocationContext.get();
     }
@@ -333,7 +333,7 @@ public final class Delegate
      */
     public static void clearInvocationContext()
     {
-        if ( ! ( getInvocationContext()).empty())
+        if ( ! ( getInvocationContext()).isEmpty())
         {
             ( getInvocationContext()).pop();
         }
@@ -1292,11 +1292,11 @@ public final class Delegate
 
         RequestOutputStream ros      = (RequestOutputStream)os;
 
-        Stack<Map<INVOCATION_KEY, UtcT>> invocationStack = invocationContext.get ();
+        ArrayDeque<Map<INVOCATION_KEY, UtcT>> invocationStack = invocationContext.get ();
 
         /**
          * We must just peek as we do not want to remove the context from
-         * the Stack
+         * the ArrayDeque
          */
         Map<INVOCATION_KEY, UtcT> currentCtxt = invocationStack.peek();
         UtcT reqET = null;
@@ -2356,10 +2356,10 @@ public final class Delegate
     {
         orb.perform_work();
 
-        Stack<Map<INVOCATION_KEY, UtcT>> invocationStack = invocationContext.get ();
+        ArrayDeque<Map<INVOCATION_KEY, UtcT>> invocationStack = invocationContext.get ();
         Map<INVOCATION_KEY, UtcT> currentCtxt = null;
 
-        if (! invocationStack.empty())
+        if (! invocationStack.isEmpty())
         {
             currentCtxt = invocationStack.peek();
 

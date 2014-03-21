@@ -25,13 +25,13 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Stack;
 import org.jacorb.config.Configuration;
 import org.jacorb.config.ConfigurationException;
 import org.jacorb.orb.giop.CodeSet;
@@ -94,7 +94,7 @@ public class CDROutputStream
      * access this variable directly. It is initialized on demand. Use the
      * method {@link #getEncapsStack() getEncapsStack()}
      */
-    private Stack encaps_stack;
+    private ArrayDeque<EncapsInfo> encaps_stack;
 
 
     /**
@@ -311,13 +311,13 @@ public class CDROutputStream
      * <code>getEncapsStack</code> is used to initialize encaps_stack
      * on demand.
      *
-     * @return a <code>Stack</code> value
+     * @return a <code>ArrayDeque</code> value
      */
-    private Stack<EncapsInfo> getEncapsStack()
+    private ArrayDeque<EncapsInfo> getEncapsStack()
     {
         if (encaps_stack == null)
         {
-            encaps_stack = new Stack<EncapsInfo>();
+            encaps_stack = new ArrayDeque<EncapsInfo>();
         }
         return encaps_stack;
     }
