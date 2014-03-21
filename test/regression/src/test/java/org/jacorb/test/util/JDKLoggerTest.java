@@ -20,26 +20,99 @@ package org.jacorb.test.util;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.Properties;
+import org.jacorb.test.BasicServer;
+import org.jacorb.test.BasicServerHelper;
+import org.jacorb.test.common.ORBTestCase;
 import org.jacorb.test.common.TestUtils;
+import org.jacorb.test.orb.BasicServerImpl;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
+import org.omg.CORBA.OBJECT_NOT_EXIST;
 import org.omg.CORBA.ORB;
+import org.omg.PortableServer.POA;
+import org.omg.PortableServer.POAHelper;
+import org.omg.PortableServer.POAManager;
 import org.slf4j.Logger;
 
 
 /**
- *  Unit Test for class LogKitLoggerFactory
+ * Unit Test for class LogKitLoggerFactory
+ *
  * @author Alphonse Bendt
  */
-public class JDKLoggerTest
+public class JDKLoggerTest extends ORBTestCase
 {
-    private String logDirectory = null;
+    private File logDirectory = null;
+
+    @Before
+    public void setUp()
+    {
+        purgeLogDirectory();
+    }
+
+    @After
+    public void tearDown()
+    {
+        purgeLogDirectory();
+    }
+
+    /**
+     * Verify servant_preinvoke logging (esp: non_existent).
+     */
+    @Test
+    public void testServantPreInvoke () throws Exception
+    {
+        Properties props = new Properties();
+        props.put ("jacorb.logfile", getLogFilename("jacorb.log"));
+        props.put ("jacorb.log.default.verbosity", "2");
+
+        ORB orb = this.getAnotherORB(props);
+        POA rootPOA = POAHelper.narrow(orb.resolve_initial_references( "RootPOA" ));
+        POAManager poaManager = rootPOA.the_POAManager();
+
+        poaManager.activate();
+
+        BasicServerImpl servant = new BasicServerImpl();
+
+        rootPOA.activate_object(servant);
+
+        BasicServer server = BasicServerHelper.narrow(rootPOA.servant_to_reference(servant));
+
+        assertEquals(42, server.bounce_long(42));
+
+        rootPOA.deactivate_object(rootPOA.servant_to_id(servant));
+
+        assertFileExists (getLogFilename("jacorb.log"));
+        try
+        {
+            server.bounce_boolean(true);
+        }
+        catch (OBJECT_NOT_EXIST e)
+        {
+            StringWriter stringWriter = new StringWriter();
+            PrintWriter printWriter = new PrintWriter(stringWriter);
+            e.printStackTrace(printWriter);
+
+            assertTrue ( stringWriter.toString().contains("servant_preinvoke"));
+        }
+
+        boolean result = server._non_existent();
+        assertTrue (result == true);
+
+        assertFileNotContains (getLogFilename("jacorb.log"), ".*OBJECT_NOT_EXIST.*");
+    }
 
     /**
      * Tests logging to a file, rather than the terminal.
@@ -47,24 +120,18 @@ public class JDKLoggerTest
     @Test
     public void testLogFile() throws Exception
     {
-        purgeLogDirectory();
-
         Properties props = new Properties();
-        props.put ("org.omg.CORBA.ORBClass", "org.jacorb.orb.ORB");
-        props.put ("org.omg.CORBA.ORBSingletonClass", "org.jacorb.orb.ORBSingleton");
         props.put ("jacorb.logfile", getLogFilename("jacorb.log"));
         props.put ("jacorb.log.default.verbosity", "1");
 
-        ORB orb = ORB.init (new String[]{}, props);
+        ORB orb = this.getAnotherORB(props);
+
         Logger orbLogger = ((org.jacorb.orb.ORB)orb).getConfiguration().getLogger("org.jacorb");
         orbLogger.error("this is a test message");
 
         assertFileExists (getLogFilename("jacorb.log"));
         assertFileContains (getLogFilename("jacorb.log"),
                             ".*?this is a test message");
-
-        purgeLogDirectory();
-        orb.shutdown(true);
     }
 
     /**
@@ -73,25 +140,18 @@ public class JDKLoggerTest
     @Test
     public void testLogFileImplName() throws Exception
     {
-        purgeLogDirectory();
-
         Properties props = new Properties();
-        props.put ("org.omg.CORBA.ORBClass", "org.jacorb.orb.ORB");
-        props.put ("org.omg.CORBA.ORBSingletonClass", "org.jacorb.orb.ORBSingleton");
         props.put ("jacorb.implname", "myimpl");
         props.put ("jacorb.logfile", getLogFilename("jacorb-$implname"));
         props.put ("jacorb.log.default.verbosity", "1");
 
-        ORB orb = ORB.init (new String[]{}, props);
+        ORB orb = this.getAnotherORB(props);
         Logger orbLogger = ((org.jacorb.orb.ORB)orb).getConfiguration().getLogger("org.jacorb");
         orbLogger.error("this is a test message");
 
         assertFileExists (getLogFilename("jacorb-myimpl.log"));
         assertFileContains (getLogFilename("jacorb-myimpl.log"),
                             ".*?this is a test message");
-
-         purgeLogDirectory();
-         orb.shutdown(true);
     }
 
     /**
@@ -103,14 +163,12 @@ public class JDKLoggerTest
     @Test
     public void testLogFileSingleton() throws Exception
     {
-        purgeLogDirectory();
-
         Properties oldProps = System.getProperties();
 
-        Properties props = new Properties(oldProps);
+        Properties props = new Properties();
         props.put ("org.omg.CORBA.ORBClass", "org.jacorb.orb.ORB");
         props.put ("org.omg.CORBA.ORBSingletonClass", "org.jacorb.orb.ORBSingleton");
-        props.put ("jacorb.logfile", getLogDirectory());
+        props.put ("jacorb.logfile",  getLogDirectory().toString());
         props.put ("jacorb.log.default.verbosity", "1");
         props.put ("jacorb.orb.singleton.log.verbosity", "1");
         System.setProperties(props);
@@ -123,7 +181,7 @@ public class JDKLoggerTest
         logger.error("this is a test message");
 
         // search for the log file -- the name has a timestamp in it
-        File dir = new File (getLogDirectory());
+        File dir = getLogDirectory();
         String[] files = dir.list();
         String file = null;
         if (files.length < 1)
@@ -157,7 +215,6 @@ public class JDKLoggerTest
         {
             fail ("log file does not have correct content");
         }
-        purgeLogDirectory();
     }
 
     /**
@@ -167,16 +224,12 @@ public class JDKLoggerTest
     @Test
     public void testLogFileAppend() throws Exception
     {
-        purgeLogDirectory();
-
         Properties props = new Properties();
-        props.put ("org.omg.CORBA.ORBClass", "org.jacorb.orb.ORB");
-        props.put ("org.omg.CORBA.ORBSingletonClass", "org.jacorb.orb.ORBSingleton");
         props.put ("jacorb.logfile", getLogFilename("jacorb.log"));
         props.put ("jacorb.log.default.verbosity", "4");
         props.put ("jacorb.logfile.append", "on");
 
-        ORB orb = ORB.init (new String[]{}, props);
+        ORB orb = this.getAnotherORB(props);
 
         Logger orbLogger = ((org.jacorb.orb.ORB)orb).getConfiguration().getLogger("org.jacorb");
         orbLogger.error("testLogFileAppend this is the first test message");
@@ -184,7 +237,7 @@ public class JDKLoggerTest
         orb.shutdown(true);
         ((org.jacorb.config.JacORBConfiguration)((org.jacorb.orb.ORB)orb).getConfiguration()).shutdownLogging();
 
-        orb = ORB.init (new String[]{}, props);
+        orb = this.getAnotherORB(props);
         orbLogger = ((org.jacorb.orb.ORB)orb).getConfiguration().getLogger("org.jacorb");
         orbLogger.error("testLogFileAppend this is the second test message");
 
@@ -193,9 +246,6 @@ public class JDKLoggerTest
                             ".*?this is the first test message");
         assertFileContains (getLogFilename("jacorb.log"),
                             ".*?this is the second test message");
-
-        purgeLogDirectory();
-        orb.shutdown(true);
     }
 
     /**
@@ -205,16 +255,12 @@ public class JDKLoggerTest
     @Test
     public void testLogFileNotAppend() throws Exception
     {
-        purgeLogDirectory();
-
         Properties props = new Properties();
-        props.put ("org.omg.CORBA.ORBClass", "org.jacorb.orb.ORB");
-        props.put ("org.omg.CORBA.ORBSingletonClass", "org.jacorb.orb.ORBSingleton");
         props.put ("jacorb.logfile", getLogFilename("jacorb.log"));
         props.put ("jacorb.log.default.verbosity", "1");
         props.put ("jacorb.logfile.append", "off");
 
-        ORB orb = ORB.init (new String[]{}, props);
+        ORB orb = this.getAnotherORB(props);
 
         Logger orbLogger = ((org.jacorb.orb.ORB)orb).getConfiguration().getLogger("org.jacorb");
         orbLogger.error("testLogFileNotAppend this is the first test message");
@@ -230,9 +276,6 @@ public class JDKLoggerTest
                                ".*?this is the first test message");
         assertFileContains (getLogFilename("jacorb.log"),
                             ".*?this is the second test message");
-
-        purgeLogDirectory();
-        orb.shutdown(true);
     }
 
     /**
@@ -242,17 +285,14 @@ public class JDKLoggerTest
     @Test
     public void testLogFileRotation() throws Exception
     {
-        purgeLogDirectory();
-
         Properties props = new Properties();
-        props.put ("org.omg.CORBA.ORBClass", "org.jacorb.orb.ORB");
-        props.put ("org.omg.CORBA.ORBSingletonClass", "org.jacorb.orb.ORBSingleton");
         props.put ("jacorb.logfile", getLogFilename("jacorb.log"));
         props.put ("jacorb.log.default.verbosity", "1");
         props.put ("jacorb.logfile.maxLogSize", "100");
         props.put ("jacorb.logfile.rotateCount", "4");
 
-        ORB orb = ORB.init (new String[]{}, props);
+        ORB orb = this.getAnotherORB(props);
+
         Logger orbLogger = ((org.jacorb.orb.ORB)orb).getConfiguration().getLogger("org.jacorb");
         for (int i=0; i<82; i++)
             orbLogger.error("this is a test message");
@@ -265,9 +305,6 @@ public class JDKLoggerTest
         assertFileExists (getLogFilename("jacorb.log.1"));
         assertFileExists (getLogFilename("jacorb.log.2"));
         assertFileExists (getLogFilename("jacorb.log.3"));
-
-        purgeLogDirectory();
-        orb.shutdown(true);
     }
 
     /**
@@ -276,25 +313,19 @@ public class JDKLoggerTest
     @Test
     public void testLogFileTime() throws Exception
     {
-        purgeLogDirectory();
-
         Properties props = new Properties();
-        props.put ("org.omg.CORBA.ORBClass", "org.jacorb.orb.ORB");
-        props.put ("org.omg.CORBA.ORBSingletonClass", "org.jacorb.orb.ORBSingleton");
         props.put ("jacorb.logfile", getLogFilename("jacorb.log"));
         props.put ("jacorb.log.default.verbosity", "1");
         props.put ("jacorb.log.clockFormat", "TIME");
 
-        ORB orb = ORB.init (new String[]{}, props);
+        ORB orb = this.getAnotherORB(props);
+
         Logger orbLogger = ((org.jacorb.orb.ORB)orb).getConfiguration().getLogger("org.jacorb");
         orbLogger.error("this is a test message");
 
         assertFileExists (getLogFilename("jacorb.log"));
         assertFileContains (getLogFilename("jacorb.log"),
                             "[0-9][0-9]:[0-9][0-9]:[0-9][0-9] SEVERE.*?this is a test message");
-
-        purgeLogDirectory();
-        orb.shutdown(true);
     }
 
 
@@ -304,25 +335,19 @@ public class JDKLoggerTest
     @Test
     public void testLogFileTimeLowerCase() throws Exception
     {
-        purgeLogDirectory();
-
         Properties props = new Properties();
-        props.put ("org.omg.CORBA.ORBClass", "org.jacorb.orb.ORB");
-        props.put ("org.omg.CORBA.ORBSingletonClass", "org.jacorb.orb.ORBSingleton");
         props.put ("jacorb.logfile", getLogFilename("jacorb.log"));
         props.put ("jacorb.log.default.verbosity", "1");
         props.put ("jacorb.log.clockFormat", "time");
 
-        ORB orb = ORB.init (new String[]{}, props);
+        ORB orb = this.getAnotherORB(props);
+
         Logger orbLogger = ((org.jacorb.orb.ORB)orb).getConfiguration().getLogger("org.jacorb");
         orbLogger.error("this is a test message");
 
         assertFileExists (getLogFilename("jacorb.log"));
         assertFileContains (getLogFilename("jacorb.log"),
                             "[0-9][0-9]:[0-9][0-9]:[0-9][0-9] SEVERE.*?this is a test message");
-
-        purgeLogDirectory();
-        orb.shutdown(true);
     }
 
 
@@ -332,25 +357,19 @@ public class JDKLoggerTest
     @Test
     public void testLogFileDateTime() throws Exception
     {
-        purgeLogDirectory();
-
         Properties props = new Properties();
-        props.put ("org.omg.CORBA.ORBClass", "org.jacorb.orb.ORB");
-        props.put ("org.omg.CORBA.ORBSingletonClass", "org.jacorb.orb.ORBSingleton");
         props.put ("jacorb.logfile", getLogFilename("jacorb.log"));
         props.put ("jacorb.log.default.verbosity", "1");
         props.put ("jacorb.log.clockFormat", "DATE_TIME");
 
-        ORB orb = ORB.init (new String[]{}, props);
+        ORB orb = this.getAnotherORB(props);
+
         Logger orbLogger = ((org.jacorb.orb.ORB)orb).getConfiguration().getLogger("org.jacorb");
         orbLogger.error("this is a test message");
 
         assertFileExists (getLogFilename("jacorb.log"));
         assertFileContains (getLogFilename("jacorb.log"),
                             "[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9] [0-9][0-9]:[0-9][0-9]:[0-9][0-9].*SEVERE.*?this is a test message");
-
-        purgeLogDirectory();
-        orb.shutdown(true);
     }
 
 
@@ -434,24 +453,23 @@ public class JDKLoggerTest
         return result.toString();
     }
 
-    private String getLogDirectory()
+    private File getLogDirectory()
     {
         if (logDirectory == null)
         {
-            File result = new File (TestUtils.testHome(), "target/logtest");
-            result.mkdirs();
-            logDirectory = result.toString();
+            logDirectory = new File (TestUtils.testHome(), "target/logtest");
+            logDirectory.mkdirs();
         }
+
         return logDirectory;
     }
 
     private void purgeLogDirectory()
     {
-        File dir = new File (getLogDirectory());
-        String[] files = dir.list();
-        for (int i=0; i<files.length; i++)
+        String[] files = getLogDirectory().list();
+        for (int i=0; files != null && i<files.length; i++)
         {
-            File f = new File (dir, files[i]);
+            File f = new File (getLogDirectory(), files[i]);
             f.delete();
         }
     }
