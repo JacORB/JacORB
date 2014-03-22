@@ -127,6 +127,22 @@
 
     <build>
         <plugins>
+            <!-- Disable installation and deployment as this module is just for assembling the distribution zips -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-install-plugin</artifactId>
+                <configuration>
+                    <skip>true</skip>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-deploy-plugin</artifactId>
+                <configuration>
+                    <skip>true</skip>
+                </configuration>
+            </plugin>
+
             <!-- Constrain the fork count to 1 on single processor machines -->
             <plugin>
                 <groupId>org.codehaus.gmaven</groupId>
@@ -155,19 +171,6 @@
                     </execution>
                 </executions>
             </plugin>
-
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-install-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>default-install</id>
-                        <configuration>
-                            <skip>true</skip>
-                        </configuration>
-                    </execution>
-                </executions>
-           </plugin>
 
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
