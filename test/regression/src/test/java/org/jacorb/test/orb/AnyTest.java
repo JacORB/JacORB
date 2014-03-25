@@ -20,13 +20,7 @@ package org.jacorb.test.orb;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-import java.math.BigDecimal;
-import java.util.Properties;
+import org.apache.commons.io.FileUtils;
 import org.jacorb.orb.CDROutputStream;
 import org.jacorb.test.MyUserException;
 import org.jacorb.test.MyUserExceptionHelper;
@@ -36,7 +30,9 @@ import org.jacorb.test.orb.RecursiveUnionStructPackage.RecursiveUnionStructUnion
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 import org.omg.CORBA.Any;
 import org.omg.CORBA.AnyHolder;
 import org.omg.CORBA.BAD_PARAM;
@@ -55,11 +51,26 @@ import org.omg.CORBA.StringHolder;
 import org.omg.CORBA.TCKind;
 import org.omg.CORBA.TypeCode;
 import org.omg.CORBA.TypeCodeHolder;
+import org.omg.CORBA.portable.InputStream;
+import org.omg.CORBA.portable.OutputStream;
 import org.omg.CORBA.portable.Streamable;
+
+import java.io.File;
+import java.math.BigDecimal;
+import java.util.Properties;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 public class AnyTest extends ClientServerTestCase
 {
     private AnyServer server;
+
+    @Rule
+    public TemporaryFolder folder = new TemporaryFolder();
 
     @Before
     public void setUp() throws Exception
@@ -75,6 +86,38 @@ public class AnyTest extends ClientServerTestCase
         props.put("jacorb.compactTypecodes", "off");
 
         setup = new ClientServerSetup( AnyServerImpl.class.getName(), props, props);
+    }
+
+    @Test
+    public void test_float_stream_serialize() throws Exception
+    {
+        File target = folder.newFile ("foo");
+
+        short testValue = (short) 4711;
+        Any outAny = setup.getClientOrb().create_any();
+        outAny.insert_short(testValue);
+        assertEquals(testValue, outAny.extract_short());
+        TypeCode t1 = outAny.type ();
+
+        OutputStream s = setup.getClientOrb().create_output_stream ();
+        s.write_any (outAny);
+
+        InputStream i = s.create_input_stream ();
+        Any inAny = i.read_any ();
+        assertEquals(testValue, inAny.extract_short());
+        assertTrue(outAny.equal(inAny));
+
+        FileUtils.writeByteArrayToFile(target, ((CDROutputStream)s).getBufferCopy());
+
+        assertTrue(FileUtils.sizeOf(target) > 0);
+
+        byte[] messageByte = FileUtils.readFileToByteArray(target);
+
+        i = new org.jacorb.orb.CDRInputStream(setup.getClientOrb(), messageByte);
+        inAny = i.read_any ();
+
+        assertEquals(testValue, inAny.extract_short());
+        assertTrue(outAny.equal(inAny));
     }
 
     @Test
