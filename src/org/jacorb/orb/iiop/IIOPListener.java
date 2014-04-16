@@ -237,6 +237,8 @@ public class IIOPListener
     private IIOPProfile createAddressProfile()
         throws ConfigurationException
     {
+        IIOPProfile result = null;
+
         if (acceptor != null)
         {
             IIOPAddress serverAddress = ((Acceptor)acceptor).getLocalAddress();
@@ -245,7 +247,7 @@ public class IIOPListener
             {
                 address.setPort(serverAddress.getPort());
             }
-            else if (logger.isDebugEnabled())
+            if (logger.isDebugEnabled())
             {
                 logger.debug ("IIOPAddress using port " + address.getPort());
             }
@@ -263,6 +265,15 @@ public class IIOPListener
                  */
                 address.setWildcardHost (serverAddress.isWildcard());
             }
+
+            result = new IIOPProfile(serverAddress, null, orb.getGIOPMinorVersion());
+            result.configure(configuration);
+
+            // Add all wildcard addresses to the list of alternative addresses
+            if (serverAddress.isWildcard())
+            {
+                result.addAllWildcardAddresses(configuration);
+            }
         }
         else if (sslAcceptor == null)
         {
@@ -270,19 +281,52 @@ public class IIOPListener
                 ("no acceptors found, cannot create address profile");
         }
 
-        IIOPProfile result = new IIOPProfile(address, null, orb.getGIOPMinorVersion());
-        result.configure(configuration);
-
-        // Add all wildcard addresses to the list of alternative addresses
-        if (address.isWildcard())
+        if (sslAcceptor != null)
         {
-            result.addAllWildcardAddresses(configuration);
-        }
+            IIOPAddress serverAddress = ((SSLAcceptor)sslAcceptor).getLocalAddress();
+            if (sslAddress.getPort() == 0)
+            {
+                sslAddress.setPort(serverAddress.getPort());
+            }
 
-        if (sslAcceptor != null && generateSSLComponents)
-        {
-             result.addComponent (TAG_SSL_SEC_TRANS.value,
+            if (logger.isDebugEnabled())
+            {
+                logger.debug ("IIOPAddress using ssl port " + sslAddress.getPort());
+            }
+
+            if (sslAddress.getHostInetAddress() == null)
+            {
+                sslAddress.setHostInetAddress (serverAddress.getHostInetAddress());
+            }
+            else
+            {
+                sslAddress.setWildcardHost (serverAddress.isWildcard());
+            }
+
+            // This means a non-ssl profile hasn't been created, so create it here.
+            if (result == null)
+            {
+                IIOPAddress tempAddress = ((SSLAcceptor)sslAcceptor).getLocalAddress();
+                tempAddress.setPort(0);
+                if (address != null && address.getPort() != 0)
+                {
+                    tempAddress.setPort(address.getPort());
+                }
+                result = new IIOPProfile(tempAddress, null, orb.getGIOPMinorVersion());
+                result.configure(configuration);
+
+                // Add all wildcard addresses to the list of alternative addresses
+                if (tempAddress.isWildcard())
+                {
+                    result.addAllWildcardAddresses(configuration);
+                }
+            }
+
+            if (generateSSLComponents)
+            {
+                result.addComponent (TAG_SSL_SEC_TRANS.value,
                                   createSSL(), SSLHelper.class);
+            }
         }
 
         return result;

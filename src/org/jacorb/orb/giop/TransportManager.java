@@ -329,7 +329,15 @@ public class TransportManager
         final IIOPAddress address = new IIOPAddress();
 
         int proto_delim = address_str.indexOf (':');
-        Protocol proto = Protocol.valueOf(address_str.substring (0,proto_delim).toUpperCase(Locale.ENGLISH));
+        Protocol proto;
+        try
+        {
+            proto = Protocol.valueOf(address_str.substring (0,proto_delim).toUpperCase(Locale.ENGLISH));
+        }
+        catch (IllegalArgumentException e)
+        {
+            throw new BAD_PARAM("Invalid protocol " + address_str);
+        }
         address.setProtocol(proto);
         final int addresss_start_ofs = proto_delim + 3;
 
@@ -351,10 +359,9 @@ public class TransportManager
         IIOPAddress address = null;
         IIOPAddress ssl_address = null;
 
-        HashSet<ListenEndpoint> s = listenEndpointList.get(Protocol.IIOP);
 
         // If we already have an endpoint list defined there is no point creating a default.
-        if (s != null)
+        if (listenEndpointList != null && listenEndpointList.size() > 0)
         {
             return;
         }
@@ -403,10 +410,15 @@ public class TransportManager
         {
             address.setProtocol(Protocol.IIOP);
         }
+        if (ssl_address.getProtocol() == null || ssl_address.getProtocol() == Protocol.SSLIOP)
+        {
+            ssl_address.setProtocol(Protocol.IIOP);
+        }
         defaultEndpoint.setAddress(address);
         defaultEndpoint.setSSLAddress(ssl_address);
         defaultEndpoint.setProtocol(address.getProtocol());
 
+        HashSet<ListenEndpoint> s = listenEndpointList.get(address.getProtocol());
         s = new HashSet<ListenEndpoint>();
         s.add (defaultEndpoint);
         listenEndpointList.put(address.getProtocol(), s);
@@ -439,11 +451,6 @@ public class TransportManager
                 {
                     throw new BAD_PARAM("Invalid ORBListenEndpoint <value> format: -ORBListenEndpoints argument without value" );
                 }
-
-                /**
-                 * an example of listen endpoint specification:
-                 *    -ORBListenEndPoint 'iiop://foo:9999/resuse_addr=1&foobar=50; ;iiop://;sliop://localhost:1234;;'
-                 */
 
                 String ep_args = args[i+1];
                 String ep_args_trim = ep_args.trim();
@@ -595,6 +602,8 @@ public class TransportManager
                                     ssl_address.configure(configuration);
                                 }
 
+                                //  Set the protocol to IIOP for using IIOP Protocol Factory
+                                protocol = Protocol.IIOP;
                             }
                             else
                             {
@@ -604,6 +613,13 @@ public class TransportManager
                                     address = (IIOPAddress)addr1;
                                     address.configure(configuration);
                                 }
+                            }
+
+                            if (configuration.getAttributeAsBoolean("jacorb.security.support_ssl", false) &&
+                                ssl_address == null)
+                            {
+                                throw new org.omg.CORBA.BAD_PARAM
+                                    ("Error: an SSL port (ssl_port) is required when property jacorb.security.support_ssl is enabled");
                             }
 
                             ListenEndpoint listen_ep = new ListenEndpoint();

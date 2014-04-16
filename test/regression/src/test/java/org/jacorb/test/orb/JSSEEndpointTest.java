@@ -4,12 +4,14 @@ import static org.junit.Assert.assertTrue;
 import java.net.Inet6Address;
 import java.net.InetAddress;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.Properties;
 import org.jacorb.orb.ParsedIOR;
 import org.jacorb.orb.etf.ProfileBase;
 import org.jacorb.orb.iiop.IIOPAddress;
+import org.jacorb.orb.iiop.IIOPProfile;
 import org.jacorb.test.BasicServer;
 import org.jacorb.test.BasicServerHelper;
 import org.jacorb.test.common.ClientServerSetup;
@@ -31,6 +33,10 @@ import org.omg.ETF.Profile;
 import org.omg.IOP.TAG_ALTERNATE_IIOP_ADDRESS;
 import org.omg.IOP.TAG_CODE_SETS;
 import org.omg.IOP.TaggedComponent;
+import org.omg.CORBA.BAD_PARAM;
+import org.omg.CORBA.ORB;
+import org.omg.PortableServer.POA;
+import org.omg.PortableServer.POAHelper;
 
 /**
  * Verify startup using server props and endpoint.
@@ -39,7 +45,7 @@ import org.omg.IOP.TaggedComponent;
 public class JSSEEndpointTest extends ClientServerTestCase
 {
     @Rule
-    public Timeout testTimeout = new Timeout(30000);
+    public Timeout testTimeout = new Timeout(10000);
 
     @BeforeClass
     public static void beforeClassSetUp() throws Exception
@@ -60,7 +66,12 @@ public class JSSEEndpointTest extends ClientServerTestCase
     {
         return Arrays.asList(new Object [][] {
                 { "-ORBListenEndpoints", "'iiop://localhost:45678'" },
-                { "-ORBListenEndpoints", "'iiop://:45678'" }
+                { "-ORBListenEndpoints", "'iiop://:45678'" },
+                // Test that 0.0.0.0 does not cause a null pointer.
+                { "-ORBListenEndpoints", "'iiop://0.0.0.0:45678'" },
+                { "-ORBListenEndpoints", "'iiop://:45678/ssl_port=32999'" },
+                { "-ORBListenEndpoints", "'ssliiop://localhost:22222'" }
+
         } );
     }
 
@@ -72,11 +83,33 @@ public class JSSEEndpointTest extends ClientServerTestCase
 
         String [] orbargs = new String [] { key, value };
 
-        setup = new ClientServerSetup(null, "org.jacorb.test.orb.BasicServerImpl", orbargs, clientProps, serverProps);
+        setup = new ClientServerSetup("org.jacorb.test.orb.JSSEEndpointTest", "org.jacorb.test.orb.BasicServerImpl", orbargs, clientProps, serverProps);
 
         server = BasicServerHelper.narrow( setup.getServerObject() );
 
         server.ping ();
+
+        ParsedIOR p = new ParsedIOR (setup.getORB(), setup.getServerIOR());
+        List<Profile> profiles = p.getProfiles();
+        String host = ((IIOPAddress)((IIOPProfile)profiles.get(0)).getAddress()).getOriginalHost();
+        assertTrue ("Host must not be blank", host.length () > 0);
+    }
+
+    @Test
+    public void standardEndpoint() throws Exception
+    {
+        String [] orbargs = new String [] { key, value };
+
+        setup = new ClientServerSetup("org.jacorb.test.orb.JSSEEndpointTest", "org.jacorb.test.orb.BasicServerImpl", orbargs, null, null);
+
+        server = BasicServerHelper.narrow( setup.getServerObject() );
+
+        server.ping ();
+
+        ParsedIOR p = new ParsedIOR (setup.getORB(), setup.getServerIOR());
+        List<Profile> profiles = p.getProfiles();
+        String host = ((IIOPAddress)((IIOPProfile)profiles.get(0)).getAddress()).getOriginalHost();
+        assertTrue ("Host must not be blank", host.length () > 0);
     }
 
     @After
@@ -87,5 +120,38 @@ public class JSSEEndpointTest extends ClientServerTestCase
             setup.tearDown();
             server._release();
         }
+    }
+
+
+    public static void main(String[] args) throws Exception
+    {
+        ORB orb;
+        try
+        {
+            //init ORB
+            orb = ORB.init( args, null );
+        }
+        catch (BAD_PARAM e)
+        {
+            TestUtils.getLogger ().debug ("Successfully caught BAD_PARAM " , e);
+
+            // Just create it without any arguments to avoid the init issue.
+            orb = ORB.init (new String[]{}, null);
+        }
+
+        //init POA
+        POA rootPOA = POAHelper.narrow( orb.resolve_initial_references( "RootPOA" ));
+        rootPOA.the_POAManager().activate();
+
+        BasicServerImpl servant = new BasicServerImpl();
+
+        rootPOA.activate_object(servant);
+
+        BasicServer server = BasicServerHelper.narrow(rootPOA.servant_to_reference(servant));
+
+        System.out.println ("SERVER IOR: " + orb.object_to_string(server));
+        System.out.flush();
+
+        orb.run();
     }
 }
