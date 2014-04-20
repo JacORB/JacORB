@@ -6,69 +6,57 @@ import org.junit.Test;
 import org.omg.CORBA.Any;
 import org.omg.CORBA.INTERNAL;
 import org.omg.CORBA.ORB;
-import org.omg.PortableServer.POA;
-import org.omg.PortableServer.POAHelper;
 import org.slf4j.Logger;
 
 public class BugJac660Test extends ORBTestCase
 {
+    @Override
+    protected void patchORBProperties(Properties props) throws Exception
+    {
+        props.setProperty("org.omg.PortableInterceptor.ORBInitializerClass.a",
+                          "org.jacorb.test.bugs.bugjac660.Initializer" );
+    }
+
     @Test
     public void testSlotsAndCurrent() throws Exception
     {
-        ServerThread th = new ServerThread (orbProps);
+        ServerThread th = new ServerThread (orb);
         th.start();
 
-        try
-        {
-            Thread.sleep(1000);
+        Thread.sleep(1000);
 
-            // initialize the ORB.
-            ORB orb = ORB.init (new String [0], orbProps );
+        // create the object reference
+        org.omg.CORBA.Object obj =
+                rootPOA.servant_to_reference (new TestObjectImpl(orb));
 
-            //init POA
-            POA poa =
-            POAHelper.narrow( orb.resolve_initial_references ("RootPOA"));
+        TestObject to = TestObjectHelper.narrow (obj);
 
-            // create the object reference
-            org.omg.CORBA.Object obj =
-               rootPOA.servant_to_reference (new TestObjectImpl(th.orb));
-
-            TestObject to = TestObjectHelper.narrow (obj);
-
-            org.omg.PortableInterceptor.Current current =
+        org.omg.PortableInterceptor.Current current =
                 (org.omg.PortableInterceptor.Current)
-                   orb.resolve_initial_references ("PICurrent");
+                orb.resolve_initial_references ("PICurrent");
 
-            Logger logger = ((org.jacorb.orb.ORB)orb).getConfiguration ().getLogger("org.jacorb.test");
+        Logger logger = ((org.jacorb.orb.ORB)orb).getConfiguration ().getLogger("org.jacorb.test");
 
-            Any any = orb.create_any();
-            any.insert_string ("This is a test AAA" );
+        Any any = orb.create_any();
+        any.insert_string ("This is a test AAA" );
 
-            current.set_slot (Initializer.slot_id, any);
+        current.set_slot (Initializer.slot_id, any);
 
-            logger.debug ("[" + Thread.currentThread() + "] Client added any to PICurrent : " + any);
-            to.foo();
+        logger.debug ("[" + Thread.currentThread() + "] Client added any to PICurrent : " + any);
+        to.foo();
 
-            logger.debug ("[" + Thread.currentThread() + "] Client end");
-
-            orb.shutdown (false);
-        }
-        finally
-        {
-            th.orb.destroy();
-        }
+        logger.debug ("[" + Thread.currentThread() + "] Client end");
     }
 }
 
 
 class ServerThread extends Thread
 {
-    public ORB orb = null;
-    public Properties props;
+    private ORB orb = null;
 
-    public ServerThread(Properties orbProps)
+    public ServerThread(ORB orb)
     {
-        props = orbProps;
+        this.orb = orb;
     }
 
     @Override
@@ -76,20 +64,6 @@ class ServerThread extends Thread
     {
         try
         {
-            System.setProperty( "org.omg.PortableInterceptor.ORBInitializerClass.a",
-                                "org.jacorb.test.bugs.bugjac660.Initializer" );
-
-
-            //init ORB
-            String [] args = null;
-            orb = ORB.init( args, props );
-
-            //init POA
-            POA poa =
-            POAHelper.narrow( orb.resolve_initial_references( "RootPOA" ));
-
-            poa.the_POAManager().activate();
-
             // wait for requests
             orb.run();
         }

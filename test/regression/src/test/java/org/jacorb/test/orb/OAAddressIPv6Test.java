@@ -63,9 +63,5 @@ public class OAAddressIPv6Test
             // in this case the test can be ignored.
             assertTrue(e.getMessage(), e.getMessage().indexOf("Protocol family unavailable") >= 0);
         }
-        finally
-        {
-            myorb.destroy ();
-        }
     }
 }
