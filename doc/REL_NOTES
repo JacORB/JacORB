@@ -56,6 +56,7 @@
            standard interceptor; it is now implicitly defined by jacorb.codeset QoS.
          - Fix for 4 byte UTF-8 conversion (BZ969)
          - Codeset configuration : by default they are now enabled.
+         - Fix for port / endpoint initialisation.
     - Documentation
         - Minor fixes.
     - Misc
