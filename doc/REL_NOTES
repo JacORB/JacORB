@@ -57,6 +57,7 @@
          - Fix for 4 byte UTF-8 conversion (BZ969)
          - Codeset configuration : by default they are now enabled.
          - Fix for port / endpoint initialisation.
+         - Fix for ORB instances sharing Current information.
     - Documentation
         - Minor fixes.
     - Misc
