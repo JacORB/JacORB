@@ -809,6 +809,11 @@ public class JacORBConfiguration implements Configuration
 
           result = defaultValue;
        }
+       else if ( result != null )
+       {
+           result = result.trim();
+       }
+
        return result;
    }
 

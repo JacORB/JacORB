@@ -371,10 +371,9 @@ public class TransportManager
         String address_str = configuration.getAttribute("OAAddress",null);
         if (address_str != null)
         {
-            String address_trim = address_str.trim();
             // build an iiop/ssliop protocol address.
             // create_protocol_address will allow iiop and ssliop only
-            ProtocolAddressBase addr = createProtocolAddress(address_trim);
+            ProtocolAddressBase addr = createProtocolAddress(address_str);
             address = (IIOPAddress)addr;
             address.configure(configuration);
         }
@@ -389,11 +388,8 @@ public class TransportManager
         String ssl_address_str = configuration.getAttribute("OASSLAddress",null);
         if (ssl_address_str != null)
         {
-            // get rid of leading/trailing spaces
-            String ssl_address_trim = ssl_address_str.trim();
-
             // build a protocol address
-            ProtocolAddressBase ssl_addr = createProtocolAddress(ssl_address_trim);
+            ProtocolAddressBase ssl_addr = createProtocolAddress(ssl_address_str);
             ssl_address = (IIOPAddress)ssl_addr;
             ssl_address.configure(configuration);
 
