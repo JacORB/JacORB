@@ -58,6 +58,7 @@
          - Codeset configuration : by default they are now enabled.
          - Fix for port / endpoint initialisation.
          - Fix for ORB instances sharing Current information.
+         - Fixed SSL properties reading and processing (BZ#820).
     - Documentation
         - Minor fixes.
     - Misc

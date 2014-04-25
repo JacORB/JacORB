@@ -288,8 +288,9 @@ public class IIOPProfile
         //because we don't handle any of the other options anyway.
         // So this makes a reasonable default.
 
+        // 16 is the base as we take the string value as hex
         short value =
-            (short)configuration.getAttributeAsInteger(propname,EstablishTrustInTarget.value);
+            (short)configuration.getAttributeAsInteger(propname,EstablishTrustInTarget.value, 16);
         return value;
     }
 
