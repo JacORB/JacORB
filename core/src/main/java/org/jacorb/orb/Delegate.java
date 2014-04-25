@@ -1060,16 +1060,13 @@ public final class Delegate
         if (is_really_local (self))
         {
             org.omg.PortableServer.Servant servant;
-            org.omg.CORBA.portable.ServantObject so;
+            org.omg.CORBA.portable.ServantObject so = null;
 
-            so = servant_preinvoke (self, "_interface", java.lang.Object.class);
-
-            // If preinvoke returns null POA spec, 11.3.4 states OBJ_ADAPTER
-            // should be thrown.
-            if (so == null )
+            while (so == null)
             {
-                throw new OBJ_ADAPTER ( "Servant from pre_invoke was null" );
+                so = servant_preinvoke (self, "_interface", java.lang.Object.class);
             }
+
             try
             {
                 servant = (org.omg.PortableServer.Servant) so.servant;
@@ -1999,15 +1996,11 @@ public final class Delegate
             }
 
             org.omg.PortableServer.Servant servant;
-            org.omg.CORBA.portable.ServantObject so;
+            org.omg.CORBA.portable.ServantObject so = null;
 
-            so = servant_preinvoke (self, "_is_a", java.lang.Object.class);
-
-            // If preinvoke returns null POA spec, 11.3.4 states OBJ_ADAPTER
-            // should be thrown.
-            if (so == null )
+            while (so == null)
             {
-                throw new OBJ_ADAPTER( "Servant from pre_invoke was null" );
+                so = servant_preinvoke (self, "_is_a", java.lang.Object.class);
             }
 
             try
@@ -2183,17 +2176,19 @@ public final class Delegate
         if (is_really_local(self))
         {
             org.omg.PortableServer.Servant servant;
-            org.omg.CORBA.portable.ServantObject so;
+            org.omg.CORBA.portable.ServantObject so = null;
 
             try
             {
-                so = servant_preinvoke(self, "_non_existent", java.lang.Object.class);
+                while (so == null)
+                {
+                    so = servant_preinvoke(self, "_non_existent", java.lang.Object.class);
+                }
             }
             catch (OBJECT_NOT_EXIST e)
             {
                 return true;
             }
-
             try
             {
                 servant = (org.omg.PortableServer.Servant)so.servant;
@@ -2226,9 +2221,12 @@ public final class Delegate
         if (is_really_local(self))
         {
             org.omg.PortableServer.Servant servant;
-            org.omg.CORBA.portable.ServantObject so;
+            org.omg.CORBA.portable.ServantObject so = null;
 
-            so = servant_preinvoke(self, "_get_component", java.lang.Object.class);
+            while (so == null)
+            {
+                so = servant_preinvoke(self, "_get_component", java.lang.Object.class);
+            }
 
             try
             {
@@ -2992,7 +2990,6 @@ public final class Delegate
                     );
                 }
             }
-
             return servantObject;
         }
         catch (Exception e)

@@ -1,5 +1,6 @@
 package org.jacorb.test.bugs.bug976;
 
+import org.jacorb.test.common.TestUtils;
 import org.omg.CORBA.Any;
 import org.omg.CORBA.INTERNAL;
 import org.omg.CORBA.LocalObject;
@@ -12,8 +13,6 @@ import org.omg.PortableInterceptor.Current;
 import org.omg.PortableInterceptor.CurrentHelper;
 import org.omg.PortableInterceptor.ForwardRequest;
 import org.omg.PortableInterceptor.InvalidSlot;
-import org.omg.CORBA.INTERNAL;
-import org.jacorb.test.common.TestUtils;
 
 final public class ClientRequestInterceptorImpl extends LocalObject implements
         ClientRequestInterceptor
@@ -30,6 +29,7 @@ final public class ClientRequestInterceptorImpl extends LocalObject implements
         this.slot = slot;
     }
 
+    @Override
     public void send_request(ClientRequestInfo ri) throws ForwardRequest
     {
         Current current = getPICurrent(orb);
@@ -46,6 +46,7 @@ final public class ClientRequestInterceptorImpl extends LocalObject implements
         }
     }
 
+    @Override
     public void receive_exception(ClientRequestInfo ri) throws ForwardRequest
     {
         Current current = getPICurrent(orb);
@@ -69,11 +70,13 @@ final public class ClientRequestInterceptorImpl extends LocalObject implements
         }
     }
 
+    @Override
     public void receive_other(ClientRequestInfo ri) throws ForwardRequest
     {
 
     }
 
+    @Override
     public void receive_reply(ClientRequestInfo ri)
     {
         Current current = getPICurrent(orb);
@@ -97,16 +100,19 @@ final public class ClientRequestInterceptorImpl extends LocalObject implements
         }
     }
 
+    @Override
     public void send_poll(ClientRequestInfo ri)
     {
 
     }
 
+    @Override
     public void destroy()
     {
 
     }
 
+    @Override
     public String name()
     {
         return this.name;
