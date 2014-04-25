@@ -712,6 +712,7 @@ jacorb.security.ssl.server.required_options=0
 # If not set, only EstablishTrustInTarget is used for both supported
 # and required options. EstablishTrustInClient is not set, and the
 # rest of the Association Options aren't currently used anyway.
+# (numbers are hex values, without the leading "0x"):
 #jacorb.security.ssl.corbaloc_ssliop.supported_options=0
 #jacorb.security.ssl.corbaloc_ssliop.required_options=0
 
