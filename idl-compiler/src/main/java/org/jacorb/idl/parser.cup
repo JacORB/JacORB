@@ -32,6 +32,7 @@ import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Stack;
 import java.util.Vector;
+import java.util.jar.Manifest;
 import java.util.logging.ConsoleHandler;
 import java.util.logging.Level;
 import java.util.logging.Formatter;
@@ -63,10 +64,7 @@ parser code
 
     public final static String currentVersion = "";
 
-    // Compiles out leaving no runtime dependency on Version
-    static final String compiler_version = org.jacorb.util.Version.version;
-    static final String compiler_date = org.jacorb.util.Version.date;
-    static final String compiler_year = org.jacorb.util.Version.yearString;
+    static final String compiler_version = parser.class.getPackage ().getImplementationVersion ();
 
     private static org.jacorb.idl.IDLTreeVisitor generator = null;
 
@@ -691,11 +689,23 @@ parser code
 
     private static void version()
     {
+        String compiler_date = "";
+        try
+        {
+            Manifest manifest = new Manifest(parser.class.getClassLoader().getResources("META-INF/MANIFEST.MF").nextElement ().openStream());
+            compiler_date = manifest.getMainAttributes ().getValue ("Build-Timestamp");
+        }
+        catch (java.io.IOException e)
+        {
+            System.err.println ("Error retrieving Build-Timestamp from manifest");
+            e.printStackTrace ();
+        }
+
         System.out.println
         (
             "JacORB IDL compiler V" + compiler_version + " (" +
             compiler_date + ')' + System.getProperty("line.separator") +
-            "\t(C) The JacORB Project " + compiler_year
+            "\t(C) The JacORB Project " + releaseYear
         );
     }
 

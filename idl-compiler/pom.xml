@@ -8,7 +8,7 @@
         <groupId>org.jacorb</groupId>
         <artifactId>jacorb-parent</artifactId>
         <version>3.5-SNAPSHOT</version>
-        <relativePath>../..</relativePath>
+        <relativePath>..</relativePath>
     </parent>
 
     <artifactId>jacorb-idl-compiler</artifactId>
@@ -18,96 +18,93 @@
     <description>JacORB IDL Compiler</description>
     <url>http://www.jacorb.org</url>
 
-    <properties>
-        <mainArtifact>${env.JACORB_HOME}/lib/idl.jar</mainArtifact>
-    </properties>
-
     <dependencies>
         <dependency>
             <groupId>org.apache.ant</groupId>
             <artifactId>ant</artifactId>
             <scope>provided</scope>
         </dependency>
+        <dependency>
+            <groupId>java_cup</groupId>
+            <artifactId>java_cup</artifactId>
+        </dependency>
     </dependencies>
 
     <build>
         <plugins>
+
             <plugin>
                 <artifactId>maven-antrun-plugin</artifactId>
                 <executions>
-                    <!-- Normally we would just unzip the idl jar for the jar-plugin to repack. However, -->
-                    <!-- as the IDL compilation is quick we'll ensure we can rebuild it here -->
                     <execution>
-                        <id>compile</id>
-                        <phase>compile</phase>
+                        <id>generate-compiler-sources</id>
+                        <phase>generate-sources</phase>
                         <goals>
                             <goal>run</goal>
                         </goals>
                         <configuration>
-                            <target unless="skipCompile">
-                                <property name="plugin_classpath" refid="maven.plugin.classpath"/>
-                                <ant antfile="${env.JACORB_HOME}/build.xml" inheritAll="true" inheritRefs="true" target="compiler">
-                                    <property name="sun.boot.class.path" value="${sun.boot.class.path}:${plugin_classpath}"/>
-                                    <property name="basedir" value="${env.JACORB_HOME}"/>
-                                </ant>
+                            <target>
+                                <mkdir dir="${project.build.directory}/generated-sources/org/jacorb/idl"/>
+                                <java classname="java_cup.Main" fork="true"
+                                      dir="${project.build.directory}/generated-sources/org/jacorb/idl"
+                                      input="${basedir}/src/main/java/org/jacorb/idl/parser.cup" >
+                                    <arg value="-progress"/>
+                                    <arg value="-nosummary"/>
+                                    <classpath refid="maven.compile.classpath"/>
+                                </java>
+                                <replace
+                                    file="${project.build.directory}/generated-sources/org/jacorb/idl/parser.java"
+                                    token="java_cup.runtime"
+                                    value="org.jacorb.idl.runtime"/>
+                                <replace
+                                    file="${project.build.directory}/generated-sources/org/jacorb/idl/parser.java"
+                                    token="releaseYear"
+                                    value="${releaseYear}"/>
                             </target>
                         </configuration>
                     </execution>
-               </executions>
+                    <execution>
+                        <id>copy-jar</id>
+                        <phase>install</phase>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                        <configuration>
+                            <target>
+                                <copy file="${project.build.directory}/jacorb-idl-compiler-${project.version}.jar"
+                                      tofile="${basedir}/../lib/idl.jar" overwrite="true"/>
+                            </target>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
 
-            <plugin>
-                <groupId>org.commonjava.maven.plugins</groupId>
-                <artifactId>build-migration-maven-plugin</artifactId>
-            </plugin>
 
             <!-- Generate javadoc. Bound into the package phase for deployment purposes -->
             <plugin>
                 <artifactId>maven-javadoc-plugin</artifactId>
                 <configuration>
-                    <skip>${skipJavadoc}</skip>
-                    <verbose>true</verbose>
-                    <sourcepath>${env.JACORB_HOME}/src</sourcepath>
                     <subpackages>org.jacorb.idl</subpackages>
                 </configuration>
             </plugin>
 
-
-            <!-- Package up the sources as well -->
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>build-helper-maven-plugin</artifactId>
                 <executions>
                     <execution>
                         <id>attach-sources</id>
-                        <phase>prepare-package</phase>
+                        <phase>generate-sources</phase>
                         <goals>
                             <goal>add-source</goal>
                         </goals>
                         <configuration>
                             <sources>
-                                <source>${env.JACORB_HOME}/src</source>
+                                <source>${project.build.directory}/generated-sources</source>
                             </sources>
                         </configuration>
                     </execution>
                 </executions>
-            </plugin>
-
-            <plugin>
-                <artifactId>maven-source-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>attach-sources</id>
-                        <goals>
-                            <goal>jar</goal>
-                        </goals>
-                    </execution>
-                </executions>
-                <configuration>
-                    <includes>
-                        <include>org/jacorb/idl/*</include>
-                    </includes>
-                </configuration>
             </plugin>
 
             <plugin>
@@ -146,10 +143,10 @@
 
         <resources>
             <resource>
-                <directory>${basedir}/../../idl/jacorb</directory>
+                <directory>${basedir}/../idl/jacorb</directory>
             </resource>
             <resource>
-                <directory>${basedir}/../../idl/omg</directory>
+                <directory>${basedir}/../idl/omg</directory>
             </resource>
         </resources>
 
