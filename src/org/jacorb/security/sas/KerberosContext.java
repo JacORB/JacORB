@@ -49,12 +49,11 @@ public class KerberosContext
         throws ConfigurationException
     {
         logger =
-            ((org.jacorb.config.Configuration)configuration).getLogger("org.jacorb.security.sas.Kerberos.log.verbosity");
+            configuration.getLogger("org.jacorb.security.sas.Kerberos.log.verbosity");
     }
 
     public void initClient()
     {
-        String principal = "";
         try
         {
             Oid krb5Oid = new Oid(KRB5MechOID.value.substring(4));

@@ -1,15 +1,11 @@
 package org.jacorb.test.orb;
 
 import static org.junit.Assert.assertTrue;
-import java.net.Inet6Address;
-import java.net.InetAddress;
 import java.util.Arrays;
-import java.util.List;
 import java.util.Collection;
-import java.util.LinkedList;
+import java.util.List;
 import java.util.Properties;
 import org.jacorb.orb.ParsedIOR;
-import org.jacorb.orb.etf.ProfileBase;
 import org.jacorb.orb.iiop.IIOPAddress;
 import org.jacorb.orb.iiop.IIOPProfile;
 import org.jacorb.test.BasicServer;
@@ -20,7 +16,6 @@ import org.jacorb.test.common.CommonSetup;
 import org.jacorb.test.common.TestUtils;
 import org.junit.After;
 import org.junit.Assume;
-import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
@@ -29,12 +24,9 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameter;
 import org.junit.runners.Parameterized.Parameters;
-import org.omg.ETF.Profile;
-import org.omg.IOP.TAG_ALTERNATE_IIOP_ADDRESS;
-import org.omg.IOP.TAG_CODE_SETS;
-import org.omg.IOP.TaggedComponent;
 import org.omg.CORBA.BAD_PARAM;
 import org.omg.CORBA.ORB;
+import org.omg.ETF.Profile;
 import org.omg.PortableServer.POA;
 import org.omg.PortableServer.POAHelper;
 

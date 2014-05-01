@@ -83,18 +83,18 @@ public class SASInitializer
         }
         catch (ConfigurationException ce)
         {
-            if (logger.isErrorEnabled())
-                logger.error("ConfigurationException", ce);
+            logger.error("ConfigurationException", ce);
+            throw new org.omg.CORBA.INITIALIZE(ce.getMessage());
         }
         catch (DuplicateName duplicateName)
         {
-            if (logger.isErrorEnabled())
-                logger.error("CSS DuplicateName", duplicateName);
+            logger.error("CSS DuplicateName", duplicateName);
+            throw new org.omg.CORBA.INITIALIZE(duplicateName.getMessage());
         }
         catch (UnknownEncoding unknownEncoding)
         {
-            if (logger.isErrorEnabled())
-                logger.error("CSS UnknownEncoding", unknownEncoding);
+            logger.error("CSS UnknownEncoding", unknownEncoding);
+            throw new org.omg.CORBA.INITIALIZE(unknownEncoding.getMessage());
         }
 
         // install IOR interceptor
@@ -104,8 +104,8 @@ public class SASInitializer
         }
         catch (DuplicateName duplicateName)
         {
-            if (logger.isErrorEnabled())
-                logger.error("IOR DuplicateName", duplicateName);
+            logger.error("IOR DuplicateName", duplicateName);
+            throw new org.omg.CORBA.INITIALIZE(duplicateName.getMessage());
         }
 
         // create policy factory

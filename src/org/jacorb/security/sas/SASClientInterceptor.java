@@ -110,31 +110,33 @@ public class SASClientInterceptor
         try
         {
             contextClass = configuration.getAttribute("jacorb.security.sas.contextClass");
-            Class c =
+            Class<?> c =
                 org.jacorb.util.ObjectUtil.classForName(contextClass);
             sasContext = (ISASContext)c.newInstance();
         }
-        catch(ConfigurationException ce)
+        catch (IllegalArgumentException e)
         {
-            if (logger.isDebugEnabled())
-                logger.debug("ConfigurationException", ce);
+            logger.error ("Caught ", e);
+            throw new ConfigurationException ("Could not load SAS context class " + contextClass);
         }
-        catch (Exception e)
+        catch (ClassNotFoundException e)
         {
-            if (logger.isErrorEnabled())
-                logger.error("Could not instantiate class " + contextClass + ": " + e);
+            logger.error ("Caught ", e);
+            throw new ConfigurationException ("Could not load SAS context class " + contextClass);
+        }
+        catch (InstantiationException e)
+        {
+            logger.error ("Caught ", e);
+            throw new ConfigurationException ("Could not load SAS context class " + contextClass);
+        }
+        catch (IllegalAccessException e)
+        {
+            logger.error ("Caught ", e);
+            throw new ConfigurationException ("Could not load SAS context class " + contextClass);
         }
 
-        if (sasContext == null)
-        {
-            if (logger.isErrorEnabled())
-                logger.error("Could not load SAS context class: "+contextClass);
-        }
-        else
-        {
-            sasContext.configure(configuration);
-            sasContext.initClient();
-        }
+        sasContext.configure(configuration);
+        sasContext.initClient();
     }
 
     public void setContextToken(byte[] contextToken) {
@@ -234,8 +236,8 @@ public class SASClientInterceptor
         }
         catch (Exception e)
         {
-            if (logger.isWarnEnabled())
-                logger.warn("Could not set security service context: " + e);
+            logger.error ("Could not set security service context", e);
+
             throw new org.omg.CORBA.NO_PERMISSION("SAS Could not set security service context: " + e,
                                                   MinorCodes.SAS_CSS_FAILURE,
                                                   CompletionStatus.COMPLETED_NO);
@@ -281,8 +283,8 @@ public class SASClientInterceptor
         }
         catch (Exception e)
         {
-            if (logger.isWarnEnabled())
-                logger.warn("Could not parse SAS reply: " + e);e.printStackTrace();
+            logger.error("Could not parse SAS reply", e);
+
             throw new org.omg.CORBA.NO_PERMISSION("SAS Could not parse SAS reply: " + e,
                                                   MinorCodes.SAS_CSS_FAILURE,
                                                   CompletionStatus.COMPLETED_MAYBE);
@@ -345,8 +347,8 @@ public class SASClientInterceptor
         }
         catch (Exception e)
         {
-            if (logger.isWarnEnabled())
-                logger.warn("Could not parse SAS reply: " + e);
+            logger.error ("Could not parse SAS reply", e);
+
             throw new org.omg.CORBA.NO_PERMISSION("SAS Could not parse SAS reply: " + e,
                                                   MinorCodes.SAS_CSS_FAILURE,
                                                   CompletionStatus.COMPLETED_MAYBE);
@@ -436,8 +438,8 @@ public class SASClientInterceptor
         }
         catch (Exception e)
         {
-            if (logger.isWarnEnabled())
-                logger.warn("Error parsing ATLAS from IOR: " + e);
+            logger.error ("Error parsing ATLAS from IOR", e);
+
             throw new org.omg.CORBA.NO_PERMISSION("SAS Error parsing ATLAS from IOR: " + e,
                                                   MinorCodes.SAS_ATLAS_FAILURE,
                                                   CompletionStatus.COMPLETED_NO);
@@ -455,7 +457,7 @@ public class SASClientInterceptor
         {
             if (atlasCache.containsKey(cacheID))
             {
-                return ((AuthTokenData)atlasCache.get(cacheID)).auth_token;
+                return atlasCache.get(cacheID).auth_token;
             }
         }
 
@@ -468,13 +470,14 @@ public class SASClientInterceptor
         }
         catch (Exception e)
         {
-            logger.warn("Could not find ATLAS server " + locator + ": " + e);
+            logger.error("Could not find ATLAS server {}", locator, e);
+
             throw new org.omg.CORBA.NO_PERMISSION("SAS Could not find ATLAS server " + locator + ": " + e, MinorCodes.SAS_ATLAS_FAILURE, CompletionStatus.COMPLETED_NO);
         }
         if (dispenser == null)
         {
-            if (logger.isWarnEnabled())
-                logger.warn("SAS found null ATLAS server " + locator);
+            logger.error ("SAS found null ATLAS server {}",  locator);
+
             throw new org.omg.CORBA.NO_PERMISSION("SAS found null ATLAS server "+locator,
                                                   MinorCodes.SAS_ATLAS_FAILURE,
                                                   CompletionStatus.COMPLETED_NO);
@@ -487,9 +490,8 @@ public class SASClientInterceptor
         }
         catch (Exception e)
         {
-            if (logger.isWarnEnabled())
-                logger.warn("Error getting ATLAS tokens from server " +
-                            locator + ": " + e);
+            logger.warn("Error getting ATLAS tokens from server {}", locator, e);
+
             throw new org.omg.CORBA.NO_PERMISSION("SAS Error getting ATLAS tokens from server: " + e,
                                                   MinorCodes.SAS_ATLAS_FAILURE,
                                                   CompletionStatus.COMPLETED_NO);
