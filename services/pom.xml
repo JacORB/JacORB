@@ -1,0 +1,279 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
+                             http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>org.jacorb</groupId>
+        <artifactId>jacorb-parent</artifactId>
+        <version>3.5-SNAPSHOT</version>
+        <relativePath>..</relativePath>
+    </parent>
+
+    <artifactId>jacorb-services</artifactId>
+    <packaging>jar</packaging>
+
+    <name>JacORB Services</name>
+    <description>JacORB ORB Services</description>
+    <url>http://www.jacorb.org</url>
+
+    <dependencies>
+        <dependency>
+            <groupId>antlr</groupId>
+            <artifactId>antlr</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>mx4j</groupId>
+            <artifactId>mx4j</artifactId>
+        </dependency>
+        <dependency>
+	    <groupId>nanocontainer</groupId>
+	    <artifactId>nanocontainer-remoting</artifactId>
+        </dependency>
+        <dependency>
+	    <groupId>org.beanshell</groupId>
+	    <artifactId>bsh</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-jdk14</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.jacorb</groupId>
+            <artifactId>jacorb</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.jacorb</groupId>
+            <artifactId>jacorb-omgapi</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>picocontainer</groupId>
+            <artifactId>picocontainer</artifactId>
+        </dependency>
+        <dependency>
+	    <groupId>tanukisoft</groupId>
+	    <artifactId>wrapper</artifactId>
+	</dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>copy-jar</id>
+                        <phase>install</phase>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                        <configuration>
+                            <target>
+                                <copy file="${project.build.directory}/jacorb-services-${project.version}.jar"
+                                      tofile="${basedir}/../lib/jacorb-services.jar" overwrite="true"/>
+                            </target>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <!-- Ideally we wanted to use antlr-maven-plugin but it seems buggy. Can't use -->
+                <!-- exec-plugin as Antlr main does a System.exit -->
+                <groupId>org.codehaus.gmaven</groupId>
+                <artifactId>gmaven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <phase>generate-sources</phase>
+                        <goals>
+                            <goal>execute</goal>
+                        </goals>
+                        <configuration>
+                            <source>
+                               import java.io.File;
+
+                               File tokens = new File ("${basedir}/src/main/antlr/CommonTokenTypes.txt")
+                               File target = new File ("${project.build.directory}/generated-sources/antlr/org/jacorb/notification/filter/etcl")
+
+                               log.info ("Generating ANTLR files...")
+                               target.mkdirs()
+
+                               // Copy the token file so it can be found during generation.
+                               new File (target, "CommonTokenTypes.txt").withWriter { file ->
+                                  tokens.eachLine { line ->
+                                      file.writeLine(line)
+                                      }
+                               }
+
+                               for (String grammar in [ "${basedir}/src/main/antlr/tcl-lexer.g" , "${basedir}/src/main/antlr/comp-lexer.g", "${basedir}/src/main/antlr/tcl.g" ] )
+                               {
+                                  antlr.Tool notifAntlr = new antlr.Tool()
+                                  notifAntlr.doEverything ( [ "-o", "${project.build.directory}/generated-sources/antlr/org/jacorb/notification/filter/etcl", grammar ] as String[] )
+                               }
+                            </source>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>xdoclet-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <phase>generate-sources</phase>
+                        <goals>
+                            <goal>xdoclet</goal>
+                        </goals>
+                        <configuration>
+                            <tasks>
+                                <jmxdoclet destdir="${project.build.directory}/generated-sources/xdoclet" force="false" verbose="false" excludedtags="author, version">
+                                    <fileset dir="${project.build.sourceDirectory}">
+				        <exclude name="org/jacorb/notification/jmx/jboss/**" />
+				        <exclude name="org/jacorb/notification/jmx/mx4j/**" />
+				        <include name="org/jacorb/notification/**/*.java" />
+                                    </fileset>
+
+                                    <mbeaninterface/>
+                                </jmxdoclet>
+
+                                <jmxdoclet destdir="${project.build.directory}/generated-sources/xdoclet" force="false" verbose="false" excludedtags="author, version">
+                                    <fileset dir="${project.build.sourceDirectory}">
+	                                <include name="org/jacorb/notification/**/*.java" />
+				        <exclude name="org/jacorb/notification/jmx/jboss/**" />
+                                    </fileset>
+
+                                    <mx4jdescription/>
+                                </jmxdoclet>
+
+                                <jmxdoclet destdir="${project.build.directory}/generated-sources/xdoclet" force="false" verbose="false" excludedtags="author, version">
+                                    <fileset dir="${project.build.sourceDirectory}">
+	                         	<include name="org/jacorb/notification/jmx/mx4j/**" />
+                                    </fileset>
+
+                                    <mbeaninterface/>
+                                </jmxdoclet>
+
+                            </tasks>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>build-helper-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>add-antlr-source</id>
+                        <phase>generate-sources</phase>
+                        <goals>
+                            <goal>add-source</goal>
+                        </goals>
+                        <configuration>
+                            <sources>
+                                <source>${project.build.directory}/generated-sources/antlr</source>
+                                <source>${project.build.directory}/generated-sources/xdoclet</source>
+                            </sources>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>idlj-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>generate-idl-1</id>
+                        <goals>
+                            <goal>generate</goal>
+                        </goals>
+                        <configuration>
+                            <sourceDirectory>${basedir}/../idl/omg</sourceDirectory>
+                            <sources>
+                                <source>
+                                    <includes>
+                                        <include>CosTrading.idl</include>
+                                        <include>CosEventChannelAdmin.idl</include>
+                                        <include>CosEventComm.idl</include>
+                                        <include>CosTransactions.idl</include>
+                                        <include>CosCollection.idl</include>
+                                        <include>CosConcurrencyControl.idl</include>
+                                        <include>TimeBase.idl</include>
+                                        <include>CosTime.idl</include>
+                                        <include>dds_dcps.idl</include>
+                                        <include>CosNotification.idl</include>
+                                        <include>CosNotifyChannelAdmin.idl</include>
+                                        <include>CosNotifyComm.idl</include>
+                                        <include>CosNotifyFilter.idl</include>
+                                        <include>CosTypedNotifyChannelAdmin.idl</include>
+                                        <include>CosTypedNotifyComm.idl</include>
+                                        <include>CosTypedEventChannelAdmin.idl</include>
+                                        <include>CosTypedEventComm.idl</include>
+                                        <include>CosBridgeAdmin.idl</include>
+                                    </includes>
+                                    <additionalArguments>
+                                        <additionalArgument>-ir</additionalArgument>
+                                        <additionalArgument>-sloppy_forward</additionalArgument>
+                                        <additionalArgument>-i2jpackage</additionalArgument>
+                                        <additionalArgument>:org.omg</additionalArgument>
+                                    </additionalArguments>
+                                </source>
+                            </sources>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>generate-idl-2</id>
+                        <goals>
+                            <goal>generate</goal>
+                        </goals>
+                        <configuration>
+                            <sourceDirectory>${basedir}/../idl/jacorb</sourceDirectory>
+                            <sources>
+                                <source>
+                                    <includes>
+                                        <include>notification.idl</include>
+                                        <include>channel.idl</include>
+                                    </includes>
+                                </source>
+                            </sources>
+                        </configuration>
+                    </execution>
+                </executions>
+
+                <configuration>
+                    <includeDirs>
+                        <includeDir>${basedir}/../idl/omg</includeDir>
+                    </includeDirs>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <excludes>
+                        <exclude>**/jboss/*.java</exclude>
+                    </excludes>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-source-plugin</artifactId>
+            </plugin>
+        </plugins>
+    </build>
+</project>
