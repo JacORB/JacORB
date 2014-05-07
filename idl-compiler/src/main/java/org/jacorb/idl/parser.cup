@@ -28,6 +28,7 @@ import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.Writer;
+import java.net.URL;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Stack;
@@ -690,21 +691,33 @@ parser code
     private static void version()
     {
         String compiler_date = "";
+        String sha = "";
         try
         {
-            Manifest manifest = new Manifest(parser.class.getClassLoader().getResources("META-INF/MANIFEST.MF").nextElement ().openStream());
-            compiler_date = manifest.getMainAttributes ().getValue ("Build-Timestamp");
+            Enumeration<URL> resources = parser.class.getClassLoader().getResources("META-INF/MANIFEST.MF");
+
+            while (resources.hasMoreElements())
+            {
+                URL idl = resources.nextElement ();
+                if (idl.getFile ().contains ("idl.jar"))
+                {
+                    Manifest manifest = new Manifest (idl.openStream());
+                    compiler_date = manifest.getMainAttributes ().getValue ("Build-Timestamp");
+                    sha = manifest.getMainAttributes ().getValue ("Scm-Revision");
+                    break;
+                }
+            }
         }
         catch (java.io.IOException e)
         {
-            System.err.println ("Error retrieving Build-Timestamp from manifest");
+            System.err.println ("Error retrieving information from manifest");
             e.printStackTrace ();
         }
 
         System.out.println
         (
             "JacORB IDL compiler V" + compiler_version + " (" +
-            compiler_date + ')' + System.getProperty("line.separator") +
+            compiler_date + ") (SHA: " + sha + ')' + System.getProperty("line.separator") +
             "\t(C) The JacORB Project " + releaseYear
         );
     }

@@ -49,7 +49,7 @@ and services (See below). JacORB libraries have been split as follows:
 
 JacORB depends upon the following third party software
 \begin{itemize}
-\item Simple Logging Facade For Java (SLF4J Version 1.6.4)
+\item Simple Logging Facade For Java (SLF4J Version 1.7.6)
 \end{itemize}
 
 Note that the services may depend upon further third party libraries.
@@ -57,33 +57,19 @@ Note that the services may depend upon further third party libraries.
 \subsection{Building JacORB}
 \label{sec:building}
 
-Ensure that Ant is installed on your system and that you are starting with a
-clean environment. The easiest way to start is with your CLASSPATH
-unset. Windows users should ensure that JacORB is installed in a path that does
-not contain spaces. Errors will be encountered building the Notification Service
-otherwise.
+JacORB may be built via Maven using standard commands (i.e. {\tt mvn clean install}). The
+project may be imported into Eclipse or IntelliJ using standard import commands.
 
-To build JacORB type
-
-\cmdline{ant all}
-
-in the installation directory. Optionally, you might want to first run
-
-\cmdline {ant realclean}.
-
-By default debugging is turned on when building JacORB and set to {\tt lines,source,vars}
-\paragraph{Notes:}
-The build process may abort, claiming that javac does not have enough
-memory. This can happen when trying to compile a large number of files at one
-time. Try setting the variable
-
-\cmdline{ANT\_OPTS=-Xmx500M}
+\textbf{Note:} The JacORB Core module utilises Endorsed Directories to build in the maven-compiler-plugin. In Eclipse, the JBoss Tools Endorsed Libraries support is required for this to work.
 
 \subsubsection{Building JacORB Demos (Optional)}
-To build the JacORB demos within the demo directory a build.xml file
-has been supplied. Similar to above, simply call "ant" in the demo directory.
+Note that the JacORB demos still use Ant. To build the JacORB demos within the
+demo directory a build.xml file has been supplied. Call "ant" in the demo directory.
 The default Ant target will build all the demos. The classes will be placed
 in {\tt <installdir>/classes}
+
+It is recommended that your CLASSPATH is unset and JacORB is installed in a path that does
+not contain spaces.
 
 \subsubsection{Building JBoss Service for the Notification Service (Optional)}
 In order to build the JBoss service (jboss-cosnotification.sar in the lib

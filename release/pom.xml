@@ -7,7 +7,7 @@
         <groupId>org.jacorb</groupId>
         <artifactId>jacorb-parent</artifactId>
         <version>3.5-SNAPSHOT</version>
-        <relativePath>../..</relativePath>
+        <relativePath>..</relativePath>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
@@ -25,6 +25,16 @@
         <skipTests>true</skipTests>
     </properties>
 
+    <dependencies>
+        <dependency>
+            <groupId>org.jacorb</groupId>
+            <artifactId>jacorb</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.jacorb</groupId>
+            <artifactId>jacorb-services</artifactId>
+        </dependency>
+    </dependencies>
 
     <build>
         <plugins>
@@ -135,35 +145,17 @@
                 <artifactId>maven-dependency-plugin</artifactId>
                 <executions>
                     <execution>
-                        <id>copy</id>
-                        <phase>prepare-package</phase>
+                        <id>copy-dependencies</id>
+                        <phase>generate-resources</phase>
                         <goals>
-                            <goal>copy</goal>
+                            <goal>copy-dependencies</goal>
                         </goals>
                         <configuration>
-                            <artifactItems>
-                                <artifactItem>
-                                    <groupId>org.jacorb</groupId>
-                                    <artifactId>jacorb</artifactId>
-                                    <version>${project.version}</version>
-                                    <outputDirectory>${project.build.directory}/work/common/lib</outputDirectory>
-                                    <destFileName>jacorb.jar</destFileName>
-                                </artifactItem>
-                                <artifactItem>
-                                    <groupId>org.jacorb</groupId>
-                                    <artifactId>jacorb-services</artifactId>
-                                    <version>${project.version}</version>
-                                    <outputDirectory>${project.build.directory}/work/common/lib</outputDirectory>
-                                    <destFileName>jacorb-services.jar</destFileName>
-                                </artifactItem>
-                                <artifactItem>
-                                    <groupId>org.jacorb</groupId>
-                                    <artifactId>jacorb-idl-compiler</artifactId>
-                                    <version>${project.version}</version>
-                                    <outputDirectory>${project.build.directory}/work/common/lib</outputDirectory>
-                                    <destFileName>idl.jar</destFileName>
-                                </artifactItem>
-                            </artifactItems>
+                            <outputDirectory>${env.JACORB_HOME}/lib</outputDirectory>
+                            <overWriteReleases>true</overWriteReleases>
+                            <overWriteSnapshots>true</overWriteSnapshots>
+                            <overWriteIfNewer>true</overWriteIfNewer>
+                            <includeGroupIds>org.slf4j,antlr,picocontainer,tanukisoft</includeGroupIds>
                         </configuration>
                     </execution>
                 </executions>
@@ -205,7 +197,7 @@
                         <configuration>
                             <settings>
                                 <!-- all tex main documents in this folder (including subfolders) will be processed -->
-                                <texDirectory>${basedir}/../../doc/ProgrammingGuide</texDirectory>
+                                <texDirectory>${basedir}/../doc/ProgrammingGuide</texDirectory>
                                 <texCommandArgs>
                                     <texCommandArg>"\newcommand{\JacORBVersion}{${project.version}}\newcommand{\JacORBDir}{jacorb-${parsedVersion.majorVersion}\_${parsedVersion.minorVersion}}\input{ProgrammingGuide}"</texCommandArg>
                                     <texCommandArg>-interaction=nonstopmode</texCommandArg>

@@ -20,6 +20,17 @@
 
     <dependencies>
         <dependency>
+            <groupId>org.jacorb</groupId>
+            <artifactId>jacorb</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.jacorb</groupId>
+            <artifactId>jacorb-omgapi</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
             <groupId>antlr</groupId>
             <artifactId>antlr</artifactId>
         </dependency>
@@ -42,14 +53,6 @@
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-jdk14</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.jacorb</groupId>
-            <artifactId>jacorb</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.jacorb</groupId>
-            <artifactId>jacorb-omgapi</artifactId>
         </dependency>
         <dependency>
             <groupId>picocontainer</groupId>
@@ -76,7 +79,7 @@
                         <configuration>
                             <target>
                                 <copy file="${project.build.directory}/jacorb-services-${project.version}.jar"
-                                      tofile="${basedir}/../lib/jacorb-services.jar" overwrite="true"/>
+                                      todir="${basedir}/../lib" overwrite="true"/>
                             </target>
                         </configuration>
                     </execution>
@@ -180,6 +183,7 @@
                             <sources>
                                 <source>${project.build.directory}/generated-sources/antlr</source>
                                 <source>${project.build.directory}/generated-sources/xdoclet</source>
+                                <source>${project.build.directory}/generated-sources/idl</source>
                             </sources>
                         </configuration>
                     </execution>

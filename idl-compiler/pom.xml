@@ -22,7 +22,6 @@
         <dependency>
             <groupId>org.apache.ant</groupId>
             <artifactId>ant</artifactId>
-            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>java_cup</groupId>
@@ -34,6 +33,7 @@
         <plugins>
 
             <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-antrun-plugin</artifactId>
                 <executions>
                     <execution>
@@ -79,12 +79,23 @@
                 </executions>
             </plugin>
 
-
             <!-- Generate javadoc. Bound into the package phase for deployment purposes -->
             <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-javadoc-plugin</artifactId>
                 <configuration>
                     <subpackages>org.jacorb.idl</subpackages>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-source-plugin</artifactId>
+                <configuration>
+                    <excludes>
+                        <exclude>*.idl</exclude>
+                        <exclude>*.html</exclude>
+                    </excludes>
                 </configuration>
             </plugin>
 

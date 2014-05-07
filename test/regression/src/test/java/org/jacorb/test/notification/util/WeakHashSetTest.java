@@ -25,7 +25,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
-import java.lang.ref.ReferenceQueue;
 import java.lang.ref.WeakReference;
 import java.util.Arrays;
 import java.util.Iterator;
@@ -40,7 +39,7 @@ import org.junit.Test;
  */
 public class WeakHashSetTest
 {
-    private Set objectUnderTest_;
+    private Set<Object> objectUnderTest_;
 
     /*
      * @see TestCase#setUp()
@@ -121,7 +120,7 @@ public class WeakHashSetTest
 
         objectUnderTest_.add(s1);
 
-        String[] array = (String[]) objectUnderTest_.toArray(new String[0]);
+        String[] array = objectUnderTest_.toArray(new String[0]);
         assertEquals(1, array.length);
         assertEquals("text", array[0]);
     }
@@ -248,15 +247,14 @@ public class WeakHashSetTest
         long timeout = System.currentTimeMillis() + 10000;
 
         Object o1 = new Object();
-        ReferenceQueue queue = new ReferenceQueue();
 
-        new WeakReference(o1, queue);
+        new WeakReference<Object>(o1);
 
         objectUnderTest_.add(o1);
 
         o1 = null;
 
-        while (queue.poll() == null && System.currentTimeMillis() < timeout)
+        while (!objectUnderTest_.isEmpty() && System.currentTimeMillis() < timeout)
         {
             System.gc();
         }

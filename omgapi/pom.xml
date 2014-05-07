@@ -8,7 +8,7 @@
         <groupId>org.jacorb</groupId>
         <artifactId>jacorb-parent</artifactId>
         <version>3.5-SNAPSHOT</version>
-        <relativePath>../..</relativePath>
+        <relativePath>../</relativePath>
     </parent>
 
     <artifactId>jacorb-omgapi</artifactId>
@@ -18,98 +18,248 @@
     <description>JacORB OMG API Stubs</description>
     <url>http://www.jacorb.org</url>
 
-    <properties>
-        <mainArtifact>${env.JACORB_HOME}/lib/jacorb-omgapi.jar</mainArtifact>
-    </properties>
-
     <build>
         <plugins>
             <plugin>
-                <groupId>org.commonjava.maven.plugins</groupId>
-                <artifactId>build-migration-maven-plugin</artifactId>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
             </plugin>
+
             <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-source-plugin</artifactId>
+            </plugin>
+
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>idlj-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>generate-idl-1</id>
+                        <goals>
+                            <goal>generate</goal>
+                        </goals>
+                        <configuration>
+                            <sources>
+                                <source>
+                                    <includes>
+                                        <include>orb.idl</include>
+                                    </includes>
+                                    <additionalArguments>
+                                        <additionalArgument>-ir</additionalArgument>
+                                        <additionalArgument>-sloppy_forward</additionalArgument>
+                                        <additionalArgument>-i2jpackage</additionalArgument>
+                                        <additionalArgument>:org.omg</additionalArgument>
+                                        <additionalArgument>-all</additionalArgument>
+                                    </additionalArguments>
+                                </source>
+                            </sources>
+                        </configuration>
+                    </execution>
+
+                    <execution>
+                        <id>generate-idl-2</id>
+                        <goals>
+                            <goal>generate</goal>
+                        </goals>
+                        <configuration>
+                            <sources>
+                                <source>
+                                    <includes>
+                                        <include>PortableServer.idl</include>
+                                        <include>BiDirPolicy.idl</include>
+                                        <include>GIOP.idl</include>
+                                        <include>IOP.idl</include>
+                                        <include>RTCORBA.idl</include>
+                                        <include>FTCORBA.idl</include>
+                                        <include>Dynamic.idl</include>
+                                        <include>DynamicAny.idl</include>
+                                        <include>MIOP.idl</include>
+                                        <include>PortableGroup.idl</include>
+                                        <include>ETF.idl</include>
+                                        <include>IIOP.idl</include>
+                                        <include>CONV_FRAME.idl</include>
+                                        <include>SendingContext.idl</include>
+                                        <include>ATLAS.idl</include>
+                                        <include>TimeBase.idl</include>
+                                        <include>CosNaming.idl</include>
+                                    </includes>
+                                    <additionalArguments>
+                                        <additionalArgument>-ir</additionalArgument>
+                                        <additionalArgument>-sloppy_forward</additionalArgument>
+                                        <additionalArgument>-i2jpackage</additionalArgument>
+                                        <additionalArgument>:org.omg</additionalArgument>
+                                    </additionalArguments>
+                                </source>
+                            </sources>
+                        </configuration>
+                    </execution>
+
+                    <execution>
+                        <id>generate-idl-3</id>
+                        <goals>
+                            <goal>generate</goal>
+                        </goals>
+                        <configuration>
+                            <sources>
+                                <source>
+                                    <includes>
+                                        <include>Messaging.idl</include>
+                                        <include>Dynamic.idl</include>
+                                        <include>PortableInterceptor.idl</include>
+                                        <include>CSI.idl</include>
+                                        <include>CSIIOP.idl</include>
+                                        <include>GSSUP.idl</include>
+                                        <include>Security.idl</include>
+                                        <include>SecurityLevel1.idl</include>
+                                        <include>SecurityLevel2.idl</include>
+                                        <include>SecurityAdmin.idl</include>
+                                        <include>SecurityReplacable.idl</include>
+                                        <include>SSLIOP.idl</include>
+                                    </includes>
+                                    <additionalArguments>
+                                        <additionalArgument>-sloppy_names</additionalArgument>
+                                        <additionalArgument>-noskel</additionalArgument>
+                                        <additionalArgument>-nostub</additionalArgument>
+                                        <additionalArgument>-ir</additionalArgument>
+                                        <additionalArgument>-sloppy_forward</additionalArgument>
+                                        <additionalArgument>-i2jpackage</additionalArgument>
+                                        <additionalArgument>:org.omg</additionalArgument>
+                                    </additionalArguments>
+                                </source>
+                            </sources>
+                        </configuration>
+                    </execution>
+
+                    <execution>
+                        <id>generate-idl-4</id>
+                        <goals>
+                            <goal>generate</goal>
+                        </goals>
+                        <configuration>
+                            <!-- Use an alternate timestamp directory to force recompilation -->
+                            <timestampDirectory>${project.build.directory}/idlj-timestamp-2</timestampDirectory>
+                            <sources>
+                                <source>
+                                    <includes>
+                                        <include>GIOP.idl</include>
+                                    </includes>
+                                    <additionalArguments>
+                                        <additionalArgument>-UGIOP_1_1</additionalArgument>
+                                        <additionalArgument>-UGIOP_1_2</additionalArgument>
+                                        <additionalArgument>-ir</additionalArgument>
+                                        <additionalArgument>-sloppy_forward</additionalArgument>
+                                        <additionalArgument>-i2jpackage</additionalArgument>
+                                        <additionalArgument>:org.omg</additionalArgument>
+                                    </additionalArguments>
+                                </source>
+                            </sources>
+                        </configuration>
+                    </execution>
+                </executions>
+
+                <configuration>
+                    <sourceDirectory>${basedir}/../idl/omg</sourceDirectory>
+                    <includeDirs>
+                        <includeDir>${basedir}/../idl/omg</includeDir>
+                    </includeDirs>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-antrun-plugin</artifactId>
                 <executions>
                     <execution>
                         <id>compile</id>
-                        <phase>compile</phase>
+                        <phase>generate-sources</phase>
                         <goals>
                             <goal>run</goal>
                         </goals>
                         <configuration>
-                            <target unless="skipCompile">
-                                <property name="plugin_classpath" refid="maven.plugin.classpath"/>
-                                <ant antfile="${env.JACORB_HOME}/build.xml" inheritAll="true" inheritRefs="true" target="all">
-                                    <property name="sun.boot.class.path" value="${sun.boot.class.path}:${plugin_classpath}"/>
-                                    <property name="basedir" value="${env.JACORB_HOME}"/>
-                                </ant>
+                            <target>
+                                <!-- Fixups for orb.idl generation -->
+                                <delete>
+                                    <fileset dir="${project.build.directory}/generated-sources/idl/org/omg/CORBA">
+                                        <include name="TypeCodeHelper.java"/>
+                                        <include name="TypeCodePOA.java"/>
+                                        <include name="TypeCodePOATie.java"/>
+                                        <include name="_TypeCodeStub.java"/>
+                                        <include name="UserExceptionHelper.java"/>
+                                        <include name="UserExceptionHolder.java"/>
+                                        <include name="ORBPOA.java"/>
+                                        <include name="ORBPOATie.java"/>
+                                        <include name="ORBHelper.java"/>
+                                        <include name="ORBHolder.java"/>
+                                        <include name="_ORBStub.java"/>
+                                    </fileset>
+                                </delete>
+
+                                <!-- Fixups for PortableServer/BiDirPolicy generation -->
+                                <delete>
+                                    <fileset dir="${project.build.directory}/generated-sources/idl/org/omg/PortableServer">
+                                        <include name="CurrentLocalTie.java"/>
+                                        <include name="POALocalTie.java"/>
+                                        <include name="POAManagerLocalTie.java"/>
+                                        <include name="ServantActivatorLocalTie.java"/>
+                                        <include name="ServantLocatorLocalTie.java"/>
+                                    </fileset>
+                                </delete>
+
+                                <!-- Fixups for PortableGroup generation -->
+                                <delete file="${project.build.directory}/generated-sources/idl/org/omg/PortableGroup/GOALocalTie.java"/>
+
+                                <!-- Copy the mapping files -->
+                                <copy todir="${project.build.directory}/generated-sources/idl">
+                                    <fileset dir="${basedir}/src/main/omg-03-01-02">
+                                        <include name="**/*.java"/>
+                                    </fileset>
+                                </copy>
+                                <!-- We need the mapping versions rather than the generated for these -->
+                                <copy todir="${project.build.directory}/generated-sources/idl" overwrite="true">
+                                    <fileset dir="${basedir}/src/main/omg-03-01-02">
+                                        <include name="**/UserException.java"/>
+                                        <include name="**/TypeCod*.java"/>
+                                        <include name="**/PortableServer/*Operations.java"/>
+                                    </fileset>
+                                </copy>
+                                <delete file="${project.build.directory}/generated-sources/idl/org/omg/RTPortableServer/POALocalTie.java"/>
+
+                                <!-- Copy the patch files -->
+
+                                <!-- Fixes for non-conformance in the supplied IDL compared to spec -->
+                                <copy todir="${project.build.directory}/generated-sources/idl/org/omg/CORBA"
+                                      overwrite="yes">
+                                    <fileset dir="${basedir}/src/main/java_mapping/CORBA" includes="**/*.java"/>
+                                </copy>
+                                <!-- Copy missing mapping code (From RT Specification 05-01-04 -->
+                                <copy todir="${project.build.directory}/generated-sources/idl/org/omg/RTCORBA"
+                                      overwrite="yes">
+                                    <fileset dir="${basedir}/src/main/java_mapping/RTCORBA" includes="**/*.java"/>
+                                </copy>
+                                <copy todir="${project.build.directory}/generated-sources/idl/org/omg/PortableServer"
+                                      overwrite="yes">
+                                    <fileset dir="${basedir}/src/main/java_mapping/PortableServer" includes="**/*.java"/>
+                                </copy>
+
+                            </target>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>copy-jar</id>
+                        <phase>install</phase>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                        <configuration>
+                            <target>
+                                <copy file="${project.build.directory}/jacorb-omgapi-${project.version}.jar"
+                                      todir="${basedir}/../lib" overwrite="true"/>
                             </target>
                         </configuration>
                     </execution>
                 </executions>
             </plugin>
-
-            <!-- Package up the sources as well -->
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>build-helper-maven-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>attach-sources</id>
-                        <phase>prepare-package</phase>
-                        <goals>
-                            <goal>add-source</goal>
-                        </goals>
-                        <configuration>
-                            <sources>
-                                <source>${env.JACORB_HOME}/src/generated</source>
-                            </sources>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <artifactId>maven-source-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>attach-sources</id>
-                        <goals>
-                            <goal>jar</goal>
-                        </goals>
-                    </execution>
-                </executions>
-                <configuration>
-                    <includes>
-                        <include>org/omg/**</include>
-                    </includes>
-                    <excludes>
-                        <exclude>org/omg/BridgeTransactionMgmt/**</exclude>
-                        <exclude>org/omg/CosBridgeAdmin/**</exclude>
-                        <exclude>org/omg/CosCollection/**</exclude>
-                        <exclude>org/omg/CosConcurrencyControl/**</exclude>
-                        <exclude>org/omg/CosEventChannelAdmin/**</exclude>
-                        <exclude>org/omg/CosEventComm/**</exclude>
-                        <exclude>org/omg/CosNotification/**</exclude>
-                        <exclude>org/omg/CosNotifyChannelAdmin/**</exclude>
-                        <exclude>org/omg/CosNotifyChannelAdminAck/**</exclude>
-                        <exclude>org/omg/CosNotifyComm/**</exclude>
-                        <exclude>org/omg/CosNotifyCommAck/**</exclude>
-                        <exclude>org/omg/CosNotifyFilter/**</exclude>
-                        <exclude>org/omg/CosTime/**</exclude>
-                        <exclude>org/omg/CosTrading/**</exclude>
-                        <exclude>org/omg/CosTransactions/**</exclude>
-                        <exclude>org/omg/CosTypedEventChannelAdmin/**</exclude>
-                        <exclude>org/omg/CosTypedEventComm/**</exclude>
-                        <exclude>org/omg/CosTypedEventNotifyComm/**</exclude>
-                        <exclude>org/omg/CosTypedEventNotifyChannelAdmin/**</exclude>
-                        <exclude>org/omg/CosTypedNotifyChannelAdmin/**</exclude>
-                        <exclude>org/omg/CosTypedNotifyComm/**</exclude>
-                        <exclude>org/omg/dds</exclude>
-                   </excludes>
-                </configuration>
-            </plugin>
-
         </plugins>
     </build>
 </project>

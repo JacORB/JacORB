@@ -8,7 +8,7 @@
         <groupId>org.jacorb</groupId>
         <artifactId>jacorb-parent</artifactId>
         <version>3.5-SNAPSHOT</version>
-        <relativePath>../..</relativePath>
+        <relativePath>../</relativePath>
     </parent>
 
     <artifactId>jacorb</artifactId>
@@ -17,10 +17,6 @@
     <name>JacORB Core</name>
     <description>JacORB Core code</description>
     <url>http://www.jacorb.org</url>
-
-    <properties>
-        <mainArtifact>${env.JACORB_HOME}/lib/jacorb.jar</mainArtifact>
-    </properties>
 
     <dependencies>
         <dependency>
@@ -34,7 +30,6 @@
         <dependency>
             <groupId>org.jacorb</groupId>
             <artifactId>jacorb-omgapi</artifactId>
-            <version>${project.version}</version>
         </dependency>
     </dependencies>
 
@@ -44,18 +39,15 @@
                 <artifactId>maven-antrun-plugin</artifactId>
                 <executions>
                     <execution>
-                        <id>compile</id>
-                        <phase>compile</phase>
+                        <id>copy-jar</id>
+                        <phase>install</phase>
                         <goals>
                             <goal>run</goal>
                         </goals>
                         <configuration>
-                            <target unless="skipCompile">
-                                <property name="plugin_classpath" refid="maven.plugin.classpath"/>
-                                <ant antfile="${env.JACORB_HOME}/build.xml" inheritAll="true" inheritRefs="true" target="all">
-                                    <property name="sun.boot.class.path" value="${sun.boot.class.path}:${plugin_classpath}"/>
-                                    <property name="basedir" value="${env.JACORB_HOME}"/>
-                                </ant>
+                            <target>
+                                <copy file="${project.build.directory}/jacorb-${project.version}.jar"
+                                      todir="${basedir}/../lib" overwrite="true"/>
                             </target>
                         </configuration>
                     </execution>
@@ -63,65 +55,100 @@
             </plugin>
 
             <plugin>
-                <groupId>org.commonjava.maven.plugins</groupId>
-                <artifactId>build-migration-maven-plugin</artifactId>
-            </plugin>
-
-            <!-- Generate javadoc. Bound into the package phase for deployment purposes -->
-            <plugin>
-                <artifactId>maven-javadoc-plugin</artifactId>
-                <configuration>
-                    <skip>${skipJavadoc}</skip>
-                    <verbose>true</verbose>
-                    <sourcepath>${env.JACORB_HOME}/src:${env.JACORB_HOME}/src/generated</sourcepath>
-                    <subpackages>org.omg:org.jacorb</subpackages>
-                    <excludePackageNames>org.jacorb.concurrency:org.jacorb.collection:org.jacorb.dds:org.jacorb.events:org.jacorb.notification:org.jacorb.transaction:org.omg.BridgeTransactionMgmt:org.omg.CosBridgeAdmin:org.omg.CosCollection:org.omg.CosConcurrencyControl:org.omg.CosEventChannelAdmin:org.omg.CosEventComm:org.omg.CosNotification:org.omg.CosNotifyChannelAdmin:org.omg.CosNotifyChannelAdminAck:org.omg.CosNotifyComm:org.omg.CosNotifyCommAck:org.omg.CosNotifyFilter:org.omg.CosTime:org.omg.CosTrading:org.omg.CosTransactions:org.omg.CosTypedEventChannelAdmin:org.omg.CosTypedEventComm:org.omg.CosTypedEventNotifyComm:org.omg.CosTypedEventNotifyChannelAdmin:org.omg.CosTypedNotifyChannelAdmin:org.omg.CosTypedNotifyComm:org.omg.dds</excludePackageNames>
-                </configuration>
-            </plugin>
-
-
-            <!-- Package up the sources as well -->
-            <plugin>
                 <groupId>org.codehaus.mojo</groupId>
-                <artifactId>build-helper-maven-plugin</artifactId>
+                <artifactId>idlj-maven-plugin</artifactId>
                 <executions>
                     <execution>
-                        <id>attach-sources</id>
-                        <phase>prepare-package</phase>
+                        <id>generate-idl-1</id>
                         <goals>
-                            <goal>add-source</goal>
+                            <goal>generate</goal>
                         </goals>
                         <configuration>
+                            <sourceDirectory>${basedir}/../idl/jacorb</sourceDirectory>
                             <sources>
-                                <source>${env.JACORB_HOME}/src</source>
+                                <source>
+                                    <includes>
+                                        <include>imr.idl</include>
+                                        <include>Proxy.idl</include>
+                                        <include>SASPolicy.idl</include>
+                                        <include>SSLPolicy.idl</include>
+                                        <include>Tracing.idl</include>
+                                        <include>TransportCurrent.idl</include>
+                                        <include>IIOPTransportCurrent.idl</include>
+                                    </includes>
+                                </source>
+                            </sources>
+                        </configuration>
+                    </execution>
+
+                    <execution>
+                        <id>generate-idl-2</id>
+                        <goals>
+                            <goal>generate</goal>
+                        </goals>
+                        <configuration>
+                            <sourceDirectory>${basedir}/../idl/tao_imr</sourceDirectory>
+                            <sources>
+                                <source>
+                                    <includes>
+                                        <include>ServerObject.idl</include>
+                                        <include>ImplRepo.idl</include>
+                                        <include>AsyncStartupWaiter.idl</include>
+                                        <include>ImR_Activator.idl</include>
+                                        <include>ImR_Locator.idl</include>
+                                    </includes>
+                                    <additionalArguments>
+                                        <additionalArgument>-DJACORB</additionalArgument>
+                                        <additionalArgument>-i2jpackage</additionalArgument>
+                                        <additionalArgument>:org.jacorb.tao_imr</additionalArgument>
+                                    </additionalArguments>
+                                </source>
                             </sources>
                         </configuration>
                     </execution>
                 </executions>
+
+                <configuration>
+                    <includeDirs>
+                        <includeDir>${basedir}/../idl/omg</includeDir>
+                    </includeDirs>
+                </configuration>
             </plugin>
+
             <plugin>
-                <artifactId>maven-source-plugin</artifactId>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>templating-maven-plugin</artifactId>
                 <executions>
                     <execution>
-                        <id>attach-sources</id>
+                        <id>filter-src</id>
                         <goals>
-                            <goal>jar</goal>
+                            <goal>filter-sources</goal>
                         </goals>
                     </execution>
                 </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
                 <configuration>
-                    <includes>
-                        <include>org/jacorb/**</include>
-                    </includes>
-                    <excludes>
-                        <exclude>org/jacorb/concurrency/**</exclude>
-                        <exclude>org/jacorb/collection/**</exclude>
-                        <exclude>org/jacorb/dds/**</exclude>
-                        <exclude>org/jacorb/events/**</exclude>
-                        <exclude>org/jacorb/notification/**</exclude>
-                        <exclude>org/jacorb/transaction/**</exclude>
-                   </excludes>
+                    <!-- Use compilerArguments rather than compilerArgs so JBoss Tools Maven Endorsed Dirs -->
+                    <!-- configurator can automatically detect it. -->
+                    <compilerArguments>
+                        <endorseddirs>${settings.localRepository}/org/jacorb/jacorb-omgapi/${project.version}</endorseddirs>
+                    </compilerArguments>
                 </configuration>
+            </plugin>
+
+            <!-- Generate javadoc. Bound into the package phase for deployment purposes -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-source-plugin</artifactId>
             </plugin>
 
         </plugins>

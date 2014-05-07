@@ -63,6 +63,8 @@
         - Minor fixes.
     - Misc
         - Add Jacoco Coverage to regression suite.
+        - Convert source code to Maven layout.
+        - Upgrade to SLF4J 1.7.6
 
 3.4
 ===
