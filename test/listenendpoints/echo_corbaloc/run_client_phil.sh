@@ -8,10 +8,12 @@ if [[ ! -n $JACORB_HOME ]] ; then
 fi
 export JACORB_HOME
 
+echo "Compile the test/regression classes prior to runnning this!"
+
 PATH=${PATH}
 CLASSPATH=${CLASSPATH}
 export PATH=${PATH}:${JACORB_HOME}/bin
-export CLASSPATH=${CLASSPATH}:`pwd`/build/classes
+export CLASSPATH=${CLASSPATH}:$PWD/../../regression/target/test-classes
 echo "$bn: JACORB_HOME=<${JACORB_HOME}>"
 echo "$bn: CLASSPATH=<${CLASSPATH}>"
 echo "$bn: PATH=<${PATH}>"

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <projectDescription>
-	<name>JacORBOpenSourceRegression</name>
+	<name>jacorb-regression</name>
 	<comment></comment>
 	<projects>
 	</projects>
@@ -20,22 +20,4 @@
 		<nature>org.eclipse.jdt.core.javanature</nature>
 		<nature>org.eclipse.m2e.core.maven2Nature</nature>
 	</natures>
-	<linkedResources>
-		<link>
-			<name>echo-corbaloc-src</name>
-			<type>2</type>
-			<locationURI>JacORBRoot/test/listenendpoints/echo_corbaloc/src</locationURI>
-		</link>
-		<link>
-			<name>echo_corbaloc/src</name>
-			<type>2</type>
-			<locationURI>JacORBRoot/test/listenendpoints</locationURI>
-		</link>
-	</linkedResources>
-	<variableList>
-		<variable>
-			<name>JacORBRoot</name>
-			<value>$%7BPARENT-2-PROJECT_LOC%7D</value>
-		</variable>
-	</variableList>
 </projectDescription>

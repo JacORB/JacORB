@@ -141,6 +141,13 @@
                 <artifactId>maven-jar-plugin</artifactId>
                 <executions>
                     <execution>
+                        <id>default-jar</id>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                        <phase>none</phase>
+                    </execution>
+                    <execution>
                         <id>test-jar</id>
                         <goals>
                             <goal>test-jar</goal>
@@ -200,7 +207,6 @@
                             <sources>
                                 <source>${project.build.directory}/generated-test-sources/cxf</source>
                                 <source>${project.build.directory}/generated-test-sources/idl</source>
-                                <source>${basedir}/../listenendpoints/echo_corbaloc/src</source>
                             </sources>
                         </configuration>
                     </execution>
@@ -301,6 +307,7 @@
                                         <exclude>_bugjac560.idl</exclude>
                                         <exclude>_bugjac801.idl</exclude>
                                         <exclude>ami_bug*.idl</exclude>
+                                        <exclude>server.idl</exclude>
                                     </excludes>
                                     <additionalArguments>
                                         <additionalArgument>-generate_helper</additionalArgument>
@@ -404,7 +411,6 @@
                             <goal>generate-test</goal>
                         </goals>
                         <configuration>
-                            <sourceDirectory>${basedir}/../listenendpoints/echo_corbaloc/idl</sourceDirectory>
                             <sources>
                                 <source>
                                     <includes>
