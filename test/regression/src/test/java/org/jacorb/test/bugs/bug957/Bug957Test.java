@@ -66,7 +66,6 @@ public class Bug957Test extends ClientServerTestCase
             ("jacorb.security.sas.contextClass", "org.jacorb.security.sas.GssUpContext");
         props.setProperty
             ("org.omg.PortableInterceptor.ORBInitializerClass.SAS", "org.jacorb.security.sas.SASInitializer");
-        props.setProperty ("org.omg.PortableInterceptor.ORBInitializerClass.GSSUPProvider", "org.jacorb.security.sas.GSSUPProviderInitializer");
 
         setup = new ClientServerSetup( Bug957Test.class.getName(), "org.jacorb.test.orb.BasicServerImpl", props, props );
     }
@@ -76,8 +75,6 @@ public class Bug957Test extends ClientServerTestCase
     {
         server.ping();
     }
-
-
 
 
    /**

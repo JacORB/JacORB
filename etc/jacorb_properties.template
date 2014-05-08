@@ -962,10 +962,6 @@ jacorb.notification.proxy.destroy_causes_disconnect = on
 # Comment out this line if you do not want SAS support
 #org.omg.PortableInterceptor.ORBInitializerClass.SAS=org.jacorb.security.sas.SASInitializer
 
-# This option is used for GSSUP security and sets up the GSS Provider
-# Comment out this line if you are not using GSS UP authentication
-#org.omg.PortableInterceptor.ORBInitializerClass.GSSUPProvider=org.jacorb.security.sas.GSSUPProviderInitializer
-
 # Whether to create stateful context lists
 # jacorb.security.sas.stateful=true
 

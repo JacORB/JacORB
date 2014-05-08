@@ -41,6 +41,33 @@ public class CommonSetup
      */
     public static Properties loadSSLProps(String propertyFilename, String keystoreFilename) throws IOException
     {
+        Properties props = loadProps ("ssl", propertyFilename, keystoreFilename);
+
+        props.put("jacorb.security.ssl.ssl_listener", SSLListener.class.getName());
+        props.remove("org.omg.PortableInterceptor.ORBInitializerClass.ForwardInit");
+
+        if (TestUtils.isIBM)
+        {
+            props.put("jacorb.security.jsse.server.key_manager_algorithm", "IbmX509");
+            props.put("jacorb.security.jsse.server.trust_manager_algorithm", "IbmX509");
+            props.put("jacorb.security.jsse.client.key_manager_algorithm", "IbmX509");
+            props.put("jacorb.security.jsse.client.trust_manager_algorithm", "IbmX509");
+        }
+
+        return props;
+    }
+
+    /**
+     * its assumed that the property file and the keystore file
+     * are located in the demo/ssl dir.
+     */
+    public static Properties loadSASProps(String propertyFilename) throws IOException
+    {
+        return loadProps ("sas", propertyFilename, null);
+    }
+
+    private static Properties loadProps(String dir, String propertyFilename, String keystoreFilename) throws IOException
+    {
         final Properties props = new Properties();
 
         final File file = new File
@@ -53,7 +80,7 @@ public class CommonSetup
             + File.separatorChar
             + "demo"
             + File.separatorChar
-            + "ssl"
+            + dir
             + File.separatorChar
             + "resources"
             + File.separatorChar
@@ -71,21 +98,13 @@ public class CommonSetup
             input.close();
         }
 
-        props.put
-        (
-            "jacorb.security.keystore",
-            file.getParent() + File.separatorChar + keystoreFilename
-        );
-
-        props.put("jacorb.security.ssl.ssl_listener", SSLListener.class.getName());
-        props.remove("org.omg.PortableInterceptor.ORBInitializerClass.ForwardInit");
-
-        if (TestUtils.isIBM)
+        if (keystoreFilename != null)
         {
-            props.put("jacorb.security.jsse.server.key_manager_algorithm", "IbmX509");
-            props.put("jacorb.security.jsse.server.trust_manager_algorithm", "IbmX509");
-            props.put("jacorb.security.jsse.client.key_manager_algorithm", "IbmX509");
-            props.put("jacorb.security.jsse.client.trust_manager_algorithm", "IbmX509");
+            props.put
+            (
+               "jacorb.security.keystore",
+               file.getParent() + File.separatorChar + keystoreFilename
+            );
         }
 
         return props;

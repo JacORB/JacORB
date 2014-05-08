@@ -109,31 +109,33 @@ public class SASTargetInterceptor
         try
         {
             contextClass = configuration.getAttribute("jacorb.security.sas.contextClass");
-            Class c =
+            Class<?> c =
                 org.jacorb.util.ObjectUtil.classForName(contextClass);
             sasContext = (ISASContext)c.newInstance();
         }
-        catch(ConfigurationException ce)
+        catch (IllegalArgumentException e)
         {
-            if (logger.isDebugEnabled())
-                logger.debug("ConfigurationException", ce);
+            logger.error ("Caught ", e);
+            throw new ConfigurationException ("Could not load SAS context class " + contextClass);
         }
-        catch (Exception e)
+        catch (ClassNotFoundException e)
         {
-            if (logger.isErrorEnabled())
-                logger.error("Could not instantiate class " + contextClass + ": " + e);
+            logger.error ("Caught ", e);
+            throw new ConfigurationException ("Could not load SAS context class " + contextClass);
+        }
+        catch (InstantiationException e)
+        {
+            logger.error ("Caught ", e);
+            throw new ConfigurationException ("Could not load SAS context class " + contextClass);
+        }
+        catch (IllegalAccessException e)
+        {
+            logger.error ("Caught ", e);
+            throw new ConfigurationException ("Could not load SAS context class " + contextClass);
         }
 
-        if (sasContext == null)
-        {
-            if (logger.isErrorEnabled())
-                logger.error("Could not load SAS context class: "+ contextClass);
-        }
-        else
-        {
-            sasContext.configure(configuration);
-            sasContext.initTarget();
-        }
+        sasContext.configure(configuration);
+        sasContext.initTarget();
     }
 
     public String name()
