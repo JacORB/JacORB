@@ -16,11 +16,10 @@ simply unzip) the archive somewhere.  This will result in a new directory {\tt
 
 \subsection{Requirements}
 
-JacORB requires JDK 1.6 or above properly installed on your machine.  To build
-JacORB (and compile the examples) you need to have the XML--based make tool
-``Ant'' installed on your machine (version 1.7.1 or greater).  Ant can be downloaded
-from \href{http://ant.apache.org}{http://ant.apache.org}. All make
-files ({\tt build.xml}) are written for this tool.
+JacORB requires JDK 1.6 or above properly installed on your machine. To build
+JacORB and run the tests Maven (\href{https://maven.apache.org}{https://maven.apache.org})
+ is required (tested with 3.0.x). To build the examples you need to have Ant
+(\href{http://ant.apache.org}{http://ant.apache.org}) installed (tested with 1.8.4).
 
 \subsection{Procedure}
 \begin{itemize}
@@ -60,7 +59,12 @@ Note that the services may depend upon further third party libraries.
 JacORB may be built via Maven using standard commands (i.e. {\tt mvn clean install}). The
 project may be imported into Eclipse or IntelliJ using standard import commands.
 
-\textbf{Note:} The JacORB Core module utilises Endorsed Directories to build in the maven-compiler-plugin. In Eclipse, the JBoss Tools Endorsed Libraries support is required for this to work.
+\subsubsection{Importing into Eclipse}
+\begin{itemize}
+\item Prior to importing it is recommended to build JacORB first (e.g. {\tt mvn install -DskipTests=true}
+\item The JacORB Core and Regression Test module utilises Endorsed Directories to build within the maven-compiler-plugin. In Eclipse, the JBoss Tools Endorsed Libraries Plugin must be installed for this to work.
+\item It is possible further m2e connectors (e.g. build-helper) must also be installed.
+\end{itemize}
 
 \subsubsection{Building JacORB Demos (Optional)}
 Note that the JacORB demos still use Ant. To build the JacORB demos within the

@@ -467,42 +467,6 @@
 
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <configuration>
-                    <compilerArgs>
-                        <arg>-Xbootclasspath/p:${settings.localRepository}/org/jacorb/jacorb-omgapi/${project.version}/jacorb-omgapi-${project.version}.jar</arg>
-                    </compilerArgs>
-                </configuration>
-                <executions>
-                    <execution>
-                        <id>default-testCompile</id>
-                        <phase>test-compile</phase>
-                        <goals>
-                            <goal>testCompile</goal>
-                        </goals>
-                        <configuration>
-                            <testExcludes>
-                                <testExclude>**/RMITestServant.java</testExclude>
-                            </testExcludes>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <id>rmi-compile</id>
-                        <phase>process-test-classes</phase>
-                        <goals>
-                            <goal>testCompile</goal>
-                        </goals>
-                        <configuration>
-                            <testIncludes>
-                                <testInclude>**/RMITestServant.java</testInclude>
-                            </testIncludes>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <configuration>
                     <systemPropertyVariables>
@@ -698,4 +662,90 @@
         </plugins>
     </build>
 
+    <profiles>
+        <!-- This profile is activated during normal builds -->
+        <profile>
+            <id>command-line</id>
+            <activation>
+                <property>
+                    <name>!m2e.version</name>
+                </property>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-compiler-plugin</artifactId>
+                        <configuration>
+                            <compilerArguments>
+                                <endorseddirs>${settings.localRepository}/org/jacorb/jacorb-omgapi/${project.version}</endorseddirs>
+                            </compilerArguments>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <id>default-testCompile</id>
+                                <phase>test-compile</phase>
+                                <goals>
+                                    <goal>testCompile</goal>
+                                </goals>
+                                <configuration>
+                                    <testExcludes>
+                                        <testExclude>**/RMITestServant.java</testExclude>
+                                    </testExcludes>
+                                </configuration>
+                            </execution>
+                            <execution>
+                                <id>rmi-compile</id>
+                                <phase>process-test-classes</phase>
+                                <goals>
+                                    <goal>testCompile</goal>
+                                </goals>
+                                <configuration>
+                                    <testIncludes>
+                                        <testInclude>**/RMITestServant.java</testInclude>
+                                    </testIncludes>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
+            <!-- Activated only inside Eclipse to exclude RMITestServant as Eclipse doesn't handle it. -->
+            <id>m2e</id>
+            <activation>
+                <property>
+                    <name>m2e.version</name>
+                </property>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-compiler-plugin</artifactId>
+                        <configuration>
+                            <compilerArguments>
+                                <endorseddirs>${settings.localRepository}/org/jacorb/jacorb-omgapi/${project.version}</endorseddirs>
+                            </compilerArguments>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <id>default-testCompile</id>
+                                <phase>test-compile</phase>
+                                <goals>
+                                    <goal>testCompile</goal>
+                                </goals>
+                                <configuration>
+                                    <testExcludes>
+                                        <testExclude>**/RMITestServant.java</testExclude>
+                                    </testExcludes>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 </project>
