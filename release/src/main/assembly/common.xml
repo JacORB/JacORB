@@ -46,11 +46,6 @@
     </fileSets>
     <files>
         <file>
-            <source>${env.JACORB_HOME}/build.xml</source>
-            <destName>build.xml</destName>
-            <fileMode>0644</fileMode>
-        </file>
-        <file>
             <source>${env.JACORB_HOME}/index.html</source>
             <destName>index.html</destName>
             <fileMode>0644</fileMode>
