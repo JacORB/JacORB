@@ -196,7 +196,7 @@ interface Container : IRObject {
       in InterfaceDefSeq              base_interfaces
 #ifndef JACORB
       // Removed: http://www.omg.org/issues/issue3015.txt
-      in boolean                      is_abstract
+      ,in boolean                      is_abstract
 #endif
     );
    ValueDef create_value(
