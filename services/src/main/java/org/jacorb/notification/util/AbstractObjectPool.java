@@ -28,12 +28,14 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
-
-import org.jacorb.config.*;
-import org.slf4j.Logger;
-import org.jacorb.notification.interfaces.Disposable;
-
+import java.util.WeakHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
+
+import org.jacorb.config.Configurable;
+import org.jacorb.config.Configuration;
+import org.jacorb.config.ConfigurationException;
+import org.jacorb.notification.interfaces.Disposable;
+import org.slf4j.Logger;
 
 /**
  * Abstract Base Class for Simple Pooling Mechanism. Subclasses must at least implement the method
@@ -141,7 +143,8 @@ public abstract class AbstractObjectPool implements Runnable, Configurable
             }
         }
 
-        public void run()
+        @Override
+		public void run()
         {
             try
             {
@@ -250,7 +253,8 @@ public abstract class AbstractObjectPool implements Runnable, Configurable
      * as access to this member used to be non-synchronized see
      * news://news.gmane.org:119/200406041629.48096.Farrell_John_W@cat.com
      */
-    private final Set active_ = Collections.synchronizedSet(new WeakHashSet());
+    private final Set active_ = Collections.synchronizedSet(Collections.newSetFromMap(
+            new WeakHashMap<Object, Boolean>()));
 
     /**
      * lower watermark. if pool size is below that value, create sizeIncrease_ new elements.
@@ -279,7 +283,8 @@ public abstract class AbstractObjectPool implements Runnable, Configurable
 
     protected Configuration config_;
 
-    public void configure(Configuration conf)
+    @Override
+	public void configure(Configuration conf)
     {
         config_ = conf;
 
@@ -310,7 +315,8 @@ public abstract class AbstractObjectPool implements Runnable, Configurable
         maximumSize_ = maximumSize;
     }
 
-    public void run()
+    @Override
+	public void run()
     {
         final int maxToBeCreated;
 
@@ -548,7 +554,8 @@ public abstract class AbstractObjectPool implements Runnable, Configurable
         }
     }
 
-    public String toString()
+    @Override
+	public String toString()
     {
         return getInfo();
     }
