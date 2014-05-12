@@ -1,0 +1,221 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
+                             http://maven.apache.org/maven-v4_0_0.xsd">
+
+    <parent>
+        <groupId>org.jacorb</groupId>
+        <artifactId>jacorb-parent</artifactId>
+        <version>3.5-SNAPSHOT</version>
+        <relativePath>..</relativePath>
+    </parent>
+
+    <modelVersion>4.0.0</modelVersion>
+
+    <artifactId>jacorb-release</artifactId>
+    <packaging>pom</packaging>
+
+    <name>JacORB Release</name>
+    <description>JacORB Release Module for packaging distribution zips</description>
+    <url>http://www.jacorb.org</url>
+
+    <properties>
+        <skipCompile>true</skipCompile>
+        <skipJavadoc>true</skipJavadoc>
+        <skipTests>true</skipTests>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.jacorb</groupId>
+            <artifactId>jacorb</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.jacorb</groupId>
+            <artifactId>jacorb-services</artifactId>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <executions>
+                    <!-- Artifact signing. We want to create MD5 sums for the zips we create (src/bin) -->
+                    <!-- and (eventually) GPG sign the jar files -->
+                    <execution>
+                        <id>signing</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                        <configuration>
+                            <target>
+                                <checksum file="target/jacorb-${project.version}-source.zip"/>
+                                <checksum file="target/jacorb-${project.version}-binary.zip"/>
+                            </target>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>build-helper-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <phase>initialize</phase>
+                        <id>parse-version</id>
+                        <goals>
+                            <goal>parse-version</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>assemble-result</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                        <configuration>
+                            <finalName>common</finalName>
+                            <appendAssemblyId>false</appendAssemblyId>
+                            <attach>false</attach>
+                            <outputDirectory>${project.build.directory}/work</outputDirectory>
+                            <descriptors>
+                                <descriptor>src/main/assembly/common.xml</descriptor>
+                            </descriptors>
+                            <archiverConfig>
+                                <defaultFileMode>0644</defaultFileMode>
+                                <defaultDirectoryMode>0755</defaultDirectoryMode>
+                            </archiverConfig>
+                        </configuration>
+                    </execution>
+
+                    <execution>
+                        <id>binary-dist</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                        <configuration>
+                            <finalName>jacorb-${project.version}</finalName>
+                            <appendAssemblyId>true</appendAssemblyId>
+                            <attach>false</attach>
+                            <descriptors>
+                                <descriptor>src/main/assembly/binary.zip.xml</descriptor>
+                            </descriptors>
+                            <archiverConfig>
+                                <defaultFileMode>0644</defaultFileMode>
+                                <defaultDirectoryMode>0755</defaultDirectoryMode>
+                            </archiverConfig>
+                        </configuration>
+                    </execution>
+
+                    <execution>
+                        <id>source-dist</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                        <configuration>
+                            <finalName>jacorb-${project.version}</finalName>
+                            <appendAssemblyId>true</appendAssemblyId>
+                            <attach>false</attach>
+                            <descriptors>
+                                <descriptor>src/main/assembly/source.zip.xml</descriptor>
+                            </descriptors>
+                            <archiverConfig>
+                                <defaultFileMode>0644</defaultFileMode>
+                                <defaultDirectoryMode>0755</defaultDirectoryMode>
+                            </archiverConfig>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>copy-dependencies</id>
+                        <phase>generate-resources</phase>
+                        <goals>
+                            <goal>copy-dependencies</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${env.JACORB_HOME}/lib</outputDirectory>
+                            <overWriteReleases>true</overWriteReleases>
+                            <overWriteSnapshots>true</overWriteSnapshots>
+                            <overWriteIfNewer>true</overWriteIfNewer>
+                            <includeGroupIds>org.slf4j,antlr,picocontainer,tanukisoft</includeGroupIds>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <!-- Disable installation and deployment as this module is just for assembling the distribution zips -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-install-plugin</artifactId>
+                <configuration>
+                    <skip>true</skip>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-deploy-plugin</artifactId>
+                <configuration>
+                    <skip>true</skip>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+    <profiles>
+        <profile>
+            <id>pdf-generation</id>
+            <activation>
+                <property>
+                    <name>!skipPDFGeneration</name>
+                </property>
+            </activation>
+            <build>
+                <plugins>
+                    <!-- Generate the ProgrammingGuide via http://akquinet.github.com/maven-latex-plugin -->
+                    <plugin>
+                        <groupId>de.akquinet.jbosscc.latex</groupId>
+                        <artifactId>maven-latex-plugin</artifactId>
+                        <version>1.2</version>
+                        <configuration>
+                            <settings>
+                                <!-- all tex main documents in this folder (including subfolders) will be processed -->
+                                <texDirectory>${basedir}/../doc/ProgrammingGuide</texDirectory>
+                                <texCommandArgs>
+                                    <texCommandArg>"\newcommand{\JacORBVersion}{${project.version}}\newcommand{\JacORBDir}{jacorb-${parsedVersion.majorVersion}\_${parsedVersion.minorVersion}}\input{ProgrammingGuide}"</texCommandArg>
+                                    <texCommandArg>-interaction=nonstopmode</texCommandArg>
+                                    <texCommandArg>--src-specials</texCommandArg>
+                                </texCommandArgs>
+                           </settings>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <phase>generate-sources</phase>
+                                <goals>
+                                    <goal>latex</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
+</project>

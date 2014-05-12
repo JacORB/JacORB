@@ -12,16 +12,6 @@ The JacORB Notification Service does not support persistent connections or event
 \section{Installation}
 \label{sec:installation}
 
-\subsection{JDK 1.3}
-
-If you're using JDK 1.3 and want to use the JacORB Notification
-Service you'll need
-to download the additional library gnu.regexp from
-\href{http://www.cacas.org/java/gnu/regexp}{http://www.cacas.org/java/gnu/regexp}
-and put it in your classpath. This is necessary because the JacORB
-Notification Service uses regular expressions. Regular expressions are available in the JDK since version 1.4. Alternatively
-you can download Jakarta Regexp \href{http://jakarta.apache.org/regexp}{http://jakarta.apache.org/regexp}.
-
 \section{Running the Notification Service}
 \label{sec:ntfy-running}
 
@@ -56,26 +46,6 @@ With a little help from
 \href{http://wrapper.tanukisoftware.org}{the Java Service Wrapper} it is
 easy to run the JacORB notification service as a NT Service or as
 an UNIX daemon.
-
-
-\subsubsection{Note for JDK 1.3 Users}
-\label{sec:ntfy-jdk1.3}
-
-As noted if you are running JDK 1.3 you need to provide an
-additional library. If you use the wrapper you also need to add a
-classpath entry to the wrapper configuration file.
-
-Edit \texttt{bin/NotifyService-Wrapper.conf} and add a classpath
-entry:
-
-\begin{verbatim}
-# Java Classpath (include wrapper.jar)  Add class path elements as
-#  needed starting from 1
-wrapper.java.classpath.1=../lib/wrapper-3.x.y.jar
-...
-wrapper.java.classpath.6=../lib/avalon-framework-4.1.5.jar
-wrapper.java.classpath.7=../lib/gnu.regexp.jar
-\end{verbatim}
 
 \subsubsection{Installing and Running as a NT Service}
 \label{sec:windows-service}

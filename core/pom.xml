@@ -1,0 +1,192 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
+                             http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>org.jacorb</groupId>
+        <artifactId>jacorb-parent</artifactId>
+        <version>3.5-SNAPSHOT</version>
+        <relativePath>../</relativePath>
+    </parent>
+
+    <artifactId>jacorb</artifactId>
+    <packaging>jar</packaging>
+
+    <name>JacORB Core</name>
+    <description>JacORB Core code</description>
+    <url>http://www.jacorb.org</url>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-jdk14</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.jacorb</groupId>
+            <artifactId>jacorb-omgapi</artifactId>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>copy-jar</id>
+                        <phase>install</phase>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                        <configuration>
+                            <target>
+                                <copy file="${project.build.directory}/jacorb-${project.version}.jar"
+                                      todir="${basedir}/../lib" overwrite="true"/>
+                            </target>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>idlj-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>generate-idl-1</id>
+                        <goals>
+                            <goal>generate</goal>
+                        </goals>
+                        <configuration>
+                            <sourceDirectory>${basedir}/../idl/jacorb</sourceDirectory>
+                            <sources>
+                                <source>
+                                    <includes>
+                                        <include>imr.idl</include>
+                                        <include>Proxy.idl</include>
+                                        <include>SASPolicy.idl</include>
+                                        <include>SSLPolicy.idl</include>
+                                        <include>Tracing.idl</include>
+                                        <include>TransportCurrent.idl</include>
+                                        <include>IIOPTransportCurrent.idl</include>
+                                    </includes>
+                                </source>
+                            </sources>
+                        </configuration>
+                    </execution>
+
+                    <execution>
+                        <id>generate-idl-2</id>
+                        <goals>
+                            <goal>generate</goal>
+                        </goals>
+                        <configuration>
+                            <sourceDirectory>${basedir}/../idl/tao_imr</sourceDirectory>
+                            <sources>
+                                <source>
+                                    <includes>
+                                        <include>ServerObject.idl</include>
+                                        <include>ImplRepo.idl</include>
+                                        <include>AsyncStartupWaiter.idl</include>
+                                        <include>ImR_Activator.idl</include>
+                                        <include>ImR_Locator.idl</include>
+                                    </includes>
+                                    <additionalArguments>
+                                        <additionalArgument>-DJACORB</additionalArgument>
+                                        <additionalArgument>-i2jpackage</additionalArgument>
+                                        <additionalArgument>:org.jacorb.tao_imr</additionalArgument>
+                                    </additionalArguments>
+                                </source>
+                            </sources>
+                        </configuration>
+                    </execution>
+                </executions>
+
+                <configuration>
+                    <includeDirs>
+                        <includeDir>${basedir}/../idl/omg</includeDir>
+                    </includeDirs>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>templating-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>filter-src</id>
+                        <goals>
+                            <goal>filter-sources</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <!-- Use compilerArguments rather than compilerArgs so JBoss Tools Maven Endorsed Dirs -->
+                    <!-- configurator can automatically detect it. -->
+                    <compilerArguments>
+                        <endorseddirs>${settings.localRepository}/org/jacorb/jacorb-omgapi/${project.version}</endorseddirs>
+                    </compilerArguments>
+                </configuration>
+            </plugin>
+
+            <!-- Generate javadoc. Bound into the package phase for deployment purposes -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-source-plugin</artifactId>
+            </plugin>
+
+        </plugins>
+    </build>
+
+    <!-- Activated only inside Eclipse to add directories that the plugins normally handle (but m2e doesn't) -->
+    <profiles>
+        <profile>
+            <id>m2e</id>
+            <activation>
+                <property>
+                    <name>m2e.version</name>
+                </property>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>build-helper-maven-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>add-source</id>
+                                <phase>process-sources</phase>
+                                <goals>
+                                    <goal>add-source</goal>
+                                </goals>
+                                <configuration>
+                                    <sources>
+                                        <source>${project.build.directory}/generated-sources/idl</source>
+                                        <source>${project.build.directory}/generated-sources/java-templates</source>
+                                    </sources>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
+
+</project>

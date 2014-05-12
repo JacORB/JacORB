@@ -29,7 +29,6 @@
         <dependency>
             <groupId>org.jacorb</groupId>
             <artifactId>jacorb</artifactId>
-            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.jacorb</groupId>
@@ -40,17 +39,14 @@
         <dependency>
             <groupId>org.jacorb</groupId>
             <artifactId>jacorb-omgapi</artifactId>
-            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.jacorb</groupId>
             <artifactId>jacorb-idl-compiler</artifactId>
-            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.jacorb</groupId>
             <artifactId>jacorb-services</artifactId>
-            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>junit</groupId>
@@ -70,12 +66,11 @@
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-jdk14</artifactId>
         </dependency>
+
         <dependency>
             <groupId>commons-io</groupId>
             <artifactId>commons-io</artifactId>
-            <version>2.4</version>
         </dependency>
-
         <!-- CXF/Spring is for Bug968 (CXF+Corba) -->
         <dependency>
             <groupId>org.apache.cxf</groupId>
@@ -146,6 +141,13 @@
                 <artifactId>maven-jar-plugin</artifactId>
                 <executions>
                     <execution>
+                        <id>default-jar</id>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                        <phase>none</phase>
+                    </execution>
+                    <execution>
                         <id>test-jar</id>
                         <goals>
                             <goal>test-jar</goal>
@@ -155,11 +157,18 @@
                 </executions>
             </plugin>
 
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <configuration>
+                    <skip>true</skip>
+                </configuration>
+            </plugin>
+
             <!-- Constrain the fork count to 1 on single processor machines -->
             <plugin>
                 <groupId>org.codehaus.gmaven</groupId>
                 <artifactId>gmaven-plugin</artifactId>
-                <version>1.5</version>
                 <executions>
                     <execution>
                         <phase>generate-resources</phase>
@@ -198,7 +207,6 @@
                             <sources>
                                 <source>${project.build.directory}/generated-test-sources/cxf</source>
                                 <source>${project.build.directory}/generated-test-sources/idl</source>
-                                <source>${basedir}/../listenendpoints/echo_corbaloc/src</source>
                             </sources>
                         </configuration>
                     </execution>
@@ -278,7 +286,6 @@
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>idlj-maven-plugin</artifactId>
-                <version>1.2.1</version>
                 <executions>
 
                     <execution>
@@ -300,6 +307,7 @@
                                         <exclude>_bugjac560.idl</exclude>
                                         <exclude>_bugjac801.idl</exclude>
                                         <exclude>ami_bug*.idl</exclude>
+                                        <exclude>server.idl</exclude>
                                     </excludes>
                                     <additionalArguments>
                                         <additionalArgument>-generate_helper</additionalArgument>
@@ -403,7 +411,6 @@
                             <goal>generate-test</goal>
                         </goals>
                         <configuration>
-                            <sourceDirectory>${basedir}/../listenendpoints/echo_corbaloc/idl</sourceDirectory>
                             <sources>
                                 <source>
                                     <includes>
@@ -428,19 +435,11 @@
                         <includeDir>${basedir}/idl</includeDir>
                     </includeDirs>
                 </configuration>
-                <dependencies>
-                    <dependency>
-                        <groupId>org.jacorb</groupId>
-                        <artifactId>jacorb-idl-compiler</artifactId>
-                        <version>${project.version}</version>
-                    </dependency>
-                </dependencies>
             </plugin>
 
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>rmic-maven-plugin</artifactId>
-                <version>1.2.1</version>
                 <executions>
                     <execution>
                         <id>rmi compilation</id>
@@ -468,49 +467,7 @@
 
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <configuration>
-                    <testSource>1.6</testSource>
-                    <testTarget>1.6</testTarget>
-                    <debug>true</debug>
-                    <showWarnings>true</showWarnings>
-                    <showDeprecation>true</showDeprecation>
-                    <compilerArgs>
-                        <arg>-Xbootclasspath/p:${settings.localRepository}/org/jacorb/jacorb-omgapi/${project.version}/jacorb-omgapi-${project.version}.jar</arg>
-                    </compilerArgs>
-                </configuration>
-                <executions>
-                    <execution>
-                        <id>default-testCompile</id>
-                        <phase>test-compile</phase>
-                        <goals>
-                            <goal>testCompile</goal>
-                        </goals>
-                        <configuration>
-                            <testExcludes>
-                                <testExclude>**/RMITestServant.java</testExclude>
-                            </testExcludes>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <id>rmi-compile</id>
-                        <phase>process-test-classes</phase>
-                        <goals>
-                            <goal>testCompile</goal>
-                        </goals>
-                        <configuration>
-                            <testIncludes>
-                                <testInclude>**/RMITestServant.java</testInclude>
-                            </testIncludes>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <version>2.16</version>
                 <configuration>
                     <systemPropertyVariables>
                         <!-- Default timeout for a server to start -->
@@ -599,7 +556,6 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-site-plugin</artifactId>
-                <version>3.3</version>
                 <executions>
                     <!-- Run in both default-site phase and after all the tests -->
                     <execution>
@@ -706,4 +662,90 @@
         </plugins>
     </build>
 
+    <profiles>
+        <!-- This profile is activated during normal builds -->
+        <profile>
+            <id>command-line</id>
+            <activation>
+                <property>
+                    <name>!m2e.version</name>
+                </property>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-compiler-plugin</artifactId>
+                        <configuration>
+                            <compilerArguments>
+                                <endorseddirs>${settings.localRepository}/org/jacorb/jacorb-omgapi/${project.version}</endorseddirs>
+                            </compilerArguments>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <id>default-testCompile</id>
+                                <phase>test-compile</phase>
+                                <goals>
+                                    <goal>testCompile</goal>
+                                </goals>
+                                <configuration>
+                                    <testExcludes>
+                                        <testExclude>**/RMITestServant.java</testExclude>
+                                    </testExcludes>
+                                </configuration>
+                            </execution>
+                            <execution>
+                                <id>rmi-compile</id>
+                                <phase>process-test-classes</phase>
+                                <goals>
+                                    <goal>testCompile</goal>
+                                </goals>
+                                <configuration>
+                                    <testIncludes>
+                                        <testInclude>**/RMITestServant.java</testInclude>
+                                    </testIncludes>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
+            <!-- Activated only inside Eclipse to exclude RMITestServant as Eclipse doesn't handle it. -->
+            <id>m2e</id>
+            <activation>
+                <property>
+                    <name>m2e.version</name>
+                </property>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-compiler-plugin</artifactId>
+                        <configuration>
+                            <compilerArguments>
+                                <endorseddirs>${settings.localRepository}/org/jacorb/jacorb-omgapi/${project.version}</endorseddirs>
+                            </compilerArguments>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <id>default-testCompile</id>
+                                <phase>test-compile</phase>
+                                <goals>
+                                    <goal>testCompile</goal>
+                                </goals>
+                                <configuration>
+                                    <testExcludes>
+                                        <testExclude>**/RMITestServant.java</testExclude>
+                                    </testExcludes>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 </project>

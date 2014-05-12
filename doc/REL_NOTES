@@ -59,10 +59,14 @@
          - Fix for port / endpoint initialisation.
          - Fix for ORB instances sharing Current information.
          - Fixed SSL properties reading and processing (BZ#820).
+         - Improve SAS Error propagation (and add tests).
+         - Removed unused GSSUP code.
     - Documentation
         - Minor fixes.
     - Misc
         - Add Jacoco Coverage to regression suite.
+        - Convert source code to Maven layout.
+        - Upgrade to SLF4J 1.7.6
 
 3.4
 ===
@@ -94,7 +98,6 @@
          - Fix for servicecontext propagation (BZ960)
          - Fix for streamable any (BZ968)
          - Release target object after DII invocation.
-         - Improve SAS Error propagation (and add tests).
     - IDL
          - Fix for logging.
          - Fix for Struct with String typedef type to be output as initialised type.
