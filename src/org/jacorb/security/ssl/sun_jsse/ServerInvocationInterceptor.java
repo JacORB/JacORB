@@ -34,9 +34,12 @@ import org.jacorb.orb.portableInterceptor.ServerRequestInfoImpl;
 import org.omg.PortableInterceptor.ForwardRequest;
 import org.omg.PortableInterceptor.ServerRequestInfo;
 import org.omg.PortableInterceptor.ServerRequestInterceptor;
+import org.omg.Security.SecAttribute;
 import org.omg.Security.AccessId;
 import org.omg.Security.AttributeType;
 import org.omg.Security.ExtensibleFamily;
+import org.omg.SecurityLevel2.ReceivedCredentials;
+import org.jacorb.security.level2.*;
 import org.slf4j.Logger;
 
 /**
@@ -50,7 +53,9 @@ public class ServerInvocationInterceptor
     public static final String DEFAULT_NAME = "ServerInvocationInterceptor";
 
     private String name = null;
-
+    
+    private org.jacorb.security.level2.CurrentImpl current = null;
+    private SecAttributeManager attrib_mgr = null;
     private AttributeType type = null;
 
     private HashMap sessionCredentials = new HashMap();
@@ -63,7 +68,9 @@ public class ServerInvocationInterceptor
                                        org.jacorb.orb.ORB orb)
         throws ConfigurationException
     {
-        this.name = DEFAULT_NAME;
+        this.current = (CurrentImpl) current;
+	this.name = DEFAULT_NAME;
+        attrib_mgr = SecAttributeManager.getInstance();
 
         type =
             new AttributeType( new ExtensibleFamily( (short)0, (short)1 ), AccessId.value );
@@ -135,6 +142,9 @@ public class ServerInvocationInterceptor
 
         if (sessionCredentials.containsKey(session))
         {
+            ReceivedCredentialsImpl sessionRcvCredentials = 
+                (ReceivedCredentialsImpl)sessionCredentials.get(session);
+            current.set_received_credentials(sessionRcvCredentials);
             if (logger.isDebugEnabled())
                 logger.info("Reusing SSL session credentials." );
             return;
@@ -154,6 +164,8 @@ public class ServerInvocationInterceptor
             }
         }
 
+	KeyAndCert kac = null;
+
         try
         {
             javax.security.cert.X509Certificate[] certs =
@@ -168,6 +180,7 @@ public class ServerInvocationInterceptor
                 newCerts[i] = (java.security.cert.X509Certificate)
                     certificateFactory.generateCertificate( new ByteArrayInputStream( certs[i].getEncoded()));
             }
+	    kac = new KeyAndCert( null, newCerts );
 
         }
         catch( Exception e )
@@ -182,6 +195,19 @@ public class ServerInvocationInterceptor
             }
             return;
         }
+
+        if( kac.chain == null )
+        {
+            if (logger.isInfoEnabled())
+                logger.info("Client sent no certificate chain!" );
+            
+            return;
+        }
+                
+        SecAttribute [] atts = 
+            new SecAttribute[]{attrib_mgr.createAttribute(kac, type)} ;
+        
+        current.set_received_credentials( new ReceivedCredentialsImpl( atts ) );
     }
 
     public void send_reply( ServerRequestInfo ri )
