@@ -372,7 +372,7 @@ There are many ways git usage may be enhanced:
 *  Autocompletion on the command line via Bash or ZSH
 *  Custom shell prompts to display GIT repository information (again, available in Bash & ZSH)
 *  Coloring GIT Terminal output
-*  Visual tools such as gitk, qgit, Eclipe integration, etc.
+*  Visual tools such as gitk, qgit, Eclipse integration, etc.
 *  etc.
 
 
