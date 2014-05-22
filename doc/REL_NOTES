@@ -61,6 +61,7 @@
          - Fixed SSL properties reading and processing (BZ#820).
          - Improve SAS Error propagation (and add tests).
          - Removed unused GSSUP code.
+         - Fix for forward request handling for special operations (BZ#979)
     - Documentation
         - Minor fixes.
     - Misc
