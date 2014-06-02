@@ -45,6 +45,7 @@ This Release
 ============
     - ORB:
          - Handle reconnecting via a closed connection to a persistent server (BZ975).
+         - Fix for connection closure/server restart with multiple connections (BZ#986)
 
 2.3.2 JBoss
 ===========
