@@ -4,11 +4,13 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
+
 import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Properties;
+
 import org.jacorb.orb.Delegate;
 import org.jacorb.orb.giop.ClientConnection;
 import org.jacorb.orb.giop.ClientConnectionManager;
@@ -220,8 +222,7 @@ public class MultipleServerTest extends ORBTestCase
 
     private void dumpThread(final String threadName) throws Exception
     {
-        @SuppressWarnings("unchecked")
-        Map<Thread, StackTraceElement[]> map = (Map<Thread, StackTraceElement[]>) Thread.getAllStackTraces ();
+        Map<Thread, StackTraceElement[]> map = Thread.getAllStackTraces ();
 
         Iterator<Thread> i = map.keySet().iterator();
 

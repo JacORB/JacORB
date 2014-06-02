@@ -1,4 +1,4 @@
-package org.jacorb.test.bugs.bug975;
+package org.jacorb.test.bugs.bug986;
 
 /*
  *        JacORB  - a free Java ORB
@@ -20,6 +20,8 @@ package org.jacorb.test.bugs.bug975;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
+import static org.junit.Assert.assertTrue;
+
 import java.util.Properties;
 
 import org.jacorb.test.BasicServer;
@@ -33,8 +35,9 @@ import org.junit.Assume;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.omg.CORBA.SystemException;
 
-public class Bug975Test extends ClientServerTestCase
+public class Bug986Test extends ClientServerTestCase
 {
     private Properties serverProps = new Properties();
     private ORBTestCase clientORBTestCase = new ORBTestCase ()
@@ -51,13 +54,7 @@ public class Bug975Test extends ClientServerTestCase
     {
         clientORBTestCase.ORBSetUp ();
 
-        serverProps.put ("jacorb.test.corbaloc.enable",   "true");
-        serverProps.put ("jacorb.test.corbaloc.port",     "54321");
-        serverProps.put ("jacorb.test.corbaloc.implname", "MyImpl");
-        serverProps.put ("jacorb.test.corbaloc.poaname",  "MyPOA");
-        serverProps.put ("jacorb.test.corbaloc.objectid", "MyObject");
-        serverProps.put ("jacorb.test.corbaloc.shortcut", "Shortcut1");
-        serverProps.put ("jacorb.orb.objectKeyMap.Shortcut2", "MyImpl/MyPOA/MyObject");
+        serverProps.put ("OAPort", "54321");
 
         setup = new ClientServerSetup(
                                    "org.jacorb.test.bugs.bugjac330.CustomBasicServerImpl",
@@ -80,18 +77,27 @@ public class Bug975Test extends ClientServerTestCase
     @Test
     public void test_reconnect_restarted_server() throws Exception
     {
-        org.omg.CORBA.Object obj = clientORBTestCase.getORB ().string_to_object
-            ("corbaloc:iiop:localhost:54321/MyImpl/MyPOA/MyObject");
-        BasicServer server = BasicServerHelper.narrow (obj);
-        server.ping();
+        org.omg.CORBA.Object obj1 = clientORBTestCase.getORB ().string_to_object(setup.getServerIOR());
+        org.omg.CORBA.Object obj2 = clientORBTestCase.getORB ().string_to_object(setup.getServerIOR());
 
-        // Server should now exit (CustomBasicImpl has a wait of 5000).
+        BasicServer server1 = BasicServerHelper.narrow (obj1);
+        BasicServer server2 = BasicServerHelper.narrow (obj2);
+        server1.bounce_long(1);
+        server2.ping();
+
         setup.tearDown ();
 
+        try
+        {
+        	server2._non_existent();
+        }
+        catch (SystemException e)
+        {
+        }
         setup = new ClientServerSetup(
-                                   "org.jacorb.test.bugs.bugjac330.CustomBasicServerImpl",
-                                   null, serverProps);
+                "org.jacorb.test.bugs.bugjac330.CustomBasicServerImpl",
+                null, serverProps);
 
-        server.bounce_long (10);
+        assertTrue (server2._non_existent());
     }
 }

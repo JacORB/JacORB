@@ -62,6 +62,7 @@
          - Improve SAS Error propagation (and add tests).
          - Removed unused GSSUP code.
          - Fix for forward request handling for special operations (BZ#979)
+         - Fix for connection closure/server restart with multiple connections (BZ#986)
     - Documentation
         - Minor fixes.
     - Misc

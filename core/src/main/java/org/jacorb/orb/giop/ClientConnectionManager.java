@@ -154,12 +154,13 @@ public class ClientConnectionManager
      */
     public synchronized void releaseConnection( ClientConnection connection )
     {
-        if ( connection.decClients() )
+        if ( connection.decClients() || connection.isClosed ())
         {
             if (logger.isDebugEnabled())
             {
-                logger.debug ("ClientConnectionManager: releasing "
-                              + connection.getGIOPConnection().toString());
+                logger.debug ("ClientConnectionManager: releasing " +
+                              ( connection.isClosed () ? "closed connection " : "" ) +
+                              connection.getGIOPConnection().toString());
             }
             connection.close();
             connections.remove(connection.getRegisteredProfile());
