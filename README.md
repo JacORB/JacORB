@@ -16,7 +16,7 @@ http://www.iconarchive.com/show/fugue-icons-by-yusuke-kamiyamane.html
 
 # JacORB #
 
-JacORB is a free java implementation of the OMG's [CORBA](http://www.omg.org) standard. The main home page is [here](http://www.jacorb.org).
+JacORB is a free java implementation of the OMG's [CORBA](http://www.omg.org) standard. The main home page is [here](http://www.jacorb.org). Mailing lists are available [here](http://www.jacorb.org/contact.html) and the Bugzilla for issues is [here](http://www.jacorb.org/bugzilla).
 
 
 ## Contributing Via GitHub ##
