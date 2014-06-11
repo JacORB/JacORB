@@ -56,8 +56,9 @@ Note that the services may depend upon further third party libraries.
 \subsection{Building JacORB}
 \label{sec:building}
 
-JacORB may be built via Maven using standard commands (i.e. {\tt mvn clean install}). The
-project may be imported into Eclipse or IntelliJ using standard import commands.
+JacORB may be built via Maven using standard commands (i.e. {\tt mvn clean install}). Note that the install
+phase must be executed so subsequent module builds find the results of preceeding modules. The project may be
+imported into Eclipse or IntelliJ using standard import commands.
 
 \subsubsection{Importing into Eclipse}
 \begin{itemize}

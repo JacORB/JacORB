@@ -8,6 +8,9 @@ import java.util.Properties;
 
 import org.jacorb.orb.giop.CodeSet;
 import org.jacorb.orb.iiop.IIOPAddress;
+import org.jacorb.orb.ORBSingleton;
+import org.omg.CORBA.ORB;
+
 
 /**
  * JacORB Diagnostic class. This will print to System.out the following information:
@@ -67,5 +70,24 @@ public class Diagnostic
         System.out.println("Cannonical encoding: " + defaultIOEncoding);
         System.out.println("Default WChar encoding: " + CodeSet.getTCSWDefault().getName());
         System.out.println();
+
+        Properties p = new Properties();
+        props.setProperty("org.omg.CORBA.ORBClass","org.jacorb.orb.ORB");
+        props.setProperty("org.omg.CORBA.ORBSingletonClass","org.jacorb.orb.ORBSingleton");
+        ORB orb = ORB.init(args, props);
+        System.out.println ("Created ORB " + orb.getClass().getName());
+
+        // Trivial check to ensure standard startup still leads to a JacORB singleton.
+        try
+        {
+            if ( ! ( ORB.init() instanceof ORBSingleton))
+            {
+                System.out.println ("Default Singleton ORB is not a JacORB singleton. This is not recommended as it *could* lead to classpath/classloader/stub conflicts.");
+            }
+        }
+        catch (Throwable e)
+        {
+            e.printStackTrace();
+        }
     }
 }

@@ -63,6 +63,7 @@
          - Removed unused GSSUP code.
          - Fix for forward request handling for special operations (BZ#979)
          - Fix for connection closure/server restart with multiple connections (BZ#986)
+         - Move Singleton debug code into Diagnostic class to avoid JDK issues.
     - Documentation
         - Minor fixes.
     - Misc
