@@ -37,7 +37,7 @@ package org.jacorb.util;
  * This is a passthru to the SelectorManager instance and should probably
  * go away
  *
- * @author Phil Mesnier <mesnier_p@ociweb.com>
+ * @author Phil Mesnier {@literal <mesnier_p@ociweb.com>}
  */
 public class TimerQueue
 {

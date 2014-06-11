@@ -9,6 +9,7 @@ import java.net.SocketTimeoutException;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
+
 import org.jacorb.config.Configuration;
 import org.jacorb.config.ConfigurationException;
 import org.jacorb.orb.CDRInputStream;
@@ -61,8 +62,6 @@ public class ServerMIOPConnection extends MIOPConnection implements Runnable
 
    /**
     * Creates a new server MIOP connection that listen to the specified group.
-    *
-    * @param profile group UIPMC profile
     */
    public ServerMIOPConnection ()
    {
@@ -76,9 +75,10 @@ public class ServerMIOPConnection extends MIOPConnection implements Runnable
    /**
     * Connect the socket. Called by MIOPListener.
     *
-    * @param unused unused because we use the one passed in constructor
+    * @param profile
     * @param time_out unused, we use SO_TIMEOUT
     */
+   @Override
    public void connect (Profile profile, long time_out)
    {
       if ( ! is_connected())
@@ -125,6 +125,7 @@ public class ServerMIOPConnection extends MIOPConnection implements Runnable
     *
     * @return true if there are data available.
     */
+   @Override
    public boolean is_data_available ()
    {
       return (current != null && currentPos < current.length) || !fullMessages.isEmpty ();
@@ -138,6 +139,7 @@ public class ServerMIOPConnection extends MIOPConnection implements Runnable
     * @param timeout unused.
     * @return always true.
     */
+   @Override
    public synchronized boolean wait_next_data (long timeout)
    {
       while (fullMessages.isEmpty ())
@@ -166,6 +168,7 @@ public class ServerMIOPConnection extends MIOPConnection implements Runnable
     * @param maxLength the maximum length to be read.
     * @param timeout unused
     */
+   @Override
    public synchronized int read (BufferHolder buffer, int offset, int minLength, int maxLength,
             long timeout)
    {
@@ -204,6 +207,7 @@ public class ServerMIOPConnection extends MIOPConnection implements Runnable
    /**
     * Close this connection.
     */
+   @Override
    public synchronized void close ()
    {
       if (!connected)
@@ -253,6 +257,7 @@ public class ServerMIOPConnection extends MIOPConnection implements Runnable
     * Run method. Inherited from runnable, this method is used to stay listening
     * to the socket for new messages.
     */
+   @Override
    public void run ()
    {
       // create incomplete table if doesn't exist
@@ -442,6 +447,7 @@ public class ServerMIOPConnection extends MIOPConnection implements Runnable
     *
     * @see org.jacorb.orb.etf.ConnectionBase#getTimeout()
     */
+   @Override
    protected int getTimeout ()
    {
        try
@@ -460,6 +466,7 @@ public class ServerMIOPConnection extends MIOPConnection implements Runnable
     *
     * @see org.jacorb.orb.etf.ConnectionBase#setTimeout(int)
     */
+   @Override
    protected void setTimeout (int timeout)
    {
        if (socket != null)
@@ -483,6 +490,7 @@ public class ServerMIOPConnection extends MIOPConnection implements Runnable
    }
 
 
+   @Override
    public void configure(Configuration config) throws ConfigurationException
    {
        super.configure(config);

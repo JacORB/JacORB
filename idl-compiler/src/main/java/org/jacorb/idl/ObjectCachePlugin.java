@@ -24,8 +24,8 @@ import java.io.PrintWriter;
 import java.util.List;
 
 /**
- * A plugin interface that allows to insert custom code (to help reuse structs and unions) 
- * into the generated java code. The following IDL is to help illustrate the code insertion 
+ * A plugin interface that allows to insert custom code (to help reuse structs and unions)
+ * into the generated java code. The following IDL is to help illustrate the code insertion
  * points.
  * <code>
  * module test
@@ -38,7 +38,7 @@ import java.util.List;
  *   union MyUnion switch(long)
  *   {
  *     case 1: long foo;
- *     case 2: MyStruct bar;    
+ *     case 2: MyStruct bar;
  *   };
  *
  *   interface MyIntface
@@ -52,13 +52,13 @@ import java.util.List;
 public interface ObjectCachePlugin
 {
     /**
-     * Code insertion point right in the beginning of a struct or union 
-     * helper's read method.<br/>
-     * From MyUnionHelper.read(): <br/>
-     * <code>   
+     * Code insertion point right in the beginning of a struct or union
+     * helper's read method.<br>
+     * From MyUnionHelper.read(): <br>
+     * <code>
      public static MyUnion read (org.omg.CORBA.portable.InputStream in)
      {
-//  ----> code from printCheckout() goes here, instead of "MyUnion result = new MyUnion();" <----
+//  ---- code from printCheckout() goes here, instead of "MyUnion result = new MyUnion();" ----
 
           int disc=in.read_long();
           switch (disc)
@@ -84,23 +84,23 @@ public interface ObjectCachePlugin
      * </code>
      */
     void printCheckout(PrintWriter ps, String className, String variableName);
-    
+
     /**
-     * Code insertion poin after invoking the servant.<br/>
-     * From <tt>MyInterfacePOA.invoke()</tt> <br/>
+     * Code insertion poin after invoking the servant.<br>
+     * From <tt>MyInterfacePOA.invoke()</tt> <br>
      * <code>
      * switch ( opsIndex.intValue() )
        {
           case 0: // op
-          {            
+          {
              test.MyStruct _arg0=test.MyStructHelper.read(_input);
              test.MyUnionHolder _arg1= new test.MyUnionHolder();
              _arg1._read (_input);
              _out = handler.createReply();
              op(_arg0,_arg1);
              test.MyUnionHelper.write(_out,_arg1.value);
-             
-//  ----> code from printSkeletonCheckin() goes here <----
+
+//  ---- code from printSkeletonCheckin() goes here ----
 
              break;
           }
@@ -108,22 +108,22 @@ public interface ObjectCachePlugin
      * </code>
      */
     void printSkeletonCheckin(PrintWriter ps, List paramDecls, String variablePrefix);
-    
+
     /**
      * Code insertion point to add methods to a struct's or union's helper class.
      */
     void printCheckinHelper(PrintWriter ps, TypeDeclaration decl);
-    
+
     /**
-     * Code insertion point in the skeleton before reading the parameters. <br/>
-     * From <tt>MyInterfacePOA.invoke()</tt> <br/>
+     * Code insertion point in the skeleton before reading the parameters. <br>
+     * From <tt>MyInterfacePOA.invoke()</tt> <br>
      * <code>
      * switch ( opsIndex.intValue() )
        {
           case 0: // op
           {
-//  ----> code from printPreParamRead() goes here <----
-              
+//  ---- code from printPreParamRead() goes here ----
+
              test.MyStruct _arg0=test.MyStructHelper.read(_input);
              test.MyUnionHolder _arg1= new test.MyUnionHolder();
              _arg1._read (_input);
@@ -137,11 +137,11 @@ public interface ObjectCachePlugin
      * </code>
      */
     void printPreParamRead(PrintWriter ps, List paramDecls);
-    
+
     /**
-     * Code insertion point in the skeleton after reading the parameters, 
-     * but before invoking the servant. <br/>
-     * From <tt>MyInterfacePOA.invoke()</tt> <br/>
+     * Code insertion point in the skeleton after reading the parameters,
+     * but before invoking the servant. <br>
+     * From <tt>MyInterfacePOA.invoke()</tt> <br>
      * <code>
      * switch ( opsIndex.intValue() )
        {
@@ -150,9 +150,9 @@ public interface ObjectCachePlugin
              test.MyStruct _arg0=test.MyStructHelper.read(_input);
              test.MyUnionHolder _arg1= new test.MyUnionHolder();
              _arg1._read (_input);
-             
-//  ----> code from printPostParamRead() goes here <----
-              
+
+//  ---- code from printPostParamRead() goes here ----
+
              _out = handler.createReply();
              op(_arg0,_arg1);
              test.MyUnionHelper.write(_out,_arg1.value);
@@ -162,18 +162,18 @@ public interface ObjectCachePlugin
      * </code>
      */
     void printPostParamRead(PrintWriter ps, List paramDecls);
-    
+
     /**
-     * Code insertion point in the read method of a helper class of a 
-     * struct or union before reading struct/union members.<br/>
-     * From MyUnionHelper.read(): <br/>
-     * <code>   
+     * Code insertion point in the read method of a helper class of a
+     * struct or union before reading struct/union members.<br>
+     * From MyUnionHelper.read(): <br>
+     * <code>
      public static MyUnion read (org.omg.CORBA.portable.InputStream in)
-     {      
+     {
        MyUnion result = new MyUnion();
-       
-//  ----> code from printPreMemberRead() goes here <----
- 
+
+//  ---- code from printPreMemberRead() goes here ----
+
           int disc=in.read_long();
           switch (disc)
           {
@@ -198,14 +198,14 @@ public interface ObjectCachePlugin
      * </code>
      */
     void printPreMemberRead(PrintWriter ps, TypeDeclaration decl);
-    
+
     /**
-     * Code insertion point in the read method of a helper class of a 
-     * struct or union after reading struct/union members.<br/><br/>
-     * From MyUnionHelper.read(): <br/>
-     * <code>   
+     * Code insertion point in the read method of a helper class of a
+     * struct or union after reading struct/union members.<br><br>
+     * From MyUnionHelper.read(): <br>
+     * <code>
      public static MyUnion read (org.omg.CORBA.portable.InputStream in)
-     {      
+     {
           MyUnion result = new MyUnion();
           int disc=in.read_long();
           switch (disc)
@@ -227,8 +227,8 @@ public interface ObjectCachePlugin
              default: result.__default (disc);
           }
 
-//  ----> code from printPostMemberRead() goes here <----
-        
+//  ---- code from printPostMemberRead() goes here ----
+
          return result;
      }
      * </code>

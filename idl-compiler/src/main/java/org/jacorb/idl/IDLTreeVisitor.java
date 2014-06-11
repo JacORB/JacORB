@@ -27,7 +27,7 @@ package org.jacorb.idl;
  * Generic API used by the IDL compiler to call backend code
  * generators. Extend this interface for your own code
  * generator backends. To plug into the compiler, use the
- * IDL compiler option "-backend <classname>"
+ * IDL compiler option "-backend classname"
  *
  * @author Gerald Brose, XTRADYNE Technologies.
  */
@@ -85,12 +85,11 @@ public interface IDLTreeVisitor
     void visitTypeDeclaration( TypeDeclaration typeDecl );
 
     void visitConstrTypeSpec( ConstrTypeSpec typeDecl );
-    
+
     void visitSimpleTypeSpec( SimpleTypeSpec typeDecl );
-    
+
     void visitVectorType( VectorType typeDecl );
-    
-    
+
+
 
 }
-

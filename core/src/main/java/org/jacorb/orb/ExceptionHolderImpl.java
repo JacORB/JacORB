@@ -43,7 +43,7 @@ import org.slf4j.Logger;
  * <code>org.omg.Messaging.ExceptionHolder</code>.  An instance of this
  * type is used to pass an exception to a reply handler.
  *
- * @author Andre Spiegel <spiegel@gnu.org>
+ * @author Andre Spiegel {@literal <spiegel@gnu.org>}
  */
 public class ExceptionHolderImpl
     extends org.omg.Messaging.ExceptionHolder
@@ -119,19 +119,22 @@ public class ExceptionHolderImpl
         }
     }
 
+    @Override
     public void configure(Configuration configuration)
         throws ConfigurationException
     {
         logger =
-            ((org.jacorb.config.Configuration)configuration).getLogger("org.jacorb.orb.exc_holder");
+            configuration.getLogger("org.jacorb.orb.exc_holder");
     }
 
 
+    @Override
     public void raise_exception_with_list (TypeCode[] exc_list) throws UserException
     {
         throw new NO_IMPLEMENT ("NYI");
     }
 
+    @Override
     public void raise_exception()
         throws UserException
     {
@@ -188,6 +191,7 @@ public class ExceptionHolderImpl
     /**
      * For testing.
      */
+    @Override
     public String toString()
     {
         StringBuffer result = new StringBuffer();

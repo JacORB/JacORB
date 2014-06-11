@@ -61,7 +61,7 @@ public interface IBufferManager
      * <code>getExpandedBuffer</code> returns a new buffer which size
      * will be calculated according to BufferManager expansion policy.
      *
-     * @param size an <code>int</code> value
+     * @param requiredSize an <code>int</code> value
      * @return a <code>byte[]</code> value
      */
     byte[] getExpandedBuffer (int requiredSize);

@@ -31,7 +31,7 @@ import java.util.logging.Level;
 /**
  * This class deals with IDL input files and their inclusion relationships.
  *
- * @author Gerald Brose <mailto:gerald.brose@acm.org>
+ * @author Gerald Brose
  */
 
 public class GlobalInputStream

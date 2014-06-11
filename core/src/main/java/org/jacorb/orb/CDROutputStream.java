@@ -57,7 +57,7 @@ import org.omg.IOP.IORHelper;
 import org.omg.IOP.TaggedProfile;
 
 /**
- * @author Gerald Brose,  1999
+ * @author Gerald Brose
  *
  * A stream for CDR marshalling.
  *
@@ -211,7 +211,7 @@ public class CDROutputStream
      * size selecting c'tor
      * @param orb must be a JacORB ORB
      * @param bufferSize -1 to fetch the default buffer size,
-     *        value > 0 to specify a specific size
+     *        value &gt; 0 to specify a specific size
      * @param no_deferred true overrides the configured deferred writes behavior
      *        and forces all data into the single buffer while marshaling
      */
@@ -274,6 +274,7 @@ public class CDROutputStream
     }
 
 
+    @Override
     public org.omg.CORBA.ORB orb()
     {
         return orb;
@@ -479,6 +480,7 @@ public class CDROutputStream
         return giop_minor;
     }
 
+    @Override
     public void close()
     {
         // Don't need to call super.close as super is noop.
@@ -735,6 +737,7 @@ public class CDROutputStream
      * The following operations are from OutputStream *
      **************************************************/
 
+    @Override
     public org.omg.CORBA.portable.InputStream create_input_stream()
     {
         if (deferred_writes > 0)
@@ -756,6 +759,7 @@ public class CDROutputStream
         return new CDRInputStream(orb, result);
     }
 
+    @Override
     public final void write_any(final org.omg.CORBA.Any value)
     {
         if( value == null )
@@ -766,6 +770,7 @@ public class CDROutputStream
         value.write_value( this ) ;
     }
 
+    @Override
     public final void write_boolean(final boolean value)
     {
         check(1);
@@ -781,6 +786,7 @@ public class CDROutputStream
         index++;
     }
 
+    @Override
     public final void write_boolean_array
        (final boolean[] value, final int offset, final int length)
     {
@@ -812,6 +818,7 @@ public class CDROutputStream
      *
      * @param c a <code>char</code> value
      */
+    @Override
     public final void write_char (final char c)
     {
         // According to 15.3.1.6 of CORBA 3.0 'a single instance of the char type
@@ -829,6 +836,7 @@ public class CDROutputStream
     }
 
 
+    @Override
     public final void write_char_array
        (final char[] value, final int offset, final int length)
     {
@@ -863,6 +871,7 @@ public class CDROutputStream
      *
      * @param value a <code>String</code> value
      */
+    @Override
     public final void write_string(final String value)
     {
         if( value == null )
@@ -934,6 +943,7 @@ public class CDROutputStream
         }
     }
 
+    @Override
     public final void write_wchar(final char c)
     {
         check(6);  // maximum is UTF-16 handling non-BPM character with BOM
@@ -942,6 +952,7 @@ public class CDROutputStream
     }
 
 
+    @Override
     public void write_byte( byte b )
     {
         buffer[pos++] = b;
@@ -949,6 +960,7 @@ public class CDROutputStream
     }
 
 
+    @Override
     public final void write_wchar_array
        (final char[] value, final int offset, final int length)
     {
@@ -965,6 +977,7 @@ public class CDROutputStream
         }
     }
 
+    @Override
     public final void write_wstring(final String s)
     {
         if( s == null )
@@ -1014,11 +1027,13 @@ public class CDROutputStream
     }
 
 
+    @Override
     public final void write_double(final double value)
     {
         write_longlong (Double.doubleToLongBits (value));
     }
 
+    @Override
     public final void write_double_array
        (final double[] value, final int offset, final int length)
     {
@@ -1052,6 +1067,7 @@ public class CDROutputStream
         }
     }
 
+    @Override
     public void write_fixed(BigDecimal value, short digits, short scale)
     {
         String v = value.unscaledValue().toString();
@@ -1104,6 +1120,7 @@ public class CDROutputStream
     /**
      * @deprecated
      */
+    @Override
     @Deprecated
     public void write_fixed(final java.math.BigDecimal value)
     {
@@ -1111,11 +1128,13 @@ public class CDROutputStream
     }
 
 
+    @Override
     public final void write_float(final float value)
     {
         write_long(Float.floatToIntBits(value));
     }
 
+    @Override
     public final void write_float_array
        (final float[] value, final int offset, final int length)
     {
@@ -1141,6 +1160,7 @@ public class CDROutputStream
         }
     }
 
+    @Override
     public final void write_long(final int value)
     {
         check(7,4);
@@ -1150,6 +1170,7 @@ public class CDROutputStream
         pos += 4; index += 4;
     }
 
+    @Override
     public final void write_long_array
        (final int[] value, final int offset, final int length)
     {
@@ -1182,6 +1203,7 @@ public class CDROutputStream
         }
     }
 
+    @Override
     public final void write_longlong(final long value)
     {
         check(15,8);
@@ -1199,6 +1221,7 @@ public class CDROutputStream
         pos += 8;
     }
 
+    @Override
     public final void write_longlong_array
        (final long[] value, final int offset, final int length)
     {
@@ -1229,6 +1252,7 @@ public class CDROutputStream
         }
     }
 
+    @Override
     public void write_Object(final org.omg.CORBA.Object value)
     {
         if( value == null )
@@ -1269,6 +1293,7 @@ public class CDROutputStream
     }
     ////////////////////////////////////////////// NEW!
 
+    @Override
     public final void write_octet(final byte value)
     {
         check(1);
@@ -1276,6 +1301,7 @@ public class CDROutputStream
         buffer[pos++] = value;
     }
 
+    @Override
     public final void write_octet_array( final byte[] value,
                                          final int offset,
                                          final int length)
@@ -1320,11 +1346,13 @@ public class CDROutputStream
         }
     }
 
+    @Override
     public final void write_Principal(final org.omg.CORBA.Principal value)
     {
         throw new NO_IMPLEMENT ("Principal deprecated");
     }
 
+    @Override
     public final void write_short(final short value)
     {
         check(3,2);
@@ -1334,6 +1362,7 @@ public class CDROutputStream
         index += 2;
     }
 
+    @Override
     public final void write_short_array
        (final short[] value, final int offset, final int length)
     {
@@ -1366,6 +1395,7 @@ public class CDROutputStream
         }
     }
 
+    @Override
     public final void write_TypeCode (org.omg.CORBA.TypeCode typeCode)
     {
         if (typeCode == null)
@@ -1403,33 +1433,39 @@ public class CDROutputStream
         typeCodeWriter.writeTypeCode(typeCode, this, recursiveTCMap, repeatedTCMap);
     }
 
+    @Override
     public final void write_ulong(final int value)
     {
         write_long (value);
     }
 
+    @Override
     public final void write_ulong_array
        (final int[] value, final int offset, final int length)
     {
         write_long_array (value, offset, length);
     }
 
+    @Override
     public final void write_ulonglong(final long value)
     {
         write_longlong (value);
     }
 
+    @Override
     public final void write_ulonglong_array
        (final long[] value, final int offset, final int length)
     {
         write_longlong_array (value, offset, length);
     }
 
+    @Override
     public final void write_ushort(final short value)
     {
         write_short (value);
     }
 
+    @Override
     public final void write_ushort_array
        (final short[] value, final int offset, final int length)
     {
@@ -1892,6 +1928,7 @@ public class CDROutputStream
      * Writes the serialized state of `value' to this stream.
      */
 
+    @Override
     public void write_value(final java.io.Serializable value)
     {
         if (!write_special_value (value))
@@ -1901,6 +1938,7 @@ public class CDROutputStream
         }
     }
 
+    @Override
     public void write_value(final java.io.Serializable value,
                             final org.omg.CORBA.portable.BoxedValueHelper factory)
     {
@@ -1953,6 +1991,7 @@ public class CDROutputStream
         return true;
     }
 
+    @Override
     public void write_value(final java.io.Serializable value,
                             final java.lang.Class clazz)
     {
@@ -1976,6 +2015,7 @@ public class CDROutputStream
         }
     }
 
+    @Override
     public void write_value(final java.io.Serializable value,
                              final String repository_id)
     {
@@ -2435,6 +2475,7 @@ public class CDROutputStream
      * union contains a CORBA object reference, or false if the union contains
      * a value.
      */
+    @Override
     public void write_abstract_interface(final java.lang.Object object)
     {
         if (object instanceof org.omg.CORBA.Object)
@@ -2457,6 +2498,7 @@ public class CDROutputStream
      *
      * @param rep_id
      */
+    @Override
     public void start_value (String rep_id)
     {
        write_value_header (new String[] {rep_id});
@@ -2469,6 +2511,7 @@ public class CDROutputStream
      * It should end any currently open chunk, write the end tag for the nested custom valuetype,
      * and decrement the valuetype nesting depth.
      */
+    @Override
     public void end_value ()
     {
        end_chunk();

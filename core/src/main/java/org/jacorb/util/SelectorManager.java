@@ -53,7 +53,7 @@ import org.slf4j.Logger;
  * could be used to help orchestrate other sorts of asynch event handling
  * in the future.
  *
- * @auther Ciju John <johnc@ociweb.com>
+ * @author Ciju John {@literal <johnc@ociweb.com>}
  */
 public class SelectorManager extends Thread
 {
@@ -144,6 +144,7 @@ public class SelectorManager extends Thread
     /**
      * The thread function
      */
+    @Override
     public void run ()
     {
 
@@ -330,7 +331,7 @@ public class SelectorManager extends Thread
             {
                 cleanupBuffer (e.next());
             }
-	    }
+        }
 
         cleanupBuffer (reActivateBuffer);
         cleanupBuffer (canceledRequests);
@@ -410,7 +411,7 @@ public class SelectorManager extends Thread
 
     /**
      * get the current buffer depth for the given type of request
-     * @param the request type of interest
+     * @param type the request type of interest
      * @return the pool (or requestbuffer) size
      */
 
@@ -436,7 +437,7 @@ public class SelectorManager extends Thread
         if (newRequests.remove(request))
             return;
         // no need to wake up the selector, since the request was
-        // canceled before it was pulled from the new requests
+        // canceled before it was pulled from the new requestsDskipJavadoc
         // list. That means that the previous call to add() had
         // (or will) awaken the selector and just find the new
         // requests list potentially empty.
@@ -459,35 +460,35 @@ public class SelectorManager extends Thread
         request.setStatus (reason);
         if (request.callback == null)
         {
-	    return false;
-	}
-	if (loggerDebugEnabled)
+            return false;
+        }
+        if (loggerDebugEnabled)
         {
-	    logger.debug ("Immediate Requestor callback in client thread. " +
-			  "Request type: " + request.type.toString() +
-			  ", Request status: " + request.status.toString());
-	}
+            logger.debug ("Immediate Requestor callback in client thread. " +
+                          "Request type: " + request.type.toString() +
+                          ", Request status: " + request.status.toString());
+        }
 
-	try
+        try
         {
-	    request.callback.call (request);
-	}
-	catch (Exception ex)
+            request.callback.call (request);
+        }
+        catch (Exception ex)
         {
-	    // disregard any client exceptions
-	}
+            // disregard any client exceptions
+        }
 
-	if (loggerDebugEnabled)
+        if (loggerDebugEnabled)
         {
-	    logger.debug ("Callback concluded");
-	}
+            logger.debug ("Callback concluded");
+        }
         return false;
     }
 
     /**
      * Adds a new request entity to the requestor pool.
      * @param request is the event to be added to the pool
-     * @returns true if the request was successfully added
+     * @return true if the request was successfully added
      */
     public boolean add (SelectorRequest request)
     {
@@ -558,18 +559,18 @@ public class SelectorManager extends Thread
             }
             catch (Exception ex)
             {
-    		// channel interest ops weren't updated, so current
-    		// ops are fine. We aren't leaving around extra ops
-    		// internal data structures don't need cleanup as
-    		// request wasn't inserted yet.
-    		logger.error ("reactivate failed: " + ex.getMessage());
-    		request.setStatus (SelectorRequest.Status.FAILED);
+                // channel interest ops weren't updated, so current
+                // ops are fine. We aren't leaving around extra ops
+                // internal data structures don't need cleanup as
+                // request wasn't inserted yet.
+                logger.error ("reactivate failed: " + ex.getMessage());
+                request.setStatus (SelectorRequest.Status.FAILED);
 
-    		// call back request callable in worker thread
-    		SendJob sendJob = new SendJob (request);
-    		FutureTask<Object> task = new FutureTask<Object> (sendJob);
-    		executor.execute (task);
-    	    }
+                // call back request callable in worker thread
+                SendJob sendJob = new SendJob (request);
+                FutureTask<Object> task = new FutureTask<Object> (sendJob);
+                executor.execute (task);
+            }
         }
     }
 
@@ -636,18 +637,18 @@ public class SelectorManager extends Thread
                 logger.debug ("Removing request type: " + request.type.toString());
             }
 
-    	    if (request.type == SelectorRequest.Type.TIMER)
+            if (request.type == SelectorRequest.Type.TIMER)
             {
-    	        boolean result = timeOrderedRequests.remove(request);
-    	        if (loggerDebugEnabled)
-    	        {
-    	            logger.debug ("Result of removing timer: " + result);
-    	        }
-    	    }
-    	    else
+                boolean result = timeOrderedRequests.remove(request);
+                if (loggerDebugEnabled)
+                {
+                    logger.debug ("Result of removing timer: " + result);
+                }
+            }
+            else
             {
-    	        removeFromActivePool (request);
-    	    }
+                removeFromActivePool (request);
+            }
         }
     }
 
@@ -694,21 +695,21 @@ public class SelectorManager extends Thread
                 logger.debug ("Inserting request type: " + request.type.toString());
             }
 
-    	    if (request.type != SelectorRequest.Type.CONNECT &&
-    	        request.type != SelectorRequest.Type.TIMER &&
-    	        !request.channel.isConnected ())
+            if (request.type != SelectorRequest.Type.CONNECT &&
+                request.type != SelectorRequest.Type.TIMER &&
+                !request.channel.isConnected ())
             {
-    	        removeClosedRequests (request.key);
-    	        return;
+                removeClosedRequests (request.key);
+                return;
             }
 
-    	    if (request.type == SelectorRequest.Type.TIMER)
-    	    {
-    	        insertIntoTimedBuffer (request);
-    	    }
-    	    else
+            if (request.type == SelectorRequest.Type.TIMER)
             {
-    	        insertIntoActivePool (request);
+                insertIntoTimedBuffer (request);
+            }
+            else
+            {
+                insertIntoActivePool (request);
             }
         }
     }
@@ -1127,8 +1128,7 @@ public class SelectorManager extends Thread
             this.request = request;
         }
 
-        public Object call()
-        throws Exception
+        public Object call() throws Exception
         {
             if (running)
             {

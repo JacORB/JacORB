@@ -63,7 +63,7 @@ public class TCPConnectionEvent extends EventObject
      * @param remotePort an <code>int</code> value, maybe -1 if a Socket has
      *                 just been created and not connected.
      * @param localPort an <code>int</code> value
-     * @param localIP a <String> value representing the local IP address
+     * @param localIP a <code>string</code> value representing the local IP address
      */
     public TCPConnectionEvent
         (IIOPConnection source,
@@ -128,6 +128,7 @@ public class TCPConnectionEvent extends EventObject
      *
      * @return  A String representation of this EventObject.
      */
+    @Override
     public String toString()
     {
         return (super.toString() + " with local port " + localPort

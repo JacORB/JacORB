@@ -163,6 +163,7 @@ public class ORBSingleton
 
     /* factory methods: */
 
+    @Override
     public org.omg.CORBA.Any create_any()
     {
         return new org.jacorb.orb.Any(this);
@@ -311,6 +312,7 @@ public class ORBSingleton
 
     /* TypeCode factory section */
 
+    @Override
     public TypeCode create_alias_tc( String id,
                                      String name,
                                      TypeCode original_type)
@@ -324,6 +326,7 @@ public class ORBSingleton
                                             original_type);
     }
 
+    @Override
     public TypeCode create_array_tc( int length, TypeCode element_type)
     {
         checkTCMemberType( element_type );
@@ -332,6 +335,7 @@ public class ORBSingleton
                                             element_type);
     }
 
+    @Override
     public TypeCode create_enum_tc( String id,
                                     String name,
                                     String[] members)
@@ -344,11 +348,12 @@ public class ORBSingleton
      * typecode.  This is to cater for compact typecodes where the name
      * may not be set.  Checking of the name will always be true for user
      * driven requests
-     * @param id
-     * @param name
-     * @param members
-     * @param checkName
-     * @returns TypeCode
+     *
+     * @param id the id
+     * @param name the name
+     * @param members the members
+     * @param checkName the check name
+     * @return the type code
      */
     public TypeCode create_enum_tc( String id,
                              String name,
@@ -389,6 +394,7 @@ public class ORBSingleton
         return new org.jacorb.orb.TypeCode( id, name, members);
     }
 
+    @Override
     public TypeCode create_exception_tc( String id,
                                          String name,
                                          org.omg.CORBA.StructMember[] members)
@@ -401,11 +407,12 @@ public class ORBSingleton
      * typecode.  This is to cater for compact typecodes where the name
      * may not be set.  Checking of the name will always be true for user
      * driven requests
-     * @param id
-     * @param name
-     * @param members
-     * @param checkName
-     * @returns TypeCode
+     *
+     * @param id the id
+     * @param name the name
+     * @param members the members
+     * @param checkName the check name
+     * @return the type code
      */
     public TypeCode create_exception_tc( String id,
                                   String name,
@@ -451,6 +458,7 @@ public class ORBSingleton
                                             members);
     }
 
+    @Override
     public TypeCode create_interface_tc( String id, String name)
     {
         checkTCRepositoryId( id );
@@ -460,6 +468,7 @@ public class ORBSingleton
                                             name);
     }
 
+    @Override
     public org.omg.CORBA.TypeCode create_fixed_tc( short digits,
                                                    short scale)
     {
@@ -471,18 +480,21 @@ public class ORBSingleton
         return new org.jacorb.orb.TypeCode(digits, scale);
     }
 
+    @Override
     public org.omg.CORBA.TypeCode create_recursive_tc( String id )
     {
         checkTCRepositoryId( id );
         return new org.jacorb.orb.TypeCode( id );
     }
 
+    @Override
     public org.omg.CORBA.TypeCode create_recursive_sequence_tc (int bound, int offset)
     {
         throw new NO_IMPLEMENT ("create_recursive_sequence_tc - NYI");
     }
 
 
+    @Override
     public TypeCode create_sequence_tc( int bound, TypeCode element_type)
     {
         checkTCMemberType( element_type );
@@ -493,17 +505,20 @@ public class ORBSingleton
         return typeCode;
     }
 
+    @Override
     public TypeCode create_string_tc(int bound)
     {
         return new org.jacorb.orb.TypeCode( org.omg.CORBA.TCKind._tk_string, bound );
     }
 
+    @Override
     public TypeCode create_wstring_tc(int bound)
     {
         return new org.jacorb.orb.TypeCode( org.omg.CORBA.TCKind._tk_wstring, bound);
     }
 
 
+    @Override
     public TypeCode create_struct_tc(String id,
                                      String name,
                                      org.omg.CORBA.StructMember[] members)
@@ -516,11 +531,12 @@ public class ORBSingleton
      * typecode.  This is to cater for compact typecodes where the name
      * may not be set.  Checking of the name will always be true for user
      * driven requests
-     * @param id
-     * @param name
-     * @param members
-     * @param checkName
-     * @returns TypeCode
+     *
+     * @param id the id
+     * @param name the name
+     * @param members the members
+     * @param checkName the check name
+     * @return the type code
      */
     public TypeCode create_struct_tc(String id,
                               String name,
@@ -568,6 +584,7 @@ public class ORBSingleton
         return typeCode;
     }
 
+    @Override
     public TypeCode create_union_tc( String id,
                                      String name,
                                      TypeCode discriminator_type,
@@ -581,11 +598,13 @@ public class ORBSingleton
      * typecode.  This is to cater for compact typecodes where the name
      * may not be set.  Checking of the name will always be true for user
      * driven requests
-     * @param id
-     * @param name
-     * @param members
-     * @param checkName
-     * @returns TypeCode
+     *
+     * @param id the id
+     * @param name the name
+     * @param discriminator_type the discriminator_type
+     * @param members the members
+     * @param checkName the check name
+     * @return the type code
      */
     public TypeCode create_union_tc( String id,
                               String name,
@@ -679,11 +698,13 @@ public class ORBSingleton
     }
 
 
+    @Override
     public TypeCode get_primitive_tc(org.omg.CORBA.TCKind tcKind)
     {
         return org.jacorb.orb.TypeCode.get_primitive_tc( tcKind.value() );
     }
 
+    @Override
     public org.omg.CORBA.TypeCode create_value_tc(String id,
                                                   String name,
                                                   short type_modifier,
@@ -708,6 +729,7 @@ public class ORBSingleton
                                             members);
     }
 
+    @Override
     public org.omg.CORBA.TypeCode create_value_box_tc(String id,
                                                       String name,
                                                       TypeCode boxed_type)
@@ -720,6 +742,7 @@ public class ORBSingleton
                                             boxed_type);
     }
 
+    @Override
     public org.omg.CORBA.TypeCode create_abstract_interface_tc(String id,
                                                                String name)
     {
@@ -739,6 +762,7 @@ public class ORBSingleton
                                            name);
     }
 
+    @Override
     public org.omg.CORBA.TypeCode create_local_interface_tc(String id,
                                                             String name)
     {
@@ -749,6 +773,7 @@ public class ORBSingleton
                                            name);
     }
 
+    @Override
     public org.omg.CORBA.TypeCode create_native_tc(String id,
                                                    String name)
     {
@@ -761,16 +786,19 @@ public class ORBSingleton
 
    /* not allowed on the singleton: */
 
+    @Override
     public org.omg.CORBA.ExceptionList create_exception_list()
     {
         throw new org.omg.CORBA.NO_IMPLEMENT (FACTORY_METHODS_MESG);
     }
 
+    @Override
     public org.omg.CORBA.NVList create_list (int count)
     {
         throw new org.omg.CORBA.NO_IMPLEMENT (FACTORY_METHODS_MESG);
     }
 
+    @Override
     public org.omg.CORBA.NamedValue create_named_value
         (String name, org.omg.CORBA.Any value, int flags)
     {
@@ -783,78 +811,93 @@ public class ORBSingleton
         throw new org.omg.CORBA.NO_IMPLEMENT (FACTORY_METHODS_MESG);
     }
 
+    @Override
     public org.omg.CORBA.NVList create_operation_list
         (org.omg.CORBA.Object obj)
     {
         throw new org.omg.CORBA.NO_IMPLEMENT (FACTORY_METHODS_MESG);
     }
 
+    @Override
     public org.omg.CORBA.Object string_to_object(String str)
     {
         throw new org.omg.CORBA.NO_IMPLEMENT (FACTORY_METHODS_MESG);
     }
 
+    @Override
     public  org.omg.CORBA.Environment create_environment()
     {
         throw new org.omg.CORBA.NO_IMPLEMENT (FACTORY_METHODS_MESG);
     }
 
+    @Override
     public  org.omg.CORBA.ContextList create_context_list()
     {
         throw new org.omg.CORBA.NO_IMPLEMENT (FACTORY_METHODS_MESG);
     }
 
+    @Override
     public org.omg.CORBA.portable.OutputStream create_output_stream()
     {
         throw new org.omg.CORBA.NO_IMPLEMENT (FACTORY_METHODS_MESG);
     }
 
+    @Override
     public org.omg.CORBA.Current get_current()
     {
         throw new org.omg.CORBA.NO_IMPLEMENT (FACTORY_METHODS_MESG);
     }
 
+    @Override
     public  org.omg.CORBA.Context get_default_context()
     {
         throw new org.omg.CORBA.NO_IMPLEMENT (FACTORY_METHODS_MESG);
     }
 
+    @Override
     public org.omg.CORBA.Request get_next_response()
     {
         throw new org.omg.CORBA.NO_IMPLEMENT (FACTORY_METHODS_MESG);
     }
 
+    @Override
     public String[] list_initial_services()
     {
         throw new org.omg.CORBA.NO_IMPLEMENT (FACTORY_METHODS_MESG);
     }
 
+    @Override
     public String object_to_string( org.omg.CORBA.Object obj)
     {
         throw new org.omg.CORBA.NO_IMPLEMENT (FACTORY_METHODS_MESG);
     }
 
+    @Override
     public  boolean poll_next_response()
     {
         throw new org.omg.CORBA.NO_IMPLEMENT (FACTORY_METHODS_MESG);
     }
 
+    @Override
     public org.omg.CORBA.Object resolve_initial_references(String identifier)
         throws org.omg.CORBA.ORBPackage.InvalidName
     {
         throw new org.omg.CORBA.NO_IMPLEMENT (FACTORY_METHODS_MESG);
     }
 
+    @Override
     public  void send_multiple_requests_deferred(org.omg.CORBA.Request[] req)
     {
         throw new org.omg.CORBA.NO_IMPLEMENT (FACTORY_METHODS_MESG);
     }
 
+    @Override
     public  void send_multiple_requests_oneway(org.omg.CORBA.Request[] req)
     {
         throw new org.omg.CORBA.NO_IMPLEMENT (FACTORY_METHODS_MESG);
     }
 
+    @Override
     protected void set_parameters(String[] args, java.util.Properties props)
     {
         throw new org.omg.CORBA.NO_IMPLEMENT (FACTORY_METHODS_MESG);
@@ -865,26 +908,31 @@ public class ORBSingleton
         throw new org.omg.CORBA.NO_IMPLEMENT (FACTORY_METHODS_MESG);
     }
 
+    @Override
     protected void set_parameters(java.applet.Applet app, java.util.Properties  props)
     {
         throw new org.omg.CORBA.NO_IMPLEMENT (FACTORY_METHODS_MESG);
     }
 
+    @Override
     public void run()
     {
         throw new org.omg.CORBA.NO_IMPLEMENT (FACTORY_METHODS_MESG);
     }
 
+    @Override
     public void shutdown(boolean wait_for_completion)
     {
         throw new org.omg.CORBA.NO_IMPLEMENT (FACTORY_METHODS_MESG);
     }
 
+    @Override
     public boolean work_pending()
     {
         throw new org.omg.CORBA.NO_IMPLEMENT (FACTORY_METHODS_MESG);
     }
 
+    @Override
     public void perform_work()
     {
         throw new org.omg.CORBA.NO_IMPLEMENT (FACTORY_METHODS_MESG);

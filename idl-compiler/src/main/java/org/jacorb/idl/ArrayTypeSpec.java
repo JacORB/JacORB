@@ -27,7 +27,7 @@ import java.util.Set;
 import java.util.logging.Level;
 
 /**
- * @author Gerald Brose <mailto:gerald.brose@acm.org>
+ * @author Gerald Brose
  *
  */
 

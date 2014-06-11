@@ -54,7 +54,7 @@ public interface IORInfoExt extends IORInfo
    /**
     * Returns the profile with the given tag at the given position.
     * Following rule must apply to parameter position:<p>
-    * <code> 0 <= position < get_number_of_profiles(tag) </code><p>
+    * <code> 0 &lt;= position &lt; get_number_of_profiles(tag) </code><p>
     * @param tag        tag of profile, e.g. TAG_INTERNET_IOP.value
     * @param position   position in IOR
     * @return           profile

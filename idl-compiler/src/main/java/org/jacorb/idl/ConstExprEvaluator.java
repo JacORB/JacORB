@@ -30,7 +30,7 @@ import java.util.HashMap;
  * <i>Expression evaluator for IDL constant expression</i>
  *
  * Supports the following functions:
- * +, -, *, /, ^, %, ^, | , <<, >> <br>
+ * <code>+, -, *, /, ^, %, ^, | , t {@literal <<},{@literal >>}</code><br>
  *
  * When the getValue() is called, a Double object is returned.
  * If it returns null, an error occured.<p>

@@ -21,23 +21,17 @@
 
 package org.jacorb.tao_imr;
 
-import org.jacorb.tao_imr.ImplementationRepository.*;
-import java.util.Iterator;
 import java.util.List;
-import org.jacorb.config.ConfigurationException;
-import org.jacorb.imr.UnknownServerName;
-import org.jacorb.orb.CDRInputStream;
+
 import org.jacorb.orb.ParsedIOR;
 import org.jacorb.orb.iiop.IIOPAddress;
 import org.jacorb.orb.iiop.IIOPProfile;
-import org.jacorb.orb.miop.MIOPProfile;
+import org.jacorb.orb.util.CorbaLoc;
+import org.jacorb.tao_imr.ImplementationRepository.ServerObject;
+import org.jacorb.tao_imr.ImplementationRepository.ServerObjectHelper;
+import org.jacorb.tao_imr.ImplementationRepository.ServerObjectImpl;
 import org.omg.CORBA.INTERNAL;
-import org.omg.CORBA.COMM_FAILURE;
-import org.jacorb.orb.util.*;
 import org.omg.ETF.Profile;
-import org.omg.GIOP.Version;
-import org.omg.IOP.TAG_ALTERNATE_IIOP_ADDRESS;
-import org.omg.IOP.TaggedComponent;
 
 /**
  * @author Quynh Nguyen
@@ -121,7 +115,7 @@ public class ImRAccessImpl
         try
         {
             org.omg.CORBA.Object ref = this.orb_.resolve_initial_references("ImplRepoService");
-            this.pior = new ParsedIOR((org.jacorb.orb.ORB)this.orb_,
+            this.pior = new ParsedIOR(this.orb_,
                                     this.orb_.object_to_string (ref));
 
             this.corbaloc = CorbaLoc.generateCorbalocForMultiIIOPProfiles (this.orb_, ref);
@@ -137,6 +131,7 @@ public class ImRAccessImpl
      *
      * @return the primary address of the ImR of type org.jacorb.orb.etf.ProtocolAddressBase
      */
+    @Override
     public org.jacorb.orb.etf.ProtocolAddressBase getImRAddress ()
     {
         if (this.profile == null)
@@ -148,9 +143,10 @@ public class ImRAccessImpl
 
     /**
      *
-     * @return a list of the ImR profiles of type List<Profile>
+     * @return a list of the ImR profiles of type <code>List&lt;Profile&gt;</code>
      */
-    public List<Profile>  getImRProfiles ()
+    @Override
+    public List<Profile> getImRProfiles ()
     {
         if (this.profile == null)
         {
@@ -163,6 +159,7 @@ public class ImRAccessImpl
      * This function is just a place holder.
      * @return
      */
+    @Override
     public String getImRHost ()
     {
         return null;
@@ -172,6 +169,7 @@ public class ImRAccessImpl
      * This function is just a place holder.
      * @return
      */
+    @Override
     public int getImRPort ()
     {
         return -1;
@@ -181,6 +179,7 @@ public class ImRAccessImpl
      * This function returns the TAO ImR's corbaloc IOR string
      * @return
      */
+    @Override
     public String getImRCorbaloc ()
     {
         if (this.corbaloc == null)
@@ -192,8 +191,8 @@ public class ImRAccessImpl
 
     /**
      * This function is just a place holder.
-     * @return
      */
+    @Override
     public void registerPOA (String name,
                              String server,
                              org.jacorb.orb.etf.ProtocolAddressBase address)
@@ -204,8 +203,8 @@ public class ImRAccessImpl
 
     /**
      * This function is just a place holder.
-     * @return
      */
+    @Override
     public void registerPOA (String name,
                              String server,
                              String host,
@@ -223,6 +222,7 @@ public class ImRAccessImpl
      * @param implname
      * @throws INTERNAL
      */
+    @Override
     public void registerPOA (
                             org.jacorb.orb.ORB orb,
                             org.jacorb.poa.POA poa,
@@ -311,6 +311,7 @@ public class ImRAccessImpl
         }
     }
 
+    @Override
     public void setServerDown (String implname)
             throws INTERNAL
     {
@@ -324,6 +325,7 @@ public class ImRAccessImpl
      * @param implname
      * @throws INTERNAL
      */
+    @Override
     public void setServerDown ( org.jacorb.orb.ORB orb,
                                 org.jacorb.poa.POA poa,
                                 String implname)

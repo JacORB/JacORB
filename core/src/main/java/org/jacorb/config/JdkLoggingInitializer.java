@@ -13,7 +13,7 @@ import org.omg.CORBA.ORBSingleton;
 
 /**
  * A LoggingInitializer for the JDK logging system.
- * @author Andre Spiegel <spiegel@gnu.org>
+ * @author Andre Spiegel {@literal <spiegel@gnu.org>}
  */
 public class JdkLoggingInitializer extends LoggingInitializer
 {
@@ -92,6 +92,7 @@ public class JdkLoggingInitializer extends LoggingInitializer
         }
     }
 
+    @Override
     public void init (Configuration config) throws ConfigurationException
     {
         if (!ISJDKLOGGING || !USEJACORBCONFIG)
@@ -156,6 +157,7 @@ public class JdkLoggingInitializer extends LoggingInitializer
     }
 
 
+    @Override
     public void shutdownLogging ()
     {
         if (ISJDKLOGGING)

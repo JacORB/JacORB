@@ -174,7 +174,6 @@ public interface Configuration
     /**
      * Sets the attributes of this configuration using Properties.
      *
-     * @param key
      * @param value
      */
     void setAttributes(Properties value);

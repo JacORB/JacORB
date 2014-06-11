@@ -271,6 +271,7 @@ public final class ORB
     /**
      * configure the ORB
      */
+    @Override
     public void configure(Configuration config) throws ConfigurationException
     {
         super.configure(config);
@@ -471,6 +472,7 @@ public final class ORB
      * Overrides id() in org.omg.CORBA_2_5.ORB
      */
 
+    @Override
     public String id()
     {
         return orb_id;
@@ -509,7 +511,7 @@ public final class ORB
      * arrived over the network and is called from CDRInputStream. It
      * does not cache entries as we are delaying creating a ParsedIOR.
      *
-     * @param _ior an <code>org.omg.IOP.IOR</code>, the IOR.
+     * @param ior an <code>org.omg.IOP.IOR</code>, the IOR.
      * @return an <code>org.omg.CORBA.Object</code> the Object to use.
      */
     public org.omg.CORBA.Object _getObject(org.omg.IOP.IOR ior)
@@ -736,6 +738,7 @@ public final class ORB
      * @see org.omg.PortableInterceptor.PolicyFactory
      */
 
+    @Override
     public org.omg.CORBA.Policy create_policy( int type, org.omg.CORBA.Any value )
     throws org.omg.CORBA.PolicyError
     {
@@ -804,18 +807,21 @@ public final class ORB
         return (policy_factories.containsKey(Integer.valueOf(type)) );
     }
 
+    @Override
     public org.omg.CORBA.ContextList create_context_list()
     {
         work_pending();
         return new ContextListImpl();
     }
 
+    @Override
     public org.omg.CORBA.Environment create_environment()
     {
         work_pending();
         throw new org.omg.CORBA.NO_IMPLEMENT ();
     }
 
+    @Override
     public org.omg.CORBA.portable.OutputStream create_output_stream()
     {
         work_pending();
@@ -1150,6 +1156,7 @@ public final class ORB
         return null;
     }
 
+    @Override
     public org.omg.CORBA.Context get_default_context ()
     {
         work_pending();
@@ -1251,6 +1258,7 @@ public final class ORB
         return rootpoa;
     }
 
+    @Override
     public String[] list_initial_services()
     {
         work_pending();
@@ -1270,6 +1278,7 @@ public final class ORB
      * An operation from the POAListener interface. Whenever a new POA is
      * created, the ORB is notified.
      */
+    @Override
     public void poaCreated( POA poa )
     {
         /*
@@ -1475,6 +1484,7 @@ public final class ORB
     }
 
 
+    @Override
     public void poaStateChanged(POA poa, int new_state)
     {
         if ( ( new_state == org.jacorb.poa.POAConstants.DESTROYED ||
@@ -1499,10 +1509,12 @@ public final class ORB
     }
 
 
+    @Override
     public void referenceCreated(org.omg.CORBA.Object o)
     {
     }
 
+    @Override
     public boolean get_service_information( short service_type,
                                             org.omg.CORBA.ServiceInformationHolder service_information)
     {
@@ -1513,6 +1525,7 @@ public final class ORB
      * resolve_initial_references
      */
 
+    @Override
     public org.omg.CORBA.Object resolve_initial_references(String identifier)
     throws org.omg.CORBA.ORBPackage.InvalidName
     {
@@ -1643,6 +1656,7 @@ public final class ORB
 
      */
 
+    @Override
     public void register_initial_reference( String id, org.omg.CORBA.Object obj )
     throws InvalidName
     {
@@ -1660,6 +1674,7 @@ public final class ORB
         initial_references.put(id, obj);
     }
 
+    @Override
     public void run()
     {
         logger.debug("ORB run");
@@ -1681,6 +1696,7 @@ public final class ORB
         logger.debug("ORB run, exit");
     }
 
+    @Override
     public void send_multiple_requests_oneway( org.omg.CORBA.Request[] req )
     {
         work_pending();
@@ -1690,6 +1706,7 @@ public final class ORB
         }
     }
 
+    @Override
     public void send_multiple_requests_deferred( org.omg.CORBA.Request[] req )
     {
         work_pending();
@@ -1699,6 +1716,7 @@ public final class ORB
         }
     }
 
+    @Override
     public boolean poll_next_response()
     {
         work_pending();
@@ -1725,6 +1743,7 @@ public final class ORB
         return false;
     }
 
+    @Override
     public org.omg.CORBA.Request get_next_response ()
     {
         work_pending();
@@ -1772,6 +1791,7 @@ public final class ORB
         requests.remove( req );
     }
 
+    @Override
     protected void set_parameters(String[] args, java.util.Properties props)
     {
         String id = "";
@@ -1965,6 +1985,7 @@ public final class ORB
      * org.omg.CORBA.ORB
      */
 
+    @Override
     protected void set_parameters(java.applet.Applet app,
                                   java.util.Properties props)
     {
@@ -2254,6 +2275,7 @@ public final class ORB
         return orb_initializers;
     }
 
+    @Override
     public void shutdown( boolean wait_for_completion )
     {
         if (logger.isInfoEnabled())
@@ -2354,6 +2376,7 @@ public final class ORB
     }
 
 
+    @Override
     public void destroy()
     {
         if ( destroyed )
@@ -2373,6 +2396,7 @@ public final class ORB
         destroyed = true;
     }
 
+    @Override
     public org.omg.CORBA.Object string_to_object (String str)
     {
         work_pending();
@@ -2403,6 +2427,7 @@ public final class ORB
      * always return a ValueDef or throw BAD_PARAM if not repid of a value
      */
 
+    @Override
     public org.omg.CORBA.Object get_value_def(String repid)
     throws org.omg.CORBA.BAD_PARAM
     {
@@ -2412,6 +2437,7 @@ public final class ORB
     /**
      * called by org.jacorb.poa.RequestProcessor
      */
+    @Override
     public void set_delegate( java.lang.Object wrapper )
     {
         if ( ! (wrapper instanceof org.omg.PortableServer.Servant) )
@@ -2438,6 +2464,7 @@ public final class ORB
         }
     }
 
+    @Override
     public String object_to_string( org.omg.CORBA.Object obj)
     {
         work_pending();
@@ -2464,11 +2491,13 @@ public final class ORB
                             + ", a org.jacorb.orb.Delegate was expected");
     }
 
+    @Override
     public void perform_work ()
     {
         work_pending();
     }
 
+    @Override
     public boolean work_pending ()
     {
         if (!isRunning())
@@ -2485,17 +2514,20 @@ public final class ORB
         return false;
     }
 
+    @Override
     public synchronized ValueFactory register_value_factory(String id,
             ValueFactory factory)
     {
         return (ValueFactory)valueFactories.put (id, factory);
     }
 
+    @Override
     public synchronized void unregister_value_factory(String id)
     {
         valueFactories.remove (id);
     }
 
+    @Override
     public synchronized ValueFactory lookup_value_factory(String id)
     {
         ValueFactory result = (ValueFactory)valueFactories.get (id);
@@ -2555,6 +2587,7 @@ public final class ORB
             implementationClass = clazz;
         }
 
+        @Override
         public java.io.Serializable read_value
         (org.omg.CORBA_2_3.portable.InputStream is)
         {
@@ -2720,18 +2753,21 @@ public final class ORB
 
     /* DII helper methods */
 
+    @Override
     public org.omg.CORBA.ExceptionList create_exception_list ()
     {
         work_pending();
         return new org.jacorb.orb.dii.ExceptionList ();
     }
 
+    @Override
     public org.omg.CORBA.NVList create_list (int count)
     {
         work_pending();
         return new org.jacorb.orb.NVList (this, count);
     }
 
+    @Override
     public org.omg.CORBA.NamedValue create_named_value
     (String name, org.omg.CORBA.Any value, int flags)
     {
@@ -2739,6 +2775,7 @@ public final class ORB
         return new org.jacorb.orb.NamedValue (name, value, flags);
     }
 
+    @Override
     public org.omg.CORBA.NVList create_operation_list (org.omg.CORBA.Object obj)
     {
         org.omg.CORBA.OperationDef oper;
@@ -2759,6 +2796,7 @@ public final class ORB
     /**
      * @deprecated use {@link #create_operation_list (org.omg.CORBA.Object)} instead
      */
+    @Override
     @Deprecated
     public org.omg.CORBA.NVList create_operation_list
     (org.omg.CORBA.OperationDef oper)
@@ -2898,12 +2936,14 @@ public final class ORB
 
         // org.omg.PortableInterceptor.Current implementation ---
 
+        @Override
         public org.omg.CORBA.Any get_slot(int id)
         throws InvalidSlot
         {
             return getTarget().get_slot(id);
         }
 
+        @Override
         public void set_slot(int id, org.omg.CORBA.Any data)
         throws InvalidSlot
         {
@@ -2941,12 +2981,14 @@ public final class ORB
             wrappedHandler = (org.omg.CORBA.portable.InvokeHandler)objectImpl;
         }
 
+        @Override
         public String[] _all_interfaces(org.omg.PortableServer.POA poa,
                                         byte[] objectID)
         {
             return ((org.omg.CORBA.portable.ObjectImpl)wrappedHandler)._ids();
         }
 
+        @Override
         public org.omg.CORBA.portable.OutputStream _invoke(
             String method,
             org.omg.CORBA.portable.InputStream input,
@@ -2958,6 +3000,7 @@ public final class ORB
 
     }
 
+    @Override
     public void connect(org.omg.CORBA.Object obj)
     {
         work_pending();
@@ -3009,6 +3052,7 @@ public final class ORB
         }
     }
 
+    @Override
     public void disconnect(org.omg.CORBA.Object obj)
     {
         work_pending();

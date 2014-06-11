@@ -32,7 +32,7 @@ import java.util.logging.LogRecord;
  * A formatter for JDK logs which produces a more concise log output
  * than the standard JDK setting.
  *
- * @author Andre Spiegel <spiegel@gnu.org>
+ * @author Andre Spiegel {@literal <spiegel@gnu.org>}
  * @author Nick Cross
  */
 public class JacORBLogFormatter extends Formatter
@@ -78,6 +78,7 @@ public class JacORBLogFormatter extends Formatter
         }
     }
 
+    @Override
     public String format (LogRecord record)
     {
         String result;

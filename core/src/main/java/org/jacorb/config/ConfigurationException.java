@@ -23,7 +23,7 @@ package org.jacorb.config;
 /**
  * Used to report errors in the JacORB configuration, such as missing
  * attributes or illegal attribute values.
- * @author Andre Spiegel <spiegel@gnu.org>
+ * @author Andre Spiegel {@literal <spiegel@gnu.org>}
  */
 public class ConfigurationException extends Exception
 {

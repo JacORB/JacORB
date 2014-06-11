@@ -109,7 +109,14 @@ public class ServerRequestInfoImpl
      * interceptors are involved.  These calls are now handled
      * locally rather than via the remote request mechanism so there
      * will be no request from which to obtain information
-     * @param bs
+     *
+     * @param orb the orb
+     * @param contexts the contexts
+     * @param servant the servant
+     * @param objectId the object id
+     * @param operation the operation
+     * @param response_expected the response_expected
+     * @param sync_scope the sync_scope
      */
     public ServerRequestInfoImpl( org.jacorb.orb.ORB orb,
                                   Collection<ServiceContext> contexts,
@@ -244,6 +251,7 @@ public class ServerRequestInfoImpl
 
     // implementation of RequestInfoOperations interface
 
+    @Override
     public Parameter[] arguments()
     {
         if (!(caller_op == ServerInterceptorIterator.RECEIVE_REQUEST) &&
@@ -262,12 +270,14 @@ public class ServerRequestInfoImpl
         return arguments;
     }
 
+    @Override
     public TypeCode[] exceptions()
     {
         throw new NO_RESOURCES("This feature is not supported on the server side",
                                1, CompletionStatus.COMPLETED_MAYBE);
     }
 
+    @Override
     public Any result()
     {
         if ( caller_op != ServerInterceptorIterator.SEND_REPLY )
@@ -298,11 +308,13 @@ public class ServerRequestInfoImpl
         return result;
     }
 
+    @Override
     public short sync_scope()
     {
         return sync_scope;
     }
 
+    @Override
     public short reply_status()
     {
         if ((caller_op == ServerInterceptorIterator.RECEIVE_REQUEST ||
@@ -316,6 +328,7 @@ public class ServerRequestInfoImpl
         return reply_status;
     }
 
+    @Override
     public org.omg.CORBA.Object forward_reference()
     {
         if (! (caller_op != ServerInterceptorIterator.SEND_OTHER) ||
@@ -328,6 +341,7 @@ public class ServerRequestInfoImpl
         return forward_reference;
     }
 
+    @Override
     public ServiceContext get_reply_service_context(int id)
     {
         if ((caller_op == ServerInterceptorIterator.RECEIVE_REQUEST) ||
@@ -341,22 +355,26 @@ public class ServerRequestInfoImpl
         return super.get_reply_service_context(id);
     }
 
+    @Override
     public String operation()
     {
         return operation;
     }
 
+    @Override
     public int request_id()
     {
         return requestId;
     }
 
+    @Override
     public boolean response_expected()
     {
         return response_expected;
     }
 
     // implementation of ServerRequestInfoOperations interface
+    @Override
     public Any sending_exception()
     {
         if (caller_op != ServerInterceptorIterator.SEND_EXCEPTION)
@@ -369,6 +387,7 @@ public class ServerRequestInfoImpl
         return sending_exception;
     }
 
+    @Override
     public byte[] object_id()
     {
         if (caller_op == ServerInterceptorIterator.RECEIVE_REQUEST_SERVICE_CONTEXTS)
@@ -380,6 +399,7 @@ public class ServerRequestInfoImpl
         return objectId;
     }
 
+    @Override
     public byte[] adapter_id()
     {
         if (caller_op == ServerInterceptorIterator.RECEIVE_REQUEST_SERVICE_CONTEXTS)
@@ -391,6 +411,7 @@ public class ServerRequestInfoImpl
         return adapter_id;
     }
 
+    @Override
     public String orb_id()
     {
         if (caller_op == ServerInterceptorIterator.RECEIVE_REQUEST_SERVICE_CONTEXTS)
@@ -403,6 +424,7 @@ public class ServerRequestInfoImpl
         return orb.id();
     }
 
+    @Override
     public String server_id()
     {
         if (caller_op == ServerInterceptorIterator.RECEIVE_REQUEST_SERVICE_CONTEXTS)
@@ -421,6 +443,7 @@ public class ServerRequestInfoImpl
 
 
 
+    @Override
     public String [] adapter_name()
     {
         if (caller_op == ServerInterceptorIterator.RECEIVE_REQUEST_SERVICE_CONTEXTS)
@@ -434,6 +457,7 @@ public class ServerRequestInfoImpl
     }
 
 
+    @Override
     public String target_most_derived_interface()
     {
         if (caller_op == ServerInterceptorIterator.RECEIVE_REQUEST_SERVICE_CONTEXTS)
@@ -450,6 +474,7 @@ public class ServerRequestInfoImpl
      * WARNING: This method relies on the DomainService to be available.
      * Make shure that the DS is running, if you want to call this method.
      */
+    @Override
     public Policy get_server_policy(int type) {
         if (! orb.hasPolicyFactoryForType(type))
         {
@@ -470,11 +495,13 @@ public class ServerRequestInfoImpl
         }
     }
 
+    @Override
     public void set_slot(int id, Any data) throws InvalidSlot
     {
         current.set_slot(id, data);
     }
 
+    @Override
     public boolean target_is_a(String id)
     {
         if (caller_op == ServerInterceptorIterator.RECEIVE_REQUEST_SERVICE_CONTEXTS)
@@ -486,6 +513,7 @@ public class ServerRequestInfoImpl
         return servant._is_a(id);
     }
 
+    @Override
     public void add_reply_service_context(ServiceContext service_context,
                                           boolean replace)
     {

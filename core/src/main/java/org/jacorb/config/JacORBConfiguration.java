@@ -72,7 +72,7 @@ public class JacORBConfiguration implements Configuration
     private static final String ATTR_LOGGING_INITIALIZER = "jacorb.log.initializer";
 
 
-   /*
+   /**
     * <code>useTCCL</code> controls which class loader policy JacORB should use throughout
     * the codebase. By default it will attempt to load using the Thread Context Class Loader.
     * To support integration in some deployment scenarios it is also possible to use Class.forName.
@@ -158,7 +158,7 @@ public class JacORBConfiguration implements Configuration
      *
      * @param props the props
      * @param orb the orb
-     * @param id  the orb_id (if set)
+     * @param orbid  the orb_id (if set)
      * @param isApplet the is applet
      * @return the configuration
      * @throws ConfigurationException the configuration exception
@@ -543,6 +543,7 @@ public class JacORBConfiguration implements Configuration
      * @param key the key
      * @param value the value
      */
+    @Override
     public void setAttribute(String key, String value)
     {
         stringAttributes.put(key, value);
@@ -551,6 +552,7 @@ public class JacORBConfiguration implements Configuration
     /* (non-Javadoc)
      * @see org.jacorb.config.Configuration#setAttribute(java.lang.String, int)
      */
+    @Override
     public void setAttribute(String key, int value)
     {
         numberAttributes.put(key, value);
@@ -563,6 +565,7 @@ public class JacORBConfiguration implements Configuration
      * @param properties the new attributes
      */
 
+    @Override
     public void setAttributes(Properties properties)
     {
         // Some lunatics illegally put non String objects into System props
@@ -706,6 +709,7 @@ public class JacORBConfiguration implements Configuration
      * @return the ORB for which this configuration was created
      */
 
+    @Override
     public org.jacorb.orb.ORB getORB()
     {
         return orb;
@@ -717,38 +721,38 @@ public class JacORBConfiguration implements Configuration
      * the SLF4J logging facade.  The actual logging backend is chosen
      * at deployment time, by putting a corresponding SLF4J adapter
      * jar on the classpath.
-     *
+     * <p>
      * The JacORB root logger is named "jacorb".  Sublogger names all
      * start with this prefix.  If the property jacorb.implname is set,
      * and the property jacorb.log.split_on_implname is true, then
      * all loggers for that particular ORB instance are rooted in
-     * jacorb.<implname>.
-     *
+     * <code>{@literal jacorb.<implname>}</code>
+     * <p>
      * Here's a guideline how to use logging levels in the code:
-     *
+     * <p>
      * error Conditions that indicate a bug in JacORB or user code,
      * or a wrong configuration.  This includes, but is not
      * limited to, errors that will lead to termination of the
      * program (fatal errors).
-     *
+     * <p>
      * warn  Conditions that demand attention, but are handled properly
      * according to the CORBA spec.  For example, abnormal termination
      * of a connection, reaching of a resource limit (queue full).
-     *
+     * <p>
      * info  Start/stop of subsystems, establishing and closing of connections,
      * registering objects with a POA.
-     *
+     * <p>
      * debug Information that might be needed for finding bugs in JacORB
      * or user code.  Anything that relates to the normal processing
      * of individual messages should come under this level.  For each
      * CORBA message, there should at least one debug message when
-     * subsystem boundaries are crossed (e.g. GIOPConnection -> POA
-     * -> User Code).
+     * subsystem boundaries are crossed (e.g. GIOPConnection -&gt; POA
+     * -&gt; User Code).
      *
      * @param name the name
      * @return the logger
-     * @throws ConfigurationException the configuration exception
      */
+    @Override
     public org.slf4j.Logger getLogger (String name)
     {
         String loggerName = name;
@@ -780,6 +784,7 @@ public class JacORBConfiguration implements Configuration
      * @throws ConfigurationException the configuration exception
      * @see org.jacorb.config.Configuration#getAttribute(java.lang.String)
      */
+    @Override
     public String getAttribute(String key) throws ConfigurationException
     {
        String result = getAttribute (key, null);
@@ -799,6 +804,7 @@ public class JacORBConfiguration implements Configuration
      * getAttribute
      * @see org.jacorb.config.Configuration#getAttribute(java.lang.String, java.lang.String)
      */
+    @Override
     public String getAttribute(String key, String defaultValue)
     {
        String result = stringAttributes.get (key);
@@ -826,6 +832,7 @@ public class JacORBConfiguration implements Configuration
      * @throws ConfigurationException the configuration exception
      * @see org.jacorb.config.Configuration#getAttributeAsInteger(java.lang.String, int, int)
      */
+    @Override
     public int getAttributeAsInteger(String key, int defaultValue) throws ConfigurationException
     {
         return getAttributeAsInteger (key, defaultValue, 10);
@@ -840,6 +847,7 @@ public class JacORBConfiguration implements Configuration
      * @return the attribute as integer
      * @throws ConfigurationException the configuration exception
      */
+    @Override
     public int getAttributeAsInteger(String key, int defaultValue, int radix) throws ConfigurationException
     {
        Number result = numberAttributes.get (key);
@@ -889,6 +897,7 @@ public class JacORBConfiguration implements Configuration
      * @return the attribute as integer
      * @throws ConfigurationException the configuration exception
      */
+    @Override
     public int getAttributeAsInteger(String key) throws ConfigurationException
     {
         if ( ! stringAttributes.containsKey (key) && ! numberAttributes.containsKey (key))
@@ -911,6 +920,7 @@ public class JacORBConfiguration implements Configuration
      * @throws ConfigurationException the configuration exception
      * @see org.jacorb.config.Configuration#getAttributeAsLong(java.lang.String, long)
      */
+    @Override
     public long getAttributeAsLong(String key, long defaultValue) throws ConfigurationException
     {
        Number result = numberAttributes.get (key);
@@ -959,6 +969,7 @@ public class JacORBConfiguration implements Configuration
      * @return the attribute list
      * @see org.jacorb.config.Configuration#getAttributeList(java.lang.String)
      */
+    @Override
     public List<String> getAttributeList(String key)
     {
         List<String> result = new ArrayList<String>();
@@ -984,6 +995,7 @@ public class JacORBConfiguration implements Configuration
         return result;
     }
 
+    @Override
     public String[] getAttributeAsStringsArray(String key)
     {
         String value = null;
@@ -1051,6 +1063,7 @@ public class JacORBConfiguration implements Configuration
      * @throws ConfigurationException the configuration exception
      * @see org.jacorb.config.Configuration#getAttributeAsObject(java.lang.String)
      */
+    @Override
     public Object getAttributeAsObject( String key )
         throws ConfigurationException
     {
@@ -1066,6 +1079,7 @@ public class JacORBConfiguration implements Configuration
      * @throws ConfigurationException the configuration exception
      * @see org.jacorb.config.Configuration#getAttributeAsObject(java.lang.String, java.lang.String)
      */
+    @Override
     public Object getAttributeAsObject(String key, String defaultClass) throws ConfigurationException
     {
        Object result = null;
@@ -1091,6 +1105,7 @@ public class JacORBConfiguration implements Configuration
      * @param defaultValue the default value
      * @return the attribute as boolean
      */
+    @Override
     public boolean getAttributeAsBoolean(String key, boolean defaultValue)
     {
        Boolean result = booleanAttributes.get (key);
@@ -1140,6 +1155,7 @@ public class JacORBConfiguration implements Configuration
      * @return the attribute names with prefix
      * @see org.jacorb.config.Configuration#getAttributeNamesWithPrefix(java.lang.String)
      */
+    @Override
     public List<String> getAttributeNamesWithPrefix(String prefix)
     {
         final ArrayList<String> attributesWithPrefix = new ArrayList<String>();
@@ -1161,6 +1177,7 @@ public class JacORBConfiguration implements Configuration
     /* (non-Javadoc)
      * @see org.jacorb.config.Configuration#getAttributeAsFloat(java.lang.String, double)
      */
+    @Override
     public double getAttributeAsFloat (String key, double defaultValue) throws ConfigurationException
     {
        Number result = numberAttributes.get (key);

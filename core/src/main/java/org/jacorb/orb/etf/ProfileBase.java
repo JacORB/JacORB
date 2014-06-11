@@ -23,6 +23,7 @@ package org.jacorb.orb.etf;
 
 import java.util.Collection;
 import java.util.Collections;
+
 import org.jacorb.config.Configurable;
 import org.jacorb.config.Configuration;
 import org.jacorb.config.ConfigurationException;
@@ -57,6 +58,7 @@ public abstract class ProfileBase
     protected String corbalocStr = null;
     protected Logger logger;
 
+    @Override
     public void configure(Configuration configuration) throws ConfigurationException
     {
        if( configuration == null )
@@ -72,6 +74,7 @@ public abstract class ProfileBase
     /**
     * ETF defined operation to set the object key on this profile.
     */
+    @Override
     public void set_object_key(byte[] key)
     {
         this.objectKey = key;
@@ -80,6 +83,7 @@ public abstract class ProfileBase
     /**
     * ETF defined operation to get the object key from this profile.
     */
+    @Override
     public byte[] get_object_key()
     {
         return objectKey;
@@ -88,6 +92,7 @@ public abstract class ProfileBase
     /**
     * ETF defined read-only accessor for the GIOP version.
     */
+    @Override
     public org.omg.GIOP.Version version()
     {
         return version;
@@ -96,6 +101,7 @@ public abstract class ProfileBase
     /**
     * ETF defined read-only accessor for the GIOP tag.
     */
+    @Override
     public abstract int tag();
 
     /**
@@ -123,6 +129,7 @@ public abstract class ProfileBase
     * remain consistent with your implementation
     * of the above mentioned methods.
     */
+    @Override
     public void marshal (final TaggedProfileHolder tagged_profile,
             final TaggedComponentSeqHolder componentSequence)
     {
@@ -273,6 +280,7 @@ public abstract class ProfileBase
      * This function shall return an equivalent, deep-copy of the profile
      * on the free store.
      */
+    @Override
     public Profile copy()
     {
         try
@@ -331,7 +339,7 @@ public abstract class ProfileBase
      * This function will search and remove the components, whose tag matches
      * the given tag, from the components list.  Removing tags are needed in
      * the case the the ImR is used.
-     * @param tag
+     * @param tags
      */
     public void removeComponents (int tags)
     {

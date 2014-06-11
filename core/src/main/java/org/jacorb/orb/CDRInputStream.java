@@ -58,7 +58,7 @@ import org.slf4j.Logger;
 /**
  * Read CDR encoded data
  *
- * @author Gerald Brose, FU Berlin
+ * @author Gerald Brose
  */
 
 public class CDRInputStream
@@ -329,6 +329,7 @@ public class CDRInputStream
         return giop_minor;
     }
 
+    @Override
     public void close()
     {
         // Don't need to call super.close as super is noop.
@@ -353,6 +354,7 @@ public class CDRInputStream
         }
     }
 
+    @Override
     public org.omg.CORBA.ORB orb()
     {
         return orb;
@@ -583,6 +585,7 @@ public class CDRInputStream
      *         stream is reached.
      * @throws java.io.IOException if stream is closed.
      */
+    @Override
     public int read()
         throws java.io.IOException
     {
@@ -604,6 +607,7 @@ public class CDRInputStream
      * @return the number of bytes that can be read (or skipped over) from this
      *         input stream.  This is not necessarily the number of 'valid' bytes.
      */
+    @Override
     public int available()
     {
         return buffer.length - index;
@@ -613,6 +617,7 @@ public class CDRInputStream
      * Has the effect of read(b, 0, b.length);
      * @see #read(byte[], int, int)
      */
+    @Override
     public int read(final byte[] b)
         throws java.io.IOException
     {
@@ -623,6 +628,7 @@ public class CDRInputStream
      * Performs as described by <code>java.io.InputStream.read(byte[], int, int)</code>,
      * but never blocks.
      */
+    @Override
     public int read(final byte[] b, final int off, final int len)
         throws java.io.IOException
     {
@@ -661,6 +667,7 @@ public class CDRInputStream
     }
 
 
+    @Override
     public final org.omg.CORBA.Any read_any()
     {
         org.omg.CORBA.TypeCode _tc = read_TypeCode();
@@ -669,6 +676,7 @@ public class CDRInputStream
         return any;
     }
 
+    @Override
     public final boolean read_boolean()
     {
         if (this.chunk_end_pos == this.pos)
@@ -684,6 +692,7 @@ public class CDRInputStream
 
     /** arrays */
 
+    @Override
     public final void read_boolean_array
        (final boolean[] value, final int offset, final int length)
     {
@@ -740,6 +749,7 @@ public class CDRInputStream
      *
      * @return a <code>char</code> value
      */
+    @Override
     public final char read_char()
     {
         if (this.chunk_end_pos == this.pos)
@@ -759,6 +769,7 @@ public class CDRInputStream
      * @param offset an <code>int</code>, an offset into <code>value</code>
      * @param length an <code>int</code>, the length of the array to read
      */
+    @Override
     public final void read_char_array
         (final char[] value, final int offset, final int length)
     {
@@ -781,11 +792,13 @@ public class CDRInputStream
         }
     }
 
+    @Override
     public final double read_double()
     {
         return Double.longBitsToDouble (read_longlong());
     }
 
+    @Override
     public final void read_double_array
        (final double[] value, final int offset, final int length)
     {
@@ -812,6 +825,7 @@ public class CDRInputStream
     /**
      * @deprecated use {@link #read_fixed(short, short)} instead
      */
+    @Override
     @Deprecated
     public BigDecimal read_fixed()
     {
@@ -826,6 +840,7 @@ public class CDRInputStream
         return read_fixed_negate(signum, result);
     }
 
+    @Override
     public BigDecimal read_fixed(short digits, short scale)
      {
         if (digits < 1)
@@ -903,11 +918,13 @@ public class CDRInputStream
         return c;
     }
 
+    @Override
     public final float read_float()
     {
         return Float.intBitsToFloat (read_long());
     }
 
+    @Override
     public final void read_float_array
        (final float[] value, final int offset, final int length)
     {
@@ -931,6 +948,7 @@ public class CDRInputStream
         }
     }
 
+    @Override
     public final int read_long()
     {
         handle_chunking();
@@ -951,6 +969,7 @@ public class CDRInputStream
         return result;
     }
 
+    @Override
     public final void read_long_array
        (final int[] value, final int offset, final int length)
     {
@@ -978,6 +997,7 @@ public class CDRInputStream
     }
 
 
+    @Override
     public final long read_longlong()
     {
         handle_chunking();
@@ -992,6 +1012,7 @@ public class CDRInputStream
         return _read_longlong();
     }
 
+    @Override
     public final void read_longlong_array
         (final long[] value, final int offset, final int length)
     {
@@ -1029,6 +1050,7 @@ public class CDRInputStream
         // Do not need to modify pos and index as use read_long above
     }
 
+    @Override
     public final org.omg.CORBA.Object read_Object()
     {
         if (! (orb instanceof org.jacorb.orb.ORB))
@@ -1057,6 +1079,7 @@ public class CDRInputStream
         }
     }
 
+    @Override
     public org.omg.CORBA.Object read_Object(final java.lang.Class clazz)
     {
         if (org.omg.CORBA.portable.ObjectImpl.class.isAssignableFrom(clazz))
@@ -1096,6 +1119,7 @@ public class CDRInputStream
         }
     }
 
+    @Override
     public final byte read_octet()
     {
         if (this.chunk_end_pos == this.pos)
@@ -1107,6 +1131,7 @@ public class CDRInputStream
         return buffer[pos++];
     }
 
+    @Override
     public final void read_octet_array
         (final byte[] value, final int offset, final int length)
     {
@@ -1120,16 +1145,13 @@ public class CDRInputStream
      * @deprecated
      * @see org.omg.CORBA.portable.InputStream#read_Principal()
      */
+    @Override
     public final org.omg.CORBA.Principal read_Principal()
     {
         throw new NO_IMPLEMENT ("Principal deprecated");
     }
 
-    /**
-     *   Read methods for big-endian as well as little endian data input
-     *   contributed by Mark Allerton <MAllerton@img.seagatesoftware.com>
-     */
-
+    @Override
     public final short read_short()
     {
         handle_chunking();
@@ -1147,6 +1169,7 @@ public class CDRInputStream
         return result;
     }
 
+    @Override
     public final void read_short_array
         (final short[] value, final int offset, final int length)
     {
@@ -1182,6 +1205,7 @@ public class CDRInputStream
      *
      * @return a <code>String</code> value, possibly blank, never null.
      */
+    @Override
     public final String read_string()
     {
         String result = null;
@@ -1276,6 +1300,7 @@ public class CDRInputStream
     }
 
 
+    @Override
     public final org.omg.CORBA.TypeCode read_TypeCode()
     {
         if (recursiveTCMap == null)
@@ -1327,6 +1352,7 @@ public class CDRInputStream
     }
 
 
+    @Override
     public final int read_ulong()
     {
         handle_chunking();
@@ -1347,6 +1373,7 @@ public class CDRInputStream
         return result;
     }
 
+    @Override
     public final void read_ulong_array
         (final int[] value, final int offset, final int length)
     {
@@ -1373,6 +1400,7 @@ public class CDRInputStream
         index += 4 * length;
     }
 
+    @Override
     public final long read_ulonglong()
     {
         handle_chunking();
@@ -1392,6 +1420,7 @@ public class CDRInputStream
         return ((long) _read_long() << 32) + (_read_long() & 0xFFFFFFFFL);
     }
 
+    @Override
     public final void read_ulonglong_array
         (final long[] value, final int offset, final int length)
     {
@@ -1429,6 +1458,7 @@ public class CDRInputStream
         // Do not need to modify pos and index as use read_long above
     }
 
+    @Override
     public final short read_ushort()
     {
         handle_chunking();
@@ -1446,6 +1476,7 @@ public class CDRInputStream
         return result;
     }
 
+    @Override
     public final void read_ushort_array
         (final short[] value, final int offset, final int length)
     {
@@ -1473,6 +1504,7 @@ public class CDRInputStream
         index += length * 2;
     }
 
+    @Override
     public final char read_wchar()
     {
         if (giop_minor == 0)
@@ -1497,6 +1529,7 @@ public class CDRInputStream
     }
 
 
+    @Override
     public byte readByte()
     {
         index++;
@@ -1528,6 +1561,7 @@ public class CDRInputStream
      * no BOM present. In this case, big endianess is assumed per
      * spec).
      */
+    @Override
     public final boolean readBOM()
     {
         if( (buffer[ pos     ] == (byte) 0xFE) &&
@@ -1559,6 +1593,7 @@ public class CDRInputStream
         }
     }
 
+    @Override
     public final void read_wchar_array
         (final char[] value, final int offset, final int length)
     {
@@ -1569,6 +1604,7 @@ public class CDRInputStream
         }
     }
 
+    @Override
     public final String read_wstring()
     {
         if (giop_minor == 0)
@@ -1596,11 +1632,13 @@ public class CDRInputStream
     }
 
 
+    @Override
     public boolean markSupported()
     {
         return true;
     }
 
+    @Override
     public void mark(final int readLimit)
     {
         marked_pos = pos;
@@ -1609,6 +1647,7 @@ public class CDRInputStream
         marked_valueNestingLevel = valueNestingLevel;
     }
 
+    @Override
     public void reset()
         throws IOException
     {
@@ -2080,6 +2119,7 @@ public class CDRInputStream
         }
     }
 
+    @Override
     public java.io.Serializable read_value()
     {
         int tag = read_long();
@@ -2126,6 +2166,7 @@ public class CDRInputStream
      * Overrides read_value(java.io.Serializable value) in
      * org.omg.CORBA_2_3.portable.InputStream
      */
+    @Override
     public java.io.Serializable read_value(final String rep_id)
     {
         int tag = read_long();
@@ -2182,6 +2223,7 @@ public class CDRInputStream
      * Overrides read_value(value) in
      * org.omg.CORBA_2_3.portable.InputStream
      */
+    @Override
     public java.io.Serializable read_value(java.io.Serializable value)
     {
         if (value instanceof org.omg.CORBA.portable.Streamable)
@@ -2207,6 +2249,7 @@ public class CDRInputStream
      * org.omg.CORBA_2_3.portable.InputStream
      */
 
+    @Override
     public java.io.Serializable read_value(final java.lang.Class clz)
     {
         int tag = read_long();
@@ -2256,6 +2299,7 @@ public class CDRInputStream
      * Overrides read_value(factory) in
      * org.omg.CORBA_2_3.portable.InputStream
      */
+    @Override
     public java.io.Serializable read_value
         (final org.omg.CORBA.portable.BoxedValueHelper factory)
     {
@@ -2704,6 +2748,7 @@ public class CDRInputStream
      * union contains a CORBA object reference, or false if the union contains
      * a value.
      */
+    @Override
     public java.lang.Object read_abstract_interface()
     {
         return read_boolean() ? (java.lang.Object)read_Object()
@@ -2716,12 +2761,14 @@ public class CDRInputStream
      * union contains a CORBA object reference, or false if the union contains
      * a value.
      */
+    @Override
     public java.lang.Object read_abstract_interface(final java.lang.Class clazz)
     {
         return read_boolean() ? (java.lang.Object)read_Object(clazz)
         : (java.lang.Object)read_value(clazz);
     }
 
+    @Override
     public int get_pos()
     {
         return pos;
@@ -2841,6 +2888,7 @@ public class CDRInputStream
      * It should read a valuetype header for a nested custom valuetype and increment
      * the valuetype nesting depth.
      */
+    @Override
     public void start_value ()
     {
         int valueTag = read_long ();
@@ -2878,6 +2926,7 @@ public class CDRInputStream
      * any data that precedes the end tag) and decrements the valuetype nesting depth.
      *
      */
+    @Override
     public void end_value ()
     {
         // skip rest of chunk to its end

@@ -44,6 +44,7 @@ public class ClientMIOPConnection extends MIOPConnection implements Configurable
     * @param profile a group MIOP profile.
     * @param timeout unused.
     */
+   @Override
    public void connect (Profile profile, long timeout)
    {
       if (is_connected ())
@@ -69,6 +70,7 @@ public class ClientMIOPConnection extends MIOPConnection implements Configurable
     *
     * @return true if connected and false otherwise.
     */
+   @Override
    public boolean is_connected ()
    {
       return (socket != null) && socket.isConnected ();
@@ -78,6 +80,7 @@ public class ClientMIOPConnection extends MIOPConnection implements Configurable
    /**
     * Close this connection (if it is opened).
     */
+   @Override
    public void close ()
    {
       if (socket != null)
@@ -87,16 +90,7 @@ public class ClientMIOPConnection extends MIOPConnection implements Configurable
    }
 
 
-   /**
-    * Send data to multicast group.
-    *
-    * @param is_first unused.
-    * @param is_last unused.
-    * @param data the data array.
-    * @param offset array's offset.
-    * @param length amount of data to be send.
-    * @param time_out unused.
-    */
+   @Override
    public void flush ()
    {
       super.flush();
@@ -228,11 +222,10 @@ public class ClientMIOPConnection extends MIOPConnection implements Configurable
       return id;
    }
 
-   /*
-    * (non-Javadoc)
-    *
+   /**
     * @see org.jacorb.orb.etf.ConnectionBase#getTimeout()
     */
+   @Override
    protected int getTimeout ()
    {
        try
@@ -245,11 +238,10 @@ public class ClientMIOPConnection extends MIOPConnection implements Configurable
        }
    }
 
-   /*
-    * (non-Javadoc)
-    *
+   /**
     * @see org.jacorb.orb.etf.ConnectionBase#setTimeout(int)
     */
+   @Override
    protected void setTimeout (int timeout)
    {
        if (socket != null)
@@ -272,6 +264,7 @@ public class ClientMIOPConnection extends MIOPConnection implements Configurable
        }
    }
 
+   @Override
    public void configure (Configuration config) throws ConfigurationException
    {
        super.configure (config);

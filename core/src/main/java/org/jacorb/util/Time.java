@@ -29,7 +29,7 @@ import org.omg.TimeBase.UtcTHelper;
 /**
  * Contains static methods to handle CORBA time values.
  *
- * @author Andre Spiegel <spiegel@gnu.org>
+ * @author Andre Spiegel {@literal <spiegel@gnu.org>}
  */
 public final class Time
 {

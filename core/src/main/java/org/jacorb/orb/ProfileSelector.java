@@ -28,7 +28,7 @@ import org.omg.ETF.Profile;
  * A ProfileSelector decides, on the client side, which Profile from
  * an object's IOR should be used to communicate with the object.
  *
- * @author <a href="mailto:spiegel@gnu.org">Andre Spiegel</a>
+ * @author Andre Spiegel
  */
 public interface ProfileSelector
 {

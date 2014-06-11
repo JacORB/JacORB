@@ -56,7 +56,7 @@ import org.slf4j.Logger;
  * ReplyReceiver is created; then the reply is delivered to that
  * ReplyHandler.
  *
- * @author Andre Spiegel <spiegel@gnu.org>
+ * @author Andre Spiegel {@literal <spiegel@gnu.org>}
  */
 
 public final class ReplyReceiver
@@ -126,6 +126,7 @@ public final class ReplyReceiver
         }
     }
 
+    @Override
     public void configure(Configuration configuration) throws ConfigurationException
     {
        super.configure (configuration);
@@ -135,6 +136,7 @@ public final class ReplyReceiver
     }
 
 
+    @Override
     public void replyReceived( MessageInputStream in )
     {
         if (timeoutException)
@@ -560,6 +562,7 @@ public final class ReplyReceiver
     private class DummyResponseHandler
             implements org.omg.CORBA.portable.ResponseHandler
     {
+        @Override
         public org.omg.CORBA.portable.OutputStream createReply()
         {
             // the latest possible time at which we can do this
@@ -567,6 +570,7 @@ public final class ReplyReceiver
             return null;
         }
 
+        @Override
         public org.omg.CORBA.portable.OutputStream createExceptionReply()
         {
             return null;
@@ -583,6 +587,7 @@ public final class ReplyReceiver
             this.orb = orb;
         }
 
+        @Override
         public java.io.Serializable read_value
             ( org.omg.CORBA_2_3.portable.InputStream is )
         {
@@ -613,6 +618,7 @@ public final class ReplyReceiver
             this.endTime = endTime;
         }
 
+        @Override
         public void run()
         {
             synchronized (lock)
@@ -675,6 +681,7 @@ public final class ReplyReceiver
 
         private boolean awakened = false;
 
+        @Override
         public boolean call (SelectorRequest request)
         {
 

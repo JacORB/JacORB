@@ -24,7 +24,7 @@ package org.jacorb.util;
  * Base class for the callback handlers to be suppied to the SelectorRequest
  * object. You supply an implementation of the call method.
  *
- * @author Ciju John <johnc@ociweb.com>
+ * @author Ciju John {@literal <johnc@ociweb.com>}
  */
 public abstract class SelectorRequestCallback
 {
@@ -35,7 +35,7 @@ public abstract class SelectorRequestCallback
      * or send whatever can be right away. If more needs to be done then a subsequent
      * call can handle that.
      * @param action is the SelectorRequest that triggered the callback
-     * @returns true if more waiting is required, in which case the SelectorRequest will
+     * @return true if more waiting is required, in which case the SelectorRequest will
      * stay in the pool. A return of fall indicates that the Selector request may be
      * cleaned up.
     */

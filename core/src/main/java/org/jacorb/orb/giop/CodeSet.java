@@ -213,7 +213,7 @@ public class CodeSet
 
     /**
      * Returns the code set which matches the specified ID.
-     * @ return the matching code set or NULL_CODE_SET if there are no matches.
+     * @return the matching code set or NULL_CODE_SET if there are no matches.
      */
     public static CodeSet getCodeSet( int id ) {
         for (int i = 0; i < KNOWN_ENCODINGS.length; i++)
@@ -515,6 +515,7 @@ public class CodeSet
     }
 
 
+    @Override
     public String toString ()
     {
         return getName();
@@ -603,7 +604,7 @@ public class CodeSet
      * Reads a wide string from the buffer according to GIOP 1.2. The length indicator is presumed already to have been read.
      * @param buffer          the buffer from which to read the string
      * @param size            the length indicator already read
-     * @param giop_minor      the low-order byte of the giop version (must be >= 2)
+     * @param giop_minor      the low-order byte of the giop version (must be &gt;= 2)
      * @return a string possibly containing wide characters.
      */
     final protected String readGiop12WString( InputBuffer buffer, int size, int giop_minor )
@@ -643,12 +644,14 @@ public class CodeSet
         /**
          * Returns true if 'wide' is not specified.
          */
+        @Override
         public boolean supportsCharacterData( boolean wide )
         {
             return !wide;
         }
 
 
+        @Override
         public void write_char( OutputBuffer buffer, char c, boolean write_bom, boolean write_length_indicator, int giop_minor )
         {
             buffer.write_byte( (byte) c );
@@ -663,6 +666,7 @@ public class CodeSet
             super( 0x0001000F, "ISO8859_15" );
         }
 
+        @Override
         public void write_char( OutputBuffer buffer, char c, boolean write_bom, boolean write_length_indicator, int giop_minor )
         {
             switch (c)
@@ -727,12 +731,14 @@ public class CodeSet
         /**
          * Returns true for both wide and non-wide characters.
          */
+        @Override
         public boolean supportsCharacterData( boolean wide )
         {
             return true;
         }
 
 
+        @Override
         public char read_wchar( InputBuffer buffer, int giop_minor, boolean littleEndian )
         {
             if (giop_minor < 2)
@@ -759,6 +765,7 @@ public class CodeSet
         }
 
 
+        @Override
         public String read_wstring( InputBuffer source, int lengthIndicator, int giop_minor, boolean little_endian )
         {
             if (giop_minor < 2) throw new MARSHAL( "Bad wide char codeSet: " + getName() );
@@ -766,6 +773,7 @@ public class CodeSet
         }
 
 
+        @Override
         public void write_char( OutputBuffer buffer, char c, boolean write_bom, boolean write_length_indicator, int giop_minor )
         {
             if( c <= 0x007F )
@@ -816,6 +824,7 @@ public class CodeSet
             }
         }
 
+        @Override
         public int get_wstring_size( String s, int startPos, int currentPos )
         {
             return currentPos - startPos - 4;
@@ -835,12 +844,14 @@ public class CodeSet
         /**
          * Returns true if the character type specified is 'wide'.
          */
+        @Override
         public boolean supportsCharacterData( boolean wide )
         {
             return wide;
         }
 
 
+        @Override
         public char read_wchar( InputBuffer buffer, int giop_minor, boolean littleEndian )
         {
             if (littleEndian)
@@ -854,6 +865,7 @@ public class CodeSet
         }
 
 
+        @Override
         public String read_wstring( InputBuffer source, int lengthIndicator, int giop_minor, boolean little_endian )
         {
             if( giop_minor == 2 )
@@ -883,6 +895,7 @@ public class CodeSet
         }
 
 
+        @Override
         public void write_char( OutputBuffer buffer, char c, boolean write_bom, boolean write_length_indicator, int giop_minor )
         {
             if (giop_minor < 2)
@@ -909,6 +922,7 @@ public class CodeSet
             }
         }
 
+        @Override
         public int get_wstring_size( String s, int startPos, int currentPos )
         {
             return s.length() + 1;   // size in chars (+ NUL char)
@@ -925,6 +939,7 @@ public class CodeSet
         }
 
         /** Returns the configured value to use BOMs only when specifically configured to do so. */
+        @Override
         public boolean write_bom( boolean configuredForBom )
         {
             return false;

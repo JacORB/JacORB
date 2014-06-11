@@ -23,6 +23,7 @@ package org.jacorb.transport;
 
 import java.util.Iterator;
 import java.util.List;
+
 import org.jacorb.config.Configurable;
 import org.jacorb.config.Configuration;
 import org.jacorb.config.ConfigurationException;
@@ -51,6 +52,7 @@ public class DefaultCurrentImpl extends LocalObject implements Current, Transpor
 
     }
 
+    @Override
     public void configure(Configuration configuration) throws ConfigurationException {
 
        logger_ = configuration.getLogger("org.jacorb.transport.current");
@@ -76,6 +78,7 @@ public class DefaultCurrentImpl extends LocalObject implements Current, Transpor
     //
     // TCPConnectionListener interface
     //
+    @Override
     public void transportSelected(Event event) {
 
         tss_transport_event_.set (event);
@@ -90,7 +93,7 @@ public class DefaultCurrentImpl extends LocalObject implements Current, Transpor
      * Retrieves the last event for the current thread.
      *
      * @return Event
-     * @throws BadContext
+     * @throws NoContext
      */
     protected Event getLatestTransportCurentEvent() throws NoContext {
 
@@ -116,11 +119,13 @@ public class DefaultCurrentImpl extends LocalObject implements Current, Transpor
      */
     private Logger logger_;
 
+    @Override
     public int id() throws NoContext {
         Event e = getLatestTransportCurentEvent();
         return e.hashCode();
     }
 
+    @Override
     public long bytes_sent() throws NoContext {
         Event e = getLatestTransportCurentEvent();
         DefaultStatisticsProvider p =
@@ -128,6 +133,7 @@ public class DefaultCurrentImpl extends LocalObject implements Current, Transpor
         return p.bytes_sent_;
     }
 
+    @Override
     public long bytes_received() throws NoContext {
         Event e = getLatestTransportCurentEvent();
         DefaultStatisticsProvider p =
@@ -135,6 +141,7 @@ public class DefaultCurrentImpl extends LocalObject implements Current, Transpor
         return p.bytes_received_;
     }
 
+    @Override
     public long messages_sent() throws NoContext {
         Event e = getLatestTransportCurentEvent();
         DefaultStatisticsProvider p =
@@ -142,6 +149,7 @@ public class DefaultCurrentImpl extends LocalObject implements Current, Transpor
         return p.messages_sent_;
     }
 
+    @Override
     public long messages_received() throws NoContext {
         Event e = getLatestTransportCurentEvent();
         DefaultStatisticsProvider p =
@@ -149,13 +157,11 @@ public class DefaultCurrentImpl extends LocalObject implements Current, Transpor
         return p.messages_received_;
     }
 
+    @Override
     public long open_since() throws NoContext {
         Event e = getLatestTransportCurentEvent();
         DefaultStatisticsProvider p =
             (DefaultStatisticsProvider)e.getStatisticsProvider (statistics_provider_index_);
         return p.created_;
     }
-
-
-
 }

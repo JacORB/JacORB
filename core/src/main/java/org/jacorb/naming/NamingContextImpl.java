@@ -57,10 +57,10 @@ public class NamingContextImpl
     extends NamingContextExtPOA
     implements java.io.Serializable, Configurable
 {
-    /** table of all name bindings in this contexts, ie. name -> obj ref. */
+    /** table of all name bindings in this contexts, ie. name -&gt; obj ref */
     private Hashtable names = new Hashtable();
 
-    /** table of all subordinate naming contexts, ie. name -> obj ref. */
+    /** table of all subordinate naming contexts, ie. name -&gt; obj ref. */
     private Hashtable contexts = new Hashtable();
 
     /** configuration */
@@ -84,10 +84,11 @@ public class NamingContextImpl
     private boolean destroyed = false;
 
 
+    @Override
     public void configure(Configuration myConfiguration)
         throws ConfigurationException
     {
-        this.configuration = (org.jacorb.config.Configuration)myConfiguration;
+        this.configuration = myConfiguration;
         logger = configuration.getLogger("org.jacorb.naming");
         doPurge = configuration.getAttributeAsBoolean("jacorb.naming.purge",false);
         ping = configuration.getAttributeAsBoolean("jacorb.naming.ping",false);
@@ -98,6 +99,7 @@ public class NamingContextImpl
      *  bind a name (an array of name components) to an object
      */
 
+    @Override
     public void bind( NameComponent[] nc, org.omg.CORBA.Object obj)
         throws NotFound, CannotProceed, InvalidName, AlreadyBound
     {
@@ -158,6 +160,7 @@ public class NamingContextImpl
      * Bind an object to a name that's already in use, i.e. rebind the name
      */
 
+    @Override
     public void rebind(NameComponent[] nc, org.omg.CORBA.Object obj)
         throws NotFound, CannotProceed, InvalidName
     {
@@ -214,6 +217,7 @@ public class NamingContextImpl
      * Bind an context to a name that's already in use, i.e. rebind the name
      */
 
+    @Override
     public void rebind_context(NameComponent[] nc, NamingContext obj)
         throws NotFound, CannotProceed, InvalidName
     {
@@ -259,6 +263,7 @@ public class NamingContextImpl
      * Bind a context to a name
      */
 
+    @Override
     public void bind_context(NameComponent[] nc,
                              NamingContext obj)
         throws NotFound, CannotProceed, InvalidName, AlreadyBound
@@ -312,6 +317,7 @@ public class NamingContextImpl
         }
     }
 
+    @Override
     public NamingContext bind_new_context(NameComponent[] nc )
         throws NotFound, CannotProceed, InvalidName, AlreadyBound
     {
@@ -364,7 +370,7 @@ public class NamingContextImpl
         if( deletionVector.size() > 0 )
         {
             for( int i = deletionVector.size(); i-- > 0; )
-                names.remove( (Name)deletionVector.elementAt(i));
+                names.remove( deletionVector.elementAt(i));
             deletionVector.removeAllElements();
         }
 
@@ -386,11 +392,12 @@ public class NamingContextImpl
         if( deletionVector.size() > 0 )
         {
             for( int i = deletionVector.size(); i-- > 0; )
-                contexts.remove( (Name)deletionVector.elementAt(i));
+                contexts.remove( deletionVector.elementAt(i));
             deletionVector.removeAllElements();
         }
     }
 
+    @Override
     public void destroy()
         throws NotEmpty
     {
@@ -423,6 +430,7 @@ public class NamingContextImpl
      *  list all bindings
      */
 
+    @Override
     public void list(int how_many, BindingListHolder bl, BindingIteratorHolder  bi)
     {
         if( destroyed )
@@ -509,6 +517,7 @@ public class NamingContextImpl
         bl.value = result;
     }
 
+    @Override
     public NamingContext new_context()
     {
         if( destroyed )
@@ -544,6 +553,7 @@ public class NamingContextImpl
      * resolve a name
      */
 
+    @Override
     public org.omg.CORBA.Object resolve(NameComponent[] nc)
         throws NotFound, CannotProceed, InvalidName
     {
@@ -597,6 +607,7 @@ public class NamingContextImpl
      * unbind a name
      */
 
+    @Override
     public void unbind(NameComponent[] nc )
         throws NotFound, CannotProceed, InvalidName
     {
@@ -738,6 +749,7 @@ public class NamingContextImpl
      * convert a name into its string representation
      */
 
+    @Override
     public String to_string(NameComponent[] n)
         throws InvalidName
     {
@@ -749,6 +761,7 @@ public class NamingContextImpl
      * @throws InvalidName
      */
 
+    @Override
     public NameComponent[] to_name( String sn )
         throws InvalidName
     {
@@ -760,6 +773,7 @@ public class NamingContextImpl
      *
      */
 
+    @Override
     public String to_url(String addr, String sn)
         throws InvalidAddress, InvalidName
     {
@@ -780,6 +794,7 @@ public class NamingContextImpl
      *
      */
 
+    @Override
     public org.omg.CORBA.Object resolve_str(String n)
         throws NotFound, CannotProceed, InvalidName
     {
@@ -790,7 +805,6 @@ public class NamingContextImpl
     /**
      * determine if non_existent
      */
-
     private boolean isDead(org.omg.CORBA.Object o)
     {
         boolean non_exist = true;
@@ -805,7 +819,7 @@ public class NamingContextImpl
         }
         catch (org.omg.CORBA.NO_IMPLEMENT ni)
         {
-            // not a failure, the peer is alive, it just doesn't 
+            // not a failure, the peer is alive, it just doesn't
             // implement _non_existent()
             non_exist = false;
         }

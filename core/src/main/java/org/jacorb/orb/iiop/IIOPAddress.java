@@ -27,6 +27,7 @@ import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.util.Collections;
 import java.util.LinkedList;
+
 import org.jacorb.config.Configuration;
 import org.jacorb.config.ConfigurationException;
 import org.jacorb.orb.CDROutputStream;
@@ -396,7 +397,6 @@ public class IIOPAddress
     /**
      * Method for use by the IIOPListener to retrieve the host address
      * for a wildcard listener after the server socket has been instantiated.
-     * @param hostInetAddr
      */
     public InetAddress getHostInetAddress()
     {
@@ -663,6 +663,7 @@ public class IIOPAddress
     }
 
 
+    @Override
     public ProtocolAddressBase copy()
     {
         IIOPAddress result = new IIOPAddress (getHostname(), port);

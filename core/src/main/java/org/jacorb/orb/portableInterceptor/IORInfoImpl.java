@@ -44,7 +44,7 @@ public class IORInfoImpl extends org.omg.CORBA.LocalObject
                          implements IORInfoExt
 {
     /**
-     * Maps profile tags to component lists (Integer -> TaggedComponentList).
+     * Maps profile tags to component lists (Integer -&gt; TaggedComponentList).
      */
     private final Map<Integer, TaggedComponentList> components;
     private final Map policy_overrides;
@@ -68,6 +68,7 @@ public class IORInfoImpl extends org.omg.CORBA.LocalObject
     /**
      * Adds component to all profiles.
      */
+    @Override
     public void add_ior_component (TaggedComponent component)
     {
         for (Iterator<TaggedComponentList> i = components.values().iterator(); i.hasNext();)
@@ -80,6 +81,7 @@ public class IORInfoImpl extends org.omg.CORBA.LocalObject
     /**
      * Adds the component to the profile with the given tag.
      */
+    @Override
     public void add_ior_component_to_profile(TaggedComponent component, int id)
     {
         TaggedComponentList list = components.get(Integer.valueOf (id));
@@ -101,6 +103,7 @@ public class IORInfoImpl extends org.omg.CORBA.LocalObject
      * @return a policy of the given type, or null,
      * if no policy of that type is present.
      */
+    @Override
     public Policy get_effective_policy(int type)
     {
         if (!orb.hasPolicyFactoryForType(type))
@@ -129,6 +132,7 @@ public class IORInfoImpl extends org.omg.CORBA.LocalObject
      * already existing in profile list.
      * @param profile       the profile to add
      */
+    @Override
     public void add_profile(Profile profile)
     {
        if( _profiles != null )
@@ -144,6 +148,7 @@ public class IORInfoImpl extends org.omg.CORBA.LocalObject
      * @param tag     profile tag, e.g. TAG_INTERNET_IOP.value
      * @return        number of profiles of given tag
      */
+    @Override
     public int get_number_of_profiles(int tag)
     {
        int retVal = 0;
@@ -161,13 +166,14 @@ public class IORInfoImpl extends org.omg.CORBA.LocalObject
     /**
      * Returns the profile with the given tag at the given position.
      * Following rule must apply to parameter position:<p>
-     * <code> 0 <= position < get_number_of_profiles(tag) </code><p>
+     * <code> 0 &lt;= position &lt; get_number_of_profiles(tag) </code><p>
      * @param tag        tag of profile, e.g. TAG_INTERNET_IOP.value
      * @param position   position in IOR
      * @return           profile
      * @exception       ArrayIndexOutOfBoundsException if position is
      *                   out of range
      */
+    @Override
     public org.omg.ETF.Profile get_profile(int tag, int position)
     {
        int cnt = position;
@@ -198,6 +204,7 @@ public class IORInfoImpl extends org.omg.CORBA.LocalObject
      * @return           first profile or null if no profile with given
      *                   tag exists
      */
+    @Override
     public org.omg.ETF.Profile get_profile(int tag)
     {
        Profile result = null;

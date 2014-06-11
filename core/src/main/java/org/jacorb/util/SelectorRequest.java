@@ -22,13 +22,12 @@ package org.jacorb.util;
 
 import java.nio.channels.SelectionKey;
 import java.nio.channels.SocketChannel;
-//import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * defines a single request to be registered with the selector.
  * this can be a timed event, I/O event, or I/O event with an
  * expiration.
- * @author Ciju John <johnc@ociweb.com>
+ * @author Ciju John {@literal <johnc@ociweb.com>}}
  */
 public class SelectorRequest
 {
@@ -124,7 +123,7 @@ public class SelectorRequest
 
     /**
      * determines if the current status is one of the final statuses
-     * @returns false if the status is PENDING, ASSIGNED, or READY, true for all others
+     * @return false if the status is PENDING, ASSIGNED, or READY, true for all others
      */
 
     public boolean isFinalized ()
@@ -138,7 +137,7 @@ public class SelectorRequest
     /**
      * a blocking call to wait for a status change or a timeout.
      * @param nanoDeadline is an explicit timeout for waiting on a change
-     * @returns this requester's status after a notification or a timeout.
+     * @return this requester's status after a notification or a timeout.
      */
     public Status waitOnCompletion (long nanoDeadline)
     {
@@ -174,5 +173,4 @@ public class SelectorRequest
         }
         return status;
     }
-
 }

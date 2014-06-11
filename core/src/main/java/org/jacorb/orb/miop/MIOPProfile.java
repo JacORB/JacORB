@@ -119,17 +119,18 @@ public class MIOPProfile extends ProfileBase
     * Configure this object. Must be called after the creation for full profile
     * configuration.
     *
-    * @param configuration the object configuration
+    * @param config the config
     * @throws ConfigurationException if any problem with the configuration is
     *         detected
     */
+   @Override
    public void configure (Configuration config) throws ConfigurationException
    {
       super.configure(config);
 
       logger = configuration.getLogger("org.jacorb.miop");
 
-      ORB orb = ((org.jacorb.config.Configuration)config).getORB ();
+      ORB orb = config.getORB ();
 
       if (corbalocStr != null)
       {
@@ -236,6 +237,7 @@ public class MIOPProfile extends ProfileBase
     *
     * @return tagGroup as a byte array.
     */
+   @Override
    public byte[] get_object_key ()
    {
       if (objectKey == null)
@@ -256,6 +258,7 @@ public class MIOPProfile extends ProfileBase
     *
     * @return the hashcode of this object.
     */
+   @Override
    public int hash ()
    {
       return hashCode ();
@@ -268,6 +271,7 @@ public class MIOPProfile extends ProfileBase
     * @param profile other profile.
     * @return true if it's equal, false otherwise.
     */
+   @Override
    public boolean is_match (Profile profile)
    {
       return equals (profile);
@@ -280,6 +284,7 @@ public class MIOPProfile extends ProfileBase
     * @param taggedProfile a tagged profile holder.
     * @param taggedComponentSeq unused.
     */
+   @Override
    public void marshal (TaggedProfileHolder taggedProfile,
             TaggedComponentSeqHolder taggedComponentSeq)
    {
@@ -302,6 +307,7 @@ public class MIOPProfile extends ProfileBase
     *
     * @param objectKey unused.
     */
+   @Override
    public void set_object_key (byte[] objectKey)
    {
    }
@@ -312,6 +318,7 @@ public class MIOPProfile extends ProfileBase
     *
     * @return TAG_UIPMC.value.
     */
+   @Override
    public int tag ()
    {
       return TAG_UIPMC.value;
@@ -323,6 +330,7 @@ public class MIOPProfile extends ProfileBase
     *
     * @return miop version.
     */
+   @Override
    public Version version ()
    {
       return uipmc.miop_version;
@@ -380,8 +388,9 @@ public class MIOPProfile extends ProfileBase
    /**
     * The string address of this profile.
     *
-    * @return <group address>:<group port>
+    * @return &lt;group address&gt;:&lt;group port&gt;
     */
+   @Override
    public final String toString ()
    {
       return uipmc.the_address + ":" + uipmc.the_port;
@@ -443,9 +452,10 @@ public class MIOPProfile extends ProfileBase
 
 
    /**
-    * Parses a Tag Group from a String. Example: "1.0-MyDomain-1" Where: <group
-    * component version>-<group_domain_id>-<object_group_id>[-<object group
-    * reference version>]
+    * Parses a Tag Group from a String.<br>
+    * Example: "1.0-MyDomain-1" where:<br>
+    * <code>{@literal <group component version>-<group_domain_id>-<object_group_id>[-<object group
+    * reference version>]}</code>
     *
     * @param s
     */
@@ -478,8 +488,9 @@ public class MIOPProfile extends ProfileBase
 
 
    /**
-    * Parse the group address. Example: "225.6.7.8:12345" Where: <group IP
-    * address>:<group port>
+    * Parse the group address.<br>
+    * Example: "225.6.7.8:12345" where:<br>
+    * <code>{@literal <group IP address>:<group port>}</code>
     *
     * @param s
     */
@@ -504,24 +515,27 @@ public class MIOPProfile extends ProfileBase
    }
 
 
-   /*
-    * (non-Javadoc)
+   /**
+    * Read address profile.
     *
-    * @seeorg.jacorb.orb.etf.ProfileBase#readAddressProfile(org.jacorb.orb.
+    * @param stream the stream
+    * @see org.jacorb.orb.etf.ProfileBase#readAddressProfile(org.jacorb.orb.
     * CDRInputStream)
     */
+   @Override
    public void readAddressProfile (CDRInputStream stream)
    {
       throw new NO_IMPLEMENT ("Not yet implemented");
    }
 
 
-   /*
-    * (non-Javadoc)
+   /**
+    * Write address profile.
     *
-    * @seeorg.jacorb.orb.etf.ProfileBase#writeAddressProfile(org.jacorb.orb.
-    * CDROutputStream)
+    * @param stream the stream
+    * @see org.jacorb.orb.etf.ProfileBase#writeAddressProfile(org.jacorb.orb. CDROutputStream)
     */
+   @Override
    public void writeAddressProfile (CDROutputStream stream)
    {
       throw new NO_IMPLEMENT ("Not yet implemented");

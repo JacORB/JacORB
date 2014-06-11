@@ -35,7 +35,7 @@ import java.util.Calendar;
  * specialized. The specialized action should not be blocking or it may
  * adversely affect the performance of the timer queue.
  *
- * @author Phil Mesnier <mesnier_p@ociweb.com>
+ * @author Phil Mesnier {@literal <mesnier_p@ociweb.com>}
  */
 public class TimerQueueAction extends SelectorRequest
 {
@@ -43,6 +43,7 @@ public class TimerQueueAction extends SelectorRequest
 
     private class Callback extends SelectorRequestCallback
     {
+        @Override
         public boolean call (SelectorRequest action)
         {
             if (action instanceof TimerQueueAction)

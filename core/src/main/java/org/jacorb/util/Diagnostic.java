@@ -5,12 +5,14 @@ import java.io.OutputStreamWriter;
 import java.net.InetAddress;
 import java.util.Locale;
 import java.util.Properties;
+
 import org.jacorb.orb.giop.CodeSet;
 import org.jacorb.orb.iiop.IIOPAddress;
 
 /**
  * JacORB Diagnostic class. This will print to System.out the following information:
- * <br/>
+ * <br>
+ * <ul>
  * <li>JacORB Version</li>
  * <li>Operating System</li>
  * <li>OS Version</li>
@@ -23,7 +25,8 @@ import org.jacorb.orb.iiop.IIOPAddress;
  * <li>System File Encoding</li>
  * <li>Cannonical Encoding</li>
  * <li>Default WChar Encoding</li>
- *<br/>
+ * </ul>
+ * <br>
  * Remember the precedence levels of LC_ALL, LANG, LC_CTYPE etc. Preferred
  * way to override for *all* categories is to set LC_ALL. If you just set LANG
  * then if any other LC_* categories are set then these will take precedence.

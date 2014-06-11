@@ -27,7 +27,7 @@ import org.jacorb.orb.ORB;
  * Can be subclassed to provide initialization of a backend logging system
  * based on parameters from the JacORB configuration.
  *
- * @author Andre Spiegel <spiegel@gnu.org>
+ * @author Andre Spiegel {@literal <spiegel@gnu.org>}
  */
 public abstract class LoggingInitializer
 {

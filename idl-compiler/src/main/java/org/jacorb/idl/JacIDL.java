@@ -216,7 +216,7 @@ public class JacIDL
     /**
      * Setter for 'nofinal' property that indicates whether generated code should have
      * a final class definition.
-     * @param flag <code>true</true> for definitions that are not final.
+     * @param flag <code>true</code> for definitions that are not final.
      */
     public void setNofinal(boolean flag)
     {
@@ -289,7 +289,7 @@ public class JacIDL
     }
 
     /**
-    * Will be called whenever an <i2jpackage> nested PCDATA element is encountered.
+    * Will be called whenever an i2jpackage nested PCDATA element is encountered.
     */
     public org.jacorb.idl.JacIDL.I2JPackageTagHandler createI2jpackage()
     {
@@ -299,7 +299,7 @@ public class JacIDL
     /**
     * Inner class that will read the i2jpackage tags.
     *
-    * The format for these will be <i2jpackage names="x:y"/>.
+    * The format for these will be <code>i2jpackage names="x:y"</code>
     * @see #createI2jpackage()
     */
     public class I2JPackageTagHandler
