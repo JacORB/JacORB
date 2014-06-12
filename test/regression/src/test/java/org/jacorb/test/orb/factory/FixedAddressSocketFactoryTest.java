@@ -8,7 +8,7 @@ import org.jacorb.config.Configurable;
 import org.jacorb.config.Configuration;
 import org.jacorb.orb.factory.FixedAddressSocketFactory;
 import org.jacorb.orb.factory.SocketFactory;
-import org.jacorb.test.common.NullLogger;
+import org.jacorb.test.common.TestUtils;
 import org.junit.Test;
 
 /**
@@ -16,6 +16,7 @@ import org.junit.Test;
  */
 public class FixedAddressSocketFactoryTest extends AbstractSocketFactoryTestCase
 {
+    @Override
     protected SocketFactory newObjectUnderTest()
     {
         return new FixedAddressSocketFactory();
@@ -69,13 +70,13 @@ public class FixedAddressSocketFactoryTest extends AbstractSocketFactoryTestCase
         socket.close ();
     }
 
+    @Override
     protected void configureObjectUnderTest(String name, Configurable configurable) throws Exception
     {
         MockControl configControl = MockControl
             .createControl(Configuration.class);
         Configuration configMock = (Configuration) configControl.getMock();
-        configControl.expectAndReturn(configMock.getLogger("org.jacorb.orb.socketfactory"), new NullLogger());
-
+        configControl.expectAndReturn(configMock.getLogger("org.jacorb.orb.socketfactory"), TestUtils.getLogger());
         if (name.startsWith("testSetLocalhost"))
         {
             configControl.expectAndReturn(configMock.getAttribute("OAIAddr", ""), "localhost");

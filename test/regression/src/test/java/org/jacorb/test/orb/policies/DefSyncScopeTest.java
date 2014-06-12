@@ -9,17 +9,7 @@ import org.jacorb.test.SyncScopeServerHelper;
 import org.jacorb.test.common.ClientServerSetup;
 import org.jacorb.test.common.ClientServerTestCase;
 import org.junit.After;
-import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
-import org.omg.CORBA.Policy;
-import org.omg.CORBA.PolicyError;
-import org.omg.CORBA.SetOverrideType;
-import org.omg.Messaging.SYNC_NONE;
-import org.omg.Messaging.SYNC_SCOPE_POLICY_TYPE;
-import org.omg.Messaging.SYNC_WITH_SERVER;
-import org.omg.Messaging.SYNC_WITH_TARGET;
-import org.omg.Messaging.SYNC_WITH_TRANSPORT;
 
 /**
  * Tests for SyncScopePolicy.

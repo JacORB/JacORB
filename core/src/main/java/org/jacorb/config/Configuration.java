@@ -53,7 +53,7 @@ import org.jacorb.orb.ORB;
  * The Configuration object is also used by JacORB components to
  * retreive their Logger objects.
  *
- * @author Gerald Brose, XTRADYNE Technologies
+ * @author Gerald Brose
  */
 
 public interface Configuration

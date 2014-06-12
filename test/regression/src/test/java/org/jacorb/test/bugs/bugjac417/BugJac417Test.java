@@ -29,8 +29,8 @@ import org.jacorb.config.Configuration;
 import org.jacorb.orb.factory.DefaultServerSocketFactory;
 import org.jacorb.orb.factory.SocketFactoryManager;
 import org.jacorb.orb.listener.NullTCPConnectionListener;
-import org.jacorb.test.common.MyNullLogger;
 import org.jacorb.test.common.ORBTestCase;
+import org.jacorb.test.common.TestUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.omg.CORBA.INITIALIZE;
@@ -58,7 +58,7 @@ public class BugJac417Test extends ORBTestCase
         configMock = (Configuration) configControl.getMock();
 
         configControl.expectAndReturn(configMock.getORB(), orb );
-        configControl.expectAndReturn(configMock.getLogger("org.jacorb.orb.factory"), new MyNullLogger() );
+        configControl.expectAndReturn(configMock.getLogger("org.jacorb.orb.factory"), TestUtils.getLogger() );
         configControl.expectAndReturn(configMock.getAttributeAsObject(SocketFactoryManager.TCP_LISTENER, NullTCPConnectionListener.class.getName()), new NullTCPConnectionListener());
         configControl.expectAndReturn(configMock.getAttributeAsBoolean(SocketFactoryManager.SUPPORT_SSL, false), false);
     }

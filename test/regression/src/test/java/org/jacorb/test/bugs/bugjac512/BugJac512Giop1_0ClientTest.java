@@ -25,8 +25,8 @@ import static org.junit.Assert.fail;
 import java.util.Properties;
 import org.jacorb.orb.giop.ReplyInputStream;
 import org.jacorb.orb.giop.ReplyOutputStream;
-import org.jacorb.test.common.MyNullLogger;
 import org.jacorb.test.common.ORBTestCase;
+import org.jacorb.test.common.TestUtils;
 import org.junit.Test;
 import org.omg.CORBA.MARSHAL;
 import org.omg.GIOP.ReplyStatusType_1_2;
@@ -45,7 +45,7 @@ public class BugJac512Giop1_0ClientTest extends ORBTestCase
     @Test
     public void testDoesNotLikeWCharWithinReply()
     {
-        ReplyOutputStream out = new ReplyOutputStream(orb, 1, ReplyStatusType_1_2.NO_EXCEPTION, 0, false, new MyNullLogger());
+        ReplyOutputStream out = new ReplyOutputStream(orb, 1, ReplyStatusType_1_2.NO_EXCEPTION, 0, false, TestUtils.getLogger());
 
         out.write_wchar('a');
 
@@ -72,7 +72,7 @@ public class BugJac512Giop1_0ClientTest extends ORBTestCase
     @Test
     public void testServerDoesNotLikeWString()
     {
-        ReplyOutputStream out = new ReplyOutputStream(orb, 1, ReplyStatusType_1_2.NO_EXCEPTION, 0, false, new MyNullLogger());
+        ReplyOutputStream out = new ReplyOutputStream(orb, 1, ReplyStatusType_1_2.NO_EXCEPTION, 0, false, TestUtils.getLogger());
 
         out.write_wstring("string");
 
