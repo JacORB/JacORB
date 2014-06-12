@@ -44,11 +44,4 @@
             </includes>
         </fileSet>
     </fileSets>
-    <files>
-        <file>
-            <source>${env.JACORB_HOME}/index.html</source>
-            <destName>index.html</destName>
-            <fileMode>0644</fileMode>
-        </file>
-    </files>
 </assembly>
