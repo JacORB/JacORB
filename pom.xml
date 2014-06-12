@@ -88,7 +88,6 @@
         <module>omgapi</module>
         <module>core</module>
         <module>services</module>
-        <module>release</module>
         <module>test/regression</module>
     </modules>
 
@@ -758,6 +757,10 @@
                     </plugin>
                 </plugins>
             </build>
+
+            <modules>
+                <module>release</module>
+            </modules>
         </profile>
     </profiles>
 
