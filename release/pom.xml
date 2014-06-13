@@ -39,6 +39,7 @@
     <build>
         <plugins>
             <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-antrun-plugin</artifactId>
                 <executions>
                     <!-- Artifact signing. We want to create MD5 sums for the zips we create (src/bin) -->
@@ -78,27 +79,6 @@
                 <artifactId>maven-assembly-plugin</artifactId>
                 <executions>
                     <execution>
-                        <id>assemble-result</id>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>single</goal>
-                        </goals>
-                        <configuration>
-                            <finalName>common</finalName>
-                            <appendAssemblyId>false</appendAssemblyId>
-                            <attach>false</attach>
-                            <outputDirectory>${project.build.directory}/work</outputDirectory>
-                            <descriptors>
-                                <descriptor>src/main/assembly/common.xml</descriptor>
-                            </descriptors>
-                            <archiverConfig>
-                                <defaultFileMode>0644</defaultFileMode>
-                                <defaultDirectoryMode>0755</defaultDirectoryMode>
-                            </archiverConfig>
-                        </configuration>
-                    </execution>
-
-                    <execution>
                         <id>binary-dist</id>
                         <phase>package</phase>
                         <goals>
@@ -135,27 +115,6 @@
                                 <defaultFileMode>0644</defaultFileMode>
                                 <defaultDirectoryMode>0755</defaultDirectoryMode>
                             </archiverConfig>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-dependency-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>copy-dependencies</id>
-                        <phase>generate-resources</phase>
-                        <goals>
-                            <goal>copy-dependencies</goal>
-                        </goals>
-                        <configuration>
-                            <outputDirectory>${env.JACORB_HOME}/lib</outputDirectory>
-                            <overWriteReleases>true</overWriteReleases>
-                            <overWriteSnapshots>true</overWriteSnapshots>
-                            <overWriteIfNewer>true</overWriteIfNewer>
-                            <includeGroupIds>org.slf4j,antlr,picocontainer,tanukisoft</includeGroupIds>
                         </configuration>
                     </execution>
                 </executions>

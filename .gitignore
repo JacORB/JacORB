@@ -8,17 +8,13 @@ demo/tao_imr/test/output
 
 test/**/*/build
 test/interop/*/generated
-test/orbreinvoke/jacorb_imr/generated
-test/orbreinvoke/jacorb_imr/output
-test/orbreinvoke/tao_imr/generated
-test/orbreinvoke/tao_imr/output
-test/orbreinvoke/tao_ns/generated
-test/orbreinvoke/tao_ns/output
+test/orbreinvoke/**/generated
+test/orbreinvoke/**/output
 
 .DS_Store
 _nsdb_root*
-*.log
-*.ior
-/nbproject/private/
 
 target
+
+.project
+.classpath

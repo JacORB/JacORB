@@ -82,47 +82,9 @@ Note that some tests rely on jacorb-omgapi.jar being placed in the Xbootclasspat
 Getting Coverage Reports
 ------------------------
 
-You can obtain coverage data for test runs using the EMMA coverage
-tool, which is integrated into the regression suite.  Obtaining
-coverage is a three-step process: (1) instrumenting the JacORB code,
-(2) running the tests and collecting coverage data, (3) generating a
-coverage report from the data in HTML.
+Coverage is automatically run using Jacoco. The results may be seen by running
 
-To instrument the code, go to REGRESSION_HOME and type
-
-  ant instrument
-
-This is usually done during the build-all target if you haven't
-disabled building by passing the NO_BUILD property.
-
-This will create a new directory JACORB_HOME/classes-instrumented that
-contains the instrumented code, and a metadata file
-JACORB_HOME/coverage.em.
-
-To collect coverage data during a test run, define the property
-jacorb.test.coverage=on, for example:
-
-  ant -Djacorb.test.coverage=true run-all
-
-After the tests have completed ant will generate html reports from the
-coverage data and put them into the directory specified by the property
-jacorb.test.coverage.dir (defaults to OUTDIR/coverage).
-
-In the output directory, you will then find three report directories,
-coverage-client, coverage-server, and coverage-combined.  These
-directories contain reports for the client side, the server side, and
-both of them combined, respectively.  (Tests that are not
-client/server tests count on the client side.)  You can view these
-reports by pointing a web browser to the file index.html in each of
-the subdirectories, and drill down into packages and classes as you
-like.
-
-Note: There is currently an issue with the test
-org.jacorb.test.bugs.bugjac330, which often corrupts the coverage data
-because of a race condition.  For the time being, comment out this
-test in org.jacorb.test.bugs.AllTest when obtaining coverage
-information.  This issue will be corrected soon.
-
+mvn site
 
 Adding new tests
 ----------------

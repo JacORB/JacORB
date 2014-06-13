@@ -7,11 +7,45 @@
     </formats>
     <fileSets>
         <fileSet>
-            <directory>target/work/common</directory>
+            <directory>${basedir}/..</directory>
             <outputDirectory>/</outputDirectory>
             <includes>
-                <include>**</include>
+                <include>bin/**</include>
+                <include>demo/**</include>
+                <include>etc/**</include>
+                <include>idl/**</include>
+            </includes>
+        </fileSet>
+        <fileSet>
+            <directory>${basedir}/../doc</directory>
+            <outputDirectory>doc</outputDirectory>
+            <includes>
+                <include>*</include>
+                <include>dds/*</include>
+            </includes>
+            <excludes>
+                <exclude>ProgrammingGuide</exclude>
+            </excludes>
+        </fileSet>
+        <fileSet>
+            <directory>${basedir}/../lib</directory>
+            <outputDirectory>lib</outputDirectory>
+            <includes>
+                <include>*</include>
+            </includes>
+        </fileSet>
+        <fileSet>
+            <directory>target/site</directory>
+            <outputDirectory>doc</outputDirectory>
+            <includes>
+                <include>*.pdf</include>
             </includes>
         </fileSet>
     </fileSets>
+    <files>
+        <file>
+            <source>${basedir}/../README.md</source>
+            <fileMode>0644</fileMode>
+        </file>
+    </files>
 </assembly>

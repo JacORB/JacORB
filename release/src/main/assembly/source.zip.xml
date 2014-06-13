@@ -7,39 +7,13 @@
     </formats>
     <fileSets>
         <fileSet>
-            <directory>target/work/common</directory>
+            <directory>${basedir}/..</directory>
             <outputDirectory>/</outputDirectory>
-            <includes>
-                <include>**</include>
-            </includes>
-        </fileSet>
-        <fileSet>
-            <directory>${env.JACORB_HOME}</directory>
-            <outputDirectory>/</outputDirectory>
-            <includes>
-                <include>src/**</include>
-                <include>maven/**</include>
-                <include>test/**</include>
-            </includes>
+            <useDefaultExcludes>true</useDefaultExcludes>
             <excludes>
                 <exclude>**/target/**</exclude>
-                <exclude>**/generated/**</exclude>
-                <exclude>**/build/**</exclude>
+                <exclude>lib/*.jar</exclude>
             </excludes>
         </fileSet>
-        <fileSet>
-            <directory>${env.JACORB_HOME}/lib</directory>
-            <outputDirectory>lib</outputDirectory>
-            <includes>
-                <include>build/**</include>
-            </includes>
-        </fileSet>
     </fileSets>
-
-    <files>
-        <file>
-            <source>${env.JACORB_HOME}/pom.xml</source>
-            <outputDirectory>/</outputDirectory>
-        </file>
-    </files>
 </assembly>

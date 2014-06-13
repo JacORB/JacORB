@@ -12,15 +12,6 @@
 
     To deploy and release pass -DperformRelease=true
 
-    Maven phases versus JacORB build rules:
-
-    clean=realclean
-    compile=all
-    test='clean run-all'
-    package= [ Distribution assembly ]
-
-    NOTE: JACORB_HOME must be passed in via -D or set in the environment.
-
     -->
 
     <modelVersion>4.0.0</modelVersion>
@@ -206,37 +197,6 @@
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-antrun-plugin</artifactId>
                     <version>1.7</version>
-                    <executions>
-                        <execution>
-                            <id>getJACORB_HOMEValidation</id>
-                            <phase>validate</phase>
-                            <goals>
-                                <goal>run</goal>
-                            </goals>
-                            <configuration>
-                                <exportAntProperties>true</exportAntProperties>
-                                <target>
-                                    <!--Adjust the location below to your directory structure -->
-                                    <property name="env.JACORB_HOME" location=".." />
-                                    <echo message="[validate] env.JACORB_HOME=${env.JACORB_HOME}"/>
-                                </target>
-                            </configuration>
-                        </execution>
-                        <execution>
-                            <id>cleanLibDirectory</id>
-                            <phase>clean</phase>
-                            <goals>
-                                <goal>run</goal>
-                            </goals>
-                            <configuration>
-                                <target>
-                                    <delete quiet="true">
-                                        <fileset dir="${basedir}/lib" includes="*.jar"/>
-                                    </delete>
-                                </target>
-                            </configuration>
-                        </execution>
-                    </executions>
                     <dependencies>
                         <dependency>
                             <groupId>org.apache.ant</groupId>
@@ -281,6 +241,22 @@
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-dependency-plugin</artifactId>
                     <version>2.8</version>
+                    <executions>
+                        <execution>
+                            <id>copy-dependencies</id>
+                            <phase>generate-resources</phase>
+                            <goals>
+                                <goal>copy-dependencies</goal>
+                            </goals>
+                            <configuration>
+                                <outputDirectory>${basedir}/../lib</outputDirectory>
+                                <overWriteReleases>true</overWriteReleases>
+                                <overWriteSnapshots>true</overWriteSnapshots>
+                                <overWriteIfNewer>true</overWriteIfNewer>
+                                <includeGroupIds>org.slf4j,antlr,picocontainer,tanukisoft</includeGroupIds>
+                            </configuration>
+                        </execution>
+                    </executions>
                 </plugin>
 
                 <plugin>
@@ -349,6 +325,12 @@
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-resources-plugin</artifactId>
                     <version>2.6</version>
+                </plugin>
+
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-release-plugin</artifactId>
+                    <version>2.5</version>
                 </plugin>
 
                 <plugin>
@@ -636,31 +618,22 @@
 
         <plugins>
             <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-antrun-plugin</artifactId>
                 <version>1.7</version>
                 <inherited>false</inherited>
                 <executions>
                     <execution>
-                        <id>getJACORB_HOMEValidation</id>
-                        <phase>validate</phase>
+                        <id>cleanLibDirectory</id>
+                        <phase>clean</phase>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
                         <configuration>
-                            <exportAntProperties>true</exportAntProperties>
                             <target>
-                                <!--Adjust the location below to your directory structure -->
-                                <property name="env.JACORB_HOME" location="." />
-                                <echo message="[validate] env.JACORB_HOME=${env.JACORB_HOME}"/>
-                            </target>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <id>getenv.JACORB_HOMEClean</id>
-                        <phase>pre-clean</phase>
-                        <configuration>
-                            <exportAntProperties>true</exportAntProperties>
-                            <target>
-                                <!--Adjust the location below to your directory structure -->
-                                <property name="env.JACORB_HOME" location="." />
-                                <echo message="[preclean] env.JACORB_HOME=${env.JACORB_HOME}"/>
+                                <delete quiet="true">
+                                    <fileset dir="${basedir}/lib" includes="*.jar"/>
+                                </delete>
                             </target>
                         </configuration>
                     </execution>
