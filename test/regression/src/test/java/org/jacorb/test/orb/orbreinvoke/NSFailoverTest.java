@@ -27,6 +27,7 @@ import java.io.File;
 import java.util.Properties;
 import org.jacorb.orb.util.PrintIOR;
 import org.jacorb.test.common.CommonSetup;
+import org.jacorb.test.common.NameServiceSetup;
 import org.jacorb.test.common.ORBTestCase;
 import org.jacorb.test.common.ServerSetup;
 import org.jacorb.test.common.TestUtils;
@@ -35,12 +36,20 @@ import org.junit.Assume;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.FixMethodOrder;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 import org.junit.runners.MethodSorters;
 
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class NSFailoverTest extends ORBTestCase
 {
+    @Rule
+    public TemporaryFolder folder1 = new TemporaryFolder();
+
+    @Rule
+    public TemporaryFolder folder2 = new TemporaryFolder();
+
     private static final boolean NS_1_ON = true;
     private static final boolean NS_2_ON = true;
     private static final boolean NS_1_OFF = false;
@@ -63,8 +72,8 @@ public class NSFailoverTest extends ORBTestCase
     private Properties nsProp_2 = null;
     private File nsIOR_1 = null;
     private File nsIOR_2 = null;
-    private NSServiceSetup nsSetup_1 = null;
-    private NSServiceSetup nsSetup_2 = null;
+    private NameServiceSetup nsSetup_1 = null;
+    private NameServiceSetup nsSetup_2 = null;
     private ServerSetup serverSetup_1 = null;
     private ServerSetup serverSetup_2 = null;
     private final java.lang.Object syncTest = new java.lang.Object();
@@ -129,7 +138,7 @@ public class NSFailoverTest extends ORBTestCase
                 }
 
                 // initiate the NameServer service
-                nsSetup_1 = new NSServiceSetup (nsProp_1, 1);
+                nsSetup_1 = new NameServiceSetup (folder1, nsProp_1, 1);
                 nsSetup_1.setUp();
                 TestUtils.getLogger().debug("++++ setting NameServer #1 - complete"==null? "null" : "++++ setting NameServer #1 - complete");
             }
@@ -163,7 +172,7 @@ public class NSFailoverTest extends ORBTestCase
                 }
 
                 // initiate the NameServer service
-                nsSetup_2 = new NSServiceSetup (nsProp_2, 2);
+                nsSetup_2 = new NameServiceSetup (folder2, nsProp_2, 2);
                 nsSetup_2.setUp();
                 TestUtils.getLogger().debug("++++ setting NameServer #2 - complete"==null? "null" : "++++ setting NameServer #2 - complete");
             }
@@ -455,6 +464,7 @@ public class NSFailoverTest extends ORBTestCase
             // goes and restart NameServers.
             Thread delayStart = new Thread (new Runnable()
             {
+                @Override
                 public void run()
                 {
                     try
