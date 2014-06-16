@@ -21,7 +21,6 @@
 package org.jacorb.test.common;
 
 import static org.junit.Assert.fail;
-
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -33,7 +32,6 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
-
 import org.jacorb.test.common.launch.Launcher;
 
 /**
@@ -194,7 +192,7 @@ public class ServerSetup
         final Launcher launcher = getLauncher(System.getProperty("java.class.path"),
                                         serverProperties,
                                         getTestServerMain(),
-                                        getServerArgs());
+                                        serverArgs.toArray(new String[serverArgs.size()]));
 
         serverProcess = launcher.launch();
 
@@ -207,11 +205,6 @@ public class ServerSetup
         outListener.start();
         errListener.start();
         serverIOR = outListener.getIOR(TestUtils.timeout);
-    }
-
-    public String[] getServerArgs()
-    {
-        return serverArgs.toArray(new String[serverArgs.size()]);
     }
 
     public void tearDown() throws Exception
@@ -263,17 +256,6 @@ public class ServerSetup
         details.append(errListener.toString());
         return details.toString();
     }
-
-    public void patchServerProperties (Properties serverProperties)
-    {
-        if (serverProperties != null && serverProperties.size () > 0)
-        {
-            serverOrbProperties.putAll (serverProperties);
-        }
-    }
-
-
-
 
     /**
      * Returns a launcher for the specified JacORB version.

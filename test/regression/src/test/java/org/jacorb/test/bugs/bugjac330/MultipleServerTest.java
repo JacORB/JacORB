@@ -4,13 +4,11 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
-
 import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Properties;
-
 import org.jacorb.orb.Delegate;
 import org.jacorb.orb.giop.ClientConnection;
 import org.jacorb.orb.giop.ClientConnectionManager;
@@ -51,13 +49,11 @@ public class MultipleServerTest extends ORBTestCase
             orbProps.putAll(cp);
         }
 
-        setup1 = new ServerSetup(CustomBasicServerImpl.class.getName());
-        setup1.patchServerProperties(orbProps);
+        setup1 = new ServerSetup(null, CustomBasicServerImpl.class.getName(), orbProps );
         setup1.setUp();
         server1IOR = setup1.getServerIOR();
 
-        setup2 = new ServerSetup(CustomBasicServerImpl.class.getName());
-        setup2.patchServerProperties(orbProps);
+        setup2 = new ServerSetup(null, CustomBasicServerImpl.class.getName(), orbProps );
         setup2.setUp();
         server2IOR = setup2.getServerIOR();
     }
