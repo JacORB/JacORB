@@ -27,11 +27,13 @@ import java.net.UnknownHostException;
 import java.util.Properties;
 import org.jacorb.test.common.ClientServerSetup;
 import org.jacorb.test.common.ClientServerTestCase;
+import org.jacorb.test.common.IMRExcludedClientServerCategory;
 import org.jacorb.test.common.TestUtils;
 import org.junit.Assume;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 
 /**
  * <code>TestCaseImpl</code> is a test to check that connectionOpened and
@@ -39,6 +41,7 @@ import org.junit.Test;
  *
  * @author Carol Jordon
  */
+@Category(IMRExcludedClientServerCategory.class)
 public class BugJac195Test extends ClientServerTestCase
 {
     private JAC195Server server;

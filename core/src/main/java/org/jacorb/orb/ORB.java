@@ -70,6 +70,7 @@ import org.omg.CORBA.INTERNAL;
 import org.omg.CORBA.MARSHAL;
 import org.omg.CORBA.ORBPackage.InvalidName;
 import org.omg.CORBA.portable.BoxedValueHelper;
+import org.omg.CORBA.portable.ObjectImpl;
 import org.omg.CORBA.portable.StreamableValue;
 import org.omg.CORBA.portable.ValueFactory;
 import org.omg.CSIIOP.CompoundSecMechList;
@@ -81,6 +82,7 @@ import org.omg.CSIIOP.Integrity;
 import org.omg.CSIIOP.TAG_TLS_SEC_TRANS;
 import org.omg.CSIIOP.TLS_SEC_TRANS;
 import org.omg.CSIIOP.TLS_SEC_TRANSHelper;
+import org.omg.ETF.Factories;
 import org.omg.ETF.Profile;
 import org.omg.IOP.IOR;
 import org.omg.IOP.MultipleComponentProfileHelper;
@@ -158,7 +160,7 @@ public final class ORB
     private final org.omg.PortableInterceptor.Current piCurrent = new PICurrent();
 
     /** reference caching */
-    private Map knownReferences = null;
+    private Map<String, ObjectImpl> knownReferences = null;
 
     /** connection mgmt. */
     private ClientConnectionManager clientConnectionManager;
@@ -189,13 +191,13 @@ public final class ORB
      * org.omg.CORBA.portable.ValueFactory.  This map is used by
      * register/unregister_value_factory() and lookup_value_factory().
      */
-    private final Map valueFactories = new HashMap();
+    private final Map<String, ValueFactory> valueFactories = new HashMap<String, ValueFactory>();
 
     /**
      * Maps repository ids (strings) of boxed value types to
      * BoxedValueHelper instances for those types.
      */
-    private final Map boxedValueHelpers = new HashMap();
+    private final Map<String, BoxedValueHelper> boxedValueHelpers = new HashMap<String, BoxedValueHelper>();
 
     private final ObjectKeyMap objectKeyMap = new ObjectKeyMap(this);
 
@@ -263,6 +265,19 @@ public final class ORB
      */
     private String defaultInitRef;
 
+    /**
+     * Indicates that the root POA manager was not yet activated.
+     */
+    private boolean firstConnection = true;
+
+    /**
+     * Associates connected objects to their servants. The servant associated
+     * with a connected object is retrieved from this map when disconnect is
+     * called on the object.
+     */
+    private Map connectedObjects = new HashMap();
+
+
     public ORB()
     {
         super(false);
@@ -293,7 +308,6 @@ public final class ORB
 
         useIMR =
             configuration.getAttributeAsBoolean("jacorb.use_imr", false);
-
 
         useTaoIMR =
             configuration.getAttributeAsBoolean("jacorb.use_tao_imr", false);
@@ -495,9 +509,9 @@ public final class ORB
 
     public ProtocolAddressBase createAddress (String address)
     {
-        List factorylist = getTransportManager().getFactoriesList();
+        List<Factories> factorylist = getTransportManager().getFactoriesList();
         ProtocolAddressBase result = null;
-        for (Iterator i = factorylist.iterator();
+        for (Iterator<Factories> i = factorylist.iterator();
                 i.hasNext() && result == null;)
         {
             FactoriesBase f = (FactoriesBase)i.next();
@@ -536,7 +550,7 @@ public final class ORB
         if (cacheReferences)
         {
             object =
-                (org.omg.CORBA.portable.ObjectImpl)knownReferences.get( key );
+                knownReferences.get( key );
 
             if ( object != null )
             {
@@ -641,11 +655,11 @@ public final class ORB
             /* strip scoped poa name (first part of the object key before "::",
              *  will be empty for the root poa
              */
-            List scopes = POAUtil.extractScopedPOANames (poa_name);
+            List<String> scopes = POAUtil.extractScopedPOANames (poa_name);
 
             for ( int i = 0; i < scopes.size(); i++)
             {
-                String res = ((String)scopes.get( i ));
+                String res = (scopes.get( i ));
 
                 if ( "".equals (res))
                 {
@@ -835,7 +849,7 @@ public final class ORB
                               Map policy_overrides)
     {
         List<Profile> profiles = new ArrayList<Profile>();
-        Map<Integer, TaggedComponentList>  componentMap = new HashMap();
+        Map<Integer, TaggedComponentList>  componentMap = new HashMap<Integer, TaggedComponentList>();
         int[] profileTags = new int[basicAdapter.getEndpointProfiles().size()];
         int n = 0;
         for (Iterator<Profile> i = basicAdapter.getEndpointProfiles().iterator();
@@ -1024,7 +1038,7 @@ public final class ORB
             {
                 List<Profile> plist = imr.getImRProfiles();
                 int cnt = 0;
-                for (Iterator iter = plist.iterator(); iter.hasNext();)
+                for (Iterator<Profile> iter = plist.iterator(); iter.hasNext();)
                 {
                     IIOPProfile p = (IIOPProfile) iter.next();
                     // add all IMR endpoints (except the first primary one)
@@ -1399,12 +1413,12 @@ public final class ORB
             getImR();
             if (useIMR)
             {
-            // The double call to patchPrimaryAddress ensures that either the
-            // actual imr address or the environment values are patched into the
-            // address, giving precedence to the latter.
-            profile.patchPrimaryAddress(imr.getImRAddress());
-            profile.patchPrimaryAddress(imrProxyAddress);
-        }
+                // The double call to patchPrimaryAddress ensures that either the
+                // actual imr address or the environment values are patched into the
+                // address, giving precedence to the latter.
+                profile.patchPrimaryAddress(imr.getImRAddress());
+                profile.patchPrimaryAddress(imrProxyAddress);
+            }
             else if (useTaoIMR)
             {
                 profile.patchPrimaryAddress(imr.getImRAddress());
@@ -1413,10 +1427,12 @@ public final class ORB
                 // because it might have multiple enpoints.
             }
         }
-        else
+        if (_transient && (useIMR || useTaoIMR))
         {
-            profile.patchPrimaryAddress(iorProxyAddress);
+            logger.warn("IMR configured but Object %s is transient", profile.toString());
         }
+
+        profile.patchPrimaryAddress(iorProxyAddress);
     }
 
     /**
@@ -1459,10 +1475,10 @@ public final class ORB
         {
             //property not set
 
-            List eplist = getBasicAdapter().getEndpointProfiles();
-            for (Iterator i = eplist.iterator(); i.hasNext(); )
+            List<Profile> eplist = getBasicAdapter().getEndpointProfiles();
+            for (Iterator<Profile> i = eplist.iterator(); i.hasNext(); )
             {
-                Profile p = (Profile)i.next();
+                Profile p = i.next();
                 if (p instanceof IIOPProfile)
                 {
                     address = ((IIOPProfile)p).getAddress();
@@ -2518,7 +2534,7 @@ public final class ORB
     public synchronized ValueFactory register_value_factory(String id,
             ValueFactory factory)
     {
-        return (ValueFactory)valueFactories.put (id, factory);
+        return valueFactories.put (id, factory);
     }
 
     @Override
@@ -2530,7 +2546,7 @@ public final class ORB
     @Override
     public synchronized ValueFactory lookup_value_factory(String id)
     {
-        ValueFactory result = (ValueFactory)valueFactories.get (id);
+        ValueFactory result = valueFactories.get (id);
 
         if (result == null && id.startsWith("IDL"))
         {
@@ -2682,7 +2698,7 @@ public final class ORB
 
     public BoxedValueHelper getBoxedValueHelper(String repId)
     {
-        BoxedValueHelper result = (BoxedValueHelper)boxedValueHelpers.get(repId);
+        BoxedValueHelper result = boxedValueHelpers.get(repId);
         if (result == null)
         {
             if (boxedValueHelpers.containsKey(repId))
@@ -2955,18 +2971,6 @@ public final class ORB
     // deprecated, they are implemented here because the server-side
     // programming model traditionally used by RMI/IIOP strongly relies
     // on them.
-
-    /**
-     * Indicates that the root POA manager was not yet activated.
-     */
-    private boolean firstConnection = true;
-
-    /**
-     * Associates connected objects to their servants. The servant associated
-     * with a connected object is retrieved from this map when disconnect is
-     * called on the object.
-     */
-    private Map connectedObjects = new HashMap();
 
     /**
      * Servant class used by connect and disconnect

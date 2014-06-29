@@ -10,7 +10,7 @@ import org.jacorb.imr.ImplementationRepositoryImpl;
  */
 public class ImplementationRepositoryRunner
 {
-    public static void main(String[] args)
+    public static void main(String[] args) throws Exception
     {
         ImplementationRepositoryImpl.main(new String[] {"-printIOR"});
     }

@@ -115,7 +115,7 @@ public class POA
     private String                qualifiedName;
 
     // name -> child POA's
-    private final Hashtable       childs = new Hashtable();
+    private final Hashtable<String, POA>       childs = new Hashtable<String, POA>();
 
     Servant                       defaultServant;
     ServantManager                servantManager;
@@ -256,6 +256,7 @@ public class POA
     }
 
 
+    @Override
     public void configure(Configuration myConfiguration)
         throws ConfigurationException
     {
@@ -354,7 +355,7 @@ public class POA
 
         checkDestructionApparent();
 
-        POA child = (POA) childs.get(adapter_name);
+        POA child = childs.get(adapter_name);
 
         if (child == null || child.isDestructionApparent())
         {
@@ -421,7 +422,7 @@ public class POA
                poa is created and initialized */
             if (successful)
             {
-                child = (POA) childs.get(adapter_name);
+                child = childs.get(adapter_name);
                 if (child == null)
                 {
                     throw new POAInternalError("error: unknown_adapter returns true, but the child poa doesn't extist");
@@ -571,6 +572,7 @@ public class POA
     }
 
 
+    @Override
     public byte[] activate_object(Servant servant)
         throws ServantAlreadyActive, WrongPolicy
     {
@@ -599,6 +601,7 @@ public class POA
         return objectId;
     }
 
+    @Override
     public void activate_object_with_id( byte[] oid, Servant servant )
         throws  ServantAlreadyActive, ObjectAlreadyActive, WrongPolicy
     {
@@ -738,18 +741,21 @@ public class POA
     }
 
 
+    @Override
     public IdAssignmentPolicy create_id_assignment_policy (IdAssignmentPolicyValue value)
     {
         checkDestructionApparent ();
         return new org.jacorb.poa.policy.IdAssignmentPolicy (value);
     }
 
+    @Override
     public IdUniquenessPolicy create_id_uniqueness_policy (IdUniquenessPolicyValue value)
     {
         checkDestructionApparent ();
         return new org.jacorb.poa.policy.IdUniquenessPolicy (value);
     }
 
+    @Override
     public ImplicitActivationPolicy create_implicit_activation_policy
         (ImplicitActivationPolicyValue value)
     {
@@ -757,6 +763,7 @@ public class POA
         return new org.jacorb.poa.policy.ImplicitActivationPolicy (value);
     }
 
+    @Override
     public LifespanPolicy create_lifespan_policy (LifespanPolicyValue value)
     {
         checkDestructionApparent ();
@@ -768,6 +775,7 @@ public class POA
      * goes shutdown and this method will called (not spec.)
      */
 
+    @Override
     public org.omg.PortableServer.POA create_POA( String adapter_name,
                                                   org.omg.PortableServer.POAManager a_POAManager,
                                                   org.omg.CORBA.Policy[] policies)
@@ -777,6 +785,10 @@ public class POA
 
         checkDestructionApparent();
 
+        if (adapter_name == null)
+        {
+            throw new org.omg.CORBA.BAD_PARAM("Cannot pass null as an adapter name");
+        }
         String poa_name = POAUtil.maskStr(adapter_name);
 
         /* this implementation works only with a instance of org.jacorb.poa.POAManager */
@@ -814,7 +826,7 @@ public class POA
 
         synchronized (poaCreationLog)
         {
-            child = (POA)childs.get(poa_name);
+            child = childs.get(poa_name);
             if (child != null &&
                !child.isDestructionApparent())
             {
@@ -824,7 +836,7 @@ public class POA
             if (child != null)
             {
                 POA aChild;
-                while ((aChild = (POA)childs.get(poa_name)) != null)
+                while ((aChild = childs.get(poa_name)) != null)
                 {
                     try
                     {
@@ -887,6 +899,7 @@ public class POA
      * type_id of the generated object reference
      */
 
+    @Override
     public org.omg.CORBA.Object create_reference (String intf_rep_id)
         throws WrongPolicy
     {
@@ -908,6 +921,7 @@ public class POA
      * type_id of the generated object reference
      */
 
+    @Override
     public org.omg.CORBA.Object create_reference_with_id(byte[] oid,
                                                          String intf_rep_id)
         throws WrongPolicy
@@ -931,6 +945,7 @@ public class POA
     }
 
 
+    @Override
     public RequestProcessingPolicy create_request_processing_policy(RequestProcessingPolicyValue value)
     {
         checkDestructionApparent();
@@ -938,6 +953,7 @@ public class POA
     }
 
 
+    @Override
     public ServantRetentionPolicy create_servant_retention_policy(ServantRetentionPolicyValue value)
     {
         checkDestructionApparent();
@@ -945,6 +961,7 @@ public class POA
     }
 
 
+    @Override
     public ThreadPolicy create_thread_policy(ThreadPolicyValue value)
     {
         checkDestructionApparent();
@@ -958,6 +975,7 @@ public class POA
      */
 
 
+    @Override
     public synchronized void deactivate_object(byte[] oid)
         throws ObjectNotActive, WrongPolicy
     {
@@ -984,6 +1002,7 @@ public class POA
     }
 
 
+    @Override
     public void destroy( boolean etherealize_objects,
                          boolean wait_for_completion )
     {
@@ -1009,6 +1028,7 @@ public class POA
 
         Thread thread = new Thread()
         {
+            @Override
             public void run()
             {
                 /* The apparent destruction of the POA
@@ -1066,6 +1086,7 @@ public class POA
      * that  the poa  returned goes shutdown  but the orb  will notice
      * this situation if he will proceed with request processing.
      */
+    @Override
     public org.omg.PortableServer.POA find_POA( String adapter_name,
                                                 boolean activate_it)
         throws AdapterNonExistent
@@ -1074,7 +1095,7 @@ public class POA
 
         String poa_name = POAUtil.maskStr(adapter_name);
 
-        POA child = (POA)childs.get(poa_name);
+        POA child = childs.get(poa_name);
 
         if (child == null || child.isDestructionApparent())
         {
@@ -1112,7 +1133,7 @@ public class POA
             /* unknown_adapter returns not until the poa is created and initialized */
             if (successful)
             {
-                child = (POA) childs.get(poa_name);
+                child = childs.get(poa_name);
                 if (child == null)
                 {
                     throw new POAInternalError("error: unknown_adapter returns true, but the child poa does'n extist");
@@ -1162,6 +1183,7 @@ public class POA
     }
 
 
+    @Override
     public Servant get_servant()
         throws NoServant, WrongPolicy
     {
@@ -1183,6 +1205,7 @@ public class POA
     }
 
 
+    @Override
     public org.omg.PortableServer.ServantManager get_servant_manager()
         throws WrongPolicy
     {
@@ -1332,6 +1355,7 @@ public class POA
         return poaManager.get_state();
     }
 
+    @Override
     public org.omg.CORBA.Object id_to_reference (byte[] oid)
         throws ObjectNotActive, WrongPolicy
     {
@@ -1356,6 +1380,7 @@ public class POA
     }
 
 
+    @Override
     public Servant id_to_servant(byte[] oid)
         throws ObjectNotActive, WrongPolicy
     {
@@ -1729,6 +1754,7 @@ public class POA
         return IdUtil.equals(object_key, getPOAId(), getPOAId().length);
     }
 
+    @Override
     public byte[] reference_to_id (org.omg.CORBA.Object reference)
         throws WrongAdapter, WrongPolicy
     {
@@ -1778,6 +1804,7 @@ public class POA
         return objectId;
     }
 
+    @Override
     public Servant reference_to_servant(org.omg.CORBA.Object reference)
         throws ObjectNotActive, WrongAdapter, WrongPolicy
     {
@@ -1869,6 +1896,7 @@ public class POA
     }
 
 
+    @Override
     public byte[] servant_to_id(Servant servant)
         throws ServantNotActive, WrongPolicy
     {
@@ -1941,6 +1969,7 @@ public class POA
     /**
      */
 
+    @Override
     public org.omg.CORBA.Object servant_to_reference(Servant servant)
         throws ServantNotActive, WrongPolicy
     {
@@ -2021,6 +2050,7 @@ public class POA
     }
 
 
+    @Override
     public void set_servant(Servant _defaultServant)
         throws WrongPolicy
     {
@@ -2047,6 +2077,7 @@ public class POA
      * raises also the WrongPolicy Exception (not spec.)
      */
 
+    @Override
     public void set_servant_manager(org.omg.PortableServer.ServantManager servant_manager)
         throws WrongPolicy
     {
@@ -2089,35 +2120,41 @@ public class POA
      * activator. a newly created POA has not an adapter activator (null)
      */
 
+    @Override
     public org.omg.PortableServer.AdapterActivator the_activator()
     {
         checkDestructionApparent ();
         return adapterActivator;
     }
 
+    @Override
     public void the_activator(org.omg.PortableServer.AdapterActivator adapter_activator)
     {
         checkDestructionApparent();
         adapterActivator = adapter_activator;
     }
 
+    @Override
     public String the_name()
     {
         checkDestructionApparent();
         return POAUtil.unmaskStr(name);
     }
 
+    @Override
     public byte[] id()
     {
         throw new NO_IMPLEMENT( "NYI" ) ;
     }
 
+    @Override
     public org.omg.PortableServer.POA the_parent()
     {
         checkDestructionApparent();
         return parent;
     }
 
+    @Override
     public org.omg.PortableServer.POA[] the_children()
     {
         checkDestructionApparent();
@@ -2140,12 +2177,14 @@ public class POA
         return children;
     }
 
+    @Override
     public org.omg.PortableServer.POAManager the_POAManager()
     {
         checkDestructionApparent();
         return poaManager;
     }
 
+    @Override
     public  org.omg.PortableServer.POAManagerFactory the_POAManagerFactory()
     {
         throw new NO_IMPLEMENT ("Not yet implemented");

@@ -20,7 +20,6 @@
 
 package org.jacorb.test.bugs.bug878;
 
-import static org.junit.Assert.fail;
 import java.util.Properties;
 import org.jacorb.test.BasicServer;
 import org.jacorb.test.BasicServerHelper;

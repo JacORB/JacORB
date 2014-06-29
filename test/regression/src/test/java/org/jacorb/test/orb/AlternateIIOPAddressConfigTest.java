@@ -25,14 +25,17 @@ import org.jacorb.test.BasicServer;
 import org.jacorb.test.BasicServerHelper;
 import org.jacorb.test.common.ClientServerSetup;
 import org.jacorb.test.common.ClientServerTestCase;
+import org.jacorb.test.common.IMRExcludedClientServerCategory;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 
 /**
  * Tests the configuration option jacorb.iiop.alternate_addresses.
  * @author Andre Spiegel <spiegel@gnu.org>
  */
+@Category(IMRExcludedClientServerCategory.class)
 public class AlternateIIOPAddressConfigTest extends ClientServerTestCase
 {
     private static final String CORRECT_HOST = "127.0.0.1";

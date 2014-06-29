@@ -54,7 +54,18 @@ import org.slf4j.Logger;
  */
 public class TestServer
 {
+    /**
+     * The Constant TRUE.
+     */
+    private static final String TRUE = "true";
+
+    /**
+     * The Constant ON.
+     */
+    private static final String ON = "on";
+
     private static Boolean useCorbaloc = null;
+    private static Boolean useIMR = null;
 
     /**
      * Returns true if this TestServer should make its object available
@@ -64,12 +75,25 @@ public class TestServer
     {
         if (useCorbaloc == null)
         {
-            String prop = System.getProperty ("jacorb.test.corbaloc.enable",
-                                              "false");
-            useCorbaloc = Boolean.valueOf(prop);
+            String value = System.getProperty ("jacorb.test.corbaloc.enable", "false").trim();
+            useCorbaloc = Boolean.valueOf ((ON.equals(value) || TRUE.equals(value)));
         }
         return useCorbaloc.booleanValue();
     }
+
+    /**
+     * Returns true if this TestServer should use an IMR.
+     */
+    public static boolean useIMR()
+    {
+        if (useIMR == null)
+        {
+            String value = System.getProperty ("jacorb.use_imr", "false").trim();
+            useIMR = Boolean.valueOf ((ON.equals(value) || TRUE.equals(value)));
+        }
+        return useIMR.booleanValue();
+    }
+
 
     /**
      * Creates and returns the POA with which the test server object should be
@@ -83,8 +107,7 @@ public class TestServer
         (
             orb.resolve_initial_references ("RootPOA")
         );
-        rootPOA.the_POAManager().activate();
-        if (useCorbaloc())
+        if (useCorbaloc() || useIMR())
         {
             Policy[] p = new Policy[2];
             p[0] = rootPOA.create_lifespan_policy (LifespanPolicyValue.PERSISTENT);
@@ -92,13 +115,16 @@ public class TestServer
 
             POA poa = rootPOA.create_POA
             (
-                System.getProperty("jacorb.test.corbaloc.poaname"),
+                System.getProperty("jacorb.test.corbaloc.poaname",
+                        System.getProperty("jacorb.implname", Integer.toString(orb.hashCode()))),
                 rootPOA.the_POAManager(), p
             );
+            poa.the_POAManager().activate();
             return poa;
         }
         else
         {
+            rootPOA.the_POAManager().activate();
             return rootPOA;
         }
     }
@@ -129,7 +155,8 @@ public class TestServer
         Logger logger = null;
         try
         {
-            Properties props = new Properties();
+            Properties props = new Properties(System.getProperties());
+
             if (useCorbaloc())
             {
                 props.put ("OAPort",
@@ -143,7 +170,7 @@ public class TestServer
             //init ORB
             ORB orb = ORB.init (args, props);
 
-            log("init ORB");
+            log("init ORB (using corbaloc " + useCorbaloc() + " and using imr " + useIMR());
 
             try
             {
@@ -192,7 +219,18 @@ public class TestServer
             else
             {
                 // create the object reference
-                org.omg.CORBA.Object obj = poa.servant_to_reference( servant );
+                org.omg.CORBA.Object obj = null;
+
+                if (useIMR())
+                {
+                    poa.activate_object_with_id (servant.getClass().getName().getBytes(), servant);
+                    obj = poa.id_to_reference (servant.getClass().getName().getBytes());
+                }
+                else
+                {
+                    obj = poa.servant_to_reference( servant );
+                }
+
                 ior = "SERVER IOR: " + orb.object_to_string(obj);
             }
 

@@ -25,6 +25,7 @@ import static org.junit.Assert.assertTrue;
 import java.util.Properties;
 import org.jacorb.test.common.ClientServerSetup;
 import org.jacorb.test.common.ClientServerTestCase;
+import org.jacorb.test.common.IMRExcludedClientServerCategory;
 import org.jacorb.test.common.TestUtils;
 import org.jacorb.test.orb.value.NodeImpl;
 import org.jacorb.test.orb.value.ValueServer;
@@ -34,10 +35,12 @@ import org.junit.Assume;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 
 /**
  * @author Alphonse Bendt
  */
+@Category(IMRExcludedClientServerCategory.class)
 public class BugJac449Test extends ClientServerTestCase
 {
     private ValueServer server;

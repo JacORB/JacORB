@@ -32,10 +32,12 @@ import org.jacorb.orb.ReplyGroup;
 import org.jacorb.orb.giop.ReplyPlaceholder;
 import org.jacorb.test.common.ClientServerSetup;
 import org.jacorb.test.common.ClientServerTestCase;
+import org.jacorb.test.common.IMRExcludedClientServerCategory;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 import org.omg.CORBA.COMM_FAILURE;
 
 
@@ -46,6 +48,7 @@ import org.omg.CORBA.COMM_FAILURE;
  * @author <a href="mailto:Nick.Cross@prismtech.com">Nick Cross</a>
  * @version 1.0
  */
+@Category(IMRExcludedClientServerCategory.class)
 public class BugJac662Test extends ClientServerTestCase
 {
     private PingReceiver server;

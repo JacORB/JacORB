@@ -21,13 +21,12 @@ package org.jacorb.test.bugs.bug986;
  */
 
 import static org.junit.Assert.assertTrue;
-
 import java.util.Properties;
-
 import org.jacorb.test.BasicServer;
 import org.jacorb.test.BasicServerHelper;
 import org.jacorb.test.common.ClientServerSetup;
 import org.jacorb.test.common.ClientServerTestCase;
+import org.jacorb.test.common.IMRExcludedClientServerCategory;
 import org.jacorb.test.common.ORBTestCase;
 import org.jacorb.test.common.TestUtils;
 import org.junit.After;
@@ -35,8 +34,10 @@ import org.junit.Assume;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 import org.omg.CORBA.SystemException;
 
+@Category(IMRExcludedClientServerCategory.class)
 public class Bug986Test extends ClientServerTestCase
 {
     private Properties serverProps = new Properties();

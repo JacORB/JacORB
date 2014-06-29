@@ -13,6 +13,7 @@ import org.omg.PortableServer.Servant;
 public class NIOTestServer extends TestIfPOA
 {
 
+    @Override
     public void op()
     {
         try
@@ -26,6 +27,7 @@ public class NIOTestServer extends TestIfPOA
 
     }
 
+    @Override
     public void onewayOp()
     {
         // ignore
@@ -35,7 +37,7 @@ public class NIOTestServer extends TestIfPOA
     {
         Properties props = new Properties();
         props.setProperty ("jacorb.implname","NIOTestServer");
-        props.setProperty ("OAPort", "6969");
+        props.setProperty ("OAPort", "16969");
         String objID = "ObjectID";
 
         ORB orb = ORB.init(args, props);

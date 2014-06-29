@@ -24,14 +24,17 @@ package org.jacorb.test.orb.etf;
 import org.jacorb.test.BasicServer;
 import org.jacorb.test.BasicServerHelper;
 import org.jacorb.test.common.ClientServerTestCase;
+import org.jacorb.test.common.IMRExcludedClientServerCategory;
 import org.jacorb.test.orb.etf.wiop.WIOPFactories;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.experimental.categories.Category;
 
 /**
  * Abstract superclass for the WIOP tests.
  * @author Alphonse Bendt
  */
+@Category(IMRExcludedClientServerCategory.class)
 public class AbstractWIOPTestCase extends ClientServerTestCase
 {
     protected BasicServer server;

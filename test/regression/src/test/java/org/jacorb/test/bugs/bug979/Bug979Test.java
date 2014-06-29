@@ -3,10 +3,13 @@ package org.jacorb.test.bugs.bug979;
 import java.util.Properties;
 import org.jacorb.test.common.ClientServerSetup;
 import org.jacorb.test.common.ClientServerTestCase;
+import org.jacorb.test.common.IMRExcludedClientServerCategory;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 
+@Category(IMRExcludedClientServerCategory.class)
 public final class Bug979Test extends ClientServerTestCase
 {
     private Hello server;

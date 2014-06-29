@@ -27,7 +27,6 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.PrintWriter;
-import java.lang.reflect.Method;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -130,15 +129,15 @@ public class ImplementationRepositoryImpl
         this.orb = orb;
 
         shutdownThread = new Shutdown ();
-        shutdownThread.setDaemon (true);
-        shutdownThread.setName ("Shutdown Thread");
-        addShutdownHook (shutdownThread);
     }
 
     public void configure(Configuration myConfiguration)
         throws ConfigurationException
     {
         configuration = myConfiguration;
+
+        wt = new WriteThread ();
+        wt.setName ("IMR Write Thread");
 
         logger = configuration.getLogger("org.jacorb.imr");
 
@@ -310,8 +309,6 @@ public class ImplementationRepositoryImpl
         this.listenerThread.setPriority(Thread.MAX_PRIORITY);
         this.listenerThread.start();
 
-        this.wt = new WriteThread ();
-        this.wt.setName ("IMR Write Thread");
         this.wt.setDaemon (true);
         this.wt.start ();
     }
@@ -331,6 +328,7 @@ public class ImplementationRepositoryImpl
      * @exception org.jacorb.imr.UnknownServerName No server with name
      * <code>server</code> has been registered.
      */
+    @Override
     public void set_server_down(String server)
         throws UnknownServerName
     {
@@ -364,6 +362,7 @@ public class ImplementationRepositoryImpl
      * <code>name</code> is currently registered.
      * @exception org.jacorb.imr.UnknownServerName The server has not been registered.
      */
+    @Override
     public void register_poa(String name, String server, String host, int port)
         throws IllegalPOAName, DuplicatePOAName, UnknownServerName
     {
@@ -479,6 +478,7 @@ public class ImplementationRepositoryImpl
      * @exception org.jacorb.imr.RegistrationPackage.InvalidSSDRef It was impossible to connect
      * to the daemon.
      */
+    @Override
     public void register_host(HostInfo host)
         throws IllegalHostName, InvalidSSDRef
     {
@@ -511,6 +511,7 @@ public class ImplementationRepositoryImpl
      * @return the ImRInfo object of this repository.
      */
 
+    @Override
     public ImRInfo get_imr_info()
     {
         return new ImRInfo(listener.getAddress(), listener.getPort());
@@ -526,6 +527,7 @@ public class ImplementationRepositoryImpl
      *
      * @return an array containing all known hosts.
      */
+    @Override
     public HostInfo[] list_hosts()
     {
         return server_table.getHosts();
@@ -537,6 +539,7 @@ public class ImplementationRepositoryImpl
      *
      * @return an array containing all registered servers.
      */
+    @Override
     public ServerInfo[] list_servers()
     {
         ServerInfo [] servers;
@@ -599,6 +602,7 @@ public class ImplementationRepositoryImpl
      * @return the ServerInfo object of the server with name <code>server</code>
      * @exception UnknownServerName the server <code>server</code> has not been registered.
      */
+    @Override
     public ServerInfo get_server_info(String server)
         throws UnknownServerName
     {
@@ -619,6 +623,7 @@ public class ImplementationRepositoryImpl
      * @exception org.jacorb.imr.AdminPackage.DuplicateServerName a server with <code>name</code>
      * has already been registered.
      */
+    @Override
     public void register_server(String name, String command, String host)
         throws IllegalServerName, DuplicateServerName
     {
@@ -647,6 +652,7 @@ public class ImplementationRepositoryImpl
      * @param name the servers name.
      * @exception org.jacorb.imr.UnknownServerName a server with <code>name</code> has not been registered.
      */
+    @Override
     public void unregister_server(String name) throws UnknownServerName
     {
         updatePending = true;
@@ -680,6 +686,7 @@ public class ImplementationRepositoryImpl
      * @exception UnknownServerName a server with <code>name</code>
      * has not been registered.
      */
+    @Override
     public void edit_server(String name, String command, String host)
         throws UnknownServerName
     {
@@ -711,6 +718,7 @@ public class ImplementationRepositoryImpl
      * @param name the servers name.
      * @exception org.jacorb.imr.UnknownServerName a server with <code>name</code> has not been registered.
      */
+    @Override
     public void hold_server(String name)
         throws UnknownServerName
     {
@@ -724,6 +732,7 @@ public class ImplementationRepositoryImpl
      * @param name the servers name.
      * @exception org.jacorb.imr.UnknownServerName a server with <code>name</code> has not been registered.
      */
+    @Override
     public void release_server(String name)
         throws UnknownServerName
     {
@@ -738,6 +747,7 @@ public class ImplementationRepositoryImpl
      * @exception org.jacorb.imr.UnknownServerName a server with <code>name</code>
      * has not been registered.
      */
+    @Override
     public void start_server(String name)
         throws UnknownServerName, ServerStartupFailed
     {
@@ -748,6 +758,7 @@ public class ImplementationRepositoryImpl
      * Save the server table to a backup file.
      * @exception org.jacorb.imr.AdminPackage.FileOpFailed something went wrong.
      */
+    @Override
     public void save_server_table()
         throws FileOpFailed
     {
@@ -766,6 +777,7 @@ public class ImplementationRepositoryImpl
      * @param wait wait_for_completion (from ORB.shutdown()). If false, then the ORB
      * is forced down, ignoring any open connection.
      */
+    @Override
     public void shutdown(boolean wait)
     {
         synchronized (wt)
@@ -807,6 +819,7 @@ public class ImplementationRepositoryImpl
      * @param name the hosts name.
      * @exception UnknownHostName no host with that name known.
      */
+    @Override
     public void unregister_host(String name)
         throws UnknownHostName{
         if (server_table.removeHost(name) == null)
@@ -858,7 +871,7 @@ public class ImplementationRepositoryImpl
      * attributes up, creates a new ImplementationRepositoryImpl instance and
      * runs the ORB.
      */
-    public static void main(String[] args)
+    public static void main(String[] args) throws Exception
     {
         // translate any properties set on the commandline but after the
         // class name to a properties
@@ -878,60 +891,56 @@ public class ImplementationRepositoryImpl
         }
 
         //Write IOR to file
-        try
-        {
-            org.omg.CORBA.ORB orb = org.omg.CORBA.ORB.init( args, argProps );
+        org.omg.CORBA.ORB orb = org.omg.CORBA.ORB.init( args, argProps );
 
-            ImplementationRepositoryImpl _imr =
+        ImplementationRepositoryImpl _imr =
                 new ImplementationRepositoryImpl(orb);
-            _imr.configure(((org.jacorb.orb.ORB) orb).getConfiguration());
+        _imr.configure(((org.jacorb.orb.ORB) orb).getConfiguration());
 
-            POA root_poa = POAHelper.narrow(orb.resolve_initial_references("RootPOA"));
-            root_poa.the_POAManager().activate();
+        POA root_poa = POAHelper.narrow(orb.resolve_initial_references("RootPOA"));
+        root_poa.the_POAManager().activate();
 
-            org.omg.CORBA.Policy[] policies = new org.omg.CORBA.Policy[2];
+        org.omg.CORBA.Policy[] policies = new org.omg.CORBA.Policy[2];
 
-            policies[0] =
-            root_poa.create_lifespan_policy(LifespanPolicyValue.PERSISTENT);
-            policies[1] =
-            root_poa.create_id_assignment_policy(IdAssignmentPolicyValue.USER_ID);
+        policies[0] =
+                root_poa.create_lifespan_policy(LifespanPolicyValue.PERSISTENT);
+        policies[1] =
+                root_poa.create_id_assignment_policy(IdAssignmentPolicyValue.USER_ID);
 
-            POA imr_poa = root_poa.create_POA( "ImRPOA",
-                                               root_poa.the_POAManager(),
-                                               policies );
+        POA imr_poa = root_poa.create_POA( "ImRPOA",
+                root_poa.the_POAManager(),
+                policies );
 
-            for (int i=0; i<policies.length; i++)
-            {
-                policies[i].destroy();
-            }
+        for (int i=0; i<policies.length; i++)
+        {
+            policies[i].destroy();
+        }
 
-            byte[] id = "ImR".getBytes();
+        byte[] id = "ImR".getBytes();
 
 
-            imr_poa.activate_object_with_id( id, _imr );
+        imr_poa.activate_object_with_id( id, _imr );
 
-            PrintWriter _out = new PrintWriter
+        PrintWriter _out = new PrintWriter
                 (new FileOutputStream(new File(_imr.getIORFile())));
 
-            final org.omg.CORBA.Object imrReference = imr_poa.servant_to_reference(_imr);
-            _out.println(orb.object_to_string(imrReference));
-            _out.flush();
-            _out.close();
+        final org.omg.CORBA.Object imrReference = imr_poa.servant_to_reference(_imr);
+        _out.println(orb.object_to_string(imrReference));
+        _out.flush();
+        _out.close();
 
-            if (printIOR)
-            {
-                System.out.println ("SERVER IOR: " + orb.object_to_string(imrReference));
-                System.out.flush();
-            }
-
-            orb.run();
-        }
-        catch (Exception _e)
+        if (printIOR)
         {
-            _e.printStackTrace();
-            usage();
-            System.exit(1);
+            System.out.println ("SERVER IOR: " + orb.object_to_string(imrReference));
+            System.out.flush();
         }
+
+        _imr.shutdownThread.setDaemon (true);
+        _imr.shutdownThread.setName ("Shutdown Thread");
+
+        Runtime.getRuntime().addShutdownHook(_imr.shutdownThread);
+
+        orb.run();
     }
 
     private void restartServer(ImRServerInfo server)
@@ -1017,54 +1026,6 @@ public class ImplementationRepositoryImpl
             if (this.logger.isDebugEnabled())
             {
                 this.logger.debug("ImR: server " + server.name + " is active");
-            }
-        }
-    }
-
-
-    // Shutdown hook methods are done via reflection as these were
-    // not supported prior to the JDK 1.3.
-
-    private void addShutdownHook (Thread thread)
-    {
-        Method method = getHookMethod ("addShutdownHook");
-
-        if (method != null)
-        {
-            invokeHookMethod (method, thread);
-        }
-    }
-
-    private Method getHookMethod (String name)
-    {
-        Method method = null;
-        Class[] params = new Class[1];
-
-        params[0] = Thread.class;
-        try
-        {
-            method = Runtime.class.getMethod (name, params);
-        }
-        catch (Throwable ex) {}
-
-        return method;
-    }
-
-    private void invokeHookMethod (Method method, Thread thread)
-    {
-        Object[] args = new Object[1];
-
-        args[0] = thread;
-        try
-        {
-            method.invoke (Runtime.getRuntime (), args);
-        }
-        catch (Throwable ex)
-        {
-            if (this.logger.isErrorEnabled())
-            {
-                this.logger.error("Failed to invoke Runtime." + method.getName (),
-                                  ex);
             }
         }
     }
@@ -1198,6 +1159,7 @@ public class ImplementationRepositoryImpl
          * <br> On termination does the actual shutdown of the
          * repository.
          */
+        @Override
         public void run()
         {
             while( run )
@@ -1370,6 +1332,7 @@ public class ImplementationRepositoryImpl
          * @param request a <code>byte[]</code> value
          * @param connection a <code>GIOPConnection</code> value
          */
+        @Override
         public void requestReceived( byte[] request,
                                      GIOPConnection connection )
         {
@@ -1393,6 +1356,7 @@ public class ImplementationRepositoryImpl
             }
         }
 
+        @Override
         public void locateRequestReceived( byte[] request,
                                            GIOPConnection connection )
         {
@@ -1414,6 +1378,7 @@ public class ImplementationRepositoryImpl
             }
         }
 
+        @Override
         public void cancelRequestReceived( byte[] request,
                                            GIOPConnection connection )
         {
@@ -1652,6 +1617,7 @@ public class ImplementationRepositoryImpl
         /**
          * <code>run</code> continiously loops until the shutdown is called.
          */
+        @Override
         public void run ()
         {
             while (true)
@@ -1704,6 +1670,7 @@ public class ImplementationRepositoryImpl
      */
     private class Shutdown extends Thread
     {
+        @Override
         public synchronized void run ()
         {
             logger.debug("ImR: Shutting down");

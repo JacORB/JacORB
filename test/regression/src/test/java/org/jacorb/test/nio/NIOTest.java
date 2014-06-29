@@ -6,10 +6,12 @@ import org.jacorb.test.TestIf;
 import org.jacorb.test.TestIfHelper;
 import org.jacorb.test.common.ClientServerSetup;
 import org.jacorb.test.common.ClientServerTestCase;
+import org.jacorb.test.common.IMRExcludedClientServerCategory;
 import org.jacorb.test.common.TestUtils;
 import org.junit.Assume;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 import org.omg.CORBA.Any;
 import org.omg.CORBA.INV_OBJREF;
 import org.omg.CORBA.ORB;
@@ -23,7 +25,7 @@ import org.omg.Messaging.RELATIVE_RT_TIMEOUT_POLICY_TYPE;
  *
  * Tests for the use of non-blocking connections
  */
-
+@Category(IMRExcludedClientServerCategory.class)
 public class NIOTest extends ClientServerTestCase
 {
     public static final int MSEC_FACTOR = 10000;

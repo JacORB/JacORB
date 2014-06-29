@@ -71,6 +71,7 @@
         - Convert source code to Maven layout.
         - Upgrade to SLF4J 1.7.6
         - Fixes for Javadoc under JDK 8.
+        - Run subset of regression tests with the IMR
 
 3.4
 ===

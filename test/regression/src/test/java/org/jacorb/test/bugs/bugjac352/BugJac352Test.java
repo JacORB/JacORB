@@ -9,15 +9,18 @@ import org.jacorb.test.bugs.bug352.JAC352;
 import org.jacorb.test.bugs.bug352.JAC352Helper;
 import org.jacorb.test.common.ClientServerSetup;
 import org.jacorb.test.common.ClientServerTestCase;
+import org.jacorb.test.common.IMRExcludedClientServerCategory;
 import org.jacorb.test.common.TestUtils;
 import org.junit.Assume;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 
 /**
  * @author Alphonse Bendt
  */
+@Category(IMRExcludedClientServerCategory.class)
 public class BugJac352Test extends ClientServerTestCase
 {
     private JAC352 server;

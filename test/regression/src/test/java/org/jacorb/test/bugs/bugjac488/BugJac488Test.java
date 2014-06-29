@@ -23,11 +23,13 @@ package org.jacorb.test.bugs.bugjac488;
 import static org.junit.Assert.fail;
 import java.util.Properties;
 import org.jacorb.test.common.ClientServerSetup;
-import org.jacorb.test.common.TestUtils;
 import org.jacorb.test.common.ClientServerTestCase;
+import org.jacorb.test.common.IMRExcludedClientServerCategory;
+import org.jacorb.test.common.TestUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 import org.omg.CORBA.ORB;
 import org.omg.CORBA.TIMEOUT;
 
@@ -37,6 +39,7 @@ import org.omg.CORBA.TIMEOUT;
  *
  * @author <a href="mailto:Nick.Cross@prismtech.com">Nick Cross</a>
  */
+@Category(IMRExcludedClientServerCategory.class)
 public class BugJac488Test extends ClientServerTestCase
 {
     private PingReceiver server;

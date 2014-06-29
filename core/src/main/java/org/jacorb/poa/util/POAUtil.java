@@ -262,9 +262,9 @@ public final class POAUtil
      * {@link POAConstants#OBJECT_KEY_SEPARATOR OBJECT_KEY_SEPARATOR}
      * @return a <code>Vector</code> value
      */
-    public static List extractScopedPOANames (String poa_name)
+    public static List<String> extractScopedPOANames (String poa_name)
     {
-        final List scopes = new ArrayList();
+        final List<String> scopes = new ArrayList<String>();
         final int length = poa_name.length();
 
         if (length > 0)

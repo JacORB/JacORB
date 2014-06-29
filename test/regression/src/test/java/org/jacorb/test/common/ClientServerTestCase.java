@@ -23,6 +23,7 @@ package org.jacorb.test.common;
 
 import org.junit.AfterClass;
 import org.junit.Rule;
+import org.junit.experimental.categories.Category;
 import org.junit.rules.TestName;
 
 /**
@@ -59,6 +60,7 @@ import org.junit.rules.TestName;
  * @author Andre Spiegel <spiegel@gnu.org>
  * @author Nick Cross
  */
+@Category(ClientServerCategory.class)
 public abstract class ClientServerTestCase
 {
     protected static ClientServerSetup setup;
@@ -69,7 +71,7 @@ public abstract class ClientServerTestCase
     /**
      * <code>tearDownAfterClass</code> will automatically tear down the server
      * if it has been created.
-     * 
+     *
      * @throws Exception
      */
     @AfterClass

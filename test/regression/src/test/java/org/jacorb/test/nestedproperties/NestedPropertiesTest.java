@@ -1,8 +1,6 @@
 package org.jacorb.test.nestedproperties;
 
-import static org.junit.Assert.fail;
 import java.util.Properties;
-import org.jacorb.config.ConfigurationException;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;

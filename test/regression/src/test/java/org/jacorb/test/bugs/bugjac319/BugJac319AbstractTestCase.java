@@ -21,7 +21,9 @@ package org.jacorb.test.bugs.bugjac319;
  */
 
 import org.jacorb.test.common.ClientServerTestCase;
+import org.jacorb.test.common.IMRExcludedClientServerCategory;
 import org.junit.Before;
+import org.junit.experimental.categories.Category;
 
 /**
  * BugJac319*Test are tests for the IORMutator plugin. They verifies that
@@ -31,6 +33,7 @@ import org.junit.Before;
  *
  * @author Nick Cross
  */
+@Category(IMRExcludedClientServerCategory.class)
 public abstract class BugJac319AbstractTestCase extends ClientServerTestCase
 {
     /**

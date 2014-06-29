@@ -499,7 +499,7 @@
                 </configuration>
                 <executions>
                     <execution>
-                        <id>default-test</id>
+                         <id>default-test</id>
                         <phase>test</phase>
                         <goals>
                             <goal>test</goal>
@@ -514,6 +514,7 @@
                             </environmentVariables>
                         </configuration>
                     </execution>
+
                     <execution>
                         <id>ssl</id>
                         <phase>test</phase>
@@ -531,6 +532,27 @@
                             </environmentVariables>
                         </configuration>
                     </execution>
+
+                    <execution>
+                        <id>imr</id>
+                        <phase>test</phase>
+                        <goals>
+                            <goal>test</goal>
+                        </goals>
+                        <configuration>
+                            <useManifestOnlyJar>false</useManifestOnlyJar>
+                            <forkCount>${surefire.forkCount}</forkCount>
+                            <reuseForks>false</reuseForks>
+                            <argLine>${jacoco.agent.argLine} -Xbootclasspath/p:${settings.localRepository}/org/jacorb/jacorb-omgapi/${project.version}/jacorb-omgapi-${project.version}.jar -Djacorb.test.verbose=${jacorb.test.verbose} -Djacorb.test.imr=true</argLine>
+                            <reportsDirectory>${project.build.directory}/surefire-reports-imr</reportsDirectory>
+                            <environmentVariables>
+                                <BYTEMAN_HOME></BYTEMAN_HOME>
+                            </environmentVariables>
+                            <groups>org.jacorb.test.common.ClientServerCategory</groups>
+                            <excludedGroups>org.jacorb.test.common.IMRExcludedClientServerCategory</excludedGroups>
+                        </configuration>
+                    </execution>
+
                 </executions>
             </plugin>
 
@@ -622,6 +644,7 @@
                                 <reportsDirectories>
                                     <reportDirectory>${project.build.directory}/surefire-reports</reportDirectory>
                                     <reportDirectory>${project.build.directory}/surefire-reports-ssl</reportDirectory>
+                                    <reportDirectory>${project.build.directory}/surefire-reports-imr</reportDirectory>
                                 </reportsDirectories>
                             </configuration>
                             <reportSets>

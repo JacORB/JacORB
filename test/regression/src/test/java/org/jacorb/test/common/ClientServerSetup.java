@@ -96,9 +96,14 @@ public class ClientServerSetup extends ORBTestCase
             optionalServerProperties = new Properties();
         }
 
+        TestUtils.getLogger().debug("Configuring ClientServer for " +
+                (testServer == null ? "" : testServer + '/') + sName);
+
         if (isIMREnabled(optionalClientProperties, optionalServerProperties))
         {
             final Properties imrServerProps = new Properties();
+
+            imrServerProps.setProperty("jacorb.test.verbose", Boolean.toString(TestUtils.verbose));
 
             File imrIOR;
             try
@@ -110,14 +115,19 @@ public class ClientServerSetup extends ORBTestCase
             {
                 throw new RuntimeException(e);
             }
+            File imrTable = File.createTempFile("MyImR1_table", ".dat");
+            imrTable.deleteOnExit();
 
+            imrServerProps.setProperty ("jacorb.imr.ior_file", imrIOR.toString());
+            imrServerProps.setProperty ("jacorb.imr.table_file", imrTable.toString());
+            imrServerProps.setProperty ("jacorb.imr.allow_auto_register", "true");
             imrSetup = new ServerSetup(ImplementationRepositoryRunner.class.getName(), imrIOR.toString(), imrServerProps);
 
             final Properties imrProps = new Properties();
-            imrProps.put("jacorb.use_imr", "on");
+            imrProps.setProperty("jacorb.use_imr", "on");
             try
             {
-                imrProps.put("ORBInitRef.ImplementationRepository", imrIOR.toURI().toURL().toString());
+                imrProps.setProperty("ORBInitRef.ImplementationRepository", imrIOR.toURI().toURL().toString());
             }
             catch (MalformedURLException e)
             {
@@ -137,10 +147,11 @@ public class ClientServerSetup extends ORBTestCase
 
         if (imrSetup != null)
         {
-            TestUtils.getLogger().debug("starting ImR");
+            TestUtils.getLogger().debug("Starting ImR");
+
             imrSetup.setUp();
 
-            imrSetup.getServerIOR();
+            TestUtils.getLogger().debug("ImR IOR " + imrSetup.getServerIOR());
         }
 
         ORBSetUp();

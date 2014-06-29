@@ -1,6 +1,7 @@
 package org.jacorb.test.common;
 
 import junit.framework.AssertionFailedError;
+import org.junit.experimental.categories.Category;
 import org.omg.Messaging.ExceptionHolder;
 
 /**
@@ -106,6 +107,7 @@ import org.omg.Messaging.ExceptionHolder;
  *
  * @author Andre Spiegel <spiegel@gnu.org>
  */
+@Category(IMRExcludedClientServerCategory.class)
 public class CallbackTestCase extends ClientServerTestCase
 {
     protected abstract class ReplyHandler

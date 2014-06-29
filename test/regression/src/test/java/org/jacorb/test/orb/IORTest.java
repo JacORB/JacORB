@@ -14,12 +14,14 @@ import org.jacorb.test.BasicServer;
 import org.jacorb.test.BasicServerHelper;
 import org.jacorb.test.common.ClientServerSetup;
 import org.jacorb.test.common.ClientServerTestCase;
+import org.jacorb.test.common.IMRExcludedClientServerCategory;
 import org.jacorb.test.common.TestUtils;
 import org.junit.After;
 import org.junit.Assume;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameter;
@@ -32,6 +34,7 @@ import org.omg.IOP.TaggedComponent;
 /**
  * Verify the correct number of profiles/TAG_ALTERNATE_IIOP_ADDRESS in the IOR.
  */
+@Category(IMRExcludedClientServerCategory.class)
 @RunWith(Parameterized.class)
 public class IORTest extends ClientServerTestCase
 {

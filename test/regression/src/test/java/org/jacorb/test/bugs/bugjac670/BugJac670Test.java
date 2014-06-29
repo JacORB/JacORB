@@ -73,8 +73,7 @@ public class BugJac670Test extends ClientServerTestCase
 
         serverprops.setProperty ("jacorb.test.timeout.server", Long.toString(15000));
 
-        serverprops.setProperty( "OAPort",
-                                 "19000" );
+        serverprops.setProperty( "OAPort", "19000" );
 
         setup = new ClientServerSetup
         (
