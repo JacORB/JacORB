@@ -18,8 +18,11 @@ public class Bug964Test extends ClientServerTestCase
 {
     private GSLoadBalancer server;
 
-    private final static String remoteCorbaloc = "corbaloc::localhost:35000/GSLBService";
-    private final static String localCorbaloc = "corbaloc::localhost:39000/GSLBService";
+    private static String remotePort = Integer.toString(TestUtils.getNextAvailablePort());
+    private static String localPort = Integer.toString(TestUtils.getNextAvailablePort(20000));
+
+    private final static String remoteCorbaloc = "corbaloc::localhost:" + remotePort + "/GSLBService";
+    private final static String localCorbaloc = "corbaloc::localhost:" + localPort + "/GSLBService";
 
     @Before
     public void setUp() throws Exception
@@ -47,12 +50,12 @@ public class Bug964Test extends ClientServerTestCase
         Assume.assumeFalse(TestUtils.isSSLEnabled);
 
         Properties clientprops = new java.util.Properties();
-        clientprops.setProperty( "OAPort", "39000" );
+        clientprops.setProperty( "OAPort", localPort );
         clientprops.setProperty("org.omg.CORBA.ORBClass", "org.jacorb.orb.ORB");
         clientprops.setProperty("org.omg.CORBA.ORBSingletonClass", "org.jacorb.orb.ORBSingleton");
 
         Properties serverprops = new java.util.Properties();
-        serverprops.setProperty( "OAPort", "35000" );
+        serverprops.setProperty( "OAPort", remotePort );
         serverprops.setProperty("org.omg.CORBA.ORBClass", "org.jacorb.orb.ORB");
         serverprops.setProperty("org.omg.CORBA.ORBSingletonClass", "org.jacorb.orb.ORBSingleton");
 

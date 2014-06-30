@@ -36,19 +36,21 @@ import java.util.List;
 import java.util.Properties;
 import org.jacorb.test.common.ClientServerSetup;
 import org.jacorb.test.common.ClientServerTestCase;
-import org.jacorb.test.common.CommonSetup;
+import org.jacorb.test.common.IMRExcludedClientServerCategory;
 import org.jacorb.test.common.TestUtils;
 import org.jacorb.test.listenendpoints.echo_corbaloc.EchoMessage;
 import org.jacorb.test.listenendpoints.echo_corbaloc.EchoMessageHelper;
 import org.junit.Assume;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 
  /**
  * Tests -ORBListenEndpoints feature
  *
  *
  */
+@Category(IMRExcludedClientServerCategory.class)
 public class ListenEndpointsTest extends ClientServerTestCase
 {
     private static final String DEFAULT_LISTEN_EP = "iiop://:45000";
@@ -76,13 +78,11 @@ public class ListenEndpointsTest extends ClientServerTestCase
         clientProps.setProperty ("jacorb.retries", "3");
         clientProps.setProperty ("jacorb.retry_interval", "500");
         clientProps.setProperty ("jacorb.connection.client.connect_timeout","1000");
-        clientProps.setProperty(CommonSetup.JACORB_REGRESSION_DISABLE_IMR, "true");
 
         Properties serverProps = new Properties();
         serverProps.setProperty ("OAAddress", DEFAULT_LISTEN_EP);
         serverProps.put ("OAPort","0");
         serverProps.put ("OASSLPort", "0");
-        // serverProps.put ("jacorb.test.timeout.server", Long.toString(10000));
 
         setup = new ClientServerSetup ("org.jacorb.test.listenendpoints.echo_corbaloc.Server",
                                    null,
@@ -254,7 +254,6 @@ public class ListenEndpointsTest extends ClientServerTestCase
                 Properties props = new Properties();
                 props.setProperty("org.omg.CORBA.ORBClass", "org.jacorb.orb.ORB");
                 props.setProperty("org.omg.CORBA.ORBSingletonClass", "org.jacorb.orb.ORBSingleton");
-                props.setProperty(CommonSetup.JACORB_REGRESSION_DISABLE_IMR, "true");
 
                 org.omg.CORBA.ORB orb = setup.getAnotherORB(props);
                 EchoMessage server = null;
@@ -310,7 +309,6 @@ public class ListenEndpointsTest extends ClientServerTestCase
                 Properties props = new Properties();
                 props.setProperty("org.omg.CORBA.ORBClass", "org.jacorb.orb.ORB");
                 props.setProperty("org.omg.CORBA.ORBSingletonClass", "org.jacorb.orb.ORBSingleton");
-                props.setProperty(CommonSetup.JACORB_REGRESSION_DISABLE_IMR, "true");
 
                 org.omg.CORBA.ORB orb = setup.getAnotherORB(props);
                 EchoMessage server = null;
@@ -366,7 +364,6 @@ public class ListenEndpointsTest extends ClientServerTestCase
                 Properties props = new Properties();
                 props.setProperty("org.omg.CORBA.ORBClass", "org.jacorb.orb.ORB");
                 props.setProperty("org.omg.CORBA.ORBSingletonClass", "org.jacorb.orb.ORBSingleton");
-                props.setProperty(CommonSetup.JACORB_REGRESSION_DISABLE_IMR, "true");
 
                 org.omg.CORBA.ORB orb = setup.getAnotherORB(props);
                 EchoMessage server = null;

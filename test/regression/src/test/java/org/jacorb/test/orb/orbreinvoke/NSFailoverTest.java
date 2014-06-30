@@ -25,9 +25,7 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import java.io.File;
 import java.util.Properties;
-import org.apache.camel.test.AvailablePortFinder;
 import org.jacorb.orb.util.PrintIOR;
-import org.jacorb.test.common.CommonSetup;
 import org.jacorb.test.common.NameServiceSetup;
 import org.jacorb.test.common.ORBTestCase;
 import org.jacorb.test.common.ServerSetup;
@@ -51,12 +49,6 @@ public class NSFailoverTest extends ORBTestCase
     @Rule
     public TemporaryFolder folder2 = new TemporaryFolder();
 
-    static
-    {
-        // Ensure logging is setup correctly.
-        TestUtils.getLogger();
-    }
-
     private static final boolean NS_1_ON = true;
     private static final boolean NS_2_ON = true;
     private static final boolean NS_1_OFF = false;
@@ -68,12 +60,12 @@ public class NSFailoverTest extends ORBTestCase
     private static final boolean SVR_2_OFF = false;
 
     private static final String IMPLNAME = "EchoServer";
-    private static final String SERVER_1_LEP = "iiop://:" + AvailablePortFinder.getNextAvailable();
-    private static final String SERVER_2_LEP = "iiop://:"+ AvailablePortFinder.getNextAvailable(10000);
+    private static final String SERVER_1_LEP = "iiop://:" + TestUtils.getNextAvailablePort();
+    private static final String SERVER_2_LEP = "iiop://:"+ TestUtils.getNextAvailablePort(10000);
 
     // NameServer endpoints
-    private static final String NS_1_LEP = Integer.toString(AvailablePortFinder.getNextAvailable(20000));
-    private static final String NS_2_LEP = Integer.toString(AvailablePortFinder.getNextAvailable(30000));
+    private static final String NS_1_LEP = Integer.toString(TestUtils.getNextAvailablePort(20000));
+    private static final String NS_2_LEP = Integer.toString(TestUtils.getNextAvailablePort(30000));
 
     private Properties nsProp_1 = null;
     private Properties nsProp_2 = null;
@@ -93,7 +85,6 @@ public class NSFailoverTest extends ORBTestCase
         props.setProperty ("jacorb.retry_interval", "1000");
         props.setProperty ("jacorb.connection.client.connect_timeout","5000");
         props.setProperty ("jacorb.test.timeout.server", Long.toString(10000));
-        props.setProperty(CommonSetup.JACORB_REGRESSION_DISABLE_IMR, "true");
     }
 
 
@@ -222,8 +213,7 @@ public class NSFailoverTest extends ORBTestCase
 
                                                  "-ORBListenEndpoints", SERVER_1_LEP,
                                                  "-DORBInitRef.NameService=" + "file://" + nsIOR_1.toString(),
-                                                 "-Djacorb.test.timeout.server=" + Long.toString(10000),
-                                                 "-D" + CommonSetup.JACORB_REGRESSION_DISABLE_IMR + "=" + "true"
+                                                 "-Djacorb.test.timeout.server=" + Long.toString(10000)
                                             },
                                         null);
 
@@ -251,8 +241,7 @@ public class NSFailoverTest extends ORBTestCase
                                                  "-ORBListenEndpoints", SERVER_2_LEP,
                                                  "-DORBInitRef.NameService=" + "file://" + nsIOR_2.toString(),
                                                  "-Djacorb.implname=" + IMPLNAME,
-                                                 "-Djacorb.test.timeout.server=" + Long.toString(10000),
-                                                 "-D" + CommonSetup.JACORB_REGRESSION_DISABLE_IMR + "=" + "true"
+                                                 "-Djacorb.test.timeout.server=" + Long.toString(10000)
                                             },
                                         null);
 

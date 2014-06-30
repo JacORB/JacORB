@@ -25,12 +25,14 @@ import static org.junit.Assert.fail;
 import java.util.Properties;
 import org.jacorb.test.common.ClientServerSetup;
 import org.jacorb.test.common.ClientServerTestCase;
-import org.jacorb.test.common.CommonSetup;
+import org.jacorb.test.common.IMRExcludedClientServerCategory;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 import org.omg.CORBA.NO_MEMORY;
 
+@Category(IMRExcludedClientServerCategory.class)
 public class Bug619Test extends ClientServerTestCase
 {
     private OutOfMemory server;
@@ -48,6 +50,7 @@ public class Bug619Test extends ClientServerTestCase
             this.data = data;
         }
 
+        @Override
         public void run()
         {
             try
@@ -159,8 +162,6 @@ public class Bug619Test extends ClientServerTestCase
         Properties serverProps = new Properties();
 
         serverProps.put("jacorb.test.maxheapsize", "64m");
-        serverProps.setProperty(CommonSetup.JACORB_REGRESSION_DISABLE_IMR, "true");
-        clientProps.setProperty(CommonSetup.JACORB_REGRESSION_DISABLE_IMR, "true");
 
         setup = new ClientServerSetup(OutOfMemoryImpl.class.getName(),
                 clientProps, serverProps);

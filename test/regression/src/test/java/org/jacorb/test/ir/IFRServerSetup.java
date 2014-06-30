@@ -23,7 +23,6 @@ package org.jacorb.test.ir;
 import java.io.File;
 import java.util.Properties;
 import org.jacorb.test.common.ClientServerSetup;
-import org.jacorb.test.common.CommonSetup;
 import org.jacorb.test.common.TestUtils;
 import org.omg.CORBA.Repository;
 import org.omg.CORBA.RepositoryHelper;
@@ -53,7 +52,6 @@ public class IFRServerSetup
         iorFile.deleteOnExit();
 
         Properties serverProps = new Properties();
-        serverProps.setProperty(CommonSetup.JACORB_REGRESSION_DISABLE_IMR, "true");
         serverProps.setProperty("jacorb.test.ir.classpath", dirGeneration.toString());
         serverProps.setProperty("jacorb.test.ir.iorfile", iorFile.toString());
 
@@ -61,7 +59,6 @@ public class IFRServerSetup
 
         Properties clientProps = new Properties();
         clientProps.setProperty("ORBInitRef.InterfaceRepository", "file://" + iorFile.toString());
-        clientProps.setProperty(CommonSetup.JACORB_REGRESSION_DISABLE_IMR, "true");
 
         clientServerSetup = new ClientServerSetup(IRServerRunner.class.getName(), "ignored", clientProps, serverProps);
 

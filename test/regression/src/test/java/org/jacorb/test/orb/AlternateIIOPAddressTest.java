@@ -29,19 +29,21 @@ import org.jacorb.test.IIOPAddressServerHelper;
 import org.jacorb.test.Sample;
 import org.jacorb.test.common.ClientServerSetup;
 import org.jacorb.test.common.ClientServerTestCase;
-import org.jacorb.test.common.CommonSetup;
+import org.jacorb.test.common.IMRExcludedClientServerCategory;
 import org.jacorb.test.common.TestUtils;
 import org.junit.After;
 import org.junit.Assume;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 
 /**
  * Tests components of type TAG_ALTERNATE_IIOP_ADDRESS within IORs.
  *
  * @author Andre Spiegel
  */
+@Category(IMRExcludedClientServerCategory.class)
 public class AlternateIIOPAddressTest extends ClientServerTestCase
 {
     protected IIOPAddressServer server = null;
@@ -51,8 +53,8 @@ public class AlternateIIOPAddressTest extends ClientServerTestCase
     private static final String WRONG_HOST   = "255.255.255.253";
     private static final String WRONG_HOST_2 = "255.255.255.254";
 
-    private static final int CORRECT_PORT = 46000;
-    private static final int WRONG_PORT   = 46001;
+    private static final int CORRECT_PORT = TestUtils.getNextAvailablePort(10000);
+    private static final int WRONG_PORT   = TestUtils.getNextAvailablePort(20000);
 
     @Before
     public void setUp() throws Exception
@@ -87,9 +89,6 @@ public class AlternateIIOPAddressTest extends ClientServerTestCase
            + "org.jacorb.test.orb.IIOPAddressORBInitializer", "");
         server_props.setProperty ("OAIAddr", CORRECT_HOST);
         server_props.setProperty ("OAPort", Integer.toString(CORRECT_PORT));
-
-        client_props.setProperty(CommonSetup.JACORB_REGRESSION_DISABLE_IMR, "true");
-        server_props.setProperty(CommonSetup.JACORB_REGRESSION_DISABLE_IMR, "true");
 
         setup = new ClientServerSetup(
                                    IIOPAddressServerImpl.class.getName(),

@@ -226,20 +226,6 @@ public class ClientServerSetup extends ORBTestCase
                 || TestUtils.getStringAsBoolean(clientProps.getProperty("jacorb.test.imr"))
                 || TestUtils.getStringAsBoolean(serverProps.getProperty("jacorb.test.imr"));
 
-        boolean isDisabled = TestUtils.getStringAsBoolean(clientProps.getProperty(CommonSetup.JACORB_REGRESSION_DISABLE_IMR, "false"))
-            || TestUtils.getStringAsBoolean(serverProps.getProperty(CommonSetup.JACORB_REGRESSION_DISABLE_IMR, "false"));
-
-        boolean result = isEnabled && !isDisabled;
-
-        if (isDisabled)
-        {
-            clientProps.setProperty("jacorb.use_imr", "off");
-            serverProps.setProperty("jacorb.use_imr", "off");
-
-            clientProps.setProperty("jacorb.use_tao_imr", "off");
-            serverProps.setProperty("jacorb.use_tao_imr", "off");
-        }
-
-        return result;
+        return isEnabled;
     }
 }

@@ -591,4 +591,9 @@ public class TestUtils
     {
         return AvailablePortFinder.getNextAvailable();
     }
+
+    public static int getNextAvailablePort(int x)
+    {
+        return AvailablePortFinder.getNextAvailable(x);
+    }
 }

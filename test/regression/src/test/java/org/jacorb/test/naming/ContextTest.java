@@ -13,7 +13,6 @@ import java.util.Properties;
 import org.jacorb.naming.NameServer;
 import org.jacorb.test.common.ClientServerSetup;
 import org.jacorb.test.common.ClientServerTestCase;
-import org.jacorb.test.common.CommonSetup;
 import org.jacorb.test.common.TestUtils;
 import org.junit.After;
 import org.junit.Before;
@@ -67,7 +66,6 @@ public class ContextTest extends ClientServerTestCase
         serverProps.put("jacorb.naming.ior_filename", "");
         serverProps.put("jacorb.naming.print_ior", "true");
         serverProps.put("jacorb.naming.db_dir", tmpDir.toString());
-        serverProps.put(CommonSetup.JACORB_REGRESSION_DISABLE_IMR, "true");
 
         setup = new ClientServerSetup( NameServer.class.getName(),  "ignored", clientProps, serverProps);
     }
