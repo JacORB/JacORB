@@ -20,6 +20,7 @@ package org.jacorb.orb.iiop;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
+import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.ServerSocket;
@@ -27,7 +28,6 @@ import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.util.Collections;
 import java.util.LinkedList;
-
 import org.jacorb.config.Configuration;
 import org.jacorb.config.ConfigurationException;
 import org.jacorb.orb.CDROutputStream;
@@ -641,7 +641,14 @@ public class IIOPAddress
                     {
                         if (!addr.isLoopbackAddress() && !addr.isLinkLocalAddress())
                         {
-                            result.add (addr);
+                            if (addr instanceof Inet4Address)
+                            {
+                                result.addFirst (addr);
+                            }
+                            else
+                            {
+                                result.addLast(addr);
+                            }
                         }
                         else
                         {
