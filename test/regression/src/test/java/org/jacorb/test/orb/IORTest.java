@@ -50,7 +50,7 @@ public class IORTest extends ClientServerTestCase
         LinkedList<InetAddress> n = IIOPAddress.getNetworkInetAddresses();
         for (InetAddress ia : n)
         {
-            if (!ia.isLoopbackAddress() && !ia.isLinkLocalAddress() && !(ia instanceof Inet6Address))
+            if (!ia.isLoopbackAddress() && !ia.isLinkLocalAddress())
             {
                 counter++;
             }
