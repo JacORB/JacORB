@@ -44,13 +44,14 @@ import org.junit.Test;
 public class OrbWithoutListenerTest extends ClientServerTestCase
 {
     private BasicServer server;
+    private static int port = TestUtils.getNextAvailablePort();
 
     @BeforeClass
     public static void beforeClassSetUp() throws Exception
     {
         Properties clientProps = new Properties();
 
-        clientProps.setProperty("OAPort", "4711");
+        clientProps.setProperty("OAPort", Integer.toString(port));
         clientProps.setProperty("jacorb.transport.server.listeners", "off");
         setup = new ClientServerSetup(BasicServerImpl.class.getName(), clientProps, null);
     }
@@ -76,7 +77,7 @@ public class OrbWithoutListenerTest extends ClientServerTestCase
         Socket socket = new Socket();
         try
         {
-            socket.connect(new InetSocketAddress("localhost", 4711), TestUtils.isWindows () ? 5000 : 1000);
+            socket.connect(new InetSocketAddress("localhost", port), TestUtils.isWindows () ? 5000 : 1000);
 
             if ( ! (socket instanceof SSLSocket) && ! socket.isClosed ())
             {

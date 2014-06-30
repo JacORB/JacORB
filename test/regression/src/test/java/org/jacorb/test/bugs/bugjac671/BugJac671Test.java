@@ -23,6 +23,7 @@ package org.jacorb.test.bugs.bugjac671;
 import java.util.Properties;
 import org.jacorb.test.common.CommonSetup;
 import org.jacorb.test.common.ORBTestCase;
+import org.jacorb.test.common.TestUtils;
 import org.junit.Test;
 
 /**
@@ -37,7 +38,7 @@ public class BugJac671Test extends ORBTestCase
     @Override
     protected void patchORBProperties(Properties props) throws Exception
     {
-        props.setProperty ("OAPort", "18000");
+        props.setProperty ("OAPort", Integer.toString(TestUtils.getNextAvailablePort()));
     }
 
     @Test

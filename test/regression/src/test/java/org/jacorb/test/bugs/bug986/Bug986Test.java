@@ -55,7 +55,7 @@ public class Bug986Test extends ClientServerTestCase
     {
         clientORBTestCase.ORBSetUp ();
 
-        serverProps.put ("OAPort", "54321");
+        serverProps.put ("OAPort", Integer.toString(TestUtils.getNextAvailablePort()));
 
         setup = new ClientServerSetup(
                                    "org.jacorb.test.bugs.bugjac330.CustomBasicServerImpl",

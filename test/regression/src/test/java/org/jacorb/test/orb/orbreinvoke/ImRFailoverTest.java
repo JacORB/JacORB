@@ -53,12 +53,12 @@ public class ImRFailoverTest extends ORBTestCase
     private static final boolean SVR_2_OFF = false;
 
     private static final String IMPLNAME = "EchoServer";
-    private static final String SERVER_1_LEP = "iiop://:55111";
-    private static final String SERVER_2_LEP = "iiop://:55222";
+    private static final String SERVER_1_LEP = "iiop://:" + TestUtils.getNextAvailablePort();
+    private static final String SERVER_2_LEP = "iiop://:" + TestUtils.getNextAvailablePort(55000);
 
     // ImR endpoints
-    private static final String IMR_1_LEP = "54111";
-    private static final String IMR_2_LEP = "54222";
+    private static final String IMR_1_LEP = Integer.toString(TestUtils.getNextAvailablePort(34000));
+    private static final String IMR_2_LEP = Integer.toString(TestUtils.getNextAvailablePort(36000));
 
     private Properties imrProp_1 = null;
     private Properties imrProp_2 = null;

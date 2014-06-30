@@ -29,6 +29,7 @@ import org.jacorb.test.BasicServer;
 import org.jacorb.test.BasicServerHelper;
 import org.jacorb.test.common.CommonSetup;
 import org.jacorb.test.common.ORBTestCase;
+import org.jacorb.test.common.TestUtils;
 import org.jacorb.test.orb.BasicServerImpl;
 import org.junit.Before;
 import org.junit.Test;
@@ -38,8 +39,7 @@ import org.junit.Test;
  */
 public class BugJac524Test extends ORBTestCase
 {
-    private static int PORT = 4810;
-    private final int port = PORT++;
+    private final int port = TestUtils.getNextAvailablePort();
     private String ior;
 
     private Properties props;

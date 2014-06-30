@@ -25,6 +25,7 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import java.io.File;
 import java.util.Properties;
+import org.apache.camel.test.AvailablePortFinder;
 import org.jacorb.orb.util.PrintIOR;
 import org.jacorb.test.common.CommonSetup;
 import org.jacorb.test.common.NameServiceSetup;
@@ -50,6 +51,12 @@ public class NSFailoverTest extends ORBTestCase
     @Rule
     public TemporaryFolder folder2 = new TemporaryFolder();
 
+    static
+    {
+        // Ensure logging is setup correctly.
+        TestUtils.getLogger();
+    }
+
     private static final boolean NS_1_ON = true;
     private static final boolean NS_2_ON = true;
     private static final boolean NS_1_OFF = false;
@@ -61,12 +68,12 @@ public class NSFailoverTest extends ORBTestCase
     private static final boolean SVR_2_OFF = false;
 
     private static final String IMPLNAME = "EchoServer";
-    private static final String SERVER_1_LEP = "iiop://:45111";
-    private static final String SERVER_2_LEP = "iiop://:45222";
+    private static final String SERVER_1_LEP = "iiop://:" + AvailablePortFinder.getNextAvailable();
+    private static final String SERVER_2_LEP = "iiop://:"+ AvailablePortFinder.getNextAvailable(10000);
 
     // NameServer endpoints
-    private static final String NS_1_LEP = "44111";
-    private static final String NS_2_LEP = "44222";
+    private static final String NS_1_LEP = Integer.toString(AvailablePortFinder.getNextAvailable(20000));
+    private static final String NS_2_LEP = Integer.toString(AvailablePortFinder.getNextAvailable(30000));
 
     private Properties nsProp_1 = null;
     private Properties nsProp_2 = null;

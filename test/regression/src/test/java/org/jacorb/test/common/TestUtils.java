@@ -48,6 +48,7 @@ import java.util.logging.LogRecord;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import junit.framework.AssertionFailedError;
+import org.apache.camel.test.AvailablePortFinder;
 import org.junit.Assert;
 import org.slf4j.Logger;
 
@@ -68,12 +69,19 @@ public class TestUtils
     private static String systemRoot = null;
     private static Logger logger;
     private static java.util.logging.Logger jdkLogger;
+    private static java.util.logging.Logger apacheLogger;
 
     public static final boolean verbose = "true".equalsIgnoreCase(System.getProperty("jacorb.test.verbose"));
 
     public static final int timeout = Integer.valueOf(System.getProperty("jacorb.test.timeout.server", "60000"));
 
     public static final boolean isSSLEnabled = Boolean.valueOf(System.getProperty("jacorb.test.ssl", "false"));
+
+    // Ensure logging is initialised
+    static
+    {
+        getLogger();
+    }
 
     /**
      * Return a preconfigured logger for the test framework.
@@ -110,6 +118,11 @@ public class TestUtils
             Handler handler = new ConsoleHandler();
             handler.setFormatter(formatter);
             handler.setLevel(TestUtils.verbose ? Level.FINEST : Level.OFF);
+
+            apacheLogger = java.util.logging.Logger.getLogger("org.apache.camel.test");
+            apacheLogger.setUseParentHandlers (false);
+            apacheLogger.setLevel (TestUtils.verbose ? Level.FINEST : Level.OFF);
+            apacheLogger.addHandler(handler);
 
             jdkLogger = java.util.logging.Logger.getLogger("org.jacorb.test");
             jdkLogger.setUseParentHandlers (false);
@@ -574,4 +587,8 @@ public class TestUtils
         return 0;
     }
 
+    public static int getNextAvailablePort()
+    {
+        return AvailablePortFinder.getNextAvailable();
+    }
 }
