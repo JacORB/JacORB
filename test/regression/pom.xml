@@ -23,6 +23,8 @@
         <cxf.version>2.7.5</cxf.version>
         <byteman.version>2.1.4.1</byteman.version>
         <jacoco.version>0.6.4.201312101107</jacoco.version>
+
+        <surefire.forkCount>0.5C</surefire.forkCount>
     </properties>
 
     <dependencies>
@@ -184,34 +186,6 @@
                         <goals>
                             <goal>test-jar-no-fork</goal>
                         </goals>
-                    </execution>
-                </executions>
-            </plugin>
-
-            <!-- Constrain the fork count to 1 on single processor machines -->
-            <plugin>
-                <groupId>org.codehaus.gmaven</groupId>
-                <artifactId>gmaven-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <phase>generate-resources</phase>
-                        <goals>
-                            <goal>execute</goal>
-                        </goals>
-                        <configuration>
-                            <source>
-                                def processorCount = Runtime.getRuntime().availableProcessors();
-                                log.info ("Processor count is $processorCount");
-                                if ( processorCount == 1 )
-                                {
-                                   project.properties['surefire.forkCount'] = "1";
-                                }
-                                else
-                                {
-                                   project.properties['surefire.forkCount'] = "0.5C";
-                                }
-                            </source>
-                        </configuration>
                     </execution>
                 </executions>
             </plugin>

@@ -31,7 +31,7 @@ public class NIOTest extends ClientServerTestCase
     public static final int MSEC_FACTOR = 10000;
     public static final int ONE_SECOND = 1000 * MSEC_FACTOR;
 
-    private String nioTestURL = "corbaloc::localhost:6969/NIOTestServer/thePOA/ObjectID";
+    private String nioTestURL = "corbaloc::localhost:16969/NIOTestServer/thePOA/ObjectID";
 
     protected TestIf server = null;
 

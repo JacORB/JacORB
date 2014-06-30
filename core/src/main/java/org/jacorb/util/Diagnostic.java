@@ -5,10 +5,9 @@ import java.io.OutputStreamWriter;
 import java.net.InetAddress;
 import java.util.Locale;
 import java.util.Properties;
-
+import org.jacorb.orb.ORBSingleton;
 import org.jacorb.orb.giop.CodeSet;
 import org.jacorb.orb.iiop.IIOPAddress;
-import org.jacorb.orb.ORBSingleton;
 import org.omg.CORBA.ORB;
 
 
@@ -72,9 +71,9 @@ public class Diagnostic
         System.out.println();
 
         Properties p = new Properties();
-        props.setProperty("org.omg.CORBA.ORBClass","org.jacorb.orb.ORB");
-        props.setProperty("org.omg.CORBA.ORBSingletonClass","org.jacorb.orb.ORBSingleton");
-        ORB orb = ORB.init(args, props);
+        p.setProperty("org.omg.CORBA.ORBClass","org.jacorb.orb.ORB");
+        p.setProperty("org.omg.CORBA.ORBSingletonClass","org.jacorb.orb.ORBSingleton");
+        ORB orb = ORB.init(args, p);
         System.out.println ("Created ORB " + orb.getClass().getName());
 
         // Trivial check to ensure standard startup still leads to a JacORB singleton.
