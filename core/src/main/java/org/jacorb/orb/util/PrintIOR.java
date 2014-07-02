@@ -25,7 +25,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.FileReader;
 import java.io.LineNumberReader;
 import java.io.PrintWriter;
-import java.util.Iterator;
 import java.util.List;
 import org.jacorb.config.ConfigurationException;
 import org.jacorb.orb.CDRInputStream;
@@ -215,45 +214,7 @@ public class PrintIOR
     public static String printFullCorbalocIOR (
                                     org.omg.CORBA.ORB orb, String iorString)
     {
-        if ( ! (orb instanceof org.jacorb.orb.ORB))
-        {
-            throw new RuntimeException ("ORB must be a JacORB ORB.");
-        }
-        final ParsedIOR pior = new ParsedIOR((org.jacorb.orb.ORB)orb, iorString );
-
-        String result = null;
-        String object_key = null;
-        Iterator<Profile> iterator;
-        for (iterator = pior.getProfiles().iterator(); iterator.hasNext();)
-        {
-            Profile profile = iterator.next();
-
-            if (profile instanceof IIOPProfile)
-            {
-                String s = CorbaLoc.createCorbalocForIIOPProfileMultiTags (
-                                                        (IIOPProfile)profile);
-                if (result != null)
-                {
-                    result += "," + s;
-                }
-                else
-                {
-                    result = "corbaloc:" + s;
-                    object_key = CorbaLoc.parseKey (profile.get_object_key ());
-                }
-
-            }
-            else
-            {
-                throw new RuntimeException (
-                        "Sorry, only print corbaloc strings for IIOP profiles.");
-            }
-        }
-        if (result != null)
-        {
-            result +=  "/" + object_key;
-        }
-        return result;
+        return CorbaLoc.generateCorbalocForMultiIIOPProfiles(orb, iorString);
     }
 
     private static void usage()

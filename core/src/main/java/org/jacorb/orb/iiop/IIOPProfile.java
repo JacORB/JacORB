@@ -124,6 +124,7 @@ public class IIOPProfile
         this.corbalocStr = corbaloc;
     }
 
+    @Override
     public void configure(Configuration config)
         throws ConfigurationException
     {
@@ -437,6 +438,7 @@ public class IIOPProfile
     * <p>
     * Writes GIOP version, host string, and port.
     */
+    @Override
     public void writeAddressProfile(CDROutputStream addressProfileStream)
     {
         org.omg.GIOP.VersionHelper.write( addressProfileStream, version);
@@ -449,6 +451,7 @@ public class IIOPProfile
     * <p>
     * Writes GIOP version, host string, and port.
     */
+    @Override
     public void readAddressProfile(CDRInputStream addressProfileStream)
     {
         this.version = org.omg.GIOP.VersionHelper.read(addressProfileStream);
@@ -478,11 +481,13 @@ public class IIOPProfile
      * instance. The Profile shall always implement this function and either
      * return a hash number, or 0 (zero) if no hashing is supported.
      */
+    @Override
     public int hash()
     {
         return hashCode();
     }
 
+    @Override
     public Object clone() throws CloneNotSupportedException
     {
         IIOPProfile result = (IIOPProfile)super.clone();  // bitwise copy
@@ -531,6 +536,7 @@ public class IIOPProfile
      * characteristics (eg. encryption levels). If a match is found, it
      * shall return true, or false otherwise.
      */
+    @Override
     public boolean is_match(Profile prof)
     {
         if (prof == null)
@@ -552,6 +558,7 @@ public class IIOPProfile
         return false;
     }
 
+    @Override
     public int tag()
     {
         return TAG_INTERNET_IOP.value;
@@ -566,6 +573,7 @@ public class IIOPProfile
      * Replaces the host in this profile's primary address with newHost
      * (if it is not null), and the port with newPort (if it is not -1).
      */
+    @Override
     public void patchPrimaryAddress(ProtocolAddressBase replacement)
     {
         if (replacement instanceof IIOPAddress)
@@ -574,7 +582,8 @@ public class IIOPProfile
         }
     }
 
-    public List getAlternateAddresses()
+    @SuppressWarnings("unchecked")
+    public List<IIOPAddress> getAlternateAddresses()
     {
         if (checkAlternateAddresses)
         {
@@ -583,7 +592,7 @@ public class IIOPProfile
         }
         else
         {
-            return Collections.EMPTY_LIST;
+            return Collections.emptyList();
         }
     }
 
@@ -638,16 +647,19 @@ public class IIOPProfile
         return result;
     }
 
+    @Override
     public boolean equals(Object other)
     {
         return other instanceof Profile && this.is_match( (Profile) other );
     }
 
+    @Override
     public int hashCode()
     {
         return primaryAddress.hashCode();
     }
 
+    @Override
     public String toString()
     {
         return primaryAddress.toString();
@@ -746,6 +758,7 @@ public class IIOPProfile
         return tls;
     }
 
+    @Override
     public Collection<ListenPoint> asListenPoints()
     {
         List<ListenPoint> result = new ArrayList<ListenPoint>();
@@ -766,11 +779,11 @@ public class IIOPProfile
             }
         }
 
-        Iterator it = getAlternateAddresses().iterator();
+        Iterator<IIOPAddress> it = getAlternateAddresses().iterator();
 
         while(it.hasNext())
         {
-            IIOPAddress addr = (IIOPAddress) it.next();
+            IIOPAddress addr = it.next();
             result.add(new ListenPoint(addr.getHostname(), (short)addr.getPort()));
         }
 

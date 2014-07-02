@@ -20,6 +20,9 @@
 
 package org.jacorb.orb.util;
 
+import java.net.Inet6Address;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.Iterator;
 import java.util.List;
 import java.util.StringTokenizer;
@@ -59,6 +62,7 @@ public class CorbaLoc
         return is_rir;
     }
 
+    @Override
     public String toString()
     {
         return "corbaloc:" + body();
@@ -365,27 +369,6 @@ public class CorbaLoc
 
 
     /**
-     * Create a corbaloc string for a IIOP profile.
-     *
-     * @param profile the IIOP profile
-     * @return the created crobaloc string
-     */
-    private static String createCorbalocForIIOPProfile (IIOPProfile profile)
-    {
-        StringBuffer sb = new StringBuffer ("iiop:");
-        sb.append (createString (profile.version ()));
-        sb.append ("@");
-        sb.append (((IIOPAddress)profile.getAddress ()).getIP ());
-        sb.append (":");
-        sb.append (((IIOPAddress)profile.getAddress ()).getPort ());
-        sb.append ("/");
-        sb.append (parseKey (profile.get_object_key ()));
-
-        return sb.toString ();
-    }
-
-
-    /**
      * Create a corbaloc string for a MIOP profile.
      *
      * @param profile the MIOP profile
@@ -465,7 +448,12 @@ public class CorbaLoc
 
     public static String generateCorbalocForMultiIIOPProfiles (org.omg.CORBA.ORB orb, org.omg.CORBA.Object ref)
     {
-        ParsedIOR pior = new ParsedIOR((org.jacorb.orb.ORB)orb, orb.object_to_string (ref));
+        return generateCorbalocForMultiIIOPProfiles (orb, orb.object_to_string (ref));
+    }
+
+    public static String generateCorbalocForMultiIIOPProfiles (org.omg.CORBA.ORB orb, String ref)
+    {
+        ParsedIOR pior = new ParsedIOR((org.jacorb.orb.ORB)orb, ref);
 
         String result = null;
         String object_key = null;
@@ -476,7 +464,7 @@ public class CorbaLoc
 
             if (profile instanceof IIOPProfile)
             {
-                String s = createCorbalocForIIOPProfileMultiTags ((IIOPProfile)profile);
+                String s = createCorbalocForIIOPProfile ((IIOPProfile)profile, true);
                 if (result != null)
                 {
                     result += "," + s;
@@ -497,7 +485,19 @@ public class CorbaLoc
         return result;
     }
 
-    public static String createCorbalocForIIOPProfileMultiTags (IIOPProfile profile)
+    public static String createCorbalocForIIOPProfile (IIOPProfile profile)
+    {
+        return createCorbalocForIIOPProfile (profile, false).concat
+                ('/' + parseKey (profile.get_object_key ()));
+    }
+
+    /**
+     * Returns a iiop list ; note this function does not add the object_key.
+     * @param profile
+     * @param addAlternates boolean whether to add alternate profiles to this corbaloc
+     * @return
+     */
+    private static String createCorbalocForIIOPProfile (IIOPProfile profile, boolean addAlternates)
     {
         StringBuffer sb = new StringBuffer ("iiop:");
         sb.append (createString (profile.version ()));
@@ -506,21 +506,42 @@ public class CorbaLoc
         sb.append (":");
         sb.append (((IIOPAddress)profile.getAddress ()).getPort());
 
-        for (Iterator iter = profile.getAlternateAddresses().iterator(); iter.hasNext();)
+        for (Iterator<IIOPAddress> iter = profile.getAlternateAddresses().iterator();
+                addAlternates && iter.hasNext() ; )
         {
-            IIOPAddress address = (IIOPAddress) iter.next();
+            IIOPAddress address = iter.next();
             sb.append(",iiop:");
             sb.append (createString (profile.version ()));
             sb.append ("@");
-            sb.append (address.getOriginalHost());
+            sb.append (wrapIPv6(address.getOriginalHost()));
             sb.append (":");
             sb.append (address.getPort());
         }
 
-        // sb.append ("/");
-        // sb.append (parseKey (profile.get_object_key ()));
-
         return sb.toString ();
+    }
+
+
+    private static String wrapIPv6 (String addr)
+    {
+        String result = addr;
+
+        InetAddress address;
+        try
+        {
+            address = InetAddress.getByName(addr);
+
+            if (address instanceof Inet6Address)
+            {
+                result = '[' + result + ']';
+            }
+        }
+        catch (UnknownHostException e)
+        {
+        }
+
+        return result;
+
     }
 
     public static void main(String[] args)

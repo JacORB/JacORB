@@ -1070,9 +1070,9 @@ public final class ORB
                         continue;
                     }
 
-                    for (Iterator iter2 = addrList.iterator(); iter2.hasNext();)
+                    for (Iterator<IIOPAddress> iter2 = addrList.iterator(); iter2.hasNext();)
                     {
-                        IIOPAddress imrAddr = (IIOPAddress) iter2.next();
+                        IIOPAddress imrAddr = iter2.next();
                         if (imrAddr == null)
                         {
                             continue;

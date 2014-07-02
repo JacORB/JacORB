@@ -65,6 +65,7 @@
          - Fix for connection closure/server restart with multiple connections (BZ#986)
          - Move Singleton debug code into Diagnostic class to avoid JDK issues.
          - Improve ordering of network addresses.
+         - Fix for creation of corbaloc with IPv6
     - Documentation
         - Minor fixes.
     - Misc
