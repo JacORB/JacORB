@@ -3,6 +3,7 @@ package org.jacorb.test.orb.factory;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.ConnectException;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -31,6 +32,7 @@ public abstract class AbstractSocketFactoryTestCase extends TestCase
     private boolean socketClosed;
     private Exception socketException;
 
+    @Override
     @Before
     public void setUp() throws Exception
     {
@@ -48,6 +50,7 @@ public abstract class AbstractSocketFactoryTestCase extends TestCase
 
         thread = new Thread()
                 {
+                    @Override
                     public void run()
                     {
                         try
@@ -91,6 +94,7 @@ public abstract class AbstractSocketFactoryTestCase extends TestCase
 
     protected abstract SocketFactory newObjectUnderTest() throws Exception;
 
+    @Override
     protected final void tearDown() throws Exception
     {
         Thread.sleep(2000);
@@ -147,6 +151,10 @@ public abstract class AbstractSocketFactoryTestCase extends TestCase
         catch (TIMEOUT e)
         {
             // expected
+        }
+        catch (ConnectException e)
+        {
+            // if a firewall has blocked it, ignore this test.
         }
     }
 }
