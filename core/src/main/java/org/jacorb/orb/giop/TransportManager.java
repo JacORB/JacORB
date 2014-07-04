@@ -23,7 +23,6 @@ package org.jacorb.orb.giop;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
@@ -88,7 +87,7 @@ public class TransportManager
     /**
      * List of all IIOP/SLIOP endpoint address-pairs
      */
-    private HashMap<Protocol,HashSet<ListenEndpoint>> listenEndpointList = null;
+    private HashMap<Protocol,ArrayList<ListenEndpoint>> listenEndpointList = null;
 
 
     /**
@@ -187,9 +186,9 @@ public class TransportManager
     }
 
 
-    public HashSet<ListenEndpoint> getListenEndpoints (Protocol p)
+    public ArrayList<ListenEndpoint> getListenEndpoints (Protocol p)
     {
-        HashSet<ListenEndpoint> endpoints = listenEndpointList.get (p);
+        ArrayList<ListenEndpoint> endpoints = listenEndpointList.get (p);
 
         if (endpoints == null)
         {
@@ -199,7 +198,7 @@ public class TransportManager
             }
             ListenEndpoint l = new ListenEndpoint();
             l.setProtocol(p);
-            endpoints = new HashSet<ListenEndpoint>();
+            endpoints = new ArrayList<ListenEndpoint>();
             endpoints.add(l);
             listenEndpointList.put(p, endpoints);
         }
@@ -414,8 +413,8 @@ public class TransportManager
         defaultEndpoint.setSSLAddress(ssl_address);
         defaultEndpoint.setProtocol(address.getProtocol());
 
-        HashSet<ListenEndpoint> s = listenEndpointList.get(address.getProtocol());
-        s = new HashSet<ListenEndpoint>();
+        ArrayList<ListenEndpoint> s = listenEndpointList.get(address.getProtocol());
+        s = new ArrayList<ListenEndpoint>();
         s.add (defaultEndpoint);
         listenEndpointList.put(address.getProtocol(), s);
     }
@@ -425,7 +424,7 @@ public class TransportManager
      */
     private void updateListenEndpointAddresses() throws ConfigurationException
     {
-        listenEndpointList = new HashMap <Protocol, HashSet<ListenEndpoint>>();
+        listenEndpointList = new HashMap <Protocol, ArrayList<ListenEndpoint>>();
 
         // get original argument list from ORB
         String[] args = configuration.getORB().getArgs();
@@ -623,10 +622,10 @@ public class TransportManager
                             listen_ep.setSSLAddress(ssl_address);
                             listen_ep.setProtocol(protocol);
 
-                            HashSet<ListenEndpoint> s = listenEndpointList.get(protocol);
+                            ArrayList<ListenEndpoint> s = listenEndpointList.get(protocol);
                             if ( s == null)
                             {
-                                s = new HashSet<ListenEndpoint>();
+                                s = new ArrayList<ListenEndpoint>();
                                 listenEndpointList.put(protocol, s);
                             }
                             s.add(listen_ep);

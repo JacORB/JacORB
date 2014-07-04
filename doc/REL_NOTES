@@ -66,6 +66,7 @@
          - Move Singleton debug code into Diagnostic class to avoid JDK issues.
          - Improve ordering of network addresses.
          - Fix for creation of corbaloc with IPv6
+         - Fix internal ordering of ORBEndpoints
     - Documentation
         - Minor fixes.
     - Misc
