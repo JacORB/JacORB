@@ -69,6 +69,7 @@ public class ClientIIOPConnection
         use_ssl = false;
     }
 
+    @Override
     public void configure(Configuration configuration)
         throws ConfigurationException
     {
@@ -104,6 +105,7 @@ public class ClientIIOPConnection
      * is successfully established it shall store the used Profile data.
      *
      */
+    @Override
     public synchronized void connect(org.omg.ETF.Profile server_profile, long time_out)
     {
         if( ! connected )
@@ -270,11 +272,11 @@ public class ClientIIOPConnection
     private void createSocket(long time_out)
         throws IOException
     {
-        List addressList = new ArrayList();
+        List<ProtocolAddressBase> addressList = new ArrayList<ProtocolAddressBase>();
         addressList.add(((IIOPProfile)profile).getAddress());
         addressList.addAll(((IIOPProfile)profile).getAlternateAddresses());
 
-        Iterator addressIterator = addressList.iterator();
+        Iterator<ProtocolAddressBase> addressIterator = addressList.iterator();
 
         Exception exception = null;
         socket = null;
@@ -362,6 +364,7 @@ public class ClientIIOPConnection
         }
     }
 
+    @Override
     public synchronized void close()
     {
         if (!connected)

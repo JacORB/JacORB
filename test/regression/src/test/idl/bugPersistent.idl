@@ -1,0 +1,28 @@
+module org
+{
+    module jacorb
+    {
+        module test
+        {
+            module bugs
+            {
+                module bug983
+                {
+                    interface Hello
+                    {
+                        void sayHello();
+                        void sayGoodbye();
+                    };
+
+                    const unsigned long CredentialContextId = 0x42550000; // "BU00"
+
+                    const string CORRECT_SECRET = "This is truly the real one!";
+
+                    struct Credential {
+                        string secret;
+                    };
+                };
+            };
+        };
+    };
+};

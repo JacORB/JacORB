@@ -288,6 +288,7 @@ public final class Delegate
      */
     private static final ThreadLocal<Boolean> ignoreNextCallToIsLocal = new ThreadLocal<Boolean>()
     {
+        @Override
         protected Boolean initialValue()
         {
             return Boolean.FALSE;
@@ -307,6 +308,7 @@ public final class Delegate
      */
     private static final ThreadLocal<ArrayDeque<Map<INVOCATION_KEY, UtcT>>> invocationContext = new ThreadLocal<ArrayDeque<Map<INVOCATION_KEY, UtcT>>>()
     {
+        @Override
         protected ArrayDeque<Map<INVOCATION_KEY, UtcT>> initialValue()
         {
             return new ArrayDeque<Map<INVOCATION_KEY, UtcT>> ();
@@ -734,27 +736,11 @@ public final class Delegate
                 }
             }
 
-            // I'm commenting this code block out since it prevents a multi-profile
-            // pior from being processed.  I don't see that it is needed anywhere.  Quynh
-            //
-            // While the target override may have altered the effective profile so that
-            // the IORs are now equal if the original ones do not match we still have to
-            // disconnect so that the connection is made with the correct effective profile.
-            /***
-            * if (originalMatch && pior.equals(originalIOR))
-            * {
-            *    //already bound to target so just return
-
-            *    return ;
-            * }
-            **/
-
             if (piorLastFailed != null && piorLastFailed.equals(pior))
             {
-                    //we've already failed to bind to the ior
-                    throw new org.omg.CORBA.TRANSIENT();
+                //we've already failed to bind to the ior
+                throw new org.omg.CORBA.TRANSIENT();
             }
-
             if (piorOriginal == null)
             {
                 //keep original pior for fallback
@@ -781,6 +767,7 @@ public final class Delegate
         }
     }
 
+    @Override
     public org.omg.CORBA.Request create_request( org.omg.CORBA.Object self,
             org.omg.CORBA.Context ctx,
             String operation,
@@ -801,6 +788,7 @@ public final class Delegate
                                                result );
     }
 
+    @Override
     public org.omg.CORBA.Request create_request( org.omg.CORBA.Object self,
             org.omg.CORBA.Context ctx,
             String operation,
@@ -825,17 +813,20 @@ public final class Delegate
                                                contexts);
     }
 
+    @Override
     public org.omg.CORBA.Object duplicate( org.omg.CORBA.Object self )
     {
         return orb._getDelegate (new ParsedIOR( orb, toString()));
     }
 
+    @Override
     public boolean equals(java.lang.Object obj)
     {
         return ( obj instanceof org.omg.CORBA.Object &&
                  toString().equals( obj.toString() ) );
     }
 
+    @Override
     public boolean equals( org.omg.CORBA.Object self, java.lang.Object obj )
     {
         return equals( obj );
@@ -852,6 +843,7 @@ public final class Delegate
     // This therefore moves the responsibility to the client code to call _release.
     //
 
+    @Override
     public org.omg.CORBA.DomainManager[] get_domain_managers( org.omg.CORBA.Object self )
     {
         return null;
@@ -874,6 +866,7 @@ public final class Delegate
      * value in the IOR implies that any legal value may be used.
      */
 
+    @Override
     public org.omg.CORBA.Policy get_policy( org.omg.CORBA.Object self,
                                             int policy_type )
     {
@@ -1045,12 +1038,14 @@ public final class Delegate
     /**
      * Deprecated by CORBA 2.3
      */
+    @Override
     @Deprecated
     public org.omg.CORBA.InterfaceDef get_interface( org.omg.CORBA.Object self )
     {
         return org.omg.CORBA.InterfaceDefHelper.narrow( get_interface_def( self ) ) ;
     }
 
+    @Override
     public org.omg.CORBA.Object get_interface_def (org.omg.CORBA.Object self)
     {
         checkORB();
@@ -1188,6 +1183,7 @@ public final class Delegate
         return reference;
     }
 
+    @Override
     public int hash( org.omg.CORBA.Object self, int x )
     {
         checkORB();
@@ -1195,11 +1191,13 @@ public final class Delegate
         return hashCode();
     }
 
+    @Override
     public int hashCode()
     {
         return getIDString().hashCode();
     }
 
+    @Override
     public int hashCode( org.omg.CORBA.Object self )
     {
         return hashCode();
@@ -1225,6 +1223,7 @@ public final class Delegate
      * @return the reply, if a reply is expected for this request.
      * If no reply is expected, returns null.
      */
+    @Override
     public org.omg.CORBA.portable.InputStream invoke
                                        ( org.omg.CORBA.Object self,
                                          org.omg.CORBA.portable.OutputStream os )
@@ -1452,7 +1451,7 @@ public final class Delegate
             {
                 if (logger.isDebugEnabled())
                 {
-                        logger.debug (this.toString() + ":invoke_internal: closing connection due to " + cfe.getMessage());
+                    logger.debug (this.toString() + " : invoke_internal: closing connection due to " + cfe.getMessage());
                 }
                 disconnect(connectionToUse);
             }
@@ -1671,6 +1670,7 @@ public final class Delegate
     {
         new Thread (new Runnable()
         {
+            @Override
             public void run()
             {
                 try
@@ -1729,27 +1729,38 @@ public final class Delegate
                     logger.debug("Delegate: falling back to original IOR");
                 }
 
-                //keep last failed ior to detect forwarding loops
-                piorLastFailed = getParsedIOR();
-                if (piorOriginal.equals(piorLastFailed) && getParsedIOR().getProfiles().size() > 1)
+                if (piorOriginal.equals(getParsedIOR()) &&
+                    getParsedIOR().getProfiles().size() > 1 &&
+                    ( (useJacORBIMR && ! isJacORBImR) ||
+                    useTaoIMR ||
+                    getParsedIOR().isNameServiceIor() ) )
                 {
-                    if ( (useJacORBIMR && ! isJacORBImR) || (useTaoIMR) || getParsedIOR().isNameServiceIor() )
+                    // keep last failed ior to detect forwarding loops
+                    piorLastFailed = getParsedIOR();
+
+                    if( logger.isDebugEnabled())
                     {
-                        if( logger.isDebugEnabled())
-                        {
-                            logger.debug(
-                                    "Delegate.try_rebind: binding to next profile <" +
-                                    getParsedIOR().getTypeIdName() + ">");
-                        }
-
-                        Profile newProfile = getParsedIOR().getNextEffectiveProfile();
-
-                        if (newProfile != null)
-                        {
-                            piorLastFailed = null;
-                            randomMilliSecDelay();
-                        }
+                        logger.debug(
+                                "Delegate.try_rebind: binding to next profile <" +
+                                        getParsedIOR().getTypeIdName() + ">");
                     }
+                    Profile newProfile = getParsedIOR().getNextEffectiveProfile();
+
+                    if (newProfile != null)
+                    {
+                        piorLastFailed = null;
+                        randomMilliSecDelay();
+                    }
+                }
+                // If we've already bound to the original there is nothing we can do.
+                else if (piorOriginal.equals(getParsedIOR()))
+                {
+                    return false;
+                }
+                else
+                {
+                    // keep last failed ior to detect forwarding loops
+                    piorLastFailed = getParsedIOR();
                 }
 
                 //rebind to the original ior
@@ -1757,7 +1768,7 @@ public final class Delegate
 
                 //clean up and start fresh
                 piorOriginal = null;
-                piorLastFailed = null; // supplied byte Kevin Heifner, OCI
+                piorLastFailed = null;
 
                 return true;
             }
@@ -1936,7 +1947,8 @@ public final class Delegate
     *
     * @return a <code>String</code> value
     */
-   public String repository_id (org.omg.CORBA.Object self)
+   @Override
+public String repository_id (org.omg.CORBA.Object self)
    {
        return getParsedIOR().getTypeId();
    }
@@ -1947,6 +1959,7 @@ public final class Delegate
      * has type logical_type_id or a subtype of it
      */
 
+    @Override
     public boolean is_a( org.omg.CORBA.Object self, String logical_type_id )
     {
         /* First, try to find out without a remote invocation. */
@@ -2103,6 +2116,7 @@ public final class Delegate
         return (is == null) ? false : is.read_boolean();
     }
 
+    @Override
     public boolean is_equivalent(org.omg.CORBA.Object self,
                                  org.omg.CORBA.Object obj)
     {
@@ -2132,6 +2146,7 @@ public final class Delegate
      * direct to implementation, avoiding installed interceptors.
      */
 
+    @Override
     public boolean is_local(org.omg.CORBA.Object self)
     {
         if (ignoreNextCallToIsLocal.get() == Boolean.TRUE)
@@ -2170,6 +2185,7 @@ public final class Delegate
                  pior.getIOR().profiles.length == 0 );
     }
 
+    @Override
     public boolean non_existent (org.omg.CORBA.Object self)
     {
         // If local object call _non_existent directly
@@ -2214,6 +2230,7 @@ public final class Delegate
     }
 
 
+    @Override
     public org.omg.CORBA.Object get_component (org.omg.CORBA.Object self)
     {
         // If local object call _get_component directly
@@ -2270,6 +2287,7 @@ public final class Delegate
     }
 
 
+    @Override
     public org.omg.CORBA.ORB orb( org.omg.CORBA.Object self )
     {
         return orb;
@@ -2281,6 +2299,7 @@ public final class Delegate
      * GIOPConnection.  If there are no other Delegates using that
      * connection, it will be closed and disposed of altogether.
      */
+    @Override
     public void release( org.omg.CORBA.Object self )
     {
         synchronized ( bind_sync )
@@ -2311,6 +2330,7 @@ public final class Delegate
     /**
      * releases the InputStream
      */
+    @Override
     public void releaseReply( org.omg.CORBA.Object self,
                               org.omg.CORBA.portable.InputStream is )
     {
@@ -2328,6 +2348,7 @@ public final class Delegate
         Time.waitFor (getReplyStartTime());
     }
 
+    @Override
     public org.omg.CORBA.Request request( org.omg.CORBA.Object self,
                                                        String operation )
     {
@@ -2348,6 +2369,7 @@ public final class Delegate
     /**
      */
 
+    @Override
     public org.omg.CORBA.portable.OutputStream request(org.omg.CORBA.Object self,
                                                    String operation,
                                                    boolean responseExpected )
@@ -2556,6 +2578,7 @@ public final class Delegate
      */
 
 
+    @Override
     public void servant_postinvoke( org.omg.CORBA.Object self, ServantObject servant )
     {
         try
@@ -2670,6 +2693,7 @@ public final class Delegate
      * called from generated stubs before a local operation
      */
 
+    @Override
     public ServantObject servant_preinvoke( org.omg.CORBA.Object self,
                                             String operation,
                                             @SuppressWarnings("rawtypes") Class expectedType )
@@ -3033,6 +3057,7 @@ public final class Delegate
     }
 
 
+    @Override
     public String toString()
     {
         synchronized ( bind_sync )
@@ -3045,6 +3070,7 @@ public final class Delegate
         }
     }
 
+    @Override
     public String toString( org.omg.CORBA.Object self )
     {
         return toString();
@@ -3055,6 +3081,7 @@ public final class Delegate
         return getParsedIOR().getIOR().type_id;
     }
 
+    @Override
     public org.omg.CORBA.Object set_policy_override( org.omg.CORBA.Object self,
                                                      org.omg.CORBA.Policy[] policies,
                                                      org.omg.CORBA.SetOverrideType set_add )
@@ -3062,6 +3089,7 @@ public final class Delegate
         return set_policy_overrides (self, policies, set_add);
     }
 
+    @Override
     public org.omg.CORBA.Object set_policy_overrides( org.omg.CORBA.Object self,
                                                      org.omg.CORBA.Policy[] policies,
                                                      org.omg.CORBA.SetOverrideType set_add )
@@ -3093,6 +3121,7 @@ public final class Delegate
         return result;
     }
 
+    @Override
     public String get_codebase( org.omg.CORBA.Object self )
     {
         return getParsedIOR().getCodebaseComponent();
@@ -3107,6 +3136,7 @@ public final class Delegate
         orb.work_pending();
     }
 
+    @Override
     public boolean validate_connection(  org.omg.CORBA.Object self,
                                         org.omg.CORBA.PolicyListHolder inconsistent_policies )
     {

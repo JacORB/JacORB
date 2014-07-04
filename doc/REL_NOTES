@@ -67,6 +67,7 @@
          - Improve ordering of network addresses.
          - Fix for creation of corbaloc with IPv6
          - Fix internal ordering of ORBEndpoints
+         - Fix for interceptors and restarted server (BZ#983)
     - Documentation
         - Minor fixes.
     - Misc
@@ -75,6 +76,7 @@
         - Upgrade to SLF4J 1.7.6
         - Fixes for Javadoc under JDK 8.
         - Run subset of regression tests with the IMR
+        - Improve test system stability
 
 3.4
 ===
