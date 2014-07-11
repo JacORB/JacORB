@@ -159,9 +159,17 @@
                 <artifactId>maven-javadoc-plugin</artifactId>
                 <executions>
                     <execution>
-                        <phase></phase>
+                        <id>default</id>
+                        <phase>none</phase>
                         <goals>
-                            <goal>jar</goal>
+                            <goal>javadoc</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>attach-javadocs</id>
+                        <phase>none</phase>
+                        <goals>
+                            <goal>javadoc</goal>
                         </goals>
                     </execution>
                     <execution>
@@ -170,6 +178,9 @@
                         <goals>
                             <goal>test-jar</goal>
                         </goals>
+                        <configuration>
+                           <sourcepath>${basedir}/src/test/java</sourcepath>
+                        </configuration>
                     </execution>
                 </executions>
             </plugin>
