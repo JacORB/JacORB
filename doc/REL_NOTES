@@ -43,8 +43,11 @@
 ( Note: For commit history see https://github.com/JacORB/JacORB )
 
 
-3.5
+This Release
 ============
+
+3.5
+===
     - ORB
          - Simplify network address retrieval code.
          - Protect against OutOfMemory in GIOPConnection::receiveMessages to prevent client hanging.
