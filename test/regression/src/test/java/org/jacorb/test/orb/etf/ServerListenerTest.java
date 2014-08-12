@@ -23,7 +23,7 @@ package org.jacorb.test.orb.etf;
 
 import static org.junit.Assert.assertFalse;
 import java.util.Properties;
-import org.jacorb.test.common.ClientServerSetup;
+import org.jacorb.test.harness.ClientServerSetup;
 import org.jacorb.test.orb.etf.wiop.WIOPFactories;
 import org.junit.BeforeClass;
 import org.junit.Test;

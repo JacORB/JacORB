@@ -23,7 +23,7 @@ import org.jacorb.orb.giop.RequestOutputStream;
 import org.jacorb.orb.giop.ServerGIOPConnection;
 import org.jacorb.orb.iiop.IIOPAddress;
 import org.jacorb.orb.iiop.IIOPProfile;
-import org.jacorb.test.common.ORBTestCase;
+import org.jacorb.test.harness.ORBTestCase;
 import org.junit.Before;
 import org.junit.Test;
 import org.omg.ETF.BufferHolder;

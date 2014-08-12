@@ -23,7 +23,7 @@ package org.jacorb.test.orb;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import java.io.IOException;
-import org.jacorb.test.common.ORBTestCase;
+import org.jacorb.test.harness.ORBTestCase;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;

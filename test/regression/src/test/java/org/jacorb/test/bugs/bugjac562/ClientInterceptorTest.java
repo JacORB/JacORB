@@ -24,7 +24,7 @@ import static org.junit.Assert.fail;
 import java.util.Properties;
 import org.jacorb.test.BasicServer;
 import org.jacorb.test.BasicServerHelper;
-import org.jacorb.test.common.ORBTestCase;
+import org.jacorb.test.harness.ORBTestCase;
 import org.jacorb.test.orb.BasicServerImpl;
 import org.junit.Before;
 import org.junit.Test;

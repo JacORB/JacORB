@@ -24,7 +24,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import java.util.List;
 import org.jacorb.orb.ParsedIOR;
-import org.jacorb.test.common.ORBTestCase;
+import org.jacorb.test.harness.ORBTestCase;
 import org.junit.Test;
 import org.omg.ETF.Profile;
 

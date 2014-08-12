@@ -1,7 +1,7 @@
 package org.jacorb.test.bugs.bugjac719;
 
 import static org.junit.Assert.fail;
-import org.jacorb.test.common.ORBTestCase;
+import org.jacorb.test.harness.ORBTestCase;
 import org.junit.Test;
 
 public class BugJac719Test extends ORBTestCase

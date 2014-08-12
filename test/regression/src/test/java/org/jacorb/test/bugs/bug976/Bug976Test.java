@@ -2,7 +2,7 @@ package org.jacorb.test.bugs.bug976;
 
 import static org.junit.Assert.fail;
 import java.util.Properties;
-import org.jacorb.test.common.ORBTestCase;
+import org.jacorb.test.harness.ORBTestCase;
 import org.junit.Before;
 import org.junit.Test;
 import org.omg.CORBA.NO_PERMISSION;

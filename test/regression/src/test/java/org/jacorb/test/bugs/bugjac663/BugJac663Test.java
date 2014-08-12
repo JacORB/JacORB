@@ -1,6 +1,6 @@
 package org.jacorb.test.bugs.bugjac663;
 
-import org.jacorb.test.common.ORBTestCase;
+import org.jacorb.test.harness.ORBTestCase;
 import org.junit.Test;
 import org.omg.CORBA.ORB;
 

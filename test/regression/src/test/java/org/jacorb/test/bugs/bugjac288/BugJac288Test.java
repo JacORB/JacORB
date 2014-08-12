@@ -24,7 +24,7 @@ import static org.junit.Assert.assertSame;
 import static org.junit.Assert.fail;
 import org.jacorb.orb.CDRInputStream;
 import org.jacorb.orb.CDROutputStream;
-import org.jacorb.test.common.ORBTestCase;
+import org.jacorb.test.harness.ORBTestCase;
 import org.junit.Test;
 import org.omg.CORBA.MARSHAL;
 import org.omg.CORBA.portable.InputStream;

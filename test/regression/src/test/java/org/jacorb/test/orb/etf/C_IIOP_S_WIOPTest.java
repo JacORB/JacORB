@@ -23,8 +23,8 @@ package org.jacorb.test.orb.etf;
 
 import static org.junit.Assert.fail;
 import java.util.Properties;
-import org.jacorb.test.common.ClientServerSetup;
-import org.jacorb.test.common.TestUtils;
+import org.jacorb.test.harness.ClientServerSetup;
+import org.jacorb.test.harness.TestUtils;
 import org.junit.Assume;
 import org.junit.BeforeClass;
 import org.junit.Test;

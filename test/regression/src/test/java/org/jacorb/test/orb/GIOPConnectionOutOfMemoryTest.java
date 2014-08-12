@@ -20,12 +20,11 @@ package org.jacorb.test.orb;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import static org.junit.Assert.fail;
 import java.util.Properties;
 import org.jacorb.test.BasicServer;
 import org.jacorb.test.BasicServerHelper;
-import org.jacorb.test.common.ClientServerSetup;
-import org.jacorb.test.common.ClientServerTestCase;
+import org.jacorb.test.harness.ClientServerSetup;
+import org.jacorb.test.harness.ClientServerTestCase;
 import org.jboss.byteman.contrib.bmunit.BMRule;
 import org.jboss.byteman.contrib.bmunit.BMUnitRunner;
 import org.junit.Before;

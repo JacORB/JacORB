@@ -21,7 +21,7 @@
 package org.jacorb.test.bugs.bugjac491;
 
 import static org.junit.Assert.assertTrue;
-import org.jacorb.test.common.ORBTestCase;
+import org.jacorb.test.harness.ORBTestCase;
 import org.junit.Test;
 import org.omg.CORBA.AttrDescriptionSeqHelper;
 import org.omg.CORBA.BAD_OPERATION;

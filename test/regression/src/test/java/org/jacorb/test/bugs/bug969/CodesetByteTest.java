@@ -5,7 +5,7 @@ import java.util.Properties;
 import org.jacorb.orb.CDRInputStream;
 import org.jacorb.orb.CDROutputStream;
 import org.jacorb.orb.giop.CodeSet;
-import org.jacorb.test.common.ORBTestCase;
+import org.jacorb.test.harness.ORBTestCase;
 import org.junit.Assert;
 import org.junit.Test;
 

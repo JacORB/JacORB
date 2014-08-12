@@ -1,6 +1,6 @@
 package org.jacorb.test.orb.orbreinvoke;
 
-import org.jacorb.test.common.TestUtils;
+import org.jacorb.test.harness.TestUtils;
 import org.jacorb.test.listenendpoints.echo_corbaloc.EchoMessage;
 import org.jacorb.test.listenendpoints.echo_corbaloc.EchoMessageHelper;
 import org.jacorb.test.listenendpoints.echo_corbaloc.EchoMessageTask;

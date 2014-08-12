@@ -2,7 +2,7 @@ package org.jacorb.test.transport;
 
 import static org.junit.Assert.assertEquals;
 import java.util.Properties;
-import org.jacorb.test.common.ORBTestCase;
+import org.jacorb.test.harness.ORBTestCase;
 import org.jacorb.test.orb.transport.CurrentServer;
 import org.jacorb.test.orb.transport.CurrentServerHelper;
 import org.junit.Before;

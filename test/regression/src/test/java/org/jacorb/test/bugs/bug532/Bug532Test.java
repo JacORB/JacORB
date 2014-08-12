@@ -20,7 +20,7 @@ package org.jacorb.test.bugs.bug532;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import org.jacorb.test.common.ORBTestCase;
+import org.jacorb.test.harness.ORBTestCase;
 import org.junit.Test;
 import org.omg.CORBA.Any;
 

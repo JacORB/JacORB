@@ -3,7 +3,7 @@ package org.jacorb.test.ir;
 import java.io.File;
 import java.io.IOException;
 import org.jacorb.ir.IRServer;
-import org.jacorb.test.common.TestUtils;
+import org.jacorb.test.harness.TestUtils;
 
 public class IRServerRunner
 {

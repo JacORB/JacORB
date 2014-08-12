@@ -20,7 +20,7 @@ package org.jacorb.test.orb.value;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import org.jacorb.test.common.TestUtils;
+import org.jacorb.test.harness.TestUtils;
 
 /**
  * <code>CustomValueExchangeImpl</code> is the implementation of the

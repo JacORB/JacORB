@@ -26,7 +26,7 @@ import static org.junit.Assert.assertTrue;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicBoolean;
 import org.jacorb.notification.util.LogUtil;
-import org.jacorb.test.common.TestUtils;
+import org.jacorb.test.harness.TestUtils;
 import org.jacorb.test.notification.NotificationTestUtils;
 import org.jacorb.test.notification.StructuredPushReceiver;
 import org.jacorb.test.notification.StructuredPushSender;

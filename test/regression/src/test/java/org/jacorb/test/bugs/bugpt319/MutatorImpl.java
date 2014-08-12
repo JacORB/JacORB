@@ -23,7 +23,7 @@ package org.jacorb.test.bugs.bugpt319;
 
 import org.jacorb.orb.IORMutator;
 import org.jacorb.orb.ParsedIOR;
-import org.jacorb.test.common.TestUtils;
+import org.jacorb.test.harness.TestUtils;
 import org.omg.CORBA.ORB;
 import org.omg.IOP.IOR;
 

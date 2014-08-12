@@ -1,7 +1,7 @@
 package org.jacorb.test.orb.rmi;
 
 import java.util.Properties;
-import org.jacorb.test.common.ClientServerSetup;
+import org.jacorb.test.harness.ClientServerSetup;
 import org.junit.BeforeClass;
 
 /*

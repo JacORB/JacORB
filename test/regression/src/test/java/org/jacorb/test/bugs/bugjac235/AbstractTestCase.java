@@ -1,7 +1,7 @@
 package org.jacorb.test.bugs.bugjac235;
 
 //import java.io.*;
-import org.jacorb.test.common.ClientServerTestCase;
+import org.jacorb.test.harness.ClientServerTestCase;
 import org.junit.Before;
 import org.omg.CORBA.Any;
 import org.omg.CORBA.ORB;

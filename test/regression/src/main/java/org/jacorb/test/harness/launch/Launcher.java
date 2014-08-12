@@ -18,7 +18,7 @@
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-package org.jacorb.test.common.launch;
+package org.jacorb.test.harness.launch;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -30,7 +30,7 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
-import org.jacorb.test.common.TestUtils;
+import org.jacorb.test.harness.TestUtils;
 
 /**
  * Launches a JacORB process by direct invocation of a JVM

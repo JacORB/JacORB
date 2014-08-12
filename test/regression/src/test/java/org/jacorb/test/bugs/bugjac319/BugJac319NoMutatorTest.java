@@ -2,7 +2,7 @@ package org.jacorb.test.bugs.bugjac319;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
-import org.jacorb.test.common.ClientServerSetup;
+import org.jacorb.test.harness.ClientServerSetup;
 import org.junit.BeforeClass;
 import org.junit.Test;
 

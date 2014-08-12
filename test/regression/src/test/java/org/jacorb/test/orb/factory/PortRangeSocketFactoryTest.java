@@ -7,7 +7,7 @@ import org.jacorb.config.Configuration;
 import org.jacorb.config.ConfigurationException;
 import org.jacorb.orb.factory.PortRangeSocketFactory;
 import org.jacorb.orb.factory.SocketFactory;
-import org.jacorb.test.common.TestUtils;
+import org.jacorb.test.harness.TestUtils;
 import org.junit.Test;
 
 public class PortRangeSocketFactoryTest extends AbstractSocketFactoryTestCase

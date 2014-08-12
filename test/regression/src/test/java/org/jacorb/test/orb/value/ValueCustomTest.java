@@ -20,9 +20,9 @@ package org.jacorb.test.orb.value;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import org.jacorb.test.common.ClientServerSetup;
-import org.jacorb.test.common.ClientServerTestCase;
-import org.jacorb.test.common.TestUtils;
+import org.jacorb.test.harness.ClientServerSetup;
+import org.jacorb.test.harness.ClientServerTestCase;
+import org.jacorb.test.harness.TestUtils;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;

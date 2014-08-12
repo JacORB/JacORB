@@ -3,6 +3,7 @@ package org.jacorb.test.orb.orbreinvoke;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.PrintWriter;
+import org.jacorb.test.harness.TestUtils;
 import org.jacorb.test.listenendpoints.echo_corbaloc.CmdArgs;
 import org.jacorb.test.listenendpoints.echo_corbaloc.EchoMessageImpl;
 import org.jacorb.util.ObjectUtil;
@@ -16,7 +17,6 @@ import org.omg.PortableServer.IdAssignmentPolicyValue;
 import org.omg.PortableServer.LifespanPolicyValue;
 import org.omg.PortableServer.POA;
 import org.omg.PortableServer.POAHelper;
-import org.jacorb.test.common.TestUtils;
 
 
 public class NSFailoverTestServer

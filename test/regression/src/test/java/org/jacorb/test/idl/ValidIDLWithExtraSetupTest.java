@@ -37,7 +37,7 @@ import java.util.Collection;
 import java.util.List;
 import org.jacorb.orb.CDRInputStream;
 import org.jacorb.orb.CDROutputStream;
-import org.jacorb.test.common.TestUtils;
+import org.jacorb.test.harness.TestUtils;
 import org.jacorb.test.idl.bugjac144.BugJac144ObjectCachePlugin;
 import org.junit.Test;
 import org.junit.runners.Parameterized.Parameters;

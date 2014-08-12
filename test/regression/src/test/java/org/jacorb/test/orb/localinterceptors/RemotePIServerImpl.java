@@ -3,7 +3,7 @@ package org.jacorb.test.orb.localinterceptors;
 import org.omg.CORBA.CompletionStatus;
 import org.omg.CORBA.UNKNOWN;
 import org.omg.PortableServer.POA;
-import org.jacorb.test.common.TestUtils;
+import org.jacorb.test.harness.TestUtils;
 
 public class RemotePIServerImpl
         extends PIServerPOA

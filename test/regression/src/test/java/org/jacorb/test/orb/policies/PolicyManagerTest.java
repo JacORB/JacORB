@@ -4,7 +4,7 @@ import static org.junit.Assert.assertEquals;
 import org.easymock.MockControl;
 import org.jacorb.config.Configuration;
 import org.jacorb.orb.policies.PolicyManager;
-import org.jacorb.test.common.TestUtils;
+import org.jacorb.test.harness.TestUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.omg.CORBA.Policy;

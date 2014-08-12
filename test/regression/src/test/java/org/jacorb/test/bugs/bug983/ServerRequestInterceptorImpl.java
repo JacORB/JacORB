@@ -2,7 +2,7 @@ package org.jacorb.test.bugs.bug983;
 
 import org.jacorb.orb.ORB;
 import org.jacorb.test.bugs.bug979.CredentialContextId;
-import org.jacorb.test.common.TestUtils;
+import org.jacorb.test.harness.TestUtils;
 import org.omg.CORBA.BAD_PARAM;
 import org.omg.CORBA.CompletionStatus;
 import org.omg.CORBA.LocalObject;

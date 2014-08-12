@@ -13,7 +13,7 @@ public class ListenEndpoints {
 
         List<Endpoint> endpointList = new ArrayList<Endpoint>();
 
-        if (args != (String[]) null)
+        if (args != null)
         {
             for (int i = 0; i < args.length; i++)
             {
@@ -65,7 +65,6 @@ public class ListenEndpoints {
                     {
                         String address_str = null;
                         String ssl_port = null;
-                        String host_str = "";
                         String[] options_args = null;
 
                         String addr_arg = indiv_list[xxx].trim();
@@ -78,7 +77,7 @@ public class ListenEndpoints {
                         // pickup the protocol identifier string
                         int delim = addr_arg.indexOf(":");
                         String proto = addr_arg.substring (0,delim).toLowerCase();
-                        
+
                         // locate the double slash delimiter
                         int db_slash = addr_arg.indexOf("//", delim+1);
                         // System.out.println("xxx=" + xxx + ": delim=<" + db_slash + ">");
@@ -154,24 +153,10 @@ public class ListenEndpoints {
                                 }
                                 if (ssl_port != null)
                                 {
-                                    int colon_delim = address_trim.indexOf(":");
-                                    int port_delim = address_trim.indexOf(":", colon_delim+2);
-                                    if (port_delim > 0)
-                                    {
-                                        host_str = address_trim.substring(colon_delim+3, port_delim);
-                                    }
-                                    else
-                                    {
-                                        host_str = "";
-                                    }
                                     addr.setSSLPort(Integer.parseInt(ssl_port));
-
                                 }
                                 endpointList.add(addr);
-
-
                             }
-
                             else
                             {
                                 Endpoint addr = null;
@@ -218,10 +203,4 @@ public class ListenEndpoints {
 
         return epoint;
     }
-
-    private static void log(String msg)
-    {
-        System.out.println("getEndpointList: " + msg);
-    }
-
 }

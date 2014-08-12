@@ -38,7 +38,7 @@ import org.omg.CosNotification.Property;
 import org.omg.CosNotification.StructuredEvent;
 import org.omg.CosNotifyChannelAdmin.EventChannel;
 import org.omg.CosNotifyChannelAdmin.EventChannelFactory;
-import org.jacorb.test.common.TestUtils;
+import org.jacorb.test.harness.TestUtils;
 
 /**
  * @author Alphonse Bendt

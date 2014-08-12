@@ -18,7 +18,7 @@
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-package org.jacorb.test.common;
+package org.jacorb.test.harness;
 
 import static org.junit.Assert.fail;
 import java.io.File;
@@ -32,7 +32,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
-import org.jacorb.test.common.launch.Launcher;
+import org.jacorb.test.harness.launch.Launcher;
 
 /**
  * @author Alphonse Bendt
@@ -157,7 +157,7 @@ public class ServerSetup
     {
         if (optionalTestServer == null)
         {
-            return "org.jacorb.test.common.TestServer";
+            return "org.jacorb.test.harness.TestServer";
         }
         return optionalTestServer;
     }

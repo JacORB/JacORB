@@ -1,6 +1,6 @@
 package org.jacorb.test.transport;
 
-import org.jacorb.test.common.TestUtils;
+import org.jacorb.test.harness.TestUtils;
 import org.omg.CORBA.ORB;
 import org.omg.PortableInterceptor.ForwardRequest;
 import org.omg.PortableInterceptor.ServerRequestInfo;

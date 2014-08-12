@@ -26,7 +26,7 @@ import java.util.Properties;
 import org.jacorb.orb.ORB;
 import org.jacorb.orb.ParsedIOR;
 import org.jacorb.orb.util.CorbaLoc;
-import org.jacorb.test.common.ORBTestCase;
+import org.jacorb.test.harness.ORBTestCase;
 import org.jacorb.test.orb.BasicServerImpl;
 import org.junit.Test;
 import org.omg.CORBA.Policy;
@@ -47,7 +47,7 @@ public class ImplNameTest extends ORBTestCase
 {
     /**
      * We utilise testName so each local ORB can get a different set of properties for each test
-     * @see org.jacorb.test.common.ORBTestCase#patchORBProperties(java.util.Properties)
+     * @see org.jacorb.test.harness.ORBTestCase#patchORBProperties(java.util.Properties)
      */
     @Override
     protected void patchORBProperties(Properties props) throws Exception

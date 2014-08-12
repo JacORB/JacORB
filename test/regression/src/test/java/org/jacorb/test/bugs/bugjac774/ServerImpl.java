@@ -2,7 +2,7 @@ package org.jacorb.test.bugs.bugjac774;
 
 import org.jacorb.config.JacORBConfiguration;
 import org.jacorb.orb.BufferManager;
-import org.jacorb.test.common.TestUtils;
+import org.jacorb.test.harness.TestUtils;
 
 /**
  * <code>ServerImpl</code> is a simple server for testing BufferManager.

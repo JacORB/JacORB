@@ -21,9 +21,9 @@ package org.jacorb.test.bugs.bugjac671;
  */
 
 import java.util.Properties;
-import org.jacorb.test.common.CommonSetup;
-import org.jacorb.test.common.ORBTestCase;
-import org.jacorb.test.common.TestUtils;
+import org.jacorb.test.harness.CommonSetup;
+import org.jacorb.test.harness.ORBTestCase;
+import org.jacorb.test.harness.TestUtils;
 import org.junit.Test;
 
 /**

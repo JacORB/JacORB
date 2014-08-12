@@ -31,8 +31,6 @@ public class Server
       try
       {
          CmdArgs cmdArgs = new CmdArgs("Server", args);
-         boolean cmdArgsStatus = cmdArgs.processArgs();
-
          Properties props = new Properties();
          props.setProperty("jacorb.implname", "EchoServer");
          props.setProperty("OAPort", "49999");
@@ -204,7 +202,7 @@ public class Server
             List<String> listen_eps = new ArrayList<String>();
             for (Iterator<InetAddress> x = inets.iterator(); x.hasNext();)
             {
-                InetAddress inetAddr = (InetAddress)x.next();
+                InetAddress inetAddr = x.next();
                 String ipaddr = inetAddr.toString().substring(1);
                 String conHostName = inetAddr.getCanonicalHostName();
                 String hostName = inetAddr.getHostName();

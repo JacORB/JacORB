@@ -1,15 +1,13 @@
 package org.jacorb.test.interceptor.ctx_passing;
 
 import java.util.Properties;
-import org.jacorb.test.common.ClientServerSetup;
-import org.jacorb.test.common.ClientServerTestCase;
+import org.jacorb.test.harness.ClientServerSetup;
+import org.jacorb.test.harness.ClientServerTestCase;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.omg.CORBA.Any;
-import org.omg.CORBA.ORBPackage.InvalidName;
 import org.omg.PortableInterceptor.Current;
-import org.omg.PortableInterceptor.InvalidSlot;
 
 public class CTXPassingTest extends ClientServerTestCase
 {

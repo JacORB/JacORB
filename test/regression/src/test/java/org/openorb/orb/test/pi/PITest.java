@@ -13,7 +13,7 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import java.util.Properties;
 import junit.framework.TestSuite;
-import org.jacorb.test.common.ORBTestCase;
+import org.jacorb.test.harness.ORBTestCase;
 import org.junit.After;
 import org.junit.Test;
 import org.omg.CORBA.CompletionStatus;

@@ -2,7 +2,7 @@ package org.jacorb.test.orb;
 
 import java.util.Properties;
 import org.jacorb.orb.giop.CodeSet;
-import org.jacorb.test.common.ClientServerSetup;
+import org.jacorb.test.harness.ClientServerSetup;
 import org.junit.Before;
 import org.junit.BeforeClass;
 

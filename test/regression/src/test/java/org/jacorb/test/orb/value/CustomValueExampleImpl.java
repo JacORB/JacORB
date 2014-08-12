@@ -1,6 +1,6 @@
 package org.jacorb.test.orb.value;
 
-import org.jacorb.test.common.TestUtils;
+import org.jacorb.test.harness.TestUtils;
 
 /*
  *        JacORB  - a free Java ORB

@@ -22,7 +22,7 @@
 package org.jacorb.test.bugs.bugjac637;
 
 import static org.junit.Assert.fail;
-import org.jacorb.test.common.ORBTestCase;
+import org.jacorb.test.harness.ORBTestCase;
 import org.junit.Test;
 import org.omg.CORBA.BAD_INV_ORDER;
 import org.omg.CORBA.ORB;

@@ -6,8 +6,8 @@ import static org.junit.Assert.assertTrue;
 import java.util.Properties;
 import org.jacorb.test.SyncScopeServer;
 import org.jacorb.test.SyncScopeServerHelper;
-import org.jacorb.test.common.ClientServerSetup;
-import org.jacorb.test.common.ClientServerTestCase;
+import org.jacorb.test.harness.ClientServerSetup;
+import org.jacorb.test.harness.ClientServerTestCase;
 import org.junit.After;
 import org.junit.Test;
 

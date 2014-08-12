@@ -25,7 +25,7 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Properties;
 import org.jacorb.orb.iiop.ServerIIOPConnection;
-import org.jacorb.test.common.ORBTestCase;
+import org.jacorb.test.harness.ORBTestCase;
 import org.junit.Test;
 
 /**

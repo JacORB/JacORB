@@ -21,8 +21,8 @@
 package org.jacorb.test.bugs.bug943;
 
 import java.util.Properties;
-import org.jacorb.test.common.CommonSetup;
-import org.jacorb.test.common.ORBTestCase;
+import org.jacorb.test.harness.CommonSetup;
+import org.jacorb.test.harness.ORBTestCase;
 import org.junit.Test;
 import org.omg.CORBA.INITIALIZE;
 import org.omg.PortableServer.POAHelper;

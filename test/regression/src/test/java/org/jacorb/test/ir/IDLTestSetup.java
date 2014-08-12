@@ -29,8 +29,8 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import junit.framework.AssertionFailedError;
-import org.jacorb.test.common.StreamListener;
-import org.jacorb.test.common.TestUtils;
+import org.jacorb.test.harness.StreamListener;
+import org.jacorb.test.harness.TestUtils;
 
 /**
  * @author Alphonse Bendt

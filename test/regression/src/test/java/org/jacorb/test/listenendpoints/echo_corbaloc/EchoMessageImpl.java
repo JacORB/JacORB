@@ -12,17 +12,18 @@ public class EchoMessageImpl
         this.location = location;
     }
 
+    @Override
     public void ping()
     {
         return;
     }
 
+    @Override
     public String echo_simple()
     {
 
         try
         {
-            String hostname =  InetAddress.getLocalHost().toString();
             String resp = new String("Simple greeting from " + location
                     + " (" + InetAddress.getLocalHost().toString() + ")");
             // System.out.println("EchoMessageImpl: echo_simple: send: <" + resp + ">");
@@ -36,6 +37,7 @@ public class EchoMessageImpl
         return new String("Simple greeting from " + location);
     }
 
+    @Override
     public String echo_string(String wide_msg)
     {
         String resp = new String (wide_msg);
@@ -44,6 +46,7 @@ public class EchoMessageImpl
         return resp;
     }
 
+    @Override
     public String echo_wide(String wide_msg)
     {
         String resp = new String (wide_msg);

@@ -25,7 +25,7 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import java.util.Properties;
 import org.jacorb.orb.portableInterceptor.ClientRequestInfoImpl;
-import org.jacorb.test.common.ORBTestCase;
+import org.jacorb.test.harness.ORBTestCase;
 import org.jacorb.test.orb.localinterceptors.LocalPITest.PIServerImpl;
 import org.junit.Test;
 import org.omg.CORBA.Policy;

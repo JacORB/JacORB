@@ -22,7 +22,7 @@ package org.jacorb.test.bugs.bugjac646;
 
 import static org.junit.Assert.fail;
 import org.jacorb.test.BasicServerHelper;
-import org.jacorb.test.common.ORBTestCase;
+import org.jacorb.test.harness.ORBTestCase;
 import org.jacorb.test.orb.BasicServerImpl;
 import org.junit.Test;
 import org.omg.PortableServer.IdAssignmentPolicyValue;

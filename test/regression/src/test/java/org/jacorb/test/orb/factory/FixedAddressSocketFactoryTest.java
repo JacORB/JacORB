@@ -8,7 +8,7 @@ import org.jacorb.config.Configurable;
 import org.jacorb.config.Configuration;
 import org.jacorb.orb.factory.FixedAddressSocketFactory;
 import org.jacorb.orb.factory.SocketFactory;
-import org.jacorb.test.common.TestUtils;
+import org.jacorb.test.harness.TestUtils;
 import org.junit.Test;
 
 /**

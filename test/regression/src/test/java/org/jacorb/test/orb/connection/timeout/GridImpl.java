@@ -1,6 +1,6 @@
 package org.jacorb.test.orb.connection.timeout;
 
-import org.jacorb.test.common.TestUtils;
+import org.jacorb.test.harness.TestUtils;
 
 /**
  * A very simple implementation of a 2-D grid

@@ -1,6 +1,6 @@
 package org.jacorb.test.bugs.bug976;
 
-import org.jacorb.test.common.TestUtils;
+import org.jacorb.test.harness.TestUtils;
 import org.omg.CORBA.Any;
 import org.omg.CORBA.INTERNAL;
 import org.omg.CORBA.LocalObject;

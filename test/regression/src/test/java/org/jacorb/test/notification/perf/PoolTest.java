@@ -26,7 +26,7 @@ import org.jacorb.notification.util.AbstractPoolablePool;
 import org.junit.Assume;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.jacorb.test.common.TestUtils;
+import org.jacorb.test.harness.TestUtils;
 
 public class PoolTest
 {

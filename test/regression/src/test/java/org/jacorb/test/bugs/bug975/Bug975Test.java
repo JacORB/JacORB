@@ -21,13 +21,12 @@ package org.jacorb.test.bugs.bug975;
  */
 
 import java.util.Properties;
-
 import org.jacorb.test.BasicServer;
 import org.jacorb.test.BasicServerHelper;
-import org.jacorb.test.common.ClientServerSetup;
-import org.jacorb.test.common.ClientServerTestCase;
-import org.jacorb.test.common.ORBTestCase;
-import org.jacorb.test.common.TestUtils;
+import org.jacorb.test.harness.ClientServerSetup;
+import org.jacorb.test.harness.ClientServerTestCase;
+import org.jacorb.test.harness.ORBTestCase;
+import org.jacorb.test.harness.TestUtils;
 import org.junit.After;
 import org.junit.Assume;
 import org.junit.Before;

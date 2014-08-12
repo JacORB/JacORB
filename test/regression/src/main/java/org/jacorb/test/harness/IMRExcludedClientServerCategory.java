@@ -1,4 +1,4 @@
-package org.jacorb.test.common;
+package org.jacorb.test.harness;
 
 /*
  *        JacORB  - a free Java ORB
@@ -20,9 +20,11 @@ package org.jacorb.test.common;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
+
 /**
- * Marker interface used to include tests in the IMR run.
+ * Marker interface used to exclude tests in the IMR run.
  */
-public interface ClientServerCategory
+public interface IMRExcludedClientServerCategory
 {
+
 }

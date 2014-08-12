@@ -22,17 +22,20 @@ public class HelloInterfaceImpl extends HelloInterfacePOA {
         this.hello = 0;
     }
 
+    @Override
     public org.omg.PortableServer.POA _default_POA() {
         return this.poa;
     }
 
+    @Override
     public void hello()
     {
         this.hello++ ;
 
-        long result = comput.get_result(this.hello * 100);
+        comput.get_result(this.hello * 100);
     }
 
+    @Override
     public void send_TRANSIENT_exception() {
         // TODO Auto-generated method stub
         throw new TRANSIENT(0, CompletionStatus.COMPLETED_MAYBE);

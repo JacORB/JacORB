@@ -9,7 +9,6 @@ public class Endpoint {
     private int port = -1;
     private int ssl_port = -1;
     private String protocol = null;
-    private boolean unresolved = false;
 
     public Endpoint ()
     {
@@ -52,7 +51,6 @@ public class Endpoint {
             catch (UnknownHostException e)
             {
                 System.out.println("Got an exception in Endpoint.init()" + e.getMessage());
-                unresolved = true;
                 try
                 {
                     hostInetAddr = InetAddress.getLocalHost();

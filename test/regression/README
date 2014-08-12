@@ -97,14 +97,14 @@ the JacORB test suite.
    should be packaged using the same packaging as the source that is
    being tested, but replacing 'org.jacorb' with 'org.jacorb.test'.
    Any helper classes that can be used by tests in different packages
-   should be put in the package 'org.jacorb.test.common'.  All source
+   should be put in the package 'org.jacorb.test.harness'.  All source
    code in the test hierarchy can be found under the 'src' directory.
 
    For example, the DynAny source is in the package 'org.jacorb.orb.dynany'.
    Therefore, the JUnit tests that test the DynAny source are in the package
    'org.jacorb.test.orb.dynany'.  Many tests in the orb package and elsewhere
    use a special client/server setup; this can be found under
-   org.jacorb.test.common.
+   org.jacorb.test.harness.
 
 
 2. Add any IDL files to the 'src/test/idl' directory in the test repository and

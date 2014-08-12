@@ -4,7 +4,7 @@ import java.util.Properties;
 import org.jacorb.orb.giop.BiDirConnectionInitializer;
 import org.jacorb.orb.giop.LRUSelectionStrategyImpl;
 import org.jacorb.orb.giop.LRUStatisticsProviderImpl;
-import org.jacorb.test.common.TestUtils;
+import org.jacorb.test.harness.TestUtils;
 import org.omg.BiDirPolicy.BIDIRECTIONAL_POLICY_TYPE;
 import org.omg.BiDirPolicy.BOTH;
 import org.omg.BiDirPolicy.BidirectionalPolicyValueHelper;

@@ -1,9 +1,9 @@
 package org.jacorb.test.bugs.bug979;
 
 import java.util.Properties;
-import org.jacorb.test.common.ClientServerSetup;
-import org.jacorb.test.common.ClientServerTestCase;
-import org.jacorb.test.common.IMRExcludedClientServerCategory;
+import org.jacorb.test.harness.ClientServerSetup;
+import org.jacorb.test.harness.ClientServerTestCase;
+import org.jacorb.test.harness.IMRExcludedClientServerCategory;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;

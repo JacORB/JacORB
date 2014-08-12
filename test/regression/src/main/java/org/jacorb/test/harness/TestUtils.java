@@ -1,4 +1,4 @@
-package org.jacorb.test.common;
+package org.jacorb.test.harness;
 
 /*
  *        JacORB - a free Java ORB
@@ -547,7 +547,7 @@ public class TestUtils
     }
 
     /**
-     * copied here from ObjectUtil to make the package org.jacorb.test.common independent from the orb core
+     * copied here from ObjectUtil to make the package org.jacorb.test.harness independent from the orb core
      */
     public static Class<?> classForName(String name)
         throws ClassNotFoundException, IllegalArgumentException

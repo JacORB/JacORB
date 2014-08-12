@@ -2,7 +2,7 @@ package org.jacorb.test.bugs.bug272;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
-import org.jacorb.test.common.ORBTestCase;
+import org.jacorb.test.harness.ORBTestCase;
 import org.junit.Test;
 import org.omg.CORBA.Any;
 import org.omg.CORBA.OctetSeqHelper;

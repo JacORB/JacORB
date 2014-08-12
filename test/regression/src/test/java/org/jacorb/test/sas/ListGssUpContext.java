@@ -21,7 +21,7 @@ package org.jacorb.test.sas;
  */
 
 import org.jacorb.security.sas.GssUpContext;
-import org.jacorb.test.common.TestUtils;
+import org.jacorb.test.harness.TestUtils;
 import org.omg.CORBA.ORB;
 import org.omg.IOP.Codec;
 

@@ -22,8 +22,8 @@ package org.jacorb.test.ir;
 
 import java.io.File;
 import java.util.Properties;
-import org.jacorb.test.common.ClientServerSetup;
-import org.jacorb.test.common.TestUtils;
+import org.jacorb.test.harness.ClientServerSetup;
+import org.jacorb.test.harness.TestUtils;
 import org.omg.CORBA.Repository;
 import org.omg.CORBA.RepositoryHelper;
 

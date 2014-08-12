@@ -22,7 +22,7 @@ package org.jacorb.test.orb;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
-import org.jacorb.test.common.ORBTestCase;
+import org.jacorb.test.harness.ORBTestCase;
 import org.junit.Test;
 import org.omg.CORBA.Any;
 import org.omg.CORBA.StructMember;

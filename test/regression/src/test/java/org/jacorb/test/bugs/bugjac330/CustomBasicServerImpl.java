@@ -1,6 +1,6 @@
 package org.jacorb.test.bugs.bugjac330;
 
-import org.jacorb.test.common.TestUtils;
+import org.jacorb.test.harness.TestUtils;
 import org.jacorb.test.orb.BasicServerImpl;
 
 

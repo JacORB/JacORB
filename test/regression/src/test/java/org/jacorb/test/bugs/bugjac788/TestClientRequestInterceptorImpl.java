@@ -1,12 +1,12 @@
 package org.jacorb.test.bugs.bugjac788;
 
+import org.jacorb.test.harness.TestUtils;
 import org.omg.CORBA.Any;
 import org.omg.CORBA.SystemException;
 import org.omg.CORBA.TCKind;
 import org.omg.CORBA.TypeCode;
 import org.omg.PortableInterceptor.ClientRequestInfo;
 import org.omg.PortableInterceptor.ForwardRequest;
-import org.jacorb.test.common.TestUtils;
 
 
 /**
@@ -45,6 +45,7 @@ public class TestClientRequestInterceptorImpl extends
      * @param ri
      *            Client request information
      */
+    @Override
     public void receive_exception(ClientRequestInfo ri) throws ForwardRequest,
         SystemException {
 
@@ -120,6 +121,7 @@ public class TestClientRequestInterceptorImpl extends
      * @param ri
      *            Client request information
      */
+    @Override
     public void receive_other(ClientRequestInfo ri) throws ForwardRequest,
         SystemException {
 
@@ -190,6 +192,7 @@ public class TestClientRequestInterceptorImpl extends
      * @param ri
      *            Client request information
      */
+    @Override
     public void receive_reply(ClientRequestInfo ri)
         throws org.omg.CORBA.SystemException {
 
@@ -271,6 +274,7 @@ public class TestClientRequestInterceptorImpl extends
      *            Client request information
      *
      */
+    @Override
     public void send_poll(ClientRequestInfo ri)
         throws org.omg.CORBA.SystemException {
     }
@@ -285,12 +289,12 @@ public class TestClientRequestInterceptorImpl extends
      *            Client request information
      *
      */
+    @Override
     public void send_request(ClientRequestInfo ri) throws ForwardRequest,
         org.omg.CORBA.SystemException {
 
         try {
             // Get requestId
-            int requestId;
             Any slotData = ri.get_slot(this.requestIdSlotId);
 
             TypeCode tc = slotData.type();
@@ -315,7 +319,7 @@ public class TestClientRequestInterceptorImpl extends
                 }
             }
             else {
-                requestId = slotData.extract_ulong();
+                slotData.extract_ulong();
             }
 
         }
@@ -351,6 +355,7 @@ public class TestClientRequestInterceptorImpl extends
      * Purpose: <p> Destroy the interceptor
      *
      */
+    @Override
     public void destroy() throws org.omg.CORBA.SystemException {
     }
 
@@ -358,6 +363,7 @@ public class TestClientRequestInterceptorImpl extends
      * Purpose: <p> Return the name of the interceptor
      *
      */
+    @Override
     public String name() throws org.omg.CORBA.SystemException {
 //            CLIENT_REQUEST_INTERCEPTOR_NAME);
         return CLIENT_REQUEST_INTERCEPTOR_NAME;

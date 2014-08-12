@@ -27,7 +27,7 @@ import static org.junit.Assert.assertTrue;
 import java.util.Properties;
 import org.jacorb.notification.AbstractChannelFactory;
 import org.jacorb.notification.conf.Attributes;
-import org.jacorb.test.common.ORBTestCase;
+import org.jacorb.test.harness.ORBTestCase;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;

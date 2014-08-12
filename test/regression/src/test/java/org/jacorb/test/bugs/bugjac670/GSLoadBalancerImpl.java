@@ -1,6 +1,6 @@
 package org.jacorb.test.bugs.bugjac670;
 
-import org.jacorb.test.common.TestUtils;
+import org.jacorb.test.harness.TestUtils;
 
 public class GSLoadBalancerImpl extends GSLoadBalancerPOA
 {

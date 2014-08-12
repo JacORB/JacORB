@@ -1,6 +1,6 @@
 package org.jacorb.test.orb.dynany;
 
-import org.jacorb.test.common.ORBTestCase;
+import org.jacorb.test.harness.ORBTestCase;
 import org.junit.Before;
 
 public class DynAnyXXXTestCase extends ORBTestCase

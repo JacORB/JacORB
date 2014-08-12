@@ -3,7 +3,7 @@ package org.jacorb.test.orb.orbreinvoke;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.PrintWriter;
-import org.jacorb.test.common.TestUtils;
+import org.jacorb.test.harness.TestUtils;
 import org.jacorb.test.listenendpoints.echo_corbaloc.CmdArgs;
 import org.jacorb.test.listenendpoints.echo_corbaloc.EchoMessageImpl;
 import org.jacorb.util.ObjectUtil;

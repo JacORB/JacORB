@@ -22,7 +22,7 @@ package org.jacorb.test.orb;
 import static org.junit.Assert.assertEquals;
 import org.jacorb.orb.CDRInputStream;
 import org.jacorb.orb.CDROutputStream;
-import org.jacorb.test.common.ORBTestCase;
+import org.jacorb.test.harness.ORBTestCase;
 import org.junit.Test;
 
 public class CDRInputStreamNullStringTest extends ORBTestCase

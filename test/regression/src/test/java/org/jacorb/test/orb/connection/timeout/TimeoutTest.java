@@ -1,8 +1,8 @@
 package org.jacorb.test.orb.connection.timeout;
 
-import org.jacorb.test.common.ClientServerSetup;
-import org.jacorb.test.common.ClientServerTestCase;
-import org.jacorb.test.common.TestUtils;
+import org.jacorb.test.harness.ClientServerSetup;
+import org.jacorb.test.harness.ClientServerTestCase;
+import org.jacorb.test.harness.TestUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;

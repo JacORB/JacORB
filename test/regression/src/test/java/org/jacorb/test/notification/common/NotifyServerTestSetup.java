@@ -22,7 +22,7 @@
 package org.jacorb.test.notification.common;
 
 import java.util.Properties;
-import org.jacorb.test.common.ClientServerSetup;
+import org.jacorb.test.harness.ClientServerSetup;
 
 public class NotifyServerTestSetup extends ClientServerSetup
 {

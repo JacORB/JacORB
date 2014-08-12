@@ -1,4 +1,4 @@
-package org.jacorb.test.common;
+package org.jacorb.test.harness;
 
 import junit.framework.AssertionFailedError;
 import org.junit.experimental.categories.Category;

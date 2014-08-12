@@ -1,6 +1,6 @@
 package org.jacorb.test.transport;
 
-import org.jacorb.test.common.TestUtils;
+import org.jacorb.test.harness.TestUtils;
 import org.jacorb.test.orb.transport.CurrentServer;
 import org.jacorb.test.orb.transport.CurrentServerHelper;
 import org.jacorb.test.orb.transport.CurrentServerPOA;

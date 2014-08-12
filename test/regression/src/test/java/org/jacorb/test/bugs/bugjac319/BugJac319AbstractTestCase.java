@@ -20,8 +20,8 @@ package org.jacorb.test.bugs.bugjac319;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import org.jacorb.test.common.ClientServerTestCase;
-import org.jacorb.test.common.IMRExcludedClientServerCategory;
+import org.jacorb.test.harness.ClientServerTestCase;
+import org.jacorb.test.harness.IMRExcludedClientServerCategory;
 import org.junit.Before;
 import org.junit.experimental.categories.Category;
 

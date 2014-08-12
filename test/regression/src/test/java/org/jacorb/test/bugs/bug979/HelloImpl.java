@@ -1,7 +1,7 @@
 package org.jacorb.test.bugs.bug979;
 
 import static org.junit.Assert.assertFalse;
-import org.jacorb.test.common.TestUtils;
+import org.jacorb.test.harness.TestUtils;
 import org.omg.CORBA.INITIALIZE;
 import org.omg.CORBA.ORB;
 

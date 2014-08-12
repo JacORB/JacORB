@@ -1,7 +1,7 @@
 package org.jacorb.test.orb.connection;
 
 import java.util.Properties;
-import org.jacorb.test.common.ClientServerSetup;
+import org.jacorb.test.harness.ClientServerSetup;
 import org.omg.BiDirPolicy.BIDIRECTIONAL_POLICY_TYPE;
 import org.omg.BiDirPolicy.BOTH;
 import org.omg.BiDirPolicy.BidirectionalPolicyValueHelper;

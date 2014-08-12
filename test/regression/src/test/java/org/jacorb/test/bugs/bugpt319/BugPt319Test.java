@@ -22,9 +22,9 @@ package org.jacorb.test.bugs.bugpt319;
 
 import static org.junit.Assert.assertTrue;
 import java.util.Properties;
-import org.jacorb.test.common.ClientServerSetup;
-import org.jacorb.test.common.ClientServerTestCase;
-import org.jacorb.test.common.IMRExcludedClientServerCategory;
+import org.jacorb.test.harness.ClientServerSetup;
+import org.jacorb.test.harness.ClientServerTestCase;
+import org.jacorb.test.harness.IMRExcludedClientServerCategory;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;

@@ -1,6 +1,6 @@
 package org.jacorb.test.transport;
 
-import org.jacorb.test.common.TestUtils;
+import org.jacorb.test.harness.TestUtils;
 import org.jacorb.transport.iiop.Current;
 import org.jacorb.transport.iiop.CurrentHelper;
 import org.omg.CORBA.ORB;

@@ -22,8 +22,8 @@ package org.jacorb.test.orb.value;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import org.jacorb.test.common.ClientServerSetup;
-import org.jacorb.test.common.ClientServerTestCase;
+import org.jacorb.test.harness.ClientServerSetup;
+import org.jacorb.test.harness.ClientServerTestCase;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;

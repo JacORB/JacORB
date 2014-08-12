@@ -23,8 +23,8 @@ package org.jacorb.test.bugs.bugjac149;
 import static org.junit.Assert.assertNotNull;
 import java.io.Serializable;
 import javax.rmi.PortableRemoteObject;
-import org.jacorb.test.common.ClientServerSetup;
-import org.jacorb.test.common.ClientServerTestCase;
+import org.jacorb.test.harness.ClientServerSetup;
+import org.jacorb.test.harness.ClientServerTestCase;
 import org.junit.BeforeClass;
 import org.junit.Test;
 

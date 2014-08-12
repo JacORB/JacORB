@@ -1,4 +1,4 @@
-package org.jacorb.test.common;
+package org.jacorb.test.harness;
 
 import org.jacorb.orb.listener.SSLSessionEvent;
 import org.jacorb.orb.listener.SSLSessionListener;

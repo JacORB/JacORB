@@ -21,8 +21,8 @@
 
 package org.jacorb.test.notification.perf;
 
-import org.jacorb.test.common.ORBTestCase;
-import org.jacorb.test.common.TestUtils;
+import org.jacorb.test.harness.ORBTestCase;
+import org.jacorb.test.harness.TestUtils;
 import org.jacorb.test.notification.Address;
 import org.jacorb.test.notification.AddressHelper;
 import org.junit.Assume;

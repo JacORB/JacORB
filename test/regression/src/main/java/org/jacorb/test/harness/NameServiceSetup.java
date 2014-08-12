@@ -1,4 +1,4 @@
-package org.jacorb.test.common;
+package org.jacorb.test.harness;
 
 import java.io.File;
 import java.io.IOException;

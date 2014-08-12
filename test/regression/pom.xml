@@ -49,16 +49,12 @@
         <dependency>
             <groupId>org.jacorb</groupId>
             <artifactId>jacorb-services</artifactId>
+            <scope>test</scope>
         </dependency>
+
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>easymock</groupId>
-            <artifactId>easymock</artifactId>
-            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
@@ -68,10 +64,15 @@
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-jdk14</artifactId>
         </dependency>
-
         <dependency>
             <groupId>commons-io</groupId>
             <artifactId>commons-io</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>easymock</groupId>
+            <artifactId>easymock</artifactId>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.camel</groupId>
@@ -138,13 +139,6 @@
                 <artifactId>maven-jar-plugin</artifactId>
                 <executions>
                     <execution>
-                        <id>default-jar</id>
-                        <goals>
-                            <goal>jar</goal>
-                        </goals>
-                        <phase>none</phase>
-                    </execution>
-                    <execution>
                         <id>test-jar</id>
                         <goals>
                             <goal>test-jar</goal>
@@ -160,10 +154,12 @@
                 <executions>
                     <execution>
                         <id>default</id>
-                        <phase>none</phase>
                         <goals>
                             <goal>javadoc</goal>
                         </goals>
+                        <configuration>
+                            <excludePackageNames>cxf.*</excludePackageNames> -->
+                        </configuration>
                     </execution>
                     <execution>
                         <id>attach-javadocs</id>
@@ -194,7 +190,11 @@
                         <goals>
                             <goal>jar-no-fork</goal>
                         </goals>
-                        <phase></phase>
+                        <configuration>
+                            <excludes>
+                                <exclude>cxf/**</exclude>
+                            </excludes>
+                        </configuration>
                     </execution>
                     <execution>
                         <id>attach-test-sources</id>
@@ -222,7 +222,6 @@
                             </sources>
                         </configuration>
                     </execution>
-
 
                     <execution>
                         <id>add-report-sources</id>
@@ -537,8 +536,8 @@
                             <environmentVariables>
                                 <BYTEMAN_HOME></BYTEMAN_HOME>
                             </environmentVariables>
-                            <groups>org.jacorb.test.common.ClientServerCategory</groups>
-                            <excludedGroups>org.jacorb.test.common.IMRExcludedClientServerCategory</excludedGroups>
+                            <groups>org.jacorb.test.harness.ClientServerCategory</groups>
+                            <excludedGroups>org.jacorb.test.harness.IMRExcludedClientServerCategory</excludedGroups>
                         </configuration>
                     </execution>
 

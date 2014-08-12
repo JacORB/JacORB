@@ -1,7 +1,7 @@
 package org.jacorb.test.bugs.bugjac189;
 
-import org.jacorb.test.common.ClientServerSetup;
-import org.jacorb.test.common.ClientServerTestCase;
+import org.jacorb.test.harness.ClientServerSetup;
+import org.jacorb.test.harness.ClientServerTestCase;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;

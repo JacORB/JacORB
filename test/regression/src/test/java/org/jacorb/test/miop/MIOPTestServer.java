@@ -2,7 +2,7 @@ package org.jacorb.test.miop;
 
 import java.util.Properties;
 import org.jacorb.orb.util.CorbaLoc;
-import org.jacorb.test.common.TestUtils;
+import org.jacorb.test.harness.TestUtils;
 import org.omg.PortableGroup.GOA;
 import org.omg.PortableGroup.GOAHelper;
 import org.omg.PortableServer.Servant;

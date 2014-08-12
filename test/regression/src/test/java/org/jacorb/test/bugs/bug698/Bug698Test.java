@@ -1,8 +1,8 @@
 package org.jacorb.test.bugs.bug698;
 
 import static org.junit.Assert.assertTrue;
-import org.jacorb.test.common.ClientServerSetup;
-import org.jacorb.test.common.ClientServerTestCase;
+import org.jacorb.test.harness.ClientServerSetup;
+import org.jacorb.test.harness.ClientServerTestCase;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;

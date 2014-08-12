@@ -22,8 +22,8 @@
 package org.jacorb.test.notification.common;
 
 import java.util.Properties;
-import org.jacorb.test.common.ClientServerTestCase;
-import org.jacorb.test.common.TestUtils;
+import org.jacorb.test.harness.ClientServerTestCase;
+import org.jacorb.test.harness.TestUtils;
 import org.jacorb.test.ir.IFRServerSetup;
 import org.junit.AfterClass;
 import org.junit.Assume;

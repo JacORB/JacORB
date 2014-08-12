@@ -22,7 +22,7 @@ package org.jacorb.test.bugs.bug957;
 
 import org.omg.CORBA.INTERNAL;
 import org.omg.CORBA.ORB;
-import org.jacorb.test.common.TestUtils;
+import org.jacorb.test.harness.TestUtils;
 
 
 public class BasicServerImpl extends org.jacorb.test.orb.BasicServerImpl

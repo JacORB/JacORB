@@ -22,7 +22,7 @@
 package org.jacorb.test.notification;
 
 import static org.junit.Assert.assertTrue;
-import org.jacorb.test.common.ORBTestCase;
+import org.jacorb.test.harness.ORBTestCase;
 import org.junit.Test;
 import org.omg.PortableServer.POAHelper;
 

@@ -21,7 +21,7 @@ package org.jacorb.test.idl;
  */
 
 import static org.junit.Assert.assertEquals;
-import org.jacorb.test.common.ORBTestCase;
+import org.jacorb.test.harness.ORBTestCase;
 import org.junit.Test;
 
 /**

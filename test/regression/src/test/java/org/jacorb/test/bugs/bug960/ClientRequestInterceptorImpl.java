@@ -9,7 +9,7 @@ import org.omg.IOP.CodecPackage.FormatMismatch;
 import org.omg.PortableInterceptor.ClientRequestInfo;
 import org.omg.PortableInterceptor.ClientRequestInterceptor;
 import org.omg.PortableInterceptor.ForwardRequest;
-import org.jacorb.test.common.TestUtils;
+import org.jacorb.test.harness.TestUtils;
 
 final public class ClientRequestInterceptorImpl extends LocalObject implements
         ClientRequestInterceptor

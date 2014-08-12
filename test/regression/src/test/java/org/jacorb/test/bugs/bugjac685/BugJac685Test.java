@@ -1,10 +1,10 @@
 package org.jacorb.test.bugs.bugjac685;
 
 import java.util.Properties;
-import org.jacorb.test.common.NameServiceSetup;
-import org.jacorb.test.common.ORBTestCase;
-import org.jacorb.test.common.ServerSetup;
-import org.jacorb.test.common.TestUtils;
+import org.jacorb.test.harness.NameServiceSetup;
+import org.jacorb.test.harness.ORBTestCase;
+import org.jacorb.test.harness.ServerSetup;
+import org.jacorb.test.harness.TestUtils;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Assume;

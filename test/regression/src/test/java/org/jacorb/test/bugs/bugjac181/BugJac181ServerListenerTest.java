@@ -3,7 +3,7 @@ package org.jacorb.test.bugs.bugjac181;
 import static org.junit.Assert.assertTrue;
 import java.util.Properties;
 import org.jacorb.orb.factory.SocketFactoryManager;
-import org.jacorb.test.common.ORBTestCase;
+import org.jacorb.test.harness.ORBTestCase;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;

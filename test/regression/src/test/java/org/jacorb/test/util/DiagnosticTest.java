@@ -23,7 +23,7 @@ package org.jacorb.test.util;
 import java.io.ByteArrayOutputStream;
 import java.io.OutputStream;
 import java.io.PrintStream;
-import org.jacorb.test.common.TestUtils;
+import org.jacorb.test.harness.TestUtils;
 import org.jacorb.util.Diagnostic;
 import org.junit.After;
 import org.junit.Before;
