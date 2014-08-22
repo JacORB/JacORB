@@ -5,7 +5,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.fail;
 import org.jacorb.test.BasicServer;
 import org.jacorb.test.BasicServerHelper;
-import org.jacorb.test.common.ORBTestCase;
+import org.jacorb.test.harness.ORBTestCase;
 import org.jacorb.test.orb.BasicServerImpl;
 import org.junit.After;
 import org.junit.Before;
@@ -25,7 +25,7 @@ public class BugJac303Test extends ORBTestCase
         BasicServerImpl servant = new BasicServerImpl();
         BasicServer tmpServer = BasicServerHelper.narrow(rootPOA.servant_to_reference(servant));
 
-        clientORB = ORB.init(new String[0], null);
+        clientORB = this.getAnotherORB(null);
 
         server = BasicServerHelper.narrow(clientORB.string_to_object(orb.object_to_string(tmpServer)));
     }
@@ -35,8 +35,6 @@ public class BugJac303Test extends ORBTestCase
     {
         server._release();
         server = null;
-        clientORB.shutdown(true);
-        clientORB = null;
     }
 
     @Test

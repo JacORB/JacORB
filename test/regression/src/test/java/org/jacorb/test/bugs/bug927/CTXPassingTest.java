@@ -1,16 +1,13 @@
 package org.jacorb.test.bugs.bug927;
 
-import static org.junit.Assert.fail;
 import java.util.Properties;
-import org.jacorb.test.common.ClientServerSetup;
-import org.jacorb.test.common.ClientServerTestCase;
+import org.jacorb.test.harness.ClientServerSetup;
+import org.jacorb.test.harness.ClientServerTestCase;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.omg.CORBA.Any;
-import org.omg.CORBA.ORBPackage.InvalidName;
 import org.omg.PortableInterceptor.Current;
-import org.omg.PortableInterceptor.InvalidSlot;
 
 public class CTXPassingTest extends ClientServerTestCase
 {
@@ -39,33 +36,16 @@ public class CTXPassingTest extends ClientServerTestCase
     }
 
     @Test
-    public void testCTXPassingTest()
+    public void testCTXPassingTest() throws Exception
     {
-        TestObject testObject = null;
-        try
-        {
-            testObject = TestObjectHelper.narrow( server );
-            Current current = (Current) setup.getClientOrb().resolve_initial_references( "PICurrent" );
+        TestObject testObject = TestObjectHelper.narrow( server );
+        Current current = (Current) setup.getClientOrb().resolve_initial_references( "PICurrent" );
 
-            Any any = setup.getClientOrb().create_any();
-            any.insert_string( "JacOrbRocks" );
+        Any any = setup.getClientOrb().create_any();
+        any.insert_string( "JacOrbRocks" );
 
-            current.set_slot( MyInitializer.slot_id, any );
-        }
-        catch (InvalidName e)
-        {
-            e.printStackTrace();
-        }
-        catch (InvalidSlot e)
-        {
-            e.printStackTrace();
-        }
+        current.set_slot( MyInitializer.slot_id, any );
 
-        try {
-           testObject.foo();
-        } catch (InterceptorOrderingException e) {
-            e.printStackTrace();
-           fail( "Unexpected exception: " + e);
-        }
+        testObject.foo();
     }
 }

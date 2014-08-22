@@ -1,7 +1,6 @@
 package org.jacorb.test.orb;
 
 import static org.junit.Assert.assertTrue;
-import java.net.Inet6Address;
 import java.net.InetAddress;
 import java.util.Arrays;
 import java.util.Collection;
@@ -12,24 +11,29 @@ import org.jacorb.orb.etf.ProfileBase;
 import org.jacorb.orb.iiop.IIOPAddress;
 import org.jacorb.test.BasicServer;
 import org.jacorb.test.BasicServerHelper;
-import org.jacorb.test.common.ClientServerSetup;
-import org.jacorb.test.common.ClientServerTestCase;
-import org.jacorb.test.common.TestUtils;
+import org.jacorb.test.harness.ClientServerSetup;
+import org.jacorb.test.harness.ClientServerTestCase;
+import org.jacorb.test.harness.IMRExcludedClientServerCategory;
+import org.jacorb.test.harness.TestUtils;
 import org.junit.After;
 import org.junit.Assume;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameter;
 import org.junit.runners.Parameterized.Parameters;
+import org.omg.ETF.Profile;
 import org.omg.IOP.TAG_ALTERNATE_IIOP_ADDRESS;
+import org.omg.IOP.TAG_CODE_SETS;
 import org.omg.IOP.TaggedComponent;
 
 /**
  * Verify the correct number of profiles/TAG_ALTERNATE_IIOP_ADDRESS in the IOR.
  */
+@Category(IMRExcludedClientServerCategory.class)
 @RunWith(Parameterized.class)
 public class IORTest extends ClientServerTestCase
 {
@@ -45,7 +49,7 @@ public class IORTest extends ClientServerTestCase
         LinkedList<InetAddress> n = IIOPAddress.getNetworkInetAddresses();
         for (InetAddress ia : n)
         {
-            if (!ia.isLoopbackAddress() && !ia.isLinkLocalAddress() && !(ia instanceof Inet6Address))
+            if (!ia.isLoopbackAddress() && !ia.isLinkLocalAddress())
             {
                 counter++;
             }
@@ -102,6 +106,8 @@ public class IORTest extends ClientServerTestCase
             properties.put(key, value);
             interfaceCount++;
         }
+        properties.put("jacorb.codeset", "true");
+        properties.put("org.omg.PortableInterceptor.ORBInitializerClass.standard_init","org.jacorb.orb.standardInterceptors.IORInterceptorInitializer");
 
         matchCount = interfaceCount;
 
@@ -143,5 +149,28 @@ public class IORTest extends ClientServerTestCase
 
         assertTrue ("Network interface count does not match TAG_ALTERNATE_IIOP_ADDRESS: "+
         setup.getServerIOR() + " and " + tagCount + " and " + matchCount , tagCount == matchCount);
+    }
+
+
+    @Test
+    public void codesetCount()
+    {
+        ParsedIOR pior = new ParsedIOR (setup.getORB(), setup.getServerIOR());
+
+        int codesetTagCount = 0;
+
+        for (Profile p : pior.getProfiles())
+        {
+            for (TaggedComponent t : ((ProfileBase)p).getComponents().asArray())
+            {
+                if ( t.tag == TAG_CODE_SETS.value)
+                {
+                    codesetTagCount++;
+                }
+            }
+        }
+
+        assertTrue ("Profile count does not having matching TAG_CODE_SETS: " +
+        setup.getServerIOR() + " and " + codesetTagCount , codesetTagCount == pior.getProfiles().size());
     }
 }

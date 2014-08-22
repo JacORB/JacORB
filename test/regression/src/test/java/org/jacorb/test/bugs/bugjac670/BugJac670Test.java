@@ -2,10 +2,10 @@ package org.jacorb.test.bugs.bugjac670;
 
 import static org.junit.Assert.fail;
 import java.util.Properties;
-import org.jacorb.test.common.ClientServerSetup;
-import org.jacorb.test.common.ClientServerTestCase;
-import org.jacorb.test.common.ServerSetup;
-import org.jacorb.test.common.TestUtils;
+import org.jacorb.test.harness.ClientServerSetup;
+import org.jacorb.test.harness.ClientServerTestCase;
+import org.jacorb.test.harness.ServerSetup;
+import org.jacorb.test.harness.TestUtils;
 import org.junit.After;
 import org.junit.Assume;
 import org.junit.Before;
@@ -26,8 +26,9 @@ import org.omg.Messaging.RELATIVE_RT_TIMEOUT_POLICY_TYPE;
  */
 public class BugJac670Test extends ClientServerTestCase
 {
-    private GreetingService server = null;
+    private static String port = Integer.toString(TestUtils.getNextAvailablePort());
 
+    private GreetingService server = null;
     private ServerSetup serverSetUp;
 
     @Before
@@ -37,8 +38,7 @@ public class BugJac670Test extends ClientServerTestCase
              (setup.getClientOrb().resolve_initial_references ("greeting"));
 
          Properties serverprops = new java.util.Properties();
-         serverprops.setProperty( "ORBInitRef.balancer",
-                                  "corbaloc::localhost:19000/GSLBService");
+         serverprops.setProperty( "ORBInitRef.balancer", "corbaloc::localhost:" + port + "/GSLBService");
 
          serverprops.setProperty ("jacorb.test.timeout.server", Long.toString(15000));
 
@@ -63,7 +63,7 @@ public class BugJac670Test extends ClientServerTestCase
 
         Properties clientprops = new java.util.Properties();
         clientprops.setProperty( "ORBInitRef.greeting",
-                                 "corbaloc::localhost:19000/GSLBService");
+                                 "corbaloc::localhost:" + port + "/GSLBService");
 
         Properties serverprops = new java.util.Properties();
         serverprops.setProperty( "org.omg.PortableInterceptor.ORBInitializerClass."
@@ -73,8 +73,7 @@ public class BugJac670Test extends ClientServerTestCase
 
         serverprops.setProperty ("jacorb.test.timeout.server", Long.toString(15000));
 
-        serverprops.setProperty( "OAPort",
-                                 "19000" );
+        serverprops.setProperty( "OAPort", port );
 
         setup = new ClientServerSetup
         (
@@ -124,7 +123,6 @@ public class BugJac670Test extends ClientServerTestCase
         }
         catch (org.omg.CORBA.TIMEOUT t)
         {
-           t.printStackTrace ();
            fail ("Unexpected TIMEOUT");
         }
     }

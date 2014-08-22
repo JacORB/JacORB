@@ -22,7 +22,7 @@ package org.jacorb.test.bugs.bugjac513;
 
 import static org.junit.Assert.assertTrue;
 import java.util.regex.Pattern;
-import org.jacorb.test.common.TestUtils;
+import org.jacorb.test.harness.TestUtils;
 
 /**
  * @author Alphonse Bendt

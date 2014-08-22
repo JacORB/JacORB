@@ -9,7 +9,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Vector;
 import org.jacorb.config.Configuration;
-import org.jacorb.config.JacORBConfiguration;
 import org.jacorb.orb.giop.ClientConnection;
 import org.jacorb.orb.giop.GIOPConnection;
 import org.jacorb.orb.giop.GIOPConnectionManager;
@@ -24,7 +23,7 @@ import org.jacorb.orb.giop.RequestOutputStream;
 import org.jacorb.orb.giop.ServerGIOPConnection;
 import org.jacorb.orb.iiop.IIOPAddress;
 import org.jacorb.orb.iiop.IIOPProfile;
-import org.jacorb.test.common.ORBTestCase;
+import org.jacorb.test.harness.ORBTestCase;
 import org.junit.Before;
 import org.junit.Test;
 import org.omg.ETF.BufferHolder;
@@ -44,7 +43,7 @@ public class GIOPConnectionTest extends ORBTestCase
     public void setUp()
         throws Exception
     {
-        config = JacORBConfiguration.getConfiguration(null, orb, false);
+        config = this.getORB().getConfiguration();
     }
 
     class DummyTransport extends org.omg.ETF._ConnectionLocalBase
@@ -84,6 +83,7 @@ public class GIOPConnectionTest extends ORBTestCase
             return b_out.toByteArray();
         }
 
+        @Override
         public void connect (org.omg.ETF.Profile profile, long time_out)
         {
             // nothing
@@ -94,11 +94,13 @@ public class GIOPConnectionTest extends ORBTestCase
             return closed;
         }
 
+        @Override
         public boolean is_connected()
         {
             return !closed;
         }
 
+        @Override
         public void write( boolean is_first, boolean is_last,
                            byte[] message, int start, int size,
                            long timeout )
@@ -107,10 +109,12 @@ public class GIOPConnectionTest extends ORBTestCase
         }
 
 
+        @Override
         public void flush()
         {
         }
 
+        @Override
         public void close()
         {
             closed = true;
@@ -125,11 +129,13 @@ public class GIOPConnectionTest extends ORBTestCase
         {
         }
 
+        @Override
         public Profile get_server_profile()
         {
             return profile;
         }
 
+        @Override
         public int read (BufferHolder data, int offset,
                          int min_length, int max_length, long time_out)
         {
@@ -142,21 +148,25 @@ public class GIOPConnectionTest extends ORBTestCase
             return min_length;
         }
 
+        @Override
         public boolean is_data_available()
         {
             return true;
         }
 
+        @Override
         public boolean supports_callback()
         {
             return false;
         }
 
+        @Override
         public boolean use_handle_time_out()
         {
             return false;
         }
 
+        @Override
         public boolean wait_next_data(long time_out)
         {
             return false;
@@ -179,17 +189,20 @@ public class GIOPConnectionTest extends ORBTestCase
             return request;
         }
 
+        @Override
         public void requestReceived( byte[] request,
                                      GIOPConnection connection )
         {
             this.request = request;
         }
 
+        @Override
         public void locateRequestReceived( byte[] request,
                                            GIOPConnection connection )
         {
             this.request = request;
         }
+        @Override
         public void cancelRequestReceived( byte[] request,
                                            GIOPConnection connection )
         {
@@ -211,18 +224,21 @@ public class GIOPConnectionTest extends ORBTestCase
             return reply;
         }
 
+        @Override
         public void replyReceived( byte[] reply,
                                    GIOPConnection connection )
         {
             this.reply = reply;
         }
 
+        @Override
         public void locateReplyReceived( byte[] reply,
                                          GIOPConnection connection )
         {
             this.reply = reply;
         }
 
+        @Override
         public void closeConnectionReceived( byte[] close_conn,
                                              GIOPConnection connection )
         {
@@ -311,11 +327,6 @@ public class GIOPConnectionTest extends ORBTestCase
         {
             //o.k., thrown by DummyTransport
         }
-        catch( Exception e )
-        {
-            e.printStackTrace();
-            fail( "Caught exception: " + e );
-        }
 
         //did the GIOPConnection hand the complete request over to the
         //listener?
@@ -394,11 +405,6 @@ public class GIOPConnectionTest extends ORBTestCase
         {
             //o.k., thrown by DummyTransport
         }
-        catch( Exception e )
-        {
-            e.printStackTrace();
-            fail( "Caught exception: " + e );
-        }
 
         //no request or reply must have been handed over
         assertTrue( request_listener.getRequest() == null );
@@ -433,11 +439,6 @@ public class GIOPConnectionTest extends ORBTestCase
         catch( IOException e )
         {
             //o.k., thrown by DummyTransport
-        }
-        catch( Exception e )
-        {
-            e.printStackTrace();
-            fail( "Caught exception: " + e );
         }
 
         //no request or reply must have been handed over
@@ -517,11 +518,6 @@ public class GIOPConnectionTest extends ORBTestCase
         {
             //o.k., thrown by DummyTransport
         }
-        catch( Exception e )
-        {
-            e.printStackTrace();
-            fail( "Caught exception: " + e );
-        }
 
         //no request or reply must have been handed over
         assertTrue( request_listener.getRequest() == null );
@@ -600,11 +596,6 @@ public class GIOPConnectionTest extends ORBTestCase
         {
             //o.k., thrown by DummyTransport
         }
-        catch( Exception e )
-        {
-            e.printStackTrace();
-            fail( "Caught exception: " + e );
-        }
 
         //no request or reply must have been handed over
         assertTrue( request_listener.getRequest() == null );
@@ -650,11 +641,6 @@ public class GIOPConnectionTest extends ORBTestCase
         catch( IOException e )
         {
             //o.k., thrown by DummyTransport
-        }
-        catch( Exception e )
-        {
-            e.printStackTrace();
-            fail( "Caught exception: " + e );
         }
 
         //no request or reply must have been handed over
@@ -711,11 +697,6 @@ public class GIOPConnectionTest extends ORBTestCase
         catch( IOException e )
         {
             //o.k., thrown by DummyTransport
-        }
-        catch( Exception e )
-        {
-            e.printStackTrace();
-            fail( "Caught exception: " + e );
         }
 
         //no request or reply must have been handed over
@@ -788,11 +769,6 @@ public class GIOPConnectionTest extends ORBTestCase
         catch( IOException e )
         {
             //o.k., thrown by DummyTransport
-        }
-        catch( Exception e )
-        {
-            e.printStackTrace();
-            fail( "Caught exception: " + e );
         }
 
         //did the GIOPConnection hand the complete request over to the

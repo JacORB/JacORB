@@ -1,6 +1,6 @@
 package org.jacorb.test.bugs.bugjac801;
 
-import org.jacorb.test.common.ORBTestCase;
+import org.jacorb.test.harness.ORBTestCase;
 import org.junit.Assert;
 import org.junit.Test;
 

@@ -21,17 +21,16 @@
 
 package org.jacorb.test.bugs.bug459;
 
-import java.util.Properties;
+import org.jacorb.test.harness.ORBTestCase;
 import org.jacorb.test.orb.AnyServerPOA;
 import org.junit.Test;
 import org.omg.CORBA.Any;
-import org.omg.PortableServer.POA;
-import org.omg.PortableServer.POAHelper;
 
-public class Bug459Test
+public class Bug459Test extends ORBTestCase
 {
     class MyAnyServer extends AnyServerPOA
     {
+        @Override
         public Any bounce_any(Any inAny)
         {
             return inAny;
@@ -42,22 +41,11 @@ public class Bug459Test
     public void testIt() throws Exception
     {
         MyAnyServer myServer = new MyAnyServer();
-        Properties props = new Properties();
-        props.put("org.omg.CORBA.ORBClass", "org.jacorb.orb.ORB");
-        props.put("org.omg.CORBA.ORBSingletonClass", "org.jacorb.orb.ORBSingleton");
 
         for (int run = 0; run < 5; run++)
         {
-            // initialize ORB
-            org.omg.CORBA.ORB orb = org.omg.CORBA.ORB.init(new String[0], props);
-            POA poa = POAHelper.narrow(orb.resolve_initial_references("RootPOA"));
-
-            poa.the_POAManager().activate();
-
-            org.omg.CORBA.Object o = myServer._this(orb);
+            org.omg.CORBA.Object o = myServer._this(getAnotherORB(null));
             o._release();
-
-            orb.shutdown(true);
         }
     }
 
@@ -66,10 +54,8 @@ public class Bug459Test
     public void testVerifyMultipleThisCalls() throws Exception
     {
         MyAnyServer myServer = new MyAnyServer();
-        org.omg.CORBA.ORB orb = org.omg.CORBA.ORB.init(new String[0], null);
         org.omg.CORBA.Object o = myServer._this(orb);
         o = myServer._this(orb);
         o._release();
-        orb.shutdown(true);
     }
 }

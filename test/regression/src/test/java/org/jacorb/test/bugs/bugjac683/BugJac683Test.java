@@ -1,8 +1,8 @@
 package org.jacorb.test.bugs.bugjac683;
 
 import static org.junit.Assert.fail;
-import org.jacorb.test.common.ClientServerSetup;
-import org.jacorb.test.common.ClientServerTestCase;
+import org.jacorb.test.harness.ClientServerSetup;
+import org.jacorb.test.harness.ClientServerTestCase;
 import org.jacorb.test.orb.AnyServer;
 import org.jacorb.test.orb.AnyServerHelper;
 import org.jacorb.test.orb.AnyServerImpl;

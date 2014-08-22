@@ -1,8 +1,8 @@
 package org.jacorb.test.bugs.bugjac676;
 
 import static org.junit.Assert.fail;
-import org.jacorb.test.common.ClientServerSetup;
-import org.jacorb.test.common.ClientServerTestCase;
+import org.jacorb.test.harness.ClientServerSetup;
+import org.jacorb.test.harness.ClientServerTestCase;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -78,7 +78,6 @@ public class BugJac676Test extends ClientServerTestCase
         }
         catch (Exception e)
         {
-            e.printStackTrace();
             fail( "Unexpected exception: " + e);
         }
     }

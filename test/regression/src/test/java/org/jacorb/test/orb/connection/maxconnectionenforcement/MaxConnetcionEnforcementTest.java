@@ -5,8 +5,8 @@ import java.util.List;
 import java.util.Properties;
 import java.util.Random;
 import org.jacorb.orb.giop.BiDirConnectionInitializer;
-import org.jacorb.test.common.ClientServerSetup;
-import org.jacorb.test.common.ClientServerTestCase;
+import org.jacorb.test.harness.ClientServerSetup;
+import org.jacorb.test.harness.ClientServerTestCase;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -107,7 +107,6 @@ public class MaxConnetcionEnforcementTest extends ClientServerTestCase
                             }
                             catch( Exception e )
                             {
-                                e.printStackTrace();
                             }
                         }
                     });
@@ -122,7 +121,6 @@ public class MaxConnetcionEnforcementTest extends ClientServerTestCase
         }
         catch (Exception e)
         {
-            e.printStackTrace();
         }
     }
 }

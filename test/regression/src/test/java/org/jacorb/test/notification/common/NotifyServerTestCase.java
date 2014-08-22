@@ -21,7 +21,7 @@
 
 package org.jacorb.test.notification.common;
 
-import org.jacorb.test.common.ClientServerTestCase;
+import org.jacorb.test.harness.ClientServerTestCase;
 import org.junit.BeforeClass;
 import org.omg.CORBA.IntHolder;
 import org.omg.CosNotification.Property;

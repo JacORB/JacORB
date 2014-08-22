@@ -5,7 +5,6 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import java.lang.reflect.Field;
-import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -15,10 +14,10 @@ import org.jacorb.orb.giop.ClientConnection;
 import org.jacorb.orb.giop.ClientConnectionManager;
 import org.jacorb.test.BasicServer;
 import org.jacorb.test.BasicServerHelper;
-import org.jacorb.test.common.CommonSetup;
-import org.jacorb.test.common.ORBTestCase;
-import org.jacorb.test.common.ServerSetup;
-import org.jacorb.test.common.TestUtils;
+import org.jacorb.test.harness.CommonSetup;
+import org.jacorb.test.harness.ORBTestCase;
+import org.jacorb.test.harness.ServerSetup;
+import org.jacorb.test.harness.TestUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -50,13 +49,11 @@ public class MultipleServerTest extends ORBTestCase
             orbProps.putAll(cp);
         }
 
-        setup1 = new ServerSetup(CustomBasicServerImpl.class.getName());
-        setup1.patchServerProperties(orbProps);
+        setup1 = new ServerSetup(null, CustomBasicServerImpl.class.getName(), orbProps );
         setup1.setUp();
         server1IOR = setup1.getServerIOR();
 
-        setup2 = new ServerSetup(CustomBasicServerImpl.class.getName());
-        setup2.patchServerProperties(orbProps);
+        setup2 = new ServerSetup(null, CustomBasicServerImpl.class.getName(), orbProps );
         setup2.setUp();
         server2IOR = setup2.getServerIOR();
     }
@@ -205,62 +202,23 @@ public class MultipleServerTest extends ORBTestCase
         }
         catch (Throwable e)
         {
-            Field fconnmgr;
-            Field connections;
-            try
-            {
-                fconnmgr = Delegate.class.getDeclaredField("conn_mg");
-                fconnmgr.setAccessible(true);
-                Delegate d = (Delegate) ((org.omg.CORBA.portable.ObjectImpl)server1)._get_delegate();
-                ClientConnectionManager ccm = (ClientConnectionManager) fconnmgr.get(d);
-                connections = ClientConnectionManager.class.getDeclaredField("connections");
-                connections.setAccessible(true);
-                @SuppressWarnings("unchecked")
-                HashMap<Profile, ClientConnection> c = (HashMap<Profile, ClientConnection>) connections.get(ccm);
+            Field fconnmgr = Delegate.class.getDeclaredField("conn_mg");
+            fconnmgr.setAccessible(true);
+            Delegate d = (Delegate) ((org.omg.CORBA.portable.ObjectImpl)server1)._get_delegate();
+            ClientConnectionManager ccm = (ClientConnectionManager) fconnmgr.get(d);
+            Field connections = ClientConnectionManager.class.getDeclaredField("connections");
+            connections.setAccessible(true);
+            @SuppressWarnings("unchecked")
+            HashMap<Profile, ClientConnection> c = (HashMap<Profile, ClientConnection>) connections.get(ccm);
 
-                assertTrue (c.size() == 0);
-            }
-            catch (SecurityException e1)
-            {
-                // TODO Auto-generated catch block
-                e1.printStackTrace();
-            }
-            catch (NoSuchFieldException e1)
-            {
-                // TODO Auto-generated catch block
-                e1.printStackTrace();
-            }
-            catch (IllegalArgumentException e1)
-            {
-                // TODO Auto-generated catch block
-                e1.printStackTrace();
-            }
-            catch (IllegalAccessException e1)
-            {
-                // TODO Auto-generated catch block
-                e1.printStackTrace();
-            }
+            assertTrue (c.size() == 0);
         }
-
     }
 
 
     private void dumpThread(final String threadName) throws Exception
     {
-        Method method;
-
-        try
-        {
-            method = Thread.class.getMethod("getAllStackTraces", new Class[0]);
-        }
-        catch (NoSuchMethodException e)
-        {
-            // not a JDK 1.5
-            return;
-        }
-
-        @SuppressWarnings("unchecked")
-        Map<Thread, StackTraceElement[]> map = (Map<Thread, StackTraceElement[]>) method.invoke(null, new Object[0]);
+        Map<Thread, StackTraceElement[]> map = Thread.getAllStackTraces ();
 
         Iterator<Thread> i = map.keySet().iterator();
 
@@ -275,12 +233,12 @@ public class MultipleServerTest extends ORBTestCase
 
             StackTraceElement[] stack = map.get(key);
 
-            System.out.println(key.getName());
+            TestUtils.getLogger().debug(key.getName());
             for (int j = 0; j < stack.length; j++)
             {
-                System.out.println("\t" + stack[j]);
+                TestUtils.getLogger().debug("\t" + stack[j]);
             }
-            System.out.println();
+            TestUtils.getLogger().debug("");
         }
     }
 

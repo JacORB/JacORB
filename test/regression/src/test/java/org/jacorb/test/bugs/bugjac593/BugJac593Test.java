@@ -28,7 +28,8 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.Arrays;
 import java.util.Properties;
-import org.jacorb.test.common.ORBTestCase;
+import org.jacorb.test.harness.ORBTestCase;
+import org.jacorb.test.harness.TestUtils;
 import org.junit.Test;
 import org.omg.CORBA.ORB;
 
@@ -62,7 +63,7 @@ public class BugJac593Test extends ORBTestCase
             "org.jacorb.test.bugs.bugjac593.BugJac593Test"
         };
 
-        System.out.println ("About to exec " + Arrays.toString (cmd));
+        TestUtils.getLogger().debug ("About to exec " + Arrays.toString (cmd));
 
         Process proc = rt.exec (cmd, new String[0]);
         int exitValue = -1;
@@ -80,7 +81,7 @@ public class BugJac593Test extends ORBTestCase
                 buffer.append('\n');
             }
 
-            System.out.println ("ServerOut: " + buffer.toString());
+            TestUtils.getLogger().debug ("ServerOut: " + buffer.toString());
         }
         finally
         {
@@ -111,7 +112,6 @@ public class BugJac593Test extends ORBTestCase
             props.put("org.omg.CORBA.ORBClass", "org.jacorb.orb.ORB");
             props.put("org.omg.CORBA.ORBSingletonClass", "org.jacorb.orb.ORBSingleton");
             ORB.init(new String[0], props);
-            System.err.println ("Created an ORB");
         }
         catch (ClassCastException e)
         {

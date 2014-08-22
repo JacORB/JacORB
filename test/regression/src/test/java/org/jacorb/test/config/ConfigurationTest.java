@@ -29,7 +29,7 @@ import java.io.PrintWriter;
 import java.util.Properties;
 import org.jacorb.config.Configuration;
 import org.jacorb.config.JacORBConfiguration;
-import org.jacorb.test.common.TestUtils;
+import org.jacorb.test.harness.TestUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;

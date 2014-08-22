@@ -1,8 +1,6 @@
 package org.jacorb.test.nestedproperties;
 
-import static org.junit.Assert.fail;
 import java.util.Properties;
-import org.jacorb.config.ConfigurationException;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -56,14 +54,7 @@ public class NestedPropertiesTest
     public void setUp() throws Exception
     {
         Config myConfig = new Config();
-        try
-        {
-            myConfig.initialize ();
-        }
-        catch (Exception e)
-        {
-            e.printStackTrace();
-        }
+        myConfig.initialize ();
 
         Properties properties = myConfig.getProperties();
 
@@ -96,7 +87,6 @@ public class NestedPropertiesTest
         }
         catch (Exception e)
         {
-            e.printStackTrace();
         }
 
         // initialise the ORB from the properties list
@@ -104,18 +94,12 @@ public class NestedPropertiesTest
     }
 
     @Test
-    public void testNestedProperties ()
+    public void testNestedProperties () throws Exception
     {
         org.jacorb.orb.ORB jorb = (org.jacorb.orb.ORB)orb;
         org.jacorb.config.Configuration jconf = jorb.getConfiguration();
-        try {
-                Assert.assertEquals(prop1, jconf.getAttribute ("test_property1"));
-                Assert.assertEquals(prop2, jconf.getAttribute ("test_property2"));
-        }
-        catch (ConfigurationException ex)
-        {
-            ex.printStackTrace();
-            fail();
-        }
+
+        Assert.assertEquals(prop1, jconf.getAttribute ("test_property1"));
+        Assert.assertEquals(prop2, jconf.getAttribute ("test_property2"));
     }
 }

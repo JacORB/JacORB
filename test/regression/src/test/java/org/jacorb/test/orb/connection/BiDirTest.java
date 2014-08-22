@@ -1,15 +1,14 @@
 package org.jacorb.test.orb.connection;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
 import java.util.Properties;
 import org.jacorb.test.BiDirServer;
 import org.jacorb.test.BiDirServerHelper;
 import org.jacorb.test.ClientCallback;
 import org.jacorb.test.ClientCallbackHelper;
 import org.jacorb.test.ClientCallbackPOA;
-import org.jacorb.test.common.ClientServerTestCase;
-import org.jacorb.test.common.TestUtils;
+import org.jacorb.test.harness.ClientServerTestCase;
+import org.jacorb.test.harness.TestUtils;
 import org.junit.Assume;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -34,6 +33,7 @@ public class BiDirTest extends ClientServerTestCase
 
     private class ClientCallbackImpl extends ClientCallbackPOA
     {
+        @Override
         public void hello (String message)
         {
             synchronized (callbackLock)
@@ -76,7 +76,7 @@ public class BiDirTest extends ClientServerTestCase
         // this tests counts transports which are disrupted by
         // security initialisation.
         Assume.assumeFalse(TestUtils.isSSLEnabled);
-        
+
         Properties properties = new Properties();
         properties.setProperty
             ("org.omg.PortableInterceptor.ORBInitializerClass.bidir_init",
@@ -87,19 +87,10 @@ public class BiDirTest extends ClientServerTestCase
 
 
     @Test
-    public void test_callback()
+    public void test_callback() throws Exception
     {
-        ClientCallback c = null;
-        try
-        {
-            c = ClientCallbackHelper.narrow (((BiDirSetup)setup).
+        ClientCallback c = ClientCallbackHelper.narrow (((BiDirSetup)setup).
                         getBiDirPOA().servant_to_reference(new ClientCallbackImpl()));
-        }
-        catch (Exception e)
-        {
-            e.printStackTrace();
-            fail ("exception creating callback object: " + e);
-        }
 
         server.register_callback (c);
         server.callback_hello ("This is a test");

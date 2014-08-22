@@ -1,10 +1,10 @@
 package org.jacorb.test.transport;
 
+import org.jacorb.test.harness.TestUtils;
 import org.omg.CORBA.ORB;
 import org.omg.PortableInterceptor.ClientRequestInfo;
 import org.omg.PortableInterceptor.ClientRequestInterceptor;
 import org.omg.PortableInterceptor.ForwardRequest;
-import org.slf4j.Logger;
 
 public class ClientInterceptor
     extends org.omg.CORBA.LocalObject
@@ -14,7 +14,6 @@ public class ClientInterceptor
 
     private int count_ = 0;
 
-    private final Logger logger_;
     private final AbstractTester tester_;
     private final ORB orb_;
 
@@ -23,8 +22,6 @@ public class ClientInterceptor
 
         tester_ = tester;
         orb_ = orb;
-        logger_ = ((org.jacorb.orb.ORB) orb).getConfiguration ()
-                                            .getLogger("org.jacorb.test.transport");
 
         synchronized (this.getClass ()) {
             instance_ = this;
@@ -32,54 +29,61 @@ public class ClientInterceptor
     }
 
 
+    @Override
     public String name() {
 
         return "ClientInterceptor";
     }
 
 
+    @Override
     public void destroy() {
 
     }
 
 
+    @Override
     public void send_request(ClientRequestInfo ri) throws ForwardRequest {
 
         this.count_++;
-        logger_.info ("ClientInterceptor::send_request: ["+ri.request_id()+"] "+ri.operation());
-        tester_.test_transport_current (orb_, logger_);
+        TestUtils.getLogger().debug ("ClientInterceptor::send_request: ["+ri.request_id()+"] "+ri.operation());
+        tester_.test_transport_current (orb_);
     }
 
 
+    @Override
     public void send_poll(ClientRequestInfo ri) {
 
         this.count_++;
-        logger_.info ("ClientInterceptor::send_poll: ["+ri.request_id()+"] "+ri.operation());
-        tester_.test_transport_current (orb_, logger_);
+        TestUtils.getLogger().debug ("ClientInterceptor::send_poll: ["+ri.request_id()+"] "+ri.operation());
+        tester_.test_transport_current (orb_);
     }
 
 
+    @Override
     public void receive_reply(ClientRequestInfo ri) {
 
         this.count_++;
-        logger_.info ("ClientInterceptor::receive_reply: ["+ri.request_id()+"] "+ri.operation());
-        tester_.test_transport_current (orb_, logger_);
+        TestUtils.getLogger().debug ("ClientInterceptor::receive_reply: ["+ri.request_id()+"] "+ri.operation());
+        tester_.test_transport_current (orb_);
     }
 
 
+    @Override
     public void receive_exception(ClientRequestInfo ri) throws ForwardRequest {
 
         this.count_++;
-        logger_.info ("ClientInterceptor::receive_exception: ["+ri.request_id()+"] "+ri.operation());
-        tester_.test_transport_current (orb_, logger_);
+        TestUtils.getLogger().debug ("ClientInterceptor::receive_exception: ["+ri.request_id()+"] "+ri.operation());
+        tester_.test_transport_current (orb_);
     }
 
 
+    @Override
     public void receive_other(ClientRequestInfo ri) throws ForwardRequest {
 
         this.count_++;
-        logger_.info ("ClientInterceptor::receive_other");
-        tester_.test_transport_current (orb_, logger_);
+        TestUtils.getLogger().debug ("ClientInterceptor::receive_other");
+        tester_.test_transport_current (orb_);
     }
 
 

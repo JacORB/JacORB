@@ -27,8 +27,8 @@ import org.jacorb.sasPolicy.SAS_POLICY_TYPE;
 import org.jacorb.security.sas.GssUpContext;
 import org.jacorb.test.BasicServer;
 import org.jacorb.test.BasicServerHelper;
-import org.jacorb.test.common.ClientServerSetup;
-import org.jacorb.test.common.ClientServerTestCase;
+import org.jacorb.test.harness.ClientServerSetup;
+import org.jacorb.test.harness.ClientServerTestCase;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -66,7 +66,6 @@ public class Bug957Test extends ClientServerTestCase
             ("jacorb.security.sas.contextClass", "org.jacorb.security.sas.GssUpContext");
         props.setProperty
             ("org.omg.PortableInterceptor.ORBInitializerClass.SAS", "org.jacorb.security.sas.SASInitializer");
-        props.setProperty ("org.omg.PortableInterceptor.ORBInitializerClass.GSSUPProvider", "org.jacorb.security.sas.GSSUPProviderInitializer");
 
         setup = new ClientServerSetup( Bug957Test.class.getName(), "org.jacorb.test.orb.BasicServerImpl", props, props );
     }
@@ -78,45 +77,35 @@ public class Bug957Test extends ClientServerTestCase
     }
 
 
-
-
    /**
     * @param args a <code>String[]</code> value
     */
-   public static void main (String[] args)
-   {
-       try
-       {
-           //init ORB
-           ORB orb = ORB.init( args, null );
+   public static void main (String[] args) throws Exception
+    {
+        //init ORB
+        ORB orb = ORB.init( args, null );
 
-           //init POA
-           POA rootPOA =
-               POAHelper.narrow( orb.resolve_initial_references( "RootPOA" ));
+        //init POA
+        POA rootPOA =
+        POAHelper.narrow( orb.resolve_initial_references( "RootPOA" ));
 
-           org.omg.CORBA.Policy [] policies = new org.omg.CORBA.Policy[3];
-           policies[0] = rootPOA.create_id_assignment_policy(IdAssignmentPolicyValue.USER_ID);
-           policies[1] = rootPOA.create_lifespan_policy(LifespanPolicyValue.PERSISTENT);
-           Any sasAny = orb.create_any();
-           SASPolicyValuesHelper.insert( sasAny, new SASPolicyValues(EstablishTrustInClient.value, EstablishTrustInClient.value, true) );
-           policies[2] = orb.create_policy(SAS_POLICY_TYPE.value, sasAny);
-           POA securePOA = rootPOA.create_POA("SecurePOA", rootPOA.the_POAManager(), policies);
-           rootPOA.the_POAManager().activate();
+        org.omg.CORBA.Policy [] policies = new org.omg.CORBA.Policy[3];
+        policies[0] = rootPOA.create_id_assignment_policy(IdAssignmentPolicyValue.USER_ID);
+        policies[1] = rootPOA.create_lifespan_policy(LifespanPolicyValue.PERSISTENT);
+        Any sasAny = orb.create_any();
+        SASPolicyValuesHelper.insert( sasAny, new SASPolicyValues(EstablishTrustInClient.value, EstablishTrustInClient.value, true) );
+        policies[2] = orb.create_policy(SAS_POLICY_TYPE.value, sasAny);
+        POA securePOA = rootPOA.create_POA("SecurePOA", rootPOA.the_POAManager(), policies);
+        rootPOA.the_POAManager().activate();
 
-           BasicServerImpl server = new BasicServerImpl(orb);
-           securePOA.activate_object_with_id("SecureObject".getBytes(), server);
-           org.omg.CORBA.Object obj = securePOA.servant_to_reference(server);
+        BasicServerImpl server = new BasicServerImpl(orb);
+        securePOA.activate_object_with_id("SecureObject".getBytes(), server);
+        org.omg.CORBA.Object obj = securePOA.servant_to_reference(server);
 
-           System.out.println ("SERVER IOR: " + orb.object_to_string(obj));
-           System.out.flush();
+        System.out.println ("SERVER IOR: " + orb.object_to_string(obj));
+        System.out.flush();
 
-           // wait for requests
-           orb.run();
-       }
-       catch( Exception e )
-       {
-           e.printStackTrace();
-           System.out.println ("Caught error " + e);
-       }
-   }
+        // wait for requests
+        orb.run();
+    }
 }

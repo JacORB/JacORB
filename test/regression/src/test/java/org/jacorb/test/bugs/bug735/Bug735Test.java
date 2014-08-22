@@ -21,8 +21,8 @@
 package org.jacorb.test.bugs.bug735;
 
 import static org.junit.Assert.fail;
-import org.jacorb.test.common.ORBTestCase;
-import org.jacorb.test.common.TestUtils;
+import org.jacorb.test.harness.ORBTestCase;
+import org.jacorb.test.harness.TestUtils;
 import org.junit.Assume;
 import org.junit.BeforeClass;
 import org.junit.Test;

@@ -21,9 +21,6 @@ package org.jacorb.test.orb;
  */
 
 import static org.junit.Assert.fail;
-import java.lang.reflect.Field;
-import org.jacorb.test.common.NullLogger;
-import org.junit.Before;
 import org.junit.Test;
 import org.omg.CORBA.Any;
 import org.omg.CORBA.BAD_PARAM;
@@ -47,14 +44,6 @@ public class CreateTypeCodesTest
      * for these tests we need an ORBSingleton not a full ORB
      */
     private final ORB orb = ORB.init();
-
-    @Before
-    public void setUp() throws Exception
-    {
-        Field logger = orb.getClass().getDeclaredField("logger");
-        logger.setAccessible(true);
-        logger.set(orb, new NullLogger());
-    }
 
     @Test
     public void testCreateStructTC () throws Exception

@@ -26,7 +26,7 @@ import java.util.Properties;
 import org.jacorb.orb.ORB;
 import org.jacorb.orb.ParsedIOR;
 import org.jacorb.orb.util.CorbaLoc;
-import org.jacorb.test.common.ORBTestCase;
+import org.jacorb.test.harness.ORBTestCase;
 import org.jacorb.test.orb.BasicServerImpl;
 import org.junit.Test;
 import org.omg.CORBA.Policy;
@@ -47,7 +47,7 @@ public class ImplNameTest extends ORBTestCase
 {
     /**
      * We utilise testName so each local ORB can get a different set of properties for each test
-     * @see org.jacorb.test.common.ORBTestCase#patchORBProperties(java.util.Properties)
+     * @see org.jacorb.test.harness.ORBTestCase#patchORBProperties(java.util.Properties)
      */
     @Override
     protected void patchORBProperties(Properties props) throws Exception
@@ -180,10 +180,7 @@ public class ImplNameTest extends ORBTestCase
 
 
         // Now create number two.
-        LocalORBTestCase orbtc = new LocalORBTestCase ();
-        orbtc.updateProps(this);
-        orbtc.ORBSetUp();
-        final ORB orb2 = orbtc.getORB();
+        final ORB orb2 = (org.jacorb.orb.ORB)getAnotherORB(orbProps);
 
         rootPOA = (POAHelper.narrow( orb2.resolve_initial_references( "RootPOA" )));
 
@@ -212,8 +209,6 @@ public class ImplNameTest extends ORBTestCase
                 ! (CorbaLoc.parseKey( pior.get_object_key()).equals
                         (CorbaLoc.parseKey( pior2.get_object_key())))
         );
-
-        orbtc.ORBTearDown();
     }
 
 
@@ -263,13 +258,5 @@ public class ImplNameTest extends ORBTestCase
                     rootPOA.create_id_assignment_policy( IdAssignmentPolicyValue.USER_ID)
                 }
         );
-    }
-
-    class LocalORBTestCase extends ORBTestCase
-    {
-        public void updateProps (ImplNameTest implNameTest) throws Exception
-        {
-            implNameTest.patchORBProperties(orbProps);
-        }
     }
 }

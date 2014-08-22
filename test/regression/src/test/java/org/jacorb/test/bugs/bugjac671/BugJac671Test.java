@@ -21,11 +21,10 @@ package org.jacorb.test.bugs.bugjac671;
  */
 
 import java.util.Properties;
-import org.jacorb.test.common.CommonSetup;
+import org.jacorb.test.harness.CommonSetup;
+import org.jacorb.test.harness.ORBTestCase;
+import org.jacorb.test.harness.TestUtils;
 import org.junit.Test;
-import org.omg.CORBA.ORB;
-import org.omg.PortableServer.POA;
-import org.omg.PortableServer.POAHelper;
 
 /**
  * <code>BugJac671Test</code> verifies that we can start two ORB/POAs
@@ -34,29 +33,20 @@ import org.omg.PortableServer.POAHelper;
  * @author <a href="mailto:Nick.Cross@prismtech.com">Nick Cross</a>
  * @version 1.0
  */
-public class BugJac671Test
+public class BugJac671Test extends ORBTestCase
 {
+    @Override
+    protected void patchORBProperties(Properties props) throws Exception
+    {
+        props.setProperty ("OAPort", Integer.toString(TestUtils.getNextAvailablePort()));
+    }
+
     @Test
     public void test_orb_port() throws Exception
     {
-        Properties props1 = new Properties();
-        props1.setProperty ("OAPort", "18000");
-        org.omg.CORBA.ORB orb1 = ORB.init(new String[0], props1);
-        POA poa1 = POAHelper.narrow(orb1.resolve_initial_references("RootPOA"));
-        poa1.the_POAManager().activate();
-
-
         Properties props2 = new Properties();
         props2.putAll(CommonSetup.loadSSLProps("jsse_server_props", "jsse_server_ks"));
-        org.omg.CORBA.ORB orb2 = ORB.init(new String[0], props2);
-        POA poa2 = POAHelper.narrow(orb2.resolve_initial_references("RootPOA"));
-        poa2.the_POAManager().activate();
 
-
-        orb2.shutdown(true);
-        orb2 = null;
-
-        orb1.shutdown(true);
-        orb1 = null;
+        getAnotherORB(props2);
     }
 }

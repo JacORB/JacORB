@@ -27,7 +27,7 @@ import java.util.Map;
 import org.jacorb.orb.CDRInputStream;
 import org.jacorb.orb.typecode.PrimitiveTypeCodeReader;
 import org.jacorb.orb.typecode.TypeCodeReader;
-import org.jacorb.test.common.ORBTestCase;
+import org.jacorb.test.harness.ORBTestCase;
 import org.junit.Test;
 import org.omg.CORBA.BAD_PARAM;
 import org.omg.CORBA.TCKind;

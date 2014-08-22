@@ -20,12 +20,11 @@ package org.jacorb.test.orb;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import static org.junit.Assert.fail;
 import java.util.Properties;
 import org.jacorb.test.BasicServer;
 import org.jacorb.test.BasicServerHelper;
-import org.jacorb.test.common.ClientServerSetup;
-import org.jacorb.test.common.ClientServerTestCase;
+import org.jacorb.test.harness.ClientServerSetup;
+import org.jacorb.test.harness.ClientServerTestCase;
 import org.jboss.byteman.contrib.bmunit.BMRule;
 import org.jboss.byteman.contrib.bmunit.BMUnitRunner;
 import org.junit.Before;
@@ -78,7 +77,7 @@ public class GIOPConnectionOutOfMemoryTest extends ClientServerTestCase
 
     }
 
-    @Test
+    @Test(expected=COMM_FAILURE.class)
     @BMRule(name="outofmemory-injection",
         targetClass="GIOPConnection",
         targetMethod="getMessage()",
@@ -86,20 +85,11 @@ public class GIOPConnectionOutOfMemoryTest extends ClientServerTestCase
         action="throw new java.lang.OutOfMemoryError(\"OutOfMemory\")")
     public void testOutOfMemory() throws Exception
     {
-        try
-        {
-            server.bounce_short( ( short ) 14 );
-
-            fail ("should have thrown COMM_FAILURE");
-        }
-        catch (COMM_FAILURE e)
-        {
-            // Good - correct exception.
-        }
+        server.bounce_short( ( short ) 14 );
     }
 
 
-    @Test
+    @Test(expected=COMM_FAILURE.class)
     @BMRule(name="outofmemory-injection",
         targetClass="GIOPConnection",
         targetMethod="getMessage()",
@@ -107,15 +97,6 @@ public class GIOPConnectionOutOfMemoryTest extends ClientServerTestCase
         action="throw new org.omg.CORBA.NO_MEMORY(\"OutOfMemory\")")
     public void testNoMemory() throws Exception
     {
-        try
-        {
-            server.bounce_short( ( short ) 14 );
-
-            fail ("should have thrown COMM_FAILURE");
-        }
-        catch (COMM_FAILURE e)
-        {
-            // Good - correct exception.
-        }
+        server.bounce_short( ( short ) 14 );
     }
 }

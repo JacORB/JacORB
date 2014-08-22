@@ -30,7 +30,7 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import org.jacorb.test.common.TestUtils;
+import org.jacorb.test.harness.TestUtils;
 import org.junit.Test;
 import org.junit.runners.Parameterized.Parameters;
 import org.omg.CORBA.TypeCode;

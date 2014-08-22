@@ -22,9 +22,9 @@ package org.jacorb.test.bugs.bugjac511;
 
 import java.util.Properties;
 import junit.framework.AssertionFailedError;
-import org.jacorb.test.common.CallbackTestCase;
-import org.jacorb.test.common.ClientServerSetup;
-import org.jacorb.test.common.TestUtils;
+import org.jacorb.test.harness.CallbackTestCase;
+import org.jacorb.test.harness.ClientServerSetup;
+import org.jacorb.test.harness.TestUtils;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;

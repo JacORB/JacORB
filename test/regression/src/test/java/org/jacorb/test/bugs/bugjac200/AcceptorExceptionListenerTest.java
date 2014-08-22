@@ -4,8 +4,8 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import java.util.Properties;
-import org.jacorb.test.common.CommonSetup;
-import org.jacorb.test.common.TestUtils;
+import org.jacorb.test.harness.CommonSetup;
+import org.jacorb.test.harness.TestUtils;
 import org.junit.After;
 import org.junit.Assume;
 import org.junit.Before;
@@ -139,7 +139,6 @@ public class AcceptorExceptionListenerTest
                 }
                 catch (Exception e)
                 {
-                    e.printStackTrace();
                     exception[0] = e;
                 }
             }

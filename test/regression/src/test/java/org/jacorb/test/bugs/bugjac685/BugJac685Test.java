@@ -1,21 +1,26 @@
 package org.jacorb.test.bugs.bugjac685;
 
-import static org.junit.Assert.fail;
 import java.util.Properties;
-import org.jacorb.test.common.ORBTestCase;
-import org.jacorb.test.common.ServerSetup;
-import org.jacorb.test.common.TestUtils;
+import org.jacorb.test.harness.NameServiceSetup;
+import org.jacorb.test.harness.ORBTestCase;
+import org.jacorb.test.harness.ServerSetup;
+import org.jacorb.test.harness.TestUtils;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Assume;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.ClassRule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 import org.omg.CosNaming.NamingContextExt;
 import org.omg.CosNaming.NamingContextExtHelper;
 
 public class BugJac685Test extends ORBTestCase
 {
+    @ClassRule
+    public static TemporaryFolder folder = new TemporaryFolder();
+
     private SessionFactory sf;
     private NamingContextExt nc;
     private ServerSetup serverSetup;
@@ -27,10 +32,11 @@ public class BugJac685Test extends ORBTestCase
     {
         Assume.assumeFalse(TestUtils.isSSLEnabled);
 
-        nsSetup = new NameServiceSetup ();
+        nsSetup = new NameServiceSetup (folder);
         nsSetup.setUp();
     }
 
+    @Override
     protected void patchORBProperties(Properties props) throws Exception
     {
         props.setProperty ("ORBInitRef.NameService", nsSetup.getServerIOR());
@@ -39,31 +45,22 @@ public class BugJac685Test extends ORBTestCase
     @Before
     public void setUp() throws Exception
     {
-        try
-        {
+        Properties serverprops = new Properties();
+        serverprops.setProperty ("ORBInitRef.NameService", nsSetup.getServerIOR());
+        serverprops.setProperty ("jacorb.test.timeout.server", Long.toString(15000));
 
-            Properties serverprops = new Properties();
-            serverprops.setProperty ("ORBInitRef.NameService", nsSetup.getServerIOR());
-            serverprops.setProperty ("jacorb.test.timeout.server", Long.toString(15000));
+        serverSetup = new ServerSetup (
+            "org.jacorb.test.bugs.bugjac685.BugJac685TestServer",
+            "",
+            serverprops);
 
-            serverSetup = new ServerSetup (
-                                           "org.jacorb.test.bugs.bugjac685.BugJac685TestServer",
-                                           "",
-                                           serverprops);
+        serverSetup.setUp();
 
-            serverSetup.setUp();
+        nc = NamingContextExtHelper.narrow
+            (orb.resolve_initial_references ("NameService"));
 
-            nc = NamingContextExtHelper.narrow
-                (orb.resolve_initial_references ("NameService"));
-
-            sf = SessionFactoryHelper.narrow
-                (nc.resolve(nc.to_name ("ServantScaling/SessionFactory")));
-        }
-        catch (Exception e)
-        {
-            e.printStackTrace();
-            fail ("Unexpected exception setting up " + e);
-        }
+        sf = SessionFactoryHelper.narrow
+            (nc.resolve(nc.to_name ("ServantScaling/SessionFactory")));
     }
 
     @AfterClass
@@ -88,26 +85,19 @@ public class BugJac685Test extends ORBTestCase
 
     private void doTest()
     {
-        try
-        {
-            int counts[] = {100};
+        int counts[] = {100};
 
-            for (int i = 0; i < counts.length; i++)
+        for (int i = 0; i < counts.length; i++)
+        {
+            sf.create_sessions (counts[i]);
+
+            int sample = 100;
+
+            for (int j = 0; j < counts[i]; j += counts[i]/sample)
             {
-                sf.create_sessions (counts[i]);
-
-                int sample = 100;
-
-                for (int j = 0; j < counts[i]; j += counts[i]/sample)
-                {
-                    Session s = sf.get_session (j);
-                    s._release();
-                }
+                Session s = sf.get_session (j);
+                s._release();
             }
-        }
-        catch (Exception e)
-        {
-            fail ("Unexpected exception doing test " + e);
         }
     }
 

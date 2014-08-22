@@ -1,8 +1,8 @@
 package org.jacorb.test.bugs.bug923;
 
 import java.util.Properties;
-import org.jacorb.test.common.ClientServerSetup;
-import org.jacorb.test.common.ClientServerTestCase;
+import org.jacorb.test.harness.ClientServerSetup;
+import org.jacorb.test.harness.ClientServerTestCase;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -51,10 +51,8 @@ public class Bug923Test extends ClientServerTestCase
 
         GoodDay goodDay = GoodDayHelper.narrow( base );
 
-        System.out.println( goodDay.hello_simple("Hey Mike") );
+        goodDay.hello_simple("Hey Mike");
 
-        System.out.println("Calling deleteDay");
         gdayFactory.deleteDay(goodDay);
-        System.out.println("deleteDay complete");
     }
 }

@@ -9,6 +9,7 @@ import org.omg.IOP.CodecPackage.FormatMismatch;
 import org.omg.PortableInterceptor.ClientRequestInfo;
 import org.omg.PortableInterceptor.ClientRequestInterceptor;
 import org.omg.PortableInterceptor.ForwardRequest;
+import org.jacorb.test.harness.TestUtils;
 
 final public class ClientRequestInterceptorImpl extends LocalObject implements
         ClientRequestInterceptor
@@ -31,7 +32,7 @@ final public class ClientRequestInterceptorImpl extends LocalObject implements
         try
         {
             any = codec.decode(context_data);
-            System.out.println(any.extract_string());
+            TestUtils.getLogger().debug(any.extract_string());
         }
         catch (FormatMismatch e)
         {

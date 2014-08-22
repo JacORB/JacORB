@@ -30,7 +30,8 @@ import org.jacorb.orb.ORB;
 import org.jacorb.orb.iiop.ClientIIOPConnection;
 import org.jacorb.orb.iiop.IIOPAddress;
 import org.jacorb.orb.iiop.IIOPProfile;
-import org.jacorb.test.common.ORBTestCase;
+import org.jacorb.test.harness.ORBTestCase;
+import org.jacorb.test.harness.TestUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.omg.CORBA.NO_PERMISSION;
@@ -70,16 +71,16 @@ public class ClientIIOPConnectionTest extends ORBTestCase
     {
         iiopProfile = new IIOPProfile( new IIOPAddress( "localhost", 4000 ),
                                        null,
-                                       ((org.jacorb.orb.ORB)orb).getGIOPMinorVersion());
+                                       getORB().getGIOPMinorVersion());
     }
 
 
-    static class TestConnection extends ClientIIOPConnection
+    class TestConnection extends ClientIIOPConnection
     {
-        void setProfile( IIOPProfile profile ) throws ConfigurationException
+        void setProfile( ORB orb, IIOPProfile profile ) throws ConfigurationException
         {
             this.profile = profile;
-            profile.configure( JacORBConfiguration.getConfiguration( new Properties(), orb, false ));
+            profile.configure( orb.getConfiguration() );
             checkSSL();
         }
 
@@ -90,6 +91,7 @@ public class ClientIIOPConnectionTest extends ORBTestCase
     {
         configureObjectUnderTest( new String[][]
                 {
+                        { "jacorb.log.default.verbosity", TestUtils.verbose ? "4" : "0" },
                         { "jacorb.security.support_ssl", enableSsl ? "on" : "off" },
                         { "jacorb.security.ssl.client.supported_options", Integer.toString( clientSupports ) },
                         { "jacorb.security.ssl.client.required_options", Integer.toString( clientRequires ) },
@@ -105,7 +107,7 @@ public class ClientIIOPConnectionTest extends ORBTestCase
         {
             properties.setProperty( settings[i][0], settings[i][1] );
         }
-        testConnection.configure( JacORBConfiguration.getConfiguration( properties, (ORB) orb, false ));
+        testConnection.configure( JacORBConfiguration.getConfiguration( properties, orb, false ));
     }
 
 
@@ -131,7 +133,7 @@ public class ClientIIOPConnectionTest extends ORBTestCase
 
         configureConnection( true, SSL_FEATURE, SSL_FEATURE );
         addSslSecTransComponent( SSL_FEATURE, SSL_FEATURE, port );
-        testConnection.setProfile( iiopProfile );
+        testConnection.setProfile( getORB(), iiopProfile );
 
         assertTrue( "Should report ssl enabled", testConnection.isSSL() );
         assertEquals( "ssl port", port, testConnection.getSsl_port() );
@@ -147,7 +149,7 @@ public class ClientIIOPConnectionTest extends ORBTestCase
     {
         configureConnection( false, NOT_SUPPORTED, NOT_REQUIRED );
         addSslSecTransComponent( SSL_FEATURE, SSL_FEATURE, (short) 80 );
-        testConnection.setProfile( iiopProfile );
+        testConnection.setProfile( getORB(), iiopProfile );
 
         assertFalse( "Should not report ssl enabled", testConnection.isSSL() );
         assertEquals( "ssl port", -1, testConnection.getSsl_port() );
@@ -162,7 +164,7 @@ public class ClientIIOPConnectionTest extends ORBTestCase
     {
         configureConnection( true, SSL_FEATURE, NOT_REQUIRED );
         addSslSecTransComponent( SSL_FEATURE, NOT_REQUIRED, 50 );
-        testConnection.setProfile( iiopProfile );
+        testConnection.setProfile( getORB(), iiopProfile );
 
         assertFalse( "Should not report ssl enabled", testConnection.isSSL() );
         assertEquals( "ssl port", -1, testConnection.getSsl_port() );
@@ -180,7 +182,7 @@ public class ClientIIOPConnectionTest extends ORBTestCase
 
         configureConnection( true, SSL_FEATURE, SSL_FEATURE );
         addCompoundSecMechComponentWithTls( SSL_FEATURE, SSL_FEATURE, port );
-        testConnection.setProfile( iiopProfile );
+        testConnection.setProfile( getORB(), iiopProfile );
 
         assertTrue( "Should report ssl enabled", testConnection.isSSL() );
         assertEquals( "ssl port", port, testConnection.getSsl_port() );
@@ -197,7 +199,7 @@ public class ClientIIOPConnectionTest extends ORBTestCase
 
         configureConnection( true, SSL_FEATURE, SSL_FEATURE );
         addCompoundSecMechComponentWithTls( SSL_FEATURE, SSL_FEATURE, port );
-        testConnection.setProfile( iiopProfile );
+        testConnection.setProfile( getORB(), iiopProfile );
 
         assertTrue( "Should report ssl enabled", testConnection.isSSL() );
         assertEquals( "ssl port", port, testConnection.getSsl_port() );
@@ -215,7 +217,7 @@ public class ClientIIOPConnectionTest extends ORBTestCase
         {
             configureConnection( true, SSL_FEATURE, SSL_FEATURE );
             addCompoundSecMechComponentWithoutTls( SSL_FEATURE, SSL_FEATURE );
-            testConnection.setProfile( iiopProfile );
+            testConnection.setProfile( getORB(), iiopProfile );
             fail( "Should have thrown a NO_PERMISSION exception" );
         } catch (NO_PERMISSION e)
         {
@@ -234,7 +236,7 @@ public class ClientIIOPConnectionTest extends ORBTestCase
     {
         configureConnection( false, SSL_FEATURE, SSL_FEATURE );
         addCompoundSecMechComponentWithTls( SSL_FEATURE, SSL_FEATURE, 60 );
-        testConnection.setProfile( iiopProfile );
+        testConnection.setProfile( getORB(), iiopProfile );
 
         assertFalse( "Should not report ssl enabled", testConnection.isSSL() );
         assertEquals( "ssl port", -1, testConnection.getSsl_port() );
@@ -252,7 +254,7 @@ public class ClientIIOPConnectionTest extends ORBTestCase
 
         configureConnection( true, SSL_FEATURE, NOT_REQUIRED );
         addCompoundSecMechComponentWithTls( SSL_FEATURE, NOT_REQUIRED, port );
-        testConnection.setProfile( iiopProfile );
+        testConnection.setProfile( getORB(), iiopProfile );
 
         assertFalse( "Should not report ssl enabled", testConnection.isSSL() );
         assertEquals( "ssl port", -1, testConnection.getSsl_port() );
@@ -271,7 +273,7 @@ public class ClientIIOPConnectionTest extends ORBTestCase
         configureConnection( true, SSL_FEATURE, SSL_FEATURE );
         addSslSecTransComponent( SSL_FEATURE, SSL_FEATURE, port );
         addCompoundSecMechComponentWithoutTls( SSL_FEATURE, SSL_FEATURE );
-        testConnection.setProfile( iiopProfile );
+        testConnection.setProfile( getORB(), iiopProfile );
 
         assertTrue( "Should report ssl enabled", testConnection.isSSL() );
         assertEquals( "ssl port", port, testConnection.getSsl_port() );

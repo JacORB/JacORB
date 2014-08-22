@@ -26,8 +26,8 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Properties;
 import org.jacorb.orb.CDRInputStream;
-import org.jacorb.test.common.ORBTestCase;
-import org.jacorb.test.common.TestUtils;
+import org.jacorb.test.harness.ORBTestCase;
+import org.jacorb.test.harness.TestUtils;
 import org.junit.Test;
 import org.omg.CORBA.ORB;
 import org.omg.CORBA_2_3.portable.OutputStream;
@@ -93,14 +93,14 @@ public class MarshallingTest extends ORBTestCase
 
       Properties properties = new Properties();
       properties.put("jacorb.interop.sun", "on");
-      ORB jacorborb = org.omg.CORBA.ORB.init (new String[]{}, properties);
+      ORB jacorborb = getAnotherORB(properties);
       CDRInputStream in = new CDRInputStream(jacorborb, result);
 
       Something s = (Something)in.read_value();
 
       in.close();
+
       foreignorb.shutdown(true);
-      jacorborb.shutdown(true);
       assertTrue (s.number == -10);
    }
 
@@ -127,14 +127,13 @@ public class MarshallingTest extends ORBTestCase
 
       Properties properties = new Properties();
       properties.put("jacorb.interop.sun", "on");
-      ORB jacorborb = org.omg.CORBA.ORB.init (new String[]{}, properties);
+      ORB jacorborb = this.getAnotherORB(properties);
       CDRInputStream in = new CDRInputStream(jacorborb, result);
 
       NegativeArgumentException n = (NegativeArgumentException)in.read_value();
       in.close();
 
       foreignorb.shutdown(true);
-      jacorborb.shutdown(true);
 
       assertTrue (n.i == -10);
    }

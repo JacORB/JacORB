@@ -24,8 +24,8 @@ package org.jacorb.test.bugs.bugjac590;
 
 import static org.junit.Assert.assertTrue;
 import org.jacorb.orb.dynany.DynUnion;
-import org.jacorb.test.common.ClientServerSetup;
-import org.jacorb.test.common.ClientServerTestCase;
+import org.jacorb.test.harness.ClientServerSetup;
+import org.jacorb.test.harness.ClientServerTestCase;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -99,7 +99,7 @@ public class BugJac590Test extends ClientServerTestCase
         }
         else
         {
-            System.out.println("0: " + r.return_value());
+            assertTrue (r.return_value () != null);
         }
     }
 }

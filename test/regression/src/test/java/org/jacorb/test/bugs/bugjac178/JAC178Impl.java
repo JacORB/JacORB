@@ -88,7 +88,6 @@ public class JAC178Impl extends JAC178POA implements Configurable
         }
         catch (Exception e)
         {
-            e.printStackTrace ();
             throw new INTERNAL("Test error " + e);
         }
     }

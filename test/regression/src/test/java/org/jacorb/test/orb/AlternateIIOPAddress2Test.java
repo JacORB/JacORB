@@ -27,28 +27,26 @@ import java.util.Properties;
 import org.jacorb.test.IIOPAddressServer;
 import org.jacorb.test.IIOPAddressServerHelper;
 import org.jacorb.test.Sample;
-import org.jacorb.test.common.ClientServerSetup;
-import org.jacorb.test.common.ClientServerTestCase;
-import org.jacorb.test.common.CommonSetup;
-import org.jacorb.test.common.TestUtils;
+import org.jacorb.test.harness.ClientServerSetup;
+import org.jacorb.test.harness.ClientServerTestCase;
+import org.jacorb.test.harness.IMRExcludedClientServerCategory;
+import org.jacorb.test.harness.TestUtils;
 import org.junit.After;
 import org.junit.Assume;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 
 /**
  * Tests components of type TAG_ALTERNATE_IIOP_ADDRESS within IORs.
  *
  * @author Andre Spiegel
  */
+@Category(IMRExcludedClientServerCategory.class)
 public class AlternateIIOPAddress2Test extends ClientServerTestCase
 {
     protected IIOPAddressServer server = null;
-
-    private static final String LISTEN_EP = "iiop://localhost:45000";
-
-    private static final String PROTOCOL = "iiop://";
 
     private static final String CORRECT_HOST = "127.0.0.1";
 
@@ -56,8 +54,14 @@ public class AlternateIIOPAddress2Test extends ClientServerTestCase
     private static final String WRONG_HOST   = "255.255.255.253";
     private static final String WRONG_HOST_2 = "255.255.255.254";
 
-    private static final int CORRECT_PORT = 45000;
-    private static final int WRONG_PORT   = 45001;
+    private static final int CORRECT_PORT = TestUtils.getNextAvailablePort(10000);
+    private static final int WRONG_PORT   = TestUtils.getNextAvailablePort(20000);
+
+    private static final String PROTOCOL = "iiop://";
+
+    private static final String LISTEN_EP = PROTOCOL + "localhost:" + CORRECT_PORT;
+
+
 
     @Before
     public void setUp() throws Exception
@@ -91,9 +95,6 @@ public class AlternateIIOPAddress2Test extends ClientServerTestCase
             ("org.omg.PortableInterceptor.ORBInitializerClass."
            + "org.jacorb.test.orb.IIOPAddressORBInitializer", "");
         server_props.setProperty ("OAAddress", LISTEN_EP);
-
-        client_props.setProperty(CommonSetup.JACORB_REGRESSION_DISABLE_IMR, "true");
-        server_props.setProperty(CommonSetup.JACORB_REGRESSION_DISABLE_IMR, "true");
 
         setup = new ClientServerSetup(
                                    "org.jacorb.test.orb.IIOPAddressServerImpl",

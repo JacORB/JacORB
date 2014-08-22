@@ -20,10 +20,9 @@ package org.jacorb.test.bugs.bug532;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import org.jacorb.test.common.ORBTestCase;
+import org.jacorb.test.harness.ORBTestCase;
 import org.junit.Test;
 import org.omg.CORBA.Any;
-import org.omg.CORBA.ORB;
 
 /**
  * Test for bug 532, CDROutputStream.create_input_stream completely fails
@@ -38,12 +37,8 @@ public class Bug532Test extends ORBTestCase
     @Test
     public void testLargeByteArrayToAnyInsertion()
     {
-        ORB orb = org.omg.CORBA.ORB.init(new String[]{}, null);
-
         byte[] bytes = new byte[4001];
         Any any = orb.create_any();
         ByteSequenceHelper.insert(any, bytes);
-
-        orb.shutdown(true);
     }
 }

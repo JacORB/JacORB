@@ -11,8 +11,8 @@ import org.jacorb.test.EmptyException;
 import org.jacorb.test.TimingServer;
 import org.jacorb.test.TimingServerHelper;
 import org.jacorb.test._TimingServerStub;
-import org.jacorb.test.common.CallbackTestCase;
-import org.jacorb.test.common.ClientServerSetup;
+import org.jacorb.test.harness.CallbackTestCase;
+import org.jacorb.test.harness.ClientServerSetup;
 import org.jacorb.util.Time;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -716,9 +716,6 @@ public class TimingTest extends CallbackTestCase
         server = setReplyStartTime(server, start + 6000);
         long serverStart = server.server_time(2000);
         long rtTime = System.currentTimeMillis() - start;
-
-        //System.err.println("Server started after: " + (serverStart-start));
-        //System.err.println("Relpy returned after: " + (rtTime));
 
         // check server starts immediately
         assertTrue(serverStart >= start + 2000);

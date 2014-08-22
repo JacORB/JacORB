@@ -7,7 +7,7 @@ import org.jacorb.config.Configuration;
 import org.jacorb.config.ConfigurationException;
 import org.jacorb.orb.factory.PortRangeSocketFactory;
 import org.jacorb.orb.factory.SocketFactory;
-import org.jacorb.test.common.NullLogger;
+import org.jacorb.test.harness.TestUtils;
 import org.junit.Test;
 
 public class PortRangeSocketFactoryTest extends AbstractSocketFactoryTestCase
@@ -15,6 +15,7 @@ public class PortRangeSocketFactoryTest extends AbstractSocketFactoryTestCase
     private static final int MIN = 40000;
     private static final int MAX = 40010;
 
+    @Override
     protected SocketFactory newObjectUnderTest() throws ConfigurationException
     {
         final PortRangeSocketFactory factory = new PortRangeSocketFactory();
@@ -22,7 +23,7 @@ public class PortRangeSocketFactoryTest extends AbstractSocketFactoryTestCase
         MockControl configControl = MockControl.createControl(Configuration.class);
         Configuration configMock = (Configuration) configControl.getMock();
 
-        configControl.expectAndReturn(configMock.getLogger("org.jacorb.orb.socketfactory"), new NullLogger());
+        configControl.expectAndReturn(configMock.getLogger("org.jacorb.orb.socketfactory"), TestUtils.getLogger());
         configControl.expectAndReturn(configMock.getAttributeAsInteger(PortRangeSocketFactory.MIN_PROP), MIN);
         configControl.expectAndReturn(configMock.getAttributeAsInteger(PortRangeSocketFactory.MAX_PROP), MAX);
         configControl.expectAndReturn(configMock.getAttribute("OAIAddr", ""), "");

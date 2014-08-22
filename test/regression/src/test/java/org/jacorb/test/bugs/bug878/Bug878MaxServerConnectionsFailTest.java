@@ -20,12 +20,11 @@
 
 package org.jacorb.test.bugs.bug878;
 
-import static org.junit.Assert.fail;
 import java.util.Properties;
 import org.jacorb.test.BasicServer;
 import org.jacorb.test.BasicServerHelper;
-import org.jacorb.test.common.ClientServerSetup;
-import org.jacorb.test.common.ClientServerTestCase;
+import org.jacorb.test.harness.ClientServerSetup;
+import org.jacorb.test.harness.ClientServerTestCase;
 import org.jacorb.test.orb.BasicServerImpl;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -55,18 +54,9 @@ public class Bug878MaxServerConnectionsFailTest extends ClientServerTestCase
         server = BasicServerHelper.narrow(setup.getServerObject());
     }
 
-    @Test
+    @Test (expected = COMM_FAILURE.class)
     public void testServerDoesNotLikeWString()
     {
-        try
-        {
-            server.ping();
-            fail();
-        }
-        catch(COMM_FAILURE e)
-        {
-           e.printStackTrace ();
-            //expected
-        }
+        server.ping();
     }
 }

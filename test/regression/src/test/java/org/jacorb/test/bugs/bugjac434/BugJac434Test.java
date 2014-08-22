@@ -25,7 +25,7 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import org.jacorb.orb.ParsedIOR;
 import org.jacorb.orb.util.PrintIOR;
-import org.jacorb.test.common.ORBTestCase;
+import org.jacorb.test.harness.ORBTestCase;
 import org.junit.Test;
 
 public class BugJac434Test extends ORBTestCase
@@ -45,8 +45,6 @@ public class BugJac434Test extends ORBTestCase
        PrintIOR.printIOR (orb, pIOR, pw);
 
        String result = sw.toString ();
-
-//        System.err.println ("Got result" + result);
 
        assertTrue (result.indexOf ("Unknown profile found with tag") > 0);
     }

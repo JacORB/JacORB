@@ -27,8 +27,9 @@ import org.jacorb.orb.factory.SocketFactoryManager;
 import org.jacorb.orb.iiop.ClientIIOPConnection;
 import org.jacorb.test.BasicServer;
 import org.jacorb.test.BasicServerHelper;
-import org.jacorb.test.common.CommonSetup;
-import org.jacorb.test.common.ORBTestCase;
+import org.jacorb.test.harness.CommonSetup;
+import org.jacorb.test.harness.ORBTestCase;
+import org.jacorb.test.harness.TestUtils;
 import org.jacorb.test.orb.BasicServerImpl;
 import org.junit.Before;
 import org.junit.Test;
@@ -38,8 +39,7 @@ import org.junit.Test;
  */
 public class BugJac524Test extends ORBTestCase
 {
-    private static int PORT = 4810;
-    private final int port = PORT++;
+    private final int port = TestUtils.getNextAvailablePort();
     private String ior;
 
     private Properties props;
@@ -84,11 +84,11 @@ public class BugJac524Test extends ORBTestCase
         ior = orb.object_to_string(server);
     }
 
-    protected final void doTest()
+    protected final void doTest() throws Exception
     {
         int before = ClientIIOPConnection.openTransports;
 
-        org.omg.CORBA.ORB orb = org.omg.CORBA.ORB.init(new String[0], props);
+        org.omg.CORBA.ORB orb = this.getAnotherORB(props);
 
         BasicServer server = BasicServerHelper.narrow(orb.string_to_object (ior));
 

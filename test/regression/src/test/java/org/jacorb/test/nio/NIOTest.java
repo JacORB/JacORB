@@ -4,12 +4,14 @@ import static org.junit.Assert.fail;
 import java.util.Properties;
 import org.jacorb.test.TestIf;
 import org.jacorb.test.TestIfHelper;
-import org.jacorb.test.common.ClientServerSetup;
-import org.jacorb.test.common.ClientServerTestCase;
-import org.jacorb.test.common.TestUtils;
+import org.jacorb.test.harness.ClientServerSetup;
+import org.jacorb.test.harness.ClientServerTestCase;
+import org.jacorb.test.harness.IMRExcludedClientServerCategory;
+import org.jacorb.test.harness.TestUtils;
 import org.junit.Assume;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 import org.omg.CORBA.Any;
 import org.omg.CORBA.INV_OBJREF;
 import org.omg.CORBA.ORB;
@@ -23,13 +25,13 @@ import org.omg.Messaging.RELATIVE_RT_TIMEOUT_POLICY_TYPE;
  *
  * Tests for the use of non-blocking connections
  */
-
+@Category(IMRExcludedClientServerCategory.class)
 public class NIOTest extends ClientServerTestCase
 {
     public static final int MSEC_FACTOR = 10000;
     public static final int ONE_SECOND = 1000 * MSEC_FACTOR;
 
-    private String nioTestURL = "corbaloc::localhost:6969/NIOTestServer/thePOA/ObjectID";
+    private String nioTestURL = "corbaloc::localhost:16969/NIOTestServer/thePOA/ObjectID";
 
     protected TestIf server = null;
 

@@ -24,8 +24,8 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import org.jacorb.test.BasicServer;
 import org.jacorb.test.BasicServerHelper;
-import org.jacorb.test.common.ClientServerSetup;
-import org.jacorb.test.common.ClientServerTestCase;
+import org.jacorb.test.harness.ClientServerSetup;
+import org.jacorb.test.harness.ClientServerTestCase;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -72,7 +72,6 @@ public class NonExistentRemoteTest extends ClientServerTestCase
         }
         catch (OBJECT_NOT_EXIST e)
         {
-            e.printStackTrace();
             fail ("Should not have thrown an exception");
         }
     }

@@ -22,7 +22,7 @@ package org.jacorb.test.bugs.bugjac443;
 
 import static org.junit.Assert.assertEquals;
 import java.math.BigDecimal;
-import org.jacorb.test.common.ORBTestCase;
+import org.jacorb.test.harness.ORBTestCase;
 import org.junit.Test;
 import org.omg.CORBA.portable.InputStream;
 

@@ -20,21 +20,30 @@
 
 package org.jacorb.test.bugs.bugjac482;
 
-import static org.junit.Assert.fail;
 import java.io.File;
 import java.util.Properties;
 import org.jacorb.orb.factory.SocketFactoryManager;
+import org.jacorb.test.harness.ORBTestCase;
+import org.jacorb.test.harness.TestUtils;
+import org.junit.Assume;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.omg.CORBA.INITIALIZE;
-import org.omg.CORBA.ORB;
+import org.omg.PortableServer.POAHelper;
 
 /**
  * @author Alphonse Bendt
  */
-public class BugJac482Test
+public class BugJac482Test extends ORBTestCase
 {
     private Properties props;
+
+    @BeforeClass
+    public static void beforeClassSetUp() throws Exception
+    {
+        Assume.assumeFalse(TestUtils.isSSLEnabled);
+    }
 
     @Before
     public void setUp() throws Exception
@@ -45,23 +54,14 @@ public class BugJac482Test
         props.setProperty(SocketFactoryManager.SSL_SERVER_SOCKET_FACTORY, "org.jacorb.security.ssl.sun_jsse.SSLServerSocketFactory");
     }
 
-    @Test
+    @Test(expected=INITIALIZE.class)
     public void testMissingKeyStoreShouldCauseException() throws Exception
     {
-
-        ORB orb = ORB.init(new String[0], props);
-        try
-        {
-            orb.resolve_initial_references("RootPOA");
-            fail();
-        }
-        catch(INITIALIZE e)
-        {
-            // expected
-        }
+        org.omg.CORBA.ORB orb1 = getAnotherORB(props);
+        POAHelper.narrow(orb1.resolve_initial_references("RootPOA"));
     }
 
-    @Test
+    @Test(expected=INITIALIZE.class)
     public void testEmptyKeyStoreShouldCauseException() throws Exception
     {
         File emptyFile = File.createTempFile("non_existing_keystore", ".kst");
@@ -70,35 +70,17 @@ public class BugJac482Test
         props.setProperty("jacorb.security.keystore", emptyFile.toString());
         props.setProperty("jacorb.security.keystore_password", "pass");
 
-        ORB orb = ORB.init(new String[0], props);
-
-        try
-        {
-            orb.resolve_initial_references("RootPOA");
-            fail();
-        }
-        catch(INITIALIZE e)
-        {
-            // expected
-        }
+        org.omg.CORBA.ORB orb1 = getAnotherORB(props);
+        POAHelper.narrow(orb1.resolve_initial_references("RootPOA"));
     }
 
-    @Test
+    @Test(expected=INITIALIZE.class)
     public void testNonExistingKeyStoreShouldCauseException() throws Exception
     {
         props.setProperty("jacorb.security.keystore", "/not/existing/path");
         props.setProperty("jacorb.security.keystore_password", "pass");
 
-        ORB orb = ORB.init(new String[0], props);
-
-        try
-        {
-            orb.resolve_initial_references("RootPOA");
-            fail();
-        }
-        catch(INITIALIZE e)
-        {
-            // expected
-        }
+        org.omg.CORBA.ORB orb1 = getAnotherORB(props);
+        POAHelper.narrow(orb1.resolve_initial_references("RootPOA"));
     }
 }

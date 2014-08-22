@@ -7,8 +7,8 @@ import java.io.File;
 import java.util.Properties;
 import javax.xml.namespace.QName;
 import org.apache.cxf.jaxws.JaxWsProxyFactoryBean;
-import org.jacorb.test.common.ServerSetup;
-import org.jacorb.test.common.TestUtils;
+import org.jacorb.test.harness.ServerSetup;
+import org.jacorb.test.harness.TestUtils;
 import org.junit.AfterClass;
 import org.junit.Assume;
 import org.junit.BeforeClass;
@@ -83,13 +83,13 @@ public class ReproClientTest
         assertFalse ("Value should not be empty", outs.getItem().isEmpty());
 
         for( ReproData d : outs.getItem()) {
-        	System.out.println( "===> [" + d.isABool() + ":" + d.getALong() + ":" + d.getAString() + "]");
+        	TestUtils.getLogger().debug( "===> [" + d.isABool() + ":" + d.getALong() + ":" + d.getAString() + "]");
         }
 
         // this call fails with a null pointer exception during unmarshal
         // (the service gets called correctly, but the client chokes on result data)
         ReproData d = port.failsCrash( in );
         assertTrue (d.isABool() == true);
-       	System.out.println( "===> [" + d.isABool() + ":" + d.getALong() + ":" + d.getAString() + "]");
+       	TestUtils.getLogger().debug( "===> [" + d.isABool() + ":" + d.getALong() + ":" + d.getAString() + "]");
     }
 }

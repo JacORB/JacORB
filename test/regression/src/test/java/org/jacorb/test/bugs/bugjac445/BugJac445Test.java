@@ -24,7 +24,7 @@ import static org.junit.Assert.assertTrue;
 import java.util.Properties;
 import org.jacorb.orb.CDRInputStream;
 import org.jacorb.orb.CDROutputStream;
-import org.jacorb.test.common.ORBTestCase;
+import org.jacorb.test.harness.ORBTestCase;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -117,13 +117,5 @@ public class BugJac445Test extends ORBTestCase
 
         assertTrue(RecursiveBHelper.type().equivalent(copy.first_any.type()));
         assertTrue(RecursiveCHelper.type().equivalent(copy.second_any.type()));
-    }
-
-    public static void main (String [] args) throws Exception
-    {
-        BugJac445Test x = new BugJac445Test();
-        x.ORBSetUp();
-        x.setUp();
-        x.testCacheRecursiveOverMemberBoundaries();
     }
 }

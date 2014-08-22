@@ -1,0 +1,317 @@
+package org.jacorb.orb.portableInterceptor;
+
+/*
+ *        JacORB  - a free Java ORB
+ *
+ *   Copyright (C) 1997-2012 Gerald Brose / The JacORB Team.
+ *
+ *   This library is free software; you can redistribute it and/or
+ *   modify it under the terms of the GNU Library General Public
+ *   License as published by the Free Software Foundation; either
+ *   version 2 of the License, or (at your option) any later version.
+ *
+ *   This library is distributed in the hope that it will be useful,
+ *   but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ *   Library General Public License for more details.
+ *
+ *   You should have received a copy of the GNU Library General Public
+ *   License along with this library; if not, write to the Free
+ *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ */
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
+import org.jacorb.orb.ORB;
+import org.omg.CORBA.INTERNAL;
+import org.omg.CORBA.Object;
+import org.omg.IOP.CodecFactory;
+import org.omg.PortableInterceptor.ClientRequestInterceptor;
+import org.omg.PortableInterceptor.IORInterceptor;
+import org.omg.PortableInterceptor.Interceptor;
+import org.omg.PortableInterceptor.ORBInitInfo;
+import org.omg.PortableInterceptor.PolicyFactory;
+import org.omg.PortableInterceptor.ServerRequestInterceptor;
+import org.omg.PortableInterceptor.ORBInitInfoPackage.DuplicateName;
+import org.omg.PortableInterceptor.ORBInitInfoPackage.InvalidName;
+import org.slf4j.Logger;
+
+/**
+ * This class represents the type of info object
+ * that will be passed to the ORBInitializers. <br>
+ * See PI Spec p. 9-70ff
+ *
+ * @author Nicolas Noffke
+ */
+
+public class ORBInitInfoImpl
+    extends org.omg.CORBA.LocalObject
+    implements ORBInitInfo
+{
+    private int slot_count = 0;
+    private final ORB orb;
+    private final Logger logger;
+
+    private final Map<String, Interceptor> named_server_interceptors;
+    private final List<Interceptor> anonymous_server_interceptors;
+
+    private final Map<String, Interceptor> named_client_interceptors;
+    private final List<Interceptor> anonymous_client_interceptors;
+
+    private final Map<String, Interceptor> named_ior_interceptors;
+    private final List<Interceptor> anonymous_ior_interceptors;
+
+    private final Map<Integer, PolicyFactory> policy_factories;
+
+    private boolean valid = true;
+
+    public ORBInitInfoImpl(ORB orb)
+    {
+        this.orb = orb;
+
+        logger = orb.getConfiguration().getLogger("org.jacorb.orb");
+
+        /**
+         * If an interceptor is named it may be used to sort the
+         * interceptors - see CORBA spec 16.3.  A HashMap does not
+         * guarantee order so use a TreeMap instead
+         */
+        named_server_interceptors = new TreeMap<String, Interceptor>();
+        named_client_interceptors = new TreeMap<String, Interceptor>();
+
+        anonymous_server_interceptors = new ArrayList<Interceptor>();
+        anonymous_client_interceptors = new ArrayList<Interceptor>();
+
+        named_ior_interceptors = new TreeMap<String, Interceptor>();
+        anonymous_ior_interceptors = new ArrayList<Interceptor>();
+
+        policy_factories = new HashMap<Integer, PolicyFactory>();
+    }
+
+    /**
+     * This method is for interceptors that need access to the ORB.
+     * Be careful with that since there is a reason, why there is no
+     * other way to get access to the ORB.
+     */
+    public ORB getORB()
+    {
+        return orb;
+    }
+
+    public void setInvalid()
+    {
+        valid = false;
+    }
+
+    /**
+     * Copies the elements of a Map into
+     * a List.
+     */
+
+    private List<Interceptor> merge(List<Interceptor> target, Map<String, Interceptor> source)
+    {
+        List<Interceptor> result = new ArrayList<Interceptor>(target);
+        result.addAll(source.values());
+        return result;
+    }
+
+    public List<Interceptor> getClientInterceptors()
+    {
+        return merge(anonymous_client_interceptors,
+                named_client_interceptors);
+    }
+
+    public List<Interceptor> getServerInterceptors()
+    {
+        return merge(anonymous_server_interceptors,
+                named_server_interceptors);
+    }
+
+    public List<Interceptor> getIORInterceptors()
+    {
+        return merge(anonymous_ior_interceptors,
+                named_ior_interceptors);
+    }
+
+    public Map<Integer, PolicyFactory> getPolicyFactories()
+    {
+        return policy_factories;
+    }
+
+    public int getSlotCount()
+    {
+        return slot_count;
+    }
+
+    // implementation of org.omg.PortableInterceptor.ORBInitInfoOperations interface
+    public void add_client_request_interceptor(ClientRequestInterceptor interceptor)
+        throws DuplicateName
+    {
+        checkIsValid();
+
+        checkInterceptorName(interceptor);
+
+        if (interceptor.name().length() == 0)
+        {
+            anonymous_client_interceptors.add(interceptor);
+        }
+        else
+        {
+            if (named_client_interceptors.containsKey(interceptor.name()))
+            {
+                throw new DuplicateName(interceptor.name());
+            }
+
+            named_client_interceptors.put(interceptor.name(), interceptor);
+        }
+    }
+
+    private void checkIsValid()
+    {
+        if (! valid)
+        {
+            throw new org.omg.CORBA.OBJECT_NOT_EXIST("This ORBInitIfo is not valid anymore!");
+        }
+    }
+
+    private void checkInterceptorName(Interceptor interceptor) throws DuplicateName
+    {
+        if (interceptor.name() == null)
+        {
+            throw new DuplicateName("the name is null");
+        }
+    }
+
+    public void add_ior_interceptor(IORInterceptor interceptor)
+        throws DuplicateName
+    {
+        checkInterceptorName(interceptor);
+
+        if (interceptor.name().length() == 0)
+        {
+            anonymous_ior_interceptors.add(interceptor);
+        }
+        else
+        {
+            if (named_ior_interceptors.containsKey(interceptor.name()))
+            {
+                throw new DuplicateName(interceptor.name());
+            }
+
+            named_ior_interceptors.put(interceptor.name(), interceptor);
+        }
+    }
+
+    public void add_server_request_interceptor(ServerRequestInterceptor interceptor)
+        throws DuplicateName
+    {
+        checkIsValid();
+
+        checkInterceptorName(interceptor);
+
+        if (interceptor.name().length() == 0)
+        {
+            anonymous_server_interceptors.add(interceptor);
+        }
+        else
+        {
+            if (named_server_interceptors.containsKey(interceptor.name()))
+            {
+                throw new DuplicateName(interceptor.name());
+            }
+
+            named_server_interceptors.put(interceptor.name(), interceptor);
+        }
+    }
+
+    public int allocate_slot_id()
+    {
+        checkIsValid();
+
+        return slot_count++;
+    }
+
+    public String[] arguments()
+    {
+        checkIsValid();
+
+        return orb.getArgs() ;
+    }
+
+    public CodecFactory codec_factory()
+    {
+        checkIsValid();
+
+        try
+        {
+            return (CodecFactory) orb.resolve_initial_references("CodecFactory");
+        }
+        catch (org.omg.CORBA.ORBPackage.InvalidName e)
+        {
+            logger.error("unexpected error", e);
+            throw new INTERNAL(e.toString());
+        }
+    }
+
+    public String orb_id()
+    {
+        checkIsValid();
+
+        return orb.id();
+    }
+
+    public void register_initial_reference( String id, Object obj )
+        throws InvalidName
+    {
+        checkIsValid();
+
+        try
+        {
+            orb.register_initial_reference(id, obj);
+        }
+        catch(org.omg.CORBA.ORBPackage.InvalidName e)
+        {
+            throw new InvalidName();
+        }
+    }
+
+    public void register_policy_factory(int type, PolicyFactory policy_factory)
+    {
+        checkIsValid();
+
+        if (policy_factory == null)
+        {
+            throw new org.omg.CORBA.BAD_PARAM("Actual parameter policy_factory is null!");
+        }
+
+        final Integer key = Integer.valueOf (type);
+        if (policy_factories.containsKey(key))
+        {
+            throw new org.omg.CORBA.BAD_INV_ORDER("A PolicyFactory for type " + type +
+                                                  " has already been registered!", 12,
+                                                  org.omg.CORBA.CompletionStatus.
+                                                  COMPLETED_MAYBE);
+        }
+
+        policy_factories.put(key, policy_factory);
+    }
+
+
+    public org.omg.CORBA.Object resolve_initial_references(String id)
+        throws InvalidName
+    {
+        checkIsValid();
+
+        try
+        {
+            return orb.resolve_initial_references(id);
+        }
+        catch(org.omg.CORBA.ORBPackage.InvalidName e)
+        {
+            throw new InvalidName();
+        }
+    }
+}

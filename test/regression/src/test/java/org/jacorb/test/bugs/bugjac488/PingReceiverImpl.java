@@ -1,5 +1,7 @@
 package org.jacorb.test.bugs.bugjac488;
 
+import org.jacorb.test.harness.TestUtils;
+
 /*
  * JacORB - a free Java ORB
  *
@@ -25,7 +27,7 @@ public class PingReceiverImpl extends PingReceiverPOA
 {
    public void ping ()
    {
-      System.out.println ("ping() invoked");
+      TestUtils.getLogger().debug ("ping() invoked");
    }
 
    public void shutdown ()
@@ -34,7 +36,7 @@ public class PingReceiverImpl extends PingReceiverPOA
        {
            public void run()
            {
-               System.err.println ("Shutting down server");
+               TestUtils.getLogger().debug ("Shutting down server");
                try
                {
                    Thread.sleep (5000);

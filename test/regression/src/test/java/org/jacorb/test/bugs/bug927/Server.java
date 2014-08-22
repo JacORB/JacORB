@@ -17,7 +17,7 @@ public class Server
 
         //init POA
         POA poa =
-            POAHelper.narrow( orb.resolve_initial_references( "RootPOA" ));
+        POAHelper.narrow( orb.resolve_initial_references( "RootPOA" ));
 
         POAManager poa_manager = poa.the_POAManager();
 
@@ -29,21 +29,20 @@ public class Server
         policies[1]=poa.create_id_assignment_policy(org.omg.PortableServer.IdAssignmentPolicyValue.USER_ID);
         policies[2]=poa.create_servant_retention_policy(org.omg.PortableServer.ServantRetentionPolicyValue.NON_RETAIN);
         policies[3]=poa.create_request_processing_policy(
-                        org.omg.PortableServer.RequestProcessingPolicyValue.USE_SERVANT_MANAGER);
+            org.omg.PortableServer.RequestProcessingPolicyValue.USE_SERVANT_MANAGER);
 
         org.omg.PortableServer.POA persistent_poa=
-               poa.create_POA("simple_persistent",
-                                    poa_manager,
-                                    policies);
+        poa.create_POA("simple_persistent",
+                       poa_manager,
+                       policies);
 
         // ServantLocator
         ServantLocatorImpl servantLocatorImpl = new ServantLocatorImpl(persistent_poa, piCurrent);
 
-      // Set servant manager
-      persistent_poa.set_servant_manager(servantLocatorImpl);
+        // Set servant manager
+        persistent_poa.set_servant_manager(servantLocatorImpl);
 
         // create a TestObjectImpl
-        System.out.println("Creating TestObjectImpl");
         TestObjectImpl testObjectImpl = new TestObjectImpl(orb);
         obj = servantLocatorImpl.registerObject(TestObjectHelper.id(), TestObjectHelper.id(), testObjectImpl);
 

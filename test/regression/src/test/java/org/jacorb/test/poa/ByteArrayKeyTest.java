@@ -22,7 +22,7 @@ package org.jacorb.test.poa;
 
 import static org.junit.Assert.fail;
 import org.jacorb.poa.util.ByteArrayKey;
-import org.jacorb.test.common.ORBTestCase;
+import org.jacorb.test.harness.ORBTestCase;
 import org.junit.Test;
 
 

@@ -1,8 +1,8 @@
 package org.jacorb.test.bugs.bug852;
 
 import static org.junit.Assert.assertEquals;
-import org.jacorb.test.common.ClientServerSetup;
-import org.jacorb.test.common.ClientServerTestCase;
+import org.jacorb.test.harness.ClientServerSetup;
+import org.jacorb.test.harness.ClientServerTestCase;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -43,9 +43,6 @@ public class Bug852Test extends ClientServerTestCase
 
         org.omg.CORBA.TypeCode t1 = any.type();
         org.omg.CORBA.TypeCode t2 = any2.type();
-
-        System.out.println("Client Received type: " + t2.toString());
-        System.out.println("Client Sent type:     " + t1.toString());
 
         assertEquals ("Typecodes should be equal", t1, t2);
     }

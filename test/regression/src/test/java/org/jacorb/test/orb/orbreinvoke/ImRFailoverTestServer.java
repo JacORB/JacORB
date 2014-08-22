@@ -3,6 +3,7 @@ package org.jacorb.test.orb.orbreinvoke;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.PrintWriter;
+import org.jacorb.test.harness.TestUtils;
 import org.jacorb.test.listenendpoints.echo_corbaloc.CmdArgs;
 import org.jacorb.test.listenendpoints.echo_corbaloc.EchoMessageImpl;
 import org.jacorb.util.ObjectUtil;
@@ -26,7 +27,7 @@ public class ImRFailoverTestServer
          // class name to a properties
          java.util.Properties props = ObjectUtil.argsToProps(args);
          String implName = props.getProperty("jacorb.implname", "EchoServer");
-         System.out.println("Server: jacorb.implname: <" + implName + ">");
+         TestUtils.getLogger().debug("Server: jacorb.implname: <" + implName + ">");
          if (implName.equals("EchoServer"))
          {
              props.setProperty("jacorb.implname", implName);
@@ -79,7 +80,6 @@ public class ImRFailoverTestServer
       }
       catch (Exception e)
       {
-         e.printStackTrace();
       }
    }
 }

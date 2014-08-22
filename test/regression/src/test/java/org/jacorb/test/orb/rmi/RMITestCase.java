@@ -33,7 +33,7 @@ import java.util.Hashtable;
 import java.util.Properties;
 import java.util.Vector;
 import javax.rmi.PortableRemoteObject;
-import org.jacorb.test.common.ClientServerTestCase;
+import org.jacorb.test.harness.ClientServerTestCase;
 import org.jacorb.test.orb.rmi.Outer.StaticInner;
 import org.junit.Before;
 

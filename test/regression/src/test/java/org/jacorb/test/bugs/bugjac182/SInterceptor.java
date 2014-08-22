@@ -56,7 +56,6 @@ public class SInterceptor
         }
         catch (Exception e)
         {
-            e.printStackTrace();
             throw new INTERNAL (e.toString());
         }
     }

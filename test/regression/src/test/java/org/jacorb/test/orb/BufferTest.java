@@ -27,7 +27,7 @@ import java.lang.reflect.Field;
 import java.util.List;
 import org.jacorb.orb.BufferManager;
 import org.jacorb.orb.CDROutputStream;
-import org.jacorb.test.common.ORBTestCase;
+import org.jacorb.test.harness.ORBTestCase;
 import org.junit.Before;
 import org.junit.Test;
 

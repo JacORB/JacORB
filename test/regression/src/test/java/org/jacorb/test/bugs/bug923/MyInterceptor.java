@@ -22,57 +22,43 @@ public class MyInterceptor
     public void send_request(ClientRequestInfo ri)
         throws ForwardRequest
     {
-       System.out.println("tid="+Thread.currentThread().getName()+","+"send_request " + ri.operation());
     }
 
     public void send_poll(ClientRequestInfo ri)
     {
-System.out.println("tid="+Thread.currentThread().getName()+","+"send_poll " + ri.operation());
     }
 
     public void receive_reply(ClientRequestInfo ri)
     {
-System.out.println("tid="+Thread.currentThread().getName()+","+"receive_reply " + ri.operation());
     }
 
     public void receive_exception(ClientRequestInfo ri) throws ForwardRequest
     {
-System.out.println("tid="+Thread.currentThread().getName()+","+"receive_exception " + ri.operation());
     }
 
     public void receive_other(ClientRequestInfo ri) throws ForwardRequest
     {
-System.out.println("tid="+Thread.currentThread().getName()+","+"receive_other " + ri.operation());
     }
-
-// ////////////////////////
-// ServerRequestInterceptor
-// ////////////////////////
 
     public void receive_request_service_contexts(ServerRequestInfo ri)
     {
-        System.out.println("tid="+Thread.currentThread().getName()+","+"receive_request_service_contexts " + ri.operation());
     }
 
     public void receive_request(ServerRequestInfo ri)
     {
-System.out.println("tid="+Thread.currentThread().getName()+","+"receive_request " + ri.operation());
     }
 
     public void send_reply(ServerRequestInfo ri)
     {
-System.out.println("tid="+Thread.currentThread().getName()+","+"send_reply " + ri.operation());
     }
 
     public void send_exception(ServerRequestInfo ri)
     {
-System.out.println("tid="+Thread.currentThread().getName()+","+"send_exception " + ri.operation());
     }
 
 
     public void send_other(ServerRequestInfo ri)
     {
-System.out.println("tid="+Thread.currentThread().getName()+","+"send_other " + ri.operation());
     }
 
 } // MyInterceptor

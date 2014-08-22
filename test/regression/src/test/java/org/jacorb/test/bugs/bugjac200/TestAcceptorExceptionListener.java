@@ -24,7 +24,6 @@ public class TestAcceptorExceptionListener
      */
     public void exceptionCaught(AcceptorExceptionEvent exception)
     {
-        exception.getException().printStackTrace();
 
         if ((exception.getException() instanceof Error) ||
             (exception.getException() instanceof SSLException))

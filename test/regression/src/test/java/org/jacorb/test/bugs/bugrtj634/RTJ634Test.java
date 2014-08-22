@@ -4,8 +4,8 @@ import static org.junit.Assert.assertEquals;
 import java.util.Properties;
 import org.jacorb.test.ComplexTimingServer;
 import org.jacorb.test.ComplexTimingServerHelper;
-import org.jacorb.test.common.ClientServerSetup;
-import org.jacorb.test.common.ClientServerTestCase;
+import org.jacorb.test.harness.ClientServerSetup;
+import org.jacorb.test.harness.ClientServerTestCase;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -99,51 +99,43 @@ public class RTJ634Test extends ClientServerTestCase
     *
     * @param args a <code>String[]</code> value
     */
-   public static void main (String[] args)
-   {
-       try
-       {
-           //init ORB
-           ORB orb = ORB.init( args, null );
+    public static void main (String[] args) throws Exception
+    {
+        //init ORB
+        ORB orb = ORB.init( args, null );
 
-           //init POA
-           POA rootPoa =
-               POAHelper.narrow( orb.resolve_initial_references( "RootPOA" ));
-           rootPoa.the_POAManager().activate();
+        //init POA
+        POA rootPoa =
+        POAHelper.narrow( orb.resolve_initial_references( "RootPOA" ));
+        rootPoa.the_POAManager().activate();
 
-           // create POA
-           Policy policies[] = new Policy[2];
-           policies[0] = rootPoa.create_id_uniqueness_policy(
-               org.omg.PortableServer.IdUniquenessPolicyValue.MULTIPLE_ID);
-           policies[1] = rootPoa.create_implicit_activation_policy(
-               ImplicitActivationPolicyValue.IMPLICIT_ACTIVATION );
+        // create POA
+        Policy policies[] = new Policy[2];
+        policies[0] = rootPoa.create_id_uniqueness_policy(
+            org.omg.PortableServer.IdUniquenessPolicyValue.MULTIPLE_ID);
+        policies[1] = rootPoa.create_implicit_activation_policy(
+            ImplicitActivationPolicyValue.IMPLICIT_ACTIVATION );
 
-           POA poa = rootPoa.create_POA
-               ("childPOA1", rootPoa.the_POAManager(), policies);
-           poa.the_POAManager().activate();
+        POA poa = rootPoa.create_POA
+            ("childPOA1", rootPoa.the_POAManager(), policies);
+        poa.the_POAManager().activate();
 
-           TimingServerImpl servant = new TimingServerImpl (1);
+        TimingServerImpl servant = new TimingServerImpl (1);
 
-           // Get the id
-           byte []oid = poa.servant_to_id (servant);
+        // Get the id
+        byte []oid = poa.servant_to_id (servant);
 
-           byte[] obj_2_id = rootPoa.activate_object(new TimingServerImpl(2));
-           SInterceptor.OBJ_2 = rootPoa.id_to_reference(obj_2_id);
+        byte[] obj_2_id = rootPoa.activate_object(new TimingServerImpl(2));
+        SInterceptor.OBJ_2 = rootPoa.id_to_reference(obj_2_id);
 
-           // create the object reference
-           org.omg.CORBA.Object obj = poa.id_to_reference (oid);
+        // create the object reference
+        org.omg.CORBA.Object obj = poa.id_to_reference (oid);
 
-           System.out.println ("SERVER IOR: " + orb.object_to_string(obj));
-           System.out.flush();
+        System.out.println ("SERVER IOR: " + orb.object_to_string(obj));
+        System.out.flush();
 
-           // wait for requests
-           orb.run();
-       }
-       catch( Exception e )
-       {
-           e.printStackTrace();
-           System.out.println ("Caught error " + e);
-       }
-   }
+        // wait for requests
+        orb.run();
+    }
 
 }

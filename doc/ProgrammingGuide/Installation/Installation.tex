@@ -16,11 +16,10 @@ simply unzip) the archive somewhere.  This will result in a new directory {\tt
 
 \subsection{Requirements}
 
-JacORB requires JDK 1.6 or above properly installed on your machine.  To build
-JacORB (and compile the examples) you need to have the XML--based make tool
-``Ant'' installed on your machine (version 1.7.1 or greater).  Ant can be downloaded
-from \href{http://ant.apache.org}{http://ant.apache.org}. All make
-files ({\tt build.xml}) are written for this tool.
+JacORB requires JDK 1.6 or above properly installed on your machine. To build
+JacORB and run the tests Maven (\href{https://maven.apache.org}{https://maven.apache.org})
+ is required (tested with 3.0.x). To build the examples you need to have Ant
+(\href{http://ant.apache.org}{http://ant.apache.org}) installed (tested with 1.8.4).
 
 \subsection{Procedure}
 \begin{itemize}
@@ -49,7 +48,7 @@ and services (See below). JacORB libraries have been split as follows:
 
 JacORB depends upon the following third party software
 \begin{itemize}
-\item Simple Logging Facade For Java (SLF4J Version 1.6.4)
+\item Simple Logging Facade For Java (SLF4J Version 1.7.6)
 \end{itemize}
 
 Note that the services may depend upon further third party libraries.
@@ -57,33 +56,25 @@ Note that the services may depend upon further third party libraries.
 \subsection{Building JacORB}
 \label{sec:building}
 
-Ensure that Ant is installed on your system and that you are starting with a
-clean environment. The easiest way to start is with your CLASSPATH
-unset. Windows users should ensure that JacORB is installed in a path that does
-not contain spaces. Errors will be encountered building the Notification Service
-otherwise.
+JacORB may be built via Maven using standard commands (i.e. {\tt mvn clean install}). Note that the install
+phase must be executed so subsequent module builds find the results of preceeding modules. The project may be
+imported into Eclipse or IntelliJ using standard import commands.
 
-To build JacORB type
-
-\cmdline{ant all}
-
-in the installation directory. Optionally, you might want to first run
-
-\cmdline {ant realclean}.
-
-By default debugging is turned on when building JacORB and set to {\tt lines,source,vars}
-\paragraph{Notes:}
-The build process may abort, claiming that javac does not have enough
-memory. This can happen when trying to compile a large number of files at one
-time. Try setting the variable
-
-\cmdline{ANT\_OPTS=-Xmx500M}
+\subsubsection{Importing into Eclipse}
+\begin{itemize}
+\item Prior to importing it is recommended to build JacORB first (e.g. {\tt mvn install -DskipTests=true}
+\item The JacORB Core and Regression Test module utilises Endorsed Directories to build within the maven-compiler-plugin. In Eclipse, the JBoss Tools Endorsed Libraries Plugin must be installed for this to work.
+\item It is possible further m2e connectors (e.g. build-helper) must also be installed.
+\end{itemize}
 
 \subsubsection{Building JacORB Demos (Optional)}
-To build the JacORB demos within the demo directory a build.xml file
-has been supplied. Similar to above, simply call "ant" in the demo directory.
+Note that the JacORB demos still use Ant. To build the JacORB demos within the
+demo directory a build.xml file has been supplied. Call "ant" in the demo directory.
 The default Ant target will build all the demos. The classes will be placed
 in {\tt <installdir>/classes}
+
+It is recommended that your CLASSPATH is unset and JacORB is installed in a path that does
+not contain spaces.
 
 \subsubsection{Building JBoss Service for the Notification Service (Optional)}
 In order to build the JBoss service (jboss-cosnotification.sar in the lib

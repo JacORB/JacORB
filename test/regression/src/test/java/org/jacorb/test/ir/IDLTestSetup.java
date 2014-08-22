@@ -29,8 +29,8 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import junit.framework.AssertionFailedError;
-import org.jacorb.test.common.StreamListener;
-import org.jacorb.test.common.TestUtils;
+import org.jacorb.test.harness.StreamListener;
+import org.jacorb.test.harness.TestUtils;
 
 /**
  * @author Alphonse Bendt
@@ -43,7 +43,7 @@ class IDLTestSetup
     {
         dirGeneration = TestUtils.createTempDir("IDL_CLASSES");
 
-        TestUtils.log("[IDLTestSetup] using temporary directory " + dirGeneration + " for IDL generation");
+        TestUtils.getLogger().debug("[IDLTestSetup] using temporary directory " + dirGeneration + " for IDL generation");
 
         String[] args = createJacIDLArgs(dirGeneration, getIDLFile(idlFile), idlArgs);
 
@@ -91,7 +91,7 @@ class IDLTestSetup
     {
         try
         {
-            TestUtils.log("[IDLTestSetup] run JacIDL on file " + file + " with args " + Arrays.asList(args));
+            TestUtils.getLogger().debug("[IDLTestSetup] run JacIDL on file " + file + " with args " + Arrays.asList(args));
 
             org.jacorb.idl.parser.compile(args);
 
@@ -112,7 +112,7 @@ class IDLTestSetup
         args.add(TestUtils.testHome() + "/../../bin/idl");
         args.addAll(Arrays.asList(arg));
 
-        TestUtils.log("Running: " + args);
+        TestUtils.getLogger().debug("Running: " + args);
 
         Process process = Runtime.getRuntime().exec(args.toArray(new String[args.size()]));
 
@@ -170,7 +170,7 @@ class IDLTestSetup
             result = new File(TestUtils.testHome() + "/src/test/idl/" + fileName);
         }
 
-        TestUtils.log("using IDL " + (result.isDirectory() ? "dir" : "file") + " " + result);
+        TestUtils.getLogger().debug("using IDL " + (result.isDirectory() ? "dir" : "file") + " " + result);
 
         return result;
     }

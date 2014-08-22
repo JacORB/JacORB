@@ -28,13 +28,14 @@ import org.jacorb.orb.Delegate;
 import org.jacorb.orb.ParsedIOR;
 import org.jacorb.orb.util.PrintIOR;
 import org.jacorb.test.BasicServerHelper;
-import org.jacorb.test.common.ORBTestCase;
-import org.jacorb.test.common.TestUtils;
+import org.jacorb.test.harness.ORBTestCase;
+import org.jacorb.test.harness.TestUtils;
 import org.junit.Test;
 import org.omg.CORBA.Policy;
 import org.omg.CORBA.portable.ObjectImpl;
 import org.omg.PortableServer.IdAssignmentPolicyValue;
 import org.omg.PortableServer.POA;
+import org.omg.PortableServer.POAHelper;
 import org.omg.PortableServer.POAPackage.AdapterAlreadyExists;
 import org.omg.PortableServer.POAPackage.InvalidPolicy;
 import org.omg.PortableServer.POAPackage.WrongPolicy;
@@ -77,21 +78,15 @@ public class BugJac380Test extends ORBTestCase
         assertTrue(profileDetails, profileDetails.indexOf("127.0.0.1") >= 0);
     }
 
-    @Override
-    protected void patchORBProperties(Properties props) throws Exception
-    {
-
-    }
-
     /**
      * create a reference and return its details as string printed using dior.
      */
     private String getProfileDetails(Properties props) throws Exception, InvalidPolicy, AdapterAlreadyExists, WrongPolicy
     {
         // Clear the original ORB so we can create a new one with different properties.
-        ORBTearDown();
-        orbProps.putAll(props);
-        ORBSetUp();
+        org.omg.CORBA.ORB orb = this.getAnotherORB(props);
+        rootPOA = POAHelper.narrow(orb.resolve_initial_references( "RootPOA" ));
+        rootPOA.the_POAManager().activate();
 
         POA testPOA = rootPOA.create_POA("MyPOA", rootPOA.the_POAManager(), new Policy[] {rootPOA.create_id_assignment_policy(IdAssignmentPolicyValue.USER_ID)});
         byte[] key = new byte[] {1, 2, 3, 4};

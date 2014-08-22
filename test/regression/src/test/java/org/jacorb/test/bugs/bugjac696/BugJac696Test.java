@@ -23,7 +23,7 @@ package org.jacorb.test.bugs.bugjac696;
 import static org.junit.Assert.assertTrue;
 import java.lang.reflect.Field;
 import org.jacorb.poa.AOM;
-import org.jacorb.test.common.ORBTestCase;
+import org.jacorb.test.harness.ORBTestCase;
 import org.jacorb.test.orb.BasicServerImpl;
 import org.junit.Test;
 import org.omg.PortableServer.IdAssignmentPolicyValue;

@@ -28,15 +28,7 @@ public class PingReceiverImpl extends PingReceiverPOA
     public String ping ()
     {
         counter++;
-//         try
-//         {
-//             Thread.sleep (5000);
-//         }
-//         catch (InterruptedException e)
-//         {
-//         }
 
-        System.out.println ("ping() invoked");
         return String.valueOf(counter);
     }
 

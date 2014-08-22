@@ -26,9 +26,10 @@ import static org.junit.Assert.assertTrue;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicBoolean;
 import org.jacorb.notification.util.LogUtil;
+import org.jacorb.test.harness.TestUtils;
+import org.jacorb.test.notification.NotificationTestUtils;
 import org.jacorb.test.notification.StructuredPushReceiver;
 import org.jacorb.test.notification.StructuredPushSender;
-import org.jacorb.test.notification.TestUtils;
 import org.jacorb.test.notification.common.NotifyServerTestCase;
 import org.junit.After;
 import org.junit.Assume;
@@ -81,7 +82,7 @@ public class PerformanceTest extends NotifyServerTestCase
 
     Filter trueFilter_;
 
-    TestUtils testUtils_;
+    NotificationTestUtils testUtils_;
 
     Logger logger_ = LogUtil.getLogger(getClass().getName());
 
@@ -101,7 +102,7 @@ public class PerformanceTest extends NotifyServerTestCase
     @Before
     public void setUp() throws Exception
     {
-        testUtils_ = new TestUtils();
+        testUtils_ = new NotificationTestUtils();
 
         factory_ = getEventChannelFactory();
 
@@ -212,7 +213,7 @@ public class PerformanceTest extends NotifyServerTestCase
 
         long _total = System.currentTimeMillis() - _start;
 
-        System.out.println(runs + " Filterings of '" + filterString + "' took " + _total
+        TestUtils.getLogger().debug(runs + " Filterings of '" + filterString + "' took " + _total
                 + " in average: " + (_total / runs));
     }
 
@@ -243,7 +244,7 @@ public class PerformanceTest extends NotifyServerTestCase
 
         long _total = System.currentTimeMillis() - _start;
 
-        System.out.println(runs + " Filterings of '" + filterString + "' took " + _total
+        TestUtils.getLogger().debug(runs + " Filterings of '" + filterString + "' took " + _total
                 + " in average: " + (_total / runs));
     }
 
@@ -275,7 +276,7 @@ public class PerformanceTest extends NotifyServerTestCase
                 @Override
                 public void run()
                 {
-                    System.out.println("Begin to send");
+                    TestUtils.getLogger().debug("Begin to send");
 
                     try
                     {
@@ -287,7 +288,7 @@ public class PerformanceTest extends NotifyServerTestCase
                         e.printStackTrace();
                     }
 
-                    System.out.println("Sent " + data.length);
+                    TestUtils.getLogger().debug("Sent " + data.length);
 
                     latch.countDown();
                 }
@@ -295,11 +296,11 @@ public class PerformanceTest extends NotifyServerTestCase
 
             latch.await();
 
-            System.out.println(receiver);
+            TestUtils.getLogger().debug(receiver.toString());
 
             Thread.sleep(60000);
 
-            System.out.println(receiver);
+            TestUtils.getLogger().debug(receiver.toString());
         }
 
         sender.shutdown();

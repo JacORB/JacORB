@@ -6,21 +6,11 @@
 
     JacORB POM Usage:
 
-    To skip compilation pass -DskipCompile=true
     To skip tests pass -DskipTests=true
     To skip javadoc pass -DskipJavadoc=true
     To skip pdf generation (if e.g. pdflatex is not installed) -DskipPDFGeneration
 
     To deploy and release pass -DperformRelease=true
-
-    Maven phases versus JacORB build rules:
-
-    clean=realclean
-    compile=all
-    test='clean run-all'
-    package= [ Distribution assembly ]
-
-    NOTE: JACORB_HOME must be passed in via -D or set in the environment.
 
     -->
 
@@ -34,7 +24,7 @@
 
     <groupId>org.jacorb</groupId>
     <artifactId>jacorb-parent</artifactId>
-    <version>3.5-SNAPSHOT</version>
+    <version>3.6-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>JacORB</name>
@@ -75,15 +65,20 @@
         <!-- GPG key ID we sign the builds with. This can be overridden by other developers -->
         <gpg.keyname>6E0309600DC50C2E</gpg.keyname>
         <failIfNoTests>false</failIfNoTests>
+
+        <!-- Enforce 1.6 compaatibility -->
+        <maven.compiler.target>1.6</maven.compiler.target>
+        <maven.compiler.source>1.6</maven.compiler.source>
+
+        <datetime>${timestamp}</datetime>
     </properties>
 
 
     <modules>
-        <module>maven/idl-compiler</module>
-        <module>maven/omgapi</module>
-        <module>maven/core</module>
-        <module>maven/services</module>
-        <module>maven/release</module>
+        <module>idl-compiler</module>
+        <module>omgapi</module>
+        <module>core</module>
+        <module>services</module>
         <module>test/regression</module>
     </modules>
 
@@ -91,19 +86,46 @@
     <dependencyManagement>
         <dependencies>
             <dependency>
-                <groupId>org.apache.ant</groupId>
-                <artifactId>ant</artifactId>
-                <version>1.8.2</version>
+                <groupId>org.jacorb</groupId>
+                <artifactId>jacorb-omgapi</artifactId>
+                <version>3.6-SNAPSHOT</version>
             </dependency>
             <dependency>
-                <groupId>org.slf4j</groupId>
-                <artifactId>slf4j-api</artifactId>
-                <version>1.6.4</version>
+                <groupId>org.jacorb</groupId>
+                <artifactId>jacorb</artifactId>
+                <version>3.6-SNAPSHOT</version>
             </dependency>
             <dependency>
-                <groupId>org.slf4j</groupId>
-                <artifactId>slf4j-jdk14</artifactId>
-                <version>1.6.4</version>
+                <groupId>org.jacorb</groupId>
+                <artifactId>jacorb-idl-compiler</artifactId>
+                <version>3.6-SNAPSHOT</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jacorb</groupId>
+                <artifactId>jacorb-services</artifactId>
+                <version>3.6-SNAPSHOT</version>
+            </dependency>
+
+            <!-- External -->
+            <dependency>
+                <groupId>antlr</groupId>
+                <artifactId>antlr</artifactId>
+                <version>2.7.2</version>
+            </dependency>
+            <dependency>
+                <groupId>commons-io</groupId>
+                <artifactId>commons-io</artifactId>
+                <version>2.4</version>
+            </dependency>
+            <dependency>
+                <groupId>easymock</groupId>
+                <artifactId>easymock</artifactId>
+                <version>1.1</version>
+            </dependency>
+            <dependency>
+                <groupId>java_cup</groupId>
+                <artifactId>java_cup</artifactId>
+                <version>0.9e</version>
             </dependency>
             <dependency>
                 <groupId>junit</groupId>
@@ -111,9 +133,63 @@
                 <version>4.11</version>
             </dependency>
             <dependency>
-                <groupId>easymock</groupId>
-                <artifactId>easymock</artifactId>
-                <version>1.1</version>
+                <groupId>mx4j</groupId>
+                <artifactId>mx4j</artifactId>
+                <version>3.0.1</version>
+            </dependency>
+            <dependency>
+                <groupId>nanocontainer</groupId>
+                <artifactId>nanocontainer-remoting</artifactId>
+                <version>1.0-RC-1</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>picocontainer</groupId>
+                        <artifactId>picocontainer</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>picocontainer</groupId>
+                        <artifactId>picocontainer-gems</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>picocontainer</groupId>
+                        <artifactId>picocontainer-tck</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.ant</groupId>
+                <artifactId>ant</artifactId>
+                <version>1.8.2</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.camel</groupId>
+                <artifactId>camel-test</artifactId>
+                <version>2.13.0</version>
+            </dependency>
+            <dependency>
+                <groupId>org.beanshell</groupId>
+                <artifactId>bsh</artifactId>
+                <version>2.0b5</version>
+            </dependency>
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>slf4j-api</artifactId>
+                <version>1.7.6</version>
+            </dependency>
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>slf4j-jdk14</artifactId>
+                <version>1.7.6</version>
+            </dependency>
+            <dependency>
+                <groupId>picocontainer</groupId>
+                <artifactId>picocontainer</artifactId>
+                <version>1.2</version>
+            </dependency>
+            <dependency>
+                <groupId>tanukisoft</groupId>
+                <artifactId>wrapper</artifactId>
+                <version>3.1.0</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
@@ -126,38 +202,6 @@
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-antrun-plugin</artifactId>
                     <version>1.7</version>
-                    <executions>
-                        <execution>
-                            <id>getJACORB_HOMEValidation</id>
-                            <phase>validate</phase>
-                            <goals>
-                                <goal>run</goal>
-                            </goals>
-                            <configuration>
-                                <exportAntProperties>true</exportAntProperties>
-                                <target>
-                                    <!--Adjust the location below to your directory structure -->
-                                    <property name="env.JACORB_HOME" location="../.." />
-                                    <echo message="[validate] env.JACORB_HOME=${env.JACORB_HOME}"/>
-                                </target>
-                            </configuration>
-                        </execution>
-                        <execution>
-                            <id>getenv.JACORB_HOMEClean</id>
-                            <phase>pre-clean</phase>
-                            <goals>
-                                <goal>run</goal>
-                            </goals>
-                            <configuration>
-                                <exportAntProperties>true</exportAntProperties>
-                                <target>
-                                    <!--Adjust the location below to your directory structure -->
-                                    <property name="env.JACORB_HOME" location="../.." />
-                                    <echo message="[preclean] env.JACORB_HOME=${env.JACORB_HOME}"/>
-                                </target>
-                            </configuration>
-                        </execution>
-                    </executions>
                     <dependencies>
                         <dependency>
                             <groupId>org.apache.ant</groupId>
@@ -174,14 +218,6 @@
                             <artifactId>ant-junit</artifactId>
                             <version>1.8.2</version>
                         </dependency>
-                        <!-- To ensure we pick up the javac compiler -->
-                        <dependency>
-                            <groupId>com.sun</groupId>
-                            <artifactId>tools</artifactId>
-                            <version>1.6.0</version>
-                            <scope>system</scope>
-                            <systemPath>${toolsjar}</systemPath>
-                        </dependency>
                     </dependencies>
                 </plugin>
 
@@ -193,8 +229,39 @@
 
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-compiler-plugin</artifactId>
+                    <version>3.1</version>
+                    <configuration>
+                        <debug>true</debug>
+                        <showDeprecation>true</showDeprecation>
+                        <showWarnings>true</showWarnings>
+                        <testSource>${maven.compiler.source}</testSource>
+                        <testTarget>${maven.compiler.source}</testTarget>
+                        <source>${maven.compiler.source}</source>
+                        <target>${maven.compiler.target}</target>
+                    </configuration>
+                </plugin>
+
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-dependency-plugin</artifactId>
-                    <version>2.6</version>
+                    <version>2.8</version>
+                    <executions>
+                        <execution>
+                            <id>copy-dependencies</id>
+                            <phase>generate-resources</phase>
+                            <goals>
+                                <goal>copy-dependencies</goal>
+                            </goals>
+                            <configuration>
+                                <outputDirectory>${basedir}/../lib</outputDirectory>
+                                <overWriteReleases>true</overWriteReleases>
+                                <overWriteSnapshots>true</overWriteSnapshots>
+                                <overWriteIfNewer>true</overWriteIfNewer>
+                                <includeGroupIds>org.slf4j,antlr,picocontainer,tanukisoft</includeGroupIds>
+                            </configuration>
+                        </execution>
+                    </executions>
                 </plugin>
 
                 <plugin>
@@ -205,13 +272,57 @@
 
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-install-plugin</artifactId>
+                    <artifactId>maven-jar-plugin</artifactId>
                     <version>2.4</version>
+                    <configuration>
+                        <archive>
+                            <index>true</index>
+                            <manifest>
+                                <addDefaultSpecificationEntries>
+                                    true
+                                </addDefaultSpecificationEntries>
+                                <addDefaultImplementationEntries>
+                                    true
+                                </addDefaultImplementationEntries>
+                            </manifest>
+                            <manifestEntries>
+                                <Implementation-URL>${project.url}</Implementation-URL>
+                                <Java-Version>${java.version}</Java-Version>
+                                <Java-Vendor>${java.vendor}</Java-Vendor>
+                                <Os-Name>${os.name}</Os-Name>
+                                <Os-Arch>${os.arch}</Os-Arch>
+                                <Os-Version>${os.version}</Os-Version>
+                                <Scm-Url>${project.scm.url}</Scm-Url>
+                                <Scm-Connection>${project.scm.connection}</Scm-Connection>
+                                <Scm-Revision>${buildNumber}</Scm-Revision>
+                                <Build-Timestamp>${datetime}</Build-Timestamp>
+                            </manifestEntries>
+                        </archive>
+                    </configuration>
                 </plugin>
 
+                <!-- Generate javadoc. Bound into the package phase for deployment purposes -->
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-jar-plugin</artifactId>
+                    <artifactId>maven-javadoc-plugin</artifactId>
+                    <version>2.8.1</version>
+                    <configuration>
+                        <skip>${skipJavadoc}</skip>
+                        <verbose>false</verbose>
+                        <quiet>false</quiet>
+                    </configuration>
+                    <executions>
+                        <execution>
+                            <phase>package</phase>
+                            <goals>
+                                <goal>jar</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-install-plugin</artifactId>
                     <version>2.4</version>
                 </plugin>
 
@@ -223,61 +334,85 @@
 
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-release-plugin</artifactId>
+                    <version>2.5</version>
+                </plugin>
+
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-source-plugin</artifactId>
                     <version>2.1.2</version>
                     <executions>
                         <execution>
                             <id>attach-sources</id>
                             <goals>
-                                <goal>jar</goal>
+                                <goal>jar-no-fork</goal>
                             </goals>
                         </execution>
                     </executions>
+                </plugin>
+
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-site-plugin</artifactId>
+                    <version>3.3</version>
+                </plugin>
+
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-surefire-plugin</artifactId>
+                    <version>2.17</version>
+                </plugin>
+
+                <plugin>
+                    <groupId>org.codehaus.mojo</groupId>
+                    <artifactId>antlr-maven-plugin</artifactId>
+                    <version>2.2</version>
                 </plugin>
 
                 <plugin>
                     <groupId>org.codehaus.mojo</groupId>
                     <artifactId>buildnumber-maven-plugin</artifactId>
-                    <version>1.2</version>
+                    <version>1.3</version>
                 </plugin>
 
-                <!-- Helper plugin to override main artifact -->
                 <plugin>
-                    <groupId>org.commonjava.maven.plugins</groupId>
-                    <artifactId>build-migration-maven-plugin</artifactId>
-                    <version>0.3</version>
-                    <executions>
-                        <execution>
-                            <id>attach-main-artifact</id>
-                            <goals>
-                                <goal>main-artifact</goal>
-                            </goals>
-                            <configuration>
-                                <mainArtifact>${mainArtifact}</mainArtifact>
-                            </configuration>
-                        </execution>
-                    </executions>
+                    <groupId>org.codehaus.mojo</groupId>
+                    <artifactId>exec-maven-plugin</artifactId>
+                    <version>1.2.1</version>
                 </plugin>
 
-                <!-- Generate javadoc. Bound into the package phase for deployment purposes -->
                 <plugin>
-                    <artifactId>maven-javadoc-plugin</artifactId>
-                    <version>2.8.1</version>
+                    <groupId>org.codehaus.gmaven</groupId>
+                    <artifactId>gmaven-plugin</artifactId>
+                    <version>1.5</version>
                     <configuration>
-                        <skip>${skipJavadoc}</skip>
-                        <verbose>true</verbose>
-                        <sourcepath>${env.JACORB_HOME}/src</sourcepath>
-                        <bootclasspath>${sun.boot.class.path}:${env.JACORB_HOME}/classes</bootclasspath>
+                        <providerSelection>1.8</providerSelection>
                     </configuration>
-                    <executions>
-                        <execution>
-                            <phase>package</phase>
-                            <goals>
-                                <goal>jar</goal>
-                            </goals>
-                        </execution>
-                    </executions>
                 </plugin>
+
+                <plugin>
+                    <groupId>org.codehaus.mojo</groupId>
+                    <artifactId>idlj-maven-plugin</artifactId>
+                    <version>1.2.1</version>
+                    <configuration>
+                        <compiler>jacorb</compiler>
+                    </configuration>
+                    <dependencies>
+                        <dependency>
+                            <groupId>org.jacorb</groupId>
+                            <artifactId>jacorb-idl-compiler</artifactId>
+                            <version>3.6-SNAPSHOT</version>
+                        </dependency>
+                    </dependencies>
+                </plugin>
+
+                <plugin>
+                    <groupId>org.codehaus.mojo</groupId>
+                    <artifactId>templating-maven-plugin</artifactId>
+                    <version>1.0-alpha-3</version>
+                </plugin>
+
 
                 <plugin>
                     <groupId>org.codehaus.mojo</groupId>
@@ -285,93 +420,222 @@
                     <version>1.7</version>
                 </plugin>
 
+                <plugin>
+                    <groupId>org.codehaus.mojo</groupId>
+                    <artifactId>rmic-maven-plugin</artifactId>
+                    <version>1.2.1</version>
+                </plugin>
+
+                <plugin>
+                    <groupId>org.codehaus.mojo</groupId>
+                    <artifactId>xdoclet-maven-plugin</artifactId>
+                    <version>1.0</version>
+                </plugin>
+
                 <!--This plugin's configuration is used to store Eclipse m2e settings only. It has no influence on the Maven build itself.-->
                 <plugin>
-                        <groupId>org.eclipse.m2e</groupId>
-                        <artifactId>lifecycle-mapping</artifactId>
-                        <version>1.0.0</version>
-                        <configuration>
-                                <lifecycleMappingMetadata>
-                                        <pluginExecutions>
-                                                <pluginExecution>
-                                                        <pluginExecutionFilter>
-                                                                <groupId>
-                                                                        org.codehaus.mojo
-                                                                </groupId>
-                                                                <artifactId>
-                                                                        idlj-maven-plugin
-                                                                </artifactId>
-                                                                <versionRange>
-                                                                        [1.2.1,)
-                                                                </versionRange>
-                                                                <goals>
-                                                                        <goal>generate-test</goal>
-                                                                </goals>
-                                                        </pluginExecutionFilter>
-                                                        <action>
-                                                                <ignore></ignore>
-                                                        </action>
-                                                </pluginExecution>
-                                                <pluginExecution>
-                                                        <pluginExecutionFilter>
-                                                                <groupId>
-                                                                        org.codehaus.mojo
-                                                                </groupId>
-                                                                <artifactId>
-                                                                        rmic-maven-plugin
-                                                                </artifactId>
-                                                                <versionRange>
-                                                                        [1.2.1,)
-                                                                </versionRange>
-                                                                <goals>
-                                                                        <goal>test-rmic</goal>
-                                                                </goals>
-                                                        </pluginExecutionFilter>
-                                                        <action>
-                                                            <ignore></ignore>
-                                                        </action>
-                                                </pluginExecution>
-                                                <pluginExecution>
-                                                        <pluginExecutionFilter>
-                                                                <groupId>
-                                                                        org.apache.maven.plugins
-                                                                </groupId>
-                                                                <artifactId>
-                                                                        maven-antrun-plugin
-                                                                </artifactId>
-                                                                <versionRange>
-                                                                        [1.7,)
-                                                                </versionRange>
-                                                                <goals>
-                                                                        <goal>run</goal>
-                                                                </goals>
-                                                        </pluginExecutionFilter>
-                                                        <action>
-                                                                <ignore></ignore>
-                                                        </action>
-                                                </pluginExecution>
-                                                <pluginExecution>
-                                                        <pluginExecutionFilter>
-                                                                <groupId>
-                                                                        org.apache.cxf
-                                                                </groupId>
-                                                                <artifactId>
-                                                                        cxf-codegen-plugin
-                                                                </artifactId>
-                                                                <versionRange>
-                                                                        [2.7,)
-                                                                </versionRange>
-                                                                <goals>
-                                                                        <goal>wsdl2java</goal>
-                                                                </goals>
-                                                        </pluginExecutionFilter>
-                                                        <action>
-                                                                <ignore></ignore>
-                                                        </action>
-                                                </pluginExecution>
-                                        </pluginExecutions>
-                                </lifecycleMappingMetadata>
-                        </configuration>
+                    <groupId>org.eclipse.m2e</groupId>
+                    <artifactId>lifecycle-mapping</artifactId>
+                    <version>1.0.0</version>
+                    <configuration>
+                        <lifecycleMappingMetadata>
+                            <pluginExecutions>
+                                <pluginExecution>
+                                    <pluginExecutionFilter>
+                                        <groupId>
+                                            org.apache.cxf
+                                        </groupId>
+                                        <artifactId>
+                                            cxf-codegen-plugin
+                                        </artifactId>
+                                        <versionRange>
+                                            [2.7,)
+                                        </versionRange>
+                                        <goals>
+                                            <goal>wsdl2java</goal>
+                                        </goals>
+                                    </pluginExecutionFilter>
+                                    <action>
+                                        <ignore></ignore>
+                                    </action>
+                                </pluginExecution>
+                                <pluginExecution>
+                                        <pluginExecutionFilter>
+                                                <groupId>
+                                                        org.apache.maven.plugins
+                                                </groupId>
+                                                <artifactId>
+                                                        maven-antrun-plugin
+                                                </artifactId>
+                                                <versionRange>
+                                                        [1.7,)
+                                                </versionRange>
+                                                <goals>
+                                                        <goal>run</goal>
+                                                </goals>
+                                        </pluginExecutionFilter>
+                                        <action>
+                                                <ignore></ignore>
+                                        </action>
+                                </pluginExecution>
+                                <pluginExecution>
+                                        <pluginExecutionFilter>
+                                                <groupId>
+                                                        org.codehaus.mojo
+                                                </groupId>
+                                                <artifactId>
+                                                        buildnumber-maven-plugin
+                                                </artifactId>
+                                                <versionRange>
+                                                        [1.3,)
+                                                </versionRange>
+                                                <goals>
+                                                        <goal>
+                                                                create-timestamp
+                                                        </goal>
+                                                </goals>
+                                        </pluginExecutionFilter>
+                                        <action>
+                                                <ignore></ignore>
+                                        </action>
+                                </pluginExecution>
+                                <pluginExecution>
+                                        <pluginExecutionFilter>
+                                                <groupId>
+                                                        org.codehaus.mojo
+                                                </groupId>
+                                                <artifactId>
+                                                        idlj-maven-plugin
+                                                </artifactId>
+                                                <versionRange>
+                                                        [1.2.1,)
+                                                </versionRange>
+                                                <goals>
+                                                        <goal>generate</goal>
+                                                        <goal>generate-test</goal>
+                                                </goals>
+                                        </pluginExecutionFilter>
+                                        <action>
+                                            <ignore></ignore>
+                                        </action>
+                                </pluginExecution>
+                                <pluginExecution>
+                                        <pluginExecutionFilter>
+                                                <groupId>
+                                                        org.codehaus.mojo
+                                                </groupId>
+                                                <artifactId>
+                                                        xdoclet-maven-plugin
+                                                </artifactId>
+                                                <versionRange>
+                                                        [1.0,)
+                                                </versionRange>
+                                                <goals>
+                                                        <goal>xdoclet</goal>
+                                                </goals>
+                                        </pluginExecutionFilter>
+                                        <action>
+                                                <ignore></ignore>
+                                        </action>
+                                </pluginExecution>
+                                <pluginExecution>
+                                        <pluginExecutionFilter>
+                                                <groupId>
+                                                        org.codehaus.gmaven
+                                                </groupId>
+                                                <artifactId>
+                                                        gmaven-plugin
+                                                </artifactId>
+                                                <versionRange>
+                                                        [1.5,)
+                                                </versionRange>
+                                                <goals>
+                                                        <goal>execute</goal>
+                                                </goals>
+                                        </pluginExecutionFilter>
+                                        <action>
+                                                <ignore></ignore>
+                                        </action>
+                                </pluginExecution>
+                                <pluginExecution>
+                                        <pluginExecutionFilter>
+                                                <groupId>
+                                                        org.codehaus.mojo
+                                                </groupId>
+                                                <artifactId>
+                                                        templating-maven-plugin
+                                                </artifactId>
+                                                <versionRange>
+                                                        [1.0-alpha-3,)
+                                                </versionRange>
+                                                <goals>
+                                                        <goal>filter-sources</goal>
+                                                </goals>
+                                        </pluginExecutionFilter>
+                                        <action>
+                                                <ignore></ignore>
+                                        </action>
+                                </pluginExecution>
+                                <pluginExecution>
+                                        <pluginExecutionFilter>
+                                                <groupId>org.jacoco</groupId>
+                                                <artifactId>
+                                                        jacoco-maven-plugin
+                                                </artifactId>
+                                                <versionRange>
+                                                        [0.6.4.201312101107,)
+                                                </versionRange>
+                                                <goals>
+                                                        <goal>prepare-agent</goal>
+                                                </goals>
+                                        </pluginExecutionFilter>
+                                        <action>
+                                                <ignore></ignore>
+                                        </action>
+                                </pluginExecution>
+                                <pluginExecution>
+                                        <pluginExecutionFilter>
+                                                <groupId>
+                                                        org.codehaus.mojo
+                                                </groupId>
+                                                <artifactId>
+                                                        rmic-maven-plugin
+                                                </artifactId>
+                                                <versionRange>
+                                                        [1.2.1,)
+                                                </versionRange>
+                                                <goals>
+                                                        <goal>test-rmic</goal>
+                                                </goals>
+                                        </pluginExecutionFilter>
+                                        <action>
+                                                <ignore></ignore>
+                                        </action>
+                                </pluginExecution>
+                                <pluginExecution>
+                                        <pluginExecutionFilter>
+                                                <groupId>
+                                                        org.apache.maven.plugins
+                                                </groupId>
+                                                <artifactId>
+                                                        maven-dependency-plugin
+                                                </artifactId>
+                                                <versionRange>
+                                                        [2.8,)
+                                                </versionRange>
+                                                <goals>
+                                                        <goal>
+                                                                copy-dependencies
+                                                        </goal>
+                                                </goals>
+                                        </pluginExecutionFilter>
+                                        <action>
+                                                <ignore></ignore>
+                                        </action>
+                                </pluginExecution>
+                            </pluginExecutions>
+                        </lifecycleMappingMetadata>
+                    </configuration>
                 </plugin>
 
             </plugins>
@@ -381,102 +645,22 @@
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-enforcer-plugin</artifactId>
-                <version>1.3.1</version>
-                <executions>
-                    <execution>
-                        <id>enforce-versions</id>
-                        <goals>
-                            <goal>enforce</goal>
-                        </goals>
-                        <configuration>
-                            <rules>
-                                <requireJavaVersion>
-                                    <version>[1.6.0,1.7.0)</version>
-                                </requireJavaVersion>
-                            </rules>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-
-            <plugin>
                 <artifactId>maven-antrun-plugin</artifactId>
                 <version>1.7</version>
                 <inherited>false</inherited>
                 <executions>
                     <execution>
-                        <id>getJACORB_HOMEValidation</id>
-                        <phase>validate</phase>
-                        <configuration>
-                            <exportAntProperties>true</exportAntProperties>
-                            <target>
-                                <!--Adjust the location below to your directory structure -->
-                                <property name="env.JACORB_HOME" location="." />
-                                <echo message="[validate] env.JACORB_HOME=${env.JACORB_HOME}"/>
-                            </target>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <id>getenv.JACORB_HOMEClean</id>
-                        <phase>pre-clean</phase>
-                        <configuration>
-                            <exportAntProperties>true</exportAntProperties>
-                            <target>
-                                <!--Adjust the location below to your directory structure -->
-                                <property name="env.JACORB_HOME" location="." />
-                                <echo message="[preclean] env.JACORB_HOME=${env.JACORB_HOME}"/>
-                            </target>
-                        </configuration>
-                    </execution>
-                    <execution>
-                            <id>clean</id>
-                            <phase>clean</phase>
-                            <goals>
-                                <goal>run</goal>
-                            </goals>
-                            <configuration>
-                                <target>
-                                    <ant antfile="${env.JACORB_HOME}/build.xml" target="realclean">
-                                        <property name="basedir" value="${env.JACORB_HOME}"/>
-                                    </ant>
-                                </target>
-                            </configuration>
-                        </execution>
-                </executions>
-            </plugin>
-
-            <!-- We could use the maven jar plugin to rebuild the jar files for final packaging -->
-            <!-- For now, lets skip it and use the Ant version. -->
-            <plugin>
-                <artifactId>maven-jar-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>default-jar</id>
-                        <phase>DISABLED</phase>
-                    </execution>
-                </executions>
-            </plugin>
-
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-resources-plugin</artifactId>
-                <inherited>false</inherited>
-                <executions>
-                    <execution>
-                        <id>resources</id>
-                        <phase>process-sources</phase>
+                        <id>cleanLibDirectory</id>
+                        <phase>clean</phase>
                         <goals>
-                            <goal>copy-resources</goal>
+                            <goal>run</goal>
                         </goals>
                         <configuration>
-                            <outputDirectory>${basedir}/src/generated</outputDirectory>
-                            <resources>
-                                <resource>
-                                    <directory>src/main/resources</directory>
-                                    <filtering>true</filtering>
-                                </resource>
-                            </resources>
+                            <target>
+                                <delete quiet="true">
+                                    <fileset dir="${basedir}/lib" includes="*.jar"/>
+                                </delete>
+                            </target>
                         </configuration>
                     </execution>
                 </executions>
@@ -485,17 +669,16 @@
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>buildnumber-maven-plugin</artifactId>
-                <inherited>false</inherited>
                 <executions>
                     <execution>
                         <phase>validate</phase>
-                        <id>buildnumbers</id>
+                        <id>buildnumber</id>
                         <goals>
                             <goal>create</goal>
                         </goals>
                         <configuration>
                             <shortRevisionLength>8</shortRevisionLength>
-                            <timestampFormat>{0,date,dd MMMM yyyy HH:mm:ss}</timestampFormat>
+                            <timestampFormat>{0,date,dd MMMM yyyy}</timestampFormat>
                         </configuration>
                     </execution>
                     <execution>
@@ -573,6 +756,10 @@
                     </plugin>
                 </plugins>
             </build>
+
+            <modules>
+                <module>release</module>
+            </modules>
         </profile>
     </profiles>
 

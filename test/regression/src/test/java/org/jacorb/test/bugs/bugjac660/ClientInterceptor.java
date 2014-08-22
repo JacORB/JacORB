@@ -6,7 +6,8 @@ import org.omg.IOP.ServiceContext;
 import org.omg.PortableInterceptor.ClientRequestInfo;
 import org.omg.PortableInterceptor.ClientRequestInterceptor;
 import org.omg.PortableInterceptor.ForwardRequest;
-
+import org.jacorb.orb.ORB;
+import org.slf4j.Logger;
 
 public class ClientInterceptor
     extends org.omg.CORBA.LocalObject
@@ -14,11 +15,13 @@ public class ClientInterceptor
 {
     private int slot_id = -1;
     private Codec codec = null;
+    private Logger logger;
 
-    public ClientInterceptor(int slot_id, Codec codec)
+    public ClientInterceptor(ORB orb, int slot_id, Codec codec)
     {
         this.slot_id = slot_id;
         this.codec = codec;
+        logger = orb.getConfiguration ().getLogger("org.jacorb.test");
     }
 
     public String name()
@@ -28,19 +31,19 @@ public class ClientInterceptor
 
     public void destroy()
     {
-        System.out.println("[" + Thread.currentThread() + "] ClientInterceptor: destroy()");
+        logger.debug("[" + Thread.currentThread() + "] ClientInterceptor: destroy()");
     }
 
     public void send_request( ClientRequestInfo ri )
         throws ForwardRequest
     {
-        System.out.println("[" + Thread.currentThread() + "] ClientInterceptor: send_request()");
+        logger.debug("[" + Thread.currentThread() + "] ClientInterceptor: send_request()");
 
         try
         {
             org.omg.CORBA.Any any = ri.get_slot( slot_id );
 
-            System.out.println("[" + Thread.currentThread()
+            logger.debug("[" + Thread.currentThread()
                                + "] ClientInterceptor: send_request() - get_slot() = "
                                + any);
 
@@ -54,19 +57,18 @@ public class ClientInterceptor
         }
         catch (Exception e)
         {
-            e.printStackTrace();
             throw new INTERNAL (e.getMessage());
         }
     }
 
     public void send_poll(ClientRequestInfo ri)
     {
-        System.out.println("[" + Thread.currentThread() + "] ClientInterceptor: send_poll()");
+        logger.debug("[" + Thread.currentThread() + "] ClientInterceptor: send_poll()");
     }
 
     public void receive_reply(ClientRequestInfo ri)
     {
-        System.out.println("[" + Thread.currentThread() + "] ClientInterceptor: receive_reply()");
+        logger.debug("[" + Thread.currentThread() + "] ClientInterceptor: receive_reply()");
 
         try
         {
@@ -74,7 +76,7 @@ public class ClientInterceptor
 
             if (any == null)
             {
-                System.out.println ("Slot null");
+                logger.debug ("Slot null");
                 throw new INTERNAL ("Any slot was unexpectedly null");
             }
 
@@ -86,13 +88,12 @@ public class ClientInterceptor
                                      + result + "> and expected <This is a test AAA>");
             }
 
-            System.out.println ("[" + Thread.currentThread()
+            logger.debug ("[" + Thread.currentThread()
                                 + "] ClientInterceptor: receive_reply() - get_slot() = "
                                 + any);
         }
         catch (Exception e)
         {
-           e.printStackTrace();
            throw new INTERNAL (e.getMessage());
         }
     }
@@ -100,13 +101,13 @@ public class ClientInterceptor
     public void receive_exception(ClientRequestInfo ri)
         throws ForwardRequest
     {
-        System.out.println("[" + Thread.currentThread()
+        logger.debug("[" + Thread.currentThread()
                            + "] ClientInterceptor: receive_exception()");
     }
 
     public void receive_other(ClientRequestInfo ri)
         throws ForwardRequest
     {
-        System.out.println("[" + Thread.currentThread() + "] ClientInterceptor: receive_other()");
+        logger.debug("[" + Thread.currentThread() + "] ClientInterceptor: receive_other()");
     }
 }// ClientInterceptor

@@ -25,13 +25,15 @@ import java.net.InetAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.Properties;
-import org.jacorb.test.common.ClientServerSetup;
-import org.jacorb.test.common.ClientServerTestCase;
-import org.jacorb.test.common.TestUtils;
+import org.jacorb.test.harness.ClientServerSetup;
+import org.jacorb.test.harness.ClientServerTestCase;
+import org.jacorb.test.harness.IMRExcludedClientServerCategory;
+import org.jacorb.test.harness.TestUtils;
 import org.junit.Assume;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 
 /**
  * <code>TestCaseImpl</code> is a test to check that connectionOpened and
@@ -39,11 +41,12 @@ import org.junit.Test;
  *
  * @author Carol Jordon
  */
+@Category(IMRExcludedClientServerCategory.class)
 public class BugJac195Test extends ClientServerTestCase
 {
     private JAC195Server server;
 
-    final static String port = "50124";
+    private static int port;
 
     @Before
     public void setUp() throws Exception
@@ -59,8 +62,9 @@ public class BugJac195Test extends ClientServerTestCase
         Properties client_props = new Properties();
         Properties server_props = new Properties();
 
-        server_props.setProperty ("OAPort",
-                                  port);
+        port = TestUtils.getNextAvailablePort();
+
+        server_props.setProperty ("OAPort", Integer.toString(port));
 
         server_props.setProperty ("jacorb.net.tcp_listener",
                                   "org.jacorb.test.bugs.bugjac195.TCPListener");
@@ -78,7 +82,6 @@ public class BugJac195Test extends ClientServerTestCase
     @Test
     public void test_connections() throws Exception
     {
-        int serverPort = Integer.parseInt(port);
         String ipAddress;
 
         try
@@ -99,7 +102,7 @@ public class BugJac195Test extends ClientServerTestCase
         for (int i = 0; i < 5; i++)
         {
             Socket sock = new Socket (InetAddress.getByName(ipAddress),
-                    serverPort);
+                    port);
 
             sock.close();
 

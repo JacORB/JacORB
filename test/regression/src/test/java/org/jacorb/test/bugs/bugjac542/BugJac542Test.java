@@ -24,7 +24,7 @@ import static org.junit.Assert.assertEquals;
 import org.easymock.MockControl;
 import org.jacorb.config.Configuration;
 import org.jacorb.orb.iiop.IIOPAddress;
-import org.jacorb.test.common.MyNullLogger;
+import org.jacorb.test.harness.TestUtils;
 import org.junit.Test;
 
 /**
@@ -37,22 +37,22 @@ public class BugJac542Test
     {
         final String hostname = "does.not.exist";
         IIOPAddress address = new IIOPAddress(hostname, 2710);
-        
+
         MockControl configControl = MockControl.createControl(Configuration.class);
         Configuration configMock = (Configuration) configControl.getMock();
-        
-        configControl.expectAndReturn(configMock.getLogger("org.jacorb.iiop.address"), new MyNullLogger());
+
+        configControl.expectAndReturn(configMock.getLogger("org.jacorb.iiop.address"), TestUtils.getLogger());
         configControl.expectAndReturn(configMock.getAttributeAsBoolean("jacorb.dns.enable", false), true);
         configControl.expectAndReturn(configMock.getAttributeAsBoolean("jacorb.dns.force_lookup", true), true);
         configControl.expectAndReturn(configMock.getAttributeAsBoolean("jacorb.ipv6.hide_zoneid", true), true);
         configControl.expectAndReturn(configMock.getAttributeAsBoolean("jacorb.dns.eager_resolve", true), true);
-        
+
         configControl.replay();
-        
+
         address.configure(configMock);
-        
+
         configControl.verify();
-        
+
         assertEquals(address, address);
         assertEquals(address.hashCode(), address.hashCode());
     }

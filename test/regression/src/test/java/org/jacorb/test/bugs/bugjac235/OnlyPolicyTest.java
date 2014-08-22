@@ -1,7 +1,7 @@
 package org.jacorb.test.bugs.bugjac235;
 
 import static org.junit.Assert.fail;
-import org.jacorb.test.common.ClientServerSetup;
+import org.jacorb.test.harness.ClientServerSetup;
 import org.junit.BeforeClass;
 import org.junit.Test;
 

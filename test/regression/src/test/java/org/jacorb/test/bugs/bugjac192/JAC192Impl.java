@@ -46,12 +46,10 @@ public class JAC192Impl extends JAC192POA implements Configurable
         }
         catch (InvalidSlot e)
         {
-            e.printStackTrace();
             throw new INTERNAL(e.toString());
         }
         catch (InvalidName e)
         {
-            e.printStackTrace();
             throw new INTERNAL(e.toString());
         }
 

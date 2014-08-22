@@ -1,5 +1,6 @@
 package org.jacorb.test.bugs.bugjac788;
 
+import org.jacorb.test.harness.TestUtils;
 import org.omg.CORBA.Any;
 import org.omg.CORBA.SystemException;
 import org.omg.CORBA.TCKind;
@@ -44,6 +45,7 @@ public class TestClientRequestInterceptorImpl extends
      * @param ri
      *            Client request information
      */
+    @Override
     public void receive_exception(ClientRequestInfo ri) throws ForwardRequest,
         SystemException {
 
@@ -59,7 +61,7 @@ public class TestClientRequestInterceptorImpl extends
                     // the request invocation is done in the context of an
                     // incoming
                     // request processing.
-                   System.out.println ("request_id_slot is not set");
+                   TestUtils.getLogger().debug ("request_id_slot is not set");
                     // CDMW_INTERNAL_1(FTLogger.GetLogger(),
                     //     "request_id_slot is not set", new Throwable());
                 }
@@ -81,7 +83,6 @@ public class TestClientRequestInterceptorImpl extends
 
         }
         catch (org.omg.PortableInterceptor.InvalidSlot e) {
-           e.printStackTrace ();
                    throw new org.omg.CORBA.INTERNAL ("Invalid Slot " + e);
            // // This slot that has not been allocated
            //  CDMW_ERROR(FTLogger.GetLogger(),
@@ -120,6 +121,7 @@ public class TestClientRequestInterceptorImpl extends
      * @param ri
      *            Client request information
      */
+    @Override
     public void receive_other(ClientRequestInfo ri) throws ForwardRequest,
         SystemException {
 
@@ -134,7 +136,7 @@ public class TestClientRequestInterceptorImpl extends
                 if (tc.kind().value() == TCKind._tk_null) {
                     // the request invocation is done in the context of an
                     // incoming request processing.
-                   System.out.println ("request_id_slot is not set");
+                   TestUtils.getLogger().debug ("request_id_slot is not set");
                     // CDMW_INTERNAL_1(FTLogger.GetLogger(),
                     //     "request_id_slot is not set", new Throwable());
                 }
@@ -156,7 +158,6 @@ public class TestClientRequestInterceptorImpl extends
 
         }
         catch (org.omg.PortableInterceptor.InvalidSlot e) {
-       e.printStackTrace ();
            throw new org.omg.CORBA.INTERNAL ("Invalid Slot " + e);
                 // // This slot that has not been allocated
             // CDMW_ERROR(FTLogger.GetLogger(),
@@ -191,6 +192,7 @@ public class TestClientRequestInterceptorImpl extends
      * @param ri
      *            Client request information
      */
+    @Override
     public void receive_reply(ClientRequestInfo ri)
         throws org.omg.CORBA.SystemException {
 
@@ -207,7 +209,7 @@ public class TestClientRequestInterceptorImpl extends
                     // the request invocation is not the result of an incoming
                     // request
                     // processing.
-                   System.out.println ("request_id_slot is not set");
+                   TestUtils.getLogger().debug ("request_id_slot is not set");
                     // CDMW_INTERNAL_1(FTLogger.GetLogger(),
                     //     "request_id_slot is not set", new Throwable());
                 }
@@ -225,7 +227,7 @@ public class TestClientRequestInterceptorImpl extends
             }
             else {
                 requestId = slotData.extract_ulong();
-               System.out.println ("Calling remove_waiting_response for request_id= " + requestId);
+               TestUtils.getLogger().debug ("Calling remove_waiting_response for request_id= " + requestId);
 
                 // CDMW_INTERNAL_1(FTLogger.GetLogger(),
                 //     "Calling remove_waiting_response for request_id="
@@ -234,10 +236,9 @@ public class TestClientRequestInterceptorImpl extends
 
         }
         catch (org.omg.PortableInterceptor.InvalidSlot e) {
-            e.printStackTrace ();
            throw new org.omg.CORBA.INTERNAL ("Invalid Slot " + e);
            // This slot that has not been allocated
-           //        System.out.println ("ERROR: InvalidSlot exception raised!");
+           //        TestUtils.getLogger().debug ("ERROR: InvalidSlot exception raised!");
             // CDMW_ERROR(FTLogger.GetLogger(),
             //     "ERROR: InvalidSlot exception raised!", new Throwable());
             // org.omg.CORBA.INTERNAL ex = new org.omg.CORBA.INTERNAL(
@@ -273,6 +274,7 @@ public class TestClientRequestInterceptorImpl extends
      *            Client request information
      *
      */
+    @Override
     public void send_poll(ClientRequestInfo ri)
         throws org.omg.CORBA.SystemException {
     }
@@ -287,12 +289,12 @@ public class TestClientRequestInterceptorImpl extends
      *            Client request information
      *
      */
+    @Override
     public void send_request(ClientRequestInfo ri) throws ForwardRequest,
         org.omg.CORBA.SystemException {
 
         try {
             // Get requestId
-            int requestId;
             Any slotData = ri.get_slot(this.requestIdSlotId);
 
             TypeCode tc = slotData.type();
@@ -302,7 +304,7 @@ public class TestClientRequestInterceptorImpl extends
                     // the request invocation is done in the context of an
                     // incoming
                     // request processing.
-                   System.out.println ("request_id_slot is not set");
+                   TestUtils.getLogger().debug ("request_id_slot is not set");
                     // CDMW_INTERNAL_1(FTLogger.GetLogger(),
                     //     "request_id_slot is not set", new Throwable());
                 }
@@ -317,12 +319,11 @@ public class TestClientRequestInterceptorImpl extends
                 }
             }
             else {
-                requestId = slotData.extract_ulong();
+                slotData.extract_ulong();
             }
 
         }
         catch (org.omg.PortableInterceptor.InvalidSlot e) {
-           e.printStackTrace ();
            throw new org.omg.CORBA.INTERNAL ("Invalid Slot " + e);
             // // This slot that has not been allocated
             // CDMW_ERROR(FTLogger.GetLogger(),
@@ -354,6 +355,7 @@ public class TestClientRequestInterceptorImpl extends
      * Purpose: <p> Destroy the interceptor
      *
      */
+    @Override
     public void destroy() throws org.omg.CORBA.SystemException {
     }
 
@@ -361,6 +363,7 @@ public class TestClientRequestInterceptorImpl extends
      * Purpose: <p> Return the name of the interceptor
      *
      */
+    @Override
     public String name() throws org.omg.CORBA.SystemException {
 //            CLIENT_REQUEST_INTERCEPTOR_NAME);
         return CLIENT_REQUEST_INTERCEPTOR_NAME;

@@ -20,6 +20,8 @@ package org.jacorb.test.orb.value;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
+import org.jacorb.test.harness.TestUtils;
+
 /**
  * <code>CustomValueExchangeImpl</code> is the implementation of the
  * interface for testing sending custom valuetypes.
@@ -38,13 +40,13 @@ public class CustomValueExchangeImpl extends CustomValueExchangePOA
     {
         if (value != null)
         {
-            System.out.println
+            TestUtils.getLogger().debug
                 ("CustomValueExchangeImpl::sendValueExample::number " + value.number());
             value.print();
         }
         else
         {
-            System.out.println
+            TestUtils.getLogger().debug
                 ("CustomValueExchangeImpl::sendValueExample::value is nil");
         }
     }

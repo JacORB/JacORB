@@ -25,7 +25,7 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import org.jacorb.test.BasicServer;
 import org.jacorb.test.BasicServerHelper;
-import org.jacorb.test.common.ORBTestCase;
+import org.jacorb.test.harness.ORBTestCase;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -77,7 +77,6 @@ public class NonExistentLocalTest extends ORBTestCase
         }
         catch (OBJECT_NOT_EXIST e)
         {
-            e.printStackTrace();
             fail ("Should not have thrown an exception");
         }
     }

@@ -22,7 +22,7 @@ package org.jacorb.test.bugs.bugjac305;
 
 import static org.junit.Assert.assertNotNull;
 import org.jacorb.test.bugs.bug401.BHelper;
-import org.jacorb.test.common.ORBTestCase;
+import org.jacorb.test.harness.ORBTestCase;
 import org.junit.Test;
 
 /**

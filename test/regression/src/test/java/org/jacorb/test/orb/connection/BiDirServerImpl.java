@@ -58,52 +58,44 @@ public class BiDirServerImpl extends BiDirServerPOA
         return org.jacorb.orb.iiop.ClientIIOPConnection.openTransports;
     }
 
-    public static void main (String[] args)
+    public static void main (String[] args) throws Exception
     {
-        try
-        {
-            org.omg.CORBA.ORB orb = org.omg.CORBA.ORB.init(args, null);
+        org.omg.CORBA.ORB orb = org.omg.CORBA.ORB.init(args, null);
 
-            Any any = orb.create_any();
-            BidirectionalPolicyValueHelper.insert(any, BOTH.value);
+        Any any = orb.create_any();
+        BidirectionalPolicyValueHelper.insert(any, BOTH.value);
 
-            POA root_poa = (POA) orb.resolve_initial_references("RootPOA");
+        POA root_poa = (POA) orb.resolve_initial_references("RootPOA");
 
-            Policy[] policies = new Policy[4];
-            policies[0] =
-                root_poa.create_lifespan_policy(LifespanPolicyValue.TRANSIENT);
+        Policy[] policies = new Policy[4];
+        policies[0] =
+        root_poa.create_lifespan_policy(LifespanPolicyValue.TRANSIENT);
 
-            policies[1] =
-                root_poa.create_id_assignment_policy(
-                    IdAssignmentPolicyValue.SYSTEM_ID);
+        policies[1] =
+        root_poa.create_id_assignment_policy(
+            IdAssignmentPolicyValue.SYSTEM_ID);
 
-            policies[2] =
-                root_poa.create_implicit_activation_policy(
-                    ImplicitActivationPolicyValue.IMPLICIT_ACTIVATION);
+        policies[2] =
+        root_poa.create_implicit_activation_policy(
+            ImplicitActivationPolicyValue.IMPLICIT_ACTIVATION);
 
-            policies[3] =
-                orb.create_policy(BIDIRECTIONAL_POLICY_TYPE.value, any);
+        policies[3] =
+        orb.create_policy(BIDIRECTIONAL_POLICY_TYPE.value, any);
 
-            POA bidir_poa =
-                root_poa.create_POA(
-                    "BiDirPOA",
-                    root_poa.the_POAManager(),
-                    policies);
-            bidir_poa.the_POAManager().activate();
+        POA bidir_poa =
+        root_poa.create_POA(
+            "BiDirPOA",
+            root_poa.the_POAManager(),
+            policies);
+        bidir_poa.the_POAManager().activate();
 
-            org.omg.CORBA.Object o =
-                bidir_poa.servant_to_reference(new BiDirServerImpl());
+        org.omg.CORBA.Object o =
+        bidir_poa.servant_to_reference(new BiDirServerImpl());
 
-            System.out.println ("SERVER IOR: " + orb.object_to_string(o));
-            System.out.flush();
+        System.out.println ("SERVER IOR: " + orb.object_to_string(o));
+        System.out.flush();
 
-            orb.run();
-        }
-        catch (Exception e)
-        {
-            System.out.println ("ERROR: " + e);
-        }
-
+        orb.run();
     }
 
 }

@@ -5,6 +5,7 @@ import org.omg.CORBA.TCKind;
 import org.omg.CORBA.TypeCode;
 import org.omg.PortableInterceptor.ForwardRequest;
 import org.omg.PortableInterceptor.ServerRequestInfo;
+import org.jacorb.test.harness.TestUtils;
 
 
 /**
@@ -95,7 +96,7 @@ public class TestServerRequestInterceptorImpl extends
             // throw ex;
         }
 
-        System.out.println ("receive_request_service_contexts logs=" +requestCounter);
+        TestUtils.getLogger().debug ("receive_request_service_contexts logs=" +requestCounter);
 
         // log T0 of the request treatement
 //?????
@@ -140,7 +141,7 @@ public class TestServerRequestInterceptorImpl extends
      *            Server request information
      */
     public void send_reply(ServerRequestInfo reqInfo) {
-System.out.println  ("TestServerRequestInterceptorImpl::send_reply for operation: " + reqInfo.operation());
+TestUtils.getLogger().debug  ("TestServerRequestInterceptorImpl::send_reply for operation: " + reqInfo.operation());
         // CDMW_LOG_FUNCTION(FTLogger.GetLogger(),  " for operation: " + reqInfo.operation());
         this.removeCurrentTimeoutRequestLog(reqInfo);
     }
@@ -149,14 +150,14 @@ System.out.println  ("TestServerRequestInterceptorImpl::send_reply for operation
         throws SystemException {
 
         try {
-           System.out.println ("TestServerRequestInterceptorImpl::get_slot " + this + "and reqInfo " + reqInfo + " m_request_id_slot_id=" +requestIdSlotId + " thread " + Thread.currentThread ().toString() );
+           TestUtils.getLogger().debug ("TestServerRequestInterceptorImpl::get_slot " + this + "and reqInfo " + reqInfo + " m_request_id_slot_id=" +requestIdSlotId + " thread " + Thread.currentThread ().toString() );
 
             // CDMW_INTERNAL_1(FTLogger.GetLogger(), "get_slot m_request_id_slot_id="
             //     + this.requestIdSlotId, new Throwable());
             org.omg.CORBA.Any any = reqInfo.get_slot(requestIdSlotId);
 
             TypeCode tc = any.type();
-            System.out.println ("TestServerRequestInterceptorImpl::tc . kind " +tc.kind ().value ());
+            TestUtils.getLogger().debug ("TestServerRequestInterceptorImpl::tc . kind " +tc.kind ().value ());
             if ((tc.kind().value() != TCKind._tk_ulong)) {
            throw new org.omg.CORBA.INTERNAL ("ERROR: unexpected data returned by get_slot " );
 
@@ -188,7 +189,7 @@ System.out.println  ("TestServerRequestInterceptorImpl::send_reply for operation
             // to send request outside an incoming request context.
             org.omg.CORBA.Any slotData = m_orb.create_any();
             reqInfo.set_slot(this.requestIdSlotId, slotData);
-            System.out.println ("TestServerRequestInterceptorImpl::setting " + reqInfo + " slot for " +requestIdSlotId + " to " +slotData.type ().kind ().value ());
+            TestUtils.getLogger().debug ("TestServerRequestInterceptorImpl::setting " + reqInfo + " slot for " +requestIdSlotId + " to " +slotData.type ().kind ().value ());
 
         }
         catch (org.omg.PortableInterceptor.InvalidSlot e) {

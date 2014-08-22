@@ -26,18 +26,20 @@ import java.util.Properties;
 import org.jacorb.orb.iiop.IIOPProfile;
 import org.jacorb.test.BasicServer;
 import org.jacorb.test.BasicServerHelper;
-import org.jacorb.test.common.ClientServerSetup;
-import org.jacorb.test.common.ClientServerTestCase;
-import org.jacorb.test.common.CommonSetup;
-import org.jacorb.test.common.TestUtils;
+import org.jacorb.test.harness.ClientServerSetup;
+import org.jacorb.test.harness.ClientServerTestCase;
+import org.jacorb.test.harness.IMRExcludedClientServerCategory;
+import org.jacorb.test.harness.TestUtils;
 import org.jacorb.test.orb.BasicServerImpl;
 import org.junit.Assume;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 
 /**
  * @author Alphonse Bendt
  */
+@Category(IMRExcludedClientServerCategory.class)
 public class BugJac486Test extends ClientServerTestCase
 {
     private static final String objectKey = "/BugJac486Test/BugJac486POA/BugJac486ID";
@@ -96,9 +98,6 @@ public class BugJac486Test extends ClientServerTestCase
         serverProps.setProperty("jacorb.test.corbaloc.implname", "BugJac486Test");
         serverProps.setProperty("jacorb.test.corbaloc.poaname", "BugJac486POA");
         serverProps.setProperty("jacorb.test.corbaloc.objectid", "BugJac486ID");
-
-        clientProps.setProperty(CommonSetup.JACORB_REGRESSION_DISABLE_IMR, "true");
-        serverProps.setProperty(CommonSetup.JACORB_REGRESSION_DISABLE_IMR, "true");
 
         clientProps.setProperty("jacorb.connection.client.disconnect_after_systemexception", "true");
 

@@ -1,7 +1,8 @@
 package org.jacorb.test.orb.connection.timeout;
 
-import org.jacorb.test.common.ClientServerSetup;
-import org.jacorb.test.common.ClientServerTestCase;
+import org.jacorb.test.harness.ClientServerSetup;
+import org.jacorb.test.harness.ClientServerTestCase;
+import org.jacorb.test.harness.TestUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -40,20 +41,18 @@ public class TimeoutTest extends ClientServerTestCase
         }
         catch (org.omg.CORBA.IMP_LIMIT e)
         {
-            e.printStackTrace();
         }
 
-        System.out.println("Height = " + x);
+        TestUtils.getLogger().debug("Height = " + x);
         try
         {
             y = grid.width();
         }
         catch (org.omg.CORBA.IMP_LIMIT e)
         {
-            e.printStackTrace();
         }
 
-        System.out.println("Width = " + y);
-        System.out.println("done. ");
+        TestUtils.getLogger().debug("Width = " + y);
+        TestUtils.getLogger().debug("done. ");
     }
 }

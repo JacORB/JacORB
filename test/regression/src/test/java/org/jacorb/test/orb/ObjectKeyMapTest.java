@@ -27,7 +27,7 @@ import java.util.Collections;
 import org.easymock.MockControl;
 import org.jacorb.config.Configuration;
 import org.jacorb.orb.ObjectKeyMap;
-import org.jacorb.test.common.ORBTestCase;
+import org.jacorb.test.harness.ORBTestCase;
 import org.junit.Before;
 import org.junit.Test;
 import org.omg.CORBA.BAD_PARAM;

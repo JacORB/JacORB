@@ -167,7 +167,7 @@ jacorb.maxManagedBufSize=22
 # buffers will take place. This will reduce memory footprint at the
 # cost of decreased performance handling large data structures.
 # This value defaults to 0 if not set.
-#jacorb.bufferManagerMaxFlush=-1
+#jacorb.bufferManagerMaxFlush=0
 
 # This parameter allow to define buffer manager expansion policy.
 # Default value is org.jacorb.orb.buffermanager.DefaultExpansionPolicy.
@@ -382,7 +382,7 @@ jacorb.enhanced_thread_name=off
 
 # If true enable codesets. If false, this will ignore all codesetComponentInfo profiles
 # within an IOR and also disable explicit marshalling with codesets (re Strings).
-# jacorb.codeset=off
+# jacorb.codeset=on
 
 # Overrides the detection from the local environment for the codeset used to
 # transmit characters. Note that this property is only effective once per JVM.
@@ -493,7 +493,6 @@ jacorb.net.tcp_listener=
 ###########################################
 
 # uncomment this initializer if you want to use BiDirectional GIOP
-
 #org.omg.PortableInterceptor.ORBInitializerClass.bidir_init=org.jacorb.orb.giop.BiDirConnectionInitializer
 
 ###########################################
@@ -583,9 +582,9 @@ jacorb.net.tcp_listener=
 #   Please leave them in!  #
 #                          #
 ############################
-org.omg.PortableInterceptor.ORBInitializerClass.standard_init=org.jacorb.orb.standardInterceptors.IORInterceptorInitializer
 
-
+# Deprecated : there is now no need to define org.jacorb.orb.standardInterceptors.IORInterceptorInitializer
+# as a standard interceptor as that is implied by jacorb.codeset property.
 
 ###############################################
 #                                             #
@@ -713,6 +712,7 @@ jacorb.security.ssl.server.required_options=0
 # If not set, only EstablishTrustInTarget is used for both supported
 # and required options. EstablishTrustInClient is not set, and the
 # rest of the Association Options aren't currently used anyway.
+# (numbers are hex values, without the leading "0x"):
 #jacorb.security.ssl.corbaloc_ssliop.supported_options=0
 #jacorb.security.ssl.corbaloc_ssliop.required_options=0
 
@@ -961,10 +961,6 @@ jacorb.notification.proxy.destroy_causes_disconnect = on
 # This initializer installs the SAS interceptors
 # Comment out this line if you do not want SAS support
 #org.omg.PortableInterceptor.ORBInitializerClass.SAS=org.jacorb.security.sas.SASInitializer
-
-# This option is used for GSSUP security and sets up the GSS Provider
-# Comment out this line if you are not using GSS UP authentication
-#org.omg.PortableInterceptor.ORBInitializerClass.GSSUPProvider=org.jacorb.security.sas.GSSUPProviderInitializer
 
 # Whether to create stateful context lists
 # jacorb.security.sas.stateful=true

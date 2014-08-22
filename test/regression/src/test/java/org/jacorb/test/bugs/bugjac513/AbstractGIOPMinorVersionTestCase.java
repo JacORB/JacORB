@@ -29,7 +29,7 @@ import org.jacorb.orb.ParsedIOR;
 import org.jacorb.orb.util.PrintIOR;
 import org.jacorb.test.BasicServer;
 import org.jacorb.test.BasicServerHelper;
-import org.jacorb.test.common.ORBTestCase;
+import org.jacorb.test.harness.ORBTestCase;
 import org.jacorb.test.orb.BasicServerImpl;
 import org.junit.Test;
 import org.omg.CORBA.portable.ObjectImpl;

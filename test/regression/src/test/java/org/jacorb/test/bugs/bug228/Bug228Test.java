@@ -22,8 +22,8 @@ package org.jacorb.test.bugs.bug228;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import org.jacorb.test.harness.ORBTestCase;
 import org.junit.Test;
-import org.omg.CORBA.ORB;
 
 /**
  * Test for bug 228, checks whether factory methods do end up in the Helper
@@ -32,13 +32,11 @@ import org.omg.CORBA.ORB;
  *
  * @author <a href="mailto:spiegel@gnu.org">Andre Spiegel</a>
  */
-public class Bug228Test
+public class Bug228Test extends ORBTestCase
 {
     @Test
     public void testFactories()
     {
-        ORB orb = org.omg.CORBA.ORB.init (new String[]{}, null);
-
         Sample s = SampleHelper.init_1 (orb);
         assertNotNull(s);
 

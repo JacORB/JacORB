@@ -3,13 +3,12 @@ package org.jacorb.test.transport;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 import java.util.Properties;
-import org.jacorb.test.common.ORBTestCase;
+import org.jacorb.test.harness.ORBTestCase;
 import org.jacorb.test.orb.transport.CurrentServer;
 import org.jacorb.test.orb.transport.CurrentServerHelper;
 import org.jacorb.transport.Current;
 import org.jacorb.transport.CurrentHelper;
 import org.jacorb.transport.NoContext;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.omg.CORBA.ORB;
@@ -45,7 +44,7 @@ public class FrameworkClientTest extends ORBTestCase
     {
         ServerInterceptor.reset ();
 
-        server_orb_ = ORB.init(new String[0], new Properties());
+        server_orb_ = this.getAnotherORB(null);
 
         POA rootPOA = POAHelper.narrow(server_orb_.resolve_initial_references("RootPOA"));
         rootPOA.the_POAManager().activate();
@@ -54,6 +53,7 @@ public class FrameworkClientTest extends ORBTestCase
 
         new Thread()
         {
+            @Override
             public void run() {
                 server_orb_.run();
             };
@@ -64,12 +64,6 @@ public class FrameworkClientTest extends ORBTestCase
         Object tcobject = orb.resolve_initial_references ("JacOrbTransportCurrent");
         transport_current_ = CurrentHelper.narrow (tcobject);
 
-    }
-
-    @After
-    public void tearDown() throws Exception
-    {
-        server_orb_.shutdown(true);
     }
 
     @Test

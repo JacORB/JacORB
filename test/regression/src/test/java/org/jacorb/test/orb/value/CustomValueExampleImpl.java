@@ -1,5 +1,7 @@
 package org.jacorb.test.orb.value;
 
+import org.jacorb.test.harness.TestUtils;
+
 /*
  *        JacORB  - a free Java ORB
  *
@@ -33,6 +35,7 @@ public class CustomValueExampleImpl extends CustomValueExample
      *
      * @return an <code>int</code> value
      */
+    @Override
     public int number()
     {
         return number_state;
@@ -43,9 +46,10 @@ public class CustomValueExampleImpl extends CustomValueExample
      * <code>print</code> prints out number and name states.
      *
      */
+    @Override
     public void print()
     {
-        System.out.println
+        TestUtils.getLogger().debug
             ("CustomValueExampleImpl with " + number_state + " and " + name_state);
     }
 
@@ -59,7 +63,7 @@ public class CustomValueExampleImpl extends CustomValueExample
      */
     public void marshal(org.omg.CORBA.DataOutputStream os)
     {
-        System.out.println( "Invoke the marshal operation..." + number_state + " and name " + name_state);
+        TestUtils.getLogger().debug( "Invoke the marshal operation..." + number_state + " and name " + name_state);
 
         os.write_string( "Here is an additional message in the marshalling" );
         if (number_state == -1000)
@@ -79,9 +83,9 @@ public class CustomValueExampleImpl extends CustomValueExample
     {
         try
         {
-            System.out.println( "Invoke the unmarshal operation..." );
-            System.out.println( is.read_string() );
-            System.out.println( "Extracted extra message..." );
+            TestUtils.getLogger().debug( "Invoke the unmarshal operation..." );
+            TestUtils.getLogger().debug( is.read_string() );
+            TestUtils.getLogger().debug( "Extracted extra message..." );
 
             number_state = is.read_long();
             name_state = is.read_string();

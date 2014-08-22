@@ -1,5 +1,6 @@
 package org.jacorb.test.bugs.bug976;
 
+import org.jacorb.test.harness.TestUtils;
 import org.omg.CORBA.Any;
 import org.omg.CORBA.INTERNAL;
 import org.omg.CORBA.LocalObject;
@@ -28,6 +29,7 @@ final public class ClientRequestInterceptorImpl extends LocalObject implements
         this.slot = slot;
     }
 
+    @Override
     public void send_request(ClientRequestInfo ri) throws ForwardRequest
     {
         Current current = getPICurrent(orb);
@@ -44,6 +46,7 @@ final public class ClientRequestInterceptorImpl extends LocalObject implements
         }
     }
 
+    @Override
     public void receive_exception(ClientRequestInfo ri) throws ForwardRequest
     {
         Current current = getPICurrent(orb);
@@ -58,21 +61,22 @@ final public class ClientRequestInterceptorImpl extends LocalObject implements
         }
         if (any.type().kind().value() == TCKind._tk_null)
         {
-            System.err.println("Information is not there! Why?");
             throw new INTERNAL("Information from send_request is not there!");
         }
         else
         {
-            System.out.println("receive_exception working as expected!");
-            System.out.println("Info: " + any.extract_string());
+            TestUtils.getLogger().debug("receive_exception working as expected!");
+            TestUtils.getLogger().debug("Info: " + any.extract_string());
         }
     }
 
+    @Override
     public void receive_other(ClientRequestInfo ri) throws ForwardRequest
     {
 
     }
 
+    @Override
     public void receive_reply(ClientRequestInfo ri)
     {
         Current current = getPICurrent(orb);
@@ -87,26 +91,28 @@ final public class ClientRequestInterceptorImpl extends LocalObject implements
         }
         if (any.type().kind().value() == TCKind._tk_null)
         {
-            System.err.println("Information is not there! Why?");
             throw new INTERNAL("Information from send_request is not there!");
         }
         else
         {
-            System.out.println("receive_reply working as expected!");
-            System.out.println("Info: " + any.extract_string());
+            TestUtils.getLogger().debug("receive_reply working as expected!");
+            TestUtils.getLogger().debug("Info: " + any.extract_string());
         }
     }
 
+    @Override
     public void send_poll(ClientRequestInfo ri)
     {
 
     }
 
+    @Override
     public void destroy()
     {
 
     }
 
+    @Override
     public String name()
     {
         return this.name;
@@ -128,8 +134,7 @@ final public class ClientRequestInterceptorImpl extends LocalObject implements
         }
         catch (InvalidName e)
         {
-            String message = "Falha inesperada ao obter o PICurrent";
-            throw new INTERNAL(message);
+            throw new INTERNAL(e.toString ());
         }
         return CurrentHelper.narrow(obj);
     }

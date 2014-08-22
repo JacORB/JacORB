@@ -22,11 +22,14 @@ package org.jacorb.test.bugs.bugjac488;
 
 import static org.junit.Assert.fail;
 import java.util.Properties;
-import org.jacorb.test.common.ClientServerSetup;
-import org.jacorb.test.common.ClientServerTestCase;
+import org.jacorb.test.harness.ClientServerSetup;
+import org.jacorb.test.harness.ClientServerTestCase;
+import org.jacorb.test.harness.IMRExcludedClientServerCategory;
+import org.jacorb.test.harness.TestUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 import org.omg.CORBA.ORB;
 import org.omg.CORBA.TIMEOUT;
 
@@ -36,6 +39,7 @@ import org.omg.CORBA.TIMEOUT;
  *
  * @author <a href="mailto:Nick.Cross@prismtech.com">Nick Cross</a>
  */
+@Category(IMRExcludedClientServerCategory.class)
 public class BugJac488Test extends ClientServerTestCase
 {
     private PingReceiver server;
@@ -93,7 +97,7 @@ public class BugJac488Test extends ClientServerTestCase
 
         if (policyType.equalsIgnoreCase ("SYNC_NONE"))
         {
-            System.out.println ("Setting SyncScope Policy to SYNC_NONE");
+            TestUtils.getLogger().debug ("Setting SyncScope Policy to SYNC_NONE");
             syncScopePolicyAny.insert_short (org.omg.Messaging.SYNC_NONE.value);
             syncScopePolicy = orb.create_policy (org.omg.Messaging.SYNC_SCOPE_POLICY_TYPE.value,
                                                  syncScopePolicyAny);
@@ -102,7 +106,7 @@ public class BugJac488Test extends ClientServerTestCase
         }
         else if (policyType.equalsIgnoreCase ("SYNC_WITH_SERVER"))
         {
-            System.out.println ("Setting SyncScope Policy to SYNC_WITH_SERVER");
+            TestUtils.getLogger().debug ("Setting SyncScope Policy to SYNC_WITH_SERVER");
             syncScopePolicyAny.insert_short (org.omg.Messaging.SYNC_WITH_SERVER.value);
             syncScopePolicy = orb.create_policy (org.omg.Messaging.SYNC_SCOPE_POLICY_TYPE.value,
                                                  syncScopePolicyAny);
@@ -111,7 +115,7 @@ public class BugJac488Test extends ClientServerTestCase
         }
         else if (policyType.equalsIgnoreCase ("SYNC_WITH_TARGET"))
         {
-            System.out.println ("Setting SyncScope Policy to SYNC_WITH_TARGET");
+            TestUtils.getLogger().debug ("Setting SyncScope Policy to SYNC_WITH_TARGET");
             syncScopePolicyAny.insert_short (org.omg.Messaging.SYNC_WITH_TARGET.value);
             syncScopePolicy = orb.create_policy (org.omg.Messaging.SYNC_SCOPE_POLICY_TYPE.value,
                                                  syncScopePolicyAny);
@@ -120,7 +124,7 @@ public class BugJac488Test extends ClientServerTestCase
         }
         else if (policyType.equalsIgnoreCase ("SYNC_WITH_TRANSPORT"))
         {
-            System.out.println ("Setting SyncScope Policy to SYNC_WITH_TRANSPORT");
+            TestUtils.getLogger().debug ("Setting SyncScope Policy to SYNC_WITH_TRANSPORT");
             syncScopePolicyAny.insert_short (org.omg.Messaging.SYNC_WITH_TRANSPORT.value);
             syncScopePolicy = orb.create_policy (org.omg.Messaging.SYNC_SCOPE_POLICY_TYPE.value,
                                                  syncScopePolicyAny);
@@ -129,7 +133,7 @@ public class BugJac488Test extends ClientServerTestCase
         }
         else
         {
-            System.out.println ("Received Unexpected SyncScope Policy");
+            TestUtils.getLogger().debug ("Received Unexpected SyncScope Policy");
         }
 
 

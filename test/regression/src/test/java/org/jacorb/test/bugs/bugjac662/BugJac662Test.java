@@ -30,12 +30,14 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.jacorb.orb.Delegate;
 import org.jacorb.orb.ReplyGroup;
 import org.jacorb.orb.giop.ReplyPlaceholder;
-import org.jacorb.test.common.ClientServerSetup;
-import org.jacorb.test.common.ClientServerTestCase;
+import org.jacorb.test.harness.ClientServerSetup;
+import org.jacorb.test.harness.ClientServerTestCase;
+import org.jacorb.test.harness.IMRExcludedClientServerCategory;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 import org.omg.CORBA.COMM_FAILURE;
 
 
@@ -46,6 +48,7 @@ import org.omg.CORBA.COMM_FAILURE;
  * @author <a href="mailto:Nick.Cross@prismtech.com">Nick Cross</a>
  * @version 1.0
  */
+@Category(IMRExcludedClientServerCategory.class)
 public class BugJac662Test extends ClientServerTestCase
 {
     private PingReceiver server;
@@ -122,7 +125,7 @@ public class BugJac662Test extends ClientServerTestCase
             fail ("Unable to get replies from ReplyGroup");
         }
 
-        assertTrue ("Should be no replies pending", pendingReplies.size() == 0);
+        assertTrue ("Should be no replies pending: " + pendingReplies.toString(), pendingReplies.size() == 0);
 
         try
         {
@@ -132,7 +135,6 @@ public class BugJac662Test extends ClientServerTestCase
         {
         }
         pr._release();
-        System.err.println ("replies pending: " + pendingReplies.toString());
-        assertTrue ("Should be no replies pending", pendingReplies.size() == 0);
+        assertTrue ("Should be no replies pending: " + pendingReplies.toString(), pendingReplies.size() == 0);
     }
 }

@@ -1,5 +1,6 @@
 package org.jacorb.test.orb.orbreinvoke;
 
+import org.jacorb.test.harness.TestUtils;
 import org.jacorb.test.listenendpoints.echo_corbaloc.EchoMessage;
 import org.jacorb.test.listenendpoints.echo_corbaloc.EchoMessageHelper;
 import org.jacorb.test.listenendpoints.echo_corbaloc.EchoMessageTask;
@@ -40,18 +41,17 @@ public class ConnectNameService extends Thread
             servant = EchoMessageHelper.narrow( obj );
 
             // got a greeting message from the servant
-            log( servant.echo_simple() );
-
+            TestUtils.getLogger().debug("ConnectNameService thread " + threadNum + ": " + servant.echo_simple());
         }
         catch (Exception e)
         {
             throw new Exception ("ConnectNameService thread " + threadNum
                     + " got an exception in init(): " + e.getMessage());
-            // e.printStackTrace();
             // terminate();
         }
     }
 
+    @Override
     public void run()
     {
         do
@@ -65,9 +65,8 @@ public class ConnectNameService extends Thread
             }
             catch(Exception e)
             {
-               System.err.println("ConnectNameService thread " + threadNum
+               TestUtils.getLogger().debug("ConnectNameService thread " + threadNum
                        + " got an exception in run(): " + e.getMessage());
-                // e.printStackTrace();
                 terminate();
             }
         } while (cmdArgs.getLoop() == true && loop == true);
@@ -96,10 +95,5 @@ public class ConnectNameService extends Thread
     public org.omg.CORBA.Object getConnectObject()
     {
         return obj;
-    }
-
-    private void log(String msg)
-    {
-        System.out.println("ConnectNameService thread " + threadNum + ": " + msg);
     }
 }

@@ -43,13 +43,43 @@
 ( Note: For commit history see https://github.com/JacORB/JacORB )
 
 
-3.5-SNAPSHOT
+This Release
 ============
+
+3.5
+===
     - ORB
          - Simplify network address retrieval code.
          - Protect against OutOfMemory in GIOPConnection::receiveMessages to prevent client hanging.
          - Handle reconnecting via a closed connection to a persistent server (BZ975).
          - Fix for local interceptors and slots (BZ976)
+         - Simplify logging.
+         - Fix for CodeSet tag appearing twice in multi-profile IORs
+         - Deprecate defining org.jacorb.orb.standardInterceptors.IORInterceptorInitializer as a
+           standard interceptor; it is now implicitly defined by jacorb.codeset QoS.
+         - Fix for 4 byte UTF-8 conversion (BZ969)
+         - Codeset configuration : by default they are now enabled.
+         - Fix for port / endpoint initialisation.
+         - Fix for ORB instances sharing Current information.
+         - Fixed SSL properties reading and processing (BZ#820).
+         - Improve SAS Error propagation (and add tests).
+         - Removed unused GSSUP code.
+         - Fix for forward request handling for special operations (BZ#979)
+         - Fix for connection closure/server restart with multiple connections (BZ#986)
+         - Move Singleton debug code into Diagnostic class to avoid JDK issues.
+         - Improve ordering of network addresses.
+         - Fix for creation of corbaloc with IPv6
+         - Fix internal ordering of ORBEndpoints
+         - Fix for interceptors and restarted server (BZ#983)
+    - Documentation
+        - Minor fixes.
+    - Misc
+        - Add Jacoco Coverage to regression suite.
+        - Convert source code to Maven layout.
+        - Upgrade to SLF4J 1.7.6
+        - Fixes for Javadoc under JDK 8.
+        - Run subset of regression tests with the IMR
+        - Improve test system stability
 
 3.4
 ===

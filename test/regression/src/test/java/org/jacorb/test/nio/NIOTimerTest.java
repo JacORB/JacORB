@@ -1,8 +1,10 @@
 package org.jacorb.test.nio;
 
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 import java.util.Properties;
-import org.jacorb.test.common.ORBTestCase;
-import org.jacorb.test.common.TestUtils;
+import org.jacorb.test.harness.ORBTestCase;
+import org.jacorb.test.harness.TestUtils;
 import org.jacorb.util.SelectorManager;
 import org.jacorb.util.SelectorRequest;
 import org.jacorb.util.SelectorRequestCallback;
@@ -129,12 +131,12 @@ public class NIOTimerTest extends ORBTestCase
 		    inorder = false;
 		}
 	    }
-            assert (maxDelta <= acceptableDelta_);
-	    assert (inorder);
+            assertTrue (maxDelta <= acceptableDelta_);
+	    assertTrue (inorder);
         }
         catch (InterruptedException ex)
         {
-            assert (false);
+            fail ("InterruptedException");
         }
     }
 }

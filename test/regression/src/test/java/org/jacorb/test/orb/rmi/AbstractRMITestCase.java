@@ -33,10 +33,12 @@ import java.util.Hashtable;
 import java.util.Vector;
 import javax.rmi.PortableRemoteObject;
 import org.jacorb.orb.Reference;
-import org.jacorb.test.common.ClientServerTestCase;
+import org.jacorb.test.harness.ClientServerTestCase;
+import org.jacorb.test.harness.IMRExcludedClientServerCategory;
 import org.jacorb.test.orb.rmi.Outer.StaticInner;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 
 /**
  * Abstract testclass for RMITests. subclasses are responsible for
@@ -49,6 +51,7 @@ import org.junit.Test;
  *
  */
 @SuppressWarnings("rawtypes")
+@Category(IMRExcludedClientServerCategory.class)
 public abstract class AbstractRMITestCase extends ClientServerTestCase
 {
     private RMITestInterface server;

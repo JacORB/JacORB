@@ -27,9 +27,9 @@ import java.util.HashSet;
 import java.util.Properties;
 import org.jacorb.test.BasicServer;
 import org.jacorb.test.BasicServerHelper;
-import org.jacorb.test.common.ClientServerSetup;
-import org.jacorb.test.common.ClientServerTestCase;
-import org.jacorb.test.common.TestUtils;
+import org.jacorb.test.harness.ClientServerSetup;
+import org.jacorb.test.harness.ClientServerTestCase;
+import org.jacorb.test.harness.TestUtils;
 import org.jacorb.test.orb.BasicServerImpl;
 import org.junit.Assume;
 import org.junit.BeforeClass;
@@ -57,7 +57,7 @@ public class BugJac501Test extends ClientServerTestCase
         Properties props = new Properties();
         props.setProperty("ORBInitRef.MyServer", ior);
 
-        ORB orb = ORB.init(new String[0], props);
+        ORB orb = setup.getAnotherORB(props);
 
         BasicServer server = BasicServerHelper.narrow(orb.string_to_object("corbaloc:rir:/MyServer"));
         assertTrue(new HashSet<String>(Arrays.asList(orb.list_initial_services())).contains("MyServer"));

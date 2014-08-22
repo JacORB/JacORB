@@ -21,7 +21,8 @@ package org.jacorb.test.bugs.bug956;
  */
 
 import java.util.Properties;
-import org.jacorb.test.common.ORBTestCase;
+import org.jacorb.test.harness.ORBTestCase;
+import org.jacorb.test.harness.TestUtils;
 import org.junit.Test;
 import org.omg.BiDirPolicy.BIDIRECTIONAL_POLICY_TYPE;
 import org.omg.BiDirPolicy.BOTH;
@@ -88,7 +89,7 @@ class Client extends ClientCallbackPOA
 {
     public void hello (String message)
     {
-        System.out.println ("Client callback object received hello message >"
+        TestUtils.getLogger().debug ("Client callback object received hello message >"
                 + message + '<');
     }
 }
@@ -104,7 +105,7 @@ class ServerImpl extends ServerPOA
 
     public void callback_hello (String message)
     {
-        System.out.println ("Server object received hello message >" + message
+        TestUtils.getLogger().debug ("Server object received hello message >" + message
                 + '<');
 
         ccb.hello (message);

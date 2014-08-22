@@ -20,33 +20,23 @@
 
 package org.jacorb.test.bugs.bugjac440;
 
-import static org.junit.Assert.fail;
 import java.util.Properties;
+import org.jacorb.test.harness.ORBTestCase;
 import org.junit.Test;
 import org.omg.CORBA.INITIALIZE;
-import org.omg.CORBA.ORB;
 
 /**
  * @author Alphonse Bendt
  */
-public class BugJac440Test
+public class BugJac440Test extends ORBTestCase
 {
-    @Test
+    @Test (expected=INITIALIZE.class)
     public void testInvokeSetSlotDuringORBInitFails() throws Exception
     {
         Properties props = new Properties();
-
         props.setProperty("org.omg.PortableInterceptor.ORBInitializerClass.test", ORBInitializer.class.getName());
         props.setProperty("jacorb.orb_initializer.fail_on_error", "on");
 
-        try
-        {
-            ORB.init(new String[0], props);
-            fail();
-        }
-        catch(INITIALIZE e)
-        {
-            // expected
-        }
+        getAnotherORB(props);
     }
 }

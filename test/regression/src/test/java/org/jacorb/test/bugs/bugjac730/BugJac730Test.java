@@ -1,7 +1,7 @@
 package org.jacorb.test.bugs.bugjac730;
 
 import static org.junit.Assert.assertTrue;
-import org.jacorb.test.common.ORBTestCase;
+import org.jacorb.test.harness.ORBTestCase;
 import org.junit.Test;
 import org.omg.CORBA.TCKind;
 import org.omg.CORBA.TypeCode;

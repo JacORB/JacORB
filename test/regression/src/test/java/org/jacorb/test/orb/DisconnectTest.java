@@ -31,8 +31,9 @@ import org.jacorb.orb.giop.ClientConnection;
 import org.jacorb.orb.giop.ClientConnectionManager;
 import org.jacorb.test.BasicServer;
 import org.jacorb.test.BasicServerHelper;
-import org.jacorb.test.common.ClientServerSetup;
-import org.jacorb.test.common.ClientServerTestCase;
+import org.jacorb.test.harness.ClientServerSetup;
+import org.jacorb.test.harness.ClientServerTestCase;
+import org.jacorb.test.harness.TestUtils;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -79,7 +80,7 @@ public class DisconnectTest extends ClientServerTestCase
     }
 
     @Test
-    public void test_disconnect()
+    public void test_disconnect() throws Exception
     {
         boolean timeout = false;
         try
@@ -90,41 +91,16 @@ public class DisconnectTest extends ClientServerTestCase
         {
             timeout = true;
 
-            Field fconnmgr;
-            Field connections;
-            try
-            {
-                fconnmgr = Delegate.class.getDeclaredField("conn_mg");
-                fconnmgr.setAccessible(true);
-                Delegate d = (Delegate) ((org.omg.CORBA.portable.ObjectImpl)server)._get_delegate();
-                ClientConnectionManager ccm = (ClientConnectionManager) fconnmgr.get(d);
-                connections = ClientConnectionManager.class.getDeclaredField("connections");
-                connections.setAccessible(true);
-                @SuppressWarnings("unchecked")
-                HashMap<Profile, ClientConnection> c = (HashMap<Profile, ClientConnection>) connections.get(ccm);
+            Field fconnmgr = Delegate.class.getDeclaredField("conn_mg");
+            fconnmgr.setAccessible(true);
+            Delegate d = (Delegate) ((org.omg.CORBA.portable.ObjectImpl)server)._get_delegate();
+            ClientConnectionManager ccm = (ClientConnectionManager) fconnmgr.get(d);
+            Field connections = ClientConnectionManager.class.getDeclaredField("connections");
+            connections.setAccessible(true);
+            @SuppressWarnings("unchecked")
+            HashMap<Profile, ClientConnection> c = (HashMap<Profile, ClientConnection>) connections.get(ccm);
 
-                assertTrue (c.size() == 0);
-            }
-            catch (SecurityException e1)
-            {
-                // TODO Auto-generated catch block
-                e1.printStackTrace();
-            }
-            catch (NoSuchFieldException e1)
-            {
-                // TODO Auto-generated catch block
-                e1.printStackTrace();
-            }
-            catch (IllegalArgumentException e1)
-            {
-                // TODO Auto-generated catch block
-                e1.printStackTrace();
-            }
-            catch (IllegalAccessException e1)
-            {
-                // TODO Auto-generated catch block
-                e1.printStackTrace();
-            }
+            assertTrue (c.size() == 0);
         }
         if ( ! timeout )
         {
@@ -167,8 +143,6 @@ public class DisconnectTest extends ClientServerTestCase
         extends org.omg.CORBA.LocalObject
         implements org.omg.PortableInterceptor.ServerRequestInterceptor
     {
-        static boolean localDebugOn = false;
-
         public java.lang.String name()
         {
             return "";
@@ -182,19 +156,13 @@ public class DisconnectTest extends ClientServerTestCase
             org.omg.PortableInterceptor.ServerRequestInfo ri )
             throws org.omg.PortableInterceptor.ForwardRequest
         {
-            if (localDebugOn)
-            {
-                System.out.println ("LocalServerInterceptorA - receive_request_service_contexts");
-            }
+            TestUtils.getLogger().debug ("LocalServerInterceptorA - receive_request_service_contexts");
         }
 
         public void receive_request( org.omg.PortableInterceptor.ServerRequestInfo ri )
             throws org.omg.PortableInterceptor.ForwardRequest
         {
-            if (localDebugOn)
-            {
-                System.out.println ("LocalServerInterceptorA - receive_request");
-            }
+            TestUtils.getLogger().debug ("LocalServerInterceptorA - receive_request");
             try
             {
                 Thread.sleep (10000);
@@ -202,34 +170,24 @@ public class DisconnectTest extends ClientServerTestCase
             catch (InterruptedException e)
             {
                 // TODO Auto-generated catch block
-                e.printStackTrace();
             }
         }
 
         public void send_reply( org.omg.PortableInterceptor.ServerRequestInfo ri )
         {
-            if (localDebugOn)
-            {
-                System.out.println ("LocalServerInterceptorA - send_reply");
-            }
+            TestUtils.getLogger().debug ("LocalServerInterceptorA - send_reply");
         }
 
         public void send_exception( org.omg.PortableInterceptor.ServerRequestInfo ri )
             throws org.omg.PortableInterceptor.ForwardRequest
         {
-            if (localDebugOn)
-            {
-                System.out.println ("LocalServerInterceptorA - send_exception");
-            }
+            TestUtils.getLogger().debug ("LocalServerInterceptorA - send_exception");
         }
 
         public void send_other( org.omg.PortableInterceptor.ServerRequestInfo ri )
             throws org.omg.PortableInterceptor.ForwardRequest
         {
-            if (localDebugOn)
-            {
-                System.out.println ("LocalServerInterceptorA - send_other");
-            }
+            TestUtils.getLogger().debug ("LocalServerInterceptorA - send_other");
         }
     }
 }

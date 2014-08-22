@@ -26,8 +26,8 @@ import java.util.Properties;
 import org.jacorb.poa.except.POAInternalError;
 import org.jacorb.test.BasicServer;
 import org.jacorb.test.BasicServerHelper;
-import org.jacorb.test.common.ClientServerSetup;
-import org.jacorb.test.common.ClientServerTestCase;
+import org.jacorb.test.harness.ClientServerSetup;
+import org.jacorb.test.harness.ClientServerTestCase;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -69,17 +69,10 @@ public class POAInterceptorExceptionTest extends ClientServerTestCase
                                                          server_props);
     }
 
-    @Test
+    @Test (expected=UNKNOWN.class)
     public void test_poaex()
     {
-        try
-        {
-            server.ping();
-        }
-        catch (UNKNOWN e)
-        {
-            // Good correct exception thrown
-        }
+        server.ping();
     }
 
    public static class POAInterceptorExceptionInitializer
@@ -117,8 +110,6 @@ public class POAInterceptorExceptionTest extends ClientServerTestCase
         extends org.omg.CORBA.LocalObject
         implements org.omg.PortableInterceptor.ServerRequestInterceptor
     {
-        static boolean localDebugOn = false;
-
         public java.lang.String name()
         {
             return "";
@@ -132,46 +123,26 @@ public class POAInterceptorExceptionTest extends ClientServerTestCase
             org.omg.PortableInterceptor.ServerRequestInfo ri )
             throws org.omg.PortableInterceptor.ForwardRequest
         {
-            if (localDebugOn)
-            {
-                System.out.println ("LocalServerInterceptorA - receive_request_service_contexts");
-            }
         }
 
         public void receive_request( org.omg.PortableInterceptor.ServerRequestInfo ri )
             throws org.omg.PortableInterceptor.ForwardRequest
         {
-            if (localDebugOn)
-            {
-                System.out.println ("LocalServerInterceptorA - receive_request");
-            }
             throw new POAInternalError("Error");
         }
 
         public void send_reply( org.omg.PortableInterceptor.ServerRequestInfo ri )
         {
-            if (localDebugOn)
-            {
-                System.out.println ("LocalServerInterceptorA - send_reply");
-            }
         }
 
         public void send_exception( org.omg.PortableInterceptor.ServerRequestInfo ri )
             throws org.omg.PortableInterceptor.ForwardRequest
         {
-            if (localDebugOn)
-            {
-                System.out.println ("LocalServerInterceptorA - send_exception");
-            }
         }
 
         public void send_other( org.omg.PortableInterceptor.ServerRequestInfo ri )
             throws org.omg.PortableInterceptor.ForwardRequest
         {
-            if (localDebugOn)
-            {
-                System.out.println ("LocalServerInterceptorA - send_other");
-            }
         }
     }
 }

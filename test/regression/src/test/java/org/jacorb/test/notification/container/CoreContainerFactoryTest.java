@@ -24,7 +24,7 @@ package org.jacorb.test.notification.container;
 import static org.junit.Assert.assertNotNull;
 import org.jacorb.config.Configuration;
 import org.jacorb.notification.container.PicoContainerFactory;
-import org.jacorb.test.common.ORBTestCase;
+import org.jacorb.test.harness.ORBTestCase;
 import org.junit.Before;
 import org.junit.Test;
 import org.omg.CORBA.ORB;

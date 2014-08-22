@@ -4,7 +4,7 @@ import static org.junit.Assert.assertEquals;
 import org.easymock.MockControl;
 import org.jacorb.config.Configuration;
 import org.jacorb.orb.policies.PolicyManager;
-import org.jacorb.test.common.NullLogger;
+import org.jacorb.test.harness.TestUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.omg.CORBA.Policy;
@@ -45,7 +45,7 @@ public class PolicyManagerTest
         final MockControl configControl = MockControl.createControl(Configuration.class);
         final Configuration configMock = (Configuration) configControl.getMock();
 
-        configControl.expectAndReturn(configMock.getLogger("org.jacorb.orb.policies"), new NullLogger());
+        configControl.expectAndReturn(configMock.getLogger("org.jacorb.orb.policies"), TestUtils.getLogger());
 
         configControl.replay();
 

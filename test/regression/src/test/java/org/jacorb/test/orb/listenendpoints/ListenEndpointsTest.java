@@ -34,27 +34,25 @@ import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
-import org.jacorb.test.common.ClientServerSetup;
-import org.jacorb.test.common.ClientServerTestCase;
-import org.jacorb.test.common.CommonSetup;
-import org.jacorb.test.common.TestUtils;
+import org.jacorb.test.harness.ClientServerSetup;
+import org.jacorb.test.harness.ClientServerTestCase;
+import org.jacorb.test.harness.IMRExcludedClientServerCategory;
+import org.jacorb.test.harness.TestUtils;
 import org.jacorb.test.listenendpoints.echo_corbaloc.EchoMessage;
 import org.jacorb.test.listenendpoints.echo_corbaloc.EchoMessageHelper;
 import org.junit.Assume;
-import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 
  /**
  * Tests -ORBListenEndpoints feature
  *
  *
  */
+@Category(IMRExcludedClientServerCategory.class)
 public class ListenEndpointsTest extends ClientServerTestCase
 {
-    //String ior = null;
-    //String corbalocObjId = null;
-
     private static final String DEFAULT_LISTEN_EP = "iiop://:45000";
 
     // wildcard listen endpoint
@@ -68,11 +66,6 @@ public class ListenEndpointsTest extends ClientServerTestCase
     private static final int WRONG_PORT   = 55555;
     private static final int WRONG_PORT_2 = 45000;
 
-    @Before
-    public void setUp() throws Exception
-    {
-        // server = test.listenendpoints.echo_corbaloc.EchoMessageHelper.narrow (setup.getServerObject());
-    }
 
     @BeforeClass
     public static void beforeClassSetUp() throws Exception
@@ -85,13 +78,11 @@ public class ListenEndpointsTest extends ClientServerTestCase
         clientProps.setProperty ("jacorb.retries", "3");
         clientProps.setProperty ("jacorb.retry_interval", "500");
         clientProps.setProperty ("jacorb.connection.client.connect_timeout","1000");
-        clientProps.setProperty(CommonSetup.JACORB_REGRESSION_DISABLE_IMR, "true");
 
         Properties serverProps = new Properties();
         serverProps.setProperty ("OAAddress", DEFAULT_LISTEN_EP);
         serverProps.put ("OAPort","0");
         serverProps.put ("OASSLPort", "0");
-        // serverProps.put ("jacorb.test.timeout.server", Long.toString(10000));
 
         setup = new ClientServerSetup ("org.jacorb.test.listenendpoints.echo_corbaloc.Server",
                                    null,
@@ -139,7 +130,7 @@ public class ListenEndpointsTest extends ClientServerTestCase
             server =
                     EchoMessageHelper.narrow (setup.getServerObject());
             String result = server.echo_simple();
-            log("test_echo_simple: got resp from server: <" + result + ">");
+            TestUtils.getLogger().debug("AlternateEndpointTest: " + "test_echo_simple: got resp from server: <" + result + ">");
             assertTrue("test_echo_simple: result is null", result != null);
             assertTrue("test_echo_simple: unexpected result <" + result + ">",
                     result.startsWith("Simple greeting from"));
@@ -263,9 +254,8 @@ public class ListenEndpointsTest extends ClientServerTestCase
                 Properties props = new Properties();
                 props.setProperty("org.omg.CORBA.ORBClass", "org.jacorb.orb.ORB");
                 props.setProperty("org.omg.CORBA.ORBSingletonClass", "org.jacorb.orb.ORBSingleton");
-                props.setProperty(CommonSetup.JACORB_REGRESSION_DISABLE_IMR, "true");
 
-                org.omg.CORBA.ORB orb = org.omg.CORBA.ORB.init(new String[0], props);
+                org.omg.CORBA.ORB orb = setup.getAnotherORB(props);
                 EchoMessage server = null;
                 try
                 {
@@ -319,9 +309,8 @@ public class ListenEndpointsTest extends ClientServerTestCase
                 Properties props = new Properties();
                 props.setProperty("org.omg.CORBA.ORBClass", "org.jacorb.orb.ORB");
                 props.setProperty("org.omg.CORBA.ORBSingletonClass", "org.jacorb.orb.ORBSingleton");
-                props.setProperty(CommonSetup.JACORB_REGRESSION_DISABLE_IMR, "true");
 
-                org.omg.CORBA.ORB orb = org.omg.CORBA.ORB.init(new String[0], props);
+                org.omg.CORBA.ORB orb = setup.getAnotherORB(props);
                 EchoMessage server = null;
                 try
                 {
@@ -375,9 +364,8 @@ public class ListenEndpointsTest extends ClientServerTestCase
                 Properties props = new Properties();
                 props.setProperty("org.omg.CORBA.ORBClass", "org.jacorb.orb.ORB");
                 props.setProperty("org.omg.CORBA.ORBSingletonClass", "org.jacorb.orb.ORBSingleton");
-                props.setProperty(CommonSetup.JACORB_REGRESSION_DISABLE_IMR, "true");
 
-                org.omg.CORBA.ORB orb = org.omg.CORBA.ORB.init(new String[0], props);
+                org.omg.CORBA.ORB orb = setup.getAnotherORB(props);
                 EchoMessage server = null;
                 try
                 {
@@ -427,12 +415,12 @@ public class ListenEndpointsTest extends ClientServerTestCase
             if (inMsg != null && inMsg.equals(outMsg))
             {
                 successCnt++;
-                log("OK: " + tms_dif + "mSec <" + inMsg + ">" );
+                TestUtils.getLogger().debug("AlternateEndpointTest: " + "OK: " + tms_dif + "mSec <" + inMsg + ">");
             }
             else
             {
-                log("ERR: out: <" + outMsg + "> in: <"
-                    + (inMsg == null? "null" : inMsg) + ">");
+                TestUtils.getLogger().debug("AlternateEndpointTest: " + "ERR: out: <" + outMsg + "> in: <"
+                + (inMsg == null? "null" : inMsg) + ">");
 
             }
 
@@ -465,7 +453,7 @@ public class ListenEndpointsTest extends ClientServerTestCase
                 props.setProperty("org.omg.CORBA.ORBClass", "org.jacorb.orb.ORB");
                 props.setProperty("org.omg.CORBA.ORBSingletonClass", "org.jacorb.orb.ORBSingleton");
 
-                org.omg.CORBA.ORB orb = org.omg.CORBA.ORB.init(new String[0], props);
+                org.omg.CORBA.ORB orb = setup.getAnotherORB(props);
                 EchoMessage server = null;
 
                 try
@@ -525,7 +513,7 @@ public class ListenEndpointsTest extends ClientServerTestCase
                 props.setProperty("org.omg.CORBA.ORBClass", "org.jacorb.orb.ORB");
                 props.setProperty("org.omg.CORBA.ORBSingletonClass", "org.jacorb.orb.ORBSingleton");
 
-                org.omg.CORBA.ORB orb = org.omg.CORBA.ORB.init(new String[0], props);
+                org.omg.CORBA.ORB orb = setup.getAnotherORB(props);
                 EchoMessage server = null;
 
                 try
@@ -585,7 +573,7 @@ public class ListenEndpointsTest extends ClientServerTestCase
                 props.setProperty("org.omg.CORBA.ORBClass", "org.jacorb.orb.ORB");
                 props.setProperty("org.omg.CORBA.ORBSingletonClass", "org.jacorb.orb.ORBSingleton");
 
-                org.omg.CORBA.ORB orb = org.omg.CORBA.ORB.init(new String[0], props);
+                org.omg.CORBA.ORB orb = setup.getAnotherORB(props);
                 EchoMessage server = null;
 
                 try
@@ -594,7 +582,7 @@ public class ListenEndpointsTest extends ClientServerTestCase
 
                     server =
                             EchoMessageHelper.narrow(orb.string_to_object(endpoint));
-                    log("test_loopback: ping endpoint: " + endpoint);
+                    TestUtils.getLogger().debug("AlternateEndpointTest: " + "test_loopback: ping endpoint: " + endpoint);
                     int cnt = 0;
                     cnt = send_msg(5, "test_loopback", "hailing server endpoint " + endpoint, server);
                     assertTrue("test_loopback: got cnt=" + cnt + " (expected 5)", cnt == 5);
@@ -618,14 +606,6 @@ public class ListenEndpointsTest extends ClientServerTestCase
         {
             fail("test_loopback: got an unexpected exception : <" + e.getMessage() + ">");
         }
-
-
-    }
-
-    private static void log(String msg)
-    {
-        System.out.println("AlternateEndpointTest: " + msg);
-        System.out.flush();
     }
 
     private List<InetAddress> getInetAddressList() throws SocketException
@@ -689,7 +669,7 @@ public class ListenEndpointsTest extends ClientServerTestCase
                         {
                             ipv6 = ipv6.substring(0, zoneid_delim);
                         }
-                        //System.out.println("getListenEndpoints: ipv6=<" + ipv6 + ">");
+                        TestUtils.getLogger().debug("getListenEndpoints: ipv6=<" + ipv6 + ">");
                         if (!ipv6.startsWith("fe80"))
                         {
                             listen_eps.add(

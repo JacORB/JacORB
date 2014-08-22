@@ -13,7 +13,6 @@ public class ComplexTypeCodesServerImpl extends ComplexTypeCodesServerPOA
         }
         catch (Exception e )
         {
-            e.printStackTrace();
             throw new INTERNAL();
         }
 

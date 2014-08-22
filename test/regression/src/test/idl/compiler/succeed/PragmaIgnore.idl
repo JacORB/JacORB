@@ -1,0 +1,12 @@
+// Pragma Testing
+
+#pragma prefix "jacorb.org.Tests"
+
+module C1
+{
+   module B1
+   {
+#pragma location "bindserver"
+      interface dummy {};
+   };
+};

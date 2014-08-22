@@ -7,8 +7,8 @@ package org.jacorb.test.orb.orbreinvoke;
 import java.io.IOException;
 import java.util.Properties;
 import org.jacorb.imr.ImplementationRepositoryImpl;
-import org.jacorb.test.common.ImplementationRepositoryRunner;
-import org.jacorb.test.common.ServerSetup;
+import org.jacorb.test.harness.ImplementationRepositoryRunner;
+import org.jacorb.test.harness.ServerSetup;
 
 /**
  *

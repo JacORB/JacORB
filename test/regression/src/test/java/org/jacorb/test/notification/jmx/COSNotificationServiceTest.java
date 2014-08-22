@@ -29,8 +29,8 @@ import javax.management.MBeanServerFactory;
 import javax.management.ObjectName;
 import org.jacorb.notification.jmx.COSNotificationService;
 import org.jacorb.notification.jmx.JMXManageableMBeanProvider;
-import org.jacorb.test.common.ORBTestCase;
-import org.jacorb.test.common.TestUtils;
+import org.jacorb.test.harness.ORBTestCase;
+import org.jacorb.test.harness.TestUtils;
 import org.junit.Assume;
 import org.junit.Before;
 import org.junit.Test;
@@ -42,8 +42,6 @@ import org.omg.CosNotifyChannelAdmin.EventChannelFactoryHelper;
 public class COSNotificationServiceTest extends ORBTestCase
 {
     private MBeanServer mBeanServer_;
-
-    private ORB orb_;
 
     private ObjectName objectName_;
 
@@ -57,7 +55,7 @@ public class COSNotificationServiceTest extends ORBTestCase
             Class<?> mcns = TestUtils.classForName ("org.jacorb.notification.jmx.mx4j.MX4JCOSNotificationService");
 
             Constructor<?> constructor = mcns.getConstructors()[0];
-            COSNotificationService notifyMBean = (COSNotificationService) constructor.newInstance(new Object[] { orb_, mBeanServer_, new JMXManageableMBeanProvider("TestDomain"),
+            COSNotificationService notifyMBean = (COSNotificationService) constructor.newInstance(new Object[] { orb, mBeanServer_, new JMXManageableMBeanProvider("TestDomain"),
                     new String[0] } );
 
             objectName_ = ObjectName.getInstance("test:type=EventChannelFactory");
@@ -76,7 +74,7 @@ public class COSNotificationServiceTest extends ORBTestCase
 
         Object ior = mBeanServer_.getAttribute(objectName_, "IOR");
 
-        org.omg.CORBA.Object object = orb_.string_to_object((String) ior);
+        org.omg.CORBA.Object object = orb.string_to_object((String) ior);
 
         EventChannelFactory factory = EventChannelFactoryHelper.narrow(object);
 
@@ -90,7 +88,7 @@ public class COSNotificationServiceTest extends ORBTestCase
 
         Object ior = mBeanServer_.getAttribute(objectName_, "IOR");
 
-        org.omg.CORBA.Object object = orb_.string_to_object((String) ior);
+        org.omg.CORBA.Object object = orb.string_to_object((String) ior);
 
         EventChannelFactory factory = EventChannelFactoryHelper.narrow(object);
 

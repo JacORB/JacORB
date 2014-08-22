@@ -5,12 +5,14 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import org.jacorb.test.SyncScopeServer;
 import org.jacorb.test.SyncScopeServerHelper;
-import org.jacorb.test.common.ClientServerSetup;
-import org.jacorb.test.common.ClientServerTestCase;
+import org.jacorb.test.harness.ClientServerSetup;
+import org.jacorb.test.harness.ClientServerTestCase;
+import org.jacorb.test.harness.IMRExcludedClientServerCategory;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 import org.omg.CORBA.Policy;
 import org.omg.CORBA.PolicyError;
 import org.omg.CORBA.SetOverrideType;
@@ -25,6 +27,7 @@ import org.omg.Messaging.SYNC_WITH_TRANSPORT;
  *
  * @author Andre Spiegel <spiegel@gnu.org>
  */
+@Category(IMRExcludedClientServerCategory.class)
 public class SyncScopeTest extends ClientServerTestCase
 {
     private static final int TIME = 300;
