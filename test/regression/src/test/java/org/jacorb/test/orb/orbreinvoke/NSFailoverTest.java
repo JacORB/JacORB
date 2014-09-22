@@ -61,11 +61,11 @@ public class NSFailoverTest extends ORBTestCase
 
     private static final String IMPLNAME = "EchoServer";
     private static final String SERVER_1_LEP = "iiop://:" + TestUtils.getNextAvailablePort();
-    private static final String SERVER_2_LEP = "iiop://:"+ TestUtils.getNextAvailablePort(10000);
+    private static final String SERVER_2_LEP = "iiop://:"+ TestUtils.getNextAvailablePort(51200);
 
     // NameServer endpoints
-    private static final String NS_1_LEP = Integer.toString(TestUtils.getNextAvailablePort(20000));
-    private static final String NS_2_LEP = Integer.toString(TestUtils.getNextAvailablePort(30000));
+    private static final String NS_1_LEP = Integer.toString(TestUtils.getNextAvailablePort(51400));
+    private static final String NS_2_LEP = Integer.toString(TestUtils.getNextAvailablePort(51600));
 
     private Properties nsProp_1 = null;
     private Properties nsProp_2 = null;
