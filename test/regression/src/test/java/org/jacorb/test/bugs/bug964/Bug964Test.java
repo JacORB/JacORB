@@ -19,7 +19,7 @@ public class Bug964Test extends ClientServerTestCase
     private GSLoadBalancer server;
 
     private static String remotePort = Integer.toString(TestUtils.getNextAvailablePort());
-    private static String localPort = Integer.toString(TestUtils.getNextAvailablePort(20000));
+    private static String localPort = Integer.toString(TestUtils.getNextAvailablePort(49200));
 
     private final static String remoteCorbaloc = "corbaloc::localhost:" + remotePort + "/GSLBService";
     private final static String localCorbaloc = "corbaloc::localhost:" + localPort + "/GSLBService";

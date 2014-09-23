@@ -54,8 +54,8 @@ public class AlternateIIOPAddress2Test extends ClientServerTestCase
     private static final String WRONG_HOST   = "255.255.255.253";
     private static final String WRONG_HOST_2 = "255.255.255.254";
 
-    private static final int CORRECT_PORT = TestUtils.getNextAvailablePort(10000);
-    private static final int WRONG_PORT   = TestUtils.getNextAvailablePort(20000);
+    private static final int CORRECT_PORT = TestUtils.getNextAvailablePort(49400);
+    private static final int WRONG_PORT   = TestUtils.getNextAvailablePort(49600);
 
     private static final String PROTOCOL = "iiop://";
 

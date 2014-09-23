@@ -34,6 +34,7 @@ public class CmdArgs {
         {
             this.appName = "AppName";
         }
+        processArgs();
     }
 
     public boolean processArgs() throws Exception

@@ -34,6 +34,7 @@ import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
+import org.jacorb.orb.iiop.IIOPAddress;
 import org.jacorb.test.harness.ClientServerSetup;
 import org.jacorb.test.harness.ClientServerTestCase;
 import org.jacorb.test.harness.IMRExcludedClientServerCategory;
@@ -53,7 +54,7 @@ import org.junit.experimental.categories.Category;
 @Category(IMRExcludedClientServerCategory.class)
 public class ListenEndpointsTest extends ClientServerTestCase
 {
-    private static final String DEFAULT_LISTEN_EP = "iiop://:45000";
+    private static final String DEFAULT_LISTEN_EP = "iiop://:45001";
 
     // wildcard listen endpoint
     private static final String LISTEN_EP = "'iiop://:32999,iiop://:44999;iiop://:45999'";
@@ -64,7 +65,7 @@ public class ListenEndpointsTest extends ClientServerTestCase
     private static final int CORRECT_PORT_2 = 44999;
     private static final int CORRECT_PORT_3 = 45999;
     private static final int WRONG_PORT   = 55555;
-    private static final int WRONG_PORT_2 = 45000;
+    private static final int WRONG_PORT_2 = 45001;
 
 
     @BeforeClass
@@ -86,7 +87,7 @@ public class ListenEndpointsTest extends ClientServerTestCase
 
         setup = new ClientServerSetup ("org.jacorb.test.listenendpoints.echo_corbaloc.Server",
                                    null,
-                                   new String[] {"-testmode", "P", "-ORBListenEndpoints", LISTEN_EP},
+                                       new String[] {"-verbose", "-testmode", "P", "-ORBListenEndpoints", LISTEN_EP},
                                    clientProps, serverProps);
 
     }
@@ -608,111 +609,86 @@ public class ListenEndpointsTest extends ClientServerTestCase
         }
     }
 
-    private List<InetAddress> getInetAddressList() throws SocketException
+    private List<String> getListenEndpoints(int listen_port, String objId)
     {
-        List<InetAddress> inetList = new ArrayList<InetAddress>();
-
-        Enumeration<NetworkInterface> nets = NetworkInterface.getNetworkInterfaces();
-
-        for (NetworkInterface netint : Collections.list(nets))
+        List<InetAddress> inets = IIOPAddress.getNetworkInetAddresses();
+        List<String> listen_eps = new ArrayList<String>();
+        for (Iterator<InetAddress> x = inets.iterator(); x.hasNext();)
         {
-            for ( InetAddress inetAddress : Collections.list(netint.getInetAddresses()) )
+            InetAddress inetAddr = x.next();
+            String ipaddr = inetAddr.toString().substring(1);
+            String conHostName = inetAddr.getCanonicalHostName();
+            String hostName = inetAddr.getHostName();
+            if (!inetAddr.isLoopbackAddress() && !inetAddr.isLinkLocalAddress())
             {
-                inetList.add(inetAddress);
-            }
-
-        }
-        return inetList;
-    }
-
-    private List<String> getListenEndpoints(int listen_port, String objId) throws SocketException
-    {
-        try
-        {
-            List<InetAddress> inets = getInetAddressList();
-            List<String> listen_eps = new ArrayList<String>();
-            for (Iterator<InetAddress> x = inets.iterator(); x.hasNext();)
-            {
-                InetAddress inetAddr = x.next();
-                String ipaddr = inetAddr.toString().substring(1);
-                String conHostName = inetAddr.getCanonicalHostName();
-                String hostName = inetAddr.getHostName();
-                if (!inetAddr.isLoopbackAddress() && !inetAddr.isLinkLocalAddress())
+                if (inetAddr instanceof Inet4Address)
                 {
-                    if (inetAddr instanceof Inet4Address)
+                    listen_eps.add(
+                        new String ("corbaloc:" + PROTOCOL + ipaddr + ":" + listen_port +
+                                    objId)
+                                  );
+                    if (!hostName.equals(ipaddr))
                     {
                         listen_eps.add(
-                                new String ("corbaloc:" + PROTOCOL + ipaddr + ":" + listen_port +
-                                objId)
-                                );
-                        if (!hostName.equals(ipaddr))
-                        {
-                            listen_eps.add(
-                                    new String ("corbaloc:" + PROTOCOL + hostName + ":" + listen_port +
-                                    objId)
-                                    );
-                        }
-                        if (!conHostName.equals(ipaddr) && !conHostName.equals(hostName))
-                        {
-                            listen_eps.add(
-                                    new String ("corbaloc:" + PROTOCOL + hostName + ":" + listen_port +
-                                    objId)
-                                    );
-                        }
-
+                            new String ("corbaloc:" + PROTOCOL + hostName + ":" + listen_port +
+                                        objId)
+                                      );
                     }
-                    else if (inetAddr instanceof Inet6Address)
+                    if (!conHostName.equals(ipaddr) && !conHostName.equals(hostName))
                     {
-                        String ipv6 = ipaddr;
-                        int zoneid_delim = ipv6.indexOf('%');
+                        listen_eps.add(
+                            new String ("corbaloc:" + PROTOCOL + hostName + ":" + listen_port +
+                                        objId)
+                                      );
+                    }
+
+                }
+                else if (inetAddr instanceof Inet6Address)
+                {
+                    String ipv6 = ipaddr;
+                    int zoneid_delim = ipv6.indexOf('%');
+                    if (zoneid_delim > 0)
+                    {
+                        ipv6 = ipv6.substring(0, zoneid_delim);
+                    }
+                    TestUtils.getLogger().debug("getListenEndpoints: ipv6=<" + ipv6 + ">");
+                    if (!ipv6.startsWith("fe80"))
+                    {
+                        listen_eps.add(
+                            new String ("corbaloc:" + PROTOCOL + "[" + ipv6 + "]:" + listen_port +
+                                        objId)
+                                      );
+                    }
+
+                    if (!hostName.equals(ipaddr))
+                    {
+                        zoneid_delim = hostName.indexOf('%');
                         if (zoneid_delim > 0)
                         {
-                            ipv6 = ipv6.substring(0, zoneid_delim);
+                            ipv6 = hostName.substring(0, zoneid_delim);
                         }
-                        TestUtils.getLogger().debug("getListenEndpoints: ipv6=<" + ipv6 + ">");
-                        if (!ipv6.startsWith("fe80"))
+                        listen_eps.add(
+                            new String ("corbaloc:" + PROTOCOL + "[" + ipv6 + "]:" + listen_port +
+                                        objId)
+                                      );
+                    }
+                    if (!conHostName.equals(ipaddr) && !conHostName.equals(hostName))
+                    {
+                        zoneid_delim = conHostName.indexOf('%');
+                        if (zoneid_delim > 0)
                         {
-                            listen_eps.add(
-                                    new String ("corbaloc:" + PROTOCOL + "[" + ipv6 + "]:" + listen_port +
-                                    objId)
-                                    );
+                            ipv6 = conHostName.substring(0, zoneid_delim);
                         }
-
-                        if (!hostName.equals(ipaddr))
-                        {
-                            zoneid_delim = hostName.indexOf('%');
-                            if (zoneid_delim > 0)
-                            {
-                                ipv6 = hostName.substring(0, zoneid_delim);
-                            }
-                            listen_eps.add(
-                                    new String ("corbaloc:" + PROTOCOL + "[" + ipv6 + "]:" + listen_port +
-                                    objId)
-                                    );
-                        }
-                        if (!conHostName.equals(ipaddr) && !conHostName.equals(hostName))
-                        {
-                            zoneid_delim = conHostName.indexOf('%');
-                            if (zoneid_delim > 0)
-                            {
-                                ipv6 = conHostName.substring(0, zoneid_delim);
-                            }
-                            listen_eps.add(
-                                    new String ("corbaloc:" + PROTOCOL + "[" + ipv6 + "]:" + listen_port +
-                                    objId)
-                                    );
-                        }
+                        listen_eps.add(
+                            new String ("corbaloc:" + PROTOCOL + "[" + ipv6 + "]:" + listen_port +
+                                        objId)
+                                      );
                     }
                 }
             }
-
-            return listen_eps;
-
         }
-        catch (SocketException e)
-        {
-            throw new SocketException (e.getMessage());
-        }
+
+        return listen_eps;
     }
 
     private List<String> getIsLoopbackEndpoints(String objId) throws SocketException
