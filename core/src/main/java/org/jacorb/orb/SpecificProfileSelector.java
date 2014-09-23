@@ -32,70 +32,108 @@ import org.omg.IOP.TAG_INTERNET_IOP;
  */
 public class SpecificProfileSelector implements ProfileSelector
 {
-   private final org.omg.RTCORBA.Protocol[] protocols;
+    private final org.omg.RTCORBA.Protocol[] protocols;
+    private Profile currentProfile = null;
 
-   public SpecificProfileSelector (org.omg.RTCORBA.Protocol[] protocols)
-   {
-      this.protocols = protocols;
-   }
 
-   /**
-    *  Select IOP profile that matches protocol
-    */
-   public Profile selectProfile (List profiles, ClientConnectionManager ccm)
-   {
-      final Iterator iter = profiles.iterator();
+    public SpecificProfileSelector (org.omg.RTCORBA.Protocol[] protocols)
+    {
+        this.protocols = protocols;
+    }
 
-      while (iter.hasNext ())
-      {
-         final Profile profile = (Profile) iter.next();
-         final int profileTag = profile.tag ();
+    /**
+     *  Select IOP profile that matches protocol
+     */
+    public Profile selectProfile (List<Profile> profiles, ClientConnectionManager ccm)
+    {
+        return selectNextProfile (profiles, null);
+    }
 
-         for (int i = 0; i < protocols.length; i++)
-         {
+    private boolean validate (Profile profile)
+    {
+        final int profileTag = profile.tag ();
+        for (int i = 0; i < protocols.length; i++)
+        {
             final int tagToMatch = protocols[i].protocol_type;
 
             if (profileTag == tagToMatch)
             {
-               return profile;
+                return true;
             }
 
-            if (profileTag == TAG_INTERNET_IOP.value &&
-                profile instanceof IIOPProfile)
+            if (profile instanceof IIOPProfile)
             {
                 // Special case check for IIOP profile supporting SSL
                 IIOPProfile iiopProfile = (IIOPProfile) profile;
-                if
-                (
-                    (tagToMatch == ORBConstants.JAC_SSL_PROFILE_ID) &&
-                    (iiopProfile.getSSL () != null)
-                )
+                if (tagToMatch == ORBConstants.JAC_SSL_PROFILE_ID &&
+                    iiopProfile.getSSL () != null)
                 {
-                    return profile;
+                    return true;
                 }
 
                 // Special case check for IIOP profile not supporting SSL
-                if
-                (
-                    (tagToMatch == ORBConstants.JAC_NOSSL_PROFILE_ID) &&
-                    ((iiopProfile.getSSL () == null) ||
+                if (tagToMatch == ORBConstants.JAC_NOSSL_PROFILE_ID &&
+                    (iiopProfile.getSSL () == null ||
                      // SSL port contains a valid value but further check is required
                      // see if protection is enabled.
                      (((iiopProfile.getSSL()).target_requires &
-                       org.omg.Security.NoProtection.value) != 0))
-                )
+                       org.omg.Security.NoProtection.value) != 0)))
                 {
-                    return profile;
+                    return true;
                 }
             }
-         }
-      }
+        }
+        return false;
+    }
 
-      return null;
-   }
+    public Profile selectNextProfile(List<Profile> profileList, Profile lastProfile)
+    {
+        //sanity check
+        if (profileList == null || profileList.isEmpty())
+        {
+            return null;
+        }
 
-   public Profile selectNextProfile(List profiles, Profile lastProfile)
-   {
-       return null;
-   }
+        // locate the last profile in the list
+        Iterator<Profile> iterator;
+        for (iterator = profileList.iterator(); iterator.hasNext();)
+        {
+            Profile p = iterator.next();
+
+            if (lastProfile != null)
+            {
+                if (lastProfile.equals(p))
+                {
+                    break;
+                }
+            }
+            else if (validate (p))
+            {
+                currentProfile = p;
+                return p;
+            }
+        }
+
+        // return the next profile, which is next to the last profile.
+        while (true)
+        {
+            if (!iterator.hasNext())
+            {
+                iterator = profileList.iterator();
+            }
+            Profile p = iterator.next();
+            if (lastProfile.equals (p))
+            {
+                // came all the way back around
+                break;
+            }
+
+            if (validate (p))
+            {
+                currentProfile = p;
+                return p;
+            }
+        }
+        return null;
+    }
 }

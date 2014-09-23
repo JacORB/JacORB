@@ -93,8 +93,7 @@ public class ClientConnectionManager
     {
         /* look for an existing connection */
 
-        ClientConnection clientConnection =
-            connections.get( profile );
+        ClientConnection clientConnection = connections.get( profile );
 
         if (clientConnection == null && profile instanceof IIOPProfile)
         {

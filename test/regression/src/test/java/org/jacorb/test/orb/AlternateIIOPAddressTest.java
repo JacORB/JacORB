@@ -65,10 +65,12 @@ public class AlternateIIOPAddressTest extends ClientServerTestCase
     @After
     public void tearDown() throws Exception
     {
-        // server.clearSocketAddress();
-        server.setIORAddress (CORRECT_HOST, CORRECT_PORT);
-        server.clearAlternateAddresses();
-        server = null;
+      if (server != null)
+        {
+          server.setIORAddress (CORRECT_HOST, CORRECT_PORT);
+          server.clearAlternateAddresses();
+          server = null;
+        }
     }
 
     @BeforeClass
