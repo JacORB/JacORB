@@ -26,6 +26,8 @@ import java.lang.reflect.Method;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Iterator;
+import org.jacorb.orb.iiop.IIOPProfile;
 import org.jacorb.orb.util.CorbaLoc;
 import org.jacorb.util.ObjectUtil;
 import org.omg.CONV_FRAME.CodeSetComponentInfo;
@@ -51,6 +53,9 @@ import org.omg.IOP.TaggedComponent;
 import org.omg.IOP.TaggedComponentSeqHolder;
 import org.omg.IOP.TaggedProfile;
 import org.omg.IOP.TaggedProfileHolder;
+import org.omg.SSLIOP.SSL;
+import org.omg.SSLIOP.SSLHelper;
+
 import org.slf4j.Logger;
 
 /**
@@ -62,6 +67,7 @@ import org.slf4j.Logger;
 public class ParsedIOR
 {
     private Profile effectiveProfile = null;
+    private Profile lastUsedProfile = null;
     private final List<Profile> profiles = new ArrayList<Profile>();
 
     /** top-level tagged components, i.e. NOT part of IOP components. Other
@@ -80,9 +86,6 @@ public class ParsedIOR
     private Integer orbTypeId = null;
     private final Logger logger;
     private String iorTypeIdName = null;
-    private boolean isImRIor = false;
-    // indicates when the app is trying to reach the NS using the NS IOR
-    private boolean isNameServiceIor = false;
 
     // This is used to store the original corbaname reference. If this is not null it
     // indicates the client was using the Naming Service (as oppose to the IMR) to reach the server,
@@ -426,7 +429,8 @@ public class ParsedIOR
     private void setEffectiveProfile ()
     {
         effectiveProfile = getProfileSelector().selectProfile
-           (profiles, orb.getClientConnectionManager());
+                (profiles, orb.getClientConnectionManager());
+        lastUsedProfile = effectiveProfile;
 
         if (effectiveProfile != null)
         {
@@ -438,13 +442,10 @@ public class ParsedIOR
 
     public Profile getNextEffectiveProfile()
     {
-        Profile lastProfile = effectiveProfile;
-
         effectiveProfile = getProfileSelector().selectNextProfile
-                (profiles, lastProfile);
+            (profiles, effectiveProfile);
 
-
-        if (effectiveProfile != null && effectiveProfile != lastProfile)
+        if (effectiveProfile != null && effectiveProfile != getLastUsedProfile())
         {
             cs_info = (CodeSetComponentInfo) getComponent
                (TAG_CODE_SETS.value, CodeSetComponentInfoHelper.class);
@@ -452,6 +453,52 @@ public class ParsedIOR
         }
         return effectiveProfile;
     }
+
+    public Profile getLastUsedProfile ()
+    {
+        if (lastUsedProfile == null)
+        {
+            lastUsedProfile = effectiveProfile;
+        }
+        return lastUsedProfile;
+    }
+
+    public void markLastUsedProfile ()
+    {
+        lastUsedProfile = effectiveProfile;
+    }
+
+    public void patchSSL()
+    {
+
+        SSL ssl = (SSL)components.getComponent( org.omg.SSLIOP.TAG_SSL_SEC_TRANS.value,
+                                                SSLHelper.class );
+
+        if (ssl == null)
+        {
+            return;
+        }
+
+        Iterator<Profile> iter = profiles.iterator ();
+        while (iter.hasNext ())
+        {
+            Profile p = iter.next ();
+            if (p instanceof IIOPProfile)
+            {
+                IIOPProfile iiopProfile = (IIOPProfile) p;
+
+                if (iiopProfile.version().minor == 0)
+                {
+                    logger.debug("patching GIOP 1.0 profile to contain " +
+                                 "SSL information from the multiple components profile");
+                    iiopProfile.addComponent(org.omg.SSLIOP.TAG_SSL_SEC_TRANS.value,
+                                             ssl, SSLHelper.class);
+                }
+            }
+        }
+    }
+
+
 
     private void setIorTypeIdName()
     {
@@ -463,62 +510,11 @@ public class ParsedIOR
             iorTypeIdName = iorTypeId.substring(0, colon);
         }
 
-        if (iorTypeIdName != null)
-        {
-            // check for JACORB ImR
-            if (iorTypeIdName.equals("IDL:org/jacorb/imr/ImplementationRepository"))
-            {
-                isImRIor = true;
-            }
-            //check for TAO ImR
-            else if (iorTypeIdName.equals("IDL:ImplementationRepository/Locator"))
-            {
-                isImRIor = true;
-            }
-            //check for the Naming Service
-            else if (iorTypeIdName.equals("IDL:omg.org/CosNaming/NamingContextExt"))
-            {
-                isNameServiceIor = true;
-            }
-        }
-
-        // last attempt to determine IOR type by using the object key
-        if (!isImRIor && !isNameServiceIor)
-        {
-            for (Profile p : profiles)
-            {
-                iorTypeIdName = CorbaLoc.parseKey( p.get_object_key());
-                if (iorTypeIdName != null)
-                {
-                    if (iorTypeIdName.lastIndexOf("NameService") >= 0)
-                    {
-                        isNameServiceIor = true;
-                    }
-                    else if (iorTypeIdName.lastIndexOf("ImplementationRepository") >= 0 ||
-                            iorTypeIdName.lastIndexOf("ImplRepo_Service") >= 0 ||
-                            iorTypeIdName.lastIndexOf("the_ImR/ImRPOA.ImR") >= 0 )
-                    {
-                        isImRIor = true;
-                    }
-                }
-            }
-        }
     }
-
 
     public String getTypeIdName()
     {
         return iorTypeIdName;
-    }
-
-    public boolean isImRIor()
-    {
-        return isImRIor;
-    }
-
-    public boolean isNameServiceIor()
-    {
-        return isNameServiceIor;
     }
 
     public boolean useCorbaName()

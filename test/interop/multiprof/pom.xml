@@ -1,0 +1,208 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
+                             http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>org.jacorb</groupId>
+        <artifactId>jacorb-parent</artifactId>
+        <version>3.6-SNAPSHOT</version>
+        <relativePath>..</relativePath>
+    </parent>
+
+    <groupId>multiprof</groupId>
+    <artifactId>multiprof</artifactId>
+    <version>1.0</version>
+    <packaging>jar</packaging>
+
+    <name>MultiprofTest</name>
+    <description>MultiProfile IOR test</description>
+
+    <licenses>
+        <license>
+            <name>GNU Lesser General Public License</name>
+            <url>https://www.gnu.org/licenses/old-licenses/lgpl-2.1.html</url>
+        </license>
+    </licenses>
+
+    <properties>
+        <version.jacorb>3.6-SNAPSHOT</version.jacorb>
+
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.jacorb</groupId>
+            <artifactId>jacorb</artifactId>
+            <version>${version.jacorb}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.jacorb</groupId>
+            <artifactId>jacorb-omgapi</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>antlr</groupId>
+            <artifactId>antlr</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>mx4j</groupId>
+            <artifactId>mx4j</artifactId>
+        </dependency>
+        <dependency>
+	    <groupId>nanocontainer</groupId>
+	    <artifactId>nanocontainer-remoting</artifactId>
+        </dependency>
+        <dependency>
+	    <groupId>org.beanshell</groupId>
+	    <artifactId>bsh</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-jdk14</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>picocontainer</groupId>
+            <artifactId>picocontainer</artifactId>
+        </dependency>
+        <dependency>
+	    <groupId>tanukisoft</groupId>
+	    <artifactId>wrapper</artifactId>
+	</dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>idlj-maven-plugin</artifactId>
+                <version>1.2.1</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>generate</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <compiler>jacorb</compiler>
+                </configuration>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.jacorb</groupId>
+                        <artifactId>jacorb-idl-compiler</artifactId>
+                        <version>${version.jacorb}</version>
+                        <scope>compile</scope>
+                    </dependency>
+                </dependencies>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.1</version>
+                <configuration>
+                    <source>1.6</source>
+                    <target>1.6</target>
+                    <debug>true</debug>
+                    <showWarnings>true</showWarnings>
+                    <showDeprecation>true</showDeprecation>
+                    <compilerArgs>
+                        <arg>-Xbootclasspath/p:${settings.localRepository}/org/jacorb/jacorb-omgapi/${version.jacorb}/jacorb-omgapi-${version.jacorb}.jar</arg>
+                    </compilerArgs>
+                </configuration>
+            </plugin>
+
+
+            <!-- Utilising the antrun plugin to test as Ant allows for parallel execution of multiple processes -->
+            <plugin>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <version>1.7</version>
+                <executions>
+                    <execution>
+                        <id>test</id>
+                        <phase>integration-test</phase>
+                        <configuration>
+                            <target>
+                                <property name="plugin_classpath" refid="maven.plugin.classpath"/>
+                                <tempfile property="ior.file" destdir="/tmp" prefix="server" suffix=".ior" />
+
+                                <parallel>
+                                    <sequential>
+                                        <java fork="true"
+                                              classpathref="maven.plugin.classpath"
+                                              className="multiprof.NSTest">
+                                            <jvmarg value="-Xbootclasspath/p:${plugin_classpath}:${classpath}:${sun.boot.class.path}" />
+                                            <jvmarg value="-Dorg.omg.CORBA.ORBClass=org.jacorb.orb.ORB" />
+                                            <jvmarg value="-Dorg.omg.CORBA.ORBSingletonClass=org.jacorb.orb.ORBSingleton" />
+                                            <jvmarg value="-Djacorb.log.default.verbosity=2" />
+
+                                            <arg value="${ior.file}"/>
+                                        </java>
+                                    </sequential>
+                                </parallel>
+                            </target>
+                        </configuration>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <dependencies>
+                    <dependency>
+                        <groupId>multiprof</groupId>
+                        <artifactId>multiprof</artifactId>
+                        <version>${project.version}</version>
+                    </dependency>
+                    <dependency>
+                        <groupId>org.apache.ant</groupId>
+                        <artifactId>ant</artifactId>
+                        <version>1.8.2</version>
+                    </dependency>
+                </dependencies>
+            </plugin>
+        </plugins>
+
+        <pluginManagement>
+            <plugins>
+                <!--This plugin's configuration is used to store Eclipse m2e settings only. It has no influence on the Maven build itself.-->
+                <plugin>
+                    <groupId>org.eclipse.m2e</groupId>
+                    <artifactId>lifecycle-mapping</artifactId>
+                    <version>1.0.0</version>
+                    <configuration>
+                        <lifecycleMappingMetadata>
+                            <pluginExecutions>
+                                <pluginExecution>
+                                    <pluginExecutionFilter>
+                                        <groupId>
+                                            org.codehaus.mojo
+                                        </groupId>
+                                        <artifactId>
+                                            idlj-maven-plugin
+                                        </artifactId>
+                                        <versionRange>
+                                            [1.2.1,)
+                                        </versionRange>
+                                        <goals>
+                                            <goal>generate</goal>
+                                        </goals>
+                                    </pluginExecutionFilter>
+                                    <action>
+                                        <execute/>
+                                    </action>
+                                </pluginExecution>
+                            </pluginExecutions>
+                        </lifecycleMappingMetadata>
+                    </configuration>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+    </build>
+</project>

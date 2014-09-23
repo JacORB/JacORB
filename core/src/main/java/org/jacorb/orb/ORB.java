@@ -312,7 +312,6 @@ public final class ORB
         useTaoIMR =
             configuration.getAttributeAsBoolean("jacorb.use_tao_imr", false);
 
-
         if (useTaoIMR && useIMR)
         {
             throw new ConfigurationException ("Ambiguous ImR property settings: jacorb.use_tao_imr and jacorb.use_imr are both true");
@@ -1552,7 +1551,11 @@ public final class ORB
             return initial_references.get(identifier);
         }
 
-        org.omg.CORBA.Object obj = resolveConfigInitRef(identifier);
+        org.omg.CORBA.Object obj = resolveEnvRef(identifier);
+        if (obj == null)
+          {
+            obj = resolveConfigInitRef(identifier);
+          }
 
         if (obj == null)
         {
@@ -1608,6 +1611,31 @@ public final class ORB
         }
 
         return obj;
+    }
+
+    private org.omg.CORBA.Object resolveEnvRef(String identifier) throws InvalidName
+    {
+      String ior = System.getenv ().get (identifier + "IOR");
+      if (ior == null)
+        {
+          return null;
+        }
+      try
+        {
+           return this.string_to_object (ior);
+        }
+      catch (Exception e)
+        {
+          if (logger.isErrorEnabled())
+          {
+             logger.error( "Could not create initial reference for \"" +
+                           identifier + "\"" + System.getProperty("line.separator") +
+                           "Please check environment variable \"" +
+                           identifier + "IOR\"", e);
+          }
+
+          throw new org.omg.CORBA.ORBPackage.InvalidName();
+        }
     }
 
     private org.omg.CORBA.Object resolveConfigInitRef(String identifier) throws InvalidName

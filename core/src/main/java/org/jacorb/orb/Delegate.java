@@ -97,8 +97,6 @@ import org.omg.PortableServer.POAPackage.WrongAdapter;
 import org.omg.PortableServer.POAPackage.WrongPolicy;
 import org.omg.PortableServer.ServantLocatorPackage.CookieHolder;
 import org.omg.RTCORBA.Protocol;
-import org.omg.SSLIOP.SSL;
-import org.omg.SSLIOP.SSLHelper;
 import org.omg.TimeBase.UtcT;
 import org.slf4j.Logger;
 
@@ -142,9 +140,6 @@ public final class Delegate
     /* save iors to detect and prevent locate forward loop */
     private ParsedIOR piorLastFailed = null;
 
-    /* flag to indicate if this is the delegate for the ImR */
-    private boolean isJacORBImR = false;
-
     private boolean bound = false;
     private org.jacorb.poa.POA poa;
 
@@ -184,8 +179,6 @@ public final class Delegate
     private final Configuration configuration;
 
     /** configuration properties */
-    private  boolean useJacORBIMR;
-    private  boolean useTaoIMR;
     private boolean locateOnBind;
 
     /** mitigate the symptom of an infinite loop in some imr failure cases, see bug 810 */
@@ -371,16 +364,6 @@ public final class Delegate
         selectorManager = orb.getSelectorManager ();
 
         logger = config.getLogger("org.jacorb.orb.delegate");
-        useJacORBIMR =
-            config.getAttributeAsBoolean("jacorb.use_imr", false);
-
-        useTaoIMR =
-            config.getAttributeAsBoolean("jacorb.use_tao_imr", false);
-
-        if (useTaoIMR && useJacORBIMR)
-        {
-            throw new INTERNAL ("Ambiguous ImR property settings: jacorb.use_tao_imr and jacorb.use_imr are both true");
-        }
 
         locateOnBind =
             config.getAttributeAsBoolean("jacorb.locate_on_bind", false);
@@ -466,7 +449,6 @@ public final class Delegate
     {
         this(orb, false);
         _pior = pior;
-        checkIfImR( _pior.getTypeId() );
     }
 
     public Delegate(org.jacorb.orb.ORB orb, IOR ior, boolean parseIORLazy)
@@ -483,40 +465,11 @@ public final class Delegate
         {
             getParsedIOR();
         }
-        checkIfImR( ior.type_id );
     }
 
     public Delegate(org.jacorb.orb.ORB orb, org.omg.IOP.IOR ior)
     {
         this(orb, ior, false);
-    }
-
-    /**
-     * Method to determine if this delegate is the delegate for the ImR.
-     * This information is needed when trying to determine if the ImR has
-     * gone down and come back up at a different addresss.  All delegates
-     * except the delegate of the ImR itself will try to determine if the
-     * ImR has gone down and come back up at a new address if a connection
-     * to the ImR can't be made.  If the delegate of the ImR itself has
-     * failed to connect then the ImR hasn't come back up!
-     */
-    private void checkIfImR( String typeId )
-    {
-        boolean isTaoImR = false;
-
-        if ("IDL:org/jacorb/imr/ImplementationRepository:1.0".equals (typeId))
-        {
-            isJacORBImR = true;
-        }
-        else if ("IDL:ImplementationRepository/Locator:1.0".equals (typeId))
-        {
-            isTaoImR = true;
-        }
-
-        if ( (isTaoImR || isJacORBImR) && logger.isDebugEnabled())
-        {
-            logger.debug("Detected IMR of type " + (isJacORBImR ? "JacORB" : "TAO"));
-        }
     }
 
     public int _get_TCKind()
@@ -546,13 +499,14 @@ public final class Delegate
             }
 
             final ParsedIOR ior = getParsedIOR();
+            ior.patchSSL ();
 
             // Check if ClientProtocolPolicy set, if so, set profile
             // selector for IOR that selects effective profile for protocol
             org.omg.RTCORBA.Protocol[] protocols = getClientProtocols();
             if (protocols != null)
             {
-                ior.setProfileSelector(new SpecificProfileSelector(protocols));
+                ior.setProfileSelector (new SpecificProfileSelector(protocols));
             }
 
             org.omg.ETF.Profile profile = ior.getEffectiveProfile();
@@ -561,8 +515,6 @@ public final class Delegate
             {
                 throw new org.omg.CORBA.COMM_FAILURE ("no effective profile");
             }
-
-            patchSSL(profile, ior);
 
             //MIOP
             if(profile instanceof MIOPProfile)
@@ -583,8 +535,7 @@ public final class Delegate
              *  first call will get through without redirections
              *  (provided the server's answer is definite):
              */
-            if (( ! locate_on_bind_performed ) &&
-                    locateOnBind )
+            if ( locateOnBind && !locate_on_bind_performed )
             {
                 //only locate once, because bind is called from the
                 //switch statement below again.
@@ -605,6 +556,7 @@ public final class Delegate
                                             receiver,
                                             lros.getRequestId(),
                                             true ); //response expected
+                    getParsedIOR ().markLastUsedProfile ();
 
                     LocateReplyInputStream lris = receiver.getReply();
 
@@ -665,31 +617,6 @@ public final class Delegate
                     }
                 }
             }
-        }
-    }
-
-    private void patchSSL(Profile profile, ParsedIOR ior)
-    {
-        if (!(profile instanceof IIOPProfile))
-        {
-            return;
-        }
-
-        IIOPProfile iiopProfile = (IIOPProfile) profile;
-
-        if (iiopProfile.version().minor != 0)
-        {
-            return;
-        }
-
-        TaggedComponentList multipleComponents = ior.getMultipleComponents();
-
-        SSL ssl = (SSL)multipleComponents.getComponent( org.omg.SSLIOP.TAG_SSL_SEC_TRANS.value, SSLHelper.class );
-
-        if (ssl != null)
-        {
-            logger.debug("patching GIOP 1.0 profile to contain SSL information from the multiple components profile");
-            iiopProfile.addComponent(org.omg.SSLIOP.TAG_SSL_SEC_TRANS.value, ssl, SSLHelper.class);
         }
     }
 
@@ -1417,6 +1344,7 @@ public final class Delegate
                 // Use the local copy of the client connection to avoid trouble
                 // with something else affecting the real connections[currentConnection].
                 connectionToUse.sendRequest(ros, receiver, ros.requestId(), true);
+                getParsedIOR ().markLastUsedProfile ();
             }
         }
         catch ( org.omg.CORBA.SystemException cfe )
@@ -1442,10 +1370,18 @@ public final class Delegate
             }
 
             // The exception is a TRANSIENT, so try rebinding.
-            if ( cfe instanceof org.omg.CORBA.TRANSIENT && try_rebind())
+            if ( cfe instanceof org.omg.CORBA.TRANSIENT && try_rebind (false))
             {
                 throw new RemarshalException();
             }
+
+            // An Object Not Exist on a forwarded reference should retry
+            // on the original to get forwarded again to the right server
+            if ( cfe instanceof org.omg.CORBA.OBJECT_NOT_EXIST && try_rebind (true))
+            {
+                throw new RemarshalException();
+            }
+
 
             if (!(cfe instanceof org.omg.CORBA.TIMEOUT))
             {
@@ -1584,6 +1520,7 @@ public final class Delegate
 
             case SYNC_WITH_TRANSPORT.value:
                 connectionToUse.sendRequest (ros, false);
+                getParsedIOR ().markLastUsedProfile ();
                 try
                 {
                     interceptors.handle_receive_other (SUCCESSFUL.value);
@@ -1622,6 +1559,7 @@ public final class Delegate
                     connectionToUse.sendRequest (ros, rcv, ros.requestId(), true);
                     // connections[TransportType.IIOP.ordinal ()].sendRequest (ros, rcv, ros.requestId(), true);
                 }
+                getParsedIOR ().markLastUsedProfile ();
 
                 ReplyInputStream in = rcv.getReply();
                 try
@@ -1676,6 +1614,7 @@ public final class Delegate
                 try
                 {
                     connectionToUse.sendRequest (ros, false);
+                    getParsedIOR ().markLastUsedProfile ();
                 }
                 catch (Throwable e)
                 {
@@ -1709,15 +1648,15 @@ public final class Delegate
         }
     }
 
-    private boolean try_rebind()
+    private boolean try_rebind (boolean forward_only)
     {
+        if (forward_only && (piorOriginal == null || piorOriginal == getParsedIOR ()))
+        {
+            return false;
+        }
+
         synchronized ( bind_sync )
         {
-            if( logger.isDebugEnabled())
-            {
-                logger.debug("Delegate.try_rebind" );
-            }
-
             // piorOriginal was set by rebind() which means
             // that it is the first ParsedIOR for a repository such as an IMR,
             // and _pior is the secondary ParsedIOR for a server.
@@ -1726,36 +1665,41 @@ public final class Delegate
             {
                 if( logger.isDebugEnabled())
                 {
-                    logger.debug("Delegate: falling back to original IOR");
+                    logger.debug("Delegate.try_rebind: falling back to original IOR");
                 }
 
-                if (piorOriginal.equals(getParsedIOR()) &&
-                    getParsedIOR().getProfiles().size() > 1 &&
-                    ( (useJacORBIMR && ! isJacORBImR) ||
-                    useTaoIMR ||
-                    getParsedIOR().isNameServiceIor() ) )
+                if (piorOriginal.equals(getParsedIOR()))
                 {
-                    // keep last failed ior to detect forwarding loops
-                    piorLastFailed = getParsedIOR();
-
-                    if( logger.isDebugEnabled())
+                    if (piorOriginal.getProfiles().size() > 1)
                     {
-                        logger.debug(
-                                "Delegate.try_rebind: binding to next profile <" +
-                                        getParsedIOR().getTypeIdName() + ">");
-                    }
-                    Profile newProfile = getParsedIOR().getNextEffectiveProfile();
+                        if( logger.isDebugEnabled())
+                        {
+                            logger.debug ("Delegate.try_rebind: binding to next profile <"
+                                          + piorOriginal.getTypeIdName() + ">");
+                        }
+                        Profile newProfile = piorOriginal.getNextEffectiveProfile();
+                        if( logger.isDebugEnabled())
+                        {
+                            Profile lastProfile = piorOriginal.getLastUsedProfile();
+                            logger.debug("Delegate.try_rebind: new = " + newProfile + " last = " + lastProfile);
+                        }
 
-                    if (newProfile != null)
-                    {
-                        piorLastFailed = null;
-                        randomMilliSecDelay();
+                        if (newProfile != null &&
+                            newProfile.equals (piorOriginal.getLastUsedProfile()))
+                        {
+                            piorLastFailed = null;
+                            randomMilliSecDelay();
+                        }
+                        else
+                        {
+                            return false;
+                        }
                     }
-                }
-                // If we've already bound to the original there is nothing we can do.
-                else if (piorOriginal.equals(getParsedIOR()))
-                {
-                    return false;
+                    // If we've already bound to the original there is nothing we can do.
+                    else
+                    {
+                        return false;
+                    }
                 }
                 else
                 {
@@ -1767,152 +1711,59 @@ public final class Delegate
                 rebind( piorOriginal );
 
                 //clean up and start fresh
+                piorLastFailed = null;
+
+                return true;
+            }
+            else if (getParsedIOR().useCorbaName())
+            {
+                if (logger.isDebugEnabled())
+                {
+                    logger.debug ("Delegate.try_rebind: useNameService, " +
+                                  "going back to the NameService <" +
+                                  getParsedIOR().getCorbaNameOriginalObjRef() + ">");
+                }
+
+                piorOriginal = null;
+                piorLastFailed = null;
+
+                _pior = new ParsedIOR (orb,
+                                       getParsedIOR().getCorbaNameOriginalObjRef());
+
+                rebind(_pior);
+
+                //clean up and start fresh
                 piorOriginal = null;
                 piorLastFailed = null;
 
                 return true;
             }
-            else if ( (useJacORBIMR && ! isJacORBImR)  ||
-                    (useTaoIMR) ||
-                    getParsedIOR().isNameServiceIor() ||
-                    getParsedIOR().useCorbaName())
+            else if (getParsedIOR().getProfiles().size() > 1)
             {
-                if (getParsedIOR().useCorbaName())
+                if( logger.isDebugEnabled())
                 {
-                    if( logger.isDebugEnabled())
-                    {
-                        logger.debug(
-                            "Delegate.try_rebind: useNameService, going back to the NameService <" +
-                            getParsedIOR().getCorbaNameOriginalObjRef() + ">");
-                    }
+                    logger.debug ("Delegate.try_rebind: rebinding to next profile <"
+                                  + getParsedIOR().getTypeIdName() + ">");
+                }
 
-                    piorOriginal = null;
+                Profile curProfile = getParsedIOR().getNextEffectiveProfile();
+                if( logger.isDebugEnabled())
+                {
+                    Profile lastProfile = getParsedIOR().getLastUsedProfile();
+                    logger.debug("Delegate.try_rebind(no pior): new = " + curProfile + " last = " + lastProfile);
+                }
+
+                if (curProfile != null  &&
+                    !curProfile.equals (getParsedIOR().getLastUsedProfile()))
+                {
+                    randomMilliSecDelay();
+                    rebind(getParsedIOR());
+
                     piorLastFailed = null;
-
-                    _pior = new ParsedIOR(orb, getParsedIOR().getCorbaNameOriginalObjRef());
-
-                    rebind(_pior);
-
-                    //clean up and start fresh
-                    piorOriginal = null;
-                    piorLastFailed = null;
-
                     return true;
                 }
-
-                else if (getParsedIOR().getProfiles().size() > 1)
-                {
-                    if( logger.isDebugEnabled())
-                    {
-                        logger.debug(
-                            "Delegate.try_rebind: rebinding to next profile <" +
-                            getParsedIOR().getTypeIdName() + ">");
-                    }
-
-                    getParsedIOR().getNextEffectiveProfile();
-                    Profile curProfile = getParsedIOR().getEffectiveProfile();
-
-                    if (curProfile != null)
-                    {
-
-                        randomMilliSecDelay();
-                        rebind(getParsedIOR());
-
-                        piorOriginal = null;
-                        piorLastFailed = null;
-                        return true;
-                    }
-                }
-
-                // last effort to connect to the ImR
-                if ( (useJacORBIMR && ! isJacORBImR)  ||
-                    (useTaoIMR))
-                {
-
-                    Integer orbTypeId = getParsedIOR().getORBTypeId();
-
-                    // only lookup ImR if IOR is generated by JacORB
-                    if ( orbTypeId == null ||
-                        orbTypeId.intValue() != ORBConstants.JACORB_ORB_ID ||
-                        orbTypeId.intValue() != ORBConstants.TAO_ORB_ID )
-                    {
-                        if( logger.isDebugEnabled())
-                        {
-                            logger.debug("Delegate: foreign IOR detected," + " orbTypeId is "
-									+ (orbTypeId == null? "is null" : orbTypeId.intValue()));
-                        }
-                        return false;
-                    }
-
-                    if( logger.isDebugEnabled())
-                    {
-                        logger.debug("Delegate: JacORB or TAO IOR detected, orbTypeId is " + orbTypeId.intValue());
-                    }
-
-                    byte[] object_key = getParsedIOR().get_object_key();
-
-                    // No backup IOR so it may be that the ImR is down
-                    // Attempt to resolve the ImR again to see if it has
-                    // come back up at a different address
-
-                    if( logger.isDebugEnabled())
-                    {
-                        logger.debug("Delegate: attempting to contact ImR" );
-                    }
-
-                    ImRAccess imr = null;
-
-                    //create a corbaloc URL to use to contact the server
-                    StringBuffer corbaloc = null;
-
-                    try
-                    {
-
-                        if (useJacORBIMR)
-                        {
-                            corbaloc = new StringBuffer( "corbaloc:iiop:" );
-                            imr = org.jacorb.imr.ImRAccessImpl.connect(orb);
-                            corbaloc.append( imr.getImRHost() );
-                            corbaloc.append( ':' );
-                            corbaloc.append( imr.getImRPort() );
-                            corbaloc.append( '/' );
-                            corbaloc.append( CorbaLoc.parseKey( object_key ) );
-                        }
-                        else if (useTaoIMR)
-                        {
-                            imr = org.jacorb.tao_imr.ImRAccessImpl.connect(orb);
-                            String s = imr.getImRCorbaloc();
-                            int slash = s.indexOf("/");
-                            s = s.substring(0,slash);
-                            corbaloc = new StringBuffer( s );
-                            corbaloc.append( '/' );
-                            corbaloc.append( CorbaLoc.parseKey( object_key ) );
-                        }
-                    }
-                    catch ( Exception e )
-                    {
-                        if( logger.isDebugEnabled())
-                        {
-                            logger.debug("Delegate: failed to contact ImR" );
-                        }
-                        return false;
-                    }
-
-                    //rebind to the new IOR
-                    rebind( new ParsedIOR( orb, corbaloc.toString()));
-
-                    //clean up and start fresh
-                    piorOriginal = null;
-                    piorLastFailed = null;
-
-                    return true;
-                }
-                return false;
             }
-            else
-            {
-                return false;
-            }
+            return false;
         }
     }
 
@@ -2514,7 +2365,7 @@ public String repository_id (org.omg.CORBA.Object self)
             // Default to the version within the EffectiveProfile
             int giopMinor = profile.version().minor;
 
-            if(profile instanceof MIOPProfile)
+            if (profile instanceof MIOPProfile)
             {
                 if(responseExpected)
                 {
@@ -3055,7 +2906,6 @@ public String repository_id (org.omg.CORBA.Object self)
             clearInvocationContext();
         }
     }
-
 
     @Override
     public String toString()
