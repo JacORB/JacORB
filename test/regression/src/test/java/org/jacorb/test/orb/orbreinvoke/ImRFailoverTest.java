@@ -534,19 +534,30 @@ public class ImRFailoverTest extends ORBTestCase
             teardownMyImRs(IMR_1_OFF, IMR_2_OFF);
             org.omg.CORBA.Object obj = orb.string_to_object(combined_corbaloc1);
             assertTrue("test_failover2: couldn't generate object reference for combined corbaloc IOR < " + combined_corbaloc1 + " >", obj != null);
-
-            server = org.jacorb.test.listenendpoints.echo_corbaloc.EchoMessageHelper.narrow(obj);
-            int cnt = send_msg(5, "test_failover2", "hailing server at " + combined_corbaloc1, server);
+            for (int retries = 10; !testComplete && retries > 0; retries--)
+            {
+                try
+                {
+                    server = org.jacorb.test.listenendpoints.echo_corbaloc.EchoMessageHelper.narrow(obj);
+                    int cnt = send_msg(5, "test_failover2", "hailing server at " + combined_corbaloc1, server);
                     assertTrue("test_failover2: got cnt=" + cnt + " (expected 5)", cnt == 5);
 
-            synchronized (syncTest)
-            {
-                // indicate the test is completed
-                testComplete = true;
-                syncTest.notifyAll();
+                    synchronized (syncTest)
+                    {
+                        // indicate the test is completed
+                        testComplete = true;
+                        syncTest.notifyAll();
+                    }
+
+                    TestUtils.getLogger().debug("++++ test_failover2: hailing a server using corbaloc IOR - complete");
+
+                }
+                catch (org.omg.CORBA.TRANSIENT e)
+                {
+                    // retry on a transient until count
+                }
             }
 
-            TestUtils.getLogger().debug("++++ test_failover2: hailing a server using corbaloc IOR - complete"==null? "null" : "++++ test_failover2: hailing a server using corbaloc IOR - complete");
         }
         catch (org.omg.CORBA.TRANSIENT e)
         {

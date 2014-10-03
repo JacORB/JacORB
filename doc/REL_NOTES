@@ -45,6 +45,9 @@
 
 This Release
 ============
+    - ORB
+         - Improved client handling of references with multiple profiles.
+         - Client IOR traversal is not dependant on IMR use.
 
 3.5
 ===

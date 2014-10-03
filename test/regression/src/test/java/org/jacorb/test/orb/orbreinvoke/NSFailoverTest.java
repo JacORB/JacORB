@@ -388,34 +388,47 @@ public class NSFailoverTest extends ORBTestCase
             teardownMyNS(NS_1_OFF, NS_2_ON);
             String msg = "++++ test_failover1: hailing a server using IOR: < " + combined_corbaname + " >";
             TestUtils.getLogger().debug(msg==null? "null" : msg);
-            obj = orb.string_to_object(combined_corbaname);
-            assertTrue("test_failover1: couldn't generate obj using combined corbaloc IOR: < " +
+            // obj = orb.string_to_object(combined_corbaname);
+            obj = null;
+            for (int retries = 2;  retries > 0; retries--)
+            {
+                try
+                {
+                    obj = orb.string_to_object(combined_corbaname);
+                    break;
+                }
+                catch (org.omg.CORBA.SystemException ex)
+                {
+                    System.out.println ("caught " + ex);
+                }
+            }
+            assertTrue("test_failover2: couldn't generate obj using combined corbaloc IOR: < " +
                     combined_corbaname + " >", obj != null);
             server = org.jacorb.test.listenendpoints.echo_corbaloc.EchoMessageHelper.narrow(obj);
-            cnt = send_msg(5, "test_failover1", "hailing server at " + combined_corbaname, server);
-                    assertTrue("test_failover1: got cnt=" + cnt + " (expected 5)", cnt == 5);
-            TestUtils.getLogger().debug("++++ test_failover1: hailing a server using IOR - complete"==null? "null" : "++++ test_failover1: hailing a server using IOR - complete");
+            cnt = send_msg(5, "test_failover2", "hailing server at " + combined_corbaname, server);
+                    assertTrue("test_failover2: got cnt=" + cnt + " (expected 5)", cnt == 5);
+            TestUtils.getLogger().debug("++++ test_failover1: hailing a server using IOR - complete"==null? "null" : "++++ test_failover2: hailing a server using IOR - complete");
 
             // Restore NameService #1 and drop NameService #2
             // This will force the client to go to NameService #1
             teardownMyNS(NS_1_OFF, NS_2_OFF);
             setupMyNS(NS_1_ON, NS_2_OFF);
-            String msg1 = "++++ test_failover1: hailing a server using IOR < " + combined_corbaname + " >";
+            String msg1 = "++++ test_failover2: hailing a server using IOR < " + combined_corbaname + " >";
             TestUtils.getLogger().debug(msg1==null? "null" : msg1);
             obj = orb.string_to_object(combined_corbaname);
-            assertTrue("test_failover1: couldn't generate obj using IOR < " + combined_corbaname + " >", obj != null);
+            assertTrue("test_failover2: couldn't generate obj using IOR < " + combined_corbaname + " >", obj != null);
             server = org.jacorb.test.listenendpoints.echo_corbaloc.EchoMessageHelper.narrow(obj);
-            cnt = send_msg(5, "test_failover1", "hailing server at " + combined_corbaname, server);
-                    assertTrue("test_failover1: got cnt=" + cnt + " (expected 5)", cnt == 5);
-            TestUtils.getLogger().debug("++++ test_failover1: hailing a server using IOR - complete"==null? "null" : "++++ test_failover1: hailing a server using IOR - complete");
+            cnt = send_msg(5, "test_failover2", "hailing server at " + combined_corbaname, server);
+                    assertTrue("test_failover2: got cnt=" + cnt + " (expected 5)", cnt == 5);
+            TestUtils.getLogger().debug("++++ test_failover2: hailing a server using IOR - complete"==null? "null" : "++++ test_failover2: hailing a server using IOR - complete");
         }
         catch (org.omg.CORBA.TRANSIENT e)
         {
-            fail("test_failover1: got a TRANSIENT exception: <" + e.getMessage() + ">");
+            fail("test_failover2: got a TRANSIENT exception: <" + e.getMessage() + ">");
         }
         catch (org.omg.CORBA.COMM_FAILURE e)
         {
-            fail("test_failover1: got a COMM_FAILURE exception: <" + e.getMessage() + ">");
+            fail("test_failover2: got a COMM_FAILURE exception: <" + e.getMessage() + ">");
         }
         finally
         {
@@ -435,14 +448,14 @@ public class NSFailoverTest extends ORBTestCase
         try
         {
             String ior_1 = nsSetup_1.getServerIOR();
-            assertTrue("test_failover2: couldn't pickup server #1's IOR", ior_1 != null && ior_1.length() > 0);
+            assertTrue("test_failover3: couldn't pickup server #1's IOR", ior_1 != null && ior_1.length() > 0);
             String ior_2 = nsSetup_2.getServerIOR();
-            assertTrue("test_failover2: couldn't pickup server #2's IOR", ior_2 != null && ior_2.length() > 0);
+            assertTrue("test_failover3: couldn't pickup server #2's IOR", ior_2 != null && ior_2.length() > 0);
             String corbaloc1 = PrintIOR.printFullCorbalocIOR(orb, ior_1);
-            assertTrue("test_failover2: couldn't generate corbaloc IOR using server #1's IOR: < " +
+            assertTrue("test_failover3: couldn't generate corbaloc IOR using server #1's IOR: < " +
                                 ior_1 +" >", corbaloc1 != null && corbaloc1.length() > 0);
             String corbaloc2 = PrintIOR.printFullCorbalocIOR(orb, ior_2);
-            assertTrue("test_failover2: couldn't generate corbaloc IOR using server #2's IOR: < " +
+            assertTrue("test_failover3: couldn't generate corbaloc IOR using server #2's IOR: < " +
                                 ior_2 +" >", corbaloc2 != null && corbaloc2.length() > 0);
 
             int slash = corbaloc1.indexOf("/");
@@ -453,7 +466,7 @@ public class NSFailoverTest extends ORBTestCase
             String combined_corbaname = "corbaname:" +
                     corbaloc1.substring(colon+1, slash) + "," +
                     corbaloc2.substring(colon2+1, slash2) + objref;
-            String msg = "++++ test_failover2: combined_corbaname = < " + combined_corbaname + " >";
+            String msg = "++++ test_failover3: combined_corbaname = < " + combined_corbaname + " >";
             TestUtils.getLogger().debug(msg==null? "null" : msg);
 
             // start up a delay thread which waits for a while then
@@ -474,7 +487,7 @@ public class NSFailoverTest extends ORBTestCase
 
                     NSFailoverTest.this.testComplete = false;
 
-                    TestUtils.getLogger().debug("test_failover2: delayStart is starting NS"==null? "null" : "test_failover2: delayStart is starting NS");
+                    TestUtils.getLogger().debug("test_failover3: delayStart is starting NS"==null? "null" : "test_failover3: delayStart is starting NS");
                     NSFailoverTest.this.setupMyNS(NS_1_ON, NS_2_ON);
 
                     // then wait for a while for the test to complete.
@@ -495,7 +508,7 @@ public class NSFailoverTest extends ORBTestCase
                         }
 
                         if (! NSFailoverTest.this.testComplete) {
-                            fail("test_failover2: should have been completed by now");
+                            fail("test_failover3: should have been completed by now");
                         }
                     }
                 }
@@ -509,27 +522,42 @@ public class NSFailoverTest extends ORBTestCase
             // Drop both NameServices
             teardownMyNS(NS_1_OFF, NS_2_OFF);
 
-            org.omg.CORBA.Object obj = orb.string_to_object(combined_corbaname);
-            assertTrue("test_failover2: couldn't generate object reference for IOR < " +
-                                        combined_corbaname + " >", obj != null);
-            server = org.jacorb.test.listenendpoints.echo_corbaloc.EchoMessageHelper.narrow(obj);
-            int cnt = send_msg(5, "test_failover2", "hailing server using " + combined_corbaname, server);
-            assertTrue("test_failover2: got cnt=" + cnt + " (expected 5)", cnt == 5);
-            TestUtils.getLogger().debug("++++ test_failover2: hailing a server using IOR - complete"==null? "null" : "++++ test_failover2: hailing a server using IOR - complete");
-            synchronized (syncTest)
+            for (int retries = 10; !testComplete && retries > 0; retries--)
             {
-                // indicate the test is completed
-                testComplete = true;
-                syncTest.notifyAll();
+                try
+                {
+
+                    org.omg.CORBA.Object obj = orb.string_to_object(combined_corbaname);
+                    assertTrue("test_failover3: couldn't generate object reference for IOR < " +
+                               combined_corbaname + " >", obj != null);
+                    server = org.jacorb.test.listenendpoints.echo_corbaloc.EchoMessageHelper.narrow(obj);
+                    int cnt = send_msg(5, "test_failover3", "hailing server using " + combined_corbaname, server);
+                    assertTrue("test_failover3: got cnt=" + cnt + " (expected 5)", cnt == 5);
+                    TestUtils.getLogger().debug("++++ test_failover3: hailing a server using IOR - complete"==null? "null" : "++++ test_failover3: hailing a server using IOR - complete");
+                    synchronized (syncTest)
+                    {
+                        // indicate the test is completed
+                        testComplete = true;
+                        syncTest.notifyAll();
+                    }
+                }
+                catch (org.omg.CORBA.BAD_PARAM e)
+                {
+                    // result of a wrapped transient caught inside string_to_object
+                }
+                catch (org.omg.CORBA.TRANSIENT e)
+                {
+                    // retry on a transient until count
+                }
             }
         }
         catch (org.omg.CORBA.TRANSIENT e)
         {
-            fail("test_failover2: got a TRANSIENT exception: <" + e.getMessage() + ">");
+            fail("test_failover3: got a TRANSIENT exception: <" + e.getMessage() + ">");
         }
         catch (org.omg.CORBA.COMM_FAILURE e)
         {
-            fail("test_failover2: got a COMM_FAILURE exception: <" + e.getMessage() + ">");
+            fail("test_failover3: got a COMM_FAILURE exception: <" + e.getMessage() + ">");
         }
         finally
         {
