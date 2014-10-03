@@ -42,7 +42,7 @@ public class SpecificProfileSelector implements ProfileSelector
     }
 
     /**
-     *  Select IOP profile that matches protocol
+     *  Select first IOP profile that matches protocol
      */
     public Profile selectProfile (List<Profile> profiles, ClientConnectionManager ccm)
     {
@@ -52,6 +52,7 @@ public class SpecificProfileSelector implements ProfileSelector
     private boolean validate (Profile profile)
     {
         final int profileTag = profile.tag ();
+
         for (int i = 0; i < protocols.length; i++)
         {
             final int tagToMatch = protocols[i].protocol_type;
@@ -112,6 +113,14 @@ public class SpecificProfileSelector implements ProfileSelector
                 currentProfile = p;
                 return p;
             }
+        }
+
+        // if we exit the loop but lastProfile is null, that means no
+        // valid profiles were found.
+        if (lastProfile == null)
+        {
+            currentProfile = null;
+            return null;
         }
 
         // return the next profile, which is next to the last profile.

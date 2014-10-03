@@ -59,9 +59,59 @@ public class DefaultProfileSelector implements ProfileSelector
      * @param profileList
      * @param lastProfile
      * @return the next profile on the list that is next to lastProfile.
-     * If lastProfile is null, the first profile will be returned regardless.
+     * If lastProfile is null, or points to the last profile in the list,
+     * the first profile will be returned.
      */
     public Profile selectNextProfile(List<Profile> profileList, Profile lastProfile)
+    {
+        //sanity check
+        if (profileList == null || profileList.isEmpty())
+        {
+            return null;
+        }
+
+
+        // locate the last profile in the list
+        Iterator<Profile> iterator;
+        for (iterator = profileList.iterator(); iterator.hasNext();)
+        {
+            currentProfile = iterator.next();
+            if (lastProfile == null)
+            {
+                return currentProfile;
+            }
+
+            if (lastProfile.equals(currentProfile))
+            {
+                break;
+            }
+        }
+
+        if (!iterator.hasNext())
+        {
+            iterator = profileList.iterator();
+        }
+        currentProfile = iterator.next();
+        // ensure the next profile is not the same as lastProfile
+        if (lastProfile.equals(currentProfile))
+        {
+            currentProfile = null;
+        }
+
+        return currentProfile;
+    }
+
+    /**
+     *
+     * @param profileList
+     * @param originalProfile
+     * @param lastProfile
+     * @return the next profile on the list that is next to lastProfile until
+     * originalProfile is found which will cause a null to be returned.
+     * If lastProfile is null, the first profile will be returned.
+     * If originalProfile is null, the next profile will be returned.
+     */
+    public Profile xselectNextProfile(List<Profile> profileList, Profile originalProfile, Profile lastProfile)
     {
         //sanity check
         if (profileList == null || profileList.isEmpty())
@@ -73,109 +123,29 @@ public class DefaultProfileSelector implements ProfileSelector
         Iterator<Profile> iterator;
         for (iterator = profileList.iterator(); iterator.hasNext();)
         {
-            Profile profile_x = iterator.next();
-
-            if (lastProfile != null)
+            currentProfile = iterator.next();
+            if (lastProfile == null)
             {
-                if (lastProfile.equals(profile_x))
-                {
-                    break;
-                }
+                return currentProfile;
             }
-            else
-            {
-                currentProfile = profile_x;
 
-                return profile_x;
+            if (lastProfile.equals(currentProfile))
+            {
+                break;
             }
         }
 
-        // return the next profile, which is next to the last profile.
-        while (true)
+        if (!iterator.hasNext())
         {
-            if (!iterator.hasNext())
-            {
-                iterator = profileList.iterator();
-            }
-            Profile profile_y = iterator.next();
-
-            currentProfile = profile_y;
-
-            return profile_y;
+            iterator = profileList.iterator();
         }
-    }
-
-    /**
-     *
-     * @param profileList
-     * @param originalProfile
-     * @param lastProfile
-     * @return the next profile on the list that is next to lastProfile until
-     * originalProfile is found which will cause a null to be returned.
-     * If lastProfile is null, the first profile will be returned.
-     * If originalProfile is null, the next profile will be returned regardless.
-     */
-    public Profile selectNextProfile(List<Profile> profileList, Profile originalProfile, Profile lastProfile)
-    {
-        //sanity check
-        if (profileList == null || profileList.isEmpty())
+        currentProfile = iterator.next();
+        if (originalProfile != null && originalProfile.equals(currentProfile))
         {
-            return null;
+            currentProfile = null;
         }
 
-        // locate lastProfile in the list
-        Iterator<Profile> iterator;
-        for (iterator = profileList.iterator(); iterator.hasNext();)
-        {
-            Profile profile_x = iterator.next();
-
-            if (lastProfile != null)
-            {
-                if (lastProfile.equals(profile_x))
-                {
-                    break;
-                }
-            }
-            else
-            {
-                currentProfile = profile_x;
-
-                return profile_x;
-            }
-        }
-
-        // return the next profile, which is next to lastProfile.
-        // if originalProfile is encountered, null will be turned since the
-        // entire list has been iternated.
-        while (true)
-        {
-            if (!iterator.hasNext())
-            {
-                iterator = profileList.iterator();
-            }
-            Profile profile_y = iterator.next();
-
-            if (originalProfile != null) {
-                if (!originalProfile.equals(profile_y) )
-                {
-                    currentProfile = profile_y;
-
-                    return profile_y;
-                }
-                else
-                {
-
-                    currentProfile = null;
-                    return null;
-                }
-            }
-            else
-            {
-                currentProfile = profile_y;
-
-                return profile_y;
-            }
-        }
+        return currentProfile;
     }
 
     /* for debug purposes */

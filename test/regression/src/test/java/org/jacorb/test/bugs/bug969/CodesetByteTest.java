@@ -15,6 +15,7 @@ public class CodesetByteTest extends ORBTestCase
     protected void patchORBProperties(Properties props) throws Exception
     {
         props.setProperty("jacorb.codeset", "on");
+        props.setProperty("jacorb.native_char_codeset", "UTF8");
     }
 
     @Test

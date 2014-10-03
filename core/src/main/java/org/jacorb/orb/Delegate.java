@@ -1375,14 +1375,6 @@ public final class Delegate
                 throw new RemarshalException();
             }
 
-            // An Object Not Exist on a forwarded reference should retry
-            // on the original to get forwarded again to the right server
-            if ( cfe instanceof org.omg.CORBA.OBJECT_NOT_EXIST && try_rebind (true))
-            {
-                throw new RemarshalException();
-            }
-
-
             if (!(cfe instanceof org.omg.CORBA.TIMEOUT))
             {
                 if (logger.isDebugEnabled())
@@ -1423,6 +1415,14 @@ public final class Delegate
         catch(SystemException e)
         {
             logger.debug("invoke[<--]: SystemException", e);
+
+
+            // An Object Not Exist on a forwarded reference should retry
+            // on the original to get forwarded again to the right server
+            if ( e instanceof org.omg.CORBA.OBJECT_NOT_EXIST && try_rebind (true))
+            {
+                throw new RemarshalException();
+            }
 
             // If the attempt to read the reply throws a system exception its
             // possible that the pending_replies will not get cleaned up.
@@ -1685,7 +1685,7 @@ public final class Delegate
                         }
 
                         if (newProfile != null &&
-                            newProfile.equals (piorOriginal.getLastUsedProfile()))
+                            !newProfile.equals (piorOriginal.getLastUsedProfile()))
                         {
                             piorLastFailed = null;
                             randomMilliSecDelay();
