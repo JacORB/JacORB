@@ -74,10 +74,6 @@
             <artifactId>easymock</artifactId>
             <scope>test</scope>
         </dependency>
-        <dependency>
-            <groupId>org.apache.camel</groupId>
-            <artifactId>camel-test</artifactId>
-        </dependency>
         <!-- CXF/Spring is for Bug968 (CXF+Corba) -->
         <dependency>
             <groupId>org.apache.cxf</groupId>

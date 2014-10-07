@@ -59,14 +59,16 @@ public class Bug983Test extends ClientServerTestCase
     {
         clientORBTestCase.ORBSetUp();
 
-        serverProps.setProperty("OAPort", "64421");
+        int port = TestUtils.getNextAvailablePort();
+        serverProps.setProperty("OAPort", Integer.toString(port));
         serverProps.setProperty("jacorb.implname", "myimpl");
         serverProps.setProperty("org.omg.PortableInterceptor.ORBInitializerClass."
                 + "ORBInit", Initializer.class.getName());
 
         setup = new ClientServerSetup(Bug983Test.class.getName(),
                 "org.jacorb.test.bugs.bug983.HelloImpl",
-                new String[] { "-ORBListenEndpoints", "'iiop://:64421,iiop://:45679'"},
+                new String[] { "-ORBListenEndpoints", "'iiop://:" + port + ",iiop://:" +
+                TestUtils.getNextAvailablePort() + "'"},
                 null,
                 serverProps);
     }

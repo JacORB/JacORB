@@ -60,8 +60,8 @@ public class AlternateProfileTest extends ClientServerTestCase
     private static final String WRONG_HOST   = "255.255.255.253";
     private static final String WRONG_HOST_2 = "255.255.255.254";
 
-    private static final int CORRECT_PORT = TestUtils.getNextAvailablePort(50200);
-    private static final int WRONG_PORT   = TestUtils.getNextAvailablePort(50400);
+    private static final int CORRECT_PORT = TestUtils.getNextAvailablePort();
+    private static final int WRONG_PORT   = TestUtils.getNextAvailablePort();
 
     @Before
     public void setUp() throws Exception

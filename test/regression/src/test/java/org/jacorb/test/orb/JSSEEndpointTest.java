@@ -57,12 +57,12 @@ public class JSSEEndpointTest extends ClientServerTestCase
     public static Collection<Object[]> data()
     {
         return Arrays.asList(new Object [][] {
-                { "-ORBListenEndpoints", "'iiop://localhost:45678'" },
-                { "-ORBListenEndpoints", "'iiop://:45678'" },
+                { "-ORBListenEndpoints", "'iiop://localhost:" + TestUtils.getNextAvailablePort() + "'" },
+                { "-ORBListenEndpoints", "'iiop://:" + TestUtils.getNextAvailablePort() + "'" },
                 // Test that 0.0.0.0 does not cause a null pointer.
-                { "-ORBListenEndpoints", "'iiop://0.0.0.0:45678'" },
-                { "-ORBListenEndpoints", "'iiop://:45678/ssl_port=32999'" },
-                { "-ORBListenEndpoints", "'ssliiop://localhost:22222'" }
+                { "-ORBListenEndpoints", "'iiop://0.0.0.0:" + TestUtils.getNextAvailablePort() + "'" },
+                { "-ORBListenEndpoints", "'iiop://:" + TestUtils.getNextAvailablePort() + "/ssl_port=" + TestUtils.getNextAvailablePort() + "'" },
+                { "-ORBListenEndpoints", "'ssliiop://localhost:" + TestUtils.getNextAvailablePort() + "'" }
 
         } );
     }

@@ -16,6 +16,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
 import org.jacorb.orb.util.PrintIOR;
+import org.jacorb.test.harness.TestUtils;
 import org.omg.CORBA.ORB;
 import org.omg.CORBA.Policy;
 import org.omg.PortableServer.IdAssignmentPolicyValue;
@@ -33,7 +34,7 @@ public class Server
          CmdArgs cmdArgs = new CmdArgs("Server", args);
          Properties props = new Properties();
          props.setProperty("jacorb.implname", "EchoServer");
-         props.setProperty("OAPort", "49999");
+         props.setProperty("OAPort", Integer.toString(TestUtils.getNextAvailablePort()));
          String helloID = "EchoID";
 
          List<Endpoint> endpointList = null;

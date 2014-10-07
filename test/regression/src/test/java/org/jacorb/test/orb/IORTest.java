@@ -76,8 +76,9 @@ public class IORTest extends ClientServerTestCase
     public static Collection<Object[]> data()
     {
         return Arrays.asList(new Object [][] {
-                { "jacorb.iiop.alternate_addresses", "192.168.123.7:45679" },
-                { "-ORBListenEndpoints", "'iiop://:45678,iiop://:45679'" }
+                { "jacorb.iiop.alternate_addresses", "192.168.123.7:" + TestUtils.getNextAvailablePort() },
+                { "-ORBListenEndpoints", "'iiop://:" + TestUtils.getNextAvailablePort() +
+                      ",iiop://:" + TestUtils.getNextAvailablePort() + "'" }
         } );
     }
 
