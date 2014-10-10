@@ -23,6 +23,7 @@ package org.jacorb.test.idl;
 
 import java.io.File;
 import java.io.FilenameFilter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -49,6 +50,7 @@ public class ParseInvalidIDLTest extends AbstractIDLTestcase
         List<Object[]> params = new ArrayList<Object[]>();
         File fileNames[] = new File(IDL).listFiles(new FilenameFilter()
         {
+            @Override
             public boolean accept(File dir, String name)
             {
                 return name.endsWith(".idl");
@@ -61,7 +63,7 @@ public class ParseInvalidIDLTest extends AbstractIDLTestcase
         return params;
     }
 
-    public ParseInvalidIDLTest(File file)
+    public ParseInvalidIDLTest(File file) throws IOException
     {
         super(file);
     }
@@ -70,9 +72,5 @@ public class ParseInvalidIDLTest extends AbstractIDLTestcase
     public void testParseInvalidIDLFails() throws Exception
     {
         runJacIDL(true);
-        // if a test fails the directory
-        // will not be deleted. this way
-        // the contents can be inspected.
-        TestUtils.deleteRecursively(dirGeneration);
     }
 }
