@@ -26,14 +26,12 @@ import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.Properties;
 import org.jacorb.test.harness.ClientServerSetup;
-import org.jacorb.test.harness.ClientServerTestCase;
-import org.jacorb.test.harness.IMRExcludedClientServerCategory;
+import org.jacorb.test.harness.FixedPortClientServerTestCase;
 import org.jacorb.test.harness.TestUtils;
 import org.junit.Assume;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.junit.experimental.categories.Category;
 
 /**
  * <code>TestCaseImpl</code> is a test to check that connectionOpened and
@@ -41,8 +39,7 @@ import org.junit.experimental.categories.Category;
  *
  * @author Carol Jordon
  */
-@Category(IMRExcludedClientServerCategory.class)
-public class BugJac195Test extends ClientServerTestCase
+public class BugJac195Test extends FixedPortClientServerTestCase
 {
     private JAC195Server server;
 
@@ -62,7 +59,7 @@ public class BugJac195Test extends ClientServerTestCase
         Properties client_props = new Properties();
         Properties server_props = new Properties();
 
-        port = TestUtils.getNextAvailablePort();
+        port = getNextAvailablePort();
 
         server_props.setProperty ("OAPort", Integer.toString(port));
 

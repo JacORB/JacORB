@@ -154,7 +154,7 @@
                             <goal>javadoc</goal>
                         </goals>
                         <configuration>
-                            <excludePackageNames>cxf.*</excludePackageNames> -->
+                            <excludePackageNames>cxf.*</excludePackageNames>
                         </configuration>
                     </execution>
                     <execution>
@@ -496,6 +496,25 @@
                             <environmentVariables>
                                 <BYTEMAN_HOME></BYTEMAN_HOME>
                             </environmentVariables>
+                            <excludedGroups>org.jacorb.test.harness.FixedPortCategory</excludedGroups>
+                        </configuration>
+                    </execution>
+
+                    <execution>
+                         <id>default-test-no-fork</id>
+                        <phase>test</phase>
+                        <goals>
+                            <goal>test</goal>
+                        </goals>
+                        <configuration>
+                            <useManifestOnlyJar>false</useManifestOnlyJar>
+                            <forkCount>1</forkCount>
+                            <reuseForks>false</reuseForks>
+                            <argLine>${jacoco.agent.argLine} -Xbootclasspath/p:${settings.localRepository}/org/jacorb/jacorb-omgapi/${project.version}/jacorb-omgapi-${project.version}.jar -Djacorb.test.verbose=${jacorb.test.verbose}</argLine>
+                            <environmentVariables>
+                                <BYTEMAN_HOME></BYTEMAN_HOME>
+                            </environmentVariables>
+                            <includedGroups>org.jacorb.test.harness.FixedPortCategory</includedGroups>
                         </configuration>
                     </execution>
 
@@ -533,7 +552,7 @@
                                 <BYTEMAN_HOME></BYTEMAN_HOME>
                             </environmentVariables>
                             <groups>org.jacorb.test.harness.ClientServerCategory</groups>
-                            <excludedGroups>org.jacorb.test.harness.IMRExcludedClientServerCategory</excludedGroups>
+                            <excludedGroups>org.jacorb.test.harness.IMRExcludedClientServerCategory,org.jacorb.test.harness.FixedPortCategory</excludedGroups>
                         </configuration>
                     </execution>
 

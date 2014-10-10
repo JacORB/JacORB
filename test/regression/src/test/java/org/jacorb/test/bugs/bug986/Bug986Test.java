@@ -25,8 +25,7 @@ import java.util.Properties;
 import org.jacorb.test.BasicServer;
 import org.jacorb.test.BasicServerHelper;
 import org.jacorb.test.harness.ClientServerSetup;
-import org.jacorb.test.harness.ClientServerTestCase;
-import org.jacorb.test.harness.IMRExcludedClientServerCategory;
+import org.jacorb.test.harness.FixedPortClientServerTestCase;
 import org.jacorb.test.harness.ORBTestCase;
 import org.jacorb.test.harness.TestUtils;
 import org.junit.After;
@@ -34,11 +33,9 @@ import org.junit.Assume;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.junit.experimental.categories.Category;
 import org.omg.CORBA.SystemException;
 
-@Category(IMRExcludedClientServerCategory.class)
-public class Bug986Test extends ClientServerTestCase
+public class Bug986Test extends FixedPortClientServerTestCase
 {
     private Properties serverProps = new Properties();
     private ORBTestCase clientORBTestCase = new ORBTestCase ()
@@ -55,7 +52,7 @@ public class Bug986Test extends ClientServerTestCase
     {
         clientORBTestCase.ORBSetUp ();
 
-        serverProps.put ("OAPort", Integer.toString(TestUtils.getNextAvailablePort()));
+        serverProps.put ("OAPort", Integer.toString(getNextAvailablePort()));
 
         setup = new ClientServerSetup(
                                    "org.jacorb.test.bugs.bugjac330.CustomBasicServerImpl",

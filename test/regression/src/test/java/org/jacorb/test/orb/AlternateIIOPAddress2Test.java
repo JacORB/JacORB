@@ -28,23 +28,20 @@ import org.jacorb.test.IIOPAddressServer;
 import org.jacorb.test.IIOPAddressServerHelper;
 import org.jacorb.test.Sample;
 import org.jacorb.test.harness.ClientServerSetup;
-import org.jacorb.test.harness.ClientServerTestCase;
-import org.jacorb.test.harness.IMRExcludedClientServerCategory;
+import org.jacorb.test.harness.FixedPortClientServerTestCase;
 import org.jacorb.test.harness.TestUtils;
 import org.junit.After;
 import org.junit.Assume;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.junit.experimental.categories.Category;
 
 /**
  * Tests components of type TAG_ALTERNATE_IIOP_ADDRESS within IORs.
  *
  * @author Andre Spiegel
  */
-@Category(IMRExcludedClientServerCategory.class)
-public class AlternateIIOPAddress2Test extends ClientServerTestCase
+public class AlternateIIOPAddress2Test extends FixedPortClientServerTestCase
 {
     protected IIOPAddressServer server = null;
 
@@ -54,8 +51,8 @@ public class AlternateIIOPAddress2Test extends ClientServerTestCase
     private static final String WRONG_HOST   = "255.255.255.253";
     private static final String WRONG_HOST_2 = "255.255.255.254";
 
-    private static final int CORRECT_PORT = TestUtils.getNextAvailablePort();
-    private static final int WRONG_PORT   = TestUtils.getNextAvailablePort();
+    private static final int CORRECT_PORT = getNextAvailablePort();
+    private static final int WRONG_PORT   = getNextAvailablePort();
 
     private static final String PROTOCOL = "iiop://";
 

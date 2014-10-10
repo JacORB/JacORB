@@ -12,15 +12,13 @@ import org.jacorb.orb.iiop.IIOPAddress;
 import org.jacorb.test.BasicServer;
 import org.jacorb.test.BasicServerHelper;
 import org.jacorb.test.harness.ClientServerSetup;
-import org.jacorb.test.harness.ClientServerTestCase;
-import org.jacorb.test.harness.IMRExcludedClientServerCategory;
+import org.jacorb.test.harness.FixedPortClientServerTestCase;
 import org.jacorb.test.harness.TestUtils;
 import org.junit.After;
 import org.junit.Assume;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameter;
@@ -33,9 +31,8 @@ import org.omg.IOP.TaggedComponent;
 /**
  * Verify the correct number of profiles/TAG_ALTERNATE_IIOP_ADDRESS in the IOR.
  */
-@Category(IMRExcludedClientServerCategory.class)
 @RunWith(Parameterized.class)
-public class IORTest extends ClientServerTestCase
+public class IORTest extends FixedPortClientServerTestCase
 {
     /**
      * Total count of non-loopback interfaces
@@ -76,9 +73,9 @@ public class IORTest extends ClientServerTestCase
     public static Collection<Object[]> data()
     {
         return Arrays.asList(new Object [][] {
-                { "jacorb.iiop.alternate_addresses", "192.168.123.7:" + TestUtils.getNextAvailablePort() },
-                { "-ORBListenEndpoints", "'iiop://:" + TestUtils.getNextAvailablePort() +
-                      ",iiop://:" + TestUtils.getNextAvailablePort() + "'" }
+                { "jacorb.iiop.alternate_addresses", "192.168.123.7:" + getNextAvailablePort() },
+                { "-ORBListenEndpoints", "'iiop://:" + getNextAvailablePort() +
+                      ",iiop://:" + getNextAvailablePort() + "'" }
         } );
     }
 

@@ -23,8 +23,7 @@ package org.jacorb.test.bugs.bug983;
 import static org.junit.Assert.fail;
 import java.util.Properties;
 import org.jacorb.test.harness.ClientServerSetup;
-import org.jacorb.test.harness.ClientServerTestCase;
-import org.jacorb.test.harness.IMRExcludedClientServerCategory;
+import org.jacorb.test.harness.FixedPortClientServerTestCase;
 import org.jacorb.test.harness.ORBTestCase;
 import org.jacorb.test.harness.TestUtils;
 import org.junit.After;
@@ -32,15 +31,13 @@ import org.junit.Assume;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.junit.experimental.categories.Category;
 import org.omg.CORBA.ORB;
 import org.omg.PortableServer.IdAssignmentPolicyValue;
 import org.omg.PortableServer.LifespanPolicyValue;
 import org.omg.PortableServer.POA;
 import org.omg.PortableServer.POAHelper;
 
-@Category(IMRExcludedClientServerCategory.class)
-public class Bug983Test extends ClientServerTestCase
+public class Bug983Test extends FixedPortClientServerTestCase
 {
     private Properties serverProps = new Properties();
     private ORBTestCase clientORBTestCase = new ORBTestCase()
@@ -59,7 +56,7 @@ public class Bug983Test extends ClientServerTestCase
     {
         clientORBTestCase.ORBSetUp();
 
-        int port = TestUtils.getNextAvailablePort();
+        int port = getNextAvailablePort();
         serverProps.setProperty("OAPort", Integer.toString(port));
         serverProps.setProperty("jacorb.implname", "myimpl");
         serverProps.setProperty("org.omg.PortableInterceptor.ORBInitializerClass."
@@ -68,7 +65,7 @@ public class Bug983Test extends ClientServerTestCase
         setup = new ClientServerSetup(Bug983Test.class.getName(),
                 "org.jacorb.test.bugs.bug983.HelloImpl",
                 new String[] { "-ORBListenEndpoints", "'iiop://:" + port + ",iiop://:" +
-                TestUtils.getNextAvailablePort() + "'"},
+                getNextAvailablePort() + "'"},
                 null,
                 serverProps);
     }

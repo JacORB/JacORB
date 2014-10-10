@@ -33,32 +33,29 @@ import java.util.List;
 import java.util.Properties;
 import org.jacorb.orb.iiop.IIOPAddress;
 import org.jacorb.test.harness.ClientServerSetup;
-import org.jacorb.test.harness.ClientServerTestCase;
-import org.jacorb.test.harness.IMRExcludedClientServerCategory;
+import org.jacorb.test.harness.FixedPortClientServerTestCase;
 import org.jacorb.test.harness.TestUtils;
 import org.jacorb.test.listenendpoints.echo_corbaloc.EchoMessage;
 import org.jacorb.test.listenendpoints.echo_corbaloc.EchoMessageHelper;
 import org.junit.Assume;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.junit.experimental.categories.Category;
 
  /**
  * Tests -ORBListenEndpoints feature
  *
  *
  */
-@Category(IMRExcludedClientServerCategory.class)
-public class ListenEndpointsTest extends ClientServerTestCase
+public class ListenEndpointsTest extends FixedPortClientServerTestCase
 {
     private static final String PROTOCOL = "iiop:";
 
-    private static final int CORRECT_PORT_1 = TestUtils.getNextAvailablePort();
-    private static final int CORRECT_PORT_2 = TestUtils.getNextAvailablePort();
-    private static final int CORRECT_PORT_3 = TestUtils.getNextAvailablePort();
+    private static final int CORRECT_PORT_1 = getNextAvailablePort();
+    private static final int CORRECT_PORT_2 = getNextAvailablePort();
+    private static final int CORRECT_PORT_3 = getNextAvailablePort();
 
-    private static final int WRONG_PORT   = TestUtils.getNextAvailablePort();
-    private static final int WRONG_PORT_2 = TestUtils.getNextAvailablePort();
+    private static final int WRONG_PORT   = getNextAvailablePort();
+    private static final int WRONG_PORT_2 = getNextAvailablePort();
 
     private static final String DEFAULT_LISTEN_EP = "iiop://:" + WRONG_PORT_2;
 

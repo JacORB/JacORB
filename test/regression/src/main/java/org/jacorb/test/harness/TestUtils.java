@@ -601,13 +601,17 @@ public class TestUtils
         return 0;
     }
 
+
     /**
      * Locate an available port.
      *
      * https://stackoverflow.com/questions/434718/sockets-discover-port-availability-using-java
      * https://stackoverflow.com/questions/2675362/how-to-find-an-available-port
+     * </br>
+     * Only meant to be used by those tests that inherit from {@link FixedPortORBTestCase} or
+     * {@link FixedPortClientServerTestCase}
      */
-    public static int getNextAvailablePort()
+    static int getNextAvailablePort()
     {
         int result = MIN_PORT, port = 0, counter = 0;
 

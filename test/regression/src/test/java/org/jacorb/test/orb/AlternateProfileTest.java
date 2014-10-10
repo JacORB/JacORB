@@ -31,15 +31,13 @@ import org.jacorb.test.IIOPAddressServer;
 import org.jacorb.test.IIOPAddressServerHelper;
 import org.jacorb.test.Sample;
 import org.jacorb.test.harness.ClientServerSetup;
-import org.jacorb.test.harness.ClientServerTestCase;
-import org.jacorb.test.harness.IMRExcludedClientServerCategory;
+import org.jacorb.test.harness.FixedPortClientServerTestCase;
 import org.jacorb.test.harness.TestUtils;
 import org.junit.After;
 import org.junit.Assume;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.junit.experimental.categories.Category;
 import org.omg.CORBA.portable.Delegate;
 import org.omg.IOP.TAG_INTERNET_IOP;
 import org.omg.IOP.TaggedProfile;
@@ -50,8 +48,7 @@ import org.omg.IOP.TaggedProfile;
  *
  * @author Marc Heide
  */
-@Category(IMRExcludedClientServerCategory.class)
-public class AlternateProfileTest extends ClientServerTestCase
+public class AlternateProfileTest extends FixedPortClientServerTestCase
 {
     protected IIOPAddressServer server = null;
 
@@ -60,8 +57,8 @@ public class AlternateProfileTest extends ClientServerTestCase
     private static final String WRONG_HOST   = "255.255.255.253";
     private static final String WRONG_HOST_2 = "255.255.255.254";
 
-    private static final int CORRECT_PORT = TestUtils.getNextAvailablePort();
-    private static final int WRONG_PORT   = TestUtils.getNextAvailablePort();
+    private static final int CORRECT_PORT = getNextAvailablePort();
+    private static final int WRONG_PORT   = getNextAvailablePort();
 
     @Before
     public void setUp() throws Exception
