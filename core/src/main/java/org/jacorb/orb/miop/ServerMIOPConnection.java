@@ -9,7 +9,6 @@ import java.net.SocketTimeoutException;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
-
 import org.jacorb.config.Configuration;
 import org.jacorb.config.ConfigurationException;
 import org.jacorb.orb.CDRInputStream;
@@ -38,13 +37,13 @@ public class ServerMIOPConnection extends MIOPConnection implements Runnable
    private Thread          groupListener      = null;
 
    /** the complete messages (of byte[] arrays] */
-   private LinkedList      fullMessages       = new LinkedList ();
+   private LinkedList<byte[]>      fullMessages       = new LinkedList<byte[]> ();
 
    /**
     * Incomplete messages. When a message is complete it is transfered to
     * the fullMessage list
     */
-   private HashMap         incompleteMessages = null;
+   private HashMap<String, FragmentedMessage>         incompleteMessages = null;
 
    /** Current read message */
    private byte[]          current            = null;
@@ -152,7 +151,7 @@ public class ServerMIOPConnection extends MIOPConnection implements Runnable
          {
          }
       }
-      current = (byte[])fullMessages.removeFirst ();
+      current = fullMessages.removeFirst ();
       currentPos = 0;
       return true;
    }
@@ -263,7 +262,7 @@ public class ServerMIOPConnection extends MIOPConnection implements Runnable
       // create incomplete table if doesn't exist
       if (incompleteMessages == null)
       {
-          incompleteMessages = new HashMap ();
+          incompleteMessages = new HashMap<String, FragmentedMessage> ();
       }
 
       // allocates a buffer
@@ -357,7 +356,7 @@ public class ServerMIOPConnection extends MIOPConnection implements Runnable
             in.read_octet_array (data, 0, header.packet_length);
 
             String messageId = new String (header.Id);
-            FragmentedMessage message = (FragmentedMessage)incompleteMessages.get (messageId);
+            FragmentedMessage message = incompleteMessages.get (messageId);
 
             // verify if it's the first message to arrive
             if (message == null)
@@ -429,12 +428,12 @@ public class ServerMIOPConnection extends MIOPConnection implements Runnable
     */
    private final synchronized void dropIncompleteMessages ()
    {
-      Iterator ids = incompleteMessages.keySet ().iterator ();
+      Iterator<String> ids = incompleteMessages.keySet ().iterator ();
 
       while (ids.hasNext ())
       {
          Object id = ids.next ();
-         if (((FragmentedMessage)incompleteMessages.get (id)).canBeDiscarded ())
+         if (incompleteMessages.get (id).canBeDiscarded ())
          {
             incompleteMessages.remove (id);
          }

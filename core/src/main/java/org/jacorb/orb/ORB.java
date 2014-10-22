@@ -506,7 +506,7 @@ public final class ORB
         }
     }
 
-    public ProtocolAddressBase createAddress (String address)
+    private ProtocolAddressBase createAddress (String address)
     {
         List<Factories> factorylist = getTransportManager().getFactoriesList();
         ProtocolAddressBase result = null;

@@ -35,7 +35,6 @@ import java.util.SortedMap;
 import java.util.TreeMap;
 import org.jacorb.config.Configuration;
 import org.jacorb.config.ConfigurationException;
-import org.jacorb.orb.giop.CodeSet;
 import org.jacorb.orb.giop.GIOPConnection;
 import org.jacorb.orb.giop.Messages;
 import org.jacorb.orb.typecode.DelegatingTypeCodeReader;
@@ -94,8 +93,8 @@ public class CDRInputStream
     private boolean nullStringEncoding;
 
     /* character encoding code sets for char and wchar, default ISO8859_1 */
-    private CodeSet codeSet =  CodeSet.getTCSDefault();
-    private CodeSet codeSetW = CodeSet.getTCSWDefault();
+    private CodeSet codeSet;
+    private CodeSet codeSetW;
     protected int giop_minor = 2; // needed to determine size in chars
 
     /**
@@ -271,6 +270,9 @@ public class CDRInputStream
 
         mutator = (IORMutator) configuration.getAttributeAsObject("jacorb.iormutator");
         isMutatorEnabled = (mutator != null);
+
+        codeSet = ((ORBSingleton)orb).getTCSDefault();
+        codeSetW = ((ORBSingleton) orb).getTCSWDefault();
     }
 
     /**

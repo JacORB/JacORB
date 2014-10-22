@@ -22,7 +22,7 @@ package org.jacorb.test.orb.giop;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
-import org.jacorb.orb.giop.CodeSet;
+import org.jacorb.orb.CodeSet;
 import org.jacorb.test.harness.ORBTestCase;
 import org.junit.Test;
 import org.omg.CONV_FRAME.CodeSetComponent;
@@ -77,7 +77,7 @@ public class CodeSetTest extends ORBTestCase
     @Test
     public void testDefaultCharEncoding() throws Exception
     {
-        int encoding = CodeSet.getTCSDefault().getId();
+        int encoding = getORB().getTCSDefault().getId();
         if (encoding != ISO8859_1_ID && encoding != UTF8_ID) fail( "Default codeset must be iso8859-1 or UTF-8" );
     }
 
@@ -174,7 +174,7 @@ public class CodeSetTest extends ORBTestCase
     @Test
     public void testLocalCodeSets() throws Exception
     {
-        CodeSetComponentInfo info = CodeSet.getLocalCodeSetComponentInfo();
+        CodeSetComponentInfo info = getORB().getLocalCodeSetComponentInfo();
         assertNotNull( "iso 8859-1 not supported for char", CodeSet.getCodeSetIfMatched( ISO8859_1_ID, info.ForCharData ) );
         assertNotNull( "utf-8 not supported for char", CodeSet.getCodeSetIfMatched( UTF8_ID, info.ForCharData ) );
         assertNotNull( "utf-8 not supported for wchar", CodeSet.getCodeSetIfMatched( UTF8_ID, info.ForWcharData ) );

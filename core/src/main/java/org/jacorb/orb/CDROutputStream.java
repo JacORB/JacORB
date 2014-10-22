@@ -34,7 +34,6 @@ import java.util.List;
 import java.util.Map;
 import org.jacorb.config.Configuration;
 import org.jacorb.config.ConfigurationException;
-import org.jacorb.orb.giop.CodeSet;
 import org.jacorb.orb.giop.GIOPConnection;
 import org.jacorb.orb.typecode.DelegatingTypeCodeWriter;
 import org.jacorb.orb.typecode.TypeCodeCompactor;
@@ -84,8 +83,8 @@ public class CDROutputStream
     private boolean closed;
 
     /* character encoding code sets for char and wchar, default ISO8859_1 */
-    private CodeSet codeSet =  CodeSet.getTCSDefault();
-    private CodeSet codeSetW=  CodeSet.getTCSWDefault();
+    private CodeSet codeSet;
+    private CodeSet codeSetW;
 
     private int encaps_start = -1;
 
@@ -305,6 +304,9 @@ public class CDROutputStream
         deferredArrayQueueSize = (configuration.getAttributeAsInteger("jacorb.deferredArrayQueue", 8)) * 1000;
 
         maxStreamFormatVersion = (byte) configuration.getAttributeAsInteger("jacorb.interop.maximum_stream_format_version", 1);
+
+        codeSet = orb.getTCSDefault();
+        codeSetW = orb.getTCSWDefault();
     }
 
 

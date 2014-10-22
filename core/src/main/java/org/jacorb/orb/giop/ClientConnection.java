@@ -24,6 +24,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import org.jacorb.config.Configuration;
+import org.jacorb.orb.CodeSet;
 import org.jacorb.orb.ParsedIOR;
 import org.omg.CONV_FRAME.CodeSetComponentInfo;
 import org.slf4j.Logger;
@@ -159,8 +160,8 @@ public class ClientConnection
         if (info != null && !ignoreComponentInfo)
         {
             connection.markTCSNegotiated(); // even if this aborts, we should not try negotiating again.
-            CodeSet c1 = CodeSet.getNegotiatedCodeSet( info, /* wide */ false );
-            CodeSet c2 = CodeSet.getNegotiatedCodeSet( info, /* wide */ true );
+            CodeSet c1 = CodeSet.getNegotiatedCodeSet((org.jacorb.orb.ORB)orb, info, /* wide */ false );
+            CodeSet c2 = CodeSet.getNegotiatedCodeSet((org.jacorb.orb.ORB)orb, info, /* wide */ true );
 
             connection.setCodeSets( c1, c2);
 
@@ -340,6 +341,7 @@ public class ClientConnection
      * Operations from ReplyListener
      */
 
+    @Override
     public void replyReceived( byte[] reply,
                                GIOPConnection connection )
     {
@@ -373,6 +375,7 @@ public class ClientConnection
     }
 
 
+    @Override
     public void locateReplyReceived( byte[] reply,
                                      GIOPConnection connection )
     {
@@ -410,6 +413,7 @@ public class ClientConnection
      * actual closing of the Transport and will trigger the
      * remarshaling.
      */
+    @Override
     public void closeConnectionReceived( byte[] close_conn,
                                          GIOPConnection connection )
     {
@@ -438,6 +442,7 @@ public class ClientConnection
      * used for upcalls from GIOPConnection
      */
 
+    @Override
     public void connectionClosed()
     {
         if( ! client_initiated )
@@ -458,6 +463,7 @@ public class ClientConnection
      * removed underneath the GIOP layer
      */
 
+    @Override
     public void streamClosed()
     {
         synchronized( replies )

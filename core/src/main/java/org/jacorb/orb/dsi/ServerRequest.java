@@ -73,7 +73,7 @@ public class ServerRequest
     /**
      * <code>scopes</code> caches the scoped poa names.
      */
-    private List scopes;
+    private List<String> scopes;
 
     /** config property */
     private final boolean cachePoaNames;
@@ -187,6 +187,7 @@ public class ServerRequest
         return rest_of_name;
     }
 
+    @Override
     public String operation()
     {
         return inputStream.req_hdr.operation;
@@ -245,11 +246,13 @@ public class ServerRequest
         return ReplyStatusType_1_2.from_int( replyStatus );
     }
 
+    @Override
     public org.omg.CORBA.Context ctx()
     {
         return null;
     }
 
+    @Override
     public void arguments(org.omg.CORBA.NVList list)
     {
         argList = (org.jacorb.orb.NVList)list;
@@ -345,6 +348,7 @@ public class ServerRequest
         }
     }
 
+    @Override
     public void set_result(org.omg.CORBA.Any res)
     {
         if( isStreamBased )
@@ -354,6 +358,7 @@ public class ServerRequest
         result = res;
     }
 
+    @Override
     public void set_exception(org.omg.CORBA.Any exception)
     {
         if( isStreamBased )
@@ -465,6 +470,7 @@ public class ServerRequest
 
     /* ResponseHandler */
 
+    @Override
     public org.omg.CORBA.portable.OutputStream createReply()
     {
         isStreamBased = true;
@@ -490,6 +496,7 @@ public class ServerRequest
         return out;
     }
 
+    @Override
     public org.omg.CORBA.portable.OutputStream createExceptionReply()
     {
         isStreamBased = true;
@@ -646,7 +653,7 @@ public class ServerRequest
      * @return a <code>List</code> value containing Strings separated by
      * {@link org.jacorb.poa.POAConstants#OBJECT_KEY_SEPARATOR OBJECT_KEY_SEPARATOR}
      */
-    public List getScopes ()
+    public List<String> getScopes ()
     {
         if (scopes == null || !cachePoaNames )
         {

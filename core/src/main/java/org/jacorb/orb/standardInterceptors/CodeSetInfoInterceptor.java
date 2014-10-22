@@ -27,7 +27,6 @@ import org.jacorb.config.Configuration;
 import org.jacorb.config.ConfigurationException;
 import org.jacorb.orb.CDROutputStream;
 import org.jacorb.orb.ORB;
-import org.jacorb.orb.giop.CodeSet;
 import org.omg.CONV_FRAME.CodeSetComponentInfoHelper;
 import org.omg.CORBA.LocalObject;
 import org.omg.IOP.TAG_CODE_SETS;
@@ -56,7 +55,7 @@ public class CodeSetInfoInterceptor extends LocalObject
         try
         {
             out.beginEncapsulatedArray();
-            CodeSetComponentInfoHelper.write( out, CodeSet.getLocalCodeSetComponentInfo() );
+            CodeSetComponentInfoHelper.write( out, orb.getLocalCodeSetComponentInfo() );
 
             tagc = new TaggedComponent(TAG_CODE_SETS.value, out.getBufferCopy());
         }
@@ -67,17 +66,19 @@ public class CodeSetInfoInterceptor extends LocalObject
     }
 
 
+    @Override
     public void configure(Configuration config)
         throws ConfigurationException
     {
-        CodeSet.configure(config);
     }
 
+    @Override
     public String name()
     {
         return "CodeSetInfoComponentCreator";
     }
 
+    @Override
     public void destroy()
     {
         // nothing to do
@@ -86,6 +87,7 @@ public class CodeSetInfoInterceptor extends LocalObject
     /**
      * Creates default IOR codeset  component.
      */
+    @Override
     public void establish_components( IORInfo info )
     {
         info.add_ior_component_to_profile( tagc, TAG_INTERNET_IOP.value );

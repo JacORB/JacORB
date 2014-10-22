@@ -24,12 +24,12 @@ import static org.junit.Assert.fail;
 import java.util.ArrayList;
 import java.util.Properties;
 import org.easymock.MockControl;
+import org.jacorb.config.ConfigurationException;
 import org.jacorb.orb.ORB;
 import org.jacorb.orb.ParsedIOR;
 import org.jacorb.orb.ProfileSelector;
 import org.jacorb.orb.giop.ClientConnection;
 import org.jacorb.orb.giop.ClientGIOPConnection;
-import org.jacorb.orb.giop.CodeSet;
 import org.jacorb.test.harness.ORBTestCase;
 import org.junit.Test;
 import org.omg.CONV_FRAME.CodeSetComponent;
@@ -66,7 +66,7 @@ public class ClientConnectionTest extends ORBTestCase
         ParsedIOR ior = new ParsedIOR( (ORB) orb, new IOR( "", new TaggedProfile[0] ) );
         ClientConnection connection = createClientConnection( 1, 0, ior );
 
-        assertEquals( "Default codeSet", CodeSet.getTCSDefault().getId(), connection.getTCS().getId() );
+        assertEquals( "Default codeSet", getORB().getTCSDefault().getId(), connection.getTCS().getId() );
         assertEquals( "Default wide codeset", UTF16_ID, connection.getTCSW().getId() );
     }
 
@@ -82,7 +82,7 @@ public class ClientConnectionTest extends ORBTestCase
 
         ClientConnection connection = createClientConnection( 1, 1, ior );
 
-        assertEquals( "Default codeSet", CodeSet.getTCSDefault().getId(), connection.getTCS().getId() );
+        assertEquals( "Default codeSet", getORB().getTCSDefault().getId(), connection.getTCS().getId() );
         assertEquals( "Default wide codeset", UTF16_ID, connection.getTCSW().getId() );
     }
 
@@ -154,6 +154,13 @@ public class ClientConnectionTest extends ORBTestCase
         Profile profile = createMockProfile( majorVersion, minorVersion );
         ClientGIOPConnection giopConnection = new ClientGIOPConnection( null, null, null, null, null );
         ClientConnection connection = new ClientConnection( giopConnection, orb, null, profile, false );
+        try
+        {
+            giopConnection.configure(getORB().getConfiguration());
+        }
+        catch (ConfigurationException e)
+        {
+        }
 
         ior.setProfileSelector( createMockProfileSelector( profile ) );
         connection.setCodeSet( ior );
@@ -184,6 +191,7 @@ public class ClientConnectionTest extends ORBTestCase
         final CodeSetComponent forWCharData = new CodeSetComponent( wcharCodeSet, conversionWCharSets );
         return new ParsedIOR( (ORB) orb, new IOR( "", new TaggedProfile[0] ) )
         {
+            @Override
             public CodeSetComponentInfo getCodeSetComponentInfo()
             {
                 return new CodeSetComponentInfo( forCharData, forWCharData );

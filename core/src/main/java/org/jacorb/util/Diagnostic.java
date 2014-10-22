@@ -6,7 +6,6 @@ import java.net.InetAddress;
 import java.util.Locale;
 import java.util.Properties;
 import org.jacorb.orb.ORBSingleton;
-import org.jacorb.orb.giop.CodeSet;
 import org.jacorb.orb.iiop.IIOPAddress;
 import org.omg.CORBA.ORB;
 
@@ -39,6 +38,12 @@ public class Diagnostic
     public static void main (String args[])
     {
         Properties props = System.getProperties ();
+
+        Properties p = new Properties();
+        p.setProperty("org.omg.CORBA.ORBClass","org.jacorb.orb.ORB");
+        p.setProperty("org.omg.CORBA.ORBSingletonClass","org.jacorb.orb.ORBSingleton");
+        ORB orb = ORB.init(args, p);
+
         Locale l = Locale.getDefault();
         String defaultIOEncoding = (new OutputStreamWriter(new ByteArrayOutputStream ())).getEncoding();
 
@@ -67,13 +72,9 @@ public class Diagnostic
         System.out.println("Default locale " + l + " (which is " + l.getDisplayName() + ')');
         System.out.println("System file encoding property: " + System.getProperty("file.encoding"));
         System.out.println("Cannonical encoding: " + defaultIOEncoding);
-        System.out.println("Default WChar encoding: " + CodeSet.getTCSWDefault().getName());
+        System.out.println("Default WChar encoding: " + ((org.jacorb.orb.ORB)orb).getTCSWDefault().getName());
         System.out.println();
 
-        Properties p = new Properties();
-        p.setProperty("org.omg.CORBA.ORBClass","org.jacorb.orb.ORB");
-        p.setProperty("org.omg.CORBA.ORBSingletonClass","org.jacorb.orb.ORBSingleton");
-        ORB orb = ORB.init(args, p);
         System.out.println ("Created ORB " + orb.getClass().getName());
 
         // Trivial check to ensure standard startup still leads to a JacORB singleton.

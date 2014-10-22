@@ -48,6 +48,7 @@ This Release
     - ORB
          - Improved client handling of references with multiple profiles.
          - Client IOR traversal is not dependant on IMR use.
+         - Fix for threading issue with CodeSet (BZ994).
 
 3.5
 ===

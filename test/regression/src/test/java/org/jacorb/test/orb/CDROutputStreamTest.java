@@ -25,7 +25,7 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import java.util.Arrays;
 import org.jacorb.orb.CDROutputStream;
-import org.jacorb.orb.giop.CodeSet;
+import org.jacorb.orb.CodeSet;
 import org.jacorb.test.harness.ORBTestCase;
 import org.jacorb.test.harness.TestUtils;
 import org.junit.After;

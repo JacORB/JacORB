@@ -23,7 +23,6 @@ package org.jacorb.orb.etf;
 
 import java.util.Collection;
 import java.util.Collections;
-
 import org.jacorb.config.Configurable;
 import org.jacorb.config.Configuration;
 import org.jacorb.config.ConfigurationException;
@@ -254,12 +253,12 @@ public abstract class ProfileBase
         return components;
     }
 
-    public Object getComponent(int tag, Class helper)
+    public Object getComponent(int tag, Class<?> helper)
     {
         return components.getComponent(tag, helper);
     }
 
-    public void addComponent(int tag, Object data, Class helper)
+    public void addComponent(int tag, Object data, Class<?> helper)
     {
         components.addComponent(tag, data, helper);
     }

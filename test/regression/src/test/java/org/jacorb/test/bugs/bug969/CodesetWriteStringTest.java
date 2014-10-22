@@ -1,7 +1,7 @@
 package org.jacorb.test.bugs.bug969;
 
 import org.jacorb.orb.CDROutputStream;
-import org.jacorb.orb.giop.CodeSet;
+import org.jacorb.orb.CodeSet;
 import org.junit.Assert;
 import org.junit.Test;
 
