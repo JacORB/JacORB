@@ -49,6 +49,7 @@ This Release
          - Improved client handling of references with multiple profiles.
          - Client IOR traversal is not dependant on IMR use.
          - Fix for threading issue with CodeSet (BZ994).
+         - Fix for threading issue with Configuratoin (BZ991).
 
 3.5
 ===
