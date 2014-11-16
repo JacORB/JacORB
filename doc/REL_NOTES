@@ -55,6 +55,7 @@ This Release
            (e.g. Ethernet/WLAN) will be prioritised over virtual interfaces
            (e.g. VMWare, VirtualBox, Docker) via the JVM system property
            jacorb.network.virtual which defaults to VirtualBox,VMWare,vboxnet,docker
+         - Fixes for IPv6/MIOP parsing.
 
 3.5
 ===
