@@ -29,9 +29,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
-
-import org.jacorb.config.*;
-import org.slf4j.Logger;
+import java.util.concurrent.atomic.AtomicInteger;
+import org.jacorb.config.Configuration;
+import org.jacorb.config.ConfigurationException;
 import org.jacorb.notification.conf.Attributes;
 import org.jacorb.notification.container.BiDirGiopPOAComponentAdapter;
 import org.jacorb.notification.container.PicoContainerFactory;
@@ -41,6 +41,7 @@ import org.jacorb.notification.util.AdminPropertySet;
 import org.jacorb.notification.util.DisposableManager;
 import org.jacorb.notification.util.PropertySet;
 import org.jacorb.notification.util.QoSPropertySet;
+import org.jacorb.orb.util.CorbaLoc;
 import org.omg.CORBA.Any;
 import org.omg.CORBA.IntHolder;
 import org.omg.CORBA.ORB;
@@ -62,13 +63,13 @@ import org.omg.CosNotification.QoSError_code;
 import org.omg.CosNotification.UnsupportedAdmin;
 import org.omg.CosNotification.UnsupportedQoS;
 import org.omg.CosNotifyChannelAdmin.ChannelNotFound;
+import org.omg.PortableServer.IdAssignmentPolicy;
 import org.omg.PortableServer.IdAssignmentPolicyValue;
 import org.omg.PortableServer.POA;
 import org.omg.PortableServer.POAHelper;
 import org.omg.PortableServer.Servant;
 import org.picocontainer.MutablePicoContainer;
-
-import java.util.concurrent.atomic.AtomicInteger;
+import org.slf4j.Logger;
 
 /**
  * @author Alphonse Bendt
@@ -102,6 +103,7 @@ public abstract class AbstractChannelFactory implements ManageableServant, Dispo
      */
     private Runnable destroyMethod_ = new Runnable()
     {
+        @Override
         public void run()
         {
             dispose();
@@ -143,6 +145,7 @@ public abstract class AbstractChannelFactory implements ManageableServant, Dispo
         {
             disposableManager_.addDisposable(new Disposable()
             {
+                @Override
                 public void dispose()
                 {
                     container.removeChildContainer(container_);
@@ -151,6 +154,7 @@ public abstract class AbstractChannelFactory implements ManageableServant, Dispo
         }
 
         disposableManager_.addDisposable(new Disposable() {
+            @Override
             public void dispose()
             {
                 final POA _poa = (POA) container_.getComponentInstanceOfType(POA.class);
@@ -161,17 +165,17 @@ public abstract class AbstractChannelFactory implements ManageableServant, Dispo
 
         config_ = (Configuration) container_.getComponentInstanceOfType(Configuration.class);
 
-        logger_ = ((org.jacorb.config.Configuration) config_).getLogger(getClass().getName());
+        logger_ = config_.getLogger(getClass().getName());
 
         POA _rootPOA = (POA) container_.getComponentInstanceOfType(POA.class);
 
-        List _ps = new ArrayList();
+        List<IdAssignmentPolicy> _ps = new ArrayList<IdAssignmentPolicy>();
 
         _ps.add(_rootPOA.create_id_assignment_policy(IdAssignmentPolicyValue.USER_ID));
 
         BiDirGiopPOAComponentAdapter.addBiDirGiopPolicy(_ps, orb, config_);
 
-        org.omg.CORBA.Policy[] _policies = (org.omg.CORBA.Policy[]) _ps
+        org.omg.CORBA.Policy[] _policies = _ps
                 .toArray(new org.omg.CORBA.Policy[_ps.size()]);
 
         eventChannelFactoryPOA_ = _rootPOA.create_POA(EVENTCHANNEL_FACTORY_POA_NAME, _rootPOA
@@ -196,7 +200,7 @@ public abstract class AbstractChannelFactory implements ManageableServant, Dispo
 
         ior_ = orb.object_to_string(eventChannelFactoryPOA_.id_to_reference(oid_));
 
-        corbaLoc_ = createCorbaLoc();
+        corbaLoc_ = "corbaloc:" + CorbaLoc.generateCorbaloc(orb,eventChannelFactoryPOA_.id_to_servant(oid_)._this_object());
 
         ((org.jacorb.orb.ORB) orb).addObjectKey(getShortcut(), ior_);
     }
@@ -216,33 +220,7 @@ public abstract class AbstractChannelFactory implements ManageableServant, Dispo
 
     // //////////////////////////////////////
 
-    protected int getLocalPort()
-    {
-        org.jacorb.orb.ORB jorb = (org.jacorb.orb.ORB) getORB();
-
-        return jorb.getBasicAdapter().getPort();
-    }
-
-    protected String getLocalAddress()
-    {
-        org.jacorb.orb.ORB jorb = (org.jacorb.orb.ORB) getORB();
-
-        return jorb.getBasicAdapter().getAddress();
-    }
-
-    private String createCorbaLoc()
-    {
-        StringBuffer _corbaLoc = new StringBuffer("corbaloc::");
-
-        _corbaLoc.append(getLocalAddress());
-        _corbaLoc.append(":");
-        _corbaLoc.append(getLocalPort());
-        _corbaLoc.append("/");
-        _corbaLoc.append(getShortcut());
-
-        return _corbaLoc.toString();
-    }
-
+    @Override
     public synchronized org.omg.CORBA.Object activate()
     {
         return thisRef_;
@@ -258,6 +236,7 @@ public abstract class AbstractChannelFactory implements ManageableServant, Dispo
         return (ORB) container_.getComponentInstance(ORB.class);
     }
 
+    @Override
     public final void deactivate()
     {
         try
@@ -276,6 +255,7 @@ public abstract class AbstractChannelFactory implements ManageableServant, Dispo
         return config_;
     }
 
+    @Override
     public void dispose()
     {
         try
@@ -442,6 +422,7 @@ public abstract class AbstractChannelFactory implements ManageableServant, Dispo
         // a remote invocation which causes an exception.
         final Thread _shutdown = new Thread()
         {
+            @Override
             public void run()
             {
                 try
@@ -557,6 +538,7 @@ public abstract class AbstractChannelFactory implements ManageableServant, Dispo
 
             Thread _orbThread = new Thread(new Runnable()
             {
+                @Override
                 public void run()
                 {
                     orb.run();
@@ -570,6 +552,7 @@ public abstract class AbstractChannelFactory implements ManageableServant, Dispo
             _orbThread.start();
 
             _factory.disposableManager_.addDisposable(new Disposable() {
+                @Override
                 public void dispose() {
                     orb.shutdown(false);
                 }
@@ -755,16 +738,19 @@ public abstract class AbstractChannelFactory implements ManageableServant, Dispo
         final int _channelID = createChannelIdentifier();
         IFactory _factory = new IFactory()
         {
+            @Override
             public MutablePicoContainer getContainer()
             {
                 return _channelContainer;
             }
 
+            @Override
             public int getChannelID()
             {
                 return _channelID;
             }
 
+            @Override
             public void destroy()
             {
                 container_.removeChildContainer(_channelContainer);
