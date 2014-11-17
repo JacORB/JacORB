@@ -58,6 +58,7 @@
          Change logging to debug level (BZ950294).
          Add jacorb.connection.client.eager_close to completely close client connections on error (Case00953099)
          Added jacorb.interop.null_string_encoding to allow handling of null strings. Thanks to Fabiano Ghisla.
+         Fix for classcast exception setting enabledProtocols.
 
     - Poa
          Fix shutdown issue (jacorb-2.3.1-CORBA_OBJECT_NOT_EXIST.patch)
