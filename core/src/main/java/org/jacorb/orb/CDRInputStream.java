@@ -912,7 +912,7 @@ public class CDRInputStream
             index++;
         }
 
-        if (digits == 1 && outBuffer.length() == 0)
+        if ( (digits == 1 || digits == -1) && outBuffer.length() == 0)
         {
             outBuffer.append ('0');
         }
