@@ -29,8 +29,11 @@ import org.jacorb.test.BasicServer;
 import org.jacorb.test.BasicServerHelper;
 import org.jacorb.test.harness.CommonSetup;
 import org.jacorb.test.harness.FixedPortORBTestCase;
+import org.jacorb.test.harness.TestUtils;
 import org.jacorb.test.orb.BasicServerImpl;
+import org.junit.Assume;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 /**
@@ -42,6 +45,12 @@ public class BugJac524Test extends FixedPortORBTestCase
     private String ior;
 
     private Properties props;
+
+    @BeforeClass
+    public static void beforeClassSetUp() throws Exception
+    {
+        Assume.assumeFalse(TestUtils.isSSLEnabled);
+    }
 
     @Override
     protected void patchORBProperties(Properties props) throws Exception
