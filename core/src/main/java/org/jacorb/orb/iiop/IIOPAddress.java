@@ -110,23 +110,8 @@ public class IIOPAddress extends ProtocolAddressBase
          * same. So, the following code segment would extract the hostname from the returned
          * inetAddress.
          */
-        host = serverSocket.getInetAddress();
-        port = serverSocket.getLocalPort();
-        isWildcard = serverSocket.getInetAddress().isAnyLocalAddress();
-        if (isWildcard)
-        {
-            pseudo_host = getLocalHost();
-            source_name = pseudo_host.getHostName();
-        }
-        else
-        {
-            source_name = serverSocket.getInetAddress().toString();
-            int slash_delim = source_name.indexOf('/');
-            if (slash_delim > 0)
-            {
-                source_name = source_name.substring(0, slash_delim);
-            }
-        }
+        setPort(serverSocket.getLocalPort());
+        setHostInetAddress(serverSocket.getInetAddress());
 
         // Set the isConfigured flag to prevent calling init_host() later
         isConfigured = true;
@@ -251,6 +236,8 @@ public class IIOPAddress extends ProtocolAddressBase
      */
     public String getIP()
     {
+        String result = null;
+
         if (host == null)
         {
             init_host();
@@ -265,33 +252,34 @@ public class IIOPAddress extends ProtocolAddressBase
         {
             if (!isWildcard())
             {
-                return host.getHostAddress();
+                result = host.getHostAddress();
             }
             else if (pseudo_host != null)
             {
-                return pseudo_host.getHostAddress();
+                result = pseudo_host.getHostAddress();
             }
         }
-
-        if (!isWildcard())
+        else
         {
-            return forceDNSLookup ? host.getCanonicalHostName() : host.getHostName();
+            if (!isWildcard())
+            {
+                result = forceDNSLookup ? host.getCanonicalHostName() : host.getHostName();
+            }
+            else if (pseudo_host != null)
+            {
+                result = forceDNSLookup ? pseudo_host.getCanonicalHostName() : pseudo_host.getHostName();
+            }
         }
-        else if (pseudo_host != null)
-        {
-            return forceDNSLookup ? pseudo_host.getCanonicalHostName() : pseudo_host.getHostName();
-        }
-
-        // should not get here
-        return null;
+        return hideZoneID(result);
     }
+
 
     /**
      * Returns the host part of this IIOPAddress, as a DNS hostname. If the DNS name was specified
      * when this IIOPAddress was created, then that name is returned. Otherwise, this method
      * performs a reverse DNS lookup on the IP address.
      */
-    public String getHostname()
+    public String getHostName()
     {
         if (host == null)
         {
@@ -304,21 +292,33 @@ public class IIOPAddress extends ProtocolAddressBase
 
         if (!isWildcard())
         {
-            return dnsEnabled ? host.getCanonicalHostName() : host.getHostAddress();
+            return hideZoneID(dnsEnabled ? host.getCanonicalHostName() : host.getHostAddress());
         }
         else if (pseudo_host != null)
         {
-            return dnsEnabled ? pseudo_host.getCanonicalHostName() : pseudo_host.getHostAddress();
+            return hideZoneID(dnsEnabled ? pseudo_host.getCanonicalHostName() : pseudo_host.getHostAddress());
         }
 
         // should not get here
         return null;
     }
 
+    private String hideZoneID (String source)
+    {
+        if (hideZoneID)
+        {
+            int zoneIndex;
+            if ((zoneIndex = source.indexOf('%')) != -1)
+            {
+                source = source.substring(0, zoneIndex);
+            }
+        }
+        return source;
+    }
+
     /**
      * Used by the ORB to configure just the hostname portion of a proxy IOR address
      */
-
     public void setHostname(String hn)
     {
         host = null;
@@ -333,6 +333,8 @@ public class IIOPAddress extends ProtocolAddressBase
     /**
      * Returns the host as supplied to the constructor. This replaces
      * IIOPListener.getConfiguredHost().
+     * Used by the IIOPListener to retrieve the host address for a wildcard listener after
+     * the server socket has been instantiated.
      */
     public InetAddress getConfiguredHost()
     {
@@ -387,16 +389,8 @@ public class IIOPAddress extends ProtocolAddressBase
                     source_name = source_name.substring(0, slash_delim);
                 }
             }
+            source_name = hideZoneID(source_name);
         }
-    }
-
-    /**
-     * Method for use by the IIOPListener to retrieve the host address for a wildcard listener after
-     * the server socket has been instantiated.
-     */
-    public InetAddress getHostInetAddress()
-    {
-        return host;
     }
 
     /**
@@ -439,7 +433,7 @@ public class IIOPAddress extends ProtocolAddressBase
     @Override
     public String toString()
     {
-        return getHostname() + ":" + port;
+        return getHostName() + ":" + port;
     }
 
     @Override
@@ -474,7 +468,6 @@ public class IIOPAddress extends ProtocolAddressBase
         else
         {
             source_name = s.substring(1, route_delim);
-
         }
 
         int port_colon = s.indexOf(':', end_bracket);
@@ -527,16 +520,7 @@ public class IIOPAddress extends ProtocolAddressBase
         // things that could be used off-host. Writing a link-local zone
         // ID would break the client. Site-local zone IDs are still used,
         // but deprecated. For now, we will ignore site-local zone IDs.
-        String hostname = getHostname();
-        if (hideZoneID)
-        {
-            int zoneIndex;
-            if ((zoneIndex = hostname.indexOf('%')) != -1)
-            {
-                hostname = hostname.substring(0, zoneIndex);
-            }
-        }
-        cdr.write_string(hostname);
+        cdr.write_string(getHostName());
         cdr.write_ushort((short) port);
     }
 
@@ -556,7 +540,7 @@ public class IIOPAddress extends ProtocolAddressBase
             {
                 return getIP();
             }
-            return getHostname() + " / " + getIP();
+            return getHostName() + " / " + getIP();
         }
         return source_name;
     }
@@ -567,18 +551,14 @@ public class IIOPAddress extends ProtocolAddressBase
      */
     void replaceFrom(IIOPAddress other)
     {
-
         if (other.source_name != null)
         {
-
             setHostname(other.source_name);
         }
         if (other.port != -1)
         {
-
             setPort(other.port);
         }
-
     }
 
     /**
@@ -707,7 +687,7 @@ public class IIOPAddress extends ProtocolAddressBase
     @Override
     public ProtocolAddressBase copy()
     {
-        IIOPAddress result = new IIOPAddress(getHostname(), port);
+        IIOPAddress result = new IIOPAddress(getHostName(), port);
         result.logger = logger;
         return result;
     }

@@ -397,36 +397,31 @@ public class IIOPProfile
                 {
                     addrHostAddress = forceDNSLookup ? addr.getCanonicalHostName() : addr.getHostName();
                 }
-                if (! addrHostAddress.equals(primaryIP))
-                {
-                    IIOPAddress iaddr = new IIOPAddress();
-                    iaddr.configure (configuration);
-                    String ipaddr = addr.toString().substring(1);
-                    if (addr instanceof Inet4Address)
-                    {
-                        iaddr.fromString (ipaddr + ":"
-                                          + primaryAddress.getPort());
-                    }
-                    else if (addr instanceof Inet6Address)
-                    {
-                        String ipv6 = ipaddr;
-                        int zoneid_delim = ipv6.indexOf('%');
-                        if (zoneid_delim > 0)
-                        {
-                            ipv6 = ipv6.substring(0, zoneid_delim);
-                        }
-                        iaddr.fromString (
-                            "[" + ipv6 + "]:"
-                            + primaryAddress.getPort()
-                                         );
-                    }
 
+                IIOPAddress iaddr = new IIOPAddress();
+                iaddr.configure (configuration);
+                String ipaddr = addr.toString().substring(1);
+                if (addr instanceof Inet4Address)
+                {
+                    iaddr.fromString (ipaddr + ":"
+                            + primaryAddress.getPort());
+                }
+                else if (addr instanceof Inet6Address)
+                {
+                    iaddr.fromString (
+                            "[" + ipaddr + "]:"
+                                    + primaryAddress.getPort()
+                            );
+                }
+
+                if (! iaddr.getIP().equals(primaryIP))
+                {
                     if (logger.isDebugEnabled())
                     {
-                        logger.debug("components.addComponent: adding addrHostAddress <" + addrHostAddress + "> as TAG_ALTERNATE_IIOP_ADDRESS" );
+                        logger.debug("components.addComponent: adding addrHostAddress <" + iaddr.getHostName() + "> as TAG_ALTERNATE_IIOP_ADDRESS" );
                     }
                     components.addComponent (TAG_ALTERNATE_IIOP_ADDRESS.value,
-                                             iaddr.toCDR());
+                            iaddr.toCDR());
                 }
             }
         }
@@ -492,7 +487,7 @@ public class IIOPProfile
     {
         IIOPProfile result = (IIOPProfile)super.clone();  // bitwise copy
 
-        result.primaryAddress = new IIOPAddress(primaryAddress.getHostname(),
+        result.primaryAddress = new IIOPAddress(primaryAddress.getHostName(),
                                                 primaryAddress.getPort());
 
         if (configuration != null)
@@ -765,17 +760,17 @@ public class IIOPProfile
 
         if (getSSL() == null)
         {
-            result.add(new ListenPoint(primaryAddress.getHostname(), (short)primaryAddress.getPort()));
+            result.add(new ListenPoint(primaryAddress.getHostName(), (short)primaryAddress.getPort()));
         }
         else
         {
             if (getSSLPort() == 0)
             {
-                result.add(new ListenPoint(primaryAddress.getHostname(), (short)primaryAddress.getPort()));
+                result.add(new ListenPoint(primaryAddress.getHostName(), (short)primaryAddress.getPort()));
             }
             else
             {
-                result.add(new ListenPoint(primaryAddress.getHostname(), (short)getSSLPort()));
+                result.add(new ListenPoint(primaryAddress.getHostName(), (short)getSSLPort()));
             }
         }
 
@@ -784,7 +779,7 @@ public class IIOPProfile
         while(it.hasNext())
         {
             IIOPAddress addr = it.next();
-            result.add(new ListenPoint(addr.getHostname(), (short)addr.getPort()));
+            result.add(new ListenPoint(addr.getHostName(), (short)addr.getPort()));
         }
 
         return result;
@@ -803,7 +798,7 @@ public class IIOPProfile
 
         try
         {
-           address = new IIOPAddress(primaryAddress.getHostname(), getSSLPort());
+           address = new IIOPAddress(primaryAddress.getHostName(), getSSLPort());
            address.configure (configuration);
 
            result = new IIOPProfile(address, objectKey, configuration.getORB().getGIOPMinorVersion());

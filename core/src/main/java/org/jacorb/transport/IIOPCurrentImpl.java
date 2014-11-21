@@ -64,7 +64,7 @@ public class IIOPCurrentImpl extends DefaultCurrentImpl implements Current
 
         if (transport instanceof IIOPConnection)
         {
-            return ((IIOPAddress) ((IIOPProfile) getLatestTransportCurentEvent ().profile ()).getAddress ()).getHostname ();
+            return ((IIOPAddress) ((IIOPProfile) getLatestTransportCurentEvent ().profile ()).getAddress ()).getHostName ();
         }
         else if (transport instanceof IIOPLoopbackConnection)
         {

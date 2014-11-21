@@ -1320,7 +1320,7 @@ public final class ORB
                     ProtocolAddressBase sep = getServerAddress();
                     if (sep instanceof IIOPAddress)
                     {
-                        String sep_host = ((IIOPAddress)sep).getHostname();
+                        String sep_host = ((IIOPAddress)sep).getHostName();
                         int sep_port = ((IIOPAddress)sep).getPort();
 
                         imr.registerPOA (server_name + "/" +

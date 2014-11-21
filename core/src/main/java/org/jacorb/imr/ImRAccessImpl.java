@@ -119,7 +119,7 @@ public class ImRAccessImpl
         if (address instanceof IIOPAddress)
         {
             registerPOA (name, server,
-                         ((IIOPAddress)address).getHostname(),
+                         ((IIOPAddress)address).getHostName(),
                          ((IIOPAddress)address).getPort());
         }
         else
