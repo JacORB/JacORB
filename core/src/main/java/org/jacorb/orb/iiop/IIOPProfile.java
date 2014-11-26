@@ -66,8 +66,6 @@ public class IIOPProfile
     private IIOPAddress  primaryAddress = null;
     private SSL ssl = null;
     private boolean isSSLSet;
-    private boolean dnsEnabled = false;
-    private boolean forceDNSLookup = true;
 
     /** the following is used as a bit mask to check if any of these options are set */
     private static final int MINIMUM_OPTIONS = Integrity.value | Confidentiality.value | DetectReplay.value |
@@ -131,10 +129,6 @@ public class IIOPProfile
         super.configure(config);
 
         logger = configuration.getLogger("org.jacorb.iiop.profile");
-
-        dnsEnabled =
-            configuration.getAttributeAsBoolean("jacorb.dns.enable", false);
-        forceDNSLookup = configuration.getAttributeAsBoolean("jacorb.dns.force_lookup", true);
 
         if (primaryAddress != null)
         {
@@ -378,26 +372,6 @@ public class IIOPProfile
         {
             if (!addr.isLoopbackAddress() && !addr.isLinkLocalAddress())
             {
-                /*
-                 * The fix inserted here is to make sure the address
-                 * that is used to determine whether a network address
-                 * is the primary address so that it will not be added
-                 * to the IOR as an alternate address.  This fix is
-                 * needed here because the IIOPAddress.getIP() actually
-                 * returns the hostname instead of the actual IP when
-                 * the property jacorb.jacorb.dns.enable is turned on.
-                 * Quynh N.
-                 */
-                String addrHostAddress;
-                if (!dnsEnabled)
-                {
-                    addrHostAddress = addr.getHostAddress();
-                }
-                else
-                {
-                    addrHostAddress = forceDNSLookup ? addr.getCanonicalHostName() : addr.getHostName();
-                }
-
                 IIOPAddress iaddr = new IIOPAddress();
                 iaddr.configure (configuration);
                 String ipaddr = addr.toString().substring(1);
