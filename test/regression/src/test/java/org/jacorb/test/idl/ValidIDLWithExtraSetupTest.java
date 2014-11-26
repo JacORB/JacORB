@@ -1,7 +1,7 @@
 /*
  *        JacORB - a free Java ORB
  *
- *   Copyright (C) 1999-2012 Gerald Brose / The JacORB Team.
+ *   Copyright (C) 1999-2014 Gerald Brose / The JacORB Team.
  *
  *   This library is free software; you can redistribute it and/or
  *   modify it under the terms of the GNU Library General Public
@@ -28,6 +28,7 @@ import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import java.io.File;
+import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.math.BigDecimal;
@@ -111,7 +112,7 @@ public class ValidIDLWithExtraSetupTest extends AbstractIDLTestcase
     }
 
 
-    public ValidIDLWithExtraSetupTest(String[] argList, String file)
+    public ValidIDLWithExtraSetupTest(String[] argList, String file) throws IOException
     {
         super ((new File(file)).isAbsolute() ? new File(file) : new File(TEST_HOME + IDL_DIR + file));
 
@@ -151,8 +152,6 @@ public class ValidIDLWithExtraSetupTest extends AbstractIDLTestcase
             ClassLoader cl = compileGeneratedSources(false);
 
             invokeVerifyMethod(cl);
-            TestUtils.deleteRecursively(dirGeneration);
-            TestUtils.deleteRecursively(dirCompilation);
         }
         finally
         {

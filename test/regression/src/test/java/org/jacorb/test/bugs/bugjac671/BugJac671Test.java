@@ -3,7 +3,7 @@ package org.jacorb.test.bugs.bugjac671;
 /*
  *        JacORB  - a free Java ORB
  *
- *   Copyright (C) 1997-2001  Gerald Brose.
+ *   Copyright (C) 1997-2014  Gerald Brose.
  *
  *   This library is free software; you can redistribute it and/or
  *   modify it under the terms of the GNU Library General Public
@@ -22,8 +22,7 @@ package org.jacorb.test.bugs.bugjac671;
 
 import java.util.Properties;
 import org.jacorb.test.harness.CommonSetup;
-import org.jacorb.test.harness.ORBTestCase;
-import org.jacorb.test.harness.TestUtils;
+import org.jacorb.test.harness.FixedPortORBTestCase;
 import org.junit.Test;
 
 /**
@@ -33,12 +32,12 @@ import org.junit.Test;
  * @author <a href="mailto:Nick.Cross@prismtech.com">Nick Cross</a>
  * @version 1.0
  */
-public class BugJac671Test extends ORBTestCase
+public class BugJac671Test extends FixedPortORBTestCase
 {
     @Override
     protected void patchORBProperties(Properties props) throws Exception
     {
-        props.setProperty ("OAPort", Integer.toString(TestUtils.getNextAvailablePort()));
+        props.setProperty ("OAPort", Integer.toString(getNextAvailablePort()));
     }
 
     @Test

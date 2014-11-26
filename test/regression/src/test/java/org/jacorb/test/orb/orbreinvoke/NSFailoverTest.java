@@ -3,7 +3,7 @@ package org.jacorb.test.orb.orbreinvoke;
 /*
  *        JacORB  - a free Java ORB
  *
- *   Copyright (C) 1997-2012 Gerald Brose / The JacORB Team.
+ *   Copyright (C) 1997-2014 Gerald Brose / The JacORB Team.
  *
  *   This library is free software; you can redistribute it and/or
  *   modify it under the terms of the GNU Library General Public
@@ -26,8 +26,8 @@ import static org.junit.Assert.fail;
 import java.io.File;
 import java.util.Properties;
 import org.jacorb.orb.util.PrintIOR;
+import org.jacorb.test.harness.FixedPortORBTestCase;
 import org.jacorb.test.harness.NameServiceSetup;
-import org.jacorb.test.harness.ORBTestCase;
 import org.jacorb.test.harness.ServerSetup;
 import org.jacorb.test.harness.TestUtils;
 import org.junit.After;
@@ -41,7 +41,7 @@ import org.junit.rules.TemporaryFolder;
 import org.junit.runners.MethodSorters;
 
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
-public class NSFailoverTest extends ORBTestCase
+public class NSFailoverTest extends FixedPortORBTestCase
 {
     @Rule
     public TemporaryFolder folder1 = new TemporaryFolder();
@@ -60,12 +60,12 @@ public class NSFailoverTest extends ORBTestCase
     private static final boolean SVR_2_OFF = false;
 
     private static final String IMPLNAME = "EchoServer";
-    private static final String SERVER_1_LEP = "iiop://:" + TestUtils.getNextAvailablePort();
-    private static final String SERVER_2_LEP = "iiop://:"+ TestUtils.getNextAvailablePort(51200);
+    private static final String SERVER_1_LEP = "iiop://:" + getNextAvailablePort();
+    private static final String SERVER_2_LEP = "iiop://:"+ getNextAvailablePort();
 
     // NameServer endpoints
-    private static final String NS_1_LEP = Integer.toString(TestUtils.getNextAvailablePort(51400));
-    private static final String NS_2_LEP = Integer.toString(TestUtils.getNextAvailablePort(51600));
+    private static final String NS_1_LEP = Integer.toString(getNextAvailablePort());
+    private static final String NS_2_LEP = Integer.toString(getNextAvailablePort());
 
     private Properties nsProp_1 = null;
     private Properties nsProp_2 = null;

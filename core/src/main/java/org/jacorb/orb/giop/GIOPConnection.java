@@ -1,7 +1,7 @@
 /*
  *        JacORB - a free Java ORB
  *
- *   Copyright (C) 1997-2012 Gerald Brose / The JacORB Team.
+ *   Copyright (C) 1997-2014 Gerald Brose / The JacORB Team.
  *
  *   This library is free software; you can redistribute it and/or
  *   modify it under the terms of the GNU Library General Public
@@ -30,6 +30,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantLock;
 import org.jacorb.config.Configuration;
 import org.jacorb.config.ConfigurationException;
+import org.jacorb.orb.CodeSet;
 import org.jacorb.orb.IBufferManager;
 import org.jacorb.orb.ORB;
 import org.jacorb.orb.SystemExceptionHelper;
@@ -90,8 +91,8 @@ public abstract class GIOPConnection
     /*
      * Connection OSF character formats.
      */
-    private CodeSet tcs = CodeSet.getTCSDefault();
-    private CodeSet tcsw = CodeSet.getTCSWDefault();
+    private CodeSet tcs;
+    private CodeSet tcsw;
 
     private boolean tcs_negotiated = false;
 
@@ -154,6 +155,7 @@ public abstract class GIOPConnection
             relative = ms;
         }
 
+        @Override
         public void expire ()
         {
             if (logger.isErrorEnabled())
@@ -192,6 +194,9 @@ public abstract class GIOPConnection
         throws ConfigurationException
     {
         this.orb = configuration.getORB();
+
+        tcs = orb.getTCSDefault();
+        tcsw = orb.getTCSWDefault();
 
         buf_mg = orb.getBufferManager();
 
@@ -949,6 +954,7 @@ public abstract class GIOPConnection
      * write (a fragment of) the message (passes it on to the wire)
      */
 
+    @Override
     public final void write( byte[] fragment, int start, int size )
     {
         ConnectionReset write_monitor = null;
@@ -977,18 +983,21 @@ public abstract class GIOPConnection
 
     /* pro forma implementations of io.OutputStream methods */
 
+    @Override
     public final void write(int value)
         throws java.io.IOException
     {
         throw new org.omg.CORBA.NO_IMPLEMENT();
     }
 
+    @Override
     public final void write(byte[] value) throws java.io.IOException
     {
         throw new org.omg.CORBA.NO_IMPLEMENT();
     }
 
 
+    @Override
     public final void flush() throws java.io.IOException
     {
         throw new org.omg.CORBA.NO_IMPLEMENT();
@@ -1140,6 +1149,7 @@ public abstract class GIOPConnection
         return false;
     }
 
+    @Override
     public void close()
     {
         if (logger.isDebugEnabled())

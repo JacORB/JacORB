@@ -1,7 +1,7 @@
 /*
  *        JacORB  - a free Java ORB
  *
- *   Copyright (C) 1997-2012 Gerald Brose / The JacORB Team.
+ *   Copyright (C) 1997-2014 Gerald Brose / The JacORB Team.
  *
  *   This library is free software; you can redistribute it and/or
  *   modify it under the terms of the GNU Library General Public
@@ -28,8 +28,7 @@ import org.jacorb.orb.iiop.ClientIIOPConnection;
 import org.jacorb.test.BasicServer;
 import org.jacorb.test.BasicServerHelper;
 import org.jacorb.test.harness.CommonSetup;
-import org.jacorb.test.harness.ORBTestCase;
-import org.jacorb.test.harness.TestUtils;
+import org.jacorb.test.harness.FixedPortORBTestCase;
 import org.jacorb.test.orb.BasicServerImpl;
 import org.junit.Before;
 import org.junit.Test;
@@ -37,9 +36,9 @@ import org.junit.Test;
 /**
  * @author Alphonse Bendt
  */
-public class BugJac524Test extends ORBTestCase
+public class BugJac524Test extends FixedPortORBTestCase
 {
-    private final int port = TestUtils.getNextAvailablePort();
+    private final int port = getNextAvailablePort();
     private String ior;
 
     private Properties props;

@@ -3,7 +3,7 @@ package org.jacorb.orb;
 /*
  *        JacORB - a free Java ORB
  *
- *   Copyright (C) 1997-2012 Gerald Brose / The JacORB Team.
+ *   Copyright (C) 1997-2014 Gerald Brose / The JacORB Team.
  *
  *   This library is free software; you can redistribute it and/or
  *   modify it under the terms of the GNU Library General Public
@@ -35,7 +35,6 @@ import java.util.SortedMap;
 import java.util.TreeMap;
 import org.jacorb.config.Configuration;
 import org.jacorb.config.ConfigurationException;
-import org.jacorb.orb.giop.CodeSet;
 import org.jacorb.orb.giop.GIOPConnection;
 import org.jacorb.orb.giop.Messages;
 import org.jacorb.orb.typecode.DelegatingTypeCodeReader;
@@ -94,8 +93,8 @@ public class CDRInputStream
     private boolean nullStringEncoding;
 
     /* character encoding code sets for char and wchar, default ISO8859_1 */
-    private CodeSet codeSet =  CodeSet.getTCSDefault();
-    private CodeSet codeSetW = CodeSet.getTCSWDefault();
+    private CodeSet codeSet;
+    private CodeSet codeSetW;
     protected int giop_minor = 2; // needed to determine size in chars
 
     /**
@@ -271,6 +270,9 @@ public class CDRInputStream
 
         mutator = (IORMutator) configuration.getAttributeAsObject("jacorb.iormutator");
         isMutatorEnabled = (mutator != null);
+
+        codeSet = ((ORBSingleton)orb).getTCSDefault();
+        codeSetW = ((ORBSingleton) orb).getTCSWDefault();
     }
 
     /**
@@ -910,6 +912,10 @@ public class CDRInputStream
             index++;
         }
 
+        if ( (digits == 1 || digits == -1) && outBuffer.length() == 0)
+        {
+            outBuffer.append ('0');
+        }
         if (digits != -1 && (outBuffer.length() > digits))
         {
             throw new MARSHAL("unexpected number of digits: expected " + digits + " got " + outBuffer.length() + " " + outBuffer);

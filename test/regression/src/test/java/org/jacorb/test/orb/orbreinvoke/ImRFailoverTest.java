@@ -3,7 +3,7 @@ package org.jacorb.test.orb.orbreinvoke;
 /*
  *        JacORB  - a free Java ORB
  *
- *   Copyright (C) 1997-2012 Gerald Brose / The JacORB Team.
+ *   Copyright (C) 1997-2014 Gerald Brose / The JacORB Team.
  *
  *   This library is free software; you can redistribute it and/or
  *   modify it under the terms of the GNU Library General Public
@@ -26,7 +26,7 @@ import static org.junit.Assert.fail;
 import java.io.File;
 import java.util.Properties;
 import org.jacorb.orb.util.PrintIOR;
-import org.jacorb.test.harness.ORBTestCase;
+import org.jacorb.test.harness.FixedPortORBTestCase;
 import org.jacorb.test.harness.ServerSetup;
 import org.jacorb.test.harness.TestUtils;
 import org.junit.After;
@@ -39,7 +39,7 @@ import org.junit.runners.MethodSorters;
 
 
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
-public class ImRFailoverTest extends ORBTestCase
+public class ImRFailoverTest extends FixedPortORBTestCase
 {
     private static final boolean IMR_1_ON = true;
     private static final boolean IMR_2_ON = true;
@@ -52,12 +52,12 @@ public class ImRFailoverTest extends ORBTestCase
     private static final boolean SVR_2_OFF = false;
 
     private static final String IMPLNAME = "EchoServer";
-    private static final String SERVER_1_LEP = "iiop://:" + TestUtils.getNextAvailablePort();
-    private static final String SERVER_2_LEP = "iiop://:" + TestUtils.getNextAvailablePort(50600);
+    private static final String SERVER_1_LEP = "iiop://:" + getNextAvailablePort();
+    private static final String SERVER_2_LEP = "iiop://:" + getNextAvailablePort();
 
     // ImR endpoints
-    private static final String IMR_1_LEP = Integer.toString(TestUtils.getNextAvailablePort(50800));
-    private static final String IMR_2_LEP = Integer.toString(TestUtils.getNextAvailablePort(51000));
+    private static final String IMR_1_LEP = Integer.toString(getNextAvailablePort());
+    private static final String IMR_2_LEP = Integer.toString(getNextAvailablePort());
 
     private Properties imrProp_1 = null;
     private Properties imrProp_2 = null;

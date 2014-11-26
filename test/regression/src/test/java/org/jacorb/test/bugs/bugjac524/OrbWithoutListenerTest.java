@@ -3,7 +3,7 @@ package org.jacorb.test.bugs.bugjac524;
 /*
  *        JacORB  - a free Java ORB
  *
- *   Copyright (C) 1997-2012 Gerald Brose / The JacORB Team.
+ *   Copyright (C) 1997-2014 Gerald Brose / The JacORB Team.
  *
  *   This library is free software; you can redistribute it and/or
  *   modify it under the terms of the GNU Library General Public
@@ -31,7 +31,7 @@ import javax.net.ssl.SSLSocket;
 import org.jacorb.test.BasicServer;
 import org.jacorb.test.BasicServerHelper;
 import org.jacorb.test.harness.ClientServerSetup;
-import org.jacorb.test.harness.ClientServerTestCase;
+import org.jacorb.test.harness.FixedPortClientServerTestCase;
 import org.jacorb.test.harness.TestUtils;
 import org.jacorb.test.orb.BasicServerImpl;
 import org.junit.Before;
@@ -41,10 +41,10 @@ import org.junit.Test;
 /**
  * @author Alphonse Bendt
  */
-public class OrbWithoutListenerTest extends ClientServerTestCase
+public class OrbWithoutListenerTest extends FixedPortClientServerTestCase
 {
     private BasicServer server;
-    private static int port = TestUtils.getNextAvailablePort();
+    private static int port = getNextAvailablePort();
 
     @BeforeClass
     public static void beforeClassSetUp() throws Exception

@@ -11,8 +11,8 @@ import org.jacorb.orb.iiop.IIOPProfile;
 import org.jacorb.test.BasicServer;
 import org.jacorb.test.BasicServerHelper;
 import org.jacorb.test.harness.ClientServerSetup;
-import org.jacorb.test.harness.ClientServerTestCase;
 import org.jacorb.test.harness.CommonSetup;
+import org.jacorb.test.harness.FixedPortClientServerTestCase;
 import org.jacorb.test.harness.TestUtils;
 import org.junit.After;
 import org.junit.Assume;
@@ -34,7 +34,7 @@ import org.omg.PortableServer.POAHelper;
  * Verify startup using server props and endpoint.
  */
 @RunWith(Parameterized.class)
-public class JSSEEndpointTest extends ClientServerTestCase
+public class JSSEEndpointTest extends FixedPortClientServerTestCase
 {
     @Rule
     public Timeout testTimeout = new Timeout(10000);
@@ -57,12 +57,12 @@ public class JSSEEndpointTest extends ClientServerTestCase
     public static Collection<Object[]> data()
     {
         return Arrays.asList(new Object [][] {
-                { "-ORBListenEndpoints", "'iiop://localhost:45678'" },
-                { "-ORBListenEndpoints", "'iiop://:45678'" },
+                { "-ORBListenEndpoints", "'iiop://localhost:" + getNextAvailablePort() + "'" },
+                { "-ORBListenEndpoints", "'iiop://:" + getNextAvailablePort() + "'" },
                 // Test that 0.0.0.0 does not cause a null pointer.
-                { "-ORBListenEndpoints", "'iiop://0.0.0.0:45678'" },
-                { "-ORBListenEndpoints", "'iiop://:45678/ssl_port=32999'" },
-                { "-ORBListenEndpoints", "'ssliiop://localhost:22222'" }
+                { "-ORBListenEndpoints", "'iiop://0.0.0.0:" + getNextAvailablePort() + "'" },
+                { "-ORBListenEndpoints", "'iiop://:" + getNextAvailablePort() + "/ssl_port=" + getNextAvailablePort() + "'" },
+                { "-ORBListenEndpoints", "'ssliiop://localhost:" + getNextAvailablePort() + "'" }
 
         } );
     }

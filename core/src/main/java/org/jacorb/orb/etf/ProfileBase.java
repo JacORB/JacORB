@@ -1,7 +1,7 @@
 /*
  *        JacORB - a free Java ORB
  *
- *   Copyright (C) 1999-2012 Gerald Brose / The JacORB Team.
+ *   Copyright (C) 1999-2014 Gerald Brose / The JacORB Team.
  *
  *   This library is free software; you can redistribute it and/or
  *   modify it under the terms of the GNU Library General Public
@@ -23,7 +23,6 @@ package org.jacorb.orb.etf;
 
 import java.util.Collection;
 import java.util.Collections;
-
 import org.jacorb.config.Configurable;
 import org.jacorb.config.Configuration;
 import org.jacorb.config.ConfigurationException;
@@ -254,12 +253,12 @@ public abstract class ProfileBase
         return components;
     }
 
-    public Object getComponent(int tag, Class helper)
+    public Object getComponent(int tag, Class<?> helper)
     {
         return components.getComponent(tag, helper);
     }
 
-    public void addComponent(int tag, Object data, Class helper)
+    public void addComponent(int tag, Object data, Class<?> helper)
     {
         components.addComponent(tag, data, helper);
     }

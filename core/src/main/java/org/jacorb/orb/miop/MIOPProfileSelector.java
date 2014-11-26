@@ -25,13 +25,14 @@ public class MIOPProfileSelector implements ProfileSelector
     * @param ccm
     * @return the selected profile
     */
-   public Profile selectProfile (List profiles, ClientConnectionManager ccm)
+   @Override
+   public Profile selectProfile (List<Profile> profiles, ClientConnectionManager ccm)
    {
       Profile miop = null, iiop = null;
 
-      for (Iterator i = profiles.iterator (); i.hasNext ();)
+      for (Iterator<Profile> i = profiles.iterator (); i.hasNext ();)
       {
-         Profile profile = (Profile)i.next ();
+         Profile profile = i.next ();
 
          switch (profile.tag ())
          {
@@ -51,7 +52,8 @@ public class MIOPProfileSelector implements ProfileSelector
       return (miop != null) ? miop : iiop;
    }
 
-   public Profile selectNextProfile(List profiles, Profile lastProfile)
+   @Override
+   public Profile selectNextProfile(List<Profile> profiles, Profile lastProfile)
    {
        return null;
    }

@@ -1,7 +1,7 @@
 /*
  *        JacORB - a free Java ORB
  *
- *   Copyright (C) 1999-2012 Gerald Brose / The JacORB Team.
+ *   Copyright (C) 1999-2014 Gerald Brose / The JacORB Team.
  *
  *   This library is free software; you can redistribute it and/or
  *   modify it under the terms of the GNU Library General Public
@@ -42,13 +42,18 @@ import org.jacorb.test.harness.ORBTestCase;
 import org.jacorb.test.harness.TestUtils;
 import org.junit.Assume;
 import org.junit.BeforeClass;
+import org.junit.Rule;
+import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
 @RunWith(value = Parameterized.class)
-public class AbstractIDLTestcase extends ORBTestCase
+public abstract class AbstractIDLTestcase extends ORBTestCase
 {
     protected final File idlFile;
+
+    @Rule
+    public TemporaryFolder folder = new TemporaryFolder();
 
     /**
      * dir where the idl compiler places generated
@@ -71,6 +76,11 @@ public class AbstractIDLTestcase extends ORBTestCase
     {
         Assume.assumeFalse(TestUtils.isSSLEnabled);
 
+        initLogging();
+    }
+
+    protected static void initLogging ()
+    {
         parser.logger = Logger.getLogger("org.jacorb.idl");
         parser.logger.setLevel(Level.SEVERE);
 
@@ -109,23 +119,16 @@ public class AbstractIDLTestcase extends ORBTestCase
         parser.logger.addHandler(parser.handler);
     }
 
-    public AbstractIDLTestcase(File file)
+    public AbstractIDLTestcase(File file) throws IOException
     {
         assertTrue(file + " should exist", file.exists());
         assertTrue(file.isFile());
 
         idlFile = file;
 
-        dirGeneration = new File(TestUtils.testHome() + "/target/src-testidl/" + idlFile.getName());
-        TestUtils.deleteRecursively(dirGeneration);
-        File dirClasses = new File(TestUtils.testHome() + "/target/classes-testidl");
-
-        dirClasses.mkdir();
-        assertTrue(dirClasses.canWrite());
-        assertTrue(dirClasses.isDirectory());
-
-        dirCompilation = new File(dirClasses, idlFile.getName());
-        TestUtils.deleteRecursively(dirCompilation);
+        folder.create();
+        dirGeneration = folder.newFolder();
+        dirCompilation = folder.newFolder();
     }
 
     /**
@@ -143,9 +146,6 @@ public class AbstractIDLTestcase extends ORBTestCase
     private String runJacIDLInProcess(boolean failureExpected) throws AssertionFailedError
     {
         String[] file = createJacIDLArgs();
-
-        dirGeneration.mkdir();
-
         String details = "";
         try
         {

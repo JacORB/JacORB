@@ -1,7 +1,7 @@
 /*
  *        JacORB - a free Java ORB
  *
- *   Copyright (C) 1999-2012 Gerald Brose / The JacORB Team.
+ *   Copyright (C) 1999-2014 Gerald Brose / The JacORB Team.
  *
  *   This library is free software; you can redistribute it and/or
  *   modify it under the terms of the GNU Library General Public
@@ -25,7 +25,7 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import java.util.Arrays;
 import org.jacorb.orb.CDROutputStream;
-import org.jacorb.orb.giop.CodeSet;
+import org.jacorb.orb.CodeSet;
 import org.jacorb.test.harness.ORBTestCase;
 import org.jacorb.test.harness.TestUtils;
 import org.junit.After;

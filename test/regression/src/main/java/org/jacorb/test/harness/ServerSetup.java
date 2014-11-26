@@ -221,8 +221,6 @@ public class ServerSetup
             serverProcess = null;
 
             serverIOR = null;
-
-            Thread.sleep(1000);
         }
     }
 

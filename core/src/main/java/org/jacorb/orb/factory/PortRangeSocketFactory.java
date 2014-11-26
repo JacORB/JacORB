@@ -3,7 +3,7 @@ package org.jacorb.orb.factory;
 /*
  *        Written for JacORB - a free Java ORB
  *
- *   Copyright (C) 2000-2012 Gerald Brose / The JacORB Team.
+ *   Copyright (C) 2000-2014 Gerald Brose / The JacORB Team.
  *
  *   This library is free software; you can redistribute it and/or
  *   modify it under the terms of the GNU Library General Public
@@ -57,6 +57,7 @@ public class PortRangeSocketFactory
      */
     private InetAddress localEndpoint;
 
+    @Override
     public void configure(Configuration config)
         throws ConfigurationException
     {
@@ -79,6 +80,7 @@ public class PortRangeSocketFactory
         }
     }
 
+    @Override
     public Socket createSocket(String host, int port)
         throws IOException, UnknownHostException
     {
@@ -95,7 +97,7 @@ public class PortRangeSocketFactory
 
                 if (logger.isDebugEnabled())
                 {
-                    logger.debug("PortRangeSocketFactory: Created socket at :" + localPort + " with socket " + socket);
+                    logger.debug("PortRangeSocketFactory: Created socket at " + localPort + " with socket " + socket);
                 }
 
                 return socket;
@@ -116,6 +118,7 @@ public class PortRangeSocketFactory
                                  + portMin + " and " + portMax);
     }
 
+    @Override
     public boolean isSSL(Socket socket)
     {
         return false;
@@ -139,6 +142,7 @@ public class PortRangeSocketFactory
         return port;
     }
 
+    @Override
     protected Socket doCreateSocket(String host, int port, int timeout) throws IOException
     {
         int localPort;
@@ -170,6 +174,7 @@ public class PortRangeSocketFactory
             }
             catch (IOException ex)
             {
+                ex.printStackTrace();
                 tryToClose(socket);
             	if (useTimeout && System.currentTimeMillis() > expireTime)
             	{

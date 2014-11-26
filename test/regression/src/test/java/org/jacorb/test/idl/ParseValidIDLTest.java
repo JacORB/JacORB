@@ -1,7 +1,7 @@
 /*
  *        JacORB - a free Java ORB
  *
- *   Copyright (C) 1999-2012 Gerald Brose / The JacORB Team.
+ *   Copyright (C) 1999-2014 Gerald Brose / The JacORB Team.
  *
  *   This library is free software; you can redistribute it and/or
  *   modify it under the terms of the GNU Library General Public
@@ -25,6 +25,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import java.io.File;
 import java.io.FilenameFilter;
+import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -59,6 +60,7 @@ public class ParseValidIDLTest extends AbstractIDLTestcase
         List<Object[]> params = new ArrayList<Object[]>();
         File fileNames[] = new File(IDL).listFiles(new FilenameFilter()
         {
+            @Override
             public boolean accept(File dir, String name)
             {
                 return name.endsWith(".idl");
@@ -71,7 +73,7 @@ public class ParseValidIDLTest extends AbstractIDLTestcase
         return params;
     }
 
-    public ParseValidIDLTest(File file)
+    public ParseValidIDLTest(File file) throws IOException
     {
         super(file);
     }
@@ -90,12 +92,6 @@ public class ParseValidIDLTest extends AbstractIDLTestcase
         ClassLoader cl = compileGeneratedSources(false);
 
         invokeVerifyMethod(cl);
-
-        // if a test fails the directory
-        // will not be deleted. this way
-        // the contents can be inspected.
-        TestUtils.deleteRecursively(dirCompilation);
-        TestUtils.deleteRecursively(dirGeneration);
     }
 
     /**

@@ -1,13 +1,13 @@
 package org.jacorb.test.orb;
 
 import java.util.Properties;
-import org.jacorb.orb.giop.CodeSet;
 import org.jacorb.test.harness.ClientServerSetup;
 import org.junit.Before;
 import org.junit.BeforeClass;
 
 public class CodesetOffTest extends AbstractCodesetTestCase
 {
+    @Override
     @Before
     public void setUp() throws Exception
     {
@@ -18,12 +18,6 @@ public class CodesetOffTest extends AbstractCodesetTestCase
     @BeforeClass
     public static void setUpBeforeClass() throws Exception
     {
-        if (!CodeSet.getTCSDefault().getName().equals( "UTF8" ))
-        {
-            System.err.println
-            ("WARNING - TESTS ARE NOT RUNNING WITH UTF8 - THEY MAY NOT PASS.");
-        }
-
         Properties client_props = new Properties();
         Properties server_props = new Properties();
 

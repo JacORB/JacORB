@@ -3,7 +3,7 @@ package org.jacorb.test.bugs.bugjac670;
 import static org.junit.Assert.fail;
 import java.util.Properties;
 import org.jacorb.test.harness.ClientServerSetup;
-import org.jacorb.test.harness.ClientServerTestCase;
+import org.jacorb.test.harness.FixedPortClientServerTestCase;
 import org.jacorb.test.harness.ServerSetup;
 import org.jacorb.test.harness.TestUtils;
 import org.junit.After;
@@ -24,9 +24,9 @@ import org.omg.Messaging.RELATIVE_RT_TIMEOUT_POLICY_TYPE;
  * successfully, the other has a shorter timeout and the
  * failover times out.
  */
-public class BugJac670Test extends ClientServerTestCase
+public class BugJac670Test extends FixedPortClientServerTestCase
 {
-    private static String port = Integer.toString(TestUtils.getNextAvailablePort());
+    private static String port = Integer.toString(getNextAvailablePort());
 
     private GreetingService server = null;
     private ServerSetup serverSetUp;

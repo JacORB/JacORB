@@ -3,7 +3,7 @@ package org.jacorb.orb;
 /*
  *        JacORB  - a free Java ORB
  *
- *   Copyright (C) 1997-2012 Gerald Brose / The JacORB Team.
+ *   Copyright (C) 1997-2014 Gerald Brose / The JacORB Team.
  *
  *   This library is free software; you can redistribute it and/or
  *   modify it under the terms of the GNU Library General Public
@@ -28,6 +28,7 @@ import org.jacorb.orb.typecode.NullTypeCodeCache;
 import org.jacorb.orb.typecode.NullTypeCodeCompactor;
 import org.jacorb.orb.typecode.TypeCodeCache;
 import org.jacorb.orb.typecode.TypeCodeCompactor;
+import org.omg.CONV_FRAME.CodeSetComponentInfo;
 import org.omg.CORBA.BAD_PARAM;
 import org.omg.CORBA.BAD_TYPECODE;
 import org.omg.CORBA.CompletionStatus;
@@ -63,6 +64,21 @@ public class ORBSingleton
     protected org.jacorb.config.Configuration configuration;
 
     /**
+     * The definition of locally supported code sets provided to clients.
+     */
+    protected CodeSetComponentInfo localCodeSetComponentInfo;
+
+    /**
+     * The native code set for wide character data.
+     */
+    protected CodeSet nativeCodeSetWchar = CodeSet.UTF16_CODESET;
+
+    /**
+     * The native code set for character data.
+     */
+    protected CodeSet nativeCodeSetChar = null; // will select from platform default;
+
+    /**
      * in case a singleton orb is created the c'tor will access the JacORB configuration
      * to configure the orb. otherwise configure needs to be called to properly set up
      * the created instance.
@@ -91,6 +107,8 @@ public class ORBSingleton
 
                 typeCodeCache = NullTypeCodeCache.getInstance();
                 typeCodeCompactor = NullTypeCodeCompactor.getInstance();
+
+                configureCodeset();
 
                 if (logger.isDebugEnabled())
                 {
@@ -143,6 +161,74 @@ public class ORBSingleton
             logger.debug("BufferManager: " + bufferManager);
             logger.debug("jacorb.interop.strict_check_on_tc_creation set to " + doStrictCheckOnTypecodeCreation);
         }
+
+        configureCodeset();
+    }
+
+
+    private void configureCodeset()
+    {
+        String ncsc = configuration.getAttribute("jacorb.native_char_codeset", "");
+        String ncsw = configuration.getAttribute("jacorb.native_wchar_codeset", "");
+
+        if (ncsc != null && ! ("".equals (ncsc)))
+        {
+            CodeSet codeset = CodeSet.getCodeSet(ncsc);
+            if (codeset != CodeSet.NULL_CODE_SET)
+            {
+                nativeCodeSetChar = codeset;
+
+                logger.debug ("Set default native char codeset to {} " + codeset);
+            }
+            else if (logger.isErrorEnabled())
+            {
+                logger.error("Cannot set default NCSC to " + ncsc);
+            }
+        }
+        // Fallback from above if we failed to set nativeCodeSetChar
+        if ( nativeCodeSetChar == null )
+        {
+            String sysenc = CodeSet.DEFAULT_PLATFORM_ENCODING;
+            for (int i = 0; i < CodeSet.KNOWN_ENCODINGS.length; i++)
+            {
+                CodeSet codeset = CodeSet.KNOWN_ENCODINGS[i];
+                if (codeset.supportsCharacterData( /* wide */ false ) && sysenc.equals( codeset.getName() ))
+                {
+                    nativeCodeSetChar = codeset;
+
+                    logger.debug ("Set default native char codeset to {}", codeset);
+                }
+            }
+
+            if ( nativeCodeSetChar == null )
+            {
+                // didn't match any supported char encodings, default to iso 8859-1
+                if (logger.isWarnEnabled())
+                {
+                    logger.warn( "Warning - unknown codeset (" + sysenc + ") - defaulting to ISO-8859-1" );
+                }
+                nativeCodeSetChar = CodeSet.ISO8859_1_CODESET ;
+            }
+        }
+
+        if (ncsw != null && ! ("".equals (ncsw)))
+        {
+            CodeSet codeset = CodeSet.getCodeSet(ncsw);
+            if (codeset != CodeSet.NULL_CODE_SET)
+            {
+                nativeCodeSetWchar = codeset;
+
+                logger.debug ("Set default native wchar codeset to {}", codeset);
+            }
+            else if (logger.isErrorEnabled())
+            {
+                logger.error("Cannot set default NCSW to " + ncsw);
+            }
+        }
+
+        localCodeSetComponentInfo = new CodeSetComponentInfo();
+        localCodeSetComponentInfo.ForCharData = CodeSet.createCodeSetComponent( /* wide */ false, getTCSDefault() );
+        localCodeSetComponentInfo.ForWcharData = CodeSet.createCodeSetComponent( /* wide */ true, getTCSWDefault() );
     }
 
     /**
@@ -955,5 +1041,20 @@ public class ORBSingleton
             throw new INITIALIZE ("JacORB ORB Singleton not initialized");
         }
         return typeCodeCompactor;
+    }
+
+    public CodeSet getTCSDefault()
+    {
+        return nativeCodeSetChar;
+    }
+
+    public CodeSet getTCSWDefault()
+    {
+        return nativeCodeSetWchar;
+    }
+
+    public CodeSetComponentInfo getLocalCodeSetComponentInfo()
+    {
+        return localCodeSetComponentInfo;
     }
 }

@@ -1,7 +1,7 @@
 /*
  *        JacORB - a free Java ORB
  *
- *   Copyright (C) 1997-2012 Gerald Brose / The JacORB Team.
+ *   Copyright (C) 1997-2014 Gerald Brose / The JacORB Team.
  *
  *   This library is free software; you can redistribute it and/or
  *   modify it under the terms of the GNU Library General Public
@@ -28,11 +28,11 @@ import java.io.PrintWriter;
 import java.util.List;
 import org.jacorb.config.ConfigurationException;
 import org.jacorb.orb.CDRInputStream;
+import org.jacorb.orb.CodeSet;
 import org.jacorb.orb.ORBConstants;
 import org.jacorb.orb.ParsedIOR;
 import org.jacorb.orb.TaggedComponentList;
 import org.jacorb.orb.etf.ProfileBase;
-import org.jacorb.orb.giop.CodeSet;
 import org.jacorb.orb.iiop.IIOPAddress;
 import org.jacorb.orb.iiop.IIOPProfile;
 import org.jacorb.orb.miop.MIOPProfile;

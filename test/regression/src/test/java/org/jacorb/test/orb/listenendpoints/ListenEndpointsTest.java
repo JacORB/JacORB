@@ -3,7 +3,7 @@ package org.jacorb.test.orb.listenendpoints;
 /*
  *        JacORB  - a free Java ORB
  *
- *   Copyright (C) 1997-2012 Gerald Brose / The JacORB Team.
+ *   Copyright (C) 1997-2014 Gerald Brose / The JacORB Team.
  *
  *   This library is free software; you can redistribute it and/or
  *   modify it under the terms of the GNU Library General Public
@@ -26,46 +26,42 @@ import static org.junit.Assert.fail;
 import java.net.Inet4Address;
 import java.net.Inet6Address;
 import java.net.InetAddress;
-import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
 import org.jacorb.orb.iiop.IIOPAddress;
 import org.jacorb.test.harness.ClientServerSetup;
-import org.jacorb.test.harness.ClientServerTestCase;
-import org.jacorb.test.harness.IMRExcludedClientServerCategory;
+import org.jacorb.test.harness.FixedPortClientServerTestCase;
 import org.jacorb.test.harness.TestUtils;
 import org.jacorb.test.listenendpoints.echo_corbaloc.EchoMessage;
 import org.jacorb.test.listenendpoints.echo_corbaloc.EchoMessageHelper;
 import org.junit.Assume;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.junit.experimental.categories.Category;
 
  /**
  * Tests -ORBListenEndpoints feature
  *
  *
  */
-@Category(IMRExcludedClientServerCategory.class)
-public class ListenEndpointsTest extends ClientServerTestCase
+public class ListenEndpointsTest extends FixedPortClientServerTestCase
 {
-    private static final String DEFAULT_LISTEN_EP = "iiop://:45001";
-
-    // wildcard listen endpoint
-    private static final String LISTEN_EP = "'iiop://:32999,iiop://:44999;iiop://:45999'";
-
     private static final String PROTOCOL = "iiop:";
 
-    private static final int CORRECT_PORT_1 = 32999;
-    private static final int CORRECT_PORT_2 = 44999;
-    private static final int CORRECT_PORT_3 = 45999;
-    private static final int WRONG_PORT   = 55555;
-    private static final int WRONG_PORT_2 = 45001;
+    private static final int CORRECT_PORT_1 = getNextAvailablePort();
+    private static final int CORRECT_PORT_2 = getNextAvailablePort();
+    private static final int CORRECT_PORT_3 = getNextAvailablePort();
+
+    private static final int WRONG_PORT   = getNextAvailablePort();
+    private static final int WRONG_PORT_2 = getNextAvailablePort();
+
+    private static final String DEFAULT_LISTEN_EP = "iiop://:" + WRONG_PORT_2;
+
+    // wildcard listen endpoint
+    private static final String LISTEN_EP = "'iiop://:" + CORRECT_PORT_1 +
+            ",iiop://:" + CORRECT_PORT_2 + ";iiop://:" + CORRECT_PORT_3 + "'";
 
 
     @BeforeClass
@@ -351,12 +347,12 @@ public class ListenEndpointsTest extends ClientServerTestCase
         try
         {
             String ior = setup.getServerIOR();
-            assertTrue("test_correct_port_2: couldn't pickup server IOR", ior != null && ior.length() > 0);
+            assertTrue("test_correct_port_3: couldn't pickup server IOR", ior != null && ior.length() > 0);
 
             int slash = ior.trim().indexOf("/");
             String corbalocObjId = ior.trim().substring(slash);
-            assertTrue("test_correct_port_2: corbaloc objectID is null", corbalocObjId != null);
-            assertTrue("test_correct_port_2: corbaloc objID is malformed", corbalocObjId.equals("/EchoServer/EchoPOAP/EchoID") );
+            assertTrue("test_correct_port_3: corbaloc objectID is null", corbalocObjId != null);
+            assertTrue("test_correct_port_3: corbaloc objID is malformed", corbalocObjId.equals("/EchoServer/EchoPOAP/EchoID") );
 
             List<String> listen_eps = getListenEndpoints(CORRECT_PORT_3, corbalocObjId);
             for (Iterator<String> x = listen_eps.iterator(); x.hasNext();)
@@ -376,12 +372,12 @@ public class ListenEndpointsTest extends ClientServerTestCase
                             EchoMessageHelper.narrow(orb.string_to_object(endpoint));
 
                     // log("test_correct_port_1: ping endpoint: " + endpoint);
-                    int cnt = send_msg(10, "test_correct_port_2", "hailing endpoint " + endpoint, server);
-                    assertTrue("test_correct_port_2: got cnt=" + cnt + " (expected 10)", cnt == 10);
+                    int cnt = send_msg(10, "test_correct_port_3", "hailing endpoint " + endpoint, server);
+                    assertTrue("test_correct_port_3: got cnt=" + cnt + " (expected 10)", cnt == 10);
                 }
                 catch (Exception e)
                 {
-                    fail("test_correct_port_2: got an unexpected exception : <" + e.getMessage() + ">");
+                    fail("test_correct_port_3: got an unexpected exception : <" + e.getMessage() + ">");
                 }
                 finally
                 {
@@ -393,7 +389,7 @@ public class ListenEndpointsTest extends ClientServerTestCase
         }
         catch (Exception e)
         {
-            fail("test_correct_port_2: got an unexpected exception : <" + e.getMessage() + ">");
+            fail("test_correct_port_3: got an unexpected exception : <" + e.getMessage() + ">");
         }
     }
 

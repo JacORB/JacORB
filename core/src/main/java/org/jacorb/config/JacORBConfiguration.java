@@ -3,7 +3,7 @@ package org.jacorb.config;
 /*
  *        JacORB - a free Java ORB
  *
- *   Copyright (C) 1997-2012 Gerald Brose / The JacORB Team.
+ *   Copyright (C) 1997-2014 Gerald Brose / The JacORB Team.
  *
  *   This library is free software; you can redistribute it and/or
  *   modify it under the terms of the GNU Library General Public
@@ -25,13 +25,13 @@ import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.StringTokenizer;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
 import org.jacorb.orb.ORB;
 import org.jacorb.util.ObjectUtil;
@@ -103,17 +103,17 @@ public class JacORBConfiguration implements Configuration
      * To speed up the access of frequently requested configuration values a set
      * of dedicated hashmaps provide String, Boolean and Number storage.
      */
-    private HashMap<String,String> stringAttributes = new HashMap<String,String>();
+    private ConcurrentHashMap<String,String> stringAttributes = new ConcurrentHashMap<String,String>(16, 0.9f, 1);
 
     /**
      * The boolean attributes.
      */
-    private HashMap<String,Boolean> booleanAttributes = new HashMap<String,Boolean>();
+    private ConcurrentHashMap<String,Boolean> booleanAttributes = new ConcurrentHashMap<String,Boolean>(16, 0.9f, 1);
 
     /**
      * The number attributes.
      */
-    private HashMap<String, Number> numberAttributes = new HashMap<String, Number> ();
+    private ConcurrentHashMap<String, Number> numberAttributes = new ConcurrentHashMap<String, Number> (16, 0.9f, 1);
 
     /**
      * The orb.

@@ -3,7 +3,7 @@ package org.jacorb.orb.giop;
 /*
  *        JacORB - a free Java ORB
  *
- *   Copyright (C) 1997-2012 Gerald Brose / The JacORB Team.
+ *   Copyright (C) 1997-2014 Gerald Brose / The JacORB Team.
  *
  *   This library is free software; you can redistribute it and/or
  *   modify it under the terms of the GNU Library General Public
@@ -26,17 +26,21 @@ import java.util.List;
 import org.jacorb.config.Configurable;
 import org.jacorb.config.Configuration;
 import org.jacorb.config.ConfigurationException;
+import org.jacorb.orb.CDRInputStream;
+import org.jacorb.orb.CodeSet;
 import org.jacorb.orb.ORB;
 import org.jacorb.orb.SystemExceptionHelper;
 import org.jacorb.orb.dsi.ServerRequest;
 import org.jacorb.poa.GOA;
 import org.jacorb.poa.POA;
 import org.omg.CONV_FRAME.CodeSetContext;
+import org.omg.CONV_FRAME.CodeSetContextHelper;
 import org.omg.CORBA.CompletionStatus;
 import org.omg.CORBA.NO_PERMISSION;
 import org.omg.CORBA.OBJECT_NOT_EXIST;
 import org.omg.GIOP.LocateStatusType_1_2;
 import org.omg.GIOP.ReplyStatusType_1_2;
+import org.omg.IOP.TAG_CODE_SETS;
 import org.omg.PortableGroup.TagGroupTaggedComponent;
 import org.slf4j.Logger;
 
@@ -61,6 +65,7 @@ public class ServerRequestListener
         this.rootPOA = rootPOA;
     }
 
+    @Override
     public void configure(Configuration configuration)
         throws ConfigurationException
     {
@@ -80,6 +85,7 @@ public class ServerRequestListener
         }
     }
 
+    @Override
     public void requestReceived( byte[] request,
                                  GIOPConnection connection )
     {
@@ -127,7 +133,19 @@ public class ServerRequestListener
             }
             else
             {
-                CodeSetContext ctx = CodeSet.getCodeSetContext( inputStream.req_hdr.service_context );
+                CodeSetContext ctx = null;
+
+                for( int i = 0; i < inputStream.req_hdr.service_context.length; i++ )
+                {
+                    if( inputStream.req_hdr.service_context[i].context_id == TAG_CODE_SETS.value )
+                    {
+                        // TAG_CODE_SETS found, demarshall
+                        CDRInputStream is = new CDRInputStream( inputStream.req_hdr.service_context[i].context_data );
+                        is.openEncapsulatedArray();
+
+                        ctx = CodeSetContextHelper.read( is );
+                    }
+                }
 
                 if( ctx != null )
                 {
@@ -246,6 +264,7 @@ public class ServerRequestListener
         deliverRequest( server_request );
     }
 
+    @Override
     public void locateRequestReceived ( byte[] request,
                                         GIOPConnection connection )
     {
@@ -254,6 +273,7 @@ public class ServerRequestListener
     }
 
 
+    @Override
     public void cancelRequestReceived( byte[] request,
                                        GIOPConnection connection )
     {
@@ -263,7 +283,7 @@ public class ServerRequestListener
     private void deliverRequest( ServerRequest request )
     {
         POA tmp_poa = rootPOA;
-        List scopes;
+        List<String> scopes;
 
         //MIOP reception of messages from group
         TagGroupTaggedComponent tagGroup = request.getTagGroup();
@@ -313,7 +333,7 @@ public class ServerRequestListener
 
             for( int i = 0; i < scopes.size(); i++)
             {
-                final String res = ((String)scopes.get (i));
+                final String res = (scopes.get (i));
 
                 if( res.length() == 0)
                 {
@@ -353,7 +373,7 @@ public class ServerRequestListener
                     String [] rest_of_name = new String[scopes.size () - i];
                     for( int j = 0; j < rest_of_name.length; j++ )
                     {
-                        rest_of_name[j] = (String)scopes.get( j+i );
+                        rest_of_name[j] = scopes.get( j+i );
                     }
 
                     request.setRemainingPOAName(rest_of_name);

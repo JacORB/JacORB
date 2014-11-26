@@ -3,7 +3,7 @@ package org.jacorb.test.harness;
 /*
  *        JacORB - a free Java ORB
  *
- *   Copyright (C) 1999-2012 Gerald Brose / The JacORB Team.
+ *   Copyright (C) 1999-2014 Gerald Brose / The JacORB Team.
  *
  *   This library is free software; you can redistribute it and/or
  *   modify it under the terms of the GNU Library General Public
@@ -34,12 +34,14 @@ import java.io.InputStreamReader;
 import java.io.LineNumberReader;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.net.Socket;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
+import java.util.Random;
 import java.util.logging.ConsoleHandler;
 import java.util.logging.Formatter;
 import java.util.logging.Handler;
@@ -48,7 +50,6 @@ import java.util.logging.LogRecord;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import junit.framework.AssertionFailedError;
-import org.apache.camel.test.AvailablePortFinder;
 import org.junit.Assert;
 import org.slf4j.Logger;
 
@@ -60,6 +61,19 @@ import org.slf4j.Logger;
 
 public class TestUtils
 {
+    private static Random portRandom = new Random();
+
+    /**
+     * The minimum server currentMinPort number for IPv4.
+     */
+    private static final int MIN_PORT = 1024;
+
+    /**
+     * The maximum server currentMinPort number for IPv4.
+     */
+    private static final int MAX_PORT = 65355;
+
+
     public static final boolean isIBM = (System.getProperty ("java.vendor").equals ("IBM Corporation"));
 
     public static final boolean is17 = (System.getProperty ("java.version").startsWith ("1.7"));
@@ -587,13 +601,93 @@ public class TestUtils
         return 0;
     }
 
-    public static int getNextAvailablePort()
+
+    /**
+     * Locate an available port.
+     *
+     * https://stackoverflow.com/questions/434718/sockets-discover-port-availability-using-java
+     * https://stackoverflow.com/questions/2675362/how-to-find-an-available-port
+     * </br>
+     * Only meant to be used by those tests that inherit from {@link FixedPortORBTestCase} or
+     * {@link FixedPortClientServerTestCase}
+     */
+    static int getNextAvailablePort()
     {
-        return AvailablePortFinder.getNextAvailable();
+        int result = MIN_PORT, port = 0, counter = 0;
+
+        // Only try so many times to find a usable port.
+        while ( counter < ( MAX_PORT - MIN_PORT ) )
+        {
+            // Attempt to find a usable port randomly.
+            port = randInt (MIN_PORT, MAX_PORT);
+            if ( available ( port ))
+            {
+                result = port;
+                break;
+            }
+            counter++;
+        }
+        getLogger().debug("Returning port " + port);
+
+        return result;
     }
 
-    public static int getNextAvailablePort(int x)
+    /**
+     * Returns a pseudo-random number between min and max, inclusive.
+     * The difference between min and max can be at most
+     * <code>Integer.MAX_VALUE - 1</code>.
+     *
+     * @param min Minimum value
+     * @param max Maximum value.  Must be greater than min.
+     * @return Integer between min and max, inclusive.
+     * @see java.util.Random#nextInt(int)
+     */
+    private static int randInt(int min, int max)
     {
-        return AvailablePortFinder.getNextAvailable(x);
+        // nextInt is normally exclusive of the top value,
+        // so add 1 to make it inclusive
+        int randomNum = portRandom.nextInt((max - min) + 1) + min;
+
+        return randomNum;
+    }
+
+    /**
+     * Attempt to determine if a socket is in use.
+     *
+     * @param port
+     * @return
+     */
+    private static boolean available(int port)
+    {
+        Socket s = null;
+        try
+        {
+            s = new Socket("localhost", port);
+            s.setReuseAddress(true);
+
+            // If the code makes it this far without an exception it means
+            // something is using the port and has responded.
+            getLogger().debug("Port " + port + " is not available");
+            return false;
+        }
+        catch (IOException e)
+        {
+            getLogger().debug("Port " + port + " is available");
+            return true;
+        }
+        finally
+        {
+            if (s != null)
+            {
+                try
+                {
+                    s.close();
+                }
+                catch (IOException e)
+                {
+                    throw new RuntimeException("Failed to close the socket", e);
+                }
+            }
+        }
     }
 }

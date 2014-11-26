@@ -1,7 +1,7 @@
 /*
  *        JacORB  - a free Java ORB
  *
- *   Copyright (C) 1997-2012 Gerald Brose / The JacORB Team.
+ *   Copyright (C) 1997-2014 Gerald Brose / The JacORB Team.
  *
  *   This library is free software; you can redistribute it and/or
  *   modify it under the terms of the GNU Library General Public
@@ -21,9 +21,13 @@
 package org.jacorb.test.ir;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Properties;
 import org.jacorb.test.harness.ClientServerSetup;
 import org.jacorb.test.harness.TestUtils;
+import org.jacorb.test.idl.AbstractIDLTestcase;
 import org.omg.CORBA.Repository;
 import org.omg.CORBA.RepositoryHelper;
 
@@ -32,9 +36,68 @@ import org.omg.CORBA.RepositoryHelper;
  */
 public class IFRServerSetup
 {
-    protected static IDLTestSetup idlSetup;
     protected ClientServerSetup clientServerSetup;
 
+    class InitIDL extends AbstractIDLTestcase
+    {
+        private final List<String> arguments = new ArrayList<String>();
+
+        public InitIDL (File file, String[] idlArgs) throws Exception
+        {
+            super (file);
+
+            initLogging();
+
+            if ( idlArgs != null)
+            {
+                arguments.addAll(Arrays.asList(idlArgs));
+            }
+        }
+
+        public void init () throws Exception
+        {
+            arguments.addAll (Arrays.asList(new String[] {"-ir", "-forceOverwrite", "-d", dirGeneration.getAbsolutePath(),
+                    idlFile.getAbsolutePath()
+            }));
+
+            runJacIDL(false);
+
+            compileGeneratedSources(false);
+        }
+
+        public File getDirectory ()
+        {
+            return dirCompilation;
+        }
+
+        @Override
+        protected String[] createJacIDLArgs()
+        {
+            String args[] = new String[arguments.size()];
+
+            for(int x=0; x<arguments.size(); ++x)
+            {
+                args[x] = arguments.get(x);
+            }
+
+            return args;
+        }
+    };
+
+    private static File getIDLFile(String fileName)
+    {
+        File result = new File(fileName);
+
+        if ( ! result.isAbsolute())
+        {
+            result = new File(TestUtils.testHome() + "/src/test/idl/" + fileName);
+        }
+        System.out.println("using IDL " + (result.isDirectory() ? "dir" : "file") + " " + result);
+
+        TestUtils.getLogger().debug("using IDL " + (result.isDirectory() ? "dir" : "file") + " " + result);
+
+        return result;
+    }
 
     public IFRServerSetup(String idlFile, String[] idlArgs, Properties optionalIRServerProps)
         throws Exception
@@ -45,7 +108,8 @@ public class IFRServerSetup
             additionalProps.putAll(optionalIRServerProps);
         }
 
-        idlSetup = new IDLTestSetup(idlFile, idlArgs);
+        InitIDL idlSetup = new InitIDL (getIDLFile(idlFile), idlArgs);
+        idlSetup.init();
 
         File dirGeneration = idlSetup.getDirectory();
         final File iorFile = File.createTempFile("IFR_IOR", ".ior");
@@ -70,7 +134,6 @@ public class IFRServerSetup
     public void tearDown() throws Exception
     {
         clientServerSetup.tearDown();
-        idlSetup.tearDown();
     }
 
     public Repository getRepository()

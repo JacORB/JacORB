@@ -4,7 +4,6 @@ import static org.junit.Assert.assertTrue;
 import java.util.Properties;
 import org.jacorb.orb.CDRInputStream;
 import org.jacorb.orb.CDROutputStream;
-import org.jacorb.orb.giop.CodeSet;
 import org.jacorb.test.harness.ORBTestCase;
 import org.junit.Assert;
 import org.junit.Test;
@@ -28,7 +27,7 @@ public class CodesetByteTest extends ORBTestCase
         String source = "\ud801\udc49";
         byte[] sourceMatch = { (byte) 0xf0, (byte) 0x90, (byte) 0x91, (byte) 0x89 };
         assertTrue(length(source) == sourceMatch.length);
-        assertTrue(length(source) == source.getBytes(CodeSet.getTCSDefault().getName()).length);
+        assertTrue(length(source) == source.getBytes(getORB().getTCSDefault().getName()).length);
 
         cdrOutputStream.write_string(source);
 

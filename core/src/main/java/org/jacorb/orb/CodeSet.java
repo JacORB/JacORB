@@ -1,7 +1,7 @@
 /*
  *        JacORB - a free Java ORB
  *
- *   Copyright (C) 1997-2012 Gerald Brose / The JacORB Team.
+ *   Copyright (C) 1997-2014 Gerald Brose / The JacORB Team.
  *
  *   This library is free software; you can redistribute it and/or
  *   modify it under the terms of the GNU Library General Public
@@ -18,96 +18,104 @@
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-package org.jacorb.orb.giop;
+package org.jacorb.orb;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
-import org.jacorb.config.Configuration;
-import org.jacorb.config.ConfigurationException;
-import org.jacorb.orb.CDRInputStream;
 import org.omg.CONV_FRAME.CodeSetComponent;
 import org.omg.CONV_FRAME.CodeSetComponentInfo;
-import org.omg.CONV_FRAME.CodeSetContext;
-import org.omg.CONV_FRAME.CodeSetContextHelper;
 import org.omg.CORBA.CODESET_INCOMPATIBLE;
 import org.omg.CORBA.MARSHAL;
-import org.omg.IOP.ServiceContext;
-import org.omg.IOP.TAG_CODE_SETS;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 /**
  * @author Gerald Brose
  */
 public class CodeSet
 {
+    static final String CODESET_PREFIX = "0x00000000";
+
     /**
      * <code>ISO8859_1</code> represents standard ASCII.
      * It is ISO 8859-1:1987; Latin Alphabet No. 1
      */
-    private static final CodeSet ISO8859_1_CODESET = new Iso8859_1CodeSet();
+    static final CodeSet ISO8859_1_CODESET = new Iso8859_1CodeSet();
 
     /**
      * <code>ISO8859_15</code> represents Latin Alphabet No. 9
      */
-    private static final CodeSet ISO8859_15_CODESET = new Iso8859_15CodeSet();
+    static final CodeSet ISO8859_15_CODESET = new Iso8859_15CodeSet();
 
     /**
      * <code>UTF8</code> represents UTF8 1-6 bytes for every character
      * X/Open UTF-8; UCS Transformation Format 8 (UTF-8)
      */
-    private static final CodeSet UTF8_CODESET = new Utf8CodeSet();
+    static final CodeSet UTF8_CODESET = new Utf8CodeSet();
 
     /**
      * <code>UTF16</code> represents extended UCS2, 2 or 4 bytes for every char
      * ISO/IEC 10646-1:1993; UTF-16, UCS Transformation Format 16-bit form
      */
-    private static final CodeSet UTF16_CODESET = new Utf16CodeSet();
+    static final CodeSet UTF16_CODESET = new Utf16CodeSet();
 
     /**
      * <code>UCS2</code> represents UCS2, 2bytes for every char
      * ISO/IEC 10646-1:1993; UTF-16, UCS Transformation Format 16-bit form
      */
-    private static final CodeSet UCS2_CODESET = new Ucs2CodeSet();
-
-    /**
-     * A 'null object' code set instance, used when no matching codeset is found.
-     */
-    private static final CodeSet NULL_CODE_SET = new CodeSet( -1, "NO SUCH CODESET" );
+    static final CodeSet UCS2_CODESET = new Ucs2CodeSet();
 
     /**
      * All of the encodings supported by Jacorb. These should be listed in order of preference.
      */
-    private static CodeSet[] KNOWN_ENCODINGS = { ISO8859_1_CODESET, ISO8859_15_CODESET, UTF16_CODESET, UTF8_CODESET , UCS2_CODESET };
-
+    static final CodeSet[] KNOWN_ENCODINGS = { ISO8859_1_CODESET, ISO8859_15_CODESET, UTF16_CODESET, UTF8_CODESET , UCS2_CODESET };
 
     /**
-     * <code>logger</code> is the static logger for Codeset.
+     * The default JVM platform encoding.
      */
-    private static Logger logger = LoggerFactory.getLogger("org.jacorb.codeset");
+    static final String DEFAULT_PLATFORM_ENCODING;
 
-    /** static flag that keeps track of the configuration status. */
-    private static boolean isConfigured = false;
+    /**
+     * A 'null object' code set instance, used when no matching codeset is found.
+     */
+    static final CodeSet NULL_CODE_SET = new CodeSet( -1, "NO SUCH CODESET" );
 
-    /** The native code set for character data. */
-    private static CodeSet nativeCodeSetChar = null; // will select from platform default;
 
-    /** The native code set for wide character data. */
-    private static CodeSet nativeCodeSetWchar = UTF16_CODESET;
 
-    /** The definition of locally supported code sets provided to clients. */
-    private volatile static CodeSetComponentInfo localCodeSetComponentInfo;
+    static
+    {
+        // See http://java.sun.com/j2se/1.4.1/docs/guide/intl/encoding.doc.html for
+        // a list of encodings and their canonical names.
+        //
+        // http://developer.java.sun.com/developer/bugParade/bugs/4772857.html
+        //
+        // This allows me to get the actual canonical name of the encoding as the
+        // System property may differ depending upon locale and OS.
+        OutputStreamWriter defaultStream = new OutputStreamWriter( new ByteArrayOutputStream() );
+        DEFAULT_PLATFORM_ENCODING = defaultStream.getEncoding();
+        try
+        {
+            defaultStream.close();
+        }
+        catch( IOException e )
+        {
+        }
+    }
+
 
     /** The standard CORBA identifier associated with this code set; used during negotiation. */
     private int id;
 
     /** The canonical name of this code set. */
-
     private String name;
 
 
+    /**
+     * Convert the CORBA standard id to a String name.
+     *
+     * @param cs
+     * @return
+     */
     public static String csName(int cs)
     {
         for (int i = 0; i < KNOWN_ENCODINGS.length; i++)
@@ -115,68 +123,6 @@ public class CodeSet
             if (cs == KNOWN_ENCODINGS[i].getId()) return KNOWN_ENCODINGS[i].getName();
         }
         return "Unknown TCS: 0x" + Integer.toHexString(cs);
-    }
-
-
-    /**
-     * <code>configure</code> configures the logger and codesets. It is
-     * synchronized as the configuration parameters are static and therefore
-     * we do not want to 'collide' with another init.
-     *
-     * This class does not implement configurable which ideally it should. However
-     * as this method is static it would conflict with it.
-     *
-     * @param config a <code>Configuration</code> value
-     * @exception ConfigurationException if an error occurs
-     */
-    public synchronized static void configure (Configuration config) throws ConfigurationException
-    {
-        // Only do this once per JVM.
-        if (!isConfigured)
-        {
-            String ncsc = config.getAttribute("jacorb.native_char_codeset", "");
-            String ncsw = config.getAttribute("jacorb.native_wchar_codeset", "");
-
-            if (ncsc != null && ! ("".equals (ncsc)))
-            {
-                CodeSet codeset = getCodeSet(ncsc);
-                if (codeset != NULL_CODE_SET)
-                {
-                    nativeCodeSetChar = codeset;
-                }
-                else if (logger.isErrorEnabled())
-                {
-                    logger.error("Cannot set default NCSC to " + ncsc);
-                }
-                logger.info ("Set default native char codeset to " + codeset);
-            }
-
-            if (ncsw != null && ! ("".equals (ncsw)))
-            {
-                CodeSet codeset = getCodeSet(ncsw);
-                if (codeset != NULL_CODE_SET)
-                {
-                    nativeCodeSetWchar = codeset;
-                }
-                else if (logger.isErrorEnabled())
-                {
-                    logger.error("Cannot set default NCSW to " + ncsw);
-                }
-                logger.info ("Set default native wchar codeset to " + codeset);
-          }
-
-            logger = config.getLogger("org.jacorb.codeset");
-            isConfigured = true;
-        }
-        else
-        {
-            if (logger.isDebugEnabled())
-            {
-                logger.debug
-                    ("CodeSet is already configured; further attempts to reconfigure will be ignored!");
-            }
-
-        }
     }
 
 
@@ -225,103 +171,15 @@ public class CodeSet
     }
 
 
-    public static CodeSet getTCSDefault()
+    public static CodeSet getNegotiatedCodeSet( ORB orb, CodeSetComponentInfo serverCodeSetInfo, boolean wide )
     {
-        if (nativeCodeSetChar != null) return nativeCodeSetChar;
-
-        String sysenc = getDefaultEncoding();
-        for (int i = 0; i < KNOWN_ENCODINGS.length; i++)
-        {
-            CodeSet codeset = KNOWN_ENCODINGS[i];
-            if (codeset.supportsCharacterData( /* wide */ false ) && sysenc.equals( codeset.getName() ))
-            {
-                return setNativeCodeSetChar( codeset );
-            }
-        }
-
-        // didn't match any supported char encodings, default to iso 8859-1
-
-        if (logger.isWarnEnabled())
-        {
-            logger.warn( "Warning - unknown codeset (" + sysenc + ") - defaulting to ISO-8859-1" );
-        }
-        return setNativeCodeSetChar( ISO8859_1_CODESET );
+        return getMatchingCodeSet( getSelectedComponent( orb.getLocalCodeSetComponentInfo(), wide ),
+                                   getSelectedComponent( serverCodeSetInfo, wide ),
+                                   wide );
     }
 
 
-    private static CodeSet setNativeCodeSetChar( CodeSet codeset )
-    {
-        nativeCodeSetChar = codeset;
-        if( logger.isDebugEnabled() )
-        {
-            logger.debug("TCS set to " + codeset.getName() );
-        }
-        return codeset;
-    }
-
-
-    private static String getDefaultEncoding()
-    {
-        // See http://java.sun.com/j2se/1.4.1/docs/guide/intl/encoding.doc.html for
-        // a list of encodings and their canonical names.
-        //
-        // http://developer.java.sun.com/developer/bugParade/bugs/4772857.html
-        //
-        // This allows me to get the actual canonical name of the encoding as the
-        // System property may differ depending upon locale and OS.
-        OutputStreamWriter defaultStream = new OutputStreamWriter( new ByteArrayOutputStream() );
-        String sysenc = defaultStream.getEncoding();
-        try
-            {
-                defaultStream.close();
-            }
-            catch( IOException e ) {}
-        return sysenc;
-    }
-
-
-    public static CodeSet getTCSWDefault()
-    {
-        return nativeCodeSetWchar;
-    }
-
-    public static CodeSetContext getCodeSetContext( ServiceContext[] contexts )
-    {
-        for( int i = 0; i < contexts.length; i++ )
-        {
-            if( contexts[i].context_id == TAG_CODE_SETS.value )
-            {
-                // TAG_CODE_SETS found, demarshall
-                CDRInputStream is = new CDRInputStream( contexts[i].context_data );
-                is.openEncapsulatedArray();
-
-                return CodeSetContextHelper.read( is );
-            }
-        }
-
-        return null;
-    }
-
-
-    public static CodeSetComponentInfo getLocalCodeSetComponentInfo()
-    {
-        if (localCodeSetComponentInfo == null)
-        {
-            synchronized (CodeSet.class)
-            {
-               if (localCodeSetComponentInfo == null)
-               {
-                  localCodeSetComponentInfo = new CodeSetComponentInfo();
-                  localCodeSetComponentInfo.ForCharData = createCodeSetComponent( /* wide */ false, getTCSDefault() );
-                  localCodeSetComponentInfo.ForWcharData = createCodeSetComponent( /* wide */ true, getTCSWDefault() );
-               }
-            }
-        }
-        return localCodeSetComponentInfo;
-    }
-
-
-    private static CodeSetComponent createCodeSetComponent( boolean wide, CodeSet nativeCodeSet )
+    static CodeSetComponent createCodeSetComponent( boolean wide, CodeSet nativeCodeSet )
     {
         ArrayList<CodeSet> codeSets = new ArrayList<CodeSet>();
         codeSets.add( nativeCodeSet );
@@ -339,14 +197,6 @@ public class CodeSet
             conversionSets[i] = codeSets.get(i).getId();
         }
         return new CodeSetComponent( nativeSet, conversionSets );
-    }
-
-
-    public static CodeSet getNegotiatedCodeSet( CodeSetComponentInfo serverCodeSetInfo, boolean wide )
-    {
-        return getMatchingCodeSet( getSelectedComponent( getLocalCodeSetComponentInfo(), wide ),
-                                   getSelectedComponent( serverCodeSetInfo, wide ),
-                                   wide );
     }
 
 
@@ -408,7 +258,6 @@ public class CodeSet
     }
 
 
-    private static final String CODESET_PREFIX = "0x00000000";
     private static String toCodeSetString( int code_set )
     {
         String rawString = Integer.toHexString( code_set );
@@ -607,7 +456,7 @@ public class CodeSet
      * @param giop_minor      the low-order byte of the giop version (must be &gt;= 2)
      * @return a string possibly containing wide characters.
      */
-    final protected String readGiop12WString( InputBuffer buffer, int size, int giop_minor )
+    final String readGiop12WString( InputBuffer buffer, int size, int giop_minor )
     {
         char buf[] = new char[ size ];
         int endPos = buffer.get_pos() + size;
@@ -635,7 +484,7 @@ public class CodeSet
         /**
          * Only used for derived codesets
          */
-        protected Iso8859_1CodeSet(int i, String name)
+        Iso8859_1CodeSet(int i, String name)
         {
             super( i, name);
         }
@@ -835,7 +684,7 @@ public class CodeSet
     static abstract private class TwoByteCodeSet extends CodeSet
     {
 
-        protected TwoByteCodeSet( int id, String name )
+        TwoByteCodeSet( int id, String name )
         {
             super( id, name );
         }

@@ -5,7 +5,7 @@ import java.util.Properties;
 import org.jacorb.test.bugs.bugjac670.GSLoadBalancer;
 import org.jacorb.test.bugs.bugjac670.GSLoadBalancerHelper;
 import org.jacorb.test.harness.ClientServerSetup;
-import org.jacorb.test.harness.ClientServerTestCase;
+import org.jacorb.test.harness.FixedPortClientServerTestCase;
 import org.jacorb.test.harness.TestUtils;
 import org.junit.Assume;
 import org.junit.Before;
@@ -14,12 +14,12 @@ import org.junit.Test;
 import org.omg.CORBA.ORB;
 import org.omg.PortableServer.POA;
 
-public class Bug964Test extends ClientServerTestCase
+public class Bug964Test extends FixedPortClientServerTestCase
 {
     private GSLoadBalancer server;
 
-    private static String remotePort = Integer.toString(TestUtils.getNextAvailablePort());
-    private static String localPort = Integer.toString(TestUtils.getNextAvailablePort(49200));
+    private static String remotePort = Integer.toString(getNextAvailablePort());
+    private static String localPort = Integer.toString(getNextAvailablePort());
 
     private final static String remoteCorbaloc = "corbaloc::localhost:" + remotePort + "/GSLBService";
     private final static String localCorbaloc = "corbaloc::localhost:" + localPort + "/GSLBService";

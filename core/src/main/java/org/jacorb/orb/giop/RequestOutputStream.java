@@ -3,7 +3,7 @@ package org.jacorb.orb.giop;
 /*
  *        JacORB - a free Java ORB
  *
- *   Copyright (C) 1997-2012 Gerald Brose / The JacORB Team.
+ *   Copyright (C) 1997-2014 Gerald Brose / The JacORB Team.
  *
  *   This library is free software; you can redistribute it and/or
  *   modify it under the terms of the GNU Library General Public
@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import org.jacorb.orb.CDROutputStream;
+import org.jacorb.orb.CodeSet;
 import org.jacorb.orb.miop.MIOPProfile;
 import org.jacorb.orb.miop.MulticastUtil;
 import org.jacorb.util.Time;
