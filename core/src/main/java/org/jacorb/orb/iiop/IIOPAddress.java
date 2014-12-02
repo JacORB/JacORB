@@ -270,7 +270,7 @@ public class IIOPAddress extends ProtocolAddressBase
                 result = forceDNSLookup ? pseudo_host.getCanonicalHostName() : pseudo_host.getHostName();
             }
         }
-        return hideZoneID(result);
+        return processZoneID(result);
     }
 
 
@@ -292,18 +292,23 @@ public class IIOPAddress extends ProtocolAddressBase
 
         if (!isWildcard())
         {
-            return hideZoneID(dnsEnabled ? host.getCanonicalHostName() : host.getHostAddress());
+            return processZoneID(dnsEnabled ? host.getCanonicalHostName() : host.getHostAddress());
         }
         else if (pseudo_host != null)
         {
-            return hideZoneID(dnsEnabled ? pseudo_host.getCanonicalHostName() : pseudo_host.getHostAddress());
+            return processZoneID(dnsEnabled ? pseudo_host.getCanonicalHostName() : pseudo_host.getHostAddress());
         }
 
         // should not get here
         return null;
     }
 
-    private String hideZoneID (String source)
+    /**
+     * Hide the zoneID if hideZoneID is true
+     * @param source
+     * @return
+     */
+    private String processZoneID (String source)
     {
         if (hideZoneID)
         {
@@ -389,7 +394,7 @@ public class IIOPAddress extends ProtocolAddressBase
                     source_name = source_name.substring(0, slash_delim);
                 }
             }
-            source_name = hideZoneID(source_name);
+            source_name = processZoneID(source_name);
         }
     }
 
