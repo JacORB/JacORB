@@ -49,7 +49,6 @@ import org.jacorb.orb.portableInterceptor.InterceptorManager;
 import org.jacorb.orb.portableInterceptor.NullClientInterceptorHandler;
 import org.jacorb.orb.portableInterceptor.ServerInterceptorIterator;
 import org.jacorb.orb.portableInterceptor.ServerRequestInfoImpl;
-import org.jacorb.orb.util.CorbaLoc;
 import org.jacorb.poa.util.POAUtil;
 import org.jacorb.util.ObjectUtil;
 import org.jacorb.util.SelectorManager;
