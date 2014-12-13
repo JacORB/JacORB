@@ -1,21 +1,19 @@
 /*
- *        JacORB - a free Java ORB
+ * JacORB - a free Java ORB
  *
- *   Copyright (C) 1997-2014 Gerald Brose / The JacORB Team.
+ * Copyright (C) 1997-2014 Gerald Brose / The JacORB Team.
  *
- *   This library is free software; you can redistribute it and/or
- *   modify it under the terms of the GNU Library General Public
- *   License as published by the Free Software Foundation; either
- *   version 2 of the License, or (at your option) any later version.
+ * This library is free software; you can redistribute it and/or modify it under the terms of the
+ * GNU Library General Public License as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
  *
- *   This library is distributed in the hope that it will be useful,
- *   but WITHOUT ANY WARRANTY; without even the implied warranty of
- *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- *   Library General Public License for more details.
+ * This library is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
+ * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Library General Public License for more details.
  *
- *   You should have received a copy of the GNU Library General Public
- *   License along with this library; if not, write to the Free
- *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ * You should have received a copy of the GNU Library General Public License along with this
+ * library; if not, write to the Free Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139,
+ * USA.
  */
 
 package org.jacorb.orb.util;
@@ -95,13 +93,13 @@ public class CorbaLoc
 
     private void defaultKeyString(String defaultKey)
     {
-        if( keyString == null )
+        if (keyString == null)
         {
             keyString = defaultKey;
         }
         else
         {
-            throw new IllegalStateException("KeyString not empty, cannot default to " + defaultKey );
+            throw new IllegalStateException("KeyString not empty, cannot default to " + defaultKey);
         }
     }
 
@@ -132,21 +130,21 @@ public class CorbaLoc
      */
     private void parse(String addr)
     {
-        if( addr == null || !addr.startsWith("corbaloc:"))
+        if (addr == null || !addr.startsWith("corbaloc:"))
         {
             throw new IllegalArgumentException("URL must start with \'corbaloc:\'");
         }
 
         String sb;
-        boolean isMIOP  = (addr.indexOf ("miop") != -1);
-        if (isMIOP && addr.indexOf (",iiop") != -1)
+        boolean isMIOP = (addr.indexOf("miop") != -1);
+        if (isMIOP && addr.indexOf(",iiop") != -1)
         {
             throw new IllegalArgumentException("MIOP Profile does not support Gateway Profiles.");
         }
 
-        if( ! isMIOP && addr.indexOf('/') == -1 )
+        if (!isMIOP && addr.indexOf('/') == -1)
         {
-            sb = addr.substring( addr.indexOf(':')+1 );
+            sb = addr.substring(addr.indexOf(':') + 1);
             if (addr.startsWith("corbaloc:rir:"))
             {
                 is_rir = true;
@@ -161,18 +159,35 @@ public class CorbaLoc
         }
         else
         {
-            sb = addr.substring( addr.indexOf(':')+1, isMIOP ? addr.length () : addr.indexOf('/') );
-            keyString = addr.substring(  addr.indexOf('/')+1 );
-            key = parseKey( keyString );
+            String iiopKey;
+            int startIndex;
+            int endIndex;
+            // MIOP plus another e.g. IIOP profile. Scan IIOP profile for key.
+            if (isMIOP && addr.indexOf(';') != -1)
+            {
+                iiopKey = addr.substring(addr.indexOf(';'));
+                startIndex = 1;
+                endIndex = iiopKey.indexOf('/');
+            }
+            else
+            {
+                iiopKey = addr;
+                startIndex = iiopKey.indexOf(':') + 1;
+                endIndex = (isMIOP ? iiopKey.length() : iiopKey.indexOf('/'));
+            }
+
+            sb = iiopKey.substring(startIndex, endIndex);
+            keyString = iiopKey.substring(iiopKey.indexOf('/') + 1);
+            key = parseKey(keyString);
         }
 
         // ! MIOP as we don't currently support gateway profiles.
-        if( ! isMIOP && sb.indexOf(',') > 0 )
+        if (!isMIOP && sb.indexOf(',') > 0)
         {
-            StringTokenizer tokenizer = new StringTokenizer( sb, "," );
+            StringTokenizer tokenizer = new StringTokenizer(sb, ",");
             profileList = new Profile[tokenizer.countTokens()];
             int pIndex = 0;
-            for( int i = 0; i < profileList.length; i++ )
+            for (int i = 0; i < profileList.length; i++)
             {
                 Profile p = parseAddress(tokenizer.nextToken());
                 if (p == null)
@@ -191,7 +206,7 @@ public class CorbaLoc
         }
         else
         {
-            profileList = new Profile[]{ parseAddress(sb) };
+            profileList = new Profile[] { parseAddress(sb) };
         }
 
         bodyString = sb;
@@ -202,11 +217,10 @@ public class CorbaLoc
         int colon = addr.indexOf(':');
         if (colon == -1)
         {
-            throw new IllegalArgumentException(
-                "Illegal object address format: " + addr);
+            throw new IllegalArgumentException("Illegal object address format: " + addr);
         }
 
-        if ("rir:".equals (addr))
+        if ("rir:".equals(addr))
         {
             is_rir = true;
             /* resolve initials references protocol */
@@ -214,18 +228,14 @@ public class CorbaLoc
         }
 
         Profile result = null;
-        if (orb == null
-            && (colon == 0
-                || addr.startsWith("iiop:")
-                || addr.startsWith("ssliop:")))
+        if (orb == null && (colon == 0 || addr.startsWith("iiop:") || addr.startsWith("ssliop:")))
         {
             result = new IIOPProfile(addr);
         }
         else if (orb != null)
         {
             List<Factories> factories = orb.getTransportManager().getFactoriesList();
-            for (Iterator<Factories> i = factories.iterator();
-                 result == null && i.hasNext();)
+            for (Iterator<Factories> i = factories.iterator(); result == null && i.hasNext();)
             {
                 org.omg.ETF.Factories f = i.next();
                 result = f.decode_corbaloc(addr);
@@ -233,49 +243,40 @@ public class CorbaLoc
         }
         if (result == null)
         {
-            throw new IllegalArgumentException(
-                "Unknown protocol in object address format: " + addr);
+            throw new IllegalArgumentException("Unknown protocol in object address format: " + addr);
         }
         return result;
     }
 
     private static boolean legalChar(char c)
     {
-        if(( c >= '0' && c <= '9') ||
-           ( c >= 'a' && c <= 'z') ||
-           ( c >= 'A' && c <= 'Z' ))
+        if ((c >= '0' && c <= '9') || (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z'))
         {
             return true;
         }
-        return (c == ';' || c == '/' ||c == ':' || c == '?' ||
-                c == '@' || c == '&' ||c == '=' || c == '+' ||
-                c == '$' || c == ',' ||c == '_' || c == '.' ||
-                c == '!' || c == '~' ||c == '*' || c == '\'' ||
-                c == '-' || c == '(' || c == ')' );
+        return (c == ';' || c == '/' || c == ':' || c == '?' || c == '@' || c == '&' || c == '=' || c == '+'
+                || c == '$' || c == ',' || c == '_' || c == '.' || c == '!' || c == '~' || c == '*' || c == '\''
+                || c == '-' || c == '(' || c == ')');
     }
 
     private static byte hexValue(char c)
     {
-        return (byte)((c >= 'a') ? (10 + c - 'a') :
-                      ((c >= 'A') ? (10 + c - 'A') : (c - '0'))
-                      );
+        return (byte) ((c >= 'a') ? (10 + c - 'a') : ((c >= 'A') ? (10 + c - 'A') : (c - '0')));
     }
 
     private static char hexDigit(byte b)
     {
-        if( (b & 0xf0) != 0 )
+        if ((b & 0xf0) != 0)
         {
             throw new IllegalArgumentException("Hex digit out of range " + b);
         }
 
-        return (char)( b < 10 ? '0' + (char)b :  'A' + (char)b - 10 ) ;
+        return (char) (b < 10 ? '0' + (char) b : 'A' + (char) b - 10);
     }
 
     private static boolean isHex(char c)
     {
-        return ( ( c >= '0' && c <= '9') ||
-                 ( c >= 'a' && c <='f')  ||
-                 ( c >= 'A' && c <='F'));
+        return ((c >= '0' && c <= '9') || (c >= 'a' && c <= 'f') || (c >= 'A' && c <= 'F'));
     }
 
     public static byte[] parseKey(String s)
@@ -283,16 +284,16 @@ public class CorbaLoc
         char[] tmp = s.toCharArray();
         int count = tmp.length;
 
-        for( int i = 0; i < tmp.length; i++ )
+        for (int i = 0; i < tmp.length; i++)
         {
-            if( !legalChar(tmp[i]) )
+            if (!legalChar(tmp[i]))
             {
-                if( tmp[i] == '%' )
+                if (tmp[i] == '%')
                 {
-                    if( isHex(tmp[i+1]) && isHex(tmp[i+2]))
+                    if (isHex(tmp[i + 1]) && isHex(tmp[i + 2]))
                     {
                         count -= 2;
-                        i+=2;
+                        i += 2;
                     }
                     else
                     {
@@ -309,15 +310,15 @@ public class CorbaLoc
         byte[] result = new byte[count];
         int idx = 0;
 
-        for( int i = 0; i < count; i++ )
+        for (int i = 0; i < count; i++)
         {
-            if( legalChar( tmp[idx]))
+            if (legalChar(tmp[idx]))
             {
-                result[i] = (byte)tmp[idx++];
+                result[i] = (byte) tmp[idx++];
             }
             else
             {
-                result[i] = (byte)( (hexValue(tmp[idx+1]))<<4 | hexValue(tmp[idx+2]) );
+                result[i] = (byte) ((hexValue(tmp[idx + 1])) << 4 | hexValue(tmp[idx + 2]));
                 idx += 3;
             }
         }
@@ -328,69 +329,67 @@ public class CorbaLoc
     {
         StringBuffer buffer = new StringBuffer();
 
-        for( int i = 0; i < key.length; i++ )
+        for (int i = 0; i < key.length; i++)
         {
-            if( !legalChar((char)key[i]) )
+            if (!legalChar((char) key[i]))
             {
-                buffer.append( '%' );
+                buffer.append('%');
                 // Mask the bytes before shift to ensure 10001001 doesn't get
                 // shifted to 11111000 but 00001000 (linden java faq).
-                buffer.append( hexDigit( (byte)((key[i] & 0xff) >> 4 )));
-                buffer.append( hexDigit( (byte)( key[i] & 0x0f )));
+                buffer.append(hexDigit((byte) ((key[i] & 0xff) >> 4)));
+                buffer.append(hexDigit((byte) (key[i] & 0x0f)));
             }
             else
             {
-                buffer.append( (char)key[i]);
+                buffer.append((char) key[i]);
             }
         }
         return buffer.toString();
     }
 
-    public static String generateCorbaloc (org.omg.CORBA.ORB orb, org.omg.CORBA.Object ref)
+    public static String generateCorbaloc(org.omg.CORBA.ORB orb, org.omg.CORBA.Object ref)
     {
-        ParsedIOR pior = new ParsedIOR((org.jacorb.orb.ORB)orb, orb.object_to_string (ref));
+        ParsedIOR pior = new ParsedIOR((org.jacorb.orb.ORB) orb, orb.object_to_string(ref));
 
         Profile profile = pior.getEffectiveProfile();
 
         if (profile instanceof IIOPProfile)
         {
-            return createCorbalocForIIOPProfile ((IIOPProfile)profile);
+            return createCorbalocForIIOPProfile((IIOPProfile) profile);
         }
         else if (profile instanceof MIOPProfile)
         {
-            return createCorbalocForMIOPProfile ((MIOPProfile)profile);
+            return createCorbalocForMIOPProfile((MIOPProfile) profile);
         }
         else
         {
-            throw new IllegalArgumentException ("Profile type not suported: tag number=" +
-                                                profile.tag ());
+            throw new IllegalArgumentException("Profile type not suported: tag number=" + profile.tag());
         }
     }
-
 
     /**
      * Create a corbaloc string for a MIOP profile.
      *
-     * @param profile the MIOP profile
+     * @param profile
+     *            the MIOP profile
      * @return the created crobaloc string
      */
-    private static String createCorbalocForMIOPProfile (MIOPProfile profile)
+    private static String createCorbalocForMIOPProfile(MIOPProfile profile)
     {
-        StringBuffer sb = new StringBuffer ("miop:");
+        StringBuffer sb = new StringBuffer("miop:");
 
-        sb.append (createString (profile.version ()));
-        sb.append ("@");
-        sb.append (createString (profile.getTagGroup ()));
-        sb.append ("/");
-        sb.append (createString (profile.getUIPMCProfile ()));
+        sb.append(createString(profile.version()));
+        sb.append("@");
+        sb.append(createString(profile.getTagGroup()));
+        sb.append("/");
+        sb.append(createString(profile.getUIPMCProfile()));
 
         // group's IIOP component
-        sb.append (";");
-        sb.append (createCorbalocForIIOPProfile (profile.getGroupIIOPProfile ()));
+        sb.append(";");
+        sb.append(createCorbalocForIIOPProfile(profile.getGroupIIOPProfile()));
 
-        return sb.toString ();
+        return sb.toString();
     }
-
 
     /**
      * Returns a String version of the tag_group.
@@ -398,22 +397,21 @@ public class CorbaLoc
      * @param groupInfo
      * @return the created corbaloc string
      */
-    private static String createString (TagGroupTaggedComponent groupInfo)
+    private static String createString(TagGroupTaggedComponent groupInfo)
     {
-        StringBuffer sb = new StringBuffer ();
-        sb.append (createString (groupInfo.group_version));
-        sb.append ("-");
-        sb.append (groupInfo.group_domain_id);
-        sb.append ("-");
-        sb.append (groupInfo.object_group_id);
+        StringBuffer sb = new StringBuffer();
+        sb.append(createString(groupInfo.group_version));
+        sb.append("-");
+        sb.append(groupInfo.group_domain_id);
+        sb.append("-");
+        sb.append(groupInfo.object_group_id);
         if (groupInfo.object_group_ref_version != 0)
         {
-            sb.append ("-");
-            sb.append (groupInfo.object_group_ref_version);
+            sb.append("-");
+            sb.append(groupInfo.object_group_ref_version);
         }
-        return sb.toString ();
+        return sb.toString();
     }
-
 
     /**
      * Returns a String version of the uipmc profile address.
@@ -421,15 +419,14 @@ public class CorbaLoc
      * @param uipmc
      * @return the created crobaloc string
      */
-    private static String createString (UIPMC_ProfileBody uipmc)
+    private static String createString(UIPMC_ProfileBody uipmc)
     {
-        StringBuffer sb = new StringBuffer ();
-        sb.append (uipmc.the_address);
-        sb.append (":");
-        sb.append (uipmc.the_port);
-        return sb.toString ();
+        StringBuffer sb = new StringBuffer();
+        sb.append(uipmc.the_address);
+        sb.append(":");
+        sb.append(uipmc.the_port);
+        return sb.toString();
     }
-
 
     /**
      * Returns a String version of the Version.
@@ -437,23 +434,23 @@ public class CorbaLoc
      * @param version
      * @return the created corbaloc string
      */
-    private static String createString (Version version)
+    private static String createString(Version version)
     {
-        StringBuffer sb = new StringBuffer ();
-        sb.append (version.major);
-        sb.append (".");
-        sb.append (version.minor);
-        return sb.toString ();
+        StringBuffer sb = new StringBuffer();
+        sb.append(version.major);
+        sb.append(".");
+        sb.append(version.minor);
+        return sb.toString();
     }
 
-    public static String generateCorbalocForMultiIIOPProfiles (org.omg.CORBA.ORB orb, org.omg.CORBA.Object ref)
+    public static String generateCorbalocForMultiIIOPProfiles(org.omg.CORBA.ORB orb, org.omg.CORBA.Object ref)
     {
-        return generateCorbalocForMultiIIOPProfiles (orb, orb.object_to_string (ref));
+        return generateCorbalocForMultiIIOPProfiles(orb, orb.object_to_string(ref));
     }
 
-    public static String generateCorbalocForMultiIIOPProfiles (org.omg.CORBA.ORB orb, String ref)
+    public static String generateCorbalocForMultiIIOPProfiles(org.omg.CORBA.ORB orb, String ref)
     {
-        ParsedIOR pior = new ParsedIOR((org.jacorb.orb.ORB)orb, ref);
+        ParsedIOR pior = new ParsedIOR((org.jacorb.orb.ORB) orb, ref);
 
         String result = null;
         String object_key = null;
@@ -464,7 +461,7 @@ public class CorbaLoc
 
             if (profile instanceof IIOPProfile)
             {
-                String s = createCorbalocForIIOPProfile ((IIOPProfile)profile, true);
+                String s = createCorbalocForIIOPProfile((IIOPProfile) profile, true);
                 if (result != null)
                 {
                     result += "," + s;
@@ -472,57 +469,56 @@ public class CorbaLoc
                 else
                 {
                     result = "corbaloc:" + s;
-                    object_key = parseKey (profile.get_object_key ());
+                    object_key = parseKey(profile.get_object_key());
                 }
 
             }
         }
         if (result != null)
         {
-            result +=  "/" + object_key;
+            result += "/" + object_key;
         }
 
         return result;
     }
 
-    public static String createCorbalocForIIOPProfile (IIOPProfile profile)
+    public static String createCorbalocForIIOPProfile(IIOPProfile profile)
     {
-        return createCorbalocForIIOPProfile (profile, false).concat
-                ('/' + parseKey (profile.get_object_key ()));
+        return createCorbalocForIIOPProfile(profile, false).concat('/' + parseKey(profile.get_object_key()));
     }
 
     /**
      * Returns a iiop list ; note this function does not add the object_key.
+     *
      * @param profile
-     * @param addAlternates boolean whether to add alternate profiles to this corbaloc
+     * @param addAlternates
+     *            boolean whether to add alternate profiles to this corbaloc
      * @return
      */
-    private static String createCorbalocForIIOPProfile (IIOPProfile profile, boolean addAlternates)
+    private static String createCorbalocForIIOPProfile(IIOPProfile profile, boolean addAlternates)
     {
-        StringBuffer sb = new StringBuffer ("iiop:");
-        sb.append (createString (profile.version ()));
-        sb.append ("@");
-        sb.append (((IIOPAddress)profile.getAddress ()).getOriginalHost());
-        sb.append (":");
-        sb.append (((IIOPAddress)profile.getAddress ()).getPort());
+        StringBuffer sb = new StringBuffer("iiop:");
+        sb.append(createString(profile.version()));
+        sb.append("@");
+        sb.append(wrapIPv6(((IIOPAddress) profile.getAddress()).getOriginalHost()));
+        sb.append(":");
+        sb.append(((IIOPAddress) profile.getAddress()).getPort());
 
-        for (Iterator<IIOPAddress> iter = profile.getAlternateAddresses().iterator();
-                addAlternates && iter.hasNext() ; )
+        for (Iterator<IIOPAddress> iter = profile.getAlternateAddresses().iterator(); addAlternates && iter.hasNext();)
         {
             IIOPAddress address = iter.next();
             sb.append(",iiop:");
-            sb.append (createString (profile.version ()));
-            sb.append ("@");
-            sb.append (wrapIPv6(address.getOriginalHost()));
-            sb.append (":");
-            sb.append (address.getPort());
+            sb.append(createString(profile.version()));
+            sb.append("@");
+            sb.append(wrapIPv6(address.getOriginalHost()));
+            sb.append(":");
+            sb.append(address.getPort());
         }
 
-        return sb.toString ();
+        return sb.toString();
     }
 
-
-    private static String wrapIPv6 (String addr)
+    private static String wrapIPv6(String addr)
     {
         String result = addr;
 
@@ -546,11 +542,11 @@ public class CorbaLoc
 
     public static void main(String[] args)
     {
-        String [] noarg = new String[]{};
-        ORB orb = (org.jacorb.orb.ORB)ORB.init(noarg,null);
-        for( int i = 0; i < args.length; i++ )
+        String[] noarg = new String[] {};
+        ORB orb = (org.jacorb.orb.ORB) ORB.init(noarg, null);
+        for (int i = 0; i < args.length; i++)
         {
-            System.out.println( new CorbaLoc(orb, args[i] ).toString());
+            System.out.println(new CorbaLoc(orb, args[i]).toString());
         }
     }
 }

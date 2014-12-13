@@ -252,9 +252,9 @@ public class IIOPListener
                 logger.debug ("IIOPAddress using port " + address.getPort());
             }
 
-            if (address.getHostInetAddress() == null)
+            if (address.getConfiguredHost() == null)
             {
-                address.setHostInetAddress (serverAddress.getHostInetAddress());
+                address.setHostInetAddress (serverAddress.getConfiguredHost());
             }
             else
             {
@@ -294,9 +294,9 @@ public class IIOPListener
                 logger.debug ("IIOPAddress using ssl port " + sslAddress.getPort());
             }
 
-            if (sslAddress.getHostInetAddress() == null)
+            if (sslAddress.getConfiguredHost() == null)
             {
-                sslAddress.setHostInetAddress (serverAddress.getHostInetAddress());
+                sslAddress.setHostInetAddress (serverAddress.getConfiguredHost());
             }
             else
             {

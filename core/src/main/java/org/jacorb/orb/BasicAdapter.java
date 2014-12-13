@@ -274,7 +274,7 @@ public class BasicAdapter
         if (l != null)
         {
             IIOPProfile profile = (IIOPProfile)l.endpoint();
-            return ((IIOPAddress)profile.getAddress()).getHostname();
+            return ((IIOPAddress)profile.getAddress()).getHostName();
         }
 
         throw new RuntimeException("Cannot find server address for non-IIOP transport");

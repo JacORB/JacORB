@@ -21,7 +21,7 @@ public class MIOPTest extends ClientServerTestCase
     public static void beforeClassSetUp() throws Exception
     {
         Assume.assumeFalse(TestUtils.isSSLEnabled);
-        
+
         Properties props = new Properties ();
         props.setProperty
             ("jacorb.transport.factories", "org.jacorb.orb.iiop.IIOPFactories,org.jacorb.orb.miop.MIOPFactories");

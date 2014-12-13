@@ -66,8 +66,6 @@ public class IIOPProfile
     private IIOPAddress  primaryAddress = null;
     private SSL ssl = null;
     private boolean isSSLSet;
-    private boolean dnsEnabled = false;
-    private boolean forceDNSLookup = true;
 
     /** the following is used as a bit mask to check if any of these options are set */
     private static final int MINIMUM_OPTIONS = Integrity.value | Confidentiality.value | DetectReplay.value |
@@ -131,10 +129,6 @@ public class IIOPProfile
         super.configure(config);
 
         logger = configuration.getLogger("org.jacorb.iiop.profile");
-
-        dnsEnabled =
-            configuration.getAttributeAsBoolean("jacorb.dns.enable", false);
-        forceDNSLookup = configuration.getAttributeAsBoolean("jacorb.dns.force_lookup", true);
 
         if (primaryAddress != null)
         {
@@ -378,55 +372,30 @@ public class IIOPProfile
         {
             if (!addr.isLoopbackAddress() && !addr.isLinkLocalAddress())
             {
-                /*
-                 * The fix inserted here is to make sure the address
-                 * that is used to determine whether a network address
-                 * is the primary address so that it will not be added
-                 * to the IOR as an alternate address.  This fix is
-                 * needed here because the IIOPAddress.getIP() actually
-                 * returns the hostname instead of the actual IP when
-                 * the property jacorb.jacorb.dns.enable is turned on.
-                 * Quynh N.
-                 */
-                String addrHostAddress;
-                if (!dnsEnabled)
+                IIOPAddress iaddr = new IIOPAddress();
+                iaddr.configure (configuration);
+                String ipaddr = addr.toString().substring(1);
+                if (addr instanceof Inet4Address)
                 {
-                    addrHostAddress = addr.getHostAddress();
+                    iaddr.fromString (ipaddr + ":"
+                            + primaryAddress.getPort());
                 }
-                else
+                else if (addr instanceof Inet6Address)
                 {
-                    addrHostAddress = forceDNSLookup ? addr.getCanonicalHostName() : addr.getHostName();
+                    iaddr.fromString (
+                            "[" + ipaddr + "]:"
+                                    + primaryAddress.getPort()
+                            );
                 }
-                if (! addrHostAddress.equals(primaryIP))
-                {
-                    IIOPAddress iaddr = new IIOPAddress();
-                    iaddr.configure (configuration);
-                    String ipaddr = addr.toString().substring(1);
-                    if (addr instanceof Inet4Address)
-                    {
-                        iaddr.fromString (ipaddr + ":"
-                                          + primaryAddress.getPort());
-                    }
-                    else if (addr instanceof Inet6Address)
-                    {
-                        String ipv6 = ipaddr;
-                        int zoneid_delim = ipv6.indexOf('%');
-                        if (zoneid_delim > 0)
-                        {
-                            ipv6 = ipv6.substring(0, zoneid_delim);
-                        }
-                        iaddr.fromString (
-                            "[" + ipv6 + "]:"
-                            + primaryAddress.getPort()
-                                         );
-                    }
 
+                if (! iaddr.getIP().equals(primaryIP))
+                {
                     if (logger.isDebugEnabled())
                     {
-                        logger.debug("components.addComponent: adding addrHostAddress <" + addrHostAddress + "> as TAG_ALTERNATE_IIOP_ADDRESS" );
+                        logger.debug("components.addComponent: adding addrHostAddress <" + iaddr.getHostName() + "> as TAG_ALTERNATE_IIOP_ADDRESS" );
                     }
                     components.addComponent (TAG_ALTERNATE_IIOP_ADDRESS.value,
-                                             iaddr.toCDR());
+                            iaddr.toCDR());
                 }
             }
         }
@@ -492,7 +461,7 @@ public class IIOPProfile
     {
         IIOPProfile result = (IIOPProfile)super.clone();  // bitwise copy
 
-        result.primaryAddress = new IIOPAddress(primaryAddress.getHostname(),
+        result.primaryAddress = new IIOPAddress(primaryAddress.getHostName(),
                                                 primaryAddress.getPort());
 
         if (configuration != null)
@@ -765,17 +734,17 @@ public class IIOPProfile
 
         if (getSSL() == null)
         {
-            result.add(new ListenPoint(primaryAddress.getHostname(), (short)primaryAddress.getPort()));
+            result.add(new ListenPoint(primaryAddress.getHostName(), (short)primaryAddress.getPort()));
         }
         else
         {
             if (getSSLPort() == 0)
             {
-                result.add(new ListenPoint(primaryAddress.getHostname(), (short)primaryAddress.getPort()));
+                result.add(new ListenPoint(primaryAddress.getHostName(), (short)primaryAddress.getPort()));
             }
             else
             {
-                result.add(new ListenPoint(primaryAddress.getHostname(), (short)getSSLPort()));
+                result.add(new ListenPoint(primaryAddress.getHostName(), (short)getSSLPort()));
             }
         }
 
@@ -784,7 +753,7 @@ public class IIOPProfile
         while(it.hasNext())
         {
             IIOPAddress addr = it.next();
-            result.add(new ListenPoint(addr.getHostname(), (short)addr.getPort()));
+            result.add(new ListenPoint(addr.getHostName(), (short)addr.getPort()));
         }
 
         return result;
@@ -803,7 +772,7 @@ public class IIOPProfile
 
         try
         {
-           address = new IIOPAddress(primaryAddress.getHostname(), getSSLPort());
+           address = new IIOPAddress(primaryAddress.getHostName(), getSSLPort());
            address.configure (configuration);
 
            result = new IIOPProfile(address, objectKey, configuration.getORB().getGIOPMinorVersion());
