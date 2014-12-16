@@ -23,15 +23,15 @@ main( int argc, char *argv[] )
             orb->create_policy (BiDirPolicy::BIDIRECTIONAL_POLICY_TYPE,
                                 pol);
 
-        policies[1] = 
+        policies[1] =
             poa->create_id_assignment_policy(PortableServer::SYSTEM_ID);
 
-        policies[2] = 
+        policies[2] =
             poa->create_implicit_activation_policy( PortableServer::IMPLICIT_ACTIVATION );
 
-        policies[3] = 
+        policies[3] =
             poa->create_lifespan_policy(PortableServer::TRANSIENT);
-          
+
         PortableServer::POAManager_var mgr = poa->the_POAManager();
 
         // Create POA as child of RootPOA with the above policies.  This POA
@@ -53,7 +53,6 @@ main( int argc, char *argv[] )
         // Activate POA Manager
         mgr->activate();
 
-
         // Create an object
         CallbackServer_i servant;
 
@@ -66,7 +65,7 @@ main( int argc, char *argv[] )
         iorFile << str.in() << endl;
         iorFile.close();
 
-        cout << "IOR written to file IOR" << endl;   
+        cout << "IOR written to file IOR" << endl;
 
         // Accept requests
         orb->run();

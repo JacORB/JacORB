@@ -18,7 +18,8 @@ main( int argc, char *argv[] )
         }
 
         // Narrow
-        CallbackServer_var cb_server = CallbackServer::_narrow( obj.in() );
+        test::interop::bidir::CallbackServer_var cb_server =
+          test::interop::bidir::CallbackServer::_narrow( obj.in() );
         if( CORBA::is_nil( cb_server.in() ) ) {
             cerr << "Argument is not a CallbackServer reference" << endl;
             throw 0;
@@ -38,15 +39,15 @@ main( int argc, char *argv[] )
             orb->create_policy (BiDirPolicy::BIDIRECTIONAL_POLICY_TYPE,
                                 pol);
 
-        policies[1] = 
+        policies[1] =
             poa->create_id_assignment_policy(PortableServer::SYSTEM_ID);
 
-        policies[2] = 
+        policies[2] =
             poa->create_implicit_activation_policy( PortableServer::IMPLICIT_ACTIVATION );
 
-        policies[3] = 
+        policies[3] =
             poa->create_lifespan_policy(PortableServer::TRANSIENT);
-          
+
         PortableServer::POAManager_var mgr = poa->the_POAManager();
 
         // Create POA as child of RootPOA with the above policies.  This POA
@@ -74,10 +75,11 @@ main( int argc, char *argv[] )
         // Register the servant with the RootPOA, obtain its object
         // reference, stringify it, and write it to a file.
         obj = child_poa->servant_to_reference( &servant );
-        //ClientCallback_var ccb = ClientCallback::_narrow( obj.in() );
 
-        cb_server->callback_hello( ClientCallback::_narrow( obj.in() ),
-                                   CORBA::string_dup( "Greetings earthling" ));
+        test::interop::bidir::ClientCallback_var ccb = test::interop::bidir::ClientCallback::_narrow( obj.in() );
+        CORBA::String_var str = CORBA::string_dup( "Greetings earthling" );
+        cb_server->callback_hello( ccb.in (),
+                                   str.in ());
     }
     catch( const CORBA::Exception &ex ) {
         cerr << "Uncaught CORBA exception: " << ex << endl;
