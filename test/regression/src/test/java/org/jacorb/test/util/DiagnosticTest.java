@@ -20,40 +20,27 @@ package org.jacorb.test.util;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import java.io.ByteArrayOutputStream;
-import java.io.OutputStream;
-import java.io.PrintStream;
+import static org.hamcrest.core.StringContains.containsString;
+import static org.junit.Assert.assertThat;
+import org.hamcrest.core.AllOf;
 import org.jacorb.test.harness.TestUtils;
 import org.jacorb.util.Diagnostic;
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.contrib.java.lang.system.LogMode;
+import org.junit.contrib.java.lang.system.StandardOutputStreamLog;
 import org.junit.rules.TestName;
-import org.slf4j.Logger;
-
 
 public class DiagnosticTest
 {
-    private PrintStream originalOut = System.out;
-    private PrintStream originalErr = System.err;
+    @Rule
+    public final StandardOutputStreamLog log = new StandardOutputStreamLog
+    (
+       TestUtils.verbose ? LogMode.LOG_AND_WRITE_TO_STREAM : LogMode.LOG_ONLY
+    );
 
     @Rule
     public TestName name = new TestName();
-
-    @Before
-    public void setUp()
-    {
-        System.setOut(new PrintStream(new LoggingOutputStream(TestUtils.getLogger())));
-        System.setErr(new PrintStream(new LoggingOutputStream(TestUtils.getLogger())));
-    }
-
-    @After
-    public void tearDown()
-    {
-        System.setOut(originalOut);
-        System.setErr(originalErr);
-    }
 
     /**
      * Verify the Diagnostic class (and use it to output logging on the framework).
@@ -62,32 +49,11 @@ public class DiagnosticTest
     public void testDiagnostic () throws Exception
     {
         Diagnostic.main(new String[] {});
-    }
 
-    class LoggingOutputStream extends OutputStream
-    {
-        private final ByteArrayOutputStream baos = new ByteArrayOutputStream(1000);
-        private final Logger logger;
+        assertThat (log.getLog(),
+                AllOf.allOf(
+                        containsString("JacORB Version"),
+                        containsString("Preferred non-loopback address")));
 
-        public LoggingOutputStream(Logger logger)
-        {
-            this.logger = logger;
-        }
-
-        @Override
-        public void write(int b)
-        {
-            if (b == '\n')
-            {
-                String line = baos.toString();
-                baos.reset();
-
-                logger.debug(line);
-            }
-            else
-            {
-                baos.write(b);
-            }
-        }
     }
 }
