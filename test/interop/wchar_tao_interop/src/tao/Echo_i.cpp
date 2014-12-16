@@ -20,6 +20,7 @@
 //     http://www.cs.wustl.edu/~schmidt/TAO.html
 
 #include "Echo_i.h"
+#include <ace/streams.h>
 
 // Implementation skeleton constructor
 GoodDay_i::GoodDay_i (void)

@@ -21,8 +21,8 @@
     <property name="tao.src" value="${src.dir}/tao" />
     <property name="tao.obj" value="${build.dir}/tao" />
     <property environment="env" />
-    <property name="mpc" value="${env.TAO_ROOT}/bin/mwc.pl" />
-    <property name="mpc_args" value="-type gnuace -template prism" />
+    <property name="mpc" value="${env.ACE_ROOT}/bin/mwc.pl" />
+    <property name="mpc_args" value="-type gnuace" />
 
     <target name="compile_tao">
         <copy todir="${build.dir}">
