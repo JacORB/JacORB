@@ -1,0 +1,33 @@
+// -*- MPC -*-
+
+project(*idl): ridl_ostream_defaults {
+  IDL_Files {
+    ../../idl/BiDirTest.idl
+  }
+  custom_only = 1;
+}
+
+project(*Server): taox11_server, taox11_anytypecode, avoids_minimum_corba, taox11_bidir_giop, avoids_corba_e_micro {
+  after += *idl
+  Source_Files {
+    BiDirTestC.cpp
+    BiDirTestS.cpp
+    BiDirTest_i.cpp
+    server.cpp
+  }
+  IDL_Files {
+  }
+}
+
+project(*Client): taox11_server, taox11_anytypecode, avoids_minimum_corba, taox11_bidir_giop, avoids_corba_e_micro {
+  exename = client
+  after += *idl
+  Source_Files {
+    BiDirTestC.cpp
+    BiDirTestS.cpp
+    BiDirTest_i.cpp
+    client.cpp
+  }
+  IDL_Files {
+  }
+}
