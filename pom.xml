@@ -79,6 +79,7 @@
         <module>omgapi</module>
         <module>core</module>
         <module>services</module>
+        <module>demo</module>
         <module>test/regression</module>
     </modules>
 
