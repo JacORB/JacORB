@@ -1,10 +1,11 @@
-package demo.arrays;
+package org.jacorb.demo.arrays;
 
-import demo.arrays.MyServerPackage.*;
+import org.jacorb.demo.arrays.MyServerPackage.*;
 
-class serverImpl 
+public class ServerImpl
     extends MyServerPOA
 {
+    private boolean shutdown;
 
     public void _notify(MyServer[] s)
     {
@@ -20,7 +21,7 @@ class serverImpl
 	    s[i].write2("Another Notification", j);
     }
 
-    public void notify3(demo.arrays.MyServerPackage.arrayContainer ac)
+    public void notify3(arrayContainer ac)
     {
 	int [] j = new int[2];
 	for( int i = 0; i < ac.shorty.length; i++)
@@ -39,7 +40,7 @@ class serverImpl
 
 	System.out.println("write2: " + s + " size: " + j.length);
 	for( int i = 0; i < j.length; i++ )
-	    System.out.println("[" + i + "]: " + j[i] ); 
+	    System.out.println("[" + i + "]: " + j[i] );
 	return a;
     }
 
@@ -55,6 +56,13 @@ class serverImpl
             System.out.println("refs[" + i + "] = " + refs[i]);
     }
 
+    public void shutdown ()
+    {
+        shutdown = true;
+    }
+
+    public boolean getShutdown ()
+    {
+        return shutdown;
+    }
 }
-
-
