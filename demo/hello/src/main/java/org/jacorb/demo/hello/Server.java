@@ -1,4 +1,4 @@
-package demo.hello;
+package org.jacorb.demo.hello;
 
 import java.io.*;
 
@@ -23,24 +23,16 @@ public class Server
         GoodDayImpl goodDayImpl = new GoodDayImpl( "Somewhere" );
 
         // create the object reference
-        org.omg.CORBA.Object o = poa.servant_to_reference(new GoodDayImpl("somewhere"));
+        org.omg.CORBA.Object o = poa.servant_to_reference(goodDayImpl);
 
         PrintWriter ps = new PrintWriter(new FileOutputStream(new File( args[0] )));
         ps.println( orb.object_to_string( o ) );
         ps.close();
 
-        if (args.length == 2)
+        while ( args.length == 2 || ! goodDayImpl.getShutdown ())
         {
-            File killFile = new File(args[1]);
-            while(!killFile.exists())
-            {
-                Thread.sleep(1000);
-            }
-            orb.shutdown(true);
+            Thread.sleep(1000);
         }
-        else
-        {
-            orb.run();
-        }
+        orb.shutdown(true);
     }
 }

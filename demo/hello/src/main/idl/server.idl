@@ -1,14 +1,21 @@
-module demo
+
+module org
 {
-    module hello {
+    module jacorb
+    {
+        module demo
+        {
+            module hello {
 
-        interface GoodDay {
-            
-            string hello_simple();
-            
-            wstring hello_wide( in wstring msg );            
+                interface GoodDay {
+
+                    string hello_simple();
+
+                    wstring hello_wide( in wstring msg );
+
+                    void shutdown ();
+                };
+            };
         };
-               
     };
-
 };

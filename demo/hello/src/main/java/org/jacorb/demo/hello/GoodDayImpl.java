@@ -1,4 +1,4 @@
-package demo.hello;
+package org.jacorb.demo.hello;
 
 import org.omg.CORBA.*;
 
@@ -6,6 +6,7 @@ public class GoodDayImpl
     extends GoodDayPOA
 {
     private String location;
+    private boolean shutdown;
 
     public GoodDayImpl( String location )
     {
@@ -21,5 +22,15 @@ public class GoodDayImpl
     {
         System.out.println("The message is: " + wide_msg );
         return "Hello World, from 1 2 3 0 *&^%$#@!@";
+    }
+
+    public void shutdown ()
+    {
+        shutdown = true;
+    }
+
+    public boolean getShutdown ()
+    {
+        return shutdown;
     }
 }

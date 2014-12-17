@@ -1,7 +1,8 @@
-package demo.hello;
+package org.jacorb.demo.hello;
 
 import java.io.*;
 import org.omg.CORBA.*;
+import java.util.Properties;
 
 public class Client
 {
@@ -35,6 +36,7 @@ public class Client
                 System.exit( -1 );
             }
 
+
             // initialize the ORB.
             ORB orb = ORB.init( args, null );
 
@@ -59,6 +61,7 @@ public class Client
             System.out.println( "wide string: " +
                     goodDay.hello_wide( "Hello World, from 1 2 3 0 *&^%$#@!@"));
 
+            goodDay.shutdown ();
         }
         catch( Exception ex )
         {
@@ -66,4 +69,3 @@ public class Client
         }
     }
 }
-
