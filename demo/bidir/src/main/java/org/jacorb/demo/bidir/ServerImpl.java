@@ -1,4 +1,4 @@
-package demo.bidir;
+package org.jacorb.demo.bidir;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -17,16 +17,17 @@ import org.omg.PortableServer.POA;
 
 /**
  * ServerImpl.java
- * 
- * 
+ *
+ *
  * Created: Mon Sep 3 19:28:34 2001
- * 
+ *
  * @author Nicolas Noffke
  */
 
 public class ServerImpl extends ServerPOA
 {
     private ClientCallback ccb = null;
+    private boolean shutdown = false;
 
     public ServerImpl ()
     {
@@ -43,6 +44,12 @@ public class ServerImpl extends ServerPOA
                 + '<');
 
         ccb.hello (message);
+    }
+
+
+    public void shutdown ()
+    {
+        shutdown = true;
     }
 
     public static void main (String[] args) throws Exception
@@ -73,25 +80,25 @@ public class ServerImpl extends ServerPOA
 
         bidir_poa.the_POAManager ().activate ();
 
-        org.omg.CORBA.Object o = bidir_poa.servant_to_reference (new ServerImpl ());
+        ServerImpl s = new ServerImpl();
+
+        org.omg.CORBA.Object o = bidir_poa.servant_to_reference (s);
 
         PrintWriter ps = new PrintWriter (new FileOutputStream (new File (args[0])));
         ps.println (orb.object_to_string (o));
         ps.close ();
 
-        if (args.length == 2)
+        if (args.length == 1)
         {
-            File killFile = new File (args[1]);
-            while (!killFile.exists ())
+            while ( ! s.shutdown )
             {
-                Thread.sleep (1000);
+                Thread.sleep(1000);
             }
-            orb.shutdown (true);
+            orb.shutdown(true);
         }
         else
         {
             orb.run ();
         }
     }
-}// ServerImpl
-
+}

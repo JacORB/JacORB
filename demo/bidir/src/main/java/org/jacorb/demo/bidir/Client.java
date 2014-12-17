@@ -1,4 +1,4 @@
-package demo.bidir;
+package org.jacorb.demo.bidir;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -16,10 +16,10 @@ import org.omg.PortableServer.POA;
 
 /**
  * Client.java
- * 
- * 
+ *
+ *
  * Created: Mon Sep 3 19:28:34 2001
- * 
+ *
  * @author Nicolas Noffke
  */
 
@@ -73,5 +73,7 @@ public class Client extends ClientCallbackPOA
         server.register_callback (ccb);
 
         server.callback_hello ("A test string");
+
+        server.shutdown();
     }
 }// Client
