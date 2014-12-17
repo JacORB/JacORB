@@ -1,8 +1,10 @@
-package demo.ami;
+package org.jacorb.demo.ami;
 
-public class AsyncServerImpl extends AsyncServerPOA 
+public class AsyncServerImpl extends AsyncServerPOA
 {
-    public int operation (int a, int b) 
+    private boolean shutdown;
+
+    public int operation (int a, int b)
     {
         try
         {
@@ -14,7 +16,7 @@ public class AsyncServerImpl extends AsyncServerPOA
         return a + b;
     }
 
-    public int op2 (int a) throws demo.ami.MyException
+    public int op2 (int a) throws MyException
     {
         try
         {
@@ -25,5 +27,14 @@ public class AsyncServerImpl extends AsyncServerPOA
         }
         throw new MyException ("Hello exceptional world");
     }
+
+    public boolean getShutdown ()
+    {
+        return shutdown;
+    }
+
+    public void shutdown ()
+    {
+        shutdown = true;
+    }
 }
-            

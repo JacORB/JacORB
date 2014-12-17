@@ -1,10 +1,10 @@
-package demo.ami;
+package org.jacorb.demo.ami;
 
 import org.omg.CORBA.portable.InputStream;
 import org.omg.CORBA.portable.OutputStream;
 import org.omg.CORBA.portable.ResponseHandler;
 
-public class AMI_AsyncServerHandlerImpl 
+public class AMI_AsyncServerHandlerImpl
   extends AMI_AsyncServerHandlerPOA
 {
     public void operation(int ami_return_val)
@@ -34,4 +34,13 @@ public class AMI_AsyncServerHandlerImpl
         }
     }
 
+    public void shutdown()
+    {
+        System.out.println ("** async shutdown");
+    }
+
+    public void shutdown_excep(org.omg.Messaging.ExceptionHolder excep_holder)
+    {
+        System.out.println ("** async shutdown exception");
+    }
 }
