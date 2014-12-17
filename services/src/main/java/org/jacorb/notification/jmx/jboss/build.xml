@@ -1,6 +1,5 @@
 <?xml version="1.0"?>
 
-<!-- $Id$ -->
 <project name="jboss-cosnotification" default="sar" basedir="../../../../../..">
 
         <import file="../../../../../../etc/common.xml"/>

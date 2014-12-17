@@ -121,6 +121,3 @@ just supply LineEvents or ClearEvents
 respectively. This Way the DrawHandler just receives LineEvents and
 the ClearHandler just receives ClearEvents. 
 On Repetition of an Event both Handlers act accordingly.
-
-
-$Id$

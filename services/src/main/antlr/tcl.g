@@ -1,5 +1,3 @@
-// $Id$
-
 header {
 package org.jacorb.notification.filter.etcl;
 

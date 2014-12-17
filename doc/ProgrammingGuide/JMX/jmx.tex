@@ -1,4 +1,3 @@
-% $Id$
 
 This section describes how to use the Java Management Extention API along with JacORB to
 instrument both the orb and application that use JacORB.
@@ -30,22 +29,22 @@ The sample code for creating a MBeanServer is shown below
 \begin{verbatim}
 // The MBeanServer to which the JMXConnectorServer will be registered in
 jmxServer = MBeanServerFactory.createMBeanServer();
-            
+
 // The address of the connector
 HashMap environment = new HashMap();
 org.jacorb.orb.rmi.PortableRemoteObjectDelegateImpl.setORB(orb);
 JMXServiceURL address = new JMXServiceURL("service:jmx:iiop://localhost/jndi/jmxSnmpTrapNotify");
 JMXConnectorServer cntorServer = JMXConnectorServerFactory.newJMXConnectorServer(address,                                             environment, jmxServer);
-            
+
 // Add MBeans
 jmxServer.registerMBean(trapReceiver, new ObjectName("TrapReceiver:counts=default"));
-            
+
 // Start the JMXConnectorServer
 cntorServer.start();
 \end{verbatim}
 \end{scriptsize}
 
-The first line creates the MBeanServer. 
+The first line creates the MBeanServer.
 The next 4 lines creates the remote JMX connection. The "`setORB()"' call assignes a previously
 initialized ORB to the Remote Object delegate. All RMI over IIOP communications will occure
 via this ORB. The "`address"' is the name of the MBeanServer as known in the Naming service.
@@ -53,10 +52,10 @@ The portion after "`/jndi/"' is the Naming Service name.
 The next line registers a MBean with the MBeanServer.
 The last line starts the MBeanServer.
 
-A JMX console may then be used to monitor the JacORB application. For example, MC4J (http://mc4j.sourceforge.net) may be used. When setting up a mc4j connection, use the connection type JSR160 and set the server URL to the name as registered in the JacORB naming service, such as 
+A JMX console may then be used to monitor the JacORB application. For example, MC4J (http://mc4j.sourceforge.net) may be used. When setting up a mc4j connection, use the connection type JSR160 and set the server URL to the name as registered in the JacORB naming service, such as
 "`service:jmx:iiop://localhost/jndi/jmxSnmpTrapNotify"'.
 
-%%% Local Variables: 
+%%% Local Variables:
 %%% mode: latex
 %%% TeX-master: "../ProgrammingGuide"
-%%% End: 
+%%% End:

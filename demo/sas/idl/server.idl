@@ -1,7 +1,5 @@
 // The IDL for the sas demo.
 // (plain and simple ;-)
-//
-// $Id$
 
 module org{
 module jacorb{

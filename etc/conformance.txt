@@ -1,9 +1,7 @@
 List of JacORB modules and the Specification versions that they are
 aimed at. Please edit!
 
-$Id$
 -------------------------------------------------------------------
-
 
 IDL language mapping    :    2.3-2.x
 ORB interface           :    2.3, partial ???

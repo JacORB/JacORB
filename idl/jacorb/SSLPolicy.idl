@@ -1,14 +1,13 @@
-/* 
+/*
  * SSLPolicy definition
  *
- * $Id$ 
- */ 
+ */
 
 #ifndef __SSL_IDL
 #define __SSL_IDL
 
 #include <orb.idl>
-            
+
 module org {
 module jacorb {
 module ssl {
@@ -21,7 +20,7 @@ module ssl {
         SSL_REQUIRED
     };
 
-    local interface SSLPolicy : CORBA::Policy 
+    local interface SSLPolicy : CORBA::Policy
     {
         readonly attribute SSLPolicyValue value;
     };

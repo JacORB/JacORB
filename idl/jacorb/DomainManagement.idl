@@ -1,11 +1,10 @@
 /* DomainManagement.idl
    declares Domain, which manages domain members and domain policies
-	    some policies used to manage domains
-   $Id$
+   some policies used to manage domains
 */
 
 
-#include <orb.idl> 
+#include <orb.idl>
 module org {
   module jacorb {
     module orb {
@@ -14,12 +13,12 @@ module org {
             /***** types *****/
 
             interface Domain;                      // forward declarations
-            interface Membership;                  
-            interface GraphNode;  
+            interface Membership;
+            interface GraphNode;
             interface DomainNamingContext;
-            interface DomainFactory;              
-            interface PolicyFactory;              
-            interface MetaPolicy;                
+            interface DomainFactory;
+            interface PolicyFactory;
+            interface MetaPolicy;
             interface ObjectDomainMapper;
 
             typedef sequence <Domain> DomainList;
@@ -35,7 +34,7 @@ module org {
             interface MembershipListener
             {
                 oneway void memberRemoved(in Object exMember);
-                oneway void memberAdded(in Object newbie);               
+                oneway void memberAdded(in Object newbie);
             };
 
 
@@ -46,9 +45,9 @@ module org {
             // 2) set of domain policies
 
             exception PolicyTypeAlreadyDefined { CORBA::PolicyType type; };
-  
-            interface Domain : CORBA::DomainManager, GraphNode, Membership, 
-                DomainNamingContext, DomainFactory, PolicyFactory, 
+
+            interface Domain : CORBA::DomainManager, GraphNode, Membership,
+                DomainNamingContext, DomainFactory, PolicyFactory,
                 ObjectDomainMapper
             {
 
@@ -56,17 +55,17 @@ module org {
                 attribute string name;
 
                 // Policy operations
-                
+
                 // checks whether this domain has a policy of type "type"
                 boolean hasPolicyOfType(in CORBA::PolicyType type);
 
                 // sets the policy of the specified type
                 // Pre : NOT hasPolicyOfType( policy.policy_type() )
                 // Post:     hasPolicyOfType( policy.policy_type() )
-                void set_domain_policy(in CORBA::Policy policy) 
+                void set_domain_policy(in CORBA::Policy policy)
                     raises (PolicyTypeAlreadyDefined);
 
-                // potentially overwrites a policy, use with care, 
+                // potentially overwrites a policy, use with care,
                 // if unsecure, use set_domain_policy instead
                 void overwrite_domain_policy(in CORBA::Policy policy);
 
@@ -75,7 +74,7 @@ module org {
                 void deletePolicyOfType(in CORBA::PolicyType type);
 
                 // get all policies of the domain
-                CORBA::PolicyList getPolicies(); 
+                CORBA::PolicyList getPolicies();
                 unsigned long     getPolicyCount();
 
                 // operations for managing set of object members
@@ -84,7 +83,7 @@ module org {
                 void       deleteMember(in Object obj);
                 boolean       hasMember(in Object obj);
                 // list all object members
-                ObjectList    getMembers(); 
+                ObjectList    getMembers();
                 unsigned long getMemberCount();
 
                 // add and remove listeners
@@ -108,12 +107,12 @@ module org {
                 void invalidateODMCache(in Object obj);
                 // adds  the domain aDomain to the  domains of obj
                 // in the cache
-                
+
                 void addToODMCache(in Object obj, in Domain aDomain);
                 // removes the domain  aDomain from the domains of
                 // obj in the cache
                 void removeFromODMCache(in Object obj, in Domain aDomain);
-                
+
             };
 
             // ObjectNaming: provides an object in a domain with a name
@@ -129,58 +128,58 @@ module org {
                 /// object names
                 // the prefix used for auto naming
                 attribute string NameAutoPrefix;
-                
+
                 // inserts an object as member into this domain, names it
                 void insertMemberWithName(in Name objName, in Object obj)
                     raises (NameAlreadyDefined);
-                
+
                 // renames an object identified by its old name
                 void renameMember(in string oldName, in string newName)
                     raises (InvalidName, NameAlreadyDefined);
-                
+
                 // object -> name
                 Name getNameOf(in Object obj);
-                
+
                 // name -> object
                 // returns  null if there  is no object  with name
                 // objName in this domain
-                Object resolveName(in Name objName);      
-                
+                Object resolveName(in Name objName);
+
                 /// domain path names
-                
+
                 attribute string separator;	// default is "/"
-                
+
                 // finds a domain child identified by childName
                 // returns null if there is no such child
                 Domain findChild(in Name childName);
-                
+
                 // renames a child domain
-                void renameChildDomain(in Name oldName, in Name newName) 
+                void renameChildDomain(in Name oldName, in Name newName)
                     raises (InvalidName, NameAlreadyDefined);
-                
+
                 // resolves a domain pathname, recursive version of findChild
                 Domain resolveDomainPathName(in Name pathname) raises (InvalidName);
-                
-                NameList getPathNames(); 
+
+                NameList getPathNames();
                 //  returns a list  of domain  path names  of this
                 // domain may be  more than one, because there may
                 // be multiple paths to the root domain
             };
 
-            interface Membership 
+            interface Membership
             {
                 // obj -> list of domains
                 DomainList getDomains(in Object obj);
-    
+
                 // obj -> Policy
-                CORBA::Policy getPolicy( in Object obj, 
+                CORBA::Policy getPolicy( in Object obj,
                                          in CORBA::PolicyType type);
 
             }; // Membership
-   
 
 
-            interface DomainFactory 
+
+            interface DomainFactory
             {
                 // Creates  a Domain object  with "initialMembers"
                 // as initial members and "initialPolicies" as the
@@ -188,99 +187,99 @@ module org {
                 // then means empty.
                 Domain createDomain
                     (
-                     in ObjectList        initialMembers, 
+                     in ObjectList        initialMembers,
                      in CORBA::PolicyList initialPolicies,
                      in string            name
                      );
-                
+
                 //  creates  an   empty  domain  with  no  initial
                 //  members,  no initial  policies  and the  empty
                 //  string  as name  this  is  just a  convenience
                 // operation
                 Domain createEmptyDomain();
-                
+
                 // Pre: aDomain.getChildCount() == 0
                 // destroys the domain aDomain, further use is prohibited
                 void destroy(in Domain aDomain);
             };
- 
-           
+
+
             /********* graph node **********************/
             //  a  graph  node  supports  operation to  walk  a  graph
             // hierarchy up- and down
 
-             interface GraphNode 
+             interface GraphNode
              {
 
                  exception ClosesCycle {};
-                 
+
                  //  returns True  iff this  domain manager  has no
                  // parent domain services
-                 boolean isRoot();    
-                 
+                 boolean isRoot();
+
                  // only for testing, normally not here
-                 Domain getRootDomain();    
-                 
+                 Domain getRootDomain();
+
                  // boolean    hasIndirectMember(in Object obj);
-                 // ObjectList getIndirectMembers();         
+                 // ObjectList getIndirectMembers();
                  // list all indirect object members
-                 
-                 
+
+
                  //  extending  policy  operations:  retrieves  the
                  // effecive policy for this domain may be computed
                  // dynamically depending on parent domain policies
                  CORBA::Policy getEffectiveDomainPolicy(in CORBA::PolicyType type);
-                 
+
                  // child domains
-     
+
                  /* inserts a domain into this domain as a (direct)
-                    child  domain 
+                    child  domain
                     Pre:  NOT child.isReachable(this)
                     (to   prevent  cycles)   the   precondition  of
                     Domain.addParent  also  needs  to be  satisfied
-                    
+
                     Post:          this.hasChild(child)         AND
                     child.hasParent(this) */
                  void insertChild(in Domain child)
                      raises (ClosesCycle, NameAlreadyDefined );
-                 
+
                  // returns  true iff domain "aDomain"  is a direct
                  // child domain of this domain
                  boolean hasChild(in Domain aDomain);
-                 
+
                  // returns  true iff there exists  a directed path
                  //  from   this  domain  downwards   to  the  node
                  // "aDomain" (used to prevent cicles)
                  boolean isReachable(in Domain aDomain);
-                 
+
                  // returns  the (direct) child  domains registered
                  // at this domain
                  DomainList getChilds();
-                 
+
                  // returns the number of childs
                  unsigned long getChildCount();
-                 // deletes a child domain 
-                 // Post:     NOT this.hasChild(domain_manager) 
+                 // deletes a child domain
+                 // Post:     NOT this.hasChild(domain_manager)
                  //       AND NOT domain_manager.hasParent(this)
                  void deleteChild(in Domain child);
-                 
+
                  // operations to walk and manage the domain hierarchy upwards
-                 
+
                  // Pre :
                  // Post: this.hasParent(parentDS) AND parentDS.hasChild(this)
-                 //       AND NOT this.isRoot() 
+                 //       AND NOT this.isRoot()
                  //       AND parentDS.getRootDomainService() == this.getRootDomainService()
                  //       (this is now a child domain of the parent domain parentDS and
                  //        they have the same root domain service)
                  void insertParent(in Domain parentDomain)  raises (ClosesCycle, NameAlreadyDefined);
-                 
-                 // Post: NOT this.hasParent(parentDS) AND 
+
+                 // Post: NOT this.hasParent(parentDS) AND
                  // NOT parentDS.hasChild(this)
                  void deleteParent(in Domain parentDomain);
-                 
+
                  boolean       hasParent(in Domain parentDomain);
                  DomainList    getParents();
-                 unsigned long getParentCount();                 
+                 unsigned long getParentCount();
 
              };
 
@@ -292,10 +291,10 @@ module org {
                   if there is a parent-child relationship between them
 
                   2)  Every  two  domain  (managers) d1  and  d2  must
-                      follow: 
+                      follow:
 
                       a) NOT  (d1.hasChildOfAnyLevel(d2)    AND
-                      d2.hasChildOfAnyLevel(d1)  
+                      d2.hasChildOfAnyLevel(d1)
                       (there are  no cycles in the domain graph)      #
 
                       b)         ((d1.hasChildOfAnyLevel(d2)        OR
@@ -304,40 +303,40 @@ module org {
                       nodes, they must have the same unique root) */
 
             /***** ObjectDomainMapper (ODM) ****/
-  
-            // manages mappings of the form 
+
+            // manages mappings of the form
             //
             //          object reference -> [dm(1), dm(2), ..., dm(n)]
             //               where dm(i), i from 1 to n, are domain managers
 
-            interface ObjectDomainMapper 
+            interface ObjectDomainMapper
             {
-                // Post: hasMapping(obj) AND  dms == getMapping(obj) 
+                // Post: hasMapping(obj) AND  dms == getMapping(obj)
                 //       AND for all dm e dms: areMapped(obj, dm)
                 void insertMapping(in Object obj, in DomainList dms);
-                
+
                 // Post: NOT hasMapping(object)
                 void deleteMapping(in Object obj);
-                
+
                 // Pre : hasMapping(obj)
                 // returns the domain manager list associated with object obj
                 DomainList getMapping(in Object obj);
-                
+
                 // is there a mapping defined for obj ? (could also be
                 // the empty list)
                 boolean hasMapping (in Object obj);
-                
+
                 // is obj mapped to dm ?
                 boolean areMapped(in Object obj, in Domain dm);
-                
+
                 // Post: hasMapping(obj) AND areMapped(obj, dm)
                 void addToMapping(in Object obj, in Domain dm);
-                
+
                 // Post: NOT areMapped(obj, dm)
                     void removeFromMapping(in Object obj, in Domain dm);
-    
+
             };
-            
+
             // **************  policies  *******************
 
             // policy types
@@ -347,7 +346,7 @@ module org {
             const CORBA::PolicyType CONFLICT_RESOLUTION_POLICY_ID = 114;
             const CORBA::PolicyType INITIAL_MAP_POLICY_ID         = 115;
 
-            const CORBA::PolicyType TEST_POLICY_ID                = 120;  
+            const CORBA::PolicyType TEST_POLICY_ID                = 120;
 
 
             interface ManagementPolicy : CORBA::Policy
@@ -356,12 +355,12 @@ module org {
                 // description of this policy, may be displayed in
                 // list or tree views
                 attribute string short_description;
-                
+
                 // a human readable description and explanation of
                 //  this  policy, may  be  displayed in  graphical
                 // (help or properties) dialogs
-                attribute string long_description;      
-                
+                attribute string long_description;
+
             };
 
             // a meta policy manages other policies
@@ -382,18 +381,18 @@ module org {
                 const short PARENT_RULES= 2;
                 const short CHILD_RULES = 3;
                 // to be continued...
-                
+
                 // returns the strategy of the used conflict resolution policy
                 readonly attribute short strategy;
-                
+
                 //  Pre:   all  the   domain  managers  in   the  list
                 //  overlappingDMs  overlap in  their  policy of  type
-                //  overlapType   
+                //  overlapType
                 // Post: returns a policy of type overlapType
                 CORBA::Policy resolveConflict(in DomainList overlappingDMs,
                                               in CORBA::PolicyType overlapType);
             };
-            
+
             // decides to which domain managers a new object reference gets mapped
             interface InitialMapPolicy : ManagementPolicy
             {
@@ -401,18 +400,18 @@ module org {
                 const short DEFAULT_DOMAIN = 1;
                 const short TYPE_DOMAINS   = 2;
                 // to be continued...
-                
+
                 // returns the strategy of the used initial map policy
                 readonly attribute short strategy;
-                
+
                 // returns a list of domain managers, to which the newly created object
                     // reference "newReference" shall be associated with in respect to
                 // a given root
                 // Pre : newReference isn't mapped to any domain manager
                 //       AND rootDomain.isRoot()
-                // Post: for all dm e returned list: 
+                // Post: for all dm e returned list:
                 //                (dm == rootDomain  OR root.hasChildOfAnyLevel(dm)
-                //           
+                //
                 DomainList OnReferenceCreation(in Object newReference,
                                                in Domain rootDomain);
             };
@@ -440,28 +439,28 @@ module org {
             {
                 // the name of the property policy itself
                 attribute string name;
-                
+
                 // sets the type of this policy
                 void setPolicyType(in CORBA::PolicyType type);
 
-                // adds a new property. 
-                void put(in PropertyName name, in PropertyValue value) 
+                // adds a new property.
+                void put(in PropertyName name, in PropertyValue value)
                     raises (PropertyAlreadyDefined);
-                
+
                 // return  a list of  all valid property  names. These
                 //  names can be  used to  get a  value of  a specific
                 // property
                 PropertyNameList getPropertyNames();
-                
+
                 // resolves the value  of a named property, returns ""
                 // if property is undef
                 PropertyValue getValueOfProperty(in PropertyName name);
-      
+
                 //  changes  the   property  value.  The  property  is
                 //  identified by  its property  name If  the property
                 // doesn't exist prior to operation call, the property
                 // is inserted
-                void changeValueOfProperty( in PropertyName name, 
+                void changeValueOfProperty( in PropertyName name,
                                             in PropertyValue newValue);
 
                 // returns true iff name is defined in property list
@@ -470,7 +469,7 @@ module org {
                 // removes a property
                 // Post: NOT containsProperty(name)
                 void removeProperty(in PropertyName name);
-                
+
                 // returns the number of valid properties
                 long getPropertyCount();
             };
@@ -478,7 +477,7 @@ module org {
 
 
             // extension of a property policy by a meta policy
-            interface MetaPropertyPolicy : MetaPolicy, PropertyPolicy 
+            interface MetaPropertyPolicy : MetaPolicy, PropertyPolicy
             {
                 // sets the types for  which this property policy is a
                 // meta policy
@@ -486,20 +485,20 @@ module org {
             };
 
 
- 
+
             interface PolicyFactory // : CORBA::PolicyFactory
             {
                 CORBA::Policy create_policy(in CORBA::PolicyType type,
                                             in any initValue)
                     raises (CORBA::PolicyError);
-                
+
                 InitialMapPolicy  createInitialMapPolicy(in short whichOne);
                 ConflictResolutionPolicy createConflictResolutionPolicy(in short whichOne);
                 PropertyPolicy      createPropertyPolicy();
-                MetaPropertyPolicy  createMetaPropertyPolicy();                
+                MetaPropertyPolicy  createMetaPropertyPolicy();
             };
 
-            
+
             // a simple test policy
             interface TestPolicy : CORBA::Policy {
                 attribute string description;

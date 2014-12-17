@@ -28,7 +28,6 @@ import org.omg.CORBA.*;
 /**
  *
  * @author Quynh Nguyen
- * @version $Id$
  *
  * This is the implementation of the ServerObject interface, which serves as a callback
  * when the JacORB is registered with a TAO ImR.  It allows the TAO ImR to ping
