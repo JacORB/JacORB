@@ -1,9 +1,10 @@
-package demo.corbaloc;
+package org.jacorb.demo.corbaloc;
 
 public class GoodDayImpl
     extends GoodDayPOA
 {
     private String location;
+    private boolean shutdown;
 
     public GoodDayImpl( String location )
     {
@@ -13,5 +14,15 @@ public class GoodDayImpl
     public String hello_simple()
     {
         return "Hello World, from " + location;
+    }
+
+    public void shutdown ()
+    {
+        shutdown = true;
+    }
+
+    public boolean getShutdown ()
+    {
+        return shutdown;
     }
 }

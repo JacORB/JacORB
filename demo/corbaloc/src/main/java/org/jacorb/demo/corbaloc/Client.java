@@ -1,4 +1,4 @@
-package demo.corbaloc;
+package org.jacorb.demo.corbaloc;
 
 import org.omg.CORBA.*;
 import java.io.*;
@@ -18,8 +18,8 @@ public class Client
       // initialize the ORB.
       orb = ORB.init( new String[]{}, null );
 
-      callServer (args[0] + "persistent");
-      callServer (args[0] + "transient");
+      callServer (args[0] + ".persistent");
+      callServer (args[0] + ".transient");
 
       // Lets call the known short object key
       System.out.println ("Calling server using short key form...");
@@ -32,6 +32,8 @@ public class Client
 
       // invoke the operation and print the result
       System.out.println( goodDay.hello_simple() );
+
+      goodDay.shutdown();
    }
 
    private static void callServer (String args)
@@ -58,18 +60,17 @@ public class Client
             System.exit( -1 );
          }
 
-         BufferedReader br =
-         new BufferedReader( new FileReader( f ));
+         BufferedReader br = new BufferedReader( new FileReader( f ));
+         String ior = br.readLine();
 
          // get object reference from command-line argument file
-         org.omg.CORBA.Object obj = orb.string_to_object( br.readLine() );
+         org.omg.CORBA.Object obj = orb.string_to_object( ior );
 
          br.close();
 
          // and narrow it to HelloWorld.GoodDay
          // if this fails, a BAD_PARAM will be thrown
          GoodDay goodDay = GoodDayHelper.narrow( obj );
-
 
          // invoke the operation and print the result
          System.out.println( goodDay.hello_simple() );

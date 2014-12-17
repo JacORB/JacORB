@@ -1,13 +1,20 @@
-module demo
+
+module org
 {
-    module corbaloc {
+    module jacorb
+    {
+        module demo
+        {
+            module corbaloc
+            {
+                interface GoodDay
+                {
+                    string hello_simple();
 
-        interface GoodDay {
-            
-            string hello_simple();
-            
+                    void shutdown ();
+                };
+            };
+
         };
-               
     };
-
 };
