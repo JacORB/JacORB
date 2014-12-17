@@ -1,4 +1,4 @@
-package demo.dii;
+package org.jacorb.demo.dii;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -15,7 +15,7 @@ public class DiiServer
     // singleton ORB as any factory
     org.omg.CORBA.ORB orb = null;
 
-    serverImpl impl = new serverImpl();
+    ServerImpl impl = new ServerImpl();
 
     public DiiServer( org.omg.CORBA.ORB orb )
     {
@@ -124,6 +124,10 @@ public class DiiServer
                 s.type( orb.get_primitive_tc(org.omg.CORBA.TCKind.tk_void ));
                 request.set_result( s );
             }
+            else if( op.equals("shutdown") )
+            {
+                impl.shutdown();
+            }
             else if( op.equals("_non_existent") )
             {
                 Any s = orb.create_any();
@@ -194,31 +198,23 @@ public class DiiServer
 
     public static void main( String[] args ) throws Exception
     {
-	    org.omg.CORBA.ORB orb = org.omg.CORBA.ORB.init(args, null);
-	    org.omg.PortableServer.POA poa =
-		org.omg.PortableServer.POAHelper.narrow(orb.resolve_initial_references("RootPOA"));
+        org.omg.CORBA.ORB orb = org.omg.CORBA.ORB.init(args, null);
+        org.omg.PortableServer.POA poa =
+        org.omg.PortableServer.POAHelper.narrow(orb.resolve_initial_references("RootPOA"));
 
-	    poa.the_POAManager().activate();
+        poa.the_POAManager().activate();
 
-	    org.omg.CORBA.Object o =
-                poa.servant_to_reference(new DiiServer( orb ));
+        DiiServer server = new DiiServer( orb );
+        org.omg.CORBA.Object o = poa.servant_to_reference(server);
 
         PrintWriter ps = new PrintWriter(new FileOutputStream(new File( args[0] )));
         ps.println( orb.object_to_string( o ) );
         ps.close();
 
-        if (args.length == 2)
+        while ( args.length == 2 || ! server.impl.getShutdown ())
         {
-            File killFile = new File(args[1]);
-            while(!killFile.exists())
-            {
-                Thread.sleep(1000);
-            }
-            orb.shutdown(true);
+            Thread.sleep(1000);
         }
-        else
-        {
-            orb.run();
-        }
+        orb.shutdown(true);
     }
 }

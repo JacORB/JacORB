@@ -1,4 +1,4 @@
-package demo.dii;
+package org.jacorb.demo.dii;
 
 /**
  * An example for using the Dynamic Invocation Interface
@@ -33,8 +33,16 @@ public class Client
 
         defererredRequestWithPolling(orb, server);
 
-        orb.shutdown( false );
+        shutdownRequest (server);
     }
+
+    private static void shutdownRequest(org.omg.CORBA.Object server)
+    {
+        // another simple request with a string argumente, oneway
+        org.omg.CORBA.Request request =  server._request("shutdown");
+        request.invoke();
+    }
+
 
     private static void deferredRequest(org.omg.CORBA.ORB orb, org.omg.CORBA.Object server) throws WrongTransaction, Exception
     {

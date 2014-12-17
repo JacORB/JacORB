@@ -1,9 +1,12 @@
-package demo.dii;
+package org.jacorb.demo.dii;
 
-public class serverImpl 
-    extends serverPOA
+import org.jacorb.demo.dii.ServerPackage.*;
+
+public class ServerImpl
+    extends ServerPOA
 {
     int long_number = 47;
+    boolean shutdown;
 
     public int long_number()
     {
@@ -28,20 +31,28 @@ public class serverImpl
 	System.out.println("Notify: " + msg );
     }
 
-    public String writeNumber( int i ) 
+    public String writeNumber( int i )
     {
 	System.out.println("Number: " + i );
 	return "Number written";
     }
 
-    public String writeNumberWithEx( int i ) 
-	throws demo.dii.serverPackage.e 
+    public String writeNumberWithEx( int i )
+	throws e
     {
 	System.out.println("Throwing Exception " );
 	if( true )
-	    throw new demo.dii.serverPackage.e("TestException");
+	    throw new e("TestException");
 	return "Number written";
     }
+
+    public void shutdown ()
+    {
+        shutdown = true;
+    }
+
+    public boolean getShutdown ()
+    {
+        return shutdown;
+    }
 }
-
-
