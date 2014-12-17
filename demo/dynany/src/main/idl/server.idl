@@ -1,12 +1,21 @@
-module demo
-{
 
-module dynany
+module org
 {
-    interface AnyServer 
-	{
-	    string generic(in any a);
-	};
-};
+    module jacorb
+    {
+        module demo
+        {
 
+            module dynany
+            {
+                interface AnyServer
+                {
+                    string generic(in any a);
+
+                    void shutdown ();
+                };
+            };
+
+        };
+    };
 };

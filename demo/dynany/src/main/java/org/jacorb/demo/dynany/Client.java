@@ -1,4 +1,4 @@
-package demo.dynany;
+package org.jacorb.demo.dynany;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -250,7 +250,7 @@ public class Client
         System.out.println("[Client]: Passing the  union again..." +
                 s.generic( dyn_union.to_any()));
 
+
+        s.shutdown();
     }
 }
-
-
