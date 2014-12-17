@@ -1,4 +1,4 @@
-package demo.any;
+package org.jacorb.demo.any;
 
 import org.omg.CORBA.Any;
 import org.omg.CORBA.TCKind;
@@ -8,9 +8,8 @@ import org.omg.CORBA.OctetSeqHelper;
 public class AnyServerImpl
     extends AnyServerPOA
 {
-    org.omg.CORBA.ORB orb = org.omg.CORBA.ORB.init();
-
-    public AnyServerImpl(){}
+    private boolean shutdown;
+    private org.omg.CORBA.ORB orb = org.omg.CORBA.ORB.init();
 
     public java.lang.String generic(Any a)
     {
@@ -122,5 +121,15 @@ public class AnyServerImpl
 	}
 	System.out.println(result);
 	return result;
+    }
+
+    public boolean getShutdown ()
+    {
+        return shutdown;
+    }
+
+    public void shutdown ()
+    {
+        shutdown = true;
     }
 }
