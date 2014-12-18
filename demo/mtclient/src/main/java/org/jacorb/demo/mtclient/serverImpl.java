@@ -1,9 +1,11 @@
-package demo.mtclient;
+package org.jacorb.demo.mtclient;
 
-public class serverImpl 
+public class serverImpl
     extends MyServerPOA
 {
     private static final int _delay = 245;
+
+    private boolean shutdown;
 
     private void delay()
     {
@@ -31,7 +33,7 @@ public class serverImpl
 	return s + " written";
     }
 
-    public  String writeMessages( String[] s, Observer _observer )
+    public String writeMessages( String[] s, Observer _observer )
     {
 	for( int i = 0; i < s.length; i++)
 	    System.out.print("Message: " + s[i] + ", ");
@@ -42,6 +44,14 @@ public class serverImpl
 	_observer.update2();
 	return "ok.";
     }
+
+    public void shutdown ()
+    {
+        shutdown = true;
+    }
+
+    public boolean getShutdown ()
+    {
+        return shutdown;
+    }
 }
-
-

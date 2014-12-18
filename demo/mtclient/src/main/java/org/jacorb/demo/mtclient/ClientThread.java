@@ -1,7 +1,7 @@
-package demo.mtclient;
+package org.jacorb.demo.mtclient;
 
-class ClientThread 
-    extends Thread 
+class ClientThread
+    extends Thread
     implements ObserverOperations
 {
     private MyServer srv;
@@ -32,10 +32,10 @@ class ClientThread
 	try
 	{
 	    while( lifeTime > 0 )
-	    {       
+	    {
 		lifeTime--;
 		String a[] = srv.arryfy( msg,5 );
-		System.out.println( id + ", " + lifeTime + 
+		System.out.println( id + ", " + lifeTime +
                                     " to go." + srv.writeMessages( a, me ));
 		sleep(500);
 	    }
@@ -52,15 +52,13 @@ class ClientThread
     }
 
     public void update1( Observer o)
-    { 
+    {
 	System.out.println("Client " + id + " update1");
 	o.update2();
     }
 
     public void update2()
-    { 
+    {
 	System.out.println("Client " + id + " update2");
     }
 }
-
-

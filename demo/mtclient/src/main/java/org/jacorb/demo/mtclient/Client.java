@@ -1,11 +1,11 @@
-package demo.mtclient;
+package org.jacorb.demo.mtclient;
 
 /**
  *
  * Test multi-threading and call-back support:
  *
- * use any number of ClientThreads on the same server 
- * object. 
+ * use any number of ClientThreads on the same server
+ * object.
  */
 
 import java.io.BufferedReader;
@@ -29,7 +29,7 @@ public class Client
 
             if( args.length > 1 )
                 clientNum = Integer.parseInt( args[1] );
-              
+
             String msg = "<test_msg>";
             /* Make sure that you allow a maximum thread
              * pool size > 1, otherwise this will block.
@@ -48,23 +48,23 @@ public class Client
 
             s = MyServerHelper.narrow(obj);
 
-            POA poa = 
+            POA poa =
                 POAHelper.narrow(orb.resolve_initial_references("RootPOA"));
-        
+
             poa.the_POAManager().activate();
-        
+
             /* create thread objects */
             ClientThread [] clientThread = new ClientThread [clientNum] ;
             for( int i = 0; i < clientNum; i++)
             {
-                clientThread[i] = new ClientThread(s, msg, i); 
+                clientThread[i] = new ClientThread(s, msg, i);
             }
 
             /* create CORBA references for each client thread */
             Observer [] observers = new  Observer [clientNum];
             for( int i = 0; i < clientNum; i++)
-            { 
-                observers[i] = 
+            {
+                observers[i] =
                     ObserverHelper.narrow(poa.servant_to_reference( new ObserverPOATie( clientThread[i] )));
                 clientThread[i].setMe( observers[i]);
             }
@@ -72,10 +72,10 @@ public class Client
             /* start threads */
 
             for( int i = 0; i < clientNum; i++)
-            { 
-                clientThread[i].start();   
+            {
+                clientThread[i].start();
             }
-          
+
             int which = 0;
             while( which < clientNum )
             {
@@ -86,9 +86,8 @@ public class Client
 
             System.out.println("Going down...");
 
-            orb.shutdown(true);
-
-        } 
+            s.shutdown();
+        }
         catch (Exception e)
         {
             e.printStackTrace();
@@ -96,4 +95,3 @@ public class Client
 
     }
 }
-

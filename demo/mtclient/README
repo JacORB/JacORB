@@ -4,9 +4,5 @@ Objective:
     methods to track which thread has been updated. This is part of the
     observer interface.
 
-How to Run:
-    Compile:
-        ant compile
-
-    Run Demo:
-        ant demo
+How to compile and run:
+    mvn install
