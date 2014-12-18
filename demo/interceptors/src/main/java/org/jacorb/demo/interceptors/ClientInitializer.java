@@ -1,4 +1,4 @@
-package demo.interceptors;
+package org.jacorb.demo.interceptors;
 
 import org.omg.PortableInterceptor.ORBInitInfo;
 import org.omg.PortableInterceptor.ORBInitializer;

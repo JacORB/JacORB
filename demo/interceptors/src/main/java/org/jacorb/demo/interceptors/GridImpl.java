@@ -1,9 +1,10 @@
-package demo.interceptors;
+package org.jacorb.demo.interceptors;
 
-import demo.interceptors.MyServerPackage.MyException;
+import org.jacorb.demo.interceptors.MyServerPackage.MyException;
 
 public class GridImpl extends MyServerPOA
 {
+    private boolean shutdown;
     protected short height = 31;
     protected short width = 14;
     protected java.math.BigDecimal[][] mygrid;
@@ -54,5 +55,15 @@ public class GridImpl extends MyServerPOA
     public short opWithException() throws MyException
     {
         throw new MyException("This is only a test exception, no harm done :-)");
+    }
+
+    public void shutdown ()
+    {
+        shutdown = true;
+    }
+
+    public boolean getShutdown ()
+    {
+        return shutdown;
     }
 }

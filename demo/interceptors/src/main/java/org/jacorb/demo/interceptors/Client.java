@@ -1,4 +1,4 @@
-package demo.interceptors;
+package org.jacorb.demo.interceptors;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -8,7 +8,8 @@ public class Client
     public static void main(String args[]) throws Exception
     {
         java.util.Properties props = new java.util.Properties();
-        props.put("org.omg.PortableInterceptor.ORBInitializerClass.ForwardInit", "demo.interceptors.ClientInitializer");
+        props.put("org.omg.PortableInterceptor.ORBInitializerClass.ForwardInit",
+                  "org.jacorb.demo.interceptors.ClientInitializer");
 
         BufferedReader reader = new BufferedReader(new FileReader(args[1]));
         props.put("ORBInitRef.Target", reader.readLine());
@@ -19,7 +20,8 @@ public class Client
 
         reader = new BufferedReader(new FileReader(args[0]));
 
-        grid = MyServerHelper.narrow(orb.string_to_object(reader.readLine()));
+        String firstServer = reader.readLine();
+        grid = MyServerHelper.narrow(orb.string_to_object(firstServer));
         reader.close ();
 
         short x = grid.height();
@@ -42,12 +44,17 @@ public class Client
         {
             grid.opWithException();
         }
-        catch (demo.interceptors.MyServerPackage.MyException ex)
+        catch (org.jacorb.demo.interceptors.MyServerPackage.MyException ex)
         {
             System.out.println("MyException, reason: " + ex.why);
         }
 
+        grid.shutdown();
         grid._release();
-        System.out.println("done. ");
+
+        // End the first server
+        grid = MyServerHelper.narrow(orb.string_to_object(firstServer));
+        grid.shutdown();
+
     }
 }

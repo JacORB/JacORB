@@ -1,28 +1,36 @@
-module demo
+
+module org
 {
-    module interceptors
-    { 
-        
-        interface MyServer
+    module jacorb
+    {
+        module demo
         {
-	      typedef fixed <5,2> fixedT;
+            module interceptors
+            {
 
-	      readonly attribute short height;  // height of the grid
-	      readonly attribute short width;   // width of the grid
+                interface MyServer
+                {
+                    typedef fixed <5,2> fixedT;
 
-	      // set the element [n,m] of the grid, to value:
-	      void set(in short n, in short m, in fixedT value);
+                    readonly attribute short height;  // height of the grid
+                    readonly attribute short width;   // width of the grid
 
-	      // return element [n,m] of the grid:
-	      fixedT get(in short n, in short m);
+                    // set the element [n,m] of the grid, to value:
+                    void set(in short n, in short m, in fixedT value);
 
-	      exception MyException
-		{
-		  string why;
-		};
+                    // return element [n,m] of the grid:
+                    fixedT get(in short n, in short m);
 
-	      short opWithException() raises( MyException );
+                    exception MyException
+                    {
+                        string why;
+                    };
 
+                    short opWithException() raises( MyException );
+
+                    void shutdown ();
+                };
+            };
         };
     };
 };
