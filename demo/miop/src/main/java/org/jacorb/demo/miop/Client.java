@@ -1,4 +1,4 @@
-package demo.miop;
+package org.jacorb.demo.miop;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -76,10 +76,8 @@ public class Client
       // Use an unchecked narrow so it doesn't do an is_a call remotely.
       GreetingService helloGroup = GreetingServiceHelper.unchecked_narrow(orb.string_to_object(groupURL));
 
-      System.out.println("### Sending a string of length " + defaultParam.length ());
+      System.out.println("Sending a string of length " + defaultParam.length ());
       helloGroup.greeting_oneway(defaultParam);
-
-      helloGroup.shutdown ();
 
       // A normal narrow should do a remote call. This will need the group IIOP profile which
       // may not have been transmitted so we do this part last.
@@ -91,5 +89,7 @@ public class Client
       {
          System.err.println ("Unable to narrow due to no Group IIOP Profile");
       }
+
+      helloGroup.shutdown ();
    }
 }

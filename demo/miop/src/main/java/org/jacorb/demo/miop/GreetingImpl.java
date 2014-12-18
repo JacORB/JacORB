@@ -1,11 +1,10 @@
-package demo.miop;
-
-//
-// IDL:demo/miop/Hello:1.0
-//
+package org.jacorb.demo.miop;
 
 public class GreetingImpl extends GreetingServicePOA
 {
+   boolean shutdown;
+
+
    public GreetingImpl()
    {
       System.out.println("Hello created!");
@@ -13,12 +12,13 @@ public class GreetingImpl extends GreetingServicePOA
 
    public void greeting_oneway(String s)
    {
-      System.out.println("### Received a string of length " + s.length () + " with '" + s + "'");
+      System.out.println("Received a string of length " + s.length () + " with '" + s + "'");
    }
 
 
    public void shutdown ()
    {
-      System.out.println("### Received a shutdown operation.");
+      shutdown = true;
+      System.out.println("Received a shutdown operation.");
    }
 }

@@ -1,4 +1,4 @@
-package demo.miop;
+package org.jacorb.demo.miop;
 
 
 import java.io.File;
@@ -81,20 +81,11 @@ public class Server
 
       System.err.println ("Corbaloc: " + gURL);
 
-      if (args.length == 2)
+      while ( args.length == 2 || ! helloServant.shutdown)
       {
-         // Hidden option - used only by the demo ant scripts to automate the demo.
-         File killFile = new File(args[1]);
-         while(!killFile.exists())
-         {
-            System.err.println ("Waiting for killfile");
-            Thread.sleep (30000);
-         }
-         orb.shutdown(true);
+          Thread.sleep(1000);
       }
-      else
-      {
-         orb.run();
-      }
+      orb.shutdown(true);
+
    }
 }
