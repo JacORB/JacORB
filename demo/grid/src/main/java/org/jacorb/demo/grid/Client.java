@@ -1,4 +1,4 @@
-package demo.grid;
+package org.jacorb.demo.grid;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -37,12 +37,11 @@ public class Client
         {
             grid.opWithException();
         }
-        catch (demo.grid.MyServerPackage.MyException ex)
+        catch (org.jacorb.demo.grid.MyServerPackage.MyException ex)
         {
             System.out.println("MyException, reason: " + ex.why);
         }
 
-        orb.shutdown(true);
-        System.out.println("done. ");
+        grid.shutdown();
     }
 }

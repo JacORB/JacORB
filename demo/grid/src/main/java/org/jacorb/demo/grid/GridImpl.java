@@ -1,4 +1,4 @@
-package demo.grid;
+package org.jacorb.demo.grid;
 
 /**
  * A very simple implementation of a 2-D grid
@@ -7,6 +7,8 @@ package demo.grid;
 public class GridImpl
     extends MyServerPOA
 {
+    private boolean shutdown;
+
     protected short height = 31;
     protected short width = 14;
     protected java.math.BigDecimal[][] mygrid;
@@ -54,8 +56,18 @@ public class GridImpl
     }
 
     public short opWithException()
-        throws demo.grid.MyServerPackage.MyException
+        throws org.jacorb.demo.grid.MyServerPackage.MyException
     {
-        throw new demo.grid.MyServerPackage.MyException("This is only a test exception, no harm done :-)");
+        throw new org.jacorb.demo.grid.MyServerPackage.MyException("This is only a test exception, no harm done :-)");
+    }
+
+    public void shutdown ()
+    {
+        shutdown = true;
+    }
+
+    public boolean getShutdown ()
+    {
+        return shutdown;
     }
 }

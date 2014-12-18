@@ -6,10 +6,6 @@
     exceptions. There are two different server implemenations, one based on
     inheritance which extends XXXPOA, another based on delegation XXXTie (aka
     "the tie approach").
-    
-How to Run:
-    Compile:
-        ant compile
 
-    Run Demo:
-        ant demo
+How to compile and run:
+    mvn install

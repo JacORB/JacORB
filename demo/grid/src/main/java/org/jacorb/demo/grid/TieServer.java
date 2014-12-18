@@ -1,4 +1,4 @@
-package demo.grid;
+package org.jacorb.demo.grid;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -12,8 +12,10 @@ public class TieServer
         org.omg.PortableServer.POA poa =
             org.omg.PortableServer.POAHelper.narrow(orb.resolve_initial_references("RootPOA"));
 
+        GridOperationsImpl grid = new GridOperationsImpl();
+
         org.omg.CORBA.Object o =
-            poa.servant_to_reference( new MyServerPOATie(new GridOperationsImpl()) );
+            poa.servant_to_reference( new MyServerPOATie(grid) );
 
         poa.the_POAManager().activate();
 
@@ -21,18 +23,11 @@ public class TieServer
         ps.println( orb.object_to_string( o ) );
         ps.close();
 
-        if (args.length == 2)
+
+        while ( args.length == 2 || ! grid.getShutdown ())
         {
-            File killFile = new File(args[1]);
-            while(!killFile.exists())
-            {
-                Thread.sleep(1000);
-            }
-            orb.shutdown(true);
+            Thread.sleep(1000);
         }
-        else
-        {
-            orb.run();
-        }
+        orb.shutdown(true);
     }
 }
