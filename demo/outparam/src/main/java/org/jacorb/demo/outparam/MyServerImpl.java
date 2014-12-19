@@ -1,4 +1,4 @@
-package demo.outparam;
+package org.jacorb.demo.outparam;
 
 /**
  * An example server for using out and inout holders
@@ -6,6 +6,7 @@ package demo.outparam;
 
 public class MyServerImpl extends MyServerPOA
 {
+    private boolean shutdown;
 
     public void op1(java.lang.String a1,
             stringSeqHolder/*out*/ s)
@@ -67,6 +68,15 @@ public class MyServerImpl extends MyServerPOA
         n3.value = n1 + n2;
         return true;
     }
+
+
+    public void shutdown ()
+    {
+        shutdown = true;
+    }
+
+    public boolean getShutdown ()
+    {
+        return shutdown;
+    }
 }
-
-

@@ -1,4 +1,4 @@
-package demo.outparam;
+package org.jacorb.demo.outparam;
 
 /**
  * An example for using out paramters
@@ -83,5 +83,6 @@ public class Client
                     System.out.println(string_cube[i][j][k]);
 
         System.out.println("---Everything went alright, closing down now---");
+        server.shutdown();
     }
 }
