@@ -1,4 +1,4 @@
-package demo.value;
+package org.jacorb.demo.value;
 
 public class NodeImpl extends Node
 {

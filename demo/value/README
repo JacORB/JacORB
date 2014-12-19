@@ -8,11 +8,7 @@ on what it sees.
 
 Compiling and Running the Example
 
-    ant compile
-
-You can now start the demo:
-
-    ant demo
+    mvn install
 
 The client should automatically contact the server and talk to it.
 The output should be:

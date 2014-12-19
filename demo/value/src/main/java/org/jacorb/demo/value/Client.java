@@ -1,4 +1,4 @@
-package demo.value;
+package org.jacorb.demo.value;
 
 import java.io.*;
 import org.omg.CORBA.*;
@@ -8,13 +8,13 @@ public class Client
     public static void main( String args[] )
     {
         if( args.length != 1 )
-    {
-            System.out.println("Usage: java demo.value.idl.Client <ior_file>");
+        {
+            System.out.println("Usage: java org.jacorb.demo.value.idl.Client <ior_file>");
             System.exit( 1 );
         }
 
         try
-    {
+        {
             File f = new File( args[ 0 ] );
 
             //check if file exists
@@ -39,11 +39,11 @@ public class Client
             ORB orb = ORB.init( args, null );
 
             BufferedReader br =
-                new BufferedReader( new FileReader( f ));
+            new BufferedReader( new FileReader( f ));
 
             // get object reference from command-line argument file
             org.omg.CORBA.Object obj =
-                orb.string_to_object( br.readLine() );
+            orb.string_to_object( br.readLine() );
             br.close();
 
             ValueServer s = ValueServerHelper.narrow( obj );
@@ -76,11 +76,12 @@ public class Client
 
             System.out.println ("Passing a list structure: "
                                 + s.receive_list (n1));
+
+            s.shutdown();
         }
         catch( Exception ex )
-    {
+        {
             System.err.println( ex );
         }
     }
 }
-

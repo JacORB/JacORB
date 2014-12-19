@@ -1,9 +1,11 @@
-package demo.value;
+package org.jacorb.demo.value;
 
 import java.util.*;
 
 public class ValueServerImpl extends ValueServerPOA
 {
+    private boolean shutdown;
+
     public String receive_long (boxedLong p1, boxedLong p2)
     {
         if (p1 == null || p2 == null)
@@ -46,4 +48,13 @@ public class ValueServerImpl extends ValueServerPOA
         return result.toString();
     }
 
+    public void shutdown ()
+    {
+        shutdown = true;
+    }
+
+    public boolean getShutdown ()
+    {
+        return shutdown;
+    }
 }
