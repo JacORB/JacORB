@@ -1,4 +1,4 @@
-package demo.ssl;
+package org.jacorb.demo.ssl;
 
 import java.io.*;
 import org.omg.CORBA.*;
@@ -15,12 +15,6 @@ public class Client
 {
     public static void main( String args[] ) throws Exception
     {
-        if( args.length != 1 )
-        {
-            System.out.println( "Usage: java demo.ssl.Client <ior_file>" );
-            System.exit( 1 );
-        }
-
         File file = new File( args[ 0 ] );
 
         //check if file exists
@@ -66,8 +60,11 @@ public class Client
         catch(Exception e)
         {
             System.out.println("[Client] failed to invoke: " + e.getMessage());
-            System.exit(1);
+        }
+
+        if ( args.length > 1 )
+        {
+            demo.shutdown();
         }
     }
 }
-

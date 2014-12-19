@@ -1,4 +1,4 @@
-package demo.ssl;
+package org.jacorb.demo.ssl;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -16,6 +16,8 @@ import org.omg.PortableServer.POA;
 public class Server
     extends SSLDemoPOA
 {
+    private boolean shutdown;
+
     /**
      * This method is from the IDL--interface. It prints out the
      * received client cert (if available).
@@ -25,12 +27,21 @@ public class Server
         System.out.println("[Server] invoked printCert()");
     }
 
+    public void shutdown ()
+    {
+        shutdown = true;
+    }
+
+    public boolean getShutdown ()
+    {
+        return shutdown;
+    }
 
     public static void main( String[] args ) throws Exception
     {
         if( args.length != 1 && args.length != 2)
         {
-            System.out.println( "Usage: java demo.ssl.Server <ior_file> <killfile>" );
+            System.out.println( "Usage: java org.jacorb.demo.ssl.Server <ior_file> <killfile>" );
             System.exit( -1 );
         }
 
@@ -41,7 +52,8 @@ public class Server
 
         poa.the_POAManager().activate();
 
-        org.omg.CORBA.Object demo = poa.servant_to_reference( new Server());
+        Server s = new Server();
+        org.omg.CORBA.Object demo = poa.servant_to_reference(s);
 
         PrintWriter pw = new PrintWriter( new FileWriter( args[ 0 ] ));
 
@@ -51,18 +63,10 @@ public class Server
         pw.flush();
         pw.close();
 
-        if (args.length == 2)
+        while ( args.length == 2 || ! s.getShutdown ())
         {
-            File killFile = new File(args[1]);
-            while(!killFile.exists())
-            {
-                Thread.sleep(1000);
-            }
-            orb.shutdown(true);
+            Thread.sleep(1000);
         }
-        else
-        {
-            orb.run();
-        }
+        orb.shutdown(true);
     }
 } // Server

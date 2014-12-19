@@ -1,10 +1,18 @@
-// The IDL for the ssl demo.
-// (plain and simple ;-)
 
-module demo{
-  module ssl{
-    interface SSLDemo{
-      void printCert();
+module org
+{
+    module jacorb
+    {
+        module demo
+        {
+            module ssl
+            {
+                interface SSLDemo
+                {
+                    void printCert();
+                    void shutdown ();
+                };
+            };
+        };
     };
-  };
 };

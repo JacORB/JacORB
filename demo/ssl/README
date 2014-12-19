@@ -16,10 +16,10 @@ authentication schemes, that is mutual authentication or server-only.
 For more details on the configuration, please see the corresponding
 chapter in the programming guide.
 
-       Running this demo with Sun JSSE (SDK 1.4+)
+       Running this demo with Sun JSSE
        ------------------------------------------
 
-$> ant demo
+mvn install
 
 that will start a server and two clients. the first client
 will try to connect to the server without using SSL. the second

@@ -1,0 +1,111 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+    <modelVersion>4.0.0</modelVersion>
+
+    <!-- Inherit plugin configuration etc from parent -->
+    <parent>
+        <groupId>org.jacorb.demo</groupId>
+        <artifactId>demo-parent</artifactId>
+        <version>3.6-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>ssl</artifactId>
+    <packaging>jar</packaging>
+
+    <name>SSLDemo</name>
+    <description>JacORB SSL Demo</description>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.jacorb</groupId>
+            <artifactId>jacorb</artifactId>
+        </dependency>
+    </dependencies>
+
+    <build>
+
+        <plugins>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>idlj-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>generate</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <compilerArguments>
+                        <endorseddirs>${settings.localRepository}/org/jacorb/jacorb-omgapi/${project.version}</endorseddirs>
+                    </compilerArguments>
+                </configuration>
+            </plugin>
+
+            <!-- Utilising the antrun plugin to test as Ant allows for parallel execution of multiple processes -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>test</id>
+                        <phase>integration-test</phase>
+                        <configuration>
+                            <target>
+                                <property name="demo_classpath" refid="maven.compile.classpath"/>
+                                <tempfile property="ior.file" destdir="/tmp" prefix="server" suffix=".ior" />
+
+                                <parallel>
+                                    <sequential>
+                                        <java fork="true"
+                                              classpathref="maven.compile.classpath"
+                                              className="org.jacorb.demo.ssl.Server">
+                                            <jvmarg value="-Xbootclasspath/p:${demo_classpath}" />
+                                            <jvmarg value="-Dorg.omg.CORBA.ORBClass=org.jacorb.orb.ORB" />
+                                            <jvmarg value="-Dorg.omg.CORBA.ORBSingletonClass=org.jacorb.orb.ORBSingleton" />
+                                            <jvmarg value="-Dcustom.props=${project.build.outputDirectory}/jsse_server_props" />
+                                            <arg value="${ior.file}"/>
+                                        </java>
+                                    </sequential>
+                                    <sequential>
+                                        <waitfor maxwait="30" maxwaitunit="second">
+                                            <available file="${ior.file}"/>
+                                        </waitfor>
+
+                                        <java fork="true"
+                                              classpathref="maven.compile.classpath"
+                                              className="org.jacorb.demo.ssl.Client">
+                                            <jvmarg value="-Xbootclasspath/p:${demo_classpath}" />
+                                            <jvmarg value="-Dorg.omg.CORBA.ORBClass=org.jacorb.orb.ORB" />
+                                            <jvmarg value="-Dorg.omg.CORBA.ORBSingletonClass=org.jacorb.orb.ORBSingleton" />
+                                            <arg value="${ior.file}"/>
+                                        </java>
+
+                                        <java fork="true"
+                                              classpathref="maven.compile.classpath"
+                                              className="org.jacorb.demo.ssl.Client">
+                                            <jvmarg value="-Xbootclasspath/p:${demo_classpath}" />
+                                            <jvmarg value="-Dorg.omg.CORBA.ORBClass=org.jacorb.orb.ORB" />
+                                            <jvmarg value="-Dorg.omg.CORBA.ORBSingletonClass=org.jacorb.orb.ORBSingleton" />
+                                            <jvmarg value="-Dcustom.props=${project.build.outputDirectory}/jsse_client_props" />
+                                            <arg value="${ior.file}"/>
+                                            <arg value="shutdown"/>
+                                        </java>
+                                    </sequential>
+                                </parallel>
+                            </target>
+                        </configuration>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+</project>
