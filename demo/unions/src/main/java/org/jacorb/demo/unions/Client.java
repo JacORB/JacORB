@@ -1,4 +1,4 @@
-package demo.unions;
+package org.jacorb.demo.unions;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -53,5 +53,7 @@ public class Client
         Nums n = new Nums();
         n.l(4711);
         s.write2ndUnion(n);
+
+        s.shutdown();
     }
 }

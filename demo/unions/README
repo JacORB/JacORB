@@ -1,11 +1,7 @@
 Objective:
 
-    This is a simple example shows how to use unions in sending (in) and 
+    This is a simple example shows how to use unions in sending (in) and
     receiving (out) as parameters.
-    
-How to Run:
-    Compile:
-        ant compile
 
-    Run Demo:
-        ant demo
+How to compile and run:
+    mvn install

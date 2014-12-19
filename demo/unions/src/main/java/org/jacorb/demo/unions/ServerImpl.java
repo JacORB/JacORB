@@ -1,8 +1,10 @@
-package demo.unions;
+package org.jacorb.demo.unions;
 
 public class ServerImpl
     extends MyServerPOA
 {
+    private boolean shutdown;
+
     public void writeUnion(UnitedColors union, UnitedColorsHolder unionh)
     {
         switch ( union.discriminator().value() )
@@ -45,6 +47,14 @@ public class ServerImpl
                 System.out.println("default: " );
         }
     }
+
+    public void shutdown ()
+    {
+        shutdown = true;
+    }
+
+    public boolean getShutdown ()
+    {
+        return shutdown;
+    }
 }
-
-

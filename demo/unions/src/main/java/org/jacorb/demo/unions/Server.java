@@ -1,4 +1,4 @@
-package demo.unions;
+package org.jacorb.demo.unions;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -14,24 +14,17 @@ public class Server
 
         poa.the_POAManager().activate();
 
-        org.omg.CORBA.Object o = poa.servant_to_reference ( new ServerImpl() );
+        ServerImpl s = new ServerImpl();
+        org.omg.CORBA.Object o = poa.servant_to_reference ( s );
 
         PrintWriter ps = new PrintWriter(new FileOutputStream(new File( args[0] )));
         ps.println( orb.object_to_string( o ) );
         ps.close();
 
-        if (args.length == 2)
+        while ( args.length == 2 || ! s.getShutdown ())
         {
-            File killFile = new File(args[1]);
-            while(!killFile.exists())
-            {
-                Thread.sleep(1000);
-            }
-            orb.shutdown(true);
+            Thread.sleep(1000);
         }
-        else
-        {
-            orb.run();
-        }
+        orb.shutdown(true);
     }
 }
