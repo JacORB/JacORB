@@ -1,18 +1,19 @@
-package demo.policies;
+package org.jacorb.demo.policies;
 
 import org.omg.CORBA.*;
 
-public class GoodDayImpl 
+public class GoodDayImpl
     extends GoodDayPOA
 {
+    private boolean shutdown;
     private String location;
 
-    public GoodDayImpl( String location ) 
+    public GoodDayImpl( String location )
     {
         this.location = location;
     }
 
-    public String hello(int sleep) 
+    public String hello(int sleep)
     {
         System.out.println("Hello goes to sleep for " + sleep + " msecs.");
         try
@@ -27,4 +28,13 @@ public class GoodDayImpl
     }
 
 
+    public void shutdown ()
+    {
+        shutdown = true;
+    }
+
+    public boolean getShutdown ()
+    {
+        return shutdown;
+    }
 }

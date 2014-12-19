@@ -1,11 +1,11 @@
-package demo.policies;
+package org.jacorb.demo.policies;
 
 import java.io.*;
 import org.omg.CORBA.*;
 import org.omg.Messaging.*;
 
 /**
- * A simple demo that shows how to use CORBA QoS policies at the level
+ * A simple org.jacorb.demo.that shows how to use CORBA QoS policies at the level
  * of individual objects, or ORB-wide. This is a variaton on hello
  * world and relies on IOR files rather than the naming service.
  *
@@ -21,7 +21,7 @@ public class Client
     {
         if( args.length != 1 )
         {
-            System.out.println( "Usage: jaco demo.policies.Client <ior_file>" );
+            System.out.println( "Usage: jaco org.jacorb.demo.policies.Client <ior_file>" );
             return;
         }
 
@@ -132,5 +132,7 @@ public class Client
         {
             System.out.println("ERROR, no Object-level timeout found");
         }
+
+        goodDay.shutdown();
     }
 }

@@ -1,4 +1,4 @@
-package demo.policies;
+package org.jacorb.demo.policies;
 
 import java.io.*;
 
@@ -30,18 +30,10 @@ public class Server
         ps.println( orb.object_to_string( obj ) );
         ps.close();
 
-        if (args.length == 2)
+        while ( args.length == 2 || ! goodDayImpl.getShutdown ())
         {
-            File killFile = new File(args[1]);
-            while(!killFile.exists())
-            {
-                Thread.sleep(1000);
-            }
-            orb.shutdown(true);
+            Thread.sleep(1000);
         }
-        else
-        {
-            orb.run();
-        }
+        orb.shutdown(true);
     }
 }
