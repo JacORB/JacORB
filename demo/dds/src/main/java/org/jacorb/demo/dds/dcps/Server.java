@@ -14,7 +14,7 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU Library General Public License for more details.
  *
- * You should have received a copy of the GNU Library General Public 
+ * You should have received a copy of the GNU Library General Public
  * License along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
  * 02111-1307, USA.
@@ -25,7 +25,7 @@
  *
  **/
 
-package demo.dds.dcps;
+package org.jacorb.demo.dds.dcps;
 
 import org.jacorb.dds.DomainParticipantFactoryImpl;
 import org.omg.CORBA.ORB;
@@ -48,7 +48,7 @@ public class Server implements Runnable {
     }
 
     /**
-     * 
+     *
      */
     public void run() {
 

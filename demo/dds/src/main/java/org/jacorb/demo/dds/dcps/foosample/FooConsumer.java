@@ -14,7 +14,7 @@
 * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 * GNU Library General Public License for more details.
 *
-* You should have received a copy of the GNU Library General Public 
+* You should have received a copy of the GNU Library General Public
 * License along with this program; if not, write to the Free Software
 * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
 * 02111-1307, USA.
@@ -24,7 +24,7 @@
 * Contributor(s)
 *
 **/
-package demo.dds.dcps.foosample;
+package org.jacorb.demo.dds.dcps.foosample;
 
 import org.omg.CORBA.ORB;
 import org.omg.CosNaming.NamingContextExt;
@@ -70,29 +70,29 @@ import org.omg.PortableServer.POA;
 import org.omg.PortableServer.POAHelper;
 
 /**
- * Simple example : Receive a Foo data (Integer) 
+ * Simple example : Receive a Foo data (Integer)
  */
 public class FooConsumer implements Runnable {
-    
+
     private String[] args ;
-    
+
     /**
      * @param args
      */
     public static void main(String[] args) {
-        
+
        FooConsumer fooConsumer = new FooConsumer() ;
        fooConsumer.setArgs(args);
        new Thread(fooConsumer).start();
     }
-  
+
     /**
-     * 
+     *
      */
     public void run() {
         try {
-            // create and initialize the ORB            
-           
+            // create and initialize the ORB
+
             ORB orb = ORB.init(args,null);
             POA poa = POAHelper.narrow(orb.resolve_initial_references("RootPOA"));
             poa.the_POAManager().activate();
@@ -103,12 +103,12 @@ public class FooConsumer implements Runnable {
             DataReader datareader ;
             org.omg.dds.Topic  topic ;
             SubscriberQos suscriberqos ;
-            DataReaderQos datareaderqos ;			
+            DataReaderQos datareaderqos ;
             org.omg.CORBA.Object objRef = orb.resolve_initial_references("NameService");
             // Use NamingContextExt which is part of the Interoperable
             // Naming Service (INS) specification.
             NamingContextExt ncRef = NamingContextExtHelper.narrow(objRef);
-            
+
             // resolve the Object Reference in Naming
             String rname = "DomainParticipantFactory";
             byte tab[ ] = new byte [1];
@@ -120,7 +120,7 @@ public class FooConsumer implements Runnable {
 
             TopicQos tq =  new TopicQos(
                 new TopicDataQosPolicy(tab),
-                new DurabilityQosPolicy( 
+                new DurabilityQosPolicy(
                     DurabilityQosPolicyKind.from_int(0),
                     new Duration_t(0,0)),
                 new DeadlineQosPolicy(new Duration_t(0,0)),
@@ -141,25 +141,25 @@ public class FooConsumer implements Runnable {
                 new OwnershipQosPolicy(
                     OwnershipQosPolicyKind.from_int(0)));
 
-            domainparticipant = 
+            domainparticipant =
                 domainparticipantFactory.create_participant(0,DPQOS,null);
-            topic = 
+            topic =
                 domainparticipant.create_topic("foo",
-                                               "demo.dds.dcps.foosample.Foo",
-                                               tq ,null);            
+                                               "org.jacorb.demo.dds.dcps.foosample.Foo",
+                                               tq ,null);
             String  st  [] = new String [1];
             st[0] = "" ;
             suscriberqos = new SubscriberQos(
                 new org.omg.dds.PresentationQosPolicy(
                     org.omg.dds.PresentationQosPolicyAccessScopeKind.from_int(0),
-                    false  ,false ), 
+                    false  ,false ),
                 new PartitionQosPolicy(st),
                 new GroupDataQosPolicy(tab),
-                new org.omg.dds.EntityFactoryQosPolicy(false)); 
-       
+                new org.omg.dds.EntityFactoryQosPolicy(false));
+
             suscriber = domainparticipant.create_subscriber(suscriberqos,null);
             datareaderqos = new DataReaderQos(
-                new DurabilityQosPolicy( 
+                new DurabilityQosPolicy(
                     DurabilityQosPolicyKind.from_int(0),
                     new Duration_t(0,0)),
                 new DeadlineQosPolicy(new Duration_t(0,0)),
@@ -181,7 +181,7 @@ public class FooConsumer implements Runnable {
 
             datareader = suscriber. create_datareader(topic,datareaderqos,null);
             foodatareader = FooDataReaderHelper.narrow(datareader);
-            DataReaderListener listener = 
+            DataReaderListener listener =
                 DataReaderListenerHelper.narrow(poa.servant_to_reference(new FooDataReaderListenerImpl())) ;
 
             if (foodatareader == null) {
@@ -189,21 +189,21 @@ public class FooConsumer implements Runnable {
                 return;
             }
 
-            foodatareader.set_listener(listener,0);	
-            orb.run();              
+            foodatareader.set_listener(listener,0);
+            orb.run();
         }
         catch(Exception e){
             System.out.println(" ERROR : " + e);
             e.printStackTrace();
         }
-    
+
     }
-    
-    
+
+
     public void end(){
         Thread.currentThread().destroy();
     }
-    
+
     /**
      * @param args The args to set.
      */

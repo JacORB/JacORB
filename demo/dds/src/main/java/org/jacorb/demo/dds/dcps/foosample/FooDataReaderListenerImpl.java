@@ -14,7 +14,7 @@
 * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 * GNU Library General Public License for more details.
 *
-* You should have received a copy of the GNU Library General Public 
+* You should have received a copy of the GNU Library General Public
 * License along with this program; if not, write to the Free Software
 * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
 * 02111-1307, USA.
@@ -24,7 +24,7 @@
 * Contributor(s)
 *
 **/
-package demo.dds.dcps.foosample;
+package org.jacorb.demo.dds.dcps.foosample;
 
 import org.omg.dds.DataReader;
 import org.omg.dds.DataReaderListenerPOA;
@@ -39,48 +39,48 @@ import org.omg.dds.SubscriptionMatchStatus;
 import org.omg.dds.Time_t;
 
 public class FooDataReaderListenerImpl extends DataReaderListenerPOA {
-    
+
     FooFrame fenetre ;
-    
+
     public FooDataReaderListenerImpl( ){
-        fenetre = new FooFrame() ;               
+        fenetre = new FooFrame() ;
     }
-    
+
 	/**
 	 * Not Implemented
-	 */ 
+	 */
     public void on_requested_deadline_missed(DataReader reader,
-            RequestedDeadlineMissedStatus status) {    
+            RequestedDeadlineMissedStatus status) {
     }
-    
+
 	/**
 	 * Not Implemented
-	 */ 
+	 */
     public void on_requested_incompatible_qos(DataReader reader,
-            RequestedIncompatibleQosStatus status) {      
+            RequestedIncompatibleQosStatus status) {
     }
-    
+
 	/**
 	 * Not Implemented
-	 */ 
+	 */
     public void on_sample_rejected(DataReader reader,
-            SampleRejectedStatus status) {     
+            SampleRejectedStatus status) {
     }
-    
+
 	/**
 	 * Not Implemented
-	 */    
+	 */
     public void on_liveliness_changed(DataReader reader,
             LivelinessChangedStatus status) {
-       
+
     }
-    
+
     /**
      * @param reader
      */
     public void on_data_available(DataReader reader) {
-        
-        FooDataReader	foodatareader = FooDataReaderHelper.narrow(reader);        
+
+        FooDataReader	foodatareader = FooDataReaderHelper.narrow(reader);
         Foo tab_foo []  = new Foo [1] ;
         SampleInfo tab_Sample [] = new SampleInfo[1] ;
         tab_Sample[0] = new SampleInfo(0,0,0,new Time_t(0,0),0,0,0,0,0,0);
@@ -89,22 +89,22 @@ public class FooDataReaderListenerImpl extends DataReaderListenerPOA {
         SampleInfoSeqHolder seqofsample = new SampleInfoSeqHolder(tab_Sample);
         foodatareader.take(seqoffoo,seqofsample,0,0,0,0);
         fenetre.SetText((int)seqoffoo.value[0].dummy);
-        fenetre.setVisible(true);        
+        fenetre.setVisible(true);
     }
-    
+
 
 	/**
 	 * Not Implemented
 	 */
     public void on_subscription_match(DataReader reader,
-            SubscriptionMatchStatus status) {  
-    }    
+            SubscriptionMatchStatus status) {
+    }
 
 	/**
 	 * Not Implemented
 	 */
     public void on_sample_lost(DataReader reader, SampleLostStatus status) {
-        
+
     }
-    
+
 }

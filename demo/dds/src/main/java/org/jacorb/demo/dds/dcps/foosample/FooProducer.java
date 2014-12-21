@@ -14,7 +14,7 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU Library General Public License for more details.
  *
- * You should have received a copy of the GNU Library General Public 
+ * You should have received a copy of the GNU Library General Public
  * License along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
  * 02111-1307, USA.
@@ -24,7 +24,7 @@
  * Contributor(s)
  *
  **/
-package demo.dds.dcps.foosample;
+package org.jacorb.demo.dds.dcps.foosample;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -141,7 +141,7 @@ public class FooProducer implements Runnable {
             domainparticipant = domainparticipantFactory.create_participant(0,
                     DPQOS, null);
             topic = domainparticipant.create_topic("foo",
-                    "demo.dds.dcps.foosample.Foo", tq, null);
+                    "org.jacorb.demo.dds.dcps.foosample.Foo", tq, null);
 
             String st[] = new String[1];
             st[0] = "";

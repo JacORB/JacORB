@@ -14,7 +14,7 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU Library General Public License for more details.
  *
- * You should have received a copy of the GNU Library General Public 
+ * You should have received a copy of the GNU Library General Public
  * License along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
  * 02111-1307, USA.
@@ -24,7 +24,7 @@
  * Contributor(s)
  *
  **/
-package demo.dds.dcps.foosample;
+package org.jacorb.demo.dds.dcps.foosample;
 
 import java.util.Iterator;
 import java.util.Vector;
@@ -54,7 +54,7 @@ import org.omg.dds.TopicDescription;
 
 /**
  * DataReader is an abstract class. It must be specialized for each particular application
- * data-type . The additional methods that must be defined in the auto-generated class for 
+ * data-type . The additional methods that must be defined in the auto-generated class for
  * a hypothetical application type 'Foo'.
  */
 public class FooDataReaderImpl extends FooDataReaderPOA {
@@ -147,7 +147,7 @@ public class FooDataReaderImpl extends FooDataReaderPOA {
             i++;
         }
         received_data.value = tab;
-        // remove all element from the vector 
+        // remove all element from the vector
         clear();
 
         return RETCODE_OK.value;
@@ -436,7 +436,7 @@ public class FooDataReaderImpl extends FooDataReaderPOA {
     }
 
     /**
-     * 
+     *
      */
     public void clear() {
         Vector_Foo.clear();
