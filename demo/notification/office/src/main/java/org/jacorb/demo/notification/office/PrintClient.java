@@ -1,4 +1,4 @@
-package demo.notification.office;
+package org.jacorb.demo.notification.office;
 
 /**
  * A simple notification demo client for the Printer service.
@@ -17,7 +17,7 @@ import org.omg.CosNotifyChannelAdmin.*;
 import org.omg.CosNaming.*;
 import org.omg.CORBA.Any;
 
-import demo.notification.office.PrinterPackage.*;
+import org.jacorb.demo.notification.office.PrinterPackage.*;
 
 import org.omg.PortableServer.*;
 import org.omg.CORBA.NO_IMPLEMENT;
@@ -224,8 +224,3 @@ public class PrintClient
         orb.shutdown(true);
     }
 }
-
-
-
-
-

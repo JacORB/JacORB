@@ -1,4 +1,4 @@
-package demo.notification.office;
+package org.jacorb.demo.notification.office;
 
 /**
  *
@@ -13,7 +13,7 @@ import org.omg.CosNaming.NamingContextPackage.*;
 import org.omg.CORBA.ORB;
 import org.omg.PortableServer.*;
 
-import demo.notification.office.*;
+import org.jacorb.demo.notification.office.*;
 
 class PrintServer
 {

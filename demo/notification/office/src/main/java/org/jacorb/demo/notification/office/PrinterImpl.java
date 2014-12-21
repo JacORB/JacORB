@@ -1,4 +1,4 @@
-package demo.notification.office;
+package org.jacorb.demo.notification.office;
 
 /**
  *
@@ -15,7 +15,7 @@ import org.omg.CORBA.ORB;
 import org.omg.PortableServer.*;
 
 import java.util.Hashtable;
-import demo.notification.office.PrinterPackage.*;
+import org.jacorb.demo.notification.office.PrinterPackage.*;
 
 class PrinterImpl
     extends PrinterPOA
