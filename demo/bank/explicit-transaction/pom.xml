@@ -9,16 +9,20 @@
         <version>3.6-SNAPSHOT</version>
     </parent>
 
-    <artifactId>transaction-explicit</artifactId>
+    <artifactId>explicit-transaction</artifactId>
     <packaging>jar</packaging>
 
-    <name>TransactionExplicitDemo</name>
-    <description>JacORB TransactionExplicit Demo</description>
+    <name>Explicit TransactionDemo</name>
+    <description>JacORB Explicit Transaction Demo</description>
 
     <dependencies>
         <dependency>
             <groupId>org.jacorb</groupId>
             <artifactId>jacorb</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.jacorb</groupId>
+            <artifactId>jacorb-services</artifactId>
         </dependency>
     </dependencies>
 
@@ -37,7 +41,7 @@
                 <configuration>
                     <compiler>jacorb</compiler>
                     <includeDirs>
-                        <includeDir>${basedir}/../../../../idl/omg</includeDir>
+                        <includeDir>${basedir}/../../../idl/omg</includeDir>
                     </includeDirs>
                 </configuration>
             </plugin>

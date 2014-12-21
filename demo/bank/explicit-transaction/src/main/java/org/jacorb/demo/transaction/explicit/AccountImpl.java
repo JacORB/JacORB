@@ -1,7 +1,7 @@
-package demo.bank.transaction.explicit;
+package org.jacorb.demo.bank.transaction.explicit;
 
 /**
- * Simple Transaction Service example, code taken and adapted 
+ * Simple Transaction Service example, code taken and adapted
  * from http://www.wiley.com/compbooks/vogel/ejb/code.html
  */
 
@@ -19,7 +19,7 @@ public class AccountImpl
     private String name;
     private Lock lock;
 
-    public AccountImpl( ORB orb, String name, float deposit ) 
+    public AccountImpl( ORB orb, String name, float deposit )
     {
 	this.name = name;
 	this.orb = orb;
@@ -33,9 +33,9 @@ public class AccountImpl
 	return balance;
     }
 
-    public synchronized void credit( float amount, Control control ) 
+    public synchronized void credit( float amount, Control control )
     {
-	try 
+	try
 	{
 	    // lock account
 	    lock.lock();
@@ -57,16 +57,16 @@ public class AccountImpl
 	    System.out.println(" credit $" + amount );
 	    System.out.println(" new balance is $" + newBalance );
 	}
-	catch( Exception ex ) 
+	catch( Exception ex )
 	{
 	    System.err.println("Account " + name + "::credit: exception: " + ex );
 	};
     }
 
     public synchronized void debit( float amount, Control control )
-	throws InsufficientFunds 
+	throws InsufficientFunds
     {
-	try 
+	try
 	{
 
 	    // lock account
@@ -78,18 +78,18 @@ public class AccountImpl
 
 	    // obtain current object
 	    System.err.println("Accont::debit: resolve transaction current");
-	
+
 	    System.err.println("Account " + name + "::debit: get coordinator");
 	    Coordinator coordinator = control.get_coordinator();
 
 	    // register resource
-	    System.out.println("Account " + name + 
+	    System.out.println("Account " + name +
 			       "::debit: register resource (Account) with ITS");
 	    RecoveryCoordinator recCoordinator =
 		coordinator.register_resource( _this() );
 	    System.out.println("Account " + name + "::debit: resource registered");
 
-	    if( amount > balance ) 
+	    if( amount > balance )
 	    {
 		System.out.println("no sufficient funds");
 		lock.unlock();
@@ -114,7 +114,7 @@ public class AccountImpl
 
     // implement methods of the Resource interface
 
-    public Vote prepare() 
+    public Vote prepare()
     {
 	System.out.println("Resource " + name + " : prepare()");
 	if( balance == newBalance )
@@ -122,7 +122,7 @@ public class AccountImpl
 	return Vote.VoteCommit;
     }
 
-    public void rollback() 
+    public void rollback()
     {
 	// remove data from temporary storage
 	System.out.println("Resource " + name + " : rollback()");
@@ -132,7 +132,7 @@ public class AccountImpl
 	System.out.println("Resource " + name + " account unlocked");
     }
 
-    public void commit() 
+    public void commit()
     {
 	// move data to final storage
 	System.out.println("Resource " + name + " : commit()");
@@ -141,17 +141,17 @@ public class AccountImpl
 	System.out.println("Resource " + name + " account unlocked");
     }
 
-    public void commit_one_phase() 
+    public void commit_one_phase()
     {
 	// store data immediately at final destination
 	System.out.println("Resource " + name + " : commit_one_phase()");
-	if(prepare() == Vote.VoteCommit) 
+	if(prepare() == Vote.VoteCommit)
 	{
 	    commit();
 	}
     }
 
-    public void forget() 
+    public void forget()
     {
         System.out.println("Resource " + name + " : forget()");
     }
