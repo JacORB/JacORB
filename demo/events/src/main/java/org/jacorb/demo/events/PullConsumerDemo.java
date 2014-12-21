@@ -1,9 +1,9 @@
-package demo.events;
+package org.jacorb.demo.events;
 
 /**
  * @authors Joerg v. Frantzius, Rainer Lischetzki, Gerald Brose 1997
  *
- * A simple demo for using the event channel as a pull consumer 
+ * A simple demo for using the event channel as a pull consumer
  * of events
  *
  */
@@ -41,10 +41,10 @@ public class PullConsumerDemo
       org.omg.PortableServer.POA poa =
         org.omg.PortableServer.POAHelper.narrow
           (orb.resolve_initial_references ("RootPOA"));
- 
+
       poa.the_POAManager().activate();
-      NamingContextExt nc = 
-              NamingContextExtHelper.narrow(orb.resolve_initial_references("NameService")); 
+      NamingContextExt nc =
+              NamingContextExtHelper.narrow(orb.resolve_initial_references("NameService"));
       ecs = EventChannelHelper.narrow(nc.resolve(nc.to_name("eventchannel.example")));
     }
     catch( Exception e )
@@ -80,8 +80,8 @@ public class PullConsumerDemo
         //		received = pps.pull();
         if( bh.value )
         {
-          System.out.println("received " + (i++) + " : " + 
-                             received.extract_string() ); 
+          System.out.println("received " + (i++) + " : " +
+                             received.extract_string() );
         }
         else
         {
@@ -98,5 +98,3 @@ public class PullConsumerDemo
     pps.disconnect_pull_supplier();
   }
 }
-
-

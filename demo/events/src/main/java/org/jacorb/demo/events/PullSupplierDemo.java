@@ -1,4 +1,4 @@
-package demo.events;
+package org.jacorb.demo.events;
 
 /**
  * @authors Joerg v. Frantzius, Rainer Lischetzki, Gerald Brose 1997
@@ -27,15 +27,15 @@ class PullSupplierDemo extends Thread implements PullSupplierOperations
     System.out.println("Bye.");
   }
 
-  static public void main (String argv[]) 
+  static public void main (String argv[])
   {
     org.omg.CosEventChannelAdmin.EventChannel e = null;
     org.omg.CORBA.ORB orb = org.omg.CORBA.ORB.init(argv, null);
 
     try
     {
-      NamingContextExt nc = 
-              NamingContextExtHelper.narrow(orb.resolve_initial_references("NameService")); 
+      NamingContextExt nc =
+              NamingContextExtHelper.narrow(orb.resolve_initial_references("NameService"));
       e = EventChannelHelper.narrow(nc.resolve(nc.to_name("eventchannel.example")));
     }
     catch( Exception ex )
@@ -44,12 +44,12 @@ class PullSupplierDemo extends Thread implements PullSupplierOperations
     }
 
     SupplierAdmin supplierAdmin = e.for_suppliers();
-    ProxyPullConsumer proxyPullConsumer = 
+    ProxyPullConsumer proxyPullConsumer =
             supplierAdmin.obtain_pull_consumer();
 
     try
     {
-      org.omg.PortableServer.POA poa = 
+      org.omg.PortableServer.POA poa =
               org.omg.PortableServer.POAHelper.narrow(orb.resolve_initial_references("RootPOA"));
 
       PullSupplierPOATie pt = new PullSupplierPOATie( new PullSupplierDemo());
@@ -83,7 +83,7 @@ class PullSupplierDemo extends Thread implements PullSupplierOperations
       {
         synchronized( this )
         {
-          wait(); 
+          wait();
         }
       }
       catch( Exception e )
@@ -94,8 +94,8 @@ class PullSupplierDemo extends Thread implements PullSupplierOperations
   }
 
 
-  public Any try_pull( org.omg.CORBA.BooleanHolder has_event) 
-      throws Disconnected 
+  public Any try_pull( org.omg.CORBA.BooleanHolder has_event)
+      throws Disconnected
   {
     System.out.println("I m being try_pulled.");
     event = org.omg.CORBA.ORB.init().create_any();
@@ -104,5 +104,3 @@ class PullSupplierDemo extends Thread implements PullSupplierOperations
     return event;
   }
 }
-
-

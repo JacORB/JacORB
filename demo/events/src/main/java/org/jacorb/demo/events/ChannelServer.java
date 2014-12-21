@@ -1,4 +1,4 @@
-package demo.events;
+package org.jacorb.demo.events;
 
 /**
  *
@@ -41,5 +41,3 @@ public class ChannelServer
     }
   }
 }
-
-

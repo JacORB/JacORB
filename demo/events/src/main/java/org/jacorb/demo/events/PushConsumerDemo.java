@@ -1,4 +1,4 @@
-package demo.events;
+package org.jacorb.demo.events;
 
 /**
  * @authors Joerg v. Frantzius, Rainer Lischetzki, Gerald Brose 1997

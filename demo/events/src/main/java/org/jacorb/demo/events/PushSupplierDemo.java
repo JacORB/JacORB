@@ -1,4 +1,4 @@
-package demo.events;
+package org.jacorb.demo.events;
 
 /**
  * @authors Joerg v. Frantzius, Rainer Lischetzki, Gerald Brose 1997
@@ -26,7 +26,7 @@ class PushSupplierDemo extends PushSupplierPOA
          org.omg.PortableServer.POAHelper.narrow
             (orb.resolve_initial_references ("RootPOA"));
       poa.the_POAManager().activate();
- 
+
       NamingContextExt nc =
           NamingContextExtHelper.narrow(
               orb.resolve_initial_references("NameService"));
