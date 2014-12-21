@@ -1,7 +1,7 @@
-package demo.bank.transaction.implicit;
+package org.jacorb.demo.bank.transaction.implicit;
 
 /**
- * Simple Transaction Service example, code taken and adapted 
+ * Simple Transaction Service example, code taken and adapted
  * from http://www.wiley.com/compbooks/vogel/ejb/code.html
  */
 
@@ -26,7 +26,7 @@ public class AccountImpl
         this(orb, name, deposit, false);
     }
 
-    public AccountImpl( ORB orb, String name, float deposit, boolean nasty ) 
+    public AccountImpl( ORB orb, String name, float deposit, boolean nasty )
     {
         this.name = name;
         this.orb = orb;
@@ -41,13 +41,13 @@ public class AccountImpl
         return balance;
     }
 
-    public synchronized void credit( float amount ) 
+    public synchronized void credit( float amount )
     {
-        try 
+        try
         {
             if (nasty){
                 switch (nasty_count++){
-                case 0 : 
+                case 0 :
                     break;
                 case 1 :
                     System.out.println("Step 1 nastyness: error");
@@ -61,7 +61,7 @@ public class AccountImpl
             // lock account
             lock.lock();
 
-            Control control = 
+            Control control =
                 org.omg.CosTransactions.CurrentHelper.narrow(
 		orb.resolve_initial_references("TransactionCurrent")).
 		get_control();
@@ -83,7 +83,7 @@ public class AccountImpl
             System.out.println(" credit $" + amount );
             System.out.println(" new balance is $" + newBalance );
         }
-        catch( Exception ex ) 
+        catch( Exception ex )
         {
             System.err.println("Account " + name + "::credit: exception: " + ex );
 	    throw new org.omg.CORBA.TRANSACTION_ROLLEDBACK();
@@ -91,14 +91,14 @@ public class AccountImpl
     }
 
     public synchronized void debit( float amount )
-        throws InsufficientFunds 
+        throws InsufficientFunds
     {
-        try 
+        try
         {
 
             if (nasty){
                 switch (nasty_count++){
-                case 0 : 
+                case 0 :
                     System.out.println("Step 0 nastyness: InsufficientFunds");
                     throw new InsufficientFunds();
                 case 1 :
@@ -112,7 +112,7 @@ public class AccountImpl
             // lock account
             lock.lock();
 
-            Control control = 
+            Control control =
                 org.omg.CosTransactions.CurrentHelper.narrow(
 		orb.resolve_initial_references("TransactionCurrent")).
 		get_control();
@@ -120,18 +120,18 @@ public class AccountImpl
             // memorize current activitity
             this.amount = amount;
             credit = false;
-	
+
             System.err.println("Account " + name + "::debit: get coordinator");
             Coordinator coordinator = control.get_coordinator();
 
             // register resource
-            System.out.println("Account " + name + 
+            System.out.println("Account " + name +
                                "::debit: register resource (Account) with ITS");
             RecoveryCoordinator recCoordinator =
                 coordinator.register_resource( _this() );
             System.out.println("Account " + name + "::debit: resource registered");
 
-            if( amount > balance ) 
+            if( amount > balance )
             {
                 System.out.println("no sufficient funds");
                 lock.unlock();
@@ -163,7 +163,7 @@ public class AccountImpl
 
     // implement methods of the Resource interface
 
-    public Vote prepare() 
+    public Vote prepare()
     {
         System.out.println("Resource " + name + " : prepare()");
         if( balance == newBalance )
@@ -171,7 +171,7 @@ public class AccountImpl
         return Vote.VoteCommit;
     }
 
-    public void rollback() 
+    public void rollback()
     {
         // remove data from temporary storage
         System.out.println("Resource " + name + " : rollback()");
@@ -181,7 +181,7 @@ public class AccountImpl
         System.out.println("Resource " + name + " account unlocked");
     }
 
-    public void commit() 
+    public void commit()
     {
         // move data to final storage
         System.out.println("Resource " + name + " : commit()");
@@ -190,21 +190,19 @@ public class AccountImpl
         System.out.println("Resource " + name + " account unlocked");
     }
 
-    public void commit_one_phase() 
+    public void commit_one_phase()
     {
         // store data immediately at final destination
         System.out.println("Resource " + name + " : commit_one_phase()");
-        if(prepare() == Vote.VoteCommit) 
+        if(prepare() == Vote.VoteCommit)
         {
             commit();
         }
     }
 
-    public void forget() 
+    public void forget()
     {
         System.out.println("Resource " + name + " : forget()");
     }
 
 }
-
-

@@ -1,4 +1,4 @@
-package demo.bank.transaction.implicit;
+package org.jacorb.demo.bank.transaction.implicit;
 
 import org.omg.CORBA.*;
 import org.omg.CORBA.ORBPackage.*;
@@ -6,15 +6,15 @@ import org.omg.CosTransactions.*;
 import org.omg.CosNaming.*;
 import java.io.*;
 
-public class BankImpl 
+public class BankImpl
     extends TheBankPOA
 {
     private ORB orb;
     private org.omg.PortableServer.POA poa;
-  
+
     private org.omg.CosTransactions.Current ts_current = null;
 
-    public BankImpl( ORB orb, org.omg.PortableServer.POA poa ) 
+    public BankImpl( ORB orb, org.omg.PortableServer.POA poa )
     {
         this.orb = orb;
         this.poa = poa;
@@ -46,9 +46,9 @@ public class BankImpl
     }
 
     public void transfer( Account source, Account destination, float amount )
-        throws InsufficientFunds, TransferFailed 
+        throws InsufficientFunds, TransferFailed
     {
-        try 
+        try
         {
 
             // start a new transaction
@@ -73,15 +73,15 @@ public class BankImpl
             ts_current.commit(true);
             System.err.println("transaction comitted");
         }
-        catch( InsufficientFunds isf ) 
+        catch( InsufficientFunds isf )
         {
             System.err.println("insufficient funds - rollback transaction: " + isf );
-            try 
+            try
             {
                 //control.get_terminator().rollback();
                 ts_current.rollback();
             }
-            catch(  org.omg.CosTransactions.NoTransaction  nt ) 
+            catch(  org.omg.CosTransactions.NoTransaction  nt )
             {
                 System.err.println("No transaction - give up: " + nt );
                 System.exit( 1 );
@@ -89,30 +89,30 @@ public class BankImpl
             throw( isf );
         }
 
-        catch( UserException ue ) 
+        catch( UserException ue )
         {
             System.err.println("user exception - rollback transaction: " + ue );
-            try 
+            try
             {
                 //control.get_terminator().rollback();
                 ts_current.rollback();
             }
-            catch(  org.omg.CosTransactions.NoTransaction  nt ) 
+            catch(  org.omg.CosTransactions.NoTransaction  nt )
             {
                 System.err.println("No transaction - give up: " + nt );
                 System.exit( 1 );
             }
-            throw new TransferFailed();	    
+            throw new TransferFailed();
         }
-        catch( SystemException se ) 
+        catch( SystemException se )
         {
             System.err.println("system exception - rollback transaction: " + se );
-            try 
+            try
             {
                 //control.get_terminator().rollback();
                 ts_current.rollback();
             }
-            catch(  org.omg.CosTransactions.NoTransaction  nt ) 
+            catch(  org.omg.CosTransactions.NoTransaction  nt )
             {
                 System.err.println("No transaction - give up: " + nt );
                 System.exit( 1 );
@@ -121,7 +121,3 @@ public class BankImpl
         }
     }
 }
-
-
-
-

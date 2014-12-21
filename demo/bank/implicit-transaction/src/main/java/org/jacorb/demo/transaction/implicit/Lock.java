@@ -1,4 +1,4 @@
-package demo.bank.transaction.implicit;
+package org.jacorb.demo.bank.transaction.implicit;
 
 public class Lock
 {
