@@ -1,4 +1,4 @@
-package demo.notification.whiteboard;
+package org.jacorb.demo.notification.whiteboard;
 
 import java.util.Iterator;
 import java.util.HashMap;
@@ -133,4 +133,3 @@ public class WhiteBoardFactory extends IFactoryPOA implements IFactoryOperations
         }
     }
 } // WhiteBoardFactory
-

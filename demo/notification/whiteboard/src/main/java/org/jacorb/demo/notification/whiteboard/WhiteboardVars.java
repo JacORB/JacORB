@@ -1,4 +1,4 @@
-package demo.notification.whiteboard;
+package org.jacorb.demo.notification.whiteboard;
 
 /*
  *        JacORB - a free Java ORB

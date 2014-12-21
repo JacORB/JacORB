@@ -1,4 +1,4 @@
-package demo.notification.whiteboard;
+package org.jacorb.demo.notification.whiteboard;
 
 /**
  * GhostPainter.java
@@ -12,11 +12,11 @@ package demo.notification.whiteboard;
 
 // Wenn der GhostPainter einmal gestartet ist,
 // schla"ft er eine gewisse Zeit
-// und malt dann unvermittelt im u"bergebenen AWTWin 
+// und malt dann unvermittelt im u"bergebenen AWTWin
 // Linien ...
 
 public class GhostPainter extends Thread {
-    
+
     int x,y;
     long sleep = 5000;
     IWorkgroupFrame w;
@@ -27,7 +27,7 @@ public class GhostPainter extends Thread {
 	this.y = y;
 	this.w = w;
     }
-    
+
     public void shutdown() {
 	active_ = false;
 	interrupt();
@@ -42,7 +42,7 @@ public class GhostPainter extends Thread {
 		    return;
 		}
 	    }
-	    
+
 	    int x0 = (int) (Math.random() * x);
 	    int x1 = (int) (Math.random() * x);
 	    int y1 = (int) (Math.random() * y);
@@ -50,4 +50,3 @@ public class GhostPainter extends Thread {
 	}
     }
 } // GhostPainter
-

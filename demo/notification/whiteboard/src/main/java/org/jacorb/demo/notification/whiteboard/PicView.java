@@ -1,4 +1,4 @@
-package demo.notification.whiteboard;
+package org.jacorb.demo.notification.whiteboard;
 
 import java.io.File;
 import java.awt.Canvas;
@@ -34,37 +34,23 @@ public class PicView extends Canvas {
     }
 
     Image loadImage(String filename) {
-	if ( !new File(filename).exists ()) { 
+	if ( !new File(filename).exists ()) {
 	    System.out.println("File "+filename+" not Found !");
 	    System.exit(1);
 	}
 
 	Image imageData = toolkit.getImage(filename);
 	mediaTracker.addImage(imageData,0);
-	
+
 	try {
 	    mediaTracker.waitForID(0);
 	} catch (InterruptedException ie) {}
 
 	return imageData;
     }
-        
+
     public void paint(Graphics g) {
 	g.clearRect (0, 0, getDim().width, getDim().height);
 	g.drawImage(image,0,0,null);
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-

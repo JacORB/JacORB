@@ -1,4 +1,4 @@
-package demo.notification.whiteboard;
+package org.jacorb.demo.notification.whiteboard;
 
 import java.awt.Canvas;
 import java.awt.image.ImageProducer;
@@ -26,14 +26,14 @@ public class BrushSizeDrawCanvas extends Canvas {
 	controller_ = controller;
 	initialize();
     }
-    
+
     public void initialize() {
 	imageProducer_ = controller_.getImage().getProducer();
-	
+
 	// react on pressed mouse key to start drawing
 	addMouseListener(new MouseAdapter() {
-		public void mousePressed(MouseEvent e) { 
-		    lastX = e.getX(); 
+		public void mousePressed(MouseEvent e) {
+		    lastX = e.getX();
 		    lastY = e.getY();
 		}
 	    });
@@ -58,7 +58,7 @@ public class BrushSizeDrawCanvas extends Canvas {
     public void update(Graphics g){
 	paint(g);
     }
-    
+
     void setDrawColor(int red,int green,int blue) {
 	drawRed=red;
 	drawGreen=green;

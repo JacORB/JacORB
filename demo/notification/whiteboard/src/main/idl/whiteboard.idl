@@ -1,0 +1,61 @@
+#include <CosNotifyChannelAdmin.idl>
+#include <CosNotifyFilter.idl>
+
+module org
+{
+    module jacorb
+    {
+        module demo {
+            module notification {
+                module whiteboard {
+
+                    enum UpdateType {line, clear, data};
+
+                    typedef sequence<string> SeqOfString;
+                    typedef sequence<long> ImageData;
+                    typedef long WorkgroupIdentifier;
+
+                    struct LineData {
+                        long x0,y0,x1,y1,red,green,blue,brushSize;
+                    };
+
+                    union WhiteboardUpdate switch (UpdateType) {
+                        case line:
+                        LineData line;
+                        case clear:
+                        boolean clear;
+                        case data:
+                        ImageData image;
+                    };
+
+                    struct IRegistrationInfo {
+                        WorkgroupIdentifier workgroup_identifier;
+                        CosNotifyChannelAdmin::ConsumerAdmin consumer_admin;
+                        CosNotifyChannelAdmin::SupplierAdmin supplier_admin;
+                        CosNotifyFilter::FilterFactory filter_factory;
+                    };
+
+                    struct IUpdate {
+                        WorkgroupIdentifier workgroup_identifier;
+                        WhiteboardUpdate line;
+                    };
+
+                    interface IWorkgroup {
+                    };
+
+                    // remote Whiteboard
+                    interface IWhiteBoard {
+                        IRegistrationInfo join(in IWorkgroup group);
+                        boolean leave(in WorkgroupIdentifier group);
+                    };
+
+                    // remote Factory
+                    interface IFactory {
+                        IWhiteBoard getCreateWhiteboard(in string name);
+                        SeqOfString listAllWhiteboards();
+                    };
+                };
+            };
+        };
+    };
+};

@@ -1,4 +1,4 @@
-package demo.notification.whiteboard;
+package org.jacorb.demo.notification.whiteboard;
 
 /**
  * UpdateLine.java
@@ -20,8 +20,8 @@ public class UpdateLine implements java.io.Serializable {
 	this.clear = true;
     }
 
-    public UpdateLine(int x0, int y0, 
-		      int x1, int y1, 
+    public UpdateLine(int x0, int y0,
+		      int x1, int y1,
 		      int red, int green , int blue,int brushSize) {
 	this.x0 = x0;
 	this.y0 = y0;
@@ -56,7 +56,7 @@ public class UpdateLine implements java.io.Serializable {
     }
     public int getBlue() {
 	return blue;
-    }	       
+    }
     public int getBrushSize() {
 	return brushSize;
     }
@@ -71,12 +71,7 @@ public class UpdateLine implements java.io.Serializable {
 	s += " green:"+green;
 	s += " blue:"+blue;
 	s += " brushSize:"+brushSize+"\n";
-	
+
 	return s;
     }
 } // UpdateLine
-
-
-
-
-
