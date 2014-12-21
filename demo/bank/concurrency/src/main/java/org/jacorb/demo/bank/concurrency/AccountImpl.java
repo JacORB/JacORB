@@ -1,7 +1,7 @@
-package demo.bank.concurrency;
+package org.jacorb.demo.bank.concurrency;
 
 /**
- * Simple Transaction Service example, code taken and adapted 
+ * Simple Transaction Service example, code taken and adapted
  * from http://www.wiley.com/compbooks/vogel/ejb/code.html
  */
 
@@ -21,7 +21,7 @@ public class AccountImpl
     private Coordinator current_transaction = null;
     private boolean prepared = false;
 
-    public AccountImpl( TransactionalLockSet lock_set, String name, float deposit, int id ) 
+    public AccountImpl( TransactionalLockSet lock_set, String name, float deposit, int id )
     {
 	this.name = name;
         this.lock_set = lock_set;
@@ -48,14 +48,14 @@ public class AccountImpl
         }
     }
 
-    public synchronized void debit( float amount, Control control ) 
-	throws InsufficientFunds 
+    public synchronized void debit( float amount, Control control )
+	throws InsufficientFunds
     {
-	try 
+	try
 	{
             Coordinator coord = control.get_coordinator();
 
-	    // lock account for write 
+	    // lock account for write
 	    while( ! lock_set.try_lock( coord, lock_mode.write ) ){
                 try {
                     wait();
@@ -88,10 +88,10 @@ public class AccountImpl
 
     public synchronized void credit( float amount, Control control )
     {
-	try 
+	try
 	{
             Coordinator coord = control.get_coordinator();
-	    // lock account for write 
+	    // lock account for write
 	    while( ! lock_set.try_lock( coord, lock_mode.write ) ){
                 try {
                     wait();
@@ -131,7 +131,7 @@ public class AccountImpl
 
     // implement methods of the Resource interface
 
-    public synchronized Vote prepare() 
+    public synchronized Vote prepare()
     {
 	if( balance == newBalance )
 	    return Vote.VoteReadOnly;
@@ -150,14 +150,14 @@ public class AccountImpl
         notifyAll();
     }
 
-    public synchronized void commit_one_phase() 
+    public synchronized void commit_one_phase()
     {
 	if(prepare() == Vote.VoteCommit) {
 	    commit();
 	}
     }
 
-    public synchronized void forget() 
+    public synchronized void forget()
     {
         System.out.println("Resource " + name + " : forget()");
     }
