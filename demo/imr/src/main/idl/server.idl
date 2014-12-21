@@ -1,0 +1,18 @@
+
+module org
+{
+    module jacorb
+    {
+        module demo
+        {
+            module imr {
+
+                interface SomeIf {
+
+                    void op();
+                };
+
+            };
+        };
+    };
+};

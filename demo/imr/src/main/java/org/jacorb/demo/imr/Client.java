@@ -1,39 +1,39 @@
-package demo.imr;
+package org.jacorb.demo.imr;
 
 import java.io.*;
 import org.omg.CORBA.*;
 
 import org.jacorb.util.*;
 
-public class Client 
+public class Client
 {
-    public static void main( String args[] ) 
+    public static void main( String args[] )
     {
-        if( args.length != 1 ) 
+        if( args.length != 1 )
 	{
-            System.out.println( "Usage: jaco demo.imr.Client <ior_file>" );
+            System.out.println( "Usage: jaco org.jacorb.demo.imr.Client <ior_file>" );
             System.exit( 1 );
         }
 
-        try 
+        try
 	{
             File f = new File( args[ 0 ] );
 
             //check if file exists
             if( ! f.exists() )
             {
-                System.out.println("File " + args[0] + 
+                System.out.println("File " + args[0] +
                                    " does not exist.");
-                
+
                 System.exit( -1 );
             }
-            
+
             //check if args[0] points to a directory
             if( f.isDirectory() )
             {
-                System.out.println("File " + args[0] + 
+                System.out.println("File " + args[0] +
                                    " is a directory.");
-                
+
                 System.exit( -1 );
             }
 
@@ -44,7 +44,7 @@ public class Client
                 new BufferedReader( new FileReader( f ));
 
             // get object reference from command-line argument file
-            org.omg.CORBA.Object obj = 
+            org.omg.CORBA.Object obj =
                 orb.string_to_object( br.readLine() );
 
             br.close();
@@ -57,10 +57,9 @@ public class Client
             demo.op();
             System.out.println("Client: successfully called server");
         }
-        catch( Exception ex ) 
+        catch( Exception ex )
 	{
             System.err.println( ex );
         }
     }
 }
-

@@ -1,4 +1,4 @@
-package demo.imr;
+package org.jacorb.demo.imr;
 
 import java.io.*;
 
@@ -24,7 +24,7 @@ public class Server
         if( args.length != 2 )
 	{
             System.out.println(
-                "Usage: jaco demo.imr.Server <ior_file> <timeout in secs>");
+                "Usage: jaco org.jacorb.demo.imr.Server <ior_file> <timeout in secs>");
             System.exit( 1 );
         }
 
@@ -32,7 +32,7 @@ public class Server
         System.setProperty( "jacorb.use_imr", "on" );
         System.setProperty( "jacorb.use_tao_imr", "off" );
 
-        try 
+        try
         {
             long timeout = Integer.parseInt( args[1] ) * 1000;
             //init ORB
@@ -95,5 +95,3 @@ public class Server
         }
     }
 }
-
-
