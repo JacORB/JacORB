@@ -1,4 +1,4 @@
-package demo.tao_imr;
+package org.jacorb.demo.tao_imr;
 
 import java.io.*;
 import org.omg.CORBA.*;
@@ -11,7 +11,7 @@ public class Client
     {
         if( args.length != 1 )
 	{
-            System.out.println( "Usage: jaco demo.imr.Client <ior_file>" );
+            System.out.println( "Usage: jaco org.jacorb.demo.imr.Client <ior_file>" );
             System.exit( 1 );
         }
 
@@ -63,4 +63,3 @@ public class Client
         }
     }
 }
-

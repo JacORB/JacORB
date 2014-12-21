@@ -52,7 +52,7 @@ Steps to build this demo
 
  a) Go to the directory $JACORB_HOME/demo/tao_imr
 
- b) Type: ant compile
+ b) Type: mvn install
 
 
 Steps to run this demo

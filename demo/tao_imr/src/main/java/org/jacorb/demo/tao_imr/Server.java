@@ -1,4 +1,4 @@
-package demo.tao_imr;
+package org.jacorb.demo.tao_imr;
 
 import java.io.*;
 
@@ -93,5 +93,3 @@ public class Server
         }
     }
 }
-
-
