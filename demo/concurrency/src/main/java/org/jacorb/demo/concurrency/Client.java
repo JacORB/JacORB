@@ -1,4 +1,4 @@
-package demo.concurrency;
+package org.jacorb.demo.concurrency;
 
 import org.omg.CosConcurrencyControl.*;
 import org.omg.CosTransactions.*;
@@ -260,7 +260,7 @@ public class Client
      * InputStreamReader(quote.getInputStream())); line = in.readLine(); while
      * (line.indexOf("IOR:") != 0) { line = in.readLine(); } in.close();
      * quote.close();
-     * 
+     *
      * org.omg.CORBA.Object o = orb.string_to_object(line); return
      * SessionHelper.narrow(o); }
      */

@@ -1,4 +1,4 @@
-package demo.concurrency;
+package org.jacorb.demo.concurrency;
 
 import java.io.*;
 import java.net.Socket.*;
@@ -34,9 +34,9 @@ public class ReferenceServer implements Runnable{
             conn.close();
          }
       } catch (UnknownHostException e){
-         e.printStackTrace(); 
+         e.printStackTrace();
       } catch (IOException ioe){
-         ioe.printStackTrace(); 
+         ioe.printStackTrace();
       } finally {
          if (quoteSend != null){
             quoteSend.close();
@@ -45,7 +45,7 @@ public class ReferenceServer implements Runnable{
             try {
                conn.close();
             } catch (IOException ioe){
-               ioe.printStackTrace(); 
+               ioe.printStackTrace();
             }
          }
       }

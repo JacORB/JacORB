@@ -1,4 +1,4 @@
-package demo.concurrency;
+package org.jacorb.demo.concurrency;
 
 import org.jacorb.concurrency.*;
 import org.jacorb.transaction.*;
@@ -13,7 +13,7 @@ public class Server
         try
         {
             org.omg.CORBA.ORB orb = org.omg.CORBA.ORB.init (args, null);
-            org.omg.PortableServer.POA poa = 
+            org.omg.PortableServer.POA poa =
                 org.omg.PortableServer.POAHelper.narrow (orb.resolve_initial_references ("RootPOA"));
 
             poa.the_POAManager ().activate ();
@@ -23,8 +23,8 @@ public class Server
             // SessionService.start(poa, 5);
             // org.omg.CosNaming.NamingContextExt nc =
             // SessionService._get_naming();
-            
-            NamingContextExt nc = 
+
+            NamingContextExt nc =
                 NamingContextExtHelper.narrow (orb.resolve_initial_references ("NameService"));
             NameComponent[] name = new NameComponent[1];
             name[0] = new NameComponent ("LogicLand", "transaction");
@@ -63,4 +63,3 @@ public class Server
         }
     }
 }
-

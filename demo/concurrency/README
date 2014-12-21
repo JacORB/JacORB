@@ -1,10 +1,7 @@
- This is an interactive program that shows how to use transactions, locking 
- and unlocking resourses, changing the resource lock status, rollback a 
+ This is an interactive program that shows how to use transactions, locking
+ and unlocking resourses, changing the resource lock status, rollback a
  transaction and commit a transaction.
-    
+
 How to Run:
     Compile:
-        ant compile
-
-    Run Demo:
-        ant demo
+        mvn compile

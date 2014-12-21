@@ -1,4 +1,4 @@
-package demo.concurrency;
+package org.jacorb.demo.concurrency;
 
 import java.io.*;
 
