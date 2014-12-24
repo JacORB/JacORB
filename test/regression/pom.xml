@@ -317,6 +317,7 @@
                                         <exclude>SyncScopeServer.idl</exclude>
                                         <exclude>_bugjac560.idl</exclude>
                                         <exclude>_bugjac801.idl</exclude>
+                                        <exclude>_bug876.idl</exclude>
                                         <exclude>ami_bug*.idl</exclude>
                                         <exclude>server.idl</exclude>
                                     </excludes>
@@ -382,6 +383,7 @@
                                 <source>
                                     <includes>
                                         <include>_bugjac801.idl</include>
+                                        <include>_bug876.idl</include>
                                     </includes>
                                     <additionalArguments>
                                         <additionalArgument>-genEnhanced</additionalArgument>

@@ -1,0 +1,48 @@
+
+module org {
+    module jacorb {
+        module test {
+            module bugs {
+                module bug876
+                {
+
+                    struct RushIdent
+                    {
+                        long long first ;
+                        long long second ;
+                    };
+
+                    struct PositionData
+                    {
+                        // FormatCode format ;
+                        long poolID ;
+                        long long poolFrame ;
+                        short skew ;
+                        RushIdent rushID ;
+                        long rushFrame ;
+                    };
+
+                    enum FragmentType
+                    {
+                        videoFragment
+                    };
+
+                    union ServerFragmentData switch (FragmentType)
+                    {
+                        case videoFragment:
+                        PositionData videoFragmentData ;
+                        // lots more
+                    };
+
+                    struct ServerFragment
+                    {
+                        long trackNum  ;
+                        long start ;
+                        long finish ;
+                        ServerFragmentData fragmentData ;
+                    };
+                };
+            };
+        };
+    };
+};
