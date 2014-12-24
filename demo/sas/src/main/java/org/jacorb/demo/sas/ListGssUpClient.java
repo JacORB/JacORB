@@ -51,11 +51,12 @@ public class ListGssUpClient {
             }
             catch (org.omg.CORBA.NO_PERMISSION e)
             {
-                System.err.println("Login Failed!");
+                System.err.println("Login Failed! (as expected....retrying....)");
 
                 // Change to correct user/password
                 GssUpContext.setUsernamePassword("jay", "test");
-                try {
+                try
+                {
                    demo.printSAS();
                 }
                 catch (org.omg.CORBA.NO_PERMISSION ex)
@@ -65,6 +66,9 @@ public class ListGssUpClient {
             }
 
             System.out.println("Call to server completed");
+
+            demo.shutdown();
+
         } catch (Exception ex) {
             ex.printStackTrace();
         }

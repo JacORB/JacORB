@@ -32,9 +32,20 @@ public class KerberosServer extends SASDemoPOA {
     private static Principal myPrincipal = null;
     private static Subject mySubject = null;
     private ORB orb;
+    private boolean shutdown;
 
     public KerberosServer(ORB orb) {
         this.orb = orb;
+    }
+
+    public void shutdown ()
+    {
+        shutdown = true;
+    }
+
+    public boolean getShutdown ()
+    {
+        return shutdown;
     }
 
     public void printSAS() {
@@ -74,7 +85,7 @@ public class KerberosServer extends SASDemoPOA {
         }
     }
 
-    public static void main(String[] args) {
+    public static void main(final String[] args) {
         if (args.length != 2) {
             System.out.println("Usage: java demo.sas.KerberosServer <ior_file> <password>");
             System.exit(-1);
@@ -103,7 +114,11 @@ public class KerberosServer extends SASDemoPOA {
                     try {
                         // create application
                         KerberosServer app = new KerberosServer(finalArgs);
-                        app.orb.run();
+                        while ( args.length == 3 || ! app.getShutdown ())
+                        {
+                            Thread.sleep(1000);
+                        }
+                        app.orb.shutdown(true);
                     } catch (Exception e) {
                         System.out.println("Error running program: "+e);
                     }

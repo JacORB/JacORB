@@ -52,6 +52,8 @@ public class KerberosClient {
             demo.printSAS();
 
             System.out.println("Call to server succeeded");
+
+            demo.shutdown();
         } catch (Exception ex) {
             ex.printStackTrace();
         }
@@ -62,7 +64,6 @@ public class KerberosClient {
             System.out.println("Usage: java demo.sas.KerberosClient <ior_file> <username> <password>");
             System.exit(1);
         }
-
         // login - with Kerberos
         LoginContext loginContext = null;
         try {
@@ -86,7 +87,6 @@ public class KerberosClient {
                 public Object run() {
                     try {
                         KerberosClient client = new KerberosClient(finalArgs);
-                        orb.run();
                     } catch (Exception e) {
                         System.out.println("Error running program: "+e);
                     }
