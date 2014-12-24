@@ -1,18 +1,13 @@
-Gerald Brose
-
-gerald.brose@acm.org
-
 
             JacORB Coding Conventions
             =========================
 
-JacORB uses the Apache Jakarta Coding Style, which is based on the Sun
+JacORB uses a similar style to Apache CommonsNet Coding Style, which is based on the Oracle
 coding conventions for Java. Please see
-http://jakarta.apache.org/turbine/common/code-standards.html for
-reference.
+https://commons.apache.org/proper/commons-net/code-standards.html.
 
-(Re-formatting):
-===============
+Formatting:
+===========
 
 The astyle tool (http://astyle.sourceforge.net/) can be used to format
 source code. Note, however, that astyle will not *remove* whitespace,
@@ -120,7 +115,7 @@ General rules
 
              public int myMethod(int param 1, ...)
 
-    g) break lines that get too long  (around column 100)
+    g) break lines that get too long  (around column 120)
 
     h) insert empty lines freely wherever you think it helps.
 
@@ -143,6 +138,3 @@ General rules
       test.
    e) When modifying code in the main tree, if there is missing javadoc
       in the function you are changing fix that as well.
-
-
-[ More suggestions? ... ]

@@ -56,6 +56,8 @@ This Release
            (e.g. VMWare, VirtualBox, Docker) via the JVM system property
            jacorb.network.virtual which defaults to VirtualBox,VMWare,vboxnet,docker
          - Fixes for IPv6/MIOP parsing.
+    - Misc
+        - Convert demos to Maven layout.
 
 3.5
 ===
