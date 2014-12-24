@@ -4,9 +4,10 @@
 
     <!-- Inherit plugin configuration etc from parent -->
     <parent>
-        <groupId>org.jacorb.demo</groupId>
+        <groupId>org.jacorb.jacorb-demo</groupId>
         <artifactId>demo-parent</artifactId>
         <version>3.6-SNAPSHOT</version>
+        <relativePath>../pom.xml</relativePath>
     </parent>
 
     <artifactId>maven</artifactId>

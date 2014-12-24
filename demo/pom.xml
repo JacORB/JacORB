@@ -8,7 +8,7 @@
         <version>3.6-SNAPSHOT</version>
     </parent>
 
-    <groupId>org.jacorb.demo</groupId>
+    <groupId>org.jacorb.jacorb-demo</groupId>
     <artifactId>demo-parent</artifactId>
     <packaging>pom</packaging>
 
@@ -16,7 +16,33 @@
     <description>JacORB Demo Aggregation POM</description>
 
     <modules>
+        <module>ami</module>
+        <module>any</module>
+        <module>arrays</module>
+        <module>bank</module>
+        <module>bidir</module>
+        <module>corbaloc</module>
+        <module>concurrency</module>
+        <module>dii</module>
+        <module>dds</module>
+        <module>dynany</module>
+        <module>events</module>
+        <module>grid</module>
+        <module>hello</module>
+        <module>imr</module>
+        <module>interceptors</module>
         <module>maven</module>
+        <module>miop</module>
+        <module>mtclient</module>
+        <module>notification/office</module>
+        <module>notification/whiteboard</module>
+        <module>outparam</module>
+        <module>policies</module>
+        <module>sas</module>
+        <module>ssl</module>
+        <module>tao_imr</module>
+        <module>unions</module>
+        <module>value</module>
     </modules>
 
 </project>

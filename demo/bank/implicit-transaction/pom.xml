@@ -4,8 +4,8 @@
 
     <!-- Inherit plugin configuration etc from parent -->
     <parent>
-        <groupId>org.jacorb.demo</groupId>
-        <artifactId>demo-parent</artifactId>
+        <groupId>org.jacorb.jacorb-demo.bank</groupId>
+        <artifactId>bank-parent</artifactId>
         <version>3.6-SNAPSHOT</version>
     </parent>
 
