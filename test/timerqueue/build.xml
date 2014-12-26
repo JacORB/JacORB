@@ -6,7 +6,7 @@
   <!--                  Test build file                     -->
   <!-- ==================================================== -->
 
-  <import file="../../etc/common.xml"/>
+  <import file="../etc/common.xml"/>
 
    <target name="local_init">
        <property name="name" value="XYZ"/>

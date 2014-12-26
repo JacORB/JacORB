@@ -2,7 +2,7 @@
 
 <project name="orbreinvoke-tao_imr" default="all" basedir=".">
 
-    <import file="../../../etc/common.xml"/>
+    <import file="../../etc/common.xml"/>
 
   <!-- ==================================================== -->
   <!--                   build file                         -->
