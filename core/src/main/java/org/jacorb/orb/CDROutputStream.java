@@ -73,10 +73,6 @@ public class CDROutputStream
     /** the current write position in the buffer */
     private int pos;
 
-    /** the number of bytes that will only make up the final buffer
-        size, but that have not yet been written */
-    private int deferred_writes;
-
     private final IBufferManager bufMgr;
     protected byte[] buffer;
 
@@ -149,12 +145,6 @@ public class CDROutputStream
     /** True if write_value_internal called writeReplace */
     private boolean writeReplaceCalled = false;
 
-    /** deferredArrayQueue is initialized on demand in write_octet_array */
-    /* deferredArrayQueue is initialized on demand in write_octet_array */
-    private List<DeferredWriteFrame> deferredArrayQueue;
-
-    private int deferredArrayQueueSize;
-
     protected final org.jacorb.orb.ORBSingleton orb;
 
     protected int giop_minor = 2;
@@ -187,34 +177,13 @@ public class CDROutputStream
 
     private final static DelegatingTypeCodeWriter typeCodeWriter = new DelegatingTypeCodeWriter();
 
-    private static class DeferredWriteFrame
-    {
-        public final int write_pos;
-        public final int start;
-        public final int length;
-        public final byte[] buf;
-
-        public DeferredWriteFrame( int write_pos, int start,
-                                   int length, byte[] buf )
-        {
-            super();
-
-            this.write_pos = write_pos;
-            this.start = start;
-            this.length = length;
-            this.buf = buf;
-        }
-    }
-
     /**
      * size selecting c'tor
      * @param orb must be a JacORB ORB
      * @param bufferSize -1 to fetch the default buffer size,
      *        value &gt; 0 to specify a specific size
-     * @param no_deferred true overrides the configured deferred writes behavior
-     *        and forces all data into the single buffer while marshaling
      */
-    public CDROutputStream(org.omg.CORBA.ORB orb, int bufferSize, boolean no_deferred)
+    public CDROutputStream(org.omg.CORBA.ORB orb, int bufferSize)
     {
         super();
 
@@ -236,11 +205,6 @@ public class CDROutputStream
             throw new INTERNAL(e.getMessage());
         }
 
-        if (no_deferred)
-        {
-            deferredArrayQueueSize = 0;
-        }
-
         if (bufferSize == -1)
         {
             buffer = bufMgr.getPreferredMemoryBuffer();
@@ -259,7 +223,7 @@ public class CDROutputStream
      */
     public CDROutputStream(final org.omg.CORBA.ORB orb)
     {
-      this(orb, -1, false);
+      this(orb, -1);
     }
 
     /**
@@ -300,8 +264,6 @@ public class CDROutputStream
         mutator = (IORMutator) configuration.getAttributeAsObject("jacorb.iormutator");
 
         isMutatorEnabled = (mutator != null);
-
-        deferredArrayQueueSize = (configuration.getAttributeAsInteger("jacorb.deferredArrayQueue", 8)) * 1000;
 
         maxStreamFormatVersion = (byte) configuration.getAttributeAsInteger("jacorb.interop.maximum_stream_format_version", 1);
 
@@ -373,8 +335,7 @@ public class CDROutputStream
 
 
     /**
-     * write the contents of this CDR stream to the output stream,
-     * includes all deferred writes (e.g., for byte arrays)...
+     * write the contents of this CDR stream to the output stream
      * called by, e.g. GIOPConnection to write directly to the
      * wire.
      */
@@ -382,87 +343,9 @@ public class CDROutputStream
     public void write( OutputStream out, int start, int length )
         throws IOException
     {
-        int write_idx = start;
-        int read_idx = start;
-
-        // needed to calculate the actual read position in the
-        // current buffer,
-        int skip_count = 0;
-
-        int list_idx = 0;
-
-        DeferredWriteFrame next_frame = null;
-
-        if (deferredArrayQueue != null && deferredArrayQueue.size() > 0 )
+        if( start < start + length )
         {
-            // find the first frame that falls within the current window,
-            // i.e. that need s to be written
-            next_frame = deferredArrayQueue.get( list_idx++ );
-
-            // skip all frames beginning before the current start pos, but
-            // record their length
-            while( next_frame.write_pos < start && list_idx < deferredArrayQueue.size() )
-            {
-                skip_count += next_frame.length;
-                next_frame = deferredArrayQueue.get( list_idx++ );
-            }
-
-            // skip
-            if( next_frame.write_pos < start && list_idx >= deferredArrayQueue.size() )
-            {
-                skip_count += next_frame.length;
-                next_frame = null;
-            }
-        }
-
-        while( write_idx < start + length )
-        {
-            if( next_frame != null && write_idx == next_frame.write_pos )
-            {
-                if ( ! (next_frame.length <= start + length - write_idx))
-                {
-                    throw new MARSHAL ("Deferred array does not fit");
-                }
-
-                // write a frame, i.e. a byte array
-                out.write( next_frame.buf, next_frame.start, next_frame.length );
-
-                // advance
-                write_idx += next_frame.length;
-
-                // clear the fram variable...
-                next_frame = null;
-
-                // and look up the next frame
-                if( deferredArrayQueue != null &&
-                    list_idx < deferredArrayQueue.size() )
-                {
-                    next_frame = deferredArrayQueue.get( list_idx++ );
-                    if( next_frame.write_pos > start + length )
-                    {
-                        // unset, frame is beyond our current reach
-                        next_frame = null;
-                    }
-                }
-            }
-
-            if( write_idx < start + length )
-            {
-                // write data that was previously marshaled
-
-                int write_now =
-                Math.min( start + length,
-                          ( next_frame != null ? next_frame.write_pos : start + length ));
-
-                write_now -= write_idx; // calculate length
-
-                //
-                out.write( buffer, read_idx-skip_count , write_now );
-
-                // advance
-                read_idx += write_now;
-                write_idx += write_now;
-            }
+            out.write( buffer, start, length );
         }
     }
 
@@ -495,8 +378,6 @@ public class CDROutputStream
 
         buffer = null;
         closed = true;
-        deferredArrayQueue = null;
-        deferred_writes = 0;
     }
 
     /**
@@ -679,7 +560,7 @@ public class CDROutputStream
 
     public int size()
     {
-        return pos + deferred_writes;
+        return pos;
     }
 
 
@@ -716,9 +597,7 @@ public class CDROutputStream
 
         buffer = b;
 
-        deferredArrayQueue = null;
         pos = 0;
-        deferred_writes = 0;
         index = 0;
     }
 
@@ -742,20 +621,6 @@ public class CDROutputStream
     @Override
     public org.omg.CORBA.portable.InputStream create_input_stream()
     {
-        if (deferred_writes > 0)
-        {
-            ByteArrayOutputStream baos = new ByteArrayOutputStream(index + 1);
-            try
-            {
-                write(baos, 0, index);
-            }
-            catch (IOException e)
-            {
-                throw new MARSHAL(e.toString());
-            }
-            return new CDRInputStream(orb(), baos.toByteArray());
-        }
-
         final byte[] result = new byte[index];
         System.arraycopy(buffer, 0, result, 0, result.length);
         return new CDRInputStream(orb, result);
@@ -1069,7 +934,6 @@ public class CDROutputStream
         }
     }
 
-    @Override
     public void write_fixed(BigDecimal value, short digits, short scale)
     {
         String v = value.unscaledValue().toString();
@@ -1310,41 +1174,10 @@ public class CDROutputStream
     {
         if( value != null )
         {
-            if( ( deferredArrayQueueSize > 0 && length > deferredArrayQueueSize ) || deferred_writes > 0 )
-            {
-                if (deferredArrayQueue == null)
-                {
-                    deferredArrayQueue = new ArrayList<DeferredWriteFrame>();
-                }
-                if (deferredArrayQueue.size() > 0)
-                {
-                    // in case of rewrite, we remove deferred write frames
-                    boolean remove = false;
-                    for ( int list_idx = 0 ; list_idx < deferredArrayQueue.size() ; list_idx++ )
-                    {
-                       DeferredWriteFrame next_frame = deferredArrayQueue.get(list_idx);
-                       if ( remove || index < next_frame.write_pos + next_frame.length )
-                       {
-                           remove = true;
-                           deferred_writes -= next_frame.length;
-                           index -= next_frame.length;
-                           deferredArrayQueue.remove(list_idx);
-                       }
-                    }
-                }
-
-                deferredArrayQueue.add( new DeferredWriteFrame( index, offset, length, value ));
-                index += length;
-                deferred_writes += length;
-
-            }
-            else
-            {
-                check(length);
-                System.arraycopy(value,offset,buffer,pos,length);
-                index += length;
-                pos += length;
-            }
+            check(length);
+            System.arraycopy(value,offset,buffer,pos,length);
+            index += length;
+            pos += length;
         }
     }
 

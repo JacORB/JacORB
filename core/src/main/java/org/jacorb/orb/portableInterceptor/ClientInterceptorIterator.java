@@ -76,14 +76,6 @@ public class ClientInterceptorIterator
          */
         setIntermediatePoint (false);
 
-        /**
-         * See RequestInterceptorIterator for full explanation
-         * of this method.  The client interceptor flow has no
-         * intermediate points so this is always false.  It has
-         * been included for completeness.
-         */
-        setIntermediatePoint (false);
-
         iterate();
 
         //propagate last exception upwards
