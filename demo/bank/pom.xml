@@ -3,8 +3,8 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>org.jacorb</groupId>
-        <artifactId>jacorb-parent</artifactId>
+        <groupId>org.jacorb.jacorb-demo</groupId>
+        <artifactId>demo-parent</artifactId>
         <version>3.6-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
