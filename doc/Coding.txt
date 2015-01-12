@@ -6,6 +6,8 @@ JacORB uses a similar style to Apache CommonsNet Coding Style, which is based on
 coding conventions for Java. Please see
 https://commons.apache.org/proper/commons-net/code-standards.html.
 
+A reference Eclipse coding standard is provided here https://gist.github.com/rnc/1fa85360300a2d78c087
+
 Formatting:
 ===========
 
@@ -130,7 +132,7 @@ General rules
 3) Place the JacORB LGPL license header on all files.
 
 4) Tests
-   a) When fixing a bug reference the bug number in the CVS commit.
+   a) When fixing a bug reference the bug number in the commit.
    b) Either add to an existing test or add to the
       org.jacorb.test.bugs.bugXXX structure.
    c) Reference the test and code in the bugzilla entry.

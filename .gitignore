@@ -2,10 +2,6 @@ doc/ProgrammingGuide/ProgrammingGuide.pdf
 
 lib/*.jar
 
-demo/*/build
-demo/*/generated
-demo/tao_imr/test/output
-
 test/**/*/build
 test/interop/*/generated
 test/orbreinvoke/**/generated
@@ -18,3 +14,7 @@ target
 
 .project
 .classpath
+*.iml
+.settings
+.idea
+
