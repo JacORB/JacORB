@@ -29,6 +29,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
+
 import org.jacorb.config.Configuration;
 import org.jacorb.config.ConfigurationException;
 import org.jacorb.ir.RepositoryID;
@@ -89,11 +90,11 @@ import org.omg.PortableInterceptor.LOCATION_FORWARD;
 import org.omg.PortableInterceptor.SUCCESSFUL;
 import org.omg.PortableInterceptor.SYSTEM_EXCEPTION;
 import org.omg.PortableInterceptor.USER_EXCEPTION;
-import org.omg.PortableServer.Servant;
-import org.omg.PortableServer.ServantActivator;
 import org.omg.PortableServer.POAPackage.ObjectNotActive;
 import org.omg.PortableServer.POAPackage.WrongAdapter;
 import org.omg.PortableServer.POAPackage.WrongPolicy;
+import org.omg.PortableServer.Servant;
+import org.omg.PortableServer.ServantActivator;
 import org.omg.PortableServer.ServantLocatorPackage.CookieHolder;
 import org.omg.RTCORBA.Protocol;
 import org.omg.TimeBase.UtcT;
@@ -304,7 +305,7 @@ public final class Delegate
         protected ArrayDeque<Map<INVOCATION_KEY, UtcT>> initialValue()
         {
             return new ArrayDeque<Map<INVOCATION_KEY, UtcT>> ();
-        };
+        }
     };
 
     /**
@@ -867,7 +868,7 @@ public final class Delegate
                 org.omg.CORBA.portable.InputStream is = invoke( self, os );
                 return org.omg.CORBA.PolicyHelper.narrow( is.read_Object() );
             }
-            catch ( RemarshalException r ) // NOPMD
+            catch ( RemarshalException r )
             {
                 // Ignored
             }
@@ -1407,6 +1408,11 @@ public final class Delegate
                 {
                     clearInvocationContext();
                 }
+                if (currentCtxt.containsKey (INVOCATION_KEY.INTERCEPTOR_CALL) ||
+                    currentCtxt.containsKey (INVOCATION_KEY.SERVANT_PREINVOKE) )
+                {
+                    clearCurrentContext = true;
+                }
 
                 return is;
             }
@@ -1927,35 +1933,35 @@ public String repository_id (org.omg.CORBA.Object self)
                 }
             }
             // If it fails fall back to a remote call.
-            catch (ClassNotFoundException e) // NOPMD
+            catch (ClassNotFoundException e)
             {
                 // ignore
             }
-            catch (IllegalArgumentException e) // NOPMD
+            catch (IllegalArgumentException e)
             {
                 // ignore
             }
-            catch (SecurityException e) // NOPMD
+            catch (SecurityException e)
             {
                 // ignore
             }
-            catch (NoSuchMethodException e) // NOPMD
+            catch (NoSuchMethodException e)
             {
                 // ignore
             }
-            catch (IllegalAccessException e) // NOPMD
+            catch (IllegalAccessException e)
             {
                 // ignore
             }
-            catch (InvocationTargetException e) // NOPMD
+            catch (InvocationTargetException e)
             {
                 // ignore
             }
-            catch (InstantiationException e) // NOPMD
+            catch (InstantiationException e)
             {
                 // ignore
             }
-            catch (SystemException e) // NOPMD
+            catch (SystemException e)
             {
                 // ignore
             }
@@ -2124,7 +2130,7 @@ public String repository_id (org.omg.CORBA.Object self)
                     os.write_string(arg);
                 return invoke(self, os);
             }
-            catch (RemarshalException re) // NOPMD
+            catch (RemarshalException re)
             {
                 // Ignored
             }
@@ -2226,7 +2232,7 @@ public String repository_id (org.omg.CORBA.Object self)
     {
         orb.perform_work();
 
-        ArrayDeque<Map<INVOCATION_KEY, UtcT>> invocationStack = invocationContext.get ();
+        ArrayDeque<Map<INVOCATION_KEY, UtcT>> invocationStack = getInvocationContext();
         Map<INVOCATION_KEY, UtcT> currentCtxt = null;
 
         if (! invocationStack.isEmpty())
@@ -2573,7 +2579,7 @@ public String repository_id (org.omg.CORBA.Object self)
         Map<INVOCATION_KEY, UtcT> currentContext = new HashMap<INVOCATION_KEY, UtcT>();
         currentContext.put (INVOCATION_KEY.SERVANT_PREINVOKE, null);
 
-        invocationContext.get().push (currentContext);
+        getInvocationContext().push (currentContext);
 
         // remember that a local request is outstanding. On
         // any exit through an exception, this must be cleared again,
