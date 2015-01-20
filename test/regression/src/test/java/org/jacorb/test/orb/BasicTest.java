@@ -20,13 +20,19 @@ package org.jacorb.test.orb;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+
 import org.jacorb.test.BasicServer;
 import org.jacorb.test.BasicServerHelper;
 import org.jacorb.test.harness.ClientServerSetup;
 import org.jacorb.test.harness.ClientServerTestCase;
+import org.jacorb.test.harness.TestUtils;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -39,6 +45,10 @@ import org.omg.CORBA.LongHolder;
 import org.omg.CORBA.Policy;
 import org.omg.CORBA.PolicyListHolder;
 import org.omg.CORBA.ShortHolder;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 public class BasicTest extends ClientServerTestCase
 {
@@ -573,9 +583,6 @@ public class BasicTest extends ClientServerTestCase
         assertEquals( Double.POSITIVE_INFINITY, result, 0 );
     }
 
-
-	// test_validate_connection
-
     @Test
     public void test_validate_connection()
 	{
@@ -593,4 +600,56 @@ public class BasicTest extends ClientServerTestCase
             }
 	}
 
+    @Test
+    public void testSimpleMultiThread() throws Exception
+    {
+        final int SIZE = 3;
+        ExecutorService executor = Executors.newFixedThreadPool(SIZE);
+
+        class SimpleRequestor implements Callable<Boolean>
+        {
+            BasicServer server;
+
+            SimpleRequestor(BasicServer server)
+            {
+                this.server = server;
+            }
+
+            @Override
+            public Boolean call() throws Exception
+            {
+                for (int i = 0; i < 100; ++i)
+                {
+                    TestUtils.getLogger().debug(this.toString() + ": iteration " + i);
+                    server.pass_in_long(1000);
+                    assertEquals(47, server.bounce_long(47));
+                }
+                return true;
+            }
+        }
+
+        try
+        {
+            List<Future<Boolean>> list = new ArrayList<Future<Boolean>>();
+            for (int i = 0; i < SIZE; i++)
+            {
+                list.add(executor.submit(new SimpleRequestor(server)));
+            }
+            for (Future<Boolean> b : list)
+            {
+                try
+                {
+                    b.get();
+                }
+                catch (ExecutionException e)
+                {
+                    fail (e.getCause().toString());
+                }
+            }
+        }
+        finally
+        {
+            executor.shutdown();
+        }
+    }
 }

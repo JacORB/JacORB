@@ -1,29 +1,37 @@
 package org.jacorb.test.dii;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import java.lang.reflect.Field;
-import java.util.HashMap;
-import java.util.Properties;
 import org.jacorb.orb.Delegate;
 import org.jacorb.orb.giop.ClientConnection;
 import org.jacorb.orb.giop.ClientConnectionManager;
+import org.jacorb.test.BasicServer;
 import org.jacorb.test.dii.DIIServerPackage.DIIException;
 import org.jacorb.test.dii.DIIServerPackage.DIIExceptionHelper;
 import org.jacorb.test.harness.ClientServerSetup;
 import org.jacorb.test.harness.ClientServerTestCase;
+import org.jacorb.test.harness.TestUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.omg.CORBA.Any;
-import org.omg.CORBA.BAD_INV_ORDER;
-import org.omg.CORBA.BAD_PARAM;
-import org.omg.CORBA.BAD_PARAMHelper;
-import org.omg.CORBA.WrongTransaction;
+import org.omg.CORBA.*;
+import org.omg.CORBA.Object;
 import org.omg.ETF.Profile;
+
+import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Properties;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 /**
  * converted from demo.dii
@@ -83,6 +91,8 @@ public class DiiTest extends ClientServerTestCase
                 orb.get_primitive_tc(org.omg.CORBA.TCKind.tk_long));
 
         request.invoke();
+
+        server._release();
 
         Field fconnmgr = Delegate.class.getDeclaredField("conn_mg");
         fconnmgr.setAccessible(true);
@@ -311,5 +321,62 @@ public class DiiTest extends ClientServerTestCase
         org.omg.CORBA.Any any = ((org.omg.CORBA.UnknownUserException) exception).except;
         BAD_PARAM ex = BAD_PARAMHelper.extract(any);
         assertTrue (ex != null);
+    }
+
+    @Test
+    public void testDiiSimpleMultiThread() throws Exception
+    {
+        final int SIZE = 2;
+        ExecutorService executor = Executors.newFixedThreadPool(SIZE);
+
+        class SimpleRequestor implements Callable<Integer>
+        {
+            org.omg.CORBA.Object server;
+
+            SimpleRequestor(org.omg.CORBA.Object server)
+            {
+                this.server = server;
+            }
+
+            @Override
+            public Integer call() throws Exception
+            {
+                int result = 0;
+
+                for (int i = 0; i < 100; ++i)
+                {
+                    TestUtils.getLogger().debug(this.toString() + ": iteration " + i);
+                    org.omg.CORBA.Request request = null;
+
+                    request = server._request("_get_long_number");
+
+                    request.set_return_type(
+                            orb.get_primitive_tc(org.omg.CORBA.TCKind.tk_long));
+
+                    request.invoke();
+
+                    assertNull(request.env().exception());
+                    result = request.return_value().extract_long();
+                }
+                return result;
+            }
+        }
+
+        try
+        {
+            List<Future<Integer>> list = new ArrayList<Future<Integer>>();
+            for (int i = 0; i < SIZE; i++)
+            {
+                list.add(executor.submit(new SimpleRequestor(server)));
+            }
+            for (Future<Integer> b : list)
+            {
+                assertEquals(b.get().intValue(), 47);
+            }
+        }
+        finally
+        {
+            executor.shutdown();
+        }
     }
 }

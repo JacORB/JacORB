@@ -2,9 +2,9 @@ package org.jacorb.test.bugs.bug999;
 
 import org.jacorb.test.harness.ClientServerSetup;
 import org.jacorb.test.harness.ClientServerTestCase;
-import org.jacorb.test.harness.ORBTestCase;
-import org.junit.*;
-import org.junit.rules.TestRule;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
 
 import java.util.Properties;
 
@@ -18,7 +18,7 @@ public final class Bug999Test extends ClientServerTestCase
     static
     {
         String temp = "";
-        for (int i=0; i<10000; i++)
+        for (int i = 0; i < 10000; i++)
         {
             temp += "1";
         }
@@ -26,7 +26,7 @@ public final class Bug999Test extends ClientServerTestCase
 
         int max = 10000;
         byte[] bytes = new byte[max];
-        for (int i=0; i < max; i++)
+        for (int i = 0; i < max; i++)
         {
             bytes[i] = 1;
         }
@@ -47,7 +47,6 @@ public final class Bug999Test extends ClientServerTestCase
 
         setup = new ClientServerSetup("org.jacorb.test.bugs.bug999.HelloImpl", props, props);
     }
-
 
     @Before
     public void beforeSetup() throws Exception
