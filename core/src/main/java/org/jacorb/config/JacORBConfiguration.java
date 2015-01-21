@@ -775,6 +775,11 @@ public class JacORBConfiguration implements Configuration
         return org.slf4j.LoggerFactory.getLogger (loggerName);
     }
 
+    @Override
+    public boolean isAttributeSet(String key) throws ConfigurationException
+    {
+        return stringAttributes.containsKey(key);
+    }
 
     /**
      * Gets the attribute

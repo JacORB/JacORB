@@ -291,6 +291,11 @@ public final class ORB
     {
         super.configure(config);
 
+        // Check for deprecated property
+        if (configuration.isAttributeSet("jacorb.deferredArrayQueue"))
+        {
+            logger.warn ("jacorb.deferredArrayQueue has been removed.");
+        }
         cacheReferences =
             configuration.getAttributeAsBoolean("jacorb.reference_caching", false);
 
