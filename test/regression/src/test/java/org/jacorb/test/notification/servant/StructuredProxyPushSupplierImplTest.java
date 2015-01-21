@@ -79,11 +79,6 @@ public class StructuredProxyPushSupplierImplTest extends NotificationTestCase
         assertEquals(new Integer(10), objectUnderTest_.getID());
     }
 
-    /**
-     * Constructor for StructuredProxyPushSupplierImplTest.
-     * 
-     * @param name
-     */
     @Test
     public void testDeliveryToNotConnectedDoesNotAccessMessage()
     {

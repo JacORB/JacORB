@@ -38,28 +38,12 @@ public class ValueCustomTest extends ClientServerTestCase
 {
     private CustomValueExchange server;
 
-    /**
-     * Creates a new <code>ValueCustomTest</code> instance.
-     *
-     * @param name a <code>String</code> value
-     * @param setup a <code>ClientServerSetup</code> value
-     */
-    /**
-     * <code>setUp</code> initilizes for the Junit tests.
-     *
-     * @exception Exception if an error occurs
-     */
     @Before
     public void setUp() throws Exception
     {
         server = CustomValueExchangeHelper.narrow( setup.getServerObject());
     }
 
-    /**
-     * <code>suite</code> is called by JUnit.
-     *
-     * @return a <code>Test</code> value
-     */
     @BeforeClass
     public static void beforeClassSetUp() throws Exception
     {

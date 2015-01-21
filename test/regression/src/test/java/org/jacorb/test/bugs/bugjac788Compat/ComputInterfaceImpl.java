@@ -10,13 +10,6 @@ public class ComputInterfaceImpl extends ComputInterfacePOA
      */
     private org.omg.PortableServer.POA poa;
 
-
-    /**
-     * Purpose:
-     * <p> [Constructor description if necessary]
-     *
-     *@param
-     **/
     public ComputInterfaceImpl(org.omg.PortableServer.POA poa) {
         this.poa = poa;
     }

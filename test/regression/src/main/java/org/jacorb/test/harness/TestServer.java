@@ -47,10 +47,10 @@ import org.slf4j.Logger;
  * the above, JacORB's normal diagnostic messages should be completely
  * silenced.  This must be done using the normal configuration settings,
  * e.g. from the command line (see
- * {@link ClientServerSetup#setUp ClientServerSetup.setUp()} for an
+ * {@link ServerSetup#setUp} for an
  * example).
  * <p>
- * @author Andre Spiegel <spiegel@gnu.org>
+ * @author Andre Spiegel &lt;spiegel@gnu.org&gt;
  */
 public class TestServer
 {

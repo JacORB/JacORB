@@ -34,7 +34,7 @@ public class TestServerRequestInterceptorImpl extends
      *
      * @param info
      *            ORB init information
-     * @param request_id_slot_id
+     * @param requestIdSlotId
      *            slot id used to store request id of the incoming request.
      *
      */
@@ -49,7 +49,7 @@ public class TestServerRequestInterceptorImpl extends
      * request information after all the information, including operation
      * parameters, are available.
      *
-     * @param ri
+     * @param arg0
      *            Server request information
      */
     public void receive_request(ServerRequestInfo arg0) throws ForwardRequest,
@@ -61,7 +61,7 @@ public class TestServerRequestInterceptorImpl extends
      * service context information from the incoming request and transfer it to
      * PortableInterceptor.Current's slots.
      *
-     * @param ri
+     * @param reqInfo
      *            Server request information
      */
     public void receive_request_service_contexts(
@@ -109,7 +109,7 @@ public class TestServerRequestInterceptorImpl extends
      * It allows an Interceptor to query the exception information and modify
      * the reply service context before the exception is raised to the client.
      *
-     * @param ri
+     * @param arg0
      *            Server request information
      */
     public void send_exception(ServerRequestInfo arg0) throws ForwardRequest,
@@ -123,7 +123,7 @@ public class TestServerRequestInterceptorImpl extends
      * normal reply or an exception. A request could result in a retry (for
      * example, a GIOP Reply with a LOCATION_FORWARD status was received).
      *
-     * @param ri
+     * @param reqInfo
      *            Server request information
      */
     public void send_other(ServerRequestInfo reqInfo) throws ForwardRequest,
@@ -137,7 +137,7 @@ public class TestServerRequestInterceptorImpl extends
      * operation has been invoked and before the reply is returned to the
      * client.
      *
-     * @param ri
+     * @param reqInfo
      *            Server request information
      */
     public void send_reply(ServerRequestInfo reqInfo) {

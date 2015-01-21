@@ -24,20 +24,10 @@ public class ServerInitializer extends org.omg.CORBA.LocalObject implements ORBI
     {
     }
 
-    // implementation of org.omg.PortableInterceptor.ORBInitializerOperations interface
-
-    /**
-     *
-     * @param param1 <description>
-     */
     public void pre_init(ORBInitInfo info)
     {
     }
 
-    /**
-     *
-     * @param param1 <description>
-     */
     public void post_init(ORBInitInfo info)
     {
         try

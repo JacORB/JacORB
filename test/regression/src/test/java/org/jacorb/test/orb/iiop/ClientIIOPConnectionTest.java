@@ -190,7 +190,7 @@ public class ClientIIOPConnectionTest extends ORBTestCase
 
 
     /**
-     * Verifies that port numbers > 32767 are supported.
+     * Verifies that port numbers &gt; 32767 are supported.
      */
     @Test
     public void testTlsHighPortNum() throws Exception

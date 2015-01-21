@@ -5,6 +5,8 @@
 
 package org.omg.CORBA;
 
+import java.lang.Deprecated;
+
 public abstract class Any implements org.omg.CORBA.portable.IDLEntity {
 
     abstract public boolean equal(org.omg.CORBA.Any a);
@@ -78,15 +80,11 @@ public abstract class Any implements org.omg.CORBA.portable.IDLEntity {
     abstract public TypeCode extract_TypeCode();
     abstract public void insert_TypeCode(TypeCode value);
 
-    /**
-    *@ deprecated
-    */
+    @Deprecated
     public Principal extract_Principal() {
         throw new org.omg.CORBA.NO_IMPLEMENT();
     }
-    /**
-    *@ deprecated
-    */
+    @Deprecated
     public void insert_Principal(Principal p) {
         throw new org.omg.CORBA.NO_IMPLEMENT();
     }

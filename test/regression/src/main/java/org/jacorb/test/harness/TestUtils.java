@@ -531,7 +531,7 @@ public class TestUtils
     }
 
     /**
-     * wait until a server IOR shows up (file size > 0) and print it out
+     * wait until a server IOR shows up (file size &gt; 0) and print it out
      * to stdout so it can be picked up by a client process.
      */
     public static void printServerIOR(File iorFile)

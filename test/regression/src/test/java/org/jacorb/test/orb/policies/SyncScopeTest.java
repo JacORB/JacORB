@@ -25,7 +25,7 @@ import org.omg.Messaging.SYNC_WITH_TRANSPORT;
 /**
  * Tests for SyncScopePolicy.
  *
- * @author Andre Spiegel <spiegel@gnu.org>
+ * @author Andre Spiegel &lt;spiegel@gnu.org&gt;
  */
 @Category(IMRExcludedClientServerCategory.class)
 public class SyncScopeTest extends ClientServerTestCase

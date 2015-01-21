@@ -222,7 +222,7 @@ public abstract class AbstractIDLTestcase extends ORBTestCase
 
     /**
      * search for a method with the signature
-     * public void verify_<FILENAME>(ClassLoader cl) {...}
+     * public void verify_&lt;FILENAME&gt;(ClassLoader cl) {...}
      * (dots in filename will be converted to _) and invoke
      * it with the specified classloader.
      */

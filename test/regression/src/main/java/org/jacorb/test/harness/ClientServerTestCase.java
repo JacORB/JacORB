@@ -31,7 +31,7 @@ import org.junit.rules.TestName;
  * It provides access to a <b>static</b> ClientServerSetup that may
  * be initialised via a {@literal @}BeforeClass annotation. It is automatically
  * shutdown via an {@literal @}AfterClass annotation.
- * <p/>
+ * <p></p>
  * Each individual test case can access the server object by calling
  * <code>setup.getServerObject()</code>.  However, this returns
  * a generic CORBA Object.  It is usually more convenient to narrow
@@ -57,7 +57,7 @@ import org.junit.rules.TestName;
  * <code>server</code> instance variable to access the server
  * object with correct type information.
  *
- * @author Andre Spiegel <spiegel@gnu.org>
+ * @author Andre Spiegel &lt;spiegel@gnu.org&gt;
  * @author Nick Cross
  */
 @Category(ClientServerCategory.class)

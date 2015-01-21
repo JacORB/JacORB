@@ -18,22 +18,10 @@ public abstract class AbstractOrbInitializer extends org.omg.CORBA.LocalObject i
         servertester_ = servertester;
     }
 
-
-    /**
-     *
-     * @param param1
-     *            <description>
-     */
     public void pre_init(ORBInitInfo info) {
 
     }
 
-
-    /**
-     *
-     * @param param1
-     *            <description>
-     */
     public void post_init(ORBInitInfo info) {
 
         ORB orb = ((org.jacorb.orb.portableInterceptor.ORBInitInfoImpl) info).getORB ();

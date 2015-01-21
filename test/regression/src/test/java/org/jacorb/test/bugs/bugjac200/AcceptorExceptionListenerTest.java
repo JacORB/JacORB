@@ -20,11 +20,13 @@ import org.omg.PortableServer.POAHelper;
  * <code>AcceptorExceptionListenerTest</code> tests one of the two
  * forms that can cause an infinite loop with IIOPListener.
  *
- * 1) If security has been configured but the cipher suites are invalid
+ * <p></p>
+ * 1. If security has been configured but the cipher suites are invalid
  *    a SSLExecption is thrown. However as the server socket cannot be
  *    opened properly this leads to an infinite loop. The AcceptorListener
  *    can detect this and shutdown the ORB.
- * 2) Alternatively if the ORB has been built with JDK13 & JSSE but is run
+ * <p></p>
+ * 2. Alternatively if the ORB has been built with JDK13 and JSSE but is run
  *    without the JSSE jars this will lead to a NoClassDefError for the
  *    SSL jars from the listener. This, as above, also results in an infinite
  *    loop.

@@ -61,11 +61,6 @@ public class BugJac257Test extends ClientServerTestCase
         server = JAC257Helper.narrow( setup.getServerObject() );
     }
 
-    /**
-     * <code>suite</code> sets up the server/client tests.
-     *
-     * @return a <code>Test</code> value
-     */
     @BeforeClass
     public static void beforeClassSetUp() throws Exception
     {
