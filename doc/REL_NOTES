@@ -62,6 +62,7 @@ This Release
 
     - Misc
         - Convert demos to Maven layout.
+        - Improve documentation and add https://jacorb.github.io javadoc API.
 
 3.5
 ===

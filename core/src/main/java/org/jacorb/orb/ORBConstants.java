@@ -20,26 +20,26 @@ package org.jacorb.orb;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
+
 /**
  * This class collects all ORB related constants.
- *
+ * <p>
  * This includes various OMG assigned values used by JacORB.
- *
  * OMG Assigned ranges:
- *
- *  1 VMCID           0x4A430xxx               ("JC\x00\x00" - "JC\x0f\xff")
- *  1 VPVID           0x4A430xxx               ("JC\x00\x00" - "JC\x0f\xff")
- * 16 ORB type IDs    0x4A414300 - 0x4A41430f  ("JAC\x00" - "JAC\x0f")
- * 16 profile tags    0x4A414300 - 0x4A41430f  ("JAC\x00" - "JAC\x0f")
- * 16 service tags    0x4A414300 - 0x4A41430f  ("JAC\x00" - "JAC\x0f")
- * 16 component IDs   0x4A414300 - 0x4A41430f  ("JAC\x00" - "JAC\x0f")
+ * </p>
+ * <ul>
+ * <li>1 VMCID            0x4A430xxx               ("JC\x00\x00" - "JC\x0f\xff")</li>
+ * <li>16 ORB type IDs    0x4A414300 - 0x4A41430f  ("JAC\x00" - "JAC\x0f")</li>
+ * <li>16 profile tags    0x4A414300 - 0x4A41430f  ("JAC\x00" - "JAC\x0f")</li>
+ * <li>16 service tags    0x4A414300 - 0x4A41430f  ("JAC\x00" - "JAC\x0f")</li>
+ * <li>16 component IDs   0x4A414300 - 0x4A41430f  ("JAC\x00" - "JAC\x0f")</li>
+ * </ul>
  */
-
 public final class ORBConstants
 {
     /**
      * <code>VMCID</code> is the Vendor Minor Codeset ID. According to
-     * ftp://ftp.omg.org/pub/docs/ptc/01-08-35.txt the VMCID is equivilant
+     * ftp://ftp.omg.org/pub/docs/ptc/01-08-35.txt the VMCID is equivalent
      * to the VSCID
      */
     public static final int VMCID                   = 0x4A430000;
