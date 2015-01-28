@@ -2,8 +2,6 @@
 /**
  * @file   TransportCurrentServer.idl
  *
- * $Id$
- *
  * Simple IDL file to test TranspotCurrent
  * support.
  *

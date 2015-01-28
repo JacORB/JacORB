@@ -1,0 +1,48 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>org.jacorb</groupId>
+        <artifactId>jacorb-parent</artifactId>
+        <version>3.6-SNAPSHOT</version>
+    </parent>
+
+    <groupId>org.jacorb.jacorb-demo</groupId>
+    <artifactId>demo-parent</artifactId>
+    <packaging>pom</packaging>
+
+    <name>Demo-Parent</name>
+    <description>JacORB Demo Aggregation POM</description>
+
+    <modules>
+        <module>ami</module>
+        <module>any</module>
+        <module>arrays</module>
+        <module>bank</module>
+        <module>bidir</module>
+        <module>corbaloc</module>
+        <module>concurrency</module>
+        <module>dii</module>
+        <module>dds</module>
+        <module>dynany</module>
+        <module>events</module>
+        <module>grid</module>
+        <module>hello</module>
+        <module>imr</module>
+        <module>interceptors</module>
+        <module>maven</module>
+        <module>miop</module>
+        <module>mtclient</module>
+        <module>notification/office</module>
+        <module>notification/whiteboard</module>
+        <module>outparam</module>
+        <module>policies</module>
+        <module>sas</module>
+        <module>ssl</module>
+        <module>tao_imr</module>
+        <module>unions</module>
+        <module>value</module>
+    </modules>
+
+</project>

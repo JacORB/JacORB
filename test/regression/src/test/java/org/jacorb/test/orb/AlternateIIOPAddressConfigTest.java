@@ -33,7 +33,7 @@ import org.junit.experimental.categories.Category;
 
 /**
  * Tests the configuration option jacorb.iiop.alternate_addresses.
- * @author Andre Spiegel <spiegel@gnu.org>
+ * @author Andre Spiegel &lt;spiegel@gnu.org&gt;
  */
 @Category(IMRExcludedClientServerCategory.class)
 public class AlternateIIOPAddressConfigTest extends ClientServerTestCase

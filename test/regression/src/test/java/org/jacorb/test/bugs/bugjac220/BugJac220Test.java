@@ -34,29 +34,12 @@ public class BugJac220Test extends ClientServerTestCase
 {
     private TestEnum server;
 
-    /**
-     * Creates a new <code>TestCase</code> instance.
-     *
-     * @param name a <code>String</code> value
-     * @param setup a <code>ClientServerSetup</code> value
-     */
-
-    /**
-     * <code>setUp</code> is used by Junit for initialising the tests.
-     *
-     * @exception Exception if an error occurs
-     */
     @Before
     public void setUp() throws Exception
     {
         server = TestEnumHelper.narrow( setup.getServerObject() );
     }
 
-    /**
-     * <code>suite</code> sets up the server/client tests.
-     *
-     * @return a <code>Test</code> value
-     */
     @BeforeClass
     public static void beforeClassSetUp() throws Exception
     {

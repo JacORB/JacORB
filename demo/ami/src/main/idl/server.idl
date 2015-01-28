@@ -1,0 +1,22 @@
+module org
+{
+    module jacorb
+    {
+        module demo
+        {
+            module ami
+            {
+                exception MyException {};
+
+                interface AsyncServer
+                {
+                    long operation (in long a, in long b);
+
+                    long op2 (in long a) raises (MyException);
+
+                    void shutdown ();
+                };
+            };
+        };
+    };
+};

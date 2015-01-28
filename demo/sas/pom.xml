@@ -1,0 +1,191 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+    <modelVersion>4.0.0</modelVersion>
+
+    <!-- Inherit plugin configuration etc from parent -->
+    <parent>
+        <groupId>org.jacorb.jacorb-demo</groupId>
+        <artifactId>demo-parent</artifactId>
+        <version>3.6-SNAPSHOT</version>
+        <relativePath>../pom.xml</relativePath>
+    </parent>
+
+    <artifactId>sas</artifactId>
+    <packaging>jar</packaging>
+
+    <name>SASDemo</name>
+    <description>JacORB SAS Demo</description>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.jacorb</groupId>
+            <artifactId>jacorb</artifactId>
+        </dependency>
+    </dependencies>
+
+    <build>
+
+        <plugins>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>idlj-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>generate</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <compilerArguments>
+                        <endorseddirs>${settings.localRepository}/org/jacorb/jacorb-omgapi/${project.version}</endorseddirs>
+                    </compilerArguments>
+                </configuration>
+            </plugin>
+
+            <!-- Utilising the antrun plugin to test as Ant allows for parallel execution of multiple processes -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>test1</id>
+                        <phase>integration-test</phase>
+                        <configuration>
+                            <target>
+                                <property name="demo_classpath" refid="maven.compile.classpath"/>
+                                <tempfile property="ior.file" destdir="/tmp" prefix="server" suffix=".ior" />
+
+                                <parallel>
+                                    <sequential>
+                                        <java fork="true"
+                                              classpathref="maven.compile.classpath"
+                                              className="org.jacorb.demo.sas.GssUpServer">
+                                            <jvmarg value="-Xbootclasspath/p:${demo_classpath}" />
+                                            <jvmarg value="-Dorg.omg.CORBA.ORBClass=org.jacorb.orb.ORB" />
+                                            <jvmarg value="-Dorg.omg.CORBA.ORBSingletonClass=org.jacorb.orb.ORBSingleton" />
+                                            <jvmarg value="-Dcustom.props=${project.build.outputDirectory}/ListGssUpServer.properties" />
+                                            <arg value="${ior.file}"/>
+                                        </java>
+                                    </sequential>
+                                    <sequential>
+                                        <waitfor maxwait="30" maxwaitunit="second">
+                                            <available file="${ior.file}"/>
+                                        </waitfor>
+
+                                        <java fork="true"
+                                              classpathref="maven.compile.classpath"
+                                              className="org.jacorb.demo.sas.ListGssUpClient">
+                                            <jvmarg value="-Xbootclasspath/p:${demo_classpath}" />
+                                            <jvmarg value="-Dorg.omg.CORBA.ORBClass=org.jacorb.orb.ORB" />
+                                            <jvmarg value="-Dorg.omg.CORBA.ORBSingletonClass=org.jacorb.orb.ORBSingleton" />
+                                            <jvmarg value="-Dcustom.props=${project.build.outputDirectory}/GssUpClient.properties" />
+                                            <arg value="${ior.file}"/>
+                                            <arg value="testUser"/>
+                                            <arg value="testPass"/>
+                                        </java>
+                                    </sequential>
+                                </parallel>
+                            </target>
+                        </configuration>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+
+
+    <profiles>
+        <!-- This is a more complex demonstration that is not active by default. It requires -->
+        <!-- the following properties to be correct: -->
+        <!-- principal [ used in SAS.login and filtered during the build ]-->
+        <!-- username -->
+        <!-- password -->
+
+        <profile>
+            <id>kerberos-demo</id>
+            <activation>
+                <property>
+                    <name>kerberos</name>
+                </property>
+            </activation>
+            <build>
+
+                <resources>
+                    <resource>
+                        <directory>src/main/resources</directory>
+                        <filtering>true</filtering>
+                    </resource>
+                </resources>
+
+                <plugins>
+
+                    <!-- Utilising the antrun plugin to test as Ant allows for parallel execution of multiple processes -->
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-antrun-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>test2</id>
+                                <phase>integration-test</phase>
+                                <configuration>
+                                    <target>
+                                        <property name="demo_classpath" refid="maven.compile.classpath"/>
+                                        <tempfile property="ior.file" destdir="/tmp" prefix="server" suffix=".ior" />
+
+                                        <parallel>
+                                            <sequential>
+                                                <java fork="true"
+                                                      classpathref="maven.compile.classpath"
+                                                      className="org.jacorb.demo.sas.KerberosServer">
+                                                    <jvmarg value="-Xbootclasspath/p:${demo_classpath}" />
+                                                    <jvmarg value="-Dorg.omg.CORBA.ORBClass=org.jacorb.orb.ORB" />
+                                                    <jvmarg value="-Dorg.omg.CORBA.ORBSingletonClass=org.jacorb.orb.ORBSingleton" />
+                                                    <jvmarg value="-Djava.security.auth.login.config=${project.build.outputDirectory}/SAS.login"/>
+                                                    <jvmarg value="-Dcustom.props=${project.build.outputDirectory}/KerberosServer.properties" />
+                                                    <arg value="${ior.file}"/>
+                                                    <arg value="${password}"/>
+                                                </java>
+                                            </sequential>
+                                            <sequential>
+                                                <waitfor maxwait="30" maxwaitunit="second">
+                                                    <available file="${ior.file}"/>
+                                                </waitfor>
+
+                                                <java fork="true"
+                                                      classpathref="maven.compile.classpath"
+                                                      className="org.jacorb.demo.sas.KerberosClient">
+                                                    <jvmarg value="-Xbootclasspath/p:${demo_classpath}" />
+                                                    <jvmarg value="-Dorg.omg.CORBA.ORBClass=org.jacorb.orb.ORB" />
+                                                    <jvmarg value="-Dorg.omg.CORBA.ORBSingletonClass=org.jacorb.orb.ORBSingleton" />
+                                                    <jvmarg value="-Djava.security.auth.login.config=${project.build.outputDirectory}/SAS.login"/>
+                                                    <jvmarg value="-Dcustom.props=${project.build.outputDirectory}/KerberosClient.properties" />
+
+                                                    <arg value="${ior.file}"/>
+                                                    <arg value="${username}"/>
+                                                    <arg value="${password}"/>
+                                                </java>
+                                            </sequential>
+                                        </parallel>
+                                    </target>
+                                </configuration>
+                                <goals>
+                                    <goal>run</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+
+            </build>
+        </profile>
+    </profiles>
+</project>

@@ -2,9 +2,5 @@ Objective:
     To test generic way of passing parameters as Any, encapsulating the real
     parameter type.
 
-How to Run:
-    Compile:
-        ant compile
-
-    Run Demo:
-        ant demo
+How to compile and run:
+    mvn install

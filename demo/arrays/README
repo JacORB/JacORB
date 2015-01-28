@@ -1,10 +1,6 @@
 Objective:
-    Tests arrays passed as parameters. Sends and receives variety of 
+    Tests arrays passed as parameters. Sends and receives variety of
     sequences of integers, strings and object references.
 
-How to Run:
-    Compile:
-        ant compile
-
-    Run Demo:
-        ant demo
+How to compile and run:
+     mvn install

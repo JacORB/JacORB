@@ -1,0 +1,26 @@
+
+module org
+{
+    module jacorb
+    {
+        module demo
+        {
+            module bidir
+            {
+                interface ClientCallback
+                {
+                    void hello( in string message );
+                };
+
+                interface Server
+                {
+                    void register_callback( in ClientCallback cc );
+
+                    void callback_hello( in string message );
+
+                    void shutdown ();
+                };
+            };
+        };
+    };
+};

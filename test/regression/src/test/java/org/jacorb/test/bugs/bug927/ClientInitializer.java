@@ -24,18 +24,10 @@ public class ClientInitializer extends org.omg.CORBA.LocalObject implements ORBI
     {
     }
 
-    /**
-     *
-     * @param param1 <description>
-     */
     public void pre_init(ORBInitInfo info)
     {
     }
 
-    /**
-     *
-     * @param param1 <description>
-     */
     public void post_init(ORBInitInfo info)
     {
         try

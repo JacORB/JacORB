@@ -105,7 +105,7 @@ import org.omg.Messaging.ExceptionHolder;
  * for at most 200 milliseconds.  If no reply is received within that
  * time, the test case fails.
  *
- * @author Andre Spiegel <spiegel@gnu.org>
+ * @author Andre Spiegel &lt;spiegel@gnu.org&gt;
  */
 @Category(IMRExcludedClientServerCategory.class)
 public class CallbackTestCase extends ClientServerTestCase

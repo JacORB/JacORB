@@ -18,13 +18,6 @@ public class BugJac189Test extends ClientServerTestCase
      */
     private JAC189 server;
 
-
-    /**
-     * <code>TestCaseImpl</code> constructor for the suite.
-     *
-     * @param name a <code>String</code> value
-     * @param setup a <code>ClientServerSetup</code> value
-     */
     /**
      * <code>setUp</code> for junit.
      *
@@ -36,17 +29,11 @@ public class BugJac189Test extends ClientServerTestCase
         server = JAC189Helper.narrow( setup.getServerObject() );
     }
 
-    /**
-     * <code>suite</code> initialise the tests with the correct environment.
-     *
-     * @return a <code>Test</code> value
-     */
     @BeforeClass
     public static void beforeClassSetUp() throws Exception
     {
         setup = new ClientServerSetup (JAC189Impl.class.getName());
     }
-
 
     /**
      * <code>test_singlethread</code> rapidly creates, calls an operation and

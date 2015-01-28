@@ -183,7 +183,7 @@ public abstract class ORBTestCase
      * Returns another client ORB. The test case will automatically shut it down at
      * the end of the test.
      *
-     * @param Properties to supplement the ORB configuration.
+     * @param override to supplement the ORB configuration.
      * @return a pre-configured ORB to use.
      * @throws Exception
      */

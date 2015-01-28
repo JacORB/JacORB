@@ -29,42 +29,29 @@
 #endif /* ACE_LACKS_PRAGMA_ONCE */
 
 //Class ClientCallback_i
-class  ClientCallback_i : public virtual POA_ClientCallback
+class  ClientCallback_i : public virtual POA_test::interop::bidir::ClientCallback
 {
 public:
-  //Constructor 
+  //Constructor
   ClientCallback_i (void);
-  
-  //Destructor 
-  virtual ~ClientCallback_i (void);
-  
-virtual void hello (
-    const char * message
-  )
-  ACE_THROW_SPEC ((
-    CORBA::SystemException
-  ));
 
+  //Destructor
+  virtual ~ClientCallback_i (void);
+
+  virtual void hello (const char * message);
 };
 
 //Class CallbackServer_i
-class  CallbackServer_i : public virtual POA_CallbackServer
+class  CallbackServer_i : public virtual POA_test::interop::bidir::CallbackServer
 {
 public:
-  //Constructor 
+  //Constructor
   CallbackServer_i (void);
-  
-  //Destructor 
-  virtual ~CallbackServer_i (void);
-  
-virtual void callback_hello (
-    ClientCallback_ptr cc,
-    const char * message
-  )
-  ACE_THROW_SPEC ((
-    CORBA::SystemException
-  ));
 
+  //Destructor
+  virtual ~CallbackServer_i (void);
+
+  virtual void callback_hello (test::interop::bidir::ClientCallback_ptr cc, const char * message);
 };
 
 

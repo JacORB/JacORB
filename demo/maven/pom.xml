@@ -2,32 +2,25 @@
 
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>org.jacorb.demo</groupId>
+    <!-- Inherit plugin configuration etc from parent -->
+    <parent>
+        <groupId>org.jacorb.jacorb-demo</groupId>
+        <artifactId>demo-parent</artifactId>
+        <version>3.6-SNAPSHOT</version>
+        <relativePath>../pom.xml</relativePath>
+    </parent>
+
     <artifactId>maven</artifactId>
-    <version>1.1</version>
     <packaging>jar</packaging>
 
     <name>Maven-Demo</name>
     <description>Example JacORB Maven Demo</description>
 
-    <licenses>
-        <license>
-            <name>GNU Lesser General Public License</name>
-            <url>https://www.gnu.org/licenses/old-licenses/lgpl-2.1.html</url>
-        </license>
-    </licenses>
-
-    <properties>
-        <version.jacorb>3.5</version.jacorb>
-
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    </properties>
-
     <dependencies>
         <dependency>
             <groupId>org.jacorb</groupId>
             <artifactId>jacorb</artifactId>
-            <version>${version.jacorb}</version>
+            <version>${project.version}</version>
         </dependency>
     </dependencies>
 
@@ -36,7 +29,6 @@
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>idlj-maven-plugin</artifactId>
-                <version>1.2.1</version>
                 <executions>
                     <execution>
                         <goals>
@@ -51,7 +43,7 @@
                     <dependency>
                         <groupId>org.jacorb</groupId>
                         <artifactId>jacorb-idl-compiler</artifactId>
-                        <version>${version.jacorb}</version>
+                        <version>${project.version}</version>
                         <scope>compile</scope>
                     </dependency>
                 </dependencies>
@@ -60,39 +52,33 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.1</version>
                 <configuration>
-                    <source>1.6</source>
-                    <target>1.6</target>
-                    <debug>true</debug>
-                    <showWarnings>true</showWarnings>
-                    <showDeprecation>true</showDeprecation>
-                    <compilerArgs>
-                        <arg>-Xbootclasspath/p:${settings.localRepository}/org/jacorb/jacorb-omgapi/${version.jacorb}/jacorb-omgapi-${version.jacorb}.jar</arg>
-                    </compilerArgs>
+                    <compilerArguments>
+                        <endorseddirs>${settings.localRepository}/org/jacorb/jacorb-omgapi/${project.version}</endorseddirs>
+                    </compilerArguments>
                 </configuration>
             </plugin>
 
 
             <!-- Utilising the antrun plugin to test as Ant allows for parallel execution of multiple processes -->
             <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-antrun-plugin</artifactId>
-                <version>1.7</version>
                 <executions>
                     <execution>
                         <id>test</id>
                         <phase>integration-test</phase>
                         <configuration>
                             <target>
-                                <property name="plugin_classpath" refid="maven.plugin.classpath"/>
+                                <property name="demo_classpath" refid="maven.compile.classpath"/>
                                 <tempfile property="ior.file" destdir="/tmp" prefix="server" suffix=".ior" />
 
                                 <parallel>
                                     <sequential>
                                         <java fork="true"
-                                              classpathref="maven.plugin.classpath"
+                                              classpathref="maven.compile.classpath"
                                               className="org.jacorb.demo.maven.Server">
-                                            <jvmarg value="-Xbootclasspath/p:${plugin_classpath}:${classpath}:${sun.boot.class.path}" />
+                                            <jvmarg value="-Xbootclasspath/p:${demo_classpath}" />
                                             <jvmarg value="-Dorg.omg.CORBA.ORBClass=org.jacorb.orb.ORB" />
                                             <jvmarg value="-Dorg.omg.CORBA.ORBSingletonClass=org.jacorb.orb.ORBSingleton" />
                                             <arg value="${ior.file}"/>
@@ -104,9 +90,9 @@
                                         </waitfor>
 
                                         <java fork="true"
-                                              classpathref="maven.plugin.classpath"
+                                              classpathref="maven.compile.classpath"
                                               className="org.jacorb.demo.maven.Client">
-                                            <jvmarg value="-Xbootclasspath/p:${plugin_classpath}:${classpath}:${sun.boot.class.path}" />
+                                            <jvmarg value="-Xbootclasspath/p:${demo_classpath}" />
                                             <jvmarg value="-Dorg.omg.CORBA.ORBClass=org.jacorb.orb.ORB" />
                                             <jvmarg value="-Dorg.omg.CORBA.ORBSingletonClass=org.jacorb.orb.ORBSingleton" />
                                             <arg value="${ior.file}"/>
@@ -122,11 +108,6 @@
                 </executions>
                 <dependencies>
                     <dependency>
-                        <groupId>org.jacorb.demo</groupId>
-                        <artifactId>maven</artifactId>
-                        <version>${project.version}</version>
-                    </dependency>
-                    <dependency>
                         <groupId>org.apache.ant</groupId>
                         <artifactId>ant</artifactId>
                         <version>1.8.2</version>
@@ -134,41 +115,5 @@
                 </dependencies>
             </plugin>
         </plugins>
-
-        <pluginManagement>
-            <plugins>
-                <!--This plugin's configuration is used to store Eclipse m2e settings only. It has no influence on the Maven build itself.-->
-                <plugin>
-                    <groupId>org.eclipse.m2e</groupId>
-                    <artifactId>lifecycle-mapping</artifactId>
-                    <version>1.0.0</version>
-                    <configuration>
-                        <lifecycleMappingMetadata>
-                            <pluginExecutions>
-                                <pluginExecution>
-                                    <pluginExecutionFilter>
-                                        <groupId>
-                                            org.codehaus.mojo
-                                        </groupId>
-                                        <artifactId>
-                                            idlj-maven-plugin
-                                        </artifactId>
-                                        <versionRange>
-                                            [1.2.1,)
-                                        </versionRange>
-                                        <goals>
-                                            <goal>generate</goal>
-                                        </goals>
-                                    </pluginExecutionFilter>
-                                    <action>
-                                        <execute/>
-                                    </action>
-                                </pluginExecution>
-                            </pluginExecutions>
-                        </lifecycleMappingMetadata>
-                    </configuration>
-                </plugin>
-            </plugins>
-        </pluginManagement>
     </build>
 </project>

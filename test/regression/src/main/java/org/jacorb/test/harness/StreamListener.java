@@ -33,7 +33,7 @@ import java.util.regex.Pattern;
  * stream to its own standard output stream.  There is a special function
  * that allows you to capture an IOR from the <code>InputStream</code>.
  *
- * @author <a href="mailto:spiegel@gnu.org">Andre Spiegel</a>
+ * @author Andre Spiegel &lt;spiegel@gnu.org&gt;
  */
 public class StreamListener extends Thread
 {
@@ -53,7 +53,7 @@ public class StreamListener extends Thread
     }
 
     /**
-     * This method blocks until a line of the form "SERVER IOR: <IOR>"
+     * This method blocks until a line of the form "SERVER IOR: &lt;IOR&gt;"
      * is received from the InputStream.
      */
     public String getIOR(long timeout)

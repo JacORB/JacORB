@@ -419,7 +419,6 @@ public class Request
             finally
             {
                 out.close();
-                target._release();
             }
         }
     }

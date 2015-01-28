@@ -3,10 +3,5 @@ Objective:
     A simple demo that shows how to use CORBA QoS policies at the level
     of individual objects, or ORB-wide.
 
-How to Run:
-    Compile:
-        ant compile
-
-    Run Demo:
-        ant demo
-      
+How to compile and run:
+    mvn install

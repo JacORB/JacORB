@@ -4,9 +4,5 @@ Objective:
     demonstrates many of the types including char, string, arrays, enum,
     structs.
 
-How to Run:
-    Compile:
-        ant compile
-
-    Run demo:
-        ant demo
+How to compile and run:
+    mvn install

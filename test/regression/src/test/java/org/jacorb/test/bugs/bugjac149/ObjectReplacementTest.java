@@ -34,17 +34,6 @@ import org.junit.Test;
  */
 public class ObjectReplacementTest extends ClientServerTestCase
 {
-    /**
-     * Creates a new <code>ObjectReplacementTest</code> instance.
-     *
-     * @param name a <code>String</code> value
-     */
-
-    /**
-     * <code>suite</code> is the suite of tests.
-     *
-     * @return a <code>Test</code> value
-     */
     @BeforeClass
     public static void beforeClassSetUp() throws Exception
     {
@@ -59,7 +48,6 @@ public class ObjectReplacementTest extends ClientServerTestCase
 
     /**
      * <code>testObjectReplacement</code>
-     *
      */
     @Test
     public void testObjectReplacement ()

@@ -80,6 +80,10 @@ public class CommonSetup
             + File.separatorChar
             + dir
             + File.separatorChar
+            + "src"
+            + File.separatorChar
+            + "main"
+            + File.separatorChar
             + "resources"
             + File.separatorChar
             + propertyFilename

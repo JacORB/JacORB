@@ -1,6 +1,5 @@
 /* This file contains SAS policy
- * $Id$	
- */ 
+ */
 
 #ifndef __SASPolicy_IDL
 #define __SASPolicy_IDL

@@ -18,8 +18,7 @@ simply unzip) the archive somewhere.  This will result in a new directory {\tt
 
 JacORB requires JDK 1.6 or above properly installed on your machine. To build
 JacORB and run the tests Maven (\href{https://maven.apache.org}{https://maven.apache.org})
- is required (tested with 3.0.x). To build the examples you need to have Ant
-(\href{http://ant.apache.org}{http://ant.apache.org}) installed (tested with 1.8.4).
+ is required (tested with 3.0.x).
 
 \subsection{Procedure}
 \begin{itemize}
@@ -68,13 +67,7 @@ imported into Eclipse or IntelliJ using standard import commands.
 \end{itemize}
 
 \subsubsection{Building JacORB Demos (Optional)}
-Note that the JacORB demos still use Ant. To build the JacORB demos within the
-demo directory a build.xml file has been supplied. Call "ant" in the demo directory.
-The default Ant target will build all the demos. The classes will be placed
-in {\tt <installdir>/classes}
-
-It is recommended that your CLASSPATH is unset and JacORB is installed in a path that does
-not contain spaces.
+To build the JacORB demos within the demo directory Maven pom file(s) have been supplied. Run "mvn install" in the respective demo directories.
 
 \subsubsection{Building JBoss Service for the Notification Service (Optional)}
 In order to build the JBoss service (jboss-cosnotification.sar in the lib

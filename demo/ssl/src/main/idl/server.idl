@@ -1,0 +1,18 @@
+
+module org
+{
+    module jacorb
+    {
+        module demo
+        {
+            module ssl
+            {
+                interface SSLDemo
+                {
+                    void printCert();
+                    void shutdown ();
+                };
+            };
+        };
+    };
+};

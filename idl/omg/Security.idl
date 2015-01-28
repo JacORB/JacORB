@@ -1,6 +1,4 @@
 // From CORBASEC V 1.5
-// $Id$
-
 
 #ifndef _SECURITY_IDL_
 #define _SECURITY_IDL_
@@ -8,7 +6,7 @@
 #include <TimeBase.idl>
 #pragma prefix "omg.org"
 
-module Security 
+module Security
 {
 
     typedef string                    SecurityName;
@@ -65,14 +63,14 @@ module Security
     typedef unsigned short                  AssociationOptions;
 
     const AssociationOptions NoProtection = 1;
-    const AssociationOptions Integrity = 2; 
-    const AssociationOptions Confidentiality = 4; 
-    const AssociationOptions DetectReplay = 8; 
+    const AssociationOptions Integrity = 2;
+    const AssociationOptions Confidentiality = 4;
+    const AssociationOptions DetectReplay = 8;
     const AssociationOptions DetectMisordering = 16;
-    const AssociationOptions EstablishTrustInTarget = 32; 
+    const AssociationOptions EstablishTrustInTarget = 32;
     const AssociationOptions EstablishTrustInClient = 64;
     const AssociationOptions NoDelegation = 128;
-    const AssociationOptions SimpleDelegation = 256; 
+    const AssociationOptions SimpleDelegation = 256;
     const AssociationOptions CompositeDelegation = 512;
 
     struct SecurityMechanismData {
@@ -97,12 +95,12 @@ module Security
     // privilege attributes; family = 1
 
     const SecurityAttributeType              _Public = 1;
-    const SecurityAttributeType              AccessId = 2; 
+    const SecurityAttributeType              AccessId = 2;
     const SecurityAttributeType              PrimaryGroupId = 3;
     const SecurityAttributeType              GroupId = 4;
     const SecurityAttributeType              Role = 5;
     const SecurityAttributeType              AttributeSet = 6;
-    const SecurityAttributeType              Clearance = 7; 
+    const SecurityAttributeType              Clearance = 7;
     const SecurityAttributeType              Capability = 8;
 
     struct AttributeType {
@@ -114,9 +112,9 @@ module Security
 
     struct SecAttribute {
         AttributeType            attribute_type;
-        Opaque defining_authority; 
+        Opaque defining_authority;
         Opaque value;
-        // the value of this attribute can be 
+        // the value of this attribute can be
         // interpreted only with knowledge of type
     };
 
@@ -156,7 +154,7 @@ module Security
         SecReceivedCredentials
     };
 
-    // Declarations related to Rights 
+    // Declarations related to Rights
 
     struct Right {
         ExtensibleFamily             rights_family;
@@ -240,7 +238,7 @@ module Security
 
     struct OpaqueBuffer {
         Opaque buffer;
-        unsigned long                startpos; 
+        unsigned long                startpos;
         unsigned long                endpos;
         // startpos <= endpos
         // OpaqueBuffer is said to be empty if startpos == endpos
@@ -259,7 +257,7 @@ module Security
     // Direction of communication for which
     // secure invocation policy applies
 
-    enum CommunicationDirection { 
+    enum CommunicationDirection {
         SecDirectionBoth,
         SecDirectionRequest,
         SecDirectionReply
@@ -279,8 +277,8 @@ module Security
 
     enum DelegationMode {
         SecDelModeNoDelegation,                    // i.e. use own credentials
-        SecDelModeSimpleDelegation,   // delegate received credentials 
-        SecDelModeCompositeDelegation  // delegate both; 
+        SecDelModeSimpleDelegation,   // delegate received credentials
+        SecDelModeCompositeDelegation  // delegate both;
     };
 
     // Association options supported by a given mech type
@@ -299,7 +297,7 @@ module Security
         boolean trust_in_target;
     };
 
-    // Audit 
+    // Audit
 
     typedef unsigned long                                     AuditChannelId;
 
@@ -320,17 +318,17 @@ module Security
     enum DayOfTheWeek {
         Monday, Tuesday, Wednesday, Thursday, Friday, Saturday, Sunday};
 
-    enum AuditCombinator { 
-        SecAllSelectors, 
-        SecAnySelector 
-    }; 
+    enum AuditCombinator {
+        SecAllSelectors,
+        SecAnySelector
+    };
 
     struct AuditEventType {
         ExtensibleFamily            event_family;
         EventType                   event_type;
     };
-    typedef 
-        sequence 
+    typedef
+        sequence
         <AuditEventType> AuditEventTypeList;
 
     typedef unsigned long                                   SelectorType;
@@ -346,7 +344,7 @@ module Security
     // values defined for audit_needed and audit_write are:
     // InterfaceName: CORBA::RepositoryId
     // ObjectRef: object reference
-    // Operation: op_name 
+    // Operation: op_name
     // Initiator: Credentials
     // SuccessFailure: boolean
     // Time: utc time on audit_write; time picked up from

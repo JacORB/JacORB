@@ -32,7 +32,7 @@ public class Server
         ps.println( orb.object_to_string( o ) );
         ps.close();
 
-        while ( ! goodDayImpl.getShutdown ())
+        while ( args.length == 2 || ! goodDayImpl.getShutdown ())
         {
             Thread.sleep(1000);
         }

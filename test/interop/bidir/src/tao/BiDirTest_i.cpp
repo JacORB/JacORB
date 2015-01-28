@@ -20,48 +20,35 @@
 //     http://www.cs.wustl.edu/~schmidt/TAO.html
 
 #include "BiDirTest_i.h"
+#include <ace/streams.h>
 
 // Implementation skeleton constructor
 ClientCallback_i::ClientCallback_i (void)
   {
   }
-  
+
 // Implementation skeleton destructor
 ClientCallback_i::~ClientCallback_i (void)
   {
   }
-  
-void ClientCallback_i::hello (
-    const char * message
-  )
-  ACE_THROW_SPEC ((
-    CORBA::SystemException
-  ))
 
+void ClientCallback_i::hello (const char * message)
   {
       cout << "ClientCallback received msg: " << message << endl;
   }
-  
+
 // Implementation skeleton constructor
 CallbackServer_i::CallbackServer_i (void)
   {
   }
-  
+
 // Implementation skeleton destructor
 CallbackServer_i::~CallbackServer_i (void)
   {
   }
-  
-void CallbackServer_i::callback_hello (
-    ClientCallback_ptr cc,
-    const char * message
-  )
-  ACE_THROW_SPEC ((
-    CORBA::SystemException
-  ))
 
+void CallbackServer_i::callback_hello (test::interop::bidir::ClientCallback_ptr cc, const char * message)
   {
       cout << "CallbackServer received msg: " << message << endl;
       cc->hello( message );
   }
-  

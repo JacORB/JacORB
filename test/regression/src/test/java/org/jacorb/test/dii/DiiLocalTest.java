@@ -72,6 +72,8 @@ public class DiiLocalTest extends ORBTestCase
 
         request.invoke();
 
+        server._release();
+
         Field fconnmgr = Delegate.class.getDeclaredField("conn_mg");
         fconnmgr.setAccessible(true);
         Delegate d = (Delegate) ((org.omg.CORBA.portable.ObjectImpl)server)._get_delegate();

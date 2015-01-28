@@ -186,11 +186,6 @@ jacorb.maxManagedBufSize=22
 # buffer sizes calculation (see the formula above).
 #jacorb.buffermanager.defaultexpansionpolicy.divider=6
 
-# Size of the deferredArrayQueue. JacORB will delay transferring bytes
-# internally to the stream if the size is over this value.
-# Default is 8K and 0=off.
-jacorb.deferredArrayQueue=8
-
 # Create a timer queue object that manages general timed waits using a single
 # thread to wait and notify registered callback objects at the appropriate time.
 # Setting known timer queue dependant options will implicitly enable the use

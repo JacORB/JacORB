@@ -51,11 +51,18 @@ This Release
          - Fix for threading issue with CodeSet (BZ994).
          - Fix for threading issue with Configuration (BZ991).
          - Fix for read_fixed (BZ996).
+         - Fix for nested invocations and timeouts (BZ940).
          - Further improvements to network address retrieval code. Real interfaces
            (e.g. Ethernet/WLAN) will be prioritised over virtual interfaces
            (e.g. VMWare, VirtualBox, Docker) via the JVM system property
            jacorb.network.virtual which defaults to VirtualBox,VMWare,vboxnet,docker
          - Fixes for IPv6/MIOP parsing.
+         - Remove deferredArrayQueue to avoid stream corruption/improve performance.
+         - Revert releasing target object after DII invocation due to multithreading issues. (BZ1000)
+
+    - Misc
+        - Convert demos to Maven layout.
+        - Improve documentation and add https://jacorb.github.io javadoc API.
 
 3.5
 ===

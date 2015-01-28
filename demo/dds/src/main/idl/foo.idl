@@ -1,0 +1,83 @@
+/*
+ *  DDS (Data Distribution Service) for JacORB
+ *
+ * Copyright (C) 2005  , Ahmed yehdih <ahmed.yehdih@gmail.com>,
+ *  fouad allaoui <fouad.allaoui@gmail.com>, Didier Donsez (didier.donsez@ieee.org)
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Library General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Library General Public License for more details.
+ *
+ * You should have received a copy of the GNU Library General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
+ * 02111-1307, USA.
+ *
+ * Contact: Ahmed yehdih <ahmed.yehdih@gmail.com>, fouad allaoui
+ * <fouad.allaoui@gmail.com>, Didier Donsez (didier.donsez@ieee.org)
+ * Contributor(s):
+ *
+ */ // Implied IDL for type "Foo"
+
+// Example user defined structure
+
+#include <dds_dcps.idl>
+
+module org
+{
+    module jacorb
+    {
+        module demo {
+            module dds {
+                module dcps {
+                    module foosample{
+                        struct Foo {
+                            double dummy;
+                        };
+
+                        typedef sequence<Foo> FooSeq;
+
+                        interface  FooTypeSupport :  ::dds::TypeSupport {
+                            ::dds::ReturnCode_t register_type(in ::dds::DomainParticipant participant, in string type_name);
+                        };
+
+                        interface FooDataWriter :   ::dds::DataWriter {
+                            ::dds::InstanceHandle_t register(in Foo instance_data);
+                            ::dds::InstanceHandle_t register_w_timestamp(in Foo instance_data, in ::dds::InstanceHandle_t handle,in ::dds::Time_t source_timestamp);
+                            ::dds::ReturnCode_t unregister(in Foo instance_data, in ::dds::InstanceHandle_t handle);
+                            ::dds::ReturnCode_t   unregister_w_timestamp(in Foo instance_data,in   ::dds::InstanceHandle_t handle  ,in   ::dds::  Time_t source_timestamp);
+                            ::dds::ReturnCode_t write(in Foo instance_data, in ::dds::InstanceHandle_t handle);
+                            ::dds::ReturnCode_t write_w_timestamp(in Foo instance_data, in ::dds::InstanceHandle_t handle,in   ::dds::Time_t source_timestamp);
+                            ::dds::ReturnCode_t dispose(in Foo instance_data,in   ::dds::InstanceHandle_t instance_handle);
+                            ::dds::ReturnCode_t dispose_w_timestamp(in Foo instance_data, in ::dds::InstanceHandle_t instance_handle,in   ::dds::Time_t source_timestamp);
+                            ::dds::ReturnCode_t   get_key_value(inout Foo key_holder, in ::dds::InstanceHandle_t handle);
+                        };
+
+                        interface FooDataReader :   ::dds::DataReader {
+                            ::dds::ReturnCode_t read(  inout FooSeq received_data,inout ::dds::SampleInfoSeq info_seq, in   long max_samples,in   ::dds::  SampleStateMask sample_states,in ::dds::ViewStateMask view_states,in ::dds::InstanceStateMask instance_states);
+                            ::dds::ReturnCode_t take(  inout FooSeq received_data,inout ::dds::SampleInfoSeq info_seq, in   long max_samples,in   ::dds::  SampleStateMask sample_states,in ::dds::ViewStateMask view_states,in ::dds::InstanceStateMask instance_states);
+                            ::dds::ReturnCode_t read_w_condition(  inout FooSeq received_data,inout ::dds::SampleInfoSeq info_seq,in long max_samples,in   ::dds::ReadCondition   a_condition);
+                            ::dds::ReturnCode_t take_w_condition(inout FooSeq received_data,inout ::dds::SampleInfoSeq info_seq,in long max_samples,in ::dds::ReadCondition a_condition);
+                            ::dds::ReturnCode_t read_next_sample(inout Foo received_data,inout ::dds::SampleInfo sample_info);
+                            ::dds::ReturnCode_t take_next_sample(inout Foo received_data,inout ::dds::SampleInfo sample_info);
+                            ::dds::ReturnCode_t read_instance(inout FooSeq received_data,inout ::dds::SampleInfoSeq info_seq,in long max_samples,in ::dds::InstanceHandle_t a_handle,in ::dds::SampleStateMask sample_states,in ::dds::ViewStateMask view_states,in ::dds::InstanceStateMask instance_states);
+                            ::dds::ReturnCode_t take_instance(inout FooSeq received_data,inout ::dds::SampleInfoSeq info_seq,in long max_samples,in ::dds::InstanceHandle_t a_handle,in ::dds::SampleStateMask sample_states,in ::dds::ViewStateMask view_states,in ::dds::InstanceStateMask instance_states);
+                            ::dds::ReturnCode_t read_next_instance(inout FooSeq received_data,inout ::dds::SampleInfoSeq info_seq,in long max_samples,in ::dds::InstanceHandle_t a_handle,in ::dds::SampleStateMask sample_states,in ::dds::ViewStateMask view_states,in ::dds::InstanceStateMask instance_states);
+                            ::dds::ReturnCode_t take_next_instance(inout FooSeq received_data,inout ::dds::SampleInfoSeq info_seq,in long max_samples,in ::dds::InstanceHandle_t a_handle,in ::dds::SampleStateMask sample_states,in ::dds::ViewStateMask view_states,in ::dds::InstanceStateMask instance_states);
+                            ::dds::ReturnCode_t read_next_instance_w_condition(inout FooSeq received_data,inout ::dds::SampleInfoSeq info_seq,in long max_samples,in ::dds::InstanceHandle_t a_handle,in ::dds::ReadCondition a_condition);
+                            ::dds::ReturnCode_t   take_next_instance_w_condition(  inout FooSeq received_data,inout ::dds::  SampleInfoSeq info_seq,in long max_samples,in   ::dds::  InstanceHandle_t a_handle,in ::dds::ReadCondition a_condition);
+                            ::dds::ReturnCode_t return_loan( inout FooSeq received_data,inout ::dds::SampleInfoSeq info_seq);
+                            ::dds::ReturnCode_t   get_key_value(inout Foo key_holder, in   ::dds::InstanceHandle_t handle);
+                        };
+                    };
+                };
+            };
+        };
+    };
+};

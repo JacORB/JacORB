@@ -36,7 +36,7 @@ import org.junit.Test;
  * address will still be used to connect to the server.  See comments below
  * in the suite() method how to change that (if your test machine supports it).
  *
- * @author Andre Spiegel <spiegel@gnu.org>
+ * @author Andre Spiegel &lt;spiegel@gnu.org&gt;
  */
 public class AlternateIIOPAddressAutoTest extends ClientServerTestCase
 {

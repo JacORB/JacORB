@@ -1,0 +1,32 @@
+module org
+{
+    module jacorb
+    {
+        module test
+        {
+            module bugs
+            {
+                module bug999
+                {
+                    typedef sequence<octet> octetseq;
+
+                    struct Data {
+                        octetseq bytes;
+                        string name;
+                    };
+                    typedef sequence<Data> DataSeq;
+
+
+                    interface Hello
+                    {
+                        long inputString(in string s1);
+                        void inputData(in DataSeq ds1);
+
+                        void sayHello();
+                        void sayGoodbye();
+                    };
+                };
+            };
+        };
+    };
+};

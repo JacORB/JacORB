@@ -14,7 +14,7 @@ import org.junit.Test;
 /**
  * Tests for SyncScopePolicy.
  *
- * @author Andre Spiegel <spiegel@gnu.org>
+ * @author Andre Spiegel &lt;spiegel@gnu.org&gt;
  */
 public class DefSyncScopeTest extends ClientServerTestCase
 {

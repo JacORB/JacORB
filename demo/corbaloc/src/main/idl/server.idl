@@ -1,0 +1,20 @@
+
+module org
+{
+    module jacorb
+    {
+        module demo
+        {
+            module corbaloc
+            {
+                interface GoodDay
+                {
+                    string hello_simple();
+
+                    void shutdown ();
+                };
+            };
+
+        };
+    };
+};

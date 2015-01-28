@@ -33,7 +33,7 @@ import org.junit.runners.Parameterized.Parameters;
 
 /**
  * this test will try to process all idl files included
- * in the directory <TEST_HOME>/idl/compiler/fail.
+ * in the directory &lt;TEST_HOME&gt;/idl/compiler/fail.
  * this test assumes the idl files to be invalid and
  * will fail if JacIDL does not cause an error during processing.
  *

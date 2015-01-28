@@ -38,13 +38,13 @@ import org.omg.CORBA.TypeCode;
 
 /**
  * this test will try to process and compile all idl files included
- * in the directory <TEST_HOME>/idl/compiler/succeed.
+ * in the directory &lt;TEST_HOME&gt;/idl/compiler/succeed.
  * this test assumes the idl files to be correct and
  * will fail if JacIDL or javac causes an error during processing.
  *
  * additionally if you'd like to verify the compiled classes
  * you can optionally define a method that must adhere to the following
- * signature: public void verify_<FILENAME>(ClassLoader cl) {...}
+ * signature: public void verify_&lt;FILENAME&gt;(ClassLoader cl) {...}
  * (dots in filename will be converted to _). inside the method you can then
  * load and inspect the compiled classes.
  *

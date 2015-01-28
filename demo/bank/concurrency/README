@@ -1,11 +1,12 @@
 Objective:
-   This demo shows how to use CosConcurrencyControl service in a real 
-   application. It demonstrates how to prevent deadlock and have safe 
+   This demo shows how to use CosConcurrencyControl service in a real
+   application. It demonstrates how to prevent deadlock and have safe
    concurrent invocations without corrupting the data.
 
-How to Run:
-    Compile:
-        ant
+How to compile:
+    mvn install
+
+How to run:
 
     Run NamingServer:
         ns -Djacorb.naming.ior_filename=/path/to/NS_Ref
@@ -17,5 +18,5 @@ How to Run:
         jaco demo.bank.concurrency.Client
 
 Note:
-    Make sure that jacorb.properties is in place and has the name server 
+    Make sure that jacorb.properties is in place and has the name server
     reference such as ORBInitRef.NameService=file:/path/to/NS_Ref

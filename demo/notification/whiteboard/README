@@ -20,7 +20,7 @@ Usage
   There are two simple ways to accomplish this.
 
   - write the IOR to a file
-	
+
 	start the NotificationService with the option -writeIOR <filename>
 
 	e.g.:
@@ -28,7 +28,7 @@ Usage
 	> ntfy -writeIOR /tmp/notification.ior
 
 	add a ORBInitRef entry to your jacorb_properties that points to the same file:
-	
+
 	e.g.:
 	ORBInitRef.NotificationService=file:/tmp/notification.ior
 
@@ -42,13 +42,13 @@ Usage
 	service on the specified port. The option -printCorbaloc
 	prints the resulting corbaloc reference to the console.
 
-	This should print a string similiar to 
+	This should print a string similiar to
 	corbaloc::<your-host>:<your-port>/NotificationService
 
 	where <your-host> is the IP address or hostname of your
 	computer and <your-port> is
 	the port you specified with the -port option.
-	
+
 	put this string into your jacorb_properties file
 
 	e.g.:
@@ -57,50 +57,50 @@ Usage
 * Start the Whiteboard Factory
 
   > cd $JACORB_HOME/demo/notification/whiteboard
-  > start-factory.sh  
+  > jaco org.jacorb.demo.notification.whiteboard.WhiteBoardFactory
 
-  The whiteboard factory uses ORB.resolve_initial_references("NotificationService") to 
-  access the NotificationService (see above). 
+  The whiteboard factory uses ORB.resolve_initial_references("NotificationService") to
+  access the NotificationService (see above).
   Alternatively you can specify the Reference to the Notification Service as a parameter
 
   e.g.:
   > cd $JACORB_HOME/demo/notification/whiteboard
-  > start-factory.sh corbaloc::192.168.1.1:32861/NotificationService
+  > jaco org.jacorb.demo.notification.whiteboard.WhiteBoardFactory corbaloc::192.168.1.1:32861/NotificationService
 
   The Whiteboard Factory registers itself with the Naming Service.
 
 * Start Workgroup
 
   > cd $JACORB_HOME/demo/notification/whiteboard
-  > start-workgroup.sh
+  > jaco org.jacorb.demo.notification.whiteboard.Workgroup
 
   the workgroup accesses the Whiteboard Factory via the NamingService.
   You can draw in the Window by pushing the mouse button, dragging the
-  mouse and releasing the button again. 	
+  mouse and releasing the button again.
   If you select the Delete Button you can overpaint parts of your
-  drawing with black colour again. If you press Clear 	 
+  drawing with black colour again. If you press Clear
   the whole Drawing Area will be erased.
   If you want to join a Remote Whiteboard select Menu->Select. You'll
-  see the list of available whiteboards. 
+  see the list of available whiteboards.
   As no Whiteboard will be available yet, just type in some Name and
-  select Join. The Whiteboard will be created. 
-  
-  Now start one (or more) Workgroup and join the Whiteboard you've created. 
+  select Join. The Whiteboard will be created.
+
+  Now start one (or more) Workgroup and join the Whiteboard you've created.
   What you draw in one Window will be sent to the other Window and displayed there too.
 
 Implementation Notes
 --------------------
 
-For each Workgroup that joins a Whiteboard a new 
-Consumer-/SupplierAdmin Pair is created and returned to the  
+For each Workgroup that joins a Whiteboard a new
+Consumer-/SupplierAdmin Pair is created and returned to the
 Workgroup. An unique Identifier is created and supplied to each
-Workgroup. 
+Workgroup.
 
 The Workgroup publishes two Kinds of Events:
 
 * LineEvent. This Event contains Informations over a single Line: you
   have startpoint (x0, y0), endpoint (x1, y1), colour (r, g, b),
-  brushsize. 
+  brushsize.
 
 * ClearEvent. This Event contains no Data.
 
@@ -115,12 +115,9 @@ Workgroup.
 The Workgroup creates a StructuredProxyPushConsumer and uses it to send Events as they occur.
 
 Besides that, the Workgroup creates two StructuredProxyPushSuppliers
-and connects them to its DrawHandler 
+and connects them to its DrawHandler
 and ClearHandler. The PushSuppliers are configured with a Filter to
-just supply LineEvents or ClearEvents 
+just supply LineEvents or ClearEvents
 respectively. This Way the DrawHandler just receives LineEvents and
-the ClearHandler just receives ClearEvents. 
+the ClearHandler just receives ClearEvents.
 On Repetition of an Event both Handlers act accordingly.
-
-
-$Id$

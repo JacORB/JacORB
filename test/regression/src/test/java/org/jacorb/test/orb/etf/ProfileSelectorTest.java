@@ -31,8 +31,8 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 /**
- * A test that uses the {@link org.jacorb.test.orb.etf.wiop.WIOPProfileSelector
- * WIOPProfileSelector} on the client side.  This means the client will always
+ * A test that uses the {@link org.jacorb.test.orb.etf.WIOPSelector}
+ * on the client side.  This means the client will always
  * select the WIOP transport, even though the server publishes IIOP as the
  * primary profile, and WIOP only as the secondary profile.
  * 

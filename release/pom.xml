@@ -20,9 +20,7 @@
     <url>http://www.jacorb.org</url>
 
     <properties>
-        <skipCompile>true</skipCompile>
-        <skipJavadoc>true</skipJavadoc>
-        <skipTests>true</skipTests>
+        <dryRun>false</dryRun>
     </properties>
 
     <dependencies>
@@ -173,6 +171,125 @@
                             </execution>
                         </executions>
                     </plugin>
+                </plugins>
+            </build>
+        </profile>
+
+        <!-- mvn -Dsite-generation=true -DskipPDFGeneration=true site -->
+        <profile>
+            <id>site-generation</id>
+            <activation>
+                <property>
+                    <name>siteGeneration</name>
+                </property>
+            </activation>
+
+            <dependencies>
+                <dependency>
+                    <groupId>org.jacorb</groupId>
+                    <artifactId>jacorb</artifactId>
+                    <version>${project.version}</version>
+                    <classifier>sources</classifier>
+                </dependency>
+                <!-- <dependency> -->
+                <!--     <groupId>org.jacorb</groupId> -->
+                <!--     <artifactId>jacorb-omgapi</artifactId> -->
+                <!--     <version>${project.version}</version> -->
+                <!--     <classifier>sources</classifier> -->
+                <!-- </dependency> -->
+                <!-- <dependency> -->
+                <!--     <groupId>org.jacorb</groupId> -->
+                <!--     <artifactId>jacorb-services</artifactId> -->
+                <!--     <version>${project.version}</version> -->
+                <!--     <classifier>sources</classifier> -->
+                <!-- </dependency> -->
+            </dependencies>
+
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-dependency-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>prepare-sources</id>
+                                <goals>
+                                    <goal>unpack-dependencies</goal>
+                                </goals>
+                                <phase>pre-site</phase>
+                                <configuration>
+                                    <includeClassifiers>sources</includeClassifiers>
+                                    <outputDirectory>${project.build.directory}/sources</outputDirectory>
+                                </configuration>
+                            </execution>
+                        </executions>
+                        <configuration>
+                            <includeGroupIds>org.jacorb</includeGroupIds>
+                        </configuration>
+                    </plugin>
+                    <!-- Just using the site phase to isolate javadoc publishing -->
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-site-plugin</artifactId>
+                        <executions>
+                            <!-- Run in both default-site phase and after all the tests -->
+                            <execution>
+                                <id>default-site</id>
+                                <phase>none</phase>
+                                <goals>
+                                    <goal>site</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-javadoc-plugin</artifactId>
+                        <configuration>
+                            <!-- <header>JacORB ${project.version}</header> -->
+                            <doctitle>JacORB ${project.version}</doctitle>
+                            <sourcepath>${project.build.directory}/sources</sourcepath>
+                            <links>
+                                <link>http://docs.oracle.com/javase/7/docs/api</link>
+                            </links>
+                            <verbose>true</verbose>
+                            <quiet>false</quiet>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <id>create-javadoc</id>
+                                <phase>site</phase>
+                                <goals>
+                                    <goal>javadoc</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-scm-publish-plugin</artifactId>
+                        <version>1.1</version>
+                        <configuration>
+                            <checkoutDirectory>${project.build.directory}/scmpublish</checkoutDirectory>
+                            <checkinComment>Publishing javadoc for ${project.artifactId}:${project.version}</checkinComment>
+                            <content>${project.reporting.outputDirectory}/apidocs</content>
+                            <skipDeletedFiles>true</skipDeletedFiles>
+                            <pubScmUrl>scm:git:git@github.com:JacORB/JacORB.git</pubScmUrl>
+                            <scmBranch>gh-pages</scmBranch> <!-- branch with static site -->
+                            <dryRun>${dryRun}</dryRun>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <id>publish-javadoc</id>
+                                <phase>site</phase>
+                                <goals>
+                                    <goal>publish-scm</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+
                 </plugins>
             </build>
         </profile>

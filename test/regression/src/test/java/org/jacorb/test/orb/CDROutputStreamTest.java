@@ -68,7 +68,7 @@ public class CDROutputStreamTest extends ORBTestCase
     @Test
     public void testCDRStreamSizeCtor()
     {
-        CDROutputStream co = new CDROutputStream (orb, 1000, false);
+        CDROutputStream co = new CDROutputStream (orb, 1000);
 
         co.increaseSize(8);
 

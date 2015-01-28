@@ -1,4 +1,2 @@
 * persistent channels
 * persistent events
-
-$Id$

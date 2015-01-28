@@ -6,7 +6,7 @@ monitor the activities of a server via an applet. This would normally be done
 via a callback object that the applet registers at the server, so the applet
 doesn't have to poll the server for events. To accomplish this without
 BiDirectional GIOP, the server would have to open a new connection to the
-client which will not work because applets usually arent allowed to act as
+client which will not work because applets usually are not allowed to act as
 servers, i.e. open ServerSockets. At this point BiDirectional GIOP can help
 because it allows to reuse the connection the applet opened to the server for
 GIOP requests from the server to the applet (which isn't allowed in
@@ -87,19 +87,18 @@ show the following output:
 \section{TAO interoperability}
 There is one problem that may prevent TAO and JacORB to interoperate using
 BiDirectional GIOP: If JacORB uses IP addresses as host names (JacORBs
-default) and TAO uses DNS names as host names (TAOs default), connections
-from JacORB clients to TAO servers will not be reused. If, on the other hand,
-both use the same ``format'' for host addresses, interoperability will be
-successful. There are two ways to solve this problem:
+default) and TAO uses DNS names as host names (TAOs default on non Microsoft
+Windows platforms), connections from JacORB clients to TAO servers will not be
+reused. If, on the other hand, both use the same ``format'' for host addresses,
+interoperability will be successful. There are two ways to solve this problem:
 \begin{enumerate}
 \item Use {\tt ``-ORBdotteddecimaladdresses 1''} as an command line argument
   to the TAO server.
-\item Recompile JacORB with DNS support (See the INSTALL file for more
-  information).
+\item Configure JacORB to use DNS names (See the configuration guide).
 \end{enumerate}
 
 
-%%% Local Variables: 
+%%% Local Variables:
 %%% mode: latex
 %%% TeX-master: "../ProgrammingGuide"
-%%% End: 
+%%% End:

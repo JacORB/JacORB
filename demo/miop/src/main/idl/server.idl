@@ -1,0 +1,21 @@
+
+
+module org
+{
+    module jacorb
+    {
+        module demo
+        {
+            module miop
+            {
+                typedef sequence<octet> Octets;
+
+                interface GreetingService
+                {
+                    oneway void greeting_oneway (in string str);
+                    oneway void shutdown ();
+                };
+            };
+        };
+    };
+};

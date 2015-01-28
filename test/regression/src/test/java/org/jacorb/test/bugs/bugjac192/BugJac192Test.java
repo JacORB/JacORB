@@ -48,11 +48,6 @@ public class BugJac192Test extends ClientServerTestCase
         server = JAC192Helper.narrow( setup.getServerObject() );
     }
 
-    /**
-     * <code>suite</code> initialise the tests with the correct environment.
-     *
-     * @return a <code>Test</code> value
-     */
     @BeforeClass
     public static void beforeClassSetUp() throws Exception
     {

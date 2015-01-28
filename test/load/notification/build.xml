@@ -4,8 +4,8 @@
 
 <project name="notification-load" default="all" basedir="../../..">
 
-	<import file="../../../etc/common.xml"/>
-		
+	<import file="../../etc/common.xml"/>
+
 	<property name="dir.base" value="${basedir}/test/load/notification" />
 	<property name="dir.work" value="${dir.base}/work" />
 	<property file="${dir.base}/build.properties" />

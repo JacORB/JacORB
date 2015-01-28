@@ -35,7 +35,6 @@ import org.omg.ETF.Profile;
 
 /**
  * @author Quynh Nguyen
- * @version $Id$
  *
  * This ImR adapter class contains hooks for a JacORB to register and
  * unregister with a TAO ImR.

@@ -197,8 +197,6 @@ public class LocalPITest extends ClientServerTestCase
 
     /**
      * Test complete request call with service contexts.
-     *
-     * @exception org.omg.CORBA.UserException if any of the test cases fails
      */
     @Test
     public void testCompleteCallWithSCs()

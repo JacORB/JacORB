@@ -59,6 +59,11 @@ import org.jacorb.orb.ORB;
 public interface Configuration
 {
     /**
+     * Returns if the configuration attribute with the given key is defined.
+     */
+    boolean isAttributeSet (String key) throws ConfigurationException;
+
+    /**
      * Returns the value of the configuration attribute with the given key.
      * If the attribute value for this key is undefined, the exception
      * ConfigurationException is thrown.

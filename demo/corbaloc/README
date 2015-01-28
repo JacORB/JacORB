@@ -1,0 +1,5 @@
+Objective:
+    This is a simple example to show the usage of a variety corbaloc initial references.
+
+How to compile and run:
+    mvn install

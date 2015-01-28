@@ -1,0 +1,23 @@
+Objective:
+   This demo shows how to start transtactions explicitly. How to rollback in
+   case of any failure in the process of transaction.Code is taken and adapted
+   from http://www.wiley.com/combooks/vogel/ejb/code.html
+
+How to Run:
+    Compile:
+        mvn install
+
+    Run NamingServer:
+        ns -Djacorb.naming.ior_filename=/path/to/NS_Ref
+
+    Run Transaction Server
+        ts
+
+    Run Server:
+        jaco demo.bank.transaction.explicit.Server
+
+    Run Client:
+        jaco demo.bank.transaction.explicit.Client
+Note:
+    Make sure that jacorb.properties is in place and has the name server
+    reference such as ORBInitRef.NameService=file:/path/to/NS_Ref

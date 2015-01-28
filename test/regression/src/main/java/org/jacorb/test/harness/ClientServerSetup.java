@@ -35,7 +35,7 @@ import org.omg.PortableServer.POA;
  * See {@link ClientServerTestCase} for how to use this class in a
  * {@literal @}BeforeClass annotation.
  *
- * @author Andre Spiegel <spiegel@gnu.org>
+ * @author Andre Spiegel &lt;spiegel@gnu.org&gt;
  * @author Nick Cross
  */
 public class ClientServerSetup extends ORBTestCase
