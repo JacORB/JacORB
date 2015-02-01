@@ -59,7 +59,7 @@ This Release
          - Fixes for IPv6/MIOP parsing.
          - Remove deferredArrayQueue to avoid stream corruption/improve performance.
          - Revert releasing target object after DII invocation due to multithreading issues. (BZ1000)
-
+         - Fix for client reconnecting to restarted servers (BZ967)
     - Misc
         - Convert demos to Maven layout.
         - Improve documentation and add https://jacorb.github.io javadoc API.
