@@ -107,6 +107,13 @@ public class ClientConnectionManager
             }
         }
 
+        // Don't return a closed connection.
+        if (clientConnection != null && clientConnection.isClosed())
+        {
+            releaseConnection (clientConnection);
+            clientConnection = null;
+        }
+
         if (clientConnection == null)
         {
             int tag = profile.tag();
