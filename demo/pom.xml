@@ -18,6 +18,7 @@
     <modules>
         <module>ami</module>
         <module>any</module>
+        <module>appserver</module>
         <module>arrays</module>
         <module>bank</module>
         <module>bidir</module>

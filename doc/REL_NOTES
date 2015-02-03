@@ -66,6 +66,7 @@ This Release
         - Convert demos to Maven layout.
         - Improve documentation and add https://jacorb.github.io javadoc API.
         - Add Travis-CI Integration.
+        - Add appserver demo.
 
 3.5
 ===
