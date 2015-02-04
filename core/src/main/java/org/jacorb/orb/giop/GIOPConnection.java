@@ -1164,8 +1164,8 @@ public abstract class GIOPConnection
                 connection_listener.connectionClosed();
             }
 
-            transport.close();
             do_close = true;
+            transport.close();
             connect_sync.notifyAll();
          }
     }
