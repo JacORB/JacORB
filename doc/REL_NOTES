@@ -64,8 +64,8 @@ This Release
          - Add compatibility check for special operations.
     - Misc
         - Convert demos to Maven layout.
-        - Improve documentation and add https://jacorb.github.io javadoc API.
         - Add Travis-CI Integration.
+        - Improve documentation and add https://jacorb.github.io/JacORB javadoc API.
         - Add appserver demo.
 
 3.5
