@@ -21,8 +21,7 @@ package org.jacorb.poa;
  */
 
 import java.util.Collection;
-import java.util.HashSet;
-import java.util.Hashtable;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
@@ -100,7 +99,15 @@ public class RequestProcessor
      */
     private static int count = 0;
 
-    private enum SpecialOps { NONE, IS_A, INTERFACE, NON_EXISTENT, GET_POLICY, SET_POLICY, GET_COMPONENT, REPO_ID};
+    private enum SpecialOps { 
+    	IS_A, 
+    	INTERFACE, 
+    	NON_EXISTENT, 
+    	GET_POLICY, 
+    	SET_POLICY, 
+    	GET_COMPONENT, 
+    	REPO_ID
+    };
     
     private final static Map<String, SpecialOps> specialOperations;
 
@@ -108,7 +115,7 @@ public class RequestProcessor
 
     static
     {
-        specialOperations = new Hashtable<String, SpecialOps>(10);
+        specialOperations = new HashMap<String, SpecialOps> (10);
         specialOperations.put("_is_a", SpecialOps.IS_A);
         specialOperations.put("_interface", SpecialOps.INTERFACE);
         specialOperations.put("_non_existent", SpecialOps.NON_EXISTENT);
@@ -336,9 +343,9 @@ public class RequestProcessor
                                  " invokeOperation on servant (stream based)");
                 }
 
-                SpecialOps special_op = specialOperations.getOrDefault(operation, SpecialOps.NONE);
+                SpecialOps special_op = specialOperations.get(operation);
                 
-                if (special_op != SpecialOps.NONE)
+                if (special_op != null)
                 {
                     if (special_op == SpecialOps.GET_POLICY)
                     {
@@ -380,8 +387,8 @@ public class RequestProcessor
                                  " opname: " + operation +
                                  " invoke operation on servant (dsi based)");
                 }
-                SpecialOps special_op = specialOperations.getOrDefault(operation, SpecialOps.NONE);
-                if (special_op != SpecialOps.NONE &&
+                SpecialOps special_op = specialOperations.get(operation);
+                if (special_op != null &&
                     !(servant instanceof org.jacorb.orb.Forwarder) &&
                     (using_jacorb_servant || 
                         !(special_op == SpecialOps.REPO_ID || special_op == SpecialOps.GET_COMPONENT)))
