@@ -62,6 +62,7 @@ This Release
          - Fix for client reconnecting to restarted servers (BZ967)
          - Fix for close issues in GIOPConnection (BZ1002)
          - Add compatibility check for special operations.
+         - Ensure IIOP close doesn't throw exceptions.
     - Misc
         - Convert demos to Maven layout.
         - Add Travis-CI Integration.

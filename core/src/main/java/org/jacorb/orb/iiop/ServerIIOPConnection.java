@@ -82,59 +82,47 @@ public class ServerIIOPConnection
     }
 
 
+    @Override
     public synchronized void close()
     {
-        if( socket != null )
+        if (socket != null)
         {
             try
             {
-                if ( ! (socket instanceof SSLSocket) && ! socket.isClosed())
+                if (!(socket instanceof SSLSocket) && !socket.isClosed())
                 {
                     socket.shutdownOutput();
-                }
-                socket.close();
-
-                //this will cause exceptions when trying to read from
-                //the streams. Better than "nulling" them.
-                if( in_stream != null )
-                {
-                    in_stream.close();
-                }
-
-                if( out_stream != null )
-                {
-                    out_stream.close();
                 }
             }
             catch (IOException ex)
             {
-                throw handleCommFailure(ex);
+                logger.error ("Exception when shutting down output", ex);
             }
-            finally
+            silentClose(socket);
+            silentClose(in_stream);
+            silentClose(out_stream);
+
+            connected = false;
+
+            if (logger.isInfoEnabled())
             {
-                if (tcpListener.isListenerEnabled())
-                {
-                    tcpListener.connectionClosed(
-                            new TCPConnectionEvent
-                            (
-                                    this,
-                                    socket.getInetAddress().toString(),
-                                    socket.getPort(),
-                                    socket.getLocalPort(),
-                                    getLocalhost()
-                            )
-                    );
-                }
+                logger.info("Closed server-side transport to " +
+                        connection_info);
             }
-        }
+            if (tcpListener.isListenerEnabled())
+            {
+                tcpListener.connectionClosed(new TCPConnectionEvent
+                                (
+                                        this,
+                                        socket.getInetAddress().toString(),
+                                        socket.getPort(),
+                                        socket.getLocalPort(),
+                                        getLocalhost()
+                                )
+                );
+            }
 
-        socket = null;
-        connected = false;
-
-        if (logger.isInfoEnabled())
-        {
-            logger.info("Closed server-side transport to " +
-                    connection_info );
+            socket = null;
         }
     }
 

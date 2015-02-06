@@ -19,10 +19,13 @@
  */
 package org.jacorb.orb.etf;
 
+import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InterruptedIOException;
 import java.io.OutputStream;
+import java.net.Socket;
+
 import org.jacorb.util.ObjectUtil;
 
 /**
@@ -33,16 +36,16 @@ import org.jacorb.util.ObjectUtil;
  */
 
 public abstract class StreamConnectionBase
-    extends ConnectionBase
+        extends ConnectionBase
 {
-   /**
-    * Reads performed on this stream.
-    */
+    /**
+     * Reads performed on this stream.
+     */
     protected InputStream in_stream = null;
 
     /**
-    * Writes performed on this stream.
-    */
+     * Writes performed on this stream.
+     */
     protected OutputStream out_stream = null;
 
     protected StreamConnectionBase()
@@ -51,9 +54,9 @@ public abstract class StreamConnectionBase
     }
 
     /**
-    * Initialise this instance as a copy of another. Intended for use within subclass
-    * constructors.
-    */
+     * Initialise this instance as a copy of another. Intended for use within subclass
+     * constructors.
+     */
     protected StreamConnectionBase(StreamConnectionBase other)
     {
         super(other);
@@ -63,56 +66,54 @@ public abstract class StreamConnectionBase
 
     /**
      * Reads bytes from the connection.
-     * 
-     * @param data holds a byte array to which the bytes will be written.  The
-     * field <code>data.value</code> must be initialized with a valid byte
-     * array already, it cannot be null.
-     * @param offset the index in <code>data.value</code> at which the first
-     * byte will be written.
-     * @param min_length the minimum number of bytes that shall be read from
-     * the Connection.  The method will block until at least this many bytes
-     * have been read.  If <code>min_length</code> is 0, the method will always
-     * return immediately without reading any data.
-     * @param max_length the maximum number of bytes that shall be read from
-     * the Connection.  If <code>max_length</code> is greater than
-     * <code>min_length</code>, then the transport is free to read
-     * (<code>max_length</code> - <code>min_length</code>) additional bytes
-     * beyond <code>min_length</code>.
-     * @param time_out timeout for this particular read operation.  Currently
-     * ignored in JacORB; we use socket-level timeouts.
      *
+     * @param data       holds a byte array to which the bytes will be written.  The
+     *                   field <code>data.value</code> must be initialized with a valid byte
+     *                   array already, it cannot be null.
+     * @param offset     the index in <code>data.value</code> at which the first
+     *                   byte will be written.
+     * @param min_length the minimum number of bytes that shall be read from
+     *                   the Connection.  The method will block until at least this many bytes
+     *                   have been read.  If <code>min_length</code> is 0, the method will always
+     *                   return immediately without reading any data.
+     * @param max_length the maximum number of bytes that shall be read from
+     *                   the Connection.  If <code>max_length</code> is greater than
+     *                   <code>min_length</code>, then the transport is free to read
+     *                   (<code>max_length</code> - <code>min_length</code>) additional bytes
+     *                   beyond <code>min_length</code>.
+     * @param time_out   timeout for this particular read operation.  Currently
+     *                   ignored in JacORB; we use socket-level timeouts.
      * @return the number of bytes actually read.  The last byte written to
      * <code>data.value</code> is at the index <code>offset</code> + this return
      * value.  This return type is a change to the ETF draft spec in JacORB.
      * It is needed because the mechanism suggested in the draft does not work
      * in Java.
-     *
-     * @exception org.omg.CORBA.TIMEOUT if the socket-level timeout expires
-     * before the read operation completes.
-     * @exception org.omg.CORBA.TRANSIENT if the I/O is interrupted.
-     * @exception org.omg.CORBA.COMM_FAILURE if the read operation fails,
-     * for example because the connection has been closed. 
+     * @throws org.omg.CORBA.TIMEOUT      if the socket-level timeout expires
+     *                                    before the read operation completes.
+     * @throws org.omg.CORBA.TRANSIENT    if the I/O is interrupted.
+     * @throws org.omg.CORBA.COMM_FAILURE if the read operation fails,
+     *                                    for example because the connection has been closed.
      */
-    public int read (org.omg.ETF.BufferHolder data,
-                     int offset,
-                     int min_length,
-                     int max_length,
-                     long time_out)
+    public int read(org.omg.ETF.BufferHolder data,
+            int offset,
+            int min_length,
+            int max_length,
+            long time_out)
     {
         int read = 0;
 
-        while( read < min_length )
+        while (read < min_length)
         {
             int n = 0;
 
             try
             {
-                n = in_stream.read( data.value,
-                                    offset + read,
-                                    max_length - read );
+                n = in_stream.read(data.value,
+                        offset + read,
+                        max_length - read);
 
             }
-            catch( InterruptedIOException e )
+            catch (InterruptedIOException e)
             {
                 int soTimeout = getTimeout();
 
@@ -121,80 +122,79 @@ public abstract class StreamConnectionBase
                     if (logger.isDebugEnabled())
                     {
                         logger.debug("Socket timeout (timeout period: " +
-                                     soTimeout + ")" );
+                                soTimeout + ")");
                     }
                     throw new org.omg.CORBA.TIMEOUT();
                 }
 
-                throw new org.omg.CORBA.TRANSIENT ("Interrupted I/O: " + e);
+                throw new org.omg.CORBA.TRANSIENT("Interrupted I/O: " + e);
             }
-            catch( IOException se )
+            catch (IOException se)
             {
                 if (logger.isDebugEnabled())
                 {
                     logger.debug("Transport to " + connection_info +
-                                 ": stream closed " + se.getMessage() );
+                            ": stream closed " + se.getMessage());
                 }
                 throw handleCommFailure(se);
             }
 
-            if( n < 0 )
+            if (n < 0)
             {
                 if (logger.isDebugEnabled())
                 {
                     logger.debug("Transport to " + connection_info +
-                                 ": stream closed on read  < 0" );
+                            ": stream closed on read  < 0");
                 }
-                throw new org.omg.CORBA.COMM_FAILURE ("read() did not return any data");
+                throw new org.omg.CORBA.COMM_FAILURE("read() did not return any data");
             }
 
             read += n;
         }
-        
+
         if (logger.isDebugEnabled())
         {
             // guard this with isDebugEnabled() because auto-boxing of
             // parameter "read" would cost too much time
-            logger.debug ("read {} bytes from {}", read, connection_info);
+            logger.debug("read {} bytes from {}", read, connection_info);
         }
-        
+
         return read;
     }
 
     /**
      * Writes bytes to this Connection.
-     * 
+     *
      * @param is_first Currently not used in JacORB.
-     * @param is_last Currently not used in JacORB.
-     * @param data the buffer that holds the data that is to be written.
-     * @param offset index of the first byte in <code>data</code> that shall
-     * be written to the Connection.
-     * @param length the number of bytes in data that shall be written.  The 
-     * last byte in <code>data</code> that is written is at the index
-     * <code>offset + length</code>.
+     * @param is_last  Currently not used in JacORB.
+     * @param data     the buffer that holds the data that is to be written.
+     * @param offset   index of the first byte in <code>data</code> that shall
+     *                 be written to the Connection.
+     * @param length   the number of bytes in data that shall be written.  The
+     *                 last byte in <code>data</code> that is written is at the index
+     *                 <code>offset + length</code>.
      * @param time_out timeout for this particular write operation.  Currently
-     * ignored in JacORB.
-     * 
-     * @exception org.omg.CORBA.COMM_FAILURE if anything goes wrong during
-     * the write operation.
+     *                 ignored in JacORB.
+     * @throws org.omg.CORBA.COMM_FAILURE if anything goes wrong during
+     *                                    the write operation.
      */
-    public void write (boolean is_first,
-                       boolean is_last,
-                       byte[] data,
-                       int offset,
-                       int length,
-                       long time_out )
+    public void write(boolean is_first,
+            boolean is_last,
+            byte[] data,
+            int offset,
+            int length,
+            long time_out)
     {
         try
         {
-            out_stream.write( data, offset, length );
-            if( b_out != null )
+            out_stream.write(data, offset, length);
+            if (b_out != null)
             {
-                b_out.write( data, offset, length );
+                b_out.write(data, offset, length);
             }
             if (logger.isDebugEnabled())
             {
-                logger.debug ("wrote {} bytes to {}", length, connection_info);
+                logger.debug("wrote {} bytes to {}", length, connection_info);
             }
         }
         catch (IOException ex)
@@ -211,12 +211,12 @@ public abstract class StreamConnectionBase
     {
         try
         {
-            if( b_out != null )
+            if (b_out != null)
             {
                 if (logger.isInfoEnabled())
                 {
                     byte[] buffer = b_out.toByteArray();
-                    logger.info("sendMessages(): " + ObjectUtil.bufToString(buffer, 0, buffer.length) );
+                    logger.info("sendMessages(): " + ObjectUtil.bufToString(buffer, 0, buffer.length));
                 }
                 b_out.reset();
             }
@@ -242,6 +242,36 @@ public abstract class StreamConnectionBase
         catch (IOException ex)
         {
             throw handleCommFailure(ex);
+        }
+    }
+
+    /**
+     * Closes the parameter without throwing an exception
+     * TODO: Use {@link java.io.Closeable}.
+     */
+    protected void silentClose(Object c)
+    {
+        try
+        {
+            if (c != null)
+            {
+                if (c instanceof Socket)
+                {
+                    ((Socket) c).close();
+                }
+                else if (c instanceof Closeable)
+                {
+                    ((Closeable) c).close();
+                }
+                else
+                {
+                    logger.error("Unknown parameter " + c.getClass().getName());
+                }
+            }
+        }
+        catch (IOException e)
+        {
+            logger.warn("Exception when closing " + this, e);
         }
     }
 
