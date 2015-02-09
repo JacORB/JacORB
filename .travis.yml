@@ -1,4 +1,4 @@
 language: java
-script: mvn install -DskipTests=true -DskipJavadoc=true
+script: mvn install -DskipTests=true -DskipJavadoc=true -DskipPDFGeneration
 jdk:
   - openjdk7
