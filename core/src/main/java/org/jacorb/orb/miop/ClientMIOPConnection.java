@@ -199,7 +199,6 @@ public class ClientMIOPConnection extends MIOPConnection implements Configurable
    /**
     * Generates an Id for a message.
     *
-    * @param numberOfPackets the number of packets of the message.
     * @return the 12 byte Id
     */
    private byte[] generateNewId ()

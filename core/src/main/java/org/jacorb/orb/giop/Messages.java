@@ -59,7 +59,7 @@ public class Messages
      * @param offset the index into the buffer at which the service context
      * starts. This should be after the length of the service context.
      * @param length the number of service contexts
-     * @param endianness 0 for big-endian, 1 for little-endian
+     * @param little_endian 0 for big-endian, 1 for little-endian
      *
      * @return the index of the octet following the service context
      */
@@ -97,8 +97,8 @@ public class Messages
      * @param buf the array of octets containing the sequence
      * @param offset the index into the buffer at which the sequence starts.
      * This should be where the length information begins.
-     * @param elementSize the number of octets per element in the sequence
-     * @param endianness 0 for big-endian, 1 for little-endian
+     * @param element_size the number of octets per element in the sequence
+     * @param little_endian 0 for big-endian, 1 for little-endian
      *
      * @return the index of the octet following the sequence
      */
