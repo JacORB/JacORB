@@ -61,9 +61,11 @@ This Release
          - Revert releasing target object after DII invocation due to multithreading issues. (BZ1000)
          - Fix for client reconnecting to restarted servers (BZ967)
          - Fix for close issues in GIOPConnection (BZ1002)
+         - Add compatibility check for special operations.
     - Misc
         - Convert demos to Maven layout.
         - Improve documentation and add https://jacorb.github.io javadoc API.
+        - Add Travis-CI Integration.
 
 3.5
 ===
