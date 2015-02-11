@@ -21,8 +21,10 @@ package org.jacorb.poa;
  */
 
 import java.util.Collection;
-import java.util.HashSet;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
+
 import org.jacorb.config.Configurable;
 import org.jacorb.config.Configuration;
 import org.jacorb.config.ConfigurationException;
@@ -97,18 +99,39 @@ public class RequestProcessor
      */
     private static int count = 0;
 
-    private final static Set<String> specialOperations;
+    private enum SpecialOps { 
+    	IS_A, 
+    	INTERFACE, 
+    	NON_EXISTENT, 
+    	GET_POLICY, 
+    	SET_POLICY, 
+    	GET_COMPONENT, 
+    	REPO_ID
+    };
+    
+    private final static Map<String, SpecialOps> specialOperations;
+
+    private static boolean using_jacorb_servant = false;
 
     static
     {
-        specialOperations = new HashSet<String>(10);
-        specialOperations.add("_is_a");
-        specialOperations.add("_interface");
-        specialOperations.add("_non_existent");
-        specialOperations.add("_get_policy");
-        specialOperations.add("_set_policy_overrides");
-        specialOperations.add("_get_component");
-        specialOperations.add("_repository_id");
+        specialOperations = new HashMap<String, SpecialOps> (10);
+        specialOperations.put("_is_a", SpecialOps.IS_A);
+        specialOperations.put("_interface", SpecialOps.INTERFACE);
+        specialOperations.put("_non_existent", SpecialOps.NON_EXISTENT);
+        specialOperations.put("_get_policy", SpecialOps.GET_POLICY);
+        specialOperations.put("_set_policy_overrides", SpecialOps.SET_POLICY);
+        specialOperations.put("_get_component", SpecialOps.GET_COMPONENT);
+        specialOperations.put("_repository_id", SpecialOps.REPO_ID);
+        
+        try {
+          org.omg.PortableServer.Servant.class.getMethod("_repository_id");
+          // using JacORB supplied CORBA classes
+          using_jacorb_servant = true;
+        }
+        catch (java.lang.NoSuchMethodException ex) {
+          // not using JacORB supplied CORBA classes
+        }        
     }
 
     RequestProcessor (RPPoolManager _poolManager)
@@ -320,9 +343,11 @@ public class RequestProcessor
                                  " invokeOperation on servant (stream based)");
                 }
 
-                if (specialOperations.contains(operation))
+                SpecialOps special_op = specialOperations.get(operation);
+                
+                if (special_op != null)
                 {
-                    if ("_get_policy".equals (operation))
+                    if (special_op == SpecialOps.GET_POLICY)
                     {
                         // Check the number of args. If zero, then we assuming it's a "_get_policy"
                         // operation that was generated for an attribute named 'policy', instead
@@ -332,7 +357,8 @@ public class RequestProcessor
                             specialOperation = true;
                         }
                     }
-                    else
+                    else if (using_jacorb_servant ||
+                                !(special_op == SpecialOps.REPO_ID || special_op == SpecialOps.GET_COMPONENT))
                     {
                         specialOperation = true;
                     }
@@ -361,8 +387,11 @@ public class RequestProcessor
                                  " opname: " + operation +
                                  " invoke operation on servant (dsi based)");
                 }
-                if( specialOperations.contains(operation) &&
-                    !(servant instanceof org.jacorb.orb.Forwarder) )
+                SpecialOps special_op = specialOperations.get(operation);
+                if (special_op != null &&
+                    !(servant instanceof org.jacorb.orb.Forwarder) &&
+                    (using_jacorb_servant || 
+                        !(special_op == SpecialOps.REPO_ID || special_op == SpecialOps.GET_COMPONENT)))
                 {
                     ((org.jacorb.orb.ServantDelegate)servant._get_delegate())
                         ._invoke(servant,
