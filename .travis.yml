@@ -1,4 +1,12 @@
+sudo: false
+
 language: java
 jdk:
-  - oraclejdk7
-install: mvn -Dtravis-ci=true -DskipJavadoc=true -DskipPDFGeneration clean install
+   - oraclejdk7
+
+cache:
+   directories:
+     - '$HOME/.m2/repository'
+
+install: /bin/true
+script: mvn -Dtravis-ci=true -DskipJavadoc=true -DskipPDFGeneration clean install
