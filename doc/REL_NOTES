@@ -43,8 +43,8 @@
 ( Note: For commit history see https://github.com/JacORB/JacORB )
 
 
-This Release
-============
+3.6
+===
     - ORB
          - Improved client handling of references with multiple profiles.
          - Client IOR traversal is not dependant on IMR use.
