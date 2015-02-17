@@ -15,6 +15,9 @@
                 <include>etc/**</include>
                 <include>idl/**</include>
             </includes>
+            <excludes>
+                <exclude>**/target/**</exclude>
+            </excludes>
         </fileSet>
         <fileSet>
             <directory>${basedir}/../doc</directory>
