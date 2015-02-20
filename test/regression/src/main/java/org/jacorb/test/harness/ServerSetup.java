@@ -144,15 +144,6 @@ public class ServerSetup
         this(null, servantName, null);
     }
 
-
-    /**
-     * how long should we wait for a testserver to come up?
-     */
-    public static long getTestServerTimeout()
-    {
-        return Long.getLong("jacorb.test.timeout.server", new Long(120000)).longValue();
-    }
-
     private String getTestServer(String optionalTestServer)
     {
         if (optionalTestServer == null)

@@ -1,0 +1,46 @@
+
+This example demonstrates a simple CORBA server installed in a war accessible via CORBA, REST and
+Servlet. It utililises CDI, Servlet, HTML5, REST.
+
+
+Thanks to the WildFly quickstarts (https://github.com/wildfly/quickstart) and their respective authors.
+
+Note that some code in this demo is licensed to JBoss under Apache License 2.0.
+
+
+To run it install and start WildFly 8.
+
+Build and Deploy the Quickstart
+-------------------------
+
+        mvn clean package wildfly:deploy
+
+This will deploy `target/jacorb-appserver.war` to the running instance of the server.
+
+
+Access the application
+---------------------
+
+The application will be running at the following URL: <http://localhost:8080/jacorb-appserver>.
+
+
+Undeploy the Archive
+--------------------
+
+1. Make sure you have started the JBoss Server as described above.
+2. Open a command line and navigate to the root directory of this quickstart.
+3. When you are finished testing, type this command to undeploy the archive:
+
+        mvn wildfly:undeploy
+
+
+Command line Client
+-------------------
+To run the standalone command line client (which requires the server to be running) type:
+        mvn -Pclient-test test
+
+
+Integration Tests
+-------------------
+To run the integration tests type
+       mvn -Pintegration-test install

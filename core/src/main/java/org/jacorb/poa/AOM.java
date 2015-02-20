@@ -402,7 +402,7 @@ public class AOM
      * <code>_remove</code> is spawned by remove to allow deactivate_object
      * to return immediately.
      *
-     * @param oid a <code>byte[]</code>, the id to use.
+     * @param oidbak a <code>byte[]</code>, the id to use.
      * @param requestController a <code>RequestController</code> value
      * @param servantActivator a <code>ServantActivator</code> value
      * @param poa a <code>POA</code> value

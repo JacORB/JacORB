@@ -163,40 +163,16 @@ public class ClientNIOConnection
             myChannel = channel;
         }
 
-        try
+        silentClose(myChannel);
+        silentClose(in_stream);
+        silentClose(out_stream);
+
+        setConnected (false);
+
+        if (logger.isInfoEnabled())
         {
-            if (myChannel != null)
-            {
-                myChannel.close();
-            }
-
-            setConnected (false);
-
-            // this was copied from ClientIIOPConnection. Don't see why
-            //  this would be required, but its included anyways
-            if (in_stream != null)
-            {
-                in_stream.close();
-            }
-            if (out_stream != null)
-            {
-                out_stream.close();
-            }
-
-            if (logger.isInfoEnabled())
-            {
-                logger.info("Client-side TCP transport to " +
-                            connection_info + " closed.");
-            }
-        }
-        catch (IOException ex)
-        {
-            if (isDebugEnabled)
-            {
-                logger.debug ("Exception when closing the channel", ex);
-            }
-
-            throw handleCommFailure(ex);
+            logger.info("Client-side TCP transport to " +
+                    connection_info + " closed.");
         }
     }
 

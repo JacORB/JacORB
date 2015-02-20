@@ -39,7 +39,6 @@ public class KeyStoreUtil
      * @param file_name - a keystore file name to be loaded
      * @param storepass - the password for managing the keystore
      * @param keystoreType
-     * @param keystoreProvider
      */
     static KeyStore getKeyStore (String file_name, char[] storepass, String keystoreType)
         throws IOException, java.security.GeneralSecurityException

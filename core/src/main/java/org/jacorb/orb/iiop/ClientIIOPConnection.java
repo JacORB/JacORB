@@ -374,63 +374,45 @@ public class ClientIIOPConnection
 
         try
         {
-            if (socket != null)
+            if (socket != null && ! (socket instanceof SSLSocket) && ! socket.isClosed())
             {
-                if ( ! (socket instanceof SSLSocket) && ! socket.isClosed())
-                {
-                    socket.shutdownOutput();
-                }
-                socket.close();
+                socket.shutdownOutput();
             }
-
-            //this will cause exceptions when trying to read from
-            //the streams. Better than "nulling" them.
-            if( in_stream != null )
-            {
-                in_stream.close();
-            }
-            if( out_stream != null )
-            {
-                out_stream.close();
-            }
-
-            //for testing purposes
-            --openTransports;
-
-            if (logger.isInfoEnabled())
-            {
-                logger.info("Client-side TCP transport to " +
-                        connection_info + " closed.");
-            }
-
-            connected = false;
         }
         catch (IOException ex)
         {
-            if (logger.isDebugEnabled())
-            {
-                logger.debug ("Exception when closing the socket", ex);
-            }
+            logger.error ("Exception when shutting down output", ex);
+        }
+        silentClose(socket);
+        silentClose(in_stream);
+        silentClose(out_stream);
 
-            throw handleCommFailure(ex);
-        }
-        finally
+        //for testing purposes
+        --openTransports;
+
+        connected = false;
+
+        if (logger.isInfoEnabled())
         {
-            if (socket != null && connectionListener.isListenerEnabled())
-            {
-                connectionListener.connectionClosed
-                (
-                    new TCPConnectionEvent
-                    (
-                        this,
-                        socket.getInetAddress().toString(),
-                        socket.getPort(),
-                        socket.getLocalPort(),
-                        getLocalhost()
-                    )
-                );
-            }
+            logger.info("Client-side TCP transport to " +
+                    connection_info + " closed.");
         }
+
+        if (socket != null && connectionListener.isListenerEnabled())
+        {
+            connectionListener.connectionClosed
+                    (
+                            new TCPConnectionEvent
+                                    (
+                                            this,
+                                            socket.getInetAddress().toString(),
+                                            socket.getPort(),
+                                            socket.getLocalPort(),
+                                            getLocalhost()
+                                    )
+                    );
+        }
+
     }
 
     /**

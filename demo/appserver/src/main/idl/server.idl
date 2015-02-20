@@ -1,0 +1,19 @@
+
+module org
+{
+    module jacorb
+    {
+        module demo
+        {
+            module appserver {
+
+                interface GoodDay {
+
+                    string get_string();
+
+                    void record_string( in string msg );
+                };
+            };
+        };
+    };
+};

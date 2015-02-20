@@ -24,7 +24,7 @@
 
     <groupId>org.jacorb</groupId>
     <artifactId>jacorb-parent</artifactId>
-    <version>3.6-SNAPSHOT</version>
+    <version>3.7-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>JacORB</name>
@@ -63,12 +63,14 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <!-- GPG key ID we sign the builds with. This can be overridden by other developers -->
-        <gpg.keyname>6E0309600DC50C2E</gpg.keyname>
+        <gpg.keyname>21B2D36E5D4E3266</gpg.keyname>
         <failIfNoTests>false</failIfNoTests>
 
         <!-- Enforce 1.6 compaatibility -->
         <maven.compiler.target>1.6</maven.compiler.target>
         <maven.compiler.source>1.6</maven.compiler.source>
+        <maven.compiler.test.target>1.6</maven.compiler.test.target>
+        <maven.compiler.test.source>1.6</maven.compiler.test.source>
 
         <datetime>${timestamp}</datetime>
     </properties>
@@ -79,8 +81,8 @@
         <module>omgapi</module>
         <module>core</module>
         <module>services</module>
-        <module>demo</module>
         <module>test/regression</module>
+        <module>demo</module>
     </modules>
 
 
@@ -89,22 +91,22 @@
             <dependency>
                 <groupId>org.jacorb</groupId>
                 <artifactId>jacorb-omgapi</artifactId>
-                <version>3.6-SNAPSHOT</version>
+                <version>3.7-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>org.jacorb</groupId>
                 <artifactId>jacorb</artifactId>
-                <version>3.6-SNAPSHOT</version>
+                <version>3.7-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>org.jacorb</groupId>
                 <artifactId>jacorb-idl-compiler</artifactId>
-                <version>3.6-SNAPSHOT</version>
+                <version>3.7-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>org.jacorb</groupId>
                 <artifactId>jacorb-services</artifactId>
-                <version>3.6-SNAPSHOT</version>
+                <version>3.7-SNAPSHOT</version>
             </dependency>
 
             <!-- External -->
@@ -241,8 +243,8 @@
                         <debug>true</debug>
                         <showDeprecation>true</showDeprecation>
                         <showWarnings>true</showWarnings>
-                        <testSource>${maven.compiler.source}</testSource>
-                        <testTarget>${maven.compiler.source}</testTarget>
+                        <testSource>${maven.compiler.test.source}</testSource>
+                        <testTarget>${maven.compiler.test.target}</testTarget>
                         <source>${maven.compiler.source}</source>
                         <target>${maven.compiler.target}</target>
                     </configuration>
@@ -377,6 +379,12 @@
                 </plugin>
 
                 <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-war-plugin</artifactId>
+                    <version>2.5</version>
+                </plugin>
+
+                <plugin>
                     <groupId>org.codehaus.mojo</groupId>
                     <artifactId>antlr-maven-plugin</artifactId>
                     <version>2.2</version>
@@ -414,7 +422,7 @@
                         <dependency>
                             <groupId>org.jacorb</groupId>
                             <artifactId>jacorb-idl-compiler</artifactId>
-                            <version>3.6-SNAPSHOT</version>
+                            <version>3.7-SNAPSHOT</version>
                         </dependency>
                     </dependencies>
                 </plugin>

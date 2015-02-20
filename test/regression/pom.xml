@@ -7,7 +7,7 @@
     <parent>
         <groupId>org.jacorb</groupId>
         <artifactId>jacorb-parent</artifactId>
-        <version>3.6-SNAPSHOT</version>
+        <version>3.7-SNAPSHOT</version>
         <relativePath>../..</relativePath>
     </parent>
 
@@ -21,8 +21,8 @@
     <properties>
         <spring.version>3.1.1.RELEASE</spring.version>
         <cxf.version>2.7.5</cxf.version>
-        <byteman.version>2.1.4.1</byteman.version>
-        <jacoco.version>0.6.4.201312101107</jacoco.version>
+        <byteman.version>2.2.1</byteman.version>
+        <jacoco.version>0.7.2.201409121644</jacoco.version>
 
         <surefire.forkCount>0.5C</surefire.forkCount>
     </properties>
@@ -480,93 +480,6 @@
 
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-surefire-plugin</artifactId>
-                <configuration>
-                    <systemPropertyVariables>
-                        <!-- Default timeout for a server to start -->
-                        <jacorb.test.timeout.server>60000</jacorb.test.timeout.server>
-                    </systemPropertyVariables>
-                </configuration>
-                <executions>
-                    <execution>
-                         <id>default-test</id>
-                        <phase>test</phase>
-                        <goals>
-                            <goal>test</goal>
-                        </goals>
-                        <configuration>
-                            <useManifestOnlyJar>false</useManifestOnlyJar>
-                            <forkCount>${surefire.forkCount}</forkCount>
-                            <reuseForks>false</reuseForks>
-                            <argLine>${jacoco.agent.argLine} -Xbootclasspath/p:${settings.localRepository}/org/jacorb/jacorb-omgapi/${project.version}/jacorb-omgapi-${project.version}.jar -Djacorb.test.verbose=${jacorb.test.verbose}</argLine>
-                            <environmentVariables>
-                                <BYTEMAN_HOME></BYTEMAN_HOME>
-                            </environmentVariables>
-                            <excludedGroups>org.jacorb.test.harness.FixedPortCategory</excludedGroups>
-                        </configuration>
-                    </execution>
-
-                    <execution>
-                         <id>default-test-no-fork</id>
-                        <phase>test</phase>
-                        <goals>
-                            <goal>test</goal>
-                        </goals>
-                        <configuration>
-                            <useManifestOnlyJar>false</useManifestOnlyJar>
-                            <forkCount>1</forkCount>
-                            <reuseForks>false</reuseForks>
-                            <argLine>${jacoco.agent.argLine} -Xbootclasspath/p:${settings.localRepository}/org/jacorb/jacorb-omgapi/${project.version}/jacorb-omgapi-${project.version}.jar -Djacorb.test.verbose=${jacorb.test.verbose}</argLine>
-                            <environmentVariables>
-                                <BYTEMAN_HOME></BYTEMAN_HOME>
-                            </environmentVariables>
-                            <includedGroups>org.jacorb.test.harness.FixedPortCategory</includedGroups>
-                        </configuration>
-                    </execution>
-
-                    <execution>
-                        <id>ssl</id>
-                        <phase>test</phase>
-                        <goals>
-                            <goal>test</goal>
-                        </goals>
-                        <configuration>
-                            <useManifestOnlyJar>false</useManifestOnlyJar>
-                            <forkCount>${surefire.forkCount}</forkCount>
-                            <reuseForks>false</reuseForks>
-                            <argLine>${jacoco.agent.argLine} -Xbootclasspath/p:${settings.localRepository}/org/jacorb/jacorb-omgapi/${project.version}/jacorb-omgapi-${project.version}.jar -Djacorb.test.verbose=${jacorb.test.verbose} -Djacorb.test.ssl=true</argLine>
-                            <reportsDirectory>${project.build.directory}/surefire-reports-ssl</reportsDirectory>
-                            <environmentVariables>
-                                <BYTEMAN_HOME></BYTEMAN_HOME>
-                            </environmentVariables>
-                        </configuration>
-                    </execution>
-
-                    <execution>
-                        <id>imr</id>
-                        <phase>test</phase>
-                        <goals>
-                            <goal>test</goal>
-                        </goals>
-                        <configuration>
-                            <useManifestOnlyJar>false</useManifestOnlyJar>
-                            <forkCount>${surefire.forkCount}</forkCount>
-                            <reuseForks>false</reuseForks>
-                            <argLine>${jacoco.agent.argLine} -Xbootclasspath/p:${settings.localRepository}/org/jacorb/jacorb-omgapi/${project.version}/jacorb-omgapi-${project.version}.jar -Djacorb.test.verbose=${jacorb.test.verbose} -Djacorb.test.imr=true</argLine>
-                            <reportsDirectory>${project.build.directory}/surefire-reports-imr</reportsDirectory>
-                            <environmentVariables>
-                                <BYTEMAN_HOME></BYTEMAN_HOME>
-                            </environmentVariables>
-                            <groups>org.jacorb.test.harness.ClientServerCategory</groups>
-                            <excludedGroups>org.jacorb.test.harness.IMRExcludedClientServerCategory,org.jacorb.test.harness.FixedPortCategory</excludedGroups>
-                        </configuration>
-                    </execution>
-
-                </executions>
-            </plugin>
-
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-dependency-plugin</artifactId>
                 <executions>
                     <execution>
@@ -722,6 +635,153 @@
     </build>
 
     <profiles>
+        <profile>
+            <id>default-test</id>
+            <activation>
+                <property>
+                    <name>!travis-ci</name>
+                </property>
+            </activation>
+
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-surefire-plugin</artifactId>
+                        <configuration>
+                            <systemPropertyVariables>
+                                <!-- Default timeout for a server to start -->
+                                <jacorb.test.timeout.server>60000</jacorb.test.timeout.server>
+                            </systemPropertyVariables>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <id>default-test</id>
+                                <phase>test</phase>
+                                <goals>
+                                    <goal>test</goal>
+                                </goals>
+                                <configuration>
+                                    <useManifestOnlyJar>false</useManifestOnlyJar>
+                                    <forkCount>${surefire.forkCount}</forkCount>
+                                    <reuseForks>false</reuseForks>
+                                    <argLine>${jacoco.agent.argLine} -Xbootclasspath/p:${settings.localRepository}/org/jacorb/jacorb-omgapi/${project.version}/jacorb-omgapi-${project.version}.jar -Djacorb.test.home=${basedir} -Djacorb.test.verbose=${jacorb.test.verbose}</argLine>
+                                    <environmentVariables>
+                                        <BYTEMAN_HOME></BYTEMAN_HOME>
+                                    </environmentVariables>
+                                    <excludedGroups>org.jacorb.test.harness.FixedPortCategory</excludedGroups>
+                                </configuration>
+                            </execution>
+
+                            <execution>
+                                <id>default-test-no-fork</id>
+                                <phase>test</phase>
+                                <goals>
+                                    <goal>test</goal>
+                                </goals>
+                                <configuration>
+                                    <useManifestOnlyJar>false</useManifestOnlyJar>
+                                    <forkCount>1</forkCount>
+                                    <reuseForks>false</reuseForks>
+                                    <argLine>${jacoco.agent.argLine} -Xbootclasspath/p:${settings.localRepository}/org/jacorb/jacorb-omgapi/${project.version}/jacorb-omgapi-${project.version}.jar -Djacorb.test.home=${basedir} -Djacorb.test.verbose=${jacorb.test.verbose}</argLine>
+                                    <environmentVariables>
+                                        <BYTEMAN_HOME></BYTEMAN_HOME>
+                                    </environmentVariables>
+                                    <includedGroups>org.jacorb.test.harness.FixedPortCategory</includedGroups>
+                                </configuration>
+                            </execution>
+
+                            <execution>
+                                <id>ssl</id>
+                                <phase>test</phase>
+                                <goals>
+                                    <goal>test</goal>
+                                </goals>
+                                <configuration>
+                                    <useManifestOnlyJar>false</useManifestOnlyJar>
+                                    <forkCount>${surefire.forkCount}</forkCount>
+                                    <reuseForks>false</reuseForks>
+                                    <argLine>${jacoco.agent.argLine} -Xbootclasspath/p:${settings.localRepository}/org/jacorb/jacorb-omgapi/${project.version}/jacorb-omgapi-${project.version}.jar -Djacorb.test.verbose=${jacorb.test.verbose} -Djacorb.test.ssl=true</argLine>
+                                    <reportsDirectory>${project.build.directory}/surefire-reports-ssl</reportsDirectory>
+                                    <environmentVariables>
+                                        <BYTEMAN_HOME></BYTEMAN_HOME>
+                                    </environmentVariables>
+                                </configuration>
+                            </execution>
+
+                            <execution>
+                                <id>imr</id>
+                                <phase>test</phase>
+                                <goals>
+                                    <goal>test</goal>
+                                </goals>
+                                <configuration>
+                                    <useManifestOnlyJar>false</useManifestOnlyJar>
+                                    <forkCount>${surefire.forkCount}</forkCount>
+                                    <reuseForks>false</reuseForks>
+                                    <argLine>${jacoco.agent.argLine} -Xbootclasspath/p:${settings.localRepository}/org/jacorb/jacorb-omgapi/${project.version}/jacorb-omgapi-${project.version}.jar -Djacorb.test.home=${basedir} -Djacorb.test.verbose=${jacorb.test.verbose} -Djacorb.test.imr=true</argLine>
+                                    <reportsDirectory>${project.build.directory}/surefire-reports-imr</reportsDirectory>
+                                    <environmentVariables>
+                                        <BYTEMAN_HOME></BYTEMAN_HOME>
+                                    </environmentVariables>
+                                    <groups>org.jacorb.test.harness.ClientServerCategory</groups>
+                                    <excludedGroups>org.jacorb.test.harness.IMRExcludedClientServerCategory,org.jacorb.test.harness.FixedPortCategory</excludedGroups>
+                                </configuration>
+                            </execution>
+
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+
+        <profile>
+            <id>travis-ci</id>
+            <activation>
+                <property>
+                    <name>travis-ci</name>
+                </property>
+            </activation>
+
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-surefire-plugin</artifactId>
+                        <configuration>
+                            <systemPropertyVariables>
+                                <!-- Default timeout for a server to start -->
+                                <jacorb.test.timeout.server>60000</jacorb.test.timeout.server>
+                            </systemPropertyVariables>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <id>default-test</id>
+                                <phase>test</phase>
+                                <goals>
+                                    <goal>test</goal>
+                                </goals>
+                                <configuration>
+                                    <useManifestOnlyJar>false</useManifestOnlyJar>
+                                    <forkCount>1</forkCount>
+                                    <reuseForks>false</reuseForks>
+                                    <argLine>${jacoco.agent.argLine} -Xbootclasspath/p:${settings.localRepository}/org/jacorb/jacorb-omgapi/${project.version}/jacorb-omgapi-${project.version}.jar -Djacorb.test.home=${basedir} -Djacorb.test.verbose=${jacorb.test.verbose}</argLine>
+                                    <environmentVariables>
+                                        <BYTEMAN_HOME></BYTEMAN_HOME>
+                                    </environmentVariables>
+                                    <includes>
+                                        <include>**/BasicTest.java</include>
+                                        <include>**/Bug97*Test.java</include>
+                                        <include>**/Bug98*Test.java</include>
+                                    </includes>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+
         <!-- This profile is activated during normal builds -->
         <profile>
             <id>command-line</id>

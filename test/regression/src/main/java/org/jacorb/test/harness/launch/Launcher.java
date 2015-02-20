@@ -152,7 +152,10 @@ public class Launcher
         cmdList.add (javaCommand);
         cmdList.addAll (vmArgs);
 
-        cmdList.add("-Xbootclasspath:" + System.getProperty("sun.boot.class.path"));
+        if ( ! props.containsKey("ignoreXBootClasspath"))
+        {
+            cmdList.add("-Xbootclasspath:" + System.getProperty("sun.boot.class.path"));
+        }
 
         if (classpath != null && classpath.length() > 0)
         {

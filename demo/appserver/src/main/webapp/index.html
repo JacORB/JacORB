@@ -1,0 +1,76 @@
+<!--
+    JBoss, Home of Professional Open Source
+    Copyright 2013, Red Hat, Inc. and/or its affiliates, and individual
+    contributors by the @authors tag. See the copyright.txt in the
+    distribution for a full listing of individual contributors.
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+    http://www.apache.org/licenses/LICENSE-2.0
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+-->
+
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>JacORB GoodDay CORBA Demo</title>
+<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+
+    <script type="text/javascript">
+$( document ).ready( function() {
+    $( '#getHelloWorldJSON' ).click( function( event ) {
+        event.preventDefault();
+
+        var result = $( '#result' ),
+            name = $.trim( $( '#name' ).val() );
+
+        result.removeClass( 'invalid' );
+
+        if( !name || !name.length ) {
+            result.addClass( 'invalid' ).text( 'A name is required!' );
+            return;
+        }
+        //console.log("clicked: " + name);
+        $.ajax( 'rest/json-update/' + name, {
+            dataType:'json',
+            data:{},
+            type:'POST',
+            success:function ( data ) {
+                //console.log("success: " + data.result);
+                $( '#result' ).text( data.result );
+            }
+        })
+        .error( function() {
+            //console.log("error");
+        });
+    });
+}); // (document).ready
+</script>
+</head>
+
+<body>
+<h1>JacORB Demo</h1>
+<p>
+<form name="theForm">
+    <fieldset>
+        <label for="name" id="name_label">Message:</label>
+        <input name="name" id="name" type="text" required placeholder="Enter message"/>
+        <input type="submit" id="getHelloWorldJSON" value="Say Hello!"/>
+    </fieldset>
+</form>
+<br>Got result: <span style="color:blue" id="result"></span></br>
+</p>
+<h3>Choose link to view....</h3>
+<p>
+    <ul>
+    	<li><a href="rest/json">JSON</a></li>
+        <li><a href="rest/xml">XML</a></li>
+    </ul>
+</p>
+</body>
+</html>

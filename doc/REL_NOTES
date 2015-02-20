@@ -45,6 +45,9 @@
 
 This Release
 ============
+
+3.6
+===
     - ORB
          - Improved client handling of references with multiple profiles.
          - Client IOR traversal is not dependant on IMR use.
@@ -60,9 +63,14 @@ This Release
          - Remove deferredArrayQueue to avoid stream corruption/improve performance.
          - Revert releasing target object after DII invocation due to multithreading issues. (BZ1000)
          - Fix for client reconnecting to restarted servers (BZ967)
+         - Fix for close issues in GIOPConnection (BZ1002)
+         - Add compatibility check for special operations.
+         - Ensure IIOP close doesn't throw exceptions.
     - Misc
         - Convert demos to Maven layout.
-        - Improve documentation and add https://jacorb.github.io javadoc API.
+        - Add Travis-CI Integration.
+        - Improve documentation and add https://jacorb.github.io/JacORB javadoc API.
+        - Add appserver demo.
 
 3.5
 ===

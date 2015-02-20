@@ -427,7 +427,7 @@ public class MIOPProfile extends ProfileBase
    /**
     * Parses a version string into a org.omg.GIOP.Version object.
     *
-    * @param ver_str.
+    * @param ver_str
     * @return a version object.
     */
    private Version parseVersion (String ver_str)
@@ -519,7 +519,7 @@ public class MIOPProfile extends ProfileBase
     * Read address profile.
     *
     * @param stream the stream
-    * @see org.jacorb.orb.etf.ProfileBase#readAddressProfile(org.jacorb.orb.
+    * @see org.jacorb.orb.etf.ProfileBase#readAddressProfile
     * CDRInputStream)
     */
    @Override
@@ -533,7 +533,7 @@ public class MIOPProfile extends ProfileBase
     * Write address profile.
     *
     * @param stream the stream
-    * @see org.jacorb.orb.etf.ProfileBase#writeAddressProfile(org.jacorb.orb. CDROutputStream)
+    * @see org.jacorb.orb.etf.ProfileBase#writeAddressProfile
     */
    @Override
    public void writeAddressProfile (CDROutputStream stream)
