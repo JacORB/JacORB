@@ -179,21 +179,29 @@ For example, developer A using his personal JacORB fork creates a topic branch T
 
 This example assumes that developer A and B have added each others JacORB forked repositories with the *git add remote* command. For example, developer B would add developer A's personal JacORB fork repository with the command
 
+```
     git remote add devA https://github.com/developerA/infinispan.git
+```
 
 1. Developer A starts implementing feature BZ-244 and works on a local topic branch `bz244`
 Developer A pushes `bz244` to personal JacORB fork. For example:
 
+```
     git push origin bz244
+```
 
 2. Developer B fetches branch `bz244` to local repository. For example:
 
+```
     git fetch devA bz244:my_bz244
+```
 
 3. Developer B works on local branch `my_bz244`
 4. Developer B commits changes, pushes `my_bz244` to own fork.
 
+```
     git push origin my_bz244
+```
 
 5. Developer B sends pull request to developer A to integrate changes from `my_bz244` to `bz244`
 
