@@ -180,7 +180,7 @@ For example, developer A using his personal JacORB fork creates a topic branch T
 This example assumes that developer A and B have added each others JacORB forked repositories with the *git add remote* command. For example, developer B would add developer A's personal JacORB fork repository with the command
 
 ```
-    git remote add devA https://github.com/developerA/infinispan.git
+    git remote add devA https://github.com/developerA/JacORB.git
 ```
 
 1. Developer A starts implementing feature BZ-244 and works on a local topic branch `bz244`
