@@ -45,6 +45,8 @@
 
 This Release
 ============
+    - ORB
+         - Handle null from NetworkInterface (BZ1005).
 
 3.6
 ===

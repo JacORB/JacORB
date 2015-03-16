@@ -623,7 +623,8 @@ public class IIOPAddress extends ProtocolAddressBase
                 boolean isVirtual = false;
                 for (String nvi : networkVirtualInterfaces)
                 {
-                    if (ni.getDisplayName().contains(nvi))
+                    String displayName = ni.getDisplayName();
+                    if (displayName != null && displayName.contains(nvi))
                     {
                         isVirtual = true;
                         break;
