@@ -174,11 +174,10 @@ public class PortRangeSocketFactory
             }
             catch (IOException ex)
             {
-                ex.printStackTrace();
                 tryToClose(socket);
             	if (useTimeout && System.currentTimeMillis() > expireTime)
             	{
-            		throw new TIMEOUT("couldn't open socket within " + timeout + ". Last exception details: " + ex.toString());
+                    throw new TIMEOUT("couldn't open socket within " + timeout + ". Last exception details: " + ex.toString());
             	}
             }
         }
