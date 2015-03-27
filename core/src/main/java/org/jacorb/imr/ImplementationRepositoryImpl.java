@@ -117,6 +117,7 @@ public class ImplementationRepositoryImpl
 
     private WriteThread wt;
     private boolean updatePending;
+    private ResourceLock server_table_ser_lock;
     private Shutdown shutdownThread;
 
 
@@ -127,6 +128,8 @@ public class ImplementationRepositoryImpl
     public ImplementationRepositoryImpl(org.omg.CORBA.ORB orb)
     {
         this.orb = orb;
+
+        this.server_table_ser_lock = new ResourceLock();
 
         shutdownThread = new Shutdown ();
     }
@@ -403,7 +406,11 @@ public class ImplementationRepositoryImpl
             //New POAInfo is to be created
             _poa = new ImRPOAInfo(name, host, port, _server,
                                   poaActivationTimeout);
+
+            server_table_ser_lock.gainExclusiveLock();
             _server.addPOA(_poa);
+            server_table_ser_lock.releaseExclusiveLock();
+
             server_table.putPOA(name, _poa);
 
             this.logger.debug("ImR: new poa registered");
@@ -1624,11 +1631,16 @@ public class ImplementationRepositoryImpl
             {
                 try
                 {
+                    server_table_ser_lock.gainExclusiveLock();
                     save_server_table (table_file);
                 }
                 catch (FileOpFailed ex)
                 {
                     logger.error("Exception while saving server table", ex);
+                }
+                finally
+                {
+                    server_table_ser_lock.releaseExclusiveLock();
                 }
 
                 if (done)
