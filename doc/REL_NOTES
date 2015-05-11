@@ -47,6 +47,7 @@ This Release
 ============
     - ORB
          - Handle null from NetworkInterface (BZ1005).
+         - Fix for race condition in IMR.
 
 3.6
 ===
