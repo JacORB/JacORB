@@ -36,8 +36,6 @@ import org.omg.ETF.Profile;
  */
 public class DefaultProfileSelector implements ProfileSelector
 {
-    private Profile currentProfile = null;
-
     /**
      *
      * @param profiles
@@ -64,12 +62,13 @@ public class DefaultProfileSelector implements ProfileSelector
      */
     public Profile selectNextProfile(List<Profile> profileList, Profile lastProfile)
     {
+        Profile currentProfile = null;
+
         //sanity check
         if (profileList == null || profileList.isEmpty())
         {
             return null;
         }
-
 
         // locate the last profile in the list
         Iterator<Profile> iterator;
@@ -92,6 +91,7 @@ public class DefaultProfileSelector implements ProfileSelector
             iterator = profileList.iterator();
         }
         currentProfile = iterator.next();
+
         // ensure the next profile is not the same as lastProfile
         if (lastProfile.equals(currentProfile))
         {
