@@ -1033,7 +1033,7 @@ public final class Delegate
         {
             bind();
 
-            return POAUtil.extractOID( getParsedIOR().get_object_key() );
+            return POAUtil.extractOID(getParsedIOR().get_object_key());
         }
     }
 
@@ -1105,7 +1105,7 @@ public final class Delegate
         org.omg.CORBA.portable.ObjectImpl reference =
             new org.jacorb.orb.Reference( typeId );
 
-        reference._set_delegate( this );
+        reference._set_delegate(this);
 
         return reference;
     }
@@ -1367,6 +1367,13 @@ public final class Delegate
             catch (ForwardRequest fwd)
             {
                 // Should not happen for remote requests
+            }
+            catch (RemarshalException e)
+            {
+                logger.debug("ClientInterceptors receive_exception threw RemarshalException (via a ForwardRequest)." +
+                        "Clearing piorOriginal (Was " + piorOriginal + ") to avoid extraneous forwarding loop.");
+                piorOriginal = null;
+                throw e;
             }
 
             // The exception is a TRANSIENT, so try rebinding.
