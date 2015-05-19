@@ -43,8 +43,8 @@
 ( Note: For commit history see https://github.com/JacORB/JacORB )
 
 
-This Release
-============
+3.6.1
+=====
     - ORB
          - Handle null from NetworkInterface (BZ1005).
          - Fix for race condition in IMR.
