@@ -1610,7 +1610,6 @@ public final class Delegate
             if (group == null)
             {
                 group = g;
-                group.postInit();
             }
         }
         return group;
