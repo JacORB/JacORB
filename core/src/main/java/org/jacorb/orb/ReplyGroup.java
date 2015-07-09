@@ -36,10 +36,6 @@ public class ReplyGroup
     {
         owner = d;
         profile = p;
-    }
-
-    synchronized void postInit ()
-    {
         replies = new HashSet<ReplyPlaceholder>();
     }
 

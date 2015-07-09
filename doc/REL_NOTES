@@ -46,7 +46,15 @@
 This Release
 ============
     - ORB
+         - Fix threading issue with Delegate/ReplyGroup (BZ1010).
+
+3.6.1
+=====
+    - ORB
          - Handle null from NetworkInterface (BZ1005).
+         - Fix for race condition in IMR.
+         - Fix race condition (BZ1007).
+         - Prevent extraneous client side forwarding loop (BZ1009).
 
 3.6
 ===

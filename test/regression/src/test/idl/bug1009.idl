@@ -1,0 +1,19 @@
+module org
+{
+    module jacorb
+    {
+        module test
+        {
+            module bugs
+            {
+                module bug1009
+                {
+                    interface i
+                    {
+                        void f();
+                    };
+                };
+            };
+        };
+    };
+};
