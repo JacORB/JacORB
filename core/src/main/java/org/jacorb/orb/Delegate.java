@@ -162,8 +162,6 @@ public final class Delegate
 
     private CookieHolder cookie = null;
 
-    private boolean clearCurrentContext = true;
-
     private String invokedOperation = null;
 
     private final SelectorManager selectorManager;
@@ -234,7 +232,13 @@ public final class Delegate
         * interceptor.
         */
        INTERCEPTOR_CALL,
-       SERVANT_PREINVOKE
+       SERVANT_PREINVOKE,
+       CLEAR_ALLOWED,
+       /**
+        * These keys are used to manage automatic retries in some situations.
+        */
+       CORBANAME_BOUND,
+       ORIGINAL_IOR_BOUND
     };
 
     private static enum SyncScope
@@ -328,9 +332,18 @@ public final class Delegate
      */
     public static void clearInvocationContext()
     {
-        if ( ! ( getInvocationContext()).isEmpty())
+        ArrayDeque<Map<INVOCATION_KEY, UtcT>> invocationStack = getInvocationContext();
+
+        if (! invocationStack.isEmpty())
         {
-            ( getInvocationContext()).pop();
+            Map<INVOCATION_KEY, UtcT> currentCtxt = invocationStack.peek();
+
+            if ( !(currentCtxt.containsKey (INVOCATION_KEY.INTERCEPTOR_CALL) ||
+                   currentCtxt.containsKey (INVOCATION_KEY.SERVANT_PREINVOKE)) ||
+                 currentCtxt.containsKey (INVOCATION_KEY.CLEAR_ALLOWED))
+            {
+                invocationStack.pop();
+            }
         }
     }
 
@@ -668,12 +681,20 @@ public final class Delegate
                 //we've already failed to bind to the ior
                 throw new org.omg.CORBA.TRANSIENT();
             }
+
+            ArrayDeque<Map<INVOCATION_KEY, UtcT>> invocationStack = invocationContext.get ();
+            Map<INVOCATION_KEY, UtcT> currentCtxt = invocationStack.peek();
+
             if (piorOriginal == null)
             {
                 //keep original pior for fallback
                 piorOriginal = _pior;
+                currentCtxt.put (INVOCATION_KEY.ORIGINAL_IOR_BOUND, null);
             }
-
+            if (pior.useCorbaName())
+            {
+                currentCtxt.put (INVOCATION_KEY.CORBANAME_BOUND, null);
+            }
             _pior = pior;
 
              if (connections[TransportType.IIOP.ordinal ()] != null)
@@ -1170,30 +1191,17 @@ public final class Delegate
         {
             final org.omg.CORBA.portable.InputStream in =
                 _invoke_internal(self, os, replyHandler, async);
-
-            if (clearCurrentContext)
-            {
-                clearInvocationContext();
-            }
-
+            clearInvocationContext();
             return in;
         }
         catch(ApplicationException e)
         {
-            if (clearCurrentContext)
-            {
-                clearInvocationContext();
-            }
-
+            clearInvocationContext();
             throw e;
         }
         catch(SystemException t)
         {
-            if (clearCurrentContext)
-            {
-                clearInvocationContext();
-            }
-
+            clearInvocationContext();
             throw t;
         }
     }
@@ -1411,14 +1419,12 @@ public final class Delegate
 
                 ((CDRInputStream)is).updateMutatorConnection (connectionToUse.getGIOPConnection());
 
-                if (clearCurrentContext)
-                {
-                    clearInvocationContext();
-                }
+                clearInvocationContext();
+
                 if (currentCtxt.containsKey (INVOCATION_KEY.INTERCEPTOR_CALL) ||
                     currentCtxt.containsKey (INVOCATION_KEY.SERVANT_PREINVOKE) )
                 {
-                    clearCurrentContext = true;
+                    currentCtxt.put (INVOCATION_KEY.CLEAR_ALLOWED, null);
                 }
 
                 return is;
@@ -1431,9 +1437,14 @@ public final class Delegate
 
             // An Object Not Exist on a forwarded reference should retry
             // on the original to get forwarded again to the right server
-            if ( e instanceof org.omg.CORBA.OBJECT_NOT_EXIST && try_rebind (true))
+            if ( e instanceof org.omg.CORBA.OBJECT_NOT_EXIST)
             {
-                throw new RemarshalException();
+              if (e.minor != 0 &&
+                  !currentCtxt.containsKey (INVOCATION_KEY.ORIGINAL_IOR_BOUND) &&
+                  try_rebind (true))
+                {
+                  throw new RemarshalException();
+                }
             }
 
             // If the attempt to read the reply throws a system exception its
@@ -1668,6 +1679,8 @@ public final class Delegate
 
         synchronized ( bind_sync )
         {
+            ArrayDeque<Map<INVOCATION_KEY, UtcT>> invocationStack = invocationContext.get ();
+            Map<INVOCATION_KEY, UtcT> currentCtxt = invocationStack.peek();
             // piorOriginal was set by rebind() which means
             // that it is the first ParsedIOR for a repository such as an IMR,
             // and _pior is the secondary ParsedIOR for a server.
@@ -1718,6 +1731,8 @@ public final class Delegate
                     piorLastFailed = getParsedIOR();
                 }
 
+                currentCtxt.put (INVOCATION_KEY.ORIGINAL_IOR_BOUND, null);
+
                 //rebind to the original ior
                 rebind( piorOriginal );
 
@@ -1728,6 +1743,11 @@ public final class Delegate
             }
             else if (getParsedIOR().useCorbaName())
             {
+                if (currentCtxt.containsKey (INVOCATION_KEY.CORBANAME_BOUND))
+                {
+                    return false;
+                }
+
                 if (logger.isDebugEnabled())
                 {
                     logger.debug ("Delegate.try_rebind: useNameService, " +
@@ -2244,24 +2264,13 @@ public String repository_id (org.omg.CORBA.Object self)
         if (! invocationStack.isEmpty())
         {
             currentCtxt = invocationStack.peek();
-
-            /**
-             * If the context was created as an interceptor call was
-             * being made in servant_preinvoke then don't clear it as part of this
-             * request. It will be cleared on return from the
-             * interceptor call. This caters for situations where embedded requests are made
-             */
-            if (currentCtxt.containsKey (INVOCATION_KEY.INTERCEPTOR_CALL) ||
-                currentCtxt.containsKey (INVOCATION_KEY.SERVANT_PREINVOKE))
-            {
-                clearCurrentContext = false;
-            }
         }
 
-        if (currentCtxt == null)
+        if (currentCtxt == null ||
+            currentCtxt.containsKey (INVOCATION_KEY.INTERCEPTOR_CALL) ||
+            currentCtxt.containsKey (INVOCATION_KEY.SERVANT_PREINVOKE))
         {
             currentCtxt = new HashMap<INVOCATION_KEY, UtcT>();
-
             invocationStack.push (currentCtxt);
         }
 
@@ -2286,11 +2295,7 @@ public String repository_id (org.omg.CORBA.Object self)
 
                     if (Time.hasPassed(requestEndTime))
                     {
-                        if (clearCurrentContext)
-                        {
-                           clearInvocationContext();
-                        }
-
+                        clearInvocationContext();
                         throw new TIMEOUT("Request End Time exceeded prior to invocation",
                                           2,
                                           CompletionStatus.COMPLETED_NO);
@@ -2303,11 +2308,7 @@ public String repository_id (org.omg.CORBA.Object self)
             {
                 if (Time.hasPassed (requestEndTime))
                 {
-                    if (clearCurrentContext)
-                    {
-                       clearInvocationContext();
-                    }
-
+                    clearInvocationContext();
                     throw new TIMEOUT("Request End Time exceeded",
                                       2,
                                       CompletionStatus.COMPLETED_NO);
@@ -2326,11 +2327,7 @@ public String repository_id (org.omg.CORBA.Object self)
 
                     if (Time.hasPassed(replyEndTime))
                     {
-                        if (clearCurrentContext)
-                        {
-                           clearInvocationContext();
-                        }
-
+                        clearInvocationContext();
                         throw new TIMEOUT("Reply End Time exceeded prior to invocation",
                                           3,
                                           CompletionStatus.COMPLETED_NO);
@@ -2343,11 +2340,7 @@ public String repository_id (org.omg.CORBA.Object self)
             {
                 if (Time.hasPassed(replyEndTime))
                 {
-                    if (clearCurrentContext)
-                    {
-                        clearInvocationContext();
-                    }
-
+                    clearInvocationContext();
                     throw new TIMEOUT("Reply End Time exceeded",
                                       3,
                                       CompletionStatus.COMPLETED_NO);
@@ -2914,7 +2907,11 @@ public String repository_id (org.omg.CORBA.Object self)
         }
         finally
         {
-            clearInvocationContext();
+            Map<INVOCATION_KEY, UtcT> head = Delegate.getInvocationContext().peek ();
+            if (head == currentContext)
+            {
+                Delegate.getInvocationContext().pop ();
+            }
         }
     }
 
