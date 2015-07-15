@@ -21,6 +21,7 @@
 package org.jacorb.orb.portableInterceptor;
 
 import java.util.HashMap;
+import java.util.Map;
 import org.jacorb.orb.Delegate;
 import org.jacorb.orb.Delegate.INVOCATION_KEY;
 import org.jacorb.orb.SystemExceptionHelper;
@@ -98,6 +99,7 @@ public class ClientInterceptorIterator
     {
         info.caller_op = op;
 
+        HashMap<INVOCATION_KEY, UtcT> currentCtxt = new HashMap<INVOCATION_KEY, UtcT>();
         try
         {
             /**
@@ -110,9 +112,7 @@ public class ClientInterceptorIterator
              * also follows that each interceptor could call a different
              * object with different timeout policies
              */
-            HashMap<INVOCATION_KEY, UtcT> currentCtxt = new HashMap<INVOCATION_KEY, UtcT>();
             currentCtxt.put (INVOCATION_KEY.INTERCEPTOR_CALL, null);
-
             Delegate.getInvocationContext().push (currentCtxt);
 
             switch (op)
@@ -166,7 +166,11 @@ public class ClientInterceptorIterator
              * Pop the invocation context on return from the interceptor call - whatever
              * happens
              */
-            Delegate.getInvocationContext().pop ();
+            Map<INVOCATION_KEY, UtcT> head = Delegate.getInvocationContext().peek ();
+            if (head == currentCtxt)
+            {
+                Delegate.getInvocationContext().pop ();
+            }
         }
 
         info.caller_op = op;

@@ -5,6 +5,8 @@ module test {
 
                 void ping();
 
+                void force_ONE();
+
                 string echo_simple();
 
                 string echo_string( in string msg );

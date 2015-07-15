@@ -40,7 +40,9 @@ import org.jacorb.ssl.SSL_POLICY_TYPE;
 import org.omg.BiDirPolicy.BIDIRECTIONAL_POLICY_TYPE;
 import org.omg.BiDirPolicy.BidirectionalPolicy;
 import org.omg.CORBA.BAD_PARAM;
+import org.omg.CORBA.CompletionStatus;
 import org.omg.CORBA.NO_IMPLEMENT;
+import org.omg.CORBA.OMGVMCID;
 import org.omg.PortableServer.AdapterActivator;
 import org.omg.PortableServer.ID_ASSIGNMENT_POLICY_ID;
 import org.omg.PortableServer.ID_UNIQUENESS_POLICY_ID;
@@ -366,17 +368,23 @@ public class POA
                     throw new ParentIsHolding();
                 }
                 throw new org.omg.CORBA.OBJECT_NOT_EXIST("no adapter activator exists for " +
-                                                         adapter_name);
+                                                         adapter_name,
+                                                         OMGVMCID.value | 2,
+                                                         CompletionStatus.COMPLETED_NO);
             }
 
             if (isDiscarding())
             {
-                throw new org.omg.CORBA.TRANSIENT("a parent poa is in discarding state");
+                throw new org.omg.CORBA.TRANSIENT("a parent poa is in discarding state",
+                                                  OMGVMCID.value | 1,
+                                                  CompletionStatus.COMPLETED_NO);
             }
 
             if (isInactive())
             {
-                throw new org.omg.CORBA.OBJ_ADAPTER("a parent poa is in inactive state");
+                throw new org.omg.CORBA.OBJ_ADAPTER("a parent poa is in inactive state",
+                                                    OMGVMCID.value | 1,
+                                                    CompletionStatus.COMPLETED_NO);
             }
 
             /* poa should be active */
@@ -430,7 +438,9 @@ public class POA
             }
             else
             {
-                throw new org.omg.CORBA.OBJECT_NOT_EXIST("poa activation is failed");
+                throw new org.omg.CORBA.OBJECT_NOT_EXIST("poa activation is failed",
+                                                         OMGVMCID.value | 2,
+                                                         CompletionStatus.COMPLETED_NO);
             }
         }
         return child;
@@ -518,7 +528,9 @@ public class POA
                 {
                     logger.debug("Caught " + e + " when queueing " + request.operation());
                 }
-                throw new org.omg.CORBA.TRANSIENT("resource limit reached");
+                throw new org.omg.CORBA.TRANSIENT("resource limit reached",
+                                                  OMGVMCID.value | 1,
+                                                  CompletionStatus.COMPLETED_NO);
             }
         }
     }
@@ -611,7 +623,9 @@ public class POA
 
         if( oid == null )
         {
-            throw new org.omg.CORBA.BAD_PARAM( "Cannot activate_object_with_id with null ID." );
+            throw new org.omg.CORBA.BAD_PARAM( "Cannot activate_object_with_id with null ID.",
+                                               OMGVMCID.value | 14,
+                                               CompletionStatus.COMPLETED_NO );
         }
 
         if ( !isRetain() )
@@ -626,7 +640,8 @@ public class POA
                 logger.warn(logPrefix + "oid: " + POAUtil.convert(oid) +
                             " - activate_object_with_id: oid not previously generated!");
             }
-            throw new org.omg.CORBA.BAD_PARAM();
+            throw new org.omg.CORBA.BAD_PARAM(OMGVMCID.value | 14,
+                                              CompletionStatus.COMPLETED_NO);
         }
 
         aom.add( oid, servant );
@@ -856,7 +871,8 @@ public class POA
 
             if (isShutdownInProgress())
             {
-                throw new org.omg.CORBA.BAD_INV_ORDER();
+                throw new org.omg.CORBA.BAD_INV_ORDER(OMGVMCID.value | 17,
+                                                      CompletionStatus.COMPLETED_NO);
             }
 
             POAManager aPOAManager =
@@ -938,7 +954,8 @@ public class POA
                             "create_reference_with_id : object key not previously generated!");
             }
 
-            throw new org.omg.CORBA.BAD_PARAM ();
+            throw new org.omg.CORBA.BAD_PARAM (OMGVMCID.value | 14,
+                                               CompletionStatus.COMPLETED_NO);
         }
 
         return getReference (oid, intf_rep_id, false);
@@ -1010,7 +1027,8 @@ public class POA
 
         if (wait_for_completion && isInInvocationContext())
         {
-            throw new org.omg.CORBA.BAD_INV_ORDER();
+            throw new org.omg.CORBA.BAD_INV_ORDER(OMGVMCID.value | 3,
+                                                  CompletionStatus.COMPLETED_NO);
         }
 
         /* synchronized with creationLog */
@@ -1420,7 +1438,9 @@ public class POA
     {
         if (isDestructionApparent())
         {
-            throw new org.omg.CORBA.OBJECT_NOT_EXIST ("POA destroyed");
+            throw new org.omg.CORBA.OBJECT_NOT_EXIST ("POA destroyed",
+                                                      OMGVMCID.value | 4,
+                                                      CompletionStatus.COMPLETED_NO);
         }
     }
 
@@ -1636,7 +1656,9 @@ public class POA
                 logger.debug(logPrefix + "clear up the queue ...");
             }
 
-            requestController.clearUpQueue(new org.omg.CORBA.OBJECT_NOT_EXIST("adapter destroyed"));
+            requestController.clearUpQueue(new org.omg.CORBA.OBJECT_NOT_EXIST("adapter destroyed",
+                                                                              OMGVMCID.value | 3,
+                                                                              CompletionStatus.COMPLETED_NO));
 
             if (logger.isDebugEnabled())
             {
@@ -1872,7 +1894,8 @@ public class POA
                             "cannot process request, because object is already in the deactivation process");
             }
 
-            throw new org.omg.CORBA.OBJECT_NOT_EXIST();
+            throw new org.omg.CORBA.OBJECT_NOT_EXIST(OMGVMCID.value | 4,
+                                                     CompletionStatus.COMPLETED_NO);
         }
 
         Servant servant = null;
@@ -2187,7 +2210,9 @@ public class POA
     @Override
     public  org.omg.PortableServer.POAManagerFactory the_POAManagerFactory()
     {
-        throw new NO_IMPLEMENT ("Not yet implemented");
+        throw new NO_IMPLEMENT ("Not yet implemented",
+                                OMGVMCID.value | 1,
+                                CompletionStatus.COMPLETED_NO);
     }
 
     /**

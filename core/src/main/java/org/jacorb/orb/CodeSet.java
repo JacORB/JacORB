@@ -65,10 +65,11 @@ public class CodeSet
      */
     static final CodeSet UCS2_CODESET = new Ucs2CodeSet();
 
+    static final CodeSet MAC_ROMAN_CODESET = new MacRomanCodeSet();
     /**
      * All of the encodings supported by Jacorb. These should be listed in order of preference.
      */
-    static final CodeSet[] KNOWN_ENCODINGS = { ISO8859_1_CODESET, ISO8859_15_CODESET, UTF16_CODESET, UTF8_CODESET , UCS2_CODESET };
+    static final CodeSet[] KNOWN_ENCODINGS = { ISO8859_1_CODESET, ISO8859_15_CODESET, UTF16_CODESET, UTF8_CODESET, UCS2_CODESET, MAC_ROMAN_CODESET };
 
     /**
      * The default JVM platform encoding.
@@ -507,6 +508,39 @@ public class CodeSet
         }
     }
 
+    static private class MacRomanCodeSet extends CodeSet {
+
+        private MacRomanCodeSet()
+        {
+            super( 0x00010001, "MacRoman" );
+        }
+
+
+        /**
+         * Only used for derived codesets
+         */
+        MacRomanCodeSet(int i, String name)
+        {
+            super( i, name);
+        }
+
+
+        /**
+         * Returns true if 'wide' is not specified.
+         */
+        @Override
+        public boolean supportsCharacterData( boolean wide )
+        {
+            return !wide;
+        }
+
+
+        @Override
+        public void write_char( OutputBuffer buffer, char c, boolean write_bom, boolean write_length_indicator, int giop_minor )
+        {
+            buffer.write_byte( (byte) c );
+        }
+    }
 
     static private class Iso8859_15CodeSet extends Iso8859_1CodeSet {
 
