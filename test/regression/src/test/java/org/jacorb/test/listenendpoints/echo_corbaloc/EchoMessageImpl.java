@@ -18,6 +18,13 @@ public class EchoMessageImpl
         return;
     }
 
+
+    @Override
+    public void force_ONE()
+    {
+        throw new org.omg.CORBA.OBJECT_NOT_EXIST ();
+    }
+
     @Override
     public String echo_simple()
     {
