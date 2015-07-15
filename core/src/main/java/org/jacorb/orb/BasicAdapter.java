@@ -40,7 +40,9 @@ import org.jacorb.orb.giop.TransportManager;
 import org.jacorb.orb.iiop.IIOPAddress;
 import org.jacorb.orb.iiop.IIOPListener;
 import org.jacorb.orb.iiop.IIOPProfile;
+import org.omg.CORBA.CompletionStatus;
 import org.omg.CORBA.INTERNAL;
+import org.omg.CORBA.OMGVMCID;
 import org.omg.ETF.Connection;
 import org.omg.ETF.Factories;
 import org.omg.ETF.Listener;
@@ -336,7 +338,9 @@ public class BasicAdapter
         catch( org.omg.PortableServer.POAPackage.WrongAdapter e )
         {
             // unknown oid (not previously generated)
-            request.setSystemException( new org.omg.CORBA.OBJECT_NOT_EXIST("unknown oid") );
+            request.setSystemException( new org.omg.CORBA.OBJECT_NOT_EXIST("unknown oid",
+                                                                           OMGVMCID.value | 2,
+                                                                           CompletionStatus.COMPLETED_NO) );
             request.reply();
         }
         catch( org.omg.CORBA.SystemException e )

@@ -38,6 +38,7 @@ import org.omg.CONV_FRAME.CodeSetContextHelper;
 import org.omg.CORBA.CompletionStatus;
 import org.omg.CORBA.NO_PERMISSION;
 import org.omg.CORBA.OBJECT_NOT_EXIST;
+import org.omg.CORBA.OMGVMCID;
 import org.omg.GIOP.LocateStatusType_1_2;
 import org.omg.GIOP.ReplyStatusType_1_2;
 import org.omg.IOP.TAG_CODE_SETS;
@@ -208,7 +209,8 @@ public class ServerRequestListener
                 try
                 {
                     SystemExceptionHelper.write( out,
-                            new OBJECT_NOT_EXIST( 0, CompletionStatus.COMPLETED_NO ));
+                            new OBJECT_NOT_EXIST( OMGVMCID.value | 2,
+                                                  CompletionStatus.COMPLETED_NO ));
 
                     connection.sendReply( out );
                 }
@@ -392,7 +394,9 @@ public class ServerRequestListener
         catch( org.omg.PortableServer.POAPackage.WrongAdapter e )
         {
             // unknown oid (not previously generated)
-            request.setSystemException( new org.omg.CORBA.OBJECT_NOT_EXIST("unknown oid") );
+            request.setSystemException( new org.omg.CORBA.OBJECT_NOT_EXIST("unknown oid",
+                                                         OMGVMCID.value | 2,
+                                                         CompletionStatus.COMPLETED_NO) );
             request.reply();
         }
         catch( org.omg.CORBA.SystemException e )
