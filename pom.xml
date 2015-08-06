@@ -82,6 +82,7 @@
         <module>core</module>
         <module>services</module>
         <module>test/regression</module>
+        <module>test/orbreinvoke</module>
         <module>demo</module>
     </modules>
 
