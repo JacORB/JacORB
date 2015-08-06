@@ -23,6 +23,7 @@
 	<modules>
 		<module>tao_ns</module>
 		<module>tao_imr</module>
+		<module>jacorb_imr</module>
 	</modules>
 
 	<build>

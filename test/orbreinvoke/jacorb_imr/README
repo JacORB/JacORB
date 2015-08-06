@@ -8,10 +8,7 @@ This directory holds the JacORB ImR integration test suite, which is intended
 Building the Test Suites
 -----------------------
 
-To build the tests, you first need to set the environment variable JACORB_HOME
-then type:
-
-  ant all
+To build the tests type "mvn test"
 
 This should compile the IDL and Java code that is needed to run the test.
 
