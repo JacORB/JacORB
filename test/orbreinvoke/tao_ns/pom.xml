@@ -24,21 +24,6 @@
 		<dependency>
 			<groupId>org.jacorb</groupId>
 			<artifactId>jacorb</artifactId>
-			<version>${project.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.jacorb</groupId>
-			<artifactId>jacorb-omgapi</artifactId>
-			<version>${project.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.jacorb</groupId>
-			<artifactId>jacorb-idl-compiler</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>junit</groupId>
-			<artifactId>junit</artifactId>
-			<scope>test</scope>
 		</dependency>
 	</dependencies>
 	<build>
@@ -57,48 +42,13 @@
 
 				<configuration>
 					<testIncludes>
-						<include>org/jacorb/test/listenendpoints/echo_corbaloc/CmdArgs.java</include>
-						<include>org/jacorb/test/listenendpoints/echo_corbaloc/EchoMessage*.java</include>
-						<include>org/jacorb/test/listenendpoints/echo_corbaloc/_EchoMessage*.java</include>
-						<include>org/jacorb/test/orbreinvoke/**/*.java</include>
+						<include>org/jacorb/test/orbreinvoke/tao_ns/**/*.java</include>
 					</testIncludes>
 				</configuration>
 			</plugin>
 			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>idlj-maven-plugin</artifactId>
-				<executions>
-
-					<execution>
-						<id>process-idl</id>
-						<phase>generate-test-sources</phase>
-						<goals>
-							<goal>generate-test</goal>
-						</goals>
-						<configuration>
-							<sourceDirectory>${basedir}/../../regression/src/test/idl</sourceDirectory>
-							<sources>
-								<source>
-									<includes>
-										<include>server.idl</include>
-									</includes>
-									<additionalArguments>
-										<additionalArgument>-i2jpackage</additionalArgument>
-										<additionalArgument>:org.jacorb</additionalArgument>
-										<additionalArgument>-generate_helper</additionalArgument>
-										<additionalArgument>jacorb</additionalArgument>
-									</additionalArguments>
-								</source>
-							</sources>
-						</configuration>
-					</execution>
-
-				</executions>
-				<configuration>
-					<compiler>jacorb</compiler>
-					<includeDirs>
-					</includeDirs>
-				</configuration>
 			</plugin>
 			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
