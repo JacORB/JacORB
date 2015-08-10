@@ -22,11 +22,9 @@ support the JacORB applications.
 Building the Test Suites
 -----------------------
 
-There is a build.xml file in each test directory.  To build the tests, you
-first need to set the environment variables, then you can go to a test directory
-and type:
+There is a pom.xml file in each test directory.  To build the tests type :
 
-  ant all
+  mvn test
 
 This should compile the IDL and Java code that is needed to run the test.
 Please note that these test suites borrow the classes that were developed
