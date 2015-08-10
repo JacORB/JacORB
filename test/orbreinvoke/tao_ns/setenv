@@ -1,4 +1,0 @@
-export JACORB_HOME=~/dev/JacORB
-export ACE_ROOT=~/dev/ACE_wrappers
-export TAO_ROOT=$ACE_ROOT/TAO/
-export LD_LIBRARY_PATH=$ACE_ROOT/lib:$LD_LIBRARY_PATH
