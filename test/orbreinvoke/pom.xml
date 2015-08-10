@@ -6,7 +6,7 @@
 		<groupId>org.jacorb</groupId>
 		<artifactId>jacorb-parent</artifactId>
 		<version>3.7-SNAPSHOT</version>
-		<relativePath>../</relativePath>
+		<relativePath>../../pom.xml</relativePath>
 	</parent>
 
 	<groupId>org.jacorb</groupId>
