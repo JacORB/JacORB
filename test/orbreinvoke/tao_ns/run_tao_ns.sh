@@ -11,7 +11,7 @@ export DYLD_LIBRARY_PATH=$ACE_ROOT/lib
 
 export JACORB_HOME
 
-out_dir="${JACORB_HOME}/test/orbreinvoke/tao_ns/output"
+out_dir="${JACORB_HOME?'JACORB_HOME environment variable must be set'}/test/orbreinvoke/tao_ns/output"
 if [[ ! -d $out_dir ]] ; then
     mkdir -p $out_dir
 fi
@@ -25,7 +25,7 @@ if [[ ! -z $pid ]] ; then
 fi
 echo "$bn: starting up ${myNS} server ..."
 rm -f ${log} 2>&1
-$TAO_ROOT/orbsvcs/Naming_Service/${myNS} \
+${TAO_ROOT?'TAO_ROOT environment variable must be set'}/orbsvcs/Naming_Service/${myNS} \
  -m 1 \
  -d \
  -m 0 \

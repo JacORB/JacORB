@@ -25,7 +25,7 @@ export JACORB_HOME
 PATH=${PATH}
 CLASSPATH=${CLASSPATH}
 export PATH=${PATH}:${JACORB_HOME}/bin
-export CLASSPATH=${CLASSPATH}:`pwd`/build/classes
+export CLASSPATH=${CLASSPATH}:`pwd`/target/test-classes
 echo "$bn: JACORB_HOME=<${JACORB_HOME}>"
 echo "$bn: CLASSPATH=<${CLASSPATH}>"
 echo "$bn: PATH=<${PATH}>"
@@ -46,7 +46,8 @@ pid=$(ps -ax | grep -v grep | grep "Client.*${serverName}" | awk '{print $1}')
 
 # This will connect to EchoServer[1,2] via NameService
 # corbaname:iiop:localhost:2809#example/Messenger
-corbaname="corbaname::localhost:55555,:phil.ociweb.com:55555#${serverName}.context"
+#corbaname="corbaname::`hostname`:55555,:phil.ociweb.com:55555#${serverName}.context"
+corbaname="corbaname::`hostname`:55555#${serverName}.context"
 
 echo "$bn: starting ${client} with ${corbaloc} ..."
 client_name="org.jacorb.test.orbreinvoke.tao_ns.Client"
