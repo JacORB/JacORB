@@ -52,7 +52,7 @@ b) Set up the following JacORB environments variables:
 
    - JACORB_HOME
    - PATH=$PATH:$JACORB_HOME/bin
-   - CLASSPATH=${CLASSPATH}:<script-dir>/build/classes
+   - CLASSPATH=${CLASSPATH}:<script-dir>/target/test-classes
 
 c) Review the following TAO script to ensure that they point to the correct
    TAO executable:

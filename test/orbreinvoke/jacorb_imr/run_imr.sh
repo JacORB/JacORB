@@ -11,7 +11,7 @@ export JACORB_HOME
 PATH=${PATH}
 CLASSPATH=${CLASSPATH}
 export PATH=${PATH}:${JACORB_HOME}/bin
-export CLASSPATH=${CLASSPATH}:`pwd`/build/classes
+export CLASSPATH=${CLASSPATH}:`pwd`/target/test-classes
 echo "$bn: JACORB_HOME=<${JACORB_HOME}>"
 echo "$bn: CLASSPATH=<${CLASSPATH}>"
 echo "$bn: PATH=<${PATH}>"
