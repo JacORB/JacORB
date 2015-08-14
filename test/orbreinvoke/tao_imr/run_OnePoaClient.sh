@@ -68,7 +68,7 @@ echo "$bn: $pid: $log"
 if [[ ! -z $pid ]] ; then
     (( cnt = 10 ))
     while (( cnt > 0 )) ; do
-	echo "."
+    echo "."
         sleep 6
         if ps -p $pid ; then
             tail -5 ${log}

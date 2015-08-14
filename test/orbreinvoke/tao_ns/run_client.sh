@@ -53,9 +53,9 @@ echo "$bn: starting ${client} with ${corbaloc} ..."
 client_name="org.jacorb.test.orbreinvoke.tao_ns.Client"
 $JACORB_HOME/bin/jaco ${client_name} \
     -nscorbaname ${corbaname} \
-	-delay 5000 \
+    -delay 5000 \
     -loop \
-	-msg "${client} $$ on ${host} is hailing ${serverName}" > ${log} 2>&1 &
+    -msg "${client} $$ on ${host} is hailing ${serverName}" > ${log} 2>&1 &
 pid=$!
 echo "$bn: $pid: $log"
 if [[ ! -z $pid ]] ; then

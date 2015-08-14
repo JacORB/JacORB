@@ -49,7 +49,7 @@ echo "$bn: starting $implName at endpoints $endpoint ..."
 rm -f ${log} 2>&1
 ${JACORB_HOME}/bin/jaco ${server_name} \
     -testmode P \
-	-iorfile /tmp/${server_name}.${implName}.ior \
+    -iorfile /tmp/${server_name}.${implName}.ior \
     -DOAAddress=${endpoint} \
     -Djacorb.use_imr=on \
     -Djacorb.use_tao_imr=off \

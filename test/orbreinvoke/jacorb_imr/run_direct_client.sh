@@ -55,9 +55,9 @@ fi
 echo "$bn: starting ${client}  ..."
 $JACORB_HOME/bin/jaco ${client_name} \
     -corbaloc ${corbaloc} \
-	-delay 5000 \
+    -delay 5000 \
     -loop \
-	-msg "${client} $$ on ${host} is hailing ${serverName}" > ${log} 2>&1 &
+    -msg "${client} $$ on ${host} is hailing ${serverName}" > ${log} 2>&1 &
 pid=$!
 echo "$bn: $pid: $log"
 if [[ ! -z $pid ]] ; then

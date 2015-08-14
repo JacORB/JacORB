@@ -52,9 +52,9 @@ corbaloc="corbaloc::${imr_host}:44444/${serverName}/EchoServer-POA/${serverName}
 echo "$bn: starting ${client} with ${corbaloc} ..."
 $JACORB_HOME/bin/jaco ${client_name} \
     -corbaloc ${corbaloc} \
-	-delay 5000 \
+    -delay 5000 \
     -loop \
-	-msg "${client} $$ on ${host} is hailing ${serverName}" > ${log} 2>&1 &
+    -msg "${client} $$ on ${host} is hailing ${serverName}" > ${log} 2>&1 &
 pid=$!
 echo "$bn: $pid: $log"
 if [[ ! -z $pid ]] ; then
