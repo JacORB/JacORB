@@ -23,7 +23,7 @@ PATH=${PATH}
 CLASSPATH=${CLASSPATH}
 export JACORB_HOME
 export PATH=${PATH}:${JACORB_HOME}/bin
-export CLASSPATH=${CLASSPATH}:`pwd`/build/classes
+export CLASSPATH=${CLASSPATH}:`pwd`/target/test-classes
 echo "$bn: JACORB_HOME=<${JACORB_HOME}>"
 echo "$bn: CLASSPATH=<${CLASSPATH}>"
 echo "$bn: PATH=<${PATH}>"
@@ -49,7 +49,7 @@ echo "$bn: starting $implName at endpoints $endpoint ..."
 rm -f ${log} 2>&1
 ${JACORB_HOME}/bin/jaco ${server_name} \
     -testmode P \
-	-iorfile /tmp/${server_name}.${implName}.ior \
+    -iorfile /tmp/${server_name}.${implName}.ior \
     -DOAAddress=${endpoint} \
     -Djacorb.use_imr=on \
     -Djacorb.use_tao_imr=off \

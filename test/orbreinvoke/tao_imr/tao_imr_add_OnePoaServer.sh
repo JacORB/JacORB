@@ -41,4 +41,4 @@ $TAO_ROOT/orbsvcs/ImplRepo_Service/${APP} \
  -r 3 \
  -l ${host} \
  -ORBInitRef ImplRepoService=file://${tao_locator_ior} \
- -c "/usr/bin/java -Djava.endorsed.dirs=${JACORB_HOME}/lib -Djacorb.home=${JACORB_HOME} -Dorg.omg.CORBA.ORBClass=org.jacorb.orb.ORB -Dorg.omg.CORBA.ORBSingletonClass=org.jacorb.orb.ORBSingleton -classpath ${JACORB_HOME}/classes:`pwd`/build/classes ${server_name} -iorfile ${iorfile} -DOAAddress=${endpoint} -Djacorb.use_tao_imr=on -Djacorb.implname=${implName} -ORBInitRef ImplRepoService=file://${tao_locator_ior}"
+ -c "/usr/bin/java -Djava.endorsed.dirs=${JACORB_HOME}/lib -Djacorb.home=${JACORB_HOME} -Dorg.omg.CORBA.ORBClass=org.jacorb.orb.ORB -Dorg.omg.CORBA.ORBSingletonClass=org.jacorb.orb.ORBSingleton -classpath ${JACORB_HOME}/classes:`pwd`/target/test-classes ${server_name} -iorfile ${iorfile} -DOAAddress=${endpoint} -Djacorb.use_tao_imr=on -Djacorb.implname=${implName} -ORBInitRef ImplRepoService=file://${tao_locator_ior}"

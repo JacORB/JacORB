@@ -26,7 +26,7 @@ osname=$(uname -s | awk '{print tolower($0)}')
 PATH=${PATH}
 CLASSPATH=${CLASSPATH}
 export PATH=${PATH}:${JACORB_HOME}/bin
-export CLASSPATH=${CLASSPATH}:`pwd`/build/classes
+export CLASSPATH=${CLASSPATH}:`pwd`/target/test-classes
 echo "$bn: JACORB_HOME=<${JACORB_HOME}>"
 echo "$bn: CLASSPATH=<${CLASSPATH}>"
 echo "$bn: PATH=<${PATH}>"
@@ -55,9 +55,9 @@ fi
 echo "$bn: starting ${client}  ..."
 $JACORB_HOME/bin/jaco ${client_name} \
     -corbaloc ${corbaloc} \
-	-delay 5000 \
+    -delay 5000 \
     -loop \
-	-msg "${client} $$ on ${host} is hailing ${serverName}" > ${log} 2>&1 &
+    -msg "${client} $$ on ${host} is hailing ${serverName}" > ${log} 2>&1 &
 pid=$!
 echo "$bn: $pid: $log"
 if [[ ! -z $pid ]] ; then

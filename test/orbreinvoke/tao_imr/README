@@ -20,10 +20,9 @@ for information about the ACE/TAO ImR.
 Building the Test Suites
 -----------------------
 
-To build the tests, you first need to set the environment variable JACORB_HOME
-then type:
+To build the tests type:
 
-  ant all
+  mvn test
 
 This should compile the IDL and Java code that is needed to run the test.
 
@@ -81,7 +80,7 @@ b) Set up the following JacORB environments variables:
 
    - JACORB_HOME
    - PATH=$PATH:$JACORB_HOME/bin
-   - CLASSPATH=${CLASSPATH}:<script-dir>/build/classes
+   - CLASSPATH=${CLASSPATH}:<script-dir>/target/test-classes
 
 c) Review the following TAO scripts to ensure that they point to the correct
    TAO executables:
