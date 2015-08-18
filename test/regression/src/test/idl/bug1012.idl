@@ -1,0 +1,29 @@
+module org
+{
+    module jacorb
+    {
+        module test
+        {
+            module bugs
+            {
+                module bug1012
+                {
+                    const unsigned long CredentialContextId = 0x42550000; // "BU00"
+
+                    const string CORRECT_SECRET = "This is truly the real one!";
+
+                    struct Credential {
+                        string secret;
+                    };
+
+                    interface Door {
+                        void knock_knock(in string name);
+                        void itsMe(in string name);
+                        boolean canIComeIn();
+                    };
+
+                };
+            };
+        };
+    };
+};
