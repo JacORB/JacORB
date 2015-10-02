@@ -40,7 +40,7 @@ public class RPPoolManagerFactory
         threadPoolMax =
             configuration.getAttributeAsInteger("jacorb.poa.thread_pool_max", 20);
 
-        if (threadPoolMax < threadPoolMin)
+        if (threadPoolMax > 0 && threadPoolMax < threadPoolMin)
         {
             throw new ConfigurationException("jacorb.poa.thread_pool_max must be >= " + threadPoolMin + "(jacorb.poa.thread_pool_min)" );
         }

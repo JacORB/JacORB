@@ -49,8 +49,12 @@ This Release
          - Fix threading issue with Delegate/ReplyGroup (BZ1010).
          - Fix invocation reentrancy issues (BZ1011, BZ1012).
          - Fix for retry loops on exceptions that occur using forwarded references (BZ1013).
+         - Fix for spin-lock on corbaname resolution failure (BZ1018)
+         - Fix for spin-lock on TAO IMR forwarded IOR resolution failure
+
     - POA
          - Add spec-compliant minor codes for POA raised system exceptions.
+         - Improve performance of thread pool on high-volume systems.
 
 3.6.1
 =====
