@@ -22,10 +22,6 @@ final public class DoorClientRequestInterceptorImpl extends LocalObject implemen
     private ORB orb;
     private Codec codec;
 
-    private int comeIn = 0;
-    private int itsMe = 0;
-    private AtomicBoolean introduce = new AtomicBoolean(false);
-
     public DoorClientRequestInterceptorImpl(String string, ORB orb, Codec codec)
     {
         this.name = string;
@@ -38,7 +34,7 @@ final public class DoorClientRequestInterceptorImpl extends LocalObject implemen
         int i = 1;
         if (op.equals("canIComeIn"))
         {
-            i = comeIn++;
+            i = Bug1012Test.comeIn++;
             // this is a workaround to the "ExtraCall" case.
             if (i % 3 == 0)
             {
@@ -52,7 +48,7 @@ final public class DoorClientRequestInterceptorImpl extends LocalObject implemen
         }
         else if (op.equals("itsMe"))
         {
-            i = itsMe++;
+            i = Bug1012Test.itsMe++;
         }
 
         if (i % 2 == 0)
@@ -60,6 +56,7 @@ final public class DoorClientRequestInterceptorImpl extends LocalObject implemen
             return "Any wrong secret";
         }
         else
+
         {
             return CORRECT_SECRET.value;
         }
@@ -75,11 +72,14 @@ final public class DoorClientRequestInterceptorImpl extends LocalObject implemen
         } else if(operation.equals("itsMe")) {
           Bug1012Test.numberOfItsMeCalls++;
         }
-        if (introduce.compareAndSet(true, false))
+        TestUtils.getLogger().debug("total calls: " + Bug1012Test.numberOfCallsToServer +
+                " canIcomeIn: " + Bug1012Test.numberOfCanIComeInCalls + " itsMe " + Bug1012Test.numberOfItsMeCalls);
+        if (Bug1012Test.introduce.compareAndSet(true, false))
         {
             switch (Bug1012Test.tcase)
             {
                 case WorkJustFine:
+                    TestUtils.getLogger().debug("calling knock_knock");
                     Bug1012Test.server.knock_knock("Penny");
                     break;
                 case DequePop:
@@ -121,7 +121,7 @@ final public class DoorClientRequestInterceptorImpl extends LocalObject implemen
         TestUtils.getLogger().debug("receive_exception: " + ri.operation());
         if (ri.operation().equals("canIComeIn"))
         {
-            introduce.set(true);
+            Bug1012Test.introduce.set(true);
         }
         if (ri.received_exception_id().equals(NO_PERMISSIONHelper.id()))
         {
