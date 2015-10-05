@@ -522,10 +522,10 @@ public final class ReplyReceiver
         {
             // tell every pending request to remarshal
             // they will be blocked on the barrier
-	    group.retry();
+            group.retry();
 
             // do the actual rebind
-            delegate.rebind ( forward_reference );
+            delegate.forwardToObj ( forward_reference );
         }
         finally
         {

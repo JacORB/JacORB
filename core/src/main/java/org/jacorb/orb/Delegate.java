@@ -110,6 +110,7 @@ import org.slf4j.Logger;
 public final class Delegate
     extends org.omg.CORBA_2_3.portable.Delegate
 {
+    private final String _identity;
     // WARNING: DO NOT USE _pior DIRECTLY, BECAUSE THAT IS NOT MT
     // SAFE. USE getParsedIOR() INSTEAD, AND KEEP A METHOD-LOCAL COPY
     // OF THE REFERENCE.
@@ -138,7 +139,7 @@ public final class Delegate
     private ParsedIOR piorOriginal = null;
 
     /* save iors to detect and prevent locate forward loop */
-    private ParsedIOR piorLastFailed = null;
+    private ParsedIOR piorForward = null;
 
     private boolean bound = false;
     private org.jacorb.poa.POA poa;
@@ -237,8 +238,8 @@ public final class Delegate
        /**
         * These keys are used to manage automatic retries in some situations.
         */
-       CORBANAME_BOUND,
-       ORIGINAL_IOR_BOUND
+       CORBANAME_RESET,
+       FORWARD_RESET
     };
 
     private static enum SyncScope
@@ -369,6 +370,8 @@ public final class Delegate
     {
         super();
 
+        _identity = "@" + Integer.toHexString(super.hashCode());
+
         this.orb = orb;
         configuration = config;
 
@@ -461,7 +464,8 @@ public final class Delegate
     public Delegate ( org.jacorb.orb.ORB orb, ParsedIOR pior )
     {
         this(orb, false);
-        _pior = pior;
+        piorOriginal = pior;
+        resetPior ();
     }
 
     public Delegate(org.jacorb.orb.ORB orb, IOR ior, boolean parseIORLazy)
@@ -517,7 +521,7 @@ public final class Delegate
             // Check if ClientProtocolPolicy set, if so, set profile
             // selector for IOR that selects effective profile for protocol
             org.omg.RTCORBA.Protocol[] protocols = getClientProtocols();
-            if (protocols != null)
+            if (protocols != null && !ior.isProfileSelectorSet())
             {
                 ior.setProfileSelector (new SpecificProfileSelector(protocols));
             }
@@ -595,7 +599,7 @@ public final class Delegate
                         {
                             //_OBJECT_FORWARD_PERM is actually more or
                             //less deprecated
-                            rebind(lris.read_Object());
+                            forwardToObj (lris.read_Object());
                             break;
                         }
 
@@ -633,15 +637,16 @@ public final class Delegate
         }
     }
 
-    public void rebind(org.omg.CORBA.Object obj)
+    public void forwardToObj (org.omg.CORBA.Object obj)
     {
         String object_reference = orb.object_to_string(obj);
 
         if (object_reference != null && object_reference.indexOf( "IOR:" ) == 0)
         {
             Delegate delegate = (Delegate) ((ObjectImpl)obj)._get_delegate();
-            rebind(new ParsedIOR( orb, object_reference),
-                    ( delegate == null ? null : delegate.getClientProtocols()));
+
+            forwardPior (new ParsedIOR( orb, object_reference));
+            rebindWithProto (delegate == null ? null : delegate.getClientProtocols());
         }
         else
         {
@@ -649,18 +654,20 @@ public final class Delegate
         }
     }
 
-    private void rebind(ParsedIOR pior)
+    private void rebind ()
     {
-        rebind (pior, null);
+        rebindWithProto (null);
     }
 
-    private void rebind(ParsedIOR pior, Protocol[] protocols)
+    private void rebindWithProto (Protocol[] protocols)
     {
         synchronized ( bind_sync )
         {
+            ParsedIOR pior = getParsedIOR ();
             // Check if ClientProtocolPolicy set, if so, set profile
             // selector for IOR that selects effective profile for protocol.
             //
+
             // If rebind has been passed in a new set of protocols use that.
             if (protocols != null)
             {
@@ -670,43 +677,24 @@ public final class Delegate
             {
                 org.omg.RTCORBA.Protocol[] thisProtocols = getClientProtocols();
 
-                if (thisProtocols != null)
+                if (thisProtocols != null && !pior.isProfileSelectorSet())
                 {
                     pior.setProfileSelector(new SpecificProfileSelector(thisProtocols));
                 }
             }
 
-            if (piorLastFailed != null && piorLastFailed.equals(pior))
+            if (connections[TransportType.IIOP.ordinal ()] != null)
             {
-                //we've already failed to bind to the ior
-                throw new org.omg.CORBA.TRANSIENT();
+                if (logger.isDebugEnabled ())
+                    logger.debug ("Delegate.rebind, releasing connection");
+                conn_mg.releaseConnection( connections[TransportType.IIOP.ordinal ()] );
+                connections[TransportType.IIOP.ordinal ()] = null;
             }
-
-            ArrayDeque<Map<INVOCATION_KEY, UtcT>> invocationStack = invocationContext.get ();
-            Map<INVOCATION_KEY, UtcT> currentCtxt = invocationStack.peek();
-
-            if (piorOriginal == null)
+            if ( connections[TransportType.MIOP.ordinal ()] != null )
             {
-                //keep original pior for fallback
-                piorOriginal = _pior;
-                currentCtxt.put (INVOCATION_KEY.ORIGINAL_IOR_BOUND, null);
+                conn_mg.releaseConnection( connections[TransportType.MIOP.ordinal ()] );
+                connections[TransportType.MIOP.ordinal ()] = null;
             }
-            if (pior.useCorbaName())
-            {
-                currentCtxt.put (INVOCATION_KEY.CORBANAME_BOUND, null);
-            }
-            _pior = pior;
-
-             if (connections[TransportType.IIOP.ordinal ()] != null)
-             {
-                 conn_mg.releaseConnection( connections[TransportType.IIOP.ordinal ()] );
-                 connections[TransportType.IIOP.ordinal ()] = null;
-             }
-             if ( connections[TransportType.MIOP.ordinal ()] != null )
-             {
-                 conn_mg.releaseConnection( connections[TransportType.MIOP.ordinal ()] );
-                 connections[TransportType.MIOP.ordinal ()] = null;
-             }
 
             //to tell bind() that it has to take action
             bound = false;
@@ -1040,11 +1028,7 @@ public final class Delegate
     {
         synchronized ( bind_sync )
         {
-            if ( piorOriginal != null )
-            {
-                return piorOriginal.getIOR();
-            }
-            return getParsedIOR().getIOR();
+          return getBaseIOR().getIOR();
         }
     }
 
@@ -1054,7 +1038,7 @@ public final class Delegate
         {
             bind();
 
-            return POAUtil.extractOID(getParsedIOR().get_object_key());
+            return POAUtil.extractOID(getBaseIOR().get_object_key());
         }
     }
 
@@ -1065,6 +1049,14 @@ public final class Delegate
             bind();
 
             return getParsedIOR().get_object_key();
+        }
+    }
+
+    public ParsedIOR getBaseIOR ()
+    {
+        synchronized ( bind_sync )
+        {
+          return (piorOriginal == null) ? getParsedIOR () :  piorOriginal;
         }
     }
 
@@ -1083,7 +1075,8 @@ public final class Delegate
                 }
                 else
                 {
-                    _pior = new ParsedIOR (orb, ior);
+                    piorOriginal = new ParsedIOR (orb, ior);
+                    resetPior ();
                     ior = null;
                 }
             }
@@ -1091,6 +1084,33 @@ public final class Delegate
             return _pior;
         }
     }
+
+    private void resetPior ()
+    {
+        synchronized ( bind_sync )
+        {
+            _pior = piorOriginal;
+            piorForward = null;
+        }
+    }
+
+    private void forwardPior (ParsedIOR fwd)
+    {
+        synchronized ( bind_sync )
+        {
+            if (!fwd.equals (_pior))
+            {
+                piorForward = fwd;
+                _pior = piorForward;
+            }
+        }
+    }
+
+    private boolean isPiorForwarded ()
+    {
+        return _pior != piorOriginal;
+    }
+
 
     public void resolvePOA (org.omg.CORBA.Object self)
     {
@@ -1253,7 +1273,7 @@ public final class Delegate
                     ros,
                     self,
                     this,
-                    piorOriginal,
+                    (isPiorForwarded () ? getBaseIOR() : null),
                     connections[currentConnection.ordinal ()]
             );
         }
@@ -1379,22 +1399,36 @@ public final class Delegate
             catch (RemarshalException e)
             {
                 logger.debug("ClientInterceptors receive_exception threw RemarshalException (via a ForwardRequest)." +
-                        "Clearing piorOriginal (Was " + piorOriginal + ") to avoid extraneous forwarding loop.");
-                piorOriginal = null;
+                             "resetting pior to avoid extraneous forwarding loop.");
+                resetPior ();
                 throw e;
             }
 
             // The exception is a TRANSIENT, so try rebinding.
-            if ( cfe instanceof org.omg.CORBA.TRANSIENT && try_rebind (false))
+            if ( cfe instanceof org.omg.CORBA.TRANSIENT )
             {
-                throw new RemarshalException();
+                if (checkNextProfile (false))
+                {
+                    if (logger.isDebugEnabled())
+                    {
+                        logger.debug ("Delegate._invoke_internal: looping on " + cfe);
+                    }
+                    throw new RemarshalException();
+                }
+                else
+                {
+                    if (logger.isDebugEnabled())
+                    {
+                      logger.debug ("Delegate._invoke_internal: Not looping on " + cfe);
+                    }
+                }
             }
 
             if (!(cfe instanceof org.omg.CORBA.TIMEOUT))
             {
                 if (logger.isDebugEnabled())
                 {
-                    logger.debug (this.toString() + " : invoke_internal: closing connection due to " + cfe.getMessage());
+                    logger.debug ("Delegate._invoke_internal: closing connection due to " + cfe);
                 }
                 disconnect(connectionToUse);
             }
@@ -1440,8 +1474,7 @@ public final class Delegate
             if ( e instanceof org.omg.CORBA.OBJECT_NOT_EXIST)
             {
               if (e.minor != 0 &&
-                  !currentCtxt.containsKey (INVOCATION_KEY.ORIGINAL_IOR_BOUND) &&
-                  try_rebind (true))
+                  checkNextProfile (true))
                 {
                   throw new RemarshalException();
                 }
@@ -1670,131 +1703,75 @@ public final class Delegate
         }
     }
 
-    private boolean try_rebind (boolean forward_only)
+    private boolean checkNextProfile (boolean forward_only)
     {
-        if (forward_only && (piorOriginal == null || piorOriginal == getParsedIOR ()))
+        boolean doRebind = false;
+        if (forward_only && (!isPiorForwarded ()))
         {
             return false;
         }
 
         synchronized ( bind_sync )
         {
-            ArrayDeque<Map<INVOCATION_KEY, UtcT>> invocationStack = invocationContext.get ();
-            Map<INVOCATION_KEY, UtcT> currentCtxt = invocationStack.peek();
-            // piorOriginal was set by rebind() which means
-            // that it is the first ParsedIOR for a repository such as an IMR,
-            // and _pior is the secondary ParsedIOR for a server.
-            // So, if piorOriginal is still null, then bind() must have failed.
-            if ( piorOriginal != null )
+            if (getParsedIOR().getProfiles().size() > 1)
             {
-                if( logger.isDebugEnabled())
-                {
-                    logger.debug("Delegate.try_rebind: falling back to original IOR");
-                }
-
-                if (piorOriginal.equals(getParsedIOR()))
-                {
-                    if (piorOriginal.getProfiles().size() > 1)
-                    {
-                        if( logger.isDebugEnabled())
-                        {
-                            logger.debug ("Delegate.try_rebind: binding to next profile <"
-                                          + piorOriginal.getTypeIdName() + ">");
-                        }
-                        Profile newProfile = piorOriginal.getNextEffectiveProfile();
-                        if( logger.isDebugEnabled())
-                        {
-                            Profile lastProfile = piorOriginal.getLastUsedProfile();
-                            logger.debug("Delegate.try_rebind: new = " + newProfile + " last = " + lastProfile);
-                        }
-
-                        if (newProfile != null &&
-                            !newProfile.equals (piorOriginal.getLastUsedProfile()))
-                        {
-                            piorLastFailed = null;
-                            randomMilliSecDelay();
-                        }
-                        else
-                        {
-                            return false;
-                        }
-                    }
-                    // If we've already bound to the original there is nothing we can do.
-                    else
-                    {
-                        return false;
-                    }
-                }
-                else
-                {
-                    // keep last failed ior to detect forwarding loops
-                    piorLastFailed = getParsedIOR();
-                }
-
-                currentCtxt.put (INVOCATION_KEY.ORIGINAL_IOR_BOUND, null);
-
-                //rebind to the original ior
-                rebind( piorOriginal );
-
-                //clean up and start fresh
-                piorLastFailed = null;
-
-                return true;
-            }
-            else if (getParsedIOR().useCorbaName())
-            {
-                if (currentCtxt.containsKey (INVOCATION_KEY.CORBANAME_BOUND))
-                {
-                    return false;
-                }
-
-                if (logger.isDebugEnabled())
-                {
-                    logger.debug ("Delegate.try_rebind: useNameService, " +
-                                  "going back to the NameService <" +
-                                  getParsedIOR().getCorbaNameOriginalObjRef() + ">");
-                }
-
-                piorOriginal = null;
-                piorLastFailed = null;
-
-                _pior = new ParsedIOR (orb,
-                                       getParsedIOR().getCorbaNameOriginalObjRef());
-
-                rebind(_pior);
-
-                //clean up and start fresh
-                piorOriginal = null;
-                piorLastFailed = null;
-
-                return true;
-            }
-            else if (getParsedIOR().getProfiles().size() > 1)
-            {
-                if( logger.isDebugEnabled())
-                {
-                    logger.debug ("Delegate.try_rebind: rebinding to next profile <"
-                                  + getParsedIOR().getTypeIdName() + ">");
-                }
-
                 Profile curProfile = getParsedIOR().getNextEffectiveProfile();
                 if( logger.isDebugEnabled())
                 {
                     Profile lastProfile = getParsedIOR().getLastUsedProfile();
-                    logger.debug("Delegate.try_rebind(no pior): new = " + curProfile + " last = " + lastProfile);
+                    logger.debug("checkNextProfile: new = "
+                                 + curProfile + " last = " + lastProfile);
                 }
 
                 if (curProfile != null  &&
                     !curProfile.equals (getParsedIOR().getLastUsedProfile()))
                 {
-                    randomMilliSecDelay();
-                    rebind(getParsedIOR());
-
-                    piorLastFailed = null;
-                    return true;
+                    doRebind = true;
                 }
             }
-            return false;
+            if (!doRebind)
+            {
+                ArrayDeque<Map<INVOCATION_KEY, UtcT>> invocationStack = invocationContext.get ();
+                Map<INVOCATION_KEY, UtcT> currentCtxt = invocationStack.peek();
+                boolean doCorbaName = false;
+                if (isPiorForwarded ())
+                {
+                    if (currentCtxt == null)
+                    {
+                        if (logger.isDebugEnabled ())
+                          logger.debug ("checkNextProfile, current context is null");
+                        return false;
+                    }
+                    if (currentCtxt.containsKey (INVOCATION_KEY.FORWARD_RESET))
+                    {
+                        return false;
+                    }
+                    resetPior ();
+                    doCorbaName = true;
+                    currentCtxt.put (INVOCATION_KEY.FORWARD_RESET, null);
+                    doRebind = true;
+                }
+                else
+                {
+                    doCorbaName = !currentCtxt.containsKey (INVOCATION_KEY.CORBANAME_RESET);
+                }
+                if (doCorbaName && getParsedIOR().useCorbaName())
+                {
+                    currentCtxt.put (INVOCATION_KEY.CORBANAME_RESET, null);
+                    if (logger.isDebugEnabled())
+                    {
+                        logger.debug ("Delegate.checkNextProfile: resetting corbaname for next use");
+                    }
+
+                    getParsedIOR().reparseCorbaName();
+                    // just resetting for next call
+                }
+            }
+            if (doRebind)
+            {
+                 rebind();
+            }
+            return doRebind;
         }
     }
 
@@ -1810,7 +1787,9 @@ public final class Delegate
         }
         catch (ForwardRequest fwd )
         {
-            rebind(fwd.forward);
+            if (logger.isDebugEnabled ())
+                logger.debug ("Delegate.invokeInterceptors calling rebind on forward");
+            forwardToObj (fwd.forward);
             throw new RemarshalException();
         }
         catch ( org.omg.CORBA.UserException ue )
@@ -2599,7 +2578,7 @@ public String repository_id (org.omg.CORBA.Object self)
                                                                    SYNC_WITH_TARGET.value,
                                                                    self,
                                                                    this,
-                                                                   piorOriginal);
+                                                                   getBaseIOR());
             }
 
             if (orb.hasRequestInterceptors() && interceptors != null)
@@ -2920,11 +2899,7 @@ public String repository_id (org.omg.CORBA.Object self)
     {
         synchronized ( bind_sync )
         {
-            if ( piorOriginal != null )
-            {
-                return piorOriginal.getIORString();
-            }
-            return getParsedIOR().getIORString();
+          return getBaseIOR().getIORString();
         }
     }
 
@@ -2936,7 +2911,10 @@ public String repository_id (org.omg.CORBA.Object self)
 
     public String typeId()
     {
-        return getParsedIOR().getIOR().type_id;
+        synchronized ( bind_sync )
+        {
+          return getBaseIOR().getIOR().type_id;
+        }
     }
 
     @Override

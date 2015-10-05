@@ -185,8 +185,6 @@ public class ClientIIOPConnection
                 }
                 catch ( IOException c )
                 {
-                    logger.debug("Exception", c );
-
                     //only sleep and print message if we're actually
                     //going to retry
                     retries--;
@@ -324,6 +322,10 @@ public class ClientIIOPConnection
             }
             catch (Exception e)
             {
+                if (logger.isDebugEnabled())
+                {
+                    logger.debug("ClientIIOPConnection.createSocket to "+ connection_info + " caught " + e);
+                }
                 exception = e;
             }
             finally

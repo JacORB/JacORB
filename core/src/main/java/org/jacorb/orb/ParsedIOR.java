@@ -25,8 +25,10 @@ import java.io.IOException;
 import java.lang.reflect.Method;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Iterator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import org.jacorb.orb.iiop.IIOPProfile;
 import org.jacorb.orb.util.CorbaLoc;
 import org.jacorb.util.ObjectUtil;
@@ -55,6 +57,7 @@ import org.omg.IOP.TaggedProfile;
 import org.omg.IOP.TaggedProfileHolder;
 import org.omg.SSLIOP.SSL;
 import org.omg.SSLIOP.SSLHelper;
+import org.omg.TimeBase.UtcT;
 
 import org.slf4j.Logger;
 
@@ -74,7 +77,7 @@ public class ParsedIOR
      *  tagged components may be part of the profile bodies
      */
     private TaggedComponentList components = new TaggedComponentList();
-    private ProfileSelector profileSelector;
+    private ProfileSelector profileSelector = null;
 
     protected boolean endianness = false;
     private String ior_str = null;
@@ -527,6 +530,14 @@ public class ParsedIOR
         return corbaNameOriginalObjRef;
     }
 
+    public void reparseCorbaName ()
+    {
+        if (corbaNameOriginalObjRef != null)
+        {
+            parse_corbaname (corbaNameOriginalObjRef);
+        }
+    }
+
     public String getTypeId()
     {
         return ior.type_id;
@@ -740,7 +751,10 @@ public class ParsedIOR
         int pound = object_reference.indexOf('#');
 
         //save object_reference string for falling back by try_rebind()
-        corbaNameOriginalObjRef = object_reference;
+        if (corbaNameOriginalObjRef == null)
+        {
+            corbaNameOriginalObjRef = object_reference;
+        }
 
         if (pound == -1)
         {
@@ -758,8 +772,13 @@ public class ParsedIOR
             corbaloc += "/NameService";
         }
 
+        HashMap<Delegate.INVOCATION_KEY, UtcT> currentCtxt =
+          new HashMap<Delegate.INVOCATION_KEY, UtcT>();
         try
         {
+            currentCtxt.put (Delegate.INVOCATION_KEY.INTERCEPTOR_CALL, null);
+            Delegate.getInvocationContext().push (currentCtxt);
+
             NamingContextExt n =
                 NamingContextExtHelper.narrow(orb.string_to_object(corbaloc));
             IOR ior = null;
@@ -788,6 +807,18 @@ public class ParsedIOR
 
             throw new IllegalArgumentException("Invalid object reference: " +
                                                object_reference);
+        }
+        finally
+        {
+            /**
+             * Pop the invocation context on return from the interceptor call - whatever
+             * happens
+             */
+            Map<Delegate.INVOCATION_KEY, UtcT> head = Delegate.getInvocationContext().peek ();
+            if (head == currentCtxt)
+            {
+                Delegate.getInvocationContext().pop ();
+            }
         }
     }
 
@@ -954,6 +985,11 @@ public class ParsedIOR
             return true;
         }
         return false;
+    }
+
+    public boolean isProfileSelectorSet()
+    {
+        return profileSelector != null;
     }
 
     public void setProfileSelector(ProfileSelector sel)

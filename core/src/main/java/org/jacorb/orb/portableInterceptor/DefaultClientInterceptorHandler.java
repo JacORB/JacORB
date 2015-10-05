@@ -351,7 +351,7 @@ public class DefaultClientInterceptorHandler implements ClientInterceptorHandler
             }
             else
             {
-                info.delegate.rebind(fwd.forward );
+                info.delegate.forwardToObj (fwd.forward );
 
                 throw new RemarshalException();
             }
