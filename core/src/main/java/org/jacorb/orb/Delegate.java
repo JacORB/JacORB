@@ -685,16 +685,15 @@ public final class Delegate
             ArrayDeque<Map<INVOCATION_KEY, UtcT>> invocationStack = invocationContext.get ();
             Map<INVOCATION_KEY, UtcT> currentCtxt = invocationStack.peek();
 
-            if (piorOriginal == null) {
+            if (piorOriginal == null)
+            {
                 //keep original pior for fallback
                 piorOriginal = _pior;
-                if (currentCtxt != null) {
-                    currentCtxt.put(INVOCATION_KEY.ORIGINAL_IOR_BOUND, null);
-                } else
-                {
-                    if (logger.isDebugEnabled())
-                        logger.debug("Delegate.rebind: current invocation context is null");
-                }
+                currentCtxt.put (INVOCATION_KEY.ORIGINAL_IOR_BOUND, null);
+            }
+            if (pior.useCorbaName())
+            {
+                currentCtxt.put (INVOCATION_KEY.CORBANAME_BOUND, null);
             }
             _pior = pior;
 
@@ -979,7 +978,7 @@ public final class Delegate
         Policy policy = get_client_policy(org.omg.RTCORBA.CLIENT_PROTOCOL_POLICY_TYPE.value);
         if (policy != null)
         {
-            return ((org.omg.RTCORBA.ClientProtocolPolicy)policy).protocols();
+            return ((org.omg.RTCORBA.ClientProtocolPolicy)policy).protocols ();
         }
         return null;
     }
@@ -1163,7 +1162,7 @@ public final class Delegate
       throws ApplicationException, RemarshalException
     {
         // discard result, it is always null
-        invoke_internal(self, os, replyHandler, true);
+        invoke_internal (self, os, replyHandler, true);
     }
 
     /**
@@ -1178,7 +1177,7 @@ public final class Delegate
                                          org.omg.CORBA.portable.OutputStream os )
       throws ApplicationException, RemarshalException
     {
-        return invoke_internal(self, os, null, false);
+        return invoke_internal (self, os, null, false);
     }
 
     private org.omg.CORBA.portable.InputStream invoke_internal
@@ -1385,30 +1384,17 @@ public final class Delegate
                 throw e;
             }
 
-
             // The exception is a TRANSIENT, so try rebinding.
-            if ( cfe instanceof org.omg.CORBA.TRANSIENT )
+            if ( cfe instanceof org.omg.CORBA.TRANSIENT && try_rebind (false))
             {
-                if (try_rebind (false)) {
-                    if (logger.isDebugEnabled()) {
-                        logger.debug("delegate.invoke_internal: looping, caught " + cfe);
-                    }
-                    throw new RemarshalException();
-
-                }
-                else {
-                    if (logger.isDebugEnabled()) {
-                        logger.debug("delegate.invoke_internal: not looping, caught " + cfe);
-                    }
-
-                }
+                throw new RemarshalException();
             }
 
             if (!(cfe instanceof org.omg.CORBA.TIMEOUT))
             {
                 if (logger.isDebugEnabled())
                 {
-                    logger.debug ("delegate.invoke_internal: closing connection due to " + cfe);
+                    logger.debug (this.toString() + " : invoke_internal: closing connection due to " + cfe.getMessage());
                 }
                 disconnect(connectionToUse);
             }
@@ -1701,11 +1687,6 @@ public final class Delegate
             // So, if piorOriginal is still null, then bind() must have failed.
             if ( piorOriginal != null )
             {
-                if (currentCtxt.containsKey (INVOCATION_KEY.ORIGINAL_IOR_BOUND))
-                {
-                    return false;
-                }
-
                 if( logger.isDebugEnabled())
                 {
                     logger.debug("Delegate.try_rebind: falling back to original IOR");
@@ -1756,6 +1737,34 @@ public final class Delegate
                 rebind( piorOriginal );
 
                 //clean up and start fresh
+                piorLastFailed = null;
+
+                return true;
+            }
+            else if (getParsedIOR().useCorbaName())
+            {
+                if (currentCtxt.containsKey (INVOCATION_KEY.CORBANAME_BOUND))
+                {
+                    return false;
+                }
+
+                if (logger.isDebugEnabled())
+                {
+                    logger.debug ("Delegate.try_rebind: useNameService, " +
+                                  "going back to the NameService <" +
+                                  getParsedIOR().getCorbaNameOriginalObjRef() + ">");
+                }
+
+                piorOriginal = null;
+                piorLastFailed = null;
+
+                _pior = new ParsedIOR (orb,
+                                       getParsedIOR().getCorbaNameOriginalObjRef());
+
+                rebind(_pior);
+
+                //clean up and start fresh
+                piorOriginal = null;
                 piorLastFailed = null;
 
                 return true;
