@@ -264,7 +264,7 @@ public class ContextNode
             org.jacorb.orb.ParsedIOR pior = null;
             try
             {
-               pior = ((org.jacorb.orb.Delegate)((org.omg.CORBA.portable.ObjectImpl)context.resolve (ncs))._get_delegate ()).getParsedIOR ();
+               pior = ((org.jacorb.orb.Delegate)((org.omg.CORBA.portable.ObjectImpl)context.resolve (ncs))._get_delegate ()).getBaseIOR ();
             }
             catch (org.omg.CosNaming.NamingContextPackage.NotFound nf)
             {
@@ -286,7 +286,7 @@ public class ContextNode
             org.jacorb.orb.ParsedIOR pior = null;
             try
             {
-               pior = ((org.jacorb.orb.Delegate)((org.omg.CORBA.portable.ObjectImpl)context.resolve (ncs))._get_delegate ()).getParsedIOR ();
+               pior = ((org.jacorb.orb.Delegate)((org.omg.CORBA.portable.ObjectImpl)context.resolve (ncs))._get_delegate ()).getBaseIOR ();
             }
             catch (org.omg.CosNaming.NamingContextPackage.NotFound nf)
             {

@@ -21,6 +21,7 @@ public class Bug1009Test extends ORBTestCase
     {
         props.put("org.omg.PortableInterceptor.ORBInitializerClass."
                   + "org.jacorb.test.bugs.bug1009.ClientInitializer", "");
+        props.put("jacorb.connection.client.connect_timeout","1000");
     }
 
     public static void main(String args[]) throws Exception

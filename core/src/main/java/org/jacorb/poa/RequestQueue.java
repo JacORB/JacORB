@@ -51,7 +51,7 @@ public class RequestQueue
 
     private boolean configured = false;
 
-    private final LinkedList queue = new LinkedList();
+    private final LinkedList<ServerRequest> queue = new LinkedList<ServerRequest>();
 
     public synchronized void configure(Configuration myConfiguration)
         throws ConfigurationException
@@ -66,6 +66,7 @@ public class RequestQueue
         queueMax = configuration.getAttributeAsInteger("jacorb.poa.queue_max", 100);
         queueMin = configuration.getAttributeAsInteger("jacorb.poa.queue_min", 10);
         queueWait = configuration.getAttributeAsBoolean("jacorb.poa.queue_wait",false);
+
         List queueListeners = configuration.getAttributeList("jacorb.poa.queue_listeners");
 
         for (Iterator i = queueListeners.iterator(); i.hasNext();)
@@ -109,7 +110,7 @@ public class RequestQueue
     {
         checkIsConfigured();
 
-        if (queue.size() >= queueMax )
+        if (queueMax > 0 && queue.size() >= queueMax )
         {
             if (logger.isWarnEnabled())
             {

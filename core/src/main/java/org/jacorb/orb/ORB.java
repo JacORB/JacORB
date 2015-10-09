@@ -561,7 +561,8 @@ public final class ORB
                 org.jacorb.orb.Delegate del = (org.jacorb.orb.Delegate)object._get_delegate();
                 if (del != null)
                 {
-                    ParsedIOR delpior = del.getParsedIOR();
+                    ParsedIOR delpior = del.getBaseIOR();
+
                     if (delpior == null)
                     {
                         knownReferences.remove(key);
@@ -2530,6 +2531,7 @@ public final class ORB
 
         Object delegate =
             ((org.omg.CORBA.portable.ObjectImpl)obj)._get_delegate();
+
         if (delegate instanceof org.jacorb.orb.Delegate)
         {
             return delegate.toString();
