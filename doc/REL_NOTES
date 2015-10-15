@@ -55,6 +55,8 @@ This Release
     - POA
          - Add spec-compliant minor codes for POA raised system exceptions.
          - Improve performance of thread pool on high-volume systems.
+    - Misc
+         - Make slf4j-jdk14 a runtime dependency instead of compile time (BZ1016).
 
 3.6.1
 =====
