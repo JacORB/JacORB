@@ -98,17 +98,6 @@
         <dependency>
             <groupId>org.jacorb</groupId>
             <artifactId>jacorb</artifactId>
-<!--            <exclusions>
-                <exclusion>
-                    <groupId>org.slf4j</groupId>
-                    <artifactId>slf4j-api</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.slf4j</groupId>
-                    <artifactId>slf4j-jdk14</artifactId>
-                </exclusion>
-            </exclusions>
-            -->
         </dependency>
 
         <dependency>
@@ -318,9 +307,9 @@
                                 <phase>test</phase>
                                 <configuration>
                                     <target>
-                                        <property name="demo_classpath" refid="maven.compile.classpath"/>
+                                        <property name="demo_classpath" refid="maven.runtime.classpath"/>
                                         <java fork="true"
-                                              classpathref="maven.compile.classpath"
+                                              classpathref="maven.runtime.classpath"
                                               className="org.jacorb.demo.appserver.Client">
                                             <jvmarg value="-Xbootclasspath/p:${demo_classpath}" />
                                             <jvmarg value="-Dorg.omg.CORBA.ORBClass=org.jacorb.orb.ORB" />
