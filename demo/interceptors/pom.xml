@@ -58,14 +58,14 @@
                         <phase>integration-test</phase>
                         <configuration>
                             <target>
-                                <property name="demo_classpath" refid="maven.runtime.classpath"/>
+                                <property name="demo_classpath" refid="maven.compile.classpath"/>
                                 <tempfile property="ior1.file" destdir="/tmp" prefix="server1" suffix=".ior" />
                                 <tempfile property="ior2.file" destdir="/tmp" prefix="server2" suffix=".ior" />
 
                                 <parallel>
                                     <sequential>
                                         <java fork="true"
-                                              classpathref="maven.runtime.classpath"
+                                              classpathref="maven.compile.classpath"
                                               className="org.jacorb.demo.interceptors.Server1">
                                             <jvmarg value="-Xbootclasspath/p:${demo_classpath}" />
                                             <jvmarg value="-Dorg.omg.CORBA.ORBClass=org.jacorb.orb.ORB" />
@@ -76,7 +76,7 @@
 
                                     <sequential>
                                         <java fork="true"
-                                              classpathref="maven.runtime.classpath"
+                                              classpathref="maven.compile.classpath"
                                               className="org.jacorb.demo.interceptors.Server2">
                                             <jvmarg value="-Xbootclasspath/p:${demo_classpath}" />
                                             <jvmarg value="-Dorg.omg.CORBA.ORBClass=org.jacorb.orb.ORB" />
@@ -91,7 +91,7 @@
                                         </waitfor>
 
                                         <java fork="true"
-                                              classpathref="maven.runtime.classpath"
+                                              classpathref="maven.compile.classpath"
                                               className="org.jacorb.demo.interceptors.Client">
                                             <jvmarg value="-Xbootclasspath/p:${demo_classpath}" />
                                             <jvmarg value="-Dorg.omg.CORBA.ORBClass=org.jacorb.orb.ORB" />

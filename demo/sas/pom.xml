@@ -58,13 +58,13 @@
                         <phase>integration-test</phase>
                         <configuration>
                             <target>
-                                <property name="demo_classpath" refid="maven.runtime.classpath"/>
+                                <property name="demo_classpath" refid="maven.compile.classpath"/>
                                 <tempfile property="ior.file" destdir="/tmp" prefix="server" suffix=".ior" />
 
                                 <parallel>
                                     <sequential>
                                         <java fork="true"
-                                              classpathref="maven.runtime.classpath"
+                                              classpathref="maven.compile.classpath"
                                               className="org.jacorb.demo.sas.GssUpServer">
                                             <jvmarg value="-Xbootclasspath/p:${demo_classpath}" />
                                             <jvmarg value="-Dorg.omg.CORBA.ORBClass=org.jacorb.orb.ORB" />
@@ -79,7 +79,7 @@
                                         </waitfor>
 
                                         <java fork="true"
-                                              classpathref="maven.runtime.classpath"
+                                              classpathref="maven.compile.classpath"
                                               className="org.jacorb.demo.sas.ListGssUpClient">
                                             <jvmarg value="-Xbootclasspath/p:${demo_classpath}" />
                                             <jvmarg value="-Dorg.omg.CORBA.ORBClass=org.jacorb.orb.ORB" />
@@ -138,13 +138,13 @@
                                 <phase>integration-test</phase>
                                 <configuration>
                                     <target>
-                                        <property name="demo_classpath" refid="maven.runtime.classpath"/>
+                                        <property name="demo_classpath" refid="maven.compile.classpath"/>
                                         <tempfile property="ior.file" destdir="/tmp" prefix="server" suffix=".ior" />
 
                                         <parallel>
                                             <sequential>
                                                 <java fork="true"
-                                                      classpathref="maven.runtime.classpath"
+                                                      classpathref="maven.compile.classpath"
                                                       className="org.jacorb.demo.sas.KerberosServer">
                                                     <jvmarg value="-Xbootclasspath/p:${demo_classpath}" />
                                                     <jvmarg value="-Dorg.omg.CORBA.ORBClass=org.jacorb.orb.ORB" />
@@ -161,7 +161,7 @@
                                                 </waitfor>
 
                                                 <java fork="true"
-                                                      classpathref="maven.runtime.classpath"
+                                                      classpathref="maven.compile.classpath"
                                                       className="org.jacorb.demo.sas.KerberosClient">
                                                     <jvmarg value="-Xbootclasspath/p:${demo_classpath}" />
                                                     <jvmarg value="-Dorg.omg.CORBA.ORBClass=org.jacorb.orb.ORB" />
