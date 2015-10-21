@@ -76,6 +76,18 @@ The JacORB core and services have a transient dependency on the OMG API stubs:
 This may need to be explicitly added to the compile / exec Xbootclasspath's if
 you wish to use JacORB's OMG stubs.
 
+\subsubsection{Running}
+By default JacORB core and services depend upon slf4j-api. To configure the default JDK logging
+add the following dependency.
+\begin{verbatim}
+    <dependencies>
+      <dependency>
+        <groupId>org.slf4j</groupId>
+        <artifactId>slf4j-jdk14</artifactId>
+      </dependency>
+    </dependencies>
+\end{verbatim}
+
 %%% Local Variables:
 %%% mode: latex
 %%% TeX-master: "../ProgrammingGuide"
