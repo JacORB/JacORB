@@ -1,14 +1,15 @@
 package org.jacorb.config;
 
+import org.jacorb.config.JacORBLogFormatter.ClockFormat;
+import org.jacorb.util.ObjectUtil;
+import org.omg.CORBA.ORBSingleton;
+
 import java.io.File;
 import java.util.logging.ConsoleHandler;
 import java.util.logging.FileHandler;
 import java.util.logging.Handler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.jacorb.config.JacORBLogFormatter.ClockFormat;
-import org.jacorb.util.ObjectUtil;
-import org.omg.CORBA.ORBSingleton;
 
 
 /**
@@ -77,12 +78,20 @@ public class JdkLoggingInitializer extends LoggingInitializer
                 int logLevel = Integer.parseInt (level.trim());
                 switch (logLevel)
                 {
-                case 0: return Level.OFF;
-                case 1: return Level.SEVERE;
-                case 2: return Level.WARNING;
-                default:
-                case 3: return Level.INFO;
-                case 4: return Level.FINEST;
+                    // http://www.slf4j.org/apidocs/org/slf4j/bridge/SLF4JBridgeHandler.html
+                    case 0:
+                        return Level.OFF;
+                    case 1:
+                        return Level.SEVERE;
+                    case 2:
+                        return Level.WARNING;
+                    default:
+                    case 3:
+                        return Level.INFO;
+                    case 4:
+                        return Level.FINER;
+                    case 5:
+                        return Level.FINEST;
                 }
             }
             catch (NumberFormatException ex)

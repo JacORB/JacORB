@@ -131,16 +131,16 @@ public class TestUtils
 
             Handler handler = new ConsoleHandler();
             handler.setFormatter(formatter);
-            handler.setLevel(TestUtils.verbose ? Level.FINEST : Level.OFF);
+            handler.setLevel(TestUtils.verbose ? Level.FINER : Level.OFF);
 
             apacheLogger = java.util.logging.Logger.getLogger("org.apache.camel.test");
             apacheLogger.setUseParentHandlers (false);
-            apacheLogger.setLevel (TestUtils.verbose ? Level.FINEST : Level.OFF);
+            apacheLogger.setLevel (TestUtils.verbose ? Level.FINER : Level.OFF);
             apacheLogger.addHandler(handler);
 
             jdkLogger = java.util.logging.Logger.getLogger("org.jacorb.test");
             jdkLogger.setUseParentHandlers (false);
-            jdkLogger.setLevel (TestUtils.verbose ? Level.FINEST : Level.OFF);
+            jdkLogger.setLevel (TestUtils.verbose ? Level.FINER : Level.OFF);
             jdkLogger.addHandler(handler);
 
             logger = org.slf4j.LoggerFactory.getLogger ("org.jacorb.test");
