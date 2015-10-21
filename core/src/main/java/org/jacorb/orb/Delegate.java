@@ -110,7 +110,6 @@ import org.slf4j.Logger;
 public final class Delegate
     extends org.omg.CORBA_2_3.portable.Delegate
 {
-    private final String _identity;
     // WARNING: DO NOT USE _pior DIRECTLY, BECAUSE THAT IS NOT MT
     // SAFE. USE getParsedIOR() INSTEAD, AND KEEP A METHOD-LOCAL COPY
     // OF THE REFERENCE.
@@ -369,8 +368,6 @@ public final class Delegate
     private Delegate(ORB orb, Configuration config, boolean parseIORLazy)
     {
         super();
-
-        _identity = "@" + Integer.toHexString(super.hashCode());
 
         this.orb = orb;
         configuration = config;
