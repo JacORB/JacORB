@@ -124,8 +124,22 @@ public class NameTable
      *  @param kind the type of name, e.g. "type"
      *  @throws NameAlreadyDefined if the name is already defined
      */
-
     public static void define( String name, IDLTypes kind )
+            throws NameAlreadyDefined
+    {
+        define(null, name, kind);
+    }
+
+    /**
+     *  define a name. If it has already been defined in this scope,
+     *  an exception is thrown
+     *
+     *  @param originalName The unreplaced name (i2jPackage)
+     *  @param name The name to be defined
+     *  @param kind the type of name, e.g. "type"
+     *  @throws NameAlreadyDefined if the name is already defined
+     */
+    public static void define( String originalName, String name, IDLTypes kind )
         throws NameAlreadyDefined
     {
         if( parser.logger.isLoggable(Level.FINEST) )
@@ -192,7 +206,14 @@ public class NameTable
 
         if( org.jacorb.idl.parser.strict_names )
         {
-            checkScopingRules( name, kind );
+            if (originalName != null)
+            {
+                checkScopingRules(originalName, kind);
+            }
+            else
+            {
+                checkScopingRules( name, kind );
+            }
         }
 
         /* block identifiers that only differ in case

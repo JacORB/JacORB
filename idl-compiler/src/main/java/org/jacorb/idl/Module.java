@@ -106,7 +106,7 @@ public class Module
     {
         try
         {
-            NameTable.define(full_name(), IDLTypes.MODULE);
+            NameTable.define(unreplacedName, full_name(), IDLTypes.MODULE);
         }
         catch (NameAlreadyDefined nad)
         {

@@ -55,6 +55,8 @@ This Release
     - POA
          - Add spec-compliant minor codes for POA raised system exceptions.
          - Improve performance of thread pool on high-volume systems.
+    - IDL
+         - Fix for i2jpackage option causing rejection of valid module definition.
     - Misc
          - Remove slf4j-jdk14 as a compile-time dependency of core/services (BZ1016).
 

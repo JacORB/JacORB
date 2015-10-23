@@ -108,6 +108,7 @@ public class ValidIDLWithExtraSetupTest extends AbstractIDLTestcase
                     { new String[] { "-sloppy_identifiers" }, TEST_HOME + "/src/test/idl/compiler/fail/collision.idl" },
                     { new String[] {"-all", "-I" + TEST_HOME + IDL_DIR} , "895_1.idl" },
                     { new String[] {"-I" + TEST_HOME + "/../../idl/omg"}, "bugRTJ519.idl" },
+                    { new String[] {"-i2jpackage", "foo:foo.foo"}, "bug450.idl" },
         });
     }
 

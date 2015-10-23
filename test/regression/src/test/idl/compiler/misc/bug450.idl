@@ -1,0 +1,8 @@
+
+
+module foo
+{
+    interface bar
+    {
+    };
+};
