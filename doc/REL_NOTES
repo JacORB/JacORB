@@ -43,8 +43,8 @@
 ( Note: For commit history see https://github.com/JacORB/JacORB )
 
 
-This Release
-============
+3.7
+===
     - ORB
          - Fix threading issue with Delegate/ReplyGroup (BZ1010).
          - Fix invocation reentrancy issues (BZ1011, BZ1012).

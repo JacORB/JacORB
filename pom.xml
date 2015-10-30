@@ -24,7 +24,7 @@
 
     <groupId>org.jacorb</groupId>
     <artifactId>jacorb-parent</artifactId>
-    <version>3.7-SNAPSHOT</version>
+    <version>3.7</version>
     <packaging>pom</packaging>
 
     <name>JacORB</name>
@@ -92,22 +92,22 @@
             <dependency>
                 <groupId>org.jacorb</groupId>
                 <artifactId>jacorb-omgapi</artifactId>
-                <version>3.7-SNAPSHOT</version>
+                <version>3.7</version>
             </dependency>
             <dependency>
                 <groupId>org.jacorb</groupId>
                 <artifactId>jacorb</artifactId>
-                <version>3.7-SNAPSHOT</version>
+                <version>3.7</version>
             </dependency>
             <dependency>
                 <groupId>org.jacorb</groupId>
                 <artifactId>jacorb-idl-compiler</artifactId>
-                <version>3.7-SNAPSHOT</version>
+                <version>3.7</version>
             </dependency>
             <dependency>
                 <groupId>org.jacorb</groupId>
                 <artifactId>jacorb-services</artifactId>
-                <version>3.7-SNAPSHOT</version>
+                <version>3.7</version>
             </dependency>
 
             <!-- External -->
@@ -423,7 +423,7 @@
                         <dependency>
                             <groupId>org.jacorb</groupId>
                             <artifactId>jacorb-idl-compiler</artifactId>
-                            <version>3.7-SNAPSHOT</version>
+                            <version>3.7</version>
                         </dependency>
                     </dependencies>
                 </plugin>
