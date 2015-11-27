@@ -1,11 +1,5 @@
 // -*- IDL -*-
 
-/**
- *  @file   ImplRepo.pidl
- *
- * $Id: ImplRepo.pidl 1861 2011-08-31 16:18:08Z mesnierp $
- */
-
 #ifndef TAO_IMRCLIENT_IMPLREPO_PIDL
 #define TAO_IMRCLIENT_IMPLREPO_PIDL
 
@@ -26,6 +20,13 @@ module ImplementationRepository
 
   /// Object not found in the Implementation Repository
   exception NotFound {};
+
+  /// Operation cannot be completed due to Activator version
+  /// or other incompatibility
+  exception CannotComplete
+  {
+    string reason;
+  };
 
   /// One environment variable/value pair.
   struct EnvironmentVariable
@@ -62,6 +63,19 @@ module ImplementationRepository
     long start_limit;
   };
 
+  /// Status of server
+  enum ServerActiveStatus
+  {
+    /// No attempt as been made to determine status.
+    ACTIVE_MAYBE,
+
+    /// Server has been succesfully pinged within ping interval.
+    ACTIVE_YES,
+
+    /// Server was not able to be pinged within ping interval.
+    ACTIVE_NO
+  };
+
   struct ServerInformation
   {
     /// Server name.
@@ -73,6 +87,8 @@ module ImplementationRepository
     /// This is used in places that require a partial IOR with
     /// just the ObjectKey missing.
     string partial_ior;
+
+    ServerActiveStatus activeStatus;
   };
 
   typedef sequence <ServerInformation> ServerInformationList;
@@ -112,13 +128,13 @@ module ImplementationRepository
     void activate_server (in string server)
       raises (NotFound, CannotActivate);
 
-    /// Add/Update the the <server>
+    /// Add/Update the the @a server.
     /// The <NotFound> exception is raised when the activator specified
     /// in the options is not registered.
     void add_or_update_server (in string server, in StartupOptions options)
       raises(NotFound);
 
-    /// Remove <server> from the Implementation Repository.
+    /// Remove @a server from the Implementation Repository.
     ///
     /// The <NotFound> exception is raised when <server> is not found
     /// in the Implementation Repository.
@@ -159,7 +175,11 @@ module ImplementationRepository
     /// <server_iterator>.  If there are no more servers, then
     /// <server_iterator> is null.
     /// If how_many == 0, then returns all servers.
+    /// If determine_active_status is true then
+    /// set ServerInformation::active_status attribute by determining
+    /// if the server is alive.
     void list (in unsigned long how_many,
+               in boolean determine_active_status,
                out ServerInformationList server_list,
                out ServerInformationIterator server_iterator);
 
@@ -167,6 +187,31 @@ module ImplementationRepository
     /// activators and servers first.
     oneway void shutdown(in boolean activators, in boolean servers);
   };
+
+  /**
+    * @brief The Extended Implementation Repository Administration Interface
+    *
+    * This interface adds operations in a way that maintains compatibility
+    * Released in TAO 2.2a p1
+    *
+    */
+  interface AdministrationExt : Administration
+  {
+    /// Identify a set of peer poas that exist in the same process.
+    void link_servers (in string server, in CORBA::StringSeq peers)
+      raises(NotFound, CannotComplete);
+
+    /// Have the appropriate activator send a signal to the named server process
+    void kill_server (in string server, in short signum)
+      raises(NotFound, CannotComplete);
+
+    /// Released in TAO 2.2a p8
+    /// Combine the action of shutting down a running server instance if any via
+    /// a shutdown command if signum is 0, or via kill if signum is nonzero
+    void force_remove_server (in string server, in short signum)
+      raises(NotFound, CannotComplete);
+  };
+
 };
 
 #endif /* TAO_IMRCLIENT_IMPLREPO_PIDL */
