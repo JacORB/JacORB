@@ -197,8 +197,9 @@ module ImplementationRepository
     */
   interface AdministrationExt : Administration
   {
+    typedef sequence<string> StringSeq;
     /// Identify a set of peer poas that exist in the same process.
-    void link_servers (in string server, in CORBA::StringSeq peers)
+    void link_servers (in string server, in StringSeq peers)
       raises(NotFound, CannotComplete);
 
     /// Have the appropriate activator send a signal to the named server process
