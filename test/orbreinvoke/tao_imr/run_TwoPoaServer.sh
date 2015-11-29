@@ -2,9 +2,6 @@
 bn=${0##*/}
 server_name="org.jacorb.test.orbreinvoke.tao_imr.TwoPoaServer"
 host=$(hostname)
-if [[ $host == "phil" ]] ; then
-    host="phil.ociweb.com"
-fi
 implName=$1
 poaBaseName=
 if [[ -z $implName ]] ; then
@@ -30,7 +27,7 @@ PATH=${PATH}
 CLASSPATH=${CLASSPATH}
 export JACORB_HOME
 export PATH=${PATH}:${JACORB_HOME}/bin
-export CLASSPATH=${CLASSPATH}:`pwd`/target/test-classes
+export CLASSPATH=${CLASSPATH}:${JACORB_HOME}/test/regression/target/test-classes
 #echo "$bn: JACORB_HOME=<${JACORB_HOME}>"
 #echo "$bn: CLASSPATH=<${CLASSPATH}>"
 #echo "$bn: PATH=<${PATH}>"

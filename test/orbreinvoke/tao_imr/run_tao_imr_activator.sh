@@ -1,7 +1,6 @@
 #!/bin/bash
 bn=${0##*/}
 host=$(hostname)
-[[ $host == "phil" ]] && host="phil.ociweb.com"
 export ACE_ROOT
 export TAO_ROOT
 export PATH=$PATH:$ACE_ROOT/bin

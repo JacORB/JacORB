@@ -1,6 +1,11 @@
 #!/bin/bash
 bn=${0##*/}
 host=$(hostname)
+dig ${host}
+if [ $? -ne 0]; then
+    host=127.0.0.1
+fi
+
 serverName=$1
 imr_host=$2
 remote_imr_host=$3
@@ -29,7 +34,7 @@ export JACORB_HOME
 PATH=${PATH}
 CLASSPATH=${CLASSPATH}
 export PATH=${PATH}:${JACORB_HOME}/bin
-export CLASSPATH=${CLASSPATH}:`pwd`/target/test-classes
+export CLASSPATH=${CLASSPATH}:${JACORB_HOME}/test/regression/target/test-classes
 echo "$bn: JACORB_HOME=<${JACORB_HOME}>"
 echo "$bn: CLASSPATH=<${CLASSPATH}>"
 echo "$bn: PATH=<${PATH}>"

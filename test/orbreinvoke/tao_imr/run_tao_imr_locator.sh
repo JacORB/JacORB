@@ -1,7 +1,11 @@
 #!/bin/bash
 bn=${0##*/}
 host=$(hostname)
-[[ $host == "phil" ]] && host="phil.ociweb.com"
+dig ${host}
+if [[ $? -ne 0 ]]; then
+    host=127.0.0.1
+fi
+
 export ACE_ROOT
 export TAO_ROOT
 export PATH=$PATH:$ACE_ROOT/bin
@@ -24,7 +28,7 @@ echo "$bn: starting up ${APP} ..."
 rm -f ${log} 2>&1
 export ImplRepoServiceIOR=corbaloc::${host}:44555/ImR
 $TAO_ROOT/orbsvcs/ImplRepo_Service/${APP} \
- -ORBListenEndpoints iiop://:44555 \
+ -ORBListenEndpoints iiop://${host}:44555 \
  -ORBDebugLevel 10 \
  -d 2 \
  -m 1 \
