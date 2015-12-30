@@ -37,7 +37,12 @@ public class CodeSet
     static final String CODESET_PREFIX = "0x00000000";
 
     /**
-     * <code>ISO8859_1</code> represents standard ASCII.
+     * <code>ASCII</code> represents the base 7-bits of ISO8859_1
+     */
+    static final CodeSet ASCII_CODESET = new AsciiCodeSet();
+
+    /**
+     * <code>ISO8859_1</code> represents the default 8-bit codeset.
      * It is ISO 8859-1:1987; Latin Alphabet No. 1
      */
     static final CodeSet ISO8859_1_CODESET = new Iso8859_1CodeSet();
@@ -69,7 +74,7 @@ public class CodeSet
     /**
      * All of the encodings supported by Jacorb. These should be listed in order of preference.
      */
-    static final CodeSet[] KNOWN_ENCODINGS = { ISO8859_1_CODESET, ISO8859_15_CODESET, UTF16_CODESET, UTF8_CODESET, UCS2_CODESET, MAC_ROMAN_CODESET };
+    static final CodeSet[] KNOWN_ENCODINGS = { ASCII_CODESET, ISO8859_1_CODESET, ISO8859_15_CODESET, UTF16_CODESET, UTF8_CODESET, UCS2_CODESET, MAC_ROMAN_CODESET };
 
     /**
      * The default JVM platform encoding.
@@ -508,7 +513,25 @@ public class CodeSet
         }
     }
 
-    static private class MacRomanCodeSet extends CodeSet {
+    static private class AsciiCodeSet extends Iso8859_1CodeSet {
+
+        private AsciiCodeSet()
+        {
+            super( 0x00010001, "ASCII" );
+        }
+
+
+        /**
+         * Only used for derived codesets
+         */
+        AsciiCodeSet(int i, String name)
+        {
+            super( i, name);
+        }
+
+    }
+
+    static private class MacRomanCodeSet extends Iso8859_1CodeSet {
 
         private MacRomanCodeSet()
         {
@@ -522,23 +545,6 @@ public class CodeSet
         MacRomanCodeSet(int i, String name)
         {
             super( i, name);
-        }
-
-
-        /**
-         * Returns true if 'wide' is not specified.
-         */
-        @Override
-        public boolean supportsCharacterData( boolean wide )
-        {
-            return !wide;
-        }
-
-
-        @Override
-        public void write_char( OutputBuffer buffer, char c, boolean write_bom, boolean write_length_indicator, int giop_minor )
-        {
-            buffer.write_byte( (byte) c );
         }
     }
 
