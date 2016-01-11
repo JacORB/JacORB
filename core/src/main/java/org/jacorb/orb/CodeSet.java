@@ -74,7 +74,7 @@ public class CodeSet
     /**
      * All of the encodings supported by Jacorb. These should be listed in order of preference.
      */
-    static final CodeSet[] KNOWN_ENCODINGS = { ASCII_CODESET, ISO8859_1_CODESET, ISO8859_15_CODESET, UTF16_CODESET, UTF8_CODESET, UCS2_CODESET, MAC_ROMAN_CODESET };
+  static final CodeSet[] KNOWN_ENCODINGS = { ISO8859_1_CODESET, ISO8859_15_CODESET, UTF16_CODESET, UTF8_CODESET, UCS2_CODESET, MAC_ROMAN_CODESET, ASCII_CODESET };
 
     /**
      * The default JVM platform encoding.
@@ -368,7 +368,6 @@ public class CodeSet
     {
         return name;
     }
-
 
     @Override
     public String toString ()
