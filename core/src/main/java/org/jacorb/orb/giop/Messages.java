@@ -202,17 +202,17 @@ public class Messages
     {
         if ( isLittleEndian( buf ) )
         {
-            buf[8]  = (byte)((size >> 24) & 0xFF);
-            buf[9]  = (byte)((size >> 16) & 0xFF);
-            buf[10] = (byte)((size >>  8) & 0xFF);
-            buf[11] = (byte) (size        & 0xFF);
-        }
-        else
-        {
             buf[8]  = (byte) (size        & 0xFF);
             buf[9]  = (byte)((size >>  8) & 0xFF);
             buf[10] = (byte)((size >> 16) & 0xFF);
             buf[11] = (byte)((size >> 24) & 0xFF);
+        }
+        else
+        {
+            buf[8]  = (byte)((size >> 24) & 0xFF);
+            buf[9]  = (byte)((size >> 16) & 0xFF);
+            buf[10] = (byte)((size >>  8) & 0xFF);
+            buf[11] = (byte) (size        & 0xFF);
         }
     }
 
