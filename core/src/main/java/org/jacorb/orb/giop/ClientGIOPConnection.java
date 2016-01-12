@@ -132,6 +132,7 @@ public class ClientGIOPConnection
         // If the transport and/or connection has been closed there is no point
         // in keeping the fragments around.
         fragments.clear();
+        fragmentsSize.clear();
     }
 
     /**

@@ -97,9 +97,11 @@ public abstract class GIOPConnection
     private boolean tcs_negotiated = false;
 
     /**
-     * Fragmented message support.
+     * Fragmented message support. At any time, fragmentsSize contains total size of processed fragments.
      */
     protected final Map<Integer, ByteArrayOutputStream> fragments = new HashMap<Integer, ByteArrayOutputStream>();
+    protected final Map<Integer, Integer> fragmentsSize = new HashMap<Integer, Integer>();
+
     private IBufferManager buf_mg;
 
     private boolean dump_incoming = false;
@@ -650,6 +652,8 @@ public abstract class GIOPConnection
                                  Messages.MSG_HEADER_SIZE + 4 ,
                                  Messages.getMsgSize(message) - 4 );
 
+                    fragmentsSize.put(request_id, fragmentsSize.get(request_id) + Messages.getMsgSize(message) - 4);
+
                     if ( Messages.moreFragmentsFollow( message ))
                     {
                         //more to follow, so don't hand over to processing
@@ -661,6 +665,7 @@ public abstract class GIOPConnection
 
                     //silently replace the original message buffer and type
                     message = b_out.toByteArray();
+                    Messages.setMsgSize(message, fragmentsSize.remove(request_id));
                     msg_type = Messages.getMsgType( message );
 
                     fragments.remove( request_id );
@@ -803,6 +808,7 @@ public abstract class GIOPConnection
                     //create new stream and add to table
                     ByteArrayOutputStream b_out = new ByteArrayOutputStream();
                     fragments.put( request_id, b_out );
+                    fragmentsSize.put(request_id, Messages.getMsgSize(message));
 
                     //add the message contents to stream
                     b_out.write( message,

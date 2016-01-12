@@ -198,6 +198,24 @@ public class Messages
         return readULong( buf, 8, isLittleEndian( buf ) );
     }
 
+    public static final void setMsgSize( byte[] buf, int size )
+    {
+        if ( isLittleEndian( buf ) )
+        {
+            buf[8]  = (byte) (size        & 0xFF);
+            buf[9]  = (byte)((size >>  8) & 0xFF);
+            buf[10] = (byte)((size >> 16) & 0xFF);
+            buf[11] = (byte)((size >> 24) & 0xFF);
+        }
+        else
+        {
+            buf[8]  = (byte)((size >> 24) & 0xFF);
+            buf[9]  = (byte)((size >> 16) & 0xFF);
+            buf[10] = (byte)((size >>  8) & 0xFF);
+            buf[11] = (byte) (size        & 0xFF);
+        }
+    }
+
     public static final int readULong( byte[] buf,
                                        int pos,
                                        boolean little_endian )
