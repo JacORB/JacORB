@@ -778,14 +778,6 @@ jacorb.security.ssl.ssl_listener=
 # displays a GUI monitoring tool for servers
 jacorb.poa.monitoring=off
 
-# POA log levels:
-# 0 = fatal errors only = "almost off" (FATAL ERRORS)
-# 1 = non-fatal errors and exceptions (ERROR)
-# 2 = important messages (WARN)
-# 3 = informational messages and exceptions (INFO)
-# 4 = debug-level output (DEBUG) (may confuse the unaware user :-)
-#jacorb.poa.log.verbosity=3
-
 # thread pool configuration for request processing
 jacorb.poa.thread_pool_max=20
 jacorb.poa.thread_pool_min=5
@@ -861,14 +853,6 @@ jacorb.poa.useServantClassLoader=off
 #                                #
 ##################################
 
-# log levels:
-# 0 = fatal errors only = "almost off" (FATAL ERRORS)
-# 1 = non-fatal errors and exceptions (ERROR)
-# 2 = important messages (WARN)
-# 3 = informational messages and exceptions (INFO)
-# 4 = debug-level output (DEBUG) (may confuse the unaware user :-)
-#jacorb.naming.log.verbosity=3
-
 # Whether non active references are purged from name service
 # when list operation is invoked.
 jacorb.naming.purge=off
@@ -925,9 +909,6 @@ jacorb.notification.default_filter_factory = builtin
 jacorb.notification.stop_time_supported = on
 
 jacorb.notification.proxy.destroy_causes_disconnect = on
-
-# Notification Service log levels:
-#org.jacorb.notification.log.verbosity = 3
 
 ########################################
 #                                      #
