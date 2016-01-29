@@ -3,6 +3,7 @@ package org.jacorb.test.bugs.bug1009;
 import java.util.Properties;
 
 import org.jacorb.test.harness.ORBTestCase;
+import org.jacorb.test.harness.TestUtils;
 import org.junit.Test;
 import org.omg.CORBA.ORB;
 import org.omg.PortableServer.POA;
@@ -43,8 +44,7 @@ public class Bug1009Test extends ORBTestCase
         }
         catch (Exception e)
         {
-            System.out.println("Got Exception: " + e);
-            e.printStackTrace();
+            TestUtils.getLogger().debug("Caught exception ", e);
         }
     }
 
@@ -65,7 +65,7 @@ public class Bug1009Test extends ORBTestCase
         object = t2;
         ready = true;
 
-        System.out.println("Invoking test.i.f function " + ClientInterceptor.count);
+        TestUtils.getLogger().debug("Invoking test.i.f function " + ClientInterceptor.count);
 
         try
         {
@@ -73,11 +73,10 @@ public class Bug1009Test extends ORBTestCase
         }
         catch (Exception e)
         {
-            System.out.println("Got Exception: " + e);
-            e.printStackTrace ();
+            TestUtils.getLogger().debug("Caught exception ", e);
         }
 
-        System.out.println("Invoked test.i.f function " + ClientInterceptor.count);
+        TestUtils.getLogger().debug("Invoked test.i.f function " + ClientInterceptor.count);
         assertTrue(ClientInterceptor.count != 2);
 
     }

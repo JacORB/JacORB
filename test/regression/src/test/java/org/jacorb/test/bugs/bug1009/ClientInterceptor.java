@@ -1,5 +1,6 @@
 package org.jacorb.test.bugs.bug1009;
 
+import org.jacorb.test.harness.TestUtils;
 import org.omg.PortableInterceptor.ClientRequestInfo;
 import org.omg.PortableInterceptor.ClientRequestInterceptor;
 
@@ -41,29 +42,26 @@ class ClientInterceptor extends org.omg.CORBA.LocalObject implements
     public void receive_exception(ClientRequestInfo ri)
             throws org.omg.PortableInterceptor.ForwardRequest
     {
-        System.out.println("### receive_exception " + count);
+        TestUtils.getLogger().debug("receive_exception " + count);
         if (!Bug1009Test.ready)
         {
             return;
         }
 
-        System.out.println("receive_exception " + ri.received_exception_id());
-        System.out.println("receive_exception forward " + ri.forward_reference());
+        TestUtils.getLogger().debug("receive_exception " + ri.received_exception_id());
         if (ri.forward_reference() != null)
         {
-            System.out.println("receive_exception forward " + ri.forward_reference());
+            TestUtils.getLogger().debug("receive_exception forward " + ri.forward_reference());
         }
 
         if (count > 0)
         {
-            System.out
-                    .println("receive_exception " + ri.received_exception_id() + " count = " + count + " just return");
+            TestUtils.getLogger().debug("receive_exception " + ri.received_exception_id() + " count = " + count + " just return");
             return;
         }
         ++count;
 
-        System.out.println(
-                "receive_exception " + ri.received_exception_id() + " count = " + count + " throw ForwardRequest");
+        TestUtils.getLogger().debug("receive_exception " + ri.received_exception_id() + " count = " + count + " throw ForwardRequest");
         throw new org.omg.PortableInterceptor.ForwardRequest(Bug1009Test.object);
     }
 }
