@@ -3,6 +3,7 @@ package org.jacorb.util;
 import java.io.ByteArrayOutputStream;
 import java.io.OutputStreamWriter;
 import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.Locale;
 import java.util.Properties;
 import org.jacorb.orb.ORBSingleton;
@@ -66,6 +67,14 @@ public class Diagnostic
             System.out.println("    " + addr.toString() + " / " + addr.getHostName());
         }
         System.out.println("Preferred non-loopback address " + IIOPAddress.getLocalHost());
+        try
+        {
+            System.out.println("Preferred Java InetAddress address " + InetAddress.getLocalHost());
+        }
+        catch (UnknownHostException e)
+        {
+            e.printStackTrace();
+        }
         System.out.println();
 
 
