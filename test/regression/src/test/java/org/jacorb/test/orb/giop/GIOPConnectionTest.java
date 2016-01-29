@@ -17,6 +17,7 @@ import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.omg.ETF.BufferHolder;
 import org.omg.ETF.Connection;
+import org.omg.ETF.Profile;
 import org.slf4j.LoggerFactory;
 
 public class GIOPConnectionTest extends ORBTestCase
@@ -64,7 +65,7 @@ public class GIOPConnectionTest extends ORBTestCase
 
         ReplyListener listener = mock(ReplyListener.class);
 
-        GIOPConnection conn = new ClientGIOPConnection(null, transport, null, listener, null);
+        GIOPConnection conn = new ClientGIOPConnection(mock(Profile.class), transport, null, listener, null);
         conn.configure(config);
 
         // Read the wire
