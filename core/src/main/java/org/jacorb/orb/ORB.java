@@ -511,7 +511,7 @@ public final class ORB
         }
     }
 
-    private ProtocolAddressBase createAddress (String address)
+    private ProtocolAddressBase createAddress (String address) throws ConfigurationException
     {
         List<Factories> factorylist = getTransportManager().getFactoriesList();
         ProtocolAddressBase result = null;

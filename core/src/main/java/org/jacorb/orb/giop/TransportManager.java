@@ -323,9 +323,10 @@ public class TransportManager
         }
     }
 
-    private ProtocolAddressBase createProtocolAddress(String address_str)
+    private ProtocolAddressBase createProtocolAddress(String address_str) throws ConfigurationException
     {
         final IIOPAddress address = new IIOPAddress();
+        address.configure(configuration);
 
         int proto_delim = address_str.indexOf (':');
         Protocol proto;

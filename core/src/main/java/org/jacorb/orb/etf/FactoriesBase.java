@@ -85,10 +85,11 @@ public abstract class FactoriesBase
 
     // Although not part of the ETF IDL for a Factory object, this is the best
     // place to add a new method for creating protocol address instances
-    public ProtocolAddressBase create_protocol_address(String addr)
+    public ProtocolAddressBase create_protocol_address(String addr) throws ConfigurationException
     {
-        final ProtocolAddressBase address = create_address_internal();
         final int address_start = this.match_tag(addr);
+        final ProtocolAddressBase address = create_address_internal();
+        address.configure(configuration);
 
         if (address_start >= 0)
         {
