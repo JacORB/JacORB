@@ -73,6 +73,8 @@
         <maven.compiler.test.source>1.6</maven.compiler.test.source>
 
         <datetime>${timestamp}</datetime>
+
+        <version.slf4j>1.7.14</version.slf4j>
     </properties>
 
 
@@ -183,12 +185,12 @@
             <dependency>
                 <groupId>org.slf4j</groupId>
                 <artifactId>slf4j-api</artifactId>
-                <version>1.7.6</version>
+                <version>${version.slf4j}</version>
             </dependency>
             <dependency>
                 <groupId>org.slf4j</groupId>
                 <artifactId>slf4j-jdk14</artifactId>
-                <version>1.7.6</version>
+                <version>${version.slf4j}</version>
             </dependency>
             <dependency>
                 <groupId>picocontainer</groupId>
@@ -263,11 +265,30 @@
                                 <goal>copy-dependencies</goal>
                             </goals>
                             <configuration>
-                                <outputDirectory>${basedir}/../lib</outputDirectory>
+                              <outputDirectory>${basedir}/../lib</outputDirectory>
                                 <overWriteReleases>true</overWriteReleases>
                                 <overWriteSnapshots>true</overWriteSnapshots>
                                 <overWriteIfNewer>true</overWriteIfNewer>
                                 <includeGroupIds>org.slf4j,antlr,picocontainer,tanukisoft</includeGroupIds>
+                            </configuration>
+                        </execution>
+                        <!-- slf4j-jdk14 is now a runtime dependency so copy this explicitly -->
+                        <execution>
+                            <id>copy-dependencies-two</id>
+                            <phase>generate-resources</phase>
+                            <goals>
+                                <goal>copy</goal>
+                            </goals>
+                            <configuration>
+                              <artifactItems>
+                                <artifactItem>
+                                  <groupId>org.slf4j</groupId>
+                                  <artifactId>slf4j-jdk14</artifactId>
+                                  <version>${version.slf4j}</version>
+                                  <type>jar</type>
+                                </artifactItem>
+                              </artifactItems>
+                              <outputDirectory>${basedir}/../lib</outputDirectory>
                             </configuration>
                         </execution>
                     </executions>
