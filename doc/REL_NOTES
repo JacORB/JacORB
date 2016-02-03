@@ -45,6 +45,14 @@
 
 This Release
 ============
+    - ORB
+         - Fix for null ptr in IIOPAddress (BZ1025)
+         - Improve network ordering (BZ1023)
+         - Add VMware for network ordering (BZ1024)
+         - Fixes for byte order selecting.
+         - Add ASCII and MacRoman as aliases for the ISO-8859-1 codeset
+    - Misc
+         - Upgrade to SLF4j 1.7.14
 
 
 3.7
