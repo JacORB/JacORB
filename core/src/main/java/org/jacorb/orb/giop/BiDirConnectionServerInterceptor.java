@@ -36,6 +36,9 @@ import org.omg.PortableInterceptor.ForwardRequest;
 import org.omg.PortableInterceptor.ServerRequestInfo;
 import org.slf4j.Logger;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * @author Nicolas Noffke
  */
@@ -91,27 +94,34 @@ public class BiDirConnectionServerInterceptor
         GIOPConnection connection =
             ((ServerRequestInfoImpl) requestInfo).getConnection();
 
-        for( int i = 0; i < bidir_ctx.listen_points.length; i++ )
+        IIOPProfile prof = null;
+        int numLP = bidir_ctx.listen_points.length;
+        List<IIOPAddress> alternates = numLP == 1 ? null : new ArrayList<IIOPAddress>(numLP-1);
+        for (int i = 0; i < numLP; i++)
         {
             ListenPoint listenPoint = bidir_ctx.listen_points[i];
-
             IIOPAddress addr = new IIOPAddress (listenPoint.host, listenPoint.port);
             try
             {
-               addr.configure (orb.getConfiguration ());
+                addr.configure(orb.getConfiguration());
             }
-            catch( ConfigurationException ce)
+            catch (ConfigurationException ce)
             {
-                logger.warn("ConfigurationException", ce );
+                logger.warn("ConfigurationException", ce);
             }
-
-            if (logger.isDebugEnabled())
+            if (i == 0)
             {
-                logger.debug("Client conn. added to target " + addr );
+                prof = new IIOPProfile (addr, null, connection.profile.version().minor);
             }
-
-            conn_mg.addConnection( connection, new IIOPProfile (addr, null, connection.profile.version().minor));
+            else
+            {
+                alternates.add (addr);
+            }
         }
+        if (numLP > 1) {
+            prof.setAlternateAddresses(alternates);
+        }
+        conn_mg.addConnection( connection, prof);
     }
 
     private BiDirIIOPServiceContext readBiDirContext(ServiceContext ctx)

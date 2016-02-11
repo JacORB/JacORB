@@ -75,7 +75,7 @@ public class IIOPProfile
      * components for alternate addresses.
      * @see #getAlternateAddresses()
      */
-    private final boolean checkAlternateAddresses;
+    private boolean checkAlternateAddresses;
 
     private IIOPProfile(boolean checkAlternateAddresses)
     {
@@ -288,6 +288,20 @@ public class IIOPProfile
         return value;
     }
 
+    public void setAlternateAddresses (List<IIOPAddress>alternates)
+    {
+        if (components == null)
+        {
+            components = new TaggedComponentList();
+        }
+        for (Iterator<IIOPAddress> i = alternates.iterator(); i.hasNext();)
+        {
+            checkAlternateAddresses = true;
+            IIOPAddress addr = i.next();
+            components.addComponent(TAG_ALTERNATE_IIOP_ADDRESS.value, addr.toCDR());
+        }
+    }
+
     /**
      * Adds further addresses to this profile as TAG_ALTERNATE_IIOP_ADDRESS,
      * if this has been configured in the Configuration.
@@ -393,6 +407,7 @@ public class IIOPProfile
                     {
                         logger.debug("components.addComponent: adding addrHostAddress <" + iaddr.getHostName() + "> as TAG_ALTERNATE_IIOP_ADDRESS" );
                     }
+                    checkAlternateAddresses = true;
                     components.addComponent (TAG_ALTERNATE_IIOP_ADDRESS.value,
                             iaddr.toCDR());
                 }
@@ -485,7 +500,6 @@ public class IIOPProfile
             System.arraycopy(this.objectKey, 0, result.objectKey, 0,
                               this.objectKey.length);
         }
-
         if (this.components != null)
         {
             result.components = (TaggedComponentList)this.components.clone();
@@ -515,6 +529,7 @@ public class IIOPProfile
         if (prof instanceof IIOPProfile)
         {
             IIOPProfile other = (IIOPProfile)prof;
+
             return
             (
                 this.getSSLPort() == other.getSSLPort()           &&

@@ -212,7 +212,7 @@ public class TaggedComponentList implements Cloneable
             if (components[i].tag == tag)
             {
                Object element = getComponentData (components[i].component_data, helper);
-               if (element instanceof Configurable)
+               if (element instanceof Configurable && configuration != null)
                {
                   try
                   {

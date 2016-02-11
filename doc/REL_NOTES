@@ -51,6 +51,10 @@ This Release
          - Add VMware for network ordering (BZ1024)
          - Fixes for byte order selecting.
          - Add ASCII and MacRoman as aliases for the ISO-8859-1 codeset
+         - Fix for bidirectional IIOP where the client creates a callback IOR with alternate
+           addresses. (BZ1026)
+         - Add jacodbg script to enable attaching a remote debugger to a shell-started process
+
     - Misc
          - Upgrade to SLF4j 1.7.14
 
