@@ -40,7 +40,6 @@ public class BiDirServerImpl extends BiDirServerPOA
                     // ignore
                 }
                 callback.hello (msg);
-                callback._release();
             }
         }).start();
     }
@@ -55,7 +54,9 @@ public class BiDirServerImpl extends BiDirServerPOA
         {
             // ignore
         }
-        return org.jacorb.orb.iiop.ClientIIOPConnection.openTransports;
+        int count = org.jacorb.orb.iiop.ClientIIOPConnection.openTransports;
+        callback._release();
+        return count;
     }
 
     public static void main (String[] args) throws Exception

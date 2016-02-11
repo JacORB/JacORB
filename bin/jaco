@@ -24,6 +24,41 @@ case $0 in
         ;;
 esac
 
+dbgport=5005
+pass=()
+pndx=0
+dbgopts=()
+usedbg=0
+while [[ $# > 0 ]]
+do
+    case $1 in
+        -rdbg)
+            usedbg=1
+            ;;
+        -dbgport)
+            usedbg=1
+            dbgport=$2
+            shift
+            ;;
+        -?)
+        echo "jaco is a wrapper around sometimes long jvm command lines"
+        echo "All arguments except the following are passed through to the jvm command line"
+        echo "-rdbg            Adds arguments to enable remote debugging via port 5005"
+        echo "-dbgport [port]  also enables remote debugging via the supplied port"
+        exit
+        ;;
+        *)
+            pass[$pndx]=${1}
+            pndx=`expr $pndx + 1`
+            ;;
+    esac
+    shift
+done
+
+if [ "$usedbg" == "1" ]
+then
+    dbgopts=("-Xdebug" "-Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=${dbgport}")
+fi
 _SELF=`resolve "$_SELF"`
 _BIN_DIR_RAW=`dirname "$_SELF"`
 _BIN_DIR_NORM=`cd "$_BIN_DIR_RAW" > /dev/null 2>&1; pwd`
@@ -53,9 +88,10 @@ JAVA_CMD=${RESOLVED_JAVA_CMD}
 #echo -e "using CLASSPATH  :\n\t`echo $CLASSPATH | sed -e 's/:/\n\t/g'`"
 
 exec "$JAVA_CMD"                                                    \
-    -Djava.endorsed.dirs="${JACORB_HOME}/lib"                                          \
-    -Djacorb.home="${JACORB_HOME}"                                  \
-    -Dorg.omg.CORBA.ORBClass=org.jacorb.orb.ORB                     \
-    -Dorg.omg.CORBA.ORBSingletonClass=org.jacorb.orb.ORBSingleton   \
-    -classpath "${CLASSPATH}"                                       \
-     "$@"
+     "${dbgopts[@]}"                                                \
+     -Djava.endorsed.dirs="${JACORB_HOME}/lib"                      \
+     -Djacorb.home="${JACORB_HOME}"                                 \
+     -Dorg.omg.CORBA.ORBClass=org.jacorb.orb.ORB                    \
+     -Dorg.omg.CORBA.ORBSingletonClass=org.jacorb.orb.ORBSingleton  \
+     -classpath "${CLASSPATH}"                                      \
+     "${pass[@]}"
