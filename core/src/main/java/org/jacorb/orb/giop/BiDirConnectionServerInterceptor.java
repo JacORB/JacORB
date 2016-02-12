@@ -111,10 +111,16 @@ public class BiDirConnectionServerInterceptor
             }
             if (i == 0)
             {
+                if (logger.isDebugEnabled()) {
+                    logger.debug("BiDirIIOPContext: Client conn. added to target " + addr );
+                }
                 prof = new IIOPProfile (addr, null, connection.profile.version().minor);
             }
             else
             {
+                if (logger.isDebugEnabled()) {
+                    logger.debug("BiDirIIOPContext: target alternate " + addr );
+                }
                 alternates.add (addr);
             }
         }
