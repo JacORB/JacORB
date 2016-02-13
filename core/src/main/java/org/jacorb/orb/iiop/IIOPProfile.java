@@ -337,6 +337,7 @@ public class IIOPProfile
                 }
                 else
                 {
+                    checkAlternateAddresses = true;
                     components.addComponent (TAG_ALTERNATE_IIOP_ADDRESS.value,
                                              iaddr.toCDR());
                 }

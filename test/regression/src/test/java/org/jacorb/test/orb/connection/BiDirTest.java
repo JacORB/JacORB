@@ -8,6 +8,7 @@ import org.jacorb.test.ClientCallback;
 import org.jacorb.test.ClientCallbackHelper;
 import org.jacorb.test.ClientCallbackPOA;
 import org.jacorb.test.harness.ClientServerTestCase;
+import org.jacorb.test.harness.FixedPortClientServerTestCase;
 import org.jacorb.test.harness.TestUtils;
 import org.junit.Assume;
 import org.junit.Before;
@@ -17,7 +18,7 @@ import org.junit.Test;
 /**
  * @author Andre Spiegel
  */
-public class BiDirTest extends ClientServerTestCase
+public class BiDirTest extends FixedPortClientServerTestCase
 {
     private BiDirServer server = null;
 
@@ -76,11 +77,10 @@ public class BiDirTest extends ClientServerTestCase
         // this tests counts transports which are disrupted by
         // security initialisation.
         Assume.assumeFalse(TestUtils.isSSLEnabled);
-
         Properties properties = new Properties();
         properties.setProperty
-            ("org.omg.PortableInterceptor.ORBInitializerClass.bidir_init",
-             "org.jacorb.orb.giop.BiDirConnectionInitializer" );
+                ("org.omg.PortableInterceptor.ORBInitializerClass.bidir_init",
+                        "org.jacorb.orb.giop.BiDirConnectionInitializer" );
 
         setup = new BiDirSetup (properties, properties);
     }
@@ -102,5 +102,43 @@ public class BiDirTest extends ClientServerTestCase
         // if this was bidirectional, then the server must not have
         // any open client transports now
         assertEquals ("Server has too many client transports", 0, n);
+
+        setup.tearDown();
+
+        Properties clientProperties = new Properties();
+        clientProperties.setProperty
+                ("org.omg.PortableInterceptor.ORBInitializerClass.bidir_init",
+                        "org.jacorb.orb.giop.BiDirConnectionInitializer" );
+
+        String prop = "127.0.0.1:" + getNextAvailablePort() + "," +
+                "127.0.0.1:" + getNextAvailablePort() + "," +
+                "127.0.0.1:" + getNextAvailablePort();
+        clientProperties.setProperty("jacorb.iiop.alternate_addresses", prop);
+
+        Properties serverProperties = new Properties();
+        serverProperties.setProperty
+                ("org.omg.PortableInterceptor.ORBInitializerClass.bidir_init",
+                        "org.jacorb.orb.giop.BiDirConnectionInitializer" );
+        setup = new BiDirSetup(clientProperties, serverProperties);
+        setUp();
+
+        c = ClientCallbackHelper.narrow (((BiDirSetup)setup).
+                getBiDirPOA().servant_to_reference(new ClientCallbackImpl()));
+
+        callbackReceived = false;
+        callbackMessage = "";
+        
+        server.register_callback (c);
+        server.callback_hello ("This is multi-alternate test");
+        result = waitForCallback (10000);
+        n = server.get_open_client_transports();
+
+        assertEquals ("This is multi-alternate test", result);
+
+        // if this was bidirectional, then the server must not have
+        // any open client transports now
+        assertEquals ("Server has too many client transports (2)", 0, n);
+
+
     }
 }
