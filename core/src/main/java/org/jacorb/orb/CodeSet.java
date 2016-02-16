@@ -116,6 +116,8 @@ public class CodeSet
     /** The canonical name of this code set. */
     private String name;
 
+    /** Identify this codeset as a local alias of some shared codeset and thus not to be added to the IOR */
+    boolean isAlias;
 
     /**
      * Convert the CORBA standard id to a String name.
@@ -194,7 +196,8 @@ public class CodeSet
         {
             if (KNOWN_ENCODINGS[i].supportsCharacterData( wide ) && !codeSets.contains( KNOWN_ENCODINGS[i] ))
             {
-                codeSets.add( KNOWN_ENCODINGS[i] );
+                if (!KNOWN_ENCODINGS[i].isAlias)
+                    codeSets.add( KNOWN_ENCODINGS[i] );
             }
         }
         int nativeSet = codeSets.remove( 0 ).getId();
@@ -331,6 +334,7 @@ public class CodeSet
     {
         this.id = id;
         this.name = name;
+        this.isAlias = false;
     }
 
 
@@ -518,6 +522,7 @@ public class CodeSet
         private AsciiCodeSet()
         {
             super( 0x00010001, "ASCII" );
+            this.isAlias = true;
         }
 
 
@@ -527,6 +532,7 @@ public class CodeSet
         AsciiCodeSet(int i, String name)
         {
             super( i, name);
+            this.isAlias = true;
         }
 
     }
@@ -536,6 +542,7 @@ public class CodeSet
         private MacRomanCodeSet()
         {
             super( 0x00010001, "MacRoman" );
+            this.isAlias = true;
         }
 
 
@@ -545,6 +552,7 @@ public class CodeSet
         MacRomanCodeSet(int i, String name)
         {
             super( i, name);
+            this.isAlias = true;
         }
     }
 
