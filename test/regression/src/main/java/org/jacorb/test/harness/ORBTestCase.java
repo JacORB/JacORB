@@ -32,7 +32,10 @@ import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.rules.TestName;
+import org.junit.rules.TestRule;
+import org.junit.rules.TestWatcher;
 import org.junit.rules.Timeout;
+import org.junit.runner.Description;
 import org.omg.CORBA.ORB;
 import org.omg.PortableServer.POA;
 import org.omg.PortableServer.POAHelper;
@@ -54,6 +57,16 @@ public abstract class ORBTestCase
 {
     @Rule
     public TestName name = new TestName();
+
+    @Rule
+    public TestRule watcher = new TestWatcher()
+    {
+        @Override
+        protected void starting(Description description)
+        {
+            TestUtils.getLogger().debug("Starting test: {}:{}", description.getClassName(), description.getMethodName());
+        }
+    };
 
     @ClassRule
     public static Timeout globalTimeout = new Timeout(480000); // 8 minutes max per class tested

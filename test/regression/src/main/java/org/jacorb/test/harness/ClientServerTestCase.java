@@ -25,6 +25,9 @@ import org.junit.AfterClass;
 import org.junit.Rule;
 import org.junit.experimental.categories.Category;
 import org.junit.rules.TestName;
+import org.junit.rules.TestRule;
+import org.junit.rules.TestWatcher;
+import org.junit.runner.Description;
 
 /**
  * An abstract class for those tests that need a client/server test.
@@ -67,6 +70,16 @@ public abstract class ClientServerTestCase
 
     @Rule
     public TestName name = new TestName();
+
+    @Rule
+    public TestRule watcher = new TestWatcher()
+    {
+        @Override
+        protected void starting(Description description)
+        {
+            TestUtils.getLogger().debug("Starting test: {}:{}", description.getClassName(), description.getMethodName());
+        }
+    };
 
     /**
      * <code>tearDownAfterClass</code> will automatically tear down the server
