@@ -22,7 +22,8 @@
         <spring.version>3.1.1.RELEASE</spring.version>
         <cxf.version>2.7.5</cxf.version>
         <byteman.version>2.2.1</byteman.version>
-        <jacoco.version>0.7.2.201409121644</jacoco.version>
+        <jacoco.version>0.7.6.201602180812</jacoco.version>
+        <jacoco.skip>true</jacoco.skip>
 
         <surefire.forkCount>0.5C</surefire.forkCount>
     </properties>
@@ -590,6 +591,7 @@
                             <artifactId>jacoco-maven-plugin</artifactId>
                             <version>${jacoco.version}</version>
                             <configuration>
+                                <skip>${jacoco.skip}</skip>
                                 <dataFile>${project.build.directory}/coverage-reports/jacoco-ut.exec</dataFile>
                                 <includes>
                                     <include>org/jacorb/**/*</include>
