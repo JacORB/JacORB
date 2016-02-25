@@ -29,6 +29,7 @@ import org.jacorb.orb.BasicAdapter;
 import org.jacorb.orb.CDROutputStream;
 import org.jacorb.orb.ORB;
 import org.jacorb.orb.etf.ProfileBase;
+import org.jacorb.orb.iiop.IIOPProfile;
 import org.jacorb.orb.portableInterceptor.ClientRequestInfoImpl;
 import org.jacorb.orb.portableInterceptor.DefaultClientInterceptor;
 import org.omg.ETF.Profile;
@@ -84,7 +85,15 @@ public class BiDirConnectionClientInterceptor
 
             if (profile instanceof ProfileBase)
             {
-                listenPoints.addAll(((ProfileBase)profile).asListenPoints());
+              if (profile instanceof IIOPProfile && (((IIOPProfile)profile).getSSL() != null))
+                {
+                  IIOPProfile sslprof = ((IIOPProfile)profile).toNonSSL();
+                  listenPoints.addAll(sslprof.asListenPoints());
+                }
+              else
+                {
+                  listenPoints.addAll(((ProfileBase)profile).asListenPoints());
+                }
             }
             else
             {
