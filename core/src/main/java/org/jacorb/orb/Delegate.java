@@ -1314,7 +1314,8 @@ public final class Delegate
         }
 
         ClientConnection connectionToUse = null;
-
+        try
+        {
         ReplyGroup group = null;
         try
         {
@@ -1330,6 +1331,7 @@ public final class Delegate
                   // RequestOutputStream has been created for
                   // exactly this connection
                   connectionToUse = connections[currentConnection.ordinal ()];
+                  connectionToUse.incClients(); // bug1014: avoid close after rebind
                }
                else
                {
@@ -1485,6 +1487,14 @@ public final class Delegate
             disconnect(connectionToUse);
 
             throw e;
+        }
+        }
+        finally
+        {
+            if (connectionToUse != null)
+            {
+                conn_mg.releaseConnection(connectionToUse); // bug1014: let it be closed
+            }
         }
 
         return null;

@@ -1,0 +1,20 @@
+module org
+{
+    module jacorb
+    {
+        module test
+        {
+            module bugs
+            {
+                module bug1014
+                {
+                    interface DeniedService {
+
+                        void resetWhenReach(in long limit);
+
+                    };
+                };
+            };
+        };
+    };
+};
