@@ -1316,184 +1316,184 @@ public final class Delegate
         ClientConnection connectionToUse = null;
         try
         {
-        ReplyGroup group = null;
-        try
-        {
-            synchronized (bind_sync)
+            ReplyGroup group = null;
+            try
             {
-               if ( ! bound )
-               {
-                  // Somehow the connection got closed under us
-                  throw new COMM_FAILURE("Connection closed");
-               }
-               else if (ros.getConnection() == connections[currentConnection.ordinal ()])
-               {
-                  // RequestOutputStream has been created for
-                  // exactly this connection
-                  connectionToUse = connections[currentConnection.ordinal ()];
-                  connectionToUse.incClients(); // bug1014: avoid close after rebind
-               }
-               else
-               {
-                    logger.debug("invoke: RemarshalException");
+                synchronized (bind_sync)
+                {
+                   if ( ! bound )
+                   {
+                      // Somehow the connection got closed under us
+                      throw new COMM_FAILURE("Connection closed");
+                   }
+                   else if (ros.getConnection() == connections[currentConnection.ordinal ()])
+                   {
+                      // RequestOutputStream has been created for
+                      // exactly this connection
+                      connectionToUse = connections[currentConnection.ordinal ()];
+                      connectionToUse.incClients();
+                   }
+                   else
+                   {
+                        logger.debug("invoke: RemarshalException");
 
-                    // RequestOutputStream has been created for
-                    // another connection, so try again
-                    throw new RemarshalException();
+                        // RequestOutputStream has been created for
+                        // another connection, so try again
+                        throw new RemarshalException();
+                    }
+                }
+
+                group = getReplyGroup (connectionToUse);
+                if ( !ros.response_expected() )  // oneway op
+                {
+                    invoke_oneway (ros, connectionToUse, interceptors, group);
+                }
+                else
+                {
+                    // response expected, synchronous or asynchronous
+                    receiver = new ReplyReceiver(this, group,
+                                                 ros.operation(),
+                                                 ros.getReplyEndTime(),
+                                                interceptors, replyHandler, selectorManager);
+
+                    try
+                    {
+                       receiver.configure(configuration);
+                    }
+                    catch (ConfigurationException ex)
+                    {
+                       logger.error ("Configuration problem with ReplyReceiver", ex);
+                       throw new INTERNAL ("Caught configuration exception setting up ReplyReceiver.");
+                    }
+
+                    group.addHolder (receiver);
+
+                    // Use the local copy of the client connection to avoid trouble
+                    // with something else affecting the real connections[currentConnection].
+                    connectionToUse.sendRequest(ros, receiver, ros.requestId(), true);
+                    getParsedIOR ().markLastUsedProfile ();
                 }
             }
+            catch ( org.omg.CORBA.SystemException cfe )
+            {
+                logger.debug("invoke[-->]: SystemException", cfe);
 
-            group = getReplyGroup (connectionToUse);
-            if ( !ros.response_expected() )  // oneway op
-            {
-                invoke_oneway (ros, connectionToUse, interceptors, group);
-            }
-            else
-            {
-                // response expected, synchronous or asynchronous
-                receiver = new ReplyReceiver(this, group,
-                                             ros.operation(),
-                                             ros.getReplyEndTime(),
-                                            interceptors, replyHandler, selectorManager);
+                if( !async )
+                {
+                    // Remove ReplyReceiver to break up reference cycle
+                    // Otherwise gc will not detect this Delegate and
+                    // will never finalize it.
+                    if (group != null)
+                        group.removeHolder(receiver);
+                }
 
                 try
                 {
-                   receiver.configure(configuration);
+                    interceptors.handle_receive_exception ( cfe );
                 }
-                catch (ConfigurationException ex)
+                catch (ForwardRequest fwd)
                 {
-                   logger.error ("Configuration problem with ReplyReceiver", ex);
-                   throw new INTERNAL ("Caught configuration exception setting up ReplyReceiver.");
+                    // Should not happen for remote requests
+                }
+                catch (RemarshalException e)
+                {
+                    logger.debug("ClientInterceptors receive_exception threw RemarshalException (via a ForwardRequest)." +
+                                 "resetting pior to avoid extraneous forwarding loop.");
+                    resetPior ();
+                    throw e;
                 }
 
-                group.addHolder (receiver);
+                // The exception is a TRANSIENT, so try rebinding.
+                if ( cfe instanceof org.omg.CORBA.TRANSIENT )
+                {
+                    if (checkNextProfile (false))
+                    {
+                        if (logger.isDebugEnabled())
+                        {
+                            logger.debug ("Delegate._invoke_internal: looping on " + cfe);
+                        }
+                        throw new RemarshalException();
+                    }
+                    else
+                    {
+                        if (logger.isDebugEnabled())
+                        {
+                          logger.debug ("Delegate._invoke_internal: Not looping on " + cfe);
+                        }
+                    }
+                }
 
-                // Use the local copy of the client connection to avoid trouble
-                // with something else affecting the real connections[currentConnection].
-                connectionToUse.sendRequest(ros, receiver, ros.requestId(), true);
-                getParsedIOR ().markLastUsedProfile ();
+                if (!(cfe instanceof org.omg.CORBA.TIMEOUT))
+                {
+                    if (logger.isDebugEnabled())
+                    {
+                        logger.debug ("Delegate._invoke_internal: closing connection due to " + cfe);
+                    }
+                    disconnect(connectionToUse);
+                }
+
+                throw cfe;
             }
-        }
-        catch ( org.omg.CORBA.SystemException cfe )
-        {
-            logger.debug("invoke[-->]: SystemException", cfe);
-
-            if( !async )
+            finally
             {
-                // Remove ReplyReceiver to break up reference cycle
-                // Otherwise gc will not detect this Delegate and
-                // will never finalize it.
-                if (group != null)
-                    group.removeHolder(receiver);
+                if (orb.hasRequestInterceptors())
+                {
+                    localInterceptors.set(null);
+                }
             }
 
             try
             {
-                interceptors.handle_receive_exception ( cfe );
+                if ( !async && receiver != null )
+                {
+                    // Synchronous invocation, response expected.
+                    // This call blocks until the reply arrives.
+                    org.omg.CORBA.portable.InputStream is = receiver.getReply();
+
+                    ((CDRInputStream)is).updateMutatorConnection (connectionToUse.getGIOPConnection());
+
+                    clearInvocationContext();
+
+                    if (currentCtxt.containsKey (INVOCATION_KEY.INTERCEPTOR_CALL) ||
+                        currentCtxt.containsKey (INVOCATION_KEY.SERVANT_PREINVOKE) )
+                    {
+                        currentCtxt.put (INVOCATION_KEY.CLEAR_ALLOWED, null);
+                    }
+
+                    return is;
+                }
             }
-            catch (ForwardRequest fwd)
+            catch(SystemException e)
             {
-                // Should not happen for remote requests
-            }
-            catch (RemarshalException e)
-            {
-                logger.debug("ClientInterceptors receive_exception threw RemarshalException (via a ForwardRequest)." +
-                             "resetting pior to avoid extraneous forwarding loop.");
-                resetPior ();
+                logger.debug("invoke[<--]: SystemException", e);
+
+
+                // An Object Not Exist on a forwarded reference should retry
+                // on the original to get forwarded again to the right server
+                if ( e instanceof org.omg.CORBA.OBJECT_NOT_EXIST)
+                {
+                  if (e.minor != 0 &&
+                      checkNextProfile (true))
+                    {
+                      throw new RemarshalException();
+                    }
+                }
+
+                // If the attempt to read the reply throws a system exception its
+                // possible that the pending_replies will not get cleaned up.
+                if (group != null)
+                    group.removeHolder(receiver);
+
+                disconnect(connectionToUse);
+
                 throw e;
             }
-
-            // The exception is a TRANSIENT, so try rebinding.
-            if ( cfe instanceof org.omg.CORBA.TRANSIENT )
-            {
-                if (checkNextProfile (false))
-                {
-                    if (logger.isDebugEnabled())
-                    {
-                        logger.debug ("Delegate._invoke_internal: looping on " + cfe);
-                    }
-                    throw new RemarshalException();
-                }
-                else
-                {
-                    if (logger.isDebugEnabled())
-                    {
-                      logger.debug ("Delegate._invoke_internal: Not looping on " + cfe);
-                    }
-                }
-            }
-
-            if (!(cfe instanceof org.omg.CORBA.TIMEOUT))
-            {
-                if (logger.isDebugEnabled())
-                {
-                    logger.debug ("Delegate._invoke_internal: closing connection due to " + cfe);
-                }
-                disconnect(connectionToUse);
-            }
-
-            throw cfe;
-        }
-        finally
-        {
-            if (orb.hasRequestInterceptors())
-            {
-                localInterceptors.set(null);
-            }
-        }
-
-        try
-        {
-            if ( !async && receiver != null )
-            {
-                // Synchronous invocation, response expected.
-                // This call blocks until the reply arrives.
-                org.omg.CORBA.portable.InputStream is = receiver.getReply();
-
-                ((CDRInputStream)is).updateMutatorConnection (connectionToUse.getGIOPConnection());
-
-                clearInvocationContext();
-
-                if (currentCtxt.containsKey (INVOCATION_KEY.INTERCEPTOR_CALL) ||
-                    currentCtxt.containsKey (INVOCATION_KEY.SERVANT_PREINVOKE) )
-                {
-                    currentCtxt.put (INVOCATION_KEY.CLEAR_ALLOWED, null);
-                }
-
-                return is;
-            }
-        }
-        catch(SystemException e)
-        {
-            logger.debug("invoke[<--]: SystemException", e);
-
-
-            // An Object Not Exist on a forwarded reference should retry
-            // on the original to get forwarded again to the right server
-            if ( e instanceof org.omg.CORBA.OBJECT_NOT_EXIST)
-            {
-              if (e.minor != 0 &&
-                  checkNextProfile (true))
-                {
-                  throw new RemarshalException();
-                }
-            }
-
-            // If the attempt to read the reply throws a system exception its
-            // possible that the pending_replies will not get cleaned up.
-            if (group != null)
-                group.removeHolder(receiver);
-
-            disconnect(connectionToUse);
-
-            throw e;
-        }
         }
         finally
         {
             if (connectionToUse != null)
             {
-                conn_mg.releaseConnection(connectionToUse); // bug1014: let it be closed
+                conn_mg.releaseConnection(connectionToUse);
             }
         }
 
