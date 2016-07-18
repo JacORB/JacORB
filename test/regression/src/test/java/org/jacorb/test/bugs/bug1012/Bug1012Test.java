@@ -41,7 +41,7 @@ public class Bug1012Test extends ClientServerTestCase
         expected = new HashMap<TestCase, int[]>();
 
         expected.put(TestCase.WorkJustFine, new int[]{3,2,0});
-        expected.put(TestCase.ExtraCall, new int[]{5,3,2});
+        expected.put(TestCase.ExtraCall, new int[]{4,2,2});
         expected.put(TestCase.DequePop, new int[]{5,2,0});
 
         Properties props = new Properties();
