@@ -43,8 +43,8 @@
 ( Note: For commit history see https://github.com/JacORB/JacORB )
 
 
-This Release
-============
+3.8
+===
     - ORB
          - Fix for null ptr in IIOPAddress (BZ1025)
          - Improve network ordering (BZ1023)
