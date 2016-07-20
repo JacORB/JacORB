@@ -43,8 +43,8 @@
 ( Note: For commit history see https://github.com/JacORB/JacORB )
 
 
-This Release
-============
+3.8
+===
     - ORB
          - Fix for null ptr in IIOPAddress (BZ1025)
          - Improve network ordering (BZ1023)
@@ -54,6 +54,7 @@ This Release
          - Fix for bidirectional IIOP where the client creates a callback IOR with alternate
            addresses. (BZ1026)
          - Add jacodbg script to enable attaching a remote debugger to a shell-started process
+         - Fix to prevent COMM_FAILURE in concurrent handling of ForwardRequest in Portable Interceptors. (BZ1014)
 
     - Misc
          - Upgrade to SLF4j 1.7.14
