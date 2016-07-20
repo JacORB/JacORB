@@ -43,6 +43,7 @@ org.jacorb.security.ssl.sun_jsse
 org.jacorb.ssl
 org.jacorb.tao_imr
 org.jacorb.tao_imr.ImplementationRepository
+org.jacorb.tao_imr.ImplementationRepository.AdministrationExtPackage
 org.jacorb.transport
 org.jacorb.transport.iiop
 org.jacorb.util
