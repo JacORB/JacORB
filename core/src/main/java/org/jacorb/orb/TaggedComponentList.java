@@ -321,11 +321,11 @@ public class TaggedComponentList implements Cloneable
         TaggedComponent[] newComponents =
             new TaggedComponent [components.length - match_cnt];
 
-        for (int i=0; i < components.length; i++)
+        for (int i=0, n=0; i < components.length; i++)
         {
             if (components[i].tag != tag)
             {
-                newComponents[i] = components[i];
+                newComponents[n++] = components[i];
             }
         }
 
