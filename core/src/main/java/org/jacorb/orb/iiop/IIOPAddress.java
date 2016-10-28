@@ -45,7 +45,7 @@ public class IIOPAddress extends ProtocolAddressBase
 
     static
     {
-        networkVirtualInterfaces = System.getProperty("jacorb.network.virtual", "VirtualBox,VMWare,VMware,vboxnet,docker").split(",");
+        networkVirtualInterfaces = System.getProperty("jacorb.network.virtual", "VirtualBox,VMWare,VMware,virbr0,vboxnet,docker").split(",");
     }
 
     private String source_name = null; // initializing string
