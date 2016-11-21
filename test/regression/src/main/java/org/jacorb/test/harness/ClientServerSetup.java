@@ -46,6 +46,9 @@ public class ClientServerSetup extends ORBTestCase
     private String servantName;
     private org.omg.CORBA.Object serverObject;
     private ServerSetup imrSetup;
+    private String testServer;
+    private String[] servantArgs;
+    private Properties optionalServerProperties;
 
     protected String ior;
 
@@ -87,6 +90,8 @@ public class ClientServerSetup extends ORBTestCase
                               Properties optionalClientProperties,
                               Properties optionalServerProperties ) throws Exception
     {
+        this.testServer = testServer;
+        this.servantArgs = servantArgs;
         if (optionalClientProperties == null)
         {
             optionalClientProperties = new Properties();
@@ -95,6 +100,7 @@ public class ClientServerSetup extends ORBTestCase
         {
             optionalServerProperties = new Properties();
         }
+        this.optionalServerProperties = optionalServerProperties;
 
         TestUtils.getLogger().debug("Configuring ClientServer for " +
                 (testServer == null ? "" : testServer + '/') + sName);
@@ -143,8 +149,6 @@ public class ClientServerSetup extends ORBTestCase
         orbProps.putAll(optionalClientProperties);
         orbProps.put (SERVANT_NAME, servantName);
 
-        serverSetup = new ServerSetup(testServer, servantName, servantArgs, optionalServerProperties);
-
         if (imrSetup != null)
         {
             TestUtils.getLogger().debug("Starting ImR");
@@ -155,7 +159,7 @@ public class ClientServerSetup extends ORBTestCase
         }
 
         ORBSetUp();
-        serverSetup.setUp();
+        reCreateServer();
     }
 
     public void tearDown() throws Exception
@@ -171,13 +175,18 @@ public class ClientServerSetup extends ORBTestCase
             ORBTearDown();
         }
 
-        serverSetup.tearDown();
+        tearDownServer();
 
         if (imrSetup != null)
         {
             imrSetup.tearDown();
             imrSetup = null;
         }
+    }
+
+    public void tearDownServer() throws Exception
+    {
+        serverSetup.tearDown();
     }
 
     public String getServerIOR()
@@ -227,5 +236,18 @@ public class ClientServerSetup extends ORBTestCase
                 || TestUtils.getStringAsBoolean(serverProps.getProperty("jacorb.test.imr"));
 
         return isEnabled;
+    }
+
+    public void reCreateServer() throws Exception
+    {
+        if (serverSetup != null)
+        {
+            tearDownServer();
+        }
+        serverSetup = new ServerSetup(testServer, servantName, servantArgs,
+            optionalServerProperties);
+        serverSetup.setUp();
+        ior = null;
+        serverObject = null;
     }
 }
