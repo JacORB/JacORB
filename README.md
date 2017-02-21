@@ -30,3 +30,7 @@ JacORB may be built via Maven using standard Maven commands e.g. `mvn clean inst
 imported into Eclipse or IntelliJ using standard import commands.
 
 :bulb: The JacORB Core and Regression Test module utilises Endorsed Directories to build within the maven-compiler-plugin. In Eclipse, the JBoss Tools Endorsed Libraries Plugin must be installed for this to work.
+
+## Contributing
+
+See the [CONTRIBUTING.md](CONTRIBUTING.md) document.
