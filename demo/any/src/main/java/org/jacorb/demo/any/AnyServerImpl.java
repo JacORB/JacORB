@@ -20,6 +20,10 @@ public class AnyServerImpl
 
 	    switch( kind )
 	    {
+      case TCKind._tk_enum:
+        Ordered o = OrderedHelper.extract (a);
+        result = "Enum: " + o + " value = " + o.value();
+        break;
 	    case TCKind._tk_char:
 		result = "char: " + a.extract_char();
 		break;
