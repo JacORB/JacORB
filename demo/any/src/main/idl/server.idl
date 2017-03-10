@@ -7,6 +7,10 @@ module org
             module _any
             {
 
+              enum Ordered {
+                first, second, third
+              };
+
                 struct Node {
                     string name;
                     sequence<Node> next;

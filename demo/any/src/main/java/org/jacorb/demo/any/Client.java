@@ -55,6 +55,12 @@ public class Client
         // create a new any
         Any a = org.omg.CORBA.ORB.init().create_any();
 
+        // Enum
+        Ordered o = Ordered.second;
+        System.out.print("Passing an enum...");
+        OrderedHelper.insert( a, o );
+        System.out.println( s.generic( a ) );
+
         // char
         char ch = 'c';
         System.out.print("Passing a char...");
