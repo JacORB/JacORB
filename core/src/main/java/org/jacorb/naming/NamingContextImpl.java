@@ -726,21 +726,17 @@ public class NamingContextImpl
          * Recreate tables. For serialization, object references
          * have been transformed into strings
          */
-
-        for( Enumeration e = contexts.keys(); e.hasMoreElements();)
-        {
-            Name key = (Name)e.nextElement();
+        for (Object nameAsObject : contexts.keySet().toArray()) {
+            Name key = (Name)nameAsObject;
             String ref = (String)contexts.remove(key);
-            contexts.put( key, orb.string_to_object( ref ));
+            contexts.put(key, orb.string_to_object(ref));
         }
 
-        for( Enumeration e = names.keys(); e.hasMoreElements();)
-        {
-            Name key = (Name)e.nextElement();
+        for (Object nameAsObject : names.keySet().toArray()) {
+            Name key = (Name)nameAsObject;
             String ref = (String)names.remove(key);
-            names.put( key, orb.string_to_object( ref ));
+            names.put(key, orb.string_to_object(ref));
         }
-
     }
 
     /* NamingContextExt */
