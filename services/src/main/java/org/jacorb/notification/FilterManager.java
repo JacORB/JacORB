@@ -21,11 +21,11 @@ package org.jacorb.notification;
  *
  */
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.slf4j.Logger;
 import org.jacorb.notification.util.LogUtil;
@@ -53,7 +53,7 @@ public class FilterManager implements FilterAdminOperations
 
     private boolean filtersModified_;
 
-    private final List filterList_ = new ArrayList();
+    private final List filterList_ = new CopyOnWriteArrayList();
 
     private final List filtersReadOnlyView_ = Collections.unmodifiableList(filterList_);
 

@@ -63,10 +63,6 @@ public abstract class FilterStageListManager
         {
             refreshNoLocking();
 
-            // as readOnlyView_ delegates to checkedList_ sorting
-            // will also affect the order of readOnlyView_
-            doSortCheckedList(checkedList_);
-
             return readOnlyView_;
         }
     }
@@ -97,6 +93,7 @@ public abstract class FilterStageListManager
             };
 
             fetchListData(_listProxy);
+            doSortCheckedList(_newList);
 
             checkedList_ = _newList;
             readOnlyView_ = Collections.unmodifiableList(checkedList_);
