@@ -144,6 +144,9 @@ public abstract class GIOPConnection
 
     protected ORB orb;
 
+    // used to disable handling of java.lang.OutOfMemoryError in receiveMessagesLoop()
+    private boolean catch_oom = true;
+
     // deadline for current send operation
     private org.omg.TimeBase.UtcT sendDeadline = null;
 
@@ -208,6 +211,8 @@ public abstract class GIOPConnection
             configuration.getAttributeAsBoolean("jacorb.debug.dump_incoming_messages", false);
         connectTimeout =
             configuration.getAttributeAsInteger("jacorb.connection.client.connect_timeout", 90000);
+        catch_oom = 
+            configuration.getAttributeAsBoolean("jacorb.connection.catch_out_of_memory", true);
 
         List<String> statsProviderClassNames = configuration.getAttributeList( "jacorb.connection.statistics_providers");
 
@@ -543,10 +548,8 @@ public abstract class GIOPConnection
         }
     }
 
-    private void receiveMessagesLoop() throws IOException
+    private void receiveMessagesLoopImpl() throws IOException
     {
-        try
-        {
             byte[] message = getMessage();
 
             if ( message == null )
@@ -882,20 +885,34 @@ public abstract class GIOPConnection
                     }
                 }
             }//synchronized( pendingUndecidedSync )
-        }
-        // this should be catch out of memory
-        catch (NO_MEMORY e)
-        {
-            logger.error ("Caught NO_MEMORY error", e);
+    }
 
-            streamClosed();
-        }
-        catch (OutOfMemoryError e)
-        {
-            logger.error ("Caught OutOfMemory error", e);
+    private void receiveMessagesLoop() throws IOException
+    {
+		if ( catch_oom )
+		{
+			try
+        	{
+				receiveMessagesLoopImpl();
+			}
+	        // this should be catch out of memory
+        	catch (NO_MEMORY e)
+        	{
+	            logger.error ("Caught NO_MEMORY error", e);
 
-            streamClosed();
-        }
+            	streamClosed();
+        	}
+        	catch (OutOfMemoryError e)
+        	{
+	            logger.error ("Caught OutOfMemory error", e);
+
+    	        streamClosed();
+        	}
+		}
+		else	// do not catch errors
+		{
+			receiveMessagesLoopImpl();
+		}
     }
 
     // timeout is in milliseconds and is an interval

@@ -233,6 +233,13 @@ jacorb.connection.client.connect_timeout=90000
 # the lost request on the server.
 #jacorb.connection.client.retry_on_failure=off
 
+# In JacORB versions 3.4 and earlier, java OutOfMemoryErrors caused by receiving very large messages were not caught,
+# and the application code would need to handle them.
+# Starting with version 3.5, JacORB catches these errors, outputs a COMM_FAILURE, and logs the out of memory.
+# This can guard the application from these errors, however it may be difficult for the user to determine the cause of the COMM_FAILURE.
+# To revert back to the original implementation, set catch_out_of_memory to false.  Default is true.
+#jacorb.connection.catch_out_of_memory=true
+
 # max time (msecs) a server keeps a connection open if nothing happens
 #jacorb.connection.server.timeout=10000
 
