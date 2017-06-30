@@ -889,30 +889,30 @@ public abstract class GIOPConnection
 
     private void receiveMessagesLoop() throws IOException
     {
-		if ( catch_oom )
-		{
-			try
-        	{
-				receiveMessagesLoopImpl();
-			}
-	        // this should be catch out of memory
-        	catch (NO_MEMORY e)
-        	{
-	            logger.error ("Caught NO_MEMORY error", e);
+        if ( catch_oom )
+        {
+            try
+            {
+                receiveMessagesLoopImpl();
+            }
+            // this should be catch out of memory
+            catch (NO_MEMORY e)
+            {
+                logger.error ("Caught NO_MEMORY error", e);
 
-            	streamClosed();
-        	}
-        	catch (OutOfMemoryError e)
-        	{
-	            logger.error ("Caught OutOfMemory error", e);
+                streamClosed();
+            }
+            catch (OutOfMemoryError e)
+            {
+                logger.error ("Caught OutOfMemory error", e);
 
-    	        streamClosed();
-        	}
-		}
-		else	// do not catch errors
-		{
-			receiveMessagesLoopImpl();
-		}
+            streamClosed();
+            }
+        }
+        else	// do not catch errors
+        {
+            receiveMessagesLoopImpl();
+        }
     }
 
     // timeout is in milliseconds and is an interval
