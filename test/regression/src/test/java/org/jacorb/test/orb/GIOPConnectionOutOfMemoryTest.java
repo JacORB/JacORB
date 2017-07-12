@@ -33,6 +33,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.omg.CORBA.COMM_FAILURE;
 
+import static junit.framework.TestCase.fail;
+import static org.junit.Assert.assertTrue;
 
 /**
  * @author Nick Cross
@@ -85,7 +87,26 @@ public class GIOPConnectionOutOfMemoryTest extends ClientServerTestCase
         action="throw new java.lang.OutOfMemoryError(\"OutOfMemory\")")
     public void testOutOfMemory() throws Exception
     {
-        server.bounce_short( ( short ) 14 );
+        server.bounce_short((short) 14);
+    }
+
+    @Test
+    @BMRule(name="outofmemory-injection",
+            targetClass="GIOPConnection",
+            targetMethod="getMessage()",
+            targetLocation = "AT EXIT",
+            action="throw new java.lang.OutOfMemoryError(\"OutOfMemory\")")
+    public void testOutOfMemoryCaused() throws Exception
+    {
+        try
+        {
+            server.bounce_short((short) 14);
+            fail("Should have thrown an error.");
+        }
+        catch(COMM_FAILURE ex)
+        {
+            assertTrue (ex.getCause() instanceof OutOfMemoryError);
+        }
     }
 
 

@@ -100,7 +100,7 @@ public class ServerGIOPConnection
 
             if( connection_listener != null )
             {
-                connection_listener.connectionClosed();
+                connection_listener.connectionClosed(null);
             }
 
             return true;

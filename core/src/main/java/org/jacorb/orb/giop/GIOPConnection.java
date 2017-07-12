@@ -83,9 +83,6 @@ public abstract class GIOPConnection
 
     private ReentrantLock writeLock = new ReentrantLock ();
 
-    // private boolean writer_active = false;
-    // private final Object write_sync = new Object();
-
     protected Logger logger;
 
     /*
@@ -146,6 +143,8 @@ public abstract class GIOPConnection
 
     // deadline for current send operation
     private org.omg.TimeBase.UtcT sendDeadline = null;
+
+    private Throwable exceptionCache;
 
     public class ConnectionReset extends TimerQueueAction
     {
@@ -888,12 +887,14 @@ public abstract class GIOPConnection
         {
             logger.error ("Caught NO_MEMORY error", e);
 
+            exceptionCache = e;
             streamClosed();
         }
         catch (OutOfMemoryError e)
         {
             logger.error ("Caught OutOfMemory error", e);
 
+            exceptionCache = e;
             streamClosed();
         }
     }
@@ -1167,7 +1168,7 @@ public abstract class GIOPConnection
          {
             if ( connection_listener != null )
             {
-                connection_listener.connectionClosed();
+                connection_listener.connectionClosed(exceptionCache);
             }
 
             do_close = true;
