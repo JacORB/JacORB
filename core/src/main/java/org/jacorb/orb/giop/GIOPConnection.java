@@ -527,22 +527,14 @@ public abstract class GIOPConnection
     }
 
     public final void receiveMessages()
-        throws IOException
     {
         while (!do_close)
         {
-            try
-            {
-                receiveMessagesLoop();
-            }
-            catch (Exception e)
-            {
-                logger.error("Unexpected error during receiveMessages. Lost a message!", e);
-            }
+            receiveMessagesLoop();
         }
     }
 
-    private void receiveMessagesLoop() throws IOException
+    private void receiveMessagesLoop()
     {
         try
         {
@@ -576,7 +568,6 @@ public abstract class GIOPConnection
                 }
 
                 int msg_type = Messages.getMsgType( message );
-
                 if ( msg_type == MsgType_1_1._Fragment )
                 {
                     //GIOP 1.0 messages aren't allowed to be fragmented
@@ -893,6 +884,13 @@ public abstract class GIOPConnection
         catch (OutOfMemoryError e)
         {
             logger.error ("Caught OutOfMemory error", e);
+
+            exceptionCache = e;
+            streamClosed();
+        }
+        catch (Exception e)
+        {
+            logger.error("Unexpected error during receiveMessages. Lost a message!", e);
 
             exceptionCache = e;
             streamClosed();

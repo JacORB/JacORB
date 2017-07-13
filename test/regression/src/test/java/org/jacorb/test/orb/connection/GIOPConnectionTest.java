@@ -317,16 +317,7 @@ public class GIOPConnectionTest extends ORBTestCase
                                                     request_listener,
                                                     reply_listener );
 
-        try
-        {
-            //will not return until an IOException is thrown (by the
-            //DummyTransport)
-            conn.receiveMessages();
-        }
-        catch( IOException e )
-        {
-            //o.k., thrown by DummyTransport
-        }
+        conn.receiveMessages();
 
         //did the GIOPConnection hand the complete request over to the
         //listener?
@@ -395,16 +386,7 @@ public class GIOPConnectionTest extends ORBTestCase
                                                     request_listener,
                                                     reply_listener );
 
-        try
-        {
-            //will not return until an IOException is thrown (by the
-            //DummyTransport)
-            conn.receiveMessages();
-        }
-        catch( IOException e )
-        {
-            //o.k., thrown by DummyTransport
-        }
+        conn.receiveMessages();
 
         //no request or reply must have been handed over
         assertTrue( request_listener.getRequest() == null );
@@ -430,16 +412,7 @@ public class GIOPConnectionTest extends ORBTestCase
 
         messages.add( m_out.getBufferCopy() );
 
-        try
-        {
-            //will not return until an IOException is thrown (by the
-            //DummyTransport)
-            conn.receiveMessages();
-        }
-        catch( IOException e )
-        {
-            //o.k., thrown by DummyTransport
-        }
+        conn.receiveMessages();
 
         //no request or reply must have been handed over
         assertTrue( request_listener.getRequest() == null );
@@ -508,16 +481,7 @@ public class GIOPConnectionTest extends ORBTestCase
                                                     request_listener,
                                                     reply_listener );
 
-        try
-        {
-            //will not return until an IOException is thrown (by the
-            //DummyTransport)
-            conn.receiveMessages();
-        }
-        catch( IOException e )
-        {
-            //o.k., thrown by DummyTransport
-        }
+        conn.receiveMessages();
 
         //no request or reply must have been handed over
         assertTrue( request_listener.getRequest() == null );
@@ -586,16 +550,7 @@ public class GIOPConnectionTest extends ORBTestCase
                                                     request_listener,
                                                     reply_listener );
 
-        try
-        {
-            //will not return until an IOException is thrown (by the
-            //DummyTransport)
-            conn.receiveMessages();
-        }
-        catch( IOException e )
-        {
-            //o.k., thrown by DummyTransport
-        }
+        conn.receiveMessages();
 
         //no request or reply must have been handed over
         assertTrue( request_listener.getRequest() == null );
@@ -632,16 +587,7 @@ public class GIOPConnectionTest extends ORBTestCase
 
         messages.add( m_out.getBufferCopy() );
 
-        try
-        {
-            //will not return until an IOException is thrown (by the
-            //DummyTransport)
-            conn.receiveMessages();
-        }
-        catch( IOException e )
-        {
-            //o.k., thrown by DummyTransport
-        }
+        conn.receiveMessages();
 
         //no request or reply must have been handed over
         assertTrue( request_listener.getRequest() == null );
@@ -688,16 +634,7 @@ public class GIOPConnectionTest extends ORBTestCase
                                                     request_listener,
                                                     reply_listener );
 
-        try
-        {
-            //will not return until an IOException is thrown (by the
-            //DummyTransport)
-            conn.receiveMessages();
-        }
-        catch( IOException e )
-        {
-            //o.k., thrown by DummyTransport
-        }
+        conn.receiveMessages();
 
         //no request or reply must have been handed over
         assertTrue( request_listener.getRequest() == null );
@@ -760,16 +697,7 @@ public class GIOPConnectionTest extends ORBTestCase
                                                     request_listener,
                                                     reply_listener );
 
-        try
-        {
-            //will not return until an IOException is thrown (by the
-            //DummyTransport)
-            conn.receiveMessages();
-        }
-        catch( IOException e )
-        {
-            //o.k., thrown by DummyTransport
-        }
+        conn.receiveMessages();
 
         //did the GIOPConnection hand the complete request over to the
         //listener?

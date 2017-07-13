@@ -20,12 +20,14 @@ package org.jacorb.test.orb;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
+import java.io.IOException;
 import java.util.Properties;
 import org.jacorb.test.BasicServer;
 import org.jacorb.test.BasicServerHelper;
 import org.jacorb.test.harness.ClientServerSetup;
 import org.jacorb.test.harness.ClientServerTestCase;
 import org.jboss.byteman.contrib.bmunit.BMRule;
+import org.jboss.byteman.contrib.bmunit.BMRules;
 import org.jboss.byteman.contrib.bmunit.BMUnitRunner;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -91,11 +93,11 @@ public class GIOPConnectionOutOfMemoryTest extends ClientServerTestCase
     }
 
     @Test
-    @BMRule(name="outofmemory-injection",
-            targetClass="GIOPConnection",
-            targetMethod="getMessage()",
+    @BMRule(name = "outofmemory-injection",
+            targetClass = "GIOPConnection",
+            targetMethod = "getMessage()",
             targetLocation = "AT EXIT",
-            action="throw new java.lang.OutOfMemoryError(\"OutOfMemory\")")
+            action = "throw new java.lang.OutOfMemoryError(\"OutOfMemory\")")
     public void testOutOfMemoryCaused() throws Exception
     {
         try
@@ -119,5 +121,39 @@ public class GIOPConnectionOutOfMemoryTest extends ClientServerTestCase
     public void testNoMemory() throws Exception
     {
         server.bounce_short( ( short ) 14 );
+    }
+
+    @Test
+    @BMRules ( rules = {
+        @BMRule(name = "toggle-msg-type",
+            targetClass="Messages",
+            targetMethod="getMsgType",
+            targetLocation = "AT ENTRY",
+            condition = "callerEquals(\"GIOPConnection.receiveMessagesLoop\", true)",
+            action = "return 7" ),
+        @BMRule(name = "toggle-minor-type",
+                    targetClass="Messages",
+                    targetMethod="getGIOPMinor",
+                    targetLocation = "AT ENTRY",
+                    condition = "callerEquals(\"GIOPConnection.receiveMessagesLoop\", true)",
+                    action = "return 0" ),
+        @BMRule(name="ioexception-injection",
+            targetClass="GIOPConnection",
+            targetMethod="sendMessage",
+            targetLocation = "AT ENTRY",
+            condition = "callerEquals(\"GIOPConnection.receiveMessagesLoop\", true)",
+            action="throw new java.io.IOException(\"DummyException\")")
+    })
+    public void testCapturedIOException() throws Exception
+    {
+        try
+        {
+            server.bounce_short((short) 14);
+            fail("Should have thrown an error.");
+        }
+        catch(COMM_FAILURE ex)
+        {
+            assertTrue (ex.getCause() instanceof IOException);
+        }
     }
 }
