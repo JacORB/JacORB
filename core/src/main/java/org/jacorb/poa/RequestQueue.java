@@ -67,6 +67,8 @@ public class RequestQueue
         queueMin = configuration.getAttributeAsInteger("jacorb.poa.queue_min", 10);
         queueWait = configuration.getAttributeAsBoolean("jacorb.poa.queue_wait",false);
 
+        configured = true;
+
         List queueListeners = configuration.getAttributeList("jacorb.poa.queue_listeners");
 
         for (Iterator i = queueListeners.iterator(); i.hasNext();)
@@ -84,8 +86,6 @@ public class RequestQueue
                                                   ex);
             }
         }
-
-        configured = true;
     }
 
     /**
