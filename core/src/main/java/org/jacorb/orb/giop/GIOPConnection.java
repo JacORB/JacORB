@@ -144,7 +144,7 @@ public abstract class GIOPConnection
     // deadline for current send operation
     private org.omg.TimeBase.UtcT sendDeadline = null;
 
-    private Throwable exceptionCache;
+    protected Throwable exceptionCache;
 
     public class ConnectionReset extends TimerQueueAction
     {

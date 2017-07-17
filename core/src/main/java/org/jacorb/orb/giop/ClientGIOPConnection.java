@@ -126,7 +126,7 @@ public class ClientGIOPConnection
 
             if( connection_listener != null )
             {
-                connection_listener.streamClosed(null);
+                connection_listener.streamClosed(exceptionCache);
             }
         }
 

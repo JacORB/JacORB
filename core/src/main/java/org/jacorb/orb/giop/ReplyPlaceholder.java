@@ -25,6 +25,8 @@ import org.jacorb.config.ConfigurationException;
 import org.omg.CORBA.COMM_FAILURE;
 import org.omg.CORBA.portable.RemarshalException;
 
+import static org.jacorb.orb.SystemExceptionHelper.embedCause;
+
 /**
  * Connections deliver replies to instances of this class.
  * The mechanism by which the ORB can retrieve the replies is
@@ -127,11 +129,9 @@ public abstract class ReplyPlaceholder
 
             if( communicationException )
             {
-                COMM_FAILURE e = new org.omg.CORBA.COMM_FAILURE(
+                throw embedCause ( new org.omg.CORBA.COMM_FAILURE(
                         0,
-                        org.omg.CORBA.CompletionStatus.COMPLETED_MAYBE );
-                e.initCause(exceptionCause);
-                throw e;
+                        org.omg.CORBA.CompletionStatus.COMPLETED_MAYBE ), exceptionCause);
             }
 
             if( timeoutException )
