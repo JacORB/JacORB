@@ -381,7 +381,10 @@ public class BasicAdapter
         {
             i.next().destroy();
         }
-        receptor_pool.shutdown();
+        if ( receptor_pool != null )
+        {
+            receptor_pool.shutdown();
+        }
     }
 
     /**

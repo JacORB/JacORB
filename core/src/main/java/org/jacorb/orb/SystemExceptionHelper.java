@@ -231,6 +231,19 @@ public class SystemExceptionHelper
         }
     }
 
+    /**
+     * Allows embedding of a cause inside an exception.
+     * @param exception
+     * @param cause
+     * @param <T>
+     * @return
+     */
+    public static <T extends Exception> T embedCause (T exception, Throwable cause)
+    {
+        exception.initCause(cause);
+        return exception;
+    }
+
     public static void write(org.omg.CORBA.portable.OutputStream out,
                              org.omg.CORBA.SystemException exception)
     {

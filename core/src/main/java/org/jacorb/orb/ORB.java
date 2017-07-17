@@ -1265,8 +1265,7 @@ public final class ORB
             }
             catch ( ConfigurationException ce )
             {
-                throw new org.omg.CORBA.INITIALIZE("ConfigurationException: " +
-                                                   ce.toString() );
+                throw SystemExceptionHelper.embedCause(new INITIALIZE("ConfigurationException: " + ce.toString()), ce);
             }
 
             rootpoa = tmppoa;
