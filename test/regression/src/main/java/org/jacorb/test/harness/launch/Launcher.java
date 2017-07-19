@@ -156,7 +156,6 @@ public class Launcher
         {
             cmdList.add("-Xbootclasspath:" + System.getProperty("sun.boot.class.path"));
         }
-
         if (classpath != null && classpath.length() > 0)
         {
             cmdList.add ("-classpath");

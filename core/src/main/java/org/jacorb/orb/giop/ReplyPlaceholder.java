@@ -22,7 +22,10 @@ package org.jacorb.orb.giop;
 
 import org.jacorb.config.Configuration;
 import org.jacorb.config.ConfigurationException;
+import org.omg.CORBA.COMM_FAILURE;
 import org.omg.CORBA.portable.RemarshalException;
+
+import static org.jacorb.orb.SystemExceptionHelper.embedCause;
 
 /**
  * Connections deliver replies to instances of this class.
@@ -38,6 +41,7 @@ public abstract class ReplyPlaceholder
     protected boolean communicationException = false;
     protected boolean remarshalException = false;
     protected boolean timeoutException = false;
+    protected Throwable exceptionCause = null;
 
     protected MessageInputStream in = null;
 
@@ -61,7 +65,7 @@ public abstract class ReplyPlaceholder
         }
     }
 
-    public void cancel()
+    public void cancel(Throwable exceptionCause)
     {
         synchronized(lock)
         {
@@ -70,6 +74,7 @@ public abstract class ReplyPlaceholder
                 communicationException = true;
                 ready = true;
                 lock.notify();
+                this.exceptionCause = exceptionCause;
             }
         }
     }
@@ -124,9 +129,9 @@ public abstract class ReplyPlaceholder
 
             if( communicationException )
             {
-                throw new org.omg.CORBA.COMM_FAILURE(
+                throw embedCause ( new org.omg.CORBA.COMM_FAILURE(
                         0,
-                        org.omg.CORBA.CompletionStatus.COMPLETED_MAYBE );
+                        org.omg.CORBA.CompletionStatus.COMPLETED_MAYBE ), exceptionCause);
             }
 
             if( timeoutException )

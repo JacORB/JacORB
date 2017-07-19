@@ -105,6 +105,7 @@ public class ClientGIOPConnection
      * is closed during a read operation.  We mark the transport as closed
      * and allow it to be reopened later, when the client retries.
      */
+    @Override
     protected void streamClosed()
     {
         if (logger.isDebugEnabled())
@@ -117,7 +118,7 @@ public class ClientGIOPConnection
             close();
 
             // Not calling listener::streamClosed as super.close calls
-            // listener::connectioClosed which calls listener::streamClosed
+            // listener::connectionClosed which calls listener::streamClosed
         }
         else
         {
@@ -125,7 +126,7 @@ public class ClientGIOPConnection
 
             if( connection_listener != null )
             {
-                connection_listener.streamClosed();
+                connection_listener.streamClosed(exceptionCache);
             }
         }
 

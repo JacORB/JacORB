@@ -289,7 +289,7 @@ public class ServerSetup
         }
 
         // Extract any VM arguments e.g. java agent (used by coverage) etc and pass
-        // them to the server laucher so it uses the same parameters.
+        // them to the server launcher so it uses the same parameters.
         RuntimeMXBean runtimeMxBean = ManagementFactory.getRuntimeMXBean();
         List<String> jvmArgs = new ArrayList<String>();
         Iterator<String> s = runtimeMxBean.getInputArguments().iterator();
@@ -297,7 +297,7 @@ public class ServerSetup
         {
             String jvmArg = s.next();
             // Don't pass Xboot or -D - they are handled separately.
-            if ( ! jvmArg.startsWith("-Xbootclasspath") && ! jvmArg.startsWith("-D"))
+            if ( ! jvmArg.startsWith("-Xbootclasspath") && ! jvmArg.startsWith("-D") && !jvmArg.contains("jdwp"))
             {
                 jvmArgs.add(jvmArg);
             }

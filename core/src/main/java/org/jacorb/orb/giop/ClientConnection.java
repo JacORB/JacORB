@@ -432,7 +432,7 @@ public class ClientConnection
             //closed the transport itself. Therefore, no exception goes
             //back up into the GIOPConnection, where streamClosed() will
             //be called. Ergo, we need to call streamClosed() ourselves.
-            streamClosed();
+            streamClosed(null);
         }
     }
 
@@ -443,7 +443,7 @@ public class ClientConnection
      */
 
     @Override
-    public void connectionClosed()
+    public void connectionClosed(Throwable exceptionCause)
     {
         if( ! client_initiated )
         {
@@ -455,16 +455,15 @@ public class ClientConnection
             conn_mg.removeConnection( this );
         }
 
-        streamClosed();
+        streamClosed(exceptionCause);
     }
 
     /**
      * the transport has been
      * removed underneath the GIOP layer
      */
-
     @Override
-    public void streamClosed()
+    public void streamClosed(Throwable exceptionCause)
     {
         synchronized( replies )
         {
@@ -500,7 +499,7 @@ public class ClientConnection
                     }
                     else
                     {
-                        placeholder.cancel();
+                        placeholder.cancel(exceptionCause);
                     }
                     entries.remove();
                 }

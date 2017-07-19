@@ -31,6 +31,6 @@ package org.jacorb.orb.giop;
 
 public interface ConnectionListener 
 {   
-    public void connectionClosed();
-    public void streamClosed();
+    void connectionClosed(Throwable exceptionCause);
+    void streamClosed(Throwable exceptionCause);
 }// ConnectionListener

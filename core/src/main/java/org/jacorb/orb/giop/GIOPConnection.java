@@ -83,9 +83,6 @@ public abstract class GIOPConnection
 
     private ReentrantLock writeLock = new ReentrantLock ();
 
-    // private boolean writer_active = false;
-    // private final Object write_sync = new Object();
-
     protected Logger logger;
 
     /*
@@ -146,6 +143,8 @@ public abstract class GIOPConnection
 
     // deadline for current send operation
     private org.omg.TimeBase.UtcT sendDeadline = null;
+
+    protected Throwable exceptionCache;
 
     public class ConnectionReset extends TimerQueueAction
     {
@@ -528,22 +527,14 @@ public abstract class GIOPConnection
     }
 
     public final void receiveMessages()
-        throws IOException
     {
         while (!do_close)
         {
-            try
-            {
-                receiveMessagesLoop();
-            }
-            catch (Exception e)
-            {
-                logger.error("Unexpected error during receiveMessages. Lost a message!", e);
-            }
+            receiveMessagesLoop();
         }
     }
 
-    private void receiveMessagesLoop() throws IOException
+    private void receiveMessagesLoop()
     {
         try
         {
@@ -577,7 +568,6 @@ public abstract class GIOPConnection
                 }
 
                 int msg_type = Messages.getMsgType( message );
-
                 if ( msg_type == MsgType_1_1._Fragment )
                 {
                     //GIOP 1.0 messages aren't allowed to be fragmented
@@ -888,12 +878,21 @@ public abstract class GIOPConnection
         {
             logger.error ("Caught NO_MEMORY error", e);
 
+            exceptionCache = e;
             streamClosed();
         }
         catch (OutOfMemoryError e)
         {
             logger.error ("Caught OutOfMemory error", e);
 
+            exceptionCache = e;
+            streamClosed();
+        }
+        catch (Exception e)
+        {
+            logger.error("Unexpected error during receiveMessages. Lost a message!", e);
+
+            exceptionCache = e;
             streamClosed();
         }
     }
@@ -1167,7 +1166,7 @@ public abstract class GIOPConnection
          {
             if ( connection_listener != null )
             {
-                connection_listener.connectionClosed();
+                connection_listener.connectionClosed(exceptionCache);
             }
 
             do_close = true;
