@@ -63,7 +63,7 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <!-- GPG key ID we sign the builds with. This can be overridden by other developers -->
-        <gpg.keyname>21B2D36E5D4E3266</gpg.keyname>
+        <gpg.keyname>AC874D11CBCACFA9</gpg.keyname>
         <failIfNoTests>false</failIfNoTests>
 
         <!-- Enforce 1.6 compaatibility -->
