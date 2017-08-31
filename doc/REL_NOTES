@@ -43,9 +43,21 @@
 ( Note: For commit history see https://github.com/JacORB/JacORB )
 
 
-Next Release
-============
-
+3.9
+===
+    - ORB
+         - Embed fatal memory issues within the comm failure for diagnostic purposes.
+         - Moved setting of configure flag before queue listeners are added to remove exception condition. (Matthew Ruggiero)
+         - Fix ArrayIndexOutOfBoundsException in TaggedComponentList.removeComponents (Richard Hash)
+         - Added "virbr0" to the default "jacorb.network.virtual" system property. (Richard Hash)
+    - NameService
+         - Fixed a bug that happened randomly because of modifying a map while enumerating it (sasuu)
+    - NotificationService
+         - Fixed a bug where adding a new message filter or filter matching in NotificationService caused
+        ConcurrentModificationException while iterating filters. (Pulla Johannes)
+    - Misc
+         - Documentation improvements by Leif Gruenwoldt
+         - Added example of using an enum with an any (Phil Mesnier)
 3.8
 ===
     - ORB
