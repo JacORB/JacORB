@@ -4,9 +4,11 @@
 [![Maven Central](https://img.shields.io/maven-central/v/org.jacorb/jacorb.svg)](https://maven-badges.herokuapp.com/maven-central/org.jacorb/jacorb)
 [![Javadocs](http://www.javadoc.io/badge/org.jacorb/jacorb.svg)](http://www.javadoc.io/doc/org.jacorb/jacorb)
 
-JacORB is a [freely licensed](https://raw.githubusercontent.com/JacORB/JacORB/master/doc/LICENSE) java implementation of the OMG's [CORBA](http://www.omg.org) standard. The main home page is [here](http://www.jacorb.org). Mailing lists are available [here](http://www.jacorb.org/contact.html) and the Bugzilla for issues is [here](http://www.jacorb.org/bugzilla).
+JacORB is a [freely licensed](https://raw.githubusercontent.com/JacORB/JacORB/master/doc/LICENSE) java implementation of the OMG's [CORBA](http://www.omg.org) standard.
 
-
+* The main home page is [here](http://www.jacorb.org). 
+* Mailing lists are available [here](http://www.jacorb.org/contact.html).
+* New issues can be reported here in the GitHub project (whereas old issues can be found in the Bugzilla archive [here](http://www.jacorb.org/bugzilla)).
 
 ## Installation
 JacORB should work under all supported Java platforms (See [here](http://www.oracle.com/technetwork/java/javase/system-configurations-135212.html) and [here](http://www.oracle.com/technetwork/java/javase/config-417990.html)). This release has been tested on Linux, Mac, and Windows.
