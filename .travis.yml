@@ -1,12 +1,12 @@
 branches:
-  only: 
+  only:
     - master
 
 sudo: false
 
 language: java
 jdk:
-   - oraclejdk7
+   - openjdk7
 
 cache:
    directories:
