@@ -25,6 +25,7 @@ import java.util.Collection;
 import java.util.Map;
 
 import org.jacorb.orb.ApplicationExceptionHelper;
+import org.jacorb.orb.CDRInputStream;
 import org.jacorb.orb.Delegate;
 import org.jacorb.orb.Delegate.INVOCATION_KEY;
 import org.jacorb.orb.SystemExceptionHelper;
@@ -272,6 +273,18 @@ public class DefaultClientInterceptorHandler implements ClientInterceptorHandler
     {
         if ( info != null )
         {
+            // Save the position in the reply. If the user exception type has
+            // any valuetype data, the reply stream will get marked during
+            // insert and a call to reset will reset to that marker instead of
+            // the start of the exception.  Later calls to the UserException catch
+            // block in the idl generated Stub code will try to unmarshal the specific
+            // exception and will fail if reply is not at the correct mark.
+            CDRInputStream.MarkedPosition replyPosition = null;
+            if (reply != null)
+            {
+                replyPosition = reply.getCurrentPosition();
+            }
+
             info.received_exception_id = exception.getId();
             try
             {
@@ -294,7 +307,7 @@ public class DefaultClientInterceptorHandler implements ClientInterceptorHandler
             {
                 try
                 {
-                    reply.reset();
+                    reply.setCurrentPosition(replyPosition);
                 }
                 catch ( Exception e )
                 {
