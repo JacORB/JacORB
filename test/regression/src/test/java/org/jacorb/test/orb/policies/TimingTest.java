@@ -54,9 +54,19 @@ public class TimingTest extends CallbackTestCase
             wrong_exception ("ex_op_excep", excep_holder);
         }
 
+        public void any_ex_op_excep(ExceptionHolder excep_holder)
+        {
+            wrong_exception ("any_ex_op_excep", excep_holder);
+        }
+
         public void ex_op(char ami_return_val)
         {
             wrong_reply ("ex_op");
+        }
+
+        public void any_ex_op()
+        {
+            wrong_reply ("any_ex_op");
         }
 
         public void operation_excep(ExceptionHolder excep_holder)

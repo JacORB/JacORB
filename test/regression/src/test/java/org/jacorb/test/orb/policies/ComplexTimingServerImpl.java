@@ -1,7 +1,9 @@
 package org.jacorb.test.orb.policies;
 
+import org.jacorb.test.AnyException;
 import org.jacorb.test.ComplexTimingServerPOA;
 import org.jacorb.test.EmptyException;
+import org.omg.CORBA.Any;
 
 public class ComplexTimingServerImpl extends ComplexTimingServerPOA
 {
@@ -41,6 +43,12 @@ public class ComplexTimingServerImpl extends ComplexTimingServerPOA
         {
             return ch;
         }
+    }
+
+    public void any_ex_op(String reason, Any anything, int delay) throws AnyException
+    {
+        sleep(delay);
+        throw new AnyException(reason, anything);
     }
 
     public long server_time(int delay)

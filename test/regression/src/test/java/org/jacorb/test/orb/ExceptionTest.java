@@ -2,6 +2,7 @@ package org.jacorb.test.orb;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
+import org.jacorb.test.AnyException;
 import org.jacorb.test.ExceptionServer;
 import org.jacorb.test.ExceptionServerHelper;
 import org.jacorb.test.MyUserException;
@@ -13,6 +14,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.omg.CORBA.Any;
 
 /**
  * This class gathers all sorts of exception-related tests.
@@ -109,4 +111,23 @@ public class ExceptionTest extends ClientServerTestCase
             assertEquals("sample message", e.message);
         }
     }
+
+    @Test
+    public void testExceptionWithAny()
+    {
+        try
+        {
+            Any any = setup.getClientOrb().create_any();
+            any.insert_long(73);
+            server.throwAnyException("sample reason", any);
+            fail("Expected an exception to be thrown");
+        }
+        catch(AnyException e)
+        {
+            // expected
+            assertEquals("sample reason", e.getMessage());
+            assertEquals(73, e.anything.extract_long());
+        }
+    }
+
 }

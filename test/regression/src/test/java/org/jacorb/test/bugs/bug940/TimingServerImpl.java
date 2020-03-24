@@ -1,7 +1,9 @@
 package org.jacorb.test.bugs.bug940;
 
+import org.jacorb.test.AnyException;
 import org.jacorb.test.EmptyException;
 import org.jacorb.test.TimingServerPOA;
+import org.omg.CORBA.Any;
 
 public class TimingServerImpl extends TimingServerPOA
 {
@@ -28,6 +30,13 @@ public class TimingServerImpl extends TimingServerPOA
         {
             return ch;
         }
+    }
+
+    @Override
+    public void any_ex_op(String reason, Any anything, int delay) throws AnyException
+    {
+        sleep(delay);
+        throw new AnyException(reason, anything);
     }
 
     @Override
