@@ -19,6 +19,3 @@ target
 .idea
 
 test/orbreinvoke/**/*~
-
-scratch
-test/lib

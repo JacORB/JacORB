@@ -1,9 +1,5 @@
 package org.jacorb.test.bugs.bugjac200;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import java.util.Properties;
 import org.jacorb.test.harness.CommonSetup;
 import org.jacorb.test.harness.TestUtils;
 import org.junit.After;
@@ -15,6 +11,12 @@ import org.junit.Test;
 import org.junit.rules.TestName;
 import org.omg.CORBA.ORB;
 import org.omg.PortableServer.POAHelper;
+
+import java.util.Properties;
+
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 /**
  * <code>AcceptorExceptionListenerTest</code> tests one of the two
@@ -41,9 +43,10 @@ public class AcceptorExceptionListenerTest
 
 
     @BeforeClass
-    public static void beforeClassSetUp() throws Exception
+    public static void beforeClassSetUp()
     {
-        Assume.assumeFalse(TestUtils.is17);
+        // According to 5030658e88b4ddf1d73fe9dd0579db83f49d9df0 this test is only valid on 1.6
+        Assume.assumeTrue(TestUtils.is16);
     }
 
     protected Properties initORBProperties() throws Exception
@@ -79,7 +82,7 @@ public class AcceptorExceptionListenerTest
             public void run() {
                 orb.run();
                 orbIsDown = true;
-            };
+            }
         }.start();
     }
 

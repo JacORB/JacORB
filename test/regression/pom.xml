@@ -26,6 +26,8 @@
         <jacoco.skip>true</jacoco.skip>
 
         <surefire.forkCount>0.5C</surefire.forkCount>
+        <jacoco.agent.argLine></jacoco.agent.argLine>
+        <jacorb.test.verbose>false</jacorb.test.verbose>
     </properties>
 
     <dependencies>
@@ -512,10 +514,6 @@
                             <outputDirectory>${project.build.directory}/covered-sources</outputDirectory>
                         </configuration>
                     </execution>
-                    <execution>
-                        <id>copy-dependencies</id>
-                        <phase></phase>
-                    </execution>
                 </executions>
                 <configuration>
                     <includeGroupIds>org.jacorb</includeGroupIds>
@@ -696,7 +694,7 @@
                                     <environmentVariables>
                                         <BYTEMAN_HOME></BYTEMAN_HOME>
                                     </environmentVariables>
-                                    <includedGroups>org.jacorb.test.harness.FixedPortCategory</includedGroups>
+                                    <groups>org.jacorb.test.harness.FixedPortCategory</groups>
                                 </configuration>
                             </execution>
 
@@ -832,42 +830,6 @@
                                     <testIncludes>
                                         <testInclude>**/RMITestServant.java</testInclude>
                                     </testIncludes>
-                                </configuration>
-                            </execution>
-                        </executions>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-        <profile>
-            <!-- Activated only inside Eclipse to exclude RMITestServant as Eclipse doesn't handle it. -->
-            <id>m2e</id>
-            <activation>
-                <property>
-                    <name>m2e.version</name>
-                </property>
-            </activation>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-compiler-plugin</artifactId>
-                        <configuration>
-                            <compilerArguments>
-                                <endorseddirs>${settings.localRepository}/org/jacorb/jacorb-omgapi/${project.version}</endorseddirs>
-                            </compilerArguments>
-                        </configuration>
-                        <executions>
-                            <execution>
-                                <id>default-testCompile</id>
-                                <phase>test-compile</phase>
-                                <goals>
-                                    <goal>testCompile</goal>
-                                </goals>
-                                <configuration>
-                                    <testExcludes>
-                                        <testExclude>**/RMITestServant.java</testExclude>
-                                    </testExcludes>
                                 </configuration>
                             </execution>
                         </executions>
