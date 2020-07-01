@@ -31,10 +31,12 @@ import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.Properties;
+import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
@@ -253,6 +255,18 @@ public class JacORBConfiguration implements Configuration
            {
               throw new NO_IMPLEMENT("Only info/warn delayed logging implemented.");
            }
+        }
+        delayedLogging.clear();
+
+        if ( orbProperties != null )
+        {
+            Set<String> propertyNames = orbProperties.stringPropertyNames();
+            orbProperties.keySet().forEach( k -> {
+                if ( !propertyNames.contains( String.valueOf( k ) ) )
+                {
+                    logger.warn( "Property {} does not map to String object ({})", k, orbProperties.get( k ) );
+                }
+            } );
         }
     }
 
@@ -567,6 +581,7 @@ public class JacORBConfiguration implements Configuration
             setAttribute( key, properties.getProperty( key ) );
         }
     }
+
 
 
     /**
