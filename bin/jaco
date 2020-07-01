@@ -40,7 +40,7 @@ do
             dbgport=$2
             shift
             ;;
-        -?)
+        -\?)
         echo "jaco is a wrapper around sometimes long jvm command lines"
         echo "All arguments except the following are passed through to the jvm command line"
         echo "-rdbg            Adds arguments to enable remote debugging via port 5005"
