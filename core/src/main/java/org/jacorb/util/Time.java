@@ -140,10 +140,6 @@ public final class Time
     {
         if (timeA == null)
         {
-            if (timeB == null)
-            {
-                return null;
-            }
             return timeB;
         }
 
@@ -159,16 +155,11 @@ public final class Time
      */
     public static byte[] toCDR(UtcT time)
     {
-        final CDROutputStream out = new CDROutputStream();
-        try
+        try (CDROutputStream out = new CDROutputStream())
         {
             out.beginEncapsulatedArray();
-            UtcTHelper.write(out, time);
+            UtcTHelper.write( out, time );
             return out.getBufferCopy();
-        }
-        finally
-        {
-            out.close();
         }
     }
 
@@ -177,15 +168,10 @@ public final class Time
      */
     public static UtcT fromCDR(byte[] buffer)
     {
-        final CDRInputStream in = new CDRInputStream(buffer);
-        try
+        try (CDRInputStream in = new CDRInputStream( buffer ))
         {
             in.openEncapsulatedArray();
-            return UtcTHelper.read(in);
-        }
-        finally
-        {
-            in.close();
+            return UtcTHelper.read( in );
         }
     }
 
@@ -198,9 +184,9 @@ public final class Time
     {
         if (time != null)
         {
-            long now = System.currentTimeMillis();
+            long now = System.nanoTime();
             long delta = Time.millisTo(time);
-            long then = now + delta;
+            long then = now + (delta * 1000000);
 
             while (delta > 0)
             {
@@ -213,7 +199,7 @@ public final class Time
                     // ignored
                 }
 
-                delta = then - System.currentTimeMillis();
+                delta = (then - System.nanoTime()) / 1000000;
             }
         }
     }
