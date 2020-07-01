@@ -76,7 +76,7 @@ public class TestUtils
 
     public static final boolean isIBM = (System.getProperty ("java.vendor").equals ("IBM Corporation"));
 
-    public static final boolean is17 = (System.getProperty ("java.version").startsWith ("1.7"));
+    public static final boolean is16 = (System.getProperty ("java.version").startsWith ("1.6"));
 
     private static String testHome = null;
     private static String jacorbHome = null;
@@ -170,22 +170,16 @@ public class TestUtils
             // Try to find it from the run directory
             if (testHome == null)
             {
-                URL url = TestUtils.class.getResource("/.");
+                URL url = TestUtils.class.getResource(".");
 
                 String result = url.toString();
                 if (result.matches("file:/.*?"))
                 {
-                    result = result.substring (5, result.indexOf("/target/test-classes/"));
+                    result = result.substring (5, result.indexOf("/target/"));
                 }
                 testHome = osDependentPath(result);
             }
         }
-
-        if (testHome == null)
-        {
-            throw new RuntimeException("unable to determine testhome (set it with -Djacorb.test.home)");
-        }
-
         return testHome;
     }
 
@@ -202,7 +196,7 @@ public class TestUtils
      */
     public static boolean isWindows()
     {
-        return (System.getProperty("os.name").indexOf("Windows") != -1) ;
+        return ( System.getProperty( "os.name" ).contains( "Windows" ) ) ;
     }
 
     /**
@@ -270,9 +264,9 @@ public class TestUtils
         String setCmd;
         String osName = System.getProperty("os.name");
 
-        if (osName.indexOf("indows")  != -1)
+        if ( osName.contains( "indows" ) )
         {
-            if (osName.indexOf("indows 9") != -1)
+            if ( osName.contains( "indows 9" ) )
             {
                 setCmd = "command.com /c set";
             }

@@ -39,7 +39,7 @@ public class DefaultAcceptorExceptionListener
     /**
      * <code>sslException</code> is a cached class name for ssl exceptions.
      */
-    private Class sslException;
+    private Class<?> sslException;
 
     /**
      * <code>logger</code> is the logger.
@@ -68,7 +68,7 @@ public class DefaultAcceptorExceptionListener
                 // ignore
             }
         }
-        logger = ((org.jacorb.config.Configuration)configuration).getLogger("org.jacorb.orb.iiop");
+        logger = configuration.getLogger( "org.jacorb.orb.iiop");
     }
 
     /**

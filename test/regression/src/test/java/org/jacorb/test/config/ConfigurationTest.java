@@ -534,7 +534,7 @@ public class ConfigurationTest
                             "jacorb.connection.client.connect_timeout", 0);
         assertEquals(33707, timeout);
 
-        timeout = Integer.valueOf
+        timeout = Integer.parseInt
         (
             ((org.jacorb.orb.ORB) orb).getConfiguration().getAttribute(
                 "jacorb.connection.client.connect_timeout", "0")
