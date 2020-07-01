@@ -20,24 +20,26 @@ package org.jacorb.config;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map.Entry;
-import java.util.Properties;
-import java.util.StringTokenizer;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.logging.Level;
 import org.jacorb.orb.ORB;
 import org.jacorb.util.ObjectUtil;
 import org.jacorb.util.Version;
 import org.omg.CORBA.NO_IMPLEMENT;
 import org.slf4j.Logger;
+
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map.Entry;
+import java.util.Properties;
+import java.util.Set;
+import java.util.StringTokenizer;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.logging.Level;
 
 /**
  * The Class JacORBConfiguration.
@@ -86,14 +88,7 @@ public class JacORBConfiguration implements Configuration
     static
     {
         String clpolicy = System.getProperty ("jacorb.classloaderpolicy", "tccl");
-        if (clpolicy.equalsIgnoreCase ("forname"))
-        {
-            useTCCL = false;
-        }
-        else
-        {
-            useTCCL = true;
-        }
+        useTCCL = !clpolicy.equalsIgnoreCase( "forname" );
     }
 
 
@@ -103,17 +98,17 @@ public class JacORBConfiguration implements Configuration
      * To speed up the access of frequently requested configuration values a set
      * of dedicated hashmaps provide String, Boolean and Number storage.
      */
-    private ConcurrentHashMap<String,String> stringAttributes = new ConcurrentHashMap<String,String>(16, 0.9f, 1);
+    private final ConcurrentHashMap<String,String> stringAttributes = new ConcurrentHashMap<>( 16, 0.9f, 1 );
 
     /**
      * The boolean attributes.
      */
-    private ConcurrentHashMap<String,Boolean> booleanAttributes = new ConcurrentHashMap<String,Boolean>(16, 0.9f, 1);
+    private final ConcurrentHashMap<String,Boolean> booleanAttributes = new ConcurrentHashMap<>( 16, 0.9f, 1 );
 
     /**
      * The number attributes.
      */
-    private ConcurrentHashMap<String, Number> numberAttributes = new ConcurrentHashMap<String, Number> (16, 0.9f, 1);
+    private final ConcurrentHashMap<String, Number> numberAttributes = new ConcurrentHashMap<>( 16, 0.9f, 1 );
 
     /**
      * The orb.
@@ -123,7 +118,7 @@ public class JacORBConfiguration implements Configuration
     /**
      * The logger.
      */
-    private Logger logger;
+    private final Logger logger;
 
     /**
      * The li.
@@ -226,7 +221,7 @@ public class JacORBConfiguration implements Configuration
     {
         super();
         this.orb = orb;
-        LinkedHashMap<Level,String> delayedLogging = new LinkedHashMap<Level,String> ();
+        LinkedHashMap<Level,String> delayedLogging = new LinkedHashMap<>();
         if (isApplet)
         {
            initApplet(delayedLogging, name, orbProperties);
@@ -238,7 +233,7 @@ public class JacORBConfiguration implements Configuration
 
         initLogging();
 
-        logger = getLogger ("org.jacorb.config");
+        logger = getLogger( "org.jacorb.config" );
 
         // This delays logging out any information about the loading of the properties
         // or configuration until any logging subsystem has been setup.
@@ -246,20 +241,32 @@ public class JacORBConfiguration implements Configuration
         {
            if (e.getKey () == Level.INFO)
            {
-              logger.info (e.getValue ());
+              logger.info ( e.getValue ());
            }
            else if (e.getKey () == Level.WARNING)
            {
-              logger.warn (e.getValue ());
+              logger.warn ( e.getValue ());
            }
            else if (e.getKey () == Level.FINE)
            {
-              logger.debug (e.getValue ());
+              logger.debug ( e.getValue ());
            }
            else
            {
               throw new NO_IMPLEMENT("Only info/warn delayed logging implemented.");
            }
+        }
+        delayedLogging.clear();
+
+        if ( orbProperties != null )
+        {
+            Set<String> propertyNames = orbProperties.stringPropertyNames();
+            orbProperties.keySet().forEach( k -> {
+                if ( !propertyNames.contains( String.valueOf( k ) ) )
+                {
+                    logger.warn( "Property {} does not map to String object ({})", k, orbProperties.get( k ) );
+                }
+            } );
         }
     }
 
@@ -408,7 +415,6 @@ public class JacORBConfiguration implements Configuration
        // settings in config files or system properties!
        if (orbProperties != null)
        {
-           loaded = true;
            setAttributes(orbProperties);
 
            // This is in case ORBClass/ORBSingleton are not in system properties
@@ -570,13 +576,12 @@ public class JacORBConfiguration implements Configuration
     {
         // Some lunatics illegally put non String objects into System props
         // as keys / values - we ignore them.
-        Iterator<String> keyIt = properties.stringPropertyNames().iterator();
-        while (keyIt.hasNext())
+        for ( String key : properties.stringPropertyNames() )
         {
-            String key = keyIt.next();
-            setAttribute(key, properties.getProperty(key));
+            setAttribute( key, properties.getProperty( key ) );
         }
     }
+
 
 
     /**
@@ -590,16 +595,11 @@ public class JacORBConfiguration implements Configuration
     {
         try
         {
-            InputStream stream = new FileInputStream(fileName);
-            try
+            try (InputStream stream = new FileInputStream( fileName ))
             {
                 Properties result = new Properties();
-                result.load(stream);
+                result.load( stream );
                 return result;
-            }
-            finally
-            {
-                stream.close();
             }
         }
         catch (java.io.FileNotFoundException e)
@@ -646,14 +646,9 @@ public class JacORBConfiguration implements Configuration
             if (url!=null)
             {
                 result = new Properties();
-                final InputStream stream = url.openStream();
-                try
+                try (InputStream stream = url.openStream())
                 {
-                    result.load(stream);
-                }
-                finally
-                {
-                    stream.close();
+                    result.load( stream );
                 }
             }
         }
@@ -776,7 +771,7 @@ public class JacORBConfiguration implements Configuration
     }
 
     @Override
-    public boolean isAttributeSet(String key) throws ConfigurationException
+    public boolean isAttributeSet(String key)
     {
         return stringAttributes.containsKey(key);
     }
@@ -866,12 +861,12 @@ public class JacORBConfiguration implements Configuration
 
           if (value == null)
           {
-             result = Integer.valueOf (defaultValue);
+             result = defaultValue;
           }
           else if (value.trim().length() < 1)
           {
               // treat empty values as non-defined (null)
-              result = Integer.valueOf (defaultValue);
+              result = defaultValue;
           }
           else
           {
@@ -939,12 +934,12 @@ public class JacORBConfiguration implements Configuration
 
           if (value == null)
           {
-             result = Long.valueOf (defaultValue);
+             result = defaultValue;
           }
           else if (value.trim().length() < 1)
           {
               // treat empty values as non-defined (null)
-              result = Long.valueOf (defaultValue);
+              result = defaultValue;
           }
           else
           {
@@ -977,7 +972,7 @@ public class JacORBConfiguration implements Configuration
     @Override
     public List<String> getAttributeList(String key)
     {
-        List<String> result = new ArrayList<String>();
+        List<String> result = new ArrayList<>();
         String value = null;
 
         try
@@ -1027,7 +1022,7 @@ public class JacORBConfiguration implements Configuration
             return null;
         }
 
-        return values.toArray (new String[values.size ()]);
+        return values.toArray ( new String[0] );
     }
 
 
@@ -1124,17 +1119,17 @@ public class JacORBConfiguration implements Configuration
 
           if (value == null)
           {
-             result = Boolean.valueOf (defaultValue);
+             result = defaultValue;
           }
           else if (value.trim().length() < 1)
           {
               // treat empty values as non-defined (null)
-              result = Boolean.valueOf (defaultValue);
+              result = defaultValue;
           }
           else
           {
              value = value.trim().toLowerCase();
-             result = Boolean.valueOf ((ON.equals(value) || TRUE.equals(value)));
+             result = ( ON.equals( value ) || TRUE.equals( value ) );
           }
           booleanAttributes.put (key, result);
        }
@@ -1163,15 +1158,15 @@ public class JacORBConfiguration implements Configuration
     @Override
     public List<String> getAttributeNamesWithPrefix(String prefix)
     {
-        final ArrayList<String> attributesWithPrefix = new ArrayList<String>();
+        final ArrayList<String> attributesWithPrefix = new ArrayList<>();
 
         final String[] allAttributes = getAttributeNames();
 
-        for (int x = 0; x < allAttributes.length; ++x)
+        for ( String allAttribute : allAttributes )
         {
-            if (allAttributes[x].startsWith(prefix))
+            if ( allAttribute.startsWith( prefix ) )
             {
-                attributesWithPrefix.add(allAttributes[x]);
+                attributesWithPrefix.add( allAttribute );
             }
         }
 
@@ -1196,12 +1191,12 @@ public class JacORBConfiguration implements Configuration
 
           if (value == null)
           {
-             result = Double.valueOf (defaultValue);
+             result = defaultValue;
           }
           else if (value.trim().length() < 1)
           {
               // treat empty values as non-defined (null)
-              result = Double.valueOf (defaultValue);
+              result = defaultValue;
           }
           else
           {
