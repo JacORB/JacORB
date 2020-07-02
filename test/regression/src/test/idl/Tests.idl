@@ -26,6 +26,12 @@ module org
             string field2;
          };
 
+         // example Exception with any type
+         exception AnyException
+         {
+             any anything;
+         };
+
          // example unbounded Sequence
          typedef sequence< long > UnboundedData;
 

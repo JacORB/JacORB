@@ -1,7 +1,9 @@
 package org.jacorb.test.bugs.bugrtj634;
 
+import org.jacorb.test.AnyException;
 import org.jacorb.test.ComplexTimingServerPOA;
 import org.jacorb.test.EmptyException;
+import org.omg.CORBA.Any;
 import org.omg.CORBA.NO_IMPLEMENT;
 import org.omg.CORBA.Object;
 
@@ -26,6 +28,11 @@ public class TimingServerImpl extends ComplexTimingServerPOA
    }
 
    public char ex_op(char ch, int delay) throws EmptyException
+   {
+      throw new NO_IMPLEMENT();
+   }
+
+   public void any_ex_op(String reason, Any anything, int delay) throws AnyException
    {
       throw new NO_IMPLEMENT();
    }

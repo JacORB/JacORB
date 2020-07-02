@@ -79,10 +79,21 @@ public class CDRInputStream
     private Map recursiveTCMap;
 
     /** indexes to support mark/reset */
-    private int marked_pos;
-    private int marked_index;
-    private int marked_chunk_end_pos;
-    private int marked_valueNestingLevel;
+    public class MarkedPosition {
+        public final int pos;
+        public final int index;
+        public final int chunk_end_pos;
+        public final int valueNestingLevel;
+            
+        public MarkedPosition(int pos, int index, int chunk_end_pos, int valueNestingLevel)
+        {
+                this.pos = pos;
+                this.index = index;
+                this.chunk_end_pos = chunk_end_pos;
+                this.valueNestingLevel = valueNestingLevel;
+        }
+    }
+    private MarkedPosition markedPosition;
 
     private boolean closed;
 
@@ -1247,7 +1258,7 @@ public class CDRInputStream
         }
         else if (buffer.length < stringTerminatorPosition + 1)
         {
-            throw new MARSHAL("buffer too small");
+            throw new MARSHAL("buffer too small: " + buffer.length + " < " + (stringTerminatorPosition + 1));
         }
 
         if ((buffer[stringTerminatorPosition] == 0))
@@ -1647,24 +1658,46 @@ public class CDRInputStream
     @Override
     public void mark(final int readLimit)
     {
-        marked_pos = pos;
-        marked_index = index;
-        marked_chunk_end_pos = chunk_end_pos;
-        marked_valueNestingLevel = valueNestingLevel;
+        markedPosition = getCurrentPosition();
+    }
+    
+    /**
+     * Gets the current position of the input stream without setting
+     * the internal marked position.
+     *
+     * @return The current position.
+     */
+    public MarkedPosition getCurrentPosition()
+    {
+        return new MarkedPosition(pos, index, chunk_end_pos, valueNestingLevel);
     }
 
     @Override
     public void reset()
         throws IOException
     {
-        if( pos < 0 )
+        if( this.pos < 0 )
         {
             throw new MARSHAL("Mark has not been set!");
         }
-        pos = marked_pos;
-        index = marked_index;
-        chunk_end_pos = marked_chunk_end_pos;
-        valueNestingLevel = marked_valueNestingLevel;
+
+        setCurrentPosition(markedPosition);
+    }
+    
+    /**
+     * Reset the input stream to a specific marked position.
+     */
+    public void setCurrentPosition(MarkedPosition mark)
+        throws IOException
+    {
+        if (markedPosition == null)
+        {
+            throw new MARSHAL("Mark has not been set!");
+        }
+        this.pos = mark.pos;
+        this.index = mark.index;
+        this.chunk_end_pos = mark.chunk_end_pos;
+        this.valueNestingLevel = mark.valueNestingLevel;
     }
 
     // JacORB-specific

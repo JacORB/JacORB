@@ -6,6 +6,7 @@ import junit.framework.AssertionFailedError;
 import org.jacorb.test.AMI_ComplexTimingServerHandler;
 import org.jacorb.test.AMI_ComplexTimingServerHandlerOperations;
 import org.jacorb.test.AMI_ComplexTimingServerHandlerPOATie;
+import org.jacorb.test.AnyException;
 import org.jacorb.test.ComplexTimingServer;
 import org.jacorb.test.ComplexTimingServerHelper;
 import org.jacorb.test.EmptyException;
@@ -18,6 +19,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.omg.CORBA.Any;
 import org.omg.CORBA.Policy;
 import org.omg.CORBA.PolicyError;
 import org.omg.CORBA.SetOverrideType;
@@ -87,9 +89,19 @@ public class ComplexTimingWithPIsTest extends CallbackTestCase
             wrong_exception ("ex_op_excep", excep_holder);
         }
 
+        public void any_ex_op_excep(ExceptionHolder excep_holder)
+        {
+            wrong_exception ("any_ex_op_excep", excep_holder);
+        }
+
         public void ex_op (char ami_return_val)
         {
             wrong_reply ("ex_op");
+        }
+
+        public void any_ex_op()
+        {
+            wrong_reply ("any_ex_op");
         }
 
         public void operation_excep (ExceptionHolder excep_holder)
@@ -643,12 +655,41 @@ public class ComplexTimingWithPIsTest extends CallbackTestCase
         try
         {
             server.ex_op ('e', 50);
+            fail("EmptyException is expected");
         }
         catch (org.omg.CORBA.TIMEOUT t)
         {
            fail ("FAIL TIMEOUT not expected");
         }
         catch (EmptyException ee)
+        {
+            // OK
+        }
+    }
+
+    @Test
+    public void test_relative_roundtrip_fwdcall_at_rec_exc_with_any_OK()
+    {
+        server = clearPolicies (server);
+        server = setRelativeRoundtripTimeout (server, 400);
+
+        ClientInterceptor.forwardCallMade = false;
+
+        TestConfig.setConfig (TestConfig.CALL_AT_REC_EX,
+                              fwdServer);
+
+        try
+        {
+            Any any = setup.getClientOrb().create_any();
+            any.insert_long(73);
+            server.any_ex_op ("message", any, 50);
+            fail("AnyException is expected");
+        }
+        catch (org.omg.CORBA.TIMEOUT t)
+        {
+           fail ("FAIL TIMEOUT not expected");
+        }
+        catch (AnyException ee)
         {
             // OK
         }

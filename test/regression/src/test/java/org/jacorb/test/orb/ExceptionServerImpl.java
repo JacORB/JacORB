@@ -1,8 +1,10 @@
 package org.jacorb.test.orb;
 
+import org.jacorb.test.AnyException;
 import org.jacorb.test.ExceptionServerPOA;
 import org.jacorb.test.MyUserException;
 import org.jacorb.test.NonEmptyException;
+import org.omg.CORBA.Any;
 
 public class ExceptionServerImpl extends ExceptionServerPOA
 {
@@ -25,4 +27,10 @@ public class ExceptionServerImpl extends ExceptionServerPOA
     {
         throw new MyUserException(reason, message);
     }
+
+    public void throwAnyException(String reason, Any anything) throws AnyException
+    {
+        throw new AnyException(reason, anything);
+    }
+
 }

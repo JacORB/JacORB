@@ -12,6 +12,7 @@ module org
               string message;
           };
 
+
          interface ExceptionServer
          {
             void throwRuntimeException(in string message);
@@ -23,6 +24,9 @@ module org
 
             void throwUserExceptionWithMessage2(in string reason, in string message)
                raises (MyUserException);
+
+            void throwAnyException(in string reason, in any anything)
+               raises (AnyException);
          };
       };
    };
