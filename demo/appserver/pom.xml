@@ -21,7 +21,7 @@
         <version.jboss.spec.javaee.7.0>1.0.0.Final</version.jboss.spec.javaee.7.0>
 
         <version.wildfly>8.2.0.Final</version.wildfly>
-        <version.arquillian.container>8.2.0.Final</version.arquillian.container>
+        <version.arquillian.container>8.2.1.Final</version.arquillian.container>
     </properties>
 
     <dependencyManagement>
