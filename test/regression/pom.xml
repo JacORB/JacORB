@@ -20,7 +20,7 @@
 
     <properties>
         <spring.version>5.3.3</spring.version>
-        <cxf.version>2.7.5</cxf.version>
+        <cxf.version>3.4.2</cxf.version>
         <byteman.version>2.2.1</byteman.version>
         <jacoco.version>0.7.6.201602180812</jacoco.version>
         <jacoco.skip>true</jacoco.skip>
