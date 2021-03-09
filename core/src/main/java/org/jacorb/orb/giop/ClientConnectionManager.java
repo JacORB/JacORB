@@ -143,9 +143,9 @@ public class ClientConnectionManager
         }
         else
         {
-            if( logger.isInfoEnabled())
+            if( logger.isDebugEnabled())
             {
-                logger.info("ClientConnectionManager: found "
+                logger.debug("ClientConnectionManager: found "
                             + clientConnection.getGIOPConnection().toString());
             }
         }
