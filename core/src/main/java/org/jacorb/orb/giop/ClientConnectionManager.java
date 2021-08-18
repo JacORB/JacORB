@@ -132,9 +132,9 @@ public class ClientConnectionManager
             clientConnection = new ClientConnection( connection, orb, this,
                                       profile, true );
 
-            if( logger.isInfoEnabled())
+            if( logger.isDebugEnabled())
             {
-                logger.info("ClientConnectionManager: created new "
+                logger.debug("ClientConnectionManager: created new "
                             + clientConnection.getGIOPConnection().toString() );
             }
 
