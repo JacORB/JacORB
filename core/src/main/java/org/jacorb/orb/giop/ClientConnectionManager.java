@@ -131,7 +131,7 @@ public class ClientConnectionManager
 
             clientConnection = new ClientConnection( connection, orb, this, profile, true );
             
-			logger.debug("ClientConnectionManager: created new {}", clientConnection.getGIOPConnection().toString() );
+            logger.debug("ClientConnectionManager: created new {}", clientConnection.getGIOPConnection().toString() );
 
             receptor_pool.connectionCreated( connection );
             connections.put( profile, clientConnection );
