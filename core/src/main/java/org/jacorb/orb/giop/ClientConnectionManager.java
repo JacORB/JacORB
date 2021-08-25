@@ -129,25 +129,16 @@ public class ClientConnectionManager
                     request_listener,
                     null );
 
-            clientConnection = new ClientConnection( connection, orb, this,
-                                      profile, true );
-
-            if( logger.isInfoEnabled())
-            {
-                logger.info("ClientConnectionManager: created new "
-                            + clientConnection.getGIOPConnection().toString() );
-            }
+            clientConnection = new ClientConnection( connection, orb, this, profile, true );
+            
+            logger.debug("ClientConnectionManager: created new {}", clientConnection.getGIOPConnection().toString() );
 
             receptor_pool.connectionCreated( connection );
             connections.put( profile, clientConnection );
         }
         else
         {
-            if( logger.isInfoEnabled())
-            {
-                logger.info("ClientConnectionManager: found "
-                            + clientConnection.getGIOPConnection().toString());
-            }
+            logger.debug("ClientConnectionManager: found {}", clientConnection.getGIOPConnection().toString());
         }
 
         clientConnection.incClients();
