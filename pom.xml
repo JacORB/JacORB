@@ -71,7 +71,7 @@
 
         <datetime>${timestamp}</datetime>
 
-        <version.slf4j>1.7.30</version.slf4j>
+        <version.slf4j>1.7.32</version.slf4j>
 
         <skipJavadoc>false</skipJavadoc>
     </properties>
