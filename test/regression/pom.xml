@@ -19,7 +19,7 @@
     <url>http://www.jacorb.org</url>
 
     <properties>
-        <spring.version>5.3.4</spring.version>
+        <spring.version>5.3.3</spring.version>
         <cxf.version>2.7.5</cxf.version>
         <byteman.version>4.0.14</byteman.version>
         <jacoco.version>0.7.6.201602180812</jacoco.version>
