@@ -32,7 +32,7 @@ jobs:
       with:
         maven-version: 3.6.3
     - name: Build with Maven
-      run: mvn -B -V -Dtravis-ci=true -DskipJavadoc=true -DskipPDFGeneration clean install
+      run: mvn -B -V -DskipPDFGeneration clean install
     # - name: Setup tmate session
     #   uses: mxschmitt/action-tmate@v3
     - name: Codecov
@@ -71,6 +71,6 @@ jobs:
                 "password": "${{ secrets.SONATYPE_PASSWORD }}"
             }]
     - name: Deploy Snapshot
-      run: mvn -B -V org.apache.maven.plugins:maven-source-plugin:jar-no-fork -Dtravis-ci=true -DskipJavadoc=true -DskipPDFGeneration deploy
+      run: mvn -B -V org.apache.maven.plugins:maven-source-plugin:jar-no-fork -Dtravis-ci=true -DskipPDFGeneration deploy
     - name: Codecov
       uses: codecov/codecov-action@v1
