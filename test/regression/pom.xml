@@ -333,6 +333,7 @@
                                         <exclude>server.idl</exclude>
                                     </excludes>
                                     <additionalArguments>
+                                        <additionalArgument>-sloppy_names</additionalArgument>
                                         <additionalArgument>-generate_helper</additionalArgument>
                                         <additionalArgument>jacorb</additionalArgument>
                                     </additionalArguments>
