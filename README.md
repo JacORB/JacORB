@@ -1,19 +1,19 @@
 # JacORB #
 
-[![Build Status](https://travis-ci.org/JacORB/JacORB.svg?branch=master)](https://travis-ci.org/JacORB/JacORB)
+[![Build Status](https://github.com/JacORB/JacORB/actions/workflows/maven.yml/badge.svg)](https://github.com/JacORB/JacORB/actions/workflows/maven.yml)
 [![Maven Central](https://img.shields.io/maven-central/v/org.jacorb/jacorb.svg)](https://maven-badges.herokuapp.com/maven-central/org.jacorb/jacorb)
 [![Javadocs](http://www.javadoc.io/badge/org.jacorb/jacorb.svg)](http://www.javadoc.io/doc/org.jacorb/jacorb)
 
-JacORB is a [freely licensed](https://raw.githubusercontent.com/JacORB/JacORB/master/doc/LICENSE) java implementation of the OMG's [CORBA](http://www.omg.org) standard.
+JacORB is a [freely licensed](https://raw.githubusercontent.com/JacORB/JacORB/master/doc/LICENSE) java implementation of the OMG's [CORBA](https://www.omg.org) standard.
 
-* The main home page is [here](http://www.jacorb.org). 
-* Mailing lists are available [here](http://www.jacorb.org/contact.html).
-* New issues can be reported here in the GitHub project (whereas old issues can be found in the Bugzilla archive [here](http://www.jacorb.org/bugzilla)).
+* The main home page is [here](https://www.jacorb.org). 
+* Mailing lists are available [here](https://www.jacorb.org/contact.html).
+* New issues can be reported here in the GitHub project (whereas old issues can be found in the Bugzilla archive [here](https://www.jacorb.org/bugzilla)).
 
 ## Installation
-JacORB should work under all supported Java platforms (See [here](http://www.oracle.com/technetwork/java/javase/system-configurations-135212.html) and [here](http://www.oracle.com/technetwork/java/javase/config-417990.html)). This release has been tested on Linux, Mac, and Windows.
+JacORB should work under all supported Java platforms (See [here](https://www.oracle.com/technetwork/java/javase/system-configurations-135212.html) and [here](https://www.oracle.com/technetwork/java/javase/config-417990.html)). This release has been tested on Linux, Mac, and Windows.
 
-See also the current [ProgrammingGuide.pdf](http://www.jacorb.org/documentation.html) for more details.
+See also the current [ProgrammingGuide.pdf](https://www.jacorb.org/documentation.html) for more details.
 
 ### Prerequisities
  * Java 1.6 or later
