@@ -1,4 +1,4 @@
-#! /bin/sh
+#! /bin/bash
 #
 # shell script suitable for starting and stopping
 # the JacORB Notification Service controlled by the Java Service Wrapper

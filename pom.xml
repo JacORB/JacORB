@@ -29,7 +29,7 @@
 
     <name>JacORB</name>
     <description>JacORB CORBA Object Request Broker (ORB)</description>
-    <url>http://www.jacorb.org</url>
+    <url>https://www.jacorb.org</url>
 
     <licenses>
         <license>
@@ -45,13 +45,13 @@
     </scm>
 
     <issueManagement>
-        <system>Bugzilla</system>
-        <url>http://www.jacorb.org/cgi-bin/bugzilla/index.cgi</url>
+        <system>GitHub</system>
+        <url>https://github.com/JacORB/JacORB/issues</url>
     </issueManagement>
 
     <organization>
         <name>JacORB</name>
-        <url>http://www.jacorb.org</url>
+        <url>https://www.jacorb.org</url>
     </organization>
 
     <developers>
@@ -256,7 +256,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-dependency-plugin</artifactId>
-                    <version>3.1.2</version>
+                    <version>3.2.0</version>
                 </plugin>
 
                 <plugin>

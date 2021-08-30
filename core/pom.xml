@@ -85,6 +85,9 @@
                                         <include>TransportCurrent.idl</include>
                                         <include>IIOPTransportCurrent.idl</include>
                                     </includes>
+                                    <additionalArguments>
+                                      <additionalArgument>-sloppy_names</additionalArgument>
+                                    </additionalArguments>
                                 </source>
                             </sources>
                         </configuration>

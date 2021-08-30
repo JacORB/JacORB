@@ -1,4 +1,4 @@
-#!/bin/sh -f
+#!/bin/bash -f
 # List bindings in the JacORB Name Server
 
 jaco org.jacorb.naming.ContextLister "$@"

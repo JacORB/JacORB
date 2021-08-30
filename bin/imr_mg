@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 # Starts the JacORB Implementation repository manager
 jaco org.jacorb.imr.util.ImRManager "$@"

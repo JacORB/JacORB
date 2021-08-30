@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 # call appletviewer with appropriate options
 #appletviewer -J"-Xbootclasspath:/home/bwana/brose/Work/jacorb/classes:/home/bwana/brose/Work/jacorb/classes/org.jacorb.jar:/import/java2/jre/lib/rt.jar:${CLASSPATH}"    "$@"
 echo "Please edit this script to match your installation"

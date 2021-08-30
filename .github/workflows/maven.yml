@@ -11,10 +11,6 @@ on:
 
 jobs:
   build:
-    strategy:
-      fail-fast: false
-      matrix:
-        maven: [3.3.9, 3.5.4, 3.6.3, 3.8.1]
     # https://docs.github.com/en/free-pro-team@latest/actions/reference/workflow-syntax-for-github-actions#jobsjob_idif
     if: github.repository == 'JacORB/JacORB' && github.event_name == 'pull_request'
     runs-on: ubuntu-latest
@@ -27,18 +23,19 @@ jobs:
         key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
         restore-keys: |
           ${{ runner.os }}-maven-
-    - name: Set up JDK 11
+    - name: Set up JDK 8
       uses: actions/setup-java@v1
       with:
-        java-version: 11
+        java-version: 8
     - name: Set up Maven
       uses: stCarolas/setup-maven@v4
       with:
-        maven-version:  ${{ matrix.maven }}
+        maven-version: 3.6.3
     - name: Build with Maven
-      run: mvn -B -V -Dtravis-ci=true -DskipJavadoc=true -DskipPDFGeneration clean install
-    # - name: Setup tmate session
-    #   uses: mxschmitt/action-tmate@v3
+      run: mvn -B -V -DskipPDFGeneration clean install
+    - name: Setup tmate session
+      uses: mxschmitt/action-tmate@v3
+      if: ${{ failure() }}
     - name: Codecov
       uses: codecov/codecov-action@v1
 
@@ -54,10 +51,14 @@ jobs:
         key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
         restore-keys: |
           ${{ runner.os }}-maven-
-    - name: Set up JDK 11
+    - name: Set up JDK 8
       uses: actions/setup-java@v1
       with:
-        java-version: 11
+        java-version: 8
+    - name: Set up Maven
+      uses: stCarolas/setup-maven@v4
+      with:
+        maven-version: 3.6.3
     # https://github.com/marketplace/actions/maven-setings-action
     - name: Maven Settings
       uses: s4u/maven-settings-action@v2
@@ -71,6 +72,6 @@ jobs:
                 "password": "${{ secrets.SONATYPE_PASSWORD }}"
             }]
     - name: Deploy Snapshot
-      run: mvn -B -V org.apache.maven.plugins:maven-source-plugin:jar-no-fork -Dtravis-ci=true -DskipJavadoc=true -DskipPDFGeneration deploy
+      run: mvn -B -V org.apache.maven.plugins:maven-source-plugin:jar-no-fork -DskipPDFGeneration deploy -DskipTests=true
     - name: Codecov
       uses: codecov/codecov-action@v1

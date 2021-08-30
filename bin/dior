@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 #
 # Decodes and prints the components of a stringified IOR
 #

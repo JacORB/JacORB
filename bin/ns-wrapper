@@ -1,4 +1,4 @@
-#! /bin/sh
+#! /bin/bash
 #
 # sh script suitable for starting and stopping
 # the JacORB Naming Service controlled by the Java Service Wrapper
