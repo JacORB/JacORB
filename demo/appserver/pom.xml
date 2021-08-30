@@ -149,7 +149,7 @@
         <dependency>
             <groupId>org.jboss.arquillian.extension</groupId>
             <artifactId>arquillian-rest-client-api</artifactId>
-            <version>1.0.0.Alpha3</version>
+            <version>1.0.0.Alpha4</version>
             <scope>test</scope>
         </dependency>
         <dependency>
