@@ -59,6 +59,9 @@ public class SSLServerSocketFactory
     extends SSLRandom
     implements org.jacorb.orb.factory.ServerSocketFactory, Configurable
 {
+    public static final String MIN_PROP = "jacorb.net.server_socket_factory.port.min";
+    public static final String MAX_PROP = "jacorb.net.server_socket_factory.port.max";
+
     private ServerSocketFactory factory = null;
     private boolean require_mutual_auth = false;
     private boolean request_mutual_auth = false;
@@ -81,12 +84,24 @@ public class SSLServerSocketFactory
     private String truststore_provider = null;
     private boolean support_crl = false;    // CRL support on/off
     private String crl_file = null;         // absolute path to the CRL file
+    private int portMin;
+    private int portMax;
 
     public void configure(Configuration configuration)
         throws ConfigurationException
     {
         super.configure(configuration);
 
+        // Get configured max and min port numbers
+        portMin = getPortProperty(configuration, MIN_PROP);
+        portMax = getPortProperty(configuration, MAX_PROP);
+
+        // Check min < max
+        if (portMin > portMax)
+        {
+            throw new ConfigurationException("PortRangeFactory: minimum port number not less than or equal to maximum");
+        }
+        
         final org.jacorb.config.Configuration config = (org.jacorb.config.Configuration) configuration;
 
         trusteesFromKS =
@@ -195,9 +210,30 @@ public class SSLServerSocketFactory
     public ServerSocket createServerSocket( int port )
         throws IOException
     {
-        SSLServerSocket s = (SSLServerSocket)
-            factory.createServerSocket( port );
+        SSLServerSocket s = null;
+        if (port <= portMax && port >= portMin)
+        {
+            s = (SSLServerSocket)
+                factory.createServerSocket(port);
+        }
+        else
+        {
 
+            for (int localPort = portMin; localPort <= portMax; localPort++)
+            {
+                try
+                {
+                    s = (SSLServerSocket)
+                        factory.createServerSocket(localPort);
+                    break;
+                }
+                catch (Exception e)
+                {
+                    // Ignore and continue
+                }
+            }
+        }
+        
         if (request_mutual_auth)
         {
            s.setWantClientAuth (request_mutual_auth);
@@ -227,9 +263,29 @@ public class SSLServerSocketFactory
     public ServerSocket createServerSocket( int port, int backlog )
         throws IOException
     {
-        SSLServerSocket s = (SSLServerSocket)
-            factory.createServerSocket( port, backlog );
-
+        SSLServerSocket s = null;
+        if (port <= portMax && port >= portMin)
+        {
+            s = (SSLServerSocket)
+                factory.createServerSocket(port, backlog);
+        }
+        else
+        {
+            for (int localPort = portMin; localPort <= portMax; localPort++)
+            {
+                try
+                {
+                    s = (SSLServerSocket)
+                        factory.createServerSocket(localPort, backlog);
+                    break;
+                }
+                catch (Exception e)
+                {
+                    // Ignore and continue
+                }
+            }
+        }
+        
         if (request_mutual_auth)
         {
            s.setWantClientAuth (request_mutual_auth);
@@ -260,8 +316,29 @@ public class SSLServerSocketFactory
                                             InetAddress ifAddress)
         throws IOException
     {
-        SSLServerSocket s = (SSLServerSocket)
-            factory.createServerSocket( port, backlog, ifAddress );
+        SSLServerSocket s = null;
+        
+        if (port <= portMax && port >= portMin)
+        {
+            s = (SSLServerSocket)
+                factory.createServerSocket(port, backlog, ifAddress);
+        }
+        else
+        {
+            for (int localPort = portMin; localPort <= portMax; localPort++)
+            {
+                try
+                {
+                    s = (SSLServerSocket)
+                        factory.createServerSocket(localPort, backlog, ifAddress);
+                    break;
+                }
+                catch (Exception e)
+                {
+                    // Ignore and continue
+                }
+            }
+        }
 
         if (request_mutual_auth)
         {
@@ -455,4 +532,23 @@ public class SSLServerSocketFactory
         }
         return crls;
    }
+    
+    protected int getPortProperty(Configuration config, String name)
+            throws ConfigurationException
+    {
+        int port = config.getAttributeAsInteger(name);
+
+        // Check sensible port number
+        if (port < 0)
+        {
+            port += 65536;
+        }
+        if ((port <= 0) || (port > 65535))
+        {
+            throw new ConfigurationException("PortRangeFactory: " + name + " invalid port number");
+        }
+
+        return port;
+    }
+
 }
