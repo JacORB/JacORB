@@ -250,6 +250,8 @@
                         <testTarget>${javaTestSource}</testTarget>
                         <source>${javaSource}</source>
                         <target>${javaSource}</target>
+                    	<fork>true</fork>
+                    	<useIncrementalCompilation>true</useIncrementalCompilation>
                     </configuration>
                 </plugin>
 
