@@ -93,7 +93,7 @@ The following steps are necessary to add a new set of JUnit tests to
 the JacORB test suite.
 
 1. Write the tests using the JUnit framework. The sourcefile should be
-   named XYZTest.java (replace XYZ with an appropiate name). Tests
+   named XYZTest.java (replace XYZ with an appropriate name). Tests
    should be packaged using the same packaging as the source that is
    being tested, but replacing 'org.jacorb' with 'org.jacorb.test'.
    Any helper classes that can be used by tests in different packages
