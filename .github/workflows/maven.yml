@@ -14,23 +14,27 @@ jobs:
     # https://docs.github.com/en/free-pro-team@latest/actions/reference/workflow-syntax-for-github-actions#jobsjob_idif
     if: github.repository == 'JacORB/JacORB' && github.event_name == 'pull_request'
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        jdk: [ '8' ]
+        maven: [ '3.6.3', '3.8.4' ]
     steps:
     - uses: actions/checkout@v2
     - name: Cache local Maven repository
       uses: actions/cache@v2
       with:
         path: ~/.m2/repository
-        key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+        key: ${{ runner.os }}-jdk-${{ matrix.jdk }}-maven-${{ matrix.maven }}-${{ hashFiles('**/pom.xml') }}
         restore-keys: |
-          ${{ runner.os }}-maven-
-    - name: Set up JDK 8
+          ${{ runner.os }}-jdk-${{ matrix.jdk }}-maven-${{ matrix.maven }}
+    - name: Set up JDK ${{ matrix.jdk }}
       uses: actions/setup-java@v1
       with:
-        java-version: 8
-    - name: Set up Maven
+        java-version: ${{ matrix.jdk }}
+    - name: Set up Maven ${{ matrix.maven }}
       uses: stCarolas/setup-maven@v4
       with:
-        maven-version: 3.6.3
+        maven-version: ${{ matrix.maven }}
     - name: Build with Maven
       run: mvn -B -V -DskipPDFGeneration clean install
     - name: Setup tmate session
