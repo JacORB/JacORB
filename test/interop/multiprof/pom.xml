@@ -38,10 +38,12 @@
             <groupId>org.jacorb</groupId>
             <artifactId>jacorb</artifactId>
             <version>${version.jacorb}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.jacorb</groupId>
-            <artifactId>jacorb-omgapi</artifactId>
+	    <exclusions>
+                <exclusion>
+                    <groupId>org.jacorb</groupId>
+                    <artifactId>jacorb-omgapi</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>antlr</groupId>
@@ -54,6 +56,20 @@
         <dependency>
 	    <groupId>nanocontainer</groupId>
 	    <artifactId>nanocontainer-remoting</artifactId>
+	    <exclusions>
+                <exclusion>
+                    <groupId>jmock</groupId>
+                    <artifactId>jmock-cglib</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>geronimo-spec</groupId>
+                    <artifactId>geronimo-spec-ejb</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>mx4j</groupId>
+                    <artifactId>mx4j-jmx</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
 	    <groupId>org.beanshell</groupId>
@@ -71,6 +87,12 @@
         <dependency>
             <groupId>picocontainer</groupId>
             <artifactId>picocontainer</artifactId>
+	    <exclusions>
+                <exclusion>
+                    <groupId>xml-apis</groupId>
+                    <artifactId>xml-apis</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
 	    <groupId>tanukisoft</groupId>
