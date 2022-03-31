@@ -7,12 +7,9 @@ on:
   push:
     branches: master
   pull_request:
-    branches: master
 
 jobs:
   build:
-    # https://docs.github.com/en/free-pro-team@latest/actions/reference/workflow-syntax-for-github-actions#jobsjob_idif
-    if: github.repository == 'JacORB/JacORB' && github.event_name == 'pull_request'
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
@@ -38,6 +35,8 @@ jobs:
       if: ${{ failure() }}
     - name: Codecov
       uses: codecov/codecov-action@v1
+      if: github.repository == 'JacORB/JacORB' && github.event_name == 'pull_request'
+      # https://docs.github.com/en/free-pro-team@latest/actions/reference/workflow-syntax-for-github-actions#jobsjob_idif
 
   snapshot:
     if: github.repository == 'JacORB/JacORB' && github.event_name == 'push' && github.ref == 'refs/heads/master'
