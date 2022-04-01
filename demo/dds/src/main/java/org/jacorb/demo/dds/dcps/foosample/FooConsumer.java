@@ -201,7 +201,7 @@ public class FooConsumer implements Runnable {
 
 
     public void end(){
-        Thread.currentThread().destroy();
+        Thread.currentThread().stop();
     }
 
     /**
