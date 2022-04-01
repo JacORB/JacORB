@@ -78,7 +78,7 @@
                                         <java fork="true"
                                               classpathref="maven.runtime.classpath"
                                               className="org.jacorb.demo.maven.Server">
-                                            <jvmarg value="-Xbootclasspath/p:${demo_classpath}" />
+                                            <jvmarg value="-Xbootclasspath/a:${demo_classpath}" />
                                             <jvmarg value="-Dorg.omg.CORBA.ORBClass=org.jacorb.orb.ORB" />
                                             <jvmarg value="-Dorg.omg.CORBA.ORBSingletonClass=org.jacorb.orb.ORBSingleton" />
                                             <arg value="${ior.file}"/>
@@ -92,7 +92,7 @@
                                         <java fork="true"
                                               classpathref="maven.runtime.classpath"
                                               className="org.jacorb.demo.maven.Client">
-                                            <jvmarg value="-Xbootclasspath/p:${demo_classpath}" />
+                                            <jvmarg value="-Xbootclasspath/a:${demo_classpath}" />
                                             <jvmarg value="-Dorg.omg.CORBA.ORBClass=org.jacorb.orb.ORB" />
                                             <jvmarg value="-Dorg.omg.CORBA.ORBSingletonClass=org.jacorb.orb.ORBSingleton" />
                                             <arg value="${ior.file}"/>

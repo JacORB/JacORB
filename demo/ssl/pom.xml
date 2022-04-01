@@ -66,7 +66,7 @@
                                         <java fork="true"
                                               classpathref="maven.runtime.classpath"
                                               className="org.jacorb.demo.ssl.Server">
-                                            <jvmarg value="-Xbootclasspath/p:${demo_classpath}" />
+                                            <jvmarg value="-Xbootclasspath/a:${demo_classpath}" />
                                             <jvmarg value="-Dorg.omg.CORBA.ORBClass=org.jacorb.orb.ORB" />
                                             <jvmarg value="-Dorg.omg.CORBA.ORBSingletonClass=org.jacorb.orb.ORBSingleton" />
                                             <jvmarg value="-Dcustom.props=${project.build.outputDirectory}/jsse_server_props" />
@@ -81,7 +81,7 @@
                                         <java fork="true"
                                               classpathref="maven.runtime.classpath"
                                               className="org.jacorb.demo.ssl.Client">
-                                            <jvmarg value="-Xbootclasspath/p:${demo_classpath}" />
+                                            <jvmarg value="-Xbootclasspath/a:${demo_classpath}" />
                                             <jvmarg value="-Dorg.omg.CORBA.ORBClass=org.jacorb.orb.ORB" />
                                             <jvmarg value="-Dorg.omg.CORBA.ORBSingletonClass=org.jacorb.orb.ORBSingleton" />
                                             <arg value="${ior.file}"/>
@@ -90,7 +90,7 @@
                                         <java fork="true"
                                               classpathref="maven.runtime.classpath"
                                               className="org.jacorb.demo.ssl.Client">
-                                            <jvmarg value="-Xbootclasspath/p:${demo_classpath}" />
+                                            <jvmarg value="-Xbootclasspath/a:${demo_classpath}" />
                                             <jvmarg value="-Dorg.omg.CORBA.ORBClass=org.jacorb.orb.ORB" />
                                             <jvmarg value="-Dorg.omg.CORBA.ORBSingletonClass=org.jacorb.orb.ORBSingleton" />
                                             <jvmarg value="-Dcustom.props=${project.build.outputDirectory}/jsse_client_props" />

@@ -52,7 +52,7 @@
 
         <sequential>
             <java classname="@{classname}" fork="true">
-                <jvmarg value="-Xbootclasspath/p:${jacorb.dir}/classes" />
+                <jvmarg value="-Xbootclasspath/a:${jacorb.dir}/classes" />
                 <jvmarg value="-Djava.endorsed.dirs=${jacorb.lib}" />
                 <jvmarg value="-Dorg.omg.CORBA.ORBClass=org.jacorb.orb.ORB" />
                 <jvmarg value="-Dorg.omg.CORBA.ORBSingletonClass=org.jacorb.orb.ORBSingleton" />

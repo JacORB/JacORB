@@ -66,7 +66,7 @@
                                         <java fork="true"
                                               classpathref="maven.runtime.classpath"
                                               className="org.jacorb.demo.sas.GssUpServer">
-                                            <jvmarg value="-Xbootclasspath/p:${demo_classpath}" />
+                                            <jvmarg value="-Xbootclasspath/a:${demo_classpath}" />
                                             <jvmarg value="-Dorg.omg.CORBA.ORBClass=org.jacorb.orb.ORB" />
                                             <jvmarg value="-Dorg.omg.CORBA.ORBSingletonClass=org.jacorb.orb.ORBSingleton" />
                                             <jvmarg value="-Dcustom.props=${project.build.outputDirectory}/ListGssUpServer.properties" />
@@ -81,7 +81,7 @@
                                         <java fork="true"
                                               classpathref="maven.runtime.classpath"
                                               className="org.jacorb.demo.sas.ListGssUpClient">
-                                            <jvmarg value="-Xbootclasspath/p:${demo_classpath}" />
+                                            <jvmarg value="-Xbootclasspath/a:${demo_classpath}" />
                                             <jvmarg value="-Dorg.omg.CORBA.ORBClass=org.jacorb.orb.ORB" />
                                             <jvmarg value="-Dorg.omg.CORBA.ORBSingletonClass=org.jacorb.orb.ORBSingleton" />
                                             <jvmarg value="-Dcustom.props=${project.build.outputDirectory}/GssUpClient.properties" />
@@ -146,7 +146,7 @@
                                                 <java fork="true"
                                                       classpathref="maven.runtime.classpath"
                                                       className="org.jacorb.demo.sas.KerberosServer">
-                                                    <jvmarg value="-Xbootclasspath/p:${demo_classpath}" />
+                                                    <jvmarg value="-Xbootclasspath/a:${demo_classpath}" />
                                                     <jvmarg value="-Dorg.omg.CORBA.ORBClass=org.jacorb.orb.ORB" />
                                                     <jvmarg value="-Dorg.omg.CORBA.ORBSingletonClass=org.jacorb.orb.ORBSingleton" />
                                                     <jvmarg value="-Djava.security.auth.login.config=${project.build.outputDirectory}/SAS.login"/>
@@ -163,7 +163,7 @@
                                                 <java fork="true"
                                                       classpathref="maven.runtime.classpath"
                                                       className="org.jacorb.demo.sas.KerberosClient">
-                                                    <jvmarg value="-Xbootclasspath/p:${demo_classpath}" />
+                                                    <jvmarg value="-Xbootclasspath/a:${demo_classpath}" />
                                                     <jvmarg value="-Dorg.omg.CORBA.ORBClass=org.jacorb.orb.ORB" />
                                                     <jvmarg value="-Dorg.omg.CORBA.ORBSingletonClass=org.jacorb.orb.ORBSingleton" />
                                                     <jvmarg value="-Djava.security.auth.login.config=${project.build.outputDirectory}/SAS.login"/>
