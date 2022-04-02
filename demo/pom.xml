@@ -93,7 +93,7 @@
 				<jdk>[9.0,)</jdk>
 			</activation>
             <properties>
-                <demobootclasspath>${demobootclasspath}</demobootclasspath>
+                <demobootclasspath>-Xbootclasspath/a:${demo_classpath}</demobootclasspath>
             </properties>
 		</profile>
     </profiles>
