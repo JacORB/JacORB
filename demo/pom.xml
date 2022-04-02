@@ -75,4 +75,26 @@
             </plugin>
         </plugins>
     </build>
+    
+    <profiles>
+		<profile>
+			<id>default-demobootclasspath</id>
+			<activation>
+				<jdk>(,1.8]</jdk>
+			</activation>
+            <properties>
+                <demobootclasspath>-Xbootclasspath/p:${demo_classpath}</demobootclasspath>
+            </properties>
+		</profile>
+		
+		<profile>
+			<id>new-demobootclasspath</id>
+			<activation>
+				<jdk>[9.0,)</jdk>
+			</activation>
+            <properties>
+                <demobootclasspath>${demobootclasspath}</demobootclasspath>
+            </properties>
+		</profile>
+    </profiles>
 </project>
