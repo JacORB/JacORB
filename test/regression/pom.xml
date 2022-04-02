@@ -675,11 +675,12 @@
 
 		<profile>
 			<id>default-toolsjar</id>
-            <activation>
-                <file>
-                    <exists>${toolsjar}</exists>
-                </file>
-            </activation>
+			<activation>
+				<jdk>(,1.8]</jdk>
+			</activation>
+            <properties>
+                <testbootclasspath>-Xbootclasspath/p:${settings.localRepository}/org/jacorb/jacorb-omgapi/${project.version}/jacorb-omgapi-${project.version}.jar</testbootclasspath>
+            </properties>
 			<dependencies>
 		        <dependency>
 		            <groupId>com.sun</groupId>
@@ -689,6 +690,16 @@
 		            <systemPath>${toolsjar}</systemPath>
 		        </dependency>
 			</dependencies>
+		</profile>
+		
+		<profile>
+			<id>new-jdk-regression-test</id>
+			<activation>
+				<jdk>[9.0,)</jdk>
+			</activation>
+            <properties>
+                <testbootclasspath></testbootclasspath>
+            </properties>
 		</profile>
 		
         <profile>
@@ -719,7 +730,7 @@
                                     <useManifestOnlyJar>false</useManifestOnlyJar>
                                     <forkCount>${surefire.forkCount}</forkCount>
                                     <reuseForks>false</reuseForks>
-                                    <argLine>${jacoco.agent.argLine} -Xbootclasspath/p:${settings.localRepository}/org/jacorb/jacorb-omgapi/${project.version}/jacorb-omgapi-${project.version}.jar -Djacorb.test.home=${basedir} -Djacorb.test.verbose=${jacorb.test.verbose}</argLine>
+                                    <argLine>${jacoco.agent.argLine} ${testbootclasspath} -Djacorb.test.home=${basedir} -Djacorb.test.verbose=${jacorb.test.verbose}</argLine>
                                     <environmentVariables>
                                         <BYTEMAN_HOME></BYTEMAN_HOME>
                                     </environmentVariables>
@@ -737,7 +748,7 @@
                                     <useManifestOnlyJar>false</useManifestOnlyJar>
                                     <forkCount>1</forkCount>
                                     <reuseForks>false</reuseForks>
-                                    <argLine>${jacoco.agent.argLine} -Xbootclasspath/p:${settings.localRepository}/org/jacorb/jacorb-omgapi/${project.version}/jacorb-omgapi-${project.version}.jar -Djacorb.test.home=${basedir} -Djacorb.test.verbose=${jacorb.test.verbose}</argLine>
+                                    <argLine>${jacoco.agent.argLine} ${testbootclasspath} -Djacorb.test.home=${basedir} -Djacorb.test.verbose=${jacorb.test.verbose}</argLine>
                                     <environmentVariables>
                                         <BYTEMAN_HOME></BYTEMAN_HOME>
                                     </environmentVariables>
@@ -755,7 +766,7 @@
                                     <useManifestOnlyJar>false</useManifestOnlyJar>
                                     <forkCount>${surefire.forkCount}</forkCount>
                                     <reuseForks>false</reuseForks>
-                                    <argLine>${jacoco.agent.argLine} -Xbootclasspath/p:${settings.localRepository}/org/jacorb/jacorb-omgapi/${project.version}/jacorb-omgapi-${project.version}.jar -Djacorb.test.verbose=${jacorb.test.verbose} -Djacorb.test.ssl=true</argLine>
+                                    <argLine>${jacoco.agent.argLine} ${testbootclasspath} -Djacorb.test.verbose=${jacorb.test.verbose} -Djacorb.test.ssl=true</argLine>
                                     <reportsDirectory>${project.build.directory}/surefire-reports-ssl</reportsDirectory>
                                     <environmentVariables>
                                         <BYTEMAN_HOME></BYTEMAN_HOME>
@@ -773,7 +784,7 @@
                                     <useManifestOnlyJar>false</useManifestOnlyJar>
                                     <forkCount>${surefire.forkCount}</forkCount>
                                     <reuseForks>false</reuseForks>
-                                    <argLine>${jacoco.agent.argLine} -Xbootclasspath/p:${settings.localRepository}/org/jacorb/jacorb-omgapi/${project.version}/jacorb-omgapi-${project.version}.jar -Djacorb.test.home=${basedir} -Djacorb.test.verbose=${jacorb.test.verbose} -Djacorb.test.imr=true</argLine>
+                                    <argLine>${jacoco.agent.argLine} ${testbootclasspath} -Djacorb.test.home=${basedir} -Djacorb.test.verbose=${jacorb.test.verbose} -Djacorb.test.imr=true</argLine>
                                     <reportsDirectory>${project.build.directory}/surefire-reports-imr</reportsDirectory>
                                     <environmentVariables>
                                         <BYTEMAN_HOME></BYTEMAN_HOME>
