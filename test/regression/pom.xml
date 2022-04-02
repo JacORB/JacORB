@@ -127,14 +127,6 @@
             <version>${byteman.version}</version>
             <scope>test</scope>
         </dependency>
-
-        <dependency>
-            <groupId>com.sun</groupId>
-            <artifactId>tools</artifactId>
-            <version>1.6.0</version>
-            <scope>system</scope>
-            <systemPath>${toolsjar}</systemPath>
-        </dependency>
         <dependency>
         	<groupId>org.mockito</groupId>
         	<artifactId>mockito-all</artifactId>
@@ -680,6 +672,25 @@
     </build>
 
     <profiles>
+
+		<profile>
+			<id>default-toolsjar</id>
+            <activation>
+                <file>
+                    <exists>${toolsjar}</exists>
+                </file>
+            </activation>
+			<dependencies>
+		        <dependency>
+		            <groupId>com.sun</groupId>
+		            <artifactId>tools</artifactId>
+		            <version>1.6.0</version>
+		            <scope>system</scope>
+		            <systemPath>${toolsjar}</systemPath>
+		        </dependency>
+			</dependencies>
+		</profile>
+		
         <profile>
             <id>default-test</id>
             <activation>
@@ -777,5 +788,6 @@
                 </plugins>
             </build>
         </profile>
+		
     </profiles>
 </project>
