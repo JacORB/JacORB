@@ -451,7 +451,16 @@ public class TestUtils
         {
             javaHome = javaHome.substring(0, javaHome.length() - 4);
         }
-        String cmd = javaHome + "/bin/javac -d " + dirCompilation + " -bootclasspath " + classpath + ":" + System.getProperty("sun.boot.class.path") + " @" + file.getAbsolutePath();
+        String cmd = javaHome + "/bin/javac -d " + dirCompilation;
+        if (System.getProperty("java.version").startsWith("1."))
+        {
+        	cmd += " -bootclasspath " + classpath + ":" + System.getProperty("sun.boot.class.path");
+        }
+        else
+        {
+        	cmd += " -classpath " + classpath + ":" + System.getProperty("java.class.path");
+        }
+        cmd +=  " @" + file.getAbsolutePath();
 
         TestUtils.getLogger().debug("[COMPILE] " + cmd);
         TestUtils.getLogger().debug("[COMPILE] " + files.length + " java files");
