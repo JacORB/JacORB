@@ -630,7 +630,6 @@
         <profile>
             <id>default-test</id>
             <activation>
-              <activeByDefault>true</activeByDefault>
 		      <jdk>(,1.8]</jdk>
             </activation>
             <build>
@@ -837,10 +836,13 @@
                                     <goal>test</goal>
                                 </goals>
                                 <configuration>
+                                	<additionalClasspathElements>
+                                		${settings.localRepository}/org/jboss/spec/javax/rmi/jboss-rmi-api_1.0_spec/1.0.6.Final/jboss-rmi-api_1.0_spec-1.0.6.Final.jar:${settings.localRepository}/org/jacorb/jacorb-omgapi/${project.version}/jacorb-omgapi-${project.version}.jar
+                                	</additionalClasspathElements>
                                     <useManifestOnlyJar>false</useManifestOnlyJar>
                                     <forkCount>${surefire.forkCount}</forkCount>
                                     <reuseForks>false</reuseForks>
-                                    <argLine>${jacoco.agent.argLine} -cp ${settings.localRepository}/org/jboss/spec/javax/rmi/jboss-rmi-api_1.0_spec/1.0.6.Final/jboss-rmi-api_1.0_spec-1.0.6.Final.jar:${settings.localRepository}/org/jacorb/jacorb-omgapi/${project.version}/jacorb-omgapi-${project.version}.jar -Djacorb.test.home=${basedir} -Djacorb.test.verbose=${jacorb.test.verbose}</argLine>
+                                    <argLine>${jacoco.agent.argLine} -Djacorb.test.home=${basedir} -Djacorb.test.verbose=${jacorb.test.verbose}</argLine>
                                     <environmentVariables>
                                         <BYTEMAN_HOME></BYTEMAN_HOME>
                                     </environmentVariables>
@@ -855,10 +857,13 @@
                                     <goal>test</goal>
                                 </goals>
                                 <configuration>
+                                	<additionalClasspathElements>
+                                		${settings.localRepository}/org/jboss/spec/javax/rmi/jboss-rmi-api_1.0_spec/1.0.6.Final/jboss-rmi-api_1.0_spec-1.0.6.Final.jar:${settings.localRepository}/org/jacorb/jacorb-omgapi/${project.version}/jacorb-omgapi-${project.version}.jar
+                                	</additionalClasspathElements>
                                     <useManifestOnlyJar>false</useManifestOnlyJar>
                                     <forkCount>1</forkCount>
                                     <reuseForks>false</reuseForks>
-                                    <argLine>${jacoco.agent.argLine} -cp ${settings.localRepository}/org/jboss/spec/javax/rmi/jboss-rmi-api_1.0_spec/1.0.6.Final/jboss-rmi-api_1.0_spec-1.0.6.Final.jar:${settings.localRepository}/org/jacorb/jacorb-omgapi/${project.version}/jacorb-omgapi-${project.version}.jar -Djacorb.test.home=${basedir} -Djacorb.test.verbose=${jacorb.test.verbose}</argLine>
+                                    <argLine>${jacoco.agent.argLine} -Djacorb.test.home=${basedir} -Djacorb.test.verbose=${jacorb.test.verbose}</argLine>
                                     <environmentVariables>
                                         <BYTEMAN_HOME></BYTEMAN_HOME>
                                     </environmentVariables>
@@ -873,10 +878,13 @@
                                     <goal>test</goal>
                                 </goals>
                                 <configuration>
+                                	<additionalClasspathElements>
+                                		${settings.localRepository}/org/jboss/spec/javax/rmi/jboss-rmi-api_1.0_spec/1.0.6.Final/jboss-rmi-api_1.0_spec-1.0.6.Final.jar:${settings.localRepository}/org/jacorb/jacorb-omgapi/${project.version}/jacorb-omgapi-${project.version}.jar
+                                	</additionalClasspathElements>
                                     <useManifestOnlyJar>false</useManifestOnlyJar>
                                     <forkCount>${surefire.forkCount}</forkCount>
                                     <reuseForks>false</reuseForks>
-                                    <argLine>${jacoco.agent.argLine} -cp ${settings.localRepository}/org/jboss/spec/javax/rmi/jboss-rmi-api_1.0_spec/1.0.6.Final/jboss-rmi-api_1.0_spec-1.0.6.Final.jar:${settings.localRepository}/org/jacorb/jacorb-omgapi/${project.version}/jacorb-omgapi-${project.version}.jar -Djacorb.test.verbose=${jacorb.test.verbose} -Djacorb.test.ssl=true</argLine>
+                                    <argLine>${jacoco.agent.argLine} -Djacorb.test.verbose=${jacorb.test.verbose} -Djacorb.test.ssl=true</argLine>
                                     <reportsDirectory>${project.build.directory}/surefire-reports-ssl</reportsDirectory>
                                     <environmentVariables>
                                         <BYTEMAN_HOME></BYTEMAN_HOME>
@@ -891,10 +899,13 @@
                                     <goal>test</goal>
                                 </goals>
                                 <configuration>
+                                	<additionalClasspathElements>
+                                		${settings.localRepository}/org/jboss/spec/javax/rmi/jboss-rmi-api_1.0_spec/1.0.6.Final/jboss-rmi-api_1.0_spec-1.0.6.Final.jar:${settings.localRepository}/org/jacorb/jacorb-omgapi/${project.version}/jacorb-omgapi-${project.version}.jar
+                                	</additionalClasspathElements>
                                     <useManifestOnlyJar>false</useManifestOnlyJar>
                                     <forkCount>${surefire.forkCount}</forkCount>
                                     <reuseForks>false</reuseForks>
-                                    <argLine>${jacoco.agent.argLine} -cp ${settings.localRepository}/org/jboss/spec/javax/rmi/jboss-rmi-api_1.0_spec/1.0.6.Final/jboss-rmi-api_1.0_spec-1.0.6.Final.jar:${settings.localRepository}/org/jacorb/jacorb-omgapi/${project.version}/jacorb-omgapi-${project.version}.jar -Djacorb.test.home=${basedir} -Djacorb.test.verbose=${jacorb.test.verbose} -Djacorb.test.imr=true</argLine>
+                                    <argLine>${jacoco.agent.argLine} -Djacorb.test.home=${basedir} -Djacorb.test.verbose=${jacorb.test.verbose} -Djacorb.test.imr=true</argLine>
                                     <reportsDirectory>${project.build.directory}/surefire-reports-imr</reportsDirectory>
                                     <environmentVariables>
                                         <BYTEMAN_HOME></BYTEMAN_HOME>
