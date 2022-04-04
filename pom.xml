@@ -578,6 +578,21 @@
                 <toolsjar>${java.home}/../Classes/classes.jar</toolsjar>
             </properties>
         </profile>
+		
+		<profile>
+			<id>new-jdk</id>
+			<activation>
+				<jdk>[9.0,)</jdk>
+			</activation>
+			<dependencies>
+	   	    	<!-- https://mvnrepository.com/artifact/org.jboss.spec.javax.rmi/jboss-rmi-api_1.0_spec -->
+			  	<dependency>
+					<groupId>org.jboss.spec.javax.rmi</groupId>
+				 	<artifactId>jboss-rmi-api_1.0_spec</artifactId>
+				 	<version>1.0.6.Final</version>
+			  	</dependency>
+			</dependencies>
+		</profile>
 
         <!-- Release profile -->
         <profile>
