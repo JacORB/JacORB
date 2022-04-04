@@ -455,70 +455,6 @@
             </plugin>
 
             <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>rmic-maven-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>rmi compilation</id>
-                        <goals>
-                            <goal>test-rmic</goal>
-                        </goals>
-                        <phase>process-test-classes</phase>
-                        <configuration>
-                            <keep>true</keep>
-                            <iiop>true</iiop>
-                            <poa>true</poa>
-                            <testOutputDirectory>${project.build.testOutputDirectory}</testOutputDirectory>
-                            <sources>
-                                <source>
-                                    <includes>
-                                        <include>org.jacorb.test.orb.rmi.RMITestImpl.class</include>
-                                        <include>org.jacorb.test.bugs.bugjac149.RemoteIPingImpl.class</include>
-                                    </includes>
-                                </source>
-                            </sources>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-
-            <plugin>
-              <groupId>org.apache.maven.plugins</groupId>
-              <artifactId>maven-compiler-plugin</artifactId>
-              <configuration>
-                <compilerArguments>
-                  <endorseddirs>${settings.localRepository}/org/jacorb/jacorb-omgapi/${project.version}</endorseddirs>
-                </compilerArguments>
-              </configuration>
-              <executions>
-                <execution>
-                  <id>default-testCompile</id>
-                  <phase>test-compile</phase>
-                  <goals>
-                    <goal>testCompile</goal>
-                  </goals>
-                  <configuration>
-                    <testExcludes>
-                      <testExclude>**/RMITestServant.java</testExclude>
-                    </testExcludes>
-                  </configuration>
-                </execution>
-                <execution>
-                  <id>rmi-compile</id>
-                  <phase>process-test-classes</phase>
-                  <goals>
-                    <goal>testCompile</goal>
-                  </goals>
-                  <configuration>
-                    <testIncludes>
-                      <testInclude>**/RMITestServant.java</testInclude>
-                    </testIncludes>
-                  </configuration>
-                </execution>
-              </executions>
-            </plugin>
-
-            <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-dependency-plugin</artifactId>
                 <executions>
@@ -676,11 +612,10 @@
 		<profile>
 			<id>default-toolsjar</id>
 			<activation>
-				<jdk>(,1.8]</jdk>
+                <file >
+                    <exists>${toolsjar}</exists>
+                </file>
 			</activation>
-            <properties>
-                <testbootclasspath>-Xbootclasspath/p:${settings.localRepository}/org/jacorb/jacorb-omgapi/${project.version}/jacorb-omgapi-${project.version}.jar</testbootclasspath>
-            </properties>
 			<dependencies>
 		        <dependency>
 		            <groupId>com.sun</groupId>
@@ -692,24 +627,77 @@
 			</dependencies>
 		</profile>
 		
-		<profile>
-			<id>new-jdk-regression-test</id>
-			<activation>
-				<jdk>[9.0,)</jdk>
-			</activation>
-            <properties>
-                <testbootclasspath></testbootclasspath>
-            </properties>
-		</profile>
-		
         <profile>
             <id>default-test</id>
             <activation>
               <activeByDefault>true</activeByDefault>
+		      <jdk>(,1.8]</jdk>
             </activation>
-
             <build>
                 <plugins>
+		            <plugin>
+		                <groupId>org.codehaus.mojo</groupId>
+		                <artifactId>rmic-maven-plugin</artifactId>
+		                <executions>
+		                    <execution>
+		                        <id>rmi compilation</id>
+		                        <goals>
+		                            <goal>test-rmic</goal>
+		                        </goals>
+		                        <phase>process-test-classes</phase>
+		                        <configuration>
+		                            <keep>true</keep>
+		                            <iiop>true</iiop>
+		                            <poa>true</poa>
+		                            <testOutputDirectory>${project.build.testOutputDirectory}</testOutputDirectory>
+		                            <sources>
+		                                <source>
+		                                    <includes>
+		                                        <include>org.jacorb.test.orb.rmi.RMITestImpl.class</include>
+		                                        <include>org.jacorb.test.bugs.bugjac149.RemoteIPingImpl.class</include>
+		                                    </includes>
+		                                </source>
+		                            </sources>
+		                        </configuration>
+		                    </execution>
+		                </executions>
+		            </plugin>
+		            
+		            <plugin>
+		              <groupId>org.apache.maven.plugins</groupId>
+		              <artifactId>maven-compiler-plugin</artifactId>
+		              <configuration>
+		                <compilerArguments>
+		                  <endorseddirs>${settings.localRepository}/org/jacorb/jacorb-omgapi/${project.version}</endorseddirs>
+		                </compilerArguments>
+		              </configuration>
+		              <executions>
+		                <execution>
+		                  <id>default-testCompile</id>
+		                  <phase>test-compile</phase>
+		                  <goals>
+		                    <goal>testCompile</goal>
+		                  </goals>
+		                  <configuration>
+		                    <testExcludes>
+		                      <testExclude>**/RMITestServant.java</testExclude>
+		                    </testExcludes>
+		                  </configuration>
+		                </execution>
+		                <execution>
+		                  <id>rmi-compile</id>
+		                  <phase>process-test-classes</phase>
+		                  <goals>
+		                    <goal>testCompile</goal>
+		                  </goals>
+		                  <configuration>
+		                    <testIncludes>
+		                      <testInclude>**/RMITestServant.java</testInclude>
+		                    </testIncludes>
+		                  </configuration>
+		                </execution>
+		              </executions>
+		            </plugin>
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-surefire-plugin</artifactId>
@@ -730,7 +718,7 @@
                                     <useManifestOnlyJar>false</useManifestOnlyJar>
                                     <forkCount>${surefire.forkCount}</forkCount>
                                     <reuseForks>false</reuseForks>
-                                    <argLine>${jacoco.agent.argLine} ${testbootclasspath} -Djacorb.test.home=${basedir} -Djacorb.test.verbose=${jacorb.test.verbose}</argLine>
+                                    <argLine>${jacoco.agent.argLine} -Xbootclasspath/p:${settings.localRepository}/org/jacorb/jacorb-omgapi/${project.version}/jacorb-omgapi-${project.version}.jar -Djacorb.test.home=${basedir} -Djacorb.test.verbose=${jacorb.test.verbose}</argLine>
                                     <environmentVariables>
                                         <BYTEMAN_HOME></BYTEMAN_HOME>
                                     </environmentVariables>
@@ -748,7 +736,7 @@
                                     <useManifestOnlyJar>false</useManifestOnlyJar>
                                     <forkCount>1</forkCount>
                                     <reuseForks>false</reuseForks>
-                                    <argLine>${jacoco.agent.argLine} ${testbootclasspath} -Djacorb.test.home=${basedir} -Djacorb.test.verbose=${jacorb.test.verbose}</argLine>
+                                    <argLine>${jacoco.agent.argLine} -Xbootclasspath/p:${settings.localRepository}/org/jacorb/jacorb-omgapi/${project.version}/jacorb-omgapi-${project.version}.jar -Djacorb.test.home=${basedir} -Djacorb.test.verbose=${jacorb.test.verbose}</argLine>
                                     <environmentVariables>
                                         <BYTEMAN_HOME></BYTEMAN_HOME>
                                     </environmentVariables>
@@ -766,7 +754,7 @@
                                     <useManifestOnlyJar>false</useManifestOnlyJar>
                                     <forkCount>${surefire.forkCount}</forkCount>
                                     <reuseForks>false</reuseForks>
-                                    <argLine>${jacoco.agent.argLine} ${testbootclasspath} -Djacorb.test.verbose=${jacorb.test.verbose} -Djacorb.test.ssl=true</argLine>
+                                    <argLine>${jacoco.agent.argLine} -Xbootclasspath/p:${settings.localRepository}/org/jacorb/jacorb-omgapi/${project.version}/jacorb-omgapi-${project.version}.jar -Djacorb.test.verbose=${jacorb.test.verbose} -Djacorb.test.ssl=true</argLine>
                                     <reportsDirectory>${project.build.directory}/surefire-reports-ssl</reportsDirectory>
                                     <environmentVariables>
                                         <BYTEMAN_HOME></BYTEMAN_HOME>
@@ -784,7 +772,7 @@
                                     <useManifestOnlyJar>false</useManifestOnlyJar>
                                     <forkCount>${surefire.forkCount}</forkCount>
                                     <reuseForks>false</reuseForks>
-                                    <argLine>${jacoco.agent.argLine} ${testbootclasspath} -Djacorb.test.home=${basedir} -Djacorb.test.verbose=${jacorb.test.verbose} -Djacorb.test.imr=true</argLine>
+                                    <argLine>${jacoco.agent.argLine} -Xbootclasspath/p:${settings.localRepository}/org/jacorb/jacorb-omgapi/${project.version}/jacorb-omgapi-${project.version}.jar -Djacorb.test.home=${basedir} -Djacorb.test.verbose=${jacorb.test.verbose} -Djacorb.test.imr=true</argLine>
                                     <reportsDirectory>${project.build.directory}/surefire-reports-imr</reportsDirectory>
                                     <environmentVariables>
                                         <BYTEMAN_HOME></BYTEMAN_HOME>
@@ -799,6 +787,128 @@
                 </plugins>
             </build>
         </profile>
+		
+		<profile>
+			<id>new-jdk-regression-test</id>
+			<activation>
+				<jdk>[9.0,)</jdk>
+			</activation>
+            <build>
+                <plugins>
+                	<!-- Exclude RMI dependent source from compilation completely --> 
+		            <plugin>
+		              <groupId>org.apache.maven.plugins</groupId>
+		              <artifactId>maven-compiler-plugin</artifactId>
+		              <configuration>
+		                <compilerArguments>
+		                  <endorseddirs>${settings.localRepository}/org/jacorb/jacorb-omgapi/${project.version}</endorseddirs>
+		                </compilerArguments>
+		              </configuration>
+		              <executions>
+		                <execution>
+		                  <id>default-testCompile</id>
+		                  <phase>test-compile</phase>
+		                  <goals>
+		                    <goal>testCompile</goal>
+		                  </goals>
+		                  <configuration>
+		                    <testExcludes>
+		                      <testExclude>**/RMITestServant.java</testExclude>
+		                    </testExcludes>
+		                  </configuration>
+		                </execution>
+		              </executions>
+		            </plugin>
+                	<!-- Update runtime classpath instead of bootclasspath --> 
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-surefire-plugin</artifactId>
+                        <configuration>
+                            <systemPropertyVariables>
+                                <!-- Default timeout for a server to start -->
+                                <jacorb.test.timeout.server>60000</jacorb.test.timeout.server>
+                            </systemPropertyVariables>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <id>default-test</id>
+                                <phase>test</phase>
+                                <goals>
+                                    <goal>test</goal>
+                                </goals>
+                                <configuration>
+                                    <useManifestOnlyJar>false</useManifestOnlyJar>
+                                    <forkCount>${surefire.forkCount}</forkCount>
+                                    <reuseForks>false</reuseForks>
+                                    <argLine>${jacoco.agent.argLine} -cp ${settings.localRepository}/org/jboss/spec/javax/rmi/jboss-rmi-api_1.0_spec/1.0.6.Final/jboss-rmi-api_1.0_spec-1.0.6.Final.jar:${settings.localRepository}/org/jacorb/jacorb-omgapi/${project.version}/jacorb-omgapi-${project.version}.jar -Djacorb.test.home=${basedir} -Djacorb.test.verbose=${jacorb.test.verbose}</argLine>
+                                    <environmentVariables>
+                                        <BYTEMAN_HOME></BYTEMAN_HOME>
+                                    </environmentVariables>
+                                    <excludedGroups>org.jacorb.test.harness.FixedPortCategory</excludedGroups>
+                                </configuration>
+                            </execution>
+
+                            <execution>
+                                <id>default-test-no-fork</id>
+                                <phase>test</phase>
+                                <goals>
+                                    <goal>test</goal>
+                                </goals>
+                                <configuration>
+                                    <useManifestOnlyJar>false</useManifestOnlyJar>
+                                    <forkCount>1</forkCount>
+                                    <reuseForks>false</reuseForks>
+                                    <argLine>${jacoco.agent.argLine} -cp ${settings.localRepository}/org/jboss/spec/javax/rmi/jboss-rmi-api_1.0_spec/1.0.6.Final/jboss-rmi-api_1.0_spec-1.0.6.Final.jar:${settings.localRepository}/org/jacorb/jacorb-omgapi/${project.version}/jacorb-omgapi-${project.version}.jar -Djacorb.test.home=${basedir} -Djacorb.test.verbose=${jacorb.test.verbose}</argLine>
+                                    <environmentVariables>
+                                        <BYTEMAN_HOME></BYTEMAN_HOME>
+                                    </environmentVariables>
+                                    <groups>org.jacorb.test.harness.FixedPortCategory</groups>
+                                </configuration>
+                            </execution>
+
+                            <execution>
+                                <id>ssl</id>
+                                <phase>test</phase>
+                                <goals>
+                                    <goal>test</goal>
+                                </goals>
+                                <configuration>
+                                    <useManifestOnlyJar>false</useManifestOnlyJar>
+                                    <forkCount>${surefire.forkCount}</forkCount>
+                                    <reuseForks>false</reuseForks>
+                                    <argLine>${jacoco.agent.argLine} -cp ${settings.localRepository}/org/jboss/spec/javax/rmi/jboss-rmi-api_1.0_spec/1.0.6.Final/jboss-rmi-api_1.0_spec-1.0.6.Final.jar:${settings.localRepository}/org/jacorb/jacorb-omgapi/${project.version}/jacorb-omgapi-${project.version}.jar -Djacorb.test.verbose=${jacorb.test.verbose} -Djacorb.test.ssl=true</argLine>
+                                    <reportsDirectory>${project.build.directory}/surefire-reports-ssl</reportsDirectory>
+                                    <environmentVariables>
+                                        <BYTEMAN_HOME></BYTEMAN_HOME>
+                                    </environmentVariables>
+                                </configuration>
+                            </execution>
+
+                            <execution>
+                                <id>imr</id>
+                                <phase>test</phase>
+                                <goals>
+                                    <goal>test</goal>
+                                </goals>
+                                <configuration>
+                                    <useManifestOnlyJar>false</useManifestOnlyJar>
+                                    <forkCount>${surefire.forkCount}</forkCount>
+                                    <reuseForks>false</reuseForks>
+                                    <argLine>${jacoco.agent.argLine} -cp ${settings.localRepository}/org/jboss/spec/javax/rmi/jboss-rmi-api_1.0_spec/1.0.6.Final/jboss-rmi-api_1.0_spec-1.0.6.Final.jar:${settings.localRepository}/org/jacorb/jacorb-omgapi/${project.version}/jacorb-omgapi-${project.version}.jar -Djacorb.test.home=${basedir} -Djacorb.test.verbose=${jacorb.test.verbose} -Djacorb.test.imr=true</argLine>
+                                    <reportsDirectory>${project.build.directory}/surefire-reports-imr</reportsDirectory>
+                                    <environmentVariables>
+                                        <BYTEMAN_HOME></BYTEMAN_HOME>
+                                    </environmentVariables>
+                                    <groups>org.jacorb.test.harness.ClientServerCategory</groups>
+                                    <excludedGroups>org.jacorb.test.harness.IMRExcludedClientServerCategory,org.jacorb.test.harness.FixedPortCategory</excludedGroups>
+                                </configuration>
+                            </execution>
+
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+		</profile>
 		
     </profiles>
 </project>
