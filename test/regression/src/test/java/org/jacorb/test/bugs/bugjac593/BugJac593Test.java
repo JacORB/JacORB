@@ -51,13 +51,14 @@ public class BugJac593Test extends ORBTestCase
     @Test
     public void testInitORBSingleton() throws Exception
     {
+        String javaCommand = System.getProperty("java.home") + "/bin/java";
         String classpath = System.getProperty("java.class.path");
 
         Runtime rt = Runtime.getRuntime();
 
         String []cmd = new String []
         {
-            "java",
+            javaCommand,
             "-classpath",
             classpath,
             "org.jacorb.test.bugs.bugjac593.BugJac593Test"
