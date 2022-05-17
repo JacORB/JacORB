@@ -1,0 +1,4 @@
+
+Minimal RMI stubs (javax.rmi package) to satisfy requirements of JacORB code.
+All methods are noops. Wherever return values are expected these are null or false.
+No exceptions will be thrown.
