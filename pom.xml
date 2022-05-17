@@ -6,7 +6,11 @@
 
     JacORB POM Usage:
 
-    To skip tests pass -DskipTests=true
+    To skip tests pass -DskipTests
+    To skip demos pass -DskipDemos
+    To build JacORB RMI Stub library pass -DbuildRMIStubs
+    To use JBoss RMI Spec library for tests and demos pass -DuseRMI=jboss
+    To use JacORB RMI Stub library for tests and demos pass -DuseRMI=stubs
     To skip javadoc pass -DskipJavadoc=true
     To skip pdf generation (if e.g. pdflatex is not installed) -DskipPDFGeneration
 
@@ -82,8 +86,6 @@
         <module>omgapi</module>
         <module>core</module>
         <module>services</module>
-        <module>test/regression</module>
-        <module>demo</module>
     </modules>
 
 
@@ -580,18 +582,39 @@
         </profile>
 		
 		<profile>
-			<id>new-jdk</id>
-			<activation>
-				<jdk>[9.0,)</jdk>
-			</activation>
-			<dependencies>
-	   	    	<!-- https://mvnrepository.com/artifact/org.jboss.spec.javax.rmi/jboss-rmi-api_1.0_spec -->
-			  	<dependency>
-					<groupId>org.jboss.spec.javax.rmi</groupId>
-				 	<artifactId>jboss-rmi-api_1.0_spec</artifactId>
-				 	<version>1.0.6.Final</version>
-			  	</dependency>
-			</dependencies>
+			<id>regression-tests</id>
+            <activation>
+                <property>
+                    <name>!skipTests</name>
+                </property>
+            </activation>
+			<modules>
+        		<module>test/regression</module>
+			</modules>
+		</profile>
+		
+		<profile>
+			<id>demo-apps</id>
+            <activation>
+                <property>
+                    <name>!skipDemos</name>
+                </property>
+            </activation>
+			<modules>
+        		<module>demo</module>
+			</modules>
+		</profile>
+		
+		<profile>
+			<id>rmi-stubs</id>
+            <activation>
+                <property>
+                    <name>buildRMIStubs</name>
+                </property>
+            </activation>
+			<modules>
+        		<module>rmi-stub</module>
+			</modules>
 		</profile>
 
         <!-- Release profile -->

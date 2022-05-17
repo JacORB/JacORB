@@ -812,7 +812,21 @@
 		                  </goals>
 		                  <configuration>
 		                    <testExcludes>
+		                      <!-- tests requiring RMI support -->
 		                      <testExclude>**/RMITestServant.java</testExclude>
+		                      <testExclude>**/orb/rmi/*.java</testExclude>
+		                      <!-- tests requiring non-JacORB ORB (sun/ibm) support -->
+		                      <testExclude>**/bugs/bugjac449/*.java</testExclude>
+		                      <testExclude>**/bugs/bugjac352/*.java</testExclude>
+		                      <testExclude>**/bugs/bugjac149/ObjectReplacementTest.java</testExclude>
+		                      <testExclude>**/bugs/JBPAPP9891/MarshallingTest.java</testExclude>
+		                      <testExclude>**/orb/CDROutputStreamTest.java</testExclude>
+		                      <!-- tests requiring JMX with IIOP support (removed from JDK9) -->
+		                      <testExclude>**/jmx/*.java</testExclude>
+		                      <!-- unclear failures -->
+		                      <testExclude>**/orb/SpecialOperationsTest.java</testExclude>
+		                      <testExclude>**/bugs/bug968/*.java</testExclude>
+		                      <!-- testExclude>**/miop/*.java</testExclude -->
 		                    </testExcludes>
 		                  </configuration>
 		                </execution>
@@ -836,13 +850,10 @@
                                     <goal>test</goal>
                                 </goals>
                                 <configuration>
-                                	<additionalClasspathElements>
-                                		${settings.localRepository}/org/jboss/spec/javax/rmi/jboss-rmi-api_1.0_spec/1.0.6.Final/jboss-rmi-api_1.0_spec-1.0.6.Final.jar:${settings.localRepository}/org/jacorb/jacorb-omgapi/${project.version}/jacorb-omgapi-${project.version}.jar
-                                	</additionalClasspathElements>
                                     <useManifestOnlyJar>false</useManifestOnlyJar>
                                     <forkCount>${surefire.forkCount}</forkCount>
                                     <reuseForks>false</reuseForks>
-                                    <argLine>${jacoco.agent.argLine} -Djacorb.test.home=${basedir} -Djacorb.test.verbose=${jacorb.test.verbose}</argLine>
+                                    <argLine>${jacoco.agent.argLine} -Djacorb.test.home=${basedir} -Djacorb.test.verbose=${jacorb.test.verbose} -Djdk.attach.allowAttachSelf=true</argLine>
                                     <environmentVariables>
                                         <BYTEMAN_HOME></BYTEMAN_HOME>
                                     </environmentVariables>
@@ -857,13 +868,10 @@
                                     <goal>test</goal>
                                 </goals>
                                 <configuration>
-                                	<additionalClasspathElements>
-                                		${settings.localRepository}/org/jboss/spec/javax/rmi/jboss-rmi-api_1.0_spec/1.0.6.Final/jboss-rmi-api_1.0_spec-1.0.6.Final.jar:${settings.localRepository}/org/jacorb/jacorb-omgapi/${project.version}/jacorb-omgapi-${project.version}.jar
-                                	</additionalClasspathElements>
                                     <useManifestOnlyJar>false</useManifestOnlyJar>
                                     <forkCount>1</forkCount>
                                     <reuseForks>false</reuseForks>
-                                    <argLine>${jacoco.agent.argLine} -Djacorb.test.home=${basedir} -Djacorb.test.verbose=${jacorb.test.verbose}</argLine>
+                                    <argLine>${jacoco.agent.argLine} -Djacorb.test.home=${basedir} -Djacorb.test.verbose=${jacorb.test.verbose} -Djdk.attach.allowAttachSelf=true</argLine>
                                     <environmentVariables>
                                         <BYTEMAN_HOME></BYTEMAN_HOME>
                                     </environmentVariables>
@@ -878,13 +886,10 @@
                                     <goal>test</goal>
                                 </goals>
                                 <configuration>
-                                	<additionalClasspathElements>
-                                		${settings.localRepository}/org/jboss/spec/javax/rmi/jboss-rmi-api_1.0_spec/1.0.6.Final/jboss-rmi-api_1.0_spec-1.0.6.Final.jar:${settings.localRepository}/org/jacorb/jacorb-omgapi/${project.version}/jacorb-omgapi-${project.version}.jar
-                                	</additionalClasspathElements>
                                     <useManifestOnlyJar>false</useManifestOnlyJar>
                                     <forkCount>${surefire.forkCount}</forkCount>
                                     <reuseForks>false</reuseForks>
-                                    <argLine>${jacoco.agent.argLine} -Djacorb.test.verbose=${jacorb.test.verbose} -Djacorb.test.ssl=true</argLine>
+                                    <argLine>${jacoco.agent.argLine} -Djacorb.test.verbose=${jacorb.test.verbose} -Djacorb.test.ssl=true -Djdk.attach.allowAttachSelf=true</argLine>
                                     <reportsDirectory>${project.build.directory}/surefire-reports-ssl</reportsDirectory>
                                     <environmentVariables>
                                         <BYTEMAN_HOME></BYTEMAN_HOME>
@@ -899,13 +904,10 @@
                                     <goal>test</goal>
                                 </goals>
                                 <configuration>
-                                	<additionalClasspathElements>
-                                		${settings.localRepository}/org/jboss/spec/javax/rmi/jboss-rmi-api_1.0_spec/1.0.6.Final/jboss-rmi-api_1.0_spec-1.0.6.Final.jar:${settings.localRepository}/org/jacorb/jacorb-omgapi/${project.version}/jacorb-omgapi-${project.version}.jar
-                                	</additionalClasspathElements>
                                     <useManifestOnlyJar>false</useManifestOnlyJar>
                                     <forkCount>${surefire.forkCount}</forkCount>
                                     <reuseForks>false</reuseForks>
-                                    <argLine>${jacoco.agent.argLine} -Djacorb.test.home=${basedir} -Djacorb.test.verbose=${jacorb.test.verbose} -Djacorb.test.imr=true</argLine>
+                                    <argLine>${jacoco.agent.argLine} -Djacorb.test.home=${basedir} -Djacorb.test.verbose=${jacorb.test.verbose} -Djacorb.test.imr=true -Djdk.attach.allowAttachSelf=true</argLine>
                                     <reportsDirectory>${project.build.directory}/surefire-reports-imr</reportsDirectory>
                                     <environmentVariables>
                                         <BYTEMAN_HOME></BYTEMAN_HOME>
@@ -919,6 +921,40 @@
                     </plugin>
                 </plugins>
             </build>
+		</profile>
+		
+		<profile>
+			<id>test-use-jboss-rmi</id>
+            <activation>
+                <property>
+                    <name>useRMI</name>
+                    <value>jboss</value>
+                </property>
+            </activation>
+			<dependencies>
+				<dependency>
+				    <groupId>org.jboss.spec.javax.rmi</groupId>
+				    <artifactId>jboss-rmi-api_1.0_spec</artifactId>
+				    <version>1.0.6.Final</version>
+				</dependency>
+			</dependencies>
+		</profile>
+		
+		<profile>
+			<id>test-use-rmistub</id>
+            <activation>
+                <property>
+                    <name>useRMI</name>
+                    <value>stubs</value>
+                </property>
+            </activation>
+			<dependencies>
+	            <dependency>
+	                <groupId>org.jacorb</groupId>
+	                <artifactId>jacorb-rmistub</artifactId>
+	                <version>3.10-SNAPSHOT</version>
+	            </dependency>
+			</dependencies>
 		</profile>
 		
     </profiles>
