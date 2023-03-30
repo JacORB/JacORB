@@ -158,7 +158,7 @@ public class SSLSocketFactory
         if (configuration.getAttribute("jacorb.security.ssl.client.protocols", null) != null)
         {
             enabledProtocols = 
-                configuration.getAttributeAsStringsArray ("jacorb.security.ssl.server.protocols");
+                configuration.getAttributeAsStringsArray ("jacorb.security.ssl.client.protocols");
 
             if (logger.isDebugEnabled())
             {
