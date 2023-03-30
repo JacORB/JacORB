@@ -156,8 +156,8 @@ public class ServerInvocationInterceptor
 
         try
         {
-            javax.security.cert.X509Certificate[] certs =
-                sslSocket.getSession().getPeerCertificateChain();
+            java.security.cert.Certificate[] certs =
+                    sslSocket.getSession().getPeerCertificates();
 
             int size = certs.length;
             java.security.cert.X509Certificate[] newCerts =
