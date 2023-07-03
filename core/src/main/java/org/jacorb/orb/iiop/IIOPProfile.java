@@ -148,7 +148,7 @@ public class IIOPProfile
      * where the zone ID seperator is / or % depending on
      * what the underlying OS supports.
      *
-     * This preserves compatilibility with TAO, and falls in
+     * This preserves compatibility with TAO, and falls in
      * line with RFC 2732 and discussion on OMG news groups.
      */
     private void decode_corbaloc(final String address) throws ConfigurationException
