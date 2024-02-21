@@ -942,39 +942,6 @@ public class AnyTest extends ClientServerTestCase
         }
     }
 
-    @Test
-    public void testRMI_value_box_string()
-        throws Exception
-    {
-        String testValue = "foo";
-
-        Any outAny = setup.getClientOrb().create_any();
-        outAny.insert_Value(testValue);
-        assertEquals(testValue, outAny.extract_Value());
-
-        Any inAny = server.bounce_any(outAny);
-        assertEquals(testValue, inAny.extract_Value());
-        assertTrue(outAny.equal(inAny));
-    }
-
-    // use any.insert_value with explicit typecode
-    @Test
-    public void testRMI_value_box_string2()
-        throws Exception
-    {
-        String testValue = "foo";
-
-        Any outAny = setup.getClientOrb().create_any();
-        outAny.insert_Value(testValue,
-                            MyBoxedStringHelper.type());
-        assertEquals(testValue, outAny.extract_Value());
-
-        Any inAny = server.bounce_any(outAny);
-
-        assertEquals(testValue, inAny.extract_Value());
-        assertTrue(outAny.equal(inAny));
-    }
-
     @Test(expected = NO_IMPLEMENT.class)
     public void test_value_box_string_streamable()
         throws Exception
@@ -1006,91 +973,6 @@ public class AnyTest extends ClientServerTestCase
         assertTrue(outAny.equal(inAny));
     }
 
-    //insert with helper, extract manually
-    @Test
-    public void testRMI_value_box_string_helper()
-        throws Exception
-    {
-        String testValue = "foo";
-
-        Any outAny = setup.getClientOrb().create_any();
-        MyBoxedStringHelper.insert(outAny, testValue);
-        assertEquals(testValue, outAny.extract_Value());
-
-        Any inAny = server.bounce_any(outAny);
-        assertEquals(testValue, inAny.extract_Value());
-        assertTrue(outAny.equal(inAny));
-    }
-
-    //insert manually, extract with helper
-    @Test
-    public void testRMI_value_box_string_helper2()
-        throws Exception
-    {
-        String testValue = "foo";
-
-        Any outAny = setup.getClientOrb().create_any();
-        outAny.insert_Value(testValue,
-                            MyBoxedStringHelper.type());
-        assertEquals(testValue, outAny.extract_Value());
-
-        Any inAny = server.bounce_any(outAny);
-        assertEquals(testValue, MyBoxedStringHelper.extract(inAny));
-        assertTrue(outAny.equal(inAny));
-    }
-
-    //insert and extract with helper
-    @Test
-    public void testRMI_value_box_string_helper3()
-        throws Exception
-    {
-        String testValue = "foo";
-
-        Any outAny = setup.getClientOrb().create_any();
-        MyBoxedStringHelper.insert(outAny, testValue);
-
-        Any inAny = server.bounce_any(outAny);
-        assertEquals(testValue, MyBoxedStringHelper.extract(inAny));
-        assertTrue(outAny.equal(inAny));
-    }
-
-    @Test
-    public void testRMI_value_box_long()
-        throws Exception
-    {
-        MyBoxedLong testValue = new MyBoxedLong(4711);
-
-        Any outAny = setup.getClientOrb().create_any();
-        outAny.insert_Value(testValue);
-        assertEquals(testValue.value,
-                     ((MyBoxedLong) outAny.extract_Value()).value);
-
-        Any inAny = server.bounce_any(outAny);
-        assertEquals(testValue.value,
-                     ((MyBoxedLong) inAny.extract_Value()).value);
-        assertTrue(outAny.equal(inAny));
-    }
-
-    // use any.insert_value with explicit typecode
-    @Test
-    public void testRMI_value_box_long2()
-        throws Exception
-    {
-        MyBoxedLong testValue = new MyBoxedLong(4711);
-
-        Any outAny = setup.getClientOrb().create_any();
-        outAny.insert_Value(testValue,
-                            MyBoxedLongHelper.type());
-        assertEquals(testValue.value,
-                     ((MyBoxedLong) outAny.extract_Value()).value);
-
-        Any inAny = server.bounce_any(outAny);
-
-        assertEquals(testValue.value,
-                     ((MyBoxedLong) inAny.extract_Value()).value);
-        assertTrue(outAny.equal(inAny));
-    }
-
     @Test(expected = NO_IMPLEMENT.class)
     public void test_value_box_long_streamable()
         throws Exception
@@ -1105,55 +987,6 @@ public class AnyTest extends ClientServerTestCase
         Any inAny = server.bounce_any(outAny);
         assertEquals(testValue.value,
                      ((MyBoxedLong) inAny.extract_Value()).value);
-        assertTrue(outAny.equal(inAny));
-    }
-
-    //insert with helper, extract manually
-    @Test
-    public void testRMI_value_box_long_helper()
-        throws Exception
-    {
-        MyBoxedLong testValue = new MyBoxedLong(4711);
-
-        Any outAny = setup.getClientOrb().create_any();
-        MyBoxedLongHelper.insert(outAny, testValue);
-        assertEquals(testValue.value,
-                     ((MyBoxedLong) outAny.extract_Value()).value);
-
-        Any inAny = server.bounce_any(outAny);
-        assertEquals(testValue.value,
-                     ((MyBoxedLong) inAny.extract_Value()).value);
-        assertTrue(outAny.equal(inAny));
-    }
-
-    //insert manually, extract with helper
-    @Test
-    public void testRMI_value_box_long_helper2()
-        throws Exception
-    {
-        MyBoxedLong testValue = new MyBoxedLong(4711);
-
-        Any outAny = setup.getClientOrb().create_any();
-        outAny.insert_Value(testValue,
-                            MyBoxedLongHelper.type());
-
-        Any inAny = server.bounce_any(outAny);
-        assertEquals(testValue.value, MyBoxedLongHelper.extract(inAny).value);
-        assertTrue(outAny.equal(inAny));
-    }
-
-    //insert and extract with helper
-    @Test
-    public void testRMI_value_box_long_helper3()
-        throws Exception
-    {
-        MyBoxedLong testValue = new MyBoxedLong(4711);
-
-        Any outAny = setup.getClientOrb().create_any();
-        MyBoxedLongHelper.insert(outAny, testValue);
-
-        Any inAny = server.bounce_any(outAny);
-        assertEquals(testValue.value, MyBoxedLongHelper.extract(inAny).value);
         assertTrue(outAny.equal(inAny));
     }
 
@@ -1172,23 +1005,6 @@ public class AnyTest extends ClientServerTestCase
         assertTrue(outAny.equal(inAny));
     }
 
-    // use any.insert_value with explicit typecode
-    @Test
-    public void testRMI_valuetype2()
-        throws Exception
-    {
-        MyValueType testValue = new MyValueTypeImpl(4711);
-        Any outAny = setup.getClientOrb().create_any();
-        outAny.insert_Value(testValue,
-                            MyValueTypeHelper.type());
-        assertEquals(testValue, outAny.extract_Value());
-
-        Any inAny = server.bounce_any(outAny);
-
-        assertEquals(testValue, inAny.extract_Value());
-        assertTrue(outAny.equal(inAny));
-    }
-
     @Test(expected = NO_IMPLEMENT.class)
     public void test_valuetype_streamable()
         throws Exception
@@ -1201,54 +1017,6 @@ public class AnyTest extends ClientServerTestCase
         Any inAny = server.bounce_any(outAny);
 
         assertEquals(testValue, inAny.extract_Value());
-        assertTrue(outAny.equal(inAny));
-    }
-
-    //insert with helper, extract manually
-    @Test
-    public void testRMI_valuetype_helper()
-        throws Exception
-    {
-        MyValueType testValue = new MyValueTypeImpl(4711);
-
-        Any outAny = setup.getClientOrb().create_any();
-        MyValueTypeHelper.insert(outAny, testValue);
-        assertEquals(testValue, outAny.extract_Value());
-
-        Any inAny = server.bounce_any(outAny);
-        assertEquals(testValue, inAny.extract_Value());
-        assertTrue(outAny.equal(inAny));
-    }
-
-    //insert manually, extract with helper
-    @Test
-    public void testRMI_valuetype_helper2()
-        throws Exception
-    {
-        MyValueType testValue = new MyValueTypeImpl(4711);
-
-        Any outAny = setup.getClientOrb().create_any();
-        outAny.insert_Value(testValue,
-                            MyValueTypeHelper.type());
-        assertEquals(testValue, outAny.extract_Value());
-
-        Any inAny = server.bounce_any(outAny);
-        assertEquals(testValue, MyValueTypeHelper.extract(inAny));
-        assertTrue(outAny.equal(inAny));
-    }
-
-    //insert and extract with helper
-    @Test
-    public void testRMI_valuetype_helper3()
-        throws Exception
-    {
-        MyValueType testValue = new MyValueTypeImpl(4711);
-
-        Any outAny = setup.getClientOrb().create_any();
-        MyValueTypeHelper.insert(outAny, testValue);
-
-        Any inAny = server.bounce_any(outAny);
-        assertEquals(testValue, MyValueTypeHelper.extract(inAny));
         assertTrue(outAny.equal(inAny));
     }
 

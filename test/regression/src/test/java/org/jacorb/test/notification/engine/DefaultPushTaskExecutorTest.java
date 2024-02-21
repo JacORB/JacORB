@@ -57,6 +57,8 @@ public class DefaultPushTaskExecutorTest
 
         objectUnderTest_.executePush(mockPushTask);
 
+        try { Thread.sleep(2000); } catch (java.lang.Exception x) {}
+        
         controlPushTask.verify();
     }
 }

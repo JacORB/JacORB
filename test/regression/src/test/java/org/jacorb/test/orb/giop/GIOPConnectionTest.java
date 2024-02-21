@@ -94,9 +94,9 @@ public class GIOPConnectionTest extends ORBTestCase
             if (buffer.length <= readIndex)
                 throw new org.omg.CORBA.COMM_FAILURE();
 
-            BufferHolder holder = inv.getArgumentAt(0, BufferHolder.class);
-            int offset          = inv.getArgumentAt(1, Integer.class);
-            int minLength       = inv.getArgumentAt(2, Integer.class);
+            BufferHolder holder = inv.getArgument(0, BufferHolder.class);
+            int offset          = inv.getArgument(1, Integer.class);
+            int minLength       = inv.getArgument(2, Integer.class);
 
             System.arraycopy(buffer, readIndex, holder.value, offset, minLength);
             readIndex += minLength;

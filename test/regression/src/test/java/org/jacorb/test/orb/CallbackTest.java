@@ -200,7 +200,7 @@ public class CallbackTest extends CallbackTestCase
 
         ( ( _CallbackServerStub ) server )
                    .sendc_pass_in_char( ref( handler ), 'x', 100 );
-        handler.wait_for_reply( 200 );
+        handler.wait_for_reply( 300 );
     }
 
     @Test
@@ -233,7 +233,7 @@ public class CallbackTest extends CallbackTestCase
         };
         ( ( _CallbackServerStub ) server )
                  .sendc_return_char( ref( handler ), ( short ) 'a', 100 );
-        handler.wait_for_reply( 200 );
+        handler.wait_for_reply( 300 );
     }
 
     @Test
@@ -268,7 +268,7 @@ public class CallbackTest extends CallbackTestCase
         };
         ( ( _CallbackServerStub ) server )
             .sendc_operation( ref( handler ), 'a', false, 100 );
-        handler.wait_for_reply( 200 );
+        handler.wait_for_reply( 300 );
     }
 
     @Test

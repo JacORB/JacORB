@@ -51,6 +51,8 @@ public class BugJac696Test extends ORBTestCase
 
         poa.destroy(true, true);
 
+        Thread.sleep(1000);
+        
         Thread root = getAOMThread ((org.jacorb.poa.POA)rootPOA);
         Thread child = getAOMThread ((org.jacorb.poa.POA)poa);
 
