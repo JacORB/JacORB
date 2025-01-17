@@ -128,7 +128,7 @@
                  <dependency>
                      <groupId>org.jacorb</groupId>
                      <artifactId>jacorb-rmistub</artifactId>
-                     <version>3.10-SNAPSHOT</version>
+                     <version>${project.version}</version>
                  </dependency>
              </dependencies>
         </profile>
