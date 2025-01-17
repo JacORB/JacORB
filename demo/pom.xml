@@ -76,14 +76,14 @@
     </build>
     
     <profiles>
-		<profile>
-			<id>default-jdk-demo</id>
-			<activation>
-				<jdk>(,1.8]</jdk>
-			</activation>
-			<modules>
-        		<module>appserver</module>
-			</modules>
+        <profile>
+            <id>default-jdk-demo</id>
+            <activation>
+                <jdk>(,1.8]</jdk>
+            </activation>
+            <modules>
+                <module>appserver</module>
+            </modules>
             <properties>
                 <demobootclasspath>-Xbootclasspath/p:${demo_classpath}</demobootclasspath>
             </properties>
