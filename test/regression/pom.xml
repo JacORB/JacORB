@@ -609,58 +609,58 @@
 
     <profiles>
 
-		<profile>
-			<id>default-toolsjar</id>
-			<activation>
+        <profile>
+            <id>default-toolsjar</id>
+            <activation>
                 <file >
                     <exists>${toolsjar}</exists>
                 </file>
-			</activation>
-			<dependencies>
-		        <dependency>
-		            <groupId>com.sun</groupId>
-		            <artifactId>tools</artifactId>
-		            <version>1.6.0</version>
-		            <scope>system</scope>
-		            <systemPath>${toolsjar}</systemPath>
-		        </dependency>
-			</dependencies>
-		</profile>
+            </activation>
+            <dependencies>
+                <dependency>
+                    <groupId>com.sun</groupId>
+                    <artifactId>tools</artifactId>
+                    <version>1.6.0</version>
+                    <scope>system</scope>
+                    <systemPath>${toolsjar}</systemPath>
+                </dependency>
+            </dependencies>
+        </profile>
 
         <profile>
             <id>default-test</id>
             <activation>
-		      <jdk>(,1.8]</jdk>
+                <jdk>(,1.8]</jdk>
             </activation>
             <build>
                 <plugins>
-		            <plugin>
-		                <groupId>org.codehaus.mojo</groupId>
-		                <artifactId>rmic-maven-plugin</artifactId>
-		                <executions>
-		                    <execution>
-		                        <id>rmi compilation</id>
-		                        <goals>
-		                            <goal>test-rmic</goal>
-		                        </goals>
-		                        <phase>process-test-classes</phase>
-		                        <configuration>
-		                            <keep>true</keep>
-		                            <iiop>true</iiop>
-		                            <poa>true</poa>
-		                            <testOutputDirectory>${project.build.testOutputDirectory}</testOutputDirectory>
-		                            <sources>
-		                                <source>
-		                                    <includes>
-		                                        <include>org.jacorb.test.orb.rmi.RMITestImpl.class</include>
-		                                        <include>org.jacorb.test.bugs.bugjac149.RemoteIPingImpl.class</include>
-		                                    </includes>
-		                                </source>
-		                            </sources>
-		                        </configuration>
-		                    </execution>
-		                </executions>
-		            </plugin>
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>rmic-maven-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>rmi compilation</id>
+                                <goals>
+                                    <goal>test-rmic</goal>
+                                </goals>
+                                <phase>process-test-classes</phase>
+                                <configuration>
+                                    <keep>true</keep>
+                                    <iiop>true</iiop>
+                                    <poa>true</poa>
+                                    <testOutputDirectory>${project.build.testOutputDirectory}</testOutputDirectory>
+                                    <sources>
+                                        <source>
+                                            <includes>
+                                                <include>org.jacorb.test.orb.rmi.RMITestImpl.class</include>
+                                                <include>org.jacorb.test.bugs.bugjac149.RemoteIPingImpl.class</include>
+                                            </includes>
+                                        </source>
+                                    </sources>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
 
 		            <plugin>
 		              <groupId>org.apache.maven.plugins</groupId>
@@ -787,52 +787,52 @@
             </build>
         </profile>
 
-		<profile>
-			<id>new-jdk-regression-test</id>
-			<activation>
-				<jdk>[9.0,)</jdk>
-			</activation>
+        <profile>
+            <id>new-jdk-regression-test</id>
+            <activation>
+                <jdk>[9.0,)</jdk>
+            </activation>
             <build>
                 <plugins>
-                	<!-- Exclude RMI dependent source from compilation completely -->
-		            <plugin>
-		              <groupId>org.apache.maven.plugins</groupId>
-		              <artifactId>maven-compiler-plugin</artifactId>
-		              <configuration>
-		                <compilerArguments>
-		                  <endorseddirs>${settings.localRepository}/org/jacorb/jacorb-omgapi/${project.version}</endorseddirs>
-		                </compilerArguments>
-		              </configuration>
-		              <executions>
-		                <execution>
-		                  <id>default-testCompile</id>
-		                  <phase>test-compile</phase>
-		                  <goals>
-		                    <goal>testCompile</goal>
-		                  </goals>
-		                  <configuration>
-		                    <testExcludes>
-		                      <!-- tests requiring RMI support -->
-		                      <testExclude>**/RMITestServant.java</testExclude>
-		                      <testExclude>**/orb/rmi/*.java</testExclude>
-		                      <!-- tests requiring non-JacORB ORB (sun/ibm) support -->
-		                      <testExclude>**/bugs/bugjac449/*.java</testExclude>
-		                      <testExclude>**/bugs/bugjac352/*.java</testExclude>
-		                      <testExclude>**/bugs/bugjac149/ObjectReplacementTest.java</testExclude>
-		                      <testExclude>**/bugs/JBPAPP9891/MarshallingTest.java</testExclude>
-		                      <testExclude>**/orb/CDROutputStreamTest.java</testExclude>
-		                      <!-- tests requiring JMX with IIOP support (removed from JDK9) -->
-		                      <testExclude>**/jmx/*.java</testExclude>
-		                      <!-- unclear failures -->
-		                      <testExclude>**/orb/SpecialOperationsTest.java</testExclude>
-		                      <testExclude>**/bugs/bug968/*.java</testExclude>
-		                      <!-- testExclude>**/miop/*.java</testExclude -->
-		                    </testExcludes>
-		                  </configuration>
-		                </execution>
-		              </executions>
-		            </plugin>
-                	<!-- Update runtime classpath instead of bootclasspath -->
+                  <!-- Exclude RMI dependent source from compilation completely -->
+                  <plugin>
+                      <groupId>org.apache.maven.plugins</groupId>
+                      <artifactId>maven-compiler-plugin</artifactId>
+                      <configuration>
+                          <compilerArguments>
+                              <endorseddirs>${settings.localRepository}/org/jacorb/jacorb-omgapi/${project.version}</endorseddirs>
+                          </compilerArguments>
+                      </configuration>
+                      <executions>
+                        <execution>
+                          <id>default-testCompile</id>
+                          <phase>test-compile</phase>
+                          <goals>
+                            <goal>testCompile</goal>
+                          </goals>
+                          <configuration>
+                            <testExcludes>
+                              <!-- tests requiring RMI support -->
+                              <testExclude>**/RMITestServant.java</testExclude>
+                              <testExclude>**/orb/rmi/*.java</testExclude>
+                              <!-- tests requiring non-JacORB ORB (sun/ibm) support -->
+                              <testExclude>**/bugs/bugjac449/*.java</testExclude>
+                              <testExclude>**/bugs/bugjac352/*.java</testExclude>
+                              <testExclude>**/bugs/bugjac149/ObjectReplacementTest.java</testExclude>
+                              <testExclude>**/bugs/JBPAPP9891/MarshallingTest.java</testExclude>
+                              <testExclude>**/orb/CDROutputStreamTest.java</testExclude>
+                              <!-- tests requiring JMX with IIOP support (removed from JDK9) -->
+                              <testExclude>**/jmx/*.java</testExclude>
+                              <!-- unclear failures -->
+                              <testExclude>**/orb/SpecialOperationsTest.java</testExclude>
+                              <testExclude>**/bugs/bug968/*.java</testExclude>
+                              <!-- testExclude>**/miop/*.java</testExclude -->
+                          </testExcludes>
+                          </configuration>
+                        </execution>
+                      </executions>
+                    </plugin>
+                    <!-- Update runtime classpath instead of bootclasspath -->
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-surefire-plugin</artifactId>
@@ -952,7 +952,7 @@
                 <dependency>
                     <groupId>org.jacorb</groupId>
                     <artifactId>jacorb-rmistub</artifactId>
-                    <version>3.10-SNAPSHOT</version>
+                    <version>${project.version}</version>
                 </dependency>
             </dependencies>
         </profile>
