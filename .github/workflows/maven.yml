@@ -19,7 +19,7 @@ jobs:
     if: github.repository == 'JacORB/JacORB' && github.event_name == 'pull_request'
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - name: Cache local Maven repository
       uses: actions/cache@v3
       with:
@@ -48,7 +48,7 @@ jobs:
     if: github.repository == 'JacORB/JacORB' && github.event_name == 'push' && github.ref == 'refs/heads/master'
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - name: Cache local Maven repository
       uses: actions/cache@v3
       with:
