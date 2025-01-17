@@ -82,16 +82,46 @@ fi
 
 JAVA_CMD=${RESOLVED_JAVA_CMD}
 
+_JDK_VERSION=$($JAVA_CMD -version 2>&1 | grep -i version | cut -d'"' -f2 | cut -d'.' -f1-2)
+_JDK_MAJOR=$(echo $_JDK_VERSION | cut -d'.' -f1)
+if [ "$_JDK_MAJOR" == "1" ]; then
+	_JDK_RELEASE=$(echo $_JDK_VERSION | cut -d'.' -f2)
+else
+	_JDK_RELEASE=$_JDK_MAJOR
+fi
+
 # verbosity output
 #echo    "using JAVA_CMD   : ${JAVA_CMD}"
 #echo    "Using JacORB from: ${JACORB_HOME}"
 #echo -e "using CLASSPATH  :\n\t`echo $CLASSPATH | sed -e 's/:/\n\t/g'`"
 
-exec "$JAVA_CMD"                                                    \
-     "${dbgopts[@]}"                                                \
-     -Djava.endorsed.dirs="${JACORB_HOME}/lib"                      \
-     -Djacorb.home="${JACORB_HOME}"                                 \
-     -Dorg.omg.CORBA.ORBClass=org.jacorb.orb.ORB                    \
-     -Dorg.omg.CORBA.ORBSingletonClass=org.jacorb.orb.ORBSingleton  \
-     -classpath "${CLASSPATH}"                                      \
-     "${pass[@]}"
+if [ $_JDK_RELEASE -gt 8 ]; then
+	__libs=($JACORB_HOME/lib/jacorb-*.jar)
+	for __lib in "${__libs[@]}"; do
+		CLASSPATH="$CLASSPATH:$__lib"
+	done
+	__libs=($JACORB_HOME/lib/slf4j-*.jar)
+	for __lib in "${__libs[@]}"; do
+		CLASSPATH="$CLASSPATH:$__lib"
+	done
+	if stat -t $JACORB_HOME/lib/jboss-rmi-api_1.0_spec*.jar >/dev/null 2>&1 ; then
+		__lib=($JACORB_HOME/lib/jboss-rmi-api_1.0_spec*.jar)
+		CLASSPATH="$CLASSPATH:${__lib[0]}"
+	fi
+	exec "$JAVA_CMD"                                                    \
+	     "${dbgopts[@]}"                                                \
+	     -Djacorb.home="${JACORB_HOME}"                                 \
+	     -Dorg.omg.CORBA.ORBClass=org.jacorb.orb.ORB                    \
+	     -Dorg.omg.CORBA.ORBSingletonClass=org.jacorb.orb.ORBSingleton  \
+	     -classpath "${CLASSPATH}"                                      \
+	     "${pass[@]}"
+else
+	exec "$JAVA_CMD"                                                    \
+	     "${dbgopts[@]}"                                                \
+	     -Djava.endorsed.dirs="${JACORB_HOME}/lib"                      \
+	     -Djacorb.home="${JACORB_HOME}"                                 \
+	     -Dorg.omg.CORBA.ORBClass=org.jacorb.orb.ORB                    \
+	     -Dorg.omg.CORBA.ORBSingletonClass=org.jacorb.orb.ORBSingleton  \
+	     -classpath "${CLASSPATH}"                                      \
+	     "${pass[@]}"
+fi

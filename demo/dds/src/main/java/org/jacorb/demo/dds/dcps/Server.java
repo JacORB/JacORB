@@ -89,7 +89,7 @@ public class Server implements Runnable {
     }
 
     public void end() {
-        Thread.currentThread().destroy();
+        Thread.currentThread().stop();
     }
 
     /**
