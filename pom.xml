@@ -582,40 +582,40 @@
         </profile>
 
         <profile>
-        <id>regression-tests</id>
+            <id>regression-tests</id>
+                <activation>
+                    <property>
+                        <name>!skipTests</name>
+                    </property>
+                </activation>
+            <modules>
+                <module>test/regression</module>
+            </modules>
+        </profile>
+
+        <profile>
+            <id>demo-apps</id>
             <activation>
                 <property>
-                    <name>!skipTests</name>
+                    <name>!skipDemos</name>
                 </property>
             </activation>
-        <modules>
-            <module>test/regression</module>
-        </modules>
-    </profile>
+            <modules>
+                <module>demo</module>
+            </modules>
+        </profile>
 
-    <profile>
-        <id>demo-apps</id>
-         <activation>
-            <property>
-                <name>!skipDemos</name>
-            </property>
-        </activation>
-        <modules>
-            <module>demo</module>
-        </modules>
-    </profile>
-
-    <profile>
-        <id>rmi-stubs</id>
-        <activation>
-            <property>
-                <name>buildRMIStubs</name>
-            </property>
-        </activation>
-        <modules>
-            <module>rmi-stub</module>
-        </modules>
-    </profile>
+        <profile>
+            <id>rmi-stubs</id>
+            <activation>
+                <property>
+                    <name>buildRMIStubs</name>
+                </property>
+            </activation>
+            <modules>
+                <module>rmi-stub</module>
+            </modules>
+        </profile>
 
         <!-- Release profile -->
         <profile>
