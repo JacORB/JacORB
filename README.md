@@ -16,7 +16,7 @@ JacORB should work under all supported Java platforms (See [here](https://www.or
 See also the current [ProgrammingGuide.pdf](https://www.jacorb.org/documentation.html) for more details.
 
 ### Prerequisities
- * Java 1.6 or later
+ * Java 1.8 or later
  * Maven 3.0.4 or later for building JacORB / running the tests
 
 ### Libraries and Scripts

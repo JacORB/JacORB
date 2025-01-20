@@ -26,7 +26,6 @@
     <modules>
         <module>ami</module>
         <module>any</module>
-        <module>appserver</module>
         <module>arrays</module>
         <module>bank</module>
         <module>bidir</module>
@@ -75,4 +74,63 @@
             </plugin>
         </plugins>
     </build>
+
+    <profiles>
+        <profile>
+            <id>default-jdk-demo</id>
+            <activation>
+                <jdk>(,1.8]</jdk>
+            </activation>
+            <modules>
+                <module>appserver</module>
+            </modules>
+            <properties>
+                <demobootclasspath>-Xbootclasspath/p:${demo_classpath}</demobootclasspath>
+            </properties>
+        </profile>
+
+        <profile>
+            <id>new-jdk-demo</id>
+            <activation>
+                 <jdk>[9.0,)</jdk>
+             </activation>
+             <properties>
+                 <demobootclasspath>-Xbootclasspath/a:${demo_classpath}</demobootclasspath>
+             </properties>
+        </profile>
+
+        <profile>
+            <id>demo-use-jboss-rmi</id>
+            <activation>
+                <property>
+                    <name>useRMI</name>
+                    <value>jboss</value>
+                </property>
+            </activation>
+            <dependencies>
+                <dependency>
+                    <groupId>org.jboss.spec.javax.rmi</groupId>
+                    <artifactId>jboss-rmi-api_1.0_spec</artifactId>
+                    <version>1.0.6.Final</version>
+                </dependency>
+            </dependencies>
+        </profile>
+
+        <profile>
+            <id>demo-use-rmistub</id>
+            <activation>
+                <property>
+                    <name>useRMI</name>
+                    <value>stubs</value>
+                </property>
+             </activation>
+             <dependencies>
+                 <dependency>
+                     <groupId>org.jacorb</groupId>
+                     <artifactId>jacorb-rmistub</artifactId>
+                     <version>${project.version}</version>
+                 </dependency>
+             </dependencies>
+        </profile>
+    </profiles>
 </project>

@@ -145,6 +145,7 @@ public class Launcher
     {
         javaHome = getPropertyWithDefault(props, "jacorb.java.home", System.getProperty("java.home"));
         final String jvm = getPropertyWithDefault(props, "jacorb.jvm", "/bin/java");
+        final String java_version = System.getProperty("java.version");
         javaCommand = javaHome + jvm;
 
         final List<String> cmdList = new ArrayList<String>();
@@ -152,7 +153,7 @@ public class Launcher
         cmdList.add (javaCommand);
         cmdList.addAll (vmArgs);
 
-        if ( ! props.containsKey("ignoreXBootClasspath"))
+        if ( ! props.containsKey("ignoreXBootClasspath") && java_version.startsWith("1."))
         {
             cmdList.add("-Xbootclasspath:" + System.getProperty("sun.boot.class.path"));
         }

@@ -8,6 +8,7 @@ on:
     branches: master
   pull_request:
     branches: master
+  workflow_dispatch:
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -19,9 +20,9 @@ jobs:
     if: github.repository == 'JacORB/JacORB' && github.event_name == 'pull_request'
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - name: Cache local Maven repository
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
         path: ~/.m2/repository
         key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
@@ -38,9 +39,9 @@ jobs:
         maven-version: 3.6.3
     - name: Build with Maven
       run: mvn -B -V -DskipPDFGeneration clean install
-    - name: Setup tmate session
-      uses: mxschmitt/action-tmate@v3
-      if: ${{ failure() }}
+#    - name: Setup tmate session
+#      uses: mxschmitt/action-tmate@v3
+#      if: ${{ failure() }}
     - name: Codecov
       uses: codecov/codecov-action@v1
 
@@ -48,9 +49,9 @@ jobs:
     if: github.repository == 'JacORB/JacORB' && github.event_name == 'push' && github.ref == 'refs/heads/master'
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - name: Cache local Maven repository
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
         path: ~/.m2/repository
         key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}

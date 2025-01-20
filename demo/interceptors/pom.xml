@@ -67,7 +67,7 @@
                                         <java fork="true"
                                               classpathref="maven.runtime.classpath"
                                               className="org.jacorb.demo.interceptors.Server1">
-                                            <jvmarg value="-Xbootclasspath/p:${demo_classpath}" />
+                                            <jvmarg value="${demobootclasspath}" />
                                             <jvmarg value="-Dorg.omg.CORBA.ORBClass=org.jacorb.orb.ORB" />
                                             <jvmarg value="-Dorg.omg.CORBA.ORBSingletonClass=org.jacorb.orb.ORBSingleton" />
                                             <arg value="${ior1.file}"/>
@@ -78,7 +78,7 @@
                                         <java fork="true"
                                               classpathref="maven.runtime.classpath"
                                               className="org.jacorb.demo.interceptors.Server2">
-                                            <jvmarg value="-Xbootclasspath/p:${demo_classpath}" />
+                                            <jvmarg value="${demobootclasspath}" />
                                             <jvmarg value="-Dorg.omg.CORBA.ORBClass=org.jacorb.orb.ORB" />
                                             <jvmarg value="-Dorg.omg.CORBA.ORBSingletonClass=org.jacorb.orb.ORBSingleton" />
                                             <arg value="${ior2.file}"/>
@@ -93,7 +93,7 @@
                                         <java fork="true"
                                               classpathref="maven.runtime.classpath"
                                               className="org.jacorb.demo.interceptors.Client">
-                                            <jvmarg value="-Xbootclasspath/p:${demo_classpath}" />
+                                            <jvmarg value="${demobootclasspath}" />
                                             <jvmarg value="-Dorg.omg.CORBA.ORBClass=org.jacorb.orb.ORB" />
                                             <jvmarg value="-Dorg.omg.CORBA.ORBSingletonClass=org.jacorb.orb.ORBSingleton" />
                                             <arg value="${ior1.file}"/>
