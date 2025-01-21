@@ -34,7 +34,7 @@ jobs:
         java-version: 8
         distribution: 'zulu'
     - name: Set up Maven
-      uses: stCarolas/setup-maven@v4
+      uses: stCarolas/setup-maven@v5
       with:
         maven-version: 3.6.3
     - name: Build with Maven
@@ -63,7 +63,7 @@ jobs:
         java-version: 8
         distribution: 'zulu'
     - name: Set up Maven
-      uses: stCarolas/setup-maven@v4
+      uses: stCarolas/setup-maven@v5
       with:
         maven-version: 3.6.3
     # https://github.com/marketplace/actions/maven-setings-action
