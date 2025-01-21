@@ -290,7 +290,7 @@ class IRBrowser
         //	contentPane.add(splitPane,"North");
         //	contentPane.add(textArea,"South");
     splitPane.setBounds(0,0,600,400-textArea.getPreferredSize().height);
-    textArea.setBounds(0,splitPane.bounds().height,600,textArea.getPreferredSize().height);
+    textArea.setBounds(0,splitPane.getBounds().height,600,textArea.getPreferredSize().height);
         //	contentPane.setLayout(layout);
     contentPane.setLayout(new BorderLayout());
     contentPane.add("Center",splitPane);
