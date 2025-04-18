@@ -224,7 +224,7 @@ public class ArrayTypeSpec
 
     public int getTCKind()
     {
-    	return org.omg.CORBA.TCKind._tk_array;
+        return 20;
     }
 
     public String helperName()
