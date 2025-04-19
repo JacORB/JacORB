@@ -16,7 +16,7 @@
 
     <name>JacORB OMG-API</name>
     <description>JacORB OMG API Stubs</description>
-    <url>http://www.jacorb.org</url>
+    <url>https://www.jacorb.org</url>
 
     <build>
         <plugins>

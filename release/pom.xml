@@ -17,7 +17,7 @@
 
     <name>JacORB Release</name>
     <description>JacORB Release Module for packaging distribution zips</description>
-    <url>http://www.jacorb.org</url>
+    <url>https://www.jacorb.org</url>
 
     <properties>
         <dryRun>false</dryRun>

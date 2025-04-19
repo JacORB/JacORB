@@ -16,7 +16,7 @@
 
     <name>JacORB RMI-STUB</name>
     <description>JacORB RMI Stubs</description>
-    <url>http://www.jacorb.org</url>
+    <url>https://www.jacorb.org</url>
 
     <dependencies>
         <dependency>
