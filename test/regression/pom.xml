@@ -16,7 +16,7 @@
 
     <name>JacORB Regression Tests</name>
     <description>JacORB Regression Tests</description>
-    <url>http://www.jacorb.org</url>
+    <url>https://www.jacorb.org</url>
 
     <properties>
         <spring.version>3.1.1.RELEASE</spring.version>

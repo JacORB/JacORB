@@ -16,7 +16,7 @@
 
     <name>JacORB Core</name>
     <description>JacORB Core code</description>
-    <url>http://www.jacorb.org</url>
+    <url>https://www.jacorb.org</url>
 
     <dependencies>
         <dependency>

@@ -16,7 +16,7 @@
 
     <name>JacORB Services</name>
     <description>JacORB ORB Services</description>
-    <url>http://www.jacorb.org</url>
+    <url>https://www.jacorb.org</url>
 
     <dependencies>
         <dependency>

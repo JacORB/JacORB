@@ -14,7 +14,7 @@
     <packaging>jar</packaging>
 
     <name>jacorb-orbreinvoke-tao-imr</name>
-    <url>http://www.jacorb.org</url>
+    <url>https://www.jacorb.org</url>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
