@@ -143,7 +143,7 @@ public class StructType
 
     public int getTCKind()
     {
-    	return org.omg.CORBA.TCKind._tk_struct;
+        return 15; // // org.omg.CORBA.TCKind._tk_struct
     }
 
     public boolean basic()

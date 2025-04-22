@@ -53,9 +53,9 @@ public class ShortType
     {
         if( unsigned )
         {
-            return 4; //_tk_ushort
+            return 4; // org.omg.CORBA.TCKind._tk_ushort
         }
-        return 2; // _tk_short
+        return 2; // // org.omg.CORBA.TCKind._tk_short
     }
 
     public String toString()

@@ -52,7 +52,7 @@ public class BooleanType
 
     public int getTCKind()
     {
-        return 8;
+        return 8; // org.omg.CORBA.TCKind._tk_boolean
     }
 
     public String toString()

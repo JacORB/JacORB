@@ -71,7 +71,7 @@ public class AnyType
 
     public int getTCKind()
     {
-        return 11;
+        return 11; // org.omg.CORBA.TCKind._tk_any
     }
 
     public String printReadExpression( String strname )

@@ -56,7 +56,7 @@ public class LongType
 
     public int getTCKind()
     {
-        return ( ( unsigned ) ? 5 : 3 );
+        return ( ( unsigned ) ? 5 : 3 ); // org.omg.CORBA.TCKind._tk_ulong : org.omg.CORBA.TCKind._tk_long
     }
 
     public String toString()

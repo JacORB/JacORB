@@ -57,7 +57,7 @@ public class DoubleType
 
     public int getTCKind()
     {
-        return 7;
+        return 7; // org.omg.CORBA.TCKind._tk_double
     }
 
     public String toString()

@@ -193,10 +193,10 @@ public abstract class VectorType
     {
         visitor.visitVectorType(this);
     }
-    
+
     public int getTCKind()
     {
-    	return org.omg.CORBA.TCKind._tk_array;
+        return 20; // org.omg.CORBA.TCKind._tk_array
     }
 
 }

@@ -81,9 +81,9 @@ public class CharType
     {
         if( wide )
         {
-            return 26;
+            return 26; // org.omg.CORBA.TCKind._tk_wchar
         }
-        return 9;
+        return 9; // org.omg.CORBA.TCKind._tk_char
     }
 
     public String holderName()

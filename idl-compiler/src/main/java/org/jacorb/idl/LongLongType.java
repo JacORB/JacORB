@@ -60,9 +60,9 @@ public class LongLongType
     {
         if( unsigned )
         {
-            return 24; // tk_ulonglong
+            return 24; // // org.omg.CORBA.TCKind._tk_ulonglong
         }
-        return 23; // tk_longlong
+        return 23; // // org.omg.CORBA.TCKind._tk_longlong
     }
 
     public String toString()

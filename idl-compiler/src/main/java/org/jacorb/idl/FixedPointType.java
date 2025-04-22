@@ -79,7 +79,7 @@ public class FixedPointType
 
     public int getTCKind()
     {
-        return org.omg.CORBA.TCKind._tk_fixed;
+        return 28; // org.omg.CORBA.TCKind._tk_fixed
     }
 
 
