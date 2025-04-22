@@ -41,7 +41,7 @@ public class VoidTypeSpec
 
     public int getTCKind()
     {
-    	return 1;
+        return 1; // org.omg.CORBA.TCKind._tk_void
     }
 
     /**

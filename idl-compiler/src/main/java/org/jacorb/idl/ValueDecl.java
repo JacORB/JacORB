@@ -411,8 +411,8 @@ public class ValueDecl
                 // type modifier
                 "(short)" +
                 (this.isCustomMarshalled()
-                        ? 1
-                        : 0
+                        ? 1 // org.omg.CORBA.VM_CUSTOM
+                        : 0 // org.omg.CORBA.VM_NONE
                 ) + ", " +
                 // concrete base type
                 baseType + ", " +
@@ -444,8 +444,8 @@ public class ValueDecl
 
         String memberTypeExpression = typeSpec.getTypeCodeExpression(knownTypes);
         short access = m.isPublic
-            ? (short)1
-            : (short)0;
+            ? (short)1 // org.omg.CORBA.PUBLIC_MEMBER
+            : (short)0; // org.omg.CORBA.PRIVATE_MEMBER
 
         return "new org.omg.CORBA.ValueMember (" +
             "\"" + m.name + "\", \"" + typeSpec.id() +

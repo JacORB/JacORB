@@ -61,7 +61,7 @@ public class OctetType
 
     public int getTCKind()
     {
-        return 10;
+        return 10; // org.omg.CORBA.TCKind._tk_octet
     }
 
     public void parse()

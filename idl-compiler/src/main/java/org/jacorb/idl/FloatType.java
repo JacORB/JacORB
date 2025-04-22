@@ -51,7 +51,7 @@ public class FloatType
 
     public int getTCKind()
     {
-        return 6;
+        return 6; // org.omg.CORBA.TCKind._tk_float
     }
 
     public String toString()

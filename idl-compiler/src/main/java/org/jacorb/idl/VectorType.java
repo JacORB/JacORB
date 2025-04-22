@@ -196,7 +196,7 @@ public abstract class VectorType
 
     public int getTCKind()
     {
-        return 20;
+        return 20; // org.omg.CORBA.TCKind._tk_array
     }
 
 }
