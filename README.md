@@ -4,7 +4,7 @@
 [![Maven Central](https://img.shields.io/maven-central/v/org.jacorb/jacorb.svg)](https://maven-badges.herokuapp.com/maven-central/org.jacorb/jacorb)
 [![Javadocs](http://www.javadoc.io/badge/org.jacorb/jacorb.svg)](http://www.javadoc.io/doc/org.jacorb/jacorb)
 
-JacORB is a [freely licensed](https://raw.githubusercontent.com/JacORB/JacORB/master/LICENSE) java implementation of the OMG's [CORBA](https://www.omg.org) standard.
+JacORB is a [freely licensed](https://raw.githubusercontent.com/JacORB/JacORB/master/LICENSE) java implementation of the OMG's [CORBA](https://www.corba.org) standard.
 
 * The main home page is [here](https://www.jacorb.org). 
 * Mailing lists are available [here](https://www.jacorb.org/contact.html).
