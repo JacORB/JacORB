@@ -43,7 +43,7 @@ jobs:
 #      uses: mxschmitt/action-tmate@v3
 #      if: ${{ failure() }}
     - name: Codecov
-      uses: codecov/codecov-action@v1
+      uses: codecov/codecov-action@v5
 
   snapshot:
     if: github.repository == 'JacORB/JacORB' && github.event_name == 'push' && github.ref == 'refs/heads/master'
@@ -81,4 +81,4 @@ jobs:
     - name: Deploy Snapshot
       run: mvn -B -V org.apache.maven.plugins:maven-source-plugin:jar-no-fork -DskipPDFGeneration deploy -DskipTests=true
     - name: Codecov
-      uses: codecov/codecov-action@v1
+      uses: codecov/codecov-action@v5
