@@ -92,12 +92,6 @@ public class DefaultProfileSelector implements ProfileSelector
         }
         currentProfile = iterator.next();
 
-        // ensure the next profile is not the same as lastProfile
-        if (lastProfile.equals(currentProfile))
-        {
-            currentProfile = null;
-        }
-
         return currentProfile;
     }
 
