@@ -44,6 +44,9 @@ jobs:
 #      if: ${{ failure() }}
     - name: Codecov
       uses: codecov/codecov-action@v1
+    - name: Publish Test Report
+      if: success() || failure()
+      uses: scacap/action-surefire-report@v1
 
   snapshot:
     if: github.repository == 'JacORB/JacORB' && github.event_name == 'push' && github.ref == 'refs/heads/master'
