@@ -26,8 +26,8 @@
    </target>
 
    <target name="idl" depends="init">
-        <java classname="org.jacorb.idl.parser" 
-              fork="yes" 
+        <java classname="org.jacorb.idl.parser"
+              fork="yes"
               classpath="${lib}/idl.jar;${java.class.path}">
 
 	      <arg line="${idlflags}
@@ -41,8 +41,3 @@
    </target>
 
 </project>
-
-
-
-
-
