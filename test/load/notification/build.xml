@@ -1,7 +1,5 @@
 <?xml version="1.0"?>
 
-]>
-
 <project name="notification-load" default="all" basedir="../../..">
 
 	<import file="../../etc/common.xml"/>
