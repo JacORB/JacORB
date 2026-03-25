@@ -35,15 +35,15 @@ connections to the same server, but nobody has yet presented a good argument
 that more connections would speed up things considerably.
 
 Connections are typically blocking, with a separate thread used to handle
-sending and receving data and managing time-outs. In cases of heavy load
+sending and receiving data and managing time-outs. In cases of heavy load
 where the client may connect to dozens or hundreds of servers, and is using
-timeouts, this behavior can lead to very poor performance due to thead
+timeouts, this behavior can lead to very poor performance due to thread
 thrashing. To avoid this problem, JacORB 3.0.0 now makes available a non\-
 blocking mode for client side connections. Enabling this feature causes the
 client to use non-blocking connection establishment, sending of requests and
 receiving replies. In this mode, the client uses a single thread or possibly a
 small pool of threads to wait for many connections to be ready for reading
-or writing. 
+or writing.
 
 Non\-blocking I/O is currently only available for handling client side
 connections using plain IIOP. Server side support for receiving requests
