@@ -96,6 +96,27 @@ public class DynAnyFixedTest extends DynAnyXXXTestCase
     }
 
     /**
+     * Test that fixed array elements with default zero values retain their
+     * declared precision when marshaled.
+     */
+    @Test
+    public void testFixedArrayDefaultValues () throws Exception
+    {
+        final TypeCode fixedTypeCode = orb.create_fixed_tc ((short) 10, (short) 3);
+        final TypeCode arrayTypeCode = orb.create_array_tc (2, fixedTypeCode);
+        final org.omg.DynamicAny.DynArray dynArray =
+            (org.omg.DynamicAny.DynArray)factory.create_dyn_any_from_type_code (arrayTypeCode);
+
+        final org.omg.CORBA.Any[] elements = dynArray.get_elements();
+        assertEquals (2, elements.length);
+        for (int i = 0; i < elements.length; i++)
+        {
+            assertEquals (new BigDecimal ("0.000"), elements[i].extract_fixed());
+        }
+    }
+
+
+    /**
      * Test comparing DynAny values.
      */
     @Test
