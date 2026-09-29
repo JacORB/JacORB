@@ -947,6 +947,17 @@ public class CDROutputStream
             v = v.substring (1);
         }
 
+        // The CDR representation must contain all digits declared by the type.
+        if (digits > 0 && v.length() < digits)
+        {
+            StringBuffer padded = new StringBuffer(digits);
+            for (int i = v.length(); i < digits; i++)
+            {
+                padded.append('0');
+            }
+            v = padded.append(v).toString();
+        }
+
         if( (v.length() %2) == 0)
         {
             representation = new byte[ v.length()/2 +1];
