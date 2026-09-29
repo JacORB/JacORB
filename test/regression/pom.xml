@@ -509,69 +509,6 @@
                         </goals>
                     </execution>
                 </executions>
-                <configuration>
-                    <reportPlugins>
-                        <plugin>
-                            <!-- Generates some interesting reports and the root index.html -->
-                            <groupId>org.apache.maven.plugins</groupId>
-                            <artifactId>maven-project-info-reports-plugin</artifactId>
-                            <version>2.7</version>
-                            <reportSets>
-                                <reportSet>
-                                    <reports>
-                                        <report>index</report>
-                                        <report>dependencies</report>
-                                        <report>dependency-management</report>
-                                        <report>plugins</report>
-                                        <report>plugin-management</report>
-                                    </reports>
-                                </reportSet>
-                            </reportSets>
-                        </plugin>
-                        <plugin>
-                            <groupId>org.apache.maven.plugins</groupId>
-                            <artifactId>maven-surefire-report-plugin</artifactId>
-                            <version>2.16</version>
-                            <configuration>
-                                <linkXRef>false</linkXRef>
-                                <aggregate>true</aggregate>
-                                <reportsDirectories>
-                                    <reportDirectory>${project.build.directory}/surefire-reports</reportDirectory>
-                                    <reportDirectory>${project.build.directory}/surefire-reports-ssl</reportDirectory>
-                                    <reportDirectory>${project.build.directory}/surefire-reports-imr</reportDirectory>
-                                </reportsDirectories>
-                            </configuration>
-                            <reportSets>
-                                <reportSet>
-                                    <reports>
-                                        <report>report-only</report>
-                                    </reports>
-                                </reportSet>
-                            </reportSets>
-                        </plugin>
-
-                        <plugin>
-                            <groupId>org.jacoco</groupId>
-                            <artifactId>jacoco-maven-plugin</artifactId>
-                            <version>${jacoco.version}</version>
-                            <configuration>
-                                <skip>${jacoco.skip}</skip>
-                                <dataFile>${project.build.directory}/coverage-reports/jacoco-ut.exec</dataFile>
-                                <includes>
-                                    <include>org/jacorb/**/*</include>
-                                </includes>
-                            </configuration>
-                            <reportSets>
-                                <reportSet>
-                                    <reports>
-                                        <report>report</report>
-                                    </reports>
-                                </reportSet>
-                            </reportSets>
-                        </plugin>
-
-                    </reportPlugins>
-                </configuration>
             </plugin>
 
             <plugin>
@@ -606,6 +543,68 @@
 
         </plugins>
     </build>
+
+    <reporting>
+        <plugins>
+            <!-- Generates some interesting reports and the root index.html -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-project-info-reports-plugin</artifactId>
+                <version>2.7</version>
+                <reportSets>
+                    <reportSet>
+                        <reports>
+                            <report>index</report>
+                            <report>dependencies</report>
+                            <report>dependency-management</report>
+                            <report>plugins</report>
+                            <report>plugin-management</report>
+                        </reports>
+                    </reportSet>
+                </reportSets>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-report-plugin</artifactId>
+                <version>2.16</version>
+                <configuration>
+                    <linkXRef>false</linkXRef>
+                    <aggregate>true</aggregate>
+                    <reportsDirectories>
+                        <reportDirectory>${project.build.directory}/surefire-reports</reportDirectory>
+                        <reportDirectory>${project.build.directory}/surefire-reports-ssl</reportDirectory>
+                        <reportDirectory>${project.build.directory}/surefire-reports-imr</reportDirectory>
+                    </reportsDirectories>
+                </configuration>
+                <reportSets>
+                    <reportSet>
+                        <reports>
+                            <report>report-only</report>
+                        </reports>
+                    </reportSet>
+                </reportSets>
+            </plugin>
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <version>${jacoco.version}</version>
+                <configuration>
+                    <skip>${jacoco.skip}</skip>
+                    <dataFile>${project.build.directory}/coverage-reports/jacoco-ut.exec</dataFile>
+                    <includes>
+                        <include>org/jacorb/**/*</include>
+                    </includes>
+                </configuration>
+                <reportSets>
+                    <reportSet>
+                        <reports>
+                            <report>report</report>
+                        </reports>
+                    </reportSet>
+                </reportSets>
+            </plugin>
+        </plugins>
+    </reporting>
 
     <profiles>
 

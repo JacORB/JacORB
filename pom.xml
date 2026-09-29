@@ -20,12 +20,6 @@
 
     <modelVersion>4.0.0</modelVersion>
 
-    <parent>
-        <groupId>org.sonatype.oss</groupId>
-        <artifactId>oss-parent</artifactId>
-        <version>7</version>
-    </parent>
-
     <groupId>org.jacorb</groupId>
     <artifactId>jacorb-parent</artifactId>
     <version>3.10-SNAPSHOT</version>
@@ -78,6 +72,12 @@
         <version.slf4j>1.7.32</version.slf4j>
 
         <skipJavadoc>false</skipJavadoc>
+
+        <!-- Plugin versions referenced in both pluginManagement and profiles -->
+        <version.maven-gpg-plugin>3.2.8</version.maven-gpg-plugin>
+        <version.maven-javadoc-plugin>3.12.0</version.maven-javadoc-plugin>
+        <version.maven-source-plugin>3.4.0</version.maven-source-plugin>
+        <version.central-publishing-maven-plugin>0.10.0</version.central-publishing-maven-plugin>
     </properties>
 
 
@@ -214,7 +214,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-antrun-plugin</artifactId>
-                    <version>3.0.0</version>
+                    <version>3.2.0</version>
                     <dependencies>
                         <dependency>
                             <groupId>org.apache.ant</groupId>
@@ -237,13 +237,13 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-assembly-plugin</artifactId>
-                    <version>3.2.0</version>
+                    <version>3.8.0</version>
                 </plugin>
 
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-compiler-plugin</artifactId>
-                    <version>3.8.1</version>
+                    <version>3.15.0</version>
                     <configuration>
                         <debug>true</debug>
                         <showDeprecation>true</showDeprecation>
@@ -258,19 +258,19 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-dependency-plugin</artifactId>
-                    <version>3.2.0</version>
+                    <version>3.11.0</version>
                 </plugin>
 
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-deploy-plugin</artifactId>
-                    <version>2.8</version>
+                    <version>3.1.2</version>
                 </plugin>
 
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-jar-plugin</artifactId>
-                    <version>3.2.0</version>
+                    <version>3.5.0</version>
                     <configuration>
                         <archive>
                             <index>true</index>
@@ -302,7 +302,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-javadoc-plugin</artifactId>
-                    <version>3.2.0</version>
+                    <version>${version.maven-javadoc-plugin}</version>
                     <configuration>
                         <skip>${skipJavadoc}</skip>
                         <verbose>false</verbose>
@@ -320,31 +320,31 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-install-plugin</artifactId>
-                    <version>3.0.0-M1</version>
+                    <version>3.1.2</version>
                 </plugin>
 
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-project-info-reports-plugin</artifactId>
-                    <version>3.1.1</version>
+                    <version>3.9.0</version>
                 </plugin>
 
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-resources-plugin</artifactId>
-                    <version>3.2.0</version>
+                    <version>3.5.0</version>
                 </plugin>
 
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-release-plugin</artifactId>
-                    <version>2.5.3</version>
+                    <version>3.1.1</version>
                 </plugin>
 
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-source-plugin</artifactId>
-                    <version>3.2.1</version>
+                    <version>${version.maven-source-plugin}</version>
                     <executions>
                         <execution>
                             <id>attach-sources</id>
@@ -358,37 +358,49 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-site-plugin</artifactId>
-                    <version>3.9.1</version>
+                    <version>3.22.0</version>
                 </plugin>
 
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-surefire-plugin</artifactId>
-                    <version>2.17</version>
+                    <version>3.5.2</version>
                 </plugin>
 
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-war-plugin</artifactId>
-                    <version>3.3.1</version>
+                    <version>3.5.1</version>
                 </plugin>
 
                 <plugin>
                     <groupId>org.codehaus.mojo</groupId>
                     <artifactId>antlr-maven-plugin</artifactId>
-                    <version>2.2</version>
+                    <version>2.4</version>
                 </plugin>
 
                 <plugin>
                     <groupId>org.codehaus.mojo</groupId>
                     <artifactId>buildnumber-maven-plugin</artifactId>
-                    <version>1.4</version>
+                    <version>3.2.0</version>
+                </plugin>
+
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-gpg-plugin</artifactId>
+                    <version>${version.maven-gpg-plugin}</version>
+                </plugin>
+
+                <plugin>
+                    <groupId>org.sonatype.central</groupId>
+                    <artifactId>central-publishing-maven-plugin</artifactId>
+                    <version>${version.central-publishing-maven-plugin}</version>
                 </plugin>
 
                 <plugin>
                     <groupId>org.codehaus.mojo</groupId>
                     <artifactId>exec-maven-plugin</artifactId>
-                    <version>3.0.0</version>
+                    <version>3.5.1.1</version>
                 </plugin>
 
                 <plugin>
@@ -420,14 +432,14 @@
                 <plugin>
                     <groupId>org.codehaus.mojo</groupId>
                     <artifactId>templating-maven-plugin</artifactId>
-                    <version>1.0-alpha-3</version>
+                    <version>1.0.0</version>
                 </plugin>
 
 
                 <plugin>
                     <groupId>org.codehaus.mojo</groupId>
                     <artifactId>build-helper-maven-plugin</artifactId>
-                    <version>1.7</version>
+                    <version>3.6.0</version>
                 </plugin>
 
                 <plugin>
@@ -450,7 +462,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-antrun-plugin</artifactId>
-                <version>3.0.0</version>
+                <version>3.2.0</version>
                 <inherited>false</inherited>
                 <executions>
                     <execution>
@@ -533,6 +545,16 @@
                   </configuration>
                 </execution>
               </executions>
+            </plugin>
+            <plugin>
+              <groupId>org.sonatype.central</groupId>
+              <artifactId>central-publishing-maven-plugin</artifactId>
+              <version>${version.central-publishing-maven-plugin}</version>
+              <extensions>true</extensions>
+              <configuration>
+                <publishingServerId>central-publisher</publishingServerId>
+                <autoPublish>false</autoPublish>
+              </configuration>
             </plugin>
         </plugins>
     </build>
@@ -629,8 +651,8 @@
             <build>
                 <plugins>
                     <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-gpg-plugin</artifactId>
-                        <version>3.0.1</version>
                         <executions>
                             <execution>
                                 <id>sign-artifacts</id>
@@ -644,6 +666,30 @@
                                     <ascDirectory>${project.build.directory}</ascDirectory>
                                     <keyname>${gpg.keyname}</keyname>
                                 </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-source-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>attach-sources</id>
+                                <goals>
+                                    <goal>jar-no-fork</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-javadoc-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>attach-javadocs</id>
+                                <goals>
+                                    <goal>jar</goal>
+                                </goals>
                             </execution>
                         </executions>
                     </plugin>
