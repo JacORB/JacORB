@@ -71,7 +71,7 @@ public class BugJac563Test extends ClientServerTestCase
         clientProps.setProperty("jacorb.ssl.socket_factory", "org.jacorb.security.ssl.sun_jsse.SSLSocketFactory");
         clientProps.setProperty("jacorb.ssl.server_socket_factory", "org.jacorb.security.ssl.sun_jsse.SSLServerSocketFactory");
 
-        clientProps.setProperty("jacorb.security.ssl.client.cipher_suites", "TLS_RSA_WITH_AES_128_CBC_SHA");
+        clientProps.setProperty("jacorb.security.ssl.client.cipher_suites", "TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256");
 
         if (TestUtils.isIBM)
         {

@@ -54,9 +54,10 @@ public class FilterStageListManagerTest {
 
         @Override
         protected void fetchListData(FilterStageList listProxy) {
-            // This simulates the addition of 0 - 100 new filters.
+            // This simulates the addition of 2 - 100 new filters.
+            // The test iterates over at least 2 elements.
             Random r = new Random();
-            int max = new Float(r.nextFloat() * arrSize).intValue();
+            int max = 2 + r.nextInt(arrSize - 1);
             for (int i = 0; i < max; i++) {
                 listProxy.add(new FilterStageMock(i));
             }

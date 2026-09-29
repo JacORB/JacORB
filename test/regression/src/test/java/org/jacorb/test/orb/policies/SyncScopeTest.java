@@ -54,10 +54,12 @@ public class SyncScopeTest extends ClientServerTestCase
     }
 
     @Test
-    public void test_warm_up()
+    public void test_warm_up() throws Exception
     {
         server.operation (50);
+        int beforeCount = server.get_oneway_count();
         server.oneway_op (50);
+        verifyOnewayWasReceived(beforeCount + 1);
     }
 
     @Test

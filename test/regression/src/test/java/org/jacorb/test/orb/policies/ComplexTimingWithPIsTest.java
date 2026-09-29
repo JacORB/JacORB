@@ -499,7 +499,8 @@ public class ComplexTimingWithPIsTest extends CallbackTestCase
     public void test_request_end_time_fwdreq_at_send_request_expired()
     {
         server = clearPolicies (server);
-        server = setRequestEndTime (server, System.currentTimeMillis() + 200);
+        // expire well before the end of the 200 ms sleep of the ClientInterceptor
+        server = setRequestEndTime (server, System.currentTimeMillis() + 100);
 
         ClientInterceptor.forwardRequestThrown = false;
 
@@ -555,7 +556,8 @@ public class ComplexTimingWithPIsTest extends CallbackTestCase
         ReplyHandler handler = new ReplyHandler();
 
         server = clearPolicies (server);
-        server = setRequestEndTime (server, System.currentTimeMillis() + 200);
+        // expire well before the end of the 200 ms sleep of the ClientInterceptor
+        server = setRequestEndTime (server, System.currentTimeMillis() + 100);
 
         ClientInterceptor.forwardRequestThrown = false;
 
