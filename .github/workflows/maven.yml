@@ -74,7 +74,7 @@ jobs:
     - name: Deploy Snapshot
       # Only run for snapshot versions and not for commits with released versions
       if: endsWith(steps.project-version.outputs.version, '-SNAPSHOT')
-      run: mvn -B -V org.apache.maven.plugins:maven-source-plugin:jar-no-fork -DskipPDFGeneration deploy -DskipTests=true
+      run: mvn -B -V org.apache.maven.plugins:maven-source-plugin:jar-no-fork -DskipPDFGeneration deploy -DskipTests=true -DskipDemos=true
       env:
         MAVEN_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
         MAVEN_PASSWORD: ${{ secrets.SONATYPE_PASSWORD }}
