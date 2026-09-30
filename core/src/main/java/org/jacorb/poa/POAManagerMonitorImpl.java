@@ -261,7 +261,7 @@ public class POAManagerMonitorImpl
             {
                 if (logger.isErrorEnabled())
                 {
-                    logger.error("Exception in printMessage()", exception);
+                    logger.error("Exception in removePOA()", exception);
                 }
             }
             printMessage("unregister POA "+name);

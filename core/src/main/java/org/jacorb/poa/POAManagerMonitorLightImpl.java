@@ -78,7 +78,7 @@ public class POAManagerMonitorLightImpl
             catch (Throwable exception)
             {
                 if (logger.isErrorEnabled())
-                    logger.error("Exception in closeMonitor()", exception);
+                    logger.error("Exception in openMonitor()", exception);
             }
         }
     }
