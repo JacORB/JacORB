@@ -251,7 +251,7 @@ public class DefaultClientInterceptorHandler implements ClientInterceptorHandler
             {
                 if (logger.isDebugEnabled())
                 {
-                    logger.debug("BadKind: " + bk.getMessage());
+                    logger.debug("BadKind", bk);
                 }
             }
             info.setReplyStatus (SYSTEM_EXCEPTION.value);
@@ -295,7 +295,7 @@ public class DefaultClientInterceptorHandler implements ClientInterceptorHandler
             {
                 if (logger.isDebugEnabled())
                 {
-                    logger.debug(e.getMessage());
+                    logger.debug("Exception inserting ApplicationException", e);
                 }
                 SystemExceptionHelper.insert ( info.received_exception,
                                                new org.omg.CORBA.UNKNOWN

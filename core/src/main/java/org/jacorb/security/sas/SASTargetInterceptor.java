@@ -271,7 +271,7 @@ public class SASTargetInterceptor
             catch (org.omg.CORBA.NO_PERMISSION e)
             {
                 if (logger.isErrorEnabled())
-                    logger.error("Err " + ri.operation() + ": " + e);
+                    logger.error("Err {}", ri.operation(), e);
                 makeContextError(ri, client_context_id, 1, 1, contextToken);
                 throw e;
             }
@@ -484,7 +484,7 @@ public class SASTargetInterceptor
             catch (org.omg.CORBA.NO_PERMISSION e)
             {
                 if (logger.isErrorEnabled())
-                    logger.error("Err " + ri.operation() + ": " + e);
+                    logger.error("Err {}", ri.operation(), e);
                 makeContextError(ri, client_context_id, 1, 1, contextToken);
                 throw e;
             }
@@ -611,7 +611,7 @@ public class SASTargetInterceptor
         catch (Exception e)
         {
             if (logger.isErrorEnabled())
-                logger.error("Error setting reply service context:" + e);
+                logger.error("Error setting reply service context", e);
             throw new org.omg.CORBA.NO_PERMISSION("SAS Error setting reply service context: " + e,
                                                   MinorCodes.SAS_TSS_FAILURE,
                                                   CompletionStatus.COMPLETED_MAYBE);
@@ -643,7 +643,7 @@ public class SASTargetInterceptor
             }
             catch (Exception e)
             {
-                logger.error("Error setting reply service context:" + e);
+                logger.error("Error setting reply service context", e);
                 throw new org.omg.CORBA.NO_PERMISSION("SAS Error setting reply service context: " + e, MinorCodes.SAS_TSS_FAILURE, CompletionStatus.COMPLETED_MAYBE);
             }
         }
@@ -668,7 +668,7 @@ public class SASTargetInterceptor
             }
             catch (Exception e)
             {
-                logger.error("Error setting reply service context:" + e);
+                logger.error("Error setting reply service context", e);
                 throw new org.omg.CORBA.NO_PERMISSION("SAS Error setting reply service context: " + e, MinorCodes.SAS_TSS_FAILURE, CompletionStatus.COMPLETED_MAYBE);
             }
         }

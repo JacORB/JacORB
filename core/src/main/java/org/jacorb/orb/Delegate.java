@@ -627,7 +627,7 @@ public final class Delegate
                 {
                     if (logger.isWarnEnabled())
                     {
-                        logger.warn( e.getMessage() );
+                        logger.warn("Exception during locate request", e);
                     }
                 }
             }
@@ -1410,7 +1410,7 @@ public final class Delegate
                     {
                         if (logger.isDebugEnabled())
                         {
-                            logger.debug ("Delegate._invoke_internal: looping on " + cfe);
+                            logger.debug("Delegate._invoke_internal: looping on {}", cfe.getMessage(), cfe);
                         }
                         throw new RemarshalException();
                     }
@@ -1418,7 +1418,7 @@ public final class Delegate
                     {
                         if (logger.isDebugEnabled())
                         {
-                          logger.debug ("Delegate._invoke_internal: Not looping on " + cfe);
+                            logger.debug("Delegate._invoke_internal: Not looping on {}", cfe.getMessage(), cfe);
                         }
                     }
                 }
@@ -1427,7 +1427,7 @@ public final class Delegate
                 {
                     if (logger.isDebugEnabled())
                     {
-                        logger.debug ("Delegate._invoke_internal: closing connection due to " + cfe);
+                        logger.debug("Delegate._invoke_internal: closing connection due to {}", cfe.getMessage(), cfe);
                     }
                     disconnect(connectionToUse);
                 }
@@ -1803,7 +1803,7 @@ public final class Delegate
         {
             if (logger.isErrorEnabled())
             {
-                logger.error( ue.getMessage() );
+                logger.error("Exception in interceptors", ue);
             }
         }
     }
@@ -2507,7 +2507,7 @@ public String repository_id (org.omg.CORBA.Object self)
                     {
                         if (logger.isWarnEnabled())
                         {
-                            logger.warn( e.getMessage() );
+                            logger.warn("Exception during postinvoke", e);
                         }
                     }
                 }

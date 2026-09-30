@@ -63,7 +63,7 @@ public abstract class NIOConnection
         }
         catch (Exception ex)
         {
-            logger.error ("Unable to initialize channel: " + ex.toString());
+            logger.error ("Unable to initialize channel", ex);
             // can't do much more
         }
     }
@@ -321,13 +321,12 @@ public abstract class NIOConnection
                 }
                 catch (IOException ex2)
                 {
-                    logger.error ("Failed to close channel: " + ex2.toString());
+                    logger.error ("Failed to close channel", ex2);
                 }
 
                 if (isDebugEnabled)
                 {
-                    logger.debug("Got IOException in read(). Transport to " + connection_info +
-                                 ": stream closed: " + ex.toString());
+                    logger.debug("Got IOException in read(). Transport to {}: stream closed", connection_info, ex);
                 }
             }
 
@@ -398,12 +397,11 @@ public abstract class NIOConnection
                 }
                 catch (IOException ex2)
                 {
-                    logger.error ("Failed to close channel: " + ex2.toString());
+                    logger.error ("Failed to close channel", ex2);
                 }
                 if (isDebugEnabled)
                 {
-                    logger.debug("Got IOException in write(). Transport to " + connection_info +
-                                 ": stream closed: " + ex.toString());
+                    logger.debug("Got IOException in write(). Transport to {}: stream closed", connection_info, ex);
                 }
             }
 

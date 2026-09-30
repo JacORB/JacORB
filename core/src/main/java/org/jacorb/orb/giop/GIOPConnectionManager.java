@@ -88,7 +88,7 @@ public class GIOPConnectionManager
             {
                 if (logger.isErrorEnabled())
                 {
-                    logger.error( "Unable to create statistics_provider_class from property >" + statProviderClass + "<: " + e.toString() );
+                    logger.error("Unable to create statistics_provider_class from property {}", statProviderClass, e);
                 }
             }
         }

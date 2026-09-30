@@ -184,7 +184,7 @@ public class SASClientInterceptor
         catch (Exception e)
         {
             if (logger.isWarnEnabled())
-                logger.warn("Did not find tagged component TAG_CSI_SEC_MECH_LIST: "+e);
+                logger.warn("Did not find tagged component TAG_CSI_SEC_MECH_LIST", e);
         }
 
         if(csmList != null &&
@@ -272,7 +272,7 @@ public class SASClientInterceptor
         catch (Exception e)
         {
             if (logger.isWarnEnabled())
-                logger.warn("No SAS security context found: "+e);
+                logger.warn("No SAS security context found", e);
         }
         if (ctx == null || ctx.context_data.length <= 1) return;
 
@@ -336,7 +336,7 @@ public class SASClientInterceptor
         catch (Exception e)
         {
             if (logger.isWarnEnabled())
-                logger.warn("No SAS security context found (exception): "+e);
+                logger.warn("No SAS security context found (exception)", e);
         }
         if (ctx == null || ctx.context_data.length <= 1) return;
 
