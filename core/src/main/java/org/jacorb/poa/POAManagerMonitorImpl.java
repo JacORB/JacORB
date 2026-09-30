@@ -166,7 +166,7 @@ public class POAManagerMonitorImpl
             {
                 if (logger.isErrorEnabled())
                 {
-                    logger.error( "Exception in addPOA()" + exception.getMessage());
+                    logger.error("Exception in addPOA()", exception);
                 }
             }
             printMessage("register POA "+name);
@@ -192,7 +192,7 @@ public class POAManagerMonitorImpl
             {
                 if (logger.isErrorEnabled())
                 {
-                    logger.error( "Exception in closeMonitor" + exception.getMessage());
+                    logger.error("Exception in closeMonitor", exception);
                 }
             }
         }
@@ -220,8 +220,8 @@ public class POAManagerMonitorImpl
         {
             if (logger.isErrorEnabled())
             {
-                logger.error( "Exception in openMonitor" + exception.getMessage());
-            }            
+                logger.error("Exception in openMonitor", exception);
+            }
         }
     }
 
@@ -236,8 +236,8 @@ public class POAManagerMonitorImpl
             {
                 if (logger.isErrorEnabled())
                 {
-                    logger.error( "Exception int printMessage(): " + exception.getMessage());
-                } 
+                    logger.error("Exception in printMessage()", exception);
+                }
             }
         }
     }
@@ -261,8 +261,8 @@ public class POAManagerMonitorImpl
             {
                 if (logger.isErrorEnabled())
                 {
-                    logger.error( "Exception in printMessage(): " + exception.getMessage());
-                } 
+                    logger.error("Exception in printMessage()", exception);
+                }
             }
             printMessage("unregister POA "+name);
         }
@@ -279,8 +279,8 @@ public class POAManagerMonitorImpl
             {
                 if (logger.isErrorEnabled())
                 {
-                    logger.error( "Exception in resetState(): " + exception.getMessage());
-                } 
+                    logger.error("Exception in resetState()", exception);
+                }
             }
         }
     }
@@ -296,8 +296,8 @@ public class POAManagerMonitorImpl
             {
                 if (logger.isErrorEnabled())
                 {
-                    logger.error( "Exception in setToActive(): " + exception.getMessage());
-                } 
+                    logger.error("Exception in setToActive()", exception);
+                }
             }
             printMessage("POAManager is set to \"active\"");
         }
@@ -315,8 +315,8 @@ public class POAManagerMonitorImpl
             {
                 if (logger.isErrorEnabled())
                 {
-                    logger.error( "Exception in setToActive(): " + exception.getMessage());
-                } 
+                    logger.error("Exception in setToDiscarding()", exception);
+                }
             }
             printMessage("POAManager is set to \"discarding\"");
         }
@@ -334,8 +334,8 @@ public class POAManagerMonitorImpl
             {
                 if (logger.isErrorEnabled())
                 {
-                    logger.error( "Exception in setToHolding(): " + exception.getMessage());
-                } 
+                    logger.error("Exception in setToHolding()", exception);
+                }
             }
             printMessage("POAManager is set to \"holding\"");
         }
@@ -352,8 +352,8 @@ public class POAManagerMonitorImpl
             {
                 if (logger.isErrorEnabled())
                 {
-                    logger.error( "Exception in setToInactive(): " + exception.getMessage());
-                } 
+                    logger.error("Exception in setToInactive()", exception);
+                }
             }
             printMessage("POAManager is set to \"inactive\"");
         }

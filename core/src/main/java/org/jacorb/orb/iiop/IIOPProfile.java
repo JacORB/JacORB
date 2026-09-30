@@ -736,7 +736,7 @@ public class IIOPProfile
             }
             catch ( Exception e )
             {
-                logger.warn("Error parsing TLS_SEC_TRANS: "+e);
+                logger.warn("Error parsing TLS_SEC_TRANS", e);
             }
         }
         return tls;

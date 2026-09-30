@@ -563,7 +563,7 @@ public class SelectorManager extends Thread
                 // ops are fine. We aren't leaving around extra ops
                 // internal data structures don't need cleanup as
                 // request wasn't inserted yet.
-                logger.error ("reactivate failed: " + ex.getMessage());
+                logger.error ("reactivate failed", ex);
                 request.setStatus (SelectorRequest.Status.FAILED);
 
                 // call back request callable in worker thread
@@ -744,7 +744,7 @@ public class SelectorManager extends Thread
             }
             catch (ClosedChannelException e)
             {
-                logger.error ("Insert failed: " + e.getMessage());
+                logger.error ("Insert failed", e);
                 request.setStatus (SelectorRequest.Status.CLOSED);
 
                 // call back request callable in worker thread

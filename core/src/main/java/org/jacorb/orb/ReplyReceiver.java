@@ -356,7 +356,7 @@ public final class ReplyReceiver
         {
             if (logger.isWarnEnabled())
             {
-                logger.warn("Exception during callback: " + e.toString() );
+                logger.warn("Exception during callback", e);
             }
 
             if (so instanceof org.omg.CORBA.portable.ServantObjectExt)

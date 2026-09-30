@@ -65,7 +65,7 @@ public class KerberosContext
         }
         catch (Exception e)
         {
-            logger.warn("Error getting created principal: "+e);
+            logger.warn("Error getting created principal", e);
         }
     }
 
@@ -101,7 +101,7 @@ public class KerberosContext
             }
             catch (Exception e)
             {
-                logger.error("Error creating Kerberos context: "+e);
+                logger.error("Error creating Kerberos context", e);
             }
         }
         return contextToken;
@@ -125,7 +125,7 @@ public class KerberosContext
         }
         catch (Exception e)
         {
-            logger.error("Error getting created principal: "+e);
+            logger.error("Error getting created principal", e);
         }
         return principal;
     }
@@ -146,7 +146,7 @@ public class KerberosContext
         }
         catch (GSSException e)
         {
-            logger.warn("Error accepting Kerberos context: "+e);
+            logger.warn("Error accepting Kerberos context", e);
         }
     }
 
@@ -170,7 +170,7 @@ public class KerberosContext
         }
         catch (GSSException e)
         {
-            logger.error("Error accepting Kerberos context: "+e);
+            logger.error("Error accepting Kerberos context", e);
         }
         if (token == null)
         {
@@ -194,7 +194,7 @@ public class KerberosContext
         }
         catch (GSSException e)
         {
-            logger.error("Error getting name: " + e);
+            logger.error("Error getting name", e);
         }
 
         return null;

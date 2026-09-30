@@ -324,7 +324,7 @@ public class ClientIIOPConnection
             {
                 if (logger.isDebugEnabled())
                 {
-                    logger.debug("ClientIIOPConnection.createSocket to "+ connection_info + " caught " + e);
+                    logger.debug("ClientIIOPConnection.createSocket to {} caught exception", connection_info, e);
                 }
                 exception = e;
             }

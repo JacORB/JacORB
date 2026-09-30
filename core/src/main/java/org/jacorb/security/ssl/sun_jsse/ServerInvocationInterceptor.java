@@ -150,7 +150,7 @@ public class ServerInvocationInterceptor
         {
             if (logger.isWarnEnabled())
             {
-                logger.warn(e.getMessage());
+                logger.warn("Exception obtaining CertificateFactory", e);
             }
         }
 
@@ -173,8 +173,7 @@ public class ServerInvocationInterceptor
         catch( Exception e )
         {
             if (logger.isWarnEnabled())
-                logger.warn("Exception " + e.getMessage() +
-                            " in ServerInvocationInterceptor");
+                logger.warn("Exception in ServerInvocationInterceptor", e);
 
             if ( (serverRequiredOptions & 0x40) != 0)
             {

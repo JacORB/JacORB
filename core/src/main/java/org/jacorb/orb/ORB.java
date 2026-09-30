@@ -715,7 +715,7 @@ public final class ORB
         {
             if( logger.isDebugEnabled() )
             {
-                logger.debug(e.getMessage());
+                logger.debug("Exception in findPOA", e);
             }
         }
 
@@ -911,7 +911,7 @@ public final class ORB
             {
                 if (logger.isErrorEnabled())
                 {
-                    logger.error(e.getMessage());
+                    logger.error("Exception iterating IOR interceptors", e);
                 }
             }
         }
@@ -1381,7 +1381,7 @@ public final class ORB
                 }
                 if (logger.isDebugEnabled())
                 {
-                    logger.debug(e.getMessage());
+                    logger.debug("Exception resolving ImplementationRepository", e);
                 }
 
                 if ( e instanceof org.omg.CORBA.INTERNAL )
