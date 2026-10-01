@@ -23,6 +23,7 @@ package org.jacorb.security.ssl.sun_jsse;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
@@ -49,6 +50,7 @@ import org.jacorb.config.Configuration;
 import org.jacorb.config.ConfigurationException;
 import org.jacorb.orb.ORB;
 import org.jacorb.orb.factory.AbstractSocketFactory;
+import org.jacorb.orb.iiop.IIOPAddress;
 import org.jacorb.orb.listener.SSLHandshakeListener;
 import org.jacorb.orb.listener.SSLSessionListener;
 
@@ -61,11 +63,15 @@ import org.jacorb.orb.listener.SSLSessionListener;
 public class SSLSocketFactory
     extends AbstractSocketFactory
 {
+    public static final String MIN_PROP = "jacorb.net.socket_factory.port.min";
+    public static final String MAX_PROP = "jacorb.net.socket_factory.port.max";
+    
     private SocketFactory factory = null;
     private String[] cipher_suites = null;
     private String[] enabledProtocols = null;
     private TrustManager trustManager = null;
-
+    private InetAddress localEndpoint;
+    
     private boolean trusteesFromKS = false;
     private int clientSupportedOptions = 0;
     private String keystore_location = null;
@@ -86,6 +92,9 @@ public class SSLSocketFactory
     private boolean support_crl = false;    // CRL support on/off
     private String crl_file = null;         // absolute path to the CRL file
     
+    private int portMin;
+    private int portMax;
+    
     public SSLSocketFactory(ORB orb)
     {
          sslListener = orb.getTransportManager().getSocketFactoryManager().getSSLListener();
@@ -96,6 +105,23 @@ public class SSLSocketFactory
     {
         super.configure(configuration);
 
+        String oaiAddr = configuration.getAttribute("OAIAddr", "");
+        if (oaiAddr.length() > 0)
+        {
+            localEndpoint = (new IIOPAddress(oaiAddr, -1)).getConfiguredHost ();
+        }
+
+        // Get configured max and min port numbers
+        portMin = getPortProperty(configuration, MIN_PROP);
+        portMax = getPortProperty(configuration, MAX_PROP);
+
+        
+        // Check min < max
+        if (portMin > portMax)
+        {
+            throw new ConfigurationException("PortRangeFactory: minimum port number not less than or equal to maximum");
+        }
+        
         sslRandom = new SSLRandom();
         sslRandom.configure(configuration);
 
@@ -189,6 +215,19 @@ public class SSLSocketFactory
         throws IOException, UnknownHostException
     {
         SSLSocket socket = (SSLSocket)factory.createSocket( host, port );
+        int localPort;
+        for (localPort = portMin; localPort <= portMax; localPort++)
+        {
+            try 
+            {
+                socket.bind (new InetSocketAddress(localEndpoint, localPort));
+                break;
+            }
+            catch (Exception ex)
+            {
+                // Ignore and continue
+            }
+        }
 
         initSSLSocket(socket);
 
@@ -198,8 +237,20 @@ public class SSLSocketFactory
     protected Socket doCreateSocket(String host, int port, int timeout) throws IOException
     {
         SSLSocket socket = (SSLSocket)factory.createSocket();
-        socket.connect(new InetSocketAddress(host, port), timeout);
-
+        int localPort;
+        for (localPort = portMin; localPort <= portMax; localPort++)
+        {
+            try 
+            {
+                socket.bind (new InetSocketAddress(localEndpoint, localPort));
+                socket.connect(new InetSocketAddress(host, port), timeout);
+                break;
+            }
+            catch (Exception ex)
+            {
+                // Ignore and continue
+            }
+        }
         initSSLSocket(socket);
 
         return socket;
@@ -325,7 +376,7 @@ public class SSLSocketFactory
             CertificateFactory crlf = CertificateFactory.getInstance( "X.509" );
             X509CRL x509crl = (X509CRL) crlf.generateCRL( crlFileStream );
 
-            List list = new ArrayList();
+            List<X509CRL> list = new ArrayList<X509CRL>();
             list.add( x509crl );
             CertStoreParameters cparam = new CollectionCertStoreParameters( list );
             CertStore cs = CertStore.getInstance( "Collection", cparam );
@@ -369,5 +420,23 @@ public class SSLSocketFactory
                   sslRandom.getSecureRandom() );
 
         return ctx.getSocketFactory();
+    }
+    
+    private int getPortProperty(Configuration config, String name)
+            throws ConfigurationException
+    {
+        int port = config.getAttributeAsInteger(name);
+
+        // Check sensible port number
+        if (port < 0)
+        {
+            port += 65536;
+        }
+        if ((port <= 0) || (port > 65535))
+        {
+            throw new ConfigurationException("PortRangeFactory: " + name + " invalid port number");
+        }
+
+        return port;
     }
 }
