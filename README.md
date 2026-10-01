@@ -17,7 +17,7 @@ See also the current [ProgrammingGuide.pdf](https://www.jacorb.org/documentation
 
 ### Prerequisities
  * Java 1.8 or later
- * Maven 3.0.4 or later for building JacORB / running the tests
+ * Maven 3.9.15 or later for building JacORB / running the tests
 
 ### Libraries and Scripts
 Useful scripts are available in the 'bin' directory. The JacORB libraries are stored in the lib directory for the binary distribution.

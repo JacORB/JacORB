@@ -31,10 +31,10 @@ jobs:
         java-version: '8'
         distribution: 'temurin'
         cache: maven
-    - name: Set up Maven 3.6.3
+    - name: Set up Maven 3.9.15
       uses: stCarolas/setup-maven@12eb41b233df95d49b0c11fc1b5bc8312e5d4ce0 # v5.1
       with:
-        maven-version: 3.6.3
+        maven-version: 3.9.15
     - name: Build with Maven
       run: mvn -fae -B -V -DskipPDFGeneration clean install
     - name: Codecov
@@ -62,10 +62,10 @@ jobs:
         server-id: central-publisher    # matches the id used in pom.xml
         server-username: MAVEN_USERNAME
         server-password: MAVEN_PASSWORD # HashiCorpIgnore
-    - name: Set up Maven 3.6.3
+    - name: Set up Maven 3.9.15
       uses: stCarolas/setup-maven@12eb41b233df95d49b0c11fc1b5bc8312e5d4ce0 # v5.1
       with:
-        maven-version: 3.6.3
+        maven-version: 3.9.15
 
     - name: Extract Project version
       id: project-version
