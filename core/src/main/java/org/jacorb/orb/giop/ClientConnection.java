@@ -159,7 +159,11 @@ public class ClientConnection
         CodeSetComponentInfo info = pior.getCodeSetComponentInfo();
         if (info != null && !ignoreComponentInfo)
         {
-            connection.markTCSNegotiated(); // even if this aborts, we should not try negotiating again.
+            /*
+             *  do NOT call connection.markTCSNegotiated()
+             *  otherwise the CodesetContext in {@link RequestOutputStream#write_to(GIOPConnection)}
+             *  will not be sent to the server in a multi-threading context
+             */
             CodeSet c1 = CodeSet.getNegotiatedCodeSet((org.jacorb.orb.ORB)orb, info, /* wide */ false );
             CodeSet c2 = CodeSet.getNegotiatedCodeSet((org.jacorb.orb.ORB)orb, info, /* wide */ true );
 
